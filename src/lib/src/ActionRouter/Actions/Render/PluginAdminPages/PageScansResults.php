@@ -18,7 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 	Wpv
 };
 
-class PageScansResults extends BasePluginAdminPage {
+class PageScansResults extends PageScansBase {
 
 	public const SLUG = 'admin_plugin_page_scans_results';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_results.twig';

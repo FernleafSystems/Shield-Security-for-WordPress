@@ -13,6 +13,10 @@ abstract class BasePluginAdminPage extends BaseRender {
 		return [];
 	}
 
+	protected function getPageContextualHrefs_Help() :array {
+		return [];
+	}
+
 	protected function getInnerPageTitle() :string {
 		return '';
 	}
@@ -40,11 +44,12 @@ abstract class BasePluginAdminPage extends BaseRender {
 				'href' => $urls->noncedPluginAction( SecurityAdminAuthClear::class, $urls->adminHome() ),
 			];
 		}
+		$hrefs[] = $this->getPageContextualHrefs_Help();
 
 		return [
 			'hrefs' => [
 				'breadcrumbs'                 => $this->getBreadCrumbs(),
-				'inner_page_contextual_hrefs' => $hrefs,
+				'inner_page_contextual_hrefs' => \array_filter( $hrefs ),
 			],
 		];
 	}

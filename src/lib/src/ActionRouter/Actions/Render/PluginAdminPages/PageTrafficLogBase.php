@@ -22,4 +22,12 @@ abstract class PageTrafficLogBase extends BasePluginAdminPage {
 			],
 		];
 	}
+
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Traffic Log', 'wp-simple-firewall' ) ),
+			'href'       => 'https://help.getshieldsecurity.com/article/264-review-your-site-traffic-with-the-traffic-log-viewer',
+			'new_window' => true,
+		];
+	}
 }

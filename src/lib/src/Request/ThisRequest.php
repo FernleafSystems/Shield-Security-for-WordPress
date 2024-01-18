@@ -67,11 +67,10 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class ThisRequest extends DynPropertiesClass {
 
-	private static $thisRequest;
-
-	public static function Instance( array $params = [] ) :ThisRequest {
-		return self::$thisRequest ?? self::$thisRequest = new ThisRequest( $params );
-	}
+	/**
+	 * @var IpRuleStatus
+	 */
+	private $ipStatus;
 
 	public function __construct( array $params = [] ) {
 		$req = Services::Request();
@@ -147,19 +146,19 @@ class ThisRequest extends DynPropertiesClass {
 				break;
 
 			case 'is_ip_blocked_shield_auto':
-				$value = apply_filters( 'shield/is_ip_blocked_auto', ( new IpRuleStatus( $this->ip ) )->hasAutoBlock() );
+				$value = apply_filters( 'shield/is_ip_blocked_auto', $this->getIpStatus()->hasAutoBlock() );
 				break;
 
 			case 'is_ip_blocked_crowdsec':
-				$value = ( new IpRuleStatus( $this->ip ) )->hasCrowdsecBlock();
+				$value = $this->getIpStatus()->hasCrowdsecBlock();
 				break;
 
 			case 'is_ip_blocked_shield_manual':
-				$value = ( new IpRuleStatus( $this->ip ) )->hasManualBlock();
+				$value = $this->getIpStatus()->hasManualBlock();
 				break;
 
 			case 'is_ip_blacklisted':
-				$status = new IpRuleStatus( $this->ip );
+				$status = $this->getIpStatus();
 				$value = $status->isBlockedByShield() || $status->isAutoBlacklisted();
 				break;
 
@@ -174,5 +173,9 @@ class ThisRequest extends DynPropertiesClass {
 	 */
 	private function getIpID() :string {
 		return Services::IP()->getIpDetector()->getIPIdentity();
+	}
+
+	public function getIpStatus() :IpRuleStatus {
+		return $this->ipStatus ?? $this->ipStatus = new IpRuleStatus( $this->ip );
 	}
 }

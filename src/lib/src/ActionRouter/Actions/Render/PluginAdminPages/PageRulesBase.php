@@ -25,4 +25,12 @@ class PageRulesBase extends BasePluginAdminPage {
 			],
 		];
 	}
+
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Custom Rules', 'wp-simple-firewall' ) ),
+			'href'       => 'https://help.getshieldsecurity.com/category/777-custom-rules-manager',
+			'new_window' => true,
+		];
+	}
 }

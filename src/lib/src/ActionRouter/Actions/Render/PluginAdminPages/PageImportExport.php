@@ -24,6 +24,14 @@ class PageImportExport extends BasePluginAdminPage {
 		];
 	}
 
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'text'       => sprintf( '%s: %s/%s', __( 'Help', 'wp-simple-firewall' ), __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
+			'href'       => 'https://help.getshieldsecurity.com/article/129-how-to-create-shield-security-network-with-automatic-import-export-feature',
+			'new_window' => true,
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = self::con();
 		/** @var Options $opts */

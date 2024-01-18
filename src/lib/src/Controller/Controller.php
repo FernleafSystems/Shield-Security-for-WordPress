@@ -187,11 +187,11 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'this_req':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					if ( !$this->modules_loaded ) {
 						throw new \Exception( 'Modules must be loaded before $this_req is queried.' );
 					}
-					$this->this_req = $val = Shield\Request\ThisRequest::Instance();
+					$this->this_req = $val = new Shield\Request\ThisRequest();
 				}
 				break;
 

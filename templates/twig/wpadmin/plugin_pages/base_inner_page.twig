@@ -51,7 +51,7 @@
 												item.text,
 												item.id|default(''),
 												item.classes|default([])|merge(['dropdown-item']),
-												false,
+												item.new_window|default(false),
 												item.datas|default([]),
 												item.disabled|default(false)
 											) }}
