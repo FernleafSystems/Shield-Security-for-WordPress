@@ -13,7 +13,7 @@ class RequestTriggersFirewall extends Base {
 	use Traits\TypeRequest;
 
 	public function getDescription() :string {
-		return __( "Do any parameters in the request match the given set of parameters to test.", 'wp-simple-firewall' );
+		return __( 'Do any parameters in the request match the given set of parameters to test.', 'wp-simple-firewall' );
 	}
 
 	protected function getSubConditions() :array {

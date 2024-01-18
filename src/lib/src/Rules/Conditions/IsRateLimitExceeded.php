@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class IsRateLimitExceeded extends Conditions\Base {
 

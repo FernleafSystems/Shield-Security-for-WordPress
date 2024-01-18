@@ -21,19 +21,16 @@ class EventFire extends Base {
 				if ( empty( $params[ 'audit_params' ] ) ) {
 					$params[ 'audit_params' ] = [];
 				}
+
 				$conditionMeta = self::con()->rules->getConditionMeta();
+				$params[ 'audit_params' ] = \array_merge( $params[ 'audit_params' ], $conditionMeta->getRawData() );
 				foreach ( $params[ 'audit_params_map' ] as $paramKey => $metaKey ) {
-					if ( isset( $conditionMeta->{$metaKey} ) ) {
-						$params[ 'audit_params' ][ $paramKey ] = $conditionMeta->{$metaKey};
-					}
-					else {
-//						error_log( sprintf( 'firing event "%s" but missing condition meta key: %s', $event, $metaKey ) );
+					if ( isset( $params[ 'audit_params' ][ $metaKey ] ) ) {
+						$params[ 'audit_params' ][ $paramKey ] = $params[ 'audit_params' ][ $metaKey ];
 					}
 				}
 			}
 
-//			error_log( var_export( $conditionMeta, true ) );
-//			error_log( var_export( $params, true ) );
 			self::con()->fireEvent(
 				$event,
 				( new FillEventAuditParamsFromRequest() )->setThisRequest( $this->req )->run( $event, $params )
