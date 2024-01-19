@@ -55,9 +55,8 @@ export class RulesManager extends BaseAutoExecComponent {
 		if ( group ) {
 			/** https://github.com/SortableJS/Sortable **/
 			Sortable.create( group, {
-				animation: 150,
+				animation: 600,
 				easing: 'cubic-bezier(1, 0, 0, 1)',
-
 				handle: '.drag-handle',
 
 				ghostClass: 'list-group-item-info',

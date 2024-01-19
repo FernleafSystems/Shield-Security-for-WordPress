@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
  * @property int      $match_sys_load
  * @property int      $match_visitor_ade_score
  * @property string   $match_category
+ * @property string   $match_code
  * @property string   $match_ip
  * @property string   $match_ip_id
  * @property string   $match_method

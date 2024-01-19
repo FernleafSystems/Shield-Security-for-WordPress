@@ -26,6 +26,13 @@ class BuildRuleFromForm extends BuildRuleBase {
 		return $this->form->name;
 	}
 
+	/**
+	 * TODO: Allow users to set response timings.
+	 */
+	protected function isInstantExecResponse() :bool {
+		return true;
+	}
+
 	protected function getDescription() :string {
 		return $this->form->description;
 	}

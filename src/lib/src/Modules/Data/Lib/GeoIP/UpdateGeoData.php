@@ -24,11 +24,7 @@ class UpdateGeoData {
 
 	public function run() :?IpMetaRecord {
 		$req = $this->req;
-
-		$metaRecord = $req->ip_meta_record instanceof IpMetaRecord ?
-			$req->ip_meta_record
-			: ( new LoadIpMeta() )->single( $req->ip );
-
+		$metaRecord = $req->ip_meta_record;
 		if ( empty( $metaRecord ) || $req->carbon->timestamp - $metaRecord->updated_at > \DAY_IN_SECONDS ) {
 
 			$geoData = \array_intersect_key( \array_filter( $this->getIpGeoData() ), \array_flip( [
