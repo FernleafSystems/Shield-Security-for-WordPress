@@ -31,7 +31,10 @@ class RequestIsServerLoopback extends Base {
 						],
 					];
 				},
-				Services::IP()->getServerPublicIPs()
+				\array_merge( Services::IP()->getServerPublicIPs(), [
+					'127.0.0.1',
+					'::1'
+				] )
 			),
 		];
 	}
