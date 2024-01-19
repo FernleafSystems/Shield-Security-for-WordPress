@@ -16,13 +16,16 @@ class MatchRequestIpIdentity extends Base {
 	public const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
-		$id = ( new IpID( $this->req->ip, $this->req->useragent ) )->run()[ 0 ];
-		$this->addConditionTriggerMeta( 'ip_id', $id );
-		return ( new Utility\PerformConditionMatch( $id, $this->p->match_ip_id, $this->p->match_type ) )->doMatch();
+		$this->addConditionTriggerMeta( 'ip_id', $this->req->ip_id );
+		return ( new Utility\PerformConditionMatch(
+			$this->req->ip_id,
+			$this->p->match_ip_id,
+			$this->p->match_type
+		) )->doMatch();
 	}
 
 	public function getDescription() :string {
-		return __( "Does the current request originate from a given set of services/providers.", 'wp-simple-firewall' );
+		return __( 'Does the current request originate from a given set of services/providers.', 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {
@@ -46,17 +49,16 @@ class MatchRequestIpIdentity extends Base {
 	}
 
 	private function enumProviders() :array {
-		$providers = [];
-		foreach ( Services::ServiceProviders()->getProviders() as $category ) {
-			$providers = \array_merge( $providers, \array_keys( $category ) );
-		}
-		$providers = \array_unique( $providers );
-		$providers = \array_combine( $providers, $providers );
-		\ksort( $providers );
+		$providers = \array_map(
+			function ( array $provider ) {
+				return $provider[ 'name' ] ?? 'Unknown';
+			},
+			Services::ServiceProviders()->getProviders_Flat()
+		);
+		\natcasesort( $providers );
 		return \array_merge( [
 			IpID::LOOPBACK    => '- Server Loopback -',
 			IpID::THIS_SERVER => '- This Server -',
-			IpID::UNKNOWN     => '- Unknown -',
 		], $providers );
 	}
 }

@@ -16,7 +16,7 @@ abstract class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\B
 	protected function isReadyToExecute() :bool {
 		$req = self::con()->this_req;
 		return ( !$req->request_bypasses_all_restrictions || $this->cfg->properties[ 'run_if_whitelisted' ] )
-			   && ( !$req->is_trusted_bot || $this->cfg->properties[ 'run_if_verified_bot' ] )
+			   && ( !$req->is_trusted_request || $this->cfg->properties[ 'run_if_verified_bot' ] )
 			   && ( !$req->wp_is_wpcli || $this->cfg->properties[ 'run_if_wpcli' ] )
 			   && parent::isReadyToExecute();
 	}

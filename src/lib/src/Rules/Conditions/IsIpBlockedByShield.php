@@ -21,7 +21,7 @@ class IsIpBlockedByShield extends Base {
 	}
 
 	public function getDescription() :string {
-		return __( "Is the request IP blocked by Shield auto or manual.", 'wp-simple-firewall' );
+		return __( 'Is the request IP auto or manually blocked by Shield.', 'wp-simple-firewall' );
 	}
 
 	protected function getSubConditions() :array {

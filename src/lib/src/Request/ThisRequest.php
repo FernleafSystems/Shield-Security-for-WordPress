@@ -6,9 +6,11 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\IpMetaRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\LoadIpMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
  * @property \Carbon\Carbon  $carbon
@@ -42,7 +44,6 @@ use FernleafSystems\Wordpress\Services\Services;
  *
  * @property bool            $is_force_off
  * @property bool            $is_security_admin
- * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_blocked_crowdsec
  * @property bool            $is_ip_blocked_shield
@@ -64,6 +65,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $wp_is_wpcli
  * @property bool            $wp_is_xmlrpc
  * @property bool            $wp_is_permalinks_enabled
+ * ** Dynamic **
+ * @property bool            $is_trusted_request
  */
 class ThisRequest extends DynPropertiesClass {
 
@@ -82,7 +85,12 @@ class ThisRequest extends DynPropertiesClass {
 
 		$this->ip = $req->ip();
 		$this->ip_is_public = !empty( $this->ip ) && $srvIP->isValidIp_PublicRemote( $this->ip );
-		$this->ip_id = $srvIP->getIpDetector()->getIPIdentity();
+		try {
+			$this->ip_id = ( new IpID( $this->ip, $this->useragent ) )->run()[ 0 ];
+		}
+		catch ( \Exception $e ) {
+			$this->ip_id = IpID::UNKNOWN;
+		}
 
 		$this->method = $req->getMethod();
 		$this->post = $req->post;
@@ -160,6 +168,10 @@ class ThisRequest extends DynPropertiesClass {
 			case 'is_ip_blacklisted':
 				$status = $this->getIpStatus();
 				$value = $status->isBlockedByShield() || $status->isAutoBlacklisted();
+				break;
+
+			case 'is_trusted_request':
+				$value = \apply_filters( 'shield/is_trusted_request', \in_array( $this->ip_id, ( new TrustedServices() )->enum() ), $this );
 				break;
 
 			default:

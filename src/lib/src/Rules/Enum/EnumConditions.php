@@ -77,6 +77,7 @@ class EnumConditions {
 		Conditions\IsTrustedBot::class,
 		Conditions\RequestParameterExists::class,
 		Conditions\RequestParameterValueMatches::class,
+		Conditions\IsWpSearch::class,
 		Conditions\WpIsAdmin::class,
 		Conditions\WpIsAjax::class,
 		Conditions\WpIsCron::class,

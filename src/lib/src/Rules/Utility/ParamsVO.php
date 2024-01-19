@@ -59,6 +59,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
  * @property bool     $use_cloudflare
  * @property bool     $block
  * @property bool     $do_log
+ * @property bool     $is_trusted
  */
 class ParamsVO extends DynPropertiesClass {
 

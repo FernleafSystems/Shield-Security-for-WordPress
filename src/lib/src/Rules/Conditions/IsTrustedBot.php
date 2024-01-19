@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum
 };
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
 
 class IsTrustedBot extends Base {
 
@@ -16,21 +16,12 @@ class IsTrustedBot extends Base {
 		return __( 'Is the request a bot that originates from a trusted service provider.', 'wp-simple-firewall' );
 	}
 
-	protected function getPreviousResult() :?bool {
-		return $this->req->is_trusted_bot;
-	}
-
-	protected function postExecConditionCheck( bool $result ) :void {
-		$this->req->is_trusted_bot = $result;
-	}
-
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_OR,
 			'conditions' => \array_map(
 				function ( string $ID ) {
 					return [
-						'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 						'conditions' => Conditions\MatchRequestIpIdentity::class,
 						'params'     => [
 							'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
@@ -38,11 +29,7 @@ class IsTrustedBot extends Base {
 						],
 					];
 				},
-				(array)apply_filters( 'shield/untrusted_service_providers', [
-					IpID::UNKNOWN,
-					IpID::THIS_SERVER,
-					IpID::VISITOR,
-				] )
+				( new TrustedServices() )->enum()
 			),
 		];
 	}

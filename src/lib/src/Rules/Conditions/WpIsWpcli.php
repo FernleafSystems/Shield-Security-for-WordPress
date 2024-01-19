@@ -14,6 +14,10 @@ class WpIsWpcli extends Base {
 		return $this->req->wp_is_wpcli;
 	}
 
+	public function getName() :string {
+		return __( 'Is WP-CLI', 'wp-simple-firewall' );
+	}
+
 	public function getDescription() :string {
 		return __( 'Is the request triggered by WP-CLI.', 'wp-simple-firewall' );
 	}

@@ -12,6 +12,10 @@ class WpIsPermalinksEnabled extends Base {
 		return $this->req->wp_is_permalinks_enabled;
 	}
 
+	public function getName() :string {
+		return __( 'Is WP Permalinks Enabled', 'wp-simple-firewall' );
+	}
+
 	public function getDescription() :string {
 		return __( 'Are WordPress permalinks enabled.', 'wp-simple-firewall' );
 	}

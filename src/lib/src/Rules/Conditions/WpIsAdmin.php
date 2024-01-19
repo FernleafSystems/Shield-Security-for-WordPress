@@ -12,6 +12,10 @@ class WpIsAdmin extends Base {
 		return $this->req->wp_is_admin;
 	}
 
+	public function getName() :string {
+		return __( 'Is WP Admin', 'wp-simple-firewall' );
+	}
+
 	public function getDescription() :string {
 		return __( 'Is the request to the WordPress admin area.', 'wp-simple-firewall' );
 	}

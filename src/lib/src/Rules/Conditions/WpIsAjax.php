@@ -12,6 +12,10 @@ class WpIsAjax extends Base {
 		return $this->req->wp_is_ajax;
 	}
 
+	public function getName() :string {
+		return __( 'Is WP AJAX', 'wp-simple-firewall' );
+	}
+
 	public function getDescription() :string {
 		return __( 'Is the request to the standard WordPress AJAX endpoint.', 'wp-simple-firewall' );
 	}
