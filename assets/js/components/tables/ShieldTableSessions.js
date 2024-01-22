@@ -10,7 +10,7 @@ export class ShieldTableSessions extends ShieldTableBase {
 
 	buildDatatableConfig() {
 		let cfg = super.buildDatatableConfig();
-		cfg.dom = 'Brptip';
+		cfg.dom = 'PBrptip';
 		return cfg;
 	}
 

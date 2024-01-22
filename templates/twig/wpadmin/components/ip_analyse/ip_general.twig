@@ -89,18 +89,20 @@
 				<p>{{ vars.identity.rdns }}</p>
 			</dd>
 
-			<dt>{{ strings.identity.country }} ({{ strings.identity.timezone }})</dt>
+			<dt>{{ strings.identity.country }}
+{#				({{ strings.identity.timezone }})#}
+			</dt>
 			<dd>
 				<p>
 					{{ vars.identity.country_name }}
-					({{ vars.identity.timezone }})
+{#					({{ vars.identity.timezone }})#}
 				</p>
 			</dd>
 
-			<dt>{{ strings.identity.coordinates }}</dt>
-			<dd>
-				<p>{{ vars.identity.coordinates }}</p>
-			</dd>
+{#			<dt>{{ strings.identity.coordinates }}</dt>#}
+{#			<dd>#}
+{#				<p>{{ vars.identity.coordinates }}</p>#}
+{#			</dd>#}
 		</dl>
 	</div>
 

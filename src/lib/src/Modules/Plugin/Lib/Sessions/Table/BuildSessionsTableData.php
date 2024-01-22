@@ -15,7 +15,7 @@ class BuildSessionsTableData extends BaseBuildTableData {
 	}
 
 	protected function getSearchPanesData() :array {
-		return [];
+		return ( new BuildSearchPanesData() )->build();
 	}
 
 	/**
@@ -27,6 +27,7 @@ class BuildSessionsTableData extends BaseBuildTableData {
 				$shield = $s[ 'shield' ] ?? [];
 				$data = [];
 				$data[ 'rid' ] = $shield[ 'unique' ] ?? '';
+				$data[ 'uid' ] = $shield[ 'user_id' ] ?? '';
 				$data[ 'details' ] = $this->getColumnContent_Details( $s );
 				$data[ 'is_secadmin' ] = ( $shield[ 'secadmin_at' ] ?? 0 ) > 0 ? $this->getColumnContent_Date( $shield[ 'secadmin_at' ] ) : 'no';
 				$data[ 'last_activity_at' ] = $this->getColumnContent_Date( $shield[ 'last_activity_at' ] ?? $s[ 'login' ] );
@@ -46,7 +47,12 @@ class BuildSessionsTableData extends BaseBuildTableData {
 	}
 
 	protected function getRecordsLoader() :LoadSessions {
-		return new LoadSessions();
+		return new LoadSessions( $this->getFilteredUserID() );
+	}
+
+	private function getFilteredUserID() :?int {
+		$id = \current( $this->table_data[ 'searchPanes' ][ 'uid' ] ?? [] );
+		return empty( $id ) ? null : (int)$id;
 	}
 
 	/**
