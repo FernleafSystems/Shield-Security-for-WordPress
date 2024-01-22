@@ -16,6 +16,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string $url_secadmin_forgotten_key
  * @property string $url_helpdesk
  * @property string $url_img_pagebanner
+ * @property string $url_img_logo_small
  * @property string $icon_url_16x16
  * @property string $icon_url_16x16_grey
  * @property string $icon_url_32x32

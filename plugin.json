@@ -223,6 +223,7 @@
     "PluginURI":           "https://shsec.io/2f",
     "AuthorURI":           "https://shsec.io/bv",
     "url_img_pagebanner":  "pluginlogo_banner-1544x500.png",
+    "url_img_logo_small":  "pluginlogo_banner-170x40.png",
     "icon_url_16x16":      "pluginlogo_16x16.png",
     "icon_url_16x16_grey": "pluginlogo_16x16_grey.png",
     "icon_url_32x32":      "pluginlogo_32x32.png",

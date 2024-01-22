@@ -42,7 +42,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'show_internal_links' => $con->isPluginAdmin()
 			],
 			'imgs'    => [
-				'logo' => $con->labels->url_img_pagebanner,
+				'logo' => $con->labels->url_img_logo_small,
 			],
 			'strings' => [
 				'security_level'    => __( 'Level', 'wp-simple-firewall' ),

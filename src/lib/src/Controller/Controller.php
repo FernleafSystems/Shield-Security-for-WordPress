@@ -856,9 +856,17 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function labels() :Config\Labels {
-		$labels = \array_map( 'stripslashes', $this->cfg->labels );
+		$labels = \array_map( '\stripslashes', $this->cfg->labels );
 
-		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
+		foreach (
+			[
+				'icon_url_16x16',
+				'icon_url_32x32',
+				'icon_url_128x128',
+				'url_img_pagebanner',
+				'url_img_logo_small',
+			] as $img
+		) {
 			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
 				$labels[ $img ] = $this->urls->forImage( $labels[ $img ] );
 			}
