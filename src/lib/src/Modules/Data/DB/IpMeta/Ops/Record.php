@@ -7,6 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\Ops;
  * @property int    $asn
  * @property string $country_iso2
  * @property bool   $pc_is_proxy
+ * @property int    $geo_updated_at
  * @property int    $pc_last_check_at
  * @property int    $updated_at
  */

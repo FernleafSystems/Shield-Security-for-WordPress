@@ -15,22 +15,22 @@ class RequestParameterValueMatches extends Base {
 
 		switch ( $this->p->req_param_source ) {
 			case 'get':
-				$source = $this->req->query;
+				$source = $this->req->request->query;
 				break;
 			case 'post':
-				$source = $this->req->post;
+				$source = $this->req->request->post;
 				break;
 			case 'cookie':
-				$source = $this->req->cookies;
+				$source = $this->req->request->cookie_copy;
 				break;
 			case 'headers':
-				$source = $this->req->headers;
+				$source = $this->req->request->headers();
 				break;
 			case 'server':
-				$source = $this->req->server;
+				$source = $this->req->request->server;
 				break;
 			case 'env':
-				$source = $this->req->env;
+				$source = $this->req->request->env;
 				break;
 			default:
 				$source = [];

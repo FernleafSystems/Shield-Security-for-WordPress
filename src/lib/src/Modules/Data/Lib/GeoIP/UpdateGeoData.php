@@ -24,28 +24,34 @@ class UpdateGeoData {
 
 	public function run() :?IpMetaRecord {
 		$req = $this->req;
-		$metaRecord = $req->ip_meta_record;
-		if ( empty( $metaRecord ) || $req->carbon->timestamp - $metaRecord->updated_at > \DAY_IN_SECONDS ) {
+		$meta = $req->ip_meta_record;
+		if ( empty( $meta )
+			 || empty( $meta->country_iso2 )
+			 || $req->carbon->timestamp - $meta->geo_updated_at > \DAY_IN_SECONDS ) {
 
-			$geoData = \array_intersect_key( \array_filter( $this->getIpGeoData() ), \array_flip( [
+			$dataKeys = \array_flip( [
 				'country_iso2',
 				'asn'
-			] ) );
+			] );
+
+			$geoData = \array_intersect_key( \array_filter( $this->getIpGeoData() ), $dataKeys );
 
 			$dbh = self::con()->db_con->dbhIPMeta();
-			if ( empty( $metaRecord ) ) {
+			if ( empty( $meta ) ) {
 				try {
 					$ipRecord = ( new IPRecords() )->loadIP( $req->ip );
-					/** @var IPMetaDB\Record $metaRecord */
-					$metaRecord = $dbh->getRecord()->applyFromArray( $geoData );
-					$metaRecord->ip_ref = $ipRecord->id;
-					$dbh->getQueryInserter()->insert( $metaRecord );
+					/** @var IPMetaDB\Record $meta */
+					$meta = $dbh->getRecord()->applyFromArray( $geoData );
+					$meta->ip_ref = $ipRecord->id;
+					$meta->geo_updated_at = $req->carbon->timestamp;
+					$dbh->getQueryInserter()->insert( $meta );
 				}
 				catch ( \Exception $e ) {
 				}
 			}
-			else {
-				$dbh->getQueryUpdater()->updateById( $metaRecord->id, $geoData );
+			elseif ( !empty( \array_diff( $geoData, \array_intersect_key( $meta->getRawData(), $dataKeys ) ) ) ) {
+				$geoData[ 'geo_updated_at' ] = $req->carbon->timestamp;
+				$dbh->getQueryUpdater()->updateById( $meta->id, $geoData );
 			}
 
 			$req->ip_meta_record = ( new LoadIpMeta() )->single( $req->ip );

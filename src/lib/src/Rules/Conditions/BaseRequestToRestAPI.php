@@ -21,13 +21,13 @@ abstract class BaseRequestToRestAPI extends Base {
 	 */
 	protected function getRestRoute() :string {
 		$req = $this->req;
-		$currentURL = sprintf( 'http%s://%s/%s', is_ssl() ? 's' : '', $req->server[ 'HTTP_HOST' ] ?? '', \trim( $req->path, '/' ) );
+		$currentURL = sprintf( 'http%s://%s/%s', is_ssl() ? 's' : '', $req->request->server[ 'HTTP_HOST' ] ?? '', \trim( $req->path, '/' ) );
 
 		if ( $req->wp_is_permalinks_enabled && \str_starts_with( $currentURL, $req->rest_api_root ) ) {
 			$route = \str_replace( $req->rest_api_root, '', $currentURL );
 		}
-		elseif ( isset( $this->req->query[ 'rest_route' ] ) ) {
-			$route = $this->req->query[ 'rest_route' ];
+		elseif ( isset( $this->req->request->query[ 'rest_route' ] ) ) {
+			$route = $this->req->request->query[ 'rest_route' ];
 		}
 		else {
 			$route = '';

@@ -29,7 +29,7 @@ class UserSessionRotateAuthCookies extends Base {
 	private function runRotate() :void {
 		if ( $this->req->session instanceof SessionVO && $this->req->session->valid ) {
 
-			$loggedInCookie = $this->req->cookies[ LOGGED_IN_COOKIE ];
+			$loggedInCookie = $this->req->request->cookie_copy[ LOGGED_IN_COOKIE ];
 			if ( !empty( $loggedInCookie ) ) {
 				$parsed = wp_parse_auth_cookie( $loggedInCookie );
 			}

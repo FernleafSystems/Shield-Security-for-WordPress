@@ -12,9 +12,9 @@ class CloudFlare {
 	public function lookup() :array {
 		$geoData = [];
 		$req = $this->req;
-		if ( !empty( $req->server[ 'HTTP_HOST' ] ) && !empty( $req->server[ 'HTTP_CF_IPCOUNTRY' ] )
-			 && $req->server[ 'HTTP_HOST' ] === \parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_HOST ) ) {
-			$geoData[ 'country_iso2' ] = $req->server[ 'HTTP_CF_IPCOUNTRY' ];
+		if ( !empty( $req->request->server( 'HTTP_HOST' ) ) && !empty( $req->request->server( 'HTTP_CF_IPCOUNTRY' ) )
+			 && $req->request->server[ 'HTTP_HOST' ] === \parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_HOST ) ) {
+			$geoData[ 'country_iso2' ] = $req->request->server[ 'HTTP_CF_IPCOUNTRY' ];
 		}
 		return $geoData;
 	}

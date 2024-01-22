@@ -16,6 +16,6 @@ class MatchRequestParamQuery extends MatchRequestParam {
 	}
 
 	protected function getRequestParamsToTest() :array {
-		return $this->req->query;
+		return $this->req->request->query;
 	}
 }

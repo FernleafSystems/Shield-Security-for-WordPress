@@ -38,7 +38,7 @@
       "has_deleted_at": false,
       "col_older_than": "created_at",
       "cols_custom":    {
-        "ip":  {
+        "ip": {
           "macro_type": "ip",
           "attr":       [
             "UNIQUE"
@@ -76,6 +76,9 @@
         }
       },
       "cols_timestamps": {
+        "geo_updated_at":   {
+          "comment": "Geolocation data updated at"
+        },
         "pc_last_check_at": {
           "comment": "ProxyCheck last lookup at"
         }

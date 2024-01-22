@@ -20,24 +20,24 @@ class RequestParameterExists extends Base {
 
 		switch ( $this->p->req_param_source ) {
 			case 'headers':
-				$paramSources = [ $this->req->headers ];
+				$paramSources = [ $this->req->request->headers() ];
 				break;
 			case 'server':
-				$paramSources = [ $this->req->server ];
+				$paramSources = [ $this->req->request->server ];
 				break;
 			case 'env':
-				$paramSources = [ $this->req->env ];
+				$paramSources = [ $this->req->request->env ];
 				break;
 			default:
 				$paramSources = [];
 				if ( \str_contains( $this->p->req_param_source, 'get' ) ) {
-					$paramSources[] = $this->req->query;
+					$paramSources[] = $this->req->request->query;
 				}
 				if ( \str_contains( $this->p->req_param_source, 'post' ) ) {
-					$paramSources[] = $this->req->post;
+					$paramSources[] = $this->req->request->post;
 				}
 				if ( \str_contains( $this->p->req_param_source, 'cookie' ) ) {
-					$paramSources[] = $this->req->cookies;
+					$paramSources[] = $this->req->request->cookie_copy;
 				}
 				break;
 		}

@@ -44,7 +44,7 @@ class FirewallPatternFoundInRequest extends Base {
 	private function getParamsToAssess() :array {
 		if ( self::$ParamsToAssess === null ) {
 			self::$ParamsToAssess = [];
-			foreach ( \array_merge( $this->req->query, $this->req->post ) as $param => $value ) {
+			foreach ( \array_merge( $this->req->request->query, $this->req->request->post ) as $param => $value ) {
 				if ( !empty( $value ) && \is_string( $value ) ) {
 					$param = (string)$param;
 					if ( !$this->isParameterExcluded( $param ) ) {

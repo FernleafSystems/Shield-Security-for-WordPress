@@ -9,7 +9,7 @@ class RequestHasQueryParameters extends Base {
 	public const SLUG = 'request_has_query_parameters';
 
 	protected function execConditionCheck() :bool {
-		$query = $this->req->query;
+		$query = $this->req->request->query;
 		return \is_array( $query ) && !empty( $query );
 	}
 

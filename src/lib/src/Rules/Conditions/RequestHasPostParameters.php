@@ -11,7 +11,7 @@ class RequestHasPostParameters extends Base {
 	public const SLUG = 'request_has_post_parameters';
 
 	protected function execConditionCheck() :bool {
-		$post = $this->req->post;
+		$post = $this->req->request->post;
 		return \is_array( $post ) && !empty( $post );
 	}
 
