@@ -27,6 +27,7 @@ class HandleUpgrade {
 		}
 
 		add_action( $hook, function ( $previousVersion ) {
+			Services::ServiceProviders()->clearProviders();
 			foreach ( self::con()->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
 				if ( $H instanceof Modules\Base\Upgrade ) {

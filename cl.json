@@ -1,12 +1,12 @@
 {
-  "18.6": {
-    "version":     "18.6",
-    "released_at": 1705064482,
+  "19.0": {
+    "version":     "19.0",
+    "released_at": 1705922900,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease186",
-      "upgrade": "https://shsec.io/shieldupgradeguide186"
+      "release": "https://shsec.io/shieldrelease190",
+      "upgrade": "https://shsec.io/shieldupgradeguide190"
     },
-    "title":       "Security DIY: Security Rules Builder",
+    "title":       "Security DIY: Custom Rules Builder",
     "description": [
     ],
     "items":       [
