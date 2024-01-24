@@ -151,11 +151,7 @@ class FileLockerController {
 		}
 		else {
 			// 1. Look for any changes in config: has a lock type been removed?
-			foreach ( $this->getLocks() as $lock ) {
-				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
-					( new Ops\DeleteFileLock() )->delete( $lock );
-				}
-			}
+			( new Ops\CleanLockRecords() )->run();
 
 			// 2. Assess existing locks for file modifications.
 			( new Ops\AssessLocks() )->run();

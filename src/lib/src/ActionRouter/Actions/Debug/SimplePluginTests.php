@@ -8,10 +8,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Events,
+	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncodingFailure,
+	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncryptionFailure,
+	HackGuard\Lib\FileLocker\Ops\BuildEncryptedFilePayload,
 	Plugin
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -38,6 +44,24 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
+
+	private function dbg_filelocker() {
+		$publicKey = ( new GetPublicKey() )->retrieve();
+		try {
+			$enc = ( new BuildEncryptedFilePayload() )->build(
+				path_join( ABSPATH, 'wp-config.php' ),
+				\reset( $publicKey ),
+				'rc4'
+			);
+			var_dump( $enc );
+			$vo = ( new OpenSslEncryptVo() )->applyFromArray( \json_decode( $enc, true ) );
+			$content = ( new DecryptFile() )->retrieve( $vo, \key( $publicKey ) );
+			var_dump( $content );
+		}
+		catch ( FileContentsEncodingFailure|FileContentsEncryptionFailure $e ) {
+			var_dump( $e->getMessage() );
+		}
+	}
 	private function dbg_eventsSum() {
 		$dbhEvents = self::con()->getModule_Events()->getDbH_Events();
 		/** @var Events\DB\Event\Ops\Select $select */
