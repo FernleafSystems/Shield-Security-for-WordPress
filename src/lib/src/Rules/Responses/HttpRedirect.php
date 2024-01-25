@@ -21,8 +21,12 @@ class HttpRedirect extends Base {
 	 */
 	private function canRedirect() :bool {
 		$to = $this->p->redirect_url;
-		return \parse_url( $to, \PHP_URL_HOST ) !== \parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_HOST )
-			   || \trim( \parse_url( $to, \PHP_URL_PATH ), '/' ) !== \trim( $this->req->path, '/' );
+		return !$this->req->wp_is_ajax
+			   &&
+			   (
+				   \parse_url( $to, \PHP_URL_HOST ) !== \parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_HOST )
+				   || \trim( \parse_url( $to, \PHP_URL_PATH ), '/' ) !== \trim( $this->req->path, '/' )
+			   );
 	}
 
 	public function getParamsDef() :array {
