@@ -177,8 +177,8 @@ class Email extends AbstractShieldProviderMfaDB {
 		return $otp;
 	}
 
-	public function getProviderName() :string {
-		return 'Email';
+	public static function ProviderName() :string {
+		return __( 'Email' );
 	}
 
 	public function removeFromProfile() :void {

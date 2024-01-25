@@ -13,6 +13,7 @@ class HttpRedirect extends Base {
 		}
 		\header( 'Cache-Control: no-store, no-cache' );
 		wp_redirect( $this->p->redirect_url, $this->p->status_code );
+		die();
 	}
 
 	/**
@@ -20,7 +21,7 @@ class HttpRedirect extends Base {
 	 */
 	private function canRedirect() :bool {
 		$to = $this->p->redirect_url;
-		return \parse_url( $to, \PHP_URL_HOST ) !== \parse_url( Services::WpGeneral()->getWpUrl() )
+		return \parse_url( $to, \PHP_URL_HOST ) !== \parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_HOST )
 			   || \trim( \parse_url( $to, \PHP_URL_PATH ), '/' ) !== \trim( $this->req->path, '/' );
 	}
 

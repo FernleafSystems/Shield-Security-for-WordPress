@@ -34,6 +34,7 @@ class ShieldSessionParameterValueMatches extends Base {
 	public function getParamsDef() :array {
 		$parameters = [
 			'ip'               => __( 'IP Address' ),
+			'user_id'          => __( 'User ID' ),
 			'useragent'        => __( 'Useragent' ),
 			'idle_interval'    => __( 'Idle Interval' ),
 			'session_duration' => __( 'Session Duration (seconds)' ),

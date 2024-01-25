@@ -133,7 +133,7 @@ class MfaController {
 	/**
 	 * @return Provider\AbstractProvider[]
 	 */
-	private function collateMfaProviderClasses() :array {
+	public function collateMfaProviderClasses() :array {
 		$shieldProviders = [
 			Provider\Email::class,
 			Provider\GoogleAuth::class,

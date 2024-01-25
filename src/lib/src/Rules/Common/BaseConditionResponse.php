@@ -25,7 +25,7 @@ abstract class BaseConditionResponse extends \FernleafSystems\Utilities\Data\Ada
 	}
 
 	public function getDescription() :string {
-		return 'description';
+		return $this->getName();
 	}
 
 	public function getName() :string {

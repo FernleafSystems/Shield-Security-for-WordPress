@@ -35,6 +35,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
  * @property string   $match_email
  * @property string   $param_name
  * @property string   $pattern
+ * @property string   $provider
  * @property string   $plugin_file
  * @property string   $theme_dir
  * @property string   $req_param_source

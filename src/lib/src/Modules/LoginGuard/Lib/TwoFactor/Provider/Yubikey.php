@@ -40,7 +40,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getJavascriptVars(),
 			[
-				'ajax' => [
+				'ajax'    => [
 					'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
 				],
 				'strings' => [
@@ -234,7 +234,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 		return $this->opts()->isEnabledYubikey();
 	}
 
-	public function getProviderName() :string {
-		return 'Yubikey';
+	public static function ProviderName() :string {
+		return __( 'Yubikey', 'wp-simple-firewall' );
 	}
 }

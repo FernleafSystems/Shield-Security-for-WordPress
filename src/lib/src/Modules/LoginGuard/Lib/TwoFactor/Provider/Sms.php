@@ -192,7 +192,7 @@ class Sms extends AbstractShieldProvider {
 		return $this->hasValidatedProfile();
 	}
 
-	public function getProviderName() :string {
-		return 'SMS';
+	public static function ProviderName() :string {
+		return __( 'SMS' );
 	}
 }

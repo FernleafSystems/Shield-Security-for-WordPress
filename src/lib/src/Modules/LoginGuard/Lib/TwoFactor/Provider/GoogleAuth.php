@@ -197,7 +197,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 		return $this->opts()->isEnabledGoogleAuthenticator();
 	}
 
-	public function getProviderName() :string {
-		return 'Google Authenticator';
+	public static function ProviderName() :string {
+		return __( 'Google Authenticator' );
 	}
 }
