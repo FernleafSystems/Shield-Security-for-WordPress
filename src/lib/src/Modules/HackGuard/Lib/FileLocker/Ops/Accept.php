@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\NoCipherAvailableException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Accept extends BaseOps {
@@ -16,8 +17,11 @@ class Accept extends BaseOps {
 
 		// Depending on timing, the preferred cipher may not have been set, so we force a check.
 		if ( empty( $state[ 'cipher' ] ) ) {
-			$FL->canEncrypt();
+			$FL->canEncrypt( true );
 			$state = $FL->getState();
+			if ( empty( $state[ 'cipher' ] ) ) {
+				throw new NoCipherAvailableException();
+			}
 		}
 
 		$cipher = empty( $state[ 'cipher' ] ) ? 'rc4' : $state[ 'cipher' ];

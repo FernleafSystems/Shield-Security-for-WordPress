@@ -241,16 +241,15 @@ class FileLockerController {
 	/**
 	 * Ensure this is run on a cron, so that we're not running cipher tests on every page load.
 	 */
-	public function canEncrypt() :bool {
+	public function canEncrypt( bool $forceCheck = false ) :bool {
 		$state = $this->getState();
 
-		if ( Services::Request()->carbon()->subWeek()->timestamp > $state[ 'cipher_last_checked_at' ]
-			 || ( $state[ 'cipher' ] ?? '' ) === 'rc4' ) {
+		if ( $forceCheck || Services::Request()->carbon()->subDay()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
 
 			$state[ 'cipher_last_checked_at' ] = Services::Request()->ts();
 			$this->setState( $state );
 
-			$state[ 'cipher' ] = ( new Ops\GetAvailableCiphers() )->first();
+			$state[ 'cipher' ] = ( new Ops\GetAvailableCiphers() )->firstFull();
 			$this->setState( $state );
 		}
 

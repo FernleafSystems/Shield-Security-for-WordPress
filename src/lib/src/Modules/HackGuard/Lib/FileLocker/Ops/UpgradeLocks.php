@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,37 +19,43 @@ class UpgradeLocks extends BaseOps {
 		$conFL = self::con()->getModule_HackGuard()->getFileLocker();
 
 		$ciphers = new GetAvailableCiphers();
-		$first = $ciphers->first();
+		$first = $ciphers->firstFull();
+
+		$upgraded = false;
 
 		foreach ( $conFL->getLocks() as $lock ) {
-			if ( $lock->detected_at === 0 && !\in_array( $lock->cipher, $ciphers->run() ) ) {
-				( new DeleteFileLock() )->delete( $lock );
-			}
-			elseif ( $lock->cipher === 'rc4' && $lock->detected_at > 0 && !empty( $first ) && $first !== 'rc4' ) {
 
-				try {
-					$publicKey = $this->getPublicKey();
-					$raw = ( new BuildEncryptedFilePayload() )->fromContent(
-						( new ReadOriginalFileContent() )->run( $lock ),
-						\reset( $publicKey ),
-						$first
-					);
-
-					/** @var FileLockerDB\Update $updater */
-					self::con()
-						->db_con
-						->dbhFileLocker()
-						->getQueryUpdater()
-						->updateRecord( $lock, [
-							'content'       => \base64_encode( $raw ),
-							'public_key_id' => \key( $publicKey ),
-							'cipher'        => $first,
-							'updated_at'    => Services::Request()->ts(),
-						] );
-				}
-				catch ( \Exception $e ) {
-				}
+			if ( \in_array( $lock->cipher, $ciphers->full() ) ) {
+				continue; // nothing to upgrade.
 			}
+
+			try {
+				$publicKey = $this->getPublicKey();
+				$raw = ( new BuildEncryptedFilePayload() )->fromContent(
+					( new ReadOriginalFileContent() )->run( $lock ),
+					\reset( $publicKey ),
+					$first
+				);
+
+				self::con()
+					->db_con
+					->dbhFileLocker()
+					->getQueryUpdater()
+					->updateRecord( $lock, [
+						'content'       => \base64_encode( $raw ),
+						'public_key_id' => \key( $publicKey ),
+						'cipher'        => $first,
+						'updated_at'    => Services::Request()->ts(),
+					] );
+
+				$upgraded = true;
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		if ( $upgraded ) {
+			$conFL->canEncrypt( true );
 		}
 	}
 }
