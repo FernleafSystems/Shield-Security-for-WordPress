@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
-	FileContentsEncryptionFailure
-};
+	FileContentsEncryptionFailure,
+	NoCipherAvailableException};
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildEncryptedFilePayload extends BaseOps {
@@ -13,24 +13,30 @@ class BuildEncryptedFilePayload extends BaseOps {
 	/**
 	 * @throws FileContentsEncodingFailure
 	 * @throws FileContentsEncryptionFailure
+	 * @throws NoCipherAvailableException
 	 */
-	public function fromPath( string $path, string $publicKey, ?string $cipher = null ) :string {
+	public function fromPath( string $path, string $publicKey, string $cipher ) :string {
 		// Ensure the contents are never empty,
 		$contents = Services::WpFs()->getFileContent( $path );
 		if ( empty( $contents ) ) {
 			$contents = ' ';
 		}
-		return $this->fromContent( $contents,  $publicKey, $cipher );
+		return $this->fromContent( $contents, $publicKey, $cipher );
 	}
 
 	/**
 	 * @throws FileContentsEncodingFailure
 	 * @throws FileContentsEncryptionFailure
+	 * @throws NoCipherAvailableException
 	 */
-	public function fromContent( string $contents, string $publicKey, ?string $cipher = null ) :string {
+	public function fromContent( string $contents, string $publicKey, string $cipher ) :string {
 		$srvEnc = Services::Encrypt();
 
-		$payload = $srvEnc->sealData( $contents, $publicKey, empty( $cipher ) ? 'rc4' : $cipher );
+		if ( empty( $cipher ) ) {
+			throw new NoCipherAvailableException();
+		}
+
+		$payload = $srvEnc->sealData( $contents, $publicKey, $cipher );
 		if ( !$payload->success ) {
 			throw new FileContentsEncryptionFailure( 'File contents could not be encrypted with message: '.$payload->message );
 		}

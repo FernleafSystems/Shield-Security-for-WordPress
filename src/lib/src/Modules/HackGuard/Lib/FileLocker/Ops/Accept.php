@@ -19,16 +19,15 @@ class Accept extends BaseOps {
 		if ( empty( $state[ 'cipher' ] ) ) {
 			$FL->canEncrypt( true );
 			$state = $FL->getState();
-			if ( empty( $state[ 'cipher' ] ) ) {
-				throw new NoCipherAvailableException();
-			}
 		}
 
-		$cipher = empty( $state[ 'cipher' ] ) ? 'rc4' : $state[ 'cipher' ];
+		if ( empty( $state[ 'cipher' ] ) ) {
+			throw new NoCipherAvailableException();
+		}
 
 		$publicKey = $this->getPublicKey();
 
-		$raw = ( new BuildEncryptedFilePayload() )->fromPath( $lock->path, \reset( $publicKey ), $cipher );
+		$raw = ( new BuildEncryptedFilePayload() )->fromPath( $lock->path, \reset( $publicKey ), $state[ 'cipher' ] );
 
 		/** @var FileLockerDB\Update $updater */
 		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
@@ -36,7 +35,7 @@ class Accept extends BaseOps {
 			'hash_original' => \hash_file( 'sha1', $lock->path ),
 			'content'       => \base64_encode( $raw ),
 			'public_key_id' => \key( $publicKey ),
-			'cipher'        => $cipher,
+			'cipher'        => $state[ 'cipher' ],
 			'detected_at'   => 0,
 			'updated_at'    => Services::Request()->ts(),
 			'created_at'    => Services::Request()->ts(), // update "locked at"

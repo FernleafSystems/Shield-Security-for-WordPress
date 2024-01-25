@@ -6,10 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * There are 2 scenarios to upgrading: a change has been detected, or not
- * 1) When the current cipher is an unavailable cipher, just delete the lock and it'll be recreated.
- * 2) If a change has been detected, we'll see if the current cipher is RC4, decrypt the lock and re-encrypt using
- * updated cipher.
+ * If the current cipher is unsupported by both local server and SNAPI, we recreate encrypted content
+ * with a mutually supported cipher, then update the DB record.
+ *
+ * If the update fails for whatever reason, we just delete the lock record entirely and leave the
+ * normal lock (re)creation process to assess as required.
  */
 class UpgradeLocks extends BaseOps {
 
@@ -19,16 +20,15 @@ class UpgradeLocks extends BaseOps {
 		$conFL = self::con()->getModule_HackGuard()->getFileLocker();
 
 		$ciphers = new GetAvailableCiphers();
-		$first = $ciphers->firstFull();
 
-		$upgraded = false;
-
+		$changed = false;
 		foreach ( $conFL->getLocks() as $lock ) {
 
 			if ( \in_array( $lock->cipher, $ciphers->full() ) ) {
 				continue; // nothing to upgrade.
 			}
 
+			$first = $ciphers->firstFull();
 			try {
 				$publicKey = $this->getPublicKey();
 				$raw = ( new BuildEncryptedFilePayload() )->fromContent(
@@ -48,14 +48,17 @@ class UpgradeLocks extends BaseOps {
 						'updated_at'    => Services::Request()->ts(),
 					] );
 
-				$upgraded = true;
+				$changed = true;
 			}
 			catch ( \Exception $e ) {
+				( new DeleteFileLock() )->delete( $lock );
+				$changed = true;
 			}
 		}
 
-		if ( $upgraded ) {
+		if ( $changed ) {
 			$conFL->canEncrypt( true );
+			$conFL->clearLocks();
 		}
 	}
 }

@@ -24,15 +24,11 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 			case 'path':
 				$value = (string)\base64_decode( $value );
 				break;
+			case 'cipher':
 			case 'type':
 			case 'hash_current':
 			case 'hash_original':
 				$value = (string)$value;
-				break;
-			case 'cipher':
-				if ( empty( $value ) ) {
-					$value = 'rc4';
-				}
 				break;
 			default:
 				break;
