@@ -11,6 +11,6 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 	}
 
 	public function setStarted( Record $record ) :bool {
-		return $this->updateEntry( $record, [ 'started_at' => Services::Request()->ts() ] );
+		return $this->updateRecord( $record, [ 'started_at' => Services::Request()->ts() ] );
 	}
 }

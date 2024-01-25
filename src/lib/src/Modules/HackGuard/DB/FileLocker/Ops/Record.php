@@ -22,7 +22,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		switch ( $key ) {
 			case 'content':
 			case 'path':
-				$value = (string)base64_decode( $value );
+				$value = (string)\base64_decode( $value );
 				break;
 			case 'type':
 			case 'hash_current':

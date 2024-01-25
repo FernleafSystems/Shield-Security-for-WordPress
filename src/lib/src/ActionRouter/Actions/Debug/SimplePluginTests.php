@@ -48,7 +48,7 @@ class SimplePluginTests extends BaseAction {
 	private function dbg_filelocker() {
 		$publicKey = ( new GetPublicKey() )->retrieve();
 		try {
-			$enc = ( new BuildEncryptedFilePayload() )->build(
+			$enc = ( new BuildEncryptedFilePayload() )->fromPath(
 				path_join( ABSPATH, 'wp-config.php' ),
 				\reset( $publicKey ),
 				'rc4'

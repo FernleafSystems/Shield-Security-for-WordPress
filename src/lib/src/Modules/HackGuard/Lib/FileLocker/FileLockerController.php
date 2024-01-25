@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\AvailableCiphers;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -17,12 +17,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
 class FileLockerController {
 
 	use ExecOnce;
 	use ModConsumer;
+	use PluginCronsConsumer;
 
 	public const CRON_DELAY = 60;
 
@@ -57,6 +57,8 @@ class FileLockerController {
 		} );
 
 		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+
+		$this->setupCronHooks();
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
@@ -242,22 +244,20 @@ class FileLockerController {
 	public function canEncrypt() :bool {
 		$state = $this->getState();
 
-		if ( Services::Request()->carbon()->subWeek()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
+		if ( Services::Request()->carbon()->subWeek()->timestamp > $state[ 'cipher_last_checked_at' ]
+			 || ( $state[ 'cipher' ] ?? '' ) === 'rc4' ) {
+
 			$state[ 'cipher_last_checked_at' ] = Services::Request()->ts();
 			$this->setState( $state );
 
-			try {
-				$ciphers = \array_intersect(
-					( new AvailableCiphers() )->retrieve(),
-					( new CipherTests() )->findAvailableCiphers()
-				);
-				$state[ 'cipher' ] = \reset( $ciphers );
-				$this->setState( $state );
-			}
-			catch ( \Exception $e ) {
-			}
+			$state[ 'cipher' ] = ( new Ops\GetAvailableCiphers() )->first();
+			$this->setState( $state );
 		}
 
 		return !empty( $state[ 'cipher' ] );
+	}
+
+	public function runDailyCron() {
+		( new Ops\UpgradeLocks() )->run();
 	}
 }
