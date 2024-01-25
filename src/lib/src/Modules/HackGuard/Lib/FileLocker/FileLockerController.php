@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\AvailableCiphers;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -241,16 +242,17 @@ class FileLockerController {
 	public function canEncrypt() :bool {
 		$state = $this->getState();
 
-		if ( Services::Request()->carbon()->subSecond()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
+		if ( Services::Request()->carbon()->subWeek()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
 			$state[ 'cipher_last_checked_at' ] = Services::Request()->ts();
 			$this->setState( $state );
 
 			try {
-				$ciphers = ( new CipherTests() )->findAvailableCiphers();
-				if ( !empty( $ciphers ) ) {
-					$state[ 'cipher' ] = \array_pop( $ciphers );
-					$this->setState( $state );
-				}
+				$ciphers = \array_intersect(
+					( new AvailableCiphers() )->retrieve(),
+					( new CipherTests() )->findAvailableCiphers()
+				);
+				$state[ 'cipher' ] = \reset( $ciphers );
+				$this->setState( $state );
 			}
 			catch ( \Exception $e ) {
 			}
