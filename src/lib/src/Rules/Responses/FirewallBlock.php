@@ -65,16 +65,7 @@ class FirewallBlock extends Base {
 		$con = self::con();
 
 		$blockMeta = $con->rules->getConditionMeta()->getRawData();
-		$fwCategory = $blockMeta[ 'match_category' ] ?? '';
-		try {
-			$ruleName = $con->getModule_Firewall()
-							->getStrings()
-							->getOptionStrings( 'block_'.$fwCategory )[ 'name' ] ?? 'Unknown';
-		}
-		catch ( \Exception $e ) {
-			$ruleName = 'Unknown';
-		}
-		$blockMeta[ 'firewall_rule_name' ] = $ruleName;
+		$blockMeta[ 'firewall_rule_name' ] = $blockMeta[ 'match_name' ] ?? 'Unknown';
 
 		return $con->email_con->sendVO(
 			EmailVO::Factory(

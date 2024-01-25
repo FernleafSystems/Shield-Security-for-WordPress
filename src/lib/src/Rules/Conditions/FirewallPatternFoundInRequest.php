@@ -18,16 +18,31 @@ class FirewallPatternFoundInRequest extends Base {
 		$matched = false;
 		foreach ( $this->getParamsToAssess() as $param => $value ) {
 			if ( \is_string( $value ) && ( new PerformConditionMatch( $value, $this->p->pattern, $this->p->match_type ) )->doMatch() ) {
+				$category = $this->findCategoryFromPattern( $this->p->pattern );
+				$this->addConditionTriggerMeta( 'match_name', $this->getFirewallRuleNameFromCategory( $category ) );
+				$this->addConditionTriggerMeta( 'match_category', $category );
 				$this->addConditionTriggerMeta( 'match_pattern', $this->p->pattern );
 				$this->addConditionTriggerMeta( 'match_request_param', $param );
 				$this->addConditionTriggerMeta( 'match_request_value', $value );
 				$this->addConditionTriggerMeta( 'match_type', 'regex' );
-				$this->addConditionTriggerMeta( 'match_category', $this->findCategoryFromPattern( $this->p->pattern ) );
 				$matched = true;
 				break;
 			}
 		}
 		return $matched;
+	}
+
+	private function getFirewallRuleNameFromCategory( string $category ) :string {
+		try {
+			$ruleName = self::con()
+							->getModule_Firewall()
+							->getStrings()
+							->getOptionStrings( 'block_'.$category )[ 'name' ] ?? 'Unknown';
+		}
+		catch ( \Exception $e ) {
+			$ruleName = 'Unknown';
+		}
+		return $ruleName;
 	}
 
 	private function findCategoryFromPattern( string $pattern ) :string {
@@ -97,11 +112,11 @@ class FirewallPatternFoundInRequest extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'pattern'         => [
+			'pattern'    => [
 				'type'  => Enum\EnumParameters::TYPE_SCALAR,
 				'label' => __( 'Parameter Name', 'wp-simple-firewall' ),
 			],
-			'match_type'      => [
+			'match_type' => [
 				'type'    => Enum\EnumParameters::TYPE_STRING,
 				'default' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 				'label'   => __( 'Parameter Value', 'wp-simple-firewall' ),

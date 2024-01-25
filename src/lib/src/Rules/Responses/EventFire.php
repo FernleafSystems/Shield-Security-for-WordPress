@@ -62,6 +62,11 @@ class EventFire extends Base {
 				'default' => [],
 				'label'   => __( 'Activity Log Parameter Map', 'wp-simple-firewall' ),
 			],
+			'audit_params' => [
+				'type'    => EnumParameters::TYPE_ARRAY,
+				'default' => [],
+				'label'   => __( 'Activity Log Parameters', 'wp-simple-firewall' ),
+			],
 		];
 	}
 }

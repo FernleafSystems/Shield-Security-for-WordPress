@@ -22,6 +22,7 @@ class Firewall extends BuildRuleCoreShieldBase {
 
 	protected function getCommonAuditParamsMapping() :array {
 		return \array_merge( parent::getCommonAuditParamsMapping(), [
+			'name'  => 'match_name',
 			'term'  => 'match_pattern',
 			'param' => 'match_request_param',
 			'value' => 'match_request_value',
@@ -61,9 +62,6 @@ class Firewall extends BuildRuleCoreShieldBase {
 					'event'            => 'firewall_block',
 					'offense_count'    => 1,
 					'block'            => false,
-					'audit_params'     => [
-						'name' => $this->getName()
-					],
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

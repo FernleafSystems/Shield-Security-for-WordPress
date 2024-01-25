@@ -80,12 +80,12 @@ class WhitelabelController {
 		$urlDashboardLogo = $this->constructImageURL( 'wl_dashboardlogourl' );
 		if ( !empty( $urlDashboardLogo ) ) {
 			$labels->icon_url_128x128 = $urlDashboardLogo;
-			$labels->url_img_logo_small = $urlDashboardLogo;
 		}
 
 		$urlPageBanner = $this->constructImageURL( 'wl_login2fa_logourl' );
 		if ( !empty( $urlPageBanner ) ) {
 			$labels->url_img_pagebanner = $urlPageBanner;
+			$labels->url_img_logo_small = $urlPageBanner;
 		}
 
 		$labels->url_secadmin_forgotten_key = $labels->AuthorURI;
