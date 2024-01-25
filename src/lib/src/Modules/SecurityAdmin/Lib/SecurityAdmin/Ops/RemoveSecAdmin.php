@@ -30,7 +30,6 @@ class RemoveSecAdmin {
 
 	public function sendConfirmationEmail() {
 		$con = self::con();
-		$mod = $con->getModule_SecAdmin();
 
 		$confirmationHref = $con->plugin_urls->noncedPluginAction(
 			SecurityAdminRemove::class,

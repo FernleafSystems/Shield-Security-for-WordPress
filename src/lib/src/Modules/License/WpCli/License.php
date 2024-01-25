@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use WP_CLI;
 
-class License extends Base\WpCli\BaseWpCliCmd {
+class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception

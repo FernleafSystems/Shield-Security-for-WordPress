@@ -2,15 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
+	CacheDirHandler,
+	Integration\WhitelistUs
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'plugin';
 
@@ -30,7 +33,7 @@ class ModCon extends BaseShield\ModCon {
 	private $reportsCon;
 
 	/**
-	 * @var Shield\ShieldNetApi\ShieldNetApiController
+	 * @var ShieldNetApiController
 	 */
 	private $shieldNetCon;
 
@@ -65,8 +68,8 @@ class ModCon extends BaseShield\ModCon {
 		return $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController();
 	}
 
-	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
-		return $this->shieldNetCon ?? $this->shieldNetCon = new Shield\ShieldNetApi\ShieldNetApiController();
+	public function getShieldNetApiController() :ShieldNetApiController {
+		return $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController();
 	}
 
 	public function getWizardCon() :Lib\Merlin\MerlinController {
@@ -96,7 +99,7 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 
-		$cacheDirFinder = new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' );
+		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ] ?? '' );
 		$workableDir = $cacheDirFinder->dir();
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
 
@@ -222,7 +225,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function runDailyCron() {
 		parent::runDailyCron();
-		( new Shield\Utilities\Integration\WhitelistUs() )->all();
+		( new WhitelistUs() )->all();
 	}
 
 	public function isXmlrpcBypass() :bool {

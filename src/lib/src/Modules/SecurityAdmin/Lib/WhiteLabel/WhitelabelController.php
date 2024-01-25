@@ -27,10 +27,8 @@ class WhitelabelController {
 		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 
-		$opts = $this->opts();
-		if ( $opts->isOpt( 'wl_hide_updates', 'Y' ) && is_admin()
-			 && !Services::WpGeneral()->isCron()
-			 && !$con->isPluginAdmin() ) {
+		if ( $this->opts()->isOpt( 'wl_hide_updates', 'Y' ) && is_admin()
+			 && !Services::WpGeneral()->isCron() && !$con->isPluginAdmin() ) {
 
 			if ( \in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
 				add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
@@ -100,8 +98,7 @@ class WhitelabelController {
 	 * @return array
 	 */
 	public function adjustUpdateDataCount( $updateData ) {
-		$file = self::con()->base_file;
-		if ( Services::WpPlugins()->isUpdateAvailable( $file ) ) {
+		if ( Services::WpPlugins()->isUpdateAvailable( self::con()->base_file ) ) {
 			$updateData[ 'counts' ][ 'total' ]--;
 			$updateData[ 'counts' ][ 'plugins' ]--;
 		}

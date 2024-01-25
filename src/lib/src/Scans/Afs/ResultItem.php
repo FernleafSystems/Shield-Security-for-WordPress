@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Malware\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * @property string $path_full
@@ -22,7 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property int    $malware_record_id
  * @property string $ptg_slug
  */
-class ResultItem extends Base\ResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
 	use ModConsumer;
 

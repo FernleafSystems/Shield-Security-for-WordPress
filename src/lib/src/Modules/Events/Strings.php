@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-
-class Strings extends Base\Strings {
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 }

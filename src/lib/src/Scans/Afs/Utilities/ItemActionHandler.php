@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
-
-class ItemActionHandler extends Base\Utilities\ItemActionHandler {
+class ItemActionHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities\ItemActionHandler {
 
 	/**
 	 * @throws \Exception

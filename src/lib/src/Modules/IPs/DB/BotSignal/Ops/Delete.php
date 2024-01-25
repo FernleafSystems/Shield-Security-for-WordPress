@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
-
-class Delete extends Base\Delete {
+class Delete extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Delete {
 
 	use Common;
 }

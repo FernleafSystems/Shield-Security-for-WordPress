@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
-
-class Select extends Base\Select {
+class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select {
 
 	use Common;
 }

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
-
-class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
+class ItemActionHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities\ItemActionHandlerAssets {
 
 }

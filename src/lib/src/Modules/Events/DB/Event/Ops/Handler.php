@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Handler extends Base\Handler {
+class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
 	/**
 	 * @param $events - array of events: key event slug, value created_at timestamp
