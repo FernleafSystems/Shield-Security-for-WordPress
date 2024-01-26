@@ -77,7 +77,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( self::con()->prefix( 'pre_options_store' ), function () {
 			$this->onConfigChanged();
 		} );
@@ -121,9 +120,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	protected function doExecuteProcessor() {
 		$this->getProcessor()->execute();
-	}
-
-	public function onWpLoaded() {
 	}
 
 	public function onWpInit() {
@@ -454,5 +450,11 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getAdminNotices() {
 		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function onWpLoaded() {
 	}
 }

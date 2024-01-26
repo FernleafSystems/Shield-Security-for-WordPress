@@ -1,7 +1,7 @@
 {
   "19.0": {
     "version":     "19.0",
-    "released_at": 1705922900,
+    "released_at": 1706280000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease190",
       "upgrade": "https://shsec.io/shieldupgradeguide190"
@@ -35,6 +35,34 @@
         "description": [
           "You can now lock user sessions to IP addresses, User Agents, or both.",
           "This helps to prevent theft and re-use of user sessions on other devices."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "User Sessions Filter By Username",
+        "description": [
+          "You can (again) filter the user sessions table by usernames."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "FileLocker Improvements",
+        "description": [
+          "Updated the FileLocker system to ensure compatibility with the Shield.NET API."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Geolocation",
+        "description": [
+          "Added some basic geo-location data that comes from CloudFlare (if you use it) to allow for rules that use Geolocation data.",
+          "A ShieldPRO extension will be provided at a later date to offer Geolocation data options beyond CloudFlare."
         ],
         "href":        ""
       },

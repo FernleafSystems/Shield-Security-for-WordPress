@@ -297,7 +297,8 @@ class Collate {
 			'CrowdSec API Status'    => $con->getModule_IPs()
 											->getCrowdSecCon()
 											->getApi()
-											->getAuthStatus()
+											->getAuthStatus(),
+			'TMP Dir'                => $con->cache_dir_handler->dir(),
 		];
 
 		/** @var Options $optsPlugin */

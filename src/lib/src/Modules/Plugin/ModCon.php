@@ -92,18 +92,16 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	protected function setupCacheDir() {
 		$url = Services::WpGeneral()->getWpUrl();
+
 		$lastKnownDirs = $this->opts()->getOpt( 'last_known_cache_basedirs' );
-		if ( empty( $lastKnownDirs ) || !\is_array( $lastKnownDirs ) ) {
-			$lastKnownDirs = [
-				$url => ''
-			];
-		}
+		$lastKnownDirs = \array_merge( [
+			$url => '',
+		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
 
-		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ] ?? '' );
-		$workableDir = $cacheDirFinder->dir();
-		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
-
+		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ] );
+		$lastKnownDirs[ $url ] = \dirname( $cacheDirFinder->dir() );
 		$this->opts()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+
 		self::con()->cache_dir_handler = $cacheDirFinder;
 	}
 
