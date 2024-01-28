@@ -169,6 +169,10 @@
         {
           "value_key": "useragent",
           "text":      "Browser"
+        },
+        {
+          "value_key": "host",
+          "text":      "Hostname"
         }
       ],
       "beacon_id":     397,
@@ -420,7 +424,7 @@
           "user_login"
         ]
       },
-      "session_lock":               {
+      "session_lock":                 {
         "audit_params": [
           "user_login"
         ]

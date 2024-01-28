@@ -97,6 +97,28 @@ class LockSessionFail extends Build\BuildRuleCoreShieldBase {
 								],
 							]
 						],
+						[
+							'logic'      => Enum\EnumLogic::LOGIC_AND,
+							'conditions' => [
+								[
+									'conditions' => Conditions\ShieldConfigurationOption::class,
+									'params'     => [
+										'name'        => 'session_lock',
+										'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS,
+										'match_value' => 'host',
+									]
+								],
+								[
+									'conditions' => Conditions\ShieldSessionParameterValueMatches::class,
+									'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+									'params'     => [
+										'param_name'    => 'host',
+										'match_type'    => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+										'match_pattern' => '{{request.host}}',
+									]
+								],
+							]
+						],
 					]
 				]
 			]
