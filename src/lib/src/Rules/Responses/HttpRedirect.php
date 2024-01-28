@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Services\Services;
 
 class HttpRedirect extends Base {
 
@@ -20,13 +19,11 @@ class HttpRedirect extends Base {
 	 * Prevents any sort of infinite redirects
 	 */
 	private function canRedirect() :bool {
-		$to = $this->p->redirect_url;
+		$req = $this->req;
+		$to = (array)\parse_url( $this->p->redirect_url );
 		return !$this->req->wp_is_ajax
 			   &&
-			   (
-				   \parse_url( $to, \PHP_URL_HOST ) !== \parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_HOST )
-				   || \trim( \parse_url( $to, \PHP_URL_PATH ), '/' ) !== \trim( $this->req->path, '/' )
-			   );
+			   ( $to[ 'host' ] ?? '' ) !== $req->host || \trim( $to[ 'path' ] ?? '', '/' ) !== \trim( $req->path, '/' );
 	}
 
 	public function getParamsDef() :array {

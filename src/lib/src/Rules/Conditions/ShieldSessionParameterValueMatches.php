@@ -35,6 +35,7 @@ class ShieldSessionParameterValueMatches extends Base {
 		$parameters = [
 			'ip'               => __( 'IP Address' ),
 			'user_id'          => __( 'User ID' ),
+			'hostname'         => __( 'Hostname' ),
 			'useragent'        => __( 'Useragent' ),
 			'idle_interval'    => __( 'Idle Interval' ),
 			'session_duration' => __( 'Session Duration (seconds)' ),

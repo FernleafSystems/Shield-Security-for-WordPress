@@ -93,6 +93,7 @@ class SessionController {
 	 */
 	public function buildSession( int $userID, string $token ) :SessionVO {
 		$req = Services::Request();
+		$thisReq = self::con()->this_req;
 
 		$manager = \WP_Session_Tokens::get_instance( $userID );
 		$session = $manager->get( $token );
@@ -102,7 +103,7 @@ class SessionController {
 
 		// Ensure the correct IP is stored
 		$srvIP = Services::IP();
-		$ip = self::con()->this_req->ip;
+		$ip = $thisReq->ip;
 		if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->IpIn( $ip, [ $session[ 'ip' ] ] ) ) ) {
 			$session[ 'ip' ] = $ip;
 		}
@@ -112,6 +113,9 @@ class SessionController {
 		$shieldMeta[ 'expires_at' ] = $session[ 'expiration' ];
 		$shieldMeta[ 'idle_interval' ] = $req->ts() - ( $shieldMeta[ 'last_activity_at' ] ?? $req->ts() );
 		$shieldMeta[ 'last_activity_at' ] = $req->ts();
+		if ( empty( $shieldMeta[ 'host' ] ) ) {
+			$shieldMeta[ 'host' ] = $thisReq->host ?? $req->getHost();
+		}
 		if ( empty( $shieldMeta[ 'unique' ] ) ) {
 			$shieldMeta[ 'unique' ] = uniqid();
 		}

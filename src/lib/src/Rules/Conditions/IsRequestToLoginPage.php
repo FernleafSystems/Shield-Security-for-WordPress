@@ -14,7 +14,7 @@ class IsRequestToLoginPage extends Base {
 	}
 
 	protected function getSubConditions() :array {
-		$loginPath = wp_parse_url( Services::WpGeneral()->getLoginUrl(), \PHP_URL_PATH );
+		$loginPath = (string)wp_parse_url( Services::WpGeneral()->getLoginUrl(), \PHP_URL_PATH );
 		return [
 			'conditions' => MatchRequestPath::class,
 			'params'     => [

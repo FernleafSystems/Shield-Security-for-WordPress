@@ -19,7 +19,7 @@ class IsRequestToThemeAsset extends Base {
 			'conditions' => MatchRequestPath::class,
 			'params'     => [
 				'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
-				'match_path' => sprintf( '#^%s/.+/.+#', \dirname( wp_parse_url( get_stylesheet_directory_uri(), \PHP_URL_PATH ) ) ),
+				'match_path' => sprintf( '#^%s/.+/.+#', \dirname( (string)wp_parse_url( get_stylesheet_directory_uri(), \PHP_URL_PATH ) ) ),
 			],
 		];
 	}
