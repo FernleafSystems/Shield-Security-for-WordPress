@@ -23,24 +23,25 @@ class SetScanCompleted {
 						WHERE `scans`.`scan`='%s'
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0;",
-				$this->mod()->getDbH_Scans()->getTableSchema()->table,
-				$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
+				self::con()->db_con->dbhScans()->getTableSchema()->table,
+				self::con()->db_con->dbhScanItems()->getTableSchema()->table,
 				$scan
 			)
 		);
 
 		if ( $count === 0 ) {
-			$this->mod()
-				 ->getDbH_Scans()
-				 ->getQueryUpdater()
-				 ->setUpdateWheres( [
-					 'scan'        => $scan,
-					 'finished_at' => 0,
-				 ] )
-				 ->setUpdateData( [
-					 'finished_at' => Services::Request()->ts()
-				 ] )
-				 ->query();
+			self::con()
+				->db_con
+				->dbhScans()
+				->getQueryUpdater()
+				->setUpdateWheres( [
+					'scan'        => $scan,
+					'finished_at' => 0,
+				] )
+				->setUpdateData( [
+					'finished_at' => Services::Request()->ts()
+				] )
+				->query();
 
 			$scanCon = $this->mod()->getScansCon()->getScanCon( $scan );
 			self::con()->fireEvent( 'scan_run', [

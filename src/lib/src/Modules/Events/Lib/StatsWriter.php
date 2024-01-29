@@ -21,9 +21,11 @@ class StatsWriter extends EventsListener {
 	}
 
 	protected function onShutdown() {
-		if ( !self::con()->plugin_deleting ) {
-			$mod = self::con()->getModule_Events();
-			$mod->getDbH_Events()->commitEvents( $this->getEventStats() );
+		$con = self::con();
+		if ( !$con->plugin_deleting ) {
+			( \method_exists( $con->db_con, 'dbhEvents' ) ?
+				$con->db_con->dbhEvents() : $con->getModule_Events()->getDbH_Events() )
+				->commitEvents( $this->getEventStats() );
 			$this->setEventStats();
 		}
 	}

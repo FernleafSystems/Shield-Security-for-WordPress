@@ -124,7 +124,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsByScope() :array {
-		$dbhSignals = $this->mod()->getDbH_CrowdSecSignals();
+		$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
 
 		if ( !isset( $this->distinctScopes ) ) {
 			$scopes = $dbhSignals->getQuerySelector()->getDistinctForColumn( 'scope' );
@@ -158,7 +158,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsGroupedByIP() :array {
-		$dbhSignals = $this->mod()->getDbH_CrowdSecSignals();
+		$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
 
 		if ( !isset( $this->distinctIPs ) ) {
 			$ips = $dbhSignals->getQuerySelector()
@@ -184,15 +184,16 @@ class PushSignalsToCS {
 	}
 
 	private function deleteRecords( array $records ) {
-		$this->mod()
-			 ->getDbH_CrowdSecSignals()
-			 ->getQueryDeleter()
-			 ->filterByIDs( \array_map(
-				 function ( $record ) {
-					 return $record->id;
-				 },
-				 $records
-			 ) )
-			 ->query();
+		self::con()
+			->db_con
+			->dbhCrowdSecSignals()
+			->getQueryDeleter()
+			->filterByIDs( \array_map(
+				function ( $record ) {
+					return $record->id;
+				},
+				$records
+			) )
+			->query();
 	}
 }

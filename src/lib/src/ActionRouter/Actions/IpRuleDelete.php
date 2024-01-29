@@ -15,10 +15,10 @@ class IpRuleDelete extends BaseAction {
 		}
 		else {
 			$success = self::con()
-						   ->getModule_IPs()
-						   ->getDbH_IPRules()
-						   ->getQueryDeleter()
-						   ->deleteById( $ID );
+				->db_con
+				->dbhIPRules()
+				->getQueryDeleter()
+				->deleteById( $ID );
 			$msg = $success ? __( 'IP Rule deleted', 'wp-simple-firewall' ) : __( "IP Rule couldn't be deleted from the list", 'wp-simple-firewall' );
 		}
 

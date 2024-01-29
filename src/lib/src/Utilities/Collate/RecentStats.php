@@ -68,9 +68,9 @@ class RecentStats {
 	}
 
 	public function getRecentEvents() :array {
-		/** @var EventsDB\Select $select */
 		if ( !isset( self::$recentEvents ) ) {
-			$select = self::con()->getModule_Events()->getDbH_Events()->getQuerySelector();
+			/** @var EventsDB\Select $select */
+			$select = self::con()->db_con->dbhEvents()->getQuerySelector();
 			self::$recentEvents = $select->getLatestForAllEvents();
 		}
 		return self::$recentEvents;

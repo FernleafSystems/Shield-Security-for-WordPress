@@ -176,53 +176,6 @@ class Collate {
 		return $DBs;
 	}
 
-	private function getShieldIntegrity() :array {
-		$con = self::con();
-		$data = [];
-
-		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
-		$data[ 'DB Table: Activity Log' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_Data()->getDbH_IPs();
-		$data[ 'DB Table: IPs' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_IPRules();
-		$data[ 'DB Table: IP Rules' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_CrowdSecSignals();
-		$data[ 'DB Table: CrowdSec Signals' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_BotSignal();
-		$data[ 'DB Table: Bot Signals' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_HackGuard()->getDbH_ScanResults();
-		$data[ 'DB Table: Scan Results' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_Data()->getDbH_ReqLogs();
-		$data[ 'DB Table: Traffic/Requests' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_Events()->getDbH_Events();
-		$data[ 'DB Table: Events' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		return $data;
-	}
-
 	private function snapshots() :array {
 		$data = [];
 

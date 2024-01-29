@@ -104,10 +104,11 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 		foreach ( $this->loadMfaRecords() as $loadMfaRecord ) {
 			if ( wp_check_password( \str_replace( '-', '', $otp ), $loadMfaRecord->unique_id ) ) {
 				$valid = true;
-				$this->mod()
-					 ->getDbH_Mfa()
-					 ->getQueryDeleter()
-					 ->deleteRecord( $loadMfaRecord );
+				self::con()
+					->db_con
+					->dbhMfa()
+					->getQueryDeleter()
+					->deleteRecord( $loadMfaRecord );
 			}
 		}
 		return $valid;

@@ -29,12 +29,13 @@ class BuildSearchPanesData {
 
 	private function buildForDay() :array {
 		/** @var ?Record $first */
-		$first = $this->mod()
-					  ->getDbH_IPRules()
-					  ->getQuerySelector()
-					  ->setOrderBy( 'last_access_at', 'ASC' )
-					  ->addWhereNewerThan( 0, 'last_access_at' )
-					  ->first();
+		$first = self::con()
+			->db_con
+			->dbhIPRules()
+			->getQuerySelector()
+			->setOrderBy( 'last_access_at', 'ASC' )
+			->addWhereNewerThan( 0, 'last_access_at' )
+			->first();
 		return ( new BuildDataForDays() )->buildFromOldestToNewest(
 			empty( $first ) ? Services::Request()->ts() : $first->last_access_at
 		);
@@ -56,7 +57,7 @@ class BuildSearchPanesData {
 	private function buildForIpType() :array {
 		$results = Services::WpDb()->selectCustom(
 			sprintf( "SELECT DISTINCT `ir`.`type` FROM `%s` as `ir`;",
-				$this->mod()->getDbH_IPRules()->getTableSchema()->table
+				self::con()->db_con->dbhIPRules()->getTableSchema()->table
 			)
 		);
 		return \array_filter( \array_map(

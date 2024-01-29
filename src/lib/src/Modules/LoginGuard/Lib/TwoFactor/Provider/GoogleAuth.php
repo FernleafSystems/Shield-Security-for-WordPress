@@ -94,7 +94,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	public function removeGA() :StdResponse {
 		/** @var MfaDB\Delete $deleter */
-		$deleter = $this->mod()->getDbH_Mfa()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhMfa()->getQueryDeleter();
 		$deleter->filterBySlug( $this::ProviderSlug() )
 				->filterByUserID( $this->getUser()->ID )
 				->query();

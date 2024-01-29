@@ -21,10 +21,11 @@ class DeleteRule {
 	}
 
 	public function byRecord( IpRuleRecord $record ) :bool {
-		$deleted = $this->mod()
-						->getDbH_IPRules()
-						->getQueryDeleter()
-						->deleteById( $record->id );
+		$deleted = self::con()
+			->db_con
+			->dbhIPRules()
+			->getQueryDeleter()
+			->deleteById( $record->id );
 
 		if ( $record->is_range ) {
 			IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );

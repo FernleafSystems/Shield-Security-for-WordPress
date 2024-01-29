@@ -40,7 +40,7 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 	}
 
 	protected function createNewSecretRecord( string $secret, string $label = '', array $data = [] ) :bool {
-		$dbh = $this->mod()->getDbH_Mfa();
+		$dbh = self::con()->db_con->dbhMfa();
 		/** @var MfaDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->slug = $this::ProviderSlug();

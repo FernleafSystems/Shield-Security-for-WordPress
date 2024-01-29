@@ -183,24 +183,25 @@ class ReportGenerator {
 	}
 
 	private function markAlertsAsNotified() {
-		$modHG = self::con()->getModule_HackGuard();
+		$con = self::con();
 
 		/** @var FileLockerDB\Update $updater */
-		$updater = $modHG->getDbH_FileLocker()->getQueryUpdater();
+		$updater = $con->db_con->dbhFileLocker()->getQueryUpdater();
 		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
 			$updater->markNotified( $record );
 		}
-		$modHG->getFileLocker()->clearLocks();
+		$con->getModule_HackGuard()->getFileLocker()->clearLocks();
 
 		// Standard Scan Results
-		$modHG->getDbH_ResultItems()
-			  ->getQueryUpdater()
-			  ->setUpdateWheres( [
-				  'notified_at' => 0,
-			  ] )
-			  ->setUpdateData( [
-				  'notified_at' => Services::Request()->ts()
-			  ] )
-			  ->query();
+		$con->db_con
+			->dbhResultItems()
+			->getQueryUpdater()
+			->setUpdateWheres( [
+				'notified_at' => 0,
+			] )
+			->setUpdateData( [
+				'notified_at' => Services::Request()->ts()
+			] )
+			->query();
 	}
 }

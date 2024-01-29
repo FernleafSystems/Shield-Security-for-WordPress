@@ -14,6 +14,10 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 			$this->setOpt( 'ipdetect_at', 1 );
 		}
 
+		if ( !\preg_match( '#^[a-z]{2,3}(_[A-Z]{2,3})?$#', $this->getOpt( 'locale_override' ) ) ) {
+			$this->setOpt( 'locale_override', '' );
+		}
+
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
 			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}

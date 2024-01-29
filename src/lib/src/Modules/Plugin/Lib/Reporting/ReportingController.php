@@ -99,7 +99,7 @@ class ReportingController {
 	public function getCreateReportFormVars() :array {
 		$req = Services::Request();
 
-		$dbh = $this->con()->getModule_AuditTrail()->getDbH_Logs();
+		$dbh = self::con()->db_con->dbhActivityLogs();
 		/** @var AuditDB\Record $firstAudit */
 		$firstAudit = $dbh->getQuerySelector()
 						  ->setOrderBy( 'created_at', 'ASC', true )

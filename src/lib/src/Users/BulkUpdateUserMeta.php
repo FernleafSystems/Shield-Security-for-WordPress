@@ -13,9 +13,9 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return self::con()
-				   ->getModule_Data()
-				   ->getDbH_UserMeta()
-				   ->isReady();
+			->db_con
+			->dbhUserMeta()
+			->isReady();
 	}
 
 	protected function run() {
@@ -39,14 +39,13 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	}
 
 	private function getExistingUserMetaIDsQuery() :string {
-		/** @var Select $metaSelect */
-		$metaSelect = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta()
-						  ->getQuerySelector();
-		return $metaSelect->setResultsAsVo( false )
-						  ->setSelectResultsFormat( ARRAY_A )
-						  ->setColumnsToSelect( [ 'user_id' ] )
-						  ->buildQuery();
+		return self::con()
+			->db_con
+			->dbhUserMeta()
+			->getQuerySelector()
+			->setResultsAsVo( false )
+			->setSelectResultsFormat( ARRAY_A )
+			->setColumnsToSelect( [ 'user_id' ] )
+			->buildQuery();
 	}
 }

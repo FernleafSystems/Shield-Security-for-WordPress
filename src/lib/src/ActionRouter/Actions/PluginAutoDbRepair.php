@@ -11,27 +11,28 @@ class PluginAutoDbRepair extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
+		$dbCon = $con->db_con;
 
 		// 1. Forcefully re-run all checks:
 		$checks = $con->prechecks;
 		$dbMisconfigured = \count( $checks[ 'dbs' ] ) !== \count( \array_filter( $checks[ 'dbs' ] ) );
 
 		if ( $dbMisconfigured ) {
-			$modHG = $con->getModule_HackGuard();
 			/** @var Handler[] $allHandlers */
 			$allHandlers = [
-				$con->getModule_AuditTrail()->getDbH_Logs(),
-				$con->getModule_AuditTrail()->getDbH_Meta(),
-				$con->getModule_Data()->getDbH_IPs(),
-				$con->getModule_Data()->getDbH_ReqLogs(),
-				$con->getModule_Data()->getDbH_UserMeta(),
-				$con->getModule_IPs()->getDbH_BotSignal(),
-				$con->getModule_IPs()->getDbH_IPRules(),
-				$modHG->getDbH_Scans(),
-				$modHG->getDbH_ScanItems(),
-				$modHG->getDbH_ScanResults(),
-				$modHG->getDbH_ResultItems(),
-				$modHG->getDbH_ResultItemMeta()
+				$dbCon->dbhActivityLogs(),
+				$dbCon->dbhActivityLogsMeta(),
+				$dbCon->dbhIPs(),
+				$dbCon->dbhIPMeta(),
+				$dbCon->dbhReqLogs(),
+				$dbCon->dbhUserMeta(),
+				$dbCon->dbhBotSignal(),
+				$dbCon->dbhIPRules(),
+				$dbCon->dbhScans(),
+				$dbCon->dbhScanItems(),
+				$dbCon->dbhScanResults(),
+				$dbCon->dbhResultItems(),
+				$dbCon->dbhResultItemMeta(),
 			];
 			Services::WpDb()->doSql(
 				sprintf( 'DROP TABLE IF EXISTS `%s`', \implode( '`,`', \array_map(

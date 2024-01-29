@@ -43,8 +43,9 @@ class CreateFileLocks extends BaseOps {
 	 * @throws NoCipherAvailableException
 	 */
 	private function createLockForPath( string $path ) {
+		$dbh = self::con()->db_con->dbhFileLocker();
 		/** @var FileLockerDB\Record $record */
-		$record = $this->mod()->getDbH_FileLocker()->getRecord();
+		$record = $dbh->getRecord();
 		$record->type = $this->file->type;
 		$record->path = $path;
 		$record->hash_original = \hash_file( 'sha1', $path );
@@ -59,7 +60,7 @@ class CreateFileLocks extends BaseOps {
 		$record->content = ( new BuildEncryptedFilePayload() )->fromPath( $path, \reset( $publicKey ), $record->cipher );
 
 		/** @var FileLockerDB\Insert $inserter */
-		$inserter = $this->mod()->getDbH_FileLocker()->getQueryInserter();
+		$inserter = $dbh->getQueryInserter();
 		if ( !$inserter->insert( $record ) ) {
 			throw new LockDbInsertFailure( sprintf( 'Failed to insert file locker record for path: "%s"', $path ) );
 		}

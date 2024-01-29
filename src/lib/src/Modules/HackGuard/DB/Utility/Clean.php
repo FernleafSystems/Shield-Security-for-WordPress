@@ -21,19 +21,17 @@ class Clean {
 
 	private function deleteScansThatNeverCompleted() {
 		/** @var ScansDB\Delete $deleter */
-		$deleter = $this->mod()->getDbH_Scans()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhScans()->getQueryDeleter();
 		$deleter->filterByNotFinished()
 				->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '<' )
 				->query();
 	}
 
 	private function deleteEarlierScans() {
-		$mod = $this->mod();
-
 		$scanIDsToKeep = [];
-		foreach ( $mod->getScansCon()->getScanSlugs() as $scanSlug ) {
+		foreach ( $this->mod()->getScansCon()->getScanSlugs() as $scanSlug ) {
 			/** @var ScansDB\Select $select */
-			$select = $mod->getDbH_Scans()->getQuerySelector();
+			$select = self::con()->db_con->dbhScans()->getQuerySelector();
 			$scanRecords = $select->filterByFinished()
 								  ->filterByScan( $scanSlug )
 								  ->setOrderBy( 'finished_at' )
@@ -46,7 +44,7 @@ class Clean {
 
 		if ( !empty( $scanIDsToKeep ) ) {
 			Services::WpDb()->doSql( sprintf( 'DELETE FROM %s WHERE `id` NOT IN (%s) AND `finished_at`>0',
-				$mod->getDbH_Scans()->getTableSchema()->table,
+				self::con()->db_con->dbhScans()->getTableSchema()->table,
 				\implode( ', ', $scanIDsToKeep ) ) );
 		}
 	}

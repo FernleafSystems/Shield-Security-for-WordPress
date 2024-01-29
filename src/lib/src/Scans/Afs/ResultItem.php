@@ -59,10 +59,10 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	public function getMalwareRecord() :?Record {
 		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
 			$this->record = self::con()
-								->getModule_HackGuard()
-								->getDbH_Malware()
-								->getQuerySelector()
-								->byId( $this->malware_record_id );
+				->db_con
+				->dbhMalware()
+				->getQuerySelector()
+				->byId( $this->malware_record_id );
 		}
 		return $this->record;
 	}

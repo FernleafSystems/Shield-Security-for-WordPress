@@ -28,7 +28,7 @@ class Update {
 	}
 
 	private function getBaseQuery() :string {
-		$mod = $this->mod();
+		$dbCon = self::con()->db_con;
 		return sprintf( "UPDATE `%s` as ri
 						INNER JOIN `%s` as `sr`
 							ON `ri`.id = `sr`.resultitem_ref
@@ -36,9 +36,9 @@ class Update {
 							ON `scans`.id = `sr`.scan_ref
 						SET %%s
 						WHERE %%s",
-			$mod->getDbH_ResultItems()->getTableSchema()->table,
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
-			$mod->getDbH_Scans()->getTableSchema()->table
+			$dbCon->dbhResultItems()->getTableSchema()->table,
+			$dbCon->dbhScanResults()->getTableSchema()->table,
+			$dbCon->dbhScans()->getTableSchema()->table
 		);
 	}
 }

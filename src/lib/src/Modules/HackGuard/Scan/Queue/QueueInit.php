@@ -28,9 +28,8 @@ class QueueInit {
 	 * @throws \Exception
 	 */
 	private function createScans( string $slug ) {
-		$scanRecord = ( new CreateNewScan() )->run( $slug );
 		( new PopulateScanItems() )
-			->setRecord( $scanRecord )
+			->setRecord( ( new CreateNewScan() )->run( $slug ) )
 			->setScanController( $this->mod()->getScansCon()->getScanCon( $slug ) )
 			->run();
 	}

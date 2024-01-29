@@ -63,7 +63,7 @@ class SimplePluginTests extends BaseAction {
 		}
 	}
 	private function dbg_eventsSum() {
-		$dbhEvents = self::con()->getModule_Events()->getDbH_Events();
+		$dbhEvents = self::con()->db_con->dbhEvents();
 		/** @var Events\DB\Event\Ops\Select $select */
 		$select = $dbhEvents->getQuerySelector();
 		$res = $select->filterByBoundary( 1692677238, Services::Request()->carbon()->timestamp )
@@ -73,7 +73,7 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_db() {
 		$column = 'data';
-		$schema = self::con()->getModule_AuditTrail()->getDbH_Snapshots()->getTableSchema();
+		$schema = self::con()->db_con->dbhSnapshots()->getTableSchema();
 		$state = Services::WpDb()->selectCustom( sprintf( 'DESCRIBE %s', $schema->table ) );
 		$def = $schema->getColumnDef( $column );
 

@@ -29,17 +29,19 @@ class Accept extends BaseOps {
 
 		$raw = ( new BuildEncryptedFilePayload() )->fromPath( $lock->path, \reset( $publicKey ), $state[ 'cipher' ] );
 
-		/** @var FileLockerDB\Update $updater */
-		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
-		$success = $updater->updateRecord( $lock, [
-			'hash_original' => \hash_file( 'sha1', $lock->path ),
-			'content'       => \base64_encode( $raw ),
-			'public_key_id' => \key( $publicKey ),
-			'cipher'        => $state[ 'cipher' ],
-			'detected_at'   => 0,
-			'updated_at'    => Services::Request()->ts(),
-			'created_at'    => Services::Request()->ts(), // update "locked at"
-		] );
+		$success = self::con()
+			->db_con
+			->dbhFileLocker()
+			->getQueryUpdater()
+			->updateRecord( $lock, [
+				'hash_original' => \hash_file( 'sha1', $lock->path ),
+				'content'       => \base64_encode( $raw ),
+				'public_key_id' => \key( $publicKey ),
+				'cipher'        => $state[ 'cipher' ],
+				'detected_at'   => 0,
+				'updated_at'    => Services::Request()->ts(),
+				'created_at'    => Services::Request()->ts(), // update "locked at"
+			] );
 
 		$FL->clearLocks();
 		return $success;

@@ -59,7 +59,7 @@ class BuildForStats extends BuildBase {
 		$end = $this->report->end_at;
 
 		/** @var EventsDB\Select $selector */
-		$selector = $con->getModule_Events()->getDbH_Events()->getQuerySelector();
+		$selector = $con->db_con->dbhEvents()->getQuerySelector();
 		$countsCurrent = $selector
 			->filterByBoundary( $start, $end )
 			->sumEventsSeparately( $eventsGroup );

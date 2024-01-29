@@ -34,7 +34,7 @@ class FileLockerController {
 
 	public function isEnabled() :bool {
 		return ( \count( $this->opts()->getFilesToLock() ) > 0 )
-			   && $this->mod()->getDbH_FileLocker()->isReady()
+			   && self::con()->db_con->dbhFileLocker()->isReady()
 			   && self::con()
 					  ->getModule_Plugin()
 					  ->getShieldNetApiController()
@@ -132,7 +132,7 @@ class FileLockerController {
 	}
 
 	public function purge() {
-		$this->mod()->getDbH_FileLocker()->tableDelete();
+		self::con()->db_con->dbhFileLocker()->tableDelete();
 	}
 
 	/**

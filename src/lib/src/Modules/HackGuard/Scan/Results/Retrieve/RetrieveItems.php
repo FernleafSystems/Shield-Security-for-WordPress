@@ -69,7 +69,6 @@ class RetrieveItems extends RetrieveBase {
 	 * @throws \Exception
 	 */
 	public function byID( int $scanResultID ) {
-		$mod = $this->mod();
 		$WPDB = Services::WpDb();
 
 		// Need to determine the scan from the scan result.
@@ -78,14 +77,14 @@ class RetrieveItems extends RetrieveBase {
 					INNER JOIN `%s` as `sr`
 						ON `sr`.`scan_ref` = `scans`.`id` AND `sr`.`id` = %s 
 					LIMIT 1;",
-			$this->mod()->getDbH_Scans()->getTableSchema()->table,
-			$this->mod()->getDbH_ScanResults()->getTableSchema()->table,
+			self::con()->db_con->dbhScans()->getTableSchema()->table,
+			self::con()->db_con->dbhScanResults()->getTableSchema()->table,
 			$scanResultID
 		) );
 		if ( empty( $scan ) ) {
 			throw new \Exception( sprintf( 'Could not determine scan type from the scan result ID %s.', $scanResultID ) );
 		}
-		$this->setScanController( $mod->getScansCon()->getScanCon( $scan ) );
+		$this->setScanController( $this->mod()->getScansCon()->getScanCon( $scan ) );
 
 		$query = $this
 			->addWheres( [

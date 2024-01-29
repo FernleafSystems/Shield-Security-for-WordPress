@@ -71,10 +71,11 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $key ) {
-		$this->mod()
-			 ->getDbH_ScanItems()
-			 ->getQueryDeleter()
-			 ->deleteById( $key );
+		self::con()
+			->db_con
+			->dbhScanItems()
+			->getQueryDeleter()
+			->deleteById( $key );
 		return $this;
 	}
 

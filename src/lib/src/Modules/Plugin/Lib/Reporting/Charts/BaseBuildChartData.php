@@ -79,7 +79,7 @@ class BaseBuildChartData {
 
 	protected function buildDataForEvents( array $events ) :array {
 		$req = $this->getChartRequest();
-		$dbhEvents = self::con()->getModule_Events()->getDbH_Events();
+		$dbhEvents = self::con()->db_con->dbhEvents();
 
 		$tick = 0;
 		$carbon = Services::Request()->carbon();

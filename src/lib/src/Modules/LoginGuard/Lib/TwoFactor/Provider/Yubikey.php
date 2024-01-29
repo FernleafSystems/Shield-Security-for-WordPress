@@ -164,10 +164,11 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			$deleted = false;
 			foreach ( $this->loadMfaRecords() as $record ) {
 				if ( $keyID === $record->unique_id ) {
-					$this->mod()
-						 ->getDbH_Mfa()
-						 ->getQueryDeleter()
-						 ->deleteRecord( $record );
+					self::con()
+						->db_con
+						->dbhMfa()
+						->getQueryDeleter()
+						->deleteRecord( $record );
 					$deleted = true;
 					break;
 				}
@@ -176,7 +177,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			if ( $deleted ) {
 				$response->msg_text = sprintf(
 					__( '%s was removed from your profile.', 'wp-simple-firewall' ),
-					__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
+					__( 'Yubikey Device', 'wp-simple-firewall' ).' '.$keyID
 				);
 			}
 			else {

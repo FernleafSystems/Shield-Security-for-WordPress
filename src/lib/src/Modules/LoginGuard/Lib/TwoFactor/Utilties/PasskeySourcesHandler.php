@@ -66,9 +66,8 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	public function saveCredentialSource( PublicKeyCredentialSource $publicKeyCredentialSource ) :void {
 		$preExistingSource = $this->findOneByCredentialId( $publicKeyCredentialSource->getPublicKeyCredentialId() );
 		if ( empty( $preExistingSource ) ) {
-			$dbh = $this->mod()->getDbH_Mfa();
 			/** @var MfaDB\Record $record */
-			$record = $dbh->getRecord();
+			$record = self::con()->db_con->dbhMfa()->getRecord();
 			$record->user_id = $this->getWpUser()->ID;
 			$record->slug = Passkey::ProviderSlug();
 			$record->unique_id = $this->normalisedSourceID( $publicKeyCredentialSource->getPublicKeyCredentialId() );
@@ -99,7 +98,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 
 	public function deleteSource( string $encodedID ) :bool {
 		/** @var MfaDB\Delete $deleter */
-		$deleter = $this->mod()->getDbH_Mfa()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhMfa()->getQueryDeleter();
 		$deleter->filterBySlug( Passkey::ProviderSlug() )
 				->filterByUniqueID( $encodedID )
 				->queryWithResult();

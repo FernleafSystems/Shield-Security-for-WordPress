@@ -116,7 +116,7 @@ class Export {
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type`='%s'", self::con()->getModule_IPs()->getDbH_IPRules()::T_MANUAL_BYPASS ),
+				sprintf( "`ir`.`type`='%s'", self::con()->db_con->dbhIPRules()::T_MANUAL_BYPASS ),
 				"`ir`.`can_export`='1'"
 			];
 			$loader->limit = 100;

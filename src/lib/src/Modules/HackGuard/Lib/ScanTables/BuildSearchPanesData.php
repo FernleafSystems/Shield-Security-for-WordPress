@@ -67,7 +67,7 @@ class BuildSearchPanesData {
 							AND `ri`.`item_deleted_at`=0
 							AND `ri`.`deleted_at`=0
 				",
-				$this->mod()->getDbH_ResultItems()->getTableSchema()->table
+				self::con()->db_con->dbhResultItems()->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];

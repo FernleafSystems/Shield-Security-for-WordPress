@@ -28,7 +28,7 @@ class Enumerate extends Base {
 	}
 
 	public function cmdPrint( array $null, array $args ) {
-		$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
+		$dbh = self::con()->db_con->dbhIPRules();
 
 		try {
 			$this->checkList( $args[ 'list' ] );

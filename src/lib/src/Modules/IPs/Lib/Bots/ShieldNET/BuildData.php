@@ -85,7 +85,7 @@ class BuildData {
 			Services::WpDb()
 					->doSql(
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
-							$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
+							self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
 							Services::Request()->ts(),
 							\implode( ',', \array_map( function ( $record ) {
 								return $record->id;
@@ -115,8 +115,8 @@ class BuildData {
 							%s
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 200;",
-				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
+				self::con()->db_con->dbhIPs()->getTableSchema()->table,
 				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", \implode( ",", $serverIPs ) )
 			)
 		);

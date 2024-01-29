@@ -21,10 +21,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 		$ip = ( new IPs\IPRecords() )->loadIP( $this->req->ip, false );
 
 		/** @var ReqLogsDB\Select $selector */
-		$selector = self::con()
-						->getModule_Data()
-						->getDbH_ReqLogs()
-						->getQuerySelector();
+		$selector = self::con()->db_con->dbhReqLogs()->getQuerySelector();
 		$count = $selector->filterByIP( $ip->id )
 						  ->filterByCreatedAt(
 							  ( clone $this->req->carbon )->subSeconds( $this->p->limit_time_span )->timestamp, '>'

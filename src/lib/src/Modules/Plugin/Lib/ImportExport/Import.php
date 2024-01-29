@@ -225,7 +225,7 @@ class Import {
 		self::con()->opts->store();
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
-			$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
+			$dbh = self::con()->db_con->dbhIPRules();
 			$now = Services::Request()->ts();
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {

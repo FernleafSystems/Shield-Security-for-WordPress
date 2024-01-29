@@ -29,11 +29,12 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		$first = $this->mod()
-					  ->getDbH_ReqLogs()
-					  ->getQuerySelector()
-					  ->setOrderBy( 'created_at', 'ASC' )
-					  ->first();
+		$first = self::con()
+			->db_con
+			->dbhReqLogs()
+			->getQuerySelector()
+			->setOrderBy( 'created_at', 'ASC' )
+			->first();
 		return ( new BuildDataForDays() )->buildFromOldestToNewest(
 			empty( $first ) ? Services::Request()->ts() : $first->created_at
 		);
@@ -114,7 +115,7 @@ class BuildSearchPanesData {
 		$results = Services::WpDb()->selectCustom( sprintf( 'SELECT %s',
 				\implode( ', ', \array_map( function ( $col ) {
 					return sprintf( '(SELECT group_concat(DISTINCT %s) FROM %s) as %s',
-						$col, $this->mod()->getDbH_ReqLogs()->getTableSchema()->table, $col );
+						$col, self::con()->db_con->dbhReqLogs()->getTableSchema()->table, $col );
 				}, $columns ) ) )
 		);
 		return empty( $results ) ? [] : \array_filter( $results[ 0 ] );

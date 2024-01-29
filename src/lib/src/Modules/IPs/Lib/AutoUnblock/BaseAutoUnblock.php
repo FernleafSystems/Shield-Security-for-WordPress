@@ -67,12 +67,13 @@ abstract class BaseAutoUnblock {
 	 * @throws \Exception
 	 */
 	protected function updateLastAttemptAt() {
-		$this->mod()
-			 ->getDbH_IPRules()
-			 ->getQueryUpdater()
-			 ->updateById( $this->getIpRecord()->id, [
-				 'last_unblock_attempt_at' => Services::Request()->ts(),
-			 ] );
+		self::con()
+			->db_con
+			->dbhIPRules()
+			->getQueryUpdater()
+			->updateById( $this->getIpRecord()->id, [
+				'last_unblock_attempt_at' => Services::Request()->ts(),
+			] );
 	}
 
 	/**
@@ -93,14 +94,15 @@ abstract class BaseAutoUnblock {
 //					error_log( 'Error updating bot signal: '.$e->getMessage() );
 		}
 
-		$unblocked = $this->mod()
-						  ->getDbH_IPRules()
-						  ->getQueryUpdater()
-						  ->updateById( $record->id, [
-							  'offenses'       => 0,
-							  'unblocked_at'   => Services::Request()->ts(),
-							  'last_access_at' => Services::Request()->ts(),
-						  ] );
+		$unblocked = self::con()
+			->db_con
+			->dbhIPRules()
+			->getQueryUpdater()
+			->updateById( $record->id, [
+				'offenses'       => 0,
+				'unblocked_at'   => Services::Request()->ts(),
+				'last_access_at' => Services::Request()->ts(),
+			] );
 
 		$this->fireEvent();
 

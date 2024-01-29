@@ -34,11 +34,12 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		$first = $this->mod()
-					  ->getDbH_Logs()
-					  ->getQuerySelector()
-					  ->setOrderBy( 'created_at', 'ASC' )
-					  ->first();
+		$first = self::con()
+			->db_con
+			->dbhActivityLogs()
+			->getQuerySelector()
+			->setOrderBy( 'created_at', 'ASC' )
+			->first();
 		return ( new BuildDataForDays() )->buildFromOldestToNewest(
 			empty( $first ) ? Services::Request()->ts() : $first->created_at
 		);
@@ -86,9 +87,9 @@ class BuildSearchPanesData {
 							ON `ips`.`id` = `req`.`ip_ref` 
 				',
 				$select,
-				$this->mod()->getDbH_Logs()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
+				self::con()->db_con->dbhActivityLogs()->getTableSchema()->table,
+				self::con()->db_con->dbhReqLogs()->getTableSchema()->table,
+				self::con()->db_con->dbhIPs()->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];

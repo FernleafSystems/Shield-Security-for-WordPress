@@ -44,11 +44,11 @@ class DbCon {
 	 */
 	private $dbHandlers = null;
 
-	public function dbhLogs() :Logs\Ops\Handler {
+	public function dbhActivityLogs() :Logs\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'at_logs' );
 	}
 
-	public function dbhMeta() :Meta\Ops\Handler {
+	public function dbhActivityLogsMeta() :Meta\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'at_meta' );
 	}
 

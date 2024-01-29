@@ -17,10 +17,7 @@ class Traffic extends Base {
 		try {
 			$ip = ( new IPRecords() )->loadIP( $this->action_data[ 'ip' ], false );
 			/** @var ReqLogs\Ops\Select $selector */
-			$selector = self::con()
-							->getModule_Data()
-							->getDbH_ReqLogs()
-							->getQuerySelector();
+			$selector = self::con()->db_con->dbhReqLogs()->getQuerySelector();
 			/** @var ReqLogs\Ops\Record[] $logs */
 			$logs = $selector->filterByIP( $ip->id )
 							 ->setLimit( $logLimit )

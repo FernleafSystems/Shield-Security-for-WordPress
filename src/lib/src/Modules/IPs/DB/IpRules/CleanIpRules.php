@@ -36,7 +36,7 @@ class CleanIpRules {
 	private function expired_AutoBlock() {
 		// Expired AutoBlock
 		/** @var Ops\Delete $deleter */
-		$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhIPRules()->getQueryDeleter();
 		$deleter
 			->filterByType( Handler::T_AUTO_BLOCK )
 			->addWhereOlderThan(
@@ -50,7 +50,7 @@ class CleanIpRules {
 
 	public function expired_Crowdsec() {
 		/** @var Ops\Delete $deleter */
-		$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhIPRules()->getQueryDeleter();
 		$deleter->filterByType( Handler::T_CROWDSEC )
 				->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 				->query();
@@ -100,7 +100,7 @@ class CleanIpRules {
 
 		if ( !empty( $deleteIDs ) ) {
 			/** @var Ops\Delete $deleter */
-			$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
+			$deleter = self::con()->db_con->dbhIPRules()->getQueryDeleter();
 			$deleter
 				->filterByType( Handler::T_CROWDSEC )
 				->addWhereIn( 'id', $deleteIDs )

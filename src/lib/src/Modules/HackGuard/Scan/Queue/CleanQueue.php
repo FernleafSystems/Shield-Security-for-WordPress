@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	ScanItems as ScanItemsDB,
-	Scans as ScansDB
+	ScanItems\Ops as ScanItemsDB,
+	Scans\Ops as ScansDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -26,7 +26,7 @@ class CleanQueue {
 			sprintf( "UPDATE `%s` 
 				SET `started_at`=0
 				WHERE `started_at` > 0 AND `started_at` < %s",
-				$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
+				self::con()->db_con->dbhScanItems()->getTableSchema()->table,
 				Services::Request()->carbon()->subMinutes( 2 )->timestamp
 			)
 		);
@@ -38,12 +38,13 @@ class CleanQueue {
 	}
 
 	private function deleteStaleResultItems() {
-		$resultItemIds = $this->mod()
-							  ->getDbH_ScanResults()
-							  ->getQuerySelector()
-							  ->getDistinctForColumn( 'resultitem_ref' );
+		$resultItemIds = self::con()
+			->db_con
+			->dbhScanResults()
+			->getQuerySelector()
+			->getDistinctForColumn( 'resultitem_ref' );
 		if ( !empty( $resultItemIds ) ) {
-			$dbhResultsItems = $this->mod()->getDbH_ResultItems();
+			$dbhResultsItems = self::con()->db_con->dbhResultItems();
 			// 1. Get IDs for all scan items
 			Services::WpDb()->doSql(
 				sprintf( "DELETE FROM `%s` WHERE `id` NOT IN (%s)",
@@ -58,14 +59,13 @@ class CleanQueue {
 	 * Stale: Scan has been ready for 20 minutes
 	 */
 	private function deleteStaleScansForTime() {
-		/** @var ScansDB\Ops\Delete $deleter */
-		$deleter = $this->mod()->getDbH_Scans()->getQueryDeleter();
+		/** @var ScansDB\Delete $deleter */
+		$deleter = self::con()->db_con->dbhScans()->getQueryDeleter();
 
 		// Scan created but hasn't been set to ready within 10 minutes.
 		$deleter->filterByNotReady()
-				->addWhereOlderThan(
-					Services::Request()->carbon()->subMinutes( 5 )->timestamp
-				)->query();
+				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 5 )->timestamp )
+				->query();
 
 		// Scan set to ready for longer than 9 minutes but never finished.
 		$deleter->reset()
@@ -81,20 +81,20 @@ class CleanQueue {
 	 * Scan set to ready but no scan items available.
 	 */
 	private function deleteScansWithNoScanItems() {
-		$mod = $this->mod();
-		/** @var ScansDB\Ops\Select $selector */
-		$selector = $mod->getDbH_Scans()->getQuerySelector();
-		/** @var ScansDB\Ops\Record[] $scans */
+		$dbCon = self::con()->db_con;
+		/** @var ScansDB\Select $selector */
+		$selector = $dbCon->dbhScans()->getQuerySelector();
+		/** @var ScansDB\Record[] $scans */
 		$scans = $selector->filterByReady()
 						  ->filterByNotFinished()
 						  ->queryWithResult();
 		foreach ( $scans as $scan ) {
-			/** @var ScanItemsDB\Ops\Select $selectorSI */
-			$selectorSI = $mod->getDbH_ScanItems()->getQuerySelector();
+			/** @var ScanItemsDB\Select $selectorSI */
+			$selectorSI = $dbCon->dbhScanItems()->getQuerySelector();
 			if ( $selectorSI->filterByScan( $scan->id )->count() === 0 ) {
-				$mod->getDbH_Scans()
-					->getQueryDeleter()
-					->deleteById( $scan->id );
+				$dbCon->dbhScans()
+					  ->getQueryDeleter()
+					  ->deleteById( $scan->id );
 			}
 		}
 	}
