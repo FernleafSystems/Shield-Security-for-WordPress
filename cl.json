@@ -74,6 +74,15 @@
           "A lot of plugin code has been rewritten to use the newer Rules Engine, improving performance & reliability."
         ],
         "href":        ""
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    true,
+        "title":       "Improved Passkeys Platform Support",
+        "description": [
+          "Ensure Passkeys can be used on servers that don't have the GMP extension active."
+        ],
+        "href":        ""
       }
     ],
     "patches":     [

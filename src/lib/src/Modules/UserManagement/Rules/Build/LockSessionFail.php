@@ -142,7 +142,7 @@ class LockSessionFail extends Build\BuildRuleCoreShieldBase {
 			[
 				'response' => Responses\HttpRedirect::class,
 				'params'   => [
-					'redirect_url' => Services::WpGeneral()->getHomeUrl(),
+					'redirect_url' => Services::WpGeneral()->getLoginUrl(),
 					'status_code'  => 302,
 				]
 			],

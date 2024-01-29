@@ -27,7 +27,6 @@
     "nyholm/psr7":                           "^1.8",
     "nyholm/psr7-server":                    "^1.0",
     "web-auth/webauthn-lib":                 "^3.3",
-    "brick/math":                            "^0.9",
     "ext-json":                              "*",
     "ext-openssl":                           "*"
   },
