@@ -31,7 +31,7 @@ class RequestLogger {
 	 */
 	protected function run() {
 		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
-			if ( \method_exists( $this, 'isLogged' ) ? $this->isLogged() : ( new IsRequestLogged() )->isLogged() ) {
+			if ( $this->isLogged() ) {
 				$this->createLog();
 			}
 		}, 1000 ); // high enough to come after audit trail

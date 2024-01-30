@@ -14,12 +14,6 @@ class SessionController {
 	use ModConsumer;
 	use WpLoginCapture;
 
-	/**
-	 * @var SessionVO
-	 * @deprecated 18.6
-	 */
-	private $current;
-
 	protected function run() {
 		if ( !Services::WpUsers()->isProfilePage() && !Services::IP()->isLoopback() ) { // only on logout
 			add_action( 'clear_auth_cookie', function () {

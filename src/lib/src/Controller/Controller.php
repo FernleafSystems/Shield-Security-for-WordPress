@@ -85,7 +85,7 @@ class Controller extends DynPropertiesClass {
 	public static $oInstance;
 
 	public function fireEvent( string $event, array $meta = [] ) :self {
-		( $this->service_events ?? $this->loadEventsService() )->fireEvent( $event, $meta );
+		$this->service_events->fireEvent( $event, $meta );
 		return $this;
 	}
 
@@ -878,123 +878,5 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function blockIncompatibleUpdates( $updates ) {
-		return $updates;
-	}
-
-	/**
-	 * This will hook into the saving of plugin update information and if there is an update for this plugin, it'll add
-	 * a data stamp to state when the update was first detected.
-	 * @param \stdClass $data
-	 * @return \stdClass
-	 * @deprecated 19.0
-	 */
-	public function setUpdateFirstDetectedAt( $data ) {
-		return $data;
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
-		return true;
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function onWpAutoUpdate( $isAutoUpdate ) {
-		return $isAutoUpdate;
-	}
-
-	/**
-	 * @return array{id: string, ts: int, install_at: int}
-	 * @deprecated 19.0
-	 */
-	public function getInstallationID() :array {
-		return ( new Shield\Controller\Plugin\InstallationID() )->retrieve();
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public function loadEventsService() :Events\Lib\EventsService {
-		return $this->service_events ?? $this->service_events = new Events\Lib\EventsService();
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function onWpPrivacyRegisterExporter( $registered ) {
-		return $registered;
-	}
-
-	/**
-	 * @param array[] $registered
-	 * @deprecated 19.0
-	 */
-	public function onWpPrivacyRegisterEraser( $registered ) {
-		return $registered;
-	}
-
-	/**
-	 * In order to prevent certain errors when the back button is used
-	 * @param array $headers
-	 * @return array
-	 * @deprecated 19.0
-	 */
-	public function adjustNocacheHeaders( $headers ) {
-		return $headers;
-	}
-
-	/**
-	 * @return Shield\Utilities\AdminNotices\Controller
-	 * @deprecated 18.6
-	 */
-	public function getAdminNotices() :Shield\Utilities\AdminNotices\Controller {
-		return $this->admin_notices;
-	}
-
-	/**
-	 * @param array $plugins
-	 * @return array
-	 * @deprecated 19.0
-	 */
-	public function doPluginLabels( $plugins ) {
-		$plugins[ $this->base_file ] = \array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
-		return $plugins;
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function prefixOption( string $suffix = '' ) :string {
-		return $this->prefix( $suffix, '_' );
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function getModulesNamespace() :string {
-		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function wpPrivacyErase() {
-		return [];
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function wpPrivacyExport() :array {
-		return [];
 	}
 }

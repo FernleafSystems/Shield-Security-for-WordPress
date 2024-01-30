@@ -40,12 +40,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $wpCli;
 
 	/**
-	 * @var AdminNotices
-	 * @deprecated 18.6
-	 */
-	private $adminNotices;
-
-	/**
 	 * @throws \Exception
 	 */
 	public function __construct( Config\ModConfigVO $cfg ) {
@@ -443,18 +437,5 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public function getAdminNotices() {
-		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
-	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function onWpLoaded() {
 	}
 }

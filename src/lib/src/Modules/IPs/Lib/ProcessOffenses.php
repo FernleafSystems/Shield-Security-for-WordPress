@@ -25,10 +25,4 @@ class ProcessOffenses {
 			}
 		} );
 	}
-
-	/**
-	 * @deprecated 18.5.8
-	 */
-	private function processOffense() {
-	}
 }

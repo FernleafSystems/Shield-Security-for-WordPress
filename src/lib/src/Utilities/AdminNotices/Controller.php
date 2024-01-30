@@ -485,11 +485,4 @@ class Controller {
 		}
 		return $needed;
 	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	protected function collectAllPluginNotices() :array {
-		return [];
-	}
 }

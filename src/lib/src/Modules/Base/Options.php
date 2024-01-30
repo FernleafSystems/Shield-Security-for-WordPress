@@ -560,11 +560,4 @@ class Options {
 
 		return $this;
 	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	protected function getCommonStandardOptions() :array {
-		return [];
-	}
 }

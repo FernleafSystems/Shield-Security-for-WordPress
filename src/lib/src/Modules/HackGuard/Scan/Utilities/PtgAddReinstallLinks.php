@@ -24,8 +24,7 @@ class PtgAddReinstallLinks {
 			function ( $links, $file ) {
 				global $hook_suffix;
 				if ( 'plugins.php' === $hook_suffix && \is_array( $links ) && \is_string( $file ) ) {
-					$con = \method_exists( $this, 'con' ) ? self::con() : $this->getScanController()->con();
-					if ( $con->this_req->is_security_admin ) {
+					if ( self::con()->this_req->is_security_admin ) {
 						$plugin = Services::WpPlugins()->getPluginAsVo( $file );
 						if ( !empty( $plugin ) && $plugin->asset_type === 'plugin'
 							 && $plugin->isWpOrg() && !Services::WpPlugins()->isUpdateAvailable( $file ) ) {
@@ -41,18 +40,16 @@ class PtgAddReinstallLinks {
 		add_action( 'admin_footer', function ( $hook_suffix_arg ) {
 			global $hook_suffix;
 			if ( \in_array( 'plugins.php', [ $hook_suffix_arg, $hook_suffix ] ) ) {
-				$con = \method_exists( $this, 'con' ) ? self::con() : $this->getScanController()->con();
-				if ( $con->this_req->is_security_admin ) {
-					echo $con->action_router->render( ReinstallDialog::SLUG );
+				if ( self::con()->this_req->is_security_admin ) {
+					echo self::con()->action_router->render( ReinstallDialog::SLUG );
 				}
 			}
 		} );
 
 		add_filter( 'shield/custom_localisations/components', function ( array $components, string $hook ) {
-			$con = \method_exists( $this, 'con' ) ? self::con() : $this->getScanController()->con();
 			$components[ 'plugin_reinstall' ] = [
 				'key'      => 'plugin_reinstall',
-				'required' => $hook === 'plugins.php' && $con->this_req->is_security_admin,
+				'required' => $hook === 'plugins.php' && self::con()->this_req->is_security_admin,
 				'handles'  => [
 					'wpadmin',
 				],
@@ -69,12 +66,5 @@ class PtgAddReinstallLinks {
 			];
 			return $components;
 		}, 10, 2 );
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	private function addActionLinkRefresh( array $links, string $file ) :array {
-		return $links;
 	}
 }

@@ -95,11 +95,4 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	public function getIpStatus() :IpRuleStatus {
 		return $this->ipStatus ?? $this->ipStatus = new IpRuleStatus( $this->ip );
 	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	private function getIpID() :string {
-		return Services::IP()->getIpDetector()->getIPIdentity();
-	}
 }

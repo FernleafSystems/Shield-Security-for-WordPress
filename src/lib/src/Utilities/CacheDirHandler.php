@@ -167,11 +167,4 @@ class CacheDirHandler {
 			}
 		);
 	}
-
-	/**
-	 * @deprecated 19.0
-	 */
-	public function findWorkableDir( bool $retest = false ) :string {
-		return $this->cacheDir;
-	}
 }

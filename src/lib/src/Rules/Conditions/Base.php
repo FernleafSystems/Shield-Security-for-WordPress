@@ -14,12 +14,6 @@ abstract class Base extends Common\BaseConditionResponse {
 
 	public const SLUG = '';
 
-	/**
-	 * @var array
-	 * @deprecated 18.6
-	 */
-	protected $params;
-
 	public static function MinimumHook() :int {
 		return WPHooksOrder::NONE;
 	}
@@ -79,46 +73,5 @@ abstract class Base extends Common\BaseConditionResponse {
 
 	public function getType() :string {
 		return Enum\EnumConditions::CONDITION_TYPE_NORMAL;
-	}
-
-	/**
-	 * @deprecated 18.5.8
-	 */
-	public static function BuildRequiredConditions() :array {
-		$conditions = static::RequiredConditions();
-		foreach ( static::RequiredConditions() as $requiredCondition ) {
-			/** @var $requiredCondition Base */
-			$conditions = \array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
-		}
-		return \array_unique( $conditions );
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public static function RequiredConditions() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public static function FindMinimumHook() :int {
-		return static::MinimumHook();
-	}
-
-	/**
-	 * @return mixed|null
-	 * @deprecated 18.6
-	 */
-	protected function getConditionTriggerMeta( string $item ) {
-		return null;
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	protected function removeTriggerMeta( string $item ) :self {
-		return $this;
 	}
 }

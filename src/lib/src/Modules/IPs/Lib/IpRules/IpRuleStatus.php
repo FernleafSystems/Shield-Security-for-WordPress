@@ -173,13 +173,6 @@ class IpRuleStatus {
 		return !empty( $rule ) && $rule->blocked_at > 0 && ( $rule->blocked_at >= $rule->unblocked_at );
 	}
 
-	/**
-	 * @deprecated 18.6
-	 */
-	public function hasHighReputation() :bool {
-		return false;
-	}
-
 	public function hasManualBlock() :bool {
 		return !empty( $this->getRulesForManualBlock() );
 	}
