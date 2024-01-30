@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Comms\Lib\SureSend;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SureSendController {

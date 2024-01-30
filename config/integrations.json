@@ -72,6 +72,26 @@
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
     },
     {
+      "key":           "suresend_emails",
+      "section":       "section_integrations",
+      "premium":       true,
+      "cap":           "2fa_sure_send",
+      "default":       [],
+      "type":          "multiple_select",
+      "value_options": [
+        {
+          "value_key": "2fa",
+          "text":      "2FA Login Codes (admins only)"
+        }
+      ],
+      "beacon_id":     156,
+      "link_info":     "https://icwp.io/ij",
+      "link_blog":     "https://icwp.io/ik",
+      "name":          "SureSend Emails",
+      "summary":       "SureSend Emails",
+      "description":   "SureSend Emails."
+    },
+    {
       "key":           "form_spam_providers",
       "section":       "section_spam",
       "premium":       true,
@@ -300,6 +320,20 @@
         "stat":         true,
         "audit":        true,
         "offense":      true
+      },
+      "suresend_success": {
+        "audit_params": [
+          "email",
+          "slug"
+        ],
+        "level":        "info"
+      },
+      "suresend_fail":    {
+        "audit_params": [
+          "email",
+          "slug"
+        ],
+        "level":        "warning"
       }
     }
   }
