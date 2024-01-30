@@ -2,40 +2,49 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	AttemptToAccessNonExistingRuleException,
 	NoConditionActionDefinedException,
 	NoSuchConditionHandlerException,
 	RuleNotYetRunException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\FindFromSlug;
 
+/**
+ * @deprecated 18.5.8
+ */
 class ConditionsProcessor extends BaseProcessor {
 
-	private $consolidatedMeta = [];
-
 	public function getConsolidatedMeta() :array {
-		return \array_filter( $this->consolidatedMeta );
+		return [];
 	}
 
+	/**
+	 * If there are no conditions, then we're 'true'
+	 * @throws \Exception
+	 */
 	public function runAllRuleConditions() :bool {
-		// If there are no conditions, then we're 'true'
-		return empty( $this->rule->conditions[ 'group' ] ) ||
-			   $this->processConditionGroup(
-				   $this->rule->conditions[ 'group' ],
-				   ( $this->rule->conditions[ 'logic' ] ?? 'AND' ) === 'AND'
-			   );
+		$condition = true;
+		$conditions = $this->rule->conditions ?? [];
+		if ( !empty( $conditions[ 'conditions' ] ) ) {
+			$processor = new ProcessConditions( $conditions[ 'conditions' ], $conditions[ 'logic' ] ?? EnumLogic::LOGIC_AND );
+			$condition = $processor->process();
+		}
+		return $condition;
 	}
 
 	/**
 	 * This is recursive and essentially allows for infinite nesting of groups of rules with different logic.
+	 * @deprecated 18.5.8
 	 */
 	private function processConditionGroup( array $conditionGroup, $isLogicAnd = true ) :bool {
 		$finalMatch = null;
 
 		foreach ( $conditionGroup as $subCondition ) {
 
-			if ( isset( $subCondition[ 'group' ] ) ) {
-				$matched = $this->processConditionGroup( $subCondition[ 'group' ], ( $subCondition[ 'logic' ] ?? 'AND' ) === 'AND' );
+			if ( isset( $subCondition[ 'conditions' ] ) ) {
+				$matched = $this->processConditionGroup( $subCondition[ 'conditions' ], ( $subCondition[ 'logic' ] ?? 'AND' ) === 'AND' );
 			}
 			elseif ( isset( $subCondition[ 'rule' ] ) ) {
 				try {
@@ -51,21 +60,25 @@ class ConditionsProcessor extends BaseProcessor {
 			}
 			else {
 				try {
-					$handler = $this->rulesCon->getConditionHandler( $subCondition );
-					$matched = $handler->setRule( $this->rule )
+					$handlerClass = FindFromSlug::Condition( $subCondition[ 'conditions' ] );
+					if ( empty( $handlerClass ) || !\class_exists( $handlerClass ) ) {
+						throw new NoSuchConditionHandlerException();
+					}
+					$handler = new $handlerClass();
+					$matched = $handler->setParams( $subCondition[ 'params' ] ?? [] )
+									   ->setRule( $this->rule )
 									   ->run();
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;
 					}
-					$this->consolidatedMeta[ $subCondition[ 'condition' ] ] = $handler->getConditionTriggerMetaData();
 				}
-				catch ( NoSuchConditionHandlerException|NoConditionActionDefinedException $e ) {
+				catch ( NoSuchConditionHandlerException $e ) {
 					error_log( $e->getMessage() );
 					continue;
 				}
 			}
 
-			if ( is_null( $finalMatch ) ) {
+			if ( \is_null( $finalMatch ) ) {
 				$finalMatch = $matched;
 			}
 
@@ -88,7 +101,7 @@ class ConditionsProcessor extends BaseProcessor {
 	 * @throws RuleNotYetRunException
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
-		$result = $this->rulesCon->getRule( $rule )->result;
+		$result = self::con()->rules->getRule( $rule )->result;
 		if ( \is_null( $result ) ) {
 			throw new RuleNotYetRunException( 'Rule not yet run: '.$rule );
 		}

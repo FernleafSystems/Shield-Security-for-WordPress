@@ -4,10 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
-	Conditions
+	Conditions,
+	Enum\EnumLogic
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.5.8
+ */
 class IsServerLoopback extends BuildRuleCoreShieldBase {
 
 	public const SLUG = 'shield/is_server_loopback';
@@ -21,16 +25,6 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
-				[
-					'condition' => Conditions\MatchRequestIp::SLUG,
-					'params'    => [
-						'match_ips' => Services::IP()->getServerPublicIPs(),
-					],
-				],
-			]
-		];
+		return [];
 	}
 }

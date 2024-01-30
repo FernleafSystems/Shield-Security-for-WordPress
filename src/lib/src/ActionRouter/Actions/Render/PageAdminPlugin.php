@@ -48,6 +48,7 @@ class PageAdminPlugin extends BaseRender {
 			],
 			'imgs'    => [
 				'logo_banner' => $con->labels->url_img_pagebanner,
+				'logo_small'  => $con->labels->url_img_logo_small,
 			],
 			'strings' => [
 				'top_page_warnings' => $this->buildTopPageWarnings(),

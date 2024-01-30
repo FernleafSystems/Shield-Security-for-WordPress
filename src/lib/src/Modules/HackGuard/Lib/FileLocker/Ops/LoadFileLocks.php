@@ -19,15 +19,13 @@ class LoadFileLocks {
 	 */
 	public function loadLocks() :array {
 		$records = [];
-		if ( $this->mod()->getFileLocker()->isEnabled() ) {
-			$all = $this->mod()
-						->getDbH_FileLocker()
-						->getQuerySelector()
-						->setNoOrderBy()
-						->all();
-			foreach ( \is_array( $all ) ? $all : [] as $lock ) {
-				$records[ $lock->id ] = $lock;
-			}
+		$all = $this->mod()
+					->getDbH_FileLocker()
+					->getQuerySelector()
+					->setNoOrderBy()
+					->all();
+		foreach ( \is_array( $all ) ? $all : [] as $lock ) {
+			$records[ $lock->id ] = $lock;
 		}
 		return $records;
 	}
@@ -36,9 +34,8 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function ofType( string $type ) :array {
-		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
+			$this->mod()->getFileLocker()->getLocks(),
 			function ( $lock ) use ( $type ) {
 				return $lock->type === $type;
 			}
@@ -49,9 +46,8 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblems() :array {
-		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
+			$this->mod()->getFileLocker()->getLocks(),
 			function ( $lock ) {
 				return $lock->detected_at > 0;
 			}
@@ -74,9 +70,8 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withoutProblems() :array {
-		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
+			$this->mod()->getFileLocker()->getLocks(),
 			function ( $lock ) {
 				return $lock->detected_at == 0;
 			}

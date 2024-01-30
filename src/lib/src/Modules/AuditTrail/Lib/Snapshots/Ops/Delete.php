@@ -10,10 +10,10 @@ class Delete {
 	use ModConsumer;
 
 	public function delete( string $slug ) :bool {
+		$con = self::con();
 		/** @var SnapshotDB\Delete $deleter */
-		$deleter = $this->mod()
-						->getDbH_Snapshots()
-						->getQueryDeleter();
+		$deleter = ( \method_exists( $con->db_con, 'dbhSnapshots' ) ?
+			$con->db_con->dbhSnapshots() : $con->getModule_AuditTrail()->getDbH_Snapshots() )->getQueryDeleter();
 		return $deleter->filterBySlug( $slug )->query();
 	}
 }

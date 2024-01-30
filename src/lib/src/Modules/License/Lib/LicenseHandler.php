@@ -239,18 +239,4 @@ class LicenseHandler {
 	private function getLicExpireGraceDays() :int {
 		return $this->opts()->getDef( 'lic_verify_expire_grace_days' );
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	protected function getActivatedAt() :int {
-		return (int)$this->opts()->getOpt( 'license_activated_at' );
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	protected function getDeactivatedAt() :int {
-		return (int)$this->opts()->getOpt( 'license_deactivated_at' );
-	}
 }

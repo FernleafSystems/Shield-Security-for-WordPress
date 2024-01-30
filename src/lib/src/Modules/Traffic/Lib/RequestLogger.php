@@ -31,11 +31,14 @@ class RequestLogger {
 	 */
 	protected function run() {
 		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
-			if ( !self::con()->plugin_deleting
-				 && ( $this->opts()->liveLoggingTimeRemaining() > 0 || ( new IsRequestLogged() )->isLogged() ) ) {
+			if ( \method_exists( $this, 'isLogged' ) ? $this->isLogged() : ( new IsRequestLogged() )->isLogged() ) {
 				$this->createLog();
 			}
 		}, 1000 ); // high enough to come after audit trail
+	}
+
+	public function isLogged() :bool {
+		return !self::con()->plugin_deleting && apply_filters( 'shield/is_log_traffic', false );
 	}
 
 	public function createDependentLog() :void {

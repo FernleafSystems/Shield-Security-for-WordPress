@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\CaptureNotBot,
 	ActionNonce
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -69,6 +70,6 @@ class NotBotHandler {
 	}
 
 	public function getHashForVisitorTS( int $ts ) {
-		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, self::con()->getInstallationID()[ 'id' ] );
+		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, ( new InstallationID() )->id() );
 	}
 }

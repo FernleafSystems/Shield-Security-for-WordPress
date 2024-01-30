@@ -59,8 +59,7 @@ class AssetsCustomizer {
 			$components = \array_filter(
 				$allComponents,
 				function ( array $comp ) use ( $handle ) {
-					return \in_array( $handle, $comp[ 'handles' ] )
-						   && ( !isset( $comp[ 'required' ] ) || $comp[ 'required' ] );
+					return \in_array( $handle, $comp[ 'handles' ] ) && ( !isset( $comp[ 'required' ] ) || $comp[ 'required' ] );
 				}
 			);
 
@@ -111,7 +110,7 @@ class AssetsCustomizer {
 				'data'    => function () {
 					return [
 						'ajax' => [
-							Actions\BlockdownFormSubmit::SLUG => ActionData::Build( Actions\BlockdownFormSubmit::class ),
+							Actions\BlockdownFormSubmit::SLUG        => ActionData::Build( Actions\BlockdownFormSubmit::class ),
 							Actions\BlockdownDisableFormSubmit::SLUG => ActionData::Build( Actions\BlockdownDisableFormSubmit::class ),
 						],
 					];
@@ -408,6 +407,30 @@ class AssetsCustomizer {
 					],
 				],
 			],
+			'rule_builder'     => [
+				'key'     => 'rule_builder',
+				'handles' => [
+					'main',
+				],
+				'data'    => [
+					'ajax' => [
+						'render_rule_builder' => ActionData::BuildAjaxRender( Components\Rules\RuleBuilder::class ),
+						'rule_builder_action' => ActionData::Build( Actions\RuleBuilderAction::class ),
+					],
+				],
+			],
+			'rules_manager'    => [
+				'key'     => 'rules_manager',
+				'handles' => [
+					'main',
+				],
+				'data'    => [
+					'ajax' => [
+						'render_rules_manager' => ActionData::BuildAjaxRender( Components\Rules\RulesManager::class ),
+						'rules_manager_action' => ActionData::Build( Actions\RulesManagerActions::class ),
+					],
+				],
+			],
 			'progress_meters'  => [
 				'key'      => 'progress_meters',
 				'required' => PluginNavs::GetNav() === PluginNavs::NAV_DASHBOARD,
@@ -552,7 +575,7 @@ class AssetsCustomizer {
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
 						$data[ 'ip_rules' ] = [
 							'ajax' => [
-								'rule_delete' => ActionData::Build( Actions\IpRuleDelete::class ),
+								'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
 								'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
 							],
 							'vars' => [
@@ -587,6 +610,7 @@ class AssetsCustomizer {
 				'key'     => 'testrest',
 				'handles' => [
 					'main',
+					'wpadmin',
 				],
 				'data'    => function () {
 					/**
@@ -596,14 +620,21 @@ class AssetsCustomizer {
 					 */
 					$opts = self::con()->getModule_Plugin()->opts();
 					$data = $opts->getOpt( 'test_rest_data' );
-					if ( empty( $data[ 'test_at' ] ) ) {
-						$data = [
-							'success_at' => 0,
-						];
+					if ( empty( $data ) || \array_key_exists( 'test_at', $data ) ) {
+						$data = [];
 					}
-					if ( Services::Request()->ts() - ( $data[ 'test_at' ] ?? 0 ) > \WEEK_IN_SECONDS ) {
+
+					$data = \array_merge( [
+						'maybe_test_at'   => 0,
+						'success_test_at' => 0,
+					], $data );
+
+					$now = Services::Request()->ts();
+
+					$hasSuccess = $data[ 'success_test_at' ] > 0;
+					if ( $now - $data[ 'maybe_test_at' ] > ( $hasSuccess ? \WEEK_IN_SECONDS : \DAY_IN_SECONDS ) ) {
 						$run = true;
-						$data[ 'test_at' ] = Services::Request()->ts();
+						$data[ 'maybe_test_at' ] = $now;
 					}
 					else {
 						$run = false;
@@ -665,51 +696,5 @@ class AssetsCustomizer {
 				 || ( $optsPlugin->getIpSource() === 'AUTO_DETECT_IP' && $sinceLastRequest > \DAY_IN_SECONDS )
 				 || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
 			   );
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function customEnqueues( array $enq ) :array {
-		return $enq;
-	}
-
-	private function shieldPluginGlobal() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function tourManager() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function merlin() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function shieldPlugin() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function ipAutoDetect() :?array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function localiseScripts( array $locals ) :array {
-		return [];
 	}
 }

@@ -12,7 +12,7 @@ class ReportToMalai {
 	use ModConsumer;
 
 	public function run( int $limit = 25 ) :array {
-		$dbh = $this->mod()->getDbH_Malware();
+		$dbh = self::con()->db_con->dbhMalware();
 		/** @var MalwareDB\Update $updater */
 		$updater = $dbh->getQueryUpdater();
 		/** @var MalwareDB\Select $select */

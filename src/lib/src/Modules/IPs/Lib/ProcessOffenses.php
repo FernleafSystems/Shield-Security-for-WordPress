@@ -17,18 +17,18 @@ class ProcessOffenses {
 	protected function run() {
 		$this->mod()->loadOffenseTracker()->setIfCommit( true );
 		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			$this->processOffense();
+			$tracker = $this->mod()->loadOffenseTracker();
+			if ( !self::con()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
+				( new IPs\Components\ProcessOffense() )
+					->setIp( self::con()->this_req->ip )
+					->execute();
+			}
 		} );
 	}
 
+	/**
+	 * @deprecated 18.5.8
+	 */
 	private function processOffense() {
-		$mod = self::con()->getModule_IPs();
-
-		$tracker = $mod->loadOffenseTracker();
-		if ( !self::con()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
-			( new IPs\Components\ProcessOffense() )
-				->setIp( self::con()->this_req->ip )
-				->execute();
-		}
 	}
 }

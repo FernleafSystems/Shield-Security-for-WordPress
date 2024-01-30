@@ -57,7 +57,7 @@ class Collate {
 		$rDNS = '';
 		foreach ( $aIPs as $ip ) {
 			if ( $srvIP->getIpVersion( $ip ) === 4 ) {
-				$rDNS = gethostbyaddr( $ip );
+				$rDNS = \gethostbyaddr( $ip );
 				break;
 			}
 		}
@@ -72,8 +72,8 @@ class Collate {
 		}
 
 		return [
-			'Host OS'                => PHP_OS,
-			'Server Hostname'        => gethostname(),
+			'Host OS'                => \PHP_OS,
+			'Server Hostname'        => \gethostname(),
 			'Server Time Difference' => $diff,
 			'Server IPs'             => \implode( ', ', $aIPs ),
 			'CloudFlare'             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
@@ -82,23 +82,23 @@ class Collate {
 			'Server Signature'       => empty( $sig ) ? '-' : $sig,
 			'Server Software'        => empty( $soft ) ? '-' : $soft,
 			'Disk Space'             => sprintf( '%s used out of %s (unused: %s)',
-				( is_numeric( $totalDisk ) && is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
-				is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
-				is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'
+				( \is_numeric( $totalDisk ) && \is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
+				\is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
+				\is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'
 			)
 		];
 	}
 
 	private function getPHP() :array {
-		$oDP = Services::Data();
+		$DP = Services::Data();
 		$req = Services::Request();
 
-		$phpV = $oDP->getPhpVersionCleaned();
-		if ( $phpV !== $oDP->getPhpVersion() ) {
-			$phpV .= sprintf( ' (%s)', $oDP->getPhpVersion() );
+		$phpV = $DP->getPhpVersionCleaned();
+		if ( $phpV !== $DP->getPhpVersion() ) {
+			$phpV .= sprintf( ' (%s)', $DP->getPhpVersion() );
 		}
 
-		$ext = get_loaded_extensions();
+		$ext = \get_loaded_extensions();
 		\natsort( $ext );
 
 		$root = $req->server( 'DOCUMENT_ROOT' );
@@ -176,53 +176,6 @@ class Collate {
 		return $DBs;
 	}
 
-	private function getShieldIntegrity() :array {
-		$con = self::con();
-		$data = [];
-
-		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
-		$data[ 'DB Table: Activity Log' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_Data()->getDbH_IPs();
-		$data[ 'DB Table: IPs' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_IPRules();
-		$data[ 'DB Table: IP Rules' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_CrowdSecSignals();
-		$data[ 'DB Table: CrowdSec Signals' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_BotSignal();
-		$data[ 'DB Table: Bot Signals' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_HackGuard()->getDbH_ScanResults();
-		$data[ 'DB Table: Scan Results' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_Data()->getDbH_ReqLogs();
-		$data[ 'DB Table: Traffic/Requests' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_Events()->getDbH_Events();
-		$data[ 'DB Table: Events' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		return $data;
-	}
-
 	private function snapshots() :array {
 		$data = [];
 
@@ -297,7 +250,8 @@ class Collate {
 			'CrowdSec API Status'    => $con->getModule_IPs()
 											->getCrowdSecCon()
 											->getApi()
-											->getAuthStatus()
+											->getAuthStatus(),
+			'TMP Dir'                => $con->cache_dir_handler->dir(),
 		];
 
 		/** @var Options $optsPlugin */
@@ -322,9 +276,6 @@ class Collate {
 			'URL - Site' => $WP->getWpUrl(),
 			'WP'         => $WP->getVersion( true ),
 		];
-		if ( $WP->isClassicPress() ) {
-			$data[ 'ClassicPress' ] = $WP->getVersion();
-		}
 
 		return \array_merge( $data, [
 			'URL - Home'  => $WP->getHomeUrl(),

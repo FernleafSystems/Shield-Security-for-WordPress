@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	Enum,
 	Responses,
 	WPHooksOrder
 };
@@ -26,11 +27,19 @@ class HideGeneratorTag extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'hide_wordpress_generator_tag',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
 				],
 			]
 		];
@@ -39,7 +48,12 @@ class HideGeneratorTag extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\HideGeneratorTag::SLUG,
+				'response' => Responses\HookRemoveAction::class,
+				'params'   => [
+					'hook'     => 'wp_head',
+					'callback' => 'wp_generator',
+					'priority' => 10,
+				]
 			],
 		];
 	}

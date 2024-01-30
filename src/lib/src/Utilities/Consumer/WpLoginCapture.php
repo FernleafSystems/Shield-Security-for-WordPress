@@ -52,7 +52,7 @@ trait WpLoginCapture {
 	}
 
 	protected function getCapturedUserID() :int {
-		return is_int( $this->capturedUserID ) ? $this->capturedUserID : 0;
+		return \is_int( $this->capturedUserID ) ? $this->capturedUserID : 0;
 	}
 
 	protected function isCaptureApplicationLogin() :bool {

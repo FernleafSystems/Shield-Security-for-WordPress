@@ -4,69 +4,34 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
-use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.6
+ */
 class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected static $nCount = 0;
 
 	protected function canRun() :bool {
-		return Services::WpUsers()->isUserLoggedIn();
+		return false;
 	}
 
 	public function getNotices() :array {
-		return $this->buildNotices();
+		return [];
 	}
 
 	/**
 	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
 	 */
 	protected function buildNotices() :array {
-		$notices = [];
-
-		foreach ( $this->getAdminNotices() as $notice ) {
-			$this->preProcessNotice( $notice );
-			if ( $notice->display ) {
-				try {
-					$this->processNotice( $notice );
-					if ( $notice->display ) {
-						$notices[] = $notice;
-					}
-				}
-				catch ( \Exception $e ) {
-				}
-			}
-		}
-
-		return $notices;
+		return [];
 	}
 
 	/**
 	 * @return NoticeVO[]
 	 */
 	public function getAdminNotices() :array {
-		return \array_map(
-			function ( $noticeDef ) {
-				$noticeDef = Services::DataManipulation()->mergeArraysRecursive(
-					[
-						'schedule'         => 'conditions',
-						'type'             => 'promo',
-						'plugin_page_only' => true,
-						'valid_admin'      => true,
-						'plugin_admin'     => 'yes',
-						'can_dismiss'      => true,
-						'per_user'         => false,
-						'display'          => false,
-						'min_install_days' => 0,
-						'twig'             => true,
-						'mod'              => $this->mod()->cfg->slug,
-					],
-					$noticeDef
-				);
-				return ( new NoticeVO() )->applyFromArray( $noticeDef );
-			},
-			$this->opts()->getAdminNotices()
-		);
+		return [];
 	}
 
 	protected function preProcessNotice( NoticeVO $notice ) {
@@ -110,16 +75,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function isNoticeDismissed( NoticeVO $notice ) :bool {
-		$dismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
-
-		$allDisd = $this->mod()->getDismissedNotices();
-		$dismissedMod = isset( $allDisd[ $notice->id ] ) && $allDisd[ $notice->id ] > 0;
-
-		if ( !$notice->per_user && $dismissedUser && !$dismissedMod ) {
-			$this->setNoticeDismissed( $notice );
-		}
-
-		return $dismissedUser || $dismissedMod;
+		return true;
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
@@ -127,23 +83,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
-		$dismissed = false;
-
-		$meta = self::con()->user_metas->current();
-		if ( !empty( $meta ) ) {
-			$noticeMetaKey = $this->getNoticeMetaKey( $notice );
-
-			if ( isset( $meta->{$noticeMetaKey} ) ) {
-				$dismissed = true;
-
-				// migrate from old-style array storage to plain Timestamp
-				if ( \is_array( $meta->{$noticeMetaKey} ) ) {
-					$meta->{$noticeMetaKey} = $meta->{$noticeMetaKey}[ 'time' ];
-				}
-			}
-		}
-
-		return $dismissed;
+		return true;
 	}
 
 	/**
@@ -154,27 +94,6 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function setNoticeDismissed( NoticeVO $notice ) {
-		$ts = Services::Request()->ts();
-
-		$meta = self::con()->user_metas->current();
-		$noticeMetaKey = $this->getNoticeMetaKey( $notice );
-
-		if ( $notice->per_user ) {
-			if ( !empty( $meta ) ) {
-				$meta->{$noticeMetaKey} = $ts;
-			}
-		}
-		else {
-			$mod = $this->mod();
-			$allDismissed = $mod->getDismissedNotices();
-			$allDismissed[ $notice->id ] = $ts;
-			$mod->setDismissedNotices( $allDismissed );
-
-			// Clear out any old
-			if ( !empty( $meta ) ) {
-				unset( $meta->{$noticeMetaKey} );
-			}
-		}
 	}
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {

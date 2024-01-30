@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'admin_access_restriction';
 
@@ -18,12 +15,6 @@ class ModCon extends BaseShield\ModCon {
 	 * @var Lib\SecurityAdmin\SecurityAdminController
 	 */
 	private $securityAdminCon;
-
-	protected function enumRuleBuilders() :array {
-		return [
-			Rules\Build\IsSecurityAdmin::class,
-		];
-	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
 		return $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController();
@@ -53,17 +44,5 @@ class ModCon extends BaseShield\ModCon {
 		catch ( \Exception $e ) {
 		}
 		$this->opts()->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function doPrePluginOptionsSave() {
 	}
 }

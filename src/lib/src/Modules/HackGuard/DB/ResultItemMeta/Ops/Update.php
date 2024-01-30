@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItemMeta\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
-
-class Update extends Base\Select {
+class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select {
 
 	use Common;
 }

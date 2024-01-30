@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class DisableXmlrpc extends BuildRuleLockdownBase {
 
@@ -22,14 +22,22 @@ class DisableXmlrpc extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\WpIsXmlrpc::SLUG,
+					'conditions' => Conditions\WpIsXmlrpc::class,
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'disable_xmlrpc',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
 				],
 			]
 		];
@@ -38,7 +46,28 @@ class DisableXmlrpc extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\DisableXmlrpc::SLUG,
+				'response' => Responses\HookAddFilter::class,
+				'params'   => [
+					'hook'     => 'xmlrpc_enabled',
+					'callback' => '__return_false',
+					'priority' => 1000,
+					'args'     => 0,
+				]
+			],
+			[
+				'response' => Responses\HookAddFilter::class,
+				'params'   => [
+					'hook'     => 'xmlrpc_methods',
+					'callback' => '__return_empty_array',
+					'priority' => 1000,
+					'args'     => 0,
+				]
+			],
+			[
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'block_xml',
+				],
 			],
 		];
 	}

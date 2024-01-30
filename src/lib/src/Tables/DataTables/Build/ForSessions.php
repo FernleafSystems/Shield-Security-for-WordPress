@@ -15,6 +15,7 @@ class ForSessions extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'rid',
+			'uid',
 			'details',
 			'is_secadmin',
 			'last_activity_at',
@@ -24,7 +25,7 @@ class ForSessions extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'rid'        => [
+			'rid'              => [
 				'data'           => 'rid',
 				'title'          => __( 'ID' ),
 				'className'      => 'rid',
@@ -36,7 +37,19 @@ class ForSessions extends Base {
 					'show' => false,
 				],
 			],
-			'details'     => [
+			'uid'              => [
+				'data'           => 'uid',
+				'title'          => __( 'User' ),
+				'className'      => 'uid',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => false,
+				'visible'        => false,
+				'searchPanes'    => [
+					'show' => true,
+				],
+			],
+			'details'          => [
 				'data'        => 'details',
 				'title'       => __( 'Details' ),
 				'className'   => 'details',
@@ -47,7 +60,7 @@ class ForSessions extends Base {
 					'show' => false
 				],
 			],
-			'is_secadmin' => [
+			'is_secadmin'      => [
 				'data'        => 'is_secadmin',
 				'title'       => __( 'Security Admin', 'wp-simple-firewall' ),
 				'className'   => 'is_secadmin',
@@ -58,7 +71,7 @@ class ForSessions extends Base {
 					'show' => false
 				],
 			],
-			'last_activity_at'        => [
+			'last_activity_at' => [
 				'data'        => 'last_activity_at',
 				'title'       => __( 'Last Activity' ),
 				'className'   => 'last_activity_at',
@@ -69,7 +82,7 @@ class ForSessions extends Base {
 					'show' => false,
 				],
 			],
-			'logged_in_at'        => [
+			'logged_in_at'     => [
 				'data'        => 'logged_in_at',
 				'title'       => __( 'Logged-In' ),
 				'className'   => 'logged_in_at',

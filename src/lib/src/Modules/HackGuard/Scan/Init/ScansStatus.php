@@ -12,16 +12,16 @@ class ScansStatus {
 
 	public function current() :string {
 		return (string)Services::WpDb()->getVar(
-			sprintf( "SELECT scans.scan
-						FROM `%s` as scans
+			sprintf( "SELECT `scans`.`scan`
+						FROM `%s` as `scans`
 						INNER JOIN `%s` as `si`
 							ON `si`.scan_ref = `scans`.id 
 							AND `si`.`started_at`>0
 						WHERE `scans`.`ready_at` > 0 
 						  AND `scans`.`finished_at`=0
 						LIMIT 1;",
-				$this->mod()->getDbH_Scans()->getTableSchema()->table,
-				$this->mod()->getDbH_ScanItems()->getTableSchema()->table
+				self::con()->db_con->dbhScans()->getTableSchema()->table,
+				self::con()->db_con->dbhScanItems()->getTableSchema()->table
 			)
 		);
 	}

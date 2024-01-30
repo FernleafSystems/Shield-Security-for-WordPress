@@ -2,27 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoStatusProvidedToCheckException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\UnsupportedStatusException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property string $code
+ * @deprecated 18.6
  */
 class MatchRequestStatusCode extends Base {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'match_request_status_code';
 
+	public static function MinimumHook() :int {
+		return WPHooksOrder::TEMPLATE_REDIRECT;
+	}
+
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->code ) ) {
+		if ( !isset( $this->code ) ) {
 			throw new NoStatusProvidedToCheckException( 'No status parameter provided to check' );
 		}
 
 		switch ( $this->code ) {
 			case '404':
 				$match = is_404();
-				$this->addConditionTriggerMeta( 'path', Services::Request()->getPath() );
+				$this->addConditionTriggerMeta( 'path', $this->req->path );
 				break;
 			default:
 				throw new UnsupportedStatusException( 'Status parameter provided is not supported: '.$this->code );
@@ -31,7 +38,16 @@ class MatchRequestStatusCode extends Base {
 		return $match;
 	}
 
-	public static function MinimumHook() :int {
-		return WPHooksOrder::TEMPLATE_REDIRECT;
+	public function getDescription() :string {
+		return __( 'Does the request response status code match the given code.', 'wp-simple-firewall' );
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'code' => [
+				'type'  => EnumParameters::TYPE_INT,
+				'label' => __( 'Match Response Status Code', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

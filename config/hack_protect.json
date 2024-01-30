@@ -550,7 +550,7 @@
         "cipher":        {
           "macro_type": "varchar",
           "length":     32,
-          "default":    "rc4",
+          "default":    "''",
           "comment":    "OpenSSL Cipher"
         },
         "content":       {

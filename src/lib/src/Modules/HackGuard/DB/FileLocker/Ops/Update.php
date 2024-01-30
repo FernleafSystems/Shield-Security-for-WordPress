@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Update extends Base\Update {
+class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Update {
 
 	public function markNotified( Record $entry ) :bool {
 		return $this->updateRecord( $entry, [

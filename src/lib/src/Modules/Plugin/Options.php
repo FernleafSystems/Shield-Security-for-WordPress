@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function preSave() :void {
 
@@ -13,6 +12,10 @@ class Options extends BaseShield\Options {
 			 || ( $this->isOptChanged( 'visitor_address_source' ) && $this->getIpSource() === 'AUTO_DETECT_IP' )
 		) {
 			$this->setOpt( 'ipdetect_at', 1 );
+		}
+
+		if ( !\preg_match( '#^[a-z]{2,3}(_[A-Z]{2,3})?$#', $this->getOpt( 'locale_override' ) ) ) {
+			$this->setOpt( 'locale_override', '' );
 		}
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
@@ -106,15 +109,9 @@ class Options extends BaseShield\Options {
 		$this->setOpt( 'visitor_address_source', $source );
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	public function getCaptchaConfig() :array {
-		return [
-			'provider' => '',
-			'key'      => '',
-			'secret'   => '',
-			'theme'    => '',
-		];
+	protected function getVirtualCommonOptions() :array {
+		$opts = parent::getVirtualCommonOptions();
+		$opts[] = 'dismissed_notices';
+		return \array_unique( $opts );
 	}
 }

@@ -95,27 +95,4 @@ class PluginURLs {
 			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
 	}
-
-	/**
-	 * @param string $trigger - option, section, module
-	 * @deprecated 18.5
-	 */
-	public function offCanvasTrigger( string $trigger ) :string {
-		return sprintf( "javascript:{shieldServices.offCanvas().%s}", $trigger );
-	}
-
-	/**
-	 * @param string $for - option, section, module
-	 * @deprecated 18.5
-	 */
-	public function offCanvasConfigRender( string $for ) :string {
-		return $this->offCanvasTrigger( sprintf( "renderConfig('%s')", $for ) );
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function isValidNav( string $navID ) :bool {
-		return \in_array( $navID, PluginNavs::GetAllNavs() );
-	}
 }

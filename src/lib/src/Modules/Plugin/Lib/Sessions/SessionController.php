@@ -16,6 +16,7 @@ class SessionController {
 
 	/**
 	 * @var SessionVO
+	 * @deprecated 18.6
 	 */
 	private $current;
 
@@ -39,11 +40,12 @@ class SessionController {
 	}
 
 	public function current() :SessionVO {
-		if ( !isset( $this->current ) ) {
-			$this->current = new SessionVO();
+		$session = self::con()->this_req->session ?? null;
+		if ( !$session instanceof SessionVO ) {
+			$session = new SessionVO();
 		}
 
-		if ( !$this->current->valid ) {
+		if ( !$session->valid ) {
 
 			if ( !empty( $this->getLoggedInCookie() ) ) {
 				$parsed = wp_parse_auth_cookie( $this->getLoggedInCookie() );
@@ -61,55 +63,87 @@ class SessionController {
 
 				$WPUsers = Services::WpUsers();
 				$user = $WPUsers->getCurrentWpUser();
-				$userID = $user instanceof \WP_User ? $user->ID : $this->getCapturedUserID();
+				if ( !$user instanceof \WP_User ) {
+					$user = $WPUsers->getUserById( $this->getCapturedUserID() );
+				}
+				$userID = $user instanceof \WP_User ? $user->ID : null;
 
 				if ( !empty( $userID ) ) {
-					$manager = \WP_Session_Tokens::get_instance( $userID );
-					$session = $manager->get( $parsed[ 'token' ] );
-					if ( \is_array( $session ) ) {
-
-						// Ensure the correct IP is stored
-						$srvIP = Services::IP();
-						$ip = self::con()->this_req->ip;
-						if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->IpIn( $ip, [ $session[ 'ip' ] ] ) ) ) {
-							$session[ 'ip' ] = $ip;
+					try {
+						$session = $this->buildSession( $userID, $parsed[ 'token' ] );
+						$userMeta = self::con()->user_metas->for( $user );
+						if ( !empty( $userMeta ) ) {
+							$userMeta->record->ip_ref = ( new IPRecords() )
+								->loadIP( $session->shield[ 'ip' ] )
+								->id;
 						}
-
-						$shieldSessionMeta = $session[ 'shield' ] ?? [];
-						$shieldSessionMeta[ 'user_id' ] = $userID;
-						$shieldSessionMeta[ 'last_activity_at' ] = Services::Request()->ts();
-						if ( empty( $shieldSessionMeta[ 'unique' ] ) ) {
-							$shieldSessionMeta[ 'unique' ] = uniqid();
-						}
-
-						$session[ 'shield' ] = $shieldSessionMeta;
-						$manager->update( $parsed[ 'token' ], $session );
-
-						// all that follows should not be stored
-						$session[ 'token' ] = $parsed[ 'token' ];
-						// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
-						$session[ 'hashed_token' ] = \function_exists( 'hash' ) ? \hash( 'sha256', $parsed[ 'token' ] ) : \sha1( $parsed[ 'token' ] );
-						$session[ 'valid' ] = true;
-
-						$this->current->applyFromArray( $session );
-
-						// Update User Last Seen IP.
-						try {
-							$userMeta = self::con()->user_metas->for( $WPUsers->getUserById( $userID ) );
-							if ( !empty( $userMeta ) ) {
-								$userMeta->record->ip_ref = ( new IPRecords() )
-									->loadIP( $session[ 'ip' ] )
-									->id;
-							}
-						}
-						catch ( \Exception $e ) {
-						}
+						self::con()->this_req->session = $session;
+					}
+					catch ( \Exception $e ) {
 					}
 				}
 			}
 		}
 
-		return $this->current;
+		return $session;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function buildSession( int $userID, string $token ) :SessionVO {
+		$req = Services::Request();
+		$thisReq = self::con()->this_req;
+
+		$manager = \WP_Session_Tokens::get_instance( $userID );
+		$session = $manager->get( $token );
+		if ( !\is_array( $session ) ) {
+			throw new \Exception( 'No such session available' );
+		}
+
+		// Ensure the correct IP is stored
+		$srvIP = Services::IP();
+		$ip = $thisReq->ip;
+		if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->IpIn( $ip, [ $session[ 'ip' ] ] ) ) ) {
+			$session[ 'ip' ] = $ip;
+		}
+
+		$shieldMeta = $session[ 'shield' ] ?? [];
+		$shieldMeta[ 'user_id' ] = $userID;
+		$shieldMeta[ 'expires_at' ] = $session[ 'expiration' ];
+		$shieldMeta[ 'idle_interval' ] = $req->ts() - ( $shieldMeta[ 'last_activity_at' ] ?? $req->ts() );
+		$shieldMeta[ 'last_activity_at' ] = $req->ts();
+		if ( empty( $shieldMeta[ 'host' ] ) ) {
+			$shieldMeta[ 'host' ] = $thisReq->host ?? $req->getHost();
+		}
+		if ( empty( $shieldMeta[ 'unique' ] ) ) {
+			$shieldMeta[ 'unique' ] = uniqid();
+		}
+		if ( !isset( $shieldMeta[ 'useragent' ] ) ) {
+			$shieldMeta[ 'useragent' ] = self::con()->this_req->useragent;
+		}
+		if ( !isset( $shieldMeta[ 'ip' ] ) ) {
+			$shieldMeta[ 'ip' ] = self::con()->this_req->ip;
+		}
+
+		$shieldMeta[ 'session_duration' ] = $req->ts() - ( $shieldMeta[ 'session_started_at' ] ?? $req->ts() );
+		if ( !isset( $shieldMeta[ 'session_started_at' ] ) ) {
+			$shieldMeta[ 'session_started_at' ] = $session[ 'login' ] ?? $req->ts();
+		}
+
+		$shieldMeta[ 'token_duration' ] = $req->ts() - ( $shieldMeta[ 'token_started_at' ] ?? $shieldMeta[ 'session_started_at' ] );
+		if ( !isset( $shieldMeta[ 'token_started_at' ] ) ) {
+			$shieldMeta[ 'token_started_at' ] = $session[ 'login' ] ?? $req->ts();
+		}
+
+		$session[ 'shield' ] = $shieldMeta;
+		$manager->update( $token, $session );
+
+		$VO = ( new SessionVO() )->applyFromArray( $session );
+		$VO->valid = true;
+		$VO->token = $token;
+
+		return $VO;
 	}
 
 	/**
@@ -129,31 +163,23 @@ class SessionController {
 		}
 	}
 
-	public function updateSessionParameter( string $key, $value ) {
-		$current = $this->current();
-		if ( $current->valid ) {
+	public function updateSessionParameter( SessionVO $session, string $key, $value ) {
+		if ( $session->valid && ( $session->shield[ 'user_id' ] ?? 0 ) > 0 ) {
+			$shield = $session->shield;
+			$shield[ $key ] = $value;
+			$session->shield = $shield;
 
-			$user = Services::WpUsers()->getCurrentWpUser();
-			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
-			if ( !empty( $userID ) ) {
-				$shield = $current->shield;
-				$shield[ $key ] = $value;
-				$current->shield = $shield;
-				\WP_Session_Tokens::get_instance( $userID )
-								  ->update(
-									  $current->token,
-									  \array_diff_key( $current->getRawData(), \array_flip( [
-										  'token',
-										  'hashed_token',
-										  'valid'
-									  ] ) )
-								  );
-			}
+			\WP_Session_Tokens::get_instance( $session->shield[ 'user_id' ] )
+							  ->update(
+								  $session->token,
+								  $session->getRawData()
+							  );
 		}
 	}
 
 	public function terminateCurrentSession() :bool {
 		$current = $this->current();
+
 		if ( $current->valid ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
@@ -168,12 +194,8 @@ class SessionController {
 			}
 		}
 
-		unset( $this->current );
+		unset( self::con()->this_req->session );
 
 		return true;
-	}
-
-	public function getSessionID() :string {
-		return '';
 	}
 }

@@ -2,26 +2,30 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestPath;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsRequestToInvalidPlugin extends Base {
 
-	use RequestPath;
+	use Traits\TypeWordpress;
 
 	public const SLUG = 'is_request_to_invalid_plugin';
 
-	protected function execConditionCheck() :bool {
-		$asset = new IsRequestToPluginAsset();
-		$asset->request_path = $this->getRequestPath();
-		$validAsset = new IsRequestToValidPluginAsset();
-		$validAsset->request_path = $this->getRequestPath();
-		return $asset->run() && !$validAsset->run();
+	public function getDescription() :string {
+		return __( 'Is the request to a path within a potentially installed WordPress plugin but is invalid.', 'wp-simple-firewall' );
 	}
 
-	public static function RequiredConditions() :array {
+	protected function getSubConditions() :array {
 		return [
-			IsRequestToPluginAsset::class,
-			IsRequestToValidPluginAsset::class
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => IsRequestToPluginAsset::class,
+				],
+				[
+					'conditions' => IsRequestToValidPluginAsset::class,
+					'logic'      => EnumLogic::LOGIC_INVERT
+				],
+			]
 		];
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageLicense extends BasePluginAdminPage {
@@ -69,7 +70,7 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'inputs'  => [
 				'license_key' => [
-					'name'      => $con->prefixOption( 'license_key' ),
+					'name'      => $con->prefix( 'license_key', '_' ),
 					'maxlength' => $opts->getDef( 'license_key_length' ),
 				]
 			],
@@ -87,7 +88,7 @@ class PageLicense extends BasePluginAdminPage {
 					'last_checked'    => $checked,
 					'last_errors'     => $mod->hasLastErrors() ? $mod->getLastErrors( true ) : '',
 					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ? '&#10004;' : '&#10006;',
-					'installation_id' => $con->getInstallationID()[ 'id' ],
+					'installation_id' => ( new InstallationID() )->id(),
 				],
 				'activation_url' => Services::WpGeneral()->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true ),

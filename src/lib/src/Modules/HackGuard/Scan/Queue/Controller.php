@@ -52,7 +52,7 @@ class Controller {
 	 */
 	public function getScanJobProgress() {
 		/** @var ScanItemsDB\Ops\Select $selector */
-		$selector = $this->mod()->getDbH_ScanItems()->getQuerySelector();
+		$selector = self::con()->db_con->dbhScanItems()->getQuerySelector();
 
 		$countsAll = $selector->countAllForEachScan();
 		$countsUnfinished = $selector->countUnfinishedForEachScan();

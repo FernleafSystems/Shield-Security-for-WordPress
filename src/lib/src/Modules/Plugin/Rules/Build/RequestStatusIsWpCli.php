@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\WpIsWpcli;
 
+/**
+ * @deprecated 18.6
+ */
 class RequestStatusIsWpCli extends RequestStatusBase {
 
 	public const SLUG = 'shield/request_status_is_wpcli';
@@ -14,12 +17,7 @@ class RequestStatusIsWpCli extends RequestStatusBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'group' => [
-				[
-					'condition' => WpIsWpcli::SLUG,
-				],
-			]
+			'conditions' => WpIsWpcli::class,
 		];
 	}
 }

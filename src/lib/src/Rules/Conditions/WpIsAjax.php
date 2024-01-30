@@ -2,17 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class WpIsAjax extends Base {
+
+	use Traits\TypeWordpress;
 
 	public const SLUG = 'wp_is_ajax';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = self::con()->this_req;
-		if ( !isset( $thisReq->wp_is_ajax ) ) {
-			$thisReq->wp_is_ajax = Services::WpGeneral()->isAjax();
-		}
-		return $thisReq->wp_is_ajax;
+		return $this->req->wp_is_ajax;
+	}
+
+	public function getName() :string {
+		return __( 'Is WP AJAX', 'wp-simple-firewall' );
+	}
+
+	public function getDescription() :string {
+		return __( 'Is the request to the standard WordPress AJAX endpoint.', 'wp-simple-firewall' );
 	}
 }

@@ -1,0 +1,29 @@
+{% extends '/pages/block/block_page_standard.twig' %}
+
+{% block page_actions %}
+
+	<div class="row">
+		<div class="col-lg-6 col-md-9 mx-auto mb-3">
+			{% if flags.has_magiclink or flags.has_autorecover %}
+				<div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+			    {% if flags.has_magiclink %}
+				    <a type="button" class="btn btn-primary btn-lg px-4 me-sm-3"
+				       data-bs-toggle="modal" data-bs-target="#UserAutoUnblockDialog">Unblock via Email</a>
+				  {% elseif flags.has_autorecover %}
+				    <a type="button" class="btn btn-primary btn-lg px-4 me-sm-3"
+				       data-bs-toggle="modal" data-bs-target="#AutoRecoverDialog">Unblock My IP</a>
+			    {% endif %}
+			  </div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-4 offset-md-4 mb-3">
+			<div class="alert alert-secondary">
+		      {{ strings.contact_admin }}
+			</div>
+    </div>
+  </div>
+
+{% endblock %}

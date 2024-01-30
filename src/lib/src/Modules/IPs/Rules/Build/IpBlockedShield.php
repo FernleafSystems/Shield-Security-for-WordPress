@@ -5,9 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
 	Conditions,
-	Responses
+	Responses,
+	WPHooksOrder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockIpAddressShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 class IpBlockedShield extends BuildRuleIpsBase {
 
@@ -25,41 +27,41 @@ class IpBlockedShield extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
-				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
-				],
-				[
-					'logic' => static::LOGIC_OR,
-					'group' => [
-						[
-							'condition' => Conditions\IsIpBlockedManual::SLUG,
-						],
-						[
-							'logic' => static::LOGIC_AND,
-							'group' => [
-								[
-									'condition' => Conditions\IsIpBlockedAuto::SLUG,
-								],
-								[
-									'condition'    => Conditions\IsIpHighReputation::SLUG,
-									'invert_match' => true
-								],
-							]
-						]
-					]
-				]
-			]
+			'conditions' => Conditions\IsIpBlockedByShield::class,
 		];
 	}
 
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpBlockedShield::SLUG,
+				'response' => Responses\UpdateIpRuleLastAccessAt::class,
+			],
+			[
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'conn_kill',
+				],
+			],
+			[
+				'response' => Responses\DoAction::class,
+				'params'   => [
+					'hook' => 'shield/maybe_intercept_block_shield',
+				],
+			],
+			[
+				'response' => Responses\DisplayBlockPage::class,
+				'params'   => [
+					'block_page_slug' => BlockIpAddressShield::SLUG,
+				],
 			],
 		];
+	}
+
+	protected function getWpHookLevel() :int {
+		return WPHooksOrder::INIT;
+	}
+
+	protected function getWpHookPriority() :?int {
+		return HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_SHIELD;
 	}
 }

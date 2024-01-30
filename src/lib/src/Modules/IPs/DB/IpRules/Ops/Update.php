@@ -2,12 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Update extends Base\Update {
+class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Update {
 
 	/**
 	 * @param Record|IpRuleRecord $IP

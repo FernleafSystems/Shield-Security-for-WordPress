@@ -6,19 +6,21 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 /**
- * @property string   $slug
- * @property string   $name
- * @property string   $description
- * @property string   $wp_hook
- * @property int      $wp_hook_level
- * @property int      $wp_hook_priority
- * @property bool     $result
- * @property bool     $immediate_exec_response
- * @property string[] $flags
- * @property string[] $prerequisites
- * @property array[]  $conditions
- * @property array[]  $responses
- * @property string[] $all_actions
+ * @property string       $class
+ * @property string       $slug
+ * @property string       $name
+ * @property string       $description
+ * @property bool         $is_valid
+ * @property string       $wp_hook
+ * @property int          $wp_hook_level
+ * @property int          $wp_hook_priority
+ * @property bool         $result
+ * @property bool         $immediate_exec_response
+ * @property string[]     $flags
+ * @property string[]     $prerequisites
+ * @property ConditionsVO $conditions
+ * @property array[]      $responses
+ * @property string[]     $all_actions
  */
 class RuleVO extends DynPropertiesClass {
 
@@ -33,7 +35,7 @@ class RuleVO extends DynPropertiesClass {
 				break;
 
 			case 'wp_hook_priority':
-				$value = is_numeric( $value ) ? (int)$value : $this->determineWpHookPriority();
+				$value = \is_numeric( $value ) ? (int)$value : $this->determineWpHookPriority();
 				break;
 
 			case 'immediate_exec_response':
@@ -42,12 +44,18 @@ class RuleVO extends DynPropertiesClass {
 
 			case 'flags':
 			case 'prerequisites':
-			case 'conditions':
 			case 'responses':
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
-				$this->{$key} = $value;
+				break;
+
+			case 'conditions':
+				$value = ( new ConditionsVO() )->applyFromArray( \is_array( $value ) ? $value : [] );
+				break;
+
+			case 'is_valid':
+				$value = $value || $value === null;
 				break;
 
 			default:

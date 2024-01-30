@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class CheckModuleRequirements {
 
-	use Shield\Modules\ModConsumer;
+	use ModConsumer;
 
 	/**
 	 * @throws \Exception

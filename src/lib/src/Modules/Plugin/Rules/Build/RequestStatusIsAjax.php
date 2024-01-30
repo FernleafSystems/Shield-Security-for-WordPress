@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\WpIsAjax;
 
+/**
+ * @deprecated 18.6
+ */
 class RequestStatusIsAjax extends RequestStatusBase {
 
 	public const SLUG = 'shield/request_status_is_ajax';
@@ -14,12 +17,7 @@ class RequestStatusIsAjax extends RequestStatusBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'group' => [
-				[
-					'condition' => WpIsAjax::SLUG,
-				],
-			]
+			'conditions' => WpIsAjax::class,
 		];
 	}
 }

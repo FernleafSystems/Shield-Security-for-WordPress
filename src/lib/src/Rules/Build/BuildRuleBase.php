@@ -14,11 +14,13 @@ abstract class BuildRuleBase {
 
 	public function build() :RuleVO {
 		$rule = new RuleVO();
+		$rule->class = \get_class( $this );
 		$rule->slug = $this->getSlug();
 		$rule->name = $this->getName();
 		$rule->description = $this->getDescription();
 		$rule->wp_hook = '';
 		$rule->wp_hook_level = $this->getWpHookLevel();
+		$rule->wp_hook_priority = $this->getWpHookPriority();
 		$rule->flags = $this->getFlags();
 		$rule->conditions = $this->getConditions();
 		$rule->responses = $this->getResponses();
@@ -26,8 +28,8 @@ abstract class BuildRuleBase {
 		return $rule;
 	}
 
+	abstract protected function getSlug() :string;
 	abstract protected function getName() :string;
-
 	abstract protected function getDescription() :string;
 
 	protected function getWpHook() :string {
@@ -38,12 +40,11 @@ abstract class BuildRuleBase {
 		return WPHooksOrder::NONE;
 	}
 
-	protected function getConditions() :array {
-		return [
-			'logic' => static::LOGIC_AND,
-			'group' => []
-		];
+	protected function getWpHookPriority() :?int {
+		return null;
 	}
+
+	abstract protected function getConditions() :array;
 
 	protected function getFlags() :array {
 		return [];

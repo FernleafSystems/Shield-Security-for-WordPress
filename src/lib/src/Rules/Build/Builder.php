@@ -2,12 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MutuallyDependentRulesException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 
 class Builder {
-
-	use RulesControllerConsumer;
 
 	public function run() :array {
 		$rules = [];
@@ -16,19 +13,10 @@ class Builder {
 			$rules[ $rule->slug ] = $rule;
 		}
 
-		try {
-			$rules = ( new SortRulesByDependencies( $rules ) )->run();
-		}
-		catch ( MutuallyDependentRulesException $e ) {
-			error_log( $e->getMessage() );
-		}
-		return $rules;
-	}
+		( new AssignMinimumHooks( $rules ) )->run();
 
-	/**
-	 * @return BuildRuleBase[]
-	 */
-	private function getRuleBuilders() :array {
-		return ( new RuleBuilderEnumerator() )->run();
+		return \array_filter( $rules, function ( RuleVO $rule ) {
+			return $rule->is_valid;
+		} );
 	}
 }

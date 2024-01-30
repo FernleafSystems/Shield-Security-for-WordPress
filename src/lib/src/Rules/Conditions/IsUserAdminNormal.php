@@ -2,19 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsUserAdminNormal extends Base {
 
+	use Traits\TypeUser;
+
 	public const SLUG = 'is_user_admin_normal';
 
-	protected function execConditionCheck() :bool {
-		return ( new IsLoggedInNormal() )->run() && Services::WpUsers()->isUserAdmin();
+	public function getDescription() :string {
+		return __( "Is current logged-in user a WordPress administrator.", 'wp-simple-firewall' );
 	}
 
-	public static function RequiredConditions() :array {
+	protected function getSubConditions() :array {
 		return [
-			IsLoggedInNormal::class,
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => IsLoggedInNormal::class,
+				],
+				[
+					'conditions' => UserHasWpCapability::class,
+					'params'     => [
+						'user_cap' => 'manage_options',
+					],
+				],
+			]
 		];
 	}
 }

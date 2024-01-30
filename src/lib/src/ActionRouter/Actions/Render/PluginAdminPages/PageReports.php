@@ -32,6 +32,14 @@ class PageReports extends BasePluginAdminPage {
 		return $hrefs;
 	}
 
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Reports', 'wp-simple-firewall' ) ),
+			'href'       => 'https://help.getshieldsecurity.com/collection/202-reports-section',
+			'new_window' => true,
+		];
+	}
+
 	protected function getRenderData() :array {
 		return [
 			'content' => $this->buildContent(),

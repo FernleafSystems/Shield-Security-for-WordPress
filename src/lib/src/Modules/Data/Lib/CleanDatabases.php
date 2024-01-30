@@ -33,8 +33,8 @@ class CleanDatabases {
 
 	public function cleanBotSignals() :void {
 		self::con()
-			->getModule_IPs()
-			->getDbH_BotSignal()
+			->db_con
+			->dbhBotSignal()
 			->getQueryDeleter()
 			->addWhereOlderThan( Services::Request()->carbon( true )->subweeks( 2 )->timestamp, 'updated_at' )
 			->query();
@@ -54,8 +54,8 @@ class CleanDatabases {
 		/** @var Traffic\Options $optsTraffic */
 		$optsTraffic = $con->getModule_Traffic()->opts();
 
-		$con->getModule_Data()
-			->getDbH_ReqLogs()
+		$con->db_con
+			->dbhReqLogs()
 			->deleteRowsOlderThan(
 				Services::Request()
 						->carbon( true )
@@ -64,8 +64,8 @@ class CleanDatabases {
 			);
 
 		// 2. Delete transient logs older than 1 hr.
-		$con->getModule_Data()
-			->getDbH_ReqLogs()
+		$con->db_con
+			->dbhReqLogs()
 			->getQueryDeleter()
 			->addWhereOlderThan( Services::Request()->carbon( true )->subHour()->timestamp )
 			->addWhereEquals( 'transient', '1' )
@@ -79,10 +79,10 @@ class CleanDatabases {
 							  ->subDays( $optsTraffic->getAutoCleanDays() )->timestamp;
 			Services::WpDb()->doSql(
 				sprintf( 'DELETE FROM `%s` WHERE `created_at` < %s AND `id` NOT IN ( %s );',
-					$con->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+					$con->db_con->dbhReqLogs()->getTableSchema()->table,
 					$oldest,
 					sprintf( 'SELECT DISTINCT `req_ref` FROM `%s` WHERE `created_at` < %s',
-						$con->getModule_AuditTrail()->getDbH_Logs()->getTableSchema()->table,
+						$con->db_con->dbhActivityLogs()->getTableSchema()->table,
 						$oldest
 					)
 				)
@@ -92,7 +92,7 @@ class CleanDatabases {
 
 	public function cleanStaleReports() :void {
 		/** @var Plugin\DB\Reports\Ops\Delete $deleter */
-		$deleter = self::con()->getModule_Plugin()->getDbH_Reports()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhReports()->getQueryDeleter();
 		$deleter->filterByProtected( false )
 				->addWhereOlderThan( Services::Request()->carbon( true )->startOfDay()->subDay()->timestamp )
 				->query();
@@ -111,7 +111,7 @@ class CleanDatabases {
 			'DELETE `meta` FROM `%s` as `meta`
 				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id`
 				WHERE `users`.`ID` IS NULL;',
-			self::con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
+			self::con()->db_con->dbhUserMeta()->getTableSchema()->table,
 			Services::WpDb()->getTable_Users()
 		) );
 	}
@@ -119,9 +119,9 @@ class CleanDatabases {
 	private function cleanOldEmail2FA() {
 		/** @var LoginGuard\DB\Mfa\Ops\Delete $deleter */
 		$deleter = self::con()
-					   ->getModule_LoginGuard()
-					   ->getDbH_Mfa()
-					   ->getQueryDeleter();
+			->db_con
+			->dbhMfa()
+			->getQueryDeleter();
 		$deleter->filterBySlug( LoginGuard\Lib\TwoFactor\Provider\Email::ProviderSlug() )
 				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
 				->query();
@@ -133,10 +133,10 @@ class CleanDatabases {
 		// This is more work, but it optimises the array of ip_ref's so that it's not massive and then has to be "uniqued"
 		$ipIDsInUse = [];
 		foreach ( [
-			$con->getModule_Data()->getDbH_ReqLogs()->getQuerySelector(),
-			$con->getModule_IPs()->getDbH_BotSignal()->getQuerySelector(),
-			$con->getModule_IPs()->getDbH_IPRules()->getQuerySelector(),
-			$con->getModule_Data()->getDbH_UserMeta()->getQuerySelector(),
+			$con->db_con->dbhReqLogs()->getQuerySelector(),
+			$con->db_con->dbhBotSignal()->getQuerySelector(),
+			$con->db_con->dbhIPRules()->getQuerySelector(),
+			$con->db_con->dbhUserMeta()->getQuerySelector(),
 		] as $dbSelector ) {
 			/** @var Select $dbSelector */
 			$ipIDsInUse = \array_unique( \array_merge(
@@ -145,8 +145,8 @@ class CleanDatabases {
 			) );
 		}
 
-		$con->getModule_Data()
-			->getDbH_IPs()
+		$con->db_con
+			->dbhIPs()
 			->getQueryDeleter()
 			->addWhereNotIn( 'id', $ipIDsInUse )
 			->query();

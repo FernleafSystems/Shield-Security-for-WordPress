@@ -1,4 +1,93 @@
 {
+  "19.0": {
+    "version":     "19.0",
+    "released_at": 1706608000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease190",
+      "upgrade": "https://shsec.io/shieldupgradeguide190"
+    },
+    "title":       "Security DIY: Custom Rules Builder",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Security Rules Builder",
+        "description": [
+          "The Security Rules Builder lets you design and build your own set of security rules for any security restrictions you desire."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Support For ShieldPRO Extensions",
+        "description": [
+          "We'll soon release some Shield Security Extensions to build upon the Shield platform."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Protection Against Session Theft/Hijacking",
+        "description": [
+          "You can now lock user sessions to IP addresses, User Agents, or both.",
+          "This helps to prevent session theft and hijacking, and re-use of user sessions on other devices."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "User Sessions Filter By Username",
+        "description": [
+          "You can (again) filter the user sessions table by usernames."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "FileLocker Improvements",
+        "description": [
+          "Updated the FileLocker system to ensure compatibility with the Shield.NET API."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Geolocation",
+        "description": [
+          "Added some basic geo-location data that comes from CloudFlare (if you use it) to allow for rules that use Geolocation data.",
+          "A ShieldPRO extension will be provided at a later date to offer Geolocation data options beyond CloudFlare."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Code Rewrite & Cleaning",
+        "description": [
+          "A lot of plugin code has been rewritten to use the newer Rules Engine, improving performance & reliability."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    true,
+        "title":       "Improved Passkeys Platform Support",
+        "description": [
+          "Ensure Passkeys can be used on hosts that don't have the GMP extension active."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.5": {
     "version":     "18.5",
     "released_at": 1700478000,

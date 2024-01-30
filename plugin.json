@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "18.5.10",
-    "release_timestamp":       1703350000,
-    "build":                   "202312.2301",
+    "version":                 "19.0.1",
+    "release_timestamp":       1706608250,
+    "build":                   "202401.3002",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -223,6 +223,7 @@
     "PluginURI":           "https://shsec.io/2f",
     "AuthorURI":           "https://shsec.io/bv",
     "url_img_pagebanner":  "pluginlogo_banner-1544x500.png",
+    "url_img_logo_small":  "pluginlogo_banner-170x40.png",
     "icon_url_16x16":      "pluginlogo_16x16.png",
     "icon_url_16x16_grey": "pluginlogo_16x16_grey.png",
     "icon_url_32x32":      "pluginlogo_32x32.png",

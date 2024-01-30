@@ -2,13 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
-	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 
 class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 
@@ -26,31 +24,7 @@ class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'group' => [
-				[
-					'rule' => RequestBypassesAllRestrictions::SLUG,
-				],
-				[
-					'logic' => static::LOGIC_AND,
-					'group' => [
-						[
-							'condition' => Conditions\IsUserAdminNormal::SLUG,
-						],
-						[
-							'condition' => Conditions\IsSecurityAdmin::SLUG,
-						],
-					]
-				]
-			]
-		];
-	}
-
-	protected function getResponses() :array {
-		return [
-			[
-				'response' => Responses\SetSecurityAdmin::SLUG,
-			],
+			'conditions' => Conditions\IsRequestSecurityAdmin::class,
 		];
 	}
 }

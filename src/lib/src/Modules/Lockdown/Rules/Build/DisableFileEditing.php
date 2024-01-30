@@ -2,8 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	Enum,
+	Responses
+};
 
 class DisableFileEditing extends BuildRuleLockdownBase {
 
@@ -19,11 +22,19 @@ class DisableFileEditing extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'disable_file_editing',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
 				],
 			]
 		];
@@ -32,7 +43,14 @@ class DisableFileEditing extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\DisableFileEditing::SLUG,
+				'response' => Responses\DisableFileEditing::class,
+			],
+			[
+				'response' => Responses\PhpSetDefine::class,
+				'params'   => [
+					'name'  => 'DISALLOW_FILE_EDIT',
+					'value' => true,
+				]
 			],
 		];
 	}

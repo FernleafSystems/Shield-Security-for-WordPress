@@ -4,9 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
-	Conditions
+	Conditions,
+	Enum\EnumLogic
 };
 
+/**
+ * @deprecated 18.5.8
+ */
 class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
 	public const SLUG = 'shield/is_public_web_request';
@@ -21,18 +25,14 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic' => EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'condition'    => Conditions\WpIsWpcli::SLUG,
-					'invert_match' => true,
+					'conditions' => Conditions\WpIsWpcli::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'condition' => Conditions\IsIpValidPublic::SLUG,
-				],
-				[
-					'rule'         => IsServerLoopback::SLUG,
-					'invert_match' => true,
+					'conditions' => Conditions\IsIpValidPublic::class,
 				],
 			]
 		];

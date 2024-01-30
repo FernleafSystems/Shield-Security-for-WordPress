@@ -1,0 +1,116 @@
+<div id="RuleBuilder">
+
+	<h6 class="my-3">{{ strings.title }}:</h6>
+
+	<form>
+
+		<input type="hidden" name="edit_rule_id" value="{{ vars.edit_rule_id }}">
+
+		<div class="row">
+			<div class="col">
+				<div class="alert alert-info d-inline-block">
+					<h5 class="m-0">{{ strings.if }} ...</h5>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xl-2 col-3">
+				{% if flags.show_conditions_logic %}
+					{% set logic = vars.conditions_logic %}
+					{% include '/components/rules/builder_components/logic_sidebar.twig' %}
+				{% endif %}
+			</div>
+			<div class="col pt-3">
+				{% include '/components/rules/builder_components/conditions.twig' %}
+			</div>
+		</div>
+
+
+		{% if vars.count_set_conditions > 0 and not flags.has_unset_condition %}
+			<div class="row mb-3">
+				<div class="col offset-3">
+					<button class="btn btn-sm btn-secondary add-condition">+ Add Another Condition</button>
+				</div>
+			</div>
+		{% endif %}
+
+		{% if flags.show_responses %}
+			<div class="row mb-4">
+				<div class="col">
+
+					<div class="row">
+						<div class="col">
+							<div class="alert alert-info d-inline-block">
+								<h5 class="m-0">{{ strings.then }} ...</h5>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xl-2 col-3">
+							{% if flags.show_responses_logic %}
+								{% set logic = vars.responses_logic %}
+								{% include '/components/rules/builder_components/logic_sidebar.twig' %}
+							{% endif %}
+						</div>
+						<div class="col pt-3">
+							{% include '/components/rules/builder_components/responses.twig' %}
+						</div>
+					</div>
+
+					{% if vars.count_set_responses > 0 and not flags.has_unset_response %}
+						<div class="row mb-3">
+							<div class="col offset-3">
+								<button class="btn btn-sm btn-secondary add-response">+ Add Another Response</button>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+		{% endif %}
+
+		<hr>
+
+		<div class="row mb-3">
+			<div class="col-8 col-lg-5 col-xl-4">
+				<h6 class="mb-0"><label for="rule_name" class="form-label">Rule Name</label></h6>
+				<input type="text"
+					   name="rule_name"
+					   class="form-control {{ vars.rule_name|length > 0 ? 'is-valid':'is-invalid' }}"
+					   id="rule_name"
+					   value="{{ vars.rule_name }}"
+					   placeholder="Name this rule"
+					   required>
+				<div class="invalid-feedback">A name is required.</div>
+			</div>
+		</div>
+
+		<div class="row mb-4">
+			<div class="col-8">
+				<h6 class="mb-0"><label for="rule_description" class="form-label">Description</label></h6>
+				<input type="text"
+					   name="rule_description"
+					   class="form-control {{ vars.rule_description|length > 0 ? 'is-valid':'is-invalid' }}"
+					   id="rule_description"
+					   value="{{ vars.rule_description }}"
+					   placeholder="Describe this rule"
+					   required>
+				<div class="invalid-feedback">A description is required.</div>
+			</div>
+		</div>
+
+		{% include '/components/rules/builder_components/checks.twig' %}
+
+		<div class="row mt-4">
+			<div class="col-6">
+				<button class="btn btn-success create-rule {% if not flags.allow_submit %}disabled{% endif %}"
+						{% if not flags.allow_submit %}disabled="disabled"{% endif %}
+				>{{ flags.is_early_draft ? strings.create_rule : strings.update_rule }}</button>
+				<button class="btn btn-outline-secondary ms-3 reset">{{ strings.reset }}</button>
+			</div>
+		</div>
+
+	</form>
+</div>

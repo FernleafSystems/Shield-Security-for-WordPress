@@ -56,20 +56,4 @@ class Urls {
 	protected function lookupAssetInSpec( string $asset, string $type ) :array {
 		return self::con()->cfg->includes[ 'register' ][ $type ][ $asset ] ?? [];
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function forCss( string $asset ) :string {
-		$url = $this->lookupAssetUrlInSpec( $asset, 'css' );
-		return empty( $url ) ? $this->forAsset( 'css/'.Paths::AddExt( $asset, 'css' ) ) : $url;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function forJs( string $asset ) :string {
-		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
-		return empty( $url ) ? $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) ) : $url;
-	}
 }

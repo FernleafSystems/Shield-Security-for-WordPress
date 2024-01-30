@@ -11,10 +11,6 @@ class Options {
 
 	use ModConsumer;
 
-	private $cfgLoader;
-
-	private $optsStorage;
-
 	/**
 	 * @var array
 	 */
@@ -31,15 +27,9 @@ class Options {
 	protected $bNeedSave = false;
 
 	/**
-	 * @var string
+	 * @var string[]
 	 */
 	protected $aOptionsKeys;
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function deleteStorage() {
-	}
 
 	public function getAllOptionsValues() :array {
 		try {
@@ -71,25 +61,6 @@ class Options {
 			}
 		}
 		return $transferable;
-	}
-
-	/**
-	 * Returns an array of all the options with the values for "sensitive" options masked out.
-	 */
-	public function getOptionsMaskSensitive() :array {
-
-		$opts = $this->getAllOptionsValues();
-		foreach ( $this->getOptionsKeys() as $key ) {
-			if ( !isset( $opts[ $key ] ) ) {
-				$opts[ $key ] = $this->getOptDefault( $key );
-			}
-		}
-		foreach ( $this->cfg()->options as $optDef ) {
-			if ( isset( $optDef[ 'sensitive' ] ) && $optDef[ 'sensitive' ] === true ) {
-				unset( $opts[ $optDef[ 'key' ] ] );
-			}
-		}
-		return \array_diff_key( $opts, \array_flip( $this->getVirtualCommonOptions() ) );
 	}
 
 	/**
@@ -344,11 +315,7 @@ class Options {
 
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
-			$this->aOptionsKeys = \array_merge(
-				\array_keys( $this->cfg()->options ),
-				$this->getCommonStandardOptions(),
-				$this->getVirtualCommonOptions()
-			);
+			$this->aOptionsKeys = \array_merge( \array_keys( $this->cfg()->options ), $this->getVirtualCommonOptions() );
 		}
 		return $this->aOptionsKeys;
 	}
@@ -557,10 +524,6 @@ class Options {
 		$this->setOptionsValues( $values );
 	}
 
-	protected function getCommonStandardOptions() :array {
-		return [];
-	}
-
 	protected function getVirtualCommonOptions() :array {
 		return [
 			'dismissed_notices',
@@ -585,13 +548,7 @@ class Options {
 	 */
 	public function setOptionsValues( array $values = [] ) {
 
-		$values = \array_intersect_key(
-			$values,
-			\array_merge(
-				\array_flip( $this->getOptionsKeys() ),
-				\array_flip( $this->getVirtualCommonOptions() )
-			)
-		);
+		$values = \array_intersect_key( $values, \array_flip( $this->getOptionsKeys() ) );
 
 		if ( isset( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = $values;
@@ -602,5 +559,12 @@ class Options {
 		$this->setNeedSave( true );
 
 		return $this;
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
+	protected function getCommonStandardOptions() :array {
+		return [];
 	}
 }

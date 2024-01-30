@@ -2,22 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
 
+/**
+ * @deprecated 18.5.8
+ */
 class BaseProcessor {
 
 	use RulesControllerConsumer;
-	use PluginControllerConsumer;
 
 	/**
 	 * @var RuleVO
 	 */
 	protected $rule;
 
-	public function __construct( RuleVO $rule, RulesController $rulesCon ) {
+	public function __construct( RuleVO $rule, RulesController $rulesCon = null ) {
 		$this->setRulesCon( $rulesCon );
 		$this->rule = $rule;
 	}

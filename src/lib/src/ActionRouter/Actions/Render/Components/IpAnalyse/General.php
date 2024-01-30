@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
@@ -22,9 +22,9 @@ class General extends Base {
 		$mod = $con->getModule_IPs();
 		$ip = $this->action_data[ 'ip' ];
 
-		$geo = ( new Lookup() )
+		$countryCode = ( new LookupMeta() )
 			->setIP( $ip )
-			->lookup();
+			->countryCode();
 
 		try {
 			[ $ipKey, $ipName ] = ( new IpID( $ip ) )
@@ -56,7 +56,7 @@ class General extends Base {
 		$ruleStatus = new IpRuleStatus( $ip );
 		return [
 			'flags'   => [
-				'has_geo' => !empty( $geo->getRawData() ),
+				'has_geo' => !empty( $countryCode ),
 			],
 			'hrefs'   => [
 				'snapi_reputation_details' => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
@@ -109,18 +109,13 @@ class General extends Base {
 					'is_bypass'              => $ruleStatus->isBypass(),
 					'is_crowdsec'            => $ruleStatus->isBlockedByCrowdsec(),
 					'ip_reputation_score'    => $botScore,
-					'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
+					'snapi_reputation_score' => \is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
 					'is_bot'                 => $isBot,
 				],
 				'identity' => [
 					'who_is_it'    => $ipName,
 					'rdns'         => empty( $info[ 'rdns' ][ 'hostname' ] ) ? __( 'Unavailable', 'wp-simple-firewall' ) : $info[ 'rdns' ][ 'hostname' ],
-					'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
-					'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
-					'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
-						__( 'Latitude', 'wp-simple-firewall' ), $geo->latitude,
-						__( 'Longitude', 'wp-simple-firewall' ), $geo->longitude )
-						: __( 'Unknown', 'wp-simple-firewall' )
+					'country_name' => empty( $countryCode ) ? __( 'Unknown', 'wp-simple-firewall' ) : $countryCode,
 				],
 				'extras'   => [
 					'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),

@@ -144,6 +144,7 @@ class Import {
 			'secret' => $secretKey,
 			'url'    => Services::WpGeneral()->getHomeUrl(),
 			'id'     => $this->getImportID(),
+			'method' => 'json',
 		];
 		if ( !\is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
 			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
@@ -173,7 +174,7 @@ class Import {
 				throw new \Exception( "Request failed with no error message from the source site.", 6 );
 			}
 			else {
-				throw new \Exception( "Request failed with error message from the source site: ".$response[ 'message' ], 7 );
+				throw new \Exception( $response[ 'message' ], 7 );
 			}
 		}
 
@@ -224,7 +225,7 @@ class Import {
 		self::con()->opts->store();
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
-			$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
+			$dbh = self::con()->db_con->dbhIPRules();
 			$now = Services::Request()->ts();
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {

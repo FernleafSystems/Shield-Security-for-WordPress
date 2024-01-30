@@ -20,14 +20,9 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		$opts = $this->opts();
 
 		$priority = $this->getHookPriority();
-		if ( Services::WpGeneral()->isClassicPress() ) {
-			add_filter( 'allow_patch_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $priority );
-			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_major' ], $priority );
-		}
-		else {
-			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $priority );
-			add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $priority );
-		}
+
+		add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $priority );
+		add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $priority );
 
 		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $priority, 2 );
 		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $priority, 2 );

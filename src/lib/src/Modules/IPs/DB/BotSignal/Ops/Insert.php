@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
-
-class Insert extends Base\Insert {
+class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Insert {
 
 }

@@ -2,11 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockAuthorFishing;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 
@@ -22,22 +23,31 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG,
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'condition' => Conditions\RequestQueryParamIs::SLUG,
-					'params'    => [
-						'match_param'    => 'author',
-						'match_patterns' => [
-							'\d'
-						],
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'block_author_discovery',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
+				],
+				[
+					'conditions' => Conditions\RequestParameterValueMatches::class,
+					'params'     => [
+						'req_param_source' => 'get',
+						'match_type'       => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+						'param_name'       => 'author',
+						'match_pattern'    => '#\\d#',
 					],
 				],
 			]
@@ -47,7 +57,7 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'         => 'block_author_fishing',
 					'offense_count' => $this->opts()->isBlockAuthorDiscovery() ? 1 : 0,
@@ -55,7 +65,10 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 				],
 			],
 			[
-				'response' => Responses\BlockAuthorFishing::SLUG,
+				'response' => Responses\DisplayBlockPage::class,
+				'params'   => [
+					'block_page_slug' => BlockAuthorFishing::SLUG,
+				],
 			],
 		];
 	}

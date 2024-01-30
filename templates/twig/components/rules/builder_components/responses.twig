@@ -1,0 +1,46 @@
+{% for form_item in vars.form_data.responses %}
+
+	{% if form_item.type == 'response' %}
+
+		{% set unselected_response = form_item.value == '--' %}
+
+		<div class="row">
+			<div class="col-4">
+				<select class="form-select" name="{{ form_item.name }}" class="form-control">
+
+					{% if form_item.value == '--' %}
+						<option value="--" selected>+ Select Response</option>
+					{% else %}
+						<option value="--">- Delete This Response</option>
+					{% endif %}
+
+					{% for response in vars.all_responses %}
+						{% if response.type == type %}
+							<option value="{{ response.slug }}"
+									{% if form_item.value == response.slug %}selected{% endif %}>
+								{{ response.name }}
+							</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="col-1 offset-3">
+				<button class="btn btn-outline-warning svg-container delete-response"
+						data-response_name="{{ form_item.name }}"
+						type="button">{{ imgs.icon_delete|raw }}</button>
+			</div>
+		</div>
+
+		{% if form_item.params|length > 0 %}
+			<div class="row">
+				<div class="col-6 col-xl-4 offset-1 mb-3">
+					{% set params = form_item.params %}
+					{% include '/components/rules/builder_components/parameters.twig' %}
+				</div>
+			</div>
+		{% endif %}
+
+	{% endif %}
+
+{% endfor %}

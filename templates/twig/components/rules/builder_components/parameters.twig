@@ -1,0 +1,50 @@
+{% for param in form_item.params %}
+	{% if param.param_type not in ['array'] %}
+		<div class="mb-2 {{ param.param_type in ['bool'] ? 'form-check':'' }}">
+
+			{% set param_has_error = param.error is not empty %}
+			{% set param_name = form_item.name~'_param_'~param.name %}
+
+			{% if param.param_type in ['bool'] %}
+				<input type="checkbox"
+					   class="form-check-input {{ param_has_error ? 'is-invalid' : 'is-valid' }}"
+					   name="{{ param_name }}"
+					   value="{{ param.value }}"
+					   id="{{ param_name }}"
+					   {% if param.value == 'Y' %}checked="checked" aria-checked="true"{% endif %}
+				/>
+				<label class="form-check-label" for="{{ param_name }}">{{ param.label }}</label>
+			{% else %}
+				<label class="form-label" for="{{ param_name }}">{{ param.label }}</label>
+				{% if param.param_type in ['string', 'scalar', 'callback', 'ip_address', 'url'] %}
+					<input type="text"
+						   class="form-control {{ param_has_error ? 'is-invalid' : 'is-valid' }}"
+						   name="{{ param_name }}"
+						   value="{{ param.value }}"
+						   id="{{ param_name }}"
+						   placeholder="{{ param.label }}"
+					/>
+				{% elseif param.param_type in ['int'] %}
+					<input type="number"
+						   class="form-control {{ param_has_error ? 'is-invalid' : 'is-valid' }}"
+						   name="{{ param_name }}"
+						   value="{{ param.value }}"
+						   id="{{ param_name }}"
+						   placeholder="{{ param.label }}"
+					/>
+				{% elseif param.param_type in ['enum'] %}
+					<select name="{{ param_name }}" class="form-select">
+						{% for param_type_enum_key,param_type_enum_label in param.enum_labels %}
+							<option value="{{ param_type_enum_key }}"
+									{% if param.value == param_type_enum_key %}selected{% endif %}
+							>{{ param_type_enum_label }}</option>
+						{% endfor %}
+					</select>
+				{% endif %}
+			{% endif %}
+			{% if param_has_error %}
+				<div class="invalid-feedback">{{ param.error }}</div>
+			{% endif %}
+		</div>
+	{% endif %}
+{% endfor %}

@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use WP_CLI;
 
-class Import extends Base\WpCli\BaseWpCliCmd {
+class Import extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception

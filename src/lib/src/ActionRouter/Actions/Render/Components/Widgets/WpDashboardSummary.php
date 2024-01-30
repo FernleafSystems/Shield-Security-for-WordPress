@@ -42,7 +42,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'show_internal_links' => $con->isPluginAdmin()
 			],
 			'imgs'    => [
-				'logo' => $con->labels->url_img_pagebanner,
+				'logo' => $con->labels->url_img_logo_small,
 			],
 			'strings' => [
 				'security_level'    => __( 'Level', 'wp-simple-firewall' ),
@@ -112,7 +112,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 					function ( $evt ) {
 						/** @var EventsDB\Record $evt */
 						return [
-							'name' => self::con()->loadEventsService()->getEventName( $evt->event ),
+							'name' => self::con()->service_events->getEventName( $evt->event ),
 							'at'   => Services::Request()
 											  ->carbon()
 											  ->setTimestamp( $evt->created_at )

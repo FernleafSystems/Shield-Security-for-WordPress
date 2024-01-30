@@ -2,51 +2,63 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\UserAgent;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchIpIdsUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
+};
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-/**
- * @property string[] $match_ip_ids
- * @property string[] $match_not_ip_ids
- */
 class MatchRequestIpIdentity extends Base {
 
-	use RequestIP;
-	use UserAgent;
+	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
-		$matchIDs = $this->match_ip_ids;
-		$matchNotIDs = $this->match_not_ip_ids;
-		if ( empty( $matchIDs ) && empty( $matchNotIDs ) ) {
-			throw new MatchIpIdsUnavailableException();
-		}
+		$this->addConditionTriggerMeta( 'ip_id', $this->req->ip_id );
+		return ( new Utility\PerformConditionMatch(
+			$this->req->ip_id,
+			$this->p->match_ip_id,
+			$this->p->match_type
+		) )->doMatch();
+	}
 
-		try {
-			$ua = $this->getUserAgent();
-		}
-		catch ( RequestUseragentUnavailableException $e ) {
-			$ua = '';
-		}
+	public function getDescription() :string {
+		return __( 'Does the current request originate from a given set of services/providers.', 'wp-simple-firewall' );
+	}
 
-		$match = false;
-		$id = ( new IpID( $this->getRequestIP(), $ua ) )->run()[ 0 ];
+	public function getParamsDef() :array {
+		$providers = $this->enumProviders();
+		return [
+			'match_type'  => [
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => [
+					Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+				],
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
+			],
+			'match_ip_id' => [
+				'type'        => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum'   => \array_keys( $providers ),
+				'enum_labels' => $providers,
+				'label'       => __( 'IP ID To Match', 'wp-simple-firewall' ),
+			],
+		];
+	}
 
-		if ( !empty( $matchIDs ) ) {
-			$match = \in_array( $id, $matchIDs );
-		}
-		elseif ( !empty( $matchNotIDs ) ) {
-			$match = !\in_array( $id, $matchNotIDs );
-		}
-
-		if ( $match ) {
-			$this->addConditionTriggerMeta( 'ip_id', $id );
-		}
-
-		return $match;
+	private function enumProviders() :array {
+		$providers = \array_map(
+			function ( array $provider ) {
+				return $provider[ 'name' ] ?? 'Unknown';
+			},
+			Services::ServiceProviders()->getProviders_Flat()
+		);
+		\natcasesort( $providers );
+		return \array_merge( [
+			IpID::LOOPBACK    => '- Server Loopback -',
+			IpID::THIS_SERVER => '- This Server -',
+		], $providers );
 	}
 }

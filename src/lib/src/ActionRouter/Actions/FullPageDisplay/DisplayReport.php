@@ -14,10 +14,7 @@ class DisplayReport extends FullPageDisplayStatic {
 	 */
 	protected function retrieveContent() :string {
 		/** @var ReportDB\Select $select */
-		$select = self::con()
-					  ->getModule_Plugin()
-					  ->getDbH_Reports()
-					  ->getQuerySelector();
+		$select = self::con()->db_con->dbhReports()->getQuerySelector();
 		/** @var ?|ReportDB\Record $report */
 		$report = $select->filterByReportID( $this->action_data[ 'report_unique_id' ] )->first();
 		if ( empty( $report ) ) {

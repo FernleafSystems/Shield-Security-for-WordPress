@@ -15,6 +15,8 @@ interface Provider2faInterface {
 	 */
 	public static function ProviderSlug() :string;
 
+	public static function ProviderName() :string;
+
 	public function getUser() :\WP_User;
 
 	public function getProviderName() :string;

@@ -2,8 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\MatchRequestParamFileUploads;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
+	MatchRequestParamFileUploads,
+	RequestBypassesAllRestrictions
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class FirewallExeFileUploads extends BuildFirewallBase {
 
@@ -12,26 +16,26 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 
 	protected function getConditions() :array {
 		$conditions = [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => RequestBypassesAllRestrictions::class,
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 			]
 		];
 
 		$matchGroup = [
-			'logic' => static::LOGIC_OR,
-			'group' => [],
+			'logic'      => EnumLogic::LOGIC_OR,
+			'conditions' => [],
 		];
 
 		$simple = $this->getFirewallPatterns_Simple();
 		if ( !empty( $simple ) ) {
-			$matchGroup[ 'group' ][] = [
-				'condition' => MatchRequestParamFileUploads::SLUG,
-				'params'    => [
-					'is_match_regex' => false,
+			$matchGroup[ 'conditions' ][] = [
+				'conditions' => MatchRequestParamFileUploads::class,
+				'params'     => [
+					'match_type'     => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
 					'match_patterns' => $simple,
 					'match_category' => static::SCAN_CATEGORY,
 				],
@@ -40,17 +44,17 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 
 		$regex = $this->getFirewallPatterns_Regex();
 		if ( !empty( $regex ) ) {
-			$matchGroup[ 'group' ][] = [
-				'condition' => MatchRequestParamFileUploads::SLUG,
-				'params'    => [
-					'is_match_regex' => true,
+			$matchGroup[ 'conditions' ][] = [
+				'conditions' => MatchRequestParamFileUploads::class,
+				'params'     => [
+					'match_type'     => EnumMatchTypes::MATCH_TYPE_REGEX,
 					'match_patterns' => $regex,
 					'match_category' => static::SCAN_CATEGORY,
 				],
 			];
 		}
 
-		$conditions[ 'group' ][] = $matchGroup;
+		$conditions[ 'conditions' ][] = $matchGroup;
 
 		return $conditions;
 	}

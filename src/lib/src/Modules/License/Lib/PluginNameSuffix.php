@@ -22,6 +22,7 @@ class PluginNameSuffix {
 			$labels->Name = 'ShieldPRO';
 			$labels->Title = 'ShieldPRO';
 			$labels->MenuTitle = 'ShieldPRO';
+			$labels->url_img_logo_small = self::con()->urls->forImage( 'plugin_logo_prem.svg' );
 			return $labels;
 		} );
 	}

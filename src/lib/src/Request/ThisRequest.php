@@ -2,83 +2,88 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
-use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\{
+	IpMetaRecord,
+	LoadIpMeta
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string          $ip
- * @property bool            $ip_is_public
+ * This is set within Rule processing when checking for logged-in user.
+ * @property ?SessionVO      $session
+ *
+ * @property ?IpMetaRecord   $ip_meta_record
  * @property BotSignalRecord $botsignal_record
- * @property string          $ip_id
+ *
  * @property bool            $is_force_off
  * @property bool            $is_security_admin
- * @property bool $is_trusted_bot
- * @property bool $is_ip_blocked
- * @property bool $is_ip_blocked_crowdsec
- * @property bool $is_ip_blocked_shield
- * @property bool $is_ip_blocked_shield_auto
- * @property bool $is_ip_blocked_shield_manual
- * @property bool $is_ip_blacklisted
- * @property bool $is_ip_whitelisted
- * @property bool $is_server_loopback
- * @property bool $request_bypasses_all_restrictions
- * @property bool $is_site_lockdown_active
- * @property bool $is_site_lockdown_blocked
- * @property bool $wp_is_admin
- * @property bool $wp_is_networkadmin
- * @property bool $wp_is_ajax
- * @property bool $wp_is_wpcli
- * @property bool $wp_is_xmlrpc
+ * @property bool            $is_ip_blocked
+ * @property bool            $is_ip_blocked_crowdsec
+ * @property bool            $is_ip_blocked_shield
+ * @property bool            $is_ip_blocked_shield_auto
+ * @property bool            $is_ip_blocked_shield_manual
+ * @property bool            $is_ip_high_reputation
+ * @property bool            $is_ip_blacklisted
+ * @property bool            $is_ip_whitelisted
+ * @property bool            $request_bypasses_all_restrictions
+ * @property bool            $request_subject_to_shield_restrictions
+ * @property bool            $is_site_lockdown_active
+ * @property bool            $is_site_lockdown_blocked
+ * ** Dynamic **
+ * @property bool            $is_trusted_request
  */
-class ThisRequest extends DynPropertiesClass {
+class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisRequest {
 
-	use Shield\Modules\PluginControllerConsumer;
+	/**
+	 * @var IpRuleStatus
+	 */
+	private $ipStatus;
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
 
-			case 'ip':
-				if ( !\is_string( $value ) ) {
-					$value = Services::Request()->ip();
-					$this->ip = $value;
+			case 'ip_meta_record':
+				if ( $value === null ) {
+					$this->ip_meta_record = $value = empty( $this->ip ) ? null : ( new LoadIpMeta() )->single( $this->ip );
 				}
-				break;
-
-			case 'ip_id':
-				if ( is_null( $value ) ) {
-					$value = $this->getIpID();
-					$this->ip_id = $value;
-				}
-				break;
-
-			case 'is_force_off':
-			case 'is_ip_blocked_shield_auto':
-			case 'is_ip_blocked_shield_manual':
-			case 'is_ip_blocked_crowdsec':
-			case 'is_ip_whitelisted':
-			case 'request_bypasses_all_restrictions':
-			case 'is_security_admin':
-			case 'is_trusted_bot':
-			case 'ip_is_public':
-			case 'wp_is_ajax':
-			case 'wp_is_wpcli':
-			case 'wp_is_xmlrpc':
-				$value = (bool)$value;
 				break;
 
 			case 'is_ip_blocked':
-				if ( is_null( $value ) ) {
+				if ( \is_null( $value ) ) {
 					$value = $this->is_ip_blocked_shield || $this->is_ip_blocked_crowdsec;
 				}
 				break;
 
 			case 'is_ip_blocked_shield':
-				if ( is_null( $value ) ) {
+				if ( \is_null( $value ) ) {
 					$value = $this->is_ip_blocked_shield_auto || $this->is_ip_blocked_shield_manual;
 				}
+				break;
+
+			case 'is_ip_blocked_shield_auto':
+				$value = apply_filters( 'shield/is_ip_blocked_auto', $this->getIpStatus()->hasAutoBlock() );
+				break;
+
+			case 'is_ip_blocked_crowdsec':
+				$value = $this->getIpStatus()->hasCrowdsecBlock();
+				break;
+
+			case 'is_ip_blocked_shield_manual':
+				$value = $this->getIpStatus()->hasManualBlock();
+				break;
+
+			case 'is_ip_blacklisted':
+				$status = $this->getIpStatus();
+				$value = $status->isBlockedByShield() || $status->isAutoBlacklisted();
+				break;
+
+			case 'is_trusted_request':
+				$value = \apply_filters( 'shield/is_trusted_request', \in_array( $this->ip_id, ( new TrustedServices() )->enum() ), $this );
 				break;
 
 			default:
@@ -87,6 +92,13 @@ class ThisRequest extends DynPropertiesClass {
 		return $value;
 	}
 
+	public function getIpStatus() :IpRuleStatus {
+		return $this->ipStatus ?? $this->ipStatus = new IpRuleStatus( $this->ip );
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
 	private function getIpID() :string {
 		return Services::IP()->getIpDetector()->getIPIdentity();
 	}

@@ -147,16 +147,4 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 		( new Lib\Utility\CleanOutOldGuardFiles() )->execute();
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanScanExclusions() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
-	}
 }

@@ -74,7 +74,7 @@ class AddRule {
 	 * @throws \Exception
 	 */
 	private function add( string $type, array $data = [] ) :IpRulesDB\Record {
-		$dbh = $this->mod()->getDbH_IPRules();
+		$dbh = self::con()->db_con->dbhIPRules();
 
 		$ip = $this->getIP();
 		$parsedRange = Factory::parseRangeString( $ip );

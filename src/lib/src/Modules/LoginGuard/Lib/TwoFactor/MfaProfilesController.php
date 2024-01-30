@@ -124,13 +124,6 @@ class MfaProfilesController {
 					];
 					return $components;
 				} );
-
-				/**
-				 * @deprecated 18.5
-				 */
-				add_filter( 'shield/custom_localisations', function ( array $localz ) {
-					return $localz;
-				} );
 			}
 
 			return $assets;

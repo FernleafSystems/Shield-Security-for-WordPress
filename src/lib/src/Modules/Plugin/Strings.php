@@ -4,10 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Strings extends Base\Strings {
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getEventStrings() :array {
 		return [
@@ -294,6 +293,8 @@ class Strings extends Base\Strings {
 							'https://shsec.io/shieldwhatismyip',
 							__( 'What Is My IP Address?', 'wp-simple-firewall' )
 						),
+						sprintf( __( "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address.", 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ), sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
 				];
 				break;

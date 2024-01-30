@@ -2,13 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\RuleTraits,
-	Conditions
-};
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\RuleTraits;
 
+/**
+ * @deprecated 18.6
+ */
 class IsPathWhitelisted extends BuildRuleIpsBase {
 
 	use RuleTraits\InstantExec;
@@ -24,34 +22,10 @@ class IsPathWhitelisted extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
-		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
-				[
-					'condition' => Conditions\MatchRequestPath::SLUG,
-					'params'    => [
-						'is_match_regex' => true,
-						'match_paths'    => $this->buildPaths(),
-					]
-				],
-			]
-		];
+		return [];
 	}
 
 	private function buildPaths() :array {
-		$homeUrlPath = (string)wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH );
-		if ( empty( $homeUrlPath ) ) {
-			$homeUrlPath = '/';
-		}
-		return \array_map(
-			function ( $value ) use ( $homeUrlPath ) {
-				$regEx = ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH, false );
-				if ( \strpos( $regEx, $homeUrlPath ) !== 0 ) {
-					$regEx = '/'.\ltrim( \rtrim( $homeUrlPath, '/' ).'/'.\ltrim( $regEx, '/' ), '/' );
-				}
-				return '^'.$regEx;
-			},
-			self::con()->isPremiumActive() ? $this->opts()->getOpt( 'request_whitelist', [] ) : []
-		);
+		return [];
 	}
 }

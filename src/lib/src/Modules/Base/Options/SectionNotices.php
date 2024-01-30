@@ -9,7 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	IPs\Lib\IpRules\IpRuleStatus,
 	LoginGuard,
 	PluginControllerConsumer,
-	Traffic\Options
+	Traffic\Options,
+	UserManagement
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
@@ -123,17 +124,31 @@ class SectionNotices {
 				if ( $section === 'section_traffic_options' ) {
 					if ( $trafficOpts->liveLoggingTimeRemaining() > 0 ) {
 						$warnings[] = \implode( ' ', [
-							__( 'Live traffic logging increases load on your database and is designed to active only temporarily.', 'wp-simple-firewall' ),
+							__( 'Live traffic logging increases load on your database and is designed to be active only temporarily.', 'wp-simple-firewall' ),
 							__( 'We recommend disabling it if you no longer need it running.', 'wp-simple-firewall' ),
 						] );
 					}
 					if ( $trafficOpts->isTrafficLimitEnabled() > 0 ) {
 						$warnings[] = \implode( ' ', [
-							__( 'Traffic logging may not be disabled as you have Traffic Limiting switched-on.', 'wp-simple-firewall' ),
+							__( "To disable traffic logging, please first disable Traffic Rate Limiting.", 'wp-simple-firewall' ),
 						] );
 					}
 				}
 
+				break;
+
+			case 'section_user_session_management':
+				$source = Services::Request()->getIpDetector()->getPublicRequestSource();
+				/** @var UserManagement\Options $optsUser */
+				$optsUser = $con->getModule_UserManagement()->opts();
+				if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $optsUser->getOpt( 'session_lock' ) ) ) {
+					$warnings[] = sprintf( '%s %s',
+						sprintf( __( "Visitor IP addresses can be spoofed on your site, so the Session Lock feature may not work as well as expected.", 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', $source ) ),
+						sprintf( '[<a href="%s">%s</a>]',
+							$con->plugin_urls->modCfgOption( 'visitor_address_source' ), __( 'View IP Source Config', 'wp-simple-firewall' ) )
+					);
+				}
 				break;
 
 			case 'section_whitelabel':

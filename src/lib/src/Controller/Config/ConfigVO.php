@@ -60,11 +60,6 @@ class ConfigVO extends DynPropertiesClass {
 
 			case 'modules':
 			case 'update_first_detected':
-				if ( empty( $val ) ) {
-					$val = [];
-				}
-				break;
-
 			case 'meta':
 			case 'plugin_meta':
 			case 'upgrade_reqs':

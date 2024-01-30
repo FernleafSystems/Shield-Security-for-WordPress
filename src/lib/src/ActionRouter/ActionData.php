@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -22,42 +20,19 @@ class ActionData {
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
-		if ( \method_exists( ActionData::class, 'BuildVO' ) ) {
-			$vo = new ActionDataVO();
-			$vo->action = $actionClass;
-			$vo->is_ajax = $isAjax;
-			$vo->aux = $aux;
-			$vo->unique = $uniq;
-			$data = self::BuildVO( $vo );
-		}
-		else {
-			/**
-			 * @deprecated 18.5
-			 */
-			/** @var BaseAction $actionClass */
-			$data = \array_merge( [
-				self::FIELD_ACTION  => self::FIELD_SHIELD,
-				self::FIELD_EXECUTE => $actionClass::SLUG,
-				self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$actionClass::SLUG ),
-			], $aux );
-			if ( $isAjax ) {
-				$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
-			}
-
-			if ( $uniq ) {
-				$data[ 'uniq' ] = wp_generate_password( 4, false );
-			}
-		}
-
-		return $data;
+		$vo = new ActionDataVO();
+		$vo->action = $actionClass;
+		$vo->is_ajax = $isAjax;
+		$vo->aux = $aux;
+		$vo->unique = $uniq;
+		return self::BuildVO( $vo );
 	}
 
 	public static function BuildVO( ActionDataVO $VO ) :array {
 		$data = \array_merge( [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
 			self::FIELD_EXECUTE => $VO->action::SLUG,
-			self::FIELD_NONCE   => \class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce' ) ?
-				ActionNonce::Create( $VO->action ) : Nonce::Create( self::FIELD_SHIELD.'-'.$VO->action::SLUG ),
+			self::FIELD_NONCE   => ActionNonce::Create( $VO->action ),
 		], $VO->aux );
 
 		if ( $VO->unique ) {

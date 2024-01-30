@@ -2,47 +2,42 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\UserAgent;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchUseragentsUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
+};
 
-/**
- * @property string[] $match_useragents
- */
 class MatchRequestUseragent extends Base {
 
-	use UserAgent;
+	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_useragent';
 
-	/**
-	 * @throws RequestUseragentUnavailableException
-	 * @throws MatchUseragentsUnavailableException
-	 */
-	protected function matchUserAgent() :bool {
-		$uAgents = $this->match_useragents;
-		if ( empty( $uAgents ) ) {
-			throw new MatchUseragentsUnavailableException();
-		}
-
-		$match = false;
-		foreach ( $uAgents as $possibleAgent ) {
-			if ( stripos( $this->getUserAgent(), $possibleAgent ) !== false ) {
-				$match = true;
-				$this->addConditionTriggerMeta( 'matched_useragent', $possibleAgent );
-				break;
-			}
-		}
-		return $match;
+	protected function execConditionCheck() :bool {
+		$this->addConditionTriggerMeta( 'matched_useragent', $this->req->useragent );
+		return ( new Utility\PerformConditionMatch(
+			$this->req->useragent,
+			$this->p->match_useragent,
+			$this->p->match_type
+		) )->doMatch();
 	}
 
-	protected function execConditionCheck() :bool {
-		try {
-			$detected = $this->matchUserAgent();
-		}
-		catch ( \Exception $e ) {
-			$detected = false;
-		}
-		return $detected;
+	public function getDescription() :string {
+		return __( 'Does the request useragent match the given useragent.', 'wp-simple-firewall' );
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'match_type'      => [
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
+			],
+			'match_useragent' => [
+				'type'  => Enum\EnumParameters::TYPE_STRING,
+				'label' => __( 'Match Useragent', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

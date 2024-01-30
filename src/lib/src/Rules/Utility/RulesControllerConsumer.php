@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
 
+/**
+ * @deprecated 18.5.8
+ */
 trait RulesControllerConsumer {
 
 	/**
@@ -15,6 +18,9 @@ trait RulesControllerConsumer {
 		return $this->rulesCon;
 	}
 
+	/**
+	 * @deprecated 18.5.8
+	 */
 	public function setRulesCon( RulesController $rulesCon ) {
 		$this->rulesCon = $rulesCon;
 		return $this;

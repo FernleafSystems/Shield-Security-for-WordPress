@@ -171,7 +171,6 @@ class SecurityAdminController {
 
 	/**
 	 * @param \WP_User|null $user
-	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser( $user = null ) :bool {
 		if ( !$user instanceof \WP_User ) {

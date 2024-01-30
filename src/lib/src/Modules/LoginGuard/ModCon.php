@@ -66,36 +66,4 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		}
 		return $text;
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function ensureCorrectCaptchaConfig() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function isEnabledCaptcha() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function getCaptchaCfg() {
-		return parent::getCaptchaCfg();
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanLoginUrlPath() {
-	}
 }

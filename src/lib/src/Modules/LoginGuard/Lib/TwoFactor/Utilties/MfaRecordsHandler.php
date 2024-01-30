@@ -15,18 +15,20 @@ class MfaRecordsHandler {
 	private static $records = [];
 
 	public function insert( MfaDB\Record $record ) {
-		$this->mod()
-			 ->getDbH_Mfa()
-			 ->getQueryInserter()
-			 ->insert( $record );
+		self::con()
+			->db_con
+			->dbhMfa()
+			->getQueryInserter()
+			->insert( $record );
 		unset( self::$records[ $record->user_id ] );
 	}
 
 	public function update( MfaDB\Record $record, array $updateData ) {
-		$this->mod()
-			 ->getDbH_Mfa()
-			 ->getQueryUpdater()
-			 ->updateRecord( $record, $updateData );
+		self::con()
+			->db_con
+			->dbhMfa()
+			->getQueryUpdater()
+			->updateRecord( $record, $updateData );
 		unset( self::$records[ $record->user_id ] );
 	}
 

@@ -18,48 +18,23 @@ class CacheDirHandler {
 		$this->lastKnownBaseDir = $lastKnownBaseDir;
 	}
 
-	public function exists() :bool {
-		$dir = $this->dir();
-		return !empty( $dir ) && Services::WpFs()->isDir( $dir );
-	}
-
-	public function findWorkableDir( bool $retest = false ) :string {
+	public function dir( bool $retest = false ) :string {
 		$FS = Services::WpFs();
 
 		if ( !isset( $this->cacheDir ) || $retest ) {
 
 			$this->cacheDir = '';
-			foreach ( $this->getBaseDirCandidates() as $baseDir ) {
-				$maybeDir = path_join( $baseDir, self::con()->cfg->paths[ 'cache' ] );
-				try {
-					if ( $maybeDir === '/' ) {
-						throw new \Exception( 'Should never have the root as the cache dir.' ); // just to be ultra safe.
-					}
-					if ( !$FS->mkdir( $maybeDir ) || !$FS->isDir( $maybeDir ) ) {
-						throw new \Exception( sprintf( 'Failed to mkdir cache dir: %s', $maybeDir ) );
-					}
 
-					$assessedFlag = path_join( $maybeDir, 'assessed.flag' );
-					if ( !$FS->isAccessibleFile( $assessedFlag )
-						 || Services::Request()->ts() - $FS->getModifiedTime( $assessedFlag ) > \HOUR_IN_SECONDS ) {
-
-						$assess = ( new AssessDirWrite( $maybeDir ) )->test();
-						if ( \count( \array_filter( $assess ) ) !== 3 ) {
-							throw new \Exception( sprintf( 'Failed writeable assessment for cache dir: "%s"; Results: %s ',
-								$maybeDir, var_export( $assess, true ) ) );
-						}
-
-						if ( $maybeDir !== '/tmp' ) {
-							$this->addProtections( $maybeDir );
-						}
-
-						$FS->touch( path_join( $maybeDir, 'assessed.flag' ) );
-					}
-
+			foreach ( $this->getCandidates() as $maybeDir ) {
+				if ( $this->testDir( $maybeDir ) ) {
 					$this->cacheDir = $maybeDir;
+					if ( !\str_starts_with( $maybeDir, '/tmp' ) ) {
+						$this->addProtections( $maybeDir );
+					}
 					break;
 				}
-				catch ( \Exception $e ) {
+				elseif ( $FS->isDir( $maybeDir ) ) {
+					$FS->deleteDir( $maybeDir );
 				}
 			}
 		}
@@ -67,8 +42,37 @@ class CacheDirHandler {
 		return $this->cacheDir;
 	}
 
-	public function dir() :string {
-		return $this->findWorkableDir();
+	public function exists() :bool {
+		$dir = $this->dir();
+		return !empty( $dir ) && Services::WpFs()->isDir( $dir );
+	}
+
+	private function testDir( string $dir ) :bool {
+		$FS = Services::WpFs();
+		try {
+			if ( !$FS->mkdir( $dir ) || !$FS->isDir( $dir ) ) {
+				throw new \Exception( sprintf( 'Failed to mkdir cache dir: %s', $dir ) );
+			}
+
+			$flag = path_join( $dir, 'assessed.flag' );
+			if ( !$FS->isAccessibleFile( $flag )
+				 || Services::Request()->ts() - $FS->getModifiedTime( $flag ) > \HOUR_IN_SECONDS ) {
+
+				$assess = ( new AssessDirWrite( $dir ) )->test();
+				if ( \count( \array_filter( $assess ) ) !== 3 ) {
+					throw new \Exception( sprintf( 'Failed writeable assessment for cache dir: "%s"; Results: %s ',
+						$dir, var_export( $assess, true ) ) );
+				}
+
+				$FS->touch( $flag );
+			}
+
+			$testSuccess = true;
+		}
+		catch ( \Exception $e ) {
+			$testSuccess = false;
+		}
+		return $testSuccess;
 	}
 
 	public function buildSubDir( string $subDir ) :string {
@@ -96,9 +100,6 @@ class CacheDirHandler {
 		return $path;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	private function addProtections( string $cacheDir ) :bool {
 		$FS = Services::WpFs();
 
@@ -128,30 +129,49 @@ class CacheDirHandler {
 		return true;
 	}
 
-	private function getBaseDirCandidates() :array {
-		$candidates = [
-			WP_CONTENT_DIR,
-			path_join( ABSPATH, 'wp-content' ),
-			path_join( WP_CONTENT_DIR, 'cache' ),
-			path_join( WP_CONTENT_DIR, 'tmp' ),
-			path_join( WP_CONTENT_DIR, 'uploads' ),
-			'/tmp'
-		];
-
-		if ( !empty( $this->lastKnownBaseDir ) ) {
-			/**    \array_unshift( $candidates, $this->lastKnownBaseDir ); This seems to cause more trouble than it's worth **/
+	private function getCandidates() :array {
+		$candidates = [];
+		$cacheBasename = (string)( self::con()->cfg->paths[ 'cache' ] ?? '' );
+		if ( \preg_match( '#^[a-z]+$#i', $cacheBasename ) ) {
+			$candidates = \array_values( \array_filter(
+				\array_map( function ( string $baseDir ) use ( $cacheBasename ) {
+					return untrailingslashit( wp_normalize_path( path_join( $baseDir, $cacheBasename ) ) );
+				}, $this->getBaseDirCandidates() ),
+				function ( string $dir ) use ( $cacheBasename ) {
+					return !empty( $dir ) && \str_ends_with( $dir, $cacheBasename );
+				}
+			) );
 		}
+		return $candidates;
+	}
 
+	private function getBaseDirCandidates() :array {
 		return \array_filter(
 			\array_unique( \array_map(
 				function ( $path ) {
 					return wp_normalize_path( $path );
 				},
-				$candidates
+				\array_filter( [
+					$this->lastKnownBaseDir,
+					WP_CONTENT_DIR,
+					path_join( ABSPATH, 'wp-content' ),
+					path_join( WP_CONTENT_DIR, 'uploads' ),
+					path_join( WP_CONTENT_DIR, 'cache' ),
+					path_join( WP_CONTENT_DIR, 'tmp' ),
+					get_temp_dir(),
+					'/tmp'
+				] )
 			) ),
 			function ( $path ) {
 				return Services::WpFs()->isAccessibleDir( $path ) && wp_is_writable( $path );
 			}
 		);
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function findWorkableDir( bool $retest = false ) :string {
+		return $this->cacheDir;
 	}
 }

@@ -29,17 +29,6 @@
   "wpcli":         {
     "enabled": true
   },
-  "admin_notices": {
-    "email-verification-sent": {
-      "id":               "email-verification-sent",
-      "schedule":         "conditions",
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "warning",
-      "plugin_admin":     "yes",
-      "valid_admin":      true
-    }
-  },
   "sections":      [
     {
       "slug":        "section_brute_force_login_protection",

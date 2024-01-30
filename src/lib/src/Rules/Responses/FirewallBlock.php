@@ -10,9 +10,8 @@ class FirewallBlock extends Base {
 
 	public const SLUG = 'firewall_block';
 
-	protected function execResponse() :bool {
+	public function execResponse() :void {
 		$this->runBlock();
-		return true;
 	}
 
 	/**
@@ -36,7 +35,7 @@ class FirewallBlock extends Base {
 				self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 					'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
 					'render_data' => [
-						'block_meta_data' => $this->getConsolidatedConditionMeta()
+						'block_meta_data' => self::con()->rules->getConditionMeta()->getRawData(),
 					],
 				] );
 				break;
@@ -65,24 +64,15 @@ class FirewallBlock extends Base {
 	private function sendBlockEmail() :bool {
 		$con = self::con();
 
-		$blockMeta = $this->getConsolidatedConditionMeta();
-		$fwCategory = $blockMeta[ 'match_category' ] ?? '';
-		try {
-			$ruleName = $con->getModule_Firewall()
-							->getStrings()
-							->getOptionStrings( 'block_'.$fwCategory )[ 'name' ] ?? 'Unknown';
-		}
-		catch ( \Exception $e ) {
-			$ruleName = 'Unknown';
-		}
-		$blockMeta[ 'firewall_rule_name' ] = $ruleName;
+		$blockMeta = $con->rules->getConditionMeta()->getRawData();
+		$blockMeta[ 'firewall_rule_name' ] = $blockMeta[ 'match_name' ] ?? 'Unknown';
 
 		return $con->email_con->sendVO(
 			EmailVO::Factory(
 				$con->getModule_Plugin()->getPluginReportEmail(),
 				__( 'Firewall Block Alert', 'wp-simple-firewall' ),
 				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
-					'ip'         => $con->this_req->ip,
+					'ip'         => $this->req->ip,
 					'block_meta' => $blockMeta
 				] )
 			)

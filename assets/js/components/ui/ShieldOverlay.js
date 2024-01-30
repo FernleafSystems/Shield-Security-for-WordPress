@@ -12,28 +12,39 @@ export class ShieldOverlay {
 
 	static Hide() {
 		JsLoadingOverlay.hide();
-		document.querySelector( 'body' ).classList.remove( 'shield-busy' );
+		// document.querySelector( 'body' ).classList.remove( 'shield-busy' );
 	}
 
 	/**
 	 * https://js-loading-overlay.muhdfaiz.com/
 	 */
 	static Show( containerID = null ) {
+		let theID = null;
+		if ( containerID && containerID.length > 0 && document.getElementById( containerID ) ) {
+			theID = containerID;
+		}
+		else {
+			const ShieldContainer = document.getElementById( 'PageContainer-Shield' ) || false;
+			if ( ShieldContainer ) {
+				theID = ShieldContainer.id;
+			}
+		}
+
 		JsLoadingOverlay.show( {
-			"overlayBackgroundColor": "#666666",
-			"overlayOpacity": "0.5",
-			"spinnerIcon": "ball-triangle-path",
+			"overlayBackgroundColor": "#ffffff",
+			"overlayOpacity": "0.7",
+			"spinnerIcon": "ball-spin-clockwise-fade",
 			"spinnerColor": "#008000",
-			"spinnerSize": "3x",
+			"spinnerSize": "2x",
 			"overlayIDName": "ShieldOverlay",
 			"spinnerIDName": "ShieldOverlaySpinner",
 			"offsetX": 0,
-			"offsetY": "-25%",
-			"containerID": ( containerID && containerID.length > 0 && document.getElementById( containerID ) ) ? containerID : null,
+			"offsetY": "-35%",
+			"containerID": theID,
 			"lockScroll": false,
 			"overlayZIndex": 100001,
 			"spinnerZIndex": 100002
 		} );
-		document.querySelector( 'body' ).classList.add( 'shield-busy' );
+		// document.querySelector( 'body' ).classList.add( 'shield-busy' );
 	}
 }

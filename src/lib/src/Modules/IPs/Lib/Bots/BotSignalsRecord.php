@@ -23,7 +23,7 @@ class BotSignalsRecord {
 	public function delete() :bool {
 		$thisReq = self::con()->this_req;
 		/** @var BotSignal\Ops\Delete $deleter */
-		$deleter = $this->mod()->getDbH_BotSignal()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhBotSignal()->getQueryDeleter();
 
 		if ( $thisReq->ip === $this->getIP() ) {
 			unset( $thisReq->botsignal_record );
@@ -175,7 +175,7 @@ class BotSignalsRecord {
 		}
 
 		$record = $this->retrieve(); // false as we're going to store it anyway
-		$record->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
+		$record->{$field} = \is_null( $ts ) ? Services::Request()->ts() : $ts;
 
 		$this->store( $record );
 

@@ -2,16 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+/**
+ * @deprecated 18.5.8
+ */
 class DisableXmlrpc extends Base {
 
 	public const SLUG = 'disable_xmlrpc';
 
 	private $processed = false;
 
-	protected function execResponse() :bool {
+	public function execResponse() :void {
 		add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
-		return true;
 	}
 
 	/**

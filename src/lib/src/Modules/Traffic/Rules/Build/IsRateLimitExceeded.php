@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
+	Enum\EnumLogic,
 	Responses
 };
 
@@ -26,18 +26,22 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG,
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'condition' => Conditions\IsRateLimitExceeded::SLUG,
-					'params'    => [
+					'conditions' => Conditions\ShieldConfigIsTrafficRateLimitingEnabled::class,
+				],
+				[
+					'conditions' => Conditions\IsRateLimitExceeded::class,
+					'params' => [
 						'limit_count'     => $this->opts()->getLimitRequestCount(),
 						'limit_time_span' => $this->opts()->getLimitTimeSpan(),
 					],
@@ -49,7 +53,7 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'request_limit_exceeded',
 					'offense_count'    => 1,
@@ -57,17 +61,6 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
-			[
-				'response' => Responses\TrafficRateLimitExceeded::SLUG,
-			],
 		];
-	}
-
-	protected function getCommonAuditParamsMapping() :array {
-		return \array_merge( parent::getCommonAuditParamsMapping(), [
-			'requests' => 'request_count',
-			'count'    => 'limit_count',
-			'span'     => 'limit_time_span',
-		] );
 	}
 }

@@ -36,6 +36,7 @@ abstract class BaseFullPageRender extends BaseRender {
 			'imgs'    => [
 				'about_shield' => $con->urls->forImage( 'pluginlogo_128x128.png' ),
 				'logo_banner'  => $con->labels->url_img_pagebanner,
+				'logo_small'   => $con->labels->url_img_logo_small,
 				'favicon'      => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 				'svgs'         => [
 					'megaphone'       => $con->svgs->raw( 'megaphone.svg' ),
@@ -55,13 +56,13 @@ abstract class BaseFullPageRender extends BaseRender {
 	protected function getScripts() :array {
 		return [
 			10 => [
-				'src' => Services::Includes()->getUrl_Jquery(),
-				'id'  => 'wp_jquery',
+				'src'    => Services::Includes()->getUrl_Jquery(),
+				'id'     => 'wp_jquery',
 				'footer' => true,
 			],
 			20 => [
-				'src' => self::con()->urls->forThirdParty( 'bootstrap', 'js' ),
-				'id'  => 'bootstrap',
+				'src'    => self::con()->urls->forThirdParty( 'bootstrap', 'js' ),
+				'id'     => 'bootstrap',
 				'footer' => true,
 			],
 		];

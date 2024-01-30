@@ -24,19 +24,14 @@ class IpWhitelisted extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
-				[
-					'condition' => Conditions\IsIpWhitelisted::SLUG
-				],
-			]
+			'conditions' => Conditions\IsIpWhitelisted::class
 		];
 	}
 
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpWhitelisted::SLUG,
+				'response' => Responses\UpdateIpRuleLastAccessAt::class,
 			],
 		];
 	}

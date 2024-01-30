@@ -38,10 +38,11 @@ class ReportingController {
 	 */
 	public function convertToPdf( int $reportID ) :string {
 		/** @var Record $report */
-		$report = $this->mod()
-					   ->getDbH_Reports()
-					   ->getQuerySelector()
-					   ->byId( $reportID );
+		$report = self::con()
+			->db_con
+			->dbhReports()
+			->getQuerySelector()
+			->byId( $reportID );
 		if ( empty( $report ) ) {
 			throw new \Exception( 'Invalid report' );
 		}
@@ -98,7 +99,7 @@ class ReportingController {
 	public function getCreateReportFormVars() :array {
 		$req = Services::Request();
 
-		$dbh = $this->con()->getModule_AuditTrail()->getDbH_Logs();
+		$dbh = self::con()->db_con->dbhActivityLogs();
 		/** @var AuditDB\Record $firstAudit */
 		$firstAudit = $dbh->getQuerySelector()
 						  ->setOrderBy( 'created_at', 'ASC', true )

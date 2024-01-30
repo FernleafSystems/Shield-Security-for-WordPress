@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
@@ -90,7 +91,7 @@ class Verify {
 		$lookup = new Lookup();
 		$lookup->url = $this->opts()->getMasterSiteLicenseURL();
 		$lookup->install_ids = [
-			'shieldpro' => self::con()->getInstallationID()[ 'id' ],
+			'shieldpro' => ( new InstallationID() )->id(),
 		];
 		$lookup->nonce = ( new HandshakingNonce() )->create();
 		$lookup->meta = [

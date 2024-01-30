@@ -31,49 +31,51 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                                        $cfg
- * @property Config\OptsHandler                                     $opts
- * @property ActionRoutingController                                $action_router
- * @property Database\DbCon                                         $db_con
- * @property Email\EmailCon                                         $email_con
- * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
- * @property Shield\Controller\Assets\Urls                          $urls
- * @property Shield\Controller\Assets\Paths                         $paths
- * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property Shield\Request\ThisRequest                             $this_req
- * @property Shield\Modules\License\Lib\Capabilities                $caps
- * @property Config\Labels                                          $labels
- * @property array                                                  $prechecks
- * @property array                                                  $flags
- * @property bool                                                   $is_activating
- * @property bool                                                   $is_mode_debug
- * @property bool                                                   $is_mode_staging
- * @property bool                                                   $is_mode_live
- * @property bool                                                   $is_my_upgrade
- * @property bool                                                   $is_rest_enabled
- * @property bool                                                   $modules_loaded
- * @property bool                                                   $plugin_deactivating
- * @property bool                                                   $plugin_deleting
- * @property bool                                                   $plugin_reset
- * @property Shield\Utilities\CacheDirHandler                       $cache_dir_handler
- * @property bool                                                   $user_can_base_permissions
- * @property false|string                                           $file_forceoff
- * @property string                                                 $base_file
- * @property string                                                 $root_file
- * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
- * @property Shield\Rules\RulesController                           $rules
- * @property Shield\Utilities\MU\MUHandler                          $mu_handler
- * @property Shield\Modules\Events\Lib\EventsService                $service_events
- * @property Shield\Users\UserMetas                                 $user_metas
- * @property Shield\Modules\Base\ModCon[]                           $modules
- * @property Shield\Crons\HourlyCron                                $cron_hourly
- * @property Shield\Crons\DailyCron                                 $cron_daily
- * @property string[]                                               $reqs_not_met
+ * @property Config\ConfigVO                          $cfg
+ * @property Config\OptsHandler                       $opts
+ * @property Shield\Rules\RulesController             $rules
+ * @property ActionRoutingController                  $action_router
+ * @property ExtensionsCon                            $extensions_controller
+ * @property Database\DbCon                           $db_con
+ * @property Email\EmailCon                           $email_con
+ * @property Shield\Utilities\AdminNotices\Controller $admin_notices
+ * @property Shield\Controller\Plugin\PluginURLs      $plugin_urls
+ * @property Assets\Urls                              $urls
+ * @property Assets\Paths                             $paths
+ * @property Assets\Svgs                              $svgs
+ * @property Shield\Request\ThisRequest               $this_req
+ * @property License\Lib\Capabilities                 $caps
+ * @property Config\Labels                            $labels
+ * @property Shield\Controller\Plugin\PluginLabels    $plugin_labels
+ * @property array                                    $prechecks
+ * @property array                                    $flags
+ * @property bool                                     $is_activating
+ * @property bool                                     $is_mode_debug
+ * @property bool                                     $is_mode_staging
+ * @property bool                                     $is_mode_live
+ * @property bool                                     $is_my_upgrade
+ * @property bool                                     $is_rest_enabled
+ * @property bool                                     $modules_loaded
+ * @property bool                                     $plugin_deactivating
+ * @property bool                                     $plugin_deleting
+ * @property bool                                     $plugin_reset
+ * @property Shield\Utilities\CacheDirHandler         $cache_dir_handler
+ * @property bool                                     $user_can_base_permissions
+ * @property string                                   $base_file
+ * @property string                                   $root_file
+ * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
+ * @property Shield\Utilities\MU\MUHandler            $mu_handler
+ * @property Events\Lib\EventsService                 $service_events
+ * @property Shield\Users\UserMetas                   $user_metas
+ * @property Base\ModCon[]                            $modules
+ * @property Shield\Crons\HourlyCron                  $cron_hourly
+ * @property Shield\Crons\DailyCron                   $cron_daily
+ * @property string[]                                 $reqs_not_met
  */
 class Controller extends DynPropertiesClass {
 
@@ -82,28 +84,9 @@ class Controller extends DynPropertiesClass {
 	 */
 	public static $oInstance;
 
-	/**
-	 * @var string
-	 */
-	protected static $sSessionId;
-
-	/**
-	 * @var string
-	 */
-	protected $sAdminNoticeError = '';
-
-	/**
-	 * @var Shield\Utilities\AdminNotices\Controller
-	 */
-	protected $oNotices;
-
 	public function fireEvent( string $event, array $meta = [] ) :self {
-		$this->loadEventsService()->fireEvent( $event, $meta );
+		( $this->service_events ?? $this->loadEventsService() )->fireEvent( $event, $meta );
 		return $this;
-	}
-
-	public function loadEventsService() :Shield\Modules\Events\Lib\EventsService {
-		return $this->service_events ?? $this->service_events = new Shield\Modules\Events\Lib\EventsService();
 	}
 
 	/**
@@ -134,13 +117,11 @@ class Controller extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
 
-		$FS = Services::WpFs();
-
 		switch ( $key ) {
 
 			case 'caps':
 				if ( \is_null( $val ) ) {
-					$this->caps = $val = new Shield\Modules\License\Lib\Capabilities();
+					$this->caps = $val = new License\Lib\Capabilities();
 				}
 				break;
 
@@ -153,8 +134,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'labels':
 				if ( \is_null( $val ) ) {
-					$val = $this->labels();
-					$this->labels = $val;
+					$this->labels = $val = $this->labels();
 				}
 				break;
 
@@ -172,6 +152,24 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'service_events':
+				if ( !$val instanceof Events\Lib\EventsService ) {
+					$this->service_events = $val = new Events\Lib\EventsService();
+				}
+				break;
+
+			case 'admin_notices':
+				if ( !$val instanceof Shield\Utilities\AdminNotices\Controller ) {
+					$this->admin_notices = $val = new Shield\Utilities\AdminNotices\Controller();
+				}
+				break;
+
+			case 'extensions_controller':
+				if ( !$val instanceof ExtensionsCon ) {
+					$this->extensions_controller = $val = new ExtensionsCon();
+				}
+				break;
+
 			case 'opts':
 				if ( !$val instanceof Config\OptsHandler ) {
 					$val = new Config\OptsHandler();
@@ -179,10 +177,18 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'plugin_labels':
+				if ( !$val instanceof Shield\Controller\Plugin\PluginLabels ) {
+					$this->plugin_labels = $val = new Shield\Controller\Plugin\PluginLabels();
+				}
+				break;
+
 			case 'this_req':
-				if ( \is_null( $val ) ) {
-					$val = new Shield\Request\ThisRequest();
-					$this->this_req = $val;
+				if ( $val === null ) {
+					if ( !$this->modules_loaded ) {
+						throw new \Exception( 'Modules must be loaded before $this_req is queried.' );
+					}
+					$this->this_req = $val = new Shield\Request\ThisRequest();
 				}
 				break;
 
@@ -197,8 +203,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'plugin_reset':
 				if ( $val === null ) {
-					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
-					$this->plugin_reset = $val;
+					$this->plugin_reset = $val = Services::WpFs()->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 				}
 				break;
 
@@ -314,7 +319,7 @@ class Controller extends DynPropertiesClass {
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
 			if ( !empty( $minPHP ) && \version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
-				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $minPHP );
+				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', \PHP_VERSION, $minPHP );
 			}
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
@@ -323,7 +328,7 @@ class Controller extends DynPropertiesClass {
 			}
 
 			$mysql = $this->cfg->requirements[ 'mysql' ];
-			if ( !empty( $mysql ) && !$this->isMysqlVersionSupported( $mysql ) ) {
+			if ( !empty( $mysql ) && !( new Checks\Requirements() )->isMysqlVersionSupported( $mysql ) ) {
 				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
 					Services::WpDb()->getMysqlServerInfo(), $mysql );
 			}
@@ -337,33 +342,6 @@ class Controller extends DynPropertiesClass {
 
 			$FS->touch( $this->paths->forFlag( 'reqs_met.flag' ) );
 		}
-	}
-
-	/**
-	 * Supported if:
-	 * - the mysql version is at least the minimum version
-	 * - OR: it's mariaDB and it doesn't match the pattern: 5.5.xx-MariaDB
-	 * - OR: we can find the function 'INET6_ATON'
-	 */
-	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
-		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
-		$supported = empty( $versionToSupport )
-					 || empty( $mysqlInfo )
-					 || \version_compare( \preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
-					 || ( \stripos( $mysqlInfo, 'MariaDB' ) !== false && !\preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
-
-		if ( !$supported ) {
-			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
-			if ( \is_array( $miscFunctions ) ) {
-				foreach ( $miscFunctions as $fn ) {
-					if ( \is_array( $fn ) && \strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
-						$supported = true;
-						break;
-					}
-				}
-			}
-		}
-		return $supported;
 	}
 
 	public function adminNoticeDoesNotMeetRequirements() {
@@ -406,21 +384,23 @@ class Controller extends DynPropertiesClass {
 
 		$this->loadModules();
 
-		// Upgrade modules
-		( new Shield\Controller\Utilities\Upgrade() )->execute();
+		$this->extensions_controller->execute();
 
+		( new Updates\HandleUpgrade() )->execute();
+
+		// Should execute after modules have initiated
 		$this->rules = new Shield\Rules\RulesController();
-		$this->rules->execute();
+		$this->rules
+			->setThisRequest( $this->this_req )
+			->execute();
 
-		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
+		if ( !$this->cfg->rebuilt ) {
 
 			$this->rules->processRules();
 
 			foreach ( $this->modules as $module ) {
 				$module->onRunProcessors();
 			}
-
-			$this->labels; // Ensures labels are created.
 
 			// This is where any rules responses will execute (i.e. after processors are run):
 			do_action( $this->prefix( 'after_run_processors' ) );
@@ -533,17 +513,9 @@ class Controller extends DynPropertiesClass {
 		add_action( 'init', [ $this, 'onWpInit' ], Shield\Controller\Plugin\HookTimings::INIT_MAIN_CONTROLLER );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
-
-		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
-		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
-		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
-		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
-
 		add_action( 'shutdown', [ $this, 'onWpShutdown' ], \PHP_INT_MIN );
 
-		// GDPR
-		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
-		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'onWpPrivacyRegisterEraser' ] );
+		$this->plugin_labels->execute();
 
 		/**
 		 * Support for WP-CLI and it marks the cli as plugin admin
@@ -557,38 +529,18 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpAdminInit() {
-		( new Admin\DashboardWidget() )->execute();
-		( new Admin\PluginsPageSupplements() )->execute();
-
-		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
-			 && \function_exists( 'wp_add_privacy_policy_content' ) ) {
-			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
+		if ( !$this->this_req->wp_is_ajax ) {
+			( new Admin\DashboardWidget() )->execute();
+			( new Admin\PluginsPageSupplements() )->execute();
+			( new Privacy\PrivacyPolicy() )->execute();
 		}
-	}
-
-	/**
-	 * In order to prevent certain errors when the back button is used
-	 * @param array $headers
-	 * @return array
-	 */
-	public function adjustNocacheHeaders( $headers ) {
-		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
-			$Hs = \array_map( '\trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
-			$Hs[] = 'no-store';
-			$headers[ 'Cache-Control' ] = \implode( ', ', \array_unique( $Hs ) );
-		}
-		return $headers;
 	}
 
 	public function onWpInit() {
 		$this->getMeetsBasePermissions();
-		if ( $this->isPluginAdminPageRequest() ) {
-			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
-		}
-
-		$this->action_router->execute();
 
 		try {
+			$this->action_router->execute();
 			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class, \array_merge(
 				Services::Request()->query,
 				Services::Request()->post
@@ -598,181 +550,27 @@ class Controller extends DynPropertiesClass {
 		}
 
 		( new Shield\Controller\Assets\Enqueue() )->execute();
-	}
-
-	/**
-	 * @return array{id: string, ts: int, install_at: int}
-	 */
-	public function getInstallationID() :array {
-		$WP = Services::WpGeneral();
-		$urlParts = wp_parse_url( $WP->getWpUrl() );
-		$url = $urlParts[ 'host' ].\trim( $urlParts[ 'path' ] ?? '', '/' );
-		$optKey = $this->prefixOption( 'shield_site_id' );
-
-		$IDs = $WP->getOption( $optKey );
-		if ( !\is_array( $IDs ) ) {
-			$IDs = [];
-		}
-		if ( empty( $IDs[ $url ] ) || !\is_array( $IDs[ $url ] ) ) {
-			$IDs[ $url ] = [];
-		}
-
-		if ( empty( $IDs[ $url ][ 'id' ] ) || !\Ramsey\Uuid\Uuid::isValid( $IDs[ $url ][ 'id' ] ) ) {
-			$id = ( new \FernleafSystems\Wordpress\Services\Utilities\Uuid() )->V4();
-			$IDs[ $url ] = [
-				'id'         => \strtolower( $id ),
-				'ts'         => Services::Request()->ts(),
-				'install_at' => $this->getModule_Plugin()->storeRealInstallDate(),
-			];
-			$WP->updateOption( $optKey, $IDs );
-		}
-
-		return $IDs[ $url ];
+		( new Privacy\PrivacyExport() )->execute();
+		( new Privacy\PrivacyEraser() )->execute();
 	}
 
 	public function onWpLoaded() {
-		$this->getInstallationID();
-		$this->getAdminNotices();
+		$this->admin_notices->execute();
 		$this->initCrons();
-		( new Utilities\CaptureMyUpgrade() )->execute();
 		( new Admin\AdminBarMenu() )->execute();
+		( new Updates\BlockIncompatible() )->execute();
+		( new Updates\CaptureFirstDetected() )->execute();
+		( new Updates\CaptureMyUpgrade() )->execute();
+		( new Updates\AdjustAuto() )->execute();
 	}
 
-	protected function initCrons() {
+	protected function initCrons() :void {
 		$this->cron_hourly = new Shield\Crons\HourlyCron();
 		$this->cron_hourly->execute();
 		$this->cron_daily = new Shield\Crons\DailyCron();
 		$this->cron_daily->execute();
 
 		( new Shield\Utilities\RootHtaccess() )->execute();
-	}
-
-	/**
-	 * @return Shield\Utilities\AdminNotices\Controller
-	 */
-	public function getAdminNotices() :Shield\Utilities\AdminNotices\Controller {
-		if ( !isset( $this->oNotices ) ) {
-			if ( $this->getIsPage_PluginAdmin() ) {
-				remove_all_filters( 'admin_notices' );
-				remove_all_filters( 'network_admin_notices' );
-			}
-			$this->oNotices = new Shield\Utilities\AdminNotices\Controller();
-		}
-		return $this->oNotices;
-	}
-
-	/**
-	 * Prevents upgrades to Shield versions when the system PHP version is too old.
-	 * @param \stdClass $updates
-	 * @return \stdClass
-	 */
-	public function blockIncompatibleUpdates( $updates ) {
-		$file = $this->base_file;
-		if ( !empty( $updates->response ) && isset( $updates->response[ $file ] ) ) {
-			$reqs = $this->cfg->upgrade_reqs;
-			if ( \is_array( $reqs ) ) {
-				foreach ( $reqs as $shieldVer => $verReqs ) {
-					$toHide = \version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
-							  && (
-								  !Services::Data()->getPhpVersionIsAtLeast( (string)$verReqs[ 'php' ] )
-								  || !Services::WpGeneral()->getWordpressIsAtLeastVersion( $verReqs[ 'wp' ] )
-								  || ( !empty( $verReqs[ 'mysql' ] ) && !$this->isMysqlVersionSupported( $verReqs[ 'mysql' ] ) )
-							  );
-					if ( $toHide ) {
-						unset( $updates->response[ $file ] );
-						break;
-					}
-				}
-			}
-		}
-		return $updates;
-	}
-
-	/**
-	 * This will hook into the saving of plugin update information and if there is an update for this plugin, it'll add
-	 * a data stamp to state when the update was first detected.
-	 * @param \stdClass $data
-	 * @return \stdClass
-	 */
-	public function setUpdateFirstDetectedAt( $data ) {
-
-		if ( !empty( $data ) && !empty( $data->response ) && isset( $data->response[ $this->base_file ] ) ) {
-			// i.e. update available
-
-			$new = Services::WpPlugins()->getUpdateNewVersion( $this->base_file );
-			if ( !empty( $new ) && isset( $this->cfg ) ) {
-				$updates = $this->cfg->update_first_detected;
-				if ( \count( $updates ) > 3 ) {
-					$updates = [];
-				}
-				if ( !isset( $updates[ $new ] ) ) {
-					$updates[ $new ] = Services::Request()->ts();
-				}
-				$this->cfg->update_first_detected = $updates;
-			}
-		}
-
-		return $data;
-	}
-
-	/**
-	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
-	 * based on the plugin settings.
-	 * @param bool          $isAutoUpdate
-	 * @param string|object $mItem
-	 * @return bool
-	 */
-	public function onWpAutoUpdate( $isAutoUpdate, $mItem ) {
-		$WP = Services::WpGeneral();
-		$WPP = Services::WpPlugins();
-
-		$file = $WP->getFileFromAutomaticUpdateItem( $mItem );
-
-		// The item in question is this plugin...
-		if ( $file === $this->base_file ) {
-			$autoUpdateSelf = $this->cfg->properties[ 'autoupdate' ];
-
-			if ( !$WP->isRunningAutomaticUpdates() && $autoUpdateSelf == 'confidence' ) {
-				$autoUpdateSelf = 'yes'; // so that we appear to be automatically updating
-			}
-
-			$new = $WPP->getUpdateNewVersion( $file );
-
-			switch ( $autoUpdateSelf ) {
-
-				case 'yes' :
-					$isAutoUpdate = true;
-					break;
-
-				case 'block' :
-					$isAutoUpdate = false;
-					break;
-
-				case 'confidence' :
-					$isAutoUpdate = false;
-					if ( !empty( $new ) ) {
-						$firstDetected = $this->cfg->update_first_detected[ $new ] ?? 0;
-						$availableFor = Services::Request()->ts() - $firstDetected;
-						$isAutoUpdate = $firstDetected > 0
-										&& $availableFor > \DAY_IN_SECONDS*$this->cfg->properties[ 'autoupdate_days' ];
-					}
-					break;
-
-				case 'pass' :
-				default:
-					break;
-			}
-		}
-		return $isAutoUpdate;
-	}
-
-	/**
-	 * @param array $plugins
-	 * @return array
-	 */
-	public function doPluginLabels( $plugins ) {
-		$plugins[ $this->base_file ] = \array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
-		return $plugins;
 	}
 
 	public function onWpShutdown() {
@@ -802,10 +600,6 @@ class Controller extends DynPropertiesClass {
 		return sprintf( '%s%s%s', $prefix, empty( $suffix ) ? '' : $glue, empty( $suffix ) ? '' : $suffix );
 	}
 
-	public function prefixOption( string $suffix = '' ) :string {
-		return $this->prefix( $suffix, '_' );
-	}
-
 	/**
 	 * @throws \Exception
 	 */
@@ -830,7 +624,7 @@ class Controller extends DynPropertiesClass {
 		// First load all module Configs
 		foreach ( $this->cfg->modules as $slug ) {
 			try {
-				$modCfg = ( new LoadConfig( $slug, $modConfigs[ $slug ] ?? null ) )->run();
+				$modCfg = ( new Base\Config\LoadConfig( $slug, $modConfigs[ $slug ] ?? null ) )->run();
 			}
 			catch ( \Exception $e ) {
 				throw new Exceptions\PluginConfigInvalidException( sprintf( "Exception loading config for module '%s': %s",
@@ -857,7 +651,7 @@ class Controller extends DynPropertiesClass {
 		$this->cfg->mods_cfg = $modConfigs;
 		// Sanity checking: count to ensure that when we set the cfgs, they were correctly set.
 		if ( \count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== \count( $modConfigs ) ) {
-			throw new Exceptions\PluginConfigInvalidException( "Building and storing module configurations failed." );
+			throw new Exceptions\PluginConfigInvalidException( 'Building and storing module configurations failed.' );
 		}
 	}
 
@@ -946,12 +740,8 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return isset( $this->modules[ Shield\Modules\License\ModCon::SLUG ] )
+		return isset( $this->modules[ License\ModCon::SLUG ] )
 			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
-	}
-
-	public function isRelabelled() :bool {
-		return (bool)apply_filters( $this->prefix( 'is_relabelled' ), false );
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
@@ -971,14 +761,6 @@ class Controller extends DynPropertiesClass {
 		return 'aptoweb_controller_'.\substr( \md5( \get_class( $this ) ), 0, 6 );
 	}
 
-	public function deleteForceOffFile() {
-		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
-			Services::WpFs()->deleteFile( $this->file_forceoff );
-			$this->this_req->is_force_off = false;
-			\clearstatcache();
-		}
-	}
-
 	public function setFlag( string $flag, $value ) {
 		$flags = $this->flags;
 		$flags[ $flag ] = $value;
@@ -986,86 +768,82 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\ModCon|null|mixed
+	 * @return Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
 		return $this->modules[ $slug ] ?? null;
 	}
 
-	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
-		return $this->getModule( Shield\Modules\AuditTrail\ModCon::SLUG );
+	public function getModule_AuditTrail() :AuditTrail\ModCon {
+		return $this->getModule( AuditTrail\ModCon::SLUG );
 	}
 
-	public function getModule_Autoupdates() :Shield\Modules\Autoupdates\ModCon {
-		return $this->getModule( 'autoupdates' );
+	public function getModule_Autoupdates() :Autoupdates\ModCon {
+		return $this->getModule( Autoupdates\ModCon::SLUG );
 	}
 
-	public function getModule_Comments() :Shield\Modules\CommentsFilter\ModCon {
-		return $this->getModule( 'comments_filter' );
+	public function getModule_Comments() :CommentsFilter\ModCon {
+		return $this->getModule( CommentsFilter\ModCon::SLUG );
 	}
 
-	public function getModule_Comms() :Shield\Modules\Comms\ModCon {
-		return $this->getModule( 'comms' );
+	public function getModule_Comms() :Comms\ModCon {
+		return $this->getModule( Comms\ModCon::SLUG );
 	}
 
-	public function getModule_Data() :Shield\Modules\Data\ModCon {
-		return $this->getModule( 'data' );
+	public function getModule_Data() :Data\ModCon {
+		return $this->getModule( Data\ModCon::SLUG );
 	}
 
-	public function getModule_Events() :Shield\Modules\Events\ModCon {
-		return $this->getModule( 'events' );
+	public function getModule_Events() :Events\ModCon {
+		return $this->getModule( Events\ModCon::SLUG );
 	}
 
-	public function getModule_Firewall() :Shield\Modules\Firewall\ModCon {
-		return $this->getModule( 'firewall' );
+	public function getModule_Firewall() :Firewall\ModCon {
+		return $this->getModule( Firewall\ModCon::SLUG );
 	}
 
-	public function getModule_Lockdown() :Shield\Modules\Lockdown\ModCon {
-		return $this->getModule( 'lockdown' );
+	public function getModule_Lockdown() :Lockdown\ModCon {
+		return $this->getModule( Lockdown\ModCon::SLUG );
 	}
 
-	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
-		return $this->getModule( Shield\Modules\HackGuard\ModCon::SLUG );
+	public function getModule_HackGuard() :HackGuard\ModCon {
+		return $this->getModule( HackGuard\ModCon::SLUG );
 	}
 
-	public function getModule_Headers() :Shield\Modules\Headers\ModCon {
-		return $this->getModule( 'headers' );
+	public function getModule_Headers() :Headers\ModCon {
+		return $this->getModule( Headers\ModCon::SLUG );
 	}
 
-	public function getModule_Integrations() :Shield\Modules\Integrations\ModCon {
-		return $this->getModule( 'integrations' );
+	public function getModule_Integrations() :Integrations\ModCon {
+		return $this->getModule( Integrations\ModCon::SLUG );
 	}
 
-	public function getModule_IPs() :Shield\Modules\IPs\ModCon {
-		return $this->getModule( 'ips' );
+	public function getModule_IPs() :IPs\ModCon {
+		return $this->getModule( IPs\ModCon::SLUG );
 	}
 
-	public function getModule_License() :Shield\Modules\License\ModCon {
-		return $this->getModule( 'license' );
+	public function getModule_License() :License\ModCon {
+		return $this->getModule( License\ModCon::SLUG );
 	}
 
-	public function getModule_LoginGuard() :Shield\Modules\LoginGuard\ModCon {
-		return $this->getModule( 'login_protect' );
+	public function getModule_LoginGuard() :LoginGuard\ModCon {
+		return $this->getModule( LoginGuard\ModCon::SLUG );
 	}
 
-	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
-		return $this->getModule( Shield\Modules\Plugin\ModCon::SLUG );
+	public function getModule_Plugin() :Plugin\ModCon {
+		return $this->getModule( Plugin\ModCon::SLUG );
 	}
 
-	public function getModule_SecAdmin() :Shield\Modules\SecurityAdmin\ModCon {
-		return $this->getModule( 'admin_access_restriction' );
+	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
+		return $this->getModule( SecurityAdmin\ModCon::SLUG );
 	}
 
-	public function getModule_Traffic() :Shield\Modules\Traffic\ModCon {
-		return $this->getModule( 'traffic' );
+	public function getModule_Traffic() :Traffic\ModCon {
+		return $this->getModule( Traffic\ModCon::SLUG );
 	}
 
-	public function getModule_UserManagement() :Shield\Modules\UserManagement\ModCon {
-		return $this->getModule( 'user_management' );
-	}
-
-	public function getModulesNamespace() :string {
-		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
+	public function getModule_UserManagement() :UserManagement\ModCon {
+		return $this->getModule( UserManagement\ModCon::SLUG );
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
@@ -1077,84 +855,18 @@ class Controller extends DynPropertiesClass {
 		return $render;
 	}
 
-	/**
-	 * @param array[] $registered
-	 * @return array[]
-	 */
-	public function onWpPrivacyRegisterExporter( $registered ) {
-		if ( !\is_array( $registered ) ) {
-			$registered = []; // account for crap plugins that do-it-wrong.
-		}
-
-		$registered[] = [
-			'exporter_friendly_name' => $this->getHumanName(),
-			'callback'               => [ $this, 'wpPrivacyExport' ],
-		];
-		return $registered;
-	}
-
-	/**
-	 * @param array[] $registered
-	 * @return array[]
-	 */
-	public function onWpPrivacyRegisterEraser( $registered ) {
-		if ( !\is_array( $registered ) ) {
-			$registered = []; // account for crap plugins that do-it-wrong.
-		}
-
-		$registered[] = [
-			'eraser_friendly_name' => $this->getHumanName(),
-			'callback'             => [ $this, 'wpPrivacyErase' ],
-		];
-		return $registered;
-	}
-
-	/**
-	 * @param string $email
-	 * @param int    $page
-	 * @return array
-	 */
-	public function wpPrivacyExport( $email, $page = 1 ) :array {
-		$valid = Services::Data()->validEmail( $email )
-				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
-		return [
-			'data' => $valid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), [], $email, $page ) : [],
-			'done' => true,
-		];
-	}
-
-	/**
-	 * @param string $email
-	 * @param int    $page
-	 * @return array
-	 */
-	public function wpPrivacyErase( $email, $page = 1 ) {
-		$valid = Services::Data()->validEmail( $email )
-				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
-
-		$result = [
-			'items_removed'  => $valid,
-			'items_retained' => false,
-			'messages'       => $valid ? [] : [ 'Email address not valid or does not belong to a user.' ],
-			'done'           => true,
-		];
-		if ( $valid ) {
-			$result = apply_filters( $this->prefix( 'wpPrivacyErase' ), $result, $email, $page );
-		}
-		return $result;
-	}
-
-	private function buildPrivacyPolicyContent() :string {
-		return wp_kses_post( wpautop(
-			$this->action_router->render( Actions\Render\Components\PrivacyPolicy::SLUG ),
-			false
-		) );
-	}
-
 	private function labels() :Config\Labels {
-		$labels = \array_map( 'stripslashes', $this->cfg->labels );
+		$labels = \array_map( '\stripslashes', $this->cfg->labels );
 
-		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
+		foreach (
+			[
+				'icon_url_16x16',
+				'icon_url_32x32',
+				'icon_url_128x128',
+				'url_img_pagebanner',
+				'url_img_logo_small',
+			] as $img
+		) {
 			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
 				$labels[ $img ] = $this->urls->forImage( $labels[ $img ] );
 			}
@@ -1166,5 +878,123 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function blockIncompatibleUpdates( $updates ) {
+		return $updates;
+	}
+
+	/**
+	 * This will hook into the saving of plugin update information and if there is an update for this plugin, it'll add
+	 * a data stamp to state when the update was first detected.
+	 * @param \stdClass $data
+	 * @return \stdClass
+	 * @deprecated 19.0
+	 */
+	public function setUpdateFirstDetectedAt( $data ) {
+		return $data;
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
+		return true;
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function onWpAutoUpdate( $isAutoUpdate ) {
+		return $isAutoUpdate;
+	}
+
+	/**
+	 * @return array{id: string, ts: int, install_at: int}
+	 * @deprecated 19.0
+	 */
+	public function getInstallationID() :array {
+		return ( new Shield\Controller\Plugin\InstallationID() )->retrieve();
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
+	public function loadEventsService() :Events\Lib\EventsService {
+		return $this->service_events ?? $this->service_events = new Events\Lib\EventsService();
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function onWpPrivacyRegisterExporter( $registered ) {
+		return $registered;
+	}
+
+	/**
+	 * @param array[] $registered
+	 * @deprecated 19.0
+	 */
+	public function onWpPrivacyRegisterEraser( $registered ) {
+		return $registered;
+	}
+
+	/**
+	 * In order to prevent certain errors when the back button is used
+	 * @param array $headers
+	 * @return array
+	 * @deprecated 19.0
+	 */
+	public function adjustNocacheHeaders( $headers ) {
+		return $headers;
+	}
+
+	/**
+	 * @return Shield\Utilities\AdminNotices\Controller
+	 * @deprecated 18.6
+	 */
+	public function getAdminNotices() :Shield\Utilities\AdminNotices\Controller {
+		return $this->admin_notices;
+	}
+
+	/**
+	 * @param array $plugins
+	 * @return array
+	 * @deprecated 19.0
+	 */
+	public function doPluginLabels( $plugins ) {
+		$plugins[ $this->base_file ] = \array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
+		return $plugins;
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function prefixOption( string $suffix = '' ) :string {
+		return $this->prefix( $suffix, '_' );
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function getModulesNamespace() :string {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function wpPrivacyErase() {
+		return [];
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function wpPrivacyExport() :array {
+		return [];
 	}
 }

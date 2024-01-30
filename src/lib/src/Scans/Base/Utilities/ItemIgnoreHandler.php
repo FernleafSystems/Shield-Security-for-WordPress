@@ -20,12 +20,13 @@ class ItemIgnoreHandler {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
-		$updated = $this->mod()
-						->getDbH_ResultItems()
-						->getQueryUpdater()
-						->updateById( $item->VO->resultitem_id, [
-							'ignored_at' => Services::Request()->ts()
-						] );
+		$updated = self::con()
+			->db_con
+			->dbhResultItems()
+			->getQueryUpdater()
+			->updateById( $item->VO->resultitem_id, [
+				'ignored_at' => Services::Request()->ts()
+			] );
 		if ( !$updated ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}

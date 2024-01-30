@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginDelete {
 
-	use Shield\Modules\PluginControllerConsumer;
+	use PluginControllerConsumer;
 	use ExecOnce;
 
 	protected function run() {
@@ -20,17 +20,13 @@ class PluginDelete {
 
 	private function deleteOptions() {
 
-		foreach ( self::con()->modules as $mod ) {
-			$mod->opts()->deleteStorage();
-		}
-
 		self::con()->opts->delete();
 
 		foreach (
 			[
 				'icwp-wpsf-cs_auths',
 				'icwp-wpsf-rules',
-				self::con()->prefixOption( 'ip_rules_cache' ),
+				self::con()->prefix( 'ip_rules_cache', '_' ),
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );
@@ -45,7 +41,7 @@ class PluginDelete {
 	}
 
 	private function deleteDatabases() {
-		$con = self::con();
+		$dbCon = self::con()->db_con;
 
 		$builtInTablesToDelete = \array_map(
 			function ( $dbh ) {
@@ -54,25 +50,25 @@ class PluginDelete {
 			},
 			[
 				// Order is critical
-				$con->getModule_AuditTrail()->getDbH_Meta(),
-				$con->getModule_AuditTrail()->getDbH_Logs(),
-				$con->getModule_AuditTrail()->getDbH_Snapshots(),
-				$con->getModule_HackGuard()->getDbH_ScanResults(),
-				$con->getModule_HackGuard()->getDbH_ResultItemMeta(),
-				$con->getModule_HackGuard()->getDbH_ResultItems(),
-				$con->getModule_HackGuard()->getDbH_ScanItems(),
-				$con->getModule_HackGuard()->getDbH_Scans(),
-				$con->getModule_HackGuard()->getDbH_FileLocker(),
-				$con->getModule_HackGuard()->getDbH_Malware(),
-				$con->getModule_IPs()->getDbH_CrowdSecSignals(),
-				$con->getModule_IPs()->getDbH_BotSignal(),
-				$con->getModule_IPs()->getDbH_IPRules(),
-				$con->getModule_LoginGuard()->getDbH_Mfa(),
-				$con->getModule_Data()->getDbH_ReqLogs(),
-				$con->getModule_Data()->getDbH_UserMeta(),
-				$con->getModule_Data()->getDbH_IPs(),
-				$con->getModule_Events()->getDbH_Events(),
-				$con->getModule_Plugin()->getDbH_Reports(),
+				$dbCon->dbhActivityLogsMeta(),
+				$dbCon->dbhActivityLogs(),
+				$dbCon->dbhSnapshots(),
+				$dbCon->dbhScanResults(),
+				$dbCon->dbhResultItemMeta(),
+				$dbCon->dbhResultItems(),
+				$dbCon->dbhScanItems(),
+				$dbCon->dbhScans(),
+				$dbCon->dbhFileLocker(),
+				$dbCon->dbhMalware(),
+				$dbCon->dbhCrowdSecSignals(),
+				$dbCon->dbhBotSignal(),
+				$dbCon->dbhIPRules(),
+				$dbCon->dbhMfa(),
+				$dbCon->dbhReqLogs(),
+				$dbCon->dbhUserMeta(),
+				$dbCon->dbhIPs(),
+				$dbCon->dbhEvents(),
+				$dbCon->dbhReports(),
 			]
 		);
 
@@ -81,7 +77,7 @@ class PluginDelete {
 				\array_merge(
 					$builtInTablesToDelete,
 					[
-						sprintf( '%s%s', Services::WpDb()->getPrefix(), $con->prefixOption( 'events' ) ),
+						sprintf( '%s%s', Services::WpDb()->getPrefix(), self::con()->prefix( 'events', '_' ) ),
 					]
 				)
 			)

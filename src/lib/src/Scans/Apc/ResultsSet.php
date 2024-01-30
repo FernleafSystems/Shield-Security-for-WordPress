@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
-
-class ResultsSet extends Base\ResultsSet {
+class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet {
 
 	/**
 	 * @return ResultItem|null

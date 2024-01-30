@@ -25,7 +25,7 @@
     "enabled": true
   },
   "admin_notices": {
-    "blockdown-active":  {
+    "blockdown-active":           {
       "id":               "blockdown-active",
       "schedule":         "conditions",
       "valid_admin":      false,
@@ -33,7 +33,7 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "override-forceoff": {
+    "override-forceoff":          {
       "id":               "override-forceoff",
       "schedule":         "conditions",
       "valid_admin":      false,
@@ -41,16 +41,39 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "allow-tracking":    {
+    "allow-tracking":             {
       "id":               "allow-tracking",
       "plugin_admin":     true,
       "min_install_days": 3,
       "type":             "promo"
     },
-    "rate-plugin":       {
+    "rate-plugin":                {
       "id":               "rate-plugin",
       "min_install_days": 30,
       "type":             "promo"
+    },
+    "certain-options-restricted": {
+      "id":           "certain-options-restricted",
+      "schedule":     "conditions",
+      "plugin_admin": "no",
+      "per_user":     true,
+      "type":         "warning"
+    },
+    "admin-users-restricted":     {
+      "id":           "admin-users-restricted",
+      "schedule":     "conditions",
+      "plugin_admin": "no",
+      "type":         "warning",
+      "per_user":     true
+    },
+    "email-verification-sent":    {
+      "id":               "email-verification-sent",
+      "schedule":         "conditions",
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "warning",
+      "plugin_admin":     "yes",
+      "valid_admin":      true
     }
   },
   "sections":      [
@@ -519,6 +542,14 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":              "dismissed_notices",
+      "section":          "section_non_ui",
+      "type":             "array",
+      "default":          [],
+      "transferable":     false,
+      "tracking_exclude": true
     }
   ],
   "definitions":   {

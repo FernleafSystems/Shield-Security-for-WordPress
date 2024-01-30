@@ -2,17 +2,37 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class WpIsWpcli extends Base {
+
+	use Traits\TypeWordpress;
 
 	public const SLUG = 'wp_is_wpcli';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = self::con()->this_req;
-		if ( !isset( $thisReq->wp_is_wpcli ) ) {
-			$thisReq->wp_is_wpcli = Services::WpGeneral()->isWpCli();
-		}
-		return $thisReq->wp_is_wpcli;
+		return $this->req->wp_is_wpcli;
+	}
+
+	public function getName() :string {
+		return __( 'Is WP-CLI', 'wp-simple-firewall' );
+	}
+
+	public function getDescription() :string {
+		return __( 'Is the request triggered by WP-CLI.', 'wp-simple-firewall' );
+	}
+
+	protected function getSubConditions() :array {
+		return [
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => IsPhpCli::class,
+				],
+				[
+					'conditions' => $this->getDefaultConditionCheckCallable(),
+				],
+			]
+		];
 	}
 }

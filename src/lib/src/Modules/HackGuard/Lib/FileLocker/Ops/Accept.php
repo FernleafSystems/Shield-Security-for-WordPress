@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\NoCipherAvailableException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Accept extends BaseOps {
@@ -16,27 +17,31 @@ class Accept extends BaseOps {
 
 		// Depending on timing, the preferred cipher may not have been set, so we force a check.
 		if ( empty( $state[ 'cipher' ] ) ) {
-			$FL->canEncrypt();
+			$FL->canEncrypt( true );
 			$state = $FL->getState();
 		}
 
-		$cipher = empty( $state[ 'cipher' ] ) ? 'rc4' : $state[ 'cipher' ];
+		if ( empty( $state[ 'cipher' ] ) ) {
+			throw new NoCipherAvailableException();
+		}
 
 		$publicKey = $this->getPublicKey();
 
-		$raw = ( new BuildEncryptedFilePayload() )->build( $lock->path, reset( $publicKey ), $cipher );
+		$raw = ( new BuildEncryptedFilePayload() )->fromPath( $lock->path, \reset( $publicKey ), $state[ 'cipher' ] );
 
-		/** @var FileLockerDB\Update $updater */
-		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
-		$success = $updater->updateEntry( $lock, [
-			'hash_original' => \hash_file( 'sha1', $lock->path ),
-			'content'       => \base64_encode( $raw ),
-			'public_key_id' => \key( $publicKey ),
-			'cipher'        => $cipher,
-			'detected_at'   => 0,
-			'updated_at'    => Services::Request()->ts(),
-			'created_at'    => Services::Request()->ts(), // update "locked at"
-		] );
+		$success = self::con()
+			->db_con
+			->dbhFileLocker()
+			->getQueryUpdater()
+			->updateRecord( $lock, [
+				'hash_original' => \hash_file( 'sha1', $lock->path ),
+				'content'       => \base64_encode( $raw ),
+				'public_key_id' => \key( $publicKey ),
+				'cipher'        => $state[ 'cipher' ],
+				'detected_at'   => 0,
+				'updated_at'    => Services::Request()->ts(),
+				'created_at'    => Services::Request()->ts(), // update "locked at"
+			] );
 
 		$FL->clearLocks();
 		return $success;

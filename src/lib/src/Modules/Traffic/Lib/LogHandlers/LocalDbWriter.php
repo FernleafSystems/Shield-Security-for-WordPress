@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandler
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\IsRequestLogged;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 
 /**
@@ -54,20 +53,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$logData[ 'extra' ][ 'meta_wp' ]
 		);
 
-		$updateData = [];
-		foreach ( [ 'verb', 'code', 'path', 'type', 'uid', 'offense' ] as $item ) {
-			if ( !empty( $meta[ $item ] ) ) {
-				$updateData[ $item ] = $meta[ $item ];
-				unset( $meta[ $item ] );
-			}
-		}
-		$updateData[ 'transient' ] = !( $this->mod()->getRequestLogger()->isDependentLog()
-										|| ( new IsRequestLogged() )->isLogged() );
-		$updateData[ 'meta' ] = \base64_encode( \json_encode( $meta ) );
+		$update = \array_intersect_key( $meta, \array_flip( [ 'verb', 'code', 'path', 'type', 'uid', 'offense' ] ) );
+		$update[ 'meta' ] = \base64_encode( \json_encode( \array_diff_key( $meta, $update ) ) );
+		$update[ 'transient' ] = false;
 
 		$success = $modData->getDbH_ReqLogs()
 						   ->getQueryUpdater()
-						   ->updateById( $reqRecord->id, $updateData );
+						   ->updateById( $reqRecord->id, $update );
 
 		if ( !$success ) {
 			throw new \Exception( 'Failed to insert' );

@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SureSendController;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
@@ -98,7 +99,7 @@ class Email extends AbstractShieldProviderMfaDB {
 		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
-		$useSureSend = $con->getModule_Comms()->getSureSendController()->can_2FA( $user );
+		$useSureSend = ( new SureSendController() )->can_2FA( $user );
 
 		$success = false;
 		try {
@@ -177,8 +178,8 @@ class Email extends AbstractShieldProviderMfaDB {
 		return $otp;
 	}
 
-	public function getProviderName() :string {
-		return 'Email';
+	public static function ProviderName() :string {
+		return __( 'Email' );
 	}
 
 	public function removeFromProfile() :void {

@@ -7,10 +7,20 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsLoggedInNormal extends Base {
 
+	use Traits\TypeUser;
+
 	public const SLUG = 'is_logged_in_normal';
 
+	public function getDescription() :string {
+		return __( 'Is the request from a logged-in user.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
-		return Services::WpUsers()->isUserLoggedIn();
+		$matched = Services::WpUsers()->isUserLoggedIn();
+		if ( $matched ) {
+			$this->req->session = self::con()->getModule_Plugin()->getSessionCon()->current();
+		}
+		return $matched;
 	}
 
 	public static function MinimumHook() :int {

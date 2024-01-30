@@ -42,7 +42,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getJavascriptVars(),
 			[
-				'ajax' => [
+				'ajax'    => [
 					'passkey_start_registration'  => ActionData::Build( MfaPasskeyRegistrationStart::class ),
 					'passkey_verify_registration' => ActionData::Build( MfaPasskeyRegistrationVerify::class ),
 					'passkey_remove_registration' => ActionData::Build( MfaPasskeyRemoveSource::class ),
@@ -51,14 +51,14 @@ class Passkey extends AbstractShieldProviderMfaDB {
 					'has_validated' => $this->hasValidatedProfile()
 				],
 				'strings' => [
-					'not_supported'     => __( "Passkey registration isn't supported in this browser", 'wp-simple-firewall' ),
-					'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
-										   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
-										   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
-					'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
-										   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
-					'prompt_dialog'     => __( 'Please provide a label to identify the new authenticator.', 'wp-simple-firewall' ),
-					'are_you_sure'      => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'not_supported' => __( "Passkey registration isn't supported in this browser", 'wp-simple-firewall' ),
+					'failed'        => __( 'Key registration failed.', 'wp-simple-firewall' )
+									   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
+									   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+					'do_save'       => __( 'Key registration was successful.', 'wp-simple-firewall' )
+									   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
+					'prompt_dialog' => __( 'Please provide a label to identify the new authenticator.', 'wp-simple-firewall' ),
+					'are_you_sure'  => __( 'Are you sure?', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'username' => $this->getUser()->user_login,
@@ -258,8 +258,8 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		return $this->opts()->isOpt( 'enable_passkeys', 'Y' );
 	}
 
-	public function getProviderName() :string {
-		return 'Passkeys';
+	public static function ProviderName() :string {
+		return __( 'Passkeys', 'wp-simple-firewall' );
 	}
 
 	public function deleteSource( string $encodedID ) :bool {

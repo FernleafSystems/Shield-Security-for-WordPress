@@ -2,23 +2,38 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsIpBlockedCrowdsec extends Base {
 
-	use RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blocked_crowdsec';
 
-	protected function execConditionCheck() :bool {
-		$thisReq = self::con()->this_req;
-		$srvIP = Services::IP();
+	public function getDescription() :string {
+		return __( "Is the request IP on Shield's CrowdSec block list.", 'wp-simple-firewall' );
+	}
 
-		$thisReq->is_ip_blocked_crowdsec =
-			!$srvIP->IpIn( $this->getRequestIP(), $srvIP->getServerPublicIPs() )
-			&& ( new IpRuleStatus( $this->getRequestIP() ) )->hasCrowdsecBlock();
-		return $thisReq->is_ip_blocked_crowdsec;
+	protected function execConditionCheck() :bool {
+		return $this->req->is_ip_blocked_crowdsec;
+	}
+
+	protected function getSubConditions() :array {
+		return [
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => RequestBypassesAllRestrictions::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
+				],
+				[
+					'conditions' => IsIpBlockedByShield::class,
+					'logic'      => EnumLogic::LOGIC_INVERT
+				],
+				[
+					'conditions' => $this->getDefaultConditionCheckCallable(),
+				],
+			]
+		];
 	}
 }

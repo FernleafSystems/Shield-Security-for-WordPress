@@ -70,12 +70,12 @@ class IpRulesCache {
 	}
 
 	private static function StoreCache() {
-		Services::WpGeneral()->updateOption( self::con()->prefixOption( 'ip_rules_cache' ), self::LoadCache() );
+		Services::WpGeneral()->updateOption( self::con()->prefix( 'ip_rules_cache', '_' ), self::LoadCache() );
 	}
 
 	private static function LoadCache() :array {
 		if ( self::$ipCache === null ) {
-			$cache = Services::WpGeneral()->getOption( self::con()->prefixOption( 'ip_rules_cache' ) );
+			$cache = Services::WpGeneral()->getOption( self::con()->prefix( 'ip_rules_cache', '_' ) );
 
 			$cache = \array_intersect_key(
 				\array_merge(

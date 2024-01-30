@@ -49,7 +49,7 @@ class SelectSearchData {
 		);
 
 		$results = [];
-		$dbhIPs = self::con()->getModule_Data()->getDbH_IPs();
+		$dbhIPs = self::con()->db_con->dbhIPs();
 		foreach ( $ipTerms as $ipTerm ) {
 			$ips = $dbhIPs->getQuerySelector()
 						  ->addRawWhere( [

@@ -2,10 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CompleteQueue {
@@ -14,7 +12,7 @@ class CompleteQueue {
 
 	public function complete() {
 		/** @var ScanItemsDB\Ops\Delete $deleter */
-		$deleter = $this->mod()->getDbH_ScanItems()->getQueryDeleter();
+		$deleter = self::con()->db_con->dbhScanItems()->getQueryDeleter();
 		$deleter->filterByFinished()->query();
 
 		$hook = self::con()->prefix( 'post_scan' );

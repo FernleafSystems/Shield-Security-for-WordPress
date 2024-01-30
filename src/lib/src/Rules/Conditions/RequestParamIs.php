@@ -2,41 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\PathsToMatchUnavailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
- * @property string   $match_param
- * @property string[] $match_patterns
+ * @deprecated 18.6
  */
-class RequestParamIs extends Base {
+abstract class RequestParamIs extends Base {
+
+	use Traits\TypeRequest;
 
 	public const SLUG = 'request_param_is';
 
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->match_patterns ) ) {
-			throw new PathsToMatchUnavailableException();
-		}
-		if ( empty( $this->match_param ) ) {
-			throw new PathsToMatchUnavailableException();
-		}
+		return false;
+	}
 
-		$matched = false;
-
-		$value = $this->getRequestParamValue();
-		if ( \is_string( $value ) ) {
-			foreach ( $this->match_patterns as $matchPattern ) {
-
-				if ( \preg_match( sprintf( '#%s#i', $matchPattern ), $value ) ) {
-					$matched = true;
-					$this->addConditionTriggerMeta( 'match_pattern', $matchPattern );
-					$this->addConditionTriggerMeta( 'match_request_param', $this->match_param );
-					$this->addConditionTriggerMeta( 'match_request_value', $value );
-					break;
-				}
-			}
-		}
-
-		return $matched;
+	public function getDescription() :string {
+		return __( 'Does the value of the given request parameter match against the given patterns.', 'wp-simple-firewall' );
 	}
 
 	/**
@@ -44,5 +26,18 @@ class RequestParamIs extends Base {
 	 */
 	protected function getRequestParamValue() {
 		return null;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'match_param'    => [
+				'type'  => EnumParameters::TYPE_STRING,
+				'label' => __( 'Match Parameter Name', 'wp-simple-firewall' ),
+			],
+			'match_patterns' => [
+				'type'  => EnumParameters::TYPE_ARRAY,
+				'label' => __( 'Match Parameter Value Pattern', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

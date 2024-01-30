@@ -35,6 +35,14 @@ class PageIpRulesTable extends BasePluginAdminPage {
 		];
 	}
 
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
+			'href'       => 'https://help.getshieldsecurity.com/article/212-ip-rules-section-how-to-use-ip-management-and-analysis-tool',
+			'new_window' => true,
+		];
+	}
+
 	protected function getRenderData() :array {
 		return [
 			'strings' => [

@@ -44,7 +44,7 @@ class ReadOriginalFileContent extends BaseOps {
 			$decoded = \json_decode( $lock->content, true );
 			$VO = ( new OpenSslEncryptVo() )->applyFromArray( \is_array( $decoded ) ? $decoded : [] );
 			$content = ( new DecryptFile() )->retrieve( $VO, (int)$lock->public_key_id );
-			if ( \is_null( $content ) ) {
+			if ( $content === null ) {
 				throw new \Exception( 'There was a problem decrypting the file contents.' );
 			}
 			wp_cache_set( $cacheKey, $content, self::con()->prefix( 'filelocker' ), 5 );

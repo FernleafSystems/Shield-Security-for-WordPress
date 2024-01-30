@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-
-class Strings extends Base\Strings {
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getEventStrings() :array {
 		return [
@@ -30,6 +28,18 @@ class Strings extends Base\Strings {
 				'name'  => __( 'User Bot Check Fail', 'wp-simple-firewall' ),
 				'audit' => [
 					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" failed Bot check.', 'wp-simple-firewall' ),
+				],
+			],
+			'suresend_fail'    => [
+				'name'  => __( 'SureSend Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Failed to send email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
+				],
+			],
+			'suresend_success' => [
+				'name'  => __( 'SureSend Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Successfully sent email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
 				],
 			],
 		];
@@ -124,6 +134,18 @@ class Strings extends Base\Strings {
 				if ( !$con->caps->canThirdPartyScanSpam() ) {
 					$desc[] = __( 'Please upgrade your plan if you need to protect and integrate with 3rd party form providers.', 'wp-simple-firewall' );
 				}
+				break;
+
+			case 'suresend_emails' :
+				$name = __( 'SureSend Emails', 'wp-simple-firewall' );
+				$summary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
+				$desc = [
+					__( 'SureSend is a dedicated email delivery service from Shield Security.', 'wp-simple-firewall' ),
+					__( 'The purpose is the improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
+					__( "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
+					__( "This isn't a replacement for a dedicated email service.", 'wp-simple-firewall' ),
+					__( "Please read the information and blog links below to fully understand this service and its limitations.", 'wp-simple-firewall' ),
+				];
 				break;
 
 			default:

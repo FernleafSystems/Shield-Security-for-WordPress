@@ -77,21 +77,18 @@ class UserPasswordHandler {
 	 * only called if password policies option is enabled.
 	 */
 	private function processExpiredPassword() {
-		$opts = $this->opts();
-		$expireDays = $opts->getOpt( 'pass_expire' );
-		if ( $expireDays > 0 ) {
-			$startedAt = self::con()->user_metas->current()->record->pass_started_at;
-			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
-				self::con()->fireEvent( 'password_expired', [
-					'audit_params' => [
-						'user_login' => Services::WpUsers()->getCurrentWpUsername()
-					]
-				] );
-				if ( !Services::WpGeneral()->isAjax() ) {
-					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $expireDays )
-					);
-				}
+		$current = Services::WpUsers()->getCurrentWpUser();
+		if ( $current instanceof \WP_User && ( new QueryUserPasswordExpired() )->check( $current ) ) {
+			$opts = $this->opts();
+			self::con()->fireEvent( 'password_expired', [
+				'audit_params' => [
+					'user_login' => $current->user_login
+				]
+			] );
+			if ( !Services::WpGeneral()->isAjax() ) {
+				$this->redirectToResetPassword(
+					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getOpt( 'pass_expire' ) )
+				);
 			}
 		}
 	}
@@ -129,7 +126,7 @@ class UserPasswordHandler {
 			if ( $user && ( !Services::WpGeneral()->isLoginUrl() || !\in_array( $action, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
-				$con->getAdminNotices()->addFlash( $msg, $user, true, true );
+				$con->admin_notices->addFlash( $msg, $user, true, true );
 				$con->fireEvent( 'password_policy_force_change', [
 					'audit_params' => [
 						'user_login' => $user->user_login

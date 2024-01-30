@@ -133,7 +133,7 @@ class MfaController {
 	/**
 	 * @return Provider\AbstractProvider[]
 	 */
-	private function collateMfaProviderClasses() :array {
+	public function collateMfaProviderClasses() :array {
 		$shieldProviders = [
 			Provider\Email::class,
 			Provider\GoogleAuth::class,
@@ -298,19 +298,5 @@ class MfaController {
 			] );
 		}
 		return $valid;
-	}
-
-	/**
-	 * @return Provider\Provider2faInterface[]
-	 * @deprecated 18.5
-	 */
-	public function getProviders() :array {
-		if ( !\is_array( $this->providers ) ) {
-			$this->providers = [];
-			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
-				$this->providers[ $providerClass::ProviderSlug() ] = new $providerClass();
-			}
-		}
-		return $this->providers;
 	}
 }

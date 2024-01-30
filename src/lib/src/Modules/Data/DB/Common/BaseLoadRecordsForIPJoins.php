@@ -22,6 +22,8 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
+	protected $includeIpMeta = false;
+
 	abstract public function select() :array;
 
 	public function countAll() :int {
@@ -29,8 +31,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		return (int)Services::WpDb()->getVar(
 			sprintf( $this->getRawQuery(),
 				'COUNT(*)',
-				$this->getTableSchemaForJoinedTable()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->buildIpMetaSQL(),
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				'',
 				'',
@@ -41,9 +42,9 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 
 	public function getDistinctIPs() :array {
 		$results = Services::WpDb()->selectCustom(
-			sprintf( 'SELECT DISTINCT INET6_NTOA(ips.ip) as ip
+			sprintf( 'SELECT DISTINCT INET6_NTOA(`ips`.`ip`) as `ip`
 						FROM `%s` as `%s`
-						INNER JOIN `%s` as `ips` ON `ips`.id = `%s`.ip_ref;',
+						INNER JOIN `%s` as `ips` ON `ips`.`id` = `%s`.`ip_ref`;',
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->getJoinedTableAbbreviation(),
 				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
@@ -70,6 +71,12 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 					return sprintf( '`%s`.%s', $this->getJoinedTableAbbreviation(), $field );
 				},
 				$this->getSelectFieldsForJoinedTable()
+			),
+			\array_map(
+				function ( string $field ) {
+					return sprintf( '`%s`.%s', 'ipm', $field );
+				},
+				$this->getSelectFieldsForIPMetaTable()
 			)
 		);
 
@@ -78,14 +85,20 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		return Services::WpDb()->selectCustom(
 			sprintf( $this->getRawQuery(),
 				\implode( ', ', $selectFields ),
-				$this->getTableSchemaForJoinedTable()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->buildIpMetaSQL(),
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				$this->buildOrderBy(),
 				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
 				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
 			)
 		);
+	}
+
+	protected function buildIpMetaSQL() :string {
+		return $this->includeIpMeta ?
+			sprintf( 'LEFT JOIN `%s` as `ipm` ON `ips`.`id`=`ipm`.`ip_ref`',
+				self::con()->db_con->dbhIPMeta()->getTableSchema()->table
+			) : '';
 	}
 
 	protected function buildOrderBy() :string {
@@ -115,6 +128,15 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		return \array_unique( $fields );
 	}
 
+	protected function getSelectFieldsForIPMetaTable() :array {
+		return $this->includeIpMeta ? [
+			'`asn`',
+			'`country_iso2`',
+			'`pc_is_proxy`',
+			'`pc_last_check_at`',
+		] : [];
+	}
+
 	protected function getJoinedTableAbbreviation() :string {
 		return 'joined_table';
 	}
@@ -130,14 +152,23 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	}
 
 	protected function getRawQuery() :string {
-		$abbr = $this->getJoinedTableAbbreviation();
 		return sprintf( 'SELECT %%s
-					FROM `%%s` as `%s`
-					INNER JOIN `%%s` as `ips`
-						ON `%s`.ip_ref = `ips`.id
-					%%s
-					%%s
-					%%s
-					%%s;', $abbr, $abbr );
+					FROM `%s` as `ips`
+					INNER JOIN `%s` as `%s` ON `%s`.`ip_ref` = `ips`.`id`
+					%%s /* LEFT JOIN ON IP META */
+					%%s /* WHERE */
+					%%s /* ORDER */
+					%%s /* LIMIT */
+					%%s; /* OFFSET */',
+			self::con()->db_con->dbhIPs()->getTableSchema()->table,
+			$this->getTableSchemaForJoinedTable()->table,
+			$this->getJoinedTableAbbreviation(),
+			$this->getJoinedTableAbbreviation()
+		);
+	}
+
+	public function setIncludeIpMeta() {
+		$this->includeIpMeta = true;
+		return $this;
 	}
 }

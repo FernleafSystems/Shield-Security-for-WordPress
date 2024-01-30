@@ -2,15 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
+	CacheDirHandler,
+	Integration\WhitelistUs
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'plugin';
 
@@ -30,7 +33,7 @@ class ModCon extends BaseShield\ModCon {
 	private $reportsCon;
 
 	/**
-	 * @var Shield\ShieldNetApi\ShieldNetApiController
+	 * @var ShieldNetApiController
 	 */
 	private $shieldNetCon;
 
@@ -65,16 +68,12 @@ class ModCon extends BaseShield\ModCon {
 		return $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController();
 	}
 
-	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
-		return $this->shieldNetCon ?? $this->shieldNetCon = new Shield\ShieldNetApi\ShieldNetApiController();
+	public function getShieldNetApiController() :ShieldNetApiController {
+		return $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController();
 	}
 
 	public function getWizardCon() :Lib\Merlin\MerlinController {
 		return $this->wizardCon ?? $this->wizardCon = new Lib\Merlin\MerlinController();
-	}
-
-	public function getDbH_Reports() :DB\Reports\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'reports' );
 	}
 
 	protected function doPostConstruction() {
@@ -93,18 +92,16 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCacheDir() {
 		$url = Services::WpGeneral()->getWpUrl();
+
 		$lastKnownDirs = $this->opts()->getOpt( 'last_known_cache_basedirs' );
-		if ( empty( $lastKnownDirs ) || !\is_array( $lastKnownDirs ) ) {
-			$lastKnownDirs = [
-				$url => ''
-			];
-		}
+		$lastKnownDirs = \array_merge( [
+			$url => '',
+		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
 
-		$cacheDirFinder = new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' );
-		$workableDir = $cacheDirFinder->dir();
-		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
-
+		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ] );
+		$lastKnownDirs[ $url ] = \dirname( $cacheDirFinder->dir() );
 		$this->opts()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+
 		self::con()->cache_dir_handler = $cacheDirFinder;
 	}
 
@@ -119,31 +116,13 @@ class ModCon extends BaseShield\ModCon {
 		} );
 	}
 
-	protected function enumRuleBuilders() :array {
-		return [
-			Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::class, // this is place here as a hack, so it runs early
-			Rules\Build\RequestIsSiteBlockdownBlocked::class,
-			Rules\Build\RequestStatusIsAdmin::class,
-			Rules\Build\RequestStatusIsAjax::class,
-			Rules\Build\RequestStatusIsXmlRpc::class,
-			Rules\Build\RequestStatusIsWpCli::class,
-			Rules\Build\IsServerLoopback::class,
-			Rules\Build\IsTrustedBot::class,
-			Rules\Build\IsPublicWebRequest::class,
-			Rules\Build\RequestBypassesAllRestrictions::class,
-		];
-	}
-
-	public function preProcessOptions() {
-	}
-
 	public function deleteAllPluginCrons() {
 		$con = self::con();
 		$wpCrons = Services::WpCron();
 
 		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
 			foreach ( $cronArgs as $hook => $cron ) {
-				if ( \strpos( (string)$hook, $con->prefix() ) === 0 || \strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
+				if ( \strpos( (string)$hook, $con->prefix() ) === 0 || \strpos( (string)$hook, $con->prefix( '', '_' ) ) === 0 ) {
 					$wpCrons->deleteCronJob( $hook );
 				}
 			}
@@ -200,14 +179,8 @@ class ModCon extends BaseShield\ModCon {
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
-	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	public function doPrePluginOptionsSave() {
-	}
-
 	public function getFirstInstallDate() :int {
-		return (int)Services::WpGeneral()->getOption( self::con()->prefixOption( 'install_date' ) );
+		return (int)Services::WpGeneral()->getOption( self::con()->prefix( 'install_date', '_' ) );
 	}
 
 	public function getInstallDate() :int {
@@ -222,7 +195,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$key = self::con()->prefixOption( 'install_date' );
+		$key = self::con()->prefix( 'install_date', '_' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
 			$wpDate = Services::Request()->ts();
@@ -248,21 +221,9 @@ class ModCon extends BaseShield\ModCon {
 		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanImportExportWhitelistUrls() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanImportExportMasterImportUrl() {
-	}
-
 	public function runDailyCron() {
 		parent::runDailyCron();
-		( new Shield\Utilities\Integration\WhitelistUs() )->all();
+		( new WhitelistUs() )->all();
 	}
 
 	public function isXmlrpcBypass() :bool {
@@ -291,12 +252,5 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		return !$opts->isPluginGloballyDisabled();
-	}
-
-	/**
-	 * @param string $optionKey
-	 * @deprecated 18.5
-	 */
-	protected function cleanRecaptchaKey( $optionKey ) {
 	}
 }

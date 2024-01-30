@@ -3,13 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\IpBlockedShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
@@ -18,10 +17,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	public const SCAN_CATEGORY = '';
 
 	protected function getName() :string {
-		return sprintf( '%s: %s', __( 'Firewall', 'wp-simple-firewall' ),
-			$this->mod()
-				 ->getStrings()
-				 ->getOptionStrings( 'block_'.static::SCAN_CATEGORY )[ 'name' ] );
+		return '';
 	}
 
 	protected function getCommonAuditParamsMapping() :array {
@@ -39,122 +35,48 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		$conditions = [
-			'logic' => static::LOGIC_AND,
-			'group' => [
-				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
-				],
-				[
-					'rule'         => IpBlockedShield::SLUG,
-					'invert_match' => true
-				],
-				[
-					'condition' => Conditions\RequestHasParameters::SLUG,
-				],
-			]
-		];
-
-		$excludedPaths = $this->getExcludedPaths();
-		if ( !empty( $excludedPaths ) ) {
-			$conditions[ 'group' ][] = [
-				'condition' => Conditions\NotMatchRequestPath::SLUG,
-				'params'    => [
-					'is_match_regex' => false,
-					'match_paths'    => $excludedPaths,
-				],
-			];
-		}
-
-		if ( $this->opts()->isOpt( 'whitelist_admins', 'Y' ) ) {
-			$conditions[ 'group' ][] = [
-				'condition'    => Conditions\IsUserAdminNormal::SLUG,
-				'invert_match' => true,
-			];
-		}
-
-		$firewallRulesGroup = [
-			'logic' => static::LOGIC_OR,
-			'group' => [],
-		];
-
-		$simple = $this->getFirewallPatterns_Simple();
-		if ( !empty( $simple ) ) {
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamQuery::SLUG,
-				'params'    => [
-					'is_match_regex'  => false,
-					'match_patterns'  => $simple,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamPost::SLUG,
-				'params'    => [
-					'is_match_regex'  => false,
-					'match_patterns'  => $simple,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-		}
-
-		$regex = $this->getFirewallPatterns_Regex();
-		if ( !empty( $regex ) ) {
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamQuery::SLUG,
-				'params'    => [
-					'is_match_regex'  => true,
-					'match_patterns'  => $regex,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamPost::SLUG,
-				'params'    => [
-					'is_match_regex'  => true,
-					'match_patterns'  => $regex,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-		}
-
-		$conditions[ 'group' ][] = $firewallRulesGroup;
-
-		return $conditions;
-	}
-
-	protected function getExcludedPaths() :array {
-		return \array_keys( \array_filter( $this->getExclusions(), function ( $excl ) {
-			return empty( $excl );
-		} ) );
-	}
-
-	protected function getExclusions() :array {
 		$opts = $this->opts();
-		$exclusions = $opts->getDef( 'default_whitelist' );
-		foreach ( $opts->getCustomWhitelist() as $page => $params ) {
-			if ( empty( $params ) || !\is_array( $params ) ) {
-				continue;
-			}
-			if ( !isset( $exclusions[ $page ] ) ) {
-				$exclusions[ $page ] = [
-					'simple' => [],
-				];
-			}
-			$exclusions[ $page ][ 'simple' ] = \array_merge( $exclusions[ $page ][ 'simple' ], $params );
-		}
-		return $exclusions;
+
+		return [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => \array_filter( [
+				[
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
+				],
+				[
+					'conditions' => Conditions\RequestHasAnyParameters::class,
+				],
+
+				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
+					'conditions' => Conditions\IsUserAdminNormal::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+				] : null,
+
+				empty( $opts->getDef( 'whitelisted_paths' ) ) ? null : [
+					'logic'      => Enum\EnumLogic::LOGIC_AND,
+					'conditions' => \array_map(
+						function ( string $path ) {
+							return [
+								'conditions' => Conditions\MatchRequestPath::class,
+								'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+								'params'     => [
+									'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+									'match_path' => $path,
+								],
+							];
+						},
+						$opts->getDef( 'whitelisted_paths' )
+					),
+				],
+			] )
+		];
 	}
 
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'firewall_block',
 					'offense_count'    => 1,
@@ -166,7 +88,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				],
 			],
 			[
-				'response' => Responses\FirewallBlock::SLUG,
+				'response' => Responses\FirewallBlock::class,
 				'params'   => [],
 			],
 		];

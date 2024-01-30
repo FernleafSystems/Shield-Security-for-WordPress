@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
-class PageScansRun extends BasePluginAdminPage {
+class PageScansRun extends PageScansBase {
 
 	public const SLUG = 'admin_plugin_page_scans_run';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_run.twig';

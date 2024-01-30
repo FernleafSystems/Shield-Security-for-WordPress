@@ -38,7 +38,7 @@ class ProcessQueueWpcli {
 		WP_CLI::log( 'Starting Scans...' );
 
 		/** @var ScanItemsDB\Select $selector */
-		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
+		$selector = self::con()->db_con->dbhScanItems()->getQuerySelector();
 		$progress = WP_CLI\Utils\make_progress_bar( 'Scans Progress',
 			\array_sum( $selector->countAllForEachScan() ) );
 

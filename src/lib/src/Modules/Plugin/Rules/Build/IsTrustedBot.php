@@ -6,10 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
-	Responses
+	Enum\EnumLogic,
 };
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
+/**
+ * @deprecated 18.5.8
+ */
 class IsTrustedBot extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
@@ -26,31 +28,13 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic' => EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => IsServerLoopback::SLUG,
-					'invert_match' => true,
-				],
-				[
-					'condition' => Conditions\MatchRequestIpIdentity::SLUG,
-					'params'    => [
-						'match_not_ip_ids' => (array)apply_filters( 'shield/untrusted_service_providers', [
-							IpID::UNKNOWN,
-							IpID::THIS_SERVER,
-							IpID::VISITOR,
-						] ),
-					],
+					'conditions' => Conditions\RequestIsServerLoopback::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 			]
-		];
-	}
-
-	protected function getResponses() :array {
-		return [
-			[
-				'response' => Responses\SetIsTrustedBot::SLUG,
-			],
 		];
 	}
 }

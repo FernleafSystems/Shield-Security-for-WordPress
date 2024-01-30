@@ -12,7 +12,7 @@ class BlockdownFormSubmit extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		$dbh = $con->getModule_IPs()->getDbH_IPRules();
+		$dbh = $con->db_con->dbhIPRules();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $opts */
 		$opts = $con->getModule_Plugin()->opts();
 

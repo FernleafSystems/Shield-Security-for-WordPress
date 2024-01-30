@@ -2,17 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
-
 class IsIpBlockedManual extends Base {
 
-	use RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blocked_manual';
 
+	public function getDescription() :string {
+		return __( "Is the request IP on Shield's Manual block list.", 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
-		return self::con()->this_req->is_ip_blocked_shield_manual =
-			( new IpRuleStatus( $this->getRequestIP() ) )->hasManualBlock();
+		return $this->req->is_ip_blocked_shield_manual;
 	}
 }

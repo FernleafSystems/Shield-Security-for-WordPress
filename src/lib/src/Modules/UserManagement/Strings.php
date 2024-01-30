@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Strings extends Base\Strings {
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getPassStrengthName( int $strength ) :string {
 		return [
@@ -65,10 +64,10 @@ class Strings extends Base\Strings {
 					__( 'Logging out.', 'wp-simple-firewall' )
 				],
 			],
-			'session_iplock'               => [
-				'name'  => __( 'Session Locked To IP', 'wp-simple-firewall' ),
+			'session_lock'                 => [
+				'name'  => __( 'Session Locked', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Access to an established user session ({{user_login}}) from a different IP address.', 'wp-simple-firewall' ),
+					__( "Core properties of an established user session ({{user_login}}) have changed.", 'wp-simple-firewall' ),
 					__( 'Logging out.', 'wp-simple-firewall' )
 				],
 			],
@@ -207,21 +206,11 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'session_lock_location' :
-				$name = __( 'Lock To Location', 'wp-simple-firewall' );
-				$summary = __( 'Locks A User Session To IP address', 'wp-simple-firewall' );
+			case 'session_lock' :
+				$name = __( 'User Session Lock', 'wp-simple-firewall' );
+				$summary = __( 'Locks A User Session To Prevent Theft', 'wp-simple-firewall' );
 				$desc = [
-					__( 'When selected, a session is restricted to the same IP address as when the user logged in.', 'wp-simple-firewall' ),
-					__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress.", 'wp-simple-firewall' )
-				];
-				break;
-
-			case 'session_username_concurrent_limit' :
-				$name = __( 'Max Simultaneous Sessions', 'wp-simple-firewall' );
-				$summary = __( 'Limit Simultaneous Sessions For The Same Username', 'wp-simple-firewall' );
-				$desc = [
-					__( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.', 'wp-simple-firewall' ),
-					__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' )
+					__( 'Protects against user compromise by preventing user session theft/hijacking.', 'wp-simple-firewall' ),
 				];
 				break;
 

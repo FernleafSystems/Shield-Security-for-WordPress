@@ -42,7 +42,8 @@ class Enqueue {
 		}, 1000 );
 
 		add_action( 'admin_enqueue_scripts', function ( $hook_suffix ) {
-			$this->adminHookSuffix = (string)$hook_suffix; /** ALWAYS cast to string when setting this property */
+			$this->adminHookSuffix = (string)$hook_suffix;
+			/** ALWAYS cast to string when setting this property */
 			$this->enqueue();
 			add_action( 'admin_footer', function () {
 				$this->dequeue();
@@ -55,6 +56,20 @@ class Enqueue {
 			$this->removeConflictingAdminAssets( $wp_scripts );
 			$this->removeConflictingAdminAssets( $wp_styles );
 		}, \PHP_INT_MAX );
+
+		$this->compatibility();
+	}
+
+	private function compatibility() {
+		/** https://kb.mailpoet.com/article/365-how-to-solve-3rd-party-css-menu-conflict */
+		add_filter( 'mailpoet_conflict_resolver_whitelist_script', function ( $scripts ) {
+			$scripts[] = \dirname( self::con()->base_file );
+			return $scripts;
+		} );
+		add_filter( 'mailpoet_conflict_resolver_whitelist_style', function ( $scripts ) {
+			$scripts[] = \dirname( self::con()->base_file );
+			return $scripts;
+		} );
 	}
 
 	/**
@@ -67,6 +82,7 @@ class Enqueue {
 			$default = [
 				'cerber_css',
 				'bootstrap',
+				'convesio-caching-custom-styles', // fixed-admin-menu
 				'custom-admin-style', // fixed-admin-menu
 				'wp-notes',
 				'wpforo',
@@ -254,38 +270,5 @@ class Enqueue {
 			$handle = self::con()->prefix( $handle );
 		}
 		return $handle;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function runEnqueueOnAssets( string $type, array $asset ) {
-		\array_map(
-			function ( $asset ) use ( $type ) {
-				$type == self::CSS ? wp_enqueue_style( $asset ) : wp_enqueue_script( $asset );
-			},
-			$this->normaliseHandles( $asset )
-		);
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function getAdminAssetsToEnq() {
-		$con = self::con();
-		$admin = $con->cfg->includes[ 'admin' ];
-		if ( $con->getIsPage_PluginAdmin() ) {
-			$plugin = $con->cfg->includes[ 'plugin_admin' ];
-			$admin[ 'css' ] = \array_unique( \array_merge( $admin[ 'css' ], $plugin[ 'css' ] ) );
-			$admin[ 'js' ] = \array_unique( \array_merge( $admin[ 'js' ], $plugin[ 'js' ] ) );
-		}
-		return $admin;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function getFrontendAssetsToEnq() :array {
-		return self::con()->cfg->includes[ 'frontend' ] ?? [];
 	}
 }

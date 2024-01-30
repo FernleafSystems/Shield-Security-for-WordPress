@@ -1,0 +1,94 @@
+{% macro render_conditions_parsed( conditions, first = false ) %}
+	{% import '/common/macros_rules.twig' as macros_rules %}
+
+	{% if first %}
+		<table class="table table-hover border border-1 p-3">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Logic</th>
+				<th>Parameters</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% endif %}
+
+	{% if conditions.type == 'single' %}
+		<tr>
+			<td>{{ conditions.conditions.name }}</td>
+			<td>{{ conditions.logic }}</td>
+			<td>
+				{% if conditions.params is empty %}
+					<code>none</code>
+				{% else %}
+					<table class="table border border-0 p-3">
+						<tbody>
+							{% for key,value in conditions.params %}
+								<tr>
+									<td>
+										<code>{{ key }}</code>
+										:
+										{% if value is same as(false) or value is same as(true) %}
+											<code>{{ value ? 'true':'false' }}</code>
+										{% elseif value is iterable and value is not empty %}
+											{% for _it in value %}
+												<code>{{ _it }}</code>
+											{% endfor %}
+										{% else %}
+											<code>{{ value }}</code>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% endif %}
+			</td>
+		</tr>
+	{% elseif conditions.type == 'group' %}
+
+		{% set subCount = conditions.conditions|length %}
+
+		{% if first %}
+			{% for idx,sub in conditions.conditions %}
+				{{ _self.render_conditions_parsed(sub) }}
+				{% if subCount - 1 > idx %}
+					<tr>
+						<td colspan="3" class="text-center p-0">
+							<h6 class="text-white bg-info p-2 m-0">{{ conditions.logic }}</h6>
+						</td>
+					</tr>
+				{% endif %}
+			{% endfor %}
+		{% else %}
+			<tr>
+				<td colspan="3" class="p-4">
+					<table class="table table-hover border border-1">
+						<tbody>
+						{% for idx,sub in conditions.conditions %}
+							{{ _self.render_conditions_parsed(sub) }}
+
+							{% if subCount - 1 > idx %}
+								<tr>
+									<td colspan="3" class="text-center p-0">
+										<h6 class="text-white bg-info p-2 m-0">{{ conditions.logic }}</h6>
+									</td>
+								</tr>
+							{% endif %}
+						{% endfor %}
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		{% endif %}
+
+	{% else %}
+		callable
+	{% endif %}
+
+	{% if first %}
+		</tbody>
+		</table>
+	{% endif %}
+
+{% endmacro %}

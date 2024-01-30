@@ -27,7 +27,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	}
 
 	private function getData() :array {
-		$srvEvents = self::con()->loadEventsService();
+		$srvEvents = self::con()->service_events;
 
 		$theStats = \array_filter(
 			$srvEvents->getEvents(),
@@ -37,10 +37,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 		);
 
 		/** @var EventsDB\Select $selector */
-		$selector = self::con()
-						->getModule_Events()
-						->getDbH_Events()
-						->getQuerySelector();
+		$selector = self::con()->db_con->dbhEvents()->getQuerySelector();
 
 		$recent = \array_intersect_key(
 			\array_filter( \array_map(

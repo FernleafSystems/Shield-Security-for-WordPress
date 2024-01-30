@@ -108,7 +108,7 @@ class ModCon extends BaseShield\ModCon {
 		try {
 			$user = Services::WpUsers()->getUserByEmail( $email );
 			if ( !empty( $user ) ) {
-				$deleter = $this->getDbH_Meta()->getQueryDeleter();
+				$deleter = self::con()->db_con->dbhActivityLogsMeta()->getQueryDeleter();
 				$deleter->addWhereEquals( 'meta_key', 'uid' )
 						->addWhereEquals( 'meta_data', $user->ID )
 						->query();
@@ -124,8 +124,5 @@ class ModCon extends BaseShield\ModCon {
 		catch ( \Exception $e ) {
 		}
 		return $data;
-	}
-
-	public function doPrePluginOptionsSave() {
 	}
 }

@@ -19,13 +19,8 @@ class Afs extends Base {
 
 	protected function run() {
 		parent::run();
-
-		( new Scan\Utilities\PtgAddReinstallLinks() )
-			->setScanController( $this )
-			->execute();
-
 		$this->setupCronHooks();
-
+		( new Scan\Utilities\PtgAddReinstallLinks() )->execute();
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->execute();
 	}
 
@@ -81,7 +76,7 @@ class Afs extends Base {
 		$autoFiltered = $rawResult[ 'auto_filter' ] ?? false;
 
 		/** @var ResultItemsDB\Record $record */
-		$record = $this->mod()->getDbH_ResultItems()->getRecord();
+		$record = self::con()->db_con->dbhResultItems()->getRecord();
 		$record->auto_filtered_at = $autoFiltered ? Services::Request()->ts() : 0;
 		$record->item_id = $rawResult[ 'path_fragment' ];
 		$record->item_type = ResultItemsDB\Handler::ITEM_TYPE_FILE;
@@ -153,7 +148,7 @@ class Afs extends Base {
 	 * @param Scans\Afs\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
-		$dbhResultItems = $this->mod()->getDbH_ResultItems();
+		$dbhResultItems = self::con()->db_con->dbhResultItems();
 		/** @var ResultItemsDB\Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 

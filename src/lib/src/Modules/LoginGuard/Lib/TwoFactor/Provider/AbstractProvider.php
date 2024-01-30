@@ -30,6 +30,14 @@ abstract class AbstractProvider implements Provider2faInterface {
 		return \strtolower( static::SLUG );
 	}
 
+	public static function ProviderName() :string {
+		return static::ProviderSlug();
+	}
+
+	public function getProviderName() :string {
+		return static::ProviderName();
+	}
+
 	public function getUser() :\WP_User {
 		return $this->user;
 	}

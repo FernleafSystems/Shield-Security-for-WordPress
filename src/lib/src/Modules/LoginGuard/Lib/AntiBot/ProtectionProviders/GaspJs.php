@@ -18,14 +18,6 @@ class GaspJs extends BaseProtectionProvider {
 
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
 			$assets[] = 'login_guard';
-
-			/**
-			 * @deprecated 18.5
-			 */
-			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				return $localz;
-			} );
-
 			return $assets;
 		} );
 	}

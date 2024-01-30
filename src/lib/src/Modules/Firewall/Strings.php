@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-
-class Strings extends Base\Strings {
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getSectionStrings( string $section ) :array {
 

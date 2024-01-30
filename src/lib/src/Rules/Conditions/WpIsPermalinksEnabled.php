@@ -2,13 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class WpIsPermalinksEnabled extends Base {
+
+	use Traits\TypeWordpress;
 
 	public const SLUG = 'wp_is_permalinks_enabled';
 
 	protected function execConditionCheck() :bool {
-		return Services::WpGeneral()->isPermalinksEnabled();
+		return $this->req->wp_is_permalinks_enabled;
+	}
+
+	public function getName() :string {
+		return __( 'Is WP Permalinks Enabled', 'wp-simple-firewall' );
+	}
+
+	public function getDescription() :string {
+		return __( 'Are WordPress permalinks enabled.', 'wp-simple-firewall' );
 	}
 }

@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class BotTrack404 extends BuildRuleIpsBase {
 
@@ -21,39 +21,46 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
+		$opts = $this->opts();
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'condition' => Conditions\MatchRequestStatusCode::SLUG,
-					'params'    => [
-						'code' => '404',
-					],
+					'conditions' => Conditions\IsRequestStatus404::class,
 				],
 				[
-					'logic' => static::LOGIC_OR,
-					'group' => [
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'track_404',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
+				],
+				[
+					'logic'      => Enum\EnumLogic::LOGIC_OR,
+					'conditions' => [
 						[
-							'condition' => Conditions\NotMatchRequestPath::SLUG,
-							'params'    => [
-								'is_match_regex' => true,
-								'match_paths'    => [
-									sprintf( "\\.(%s)$", \implode( '|', $this->opts()->botSignalsGetAllowable404s() ) )
-								],
+							'conditions' => Conditions\MatchRequestPath::class,
+							'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+							'params'     => [
+								'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+								'match_path' => sprintf( "#\\.(%s)$#i", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
 							],
 						],
 						[
-							'condition' => Conditions\IsRequestToInvalidPlugin::SLUG,
+							'conditions' => Conditions\IsRequestToInvalidPlugin::class,
 						],
 						[
-							'condition' => Conditions\IsRequestToInvalidTheme::SLUG,
+							'conditions' => Conditions\IsRequestToInvalidTheme::class,
 						],
 					]
 				]
@@ -65,7 +72,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 		$opts = $this->opts();
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_404',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_404' ),

@@ -66,7 +66,7 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			OffCanvasService.RenderCanvas( ObjectOps.Merge( this._base_data.ajax.render_offcanvas, targetEl.dataset ) )
 							.finally();
 		} );
-		shieldEventsHandler_Main.add_Click( 'div.progress-metercard .description', ( targetEl ) => {
+		shieldEventsHandler_Main.add_Click( 'div.progress-metercard .description > :not(.alert)', ( targetEl ) => {
 			targetEl.querySelectorAll( '.toggleable' ).forEach(
 				( toggleableElem ) => toggleableElem.classList.toggle( 'hidden' )
 			);

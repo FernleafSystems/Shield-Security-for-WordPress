@@ -2,13 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -17,11 +16,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class BuildIpRulesTableData extends BaseBuildTableData {
 
 	use ModConsumer;
-
-	/**
-	 * @var Lookup
-	 */
-	private $geoLookup;
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
@@ -38,19 +32,20 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		return \array_values( \array_filter( \array_map(
 			function ( $record ) {
 				$data = $record->getRawData();
-				$geo = $this->getCountryIP( $record->ip );
 				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $record->ipAsSubnetRange(), $record->id );
 				$data[ 'is_blocked' ] = $record->ip > 0;
 				$data[ 'status' ] = $this->getColumnContent_Status( $record );
 				$data[ 'type' ] = Handler::GetTypeName( $data[ 'type' ] );
-				$data[ 'country' ] = empty( $geo->countryCode ) ?
-					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
+				$data[ 'country' ] = ( new LookupMeta() )
+					->setIP( $record->ip )
+					->countryCode();
 				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $record->last_access_at );
 				$data[ 'unblocked_at' ] = $this->getColumnContent_UnblockedAt( $record->unblocked_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $record->created_at );
 				$data[ 'day' ] = Services::Request()
-										 ->carbon( true )->setTimestamp( $record->last_access_at )->toDateString();
-
+										 ->carbon( true )
+										 ->setTimestamp( $record->last_access_at )
+										 ->toDateString();
 				return $data;
 			},
 			$records
@@ -68,7 +63,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	}
 
 	/**
-	 * The Wheres need to align with the structure of the Query called from getRecords()
+	 * The WHEREs need to align with the structure of the Query called from getRecords()
 	 */
 	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];
@@ -162,7 +157,10 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 					switch ( $record->type ) {
 						case Handler::T_AUTO_BLOCK:
-							if ( ( new IpRuleStatus( $record->ip ) )->hasHighReputation() ) {
+							$highRep = ( new IsHighReputationIP() )
+								->setIP( $record->ip )
+								->query();
+							if ( $highRep ) {
 								$color = 'warning';
 								$blockedStatus = sprintf( '%s (%s: %s)',
 									__( 'Blocked/High Reputation', 'wp-simple-firewall' ), __( 'expires', 'wp-simple-firewall' ),
@@ -234,14 +232,5 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 			$content = $this->getColumnContent_Date( $ts );
 		}
 		return $content;
-	}
-
-	private function getCountryIP( string $ip ) :IPGeoVO {
-		if ( empty( $this->geoLookup ) ) {
-			$this->geoLookup = new Lookup();
-		}
-		return $this->geoLookup
-			->setIP( $ip )
-			->lookup();
 	}
 }

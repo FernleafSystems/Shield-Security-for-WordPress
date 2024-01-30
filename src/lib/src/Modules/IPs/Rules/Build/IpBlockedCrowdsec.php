@@ -5,9 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockIpAddressCrowdsec;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 class IpBlockedCrowdsec extends BuildRuleIpsBase {
 
@@ -25,31 +27,48 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'cs_block',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
 				],
 				[
-					'rule'         => IpBlockedShield::SLUG,
-					'invert_match' => true
-				],
-				[
-					'condition'    => Conditions\IsIpHighReputation::SLUG,
-					'invert_match' => true
-				],
-				[
-					'condition' => Conditions\IsIpBlockedCrowdsec::SLUG,
-				],
-			]
+					'conditions' => Conditions\IsIpBlockedCrowdsec::class,
+				]
+			],
 		];
 	}
 
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpBlockedCrowdsec::SLUG,
+				'response' => Responses\UpdateIpRuleLastAccessAt::class,
+			],
+			[
+				'response' => Responses\DoAction::class,
+				'params'   => [
+					'hook' => 'shield/maybe_intercept_block_crowdsec',
+				],
+			],
+			[
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'conn_kill_crowdsec',
+				],
+			],
+			[
+				'response' => Responses\DisplayBlockPage::class,
+				'params'   => [
+					'block_page_slug' => BlockIpAddressCrowdsec::SLUG,
+					'hook'            => 'init',
+					'priority'        => HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC,
+				],
 			],
 		];
 	}

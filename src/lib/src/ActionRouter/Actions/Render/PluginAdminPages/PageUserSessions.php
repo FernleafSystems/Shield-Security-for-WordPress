@@ -28,6 +28,14 @@ class PageUserSessions extends BasePluginAdminPage {
 		];
 	}
 
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'User Sessions', 'wp-simple-firewall' ) ),
+			'href'       => 'https://help.getshieldsecurity.com/article/434-user-sessions-management-tool',
+			'new_window' => true,
+		];
+	}
+
 	protected function getRenderData() :array {
 		return [
 			'imgs'    => [

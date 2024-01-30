@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+/**
+ * @deprecated 18.5.8
+ */
 class ForceSslAdmin extends Base {
 
 	public const SLUG = 'force_ssl_admin';
 
-	protected function execResponse() :bool {
-		if ( !\defined( 'FORCE_SSL_ADMIN' ) ) {
-			\define( 'FORCE_SSL_ADMIN', true );
-		}
+	public function execResponse() :void {
 		force_ssl_admin( true );
-		return true;
 	}
 }

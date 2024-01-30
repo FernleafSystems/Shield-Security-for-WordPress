@@ -3,9 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\{
+	Crons,
+	Modules
+};
 
 /**
  * @property bool $is_booted
@@ -13,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 abstract class ModCon extends DynPropertiesClass {
 
 	use Modules\PluginControllerConsumer;
-	use Shield\Crons\PluginCronsConsumer;
+	use Crons\PluginCronsConsumer;
 
 	public const SLUG = '';
 
@@ -23,22 +25,23 @@ abstract class ModCon extends DynPropertiesClass {
 	public $cfg;
 
 	/**
-	 * @var Shield\Modules\Base\Processor
+	 * @var Modules\Base\Processor
 	 */
 	private $oProcessor;
 
 	/**
-	 * @var Shield\Modules\Base\Options
+	 * @var Modules\Base\Options
 	 */
 	private $opts;
 
 	/**
-	 * @var Shield\Modules\Base\WpCli
+	 * @var Modules\Base\WpCli
 	 */
 	private $wpCli;
 
 	/**
 	 * @var AdminNotices
+	 * @deprecated 18.6
 	 */
 	private $adminNotices;
 
@@ -74,37 +77,12 @@ abstract class ModCon extends DynPropertiesClass {
 
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( self::con()->prefix( 'pre_options_store' ), function () {
 			$this->onConfigChanged();
 		} );
 
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	protected function collateRuleBuilders() {
-		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
-			error_log( $this->getModSlug( false ) );
-			return \array_merge( $builders, \array_map(
-				function ( $class ) {
-					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
-					$theClass = new $class();
-					if ( \method_exists( $theClass, 'setMod' ) ) {
-						$theClass->setMod( $this );
-					}
-					return $theClass;
-				},
-				\array_filter( $this->enumRuleBuilders() )
-			) );
-		} );
-	}
-
-	protected function enumRuleBuilders() :array {
-		return [];
 	}
 
 	protected function setupCustomHooks() {
@@ -114,7 +92,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return false|Shield\Modules\Base\Upgrade|mixed
+	 * @return false|Modules\Base\Upgrade|mixed
 	 */
 	public function getUpgradeHandler() {
 		return $this->loadModElement( 'Upgrade' );
@@ -144,9 +122,6 @@ abstract class ModCon extends DynPropertiesClass {
 		$this->getProcessor()->execute();
 	}
 
-	public function onWpLoaded() {
-	}
-
 	public function onWpInit() {
 		$con = self::con();
 
@@ -167,7 +142,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * Override this and adapt per feature
-	 * @return Shield\Modules\Base\Processor|mixed
+	 * @return Modules\Base\Processor|mixed
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
@@ -183,11 +158,11 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getOptionsStorageKey() :string {
-		return self::con()->prefixOption( $this->cfg->properties[ 'storage_key' ] ).'_options';
+		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
 	}
 
 	/**
-	 * @return Shield\Modules\Base\Processor|\FernleafSystems\Utilities\Logic\ExecOnce|mixed
+	 * @return Modules\Base\Processor|\FernleafSystems\Utilities\Logic\ExecOnce|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
@@ -207,7 +182,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function isModuleEnabled() :bool {
 		$con = self::con();
-		/** @var Shield\Modules\Plugin\Options $pluginOpts */
+		/** @var Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $con->getModule_Plugin()->opts();
 
 		if ( !$this->moduleReadyCheck() ) {
@@ -346,18 +321,6 @@ abstract class ModCon extends DynPropertiesClass {
 		self::con()->opts->store();
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function doPrePluginOptionsSave() {
-	}
-
 	public function onPluginDeactivate() {
 	}
 
@@ -388,45 +351,41 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return null|Shield\Modules\Base\Options|mixed
+	 * @return null|Modules\Base\Options|mixed
 	 */
 	public function opts() {
 		return $this->opts ?? $this->opts = $this->loadModElement( 'Options' );
 	}
 
 	/**
-	 * @return Shield\Modules\Base\WpCli|mixed
+	 * @return Modules\Base\WpCli|mixed
 	 */
 	public function getWpCli() {
 		return $this->wpCli ?? $this->wpCli = $this->loadModElement( 'WpCli' );
 	}
 
 	/**
-	 * @return null|Shield\Modules\Base\Strings
+	 * @return null|Modules\Base\Strings
 	 */
 	public function getStrings() {
 		return $this->loadStrings()->setMod( $this );
 	}
 
-	public function getAdminNotices() {
-		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
-	}
-
 	/**
-	 * @return Shield\Modules\Base\Strings|mixed
+	 * @return Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
 		return $this->loadModElement( 'Strings' );
 	}
 
 	/**
-	 * @return false|Shield\Modules\ModConsumer|mixed
+	 * @return false|Modules\ModConsumer|mixed
 	 */
 	private function loadModElement( string $class ) {
 		$element = false;
 		try {
 			$C = $this->findElementClass( $class );
-			/** @var Shield\Modules\ModConsumer $element */
+			/** @var Modules\ModConsumer $element */
 			$element = @\class_exists( $C ) ? new $C() : false;
 			if ( \method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
@@ -484,5 +443,18 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
+	public function getAdminNotices() {
+		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
+	}
+
+	/**
+	 * @deprecated 19.0
+	 */
+	public function onWpLoaded() {
 	}
 }

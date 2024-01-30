@@ -11,10 +11,11 @@ class DeleteFileLock extends BaseOps {
 			$lock = $this->findLockRecordForFile();
 		}
 		$success = $lock instanceof FileLockerDB\Record
-				   && $this->mod()
-						   ->getDbH_FileLocker()
-						   ->getQueryDeleter()
-						   ->deleteRecord( $lock );
+				   && self::con()
+					   ->db_con
+					   ->dbhFileLocker()
+					   ->getQueryDeleter()
+					   ->deleteRecord( $lock );
 		if ( $success ) {
 			$this->mod()->getFileLocker()->clearLocks();
 		}

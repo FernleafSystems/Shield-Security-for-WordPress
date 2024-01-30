@@ -26,6 +26,8 @@ class PluginNavs {
 	public const NAV_REPORTS = 'reports';
 	public const SUBNAV_REPORTS_LIST = 'list';
 	public const NAV_RULES = 'rules';
+	public const SUBNAV_RULES_MANAGE = 'manage';
+	public const SUBNAV_RULES_BUILD = 'build';
 	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
 	public const SUBNAV_SCANS_RESULTS = 'results';
@@ -43,9 +45,6 @@ class PluginNavs {
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
-	/** @deprecated 18.5 */
-	public const SUBNAV_ACTIVITY_LOG = 'log';
-	public const SUBNAV_TRAFFIC_LOG = 'log';
 
 	public static function GetNav() :string {
 		return (string)Services::Request()->query( self::FIELD_NAV );
@@ -91,7 +90,7 @@ class PluginNavs {
 				self::NAV_ACTIVITY       => [
 					'name'     => __( 'Activity', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_LOGS         => [
+						self::SUBNAV_LOGS => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
 					],
@@ -153,6 +152,12 @@ class PluginNavs {
 				self::NAV_RULES          => [
 					'name'     => __( 'Rules', 'wp-simple-firewall' ),
 					'sub_navs' => [
+						self::SUBNAV_RULES_MANAGE     => [
+							'handler' => PluginAdminPages\PageRulesManage::class,
+						],
+						self::SUBNAV_RULES_BUILD     => [
+							'handler' => PluginAdminPages\PageRulesBuild::class,
+						],
 						self::SUBNAV_RULES_SUMMARY => [
 							'handler' => PluginAdminPages\PageRulesSummary::class,
 						],
@@ -175,16 +180,16 @@ class PluginNavs {
 						self::SUBNAV_TOOLS_BLOCKDOWN => [
 							'handler' => PluginAdminPages\PageToolLockdown::class,
 						],
-						self::SUBNAV_TOOLS_SESSIONS => [
+						self::SUBNAV_TOOLS_SESSIONS  => [
 							'handler' => PluginAdminPages\PageUserSessions::class,
 						],
-						self::SUBNAV_TOOLS_DEBUG    => [
+						self::SUBNAV_TOOLS_DEBUG     => [
 							'handler' => PluginAdminPages\PageDebug::class,
 						],
-						self::SUBNAV_TOOLS_DOCS     => [
+						self::SUBNAV_TOOLS_DOCS      => [
 							'handler' => PluginAdminPages\PageDocs::class,
 						],
-						self::SUBNAV_TOOLS_IMPORT   => [
+						self::SUBNAV_TOOLS_IMPORT    => [
 							'handler' => PluginAdminPages\PageImportExport::class,
 						],
 					],

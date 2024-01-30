@@ -2,36 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestPath;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsRequestToValidThemeAsset extends Base {
 
-	use RequestPath;
+	use Traits\TypeWordpress;
 
 	public const SLUG = 'is_request_to_valid_theme_asset';
 
-	protected function execConditionCheck() :bool {
-		$pathMatcher = new MatchRequestPath();
-		$pathMatcher->request_path = $this->getRequestPath();
-		$pathMatcher->is_match_regex = true;
-		$pathMatcher->match_paths = [
-			sprintf( '^%s/(%s)/',
-				\rtrim( \dirname( wp_parse_url( get_stylesheet_directory_uri(), \PHP_URL_PATH ) ), '/' ),
-				\implode( '|', \array_filter( \array_map(
-					function ( $themeDir ) {
-						return \preg_quote( $themeDir, '#' );
-					},
-					Services::WpThemes()->getInstalledStylesheets()
-				) ) )
-			)
-		];
-		return $pathMatcher->run();
+	public function getDescription() :string {
+		return __( 'Is the request to a path within a currently installed WordPress theme.', 'wp-simple-firewall' );
 	}
 
-	public static function RequiredConditions() :array {
+	protected function getSubConditions() :array {
 		return [
-			MatchRequestPath::class
+			'conditions' => MatchRequestPath::class,
+			'params'     => [
+				'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'match_path' => sprintf( '#^%s/(%s)/#',
+					\rtrim( \dirname( wp_parse_url( get_stylesheet_directory_uri(), \PHP_URL_PATH ) ), '/' ),
+					\implode( '|', \array_filter( \array_map(
+						function ( $themeDir ) {
+							return \preg_quote( $themeDir, '#' );
+						},
+						Services::WpThemes()->getInstalledStylesheets()
+					) ) )
+				),
+			],
 		];
 	}
 }

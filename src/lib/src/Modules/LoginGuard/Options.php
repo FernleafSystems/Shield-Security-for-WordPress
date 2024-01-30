@@ -142,13 +142,6 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	public function isEnabledU2F() :bool {
-		return $this->isOpt( 'enable_u2f', 'Y' );
-	}
-
 	public function isProtectLogin() :bool {
 		return $this->isProtect( 'login' );
 	}

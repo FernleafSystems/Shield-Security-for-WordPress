@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function preSave() :void {
 		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
@@ -63,10 +61,6 @@ class Options extends BaseShield\Options {
 		return $this->getIdleTimeoutInterval() > 0;
 	}
 
-	public function isLockToIp() :bool {
-		return $this->isOpt( 'session_lock_location', 'Y' );
-	}
-
 	public function isPassPreventPwned() :bool {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
@@ -102,5 +96,12 @@ class Options extends BaseShield\Options {
 
 	public function isValidateEmailOnRegistration() :bool {
 		return $this->getValidateEmailOnRegistration() !== 'disabled' && !empty( $this->getEmailValidationChecks() );
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
+	public function isLockToIp() :bool {
+		return $this->isOpt( 'session_lock_location', 'Y' );
 	}
 }

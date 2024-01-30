@@ -32,7 +32,23 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 					$this->createNetworkAdminMenu();
 				} );
 			}
+
+			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+	}
+
+	/**
+	 * In order to prevent certain errors when the back button is used
+	 * @param array $h
+	 * @return array
+	 */
+	public function adjustNocacheHeaders( $h ) {
+		if ( \is_array( $h ) && !empty( $h[ 'Cache-Control' ] ) && self::con()->isPluginAdminPageRequest() ) {
+			$Hs = \array_map( '\trim', \explode( ',', $h[ 'Cache-Control' ] ) );
+			$Hs[] = 'no-store';
+			$h[ 'Cache-Control' ] = \implode( ', ', \array_unique( $Hs ) );
+		}
+		return $h;
 	}
 
 	private function createAdminMenu() {
@@ -78,11 +94,12 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 		$navs = [
 			PluginNavs::NAV_DASHBOARD      => __( 'Security Dashboard', 'wp-simple-firewall' ),
-			PluginNavs::NAV_REPORTS        => __( 'Reports', 'wp-simple-firewall' ),
+			PluginNavs::NAV_RULES          => __( 'Custom Rules', 'wp-simple-firewall' ),
 			PluginNavs::NAV_IPS            => __( 'IP Manager', 'wp-simple-firewall' ),
 			PluginNavs::NAV_SCANS          => __( 'Scans', 'wp-simple-firewall' ),
 			PluginNavs::NAV_ACTIVITY       => __( 'Activity', 'wp-simple-firewall' ),
 			PluginNavs::NAV_TRAFFIC        => __( 'Traffic', 'wp-simple-firewall' ),
+			PluginNavs::NAV_REPORTS        => __( 'Reports', 'wp-simple-firewall' ),
 			PluginNavs::NAV_OPTIONS_CONFIG => __( 'Configuration', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {

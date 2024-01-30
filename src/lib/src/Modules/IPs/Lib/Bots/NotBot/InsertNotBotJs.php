@@ -57,14 +57,6 @@ class InsertNotBotJs {
 				return $components;
 			} );
 
-			/**
-			 * @since      11.2 - don't fire for GTMetrix page requests
-			 * @deprecated 18.5
-			 */
-			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				return $localz;
-			} );
-
 			return $assets;
 		} );
 	}

@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
@@ -23,30 +23,40 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'condition' => Conditions\MatchRequestPath::SLUG,
-					'params'    => [
-						'is_match_regex' => true,
-						'match_paths'    => [
-							'.*'
-						],
-					],
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'track_fakewebcrawler',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
 				],
 				[
-					'condition' => Conditions\MatchRequestUseragent::SLUG,
-					'params'    => [
-						'match_useragents' => Services::ServiceProviders()->getAllCrawlerUseragents(),
-					],
-				],
+					'logic'      => Enum\EnumLogic::LOGIC_OR,
+					'conditions' => \array_map(
+						function ( $agent ) {
+							return [
+								'conditions' => Conditions\MatchRequestUseragent::class,
+								'params'     => [
+									'match_type'      => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+									'match_useragent' => $agent,
+								],
+							];
+						},
+						Services::ServiceProviders()->getAllCrawlerUseragents()
+					),
+				]
 			]
 		];
 	}
@@ -55,7 +65,7 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 		$opts = $this->opts();
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_fakewebcrawler',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_fakewebcrawler' ),

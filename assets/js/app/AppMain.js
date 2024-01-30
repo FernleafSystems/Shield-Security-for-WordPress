@@ -20,6 +20,8 @@ import { Navigation } from "../components/general/Navigation";
 import { NoticeHandler } from "../components/notices/NoticeHandler";
 import { ProgressMeters } from "../components/meters/ProgressMeters";
 import { ReportingHandler } from "../components/reporting/ReportingHandler";
+import { RuleBuilder } from "../components/rules/RuleBuilder";
+import { RulesManager } from "../components/rules/RulesManager";
 import { ScansHandler } from "../components/scans/ScansHandler";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
@@ -74,6 +76,8 @@ export class AppMain extends AppBase {
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
 		this.components.progress_meters = ( 'progress_meters' in comps ) ? new ProgressMeters( comps.progress_meters ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
+		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;
+		this.components.rules_manager = ( 'rules_manager' in comps ) ? new RulesManager( comps.rules_manager ) : null;
 		this.components.super_search = ( 'super_search' in comps ) ? new SuperSearchService( comps.super_search ) : null;
 		this.components.scans = ( 'scans' in comps ) ? new ScansHandler( comps.scans ) : null;
 		this.components.sec_admin = ( 'sec_admin' in comps ) ? new SecurityAdmin( comps.sec_admin ) : null;

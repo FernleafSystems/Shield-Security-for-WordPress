@@ -44,7 +44,7 @@ class VerifyConfig {
 			}
 
 			$mDefault = $opts->getOptDefault( $sKey );
-			if ( is_null( $mDefault ) ) {
+			if ( \is_null( $mDefault ) ) {
 				var_dump( sprintf( '%s: opt has no default.', $sKey ) );
 				continue;
 			}

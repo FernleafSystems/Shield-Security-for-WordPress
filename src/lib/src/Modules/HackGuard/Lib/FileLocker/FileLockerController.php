@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
@@ -16,12 +17,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
 class FileLockerController {
 
 	use ExecOnce;
 	use ModConsumer;
+	use PluginCronsConsumer;
 
 	public const CRON_DELAY = 60;
 
@@ -33,7 +34,7 @@ class FileLockerController {
 
 	public function isEnabled() :bool {
 		return ( \count( $this->opts()->getFilesToLock() ) > 0 )
-			   && $this->mod()->getDbH_FileLocker()->isReady()
+			   && self::con()->db_con->dbhFileLocker()->isReady()
 			   && self::con()
 					  ->getModule_Plugin()
 					  ->getShieldNetApiController()
@@ -56,6 +57,8 @@ class FileLockerController {
 		} );
 
 		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+
+		$this->setupCronHooks();
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
@@ -129,7 +132,7 @@ class FileLockerController {
 	}
 
 	public function purge() {
-		$this->mod()->getDbH_FileLocker()->tableDelete();
+		self::con()->db_con->dbhFileLocker()->tableDelete();
 	}
 
 	/**
@@ -151,12 +154,7 @@ class FileLockerController {
 		}
 		else {
 			// 1. Look for any changes in config: has a lock type been removed?
-			$locks = \method_exists( $this, 'getLocks' ) ? $this->getLocks() : ( new Ops\LoadFileLocks() )->loadLocks();
-			foreach ( $locks as $lock ) {
-				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
-					( new Ops\DeleteFileLock() )->delete( $lock );
-				}
-			}
+			( new Ops\CleanLockRecords() )->run();
 
 			// 2. Assess existing locks for file modifications.
 			( new Ops\AssessLocks() )->run();
@@ -169,12 +167,6 @@ class FileLockerController {
 				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
 			}
 		}
-	}
-
-	/**
-	 * @deprecated 18.4.4
-	 */
-	private function maybeRunLocksCreation() {
 	}
 
 	private function getCronHook() :string {
@@ -249,24 +241,22 @@ class FileLockerController {
 	/**
 	 * Ensure this is run on a cron, so that we're not running cipher tests on every page load.
 	 */
-	public function canEncrypt() :bool {
+	public function canEncrypt( bool $forceCheck = false ) :bool {
 		$state = $this->getState();
 
-		if ( Services::Request()->carbon()->subSecond()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
+		if ( $forceCheck || Services::Request()->carbon()->subDay()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
+
 			$state[ 'cipher_last_checked_at' ] = Services::Request()->ts();
 			$this->setState( $state );
 
-			try {
-				$ciphers = ( new CipherTests() )->findAvailableCiphers();
-				if ( !empty( $ciphers ) ) {
-					$state[ 'cipher' ] = \array_pop( $ciphers );
-					$this->setState( $state );
-				}
-			}
-			catch ( \Exception $e ) {
-			}
+			$state[ 'cipher' ] = ( new Ops\GetAvailableCiphers() )->firstFull();
+			$this->setState( $state );
 		}
 
 		return !empty( $state[ 'cipher' ] );
+	}
+
+	public function runDailyCron() {
+		( new Ops\UpgradeLocks() )->run();
 	}
 }

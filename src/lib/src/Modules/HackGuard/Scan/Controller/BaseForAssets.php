@@ -21,14 +21,14 @@ abstract class BaseForAssets extends Base {
 
 		if ( empty( $asset ) ) {
 			/** @var ResultItems\Ops\Update $updater */
-			$updater = $this->mod()->getDbH_ResultItems()->getQueryUpdater();
+			$updater = self::con()->db_con->dbhResultItems()->getQueryUpdater();
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 	}
 
 	public function buildScanResult( array $rawResult ) :ResultItems\Ops\Record {
 		/** @var ResultItems\Ops\Record $record */
-		$record = $this->mod()->getDbH_ResultItems()->getRecord();
+		$record = self::con()->db_con->dbhResultItems()->getRecord();
 		$record->item_id = $rawResult[ 'slug' ];
 		$record->item_type = \strpos( $rawResult[ 'slug' ], '/' ) ?
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :

@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+
 abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
+
+	use PluginControllerConsumer;
 
 	public const SLUG = '';
 
@@ -18,8 +22,6 @@ abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
 
 	protected function getCommonAuditParamsMapping() :array {
 		return [
-			'path'    => 'matched_path',
-			'script'  => 'matched_script_name',
 			'crawler' => 'matched_useragent',
 		];
 	}

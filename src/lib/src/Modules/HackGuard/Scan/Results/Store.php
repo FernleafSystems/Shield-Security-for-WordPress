@@ -18,18 +18,19 @@ class Store {
 	use ModConsumer;
 
 	public function store( QueueItemVO $queueItem, array $results ) {
-		$mod = $this->mod();
+		$dbCon = self::con()->db_con;
 
-		$dbhResItems = $mod->getDbH_ResultItems();
-		$dbhResItemMetas = $mod->getDbH_ResultItemMeta();
+		$dbhResItems = $dbCon->dbhResultItems();
+		$dbhResItemMetas = $dbCon->dbhResultItemMeta();
 		/** @var ResultItemsDB\Ops\Select $resultSelector */
 		$resultSelector = $dbhResItems->getQuerySelector();
-		/** @var ScanResultsDB\Ops\Insert $scanResultsInserter */
-		$scanResultsInserter = $mod->getDbH_ScanResults()->getQueryInserter();
 
 		foreach ( $results as $result ) {
 
-			$scanResult = $mod->getScansCon()->getScanCon( $queueItem->scan )->buildScanResult( $result );
+			$scanResult = $this->mod()
+							   ->getScansCon()
+							   ->getScanCon( $queueItem->scan )
+							   ->buildScanResult( $result );
 
 			/** @var ResultItemsDB\Ops\Record $resultRecord */
 			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )
@@ -60,24 +61,28 @@ class Store {
 				$metaInserter->setInsertData( [
 					'ri_ref'     => $resultRecord->id,
 					'meta_key'   => $metaKey,
-					'meta_value' => is_scalar( $metaValue ) ? $metaValue : \json_encode( $metaValue ),
+					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \json_encode( $metaValue ),
 				] )->query();
 			}
 
-			$scanResultsInserter->setInsertData( [
-				'scan_ref'       => $queueItem->scan_id,
-				'resultitem_ref' => $resultRecord->id,
-			] )->query();
+			$dbCon->dbhScanResults()
+				  ->getQueryInserter()
+				  ->setInsertData( [
+					  'scan_ref'       => $queueItem->scan_id,
+					  'resultitem_ref' => $resultRecord->id,
+				  ] )
+				  ->query();
 		}
 		$this->markQueueItemAsFinished( $queueItem );
 	}
 
 	private function markQueueItemAsFinished( QueueItemVO $queueItem ) {
-		$this->mod()
-			 ->getDbH_ScanItems()
-			 ->getQueryUpdater()
-			 ->updateById( $queueItem->qitem_id, [
-				 'finished_at' => Services::Request()->ts()
-			 ] );
+		self::con()
+			->db_con
+			->dbhScanItems()
+			->getQueryUpdater()
+			->updateById( $queueItem->qitem_id, [
+				'finished_at' => Services::Request()->ts()
+			] );
 	}
 }

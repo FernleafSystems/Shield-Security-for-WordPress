@@ -20,6 +20,14 @@ class Capabilities {
 		return $this->hasCap( 'activity_logs_integrations' );
 	}
 
+	public function canCustomSecurityRules() :bool {
+		return $this->hasCap( 'custom_security_rules' );
+	}
+
+	public function canRunShieldAddons() :bool {
+		return $this->hasCap( 'run_addons' );
+	}
+
 	public function canBotsAdvancedBlocking() :bool {
 		return $this->hasCap( 'bots_advanced_blocking' );
 	}
@@ -209,6 +217,8 @@ class Capabilities {
 			'crowdsec_level_1',
 			'crowdsec_level_2',
 			'crowdsec_level_3',
+			'custom_security_rules',
+			'run_addons',
 			'http_headers_csp',
 			'import_export_level_1',
 			'import_export_level_2',

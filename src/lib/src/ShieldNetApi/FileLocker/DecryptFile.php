@@ -1,15 +1,15 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
-class DecryptFile extends BaseShieldNetApi {
+class DecryptFile extends BaseShieldNetApiV2 {
 
 	public const API_ACTION = 'filelocker/decrypt';
 
-	public function retrieve( OpenSslEncryptVo $openSslVO, int $publicKeyId ) {
+	public function retrieve( OpenSslEncryptVo $openSslVO, int $publicKeyId ) :?string {
 		$content = null;
 
 		$this->request_method = 'post';
@@ -21,9 +21,9 @@ class DecryptFile extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		if ( \is_array( $raw ) && !empty( $raw[ 'data' ] ) ) {
-			$content = \base64_decode( $raw[ 'data' ][ 'opened_data' ] );
+		if ( \is_array( $raw ) && ( $raw[ 'error_code' ] ?? null ) === 0 && !empty( $raw[ 'opened_data' ] ) ) {
+			$content = \base64_decode( $raw[ 'opened_data' ] );
 		}
-		return $content;
+		return \is_string( $content ) ? $content : null;
 	}
 }

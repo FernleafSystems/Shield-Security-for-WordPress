@@ -4,10 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
+/**
+ * @TODO sort out the preg_quote - do we build our own full preg strings, or wrap internally?
+ */
 class BotTrackInvalidScript extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_invalidscript';
@@ -22,21 +25,35 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'condition'    => Conditions\MatchRequestScriptName::SLUG,
-					'invert_match' => true,
-					'params'       => [
-						'is_match_regex'     => false,
-						'match_script_names' => $this->opts()->botSignalsGetAllowableScripts(),
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'track_invalidscript',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
+				],
+				[
+					'conditions' => Conditions\MatchRequestScriptName::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'match_type'        => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_script_name' => sprintf( '#(%s)#i',
+							implode( '|', \array_map( function ( $script ) {
+								return \preg_quote( $script, '#' );
+							}, $this->opts()->botSignalsGetAllowableScripts() ) )
+						),
 					],
 				],
 			]
@@ -46,7 +63,7 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_invalidscript',
 					'offense_count'    => $this->opts()->getOffenseCountFor( 'track_invalidscript' ),

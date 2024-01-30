@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+/**
+ * @deprecated 18.5.8
+ */
 class SetSecurityAdmin extends Base {
 
 	public const SLUG = 'set_security_admin';
 
-	protected function execResponse() :bool {
-		self::con()->this_req->is_security_admin = true;
-		return true;
+	public function execResponse() :void {
+		$this->req->is_security_admin = true;
 	}
 }

@@ -88,13 +88,11 @@ class RenameLogin {
 		}
 
 		if ( $isConflicted ) {
-			self::con()
-				->getAdminNotices()
-				->addFlash(
-					sprintf( '<strong>%s</strong>: %s', __( 'Warning', 'wp-simple-firewall' ), $msg ),
-					null,
-					true
-				);
+			self::con()->admin_notices->addFlash(
+				sprintf( '<strong>%s</strong>: %s', __( 'Warning', 'wp-simple-firewall' ), $msg ),
+				null,
+				true
+			);
 		}
 
 		return $isConflicted;
@@ -103,17 +101,15 @@ class RenameLogin {
 	private function hasUnsupportedConfiguration() :bool {
 		$unsupported = empty( Services::Request()->getPath() );
 		if ( $unsupported ) {
-			self::con()
-				->getAdminNotices()
-				->addFlash(
-					sprintf(
-						'<strong>%s</strong>: %s',
-						__( 'Warning', 'wp-simple-firewall' ),
-						__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
-					),
-					null,
-					true
-				);
+			self::con()->admin_notices->addFlash(
+				sprintf(
+					'<strong>%s</strong>: %s',
+					__( 'Warning', 'wp-simple-firewall' ),
+					__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
+				),
+				null,
+				true
+			);
 		}
 		return $unsupported;
 	}
@@ -192,6 +188,8 @@ class RenameLogin {
 
 	public function loadWpLoginContent() {
 		if ( Services::WpGeneral()->isLoginUrl() ) {
+			nocache_headers();
+			Services::WpGeneral()->turnOffCache();
 			// To prevent PHP warnings about undefined vars
 			$user_login = $error = '';
 			@require_once( ABSPATH.'wp-login.php' );

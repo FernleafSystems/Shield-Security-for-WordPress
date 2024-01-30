@@ -2,18 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
-use FernleafSystems\Wordpress\Services\Services;
+/**
+ * @deprecated 18.6
+ */
+class IsNotLoggedInNormal extends IsLoggedInNormal {
 
-class IsNotLoggedInNormal extends Base {
+	use Traits\TypeUser;
 
 	public const SLUG = 'is_not_logged_in_normal';
 
-	protected function execConditionCheck() :bool {
-		return !Services::WpUsers()->isUserLoggedIn();
+	public function getDescription() :string {
+		return __( 'Is the request coming from a non-logged-in user.', 'wp-simple-firewall' );
 	}
 
-	public static function MinimumHook() :int {
-		return WPHooksOrder::INIT;
+	protected function execConditionCheck() :bool {
+		return !parent::execConditionCheck();
 	}
 }

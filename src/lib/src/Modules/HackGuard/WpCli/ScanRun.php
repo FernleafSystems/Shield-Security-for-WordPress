@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use WP_CLI;
 
-class ScanRun extends Base\WpCli\BaseWpCliCmd {
+class ScanRun extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception
