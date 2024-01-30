@@ -1,7 +1,7 @@
 {
   "19.0": {
     "version":     "19.0",
-    "released_at": 1706280000,
+    "released_at": 1706608000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease190",
       "upgrade": "https://shsec.io/shieldupgradeguide190"
@@ -15,16 +15,16 @@
         "pro_only":    true,
         "title":       "Security Rules Builder",
         "description": [
-          "The Security Rules Builder lets you design and build your own set of security rules to apply any security restrictions you desire."
+          "The Security Rules Builder lets you design and build your own set of security rules for any security restrictions you desire."
         ],
         "href":        ""
       },
       {
         "type":        "new",
         "pro_only":    true,
-        "title":       "Internal Support For Extensions",
+        "title":       "Support For ShieldPRO Extensions",
         "description": [
-          "We'll release some Shield Security Extensions to build upon the Shield platform."
+          "We'll soon release some Shield Security Extensions to build upon the Shield platform."
         ],
         "href":        ""
       },
@@ -34,7 +34,7 @@
         "title":       "Protection Against Session Theft/Hijacking",
         "description": [
           "You can now lock user sessions to IP addresses, User Agents, or both.",
-          "This helps to prevent theft and re-use of user sessions on other devices."
+          "This helps to prevent session theft and hijacking, and re-use of user sessions on other devices."
         ],
         "href":        ""
       },
@@ -80,7 +80,7 @@
         "pro_only":    true,
         "title":       "Improved Passkeys Platform Support",
         "description": [
-          "Ensure Passkeys can be used on servers that don't have the GMP extension active."
+          "Ensure Passkeys can be used on hosts that don't have the GMP extension active."
         ],
         "href":        ""
       }
