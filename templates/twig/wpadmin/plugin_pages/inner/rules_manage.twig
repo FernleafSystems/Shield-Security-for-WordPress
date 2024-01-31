@@ -2,16 +2,11 @@
 
 {% block inner_page_body %}
 	{% if flags.can_custom_rules %}
-		<h5 class="my-3">
-			<a href="{{ hrefs.rules_builder }}"
-			   class="btn btn-sm btn-primary"
-			   title="">{{ strings.create_custom_rule }}</a>
-			<button id="RulesManagerDisableAll"
-					class="btn btn-sm btn-outline-secondary"
-					data-action="disable_all"
-					title="">{{ strings.disable_all_rules }}</button>
-		</h5>
-		<div id="RulesManagerContainer"></div>
+		<div class="row shield-section-datatable" id="SectionSecurityRulesTable">
+			<div class="col">
+				<table id="ShieldTable-SecurityRulesManager" class="table table-striped table-bordered" style="width: 100%;"></table>
+			</div>
+		</div>
 	{% else %}
 		<div class="alert alert-info d-inline-block mt-3">
 			{{ strings.cant_custom_rules }}

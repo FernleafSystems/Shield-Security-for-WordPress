@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
+	ForSecurityRules,
 	ForIpRules,
 	ForSessions,
 	ForTraffic,
@@ -427,7 +428,7 @@ class AssetsCustomizer {
 				'data'    => [
 					'ajax' => [
 						'render_rules_manager' => ActionData::BuildAjaxRender( Components\Rules\RulesManager::class ),
-						'rules_manager_action' => ActionData::Build( Actions\RulesManagerActions::class ),
+						'rules_manager_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
 					],
 				],
 			],
@@ -600,6 +601,16 @@ class AssetsCustomizer {
 							],
 							'vars' => [
 								'datatables_init' => ( new ForSessions() )->buildRaw(),
+							]
+						];
+					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ) ) {
+						$data[ 'security_rules' ] = [
+							'ajax' => [
+								'table_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
+							],
+							'vars' => [
+								'datatables_init' => ( new ForSecurityRules() )->buildRaw(),
 							]
 						];
 					}

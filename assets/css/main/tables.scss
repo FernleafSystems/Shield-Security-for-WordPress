@@ -1,0 +1,22 @@
+#ShieldTable-SecurityRulesManager td {
+  padding: 20px 10px;
+}
+
+/** TABLE: Activity Log **/
+#ShieldTable-ActivityLog textarea,
+td.column-message textarea {
+  width: 100%;
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+  font-family: monospace;
+}
+
+#table_id-iprules_filter.dataTables_filter {
+  text-align: left;
+}
+
+div.dtsp-topRow.dtsp-bordered.dtsp-bordered,
+div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
+  border: 1px solid transparent;
+}

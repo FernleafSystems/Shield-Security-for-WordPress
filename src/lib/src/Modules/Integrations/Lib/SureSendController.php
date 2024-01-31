@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SureSendController {
