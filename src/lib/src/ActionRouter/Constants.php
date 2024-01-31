@@ -82,7 +82,7 @@ class Constants {
 		Actions\PluginSuperSearch::class,
 		Actions\PluginSetTracking::class,
 		Actions\RuleBuilderAction::class,
-		Actions\RulesManagerActions::class,
+		Actions\RulesManagerTableAction::class,
 		Actions\ReportingChartCustom::class,
 		Actions\ReportingChartSummary::class,
 		Actions\ReportCreateCustom::class,

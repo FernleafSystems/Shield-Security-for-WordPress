@@ -1,0 +1,13 @@
+<div class="h-100 d-flex align-items-center justify-content-center">
+
+	<a class="btn btn-outline-secondary svg-container me-2"
+	   href="{{ hrefs.edit }}"
+	   title="{{ strings.edit }}"
+	>{{ imgs.icon_edit|raw }}</a>
+
+	<button class="btn btn-outline-warning svg-container action delete"
+			title="{{ strings.delete }}"
+			data-sub_action="delete"
+			data-rid="{{ vars.rid }}"
+	>{{ imgs.icon_delete|raw }}</button>
+</div>

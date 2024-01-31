@@ -40,7 +40,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "datatables.net-bs5": "^1.13.6",
+    "datatables.net-bs5": "^1.13.8",
     "datatables.net-buttons-bs5": "^2.4.2",
     "datatables.net-searchpanes-bs5": "^2.2.0",
     "datatables.net-select-bs5": "^1.7.0",
