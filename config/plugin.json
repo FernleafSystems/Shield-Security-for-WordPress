@@ -120,19 +120,6 @@
       "description": "Uncheck this option to disable all Shield features"
     },
     {
-      "key":         "enable_beta",
-      "section":     "section_global_security_options",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "beacon_id":   472,
-      "name":        "Beta Access",
-      "summary":     "Enable Access To Beta Versions",
-      "description": "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
-    },
-    {
       "key":         "show_advanced",
       "section":     "section_non_ui",
       "default":     "Y",
@@ -276,6 +263,19 @@
       "name":        "Show Plugin Badge",
       "summary":     "Display Plugin Security Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+    },
+    {
+      "key":         "enable_beta",
+      "section":     "section_defaults",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   472,
+      "name":        "Beta Access",
+      "summary":     "Enable Access To Beta Versions",
+      "description": "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
     },
     {
       "key":         "importexport_enable",
