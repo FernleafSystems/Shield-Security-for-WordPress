@@ -16,6 +16,8 @@ class AdminNotice extends BaseRender {
 	public const TEMPLATE = '/snippets/prerendered.twig';
 
 	protected function getRenderData() :array {
+		$con = self::con();
+
 		$notice = ( new NoticeVO() )->applyFromArray( $this->action_data[ 'raw_notice_data' ] );
 
 		$data = $notice->render_data;
@@ -32,6 +34,10 @@ class AdminNotice extends BaseRender {
 
 		$data[ 'unique_render_id' ] = \uniqid( (string)$notice->id );
 		$data[ 'notice_id' ] = $notice->id;
+
+		$data[ 'imgs' ] = [
+			'icon_shield' => $con->svgs->raw( 'shield-shaded.svg' ),
+		];
 
 		return $data;
 	}

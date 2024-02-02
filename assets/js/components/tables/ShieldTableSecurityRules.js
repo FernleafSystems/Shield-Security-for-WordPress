@@ -21,6 +21,7 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 		// 	/** https://datatables.net/reference/option/rowReorder.update **/
 		// 	update: false, /** whether to automatically reload the table after ordering **/
 		// };
+		cfg.language.emptyTable = this._base_data.strings.no_rules_yet;
 		return cfg;
 	}
 
@@ -68,6 +69,15 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 						dt.rows().select();
 						this.bulkTableAction.call( this, 'deactivate_all' );
 					}
+				}
+			},
+			{
+				text: 'Create New Rule',
+				name: 'create_new',
+				className: 'create-new action btn-outline-success mb-2',
+				action: ( e, dt, node, config ) => {
+					/* https://stackoverflow.com/questions/2914/how-can-i-detect-if-a-browser-is-blocking-a-popup/27725432#27725432 */
+					window.location = this._base_data.hrefs.create_new;
 				}
 			},
 		);

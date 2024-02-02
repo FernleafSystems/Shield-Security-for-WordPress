@@ -18,7 +18,8 @@ $code-color: $primary;
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 
-@import './main/tables.scss';
+@import './components/notices';
+@import './components/tables';
 
 /* GENERAL STYLES */
 body {

@@ -1,0 +1,30 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	{% if flags.can_custom_rules %}
+		{% block inner_page_body_custom_rules %}{% endblock %}
+	{% else %}
+		<div class="row">
+			<div class="col mt-4 mb-2">
+				<h6 class="text-center">
+					{% import '/common/macros.twig' as icwp_macros %}
+					{{ icwp_macros.svg(imgs.svgs.video) }}
+					<a href="#" class="option-video"
+					   data-vimeoid="908715157">What is the Custom Security Rules feature</a>?
+				</h6>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<div class="alert alert-warning my-3">
+					<h6 class="alert-heading">{{ strings.not_available }}</h6>
+					<p class="mb-0">
+						<a href="{{ hrefs.go_pro }}" target="_blank" class="alert-link"
+						>{{ strings.please_upgrade }}</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

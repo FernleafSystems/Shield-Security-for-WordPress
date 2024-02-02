@@ -1,40 +1,3 @@
-{% block notice_styles %}
-	<style>
-		.notice-icon {
-		align-self: center;
-		justify-content: center;
-		height: 48px;
-		width: 48px;
-	}
-	.notice-title {
-		padding: 0;
-	}
-	.notice-content {
-		padding: 10px;
-	}
-	.notice-content p {
-		margin-left: 0;
-	}
-	.notice-content p {
-	}
-	.notice-icon .dashicons {
-		display: inline-block;
-		font-size: 48px;
-	}
-	.flash .notice-icon {
-		height: 26px;
-	}
-	.flash .notice-icon .dashicons {
-		font-size: 24px;
-		height: 26px;
-	}
-	.notice-content p a {
-		text-shadow: none;
-		font-weight: bold;
-	}
-	</style>
-{% endblock %}
-
 {% if unique_render_id|default('') is empty %}
 	{% set unique_render_id= random() %}
 {% endif %}
@@ -43,12 +6,12 @@
 
 	<div id="{{ unique_render_id }}"
 		 data-notice_id="{{ notice_id }}"
-	     class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible shield-notice-container">
+	     class="{{ notice_classes|default('info') }} notice is-dismissible shield-notice-container">
 
-		<div style="display: flex; flex-direction: row; ">
+		<div class="notice-body" style="display: flex; flex-direction: row; ">
 
 			<div class="notice-icon">
-				<span class="dashicons dashicons-shield"></span>&nbsp;
+				{{ imgs.icon_shield|raw }}
 			</div>
 
 			<div class="notice-content">
@@ -72,7 +35,7 @@
 		</div>
 
 		{% block dismiss_link %}
-			<div class="dismiss-p" style="margin-bottom: 15px">
+			<div class="dismiss-p">
 				<a class="shield-notice-dismiss"
 				   href="#"
 				>{{ strings.dismiss|default('Dismiss') }}</a>

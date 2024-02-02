@@ -606,10 +606,17 @@ class AssetsCustomizer {
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ) ) {
 						$data[ 'security_rules' ] = [
-							'ajax' => [
+							'ajax'    => [
 								'table_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
 							],
-							'vars' => [
+							'hrefs'   => [
+								'create_new' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+							],
+							'strings' => [
+								'no_rules_yet' => sprintf( '%s. %s', __( 'There are no custom security rules', 'wp-simple-firewall' ),
+									__( 'Use the link above to create a new one.', 'wp-simple-firewall' ) ),
+							],
+							'vars'    => [
 								'datatables_init' => ( new ForSecurityRules() )->buildRaw(),
 							]
 						];

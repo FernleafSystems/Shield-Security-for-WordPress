@@ -1,6 +1,11 @@
 #ShieldTable-SecurityRulesManager td {
   padding: 20px 10px;
 }
+#ShieldTable-SecurityRulesManager th.active,
+#ShieldTable-SecurityRulesManager th.drag {
+  width: 45px !important;
+  max-width: 45px;
+}
 
 /** TABLE: Activity Log **/
 #ShieldTable-ActivityLog textarea,
