@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table\BuildIpRulesTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules\BuildIpRulesTableData;
 
 class IpRulesTableAction extends BaseAction {
 
