@@ -88,7 +88,7 @@
     "patches":     [
       {
         "version":     "5",
-        "released_at": 1707147000,
+        "released_at": 1707149000,
         "items":       [
           {
             "title": "Fix various non-critical bugs.",
