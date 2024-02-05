@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\FindFromSlug;
 
@@ -57,7 +57,7 @@ class BuildRuleFromForm extends BuildRuleBase {
 				'conditions' => FindFromSlug::Condition( $singleCondition[ 'value' ] ),
 				'params'     => [],
 			];
-			foreach ( $singleCondition[ 'params' ] as $paramValueDef ) {
+			foreach ( $singleCondition[ 'params' ] ?? [] as $paramValueDef ) {
 				$value = $paramValueDef[ 'value' ];
 				if ( ( $paramValueDef[ 'param_subtype' ] ?? null ) === EnumParameters::SUBTYPE_REGEX ) {
 					$value = \addslashes( $value );
@@ -149,7 +149,7 @@ class BuildRuleFromForm extends BuildRuleBase {
 				'response' => FindFromSlug::Response( $responseToParse[ 'value' ] ),
 				'params'   => [],
 			];
-			foreach ( $responseToParse[ 'params' ] as $paramDef ) {
+			foreach ( $responseToParse[ 'params' ] ?? [] as $paramDef ) {
 				$value = $paramDef[ 'value' ];
 				if ( $paramDef[ 'param_type' ] === EnumParameters::TYPE_BOOL ) {
 					$value = $paramDef[ 'value' ] === 'Y';
