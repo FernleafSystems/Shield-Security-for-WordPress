@@ -73,9 +73,7 @@ class UserSuspendController {
 		$opts = $this->opts();
 		$ts = Services::Request()->ts();
 
-		$userMetaDB = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta();
+		$userMetaDB = self::con()->db_con->dbhUserMeta();
 
 		/** @var Select $metaSelect */
 		$metaSelect = $userMetaDB->getQuerySelector();
@@ -94,10 +92,7 @@ class UserSuspendController {
 
 				if ( \is_array( $args ) ) {
 					/** @var Select $metaSelect */
-					$metaSelect = self::con()
-									  ->getModule_Data()
-									  ->getDbH_UserMeta()
-									  ->getQuerySelector();
+					$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
 
 					if ( $manual > 0 && $req->query( 'shield_users_suspended' ) ) {
 						$filtered = true;

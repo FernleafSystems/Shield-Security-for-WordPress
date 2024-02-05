@@ -13,10 +13,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 */
 	private $mfaCon;
 
-	public function getDbH_Mfa() :DB\Mfa\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'mfa' );
-	}
-
 	public function getMfaController() :Lib\TwoFactor\MfaController {
 		return $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController();
 	}
@@ -65,5 +61,12 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 				break;
 		}
 		return $text;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Mfa() :DB\Mfa\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'mfa' );
 	}
 }

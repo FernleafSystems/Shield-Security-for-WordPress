@@ -29,6 +29,8 @@ class ProcessOffense {
 	 * @throws \Exception
 	 */
 	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) :void {
+		$con = self::con();
+
 		$IP = ( new AddRule() )
 			->setIP( $this->getIP() )
 			->toAutoBlacklist();
@@ -44,7 +46,7 @@ class ProcessOffense {
 		}
 
 		if ( $fireEvents ) {
-			self::con()->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
+			$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit_params' => [
 						'from' => $originalCount,
@@ -55,7 +57,7 @@ class ProcessOffense {
 		}
 
 		/** @var IpRulesDB\Update $updater */
-		$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
+		$updater = $con->db_con->dbhIPRules()->getQueryUpdater();
 		$updater->updateTransgressions( $IP, $newCount );
 
 		/**
@@ -65,11 +67,11 @@ class ProcessOffense {
 		 */
 		if ( $toBlock ) {
 			/** @var IpRulesDB\Update $updater */
-			$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
+			$updater = $con->db_con->dbhIPRules()->getQueryUpdater();
 			$updater->setBlocked( $IP );
 
 			if ( $fireEvents ) {
-				self::con()->fireEvent( 'ip_offense',
+				$con->fireEvent( 'ip_offense',
 					[
 						'suppress_audit' => true,
 						'audit_params'   => [

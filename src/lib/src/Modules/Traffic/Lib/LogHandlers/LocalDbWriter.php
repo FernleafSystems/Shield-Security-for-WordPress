@@ -32,8 +32,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord( array $logData ) :bool {
-		$modData = self::con()->getModule_Data();
-
 		$ipRecord = ( new IPRecords() )->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
 		$reqRecord = ( new ReqLogs\RequestRecords() )->loadReq(
@@ -57,9 +55,11 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$update[ 'meta' ] = \base64_encode( \json_encode( \array_diff_key( $meta, $update ) ) );
 		$update[ 'transient' ] = false;
 
-		$success = $modData->getDbH_ReqLogs()
-						   ->getQueryUpdater()
-						   ->updateById( $reqRecord->id, $update );
+		$success = self::con()
+			->db_con
+			->dbhReqLogs()
+			->getQueryUpdater()
+			->updateById( $reqRecord->id, $update );
 
 		if ( !$success ) {
 			throw new \Exception( 'Failed to insert' );

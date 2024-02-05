@@ -35,38 +35,28 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker();
 	}
 
-	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'botsignal' );
-	}
-
-	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'ip_rules' );
-	}
-
-	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
-	}
-
 	/**
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
+		return self::con()->db_con->dbhIPRules()->isReady() && parent::isReadyToExecute();
 	}
 
 	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
+		$dbhIPRules = self::con()->db_con->dbhIPRules();
+
 		if ( $opts->isOptChanged( 'cs_block' ) && !$opts->isEnabledCrowdSecAutoBlock() ) {
 			/** @var DB\IpRules\Ops\Delete $deleter */
-			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
-			$deleter->filterByType( $this->getDbH_IPRules()::T_CROWDSEC )->query();
+			$deleter = $dbhIPRules->getQueryDeleter();
+			$deleter->filterByType( $dbhIPRules::T_CROWDSEC )->query();
 		}
 
 		if ( $opts->isOptChanged( 'transgression_limit' ) && !$opts->isEnabledAutoBlackList() ) {
 			/** @var DB\IpRules\Ops\Delete $deleter */
-			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
-			$deleter->filterByType( $this->getDbH_IPRules()::T_AUTO_BLOCK )->query();
+			$deleter = $dbhIPRules->getQueryDeleter();
+			$deleter->filterByType( $dbhIPRules::T_AUTO_BLOCK )->query();
 		}
 	}
 
@@ -91,6 +81,27 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public function runDailyCron() {
 		parent::runDailyCron();
-		( new TableIndices( $this->getDbH_IPRules()->getTableSchema() ) )->applyFromSchema();
+		( new TableIndices( self::con()->db_con->dbhIPRules()->getTableSchema() ) )->applyFromSchema();
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'botsignal' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'ip_rules' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
 	}
 }

@@ -60,7 +60,7 @@ class RetrieveCount extends RetrieveBase {
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
-		$mod = $this->mod();
+		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`
@@ -70,10 +70,10 @@ class RetrieveCount extends RetrieveBase {
 						INNER JOIN `%s` as %s
 							ON %s.`ri_ref` = `ri`.id
 						WHERE %%s;",
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table,
-			$mod->getDbH_ResultItemMeta()->getTableSchema()->table,
+			$dbCon->dbhScanResults()->getTableSchema()->table,
+			$dbCon->dbhScans()->getTableSchema()->table,
+			$dbCon->dbhResultItems()->getTableSchema()->table,
+			$dbCon->dbhResultItemMeta()->getTableSchema()->table,
 			self::ABBR_RESULTITEMMETA,
 			self::ABBR_RESULTITEMMETA
 		);

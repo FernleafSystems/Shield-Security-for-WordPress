@@ -28,13 +28,14 @@ class LoadLogs extends DynPropertiesClass {
 		$this->includeMeta = $includeMeta;
 
 		$stdKeys = \array_flip( \array_unique( \array_merge(
-			$this->mod()
-				 ->getDbH_Logs()
-				 ->getTableSchema()
-				 ->getColumnNames(),
 			self::con()
-				->getModule_Data()
-				->getDbH_IPs()
+				->db_con
+				->dbhActivityLogs()
+				->getTableSchema()
+				->getColumnNames(),
+			self::con()
+				->db_con
+				->dbhIPs()
 				->getTableSchema()
 				->getColumnNames(),
 			[
@@ -70,7 +71,7 @@ class LoadLogs extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	private function selectRaw() :array {
-		$mod = $this->mod();
+		$con = self::con();
 
 		$selectFields = [
 			'log.id',
@@ -91,11 +92,11 @@ class LoadLogs extends DynPropertiesClass {
 		return Services::WpDb()->selectCustom(
 			\sprintf( $this->getRawQuery( $this->includeMeta ),
 				\implode( ', ', $selectFields ),
-				$mod->getDbH_Logs()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$con->db_con->dbhActivityLogs()->getTableSchema()->table,
+				$con->db_con->dbhReqLogs()->getTableSchema()->table,
+				$con->db_con->dbhIPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
-				$this->includeMeta ? $mod->getDbH_Meta()->getTableSchema()->table : '',
+				$this->includeMeta ? $con->db_con->dbhActivityLogsMeta()->getTableSchema()->table : '',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				$this->buildOrderBy(),
 				isset( $this->limit ) ? \sprintf( 'LIMIT %s', $this->limit ) : '',
@@ -109,12 +110,13 @@ class LoadLogs extends DynPropertiesClass {
 	}
 
 	public function countAll() :int {
+		$con = self::con();
 		return (int)Services::WpDb()->getVar(
 			\sprintf( $this->getRawQuery( false ),
 				'COUNT(*)',
-				$this->mod()->getDbH_Logs()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$con->db_con->dbhActivityLogs()->getTableSchema()->table,
+				$con->db_con->dbhReqLogs()->getTableSchema()->table,
+				$con->db_con->dbhIPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				'',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),

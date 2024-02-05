@@ -45,34 +45,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller();
 	}
 
-	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'file_locker' );
-	}
-
-	public function getDbH_Malware() :DB\Malware\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'malware' );
-	}
-
-	public function getDbH_Scans() :DB\Scans\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'scans' );
-	}
-
-	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'scanitems' );
-	}
-
-	public function getDbH_ResultItems() :DB\ResultItems\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'resultitems' );
-	}
-
-	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'resultitem_meta' );
-	}
-
-	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'scanresults' );
-	}
-
 	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
@@ -123,7 +95,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady();
+		return self::con()->db_con->dbhScanResults()->isReady() && self::con()->db_con->dbhScanItems()->isReady();
 	}
 
 	public function onPluginDeactivate() {
@@ -131,8 +103,8 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		foreach ( $this->getScansCon()->getAllScanCons() as $scanCon ) {
 			$scanCon->purge();
 		}
-		$this->getDbH_ScanItems()->tableDelete();
-		$this->getDbH_ScanResults()->tableDelete();
+		self::con()->db_con->dbhScanItems()->tableDelete();
+		self::con()->db_con->dbhScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
 	}
@@ -146,5 +118,54 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		}
 
 		( new Lib\Utility\CleanOutOldGuardFiles() )->execute();
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'file_locker' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Malware() :DB\Malware\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'malware' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Scans() :DB\Scans\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'scans' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'scanitems' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_ResultItems() :DB\ResultItems\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'resultitems' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'resultitem_meta' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'scanresults' );
 	}
 }

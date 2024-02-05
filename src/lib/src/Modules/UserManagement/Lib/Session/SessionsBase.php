@@ -12,10 +12,7 @@ class SessionsBase {
 	protected function queryUserMetaForIDs( int $page ) :array {
 		// Select the most recently active based on updated Shield User Meta
 		/** @var Select $metaSelect */
-		$metaSelect = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta()
-						  ->getQuerySelector();
+		$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
 		$results = $metaSelect->setResultsAsVo( false )
 							  ->setSelectResultsFormat( ARRAY_A )
 							  ->setColumnsToSelect( [ 'user_id' ] )

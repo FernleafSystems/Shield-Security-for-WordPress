@@ -30,7 +30,7 @@ abstract class RetrieveBase extends DynPropertiesClass {
 	protected function getLatestScanID() :int {
 		if ( !isset( $this->latestScanID ) ) {
 			/** @var ScansDB\Select $scansSelector */
-			$scansSelector = $this->mod()->getDbH_Scans()->getQuerySelector();
+			$scansSelector = self::con()->db_con->dbhScans()->getQuerySelector();
 			$latest = $scansSelector->getLatestForScan( $this->getScanController()->getSlug() );
 			$this->latestScanID = empty( $latest ) ? -1 : $latest->id;
 		}

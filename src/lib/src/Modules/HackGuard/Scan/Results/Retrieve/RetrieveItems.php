@@ -216,7 +216,6 @@ class RetrieveItems extends RetrieveBase {
 	 * @param ScanResultVO[] $results
 	 */
 	private function addMetaToResults( array $results ) {
-
 		$offset = 0;
 		$length = 200;
 		do {
@@ -227,7 +226,7 @@ class RetrieveItems extends RetrieveBase {
 				}, $resultsSlice );
 
 				/** @var ResultItemMetaDB\Ops\Select $rimSelector */
-				$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
+				$rimSelector = self::con()->db_con->dbhResultItemMeta()->getQuerySelector();
 				/** @var ResultItemMetaDB\Ops\Record[] $metas */
 				$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
@@ -246,7 +245,7 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
-		$mod = $this->mod();
+		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`
@@ -258,12 +257,12 @@ class RetrieveItems extends RetrieveBase {
 						%s
 						%s
 						%s;",
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table,
+			$dbCon->dbhScanResults()->getTableSchema()->table,
+			$dbCon->dbhScans()->getTableSchema()->table,
+			$dbCon->dbhResultItems()->getTableSchema()->table,
 			$joinWithResultMeta ?
 				sprintf( 'INNER JOIN `%s` as %s ON %s.`ri_ref` = `ri`.id',
-					$mod->getDbH_ResultItemMeta()->getTableSchema()->table,
+					$dbCon->dbhResultItemMeta()->getTableSchema()->table,
 					self::ABBR_RESULTITEMMETA,
 					self::ABBR_RESULTITEMMETA
 				) : '',

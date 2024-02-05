@@ -10,9 +10,10 @@ class Store {
 	use ModConsumer;
 
 	public function store( SnapshotVO $snapshot ) :bool {
-		return $this->mod()
-					->getDbH_Snapshots()
-					->getQueryInserter()
-					->insert( Convert::SnapToRecord( $snapshot ) );
+		return self::con()
+			->db_con
+			->dbhSnapshots()
+			->getQueryInserter()
+			->insert( Convert::SnapToRecord( $snapshot ) );
 	}
 }

@@ -280,7 +280,7 @@ class IpRuleStatus {
 
 		$records = [];
 
-		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
+		if ( self::con()->db_con->dbhIPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [

@@ -22,6 +22,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	}
 
 	protected function isReadyToExecute() :bool {
-		return self::con()->getModule_Data()->getDbH_ReqLogs()->isReady() && parent::isReadyToExecute();
+		return self::con()->db_con->dbhReqLogs()->isReady() && parent::isReadyToExecute();
 	}
 }

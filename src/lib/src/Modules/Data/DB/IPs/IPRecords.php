@@ -50,7 +50,7 @@ class IPRecords {
 	}
 
 	public function addIP( string $ip ) {
-		$dbh = self::con()->getModule_Data()->getDbH_IPs();
+		$dbh = self::con()->db_con->dbhIPs();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

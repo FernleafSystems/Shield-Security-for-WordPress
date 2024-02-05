@@ -23,18 +23,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return $this->auditCon ?? $this->auditCon = new Lib\AuditCon();
 	}
 
-	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_logs' );
-	}
-
-	public function getDbH_Meta() :DB\Meta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_meta' );
-	}
-
-	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'snapshots' );
-	}
-
 	public function getAuditLogger() :Lib\AuditLogger {
 		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger();
 	}
@@ -43,7 +31,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_Logs()->isReady();
+		return self::con()->db_con->dbhActivityLogs()->isReady();
 	}
 
 	/**
@@ -123,5 +111,26 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		catch ( \Exception $e ) {
 		}
 		return $data;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Logs() :DB\Logs\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'at_logs' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Meta() :DB\Meta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'at_meta' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'snapshots' );
 	}
 }

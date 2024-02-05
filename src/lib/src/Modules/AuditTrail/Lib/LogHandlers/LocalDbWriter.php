@@ -20,7 +20,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	private $log;
 
 	protected function write( array $record ) :void {
-		$dbhMeta = $this->mod()->getDbH_Meta();
+		$dbhMeta = self::con()->db_con->dbhActivityLogsMeta();
 
 		$this->log = $record;
 
@@ -63,15 +63,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	protected function updateRecentLogEntry() :bool {
+		$dbCon = self::con()->db_con;
 
 		$ipRecordID = ( new IPRecords() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
-		$reqSelector = self::con()
-						   ->getModule_Data()
-						   ->getDbH_ReqLogs()
-						   ->getQuerySelector();
+		$reqSelector = $dbCon->dbhReqLogs()->getQuerySelector();
 		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;
@@ -82,7 +80,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		/** @var LogsDB\Select $select */
-		$select = $this->mod()->getDbH_Logs()->getQuerySelector();
+		$select = $dbCon->dbhActivityLogs()->getQuerySelector();
 		/** @var LogsDB\Record $existingLog */
 		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
 							  ->filterByRequestRefs( $reqIDs )
@@ -96,13 +94,12 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				sprintf( "UPDATE `%s` SET `meta_value` = `meta_value`+1
 					WHERE `log_ref`=%s
 						AND `meta_key`='audit_count'
-				", $this->mod()->getDbH_Meta()->getTableSchema()->table, $existingLog->id )
+				", $dbCon->dbhActivityLogsMeta()->getTableSchema()->table, $existingLog->id )
 			);
 			// this can fail under load, but doesn't actually matter:
-			$this->mod()
-				 ->getDbH_Logs()
-				 ->getQueryUpdater()
-				 ->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
+			$dbCon->dbhActivityLogs()
+				  ->getQueryUpdater()
+				  ->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
 		}
 		return !empty( $existingLog );
 	}
@@ -111,7 +108,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord() :LogsDB\Record {
-		$dbh = $this->mod()->getDbH_Logs();
+		$dbh = self::con()->db_con->dbhActivityLogs();
 		/** @var LogsDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];

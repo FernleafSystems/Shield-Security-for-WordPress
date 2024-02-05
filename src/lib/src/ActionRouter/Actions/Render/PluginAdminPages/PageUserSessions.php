@@ -58,10 +58,7 @@ class PageUserSessions extends BasePluginAdminPage {
 
 	private function getDistinctUsernames() :array {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select $metaSelect */
-		$metaSelect = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta()
-						  ->getQuerySelector();
+		$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
 		$results = $metaSelect->setResultsAsVo( false )
 							  ->setSelectResultsFormat( ARRAY_A )
 							  ->setColumnsToSelect( [ 'user_id' ] )

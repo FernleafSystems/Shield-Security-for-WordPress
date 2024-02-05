@@ -6,19 +6,28 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public const SLUG = 'data';
 
+	public function runDailyCron() {
+		( new Lib\CleanDatabases() )->execute();
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getDbH_IPs() :DB\IPs\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'ips' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getDbH_UserMeta() :DB\UserMeta\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'user_meta' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'req_logs' );
-	}
-
-	public function runDailyCron() {
-		( new Lib\CleanDatabases() )->execute();
 	}
 }

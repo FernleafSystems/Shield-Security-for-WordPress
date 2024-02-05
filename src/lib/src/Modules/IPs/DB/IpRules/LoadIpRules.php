@@ -30,6 +30,6 @@ class LoadIpRules extends BaseLoadRecordsForIPJoins {
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return $this->mod()->getDbH_IPRules()->getTableSchema();
+		return self::con()->db_con->dbhIPRules()->getTableSchema();
 	}
 }

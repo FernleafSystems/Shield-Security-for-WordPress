@@ -38,6 +38,6 @@ class LoadRequestLogs extends BaseLoadRecordsForIPJoins {
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return self::con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema();
+		return self::con()->db_con->dbhReqLogs()->getTableSchema();
 	}
 }

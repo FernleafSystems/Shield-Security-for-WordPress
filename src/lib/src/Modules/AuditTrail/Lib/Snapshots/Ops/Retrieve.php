@@ -10,10 +10,11 @@ class Retrieve {
 	use ModConsumer;
 
 	public function count() :int {
-		return $this->mod()
-					->getDbH_Snapshots()
-					->getQuerySelector()
-					->count();
+		return self::con()
+			->db_con
+			->dbhSnapshots()
+			->getQuerySelector()
+			->count();
 	}
 
 	/**
@@ -21,10 +22,11 @@ class Retrieve {
 	 */
 	public function all() :array {
 		$diffs = [];
-		$selector = $this->mod()
-						 ->getDbH_Snapshots()
-						 ->getQuerySelector()
-						 ->setNoOrderBy();
+		$selector = self::con()
+			->db_con
+			->dbhSnapshots()
+			->getQuerySelector()
+			->setNoOrderBy();
 		foreach ( $selector->all() as $record ) {
 			/** @var SnapshotsDB\Record $record */
 			$diffs[ $record->slug ] = $record;
@@ -34,7 +36,7 @@ class Retrieve {
 
 	public function latest( string $slug ) :?SnapshotsDB\Record {
 		/** @var SnapshotsDB\Select $select */
-		$select = $this->mod()->getDbH_Snapshots()->getQuerySelector();
+		$select = self::con()->db_con->dbhSnapshots()->getQuerySelector();
 		/** @var ?SnapshotsDB\Record $record */
 		return $select->filterBySlug( $slug )->first();
 	}

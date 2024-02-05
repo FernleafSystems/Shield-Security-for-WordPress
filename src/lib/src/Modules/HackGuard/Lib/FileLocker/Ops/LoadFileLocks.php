@@ -19,8 +19,7 @@ class LoadFileLocks {
 	 */
 	public function loadLocks() :array {
 		$records = [];
-		$dbh = \method_exists( self::con()->db_con, 'dbhFileLocker' ) ?
-			self::con()->db_con->dbhFileLocker() : $this->mod()->getDbH_FileLocker();
+		$dbh = self::con()->db_con->dbhFileLocker();
 		if ( $dbh->isReady() ) {
 			$all = $dbh->getQuerySelector()
 					   ->setNoOrderBy()
