@@ -46,8 +46,8 @@ class BotSignalsRecord {
 							AND `ips`.`ip`=INET6_ATON('%s')
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
-				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
+				self::con()->db_con->dbhIPs()->getTableSchema()->table,
 				$this->getIP()
 			)
 		);
@@ -112,7 +112,7 @@ class BotSignalsRecord {
 
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
-			$userMetaSelect = self::con()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			$userMetaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
@@ -124,7 +124,7 @@ class BotSignalsRecord {
 		}
 
 		/** Clean out old signals that have no bearing on bot calculations */
-		foreach ( $this->mod()->getDbH_BotSignal()->getTableSchema()->getColumnNames() as $col ) {
+		foreach ( self::con()->db_con->dbhBotSignal()->getTableSchema()->getColumnNames() as $col ) {
 			if ( \preg_match( '#_at$#i', $col )
 				 && !\in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
 				 && Services::Request()->carbon()->subMonth()->timestamp > $r->{$col} ) {
@@ -143,18 +143,20 @@ class BotSignalsRecord {
 			if ( $record->ip_ref == -1 ) {
 				unset( $record->ip_ref );
 			}
-			$success = $this->mod()
-							->getDbH_BotSignal()
-							->getQueryInserter()
-							->insert( $record );
+			$success = self::con()
+				->db_con
+				->dbhBotSignal()
+				->getQueryInserter()
+				->insert( $record );
 		}
 		else {
 			$data = $record->getRawData();
 			$data[ 'updated_at' ] = Services::Request()->ts();
-			$success = $this->mod()
-							->getDbH_BotSignal()
-							->getQueryUpdater()
-							->updateById( $record->id, $data );
+			$success = self::con()
+				->db_con
+				->dbhBotSignal()
+				->getQueryUpdater()
+				->updateById( $record->id, $data );
 		}
 
 		$thisReq = self::con()->this_req;
@@ -170,7 +172,7 @@ class BotSignalsRecord {
 	 */
 	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
 
-		if ( !$this->mod()->getDbH_BotSignal()->getTableSchema()->hasColumn( $field ) ) {
+		if ( !self::con()->db_con->dbhBotSignal()->getTableSchema()->hasColumn( $field ) ) {
 			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
 		}
 

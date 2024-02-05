@@ -26,9 +26,8 @@ class IPRecords {
 			}
 			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
-			$dbh = self::con()->getModule_Data()->getDbH_IPs();
 			/** @var Ops\Select $select */
-			$select = $dbh->getQuerySelector();
+			$select = self::con()->db_con->dbhIPs()->getQuerySelector();
 			$record = $select->filterByIPHuman( $ip )
 							 ->setNoOrderBy()
 							 ->first();

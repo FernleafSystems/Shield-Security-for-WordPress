@@ -10,7 +10,7 @@ class AssessLocks extends BaseOps {
 	public function run() {
 		$FLCon = $this->mod()->getFileLocker();
 		/** @var Update $updater */
-		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
+		$updater = self::con()->db_con->dbhFileLocker()->getQueryUpdater();
 
 		$this->removeDuplicates();
 
@@ -47,10 +47,11 @@ class AssessLocks extends BaseOps {
 		$paths = [];
 		foreach ( $FLCon->getLocks() as $lock ) {
 			if ( \in_array( $lock->path, $paths ) ) {
-				$this->mod()
-					 ->getDbH_FileLocker()
-					 ->getQueryDeleter()
-					 ->deleteById( $lock->id );
+				self::con()
+					->db_con
+					->dbhFileLocker()
+					->getQueryDeleter()
+					->deleteById( $lock->id );
 			}
 			else {
 				$paths[] = $lock->path;

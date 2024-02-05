@@ -28,8 +28,6 @@ class FindSessions {
 	}
 
 	public function lookupFromUserMeta( array $wheres = [], int $limit = 10, string $orderBy = '`user_meta`.`last_login_at`' ) :array {
-		$modData = self::con()->getModule_Data();
-
 		$DB = Services::WpDb();
 		$results = $DB->selectCustom(
 			sprintf( 'SELECT `user_meta`.`user_id` as `user_id`,
@@ -45,8 +43,8 @@ class FindSessions {
 						%s
 						ORDER BY %s DESC
 						%s;',
-				$modData->getDbH_UserMeta()->getTableSchema()->table,
-				$modData->getDbH_IPs()->getTableSchema()->table,
+				self::con()->db_con->dbhUserMeta()->getTableSchema()->table,
+				self::con()->db_con->dbhIPs()->getTableSchema()->table,
 				$DB->getTable_Users(),
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				$orderBy,

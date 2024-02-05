@@ -70,9 +70,8 @@ class EventsToSignals extends EventsListener {
 				];
 			}
 
-			$dbhSignals = $modIPs->getDbH_CrowdSecSignals();
+			$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
 			foreach ( $this->signals as $signal ) {
-				/** @var CrowdsecSignalsDB\Record $record */
 				$dbhSignals->getQueryInserter()
 						   ->insert(
 							   $dbhSignals->getRecord()->applyFromArray( $signal )
