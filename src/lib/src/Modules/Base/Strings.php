@@ -14,6 +14,7 @@ class Strings {
 
 	/**
 	 * @return string[][][]|string[][]
+	 * @deprecated 19.0
 	 */
 	public function getEventStrings() :array {
 		return [];
