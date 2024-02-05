@@ -13,6 +13,7 @@ class BlockIncompatible {
 	use PluginControllerConsumer;
 
 	protected function run() {
+		return false;
 		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
 	}
 
