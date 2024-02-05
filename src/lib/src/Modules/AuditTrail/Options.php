@@ -3,9 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	/**
 	 * @inheritDoc

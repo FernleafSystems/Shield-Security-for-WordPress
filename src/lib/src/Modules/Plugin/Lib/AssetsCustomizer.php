@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
+	ForSecurityRules,
 	ForIpRules,
 	ForSessions,
 	ForTraffic,
@@ -427,7 +428,7 @@ class AssetsCustomizer {
 				'data'    => [
 					'ajax' => [
 						'render_rules_manager' => ActionData::BuildAjaxRender( Components\Rules\RulesManager::class ),
-						'rules_manager_action' => ActionData::Build( Actions\RulesManagerActions::class ),
+						'rules_manager_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
 					],
 				],
 			],
@@ -600,6 +601,23 @@ class AssetsCustomizer {
 							],
 							'vars' => [
 								'datatables_init' => ( new ForSessions() )->buildRaw(),
+							]
+						];
+					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ) ) {
+						$data[ 'security_rules' ] = [
+							'ajax'    => [
+								'table_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
+							],
+							'hrefs'   => [
+								'create_new' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+							],
+							'strings' => [
+								'no_rules_yet' => sprintf( '%s. %s', __( 'There are no custom security rules', 'wp-simple-firewall' ),
+									__( 'Use the link above to create a new one.', 'wp-simple-firewall' ) ),
+							],
+							'vars'    => [
+								'datatables_init' => ( new ForSecurityRules() )->buildRaw(),
 							]
 						];
 					}

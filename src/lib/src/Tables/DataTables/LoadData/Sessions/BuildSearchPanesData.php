@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\Table;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;

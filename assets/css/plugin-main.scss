@@ -18,6 +18,9 @@ $code-color: $primary;
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 
+@import './components/notices';
+@import './components/tables';
+
 /* GENERAL STYLES */
 body {
   overflow-y: scroll;
@@ -251,25 +254,6 @@ label input[type=checkbox] {
 
 .icon-flag {
   vertical-align: text-bottom;
-}
-
-/** TABLE: Activity Log **/
-#ShieldTable-ActivityLog textarea,
-td.column-message textarea {
-  width: 100%;
-  background: transparent;
-  box-shadow: none;
-  border-color: transparent;
-  font-family: monospace;
-}
-
-#table_id-iprules_filter.dataTables_filter {
-  text-align: left;
-}
-
-div.dtsp-topRow.dtsp-bordered.dtsp-bordered,
-div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
-  border: 1px solid transparent;
 }
 
 /* TABLES */

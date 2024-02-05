@@ -1,19 +1,20 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
+	CleanIpRules,
+	IpRuleRecord,
+	LoadIpRules,
+	Ops as IpRulesDB,
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildIpRulesTableData extends BaseBuildTableData {
+class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
 	use ModConsumer;
 
@@ -35,7 +36,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $record->ipAsSubnetRange(), $record->id );
 				$data[ 'is_blocked' ] = $record->ip > 0;
 				$data[ 'status' ] = $this->getColumnContent_Status( $record );
-				$data[ 'type' ] = Handler::GetTypeName( $data[ 'type' ] );
+				$data[ 'type' ] = IpRulesDB\Handler::GetTypeName( $data[ 'type' ] );
 				$data[ 'country' ] = ( new LookupMeta() )
 					->setIP( $record->ip )
 					->countryCode();
@@ -78,7 +79,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 						break;
 					case 'type':
 						$selected = \array_filter( $selected, function ( $type ) {
-							return Handler::IsValidType( (string)$type );
+							return IpRulesDB\Handler::IsValidType( (string)$type );
 						} );
 						$wheres[] = sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $selected ) );
 						break;
@@ -137,18 +138,18 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		$opts = $this->opts();
 
 		$content = [
-			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), Handler::GetTypeName( $record->type ) )
+			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), IpRulesDB\Handler::GetTypeName( $record->type ) )
 		];
 
-		if ( $record->type === Handler::T_AUTO_BLOCK ) {
+		if ( $record->type === IpRulesDB\Handler::T_AUTO_BLOCK ) {
 			$content[] = sprintf( '%s: <span class="badge text-bg-warning">%s</span>', __( 'Offenses', 'wp-simple-firewall' ), $record->offenses );
 		}
 
-		if ( $record->type === Handler::T_MANUAL_BYPASS ) {
+		if ( $record->type === IpRulesDB\Handler::T_MANUAL_BYPASS ) {
 			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
 		}
 
-		if ( \in_array( $record->type, [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK, Handler::T_CROWDSEC ] ) ) {
+		if ( \in_array( $record->type, [ IpRulesDB\Handler::T_AUTO_BLOCK, IpRulesDB\Handler::T_MANUAL_BLOCK, IpRulesDB\Handler::T_CROWDSEC ] ) ) {
 
 			if ( $record->blocked_at > 0 ) {
 				if ( $record->blocked_at > $record->unblocked_at ) {
@@ -156,7 +157,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 					$blockedStatus = __( 'Blocked', 'wp-simple-firewall' );
 
 					switch ( $record->type ) {
-						case Handler::T_AUTO_BLOCK:
+						case IpRulesDB\Handler::T_AUTO_BLOCK:
 							$highRep = ( new IsHighReputationIP() )
 								->setIP( $record->ip )
 								->query();
@@ -179,7 +180,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 											->diffForHumans() );
 							}
 							break;
-						case Handler::T_CROWDSEC:
+						case IpRulesDB\Handler::T_CROWDSEC:
 							$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),
 								Services::Request()
 										->carbon()
@@ -187,7 +188,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 										->addDays( 7 )
 										->diffForHumans() );
 							break;
-						case Handler::T_MANUAL_BLOCK:
+						case IpRulesDB\Handler::T_MANUAL_BLOCK:
 							$blockedStatus = sprintf( '%s (%s)', $blockedStatus, __( 'permanently', 'wp-simple-firewall' ) );
 							break;
 					}

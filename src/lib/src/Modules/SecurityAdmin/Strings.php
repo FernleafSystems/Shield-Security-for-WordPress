@@ -5,27 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getEventStrings() :array {
-		return [
-			'key_success'          => [
-				'name'  => __( 'Security PIN Pass', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Security PIN authentication successful.', 'wp-simple-firewall' ),
-				],
-			],
-			'key_fail'             => [
-				'name'  => __( 'Security PIN Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Security PIN authentication failed.', 'wp-simple-firewall' ),
-				],
-			],
-			'attempt_deactivation' => [
-				'name'  => __( 'Unauthorized Deactivation Attempt', 'wp-simple-firewall' ),
-				'audit' => [
-					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
-				],
-			],
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {

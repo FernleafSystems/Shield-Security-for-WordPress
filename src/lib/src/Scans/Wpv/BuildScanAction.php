@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildScanAction extends Base\BuildScanAction {
+class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BuildScanAction {
 
 	protected function buildScanItems() {
 		$items = Services::WpPlugins()->getInstalledPluginFiles();

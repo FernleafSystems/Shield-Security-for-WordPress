@@ -7,69 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getEventStrings() :array {
-		return [
-			'spam_block_antibot'       => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'AntiBot System', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
-				],
-			],
-			'spam_block_human'         => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'Human', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
-					__( 'Human SPAM filter found "{{word}}" in "{{key}}"', 'wp-simple-firewall' ),
-				],
-			],
-			'spam_block_humanrepeated' => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'Repeated Human SPAM', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked repeated attempts by the same visitor to post multiple SPAM comments.', 'wp-simple-firewall' ),
-				],
-			],
-			'spam_block_cooldown' => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'Cooldown Triggered', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked comment that triggered the Comment Cooldown.', 'wp-simple-firewall' ),
-				],
-			],
-			'spam_block_bot'           => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'Bot', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' ),
-				],
-			],
-			'spam_block_recaptcha'     => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'CAPTCHA', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' ),
-				],
-			],
-			'comment_spam_block'       => [
-				'name'  => __( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
-				],
-			],
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {

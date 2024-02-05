@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function getCustomWhitelist() :array {
 		$w = $this->getOpt( 'page_params_whitelist', [] );

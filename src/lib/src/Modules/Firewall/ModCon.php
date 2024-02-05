@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'firewall';
 

@@ -165,28 +165,7 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 	}
 
 	public function getEventStrings() :array {
-		return [
-			'firewall_block'   => [
-				'name'  => __( 'Firewall Block', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Request blocked by firewall rule: {{name}}.', 'wp-simple-firewall' ),
-					__( 'Rule pattern detected: "{{term}}".', 'wp-simple-firewall' ),
-					__( 'The offending request parameter was "{{param}}" with a value of "{{value}}".', 'wp-simple-firewall' ),
-				],
-			],
-			'fw_email_success' => [
-				'name'  => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Successfully sent Firewall Block email alert to: {{to}}', 'wp-simple-firewall' )
-				],
-			],
-			'fw_email_fail'    => [
-				'name'  => __( 'Firewall Block Email Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Failed to send Firewall Block email alert to: {{to}}', 'wp-simple-firewall' )
-				],
-			],
-		];
+		return [];
 	}
 
 	public function getFirewallCategoryName( string $category ) :string {

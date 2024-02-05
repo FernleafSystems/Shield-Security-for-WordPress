@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ReorderCustomRules;
 
+/**
+ * @deprecated 19.0.2
+ */
 class RulesManagerActions extends BaseAction {
 
 	public const SLUG = 'rules_manager_actions';

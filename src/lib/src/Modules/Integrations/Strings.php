@@ -5,44 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 	public function getEventStrings() :array {
-		return [
-			'spam_form_pass'     => [
-				'name'  => __( 'SPAM Check Pass', 'wp-simple-firewall' ),
-				'audit' => [
-					__( '"{{form_provider}}" submission passed SPAM check.', 'wp-simple-firewall' ),
-				],
-			],
-			'spam_form_fail'     => [
-				'name'  => __( 'SPAM Check Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( '"{{form_provider}}" submission failed SPAM check.', 'wp-simple-firewall' ),
-				],
-			],
-			'user_form_bot_pass' => [
-				'name'  => __( 'User Bot Check Pass', 'wp-simple-firewall' ),
-				'audit' => [
-					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" passed Bot check.', 'wp-simple-firewall' ),
-				],
-			],
-			'user_form_bot_fail' => [
-				'name'  => __( 'User Bot Check Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" failed Bot check.', 'wp-simple-firewall' ),
-				],
-			],
-			'suresend_fail'    => [
-				'name'  => __( 'SureSend Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Failed to send email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
-				],
-			],
-			'suresend_success' => [
-				'name'  => __( 'SureSend Success', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Successfully sent email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
-				],
-			],
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {

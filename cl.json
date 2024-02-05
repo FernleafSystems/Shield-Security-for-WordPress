@@ -1,7 +1,7 @@
 {
   "19.0": {
     "version":     "19.0",
-    "released_at": 1706608000,
+    "released_at": 1707133000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease190",
       "upgrade": "https://shsec.io/shieldupgradeguide190"
@@ -17,7 +17,7 @@
         "description": [
           "The Security Rules Builder lets you design and build your own set of security rules for any security restrictions you desire."
         ],
-        "href":        ""
+        "href":        "https://shsec.io/lq"
       },
       {
         "type":        "new",
@@ -36,7 +36,7 @@
           "You can now lock user sessions to IP addresses, User Agents, or both.",
           "This helps to prevent session theft and hijacking, and re-use of user sessions on other devices."
         ],
-        "href":        ""
+        "href":        "https://shsec.io/lr"
       },
       {
         "type":        "improved",
@@ -67,20 +67,20 @@
         "href":        ""
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
-        "title":       "Code Rewrite & Cleaning",
-        "description": [
-          "A lot of plugin code has been rewritten to use the newer Rules Engine, improving performance & reliability."
-        ],
-        "href":        ""
-      },
-      {
         "type":        "fixed",
         "pro_only":    true,
         "title":       "Improved Passkeys Platform Support",
         "description": [
           "Ensure Passkeys can be used on hosts that don't have the GMP extension active."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Code Rewrite & Cleaning",
+        "description": [
+          "A lot of plugin code has been rewritten to use the newer Rules Engine, improving performance & reliability."
         ],
         "href":        ""
       }

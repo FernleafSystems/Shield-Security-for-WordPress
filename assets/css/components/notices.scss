@@ -1,0 +1,38 @@
+.notice-icon {
+  align-self: center;
+  justify-content: center;
+  height: 48px;
+  width: 48px;
+}
+
+.notice-title {
+  padding: 0;
+}
+
+.notice-content {
+  padding: 10px;
+}
+
+.notice-content p {
+  margin-left: 0;
+}
+
+.notice-content p a {
+  text-shadow: none;
+  font-weight: bold;
+}
+
+div.notice.shield-notice-container {
+  padding: 10px 20px;
+}
+
+.shield-notice-container > .notice-body > .notice-icon svg {
+  color: green;
+  width: 48px;
+  height: 48px;
+}
+
+.shield-notice-container .dismiss-p {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}

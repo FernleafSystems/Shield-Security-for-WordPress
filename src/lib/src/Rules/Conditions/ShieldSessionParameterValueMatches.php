@@ -37,9 +37,9 @@ class ShieldSessionParameterValueMatches extends Base {
 			'user_id'          => __( 'User ID' ),
 			'hostname'         => __( 'Hostname' ),
 			'useragent'        => __( 'Useragent' ),
-			'idle_interval'    => __( 'Idle Interval' ),
-			'session_duration' => __( 'Session Duration (seconds)' ),
-			'token_duration'   => __( 'Session Token Duration (seconds)' ),
+			'idle_interval'    => sprintf( '%s (%s)', __( 'Idle Interval', 'wp-simple-firewall' ), __( 'seconds' ) ),
+			'session_duration' => sprintf( '%s (%s)', __( 'Session Duration', 'wp-simple-firewall' ), __( 'seconds' ) ),
+			'token_duration'   => sprintf( '%s (%s)', __( 'Session Token Duration', 'wp-simple-firewall' ), __( 'seconds' ) ),
 		];
 		return [
 			'param_name'    => [

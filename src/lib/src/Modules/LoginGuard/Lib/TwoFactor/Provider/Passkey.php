@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MfaPasskeyRemoveSource
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use FernleafSystems\Wordpress\Services\Services;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -255,7 +256,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isOpt( 'enable_passkeys', 'Y' );
+		return $this->opts()->isOpt( 'enable_passkeys', 'Y' ) && ( new PasskeyCompatibilityCheck() )->run();
 	}
 
 	public static function ProviderName() :string {

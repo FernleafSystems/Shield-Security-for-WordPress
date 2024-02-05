@@ -1,0 +1,15 @@
+<div class="h-100 d-flex align-items-center justify-content-center">
+	<div class="form-check form-switch">
+		<input class="form-check-input active-switch"
+			   title="{{ strings.title }}"
+			   type="checkbox"
+			   role="switch"
+				{% if flags.is_viable %}
+					data-sub_action="{{ vars.action }}"
+					data-rid="{{ vars.rid }}"
+				{% else %}
+					disabled="disabled"
+				{% endif %}
+				{% if flags.is_checked %}checked{% endif %} >
+	</div>
+</div>

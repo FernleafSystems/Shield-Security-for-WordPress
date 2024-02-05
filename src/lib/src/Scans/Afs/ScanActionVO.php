@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
-
 /**
  * @property int      $realtime_scan_last_at
  * @property string[] $file_exts
@@ -16,7 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  * @property string[] $patterns_keywords
  * @property string[] $valid_files
  */
-class ScanActionVO extends BaseScanActionVO {
+class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
 
 	public const DEFAULT_SLEEP_SECONDS = 0.1;
 }

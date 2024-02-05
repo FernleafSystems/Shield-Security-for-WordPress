@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\BuildActivityLogTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog\BuildActivityLogTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\GetRequestMeta;
 
 class ActivityLogTableAction extends BaseAction {

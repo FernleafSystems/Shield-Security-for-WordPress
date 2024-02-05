@@ -83,7 +83,7 @@ export class ShieldTableBase extends BaseComponent {
 		reqData.sub_action = 'retrieve_table_data';
 		reqData.table_data = data;
 
-		( new AjaxService() )
+		return ( new AjaxService() )
 		.send( reqData )
 		.then( ( resp ) => {
 			if ( resp.success ) {
@@ -96,8 +96,7 @@ export class ShieldTableBase extends BaseComponent {
 				}
 				alert( msg );
 			}
-		} )
-		.finally();
+		} );
 	}
 
 	getDefaultDatatableConfig() {
@@ -110,6 +109,7 @@ export class ShieldTableBase extends BaseComponent {
 			select: {
 				style: 'multi'
 			},
+			rowReorder: false,
 			search: {},
 			buttons: {
 				buttons: [],
@@ -162,7 +162,6 @@ export class ShieldTableBase extends BaseComponent {
 			( new AjaxService() )
 			.send( data )
 			.then( ( resp ) => {
-
 				if ( resp.success ) {
 					this.tableReload();
 					shieldServices.notification().showMessage( resp.data.message, resp.success );
