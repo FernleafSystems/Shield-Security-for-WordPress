@@ -43,7 +43,7 @@ class PluginDelete {
 	private function deleteDatabases() {
 		$dbCon = self::con()->db_con;
 
-		$builtInTablesToDelete = \array_map(
+		$builtInTablesToDelete = \array_unique( \array_map(
 			function ( $dbh ) {
 				/** @var $dbh Handler */
 				return $dbh->getTableSchema()->table;
@@ -66,11 +66,13 @@ class PluginDelete {
 				$dbCon->dbhMfa(),
 				$dbCon->dbhReqLogs(),
 				$dbCon->dbhUserMeta(),
+				$dbCon->dbhIPMeta(),
 				$dbCon->dbhIPs(),
 				$dbCon->dbhEvents(),
 				$dbCon->dbhReports(),
+				$dbCon->dbhRules(),
 			]
-		);
+		) );
 
 		Services::WpDb()->doDropTable(
 			\implode( '`,`',

@@ -9,9 +9,11 @@ class CleanLockRecords {
 	use ModConsumer;
 
 	public function run() {
-		foreach ( $this->mod()->getFileLocker()->getLocks() as $lock ) {
-			if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
-				( new DeleteFileLock() )->delete( $lock );
+		if ( self::con()->caps->hasCap( 'scan_file_locker' ) ) {
+			foreach ( $this->mod()->getFileLocker()->getLocks() as $lock ) {
+				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
+					( new DeleteFileLock() )->delete( $lock );
+				}
 			}
 		}
 	}
