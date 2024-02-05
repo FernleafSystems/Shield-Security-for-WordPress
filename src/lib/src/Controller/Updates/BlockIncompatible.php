@@ -12,6 +12,10 @@ class BlockIncompatible {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
+	protected function canRun() :bool {
+		return false;
+	}
+
 	protected function run() {
 		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
 	}

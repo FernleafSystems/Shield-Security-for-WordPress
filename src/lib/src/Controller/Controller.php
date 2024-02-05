@@ -558,7 +558,6 @@ class Controller extends DynPropertiesClass {
 		$this->admin_notices->execute();
 		$this->initCrons();
 		( new Admin\AdminBarMenu() )->execute();
-		( new Updates\BlockIncompatible() )->execute();
 		( new Updates\CaptureFirstDetected() )->execute();
 		( new Updates\CaptureMyUpgrade() )->execute();
 		( new Updates\AdjustAuto() )->execute();
