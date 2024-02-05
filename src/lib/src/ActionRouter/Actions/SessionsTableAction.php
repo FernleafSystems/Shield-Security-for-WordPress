@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\Table\BuildSessionsTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions\BuildSessionsTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\DeleteSession;
 
 class SessionsTableAction extends BaseAction {

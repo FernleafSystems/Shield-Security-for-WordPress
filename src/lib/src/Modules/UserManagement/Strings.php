@@ -17,73 +17,7 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 	}
 
 	public function getEventStrings() :array {
-		return [
-			'reg_email_invalid'            => [
-				'name'  => __( 'Invalid User Email Registration', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Detected user registration with invalid email address ({{email}}).', 'wp-simple-firewall' ),
-					__( 'Email verification test that failed: {{reason}}' ),
-				],
-			],
-			'password_expired'             => [
-				'name'  => __( 'Password Expired', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Forcing user ({{user_login}}) to update expired password.', 'wp-simple-firewall' ),
-				],
-			],
-			'password_policy_force_change' => [
-				'name'  => __( 'Forced Password Change', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Forcing user ({{user_login}}) to update password that fails to meet policies.', 'wp-simple-firewall' ),
-				],
-			],
-			'password_policy_block'        => [
-				'name'  => __( 'Password Change Blocked', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Blocked attempted password update that failed policy requirements.', 'wp-simple-firewall' ),
-				],
-			],
-			'session_notfound'             => [
-				'name'  => __( 'Session Not Found', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Valid user session could not be found ({{user_login}}).', 'wp-simple-firewall' ),
-					__( 'Logging out.', 'wp-simple-firewall' )
-				],
-			],
-			'session_expired'              => [
-				'name'  => __( 'Session Expired', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'User session has expired ({{user_login}}).', 'wp-simple-firewall' ),
-					__( 'Logging out.', 'wp-simple-firewall' )
-				],
-			],
-			'session_idle'                 => [
-				'name'  => __( 'Session Idle', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'User session has expired due to inactivity ({{user_login}}).', 'wp-simple-firewall' ),
-					__( 'Logging out.', 'wp-simple-firewall' )
-				],
-			],
-			'session_lock'                 => [
-				'name'  => __( 'Session Locked', 'wp-simple-firewall' ),
-				'audit' => [
-					__( "Core properties of an established user session ({{user_login}}) have changed.", 'wp-simple-firewall' ),
-					__( 'Logging out.', 'wp-simple-firewall' )
-				],
-			],
-			'user_hard_suspended'          => [
-				'name'  => __( 'User Manually Suspended', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'User "{{user_login}}" suspended by admin.', 'wp-simple-firewall' ),
-				],
-			],
-			'user_hard_unsuspended'        => [
-				'name'  => __( 'User Manually Unsuspended', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'User "{{user_login}}" unsuspended by admin.', 'wp-simple-firewall' ),
-				],
-			],
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {

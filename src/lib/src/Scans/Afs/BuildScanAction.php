@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
-
-class BuildScanAction extends Base\BuildScanAction {
+class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BuildScanAction {
 
 	protected function buildScanItems() {
 		$this->getScanActionVO()->items = ( new BuildScanItems() )->run();

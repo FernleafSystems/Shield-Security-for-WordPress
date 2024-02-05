@@ -1,19 +1,20 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\{
+	LoadRequestLogs,
+	LogRecord,
+	Ops as RegLogsDB,
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-class BuildTrafficTableData extends BaseBuildTableData {
+class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
 	use ModConsumer;
 
@@ -237,7 +238,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	private function getColumnContent_Page() :string {
 		$query = $this->log->meta[ 'query' ] ?? '';
 
-		$content = sprintf( '<span class="badge bg-secondary me-1">%s</span>', Handler::GetTypeName( $this->log->type ) );
+		$content = sprintf( '<span class="badge bg-secondary me-1">%s</span>', RegLogsDB\Handler::GetTypeName( $this->log->type ) );
 		$path = esc_html( $this->log->path );
 		$query = esc_html( $query );
 		return $content.(
@@ -289,6 +290,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function isWpCli() :bool {
-		return $this->log->type === Handler::TYPE_WPCLI;
+		return $this->log->type === RegLogsDB\Handler::TYPE_WPCLI;
 	}
 }

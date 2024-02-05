@@ -153,22 +153,10 @@ class EventsService {
 		return $this->getEventStrings( $event )[ 'audit' ] ?? [];
 	}
 
-	public function getEventStrings( string $eventKey ) :array {
-		$eventStrings = [];
-
-		if ( $this->eventExists( $eventKey ) ) {
-			$eventStrings = ( \strpos( $eventKey, 'custom_' ) === 0 ) ?
-				$this->getEventDef( $eventKey )[ 'strings' ]
-				: self::con()
-					  ->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
-					  ->getStrings()
-					  ->getEventStrings()[ $eventKey ] ?? $eventStrings;
-		}
-		else {
-			error_log( sprintf( 'An event %s does not exist.', $eventKey ) );
-		}
-
-		return $eventStrings;
+	public function getEventStrings( string $evt ) :array {
+		return $this->eventExists( $evt ) ?
+			( \str_starts_with( $evt, 'custom_' ) ? $this->getEventDef( $evt )[ 'strings' ] : ( new EventStrings() )->for( $evt ) )
+			: [];
 	}
 
 	/**

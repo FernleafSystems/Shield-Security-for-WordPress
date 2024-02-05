@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-
-class Scan extends Shield\Scans\Base\BaseScan {
+class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan {
 
 	/**
 	 * @throws \Exception

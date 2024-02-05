@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function preSave() :void {
 		$rest = $this->getRestApiAnonymousExclusions();
