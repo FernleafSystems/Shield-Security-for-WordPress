@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
-	public function getEventStrings() :array {
-		return [];
-	}
-
 	public function getScanName( string $slug ) :string {
 		return $this->getScanStrings()[ $slug ][ 'name' ];
 	}

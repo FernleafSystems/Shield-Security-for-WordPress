@@ -13,14 +13,6 @@ class Strings {
 	}
 
 	/**
-	 * @return string[][][]|string[][]
-	 * @deprecated 19.0
-	 */
-	public function getEventStrings() :array {
-		return [];
-	}
-
-	/**
 	 * @return array{name: string, summary: string, description: array}
 	 * @throws \Exception
 	 */

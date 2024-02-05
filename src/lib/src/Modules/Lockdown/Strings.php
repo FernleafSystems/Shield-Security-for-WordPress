@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
-	public function getEventStrings() :array {
-		return [];
-	}
-
 	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {

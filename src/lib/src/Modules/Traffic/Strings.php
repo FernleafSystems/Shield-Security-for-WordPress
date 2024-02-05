@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
-	public function getEventStrings() :array {
-		return [];
-	}
-
 	public function getSectionStrings( string $section ) :array {
 		$modName = $this->mod()->getMainFeatureName();
 

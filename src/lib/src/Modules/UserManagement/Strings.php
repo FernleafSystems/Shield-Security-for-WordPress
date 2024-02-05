@@ -16,10 +16,6 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 			   ][ \max( 0, \min( 4, $strength ) ) ];
 	}
 
-	public function getEventStrings() :array {
-		return [];
-	}
-
 	public function getSectionStrings( string $section ) :array {
 		switch ( $section ) {
 

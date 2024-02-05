@@ -164,10 +164,6 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 		];
 	}
 
-	public function getEventStrings() :array {
-		return [];
-	}
-
 	public function getFirewallCategoryName( string $category ) :string {
 		return [
 				   'dir_traversal'    => __( 'Directory Traversal', 'wp-simple-firewall' ),

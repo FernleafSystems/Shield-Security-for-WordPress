@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
-	public function getEventStrings() :array {
-		return [];
-	}
-
 	/**
 	 * @throws \Exception
 	 */
