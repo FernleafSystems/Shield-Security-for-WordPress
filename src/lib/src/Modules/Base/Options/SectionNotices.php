@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	IPs,
 	IPs\Lib\IpRules\IpRuleStatus,
 	LoginGuard,
+	LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck,
 	PluginControllerConsumer,
 	Traffic\Options,
 	UserManagement
@@ -173,6 +174,18 @@ class SectionNotices {
 					$diff = ( new WorldTimeApi() )->diffServerWithReal();
 					if ( $diff > 10 ) {
 						$warnings[] = __( 'It appears that your server time configuration is out of sync - Please contact your server admin, as features like Google Authenticator wont work.', 'wp-simple-firewall' );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
+				break;
+
+			case 'section_2fa_passkeys':
+				try {
+					$passkeyChecker = new PasskeyCompatibilityCheck();
+					if ( !$passkeyChecker->run() ) {
+						$warnings[] = sprintf( __( 'To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s', 'wp-simple-firewall' ),
+							'<code>'.\implode( '</code>, <code>', $passkeyChecker->requiredExtensions() ).'</code>' );
 					}
 				}
 				catch ( \Exception $e ) {
