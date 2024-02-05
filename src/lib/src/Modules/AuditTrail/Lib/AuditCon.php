@@ -176,14 +176,21 @@ class AuditCon {
 	 * @throws \Exception
 	 */
 	public function updateStoredSnapshot( Auditors\Base $auditor, ?SnapshotVO $current = null ) {
-		$slug = $auditor::Slug();
-		if ( empty( $current ) ) {
-			$current = ( new Ops\Build() )->run( $slug );
-		}
-		if ( !empty( $current ) ) {
-			unset( $this->latestSnapshots[ $slug ] );
-			( new Ops\Delete() )->delete( $slug );
-			( new Ops\Store() )->store( $current );
+		$con = self::con();
+		$dbh = \method_exists( $con->db_con, 'dbhSnapshots' ) ?
+			$con->db_con->dbhSnapshots() : $con->getModule_AuditTrail()->getDbH_Snapshots();
+
+		if ( !$con->plugin_deleting && $dbh->isReady() ) {
+			$slug = $auditor::Slug();
+			if ( empty( $current ) ) {
+				$current = ( new Ops\Build() )->run( $slug );
+			}
+
+			if ( !empty( $current ) ) {
+				unset( $this->latestSnapshots[ $slug ] );
+				( new Ops\Delete() )->delete( $slug );
+				( new Ops\Store() )->store( $current );
+			}
 		}
 	}
 

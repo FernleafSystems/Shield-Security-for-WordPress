@@ -58,6 +58,21 @@ class RuleBuilderAction extends BaseAction {
 				) )->parseForm();
 
 				$asDraft = !$parsed->ready_to_create || $this->action_data[ 'builder_action' ] !== 'create_rule';
+				// if we're going to update/save the rule
+				if ( !$asDraft ) {
+					// purge any unset condition
+					if ( $parsed->has_unset_condition ) {
+						$conditions = $parsed->conditions;
+						\array_pop( $conditions );
+						$parsed->conditions = $conditions;
+					}
+					// purge any unset responses
+					if ( $parsed->has_unset_response ) {
+						$responses = $parsed->responses;
+						\array_pop( $responses );
+						$parsed->responses = $responses;
+					}
+				}
 			}
 
 			$parsed->form_builder_version = $con->cfg->version();

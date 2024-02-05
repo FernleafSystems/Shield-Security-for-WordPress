@@ -265,6 +265,17 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
+      "key":         "delete_on_deactivate",
+      "section":     "section_defaults",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Delete Plugin Settings",
+      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
+    },
+    {
       "key":         "enable_beta",
       "section":     "section_defaults",
       "premium":     true,
@@ -344,17 +355,6 @@
       "name":         "Secret Key",
       "summary":      "Import/Export Secret Key",
       "description":  "Keep this Secret Key private as it will allow the import and export of options."
-    },
-    {
-      "key":         "delete_on_deactivate",
-      "section":     "section_defaults",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Delete Plugin Settings",
-      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-      "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
       "key":         "locale_override",
