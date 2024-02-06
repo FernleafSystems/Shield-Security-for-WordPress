@@ -158,9 +158,7 @@
       "key":           "session_lock",
       "section":       "section_user_session_management",
       "type":          "multiple_select",
-      "default":       [
-        "ip"
-      ],
+      "default":       [],
       "value_options": [
         {
           "value_key": "ip",
