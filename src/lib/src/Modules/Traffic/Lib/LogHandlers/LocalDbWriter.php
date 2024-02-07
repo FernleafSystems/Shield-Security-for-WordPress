@@ -40,6 +40,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$logData[ 'extra' ][ 'meta_request' ][ 'rid' ],
 			$ipRecord->id
 		);
+		if ( empty( $reqRecord ) ) {
+			throw new \Exception( 'Failed to load/create Request Record' );
+		}
 
 		// A record will only exist if the Activity Log created it, or it's not excluded.
 		// anything stored in the primary log record doesn't need stored in meta

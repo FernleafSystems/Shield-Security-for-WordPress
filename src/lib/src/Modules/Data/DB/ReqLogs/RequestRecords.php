@@ -9,7 +9,7 @@ class RequestRecords {
 
 	use ModConsumer;
 
-	public function loadReq( string $reqID, int $ipRefID, bool $autoCreate = true ) :ReqLogsDB\Record {
+	public function loadReq( string $reqID, int $ipRefID, bool $autoCreate = true ) :?ReqLogsDB\Record {
 		/** @var ReqLogsDB\Select $select */
 		$select = self::con()->getModule_Data()->getDbH_ReqLogs()->getQuerySelector();
 		/** @var ReqLogsDB\Record|null $record */
