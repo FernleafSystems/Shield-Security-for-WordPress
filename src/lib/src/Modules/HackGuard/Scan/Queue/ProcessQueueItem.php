@@ -68,7 +68,6 @@ class ProcessQueueItem {
 		$class = $action->getScanNamespace().'Scan';
 		/** @var Scans\Base\BaseScan $o */
 		$o = new $class();
-		return $o->setScanController( $this->mod()->getScansCon()->getScanCon( $action->scan ) )
-				 ->setScanActionVO( $action );
+		return $o->setScanActionVO( $action );
 	}
 }

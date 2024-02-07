@@ -27,7 +27,7 @@ class OurLatestBlogPosts {
 					return [
 						'id'      => $post[ 'id' ],
 						'title'   => $post[ 'title' ][ 'rendered' ] ?? 'Unknown title',
-						'excerpt' => wp_strip_all_tags( $post[ 'excerpt' ][ 'rendered' ] ?? 'Excerpt' ),
+						'excerpt' => esc_js( wp_strip_all_tags( $post[ 'excerpt' ][ 'rendered' ] ?? 'Excerpt' ) ),
 						'href'    => URL::Build( $post[ 'link' ], [
 							'utm_source'   => 'in-plugin',
 							'utm_medium'   => 'wp-admin',
@@ -42,5 +42,21 @@ class OurLatestBlogPosts {
 			Transient::Set( 'apto-shield-latest-blog-posts', $posts, \DAY_IN_SECONDS*3 );
 		}
 		return $posts;
+	}
+
+	/**
+	 * https://plugins.svn.wordpress.org/wpuntexturize/trunk/wpuntexturize.php
+	 */
+	private function getUntexturiseReplacements() :array {
+		return [
+			'&#8216;' => "'", // left single quotation mark
+			'&#8217;' => "'", // right single quotation mark
+			'&#8218;' => "'", // single low 9 quotation mark
+			'&#8220;' => '"', // left double quotation mark
+			'&#8221;' => '"', // right double quotation mark
+			'&#8222;' => '"', // double low 9 quotation mark
+			'&#8242;' => "'", // prime mark
+			'&#8243;' => '"', // double prime mark
+		];
 	}
 }

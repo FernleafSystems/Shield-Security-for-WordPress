@@ -33,20 +33,23 @@
   },
   "sections":    [
     {
-      "slug":        "section_integrations",
       "primary":     true,
+      "slug":        "section_integrations",
+      "module":      "integrations",
       "title":       "Integrations",
       "title_short": "Integrations",
       "beacon_id":   404
     },
     {
       "slug":        "section_spam",
+      "module":      "integrations",
       "title":       "SPAM Detection",
       "title_short": "SPAM Detection",
       "beacon_id":   138
     },
     {
       "slug":        "section_user_forms",
+      "module":      "integrations",
       "title":       "User Forms Bot Detection",
       "title_short": "User Forms Bot Detection",
       "beacon_id":   239

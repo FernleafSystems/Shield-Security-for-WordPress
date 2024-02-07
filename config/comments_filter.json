@@ -1,6 +1,6 @@
 {
-  "slug":          "comments_filter",
-  "properties":    {
+  "slug":        "comments_filter",
+  "properties":  {
     "slug":                  "comments_filter",
     "storage_key":           "commentsfilter",
     "load_priority":         100,
@@ -17,21 +17,22 @@
     "run_if_wpcli":          false,
     "order":                 50
   },
-  "reqs":          {
+  "reqs":        {
     "dbs": [
       "botsignal"
     ]
   },
-  "menus":         {
+  "menus":       {
     "config_menu_priority": 40
   },
-  "wpcli":         {
+  "wpcli":       {
     "enabled": true
   },
-  "sections":      [
+  "sections":    [
     {
       "primary":     true,
       "slug":        "section_bot_comment_spam_protection_filter",
+      "module":      "comments_filter",
       "title":       "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
       "beacon_id":   260,
@@ -42,6 +43,7 @@
     },
     {
       "slug":        "section_human_spam_filter",
+      "module":      "comments_filter",
       "title":       "Human Comment SPAM Protection",
       "title_short": "Human SPAM",
       "beacon_id":   262,
@@ -52,6 +54,7 @@
     },
     {
       "slug":        "section_bot_comment_spam_common",
+      "module":      "comments_filter",
       "title":       "Common Settings For All SPAM Scanning",
       "title_short": "Common Settings",
       "beacon_id":   152,
@@ -61,6 +64,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_spam_comments_protection_filter",
+      "module":      "comments_filter",
       "title":       "Enable Module: Comments SPAM Protection",
       "title_short": "Disable Module",
       "beacon_id":   257,
@@ -74,7 +78,7 @@
       "hidden": true
     }
   ],
-  "options":       [
+  "options":     [
     {
       "key":         "enable_comments_filter",
       "section":     "section_enable_plugin_feature_spam_comments_protection_filter",
@@ -234,25 +238,25 @@
       "default": 0
     }
   ],
-  "definitions":   {
+  "definitions": {
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
-      "comment_spam_block":        {
+      "comment_spam_block":       {
         "level":   "notice",
         "stat":    false,
         "offense": true
       },
-      "spam_block_antibot":        {
+      "spam_block_antibot":       {
       },
-      "spam_block_bot":            {
+      "spam_block_bot":           {
       },
-      "spam_block_human":          {
+      "spam_block_human":         {
         "audit_params": [
           "word",
           "key"
         ]
       },
-      "spam_block_cooldown": {
+      "spam_block_cooldown":      {
       },
       "spam_block_humanrepeated": {
       }

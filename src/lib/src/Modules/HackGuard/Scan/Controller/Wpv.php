@@ -21,9 +21,7 @@ class Wpv extends BaseForAssets {
 			$this->scheduleOnDemandScan();
 		}, 10, 0 );
 		add_action( 'load-plugins.php', function () {
-			( new HackGuard\Scan\Utilities\WpvAddPluginRows() )
-				->setScanController( $this )
-				->execute();
+			( new HackGuard\Scan\Utilities\WpvAddPluginRows() )->execute();
 		}, 10, 2 );
 
 		if ( $this->isAutoupdatesEnabled() ) {
@@ -33,7 +31,7 @@ class Wpv extends BaseForAssets {
 
 	public function getAdminMenuItems() :array {
 		$items = [];
-		$status = $this->getScansController()->getScanResultsCount();
+		$status = $this->mod()->getScansCon()->getScanResultsCount();
 
 		$template = [
 			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
@@ -83,7 +81,7 @@ class Wpv extends BaseForAssets {
 
 	public function buildScanAction() :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
-			->setScanController( $this )
+			->setScanActionVO( $this->getScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

@@ -27,6 +27,7 @@
     {
       "slug":        "section_automatic_updates_for_wordpress_components",
       "primary":     true,
+      "module":      "autoupdates",
       "title":       "Automatic Updates For WordPress Components",
       "title_short": "WordPress Components",
       "beacon_id":   236,
@@ -37,6 +38,7 @@
     },
     {
       "slug":        "section_options",
+      "module":      "autoupdates",
       "title":       "Auto-Update Options",
       "title_short": "Auto-Update Options",
       "beacon_id":   234,
@@ -44,6 +46,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_automatic_updates_control",
+      "module":      "autoupdates",
       "title":       "Enable Module: Automatic Updates",
       "title_short": "Disable Module",
       "beacon_id":   234,

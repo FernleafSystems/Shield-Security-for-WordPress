@@ -5,28 +5,40 @@
 			<h6 class="mt-0 mb-2">{{ strings.scanselect }}</h6>
 		</div>
 
-		<div class="col-xl-4 col-lg-6 col-md-6">
+		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
 			<div class="scan-select pl-2 text-nowrap">
 				<label for="_afs" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
-					       name="afs" id="_afs" value="Y"
-					       {% if not scans.afs.flags.is_available %}disabled="disabled"{% endif %}
+						   name="afs" id="_afs" value="Y"
+						   {% if not scans.afs.flags.is_available %}disabled="disabled"{% endif %}
 							{% if scans.afs.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 					/>
 					{{ scans.afs.strings.title }}
 					<br />
 					<small class="form-text">{{ scans.afs.strings.subtitle }}</small>
+					{% if scans.afs.strings.sub_items|default([]) is not empty %}
+						<ul class="list-group list-group-flush mt-2">
+							{% for sub_item_text, sub_item_enabled in scans.afs.strings.sub_items %}
+								<li class="list-group-item {{ sub_item_enabled ? 'list-group-item-primary' : 'list-group-item-warning' }}">
+									<span class="svg-container">
+										{{ (sub_item_enabled ? imgs.icon_shield_check : imgs.icon_shield_x)|raw }}
+									</span>
+									{{ sub_item_text }}
+								</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
 				</label>
 			</div>
 		</div>
 
 
-		<div class="col-xl-4 col-lg-6 col-md-6">
+		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
 			<div class="scan-select pl-2 text-nowrap">
 				<label for="_wpv" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
-					       name="wpv" id="_wpv" value="Y"
-					       {% if not scans.wpv.flags.is_available %}disabled="disabled"{% endif %}
+						   name="wpv" id="_wpv" value="Y"
+						   {% if not scans.wpv.flags.is_available %}disabled="disabled"{% endif %}
 							{% if scans.wpv.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 					/>
 					{{ scans.wpv.strings.title }}
@@ -36,12 +48,12 @@
 			</div>
 		</div>
 
-		<div class="col-xl-4 col-lg-6 col-md-6">
+		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
 			<div class="scan-select pl-2 text-nowrap">
 				<label for="_apc" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
-					       name="apc" id="_apc" value="Y"
-					       {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
+						   name="apc" id="_apc" value="Y"
+						   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
 							{% if scans.apc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 					/>
 					{{ scans.apc.strings.title }}
@@ -55,14 +67,14 @@
 
 	<div class="row">
 		<div class="col-12">
-			<h6 class="mt-2 mb-2">{{ strings.scan_options }}</h6>
+			<h6 class="mb-2">{{ strings.scan_options }}</h6>
 		</div>
 
 		<div class="col-xl-6 col-lg-6 col-md-6">
 			<div class="scan-select pl-2 text-nowrap">
 				<label for="_opt_clear_ignore" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
-					       name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
+						   name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
 					{{ strings.clear_ignore }}
 					<br />
 					<small class="form-text">{{ strings.clear_ignore_sub }}</small>
@@ -76,8 +88,8 @@
 		<div class="col">
 			{% if flags.can_scan %}
 				<button class="btn btn-primary float-start"
-				        {% if not flags.can_scan %}disabled="disabled"{% endif %}
-				        type="submit" id="StartScansButton">{{ strings.run_scans_now }} &rarr;</button>
+						{% if not flags.can_scan %}disabled="disabled"{% endif %}
+						type="submit" id="StartScansButton">{{ strings.run_scans_now }} &rarr;</button>
 			{% else %}
 				<p>Scans are currently disabled because:
 					{% for cannot_scan_reason in vars.cannot_scan_reasons %}

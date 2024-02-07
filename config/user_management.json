@@ -25,8 +25,9 @@
   },
   "sections":    [
     {
-      "slug":        "section_user_session_management",
       "primary":     true,
+      "slug":        "section_user_session_management",
+      "module":      "user_management",
       "title":       "User Session Management",
       "title_short": "Session Options",
       "beacon_id":   397,
@@ -37,6 +38,7 @@
     },
     {
       "slug":        "section_passwords",
+      "module":      "user_management",
       "title":       "Password Policies",
       "title_short": "Password Policies",
       "beacon_id":   256,
@@ -47,6 +49,7 @@
     },
     {
       "slug":        "section_user_reg",
+      "module":      "user_management",
       "title":       "User Registration",
       "title_short": "User Registration",
       "beacon_id":   145,
@@ -57,6 +60,7 @@
     },
     {
       "slug":        "section_suspend",
+      "module":      "user_management",
       "title":       "Automatic And Manual User Suspension",
       "title_short": "User Suspension",
       "beacon_id":   273,
@@ -67,6 +71,7 @@
     },
     {
       "slug":        "section_admin_login_notification",
+      "module":      "user_management",
       "title":       "Admin Login Notification",
       "title_short": "Notifications",
       "beacon_id":   147,
@@ -77,6 +82,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_user_accounts_management",
+      "module":      "user_management",
       "title":       "Enable Module: User Management",
       "title_short": "Disable Module",
       "beacon_id":   273,
@@ -158,9 +164,7 @@
       "key":           "session_lock",
       "section":       "section_user_session_management",
       "type":          "multiple_select",
-      "default":       [
-        "ip"
-      ],
+      "default":       [],
       "value_options": [
         {
           "value_key": "ip",

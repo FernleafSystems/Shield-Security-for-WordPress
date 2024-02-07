@@ -46,8 +46,9 @@
   ],
   "sections":         [
     {
-      "slug":        "section_file_guard",
       "primary":     true,
+      "slug":        "section_file_guard",
+      "module":      "hack_protect",
       "title":       "File Guard",
       "title_short": "File Guard",
       "beacon_id":   217,
@@ -58,6 +59,7 @@
     },
     {
       "slug":        "section_scan_wpv",
+      "module":      "hack_protect",
       "title":       "Vulnerability Scanner",
       "title_short": "Vulnerability Scanner",
       "beacon_id":   217,
@@ -68,6 +70,7 @@
     },
     {
       "slug":        "section_scan_options",
+      "module":      "hack_protect",
       "title":       "Scan Options",
       "title_short": "Scan Options",
       "beacon_id":   217,
@@ -77,6 +80,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_hack_protection_tools",
+      "module":      "hack_protect",
       "title":       "Enable Module: Hack Guard",
       "title_short": "Disable Module",
       "beacon_id":   217,

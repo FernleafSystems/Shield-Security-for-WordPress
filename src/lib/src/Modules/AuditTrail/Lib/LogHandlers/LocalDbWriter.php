@@ -120,14 +120,17 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->getRequestLogger()
 			->createDependentLog();
 
-		$record->req_ref = ( new ReqLogs\RequestRecords() )
-			->loadReq(
-				$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
-				( new IPRecords() )
-					->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
-					->id
-			)
-			->id;
+		$requestRecord = ( new ReqLogs\RequestRecords() )->loadReq(
+			$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
+			( new IPRecords() )
+				->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
+				->id
+		);
+		if ( empty( $requestRecord ) ) {
+			throw new \Exception( 'No dependent Request Record found/created' );
+		}
+
+		$record->req_ref = $requestRecord->id;
 
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {

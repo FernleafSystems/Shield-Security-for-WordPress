@@ -41,8 +41,9 @@
   ],
   "sections":         [
     {
-      "slug":        "section_traffic_options",
       "primary":     true,
+      "slug":        "section_traffic_options",
+      "module":      "traffic",
       "title":       "Traffic Log Options",
       "title_short": "Options",
       "beacon_id":   153,
@@ -53,6 +54,7 @@
     },
     {
       "slug":        "section_traffic_limiter",
+      "module":      "traffic",
       "title":       "Traffic Rate Limiting",
       "title_short": "Rate Limiting",
       "beacon_id":   420,
@@ -63,6 +65,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_traffic",
+      "module":      "traffic",
       "title":       "Enable Module: Traffic Log",
       "title_short": "Disable Module",
       "beacon_id":   153,

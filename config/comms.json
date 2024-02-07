@@ -25,6 +25,7 @@
     {
       "primary":     true,
       "slug":        "section_suresend",
+      "module":      "comms",
       "title":       "SureSend Email",
       "title_short": "SureSend Email",
       "beacon_id":   156

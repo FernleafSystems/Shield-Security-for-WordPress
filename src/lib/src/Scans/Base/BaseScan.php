@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseScan {
 
-	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-	use Shield\Modules\HackGuard\ModConsumer;
-	use Shield\Scans\Common\ScanActionConsumer;
+	use HackGuard\ModConsumer;
+	use ScanActionConsumer;
 
 	/**
 	 * @return $this

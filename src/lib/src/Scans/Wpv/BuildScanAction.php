@@ -10,7 +10,6 @@ class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Bas
 		$items = Services::WpPlugins()->getInstalledPluginFiles();
 		$WPT = Services::WpThemes();
 		$items[] = ( $WPT->isActiveThemeAChild() ? $WPT->getCurrentParent() : $WPT->getCurrent() )->get_stylesheet();
-
 		$this->getScanActionVO()->items = $items;
 	}
 }

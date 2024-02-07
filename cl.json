@@ -54,7 +54,7 @@
         "description": [
           "Updated the FileLocker system to ensure compatibility with the Shield.NET API."
         ],
-        "href":        ""
+        "href":        "https://shsec.io/lu"
       },
       {
         "type":        "improved",
@@ -73,7 +73,7 @@
         "description": [
           "Ensure Passkeys can be used on hosts that don't have the GMP extension active."
         ],
-        "href":        ""
+        "href":        "https://shsec.io/lm"
       },
       {
         "type":        "improved",
@@ -86,6 +86,24 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "6",
+        "released_at": 1707300000,
+        "items":       [
+          {
+            "title": "Set Session Lock default to not lock to IP address.",
+            "type":  "improved"
+          },
+          {
+            "title": "Ensure multiple scans don't run for WPMS sites.",
+            "type":  "improved"
+          },
+          {
+            "title": "Small adjustment to prevent fatal errors when DB has issues inserting new data.",
+            "type":  "fixed"
+          }
+        ]
+      },
       {
         "version":     "5",
         "released_at": 1707149000,
