@@ -48,6 +48,8 @@ class PageScansRun extends PageScansBase {
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
+				'icon_shield_check'     => $con->svgs->raw( 'shield-check' ),
+				'icon_shield_x'         => $con->svgs->raw( 'shield-x' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Run Manual Scan', 'wp-simple-firewall' ),
@@ -77,6 +79,7 @@ class PageScansRun extends PageScansBase {
 
 	private function buildScansVars() :array {
 		$mod = self::con()->getModule_HackGuard();
+		$opts = $mod->opts();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 		$scanStrings = $strings->getScanStrings();
@@ -84,6 +87,14 @@ class PageScansRun extends PageScansBase {
 		$scans = [];
 		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
 			$slug = $scanCon->getSlug();
+
+			$subItems = [];
+			if ( $slug === $mod->getScansCon()->AFS()->getSlug() ) {
+				foreach ( $opts->getOptDefinition( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
+					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $opts->getOpt( 'file_scan_areas' ) );
+				}
+			}
+
 			$data = [
 				'flags'   => [
 					'is_available'  => $scanCon->isReady(),
@@ -93,8 +104,9 @@ class PageScansRun extends PageScansBase {
 									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
 				'strings' => [
-					'title'    => $scanStrings[ $slug ][ 'name' ],
-					'subtitle' => $scanStrings[ $slug ][ 'subtitle' ],
+					'title'     => $scanStrings[ $slug ][ 'name' ],
+					'subtitle'  => $scanStrings[ $slug ][ 'subtitle' ],
+					'sub_items' => $subItems,
 				],
 				'vars'    => [
 					'slug' => $scanCon->getSlug(),

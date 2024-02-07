@@ -19,27 +19,11 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 		return [
 			'afs' => [
 				'name'     => __( 'WordPress Filesystem Scan', 'wp-simple-firewall' ),
-				'subtitle' => __( "WordPress Filesystem Scan looking for modified, missing and unrecognised files throughout the entire site", 'wp-simple-firewall' ),
+				'subtitle' => __( 'Filesystem Scan looking for modified, missing and unrecognised files (use config to adjust scan areas)', 'wp-simple-firewall' ),
 			],
 			'apc' => [
 				'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
 				'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
-			],
-			'ptg' => [
-				'name'     => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'subtitle' => __( "Be alerted to file changes for all your plugins and themes", 'wp-simple-firewall' ),
-			],
-			'mal' => [
-				'name'     => __( 'Malware', 'wp-simple-firewall' ),
-				'subtitle' => __( "Detect files that may be infected with malware", 'wp-simple-firewall' ),
-			],
-			'ufc' => [
-				'name'     => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-				'subtitle' => __( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' ),
-			],
-			'wcf' => [
-				'name'     => __( 'WordPress Core Files', 'wp-simple-firewall' ),
-				'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
 			],
 			'wpv' => [
 				'name'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
