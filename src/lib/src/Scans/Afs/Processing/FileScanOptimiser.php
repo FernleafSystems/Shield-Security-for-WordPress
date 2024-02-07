@@ -39,7 +39,7 @@ class FileScanOptimiser {
 					\file_put_contents(
 						$pathToHashes,
 						\sprintf( '%s:%s', Services::Request()->ts(), \implode( ',', $allNotFoundHashes )."\n" ),
-						FILE_APPEND
+						\FILE_APPEND
 					);
 				}
 				catch ( \Exception $e ) {

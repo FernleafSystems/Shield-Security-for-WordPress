@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 
@@ -51,7 +51,7 @@ class Controller {
 	 * @return float
 	 */
 	public function getScanJobProgress() {
-		/** @var ScanItemsDB\Ops\Select $selector */
+		/** @var ScanItemsDB\Select $selector */
 		$selector = self::con()->db_con->dbhScanItems()->getQuerySelector();
 
 		$countsAll = $selector->countAllForEachScan();

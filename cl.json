@@ -88,7 +88,7 @@
     "patches":     [
       {
         "version":     "6",
-        "released_at": 1707300000,
+        "released_at": 1707384000,
         "items":       [
           {
             "title": "Set Session Lock default to not lock to IP address.",

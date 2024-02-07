@@ -7,9 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Scan\Queue\QueueItemVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	ResultItemMeta as ResultItemMetaDB,
-	ResultItems as ResultItemsDB,
-	ScanResults as ScanResultsDB
+	ResultItemMeta\Ops as ResultItemMetaDB,
+	ResultItems\Ops as ResultItemsDB,
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -22,7 +21,7 @@ class Store {
 
 		$dbhResItems = $dbCon->dbhResultItems();
 		$dbhResItemMetas = $dbCon->dbhResultItemMeta();
-		/** @var ResultItemsDB\Ops\Select $resultSelector */
+		/** @var ResultItemsDB\Select $resultSelector */
 		$resultSelector = $dbhResItems->getQuerySelector();
 
 		foreach ( $results as $result ) {
@@ -32,7 +31,7 @@ class Store {
 							   ->getScanCon( $queueItem->scan )
 							   ->buildScanResult( $result );
 
-			/** @var ResultItemsDB\Ops\Record $resultRecord */
+			/** @var ResultItemsDB\Record $resultRecord */
 			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )
 										   ->filterByItemNotDeleted()
 										   ->filterByItemNotRepaired()
@@ -50,13 +49,13 @@ class Store {
 				}
 
 				// Delete/Reset all metadata for the results in preparation for update.
-				/** @var ResultItemMetaDB\Ops\Delete $metaDeleter */
+				/** @var ResultItemMetaDB\Delete $metaDeleter */
 				$metaDeleter = $dbhResItemMetas->getQueryDeleter();
 				$metaDeleter->filterByResultItemRef( $resultRecord->id )->query();
 			}
 
 			foreach ( $scanResult->meta as $metaKey => $metaValue ) {
-				/** @var ResultItemMetaDB\Ops\Insert $metaInserter */
+				/** @var ResultItemMetaDB\Insert $metaInserter */
 				$metaInserter = $dbhResItemMetas->getQueryInserter();
 				$metaInserter->setInsertData( [
 					'ri_ref'     => $resultRecord->id,

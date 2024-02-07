@@ -14,7 +14,7 @@ class CreateNewScan {
 	/**
 	 * @throws ScanExistsException|\Exception
 	 */
-	public function run( string $slug ) :ScansDB\Record {
+	public function run( string $slug ) :?ScansDB\Record {
 		if ( $this->scanExists( $slug ) ) {
 			throw new ScanExistsException( $slug );
 		}

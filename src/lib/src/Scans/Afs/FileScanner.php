@@ -2,12 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 
 class FileScanner {
 
-	use Shield\Modules\HackGuard\ModConsumer;
-	use Shield\Scans\Common\ScanActionConsumer;
+	use ModConsumer;
+	use ScanActionConsumer;
 
 	public function scan( string $fullPath ) :?ResultItem {
 		$scanCon = $this->mod()->getScansCon()->AFS();

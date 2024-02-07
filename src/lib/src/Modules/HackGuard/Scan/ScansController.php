@@ -205,11 +205,9 @@ class ScansController {
 			}
 		}
 
-		$c->hour( $startHour )
-		  ->minute( $startMinute )
-		  ->second( 0 );
-
-		return $c->timestamp;
+		return $c->hour( $startHour )
+				 ->minute( $startMinute )
+				 ->second( 0 )->timestamp;
 	}
 
 	protected function getCronName() :string {
