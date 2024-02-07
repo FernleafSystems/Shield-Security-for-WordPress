@@ -11,16 +11,24 @@ trait StandardCron {
 	 */
 	private $nCronFirstRun;
 
+	protected $isSubSiteCron = false;
+
 	protected function setupCron() {
-		try {
-			Services::WpCron()
-					->setRecurrence( $this->getCronRecurrence() )
-					->setNextRun( $this->getFirstRunTimestamp() )
-					->createCronJob( $this->getCronName(), [ $this, 'runCron' ] );
+		if ( $this->isSubSiteCron() || ( is_main_site() || is_network_admin() ) ) {
+			try {
+				Services::WpCron()
+						->setRecurrence( $this->getCronRecurrence() )
+						->setNextRun( $this->getFirstRunTimestamp() )
+						->createCronJob( $this->getCronName(), [ $this, 'runCron' ] );
+			}
+			catch ( \Exception $e ) {
+			}
+			add_action( self::con()->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
 		}
-		catch ( \Exception $e ) {
-		}
-		add_action( self::con()->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
+	}
+
+	protected function isSubSiteCron() :bool {
+		return $this->isSubSiteCron;
 	}
 
 	/**
@@ -42,9 +50,7 @@ trait StandardCron {
 	abstract protected function getCronName() :string;
 
 	public function getFirstRunTimestamp() :int {
-		return empty( $this->nCronFirstRun ) ?
-			( Services::Request()->ts() + \MINUTE_IN_SECONDS )
-			: $this->nCronFirstRun;
+		return empty( $this->nCronFirstRun ) ? Services::Request()->ts() + \MINUTE_IN_SECONDS : $this->nCronFirstRun;
 	}
 
 	/**

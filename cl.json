@@ -95,6 +95,10 @@
             "type":  "improved"
           },
           {
+            "title": "Ensure multiple scans don't run for WPMS sites.",
+            "type":  "improved"
+          },
+          {
             "title": "Small adjustment to prevent fatal errors when DB has issues inserting new data.",
             "type":  "fixed"
           }
