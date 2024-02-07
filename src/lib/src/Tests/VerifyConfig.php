@@ -15,6 +15,7 @@ class VerifyConfig {
 
 		$allSections = [];
 		$allOpts = [];
+		$sectionsMissingModule = [];
 		foreach ( self::con()->modules as $mod ) {
 			$opts = $mod->opts();
 			$sections = \array_keys( $opts->getSections( true ) );
@@ -24,6 +25,12 @@ class VerifyConfig {
 			}
 			$allSections = \array_unique( \array_merge( $allSections, $sections ) );
 
+			foreach ( $opts->getSections() as $sectionKey => $section ) {
+				if ( empty( $section[ 'module' ] ) ) {
+					$sectionsMissingModule[] = $sectionKey;
+				}
+			}
+
 			$optKeys = $opts->getOptionsKeys();
 			$duplicates = \array_diff( \array_intersect( $allOpts, $optKeys ), $optsDuplicateExceptions );
 			if ( \count( $duplicates ) > 0 ) {
@@ -31,6 +38,10 @@ class VerifyConfig {
 			}
 			$allOpts = \array_unique( \array_merge( $allOpts, $optKeys ) );
 //			$this->verifyCfg( $mod );
+		}
+
+		if ( !empty( $sectionsMissingModule ) ) {
+			var_dump( 'sections missing module setting: '.implode( ', ', $sectionsMissingModule ) );
 		}
 	}
 

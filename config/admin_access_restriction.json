@@ -1,6 +1,6 @@
 {
-  "slug":          "admin_access_restriction",
-  "properties":    {
+  "slug":        "admin_access_restriction",
+  "properties":  {
     "slug":                  "admin_access_restriction",
     "name":                  "Security Admin",
     "namespace":             "SecurityAdmin",
@@ -18,16 +18,17 @@
     "run_if_wpcli":          false,
     "order":                 20
   },
-  "menus":         {
+  "menus":       {
     "config_menu_priority": 15
   },
-  "wpcli":         {
+  "wpcli":       {
     "enabled":  true,
     "cmd_base": "secadmin"
   },
-  "sections":      [
+  "sections":    [
     {
       "slug":        "section_security_admin_settings",
+      "module":      "admin_access_restriction",
       "primary":     true,
       "title":       "Security Admin Restriction Settings",
       "title_short": "Security Admin Settings",
@@ -39,6 +40,7 @@
     },
     {
       "slug":        "section_admin_access_restriction_areas",
+      "module":      "admin_access_restriction",
       "title":       "Security Admin Restriction Zones",
       "title_short": "Access Restriction Zones",
       "beacon_id":   214,
@@ -49,6 +51,7 @@
     },
     {
       "slug":        "section_whitelabel",
+      "module":      "admin_access_restriction",
       "title":       "Shield White Label",
       "title_short": "White Label",
       "beacon_id":   131,
@@ -58,6 +61,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_admin_access_restriction",
+      "module":      "admin_access_restriction",
       "title":       "Enable Module: WordPress Security Admin",
       "title_short": "Disable Module",
       "beacon_id":   213,
@@ -72,7 +76,7 @@
       "hidden": true
     }
   ],
-  "options":       [
+  "options":     [
     {
       "key":         "enable_admin_access_restriction",
       "section":     "section_enable_plugin_feature_admin_access_restriction",
@@ -414,7 +418,7 @@
       "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     }
   ],
-  "definitions":   {
+  "definitions": {
     "restricted_pages_users": [
       "user-edit.php",
       "users.php"

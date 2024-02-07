@@ -41,8 +41,9 @@
   ],
   "sections":         [
     {
-      "slug":        "section_auto_black_list",
       "primary":     true,
+      "slug":        "section_auto_black_list",
+      "module":      "ips",
       "title":       "Automatic IP Black List",
       "title_short": "Auto IP Blocking Rules",
       "beacon_id":   208,
@@ -53,16 +54,19 @@
     },
     {
       "slug":        "section_antibot",
+      "module":      "ips",
       "title":       "AntiBot System",
       "title_short": "AntiBot System"
     },
     {
       "slug":        "section_crowdsec",
+      "module":      "ips",
       "title":       "CrowdSec",
       "title_short": "CrowdSec"
     },
     {
       "slug":        "section_bot_behaviours",
+      "module":      "ips",
       "title":       "Identify Common Bot Behaviours",
       "title_short": "Bot Behaviours",
       "beacon_id":   124,
@@ -72,6 +76,7 @@
     },
     {
       "slug":        "section_user_messages",
+      "module":      "ips",
       "title":       "Customize Messages Shown To User",
       "title_short": "Visitor Messages",
       "beacon_id":   139,
@@ -83,6 +88,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_ips",
+      "module":      "ips",
       "title":       "Enable Module: IP Manager",
       "title_short": "Disable Module",
       "beacon_id":   208,

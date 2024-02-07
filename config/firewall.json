@@ -25,8 +25,9 @@
   },
   "sections":    [
     {
-      "slug":        "section_firewall_blocking_options",
       "primary":     true,
+      "slug":        "section_firewall_blocking_options",
+      "module":      "firewall",
       "title":       "Firewall Blocking Options",
       "title_short": "Firewall Blocking",
       "beacon_id":   333,
@@ -37,6 +38,7 @@
     },
     {
       "slug":        "section_choose_firewall_block_response",
+      "module":      "firewall",
       "title":       "Choose Firewall Block Response",
       "title_short": "Firewall Response",
       "beacon_id":   334,
@@ -47,6 +49,7 @@
     },
     {
       "slug":        "section_whitelist",
+      "module":      "firewall",
       "title":       "Whitelists - IPs, Pages, Parameters, and Users that bypass the Firewall",
       "title_short": "Whitelist",
       "beacon_id":   335,
@@ -57,6 +60,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_wordpress_firewall",
+      "module":      "firewall",
       "title":       "Enable Module: Firewall",
       "title_short": "Disable Module",
       "beacon_id":   253,
