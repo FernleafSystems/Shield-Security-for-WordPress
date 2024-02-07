@@ -34,7 +34,6 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 			},
 			// run the scan and get results:
 			( new ScanFromFileMap() )
-				->setScanController( $this->getScanController() )
 				->setScanActionVO( $action )
 				->run()
 				->getAllItems()

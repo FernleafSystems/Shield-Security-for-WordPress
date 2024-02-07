@@ -17,7 +17,7 @@ class Apc extends BaseForAssets {
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
-		$count = $this->getScansController()->getScanResultsCount()->countAbandoned();
+		$count = $this->mod()->getScansCon()->getScanResultsCount()->countAbandoned();
 		if ( $count > 0 ) {
 			$warning = $template;
 			$warning[ 'id' ] .= '-apc';
@@ -53,7 +53,7 @@ class Apc extends BaseForAssets {
 	 */
 	public function buildScanAction() :Scans\Apc\ScanActionVO {
 		return ( new Scans\Apc\BuildScanAction() )
-			->setScanController( $this )
+			->setScanActionVO( $this->getScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

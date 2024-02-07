@@ -16,8 +16,6 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 	}
 
 	protected function getItemScanner() :PluginScanner {
-		return ( new PluginScanner() )
-			->setScanController( $this->getScanController() )
-			->setScanActionVO( $this->getScanActionVO() );
+		return ( new PluginScanner() )->setScanActionVO( $this->getScanActionVO() );
 	}
 }

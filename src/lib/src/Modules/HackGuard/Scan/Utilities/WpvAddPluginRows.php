@@ -4,13 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\PluginVulnerabilityWarning;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
 class WpvAddPluginRows {
 
-	use Controller\ScanControllerConsumer;
+	use ModConsumer;
 	use ExecOnce;
 
 	/**
@@ -32,15 +33,14 @@ class WpvAddPluginRows {
 	}
 
 	private function isWpvulnPluginsHighlightEnabled() :bool {
-		$scanCon = $this->getScanController();
-		if ( $scanCon->isEnabled() ) {
+		if ( $this->mod()->getScansCon()->WPV()->isEnabled() ) {
 			$opt = apply_filters( 'shield/wpvuln_scan_display', 'securityadmin' );
 		}
 		else {
 			$opt = 'disabled';
 		}
 		return ( $opt != 'disabled' ) && Services::WpUsers()->isUserAdmin()
-			   && ( ( $opt != 'securityadmin' ) || $scanCon->con()->isPluginAdmin() );
+			   && ( ( $opt != 'securityadmin' ) || self::con()->isPluginAdmin() );
 	}
 
 	private function addPluginVulnerabilityRows() {
@@ -53,7 +53,7 @@ class WpvAddPluginRows {
 
 		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
 			add_action( "after_plugin_row_$file", function ( $pluginFile ) {
-				echo $this->getScanController()->con()->action_router->render( PluginVulnerabilityWarning::SLUG, [
+				echo self::con()->action_router->render( PluginVulnerabilityWarning::SLUG, [
 					'plugin_file'   => $pluginFile,
 					'columns_count' => $this->colsCount
 				] );
@@ -95,13 +95,16 @@ class WpvAddPluginRows {
 	 */
 	public function filterPluginsToView( $plugins ) {
 		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
-			/** @var Wpv\ResultsSet $oVulnerableRes */
-			$oVulnerableRes = $this->getScanController()->getResultsForDisplay();
+			/** @var Wpv\ResultsSet $vulnerableRes */
+			$vulnerableRes = $this->mod()
+								  ->getScansCon()
+								  ->WPV()
+								  ->getResultsForDisplay();
 			global $status;
 			$status = 'vulnerable';
 			$plugins = \array_intersect_key(
 				$plugins,
-				\array_flip( $oVulnerableRes->getUniqueSlugs() )
+				\array_flip( $vulnerableRes->getUniqueSlugs() )
 			);
 		}
 		return $plugins;
@@ -119,12 +122,9 @@ class WpvAddPluginRows {
 	}
 
 	private function countVulnerablePlugins() :int {
-		if ( !isset( $this->vulnCount ) ) {
-			$this->vulnCount = $this->getScanController()
-									->getScansController()
-									->getScanResultsCount()
-									->countVulnerableAssets();
-		}
-		return $this->vulnCount;
+		return $this->mod()
+					->getScansCon()
+					->getScanResultsCount()
+					->countVulnerableAssets();
 	}
 }

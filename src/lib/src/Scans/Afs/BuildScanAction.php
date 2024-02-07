@@ -12,12 +12,12 @@ class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Bas
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 		$action->file_exts = $this->getFileExts();
-		$action->realtime_scan_last_at = $this->getScanController()->opts()->getLastRealtimeScanAt( true );
+		$action->realtime_scan_last_at = $this->opts()->getLastRealtimeScanAt( true );
 	}
 
 	protected function getFileExts() :array {
-		$scanCon = $this->getScanController();
-		$ext = apply_filters( 'shield/scan_ptg_file_exts', $scanCon->opts()->getDef( 'file_scan_extensions' ) );
-		return \is_array( $ext ) ? $ext : $scanCon->opts()->getDef( 'file_scan_extensions' );
+		$def = $this->opts()->getDef( 'file_scan_extensions' );
+		$ext = apply_filters( 'shield/scan_ptg_file_exts', $def );
+		return \is_array( $ext ) ? $ext : $def;
 	}
 }

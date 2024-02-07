@@ -58,6 +58,9 @@ abstract class Base {
 		}
 	}
 
+	/**
+	 * @deprecated 19.0.6
+	 */
 	public function getScansController() :HackGuard\Scan\ScansController {
 		return $this->mod()->getScansCon();
 	}
