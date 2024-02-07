@@ -25,10 +25,11 @@ class PluginTelemetry {
 	}
 
 	private function canSend() :bool {
-		return ( $this->opts()->isTrackingEnabled() || !$this->opts()->isTrackingPermissionSet() )
+		$opts = $this->opts();
+		return apply_filters( 'shield/can_send_telemetry', ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() ) )
 			   && Services::Request()
 						  ->carbon()
-						  ->subDay()->timestamp > $this->opts()->getOpt( 'tracking_last_sent_at', 0 );
+						  ->subDay()->timestamp > $opts->getOpt( 'tracking_last_sent_at', 0 );
 	}
 
 	/**
@@ -114,7 +115,9 @@ class PluginTelemetry {
 				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,
 				'locale'           => get_locale(),
-				'can_ajax_rest'    => $con->getModule_Plugin()->opts()->getOpt( 'test_rest_data' )[ 'success_test_at' ] ?? -1,
+				'can_ajax_rest'    => $con->getModule_Plugin()
+										  ->opts()
+										  ->getOpt( 'test_rest_data' )[ 'success_test_at' ] ?? -1,
 				'plugins_total'    => \count( $WPP->getPlugins() ),
 				'plugins_active'   => \count( $WPP->getActivePlugins() ),
 				'plugins_updates'  => \count( $WPP->getUpdates() ),

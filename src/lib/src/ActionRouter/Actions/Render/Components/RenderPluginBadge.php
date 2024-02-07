@@ -74,6 +74,7 @@ class RenderPluginBadge extends BaseRender {
 				'logo'  => $badgeAttrs[ 'logo' ],
 			],
 			'strings' => [
+				'alt'       => 'Powerful Protection for WordPress, from Shield Security',
 				'protected' => $badgeAttrs[ 'protected_by' ],
 				'name'      => $badgeAttrs[ 'name' ],
 			],

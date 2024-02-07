@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
 Tested up to: 6.4
-Stable tag: 19.0.5
+Stable tag: 19.0.6
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, before they hack your site.
 
