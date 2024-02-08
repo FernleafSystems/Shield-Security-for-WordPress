@@ -9,10 +9,9 @@ class StandardDirectoryIterator {
 	 * @param int    $maxDepth
 	 * @param array  $fileExts
 	 * @param bool   $isExcludeCoreFiles
-	 * @return \RecursiveIteratorIterator
 	 * @throws \Exception
 	 */
-	public static function create( $dir, $maxDepth = 0, $fileExts = [], $isExcludeCoreFiles = false ) {
+	public static function create( $dir, $maxDepth = 0, $fileExts = [], $isExcludeCoreFiles = false ) :\RecursiveIteratorIterator {
 
 		$dirIterator = new \RecursiveDirectoryIterator( $dir );
 		$dirIterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
