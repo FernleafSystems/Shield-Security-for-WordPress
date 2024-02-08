@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PopulateScanItems {
 
-	use ScanControllerConsumer;
 	use ModConsumer;
 	use RecordConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @throws \Exception

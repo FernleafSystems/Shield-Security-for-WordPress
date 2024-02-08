@@ -26,7 +26,7 @@ class Afs extends Base {
 
 	public function getAdminMenuItems() :array {
 		$items = [];
-		$status = $this->getScansController()->getScanResultsCount();
+		$status = $this->mod()->getScansCon()->getScanResultsCount();
 
 		$template = [
 			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
@@ -246,7 +246,7 @@ class Afs extends Base {
 
 	public function buildScanAction() :Scans\Afs\ScanActionVO {
 		return ( new Scans\Afs\BuildScanAction() )
-			->setScanController( $this )
+			->setScanActionVO( $this->getScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

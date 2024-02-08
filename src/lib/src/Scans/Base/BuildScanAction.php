@@ -2,25 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BuildScanAction {
 
-	use HackGuard\Scan\Controller\ScanControllerConsumer;
-	use Shield\Scans\Common\ScanActionConsumer;
+	use ModConsumer;
+	use ScanActionConsumer;
 
 	/**
 	 * @return static
 	 */
 	public function build() {
-		$this->setScanActionVO( $this->getScanController()->getScanActionVO() );
-
 		$this->setCustomFields();
 		$this->buildScanItems();
 		$this->setStandardFields();
-
 		return $this;
 	}
 
@@ -33,7 +30,7 @@ abstract class BuildScanAction {
 			$action->started_at = 0;
 			$action->finished_at = 0;
 			$action->usleep = (int)( 1000000*max( 0, apply_filters(
-					$this->getScanController()->con()->prefix( 'scan_block_sleep' ),
+					self::con()->prefix( 'scan_block_sleep' ),
 					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
 		}

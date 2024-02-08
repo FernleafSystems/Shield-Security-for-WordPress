@@ -2,23 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use WP_CLI;
 
 class ScanRun extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd {
+
+	use ModConsumer;
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function addCmds() {
-		$scansCon = $this->mod()->getScansCon();
-
 		$params = [];
-		foreach ( $scansCon->getScanSlugs() as $slug ) {
+		foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {
 			$params[] = [
 				'type'        => 'flag',
-				'name'        => $slug,
+				'name'        => $scanCon->getSlug(),
 				'optional'    => true,
-				'description' => sprintf( '%s: %s', __( 'Run Scan' ), $scansCon->getScanCon( $slug )->getScanName() ),
+				'description' => sprintf( '%s: %s', __( 'Run Scan' ), $scanCon->getScanName() ),
 			];
 		}
 
@@ -41,7 +42,7 @@ class ScanRun extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdScanRun( array $null, array $args ) {
-		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
+		$scansCon = $this->mod()->getScansCon();
 
 		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : \array_keys( $args );
 		if ( empty( $scans ) ) {

@@ -78,26 +78,30 @@
   },
   "sections":      [
     {
-      "slug":        "section_defaults",
       "primary":     true,
+      "slug":        "section_defaults",
+      "module":      "plugin",
       "title":       "Plugin Defaults",
       "title_short": "Plugin Defaults",
       "beacon_id":   389
     },
     {
       "slug":        "section_reporting",
+      "module":      "plugin",
       "title":       "Reporting",
       "title_short": "Reporting",
       "beacon_id":   136
     },
     {
       "slug":        "section_importexport",
+      "module":      "plugin",
       "title":       "Import / Export",
       "title_short": "Import / Export",
       "beacon_id":   129
     },
     {
       "slug":        "section_global_security_options",
+      "module":      "plugin",
       "title":       "Global Plugin Security Options",
       "title_short": "Disable Shield"
     },

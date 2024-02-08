@@ -31,8 +31,9 @@
   },
   "sections":      [
     {
-      "slug":        "section_brute_force_login_protection",
       "primary":     true,
+      "slug":        "section_brute_force_login_protection",
+      "module":      "login_protect",
       "title":       "Brute Force Login Guard",
       "title_short": "Brute Force",
       "beacon_id":   325,
@@ -43,6 +44,7 @@
     },
     {
       "slug":        "section_twofactor_auth",
+      "module":      "login_protect",
       "title":       "Multi-Factor Authentication",
       "title_short": "2-Factor Auth",
       "beacon_id":   326,
@@ -54,6 +56,7 @@
     },
     {
       "slug":        "section_2fa_email",
+      "module":      "login_protect",
       "title":       "Email Two-Factor Authentication",
       "title_short": "2FA - Email",
       "beacon_id":   246,
@@ -65,6 +68,7 @@
     },
     {
       "slug":        "section_2fa_otp",
+      "module":      "login_protect",
       "title":       "One-Time Passwords",
       "title_short": "OTP",
       "beacon_id":   244,
@@ -76,6 +80,7 @@
     },
     {
       "slug":        "section_2fa_passkeys",
+      "module":      "login_protect",
       "title":       "Hardware 2-Factor Authentication",
       "title_short": "2FA - Hardware",
       "beacon_id":   249,
@@ -86,6 +91,7 @@
     },
     {
       "slug":        "section_rename_wplogin",
+      "module":      "login_protect",
       "title":       "Hide WP Login Page",
       "title_short": "Hide Login Page",
       "beacon_id":   316,
@@ -96,6 +102,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_login_protection",
+      "module":      "login_protect",
       "title":       "Disable Login Guard Module",
       "title_short": "Disable",
       "beacon_id":   249,
@@ -106,6 +113,7 @@
     },
     {
       "slug":        "section_deprecated",
+      "module":      "login_protect",
       "title":       "Deprecated",
       "title_short": "Deprecated",
       "summary":     [

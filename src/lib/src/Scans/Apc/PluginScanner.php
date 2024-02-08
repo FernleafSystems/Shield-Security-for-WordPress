@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginScanner {
 
-	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-	use Shield\Scans\Common\ScanActionConsumer;
+	use ScanActionConsumer;
 
 	public function scan( string $pluginFile ) :array {
 		$result = [];

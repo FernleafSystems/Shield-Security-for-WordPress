@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -58,6 +57,9 @@ abstract class Base {
 		}
 	}
 
+	/**
+	 * @deprecated 19.0.6
+	 */
 	public function getScansController() :HackGuard\Scan\ScansController {
 		return $this->mod()->getScansCon();
 	}

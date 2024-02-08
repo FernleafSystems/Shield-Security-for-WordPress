@@ -27,6 +27,7 @@
     {
       "primary":     true,
       "slug":        "section_apixml",
+      "module":      "lockdown",
       "title":       "WordPress System Lockdown",
       "title_short": "System",
       "beacon_id":   413,
@@ -37,6 +38,7 @@
     },
     {
       "slug":        "section_permission_access_options",
+      "module":      "lockdown",
       "title":       "Permissions and Access Options",
       "title_short": "Permissions",
       "beacon_id":   415,
@@ -47,6 +49,7 @@
     },
     {
       "slug":        "section_wordpress_obscurity_options",
+      "module":      "lockdown",
       "title":       "WordPress Obscurity Options",
       "title_short": "Obscurity",
       "beacon_id":   418,
@@ -57,6 +60,7 @@
     },
     {
       "slug":        "section_enable_plugin_feature_wordpress_lockdown",
+      "module":      "lockdown",
       "title":       "Enable Module: Lockdown",
       "title_short": "Disable Module",
       "beacon_id":   272,
