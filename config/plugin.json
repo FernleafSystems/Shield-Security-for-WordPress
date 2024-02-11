@@ -280,6 +280,32 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
+      "key":         "preferred_temp_dir",
+      "section":     "section_defaults",
+      "beacon_id":   787,
+      "advanced":    true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Temp Dir",
+      "summary":     "Preferred Temporary Directory",
+      "description": "Preferred temporary directory override."
+    },
+    {
+      "key":         "locale_override",
+      "section":     "section_non_ui",
+      "beacon_id":   393,
+      "advanced":    true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://icwp.io/il",
+      "link_blog":   "",
+      "name":        "Locale Override",
+      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
+    },
+    {
       "key":         "enable_beta",
       "section":     "section_defaults",
       "premium":     true,
@@ -359,19 +385,6 @@
       "name":         "Secret Key",
       "summary":      "Import/Export Secret Key",
       "description":  "Keep this Secret Key private as it will allow the import and export of options."
-    },
-    {
-      "key":         "locale_override",
-      "section":     "section_defaults",
-      "beacon_id":   393,
-      "advanced":    true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://icwp.io/il",
-      "link_blog":   "",
-      "name":        "Locale Override",
-      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-      "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
       "key":           "frequency_alert",
