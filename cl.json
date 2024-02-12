@@ -87,6 +87,16 @@
     ],
     "patches":     [
       {
+        "version":     "7",
+        "released_at": 1707384000,
+        "items":       [
+          {
+            "title": "Provide option to specify temporary directory location.",
+            "type":  "new"
+          }
+        ]
+      },
+      {
         "version":     "6",
         "released_at": 1707384000,
         "items":       [
