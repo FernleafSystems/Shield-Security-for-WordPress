@@ -23,7 +23,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		}
 
 		$tmp = $this->getOpt( 'preferred_temp_dir' );
-		if ( !empty( $tmp ) && !Services::WpFs()->isAccessibleDir($tmp) ) {
+		if ( !empty( $tmp ) && !Services::WpFs()->isAccessibleDir( $tmp ) ) {
 			$this->setOpt( 'preferred_temp_dir', '' );
 		}
 
