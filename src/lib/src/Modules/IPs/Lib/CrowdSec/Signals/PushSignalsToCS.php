@@ -36,26 +36,33 @@ class PushSignalsToCS {
 	protected function run() {
 		$api = $this->mod()->getCrowdSecCon()->getApi();
 
-		$recordsCount = 0;
+		$pushCount = 0;
 		do {
 			$records = $this->getNextRecordSet();
-			if ( !empty( $records ) ) {
+			$this->deleteRecords( $records );
+
+			$toPush = \array_filter(
+				$records,
+				function ( CrowdsecSignalsDB\Record $record ) {
+					return $this->shouldRecordBeSent( $record );
+				}
+			);
+
+			if ( !empty( $toPush ) ) {
 				try {
 					( new PushSignals( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )
-						->run( $this->convertRecordsToPayload( $records ) );
+						->run( $this->convertRecordsToPayload( $toPush ) );
+					$pushCount += \count( $toPush );
 				}
 				catch ( PushSignalsFailedException $e ) {
 				}
-				$this->deleteRecords( $records );
-
-				$recordsCount += \count( $records );
 			}
 		} while ( !empty( $records ) );
 
-		if ( !empty( $recordsCount ) ) {
+		if ( !empty( $pushCount ) ) {
 			self::con()->fireEvent( 'crowdsec_signals_pushed', [
 				'audit_params' => [
-					'count' => $recordsCount
+					'count' => $pushCount
 				]
 			] );
 		}
@@ -90,19 +97,8 @@ class PushSignalsToCS {
 					'stop_at'          => $ts
 				];
 			},
-			\array_filter( $records, function ( CrowdsecSignalsDB\Record $record ) {
-				return $this->shouldRecordBeSent( $record );
-			} )
+			$records
 		);
-	}
-
-	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
-		$send = true;
-		if ( $record->scenario === 'btxml' ) {
-			$send = $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' )
-					|| $this->opts()->getOffenseCountFor( 'track_xmlrpc' ) > 0;
-		}
-		return $send;
 	}
 
 	/**
@@ -118,6 +114,15 @@ class PushSignalsToCS {
 				break;
 		}
 		return $records;
+	}
+
+	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
+		$send = true;
+		if ( $record->scenario === 'btxml' ) {
+			$send = $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' )
+					|| $this->opts()->getOffenseCountFor( 'track_xmlrpc' ) > 0;
+		}
+		return $send;
 	}
 
 	/**
@@ -184,16 +189,18 @@ class PushSignalsToCS {
 	}
 
 	private function deleteRecords( array $records ) {
-		self::con()
-			->db_con
-			->dbhCrowdSecSignals()
-			->getQueryDeleter()
-			->filterByIDs( \array_map(
-				function ( $record ) {
-					return $record->id;
-				},
-				$records
-			) )
-			->query();
+		if ( !empty( $records ) ) {
+			self::con()
+				->db_con
+				->dbhCrowdSecSignals()
+				->getQueryDeleter()
+				->filterByIDs( \array_map(
+					function ( $record ) {
+						return $record->id;
+					},
+					$records
+				) )
+				->query();
+		}
 	}
 }
