@@ -183,6 +183,8 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 				$summary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
 				$desc = [
 					__( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						sprintf( __( "Google Authenticator, LastPass Authenticator & Microsoft Authenticator are all supported by this option, but it is referred to as Google Authenticator for simplicity.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
 				];
 				break;
 

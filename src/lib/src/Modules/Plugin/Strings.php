@@ -191,6 +191,32 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 				$desc = [ __( 'Careful: Removes all plugin options when you deactivate the plugin', 'wp-simple-firewall' ) ];
 				break;
 
+			case 'preferred_temp_dir' :
+				$name = __( 'Temp Dir', 'wp-simple-firewall' );
+				$summary = __( 'Preferred Temporary Directory', 'wp-simple-firewall' );
+				$tmpDir = $con->cache_dir_handler->dir();
+				if ( empty( $tmpDir ) ) {
+					$desc = [
+						sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ),
+							sprintf( __( "%s currently can't locate a temporary directory, so you'll need to provide one here.", 'wp-simple-firewall' ), $con->getHumanName() ) ),
+						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $con->getHumanName() )
+						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
+						sprintf( __( "If you use the %s directive, this automatic process may fail and you'll need to use this option to specify a directory that WordPress can write to.", 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', 'open_basedir' ) ),
+						sprintf( '<code>%s</code>: <code>%s</code>', __( 'ABSPATH', 'wp-simple-firewall' ), ABSPATH ),
+					];
+				}
+				else {
+					$desc = [
+						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $con->getHumanName() )
+						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
+						sprintf( __( "%s has successfully chosen the following location to create its temporary directory: %s", 'wp-simple-firewall' ), $con->getHumanName(),
+							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
+						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
+					];
+				}
+				break;
+
 			case 'locale_override' :
 				$name = __( 'Locale Override', 'wp-simple-firewall' );
 				$summary = __( 'Set Global Locale For This Plugin For All Users', 'wp-simple-firewall' );

@@ -3,13 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	DB\Scans\Ops as ScansDB,
 	ModConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * @property string[] $wheres
