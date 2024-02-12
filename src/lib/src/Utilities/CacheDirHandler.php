@@ -149,9 +149,10 @@ class CacheDirHandler {
 		return \array_filter(
 			\array_unique( \array_map(
 				function ( $path ) {
-					return wp_normalize_path( $path );
+					return untrailingslashit( wp_normalize_path( $path ) );
 				},
 				\array_filter( [
+					self::con()->getModule_Plugin()->opts()->getOpt( 'preferred_temp_dir' ),
 					$this->lastKnownBaseDir,
 					WP_CONTENT_DIR,
 					path_join( ABSPATH, 'wp-content' ),

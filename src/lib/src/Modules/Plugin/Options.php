@@ -22,6 +22,11 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
+		$tmp = $this->getOpt( 'preferred_temp_dir' );
+		if ( !empty( $tmp ) && !Services::WpFs()->isAccessibleDir( $tmp ) ) {
+			$this->setOpt( 'preferred_temp_dir', '' );
+		}
+
 		if ( $this->isOptChanged( 'importexport_whitelist' ) ) {
 			$this->setOpt( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
 				function ( $url ) {
