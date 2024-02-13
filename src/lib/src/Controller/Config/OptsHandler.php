@@ -13,11 +13,13 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @property array[] $mod_opts_free
  * @property array[] $mod_opts_pro
+ * @property array[] $mod_opts_all
  */
 class OptsHandler extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
+	public const TYPE_ALL = 'all';
 	public const TYPE_FREE = 'free';
 	public const TYPE_PRO = 'pro';
 
@@ -29,9 +31,7 @@ class OptsHandler extends DynPropertiesClass {
 
 	public function resetToDefaults() {
 		$this->mod_opts_free = $this->mod_opts_pro = [];
-		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
-			Services::WpGeneral()->deleteOption( $this->key( $type ) );
-		}
+		$this->delete();
 	}
 
 	/**
@@ -53,16 +53,11 @@ class OptsHandler extends DynPropertiesClass {
 	 */
 	public function setFor( $mod, array $values, ?string $type = null ) :self {
 
-		if ( !\in_array( $type, [ self::TYPE_PRO, self::TYPE_FREE ], true ) ) {
-			if ( $mod->cfg->slug === License\ModCon::SLUG ) {
-				$type = self::TYPE_FREE;
-			}
-			else {
-				$type = self::con()->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;
-			}
-		}
-		elseif ( $type === self::TYPE_PRO && $mod->cfg->slug === License\ModCon::SLUG ) {
+		if ( $mod->cfg->slug === License\ModCon::SLUG ) {
 			$type = self::TYPE_FREE;
+		}
+		elseif ( !\in_array( $type, [ self::TYPE_PRO, self::TYPE_FREE ], true ) ) {
+			$type = self::con()->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;
 		}
 
 		$opts = $mod->opts();
@@ -90,33 +85,37 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	private function key( string $type ) :string {
-		return self::con()->prefix( 'opts_'.$type, '_' );
+		return self::con()->prefix( sprintf( 'opts_%s', $type ), '_' );
 	}
 
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
-		if ( \in_array( $key, [ 'mod_opts_free', 'mod_opts_pro' ] ) && !\is_array( $val ) ) {
+
+		if ( $val === null && \preg_match( '#^mod_opts_(all|free|pro)$#', $key, $matches ) ) {
 			if ( self::con()->plugin_reset ) {
 				$val = [];
 			}
 			else {
-				$type = \str_replace( 'mod_opts_', '', $key );
-				$val = Services::WpGeneral()->getOption( $this->key( $type ) );
+				$val = Services::WpGeneral()->getOption( $this->key( $matches[ 1 ] ) );
 				if ( !\is_array( $val ) ) {
-					$val = $key === 'mod_opts_pro' ? $this->mod_opts_free : [];
+					$val = \method_exists( $this, 'flatten' ) ? $this->flatten() : [];
 				}
 				$this->{$key} = $val;
 			}
 		}
+
 		return $val;
 	}
 
 	public function delete() :void {
-		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
-			Services::WpGeneral()->deleteOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
+		foreach ( [ self::TYPE_ALL, self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
+			Services::WpGeneral()->deleteOption( $this->key( $type ) );
 		}
 	}
 
+	/**
+	 * @deprecated 19.0.7
+	 */
 	public function commit() :void {
 		$this->store();
 	}
@@ -126,12 +125,90 @@ class OptsHandler extends DynPropertiesClass {
 		if ( !$con->plugin_deleting ) {
 			add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 			$this->preStore();
+			$WP = Services::WpGeneral();
+			$updated = false;
 			foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
-				Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
+				$updated = $WP->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} ) || $updated;
+			}
+			if ( $updated && \method_exists( $this, 'flatten' ) ) {
+				$WP->updateOption( $this->key( self::TYPE_ALL ), $this->flatten() );
 			}
 			$this->postStore();
 			remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		}
+	}
+
+	private function flatten() :array {
+		$toStore = [
+			'version' => self::con()->cfg->version(),
+			'opts'    => [
+				self::TYPE_FREE => [],
+				self::TYPE_PRO  => [],
+			],
+		];
+		$extras = [
+			'xfer_excluded'     => [],
+			'ui_track'          => [],
+			'dismissed_notices' => [],
+		];
+
+		$flatFree = [];
+		foreach ( $this->mod_opts_free as $modOpts ) {
+			foreach ( $extras as $key => $data ) {
+				if ( !empty( $modOpts[ $key ] ?? null ) && \is_array( $modOpts[ $key ] ) ) {
+					$extras[ $key ] = \array_unique( \array_merge( $data, $modOpts[ $key ] ) );
+				}
+				unset( $modOpts[ $key ] );
+			}
+			$flatFree = \array_merge( $flatFree, $modOpts );
+		}
+		\ksort( $flatFree );
+		$flatFree = \array_map(
+			function ( $optValue ) {
+				if ( \is_array( $optValue ) ) {
+					\sort( $optValue );
+				}
+				return $optValue;
+			},
+			$flatFree
+		);
+
+		$flatPro = [];
+		foreach ( $this->mod_opts_pro as $modOpts ) {
+			foreach ( $extras as $key => $data ) {
+				if ( !empty( $modOpts[ $key ] ?? null ) && \is_array( $modOpts[ $key ] ) ) {
+					$extras[ $key ] = \array_unique( \array_merge( $data, $modOpts[ $key ] ) );
+				}
+				unset( $modOpts[ $key ] );
+			}
+			foreach ( $modOpts as $optKey => $optValue ) {
+				$store = false;
+				if ( \is_scalar( $optValue ) ) {
+					if ( $optValue !== $flatFree[ $optKey ] ) {
+						$store = true;
+					}
+				}
+				elseif ( \is_array( $optValue ) ) {
+					\sort( $optValue );
+					if ( \serialize( $optValue ) !== \serialize( $flatFree[ $optKey ] ) ) {
+						$store = true;
+					}
+				}
+				else {
+					$store = true;
+				}
+
+				if ( $store ) {
+					$flatPro[ $optKey ] = $optValue;
+				}
+			}
+		}
+		\ksort( $flatPro );
+
+		$toStore[ 'opts' ][ self::TYPE_FREE ] = $flatFree;
+		$toStore[ 'opts' ][ self::TYPE_PRO ] = $flatPro;
+
+		return \array_merge( $toStore, $extras );
 	}
 
 	private function preStore() {

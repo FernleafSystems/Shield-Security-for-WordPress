@@ -18,7 +18,7 @@ class LicenseEmails {
 
 		if ( $canSend ) {
 			$this->opts()->setOpt( 'last_warning_email_sent_at', Services::Request()->ts() );
-			$con->opts->commit();
+			$con->opts->store();
 
 			$con->email_con->sendEmailWithWrap(
 				$con->getModule_Plugin()->getPluginReportEmail(),
@@ -42,7 +42,7 @@ class LicenseEmails {
 
 		if ( $canSend ) {
 			$this->opts()->setOpt( 'last_deactivated_email_sent_at', Services::Request()->ts() );
-			$con->opts->commit();
+			$con->opts->store();
 
 			$con->email_con->sendEmailWithWrap(
 				$con->getModule_Plugin()->getPluginReportEmail(),

@@ -14,11 +14,6 @@ class Options {
 	/**
 	 * @var array
 	 */
-	protected $aOptionsValues;
-
-	/**
-	 * @var array
-	 */
 	protected $aOld;
 
 	/**
@@ -518,12 +513,6 @@ class Options {
 		return $this;
 	}
 
-	public function unsetOpt( string $key ) {
-		$values = $this->getAllOptionsValues();
-		unset( $values[ $key ] );
-		$this->setOptionsValues( $values );
-	}
-
 	protected function getVirtualCommonOptions() :array {
 		return [
 			'dismissed_notices',
@@ -547,17 +536,8 @@ class Options {
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {
-
-		$values = \array_intersect_key( $values, \array_flip( $this->getOptionsKeys() ) );
-
-		if ( isset( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = $values;
-		}
-
-		self::con()->opts->setFor( $this->mod(), $values );
-
+		self::con()->opts->setFor( $this->mod(), \array_intersect_key( $values, \array_flip( $this->getOptionsKeys() ) ) );
 		$this->setNeedSave( true );
-
 		return $this;
 	}
 }
