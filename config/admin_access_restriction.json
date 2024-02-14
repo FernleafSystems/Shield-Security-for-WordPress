@@ -423,21 +423,6 @@
       "user-edit.php",
       "users.php"
     ],
-    "events":                 {
-      "key_success":          {
-        "level":  "debug",
-        "recent": true
-      },
-      "key_fail":             {
-        "level":   "warning",
-        "recent":  true,
-        "offense": true
-      },
-      "attempt_deactivation": {
-        "level":   "warning",
-        "offense": true
-      }
-    },
     "options_to_restrict":    {
       "wpms_options": [
         "admin_email",

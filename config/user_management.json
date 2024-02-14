@@ -412,65 +412,6 @@
     }
   ],
   "definitions": {
-    "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range",
-    "events":                       {
-      "session_notfound":             {
-        "audit_params": [
-          "user_login"
-        ]
-      },
-      "session_expired":              {
-        "audit_params": [
-          "user_login"
-        ]
-      },
-      "session_idle":                 {
-        "audit_params": [
-          "user_login"
-        ]
-      },
-      "session_lock":                 {
-        "audit_params": [
-          "user_login"
-        ]
-      },
-      "password_expired":             {
-        "audit_params": [
-          "user_login"
-        ],
-        "level":        "notice"
-      },
-      "password_policy_force_change": {
-        "audit_params": [
-          "user_login"
-        ],
-        "level":        "notice"
-      },
-      "password_policy_block":        {
-        "level": "notice"
-      },
-      "user_hard_suspended":          {
-        "audit_params": [
-          "user_login",
-          "admin"
-        ],
-        "level":        "warning"
-      },
-      "user_hard_unsuspended":        {
-        "audit_params": [
-          "user_login",
-          "admin"
-        ],
-        "level":        "warning"
-      },
-      "reg_email_invalid":            {
-        "audit_params": [
-          "email",
-          "reason"
-        ],
-        "level":        "warning",
-        "offense":      true
-      }
-    }
+    "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range"
   }
 }

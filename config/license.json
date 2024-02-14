@@ -144,27 +144,6 @@
     "lic_verify_expire_days":       14,
     "lic_verify_expire_grace_days": 3,
     "keyless":                      true,
-    "keyless_handshake_expire":     90,
-    "events":                       {
-      "lic_check_success":   {
-        "level": "notice",
-        "stat":  false
-      },
-      "lic_check_fail":      {
-        "level":        "warning",
-        "stat":         false,
-        "audit_params": [
-          "type"
-        ]
-      },
-      "lic_fail_email":      {
-        "level": "warning",
-        "stat":  false
-      },
-      "lic_fail_deactivate": {
-        "level": "warning",
-        "stat":  false
-      }
-    }
+    "keyless_handshake_expire":     90
   }
 }

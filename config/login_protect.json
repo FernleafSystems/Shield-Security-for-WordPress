@@ -1,6 +1,6 @@
 {
-  "slug":          "login_protect",
-  "properties":    {
+  "slug":        "login_protect",
+  "properties":  {
     "slug":                  "login_protect",
     "load_priority":         100,
     "name":                  "Login Protection",
@@ -18,18 +18,18 @@
     "run_if_wpcli":          false,
     "order":                 40
   },
-  "reqs":          {
+  "reqs":        {
     "dbs": [
       "botsignal"
     ]
   },
-  "menus":         {
+  "menus":       {
     "config_menu_priority": 30
   },
-  "wpcli":         {
+  "wpcli":       {
     "enabled": true
   },
-  "sections":      [
+  "sections":    [
     {
       "primary":     true,
       "slug":        "section_brute_force_login_protection",
@@ -125,7 +125,7 @@
       "hidden": true
     }
   ],
-  "options":       [
+  "options":     [
     {
       "key":         "enable_login_protect",
       "section":     "section_enable_plugin_feature_login_protection",
@@ -503,120 +503,8 @@
       "default":      ""
     }
   ],
-  "definitions":   {
+  "definitions": {
     "login_intent_timeout":      5,
-    "login_intent_max_attempts": 5,
-    "db_handler_classes":        {
-      "mfa": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\LoginGuard\\DB\\Mfa\\Ops\\Handler"
-    },
-    "db_table_mfa":              {
-      "name":            "MFA",
-      "slug":            "mfa",
-      "autoexpire":      0,
-      "has_updated_at":  true,
-      "has_deleted_at":  true,
-      "col_older_than":  "created_at",
-      "cols_custom":     {
-        "user_id":   {
-          "macro_type": "unsigned_int",
-          "type":       "bigint",
-          "length":     11
-        },
-        "slug":      {
-          "macro_type": "varchar",
-          "length":     10,
-          "comment":    "Factor Slug"
-        },
-        "unique_id": {
-          "macro_type": "varchar",
-          "length":     256,
-          "comment":    "Unique Identifier"
-        },
-        "label":     {
-          "macro_type": "varchar",
-          "length":     64,
-          "comment":    "Label"
-        },
-        "data":      {
-          "macro_type": "meta",
-          "comment":    "Data"
-        },
-        "passwordless": {
-          "macro_type": "bool",
-          "default":    0,
-          "comment":    "Can be used passwordless"
-        }
-      },
-      "cols_timestamps": {
-        "used_at":    {
-          "comment": "Used At"
-        },
-        "created_at": {
-          "comment": "Registered At"
-        }
-      }
-    },
-    "events":                    {
-      "2fa_verify_success":    {
-        "audit_params": [
-          "user_login",
-          "method"
-        ],
-        "level":        "notice"
-      },
-      "2fa_verify_fail":       {
-        "audit_params": [
-          "user_login",
-          "method"
-        ],
-        "level":        "warning",
-        "offense":      true
-      },
-      "2fa_nonce_verify_fail": {
-        "audit_params": [
-          "user_login"
-        ],
-        "level":        "alert",
-        "offense":      true
-      },
-      "cooldown_fail":         {
-        "level":   "warning",
-        "offense": true
-      },
-      "honeypot_fail":         {
-        "audit_params": [
-          "user_login",
-          "action"
-        ],
-        "level":        "warning"
-      },
-      "botbox_fail":           {
-        "audit_params": [
-          "user_login",
-          "action"
-        ],
-        "level":        "warning",
-        "offense":      true
-      },
-      "login_block":           {
-        "level": "warning"
-      },
-      "block_register":        {
-        "level": "warning"
-      },
-      "block_lostpassword":    {
-        "level": "warning"
-      },
-      "block_checkout":        {
-        "level": "warning"
-      },
-      "hide_login_url":        {
-        "level": "notice"
-      },
-      "2fa_success":           {
-        "level":  "info",
-        "recent": true
-      }
-    }
+    "login_intent_max_attempts": 5
   }
 }

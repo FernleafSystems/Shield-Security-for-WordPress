@@ -28,8 +28,6 @@ class EventsEnum extends Actions\Render\BaseRender {
 				'attr' => [
 					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
 					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
-					'module'  => sprintf( 'Module: %s',
-						self::con()->getModule( $event[ 'module' ] )->getMainFeatureName() ),
 				]
 			];
 		}

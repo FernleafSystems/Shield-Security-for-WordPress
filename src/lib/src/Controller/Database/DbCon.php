@@ -45,15 +45,15 @@ class DbCon {
 	private $dbHandlers = null;
 
 	public function dbhActivityLogs() :Logs\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_logs' );
+		return $this->loadDbH( 'at_logs' );
 	}
 
 	public function dbhActivityLogsMeta() :Meta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_meta' );
+		return $this->loadDbH( 'at_meta' );
 	}
 
 	public function dbhSnapshots() :Snapshots\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'snapshots' );
+		return $this->loadDbH( 'snapshots' );
 	}
 
 	public function dbhRules() :Rules\Ops\Handler {
@@ -61,71 +61,71 @@ class DbCon {
 	}
 
 	public function dbhIPs() :IPs\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'ips' );
+		return $this->loadDbH( 'ips' );
 	}
 
 	public function dbhIPMeta() :IpMeta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'ip_meta' );
+		return $this->loadDbH( 'ip_meta' );
 	}
 
 	public function dbhUserMeta() :UserMeta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'user_meta' );
+		return $this->loadDbH( 'user_meta' );
 	}
 
 	public function dbhReqLogs() :ReqLogs\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'req_logs' );
+		return $this->loadDbH( 'req_logs' );
 	}
 
 	public function dbhEvents() :Event\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'event' );
+		return $this->loadDbH( 'event' );
 	}
 
 	public function dbhFileLocker() :FileLocker\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'file_locker' );
+		return $this->loadDbH( 'file_locker' );
 	}
 
 	public function dbhMalware() :Malware\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'malware' );
+		return $this->loadDbH( 'malware' );
 	}
 
 	public function dbhScans() :Scans\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'scans' );
+		return $this->loadDbH( 'scans' );
 	}
 
 	public function dbhScanItems() :ScanItems\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'scanitems' );
+		return $this->loadDbH( 'scanitems' );
 	}
 
 	public function dbhResultItems() :ResultItems\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'resultitems' );
+		return $this->loadDbH( 'resultitems' );
 	}
 
 	public function dbhResultItemMeta() :ResultItemMeta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'resultitem_meta' );
+		return $this->loadDbH( 'resultitem_meta' );
 	}
 
 	public function dbhScanResults() :ScanResults\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'scanresults' );
+		return $this->loadDbH( 'scanresults' );
 	}
 
 	public function dbhBotSignal() :BotSignal\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'botsignal' );
+		return $this->loadDbH( 'botsignal' );
 	}
 
 	public function dbhIPRules() :IpRules\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'ip_rules' );
+		return $this->loadDbH( 'ip_rules' );
 	}
 
 	public function dbhCrowdSecSignals() :CrowdSecSignals\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
+		return $this->loadDbH( 'crowdsec_signals' );
 	}
 
 	public function dbhMfa() :Mfa\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'mfa' );
+		return $this->loadDbH( 'mfa' );
 	}
 
 	public function dbhReports() :Reports\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'reports' );
+		return $this->loadDbH( 'reports' );
 	}
 
 	/**
@@ -134,17 +134,16 @@ class DbCon {
 	public function getHandlers() :array {
 		if ( $this->dbHandlers === null ) {
 			$this->dbHandlers = [];
-			foreach ( self::con()->modules as $mod ) {
-				$classes = $mod->opts()->getDef( 'db_handler_classes' );
-				foreach ( \is_array( $classes ) ? $classes : [] as $dbKey => $dbClass ) {
-					$def = $mod->opts()->getDef( 'db_table_'.$dbKey );
-					$this->dbHandlers[ $dbKey ] = [
-						'name'    => $def[ 'name' ] ?? $dbKey,
-						'class'   => $dbClass,
-						'def'     => $def,
-						'handler' => null,
-					];
-				}
+			$opts = self::con()->getModule_Data()->opts();
+			$classes = $opts->getDef( 'db_handler_classes' );
+			foreach ( \is_array( $classes ) ? $classes : [] as $dbKey => $dbClass ) {
+				$def = $opts->getDef( 'db_table_'.$dbKey );
+				$this->dbHandlers[ $dbKey ] = [
+					'name'    => $def[ 'name' ] ?? $dbKey,
+					'class'   => $dbClass,
+					'def'     => $def,
+					'handler' => null,
+				];
 			}
 		}
 		return $this->dbHandlers;

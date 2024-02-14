@@ -68,22 +68,10 @@ class EventsService {
 	 */
 	public function getEvents() :array {
 		if ( empty( $this->aEvents ) ) {
-			$events = [];
-			foreach ( self::con()->modules as $mod ) {
-				$events = \array_merge(
-					$events,
-					\array_map(
-						function ( $evt ) use ( $mod ) {
-							$evt[ 'module' ] = $mod->cfg->slug;
-							/** @deprecated 12.0 */
-							$evt[ 'context' ] = $mod->cfg->slug;
-							return $evt;
-						},
-						$mod->opts()->getEvents()
-					)
-				);
-			}
-			$this->aEvents = (array)apply_filters( 'shield/events/definitions', $this->buildEvents( $events ) );
+			$this->aEvents = (array)apply_filters(
+				'shield/events/definitions',
+				$this->buildEvents( self::con()->getModule_Events()->opts()->getEvents() )
+			);
 			if ( empty( $this->aEvents ) ) {
 				error_log( 'Shield events definitions is empty or not the correct format' );
 			}

@@ -356,35 +356,6 @@
         "#drop\\s+table\\s+(`|'?)[a-z0-9]+\\1#i",
         "#'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+#"
       ]
-    },
-    "events":            {
-      "firewall_block":   {
-        "audit_params": [
-          "name",
-          "term",
-          "param",
-          "value",
-          "scan",
-          "type"
-        ],
-        "level":        "warning",
-        "recent":       true,
-        "offense":      true
-      },
-      "fw_email_fail":    {
-        "audit_params": [
-          "to"
-        ],
-        "level":        "warning",
-        "stat":         false
-      },
-      "fw_email_success": {
-        "audit_params": [
-          "to"
-        ],
-        "level":        "debug",
-        "stat":         false
-      }
     }
   }
 }
