@@ -318,7 +318,7 @@ abstract class BaseRender extends BaseAction {
 			'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
 
 			'search_select'   => [
-				'title' => ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
+				'title' => \ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
 			],
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?

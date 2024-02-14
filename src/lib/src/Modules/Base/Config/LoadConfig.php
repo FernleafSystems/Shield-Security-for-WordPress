@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @description 19.1
+ */
 class LoadConfig {
 
 	use PluginControllerConsumer;
@@ -75,7 +78,7 @@ class LoadConfig {
 		}
 
 		$cfg[ 'properties' ] = \array_merge( [
-			'namespace'             => \str_replace( ' ', '', ucwords( \str_replace( '_', ' ', $cfg[ 'slug' ] ) ) ),
+			'namespace'             => \str_replace( ' ', '', \ucwords( \str_replace( '_', ' ', $cfg[ 'slug' ] ) ) ),
 			'storage_key'           => $cfg[ 'slug' ],
 			'tagline'               => '',
 			'premium'               => false,

@@ -258,8 +258,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'plugin_urls':
 				if ( !$val instanceof Shield\Controller\Plugin\PluginURLs ) {
-					$val = new Shield\Controller\Plugin\PluginURLs();
-					$this->plugin_urls = $val;
+					$this->plugin_urls = $val = new Shield\Controller\Plugin\PluginURLs();
 				}
 				break;
 
@@ -415,12 +414,13 @@ class Controller extends DynPropertiesClass {
 
 			$this->modules_loaded = true;
 
+			$this->loadModConfigs();
+
 			$enum = [
 				SecurityAdmin\ModCon::class,
 				AuditTrail\ModCon::class,
 				Autoupdates\ModCon::class,
 				CommentsFilter\ModCon::class,
-				Comms\ModCon::class,
 				Data\ModCon::class,
 				Events\ModCon::class,
 				Firewall\ModCon::class,
@@ -604,9 +604,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
-
 		$this->plugin_urls;
-		$this->loadModConfigs();
 		$this->saveCurrentPluginControllerOptions();
 	}
 
@@ -618,29 +616,13 @@ class Controller extends DynPropertiesClass {
 			throw new Exceptions\PluginConfigInvalidException( 'No modules specified in the plugin config.' );
 		}
 
-		$modConfigs = empty( $this->cfg->mods_cfg ) ? [] : $this->cfg->mods_cfg;
-
 		// First load all module Configs
-		foreach ( $this->cfg->modules as $slug ) {
-			try {
-				$modCfg = ( new Base\Config\LoadConfig( $slug, $modConfigs[ $slug ] ?? null ) )->run();
-			}
-			catch ( \Exception $e ) {
-				throw new Exceptions\PluginConfigInvalidException( sprintf( "Exception loading config for module '%s': %s",
-					$slug, $e->getMessage() ) );
-			}
-
-			if ( !isset( $modCfg->properties ) || !\is_array( $modCfg->properties ) ) {
-				throw new Exceptions\PluginConfigInvalidException( sprintf( "Loading config for module '%s' failed.", $slug ) );
-			}
-
-			$modConfigs[ $slug ] = $modCfg;
-		}
+		$modConfigs = ( new Config\Modules\LoadModuleConfigs() )->run();
 
 		// Order Modules
 		\uasort( $modConfigs, function ( $a, $b ) {
-			/** @var Base\Config\ModConfigVO $a */
-			/** @var Base\Config\ModConfigVO $b */
+			/** @var Config\Modules\ModConfigVO $a */
+			/** @var Config\Modules\ModConfigVO $b */
 			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
 				return 0;
 			}
@@ -648,6 +630,7 @@ class Controller extends DynPropertiesClass {
 		} );
 
 		$this->cfg->mods_cfg = $modConfigs;
+
 		// Sanity checking: count to ensure that when we set the cfgs, they were correctly set.
 		if ( \count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== \count( $modConfigs ) ) {
 			throw new Exceptions\PluginConfigInvalidException( 'Building and storing module configurations failed.' );

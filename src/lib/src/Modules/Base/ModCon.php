@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\{
+	Controller\Config\Modules\ModConfigVO,
 	Crons,
-	Modules
-};
+	Modules};
 
 /**
  * @property bool $is_booted
@@ -20,7 +20,7 @@ abstract class ModCon extends DynPropertiesClass {
 	public const SLUG = '';
 
 	/**
-	 * @var Config\ModConfigVO
+	 * @var ModConfigVO
 	 */
 	public $cfg;
 
@@ -42,7 +42,7 @@ abstract class ModCon extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	public function __construct( Config\ModConfigVO $cfg ) {
+	public function __construct( ModConfigVO $cfg ) {
 		$this->cfg = $cfg;
 	}
 

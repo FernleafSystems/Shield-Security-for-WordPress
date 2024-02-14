@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
@@ -16,7 +16,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $definitions
  *                                   -- not part of config file --
  * @property string $slug
- * @description 19.1
  */
 class ModConfigVO extends DynPropertiesClass {
 
