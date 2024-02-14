@@ -1,12 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-/**
- * @deprecated 19.1
- */
 class EventsService {
 
 	use PluginControllerConsumer;

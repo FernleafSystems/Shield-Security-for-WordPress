@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\{
 	Controller\Config\Modules\ModConfigVO,
 	Crons,
-	Modules};
+	Modules
+};
 
 /**
  * @property bool $is_booted
@@ -85,20 +86,10 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function doPostConstruction() {
 	}
 
-	/**
-	 * @return false|Modules\Base\Upgrade|mixed
-	 */
-	public function getUpgradeHandler() {
-		return $this->loadModElement( 'Upgrade' );
-	}
-
 	public function onRunProcessors() {
-		if ( $this->cfg->properties[ 'auto_load_processor' ] ) {
-			$this->loadProcessor();
-		}
 		try {
-			if ( !$this->cfg->properties[ 'skip_processor' ] && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
-				$this->doExecuteProcessor();
+			if ( $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+				$this->getProcessor()->execute();
 			}
 		}
 		catch ( \Exception $e ) {
@@ -112,8 +103,16 @@ abstract class ModCon extends DynPropertiesClass {
 		return !\is_null( $this->getProcessor() );
 	}
 
-	protected function doExecuteProcessor() {
-		$this->getProcessor()->execute();
+	/**
+	 * @return Processor|mixed
+	 * @throws \Exception
+	 */
+	public function getProcessor() {
+		if ( !isset( $this->oProcessor ) ) {
+			$class = $this->findElementClass( 'Processor' );
+			$this->oProcessor = new $class( $this );
+		}
+		return $this->oProcessor;
 	}
 
 	public function onWpInit() {
@@ -134,36 +133,8 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * Override this and adapt per feature
-	 * @return Modules\Base\Processor|mixed
-	 */
-	protected function loadProcessor() {
-		if ( !isset( $this->oProcessor ) ) {
-			try {
-				$class = $this->findElementClass( 'Processor' );
-			}
-			catch ( \Exception $e ) {
-				return null;
-			}
-			$this->oProcessor = new $class( $this );
-		}
-		return $this->oProcessor;
-	}
-
 	public function getOptionsStorageKey() :string {
 		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
-	}
-
-	/**
-	 * @return Modules\Base\Processor|\FernleafSystems\Utilities\Logic\ExecOnce|mixed
-	 */
-	public function getProcessor() {
-		return $this->loadProcessor();
-	}
-
-	public function getUrl_OptionsConfigPage() :string {
-		return self::con()->plugin_urls->modCfg( $this );
 	}
 
 	/**
@@ -359,17 +330,19 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return null|Modules\Base\Strings
+	 * @return Modules\ModConsumer
 	 */
 	public function getStrings() {
-		return $this->loadStrings()->setMod( $this );
+		$str = $this->loadModElement( 'Strings' );
+		$str->setMod( $this );
+		return $str;
 	}
 
 	/**
-	 * @return Modules\Base\Strings|mixed
+	 * @return false|Modules\Base\Upgrade|mixed
 	 */
-	protected function loadStrings() {
-		return $this->loadModElement( 'Strings' );
+	public function getUpgradeHandler() {
+		return $this->loadModElement( 'Upgrade' );
 	}
 
 	/**
@@ -437,5 +410,13 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
+	}
+
+	/**
+	 * @return Modules\Base\Strings|mixed
+	 * @deprecated 19.1
+	 */
+	protected function loadStrings() {
+		return $this->loadModElement( 'Strings' );
 	}
 }

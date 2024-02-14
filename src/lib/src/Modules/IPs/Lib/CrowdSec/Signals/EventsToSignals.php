@@ -2,13 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Services\Services;
 
-class EventsToSignals extends EventsListener {
+class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener {
 
 	/**
 	 * @var array[]
@@ -55,8 +53,6 @@ class EventsToSignals extends EventsListener {
 
 	protected function onShutdown() {
 		if ( $this->isCommit() && !empty( $this->signals ) ) {
-			$modIPs = self::con()->getModule_IPs();
-
 			$notBotFail = ( new BotSignalsRecord() )
 							  ->setIP( Services::Request()->ip() )
 							  ->retrieve()->notbot_at === 0;

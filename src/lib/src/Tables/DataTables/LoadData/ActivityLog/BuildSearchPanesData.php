@@ -78,6 +78,7 @@ class BuildSearchPanesData {
 	}
 
 	private function runQuery( string $select ) :array {
+		$dbCon = self::con()->db_con;
 		$results = Services::WpDb()->selectCustom(
 			sprintf( 'SELECT DISTINCT %s
 						FROM `%s` as `log`
@@ -87,9 +88,9 @@ class BuildSearchPanesData {
 							ON `ips`.`id` = `req`.`ip_ref` 
 				',
 				$select,
-				self::con()->db_con->dbhActivityLogs()->getTableSchema()->table,
-				self::con()->db_con->dbhReqLogs()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table
+				$dbCon->dbhActivityLogs()->getTableSchema()->table,
+				$dbCon->dbhReqLogs()->getTableSchema()->table,
+				$dbCon->dbhIPs()->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];

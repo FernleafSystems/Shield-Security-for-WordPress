@@ -1,10 +1,7 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
-/**
- * @deprecated 19.1
- */
 class StatsWriter extends EventsListener {
 
 	/**

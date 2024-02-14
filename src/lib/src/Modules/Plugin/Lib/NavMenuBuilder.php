@@ -254,7 +254,6 @@ class NavMenuBuilder {
 	}
 
 	private function rules() :array {
-		$pageURLs = self::con()->plugin_urls;
 		return [
 			'slug'      => PluginNavs::NAV_RULES,
 			'title'     => __( 'Rules', 'wp-simple-firewall' ),

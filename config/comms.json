@@ -5,7 +5,6 @@
     "storage_key":           "comms",
     "load_priority":         100,
     "name":                  "Comms",
-    "menu_title":            "Comms",
     "show_module_options":   false,
     "show_module_menu_item": false,
     "auto_enabled":          false,
@@ -14,9 +13,7 @@
     "access_restricted":     true,
     "run_if_whitelisted":    true,
     "run_if_wpcli":          true,
-    "run_if_verified_bot":   true,
-    "skip_processor":        false,
-    "tracking_exclude":      true
+    "run_if_verified_bot":   true
   },
   "wpcli":       {
     "enabled": true

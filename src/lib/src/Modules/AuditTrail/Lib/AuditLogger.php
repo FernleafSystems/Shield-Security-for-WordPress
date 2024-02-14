@@ -6,6 +6,7 @@ use AptowebDeps\Monolog\Formatter\JsonFormatter;
 use AptowebDeps\Monolog\Handler\FilterHandler;
 use AptowebDeps\Monolog\Logger;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
@@ -13,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
 	LogFileHandler
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 
 class AuditLogger extends EventsListener {
 

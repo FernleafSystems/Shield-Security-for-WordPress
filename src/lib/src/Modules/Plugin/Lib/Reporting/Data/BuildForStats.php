@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 
 class BuildForStats extends BuildBase {

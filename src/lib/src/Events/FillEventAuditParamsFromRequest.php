@@ -1,13 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 /**
  * Try to fill missing audit parameters data from the Request object if it's missing.
- * @deprecated 19.1
  */
 class FillEventAuditParamsFromRequest {
 

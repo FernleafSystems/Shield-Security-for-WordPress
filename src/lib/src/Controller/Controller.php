@@ -70,7 +70,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                   $root_file
  * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
  * @property Shield\Utilities\MU\MUHandler            $mu_handler
- * @property Events\Lib\EventsService                 $service_events
+ * @property Shield\Events\EventsService              $service_events
  * @property Shield\Users\UserMetas                   $user_metas
  * @property Base\ModCon[]                            $modules
  * @property Shield\Crons\HourlyCron                  $cron_hourly
@@ -139,46 +139,46 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'db_con':
-				if ( !$val instanceof Database\DbCon ) {
+				if ( empty( $val ) ) {
 					$val = new Database\DbCon();
 					$this->db_con = $val;
 				}
 				break;
 
 			case 'email_con':
-				if ( !$val instanceof Email\EmailCon ) {
+				if ( empty( $val ) ) {
 					$val = new Email\EmailCon();
 					$this->email_con = $val;
 				}
 				break;
 
 			case 'service_events':
-				if ( !$val instanceof Events\Lib\EventsService ) {
-					$this->service_events = $val = new Events\Lib\EventsService();
+				if ( empty( $val ) ) {
+					$this->service_events = $val = new Shield\Events\EventsService();
 				}
 				break;
 
 			case 'admin_notices':
-				if ( !$val instanceof Shield\Utilities\AdminNotices\Controller ) {
+				if ( empty( $val ) ) {
 					$this->admin_notices = $val = new Shield\Utilities\AdminNotices\Controller();
 				}
 				break;
 
 			case 'extensions_controller':
-				if ( !$val instanceof ExtensionsCon ) {
+				if ( empty( $val ) ) {
 					$this->extensions_controller = $val = new ExtensionsCon();
 				}
 				break;
 
 			case 'opts':
-				if ( !$val instanceof Config\OptsHandler ) {
+				if ( empty( $val ) ) {
 					$val = new Config\OptsHandler();
 					$this->opts = $val;
 				}
 				break;
 
 			case 'plugin_labels':
-				if ( !$val instanceof Shield\Controller\Plugin\PluginLabels ) {
+				if ( empty( $val ) ) {
 					$this->plugin_labels = $val = new Shield\Controller\Plugin\PluginLabels();
 				}
 				break;
@@ -422,7 +422,6 @@ class Controller extends DynPropertiesClass {
 				Autoupdates\ModCon::class,
 				CommentsFilter\ModCon::class,
 				Data\ModCon::class,
-				Events\ModCon::class,
 				Firewall\ModCon::class,
 				HackGuard\ModCon::class,
 				Headers\ModCon::class,
@@ -776,6 +775,9 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( Data\ModCon::SLUG );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Events() :Events\ModCon {
 		return $this->getModule( Events\ModCon::SLUG );
 	}

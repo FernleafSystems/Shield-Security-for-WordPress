@@ -1,12 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class EventsParser {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function ipBlocking() :array {
 		return $this->extract( [

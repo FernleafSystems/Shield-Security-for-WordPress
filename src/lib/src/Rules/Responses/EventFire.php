@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\FillEventAuditParamsFromRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\FillEventAuditParamsFromRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class EventFire extends Base {
