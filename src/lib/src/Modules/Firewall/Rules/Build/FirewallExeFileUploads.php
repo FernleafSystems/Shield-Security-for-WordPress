@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
+/**
+ * @deprecated 19.2 - TODO
+ */
 class FirewallExeFileUploads extends BuildFirewallBase {
 
 	public const SLUG = 'shield/firewall_exe_file_uploads';

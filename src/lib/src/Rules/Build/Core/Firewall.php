@@ -1,27 +1,27 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\Core\BuildRuleCoreShieldBase,
 	Conditions,
 	Enum,
 	Responses
 };
 
-abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core\BuildRuleCoreShieldBase {
+class Firewall extends BuildRuleCoreShieldBase {
 
 	use ModConsumer;
 
-	public const SCAN_CATEGORY = '';
+	public const SLUG = 'shield/firewall';
 
 	protected function getName() :string {
-		return '';
+		return __( 'Firewall', 'wp-simple-firewall' );
 	}
 
 	protected function getCommonAuditParamsMapping() :array {
 		return \array_merge( parent::getCommonAuditParamsMapping(), [
+			'name'  => 'match_name',
 			'term'  => 'match_pattern',
 			'param' => 'match_request_param',
 			'value' => 'match_request_value',
@@ -31,12 +31,10 @@ abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shiel
 	}
 
 	protected function getDescription() :string {
-		return sprintf( __( 'Check request parameters that trigger "%s" patterns.', 'wp-simple-firewall' ), $this->getName() );
+		return sprintf( __( 'Check request parameters that trigger firewall patterns.', 'wp-simple-firewall' ), $this->getName() );
 	}
 
 	protected function getConditions() :array {
-		$opts = $this->opts();
-
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [
@@ -44,30 +42,12 @@ abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shiel
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
-				[
-					'conditions' => Conditions\RequestHasAnyParameters::class,
-				],
-
 				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
 					'conditions' => Conditions\IsUserAdminNormal::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				] : null,
-
-				empty( $opts->getDef( 'whitelisted_paths' ) ) ? null : [
-					'logic'      => Enum\EnumLogic::LOGIC_AND,
-					'conditions' => \array_map(
-						function ( string $path ) {
-							return [
-								'conditions' => Conditions\MatchRequestPath::class,
-								'logic'      => Enum\EnumLogic::LOGIC_INVERT,
-								'params'     => [
-									'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
-									'match_path' => $path,
-								],
-							];
-						},
-						$opts->getDef( 'whitelisted_paths' )
-					),
+				[
+					'conditions' => Conditions\RequestTriggersFirewall::class,
 				],
 			] )
 		];
@@ -81,9 +61,6 @@ abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shiel
 					'event'            => 'firewall_block',
 					'offense_count'    => 1,
 					'block'            => false,
-					'audit_params'     => [
-						'name' => $this->getName()
-					],
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
@@ -92,17 +69,5 @@ abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shiel
 				'params'   => [],
 			],
 		];
-	}
-
-	protected function getFirewallPatterns() :array {
-		return $this->opts()->getDef( 'firewall_patterns' )[ static::SCAN_CATEGORY ] ?? [];
-	}
-
-	protected function getFirewallPatterns_Regex() :array {
-		return $this->getFirewallPatterns()[ 'regex' ] ?? [];
-	}
-
-	protected function getFirewallPatterns_Simple() :array {
-		return $this->getFirewallPatterns()[ 'simple' ] ?? [];
 	}
 }
