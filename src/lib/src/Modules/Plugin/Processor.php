@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Events\ConsolidateAllEvents;
-use FernleafSystems\Wordpress\Plugin\Shield\Events\StatsWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
@@ -13,9 +12,10 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		$this->removePluginConflicts();
 		( new Lib\OverrideLocale() )->execute();
 
-		new StatsWriter();
+		new Events\StatsWriter();
 		$mod->getShieldNetApiController()->execute();
 		$mod->getPluginBadgeCon()->execute();
+		( new Components\HttpHeadersCon() )->execute();
 
 		( new Lib\AllowBetaUpgrades() )->execute();
 		( new Lib\SiteHealthController() )->execute();
@@ -48,7 +48,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 	public function runDailyCron() {
 		self::con()->fireEvent( 'test_cron_run' );
 		( new Lib\PluginTelemetry() )->collectAndSend();
-		( new ConsolidateAllEvents() )->run();
+		( new Events\ConsolidateAllEvents() )->run();
 	}
 
 	/**
