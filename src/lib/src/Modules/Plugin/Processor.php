@@ -31,6 +31,10 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		$mod->getReportingController()->execute();
 	}
 
+	public function onWpInit() {
+		( new Components\AnonRestApiDisable() )->execute();
+	}
+
 	public function runHourlyCron() {
 		$this->setEarlyLoadOrder();
 	}
@@ -49,6 +53,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		self::con()->fireEvent( 'test_cron_run' );
 		( new Lib\PluginTelemetry() )->collectAndSend();
 		( new Events\ConsolidateAllEvents() )->run();
+		( new Components\CleanRubbish() )->execute();
 	}
 
 	/**
