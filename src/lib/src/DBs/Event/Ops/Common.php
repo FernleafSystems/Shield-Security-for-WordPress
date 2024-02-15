@@ -1,10 +1,7 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops;
 
-/**
- * @deprecated 19.1
- */
 trait Common {
 
 	/**

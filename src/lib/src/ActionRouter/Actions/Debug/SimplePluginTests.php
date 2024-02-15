@@ -7,12 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\Security
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Events,
 	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncodingFailure,
 	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncryptionFailure,
 	HackGuard\Lib\FileLocker\Ops\BuildEncryptedFilePayload,
 	Plugin
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -64,10 +65,10 @@ class SimplePluginTests extends BaseAction {
 	}
 	private function dbg_eventsSum() {
 		$dbhEvents = self::con()->db_con->dbhEvents();
-		/** @var Events\DB\Event\Ops\Select $select */
+		/** @var Select $select */
 		$select = $dbhEvents->getQuerySelector();
 		$res = $select->filterByBoundary( 1692677238, Services::Request()->carbon()->timestamp )
-					  ->sumEventsSeparately( \array_keys( ( new Events\Lib\EventsParser() )->wordpress() ) );
+					  ->sumEventsSeparately( \array_keys( ( new EventsParser() )->wordpress() ) );
 		var_dump( $res );
 	}
 

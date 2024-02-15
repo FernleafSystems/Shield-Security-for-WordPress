@@ -22,6 +22,7 @@
   ],
   "definitions": {
     "db_handler_classes":        {
+      "event":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Event\\Ops\\Handler",
       "snapshots":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Snapshots\\Ops\\Handler",
       "at_logs":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
       "at_meta":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler",
@@ -30,7 +31,6 @@
       "req_logs":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler",
       "user_meta":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\UserMeta\\Ops\\Handler",
       "rules":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\Rules\\Ops\\Handler",
-      "event":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Events\\DB\\Event\\Ops\\Handler",
       "file_locker":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler",
       "scans":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
       "scanitems":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",

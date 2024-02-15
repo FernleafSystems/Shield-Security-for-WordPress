@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DebugRecentEvents extends Actions\Render\BaseRender {

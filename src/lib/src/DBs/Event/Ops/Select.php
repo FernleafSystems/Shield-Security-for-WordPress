@@ -1,10 +1,7 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops;
 
-/**
- * @deprecated 19.1
- */
 class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select {
 
 	use Common;
@@ -28,6 +25,7 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	 */
 	public function sumEventsSeparately( array $events ) :array {
 		$counts = \array_fill_keys( $events, 0 );
+		/** @var Record $event */
 		foreach ( $this->filterByEvents( $events )->queryWithResult() as $event ) {
 			$counts[ $event->event ] += $event->count;
 		}
@@ -78,6 +76,7 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 
 	/**
 	 * https://stackoverflow.com/questions/5554075/get-last-distinct-set-of-records
+	 * @return Record[] - keys are event names
 	 */
 	public function getLatestForAllEvents() :array {
 		$latest = [];
@@ -86,6 +85,7 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 			 ->addWhere( 'id', $this->getMaxIds(), 'IN' )
 			 ->setResultsAsVo( true );
 		foreach ( $this->queryWithResult() as $record ) {
+			/** @var Record $record */
 			$latest[ $record->event ] = $record;
 		}
 		return $latest;

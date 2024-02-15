@@ -3,6 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	Event
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
 	Logs,
 	Meta,
@@ -14,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
 	UserMeta,
 	ReqLogs
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Hackguard\DB\{
 	FileLocker,
 	Malware,

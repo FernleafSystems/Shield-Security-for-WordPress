@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\SendPluginTelemetry;
 use FernleafSystems\Wordpress\Services\Services;

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary

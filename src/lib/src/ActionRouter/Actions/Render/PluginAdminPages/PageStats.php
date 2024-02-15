@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageStats extends BasePluginAdminPage {
