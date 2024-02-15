@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ScanItems\Ops as ScanItemsDB,
 	Scans\Ops as ScansDB
 };

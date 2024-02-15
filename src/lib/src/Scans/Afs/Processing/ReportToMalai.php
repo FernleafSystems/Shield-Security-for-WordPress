@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Malware\Ops as MalwareDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops as MalwareDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai;

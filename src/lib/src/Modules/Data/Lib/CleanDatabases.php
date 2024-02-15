@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Data,
 	HackGuard,
 	IPs,
 	LoginGuard,
-	Plugin,
 	Traffic
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -91,7 +91,7 @@ class CleanDatabases {
 	}
 
 	public function cleanStaleReports() :void {
-		/** @var Plugin\DB\Reports\Ops\Delete $deleter */
+		/** @var DBs\Reports\Ops\Delete $deleter */
 		$deleter = self::con()->db_con->dbhReports()->getQueryDeleter();
 		$deleter->filterByProtected( false )
 				->addWhereOlderThan( Services::Request()->carbon( true )->startOfDay()->subDay()->timestamp )
@@ -117,7 +117,7 @@ class CleanDatabases {
 	}
 
 	private function cleanOldEmail2FA() {
-		/** @var LoginGuard\DB\Mfa\Ops\Delete $deleter */
+		/** @var DBs\Mfa\Ops\Delete $deleter */
 		$deleter = self::con()
 			->db_con
 			->dbhMfa()

@@ -224,9 +224,9 @@ class RetrieveItems extends RetrieveBase {
 					return $res->resultitem_id;
 				}, $resultsSlice );
 
-				/** @var ResultItemMetaDB\Ops\Select $rimSelector */
+				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Select $rimSelector */
 				$rimSelector = self::con()->db_con->dbhResultItemMeta()->getQuerySelector();
-				/** @var ResultItemMetaDB\Ops\Record[] $metas */
+				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Record[] $metas */
 				$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
 				foreach ( $resultsSlice as $result ) {

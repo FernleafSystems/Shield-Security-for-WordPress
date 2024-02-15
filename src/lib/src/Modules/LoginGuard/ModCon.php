@@ -66,7 +66,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_Mfa() :DB\Mfa\Ops\Handler {
+	public function getDbH_Mfa() :FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'mfa' );
 	}
 }

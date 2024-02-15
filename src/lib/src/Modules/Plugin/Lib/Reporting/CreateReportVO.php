@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
 
-	use Plugin\ModConsumer;
+	use ModConsumer;
 
 	/**
 	 * @var ReportVO

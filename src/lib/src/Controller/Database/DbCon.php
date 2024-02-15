@@ -4,7 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
-	Event
+	Event,
+	Malware,
+	Mfa,
+	Reports,
+	ResultItems,
+	ResultItemMeta,
+	Scans,
+	ScanItems,
+	ScanResults,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
 	Logs,
@@ -17,23 +25,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
 	UserMeta,
 	ReqLogs
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Hackguard\DB\{
-	FileLocker,
-	Malware,
-	Scans,
-	ScanItems,
-	ResultItems,
-	ResultItemMeta,
-	ScanResults,
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Hackguard\DB\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\{
 	BotSignal,
 	CrowdSecSignals,
 	IpRules,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -54,12 +52,20 @@ class DbCon {
 		return $this->loadDbH( 'at_meta' );
 	}
 
-	public function dbhSnapshots() :Snapshots\Ops\Handler {
-		return $this->loadDbH( 'snapshots' );
+	public function dbhEvents() :Event\Ops\Handler {
+		return $this->loadDbH( 'event' );
 	}
 
-	public function dbhRules() :Rules\Ops\Handler {
-		return $this->loadDbH( 'rules' );
+	public function dbhFileLocker() :FileLocker\Ops\Handler {
+		return $this->loadDbH( 'file_locker' );
+	}
+
+	public function dbhBotSignal() :BotSignal\Ops\Handler {
+		return $this->loadDbH( 'botsignal' );
+	}
+
+	public function dbhCrowdSecSignals() :CrowdSecSignals\Ops\Handler {
+		return $this->loadDbH( 'crowdsec_signals' );
 	}
 
 	public function dbhIPs() :IPs\Ops\Handler {
@@ -70,24 +76,36 @@ class DbCon {
 		return $this->loadDbH( 'ip_meta' );
 	}
 
-	public function dbhUserMeta() :UserMeta\Ops\Handler {
-		return $this->loadDbH( 'user_meta' );
+	public function dbhIPRules() :IpRules\Ops\Handler {
+		return $this->loadDbH( 'ip_rules' );
+	}
+
+	public function dbhMalware() :Malware\Ops\Handler {
+		return $this->loadDbH( 'malware' );
+	}
+
+	public function dbhMfa() :Mfa\Ops\Handler {
+		return $this->loadDbH( 'mfa' );
+	}
+
+	public function dbhReports() :Reports\Ops\Handler {
+		return $this->loadDbH( 'reports' );
 	}
 
 	public function dbhReqLogs() :ReqLogs\Ops\Handler {
 		return $this->loadDbH( 'req_logs' );
 	}
 
-	public function dbhEvents() :Event\Ops\Handler {
-		return $this->loadDbH( 'event' );
+	public function dbhRules() :Rules\Ops\Handler {
+		return $this->loadDbH( 'rules' );
 	}
 
-	public function dbhFileLocker() :FileLocker\Ops\Handler {
-		return $this->loadDbH( 'file_locker' );
+	public function dbhResultItems() :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler {
+		return $this->loadDbH( 'resultitems' );
 	}
 
-	public function dbhMalware() :Malware\Ops\Handler {
-		return $this->loadDbH( 'malware' );
+	public function dbhResultItemMeta() :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Handler {
+		return $this->loadDbH( 'resultitem_meta' );
 	}
 
 	public function dbhScans() :Scans\Ops\Handler {
@@ -98,36 +116,16 @@ class DbCon {
 		return $this->loadDbH( 'scanitems' );
 	}
 
-	public function dbhResultItems() :ResultItems\Ops\Handler {
-		return $this->loadDbH( 'resultitems' );
-	}
-
-	public function dbhResultItemMeta() :ResultItemMeta\Ops\Handler {
-		return $this->loadDbH( 'resultitem_meta' );
-	}
-
 	public function dbhScanResults() :ScanResults\Ops\Handler {
 		return $this->loadDbH( 'scanresults' );
 	}
 
-	public function dbhBotSignal() :BotSignal\Ops\Handler {
-		return $this->loadDbH( 'botsignal' );
+	public function dbhSnapshots() :Snapshots\Ops\Handler {
+		return $this->loadDbH( 'snapshots' );
 	}
 
-	public function dbhIPRules() :IpRules\Ops\Handler {
-		return $this->loadDbH( 'ip_rules' );
-	}
-
-	public function dbhCrowdSecSignals() :CrowdSecSignals\Ops\Handler {
-		return $this->loadDbH( 'crowdsec_signals' );
-	}
-
-	public function dbhMfa() :Mfa\Ops\Handler {
-		return $this->loadDbH( 'mfa' );
-	}
-
-	public function dbhReports() :Reports\Ops\Handler {
-		return $this->loadDbH( 'reports' );
+	public function dbhUserMeta() :UserMeta\Ops\Handler {
+		return $this->loadDbH( 'user_meta' );
 	}
 
 	/**

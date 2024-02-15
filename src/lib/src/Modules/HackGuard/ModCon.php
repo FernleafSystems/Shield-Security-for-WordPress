@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -130,42 +131,42 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_Malware() :DB\Malware\Ops\Handler {
+	public function getDbH_Malware() :DBs\Malware\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'malware' );
 	}
 
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_Scans() :DB\Scans\Ops\Handler {
+	public function getDbH_Scans() :DBs\Scans\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'scans' );
 	}
 
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
+	public function getDbH_ScanItems() :DBs\ScanItems\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'scanitems' );
 	}
 
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_ResultItems() :DB\ResultItems\Ops\Handler {
+	public function getDbH_ResultItems() :DBs\ResultItems\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'resultitems' );
 	}
 
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
+	public function getDbH_ResultItemMeta() :DBs\ResultItemMeta\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'resultitem_meta' );
 	}
 
 	/**
 	 * @deprecated 19.1
 	 */
-	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
+	public function getDbH_ScanResults() :DBs\ScanResults\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'scanresults' );
 	}
 }

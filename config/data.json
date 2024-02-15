@@ -23,6 +23,14 @@
   "definitions": {
     "db_handler_classes":        {
       "event":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Event\\Ops\\Handler",
+      "malware":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Malware\\Ops\\Handler",
+      "mfa":              "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Mfa\\Ops\\Handler",
+      "reports":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Reports\\Ops\\Handler",
+      "resultitems":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\ResultItems\\Ops\\Handler",
+      "resultitem_meta":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\ResultItemMeta\\Ops\\Handler",
+      "scans":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Scans\\Ops\\Handler",
+      "scanitems":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\ScanItems\\Ops\\Handler",
+      "scanresults":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\ScanResults\\Ops\\Handler",
       "snapshots":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Snapshots\\Ops\\Handler",
       "at_logs":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
       "at_meta":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler",
@@ -32,17 +40,9 @@
       "user_meta":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\UserMeta\\Ops\\Handler",
       "rules":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\Rules\\Ops\\Handler",
       "file_locker":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler",
-      "scans":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
-      "scanitems":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
-      "resultitems":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
-      "resultitem_meta":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
-      "scanresults":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler",
-      "malware":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Malware\\Ops\\Handler",
       "botsignal":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
       "ip_rules":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\IpRules\\Ops\\Handler",
-      "crowdsec_signals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler",
-      "mfa":              "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\LoginGuard\\DB\\Mfa\\Ops\\Handler",
-      "reports":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Reports\\Ops\\Handler"
+      "crowdsec_signals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
     },
     "db_table_mfa":              {
       "name":            "MFA",

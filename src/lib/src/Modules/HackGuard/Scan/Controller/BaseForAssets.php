@@ -20,19 +20,19 @@ abstract class BaseForAssets extends Base {
 		}
 
 		if ( empty( $asset ) ) {
-			/** @var ResultItems\Ops\Update $updater */
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Update $updater */
 			$updater = self::con()->db_con->dbhResultItems()->getQueryUpdater();
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 	}
 
-	public function buildScanResult( array $rawResult ) :ResultItems\Ops\Record {
-		/** @var ResultItems\Ops\Record $record */
+	public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record $record */
 		$record = self::con()->db_con->dbhResultItems()->getRecord();
 		$record->item_id = $rawResult[ 'slug' ];
 		$record->item_type = \strpos( $rawResult[ 'slug' ], '/' ) ?
-			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
-			ResultItems\Ops\Handler::ITEM_TYPE_THEME;
+			\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
+			\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler::ITEM_TYPE_THEME;
 
 		unset( $rawResult[ 'context' ] );
 		unset( $rawResult[ 'hash' ] );
