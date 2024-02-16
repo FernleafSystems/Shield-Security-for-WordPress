@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
-class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
 	public function preSave() :void {
 		if ( $this->isOptChanged( 'trusted_user_roles' ) ) {

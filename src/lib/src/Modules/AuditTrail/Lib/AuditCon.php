@@ -33,31 +33,39 @@ class AuditCon {
 	 */
 	private $snapshotDiscoveryQueue;
 
+	protected function canRun() :bool {
+		return $this->opts()->isOpt( 'enable_audit_trail', 'Y' )
+			   && self::con()->db_con->dbhActivityLogs()->isReady();
+	}
+
 	protected function run() {
 		if ( Services::WpGeneral()->isCron() ) {
 			$this->setupCronHooks();
 		}
 
 		$this->mod()->getAuditLogger()->setIfCommit( true );
+
 		\array_map( function ( $auditor ) {
 			$auditor->execute();
 		}, $this->getAuditors() );
 
 		// Realtime Snapshotting
-		add_action( 'wp_loaded', function () {
-			\array_map(
-				function ( $auditor ) {
-					if ( $auditor->canSnapRealtime() ) {
-						$this->runSnapshotDiscovery( $auditor );
-					}
-				},
-				$this->getAuditors()
-			);
+		if ( self::con()->db_con->dbhSnapshots()->isReady() ) {
+			add_action( 'wp_loaded', function () {
+				\array_map(
+					function ( $auditor ) {
+						if ( $auditor->canSnapRealtime() ) {
+							$this->runSnapshotDiscovery( $auditor );
+						}
+					},
+					$this->getAuditors()
+				);
 
-			$this->primeSnapshots();
-		} );
+				$this->primeSnapshots();
+			} );
 
-		$this->getSnapshotDiscoveryQueue();
+			$this->getSnapshotDiscoveryQueue();
+		}
 	}
 
 	private function primeSnapshots() {

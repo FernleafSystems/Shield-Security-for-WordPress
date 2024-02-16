@@ -435,7 +435,7 @@ class SelectSearchData {
 
 				if ( !empty( $config ) ) {
 					$search[] = [
-						'text'     => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), $module->getMainFeatureName() ),
+						'text'     => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), $module->name() ),
 						'children' => $config
 					];
 				}

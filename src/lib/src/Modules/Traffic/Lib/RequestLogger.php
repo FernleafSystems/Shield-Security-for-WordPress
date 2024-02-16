@@ -23,7 +23,9 @@ class RequestLogger {
 	private $isDependentLog = false;
 
 	protected function canRun() :bool {
-		return !self::con()->plugin_deleting;
+		return $this->opts()->isOpt( 'enable_traffic', 'Y' ) &&
+			   !self::con()->this_req->wp_is_wpcli
+			   && self::con()->db_con->dbhReqLogs()->isReady();
 	}
 
 	/**

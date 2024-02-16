@@ -1,22 +1,14 @@
 {
   "slug":             "traffic",
   "properties":       {
-    "slug":                  "traffic",
-    "load_priority":         12,
-    "menu_priority":         50,
-    "name":                  "Traffic Log",
-    "sidebar_name":          "Traffic",
-    "show_module_menu_item": false,
-    "show_module_options":   true,
-    "storage_key":           "traffic",
-    "tagline":               "Track and monitor all HTTP requests to the site.",
-    "show_central":          true,
-    "access_restricted":     true,
-    "premium":               false,
-    "run_if_whitelisted":    false,
-    "run_if_verified_bot":   true,
-    "run_if_wpcli":          false,
-    "order":                 110
+    "slug":                 "traffic",
+    "load_priority":        12,
+    "menu_priority":        50,
+    "name":                 "Traffic",
+    "tagline":              "Track and monitor all HTTP requests to the site.",
+    "show_central":         true,
+    "order":                110,
+    "config_menu_priority": 35
   },
   "reqs":             {
     "dbs": [
@@ -24,21 +16,9 @@
       "req_logs"
     ]
   },
-  "menus":            {
-    "config_menu_priority": 35
-  },
   "wpcli":            {
     "enabled": true
   },
-  "custom_redirects": [
-    {
-      "source_mod_page": "traffic-redirect",
-      "target_mod_page": "insights",
-      "query_args":      {
-        "inav": "traffic"
-      }
-    }
-  ],
   "sections":         [
     {
       "primary":     true,

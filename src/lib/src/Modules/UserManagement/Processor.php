@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,7 +20,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( $con->this_req->wp_is_xmlrpc && $con->getModule_UserManagement()->isXmlrpcBypass() ) {
+		if ( $con->this_req->wp_is_xmlrpc && $con->getModule_Plugin()->isXmlrpcBypass() ) {
 			return;
 		}
 
@@ -42,38 +41,6 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 			( new Lib\Password\UserPasswordHandler() )->execute();
 			( new Lib\Registration\EmailValidate() )->execute();
 		}
-	}
-
-	public function addAdminBarMenuGroup( array $groups ) :array {
-		$con = self::con();
-		if ( $con->isValidAdminArea() ) {
-
-			$thisGroup = [
-				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
-				'items' => [],
-			];
-
-			$recent = ( new Lib\Session\FindSessions() )->mostRecent();
-			if ( !empty( $recent ) ) {
-
-				foreach ( $recent as $userID => $user ) {
-					$thisGroup[ 'items' ][] = [
-						'id'    => $con->prefix( 'meta-'.$userID ),
-						'title' => sprintf( '<a href="%s">%s (%s)</a>',
-							Services::WpUsers()->getAdminUrl_ProfileEdit( $userID ),
-							$user[ 'user_login' ],
-							$user[ 'ip' ]
-						),
-					];
-				}
-			}
-
-			if ( !empty( $thisGroup[ 'items' ] ) ) {
-				$groups[] = $thisGroup;
-			}
-		}
-		return $groups;
 	}
 
 	/**
@@ -122,5 +89,12 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 	public function runHourlyCron() {
 		( new BulkUpdateUserMeta() )->execute();
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function addAdminBarMenuGroup( array $groups ) :array {
+		return $groups;
 	}
 }

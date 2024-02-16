@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 
-class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
 	/**
 	 * @inheritDoc

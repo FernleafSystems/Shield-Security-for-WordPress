@@ -29,6 +29,16 @@ class Wpv extends BaseForAssets {
 		}
 	}
 
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+			'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
+		];
+	}
+
 	public function getAdminMenuItems() :array {
 		$items = [];
 		$status = $this->mod()->getScansCon()->getScanResultsCount();

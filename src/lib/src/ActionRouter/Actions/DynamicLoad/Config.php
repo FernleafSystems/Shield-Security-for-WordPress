@@ -15,7 +15,7 @@ class Config extends Base {
 	protected function getPageTitle() :string {#
 		return sprintf( '%s > %s',
 			__( 'Configuration', 'wp-simple-firewall' ),
-			self::con()->modules[ $this->action_data[ 'mod_slug' ] ]->getMainFeatureName()
+			self::con()->modules[ $this->action_data[ 'mod_slug' ] ]->name()
 		);
 	}
 

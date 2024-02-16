@@ -19,9 +19,8 @@ class PageAdminPlugin extends BaseRender {
 	protected function getRenderData() :array {
 		$con = self::con();
 
-		$nav = $con->getModule_Plugin()->isAccessRestricted()
-			? PluginNavs::NAV_RESTRICTED
-			: $this->action_data[ Constants::NAV_ID ] ?? PluginNavs::NAV_DASHBOARD;
+		$nav = self::con()->isPluginAdmin() ?
+			( $this->action_data[ Constants::NAV_ID ] ?? PluginNavs::NAV_DASHBOARD ) : PluginNavs::NAV_RESTRICTED;
 		$subNav = $nav === PluginNavs::NAV_RESTRICTED ? '' : $this->action_data[ Constants::NAV_SUB_ID ] ?? '';
 		if ( empty( $subNav ) || $subNav === PluginNavs::SUBNAV_INDEX ) {
 			$subNav = PluginNavs::GetDefaultSubNavForNav( $nav );

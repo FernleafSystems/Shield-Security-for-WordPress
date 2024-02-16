@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\FirewallCategoryNames;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Strings;
 
 abstract class FirewallBase extends Base {
@@ -43,8 +44,6 @@ abstract class FirewallBase extends Base {
 	}
 
 	protected function getFirewallCategoryName() :string {
-		/** @var Strings $strings */
-		$strings = self::con()->getModule_Firewall()->getStrings();
-		return $strings->getFirewallCategoryName( $this->getFirewallKey() );
+		return (new FirewallCategoryNames())->getFor( $this->getFirewallKey() );
 	}
 }

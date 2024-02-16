@@ -36,7 +36,6 @@ abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shiel
 
 	protected function getConditions() :array {
 		$opts = $this->opts();
-
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [

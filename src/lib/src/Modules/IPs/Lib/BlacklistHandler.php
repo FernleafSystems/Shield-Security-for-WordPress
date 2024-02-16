@@ -1,29 +1,32 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	Components,
+	ModConsumer
+};
 
-class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
+class BlacklistHandler {
 
 	use ExecOnce;
-	use IPs\ModConsumer;
+	use ModConsumer;
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isEnabledAutoBlackList() || $this->opts()->isEnabledCrowdSecAutoBlock();
+		return ( $this->opts()->isEnabledAutoBlackList() || $this->opts()->isEnabledCrowdSecAutoBlock() )
+			   && self::con()->db_con->dbhIPRules()->isReady();
 	}
 
 	protected function run() {
-		( new IPs\Components\UnblockIpByFlag() )->execute();
+		( new Components\UnblockIpByFlag() )->execute();
 		( new ProcessOffenses() )->execute();
 		$this->setupCronHooks();
 	}
 
 	public function runHourlyCron() {
-		( new IPs\Components\ImportIpsFromFile() )->execute();
+		( new Components\ImportIpsFromFile() )->execute();
 	}
 }

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'hack_protect';
 
@@ -90,13 +90,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 			]
 		);
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	protected function isReadyToExecute() :bool {
-		return self::con()->db_con->dbhScanResults()->isReady() && self::con()->db_con->dbhScanItems()->isReady();
 	}
 
 	public function onPluginDeactivate() {

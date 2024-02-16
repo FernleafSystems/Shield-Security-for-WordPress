@@ -14,7 +14,8 @@ class PluginNameSuffix {
 	protected function canRun() :bool {
 		$con = self::con();
 		return (bool)apply_filters( 'shield/add_pro_suffix',
-			$con->isPremiumActive() && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() );
+			$con->isPremiumActive()
+			&& !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() );
 	}
 
 	protected function run() {

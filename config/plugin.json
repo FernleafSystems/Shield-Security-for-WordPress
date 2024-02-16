@@ -1,23 +1,29 @@
 {
   "properties":    {
-    "slug":                  "plugin",
-    "load_priority":         1,
-    "name":                  "General Settings",
-    "sidebar_name":          "General",
-    "show_module_menu_item": true,
-    "show_module_options":   true,
-    "storage_key":           "plugin",
-    "tagline":               "General plugin settings that apply across the entire plugin operation.",
-    "auto_enabled":          true,
-    "show_central":          true,
-    "access_restricted":     true,
-    "premium":               false,
-    "run_if_verified_bot":   true,
-    "run_if_wpcli":          true,
-    "order":                 10
-  },
-  "menus":         {
+    "slug":                 "plugin",
+    "load_priority":        1,
+    "name":                 "General",
+    "tagline":              "General plugin settings that apply across the entire plugin operation.",
+    "show_central":         true,
+    "order":                10,
     "config_menu_priority": 10
+  },
+  "modules":       {
+    "admin_access_restriction": {},
+    "audit_trail":              {},
+    "autoupdates":              {},
+    "comments_filter":          {},
+    "data":                     {},
+    "firewall":                 {},
+    "hack_protect":             {},
+    "headers":                  {},
+    "integrations":             {},
+    "ips":                      {},
+    "license":                  {},
+    "lockdown":                 {},
+    "login_protect":            {},
+    "plugin":                   {},
+    "traffic":                  {}
   },
   "wpcli":         {
     "enabled": true
@@ -585,7 +591,7 @@
       }
     },
     "href_privacy_policy": "https://shsec.io/wpshieldprivacypolicy",
-    "events": {
+    "events":              {
       "2fa_nonce_verify_fail":        {
         "audit_params": [
           "user_login"

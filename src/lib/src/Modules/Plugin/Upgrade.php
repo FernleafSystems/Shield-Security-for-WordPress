@@ -13,39 +13,4 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 			$SP->clearProviders();
 		}
 	}
-
-	protected function upgrade_1834() {
-		return;
-		// remove old tables
-		$WPDB = Services::WpDb();
-		foreach (
-			[
-				'geoip',
-				'reporting',
-				'spambot_comments_filter',
-				'statistics',
-				'ip_lists',
-				'notes',
-				'report',
-				'sessions'
-			] as $table
-		) {
-			$table = sprintf( '%s%s%s', $WPDB->getPrefix(), self::con()->getOptionStoragePrefix(), $table );
-			if ( $WPDB->tableExists( $table ) ) {
-				$WPDB->doDropTable( $table );
-			}
-		}
-
-		foreach (
-			[
-				'icwp_wpsf_reporting_options',
-				'icwp_wpsf_sessions_options',
-				'icwp_wpsf_install_id',
-			] as $opt
-		) {
-			Services::WpGeneral()->deleteOption( $opt );
-		}
-
-		$WPDB->clearResultShowTables();
-	}
 }

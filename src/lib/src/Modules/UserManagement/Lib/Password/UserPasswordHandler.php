@@ -200,17 +200,25 @@ class UserPasswordHandler {
 		$score = (int)( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
 		if ( $score < $this->opts()->getOpt( 'pass_min_strength' ) ) {
-			/** @var Strings $str */
-			$str = $this->mod()->getStrings();
 			throw new Exceptions\PasswordTooWeakException(
 				sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-					$str->getPassStrengthName( $score ),
-					$str->getPassStrengthName( $this->opts()->getOpt( 'pass_min_strength' ) )
+					$this->getPassStrengthName( $score ),
+					$this->getPassStrengthName( $this->opts()->getOpt( 'pass_min_strength' ) )
 				)
 			);
 		}
 
 		return true;
+	}
+
+	public function getPassStrengthName( int $strength ) :string {
+		return [
+				   __( 'Very Weak', 'wp-simple-firewall' ),
+				   __( 'Weak', 'wp-simple-firewall' ),
+				   __( 'Medium', 'wp-simple-firewall' ),
+				   __( 'Strong', 'wp-simple-firewall' ),
+				   __( 'Very Strong', 'wp-simple-firewall' ),
+			   ][ \max( 0, \min( 4, $strength ) ) ];
 	}
 
 	/**

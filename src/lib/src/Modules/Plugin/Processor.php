@@ -2,33 +2,51 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
+	use ModConsumer;
+
 	protected function run() {
-		$mod = self::con()->getModule_Plugin();
+		$con = self::con();
+		$mod = $con->getModule_Plugin();
 
 		$this->removePluginConflicts();
-		( new Lib\OverrideLocale() )->execute();
 
-		new Events\StatsWriter();
-		$mod->getShieldNetApiController()->execute();
-		$mod->getPluginBadgeCon()->execute();
-		( new Components\HttpHeadersCon() )->execute();
+		$con->getModule_License()->getLicenseHandler()->execute();
 
-		( new Lib\AllowBetaUpgrades() )->execute();
-		( new Lib\SiteHealthController() )->execute();
+		if ( !$this->opts()->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
+			( new Components\IPsCon() )->execute();
+			$con->getModule_HackGuard()->getScansCon()->execute();
+			$con->getModule_Traffic()->getRequestLogger()->execute();
+			$con->getModule_AuditTrail()->getAuditCon()->execute();
+			( new Components\HttpHeadersCon() )->execute();
+			$mod->getReportingController()->execute();
+			new Events\StatsWriter();
+			$mod->getPluginBadgeCon()->execute();
+			( new Lib\AllowBetaUpgrades() )->execute();
+			( new Components\AutoUpdatesCon() )->execute();
 
-		if ( $this->opts()->isOpt( 'importexport_enable', 'Y' ) ) {
-			$mod->getImpExpController()->execute();
+			if ( $this->opts()->isOpt( 'importexport_enable', 'Y' ) ) {
+				$mod->getImpExpController()->execute();
+			}
+			( new Lib\OverrideLocale() )->execute();
+			( new Lib\SiteHealthController() )->execute();
+
+			$con->getModule_Integrations()->getController_SpamForms()->execute();
+			add_action( 'init', function () {
+				self::con()->getModule_Integrations()->getController_UserForms()->execute();
+			}, HookTimings::INIT_USER_FORMS_SETUP );
 		}
+
+		$con->getModule_Integrations()->getControllerMWP()->execute();
+		$mod->getShieldNetApiController()->execute();
 
 		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->opts()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
-
-		$mod->getReportingController()->execute();
 	}
 
 	public function onWpInit() {

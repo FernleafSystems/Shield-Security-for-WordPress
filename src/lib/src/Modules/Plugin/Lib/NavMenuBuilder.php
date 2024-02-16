@@ -171,9 +171,9 @@ class NavMenuBuilder {
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
 					'slug'          => PluginNavs::NAV_OPTIONS_CONFIG.'-'.$cfg->slug,
-					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
+					'title'         => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
 					'tooltip'       => $mod->isModOptEnabled() ?
-						sprintf( 'Configure options for %s', __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ) )
+						sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) )
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
 					'href'          => $con->plugin_urls->modCfg( $mod ),
 					'classes'       => \array_filter( \array_merge( $baseClasses, [
@@ -188,7 +188,7 @@ class NavMenuBuilder {
 						] ),
 					],
 					'active'        => Services::Request()->query( Constants::NAV_SUB_ID ) === $cfg->slug,
-					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],
+					'menu_priority' => $cfg->properties[ 'config_menu_priority' ],
 				];
 			}
 		}

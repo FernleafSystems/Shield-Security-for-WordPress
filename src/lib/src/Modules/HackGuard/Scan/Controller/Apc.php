@@ -9,6 +9,16 @@ class Apc extends BaseForAssets {
 
 	public const SCAN_SLUG = 'apc';
 
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+			'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
+		];
+	}
+
 	public function getAdminMenuItems() :array {
 		$items = [];
 

@@ -58,18 +58,6 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 	}
 
-	protected function moduleReadyCheck() :bool {
-		try {
-			$ready = ( new Lib\CheckModuleRequirements() )
-				->setMod( $this )
-				->run();
-		}
-		catch ( \Exception $e ) {
-			$ready = false;
-		}
-		return $ready;
-	}
-
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( self::con()->prefix( 'pre_options_store' ), function () {
@@ -150,20 +138,10 @@ abstract class ModCon extends DynPropertiesClass {
 		/** @var Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $con->getModule_Plugin()->opts();
 
-		if ( !$this->moduleReadyCheck() ) {
-			$enabled = false;
-		}
-		elseif ( $this->cfg->properties[ 'auto_enabled' ] ) {
-			// Auto enabled modules always run regardless
-			$enabled = true;
-		}
-		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
+		if ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
 		elseif ( self::con()->this_req->is_force_off ) {
-			$enabled = false;
-		}
-		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
 			$enabled = false;
 		}
 		else {
@@ -182,7 +160,7 @@ abstract class ModCon extends DynPropertiesClass {
 		return 'enable_'.$this->cfg->slug;
 	}
 
-	public function getMainFeatureName() :string {
+	public function name() :string {
 		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
 	}
 
@@ -191,7 +169,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getDescriptors() :array {
 		return [
-			'title'       => $this->getMainFeatureName(),
+			'title'       => $this->name(),
 			'subtitle'    => __( $this->cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),
 			'description' => [],
 		];
@@ -289,10 +267,6 @@ abstract class ModCon extends DynPropertiesClass {
 	public function onPluginDeactivate() {
 	}
 
-	public function isAccessRestricted() :bool {
-		return $this->cfg->properties[ 'access_restricted' ] && !self::con()->isPluginAdmin();
-	}
-
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
 	 * @param array  $exportItems
@@ -369,9 +343,16 @@ abstract class ModCon extends DynPropertiesClass {
 	public function findElementClass( string $element ) :string {
 		$theClass = null;
 
-		$roots = \array_map( function ( $root ) {
-			return \rtrim( $root, '\\' ).'\\';
-		}, $this->getNamespaceRoots() );
+		$roots = \array_map(
+			function ( $root ) {
+				return \rtrim( $root, '\\' ).'\\';
+			},
+			[
+				( new \ReflectionClass( $this ) )->getNamespaceName(),
+				'\FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield',
+				__NAMESPACE__
+			]
+		);
 
 		foreach ( $roots as $NS ) {
 			$maybe = $NS.$element;
@@ -389,18 +370,11 @@ abstract class ModCon extends DynPropertiesClass {
 		return $theClass;
 	}
 
-	protected function getBaseNamespace() :string {
-		return __NAMESPACE__;
-	}
-
-	protected function getNamespace() :string {
-		return ( new \ReflectionClass( $this ) )->getNamespaceName();
-	}
-
 	protected function getNamespaceRoots() :array {
 		return [
-			$this->getNamespace(),
-			$this->getBaseNamespace()
+			( new \ReflectionClass( $this ) )->getNamespaceName(),
+			'\FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield',
+			__NAMESPACE__
 		];
 	}
 
@@ -418,5 +392,33 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	protected function loadStrings() {
 		return $this->loadModElement( 'Strings' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	protected function moduleReadyCheck() :bool {
+		return true;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getMainFeatureName() :string {
+		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	protected function getNamespace() :string {
+		return ( new \ReflectionClass( $this ) )->getNamespaceName();
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	protected function getBaseNamespace() :string {
+		return __NAMESPACE__;
 	}
 }

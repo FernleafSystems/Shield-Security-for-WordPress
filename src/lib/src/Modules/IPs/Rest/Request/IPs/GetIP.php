@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\IPs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalNames;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,9 +21,7 @@ class GetIP extends Base {
 	private function getNotBotInfo() :array {
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
-		/** @var Strings $strings */
-		$strings = $this->mod()->getStrings();
-		$names = $strings->getBotSignalNames();
+		$names = ( new BotSignalNames() )->getBotSignalNames();
 
 		try {
 			$record = ( new BotSignalsRecord() )
@@ -50,7 +48,8 @@ class GetIP extends Base {
 				else {
 					$signals[ $scoreKey ] = Services::Request()
 													->carbon()
-													->setTimestamp( $record->{$column} )->diffForHumans();
+													->setTimestamp( $record->{$column} )
+													->diffForHumans();
 				}
 			}
 		}

@@ -19,10 +19,7 @@ class HttpHeadersCon {
 
 	protected function canRun() :bool {
 		$req = self::con()->this_req;
-		return $this->opts()->isOpt( 'enable_headers', 'Y' )
-			   && !$req->wp_is_wpcli
-			   && !$req->wp_is_ajax
-			   && !$req->is_ip_whitelisted;
+		return $this->opts()->isOpt( 'enable_headers', 'Y' ) && !$req->request_bypasses_all_restrictions;
 	}
 
 	protected function run() {

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
 class ScansCheck extends ScansBase {
 
@@ -12,14 +11,17 @@ class ScansCheck extends ScansBase {
 
 	protected function exec() {
 		$mod = self::con()->getModule_HackGuard();
-		/** @var Strings $strings */
-		$strings = $mod->getStrings();
 
-		$queueCon = $mod->getScanQueueController();
 		$current = ( new ScansStatus() )->current();
-		$currentScan = !empty( $current ) ? $strings->getScanName( $current ) : __( 'No scan running.', 'wp-simple-firewall' );
+		$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
+		if ( !empty( $current ) ) {
+			$currentScan = $mod->getScansCon()
+							   ->getScanCon( $current )
+							   ->getScanName();
+		}
 
 		$running = \count( ( new ScansStatus() )->enqueued() );
+		$queueCon = $mod->getScanQueueController();
 
 		$this->response()->action_response_data = [
 			'success' => true,

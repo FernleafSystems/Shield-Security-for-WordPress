@@ -112,7 +112,8 @@ class Init {
 			$req = Services::Request();
 			if ( $req->post( 'action' ) === 'mainwp_extension_plugin_action'
 				 && $req->post( 'what' ) === 'disable'
-				 && $req->post( 'slug' ) === $con->base_file ) {
+				 && $req->post( 'slug' ) === $con->base_file )
+			{
 				$this->opts()->setOpt( 'enable_mainwp', 'N' );
 				wp_send_json( [
 					'error' => sprintf( 'The MainWP integration within %s has been disabled.',

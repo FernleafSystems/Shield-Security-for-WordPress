@@ -13,7 +13,7 @@ class WhitelabelController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->isEnabled();
+		return !self::con()->this_req->wp_is_wpcli && $this->isEnabled();
 	}
 
 	public function isEnabled() :bool {

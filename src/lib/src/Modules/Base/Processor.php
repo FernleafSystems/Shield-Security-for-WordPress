@@ -22,11 +22,11 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	}
 
 	public function onWpLoaded() {
-		if ( self::con()->getModule_Plugin()->opts()->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
-			add_filter( self::con()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
-		}
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		return $groups;
 	}

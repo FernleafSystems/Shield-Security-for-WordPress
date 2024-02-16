@@ -1,17 +1,11 @@
 {
   "slug":        "data",
   "properties":  {
-    "slug":                  "data",
-    "load_priority":         2,
-    "name":                  "Data",
-    "show_module_menu_item": false,
-    "auto_enabled":          true,
-    "storage_key":           "data",
-    "show_central":          false,
-    "premium":               false,
-    "access_restricted":     true,
-    "run_if_whitelisted":    true,
-    "run_if_wpcli":          true
+    "slug":                "data",
+    "load_priority":       2,
+    "name":                "Data",
+    "show_module_options": false,
+    "show_central":        false
   },
   "wpcli":       {
     "enabled": false

@@ -29,9 +29,6 @@ class OptionsForm extends BaseRender {
 		}
 
 		return [
-			'hrefs'   => [
-				'form_action' => 'admin.php?page='.$mod->getModSlug(),
-			],
 			'strings' => [
 				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $mod->getDescriptors()[ 'title' ] ),
 				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],

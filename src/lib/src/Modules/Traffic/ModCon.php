@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'traffic';
 
@@ -19,9 +19,5 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public function getRequestLogger() :Lib\RequestLogger {
 		return $this->requestLogger ?? $this->requestLogger = new Lib\RequestLogger();
-	}
-
-	protected function isReadyToExecute() :bool {
-		return self::con()->db_con->dbhReqLogs()->isReady() && parent::isReadyToExecute();
 	}
 }

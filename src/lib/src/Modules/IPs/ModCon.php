@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'ips';
 
@@ -33,13 +33,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {
 		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker();
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	protected function isReadyToExecute() :bool {
-		return self::con()->db_con->dbhIPRules()->isReady() && parent::isReadyToExecute();
 	}
 
 	public function onConfigChanged() :void {

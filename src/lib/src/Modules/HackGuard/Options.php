@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
 	public function preSave() :void {
 		$this->cleanScanExclusions();

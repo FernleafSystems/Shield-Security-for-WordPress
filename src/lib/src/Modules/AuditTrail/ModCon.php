@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog\BuildActivityLogTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'audit_trail';
 
@@ -25,13 +25,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public function getAuditLogger() :Lib\AuditLogger {
 		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger();
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	protected function isReadyToExecute() :bool {
-		return self::con()->db_con->dbhActivityLogs()->isReady();
 	}
 
 	/**

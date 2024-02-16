@@ -1,32 +1,16 @@
 {
   "slug":             "license",
   "properties":       {
-    "slug":                  "license",
-    "load_priority":         0,
-    "name":                  "Pro Security",
-    "show_module_menu_item": false,
-    "highlight_menu_item":   true,
-    "tagline":               "The Best In WordPress Security, Only Better.",
-    "auto_enabled":          true,
-    "storage_key":           "license",
-    "show_central":          false,
-    "premium":               false,
-    "access_restricted":     true,
-    "run_if_verified_bot":   true,
-    "run_if_wpcli":          true
+    "slug":                "license",
+    "load_priority":       0,
+    "name":                "Pro Security",
+    "show_module_options": false,
+    "tagline":             "The Best In WordPress Security, Only Better.",
+    "show_central":        false
   },
   "wpcli":            {
     "enabled": true
   },
-  "custom_redirects": [
-    {
-      "source_mod_page": "pro-redirect",
-      "target_mod_page": "insights",
-      "query_args":      {
-        "inav": "license"
-      }
-    }
-  ],
   "sections":         [
     {
       "slug":   "section_non_ui",

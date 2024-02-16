@@ -4,24 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	/**
-	 * @return array
-	 */
-	public function getDelayTracking() {
+	public function getDelayTracking() :array {
 		$tracking = $this->getOpt( 'delay_tracking', [] );
 		if ( !\is_array( $tracking ) ) {
 			$tracking = [];
 		}
-		$tracking = Services::DataManipulation()->mergeArraysRecursive(
-			[
-				'core'    => [],
-				'plugins' => [],
-				'themes'  => [],
-			],
-			$tracking
-		);
+		$tracking = Services::DataManipulation()->mergeArraysRecursive( [
+			'core'    => [],
+			'plugins' => [],
+			'themes'  => [],
+		], $tracking );
+
 		$this->setOpt( 'delay_tracking', $tracking );
 
 		return $tracking;
@@ -34,10 +29,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		return self::con()->isPremiumActive() ? $this->getOpt( 'update_delay', 0 )*\DAY_IN_SECONDS : 0;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSelfAutoUpdateOpt() {
+	public function getSelfAutoUpdateOpt() :string {
 		return $this->getOpt( 'autoupdate_plugin_self' );
 	}
 
@@ -65,11 +57,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
 	}
 
-	/**
-	 * @param array $trackingInfo
-	 * @return $this
-	 */
-	public function setDelayTracking( $trackingInfo ) {
-		return $this->setOpt( 'delay_tracking', $trackingInfo );
+	public function setDelayTracking( array $trackingInfo ) {
+		$this->setOpt( 'delay_tracking', $trackingInfo );
 	}
 }

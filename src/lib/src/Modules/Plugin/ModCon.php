@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'plugin';
 
@@ -80,6 +80,10 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		$this->setVisitorIpSource();
 		$this->setupCacheDir();
 		$this->declareWooHposCompat();
+	}
+
+	public function isModuleEnabled() :bool {
+		return true;
 	}
 
 	public function onWpInit() {

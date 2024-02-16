@@ -1,24 +1,12 @@
 {
   "slug":        "admin_access_restriction",
   "properties":  {
-    "slug":                  "admin_access_restriction",
-    "name":                  "Security Admin",
-    "namespace":             "SecurityAdmin",
-    "load_priority":         11,
-    "sidebar_name":          "Security Admin",
-    "show_module_menu_item": false,
-    "show_module_options":   true,
-    "storage_key":           "admin_access_restriction",
-    "tagline":               "Security admin allows you to restrict access to the security plugin itself.",
-    "show_central":          true,
-    "access_restricted":     true,
-    "premium":               false,
-    "run_if_whitelisted":    true,
-    "run_if_verified_bot":   true,
-    "run_if_wpcli":          false,
-    "order":                 20
-  },
-  "menus":       {
+    "slug":                 "admin_access_restriction",
+    "name":                 "Security Admin",
+    "tagline":              "Security admin allows you to restrict access to the security plugin itself.",
+    "load_priority":        11,
+    "show_central":         true,
+    "order":                20,
     "config_menu_priority": 15
   },
   "wpcli":       {

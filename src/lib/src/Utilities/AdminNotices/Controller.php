@@ -187,10 +187,16 @@ class Controller {
 		/** @var Plugin\Options $opts */
 		$opts = $con->getModule_Plugin()->opts();
 
+		$installedAt = $con->getModule_Plugin()->getInstallDate();
+		if ( empty( $installedAt ) ) {
+			return 0;
+		}
+		$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
+
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
 		}
-		elseif ( $notice->type == 'promo' && !$opts->isShowPromoAdminNotices() ) {
+		elseif ( $notice->type == 'promo' && !$opts->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
 			$notice->non_display_reason = 'promo_hidden';
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
@@ -202,7 +208,7 @@ class Controller {
 		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
 			$notice->non_display_reason = 'is_plugin_admin';
 		}
-		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $opts->getInstallationDays() ) {
+		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
 			$notice->non_display_reason = 'min_install_days';
 		}
 		elseif ( $this->count > 0 && $notice->type !== 'error' ) {

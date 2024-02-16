@@ -1,23 +1,12 @@
 {
   "slug":        "firewall",
   "properties":  {
-    "slug":                  "firewall",
-    "load_priority":         1000,
-    "name":                  "Firewall",
-    "sidebar_name":          "Firewall",
-    "show_module_menu_item": false,
-    "show_module_options":   true,
-    "storage_key":           "firewall",
-    "tagline":               "Automatically block malicious HTTP requests and data sent to your site",
-    "show_central":          true,
-    "access_restricted":     true,
-    "premium":               false,
-    "run_if_whitelisted":    false,
-    "run_if_verified_bot":   false,
-    "run_if_wpcli":          false,
-    "order":                 30
-  },
-  "menus":       {
+    "slug":                 "firewall",
+    "load_priority":        1000,
+    "name":                 "Firewall",
+    "tagline":              "Automatically block malicious HTTP requests and data sent to your site",
+    "show_central":         true,
+    "order":                30,
     "config_menu_priority": 44
   },
   "wpcli":       {

@@ -767,6 +767,9 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( CommentsFilter\ModCon::SLUG );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Comms() :Comms\ModCon {
 		return $this->getModule( Comms\ModCon::SLUG );
 	}

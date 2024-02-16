@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
 class PageScansRun extends PageScansBase {
 
@@ -80,9 +79,6 @@ class PageScansRun extends PageScansBase {
 	private function buildScansVars() :array {
 		$mod = self::con()->getModule_HackGuard();
 		$opts = $mod->opts();
-		/** @var Strings $strings */
-		$strings = $mod->getStrings();
-		$scanStrings = $strings->getScanStrings();
 
 		$scans = [];
 		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
@@ -95,6 +91,9 @@ class PageScansRun extends PageScansBase {
 				}
 			}
 
+			$strings = $scanCon->getStrings();
+			$strings[ 'sub_items' ] = $subItems;
+
 			$data = [
 				'flags'   => [
 					'is_available'  => $scanCon->isReady(),
@@ -103,11 +102,7 @@ class PageScansRun extends PageScansBase {
 					'is_selected'   => $scanCon->isReady()
 									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
-				'strings' => [
-					'title'     => $scanStrings[ $slug ][ 'name' ],
-					'subtitle'  => $scanStrings[ $slug ][ 'subtitle' ],
-					'sub_items' => $subItems,
-				],
+				'strings' => $strings,
 				'vars'    => [
 					'slug' => $scanCon->getSlug(),
 				],

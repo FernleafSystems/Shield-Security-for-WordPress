@@ -1,19 +1,10 @@
 {
   "slug":        "comms",
   "properties":  {
-    "slug":                  "comms",
-    "storage_key":           "comms",
-    "load_priority":         100,
-    "name":                  "Comms",
-    "show_module_options":   false,
-    "show_module_menu_item": false,
-    "auto_enabled":          false,
-    "show_central":          false,
-    "premium":               false,
-    "access_restricted":     true,
-    "run_if_whitelisted":    true,
-    "run_if_wpcli":          true,
-    "run_if_verified_bot":   true
+    "slug":          "comms",
+    "load_priority": 100,
+    "name":          "Comms",
+    "show_central":  false
   },
   "wpcli":       {
     "enabled": true

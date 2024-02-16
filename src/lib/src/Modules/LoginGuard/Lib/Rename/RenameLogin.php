@@ -13,9 +13,8 @@ class RenameLogin {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return !Services::IP()->isLoopback()
-			   && !empty( $this->opts()->getCustomLoginPath() )
-			   && !self::con()->this_req->is_ip_whitelisted
+		return !empty( $this->opts()->getCustomLoginPath() )
+			   && !self::con()->this_req->request_bypasses_all_restrictions
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 

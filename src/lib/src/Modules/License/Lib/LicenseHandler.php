@@ -25,6 +25,9 @@ class LicenseHandler {
 	private $caps;
 
 	protected function run() {
+
+		( new PluginNameSuffix() )->execute();
+
 		add_action( self::con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );

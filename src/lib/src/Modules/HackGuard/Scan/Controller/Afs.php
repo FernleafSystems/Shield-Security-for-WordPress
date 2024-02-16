@@ -24,6 +24,16 @@ class Afs extends Base {
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->execute();
 	}
 
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => __( 'WordPress Filesystem Scan', 'wp-simple-firewall' ),
+			'subtitle' => __( 'Filesystem Scan looking for modified, missing and unrecognised files (use config to adjust scan areas)', 'wp-simple-firewall' ),
+		];
+	}
+
 	public function getAdminMenuItems() :array {
 		$items = [];
 		$status = $this->mod()->getScansCon()->getScanResultsCount();

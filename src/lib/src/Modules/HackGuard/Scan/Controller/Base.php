@@ -142,9 +142,17 @@ abstract class Base {
 	}
 
 	public function getScanName() :string {
-		/** @var HackGuard\Strings $strings */
-		$strings = $this->mod()->getStrings();
-		return $strings->getScanStrings()[ $this->getSlug() ][ 'name' ];
+		return $this->getStrings()[ 'name' ];
+	}
+
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => 'no name',
+			'subtitle' => 'no subtitle',
+		];
 	}
 
 	public function isCronAutoRepair() :bool {

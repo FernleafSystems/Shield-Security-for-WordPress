@@ -31,9 +31,6 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 			'flags'   => [
 				'allow_email_override' => $secOpts->isEmailOverridePermitted()
 			],
-			'hrefs'   => [
-				'form_action' => $con->plugin_urls->adminHome(),
-			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'person-badge' ),
 			],

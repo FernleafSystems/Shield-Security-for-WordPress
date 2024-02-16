@@ -21,18 +21,22 @@ class ScansController {
 	use StandardCron;
 	use PluginCronsConsumer;
 
-	private $scanCons;
+	private $scanCons = [];
 
 	private $scanResultsStatus;
 
-	public function __construct() {
-		$this->scanCons = [];
+	protected function canRun() :bool {
+		return $this->opts()->isOpt( 'enable_hack_protect', 'Y' )
+			   && self::con()->db_con->dbhScanResults()->isReady()
+			   && self::con()->db_con->dbhScanItems()->isReady();
 	}
 
 	protected function run() {
 		foreach ( $this->getAllScanCons() as $scanCon ) {
 			$scanCon->execute();
 		}
+		$this->mod()->getFileLocker()->execute();
+
 		$this->setupCron();
 		$this->setupCronHooks();
 		$this->handlePostScanCron();

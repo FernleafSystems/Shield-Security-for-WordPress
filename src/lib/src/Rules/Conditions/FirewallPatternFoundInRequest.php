@@ -90,7 +90,8 @@ class FirewallPatternFoundInRequest extends Base {
 		/** @var Options $opts */
 		$opts = self::con()->getModule_Firewall()->opts();
 		$exclusions = $opts->getDef( 'default_whitelist' );
-		foreach ( $opts->getCustomWhitelist() as $page => $params ) {
+		$customWhitelist = $opts->getOpt( 'page_params_whitelist', [] );
+		foreach ( \is_array( $customWhitelist ) ? $customWhitelist : [] as $page => $params ) {
 			if ( !empty( $params ) && \is_array( $params ) ) {
 				$exclusions[ $page ] = \array_merge(
 					$exclusions[ $page ],

@@ -9,8 +9,4 @@ trait ModConsumer {
 	public function mod() :ModCon {
 		return self::con()->getModule_Data();
 	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
-	}
 }

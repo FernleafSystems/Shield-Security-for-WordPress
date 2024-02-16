@@ -1,28 +1,17 @@
 {
   "slug":        "integrations",
   "properties":  {
-    "slug":                  "integrations",
-    "storage_key":           "integrations",
-    "load_priority":         20,
-    "name":                  "Integrations",
-    "sidebar_name":          "Integrations",
-    "show_module_options":   true,
-    "show_module_menu_item": false,
-    "auto_enabled":          false,
-    "show_central":          true,
-    "premium":               false,
-    "access_restricted":     true,
-    "run_if_wpcli":          true,
-    "run_if_verified_bot":   true
+    "slug":                 "integrations",
+    "load_priority":        20,
+    "name":                 "Integrations",
+    "show_central":         true,
+    "config_menu_priority": 50
   },
   "reqs":        {
     "dbs": [
       "botsignal",
       "ips"
     ]
-  },
-  "menus":       {
-    "config_menu_priority": 50
   },
   "wpcli":       {
     "enabled": true

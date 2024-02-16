@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
-class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\WpCli {
+class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli {
 
 	protected function enumCmdHandlers() :array {
 		return [

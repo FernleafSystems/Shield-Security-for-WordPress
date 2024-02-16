@@ -55,7 +55,7 @@ class WpCli extends ExecOnceModConsumer {
 		return \array_merge(
 			[
 				'enabled'          => false,
-				'cmd_root'         => self::con()->getPluginPrefix(),
+				'cmd_root'         => 'shield',
 				'cmd_base'         => $this->mod()->cfg->slug,
 				'inc_mod_standard' => false,
 			],
