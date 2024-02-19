@@ -6,16 +6,11 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property array  $properties
- * @property array  $reqs
- * @property array  $menus
- * @property array  $meta
  * @property array  $options
  * @property array  $sections
- * @property array  $admin_notices
- * @property array  $wpcli
- * @property array  $definitions
  *                                   -- not part of config file --
  * @property string $slug
+ * @property array  $definitions // @deprecated 19.1
  */
 class ModConfigVO extends DynPropertiesClass {
 
@@ -33,12 +28,10 @@ class ModConfigVO extends DynPropertiesClass {
 				);
 				break;
 			case 'definitions':
-			case 'menus':
 			case 'meta':
 			case 'options':
-			case 'properties':
 			case 'sections':
-			case 'wpcli':
+			case 'properties':
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}

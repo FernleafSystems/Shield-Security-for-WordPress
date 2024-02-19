@@ -118,7 +118,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 	}
 
 	public function isEnabledSmsAuth() :bool {
-		return $this->isOpt( 'enable_sms_auth', 'Y' );
+		return false;
 	}
 
 	public function isEnabledCooldown() :bool {

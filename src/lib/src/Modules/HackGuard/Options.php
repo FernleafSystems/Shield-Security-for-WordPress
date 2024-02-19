@@ -40,18 +40,6 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return $this->getOpt( 'file_repair_areas' );
 	}
 
-	public function getLastRealtimeScanAt( bool $update = false ) :int {
-		$at = $this->getOpt( 'realtime_scan_last_at' );
-		if ( empty( $at ) ) {
-			$at = Services::Request()->ts();
-			$this->setOpt( 'realtime_scan_last_at', $at );
-		}
-		if ( $update ) {
-			$this->setOpt( 'realtime_scan_last_at', Services::Request()->ts() );
-		}
-		return $at;
-	}
-
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */

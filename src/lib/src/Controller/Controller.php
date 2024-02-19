@@ -611,28 +611,25 @@ class Controller extends DynPropertiesClass {
 	 * @throws Exceptions\PluginConfigInvalidException
 	 */
 	private function loadModConfigs() {
-		if ( empty( $this->cfg->modules ) ) {
+		if ( empty( $this->cfg->config_spec[ 'modules' ] ) ) {
 			throw new Exceptions\PluginConfigInvalidException( 'No modules specified in the plugin config.' );
 		}
 
-		// First load all module Configs
-		$modConfigs = ( new Config\Modules\LoadModuleConfigs() )->run();
+		if ( $this->cfg->rebuilt ) {
+			// First load all module Configs
+			$modConfigs = ( new Config\Modules\LoadModuleConfigs() )->run();
 
-		// Order Modules
-		\uasort( $modConfigs, function ( $a, $b ) {
-			/** @var Config\Modules\ModConfigVO $a */
-			/** @var Config\Modules\ModConfigVO $b */
-			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
-				return 0;
-			}
-			return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
-		} );
+			// Order Modules
+			\uasort( $modConfigs, function ( $a, $b ) {
+				/** @var Config\Modules\ModConfigVO $a */
+				/** @var Config\Modules\ModConfigVO $b */
+				if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
+					return 0;
+				}
+				return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
+			} );
 
-		$this->cfg->mods_cfg = $modConfigs;
-
-		// Sanity checking: count to ensure that when we set the cfgs, they were correctly set.
-		if ( \count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== \count( $modConfigs ) ) {
-			throw new Exceptions\PluginConfigInvalidException( 'Building and storing module configurations failed.' );
+			$this->cfg->mods_cfg = $modConfigs;
 		}
 	}
 

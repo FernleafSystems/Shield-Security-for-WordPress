@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
  * @property bool $enabled
- * @property bool $pro_only
  */
 class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 

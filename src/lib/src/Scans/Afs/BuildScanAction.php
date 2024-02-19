@@ -12,7 +12,6 @@ class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Bas
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 		$action->file_exts = $this->getFileExts();
-		$action->realtime_scan_last_at = $this->opts()->getLastRealtimeScanAt( true );
 	}
 
 	protected function getFileExts() :array {

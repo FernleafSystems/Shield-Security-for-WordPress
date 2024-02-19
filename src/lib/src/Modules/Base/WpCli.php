@@ -38,9 +38,7 @@ class WpCli extends ExecOnceModConsumer {
 	 */
 	protected function getAllCmdHandlers() :array {
 		$handlers = $this->enumCmdHandlers();
-		if ( $this->getCfg()[ 'inc_mod_standard' ] ) {
-			$handlers[] = ModuleStandard::class;
-		}
+		$handlers[] = ModuleStandard::class;
 		return $handlers;
 	}
 
@@ -52,14 +50,10 @@ class WpCli extends ExecOnceModConsumer {
 	}
 
 	public function getCfg() :array {
-		return \array_merge(
-			[
-				'enabled'          => false,
-				'cmd_root'         => 'shield',
-				'cmd_base'         => $this->mod()->cfg->slug,
-				'inc_mod_standard' => false,
-			],
-			$this->mod()->cfg->wpcli ?? []
-		);
+		return \array_merge( [
+			'enabled'  => true,
+			'cmd_root' => 'shield',
+			'cmd_base' => $this->mod()->cfg->slug,
+		], $this->mod()->cfg->properties[ 'wpcli' ] ?? [] );
 	}
 }

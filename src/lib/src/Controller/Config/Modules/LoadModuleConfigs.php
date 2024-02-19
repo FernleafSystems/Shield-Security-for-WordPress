@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions\PluginConfigInvalidException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class LoadModuleConfigs {
 
@@ -17,97 +16,45 @@ class LoadModuleConfigs {
 	public function run() :array {
 		$conCfg = self::con()->cfg;
 
-		$slugs = \array_combine( $conCfg->modules, $conCfg->modules );
-		if ( !\is_array( $slugs ) ) {
+		if ( !\is_array( $conCfg->config_spec ) ) {
 			throw new PluginConfigInvalidException( 'invalid specification of modules' );
 		}
 
-		$conCfg->rebuilt = $conCfg->rebuilt || $this->isRebuildNecessary( $slugs );
+		$configuration = ( new ConfigurationVO() )->applyFromArray( $conCfg->config_spec );
+		self::con()->cfg->configuration = $configuration;
 
-		return \array_map(
-			function ( string $slug ) use ( $conCfg ) {
-				/** @var ModConfigVO $cfg */
-				$cfg = apply_filters(
-					'shield/load_mod_cfg',
-					$conCfg->rebuilt ? ( new ModConfigVO() )->applyFromArray( $this->fromCfgFile( $slug ) ) : $conCfg->mods_cfg[ $slug ],
-					$slug
-				);
-
-				if ( !$cfg instanceof ModConfigVO || !isset( $cfg->properties ) || !\is_array( $cfg->properties ) ) {
-					throw new PluginConfigInvalidException( sprintf( "Loading config for module '%s' failed.", $slug ) );
-				}
-
-				return $cfg;
-			},
-			\array_filter( $slugs, function ( $slug ) {
-				return Services::WpFs()->isAccessibleFile( self::con()->paths->forModuleConfig( $slug ) );
-			} )
-		);
-	}
-
-	private function isRebuildNecessary( array $slugs ) :bool {
-		$con = self::con();
-		$rebuild = false;
-		foreach ( $slugs as $slug ) {
-			$path = $con->paths->forModuleConfig( $slug );
-			$priorCfg = $con->cfg->mods_cfg[ $slug ] ?? null;
-			if ( !$priorCfg instanceof ModConfigVO
-				 || ( Services::WpFs()->getModifiedTime( $path ) > $priorCfg->meta[ 'ts_mod' ] ) ) {
-				$rebuild = true;
-				break;
-			}
+		$indexed = [];
+		foreach ( $configuration->sections as $section ) {
+			$indexed[ $section[ 'slug' ] ] = $section;
 		}
-		return $rebuild;
-	}
+		$configuration->sections = $indexed;
 
-	/**
-	 * @throws PluginConfigInvalidException
-	 */
-	private function fromCfgFile( string $slug ) :array {
-		$path = self::con()->paths->forModuleConfig( $slug );
+		$indexed = [];
+		foreach ( $configuration->options as $option ) {
+			$indexed[ $option[ 'key' ] ] = $option;
+		}
+		$configuration->options = $indexed;
 
-		$raw = Services::Data()->readFileWithInclude( $path );
-		if ( empty( $raw ) ) {
-			throw new PluginConfigInvalidException( sprintf( 'Configuration file "%s" contents were empty or could not be read.', $path ) );
+		$legacyModuleCFGs = [];
+		foreach ( $conCfg->config_spec[ 'modules' ] as $slug => $moduleProperties ) {
+
+			$modCfg = new ModConfigVO();
+			$modCfg->slug = $slug;
+			$modCfg->properties = \array_merge( [
+				'storage_key'         => $slug,
+				'show_module_options' => true,
+				'menu_priority'       => 100,
+			], $moduleProperties );
+
+			$modCfg->sections = $configuration->sectionsForModule( $modCfg->slug );
+			$modCfg->options = $configuration->optsForModule( $modCfg->slug );
+
+			/** @var ModConfigVO $modCfg */
+			$modCfg = apply_filters( 'shield/load_mod_cfg', $modCfg, $slug );
+
+			$legacyModuleCFGs[ $slug ] = $modCfg;
 		}
 
-		$cfg = \json_decode( $raw, true );
-		if ( empty( $cfg ) || !\is_array( $cfg ) ) {
-			throw new PluginConfigInvalidException( sprintf( "Couldn't parse JSON from file '%s'.", $path ) );
-		}
-
-		$keyedOptions = [];
-		foreach ( $cfg[ 'options' ] ?? [] as $option ) {
-			if ( !empty( $option[ 'key' ] ) ) {
-				$keyedOptions[ $option[ 'key' ] ] = $option;
-			}
-		}
-		$cfg[ 'options' ] = $keyedOptions;
-
-		$cfg[ 'meta' ] = [
-			'ts_mod' => Services::WpFs()->getModifiedTime( $path ),
-		];
-
-		if ( empty( $cfg[ 'slug' ] ) ) {
-			$cfg[ 'slug' ] = $cfg[ 'properties' ][ 'slug' ];
-		}
-
-		$cfg[ 'properties' ] = \array_merge( [
-			'storage_key'           => $cfg[ 'slug' ],
-			'tagline'               => '',
-			'show_module_options'   => true,
-			'tracking_exclude'      => false,
-			'menu_priority'         => 100,
-		], $cfg[ 'properties' ] );
-
-		$cfg[ 'menus' ] = \array_merge( [
-			'config_menu_priority' => 100,
-		], $cfg[ 'menus' ] ?? [] );
-
-		if ( empty( $cfg[ 'properties' ][ 'storage_key' ] ) ) {
-			$cfg[ 'properties' ][ 'storage_key' ] = $cfg[ 'properties' ][ 'slug' ];
-		}
-
-		return $cfg;
+		return $legacyModuleCFGs;
 	}
 }

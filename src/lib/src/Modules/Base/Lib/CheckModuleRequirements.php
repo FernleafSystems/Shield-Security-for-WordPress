@@ -13,7 +13,7 @@ class CheckModuleRequirements {
 	 */
 	public function run() :bool {
 		$preChecks = self::con()->prechecks;
-		$modReqs = $this->mod()->cfg->reqs;
+		$modReqs = $this->mod()->cfg->properties[ 'reqs' ];
 
 		$modChecks = [
 			// all DBs that this mod requires but that aren't ready.

@@ -11,7 +11,7 @@ class EventsService {
 	/**
 	 * @var array[]
 	 */
-	private $aEvents;
+	private $events;
 
 	public function eventExists( string $eventKey ) :bool {
 		return !empty( $this->getEventDef( $eventKey ) );
@@ -67,15 +67,14 @@ class EventsService {
 	 * @return array[]
 	 */
 	public function getEvents() :array {
-		if ( empty( $this->aEvents ) ) {
-			$this->aEvents = (array)apply_filters(
+		if ( empty( $this->events ) ) {
+			$this->events = (array)apply_filters(
 				'shield/events/definitions',
-				$this->buildEvents( self::con()->getModule_Plugin()->opts()->getEvents() )
+				$this->buildEvents( self::con()->cfg->configuration->events )
 			);
-			if ( empty( $this->aEvents ) ) {
+			if ( empty( $this->events ) ) {
 				error_log( 'Shield events definitions is empty or not the correct format' );
 			}
-			\ksort( $this->aEvents );
 		}
 
 		try {
@@ -86,7 +85,7 @@ class EventsService {
 			$custom = [];
 		}
 
-		return \array_merge( $this->aEvents, $custom );
+		return \array_merge( $this->events, $custom );
 	}
 
 	/**

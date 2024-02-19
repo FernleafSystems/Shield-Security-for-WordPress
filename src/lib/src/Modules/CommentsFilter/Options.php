@@ -22,8 +22,15 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 	}
 
 	public function getHumanSpamFilterItems() :array {
-		$default = $this->getOptDefault( 'human_spam_items' );
-		$items = apply_filters( self::con()->prefix( 'human_spam_items' ), $this->getOpt( 'human_spam_items', [] ) );
+		$default = [
+			'author_name',
+			'author_email',
+			'comment_content',
+			'url',
+			'ip_address',
+			'user_agent'
+		];
+		$items = apply_filters( self::con()->prefix( 'human_spam_items' ), $default );
 		return \is_array( $items ) ? \array_intersect( $default, $items ) : $default;
 	}
 

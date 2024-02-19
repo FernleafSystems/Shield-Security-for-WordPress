@@ -66,7 +66,7 @@ class Options {
 			$this->getOptionsKeys(),
 			function ( $key ) {
 				$opt = $this->getOptDefinition( $key );
-				return !empty( $opt[ 'section' ] ) && $opt[ 'section' ] !== 'section_non_ui';
+				return !empty( $opt[ 'section' ] ) && !\str_starts_with( $opt[ 'section' ], 'section_hidden_' );
 			}
 		);
 	}
@@ -75,23 +75,18 @@ class Options {
 	 * Returns an array of all the options with the values for "sensitive" options masked out.
 	 */
 	public function getOptionsForTracking() :array {
-		$opts = [];
-		if ( !$this->mod()->cfg->properties[ 'tracking_exclude' ] ) {
-
-			$options = $this->getAllOptionsValues();
-			foreach ( $this->getOptionsKeys() as $key ) {
-				if ( !isset( $options[ $key ] ) ) {
-					$options[ $key ] = $this->getOptDefault( $key );
-				}
+		$options = $this->getAllOptionsValues();
+		foreach ( $this->getOptionsKeys() as $key ) {
+			if ( !isset( $options[ $key ] ) ) {
+				$options[ $key ] = $this->getOptDefault( $key );
 			}
-			foreach ( $this->cfg()->options as $optDef ) {
-				if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
-					unset( $options[ $optDef[ 'key' ] ] );
-				}
-			}
-			$opts = \array_diff_key( $options, \array_flip( $this->getVirtualCommonOptions() ) );
 		}
-		return $opts;
+		foreach ( $this->cfg()->options as $optDef ) {
+			if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
+				unset( $options[ $optDef[ 'key' ] ] );
+			}
+		}
+		return \array_diff_key( $options, \array_flip( $this->getVirtualCommonOptions() ) );
 	}
 
 	/**
@@ -105,15 +100,12 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {
-		return $this->cfg()->definitions[ $key ] ?? null;
+		$def = self::con()->cfg->configuration->defs[ $key ] ?? null;
+		return $def !== null ? $def:( $this->cfg()->definitions[ $key ] ?? null );
 	}
 
 	public function getEvents() :array {
 		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
-	}
-
-	public function getAdminNotices() :array {
-		return $this->cfg()->admin_notices ?? [];
 	}
 
 	public function ensureOptValueType( string $key, $value ) {

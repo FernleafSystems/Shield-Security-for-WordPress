@@ -134,10 +134,9 @@ class DbCon {
 	public function getHandlers() :array {
 		if ( $this->dbHandlers === null ) {
 			$this->dbHandlers = [];
-			$opts = self::con()->getModule_Data()->opts();
-			$classes = $opts->getDef( 'db_handler_classes' );
-			foreach ( \is_array( $classes ) ? $classes : [] as $dbKey => $dbClass ) {
-				$def = $opts->getDef( 'db_table_'.$dbKey );
+			$dbSpecs = self::con()->cfg->configuration->databases;
+			foreach ( $dbSpecs[ 'db_handler_classes' ] as $dbKey => $dbClass ) {
+				$def = $dbSpecs[ 'db_table_'.$dbKey ];
 				$this->dbHandlers[ $dbKey ] = [
 					'name'    => $def[ 'name' ] ?? $dbKey,
 					'class'   => $dbClass,

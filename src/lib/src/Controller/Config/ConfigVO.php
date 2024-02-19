@@ -3,10 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ConfigurationVO;
 
 /**
  * @property array                 $properties
- * @property array                 $modules
+ * @property array{
+ *     modules:array,
+ *     sections:array,
+ *     options:array,
+ *     defs:array,
+ *     admin_notices:array,
+ *     }                           $config_spec
  * @property array                 $requirements
  * @property array                 $paths
  * @property array                 $includes
@@ -23,6 +30,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string                $previous_version
  * @property array                 $update_first_detected
  * @property Modules\ModConfigVO[] $mods_cfg
+ * @property ConfigurationVO       $configuration
  */
 class ConfigVO extends DynPropertiesClass {
 
@@ -76,6 +84,10 @@ class ConfigVO extends DynPropertiesClass {
 				) );
 				break;
 
+			case 'configuration':
+				$val = \is_array( $val ) ? ( new Modules\ConfigurationVO() )->applyFromArray( $val ) : null;
+				break;
+
 			default:
 				break;
 		}
@@ -88,10 +100,13 @@ class ConfigVO extends DynPropertiesClass {
 			case 'mods_cfg':
 				$value = \array_filter( \array_map(
 					function ( $cfg ) {
-						return $cfg instanceof Modules\ModConfigVO ? $cfg->getRawData() : null;
+						return empty( $cfg ) ? null : $cfg->getRawData();
 					},
 					\is_array( $value ) ? $value : []
 				) );
+				break;
+			case 'configuration':
+				$value = empty( $value ) ? null : $value->getRawData();
 				break;
 
 			default:

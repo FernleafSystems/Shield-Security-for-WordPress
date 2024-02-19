@@ -178,7 +178,7 @@ class Controller {
 				], $noticeDef );
 				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},
-			self::con()->getModule_Plugin()->cfg->admin_notices
+			self::con()->cfg->configuration->admin_notices
 		);
 	}
 

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 /**
- * @property int      $realtime_scan_last_at
  * @property string[] $file_exts
  * @property string[] $scan_root_dirs
  * @property string[] $paths_whitelisted
