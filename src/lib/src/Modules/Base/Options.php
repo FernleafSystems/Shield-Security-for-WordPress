@@ -34,12 +34,7 @@ class Options {
 			}
 		}
 		catch ( \Exception $e ) {
-			try {
-				$values = ( new Options\Storage() )->setMod( $this->mod() )->loadOptions();
-			}
-			catch ( \Exception $e ) {
-				$values = [];
-			}
+			$values = [];
 			self::con()->opts->setFor( $this->mod(), $values );
 		}
 		return $values;
@@ -56,19 +51,6 @@ class Options {
 			}
 		}
 		return $transferable;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getOptionsForWpCli() :array {
-		return \array_filter(
-			$this->getOptionsKeys(),
-			function ( $key ) {
-				$opt = $this->getOptDefinition( $key );
-				return !empty( $opt[ 'section' ] ) && !\str_starts_with( $opt[ 'section' ], 'section_hidden_' );
-			}
-		);
 	}
 
 	/**
@@ -92,20 +74,9 @@ class Options {
 	/**
 	 * @return mixed|null
 	 */
-	public function getFeatureProperty( string $property ) {
-		return $this->cfg()->properties[ $property ] ?? null;
-	}
-
-	/**
-	 * @return mixed|null
-	 */
 	public function getDef( string $key ) {
-		$def = self::con()->cfg->configuration->defs[ $key ] ?? null;
-		return $def !== null ? $def:( $this->cfg()->definitions[ $key ] ?? null );
-	}
-
-	public function getEvents() :array {
-		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
+		$config = self::con()->cfg->configuration;
+		return empty( $config ) ? ( $this->cfg()->definitions[ $key ] ?? null ) : $config->def( $key );
 	}
 
 	public function ensureOptValueType( string $key, $value ) {
@@ -177,36 +148,14 @@ class Options {
 	/**
 	 * @return array[]
 	 */
-	public function getSections( bool $includeHidden = false ) :array {
+	public function getSections() :array {
 		$sections = [];
 		foreach ( $this->cfg()->sections as $section ) {
-			if ( $includeHidden || empty( $section[ 'hidden' ] ) ) {
+			if ( empty( $section[ 'hidden' ] ) ) {
 				$sections[ $section[ 'slug' ] ] = $section;
 			}
 		}
 		return $sections;
-	}
-
-	public function getPrimarySection() :array {
-		$theSection = [];
-		foreach ( $this->getSections() as $section ) {
-			if ( $section[ 'primary' ] ?? false ) {
-				$theSection = $section;
-				break;
-			}
-		}
-		return $theSection;
-	}
-
-	public function getSection_Requirements( string $slug ) :array {
-		$section = $this->getSection( $slug );
-		return \array_merge(
-			[
-				'php_min' => '7.2',
-				'wp_min'  => '5.7',
-			],
-			( \is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
-		);
 	}
 
 	/**
@@ -281,7 +230,7 @@ class Options {
 	}
 
 	public function getOptDefinition( string $key ) :array {
-		return $this->cfg()->options[ $key ] ?? [];
+		return self::con()->cfg->configuration->options[ 'key' ] ?? ( $this->cfg()->options[ $key ] ?? [] );
 	}
 
 	public function optCap( string $key ) :?string {
@@ -318,10 +267,6 @@ class Options {
 		return $this->mod()->cfg;
 	}
 
-	public function getRawData_FullFeatureConfig() :array {
-		return $this->cfg()->getRawData();
-	}
-
 	public function getSelectOptionValueKeys( string $key ) :array {
 		$keys = [];
 		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
@@ -341,16 +286,8 @@ class Options {
 		return $text;
 	}
 
-	public function isOptAdvanced( string $key ) :bool {
-		return (bool)$this->getOptProperty( $key, 'advanced' );
-	}
-
 	public function isOptChanged( string $key ) :bool {
 		return \is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
-	}
-
-	public function isOptPremium( string $key ) :bool {
-		return (bool)$this->getOptProperty( $key, 'premium' );
 	}
 
 	public function optExists( string $key ) :bool {
@@ -359,17 +296,6 @@ class Options {
 
 	public function resetOptToDefault( string $key ) :self {
 		return $this->setOpt( $key, $this->getOptDefault( $key ) );
-	}
-
-	/**
-	 * Will traverse each premium option and set it to the default.
-	 */
-	public function resetPremiumOptsToDefault() {
-		foreach ( $this->cfg()->options as $opt ) {
-			if ( $opt[ 'premium' ] ?? false ) {
-				$this->resetOptToDefault( $opt[ 'key' ] );
-			}
-		}
 	}
 
 	public function setNeedSave( bool $need ) {
@@ -507,8 +433,6 @@ class Options {
 
 	protected function getVirtualCommonOptions() :array {
 		return [
-			'dismissed_notices',
-			'ui_track',
 			'xfer_excluded',
 		];
 	}
@@ -531,5 +455,12 @@ class Options {
 		self::con()->opts->setFor( $this->mod(), \array_intersect_key( $values, \array_flip( $this->getOptionsKeys() ) ) );
 		$this->setNeedSave( true );
 		return $this;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getEvents() :array {
+		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
 	}
 }

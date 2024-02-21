@@ -11,25 +11,27 @@ class VerifyConfig {
 
 	public function run() {
 		$sectionDuplicateExceptions = [ 'section_non_ui' ];
-		$optsDuplicateExceptions = [ 'dismissed_notices', 'ui_track', 'xfer_excluded' ];
+		$optsDuplicateExceptions = [ 'xfer_excluded' ];
 
 		$allSections = [];
 		$allOpts = [];
 		$sectionsMissingModule = [];
+		$config = self::con()->cfg->configuration;
+
+		foreach ( $config->sections as $sectionKey => $section ) {
+			if ( empty( $section[ 'module' ] ) ) {
+				$sectionsMissingModule[] = $sectionKey;
+			}
+		}
+
 		foreach ( self::con()->modules as $mod ) {
 			$opts = $mod->opts();
-			$sections = \array_keys( $opts->getSections( true ) );
+			$sections = \array_keys( $config->sectionsForModule( $mod->cfg->slug ) );
 			$duplicates = \array_diff( \array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );
 			if ( \count( $duplicates ) > 0 ) {
 				var_dump( sprintf( 'Mod %s has duplicate section slugs: %s', $mod->cfg->slug, \implode( ', ', $duplicates ) ) );
 			}
 			$allSections = \array_unique( \array_merge( $allSections, $sections ) );
-
-			foreach ( $opts->getSections() as $sectionKey => $section ) {
-				if ( empty( $section[ 'module' ] ) ) {
-					$sectionsMissingModule[] = $sectionKey;
-				}
-			}
 
 			$optKeys = $opts->getOptionsKeys();
 			$duplicates = \array_diff( \array_intersect( $allOpts, $optKeys ), $optsDuplicateExceptions );

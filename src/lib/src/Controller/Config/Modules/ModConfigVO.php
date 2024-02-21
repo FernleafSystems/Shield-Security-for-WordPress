@@ -19,16 +19,6 @@ class ModConfigVO extends DynPropertiesClass {
 		$value = parent::__get( $key );
 
 		switch ( $key ) {
-			case 'reqs':
-				$value = \array_merge(
-					[
-						'dbs' => [],
-					],
-					\is_array( $value ) ? $value : []
-				);
-				break;
-			case 'definitions':
-			case 'meta':
 			case 'options':
 			case 'sections':
 			case 'properties':

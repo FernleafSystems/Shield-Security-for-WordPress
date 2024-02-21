@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class Storage {
 
 	use ModConsumer;

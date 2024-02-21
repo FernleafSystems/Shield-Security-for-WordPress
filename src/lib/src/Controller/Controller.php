@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions,
 	Exceptions\ActionException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
@@ -414,7 +415,10 @@ class Controller extends DynPropertiesClass {
 
 			$this->modules_loaded = true;
 
-			$this->loadModConfigs();
+			$configuration = $this->cfg->configuration;
+			if ( empty( $configuration ) || $this->cfg->rebuilt ) {
+				$this->cfg->configuration = $configuration = ( new Config\Modules\LoadModuleConfigs() )->run();
+			}
 
 			$enum = [
 				SecurityAdmin\ModCon::class,
@@ -436,15 +440,24 @@ class Controller extends DynPropertiesClass {
 			];
 
 			$modules = $this->modules ?? [];
-			foreach ( $this->cfg->mods_cfg as $cfg ) {
+			foreach ( $this->cfg->configuration->modules as $slug => $moduleProps ) {
+
+				$cfg = new ModConfigVO();
+				$cfg->slug = $slug;
+				$cfg->properties = $moduleProps;
+				$cfg->sections = $configuration->sectionsForModule( $cfg->slug );
+				$cfg->options = $configuration->optsForModule( $cfg->slug );
+
+				/** @var ModConfigVO $cfg */
+				$cfg = apply_filters( 'shield/load_mod_cfg', $cfg, $slug );
 
 				$slug = $cfg->properties[ 'slug' ];
 				$theModClass = null;
-				foreach ( $enum as $key => $modClass ) {
+				foreach ( $enum as $idx => $modClass ) {
 					/** @var string|Base\ModCon $modClass */
 					if ( @\class_exists( $modClass ) && $slug === $modClass::SLUG ) {
 						$theModClass = $modClass;
-						unset( $enum[ $key ] );
+						unset( $enum[ $idx ] );
 						break;
 					}
 				}
@@ -605,32 +618,6 @@ class Controller extends DynPropertiesClass {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
 		$this->plugin_urls;
 		$this->saveCurrentPluginControllerOptions();
-	}
-
-	/**
-	 * @throws Exceptions\PluginConfigInvalidException
-	 */
-	private function loadModConfigs() {
-		if ( empty( $this->cfg->config_spec[ 'modules' ] ) ) {
-			throw new Exceptions\PluginConfigInvalidException( 'No modules specified in the plugin config.' );
-		}
-
-		if ( $this->cfg->rebuilt ) {
-			// First load all module Configs
-			$modConfigs = ( new Config\Modules\LoadModuleConfigs() )->run();
-
-			// Order Modules
-			\uasort( $modConfigs, function ( $a, $b ) {
-				/** @var Config\Modules\ModConfigVO $a */
-				/** @var Config\Modules\ModConfigVO $b */
-				if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
-					return 0;
-				}
-				return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
-			} );
-
-			$this->cfg->mods_cfg = $modConfigs;
-		}
 	}
 
 	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsSections;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Record;
@@ -413,6 +415,7 @@ class SelectSearchData {
 	private function getConfigSearch() :array {
 		$con = self::con();
 
+		$stringsOptions = new StringsOptions();
 		$search = [];
 		foreach ( $con->modules as $module ) {
 			if ( $module->cfg->properties[ 'show_module_options' ] ) {
@@ -421,7 +424,7 @@ class SelectSearchData {
 					try {
 						$config[] = [
 							'id'     => 'config_'.$optKey,
-							'text'   => $module->getStrings()->getOptionStrings( $optKey )[ 'name' ],
+							'text'   => $stringsOptions->getFor( $optKey )[ 'name' ],
 							'link'   => [
 								'href' => $con->plugin_urls->modCfgOption( $optKey ),
 							],
@@ -449,11 +452,8 @@ class SelectSearchData {
 	 * @throws \Exception
 	 */
 	private function getSearchableTextForModuleOption( $mod, string $optKey ) :string {
-		$modOpts = $mod->opts();
-		$modStrings = $mod->getStrings();
-
-		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
-		$strOpts = $modStrings->getOptionStrings( $optKey );
+		$strSection = ( new StringsSections() )->getFor( $mod->opts()->getOptDefinition( $optKey )[ 'section' ] );
+		$strOpts = ( new StringsOptions() )->getFor( $optKey );
 
 		$allWords = \array_filter( \array_map( '\trim',
 			\explode( ' ', \preg_replace( '#\(\):-#', ' ', \strip_tags( \implode( ' ', \array_merge(

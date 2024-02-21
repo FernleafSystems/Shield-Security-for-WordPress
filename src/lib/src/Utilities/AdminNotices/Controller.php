@@ -274,7 +274,7 @@ class Controller {
 			$mod = self::con()->getModule_Plugin();
 			$allDismissed = $mod->getDismissedNotices();
 			$allDismissed[ $notice->id ] = Services::Request()->ts();
-			$mod->setDismissedNotices( $allDismissed );
+			$mod->opts()->setOpt( 'dismissed_notices', $allDismissed );
 
 			// Clear out any old
 			if ( !empty( $meta ) ) {

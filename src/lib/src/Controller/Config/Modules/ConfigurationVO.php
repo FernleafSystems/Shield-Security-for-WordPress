@@ -15,6 +15,10 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class ConfigurationVO extends DynPropertiesClass {
 
+	public function def( string $key ) {
+		return $this->defs[ $key ] ?? null;
+	}
+
 	public function optsForSection( string $section ) :array {
 		return \array_filter(
 			$this->options,

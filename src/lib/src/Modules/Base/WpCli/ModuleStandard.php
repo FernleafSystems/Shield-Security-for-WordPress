@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
+
 class ModuleStandard extends BaseWpCliCmd {
 
 	protected function addCmds() {
@@ -41,7 +43,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'key',
 					'optional'    => false,
-					'options'     => $this->opts()->getOptionsForWpCli(),
+					'options'     => $this->getOptionsForWpCli(),
 					'description' => 'The option key to get.',
 				],
 			],
@@ -56,7 +58,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'key',
 					'optional'    => false,
-					'options'     => $this->opts()->getOptionsForWpCli(),
+					'options'     => $this->getOptionsForWpCli(),
 					'description' => 'The option key to updateModuleStandard.php
 					.',
 				],
@@ -141,13 +143,13 @@ class ModuleStandard extends BaseWpCliCmd {
 
 	public function cmdOptList( array $null, array $args ) {
 		$opts = $this->opts();
-		$strings = $this->mod()->getStrings();
+		$strings = new StringsOptions();
 		$optsList = [];
-		foreach ( $opts->getOptionsForWpCli() as $key ) {
+		foreach ( $this->getOptionsForWpCli() as $key ) {
 			try {
 				$optsList[] = [
 					'key'     => $key,
-					'name'    => $strings->getOptionStrings( $key )[ 'name' ],
+					'name'    => $strings->getFor( $key )[ 'name' ],
 					'type'    => $opts->getOptionType( $key ),
 					'current' => $opts->getOpt( $key ),
 					'default' => $opts->getOptDefault( $key ),
@@ -178,5 +180,18 @@ class ModuleStandard extends BaseWpCliCmd {
 				$allKeys
 			);
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getOptionsForWpCli() :array {
+		return \array_filter(
+			$this->opts()->getOptionsKeys(),
+			function ( $key ) {
+				$opt = $this->opts()->getOptDefinition( $key );
+				return !empty( $opt[ 'section' ] ) && !\str_starts_with( $opt[ 'section' ], 'section_hidden_' );
+			}
+		);
 	}
 }

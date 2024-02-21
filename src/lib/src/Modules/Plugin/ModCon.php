@@ -94,6 +94,13 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		( new AssetsCustomizer() )->execute();
 	}
 
+	/**
+	 * @return string[]
+	 */
+	public function getDismissedNotices() :array {
+		return $this->opts()->getOpt( 'dismissed_notices' );
+	}
+
 	protected function setupCacheDir() {
 		$url = Services::WpGeneral()->getWpUrl();
 

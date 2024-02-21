@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -224,7 +225,7 @@ class BuildForDisplay {
 
 		// add strings
 		try {
-			$optStrings = $this->mod()->getStrings()->getOptionStrings( $option[ 'key' ] );
+			$optStrings = ( new StringsOptions() )->getFor( $option[ 'key' ] );
 			if ( !\is_array( $optStrings[ 'description' ] ) ) {
 				$optStrings[ 'description' ] = [ $optStrings[ 'description' ] ];
 			}

@@ -347,7 +347,6 @@ abstract class BaseRender extends BaseAction {
 			'license_expires' => __( 'Expires', 'wp-simple-firewall' ),
 			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
-			'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
 
 			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $name ),
 			'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),

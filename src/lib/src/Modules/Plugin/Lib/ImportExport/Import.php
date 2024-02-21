@@ -209,11 +209,11 @@ class Import {
 
 		$anythingChanged = false;
 		foreach ( self::con()->modules as $mod ) {
-			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
+			if ( !empty( $data[ $mod->cfg->slug ] ) ) {
 				$theseOpts = $mod->opts();
 				$theseOpts->setMultipleOptions(
 					\array_diff_key(
-						$data[ $mod->getOptionsStorageKey() ] ?? [],
+						$data[ $mod->cfg->slug ] ?? [],
 						\array_flip( $theseOpts->getXferExcluded() )
 					)
 				);

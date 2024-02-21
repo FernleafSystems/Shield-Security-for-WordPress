@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Utility\PerformConditionMatch
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 
 class FirewallPatternFoundInRequest extends Base {
 
@@ -34,10 +34,15 @@ class FirewallPatternFoundInRequest extends Base {
 
 	private function getFirewallRuleNameFromCategory( string $category ) :string {
 		try {
-			$ruleName = self::con()
-							->getModule_Firewall()
-							->getStrings()
-							->getOptionStrings( 'block_'.$category )[ 'name' ] ?? 'Unknown';
+			if ( @\class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions' ) ) {
+				$ruleName = ( new StringsOptions() )->getFor( 'block_'.$category )[ 'name' ];
+			}
+			else {
+				$ruleName = self::con()
+								->getModule_Firewall()
+								->getStrings()
+								->getOptionStrings( 'block_'.$category )[ 'name' ] ?? 'Unknown';
+			}
 		}
 		catch ( \Exception $e ) {
 			$ruleName = 'Unknown';
@@ -87,10 +92,9 @@ class FirewallPatternFoundInRequest extends Base {
 	}
 
 	private function getAllParameterExclusions() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_Firewall()->opts();
-		$exclusions = $opts->getDef( 'default_whitelist' );
-		$customWhitelist = $opts->getOpt( 'page_params_whitelist', [] );
+		$exclusions = self::con()->cfg->configuration->def( 'default_whitelist' );
+		$customWhitelist = self::con()->getModule_Firewall()->opts()->getOpt( 'page_params_whitelist', [] );
+		
 		foreach ( \is_array( $customWhitelist ) ? $customWhitelist : [] as $page => $params ) {
 			if ( !empty( $params ) && \is_array( $params ) ) {
 				$exclusions[ $page ] = \array_merge(

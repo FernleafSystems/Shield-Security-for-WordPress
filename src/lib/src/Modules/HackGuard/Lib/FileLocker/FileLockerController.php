@@ -42,7 +42,6 @@ class FileLockerController {
 	}
 
 	protected function run() {
-
 		/**
 		 * This cron block must ALWAYS be executed on or before wp_loaded. ALWAYS.
 		 */

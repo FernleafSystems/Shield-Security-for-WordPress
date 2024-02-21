@@ -3217,13 +3217,6 @@
         "transferable": false
       },
       {
-        "key":          "last_errors",
-        "section":      "section_hidden_license",
-        "transferable": false,
-        "type":         "array",
-        "default":      ""
-      },
-      {
         "key":          "last_error_at",
         "section":      "section_hidden_license",
         "type":         "integer",

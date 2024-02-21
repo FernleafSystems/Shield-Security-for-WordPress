@@ -24,7 +24,7 @@ class PluginURLs {
 	}
 
 	public function rootAdminPageSlug() :string {
-		return self::con()->getModule_Plugin()->getModSlug();
+		return self::con()->prefix( self::con()->getModule_Plugin()->cfg->slug );
 	}
 
 	public function adminHome() :string {

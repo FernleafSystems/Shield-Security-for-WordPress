@@ -10,51 +10,57 @@ class LoadModuleConfigs {
 	use PluginControllerConsumer;
 
 	/**
-	 * @return ModConfigVO[]
 	 * @throws PluginConfigInvalidException
 	 */
-	public function run() :array {
-		$conCfg = self::con()->cfg;
+	public function run() :ConfigurationVO {
+		$cfgSpec = self::con()->cfg->config_spec ?? null;
 
-		if ( !\is_array( $conCfg->config_spec ) ) {
+		if ( !\is_array( $cfgSpec ) ) {
 			throw new PluginConfigInvalidException( 'invalid specification of modules' );
 		}
+		if ( empty( $cfgSpec[ 'modules' ] ) ) {
+			throw new PluginConfigInvalidException( 'No modules specified in the plugin config.' );
+		}
 
-		$configuration = ( new ConfigurationVO() )->applyFromArray( $conCfg->config_spec );
-		self::con()->cfg->configuration = $configuration;
+		$configuration = ( new ConfigurationVO() )->applyFromArray( $cfgSpec );
 
 		$indexed = [];
+		$hiddenSections = [];
 		foreach ( $configuration->sections as $section ) {
 			$indexed[ $section[ 'slug' ] ] = $section;
+			if ( $section[ 'hidden' ] ?? false ) {
+				$hiddenSections[] = $section[ 'slug' ];
+			}
 		}
 		$configuration->sections = $indexed;
 
 		$indexed = [];
 		foreach ( $configuration->options as $option ) {
+			$option[ 'hidden' ] = \in_array( $option[ 'section' ], $hiddenSections ) || ( $option[ 'hidden' ] ?? false );
 			$indexed[ $option[ 'key' ] ] = $option;
 		}
 		$configuration->options = $indexed;
 
-		$legacyModuleCFGs = [];
-		foreach ( $conCfg->config_spec[ 'modules' ] as $slug => $moduleProperties ) {
-
-			$modCfg = new ModConfigVO();
-			$modCfg->slug = $slug;
-			$modCfg->properties = \array_merge( [
+		$modules = [];
+		foreach ( $configuration->modules as $slug => $moduleProps ) {
+			$modules[ $slug ] = \array_merge( [
 				'storage_key'         => $slug,
 				'show_module_options' => true,
+				'load_priority'       => 10,
 				'menu_priority'       => 100,
-			], $moduleProperties );
-
-			$modCfg->sections = $configuration->sectionsForModule( $modCfg->slug );
-			$modCfg->options = $configuration->optsForModule( $modCfg->slug );
-
-			/** @var ModConfigVO $modCfg */
-			$modCfg = apply_filters( 'shield/load_mod_cfg', $modCfg, $slug );
-
-			$legacyModuleCFGs[ $slug ] = $modCfg;
+			], $moduleProps );
 		}
 
-		return $legacyModuleCFGs;
+		// Order Modules based on their load priority
+		\uasort( $modules, function ( array $a, array $b ) {
+			if ( $a[ 'load_priority' ] == $b[ 'load_priority' ] ) {
+				return 0;
+			}
+			return ( $a[ 'load_priority' ] < $b[ 'load_priority' ] ) ? -1 : 1;
+		} );
+
+		$configuration->modules = $modules;
+
+		return $configuration;
 	}
 }

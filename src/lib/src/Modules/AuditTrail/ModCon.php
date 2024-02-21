@@ -62,7 +62,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 			if ( !empty( $exportData ) ) {
 				$exportItems[] = [
-					'group_id'          => $this->getModSlug(),
+					'group_id'          => $con->prefix( $this->cfg->slug ),
 					'group_label'       => sprintf( __( '[%s] Activity Log Entries', 'wp-simple-firewall' ),
 						$con->getHumanName() ),
 					'group_description' => sprintf( __( '[%s] Activity Log Entries referencing the given user.', 'wp-simple-firewall' ),

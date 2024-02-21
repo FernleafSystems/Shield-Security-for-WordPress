@@ -107,11 +107,7 @@ class Export {
 	}
 
 	public function getExportData() :array {
-		$all = [];
-		foreach ( $this->getRawOptionsExport() as $modSlug => $modOptions ) {
-			$mod = self::con()->modules[ $modSlug ];
-			$all[ $mod->getOptionsStorageKey() ] = $modOptions;
-		}
+		$all = $this->getRawOptionsExport();
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
@@ -136,18 +132,14 @@ class Export {
 		return $all;
 	}
 
-	public function getRawOptionsExport( bool $filterExcluded = true ) :array {
+	public function getRawOptionsExport() :array {
 		$all = [];
 		foreach ( self::con()->modules as $mod ) {
 			$opts = $mod->opts();
-			$xfr = $opts->getTransferableOptions();
-			if ( $filterExcluded ) {
-				$xfr = \array_diff_key(
-					$xfr,
-					\array_flip( $opts->getXferExcluded() )
-				);
-			}
-			$all[ $mod->cfg->slug ] = $xfr;
+			$all[ $mod->cfg->slug ] = \array_diff_key(
+				$opts->getTransferableOptions(),
+				\array_flip( $opts->getXferExcluded() )
+			);
 		}
 		return $all;
 	}

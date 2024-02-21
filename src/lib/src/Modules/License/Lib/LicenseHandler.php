@@ -89,7 +89,6 @@ class LicenseHandler {
 	}
 
 	public function clearLicense() {
-		$this->mod()->clearLastErrors();
 		$this->updateLicenseData( [] );
 	}
 

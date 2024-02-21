@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	License,
 	PluginControllerConsumer
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -147,9 +148,7 @@ class OptsHandler extends DynPropertiesClass {
 			],
 		];
 		$extras = [
-			'xfer_excluded'     => [],
-			'ui_track'          => [],
-			'dismissed_notices' => [],
+			'xfer_excluded' => [],
 		];
 
 		$flatFree = [];
@@ -226,22 +225,26 @@ class OptsHandler extends DynPropertiesClass {
 		$stored = Services::WpGeneral()->getOption( $this->key( $type ) );
 		$hasDiff = false;
 		$diffs = [];
+
+		$strings = @\class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions' ) ?
+			new StringsOptions() : null;
+
 		foreach ( \array_intersect_key( $latest, $con->modules ) as $slug => $options ) {
 			$mod = $con->modules[ $slug ];
 			$opts = $mod->opts();
 			$hidden = \array_keys( $opts->getHiddenOptions() );
-			foreach ( $options as $optKey => $optValue ) {
+			foreach ( $options as $opt => $optValue ) {
 
-				if ( \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $optKey ] ?? null ) ) {
+				if ( \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $opt ] ?? null ) ) {
 
 					$hasDiff = true;
 
-					if ( !\in_array( $optKey, $hidden ) ) {
-						if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
+					if ( !\in_array( $opt, $hidden ) ) {
+						if ( $opts->getOptionType( $opt ) === 'checkbox' ) {
 							$optValue = $optValue === 'Y' ? 'on' : 'off';
 						}
 						elseif ( !\is_scalar( $optValue ) ) {
-							switch ( $opts->getOptionType( $optKey ) ) {
+							switch ( $opts->getOptionType( $opt ) ) {
 								case 'array':
 								case 'multiple_select':
 									$optValue = \implode( ', ', $optValue );
@@ -252,9 +255,10 @@ class OptsHandler extends DynPropertiesClass {
 							}
 						}
 						try {
-							$diffs[ $optKey ] = [
-								'name'  => $mod->getStrings()->getOptionStrings( $optKey )[ 'name' ],
-								'key'   => $optKey,
+							$diffs[ $opt ] = [
+								'name'  => ( empty( $strings ) ?
+									$mod->getStrings()->getOptionStrings( $opt ) : $strings->getFor( $opt ) )[ 'name' ],
+								'key'   => $opt,
 								'value' => $optValue,
 							];
 						}

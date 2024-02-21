@@ -38,9 +38,6 @@
 			{% endif %}
 
 			<h6 class="mb-2">{{ strings.title_license_summary }}</h6>
-			{% if flags.has_error %}
-				<div class="alert alert-warning mb-0">{{ vars.error }}</div>
-			{% endif %}
 			<table class="table table-hover table-sm mb-0">
 				<tbody>
 					{% for license_key, license_val in vars.license_table %}

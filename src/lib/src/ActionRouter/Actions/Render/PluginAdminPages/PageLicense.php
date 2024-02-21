@@ -46,7 +46,7 @@ class PageLicense extends BasePluginAdminPage {
 			);
 		}
 
-		$license = $mod->getLicenseHandler()->getLicense();
+		$lic = $mod->getLicenseHandler()->getLicense();
 
 		return [
 			'flags'   => [
@@ -55,7 +55,6 @@ class PageLicense extends BasePluginAdminPage {
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
 				'is_pro'                => $con->isPremiumActive(),
-				'has_error'             => $mod->hasLastErrors()
 			],
 			'hrefs'   => [
 				'shield_pro_url' => 'https://shsec.io/shieldpro',
@@ -63,7 +62,7 @@ class PageLicense extends BasePluginAdminPage {
 				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'award' ),
+				'inner_page_title_icon' => $con->svgs->raw( 'award' ),
 				'svgs'                  => [
 					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' ),
 				],
@@ -81,17 +80,15 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'license_table'  => [
-					'product_name'    => $license->item_name,
+					'product_name'    => $lic->item_name,
 					'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
 					'license_expires' => $expiresAtHuman,
 					'license_email'   => $lic->customer_email,
 					'last_checked'    => $checked,
-					'last_errors'     => $mod->hasLastErrors() ? $mod->getLastErrors( true ) : '',
 					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => ( new InstallationID() )->id(),
 				],
 				'activation_url' => Services::WpGeneral()->getHomeUrl(),
-				'error'          => $mod->getLastErrors( true ),
 			],
 		];
 	}

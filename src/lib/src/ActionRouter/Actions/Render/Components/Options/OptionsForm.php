@@ -12,11 +12,23 @@ class OptionsForm extends BaseRender {
 	public const TEMPLATE = '/components/config/options_form.twig';
 
 	protected function getRenderData() :array {
+		$con = self::con();
 		$actionData = $this->action_data;
-		$mod = self::con()->modules[ $actionData[ 'mod_slug' ] ];
+		$mod = $con->modules[ $actionData[ 'mod_slug' ] ];
 
 		$focusOption = $actionData[ 'focus_option' ] ?? '';
-		$focusSection = $actionData[ 'focus_section' ] ?? $mod->opts()->getPrimarySection()[ 'slug' ];
+		$focusSection = $actionData[ 'focus_section' ] ?? '';
+		if ( empty( $focusSection ) ) {
+			foreach ( $con->cfg->configuration->sectionsForModule( $actionData[ 'mod_slug' ] ) as $section ) {
+				if ( empty( $focusSection ) ) {
+					$focusSection = $section[ 'slug' ];
+				}
+				if ( !empty( $section[ 'primary' ] ) ) {
+					$focusSection = $section[ 'slug' ];
+					break;
+				}
+			}
+		}
 
 		if ( !empty( $actionData[ 'focus_item' ] ) && !empty( $actionData[ 'focus_item_type' ] ) ) {
 			if ( $actionData[ 'focus_item_type' ] === 'option' ) {

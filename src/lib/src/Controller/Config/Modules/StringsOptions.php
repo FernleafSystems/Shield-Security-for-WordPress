@@ -18,6 +18,9 @@ class StringsOptions {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @return array{name:string, summary:string, description:array}
+	 */
 	public function getFor( string $key ) :array {
 		$con = self::con();
 		$caps = $con->caps;

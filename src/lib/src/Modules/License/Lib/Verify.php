@@ -34,7 +34,6 @@ class Verify {
 				if ( !$wasLicenseActive ) {
 					$opts->setOpt( 'license_activated_at', Services::Request()->ts() );
 				}
-				$mod->clearLastErrors();
 				$licenseLookupSuccess = true;
 			}
 			else {
@@ -67,9 +66,6 @@ class Verify {
 				'audit_params' => [
 					'type' => 'HTTP'
 				]
-			] );
-			$mod->setLastErrors( [
-				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
 			] );
 
 			$licHandler->maybeDeactivateWithGrace();

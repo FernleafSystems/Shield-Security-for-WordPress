@@ -121,10 +121,6 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 	}
 
-	public function getOptionsStorageKey() :string {
-		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
-	}
-
 	/**
 	 * @return $this
 	 */
@@ -175,32 +171,6 @@ abstract class ModCon extends DynPropertiesClass {
 		];
 	}
 
-	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? self::con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function clearLastErrors() {
-		return $this->setLastErrors();
-	}
-
-	/**
-	 * @return string|array
-	 */
-	public function getLastErrors( bool $asString = false, string $glue = " " ) {
-		$errors = $this->opts()->getOpt( 'last_errors' );
-		if ( !\is_array( $errors ) ) {
-			$errors = [];
-		}
-		return $asString ? \implode( $glue, $errors ) : $errors;
-	}
-
-	public function hasLastErrors() :bool {
-		return \count( $this->getLastErrors() ) > 0;
-	}
-
 	public function getTextOpt( string $key ) :string {
 		$txt = $this->opts()->getOpt( $key, 'default' );
 		if ( $txt == 'default' ) {
@@ -213,38 +183,9 @@ abstract class ModCon extends DynPropertiesClass {
 		return 'Undefined Text Opt Default';
 	}
 
-	/**
-	 * @param array|string $mErrors
-	 * @return $this
-	 */
-	public function setLastErrors( $mErrors = [] ) {
-		if ( !\is_array( $mErrors ) ) {
-			if ( \is_string( $mErrors ) ) {
-				$mErrors = [ $mErrors ];
-			}
-			else {
-				$mErrors = [];
-			}
-		}
-		$this->opts()->setOpt( 'last_errors', $mErrors );
-		return $this;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getDismissedNotices() :array {
-		$notices = $this->opts()->getOpt( 'dismissed_notices' );
-		return \is_array( $notices ) ? $notices : [];
-	}
-
 	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->opts()->getOpt( 'ui_track' );
 		return ( new Lib\Components\UiTrack() )->applyFromArray( \is_array( $a ) ? $a : [] );
-	}
-
-	public function setDismissedNotices( array $dis ) {
-		$this->opts()->setOpt( 'dismissed_notices', $dis );
 	}
 
 	public function setUiTrack( Lib\Components\UiTrack $UI ) {
@@ -420,5 +361,19 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	protected function getBaseNamespace() :string {
 		return __NAMESPACE__;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getModSlug( bool $prefix = true ) :string {
+		return $prefix ? self::con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getOptionsStorageKey() :string {
+		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
 	}
 }

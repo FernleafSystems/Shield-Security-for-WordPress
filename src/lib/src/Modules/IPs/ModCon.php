@@ -53,21 +53,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		}
 	}
 
-	public function getTextOptDefault( string $key ) :string {
-		switch ( $key ) {
-			case 'text_loginfailed':
-				$text = sprintf( '%s: %s',
-					__( 'Warning', 'wp-simple-firewall' ),
-					__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' )
-				);
-				break;
-			default:
-				$text = parent::getTextOptDefault( $key );
-				break;
-		}
-		return $text;
-	}
-
 	public function runHourlyCron() {
 		( new DB\IpRules\CleanIpRules() )->cleanAutoBlocks();
 	}
