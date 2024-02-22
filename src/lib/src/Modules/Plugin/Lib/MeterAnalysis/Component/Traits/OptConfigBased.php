@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Traits;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
-
 trait OptConfigBased {
 
 	abstract protected function getOptConfigKey() :string;
 
 	protected function cfgItem() :string {
-		$mod = OptUtils::ModFromOpt( $this->getOptConfigKey() );
+		$con = self::con();
+		$mod = $con->modules[ $con->cfg->configuration->modFromOpt( $this->getOptConfigKey() ) ];
 		return $mod->isModOptEnabled() ? $this->getOptConfigKey() : $mod->getEnableModOptKey();
 	}
 

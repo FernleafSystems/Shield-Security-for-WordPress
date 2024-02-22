@@ -3,16 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CleanRubbish {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'clean_wp_rubbish', 'Y' );
+		return self::con()->opts->optIs( 'clean_wp_rubbish', 'Y' );
 	}
 
 	protected function run() {

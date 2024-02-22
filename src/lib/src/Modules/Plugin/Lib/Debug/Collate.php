@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Utility\DbDescribeTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
@@ -226,7 +225,6 @@ class Collate {
 	private function getShieldSummary() :array {
 		$con = self::con();
 		$modLicense = $con->getModule_License();
-		$modPlugin = $con->getModule_Plugin();
 		$wpHashes = $modLicense->getWpHashesTokenManager();
 
 		$nPrevAttempt = $wpHashes->getPreviousAttemptAt();
@@ -254,9 +252,14 @@ class Collate {
 			'TMP Dir'                => $con->cache_dir_handler->dir(),
 		];
 
-		/** @var Options $optsPlugin */
-		$optsPlugin = $modPlugin->opts();
-		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
+		$source = 'unknown';
+		foreach ( $con->opts->optDef( 'visitor_address_source' )[ 'value_options' ] as $optionValue ) {
+			if ( $optionValue[ 'value_key' ] == $con->opts->optGet( 'visitor_address_source' ) ) {
+				$source = $optionValue[ 'text' ];
+				break;
+			}
+		}
+
 		$ip = Services::Request()->ip();
 		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
 

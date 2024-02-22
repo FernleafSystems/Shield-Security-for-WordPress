@@ -37,7 +37,7 @@ class Import {
 			$parts = \array_filter(
 				\array_map( '\trim', \explode( "\n", $content ) ),
 				function ( $line ) {
-					return \strpos( $line, '{' ) === 0;
+					return \str_starts_with( $line, '{' );
 				}
 			);
 			if ( empty( $parts ) ) {
@@ -96,9 +96,8 @@ class Import {
 	 * @throws \Exception
 	 */
 	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
+		$optsCon = self::con()->opts;
 		$opts = $this->opts();
-
-		$req = Services::Request();
 
 		if ( empty( $masterURL ) ) {
 			$masterURL = $opts->getImportExportMasterImportUrl();
@@ -136,8 +135,12 @@ class Import {
 		}
 
 		// Begin the handshake process.
-		$opts->setOpt( 'importexport_handshake_expires_at', $req->carbon()->addMinutes( 20 )->timestamp );
-		self::con()->opts->store();
+		$optsCon->optSet(
+			'importexport_handshake_expires_at',
+			Services::Request()->carbon()->addMinutes( 20 )->timestamp
+		);
+
+		$optsCon->store();
 
 		// Don't send the network setup request if it's the cron.
 		$data = [
@@ -187,39 +190,38 @@ class Import {
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
 		if ( $enableNetwork === true ) {
-			$opts->setOpt( 'importexport_masterurl', $masterURL );
+			$optsCon->optSet( 'importexport_masterurl', $masterURL );
 			self::con()->fireEvent(
 				'master_url_set',
 				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
 		}
 		elseif ( $enableNetwork === false ) {
-			$opts->setOpt( 'importexport_masterurl', '' );
+			$optsCon->optSet( 'importexport_masterurl', '' );
 		}
 		else {
 			// restore the original setting
-			$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
+			$optsCon->optSet( 'importexport_masterurl', $originalMasterSiteURL );
 		}
 
 		// store & clean the master URL
-		self::con()->opts->store();
+		$optsCon->store();
 	}
 
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
+		$opts = self::con()->opts;
 
-		$anythingChanged = false;
-		foreach ( self::con()->modules as $mod ) {
-			if ( !empty( $data[ $mod->cfg->slug ] ) ) {
-				$theseOpts = $mod->opts();
-				$theseOpts->setMultipleOptions(
-					\array_diff_key(
-						$data[ $mod->cfg->slug ] ?? [],
-						\array_flip( $theseOpts->getXferExcluded() )
-					)
-				);
-
-				$anythingChanged = $anythingChanged || $theseOpts->getNeedSave();
+		foreach ( $data as /** $modSlug => */ $options ) {
+			foreach ( \array_diff_key( $options, \array_flip( $opts->getXferExcluded() ) ) as $optKey => $value ) {
+				$opts->optSet( $optKey, $value );
 			}
+		}
+
+		if ( $opts->hasChanges() ) {
+			self::con()->fireEvent(
+				'options_imported',
+				[ 'audit_params' => [ 'site' => $source ] ]
+			);
 		}
 
 		self::con()->opts->store();
@@ -242,21 +244,16 @@ class Import {
 				}
 			}
 		}
-
-		if ( $anythingChanged ) {
-			self::con()->fireEvent(
-				'options_imported',
-				[ 'audit_params' => [ 'site' => $source ] ]
-			);
-		}
 	}
 
 	private function getImportID() :string {
-		$id = $this->opts()->getOpt( 'import_id' );
+		$id = self::con()->opts->optGet( 'import_id' );
 		if ( empty( $id ) ) {
 			$id = \bin2hex( \random_bytes( 8 ) );
-			$this->opts()->setOpt( 'import_id', $id );
-			self::con()->opts->store();
+			self::con()
+				->opts
+				->optSet( 'import_id', $id )
+				->store();
 		}
 		return $id;
 	}

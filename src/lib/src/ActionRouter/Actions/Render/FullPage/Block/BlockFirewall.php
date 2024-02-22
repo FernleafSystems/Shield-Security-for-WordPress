@@ -32,8 +32,6 @@ class BlockFirewall extends BaseBlock {
 
 	protected function getRestrictionDetailsPoints() :array {
 		$blockMeta = $this->action_data[ 'block_meta_data' ];
-		/** @var Firewall\Strings $str */
-		$str = self::con()->getModule_Firewall()->getStrings();
 
 		$remainingOffenses = \max( 0, ( new QueryRemainingOffenses() )
 			->setIP( self::con()->this_req->ip )

@@ -77,17 +77,17 @@ class PageScansRun extends PageScansBase {
 	}
 
 	private function buildScansVars() :array {
-		$mod = self::con()->getModule_HackGuard();
-		$opts = $mod->opts();
+		$con = self::con();
+		$scansCon = $con->getModule_HackGuard()->getScansCon();
 
 		$scans = [];
-		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+		foreach ( $scansCon->getAllScanCons() as $scanCon ) {
 			$slug = $scanCon->getSlug();
 
 			$subItems = [];
-			if ( $slug === $mod->getScansCon()->AFS()->getSlug() ) {
-				foreach ( $opts->getOptDefinition( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
-					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $opts->getOpt( 'file_scan_areas' ) );
+			if ( $slug === $scansCon->AFS()->getSlug() ) {
+				foreach ( $con->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
+					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $con->opts->optGet( 'file_scan_areas' ) );
 				}
 			}
 
@@ -100,7 +100,7 @@ class PageScansRun extends PageScansBase {
 					'is_restricted' => $scanCon->isRestricted(),
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
-									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
+//									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
 				'strings' => $strings,
 				'vars'    => [

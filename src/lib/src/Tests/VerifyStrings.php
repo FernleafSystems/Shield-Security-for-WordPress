@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class VerifyStrings {
@@ -12,16 +13,26 @@ class VerifyStrings {
 
 		$descNotArray = [];
 
+		$strings = new StringsOptions();
+
 		foreach ( self::con()->modules as $module ) {
-			foreach ( $module->opts()->getVisibleOptionsKeys() as $visibleOptionsKey ) {
+
+			$keys = \array_keys( \array_filter(
+				self::con()->cfg->configuration->optsForModule( $module->cfg->slug ),
+				function ( array $optDef ) {
+					return empty( $optDef[ 'hidden' ] );
+				}
+			) );
+
+			foreach ( $keys as $optKey ) {
 				try {
-					$strings = $module->getStrings()->getOptionStrings( $visibleOptionsKey );
+					$strings = $strings->getFor( $optKey );
 					if ( !\is_array( $strings[ 'description' ] ) ) {
-						$descNotArray[] = $visibleOptionsKey;
+						$descNotArray[] = $optKey;
 					}
 				}
 				catch ( \Exception $e ) {
-					var_dump( 'no strings for : '.$visibleOptionsKey );
+					var_dump( 'no strings for : '.$optKey );
 				}
 			}
 		}

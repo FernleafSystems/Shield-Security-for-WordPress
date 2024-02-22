@@ -28,10 +28,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 			$mod->getPluginBadgeCon()->execute();
 			( new Lib\AllowBetaUpgrades() )->execute();
 			( new Components\AutoUpdatesCon() )->execute();
-
-			if ( $this->opts()->isOpt( 'importexport_enable', 'Y' ) ) {
-				$mod->getImpExpController()->execute();
-			}
+			$mod->getImpExpController()->execute();
 			( new Lib\OverrideLocale() )->execute();
 			( new Lib\SiteHealthController() )->execute();
 

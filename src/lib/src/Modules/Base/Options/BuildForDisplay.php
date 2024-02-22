@@ -82,20 +82,22 @@ class BuildForDisplay {
 	}
 
 	protected function buildAvailableSections() :array {
-		$opts = $this->opts();
+
+		$visibleSections = \array_filter(
+			self::con()->cfg->configuration->sectionsForModule( $this->mod()->cfg->slug ),
+			function ( array $section ) {
+				return empty( $section[ 'hidden' ] );
+			}
+		);
 
 		$optionsData = [];
+		foreach ( $visibleSections as $section ) {
 
-		foreach ( $opts->getSections() as $section ) {
-
-			$section = \array_merge(
-				[
-					'primary'   => false,
-					'options'   => $this->buildOptionsForSection( $section[ 'slug' ] ),
-					'beacon_id' => false,
-				],
-				$section
-			);
+			$section = \array_merge( [
+				'primary'   => false,
+				'options'   => $this->buildOptionsForSection( $section[ 'slug' ] ),
+				'beacon_id' => false,
+			], $section );
 
 			if ( !empty( $section[ 'options' ] ) ) {
 
@@ -117,7 +119,15 @@ class BuildForDisplay {
 		$isPremiumActive = $con->isPremiumActive();
 
 		$allOptions = [];
-		foreach ( $opts->getVisibleOptions() as $optDef ) {
+
+		$optDefs = \array_filter(
+			$con->cfg->configuration->optsForSection( $section ),
+			function ( array $optDef ) use ( $section ) {
+				return empty( $optDef[ 'hidden' ] );
+			}
+		);
+
+		foreach ( $optDefs as $optDef ) {
 
 			if ( $optDef[ 'section' ] !== $section ) {
 				continue;

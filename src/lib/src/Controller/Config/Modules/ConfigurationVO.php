@@ -19,6 +19,11 @@ class ConfigurationVO extends DynPropertiesClass {
 		return $this->defs[ $key ] ?? null;
 	}
 
+	public function modFromOpt( string $key ) :?string {
+		$optDef = $this->options[ $key ] ?? null;
+		return empty( $optDef ) ? null : $this->sections[ $optDef[ 'section' ] ][ 'module' ];
+	}
+
 	public function optsForSection( string $section ) :array {
 		return \array_filter(
 			$this->options,
@@ -43,6 +48,15 @@ class ConfigurationVO extends DynPropertiesClass {
 			$this->sections,
 			function ( array $sec ) use ( $module ) {
 				return !empty( $sec[ 'module' ] ) && $sec[ 'module' ] === $module;
+			}
+		);
+	}
+
+	public function transferableOptions() :array {
+		return \array_filter(
+			$this->options,
+			function ( array $option ) {
+				return $option[ 'transferable' ] ?? true;
 			}
 		);
 	}

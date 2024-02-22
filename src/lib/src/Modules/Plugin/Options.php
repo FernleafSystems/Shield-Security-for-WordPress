@@ -56,14 +56,6 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		);
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getImportExportWhitelist() :array {
-		$list = $this->getOpt( 'importexport_whitelist', [] );
-		return \is_array( $list ) ? $list : [];
-	}
-
 	public function getIpSource() :string {
 		return (string)$this->getOpt( 'visitor_address_source' );
 	}
@@ -106,11 +98,25 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 	}
 
 	public function setPluginTrackingPermission( bool $onOrOff = true ) {
-		$this->setOpt( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
-			 ->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		self::con()
+			->opts
+			->optSet( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
+			->optSet( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function setVisitorAddressSource( string $source ) {
-		$this->setOpt( 'visitor_address_source', $source );
+		self::con()->opts->optSet( 'visitor_address_source', $source );
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 19.1
+	 */
+	public function getImportExportWhitelist() :array {
+		$list = $this->getOpt( 'importexport_whitelist', [] );
+		return \is_array( $list ) ? $list : [];
 	}
 }

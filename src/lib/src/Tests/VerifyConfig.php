@@ -25,7 +25,6 @@ class VerifyConfig {
 		}
 
 		foreach ( self::con()->modules as $mod ) {
-			$opts = $mod->opts();
 			$sections = \array_keys( $config->sectionsForModule( $mod->cfg->slug ) );
 			$duplicates = \array_diff( \array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );
 			if ( \count( $duplicates ) > 0 ) {
@@ -33,7 +32,7 @@ class VerifyConfig {
 			}
 			$allSections = \array_unique( \array_merge( $allSections, $sections ) );
 
-			$optKeys = $opts->getOptionsKeys();
+			$optKeys = \array_keys( $config->optsForModule( $mod->cfg->slug ) );
 			$duplicates = \array_diff( \array_intersect( $allOpts, $optKeys ), $optsDuplicateExceptions );
 			if ( \count( $duplicates ) > 0 ) {
 				var_dump( sprintf( 'Mod %s has duplicate option slugs: %s', $mod->cfg->slug, \implode( ', ', $duplicates ) ) );
@@ -48,21 +47,22 @@ class VerifyConfig {
 	}
 
 	public function verifyCfg( ModCon $mod ) {
+		$conOpts = self::con()->opts;
 		$opts = $mod->opts();
-		foreach ( $opts->getOptionsKeys() as $sKey ) {
-			$optType = $opts->getOptionType( $sKey );
+		foreach ( \array_keys( self::con()->cfg->configuration->options ) as $key ) {
+			$optType = $conOpts->optType( $key );
 			if ( empty( $optType ) ) {
-				var_dump( $sKey.': no type' );
+				var_dump( $key.': no type' );
 				continue;
 			}
 
-			$mDefault = $opts->getOptDefault( $sKey );
+			$mDefault = $conOpts->optDefault( $key );
 			if ( \is_null( $mDefault ) ) {
-				var_dump( sprintf( '%s: opt has no default.', $sKey ) );
+				var_dump( sprintf( '%s: opt has no default.', $key ) );
 				continue;
 			}
 
-			$mVal = $opts->getOpt( $sKey );
+			$mVal = $opts->getOpt( $key );
 			$valType = gettype( $mVal );
 
 			$isBroken = false;
@@ -86,7 +86,7 @@ class VerifyConfig {
 
 			if ( $isBroken ) {
 				var_dump( sprintf( '%s: opt type is %s, value is %s at "%s". Default is: %s',
-					$sKey, $optType, $valType, var_export( $mVal, true ), $opts->getOptDefault( $sKey ) ) );
+					$key, $optType, $valType, var_export( $mVal, true ), $opts->getOptDefault( $key ) ) );
 //				$opts->resetOptToDefault( $sKey );
 			}
 		}

@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
+/**
+ * @deprecated 19.1 - better to replace all of this with an AJAX request per exclusion clicked.
+ */
 class SaveExcludedOptions {
 
 	use ModConsumer;
@@ -14,12 +17,14 @@ class SaveExcludedOptions {
 	 * @param string[] $formSubmission
 	 */
 	public function save( $formSubmission ) {
-		$excluded = [];
-		foreach ( \array_keys( $this->opts()->getTransferableOptions() ) as $optKey ) {
-			if ( empty( $formSubmission[ 'optxfer-'.$optKey ] ) ) {
-				$excluded[] = $optKey;
-			}
+		$ex = [];
+		$notEx = [];
+		foreach ( \array_keys( self::con()->cfg->configuration->optsForModule( $this->mod()->cfg->slug ) ) as $key ) {
+			empty( $formSubmission[ 'optxfer-'.$key ] ) ? $ex[] = $key : $notEx[] = $key;
 		}
-		$this->opts()->setOpt( 'xfer_excluded', $excluded );
+
+		self::con()->opts->setXferExcluded(
+			\array_diff( \array_merge( self::con()->opts->getXferExcluded(), $ex ), $notEx )
+		);
 	}
 }

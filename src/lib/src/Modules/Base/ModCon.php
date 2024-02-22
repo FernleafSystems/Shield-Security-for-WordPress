@@ -183,13 +183,16 @@ abstract class ModCon extends DynPropertiesClass {
 		return 'Undefined Text Opt Default';
 	}
 
+	/**
+	 * TODO
+	 */
 	public function getUiTrack() :Lib\Components\UiTrack {
-		$a = $this->opts()->getOpt( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )->applyFromArray( \is_array( $a ) ? $a : [] );
+//		$a = self::con()->opts->optGet( 'ui_track' );
+		return ( new Lib\Components\UiTrack() )->applyFromArray( [] );
 	}
 
 	public function setUiTrack( Lib\Components\UiTrack $UI ) {
-		$this->opts()->setOpt( 'ui_track', $UI->getRawData() );
+		self::con()->opts->optSet( 'ui_track', $UI->getRawData() );
 	}
 
 	/**

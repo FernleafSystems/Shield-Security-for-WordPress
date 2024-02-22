@@ -23,7 +23,7 @@ class HttpHeaders extends Base {
 	}
 
 	protected function getOptConfigKey() :string {
-		return 'section_security_headers';
+		return 'x_frame';
 	}
 
 	public function title() :string {

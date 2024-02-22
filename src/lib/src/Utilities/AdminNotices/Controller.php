@@ -232,13 +232,15 @@ class Controller {
 	private function isNoticeDismissed( NoticeVO $notice ) :bool {
 		$dismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
 
-		$dismissedMod = ( self::con()->getModule_Plugin()->getDismissedNotices()[ $notice->id ] ?? 0 ) > 0;
+		$at = ( ( \method_exists( $this, 'getDismissed' ) ?
+				$this->getDismissed() :
+				self::con()->getModule_Plugin()->getDismissedNotices() )[ $notice->id ] ?? 0 ) > 0;
 
-		if ( !$notice->per_user && $dismissedUser && !$dismissedMod ) {
+		if ( !$notice->per_user && $dismissedUser && !$at ) {
 			$this->setNoticeDismissed( $notice );
 		}
 
-		return $dismissedUser || $dismissedMod;
+		return $dismissedUser || $at;
 	}
 
 	private function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
@@ -271,16 +273,22 @@ class Controller {
 			}
 		}
 		else {
-			$mod = self::con()->getModule_Plugin();
-			$allDismissed = $mod->getDismissedNotices();
+			$allDismissed = $this->getDismissed();
 			$allDismissed[ $notice->id ] = Services::Request()->ts();
-			$mod->opts()->setOpt( 'dismissed_notices', $allDismissed );
+			self::con()->opts->optSet( 'dismissed_notices', $allDismissed );
 
 			// Clear out any old
 			if ( !empty( $meta ) ) {
 				unset( $meta->{$noticeMetaKey} );
 			}
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDismissed() :array {
+		return self::con()->opts->optGet( 'dismissed_notices' );
 	}
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {

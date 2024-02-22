@@ -111,38 +111,42 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdOptGet( array $null, array $args ) {
-		$opts = $this->opts();
+		$opts = self::con()->opts;
 
-		$mVal = $opts->getOpt( $args[ 'key' ], $null );
-		$aOpt = $opts->getOptDefinition( $args[ 'key' ] );
-		if ( !\is_numeric( $mVal ) && empty( $mVal ) ) {
-			\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
+		$optKey = $args[ 'key' ];
+		if ( !$opts->optExists( $optKey ) ) {
+			\WP_CLI::log( __( 'Not a valid option key.', 'wp-simple-firewall' ) );
 		}
 		else {
-			$sExplain = '';
-
-			if ( \is_array( $mVal ) ) {
-				$mVal = sprintf( '[ %s ]', \implode( ', ', $mVal ) );
+			$value = $opts->optGet( $optKey );
+			if ( !\is_numeric( $value ) && empty( $value ) ) {
+				\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
 			}
+			else {
+				$explain = '';
 
-			if ( $aOpt[ 'type' ] === 'checkbox' ) {
-				$sExplain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off' ) );
-			}
+				if ( \is_array( $value ) ) {
+					$value = sprintf( '[ %s ]', \implode( ', ', $value ) );
+				}
+				if ( $opts->optType( $optKey ) === 'checkbox' ) {
+					$explain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off' ) );
+				}
 
-			\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $mVal ) );
-			if ( !empty( $sExplain ) ) {
-				\WP_CLI::log( $sExplain );
+				\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $value ) );
+				if ( !empty( $explain ) ) {
+					\WP_CLI::log( $explain );
+				}
 			}
 		}
 	}
 
 	public function cmdOptSet( array $null, array $args ) {
-		$this->opts()->setOpt( $args[ 'key' ], $args[ 'value' ] );
+		self::con()->opts->optSet( $args[ 'key' ], $args[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
 	}
 
 	public function cmdOptList( array $null, array $args ) {
-		$opts = $this->opts();
+		$opts = self::con()->opts;
 		$strings = new StringsOptions();
 		$optsList = [];
 		foreach ( $this->getOptionsForWpCli() as $key ) {
@@ -150,9 +154,9 @@ class ModuleStandard extends BaseWpCliCmd {
 				$optsList[] = [
 					'key'     => $key,
 					'name'    => $strings->getFor( $key )[ 'name' ],
-					'type'    => $opts->getOptionType( $key ),
-					'current' => $opts->getOpt( $key ),
-					'default' => $opts->getOptDefault( $key ),
+					'type'    => $opts->optType( $key ),
+					'current' => $opts->optGet( $key ),
+					'default' => $opts->optDefault( $key ),
 				];
 			}
 			catch ( \Exception $e ) {
@@ -187,10 +191,9 @@ class ModuleStandard extends BaseWpCliCmd {
 	 */
 	protected function getOptionsForWpCli() :array {
 		return \array_filter(
-			$this->opts()->getOptionsKeys(),
+			\array_keys( self::con()->cfg->configuration->optsForModule( $this->mod() ) ),
 			function ( $key ) {
-				$opt = $this->opts()->getOptDefinition( $key );
-				return !empty( $opt[ 'section' ] ) && !\str_starts_with( $opt[ 'section' ], 'section_hidden_' );
+				return empty( self::con()->opts->optDef( $key )[ 'hidden' ] );
 			}
 		);
 	}

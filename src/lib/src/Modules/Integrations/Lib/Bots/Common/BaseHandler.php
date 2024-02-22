@@ -35,7 +35,7 @@ abstract class BaseHandler {
 	public function getHandlerName() :string {
 		$name = 'Undefined Name';
 
-		$valueOptions = $this->opts()->getOptDefinition(
+		$valueOptions = self::con()->opts->optDef(
 			$this->getHandlerController()->getSelectedProvidersOptKey()
 		)[ 'value_options' ];
 

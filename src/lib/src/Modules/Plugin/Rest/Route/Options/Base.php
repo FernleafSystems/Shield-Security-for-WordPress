@@ -20,7 +20,7 @@ abstract class Base extends RouteBase {
 				'value',
 				'module',
 			],
-			\array_keys( $this->mod()->opts()->getOptDefinition( 'global_enable_plugin_features' ) )
+			\array_keys( self::con()->opts->optDef( 'global_enable_plugin_features' ) )
 		) );
 
 		return [

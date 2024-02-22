@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
-	ModConsumer,
-	Strings
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 use ZxcvbnPhp\Zxcvbn;
@@ -79,7 +76,6 @@ class UserPasswordHandler {
 	private function processExpiredPassword() {
 		$current = Services::WpUsers()->getCurrentWpUser();
 		if ( $current instanceof \WP_User && ( new QueryUserPasswordExpired() )->check( $current ) ) {
-			$opts = $this->opts();
 			self::con()->fireEvent( 'password_expired', [
 				'audit_params' => [
 					'user_login' => $current->user_login
@@ -87,7 +83,8 @@ class UserPasswordHandler {
 			] );
 			if ( !Services::WpGeneral()->isAjax() ) {
 				$this->redirectToResetPassword(
-					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getOpt( 'pass_expire' ) )
+					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ),
+						self::con()->opts->optGet( 'pass_expire' ) )
 				);
 			}
 		}
@@ -107,7 +104,7 @@ class UserPasswordHandler {
 
 	/**
 	 * IMPORTANT: User must be logged-in for this to work correctly
-	 * We have a 2 minute delay between redirects because some custom user forms redirect to custom
+	 * We have a 2-minute delay between redirects because some custom user forms redirect to custom
 	 * password reset pages. This prevents users following this flow.
 	 * @uses wp_redirect()
 	 */

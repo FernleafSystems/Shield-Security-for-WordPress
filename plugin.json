@@ -353,7 +353,7 @@
             "scanresults"
           ]
         },
-        "rest_api": {
+        "rest_api":             {
           "publish": true
         }
       },
@@ -393,7 +393,7 @@
             "ips"
           ]
         },
-        "rest_api": {
+        "rest_api":             {
           "publish": true
         }
       },
@@ -404,7 +404,7 @@
         "load_priority":       0,
         "show_module_options": false,
         "show_central":        false,
-        "rest_api": {
+        "rest_api":            {
           "publish": true
         }
       },
@@ -440,7 +440,7 @@
         "order":                10,
         "config_menu_priority": 10,
         "show_central":         true,
-        "rest_api": {
+        "rest_api":             {
           "publish": true
         }
       },
@@ -1726,12 +1726,11 @@
         "description": "If this is empty, it will default to the Site Admin email address"
       },
       {
-        "key":          "delay_tracking",
-        "section":      "section_hidden_autoupdates",
-        "transferable": false,
-        "sensitive":    true,
-        "type":         "array",
-        "default":      []
+        "key":       "delay_tracking",
+        "section":   "section_hidden_autoupdates",
+        "sensitive": true,
+        "type":      "array",
+        "default":   []
       },
       {
         "key":         "enable_comments_filter",
@@ -2324,7 +2323,6 @@
       {
         "key":              "scans_to_build",
         "section":          "section_hidden_hack_protect",
-        "transferable":     false,
         "tracking_exclude": true,
         "type":             "array",
         "default":          []
@@ -2332,7 +2330,6 @@
       {
         "key":              "is_scan_cron",
         "section":          "section_hidden_hack_protect",
-        "transferable":     false,
         "tracking_exclude": true,
         "type":             "boolean",
         "default":          false
@@ -2340,7 +2337,6 @@
       {
         "key":              "filelocker_state",
         "section":          "section_hidden_hack_protect",
-        "transferable":     false,
         "tracking_exclude": true,
         "type":             "array",
         "default":          []
@@ -3167,77 +3163,53 @@
         "description":   "Identify a request as a bot if the user agent is not provided."
       },
       {
-        "key":          "crowdsec_cfg",
-        "section":      "section_hidden_ips",
-        "transferable": false,
-        "type":         "array",
-        "default":      []
+        "key":     "crowdsec_cfg",
+        "section": "section_hidden_ips",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":          "license_key",
-        "section":      "section_hidden_license",
-        "sensitive":    true,
-        "transferable": false,
-        "type":         "text",
-        "default":      ""
+        "key":     "license_activated_at",
+        "section": "section_hidden_license",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "license_activated_at",
-        "section":      "section_hidden_license",
-        "type":         "integer",
-        "default":      0,
-        "transferable": false
+        "key":     "license_deactivated_at",
+        "section": "section_hidden_license",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "license_deactivated_at",
-        "section":      "section_hidden_license",
-        "type":         "integer",
-        "default":      0,
-        "transferable": false
+        "key":     "license_last_checked_at",
+        "section": "section_hidden_license",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "license_last_checked_at",
-        "section":      "section_hidden_license",
-        "type":         "integer",
-        "default":      0,
-        "transferable": false
+        "key":     "last_warning_email_sent_at",
+        "section": "section_hidden_license",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "last_warning_email_sent_at",
-        "section":      "section_hidden_license",
-        "type":         "integer",
-        "default":      0,
-        "transferable": false
+        "key":     "last_deactivated_email_sent_at",
+        "section": "section_hidden_license",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "last_deactivated_email_sent_at",
-        "section":      "section_hidden_license",
-        "type":         "integer",
-        "default":      0,
-        "transferable": false
+        "key":       "license_data",
+        "section":   "section_hidden_license",
+        "type":      "array",
+        "default":   [],
+        "sensitive": true
       },
       {
-        "key":          "last_error_at",
-        "section":      "section_hidden_license",
-        "type":         "integer",
-        "default":      0,
-        "sensitive":    true,
-        "transferable": false
-      },
-      {
-        "key":          "license_data",
-        "section":      "section_hidden_license",
-        "sensitive":    true,
-        "transferable": false,
-        "type":         "array",
-        "default":      []
-      },
-      {
-        "key":          "wphashes_api_token",
-        "transferable": false,
-        "section":      "section_hidden_license",
-        "type":         "array",
-        "default":      []
+        "key":     "wphashes_api_token",
+        "section": "section_hidden_license",
+        "type":    "array",
+        "default": []
       },
       {
         "key":         "enable_lockdown",
@@ -3701,20 +3673,18 @@
         "description": "You can change the text displayed to the user in the alert message if they don't check the box."
       },
       {
-        "key":          "email_can_send_verified_at",
-        "section":      "section_hidden_login_protect",
-        "transferable": false,
-        "type":         "integer",
-        "default":      0,
-        "min":          0
+        "key":     "email_can_send_verified_at",
+        "section": "section_hidden_login_protect",
+        "type":    "integer",
+        "default": 0,
+        "min":     0
       },
       {
-        "key":          "gasp_key",
-        "section":      "section_hidden_login_protect",
-        "transferable": false,
-        "sensitive":    true,
-        "type":         "text",
-        "default":      ""
+        "key":       "gasp_key",
+        "section":   "section_hidden_login_protect",
+        "type":      "text",
+        "default":   "",
+        "sensitive": true
       },
       {
         "key":         "global_enable_plugin_features",
@@ -4060,19 +4030,17 @@
         "description":   "Decide when you should be sent non-critical information and reports about your site security."
       },
       {
-        "key":          "transient_tracking",
-        "section":      "section_hidden_plugin",
-        "transferable": false,
-        "type":         "array",
-        "default":      []
+        "key":     "transient_tracking",
+        "section": "section_hidden_plugin",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":          "tracking_last_sent_at",
-        "section":      "section_hidden_plugin",
-        "transferable": false,
-        "type":         "integer",
-        "default":      0,
-        "min":          0
+        "key":     "tracking_last_sent_at",
+        "section": "section_hidden_plugin",
+        "type":    "integer",
+        "default": 0,
+        "min":     0
       },
       {
         "key":     "tracking_permission_set_at",
@@ -4081,96 +4049,83 @@
         "default": 0
       },
       {
-        "key":          "installation_time",
-        "section":      "section_hidden_plugin",
-        "transferable": false,
-        "type":         "integer",
-        "default":      0
+        "key":     "installation_time",
+        "section": "section_hidden_plugin",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "activated_at",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "integer",
-        "default":      0
+        "key":     "activated_at",
+        "section": "section_hidden_plugin",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "importexport_secretkey_expires_at",
-        "section":      "section_hidden_plugin",
-        "transferable": false,
-        "type":         "integer",
-        "default":      0
+        "key":     "importexport_secretkey_expires_at",
+        "section": "section_hidden_plugin",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "importexport_handshake_expires_at",
-        "section":      "section_hidden_plugin",
-        "transferable": false,
-        "type":         "integer",
-        "default":      0
+        "key":     "importexport_handshake_expires_at",
+        "section": "section_hidden_plugin",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "snapi_data",
-        "transferable": false,
-        "sensitive":    true,
-        "section":      "section_hidden_plugin",
-        "type":         "array",
-        "default":      []
+        "key":       "snapi_data",
+        "section":   "section_hidden_plugin",
+        "type":      "array",
+        "default":   [],
+        "sensitive": true
       },
       {
-        "key":          "last_known_cache_basedirs",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "array",
-        "default":      []
+        "key":     "last_known_cache_basedirs",
+        "section": "section_hidden_plugin",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":          "ipdetect_at",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "integer",
-        "default":      0
+        "key":     "ipdetect_at",
+        "section": "section_hidden_plugin",
+        "type":    "integer",
+        "default": 0
       },
       {
-        "key":          "import_id",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "text",
-        "default":      ""
+        "key":     "import_id",
+        "section": "section_hidden_plugin",
+        "type":    "text",
+        "default": ""
       },
       {
-        "key":          "import_url_ids",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "array",
-        "default":      []
+        "key":     "import_url_ids",
+        "section": "section_hidden_plugin",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":          "sec_overview_prefs",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "array",
-        "default":      []
+        "key":     "sec_overview_prefs",
+        "section": "section_hidden_plugin",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":          "test_rest_data",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "array",
-        "default":      []
+        "key":     "test_rest_data",
+        "section": "section_hidden_plugin",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":          "blockdown_cfg",
-        "transferable": false,
-        "section":      "section_hidden_plugin",
-        "type":         "array",
-        "default":      []
+        "key":     "blockdown_cfg",
+        "section": "section_hidden_plugin",
+        "type":    "array",
+        "default": []
       },
       {
         "key":              "dismissed_notices",
         "section":          "section_hidden_plugin",
         "type":             "array",
         "default":          [],
-        "transferable":     false,
         "tracking_exclude": true
       },
       {
@@ -4322,7 +4277,6 @@
       {
         "key":              "live_log_started_at",
         "section":          "section_hidden_traffic",
-        "transferable":     false,
         "tracking_exclude": true,
         "type":             "integer",
         "default":          0

@@ -12,7 +12,7 @@ class AutoUpdatesCon {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'enable_autoupdates', 'Y' );
+		return self::con()->opts->optIs( 'enable_autoupdates', 'Y' );
 	}
 
 	/**
@@ -20,7 +20,7 @@ class AutoUpdatesCon {
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
 	protected function run() {
-		$priority = (int)$this->opts()->getDef( 'action_hook_priority' );
+		$priority = (int)self::con()->cfg->configuration->def( 'action_hook_priority' );
 
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $priority );
 

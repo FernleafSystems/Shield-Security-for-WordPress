@@ -6,15 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\U
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function preSetOptChecks( string $key, $newValue ) {
-		if ( $key === 'audit_trail_auto_clean' && $newValue > self::con()->caps->getMaxLogRetentionDays() ) {
-			throw new \Exception( 'Cannot set log retentions days to anything longer than max' );
-		}
-	}
-
 	public function preSave() :void {
 		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
 			$current = $this->getOpt( $optKey );

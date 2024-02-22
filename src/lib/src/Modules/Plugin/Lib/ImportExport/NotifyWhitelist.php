@@ -12,7 +12,7 @@ class NotifyWhitelist {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !empty( $this->opts()->getImportExportWhitelist() );
+		return !empty( $this->mod()->getImpExpController()->getImportExportWhitelist() );
 	}
 
 	protected function run() {
@@ -31,7 +31,7 @@ class NotifyWhitelist {
 
 		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', self::con()->prefix() );
 		add_action( $cronHook, function () use ( $q ) {
-			foreach ( $this->opts()->getImportExportWhitelist() as $url ) {
+			foreach ( $this->mod()->getImpExpController()->getImportExportWhitelist() as $url ) {
 				$q->push_to_queue( $url );
 			}
 			$q->save()->dispatch();

@@ -35,15 +35,12 @@ abstract class Base extends Process {
 	 */
 	protected function getOptionData( string $key ) :array {
 		$def = [];
-		foreach ( self::con()->modules as $module ) {
-			$opts = $module->opts();
-			$maybe = $opts->getOptDefinition( $key );
-			if ( !empty( $maybe ) ) {
-				$def = $maybe;
-				$def[ 'module' ] = $module->cfg->slug;
-				$def[ 'value' ] = $opts->getOpt( $key );
-				break;
-			}
+		$opts = self::con()->opts;
+		if ( $opts->optExists( $key ) ) {
+			$def = \array_merge( $opts->optDef( $key ), [
+				'module' => self::con()->cfg->configuration->modFromOpt( $key ),
+				'value'  => $opts->optGet( $key ),
+			] );
 		}
 		return $def;
 	}

@@ -132,16 +132,27 @@ class Export {
 		return $all;
 	}
 
-	public function getRawOptionsExport() :array {
+	public function getFullTransferableOptionsExport() :array {
+		$config = self::con()->cfg->configuration;
+		$transferable = $config->transferableOptions();
+
 		$all = [];
-		foreach ( self::con()->modules as $mod ) {
-			$opts = $mod->opts();
-			$all[ $mod->cfg->slug ] = \array_diff_key(
-				$opts->getTransferableOptions(),
-				\array_flip( $opts->getXferExcluded() )
-			);
+		foreach ( \array_keys( $config->modules ) as $modSlug ) {
+			$all[ $modSlug ] = [];
+			foreach ( \array_keys( $config->optsForModule( $modSlug ) ) as $optKey ) {
+				if ( \in_array( $optKey, $transferable ) ) {
+					$all[ $modSlug ][ $optKey ] = self::con()->opts->optGet( $optKey );
+				}
+			}
 		}
 		return $all;
+	}
+
+	/**
+	 * Removes any options marked as to be excluded from import/export
+	 */
+	public function getRawOptionsExport() :array {
+		return \array_diff_key( $this->getFullTransferableOptionsExport(), \array_flip( self::con()->opts->getXferExcluded() ) );
 	}
 
 	/**
@@ -156,8 +167,9 @@ class Export {
 	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
 	 */
 	private function verifyUrl( string $url, string $id, string $secret ) :bool {
+		$opts = self::con()->opts;
 
-		$urlIDs = $this->opts()->getOpt( 'import_url_ids' );
+		$urlIDs = $opts->optGet( 'import_url_ids' );
 		if ( !\is_array( $urlIDs ) ) {
 			$urlIDs = [];
 		}
@@ -172,11 +184,18 @@ class Export {
 		// Update the stored ID, so it can be used at a later date.
 		if ( $verified && !empty( $id ) ) {
 			$urlIDs[ \md5( $url ) ] = $id;
-			$this->opts()->setOpt( 'import_url_ids', $urlIDs );
-			self::con()->opts->store();
+			$opts->optSet( 'import_url_ids', $urlIDs )
+				 ->store();
 		}
 
 		return $verified;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() :array {
+		return self::con()->opts->optGet( 'importexport_whitelist' );
 	}
 
 	private function isUrlOnWhitelist( string $url ) :bool {
@@ -188,7 +207,7 @@ class Export {
 				function ( $whitelistedURL ) {
 					return $this->parseURL( $whitelistedURL );
 				},
-				$this->opts()->getImportExportWhitelist()
+				$this->mod()->getImpExpController()->getImportExportWhitelist()
 			);
 
 			foreach ( $whiteURLs as $whiteURL ) {

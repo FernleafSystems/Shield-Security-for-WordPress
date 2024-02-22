@@ -173,8 +173,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'opts':
 				if ( empty( $val ) ) {
-					$val = new Config\OptsHandler();
-					$this->opts = $val;
+					$this->opts = $val = new Config\OptsHandler();
 				}
 				break;
 

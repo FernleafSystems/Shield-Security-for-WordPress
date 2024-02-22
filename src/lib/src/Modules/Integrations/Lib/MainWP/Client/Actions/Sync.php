@@ -43,34 +43,34 @@ class Sync {
 	 */
 	private function buildModulesData() :array {
 		$data = [];
+
+		$exportedOptions = ( new Plugin\Lib\ImportExport\Export() )->getFullTransferableOptionsExport();
+
 		foreach ( self::con()->modules as $mod ) {
-			$options = $this->opts()->getTransferableOptions();
-			if ( !empty( $options ) ) {
-				$data[ $mod->cfg->slug ] = [
-					'options' => $options
-				];
+			$data[ $mod->cfg->slug ] = [
+				'options' => $exportedOptions[ $mod->cfg->slug ],
+			];
 
-				switch ( $mod->cfg->slug ) {
+			switch ( $mod->cfg->slug ) {
 
-					case Plugin\ModCon::SLUG:
-						try {
-							$data[ $mod->cfg->slug ][ 'grades' ] = [
-								'integrity' => ( new Handler() )->getMeter( MeterSummary::class )
-							];
-						}
-						catch ( \Exception $e ) {
-						}
-						break;
+				case Plugin\ModCon::SLUG:
+					try {
+						$data[ $mod->cfg->slug ][ 'grades' ] = [
+							'integrity' => ( new Handler() )->getMeter( MeterSummary::class )
+						];
+					}
+					catch ( \Exception $e ) {
+					}
+					break;
 
-					case HackGuard\ModCon::SLUG:
-						$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
-							( new HackGuard\Scan\Results\Counts() )->all()
-						);
-						break;
+				case HackGuard\ModCon::SLUG:
+					$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
+						( new HackGuard\Scan\Results\Counts() )->all()
+					);
+					break;
 
-					default:
-						break;
-				}
+				default:
+					break;
 			}
 		}
 		return $data;

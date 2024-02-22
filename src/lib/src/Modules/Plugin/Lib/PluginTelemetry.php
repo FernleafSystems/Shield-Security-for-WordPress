@@ -17,8 +17,10 @@ class PluginTelemetry {
 		if ( $forceSend || $this->canSend() ) {
 			$data = $this->collectTrackingData();
 			if ( !empty( $data ) ) {
-				$this->opts()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-				self::con()->opts->store();
+				self::con()
+					->opts
+					->optSet( 'tracking_last_sent_at', Services::Request()->ts() )
+					->store();
 				( new SendPluginTelemetry() )->send( $data );
 			}
 		}
@@ -29,7 +31,7 @@ class PluginTelemetry {
 		return apply_filters( 'shield/can_send_telemetry', ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() ) )
 			   && Services::Request()
 						  ->carbon()
-						  ->subDay()->timestamp > $opts->getOpt( 'tracking_last_sent_at', 0 );
+						  ->subDay()->timestamp > self::con()->opts->optGet( 'tracking_last_sent_at' );
 	}
 
 	/**
@@ -77,23 +79,26 @@ class PluginTelemetry {
 	 * @param ModCon|mixed $mod
 	 */
 	private function buildOptionsDataForMod( $mod ) :array {
+		$con = self::con();
+		$config = $con->cfg->configuration;
+
 		$data = [];
 
-		$opts = $mod->opts();
-		$optionsData = $opts->getOptionsForTracking();
-		foreach ( $optionsData as $opt => $mValue ) {
-			unset( $optionsData[ $opt ] );
-			// some cleaning to ensure we don't have disallowed characters
-			$opt = \preg_replace( '#[^_a-z]#', '', \strtolower( $opt ) );
-			if ( $opts->getOptionType( $opt ) == 'checkbox' ) { // only want a boolean 1 or 0
-				$optionsData[ $opt ] = $mValue == 'Y' ? 1 : 0;
+		$options = \array_intersect_key( $con->opts->values(), $config->optsForModule( $mod->cfg->slug ) );
+		foreach ( $config->optsForModule( $mod->cfg->slug ) as $key => $optDef ) {
+			if ( !isset( $options[ $key ] ) ) {
+				$options[ $key ] = $con->opts->optDefault( $key );
 			}
-			else {
-				$optionsData[ $opt ] = $mValue;
+			if ( $con->opts->optType( $key ) === 'checkbox ' ) {
+				$options[ $key ] = $options[ $key ] == 'Y' ? 1 : 0;
+			}
+
+			if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
+				unset( $options[ $key ] );
 			}
 		}
 
-		$data[ 'options' ] = $optionsData;
+		$data[ 'options' ] = $options;
 		$data[ 'dbs' ] = [];
 
 		return $data;
@@ -115,9 +120,7 @@ class PluginTelemetry {
 				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,
 				'locale'           => get_locale(),
-				'can_ajax_rest'    => $con->getModule_Plugin()
-										  ->opts()
-										  ->getOpt( 'test_rest_data' )[ 'success_test_at' ] ?? -1,
+				'can_ajax_rest'    => $con->opts->optGet( 'test_rest_data' )[ 'success_test_at' ] ?? -1,
 				'plugins_total'    => \count( $WPP->getPlugins() ),
 				'plugins_active'   => \count( $WPP->getActivePlugins() ),
 				'plugins_updates'  => \count( $WPP->getUpdates() ),

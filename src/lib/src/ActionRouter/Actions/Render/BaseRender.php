@@ -135,8 +135,6 @@ abstract class BaseRender extends BaseAction {
 				'is_ip_blocked'           => $ipStatus->isBlocked(),
 				'is_mode_live'            => $con->is_mode_live,
 				'is_premium'              => $con->isPremiumActive(),
-				'show_transfer_switch'    => $con->isPremiumActive(),
-				'is_wpcli'                => $pluginOptions->isEnabledWpcli(),
 				'is_security_admin'       => $con->isPluginAdmin(),
 			],
 			'head'             => [

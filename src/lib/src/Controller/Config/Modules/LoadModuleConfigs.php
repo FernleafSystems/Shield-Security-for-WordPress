@@ -37,6 +37,7 @@ class LoadModuleConfigs {
 		$indexed = [];
 		foreach ( $configuration->options as $option ) {
 			$option[ 'hidden' ] = \in_array( $option[ 'section' ], $hiddenSections ) || ( $option[ 'hidden' ] ?? false );
+			$option[ 'transferable' ] = $option[ 'transferable' ] ?? !$option[ 'hidden' ];
 			$indexed[ $option[ 'key' ] ] = $option;
 		}
 		$configuration->options = $indexed;

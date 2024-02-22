@@ -96,24 +96,26 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	/**
 	 * @return string[]
+	 * @deprecated 19.1
 	 */
 	public function getDismissedNotices() :array {
 		return $this->opts()->getOpt( 'dismissed_notices' );
 	}
 
 	protected function setupCacheDir() {
+		$con = self::con();
 		$url = Services::WpGeneral()->getWpUrl();
 
-		$lastKnownDirs = $this->opts()->getOpt( 'last_known_cache_basedirs' );
+		$lastKnownDirs = $con->opts->optGet( 'last_known_cache_basedirs' );
 		$lastKnownDirs = \array_merge( [
 			$url => '',
 		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
 
 		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ] );
 		$lastKnownDirs[ $url ] = \dirname( $cacheDirFinder->dir() );
-		$this->opts()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+		$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
 
-		self::con()->cache_dir_handler = $cacheDirFinder;
+		$con->cache_dir_handler = $cacheDirFinder;
 	}
 
 	/**
@@ -131,7 +133,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		$con = self::con();
 		$wpCrons = Services::WpCron();
 
-		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
+		foreach ( $wpCrons->getCrons() as /** $key => */ $cronArgs ) {
 			foreach ( $cronArgs as $hook => $cron ) {
 				if ( \strpos( (string)$hook, $con->prefix() ) === 0 || \strpos( (string)$hook, $con->prefix( '', '_' ) ) === 0 ) {
 					$wpCrons->deleteCronJob( $hook );

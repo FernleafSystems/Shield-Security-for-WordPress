@@ -18,8 +18,7 @@ class HttpHeadersCon {
 	private $headers = [];
 
 	protected function canRun() :bool {
-		$req = self::con()->this_req;
-		return $this->opts()->isOpt( 'enable_headers', 'Y' ) && !$req->request_bypasses_all_restrictions;
+		return self::con()->opts->optIs( 'enable_headers', 'Y' ) && !self::con()->this_req->request_bypasses_all_restrictions;
 	}
 
 	protected function run() {

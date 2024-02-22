@@ -12,7 +12,7 @@ class OverrideLocale {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !empty( $this->opts()->getOpt( 'locale_override' ) );
+		return !empty( self::con()->opts->optGet( 'locale_override' ) );
 	}
 
 	protected function run() {

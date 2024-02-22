@@ -12,7 +12,7 @@ class IPsCon {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'enable_ips', 'Y' ) && self::con()->db_con->dbhIPRules()->isReady();
+		return self::con()->opts->optIs( 'enable_ips', 'Y' ) && self::con()->db_con->dbhIPRules()->isReady();
 	}
 
 	protected function run() {

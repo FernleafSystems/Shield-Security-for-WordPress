@@ -19,7 +19,7 @@ class CaptureRestApiAction extends CaptureActionBase {
 	protected function theRun() {
 		foreach ( self::con()->modules as $module ) {
 			$restProperties = $module->cfg->properties[ 'rest_api' ] ?? [];
-			error_log( var_export( $restProperties, true ) );
+//			error_log( var_export( $restProperties, true ) );
 			if ( !empty( $restProperties[ 'publish' ] ) ) {
 				try {
 					$restClass = $module->findElementClass( 'Rest' );

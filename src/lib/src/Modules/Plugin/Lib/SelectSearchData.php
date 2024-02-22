@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsSections;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -376,9 +375,7 @@ class SelectSearchData {
 			]
 		];
 
-		foreach (
-			$modIntegrations->opts()->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item
-		) {
+		foreach ( $con->opts->optDef( 'user_form_providers' )[ 'value_options' ] as $item ) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
@@ -390,9 +387,7 @@ class SelectSearchData {
 			];
 		}
 
-		foreach (
-			$modIntegrations->opts()->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item
-		) {
+		foreach ( $con->opts->optDef( 'form_spam_providers' )[ 'value_options' ] as $item ) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
@@ -416,43 +411,41 @@ class SelectSearchData {
 		$con = self::con();
 
 		$stringsOptions = new StringsOptions();
-		$search = [];
-		foreach ( $con->modules as $module ) {
-			if ( $module->cfg->properties[ 'show_module_options' ] ) {
-				$config = [];
-				foreach ( $module->opts()->getVisibleOptionsKeys() as $optKey ) {
-					try {
-						$config[] = [
-							'id'     => 'config_'.$optKey,
-							'text'   => $stringsOptions->getFor( $optKey )[ 'name' ],
-							'link'   => [
-								'href' => $con->plugin_urls->modCfgOption( $optKey ),
-							],
-							'icon'   => $con->svgs->raw( 'sliders.svg' ),
-							'tokens' => $this->getSearchableTextForModuleOption( $module, $optKey ),
-						];
-					}
-					catch ( \Exception $e ) {
-					}
-				}
 
-				if ( !empty( $config ) ) {
-					$search[] = [
-						'text'     => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), $module->name() ),
-						'children' => $config
-					];
-				}
+		$opts = \array_keys( \array_filter( $con->cfg->configuration->options, function ( array $optDef ) {
+			return empty( $optDef[ 'hidden' ] );
+		} ) );
+
+		$config = [];
+		foreach ( $opts as $optKey ) {
+			try {
+				$config[] = [
+					'id'     => 'config_'.$optKey,
+					'text'   => $stringsOptions->getFor( $optKey )[ 'name' ],
+					'link'   => [
+						'href' => $con->plugin_urls->modCfgOption( $optKey ),
+					],
+					'icon'   => $con->svgs->raw( 'sliders.svg' ),
+					'tokens' => $this->getSearchableTextForOption( $optKey ),
+				];
+			}
+			catch ( \Exception $e ) {
 			}
 		}
-		return $search;
+
+		return [
+			[
+				'text'     => __( 'Config', 'wp-simple-firewall' ),
+				'children' => $config
+			]
+		];
 	}
 
 	/**
-	 * @param ModCon|mixed $mod
 	 * @throws \Exception
 	 */
-	private function getSearchableTextForModuleOption( $mod, string $optKey ) :string {
-		$strSection = ( new StringsSections() )->getFor( $mod->opts()->getOptDefinition( $optKey )[ 'section' ] );
+	private function getSearchableTextForOption( string $optKey ) :string {
+		$strSection = ( new StringsSections() )->getFor( self::con()->opts->optDef( $optKey )[ 'section' ] );
 		$strOpts = ( new StringsOptions() )->getFor( $optKey );
 
 		$allWords = \array_filter( \array_map( '\trim',

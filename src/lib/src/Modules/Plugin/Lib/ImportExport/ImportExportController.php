@@ -16,7 +16,7 @@ class ImportExportController {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'importexport_enable', 'Y' );
+		return self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
 	protected function run() {
@@ -44,33 +44,40 @@ class ImportExportController {
 	public function addUrlToImportExportWhitelistUrls( string $url ) {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
-			$urls = $this->opts()->getImportExportWhitelist();
-			$urls[] = $url;
-			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			self::con()->opts->store();
+			self::con()
+				->opts
+				->optSet(
+					'importexport_whitelist', \array_unique( \array_merge( $this->getImportExportWhitelist(), [ $url ] ) )
+				)
+				->store();
 		}
 	}
 
 	public function removeUrlFromImportExportWhitelistUrls( string $url ) {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
-			$urls = $this->opts()->getImportExportWhitelist();
-			$key = \array_search( $url, $urls );
-			if ( $key !== false ) {
-				unset( $urls[ $key ] );
-			}
-			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			self::con()->opts->store();
+			self::con()
+				->opts
+				->optSet( 'importexport_whitelist', \array_diff( $this->getImportExportWhitelist(), [ $url ] ) )
+				->store();
 		}
 	}
 
+	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() :array {
+		return self::con()->opts->optGet( 'importexport_whitelist' );
+	}
+
 	protected function getImportExportSecretKey() :string {
-		$ID = $this->opts()->getOpt( 'importexport_secretkey', '' );
+		$ID = self::con()->opts->optGet( 'importexport_secretkey' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
 			$ID = \sha1( ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
-			$this->opts()
-				 ->setOpt( 'importexport_secretkey', $ID )
-				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
+			self::con()
+				->opts
+				->optSet( 'importexport_secretkey', $ID )
+				->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
 		return $ID;
 	}
@@ -96,7 +103,7 @@ class ImportExportController {
 	 */
 	public function runOptionsUpdateNotified() {
 		// Ensure import/export feature is enabled (for cron and auto-import to run)
-		$this->opts()->setOpt( 'importexport_enable', 'Y' );
+		self::con()->opts->optSet( 'importexport_enable', 'Y' );
 
 		$cronHook = self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( !wp_next_scheduled( $cronHook ) ) {

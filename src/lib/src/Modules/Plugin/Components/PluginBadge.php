@@ -13,11 +13,8 @@ class PluginBadge {
 	use ModConsumer;
 
 	protected function run() {
-
 		$this->floatingBadge();
-
 		add_action( 'widgets_init', [ $this, 'addPluginBadgeWidget' ] );
-
 		add_shortcode( 'SHIELD_BADGE', function () {
 			$this->render();
 		} );
