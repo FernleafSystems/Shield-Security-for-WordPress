@@ -209,7 +209,8 @@ class Options {
 	 * @deprecated 19.1
 	 */
 	public function optExists( string $key ) :bool {
-		return !empty( $this->getOptDefinition( $key ) );
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optExists' ) ? $opts->optExists( $key ) : !empty( $this->getOptDefinition( $key ) );
 	}
 
 	/**

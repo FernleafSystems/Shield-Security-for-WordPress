@@ -77,6 +77,19 @@ class PageLicense extends BasePluginAdminPage {
 				'inner_page_title'    => __( 'ShieldPRO License Management', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Seamlessly activate and manage your ShieldPRO license without any license keys.', 'wp-simple-firewall' ),
 				'pro_features'        => $this->getProFeatureStrings(),
+
+				'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
+				'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
+				'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
+				'clear_license'            => __( 'Clear License Status', 'wp-simple-firewall' ),
+				'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
+				'activate_site_in'         => sprintf(
+					__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
+					__( 'Keyless Activation', 'wp-simple-firewall' )
+				),
+				'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
+				'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
+				'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'license_table'  => [

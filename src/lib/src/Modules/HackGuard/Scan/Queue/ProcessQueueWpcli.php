@@ -3,18 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB,
-	Scan\Exceptions\NoQueueItems
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
 class ProcessQueueWpcli {
 
 	use ExecOnce;
-	use Shield\Modules\HackGuard\ModConsumer;
+	use ModConsumer;
 
 	protected function canRun() :bool {
 		return Services::WpGeneral()->isWpCli();
@@ -28,7 +26,8 @@ class ProcessQueueWpcli {
 			self::con()->opts->store();
 			try {
 				WP_CLI::log( sprintf( 'Building scan items for scan: %s',
-					$mod->getScansCon()->getScanCon( $scan )->getScanName() ) );
+					$mod->getScansCon()->getScanCon( $scan )->getScanName()
+				) );
 				( new QueueInit() )->init( $scan );
 			}
 			catch ( \Exception $e ) {

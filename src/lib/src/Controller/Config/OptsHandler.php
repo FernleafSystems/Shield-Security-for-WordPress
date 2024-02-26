@@ -312,6 +312,7 @@ class OptsHandler extends DynPropertiesClass {
 			case 'integer':
 				$value = (int)$value;
 				break;
+			case 'email':
 			case 'text':
 				$value = (string)$value;
 				break;

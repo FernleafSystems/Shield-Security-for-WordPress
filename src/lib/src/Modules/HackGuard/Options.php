@@ -20,10 +20,6 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 	public function getFileScanAreas() :array {
 		$opts = self::con()->opts;
 
-		if ( !\is_array( $this->getOpt( 'file_scan_areas', [] ) ) ) {
-			$this->resetOptToDefault( 'file_scan_areas' );
-		}
-
 		$areas = $this->getOpt( 'file_scan_areas', [] );
 		if ( !self::con()->isPremiumActive() ) {
 			$available = [];
