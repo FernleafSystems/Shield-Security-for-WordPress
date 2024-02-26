@@ -359,8 +359,9 @@ class AssetsCustomizer {
 				'data'    => function () {
 					return [
 						'ajax' => [
-							'form_save'        => ActionData::Build( Actions\ModuleOptionsSave::class ),
-							'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ModConfig::class ),
+							'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
+							'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
+							'render_offcanvas'    => ActionData::BuildAjaxRender( Components\OffCanvas\ModConfig::class ),
 						]
 					];
 				},

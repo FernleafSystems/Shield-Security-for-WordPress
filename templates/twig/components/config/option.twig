@@ -232,17 +232,15 @@
 				{% if flags.show_transfer_switch %}
 
 					{% if option.key in vars.xferable_opts %}
-						<span class="form-check float-end importexport-checkbox"
+						<span class="form-check float-end toggle-importexport-inclusion"
 							  data-bs-toggle="tooltip"
 							  data-bs-placement="left"
 							  data-bs-title="{{ strings.is_opt_importexport }}"
 						>
 							<input type="checkbox"
-								   class="form-check-input optxfer-exclude"
-								   id="optxfer-{{ option.key }}"
-								   name="optxfer-{{ option.key }}"
+								   class="form-check-input"
 								   aria-labelledby="Label-{{ option.key }}"
-								   value="Y"
+								   data-key="{{ option.key }}"
 								{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
 							/>
 							<label class="custom-control-label"

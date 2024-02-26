@@ -719,16 +719,6 @@ dl.pro-features dd {
   opacity: 0;
 }
 
-.importexport-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-  background-color: rgba(119, 107, 12, 1);
-  border-color: rgba(119, 107, 12, 1);
-}
-
-.importexport-checkbox.custom-switch .custom-control-input:disabled:checked ~ .custom-control-label::before {
-  background-color: rgba(119, 107, 12, 0.3);
-  border-color: rgba(119, 107, 12, 0.3);
-}
-
 #FileLockerDiffContents {
   margin-bottom: 20px;
 }

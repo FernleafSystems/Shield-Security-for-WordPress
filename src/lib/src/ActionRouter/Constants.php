@@ -64,6 +64,7 @@ class Constants {
 		Actions\MfaPasskeyRegistrationVerify::class,
 		Actions\MfaYubikeyToggle::class,
 		Actions\ModuleOptionsSave::class,
+		Actions\OptionTransferIncludeToggle::class,
 		Actions\CaptureNotBot::class,
 		Actions\CaptureNotBotNonce::class,
 		Actions\PluginAutoDbRepair::class,

@@ -98,14 +98,9 @@ class HandleOptionsSaveRequest {
 				$optValue = Services::Data()->extractCommaSeparatedList( $optValue );
 			}
 
-			self::con()->opts->optSet( $optKey, $optValue );
+			$optsCon->optSet( $optKey, $optValue );
 		}
 
-		// Handle Import/Export exclusions TODO
-		if ( false && self::con()->isPremiumActive() ) {
-			( new SaveExcludedOptions() )->save( $form );
-		}
-
-		self::con()->opts->store();
+		$optsCon->store();
 	}
 }

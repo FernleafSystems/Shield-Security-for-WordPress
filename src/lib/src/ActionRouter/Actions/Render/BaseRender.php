@@ -313,11 +313,7 @@ abstract class BaseRender extends BaseAction {
 			'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
 			'wphashes_token'      => 'ShieldPRO API Token',
-			'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
 
-			'search_select'   => [
-				'title' => \ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
-			],
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',

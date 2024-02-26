@@ -45,6 +45,7 @@ class OptionsForm extends BaseRender {
 			'strings' => [
 				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $mod->getDescriptors()[ 'title' ] ),
 				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],
+				'is_opt_importexport' => __( 'Toggle whether this option is included with import/export', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'is_wpcli'             => $con->getModule_Plugin()->opts()->isEnabledWpcli(),
