@@ -13,13 +13,9 @@ class MfaLoginCode extends EmailBase {
 	public const TEMPLATE = '/email/lp_2fa_email_code.twig';
 
 	protected function getBodyData() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_LoginGuard()->opts();
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;
-
 		return [
 			'flags'   => [
-				'can_auto_login'  => $opts->canAutoLoginURL(),
+				'can_auto_login' => self::con()->opts->optIs( 'enable_email_auto_login', 'Y' ),
 			],
 			'vars'    => [
 				'code' => $this->action_data[ 'otp' ],
@@ -35,7 +31,8 @@ class MfaLoginCode extends EmailBase {
 				'auto_login'       => __( 'Autologin URL', 'wp-simple-firewall' ),
 				'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
 				'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), $this->action_data[ 'home_url' ] ),
-				'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user ),
+				'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ),
+					Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login ),
 				'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] ),
 			]
 		];

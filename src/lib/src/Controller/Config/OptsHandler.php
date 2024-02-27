@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	License,
 	PluginControllerConsumer
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PreStore;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -208,8 +209,13 @@ class OptsHandler extends DynPropertiesClass {
 		$con = self::con();
 
 		// Pre-process options.
-		foreach ( $con->modules as $mod ) {
-			$mod->opts()->preSave();
+		if ( \version_compare( $con->cfg->version(), '19.1', '>=' ) ) {
+			( new PreStore() )->run();
+		}
+		else {
+			foreach ( $con->modules as $mod ) {
+				$mod->opts()->preSave();
+			}
 		}
 
 		do_action( $con->prefix( 'pre_options_store' ) );
@@ -336,13 +342,16 @@ class OptsHandler extends DynPropertiesClass {
 		$value = $this->values()[ $key ] ?? null;
 
 		if ( $this->optExists( $key ) ) {
+			$con = self::con();
 
 			if ( $value === null || !$this->optIsValueTypeValid( $key, $value ) ) {
 				$this->optReset( $key );
 			}
 
 			$cap = $this->optCap( $key );
-			if ( !empty( $cap ) && !self::con()->caps->hasCap( $cap ) ) {
+			if ( !empty( $cap ) && !$con->caps->hasCap( $cap )
+				 || ( empty( $cap ) && ( $this->optDef( $key )[ 'premium' ] ?? false ) && !$con->isPremiumActive() )
+			) {
 				$value = $this->optDefault( $key );
 			}
 			$value = $this->optEnforceValueType( $key, $value );

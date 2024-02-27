@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
 	LockDbInsertFailure,
-	NoFileLockPathsExistException,
 	NoCipherAvailableException,
+	NoFileLockPathsExistException,
 	PublicKeyRetrievalFailure
 };
 

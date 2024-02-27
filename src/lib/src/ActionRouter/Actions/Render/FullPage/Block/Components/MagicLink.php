@@ -26,7 +26,7 @@ class MagicLink extends Base {
 				'ajaxurl' => Services::WpGeneral()->ajaxURL(),
 			],
 			'vars'    => [
-				'email'     => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
+				'email' => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
 			],
 			'strings' => [
 				'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),

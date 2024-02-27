@@ -45,7 +45,7 @@ class ShieldExcludeLogRequest extends BuildRuleCoreShieldBase {
 									]
 								];
 							},
-							$this->opts()->getCustomExclusions()
+							$this->opts()->getOpt( 'custom_exclusions' )
 						),
 						[
 							[

@@ -6,10 +6,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public const SLUG = 'data';
 
-	public function runDailyCron() {
-		( new Lib\CleanDatabases() )->execute();
-	}
-
 	/**
 	 * @deprecated 19.1
 	 */

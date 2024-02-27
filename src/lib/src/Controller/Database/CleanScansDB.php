@@ -1,18 +1,16 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Utility;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Clean {
+class CleanScansDB {
 
-	use ExecOnce;
 	use ModConsumer;
 
-	protected function run() {
+	public function run() {
 		$this->deleteScansThatNeverCompleted();
 		$this->deleteEarlierScans();
 	}

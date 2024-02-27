@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
-
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'ips';
@@ -35,31 +33,24 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker();
 	}
 
-	public function onConfigChanged() :void {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$dbhIPRules = self::con()->db_con->dbhIPRules();
-
-		if ( $opts->isOptChanged( 'cs_block' ) && !$opts->isEnabledCrowdSecAutoBlock() ) {
-			/** @var DB\IpRules\Ops\Delete $deleter */
-			$deleter = $dbhIPRules->getQueryDeleter();
-			$deleter->filterByType( $dbhIPRules::T_CROWDSEC )->query();
-		}
-
-		if ( $opts->isOptChanged( 'transgression_limit' ) && !$opts->isEnabledAutoBlackList() ) {
-			/** @var DB\IpRules\Ops\Delete $deleter */
-			$deleter = $dbhIPRules->getQueryDeleter();
-			$deleter->filterByType( $dbhIPRules::T_AUTO_BLOCK )->query();
-		}
+	public function getAllowable404s() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
+			function ( $ext ) {
+				return !empty( $ext ) && \is_string( $ext ) && \preg_match( '#^[a-z\d]+$#i', $ext );
+			}
+		) );
 	}
 
-	public function runHourlyCron() {
-		( new DB\IpRules\CleanIpRules() )->cleanAutoBlocks();
-	}
-
-	public function runDailyCron() {
-		parent::runDailyCron();
-		( new TableIndices( self::con()->db_con->dbhIPRules()->getTableSchema() ) )->applyFromSchema();
+	public function getAllowableScripts() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
+			function ( $script ) {
+				return !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' );
+			}
+		) );
 	}
 
 	/**

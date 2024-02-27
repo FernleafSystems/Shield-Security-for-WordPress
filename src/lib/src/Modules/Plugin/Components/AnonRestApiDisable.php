@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AnonRestApiDisable {
@@ -12,7 +13,7 @@ class AnonRestApiDisable {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !Services::WpUsers()->isUserLoggedIn() && $this->opts()->isRestApiAnonymousAccessDisabled();
+		return !Services::WpUsers()->isUserLoggedIn() && self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' );
 	}
 
 	protected function run() {
@@ -28,19 +29,31 @@ class AnonRestApiDisable {
 	public function disableAnonymousRestApi( $mStatus ) {
 
 		$namespace = Services::Rest()->getNamespace();
-		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus )
-			 && !self::con()->getModule_Lockdown()->isPermittedAnonRestApiNamespace( $namespace ) ) {
+		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus ) ) {
+			$con = self::con();
 
-			$mStatus = new \WP_Error(
-				'shield_block_anon_restapi',
-				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ),
-					self::con()->getHumanName() ),
-				[ 'status' => rest_authorization_required_code() ] );
+			if ( \method_exists( $con->opts, 'optGet' ) ) {
 
-			self::con()->fireEvent(
-				'block_anonymous_restapi',
-				[ 'audit_params' => [ 'namespace' => $namespace ] ]
-			);
+				$exclusions = \array_unique( \array_merge(
+					ArrayOps::CleanStrings(
+						apply_filters( 'shield/anonymous_rest_api_exclusions', $con->opts->optGet( 'api_namespace_exclusions' ) ),
+						'#[^\da-z_-]#i'
+					)
+				) );
+
+				if ( !\in_array( $namespace, $exclusions ) ) {
+					$mStatus = new \WP_Error(
+						'shield_block_anon_restapi',
+						sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ),
+							$con->getHumanName() ),
+						[ 'status' => rest_authorization_required_code() ] );
+
+					$con->fireEvent(
+						'block_anonymous_restapi',
+						[ 'audit_params' => [ 'namespace' => $namespace ] ]
+					);
+				}
+			}
 		}
 
 		return $mStatus;

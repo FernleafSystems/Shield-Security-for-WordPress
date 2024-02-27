@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncodingFailure,
@@ -12,8 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	HackGuard\Lib\FileLocker\Ops\BuildEncryptedFilePayload,
 	Plugin
 };
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -45,7 +45,6 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
-
 	private function dbg_filelocker() {
 		$publicKey = ( new GetPublicKey() )->retrieve();
 		try {
@@ -63,6 +62,7 @@ class SimplePluginTests extends BaseAction {
 			var_dump( $e->getMessage() );
 		}
 	}
+
 	private function dbg_eventsSum() {
 		$dbhEvents = self::con()->db_con->dbhEvents();
 		/** @var Select $select */
@@ -123,7 +123,7 @@ class SimplePluginTests extends BaseAction {
 	private function dbg_handshake() {
 		$snapi = self::con()->getModule_Plugin()->getShieldNetApiController();
 		var_dump( $snapi->vo );
-		var_dump( $snapi->canHandshake(true) );
+		var_dump( $snapi->canHandshake( true ) );
 		var_dump( $snapi->vo );
 	}
 

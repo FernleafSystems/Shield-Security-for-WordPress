@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\Core\BuildRuleCoreShieldBase,
 	Conditions,
 	Enum,
 	Responses

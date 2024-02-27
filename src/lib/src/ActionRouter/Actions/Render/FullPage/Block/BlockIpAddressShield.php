@@ -38,7 +38,7 @@ class BlockIpAddressShield extends BaseBlock {
 				'subtitle'      => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
 			],
-			'vars' => [
+			'vars'    => [
 				'inline_js' => [
 					sprintf( 'var shield_vars_blockpage = %s;', \json_encode( [
 						'magic_unblock' => [

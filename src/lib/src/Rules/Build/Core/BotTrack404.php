@@ -21,7 +21,8 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
-		$opts = $this->opts();
+		$botSignals = \method_exists( $this->mod(), 'getAllowable404s' ) ?
+			self::con()->getModule_IPs()->getAllowable404s() : $this->opts()->botSignalsGetAllowable404s();
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -53,7 +54,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 							'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 							'params'     => [
 								'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
-								'match_path' => sprintf( "#\\.(%s)$#i", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
+								'match_path' => sprintf( "#\\.(%s)$#i", \implode( '|', $botSignals ) ),
 							],
 						],
 						[

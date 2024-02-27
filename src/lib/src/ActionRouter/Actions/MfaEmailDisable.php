@@ -9,8 +9,8 @@ class MfaEmailDisable extends MfaUserConfigBase {
 	protected function exec() {
 		self::con()->getModule_LoginGuard()->opts()->setOpt( 'enable_email_authentication', 'N' );
 		$this->response()->action_response_data = [
-			'success'     => true,
-			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
+			'success' => true,
+			'message' => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
 		];
 	}
 }

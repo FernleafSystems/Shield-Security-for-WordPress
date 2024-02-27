@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Snapshots\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\DiffVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\SnapshotVO;
@@ -34,7 +35,7 @@ class AuditCon {
 	private $snapshotDiscoveryQueue;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'enable_audit_trail', 'Y' )
+		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
 			   && self::con()->db_con->dbhActivityLogs()->isReady();
 	}
 
@@ -66,6 +67,45 @@ class AuditCon {
 
 			$this->getSnapshotDiscoveryQueue();
 		}
+	}
+
+	public function getAutoCleanDays() :int {
+		$con = self::con();
+		$days = (int)\min( $con->opts->optGet( 'audit_trail_auto_clean' ), $con->caps->getMaxLogRetentionDays() );
+		$con->opts->optSet( 'audit_trail_auto_clean', $days );
+		return $days;
+	}
+
+	public function getLogFilePath() :string {
+		try {
+			$dir = ( new LogFileDirCreate() )->run();
+		}
+		catch ( \Exception $e ) {
+			$dir = '';
+		}
+
+		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
+		return apply_filters( 'shield/audit_trail_log_file_path', $path );
+	}
+
+	public function getLogFileRotationLimit() :int {
+		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
+	}
+
+	public function getLogLevelsDB() :array {
+		$optsCon = self::con()->opts;
+		$levels = $optsCon->optGet( 'log_level_db' );
+		if ( empty( $levels ) || !\is_array( $levels ) ) {
+			$optsCon->optReset( 'log_level_db' );
+		}
+		elseif ( \count( $levels ) > 1 && \in_array( 'disabled', $levels ) ) {
+			$optsCon->optSet( 'log_level_db', [ 'disabled' ] );
+		}
+		return $optsCon->optGet( 'log_level_db' );
+	}
+
+	public function isLogToDB() :bool {
+		return !\in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
 	private function primeSnapshots() {

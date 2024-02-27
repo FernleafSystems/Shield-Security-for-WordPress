@@ -60,7 +60,7 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'         => 'block_author_fishing',
-					'offense_count' => $this->opts()->isBlockAuthorDiscovery() ? 1 : 0,
+					'offense_count' => 1,
 					'block'         => false,
 				],
 			],

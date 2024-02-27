@@ -13,9 +13,14 @@ class RenameLogin {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return !empty( $this->opts()->getCustomLoginPath() )
+		return !empty( $this->customPath() )
 			   && !self::con()->this_req->request_bypasses_all_restrictions
-			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
+			   && !$this->hasPluginConflict()
+			   && !$this->hasUnsupportedConfiguration();
+	}
+
+	public function customPath() :string {
+		return self::con()->opts->optGet( 'rename_wplogin_path' );
 	}
 
 	protected function run() {
@@ -62,7 +67,7 @@ class RenameLogin {
 		$msg = '';
 		$isConflicted = false;
 
-		$path = $this->opts()->getCustomLoginPath();
+		$path = $this->customPath();
 
 		$WP = Services::WpGeneral();
 		if ( $WP->isMultisite() ) {
@@ -149,7 +154,8 @@ class RenameLogin {
 		if ( !empty( $redirectPath ) && \str_contains( $redirectPath, 'wp-login.php' ) ) {
 
 			$queryArgs = \explode( '?', $location );
-			$location = home_url( $this->opts()->getCustomLoginPath() );
+			$path = \method_exists( $this, 'customPath' ) ? $this->customPath() : $this->opts()->getCustomLoginPath();
+			$location = home_url( $path );
 			if ( !empty( $queryArgs[ 1 ] ) ) {
 				$location .= '?'.$queryArgs[ 1 ];
 			}
@@ -163,10 +169,9 @@ class RenameLogin {
 	 * @return string
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
-		if ( !Services::WpGeneral()->isLoginUrl() ) {
-			if ( \trim( (string)\parse_url( $location, \PHP_URL_PATH ), '/' ) === $this->opts()->getCustomLoginPath()
-				 && !Services::WpUsers()->isUserLoggedIn()
-			) {
+		if ( !Services::WpGeneral()->isLoginUrl()  && !Services::WpUsers()->isUserLoggedIn() ) {
+			$path = \method_exists( $this, 'customPath' ) ? $this->customPath() : $this->opts()->getCustomLoginPath();
+			if ( \trim( (string)\parse_url( $location, \PHP_URL_PATH ), '/' ) === $path ) {
 				$this->doWpLoginFailedRedirect404();
 			}
 		}
@@ -180,7 +185,6 @@ class RenameLogin {
 	public function blockRegisterUrlRedirect( $url ) {
 		if ( \strpos( Services::Request()->getPath(), 'wp-register.php' ) ) {
 			$this->doWpLoginFailedRedirect404();
-			die();
 		}
 		return $url;
 	}
@@ -199,7 +203,6 @@ class RenameLogin {
 	public function aLoginFormAction() {
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
 			$this->doWpLoginFailedRedirect404();
-			die();
 		}
 	}
 
@@ -209,7 +212,7 @@ class RenameLogin {
 	 * @return array
 	 */
 	public function fAddToEtMaintenanceExceptions( $urlExceptions ) {
-		$urlExceptions[] = $this->opts()->getCustomLoginPath();
+		$urlExceptions[] = \method_exists( $this, 'customPath' ) ? $this->customPath() : $this->opts()->getCustomLoginPath();
 		return $urlExceptions;
 	}
 
@@ -220,7 +223,7 @@ class RenameLogin {
 
 		self::con()->fireEvent( 'hide_login_url' );
 
-		$redirectPath = $this->opts()->getHiddenLoginRedirect();
+		$redirectPath = $this->opts()->getOpt( 'rename_wplogin_redirect' );
 		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );
 		$redirectUrl = apply_filters( 'shield/renamewplogin_redirect_url',
 			apply_filters( 'icwp_shield_renamewplogin_redirect_url', $redirectUrl ) );
@@ -233,5 +236,6 @@ class RenameLogin {
 		}
 
 		Services::Response()->sendApache404( '', Services::WpGeneral()->getHomeUrl() );
+		die();
 	}
 }

@@ -43,7 +43,6 @@ class FireEventsForChangedOpts {
 							'value' => $logValue,
 						]
 					] );
-
 				}
 				catch ( \Exception $e ) {
 				}

@@ -1,15 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Data,
-	HackGuard,
-	IPs,
 	LoginGuard,
 	Traffic
 };
@@ -17,16 +14,15 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class CleanDatabases {
 
-	use ExecOnce;
 	use Data\ModConsumer;
 
-	protected function run() {
-		$this->cleanIpRules();
+	public function all() {
+		( new CleanIpRules() )->all();
 		$this->cleanBotSignals();
 		$this->cleanUserMeta();
 		$this->cleanOldEmail2FA();
 		$this->cleanStaleReports();
-		$this->cleanStaleScans();
+		( new CleanScansDB() )->run();
 		$this->cleanRequestLogs();
 		$this->purgeUnreferencedIPs();
 	}
@@ -38,10 +34,6 @@ class CleanDatabases {
 			->getQueryDeleter()
 			->addWhereOlderThan( Services::Request()->carbon( true )->subweeks( 2 )->timestamp, 'updated_at' )
 			->query();
-	}
-
-	public function cleanIpRules() :void {
-		( new IPs\DB\IpRules\CleanIpRules() )->execute();
 	}
 
 	private function cleanRequestLogs() {
@@ -98,10 +90,6 @@ class CleanDatabases {
 				->query();
 	}
 
-	public function cleanStaleScans() :void {
-		( new HackGuard\DB\Utility\Clean() )->execute();
-	}
-
 	/**
 	 * Delete all the user meta rows where there is no corresponding User ID.
 	 * WARNING: GREAT CARE MUST ALWAYS BE TAKEN WHEN EDITING THIS QUERY TO ENSURE WE DELETE ONLY FROM `meta`
@@ -132,12 +120,14 @@ class CleanDatabases {
 
 		// This is more work, but it optimises the array of ip_ref's so that it's not massive and then has to be "uniqued"
 		$ipIDsInUse = [];
-		foreach ( [
-			$con->db_con->dbhReqLogs()->getQuerySelector(),
-			$con->db_con->dbhBotSignal()->getQuerySelector(),
-			$con->db_con->dbhIPRules()->getQuerySelector(),
-			$con->db_con->dbhUserMeta()->getQuerySelector(),
-		] as $dbSelector ) {
+		foreach (
+			[
+				$con->db_con->dbhReqLogs()->getQuerySelector(),
+				$con->db_con->dbhBotSignal()->getQuerySelector(),
+				$con->db_con->dbhIPRules()->getQuerySelector(),
+				$con->db_con->dbhUserMeta()->getQuerySelector(),
+			] as $dbSelector
+		) {
 			/** @var Select $dbSelector */
 			$ipIDsInUse = \array_unique( \array_merge(
 				$ipIDsInUse,

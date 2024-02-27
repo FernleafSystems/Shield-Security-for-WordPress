@@ -6,21 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\U
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	public function preSave() :void {
-		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
-			$current = $this->getOpt( $optKey );
-			if ( empty( $current ) ) {
-				$this->resetOptToDefault( $optKey );
-			}
-			elseif ( \in_array( 'disabled', $this->getOpt( $optKey ) ) ) {
-				$this->setOpt( $optKey, [ 'disabled' ] );
-			}
-		}
-		if ( \in_array( 'same_as_db', $this->getOpt( 'log_level_file' ) ) ) {
-			$this->setOpt( 'log_level_file', [ 'same_as_db' ] );
-		}
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getLogFilePath() :string {
 		try {
 			$dir = ( new LogFileDirCreate() )->run();
@@ -33,10 +21,16 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return apply_filters( 'shield/audit_trail_log_file_path', $path );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getLogFileRotationLimit() :int {
 		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getLogLevelsDB() :array {
 		$levels = $this->getOpt( 'log_level_db', [] );
 		if ( empty( $levels ) || !\is_array( $levels ) ) {
@@ -50,6 +44,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 
 	/**
 	 * Don't put caps into cfg as this option is always available, but limited to 7.
+	 * @deprecated 19.1
 	 */
 	public function getAutoCleanDays() :int {
 		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
@@ -57,7 +52,13 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return $days;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isLogToDB() :bool {
-		return !\in_array( 'disabled', $this->getLogLevelsDB() );
+		$aCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		return !\in_array( 'disabled',
+			\method_exists( $aCon, 'getLogLevelsDB' ) ? $aCon->getLogLevelsDB() : $this->opts()->getLogLevelsDB()
+		);
 	}
 }

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class PageImportExport extends BasePluginAdminPage {
 
@@ -34,26 +33,25 @@ class PageImportExport extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		/** @var Options $opts */
-		$opts = $con->getModule_Plugin()->opts();
+		$importMasterURL = $con->getModule_Plugin()->getImpExpController()->getImportExportMasterImportUrl();
 		return [
 			'flags'   => [
 				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),
 				'can_importexport_file' => $con->caps->canImportExportFile(),
 				'can_importexport_sync' => $con->caps->canImportExportSync(),
-				'has_master_url'        => $opts->hasImportExportMasterImportUrl(),
+				'has_master_url'        => !empty( $importMasterURL ),
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'arrow-down-up' ),
+				'inner_page_title_icon' => $con->svgs->raw( 'arrow-down-up' ),
 			],
 			'vars'    => [
 				'file_upload_nonce'  => ActionData::Build( PluginImportFromFileUpload::class, true, [
 					'notification_type' => 'wp_admin_notice'
 				] ),
-				'current_master_url' => $opts->getImportExportMasterImportUrl(),
+				'current_master_url' => $importMasterURL,
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Import/Export', 'wp-simple-firewall' ),

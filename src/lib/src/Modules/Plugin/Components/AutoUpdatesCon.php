@@ -31,7 +31,7 @@ class AutoUpdatesCon {
 		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $priority, 2 );
 		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $priority, 2 );
 
-		if ( !$this->opts()->isDisableAllAutoUpdates() ) {
+		if ( !$this->disableAll() ) {
 			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $priority, 0 );
 			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $priority );
 			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $priority );
@@ -42,7 +42,7 @@ class AutoUpdatesCon {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->opts()->isDisableAllAutoUpdates() ) {
+		if ( $this->disableAll() ) {
 			remove_all_filters( 'automatic_updater_disabled' );
 			add_filter( 'automatic_updater_disabled', '__return_true', \PHP_INT_MAX );
 			if ( !\defined( 'WP_AUTO_UPDATE_CORE' ) ) {
@@ -56,9 +56,10 @@ class AutoUpdatesCon {
 	 */
 	public function trackUpdateTimesCore( $updates ) {
 
-		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) ) {
+		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) && \method_exists( $this, 'getDelayTracking' ) ) {
 
-			$delayTracking = $this->opts()->getDelayTracking();
+			$delayTracking = $this->getDelayTracking();
+
 			$item = $delayTracking[ 'core' ][ 'wp' ] ?? [];
 			foreach ( $updates->updates as $upd ) {
 				if ( 'autoupdate' == $upd->response ) {
@@ -70,7 +71,7 @@ class AutoUpdatesCon {
 			}
 			$delayTracking[ 'core' ][ 'wp' ] = \array_slice( $item, -5 );
 
-			$this->opts()->setDelayTracking( $delayTracking );
+			$this->opts()->setOpt( 'delay_tracking', $delayTracking );
 		}
 	}
 
@@ -93,9 +94,10 @@ class AutoUpdatesCon {
 	 * @param string    $context - plugins/themes
 	 */
 	protected function trackUpdateTimeCommon( $updates, $context ) {
-		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
-
-			$delayTracking = $this->opts()->getDelayTracking();
+		if ( !empty( $updates ) && isset( $updates->response )
+			 && \is_array( $updates->response ) && \method_exists( $this, 'getDelayTracking' )
+		) {
+			$delayTracking = $this->getDelayTracking();
 
 			foreach ( $updates->response as $slug => $theUpdate ) {
 				$itemTrack = $delayTracking[ $context ][ $slug ] ?? [];
@@ -112,7 +114,7 @@ class AutoUpdatesCon {
 				}
 			}
 
-			$this->opts()->setDelayTracking( $delayTracking );
+			$this->opts()->setOpt( 'delay_tracking', $delayTracking );
 		}
 	}
 
@@ -125,11 +127,11 @@ class AutoUpdatesCon {
 	public function autoupdate_core_major( $toUpdate ) {
 		$opts = $this->opts();
 
-		if ( $opts->isDisableAllAutoUpdates() || $opts->isAutoUpdateCoreNever() ) {
+		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
 			$toUpdate = false;
 		}
-		elseif ( !$opts->isDelayUpdates() ) { // delay handled elsewhere
-			$toUpdate = $opts->isAutoUpdateCoreMajor();
+		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
+			$toUpdate = $opts->isOpt( 'autoupdate_core', 'core_major' );
 		}
 
 		return $toUpdate;
@@ -142,13 +144,11 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_core_minor( $doUpdate ) {
-		$opts = $this->opts();
-
-		if ( $opts->isDisableAllAutoUpdates() || $opts->isAutoUpdateCoreNever() ) {
+		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
 			$doUpdate = false;
 		}
-		elseif ( !$opts->isDelayUpdates() ) {
-			$doUpdate = !$opts->isAutoUpdateCoreNever();
+		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
+			$doUpdate = !$this->opts()->isOpt( 'autoupdate_core', 'core_never' );
 		}
 		return $doUpdate;
 	}
@@ -159,15 +159,10 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_core( $doUpdate, $coreUpgrade ) {
-		$opts = $this->opts();
-
-		if ( $opts->isDisableAllAutoUpdates() ) {
+		if ( ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() )
+			 || $this->isDelayed( $coreUpgrade, 'core' ) ) {
 			$doUpdate = false;
 		}
-		elseif ( $this->isDelayed( $coreUpgrade, 'core' ) ) {
-			$doUpdate = false;
-		}
-
 		return $doUpdate;
 	}
 
@@ -178,7 +173,7 @@ class AutoUpdatesCon {
 	 */
 	public function autoupdate_plugins( $doUpdate, $mItem ) {
 
-		if ( $this->opts()->isDisableAllAutoUpdates() ) {
+		if ( ( \method_exists( $this, 'disableAll' ) && $this->disableAll() ) ) {
 			$doUpdate = false;
 		}
 		else {
@@ -187,11 +182,11 @@ class AutoUpdatesCon {
 			if ( $this->isDelayed( $file, 'plugins' ) ) {
 				$doUpdate = false;
 			}
-			elseif ( $this->opts()->isAutoupdateAllPlugins() ) {
+			elseif ( $this->opts()->isOpt( 'enable_autoupdate_plugins', 'Y' ) ) {
 				$doUpdate = true;
 			}
 			elseif ( $file === self::con()->base_file ) {
-				$auto = $this->opts()->getSelfAutoUpdateOpt();
+				$auto = $this->opts()->getOpt( 'autoupdate_plugin_self' );
 				if ( $auto === 'immediate' ) {
 					$doUpdate = true;
 				}
@@ -211,7 +206,7 @@ class AutoUpdatesCon {
 	 */
 	public function autoupdate_themes( $doAutoUpdate, $mItem ) {
 
-		if ( $this->opts()->isDisableAllAutoUpdates() ) {
+		if ( ( \method_exists( $this, 'disableAll' ) && $this->disableAll() ) ) {
 			$doAutoUpdate = false;
 		}
 		else {
@@ -230,16 +225,13 @@ class AutoUpdatesCon {
 
 	/**
 	 * @param string|\stdClass $slug
-	 * @param string           $context
 	 */
-	private function isDelayed( $slug, $context = 'plugins' ) :bool {
-		$opts = $this->opts();
-
+	private function isDelayed( $slug, string $context ) :bool {
 		$delayed = false;
 
-		if ( $opts->isDelayUpdates() ) {
+		if ( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) {
 
-			$delayTrack = $opts->getDelayTracking();
+			$delayTracking = $this->getDelayTracking();
 
 			$version = '';
 			if ( $context == 'core' ) {
@@ -247,7 +239,7 @@ class AutoUpdatesCon {
 				$slug = 'wp';
 			}
 
-			$itemTrack = $delayTrack[ $context ][ $slug ] ?? [];
+			$itemTrack = $delayTracking[ $context ][ $slug ] ?? [];
 
 			if ( $context == 'plugins' ) {
 				$pluginInfo = Services::WpPlugins()->getUpdateInfo( $slug );
@@ -259,7 +251,8 @@ class AutoUpdatesCon {
 			}
 
 			if ( !empty( $version ) && isset( $itemTrack[ $version ] ) ) {
-				$delayed = ( Services::Request()->ts() - $itemTrack[ $version ] ) < $opts->getDelayUpdatesPeriod();
+				$delayed = ( Services::Request()->ts() - $itemTrack[ $version ] )
+						   < $this->opts()->getOpt( 'update_delay', 0 )*\DAY_IN_SECONDS;
 			}
 		}
 
@@ -270,7 +263,7 @@ class AutoUpdatesCon {
 	 * A filter on whether a notification email is sent after core upgrades are attempted.
 	 */
 	public function autoupdate_send_email() :bool {
-		return $this->opts()->isSendAutoupdatesNotificationEmail();
+		return $this->opts()->isOpt( 'enable_upgrade_notification_email', 'Y' );
 	}
 
 	/**
@@ -284,5 +277,35 @@ class AutoUpdatesCon {
 			$emailParams[ 'to' ] = $override;
 		}
 		return $emailParams;
+	}
+
+	public function getDelayTracking() :array {
+		$opts = self::con()->opts;
+
+		$opts->optSet( 'delay_tracking',
+			Services::DataManipulation()->mergeArraysRecursive( [
+				'core'    => [],
+				'plugins' => [],
+				'themes'  => [],
+			], $opts->optGet( 'delay_tracking' ) )
+		);
+
+		return $opts->optGet( 'delay_tracking' );
+	}
+
+	public function getDelayPeriod() :int {
+		return $this->opts()->getOpt( 'update_delay', 0 )*\DAY_IN_SECONDS;
+	}
+
+	public function isCoreAutoUpgradesDisabled() :bool {
+		return $this->disableAll() || $this->opts()->isOpt( 'autoupdate_core', 'core_never' );
+	}
+
+	public function isDelayUpdates() :bool {
+		return $this->opts()->getOpt( 'update_delay', 0 ) > 0;
+	}
+
+	public function disableAll() :bool {
+		return $this->opts()->isOpt( 'enable_autoupdate_disable_all', 'Y' );
 	}
 }

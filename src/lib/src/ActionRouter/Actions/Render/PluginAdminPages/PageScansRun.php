@@ -100,7 +100,7 @@ class PageScansRun extends PageScansBase {
 					'is_restricted' => $scanCon->isRestricted(),
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
-//									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
+					//									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
 				'strings' => $strings,
 				'vars'    => [

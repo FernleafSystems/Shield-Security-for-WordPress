@@ -15,7 +15,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $auditLogger;
 
 	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon
+	 * @var Lib\AuditCon
 	 */
 	private $auditCon;
 

@@ -1,8 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
@@ -10,10 +11,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class CleanIpRules {
 
-	use ExecOnce;
 	use ModConsumer;
 
-	protected function run() {
+	public function all() {
 		$this->expired();
 		$this->duplicates();
 	}

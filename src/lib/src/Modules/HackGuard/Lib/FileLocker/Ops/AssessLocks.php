@@ -8,14 +8,14 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 class AssessLocks extends BaseOps {
 
 	public function run() {
-		$FLCon = $this->mod()->getFileLocker();
 		/** @var FileLockerDB\Update $updater */
 		$updater = self::con()->db_con->dbhFileLocker()->getQueryUpdater();
 
 		$this->removeDuplicates();
 
 		$locksChanged = false;
-		foreach ( $FLCon->getLocks() as $lock ) {
+		foreach ( $this->mod()->getFileLocker()->getLocks() as $lock ) {
+			/** @deprecated 19.1 */
 			if ( !$lock instanceof FileLockerDB\Record ) {
 				continue;
 			}
@@ -41,7 +41,7 @@ class AssessLocks extends BaseOps {
 		}
 
 		if ( $locksChanged ) {
-			$FLCon->clearLocks();
+			$this->mod()->getFileLocker()->clearLocks();
 		}
 	}
 

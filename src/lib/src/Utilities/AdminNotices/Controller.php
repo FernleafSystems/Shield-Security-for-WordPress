@@ -465,31 +465,32 @@ class Controller {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
+		$con = self::con();
 		switch ( $notice->id ) {
 			case 'override-forceoff':
-				$needed = self::con()->this_req->is_force_off && !self::con()->isPluginAdminPageRequest();
+				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
 			case 'allow-tracking':
 				/** @var Plugin\Options $opts */
-				$opts = self::con()->getModule_Plugin()->opts();
+				$opts = $con->getModule_Plugin()->opts();
 				$needed = !$opts->isTrackingPermissionSet();
 				break;
 			case 'blockdown-active':
-				$needed = self::con()->this_req->is_site_lockdown_active && !self::con()->isPluginAdminPageRequest();
+				$needed = $con->this_req->is_site_lockdown_active && !$con->isPluginAdminPageRequest();
 				break;
 			case 'email-verification-sent':
 				/** @var LoginGuard\Options $opts */
-				$opts = self::con()->getModule_LoginGuard()->opts();
+				$opts = $con->getModule_LoginGuard()->opts();
 				$needed = $opts->isEnabledEmailAuth() && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
 				break;
 			case 'admin-users-restricted':
 				/** @var SecurityAdmin\Options $opts */
-				$opts = self::con()->getModule_SecAdmin()->opts();
+				$opts = $con->getModule_SecAdmin()->opts();
 				$needed = \in_array( Services::WpPost()->getCurrentPage(), $opts->getDef( 'restricted_pages_users' ) );
 				break;
 			case 'certain-options-restricted':
 				/** @var SecurityAdmin\Options $opts */
-				$opts = self::con()->getModule_SecAdmin()->opts();
+				$opts = $con->getModule_SecAdmin()->opts();
 				$needed = empty( Services::Request()->query( 'page' ) )
 						  && \in_array( Services::WpPost()->getCurrentPage(), $opts->getOptionsPagesToRestrict() );
 				break;

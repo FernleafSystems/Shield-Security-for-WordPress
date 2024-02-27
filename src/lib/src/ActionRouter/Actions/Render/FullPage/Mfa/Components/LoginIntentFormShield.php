@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
-
 class LoginIntentFormShield extends BaseForm {
 
 	public const SLUG = 'render_shield_login_intent_form';

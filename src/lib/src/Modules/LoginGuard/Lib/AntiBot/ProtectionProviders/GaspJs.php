@@ -15,7 +15,6 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function enqueueJS() {
-
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
 			$assets[] = 'login_guard';
 			return $assets;

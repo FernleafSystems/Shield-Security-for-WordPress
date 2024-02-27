@@ -8,11 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	public function preSave() :void {
-		$this->cleanScanExclusions();
-		( new CleanLockRecords() )->run();
-	}
-
 	/**
 	 * @deprecated 19.1
 	 */
@@ -184,25 +179,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		$this->setOpt( 'is_scan_cron', $isCron );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	private function cleanScanExclusions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		if ( $opts->isOptChanged( 'scan_path_exclusions' ) ) {
-			$opts->setOpt( 'scan_path_exclusions',
-				( new WildCardOptions() )->clean(
-					$opts->getOpt( 'scan_path_exclusions', [] ),
-					\array_map( 'trailingslashit', [
-						ABSPATH,
-						path_join( ABSPATH, 'wp-admin' ),
-						path_join( ABSPATH, 'wp-includes' ),
-						untrailingslashit( WP_CONTENT_DIR ),
-						path_join( WP_CONTENT_DIR, 'plugins' ),
-						path_join( WP_CONTENT_DIR, 'themes' ),
-					] ),
-					WildCardOptions::FILE_PATH_REL
-				)
-			);
-		}
 	}
 }

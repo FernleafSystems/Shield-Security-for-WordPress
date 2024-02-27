@@ -6,37 +6,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	public function preSave() :void {
-		if ( $this->isOptChanged( 'custom_exclusions' ) ) {
-			$this->setOpt( 'custom_exclusions', \array_filter( \array_map(
-				function ( $excl ) {
-					return \trim( esc_js( $excl ) );
-				},
-				$this->getOpt( 'custom_exclusions' )
-			) ) );
-		}
-
-		if ( $this->isOpt( 'enable_limiter', 'Y' ) && !$this->isTrafficLoggerEnabled() ) {
-			$this->setOpt( 'enable_logger', 'Y' );
-			if ( $this->getAutoCleanDays() === 0 ) {
-				$this->resetOptToDefault( 'auto_clean' );
-			}
-		}
-
-		if ( $this->isOpt( 'enable_live_log', 'Y' ) && !$this->isTrafficLoggerEnabled() ) {
-			$this->setOpt( 'enable_live_log', 'N' )
-				 ->setOpt( 'live_log_started_at', 0 );
-		}
-	}
-
 	public function getAutoCleanDays() :int {
 		$days = (int)\min( $this->getOpt( 'auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
 		$this->setOpt( 'auto_clean', $days );
 		return $days;
-	}
-
-	public function getCustomExclusions() :array {
-		return $this->getOpt( 'custom_exclusions' );
 	}
 
 	public function getLimitRequestCount() :int {
@@ -82,5 +55,12 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 
 	public function liveLoggingDuration() :int {
 		return (int)\min( \DAY_IN_SECONDS, \max( \MINUTE_IN_SECONDS, apply_filters( 'shield/live_traffic_log_duration', \HOUR_IN_SECONDS/2 ) ) );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getCustomExclusions() :array {
+		return $this->getOpt( 'custom_exclusions' );
 	}
 }

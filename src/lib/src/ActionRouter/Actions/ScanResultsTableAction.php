@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 
 class ScanResultsTableAction extends ScansBase {
 

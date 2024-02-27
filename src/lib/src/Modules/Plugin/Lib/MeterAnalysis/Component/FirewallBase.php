@@ -43,6 +43,6 @@ abstract class FirewallBase extends Base {
 	}
 
 	protected function getFirewallCategoryName() :string {
-		return (new FirewallCategoryNames())->getFor( $this->getFirewallKey() );
+		return ( new FirewallCategoryNames() )->getFor( $this->getFirewallKey() );
 	}
 }

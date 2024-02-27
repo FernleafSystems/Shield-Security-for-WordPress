@@ -46,39 +46,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller();
 	}
 
-	public function onConfigChanged() :void {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
-			$this->getScansCon()->deleteCron();
-		}
-
-		if ( $opts->isOptChanged( 'file_locker' ) ) {
-			$lockFiles = $opts->getFilesToLock();
-			if ( !empty( $lockFiles ) ) {
-				if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
-					unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
-					$opts->setOpt( 'file_locker', $lockFiles );
-				}
-
-				if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
-																	 ->getModule_Plugin()
-																	 ->getShieldNetApiController()
-																	 ->canHandshake() ) {
-					$opts->setOpt( 'file_locker', [] );
-					$this->getFileLocker()->purge();
-				}
-			}
-		}
-
-		foreach ( $this->getScansCon()->getAllScanCons() as $con ) {
-			if ( !$con->isEnabled() ) {
-				$con->purge();
-			}
-		}
-	}
-
 	protected function setCustomCronSchedules() {
 		/** @var Options $opts */
 		$opts = $this->opts();
@@ -90,17 +57,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 			]
 		);
-	}
-
-	public function onPluginDeactivate() {
-		// 1. Clean out the scanners
-		foreach ( $this->getScansCon()->getAllScanCons() as $scanCon ) {
-			$scanCon->purge();
-		}
-		self::con()->db_con->dbhScanItems()->tableDelete();
-		self::con()->db_con->dbhScanResults()->tableDelete();
-		// 2. Clean out the file locker
-		$this->getFileLocker()->purge();
 	}
 
 	public function runDailyCron() {

@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Common\BaseConditionResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumConditions,
 	EnumResponses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Common\BaseConditionResponse;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 
 class FindFromSlug {
 

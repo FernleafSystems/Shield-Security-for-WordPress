@@ -34,8 +34,8 @@ class MfaEmailToggle extends MfaUserConfigBase {
 		}
 
 		$this->response()->action_response_data = [
-			'success'     => $success,
-			'message'     => $msg,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 }

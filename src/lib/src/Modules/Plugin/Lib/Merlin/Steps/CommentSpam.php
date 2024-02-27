@@ -29,15 +29,11 @@ class CommentSpam extends Base {
 			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
-		$mod = self::con()->getModule_Comments();
-
 		$toEnable = $value === 'Y';
 		if ( $toEnable ) { // we don't disable the whole module
-			$mod->setIsMainFeatureEnabled( true );
+			self::con()->getModule_Comments()->setIsMainFeatureEnabled( true );
 		}
-		/** @var Shield\Modules\CommentsFilter\Options $opts */
-		$opts = $mod->opts();
-		$opts->setEnabledAntiBot( $toEnable );
+		self::con()->opts->optSet( 'enable_antibot_comments', $toEnable ? 'Y' : 'N' );
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

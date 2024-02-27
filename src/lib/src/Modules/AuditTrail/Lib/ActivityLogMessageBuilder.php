@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
-
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-
-use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
 
 class ActivityLogMessageBuilder {
 

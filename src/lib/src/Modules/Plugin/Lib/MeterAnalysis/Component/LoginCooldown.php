@@ -12,10 +12,8 @@ class LoginCooldown extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_LoginGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isEnabledCooldown();
+		$con = self::con();
+		return $con->getModule_LoginGuard()->isModOptEnabled() && $con->opts->optIs( 'login_limit_interval', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

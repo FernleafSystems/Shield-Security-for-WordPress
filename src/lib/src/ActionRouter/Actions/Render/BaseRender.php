@@ -312,7 +312,7 @@ abstract class BaseRender extends BaseAction {
 			'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 			'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
-			'wphashes_token'      => 'ShieldPRO API Token',
+			'wphashes_token' => 'ShieldPRO API Token',
 
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?

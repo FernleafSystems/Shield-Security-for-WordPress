@@ -80,9 +80,8 @@ class LoginIntentRequestCapture {
 		catch ( OtpVerificationFailedException|CouldNotValidate2FA $e ) {
 			// Allow a further attempt to 2FA
 			try {
-				$useShieldLoginIntentPage = $con->getModule_LoginGuard()->getMfaController()->useLoginIntentPage();
 				$con->action_router->action( FullPageDisplayDynamic::class, [
-					'render_slug' => $useShieldLoginIntentPage ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
+					'render_slug' => $con->opts->optIs( 'mfa_verify_page', 'custom_shield' ) ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
 						'include_body'      => true,

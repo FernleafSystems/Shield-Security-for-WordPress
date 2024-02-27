@@ -8,10 +8,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	/**
 	 * @param string $namespace
+	 * @deprecated 19.1
 	 */
 	public function isPermittedAnonRestApiNamespace( $namespace ) :bool {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		return \in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
+		return false;
 	}
 }

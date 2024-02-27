@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
-
 class LockdownAuthorDiscovery extends Base {
 
 	use Traits\OptConfigBased;
@@ -11,10 +9,8 @@ class LockdownAuthorDiscovery extends Base {
 	public const SLUG = 'lockdown_author_discovery';
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Lockdown();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isBlockAuthorDiscovery();
+		$con = self::con();
+		return $con->getModule_Lockdown()->isModOptEnabled() && $con->opts->optIs( 'block_author_discovery', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

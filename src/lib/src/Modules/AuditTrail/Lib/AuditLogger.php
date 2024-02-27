@@ -28,12 +28,9 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$con = self::con();
-		/** @var Options $opts */
-		$opts = $con->getModule_AuditTrail()->opts();
-		if ( $opts->isLogToDB() ) {
+		if ( self::con()->getModule_AuditTrail()->getAuditCon()->isLogToDB() ) {
 			// The Request Logger is required to link up the DB entries.
-			$con->getModule_Traffic()->getRequestLogger()->execute();
+			self::con()->getModule_Traffic()->getRequestLogger()->execute();
 		}
 	}
 
@@ -61,18 +58,24 @@ class AuditLogger extends EventsListener {
 		$con = self::con();
 		/** @var Options $opts */
 		$opts = $con->getModule_AuditTrail()->opts();
+		$auditCon = $con->getModule_AuditTrail()->getAuditCon();
 
 		if ( $this->isMonologLibrarySupported() ) {
 
-			if ( $opts->isLogToDB() ) {
+			if ( \method_exists( $auditCon, 'isLogToDB' ) ? $auditCon->isLogToDB() : $opts->isLogToDB() ) {
 				$this->getLogger()
 					 ->pushHandler(
-						 new FilterHandler( new LocalDbWriter(), $opts->getLogLevelsDB() )
+						 new FilterHandler(
+							 new LocalDbWriter(),
+							 \method_exists( $auditCon, 'getLogLevelsDB' ) ? $auditCon->getLogLevelsDB() : $opts->getLogLevelsDB()
+						 )
 					 );
 			}
 
+			$path = \method_exists( $auditCon, 'getLogFilePath' ) ? $auditCon->getLogFilePath() : $opts->getLogFilePath();
+
 			if ( $con->cache_dir_handler->exists()
-				 && !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $opts->getLogFilePath() )
+				 && !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $path )
 			) {
 				try {
 					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $this->getLogLevelsFile() );

@@ -12,14 +12,15 @@ class Login2fa extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_LoginGuard();
+		$con = self::con();
+		$mod = $con->getModule_LoginGuard();
 		/** @var Options $opts */
 		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
 			   && ( $opts->isEmailAuthenticationActive()
 					|| $opts->isEnabledGoogleAuthenticator()
 					|| $opts->isEnabledYubikey()
-					|| $opts->isOpt( 'enable_passkeys', 'Y' ) );
+					|| $con->opts->optIs( 'enable_passkeys', 'Y' ) );
 	}
 
 	protected function getOptConfigKey() :string {

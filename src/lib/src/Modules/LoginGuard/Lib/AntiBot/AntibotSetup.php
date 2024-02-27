@@ -17,10 +17,11 @@ class AntibotSetup {
 	}
 
 	protected function run() {
+		$con = self::con();
 		$opts = $this->opts();
 
 		$providers = [];
-		if ( $opts->isEnabledCooldown() && self::con()->cache_dir_handler->exists() ) {
+		if ( $con->opts->optGet( 'login_limit_interval' ) > 0 && self::con()->cache_dir_handler->exists() ) {
 			$providers[] = new AntiBot\ProtectionProviders\CoolDown();
 		}
 

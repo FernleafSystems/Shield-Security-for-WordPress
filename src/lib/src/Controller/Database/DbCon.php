@@ -2,18 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	Event,
 	FileLocker,
 	Malware,
 	Mfa,
 	Reports,
-	ResultItems,
 	ResultItemMeta,
-	Scans,
+	ResultItems,
 	ScanItems,
 	ScanResults,
+	Scans,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
 	Logs,
@@ -21,28 +24,43 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
 	Snapshots
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
-	IPs,
 	IpMeta,
-	UserMeta,
-	ReqLogs
+	IPs,
+	ReqLogs,
+	UserMeta
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\{
 	BotSignal,
 	CrowdSecSignals,
 	IpRules,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DbCon {
 
+	use ExecOnce;
+	use PluginCronsConsumer;
 	use PluginControllerConsumer;
 
 	/**
 	 * @var ?|array
 	 */
 	private $dbHandlers = null;
+
+	protected function run() {
+		$this->setupCronHooks();
+	}
+
+	public function runDailyCron() {
+		( new CleanDatabases() )->all();
+		( new TableIndices( $this->dbhIPRules()->getTableSchema() ) )->applyFromSchema();
+	}
+
+	public function runHourlyCron() {
+		( new CleanIpRules() )->cleanAutoBlocks();
+	}
 
 	public function dbhActivityLogs() :Logs\Ops\Handler {
 		return $this->loadDbH( 'at_logs' );
@@ -164,7 +182,6 @@ class DbCon {
 
 	/**
 	 * @return Databases\Base\Handler|mixed|null
-	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$con = self::con();

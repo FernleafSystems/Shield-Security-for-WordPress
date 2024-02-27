@@ -29,7 +29,9 @@ abstract class BuildRuleBase {
 	}
 
 	abstract protected function getSlug() :string;
+
 	abstract protected function getName() :string;
+
 	abstract protected function getDescription() :string;
 
 	protected function getWpHook() :string {

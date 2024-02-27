@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldLoginIntentPage extends BaseLoginIntentPage {
@@ -58,10 +57,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	}
 
 	protected function getLoginIntentExpiresAt() :int {
-		$mod = self::con()->getModule_LoginGuard();
-		$mfaCon = $mod->getMfaController();
-		/** @var Options $opts */
-		$opts = $mod->opts();
+		$mfaCon = self::con()->getModule_LoginGuard()->getMfaController();
 
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
@@ -70,14 +66,14 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		return Services::Request()
 					   ->carbon()
 					   ->setTimestamp( $intentAt )
-					   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
+					   ->addMinutes( $mfaCon->getLoginIntentMinutes() )->timestamp;
 	}
 
 	protected function getScripts() :array {
 		$scripts = parent::getScripts();
 		$scripts[ 51 ] = [
-			'src' => self::con()->urls->forDistJS( 'login_2fa' ),
-			'id'  => 'shield/login_2fa',
+			'src'    => self::con()->urls->forDistJS( 'login_2fa' ),
+			'id'     => 'shield/login_2fa',
 			'footer' => true,
 		];
 		return $scripts;

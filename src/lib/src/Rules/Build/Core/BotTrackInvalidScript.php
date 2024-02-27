@@ -24,6 +24,8 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
+		$botSignals = \method_exists( $this->mod(), 'getAllowableScripts' ) ?
+			self::con()->getModule_IPs()->getAllowableScripts() : $this->opts()->botSignalsGetAllowableScripts();
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -52,7 +54,7 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 						'match_script_name' => sprintf( '#(%s)#i',
 							implode( '|', \array_map( function ( $script ) {
 								return \preg_quote( $script, '#' );
-							}, $this->opts()->botSignalsGetAllowableScripts() ) )
+							}, $botSignals ) )
 						),
 					],
 				],

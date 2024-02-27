@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 class GetAvailableCiphers {
 
 	private static $local = null;
+
 	private static $snapi = null;
 
 	public function full() :array {

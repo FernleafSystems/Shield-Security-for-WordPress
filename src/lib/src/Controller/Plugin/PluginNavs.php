@@ -152,10 +152,10 @@ class PluginNavs {
 				self::NAV_RULES          => [
 					'name'     => __( 'Rules', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_RULES_MANAGE     => [
+						self::SUBNAV_RULES_MANAGE  => [
 							'handler' => PluginAdminPages\PageRulesManage::class,
 						],
-						self::SUBNAV_RULES_BUILD     => [
+						self::SUBNAV_RULES_BUILD   => [
 							'handler' => PluginAdminPages\PageRulesBuild::class,
 						],
 						self::SUBNAV_RULES_SUMMARY => [

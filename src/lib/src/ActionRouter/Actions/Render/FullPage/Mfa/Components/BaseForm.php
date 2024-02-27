@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Fu
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseForm extends Base {
@@ -20,32 +19,31 @@ abstract class BaseForm extends Base {
 
 	protected function getCommonFormData() :array {
 		$con = self::con();
-		$mod = $con->getModule_LoginGuard();
-		/** @var LoginGuard\Options $opts */
-		$opts = $mod->opts();
-		$WP = Services::WpGeneral();
-
-		$mfaSkip = (int)( $opts->getMfaSkip()/\DAY_IN_SECONDS );
-
+		$mfaCon = $con->getModule_LoginGuard()->getMfaController();
+		$mfaSkip = (int)( $mfaCon->getMfaSkip()/\DAY_IN_SECONDS );
 		return [
 			'content' => [
 				'login_fields' => \array_filter( \array_map(
-					function ( $provider ) use ( $opts ) {
-						return $provider->renderLoginIntentFormField( $opts->getMfaLoginIntentFormat() );
+					function ( $provider ) {
+						return $provider->renderLoginIntentFormField( self::con()->opts->optGet( 'mfa_verify_page' ) );
 					},
-					$mod->getMfaController()->getProvidersActiveForUser(
+					$mfaCon->getProvidersActiveForUser(
 						Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )
 					)
 				) ),
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $opts->getMfaSkip() > 0,
+				'can_skip_mfa' => $mfaCon->getMfaSkip() > 0,
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			],
 			'hrefs'   => [
-				'form_action' => $con->plugin_urls->noncedPluginAction( MfaLoginVerifyStep::class, $WP->getLoginUrl(), [
-					'wpe-login' => ( \function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
-				] ),
+				'form_action' => $con->plugin_urls->noncedPluginAction(
+					MfaLoginVerifyStep::class,
+					Services::WpGeneral()->getLoginUrl(),
+					[
+						'wpe-login' => ( \function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
+					]
+				),
 			],
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),

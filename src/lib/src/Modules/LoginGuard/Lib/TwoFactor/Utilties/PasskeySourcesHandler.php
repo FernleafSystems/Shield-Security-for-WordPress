@@ -91,7 +91,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			throw new \Exception( 'Source does not exist.' );
 		}
 
-		$data[ 'data']= \base64_encode( \wp_json_encode( $publicKeyCredentialSource->jsonSerialize() ) );
+		$data[ 'data' ] = \base64_encode( \wp_json_encode( $publicKeyCredentialSource->jsonSerialize() ) );
 
 		( new MfaRecordsHandler() )->update( $record, $data );
 	}

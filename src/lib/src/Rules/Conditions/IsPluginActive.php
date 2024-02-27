@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumLogic,
 	EnumParameters
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class IsPluginActive extends Base {
 

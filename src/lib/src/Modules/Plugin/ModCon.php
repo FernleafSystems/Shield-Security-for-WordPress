@@ -235,7 +235,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	public function runDailyCron() {
-		parent::runDailyCron();
 		( new WhitelistUs() )->all();
 	}
 
@@ -243,7 +242,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
 
-	protected function setupCustomHooks() {
+	protected function setupHooks() {
+		parent::setupHooks();
+
 		add_action( 'admin_footer', function () {
 			if ( self::con()->isPluginAdminPageRequest() ) {
 				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );

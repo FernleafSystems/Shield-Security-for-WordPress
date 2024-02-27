@@ -257,6 +257,9 @@ class Options {
 	protected function preSetOptChecks( string $key, $newValue ) {
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function preSave() :void {
 	}
 

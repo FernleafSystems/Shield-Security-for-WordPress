@@ -78,9 +78,9 @@ class LoadConfig {
 		}
 
 		$cfg[ 'properties' ] = \array_merge( [
-			'storage_key'      => $cfg[ 'slug' ],
-			'tagline'          => '',
-			'menu_priority'    => 100,
+			'storage_key'   => $cfg[ 'slug' ],
+			'tagline'       => '',
+			'menu_priority' => 100,
 		], $cfg[ 'properties' ] );
 
 		$cfg[ 'menus' ] = \array_merge( [

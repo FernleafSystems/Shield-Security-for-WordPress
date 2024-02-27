@@ -16,8 +16,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
-	ForSecurityRules,
 	ForIpRules,
+	ForSecurityRules,
 	ForSessions,
 	ForTraffic,
 	Scans\ForMalware,

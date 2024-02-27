@@ -46,8 +46,8 @@ abstract class BaseBlock extends BaseFullPageRender {
 	protected function getScripts() :array {
 		$scripts = parent::getScripts();
 		$scripts[ 51 ] = [
-			'src' => self::con()->urls->forDistJS( 'blockpage' ),
-			'id'  => 'shield/blockpage',
+			'src'    => self::con()->urls->forDistJS( 'blockpage' ),
+			'id'     => 'shield/blockpage',
 			'footer' => true,
 		];
 		return $scripts;
@@ -57,7 +57,7 @@ abstract class BaseBlock extends BaseFullPageRender {
 		$scripts = parent::getStyles();
 		$scripts[ 51 ] = [
 			'href' => self::con()->urls->forDistCSS( 'blockpage' ),
-			'id'  => 'shield/blockpage',
+			'id'   => 'shield/blockpage',
 		];
 		return $scripts;
 	}

@@ -5,11 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	AuditTrail,
-	IPs,
 	SecurityAdmin,
-	Traffic,
-	UserManagement
+	Traffic
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -26,8 +23,6 @@ class StringsOptions {
 		$caps = $con->caps;
 		$pluginName = $con->getHumanName();
 
-		/** @var IPs\Options $optsIPs */
-		$optsIPs = $con->getModule_IPs()->opts();
 		/** @var SecurityAdmin\Options $optsSecurityAdmin */
 		$optsSecurityAdmin = $con->getModule_SecAdmin()->opts();
 
@@ -65,15 +60,14 @@ class StringsOptions {
 				}
 				break;
 			case 'log_level_file' :
-				/** @var AuditTrail\Options $optsActivity */
-				$optsActivity = $con->getModule_AuditTrail()->opts();
+				$auditCon = self::con()->getModule_AuditTrail()->getAuditCon();
 				$name = __( 'File Logging Level', 'wp-simple-firewall' );
 				$summary = __( 'Logging Level For File-Based Logs', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Specify the logging levels when using the local filesystem.', 'wp-simple-firewall' ),
 					sprintf( '%s: <code>%s</code>',
 						__( 'Log File Location', 'wp-simple-firewall' ),
-						$optsActivity->getLogFilePath()
+						$auditCon->getLogFilePath()
 					),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
@@ -82,7 +76,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
 						sprintf( __( 'Log files will be rotated daily up to a limit of %s.', 'wp-simple-firewall' ),
-							sprintf( '<code>%s</code>', $optsActivity->getLogFileRotationLimit() ) )
+							sprintf( '<code>%s</code>', $auditCon->getLogFileRotationLimit() ) )
 					)
 				];
 				break;
@@ -660,7 +654,7 @@ class StringsOptions {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						\implode( ', ', $optsIPs->botSignalsGetAllowable404s() )
+						\implode( ', ', $con->getModule_IPs()->getAllowable404s() )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -694,7 +688,8 @@ class StringsOptions {
 						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this under normal circumstances.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) ),
 					sprintf( '%s: %s',
 						__( "Currently permitted scripts", 'wp-simple-firewall' ),
-						sprintf( '<ul><li><code>%s</code></li></ul>', \implode( '</code></li><li><code>', $optsIPs->botSignalsGetAllowableScripts() ) )
+						sprintf( '<ul><li><code>%s</code></li></ul>',
+							\implode( '</code></li><li><code>', $con->getModule_IPs()->getAllowableScripts() ) )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -1024,8 +1019,7 @@ class StringsOptions {
 				$desc = [
 					__( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' ),
 					__( 'Zero (0) turns this off.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),
-						$con->getModule_LoginGuard()->opts()->getOptDefault( 'login_limit_interval' ) )
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $con->opts->optDefault( 'login_limit_interval' ) )
 				];
 				break;
 			case 'enable_user_register_checking' :
@@ -1351,7 +1345,7 @@ class StringsOptions {
 					sprintf(
 						'%s: %s',
 						__( 'Default', 'wp-simple-firewall' ),
-						sprintf( '%s minutes', $optsSecurityAdmin->getOptDefault( 'admin_access_timeout' ) )
+						sprintf( '%s minutes', $con->opts->optDefault( 'admin_access_timeout' ) )
 					)
 				];
 				break;
@@ -1627,15 +1621,13 @@ class StringsOptions {
 				$desc = [ __( 'A notification is sent to each user when a successful login occurs for their account.', 'wp-simple-firewall' ) ];
 				break;
 			case 'session_timeout_interval' :
-				/** @var UserManagement\Options $optsUsers */
-				$optsUsers = $con->getModule_UserManagement()->opts();
 				$name = __( 'Session Timeout', 'wp-simple-firewall' );
 				$summary = __( 'Specify How Many Days After Login To Automatically Force Re-Login', 'wp-simple-firewall' );
 				$desc = [
 					__( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' ),
 					__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' ),
 					sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$optsUsers->getOptDefault( 'session_timeout_interval' ).'</strong>' )
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$con->opts->optDefault( 'session_timeout_interval' ).'</strong>' )
 				];
 				break;
 			case 'session_idle_timeout_interval' :
@@ -1724,8 +1716,6 @@ class StringsOptions {
 				];
 				break;
 			case 'auto_idle_roles' :
-				/** @var UserManagement\Options $optsUsers */
-				$optsUsers = $con->getModule_UserManagement()->opts();
 				$name = __( 'Auto-Suspend Idle User Roles', 'wp-simple-firewall' );
 				$summary = __( 'Apply Automatic Suspension To Accounts With These Roles', 'wp-simple-firewall' );
 				$desc = [
@@ -1733,7 +1723,7 @@ class StringsOptions {
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
 						\implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), \implode( ', ', $optsUsers->getOptDefault( 'auto_idle_roles' ) ) )
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), \implode( ', ', $con->opts->optDefault( 'auto_idle_roles' ) ) )
 				];
 				break;
 

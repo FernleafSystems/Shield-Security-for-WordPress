@@ -15,18 +15,44 @@ class UserSuspendController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isSuspendEnabled();
+		return $this->isSuspendEnabled();
+	}
+
+	public function getSuspendAutoIdleTime() :int {
+		return $this->opts()->getOpt( 'auto_idle_days', 0 )*\DAY_IN_SECONDS;
+	}
+
+	public function getSuspendAutoIdleUserRoles() :array {
+		return self::con()->opts->optGet( 'auto_idle_roles' );
+	}
+
+	public function isSuspendEnabled() :bool {
+		return $this->isSuspendManualEnabled() || $this->isSuspendAutoIdleEnabled() || $this->isSuspendAutoPasswordEnabled();
+	}
+
+	public function isSuspendManualEnabled() :bool {
+		return self::con()->opts->optIs( 'manual_suspend', 'Y' );
+	}
+
+	public function isSuspendAutoIdleEnabled() :bool {
+		return $this->getSuspendAutoIdleTime() > 0 && \count( $this->getSuspendAutoIdleUserRoles() ) > 0;
+	}
+
+	public function isSuspendAutoPasswordEnabled() :bool {
+		return $this->opts()->isPasswordPoliciesEnabled()
+			   && self::con()->opts->optIs( 'auto_password', 'Y' )
+			   && self::con()->opts->optGet( 'pass_expire' ) > 0;
 	}
 
 	protected function run() {
 		if ( !self::con()->this_req->is_ip_whitelisted ) {
-			if ( $this->opts()->isSuspendManualEnabled() ) {
+			if ( $this->isSuspendManualEnabled() ) {
 				( new Suspended() )->execute();
 			}
-			if ( $this->opts()->isSuspendAutoIdleEnabled() ) {
+			if ( $this->isSuspendAutoIdleEnabled() ) {
 				( new Idle() )->execute();
 			}
-			if ( $this->opts()->isSuspendAutoPasswordEnabled() ) {
+			if ( $this->isSuspendAutoPasswordEnabled() ) {
 				( new PasswordExpiry() )->execute();
 			}
 		}
@@ -78,11 +104,11 @@ class UserSuspendController {
 		/** @var Select $metaSelect */
 		$metaSelect = $userMetaDB->getQuerySelector();
 
-		$manual = $opts->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
-		$passwords = $opts->isSuspendAutoPasswordEnabled() ?
+		$manual = $this->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
+		$passwords = $this->isSuspendAutoPasswordEnabled() ?
 			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getPassExpireTimeout() )->count() : 0;
-		$idle = $opts->isSuspendAutoPasswordEnabled() ?
-			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getSuspendAutoIdleTime() )->count() : 0;
+		$idle = $this->isSuspendAutoPasswordEnabled() ?
+			$metaSelect->reset()->filterByPassExpired( $ts - $this->getSuspendAutoIdleTime() )->count() : 0;
 
 		if ( $manual + $passwords + $idle > 0 ) {
 			// Filter the user list database query
@@ -104,7 +130,7 @@ class UserSuspendController {
 					}
 					elseif ( $passwords > 0 && $req->query( 'shield_users_pass' ) ) {
 						$filtered = true;
-						$metaSelect->filterByIdle( $ts - $this->opts()->getSuspendAutoIdleTime() );
+						$metaSelect->filterByIdle( $ts - $this->getSuspendAutoIdleTime() );
 					}
 					else {
 						$filtered = false;

@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\{
 	Controller\Config\Modules\ModConfigVO,
 	Crons,
 	Modules
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 /**
  * @property bool $is_booted
@@ -58,20 +58,12 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 	}
 
+	protected function doPostConstruction() {
+	}
+
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
-		add_action( self::con()->prefix( 'pre_options_store' ), function () {
-			$this->onConfigChanged();
-		} );
-
 		$this->setupCronHooks();
-		$this->setupCustomHooks();
-	}
-
-	protected function setupCustomHooks() {
-	}
-
-	protected function doPostConstruction() {
 	}
 
 	public function onRunProcessors() {
@@ -196,7 +188,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * Handle any required actions after particular configuration changes.
+	 * @deprecated 19.1
 	 */
 	public function onConfigChanged() :void {
 	}
@@ -206,9 +198,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function saveModOptions() {
 		self::con()->opts->store();
-	}
-
-	public function onPluginDeactivate() {
 	}
 
 	/**

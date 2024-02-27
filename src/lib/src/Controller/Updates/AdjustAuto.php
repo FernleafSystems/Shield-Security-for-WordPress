@@ -15,7 +15,6 @@ class AdjustAuto {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 	}
 
-
 	/**
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.

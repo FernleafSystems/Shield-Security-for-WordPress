@@ -48,7 +48,8 @@ class OptionsForm extends BaseRender {
 				'is_opt_importexport' => __( 'Toggle whether this option is included with import/export', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'is_wpcli'             => $con->getModule_Plugin()->opts()->isEnabledWpcli(),
+				'is_wpcli'             => $con->isPremiumActive()
+										  && apply_filters( 'shield/enable_wpcli', $optsCon->optIs( 'enable_wpcli', 'Y' ) ),
 				'show_transfer_switch' => $con->isPremiumActive(),
 			],
 			'vars'    => [

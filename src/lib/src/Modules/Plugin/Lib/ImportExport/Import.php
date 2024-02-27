@@ -83,12 +83,10 @@ class Import {
 	}
 
 	public function autoImportFromMaster() {
-		if ( $this->opts()->hasImportExportMasterImportUrl() ) {
-			try {
-				$this->fromSite( $this->opts()->getImportExportMasterImportUrl() );
-			}
-			catch ( \Exception $e ) {
-			}
+		try {
+			$this->fromSite();
+		}
+		catch ( \Exception $e ) {
 		}
 	}
 
@@ -97,16 +95,15 @@ class Import {
 	 */
 	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
 		$optsCon = self::con()->opts;
-		$opts = $this->opts();
 
 		if ( empty( $masterURL ) ) {
-			$masterURL = $opts->getImportExportMasterImportUrl();
+			$masterURL = self::con()->getModule_Plugin()->getImpExpController()->getImportExportMasterImportUrl();
 			if ( empty( $masterURL ) ) {
 				throw new \Exception( "No Master Site URL provided.", 4 );
 			}
 		}
 
-		$originalMasterSiteURL = $opts->getImportExportMasterImportUrl();
+		$originalMasterSiteURL = $masterURL;
 		$secretKey = sanitize_key( $secretKey );
 
 		if ( !empty( $secretKey ) && \strlen( $secretKey ) !== 40 ) {

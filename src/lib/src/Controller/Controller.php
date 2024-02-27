@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Autoupdates,
@@ -32,7 +33,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -73,7 +73,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Utilities\MU\MUHandler            $mu_handler
  * @property Shield\Events\EventsService              $service_events
  * @property Shield\Users\UserMetas                   $user_metas
- * @property Base\ModCon[]                            $modules
+ * @property Base\ModCon[]|mixed                      $modules
  * @property Shield\Crons\HourlyCron                  $cron_hourly
  * @property Shield\Crons\DailyCron                   $cron_daily
  * @property string[]                                 $reqs_not_met
@@ -128,8 +128,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'flags':
 				if ( !\is_array( $val ) ) {
-					$val = [];
-					$this->flags = $val;
+					$this->flags = $val = [];
 				}
 				break;
 
@@ -141,15 +140,13 @@ class Controller extends DynPropertiesClass {
 
 			case 'db_con':
 				if ( empty( $val ) ) {
-					$val = new Database\DbCon();
-					$this->db_con = $val;
+					$this->db_con = $val = new Database\DbCon();
 				}
 				break;
 
 			case 'email_con':
 				if ( empty( $val ) ) {
-					$val = new Email\EmailCon();
-					$this->email_con = $val;
+					$this->email_con = $val = new Email\EmailCon();
 				}
 				break;
 
@@ -223,63 +220,57 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'is_mode_debug':
-				if ( \is_null( $val ) ) {
-					$val = ( new Shield\Controller\Modes\DebugMode() )->isModeActive();
-					$this->is_mode_debug = $val;
+				if ( $val === null ) {
+					$this->is_mode_debug = $val = ( new Shield\Controller\Modes\DebugMode() )->isModeActive();
 				}
 				break;
 
 			case 'is_mode_live':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$val = $this->is_mode_live = !$this->is_mode_staging && !$this->is_mode_debug;
 				}
 				break;
 
 			case 'is_mode_staging':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$val = ( new Shield\Controller\Modes\StagingMode() )->isModeActive();
 					$this->is_mode_staging = $val;
 				}
 				break;
 
 			case 'mu_handler':
-				if ( \is_null( $val ) ) {
-					$val = new Shield\Utilities\MU\MUHandler();
-					$this->mu_handler = $val;
+				if ( $val === null ) {
+					$this->mu_handler = $val = new Shield\Utilities\MU\MUHandler();
 				}
 				break;
 
 			case 'action_router':
-				if ( \is_null( $val ) ) {
-					$val = new Shield\ActionRouter\ActionRoutingController();
-					$this->action_router = $val;
+				if ( $val === null ) {
+					$this->action_router = $val = new Shield\ActionRouter\ActionRoutingController();
 				}
 				break;
 
 			case 'plugin_urls':
-				if ( !$val instanceof Shield\Controller\Plugin\PluginURLs ) {
+				if ( $val === null ) {
 					$this->plugin_urls = $val = new Shield\Controller\Plugin\PluginURLs();
 				}
 				break;
 
 			case 'paths':
-				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
-					$val = new Shield\Controller\Assets\Paths();
-					$this->paths = $val;
+				if ( $val === null ) {
+					$this->paths = $val = new Shield\Controller\Assets\Paths();
 				}
 				break;
 
 			case 'svgs':
-				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
-					$val = new Shield\Controller\Assets\Svgs();
-					$this->svgs = $val;
+				if ( $val === null ) {
+					$this->svgs = $val = new Shield\Controller\Assets\Svgs();
 				}
 				break;
 
 			case 'urls':
-				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
-					$val = new Shield\Controller\Assets\Urls();
-					$this->urls = $val;
+				if ( $val === null ) {
+					$this->urls = $val = new Shield\Controller\Assets\Urls();
 				}
 				break;
 
@@ -291,9 +282,8 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'user_metas':
-				if ( empty( $val ) ) {
-					$val = new Shield\Users\UserMetas();
-					$this->user_metas = $val;
+				if ( $val === null ) {
+					$this->user_metas = $val = new Shield\Users\UserMetas();
 				}
 				break;
 
@@ -384,6 +374,8 @@ class Controller extends DynPropertiesClass {
 		$this->loadModules();
 
 		$this->extensions_controller->execute();
+
+		$this->db_con->execute();
 
 		( new Updates\HandleUpgrade() )->execute();
 
@@ -493,9 +485,8 @@ class Controller extends DynPropertiesClass {
 		if ( $this->isPluginAdmin() ) {
 
 			$this->plugin_deactivating = true;
-			do_action( $this->prefix( 'deactivate_plugin' ) );
 
-			( new PluginDeactivate() )->execute();
+			( new PluginDeactivate() )->run();
 
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 				$this->deletePlugin();
@@ -739,15 +730,15 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_AuditTrail() :AuditTrail\ModCon {
-		return $this->getModule( AuditTrail\ModCon::SLUG );
+		return $this->modules[ AuditTrail\ModCon::SLUG ];
 	}
 
 	public function getModule_Autoupdates() :Autoupdates\ModCon {
-		return $this->getModule( Autoupdates\ModCon::SLUG );
+		return $this->modules[ Autoupdates\ModCon::SLUG ];
 	}
 
 	public function getModule_Comments() :CommentsFilter\ModCon {
-		return $this->getModule( CommentsFilter\ModCon::SLUG );
+		return $this->modules[ CommentsFilter\ModCon::SLUG ];
 	}
 
 	/**
@@ -758,7 +749,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Data() :Data\ModCon {
-		return $this->getModule( Data\ModCon::SLUG );
+		return $this->modules[ Data\ModCon::SLUG ];
 	}
 
 	/**
@@ -769,51 +760,51 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Firewall() :Firewall\ModCon {
-		return $this->getModule( Firewall\ModCon::SLUG );
+		return $this->modules[ Firewall\ModCon::SLUG ];
 	}
 
 	public function getModule_Lockdown() :Lockdown\ModCon {
-		return $this->getModule( Lockdown\ModCon::SLUG );
+		return $this->modules[ Lockdown\ModCon::SLUG ];
 	}
 
 	public function getModule_HackGuard() :HackGuard\ModCon {
-		return $this->getModule( HackGuard\ModCon::SLUG );
+		return $this->modules[ HackGuard\ModCon::SLUG ];
 	}
 
 	public function getModule_Headers() :Headers\ModCon {
-		return $this->getModule( Headers\ModCon::SLUG );
+		return $this->modules[ Headers\ModCon::SLUG ];
 	}
 
 	public function getModule_Integrations() :Integrations\ModCon {
-		return $this->getModule( Integrations\ModCon::SLUG );
+		return $this->modules[ Integrations\ModCon::SLUG ];
 	}
 
 	public function getModule_IPs() :IPs\ModCon {
-		return $this->getModule( IPs\ModCon::SLUG );
+		return $this->modules[ IPs\ModCon::SLUG ];
 	}
 
 	public function getModule_License() :License\ModCon {
-		return $this->getModule( License\ModCon::SLUG );
+		return $this->modules[ License\ModCon::SLUG ];
 	}
 
 	public function getModule_LoginGuard() :LoginGuard\ModCon {
-		return $this->getModule( LoginGuard\ModCon::SLUG );
+		return $this->modules[ LoginGuard\ModCon::SLUG ];
 	}
 
 	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->getModule( Plugin\ModCon::SLUG );
+		return $this->modules[ Plugin\ModCon::SLUG ];
 	}
 
 	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
-		return $this->getModule( SecurityAdmin\ModCon::SLUG );
+		return $this->modules[ SecurityAdmin\ModCon::SLUG ];
 	}
 
 	public function getModule_Traffic() :Traffic\ModCon {
-		return $this->getModule( Traffic\ModCon::SLUG );
+		return $this->modules[ Traffic\ModCon::SLUG ];
 	}
 
 	public function getModule_UserManagement() :UserManagement\ModCon {
-		return $this->getModule( UserManagement\ModCon::SLUG );
+		return $this->modules[ UserManagement\ModCon::SLUG ];
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {

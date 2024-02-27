@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsSections;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,6 +34,7 @@ class BuildForDisplay {
 
 		$sections = $this->buildAvailableSections();
 		$notices = new SectionNotices();
+		$sectionStrings = new StringsSections();
 
 		foreach ( $sections as $sectKey => $sect ) {
 
@@ -55,16 +57,7 @@ class BuildForDisplay {
 					unset( $sections[ $sectKey ] );
 				}
 				else {
-					try {
-						$sect = \array_merge(
-							$sect,
-							$this->mod()
-								 ->getStrings()
-								 ->getSectionStrings( $sect[ 'slug' ] )
-						);
-					}
-					catch ( \Exception $e ) {
-					}
+					$sect = \array_merge( $sect, $sectionStrings->getFor( $sect[ 'slug' ] ) );
 					$sections[ $sectKey ] = $sect;
 				}
 

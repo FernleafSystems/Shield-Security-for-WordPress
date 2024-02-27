@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
-
 class LockdownFileEditing extends Base {
 
 	use Traits\OptConfigBased;
@@ -11,10 +9,8 @@ class LockdownFileEditing extends Base {
 	public const SLUG = 'lockdown_file_editing';
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Lockdown();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isOptFileEditingDisabled();
+		$con = self::con();
+		return $con->getModule_Lockdown()->isModOptEnabled() && $con->opts->optIs( 'disable_file_editing', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

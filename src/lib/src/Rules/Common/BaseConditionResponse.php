@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Common;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\{
 	AutoSnakeCaseSlug,
 	ParamsConsumer,
 	RuleConsumer,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\GenerateNameFromSlug;
 use FernleafSystems\Wordpress\Services\Utilities\Strings;
 

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
-	CleanIpRules,
 	IpRuleRecord,
 	LoadIpRules,
 	Ops as IpRulesDB,
@@ -149,7 +149,11 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
 		}
 
-		if ( \in_array( $record->type, [ IpRulesDB\Handler::T_AUTO_BLOCK, IpRulesDB\Handler::T_MANUAL_BLOCK, IpRulesDB\Handler::T_CROWDSEC ] ) ) {
+		if ( \in_array( $record->type, [
+			IpRulesDB\Handler::T_AUTO_BLOCK,
+			IpRulesDB\Handler::T_MANUAL_BLOCK,
+			IpRulesDB\Handler::T_CROWDSEC
+		] ) ) {
 
 			if ( $record->blocked_at > 0 ) {
 				if ( $record->blocked_at > $record->unblocked_at ) {

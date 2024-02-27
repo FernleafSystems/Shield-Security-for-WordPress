@@ -25,11 +25,12 @@ class ShieldUser2faProviderIsEnabled extends ShieldUser2faBase {
 	}
 
 	protected function execConditionCheck() :bool {
+		$optsCon = self::con()->opts;
 		/** @var Options $opts */
 		$opts = self::con()->getModule_LoginGuard()->opts();
 		switch ( $this->p->provider ) {
 			case BackupCodes::ProviderSlug():
-				$match = $opts->isOpt( 'allow_backupcodes', 'Y' );
+				$match = $optsCon->optIs( 'allow_backupcodes', 'Y' );
 				break;
 			case Email::ProviderSlug():
 				$match = $opts->isEnabledEmailAuth();
@@ -38,7 +39,7 @@ class ShieldUser2faProviderIsEnabled extends ShieldUser2faBase {
 				$match = $opts->isEnabledGoogleAuthenticator();
 				break;
 			case Passkey::ProviderSlug():
-				$match = $opts->isOpt( 'enable_passkeys', 'Y' );
+				$match = $optsCon->optIs( 'enable_passkeys', 'Y' );
 				break;
 			case Yubikey::ProviderSlug():
 				$match = $opts->isEnabledYubikey();

@@ -29,14 +29,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		$this->runMuHandler();
 	}
 
-	public function onConfigChanged() :void {
-		$this->getWhiteLabelController()->verifyUrls();
-		if ( $this->opts()->isOptChanged( 'enable_mu' ) ) {
-			$this->runMuHandler();
-		}
-	}
-
-	private function runMuHandler() {
+	public function runMuHandler() {
 		$mu = self::con()->mu_handler;
 		try {
 			$this->opts()->isOpt( 'enable_mu', 'Y' ) ? $mu->convertToMU() : $mu->convertToStandard();

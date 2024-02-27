@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
-
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'login_protect';
@@ -15,18 +13,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public function getMfaController() :Lib\TwoFactor\MfaController {
 		return $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController();
-	}
-
-	public function onConfigChanged() :void {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
-			try {
-				self::con()->action_router->action( MfaEmailSendVerification::class );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
 	}
 
 	public function getGaspKey() :string {

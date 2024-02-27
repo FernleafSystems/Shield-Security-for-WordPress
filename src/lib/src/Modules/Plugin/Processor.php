@@ -19,6 +19,8 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 		if ( !$this->opts()->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
 			( new Components\IPsCon() )->execute();
+			$con->getModule_SecAdmin()->getSecurityAdminController()->execute();
+			$con->getModule_SecAdmin()->getWhiteLabelController()->execute();
 			$con->getModule_HackGuard()->getScansCon()->execute();
 			$con->getModule_Traffic()->getRequestLogger()->execute();
 			$con->getModule_AuditTrail()->getAuditCon()->execute();

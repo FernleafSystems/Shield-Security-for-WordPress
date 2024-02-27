@@ -9,12 +9,8 @@ class CooldownFlagFile {
 
 	use ModConsumer;
 
-	public function isWithinCooldownPeriod() :bool {
-		return $this->getCooldownRemaining() > 0;
-	}
-
 	public function getCooldownRemaining() :int {
-		return (int)\max( 0, $this->opts()->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
+		return (int)\max( 0, $this->opts()->getOpt( 'login_limit_interval' ) - $this->getSecondsSinceLastLogin() );
 	}
 
 	public function getFlagFilePath() :string {

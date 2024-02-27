@@ -6,16 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	public function preSave() :void {
-		$rest = $this->getRestApiAnonymousExclusions();
-		if ( !\in_array( 'shield', $rest ) ) {
-			$rest[] = 'shield';
-			$this->setOpt( 'api_namespace_exclusions', $rest );
-		}
-	}
-
 	/**
 	 * @return string[]
+	 * @deprecated 19.1
 	 */
 	public function getRestApiAnonymousExclusions() :array {
 		return \array_unique( \array_merge(
@@ -26,18 +19,16 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		) );
 	}
 
-	public function isOptFileEditingDisabled() :bool {
-		return $this->isOpt( 'disable_file_editing', 'Y' );
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isBlockAuthorDiscovery() :bool {
 		return $this->isOpt( 'block_author_discovery', 'Y' );
 	}
 
-	public function isRestApiAnonymousAccessDisabled() :bool {
-		return $this->isOpt( 'disable_anonymous_restapi', 'Y' );
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isXmlrpcDisabled() :bool {
 		return $this->isOpt( 'disable_xmlrpc', 'Y' );
 	}

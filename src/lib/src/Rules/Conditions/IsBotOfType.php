@@ -27,7 +27,7 @@ class IsBotOfType extends Base {
 			'uptime' => __( 'Uptime Monitoring', 'wp-simple-firewall' ),
 		];
 		return [
-			'match_type'  => [
+			'match_type' => [
 				'type'        => Enum\EnumParameters::TYPE_ENUM,
 				'type_enum'   => \array_keys( $botTypes ),
 				'enum_labels' => $botTypes,

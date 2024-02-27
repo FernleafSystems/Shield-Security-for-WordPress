@@ -80,7 +80,6 @@ class FileDownloadAsStream extends BaseAction {
 			}
 
 			yield \implode( "\n", $lines );
-
 		} while ( true );
 	}
 

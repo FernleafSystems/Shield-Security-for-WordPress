@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
-
 class LockdownAnonymousRestApi extends Base {
 
 	use Traits\OptConfigBased;
@@ -12,10 +10,8 @@ class LockdownAnonymousRestApi extends Base {
 	public const WEIGHT = 2;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Lockdown();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isRestApiAnonymousAccessDisabled();
+		$con = self::con();
+		return $con->getModule_Lockdown()->isModOptEnabled() && $con->opts->optIs( 'disable_anonymous_restapi', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {
