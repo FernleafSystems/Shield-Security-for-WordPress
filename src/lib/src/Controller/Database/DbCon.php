@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 use FernleafSystems\Wordpress\Plugin\Core\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	Event,
+	FileLocker,
 	Malware,
 	Mfa,
 	Reports,
@@ -25,7 +26,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
 	UserMeta,
 	ReqLogs
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Hackguard\DB\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\{
 	BotSignal,
 	CrowdSecSignals,

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-
 abstract class ScanEnabledFileLockerBase extends Base {
 
 	use Traits\OptConfigBased;
@@ -19,11 +17,9 @@ abstract class ScanEnabledFileLockerBase extends Base {
 
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_HackGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
 			   && $mod->getFileLocker()->isEnabled()
-			   && \in_array( static::FILE_LOCKER_FILE_KEY, $opts->getFilesToLock() );
+			   && \in_array( static::FILE_LOCKER_FILE_KEY, $mod->getFileLocker()->getFilesToLock() );
 	}
 
 	public function slug() :string {

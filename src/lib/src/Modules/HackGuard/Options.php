@@ -13,6 +13,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		( new CleanLockRecords() )->run();
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getFilesToLock() :array {
 		return $this->getOpt( 'file_locker', [] );
 	}

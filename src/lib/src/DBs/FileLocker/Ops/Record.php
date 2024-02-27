@@ -1,9 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops;
 
 /**
- * @deprecated 19.1
  * @property string $type
  * @property string $path
  * @property string $hash_original

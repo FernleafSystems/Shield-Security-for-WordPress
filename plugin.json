@@ -4912,6 +4912,7 @@
     "databases":     {
       "db_handler_classes":        {
         "event":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Event\\Ops\\Handler",
+        "file_locker":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\FileLocker\\Ops\\Handler",
         "malware":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Malware\\Ops\\Handler",
         "mfa":              "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Mfa\\Ops\\Handler",
         "reports":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Reports\\Ops\\Handler",
@@ -4928,7 +4929,6 @@
         "req_logs":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler",
         "user_meta":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\UserMeta\\Ops\\Handler",
         "rules":            "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\Rules\\Ops\\Handler",
-        "file_locker":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler",
         "botsignal":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
         "ip_rules":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\IpRules\\Ops\\Handler",
         "crowdsec_signals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
