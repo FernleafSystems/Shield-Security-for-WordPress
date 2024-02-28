@@ -12,11 +12,10 @@ class PageLicense extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_License();
-		$opts = $mod->opts();
+		$config = $con->cfg->configuration;
 		$carb = Services::Request()->carbon();
 
-		$lic = $mod->getLicenseHandler()->getLicense();
+		$lic = $con->comps->license->getLicense();
 
 		$expiresAt = $lic->getExpiresAt();
 		if ( $expiresAt > 0 && $expiresAt != \PHP_INT_MAX ) {
@@ -46,8 +45,6 @@ class PageLicense extends BasePluginAdminPage {
 			);
 		}
 
-		$lic = $mod->getLicenseHandler()->getLicense();
-
 		return [
 			'flags'   => [
 				'show_ads'              => false,
@@ -58,8 +55,8 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'shield_pro_url' => 'https://shsec.io/shieldpro',
-				'iframe_url'     => $opts->getDef( 'landing_page_url' ),
-				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
+				'iframe_url'     => $config->def( 'landing_page_url' ),
+				'keyless_cp'     => $config->def( 'keyless_cp' ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->raw( 'award' ),
@@ -70,7 +67,7 @@ class PageLicense extends BasePluginAdminPage {
 			'inputs'  => [
 				'license_key' => [
 					'name'      => $con->prefix( 'license_key', '_' ),
-					'maxlength' => $opts->getDef( 'license_key_length' ),
+					'maxlength' => $config->def( 'license_key_length' ),
 				]
 			],
 			'strings' => [
@@ -94,11 +91,11 @@ class PageLicense extends BasePluginAdminPage {
 			'vars'    => [
 				'license_table'  => [
 					'product_name'    => $lic->item_name,
-					'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
+					'license_active'  => $con->comps->license->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
 					'license_expires' => $expiresAtHuman,
 					'license_email'   => $lic->customer_email,
 					'last_checked'    => $checked,
-					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ? '&#10004;' : '&#10006;',
+					'wphashes_token'  => $con->comps->api_token->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => ( new InstallationID() )->id(),
 				],
 				'activation_url' => Services::WpGeneral()->getHomeUrl(),

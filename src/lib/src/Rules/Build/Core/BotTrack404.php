@@ -70,14 +70,22 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getResponses() :array {
-		$opts = $this->opts();
+		if ( self::con()->comps === null ) {
+			$count = $this->opts()->getOffenseCountFor( 'track_404' );
+			$block = $this->opts()->isTrackOptImmediateBlock( 'track_404' );
+		}
+		else {
+			$count = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_404' );
+			$block = self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_404' );
+		}
+
 		return [
 			[
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_404',
-					'offense_count'    => $opts->getOffenseCountFor( 'track_404' ),
-					'block'            => $opts->isTrackOptImmediateBlock( 'track_404' ),
+					'offense_count'    => $count,
+					'block'            => $block,
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

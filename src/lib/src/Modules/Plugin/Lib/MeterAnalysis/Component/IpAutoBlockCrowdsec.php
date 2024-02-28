@@ -2,17 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
-
 class IpAutoBlockCrowdsec extends IpBase {
 
 	public const SLUG = 'ip_autoblock_crowdsec';
 	public const WEIGHT = 6;
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
-		return parent::testIfProtected() && $opts->isEnabledCrowdSecAutoBlock();
+		return self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock();
 	}
 
 	protected function getOptConfigKey() :string {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\MergeAutoBlockRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
@@ -42,7 +43,7 @@ class CleanIpRules {
 			->addWhereOlderThan(
 				Services::Request()
 						->carbon()
-						->subSeconds( $this->opts()->getAutoExpireTime() )->timestamp,
+						->subSeconds( self::con()->comps->opts_lookup->getIpAutoBlockTTL() )->timestamp,
 				'last_access_at'
 			)
 			->query();

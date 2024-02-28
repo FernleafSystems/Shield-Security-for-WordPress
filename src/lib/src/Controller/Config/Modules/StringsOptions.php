@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	SecurityAdmin,
 	Traffic
@@ -22,6 +23,7 @@ class StringsOptions {
 		$con = self::con();
 		$caps = $con->caps;
 		$pluginName = $con->getHumanName();
+		$modStrings = new StringsModules();
 
 		/** @var SecurityAdmin\Options $optsSecurityAdmin */
 		$optsSecurityAdmin = $con->getModule_SecAdmin()->opts();
@@ -29,7 +31,7 @@ class StringsOptions {
 		switch ( $key ) {
 
 			case 'enable_audit_trail' :
-				$modName = $con->getModule_AuditTrail()->name();
+				$modName = $modStrings->getFor( EnumModules::ACTIVITY )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -60,7 +62,7 @@ class StringsOptions {
 				}
 				break;
 			case 'log_level_file' :
-				$auditCon = self::con()->getModule_AuditTrail()->getAuditCon();
+				$auditCon = self::con()->comps->activity_log;
 				$name = __( 'File Logging Level', 'wp-simple-firewall' );
 				$summary = __( 'Logging Level For File-Based Logs', 'wp-simple-firewall' );
 				$desc = [
@@ -82,7 +84,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_autoupdates' :
-				$modName = $con->getModule_Autoupdates()->name();
+				$modName = $modStrings->getFor( EnumModules::AUTOUPDATES )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -148,8 +150,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_comments_filter' :
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ),
-					$con->getModule_Comments()->name() );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::COMMENTS )[ 'name' ] );
 				$summary = __( 'Enable (or Disable) The Comment SPAM Protection Feature', 'wp-simple-firewall' );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) ) ];
 				break;
@@ -211,13 +212,11 @@ class StringsOptions {
 				break;
 
 			case 'enable_firewall' :
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ),
-					$con->getModule_Firewall()->name() );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ),
-					$con->getModule_Firewall()->name() );
+				$modName = $modStrings->getFor( EnumModules::FIREWALL )[ 'name' ];
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [
-					sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ),
-						$con->getModule_Firewall()->name() )
+					sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName )
 				];
 				break;
 			case 'include_cookie_checks' :
@@ -288,7 +287,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_hack_protect' :
-				$modName = $con->getModule_HackGuard()->name();
+				$modName = $modStrings->getFor( EnumModules::SCANNERS )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -489,7 +488,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_headers' :
-				$modName = $con->getModule_Headers()->name();
+				$modName = $modStrings->getFor( EnumModules::HEADERS )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -537,7 +536,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_ips' :
-				$modName = $con->getModule_IPs()->name();
+				$modName = $modStrings->getFor( EnumModules::IPS )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -772,7 +771,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_lockdown' :
-				$modName = $con->getModule_Lockdown()->name();
+				$modName = $modStrings->getFor( EnumModules::LOCKDOWN )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -854,7 +853,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_login_protect' :
-				$modName = $con->getModule_LoginGuard()->name();
+				$modName = $modStrings->getFor( EnumModules::LOGIN )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -1490,7 +1489,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_traffic' :
-				$modName = $con->getModule_Traffic()->name();
+				$modName = $modStrings->getFor( EnumModules::TRAFFIC )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
@@ -1599,7 +1598,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_user_management' :
-				$modName = $con->getModule_UserManagement()->name();
+				$modName = $modStrings->getFor( EnumModules::USERS )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];

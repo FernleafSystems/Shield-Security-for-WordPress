@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Autoupdates,
@@ -41,6 +42,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\OptsHandler                       $opts
  * @property Shield\Rules\RulesController             $rules
  * @property ActionRoutingController                  $action_router
+ * @property Shield\Components\ComponentLoader        $comps
  * @property ExtensionsCon                            $extensions_controller
  * @property Database\DbCon                           $db_con
  * @property Email\EmailCon                           $email_con
@@ -159,6 +161,12 @@ class Controller extends DynPropertiesClass {
 			case 'admin_notices':
 				if ( empty( $val ) ) {
 					$this->admin_notices = $val = new Shield\Utilities\AdminNotices\Controller();
+				}
+				break;
+
+			case 'comps':
+				if ( empty( $val ) ) {
+					$this->comps = $val = new Shield\Components\ComponentLoader();
 				}
 				break;
 
@@ -374,8 +382,8 @@ class Controller extends DynPropertiesClass {
 		$this->loadModules();
 
 		$this->extensions_controller->execute();
-
 		$this->db_con->execute();
+		$this->comps->execute();
 
 		( new Updates\HandleUpgrade() )->execute();
 
@@ -411,23 +419,23 @@ class Controller extends DynPropertiesClass {
 				$this->cfg->configuration = $configuration = ( new Config\Modules\LoadModuleConfigs() )->run();
 			}
 
-			$enum = [
-				SecurityAdmin\ModCon::class,
-				AuditTrail\ModCon::class,
-				Autoupdates\ModCon::class,
-				CommentsFilter\ModCon::class,
-				Data\ModCon::class,
-				Firewall\ModCon::class,
-				HackGuard\ModCon::class,
-				Headers\ModCon::class,
-				Integrations\ModCon::class,
-				IPs\ModCon::class,
-				License\ModCon::class,
-				Lockdown\ModCon::class,
-				LoginGuard\ModCon::class,
-				Plugin\ModCon::class,
-				Traffic\ModCon::class,
-				UserManagement\ModCon::class,
+			$enumClasses = [
+				EnumModules::SECURITY_ADMIN => SecurityAdmin\ModCon::class,
+				EnumModules::ACTIVITY       => AuditTrail\ModCon::class,
+				EnumModules::AUTOUPDATES    => Autoupdates\ModCon::class,
+				EnumModules::COMMENTS       => CommentsFilter\ModCon::class,
+				EnumModules::DATA           => Data\ModCon::class,
+				EnumModules::FIREWALL       => Firewall\ModCon::class,
+				EnumModules::SCANNERS       => HackGuard\ModCon::class,
+				EnumModules::HEADERS        => Headers\ModCon::class,
+				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
+				EnumModules::IPS            => IPs\ModCon::class,
+				EnumModules::LICENSE        => License\ModCon::class,
+				EnumModules::LOCKDOWN       => Lockdown\ModCon::class,
+				EnumModules::LOGIN          => LoginGuard\ModCon::class,
+				EnumModules::PLUGIN         => Plugin\ModCon::class,
+				EnumModules::TRAFFIC        => Traffic\ModCon::class,
+				EnumModules::USERS          => UserManagement\ModCon::class,
 			];
 
 			$modules = $this->modules ?? [];
@@ -443,21 +451,12 @@ class Controller extends DynPropertiesClass {
 				$cfg = apply_filters( 'shield/load_mod_cfg', $cfg, $slug );
 
 				$slug = $cfg->properties[ 'slug' ];
-				$theModClass = null;
-				foreach ( $enum as $idx => $modClass ) {
-					/** @var string|Base\ModCon $modClass */
-					if ( @\class_exists( $modClass ) && $slug === $modClass::SLUG ) {
-						$theModClass = $modClass;
-						unset( $enum[ $idx ] );
-						break;
-					}
-				}
-				if ( empty( $theModClass ) ) {
+				if ( empty( $enumClasses[ $slug ] ) || !@\class_exists( $enumClasses[ $slug ] ) ) {
 					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
 					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $slug ) );
 				}
 
-				$modules[ $slug ] = new $theModClass( $cfg );
+				$modules[ $slug ] = new $enumClasses[ $slug ]( $cfg );
 				$this->modules = $modules;
 			}
 
@@ -695,7 +694,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return isset( $this->modules[ License\ModCon::SLUG ] )
+		return isset( $this->modules[ EnumModules::LICENSE ] )
 			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
@@ -730,15 +729,15 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_AuditTrail() :AuditTrail\ModCon {
-		return $this->modules[ AuditTrail\ModCon::SLUG ];
+		return $this->modules[ EnumModules::ACTIVITY ];
 	}
 
 	public function getModule_Autoupdates() :Autoupdates\ModCon {
-		return $this->modules[ Autoupdates\ModCon::SLUG ];
+		return $this->modules[ EnumModules::AUTOUPDATES ];
 	}
 
 	public function getModule_Comments() :CommentsFilter\ModCon {
-		return $this->modules[ CommentsFilter\ModCon::SLUG ];
+		return $this->modules[ EnumModules::COMMENTS ];
 	}
 
 	/**
@@ -749,7 +748,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Data() :Data\ModCon {
-		return $this->modules[ Data\ModCon::SLUG ];
+		return $this->modules[ EnumModules::DATA ];
 	}
 
 	/**
@@ -760,51 +759,51 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Firewall() :Firewall\ModCon {
-		return $this->modules[ Firewall\ModCon::SLUG ];
+		return $this->modules[ EnumModules::FIREWALL ];
 	}
 
 	public function getModule_Lockdown() :Lockdown\ModCon {
-		return $this->modules[ Lockdown\ModCon::SLUG ];
+		return $this->modules[ EnumModules::LOCKDOWN ];
 	}
 
 	public function getModule_HackGuard() :HackGuard\ModCon {
-		return $this->modules[ HackGuard\ModCon::SLUG ];
+		return $this->modules[ EnumModules::SCANNERS ];
 	}
 
 	public function getModule_Headers() :Headers\ModCon {
-		return $this->modules[ Headers\ModCon::SLUG ];
+		return $this->modules[ EnumModules::HEADERS ];
 	}
 
 	public function getModule_Integrations() :Integrations\ModCon {
-		return $this->modules[ Integrations\ModCon::SLUG ];
+		return $this->modules[ EnumModules::INTEGRATIONS ];
 	}
 
 	public function getModule_IPs() :IPs\ModCon {
-		return $this->modules[ IPs\ModCon::SLUG ];
+		return $this->modules[ EnumModules::IPS ];
 	}
 
 	public function getModule_License() :License\ModCon {
-		return $this->modules[ License\ModCon::SLUG ];
+		return $this->modules[ EnumModules::LICENSE ];
 	}
 
 	public function getModule_LoginGuard() :LoginGuard\ModCon {
-		return $this->modules[ LoginGuard\ModCon::SLUG ];
+		return $this->modules[ EnumModules::LOGIN ];
 	}
 
 	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->modules[ Plugin\ModCon::SLUG ];
+		return $this->modules[ EnumModules::PLUGIN ];
 	}
 
 	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
-		return $this->modules[ SecurityAdmin\ModCon::SLUG ];
+		return $this->modules[ EnumModules::SECURITY_ADMIN ];
 	}
 
 	public function getModule_Traffic() :Traffic\ModCon {
-		return $this->modules[ Traffic\ModCon::SLUG ];
+		return $this->modules[ EnumModules::TRAFFIC ];
 	}
 
 	public function getModule_UserManagement() :UserManagement\ModCon {
-		return $this->modules[ UserManagement\ModCon::SLUG ];
+		return $this->modules[ EnumModules::USERS ];
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {

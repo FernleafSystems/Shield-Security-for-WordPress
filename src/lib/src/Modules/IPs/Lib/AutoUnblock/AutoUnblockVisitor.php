@@ -11,7 +11,7 @@ class AutoUnblockVisitor extends BaseAutoUnblockShield {
 	}
 
 	public function isUnblockAvailable() :bool {
-		return $this->opts()->isEnabledAutoVisitorRecover() && parent::isUnblockAvailable();
+		return \in_array( 'gasp', self::con()->opts->optGet( 'user_auto_recover' ) ) && parent::isUnblockAvailable();
 	}
 
 	protected function preUnblockChecks() :bool {

@@ -2,17 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
-
 class IpAutoBlockShield extends IpBase {
 
 	public const SLUG = 'ip_autoblock_shield';
 	public const WEIGHT = 7;
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
-		return parent::testIfProtected() && $opts->isEnabledAutoBlackList();
+		return self::con()->comps->opts_lookup->enabledIpAutoBlock();
 	}
 
 	protected function getOptConfigKey() :string {
@@ -24,11 +20,8 @@ class IpAutoBlockShield extends IpBase {
 	}
 
 	public function descProtected() :string {
-		$mod = self::con()->getModule_IPs();
-		/** @var Options $opts */
-		$opts = $mod->opts();
 		return sprintf( __( 'Auto IP blocking is turned on with an offense limit of %s.', 'wp-simple-firewall' ),
-			$opts->getOffenseLimit() );
+			self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() );
 	}
 
 	public function descUnprotected() :string {

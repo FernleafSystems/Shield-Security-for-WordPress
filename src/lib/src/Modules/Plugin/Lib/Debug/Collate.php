@@ -178,7 +178,7 @@ class Collate {
 	private function snapshots() :array {
 		$data = [];
 
-		$auditCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		$auditCon = self::con()->comps->activity_log;
 		foreach ( $auditCon->getAuditors() as $auditor ) {
 			try {
 				if ( $auditor->getSnapper() ) {
@@ -224,8 +224,7 @@ class Collate {
 
 	private function getShieldSummary() :array {
 		$con = self::con();
-		$modLicense = $con->getModule_License();
-		$wpHashes = $modLicense->getWpHashesTokenManager();
+		$wpHashes = $con->comps->api_token;
 
 		$nPrevAttempt = $wpHashes->getPreviousAttemptAt();
 		if ( empty( $nPrevAttempt ) ) {

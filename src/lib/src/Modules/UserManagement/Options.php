@@ -4,41 +4,46 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getIdleTimeoutInterval() :int {
 		return $this->getOpt( 'session_idle_timeout_interval' )*\HOUR_IN_SECONDS;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getMaxSessionTime() :int {
 		return $this->getOpt( 'session_timeout_interval' )*\DAY_IN_SECONDS;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getPassExpireTimeout() :int {
 		return $this->getOpt( 'pass_expire' )*\DAY_IN_SECONDS;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function hasMaxSessionTimeout() :bool {
 		return $this->getMaxSessionTime() > 0;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isPassPreventPwned() :bool {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isPasswordPoliciesEnabled() :bool {
 		return $this->isOpt( 'enable_password_policies', 'Y' );
-	}
-
-	public function getValidateEmailOnRegistration() :string {
-		return self::con()->isPremiumActive() ?
-			(string)$this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
-	}
-
-	public function getEmailValidationChecks() :array {
-		return $this->getOpt( 'email_checks', [] );
-	}
-
-	public function isValidateEmailOnRegistration() :bool {
-		return $this->getValidateEmailOnRegistration() !== 'disabled' && !empty( $this->getEmailValidationChecks() );
 	}
 
 	/**

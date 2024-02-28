@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\BuildForDisplay;
 
 class OptionsForm extends BaseRender {
@@ -41,10 +42,11 @@ class OptionsForm extends BaseRender {
 			}
 		}
 
+		$modStrings = ( new StringsModules() )->getFor( $actionData[ 'mod_slug' ] );
 		return [
 			'strings' => [
-				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $mod->getDescriptors()[ 'title' ] ),
-				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],
+				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $modStrings[ 'name' ] ),
+				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
 				'is_opt_importexport' => __( 'Toggle whether this option is included with import/export', 'wp-simple-firewall' ),
 			],
 			'flags'   => [

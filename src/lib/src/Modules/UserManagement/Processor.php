@@ -27,9 +27,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// This controller handles visitor whitelisted status internally.
-		$con->getModule_UserManagement()
-			->getUserSuspendCon()
-			->execute();
+		self::con()->comps->user_suspend->execute();
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {

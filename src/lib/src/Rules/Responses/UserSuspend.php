@@ -9,10 +9,7 @@ class UserSuspend extends Base {
 	public function execResponse() :void {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( $user instanceof \WP_User ) {
-			self::con()
-				->getModule_UserManagement()
-				->getUserSuspendCon()
-				->addRemoveHardSuspendUser( $user );
+			self::con()->comps->user_suspend->addRemoveHardSuspendUser( $user );
 		}
 	}
 }

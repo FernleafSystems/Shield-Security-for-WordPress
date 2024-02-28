@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsModules;
 
 class Config extends Base {
 
@@ -15,7 +16,7 @@ class Config extends Base {
 	protected function getPageTitle() :string {#
 		return sprintf( '%s > %s',
 			__( 'Configuration', 'wp-simple-firewall' ),
-			self::con()->modules[ $this->action_data[ 'mod_slug' ] ]->name()
+			( new StringsModules() )->getFor( $this->action_data[ 'mod_slug' ] )[ 'name' ]
 		);
 	}
 

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
-
 class UserPasswordPwned extends UserPasswordPoliciesBase {
 
 	public const SLUG = 'user_pass_pwned';
@@ -13,10 +11,7 @@ class UserPasswordPwned extends UserPasswordPoliciesBase {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_UserManagement();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return parent::testIfProtected() && $opts->isPassPreventPwned();
+		return self::con()->comps->opts_lookup->isPassPreventPwned();
 	}
 
 	public function title() :string {

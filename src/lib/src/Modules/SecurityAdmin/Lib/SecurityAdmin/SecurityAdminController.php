@@ -106,6 +106,8 @@ class SecurityAdminController {
 				],
 				'data'    => function () {
 					$isSecAdmin = self::con()->this_req->is_security_admin;
+					$email = ( self::con()->comps === null ? self::con()->comps->opts_lookup->getReportEmail()
+						: self::con()->getModule_Plugin()->getPluginReportEmail() );
 					return [
 						'ajax'    => [
 							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::class ),
@@ -120,7 +122,7 @@ class SecurityAdminController {
 						],
 						'strings' => [
 							'confirm_disable'    => sprintf( __( "An confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
-								Obfuscate::Email( self::con()->getModule_Plugin()->getPluginReportEmail() ) ),
+								Obfuscate::Email( $email ) ),
 							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
 							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
 							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),

@@ -294,10 +294,7 @@ class CrowdSecApi {
 	}
 
 	private function getScenarios() :array {
-		$scenarios = self::con()
-						 ->getModule_License()
-						 ->getLicenseHandler()
-						 ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+		$scenarios = self::con()->comps->license->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 		if ( self::con()->isPremiumActive() ) {
 			$filteredScenarios = apply_filters( 'shield/crowdsec/login_scenarios', $scenarios );
 			if ( !empty( $filteredScenarios ) && \is_array( $filteredScenarios ) ) {

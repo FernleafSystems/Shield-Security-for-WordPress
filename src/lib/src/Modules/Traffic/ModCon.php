@@ -18,6 +18,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	public function getRequestLogger() :Lib\RequestLogger {
-		return $this->requestLogger ?? $this->requestLogger = new Lib\RequestLogger();
+		return isset( self::con()->comps ) ? self::con()->comps->requests_log :
+			( $this->requestLogger ?? $this->requestLogger = new Lib\RequestLogger() );
 	}
 }

@@ -172,7 +172,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 									Services::Request()
 											->carbon()
 											->timestamp( $record->last_access_at )
-											->addSeconds( $opts->getAutoExpireTime() )
+											->addSeconds( self::con()->comps->opts_lookup->getIpAutoBlockTTL() )
 											->diffForHumans() );
 							}
 							else {
@@ -180,7 +180,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 									Services::Request()
 											->carbon()
 											->timestamp( $record->last_access_at )
-											->addSeconds( $opts->getAutoExpireTime() )
+											->addSeconds( self::con()->comps->opts_lookup->getIpAutoBlockTTL() )
 											->diffForHumans() );
 							}
 							break;
@@ -204,7 +204,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			}
 			else {
 				$color = 'warning';
-				$remaining = $opts->getOffenseLimit() - $record->offenses;
+				$remaining = self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() - $record->offenses;
 				$blockedStatus = sprintf(
 					_n( '%s offense until block',
 						'%s offenses until block',

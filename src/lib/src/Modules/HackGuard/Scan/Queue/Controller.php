@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 
 class Controller {
 
+	use ExecOnce;
 	use ModConsumer;
 
 	/**
@@ -20,7 +22,7 @@ class Controller {
 	 */
 	private $queueProcessor;
 
-	public function __construct() {
+	protected function run() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 

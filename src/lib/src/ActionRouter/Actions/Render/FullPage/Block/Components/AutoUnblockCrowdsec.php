@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Fu
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockCrowdsecVisitor;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockCrowdsec extends AutoUnblockShield {
@@ -12,11 +11,9 @@ class AutoUnblockCrowdsec extends AutoUnblockShield {
 	public const SLUG = 'render_autounblock_crowdsec';
 
 	protected function getRenderData() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
 		return [
 			'flags'   => [
-				'is_available' => $opts->isEnabledCrowdSecAutoVisitorUnblock()
+				'is_available' => self::con()->comps->opts_lookup->enabledCrowdSecAutoUnblock(),
 			],
 			'hrefs'   => [
 				'home' => Services::WpGeneral()->getHomeUrl( '/' )

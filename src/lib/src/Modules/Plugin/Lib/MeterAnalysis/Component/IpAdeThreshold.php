@@ -2,16 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
-
 class IpAdeThreshold extends IpBase {
 
 	public const SLUG = 'ip_ade_threshold';
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
-		return parent::testIfProtected() && $opts->getAntiBotMinimum() > 0;
+		return self::con()->comps->opts_lookup->getAntiBotMinScore() > 0;
 	}
 
 	protected function getOptConfigKey() :string {

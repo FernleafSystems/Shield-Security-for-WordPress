@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
 	/**

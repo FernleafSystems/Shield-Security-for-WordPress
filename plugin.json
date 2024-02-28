@@ -4633,6 +4633,14 @@
       "max_free_days":                7,
       "action_hook_priority":         1000,
       "url_spam_blacklist_terms":     "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
+      "human_spam_check_items":       [
+        "author_name",
+        "author_email",
+        "comment_content",
+        "url",
+        "ip_address",
+        "user_agent"
+      ],
       "whitelisted_paths":            [
         "/wp-admin/options-general.php",
         "/wp-admin/post-new.php",

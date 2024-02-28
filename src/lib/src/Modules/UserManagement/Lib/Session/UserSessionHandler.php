@@ -224,7 +224,8 @@ class UserSessionHandler {
 
 		$ts = Services::Request()->ts();
 
-		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess->login > $opts->getMaxSessionTime() ) ) {
+		$max = self::con()->comps->opts_lookup->getSessionMax();
+		if ( $max > 0 && ( $ts - $sess->login > $max ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 	}
@@ -234,7 +235,9 @@ class UserSessionHandler {
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
-		return $this->opts()->hasMaxSessionTimeout() ? \min( $timeout, $this->opts()->getMaxSessionTime() ) : $timeout;
+		$max = self::con()->comps === null ?
+			$this->opts()->getMaxSessionTime() : self::con()->comps->opts_lookup->getSessionMax();
+		return $max > 0 ? \min( $timeout, $max ) : $timeout;
 	}
 
 	/**

@@ -53,27 +53,33 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $tracking;
 
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
-		return $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController();
+		return isset( self::con()->comps ) ? self::con()->comps->import_export :
+			( $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController() );
 	}
 
 	public function getPluginBadgeCon() :Components\PluginBadge {
-		return $this->pluginBadgeCon ?? $this->pluginBadgeCon = new Components\PluginBadge();
+		return isset( self::con()->comps ) ? self::con()->comps->badge :
+			( $this->pluginBadgeCon ?? $this->pluginBadgeCon = new Components\PluginBadge() );
 	}
 
 	public function getReportingController() :Lib\Reporting\ReportingController {
-		return $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController();
+		return isset( self::con()->comps ) ? self::con()->comps->reports :
+			( $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController() );
 	}
 
 	public function getSessionCon() :Lib\Sessions\SessionController {
-		return $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController();
+		return isset( self::con()->comps ) ? self::con()->comps->session :
+			( $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController() );
 	}
 
 	public function getShieldNetApiController() :ShieldNetApiController {
-		return $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController();
+		return isset( self::con()->comps ) ? self::con()->comps->shieldnet :
+			( $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController() );
 	}
 
 	public function getWizardCon() :Lib\Merlin\MerlinController {
-		return $this->wizardCon ?? $this->wizardCon = new Lib\Merlin\MerlinController();
+		return isset( self::con()->comps ) ? self::con()->comps->wizards :
+			( $this->wizardCon ?? $this->wizardCon = new Lib\Merlin\MerlinController() );
 	}
 
 	protected function doPostConstruction() {
@@ -182,6 +188,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return self::con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getPluginReportEmail() :string {
 		$con = self::con();
 		$e = (string)$this->opts()->getOpt( 'block_send_email_address' );

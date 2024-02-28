@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,7 +34,8 @@ class Scanner {
 	private $spamCodes;
 
 	protected function canRun() :bool {
-		return Services::WpComments()->isCommentSubmission();
+		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::COMMENTS )
+			   && Services::WpComments()->isCommentSubmission();
 	}
 
 	protected function run() {
@@ -46,6 +48,7 @@ class Scanner {
 	 * @return array
 	 */
 	public function checkComment( $approval, $comm ) {
+		$con = self::con();
 		$opts = $this->opts();
 
 		// Note: use strict \in_array() here because when approval is '0', always returns 'true'
@@ -61,20 +64,19 @@ class Scanner {
 			if ( \count( $errorCodes ) > 0 ) {
 
 				foreach ( $errorCodes as $errorCode ) {
-					self::con()
-						->fireEvent(
-							'spam_block_'.$errorCode,
-							[ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
-						);
+					$con->fireEvent(
+						'spam_block_'.$errorCode,
+						[ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
+					);
 				}
 
-				self::con()->fireEvent( 'comment_spam_block' );
+				$con->fireEvent( 'comment_spam_block' );
 
 				// if we're configured to actually block...
-				if ( $opts->isEnabledAntiBot() && \in_array( 'antibot', $errorCodes ) ) {
+				if ( $con->comps->opts_lookup->enabledAntiBotCommentSpam() && \in_array( 'antibot', $errorCodes ) ) {
 					$newStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
-				elseif ( $opts->isEnabledHumanCheck()
+				elseif ( $con->comps->opts_lookup->enabledHumanCommentSpam()
 						 && \count( \array_intersect( [ 'human', 'humanrepeated', 'cooldown' ], $errorCodes ) ) > 0 ) {
 					$newStatus = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
@@ -113,7 +115,7 @@ class Scanner {
 		if ( $isBot ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
-		elseif ( $opts->isEnabledHumanCheck() ) {
+		elseif ( self::con()->comps->opts_lookup->enabledHumanCommentSpam() ) {
 
 			if ( ( new IsCooldownTriggered() )->test() ) {
 				$errors->add( 'cooldown', __( 'Comments Cooldown Triggered', 'wp-simple-firewall' ) );

@@ -16,8 +16,7 @@ class BlacklistHandler {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return ( $this->opts()->isEnabledAutoBlackList() || $this->opts()->isEnabledCrowdSecAutoBlock() )
-			   && self::con()->db_con->dbhIPRules()->isReady();
+		return self::con()->comps->opts_lookup->enabledIpAutoBlock() && self::con()->db_con->dbhIPRules()->isReady();
 	}
 
 	protected function run() {

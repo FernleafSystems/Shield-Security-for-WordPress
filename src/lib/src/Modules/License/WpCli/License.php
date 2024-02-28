@@ -60,15 +60,15 @@ class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	}
 
 	private function runRemove( $bConfirm ) {
-		if ( !self::con()->isPremiumActive() ) {
-			WP_CLI::success( __( 'No license to remove.', 'wp-simple-firewall' ) );
-		}
-		else {
+		if ( self::con()->isPremiumActive() ) {
 			if ( !$bConfirm ) {
 				WP_CLI::confirm( __( 'Are you sure you want to remove the ShieldPRO license?', 'wp-simple-firewall' ) );
 			}
-			self::con()->getModule_License()->getLicenseHandler()->clearLicense();
+			self::con()->comps->license->clearLicense();
 			WP_CLI::success( __( 'License removed successfully.', 'wp-simple-firewall' ) );
+		}
+		else {
+			WP_CLI::success( __( 'No license to remove.', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -76,7 +76,7 @@ class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 * @throws WP_CLI\ExitException
 	 */
 	private function runStatus() {
-		self::con()->getModule_License()->getLicenseHandler()->isActive() ?
+		self::con()->comps->license->isActive() ?
 			WP_CLI::success( __( 'Active license found.', 'wp-simple-firewall' ) )
 			: WP_CLI::error( __( 'No active license present.', 'wp-simple-firewall' ) );
 	}
@@ -89,11 +89,7 @@ class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 			if ( self::con()->isPremiumActive() ) {
 				WP_CLI::log( 'Premium license is already active. Re-checking...' );
 			}
-			$success = self::con()
-						   ->getModule_License()
-						   ->getLicenseHandler()
-						   ->verify( true )
-						   ->hasValidWorkingLicense();
+			$success = self::con()->comps->license->verify( true )->hasValidWorkingLicense();
 			$msg = $success ? __( 'Valid license found and installed.', 'wp-simple-firewall' )
 				: __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 		}

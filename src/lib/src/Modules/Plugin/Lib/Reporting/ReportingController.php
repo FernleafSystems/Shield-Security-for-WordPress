@@ -74,7 +74,7 @@ class ReportingController {
 						return null;
 					}
 				},
-				self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
+				self::con()->comps->activity_log->getAuditors()
 			) ),
 			Constants::REPORT_AREA_STATS   => [
 				'security'      => __( 'Security' ),

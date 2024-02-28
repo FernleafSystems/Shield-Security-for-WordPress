@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
-
 abstract class UserPasswordPoliciesBase extends Base {
 
 	use Traits\OptConfigBased;
@@ -13,9 +11,6 @@ abstract class UserPasswordPoliciesBase extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_UserManagement();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isPasswordPoliciesEnabled();
+		return self::con()->comps->opts_lookup->isPassPoliciesEnabled();
 	}
 }

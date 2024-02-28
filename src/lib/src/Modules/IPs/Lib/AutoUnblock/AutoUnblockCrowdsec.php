@@ -12,7 +12,7 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 		return parent::canRunAutoUnblockProcess()
 			   && Services::Request()->isPost()
 			   && self::con()->this_req->is_ip_blocked_crowdsec
-			   && $this->opts()->isEnabledCrowdSecAutoVisitorUnblock();
+			   && self::con()->comps->opts_lookup->enabledCrowdSecAutoUnblock();
 	}
 
 	protected function getUnblockMethodName() :string {

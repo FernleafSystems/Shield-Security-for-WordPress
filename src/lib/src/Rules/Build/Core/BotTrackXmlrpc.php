@@ -49,13 +49,22 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 	}
 
 	protected function getResponses() :array {
+		if ( self::con()->comps === null ) {
+			$count = $this->opts()->getOffenseCountFor( 'track_xmlrpc' );
+			$block = $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' );
+		}
+		else {
+			$count = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_xmlrpc' );
+			$block = self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_xmlrpc' );
+		}
+
 		return [
 			[
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_xmlrpc',
-					'offense_count'    => $this->opts()->getOffenseCountFor( 'track_xmlrpc' ),
-					'block'            => $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' ),
+					'offense_count'    => $count,
+					'block'            => $block,
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

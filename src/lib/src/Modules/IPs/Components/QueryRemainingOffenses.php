@@ -11,6 +11,8 @@ class QueryRemainingOffenses {
 	use IpAddressConsumer;
 
 	public function run() :int {
-		return $this->opts()->getOffenseLimit() - ( new IpRuleStatus( $this->getIP() ) )->getOffenses() - 1;
+		return self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit()
+			   - ( new IpRuleStatus( $this->getIP() ) )->getOffenses()
+			   - 1;
 	}
 }

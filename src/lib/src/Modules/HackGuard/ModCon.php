@@ -31,19 +31,22 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public function onWpInit() {
 		parent::onWpInit();
-		$this->getScanQueueController();
+		self::con()->comps->scans_queue->execute();
 	}
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
-		return $this->oFileLocker ?? $this->oFileLocker = new Lib\FileLocker\FileLockerController();
+		return isset( self::con()->comps ) ? self::con()->comps->file_locker :
+			( $this->oFileLocker ?? $this->oFileLocker = new Lib\FileLocker\FileLockerController() );
 	}
 
 	public function getScansCon() :Scan\ScansController {
-		return $this->scanCon ?? $this->scanCon = new Scan\ScansController();
+		return isset( self::con()->comps ) ? self::con()->comps->scans :
+			( $this->scanCon ?? $this->scanCon = new Scan\ScansController() );
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		return $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller();
+		return isset( self::con()->comps ) ? self::con()->comps->scans_queue :
+			( $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller() );
 	}
 
 	protected function setCustomCronSchedules() {

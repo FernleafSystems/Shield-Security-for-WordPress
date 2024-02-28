@@ -37,7 +37,7 @@ class RemoveSecAdmin {
 		);
 
 		$con->email_con->sendEmailWithWrap(
-			$con->getModule_Plugin()->getPluginReportEmail(),
+			$con->comps->opts_lookup->getReportEmail(),
 			__( 'Please Confirm Security Admin Removal', 'wp-simple-firewall' ),
 			[
 				sprintf( __( 'A WordPress user (%s) has requested to remove the Security Admin restriction.', 'wp-simple-firewall' ),
@@ -60,7 +60,7 @@ class RemoveSecAdmin {
 
 	private function sendNotificationEmail() {
 		self::con()->email_con->sendEmailWithWrap(
-			self::con()->getModule_Plugin()->getPluginReportEmail(),
+			self::con()->comps->opts_lookup->getReportEmail(),
 			__( 'Security Admin restrictions have been removed', 'wp-simple-firewall' ),
 			[
 				__( 'This is an email notification to inform you that the Security Admin restriction has been removed.', 'wp-simple-firewall' ),

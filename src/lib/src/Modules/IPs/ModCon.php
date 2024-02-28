@@ -22,15 +22,18 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $crowdSecCon;
 
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
-		return $this->botSignalsCon ?? $this->botSignalsCon = new Lib\Bots\BotSignalsController();
+		return isset( self::con()->comps ) ? self::con()->comps->bot_signals :
+			( $this->botSignalsCon ?? $this->botSignalsCon = new Lib\Bots\BotSignalsController() );
 	}
 
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
-		return $this->crowdSecCon ?? $this->crowdSecCon = new Lib\CrowdSec\CrowdSecController();
+		return isset( self::con()->comps ) ? self::con()->comps->crowdsec :
+			( $this->crowdSecCon ?? $this->crowdSecCon = new Lib\CrowdSec\CrowdSecController() );
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {
-		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker();
+		return isset( self::con()->comps ) ? self::con()->comps->offense_tracker :
+			( $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker() );
 	}
 
 	public function getAllowable404s() :array {

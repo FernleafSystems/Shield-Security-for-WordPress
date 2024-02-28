@@ -30,6 +30,8 @@ class ProcessOffense {
 	 */
 	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) :void {
 		$con = self::con();
+		$limit = $con->comps === null ?
+			$this->opts()->getOffenseLimit() : $con->comps->opts_lookup->getIpAutoBlockOffenseLimit();
 
 		$IP = ( new AddRule() )
 			->setIP( $this->getIP() )
@@ -39,7 +41,7 @@ class ProcessOffense {
 
 		$newCount = $originalCount + $incrementBy;
 		$toBlock = $blockIP
-				   || ( $newCount >= $this->opts()->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
+				   || ( $newCount >= $limit && $IP->blocked_at <= $IP->unblocked_at );
 
 		if ( $toBlock ) {
 			$newCount = (int)\max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks

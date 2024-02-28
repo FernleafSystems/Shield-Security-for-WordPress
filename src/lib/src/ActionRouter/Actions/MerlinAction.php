@@ -10,10 +10,7 @@ class MerlinAction extends BaseAction {
 
 	protected function exec() {
 		try {
-			$response = self::con()
-							->getModule_Plugin()
-							->getWizardCon()
-							->processFormSubmit( FormParams::Retrieve() );
+			$response = self::con()->comps->wizards->processFormSubmit( FormParams::Retrieve() );
 			$success = $response->success;
 			$msg = $response->getRelevantMsg();
 		}

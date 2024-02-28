@@ -11,8 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	IPs\DB\IpRules\Ops\Delete,
 	LoginGuard,
 	Plugin,
-	Traffic,
-	UserManagement
+	Traffic
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,6 +30,7 @@ class PreStore {
 		$this->scanners();
 		$this->securityAdmin();
 		$this->traffic();
+		$this->user();
 	}
 
 	private function audit() {
@@ -354,10 +354,9 @@ class PreStore {
 
 	public function user() :void {
 		$opts = self::con()->opts;
-		/** @var UserManagement\Options $userOpts */
-		$userOpts = self::con()->getModule_UserManagement()->opts();
+		$optsLookup = self::con()->comps->opts_lookup;
 
-		if ( $userOpts->getIdleTimeoutInterval() > $userOpts->getMaxSessionTime() ) {
+		if ( $optsLookup->getSessionIdleInterval() > $optsLookup->getSessionMax() ) {
 			$opts->optSet( 'session_idle_timeout_interval', $opts->optGet( 'session_timeout_interval' )*24 );
 		}
 
@@ -373,11 +372,7 @@ class PreStore {
 		}
 
 		if ( $opts->optChanged( 'email_checks' ) ) {
-			$checks = $opts->optGet( 'email_checks' );
-			if ( !empty( $checks ) ) {
-				$checks[] = 'syntax';
-			}
-			$opts->optSet( 'email_checks', \array_unique( $checks ) );
+			$opts->optSet( 'email_checks', \array_unique( \array_merge( $opts->optGet( 'email_checks' ), [ 'syntax' ] ) ) );
 		}
 	}
 }

@@ -8,10 +8,7 @@ class LicenseCheck extends Base {
 
 	protected function process() :array {
 		try {
-			self::con()
-				->getModule_License()
-				->getLicenseHandler()
-				->verify( true );
+			self::con()->comps->license->verify( true );
 		}
 		catch ( \Exception $e ) {
 			throw new ApiException( $e->getMessage() );

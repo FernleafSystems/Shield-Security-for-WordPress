@@ -10,21 +10,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	public const SLUG = 'audit_trail';
 
 	/**
-	 * @var Lib\AuditLogger
-	 */
-	private $auditLogger;
-
-	/**
 	 * @var Lib\AuditCon
+	 * @deprecated 19.1
 	 */
 	private $auditCon;
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getAuditCon() :Lib\AuditCon {
-		return $this->auditCon ?? $this->auditCon = new Lib\AuditCon();
-	}
-
-	public function getAuditLogger() :Lib\AuditLogger {
-		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger();
+		return isset( self::con()->comps ) ? self::con()->comps->activity_log :
+			( $this->auditCon ?? $this->auditCon = new Lib\AuditCon() );
 	}
 
 	/**

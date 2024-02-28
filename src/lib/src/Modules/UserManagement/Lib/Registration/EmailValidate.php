@@ -3,20 +3,22 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class EmailValidate {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $track;
 
+	protected function canRun() :bool {
+		return !empty( self::con()->comps->opts_lookup->getEmailValidateChecks() );
+	}
+
 	protected function run() {
-		if ( $this->opts()->isValidateEmailOnRegistration() ) {
-			add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
-		}
+		add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
 	}
 
 	/**
@@ -24,7 +26,7 @@ class EmailValidate {
 	 * @return array
 	 */
 	public function validateNewUserEmail( $userData ) {
-		$opts = $this->opts();
+		$con = self::con();
 
 		$email = $userData[ 'user_email' ] ?? '';
 
@@ -41,12 +43,9 @@ class EmailValidate {
 				$invalidBecause = 'syntax';
 			}
 			else {
-				$apiToken = self::con()
-								->getModule_License()
-								->getWpHashesTokenManager()
-								->getToken();
+				$apiToken = $con->comps->api_token->getToken();
 				if ( !empty( $apiToken ) ) {
-					$checks = $opts->getEmailValidationChecks();
+					$checks = $con->comps->opts_lookup->getEmailValidateChecks();
 					$verifys = ( new Email( $apiToken ) )->getEmailVerification( $email );
 					if ( \is_array( $verifys ) ) {
 						foreach ( $verifys as $verifyKey => $valid ) {
@@ -60,8 +59,8 @@ class EmailValidate {
 			}
 
 			if ( !empty( $invalidBecause ) ) {
-				$opt = $opts->getValidateEmailOnRegistration();
-				self::con()->fireEvent(
+				$opt = $con->opts->optGet( 'reg_email_validate' );
+				$con->fireEvent(
 					'reg_email_invalid',
 					[
 						'audit_params'  => [

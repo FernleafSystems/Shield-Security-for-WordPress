@@ -117,10 +117,11 @@ class PushSignalsToCS {
 	}
 
 	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
-		$send = true;
 		if ( $record->scenario === 'btxml' ) {
-			$send = $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' )
-					|| $this->opts()->getOffenseCountFor( 'track_xmlrpc' ) > 0;
+			$send = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_xmlrpc' ) > 0;
+		}
+		else {
+			$send = true;
 		}
 		return $send;
 	}

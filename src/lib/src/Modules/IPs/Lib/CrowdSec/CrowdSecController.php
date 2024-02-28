@@ -20,7 +20,7 @@ class CrowdSecController {
 	private $api;
 
 	protected function canRun() :bool {
-		return $this->opts()->isEnabledCrowdSecAutoBlock();
+		return self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock();
 	}
 
 	protected function run() {

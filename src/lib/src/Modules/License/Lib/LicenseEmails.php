@@ -3,25 +3,26 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseEmails {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function sendLicenseWarningEmail() {
 		$con = self::con();
 		$canSend = Services::Request()
 						   ->carbon()
-						   ->subDay()->timestamp > $this->opts()->getOpt( 'last_warning_email_sent_at' );
+					   ->subDay()->timestamp > $con->opts->optGet( 'last_warning_email_sent_at' );
 
 		if ( $canSend ) {
-			$this->opts()->setOpt( 'last_warning_email_sent_at', Services::Request()->ts() );
-			$con->opts->store();
+			$con->opts
+				->optSet( 'last_warning_email_sent_at', Services::Request()->ts() )
+				->store();
 
 			$con->email_con->sendEmailWithWrap(
-				$con->getModule_Plugin()->getPluginReportEmail(),
+				$con->comps->opts_lookup->getReportEmail(),
 				'Pro License Check Has Failed',
 				[
 					__( 'Attempts to verify Shield Pro license has just failed.', 'wp-simple-firewall' ),
@@ -38,14 +39,15 @@ class LicenseEmails {
 		$con = self::con();
 		$canSend = Services::Request()
 						   ->carbon()
-						   ->subDay()->timestamp > $this->opts()->getOpt( 'last_deactivated_email_sent_at' );
+						   ->subDay()->timestamp > $con->opts->optGet( 'last_deactivated_email_sent_at' );
 
 		if ( $canSend ) {
-			$this->opts()->setOpt( 'last_deactivated_email_sent_at', Services::Request()->ts() );
-			$con->opts->store();
+			$con->opts
+				->optSet( 'last_deactivated_email_sent_at', Services::Request()->ts() )
+				->store();
 
 			$con->email_con->sendEmailWithWrap(
-				$con->getModule_Plugin()->getPluginReportEmail(),
+				$con->comps->opts_lookup->getReportEmail(),
 				'[Action May Be Required] Pro License Has Been Deactivated',
 				[
 					__( 'All attempts to verify Shield Pro license have failed.', 'wp-simple-firewall' ),

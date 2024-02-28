@@ -1,15 +1,15 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUpdatesCon {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return self::con()->opts->optIs( 'enable_autoupdates', 'Y' );
@@ -71,7 +71,7 @@ class AutoUpdatesCon {
 			}
 			$delayTracking[ 'core' ][ 'wp' ] = \array_slice( $item, -5 );
 
-			$this->opts()->setOpt( 'delay_tracking', $delayTracking );
+			self::con()->opts->optSet( 'delay_tracking', $delayTracking );
 		}
 	}
 
@@ -114,7 +114,7 @@ class AutoUpdatesCon {
 				}
 			}
 
-			$this->opts()->setOpt( 'delay_tracking', $delayTracking );
+			self::con()->opts->optSet( 'delay_tracking', $delayTracking );
 		}
 	}
 
@@ -125,15 +125,12 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_core_major( $toUpdate ) {
-		$opts = $this->opts();
-
 		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
 			$toUpdate = false;
 		}
 		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
-			$toUpdate = $opts->isOpt( 'autoupdate_core', 'core_major' );
+			$toUpdate = self::con()->opts->optIs( 'autoupdate_core', 'core_major' );
 		}
-
 		return $toUpdate;
 	}
 
@@ -148,7 +145,7 @@ class AutoUpdatesCon {
 			$doUpdate = false;
 		}
 		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
-			$doUpdate = !$this->opts()->isOpt( 'autoupdate_core', 'core_never' );
+			$doUpdate = !self::con()->opts->optIs( 'autoupdate_core', 'core_never' );
 		}
 		return $doUpdate;
 	}
@@ -182,11 +179,11 @@ class AutoUpdatesCon {
 			if ( $this->isDelayed( $file, 'plugins' ) ) {
 				$doUpdate = false;
 			}
-			elseif ( $this->opts()->isOpt( 'enable_autoupdate_plugins', 'Y' ) ) {
+			elseif ( self::con()->opts->optIs( 'enable_autoupdate_plugins', 'Y' ) ) {
 				$doUpdate = true;
 			}
 			elseif ( $file === self::con()->base_file ) {
-				$auto = $this->opts()->getOpt( 'autoupdate_plugin_self' );
+				$auto = self::con()->opts->optGet( 'autoupdate_plugin_self' );
 				if ( $auto === 'immediate' ) {
 					$doUpdate = true;
 				}
@@ -215,7 +212,7 @@ class AutoUpdatesCon {
 			if ( $this->isDelayed( $file, 'themes' ) ) {
 				$doAutoUpdate = false;
 			}
-			elseif ( $this->opts()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
+			elseif ( self::con()->opts->optIs( 'enable_autoupdate_themes', 'Y' ) ) {
 				$doAutoUpdate = true;
 			}
 		}
@@ -252,7 +249,7 @@ class AutoUpdatesCon {
 
 			if ( !empty( $version ) && isset( $itemTrack[ $version ] ) ) {
 				$delayed = ( Services::Request()->ts() - $itemTrack[ $version ] )
-						   < $this->opts()->getOpt( 'update_delay', 0 )*\DAY_IN_SECONDS;
+						   < self::con()->opts->optGet( 'update_delay' )*\DAY_IN_SECONDS;
 			}
 		}
 
@@ -263,7 +260,7 @@ class AutoUpdatesCon {
 	 * A filter on whether a notification email is sent after core upgrades are attempted.
 	 */
 	public function autoupdate_send_email() :bool {
-		return $this->opts()->isOpt( 'enable_upgrade_notification_email', 'Y' );
+		return self::con()->opts->optIs( 'enable_upgrade_notification_email', 'Y' );
 	}
 
 	/**
@@ -272,7 +269,7 @@ class AutoUpdatesCon {
 	 * @return array
 	 */
 	public function autoupdate_email_override( $emailParams ) {
-		$override = $this->opts()->getOpt( 'override_email_address', '' );
+		$override = self::con()->opts->optGet( 'override_email_address' );
 		if ( Services::Data()->validEmail( $override ) ) {
 			$emailParams[ 'to' ] = $override;
 		}
@@ -293,19 +290,15 @@ class AutoUpdatesCon {
 		return $opts->optGet( 'delay_tracking' );
 	}
 
-	public function getDelayPeriod() :int {
-		return $this->opts()->getOpt( 'update_delay', 0 )*\DAY_IN_SECONDS;
-	}
-
 	public function isCoreAutoUpgradesDisabled() :bool {
-		return $this->disableAll() || $this->opts()->isOpt( 'autoupdate_core', 'core_never' );
+		return $this->disableAll() || self::con()->opts->optIs( 'autoupdate_core', 'core_never' );
 	}
 
 	public function isDelayUpdates() :bool {
-		return $this->opts()->getOpt( 'update_delay', 0 ) > 0;
+		return self::con()->opts->optGet( 'update_delay' ) > 0;
 	}
 
 	public function disableAll() :bool {
-		return $this->opts()->isOpt( 'enable_autoupdate_disable_all', 'Y' );
+		return self::con()->opts->optIs( 'enable_autoupdate_disable_all', 'Y' );
 	}
 }

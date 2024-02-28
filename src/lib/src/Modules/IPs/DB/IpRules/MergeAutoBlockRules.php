@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MergeAutoBlockRules {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -62,7 +62,7 @@ class MergeAutoBlockRules {
 			$updateData = [
 				'offenses' => $toKeep->offenses + $extraOffenses,
 			];
-			if ( $updateData[ 'offenses' ] >= $this->opts()->getOffenseLimit()
+			if ( $updateData[ 'offenses' ] >= self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit()
 				 && $toKeep->blocked_at <= $toKeep->unblocked_at ) {
 				$updateData[ 'blocked_at' ] = Services::Request()->ts();
 			}

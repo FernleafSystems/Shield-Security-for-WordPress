@@ -53,14 +53,12 @@ class BotBlocking extends Base {
 	}
 
 	protected function getStepRenderData() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
 		return [
 			'strings' => [
 				'step_title' => __( 'Automatically Block Malicious IP Addresses', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'offense_limit' => $opts->getOffenseLimit()
+				'offense_limit' => self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit()
 			]
 		];
 	}

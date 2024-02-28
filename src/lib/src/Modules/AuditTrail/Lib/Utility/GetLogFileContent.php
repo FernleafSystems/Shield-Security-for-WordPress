@@ -10,7 +10,7 @@ class GetLogFileContent {
 	use ModConsumer;
 
 	public function run() :string {
-		$logFile = self::con()->getModule_AuditTrail()->getAuditCon()->getLogFilePath();
+		$logFile = self::con()->comps->activity_log->getLogFilePath();
 		$FS = Services::WpFs();
 		return $FS->isAccessibleFile( $logFile ) ? (string)$FS->getFileContent( $logFile ) : '';
 	}

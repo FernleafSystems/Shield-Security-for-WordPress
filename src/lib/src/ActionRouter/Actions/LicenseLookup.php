@@ -7,7 +7,7 @@ class LicenseLookup extends LicenseBase {
 	public const SLUG = 'license_lookup';
 
 	protected function exec() {
-		$licHandler = self::con()->getModule_License()->getLicenseHandler();
+		$licHandler = self::con()->comps->license;
 
 		$success = false;
 

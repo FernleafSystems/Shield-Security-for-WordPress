@@ -4,7 +4,4 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
-	public function isEnabledMainWP() :bool {
-		return $this->isOpt( 'enable_mainwp', 'Y' );
-	}
 }

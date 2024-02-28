@@ -23,10 +23,8 @@ class LicenseScheduleCheck extends LicenseBase {
 		catch ( \Exception $e ) {
 		}
 
-		self::con()
-			->getModule_License()
-			->getLicenseHandler()
-			->scheduleAdHocCheck( $delay );
+		self::con()->comps->license->scheduleAdHocCheck( $delay );
+
 		$this->response()->action_response_data = [
 			'success' => true,
 			'message' => __( 'License Check Scheduled', 'wp-simple-firewall' ),

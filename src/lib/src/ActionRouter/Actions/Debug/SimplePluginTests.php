@@ -91,7 +91,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_snapshots() {
-		$audCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		$audCon = self::con()->comps->activity_log;
 		$slug = AuditTrail\Auditors\Comments::Slug();
 		try {
 			$current = ( new AuditTrail\Lib\Snapshots\Ops\Build() )->run( $slug );
@@ -115,7 +115,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_apitoken() {
-		self::con()->getModule_License()->getWpHashesTokenManager()
+		self::con()->comps->api_token
 			->setCanRequestOverride( true )
 			->getToken();
 	}

@@ -2,27 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
+/**
+ * @deprecated 19.1
+ */
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getApprovedMinimum() :int {
 		return (int)$this->getOpt( 'trusted_commenter_minimum', 1 );
 	}
 
-	public function getHumanSpamFilterItems() :array {
-		$default = [
-			'author_name',
-			'author_email',
-			'comment_content',
-			'url',
-			'ip_address',
-			'user_agent'
-		];
-		$items = apply_filters( self::con()->prefix( 'human_spam_items' ), $default );
-		return \is_array( $items ) ? \array_intersect( $default, $items ) : $default;
-	}
-
 	/**
 	 * @return string[]
+	 * @deprecated 19.1
 	 */
 	public function getTrustedRoles() :array {
 		$roles = [];
@@ -32,12 +26,10 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return \is_array( $roles ) ? $roles : [];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isEnabledAntiBot() :bool {
 		return $this->isOpt( 'enable_antibot_comments', 'Y' );
-	}
-
-	public function isEnabledHumanCheck() :bool {
-		return $this->isOpt( 'enable_comments_human_spam_filter', 'Y' )
-			   && \count( $this->getHumanSpamFilterItems() ) > 0;
 	}
 }

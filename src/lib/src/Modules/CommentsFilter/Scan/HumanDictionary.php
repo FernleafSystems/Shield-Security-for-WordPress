@@ -19,8 +19,6 @@ class HumanDictionary {
 	 * @return \WP_Error|true
 	 */
 	public function scan( array $commData ) {
-		$opts = $this->opts();
-
 		$result = true;
 
 		$items = \array_intersect_key(
@@ -32,7 +30,7 @@ class HumanDictionary {
 				'ip_address'      => self::con()->this_req->ip,
 				'user_agent'      => \substr( Services::Request()->getUserAgent(), 0, 254 )
 			],
-			\array_flip( $opts->getHumanSpamFilterItems() )
+			\array_flip( apply_filters( 'shield/human_spam_check_items', self::con()->cfg->configuration->def( 'human_spam_check_items' ) ) )
 		);
 
 		$spam = ( new TestContent() )->findSpam( $items );

@@ -17,11 +17,13 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $securityAdminCon;
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
-		return $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController();
+		return isset( self::con()->comps ) ? self::con()->comps->whitelabel :
+			( $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController() );
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
-		return $this->securityAdminCon ?? $this->securityAdminCon = new Lib\SecurityAdmin\SecurityAdminController();
+		return isset( self::con()->comps ) ? self::con()->comps->sec_admin :
+			( $this->securityAdminCon ?? $this->securityAdminCon = new Lib\SecurityAdmin\SecurityAdminController() );
 	}
 
 	public function runDailyCron() {

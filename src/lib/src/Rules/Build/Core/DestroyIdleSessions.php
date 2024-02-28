@@ -24,8 +24,14 @@ class DestroyIdleSessions extends Build\Core\BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_UserManagement()->opts();
+		if ( self::con()->comps === null ) {
+			/** @var Options $opts */
+			$opts = self::con()->getModule_UserManagement()->opts();
+			$idle =  $opts->getIdleTimeoutInterval();
+		}
+		else {
+			$idle = self::con()->comps->opts_lookup->getSessionIdleInterval();
+		}
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -55,6 +61,14 @@ class DestroyIdleSessions extends Build\Core\BuildRuleCoreShieldBase {
 				[
 					'conditions' => Conditions\ShieldConfigurationOption::class,
 					'params'     => [
+						'name'        => 'enable_user_management',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
 						'name'        => 'session_idle_timeout_interval',
 						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_GREATER_THAN,
 						'match_value' => 0,
@@ -65,7 +79,7 @@ class DestroyIdleSessions extends Build\Core\BuildRuleCoreShieldBase {
 					'params'     => [
 						'param_name'    => 'idle_interval',
 						'match_type'    => Enum\EnumMatchTypes::MATCH_TYPE_GREATER_THAN,
-						'match_pattern' => $opts->getIdleTimeoutInterval(),
+						'match_pattern' => $idle,
 					]
 				],
 			]

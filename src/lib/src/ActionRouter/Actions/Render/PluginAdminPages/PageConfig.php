@@ -5,14 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	AuditTrail,
-	HackGuard,
-	IPs,
-	SecurityAdmin,
-	Traffic
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -26,15 +21,15 @@ class PageConfig extends BasePluginAdminPage {
 		$hrefs = [];
 		switch ( $this->action_data[ 'mod_slug' ] ) {
 
-			case AuditTrail\ModCon::SLUG:
+			case EnumModules::ACTIVITY:
 				$hrefs[] = [
 					'text' => __( 'View Activity Log', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				];
 				break;
 
-			case SecurityAdmin\ModCon::SLUG:
-				if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
+			case EnumModules::SECURITY_ADMIN:
+				if ( self::con()->comps->sec_admin->isEnabledSecAdmin() ) {
 					$hrefs[] = [
 						'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
 						'href' => $URLs->noncedPluginAction(
@@ -48,7 +43,7 @@ class PageConfig extends BasePluginAdminPage {
 				}
 				break;
 
-			case HackGuard\ModCon::SLUG:
+			case EnumModules::SCANNERS:
 				$hrefs[] = [
 					'text' => __( 'Scan Results', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
@@ -59,7 +54,7 @@ class PageConfig extends BasePluginAdminPage {
 				];
 				break;
 
-			case IPs\ModCon::SLUG:
+			case EnumModules::IPS:
 				$hrefs[] = [
 					'text' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
 					'href' => $URLs->noncedPluginAction(
@@ -69,7 +64,7 @@ class PageConfig extends BasePluginAdminPage {
 				];
 				break;
 
-			case Traffic\ModCon::SLUG:
+			case EnumModules::TRAFFIC:
 				$hrefs[] = [
 					'text' => __( 'View Traffic Log', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
@@ -84,18 +79,17 @@ class PageConfig extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = self::con();
-		$mod = $con->modules[ $this->action_data[ 'mod_slug' ] ];
+		$modStrings = ( new StringsModules() )->getFor( $this->action_data[ 'mod_slug' ] );
 		return [
 			'content' => [
-				'options_form' => $con->action_router->render( OptionsForm::SLUG, $this->action_data ),
+				'options_form' => self::con()->action_router->render( OptionsForm::class, $this->action_data ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
 			],
 			'strings' => [
-				'inner_page_title'    => $mod->getDescriptors()[ 'title' ],
-				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],
+				'inner_page_title'    => $modStrings[ 'name' ],
+				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
 			],
 		];
 	}

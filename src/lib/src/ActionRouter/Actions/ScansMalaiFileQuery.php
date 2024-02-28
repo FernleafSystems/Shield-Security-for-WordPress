@@ -51,10 +51,7 @@ class ScansMalaiFileQuery extends ScansBase {
 			throw new \Exception( 'The file is empty.' );
 		}
 
-		$token = self::con()
-					 ->getModule_License()
-					 ->getWpHashesTokenManager()
-					 ->getToken();
+		$token = self::con()->comps->api_token->getToken();
 		$status = ( new MalwareScan( $token ) )->scan( \basename( $path ), $FS->getFileContent( $path ), 'php' );
 		if ( empty( $status ) ) {
 			\sleep( 3 );

@@ -11,37 +11,36 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 	protected function run() {
 		$con = self::con();
-		$mod = $con->getModule_Plugin();
+		$components = $con->comps;
 
 		$this->removePluginConflicts();
 
-		$con->getModule_License()->getLicenseHandler()->execute();
+		$components->license->execute();
 
 		if ( !$this->opts()->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
-			( new Components\IPsCon() )->execute();
-			$con->getModule_SecAdmin()->getSecurityAdminController()->execute();
-			$con->getModule_SecAdmin()->getWhiteLabelController()->execute();
-			$con->getModule_HackGuard()->getScansCon()->execute();
-			$con->getModule_Traffic()->getRequestLogger()->execute();
-			$con->getModule_AuditTrail()->getAuditCon()->execute();
-			( new Components\HttpHeadersCon() )->execute();
-			$mod->getReportingController()->execute();
+			$components->ips_con->execute();
+			$components->sec_admin->execute();
+			$components->whitelabel->execute();
+			$components->scans->execute();
+			$components->requests_log->execute();
+			$components->activity_log->execute();
+			$components->http_headers->execute();
+			$components->reports->execute();
+			$components->autoupdates->execute();
+			$components->badge->execute();
+			$components->import_export->execute();
 			new Events\StatsWriter();
-			$mod->getPluginBadgeCon()->execute();
 			( new Lib\AllowBetaUpgrades() )->execute();
-			( new Components\AutoUpdatesCon() )->execute();
-			$mod->getImpExpController()->execute();
 			( new Lib\OverrideLocale() )->execute();
-			( new Lib\SiteHealthController() )->execute();
 
-			$con->getModule_Integrations()->getController_SpamForms()->execute();
+			$components->forms_spam->execute();
 			add_action( 'init', function () {
-				self::con()->getModule_Integrations()->getController_UserForms()->execute();
+				self::con()->comps->forms_users->execute();
 			}, HookTimings::INIT_USER_FORMS_SETUP );
 		}
 
-		$con->getModule_Integrations()->getControllerMWP()->execute();
-		$mod->getShieldNetApiController()->execute();
+		$components->mainwp->execute();
+		$components->shieldnet->execute();
 
 		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->opts()->isOpt( 'delete_on_deactivate', 'Y' );
@@ -50,6 +49,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 	public function onWpInit() {
 		( new Components\AnonRestApiDisable() )->execute();
+		( new Lib\SiteHealthController() )->execute();
 	}
 
 	public function runHourlyCron() {

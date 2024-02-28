@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 /**
  * @property bool $is_booted
  */
-abstract class ModCon extends DynPropertiesClass {
+class ModCon extends DynPropertiesClass {
 
 	use Modules\PluginControllerConsumer;
 	use Crons\PluginCronsConsumer;
@@ -140,27 +140,11 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModOptEnabled() :bool {
-		return $this->opts()->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $this->opts()->isOpt( $this->getEnableModOptKey(), true, true );
+		return $this->opts()->isOpt( $this->getEnableModOptKey(), 'Y' );
 	}
 
 	public function getEnableModOptKey() :string {
 		return 'enable_'.$this->cfg->slug;
-	}
-
-	public function name() :string {
-		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
-	}
-
-	/**
-	 * @return array{title: string, subtitle: string, description: array}
-	 */
-	public function getDescriptors() :array {
-		return [
-			'title'       => $this->name(),
-			'subtitle'    => __( $this->cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),
-			'description' => [],
-		];
 	}
 
 	public function getTextOpt( string $key ) :string {
@@ -367,5 +351,12 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getOptionsStorageKey() :string {
 		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function name() :string {
+		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
 	}
 }

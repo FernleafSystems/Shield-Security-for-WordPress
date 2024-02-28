@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Integrations\Lib\Bots\Common\BaseHandler,
-	IPs,
 	IPs\Lib\IpRules\IpRuleStatus,
 	LoginGuard,
 	LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck,
@@ -104,6 +104,7 @@ class SectionNotices {
 
 	public function warnings( string $section ) :array {
 		$con = self::con();
+		$opts = $con->comps->opts_lookup;
 
 		$warnings = [];
 
@@ -281,17 +282,14 @@ class SectionNotices {
 				break;
 
 			case 'section_auto_black_list':
-				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->opts();
-				if ( !$opts->isEnabledAutoBlackList() ) {
-					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
+				if ( $opts->isModEnabled( EnumModules::IPS ) && !$opts->enabledIpAutoBlock() ) {
+					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'IP blocking is turned-off because the offenses limit is set to 0.', 'wp-simple-firewall' ) );
 				}
 				break;
 
 			case 'section_antibot':
-				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->opts();
-				if ( !$opts->isEnabledAntiBotEngine() ) {
+				if ( $opts->isModEnabled( EnumModules::IPS ) && !$opts->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
 				}
@@ -302,14 +300,11 @@ class SectionNotices {
 				break;
 
 			case 'section_bot_behaviours':
-				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->opts();
-				if ( !$opts->isEnabledAutoBlackList() ) {
-					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
+				if ( $opts->isModEnabled( EnumModules::IPS ) && !$opts->enabledIpAutoBlock() ) {
+					$warnings[] = __( 'Since the offenses limit is set to 0, these options have no effect.', 'wp-simple-firewall' );
 				}
-
 				if ( \strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$warnings[] = __( "Your User Agent appears to be empty. We don't recommend turning on this option.", 'wp-simple-firewall' );
+					$warnings[] = __( "Your User Agent appears to be empty. We don't recommend turning on the useragent option.", 'wp-simple-firewall' );
 				}
 				break;
 

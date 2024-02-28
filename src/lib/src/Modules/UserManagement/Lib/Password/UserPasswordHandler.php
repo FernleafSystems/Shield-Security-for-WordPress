@@ -18,10 +18,9 @@ class UserPasswordHandler {
 	use WpLoginCapture;
 
 	protected function run() {
-		$this->setupLoginCaptureHooks();
 		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
-
-		if ( $this->opts()->isPasswordPoliciesEnabled() ) {
+		if ( self::con()->comps->opts_lookup->isPassPoliciesEnabled() ) {
+			$this->setupLoginCaptureHooks();
 			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100 );
 			add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100 );
@@ -32,21 +31,19 @@ class UserPasswordHandler {
 	protected function captureLogin( \WP_User $user ) {
 		$failed = false;
 
-		if ( $this->opts()->isPasswordPoliciesEnabled() ) {
-			$password = $this->getLoginPassword();
-			if ( Services::Request()->isPost() && !empty( $password ) ) {
-				try {
-					$this->applyPasswordChecks( $password );
-				}
-				catch ( Exceptions\PwnedApiFailedException $e ) {
-					// We don't fail when the PWNED API is not available.
-				}
-				catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
-					$failed = true;
-				}
-				self::con()->user_metas->for( $user )->pass_check_failed_at = $failed ?
-					Services::Request()->ts() : 0;
+		$password = $this->getLoginPassword();
+		if ( Services::Request()->isPost() && !empty( $password ) ) {
+			try {
+				$this->applyPasswordChecks( $password );
 			}
+			catch ( Exceptions\PwnedApiFailedException $e ) {
+				// We don't fail when the PWNED API is not available.
+			}
+			catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
+				$failed = true;
+			}
+			self::con()->user_metas->for( $user )->pass_check_failed_at = $failed ?
+				Services::Request()->ts() : 0;
 		}
 
 		if ( !$failed ) {
@@ -180,12 +177,10 @@ class UserPasswordHandler {
 	 * @throws Exceptions\PwnedApiFailedException
 	 */
 	private function applyPasswordChecks( string $password ) {
-		$opts = $this->opts();
-
 		if ( self::con()->caps->canUserPasswordPolicies() ) {
 			$this->testPasswordMeetsMinimumStrength( $password );
 		}
-		if ( $opts->isPassPreventPwned() ) {
+		if ( self::con()->comps->opts_lookup->isPassPreventPwned() ) {
 			$this->sendRequestToPwnedRange( $password );
 		}
 	}

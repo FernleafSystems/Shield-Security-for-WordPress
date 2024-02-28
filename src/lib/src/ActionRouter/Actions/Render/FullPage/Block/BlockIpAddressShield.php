@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Fu
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIpBlock;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BlockIpAddressShield extends BaseBlock {
@@ -70,14 +69,13 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function getRestrictionDetailsPoints() :array {
-		/** @var IPs\Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
 		return \array_merge(
 			[
-				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()
-																			 ->carbon()
-																			 ->addSeconds( $opts->getAutoExpireTime() )
-																			 ->diffForHumans(),
+				__( 'Restrictions Lifted', 'wp-simple-firewall' ) =>
+					Services::Request()
+							->carbon()
+							->addSeconds( self::con()->comps->opts_lookup->getIpAutoBlockTTL() )
+							->diffForHumans(),
 			],
 			parent::getRestrictionDetailsPoints()
 		);

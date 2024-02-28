@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 
 	public function isUnblockAvailable() :bool {
-		return $this->opts()->isEnabledMagicEmailLinkRecover() && parent::isUnblockAvailable();
+		return \in_array( 'email', self::con()->opts->optGet( 'user_auto_recover' ) ) && parent::isUnblockAvailable();
 	}
 
 	protected function getUnblockMethodName() :string {

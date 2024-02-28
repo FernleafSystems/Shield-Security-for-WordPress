@@ -27,7 +27,7 @@ class ProfileSuspend extends BaseRender {
 					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
 			],
 			'flags'   => [
-				'can_suspend'  => self::con()->getModule_UserManagement()->getUserSuspendCon()->canManuallySuspend()
+				'can_suspend'  => self::con()->comps->user_suspend->canManuallySuspend()
 								  || ( !$WPU->isUserAdmin( $editUser ) && $WPU->isUserAdmin() ),
 				'is_suspended' => $meta->record->hard_suspended_at > 0
 			],

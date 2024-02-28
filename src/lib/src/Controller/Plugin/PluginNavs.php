@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -72,7 +73,7 @@ class PluginNavs {
 	 * Handle special case for Config, so we ensure plugin general config is always default.
 	 */
 	public static function GetDefaultSubNavForNav( string $nav ) :string {
-		return $nav === self::NAV_OPTIONS_CONFIG ? ModCon::SLUG : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
+		return $nav === self::NAV_OPTIONS_CONFIG ? EnumModules::PLUGIN : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
 	}
 
 	public static function GetNavHierarchy() :array {

@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers\ModConsumer;
@@ -68,9 +68,18 @@ class HttpHeadersCon {
 	public function sendHeaders() {
 		if ( !$this->pushed ) {
 
-			$sent = \array_map( '\strtolower', \array_keys( $this->getAlreadySentHeaders() ) );
+			$sent = [];
+			if ( \function_exists( '\headers_list' ) ) {
+				foreach ( \headers_list() as $header ) {
+					if ( \strpos( $header, ':' ) ) {
+						[ $key, $value ] = \array_map( '\trim', \explode( ':', $header, 2 ) );
+						$sent[ \strtolower( $key ) ] = $value;
+					}
+				}
+			}
+
 			foreach ( $this->gatherSecurityHeaders() as $name => $value ) {
-				if ( !\in_array( \strtolower( $name ), $sent ) ) {
+				if ( !isset( $sent[ \strtolower( $name ) ] ) ) {
 					@\header( sprintf( '%s: %s', $name, $value ) );
 				}
 			}
@@ -80,30 +89,13 @@ class HttpHeadersCon {
 	}
 
 	private function gatherSecurityHeaders() :array {
+		$opts = $this->opts();
 		$this->addHeader( $this->getReferrerPolicyHeader() );
 		$this->addHeader( $this->getXFrameHeader() );
-		$this->addHeader( $this->getXssProtectionHeader() );
-		$this->addHeader( $this->getContentTypeOptionHeader() );
+		$this->addHeader( $opts->isOpt( 'x_xss_protect', 'Y' ) ? [ 'X-XSS-Protection' => '1; mode=block' ] : [] );
+		$this->addHeader( $opts->isOpt( 'x_content_type', 'Y' ) ? [ 'X-Content-Type-Options' => 'nosniff' ] : [] );
 		$this->addHeader( $this->setContentSecurityPolicyHeader() );
 		return \array_filter( $this->headers );
-	}
-
-	/**
-	 * @return string[] - array of all previously sent headers. Keys are header names, values are header values.
-	 */
-	private function getAlreadySentHeaders() :array {
-		$headers = [];
-
-		if ( \function_exists( '\headers_list' ) ) {
-			foreach ( \headers_list() as $header ) {
-				if ( \strpos( $header, ':' ) ) {
-					[ $key, $value ] = \array_map( '\trim', \explode( ':', $header, 2 ) );
-					$headers[ $key ] = $value;
-				}
-			}
-		}
-
-		return $headers;
 	}
 
 	private function getXFrameHeader() :array {
@@ -121,30 +113,54 @@ class HttpHeadersCon {
 		return empty( $xFrame ) ? [] : [ 'x-frame-options' => $xFrame ];
 	}
 
-	private function getXssProtectionHeader() :array {
-		$opts = $this->opts();
-		return $opts->isEnabledXssProtection() ? [ 'X-XSS-Protection' => '1; mode=block' ] : [];
-	}
-
-	private function getContentTypeOptionHeader() :array {
-		$opts = $this->opts();
-		return $opts->isEnabledContentTypeHeader() ? [ 'X-Content-Type-Options' => 'nosniff' ] : [];
-	}
-
 	private function getReferrerPolicyHeader() :array {
-		$opts = $this->opts();
-		return $opts->isReferrerPolicyEnabled() ? [ 'Referrer-Policy' => $opts->getReferrerPolicyValue() ] : [];
+		$value = $this->opts()->getOpt( 'x_referrer_policy' );
+		return $value === 'disabled' ? [] : [ 'Referrer-Policy' => $value === 'empty' ? '' : $value ];
 	}
 
 	private function setContentSecurityPolicyHeader() :array {
 		$opts = $this->opts();
-		return $opts->isEnabledContentSecurityPolicy() ?
-			[ 'Content-Security-Policy' => \implode( ' ', $opts->getCspCustomRules() ) ] : [];
+		$rules = ( $opts->isOpt( 'enable_x_content_security_policy', 'Y' ) && self::con()->isPremiumActive() ) ?
+			\array_filter( \array_map( '\trim', $opts->getOpt( 'xcsp_custom' ) ) ) : [];
+		return empty( $rules ) ? [] : [ 'Content-Security-Policy' => \implode( ' ', $rules ) ];
 	}
 
 	private function addHeader( array $header ) {
 		if ( !empty( $header ) ) {
 			$this->headers = \array_merge( $this->headers, $header );
 		}
+	}
+
+	/**
+	 * @return string[] - array of all previously sent headers. Keys are header names, values are header values.
+	 * @deprecated 19.1
+	 */
+	private function getAlreadySentHeaders() :array {
+		$headers = [];
+
+		if ( \function_exists( '\headers_list' ) ) {
+			foreach ( \headers_list() as $header ) {
+				if ( \strpos( $header, ':' ) ) {
+					[ $key, $value ] = \array_map( '\trim', \explode( ':', $header, 2 ) );
+					$headers[ $key ] = $value;
+				}
+			}
+		}
+
+		return $headers;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	private function getContentTypeOptionHeader() :array {
+		return $this->opts()->isOpt( 'x_content_type', 'Y' ) ? [ 'X-Content-Type-Options' => 'nosniff' ] : [];
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	private function getXssProtectionHeader() :array {
+		return $this->opts()->isOpt( 'x_xss_protect', 'Y' ) ? [ 'X-XSS-Protection' => '1; mode=block' ] : [];
 	}
 }

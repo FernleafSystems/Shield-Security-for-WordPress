@@ -63,13 +63,22 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 	}
 
 	protected function getResponses() :array {
+		if ( self::con()->comps === null ) {
+			$count = $this->opts()->getOffenseCountFor( 'track_invalidscript' );
+			$block = $this->opts()->isTrackOptImmediateBlock( 'track_invalidscript' );
+		}
+		else {
+			$count = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_invalidscript' );
+			$block = self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_invalidscript' );
+		}
+
 		return [
 			[
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_invalidscript',
-					'offense_count'    => $this->opts()->getOffenseCountFor( 'track_invalidscript' ),
-					'block'            => $this->opts()->isTrackOptImmediateBlock( 'track_invalidscript' ),
+					'offense_count'    => $count,
+					'block'            => $block,
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

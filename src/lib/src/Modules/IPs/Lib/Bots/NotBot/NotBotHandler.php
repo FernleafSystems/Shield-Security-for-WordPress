@@ -18,6 +18,10 @@ class NotBotHandler {
 	use ModConsumer;
 
 	public const LIFETIME = 600;
+	public const COOKIE_SLUG = 'notbot';
+	/**
+	 * @deprecated 19.1
+	 */
 	public const SLUG = 'notbot';
 
 	private $previousNotBotSignalAt = null;

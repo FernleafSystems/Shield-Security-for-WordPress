@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	HackGuard,
 	Integrations\ModConsumer,
@@ -16,7 +17,7 @@ class Sync {
 	use ModConsumer;
 
 	private function isPermitted() :bool {
-		return $this->opts()->isEnabledMainWP() && self::con()->caps->canMainwpLevel1();
+		return self::con()->comps->opts_lookup->enabledIntegrationMainwp() && self::con()->caps->canMainwpLevel1();
 	}
 
 	public function run() :array {
@@ -53,7 +54,7 @@ class Sync {
 
 			switch ( $mod->cfg->slug ) {
 
-				case Plugin\ModCon::SLUG:
+				case EnumModules::PLUGIN:
 					try {
 						$data[ $mod->cfg->slug ][ 'grades' ] = [
 							'integrity' => ( new Handler() )->getMeter( MeterSummary::class )
@@ -63,7 +64,7 @@ class Sync {
 					}
 					break;
 
-				case HackGuard\ModCon::SLUG:
+				case EnumModules::SCANNERS:
 					$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
 						( new HackGuard\Scan\Results\Counts() )->all()
 					);

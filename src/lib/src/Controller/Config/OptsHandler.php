@@ -3,12 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Base,
-	License,
-	PluginControllerConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PreStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -451,12 +448,11 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param Base\ModCon|mixed $mod
 	 * @deprecated 19.1
 	 */
 	public function getFor( $mod ) :?array {
 		$opts = $this->mod_opts_free[ $mod->cfg->slug ] ?? null;
-		if ( $mod->cfg->slug !== License\ModCon::SLUG && self::con()->isPremiumActive() ) {
+		if ( $mod->cfg->slug !== EnumModules::LICENSE && self::con()->isPremiumActive() ) {
 			$premiumOpts = $this->mod_opts_pro[ $mod->cfg->slug ] ?? null;
 			if ( \is_array( $premiumOpts ) ) {
 				$opts = $premiumOpts;
@@ -466,12 +462,11 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param Base\ModCon|mixed $mod
 	 * @deprecated 19.1
 	 */
 	public function setFor( $mod, array $values, ?string $type = null ) :self {
 
-		if ( $mod->cfg->slug === License\ModCon::SLUG ) {
+		if ( $mod->cfg->slug === EnumModules::LICENSE ) {
 			$type = self::TYPE_FREE;
 		}
 		elseif ( !\in_array( $type, [ self::TYPE_PRO, self::TYPE_FREE ], true ) ) {

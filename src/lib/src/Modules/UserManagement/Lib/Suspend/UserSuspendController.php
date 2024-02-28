@@ -39,9 +39,9 @@ class UserSuspendController {
 	}
 
 	public function isSuspendAutoPasswordEnabled() :bool {
-		return $this->opts()->isPasswordPoliciesEnabled()
+		return self::con()->comps->opts_lookup->isPassPoliciesEnabled()
 			   && self::con()->opts->optIs( 'auto_password', 'Y' )
-			   && self::con()->opts->optGet( 'pass_expire' ) > 0;
+			   && self::con()->comps->opts_lookup->getPassExpireTimeout() > 0;
 	}
 
 	protected function run() {
@@ -104,9 +104,11 @@ class UserSuspendController {
 		/** @var Select $metaSelect */
 		$metaSelect = $userMetaDB->getQuerySelector();
 
+		$expireTimeout = self::con()->comps->opts_lookup->getPassExpireTimeout();
+
 		$manual = $this->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
 		$passwords = $this->isSuspendAutoPasswordEnabled() ?
-			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getPassExpireTimeout() )->count() : 0;
+			$metaSelect->reset()->filterByPassExpired( $ts - $expireTimeout )->count() : 0;
 		$idle = $this->isSuspendAutoPasswordEnabled() ?
 			$metaSelect->reset()->filterByPassExpired( $ts - $this->getSuspendAutoIdleTime() )->count() : 0;
 
@@ -126,7 +128,7 @@ class UserSuspendController {
 					}
 					elseif ( $idle > 0 && $req->query( 'shield_users_idle' ) ) {
 						$filtered = true;
-						$metaSelect->filterByPassExpired( $ts - $this->opts()->getPassExpireTimeout() );
+						$metaSelect->filterByPassExpired( $ts - self::con()->comps->opts_lookup->getPassExpireTimeout() );
 					}
 					elseif ( $passwords > 0 && $req->query( 'shield_users_pass' ) ) {
 						$filtered = true;
