@@ -2,9 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 abstract class Base {
+
+	use PluginControllerConsumer;
 
 	abstract protected function getColumnDefs() :array;
 

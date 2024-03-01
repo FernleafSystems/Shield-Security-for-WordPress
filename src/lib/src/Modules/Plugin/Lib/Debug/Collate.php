@@ -241,9 +241,7 @@ class Collate {
 			'Version'                => $con->cfg->version(),
 			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
 			'WP Hashes Token'        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
-			'Security Admin Enabled' => $con->getModule_SecAdmin()
-											->getSecurityAdminController()
-											->isEnabledSecAdmin() ? 'Yes' : 'No',
+			'Security Admin Enabled' => $con->comps->sec_admin->isEnabledSecAdmin() ? 'Yes' : 'No',
 			'CrowdSec API Status'    => $con->getModule_IPs()
 											->getCrowdSecCon()
 											->getApi()

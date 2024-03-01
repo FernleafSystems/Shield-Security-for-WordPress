@@ -10,6 +10,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\U
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
 	/**
+	 * Don't put caps into cfg as this option is always available, but limited to 7.
+	 */
+	public function getAutoCleanDays() :int {
+		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
+		$this->setOpt( 'audit_trail_auto_clean', $days );
+		return $days;
+	}
+
+	/**
 	 * @deprecated 19.1
 	 */
 	public function getLogFilePath() :string {
@@ -43,16 +52,6 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 			$this->setOpt( 'log_level_db', [ 'disabled' ] );
 		}
 		return $this->getOpt( 'log_level_db', [] );
-	}
-
-	/**
-	 * Don't put caps into cfg as this option is always available, but limited to 7.
-	 * @deprecated 19.1
-	 */
-	public function getAutoCleanDays() :int {
-		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
-		$this->setOpt( 'audit_trail_auto_clean', $days );
-		return $days;
 	}
 
 	/**

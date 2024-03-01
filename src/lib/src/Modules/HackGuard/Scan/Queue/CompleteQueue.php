@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CompleteQueue {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function complete() {
 		/** @var ScanItemsDB\Delete $deleter */
@@ -16,10 +16,10 @@ class CompleteQueue {
 		$deleter->filterByFinished()->query();
 
 		$hook = self::con()->prefix( 'post_scan' );
-		if ( $this->opts()->getOpt( 'is_scan_cron' ) && !wp_next_scheduled( $hook ) ) {
+		if ( self::con()->opts->optGet( 'is_scan_cron' ) && !wp_next_scheduled( $hook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + 5, $hook );
 		}
 
-		$this->opts()->setIsScanCron( false );
+		self::con()->opts->optSet( 'is_scan_cron', false );
 	}
 }

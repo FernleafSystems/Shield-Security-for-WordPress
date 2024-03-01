@@ -6,12 +6,12 @@ use AptowebDeps\Monolog\Logger;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class RequestLogger {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var Logger
@@ -23,15 +23,19 @@ class RequestLogger {
 	private $isDependentLog = false;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'enable_traffic', 'Y' ) &&
-			   !self::con()->this_req->wp_is_wpcli
-			   && self::con()->db_con->dbhReqLogs()->isReady();
+		$con = self::con();
+		return $con->comps->opts_lookup->enabledTrafficLogger()
+			   && !$con->this_req->wp_is_wpcli
+			   && $con->db_con->dbhReqLogs()->isReady();
 	}
 
 	/**
 	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
 	 */
 	protected function run() {
+		// knocks-off the live logging is required.
+		self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining();
+
 		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
 			if ( $this->isLogged() ) {
 				$this->createLog();

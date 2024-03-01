@@ -24,11 +24,8 @@ abstract class MeterBase {
 
 	public function warning() :array {
 		$con = self::con();
-		$pluginMod = $con->getModule_Plugin();
-		/** @var Plugin\Options $pluginOpts */
-		$pluginOpts = $pluginMod->opts();
 		$warning = [];
-		if ( $pluginOpts->isPluginGloballyDisabled() ) {
+		if ( $con->comps->opts_lookup->isPluginGloballyDisabled() ) {
 			$warning = [
 				'text' => __( 'The plugin is currently entirely disabled.' ),
 				'href' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 
 class PageTrafficLogTable extends PageTrafficLogBase {
@@ -21,17 +20,16 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 	}
 
 	protected function getRenderData() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_Traffic()->opts();
+		$con = self::con();
 		return [
 			'flags'   => [
-				'is_enabled' => $opts->isTrafficLoggerEnabled(),
+				'is_enabled' => $con->comps->opts_lookup->enabledTrafficLogger(),
 			],
 			'hrefs'   => [
-				'please_enable' => self::con()->plugin_urls->modCfgOption( 'enable_logger' ),
+				'please_enable' => $con->plugin_urls->modCfgOption( 'enable_logger' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'stoplights' ),
+				'inner_page_title_icon' => $con->svgs->raw( 'stoplights' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Request Logs', 'wp-simple-firewall' ),

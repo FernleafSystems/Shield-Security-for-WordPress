@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVer
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseRender extends BaseAction {
@@ -110,9 +109,6 @@ abstract class BaseRender extends BaseAction {
 		$con = self::con();
 		$thisReq = $con->this_req;
 		$urlBuilder = $con->urls;
-
-		/** @var Options $pluginOptions */
-		$pluginOptions = $con->getModule_Plugin()->opts();
 
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
@@ -228,7 +224,7 @@ abstract class BaseRender extends BaseAction {
 			__( 'WooCommerce Support', 'wp-simple-firewall' ),
 			__( 'MainWP Integration', 'wp-simple-firewall' ),
 		];
-		shuffle( $proFeatures );
+		\shuffle( $proFeatures );
 		$proFeaturesDisplay = \array_slice( $proFeatures, 0, 6 );
 		$proFeaturesDisplay[] = __( 'and much more!' );
 
@@ -292,8 +288,6 @@ abstract class BaseRender extends BaseAction {
 			'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
 			'aar_submit_access_key'        => __( 'Submit PIN', 'wp-simple-firewall' ),
 			'aar_forget_key'               => __( 'Forgotten PIN', 'wp-simple-firewall' ),
-			'supply_password'              => __( 'Supply Password', 'wp-simple-firewall' ),
-			'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
 			'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
 			'offense' => __( 'offense', 'wp-simple-firewall' ),

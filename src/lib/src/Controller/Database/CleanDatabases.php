@@ -7,8 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Data,
-	LoginGuard,
-	Traffic
+	LoginGuard
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -38,13 +37,12 @@ class CleanDatabases {
 
 	private function cleanRequestLogs() {
 		$con = self::con();
+		$opts = $con->comps->opts_lookup;
 
 		// 1. Clean Requests & Audit Trail
 		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
 		/** @var AuditTrail\Options $optsAudit */
 		$optsAudit = $con->getModule_AuditTrail()->opts();
-		/** @var Traffic\Options $optsTraffic */
-		$optsTraffic = $con->getModule_Traffic()->opts();
 
 		$con->db_con
 			->dbhReqLogs()
@@ -52,7 +50,9 @@ class CleanDatabases {
 				Services::Request()
 						->carbon( true )
 						->startOfDay()
-						->subDays( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) )->timestamp
+						->subDays(
+							\max( $con->comps->opts_lookup->getTrafficAutoClean(), $optsAudit->getAutoCleanDays() )
+						)->timestamp
 			);
 
 		// 2. Delete transient logs older than 1 hr.
@@ -64,11 +64,11 @@ class CleanDatabases {
 			->query();
 
 		// 3. Delete traffic logs past their TTL that aren't referenced by activity logs.
-		if ( $optsTraffic->isTrafficLoggerEnabled() && $optsTraffic->getAutoCleanDays() < $optsAudit->getAutoCleanDays() ) {
+		if ( $opts->enabledTrafficLogger() && $opts->getTrafficAutoClean() < $optsAudit->getAutoCleanDays() ) {
 			$oldest = Services::Request()
 							  ->carbon( true )
 							  ->startOfDay()
-							  ->subDays( $optsTraffic->getAutoCleanDays() )->timestamp;
+							  ->subDays( $opts->getTrafficAutoClean() )->timestamp;
 			Services::WpDb()->doSql(
 				sprintf( 'DELETE FROM `%s` WHERE `created_at` < %s AND `id` NOT IN ( %s );',
 					$con->db_con->dbhReqLogs()->getTableSchema()->table,

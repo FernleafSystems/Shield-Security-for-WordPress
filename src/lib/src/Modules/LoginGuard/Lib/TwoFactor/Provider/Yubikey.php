@@ -19,6 +19,12 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 	public const OTP_LENGTH = 12;
 	public const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
+	public static function ProviderEnabled() :bool {
+		$opts = self::con()->opts;
+		return parent::ProviderEnabled() && $opts->optIs( 'enable_yubikey', 'Y' )
+			   && !empty( $opts->optGet( 'yubikey_app_id' ) ) && !empty( $opts->optGet( 'yubikey_api_key' ) );
+	}
+
 	protected function maybeMigrate() :void {
 		$meta = self::con()->user_metas->for( $this->getUser() );
 		$legacySecret = $meta->yubi_secret;
@@ -232,7 +238,8 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isEnabledYubikey();
+		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
+			$this->opts()->isOpt( 'enable_yubikey', 'Y' );
 	}
 
 	public static function ProviderName() :string {

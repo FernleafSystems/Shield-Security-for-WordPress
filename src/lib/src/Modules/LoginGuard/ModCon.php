@@ -30,10 +30,16 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return self::con()->prefix( $key );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getTextImAHuman() :string {
 		return \stripslashes( $this->getTextOpt( 'text_imahuman' ) );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getTextPleaseCheckBox() :string {
 		return \stripslashes( $this->getTextOpt( 'text_pleasecheckbox' ) );
 	}

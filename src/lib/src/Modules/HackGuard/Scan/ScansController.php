@@ -26,7 +26,7 @@ class ScansController {
 	private $scanResultsStatus;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'enable_hack_protect', 'Y' )
+		return self::con()->opts->optIs( 'enable_hack_protect', 'Y' )
 			   && self::con()->db_con->dbhScanResults()->isReady()
 			   && self::con()->db_con->dbhScanItems()->isReady();
 	}
@@ -119,9 +119,8 @@ class ScansController {
 	}
 
 	private function cronScan() {
-		if ( $this->getCanScansExecute() ) {
-			$this->opts()->setIsScanCron( true );
-			self::con()->opts->store();
+		if ( $this->getCanScansExecute() && \method_exists( self::con()->opts, 'optSet' ) ) {
+			self::con()->opts->optSet( 'is_scan_cron', true )->store();
 			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
@@ -156,7 +155,12 @@ class ScansController {
 							->setScanController( $scanCon )
 							->clearIgnored();
 					}
-					$this->opts()->addRemoveScanToBuild( $scanCon->getSlug() );
+					if ( self::con()->comps === null ) {
+						$this->opts()->addRemoveScanToBuild( $scanCon->getSlug() );
+					}
+					else {
+						self::con()->comps->scans->addRemoveScanToBuild( $scanCon->getSlug() );
+					}
 				}
 			}
 			catch ( \Exception $e ) {
@@ -180,10 +184,6 @@ class ScansController {
 
 	public function getCanScansExecute() :bool {
 		return \count( $this->getReasonsScansCantExecute() ) === 0;
-	}
-
-	protected function getCronFrequency() {
-		return $this->opts()->getScanFrequency();
 	}
 
 	public function getFirstRunTimestamp() :int {
@@ -211,6 +211,51 @@ class ScansController {
 		return $c->hour( $startHour )
 				 ->minute( $startMinute )
 				 ->second( 0 )->timestamp;
+	}
+
+	public function addRemoveScanToBuild( string $scan, bool $addScan = true ) :void {
+		$scans = $this->getScansToBuild();
+		if ( $addScan ) {
+			$scans[ $scan ] = Services::Request()->ts();
+		}
+		else {
+			unset( $scans[ $scan ] );
+		}
+		$this->setScansToBuild( $scans );
+	}
+
+	/**
+	 * @return int[] - keys are scan slugs
+	 */
+	public function getScansToBuild() :array {
+		$toBuild = self::con()->opts->optGet( 'scans_to_build' );
+		if ( !empty( $toBuild ) ) {
+			$wasCount = \count( $toBuild );
+			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
+			$toBuild = \array_filter( $toBuild,
+				function ( $toBuildAt ) {
+					return \is_int( $toBuildAt )
+						   && Services::Request()->carbon()->subMinute()->timestamp < $toBuildAt;
+				}
+			);
+			if ( $wasCount !== \count( $toBuild ) ) {
+				$this->setScansToBuild( $toBuild );
+			}
+		}
+		return $toBuild;
+	}
+
+	private function setScansToBuild( array $scans ) :void {
+		$this->setOpt( 'scans_to_build',
+			\array_intersect_key( $scans,
+				\array_flip( self::con()->getModule_HackGuard()->getScansCon()->getScanSlugs() )
+			)
+		);
+		self::con()->opts->store();
+	}
+
+	protected function getCronFrequency() {
+		return $this->opts()->getOpt( 'scan_frequency', 1 );
 	}
 
 	protected function getCronName() :string {

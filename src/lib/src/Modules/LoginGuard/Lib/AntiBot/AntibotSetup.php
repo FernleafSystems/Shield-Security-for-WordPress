@@ -3,14 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions && !Services::WpUsers()->isUserLoggedIn();
@@ -18,58 +17,61 @@ class AntibotSetup {
 
 	protected function run() {
 		$con = self::con();
-		$opts = $this->opts();
 
 		$providers = [];
-		if ( $con->opts->optGet( 'login_limit_interval' ) > 0 && self::con()->cache_dir_handler->exists() ) {
-			$providers[] = new AntiBot\ProtectionProviders\CoolDown();
+		if ( $con->opts->optGet( 'login_limit_interval' ) > 0 && $con->cache_dir_handler->exists() ) {
+			$providers[] = ProtectionProviders\CoolDown::class;
 		}
-
-		if ( !$opts->isEnabledAntiBot() && $opts->isEnabledGaspCheck() ) {
-			$providers[] = new AntiBot\ProtectionProviders\GaspJs();
+		if ( $con->comps->opts_lookup->enabledLoginGuardGaspCheck() ) {
+			$providers[] = ProtectionProviders\GaspJs::class;
 		}
 
 		if ( !empty( $providers ) ) {
 
-			AntiBot\FormProviders\WordPress::SetProviders( $providers );
-			/** @var AntiBot\FormProviders\BaseFormProvider[] $formProviders */
+			FormProviders\WordPress::SetProviders(
+				\array_map( function ( string $protectionClass ) {
+					return new $protectionClass();
+				}, $providers )
+			);
+
+			/** @var FormProviders\BaseFormProvider[] $formProviders */
 			$formProviders = [
-				new AntiBot\FormProviders\WordPress()
+				FormProviders\WordPress::class,
 			];
 
 			if ( self::con()->isPremiumActive() ) {
 				if ( @\class_exists( '\BuddyPress' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\BuddyPress();
+					$formProviders[] = FormProviders\BuddyPress::class;
 				}
 				if ( @\class_exists( '\Easy_Digital_Downloads' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\EasyDigitalDownloads();
+					$formProviders[] = FormProviders\EasyDigitalDownloads::class;
 				}
 				if ( @\class_exists( '\LearnPress' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\LearnPress();
+					$formProviders[] = FormProviders\LearnPress::class;
 				}
 				if ( \function_exists( '\mepr_autoloader' ) || @\class_exists( '\MeprAccountCtrl' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\MemberPress();
+					$formProviders[] = FormProviders\MemberPress::class;
 				}
 				if ( \function_exists( '\UM' ) && @\class_exists( '\UM' ) && \method_exists( 'UM', 'form' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\UltimateMember();
+					$formProviders[] = FormProviders\UltimateMember::class;
 				}
 				if ( @\class_exists( 'Paid_Member_Subscriptions' ) && \function_exists( 'pms_errors' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\PaidMemberSubscriptions();
+					$formProviders[] = FormProviders\PaidMemberSubscriptions::class;
 				}
 				if ( \defined( 'PROFILE_BUILDER_VERSION' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\ProfileBuilder();
+					$formProviders[] = FormProviders\ProfileBuilder::class;
 				}
 				if ( @\class_exists( 'WooCommerce' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\WooCommerce();
+					$formProviders[] = FormProviders\WooCommerce::class;
 				}
 				if ( \defined( 'WPMEM_VERSION' ) && \function_exists( 'wpmem_init' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\WPMembers();
+					$formProviders[] = FormProviders\WPMembers::class;
 				}
 			}
 
-			foreach ( $formProviders as $form ) {
-				$form->execute();
-			}
+			\array_map( function ( string $formClass ) {
+				new $formClass();
+			}, $formProviders );
 		}
 	}
 }

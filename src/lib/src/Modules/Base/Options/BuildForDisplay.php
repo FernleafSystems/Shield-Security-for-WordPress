@@ -2,20 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsSections;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
+	StringsOptions,
+	StringsSections
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildForDisplay {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $focusOption;
 
 	private $focusSection;
 
-	public function __construct( string $focusSection = '', string $focusOption = '' ) {
+	private $modSlug;
+
+	public function __construct( string $modSlug, string $focusSection = '', string $focusOption = '' ) {
+		$this->modSlug = $modSlug;
 		$this->focusSection = $focusSection;
 		$this->focusOption = $focusOption;
 	}
@@ -77,7 +82,7 @@ class BuildForDisplay {
 	protected function buildAvailableSections() :array {
 
 		$visibleSections = \array_filter(
-			self::con()->cfg->configuration->sectionsForModule( $this->mod()->cfg->slug ),
+			self::con()->cfg->configuration->sectionsForModule( $this->modSlug ),
 			function ( array $section ) {
 				return empty( $section[ 'hidden' ] );
 			}
@@ -107,7 +112,6 @@ class BuildForDisplay {
 
 	protected function buildOptionsForSection( string $section ) :array {
 		$con = self::con();
-		$opts = $this->opts();
 
 		$isPremiumActive = $con->isPremiumActive();
 
@@ -135,7 +139,7 @@ class BuildForDisplay {
 				'beacon_id'     => false
 			], $optDef );
 
-			$optDef[ 'value' ] = $opts->getOpt( $optDef[ 'key' ] );
+			$optDef[ 'value' ] = $con->opts->optGet( $optDef[ 'key' ] );
 
 			if ( \in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$available = [];
@@ -213,7 +217,7 @@ class BuildForDisplay {
 				break;
 
 			case 'text':
-				$value = \stripslashes( $this->mod()->getTextOpt( $option[ 'key' ] ) );
+				$value = \stripslashes( $con->opts->optGet( $option[ 'key' ] ) );
 				break;
 		}
 

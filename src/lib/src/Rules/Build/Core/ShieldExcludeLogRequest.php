@@ -25,6 +25,7 @@ class ShieldExcludeLogRequest extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+		$opts = self::con()->opts;
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -45,7 +46,8 @@ class ShieldExcludeLogRequest extends BuildRuleCoreShieldBase {
 									]
 								];
 							},
-							$this->opts()->getOpt( 'custom_exclusions' )
+							\method_exists( $opts, 'optGet' ) ?
+								$opts->optGet( 'custom_exclusions' ) : $this->opts()->getOpt( 'custom_exclusions' )
 						),
 						[
 							[

@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	SecurityAdmin,
-	Traffic
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -22,11 +18,9 @@ class StringsOptions {
 	public function getFor( string $key ) :array {
 		$con = self::con();
 		$caps = $con->caps;
+		$opts = $con->comps->opts_lookup;
 		$pluginName = $con->getHumanName();
 		$modStrings = new StringsModules();
-
-		/** @var SecurityAdmin\Options $optsSecurityAdmin */
-		$optsSecurityAdmin = $con->getModule_SecAdmin()->opts();
 
 		switch ( $key ) {
 
@@ -1324,7 +1318,7 @@ class StringsOptions {
 				$summary = __( 'Provide/Update Security Admin PIN', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) ),
-					'<strong>'.( $optsSecurityAdmin->hasSecurityPIN() ? __( 'Security PIN Currently Set', 'wp-simple-firewall' ) : __( 'Security PIN NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>',
+					'<strong>'.( empty( $opts->getSecAdminPIN() ) ? __( 'Security PIN NOT Currently Set', 'wp-simple-firewall' ) : __( 'Security PIN Currently Set', 'wp-simple-firewall' ) ).'</strong>',
 				];
 				break;
 			case 'sec_admin_users' :
@@ -1509,9 +1503,7 @@ class StringsOptions {
 				];
 				break;
 			case 'enable_live_log' :
-				/** @var Traffic\Options $opts */
-				$opts = $con->getModule_Traffic()->opts();
-				$max = \round( $opts->liveLoggingDuration()/\MINUTE_IN_SECONDS );
+				$max = \round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
 
 				$name = __( 'Live Traffic', 'wp-simple-firewall' );
 				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );
@@ -1527,7 +1519,7 @@ class StringsOptions {
 
 				];
 
-				$remaining = $opts->liveLoggingTimeRemaining();
+				$remaining = $opts->getTrafficLiveLogTimeRemaining();
 				if ( $remaining > 0 ) {
 					$desc[] = sprintf(
 						__( 'Live logging will be automatically disabled: %s', 'wp-simple-firewall' ),

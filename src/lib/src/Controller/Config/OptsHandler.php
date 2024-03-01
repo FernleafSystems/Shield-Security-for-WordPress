@@ -316,6 +316,7 @@ class OptsHandler extends DynPropertiesClass {
 				$value = (int)$value;
 				break;
 			case 'email':
+			case 'password':
 			case 'text':
 				$value = (string)$value;
 				break;
@@ -349,6 +350,7 @@ class OptsHandler extends DynPropertiesClass {
 			if ( !empty( $cap ) && !$con->caps->hasCap( $cap )
 				 || ( empty( $cap ) && ( $this->optDef( $key )[ 'premium' ] ?? false ) && !$con->isPremiumActive() )
 			) {
+				$this->optReset( $key );
 				$value = $this->optDefault( $key );
 			}
 			$value = $this->optEnforceValueType( $key, $value );

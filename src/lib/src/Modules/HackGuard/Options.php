@@ -14,31 +14,44 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return $this->getOpt( 'file_locker', [] );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getFileScanAreas() :array {
-		$opts = self::con()->opts;
-
-		$areas = $this->getOpt( 'file_scan_areas', [] );
-		if ( !self::con()->isPremiumActive() ) {
-			$available = [];
-			$valueOptions = \method_exists( $opts, 'optDef' ) ? $opts->optDef( 'file_scan_areas' )[ 'value_options' ]
-				: $this->getOptProperty( 'file_scan_areas', 'value_options' );
-			foreach ( $valueOptions as $valueOption ) {
-				if ( empty( $valueOption[ 'premium' ] ) ) {
-					$available[] = $valueOption[ 'value_key' ];
-				}
-			}
-			$areas = \array_diff( $areas, $available );
-		}
-
-		return $areas;
+		return [];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
+	public function isRepairFilePlugin() :bool {
+		return \in_array( 'plugin', $this->getRepairAreas() );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function isRepairFileTheme() :bool {
+		return \in_array( 'theme', $this->getRepairAreas() );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function isRepairFileWP() :bool {
+		return \in_array( 'wp', $this->getRepairAreas() );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getRepairAreas() :array {
 		return $this->getOpt( 'file_repair_areas' );
 	}
 
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
+	 * @deprecated 19.1
 	 */
 	public function getWhitelistedPathsAsRegex() :array {
 		$paths = $this->getDef( 'default_whitelist_paths' );
@@ -55,68 +68,22 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 	}
 
 	/**
-	 * @return string[]
+	 * @deprecated 19.1
 	 */
-	public function getMalSignaturesSimple() :array {
-		return $this->getMalSignatures( 'malsigs_simple.txt', $this->getDef( 'url_mal_sigs_simple' ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getMalSignaturesRegex() :array {
-		return $this->getMalSignatures( 'malsigs_regex.txt', $this->getDef( 'url_mal_sigs_regex' ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function getMalSignatures( string $fileName, string $url ) :array {
-		$FS = Services::WpFs();
-		$file = self::con()->cache_dir_handler->cacheItemPath( $fileName );
-		if ( !empty( $file ) && $FS->exists( $file ) ) {
-			$sigs = \explode( "\n", $FS->getFileContent( $file, true ) );
-		}
-		else {
-			$sigs = \array_filter(
-				\array_map( '\trim',
-					\explode( "\n", Services::HttpRequest()->getContent( $url ) )
-				),
-				function ( $line ) {
-					return ( \strpos( $line, '#' ) !== 0 ) && \strlen( $line ) > 0;
-				}
-			);
-
-			if ( !empty( $file ) && !empty( $sigs ) ) {
-				$FS->putFileContent( $file, \implode( "\n", $sigs ), true );
-			}
-		}
-
-		return \is_array( $sigs ) ? $sigs : [];
-	}
-
 	public function isAutoFilterResults() :bool {
 		return (bool)apply_filters( 'shield/scan_auto_filter_results', true );
 	}
 
-	public function isRepairFilePlugin() :bool {
-		return \in_array( 'plugin', $this->getRepairAreas() );
-	}
-
-	public function isRepairFileTheme() :bool {
-		return \in_array( 'theme', $this->getRepairAreas() );
-	}
-
-	public function isRepairFileWP() :bool {
-		return \in_array( 'wp', $this->getRepairAreas() );
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getScanFrequency() :int {
 		return (int)$this->getOpt( 'scan_frequency', 1 );
 	}
 
 	/**
 	 * @return $this
+	 * @deprecated 19.1
 	 */
 	public function addRemoveScanToBuild( string $scan, bool $addScan = true ) {
 		$scans = $this->getScansToBuild();
@@ -131,6 +98,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 
 	/**
 	 * @return int[] - keys are scan slugs
+	 * @deprecated 19.1
 	 */
 	public function getScansToBuild() :array {
 		$toBuild = $this->getOpt( 'scans_to_build', [] );
@@ -155,6 +123,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 
 	/**
 	 * @return $this
+	 * @deprecated 19.1
 	 */
 	public function setScansToBuild( array $scans ) {
 		$this->setOpt( 'scans_to_build',
@@ -166,14 +135,23 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return $this;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isScanCron() :bool {
 		return (bool)$this->getOpt( 'is_scan_cron' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isEnabledAutoFileScanner() :bool {
 		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function setIsScanCron( bool $isCron ) {
 		$this->setOpt( 'is_scan_cron', $isCron );
 	}

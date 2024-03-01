@@ -13,6 +13,10 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'backupcode';
 
+	public static function ProviderEnabled() :bool {
+		return parent::ProviderEnabled() && self::con()->opts->optIs( 'allow_backupcodes', 'Y' );
+	}
+
 	protected function maybeMigrate() :void {
 		$meta = self::con()->user_metas->for( $this->getUser() );
 		$legacySecret = $meta->backupcode_secret;
@@ -119,7 +123,8 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isOpt( 'allow_backupcodes', 'Y' );
+		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
+			$this->opts()->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	public function resetSecret() :string {

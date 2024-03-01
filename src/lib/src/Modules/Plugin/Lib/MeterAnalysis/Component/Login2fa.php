@@ -2,7 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
+	Email,
+	GoogleAuth,
+	Passkey,
+	Yubikey
+};
 
 class Login2fa extends Base {
 
@@ -12,15 +17,10 @@ class Login2fa extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		$con = self::con();
-		$mod = $con->getModule_LoginGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled()
-			   && ( $opts->isEmailAuthenticationActive()
-					|| $opts->isEnabledGoogleAuthenticator()
-					|| $opts->isEnabledYubikey()
-					|| $con->opts->optIs( 'enable_passkeys', 'Y' ) );
+		return Email::ProviderEnabled()
+			   || GoogleAuth::ProviderEnabled()
+			   || Yubikey::ProviderEnabled()
+			   || Passkey::ProviderEnabled();
 	}
 
 	protected function getOptConfigKey() :string {

@@ -41,14 +41,12 @@ class PreSetOptSanitize {
 
 			case 'integer':
 				$min = $optDef[ 'min' ] ?? null;
-				if ( $min !== null ) {
-					$valid = $this->value >= $min;
+				if ( $min !== null && $this->value < $min ) {
+					$this->value = $min;
 				}
-				if ( $valid ) {
-					$max = $optDef[ 'max' ] ?? null;
-					if ( $max !== null ) {
-						$valid = $this->value <= $max;
-					}
+				$max = $optDef[ 'max' ] ?? null;
+				if ( $max !== null && $this->value > $max ) {
+					$this->value = $max;
 				}
 				break;
 

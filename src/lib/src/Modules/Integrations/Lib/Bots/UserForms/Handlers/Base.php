@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
@@ -18,15 +19,14 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	private $auditUser;
 
 	protected function run() {
-		/** @var LoginGuard\Options $opts */
-		$opts = self::con()->getModule_LoginGuard()->opts();
-		if ( $opts->isProtectLogin() ) {
+		$opts = self::con()->comps->opts_lookup;
+		if ( $opts->enabledLoginProtectionArea( 'login' ) ) {
 			$this->login();
 		}
-		if ( $opts->isProtectRegister() ) {
+		if ( $opts->enabledLoginProtectionArea( 'register' ) ) {
 			$this->register();
 		}
-		if ( $opts->isProtectLostPassword() ) {
+		if ( $opts->enabledLoginProtectionArea( 'password' ) ) {
 			$this->lostpassword();
 		}
 		$this->checkout();
@@ -107,8 +107,8 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 
 	protected function isBotBlockEnabled() :bool {
 		/** @var LoginGuard\Options $loginOpts */
-		$loginOpts = self::con()->getModule_LoginGuard()->opts();
-		return $loginOpts->isEnabledAntiBot();
+		$loginOpts = self::con()->modules[ EnumModules::LOGIN ]->opts();
+		return self::con()->comps === null ? $loginOpts->isEnabledAntiBot() : self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck();
 	}
 
 	protected function getErrorMessage() :string {

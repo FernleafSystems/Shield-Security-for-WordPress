@@ -25,6 +25,10 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	 */
 	private $tempSecret;
 
+	public static function ProviderEnabled() :bool {
+		return parent::ProviderEnabled() && self::con()->opts->optIs( 'enable_google_authenticator', 'Y' );
+	}
+
 	protected function maybeMigrate() :void {
 		$meta = self::con()->user_metas->for( $this->getUser() );
 		$legacySecret = $meta->ga_secret;
@@ -192,7 +196,8 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isEnabledGoogleAuthenticator();
+		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
+			$this->opts()->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
 	public static function ProviderName() :string {

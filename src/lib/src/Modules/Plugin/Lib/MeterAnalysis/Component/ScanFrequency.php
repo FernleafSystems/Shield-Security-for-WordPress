@@ -17,10 +17,8 @@ class ScanFrequency extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_HackGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->getScanFrequency() > 1;
+		return self::con()->comps->opts_lookup->isModFromOptEnabled( $this->getOptConfigKey() )
+			   && self::con()->opts->optGet( 'scan_frequency' ) > 1;
 	}
 
 	public function title() :string {

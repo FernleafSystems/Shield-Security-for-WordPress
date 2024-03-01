@@ -15,8 +15,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		$scans = $this->opts()->getScansToBuild();
-		$scan = \key( $scans );
+		$scan = \key( self::con()->comps->scans->getScansToBuild() );
 
 		$batch = new \stdClass();
 		$batch->key = $scan;
@@ -80,7 +79,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $scanSlug ) {
-		$this->opts()->addRemoveScanToBuild( $scanSlug, false );
+		self::con()->comps->scans->addRemoveScanToBuild( $scanSlug, false );
 		$this->save();
 		return $this;
 	}
@@ -91,7 +90,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		return \count( $this->opts()->getScansToBuild() ) === 0;
+		return empty( self::con()->comps->scans->getScansToBuild() );
 	}
 
 	/**

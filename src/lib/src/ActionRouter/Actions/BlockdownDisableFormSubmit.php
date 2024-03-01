@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BlockdownDisableFormSubmit extends BaseAction {
@@ -11,10 +12,8 @@ class BlockdownDisableFormSubmit extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $opts */
-		$opts = $con->getModule_Plugin()->opts();
 		try {
-			$cfg = $opts->getBlockdownCfg();
+			$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 
 			if ( !$cfg->isLockdownActive() ) {
 				throw new \Exception( 'Invalid request - lockdown is not active.' );
@@ -35,10 +34,8 @@ class BlockdownDisableFormSubmit extends BaseAction {
 				}
 			}
 			$cfg->whitelist_me = '';
-
-			$opts->setOpt( 'blockdown_cfg', $cfg->getRawData() );
-
-			self::con()->fireEvent( 'site_blockdown_ended', [
+			$con->opts->optSet( 'blockdown_cfg', $cfg->getRawData() );
+			$con->fireEvent( 'site_blockdown_ended', [
 				'audit_params' => [ 'user_login' => Services::WpUsers()->getCurrentWpUsername() ]
 			] );
 

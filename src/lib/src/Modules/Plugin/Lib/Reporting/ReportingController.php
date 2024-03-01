@@ -21,16 +21,27 @@ class ReportingController {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->getReportFrequencyInfo() !== 'disabled'
-			   || $this->opts()->getReportFrequencyAlert() !== 'disabled';
+		return $this->getReportFrequencyInfo() !== 'disabled' || $this->getReportFrequencyAlert() !== 'disabled';
 	}
 
 	protected function run() {
 		$this->setupCronHooks();
 	}
 
-	public function runHourlyCron() {
-		( new ReportGenerator() )->auto();
+	public function getReportFrequencyAlert() :string {
+		return $this->getFrequency( 'alert' );
+	}
+
+	public function getReportFrequencyInfo() :string {
+		return $this->getFrequency( 'info' );
+	}
+
+	private function getFrequency( string $type ) :string {
+		$opts = self::con()->opts;
+		$key = 'frequency_'.$type;
+		$default = $opts->optDefault( $key );
+		return ( self::con()->isPremiumActive() || \in_array( $opts->optGet( $key ), [ 'disabled', $default ] ) )
+			? $opts->optGet( $key ) : $default;
 	}
 
 	/**
@@ -123,5 +134,9 @@ class ReportingController {
 					$req->carbon( true )->setTimestamp( $lastAudit->created_at )->toIso8601String()
 			],
 		];
+	}
+
+	public function runHourlyCron() {
+		( new ReportGenerator() )->auto();
 	}
 }

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandler
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * Logic is a bit convoluted here. Basically a request is logged when:
@@ -18,7 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
  */
 class LocalDbWriter extends AbstractProcessingHandler {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function write( array $record ) :void {
 		try {

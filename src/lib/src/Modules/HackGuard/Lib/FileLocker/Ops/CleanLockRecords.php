@@ -10,9 +10,12 @@ class CleanLockRecords {
 
 	public function run() {
 		if ( self::con()->caps->hasCap( 'scan_file_locker' ) ) {
-			foreach ( $this->mod()->getFileLocker()->getLocks() as $lock ) {
-				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
-					( new DeleteFileLock() )->delete( $lock );
+			$FLcon = $this->mod()->getFileLocker();
+			if ( \method_exists( $FLcon, 'getFilesToLock' ) ) {
+				foreach ( $FLcon->getLocks() as $lock ) {
+					if ( !\in_array( $lock->type, $FLcon->getFilesToLock() ) ) {
+						( new DeleteFileLock() )->delete( $lock );
+					}
 				}
 			}
 		}

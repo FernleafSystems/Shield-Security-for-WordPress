@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use WP_CLI;
 
 class AdminRemove extends BaseWpCliCmd {
@@ -41,31 +40,29 @@ class AdminRemove extends BaseWpCliCmd {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdAdminRemove( array $null, array $aA ) {
+	public function cmdAdminRemove( array $null, array $args ) {
 
-		if ( empty( $aA ) ) {
+		if ( empty( $args ) ) {
 			WP_CLI::error( 'Please specify the user for which you want to remove as a Security Admin.' );
 		}
-		if ( \count( $aA ) > 1 ) {
+		if ( \count( $args ) > 1 ) {
 			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
 		}
 
-		$oU = $this->loadUserFromArgs( $aA );
+		$user = $this->loadUserFromArgs( $args );
 
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->opts();
-		$current = $opts->getSecurityAdminUsers();
-		if ( !\in_array( $oU->user_login, $current ) ) {
+		$current = self::con()->opts->optGet( 'sec_admin_users' );
+		if ( !\in_array( $user->user_login, $current ) ) {
 			WP_CLI::success( "This user isn't currently a security admin." );
 		}
 		else {
-			unset( $current[ \array_search( $oU->user_login, $current ) ] );
+			unset( $current[ \array_search( $user->user_login, $current ) ] );
 			\natsort( $current );
-			$opts->setOpt( 'sec_admin_users', \array_unique( $current ) );
-			WP_CLI::success( sprintf( "User '%s' removed as a Security Admin.", $oU->user_login ) );
+			self::con()->opts->optSet( 'sec_admin_users', \array_unique( $current ) );
+			WP_CLI::success( sprintf( "User '%s' removed as a Security Admin.", $user->user_login ) );
 		}
 	}
 }

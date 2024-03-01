@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
 	Scan
@@ -133,20 +134,18 @@ class Afs extends Base {
 	 * Can only possibly repair themes, plugins or core files.
 	 */
 	protected function getItemsToAutoRepair() :Scans\Afs\ResultsSet {
-		$opts = $this->opts();
-
 		$repairResults = $this->getNewResultsSet();
 
 		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $item ) {
 
-			if ( $item->is_in_core && $opts->isRepairFileWP() ) {
+			if ( $item->is_in_core && $this->isRepairFileWP() ) {
 				$repairResults->addItem( $item );
 			}
-			if ( $item->is_in_plugin && $opts->isRepairFilePlugin() ) {
+			if ( $item->is_in_plugin && $this->isRepairFilePlugin() ) {
 				$repairResults->addItem( $item );
 			}
-			if ( $item->is_in_theme && $opts->isRepairFileTheme() ) {
+			if ( $item->is_in_theme && $this->isRepairFileTheme() ) {
 				$repairResults->addItem( $item );
 			}
 		}
@@ -207,46 +206,49 @@ class Afs extends Base {
 	}
 
 	public function isCronAutoRepair() :bool {
-		return \count( $this->opts()->getRepairAreas() ) > 0;
+		return \count( $this->getRepairAreas() ) > 0;
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isEnabledAutoFileScanner();
+		$con = self::con();
+		return $con->comps !== null
+			   && $con->comps->opts_lookup->isModEnabled( EnumModules::SCANNERS )
+			   && $con->opts->optIs( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'malware_php', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'malware_php', $this->getFileScanAreas() )
 			   && self::con()->caps->canScanMalwareLocal();
 	}
 
 	public function isScanEnabledPlugins() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'plugins', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'plugins', $this->getFileScanAreas() )
 			   && self::con()->cache_dir_handler->exists()
 			   && self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledThemes() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'themes', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'themes', $this->getFileScanAreas() )
 			   && self::con()->cache_dir_handler->exists()
 			   && self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledWpContent() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'wpcontent', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'wpcontent', $this->getFileScanAreas() )
 			   && self::con()->caps->canScanAllFiles();
 	}
 
 	public function isScanEnabledWpCore() :bool {
-		return $this->isEnabled() && \in_array( 'wp', $this->opts()->getFileScanAreas() );
+		return $this->isEnabled() && \in_array( 'wp', $this->getFileScanAreas() );
 	}
 
 	public function isScanEnabledWpRoot() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'wproot', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'wproot', $this->getFileScanAreas() )
 			   && self::con()->caps->canScanAllFiles();
 	}
 
@@ -268,5 +270,41 @@ class Afs extends Base {
 	public function purge() {
 		parent::purge();
 		( new Lib\Snapshots\StoreAction\DeleteAll() )->execute();
+	}
+
+	public function getFileScanAreas() :array {
+		$areas = [];
+
+		$opts = self::con()->opts;
+		if ( \method_exists( $opts, 'optGet' ) ) {
+			$areas = $opts->optGet( 'file_scan_areas' );
+			if ( !self::con()->isPremiumActive() ) {
+				$available = [];
+				foreach ( $opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
+					if ( empty( $valueOption[ 'premium' ] ) ) {
+						$available[] = $valueOption[ 'value_key' ];
+					}
+				}
+				$areas = \array_diff( $areas, $available );
+			}
+		}
+
+		return $areas;
+	}
+
+	public function isRepairFilePlugin() :bool {
+		return $this->isScanEnabledPlugins() && \in_array( 'plugin', $this->getRepairAreas() );
+	}
+
+	public function isRepairFileTheme() :bool {
+		return $this->isScanEnabledThemes() && \in_array( 'theme', $this->getRepairAreas() );
+	}
+
+	public function isRepairFileWP() :bool {
+		return $this->isScanEnabledWpCore() && \in_array( 'wp', $this->getRepairAreas() );
+	}
+
+	public function getRepairAreas() :array {
+		return self::con()->opts->optGet( 'file_repair_areas' );
 	}
 }

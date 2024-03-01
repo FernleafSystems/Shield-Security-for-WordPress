@@ -9,10 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	LoginGuard,
-	Plugin
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
@@ -280,21 +277,40 @@ class AssetsCustomizer {
 					'login_guard',
 				],
 				'data'    => function () {
-					$mod = self::con()->getModule_LoginGuard();
-					/** @var LoginGuard\Options $opts */
-					$opts = $mod->opts();
+					$con = self::con();
+					if ( $con->comps === null ) {
+						$mod = self::con()->getModule_LoginGuard();
+						/** @var LoginGuard\Options $opts */
+						$opts = $mod->opts();
+						$selectors = \array_merge( [
+							'#loginform',
+						], $opts->getOpt( 'antibot_form_ids', [] ) );
+						$isGasp = $opts->isOpt( 'enable_login_gasp_check', 'Y' );
+						$cbName = $mod->getGaspKey();
+						$label = $mod->getTextOpt( 'text_imahuman' );
+						$alert = $mod->getTextOpt( 'text_pleasecheckbox' );
+					}
+					else {
+						$selectors = \array_merge( [
+							'#loginform',
+						], $con->opts->optGet( 'antibot_form_ids' ) );
+						$isGasp = $con->comps->opts_lookup->enabledLoginGuardGaspCheck();
+						$cbName = $con->comps->opts_lookup->getLoginGuardGaspKey();
+						$label = $con->opts->optGet( 'text_imahuman' );
+						$alert = $con->opts->optGet( 'text_pleasecheckbox' );
+					}
 					return [
-						'form_selectors' => $opts->getAntiBotFormSelectors(),
-						'uniq'           => \preg_replace( '#[^\da-zA-Z]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-						'cbname'         => $mod->getGaspKey(),
+						'form_selectors' => $selectors,
+						'uniq'           => uniqid(),
+						'cbname'         => $cbName,
 						'strings'        => [
-							'label'   => $mod->getTextImAHuman(),
-							'alert'   => $mod->getTextPleaseCheckBox(),
+							'label'   => __( \stripslashes( $label ), 'wp-simple-firewall' ),
+							'alert'   => __( \stripslashes( $alert ), 'wp-simple-firewall' ),
 							'loading' => __( 'Loading', 'wp-simple-firewall' )
 						],
 						'flags'          => [
-							'gasp' => $opts->isEnabledGaspCheck(),
-						]
+							'gasp' => $isGasp,
+						],
 					];
 				},
 			],
@@ -705,15 +721,16 @@ class AssetsCustomizer {
 	}
 
 	private function isIpAutoDetectRequired() :bool {
-		$req = Services::Request();
-		/** @var Plugin\Options $optsPlugin */
-		$optsPlugin = self::con()->getModule_Plugin()->opts();
-		$ipDetectAt = $optsPlugin->getOpt( 'ipdetect_at' );
-		$sinceLastRequest = $req->ts() - $ipDetectAt;
-		return !empty( $ipDetectAt ) &&
-			   ( $sinceLastRequest > \MONTH_IN_SECONDS
-				 || ( $optsPlugin->getIpSource() === 'AUTO_DETECT_IP' && $sinceLastRequest > \DAY_IN_SECONDS )
-				 || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
-			   );
+		$con = self::con();
+		$required = false;
+		if ( $con->comps !== null ) {
+			$req = Services::Request();
+			$since = $req->ts() - $con->opts->optGet( 'ipdetect_at' );
+			$required = ( $since > \MONTH_IN_SECONDS
+						  || ( $con->comps->opts_lookup->ipSource() === 'AUTO_DETECT_IP' && $since > \DAY_IN_SECONDS )
+						  || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
+			);
+		}
+		return $required;
 	}
 }

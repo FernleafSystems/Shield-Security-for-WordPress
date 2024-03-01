@@ -86,6 +86,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		$this->setVisitorIpSource();
 		$this->setupCacheDir();
 		$this->declareWooHposCompat();
+		$this->storeRealInstallDate();
 	}
 
 	public function isModuleEnabled() :bool {
@@ -153,14 +154,13 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 */
 	private function setVisitorIpSource() {
 		$con = self::con();
-		/** @var Options $opts */
-		$opts = $this->opts();
-		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
+		$source = $con->comps->opts_lookup->ipSource();
+		if ( $source !== 'AUTO_DETECT_IP' ) {
 			Services::Request()->setIpDetector(
-				( new RequestIpDetect() )->setPreferredSource( $opts->getIpSource() )
+				( new RequestIpDetect() )->setPreferredSource( $source )
 			);
 			Services::IP()->setIpDetector(
-				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
+				( new VisitorIpDetection() )->setPreferredSource( $source )
 			);
 		}
 		$con->this_req->ip = Services::Request()->ip();
@@ -206,7 +206,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	public function getInstallDate() :int {
-		return (int)$this->opts()->getOpt( 'installation_time', 0 );
+		return $this->opts()->getOpt( 'installation_time', 0 );
 	}
 
 	public function isShowAdvanced() :bool {
@@ -272,8 +272,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	public function isModOptEnabled() :bool {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		return !$opts->isPluginGloballyDisabled();
+		return $this->opts()->isOpt( 'global_enable_plugin_features', 'Y' );
 	}
 }

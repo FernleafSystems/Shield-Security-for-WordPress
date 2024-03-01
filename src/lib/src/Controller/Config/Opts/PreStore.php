@@ -9,9 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	IPs\DB\IpRules\Ops\Delete,
-	LoginGuard,
-	Plugin,
-	Traffic
+	Plugin
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -75,14 +73,12 @@ class PreStore {
 
 	public function login() :void {
 		$opts = self::con()->opts;
-		/** @var LoginGuard\Options $loginGuardOpts */
-		$loginGuardOpts = self::con()->getModule_Plugin()->opts();
 
 		if ( $opts->optIs( 'enable_antibot_check', 'Y' ) ) {
 			$opts->optSet( 'enable_login_gasp_check', 'N' );
 		}
 
-		$opts->optSet( 'two_factor_auth_user_roles', $loginGuardOpts->getEmail2FaRoles() );
+		$opts->optSet( 'two_factor_auth_user_roles', self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles() );
 
 		$redirect = \preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->optGet( 'rename_wplogin_redirect' ) );
 		if ( !empty( $redirect ) ) {
@@ -204,7 +200,7 @@ class PreStore {
 			$opts->optSet( 'locale_override', '' );
 		}
 
-		if ( $pluginOpts->isTrackingEnabled() && !$pluginOpts->isTrackingPermissionSet() ) {
+		if ( self::con()->comps->opts_lookup->enabledTelemetry() && $opts->optGet( 'tracking_permission_set_at' ) === 0 ) {
 			$opts->optSet( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
@@ -327,8 +323,6 @@ class PreStore {
 
 	private function traffic() {
 		$opts = self::con()->opts;
-		/** @var Traffic\Options $trafficOpts */
-		$trafficOpts = self::con()->getModule_Traffic()->opts();
 
 		if ( $opts->optChanged( 'custom_exclusions' ) ) {
 			$opts->optSet( 'custom_exclusions', \array_filter( \array_map(
@@ -339,16 +333,14 @@ class PreStore {
 			) ) );
 		}
 
-		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$trafficOpts->isTrafficLoggerEnabled() ) {
-			$opts->optSet( 'enable_logger', 'Y' );
-			if ( $trafficOpts->getAutoCleanDays() === 0 ) {
-				$opts->optReset( 'auto_clean' );
+		if ( self::con()->comps->opts_lookup->isModFromOptEnabled( 'enable_limiter' ) ) {
+			if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+				$opts->optSet( 'enable_logger', 'Y' );
 			}
-		}
-
-		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$trafficOpts->isTrafficLoggerEnabled() ) {
-			$opts->optSet( 'enable_live_log', 'N' )
-				 ->optSet( 'live_log_started_at', 0 );
+			if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+				$opts->optSet( 'enable_live_log', 'N' )
+					 ->optSet( 'live_log_started_at', 0 );
+			}
 		}
 	}
 

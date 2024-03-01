@@ -10,6 +10,7 @@ class SecurityAdmin extends Base {
 	public const SLUG = 'security_admin';
 
 	public function processStepFormSubmit( array $form ) :Response {
+		$con = self::con();
 
 		$pin = $form[ 'SecAdminPIN' ] ?? '';
 		if ( empty( $pin ) ) {
@@ -18,15 +19,16 @@ class SecurityAdmin extends Base {
 		if ( $pin !== ( $form[ 'SecAdminPINConfirm' ] ?? '' ) ) {
 			throw new \Exception( 'The Security PINs provided do not match.' );
 		}
-		if ( !self::con()->isPluginAdmin() ) {
+		if ( !$con->isPluginAdmin() ) {
 			throw new \Exception( "You don't have permission to update the Security PIN." );
 		}
 
-		$mod = self::con()->getModule_SecAdmin();
-		$mod->setIsMainFeatureEnabled( true );
-		$mod->opts()->setOpt( 'admin_access_key', \md5( $pin ) );
+		$con->opts
+			->optSet( 'enable_'.$con->cfg->configuration->modFromOpt( 'admin_access_key' ), 'Y' )
+			->optSet( 'admin_access_key', wp_hash_password( $pin ) )
+			->store();
+
 		( new ToggleSecAdminStatus() )->turnOn();
-		self::con()->opts->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
@@ -47,9 +49,6 @@ class SecurityAdmin extends Base {
 	}
 
 	public function skipStep() :bool {
-		return self::con()
-				   ->getModule_SecAdmin()
-				   ->getSecurityAdminController()
-				   ->isEnabledSecAdmin();
+		return self::con()->comps->sec_admin->isEnabledSecAdmin();
 	}
 }

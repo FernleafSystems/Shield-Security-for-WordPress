@@ -6,7 +6,8 @@ class WooCommerce extends BaseFormProvider {
 
 	protected function run() {
 		parent::run();
-		if ( $this->opts()->isProtect( 'checkout_woo' ) ) {
+		if ( self::con()->comps !== null &&
+			 self::con()->comps->opts_lookup->enabledLoginProtectionArea( 'checkout_woo' ) ) {
 			$this->woocheckout();
 		}
 	}

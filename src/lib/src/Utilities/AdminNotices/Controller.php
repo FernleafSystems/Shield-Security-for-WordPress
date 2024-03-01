@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetTracki
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	LoginGuard,
 	Plugin,
 	PluginControllerConsumer,
 	SecurityAdmin
@@ -193,11 +192,17 @@ class Controller {
 		}
 		$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 
-		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
+		if ( !$this->isDisplayNeeded( $notice ) ) {
+			$notice->non_display_reason = 'not_needed';
+		}
+		elseif ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
 		}
 		elseif ( $notice->type == 'promo' && !$opts->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
 			$notice->non_display_reason = 'promo_hidden';
+		}
+		elseif ( !$this->isDisplayNeeded( $notice ) ) {
+			$notice->non_display_reason = 'not_needed';
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
 			$notice->non_display_reason = 'not_admin_area';
@@ -473,15 +478,15 @@ class Controller {
 			case 'allow-tracking':
 				/** @var Plugin\Options $opts */
 				$opts = $con->getModule_Plugin()->opts();
-				$needed = !$opts->isTrackingPermissionSet();
+				$needed = $con->comps !== null && !$con->opts->isTrackingPermissionSet();
 				break;
 			case 'blockdown-active':
 				$needed = $con->this_req->is_site_lockdown_active && !$con->isPluginAdminPageRequest();
 				break;
 			case 'email-verification-sent':
-				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->opts();
-				$needed = $opts->isEnabledEmailAuth() && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
+				$needed = $con->comps !== null
+						  && $con->opts->optIs( 'enable_email_authentication', 'Y' )
+						  && $con->opts->optGet( 'email_can_send_verified_at' ) < 1;
 				break;
 			case 'admin-users-restricted':
 				/** @var SecurityAdmin\Options $opts */
@@ -489,10 +494,17 @@ class Controller {
 				$needed = \in_array( Services::WpPost()->getCurrentPage(), $opts->getDef( 'restricted_pages_users' ) );
 				break;
 			case 'certain-options-restricted':
-				/** @var SecurityAdmin\Options $opts */
-				$opts = $con->getModule_SecAdmin()->opts();
+				if ( $con->comps === null ) {
+					/** @var SecurityAdmin\Options $opts */
+					$opts = $con->getModule_SecAdmin()->opts();
+					$restricted = $opts->getOptionsPagesToRestrict();
+				}
+				else {
+					$def = $con->cfg->configuration->def( 'options_to_restrict' );
+					$restricted = $def[ ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages' ] ?? [];
+				}
 				$needed = empty( Services::Request()->query( 'page' ) )
-						  && \in_array( Services::WpPost()->getCurrentPage(), $opts->getOptionsPagesToRestrict() );
+						  && \in_array( Services::WpPost()->getCurrentPage(), $restricted );
 				break;
 			default:
 				$needed = false;

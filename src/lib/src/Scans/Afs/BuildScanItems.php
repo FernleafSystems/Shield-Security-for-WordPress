@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
@@ -34,10 +35,11 @@ class BuildScanItems {
 	}
 
 	protected function preBuild() {
+		$con = self::con();
 		/** @var ScanActionVO $action */
-		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
+		$action = $con->comps->scans->AFS()->getScanActionVO();
 
-		$pluginsDir = \dirname( self::con()->getRootDir() );
+		$pluginsDir = \dirname( $con->getRootDir() );
 		$themesDir = \dirname( Services::WpThemes()->getCurrent()->get_stylesheet_directory() );
 
 		$rootDirs = [];
@@ -87,7 +89,8 @@ class BuildScanItems {
 				],
 			] as $dir => $dirAttr
 		) {
-			if ( \count( \array_intersect( $dirAttr[ 'areas' ], $this->opts()->getFileScanAreas() ) ) > 0 ) {
+			if ( \count( \array_intersect( $dirAttr[ 'areas' ], $con->comps->scans->AFS()
+																				  ->getFileScanAreas() ) ) > 0 ) {
 				// we don't include the plugins and themes if WP Content Dir is already included.
 				if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
 					$rootDirs[ $dir ] = $dirAttr[ 'depth' ];
@@ -96,7 +99,17 @@ class BuildScanItems {
 		}
 
 		$action->scan_root_dirs = $rootDirs;
-		$action->paths_whitelisted = $this->opts()->getWhitelistedPathsAsRegex();
+
+		$paths = $con->cfg->configuration->def( 'default_whitelist_paths' );
+		if ( $con->isPremiumActive() ) {
+			$paths = \array_merge( $con->opts->optGet( 'scan_path_exclusions' ), $paths );
+		}
+		$action->paths_whitelisted = \array_map(
+			function ( $value ) {
+				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
+			},
+			$paths
+		);
 	}
 
 	private function buildFilesFromWpHashes() :array {
@@ -153,7 +166,7 @@ class BuildScanItems {
 				   && \strpos( wp_normalize_path( $file->getPathname() ), '/wp-content/' ) !== false
 			   )
 			   ||
-			   ( $this->opts()->isAutoFilterResults() && $file->getSize() === 0 );
+			   ( self::con()->comps->opts_lookup->isScanAutoFilterResults() && $file->getSize() === 0 );
 	}
 
 	private function isWhitelistedPath( string $path ) :bool {

@@ -123,19 +123,15 @@ class ModCon extends DynPropertiesClass {
 
 	public function isModuleEnabled() :bool {
 		$con = self::con();
-		/** @var Modules\Plugin\Options $pluginOpts */
-		$pluginOpts = $con->getModule_Plugin()->opts();
-
-		if ( $pluginOpts->isPluginGloballyDisabled() ) {
+		if ( $con->comps->opts_lookup->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
-		elseif ( self::con()->this_req->is_force_off ) {
+		elseif ( $con->this_req->is_force_off ) {
 			$enabled = false;
 		}
 		else {
 			$enabled = $this->isModOptEnabled();
 		}
-
 		return $enabled;
 	}
 
@@ -147,6 +143,9 @@ class ModCon extends DynPropertiesClass {
 		return 'enable_'.$this->cfg->slug;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getTextOpt( string $key ) :string {
 		$txt = $this->opts()->getOpt( $key, 'default' );
 		if ( $txt == 'default' ) {

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
+
 class ShieldConfigIsSiteLockdownActive extends Base {
 
 	use Traits\TypeShield;
@@ -11,9 +13,8 @@ class ShieldConfigIsSiteLockdownActive extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $opts */
-		$opts = self::con()->getModule_Plugin()->opts();
-		return $opts->getBlockdownCfg()->isLockdownActive();
+		return ( new SiteBlockdownCfg() )
+			->applyFromArray( self::con()->comps->opts_lookup->getBlockdownCfg() )->isLockdownActive();
 	}
 
 	protected function getPreviousResult() :?bool {

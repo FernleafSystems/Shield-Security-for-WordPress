@@ -3,9 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class AbstractShieldProvider extends AbstractOtpProvider {
+
+	public static function ProviderEnabled() :bool {
+		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::LOGIN );
+	}
 
 	public function getJavascriptVars() :array {
 		return [

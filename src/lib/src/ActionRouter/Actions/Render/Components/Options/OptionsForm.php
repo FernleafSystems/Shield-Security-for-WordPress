@@ -16,12 +16,12 @@ class OptionsForm extends BaseRender {
 		$config = $con->cfg->configuration;
 		$optsCon = $con->opts;
 		$actionData = $this->action_data;
-		$mod = $con->modules[ $actionData[ 'mod_slug' ] ];
+		$modSlug = $actionData[ 'mod_slug' ];
 
 		$focusOption = $actionData[ 'focus_option' ] ?? '';
 		$focusSection = $actionData[ 'focus_section' ] ?? '';
 		if ( empty( $focusSection ) ) {
-			foreach ( $config->sectionsForModule( $actionData[ 'mod_slug' ] ) as $section ) {
+			foreach ( $config->sectionsForModule( $modSlug ) as $section ) {
 				if ( empty( $focusSection ) ) {
 					$focusSection = $section[ 'slug' ];
 				}
@@ -43,11 +43,15 @@ class OptionsForm extends BaseRender {
 		}
 
 		$modStrings = ( new StringsModules() )->getFor( $actionData[ 'mod_slug' ] );
+		$secAdminEnabled = $con->comps->sec_admin->isEnabledSecAdmin();
 		return [
 			'strings' => [
 				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $modStrings[ 'name' ] ),
 				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
 				'is_opt_importexport' => __( 'Toggle whether this option is included with import/export', 'wp-simple-firewall' ),
+
+				'supply_password'     => $secAdminEnabled ? __( 'Update PIN', 'wp-simple-firewall' ) : __( 'Supply New PIN', 'wp-simple-firewall' ),
+				'confirm_password'    => $secAdminEnabled ? __( 'Confirm Updated PIN', 'wp-simple-firewall' ) : _( 'Confirm PIN', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'is_wpcli'             => $con->isPremiumActive()
@@ -56,14 +60,12 @@ class OptionsForm extends BaseRender {
 			],
 			'vars'    => [
 				'all_opts_keys'      => \array_keys( \array_filter(
-					$config->optsForModule( $mod->cfg->slug ),
+					$config->optsForModule( $modSlug ),
 					function ( array $optDef ) {
 						return empty( $optDef[ 'hidden' ] );
 					}
 				) ),
-				'all_options'        => ( new BuildForDisplay( $focusSection, $focusOption ) )
-					->setMod( $mod )
-					->standard(),
+				'all_options'        => ( new BuildForDisplay( $modSlug, $focusSection, $focusOption ) )->standard(),
 				'xferable_opts'      => \array_keys( $config->transferableOptions() ),
 				'xfer_excluded_opts' => $optsCon->getXferExcluded(),
 				'focus_section'      => $focusSection,

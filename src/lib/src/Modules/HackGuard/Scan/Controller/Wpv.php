@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\WpvAddPluginRows;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,7 +20,7 @@ class Wpv extends BaseForAssets {
 			$this->scheduleOnDemandScan();
 		}, 10, 0 );
 		add_action( 'load-plugins.php', function () {
-			( new HackGuard\Scan\Utilities\WpvAddPluginRows() )->execute();
+			( new WpvAddPluginRows() )->execute();
 		}, 10, 2 );
 
 		if ( $this->isAutoupdatesEnabled() ) {

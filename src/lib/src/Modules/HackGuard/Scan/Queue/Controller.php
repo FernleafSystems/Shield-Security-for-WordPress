@@ -74,7 +74,13 @@ class Controller {
 	}
 
 	public function hasRunningScans() :bool {
-		return \count( $this->getRunningScans() ) > 0 || \count( $this->opts()->getScansToBuild() ) > 0;
+		if ( self::con()->comps === null ) {
+			$toBuild = $this->opts()->getScansToBuild();
+		}
+		else {
+			$toBuild = self::con()->comps->scans->getScansToBuild();
+		}
+		return \count( $this->getRunningScans() ) > 0 || \count( $toBuild ) > 0;
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {

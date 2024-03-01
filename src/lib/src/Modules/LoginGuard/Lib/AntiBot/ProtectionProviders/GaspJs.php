@@ -73,8 +73,4 @@ class GaspJs extends BaseProtectionProvider {
 	public function buildFormInsert( $formProvider ) :string {
 		return self::con()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}
-
-	protected function isFactorJsRequired() :bool {
-		return parent::isFactorJsRequired() || !empty( $this->opts()->getAntiBotFormSelectors() );
-	}
 }

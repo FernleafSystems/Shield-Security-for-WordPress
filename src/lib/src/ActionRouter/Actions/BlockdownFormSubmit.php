@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BlockdownFormSubmit extends BaseAction {
@@ -12,9 +13,6 @@ class BlockdownFormSubmit extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		$dbh = $con->db_con->dbhIPRules();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $opts */
-		$opts = $con->getModule_Plugin()->opts();
 
 		$form = $this->action_data[ 'form_data' ];
 		try {
@@ -26,8 +24,7 @@ class BlockdownFormSubmit extends BaseAction {
 				throw new \Exception( 'Please complete the form.' );
 			}
 
-			$cfg = $opts->getBlockdownCfg();
-
+			$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 			if ( $cfg->isLockdownActive() ) {
 				throw new \Exception( 'Invalid request - lockdown is already active.' );
 			}
@@ -45,7 +42,7 @@ class BlockdownFormSubmit extends BaseAction {
 
 			$ruleLoader = new LoadIpRules();
 			$ruleLoader->wheres = [
-				sprintf( "`ir`.`type`='%s'", $dbh::T_MANUAL_BYPASS )
+				sprintf( "`ir`.`type`='%s'", $con->db_con->dbhIPRules()::T_MANUAL_BYPASS )
 			];
 			if ( $ruleLoader->countAll() === 0 ) {
 				throw new \Exception( 'There are no whitelisted IPs for exclusion.' );
@@ -56,7 +53,7 @@ class BlockdownFormSubmit extends BaseAction {
 			$cfg->exclusions = $form[ 'exclusions' ] ?? [];
 			$cfg->whitelist_me = ( $whitelistMe && !$alreadyWhitelisted ) ? $con->this_req->ip : '';
 
-			$opts->setOpt( 'blockdown_cfg', $cfg->getRawData() );
+			$con->opts->optSet( 'blockdown_cfg', $cfg->getRawData() );
 
 			self::con()->fireEvent( 'site_blockdown_started', [
 				'audit_params' => [ 'user_login' => Services::WpUsers()->getCurrentWpUsername() ]

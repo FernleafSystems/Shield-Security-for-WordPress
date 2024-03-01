@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Users extends Base {
 
 	protected function canRun() :bool {
-		return $this->opts()->isSecAdminRestrictUsersEnabled();
+		return self::con()->opts->optIs( 'admin_access_restrict_admin_users', 'Y' );
 	}
 
 	protected function run() {

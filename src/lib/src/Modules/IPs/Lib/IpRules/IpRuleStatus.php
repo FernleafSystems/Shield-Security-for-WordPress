@@ -97,7 +97,7 @@ class IpRuleStatus {
 			$record = \current( $rules );
 			$ttl = self::con()->comps === null ? $this->opts()->getAutoExpireTime()
 				: self::con()->comps->opts_lookup->getIpAutoBlockTTL();
-			if ( $record->last_access_at < ( Services::Request()->ts() - $this->opts()->getAutoExpireTime() ) ) {
+			if ( $record->last_access_at < ( Services::Request()->ts() - $ttl ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}
 		}

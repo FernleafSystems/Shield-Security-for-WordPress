@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class WpOptions extends Base {
 
 	protected function canRun() :bool {
-		return $this->opts()->isRestrictWpOptions() && !Services::WpGeneral()->isLoginRequest();
+		return self::con()->opts->optIs( 'admin_access_restrict_options', 'Y' )
+			   && !Services::WpGeneral()->isLoginRequest();
 	}
 
 	protected function run() {
@@ -27,16 +28,24 @@ class WpOptions extends Base {
 	 */
 	public function blockOptionsSaves( $newValue, $key, $oldValue ) {
 
-		if ( !self::con()->isPluginAdmin()
-			 && ( \in_array( $key, $this->opts()->getOptionsToRestrict() ) || $this->isPluginOption( $key ) )
-		) {
-			$newValue = $oldValue;
+		if ( !self::con()->isPluginAdmin() ) {
+
+			if ( self::con()->comps === null ) {
+				$restrictedOptions = $this->opts()->getOptionsToRestrict();
+			}
+			else {
+				$restrictedOptions = self::con()->comps->opts_lookup->getSecAdminWpOptionsToRestrict();
+			}
+
+			if ( \in_array( $key, $restrictedOptions ) || $this->isPluginOption( $key ) ) {
+				$newValue = $oldValue;
+			}
 		}
 
 		return $newValue;
 	}
 
 	private function isPluginOption( string $key ) :bool {
-		return \preg_match( sprintf( '/^%s.*_options$/', self::con()->getOptionStoragePrefix() ), $key ) > 0;
+		return \preg_match( sprintf( '/^%s_all$/', self::con()->getPluginPrefix( '_' ) ), $key ) > 0;
 	}
 }

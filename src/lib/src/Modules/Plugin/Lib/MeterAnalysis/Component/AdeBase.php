@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
-
 abstract class AdeBase extends Base {
 
 	use Traits\OptConfigBased;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_LoginGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isEnabledAntiBot();
+		return self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck();
 	}
 
 	protected function getOptConfigKey() :string {

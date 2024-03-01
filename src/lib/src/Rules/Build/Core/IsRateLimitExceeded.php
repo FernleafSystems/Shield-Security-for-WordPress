@@ -24,6 +24,14 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+		if ( self::con()->comps === null ) {
+			$count = $this->opts()->getLimitRequestCount();
+			$span = $this->opts()->getLimitTimeSpan();
+		}
+		else {
+			$count = self::con()->opts->optGet( 'limit_requests' );
+			$span = self::con()->opts->optGet( 'limit_time_span' );
+		}
 		return [
 			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -41,8 +49,8 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 				[
 					'conditions' => Conditions\IsRateLimitExceeded::class,
 					'params'     => [
-						'limit_count'     => $this->opts()->getLimitRequestCount(),
-						'limit_time_span' => $this->opts()->getLimitTimeSpan(),
+						'limit_count'     => $count,
+						'limit_time_span' => $span,
 					],
 				],
 			]

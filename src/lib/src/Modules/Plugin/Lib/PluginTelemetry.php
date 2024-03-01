@@ -27,8 +27,7 @@ class PluginTelemetry {
 	}
 
 	private function canSend() :bool {
-		$opts = $this->opts();
-		return apply_filters( 'shield/can_send_telemetry', ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() ) )
+		return apply_filters( 'shield/can_send_telemetry', self::con()->comps->opts_lookup->enabledTelemetry() )
 			   && Services::Request()
 						  ->carbon()
 						  ->subDay()->timestamp > self::con()->opts->optGet( 'tracking_last_sent_at' );

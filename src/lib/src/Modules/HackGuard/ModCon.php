@@ -50,9 +50,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	protected function setCustomCronSchedules() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$freq = $opts->getScanFrequency();
+		$freq = (int)self::con()->opts->optGet( 'scan_frequency');
 		Services::WpCron()->addNewSchedule(
 			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[

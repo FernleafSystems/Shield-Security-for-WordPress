@@ -2,23 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Code\AssessPhpFile;
 
 class ScanFromFileMap {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
 	public function run() :ResultsSet {
 		$action = $this->getScanActionVO();
-		$results = $this->mod()
-						->getScansCon()
-						->AFS()
-						->getNewResultsSet();
+		$results = self::con()
+			->comps
+			->scans
+			->AFS()
+			->getNewResultsSet();
 
-		$isAutoFilter = $this->opts()->isAutoFilterResults();
+		$isAutoFilter = self::con()->comps->opts_lookup->isScanAutoFilterResults();
 
 		if ( \is_array( $action->items ) ) {
 			foreach ( $action->items as $fullPath ) {

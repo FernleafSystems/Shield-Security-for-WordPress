@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getBlockdownCfg() :Lib\SiteLockdown\SiteBlockdownCfg {
 		return ( new Lib\SiteLockdown\SiteBlockdownCfg() )->applyFromArray(
 			\array_merge( [
@@ -16,18 +19,30 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		);
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getIpSource() :string {
 		return (string)$this->getOpt( 'visitor_address_source' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getReportFrequencyAlert() :string {
 		return $this->getFrequency( 'alert' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getReportFrequencyInfo() :string {
 		return $this->getFrequency( 'info' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	private function getFrequency( string $type ) :string {
 		$key = 'frequency_'.$type;
 		$default = $this->getOptDefault( $key );
@@ -36,14 +51,23 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 			: $default;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isPluginGloballyDisabled() :bool {
 		return !$this->isOpt( 'global_enable_plugin_features', 'Y' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isTrackingEnabled() :bool {
-		return self::con()->isPremiumActive() || $this->isOpt( 'enable_tracking', 'Y' );
+		return false;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isTrackingPermissionSet() :bool {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}

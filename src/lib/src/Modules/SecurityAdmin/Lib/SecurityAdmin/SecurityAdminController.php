@@ -28,13 +28,15 @@ class SecurityAdminController {
 		add_action( 'admin_init', function () {
 			$this->enqueueJS();
 		} );
-		add_action( 'init', [ $this, 'setupRestrictions' ] );
+		add_action( 'init', function () {
+			$this->setupRestrictions();
+		} );
 	}
 
 	/**
 	 * Restrictions should only be applied after INIT
 	 */
-	public function setupRestrictions() {
+	private function setupRestrictions() {
 		if ( !self::con()->isPluginAdmin() ) {
 			foreach ( $this->enumRestrictionZones() as $zone ) {
 				( new $zone() )->execute();
@@ -91,9 +93,15 @@ class SecurityAdminController {
 	}
 
 	public function isEnabledSecAdmin() :bool {
-		return $this->mod()->isModOptEnabled()
-			   && $this->opts()->hasSecurityPIN()
-			   && $this->getSecAdminTimeout() > 0;
+		if ( self::con()->comps === null ) {
+			$enabled = self::con()->getModule_SecAdmin()->isModOptEnabled()
+					   && self::con()->getModule_SecAdmin()->opts()->hasSecurityPIN();
+		}
+		else {
+			$enabled = !empty( self::con()->comps->opts_lookup->getSecAdminPIN() )
+					   && self::con()->comps->opts_lookup->isModFromOptEnabled( 'admin_access_key' );
+		}
+		return $enabled;
 	}
 
 	private function enqueueJS() {
@@ -105,9 +113,20 @@ class SecurityAdminController {
 					'wpadmin',
 				],
 				'data'    => function () {
-					$isSecAdmin = self::con()->this_req->is_security_admin;
-					$email = ( self::con()->comps === null ? self::con()->comps->opts_lookup->getReportEmail()
-						: self::con()->getModule_Plugin()->getPluginReportEmail() );
+					$con = self::con();
+
+					if ( $con->comps === null ) {
+						$email = $con->getModule_Plugin()->getPluginReportEmail();
+						$isRestrictWpOptions = $this->opts()->isOpt( 'admin_access_restrict_options', 'Y' );
+						$restrictedOptions = $this->opts()->getOptionsToRestrict();
+					}
+					else {
+						$email = $con->comps->opts_lookup->getReportEmail();
+						$isRestrictWpOptions = $con->opts->optIs( 'admin_access_restrict_options', 'Y' );
+						$restrictedOptions = $con->comps->opts_lookup->getSecAdminWpOptionsToRestrict();
+					}
+
+					$isSecAdmin = $con->this_req->is_security_admin;
 					return [
 						'ajax'    => [
 							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::class ),
@@ -115,8 +134,8 @@ class SecurityAdminController {
 							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::class ),
 						],
 						'flags'   => [
-							'restrict_options' => !$isSecAdmin && $this->opts()->isRestrictWpOptions(),
-							'run_checks'       => self::con()->getIsPage_PluginAdmin()
+							'restrict_options' => !$isSecAdmin && $isRestrictWpOptions,
+							'run_checks'       => $con->getIsPage_PluginAdmin()
 												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
@@ -137,7 +156,7 @@ class SecurityAdminController {
 						],
 						'vars'    => [
 							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
-							'wp_options_to_restrict' => $this->opts()->getOptionsToRestrict(),
+							'wp_options_to_restrict' => $restrictedOptions,
 						],
 					];
 				},
@@ -178,7 +197,9 @@ class SecurityAdminController {
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 		}
-		return $user instanceof \WP_User && \in_array( $user->user_login, $this->opts()->getSecurityAdminUsers() );
+		$users = \method_exists( self::con()->opts, 'optGet' ) ? self::con()->opts->optGet( 'sec_admin_users' )
+			: $this->opts()->getSecurityAdminUsers();
+		return $user instanceof \WP_User && \in_array( $user->user_login, $users );
 	}
 
 	public function isCurrentlySecAdmin() :bool {

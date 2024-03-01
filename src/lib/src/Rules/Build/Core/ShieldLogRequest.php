@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
@@ -10,8 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 };
 
 class ShieldLogRequest extends BuildRuleCoreShieldBase {
-
-	use ModConsumer;
 
 	public const SLUG = 'shield/set_log_request';
 

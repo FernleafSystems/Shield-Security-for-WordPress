@@ -19,7 +19,7 @@ abstract class BaseForm extends Base {
 
 	protected function getCommonFormData() :array {
 		$con = self::con();
-		$mfaCon = $con->getModule_LoginGuard()->getMfaController();
+		$mfaCon = $con->comps->mfa;
 		$mfaSkip = (int)( $mfaCon->getMfaSkip()/\DAY_IN_SECONDS );
 		return [
 			'content' => [
@@ -34,7 +34,7 @@ abstract class BaseForm extends Base {
 			],
 			'flags'   => [
 				'can_skip_mfa' => $mfaCon->getMfaSkip() > 0,
-				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
+				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 			],
 			'hrefs'   => [
 				'form_action' => $con->plugin_urls->noncedPluginAction(
@@ -57,7 +57,7 @@ abstract class BaseForm extends Base {
 			],
 			'vars'    => [
 				'form_hidden_fields' => $this->getHiddenFields(),
-				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
+				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 				'message_type'       => 'info',
 			]
 		];

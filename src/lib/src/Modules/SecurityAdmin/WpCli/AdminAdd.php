@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
@@ -56,9 +55,7 @@ class AdminAdd extends BaseWpCliCmd {
 
 		$user = $this->loadUserFromArgs( $args );
 
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->mod()->opts();
-		$current = $opts->getSecurityAdminUsers();
+		$current = self::con()->opts->optGet( 'sec_admin_users' );
 		if ( \in_array( $user->user_login, $current ) ) {
 			WP_CLI::success( "This user is already a security admin." );
 		}
@@ -68,7 +65,7 @@ class AdminAdd extends BaseWpCliCmd {
 		else {
 			$current[] = $user->user_login;
 			\natsort( $current );
-			$opts->setOpt( 'sec_admin_users', \array_unique( $current ) );
+			self::con()->opts->optSet( 'sec_admin_users', \array_unique( $current ) );
 			WP_CLI::success( sprintf( "User '%s' added as a Security Admin.", $user->user_login ) );
 		}
 	}

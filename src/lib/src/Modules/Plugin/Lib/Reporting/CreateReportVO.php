@@ -59,11 +59,11 @@ class CreateReportVO {
 	private function setReportInterval() :self {
 		switch ( $this->rep->type ) {
 			case Constants::REPORT_TYPE_ALERT:
-				$this->rep->interval = $this->opts()->getReportFrequencyAlert();
+				$this->rep->interval = self::con()->comps->reports->getReportFrequencyAlert();
 				break;
 			case Constants::REPORT_TYPE_INFO:
 			default:
-				$this->rep->interval = $this->opts()->getReportFrequencyInfo();
+				$this->rep->interval = self::con()->comps->reports->getReportFrequencyInfo();
 				break;
 		}
 		return $this;

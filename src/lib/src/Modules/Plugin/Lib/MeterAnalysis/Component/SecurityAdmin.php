@@ -14,8 +14,7 @@ class SecurityAdmin extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_SecAdmin();
-		return $mod->isModOptEnabled() && $mod->getSecurityAdminController()->isEnabledSecAdmin();
+		return self::con()->comps->sec_admin->isEnabledSecAdmin();
 	}
 
 	public function title() :string {

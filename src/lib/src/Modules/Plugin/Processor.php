@@ -17,7 +17,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 		$components->license->execute();
 
-		if ( !$this->opts()->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
+		if ( !$components->opts_lookup->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
 			$components->ips_con->execute();
 			$components->sec_admin->execute();
 			$components->whitelabel->execute();
@@ -43,7 +43,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		$components->shieldnet->execute();
 
 		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
-			return $isDelete || $this->opts()->isOpt( 'delete_on_deactivate', 'Y' );
+			return $isDelete || self::con()->opts->optIs( 'delete_on_deactivate', 'Y' );
 		} );
 	}
 

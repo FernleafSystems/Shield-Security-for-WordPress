@@ -6,15 +6,17 @@ class GetFileLocksToCreate extends BaseOps {
 
 	public function run() :array {
 		$locksToCreate = [];
-		foreach ( $this->opts()->getFilesToLock() as $fileType ) {
-			try {
-				$file = ( new BuildFileFromFileKey() )->build( $fileType );
-				$lock = $this->setWorkingFile( $file )->findLockRecordForFile();
-				if ( empty( $lock ) ) {
-					$locksToCreate[] = $fileType;
+		if ( self::con()->comps !== null ) {
+			foreach ( self::con()->comps->file_locker->getFilesToLock() as $fileType ) {
+				try {
+					$file = ( new BuildFileFromFileKey() )->build( $fileType );
+					$lock = $this->setWorkingFile( $file )->findLockRecordForFile();
+					if ( empty( $lock ) ) {
+						$locksToCreate[] = $fileType;
+					}
 				}
-			}
-			catch ( \Exception $e ) {
+				catch ( \Exception $e ) {
+				}
 			}
 		}
 

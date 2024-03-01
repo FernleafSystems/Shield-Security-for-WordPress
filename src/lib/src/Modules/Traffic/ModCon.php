@@ -14,7 +14,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	public function onWpInit() {
 		/** @var Options $opts */
 		$opts = $this->opts();
-		$opts->liveLoggingTimeRemaining();
+		self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining();
 	}
 
 	public function getRequestLogger() :Lib\RequestLogger {
