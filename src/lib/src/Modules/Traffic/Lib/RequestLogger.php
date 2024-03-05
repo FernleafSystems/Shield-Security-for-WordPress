@@ -89,6 +89,16 @@ class RequestLogger {
 		}
 	}
 
+	public function getAutoCleanDays() :int {
+		$con = self::con();
+		$days = $con->opts->optGet( 'auto_clean' );
+		if ( $days !== $con->caps->getMaxLogRetentionDays() ) {
+			$days = (int)\min( $days, $con->caps->getMaxLogRetentionDays() );
+			$con->opts->optSet( 'auto_clean', $days );
+		}
+		return $days;
+	}
+
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
 			$this->logger = new Logger( 'request', [], \array_map( function ( $processorClass ) {

@@ -17,7 +17,7 @@ class EmailReport extends EmailBase {
 			'vars'    => [
 				'reports'     => \array_map(
 					function ( ReportVO $rep ) {
-						$reportCon = self::con()->getModule_Plugin()->getReportingController();
+						$reportCon = self::con()->comps->reports;
 						return [
 							'type'      => $reportCon->getReportTypeName( $rep->type ),
 							'generated' => Services::WpGeneral()->getTimeStringForDisplay( $rep->record->created_at ),

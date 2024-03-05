@@ -471,7 +471,7 @@ class AssetsCustomizer {
 					'main',
 				],
 				'data'     => function () {
-					return self::con()->getModule_Plugin()->getReportingController()->getCreateReportFormVars();
+					return self::con()->comps->reports->getCreateReportFormVars();
 				},
 			],
 			'scans'            => [

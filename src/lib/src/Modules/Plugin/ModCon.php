@@ -43,11 +43,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $sessionCon;
 
 	/**
-	 * @var Lib\Merlin\MerlinController
-	 */
-	private $wizardCon;
-
-	/**
 	 * @var Lib\TrackingVO
 	 */
 	private $tracking;
@@ -57,11 +52,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 			( $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController() );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getPluginBadgeCon() :Components\PluginBadge {
 		return isset( self::con()->comps ) ? self::con()->comps->badge :
 			( $this->pluginBadgeCon ?? $this->pluginBadgeCon = new Components\PluginBadge() );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getReportingController() :Lib\Reporting\ReportingController {
 		return isset( self::con()->comps ) ? self::con()->comps->reports :
 			( $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController() );
@@ -75,11 +76,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	public function getShieldNetApiController() :ShieldNetApiController {
 		return isset( self::con()->comps ) ? self::con()->comps->shieldnet :
 			( $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController() );
-	}
-
-	public function getWizardCon() :Lib\Merlin\MerlinController {
-		return isset( self::con()->comps ) ? self::con()->comps->wizards :
-			( $this->wizardCon ?? $this->wizardCon = new Lib\Merlin\MerlinController() );
 	}
 
 	protected function doPostConstruction() {

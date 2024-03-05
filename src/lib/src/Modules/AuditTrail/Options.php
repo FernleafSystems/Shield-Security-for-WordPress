@@ -11,6 +11,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 
 	/**
 	 * Don't put caps into cfg as this option is always available, but limited to 7.
+	 * @deprecated 19.1
 	 */
 	public function getAutoCleanDays() :int {
 		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );

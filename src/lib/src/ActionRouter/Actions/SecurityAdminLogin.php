@@ -16,7 +16,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 	protected function exec() {
 		$resp = $this->response();
 
-		if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->isCurrentlySecAdmin() ) {
+		if ( self::con()->comps->sec_admin->isCurrentlySecAdmin() ) {
 			$resp->success = true;
 			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
 							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';

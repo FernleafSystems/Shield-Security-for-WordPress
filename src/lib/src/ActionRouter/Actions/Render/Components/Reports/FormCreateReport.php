@@ -2,17 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
-class FormCreateReport extends BaseRender {
+class FormCreateReport extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'form_create_report';
 	public const TEMPLATE = '/wpadmin_pages/insights/reports/form_create_report.twig';
 
 	protected function getRenderData() :array {
-		$reportCon = self::con()->getModule_Plugin()->getReportingController();
+		$reportCon = self::con()->comps->reports;
 		$reportAreas = $reportCon->getReportAreas();
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$reportCon->getCreateReportFormVars(),

@@ -38,7 +38,7 @@ abstract class BasePluginAdminPage extends BaseRender {
 		$urls = self::con()->plugin_urls;
 
 		$hrefs = $this->getPageContextualHrefs();
-		if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->hasActiveSession() ) {
+		if ( self::con()->comps->sec_admin->hasActiveSession() ) {
 			$hrefs[] = [
 				'text' => __( 'End Security Admin Session', 'wp-simple-firewall' ),
 				'href' => $urls->noncedPluginAction( SecurityAdminAuthClear::class, $urls->adminHome() ),

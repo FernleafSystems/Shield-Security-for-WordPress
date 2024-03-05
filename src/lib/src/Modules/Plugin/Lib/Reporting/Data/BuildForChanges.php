@@ -9,7 +9,7 @@ class BuildForChanges extends BuildBase {
 	public function build() :array {
 		$data = [];
 		$zones = $this->report->areas[ Constants::REPORT_AREA_CHANGES ];
-		foreach ( self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors() as $auditor ) {
+		foreach ( self::con()->comps->activity_log->getAuditors() as $auditor ) {
 			if ( empty( $zones ) || \in_array( $auditor::Slug(), $zones ) ) {
 				try {
 					$reporter = $auditor->getReporter();

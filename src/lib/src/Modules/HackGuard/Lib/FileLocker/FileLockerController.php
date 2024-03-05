@@ -31,10 +31,7 @@ class FileLockerController {
 	public function isEnabled() :bool {
 		return ( \count( $this->getFilesToLock() ) > 0 )
 			   && self::con()->db_con->dbhFileLocker()->isReady()
-			   && self::con()
-					  ->getModule_Plugin()
-					  ->getShieldNetApiController()
-					  ->canHandshake();
+			   && self::con()->comps->shieldnet->canHandshake();
 	}
 
 	protected function canRun() :bool {

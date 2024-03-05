@@ -13,7 +13,7 @@ class IsUserSecurityAdmin extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$secAdminCon = self::con()->getModule_SecAdmin()->getSecurityAdminController();
+		$secAdminCon = self::con()->comps->sec_admin;
 		return (
 			!$secAdminCon->isEnabledSecAdmin()
 			|| $secAdminCon->isCurrentUserRegisteredSecAdmin()

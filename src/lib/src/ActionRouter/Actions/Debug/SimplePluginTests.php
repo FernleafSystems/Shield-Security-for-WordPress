@@ -121,7 +121,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_handshake() {
-		$snapi = self::con()->getModule_Plugin()->getShieldNetApiController();
+		$snapi = self::con()->comps->shieldnet;
 		var_dump( $snapi->vo );
 		var_dump( $snapi->canHandshake( true ) );
 		var_dump( $snapi->vo );

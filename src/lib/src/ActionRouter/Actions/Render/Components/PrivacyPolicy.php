@@ -2,11 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
-class PrivacyPolicy extends BaseRender {
+class PrivacyPolicy extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	use SecurityAdminNotRequired;
 
@@ -15,7 +13,7 @@ class PrivacyPolicy extends BaseRender {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( $con->comps->whitelabel->isEnabled() ) {
 			$name = $con->getHumanName();
 			$href = $con->labels->PluginURI;
 		}
@@ -23,14 +21,10 @@ class PrivacyPolicy extends BaseRender {
 			$name = $con->cfg->menu[ 'title' ];
 			$href = $con->cfg->meta[ 'privacy_policy_href' ];
 		}
-
-		/** @var AuditTrail\Options $optsAT */
-		$optsAT = $con->getModule_AuditTrail()->opts();
-
 		return [
 			'name'             => $name,
 			'href'             => $href,
-			'audit_trail_days' => $optsAT->getAutoCleanDays()
+			'audit_trail_days' => $con->comps->activity_log->getAutoCleanDays()
 		];
 	}
 }

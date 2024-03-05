@@ -24,7 +24,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 				'favicon'     => $con->labels->icon_url_32x32,
 			],
 			'flags'   => [
-				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
+				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 			],
 			'content' => [
 				'form' => $con->action_router->render( Components\LoginIntentFormShield::SLUG, $this->action_data ),

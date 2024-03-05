@@ -20,11 +20,6 @@ class AuditCon {
 	use PluginCronsConsumer;
 
 	/**
-	 * @var AuditLogger
-	 */
-	private $auditLogger;
-
-	/**
 	 * @var Auditors\Base[]
 	 */
 	private $auditors = null;
@@ -49,7 +44,7 @@ class AuditCon {
 			$this->setupCronHooks();
 		}
 
-		$this->getAuditLogger()->setIfCommit( true );
+		( new AuditLogger() )->setIfCommit( true );
 
 		\array_map( function ( $auditor ) {
 			$auditor->execute();
@@ -72,10 +67,6 @@ class AuditCon {
 
 			$this->getSnapshotDiscoveryQueue();
 		}
-	}
-
-	public function getAuditLogger() :AuditLogger {
-		return $this->auditLogger ?? $this->auditLogger = new AuditLogger();
 	}
 
 	public function getAutoCleanDays() :int {

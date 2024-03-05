@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
 
@@ -15,8 +14,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
 class AllowBetaUpgrades {
 
 	use ExecOnce;
-	use ModConsumer;
-	use PluginCronsConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var \stdClass
@@ -25,7 +23,7 @@ class AllowBetaUpgrades {
 
 	protected function canRun() :bool {
 		return self::con()->isPremiumActive()
-			   && apply_filters( 'shield/enable_beta', $this->opts()->isOpt( 'enable_beta', 'Y' ) );
+			   && apply_filters( 'shield/enable_beta', self::con()->opts->optIs( 'enable_beta', 'Y' ) );
 	}
 
 	protected function run() {

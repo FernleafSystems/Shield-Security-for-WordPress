@@ -33,7 +33,7 @@ class PageImportExport extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$importMasterURL = $con->getModule_Plugin()->getImpExpController()->getImportExportMasterImportUrl();
+		$importMasterURL = $con->comps->import_export->getImportExportMasterImportUrl();
 		return [
 			'flags'   => [
 				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),

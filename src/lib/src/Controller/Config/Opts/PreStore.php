@@ -3,14 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	IPs\DB\IpRules\Ops\Delete,
-	Plugin
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Delete;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PreStore {
@@ -187,8 +185,6 @@ class PreStore {
 
 	public function plugin() :void {
 		$opts = self::con()->opts;
-		/** @var Plugin\Options $pluginOpts */
-		$pluginOpts = self::con()->getModule_Plugin()->opts();
 
 		if ( $opts->optGet( 'ipdetect_at' ) === 0
 			 || ( $opts->optChanged( 'visitor_address_source' ) && $opts->optGet( 'visitor_address_source' ) === 'AUTO_DETECT_IP' )
@@ -263,9 +259,9 @@ class PreStore {
 			);
 		}
 
-		self::con()->getModule_SecAdmin()->getWhiteLabelController()->verifyUrls();
+		self::con()->comps->whitelabel->verifyUrls();
 		if ( $opts->optChanged( 'enable_mu' ) ) {
-			self::con()->getModule_SecAdmin()->runMuHandler();
+			self::con()->modules[ EnumModules::SECURITY_ADMIN ]->runMuHandler();
 		}
 	}
 
@@ -274,7 +270,7 @@ class PreStore {
 		$opts = $con->opts;
 
 		if ( $opts->optChanged( 'scan_frequency' ) ) {
-			$con->getModule_HackGuard()->getScansCon()->deleteCron();
+			$con->comps->scans->deleteCron();
 		}
 
 		if ( $opts->optChanged( 'file_locker' ) ) {
@@ -287,15 +283,13 @@ class PreStore {
 			}
 			$opts->optSet( 'file_locker', $lockFiles );
 
-			if ( \count( $lockFiles ) === 0 || !$con->getModule_Plugin()
-													->getShieldNetApiController()
-													->canHandshake()
+			if ( \count( $lockFiles ) === 0 || !$con->comps->shieldnet->canHandshake()
 			) {
-				self::con()->getModule_HackGuard()->getFileLocker()->purge();
+				$con->comps->file_locker->purge();
 			}
 		}
 
-		foreach ( self::con()->getModule_HackGuard()->getScansCon()->getAllScanCons() as $scanCon ) {
+		foreach ( $con->comps->scans->getAllScanCons() as $scanCon ) {
 			if ( !$scanCon->isEnabled() ) {
 				$scanCon->purge();
 			}

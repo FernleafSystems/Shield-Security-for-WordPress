@@ -9,7 +9,7 @@ class LoginIntentFormShield extends BaseForm {
 
 	protected function getRenderData() :array {
 		$msg = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
-		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !self::con()->comps->whitelabel->isEnabled() ) {
 			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldwhatis2fa', __( 'More Info', 'wp-simple-firewall' ) );
 		}
 

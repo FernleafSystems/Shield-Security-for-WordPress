@@ -69,9 +69,7 @@ class FileDownload extends BaseAction {
 			case 'report_download_pdf':
 				$fileDetails = [
 					'name'    => wp_rand().'.pdf',
-					'content' => $con->getModule_Plugin()
-									 ->getReportingController()
-									 ->convertToPdf( (int)$this->action_data[ 'rid' ] ?? -1 )
+					'content' => self::con()->comps->reports->convertToPdf( (int)$this->action_data[ 'rid' ] ?? -1 )
 				];
 				break;
 

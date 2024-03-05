@@ -115,9 +115,7 @@ class ReportGenerator {
 
 		$con->fireEvent( 'report_generated', [
 			'audit_params' => [
-				'type'     => $this->mod()
-								   ->getReportingController()
-								   ->getReportTypeName( $record->type ),
+				'type'     => $con->comps->reports->getReportTypeName( $record->type ),
 				'interval' => $record->interval_length,
 			]
 		] );

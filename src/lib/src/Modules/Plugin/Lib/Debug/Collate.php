@@ -211,7 +211,7 @@ class Collate {
 		$data = [
 			'Can Loopback Request'       => $loopback,
 			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )->test() ? 'Yes' : 'No',
-			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
+			'Handshake ShieldNET'        => $con->comps->shieldnet->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 

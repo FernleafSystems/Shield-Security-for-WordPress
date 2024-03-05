@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Core\Databases;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\{
+	Base\Handler,
+	Common
+};
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
@@ -118,11 +121,11 @@ class DbCon {
 		return $this->loadDbH( 'rules' );
 	}
 
-	public function dbhResultItems() :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler {
+	public function dbhResultItems() :ResultItems\Ops\Handler {
 		return $this->loadDbH( 'resultitems' );
 	}
 
-	public function dbhResultItemMeta() :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Handler {
+	public function dbhResultItemMeta() :ResultItemMeta\Ops\Handler {
 		return $this->loadDbH( 'resultitem_meta' );
 	}
 
@@ -181,7 +184,7 @@ class DbCon {
 	}
 
 	/**
-	 * @return Databases\Base\Handler|mixed|null
+	 * @return Handler|mixed|null
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$con = self::con();
@@ -209,7 +212,7 @@ class DbCon {
 			 */
 			$dbDef = $dbh[ 'def' ];
 			foreach ( $dbDef[ 'cols_custom' ] as $colDef ) {
-				if ( ( $colDef[ 'macro_type' ] ?? '' ) === Databases\Common\Types::MACROTYPE_FOREIGN_KEY_ID ) {
+				if ( ( $colDef[ 'macro_type' ] ?? '' ) === Common\Types::MACROTYPE_FOREIGN_KEY_ID ) {
 					$table = $colDef[ 'foreign_key' ][ 'ref_table' ];
 					if ( \str_starts_with( $table, $con->getPluginPrefix( '_' ) ) ) {
 						$this->loadDbH( \str_replace( $con->getPluginPrefix( '_' ).'_', '', $table ) );
@@ -220,9 +223,9 @@ class DbCon {
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
 			$modPlug = $con->getModule_Plugin();
-			/** @var Databases\Base\Handler|mixed $dbh */
+			/** @var Handler|mixed $dbh */
 			$dbh = new $dbh[ 'class' ]( $dbDef );
-			$dbh->use_table_ready_cache = $modPlug->getActivateLength() > Databases\Common\TableReadyCache::READY_LIFETIME
+			$dbh->use_table_ready_cache = $modPlug->getActivateLength() > Common\TableReadyCache::READY_LIFETIME
 										  &&
 										  ( Services::Request()->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();

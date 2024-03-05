@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
 	LocalDbWriter,
 	LogFileHandler
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 
 class AuditLogger extends EventsListener {
 
@@ -28,9 +27,9 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		if ( self::con()->getModule_AuditTrail()->getAuditCon()->isLogToDB() ) {
+		if ( self::con()->comps->activity_log->isLogToDB() ) {
 			// The Request Logger is required to link up the DB entries.
-			self::con()->getModule_Traffic()->getRequestLogger()->execute();
+			self::con()->comps->requests_log->execute();
 		}
 	}
 
@@ -56,9 +55,8 @@ class AuditLogger extends EventsListener {
 
 	protected function initLogger() {
 		$con = self::con();
-		/** @var Options $opts */
 		$opts = $con->getModule_AuditTrail()->opts();
-		$auditCon = $con->getModule_AuditTrail()->getAuditCon();
+		$auditCon = $con->comps === null ? $con->getModule_AuditTrail()->getAuditCon() : $con->comps->activity_log;
 
 		if ( $this->isMonologLibrarySupported() ) {
 
