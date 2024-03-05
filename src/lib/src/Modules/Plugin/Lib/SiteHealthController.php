@@ -19,7 +19,8 @@ class SiteHealthController {
 		return $WP->getWordpressIsAtLeastVersion( '5.8' )
 			   && !$WP->isAjax()
 			   && ( is_admin() || is_network_admin() )
-			   && Services::Request()->isGet();
+			   && Services::Request()->isGet()
+			   && apply_filters( 'shield/can_run_site_health_security', true );
 	}
 
 	protected function run() {
