@@ -9,8 +9,7 @@ class LockdownFileEditing extends Base {
 	public const SLUG = 'lockdown_file_editing';
 
 	protected function testIfProtected() :bool {
-		$con = self::con();
-		return $con->getModule_Lockdown()->isModOptEnabled() && $con->opts->optIs( 'disable_file_editing', 'Y' );
+		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'disable_file_editing', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

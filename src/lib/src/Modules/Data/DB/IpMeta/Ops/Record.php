@@ -10,6 +10,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\Ops;
  * @property int    $geo_updated_at
  * @property int    $pc_last_check_at
  * @property int    $updated_at
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

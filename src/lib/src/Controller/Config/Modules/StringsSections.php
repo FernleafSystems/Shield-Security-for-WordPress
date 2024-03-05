@@ -134,7 +134,7 @@ class StringsSections {
 				break;
 			case 'section_enable_plugin_feature_hack_protection_tools' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::SCANNERS )[ 'name' ] );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::SCANS )[ 'name' ] );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Hack Guard', 'wp-simple-firewall' ) ) )
@@ -233,6 +233,13 @@ class StringsSections {
 						__( "Shield can automatically integrate with 3rd party plugins.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Only enable the integrations you require.", 'wp-simple-firewall' ) ),
+				];
+				break;
+			case 'section_spam':
+				$short = __( 'Contact Form SPAM Checking', 'wp-simple-firewall' );
+				$title = __( 'Contact Form SPAM Checking', 'wp-simple-firewall' );
+				$summary = [
+					__( 'Select The Form Providers That Should Be Checked For SPAM', 'wp-simple-firewall' )
 				];
 				break;
 			case 'section_user_forms':

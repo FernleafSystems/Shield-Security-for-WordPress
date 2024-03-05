@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Insert {
 
 }

@@ -10,7 +10,7 @@ class EnumModules {
 	public const COMMENTS = 'comments_filter';
 	public const DATA = 'data';
 	public const FIREWALL = 'firewall';
-	public const SCANNERS = 'hack_protect';
+	public const SCANS = 'hack_protect';
 	public const HEADERS = 'headers';
 	public const INTEGRATIONS = 'integrations';
 	public const IPS = 'ips';

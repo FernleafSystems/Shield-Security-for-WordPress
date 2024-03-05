@@ -24,7 +24,7 @@ class PluginBadge {
 		if ( !Services::WpGeneral()->isAjax() && !( is_admin() || is_network_admin() ) ) {
 
 			$display = apply_filters( 'shield/show_security_badge',
-				$this->opts()->isOpt( 'display_plugin_badge', 'Y' )
+				self::con()->opts->optIs( 'display_plugin_badge', 'Y' )
 				&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
 			);
 

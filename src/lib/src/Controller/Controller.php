@@ -426,7 +426,7 @@ class Controller extends DynPropertiesClass {
 				EnumModules::COMMENTS       => CommentsFilter\ModCon::class,
 				EnumModules::DATA           => Data\ModCon::class,
 				EnumModules::FIREWALL       => Firewall\ModCon::class,
-				EnumModules::SCANNERS       => HackGuard\ModCon::class,
+				EnumModules::SCANS          => HackGuard\ModCon::class,
 				EnumModules::HEADERS        => Headers\ModCon::class,
 				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
 				EnumModules::IPS            => IPs\ModCon::class,
@@ -767,7 +767,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_HackGuard() :HackGuard\ModCon {
-		return $this->modules[ EnumModules::SCANNERS ];
+		return $this->modules[ EnumModules::SCANS ];
 	}
 
 	public function getModule_Headers() :Headers\ModCon {

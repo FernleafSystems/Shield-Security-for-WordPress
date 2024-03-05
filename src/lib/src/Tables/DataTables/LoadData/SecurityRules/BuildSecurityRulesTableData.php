@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as SecurityRulesDB,
 	RuleRecords
 };

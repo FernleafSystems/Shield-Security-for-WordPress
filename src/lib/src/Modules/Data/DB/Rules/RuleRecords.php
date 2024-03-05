@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class RuleRecords {
 
 	use ModConsumer;
@@ -64,7 +67,7 @@ class RuleRecords {
 		return \is_array( $records ) ? $records : [];
 	}
 
-	private function getSelector() :Ops\Select {
+	private function getSelector() {
 		return self::con()->db_con->dbhRules()->getQuerySelector();
 	}
 }

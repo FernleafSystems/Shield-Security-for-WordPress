@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\DiffVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
@@ -105,7 +105,8 @@ class AuditCon {
 	}
 
 	public function isLogToDB() :bool {
-		return !\in_array( 'disabled', $this->getLogLevelsDB() );
+		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
+			   && !\in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
 	private function primeSnapshots() {
@@ -210,7 +211,8 @@ class AuditCon {
 		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
 			$this->latestSnapshots[ $slug ] = ( new Ops\Retrieve() )->latest( $slug );
 		}
-		if ( empty( $this->latestSnapshots[ $slug ] ) ) {
+		if ( empty( $this->latestSnapshots[ $slug ] )
+			 || !\is_a( $this->latestSnapshots[ $slug ], '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record' ) ) {
 			throw new \Exception( 'Snapshot could not be loaded for '.$slug );
 		}
 		return $this->latestSnapshots[ $slug ];

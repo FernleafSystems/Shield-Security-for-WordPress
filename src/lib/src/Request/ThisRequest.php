@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\{
-	IpMetaRecord,
-	LoadIpMeta
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
+	LoadIpMeta,
+	IpMetaRecord
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;

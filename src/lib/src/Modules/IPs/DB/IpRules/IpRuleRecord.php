@@ -7,6 +7,7 @@ use IPLib\Factory;
 /**
  * NOT a true DB Model
  * @property string $ip
+ * @deprecated 19.1
  */
 class IpRuleRecord extends Ops\Record {
 

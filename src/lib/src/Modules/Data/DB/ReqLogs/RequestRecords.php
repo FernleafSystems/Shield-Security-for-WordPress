@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops as ReqLogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 class RequestRecords {
 
 	use ModConsumer;

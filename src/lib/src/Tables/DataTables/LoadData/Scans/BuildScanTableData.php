@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
@@ -14,8 +14,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string $file
  */
 class BuildScanTableData extends BaseBuildTableData {
-
-	use ModConsumer;
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();

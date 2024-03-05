@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
-	IPs,
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	IPs\IPRecords,
 	ReqLogs\Ops as ReqLogsDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
@@ -18,7 +18,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 	public const SLUG = 'is_rate_limit_exceeded';
 
 	protected function execConditionCheck() :bool {
-		$ip = ( new IPs\IPRecords() )->loadIP( $this->req->ip, false );
+		$ip = ( new IPRecords() )->loadIP( $this->req->ip, false );
 
 		/** @var ReqLogsDB\Select $selector */
 		$selector = self::con()->db_con->dbhReqLogs()->getQuerySelector();

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\{
 	Base\Handler,
@@ -10,42 +11,146 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\{
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	BotSignal,
+	CrowdSecSignals,
 	Event,
 	FileLocker,
+	IpMeta,
+	IpRules,
+	IPs,
+	ActivityLogs,
 	Malware,
+	ActivityLogsMeta,
 	Mfa,
 	Reports,
 	ResultItemMeta,
 	ResultItems,
+	ReqLogs,
+	Rules,
 	ScanItems,
 	ScanResults,
 	Scans,
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
-	Logs,
-	Meta,
-	Snapshots
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
-	IpMeta,
-	IPs,
-	ReqLogs,
-	UserMeta
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\{
-	BotSignal,
-	CrowdSecSignals,
-	IpRules,
+	Snapshots,
+	UserMeta,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class DbCon {
+/**
+ * @property ActivityLogs\Ops\Handler     $activity_logs
+ * @property ActivityLogsMeta\Ops\Handler $activity_logs_meta
+ * @property Snapshots\Ops\Handler        $activity_snapshots
+ * @property BotSignal\Ops\Handler        $bot_signals
+ * @property CrowdSecSignals\Ops\Handler  $crowdsec_signals
+ * @property Event\Ops\Handler            $events
+ * @property FileLocker\Ops\Handler       $file_locker
+ * @property IPs\Ops\Handler              $ips
+ * @property IpMeta\Ops\Handler           $ip_meta
+ * @property IpRules\Ops\Handler          $ip_rules
+ * @property Malware\Ops\Handler          $malware
+ * @property Mfa\Ops\Handler              $mfa
+ * @property Reports\Ops\Handler          $reports
+ * @property ReqLogs\Ops\Handler          $req_logs
+ * @property Rules\Ops\Handler            $rules
+ * @property ResultItems\Ops\Handler      $scan_result_items
+ * @property ResultItemMeta\Ops\Handler   $scan_result_item_meta
+ * @property Scans\Ops\Handler            $scans
+ * @property ScanItems\Ops\Handler        $scan_items
+ * @property ScanResults\Ops\Handler      $scan_results
+ * @property UserMeta\Ops\Handler         $user_meta
+ */
+class DbCon extends DynPropertiesClass {
 
 	use ExecOnce;
 	use PluginCronsConsumer;
 	use PluginControllerConsumer;
+
+	public const MAP = [
+		'activity_logs'         => [
+			'slug'          => 'at_logs',
+			'handler_class' => ActivityLogs\Ops\Handler::class,
+		],
+		'activity_logs_meta'    => [
+			'slug'          => 'at_meta',
+			'handler_class' => ActivityLogsMeta\Ops\Handler::class,
+		],
+		'activity_snapshots'    => [
+			'slug'          => 'snapshots',
+			'handler_class' => Snapshots\Ops\Handler::class,
+		],
+		'bot_signals'           => [
+			'slug'          => 'botsignal',
+			'handler_class' => BotSignal\Ops\Handler::class,
+		],
+		'crowdsec_signals'      => [
+			'slug'          => 'crowdsec_signals',
+			'handler_class' => CrowdSecSignals\Ops\Handler::class,
+		],
+		'events'                => [
+			'slug'          => 'event',
+			'handler_class' => Event\Ops\Handler::class,
+		],
+		'file_locker'           => [
+			'slug'          => 'file_locker',
+			'handler_class' => FileLocker\Ops\Handler::class,
+		],
+		'ips'                   => [
+			'slug'          => 'ips',
+			'handler_class' => IPs\Ops\Handler::class,
+		],
+		'ip_meta'               => [
+			'slug'          => 'ip_meta',
+			'handler_class' => IpMeta\Ops\Handler::class,
+		],
+		'ip_rules'              => [
+			'slug'          => 'ip_rules',
+			'handler_class' => IpRules\Ops\Handler::class,
+		],
+		'malware'               => [
+			'slug'          => 'malware',
+			'handler_class' => Malware\Ops\Handler::class,
+		],
+		'mfa'                   => [
+			'slug'          => 'mfa',
+			'handler_class' => Mfa\Ops\Handler::class,
+		],
+		'reports'               => [
+			'slug'          => 'reports',
+			'handler_class' => Reports\Ops\Handler::class,
+		],
+		'req_logs'              => [
+			'slug'          => 'req_logs',
+			'handler_class' => ReqLogs\Ops\Handler::class,
+		],
+		'scan_result_items'     => [
+			'slug'          => 'resultitems',
+			'handler_class' => ResultItems\Ops\Handler::class,
+		],
+		'scan_result_item_meta' => [
+			'slug'          => 'resultitem_meta',
+			'handler_class' => ResultItemMeta\Ops\Handler::class,
+		],
+		'rules'                 => [
+			'slug'          => 'rules',
+			'handler_class' => Rules\Ops\Handler::class,
+		],
+		'scans'                 => [
+			'slug'          => 'scans',
+			'handler_class' => Scans\Ops\Handler::class,
+		],
+		'scan_items'            => [
+			'slug'          => 'scanitems',
+			'handler_class' => ScanItems\Ops\Handler::class,
+		],
+		'scan_results'          => [
+			'slug'          => 'scanresults',
+			'handler_class' => ScanResults\Ops\Handler::class,
+		],
+		'user_meta'             => [
+			'slug'          => 'user_meta',
+			'handler_class' => UserMeta\Ops\Handler::class,
+		],
+	];
 
 	/**
 	 * @var ?|array
@@ -65,11 +170,11 @@ class DbCon {
 		( new CleanIpRules() )->cleanAutoBlocks();
 	}
 
-	public function dbhActivityLogs() :Logs\Ops\Handler {
+	public function dbhActivityLogs() :ActivityLogs\Ops\Handler {
 		return $this->loadDbH( 'at_logs' );
 	}
 
-	public function dbhActivityLogsMeta() :Meta\Ops\Handler {
+	public function dbhActivityLogsMeta() :ActivityLogsMeta\Ops\Handler {
 		return $this->loadDbH( 'at_meta' );
 	}
 
@@ -156,14 +261,10 @@ class DbCon {
 		if ( $this->dbHandlers === null ) {
 			$this->dbHandlers = [];
 			$dbSpecs = self::con()->cfg->configuration->databases;
-			foreach ( $dbSpecs[ 'db_handler_classes' ] as $dbKey => $dbClass ) {
-				$def = $dbSpecs[ 'db_table_'.$dbKey ];
-				$this->dbHandlers[ $dbKey ] = [
-					'name'    => $def[ 'name' ] ?? $dbKey,
-					'class'   => $dbClass,
-					'def'     => $def,
-					'handler' => null,
-				];
+			foreach ( self::MAP as $dbKey => $dbDef ) {
+				$dbDef[ 'def' ] = $dbSpecs[ 'tables' ][ $dbKey ];
+				$dbDef[ 'handler' ] = null;
+				$this->dbHandlers[ $dbKey ] = $dbDef;
 			}
 		}
 		return $this->dbHandlers;
@@ -186,26 +287,23 @@ class DbCon {
 	/**
 	 * @return Handler|mixed|null
 	 */
-	public function loadDbH( string $dbKey, bool $reload = false ) {
+	public function loadDbH( string $dbSlug, bool $reload = false ) {
 		$con = self::con();
 
-		$dbh = $this->getHandlers()[ $dbKey ] ?? null;
-		if ( empty( $dbh ) ) {
-			throw new \Exception( sprintf( 'Invalid DBH Key %s', $dbKey ) );
+		$dbKey = null;
+		foreach ( $this->getHandlers() as $key => $handlerSpec ) {
+			if ( $handlerSpec[ 'slug' ] === $dbSlug ) {
+				$dbKey = $key;
+				$dbh = $handlerSpec;
+				break;
+			}
+		}
+
+		if ( empty( $dbKey ) ) {
+			throw new \Exception( '' );
 		}
 
 		if ( $reload || empty( $dbh[ 'handler' ] ) ) {
-
-			if ( empty( $dbh[ 'class' ] ) ) {
-				throw new \Exception( sprintf( 'DB Handler Class for key (%s) is not specified.', $dbKey ) );
-			}
-			if ( !\class_exists( $dbh[ 'class' ] ) ) {
-				throw new \Exception( sprintf( 'DB Handler for key (%s) is not valid', $dbKey ) );
-			}
-			if ( empty( $dbh[ 'def' ] ) ) {
-				throw new \Exception( sprintf( 'DB Definition for key (%s) is empty', $dbKey ) );
-			}
-
 			/**
 			 * We need to ensure that any dependent (foreign key references) tables are initiated before
 			 * attempting to initiate ourselves.
@@ -224,8 +322,8 @@ class DbCon {
 
 			$modPlug = $con->getModule_Plugin();
 			/** @var Handler|mixed $dbh */
-			$dbh = new $dbh[ 'class' ]( $dbDef );
-			$dbh->use_table_ready_cache = $modPlug->getActivateLength() > Common\TableReadyCache::READY_LIFETIME
+			$dbh = new $dbh[ 'handler_class' ]( $dbDef );
+			$dbh->use_table_ready_cache = $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
 										  &&
 										  ( Services::Request()->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
@@ -234,5 +332,15 @@ class DbCon {
 		}
 
 		return $this->dbHandlers[ $dbKey ][ 'handler' ];
+	}
+
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+
+		if ( isset( self::MAP[ $key ] ) ) {
+			$value = $this->loadDbH( $this->getHandlers()[ $key ][ 'slug' ] );
+		}
+
+		return $value;
 	}
 }

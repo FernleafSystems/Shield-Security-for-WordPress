@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
@@ -91,7 +92,7 @@ class PageScansResults extends PageScansBase {
 			'file_locker' => $this->getFileLockerVars(),
 			'flags'       => [
 				'is_premium'      => $con->isPremiumActive(),
-				'module_disabled' => !$mod->isModOptEnabled(),
+				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
 			],
 			'hrefs'       => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),

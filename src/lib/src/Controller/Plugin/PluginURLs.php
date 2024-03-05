@@ -51,10 +51,10 @@ class PluginURLs {
 	}
 
 	/**
-	 * @param ModCon|mixed $mod
+	 * @param ModCon|string|mixed $mod
 	 */
 	public function modCfg( $mod ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, $mod->cfg->slug );
+		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, \is_string( $mod ) ? $mod : $mod->cfg->slug );
 	}
 
 	public function modCfgOption( string $optKey ) :string {
@@ -73,7 +73,7 @@ class PluginURLs {
 	}
 
 	/**
-	 * @param ModCon|mixed $mod
+	 * @param ModCon|string|mixed $mod
 	 */
 	public function modCfgSection( $mod, string $optSection ) :string {
 		return $this->modCfg( $mod ).'#tab-'.$optSection;

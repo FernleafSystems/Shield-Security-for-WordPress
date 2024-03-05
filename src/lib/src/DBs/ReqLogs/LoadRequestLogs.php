@@ -1,11 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
+namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
 
-class LoadRequestLogs extends BaseLoadRecordsForIPJoins {
+class LoadRequestLogs extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\BaseLoadRecordsForIPJoins {
 
 	/**
 	 * @return LogRecord[]

@@ -11,9 +11,9 @@ abstract class FirewallBase extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Firewall();
-		return $mod->isModOptEnabled()
-			   && $mod->opts()->isOpt( 'block_'.$this->getFirewallKey(), 'Y' );
+		$con = self::con();
+		return $con->comps->opts_lookup->isModFromOptEnabled( 'block_'.$this->getFirewallKey() )
+			   && $con->opts->optIs( 'block_'.$this->getFirewallKey(), 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

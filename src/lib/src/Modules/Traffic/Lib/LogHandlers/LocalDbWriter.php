@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandlers;
 
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -34,7 +34,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	protected function createPrimaryLogRecord( array $logData ) :bool {
 		$ipRecord = ( new IPRecords() )->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
-		$reqRecord = ( new ReqLogs\RequestRecords() )->loadReq(
+		$reqRecord = ( new RequestRecords() )->loadReq(
 			$logData[ 'extra' ][ 'meta_request' ][ 'rid' ],
 			$ipRecord->id
 		);

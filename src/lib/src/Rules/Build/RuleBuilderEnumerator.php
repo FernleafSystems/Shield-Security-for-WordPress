@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Data\DB\Rules\RuleRecords,
-	PluginControllerConsumer,
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
+	Ops as RulesDB,
+	RuleRecords
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 
 class RuleBuilderEnumerator {

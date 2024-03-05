@@ -413,13 +413,6 @@ class EventStrings {
 					__( 'Successfully sent email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
 				],
 			],
-			'ade_check_module_disabled'    => [
-				'name'  => __( 'ADE Bot Check Invalid (Options)', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'A Bot Check was performed on a visitor but the ADE option is disabled in settings.', 'wp-simple-firewall' ),
-					__( "The visitor passed the checks since they couldn't be performed correctly.", 'wp-simple-firewall' ),
-				],
-			],
 			'ade_check_option_disabled'    => [
 				'name'  => __( 'ADE Bot Check Invalid (Module)', 'wp-simple-firewall' ),
 				'audit' => [

@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 trait Common {
 
 	public function filterByIPRef( int $ipRef ) {

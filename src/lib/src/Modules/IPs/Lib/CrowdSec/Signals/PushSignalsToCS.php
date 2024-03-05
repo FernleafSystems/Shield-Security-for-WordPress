@@ -3,18 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	Lib\CrowdSec\Api\PushSignals,
-	ModConsumer
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PushSignalsToCS {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const LIMIT = 100;
 
@@ -29,12 +27,11 @@ class PushSignalsToCS {
 	}
 
 	protected function canRun() :bool {
-		$mod = $this->mod();
-		return self::con()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
+		return self::con()->is_mode_live && self::con()->comps->crowdsec->getApi()->isReady();
 	}
 
 	protected function run() {
-		$api = $this->mod()->getCrowdSecCon()->getApi();
+		$api = self::con()->comps->crowdsec->getApi();
 
 		$pushCount = 0;
 		do {
@@ -73,16 +70,15 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function convertRecordsToPayload( array $records ) :array {
-		$api = $this->mod()->getCrowdSecCon()->getApi();
 		return \array_map(
-			function ( CrowdsecSignalsDB\Record $record ) use ( $api ) {
+			function ( CrowdsecSignalsDB\Record $record ) {
 				$carbon = Services::Request()->carbon();
 				$carbon->setTimestamp( $record->created_at );
 				$carbon->setTimezone( 'UTC' );
 				$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
 					\trim( $carbon->toRfc3339String(), 'Z' ) );
 				return [
-					'machine_id'       => $api->getMachineID(),
+					'machine_id'       => self::con()->comps->crowdsec->getApi()->getMachineID(),
 					'scenario'         => 'shield/'.$record->scenario,
 					'message'          => 'Shield reporting scenario '.$record->scenario,
 					'scenario_hash'    => '',

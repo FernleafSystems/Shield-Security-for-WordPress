@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
-
 class PluginBadge extends Base {
 
 	use Traits\OptConfigBased;
@@ -16,10 +14,7 @@ class PluginBadge extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Plugin();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isOpt( 'display_plugin_badge', 'Y' );
+		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'display_plugin_badge', 'Y' );
 	}
 
 	public function title() :string {

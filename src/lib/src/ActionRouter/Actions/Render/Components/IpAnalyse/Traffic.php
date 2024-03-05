@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	IPs\IPRecords,
+	ReqLogs\Ops as ReqLogsDB
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class Traffic extends Base {
@@ -16,9 +18,9 @@ class Traffic extends Base {
 		$logLimit = (int)\max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
 		try {
 			$ip = ( new IPRecords() )->loadIP( $this->action_data[ 'ip' ], false );
-			/** @var ReqLogs\Ops\Select $selector */
+			/** @var ReqLogsDB\Select $selector */
 			$selector = self::con()->db_con->dbhReqLogs()->getQuerySelector();
-			/** @var ReqLogs\Ops\Record[] $logs */
+			/** @var ReqLogsDB\Record[] $logs */
 			$logs = $selector->filterByIP( $ip->id )
 							 ->setLimit( $logLimit )
 							 ->queryWithResult();

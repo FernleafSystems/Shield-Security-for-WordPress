@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -66,6 +67,10 @@ class OptsSettingsLookup {
 
 	public function enabledTrafficLogger() :bool {
 		return $this->optIsAndModForOptEnabled( 'enable_logger', 'Y' );
+	}
+
+	public function getActivatedPeriod() :int {
+		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
 	}
 
 	public function getAntiBotMinScore() :int {
@@ -225,7 +230,7 @@ class OptsSettingsLookup {
 	}
 
 	public function isModEnabled( string $slug ) :bool {
-		return self::con()->opts->optIs( 'enable_'.$slug, 'Y' );
+		return self::con()->opts->optIs( $slug === EnumModules::PLUGIN ? 'global_enable_plugin_features' : 'enable_'.$slug, 'Y' );
 	}
 
 	public function isPassPoliciesEnabled() :bool {
@@ -243,7 +248,7 @@ class OptsSettingsLookup {
 	/**
 	 * shortcut for doing optIs() check alongside module enabled check for said option.
 	 */
-	private function optIsAndModForOptEnabled( string $optKey, $optIs ) :bool {
+	public function optIsAndModForOptEnabled( string $optKey, $optIs ) :bool {
 		return self::con()->opts->optIs( $optKey, $optIs ) && $this->isModFromOptEnabled( $optKey );
 	}
 }

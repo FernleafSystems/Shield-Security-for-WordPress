@@ -2,14 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	IpRuleRecord
+};
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
+	Ops as BotSignalDB,
+	BotSignalRecord,
+	LoadBotSignalRecords
+};
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
-	DB\BotSignal,
-	DB\BotSignal\BotSignalRecord,
-	DB\BotSignal\LoadBotSignalRecords,
-	DB\IpRules\IpRuleRecord,
 	Lib\IpRules\IpRuleStatus,
 	ModConsumer
 };
@@ -22,7 +26,7 @@ class BotSignalsRecord {
 
 	public function delete() :bool {
 		$thisReq = self::con()->this_req;
-		/** @var BotSignal\Ops\Delete $deleter */
+		/** @var BotSignalDB\Delete $deleter */
 		$deleter = self::con()->db_con->dbhBotSignal()->getQueryDeleter();
 
 		if ( $thisReq->ip === $this->getIP() ) {
@@ -104,10 +108,12 @@ class BotSignalsRecord {
 		}
 
 		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
-			$r->notbot_at = $this->mod()
-								 ->getBotSignalsController()
-								 ->getHandlerNotBot()
-								 ->hasCookie() ? Services::Request()->ts() : 0;
+			$botSignalsCon = self::con()->comps === null ?
+				$this->mod()
+					 ->getBotSignalsController()
+					 ->getHandlerNotBot()
+					 ->hasCookie() : self::con()->comps->bot_signals;
+			$r->notbot_at = $botSignalsCon->getHandlerNotBot()->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {

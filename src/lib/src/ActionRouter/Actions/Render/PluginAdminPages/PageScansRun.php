@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 
 class PageScansRun extends PageScansBase {
@@ -30,19 +31,18 @@ class PageScansRun extends PageScansBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_HackGuard();
 
 		( new CleanQueue() )->execute();
 
 		// Can Scan Checks:
-		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
+		$reasonsCantScan = $con->comps->scans->getReasonsScansCantExecute();
 		return [
 			'flags'   => [
 				'can_scan'        => \count( $reasonsCantScan ) === 0,
-				'module_disabled' => !$mod->isModOptEnabled(),
+				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
 			],
 			'hrefs'   => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgSection( EnumModules::SCANS, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [

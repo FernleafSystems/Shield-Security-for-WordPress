@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 trait Common {
 
 	public function filterByActive() {

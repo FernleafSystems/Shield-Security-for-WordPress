@@ -281,7 +281,7 @@ class StringsOptions {
 				break;
 
 			case 'enable_hack_protect' :
-				$modName = $modStrings->getFor( EnumModules::SCANNERS )[ 'name' ];
+				$modName = $modStrings->getFor( EnumModules::SCANS )[ 'name' ];
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];

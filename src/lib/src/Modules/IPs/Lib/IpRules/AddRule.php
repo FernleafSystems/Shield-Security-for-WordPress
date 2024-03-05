@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	IpRules\Ops as IpRulesDB,
+	IPs\IPRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
-	DB\IpRules\Ops as IpRulesDB,
 	ModConsumer
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -73,7 +75,7 @@ class AddRule {
 	 * @throws \Exception
 	 */
 	private function add( string $type, array $data = [] ) :IpRulesDB\Record {
-		$dbh = self::con()->db_con->dbhIPRules();
+		$dbh = self::con()->db_con->ip_rules;
 
 		$ip = $this->getIP();
 		$parsedRange = Factory::parseRangeString( $ip );

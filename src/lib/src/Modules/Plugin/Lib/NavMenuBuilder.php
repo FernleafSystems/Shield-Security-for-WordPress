@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -168,16 +169,18 @@ class NavMenuBuilder {
 		foreach ( $con->modules as $mod ) {
 			$cfg = $mod->cfg;
 			if ( $cfg->properties[ 'show_module_options' ] ) {
+				$enabled = $cfg->slug === EnumModules::PLUGIN ? $con->opts->optIs( 'global_enable_plugin_features', 'Y' )
+					: $con->comps->opts_lookup->isModEnabled( $cfg->slug );
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
 					'slug'          => PluginNavs::NAV_OPTIONS_CONFIG.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
-					'tooltip'       => $mod->isModOptEnabled() ?
+					'tooltip'       => $enabled ?
 						sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) )
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
-					'href'          => $con->plugin_urls->modCfg( $mod ),
+					'href'          => $con->plugin_urls->modCfg( $cfg->slug ),
 					'classes'       => \array_filter( \array_merge( $baseClasses, [
-						$mod->isModOptEnabled() ? '' : 'text-danger'
+						$enabled ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
 						'dynamic_page_load' => \json_encode( [

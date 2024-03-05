@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary
@@ -102,7 +103,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 						'svg'  => $con->svgs->raw( 'stoplights.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->modCfg( $con->getModule_Plugin() ),
+						'href' => $con->plugin_urls->modCfg( EnumModules::PLUGIN ),
 						'text' => __( 'Config', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'sliders.svg' ),
 					],

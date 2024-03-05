@@ -17,6 +17,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
  * @property int    $expires_at
  * @property int    $imported_at
  * @property int    $updated_at
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

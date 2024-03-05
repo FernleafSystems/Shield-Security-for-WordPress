@@ -212,7 +212,7 @@ class Afs extends Base {
 	public function isEnabled() :bool {
 		$con = self::con();
 		return $con->comps !== null
-			   && $con->comps->opts_lookup->isModEnabled( EnumModules::SCANNERS )
+			   && $con->comps->opts_lookup->isModEnabled( EnumModules::SCANS )
 			   && $con->opts->optIs( 'enable_core_file_integrity_scan', 'Y' );
 	}
 

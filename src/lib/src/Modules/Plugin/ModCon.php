@@ -231,6 +231,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return $finalDate;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->opts()->getOpt( 'activated_at', 0 );
 	}

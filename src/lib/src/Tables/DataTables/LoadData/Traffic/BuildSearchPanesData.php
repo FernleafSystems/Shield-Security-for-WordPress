@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
+	LoadRequestLogs,
+	Ops as ReqLogsDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForUsers;
@@ -88,7 +90,7 @@ class BuildSearchPanesData {
 					return null;
 				}
 				return [
-					'label' => Handler::GetTypeName( $type ),
+					'label' => ReqLogsDB\Handler::GetTypeName( $type ),
 					'value' => $type,
 				];
 			},

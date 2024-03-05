@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 class MetaRecords {
 
 	use ModConsumer;

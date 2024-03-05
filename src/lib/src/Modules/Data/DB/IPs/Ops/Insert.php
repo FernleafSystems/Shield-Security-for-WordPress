@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Insert {
 
 	/**

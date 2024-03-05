@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsSections;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
+	StringsOptions,StringsSections };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class SelectSearchData {

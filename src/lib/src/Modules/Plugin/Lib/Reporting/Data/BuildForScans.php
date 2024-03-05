@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	Event\Ops as EventsDB,
+	ActivityLogs\Ops as LogsDB,
+	FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogsMeta\Ops as MetaDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Afs,

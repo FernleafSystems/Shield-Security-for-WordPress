@@ -17,6 +17,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops;
  * @property array  $form
  * @property array  $form_draft
  * @property int    $updated_at
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

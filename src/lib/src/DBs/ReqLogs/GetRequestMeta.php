@@ -1,15 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
+namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\{
-	DB\ReqLogs\Ops\Handler,
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class GetRequestMeta {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function retrieve( string $reqID ) :string {
 		$reqID = sanitize_key( $reqID );
@@ -29,7 +26,7 @@ class GetRequestMeta {
 				'type' => [
 					'name'      => __( 'Request Type', 'wp-simple-firewall' ),
 					'formatter' => function ( $metaDatum ) {
-						return esc_html( Handler::GetTypeName( $metaDatum ) );
+						return esc_html( Ops\Handler::GetTypeName( $metaDatum ) );
 					}
 				],
 				'uid'  => [

@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CleanScansDB {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run() {
 		$this->deleteScansThatNeverCompleted();
@@ -25,7 +25,7 @@ class CleanScansDB {
 
 	private function deleteEarlierScans() {
 		$scanIDsToKeep = [];
-		foreach ( $this->mod()->getScansCon()->getScanSlugs() as $scanSlug ) {
+		foreach ( self::con()->comps->scans->getScanSlugs() as $scanSlug ) {
 			/** @var ScansDB\Select $select */
 			$select = self::con()->db_con->dbhScans()->getQuerySelector();
 			$scanRecords = $select->filterByFinished()

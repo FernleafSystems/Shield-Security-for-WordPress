@@ -10,7 +10,7 @@ class Config extends Base {
 	public const SLUG = 'dynamic_load_config';
 
 	protected function getPageUrl() :string {
-		return self::con()->plugin_urls->modCfg( self::con()->modules[ $this->action_data[ 'mod_slug' ] ] );
+		return self::con()->plugin_urls->modCfg( $this->action_data[ 'mod_slug' ] );
 	}
 
 	protected function getPageTitle() :string {#

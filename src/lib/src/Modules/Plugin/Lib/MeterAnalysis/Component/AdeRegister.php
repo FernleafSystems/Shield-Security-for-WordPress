@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
-
 class AdeRegister extends AdeBase {
 
 	public const SLUG = 'ade_register';

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-
 class ScanFrequency extends Base {
 
 	use Traits\OptConfigBased;

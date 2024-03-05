@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Snapshots\Ops as SnapshotDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops as SnapshotDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Delete {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function delete( string $slug ) :bool {
 		/** @var SnapshotDB\Delete $deleter */

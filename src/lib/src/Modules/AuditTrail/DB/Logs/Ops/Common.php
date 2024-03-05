@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 trait Common {
 
 	public function filterByEvent( string $event ) {

@@ -3,9 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	IpRuleRecord,
+	LoadIpRules,
+	Ops\Handler
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 

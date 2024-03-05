@@ -192,17 +192,11 @@ class Controller {
 		}
 		$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 
-		if ( !$this->isDisplayNeeded( $notice ) ) {
-			$notice->non_display_reason = 'not_needed';
-		}
-		elseif ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
+		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
 		}
 		elseif ( $notice->type == 'promo' && !$opts->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
 			$notice->non_display_reason = 'promo_hidden';
-		}
-		elseif ( !$this->isDisplayNeeded( $notice ) ) {
-			$notice->non_display_reason = 'not_needed';
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
 			$notice->non_display_reason = 'not_admin_area';
@@ -471,21 +465,21 @@ class Controller {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$con = self::con();
+		if ( !\method_exists( $con->opts, 'optGet' ) ) {
+			return false;
+		}
 		switch ( $notice->id ) {
 			case 'override-forceoff':
 				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
 			case 'allow-tracking':
-				/** @var Plugin\Options $opts */
-				$opts = $con->getModule_Plugin()->opts();
-				$needed = $con->comps !== null && !$con->opts->isTrackingPermissionSet();
+				$needed = $con->opts->optGet( 'tracking_permission_set_at' ) === 0;
 				break;
 			case 'blockdown-active':
 				$needed = $con->this_req->is_site_lockdown_active && !$con->isPluginAdminPageRequest();
 				break;
 			case 'email-verification-sent':
-				$needed = $con->comps !== null
-						  && $con->opts->optIs( 'enable_email_authentication', 'Y' )
+				$needed = $con->opts->optIs( 'enable_email_authentication', 'Y' )
 						  && $con->opts->optGet( 'email_can_send_verified_at' ) < 1;
 				break;
 			case 'admin-users-restricted':

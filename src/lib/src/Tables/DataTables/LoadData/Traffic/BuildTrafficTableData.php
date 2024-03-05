@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	LogRecord,
 	Ops as RegLogsDB,

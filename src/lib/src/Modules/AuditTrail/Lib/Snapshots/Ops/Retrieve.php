@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Snapshots\Ops as SnapshotsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops as SnapshotsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 
 class Retrieve {
@@ -38,6 +38,10 @@ class Retrieve {
 		/** @var SnapshotsDB\Select $select */
 		$select = self::con()->db_con->dbhSnapshots()->getQuerySelector();
 		/** @var ?SnapshotsDB\Record $record */
-		return $select->filterBySlug( $slug )->first();
+		$record = $select->filterBySlug( $slug )->first();
+		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record' ) ) {
+			$record = null;
+		}
+		return $record;
 	}
 }

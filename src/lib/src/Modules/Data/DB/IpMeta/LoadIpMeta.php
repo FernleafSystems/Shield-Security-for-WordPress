@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
 
+/**
+ * @deprecated 19.1
+ */
 class LoadIpMeta extends BaseLoadRecordsForIPJoins {
 
 	/**

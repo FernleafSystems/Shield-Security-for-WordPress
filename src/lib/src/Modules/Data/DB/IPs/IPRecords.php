@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use IPLib\Factory;
 
+/**
+ * @deprecated 19.1
+ */
 class IPRecords {
 
 	use ModConsumer;

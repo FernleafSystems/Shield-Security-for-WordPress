@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
-	Ops as IpRulesDB,
+	Ops as IpRulesDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
@@ -135,8 +135,6 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	}
 
 	private function getColumnContent_Status( IpRuleRecord $record ) :string {
-		$opts = $this->opts();
-
 		$content = [
 			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), IpRulesDB\Handler::GetTypeName( $record->type ) )
 		];

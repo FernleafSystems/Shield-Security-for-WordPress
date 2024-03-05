@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
 	public const T_AUTO_BYPASS = 'AW';

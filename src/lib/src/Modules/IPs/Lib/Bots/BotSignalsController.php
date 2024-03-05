@@ -53,9 +53,6 @@ class BotSignalsController {
 			if ( !$con->comps->opts_lookup->enabledAntiBotEngine() ) {
 				$con->fireEvent( 'ade_check_option_disabled' );
 			}
-			elseif ( !$this->mod()->isModOptEnabled() ) {
-				$con->fireEvent( 'ade_check_module_disabled' );
-			}
 			else {
 				$botScoreMinimum = $con->comps->opts_lookup->getAntiBotMinScore();
 				if ( $botScoreMinimum > 0 ) {

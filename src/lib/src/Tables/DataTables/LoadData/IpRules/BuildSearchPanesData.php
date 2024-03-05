@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRulesIterator;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	IpRulesIterator,
+	Ops as IpRulesDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,7 +29,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		/** @var ?Record $first */
+		/** @var ?IpRulesDB\Record $first */
 		$first = self::con()
 			->db_con
 			->dbhIPRules()
@@ -65,7 +66,7 @@ class BuildSearchPanesData {
 				$type = null;
 				if ( \is_array( $result ) && !empty( $result[ 'type' ] ) ) {
 					$type = [
-						'label' => Handler::GetTypeName( $result[ 'type' ] ),
+						'label' => IpRulesDB\Handler::GetTypeName( $result[ 'type' ] ),
 						'value' => $result[ 'type' ],
 					];
 				}

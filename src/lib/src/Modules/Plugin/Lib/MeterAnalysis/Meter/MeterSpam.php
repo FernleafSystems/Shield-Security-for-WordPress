@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterSpam extends MeterBase {
@@ -9,7 +10,7 @@ class MeterSpam extends MeterBase {
 	public const SLUG = 'spam';
 
 	protected function getWorkingMods() :array {
-		return [ self::con()->getModule_Comments() ];
+		return [ EnumModules::COMMENTS ];
 	}
 
 	public function title() :string {

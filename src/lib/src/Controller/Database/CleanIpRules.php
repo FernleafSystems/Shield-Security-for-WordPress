@@ -2,17 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\MergeAutoBlockRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	LoadIpRules,
+	MergeAutoBlockRules,
+	Ops as IpRulesDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CleanIpRules {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function all() {
 		$this->expired();
@@ -36,10 +37,10 @@ class CleanIpRules {
 
 	private function expired_AutoBlock() {
 		// Expired AutoBlock
-		/** @var Ops\Delete $deleter */
+		/** @var IpRulesDB\Delete $deleter */
 		$deleter = self::con()->db_con->dbhIPRules()->getQueryDeleter();
 		$deleter
-			->filterByType( Handler::T_AUTO_BLOCK )
+			->filterByType( IpRulesDB\Handler::T_AUTO_BLOCK )
 			->addWhereOlderThan(
 				Services::Request()
 						->carbon()
@@ -50,9 +51,9 @@ class CleanIpRules {
 	}
 
 	public function expired_Crowdsec() {
-		/** @var Ops\Delete $deleter */
+		/** @var IpRulesDB\Delete $deleter */
 		$deleter = self::con()->db_con->dbhIPRules()->getQueryDeleter();
-		$deleter->filterByType( Handler::T_CROWDSEC )
+		$deleter->filterByType( IpRulesDB\Handler::T_CROWDSEC )
 				->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 				->query();
 
@@ -60,7 +61,7 @@ class CleanIpRules {
 		 * @since 18.4 - delete crowdsec IPs that have never been accessed, and that expire within 2 days.
 		 */
 		$deleter->reset()
-				->filterByType( Handler::T_CROWDSEC )
+				->filterByType( IpRulesDB\Handler::T_CROWDSEC )
 				->addWhere( 'last_access_at', 0 )
 				->addWhereOlderThan( Services::Request()->ts() + DAY_IN_SECONDS*2, 'expires_at' )
 				->query();
@@ -78,7 +79,7 @@ class CleanIpRules {
 					error_log( 'clean duplicate IPs for: '.$ip );
 				}
 			},
-			\array_keys( \array_filter( $this->getIpCountsForType( Handler::T_AUTO_BLOCK ), function ( $IDs ) {
+			\array_keys( \array_filter( $this->getIpCountsForType( IpRulesDB\Handler::T_AUTO_BLOCK ), function ( $IDs ) {
 				return \count( $IDs ) > 1;
 			} ) )
 		);
@@ -89,7 +90,7 @@ class CleanIpRules {
 	 */
 	public function duplicates_Crowdsec() {
 
-		$allCounts = \array_filter( $this->getIpCountsForType( Handler::T_CROWDSEC ), function ( $IDs ) {
+		$allCounts = \array_filter( $this->getIpCountsForType( IpRulesDB\Handler::T_CROWDSEC ), function ( $IDs ) {
 			return \count( $IDs ) > 1;
 		} );
 
@@ -100,10 +101,10 @@ class CleanIpRules {
 		}
 
 		if ( !empty( $deleteIDs ) ) {
-			/** @var Ops\Delete $deleter */
+			/** @var IpRulesDB\Delete $deleter */
 			$deleter = self::con()->db_con->dbhIPRules()->getQueryDeleter();
 			$deleter
-				->filterByType( Handler::T_CROWDSEC )
+				->filterByType( IpRulesDB\Handler::T_CROWDSEC )
 				->addWhereIn( 'id', $deleteIDs )
 				->query();
 		}

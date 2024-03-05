@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 class Delete extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Delete {
 
 	use Common;

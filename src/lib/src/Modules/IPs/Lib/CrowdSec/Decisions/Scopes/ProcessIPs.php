@@ -3,9 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRulesIterator;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	IpRulesIterator,
+	LoadIpRules,
+	Ops as IpRulesDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Factory;
@@ -93,7 +95,7 @@ class ProcessIPs extends ProcessBase {
 					}
 
 					$insertValues[] = sprintf( "( %s, %s, '%s', %s, %s, %s, %s )",
-						$ipRecord[ 'id' ], 32, Handler::T_CROWDSEC, $now, $slice[ $recordIP ][ 'expires_at' ], $now, $now );
+						$ipRecord[ 'id' ], 32, IpRulesDB\Handler::T_CROWDSEC, $now, $slice[ $recordIP ][ 'expires_at' ], $now, $now );
 					unset( $slice[ $recordIP ] );
 				}
 
@@ -114,7 +116,7 @@ class ProcessIPs extends ProcessBase {
 
 		$loader = new LoadIpRules();
 		$loader->wheres = [
-			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+			sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
 		];
 		$loader->joined_table_select_fields = [
 			'cidr',
@@ -168,7 +170,7 @@ class ProcessIPs extends ProcessBase {
 								return sprintf( "INET6_ATON('%s')", $ip );
 							}, $singles ) )
 						),
-						sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+						sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
 					];
 
 					foreach ( $loader->select() as $preExistingRule ) {
@@ -215,7 +217,7 @@ class ProcessIPs extends ProcessBase {
 		$rulesIterator = new IpRulesIterator();
 		$loader = $rulesIterator->getLoader();
 		$loader->wheres = [
-			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+			sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
 		];
 		$loader->joined_table_select_fields = [
 			'ip_ref',

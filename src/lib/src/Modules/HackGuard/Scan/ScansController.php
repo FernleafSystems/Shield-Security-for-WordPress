@@ -246,12 +246,10 @@ class ScansController {
 	}
 
 	private function setScansToBuild( array $scans ) :void {
-		$this->setOpt( 'scans_to_build',
-			\array_intersect_key( $scans,
-				\array_flip( self::con()->getModule_HackGuard()->getScansCon()->getScanSlugs() )
-			)
-		);
-		self::con()->opts->store();
+		self::con()
+			->opts
+			->optSet( 'scans_to_build', \array_intersect_key( $scans, \array_flip( $this->getScanSlugs() ) ) )
+			->store();
 	}
 
 	protected function getCronFrequency() {

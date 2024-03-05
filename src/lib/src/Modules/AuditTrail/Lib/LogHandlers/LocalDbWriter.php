@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	ActivityLogs\Ops as LogsDB,
+	FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogsMeta\Ops as MetaDB,
+	ReqLogs\Ops as ReqLogsDB,
+	ReqLogs\RequestRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LocalDbWriter extends AbstractProcessingHandler {
@@ -68,7 +71,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$ipRecordID = ( new IPRecords() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
-		/** @var ReqLogs\Ops\Select $reqSelector */
+		/** @var ReqLogsDB\Select $reqSelector */
 		$reqSelector = $dbCon->dbhReqLogs()->getQuerySelector();
 		$reqIDs = \array_map(
 			function ( $rawRecord ) {
@@ -111,6 +114,12 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$dbh = self::con()->db_con->dbhActivityLogs();
 		/** @var LogsDB\Record $record */
 		$record = $dbh->getRecord();
+		/**
+		 * @deprecated 19.1
+		 */
+		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Logs\Ops\Record' ) ) {
+			throw new \Exception( 'Not a valid class.' );
+		}
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
@@ -120,7 +129,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->getRequestLogger()
 			->createDependentLog();
 
-		$requestRecord = ( new ReqLogs\RequestRecords() )->loadReq(
+		$requestRecord = ( new RequestRecords() )->loadReq(
 			$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
 			( new IPRecords() )
 				->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )

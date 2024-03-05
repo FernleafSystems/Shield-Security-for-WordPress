@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $wheres
  * @property string   $order_by
  * @property string   $order_dir
+ * @deprecated 19.1
  */
 class LoadLogs extends DynPropertiesClass {
 

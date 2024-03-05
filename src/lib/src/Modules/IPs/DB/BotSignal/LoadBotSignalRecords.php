@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class LoadBotSignalRecords {
 
 	use ModConsumer;

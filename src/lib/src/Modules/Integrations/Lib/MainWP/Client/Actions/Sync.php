@@ -64,7 +64,7 @@ class Sync {
 					}
 					break;
 
-				case EnumModules::SCANNERS:
+				case EnumModules::SCANS:
 					$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
 						( new HackGuard\Scan\Results\Counts() )->all()
 					);

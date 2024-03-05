@@ -43,7 +43,7 @@ class PageConfig extends BasePluginAdminPage {
 				}
 				break;
 
-			case EnumModules::SCANNERS:
+			case EnumModules::SCANS:
 				$hrefs[] = [
 					'text' => __( 'Scan Results', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
