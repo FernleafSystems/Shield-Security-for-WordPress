@@ -50,7 +50,7 @@ class OptsSettingsLookup {
 	 * @param string $area - login, register, password, woocommerce
 	 */
 	public function enabledLoginProtectionArea( string $area ) :bool {
-		return \in_array( $area, self::con()->opts->optGet( 'bot_protection_locations' ) ) && $this->isModFromOptEnabled( 'bot_protection_locations' );
+		return $this->enabledLoginGuardAntiBotCheck() && \in_array( $area, self::con()->opts->optGet( 'bot_protection_locations' ) );
 	}
 
 	public function enabledTelemetry() :bool {

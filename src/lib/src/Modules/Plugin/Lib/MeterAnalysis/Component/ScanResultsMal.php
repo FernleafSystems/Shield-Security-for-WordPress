@@ -8,7 +8,7 @@ class ScanResultsMal extends ScanResultsBase {
 	public const SLUG = 'scan_results_mal';
 
 	protected function countResults() :int {
-		return self::con()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countMalware();
+		return self::con()->comps->scans->getScanResultsCount()->countMalware();
 	}
 
 	public function title() :string {

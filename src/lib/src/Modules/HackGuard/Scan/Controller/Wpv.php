@@ -85,7 +85,10 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' ) && !$this->isRestricted();
+		$con = self::con();
+		return $con->comps !== null
+			   && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_core_file_integrity_scan', 'Y' )
+			   && !$this->isRestricted();
 	}
 
 	public function buildScanAction() :Scans\Wpv\ScanActionVO {

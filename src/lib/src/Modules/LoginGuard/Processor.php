@@ -16,7 +16,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 		( new Lib\Rename\RenameLogin() )->execute();
 
-		$con->getModule_LoginGuard()->getMfaController()->execute();
+		self::con()->comps->mfa->execute();
 
 		add_action( 'init', function () {
 			( new Lib\AntiBot\AntibotSetup() )->execute();

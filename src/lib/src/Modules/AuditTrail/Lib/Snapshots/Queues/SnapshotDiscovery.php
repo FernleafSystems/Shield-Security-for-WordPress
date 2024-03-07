@@ -10,7 +10,7 @@ class SnapshotDiscovery extends BackgroundProcess {
 	use ModConsumer;
 
 	protected function task( $item ) {
-		$auditCon = $this->mod()->getAuditCon();
+		$auditCon = self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log;
 		$auditCon->runSnapshotDiscovery( $auditCon->getAuditors()[ $item ] );
 		return false;
 	}

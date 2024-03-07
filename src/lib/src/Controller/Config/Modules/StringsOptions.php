@@ -428,9 +428,7 @@ class StringsOptions {
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "The PHP OpenSSL Extension is required, along with the RC4 Cipher.", 'wp-simple-firewall' ) ),
 				];
 
-				$locks = $con->getModule_HackGuard()
-							 ->getFileLocker()
-							 ->getLocks();
+				$locks = self::con()->comps->file_locker->getLocks();
 				if ( !empty( $locks ) ) {
 					$desc[] = __( 'Locked Files', 'wp-simple-firewall' ).':';
 					foreach ( $locks as $lock ) {
@@ -612,7 +610,7 @@ class StringsOptions {
 				];
 				break;
 			case 'cs_enroll_id' :
-				$machID = $con->getModule_IPs()->getCrowdSecCon()->getApi()->getMachineID();
+				$machID = $con->comps->crowdsec->getApi()->getMachineID();
 				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
 				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
 				$desc = [
@@ -978,7 +976,7 @@ class StringsOptions {
 				$desc = [
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
-					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_Integrations(), 'section_user_forms' ),
+					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::INTEGRATIONS, 'section_user_forms' ),
 						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $con->getHumanName() ) )
 				];
 				break;

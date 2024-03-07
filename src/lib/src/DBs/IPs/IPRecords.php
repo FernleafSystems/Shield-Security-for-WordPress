@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use IPLib\Factory;
 
 class IPRecords {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private static $ips = [];
 

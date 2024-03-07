@@ -199,14 +199,13 @@ class PageLicense extends BasePluginAdminPage {
 	}
 
 	private function getAllIntegrationNames() :array {
-		$modIntegrations = self::con()->getModule_Integrations();
 		return \array_map(
-			function ( $provider ) use ( $modIntegrations ) {
+			function ( $provider ) {
 				return ( new $provider() )->getHandlerName();
 			},
 			\array_merge(
-				$modIntegrations->getController_UserForms()->enumProviders(),
-				$modIntegrations->getController_SpamForms()->enumProviders()
+				self::con()->comps->forms_users->enumProviders(),
+				self::con()->comps->forms_spam->enumProviders()
 			)
 		);
 	}

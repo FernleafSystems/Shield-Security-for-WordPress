@@ -130,7 +130,7 @@ class BuildScanItems {
 
 	private function buildFilesFromDisk() :array {
 		/** @var ScanActionVO $action */
-		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
+		$action = self::con()->comps->scans->AFS()->getScanActionVO();
 
 		$files = [];
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
@@ -173,7 +173,7 @@ class BuildScanItems {
 		$whitelisted = false;
 
 		/** @var ScanActionVO $action */
-		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
+		$action = self::con()->comps->scans->AFS()->getScanActionVO();
 		foreach ( $action->paths_whitelisted as $wlPathRegEx ) {
 			if ( \preg_match( $wlPathRegEx, $path ) ) {
 				$whitelisted = true;

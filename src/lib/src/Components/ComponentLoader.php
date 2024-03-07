@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsSettingsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\CommentSpamCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\FileLockerController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\SpamController;
@@ -36,6 +37,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property CompCons\AutoUpdatesCon $autoupdates
  * @property PluginBadge             $badge
  * @property BotSignalsController    $bot_signals
+ * @property CommentSpamCon          $comment_spam
  * @property CrowdSecController      $crowdsec
  * @property FileLockerController    $file_locker
  * @property SpamController          $forms_spam
@@ -83,6 +85,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'api_token'       => ApiTokenManager::class,
 			'badge'           => PluginBadge::class,
 			'bot_signals'     => BotSignalsController::class,
+			'comment_spam'    => CommentSpamCon::class,
 			'crowdsec'        => CrowdSecController::class,
 			'file_locker'     => FileLockerController::class,
 			'forms_spam'      => SpamController::class,

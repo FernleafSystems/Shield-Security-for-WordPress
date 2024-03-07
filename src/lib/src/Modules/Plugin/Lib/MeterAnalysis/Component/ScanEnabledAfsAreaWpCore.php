@@ -7,7 +7,7 @@ class ScanEnabledAfsAreaWpCore extends ScanEnabledAfsAreaBase {
 	public const SLUG = 'scan_enabled_afs_core';
 
 	protected function testIfProtected() :bool {
-		return self::con()->getModule_HackGuard()->getScansCon()->AFS()->isScanEnabledWpCore();
+		return self::con()->comps->scans->AFS()->isScanEnabledWpCore();
 	}
 
 	public function title() :string {

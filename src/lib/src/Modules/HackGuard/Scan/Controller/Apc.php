@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
@@ -51,7 +50,8 @@ class Apc extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isOpt( 'enabled_scan_apc', 'Y' );
+		$con = self::con();
+		return $con->comps !== null && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enabled_scan_apc', 'Y' );
 	}
 
 	protected function isPremiumOnly() :bool {

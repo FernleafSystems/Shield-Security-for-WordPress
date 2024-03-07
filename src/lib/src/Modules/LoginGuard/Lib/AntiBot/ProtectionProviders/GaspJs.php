@@ -29,7 +29,7 @@ class GaspJs extends BaseProtectionProvider {
 
 		$this->setFactorTested( true );
 
-		$gasp = $req->post( $this->mod()->getGaspKey() );
+		$gasp = $req->post( self::con()->comps->opts_lookup->getLoginGuardGaspKey() );
 
 		$username = $formProvider->getUserToAudit();
 		$action = $formProvider->getActionToAudit();

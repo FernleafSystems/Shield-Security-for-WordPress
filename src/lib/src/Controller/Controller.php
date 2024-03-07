@@ -732,10 +732,16 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::ACTIVITY ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Autoupdates() :Autoupdates\ModCon {
 		return $this->modules[ EnumModules::AUTOUPDATES ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Comments() :CommentsFilter\ModCon {
 		return $this->modules[ EnumModules::COMMENTS ];
 	}
@@ -747,6 +753,9 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( Comms\ModCon::SLUG );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Data() :Data\ModCon {
 		return $this->modules[ EnumModules::DATA ];
 	}
@@ -762,6 +771,9 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::FIREWALL ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Lockdown() :Lockdown\ModCon {
 		return $this->modules[ EnumModules::LOCKDOWN ];
 	}
@@ -770,10 +782,16 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::SCANS ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Headers() :Headers\ModCon {
 		return $this->modules[ EnumModules::HEADERS ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Integrations() :Integrations\ModCon {
 		return $this->modules[ EnumModules::INTEGRATIONS ];
 	}
@@ -798,10 +816,16 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::SECURITY_ADMIN ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_Traffic() :Traffic\ModCon {
 		return $this->modules[ EnumModules::TRAFFIC ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getModule_UserManagement() :UserManagement\ModCon {
 		return $this->modules[ EnumModules::USERS ];
 	}

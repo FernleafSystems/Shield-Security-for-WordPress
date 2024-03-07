@@ -9,10 +9,7 @@ class MfaBackupCodeAdd extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_backup_code_add';
 
 	protected function exec() {
-		$available = self::con()
-						 ->getModule_LoginGuard()
-						 ->getMfaController()
-						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {
@@ -27,7 +24,7 @@ class MfaBackupCodeAdd extends MfaUserConfigBase {
 
 		$this->response()->action_response_data = [
 			'message' => $msg,
-			'code'    => $pass,
+			'code'    => $pass ?? '',
 			'success' => $success
 		];
 	}

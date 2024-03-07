@@ -124,7 +124,6 @@ abstract class BaseRender extends BaseAction {
 				] ) )
 			],
 			'flags'            => [
-				'has_session'             => $con->getModule_Plugin()->getSessionCon()->current()->valid,
 				'is_whitelabelled'        => $isWhitelabelled,
 				'is_ip_whitelisted'       => $ipStatus->isBypass(),
 				'is_ip_blocked'           => $ipStatus->isBlocked(),

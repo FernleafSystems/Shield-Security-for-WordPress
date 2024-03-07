@@ -30,11 +30,7 @@ abstract class PluginThemesBase extends Base {
 
 	protected function getVulnerabilities() :Scans\Wpv\ResultsSet {
 		try {
-			$vulnerable = self::con()
-							  ->getModule_HackGuard()
-							  ->getScansCon()
-							  ->WPV()
-							  ->getResultsForDisplay();
+			$vulnerable = self::con()->comps->scans->WPV()->getResultsForDisplay();
 		}
 		catch ( \Exception $e ) {
 			$vulnerable = new Scans\Wpv\ResultsSet();
@@ -44,11 +40,7 @@ abstract class PluginThemesBase extends Base {
 
 	protected function getAbandoned() :Scans\Apc\ResultsSet {
 		try {
-			$abandoned = self::con()
-							 ->getModule_HackGuard()
-							 ->getScansCon()
-							 ->APC()
-							 ->getResultsForDisplay();
+			$abandoned = self::con()->comps->scans->APC()->getResultsForDisplay();
 		}
 		catch ( \Exception $e ) {
 			$abandoned = new Scans\Apc\ResultsSet();

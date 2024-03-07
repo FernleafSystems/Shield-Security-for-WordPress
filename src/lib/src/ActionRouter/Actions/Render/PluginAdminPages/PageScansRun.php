@@ -12,18 +12,17 @@ class PageScansRun extends PageScansBase {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_run.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = self::con();
 		return [
 			[
 				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			[
 				'text'    => __( 'Configure Scans', 'wp-simple-firewall' ),
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_HackGuard()->cfg->slug
+					'config_item' => EnumModules::SCANS,
 				],
 			],
 		];
@@ -78,14 +77,13 @@ class PageScansRun extends PageScansBase {
 
 	private function buildScansVars() :array {
 		$con = self::con();
-		$scansCon = $con->getModule_HackGuard()->getScansCon();
 
 		$scans = [];
-		foreach ( $scansCon->getAllScanCons() as $scanCon ) {
+		foreach ( $con->comps->scans->getAllScanCons() as $scanCon ) {
 			$slug = $scanCon->getSlug();
 
 			$subItems = [];
-			if ( $slug === $scansCon->AFS()->getSlug() ) {
+			if ( $slug === $con->comps->scans->AFS()->getSlug() ) {
 				foreach ( $con->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
 					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $con->opts->optGet( 'file_scan_areas' ) );
 				}

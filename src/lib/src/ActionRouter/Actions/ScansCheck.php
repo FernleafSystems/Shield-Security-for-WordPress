@@ -10,29 +10,28 @@ class ScansCheck extends ScansBase {
 	public const SLUG = 'scans_check';
 
 	protected function exec() {
-		$mod = self::con()->getModule_HackGuard();
+		$con = self::con();
+		$scansCon = $con->comps === null ? $con->getModule_HackGuard()->getScansCon() : $con->comps->scans;
+		$scansQueueCon = $con->comps === null ? $con->getModule_HackGuard()->getScanQueueController() : $con->comps->scans_queue;
 
 		$current = ( new ScansStatus() )->current();
 		$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
 		if ( !empty( $current ) ) {
-			$currentScan = $mod->getScansCon()
-							   ->getScanCon( $current )
-							   ->getScanName();
+			$currentScan = $scansCon->getScanCon( $current )->getScanName();
 		}
 
 		$running = \count( ( new ScansStatus() )->enqueued() );
-		$queueCon = $mod->getScanQueueController();
 
 		$this->response()->action_response_data = [
 			'success' => true,
-			'running' => $queueCon->getScansRunningStates(),
+			'running' => $scansQueueCon->getScansRunningStates(),
 			'vars'    => [
 				'progress_html' => self::con()->action_router->render( ScansProgress::SLUG, [
 					'current_scan'    => $currentScan,
 					'remaining_scans' => $running === 0 ?
 						__( 'No scans remaining.', 'wp-simple-firewall' )
 						: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running ), $running ),
-					'progress'        => 100*$queueCon->getScanJobProgress(),
+					'progress'        => 100*$scansQueueCon->getScanJobProgress(),
 				] ),
 			]
 		];

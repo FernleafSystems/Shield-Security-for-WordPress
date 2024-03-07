@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Report\Changes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Logs\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 
 abstract class BaseZoneReportPluginsThemes extends BaseZoneReport {
 

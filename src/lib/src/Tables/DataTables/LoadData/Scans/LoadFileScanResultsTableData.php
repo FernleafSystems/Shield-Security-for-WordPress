@@ -95,7 +95,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function getRecordRetriever() :RetrieveItems {
-		$retriever = ( new RetrieveItems() )->setScanController( $this->mod()->getScansCon()->AFS() );
+		$retriever = ( new RetrieveItems() )->setScanController( self::con()->comps->scans->AFS() );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
 
@@ -161,11 +161,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 		try {
 			if ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) {
-				$actionHandler = $this->mod()
-									  ->getScansCon()
-									  ->getScanCon( $item->VO->scan )
-									  ->getItemActionHandler()
-									  ->setScanItem( $item );
+				$actionHandler = self::con()
+					->comps
+					->scans
+					->getScanCon( $item->VO->scan )
+					->getItemActionHandler()
+					->setScanItem( $item );
 				if ( $actionHandler->getRepairHandler()->canRepairItem() ) {
 					$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 						\implode( ' ', $defaultButtonClasses ),

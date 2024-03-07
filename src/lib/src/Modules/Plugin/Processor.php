@@ -21,14 +21,16 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 			$components->ips_con->execute();
 			$components->sec_admin->execute();
 			$components->whitelabel->execute();
-			$components->scans->execute();
 			$components->requests_log->execute();
 			$components->activity_log->execute();
+			$components->scans->execute();
+			$components->file_locker->execute();
 			$components->http_headers->execute();
 			$components->reports->execute();
 			$components->autoupdates->execute();
 			$components->badge->execute();
 			$components->import_export->execute();
+			$components->comment_spam->execute();
 			new Events\StatsWriter();
 			( new Lib\AllowBetaUpgrades() )->execute();
 			( new Lib\OverrideLocale() )->execute();

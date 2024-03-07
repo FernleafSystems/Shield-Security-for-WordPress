@@ -159,18 +159,6 @@ class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * TODO
-	 */
-	public function getUiTrack() :Lib\Components\UiTrack {
-//		$a = self::con()->opts->optGet( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )->applyFromArray( [] );
-	}
-
-	public function setUiTrack( Lib\Components\UiTrack $UI ) {
-		self::con()->opts->optSet( 'ui_track', $UI->getRawData() );
-	}
-
-	/**
 	 * @deprecated 19.1
 	 */
 	public function onConfigChanged() :void {

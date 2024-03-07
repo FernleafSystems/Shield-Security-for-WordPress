@@ -14,7 +14,7 @@ class MfaSkip {
 		$hashes = \is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
-		$maxExpires = self::con()->getModule_LoginGuard()->getMfaController()->getMfaSkip();
+		$maxExpires = self::con()->comps->mfa->getMfaSkip();
 		if ( $maxExpires > 0 ) {
 			$hashes = \array_filter( $hashes,
 				function ( $ts ) use ( $maxExpires ) {
@@ -29,7 +29,7 @@ class MfaSkip {
 	public function canMfaSkip( \WP_User $user ) :bool {
 		$canSkip = false;
 
-		$mfaSkip = self::con()->getModule_LoginGuard()->getMfaController()->getMfaSkip();
+		$mfaSkip = self::con()->comps->mfa->getMfaSkip();
 		if ( $mfaSkip > 0 ) {
 			$agentHash = $this->getAgentHash();
 			$meta = self::con()->user_metas->for( $user );

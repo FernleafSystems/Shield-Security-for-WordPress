@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActivityLogTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 
 class PageActivityLogTable extends BasePluginAdminPage {
@@ -19,7 +20,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_AuditTrail()->cfg->slug
+					'config_item' => EnumModules::ACTIVITY,
 				],
 			]
 		];

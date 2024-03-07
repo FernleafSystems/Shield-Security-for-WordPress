@@ -9,10 +9,7 @@ class MfaEmailToggle extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_toggle_email';
 
 	protected function exec() {
-		$available = self::con()
-						 ->getModule_LoginGuard()
-						 ->getMfaController()
-						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?Email $provider */
 		$provider = $available[ Email::ProviderSlug() ] ?? null;
 		if ( !empty( $provider ) && !$provider->isEnforced() ) {

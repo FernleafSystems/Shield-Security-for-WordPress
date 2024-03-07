@@ -11,7 +11,7 @@ abstract class AdeBase extends Base {
 	}
 
 	protected function getOptConfigKey() :string {
-		return 'bot_protection_locations';
+		return self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck() ? 'bot_protection_locations' : 'enable_antibot_check';
 	}
 
 	public function title() :string {

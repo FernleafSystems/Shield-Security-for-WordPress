@@ -97,7 +97,7 @@ class Import {
 		$optsCon = self::con()->opts;
 
 		if ( empty( $masterURL ) ) {
-			$masterURL = self::con()->getModule_Plugin()->getImpExpController()->getImportExportMasterImportUrl();
+			$masterURL = self::con()->comps->import_export->getImportExportMasterImportUrl();
 			if ( empty( $masterURL ) ) {
 				throw new \Exception( "No Master Site URL provided.", 4 );
 			}

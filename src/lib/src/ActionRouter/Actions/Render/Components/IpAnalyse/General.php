@@ -6,8 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPInfo;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\{
+	GetIPInfo,
+	GetIPReputation
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -18,8 +20,6 @@ class General extends Base {
 	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_general.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
-		$mod = $con->getModule_IPs();
 		$ip = $this->action_data[ 'ip' ];
 
 		$countryCode = ( new LookupMeta() )
@@ -40,11 +40,6 @@ class General extends Base {
 		if ( $ipKey === IpID::UNKNOWN && !empty( $bypassIP ) ) {
 			$ipName = $bypassIP->label ?? '';
 		}
-
-		$botScore = ( new CalculateVisitorBotScores() )
-			->setIP( $ip )
-			->probability();
-		$isBot = $mod->getBotSignalsController()->isBot( $ip, false );
 
 		$shieldNetScore = ( new GetIPReputation() )
 							  ->setIP( $ip )
@@ -103,14 +98,16 @@ class General extends Base {
 			'vars'    => [
 				'ip'       => $ip,
 				'status'   => [
-					'is_you'                 => Services::IP()::IpIn( $ip, [ $con->this_req->ip ] ),
+					'is_you'                 => Services::IP()::IpIn( $ip, [ self::con()->this_req->ip ] ),
 					'offenses'               => $ruleStatus->getOffenses(),
 					'is_blocked'             => $ruleStatus->isBlocked(),
 					'is_bypass'              => $ruleStatus->isBypass(),
 					'is_crowdsec'            => $ruleStatus->isBlockedByCrowdsec(),
-					'ip_reputation_score'    => $botScore,
+					'ip_reputation_score'    => ( new CalculateVisitorBotScores() )
+						->setIP( $ip )
+						->probability(),
 					'snapi_reputation_score' => \is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
-					'is_bot'                 => $isBot,
+					'is_bot'                 => self::con()->comps->bot_signals->isBot( $ip, false ),
 				],
 				'identity' => [
 					'who_is_it'    => $ipName,

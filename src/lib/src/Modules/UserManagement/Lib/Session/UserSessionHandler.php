@@ -37,7 +37,7 @@ class UserSessionHandler {
 
 		if ( \in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
 			 && $user instanceof \WP_User
-			 && self::con()->getModule_Plugin()->getSessionCon()->current()->valid
+			 && self::con()->comps->session->current()->valid
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
@@ -65,11 +65,7 @@ class UserSessionHandler {
 			$this->sendAdminLoginEmailNotification( $user );
 		}
 		if ( $sendUser ) {
-			$hasLoginIntent = self::con()
-								  ->getModule_LoginGuard()
-								  ->getMfaController()
-								  ->isSubjectToLoginIntent( $user );
-			if ( !$hasLoginIntent ) {
+			if ( !self::con()->comps->mfa->isSubjectToLoginIntent( $user ) ) {
 				self::con()->email_con->sendVO(
 					EmailVO::Factory(
 						$user->user_email,
@@ -199,9 +195,7 @@ class UserSessionHandler {
 					]
 				] );
 
-				$con->getModule_Plugin()
-					->getSessionCon()
-					->terminateCurrentSession();
+				$con->comps->session->terminateCurrentSession();
 				$WPU = Services::WpUsers();
 				is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
 			}
@@ -212,12 +206,7 @@ class UserSessionHandler {
 	 * @throws \Exception
 	 */
 	private function assessSession() {
-		$opts = $this->opts();
-
-		$sess = self::con()
-					->getModule_Plugin()
-					->getSessionCon()
-					->current();
+		$sess = self::con()->comps->session->current();
 		if ( !$sess->valid ) {
 			throw new \Exception( 'session_notfound' );
 		}

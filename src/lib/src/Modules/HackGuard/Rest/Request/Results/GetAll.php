@@ -23,11 +23,13 @@ class GetAll extends Base {
 		$results = [];
 		foreach ( $req->scan_slugs as $scanSlug ) {
 			$RS = self::con()
-					  ->getModule_HackGuard()
-					  ->getScansCon()
-					  ->getScanCon( $scanSlug )
-					  ->getAllResults();
+				->comps
+				->scans
+				->getScanCon( $scanSlug )
+				->getAllResults();
+
 			$thisResults = [];
+
 			foreach ( $RS->getAllItems() as $item ) {
 				$item = \array_merge(
 					$item->getRawData(),

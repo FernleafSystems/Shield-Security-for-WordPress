@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return self::con()->getModule_Headers();
+		return self::con()->modules[ EnumModules::LOCKDOWN ];
 	}
 
 	public function opts() :Options {

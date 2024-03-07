@@ -2,14 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Conditions,
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsSecurityAdmin extends BuildRuleCoreShieldBase {
-
-	use ModConsumer;
 
 	public const SLUG = 'shield/is_security_admin';
 

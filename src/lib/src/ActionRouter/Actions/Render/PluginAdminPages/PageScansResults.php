@@ -36,7 +36,7 @@ class PageScansResults extends PageScansBase {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_HackGuard()->cfg->slug
+					'config_item' => EnumModules::SCANS,
 				],
 			],
 		];
@@ -44,8 +44,7 @@ class PageScansResults extends PageScansBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_HackGuard();
-		$scansCon = $mod->getScansCon();
+		$scansCon = $con->comps->scans;
 
 		( new CleanQueue() )->execute();
 		foreach ( $scansCon->getAllScanCons() as $scanCon ) {
@@ -95,7 +94,7 @@ class PageScansResults extends PageScansBase {
 				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
 			],
 			'hrefs'       => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgSection( EnumModules::SCANS, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [

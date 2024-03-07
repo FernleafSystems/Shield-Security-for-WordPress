@@ -3,17 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as SecurityRulesDB,
 	RuleRecords
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();

@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 class CommentSpam extends Base {
 
@@ -23,7 +24,7 @@ class CommentSpam extends Base {
 		];
 	}
 
-	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+	public function processStepFormSubmit( array $form ) :Response {
 		$value = $form[ 'CommentsFilterOption' ] ?? '';
 		if ( empty( $value ) ) {
 			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
@@ -31,7 +32,7 @@ class CommentSpam extends Base {
 
 		$toEnable = $value === 'Y';
 		if ( $toEnable ) { // we don't disable the whole module
-			self::con()->getModule_Comments()->setIsMainFeatureEnabled( true );
+			self::con()->opts->optSet( 'enable_'.EnumModules::COMMENTS, 'Y' );
 		}
 		self::con()->opts->optSet( 'enable_antibot_comments', $toEnable ? 'Y' : 'N' );
 

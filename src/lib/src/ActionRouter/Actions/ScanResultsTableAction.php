@@ -52,8 +52,6 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function doAction( string $action ) :array {
-		$mod = self::con()->getModule_HackGuard();
-
 		$items = $this->getItemIDs();
 
 		$scanSlugs = [];
@@ -62,7 +60,7 @@ class ScanResultsTableAction extends ScansBase {
 			try {
 				$item = ( new RetrieveItems() )->byID( $itemID );
 				$scanSlugs[] = $item->VO->scan;
-				if ( $mod->getScansCon()->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
+				if ( self::con()->comps->scans->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
 					$successfulItems[] = $item->VO->scanresult_id;
 				}
 			}
@@ -71,7 +69,7 @@ class ScanResultsTableAction extends ScansBase {
 		}
 
 		foreach ( \array_unique( $scanSlugs ) as $slug ) {
-			$mod->getScansCon()->getScanCon( $slug )->cleanStalesResults();
+			self::con()->comps->scans->getScanCon( $slug )->cleanStalesResults();
 		}
 
 		if ( \count( $successfulItems ) === \count( $items ) ) {

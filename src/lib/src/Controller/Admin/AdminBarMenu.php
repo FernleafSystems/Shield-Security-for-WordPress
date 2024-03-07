@@ -71,7 +71,7 @@ class AdminBarMenu {
 
 	private function hackGuard() :?array {
 		$items = [];
-		foreach ( self::con()->getModule_HackGuard()->getScansCon()->getAllScanCons() as $scanCon ) {
+		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
 			if ( $scanCon->isEnabled() ) {
 				$items = \array_merge( $items, $scanCon->getAdminMenuItems() );
 			}

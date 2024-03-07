@@ -490,9 +490,10 @@ class AssetsCustomizer {
 							'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
 						],
 						'flags' => [
-							'initial_check' => $con->getModule_HackGuard()
-												   ->getScanQueueController()
-												   ->hasRunningScans(),
+							'initial_check' => $con->comps === null ?
+								$con->getModule_HackGuard()
+									->getScanQueueController()
+									->hasRunningScans() : $con->comps->scans_queue->hasRunningScans(),
 						],
 						'hrefs' => [
 							'results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),

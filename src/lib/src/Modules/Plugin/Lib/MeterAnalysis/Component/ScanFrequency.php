@@ -15,8 +15,7 @@ class ScanFrequency extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->isModFromOptEnabled( $this->getOptConfigKey() )
-			   && self::con()->opts->optGet( 'scan_frequency' ) > 1;
+		return self::con()->opts->optGet( 'scan_frequency' ) > 1;
 	}
 
 	public function title() :string {

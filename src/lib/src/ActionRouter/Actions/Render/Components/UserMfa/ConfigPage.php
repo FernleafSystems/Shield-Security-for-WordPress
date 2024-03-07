@@ -15,11 +15,7 @@ class ConfigPage extends BaseRender {
 	protected function getRenderData() :array {
 		return [
 			'content' => [
-				'mfa_setup' => self::con()
-								   ->getModule_LoginGuard()
-								   ->getMfaController()
-								   ->getMfaProfilesCon()
-								   ->renderUserProfileMFA()
+				'mfa_setup' => self::con()->comps->mfa->getMfaProfilesCon()->renderUserProfileMFA()
 			]
 		];
 	}

@@ -3,16 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NotifyWhitelist {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !empty( $this->mod()->getImpExpController()->getImportExportWhitelist() );
+		return !empty( self::con()->comps->import_export->getImportExportWhitelist() );
 	}
 
 	protected function run() {
@@ -31,7 +31,7 @@ class NotifyWhitelist {
 
 		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', self::con()->prefix() );
 		add_action( $cronHook, function () use ( $q ) {
-			foreach ( $this->mod()->getImpExpController()->getImportExportWhitelist() as $url ) {
+			foreach ( self::con()->comps->import_export->getImportExportWhitelist() as $url ) {
 				$q->push_to_queue( $url );
 			}
 			$q->save()->dispatch();

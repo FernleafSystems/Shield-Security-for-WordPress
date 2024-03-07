@@ -18,7 +18,7 @@ class MfaEmailAutoLogin extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		$mfaCon = $con->getModule_LoginGuard()->getMfaController();
+		$mfaCon = $con->comps->mfa;
 
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 		if ( empty( $user ) ) {

@@ -57,7 +57,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	}
 
 	protected function getLoginIntentExpiresAt() :int {
-		$mfaCon = self::con()->getModule_LoginGuard()->getMfaController();
+		$mfaCon = self::con()->comps->mfa;
 
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 

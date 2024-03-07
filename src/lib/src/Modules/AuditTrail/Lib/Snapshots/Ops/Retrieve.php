@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops as SnapshotsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Retrieve {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function count() :int {
 		return self::con()

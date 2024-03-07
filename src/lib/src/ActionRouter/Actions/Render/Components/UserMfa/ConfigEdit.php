@@ -23,7 +23,7 @@ class ConfigEdit extends UserMfaBase {
 			function ( $provider ) {
 				return $provider->getProviderName();
 			},
-			$con->getModule_LoginGuard()->getMfaController()->getProvidersActiveForUser( $user )
+			self::con()->comps->mfa->getProvidersActiveForUser( $user )
 		);
 
 		$isAdmin = Services::WpUsers()->isUserAdmin( $user );

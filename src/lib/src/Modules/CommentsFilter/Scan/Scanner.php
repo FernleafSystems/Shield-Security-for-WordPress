@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var string|int|null
@@ -49,7 +49,6 @@ class Scanner {
 	 */
 	public function checkComment( $approval, $comm ) {
 		$con = self::con();
-		$opts = $this->opts();
 
 		// Note: use strict \in_array() here because when approval is '0', always returns 'true'
 		if ( !\in_array( $approval, [ 'spam', 'trash' ], true )
@@ -74,11 +73,11 @@ class Scanner {
 
 				// if we're configured to actually block...
 				if ( $con->comps->opts_lookup->enabledAntiBotCommentSpam() && \in_array( 'antibot', $errorCodes ) ) {
-					$newStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
+					$newStatus = $con->opts->optGet( 'comments_default_action_spam_bot' );
 				}
 				elseif ( $con->comps->opts_lookup->enabledHumanCommentSpam()
 						 && \count( \array_intersect( [ 'human', 'humanrepeated', 'cooldown' ], $errorCodes ) ) > 0 ) {
-					$newStatus = $opts->getOpt( 'comments_default_action_human_spam' );
+					$newStatus = $con->opts->optGet( 'comments_default_action_human_spam' );
 				}
 				else {
 					$newStatus = null;
@@ -104,15 +103,9 @@ class Scanner {
 	}
 
 	private function runScans( array $commData ) :\WP_Error {
-		$opts = $this->opts();
-
 		$errors = new \WP_Error();
 
-		$isBot = self::con()
-					 ->getModule_IPs()
-					 ->getBotSignalsController()
-					 ->isBot();
-		if ( $isBot ) {
+		if ( self::con()->comps->bot_signals->isBot() ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
 		elseif ( self::con()->comps->opts_lookup->enabledHumanCommentSpam() ) {
@@ -137,7 +130,7 @@ class Scanner {
 				}
 			}
 
-			$opts->setOpt( 'last_comment_request_at', Services::Request()->ts() );
+			self::con()->opts->optSet( 'last_comment_request_at', Services::Request()->ts() );
 		}
 
 		return $errors;

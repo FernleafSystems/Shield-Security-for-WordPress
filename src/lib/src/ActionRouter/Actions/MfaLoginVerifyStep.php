@@ -14,7 +14,6 @@ class MfaLoginVerifyStep extends BaseAction {
 	protected function exec() {
 		if ( Services::Request()->isPost() && !Services::WpUsers()->isUserLoggedIn() ) {
 			$success = true;
-
 			add_action( 'wp_loaded', function () {
 				( new LoginIntentRequestCapture() )->runCapture();
 				// TODO: move the render that's embedded in the capture.

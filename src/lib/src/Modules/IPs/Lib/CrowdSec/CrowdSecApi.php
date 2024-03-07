@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecApi {
 
-	use IPs\ModConsumer;
+	use PluginControllerConsumer;
 
 	public const MAX_FAILED_LOGINS = 5;
 	public const STATE_NO_URL = 'no_url';
@@ -74,7 +74,7 @@ class CrowdSecApi {
 		elseif ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 ) {
 			$state = self::STATE_AUTH_EXPIRED;
 		}
-		elseif ( empty( $this->opts()->getOpt( 'cs_enroll_id' ) ) ) {
+		elseif ( empty( self::con()->opts->optGet( 'cs_enroll_id' ) ) ) {
 			$state = self::STATE_READY_NO_ENROLL_ID;
 		}
 		elseif ( empty( $csAuth[ 'machine_enrolled' ] ) ) {
@@ -259,7 +259,7 @@ class CrowdSecApi {
 		$auth = $this->getCsAuth();
 
 		// Enroll if we have the ID
-		$enrollID = \preg_replace( '#[^a-z\d]#i', '', (string)$this->opts()->getOpt( 'cs_enroll_id' ) );
+		$enrollID = \preg_replace( '#[^a-z\d]#i', '', self::con()->opts->optGet( 'cs_enroll_id' ) );
 		if ( !empty( $enrollID ) && empty( $auth[ 'machine_enrolled' ] ) ) {
 
 			$defaultTags = [ 'shield', 'wp', ];
@@ -294,7 +294,8 @@ class CrowdSecApi {
 	}
 
 	private function getScenarios() :array {
-		$scenarios = self::con()->comps->license->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+		$con = self::con();
+		$scenarios = $con->comps->license->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 		if ( self::con()->isPremiumActive() ) {
 			$filteredScenarios = apply_filters( 'shield/crowdsec/login_scenarios', $scenarios );
 			if ( !empty( $filteredScenarios ) && \is_array( $filteredScenarios ) ) {
@@ -302,7 +303,7 @@ class CrowdSecApi {
 			}
 		}
 
-		return empty( $scenarios ) ? $this->opts()->getDef( 'crowdsec' )[ 'scenarios' ][ 'free' ] : $scenarios;
+		return empty( $scenarios ) ? $con->cfg->configuration->def( 'crowdsec' )[ 'scenarios' ][ 'free' ] : $scenarios;
 	}
 
 	private function getCsAuth() :array {
@@ -325,10 +326,9 @@ class CrowdSecApi {
 			} );
 			Services::WpGeneral()->updateOption( self::con()->prefix( 'cs_auths' ), $auths );
 
-			$csCon = $this->mod()->getCrowdSecCon();
-			$cfg = $csCon->cfg();
+			$cfg = self::con()->comps->crowdsec->cfg();
 			$cfg->cs_auths = $auths;
-			$csCon->storeCfg( $cfg );
+			self::con()->comps->crowdsec->storeCfg( $cfg );
 		}
 	}
 

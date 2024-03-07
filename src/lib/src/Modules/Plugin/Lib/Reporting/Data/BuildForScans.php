@@ -76,7 +76,7 @@ class BuildForScans extends BuildBase {
 	}
 
 	private function buildForResultsContext( int $context ) :array {
-		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
+		$scansCon = self::con()->comps->scans;
 		$c = new Counts( $context );
 		$scanCounts = [
 			'file_locker'             => [
@@ -84,7 +84,7 @@ class BuildForScans extends BuildBase {
 				'count'     => $context === RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ?
 					\count( ( new LoadFileLocks() )->withProblems() )
 					: \count( ( new LoadFileLocks() )->withProblemsNotNotified() ),
-				'available' => self::con()->getModule_HackGuard()->getFileLocker()->isEnabled(),
+				'available' => self::con()->comps->file_locker->isEnabled(),
 			],
 			Wpv::SCAN_SLUG            => [
 				'name'      => $scansCon->WPV()->getScanName(),

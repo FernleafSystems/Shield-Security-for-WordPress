@@ -16,15 +16,14 @@ class PluginDeactivate {
 	}
 
 	private function purgeScans() {
-		$mod = self::con()->getModule_HackGuard();
 		// 1. Clean out the scanners
-		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
 			$scanCon->purge();
 		}
 		self::con()->db_con->dbhScanItems()->tableDelete();
 		self::con()->db_con->dbhScanResults()->tableDelete();
 		// 2. Clean out the file locker
-		$mod->getFileLocker()->purge();
+		self::con()->comps->file_locker->purge();
 	}
 
 	private function deleteCrons() {

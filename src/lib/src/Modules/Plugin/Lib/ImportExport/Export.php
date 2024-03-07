@@ -29,7 +29,7 @@ class Export {
 	}
 
 	public function toJson() :void {
-		$ieCon = $this->mod()->getImpExpController();
+		$ieCon = self::con()->comps->import_export;
 		$req = Services::Request();
 
 		$success = false;
@@ -167,16 +167,11 @@ class Export {
 	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
 	 */
 	private function verifyUrl( string $url, string $id, string $secret ) :bool {
-		$opts = self::con()->opts;
-
-		$urlIDs = $opts->optGet( 'import_url_ids' );
-		if ( !\is_array( $urlIDs ) ) {
-			$urlIDs = [];
-		}
+		$urlIDs = self::con()->opts->optGet( 'import_url_ids' );
 
 		$verified = !empty( $url ) &&
 					(
-						$this->mod()->getImpExpController()->verifySecretKey( $secret )
+						self::con()->comps->import_export->verifySecretKey( $secret )
 						|| ( !empty( $id ) && ( $urlIDs[ \md5( $url ) ] ?? '' ) === $id )
 						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
 					);
@@ -184,8 +179,10 @@ class Export {
 		// Update the stored ID, so it can be used at a later date.
 		if ( $verified && !empty( $id ) ) {
 			$urlIDs[ \md5( $url ) ] = $id;
-			$opts->optSet( 'import_url_ids', $urlIDs )
-				 ->store();
+			self::con()
+				->opts
+				->optSet( 'import_url_ids', $urlIDs )
+				->store();
 		}
 
 		return $verified;
@@ -207,7 +204,7 @@ class Export {
 				function ( $whitelistedURL ) {
 					return $this->parseURL( $whitelistedURL );
 				},
-				$this->mod()->getImpExpController()->getImportExportWhitelist()
+				self::con()->comps->import_export->getImportExportWhitelist()
 			);
 
 			foreach ( $whiteURLs as $whiteURL ) {

@@ -63,11 +63,18 @@ class InsertNotBotJs {
 
 	private function isFreshSignalRequired() :bool {
 		$req = Services::Request();
-		$lastAt = self::con()
-					  ->getModule_IPs()
-					  ->getBotSignalsController()
-					  ->getHandlerNotBot()
-					  ->getLastNotBotSignalAt();
+
+		if ( self::con()->comps === null ) {
+			$lastAt = self::con()
+						  ->getModule_IPs()
+						  ->getBotSignalsController()
+						  ->getHandlerNotBot()
+						  ->getLastNotBotSignalAt();
+		}
+		else {
+			$lastAt = self::con()->comps->not_bot->getLastNotBotSignalAt();
+		}
+
 		return $req->query( 'force_notbot' ) == 1 ||
 			   (
 				   ( $req->ts() - $lastAt > \MINUTE_IN_SECONDS*30 )

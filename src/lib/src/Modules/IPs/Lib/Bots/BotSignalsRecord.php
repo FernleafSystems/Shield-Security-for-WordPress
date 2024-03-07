@@ -109,10 +109,7 @@ class BotSignalsRecord {
 
 		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
 			$botSignalsCon = self::con()->comps === null ?
-				$this->mod()
-					 ->getBotSignalsController()
-					 ->getHandlerNotBot()
-					 ->hasCookie() : self::con()->comps->bot_signals;
+				$this->mod()->getBotSignalsController() : self::con()->comps->bot_signals;
 			$r->notbot_at = $botSignalsCon->getHandlerNotBot()->hasCookie() ? Services::Request()->ts() : 0;
 		}
 

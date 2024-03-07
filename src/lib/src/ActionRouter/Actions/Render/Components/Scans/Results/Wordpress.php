@@ -27,11 +27,7 @@ class Wordpress extends Base {
 
 	private function buildWordpressData() :array {
 		$WP = Services::WpGeneral();
-		$count = self::con()
-					 ->getModule_HackGuard()
-					 ->getScansCon()
-					 ->getScanResultsCount()
-					 ->countWPFiles();
+		$count = self::con()->comps->scans->getScanResultsCount()->countWPFiles();
 		$data = [
 			'info'  => [
 				'type'    => 'wordpress',

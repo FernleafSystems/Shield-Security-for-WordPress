@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsEmailTrusted {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function roleTrusted( \WP_User $user ) :bool {
 		return \count( \array_intersect(

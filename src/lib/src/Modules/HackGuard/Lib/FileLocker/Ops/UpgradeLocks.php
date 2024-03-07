@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -14,10 +14,10 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class UpgradeLocks extends BaseOps {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run() {
-		$conFL = self::con()->getModule_HackGuard()->getFileLocker();
+		$conFL = self::con()->comps->file_locker;
 
 		$ciphers = new GetAvailableCiphers();
 

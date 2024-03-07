@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -30,6 +31,7 @@ class FileLockerController {
 
 	public function isEnabled() :bool {
 		return ( \count( $this->getFilesToLock() ) > 0 )
+			   && self::con()->comps->opts_lookup->isModEnabled( EnumModules::SCANS )
 			   && self::con()->db_con->dbhFileLocker()->isReady()
 			   && self::con()->comps->shieldnet->canHandshake();
 	}

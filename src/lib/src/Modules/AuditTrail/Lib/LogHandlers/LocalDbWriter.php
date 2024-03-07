@@ -124,10 +124,15 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		// Create the underlying request log.
-		self::con()
-			->getModule_Traffic()
-			->getRequestLogger()
-			->createDependentLog();
+		if ( self::con()->comps === null ) {
+			self::con()
+				->getModule_Traffic()
+				->getRequestLogger()
+				->createDependentLog();
+		}
+		else {
+			self::con()->comps->requests_log->createDependentLog();
+		}
 
 		$requestRecord = ( new RequestRecords() )->loadReq(
 			$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],

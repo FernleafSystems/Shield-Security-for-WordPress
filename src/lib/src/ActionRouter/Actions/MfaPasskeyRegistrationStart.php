@@ -20,10 +20,7 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 			$response[ 'message' ] = __( "User must be logged-in.", 'wp-simple-firewall' );
 		}
 		else {
-			$available = $this->con()
-							  ->getModule_LoginGuard()
-							  ->getMfaController()
-							  ->getProvidersAvailableToUser( $user );
+			$available = self::con()->comps->mfa->getProvidersAvailableToUser( $user );
 			/** @var Passkey $provider */
 			$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 

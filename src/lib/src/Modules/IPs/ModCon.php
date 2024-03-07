@@ -26,6 +26,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 			( $this->botSignalsCon ?? $this->botSignalsCon = new Lib\Bots\BotSignalsController() );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
 		return isset( self::con()->comps ) ? self::con()->comps->crowdsec :
 			( $this->crowdSecCon ?? $this->crowdSecCon = new Lib\CrowdSec\CrowdSecController() );

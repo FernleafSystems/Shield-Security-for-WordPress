@@ -59,7 +59,7 @@ class PageConfig extends BasePluginAdminPage {
 					'text' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
 					'href' => $URLs->noncedPluginAction(
 						CrowdsecResetEnrollment::class,
-						$URLs->modCfg( self::con()->getModule_IPs() )
+						$URLs->modCfg( EnumModules::IPS )
 					),
 				];
 				break;

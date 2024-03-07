@@ -12,14 +12,10 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_HackGuard();
-
-		$lockerCon = $mod->getFileLocker();
 		$problemLocks = ( new LoadFileLocks() )->withProblems();
-
 		return [
 			'flags'   => [
-				'is_enabled'    => $lockerCon->isEnabled(),
+				'is_enabled'    => $con->comps->file_locker->isEnabled(),
 				'is_restricted' => !self::con()->isPremiumActive(),
 			],
 			'hrefs'   => [

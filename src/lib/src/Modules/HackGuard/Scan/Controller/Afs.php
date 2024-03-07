@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
 	Scan
@@ -211,9 +210,7 @@ class Afs extends Base {
 
 	public function isEnabled() :bool {
 		$con = self::con();
-		return $con->comps !== null
-			   && $con->comps->opts_lookup->isModEnabled( EnumModules::SCANS )
-			   && $con->opts->optIs( 'enable_core_file_integrity_scan', 'Y' );
+		return $con->comps !== null && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {

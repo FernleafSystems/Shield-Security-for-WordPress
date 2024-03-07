@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class HumanRepeat {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @return \WP_Error|true

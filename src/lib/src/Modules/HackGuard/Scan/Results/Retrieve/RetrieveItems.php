@@ -176,6 +176,7 @@ class RetrieveItems extends RetrieveBase {
 	 * @return ResultsSet|mixed
 	 */
 	protected function convertToResultsSet( array $results ) {
+		$con = self::con();
 		$resultsSet = $this->getNewResultsSet();
 
 		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
@@ -187,7 +188,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$this->addMetaToResults( $scanResults );
 
-		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
+		$scansCon = $con->comps === null ? $con->getModule_HackGuard()->getScansCon() : $con->comps->scans;
 		foreach ( $scanResults as $vo ) {
 
 			// we haven't specified a type of scan, so we're collecting all results.

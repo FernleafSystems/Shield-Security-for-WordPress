@@ -15,12 +15,8 @@ class ScanEnabledMal extends ScanEnabledBase {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_HackGuard();
 		try {
-			return $mod->isModOptEnabled() &&
-				   $mod->getScansCon()
-					   ->AFS()
-					   ->isEnabledMalwareScanPHP();
+			return self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP();
 		}
 		catch ( \Exception $e ) {
 			return false;

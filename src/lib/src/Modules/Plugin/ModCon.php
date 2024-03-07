@@ -47,6 +47,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 */
 	private $tracking;
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		return isset( self::con()->comps ) ? self::con()->comps->import_export :
 			( $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController() );

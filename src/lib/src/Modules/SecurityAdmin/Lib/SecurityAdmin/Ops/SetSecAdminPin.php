@@ -2,11 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class SetSecAdminPin {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -19,8 +20,10 @@ class SetSecAdminPin {
 			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
-		$this->opts()->setOpt( 'admin_access_key', \md5( $pin ) );
-		$this->mod()->setIsMainFeatureEnabled( true );
-		self::con()->opts->store();
+		self::con()
+			->opts
+			->optSet( 'enable_'.EnumModules::SECURITY_ADMIN, 'Y' )
+			->optSet( 'admin_access_key', \md5( $pin ) )
+			->store();
 	}
 }

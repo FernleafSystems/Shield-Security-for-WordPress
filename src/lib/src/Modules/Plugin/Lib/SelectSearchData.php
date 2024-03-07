@@ -361,7 +361,6 @@ class SelectSearchData {
 
 	private function getIntegrationsSearch() :array {
 		$con = self::con();
-		$modIntegrations = $con->getModule_Integrations();
 
 		$integrations = [
 			[

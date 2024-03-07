@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 abstract class PageTrafficLogBase extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
@@ -17,7 +19,7 @@ abstract class PageTrafficLogBase extends BasePluginAdminPage {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_Traffic()->cfg->slug
+					'config_item' => EnumModules::TRAFFIC
 				],
 			],
 		];

@@ -17,7 +17,7 @@ class ScansFileLockerAction extends ScansBase {
 
 		if ( $reqData[ 'confirmed' ] ?? false ) {
 			try {
-				$lock = self::con()->getModule_HackGuard()->getFileLocker()->getFileLock( (int)$reqData[ 'rid' ] );
+				$lock = self::con()->comps->file_locker->getFileLock( (int)$reqData[ 'rid' ] );
 
 				switch ( $reqData[ 'file_action' ] ) {
 					case 'accept':

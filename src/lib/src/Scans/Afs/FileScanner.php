@@ -11,7 +11,7 @@ class FileScanner {
 	use ScanActionConsumer;
 
 	public function scan( string $fullPath ) :?ResultItem {
-		$scanCon = $this->mod()->getScansCon()->AFS();
+		$scanCon = self::con()->comps->scans->AFS();
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
@@ -138,7 +138,7 @@ class FileScanner {
 
 	private function getResultItem( string $fullPath ) :ResultItem {
 		/** @var ResultItem $item */
-		$item = $this->mod()->getScansCon()->AFS()->getNewResultItem();
+		$item = self::con()->comps->scans->AFS()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
 		$item->path_fragment = \str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
 		return $item;

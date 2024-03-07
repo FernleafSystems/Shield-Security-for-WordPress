@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\HumanSpam;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TestContent {
 
-	use Modules\PluginControllerConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var string[]
@@ -56,8 +56,7 @@ class TestContent {
 	}
 
 	private function downloadBlacklist() :array {
-		$mod = self::con()->getModule_Comments();
-		$rawList = Services::HttpRequest()->getContent( $mod->opts()->getDef( 'url_spam_blacklist_terms' ) );
+		$rawList = Services::HttpRequest()->getContent( self::con()->cfg->configuration->def( 'url_spam_blacklist_terms' ) );
 		return \array_filter( \array_map( '\trim', \explode( "\n", $rawList ) ) );
 	}
 

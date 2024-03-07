@@ -22,7 +22,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$scansCon = $con->getModule_HackGuard()->getScansCon();
+		$scansCon = self::con()->comps->scans;
 		$counter = $scansCon->getScanResultsCount();
 		$filesCount = $counter->countThemeFiles() + $counter->countPluginFiles() + $counter->countWPFiles();
 		return [

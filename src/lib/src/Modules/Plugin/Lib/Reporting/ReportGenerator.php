@@ -188,7 +188,7 @@ class ReportGenerator {
 		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
 			$updater->markNotified( $record );
 		}
-		$con->getModule_HackGuard()->getFileLocker()->clearLocks();
+		$con->comps->file_locker->clearLocks();
 
 		// Standard Scan Results
 		$con->db_con

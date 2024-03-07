@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 class PageUserSessions extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_user_sessions';
@@ -14,7 +16,7 @@ class PageUserSessions extends BasePluginAdminPage {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => self::con()->getModule_UserManagement()->cfg->slug
+					'config_item' => EnumModules::USERS,
 				],
 			],
 			[
@@ -22,7 +24,7 @@ class PageUserSessions extends BasePluginAdminPage {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => self::con()->getModule_SecAdmin()->cfg->slug
+					'config_item' => EnumModules::SECURITY_ADMIN,
 				],
 			],
 		];

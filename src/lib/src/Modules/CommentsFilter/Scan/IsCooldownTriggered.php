@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsCooldownTriggered {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function test() :bool {
-		$CD = $this->opts()->getOpt( 'comments_cooldown' );
-		return $CD > 0 && ( Services::Request()->ts() - $this->opts()->getOpt( 'last_comment_request_at' ) < $CD );
+		$CD = self::con()->opts->optGet( 'comments_cooldown' );
+		return $CD > 0 && ( Services::Request()->ts() - self::con()->opts->optGet( 'last_comment_request_at' ) < $CD );
 	}
 }

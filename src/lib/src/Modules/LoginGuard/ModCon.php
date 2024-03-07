@@ -19,6 +19,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 			( $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController() );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getGaspKey() :string {
 		/** @var Options $opts */
 		$opts = $this->opts();

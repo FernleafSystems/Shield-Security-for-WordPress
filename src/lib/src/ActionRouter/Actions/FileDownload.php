@@ -47,9 +47,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			case 'filelocker':
-				$fileDetails = $con->getModule_HackGuard()
-								   ->getFileLocker()
-								   ->handleFileDownloadRequest();
+				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest();
 				break;
 
 			case 'scan_file':
