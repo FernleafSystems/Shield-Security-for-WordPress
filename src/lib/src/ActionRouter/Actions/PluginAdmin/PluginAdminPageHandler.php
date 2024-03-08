@@ -23,15 +23,20 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	protected $screenID;
 
 	protected function exec() {
-		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
-			if ( apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
-				add_action( 'admin_menu', function () {
+		if ( !Services::WpGeneral()->isAjax()
+			 && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
+
+			add_action( 'admin_menu', function () {
+				if ( !Services::WpGeneral()->isMultisite() && is_admin() ) {
 					$this->createAdminMenu();
-				} );
-				add_action( 'network_admin_menu', function () {
+				}
+			} );
+
+			add_action( 'network_admin_menu', function () {
+				if ( Services::WpGeneral()->isMultisite() && is_network_admin() && is_main_network() ) {
 					$this->createNetworkAdminMenu();
-				} );
-			}
+				}
+			} );
 
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
