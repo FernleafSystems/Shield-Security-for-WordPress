@@ -70,7 +70,7 @@ class OptsHandler extends DynPropertiesClass {
 		if ( $this->values === null ) {
 
 			$all = $this->mod_opts_all;
-			if ( empty( $all ) || empty( $all[ 'values' ][ self::TYPE_FREE ] ) || empty( $all[ 'values' ][ self::TYPE_PRO ] ) ) {
+			if ( empty( $all ) || empty( $all[ 'values' ][ self::TYPE_FREE ] ) || !\is_array( $all[ 'values' ][ self::TYPE_PRO ] ) ) {
 				$all = $this->flatten();
 			}
 
@@ -342,17 +342,16 @@ class OptsHandler extends DynPropertiesClass {
 		if ( $this->optExists( $key ) ) {
 			$con = self::con();
 
-			if ( $value === null || !$this->optIsValueTypeValid( $key, $value ) ) {
-				$this->optReset( $key );
-			}
-
 			$cap = $this->optCap( $key );
-			if ( !empty( $cap ) && !$con->caps->hasCap( $cap )
+			if ( $value === null
+				 || !$this->optIsValueTypeValid( $key, $value )
+				 || !empty( $cap ) && !$con->caps->hasCap( $cap )
 				 || ( empty( $cap ) && ( $this->optDef( $key )[ 'premium' ] ?? false ) && !$con->isPremiumActive() )
 			) {
 				$this->optReset( $key );
 				$value = $this->optDefault( $key );
 			}
+
 			$value = $this->optEnforceValueType( $key, $value );
 		}
 

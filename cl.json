@@ -19,6 +19,14 @@
         "href":        ""
       },
       {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Some improvements to how Shield handles WPMS",
+        "description": [
+        ],
+        "href":        ""
+      },
+      {
         "type":        "new",
         "pro_only":    false,
         "title":       "Filter to prevent running of the Site Health Security component",

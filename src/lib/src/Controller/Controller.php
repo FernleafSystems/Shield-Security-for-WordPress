@@ -550,7 +550,7 @@ class Controller extends DynPropertiesClass {
 		catch ( ActionException $e ) {
 		}
 
-		( new Shield\Controller\Assets\Enqueue() )->execute();
+		( new Assets\Enqueue() )->execute();
 		( new Privacy\PrivacyExport() )->execute();
 		( new Privacy\PrivacyEraser() )->execute();
 	}

@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\BuildForDisplay;
 
-class OptionsForm extends BaseRender {
+class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_options_form';
 	public const TEMPLATE = '/components/config/options_form.twig';
