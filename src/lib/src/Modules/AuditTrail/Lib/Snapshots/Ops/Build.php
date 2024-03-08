@@ -14,6 +14,9 @@ class Build {
 	 * @throws \Exception
 	 */
 	public function run( string $slug ) :SnapshotVO {
+		if ( !is_main_network() || !is_main_site() ) {
+			throw new \Exception( 'Snapshots currently only run for the main site.' );
+		}
 		$audit = self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log;
 		$snapper = $audit->getAuditors()[ $slug ]->getSnapper();
 		$snapshot = new SnapshotVO();

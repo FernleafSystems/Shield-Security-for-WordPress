@@ -51,7 +51,7 @@ class OptionsForm extends BaseRender {
 				'is_opt_importexport' => __( 'Toggle whether this option is included with import/export', 'wp-simple-firewall' ),
 
 				'supply_password'     => $secAdminEnabled ? __( 'Update PIN', 'wp-simple-firewall' ) : __( 'Supply New PIN', 'wp-simple-firewall' ),
-				'confirm_password'    => $secAdminEnabled ? __( 'Confirm Updated PIN', 'wp-simple-firewall' ) : _( 'Confirm PIN', 'wp-simple-firewall' ),
+				'confirm_password'    => $secAdminEnabled ? __( 'Confirm Updated PIN', 'wp-simple-firewall' ) : __( 'Confirm PIN', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'is_wpcli'             => $con->isPremiumActive()
