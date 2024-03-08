@@ -11,15 +11,15 @@ class LogFileHandler extends StreamHandler {
 	use ModConsumer;
 
 	public function __construct( $level = Logger::DEBUG, $bubble = true, $filePermission = null, $useLocking = false ) {
-		$audit = self::con()->getModule_AuditTrail()->getAuditCon();
-		$path = \method_exists( $audit, 'getLogFilePath' ) ? $audit->getLogFilePath() : $this->opts()->getLogFilePath();
+		$auditCon = self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log;
+		$path = \method_exists( $auditCon, 'getLogFilePath' ) ? $auditCon->getLogFilePath() : $this->opts()->getLogFilePath();
 
 		parent::__construct( $path, $level, $bubble, $filePermission, $useLocking );
 		$this->rotateLogs();
 	}
 
 	private function rotateLogs() {
-		$auditCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		$auditCon = self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log;
 		if ( \method_exists( $auditCon, 'getLogFilePath' ) ) {
 			$path = $auditCon->getLogFilePath();
 			$limit = $auditCon->getLogFileRotationLimit();

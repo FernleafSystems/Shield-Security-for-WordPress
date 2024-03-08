@@ -84,7 +84,7 @@ class SectionNotices {
 							$locations
 						),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->plugin_urls->modCfg( $con->modules[ EnumModules::LOGIN ] ),
+							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}
@@ -217,14 +217,14 @@ class SectionNotices {
 				if ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->modules[ EnumModules::IPS ], 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::IPS, 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
 				}
 				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
 					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->plugin_urls->modCfg( $con->getModule_LoginGuard() ),
+							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}
@@ -234,7 +234,7 @@ class SectionNotices {
 				if ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->modules[ EnumModules::IPS ], 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::IPS, 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
 				}
 				else {

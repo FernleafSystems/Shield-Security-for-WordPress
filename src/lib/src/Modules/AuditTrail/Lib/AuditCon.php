@@ -253,7 +253,7 @@ class AuditCon {
 			$this->updateStoredSnapshot( $auditor, Ops\Convert::RecordToSnap( $latest ) );
 		}
 		catch ( \Exception $e ) {
-			error_log( __METHOD__.' '.$e->getMessage() );
+//			error_log( __METHOD__.' '.$e->getMessage() );
 		}
 	}
 
@@ -268,7 +268,7 @@ class AuditCon {
 			$this->updateStoredSnapshot( $auditor, Ops\Convert::RecordToSnap( $latest ) );
 		}
 		catch ( \Exception $e ) {
-			error_log( __METHOD__.' '.$e->getMessage() );
+//			error_log( __METHOD__.' '.$e->getMessage() );
 		}
 	}
 

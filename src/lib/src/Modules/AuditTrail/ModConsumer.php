@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return self::con()->getModule_AuditTrail();
+		return self::con()->modules[ EnumModules::ACTIVITY ];
 	}
 
 	public function opts() :Options {

@@ -51,7 +51,8 @@ class Base {
 		}
 		elseif ( $this->canSnapRealtime() ) {
 			try {
-				$this->mod()->getAuditCon()->updateStoredSnapshot( $this );
+				( self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log )
+					->updateStoredSnapshot( $this );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -65,13 +66,15 @@ class Base {
 
 	protected function removeSnapshotItem( $item ) {
 		if ( !$this->isRunningSnapshotDiscovery ) {
-			$this->mod()->getAuditCon()->removeItemFromSnapshot( $this, $item );
+			( self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log )
+				->removeItemFromSnapshot( $this, $item );
 		}
 	}
 
 	protected function updateSnapshotItem( $item ) {
 		if ( !$this->isRunningSnapshotDiscovery ) {
-			$this->mod()->getAuditCon()->updateItemOnSnapshot( $this, $item );
+			( self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log )
+				->updateItemOnSnapshot( $this, $item );
 		}
 	}
 }

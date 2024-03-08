@@ -163,7 +163,7 @@ class Collate {
 		foreach ( self::con()->db_con->loadAll() as $dbhDef ) {
 			/** @var Handler $dbh */
 			$dbh = $dbhDef[ 'handler' ];
-			$DBs[ $dbhDef[ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
+			$DBs[ $dbhDef[ 'def' ][ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
 				$dbh->getTableSchema()->table,
 				$dbh->isReady() ? 'Ready' : 'Not Ready',
 				sprintf( 'Rows: %s', $dbh->isReady() ? $dbh->getQuerySelector()->count() : '-' ),

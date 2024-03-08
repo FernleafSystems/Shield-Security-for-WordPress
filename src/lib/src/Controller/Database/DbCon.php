@@ -276,12 +276,19 @@ class DbCon extends DynPropertiesClass {
 	public function loadAll() :array {
 		foreach ( \array_keys( $this->getHandlers() ) as $dbhKey ) {
 			try {
-				$this->loadDbH( $dbhKey );
+				$this->load( $dbhKey );
 			}
 			catch ( \Exception $exception ) {
 			}
 		}
 		return $this->getHandlers();
+	}
+
+	/**
+	 * @return Handler|mixed|null
+	 */
+	public function load( string $dbKey ) {
+		return $this->loadDbH( $this->getHandlers()[ $dbKey ][ 'slug' ] );
 	}
 
 	/**

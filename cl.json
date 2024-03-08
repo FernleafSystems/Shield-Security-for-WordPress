@@ -1,4 +1,35 @@
 {
+  "19.1": {
+    "version":     "19.1",
+    "released_at": 1709898000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease191",
+      "upgrade": "https://shsec.io/shieldupgradeguide191"
+    },
+    "title":       "Clean & Optimise",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Code Rewrite & Cleaning",
+        "description": [
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Filter to prevent running of the Site Health Security component",
+        "description": [
+        ],
+        "href":        "https://shsec.io/m7"
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "19.0": {
     "version":     "19.0",
     "released_at": 1707133000,

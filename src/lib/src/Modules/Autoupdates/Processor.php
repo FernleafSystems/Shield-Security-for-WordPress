@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 
+/**
+ * @deprecated 19.1
+ */
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	/**
