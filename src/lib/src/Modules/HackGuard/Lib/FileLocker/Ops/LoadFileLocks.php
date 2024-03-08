@@ -79,6 +79,9 @@ class LoadFileLocks {
 		);
 	}
 
+	/**
+	 * @19.1
+	 */
 	public function clearLocksCache() {
 		$this->mod()->getFileLocker()->clearLocks();
 	}

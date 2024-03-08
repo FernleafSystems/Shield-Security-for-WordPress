@@ -6,7 +6,7 @@ use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogs\Ops as LogsDB,
-	FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogsMeta\Ops as MetaDB,
+	ActivityLogsMeta\Ops as MetaDB,
 	ReqLogs\Ops as ReqLogsDB,
 	ReqLogs\RequestRecords
 };
@@ -57,7 +57,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$this->triggerRequestLogger();
 		}
 		catch ( \Exception $e ) {
-//			error_log( 'DEBUG::EXCEPTION: '.$e->getMessage() );
+			error_log( 'DEBUG::EXCEPTION: '.$e->getMessage() );
 		}
 	}
 
@@ -117,7 +117,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		/**
 		 * @deprecated 19.1
 		 */
-		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Logs\Ops\Record' ) ) {
+		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record' ) ) {
 			throw new \Exception( 'Not a valid class.' );
 		}
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];

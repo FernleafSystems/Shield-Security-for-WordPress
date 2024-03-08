@@ -197,7 +197,7 @@ class Afs extends Base {
 	}
 
 	public function getQueueGroupSize() :int {
-		return $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
+		return self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
 	}
 
 	protected function newItemActionHandler() :Scans\Afs\Utilities\ItemActionHandler {

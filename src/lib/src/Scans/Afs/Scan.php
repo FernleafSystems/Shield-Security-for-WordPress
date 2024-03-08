@@ -13,7 +13,7 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
-		if ( $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) ) {
+		if ( self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) ) {
 			( new Processing\FileScanOptimiser() )->filterFilesFromAction( $action );
 		}
 
@@ -43,7 +43,7 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 	protected function postScan() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		if ( $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) && \is_array( $action->valid_files ) ) {
+		if ( self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) && \is_array( $action->valid_files ) ) {
 			( new Processing\FileScanOptimiser() )->addFiles( $action->valid_files );
 		}
 	}

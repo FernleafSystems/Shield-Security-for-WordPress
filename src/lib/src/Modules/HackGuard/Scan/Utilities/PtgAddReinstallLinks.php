@@ -15,7 +15,7 @@ class PtgAddReinstallLinks {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return self::con()->isValidAdminArea( true ) && $this->opts()->isOpt( 'ptg_reinstall_links', 'Y' );
+		return self::con()->isValidAdminArea( true ) && self::con()->opts->optIs( 'ptg_reinstall_links', 'Y' );
 	}
 
 	protected function run() {

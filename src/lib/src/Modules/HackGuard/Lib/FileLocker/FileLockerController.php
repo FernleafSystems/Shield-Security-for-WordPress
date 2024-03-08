@@ -100,7 +100,7 @@ class FileLockerController {
 	}
 
 	public function clearLocks() :void {
-		$this->locks = null;
+		unset( $this->locks );
 	}
 
 	/**
@@ -150,7 +150,7 @@ class FileLockerController {
 
 	private function runAnalysis() {
 		if ( \version_compare( self::con()->cfg->version(), '19.1', '<' ) ) {
-			return;
+//			return;
 		}
 
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {

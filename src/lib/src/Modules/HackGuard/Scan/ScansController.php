@@ -35,8 +35,6 @@ class ScansController {
 		foreach ( $this->getAllScanCons() as $scanCon ) {
 			$scanCon->execute();
 		}
-		$this->mod()->getFileLocker()->execute();
-
 		$this->setupCron();
 		$this->setupCronHooks();
 		$this->handlePostScanCron();

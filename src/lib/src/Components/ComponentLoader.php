@@ -70,9 +70,11 @@ class ComponentLoader extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
-		$conClass = $this->getConsMap()[ $key ] ?? null;
-		if ( !empty( $conClass ) ) {
-			$value = ( $this->{$key} ?? $this->{$key} = new $conClass() );
+		if ( $value === null ) {
+			$conClass = $this->getConsMap()[ $key ] ?? null;
+			if ( !empty( $conClass ) ) {
+				$value = ( $this->{$key} ?? $this->{$key} = new $conClass() );
+			}
 		}
 
 		return $value;

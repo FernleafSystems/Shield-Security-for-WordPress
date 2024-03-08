@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,6 +30,8 @@ class PluginNavs {
 	public const SUBNAV_RULES_BUILD = 'build';
 	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
+	public const SUBNAV_SCANS_STATE = 'state';
+	public const SUBNAV_SCANS_HISTORY = 'history';
 	public const SUBNAV_SCANS_RESULTS = 'results';
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
@@ -172,6 +173,12 @@ class PluginNavs {
 						],
 						self::SUBNAV_SCANS_RUN     => [
 							'handler' => PluginAdminPages\PageScansRun::class,
+						],
+						self::SUBNAV_SCANS_HISTORY     => [
+							'handler' => PluginAdminPages\PageScansHistory::class,
+						],
+						self::SUBNAV_SCANS_STATE     => [
+							'handler' => PluginAdminPages\PageScansHistory::class,
 						],
 					],
 				],

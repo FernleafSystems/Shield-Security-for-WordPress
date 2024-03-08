@@ -66,10 +66,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-		$this->mod()
-			 ->getScanQueueController()
-			 ->getQueueProcessor()
-			 ->dispatch();
+		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
 	}
 
 	/**

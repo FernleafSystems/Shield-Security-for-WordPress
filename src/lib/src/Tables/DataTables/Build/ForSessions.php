@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
-
 class ForSessions extends Base {
-
-	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'last_activity_at';

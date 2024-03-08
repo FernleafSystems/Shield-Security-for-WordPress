@@ -131,12 +131,27 @@ class NavMenuBuilder {
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'shield-shaded' ),
 			'img_hover' => $con->svgs->raw( 'shield-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-			'active'    => $this->inav() === PluginNavs::NAV_SCANS,
-			'introjs'   => [
-				'title' => __( 'Security Scans', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
-					self::con()->getHumanName() ),
+			'sub_items' => [
+				$this->createSubItemForNavAndSub(
+					__( 'Results', 'wp-simple-firewall' ),
+					PluginNavs::NAV_SCANS,
+					PluginNavs::SUBNAV_SCANS_RESULTS
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Run', 'wp-simple-firewall' ),
+					PluginNavs::NAV_SCANS,
+					PluginNavs::SUBNAV_SCANS_RUN
+				),
+//				$this->createSubItemForNavAndSub(
+//					__( 'History', 'wp-simple-firewall' ),
+//					PluginNavs::NAV_SCANS,
+//					PluginNavs::SUBNAV_SCANS_HISTORY
+//				),
+//				$this->createSubItemForNavAndSub(
+//					__( 'State (todo)', 'wp-simple-firewall' ),
+//					PluginNavs::NAV_SCANS,
+//					PluginNavs::SUBNAV_SCANS_STATE
+//				),
 			],
 		];
 	}

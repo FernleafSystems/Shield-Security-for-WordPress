@@ -345,7 +345,7 @@ class DbCon extends DynPropertiesClass {
 		$value = parent::__get( $key );
 
 		if ( isset( self::MAP[ $key ] ) ) {
-			$value = $this->loadDbH( $this->getHandlers()[ $key ][ 'slug' ] );
+			$value = $this->load( $key );
 		}
 
 		return $value;

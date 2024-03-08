@@ -12,7 +12,7 @@ class Accept extends BaseOps {
 	 * @throws \Exception
 	 */
 	public function run( FileLockerDB\Record $lock ) :bool {
-		$FL = $this->mod()->getFileLocker();
+		$FL = self::con()->comps->file_locker;
 		$state = $FL->getState();
 
 		// Depending on timing, the preferred cipher may not have been set, so we force a check.

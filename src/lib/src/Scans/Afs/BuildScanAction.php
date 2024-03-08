@@ -15,7 +15,7 @@ class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Bas
 	}
 
 	protected function getFileExts() :array {
-		$def = $this->opts()->getDef( 'file_scan_extensions' );
+		$def = self::con()->cfg->configuration->def( 'file_scan_extensions' );
 		$ext = apply_filters( 'shield/scan_ptg_file_exts', $def );
 		return \is_array( $ext ) ? $ext : $def;
 	}

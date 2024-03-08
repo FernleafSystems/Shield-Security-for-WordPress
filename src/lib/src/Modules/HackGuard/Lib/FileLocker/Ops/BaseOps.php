@@ -35,7 +35,7 @@ class BaseOps {
 	 */
 	protected function getPublicKey() :array {
 		$getter = new GetPublicKey();
-		$getter->last_error = $this->mod()->getFileLocker()->getState()[ 'last_error' ] ?? '';
+		$getter->last_error = self::con()->comps->file_locker->getState()[ 'last_error' ] ?? '';
 
 		$key = $getter->retrieve();
 		if ( empty( $key ) || !\is_array( $key ) ) {

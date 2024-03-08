@@ -41,7 +41,7 @@ class WpCoreFile extends BaseScan {
 	private function getScanFileExclusions() :string {
 		$pattern = '';
 
-		$exclusions = $this->opts()->getDef( 'wcf_exclusions' );
+		$exclusions = self::con()->cfg->configuration->def( 'wcf_exclusions' );
 		// Flywheel specific mods
 		if ( \defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
 			$exclusions[] = 'wp-settings.php';
@@ -65,7 +65,7 @@ class WpCoreFile extends BaseScan {
 	 */
 	private function getScanExclusionsForMissingItems() :string {
 		$pattern = '';
-		$exclusions = $this->opts()->getDef( 'wcf_exclusions_missing_only' );
+		$exclusions = self::con()->cfg->configuration->def( 'wcf_exclusions_missing_only' );
 		if ( !empty( $exclusions ) ) {
 			$quoted = \array_map(
 				function ( $exclusion ) {

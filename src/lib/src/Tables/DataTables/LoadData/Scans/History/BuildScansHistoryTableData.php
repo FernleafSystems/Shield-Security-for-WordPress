@@ -1,17 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\History;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
-	Ops as SecurityRulesDB,
-	RuleRecords
-};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
+class BuildScansHistoryTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();

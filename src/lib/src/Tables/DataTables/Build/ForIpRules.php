@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
-
 class ForIpRules extends Base {
-
-	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'last_access_at';

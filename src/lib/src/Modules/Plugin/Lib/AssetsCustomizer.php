@@ -639,6 +639,23 @@ class AssetsCustomizer {
 							]
 						];
 					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_HISTORY ) ) {
+						$data[ 'scan_history' ] = [
+							'ajax'    => [
+								'table_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
+							],
+							'hrefs'   => [
+								'create_new' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+							],
+							'strings' => [
+								'no_rules_yet' => sprintf( '%s. %s', __( 'There are no custom security rules', 'wp-simple-firewall' ),
+									__( 'Use the link above to create a new one.', 'wp-simple-firewall' ) ),
+							],
+							'vars'    => [
+								'datatables_init' => ( new ForSecurityRules() )->buildRaw(),
+							]
+						];
+					}
 					return $data;
 				}
 			],

@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\RequestVO;
 
-class GetAll extends Base {
+class GetAll extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Base {
 
 	protected function process() :array {
 		/** @var RequestVO $req */

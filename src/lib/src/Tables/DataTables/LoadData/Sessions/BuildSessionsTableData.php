@@ -2,12 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
 
 class BuildSessionsTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
-
-	use ModConsumer;
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();

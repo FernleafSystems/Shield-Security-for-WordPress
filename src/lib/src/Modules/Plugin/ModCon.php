@@ -51,7 +51,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @deprecated 19.1
 	 */
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
-		return isset( self::con()->comps ) ? self::con()->comps->import_export :
+		return self::con()->comps !== null ? self::con()->comps->import_export :
 			( $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController() );
 	}
 
@@ -59,7 +59,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @deprecated 19.1
 	 */
 	public function getPluginBadgeCon() :Components\PluginBadge {
-		return isset( self::con()->comps ) ? self::con()->comps->badge :
+		return self::con()->comps !== null ? self::con()->comps->badge :
 			( $this->pluginBadgeCon ?? $this->pluginBadgeCon = new Components\PluginBadge() );
 	}
 
@@ -67,17 +67,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @deprecated 19.1
 	 */
 	public function getReportingController() :Lib\Reporting\ReportingController {
-		return isset( self::con()->comps ) ? self::con()->comps->reports :
+		return self::con()->comps !== null ? self::con()->comps->reports :
 			( $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController() );
 	}
 
 	public function getSessionCon() :Lib\Sessions\SessionController {
-		return isset( self::con()->comps ) ? self::con()->comps->session :
+		return self::con()->comps !== null ? self::con()->comps->session :
 			( $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController() );
 	}
 
 	public function getShieldNetApiController() :ShieldNetApiController {
-		return isset( self::con()->comps ) ? self::con()->comps->shieldnet :
+		return self::con()->comps !== null ? self::con()->comps->shieldnet :
 			( $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController() );
 	}
 

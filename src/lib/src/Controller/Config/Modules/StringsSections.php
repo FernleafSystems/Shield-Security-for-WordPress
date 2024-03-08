@@ -24,10 +24,17 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ) )
 				];
 				break;
+			case 'section_at_file' :
+				$title = __( 'Log To File', 'wp-simple-firewall' );
+				$short = __( 'Log To File', 'wp-simple-firewall' );
+				$summary = [
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the DB Activity Log.', 'wp-simple-firewall' ) ),
+				];
+				break;
 			case 'section_localdb' :
 				$title = __( 'Log To DB', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Activity Log itself.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the file-based Activity Log.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
 				$short = __( 'Log To DB', 'wp-simple-firewall' );
@@ -218,6 +225,11 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
 				];
+				break;
+			case 'section_antibot':
+				$short = __( 'AntiBot System', 'wp-simple-firewall' );
+				$title = __( 'AntiBot System', 'wp-simple-firewall' );
+				$summary = [];
 				break;
 			case 'section_crowdsec':
 				$short = __( 'CrowdSec', 'wp-simple-firewall' );

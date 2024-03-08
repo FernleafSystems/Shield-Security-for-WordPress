@@ -7,15 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
 	LogRecord
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildActivityLogTableData extends BaseBuildTableData {
-
-	use ModConsumer;
 
 	/**
 	 * @var LogRecord
