@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -584,8 +585,16 @@ class StringsOptions {
 				$name = __( 'High Reputation Bypass', 'wp-simple-firewall' );
 				$summary = __( 'Prevent Visitors With A High Reputation Scores From Being Blocked', 'wp-simple-firewall' );
 				$desc = [
-					__( "Visitors that have accumulated a high IP reputation and AntiBot score should ideally never be blocked.", 'wp-simple-firewall' ),
-					__( "This option ensures that visitors with a high reputation never have their IP blocked by Shield.", 'wp-simple-firewall' ),
+					__( "Visitors that have accumulated a high IP reputation score should ideally never be blocked.", 'wp-simple-firewall' ),
+					__( "This option ensures that visitors with a high reputation score won't be blocked by Shield automatically.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						sprintf( __( 'Your current IP Reputation score is %s.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>',
+							( new CalculateVisitorBotScores() )
+								->setIP( $con->this_req->ip )
+								->total()
+						) )
+					),
 				];
 				break;
 			case 'force_notbot' :

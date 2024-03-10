@@ -2745,7 +2745,7 @@
         "key":         "antibot_high_reputation_minimum",
         "section":     "section_antibot",
         "type":        "integer",
-        "default":     200,
+        "default":     250,
         "min":         0,
         "link_info":   "https://shsec.io/jy",
         "link_blog":   "https://shsec.io/jz",

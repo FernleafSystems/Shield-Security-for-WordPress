@@ -36,7 +36,7 @@ import { SuperSearchService } from "../components/search/SuperSearchService";
 import { Tours } from "../components/general/Tours";
 import { TrafficLiveLogs } from "../components/general/TrafficLiveLogs";
 import { TestRest } from "../components/general/TestRest";
-import { ShieldTableScanHistory } from "../components/tables/ShieldTableScanHistory";
+import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
 
 export class AppMain extends AppBase {
 
@@ -91,7 +91,7 @@ export class AppMain extends AppBase {
 		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
 		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;
 		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
-		this.components.tables_scan_history = ( 'scan_history' in comps.tables ) ? new ShieldTableScanHistory( comps.tables.scan_history ) : null;
+		this.components.tables_scans_history = ( 'scans_history' in comps.tables ) ? new ShieldTableScansHistory( comps.tables.scans_history ) : null;
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
 	}
 }

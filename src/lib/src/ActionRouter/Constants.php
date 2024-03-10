@@ -231,6 +231,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageRulesBuild::class,
 		Actions\Render\PluginAdminPages\PageRulesManage::class,
 		Actions\Render\PluginAdminPages\PageRulesSummary::class,
+		Actions\Render\PluginAdminPages\PageScansHistory::class,
 		Actions\Render\PluginAdminPages\PageScansResults::class,
 		Actions\Render\PluginAdminPages\PageScansRun::class,
 		Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class,

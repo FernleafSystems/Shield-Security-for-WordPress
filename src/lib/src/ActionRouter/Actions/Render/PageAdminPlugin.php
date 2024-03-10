@@ -27,7 +27,7 @@ class PageAdminPlugin extends BaseRender {
 		}
 
 		// The particular renderer for the main page body area, based on navigation
-		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ];
+		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ] ?? '';
 		if ( empty( $delegateAction ) ) {
 			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );
 		}

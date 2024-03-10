@@ -1,9 +1,9 @@
 import { ShieldTableBase } from "./ShieldTableBase";
 
-export class ShieldTableScanHistory extends ShieldTableBase {
+export class ShieldTableScansHistory extends ShieldTableBase {
 
 	getTableSelector() {
-		return '#ShieldTable-SecurityScanHistory';
+		return '#ShieldTable-SecurityScansHistory';
 	}
 
 	buildDatatableConfig() {
