@@ -522,9 +522,10 @@ class StringsSections {
 				break;
 
 			default:
-				$title = __( 'todo', 'wp-simple-firewall' );
-				$short = __( 'todo', 'wp-simple-firewall' );
-				$summary = [];
+				$def = $con->cfg->configuration->sections[ $key ];
+				$title = __( $def[ 'title' ] ?? 'No Title', 'wp-simple-firewall' );
+				$short = __( $def[ 'title_short' ] ?? 'No Title', 'wp-simple-firewall' );
+				$summary = $def[ 'summary' ] ?? [];
 		}
 
 		return [

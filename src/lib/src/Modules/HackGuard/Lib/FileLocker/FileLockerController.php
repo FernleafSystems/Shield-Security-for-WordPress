@@ -149,8 +149,8 @@ class FileLockerController {
 	}
 
 	private function runAnalysis() {
-		if ( \version_compare( self::con()->cfg->version(), '19.1', '<' ) ) {
-//			return;
+		if ( \version_compare( self::con()->cfg->version(), '19.0.7', '<=' ) ) {
+			return;
 		}
 
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {

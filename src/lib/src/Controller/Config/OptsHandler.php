@@ -206,7 +206,7 @@ class OptsHandler extends DynPropertiesClass {
 		$con = self::con();
 
 		// Pre-process options.
-		if ( \version_compare( $con->cfg->version(), '19.1', '>=' ) ) {
+		if ( \version_compare( $con->cfg->version(), '19.0.7', '>=' ) ) {
 			( new PreStore() )->run();
 		}
 		else {

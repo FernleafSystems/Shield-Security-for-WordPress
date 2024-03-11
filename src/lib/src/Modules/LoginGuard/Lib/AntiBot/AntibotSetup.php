@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,7 +13,9 @@ class AntibotSetup {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !self::con()->this_req->request_bypasses_all_restrictions && !Services::WpUsers()->isUserLoggedIn();
+		return !self::con()->this_req->request_bypasses_all_restrictions
+			   && self::con()->comps->opts_lookup->isModEnabled( EnumModules::LOGIN )
+			   && !Services::WpUsers()->isUserLoggedIn();
 	}
 
 	protected function run() {
@@ -70,7 +73,9 @@ class AntibotSetup {
 			}
 
 			\array_map( function ( string $formClass ) {
-				new $formClass();
+				/** @var FormProviders\BaseFormProvider $formProvider */
+				$formProvider = new $formClass();
+				$formProvider->execute();
 			}, $formProviders );
 		}
 	}

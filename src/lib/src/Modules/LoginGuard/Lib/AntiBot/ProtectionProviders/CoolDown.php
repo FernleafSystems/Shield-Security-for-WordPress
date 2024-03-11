@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\CooldownFlagFile;
 
+/**
+ * TODO: Cooldown needs integrated into the AntiBot system, and removed from this legacy implementation.
+ */
 class CoolDown extends BaseProtectionProvider {
 
 	public function performCheck( $formProvider ) {

@@ -174,8 +174,7 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	public function isProviderAvailableToUser() :bool {
 		return parent::isProviderAvailableToUser()
-			   && ( $this->isEnforced() || ( $this->opts()->isOpt( 'email_any_user_set', 'Y' )
-											 && self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled ) );
+			   && ( $this->isEnforced() || $this->opts()->isOpt( 'email_any_user_set', 'Y' ) );
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
