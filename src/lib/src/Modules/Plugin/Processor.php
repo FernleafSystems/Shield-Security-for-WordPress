@@ -18,11 +18,11 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		$components->license->execute();
 
 		if ( !$components->opts_lookup->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
-			$components->ips_con->execute();
-			$components->sec_admin->execute();
-			$components->whitelabel->execute();
 			$components->requests_log->execute();
 			$components->activity_log->execute();
+			$components->sec_admin->execute();
+			$components->ips_con->execute();
+			$components->whitelabel->execute();
 			$components->scans->execute();
 			$components->file_locker->execute();
 			$components->http_headers->execute();

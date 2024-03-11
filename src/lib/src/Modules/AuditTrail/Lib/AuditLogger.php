@@ -71,10 +71,7 @@ class AuditLogger extends EventsListener {
 			}
 
 			$path = \method_exists( $auditCon, 'getLogFilePath' ) ? $auditCon->getLogFilePath() : $opts->getLogFilePath();
-
-			if ( $con->cache_dir_handler->exists()
-				 && !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $path )
-			) {
+			if ( $con->cache_dir_handler->exists() && !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $path ) ) {
 				try {
 					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $this->getLogLevelsFile() );
 					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {

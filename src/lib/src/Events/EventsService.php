@@ -78,7 +78,7 @@ class EventsService {
 		}
 
 		try {
-			// must come after $aEvents is defined.
+			// must come after $this->events is defined.
 			$custom = $this->buildCustomEvents();
 		}
 		catch ( \Exception $e ) {
