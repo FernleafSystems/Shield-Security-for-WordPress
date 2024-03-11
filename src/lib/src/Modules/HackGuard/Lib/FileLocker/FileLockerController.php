@@ -93,14 +93,11 @@ class FileLockerController {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function getLocks() :array {
-		if ( \is_null( $this->locks ) ) {
-			$this->locks = ( new Ops\LoadFileLocks() )->loadLocks();
-		}
-		return $this->locks;
+		return $this->locks ?? $this->locks = ( new Ops\LoadFileLocks() )->loadLocks();
 	}
 
 	public function clearLocks() :void {
-		unset( $this->locks );
+		$this->locks = null;
 	}
 
 	/**

@@ -14,7 +14,7 @@ class FireEventsForChangedOpts {
 
 			$strings = new StringsOptions();
 			foreach ( $changes as $opt => $oldValue ) {
-				$optDef = $con->cfg->configuration->options[ $opt ] ?? null;
+				$optDef = self::con()->cfg->configuration->options[ $opt ] ?? null;
 				if ( empty( $optDef ) || !empty( $optDef[ 'hidden' ] ) ) {
 					continue;
 				}

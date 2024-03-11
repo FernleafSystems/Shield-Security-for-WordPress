@@ -27,6 +27,8 @@ class OptsHandler extends DynPropertiesClass {
 
 	private $merged = false;
 
+	private $startedAsPremium = false;
+
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
 
@@ -81,6 +83,7 @@ class OptsHandler extends DynPropertiesClass {
 		if ( !$this->merged ) {
 			$this->merged = true;
 			if ( self::con()->isPremiumActive() ) {
+				$this->startedAsPremium = true;
 				$this->values = \array_merge( $this->values, $this->mod_opts_all[ 'values' ][ self::TYPE_PRO ] );
 			}
 			$this->values = \array_intersect_key( $this->values, self::con()->cfg->configuration->options );
@@ -241,7 +244,7 @@ class OptsHandler extends DynPropertiesClass {
 		\ksort( $freeValues );
 
 		$proValues = [];
-		foreach ( $con->isPremiumActive() ? $this->values() : $this->mod_opts_all[ 'values' ][ self::TYPE_PRO ] as $optKey => $optValue ) {
+		foreach ( ( $con->isPremiumActive() && $this->startedAsPremium ) ? $this->values() : $this->mod_opts_all[ 'values' ][ self::TYPE_PRO ] as $optKey => $optValue ) {
 			$store = false;
 			if ( !isset( $freeValues[ $optKey ] ) ) {
 				$freeValues[ $optKey ] = $optValue;
