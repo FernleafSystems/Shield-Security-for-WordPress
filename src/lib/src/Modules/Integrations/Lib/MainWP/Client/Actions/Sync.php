@@ -2,29 +2,33 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	HackGuard,
-	Integrations\ModConsumer,
-	Plugin
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\{
+	ImportExport,
+	MeterAnalysis
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterSummary;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sync {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private function isPermitted() :bool {
 		return self::con()->comps->opts_lookup->enabledIntegrationMainwp() && self::con()->caps->canMainwpLevel1();
 	}
 
 	public function run() :array {
-		return [
+		$additional = $this->isPermitted() ? [
+			'options'     => ( new ImportExport\Export() )->getFullTransferableOptionsExport(),
+			'integrity'   => ( new MeterAnalysis\Handler() )->getMeter( MeterAnalysis\Meter\MeterSummary::class ),
+			'scan_issues' => ( new Counts() )->all(),
+		] : [];
+		return \array_merge( [
 			'meta'    => $this->buildMetaData(),
-			'modules' => $this->isPermitted() ? $this->buildModulesData() : [],
-		];
+			/** @description 19.1 - remove the modules as it's old structure */
+			'modules' => $additional,
+		], $additional );
 	}
 
 	private function buildMetaData() :array {
@@ -37,43 +41,5 @@ class Sync {
 			'version'      => $con->cfg->version(),
 			'has_update'   => Services::WpPlugins()->isUpdateAvailable( $con->base_file ),
 		];
-	}
-
-	/**
-	 * @return array[]
-	 */
-	private function buildModulesData() :array {
-		$data = [];
-
-		$exportedOptions = ( new Plugin\Lib\ImportExport\Export() )->getFullTransferableOptionsExport();
-
-		foreach ( self::con()->modules as $mod ) {
-			$data[ $mod->cfg->slug ] = [
-				'options' => $exportedOptions[ $mod->cfg->slug ],
-			];
-
-			switch ( $mod->cfg->slug ) {
-
-				case EnumModules::PLUGIN:
-					try {
-						$data[ $mod->cfg->slug ][ 'grades' ] = [
-							'integrity' => ( new Handler() )->getMeter( MeterSummary::class )
-						];
-					}
-					catch ( \Exception $e ) {
-					}
-					break;
-
-				case EnumModules::SCANS:
-					$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
-						( new HackGuard\Scan\Results\Counts() )->all()
-					);
-					break;
-
-				default:
-					break;
-			}
-		}
-		return $data;
 	}
 }

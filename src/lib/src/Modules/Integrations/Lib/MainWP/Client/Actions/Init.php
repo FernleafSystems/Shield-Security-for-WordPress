@@ -7,12 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Client\Auth\ReproduceClientAuthByKey,
 	Controller
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Init {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run() {
 		if ( Controller::isMainWPChildVersionSupported() ) {

@@ -107,7 +107,10 @@ class Export {
 	}
 
 	public function getExportData() :array {
-		$all = $this->getRawOptionsExport();
+		$all = [
+			'version' => self::con()->cfg->version(),
+			'options' => $this->getRawOptionsExport(),
+		];
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
@@ -133,17 +136,9 @@ class Export {
 	}
 
 	public function getFullTransferableOptionsExport() :array {
-		$config = self::con()->cfg->configuration;
-		$transferable = $config->transferableOptions();
-
 		$all = [];
-		foreach ( \array_keys( $config->modules ) as $modSlug ) {
-			$all[ $modSlug ] = [];
-			foreach ( \array_keys( $config->optsForModule( $modSlug ) ) as $optKey ) {
-				if ( \in_array( $optKey, $transferable ) ) {
-					$all[ $modSlug ][ $optKey ] = self::con()->opts->optGet( $optKey );
-				}
-			}
+		foreach ( self::con()->cfg->configuration->transferableOptions() as $optKey => $optDef ) {
+			$all[ $optKey ] = self::con()->opts->optGet( $optKey );
 		}
 		return $all;
 	}

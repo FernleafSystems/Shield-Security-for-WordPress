@@ -208,10 +208,8 @@ class Import {
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
 		$opts = self::con()->opts;
 
-		foreach ( $data as /** $modSlug => */ $options ) {
-			foreach ( \array_diff_key( $options, \array_flip( $opts->getXferExcluded() ) ) as $optKey => $value ) {
-				$opts->optSet( $optKey, $value );
-			}
+		foreach ( \array_diff_key( $data[ 'options' ] ?? [], \array_flip( $opts->getXferExcluded() ) ) as $optKey => $value ) {
+			$opts->optSet( $optKey, $value );
 		}
 
 		if ( $opts->hasChanges() ) {

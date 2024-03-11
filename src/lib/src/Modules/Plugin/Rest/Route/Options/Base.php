@@ -67,10 +67,7 @@ abstract class Base extends RouteBase {
 
 	protected function getAllPossibleOptKeys() :array {
 		if ( !isset( self::$allOpts ) ) {
-			$allOpts = [];
-			foreach ( ( new Export() )->getRawOptionsExport() as $modOpts ) {
-				$allOpts = \array_merge( $allOpts, \array_keys( $modOpts ) );
-			}
+			$allOpts = \array_keys( ( new Export() )->getRawOptionsExport() );
 			\natsort( $allOpts );
 			self::$allOpts = \array_values( $allOpts );
 		}

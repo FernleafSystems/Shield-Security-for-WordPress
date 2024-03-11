@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 
-abstract class Base extends Process {
+abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process {
 
 	/**
 	 * @return RequestVO
@@ -19,12 +18,10 @@ abstract class Base extends Process {
 		$req = $this->getRequestVO();
 		$all = [];
 		$filterFields = $req->filter_fields;
-		foreach ( ( new Export() )->getRawOptionsExport() as $modOpts ) {
-			foreach ( \array_keys( $modOpts ) as $key ) {
-				if ( empty( $req->filter_keys ) || \in_array( $key, $req->filter_keys ) ) {
-					$optDef = $this->getOptionData( $key );
-					$all[] = empty( $filterFields ) ? $optDef : \array_intersect_key( $optDef, $filterFields );
-				}
+		foreach ( ( new Export() )->getRawOptionsExport() as $optKey ) {
+			if ( empty( $req->filter_keys ) || \in_array( $optKey, $req->filter_keys ) ) {
+				$optDef = $this->getOptionData( $optKey );
+				$all[] = empty( $filterFields ) ? $optDef : \array_intersect_key( $optDef, $filterFields );
 			}
 		}
 		return $all;
