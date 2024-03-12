@@ -155,30 +155,31 @@ class Afs extends Base {
 	/**
 	 * @param Scans\Afs\ResultItem $item
 	 */
-	public function cleanStaleResultItem( $item ) {
+	public function cleanStaleResultItem( $item ) :bool {
 		$dbhResultItems = self::con()->db_con->dbhResultItems();
 		/** @var ResultItemsDB\Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 
-		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
-			$updater->setItemDeleted( $item->VO->resultitem_id );
+		$changed = false;
+		if ( ( $item->is_unrecognised || $item->is_mal )
+			 && $item->VO->item_deleted_at === 0
+			 && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
+			$changed = $updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {
 			$CFH = Services::CoreFileHashes();
 			if ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
-				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
 			elseif ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
-				$updater->setItemRepaired( $item->VO->resultitem_id );
+				$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 			}
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
 				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
-				if ( $item->is_checksumfail && $verifiedHash ) {
-					/** @var ResultItemsDB\Update $updater */
-					$updater = $dbhResultItems->getQueryUpdater();
-					$updater->setItemRepaired( $item->VO->resultitem_id );
+				if ( $item->VO->item_repaired_at === 0 && $item->is_checksumfail && $verifiedHash ) {
+					$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 				}
 			}
 			catch ( Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
@@ -186,7 +187,7 @@ class Afs extends Base {
 			}
 			catch ( Lib\Hashes\Exceptions\NonAssetFileException $e ) {
 				// asset has probably been since removed
-				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
 			catch ( Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
 				// unrecognised file
@@ -194,6 +195,8 @@ class Afs extends Base {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		return $changed;
 	}
 
 	public function getQueueGroupSize() :int {

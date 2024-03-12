@@ -27,13 +27,33 @@ abstract class BuildScanAction {
 		$action = $this->getScanActionVO();
 		if ( empty( $action->created_at ) ) {
 			$action->created_at = Services::Request()->ts();
-			$action->started_at = 0;
 			$action->finished_at = 0;
 			$action->usleep = (int)( 1000000*max( 0, apply_filters(
 					self::con()->prefix( 'scan_block_sleep' ),
 					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
+			$action->site_assets = $this->siteAssetsSnap();
 		}
+	}
+
+	protected function siteAssetsSnap() :array {
+		return [
+			'wp'      => [
+				'version' => Services::WpGeneral()->getVersion(),
+			],
+			'plugins' => \array_filter( \array_map(
+				function ( $plugin ) {
+					return $plugin->active ? $plugin->Version : null;
+				},
+				Services::WpPlugins()->getPluginsAsVo()
+			) ),
+			'themes'  => \array_filter( \array_map(
+				function ( $theme ) {
+					return $theme->active ? $theme->Version : null;
+				},
+				Services::WpThemes()->getThemesAsVo()
+			) ),
+		];
 	}
 
 	protected function setCustomFields() {

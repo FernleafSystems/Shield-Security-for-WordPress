@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
  * @property bool   $is_mal
  * @property int    $malware_record_id
  * @property string $ptg_slug
+ * @property string $checksum_sha256
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
@@ -30,26 +31,51 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	 */
 	private $record = null;
 
-	public function getStatusForHuman() :string {
+	public function getStatuses() :array {
+		$statuses = [];
+
 		if ( $this->is_unrecognised ) {
-			$status = __( 'Unrecognised', 'wp-simple-firewall' );
+			$statuses[] = 'unrecognised';
 		}
 		elseif ( $this->is_mal ) {
-			$status = __( 'Potential Malware', 'wp-simple-firewall' );
+			$statuses[] = 'malware';
 		}
 		elseif ( $this->is_missing ) {
-			$status = __( 'Missing', 'wp-simple-firewall' );
+			$statuses[] = 'missing';
 		}
 		elseif ( $this->is_checksumfail ) {
-			$status = __( 'Modified', 'wp-simple-firewall' );
+			$statuses[] = 'modified';
 		}
 		elseif ( $this->is_unidentified ) {
-			$status = __( 'Unidentified', 'wp-simple-firewall' );
+			$statuses[] = 'unidentified';
 		}
-		else {
-			$status = __( 'Unknown', 'wp-simple-firewall' );
+
+		if ( $this->VO->item_repaired_at > 0 ) {
+			$statuses[] = 'repaired';
 		}
-		return $status;
+		elseif ( $this->VO->item_deleted_at > 0 ) {
+			$statuses[] = 'deleted';
+		}
+
+		if ( $this->VO->ignored_at > 0 ) {
+			$statuses[] = 'ignored';
+		}
+
+		return empty( $statuses ) ? [ 'unknown' ] : $statuses;
+	}
+
+	public function getStatusForHuman() :array {
+		return \array_intersect_key( [
+			'unrecognised' => __( 'Unrecognised', 'wp-simple-firewall' ),
+			'malware'      => __( 'Potential Malware', 'wp-simple-firewall' ),
+			'missing'      => __( 'Missing', 'wp-simple-firewall' ),
+			'modified'     => __( 'Modified', 'wp-simple-firewall' ),
+			'unidentified' => __( 'Unidentified', 'wp-simple-firewall' ),
+			'repaired'     => __( 'Repaired', 'wp-simple-firewall' ),
+			'deleted'      => __( 'Deleted', 'wp-simple-firewall' ),
+			'ignored'      => __( 'Ignored', 'wp-simple-firewall' ),
+			'unknown'      => __( 'Unknown', 'wp-simple-firewall' ),
+		], \array_flip( $this->getStatuses() ) );
 	}
 
 	public function getDescriptionForAudit() :string {

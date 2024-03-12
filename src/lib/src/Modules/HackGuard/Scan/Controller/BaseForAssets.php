@@ -10,7 +10,7 @@ abstract class BaseForAssets extends Base {
 	/**
 	 * @param Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 */
-	public function cleanStaleResultItem( $item ) {
+	public function cleanStaleResultItem( $item ) :bool {
 		if ( \strpos( $item->VO->item_id, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->VO->item_id );
 		}
@@ -18,11 +18,13 @@ abstract class BaseForAssets extends Base {
 			$asset = Services::WpThemes()->getThemeAsVo( $item->VO->item_id );
 		}
 
+		$changed = false;
 		if ( empty( $asset ) ) {
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Update $updater */
 			$updater = self::con()->db_con->dbhResultItems()->getQueryUpdater();
-			$updater->setItemDeleted( $item->VO->resultitem_id );
+			$changed = $updater->setItemDeleted( $item->VO->resultitem_id );
 		}
+		return $changed;
 	}
 
 	public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record {

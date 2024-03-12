@@ -489,6 +489,9 @@ class AssetsCustomizer {
 							'start'            => ActionData::Build( Actions\ScansStart::class ),
 							'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
 							'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
+
+							'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
+							'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
 						],
 						'flags' => [
 							'initial_check' => $con->comps === null ?

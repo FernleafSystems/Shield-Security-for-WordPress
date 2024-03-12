@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class FileScanner {
 
@@ -124,6 +125,10 @@ class FileScanner {
 			}
 			catch ( \InvalidArgumentException $e ) {
 			}
+		}
+
+		if ( !empty( $item ) && Services::WpFs()->isAccessibleFile( $fullPath ) ) {
+			$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
 		}
 
 		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.

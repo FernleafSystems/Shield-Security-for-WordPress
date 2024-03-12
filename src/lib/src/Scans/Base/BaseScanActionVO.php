@@ -7,8 +7,8 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 /**
  * @property string   $scan
  * @property int      $created_at
- * @property int      $started_at
  * @property int      $finished_at
+ * @property int      $site_assets
  * @property string[] $items
  * @property array[]  $results
  * @property int      $usleep

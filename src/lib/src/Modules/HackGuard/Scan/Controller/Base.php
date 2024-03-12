@@ -63,8 +63,8 @@ abstract class Base {
 	/**
 	 * @param ResultItem $item
 	 */
-	public function cleanStaleResultItem( $item ) {
-		return true;
+	public function cleanStaleResultItem( $item ) :bool {
+		return false;
 	}
 
 	/**

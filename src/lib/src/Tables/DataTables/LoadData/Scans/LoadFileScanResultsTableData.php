@@ -40,13 +40,41 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			}, $results->getMalware()->getItems() )
 		);
 
+		/**
+		 * Attempt to clean these result items and then reload them if there's any update.
+		 */
+		$changed = false;
+		$AFS = self::con()->comps->scans->AFS();
+		/** @var ResultItem $item */
+		foreach ( $results->getItems() as $item ) {
+			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
+		}
+		if ( $changed ) {
+			$results = $this->getRecordRetriever()->retrieveForResultsTables();
+		}
+
 		try {
-			$files = \array_map(
+			$files = \array_filter( \array_map(
 				function ( ResultItem $item ) {
-					return $this->getDataFromItem( $item );
+					$displayOptions = self::con()->opts->optGet( 'scan_results_table_display' );
+
+					$display = $item->VO->item_deleted_at === 0 && $item->VO->item_repaired_at === 0 && $item->VO->ignored_at === 0;
+					if ( !$display ) {
+						if ( $item->VO->item_deleted_at > 0 && \in_array( 'include_deleted', $displayOptions ) ) {
+							$display = true;
+						}
+						if ( $item->VO->item_repaired_at > 0 && \in_array( 'include_repaired', $displayOptions ) ) {
+							$display = true;
+						}
+						if ( $item->VO->ignored_at > 0 && \in_array( 'include_ignored', $displayOptions ) ) {
+							$display = true;
+						}
+					}
+
+					return $display ? $this->getDataFromItem( $item ) : null;
 				},
 				$results->getItems()
-			);
+			) );
 		}
 		catch ( \Exception $e ) {
 			$files = [];
@@ -86,7 +114,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	public function countAll() :int {
-		return $this->getRecordCounter()->count();
+		return $this->getRecordCounter()->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
 	}
 
 	protected function getRecordCounter() :RetrieveCount {
@@ -152,7 +180,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			);
 		}
 
-		if ( $item->is_unrecognised || $item->is_mal ) {
+		if ( $item->VO->item_deleted_at === 0 && ( $item->is_unrecognised || $item->is_mal ) ) {
 			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
@@ -162,7 +190,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		try {
-			if ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) {
+			if ( $item->VO->item_repaired_at === 0 && ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) ) {
 				$actionHandler = self::con()
 					->comps
 					->scans
@@ -182,12 +210,14 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		catch ( \Exception $e ) {
 		}
 
-		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
-			\implode( ' ', $defaultButtonClasses ),
-			__( 'Ignore', 'wp-simple-firewall' ),
-			$item->VO->scanresult_id,
-			$con->svgs->raw( 'eye-slash-fill.svg' )
-		);
+		if ( $item->VO->ignored_at === 0 ) {
+			$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
+				\implode( ' ', $defaultButtonClasses ),
+				__( 'Ignore', 'wp-simple-firewall' ),
+				$item->VO->scanresult_id,
+				$con->svgs->raw( 'eye-slash-fill.svg' )
+			);
+		}
 
 		return $actions;
 	}
@@ -280,20 +310,40 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getColumnContent_FileStatus( ResultItem $item ) :string {
 		$FS = Services::WpFs();
+		$carbon = Services::Request()->carbon( true );
 
+		$content = \implode( ' / ', \array_map( function ( string $status ) {
+			return \sprintf( '<span class="badge text-bg-secondary">%s</span>', $status );
+		}, $item->getStatusForHuman() ) );
+
+		$meta = [];
 		if ( $FS->isAccessibleFile( $item->path_full ) ) {
-			$carbon = Services::Request()->carbon( true );
-			$content = sprintf( '%s<ul style="list-style: square inside"><li>%s</li></ul>',
-				\sprintf( '<span class="badge text-bg-secondary">%s</span>', $item->getStatusForHuman() ),
-				\implode( '</li><li>', [
-					\sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
-						$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )->diffForHumans()
-					)
-				] )
+			$meta[] = \sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
+				$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )->diffForHumans()
 			);
 		}
-		else {
-			$content = $item->getStatusForHuman();
+		elseif ( $item->VO->item_deleted_at > 0 ) {
+			$meta[] = \sprintf( '%s: %s', __( 'Deleted', 'wp-simple-firewall' ),
+				$carbon->setTimestamp( $item->VO->item_deleted_at )->diffForHumans()
+			);
+		}
+
+		if ( $item->VO->item_repaired_at > 0 ) {
+			$meta[] = \sprintf( '%s: %s', __( 'Repaired', 'wp-simple-firewall' ),
+				$carbon->setTimestamp( $item->VO->item_repaired_at )->diffForHumans()
+			);
+		}
+
+		if ( $item->VO->ignored_at > 0 ) {
+			$meta[] = \sprintf( '%s: %s', __( 'Ignored', 'wp-simple-firewall' ),
+				Services::Request()->carbon( true )
+						->setTimestamp( $item->VO->ignored_at )
+						->diffForHumans()
+			);
+		}
+
+		if ( !empty( $meta ) ) {
+			$content .= sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>', \implode( '</li><li>', $meta ) );
 		}
 
 		return $content;

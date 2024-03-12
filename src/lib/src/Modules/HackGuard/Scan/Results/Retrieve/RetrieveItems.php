@@ -29,8 +29,6 @@ class RetrieveItems extends RetrieveBase {
 
 			$this->addWheres( [
 				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`ri`.`item_repaired_at`=0",
-				"`ri`.`item_deleted_at`=0",
 				"`ri`.`deleted_at`=0",
 			] );
 
@@ -38,12 +36,16 @@ class RetrieveItems extends RetrieveBase {
 
 				case self::CONTEXT_RESULTS_TABLE:
 					$specificWheres = [
-						"`ri`.`ignored_at`=0"
+//						"`ri`.`item_repaired_at`=0",
+//						"`ri`.`item_deleted_at`=0",
+//						"`ri`.`ignored_at`=0"
 					];
 					break;
 
 				case self::CONTEXT_AUTOREPAIR:
 					$specificWheres = [
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
 						"`ri`.`attempt_repair_at`=0",
 						"`ri`.`ignored_at`=0"
 					];
@@ -51,7 +53,10 @@ class RetrieveItems extends RetrieveBase {
 
 				case self::CONTEXT_LATEST:
 				default:
-					$specificWheres = [];
+					$specificWheres = [
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
+					];
 					break;
 			}
 

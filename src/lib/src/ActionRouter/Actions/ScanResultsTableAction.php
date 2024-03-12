@@ -11,7 +11,19 @@ class ScanResultsTableAction extends ScansBase {
 
 	protected function exec() {
 		try {
-			$response = $this->delegate( $this->action_data[ 'sub_action' ] ?? '' );
+			switch ( $this->action_data[ 'sub_action' ] ?? '' ) {
+				case 'retrieve_table_data':
+					$response = $this->retrieveTableData();
+					break;
+				case 'delete':
+				case 'ignore':
+				case 'repair':
+				case 'repair-delete':
+					$response = $this->doAction( $this->action_data[ 'sub_action' ] );
+					break;
+				default:
+					throw new \Exception( 'Not a supported scan tables sub_action: '.$this->action_data[ 'sub_action' ] );
+			}
 		}
 		catch ( \Exception $e ) {
 			$response = [
@@ -22,30 +34,6 @@ class ScanResultsTableAction extends ScansBase {
 		}
 
 		$this->response()->action_response_data = $response;
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function delegate( string $action ) :array {
-		switch ( $action ) {
-
-			case 'retrieve_table_data':
-				$response = $this->retrieveTableData();
-				break;
-
-			case 'delete':
-			case 'ignore':
-			case 'repair':
-			case 'repair-delete':
-				$response = $this->doAction( $action );
-				break;
-
-			default:
-				throw new \Exception( 'Not a supported scan tables sub_action: '.$action );
-		}
-
-		return $response;
 	}
 
 	/**

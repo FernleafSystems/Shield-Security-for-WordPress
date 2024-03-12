@@ -8,6 +8,7 @@ class RetrieveCount extends RetrieveBase {
 
 	public const CONTEXT_ACTIVE_PROBLEMS = 0;
 	public const CONTEXT_NOT_YET_NOTIFIED = 1;
+	public const CONTEXT_RESULTS_DISPLAY = 2;
 
 	public function buildQuery( array $selectFields = [] ) :string {
 		return sprintf(
@@ -38,6 +39,22 @@ class RetrieveCount extends RetrieveBase {
 						"`ri`.`item_deleted_at`=0",
 						"`ri`.`notified_at`=0",
 					];
+					break;
+
+				case self::CONTEXT_RESULTS_DISPLAY:
+					$specificWheres = [
+						"`ri`.`auto_filtered_at`=0",
+					];
+					$includes = self::con()->opts->optGet( 'scan_results_table_display' );
+					if ( !\in_array( 'include_ignored', $includes ) ) {
+						$specificWheres[] = "`ri`.`ignored_at`=0";
+					}
+					if ( !\in_array( 'include_repaired', $includes ) ) {
+						$specificWheres[] = "`ri`.`item_repaired_at`=0";
+					}
+					if ( !\in_array( 'include_deleted', $includes ) ) {
+						$specificWheres[] = "`ri`.`item_deleted_at`=0";
+					}
 					break;
 
 				case self::CONTEXT_ACTIVE_PROBLEMS:
