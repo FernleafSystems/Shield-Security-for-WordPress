@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
  * @property string[] $patterns_functions
  * @property string[] $patterns_keywords
  * @property string[] $valid_files
+ * @property int      $max_file_size (bytes)
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
 

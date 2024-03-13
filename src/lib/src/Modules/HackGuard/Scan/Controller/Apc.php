@@ -39,7 +39,7 @@ class Apc extends BaseForAssets {
 	}
 
 	public function getQueueGroupSize() :int {
-		return 3;
+		return 100;
 	}
 
 	/**

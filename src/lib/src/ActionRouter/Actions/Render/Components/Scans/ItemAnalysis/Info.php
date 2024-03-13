@@ -37,7 +37,7 @@ class Info extends Base {
 					'malai_status'          => $this->getMalaiStatus(),
 					'malai_status_notes'    => [
 						__( "[Known] means that the code has been reviewed and is known and confirmed to be either clean or malware." ),
-						__( "[False Positive] means the code looks like malware, but it's actually clean'." ),
+						__( "[False Positive] means the code looks like malware, but it's actually clean." ),
 						__( "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet)." ),
 					],
 					'file_status'           => sprintf( '%s: %s',

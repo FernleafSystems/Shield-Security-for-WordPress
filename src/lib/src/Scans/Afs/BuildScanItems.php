@@ -11,29 +11,6 @@ class BuildScanItems {
 
 	use ModConsumer;
 
-	public function run() :array {
-		$this->preBuild();
-
-		$files = \array_filter(
-			\array_unique( \array_merge(
-				$this->buildFilesFromDisk(),
-				$this->buildFilesFromWpHashes()
-			) ),
-			function ( $path ) {
-				return !$this->isWhitelistedPath( $path );
-			}
-		);
-
-		\natsort( $files );
-
-		return \array_map(
-			function ( $path ) {
-				return \base64_encode( $path );
-			},
-			\array_values( $files )
-		);
-	}
-
 	protected function preBuild() {
 		$con = self::con();
 		/** @var ScanActionVO $action */
@@ -109,6 +86,30 @@ class BuildScanItems {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
 			},
 			$paths
+		);
+		$action->max_file_size = apply_filters( 'shield/file_scan_size_max', 16*1024*1024 );
+	}
+
+	public function run() :array {
+		$this->preBuild();
+
+		$files = \array_filter(
+			\array_unique( \array_merge(
+				$this->buildFilesFromDisk(),
+				$this->buildFilesFromWpHashes()
+			) ),
+			function ( $path ) {
+				return !$this->isWhitelistedPath( $path );
+			}
+		);
+
+		\natsort( $files );
+
+		return \array_map(
+			function ( $path ) {
+				return \base64_encode( $path );
+			},
+			\array_values( $files )
 		);
 	}
 

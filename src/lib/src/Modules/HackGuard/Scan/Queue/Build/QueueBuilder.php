@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
@@ -34,6 +35,22 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 		$this->save();
 		// Perform remote post.
 		parent::dispatch();
+	}
+
+	protected function get_post_args() {
+		$args = parent::get_post_args();
+
+		/**
+		 * Automatically add HTTP AUTH header if the current request has it.
+		 */
+		if ( Services::Request()->server[ 'HTTP_AUTHORIZATION' ] ?? false ) {
+			if ( !\is_array( $args[ 'headers' ] ?? null ) ) {
+				$args[ 'headers' ] = [];
+			}
+			$args[ 'headers' ][ 'Authorization' ] = Services::Request()->server[ 'HTTP_AUTHORIZATION' ];
+		}
+
+		return $args;
 	}
 
 	/**

@@ -23,7 +23,7 @@ class CleanQueue {
 
 	private function resetStaleScanItems() {
 		Services::WpDb()->doSql(
-			sprintf( "UPDATE `%s` SET `started_at`=0 WHERE `started_at` > 0 AND `started_at` < %s",
+			sprintf( "UPDATE `%s` SET `started_at`=0 WHERE `finished_at`=0 AND `started_at` > 0 AND `started_at` < %s",
 				self::con()->db_con->dbhScanItems()->getTableSchema()->table,
 				Services::Request()->carbon()->subMinutes( 2 )->timestamp
 			)

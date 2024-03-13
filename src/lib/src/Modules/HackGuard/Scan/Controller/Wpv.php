@@ -68,6 +68,10 @@ class Wpv extends BaseForAssets {
 		return $doAutoUpdate || $this->hasVulnerabilities( $itemFile );
 	}
 
+	public function getQueueGroupSize() :int {
+		return 10;
+	}
+
 	public function hasVulnerabilities( string $file ) :bool {
 		return \count( $this->getResultsForDisplay()->getItemsForSlug( $file ) ) > 0;
 	}
