@@ -78,7 +78,7 @@ class PageLicense extends BasePluginAdminPage {
 				'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
 				'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
 				'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
-				'clear_license'            => __( 'Clear License Status', 'wp-simple-firewall' ),
+				'clear_license'            => __( 'Remove License', 'wp-simple-firewall' ),
 				'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
 				'activate_site_in'         => sprintf(
 					__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),

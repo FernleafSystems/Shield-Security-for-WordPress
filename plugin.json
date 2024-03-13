@@ -4961,6 +4961,7 @@
         "activity_logs":         {
           "name":           "Activity Logs",
           "slug":           "at_logs",
+          "is_core":        true,
           "has_updated_at": true,
           "has_created_at": true,
           "has_deleted_at": false,
@@ -4985,6 +4986,7 @@
         "activity_logs_meta":    {
           "name":           "Activity Log Meta Data",
           "slug":           "at_meta",
+          "is_core":        true,
           "has_updated_at": false,
           "has_created_at": false,
           "has_deleted_at": false,
@@ -5009,8 +5011,9 @@
         },
         "activity_snapshots":    {
           "name":           "Site Snapshots",
-          "autoexpire":     0,
           "slug":           "snapshots",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": false,
           "has_deleted_at": false,
           "col_older_than": "created_at",
@@ -5028,8 +5031,9 @@
         },
         "bot_signals":           {
           "name":           "Bot Signals Tracking",
-          "autoexpire":     0,
           "slug":           "botsignal",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": true,
           "col_older_than": "updated_at",
           "cols_custom":    {
@@ -5147,8 +5151,9 @@
         },
         "crowdsec_signals":      {
           "name":            "CrowdSec Signals",
-          "autoexpire":      0,
           "slug":            "crowdsec_signals",
+          "is_core":        false,
+          "autoexpire":      0,
           "has_updated_at":  false,
           "has_created_at":  true,
           "has_deleted_at":  false,
@@ -5178,8 +5183,9 @@
         },
         "events":                {
           "name":           "Shield Events & Stats",
-          "autoexpire":     0,
           "slug":           "event",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": false,
           "has_deleted_at": false,
           "col_older_than": "created_at",
@@ -5198,8 +5204,9 @@
         },
         "file_locker":           {
           "name":            "File Locker Data",
-          "autoexpire":      0,
           "slug":            "file_locker",
+          "is_core":        false,
+          "autoexpire":      0,
           "col_older_than":  "created_at",
           "has_updated_at":  true,
           "cols_custom":     {
@@ -5253,8 +5260,9 @@
         },
         "ips":                   {
           "name":           "IP Addresses",
-          "autoexpire":     0,
           "slug":           "ips",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": false,
           "has_deleted_at": false,
           "col_older_than": "created_at",
@@ -5269,8 +5277,9 @@
         },
         "ip_meta":               {
           "name":            "IP Meta",
-          "autoexpire":      0,
           "slug":            "ip_meta",
+          "is_core":        false,
+          "autoexpire":      0,
           "has_updated_at":  true,
           "col_older_than":  "updated_at",
           "cols_custom":     {
@@ -5307,8 +5316,9 @@
         },
         "ip_rules":              {
           "name":            "IP Rules",
-          "autoexpire":      0,
           "slug":            "ip_rules",
+          "is_core":        true,
+          "autoexpire":      0,
           "has_updated_at":  true,
           "col_older_than":  "updated_at",
           "cols_custom":     {
@@ -5380,8 +5390,9 @@
         },
         "malware":               {
           "name":            "Malware File Tracking",
-          "autoexpire":      0,
           "slug":            "malware",
+          "is_core":        false,
+          "autoexpire":      0,
           "has_updated_at":  true,
           "has_deleted_at":  false,
           "col_older_than":  "updated_at",
@@ -5437,6 +5448,7 @@
         "mfa":                   {
           "name":            "MFA",
           "slug":            "mfa",
+          "is_core":        false,
           "autoexpire":      0,
           "has_updated_at":  true,
           "has_deleted_at":  true,
@@ -5483,8 +5495,9 @@
         },
         "reports":               {
           "name":            "Security Reports",
-          "autoexpire":      30,
           "slug":            "reports",
+          "is_core":        false,
+          "autoexpire":      30,
           "has_updated_at":  false,
           "has_deleted_at":  false,
           "col_older_than":  "created_at",
@@ -5538,6 +5551,7 @@
         "req_logs":              {
           "name":           "Request Logs",
           "slug":           "req_logs",
+          "is_core":        true,
           "autoexpire":     0,
           "has_updated_at": false,
           "has_deleted_at": false,
@@ -5599,8 +5613,9 @@
         },
         "scan_result_items":     {
           "name":           "Scan Result Items",
-          "autoexpire":     0,
           "slug":           "resultitems",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": true,
           "col_older_than": "updated_at",
           "cols_custom":    {
@@ -5643,6 +5658,7 @@
         "scan_result_item_meta": {
           "name":           "Scan Result Items Metadata",
           "slug":           "resultitem_meta",
+          "is_core":        true,
           "has_updated_at": false,
           "has_created_at": false,
           "has_deleted_at": false,
@@ -5667,8 +5683,9 @@
         },
         "rules":                 {
           "name":           "Rules",
-          "autoexpire":     0,
           "slug":           "rules",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": true,
           "has_deleted_at": false,
           "col_older_than": "updated_at",
@@ -5741,8 +5758,9 @@
         },
         "scans":                 {
           "name":           "Scans",
-          "autoexpire":     0,
           "slug":           "scans",
+          "is_core":        true,
+          "autoexpire":     0,
           "col_older_than": "created_at",
           "has_updated_at": false,
           "cols_custom":    {
@@ -5767,8 +5785,9 @@
         },
         "scan_items":            {
           "name":           "Scan Items",
-          "autoexpire":     0,
           "slug":           "scanitems",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": false,
           "has_created_at": false,
           "has_deleted_at": false,
@@ -5796,8 +5815,9 @@
         },
         "scan_results":          {
           "name":           "Scan Result Sets",
-          "autoexpire":     0,
           "slug":           "scanresults",
+          "is_core":        true,
+          "autoexpire":     0,
           "has_updated_at": false,
           "has_created_at": true,
           "has_deleted_at": false,
@@ -5819,6 +5839,7 @@
         "user_meta":             {
           "name":            "User Meta",
           "slug":            "user_meta",
+          "is_core":        true,
           "autoexpire":      0,
           "has_updated_at":  true,
           "has_deleted_at":  false,

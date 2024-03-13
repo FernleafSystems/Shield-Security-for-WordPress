@@ -37,7 +37,7 @@ class BlockdownFormSubmit extends BaseAction {
 			$whitelistMe = ( $form[ 'whitelist_me' ] ?? 'N' ) === 'Y';
 			$alreadyWhitelisted = ( new IpRules\IpRuleStatus( $con->this_req->ip ) )->isBypass();
 			if ( $whitelistMe && !$alreadyWhitelisted ) {
-				( new IpRules\AddRule() )->setIP( $con->this_req->ip )->toManualWhitelist( 'Whitelist for Blockdown' );
+				( new IpRules\AddRule() )->setIP( $con->this_req->ip )->toManualWhitelist( 'Whitelist for Site Lockdown' );
 			}
 
 			$ruleLoader = new LoadIpRules();

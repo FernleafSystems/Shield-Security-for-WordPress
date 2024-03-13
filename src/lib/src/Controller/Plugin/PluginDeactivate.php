@@ -22,7 +22,6 @@ class PluginDeactivate {
 		}
 		self::con()->db_con->dbhScanItems()->tableDelete();
 		self::con()->db_con->dbhScanResults()->tableDelete();
-		// 2. Clean out the file locker
 		self::con()->comps->file_locker->purge();
 	}
 

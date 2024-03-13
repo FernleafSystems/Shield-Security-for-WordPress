@@ -21,7 +21,7 @@ class PreStore {
 		$this->headers();
 		$this->ips();
 		$this->lockdown();
-		$this->loginGuard();
+		$this->login();
 		$this->plugin();
 		$this->scanners();
 		$this->securityAdmin();
@@ -71,6 +71,14 @@ class PreStore {
 
 	public function login() :void {
 		$opts = self::con()->opts;
+
+		if ( self::con()->opts->optChanged( 'enable_email_authentication' ) ) {
+			try {
+				self::con()->action_router->action( MfaEmailSendVerification::class );
+			}
+			catch ( \Exception $e ) {
+			}
+		}
 
 		if ( $opts->optIs( 'enable_antibot_check', 'Y' ) ) {
 			$opts->optSet( 'enable_login_gasp_check', 'N' );
@@ -170,16 +178,6 @@ class PreStore {
 
 		if ( empty( $opts->optGet( 'xcsp_custom' ) ) ) {
 			$opts->optSet( 'enable_x_content_security_policy', 'N' );
-		}
-	}
-
-	public function loginGuard() :void {
-		if ( self::con()->opts->optChanged( 'enable_email_authentication' ) ) {
-			try {
-				self::con()->action_router->action( MfaEmailSendVerification::class );
-			}
-			catch ( \Exception $e ) {
-			}
 		}
 	}
 
@@ -283,8 +281,7 @@ class PreStore {
 			}
 			$opts->optSet( 'file_locker', $lockFiles );
 
-			if ( \count( $lockFiles ) === 0 || !$con->comps->shieldnet->canHandshake()
-			) {
+			if ( \count( $lockFiles ) === 0 || !$con->comps->shieldnet->canHandshake() ) {
 				$con->comps->file_locker->purge();
 			}
 		}

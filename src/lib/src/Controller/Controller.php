@@ -30,9 +30,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Lockdown,
 	LoginGuard,
 	Plugin,
+	Plugin\Lib\Ops\ResetPlugin,
 	SecurityAdmin,
 	Traffic,
-	UserManagement,
+	UserManagement
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -381,6 +382,12 @@ class Controller extends DynPropertiesClass {
 
 		$this->loadModules();
 
+		if ( $this->plugin_reset ) {
+			( new ResetPlugin() )->run();
+		}
+
+		$this->prechecks = ( new Checks\PreModulesBootCheck() )->run();
+
 		$this->extensions_controller->execute();
 		$this->db_con->execute();
 		$this->comps->execute();
@@ -460,8 +467,6 @@ class Controller extends DynPropertiesClass {
 				$this->modules = $modules;
 			}
 
-			$this->prechecks = ( new Checks\PreModulesBootCheck() )->run();
-
 			// Register the Controller hooks
 			$this->doRegisterHooks();
 
@@ -496,7 +501,7 @@ class Controller extends DynPropertiesClass {
 	public function deletePlugin() {
 		$this->plugin_deleting = true;
 		do_action( $this->prefix( 'delete_plugin' ) );
-		( new Shield\Controller\Plugin\PluginDelete() )->execute();
+		( new Shield\Controller\Plugin\PluginDelete() )->run();
 	}
 
 	/**

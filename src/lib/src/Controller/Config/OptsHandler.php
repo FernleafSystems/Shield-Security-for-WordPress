@@ -93,7 +93,8 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function resetToDefaults() {
-		$this->values = $this->mod_opts_free = $this->mod_opts_pro = $this->mod_opts_all = [];
+		$this->mod_opts_free = $this->mod_opts_pro = $this->values = [];
+		$this->mod_opts_all = $this->defaultAllStorageStruct();
 		$this->delete();
 	}
 
@@ -131,7 +132,6 @@ class OptsHandler extends DynPropertiesClass {
 	 * Used only once during migration from other stored data. Can be completely removed eventually.
 	 */
 	private function flatten() :array {
-		error_log( __FUNCTION__ );
 		$toStore = [
 			'version' => self::con()->cfg->version(),
 			'values'  => [

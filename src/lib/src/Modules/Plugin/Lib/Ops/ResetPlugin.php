@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDelete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ResetPlugin {
@@ -11,5 +12,6 @@ class ResetPlugin {
 	public function run() {
 		self::con()->plugin_reset = true;
 		self::con()->opts->resetToDefaults();
+		( new PluginDelete() )->run();
 	}
 }

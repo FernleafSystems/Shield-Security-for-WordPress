@@ -330,15 +330,19 @@ class DbCon extends DynPropertiesClass {
 			$modPlug = $con->getModule_Plugin();
 			/** @var Handler|mixed $dbh */
 			$dbh = new $dbh[ 'handler_class' ]( $dbDef );
-			$dbh->use_table_ready_cache = $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
-										  &&
-										  ( Services::Request()->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
+			$dbh->use_table_ready_cache = !$con->plugin_reset
+										  && $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
+										  && ( Services::Request()->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ][ 'handler' ] = $dbh;
 		}
 
 		return $this->dbHandlers[ $dbKey ][ 'handler' ];
+	}
+
+	public function reset() :void {
+		$this->dbHandlers = null;
 	}
 
 	public function __get( string $key ) {

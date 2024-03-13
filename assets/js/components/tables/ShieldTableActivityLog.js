@@ -8,6 +8,14 @@ export class ShieldTableActivityLog extends ShieldTableBase {
 		return '#ShieldTable-ActivityLog';
 	}
 
+	buildDatatableConfig() {
+		let cfg = super.buildDatatableConfig();
+		cfg.select = {
+			style: 'api'
+		};
+		return cfg;
+	}
+
 	run() {
 		super.run();
 

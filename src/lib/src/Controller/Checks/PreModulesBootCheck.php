@@ -20,10 +20,12 @@ class PreModulesBootCheck {
 			]
 		];
 
-		foreach ( \array_keys( $con->db_con->getHandlers() ) as $dbKey ) {
+		foreach ( $con->db_con->getHandlers() as $dbKey => $handlerDef ) {
 			try {
-				$dbh = $con->db_con->loadDbH( $dbKey );
-				$checks[ 'dbs' ][ $dbh->getTableSchema()->slug ] = $dbh->isReady();
+				if ( $handlerDef[ 'def' ][ 'is_core' ] ) {
+					$dbh = $con->db_con->loadDbH( $dbKey );
+					$checks[ 'dbs' ][ $dbh->getTableSchema()->slug ] = $dbh->isReady();
+				}
 			}
 			catch ( \Exception $e ) {
 			}

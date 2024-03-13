@@ -25,12 +25,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 */
 	private $oFileLocker;
 
-	protected function doPostConstruction() {
-		$this->setCustomCronSchedules();
-	}
-
 	public function onWpInit() {
 		parent::onWpInit();
+		$this->setCustomCronSchedules();
 		self::con()->comps->scans_queue->execute();
 	}
 

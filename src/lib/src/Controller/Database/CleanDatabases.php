@@ -24,6 +24,7 @@ class CleanDatabases {
 		( new CleanScansDB() )->run();
 		$this->cleanRequestLogs();
 		$this->purgeUnreferencedIPs();
+		$this->purgeNotRequiredDBs();
 	}
 
 	public function cleanBotSignals() :void {
@@ -112,6 +113,13 @@ class CleanDatabases {
 		$deleter->filterBySlug( Email::ProviderSlug() )
 				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
 				->query();
+	}
+
+	public function purgeNotRequiredDBs() :void {
+		$con = self::con();
+		if ( empty( $con->comps->file_locker->getFilesToLock() ) ) {
+			$con->comps->file_locker->purge();
+		}
 	}
 
 	public function purgeUnreferencedIPs() :void {

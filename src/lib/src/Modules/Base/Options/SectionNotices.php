@@ -128,7 +128,12 @@ class SectionNotices {
 						] );
 					}
 				}
+				break;
 
+			case 'section_deprecated':
+				if ( $con->opts->optIs( 'enable_antibot_check', 'Y' ) ) {
+					$warnings[] = __( 'You must disable ADE protection if you want to enable these options.', 'wp-simple-firewall' );
+				}
 				break;
 
 			case 'section_user_session_management':
