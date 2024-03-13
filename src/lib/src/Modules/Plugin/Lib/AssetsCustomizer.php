@@ -298,7 +298,15 @@ class AssetsCustomizer {
 						$isGasp = $con->comps->opts_lookup->enabledLoginGuardGaspCheck();
 						$cbName = $con->comps->opts_lookup->getLoginGuardGaspKey();
 						$label = $con->opts->optGet( 'text_imahuman' );
+						if ( $label === 'default' ) {
+							$con->opts->optReset( 'text_imahuman' );
+							$label = $con->opts->optGet( 'text_imahuman' );
+						}
 						$alert = $con->opts->optGet( 'text_pleasecheckbox' );
+						if ( $alert === 'default' ) {
+							$con->opts->optReset( 'text_pleasecheckbox' );
+							$label = $con->opts->optGet( 'text_pleasecheckbox' );
+						}
 					}
 					return [
 						'form_selectors' => $selectors,

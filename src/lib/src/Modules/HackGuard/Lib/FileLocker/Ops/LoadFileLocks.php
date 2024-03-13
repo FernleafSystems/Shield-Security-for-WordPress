@@ -19,11 +19,14 @@ class LoadFileLocks {
 	 */
 	public function loadLocks() :array {
 		$records = [];
-		$dbh = self::con()->db_con->dbhFileLocker();
-		if ( $dbh->isReady() ) {
-			$all = $dbh->getQuerySelector()
-					   ->setNoOrderBy()
-					   ->all();
+		if ( self::con()->comps === null ? self::con()->getModule_HackGuard()->getFileLocker()->isEnabled() :
+			self::con()->comps->file_locker->isEnabled() ) {
+			$all = self::con()
+				->db_con
+				->dbhFileLocker()
+				->getQuerySelector()
+				->setNoOrderBy()
+				->all();
 			foreach ( \is_array( $all ) ? $all : [] as $lock ) {
 				$records[ $lock->id ] = $lock;
 			}
@@ -80,7 +83,7 @@ class LoadFileLocks {
 	}
 
 	/**
-	 * @19.1
+	 * @deprecated 19.1
 	 */
 	public function clearLocksCache() {
 		$this->mod()->getFileLocker()->clearLocks();

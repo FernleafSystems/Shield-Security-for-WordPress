@@ -53,7 +53,7 @@ class ZoneReportComments extends BaseZoneReport {
 		}
 		else {
 			$link = [
-				'href' => get_edit_comment_link( $comment ),
+				'href' => get_edit_comment_link( $log->meta_data[ 'comment_id' ] ),
 				'text' => __( 'View Comment' ),
 			];
 		}

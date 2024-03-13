@@ -64,7 +64,7 @@ class ForActivityLog extends Base {
 			],
 			'severity'   => [
 				'data'        => 'severity',
-				'title'       => __( 'Severity' ),
+				'title'       => '',
 				'className'   => 'severity',
 				'orderable'   => false,
 				'searchable'  => false,
