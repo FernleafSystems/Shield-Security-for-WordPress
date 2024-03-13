@@ -1,0 +1,34 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>Vulnerabilities have just been detected on your site: {{ body.vars.site_url }}</p>
+
+	{% if body.vars.vulnerabilities.plugins|length > 0 %}
+		<h5>Plugins</h5>
+		{% for vuln in body.vars.vulnerabilities.plugins %}
+			<div style="margin:6px 0;padding:20px;border:1px dashed gray;display:inline-block;background-color: #ff000005;">
+			<strong>Plugin: {{ vuln.name }}</strong>
+			<ul style="margin:5px 0 0 0;">
+				<li>Version: {{ vuln.version }}</li>
+				<li><a href="{{ vuln.href }}">Vulnerability Info</a></li>
+			</ul>
+		</div>
+		{% endfor %}
+	{% endif %}
+
+	{% if body.vars.vulnerabilities.themes|length > 0 %}
+		<h5>Themes</h5>
+		{% for vuln in body.vars.vulnerabilities.themes %}
+			<div style="margin:6px 0;padding:20px;border:1px dashed gray;display:inline-block;background-color: #ff000005;">
+			<strong>Theme: {{ vuln.name }}</strong>
+			<ul style="margin:5px 0 0 0;">
+				<li>Version: {{ vuln.version }}</li>
+				<li><a href="{{ vuln.href }}">Vulnerability Info</a></li>
+			</ul>
+		</div>
+		{% endfor %}
+	{% endif %}
+
+	<p>Please take urgent action to either upgrade any vulnerable items, or remove them from your site.</p>
+	<p>Important: If you've set Shield to automatically upgrade vulnerable plugins, it may have been upgraded by the time you view this.</p>
+{% endblock %}

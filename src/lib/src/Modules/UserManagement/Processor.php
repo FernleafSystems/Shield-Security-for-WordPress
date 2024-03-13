@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops as IPDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -59,11 +60,16 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 				if ( $colName === $customColName ) {
 					$user = Services::WpUsers()->getUserById( $userID );
 					if ( $user instanceof \WP_User ) {
+						$con = self::con();
 
-						$lastLoginAt = (int)self::con()->user_metas->for( $user )->record->last_login_at;
+						$meta = $con->user_metas->for( $user );
+						$lastLoginAt = (int)$meta->record->last_login_at;
 						$carbon = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $lastLoginAt );
+
+						/** @var IPDB\Record $ipRecord */
+						$ipRecord = $con->db_con->dbhIPs()->getQuerySelector()->byId( $meta->record->ip_ref );
 
 						$additionalContent = apply_filters( 'shield/user_status_column', [
 							$content,
@@ -71,7 +77,16 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 								$lastLoginAt > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
 								__( 'Last Login', 'wp-simple-firewall' ),
 								$lastLoginAt > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
-							)
+							),
+							sprintf( '<em title="%s">%s</em>: %s',
+								empty( $ipRecord->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : $ipRecord->ip,
+								__( 'Last Known IP', 'wp-simple-firewall' ),
+								empty( $ipRecord->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+									sprintf( '<a href="%s" target="_blank">%s</a>',
+										$con->plugin_urls->ipAnalysis( $ipRecord->ip ),
+										$ipRecord->ip
+									)
+							),
 						], $user );
 
 						$content = \implode( '<br/>', \array_filter( \array_map( '\trim', $additionalContent ) ) );

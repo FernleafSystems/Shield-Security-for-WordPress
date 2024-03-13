@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
@@ -11,14 +11,16 @@ class CompleteQueue {
 	use PluginControllerConsumer;
 
 	public function complete() {
+		$con = self::con();
 		/** @var ScanItemsDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhScanItems()->getQueryDeleter();
+		$deleter = $con->db_con->dbhScanItems()->getQueryDeleter();
 		$deleter->filterByFinished()->query();
 
-		$hook = self::con()->prefix( 'post_scan' );
-		if ( self::con()->opts->optGet( 'is_scan_cron' ) && !wp_next_scheduled( $hook ) ) {
-			wp_schedule_single_event( Services::Request()->ts() + 5, $hook );
+		if ( $con->opts->optGet( 'is_scan_cron' ) && !wp_next_scheduled( $con->prefix( 'post_scan' ) ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + 5, $con->prefix( 'post_scan' ) );
 		}
+
+		do_action( 'shield/scan_queue_completed' );
 
 		self::con()->opts->optSet( 'is_scan_cron', false );
 	}

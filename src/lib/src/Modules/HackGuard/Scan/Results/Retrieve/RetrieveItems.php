@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItemMeta as ResultItemMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
@@ -20,6 +19,7 @@ class RetrieveItems extends RetrieveBase {
 	public const CONTEXT_RESULTS_TABLE = 0;
 	public const CONTEXT_AUTOREPAIR = 1;
 	public const CONTEXT_LATEST = 2;
+	public const CONTEXT_NOT_YET_NOTIFIED = 3;
 
 	public function retrieveResults( int $context ) {
 		$results = null;
@@ -48,6 +48,16 @@ class RetrieveItems extends RetrieveBase {
 						"`ri`.`item_deleted_at`=0",
 						"`ri`.`attempt_repair_at`=0",
 						"`ri`.`ignored_at`=0"
+					];
+					break;
+
+				case self::CONTEXT_NOT_YET_NOTIFIED:
+					$specificWheres = [
+						"`ri`.`auto_filtered_at`=0",
+						"`ri`.`ignored_at`=0",
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
+						"`ri`.`notified_at`=0",
 					];
 					break;
 

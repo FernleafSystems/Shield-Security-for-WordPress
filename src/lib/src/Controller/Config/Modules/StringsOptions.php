@@ -1315,6 +1315,14 @@ class StringsOptions {
 				];
 				break;
 
+			case 'instant_alerts' :
+				$name = __( 'Instant Alerts', 'wp-simple-firewall' );
+				$summary = __( 'Instant Alert Events', 'wp-simple-firewall' );
+				$desc = [
+					__( "Select the security events for which you'd like to receive instant alerts.", 'wp-simple-firewall' )
+				];
+				break;
+
 			case 'enable_admin_access_restriction' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
 				$summary = __( 'Enforce Security Admin Access Restriction', 'wp-simple-firewall' );
@@ -1726,9 +1734,11 @@ class StringsOptions {
 				break;
 
 			default:
-				$name = __( 'todo', 'wp-simple-firewall' );
-				$summary = __( 'todo', 'wp-simple-firewall' );
-				$desc = [];
+				$def = $con->opts->optDef( $key );
+				$name = __( $def[ 'name' ] ?? 'No Title', 'wp-simple-firewall' );
+				$summary = __( $def[ 'summary' ] ?? 'No Title', 'wp-simple-firewall' );
+				$desc = $def[ 'description' ] ?? [];
+				break;
 		}
 
 		return [

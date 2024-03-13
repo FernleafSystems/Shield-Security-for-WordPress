@@ -31,6 +31,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 			$components->badge->execute();
 			$components->import_export->execute();
 			$components->comment_spam->execute();
+			$components->instant_alerts->execute();
 			new Events\StatsWriter();
 			( new Lib\AllowBetaUpgrades() )->execute();
 			( new Lib\OverrideLocale() )->execute();

@@ -130,6 +130,7 @@ class Constants {
 		Actions\Render\Components\Debug\DebugRecentEvents::class,
 		Actions\Render\Components\Docs\Changelog::class,
 		Actions\Render\Components\Docs\EventsEnum::class,
+		Actions\Render\Components\Email\InstantAlerts\InstantAlertVulnerabilities::class,
 		Actions\Render\Components\Email\Footer::class,
 		Actions\Render\Components\Email\UnblockMagicLink::class,
 		Actions\Render\Components\Email\MfaLoginCode::class,

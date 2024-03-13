@@ -32,35 +32,36 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\U
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
- * @property AuditCon                $activity_log
- * @property ApiTokenManager         $api_token
- * @property CompCons\AutoUpdatesCon $autoupdates
- * @property PluginBadge             $badge
- * @property BotSignalsController    $bot_signals
- * @property CommentSpamCon          $comment_spam
- * @property CrowdSecController      $crowdsec
- * @property FileLockerController    $file_locker
- * @property SpamController          $forms_spam
- * @property UserFormsController     $forms_users
- * @property CompCons\HttpHeadersCon $http_headers
- * @property ImportExportController  $import_export
- * @property CompCons\IPsCon         $ips_con
- * @property LicenseHandler          $license
- * @property MainwpCon               $mainwp
- * @property MfaController           $mfa
- * @property NotBotHandler           $not_bot
- * @property OffenseTracker          $offense_tracker
- * @property OptsSettingsLookup      $opts_lookup
- * @property ReportingController     $reports
- * @property RequestLogger           $requests_log
- * @property SecurityAdminController $sec_admin
- * @property SessionController       $session
- * @property Scan\ScansController    $scans
- * @property Scan\Queue\Controller   $scans_queue
- * @property ShieldNetApiController  $shieldnet
- * @property UserSuspendController   $user_suspend
- * @property WhitelabelController    $whitelabel
- * @property MerlinController        $wizards
+ * @property AuditCon                  $activity_log
+ * @property ApiTokenManager           $api_token
+ * @property CompCons\AutoUpdatesCon   $autoupdates
+ * @property PluginBadge               $badge
+ * @property BotSignalsController      $bot_signals
+ * @property CommentSpamCon            $comment_spam
+ * @property CrowdSecController        $crowdsec
+ * @property FileLockerController      $file_locker
+ * @property SpamController            $forms_spam
+ * @property UserFormsController       $forms_users
+ * @property CompCons\HttpHeadersCon   $http_headers
+ * @property ImportExportController    $import_export
+ * @property CompCons\InstantAlertsCon $instant_alerts
+ * @property CompCons\IPsCon           $ips_con
+ * @property LicenseHandler            $license
+ * @property MainwpCon                 $mainwp
+ * @property MfaController             $mfa
+ * @property NotBotHandler             $not_bot
+ * @property OffenseTracker            $offense_tracker
+ * @property OptsSettingsLookup        $opts_lookup
+ * @property ReportingController       $reports
+ * @property RequestLogger             $requests_log
+ * @property SecurityAdminController   $sec_admin
+ * @property SessionController         $session
+ * @property Scan\ScansController      $scans
+ * @property Scan\Queue\Controller     $scans_queue
+ * @property ShieldNetApiController    $shieldnet
+ * @property UserSuspendController     $user_suspend
+ * @property WhitelabelController      $whitelabel
+ * @property MerlinController          $wizards
  */
 class ComponentLoader extends DynPropertiesClass {
 
@@ -94,6 +95,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'forms_users'     => UserFormsController::class,
 			'http_headers'    => CompCons\HttpHeadersCon::class,
 			'import_export'   => ImportExportController::class,
+			'instant_alerts'  => CompCons\InstantAlertsCon::class,
 			'ips_con'         => CompCons\IPsCon::class,
 			'license'         => LicenseHandler::class,
 			'mainwp'          => MainwpCon::class,

@@ -526,6 +526,7 @@ class StringsSections {
 				$title = __( $def[ 'title' ] ?? 'No Title', 'wp-simple-firewall' );
 				$short = __( $def[ 'title_short' ] ?? 'No Title', 'wp-simple-firewall' );
 				$summary = $def[ 'summary' ] ?? [];
+				break;
 		}
 
 		return [

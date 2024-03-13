@@ -4048,6 +4048,27 @@
         "description":   "Decide when you should be sent non-critical information and reports about your site security."
       },
       {
+        "key":           "instant_alerts",
+        "section":       "section_reporting",
+        "premium":       true,
+        "cap":           "instant_alerts",
+        "type":          "multiple_select",
+        "advanced":      true,
+        "default":       [],
+        "value_options": [
+          {
+            "value_key": "vulnerabilities",
+            "text":      "Vulnerabilities"
+          }
+        ],
+        "link_info":     "https://shsec.io/eb",
+        "link_blog":     "",
+        "beacon_id":     154,
+        "name":          "Instant Alerts",
+        "summary":       "Instant Alerts",
+        "description":   "Select which events you'd like to receive instant alerts for."
+      },
+      {
         "key":     "transient_tracking",
         "section": "section_hidden_plugin",
         "type":    "array",

@@ -11,6 +11,16 @@
     ],
     "items":       [
       {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Instant Alerts",
+        "description": [
+          "You can now configure Shield to send you instant alert notification for important events.",
+          "On release, the only instant alert event available is for Vulnerabilities that have been discovered in scans."
+        ],
+        "href":        ""
+      },
+      {
         "type":        "improved",
         "pro_only":    false,
         "title":       "Code Rewrite & Cleaning",

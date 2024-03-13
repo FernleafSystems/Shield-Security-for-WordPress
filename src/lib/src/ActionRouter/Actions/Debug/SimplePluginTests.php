@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\InstantAlertVulnerabilities;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
@@ -43,24 +45,6 @@ class SimplePluginTests extends BaseAction {
 	protected function postExec() {
 		var_dump( $this->response()->action_response_data[ 'debug_output' ] );
 		die( 'end tests' );
-	}
-
-	private function dbg_filelocker() {
-		$publicKey = ( new GetPublicKey() )->retrieve();
-		try {
-			$enc = ( new BuildEncryptedFilePayload() )->fromPath(
-				path_join( ABSPATH, 'wp-config.php' ),
-				\reset( $publicKey ),
-				'rc4'
-			);
-			var_dump( $enc );
-			$vo = ( new OpenSslEncryptVo() )->applyFromArray( \json_decode( $enc, true ) );
-			$content = ( new DecryptFile() )->retrieve( $vo, \key( $publicKey ) );
-			var_dump( $content );
-		}
-		catch ( FileContentsEncodingFailure|FileContentsEncryptionFailure $e ) {
-			var_dump( $e->getMessage() );
-		}
 	}
 
 	private function dbg_eventsSum() {
@@ -125,34 +109,6 @@ class SimplePluginTests extends BaseAction {
 		var_dump( $snapi->vo );
 		var_dump( $snapi->canHandshake( true ) );
 		var_dump( $snapi->vo );
-	}
-
-	private function dbg_changetrack() {
-		$params = [
-			'fields'             =>
-				[
-					0 => 'id',
-					1 => 'user_pass',
-					2 => 'user_email',
-				],
-			'number'             => 50,
-			'paged'              => 1,
-			'capability__not_in' =>
-				[
-					0 => 'manage_options',
-				],
-		];
-		$args = wp_parse_args(
-			$params,
-			[
-			]
-		);
-
-		var_dump( $args );
-		var_dump( $params );
-
-		$users = get_users( $args );
-		var_dump( $users );
 	}
 
 	private function dbg_importnotify() {
