@@ -84,7 +84,7 @@ class BuildForDisplay {
 		$visibleSections = \array_filter(
 			self::con()->cfg->configuration->sectionsForModule( $this->modSlug ),
 			function ( array $section ) {
-				return empty( $section[ 'hidden' ] );
+				return $section[ 'slug' ] !== 'section_hidden';
 			}
 		);
 
@@ -117,14 +117,7 @@ class BuildForDisplay {
 
 		$allOptions = [];
 
-		$optDefs = \array_filter(
-			$con->cfg->configuration->optsForSection( $section ),
-			function ( array $optDef ) use ( $section ) {
-				return empty( $optDef[ 'hidden' ] );
-			}
-		);
-
-		foreach ( $optDefs as $optDef ) {
+		foreach ( $section === 'section_hidden' ? [] : $con->cfg->configuration->optsForSection( $section ) as $optDef ) {
 
 			if ( $optDef[ 'section' ] !== $section ) {
 				continue;

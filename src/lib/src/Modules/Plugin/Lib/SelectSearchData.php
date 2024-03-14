@@ -412,7 +412,7 @@ class SelectSearchData {
 		$stringsOptions = new StringsOptions();
 
 		$opts = \array_keys( \array_filter( $con->cfg->configuration->options, function ( array $optDef ) {
-			return empty( $optDef[ 'hidden' ] );
+			return $optDef[ 'section' ] !== 'section_hidden';
 		} ) );
 
 		$config = [];

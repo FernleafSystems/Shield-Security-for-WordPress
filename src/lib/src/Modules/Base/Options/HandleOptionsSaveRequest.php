@@ -53,7 +53,7 @@ class HandleOptionsSaveRequest {
 
 		foreach ( \explode( ',', $form[ 'all_opts_keys' ] ?? [] ) as $optKey ) {
 
-			if ( !$optsCon->optExists( $optKey ) || $optsCon->optDef( $optKey )[ 'hidden' ] ) {
+			if ( !$optsCon->optExists( $optKey ) || $optsCon->optDef( $optKey )[ 'section' ] === 'section_hidden' ) {
 				continue;
 			}
 

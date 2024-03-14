@@ -193,7 +193,7 @@ class ModuleStandard extends BaseWpCliCmd {
 		return \array_filter(
 			\array_keys( self::con()->cfg->configuration->optsForModule( $this->mod() ) ),
 			function ( $key ) {
-				return empty( self::con()->opts->optDef( $key )[ 'hidden' ] );
+				return self::con()->opts->optDef( $key )[ 'section' ] !== 'section_hidden';
 			}
 		);
 	}

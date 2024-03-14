@@ -20,7 +20,7 @@ class VerifyStrings {
 			$keys = \array_keys( \array_filter(
 				self::con()->cfg->configuration->optsForModule( $module->cfg->slug ),
 				function ( array $optDef ) {
-					return empty( $optDef[ 'hidden' ] );
+					return $optDef[ 'section' ] !== 'section_hidden';
 				}
 			) );
 

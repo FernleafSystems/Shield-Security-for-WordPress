@@ -49,8 +49,8 @@ class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
 				'is_opt_importexport' => __( 'Toggle whether this option is included with import/export', 'wp-simple-firewall' ),
 
-				'supply_password'     => $secAdminEnabled ? __( 'Update PIN', 'wp-simple-firewall' ) : __( 'Supply New PIN', 'wp-simple-firewall' ),
-				'confirm_password'    => $secAdminEnabled ? __( 'Confirm Updated PIN', 'wp-simple-firewall' ) : __( 'Confirm PIN', 'wp-simple-firewall' ),
+				'supply_password'  => $secAdminEnabled ? __( 'Update PIN', 'wp-simple-firewall' ) : __( 'Supply New PIN', 'wp-simple-firewall' ),
+				'confirm_password' => $secAdminEnabled ? __( 'Confirm Updated PIN', 'wp-simple-firewall' ) : __( 'Confirm PIN', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'is_wpcli'             => $con->isPremiumActive()
@@ -61,7 +61,7 @@ class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'all_opts_keys'      => \array_keys( \array_filter(
 					$config->optsForModule( $modSlug ),
 					function ( array $optDef ) {
-						return empty( $optDef[ 'hidden' ] );
+						return $optDef[ 'section' ] !== 'section_hidden';
 					}
 				) ),
 				'all_options'        => ( new BuildForDisplay( $modSlug, $focusSection, $focusOption ) )->standard(),

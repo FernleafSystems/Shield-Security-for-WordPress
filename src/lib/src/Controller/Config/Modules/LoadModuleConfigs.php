@@ -22,25 +22,11 @@ class LoadModuleConfigs {
 			throw new PluginConfigInvalidException( 'No modules specified in the plugin config.' );
 		}
 
+		$normalizer = new NormaliseConfigComponents();
+
 		$configuration = ( new ConfigurationVO() )->applyFromArray( $cfgSpec );
-
-		$indexed = [];
-		$hiddenSections = [];
-		foreach ( $configuration->sections as $section ) {
-			$indexed[ $section[ 'slug' ] ] = $section;
-			if ( $section[ 'hidden' ] ?? false ) {
-				$hiddenSections[] = $section[ 'slug' ];
-			}
-		}
-		$configuration->sections = $indexed;
-
-		$indexed = [];
-		foreach ( $configuration->options as $option ) {
-			$option[ 'hidden' ] = \in_array( $option[ 'section' ], $hiddenSections ) || ( $option[ 'hidden' ] ?? false );
-			$option[ 'transferable' ] = $option[ 'transferable' ] ?? !$option[ 'hidden' ];
-			$indexed[ $option[ 'key' ] ] = $option;
-		}
-		$configuration->options = $indexed;
+		$configuration->sections = $normalizer->indexSections( $configuration->sections );
+		$configuration->options = $normalizer->indexOptions( $configuration->options );
 
 		$modules = [];
 		foreach ( $configuration->modules as $slug => $moduleProps ) {

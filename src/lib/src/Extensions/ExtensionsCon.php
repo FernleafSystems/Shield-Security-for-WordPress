@@ -29,16 +29,13 @@ class ExtensionsCon {
 	private function initExtensions() :void {
 		foreach ( $this->getAvailableExtensions() as $ext ) {
 
-			add_action(
-				'shield/modules_configuration',
-				function () use ( $ext ) {
-					$normaliser = new NormaliseConfigComponents();
-					$configuration = self::con()->cfg->configuration;
-					$configuration->sections = \array_merge( $configuration->sections, $normaliser->indexSections( $ext->cfg()->sections ) );
-					$configuration->options = \array_merge( $configuration->options, $normaliser->indexOptions( $ext->cfg()->options ) );
-					self::con()->cfg->configuration = $configuration;
-				}, 10, 0
-			);
+			add_action( 'shield/modules_configuration', function () use ( $ext ) {
+				$normaliser = new NormaliseConfigComponents();
+				$configuration = self::con()->cfg->configuration;
+				$configuration->sections = \array_merge( $configuration->sections, $normaliser->indexSections( $ext->cfg()->sections ) );
+				$configuration->options = \array_merge( $configuration->options, $normaliser->indexOptions( $ext->cfg()->options ) );
+				self::con()->cfg->configuration = $configuration;
+			}, 10, 0 );
 
 			$ext->execute();
 		}

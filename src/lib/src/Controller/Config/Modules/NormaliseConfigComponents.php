@@ -14,8 +14,7 @@ class NormaliseConfigComponents {
 
 	public function indexOptions( array $options ) :array {
 		$indexed = [];
-		foreach ( $options as $key => $section ) {
-
+		foreach ( $options as $key => $option ) {
 			if ( empty( $option[ 'section' ] ) ) {
 				$option[ 'section' ] = 'section_hidden';
 			}
