@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files;
 
 abstract class BaseExtension {
 
@@ -27,11 +28,13 @@ abstract class BaseExtension {
 	 * @throws \Exception
 	 */
 	public function __construct( string $file, array $cfg ) {
-		$this->file = $file;
-		$this->cfg = ( new ExtensionConfigVO() )->applyFromArray( $cfg );
-		if ( empty( static::SLUG ) || static::SLUG !== $this->cfg->slug ) {
+		if ( empty( static::SLUG ) ) {
 			throw new \Exception( 'Invalid Shield extension configuration' );
 		}
+		$this->file = $file;
+		$this->cfg = ( new ExtensionConfigVO() )->applyFromArray( $cfg );
+		$this->cfg->file = $file;
+		$this->cfg->slug = static::SLUG;
 	}
 
 	public function cfg() :ExtensionConfigVO {
@@ -99,7 +102,7 @@ abstract class BaseExtension {
 				'min' => '7.4',
 			],
 			'shield' => [
-				'min' => '18.5',
+				'min' => '19.0',
 			],
 			'wp'     => [
 				'min' => '5.7',
@@ -112,5 +115,9 @@ abstract class BaseExtension {
 			'file' => $this->file,
 			'slug' => sprintf( 'shield-ext-%s', static::SLUG ),
 		];
+	}
+
+	public function version() :string {
+		return ( new Files() )->findPluginFromFile( $this->file )->Version ?? '';
 	}
 }

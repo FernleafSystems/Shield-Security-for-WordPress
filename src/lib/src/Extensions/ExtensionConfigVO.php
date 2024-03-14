@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
+ * @property string $file
  * @property string $slug
  * @property array  $options
  * @property array  $sections

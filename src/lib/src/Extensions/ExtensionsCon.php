@@ -96,7 +96,7 @@ class ExtensionsCon {
 			/** @var BaseExtension $ext */
 			foreach ( apply_filters( 'shield/get_extensions', [], $this ) as $ext ) {
 				if ( \is_object( $ext ) && \is_a( $ext, BaseExtension::class ) ) {
-					$this->extensions[ $ext->cfg()->slug ] = $ext;
+					$this->extensions[ $ext::SLUG ] = $ext;
 				}
 			}
 		}
@@ -108,7 +108,7 @@ class ExtensionsCon {
 	 */
 	protected function getAvailableExtensions() :array {
 		return \array_filter( $this->getExtensions(), function ( $ext ) {
-			return $ext->isAvailable();
+			return $ext->isAvailable() && \in_array( $ext::SLUG, EnumExtensions::All() );
 		} );
 	}
 }
