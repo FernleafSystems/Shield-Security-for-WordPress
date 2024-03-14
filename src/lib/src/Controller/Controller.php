@@ -380,6 +380,8 @@ class Controller extends DynPropertiesClass {
 
 		( new Shield\Controller\I18n\LoadTextDomain() )->run();
 
+		$this->extensions_controller->execute();
+
 		$this->loadModules();
 
 		if ( $this->plugin_reset ) {
@@ -387,8 +389,6 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$this->prechecks = ( new Checks\PreModulesBootCheck() )->run();
-
-		$this->extensions_controller->execute();
 		$this->db_con->execute();
 		$this->comps->execute();
 
@@ -423,8 +423,12 @@ class Controller extends DynPropertiesClass {
 
 			$configuration = $this->cfg->configuration;
 			if ( empty( $configuration ) || $this->cfg->rebuilt ) {
-				$this->cfg->configuration = $configuration = ( new Config\Modules\LoadModuleConfigs() )->run();
+				$this->cfg->configuration = ( new Config\Modules\LoadModuleConfigs() )->run();
 			}
+
+			do_action( 'shield/modules_configuration' ); // Extensions jump in here to augment options/sections
+
+			$configuration = $this->cfg->configuration;
 
 			$enumClasses = [
 				EnumModules::SECURITY_ADMIN => SecurityAdmin\ModCon::class,

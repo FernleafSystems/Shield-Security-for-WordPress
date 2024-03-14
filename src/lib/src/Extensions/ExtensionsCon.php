@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\NormaliseConfigComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,7 +18,7 @@ class ExtensionsCon {
 	private $extensions = null;
 
 	protected function canRun() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && self::con()->caps->canRunShieldAddons();
+		return Services::Data()->getPhpVersionIsAtLeast( '7.4' );
 	}
 
 	protected function run() {
@@ -27,33 +28,19 @@ class ExtensionsCon {
 
 	private function initExtensions() :void {
 		foreach ( $this->getAvailableExtensions() as $ext ) {
-			$extCfg = $ext->cfg();
 
-			$theMod = self::con()->getModule( $extCfg->mod_slug );
-			if ( $theMod ) {
+			add_action(
+				'shield/modules_configuration',
+				function () use ( $ext ) {
+					$normaliser = new NormaliseConfigComponents();
+					$configuration = self::con()->cfg->configuration;
+					$configuration->sections = \array_merge( $configuration->sections, $normaliser->indexSections( $ext->cfg()->sections ) );
+					$configuration->options = \array_merge( $configuration->options, $normaliser->indexOptions( $ext->cfg()->options ) );
+					self::con()->cfg->configuration = $configuration;
+				}, 10, 0
+			);
 
-				$modCfg = $theMod->cfg;
-				$modCfgOpts = $modCfg->options;
-				$modCfgSections = $modCfg->sections;
-
-				foreach ( $extCfg->options as $opt ) {
-					$modCfgOpts[ $opt[ 'key' ] ] = $opt;
-				}
-
-				foreach ( $extCfg->sections as $newSection ) {
-					foreach ( $modCfgSections as $existingSection ) {
-						if ( $existingSection[ 'slug' ] === $newSection[ 'slug' ] ) {
-							break 2;
-						}
-					}
-					$modCfgSections[] = $newSection;
-				}
-
-				$modCfg->options = $modCfgOpts;
-				$modCfg->sections = $modCfgSections;
-
-				$ext->execute();
-			}
+			$ext->execute();
 		}
 	}
 
@@ -110,7 +97,7 @@ class ExtensionsCon {
 		if ( $this->extensions === null ) {
 			$this->extensions = [];
 			/** @var BaseExtension $ext */
-			foreach ( apply_filters( 'shield/get_extensions', [] ) as $ext ) {
+			foreach ( apply_filters( 'shield/get_extensions', [], $this ) as $ext ) {
 				if ( \is_object( $ext ) && \is_a( $ext, BaseExtension::class ) ) {
 					$this->extensions[ $ext->cfg()->slug ] = $ext;
 				}
