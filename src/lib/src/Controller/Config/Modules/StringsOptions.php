@@ -1111,15 +1111,6 @@ class StringsOptions {
 				];
 				break;
 
-			case 'show_advanced' :
-				$name = __( 'Show All Options', 'wp-simple-firewall' );
-				$summary = __( 'Show All Options Including Those Marked As Advanced', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Shield hides advanced options from view to simplify display.', 'wp-simple-firewall' ),
-					__( 'Turn this option on to display advanced options at all times.', 'wp-simple-firewall' )
-				];
-				break;
-
 			case 'enable_tracking' :
 				$name = __( 'Anonymous Usage Statistics', 'wp-simple-firewall' );
 				$summary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );

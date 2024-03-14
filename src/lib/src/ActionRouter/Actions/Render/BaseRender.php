@@ -226,7 +226,7 @@ abstract class BaseRender extends BaseAction {
 		$proFeaturesDisplay = \array_slice( $proFeatures, 0, 6 );
 		$proFeaturesDisplay[] = __( 'and much more!' );
 
-		$isAdvanced = self::con()->getModule_Plugin()->isShowAdvanced();
+		$isAdvanced = false; // TODO
 
 		return [
 			'btn_save'          => __( 'Save Options' ),

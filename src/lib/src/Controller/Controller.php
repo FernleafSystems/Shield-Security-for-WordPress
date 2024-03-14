@@ -372,7 +372,7 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function boot() {
-		if ( $this->mu_handler->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
+		if ( $this->comps->mu->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
 			Services::WpPlugins()->activate( $this->base_file );
 		}
 		$this->loadConfig();

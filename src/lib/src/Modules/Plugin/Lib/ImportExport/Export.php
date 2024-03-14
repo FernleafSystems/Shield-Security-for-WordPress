@@ -147,7 +147,7 @@ class Export {
 	 * Removes any options marked as to be excluded from import/export
 	 */
 	public function getRawOptionsExport() :array {
-		return \array_diff_key( $this->getFullTransferableOptionsExport(), \array_flip( self::con()->opts->getXferExcluded() ) );
+		return \array_diff_key( $this->getFullTransferableOptionsExport(), \array_flip( self::con()->comps->opts_lookup->getXferExcluded() ) );
 	}
 
 	/**

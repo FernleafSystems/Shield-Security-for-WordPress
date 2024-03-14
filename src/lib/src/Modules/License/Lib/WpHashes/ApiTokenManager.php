@@ -76,16 +76,15 @@ class ApiTokenManager {
 	 * retrieve Token exactly as it's saved
 	 */
 	private function loadToken() :array {
-		return \array_merge(
-			[
-				'token'             => '',
-				'expires_at'        => 0,
-				'attempt_at'        => 0,
-				'next_attempt_from' => 0,
-				'valid_license'     => false,
-			],
-			$this->opts()->getOpt( 'wphashes_api_token', [] )
-		);
+		$tokenData = \method_exists( self::con()->opts, 'optGet' ) ?
+			self::con()->opts->optGet( 'wphashes_api_token' ) : $this->opts()->getOpt( 'wphashes_api_token' );
+		return \array_merge( [
+			'token'             => '',
+			'expires_at'        => 0,
+			'attempt_at'        => 0,
+			'next_attempt_from' => 0,
+			'valid_license'     => false,
+		], $tokenData );
 	}
 
 	private function canRequestNewToken() :bool {
@@ -121,7 +120,8 @@ class ApiTokenManager {
 	}
 
 	private function storeToken( array $token ) {
-		$this->opts()->setOpt( 'wphashes_api_token', $token );
+		\method_exists( self::con()->opts, 'optSet' ) ? self::con()->opts->optSet( 'wphashes_api_token', $token )
+			: $this->opts()->setOpt( 'wphashes_api_token', $token );
 	}
 
 	private function clearToken() {

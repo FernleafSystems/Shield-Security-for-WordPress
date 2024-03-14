@@ -91,7 +91,7 @@ class ImportExportController {
 	}
 
 	protected function isImportExportSecretKeyExpired() :bool {
-		return Services::Request()->ts() > $this->opts()->getOpt( 'importexport_secretkey_expires_at' );
+		return Services::Request()->ts() > self::con()->opts->optGet( 'importexport_secretkey_expires_at' );
 	}
 
 	private function importFromFlag() {

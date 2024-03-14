@@ -224,6 +224,7 @@ class FileLockerController {
 	}
 
 	public function getState() :array {
+		$opts = self::con()->opts;
 		return \array_merge(
 			[
 				'abspath'                      => ABSPATH,
@@ -233,12 +234,15 @@ class FileLockerController {
 				'cipher'                       => '',
 				'cipher_last_checked_at'       => 0,
 			],
-			$this->opts()->getOpt( 'filelocker_state' )
+			\method_exists( $opts, 'optGet' ) ?
+				$opts->optGet( 'filelocker_state' ) : $this->opts()->getOpt( 'filelocker_state' )
 		);
 	}
 
 	protected function setState( array $state ) {
-		$this->opts()->setOpt( 'filelocker_state', $state );
+		$opts = self::con()->opts;
+		\method_exists( $opts, 'optSet' ) ?
+			$opts->optSet( 'filelocker_state', $state ) : $this->opts()->setOpt( 'filelocker_state', $state );
 		self::con()->opts->store();
 	}
 

@@ -273,7 +273,7 @@ class AuditCon {
 	}
 
 	public function runDailyCron() {
-		$this->runAsyncSnapshotDiscovery();
+		$this->runAsyncSnapshotDiscovery( true );
 	}
 
 	private function runAsyncSnapshotDiscovery( bool $isDataPrime = false ) {

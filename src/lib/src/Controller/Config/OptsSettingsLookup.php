@@ -213,6 +213,10 @@ class OptsSettingsLookup {
 		);
 	}
 
+	public function getXferExcluded() :array {
+		return self::con()->opts->optGet( 'xfer_excluded' );
+	}
+
 	public function ipSource() :string {
 		return self::con()->opts->optGet( 'visitor_address_source' );
 	}

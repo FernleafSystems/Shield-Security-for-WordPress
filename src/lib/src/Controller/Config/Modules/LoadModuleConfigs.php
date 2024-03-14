@@ -23,7 +23,6 @@ class LoadModuleConfigs {
 		}
 
 		$normalizer = new NormaliseConfigComponents();
-
 		$configuration = ( new ConfigurationVO() )->applyFromArray( $cfgSpec );
 		$configuration->sections = $normalizer->indexSections( $configuration->sections );
 		$configuration->options = $normalizer->indexOptions( $configuration->options );

@@ -8,10 +8,7 @@ class SecurityAdminCheck extends SecurityAdminBase {
 
 	protected function exec() {
 		$this->response()->action_response_data = [
-			'time_remaining' => self::con()
-									->getModule_SecAdmin()
-									->getSecurityAdminController()
-									->getSecAdminTimeRemaining(),
+			'time_remaining' => self::con()->comps->sec_admin->getSecAdminTimeRemaining(),
 			'success'        => self::con()->this_req->is_security_admin
 		];
 	}

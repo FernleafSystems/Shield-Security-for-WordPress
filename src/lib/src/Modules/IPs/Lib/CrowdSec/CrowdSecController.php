@@ -35,7 +35,9 @@ class CrowdSecController {
 	}
 
 	public function cfg() :CrowdSecCfg {
-		return ( new CrowdSecCfg() )->applyFromArray( $this->opts()->getOpt( 'crowdsec_cfg' ) );
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optGet' ) ?
+			$opts->optGet( 'crowdsec_cfg' ) : $this->opts()->getOpt( 'crowdsec_cfg' );
 	}
 
 	public function getApi() :CrowdSecApi {
@@ -43,7 +45,10 @@ class CrowdSecController {
 	}
 
 	public function storeCfg( CrowdSecCfg $cfg ) {
-		$this->opts()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
+		$opts = self::con()->opts;
+		\method_exists( $opts, 'optSet' ) ?
+			$opts->optSet( 'crowdsec_cfg', $cfg->getRawData() )
+			: $this->opts()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
 		self::con()->opts->store();
 	}
 

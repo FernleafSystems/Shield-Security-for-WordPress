@@ -1,18 +1,24 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\MU;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 19.1
- */
 class MUHandler {
 
 	use PluginControllerConsumer;
 
 	public const PLUGIN_FILE_NAME = 'a-shield-mu.php';
+
+	public function run() {
+		try {
+			self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_mu', 'Y' ) ? $this->convertToMU() : $this->convertToStandard();
+		}
+		catch ( \Exception $e ) {
+		}
+		self::con()->opts->optSet( 'enable_mu', $this->isActiveMU() ? 'Y' : 'N' );
+	}
 
 	public function isActiveMU() :bool {
 		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );

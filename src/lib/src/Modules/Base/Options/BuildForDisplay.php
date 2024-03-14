@@ -32,82 +32,51 @@ class BuildForDisplay {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function standard() :array {
-		$con = self::con();
+		return \array_filter( \array_map(
+			function ( array $section ) {
+				$notices = new SectionNotices();
 
-		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
-		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
-
-		$sections = $this->buildAvailableSections();
-		$notices = new SectionNotices();
-		$sectionStrings = new StringsSections();
-
-		foreach ( $sections as $sectKey => $sect ) {
-
-			if ( !empty( $sect[ 'options' ] ) ) {
-
-				foreach ( $sect[ 'options' ] as $optKey => $opt ) {
+				foreach ( $section[ 'options' ] as $optKey => $opt ) {
 					$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
-					$isOptPremium = ( $opt[ 'premium' ] ?? false ) || !empty( $opt[ 'cap' ] );
-					$isAdv = $opt[ 'advanced' ] ?? false;
-					if ( ( !$isOptPremium || $isPremium ) && ( !$isAdv || $showAdvanced ) ) {
-						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
-						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
-					}
-					else {
-						unset( $sect[ 'options' ][ $optKey ] );
-					}
+					$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
+					$section[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
 				}
 
-				if ( empty( $sect[ 'options' ] ) ) {
-					unset( $sections[ $sectKey ] );
+				if ( empty( $section[ 'options' ] ) ) {
+					$section = null;
 				}
 				else {
-					$sect = \array_merge( $sect, $sectionStrings->getFor( $sect[ 'slug' ] ) );
-					$sections[ $sectKey ] = $sect;
+					$section = \array_merge( $section, ( new StringsSections() )->getFor( $section[ 'slug' ] ) );
+					$section[ 'is_focus' ] = $section[ 'slug' ] === $this->focusSection;
+					$section[ 'notices' ] = $notices->notices( $section[ 'slug' ] );
+					$section[ 'warnings' ] = $notices->warnings( $section[ 'slug' ] );
+					$section[ 'critical_warnings' ] = $notices->critical( $section[ 'slug' ] );
 				}
 
-				$sections[ $sectKey ][ 'is_focus' ] = $sect[ 'slug' ] === $this->focusSection;
-
-				if ( isset( $sections[ $sectKey ] ) ) {
-					$sections[ $sectKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
-					$sections[ $sectKey ][ 'warnings' ] = $notices->warnings( $sect[ 'slug' ] );
-					$sections[ $sectKey ][ 'critical_warnings' ] = $notices->critical( $sect[ 'slug' ] );
-				}
-			}
-		}
-
-		return $sections;
+				return $section;
+			},
+			$this->buildAvailableSections()
+		) );
 	}
 
 	protected function buildAvailableSections() :array {
+		return \array_filter( \array_map(
+			function ( array $nonHiddenSection ) {
 
-		$visibleSections = \array_filter(
-			self::con()->cfg->configuration->sectionsForModule( $this->modSlug ),
-			function ( array $section ) {
-				return $section[ 'slug' ] !== 'section_hidden';
-			}
-		);
-
-		$optionsData = [];
-		foreach ( $visibleSections as $section ) {
-
-			$section = \array_merge( [
-				'primary'   => false,
-				'options'   => $this->buildOptionsForSection( $section[ 'slug' ] ),
-				'beacon_id' => false,
-			], $section );
-
-			if ( !empty( $section[ 'options' ] ) ) {
+				$nonHiddenSection = \array_merge( [
+					'primary'   => false,
+					'options'   => $this->buildOptionsForSection( $nonHiddenSection[ 'slug' ] ),
+					'beacon_id' => false,
+				], $nonHiddenSection );
 
 				if ( self::con()->labels->is_whitelabelled ) {
-					$section[ 'beacon_id' ] = false;
+					$nonHiddenSection[ 'beacon_id' ] = false;
 				}
 
-				$optionsData[] = $section;
-			}
-		}
-
-		return $optionsData;
+				return empty( $nonHiddenSection[ 'options' ] ) ? null : $nonHiddenSection;
+			},
+			self::con()->cfg->configuration->sectionsForModule( $this->modSlug )
+		) );
 	}
 
 	protected function buildOptionsForSection( string $section ) :array {

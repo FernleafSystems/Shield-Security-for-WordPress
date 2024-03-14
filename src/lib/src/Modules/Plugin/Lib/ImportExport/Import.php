@@ -206,9 +206,10 @@ class Import {
 	}
 
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
-		$opts = self::con()->opts;
+		$con = self::con();
+		$opts = $con->opts;
 
-		foreach ( \array_diff_key( $data[ 'options' ] ?? [], \array_flip( $opts->getXferExcluded() ) ) as $optKey => $value ) {
+		foreach ( \array_diff_key( $data[ 'options' ] ?? [], \array_flip( $con->comps->opts_lookup->getXferExcluded() ) ) as $optKey => $value ) {
 			$opts->optSet( $optKey, $value );
 		}
 
@@ -219,7 +220,7 @@ class Import {
 			);
 		}
 
-		self::con()->opts->store();
+		$opts->store();
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
 			$dbh = self::con()->db_con->dbhIPRules();

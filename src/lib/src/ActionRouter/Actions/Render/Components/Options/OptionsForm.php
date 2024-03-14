@@ -66,7 +66,7 @@ class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				) ),
 				'all_options'        => ( new BuildForDisplay( $modSlug, $focusSection, $focusOption ) )->standard(),
 				'xferable_opts'      => \array_keys( $config->transferableOptions() ),
-				'xfer_excluded_opts' => $optsCon->getXferExcluded(),
+				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),
 				'focus_section'      => $focusSection,
 				'focus_option'       => $focusOption,
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',

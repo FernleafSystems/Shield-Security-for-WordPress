@@ -675,13 +675,15 @@ class AssetsCustomizer {
 					'wpadmin',
 				],
 				'data'    => function () {
+					$con = self::con();
 					/**
 					 * This is temporary and only to be used to determine (via telemetry) whether clients can
 					 * actually use this method of requests.
 					 * @deprecated 18.5
 					 */
-					$opts = self::con()->getModule_Plugin()->opts();
-					$data = $opts->getOpt( 'test_rest_data' );
+					$data = \method_exists( $con->opts, 'optGet' ) ?
+						$con->opts->optGet( 'test_rest_data' )
+						: $con->getModule_Plugin()->opts()->getOpt( 'test_rest_data' );
 					if ( empty( $data ) || \array_key_exists( 'test_at', $data ) ) {
 						$data = [];
 					}
@@ -702,8 +704,11 @@ class AssetsCustomizer {
 						$run = false;
 					}
 
-					$opts->setOpt( 'test_rest_data', $data );
-					self::con()->opts->store();
+					\method_exists( $con->opts, 'optSet' ) ?
+						$con->opts->optSet( 'test_rest_data', $data )
+						: $con->getModule_Plugin()->opts()->setOpt( 'test_rest_data', $data );
+
+					$con->opts->store();
 
 					return [
 						'ajax'  => [

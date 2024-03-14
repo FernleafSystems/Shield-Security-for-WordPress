@@ -205,11 +205,15 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	public function getInstallDate() :int {
-		return $this->opts()->getOpt( 'installation_time', 0 );
+		return \method_exists( self::con()->opts, 'optGet' ) ?
+			self::con()->opts->optGet( 'installation_time' ) : $this->opts()->getOpt( 'installation_time' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isShowAdvanced() :bool {
-		return $this->opts()->isOpt( 'show_advanced', 'Y' );
+		return false;
 	}
 
 	/**
@@ -229,7 +233,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 		$finalDate = \min( $date, $wpDate );
 		Services::WpGeneral()->updateOption( $key, $finalDate );
-		$this->opts()->setOpt( 'installation_time', $date );
+		self::con()->opts->optSet( 'installation_time', $date );
 
 		return $finalDate;
 	}
@@ -242,7 +246,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	public function setActivatedAt() {
-		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
+		self::con()->opts->optSet( 'activated_at', Services::Request()->ts() );
 	}
 
 	public function runDailyCron() {
@@ -265,9 +269,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public function getTracking() :Lib\TrackingVO {
 		if ( !isset( $this->tracking ) ) {
-			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( $this->opts()->getOpt( 'transient_tracking' ) );
+			$opts = self::con()->opts;
+
+			$data = \method_exists( $opts, 'optGet' ) ?
+				$opts->optGet( 'transient_tracking' ) : $this->opts()->getOpt( 'transient_tracking' );
+			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( $data );
+
 			add_action( self::con()->prefix( 'pre_options_store' ), function () {
-				$this->opts()->setOpt( 'transient_tracking', $this->tracking->getRawData() );
+				$opts = self::con()->opts;
+				\method_exists( $opts, 'optSet' ) ?
+					$opts->optSet( 'transient_tracking', $this->tracking->getRawData() )
+					: $this->opts()->setOpt( 'transient_tracking', $this->tracking->getRawData() );
 			} );
 		}
 		return $this->tracking;

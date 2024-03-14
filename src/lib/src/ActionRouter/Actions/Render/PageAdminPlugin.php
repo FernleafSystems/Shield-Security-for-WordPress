@@ -43,7 +43,7 @@ class PageAdminPlugin extends BaseRender {
 				] ),
 			],
 			'flags'   => [
-				'is_advanced' => $con->getModule_Plugin()->isShowAdvanced(),
+				'is_advanced' => false,
 			],
 			'imgs'    => [
 				'logo_banner' => $con->labels->url_img_pagebanner,

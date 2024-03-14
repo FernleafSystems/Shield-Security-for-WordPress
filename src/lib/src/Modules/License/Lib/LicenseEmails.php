@@ -14,7 +14,7 @@ class LicenseEmails {
 		$con = self::con();
 		$canSend = Services::Request()
 						   ->carbon()
-					   ->subDay()->timestamp > $con->opts->optGet( 'last_warning_email_sent_at' );
+						   ->subDay()->timestamp > $con->opts->optGet( 'last_warning_email_sent_at' );
 
 		if ( $canSend ) {
 			$con->opts

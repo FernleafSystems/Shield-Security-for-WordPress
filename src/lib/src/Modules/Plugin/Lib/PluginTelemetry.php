@@ -50,11 +50,6 @@ class PluginTelemetry {
 			$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
 		}
 
-		if ( !empty( $data[ 'login_protect' ] ) ) {
-			$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] =
-				$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] > 0 ? 1 : 0;
-		}
-
 		if ( !empty( $data[ 'admin_access_restriction' ] ) ) {
 			$keys = [
 				'admin_access_restrict_plugins',

@@ -139,20 +139,20 @@ class OptsHandler extends DynPropertiesClass {
 				self::TYPE_PRO  => [],
 			],
 		];
-		$extras = [
-			'xfer_excluded' => [],
-		];
+
+		$xferExcluded = [];
 
 		$flatFree = [];
 		foreach ( $this->mod_opts_free as $modOpts ) {
-			foreach ( $extras as $key => $data ) {
-				if ( !empty( $modOpts[ $key ] ?? null ) && \is_array( $modOpts[ $key ] ) ) {
-					$extras[ $key ] = \array_unique( \array_merge( $data, $modOpts[ $key ] ) );
-				}
-				unset( $modOpts[ $key ] );
+
+			if ( \is_array( $modOpts[ 'xfer_excluded' ] ?? null ) ) {
+				$xferExcluded = \array_merge( $xferExcluded, $modOpts[ 'xfer_excluded' ] );
 			}
+			unset( $modOpts[ 'xfer_excluded' ] );
+
 			$flatFree = \array_merge( $flatFree, $modOpts );
 		}
+		$flatFree[ 'xfer_excluded' ] = \array_unique( $xferExcluded );
 		\ksort( $flatFree );
 		$flatFree = \array_map(
 			function ( $optValue ) {
@@ -166,12 +166,12 @@ class OptsHandler extends DynPropertiesClass {
 
 		$flatPro = [];
 		foreach ( $this->mod_opts_pro as $modOpts ) {
-			foreach ( $extras as $key => $data ) {
-				if ( !empty( $modOpts[ $key ] ?? null ) && \is_array( $modOpts[ $key ] ) ) {
-					$extras[ $key ] = \array_unique( \array_merge( $data, $modOpts[ $key ] ) );
-				}
-				unset( $modOpts[ $key ] );
+
+			if ( \is_array( $modOpts[ 'xfer_excluded' ] ?? null ) ) {
+				$xferExcluded = \array_merge( $xferExcluded, $modOpts[ 'xfer_excluded' ] );
 			}
+			unset( $modOpts[ 'xfer_excluded' ] );
+
 			foreach ( $modOpts as $optKey => $optValue ) {
 				$store = false;
 				if ( !isset( $flatFree[ $optKey ] ) ) {
@@ -197,12 +197,14 @@ class OptsHandler extends DynPropertiesClass {
 				}
 			}
 		}
+		$flatFree[ 'xfer_excluded' ] = \array_unique( $xferExcluded );
+		$flatPro[ 'xfer_excluded' ] = \array_unique( $xferExcluded );
 		\ksort( $flatPro );
 
 		$toStore[ 'values' ][ self::TYPE_FREE ] = $flatFree;
 		$toStore[ 'values' ][ self::TYPE_PRO ] = $flatPro;
 
-		return \array_merge( $toStore, $extras );
+		return $toStore;
 	}
 
 	private function preStore() {
@@ -421,16 +423,6 @@ class OptsHandler extends DynPropertiesClass {
 				break;
 		}
 		return $valid;
-	}
-
-	public function getXferExcluded() :array {
-		return $this->mod_opts_all[ 'xfer_excluded' ] ?? [];
-	}
-
-	public function setXferExcluded( array $excluded ) :void {
-		$all = $this->mod_opts_all;
-		$all[ 'xfer_excluded' ] = $excluded;
-		$this->mod_opts_all = $all;
 	}
 
 	/**

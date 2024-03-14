@@ -19,7 +19,7 @@ class AdminBarMenu {
 		return !$con->this_req->is_force_off
 			   && $con->isValidAdminArea()
 			   && apply_filters( 'shield/show_admin_bar_menu', $con->cfg->properties[ 'show_admin_bar_menu' ] )
-			   && self::con()->getModule_Plugin()->opts()->isOpt( 'enable_upgrade_admin_notice', 'Y' );
+			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' );
 	}
 
 	protected function run() {

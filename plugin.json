@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "19.0.106",
-    "release_timestamp":       1710418000,
-    "build":                   "202403.1401",
+    "version":                 "19.0.107",
+    "release_timestamp":       1710500000,
+    "build":                   "202403.1501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -510,7 +510,7 @@
         ]
       },
       {
-        "slug":        "section_enable_plugin_feature_admin_access_restriction",
+        "slug":        "section_enable_admin_access_restriction",
         "module":      "admin_access_restriction",
         "title":       "Enable Module: WordPress Security Admin",
         "title_short": "Disable Module",
@@ -1100,7 +1100,7 @@
     "options":       [
       {
         "key":         "enable_admin_access_restriction",
-        "section":     "section_enable_plugin_feature_admin_access_restriction",
+        "section":     "section_enable_admin_access_restriction",
         "advanced":    true,
         "default":     "Y",
         "type":        "checkbox",
@@ -3677,17 +3677,6 @@
         "description": "Uncheck this option to disable all Shield features"
       },
       {
-        "key":         "show_advanced",
-        "section":     "section_hidden",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Show All Options",
-        "summary":     "Show All Options Including Those Marked As Advanced",
-        "description": "Shield hides advanced options from view to simplify display. Turn this option on to display advanced options at all times."
-      },
-      {
         "key":           "visitor_address_source",
         "section":       "section_defaults",
         "advanced":      true,
@@ -4023,7 +4012,7 @@
         ],
         "link_info":     "https://shsec.io/eb",
         "link_blog":     "",
-        "beacon_id":     154,
+        "beacon_id":     788,
         "name":          "Instant Alerts",
         "summary":       "Instant Alerts",
         "description":   "Select which events you'd like to receive instant alerts for."
@@ -4116,6 +4105,12 @@
       },
       {
         "key":     "blockdown_cfg",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
+      },
+      {
+        "key":     "xfer_excluded",
         "section": "section_hidden",
         "type":    "array",
         "default": []

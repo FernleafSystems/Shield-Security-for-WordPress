@@ -104,6 +104,7 @@ class Options {
 	/**
 	 * @param mixed $mDefault
 	 * @return mixed
+	 * @deprecated 19.1
 	 */
 	public function getOpt( string $key, $mDefault = false ) {
 		if ( \method_exists( self::con()->opts, 'optGet' ) ) {
@@ -308,8 +309,8 @@ class Options {
 	 * @return string[]
 	 */
 	public function getXferExcluded() :array {
-		$optsCon = self::con()->opts;
-		return \method_exists( $optsCon, 'getXferExcluded' ) ? $optsCon->getXferExcluded() :
+		$comps = self::con()->comps;
+		return $comps !== null ? $comps->opts_lookup->getXferExcluded() :
 			( \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [] );
 	}
 

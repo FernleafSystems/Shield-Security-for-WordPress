@@ -402,7 +402,7 @@ class StringsSections {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_admin_access_restriction' :
+			case 'section_enable_admin_access_restriction' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
 				$summary = [

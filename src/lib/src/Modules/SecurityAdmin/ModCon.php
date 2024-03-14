@@ -21,16 +21,21 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 			( $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController() );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
 		return isset( self::con()->comps ) ? self::con()->comps->sec_admin :
 			( $this->securityAdminCon ?? $this->securityAdminCon = new Lib\SecurityAdmin\SecurityAdminController() );
 	}
 
 	public function runDailyCron() {
-		parent::runDailyCron();
-		$this->runMuHandler();
+		self::con()->comps->mu->run();
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function runMuHandler() {
 		$mu = self::con()->mu_handler;
 		try {
