@@ -74,14 +74,13 @@ class ImportExportController {
 		return self::con()->opts->optGet( 'importexport_whitelist' );
 	}
 
-	protected function getImportExportSecretKey() :string {
-		$ID = self::con()->opts->optGet( 'importexport_secretkey' );
-		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
+	public function getImportExportSecretKey() :string {
+		$opts = self::con()->opts;
+		$ID = $opts->optGet( 'importexport_secretkey' );
+		if ( empty( $ID ) || Services::Request()->ts() > $opts->optGet( 'importexport_secretkey_expires_at' ) ) {
 			$ID = \sha1( ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
-			self::con()
-				->opts
-				->optSet( 'importexport_secretkey', $ID )
-				->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
+			$opts->optSet( 'importexport_secretkey', $ID )
+				 ->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
 		return $ID;
 	}
@@ -90,6 +89,9 @@ class ImportExportController {
 		return !empty( $secret ) && $this->getImportExportSecretKey() == $secret;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	protected function isImportExportSecretKeyExpired() :bool {
 		return Services::Request()->ts() > self::con()->opts->optGet( 'importexport_secretkey_expires_at' );
 	}

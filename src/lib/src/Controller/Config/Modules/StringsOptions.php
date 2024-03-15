@@ -1285,7 +1285,17 @@ class StringsOptions {
 			case 'importexport_secretkey' :
 				$name = __( 'Secret Key', 'wp-simple-firewall' );
 				$summary = __( 'Import/Export Secret Key', 'wp-simple-firewall' );
-				$desc = [ __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' ) ];
+				$desc = [
+					__( 'Keep this Secret Key private as it will allow export of options from your site.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( 'This key is automatically regenerated every 24hrs.', 'wp-simple-firewall' ),
+						sprintf( 'Key set to expire: %s', Services::Request()
+																  ->carbon()
+																  ->timestamp( $con->opts->optGet( 'importexport_secretkey_expires_at' ) )
+																  ->diffForHumans() )
+					)
+				];
 				break;
 
 			case 'frequency_alert' :

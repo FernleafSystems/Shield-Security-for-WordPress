@@ -54,7 +54,7 @@ class ProcessQueueItem {
 			 ->run();
 
 		if ( $action->usleep > 0 ) {
-			usleep( $action->usleep );
+			\usleep( $action->usleep );
 		}
 
 		return \is_array( $action->results ) ? $action->results : [];

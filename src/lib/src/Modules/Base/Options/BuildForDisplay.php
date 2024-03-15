@@ -216,6 +216,11 @@ class BuildForDisplay {
 				}
 				break;
 
+			case 'importexport_secretkey':
+				// need to dynamically regenerate the key for display if it's required.
+				$option[ 'value' ] = self::con()->comps->import_export->getImportExportSecretKey();
+				break;
+
 			case 'file_scan_areas':
 				$option[ 'value_options' ][ 'wp' ][ 'name' ] = sprintf( '%s (%s)', esc_html( __( 'WP core files', 'wp-simple-firewall' ) ),
 					sprintf( __( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );

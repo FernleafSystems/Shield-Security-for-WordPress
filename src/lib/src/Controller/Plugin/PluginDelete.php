@@ -77,7 +77,6 @@ class PluginDelete {
 		 * Always signal to the DB Service that any data we may have retained about DB table readiness is purged.
 		 */
 		Services::WpDb()->doDropTable( \implode( '`,`', $builtInTablesToDelete ) );
-		Services::WpDb()->clearResultShowTables();
 		$dbCon->reset();
 	}
 }

@@ -108,8 +108,12 @@ class Export {
 
 	public function getExportData() :array {
 		$all = [
-			'version' => self::con()->cfg->version(),
-			'options' => $this->getRawOptionsExport(),
+			'site_url'      => Services::WpGeneral()->getHomeUrl(),
+			'exported_at'   => Services::Request()->ts(),
+			'exported_date' => Services::Request()->carbon( true )->toIso8601String(),
+			'slug'          => 'wp-simple-firewall',
+			'version'       => self::con()->cfg->version(),
+			'options'       => $this->getRawOptionsExport(),
 		];
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {

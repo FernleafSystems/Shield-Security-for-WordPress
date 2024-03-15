@@ -36,8 +36,10 @@ class CrowdSecController {
 
 	public function cfg() :CrowdSecCfg {
 		$opts = self::con()->opts;
-		return \method_exists( $opts, 'optGet' ) ?
-			$opts->optGet( 'crowdsec_cfg' ) : $this->opts()->getOpt( 'crowdsec_cfg' );
+		return ( new CrowdSecCfg() )->applyFromArray(
+			\method_exists( $opts, 'optGet' ) ?
+				$opts->optGet( 'crowdsec_cfg' ) : $this->opts()->getOpt( 'crowdsec_cfg' )
+		);
 	}
 
 	public function getApi() :CrowdSecApi {
