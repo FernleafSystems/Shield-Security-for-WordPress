@@ -18,14 +18,9 @@ class ShieldUser2faHasActive extends ShieldUser2faBase {
 
 	protected function execConditionCheck() :bool {
 		$user = $this->getUserFromSession();
-		return !empty( $user )
-			   &&
-			   \count(
-				   self::con()
-					   ->getModule_LoginGuard()
-					   ->getMfaController()
-					   ->getProvidersActiveForUser( $user )
-			   ) > 0;
+		$mfa = self::con()->comps === null ? self::con()->getModule_LoginGuard()->getMfaController()
+			: self::con()->comps->mfa;
+		return !empty( $user ) && \count( $mfa->getProvidersActiveForUser( $user ) ) > 0;
 	}
 
 	protected function getSubConditions() :array {

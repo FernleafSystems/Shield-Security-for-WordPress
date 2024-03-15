@@ -53,7 +53,7 @@ class UserSessionHandler {
 	private function sendLoginNotifications( \WP_User $user ) {
 		$adminEmails = $this->getAdminLoginNotificationEmails();
 		$sendAdmin = \count( $adminEmails ) > 0;
-		$sendUser = $this->opts()->isOpt( 'enable_user_login_email_notification', 'Y' );
+		$sendUser = self::con()->opts->optIs( 'enable_user_login_email_notification', 'Y' );
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
@@ -86,10 +86,11 @@ class UserSessionHandler {
 	 * Should have no default email. If no email is set, no notification is sent.
 	 * @return string[]
 	 */
-	public function getAdminLoginNotificationEmails() :array {
+	private function getAdminLoginNotificationEmails() :array {
+		$con = self::con();
 		$emails = [];
 
-		$rawEmails = $this->opts()->getOpt( 'enable_admin_login_email_notification', '' );
+		$rawEmails = $con->opts->optGet( 'enable_admin_login_email_notification' );
 		if ( !empty( $rawEmails ) ) {
 			$emails = \array_values( \array_unique( \array_filter(
 				\array_map(
@@ -103,11 +104,11 @@ class UserSessionHandler {
 				}
 			) ) );
 
-			if ( \count( $emails ) > 1 && !self::con()->isPremiumActive() ) {
+			if ( \count( $emails ) > 1 && !$con->isPremiumActive() ) {
 				$emails = \array_slice( $emails, 0, 1 );
 			}
 
-			$this->opts()->setOpt( 'enable_admin_login_email_notification', \implode( ', ', $emails ) );
+			$con->opts->optSet( 'enable_admin_login_email_notification', \implode( ', ', $emails ) );
 		}
 
 		return $emails;

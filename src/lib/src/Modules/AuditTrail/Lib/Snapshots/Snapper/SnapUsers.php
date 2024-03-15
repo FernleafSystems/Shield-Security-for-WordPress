@@ -76,9 +76,9 @@ class SnapUsers extends BaseSnap {
 	 */
 	public function updateItemOnSnapshot( array $snapshotData, $item ) :array {
 		if ( $item instanceof \WP_User ) {
-			if ( Services::WpUsers()->isUserAdmin( $item )
-				 || !self::con()->getModule_AuditTrail()->getAuditCon()->flags()->users_audit_snapshot_admins_only
-			) {
+			$auditCon = self::con()->comps === null ? self::con()->getModule_AuditTrail()->getAuditCon()
+				: self::con()->comps->activity_log;
+			if ( Services::WpUsers()->isUserAdmin( $item ) || !$auditCon->flags()->users_audit_snapshot_admins_only ) {
 				$snapshotData[ $item->ID ] = [
 					'uniq'       => $item->ID,
 					'is_admin'   => Services::WpUsers()->isUserAdmin( $item ),

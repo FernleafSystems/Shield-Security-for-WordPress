@@ -82,7 +82,7 @@ class BotSignalsController {
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
-		return isset( self::con()->comps ) ? self::con()->comps->not_bot :
+		return self::con()->comps !== null ? self::con()->comps->not_bot :
 			( $this->handlerNotBot ?? $this->handlerNotBot = new NotBotHandler() );
 	}
 

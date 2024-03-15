@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
 	LoadBotSignalRecords
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	Lib\IpRules\IpRuleStatus,

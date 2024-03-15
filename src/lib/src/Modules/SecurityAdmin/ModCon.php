@@ -17,7 +17,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $securityAdminCon;
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
-		return isset( self::con()->comps ) ? self::con()->comps->whitelabel :
+		return self::con()->comps !== null ? self::con()->comps->whitelabel :
 			( $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController() );
 	}
 
@@ -25,7 +25,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @deprecated 19.1
 	 */
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
-		return isset( self::con()->comps ) ? self::con()->comps->sec_admin :
+		return self::con()->comps !== null ? self::con()->comps->sec_admin :
 			( $this->securityAdminCon ?? $this->securityAdminCon = new Lib\SecurityAdmin\SecurityAdminController() );
 	}
 

@@ -9,13 +9,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NotBotHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const LIFETIME = 600;
 	public const COOKIE_SLUG = 'notbot';
@@ -61,7 +61,7 @@ class NotBotHandler {
 	public function hasCookie() :bool {
 		$cookie = [];
 		$req = Services::Request();
-		$notBot = $req->cookie( self::con()->prefix( self::SLUG ), '' );
+		$notBot = $req->cookie( self::con()->prefix( self::COOKIE_SLUG ), '' );
 		if ( !empty( $notBot ) && \strpos( $notBot, 'z' ) ) {
 			[ $ts, $hash ] = \explode( 'z', $notBot );
 			$cookie[ 'ts' ] = (int)$ts;

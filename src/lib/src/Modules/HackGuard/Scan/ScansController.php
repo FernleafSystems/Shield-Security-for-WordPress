@@ -35,9 +35,21 @@ class ScansController {
 		foreach ( $this->getAllScanCons() as $scanCon ) {
 			$scanCon->execute();
 		}
+		$this->setCustomCronSchedules();
 		$this->setupCron();
 		$this->setupCronHooks();
 		$this->handlePostScanCron();
+	}
+
+	protected function setCustomCronSchedules() {
+		$freq = (int)self::con()->opts->optGet( 'scan_frequency');
+		Services::WpCron()->addNewSchedule(
+			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
+			[
+				'interval' => \DAY_IN_SECONDS/$freq,
+				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
+			]
+		);
 	}
 
 	public function runHourlyCron() {

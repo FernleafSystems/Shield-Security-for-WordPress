@@ -35,6 +35,8 @@ class Firewall extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+		$whitelistAdmins = \method_exists( self::con()->opts, 'optIs' ) ?
+			self::con()->opts->optIs( 'whitelist_admins', 'Y' ) : $this->opts()->isOpt( 'whitelist_admins', 'Y' );
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [
@@ -42,7 +44,7 @@ class Firewall extends BuildRuleCoreShieldBase {
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
-				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
+				$whitelistAdmins ? [
 					'conditions' => Conditions\IsUserAdminNormal::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				] : null,

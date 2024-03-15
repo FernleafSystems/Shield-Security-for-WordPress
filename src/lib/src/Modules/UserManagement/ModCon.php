@@ -12,7 +12,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @deprecated 19.1
 	 */
 	public function getUserSuspendCon() :Lib\Suspend\UserSuspendController {
-		return isset( self::con()->comps ) ? self::con()->comps->user_suspend :
+		return self::con()->comps !== null ? self::con()->comps->user_suspend :
 			( $this->userSuspendCon ?? $this->userSuspendCon = new Lib\Suspend\UserSuspendController() );
 	}
 }

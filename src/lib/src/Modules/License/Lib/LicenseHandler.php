@@ -95,7 +95,7 @@ class LicenseHandler {
 	public function updateLicenseData( array $data ) {
 		\method_exists( self::con()->opts, 'optSet' ) ?
 			self::con()->opts->optSet( 'license_data', $data ) : $this->opts()->setOpt( 'license_data', $data );
-		$this->unsetLicense();
+		$this->license = null;
 	}
 
 	public function maybeDeactivateWithGrace() {
@@ -134,6 +134,9 @@ class LicenseHandler {
 		return $this->license;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function unsetLicense() :self {
 		unset( $this->license );
 		return $this;

@@ -19,7 +19,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @deprecated 19.1
 	 */
 	public function getAuditCon() :Lib\AuditCon {
-		return isset( self::con()->comps ) ? self::con()->comps->activity_log :
+		return self::con()->comps !== null ? self::con()->comps->activity_log :
 			( $this->auditCon ?? $this->auditCon = new Lib\AuditCon() );
 	}
 

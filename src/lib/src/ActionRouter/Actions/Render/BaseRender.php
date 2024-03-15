@@ -112,7 +112,8 @@ abstract class BaseRender extends BaseAction {
 
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
-		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+		$isWhitelabelled = ( $con->comps === null ?
+			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
 		return [
 			'unique_render_id' => uniqid(),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
@@ -124,12 +125,12 @@ abstract class BaseRender extends BaseAction {
 				] ) )
 			],
 			'flags'            => [
-				'is_whitelabelled'        => $isWhitelabelled,
-				'is_ip_whitelisted'       => $ipStatus->isBypass(),
-				'is_ip_blocked'           => $ipStatus->isBlocked(),
-				'is_mode_live'            => $con->is_mode_live,
-				'is_premium'              => $con->isPremiumActive(),
-				'is_security_admin'       => $con->isPluginAdmin(),
+				'is_whitelabelled'  => $isWhitelabelled,
+				'is_ip_whitelisted' => $ipStatus->isBypass(),
+				'is_ip_blocked'     => $ipStatus->isBlocked(),
+				'is_mode_live'      => $con->is_mode_live,
+				'is_premium'        => $con->isPremiumActive(),
+				'is_security_admin' => $con->isPluginAdmin(),
 			],
 			'head'             => [
 				'html'    => [
@@ -207,27 +208,7 @@ abstract class BaseRender extends BaseAction {
 	}
 
 	private function getDisplayStrings() :array {
-		$WP = Services::WpGeneral();
 		$con = self::con();
-		$name = $con->getHumanName();
-
-		$proFeatures = [
-			__( 'More Scans', 'wp-simple-firewall' ),
-			__( 'Malware Scanner', 'wp-simple-firewall' ),
-			__( 'Scan Every Hour', 'wp-simple-firewall' ),
-			__( 'White Label', 'wp-simple-firewall' ),
-			__( 'Import/Export', 'wp-simple-firewall' ),
-			__( 'Better Bot Detection', 'wp-simple-firewall' ),
-			__( 'Password Policies', 'wp-simple-firewall' ),
-			__( 'WooCommerce Support', 'wp-simple-firewall' ),
-			__( 'MainWP Integration', 'wp-simple-firewall' ),
-		];
-		\shuffle( $proFeatures );
-		$proFeaturesDisplay = \array_slice( $proFeatures, 0, 6 );
-		$proFeaturesDisplay[] = __( 'and much more!' );
-
-		$isAdvanced = false; // TODO
-
 		return [
 			'btn_save'          => __( 'Save Options' ),
 			'btn_options'       => __( 'Options' ),
@@ -268,15 +249,8 @@ abstract class BaseRender extends BaseAction {
 			'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
 
 			'mode'            => __( 'Mode', 'wp-simple-firewall' ),
-			'mode_simple'     => __( 'Simple', 'wp-simple-firewall' ),
-			'mode_advanced'   => __( 'Advanced', 'wp-simple-firewall' ),
-			'mode_switchto'   => sprintf( '%s: %s', __( 'Switch To', 'wp-simple-firewall' ),
-				$isAdvanced ? __( 'Simple', 'wp-simple-firewall' ) : __( 'Advanced', 'wp-simple-firewall' ) ),
-			'mode_switchfrom' => sprintf( '%s: %s', __( 'Mode', 'wp-simple-firewall' ),
-				$isAdvanced ? __( 'Advanced', 'wp-simple-firewall' ) : __( 'Simple', 'wp-simple-firewall' ) ),
 
 			'dashboard'        => __( 'Dashboard', 'wp-simple-firewall' ),
-			'dashboard_shield' => sprintf( __( '%s Dashboard', 'wp-simple-firewall' ), $con->getHumanName() ),
 
 			'are_you_sure'                 => __( 'Are you sure?', 'wp-simple-firewall' ),
 			'description'                  => __( 'Description', 'wp-simple-firewall' ),
@@ -309,7 +283,7 @@ abstract class BaseRender extends BaseAction {
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
-						$WP->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
+						Services::WpGeneral()->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
 			),
 
 			'product_name'    => __( 'Name', 'wp-simple-firewall' ),
@@ -320,7 +294,7 @@ abstract class BaseRender extends BaseAction {
 			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
 
-			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $name ),
+			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->getHumanName() ),
 			'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 			'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),

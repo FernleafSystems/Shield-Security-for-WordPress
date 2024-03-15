@@ -27,34 +27,22 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public function onWpInit() {
 		parent::onWpInit();
-		$this->setCustomCronSchedules();
 		self::con()->comps->scans_queue->execute();
 	}
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
-		return isset( self::con()->comps ) ? self::con()->comps->file_locker :
+		return self::con()->comps !== null ? self::con()->comps->file_locker :
 			( $this->oFileLocker ?? $this->oFileLocker = new Lib\FileLocker\FileLockerController() );
 	}
 
 	public function getScansCon() :Scan\ScansController {
-		return isset( self::con()->comps ) ? self::con()->comps->scans :
+		return self::con()->comps !== null ? self::con()->comps->scans :
 			( $this->scanCon ?? $this->scanCon = new Scan\ScansController() );
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		return isset( self::con()->comps ) ? self::con()->comps->scans_queue :
+		return self::con()->comps !== null ? self::con()->comps->scans_queue :
 			( $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller() );
-	}
-
-	protected function setCustomCronSchedules() {
-		$freq = (int)self::con()->opts->optGet( 'scan_frequency');
-		Services::WpCron()->addNewSchedule(
-			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
-			[
-				'interval' => \DAY_IN_SECONDS/$freq,
-				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
-			]
-		);
 	}
 
 	public function runDailyCron() {

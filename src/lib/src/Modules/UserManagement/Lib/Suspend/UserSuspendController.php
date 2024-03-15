@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Sus
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -19,7 +19,8 @@ class UserSuspendController {
 	}
 
 	public function getSuspendAutoIdleTime() :int {
-		return $this->opts()->getOpt( 'auto_idle_days', 0 )*\DAY_IN_SECONDS;
+		return ( \method_exists( self::con()->opts, 'optGet' ) ? self::con()->opts->optGet( 'auto_idle_days' )
+				: $this->opts()->getOpt( 'auto_idle_days', 0 ) )*\DAY_IN_SECONDS;
 	}
 
 	public function getSuspendAutoIdleUserRoles() :array {
@@ -96,7 +97,6 @@ class UserSuspendController {
 	 * filter the User Tables
 	 */
 	private function addSuspendedUserFilters() {
-		$opts = $this->opts();
 		$ts = Services::Request()->ts();
 
 		$userMetaDB = self::con()->db_con->dbhUserMeta();

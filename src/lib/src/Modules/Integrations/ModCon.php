@@ -22,17 +22,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $spamFormsCon;
 
 	public function getControllerMWP() :Lib\MainWP\Controller {
-		return isset( self::con()->comps ) ? self::con()->comps->mainwp :
+		return self::con()->comps !== null ? self::con()->comps->mainwp :
 			( $this->mwp ?? $this->mwp = new Lib\MainWP\Controller() );
 	}
 
 	public function getController_SpamForms() :Lib\Bots\Spam\SpamController {
-		return isset( self::con()->comps ) ? self::con()->comps->forms_spam :
+		return self::con()->comps !== null ? self::con()->comps->forms_spam :
 			( $this->spamFormsCon ?? $this->spamFormsCon = new Lib\Bots\Spam\SpamController() );
 	}
 
 	public function getController_UserForms() :Lib\Bots\UserForms\UserFormsController {
-		return isset( self::con()->comps ) ? self::con()->comps->forms_users :
+		return self::con()->comps !== null ? self::con()->comps->forms_users :
 			( $this->userFormsCon ?? $this->userFormsCon = new Lib\Bots\UserForms\UserFormsController() );
 	}
 

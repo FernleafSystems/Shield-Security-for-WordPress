@@ -20,12 +20,12 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	 * @return Lib\LicenseHandler
 	 */
 	public function getLicenseHandler() :Lib\LicenseHandler {
-		return isset( self::con()->comps ) ? self::con()->comps->license :
+		return self::con()->comps !== null ? self::con()->comps->license :
 			( $this->licenseHandler ?? $this->licenseHandler = new Lib\LicenseHandler() );
 	}
 
 	public function getWpHashesTokenManager() :Lib\WpHashes\ApiTokenManager {
-		return isset( self::con()->comps ) ? self::con()->comps->api_token :
+		return self::con()->comps !== null ? self::con()->comps->api_token :
 			( $this->wpHashesTokenManager ?? $this->wpHashesTokenManager = new Lib\WpHashes\ApiTokenManager() );
 	}
 }

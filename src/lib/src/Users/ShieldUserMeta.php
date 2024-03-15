@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops\Record;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;

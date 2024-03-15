@@ -92,7 +92,7 @@ class UserPasswordHandler {
 	 */
 	private function processFailedCheckPassword() {
 		$meta = self::con()->user_metas->current();
-		if ( $this->opts()->isOpt( 'pass_force_existing', 'Y' ) && $meta->pass_check_failed_at > 0 ) {
+		if ( self::con()->opts->optIs( 'pass_force_existing', 'Y' ) && $meta->pass_check_failed_at > 0 ) {
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -191,11 +191,11 @@ class UserPasswordHandler {
 	private function testPasswordMeetsMinimumStrength( string $password ) :bool {
 		$score = (int)( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
-		if ( $score < $this->opts()->getOpt( 'pass_min_strength' ) ) {
+		if ( $score < self::con()->opts->optGet( 'pass_min_strength' ) ) {
 			throw new Exceptions\PasswordTooWeakException(
 				sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 					$this->getPassStrengthName( $score ),
-					$this->getPassStrengthName( $this->opts()->getOpt( 'pass_min_strength' ) )
+					$this->getPassStrengthName( self::con()->opts->optGet( 'pass_min_strength' ) )
 				)
 			);
 		}
@@ -218,15 +218,16 @@ class UserPasswordHandler {
 	 * @throws Exceptions\PwnedApiFailedException
 	 */
 	private function sendRequestToPwnedRange( string $password ) :int {
+		$con = self::con();
 		$req = Services::HttpRequest();
 
 		$passwordSHA1 = \strtoupper( \hash( 'sha1', $password ) );
 		$substrPasswordSHA1 = \substr( $passwordSHA1, 0, 5 );
 
 		$success = $req->get(
-			sprintf( '%s/%s', $this->opts()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
+			sprintf( '%s/%s', self::con()->cfg->configuration->def( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
 			[
-				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', self::con()->cfg->version() ) ]
+				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $con->cfg->version() ) ]
 			]
 		);
 
