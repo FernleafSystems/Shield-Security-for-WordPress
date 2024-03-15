@@ -19,27 +19,21 @@ class Sync {
 	}
 
 	public function run() :array {
+		$con = self::con();
 		$additional = $this->isPermitted() ? [
 			'options'     => ( new ImportExport\Export() )->getFullTransferableOptionsExport(),
 			'integrity'   => ( new MeterAnalysis\Handler() )->getMeter( MeterAnalysis\Meter\MeterSummary::class ),
 			'scan_issues' => ( new Counts() )->all(),
 		] : [];
 		return \array_merge( [
-			'meta'    => $this->buildMetaData(),
-			/** @description 19.1 - remove the modules as it's old structure */
-			'modules' => $additional,
+			'meta'    => [
+				'is_pro'       => $con->isPremiumActive(),
+				'is_mainwp_on' => $this->isPermitted(),
+				'installed_at' => $con->getModule_Plugin()->getInstallDate(),
+				'sync_at'      => Services::Request()->ts(),
+				'version'      => $con->cfg->version(),
+				'has_update'   => Services::WpPlugins()->isUpdateAvailable( $con->base_file ),
+			],
 		], $additional );
-	}
-
-	private function buildMetaData() :array {
-		$con = self::con();
-		return [
-			'is_pro'       => $con->isPremiumActive(),
-			'is_mainwp_on' => $this->isPermitted(),
-			'installed_at' => $con->getModule_Plugin()->getInstallDate(),
-			'sync_at'      => Services::Request()->ts(),
-			'version'      => $con->cfg->version(),
-			'has_update'   => Services::WpPlugins()->isUpdateAvailable( $con->base_file ),
-		];
 	}
 }
