@@ -34,9 +34,7 @@ class HandshakingNonce {
 	 * @return int[]
 	 */
 	private function getNonces() :array {
-		return self::con()
-				   ->getModule_Plugin()
-				   ->getShieldNetApiController()->vo->nonces;
+		return self::con()->comps->shieldnet->vo->nonces;
 	}
 
 	/**
@@ -44,15 +42,12 @@ class HandshakingNonce {
 	 * @param int[] $nonces
 	 */
 	private function storeNonces( array $nonces ) {
-		$snapiCon = self::con()
-						->getModule_Plugin()
-						->getShieldNetApiController();
-		$snapiCon->vo->nonces = \array_filter(
+		self::con()->comps->shieldnet->vo->nonces = \array_filter(
 			$nonces,
 			function ( $ts ) {
 				return $ts > Services::Request()->ts();
 			}
 		);
-		$snapiCon->storeVoData();
+		self::con()->comps->shieldnet->storeVoData();
 	}
 }

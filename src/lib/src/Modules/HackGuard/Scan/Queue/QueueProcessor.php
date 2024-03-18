@@ -91,7 +91,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	public function delete( $key ) {
 		self::con()
 			->db_con
-			->dbhScanItems()
+			->scan_items
 			->getQueryDeleter()
 			->deleteById( $key );
 		return $this;

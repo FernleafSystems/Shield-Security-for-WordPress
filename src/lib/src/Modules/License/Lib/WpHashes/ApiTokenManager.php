@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\WPHashes\SolicitToken;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ApiTokenManager {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var bool
@@ -42,7 +42,7 @@ class ApiTokenManager {
 	 */
 	public function getToken() :string {
 
-		if ( $this->mod()->getLicenseHandler()->getLicense()->isValid() ) {
+		if ( self::con()->comps->license->getLicense()->isValid() ) {
 			$token = $this->loadToken();
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$token = $this->loadToken();
@@ -76,22 +76,20 @@ class ApiTokenManager {
 	 * retrieve Token exactly as it's saved
 	 */
 	private function loadToken() :array {
-		$tokenData = \method_exists( self::con()->opts, 'optGet' ) ?
-			self::con()->opts->optGet( 'wphashes_api_token' ) : $this->opts()->getOpt( 'wphashes_api_token' );
 		return \array_merge( [
 			'token'             => '',
 			'expires_at'        => 0,
 			'attempt_at'        => 0,
 			'next_attempt_from' => 0,
 			'valid_license'     => false,
-		], $tokenData );
+		], self::con()->opts->optGet( 'wphashes_api_token' ) );
 	}
 
 	private function canRequestNewToken() :bool {
 		return $this->getCanRequestOverride() ||
 			   (
 				   Services::Request()->ts() >= $this->getNextAttemptAllowedFrom()
-				   && self::con()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
+				   && self::con()->comps->license->getLicense()->isValid()
 			   );
 	}
 
@@ -120,8 +118,7 @@ class ApiTokenManager {
 	}
 
 	private function storeToken( array $token ) {
-		\method_exists( self::con()->opts, 'optSet' ) ? self::con()->opts->optSet( 'wphashes_api_token', $token )
-			: $this->opts()->setOpt( 'wphashes_api_token', $token );
+		self::con()->opts->optSet( 'wphashes_api_token', $token );
 	}
 
 	private function clearToken() {

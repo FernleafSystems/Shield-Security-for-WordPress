@@ -34,7 +34,7 @@ class AuditCon {
 
 	protected function canRun() :bool {
 		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
-			   && self::con()->db_con->dbhActivityLogs()->isReady();
+			   && self::con()->db_con->activity_logs->isReady();
 	}
 
 	protected function run() {
@@ -49,7 +49,7 @@ class AuditCon {
 		}, $this->getAuditors() );
 
 		// Realtime Snapshotting
-		if ( self::con()->db_con->dbhSnapshots()->isReady() ) {
+		if ( self::con()->db_con->activity_snapshots->isReady() ) {
 			add_action( 'wp_loaded', function () {
 				\array_map(
 					function ( $auditor ) {
@@ -206,8 +206,7 @@ class AuditCon {
 	 * @throws \Exception
 	 */
 	public function getSnapshot( string $slug ) :Record {
-		if ( empty( $this->getSnapshots()[ $slug ] )
-			 || !\is_a( $this->latestSnapshots[ $slug ], '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record' ) ) {
+		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
 			throw new \Exception( 'Snapshot could not be loaded for '.$slug );
 		}
 		return $this->latestSnapshots[ $slug ];
@@ -222,7 +221,7 @@ class AuditCon {
 	 */
 	public function updateStoredSnapshot( Auditors\Base $auditor, ?Snapshots\SnapshotVO $current = null ) {
 		$con = self::con();
-		if ( !$con->plugin_deleting && $con->db_con->dbhSnapshots()->isReady() ) {
+		if ( !$con->plugin_deleting && $con->db_con->activity_snapshots->isReady() ) {
 			$slug = $auditor::Slug();
 			if ( empty( $current ) ) {
 				$current = ( new Ops\Build() )->run( $slug );

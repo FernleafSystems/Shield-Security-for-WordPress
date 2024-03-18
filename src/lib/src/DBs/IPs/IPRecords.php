@@ -27,7 +27,7 @@ class IPRecords {
 			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
 			/** @var Ops\Select $select */
-			$select = self::con()->db_con->dbhIPs()->getQuerySelector();
+			$select = self::con()->db_con->ips->getQuerySelector();
 			$record = $select->filterByIPHuman( $ip )
 							 ->setNoOrderBy()
 							 ->first();
@@ -50,7 +50,7 @@ class IPRecords {
 	}
 
 	public function addIP( string $ip ) {
-		$dbh = self::con()->db_con->dbhIPs();
+		$dbh = self::con()->db_con->ips;
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

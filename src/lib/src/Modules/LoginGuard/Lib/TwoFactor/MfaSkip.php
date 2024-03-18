@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSkip {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function addMfaSkip( \WP_User $user ) {
 		$meta = self::con()->user_metas->for( $user );

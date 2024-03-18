@@ -4,14 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SessionController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use WpLoginCapture;
 
 	protected function run() {

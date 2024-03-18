@@ -98,7 +98,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	public function removeGA() :StdResponse {
 		/** @var MfaDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhMfa()->getQueryDeleter();
+		$deleter = self::con()->db_con->mfa->getQueryDeleter();
 		$deleter->filterBySlug( $this::ProviderSlug() )
 				->filterByUserID( $this->getUser()->ID )
 				->query();
@@ -193,11 +193,6 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	protected function isValidSecret( $secret ) :bool {
 		return parent::isValidSecret( $secret ) && \strlen( $secret->unique_id ) === 16;
-	}
-
-	public function isProviderEnabled() :bool {
-		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
-			$this->opts()->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
 	public static function ProviderName() :string {

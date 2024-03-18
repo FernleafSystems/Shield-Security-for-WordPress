@@ -16,7 +16,7 @@ class ShieldConfigIsLiveLoggingEnabled extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return self::con()->comps !== null && self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0;
+		return self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0;
 	}
 
 	protected function getSubConditions() :array {

@@ -22,8 +22,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class FileLockerController {
 
 	use ExecOnce;
-	use ModConsumer;
 	use PluginCronsConsumer;
+
+	/**
+	 * @deprecated 19.2
+	 */
+	use ModConsumer;
 
 	public const CRON_DELAY = 60;
 
@@ -32,7 +36,7 @@ class FileLockerController {
 	public function isEnabled() :bool {
 		return ( \count( $this->getFilesToLock() ) > 0 )
 			   && self::con()->comps->opts_lookup->isModEnabled( EnumModules::SCANS )
-			   && self::con()->db_con->dbhFileLocker()->isReady()
+			   && self::con()->db_con->file_locker->isReady()
 			   && self::con()->comps->shieldnet->canHandshake();
 	}
 
@@ -86,7 +90,7 @@ class FileLockerController {
 	}
 
 	public function getFilesToLock() :array {
-		return $this->opts()->getOpt( 'file_locker', [] );
+		return self::con()->opts->optGet( 'file_locker' );
 	}
 
 	/**
@@ -131,7 +135,7 @@ class FileLockerController {
 	}
 
 	public function purge() {
-		self::con()->db_con->dbhFileLocker()->tableDelete();
+		self::con()->db_con->file_locker->tableDelete();
 	}
 
 	/**
@@ -151,7 +155,7 @@ class FileLockerController {
 		}
 
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-			$this->opts()->setOpt( 'file_locker', [] );
+			self::con()->opts->optSet( 'file_locker', [] );
 			$this->setState( [] );
 			$this->purge();
 		}
@@ -207,7 +211,7 @@ class FileLockerController {
 				|NoCipherAvailableException|PublicKeyRetrievalFailure
 				|UnsupportedFileLockType $e ) {
 					// Remove the key if there are no files on-disk to lock
-					$this->opts()->setOpt( 'file_locker', \array_diff( $this->getFilesToLock(), [ $type ] ) );
+					self::con()->opts->optSet( 'file_locker', \array_diff( $this->getFilesToLock(), [ $type ] ) );
 					error_log( $e->getMessage() );
 				}
 				catch ( \Exception $e ) {
@@ -224,26 +228,18 @@ class FileLockerController {
 	}
 
 	public function getState() :array {
-		$opts = self::con()->opts;
-		return \array_merge(
-			[
-				'abspath'                      => ABSPATH,
-				'last_locks_created_at'        => 0,
-				'last_locks_created_failed_at' => 0,
-				'last_error'                   => '',
-				'cipher'                       => '',
-				'cipher_last_checked_at'       => 0,
-			],
-			\method_exists( $opts, 'optGet' ) ?
-				$opts->optGet( 'filelocker_state' ) : $this->opts()->getOpt( 'filelocker_state' )
-		);
+		return \array_merge( [
+			'abspath'                      => ABSPATH,
+			'last_locks_created_at'        => 0,
+			'last_locks_created_failed_at' => 0,
+			'last_error'                   => '',
+			'cipher'                       => '',
+			'cipher_last_checked_at'       => 0,
+		], self::con()->opts->optGet( 'filelocker_state' ) );
 	}
 
 	protected function setState( array $state ) {
-		$opts = self::con()->opts;
-		\method_exists( $opts, 'optSet' ) ?
-			$opts->optSet( 'filelocker_state', $state ) : $this->opts()->setOpt( 'filelocker_state', $state );
-		self::con()->opts->store();
+		self::con()->opts->optSet( 'filelocker_state', $state )->store();
 	}
 
 	/**

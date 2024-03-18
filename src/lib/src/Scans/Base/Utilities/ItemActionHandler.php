@@ -52,7 +52,7 @@ abstract class ItemActionHandler {
 		if ( $item->deleted ) {
 			self::con()
 				->db_con
-				->dbhResultItems()
+				->scan_result_items
 				->getQueryUpdater()
 				->updateById( $item->VO->resultitem_id, [
 					'item_deleted_at' => Services::Request()->ts()
@@ -103,7 +103,7 @@ abstract class ItemActionHandler {
 			}
 			self::con()
 				->db_con
-				->dbhResultItems()
+				->scan_result_items
 				->getQueryUpdater()
 				->updateById( $item->VO->resultitem_id, $updateInfo );
 

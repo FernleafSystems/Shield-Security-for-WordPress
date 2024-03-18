@@ -174,7 +174,7 @@ class PreStore {
 			);
 		}
 
-		$dbhIPRules = self::con()->db_con->dbhIPRules();
+		$dbhIPRules = self::con()->db_con->ip_rules;
 		if ( $opts->optChanged( 'cs_block' ) && $opts->optIs( 'cs_block', 'disabled' ) ) {
 			/** @var Delete $deleter */
 			$deleter = $dbhIPRules->getQueryDeleter();

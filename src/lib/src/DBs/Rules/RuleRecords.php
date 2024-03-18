@@ -22,14 +22,14 @@ class RuleRecords {
 
 	public function deleteOldDrafts( int $old = MINUTE_IN_SECONDS*5 ) :void {
 		Services::WpDb()->doSql( sprintf( 'DELETE FROM `%s` WHERE `form` IS NULL AND `updated_at`<%s;',
-			self::con()->db_con->dbhRules()->getTableSchema()->table,
+			self::con()->db_con->rules->getTable(),
 			Services::Request()->ts() - $old
 		) );
 	}
 
 	public function disableAll() :void {
 		Services::WpDb()->doSql( sprintf( 'UPDATE `%s` SET `is_active`=0, `updated_at`=%s WHERE `is_active`=1;',
-			self::con()->db_con->dbhRules()->getTableSchema()->table,
+			self::con()->db_con->rules->getTable(),
 			Services::Request()->ts()
 		) );
 	}
@@ -52,7 +52,7 @@ class RuleRecords {
 	public function getCustom( ?bool $active = null ) :array {
 		$records = [];
 		if ( self::con()->caps->canCustomSecurityRules() ) {
-			$dbh = self::con()->db_con->dbhRules();
+			$dbh = self::con()->db_con->rules;
 			$selector = $this->getSelector()->filterByType( $dbh::TYPE_CUSTOM );
 			if ( $active !== null ) {
 				$active ? $selector->filterByActive() : $selector->filterByInactive();
@@ -65,6 +65,6 @@ class RuleRecords {
 	}
 
 	private function getSelector() :Ops\Select {
-		return self::con()->db_con->dbhRules()->getQuerySelector();
+		return self::con()->db_con->rules->getQuerySelector();
 	}
 }

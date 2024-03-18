@@ -30,7 +30,7 @@ class Enumerate extends Base {
 	public function cmdPrint( array $null, array $args ) {
 		$this->showDeprecatedWarning();
 
-		$dbh = self::con()->db_con->dbhIPRules();
+		$dbh = self::con()->db_con->ip_rules;
 
 		try {
 			$this->checkList( $args[ 'list' ] );

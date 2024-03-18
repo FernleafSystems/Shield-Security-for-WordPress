@@ -20,15 +20,15 @@ class ScansStatus {
 						WHERE `scans`.`ready_at` > 0 
 						  AND `scans`.`finished_at`=0
 						LIMIT 1;",
-				self::con()->db_con->dbhScans()->getTableSchema()->table,
-				self::con()->db_con->dbhScanItems()->getTableSchema()->table
+				self::con()->db_con->scans->getTable(),
+				self::con()->db_con->scan_items->getTable()
 			)
 		);
 	}
 
 	public function enqueued() :array {
 		/** @var ScansDB\Select $selector */
-		$selector = self::con()->db_con->dbhScans()->getQuerySelector();
+		$selector = self::con()->db_con->scans->getQuerySelector();
 		return $selector->filterByNotFinished()
 						->addColumnToSelect( 'scan' )
 						->setIsDistinct( true )

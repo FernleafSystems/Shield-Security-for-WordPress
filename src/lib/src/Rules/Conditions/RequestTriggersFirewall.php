@@ -18,15 +18,10 @@ class RequestTriggersFirewall extends Base {
 	protected function getSubConditions() :array {
 		$con = self::con();
 
-		$patterns = $con->comps === null ? self::con()->getModule_Firewall()->opts()->getDef( 'firewall_patterns' )
-			: $con->cfg->configuration->def( 'firewall_patterns' );
-
 		$paramConditions = [];
 
-		foreach ( $patterns as $key => $group ) {
-			$isOpt = $con->comps === null ? self::con()->getModule_Firewall()->opts()->isOpt( 'block_'.$key, 'Y' )
-				: $con->opts->optIs( 'block_'.$key, 'Y' );
-			if ( $key !== 'exe_file_uploads' && $isOpt ) {
+		foreach ( $con->cfg->configuration->def( 'firewall_patterns' ) as $key => $group ) {
+			if ( $key !== 'exe_file_uploads' && $con->opts->optIs( 'block_'.$key, 'Y' ) ) {
 				foreach ( $group as $pattern ) {
 					$paramConditions[] = [
 						'conditions' => Conditions\FirewallPatternFoundInRequest::class,

@@ -70,12 +70,10 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			catch ( \Exception $e ) {
 			}
 
-			$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
+			$dbhSignals = self::con()->db_con->crowdsec_signals;
 			foreach ( $this->signals as $signal ) {
 				$dbhSignals->getQueryInserter()
-						   ->insert(
-							   $dbhSignals->getRecord()->applyFromArray( $signal )
-						   );
+						   ->insert( $dbhSignals->getRecord()->applyFromArray( $signal ) );
 			}
 
 			// and finally, trigger send to Crowdsec

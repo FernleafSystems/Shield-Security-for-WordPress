@@ -4,20 +4,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
 	SecurityAdminLogin,
 	SecurityAdminRequestRemoveByEmail
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class SecurityAdminController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
@@ -93,15 +93,8 @@ class SecurityAdminController {
 	}
 
 	public function isEnabledSecAdmin() :bool {
-		if ( self::con()->comps === null ) {
-			$enabled = self::con()->getModule_SecAdmin()->isModOptEnabled()
-					   && self::con()->getModule_SecAdmin()->opts()->hasSecurityPIN();
-		}
-		else {
-			$enabled = !empty( self::con()->comps->opts_lookup->getSecAdminPIN() )
-					   && self::con()->comps->opts_lookup->isModFromOptEnabled( 'admin_access_key' );
-		}
-		return $enabled;
+		return !empty( self::con()->comps->opts_lookup->getSecAdminPIN() )
+			   && self::con()->comps->opts_lookup->isModFromOptEnabled( 'admin_access_key' );
 	}
 
 	private function enqueueJS() {
@@ -114,18 +107,6 @@ class SecurityAdminController {
 				],
 				'data'    => function () {
 					$con = self::con();
-
-					if ( $con->comps === null ) {
-						$email = $con->getModule_Plugin()->getPluginReportEmail();
-						$isRestrictWpOptions = $this->opts()->isOpt( 'admin_access_restrict_options', 'Y' );
-						$restrictedOptions = $this->opts()->getOptionsToRestrict();
-					}
-					else {
-						$email = $con->comps->opts_lookup->getReportEmail();
-						$isRestrictWpOptions = $con->opts->optIs( 'admin_access_restrict_options', 'Y' );
-						$restrictedOptions = $con->comps->opts_lookup->getSecAdminWpOptionsToRestrict();
-					}
-
 					$isSecAdmin = $con->this_req->is_security_admin;
 					return [
 						'ajax'    => [
@@ -134,14 +115,14 @@ class SecurityAdminController {
 							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::class ),
 						],
 						'flags'   => [
-							'restrict_options' => !$isSecAdmin && $isRestrictWpOptions,
+							'restrict_options' => !$isSecAdmin && $con->opts->optIs( 'admin_access_restrict_options', 'Y' ),
 							'run_checks'       => $con->getIsPage_PluginAdmin()
 												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
 							'confirm_disable'    => sprintf( __( "An confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
-								Obfuscate::Email( $email ) ),
+								Obfuscate::Email( $con->comps->opts_lookup->getReportEmail() ) ),
 							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
 							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
 							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
@@ -156,7 +137,7 @@ class SecurityAdminController {
 						],
 						'vars'    => [
 							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
-							'wp_options_to_restrict' => $restrictedOptions,
+							'wp_options_to_restrict' => $con->comps->opts_lookup->getSecAdminWpOptionsToRestrict(),
 						],
 					];
 				},
@@ -166,7 +147,7 @@ class SecurityAdminController {
 	}
 
 	public function getSecAdminTimeout() :int {
-		return (int)$this->opts()->getOpt( 'admin_access_timeout' )*\MINUTE_IN_SECONDS;
+		return (int)self::con()->opts->optGet( 'admin_access_timeout' )*\MINUTE_IN_SECONDS;
 	}
 
 	/**
@@ -175,7 +156,7 @@ class SecurityAdminController {
 	public function getSecAdminTimeRemaining() :int {
 		$remaining = 0;
 
-		$session = self::con()->getModule_Plugin()->getSessionCon()->current();
+		$session = self::con()->comps->session->current();
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
@@ -197,9 +178,7 @@ class SecurityAdminController {
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 		}
-		$users = \method_exists( self::con()->opts, 'optGet' ) ? self::con()->opts->optGet( 'sec_admin_users' )
-			: $this->opts()->getSecurityAdminUsers();
-		return $user instanceof \WP_User && \in_array( $user->user_login, $users );
+		return $user instanceof \WP_User && \in_array( $user->user_login, self::con()->opts->optGet( 'sec_admin_users' ) );
 	}
 
 	public function isCurrentlySecAdmin() :bool {

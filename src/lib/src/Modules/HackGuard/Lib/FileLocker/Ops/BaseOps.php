@@ -10,6 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey
 
 class BaseOps {
 
+	/**
+	 * @deprecated 19.2
+	 */
 	use ModConsumer;
 
 	/**

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use Webauthn\{
@@ -15,7 +15,7 @@ use Webauthn\{
 
 class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use WpUserConsumer;
 
 	public function count() :int {
@@ -67,7 +67,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 		$preExistingSource = $this->findOneByCredentialId( $publicKeyCredentialSource->getPublicKeyCredentialId() );
 		if ( empty( $preExistingSource ) ) {
 			/** @var MfaDB\Record $record */
-			$record = self::con()->db_con->dbhMfa()->getRecord();
+			$record = self::con()->db_con->mfa->getRecord();
 			$record->user_id = $this->getWpUser()->ID;
 			$record->slug = Passkey::ProviderSlug();
 			$record->unique_id = $this->normalisedSourceID( $publicKeyCredentialSource->getPublicKeyCredentialId() );
@@ -98,7 +98,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 
 	public function deleteSource( string $encodedID ) :bool {
 		/** @var MfaDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhMfa()->getQueryDeleter();
+		$deleter = self::con()->db_con->mfa->getQueryDeleter();
 		$deleter->filterBySlug( Passkey::ProviderSlug() )
 				->filterByUniqueID( $encodedID )
 				->queryWithResult();

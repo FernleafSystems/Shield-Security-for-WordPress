@@ -11,8 +11,4 @@ trait ModConsumer {
 	public function mod() :ModCon {
 		return self::con()->modules[ EnumModules::IPS ];
 	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
-	}
 }

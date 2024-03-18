@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
-	use ModConsumer;
-
 	protected function run() {
 		$con = self::con();
 		$components = $con->comps;

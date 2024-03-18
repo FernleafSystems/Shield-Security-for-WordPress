@@ -14,6 +14,7 @@ class SetScanCompleted {
 	use PluginControllerConsumer;
 
 	public function run( string $scan ) {
+		$dbCon = self::con()->db_con;
 		$count = (int)Services::WpDb()->getVar(
 			sprintf( "SELECT count(*)
 						FROM `%s` as `scans`
@@ -23,16 +24,15 @@ class SetScanCompleted {
 						WHERE `scans`.`scan`='%s'
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0;",
-				self::con()->db_con->dbhScans()->getTableSchema()->table,
-				self::con()->db_con->dbhScanItems()->getTableSchema()->table,
+				$dbCon->scans->getTable(),
+				$dbCon->scan_items->getTable(),
 				$scan
 			)
 		);
 
 		if ( $count === 0 ) {
-			self::con()
-				->db_con
-				->dbhScans()
+			$dbCon
+				->scans
 				->getQueryUpdater()
 				->setUpdateWheres( [
 					'scan'        => $scan,

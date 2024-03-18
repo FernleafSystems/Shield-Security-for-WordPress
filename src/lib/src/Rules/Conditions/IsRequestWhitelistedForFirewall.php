@@ -21,7 +21,7 @@ class IsRequestWhitelistedForFirewall extends Base {
 						],
 					];
 				},
-				self::con()->getModule_Firewall()->opts()->getDef( 'whitelisted_paths' )
+				self::con()->cfg->configuration->def( 'whitelisted_paths' )
 			),
 		];
 	}

@@ -14,7 +14,7 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		return self::con()
 			->db_con
-			->dbhUserMeta()
+			->user_meta
 			->isReady();
 	}
 
@@ -41,7 +41,7 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	private function getExistingUserMetaIDsQuery() :string {
 		return self::con()
 			->db_con
-			->dbhUserMeta()
+			->user_meta
 			->getQuerySelector()
 			->setResultsAsVo( false )
 			->setSelectResultsFormat( ARRAY_A )

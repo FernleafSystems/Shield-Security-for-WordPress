@@ -47,7 +47,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 						INNER JOIN `%s` as `ips` ON `ips`.`id` = `%s`.`ip_ref`;',
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->getJoinedTableAbbreviation(),
-				self::con()->db_con->dbhIPs()->getTableSchema()->table,
+				self::con()->db_con->ips->getTableSchema()->table,
 				$this->getJoinedTableAbbreviation()
 			)
 		);
@@ -97,7 +97,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	protected function buildIpMetaSQL() :string {
 		return $this->includeIpMeta ?
 			sprintf( 'LEFT JOIN `%s` as `ipm` ON `ips`.`id`=`ipm`.`ip_ref`',
-				self::con()->db_con->dbhIPMeta()->getTableSchema()->table
+				self::con()->db_con->ip_meta->getTableSchema()->table
 			) : '';
 	}
 
@@ -160,7 +160,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 					%%s /* ORDER */
 					%%s /* LIMIT */
 					%%s; /* OFFSET */',
-			self::con()->db_con->dbhIPs()->getTableSchema()->table,
+			self::con()->db_con->ips->getTableSchema()->table,
 			$this->getTableSchemaForJoinedTable()->table,
 			$this->getJoinedTableAbbreviation(),
 			$this->getJoinedTableAbbreviation()

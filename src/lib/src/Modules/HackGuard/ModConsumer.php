@@ -11,8 +11,4 @@ trait ModConsumer {
 	public function mod() :ModCon {
 		return self::con()->modules[ EnumModules::SCANS ];
 	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
-	}
 }

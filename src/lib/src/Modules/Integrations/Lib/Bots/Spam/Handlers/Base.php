@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 abstract class Base extends BaseHandler {
 
 	public function getHandlerController() {
-		return $this->mod()->getController_SpamForms();
+		return self::con()->comps->forms_spam;
 	}
 
 	protected function fireBotEvent() {

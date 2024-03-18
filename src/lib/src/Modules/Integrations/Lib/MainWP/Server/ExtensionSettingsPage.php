@@ -5,17 +5,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ExtensionSettingsPage {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function run() {
 
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook ) {
-			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded()
+			if ( self::con()->comps->mainwp->isServerExtensionLoaded()
 				 && 'mainwp_page_'.self::con()->mwpVO->extension->page === $hook ) {
 				$assets[] = 'mainwp_server';
 			}

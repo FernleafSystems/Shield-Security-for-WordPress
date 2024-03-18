@@ -36,7 +36,7 @@ class Afs extends Base {
 
 	public function getAdminMenuItems() :array {
 		$items = [];
-		$status = $this->mod()->getScansCon()->getScanResultsCount();
+		$status = self::con()->comps->scans->getScanResultsCount();
 
 		$template = [
 			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
@@ -86,7 +86,7 @@ class Afs extends Base {
 		$autoFiltered = $rawResult[ 'auto_filter' ] ?? false;
 
 		/** @var ResultItemsDB\Record $record */
-		$record = self::con()->db_con->dbhResultItems()->getRecord();
+		$record = self::con()->db_con->scan_result_items->getRecord();
 		$record->auto_filtered_at = $autoFiltered ? Services::Request()->ts() : 0;
 		$record->item_id = $rawResult[ 'path_fragment' ];
 		$record->item_type = ResultItemsDB\Handler::ITEM_TYPE_FILE;
@@ -156,7 +156,7 @@ class Afs extends Base {
 	 * @param Scans\Afs\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) :bool {
-		$dbhResultItems = self::con()->db_con->dbhResultItems();
+		$dbhResultItems = self::con()->db_con->scan_result_items;
 		/** @var ResultItemsDB\Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 
@@ -212,8 +212,7 @@ class Afs extends Base {
 	}
 
 	public function isEnabled() :bool {
-		$con = self::con();
-		return $con->comps !== null && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_core_file_integrity_scan', 'Y' );
+		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {
@@ -273,22 +272,16 @@ class Afs extends Base {
 	}
 
 	public function getFileScanAreas() :array {
-		$areas = [];
-
-		$opts = self::con()->opts;
-		if ( \method_exists( $opts, 'optGet' ) ) {
-			$areas = $opts->optGet( 'file_scan_areas' );
-			if ( !self::con()->isPremiumActive() ) {
-				$available = [];
-				foreach ( $opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
-					if ( empty( $valueOption[ 'premium' ] ) ) {
-						$available[] = $valueOption[ 'value_key' ];
-					}
+		$areas = self::con()->opts->optGet( 'file_scan_areas' );
+		if ( !self::con()->isPremiumActive() ) {
+			$available = [];
+			foreach ( self::con()->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
+				if ( empty( $valueOption[ 'premium' ] ) ) {
+					$available[] = $valueOption[ 'value_key' ];
 				}
-				$areas = \array_diff( $areas, $available );
 			}
+			$areas = \array_diff( $areas, $available );
 		}
-
 		return $areas;
 	}
 

@@ -5,14 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Ses
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use WpLoginCapture;
 
 	protected function run() {
@@ -225,8 +225,7 @@ class UserSessionHandler {
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
-		$max = self::con()->comps === null ?
-			$this->opts()->getMaxSessionTime() : self::con()->comps->opts_lookup->getSessionMax();
+		$max = self::con()->comps->opts_lookup->getSessionMax();
 		return $max > 0 ? \min( $timeout, $max ) : $timeout;
 	}
 

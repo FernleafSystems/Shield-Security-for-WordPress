@@ -8,7 +8,6 @@ use AptowebDeps\Monolog\Logger;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
 	LocalDbWriter,
 	LogFileHandler
@@ -55,26 +54,22 @@ class AuditLogger extends EventsListener {
 
 	protected function initLogger() {
 		$con = self::con();
-		$opts = $con->getModule_AuditTrail()->opts();
-		$auditCon = $con->comps === null ? $con->getModule_AuditTrail()->getAuditCon() : $con->comps->activity_log;
+		$auditCon = $con->comps->activity_log;
 
 		if ( $this->isMonologLibrarySupported() ) {
 
-			if ( \method_exists( $auditCon, 'isLogToDB' ) ? $auditCon->isLogToDB() : $opts->isLogToDB() ) {
+			if ( $auditCon->isLogToDB() ) {
 				$this->getLogger()
 					 ->pushHandler(
-						 new FilterHandler(
-							 new LocalDbWriter(),
-							 \method_exists( $auditCon, 'getLogLevelsDB' ) ? $auditCon->getLogLevelsDB() : $opts->getLogLevelsDB()
-						 )
+						 new FilterHandler( new LocalDbWriter(), $auditCon->getLogLevelsDB() )
 					 );
 			}
 
-			$path = \method_exists( $auditCon, 'getLogFilePath' ) ? $auditCon->getLogFilePath() : $opts->getLogFilePath();
+			$path = $auditCon->getLogFilePath();
 			if ( $con->cache_dir_handler->exists() && !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $path ) ) {
 				try {
 					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $this->getLogLevelsFile() );
-					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
+					if ( $con->opts->optGet( 'log_format_file' ) === 'json' ) {
 						$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 					}
 					$this->getLogger()->pushHandler( $fileHandlerWithFilter );
@@ -145,8 +140,6 @@ class AuditLogger extends EventsListener {
 	}
 
 	private function getLogLevelsFile() :array {
-		$opts = self::con()->opts;
-		return \method_exists( $opts, 'optGet' ) ?
-			$opts->optGet( 'log_level_file' ) : self::con()->getModule_AuditTrail()->opts()->getOpt( 'log_level_file' );
+		return self::con()->opts->optGet( 'log_level_file' );
 	}
 }

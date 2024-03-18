@@ -27,7 +27,7 @@ class BotSignalsRecord {
 	public function delete() :bool {
 		$thisReq = self::con()->this_req;
 		/** @var BotSignalDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhBotSignal()->getQueryDeleter();
+		$deleter = self::con()->db_con->bot_signals->getQueryDeleter();
 
 		if ( $thisReq->ip === $this->getIP() ) {
 			unset( $thisReq->botsignal_record );
@@ -50,8 +50,8 @@ class BotSignalsRecord {
 							AND `ips`.`ip`=INET6_ATON('%s')
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
-				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table,
+				self::con()->db_con->bot_signals->getTable(),
+				self::con()->db_con->ips->getTable(),
 				$this->getIP()
 			)
 		);
@@ -100,14 +100,12 @@ class BotSignalsRecord {
 		}
 
 		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
-			$botSignalsCon = self::con()->comps === null ?
-				$this->mod()->getBotSignalsController() : self::con()->comps->bot_signals;
-			$r->notbot_at = $botSignalsCon->getHandlerNotBot()->hasCookie() ? Services::Request()->ts() : 0;
+			$r->notbot_at = self::con()->comps->not_bot->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
-			$userMetaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
+			$userMetaSelect = self::con()->db_con->user_meta->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
@@ -119,7 +117,7 @@ class BotSignalsRecord {
 		}
 
 		/** Clean out old signals that have no bearing on bot calculations */
-		foreach ( self::con()->db_con->dbhBotSignal()->getTableSchema()->getColumnNames() as $col ) {
+		foreach ( self::con()->db_con->bot_signals->getTableSchema()->getColumnNames() as $col ) {
 			if ( \preg_match( '#_at$#i', $col )
 				 && !\in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
 				 && Services::Request()->carbon()->subMonth()->timestamp > $r->{$col} ) {
@@ -141,7 +139,7 @@ class BotSignalsRecord {
 			$record->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
 			$success = self::con()
 				->db_con
-				->dbhBotSignal()
+				->bot_signals
 				->getQueryInserter()
 				->insert( $record );
 		}
@@ -150,7 +148,7 @@ class BotSignalsRecord {
 			$data[ 'updated_at' ] = Services::Request()->ts();
 			$success = self::con()
 				->db_con
-				->dbhBotSignal()
+				->bot_signals
 				->getQueryUpdater()
 				->updateById( $record->id, $data );
 		}
@@ -169,7 +167,7 @@ class BotSignalsRecord {
 	 */
 	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
 
-		if ( !self::con()->db_con->dbhBotSignal()->getTableSchema()->hasColumn( $field ) ) {
+		if ( !self::con()->db_con->bot_signals->getTableSchema()->hasColumn( $field ) ) {
 			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
 		}
 

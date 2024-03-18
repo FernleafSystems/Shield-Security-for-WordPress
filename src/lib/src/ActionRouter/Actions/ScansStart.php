@@ -16,19 +16,16 @@ class ScansStart extends ScansBase {
 
 		$params = FormParams::Retrieve();
 		if ( !empty( $params ) ) {
-			$scansCon = $con->comps === null ? $con->getModule_HackGuard()->getScansCon() : $con->comps->scans;
-			$selectedScans = \array_intersect( \array_keys( $params ), $scansCon->getScanSlugs() );
-
+			$selectedScans = \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() );
 			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
-			if ( $scansCon->startNewScans( $selectedScans, $resetIgnore ) ) {
+			if ( $con->comps->scans->startNewScans( $selectedScans, $resetIgnore ) ) {
 				$success = true;
 				$reloadPage = true;
 				$msg = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
 			}
 		}
 
-		$Q = $con->comps === null ? $con->getModule_HackGuard()->getScanQueueController() : $con->comps->scans_queue;
-		$isScanRunning = $Q->hasRunningScans();
+		$isScanRunning = $con->comps->scans_queue->hasRunningScans();
 
 		$this->response()->action_response_data = [
 			'success'       => $success,

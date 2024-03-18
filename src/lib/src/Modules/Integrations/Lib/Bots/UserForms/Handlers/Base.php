@@ -57,7 +57,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	public function getHandlerController() {
-		return $this->mod()->getController_UserForms();
+		return self::con()->comps->forms_users;
 	}
 
 	/**
@@ -106,9 +106,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function isBotBlockEnabled() :bool {
-		/** @var LoginGuard\Options $loginOpts */
-		$loginOpts = self::con()->modules[ EnumModules::LOGIN ]->opts();
-		return self::con()->comps === null ? $loginOpts->isEnabledAntiBot() : self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck();
+		return self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck();
 	}
 
 	protected function getErrorMessage() :string {

@@ -31,7 +31,7 @@ class Accept extends BaseOps {
 
 		$success = self::con()
 			->db_con
-			->dbhFileLocker()
+			->file_locker
 			->getQueryUpdater()
 			->updateRecord( $lock, [
 				'hash_original' => \hash_file( 'sha1', $lock->path ),

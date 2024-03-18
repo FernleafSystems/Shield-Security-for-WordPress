@@ -36,8 +36,7 @@ class BaseCapabilitiesRestrict extends Base {
 	}
 
 	protected function getRestrictedCapabilities() :array {
-		$caps = $this->opts()->getOpt( 'admin_access_restrict_'.static::AREA_SLUG, [] );
-		return \is_array( $caps ) ? $caps : [];
+		return self::con()->opts->optGet( 'admin_access_restrict_'.static::AREA_SLUG );
 	}
 
 	protected function isCapabilityToBeRestricted( string $cap ) :bool {

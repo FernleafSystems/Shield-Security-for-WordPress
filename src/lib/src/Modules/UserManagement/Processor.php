@@ -69,7 +69,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 										  ->setTimestamp( $lastLoginAt );
 
 						/** @var IPDB\Record $ipRecord */
-						$ipRecord = $con->db_con->dbhIPs()->getQuerySelector()->byId( $meta->record->ip_ref );
+						$ipRecord = $con->db_con->ips->getQuerySelector()->byId( $meta->record->ip_ref );
 
 						$additionalContent = apply_filters( 'shield/user_status_column', [
 							$content,
@@ -102,12 +102,5 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 	public function runHourlyCron() {
 		( new BulkUpdateUserMeta() )->execute();
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function addAdminBarMenuGroup( array $groups ) :array {
-		return $groups;
 	}
 }

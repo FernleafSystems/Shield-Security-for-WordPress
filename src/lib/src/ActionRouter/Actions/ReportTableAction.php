@@ -11,7 +11,7 @@ class ReportTableAction extends BaseAction {
 			case 'delete':
 				$success = self::con()
 					->db_con
-					->dbhReports()
+					->reports
 					->getQueryDeleter()
 					->deleteById( (int)$this->action_data[ 'rid' ] );
 				$msg = 'Report deleted.';

@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
-	StringsOptions,StringsSections };
+	StringsOptions,
+	StringsSections
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -50,7 +52,7 @@ class SelectSearchData {
 		);
 
 		$results = [];
-		$dbhIPs = self::con()->db_con->dbhIPs();
+		$dbhIPs = self::con()->db_con->ips;
 		foreach ( $ipTerms as $ipTerm ) {
 			$ips = $dbhIPs->getQuerySelector()
 						  ->addRawWhere( [

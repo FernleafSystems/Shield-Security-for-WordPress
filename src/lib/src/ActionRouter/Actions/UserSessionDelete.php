@@ -7,7 +7,6 @@ class UserSessionDelete extends SecurityAdminBase {
 	public const SLUG = 'user_session_delete';
 
 	protected function exec() {
-		$sessionCon = self::con()->getModule_Plugin()->getSessionCon();
 		$success = false;
 
 		[ $userID, $uniqueID ] = \explode( '-', $this->action_data[ 'rid' ] ?? [] );
@@ -15,11 +14,11 @@ class UserSessionDelete extends SecurityAdminBase {
 		if ( empty( $userID ) || !\is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		elseif ( $sessionCon->current()->shield[ 'unique' ] === $uniqueID ) {
+		elseif ( self::con()->comps->session->current()->shield[ 'unique' ] === $uniqueID ) {
 			$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
 		else {
-			$sessionCon->removeSessionBasedOnUniqueID( (int)$userID, $uniqueID );
+			self::con()->comps->session->removeSessionBasedOnUniqueID( (int)$userID, $uniqueID );
 			$msg = __( 'User session deleted', 'wp-simple-firewall' );
 			$success = true;
 		}

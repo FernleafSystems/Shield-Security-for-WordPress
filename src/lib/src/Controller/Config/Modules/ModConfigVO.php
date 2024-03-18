@@ -10,7 +10,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $sections
  *                                   -- not part of config file --
  * @property string $slug
- * @property array  $definitions // @deprecated 19.1
  */
 class ModConfigVO extends DynPropertiesClass {
 

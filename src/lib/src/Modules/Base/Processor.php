@@ -13,34 +13,10 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	 */
 	public function __construct( $mod ) {
 		$this->setMod( $mod );
-		add_action( 'init', [ $this, 'onWpInit' ], $this->getWpHookPriority( 'init' ) );
+		add_action( 'init', [ $this, 'onWpInit' ], Shield\Controller\Plugin\HookTimings::INIT_PROCESSOR_DEFAULT );
 		$this->setupCronHooks();
 	}
 
 	public function onWpInit() {
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function onWpLoaded() {
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function addAdminBarMenuGroup( array $groups ) :array {
-		return $groups;
-	}
-
-	protected function getWpHookPriority( string $hook ) :int {
-		switch ( $hook ) {
-			case 'init':
-				$pri = Shield\Controller\Plugin\HookTimings::INIT_PROCESSOR_DEFAULT;
-				break;
-			default:
-				$pri = 10;
-		}
-		return $pri;
 	}
 }

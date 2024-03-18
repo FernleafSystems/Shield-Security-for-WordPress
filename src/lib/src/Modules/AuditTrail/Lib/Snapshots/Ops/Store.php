@@ -12,7 +12,7 @@ class Store {
 	public function store( SnapshotVO $snapshot ) :bool {
 		return self::con()
 			->db_con
-			->dbhSnapshots()
+			->activity_snapshots
 			->getQueryInserter()
 			->insert( Convert::SnapToRecord( $snapshot ) );
 	}

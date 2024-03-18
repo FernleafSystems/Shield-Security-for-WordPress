@@ -23,8 +23,8 @@ class QueueItems {
 						WHERE `scans`.`ready_at` > 0 AND `scans`.`finished_at`=0
 						ORDER BY `si`.`id` ASC
 						LIMIT 1;",
-				self::con()->db_con->dbhScans()->getTableSchema()->table,
-				self::con()->db_con->dbhScanItems()->getTableSchema()->table
+				self::con()->db_con->scans->getTable(),
+				self::con()->db_con->scan_items->getTable()
 			)
 		);
 		if ( empty( $result ) ) {

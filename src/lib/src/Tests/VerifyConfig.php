@@ -48,7 +48,6 @@ class VerifyConfig {
 
 	public function verifyCfg( ModCon $mod ) {
 		$conOpts = self::con()->opts;
-		$opts = $mod->opts();
 		foreach ( \array_keys( self::con()->cfg->configuration->options ) as $key ) {
 			$optType = $conOpts->optType( $key );
 			if ( empty( $optType ) ) {
@@ -62,7 +61,7 @@ class VerifyConfig {
 				continue;
 			}
 
-			$mVal = $opts->getOpt( $key );
+			$mVal = $conOpts->optGet( $key );
 			$valType = gettype( $mVal );
 
 			$isBroken = false;
@@ -86,7 +85,7 @@ class VerifyConfig {
 
 			if ( $isBroken ) {
 				var_dump( sprintf( '%s: opt type is %s, value is %s at "%s". Default is: %s',
-					$key, $optType, $valType, var_export( $mVal, true ), $opts->getOptDefault( $key ) ) );
+					$key, $optType, $valType, var_export( $mVal, true ), self::con()->opts->optDefault( $key ) ) );
 //				$opts->resetOptToDefault( $sKey );
 			}
 		}

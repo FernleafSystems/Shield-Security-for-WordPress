@@ -34,9 +34,9 @@ class Update {
 							ON `scans`.id = `sr`.scan_ref
 						SET %%s
 						WHERE %%s",
-			$dbCon->dbhResultItems()->getTableSchema()->table,
-			$dbCon->dbhScanResults()->getTableSchema()->table,
-			$dbCon->dbhScans()->getTableSchema()->table
+			$dbCon->scan_result_items->getTable(),
+			$dbCon->scan_results->getTable(),
+			$dbCon->scans->getTable()
 		);
 	}
 }

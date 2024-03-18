@@ -62,22 +62,13 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 	}
 
 	protected function getResponses() :array {
-		if ( self::con()->comps === null ) {
-			$count = $this->opts()->getOffenseCountFor( 'track_fakewebcrawler' );
-			$block = $this->opts()->isTrackOptImmediateBlock( 'track_fakewebcrawler' );
-		}
-		else {
-			$count = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_fakewebcrawler' );
-			$block = self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_fakewebcrawler' );
-		}
-
 		return [
 			[
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_fakewebcrawler',
-					'offense_count'    => $count,
-					'block'            => $block,
+					'offense_count'    => self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_fakewebcrawler' ),
+					'block'            => self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_fakewebcrawler' ),
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

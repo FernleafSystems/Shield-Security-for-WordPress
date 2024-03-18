@@ -162,7 +162,7 @@ class CacheDirHandler {
 					return untrailingslashit( wp_normalize_path( $path ) );
 				},
 				\array_filter( [
-					self::con()->getModule_Plugin()->opts()->getOpt( 'preferred_temp_dir' ),
+					self::con()->opts->optGet( 'preferred_temp_dir' ),
 					$this->lastKnownBaseDir,
 					WP_CONTENT_DIR,
 					path_join( ABSPATH, 'wp-content' ),

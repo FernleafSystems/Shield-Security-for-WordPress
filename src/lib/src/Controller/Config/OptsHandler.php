@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PreStore;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -114,14 +113,7 @@ class OptsHandler extends DynPropertiesClass {
 			add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 			$this->preStore();
 
-			if ( \method_exists( $this, 'values' ) ) {
-				Services::WpGeneral()->updateOption( $this->key( self::TYPE_ALL ), $this->mod_opts_all );
-			}
-			else {
-				foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
-					Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
-				}
-			}
+			Services::WpGeneral()->updateOption( $this->key( self::TYPE_ALL ), $this->mod_opts_all );
 
 			$this->postStore();
 			remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
@@ -211,14 +203,7 @@ class OptsHandler extends DynPropertiesClass {
 		$con = self::con();
 
 		// Pre-process options.
-		if ( \version_compare( $con->cfg->version(), '19.0.7', '>=' ) ) {
-			( new PreStore() )->run();
-		}
-		else {
-			foreach ( $con->modules as $mod ) {
-				$mod->opts()->preSave();
-			}
-		}
+		( new PreStore() )->run();
 
 		do_action( $con->prefix( 'pre_options_store' ) );
 
@@ -284,14 +269,7 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	private function postStore() {
-		if ( \method_exists( $this, 'optGet' ) ) {
-			$this->changes = [];
-		}
-		else {
-			foreach ( self::con()->modules as $mod ) {
-				$mod->opts()->resetChangedOpts();
-			}
-		}
+		$this->changes = [];
 	}
 
 	public function hasChanges() :bool {
@@ -446,55 +424,5 @@ class OptsHandler extends DynPropertiesClass {
 			],
 			'xfer_excluded' => [],
 		];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getFor( $mod ) :?array {
-		$opts = $this->mod_opts_free[ $mod->cfg->slug ] ?? null;
-		if ( $mod->cfg->slug !== EnumModules::LICENSE && self::con()->isPremiumActive() ) {
-			$premiumOpts = $this->mod_opts_pro[ $mod->cfg->slug ] ?? null;
-			if ( \is_array( $premiumOpts ) ) {
-				$opts = $premiumOpts;
-			}
-		}
-		return $opts;
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function setFor( $mod, array $values, ?string $type = null ) :self {
-
-		if ( $mod->cfg->slug === EnumModules::LICENSE ) {
-			$type = self::TYPE_FREE;
-		}
-		elseif ( !\in_array( $type, [ self::TYPE_PRO, self::TYPE_FREE ], true ) ) {
-			$type = self::con()->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;
-		}
-
-		$opts = $mod->opts();
-
-		if ( $type === self::TYPE_FREE ) {
-			foreach ( $mod->cfg->options as $opt ) {
-				if ( ( $opt[ 'premium' ] ?? false )
-					 && isset( $values[ $opt[ 'key' ] ] )
-					 && $values[ $opt[ 'key' ] ] !== $opts->getOptDefault( $opt[ 'key' ] )
-				) {
-					$values[ $opt[ 'key' ] ] = $opts->getOptDefault( $opt[ 'key' ] );
-				}
-			}
-		}
-
-		$allOptsValues = $this->{'mod_opts_'.$type};
-		$allOptsValues[ $mod->cfg->slug ] = $values;
-		$this->{'mod_opts_'.$type} = \array_intersect_key( $allOptsValues, self::con()->modules );
-
-		if ( $type === self::TYPE_PRO ) {
-			$this->setFor( $mod, $values, self::TYPE_FREE );
-		}
-
-		return $this;
 	}
 }

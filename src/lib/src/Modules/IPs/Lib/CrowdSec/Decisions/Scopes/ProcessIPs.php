@@ -42,7 +42,7 @@ class ProcessIPs extends ProcessBase {
 
 		$total = 0;
 
-		$ipTableName = self::con()->db_con->dbhIPs()->getTableSchema()->table;
+		$ipTableName = self::con()->db_con->ips->getTableSchema()->table;
 		$pageSize = 100;
 		do {
 			$slice = \array_splice( $this->newDecisions, 0, $pageSize );
@@ -101,7 +101,7 @@ class ProcessIPs extends ProcessBase {
 
 				// 4. Insert the new IP Rules records.
 				$DB->doSql( sprintf( 'INSERT INTO `%s` (`ip_ref`, `cidr`, `type`, `blocked_at`, `expires_at`, `updated_at`, `created_at`) VALUES %s;',
-					self::con()->db_con->dbhIPRules()->getTableSchema()->table,
+					self::con()->db_con->ip_rules->getTable(),
 					\implode( ', ', $insertValues )
 				) );
 
@@ -237,7 +237,7 @@ class ProcessIPs extends ProcessBase {
 		if ( !empty( $idsToDelete ) ) {
 			self::con()
 				->db_con
-				->dbhIPRules()
+				->ip_rules
 				->getQueryDeleter()
 				->addWhereIn( 'id', $idsToDelete )
 				->query();

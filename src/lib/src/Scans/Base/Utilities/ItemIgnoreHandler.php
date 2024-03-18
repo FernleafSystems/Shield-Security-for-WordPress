@@ -22,7 +22,7 @@ class ItemIgnoreHandler {
 
 		$updated = self::con()
 			->db_con
-			->dbhResultItems()
+			->scan_result_items
 			->getQueryUpdater()
 			->updateById( $item->VO->resultitem_id, [
 				'ignored_at' => Services::Request()->ts()

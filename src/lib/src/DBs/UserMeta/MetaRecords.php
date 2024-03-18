@@ -10,7 +10,7 @@ class MetaRecords {
 	use PluginControllerConsumer;
 
 	public function loadMeta( int $userID, bool $autoCreate = true ) :?Ops\Record {
-		$dbh = self::con()->db_con->dbhUserMeta();
+		$dbh = self::con()->db_con->user_meta;
 		/** @var Ops\Select $select */
 		$select = $dbh->getQuerySelector();
 		$record = $select->setNoOrderBy()
@@ -29,7 +29,7 @@ class MetaRecords {
 	}
 
 	public function addMeta( int $userID ) :bool {
-		$dbh = self::con()->db_con->dbhUserMeta();
+		$dbh = self::con()->db_con->user_meta;
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

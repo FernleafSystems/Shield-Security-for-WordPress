@@ -36,7 +36,7 @@ class ChartsCustom extends Base {
 			self::con()->comps->events->getEventNames(),
 			\array_flip( self::con()
 				->db_con
-				->dbhEvents()
+				->events
 				->getQuerySelector()
 				->getDistinctForColumn( 'event' ) )
 		);

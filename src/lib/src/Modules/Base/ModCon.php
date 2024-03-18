@@ -117,7 +117,7 @@ class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
-		$this->opts()->setOpt( $this->getEnableModOptKey(), $enable ? 'Y' : 'N' );
+		self::con()->opts->optSet( $this->getEnableModOptKey(), $enable ? 'Y' : 'N' );
 		return $this;
 	}
 
@@ -136,39 +136,15 @@ class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModOptEnabled() :bool {
-		return $this->opts()->isOpt( $this->getEnableModOptKey(), 'Y' );
+		return self::con()->opts->optIs( $this->getEnableModOptKey(), 'Y' );
 	}
 
 	public function getEnableModOptKey() :string {
 		return 'enable_'.$this->cfg->slug;
 	}
 
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getTextOpt( string $key ) :string {
-		$txt = $this->opts()->getOpt( $key, 'default' );
-		if ( $txt == 'default' ) {
-			$txt = $this->getTextOptDefault( $key );
-		}
-		return __( $txt, 'wp-simple-firewall' );
-	}
-
 	public function getTextOptDefault( string $key ) :string {
 		return 'Undefined Text Opt Default';
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function onConfigChanged() :void {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function saveModOptions() {
-		self::con()->opts->store();
 	}
 
 	/**
@@ -288,62 +264,5 @@ class ModCon extends DynPropertiesClass {
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
-	}
-
-	/**
-	 * @return Modules\Base\Strings|mixed
-	 * @deprecated 19.1
-	 */
-	protected function loadStrings() {
-		return $this->loadModElement( 'Strings' );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	protected function moduleReadyCheck() :bool {
-		return true;
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getMainFeatureName() :string {
-		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	protected function getNamespace() :string {
-		return ( new \ReflectionClass( $this ) )->getNamespaceName();
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	protected function getBaseNamespace() :string {
-		return __NAMESPACE__;
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? self::con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getOptionsStorageKey() :string {
-		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function name() :string {
-		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
 	}
 }

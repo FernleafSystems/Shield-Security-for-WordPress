@@ -61,7 +61,7 @@ class Counts {
 	private function getCount( $resultType ) :int {
 
 		if ( !isset( $this->counts[ $resultType ] ) ) {
-			$scansCon = $this->mod()->getScansCon();
+			$scansCon = self::con()->comps->scans;
 			$resultsCount = new RetrieveCount();
 
 			switch ( $resultType ) {

@@ -126,7 +126,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			$parts = [
 				'otp'   => $otp,
 				'nonce' => \md5( \uniqid( Services::Request()->getID() ) ),
-				'id'    => $this->opts()->getOpt( 'yubikey_app_id', '' )
+				'id'    => self::con()->opts->optGet( 'yubikey_app_id', '' )
 			];
 
 			$response = Services::HttpRequest()->getContent( URL::Build( self::URL_YUBIKEY_VERIFY, $parts ) );
@@ -170,11 +170,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			$deleted = false;
 			foreach ( $this->loadMfaRecords() as $record ) {
 				if ( $keyID === $record->unique_id ) {
-					self::con()
-						->db_con
-						->dbhMfa()
-						->getQueryDeleter()
-						->deleteRecord( $record );
+					self::con()->db_con->mfa->getQueryDeleter()->deleteRecord( $record );
 					$deleted = true;
 					break;
 				}
@@ -235,11 +231,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			'description' => __( 'Use your Yubikey to generate a new code', 'wp-simple-firewall' ),
 			'help_link'   => 'https://shsec.io/4i'
 		];
-	}
-
-	public function isProviderEnabled() :bool {
-		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
-			$this->opts()->isOpt( 'enable_yubikey', 'Y' );
 	}
 
 	public static function ProviderName() :string {

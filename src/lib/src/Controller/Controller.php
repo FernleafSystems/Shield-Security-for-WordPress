@@ -18,9 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Autoupdates,
 	Base,
 	CommentsFilter,
-	Comms,
 	Data,
-	Events,
 	Firewall,
 	HackGuard,
 	Headers,
@@ -73,8 +71,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                   $base_file
  * @property string                                   $root_file
  * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
- * @property Shield\Utilities\MU\MUHandler            $mu_handler
- * @property Shield\Events\EventsService              $service_events
  * @property Shield\Users\UserMetas                   $user_metas
  * @property Base\ModCon[]|mixed                      $modules
  * @property Shield\Crons\HourlyCron                  $cron_hourly
@@ -89,7 +85,7 @@ class Controller extends DynPropertiesClass {
 	public static $oInstance;
 
 	public function fireEvent( string $event, array $meta = [] ) :self {
-		$this->service_events->fireEvent( $event, $meta );
+		$this->comps->events->fireEvent( $event, $meta );
 		return $this;
 	}
 
@@ -154,9 +150,8 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'service_events':
-				if ( empty( $val ) ) {
-					$this->service_events = $val = ( $this->comps === null ? new Shield\Events\EventsService() : $this->comps->events );
-				}
+				/** @deprecated 19.2 */
+				$this->comps->events;
 				break;
 
 			case 'admin_notices':
@@ -244,12 +239,6 @@ class Controller extends DynPropertiesClass {
 				if ( $val === null ) {
 					$val = ( new Shield\Controller\Modes\StagingMode() )->isModeActive();
 					$this->is_mode_staging = $val;
-				}
-				break;
-
-			case 'mu_handler':
-				if ( $val === null ) {
-					$this->mu_handler = $val = new Shield\Utilities\MU\MUHandler();
 				}
 				break;
 
@@ -704,7 +693,7 @@ class Controller extends DynPropertiesClass {
 
 	public function isPremiumActive() :bool {
 		return isset( $this->modules[ EnumModules::LICENSE ] )
-			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
+			   && $this->comps->license->hasValidWorkingLicense();
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
@@ -732,83 +721,40 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @return Base\ModCon|null|mixed
+	 * @deprecated 19.2
 	 */
 	public function getModule( string $slug ) {
 		return $this->modules[ $slug ] ?? null;
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getModule_AuditTrail() :AuditTrail\ModCon {
 		return $this->modules[ EnumModules::ACTIVITY ];
 	}
 
 	/**
-	 * @deprecated 19.1
+	 * @deprecated 19.2
 	 */
-	public function getModule_Autoupdates() :Autoupdates\ModCon {
-		return $this->modules[ EnumModules::AUTOUPDATES ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Comments() :CommentsFilter\ModCon {
-		return $this->modules[ EnumModules::COMMENTS ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Comms() :Comms\ModCon {
-		return $this->getModule( Comms\ModCon::SLUG );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Data() :Data\ModCon {
-		return $this->modules[ EnumModules::DATA ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Events() :Events\ModCon {
-		return $this->getModule( Events\ModCon::SLUG );
-	}
-
 	public function getModule_Firewall() :Firewall\ModCon {
 		return $this->modules[ EnumModules::FIREWALL ];
 	}
 
 	/**
-	 * @deprecated 19.1
+	 * @deprecated 19.2
 	 */
-	public function getModule_Lockdown() :Lockdown\ModCon {
-		return $this->modules[ EnumModules::LOCKDOWN ];
-	}
-
 	public function getModule_HackGuard() :HackGuard\ModCon {
 		return $this->modules[ EnumModules::SCANS ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Headers() :Headers\ModCon {
-		return $this->modules[ EnumModules::HEADERS ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Integrations() :Integrations\ModCon {
-		return $this->modules[ EnumModules::INTEGRATIONS ];
 	}
 
 	public function getModule_IPs() :IPs\ModCon {
 		return $this->modules[ EnumModules::IPS ];
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getModule_License() :License\ModCon {
 		return $this->modules[ EnumModules::LICENSE ];
 	}
@@ -821,22 +767,11 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::PLUGIN ];
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
 		return $this->modules[ EnumModules::SECURITY_ADMIN ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Traffic() :Traffic\ModCon {
-		return $this->modules[ EnumModules::TRAFFIC ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_UserManagement() :UserManagement\ModCon {
-		return $this->modules[ EnumModules::USERS ];
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {

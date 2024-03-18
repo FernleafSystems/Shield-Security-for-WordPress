@@ -131,11 +131,4 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	public function displayModuleAdminPage() {
 		echo self::con()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
 	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	private function getPrimaryMenuSlug() :string {
-		return self::con()->prefix( self::con()->getModule_Plugin()->cfg->slug );
-	}
 }

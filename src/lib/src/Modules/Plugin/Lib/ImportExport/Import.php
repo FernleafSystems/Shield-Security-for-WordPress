@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Import {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -223,7 +223,7 @@ class Import {
 		$opts->store();
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
-			$dbh = self::con()->db_con->dbhIPRules();
+			$dbh = self::con()->db_con->ip_rules;
 			$now = Services::Request()->ts();
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {

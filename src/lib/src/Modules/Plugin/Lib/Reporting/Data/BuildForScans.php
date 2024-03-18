@@ -28,10 +28,7 @@ class BuildForScans extends BuildBase {
 
 	private function buildForRepairs() :array {
 		/** @var EventsDB\Select $selectorEvents */
-		$selectorEvents = self::con()
-			->db_con
-			->dbhEvents()
-			->getQuerySelector();
+		$selectorEvents = self::con()->db_con->events->getQuerySelector();
 
 		$repairs = [];
 		foreach ( [ 'scan_item_repair_success', 'scan_item_delete_success', /*'scan_item_repair_fail'*/ ] as $event ) {
@@ -41,7 +38,7 @@ class BuildForScans extends BuildBase {
 
 			if ( $eventTotal > 0 ) {
 				/** @var LogsDB\Select $logSelect */
-				$logSelect = self::con()->db_con->dbhActivityLogs()->getQuerySelector();
+				$logSelect = self::con()->db_con->activity_logs->getQuerySelector();
 				/** @var LogsDB\Record[] $logs */
 				$logIDs = \array_map(
 					function ( $log ) {
@@ -54,7 +51,7 @@ class BuildForScans extends BuildBase {
 				);
 
 				/** @var MetaDB\Select $metaSelect */
-				$metaSelect = self::con()->db_con->dbhActivityLogsMeta()->getQuerySelector();
+				$metaSelect = self::con()->db_con->activity_logs_meta->getQuerySelector();
 
 				$repairs[ $event ] = [
 					'name'    => self::con()->comps->events->getEventName( $event ),

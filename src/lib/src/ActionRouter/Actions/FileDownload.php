@@ -56,7 +56,7 @@ class FileDownload extends BaseAction {
 
 			case 'db_ip':
 				$fileDetails = ( new DbTableExport() )
-					->setDbH( $con->db_con->dbhIPRules() )
+					->setDbH( $con->db_con->ip_rules )
 					->toCSV();
 				break;
 

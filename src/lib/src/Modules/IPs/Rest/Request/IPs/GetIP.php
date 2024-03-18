@@ -87,7 +87,7 @@ class GetIP extends Base {
 
 		$info = [];
 		if ( !empty( $ip ) ) {
-			$dbh = self::con()->db_con->dbhIPRules();
+			$dbh = self::con()->db_con->ip_rules;
 			$info = [
 				'type'           => $dbh::GetTypeName( $ip->type ),
 				'offenses'       => $ruleStatus->getOffenses(),

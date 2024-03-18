@@ -262,8 +262,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return ( \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
-				$this->opts()->isOpt( 'enable_passkeys', 'Y' ) ) && ( new PasskeyCompatibilityCheck() )->run();
+		return static::ProviderEnabled() && ( new PasskeyCompatibilityCheck() )->run();
 	}
 
 	public static function ProviderName() :string {

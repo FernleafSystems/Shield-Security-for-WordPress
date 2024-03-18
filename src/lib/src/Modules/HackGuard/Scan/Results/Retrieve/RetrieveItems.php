@@ -91,14 +91,14 @@ class RetrieveItems extends RetrieveBase {
 					INNER JOIN `%s` as `sr`
 						ON `sr`.`scan_ref` = `scans`.`id` AND `sr`.`id` = %s 
 					LIMIT 1;",
-			self::con()->db_con->dbhScans()->getTableSchema()->table,
-			self::con()->db_con->dbhScanResults()->getTableSchema()->table,
+			self::con()->db_con->scans->getTable(),
+			self::con()->db_con->scan_results->getTable(),
 			$scanResultID
 		) );
 		if ( empty( $scan ) ) {
 			throw new \Exception( sprintf( 'Could not determine scan type from the scan result ID %s.', $scanResultID ) );
 		}
-		$this->setScanController( $this->mod()->getScansCon()->getScanCon( $scan ) );
+		$this->setScanController( self::con()->comps->scans->getScanCon( $scan ) );
 
 		$query = $this
 			->addWheres( [
@@ -203,23 +203,26 @@ class RetrieveItems extends RetrieveBase {
 
 		$this->addMetaToResults( $scanResults );
 
-		$scansCon = $con->comps === null ? $con->getModule_HackGuard()->getScansCon() : $con->comps->scans;
 		foreach ( $scanResults as $vo ) {
 
 			// we haven't specified a type of scan, so we're collecting all results.
 			if ( empty( $workingScan ) ) {
 				foreach ( $vo->meta as $scanSlug => $scanMeta ) {
-					$item = $scansCon->getScanCon( $vo->scan )
-									 ->getNewResultItem()
-									 ->applyFromArray( $vo->meta );
+					$item = $con->comps
+						->scans
+						->getScanCon( $vo->scan )
+						->getNewResultItem()
+						->applyFromArray( $vo->meta );
 					$item->VO = $vo;
 					$resultsSet->addItem( $item );
 				}
 			}
 			elseif ( !empty( $vo->scan ) ) {
-				$item = $scansCon->getScanCon( $workingScan )
-								 ->getNewResultItem()
-								 ->applyFromArray( $vo->meta );
+				$item = $con->comps
+					->scans
+					->getScanCon( $workingScan )
+					->getNewResultItem()
+					->applyFromArray( $vo->meta );
 				$item->VO = $vo;
 				$resultsSet->addItem( $item );
 			}
@@ -241,7 +244,7 @@ class RetrieveItems extends RetrieveBase {
 				}, $resultsSlice );
 
 				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Select $rimSelector */
-				$rimSelector = self::con()->db_con->dbhResultItemMeta()->getQuerySelector();
+				$rimSelector = self::con()->db_con->scan_result_item_meta->getQuerySelector();
 				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Record[] $metas */
 				$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
@@ -272,12 +275,12 @@ class RetrieveItems extends RetrieveBase {
 						%s
 						%s
 						%s;",
-			$dbCon->dbhScanResults()->getTableSchema()->table,
-			$dbCon->dbhScans()->getTableSchema()->table,
-			$dbCon->dbhResultItems()->getTableSchema()->table,
+			$dbCon->scan_results->getTable(),
+			$dbCon->scans->getTable(),
+			$dbCon->scan_result_items->getTable(),
 			$joinWithResultMeta ?
 				sprintf( 'INNER JOIN `%s` as %s ON %s.`ri_ref` = `ri`.id',
-					$dbCon->dbhResultItemMeta()->getTableSchema()->table,
+					$dbCon->scan_result_item_meta->getTable(),
 					self::ABBR_RESULTITEMMETA,
 					self::ABBR_RESULTITEMMETA
 				) : '',

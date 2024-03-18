@@ -44,11 +44,6 @@ class RequestIsPathWhitelisted extends Base {
 		if ( empty( $homeUrlPath ) ) {
 			$homeUrlPath = '/';
 		}
-		$whitelist = [];
-		if ( self::con()->isPremiumActive() ) {
-			$whitelist = \method_exists( self::con()->opts, 'optGet' ) ? self::con()->opts->optGet( 'request_whitelist' )
-			: $this->opts()->getOpt( 'request_whitelist', [] );
-		}
 		return \array_map(
 			function ( $value ) use ( $homeUrlPath ) {
 				$regEx = ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH, false );
@@ -57,7 +52,7 @@ class RequestIsPathWhitelisted extends Base {
 				}
 				return '#^'.$regEx.'#i';
 			},
-			$whitelist
+			self::con()->isPremiumActive() ? self::con()->opts->optGet( 'request_whitelist' ) : []
 		);
 	}
 }

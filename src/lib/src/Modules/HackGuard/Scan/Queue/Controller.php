@@ -35,7 +35,7 @@ class Controller {
 	 * @return bool[]
 	 */
 	public function getScansRunningStates() :array {
-		$scans = \array_fill_keys( $this->mod()->getScansCon()->getScanSlugs(), false );
+		$scans = \array_fill_keys( self::con()->comps->scans->getScanSlugs(), false );
 		foreach ( ( new ScansStatus() )->enqueued() as $enqueued ) {
 			$scans[ $enqueued ] = true;
 		}
@@ -54,7 +54,7 @@ class Controller {
 	 */
 	public function getScanJobProgress() {
 		/** @var ScanItemsDB\Select $selector */
-		$selector = self::con()->db_con->dbhScanItems()->getQuerySelector();
+		$selector = self::con()->db_con->scan_items->getQuerySelector();
 
 		$countsAll = $selector->countAllForEachScan();
 		$countsUnfinished = $selector->countUnfinishedForEachScan();
@@ -74,13 +74,7 @@ class Controller {
 	}
 
 	public function hasRunningScans() :bool {
-		if ( self::con()->comps === null ) {
-			$toBuild = $this->opts()->getScansToBuild();
-		}
-		else {
-			$toBuild = self::con()->comps->scans->getScansToBuild();
-		}
-		return \count( $this->getRunningScans() ) > 0 || \count( $toBuild ) > 0;
+		return \count( $this->getRunningScans() ) > 0 || \count( self::con()->comps->scans->getScansToBuild() ) > 0;
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {

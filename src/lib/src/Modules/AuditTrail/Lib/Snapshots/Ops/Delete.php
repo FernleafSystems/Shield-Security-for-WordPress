@@ -11,7 +11,7 @@ class Delete {
 
 	public function delete( string $slug ) :bool {
 		/** @var SnapshotDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhSnapshots()->getQueryDeleter();
+		$deleter = self::con()->db_con->activity_snapshots->getQueryDeleter();
 		return $deleter->filterBySlug( $slug )->query();
 	}
 }

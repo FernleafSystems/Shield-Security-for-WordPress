@@ -36,7 +36,7 @@ class BuildSearchPanesData {
 	private function buildForDay() :array {
 		$first = self::con()
 			->db_con
-			->dbhActivityLogs()
+			->activity_logs
 			->getQuerySelector()
 			->setOrderBy( 'created_at', 'ASC' )
 			->first();
@@ -88,9 +88,9 @@ class BuildSearchPanesData {
 							ON `ips`.`id` = `req`.`ip_ref` 
 				',
 				$select,
-				$dbCon->dbhActivityLogs()->getTableSchema()->table,
-				$dbCon->dbhReqLogs()->getTableSchema()->table,
-				$dbCon->dbhIPs()->getTableSchema()->table
+				$dbCon->activity_logs->getTableSchema()->table,
+				$dbCon->req_logs->getTableSchema()->table,
+				$dbCon->ips->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];

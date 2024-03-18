@@ -10,20 +10,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	public const SLUG = 'audit_trail';
 
 	/**
-	 * @var Lib\AuditCon
-	 * @deprecated 19.1
-	 */
-	private $auditCon;
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getAuditCon() :Lib\AuditCon {
-		return self::con()->comps !== null ? self::con()->comps->activity_log :
-			( $this->auditCon ?? $this->auditCon = new Lib\AuditCon() );
-	}
-
-	/**
 	 * TODO: This requires some fairly convoluted SQL to pick out records for a specific user in an efficient manner
 	 * @param array  $exportItems
 	 * @param string $email
@@ -84,7 +70,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		try {
 			$user = Services::WpUsers()->getUserByEmail( $email );
 			if ( !empty( $user ) ) {
-				$deleter = self::con()->db_con->dbhActivityLogsMeta()->getQueryDeleter();
+				$deleter = self::con()->db_con->activity_logs_meta->getQueryDeleter();
 				$deleter->addWhereEquals( 'meta_key', 'uid' )
 						->addWhereEquals( 'meta_data', $user->ID )
 						->query();
@@ -100,26 +86,5 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		catch ( \Exception $e ) {
 		}
 		return $data;
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_logs' );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getDbH_Meta() :DB\Meta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_meta' );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'snapshots' );
 	}
 }

@@ -21,7 +21,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoHourly( string $event ) {
-		$dbh = self::con()->db_con->dbhEvents();
+		$dbh = self::con()->db_con->events;
 
 		$time = Services::Request()
 						->carbon()
@@ -68,7 +68,7 @@ class ConsolidateAllEvents {
 	 * Processes event for the 7 days previous to the last 48 hours.
 	 */
 	protected function consolidateEventIntoDaily( string $event ) {
-		$dbh = self::con()->db_con->dbhEvents();
+		$dbh = self::con()->db_con->events;
 
 		$time = Services::Request()
 						->carbon()
@@ -114,7 +114,7 @@ class ConsolidateAllEvents {
 	 * Processes event for the previous 8 weeks.
 	 */
 	protected function consolidateEventIntoWeekly( string $event ) {
-		$dbh = self::con()->db_con->dbhEvents();
+		$dbh = self::con()->db_con->events;
 
 		$time = Services::Request()
 						->carbon()
@@ -156,7 +156,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoMonthly( string $event ) {
-		$dbh = self::con()->db_con->dbhEvents();
+		$dbh = self::con()->db_con->events;
 
 		$time = Services::Request()
 						->carbon()
@@ -198,7 +198,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoYearly( string $event ) {
-		$dbh = self::con()->db_con->dbhEvents();
+		$dbh = self::con()->db_con->events;
 
 		$time = Services::Request()
 						->carbon()
@@ -247,7 +247,7 @@ class ConsolidateAllEvents {
 	 */
 	protected function getAllEvents() :array {
 		/** @var EventsDB\Select $select */
-		$select = self::con()->db_con->dbhEvents()->getQuerySelector();
+		$select = self::con()->db_con->events->getQuerySelector();
 		return \array_filter(
 			$select->getAllEvents(),
 			function ( $event ) {

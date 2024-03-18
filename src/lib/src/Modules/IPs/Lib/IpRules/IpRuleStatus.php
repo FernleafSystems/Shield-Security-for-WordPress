@@ -95,9 +95,7 @@ class IpRuleStatus {
 
 		if ( \count( $rules ) === 1 ) {
 			$record = \current( $rules );
-			$ttl = self::con()->comps === null ? $this->opts()->getAutoExpireTime()
-				: self::con()->comps->opts_lookup->getIpAutoBlockTTL();
-			if ( $record->last_access_at < ( Services::Request()->ts() - $ttl ) ) {
+			if ( $record->last_access_at < ( Services::Request()->ts() - self::con()->comps->opts_lookup->getIpAutoBlockTTL() ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
@@ -282,7 +280,7 @@ class IpRuleStatus {
 
 		$records = [];
 
-		if ( self::con()->db_con->dbhIPRules()->isReady() ) {
+		if ( self::con()->db_con->ip_rules->isReady() ) {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [

@@ -10,13 +10,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
 class ReportGenerator {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function auto() {
 		$reports = [];
@@ -102,7 +102,7 @@ class ReportGenerator {
 		}
 
 		/** @var ReportsDB\Record $record */
-		$record = $con->db_con->dbhReports()->getRecord();
+		$record = $con->db_con->reports->getRecord();
 		$record->interval_start_at = $report->start_at;
 		$record->interval_end_at = $report->end_at;
 		$record->interval_length = $report->interval ?? 'custom';
@@ -111,7 +111,8 @@ class ReportGenerator {
 		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;
 		$record->title = $report->title;
 		$record->content = \function_exists( '\gzdeflate' ) ? \gzdeflate( $report->content ) : $report->content;
-		$con->db_con->dbhReports()->getQueryInserter()->insert( $record );
+
+		$con->db_con->reports->getQueryInserter()->insert( $record );
 
 		$con->fireEvent( 'report_generated', [
 			'audit_params' => [
@@ -184,7 +185,7 @@ class ReportGenerator {
 		$con = self::con();
 
 		/** @var FileLockerDB\Update $updater */
-		$updater = $con->db_con->dbhFileLocker()->getQueryUpdater();
+		$updater = $con->db_con->file_locker->getQueryUpdater();
 		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
 			$updater->markNotified( $record );
 		}
@@ -192,7 +193,7 @@ class ReportGenerator {
 
 		// Standard Scan Results
 		$con->db_con
-			->dbhResultItems()
+			->scan_result_items
 			->getQueryUpdater()
 			->setUpdateWheres( [
 				'notified_at' => 0,

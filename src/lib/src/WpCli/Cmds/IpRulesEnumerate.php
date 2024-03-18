@@ -28,7 +28,7 @@ class IpRulesEnumerate extends IpRulesBase {
 	}
 
 	public function runCmd() :void {
-		$dbh = self::con()->db_con->dbhIPRules();
+		$dbh = self::con()->db_con->ip_rules;
 
 		try {
 			$this->checkList( $this->execCmdArgs[ 'list' ] );

@@ -63,45 +63,10 @@ class InsertNotBotJs {
 
 	private function isFreshSignalRequired() :bool {
 		$req = Services::Request();
-
-		if ( self::con()->comps === null ) {
-			$lastAt = self::con()
-						  ->getModule_IPs()
-						  ->getBotSignalsController()
-						  ->getHandlerNotBot()
-						  ->getLastNotBotSignalAt();
-		}
-		else {
-			$lastAt = self::con()->comps->not_bot->getLastNotBotSignalAt();
-		}
-
 		return $req->query( 'force_notbot' ) == 1 ||
 			   (
-				   ( $req->ts() - $lastAt > \MINUTE_IN_SECONDS*30 )
+				   ( $req->ts() - self::con()->comps->not_bot->getLastNotBotSignalAt() > \MINUTE_IN_SECONDS*30 )
 				   && Services::IP()->getIpDetector()->getIPIdentity() !== 'gtmetrix'
 			   );
-	}
-
-	/**
-	 * Looks for the presence of certain caching plugins and forces notbot to load.
-	 */
-	private function isForcedForOptimisationPlugins() :bool {
-		return (bool)apply_filters(
-			'shield/notbot_force_load',
-			$this->opts()->isOpt( 'force_notbot', 'Y' )
-			||
-			!empty( \array_intersect(
-				\array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
-				[
-					'breeze.php',
-					'wpFastestCache.php',
-					'wp-cache.php', // Super Cache
-					'wp-hummingbird.php',
-					'sg-cachepress.php',
-					'autoptimize.php',
-					'wp-optimize.php',
-				]
-			) ) > 0
-		);
 	}
 }

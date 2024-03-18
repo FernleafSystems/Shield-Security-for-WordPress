@@ -5,13 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Export {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run( string $method ) {
 		try {
@@ -119,7 +119,7 @@ class Export {
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type`='%s'", self::con()->db_con->dbhIPRules()::T_MANUAL_BYPASS ),
+				sprintf( "`ir`.`type`='%s'", self::con()->db_con->ip_rules::T_MANUAL_BYPASS ),
 				"`ir`.`can_export`='1'"
 			];
 			$loader->limit = 100;

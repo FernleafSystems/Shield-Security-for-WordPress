@@ -9,16 +9,12 @@ class AssessLocks extends BaseOps {
 
 	public function run() {
 		/** @var FileLockerDB\Update $updater */
-		$updater = self::con()->db_con->dbhFileLocker()->getQueryUpdater();
+		$updater = self::con()->db_con->file_locker->getQueryUpdater();
 
 		$this->removeDuplicates();
 
 		$locksChanged = false;
-		foreach ( $this->mod()->getFileLocker()->getLocks() as $lock ) {
-			/** @deprecated 19.1 */
-			if ( !$lock instanceof FileLockerDB\Record ) {
-				continue;
-			}
+		foreach ( self::con()->comps->file_locker->getLocks() as $lock ) {
 			try {
 				if ( ( new CompareHash() )->isEqualFileSha1( $lock->path, $lock->hash_original ) ) {
 					if ( !empty( $lock->hash_current ) ) {
@@ -41,13 +37,13 @@ class AssessLocks extends BaseOps {
 		}
 
 		if ( $locksChanged ) {
-			$this->mod()->getFileLocker()->clearLocks();
+			self::con()->comps->file_locker->clearLocks();
 		}
 	}
 
 	private function removeDuplicates() {
 		$paths = [];
-		foreach ( $this->mod()->getFileLocker()->getLocks() as $lock ) {
+		foreach ( self::con()->comps->file_locker->getLocks() as $lock ) {
 			if ( \in_array( $lock->path, $paths ) ) {
 				( new DeleteFileLock() )->delete( $lock );
 			}

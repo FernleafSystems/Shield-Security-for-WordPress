@@ -77,7 +77,7 @@ class GetRequestMeta {
 		$meta = [];
 		if ( !empty( $RID ) ) {
 			/** @var Ops\Select $selector */
-			$selector = self::con()->db_con->dbhReqLogs()->getQuerySelector();
+			$selector = self::con()->db_con->req_logs->getQuerySelector();
 			$record = $selector->filterByReqID( $RID )->first();
 			if ( !empty( $record ) ) {
 				$meta = \array_merge( $record->meta, $record->getRawData() );

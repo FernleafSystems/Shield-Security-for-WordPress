@@ -42,7 +42,7 @@ class BlockdownFormSubmit extends BaseAction {
 
 			$ruleLoader = new LoadIpRules();
 			$ruleLoader->wheres = [
-				sprintf( "`ir`.`type`='%s'", $con->db_con->dbhIPRules()::T_MANUAL_BYPASS )
+				sprintf( "`ir`.`type`='%s'", $con->db_con->ip_rules::T_MANUAL_BYPASS )
 			];
 			if ( $ruleLoader->countAll() === 0 ) {
 				throw new \Exception( 'There are no whitelisted IPs for exclusion.' );

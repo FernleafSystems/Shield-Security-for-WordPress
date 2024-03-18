@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
 abstract class BaseHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private static $isBot = null;
 
@@ -50,15 +50,7 @@ abstract class BaseHandler {
 
 	protected function isBot() :bool {
 		if ( \is_null( self::$isBot ) ) {
-			if ( self::con()->comps === null ) {
-				self::$isBot = self::con()
-								   ->getModule_IPs()
-								   ->getBotSignalsController()
-								   ->isBot( self::con()->this_req->ip );
-			}
-			else {
-				self::$isBot = self::con()->comps->bot_signals->isBot( self::con()->this_req->ip );
-			}
+			self::$isBot = self::con()->comps->bot_signals->isBot( self::con()->this_req->ip );
 			$this->fireBotEvent();
 		}
 		return self::$isBot;

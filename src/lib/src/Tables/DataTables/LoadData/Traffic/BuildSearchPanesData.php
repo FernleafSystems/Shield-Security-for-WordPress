@@ -33,7 +33,7 @@ class BuildSearchPanesData {
 	private function buildForDay() :array {
 		$first = self::con()
 			->db_con
-			->dbhReqLogs()
+			->req_logs
 			->getQuerySelector()
 			->setOrderBy( 'created_at', 'ASC' )
 			->first();
@@ -117,7 +117,7 @@ class BuildSearchPanesData {
 		$results = Services::WpDb()->selectCustom( sprintf( 'SELECT %s',
 				\implode( ', ', \array_map( function ( $col ) {
 					return sprintf( '(SELECT group_concat(DISTINCT %s) FROM %s) as %s',
-						$col, self::con()->db_con->dbhReqLogs()->getTableSchema()->table, $col );
+						$col, self::con()->db_con->req_logs->getTableSchema()->table, $col );
 				}, $columns ) ) )
 		);
 		return empty( $results ) ? [] : \array_filter( $results[ 0 ] );

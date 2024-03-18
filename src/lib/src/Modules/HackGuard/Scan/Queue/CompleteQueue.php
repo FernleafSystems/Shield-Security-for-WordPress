@@ -13,7 +13,7 @@ class CompleteQueue {
 	public function complete() {
 		$con = self::con();
 		/** @var ScanItemsDB\Delete $deleter */
-		$deleter = $con->db_con->dbhScanItems()->getQueryDeleter();
+		$deleter = $con->db_con->scan_items->getQueryDeleter();
 		$deleter->filterByFinished()->query();
 
 		if ( $con->opts->optGet( 'is_scan_cron' ) && !wp_next_scheduled( $con->prefix( 'post_scan' ) ) ) {

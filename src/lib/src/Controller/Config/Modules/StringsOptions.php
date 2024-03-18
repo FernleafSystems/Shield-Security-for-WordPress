@@ -1086,8 +1086,7 @@ class StringsOptions {
 				$summary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
 				$desc = [
 					__( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),
-						$con->getModule_LoginGuard()->getTextOptDefault( 'text_imahuman' ) )
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( "I'm a human.", 'wp-simple-firewall' ) )
 				];
 				break;
 			case 'text_pleasecheckbox' :
@@ -1095,8 +1094,7 @@ class StringsOptions {
 				$summary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
 				$desc = [
 					__( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),
-						$con->getModule_LoginGuard()->getTextOptDefault( 'text_pleasecheckbox' ) )
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),  __( "Please check the box to show us you're a human.", 'wp-simple-firewall' ) )
 				];
 				break;
 

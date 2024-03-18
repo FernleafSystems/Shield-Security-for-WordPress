@@ -5,13 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\SendPluginTelemetry;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginTelemetry {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function collectAndSend( bool $forceSend = false ) {
 		if ( $forceSend || $this->canSend() ) {
@@ -46,7 +46,7 @@ class PluginTelemetry {
 
 		if ( !empty( $data[ 'events' ] ) ) {
 			/** @var EventsDB\Select $select */
-			$select = self::con()->db_con->dbhEvents()->getQuerySelector();
+			$select = self::con()->db_con->events->getQuerySelector();
 			$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
 		}
 

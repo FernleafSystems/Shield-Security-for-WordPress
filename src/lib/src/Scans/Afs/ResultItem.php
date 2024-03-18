@@ -86,7 +86,7 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
 			$this->record = self::con()
 				->db_con
-				->dbhMalware()
+				->malware
 				->getQuerySelector()
 				->byId( $this->malware_record_id );
 		}

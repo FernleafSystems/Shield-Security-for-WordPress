@@ -8,11 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelem
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetTracking;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Plugin,
-	PluginControllerConsumer,
-	SecurityAdmin
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
 
@@ -184,10 +181,8 @@ class Controller {
 
 	protected function preProcessNotice( NoticeVO $notice ) {
 		$con = self::con();
-		/** @var Plugin\Options $opts */
-		$opts = $con->getModule_Plugin()->opts();
 
-		$installedAt = $con->getModule_Plugin()->getInstallDate();
+		$installedAt = $con->comps->opts_lookup->getInstalledAt();
 		if ( empty( $installedAt ) ) {
 			return 0;
 		}
@@ -196,7 +191,7 @@ class Controller {
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
 		}
-		elseif ( $notice->type == 'promo' && !$opts->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
+		elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
 			$notice->non_display_reason = 'promo_hidden';
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
@@ -232,9 +227,7 @@ class Controller {
 	private function isNoticeDismissed( NoticeVO $notice ) :bool {
 		$dismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
 
-		$at = ( ( \method_exists( $this, 'getDismissed' ) ?
-				$this->getDismissed() :
-				self::con()->getModule_Plugin()->getDismissedNotices() )[ $notice->id ] ?? 0 ) > 0;
+		$at = ( $this->getDismissed()[ $notice->id ] ?? 0 ) > 0;
 
 		if ( !$notice->per_user && $dismissedUser && !$at ) {
 			$this->setNoticeDismissed( $notice );
@@ -430,7 +423,7 @@ class Controller {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->modCfg( $con->getModule_SecAdmin() ),
+					$con->plugin_urls->modCfg( EnumModules::SECURITY_ADMIN ),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
 				)
@@ -456,7 +449,7 @@ class Controller {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->modCfg( $con->getModule_SecAdmin() ),
+					$con->plugin_urls->modCfg( EnumModules::SECURITY_ADMIN ),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
 				)
@@ -466,9 +459,6 @@ class Controller {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$con = self::con();
-		if ( !\method_exists( $con->opts, 'optGet' ) ) {
-			return false;
-		}
 		switch ( $notice->id ) {
 			case 'override-forceoff':
 				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
@@ -484,20 +474,12 @@ class Controller {
 						  && $con->opts->optGet( 'email_can_send_verified_at' ) < 1;
 				break;
 			case 'admin-users-restricted':
-				/** @var SecurityAdmin\Options $opts */
-				$opts = $con->getModule_SecAdmin()->opts();
-				$needed = \in_array( Services::WpPost()->getCurrentPage(), $opts->getDef( 'restricted_pages_users' ) );
+				$needed = \in_array( Services::WpPost()
+											 ->getCurrentPage(), self::con()->cfg->configuration->def( 'restricted_pages_users' ) );
 				break;
 			case 'certain-options-restricted':
-				if ( $con->comps === null ) {
-					/** @var SecurityAdmin\Options $opts */
-					$opts = $con->getModule_SecAdmin()->opts();
-					$restricted = $opts->getOptionsPagesToRestrict();
-				}
-				else {
-					$def = $con->cfg->configuration->def( 'options_to_restrict' );
-					$restricted = $def[ ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages' ] ?? [];
-				}
+				$def = $con->cfg->configuration->def( 'options_to_restrict' );
+				$restricted = $def[ ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages' ] ?? [];
 				$needed = empty( Services::Request()->query( 'page' ) )
 						  && \in_array( Services::WpPost()->getCurrentPage(), $restricted );
 				break;

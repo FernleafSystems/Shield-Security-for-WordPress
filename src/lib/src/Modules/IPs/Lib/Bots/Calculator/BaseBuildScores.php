@@ -41,11 +41,7 @@ abstract class BaseBuildScores {
 				return \str_replace( '_at', '', $col );
 			},
 			\array_filter(
-				self::con()
-					->db_con
-					->dbhBotSignal()
-					->getTableSchema()
-					->getColumnNames(),
+				self::con()->db_con->bot_signals->getTableSchema()->getColumnNames(),
 				function ( $col ) {
 					return \preg_match( '#_at$#', $col ) &&
 						   !\in_array( $col, [ 'snsent_at', 'updated_at', 'deleted_at' ] );

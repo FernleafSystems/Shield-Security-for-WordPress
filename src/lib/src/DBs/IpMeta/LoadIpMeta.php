@@ -39,6 +39,6 @@ class LoadIpMeta extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\Bas
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return self::con()->db_con->dbhIPMeta()->getTableSchema();
+		return self::con()->db_con->ip_meta->getTableSchema();
 	}
 }

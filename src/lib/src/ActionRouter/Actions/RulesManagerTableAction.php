@@ -42,7 +42,7 @@ class RulesManagerTableAction extends BaseAction {
 						$updateData = [];
 						switch ( $action ) {
 							case 'delete':
-								$con->db_con->dbhRules()->getQueryDeleter()->deleteRecord( $rule );
+								$con->db_con->rules->getQueryDeleter()->deleteRecord( $rule );
 								$msg = __( 'Rule deleted', 'wp-simple-firewall' );
 								break;
 							case 'activate':
@@ -69,9 +69,8 @@ class RulesManagerTableAction extends BaseAction {
 						$response[ 'success' ] = true;
 
 						if ( !empty( $updateData ) ) {
-							$response[ 'success' ] = $con->db_con->dbhRules()
-																 ->getQueryUpdater()
-																 ->updateRecord( $rule, $updateData );
+							$response[ 'success' ] = $con->db_con->rules->getQueryUpdater()
+																		->updateRecord( $rule, $updateData );
 						}
 					}
 					else {

@@ -112,8 +112,7 @@ abstract class BaseRender extends BaseAction {
 
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
-		$isWhitelabelled = ( $con->comps === null ?
-			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
+		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
 			'unique_render_id' => uniqid(),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),

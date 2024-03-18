@@ -6,13 +6,13 @@ use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaController {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * These values MUST align with the option 'mfa_verify_page'

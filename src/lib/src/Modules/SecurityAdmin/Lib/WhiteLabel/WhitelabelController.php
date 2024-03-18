@@ -10,6 +10,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class WhitelabelController {
 
 	use ExecOnce;
+
+	/**
+	 * @deprecated 19.2
+	 */
 	use ModConsumer;
 
 	protected function canRun() :bool {
@@ -26,7 +30,7 @@ class WhitelabelController {
 		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 
-		if ( $this->opts()->isOpt( 'wl_hide_updates', 'Y' ) && is_admin()
+		if ( self::con()->opts->optIs( 'wl_hide_updates', 'Y' ) && is_admin()
 			 && !Services::WpGeneral()->isCron() && !$con->isPluginAdmin() ) {
 
 			if ( \in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
@@ -39,28 +43,28 @@ class WhitelabelController {
 	}
 
 	public function applyWhiteLabels( Labels $labels ) :Labels {
-		$opts = $this->opts();
+		$opts = self::con()->opts;
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
-		$name = $opts->getOpt( 'wl_pluginnamemain' );
+		$name = $opts->optGet( 'wl_pluginnamemain' );
 		if ( !empty( $name ) ) {
 			$labels->Name = $name;
 			$labels->Title = $name;
 		}
 
-		$companyName = $opts->getOpt( 'wl_companyname' );
+		$companyName = $opts->optGet( 'wl_companyname' );
 		if ( !empty( $companyName ) ) {
 			$labels->Author = $companyName;
 			$labels->AuthorName = $companyName;
 		}
 
-		$labels->MenuTitle = empty( $opts->getOpt( 'wl_namemenu' ) ) ? $labels->Name : $opts->getOpt( 'wl_namemenu' );
+		$labels->MenuTitle = empty( $opts->optGet( 'wl_namemenu' ) ) ? $labels->Name : $opts->optGet( 'wl_namemenu' );
 
-		if ( !empty( $opts->getOpt( 'wl_description' ) ) ) {
-			$labels->Description = $opts->getOpt( 'wl_description' );
+		if ( !empty( $opts->optGet( 'wl_description' ) ) ) {
+			$labels->Description = $opts->optGet( 'wl_description' );
 		}
 
-		$homeURL = $opts->getOpt( 'wl_homeurl' );
+		$homeURL = $opts->optGet( 'wl_homeurl' );
 		if ( !empty( $homeURL ) ) {
 			$labels->PluginURI = $homeURL;
 			$labels->AuthorURI = $homeURL;
@@ -111,11 +115,8 @@ class WhitelabelController {
 		$opts = self::con()->opts;
 		$DP = Services::Data();
 		foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
-			$changed = \method_exists( $opts, 'optChanged' ) ?
-				$opts->optChanged( $key ) : $this->opts()->isOptChanged( $key );
-			if ( $changed && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
-				\method_exists( $opts, 'optReset' ) ?
-					$opts->optReset( $key ) : $this->opts()->resetOptToDefault( $key );
+			if ( $opts->optChanged( $key ) && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
+				$opts->optReset( $key );
 			}
 		}
 	}
@@ -151,21 +152,18 @@ class WhitelabelController {
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
 	 */
 	private function constructImageURL( string $key ) :string {
-		$optsCon = self::con()->opts;
-		$useCon = \method_exists( $optsCon, 'optGet' );
+		$opts = self::con()->opts;
 
-		$url = $useCon ? $optsCon->optGet( $key ) : $this->opts()->getOpt( $key );
+		$url = $opts->optGet( $key );
 		if ( empty( $url ) ) {
-			$useCon ? $optsCon->optReset( $key ) : $this->opts()->resetOptToDefault( $key );
-			$url = $useCon ? $optsCon->optGet( $key ) : $this->opts()->getOpt( $key );
+			$opts->optReset( $key );
+			$url = $opts->optGet( $key );
 		}
 		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && \strpos( $url, '/' ) !== 0 ) {
 			$url = self::con()->urls->forImage( $url );
 			if ( empty( $url ) ) {
-				$useCon ? $optsCon->optReset( $key ) : $this->opts()->resetOptToDefault( $key );
-				$url = self::con()->urls->forImage(
-					$useCon ? $optsCon->optGet( $key ) : $this->opts()->getOpt( $key )
-				);
+				$opts->optReset( $key );
+				$url = self::con()->urls->forImage( $opts->optGet( $key ) );
 			}
 		}
 

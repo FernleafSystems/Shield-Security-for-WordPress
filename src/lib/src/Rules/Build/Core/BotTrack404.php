@@ -21,8 +21,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
-		$botSignals = \method_exists( $this->mod(), 'getAllowable404s' ) ?
-			self::con()->getModule_IPs()->getAllowable404s() : $this->opts()->botSignalsGetAllowable404s();
+		$botSignals = self::con()->getModule_IPs()->getAllowable404s();
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -70,22 +69,13 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getResponses() :array {
-		if ( self::con()->comps === null ) {
-			$count = $this->opts()->getOffenseCountFor( 'track_404' );
-			$block = $this->opts()->isTrackOptImmediateBlock( 'track_404' );
-		}
-		else {
-			$count = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_404' );
-			$block = self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_404' );
-		}
-
 		return [
 			[
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_404',
-					'offense_count'    => $count,
-					'block'            => $block,
+					'offense_count'    => self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_404' ),
+					'block'            => self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_404' ),
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

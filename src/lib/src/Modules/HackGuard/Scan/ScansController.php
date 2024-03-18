@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModConsumer,
+	Lib\Utility\CleanOutOldGuardFiles,
 	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli,
 	Scan\Results\Update
@@ -17,7 +19,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScansController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use StandardCron;
 	use PluginCronsConsumer;
 
@@ -27,8 +29,8 @@ class ScansController {
 
 	protected function canRun() :bool {
 		return self::con()->opts->optIs( 'enable_hack_protect', 'Y' )
-			   && self::con()->db_con->dbhScanResults()->isReady()
-			   && self::con()->db_con->dbhScanItems()->isReady();
+			   && self::con()->db_con->scan_results->isReady()
+			   && self::con()->db_con->scan_items->isReady();
 	}
 
 	protected function run() {
@@ -42,7 +44,7 @@ class ScansController {
 	}
 
 	protected function setCustomCronSchedules() {
-		$freq = (int)self::con()->opts->optGet( 'scan_frequency');
+		$freq = (int)self::con()->opts->optGet( 'scan_frequency' );
 		Services::WpCron()->addNewSchedule(
 			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
@@ -129,7 +131,7 @@ class ScansController {
 	}
 
 	private function cronScan() {
-		if ( $this->getCanScansExecute() && \method_exists( self::con()->opts, 'optSet' ) ) {
+		if ( $this->getCanScansExecute() ) {
 			self::con()->opts->optSet( 'is_scan_cron', true )->store();
 			$this->startNewScans( $this->getAllScanCons() );
 		}
@@ -165,12 +167,7 @@ class ScansController {
 							->setScanController( $scanCon )
 							->clearIgnored();
 					}
-					if ( self::con()->comps === null ) {
-						$this->opts()->addRemoveScanToBuild( $scanCon->getSlug() );
-					}
-					else {
-						self::con()->comps->scans->addRemoveScanToBuild( $scanCon->getSlug() );
-					}
+					self::con()->comps->scans->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -182,10 +179,7 @@ class ScansController {
 				( new ProcessQueueWpcli() )->execute();
 			}
 			else {
-				$this->mod()
-					 ->getScanQueueController()
-					 ->getQueueBuilder()
-					 ->dispatch();
+				self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
 			}
 		}
 
@@ -263,10 +257,18 @@ class ScansController {
 	}
 
 	protected function getCronFrequency() {
-		return $this->opts()->getOpt( 'scan_frequency', 1 );
+		return self::con()->opts->optGet( 'scan_frequency' );
 	}
 
 	protected function getCronName() :string {
 		return self::con()->prefix( 'all-scans' );
+	}
+
+	public function runDailyCron() {
+		$carbon = Services::Request()->carbon();
+		if ( $carbon->isSunday() ) {
+			( new FileScanOptimiser() )->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
+		}
+		( new CleanOutOldGuardFiles() )->execute();
 	}
 }

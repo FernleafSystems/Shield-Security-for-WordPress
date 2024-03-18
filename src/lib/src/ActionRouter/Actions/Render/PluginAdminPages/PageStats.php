@@ -68,7 +68,7 @@ class PageStats extends BasePluginAdminPage {
 
 	private function buildSums( string $event ) :array {
 		/** @var Select $selector */
-		$selector = self::con()->db_con->dbhEvents()->getQuerySelector();
+		$selector = self::con()->db_con->events->getQuerySelector();
 		$carbon = Services::Request()->carbon( true );
 		return \array_map(
 			'number_format',

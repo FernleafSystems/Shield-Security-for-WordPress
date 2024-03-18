@@ -24,14 +24,7 @@ class DestroyIdleSessions extends Build\Core\BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		if ( self::con()->comps === null ) {
-			/** @var Options $opts */
-			$opts = self::con()->getModule_UserManagement()->opts();
-			$idle =  $opts->getIdleTimeoutInterval();
-		}
-		else {
-			$idle = self::con()->comps->opts_lookup->getSessionIdleInterval();
-		}
+		$idle = self::con()->comps->opts_lookup->getSessionIdleInterval();
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [

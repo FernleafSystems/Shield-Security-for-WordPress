@@ -14,7 +14,7 @@ class IPsCon {
 
 	protected function canRun() :bool {
 		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::IPS )
-			   && self::con()->db_con->dbhIPRules()->isReady();
+			   && self::con()->db_con->ip_rules->isReady();
 	}
 
 	protected function run() {

@@ -18,8 +18,10 @@ class ProcessOffense {
 
 	protected function run() {
 		try {
-			$offenseTracker = $this->mod()->loadOffenseTracker();
-			$this->incrementOffenses( $offenseTracker->getOffenseCount(), $offenseTracker->isBlocked() );
+			$this->incrementOffenses(
+				self::con()->comps->offense_tracker->getOffenseCount(),
+				self::con()->comps->offense_tracker->isBlocked()
+			);
 		}
 		catch ( \Exception $e ) {
 		}
@@ -30,8 +32,7 @@ class ProcessOffense {
 	 */
 	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) :void {
 		$con = self::con();
-		$limit = $con->comps === null ?
-			$this->opts()->getOffenseLimit() : $con->comps->opts_lookup->getIpAutoBlockOffenseLimit();
+		$limit = $con->comps->opts_lookup->getIpAutoBlockOffenseLimit();
 
 		$IP = ( new AddRule() )
 			->setIP( $this->getIP() )
@@ -59,7 +60,7 @@ class ProcessOffense {
 		}
 
 		/** @var IpRulesDB\Update $updater */
-		$updater = $con->db_con->dbhIPRules()->getQueryUpdater();
+		$updater = $con->db_con->ip_rules->getQueryUpdater();
 		$updater->updateTransgressions( $IP, $newCount );
 
 		/**
@@ -69,7 +70,7 @@ class ProcessOffense {
 		 */
 		if ( $toBlock ) {
 			/** @var IpRulesDB\Update $updater */
-			$updater = $con->db_con->dbhIPRules()->getQueryUpdater();
+			$updater = $con->db_con->ip_rules->getQueryUpdater();
 			$updater->setBlocked( $IP );
 
 			if ( $fireEvents ) {

@@ -40,14 +40,13 @@ class Wpv extends BaseForAssets {
 
 	public function getAdminMenuItems() :array {
 		$items = [];
-		$status = $this->mod()->getScansCon()->getScanResultsCount();
 
 		$template = [
 			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
-		$count = $status->countVulnerableAssets();
+		$count = self::con()->comps->scans->getScanResultsCount()->countVulnerableAssets();
 		if ( $count > 0 ) {
 			$warning = $template;
 			$warning[ 'id' ] .= '-wpv';
@@ -77,7 +76,7 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isAutoupdatesEnabled() :bool {
-		return $this->opts()->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
+		return self::con()->opts->optIs( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	protected function newItemActionHandler() :Scans\Wpv\Utilities\ItemActionHandler {
@@ -89,10 +88,7 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		$con = self::con();
-		return $con->comps !== null
-			   && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_wpvuln_scan', 'Y' )
-			   && !$this->isRestricted();
+		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_wpvuln_scan', 'Y' ) && !$this->isRestricted();
 	}
 
 	public function buildScanAction() :Scans\Wpv\ScanActionVO {

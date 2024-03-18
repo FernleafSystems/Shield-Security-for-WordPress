@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConflictAkismet extends Base {

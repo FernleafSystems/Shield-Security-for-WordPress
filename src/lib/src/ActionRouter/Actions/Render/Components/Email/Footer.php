@@ -33,8 +33,7 @@ class Footer extends Base {
 		];
 		shuffle( $benefits );
 
-		$isWhitelabelled = ( $con->comps === null ?
-			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
+		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
 			'flags'   => [
 				'is_pro'           => $con->isPremiumActive(),

@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 
 abstract class AbstractProvider implements Provider2faInterface {
 
+	/**
+	 * @deprecated 19.2
+	 */
 	use ModConsumer;
 
 	protected const SLUG = '';

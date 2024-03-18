@@ -39,7 +39,7 @@ class EventFire extends Base {
 	}
 
 	public function getParamsDef() :array {
-		$events = self::con()->service_events->getEventNames();
+		$events = self::con()->comps->events->getEventNames();
 		return [
 			'event'            => [
 				'type'        => EnumParameters::TYPE_ENUM,

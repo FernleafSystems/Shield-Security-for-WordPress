@@ -36,7 +36,7 @@ class UpdateGeoData {
 
 			$geoData = \array_intersect_key( \array_filter( $this->getIpGeoData() ), $dataKeys );
 
-			$dbh = self::con()->db_con->dbhIPMeta();
+			$dbh = self::con()->db_con->ip_meta;
 			if ( empty( $meta ) ) {
 				try {
 					$ipRecord = ( new IPRecords() )->loadIP( $req->ip );

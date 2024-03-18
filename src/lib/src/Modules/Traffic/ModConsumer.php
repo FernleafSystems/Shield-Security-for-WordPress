@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 
 /**
- * @deprecated 19.1
+ * @deprecated 19.2
  */
 trait ModConsumer {
 
@@ -13,9 +13,5 @@ trait ModConsumer {
 
 	public function mod() :ModCon {
 		return self::con()->modules[ EnumModules::TRAFFIC ];
-	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
 	}
 }

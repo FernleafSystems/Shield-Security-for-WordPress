@@ -29,15 +29,7 @@ class WpOptions extends Base {
 	public function blockOptionsSaves( $newValue, $key, $oldValue ) {
 
 		if ( !self::con()->isPluginAdmin() ) {
-
-			if ( self::con()->comps === null ) {
-				$restrictedOptions = $this->opts()->getOptionsToRestrict();
-			}
-			else {
-				$restrictedOptions = self::con()->comps->opts_lookup->getSecAdminWpOptionsToRestrict();
-			}
-
-			if ( \in_array( $key, $restrictedOptions ) || $this->isPluginOption( $key ) ) {
+			if ( \in_array( $key, self::con()->comps->opts_lookup->getSecAdminWpOptionsToRestrict() ) || $this->isPluginOption( $key ) ) {
 				$newValue = $oldValue;
 			}
 		}

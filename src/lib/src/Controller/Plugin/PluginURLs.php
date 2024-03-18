@@ -58,20 +58,10 @@ class PluginURLs {
 	}
 
 	public function modCfgOption( string $optKey ) :string {
-		$con = self::con();
-		if ( isset( $con->cfg->configuration ) ) {
-			$url = $this->modCfgSection(
-				$con->cfg->configuration->modFromOpt( $optKey ),
-				$con->opts->optDef( $optKey )[ 'section' ]
-			);
-		}
-		else {
-			/** @deprecated 19.1 */
-			$mod = OptUtils::ModFromOpt( $optKey );
-			$def = $mod->opts()->getOptDefinition( $optKey );
-			$url = empty( $def[ 'section' ] ) ? $this->modCfg( $mod ) : $this->modCfgSection( $mod, $def[ 'section' ] );
-		}
-		return $url;
+		return $this->modCfgSection(
+			self::con()->cfg->configuration->modFromOpt( $optKey ),
+			self::con()->opts->optDef( $optKey )[ 'section' ]
+		);
 	}
 
 	/**

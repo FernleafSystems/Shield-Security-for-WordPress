@@ -26,7 +26,7 @@ class RequestLogger {
 		$con = self::con();
 		return $con->comps->opts_lookup->enabledTrafficLogger()
 			   && !$con->this_req->wp_is_wpcli
-			   && $con->db_con->dbhReqLogs()->isReady();
+			   && $con->db_con->req_logs->isReady();
 	}
 
 	/**

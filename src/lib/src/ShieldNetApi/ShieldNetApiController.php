@@ -7,7 +7,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,7 +18,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ShieldNetApiController extends DynPropertiesClass {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	protected function run() {
@@ -61,11 +61,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 
 	public function storeVoData() {
 		$this->vo->data_last_saved_at = Services::Request()->ts();
-
-		\method_exists( self::con()->opts, 'optSet' ) ? self::con()->opts->optSet( 'snapi_data', $this->vo->getRawData() )
-			: $this->opts()->setOpt( 'snapi_data', $this->vo->getRawData() );
-
-		self::con()->opts->store();
+		self::con()->opts->optSet( 'snapi_data', $this->vo->getRawData() )->store();
 	}
 
 	/**
@@ -73,18 +69,13 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 */
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
-
 		switch ( $key ) {
-
 			case 'vo':
 				if ( empty( $value ) ) {
-					$data = \method_exists( self::con()->opts, 'optSet' ) ?
-						self::con()->opts->optGet( 'snapi_data' ) : $this->opts()->getOpt( 'snapi_data', [] );
-					$value = ( new ShieldNetApiDataVO() )->applyFromArray( \is_array( $data ) ? $data : [] );
+					$value = ( new ShieldNetApiDataVO() )->applyFromArray( self::con()->opts->optGet( 'snapi_data' ) );
 					$this->vo = $value;
 				}
 				break;
-
 			default:
 				break;
 		}
@@ -93,8 +84,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function runHourlyCron() {
-		$modOpts = self::con()->getModule_Plugin()->opts();
-		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && self::con()->isPremiumActive()
+		if ( is_main_network() && self::con()->opts->optIs( 'enable_shieldnet', 'Y' ) && self::con()->isPremiumActive()
 			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
 
 			$this->sendIPReputationData();

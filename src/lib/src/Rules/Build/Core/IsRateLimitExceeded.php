@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum\EnumLogic,
@@ -10,8 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 };
 
 class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
-
-	use ModConsumer;
 
 	public const SLUG = 'shield/is_rate_limit_exceeded';
 
@@ -24,14 +21,6 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		if ( self::con()->comps === null ) {
-			$count = $this->opts()->getLimitRequestCount();
-			$span = $this->opts()->getLimitTimeSpan();
-		}
-		else {
-			$count = self::con()->opts->optGet( 'limit_requests' );
-			$span = self::con()->opts->optGet( 'limit_time_span' );
-		}
 		return [
 			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -49,8 +38,8 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 				[
 					'conditions' => Conditions\IsRateLimitExceeded::class,
 					'params'     => [
-						'limit_count'     => $count,
-						'limit_time_span' => $span,
+						'limit_count'     => self::con()->opts->optGet( 'limit_requests' ),
+						'limit_time_span' => self::con()->opts->optGet( 'limit_time_span' ),
 					],
 				],
 			]

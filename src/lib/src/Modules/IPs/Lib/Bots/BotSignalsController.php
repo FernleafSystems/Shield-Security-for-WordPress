@@ -38,7 +38,7 @@ class BotSignalsController {
 				( new $botTrackerClass() )->execute();
 			}
 		} );
-		$this->getHandlerNotBot()->execute();
+		self::con()->comps->not_bot->execute();
 		$this->registerFrontPageLoad();
 		$this->registerLoginPageLoad();
 	}
@@ -79,11 +79,6 @@ class BotSignalsController {
 		}
 
 		return $this->isBots[ $IP ] ?? false;
-	}
-
-	public function getHandlerNotBot() :NotBot\NotBotHandler {
-		return self::con()->comps !== null ? self::con()->comps->not_bot :
-			( $this->handlerNotBot ?? $this->handlerNotBot = new NotBotHandler() );
 	}
 
 	public function getEventListener() :BotEventListener {

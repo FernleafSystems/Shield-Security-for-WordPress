@@ -17,13 +17,13 @@ class StatsWriter extends EventsListener {
 
 	protected function onShutdown() {
 		if ( $this->isCommit() ) {
-			self::con()->db_con->dbhEvents()->commitEvents( $this->stats );
+			self::con()->db_con->events->commitEvents( $this->stats );
 			$this->stats = [];
 		}
 	}
 
 	public function isCommit() :bool {
 		$con = self::con();
-		return !empty( $this->stats ) && !$con->plugin_deleting && $con->db_con->dbhEvents()->isReady();
+		return !empty( $this->stats ) && !$con->plugin_deleting && $con->db_con->events->isReady();
 	}
 }

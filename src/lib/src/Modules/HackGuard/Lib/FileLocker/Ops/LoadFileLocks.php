@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 
 class LoadFileLocks {
 
+	/**
+	 * @deprecated 19.2
+	 */
 	use ModConsumer;
 
 	/**
@@ -19,11 +22,10 @@ class LoadFileLocks {
 	 */
 	public function loadLocks() :array {
 		$records = [];
-		if ( self::con()->comps === null ? self::con()->getModule_HackGuard()->getFileLocker()->isEnabled() :
-			self::con()->comps->file_locker->isEnabled() ) {
+		if ( self::con()->comps->file_locker->isEnabled() ) {
 			$all = self::con()
 				->db_con
-				->dbhFileLocker()
+				->file_locker
 				->getQuerySelector()
 				->setNoOrderBy()
 				->all();
@@ -39,7 +41,7 @@ class LoadFileLocks {
 	 */
 	public function ofType( string $type ) :array {
 		return \array_filter(
-			$this->mod()->getFileLocker()->getLocks(),
+			self::con()->comps->file_locker->getLocks(),
 			function ( $lock ) use ( $type ) {
 				return $lock->type === $type;
 			}
@@ -51,7 +53,7 @@ class LoadFileLocks {
 	 */
 	public function withProblems() :array {
 		return \array_filter(
-			$this->mod()->getFileLocker()->getLocks(),
+			self::con()->comps->file_locker->getLocks(),
 			function ( $lock ) {
 				return $lock->detected_at > 0;
 			}
@@ -75,17 +77,10 @@ class LoadFileLocks {
 	 */
 	public function withoutProblems() :array {
 		return \array_filter(
-			$this->mod()->getFileLocker()->getLocks(),
+			self::con()->comps->file_locker->getLocks(),
 			function ( $lock ) {
 				return $lock->detected_at == 0;
 			}
 		);
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function clearLocksCache() {
-		$this->mod()->getFileLocker()->clearLocks();
 	}
 }

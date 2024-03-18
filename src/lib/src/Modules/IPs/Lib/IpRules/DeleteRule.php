@@ -20,7 +20,7 @@ class DeleteRule {
 	}
 
 	public function byRecord( IpRuleRecord $record ) :bool {
-		$dbh = self::con()->db_con->dbhIPRules();
+		$dbh = self::con()->db_con->ip_rules;
 		$deleted = $dbh->getQueryDeleter()->deleteById( $record->id );
 
 		if ( $record->is_range ) {

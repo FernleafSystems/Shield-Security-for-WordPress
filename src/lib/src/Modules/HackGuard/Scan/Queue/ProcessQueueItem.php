@@ -16,7 +16,7 @@ class ProcessQueueItem {
 	public function run( QueueItemVO $item ) {
 		self::con()
 			->db_con
-			->dbhScanItems()
+			->scan_items
 			->getQueryUpdater()
 			->updateById( $item->qitem_id, [
 				'started_at' => Services::Request()->ts()
@@ -29,7 +29,7 @@ class ProcessQueueItem {
 
 			self::con()
 				->db_con
-				->dbhScanItems()
+				->scan_items
 				->getQueryUpdater()
 				->updateById( $item->qitem_id, [
 					'finished_at' => Services::Request()->ts()

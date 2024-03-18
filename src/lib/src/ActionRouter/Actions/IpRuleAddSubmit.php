@@ -11,7 +11,7 @@ class IpRuleAddSubmit extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		$dbh = $con->db_con->dbhIPRules();
+		$dbh = $con->db_con->ip_rules;
 		$form = $this->action_data[ 'form_data' ];
 		try {
 			if ( empty( $form ) || !\is_array( $form ) ) {

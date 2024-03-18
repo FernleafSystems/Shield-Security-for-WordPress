@@ -11,7 +11,7 @@ class BotEventListener {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !self::con()->this_req->is_trusted_request && self::con()->db_con->dbhBotSignal()->isReady();
+		return !self::con()->this_req->is_trusted_request && self::con()->db_con->bot_signals->isReady();
 	}
 
 	protected function run() {

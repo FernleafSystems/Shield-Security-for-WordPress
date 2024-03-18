@@ -19,7 +19,7 @@ class CreateNewScan {
 			throw new ScanExistsException( $slug );
 		}
 
-		$dbh = self::con()->db_con->dbhScans();
+		$dbh = self::con()->db_con->scans;
 		/** @var ScansDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->scan = $slug;
@@ -33,7 +33,7 @@ class CreateNewScan {
 
 	private function scanExists( string $slug ) :bool {
 		/** @var ScansDB\Select $selector */
-		$selector = self::con()->db_con->dbhScans()->getQuerySelector();
+		$selector = self::con()->db_con->scans->getQuerySelector();
 		return $selector->filterByScan( $slug )
 						->filterByNotFinished()
 						->count() > 0;

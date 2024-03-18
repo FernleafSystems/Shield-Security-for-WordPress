@@ -56,7 +56,7 @@ class AutoUpdatesCon {
 	 */
 	public function trackUpdateTimesCore( $updates ) {
 
-		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) && \method_exists( $this, 'getDelayTracking' ) ) {
+		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) ) {
 
 			$delayTracking = $this->getDelayTracking();
 
@@ -94,9 +94,7 @@ class AutoUpdatesCon {
 	 * @param string    $context - plugins/themes
 	 */
 	protected function trackUpdateTimeCommon( $updates, $context ) {
-		if ( !empty( $updates ) && isset( $updates->response )
-			 && \is_array( $updates->response ) && \method_exists( $this, 'getDelayTracking' )
-		) {
+		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
 			$delayTracking = $this->getDelayTracking();
 
 			foreach ( $updates->response as $slug => $theUpdate ) {
@@ -125,10 +123,10 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_core_major( $toUpdate ) {
-		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
+		if ( $this->isCoreAutoUpgradesDisabled() ) {
 			$toUpdate = false;
 		}
-		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
+		elseif ( !$this->isDelayUpdates() ) {
 			$toUpdate = self::con()->opts->optIs( 'autoupdate_core', 'core_major' );
 		}
 		return $toUpdate;
@@ -141,10 +139,10 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_core_minor( $doUpdate ) {
-		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
+		if ( $this->isCoreAutoUpgradesDisabled() ) {
 			$doUpdate = false;
 		}
-		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
+		elseif ( !$this->isDelayUpdates() ) {
 			$doUpdate = !self::con()->opts->optIs( 'autoupdate_core', 'core_never' );
 		}
 		return $doUpdate;
@@ -156,8 +154,7 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_core( $doUpdate, $coreUpgrade ) {
-		if ( ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() )
-			 || $this->isDelayed( $coreUpgrade, 'core' ) ) {
+		if ( ( $this->isCoreAutoUpgradesDisabled() ) || $this->isDelayed( $coreUpgrade, 'core' ) ) {
 			$doUpdate = false;
 		}
 		return $doUpdate;
@@ -169,8 +166,7 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_plugins( $doUpdate, $mItem ) {
-
-		if ( ( \method_exists( $this, 'disableAll' ) && $this->disableAll() ) ) {
+		if ( $this->disableAll() ) {
 			$doUpdate = false;
 		}
 		else {
@@ -192,7 +188,6 @@ class AutoUpdatesCon {
 				}
 			}
 		}
-
 		return $doUpdate;
 	}
 
@@ -202,8 +197,7 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_themes( $doAutoUpdate, $mItem ) {
-
-		if ( ( \method_exists( $this, 'disableAll' ) && $this->disableAll() ) ) {
+		if ( $this->disableAll() ) {
 			$doAutoUpdate = false;
 		}
 		else {
@@ -216,7 +210,6 @@ class AutoUpdatesCon {
 				$doAutoUpdate = true;
 			}
 		}
-
 		return $doAutoUpdate;
 	}
 
@@ -226,7 +219,7 @@ class AutoUpdatesCon {
 	private function isDelayed( $slug, string $context ) :bool {
 		$delayed = false;
 
-		if ( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) {
+		if ( $this->isDelayUpdates() ) {
 
 			$delayTracking = $this->getDelayTracking();
 

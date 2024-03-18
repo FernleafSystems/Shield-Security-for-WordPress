@@ -5,12 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\SitesListTableColumn;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Init {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -50,7 +50,7 @@ class Init {
 
 			// We double-check to ensure that our extension has been successfully registered by this stage.
 			// Prevents a fatal error that can be caused if we can't get our extension data when the extension reg has failed.
-			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded() ) {
+			if ( self::con()->comps->mainwp->isServerExtensionLoaded() ) {
 				$columns[ 'shield' ] = 'Shield';
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
 					$item[ 'shield' ] = self::con()->action_router->render( SitesListTableColumn::SLUG, [
@@ -113,7 +113,7 @@ class Init {
 			if ( $req->post( 'action' ) === 'mainwp_extension_plugin_action'
 				 && $req->post( 'what' ) === 'disable'
 				 && $req->post( 'slug' ) === $con->base_file ) {
-				$this->opts()->setOpt( 'enable_mainwp', 'N' );
+				$con->opts->optSet( 'enable_mainwp', 'N' );
 				wp_send_json( [
 					'error' => sprintf( 'The MainWP integration within %s has been disabled.',
 							$con->getHumanName() )

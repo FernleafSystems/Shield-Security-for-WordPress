@@ -7,36 +7,10 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	public const SLUG = 'ips';
 
 	/**
-	 * @var Lib\OffenseTracker
+	 * @deprecated 19.2
 	 */
-	private $offenseTracker;
-
-	/**
-	 * @var Lib\Bots\BotSignalsController
-	 */
-	private $botSignalsCon;
-
-	/**
-	 * @var Lib\CrowdSec\CrowdSecController
-	 */
-	private $crowdSecCon;
-
-	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
-		return self::con()->comps !== null ? self::con()->comps->bot_signals :
-			( $this->botSignalsCon ?? $this->botSignalsCon = new Lib\Bots\BotSignalsController() );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
-		return self::con()->comps !== null ? self::con()->comps->crowdsec :
-			( $this->crowdSecCon ?? $this->crowdSecCon = new Lib\CrowdSec\CrowdSecController() );
-	}
-
 	public function loadOffenseTracker() :Lib\OffenseTracker {
-		return self::con()->comps !== null ? self::con()->comps->offense_tracker :
-			( $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker() );
+		return self::con()->comps->offense_tracker;
 	}
 
 	public function getAllowable404s() :array {
@@ -57,26 +31,5 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 				return !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' );
 			}
 		) );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'botsignal' );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'ip_rules' );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
 	}
 }

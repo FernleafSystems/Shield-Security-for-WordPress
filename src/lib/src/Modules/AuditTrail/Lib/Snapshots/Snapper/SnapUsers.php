@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class SnapUsers extends BaseSnap {
 
 	public function snap() :array {
-		$con = self::con();
-
 		$users = [];
 
 		$adminLogins = [];
@@ -19,9 +17,7 @@ class SnapUsers extends BaseSnap {
 			$adminLogins[] = $admin[ 'user_login' ];
 		}
 
-		$flags = ( $con->comps === null ? $con->getModule_AuditTrail()->getAuditCon() : $con->comps->activity_log )
-			->flags();
-		if ( !$flags->users_audit_snapshot_admins_only ) {
+		if ( !self::con()->comps->activity_log->flags()->users_audit_snapshot_admins_only ) {
 			foreach ( $this->getNonAdmins( $adminLogins ) as $nonAdmin ) {
 				$users[ $nonAdmin[ 'uniq' ] ] = $nonAdmin;
 			}
@@ -76,9 +72,7 @@ class SnapUsers extends BaseSnap {
 	 */
 	public function updateItemOnSnapshot( array $snapshotData, $item ) :array {
 		if ( $item instanceof \WP_User ) {
-			$auditCon = self::con()->comps === null ? self::con()->getModule_AuditTrail()->getAuditCon()
-				: self::con()->comps->activity_log;
-			if ( Services::WpUsers()->isUserAdmin( $item ) || !$auditCon->flags()->users_audit_snapshot_admins_only ) {
+			if ( Services::WpUsers()->isUserAdmin( $item ) || !self::con()->comps->activity_log->flags()->users_audit_snapshot_admins_only ) {
 				$snapshotData[ $item->ID ] = [
 					'uniq'       => $item->ID,
 					'is_admin'   => Services::WpUsers()->isUserAdmin( $item ),

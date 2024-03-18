@@ -71,7 +71,7 @@ class CreateReportVO {
 
 	private function setPreviousReport() :self {
 		/** @var ReportsDB\Select $sel */
-		$sel = self::con()->db_con->dbhReports()->getQuerySelector();
+		$sel = self::con()->db_con->reports->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )
 								   ->filterByInterval( $this->rep->interval )
 								   ->setOrderBy( 'created_at' )

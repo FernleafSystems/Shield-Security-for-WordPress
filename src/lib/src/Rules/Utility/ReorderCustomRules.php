@@ -14,7 +14,7 @@ class ReorderCustomRules {
 	public function run( array $newOrder ) {
 		$position = 1;
 		foreach ( $newOrder as $recordID ) {
-			self::con()->db_con->dbhRules()->getQueryUpdater()->updateById( (int)$recordID, [
+			self::con()->db_con->rules->getQueryUpdater()->updateById( (int)$recordID, [
 				'exec_order' => $position++,
 			] );
 		}

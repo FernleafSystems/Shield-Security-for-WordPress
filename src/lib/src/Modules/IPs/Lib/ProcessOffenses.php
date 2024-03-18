@@ -17,9 +17,9 @@ class ProcessOffenses {
 	protected function run() {
 		self::con()->comps->offense_tracker->setIfCommit( true );
 		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			$tracker = self::con()->comps === null ?
-				self::con()->getModule_IPs()->loadOffenseTracker() : self::con()->comps->offense_tracker;
-			if ( !self::con()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
+			if ( !self::con()->plugin_deleting
+				 && self::con()->comps->offense_tracker->hasVisitorOffended()
+				 && self::con()->comps->offense_tracker->isCommit() ) {
 				( new IPs\Components\ProcessOffense() )
 					->setIp( self::con()->this_req->ip )
 					->execute();

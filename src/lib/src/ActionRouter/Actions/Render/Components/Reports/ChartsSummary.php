@@ -13,10 +13,10 @@ class ChartsSummary extends Base {
 	protected function getRenderData() :array {
 		$con = self::con();
 		/** @var EventsDB\Select $eventSelector */
-		$eventSelector = $con->db_con->dbhEvents()->getQuerySelector();
+		$eventSelector = $con->db_con->events->getQuerySelector();
 
 		/** @var IpRulesDB\Select $ipRuleSelect */
-		$ipRuleSelect = $con->db_con->dbhIPRules()->getQuerySelector();
+		$ipRuleSelect = $con->db_con->ip_rules->getQuerySelector();
 
 		$statsData = [
 			'login'          => [
