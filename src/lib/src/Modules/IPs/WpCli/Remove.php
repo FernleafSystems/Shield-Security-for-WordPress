@@ -11,6 +11,8 @@ class Remove extends BaseAddRemove {
 	 * @throws \Exception
 	 */
 	protected function addCmds() {
+		$this->showDeprecatedWarning();
+
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'ip-remove' ] ),
 			[ $this, 'cmdIpRemove' ], $this->mergeCommonCmdArgs( [

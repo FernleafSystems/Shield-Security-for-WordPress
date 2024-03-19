@@ -97,7 +97,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}
-		( new AssetsCustomizer() )->execute();
+		self::con()->comps->assets_customizer->execute();
 	}
 
 	/**
@@ -183,6 +183,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return $can;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getLinkToTrackingDataDump() :string {
 		return self::con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
 	}
@@ -200,13 +203,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
-	public function getFirstInstallDate() :int {
-		return (int)Services::WpGeneral()->getOption( self::con()->prefix( 'install_date', '_' ) );
-	}
-
 	public function getInstallDate() :int {
-		return \method_exists( self::con()->opts, 'optGet' ) ?
-			self::con()->opts->optGet( 'installation_time' ) : $this->opts()->getOpt( 'installation_time' );
+		return self::con()->comps === null ? $this->opts()->getOpt( 'installation_time' )
+			: self::con()->comps->opts_lookup->getInstalledAt();
 	}
 
 	/**
@@ -245,6 +244,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return Services::Request()->ts() - (int)$this->opts()->getOpt( 'activated_at', 0 );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function setActivatedAt() {
 		self::con()->opts->optSet( 'activated_at', Services::Request()->ts() );
 	}

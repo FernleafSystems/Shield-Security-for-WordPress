@@ -1,7 +1,7 @@
 {
   "19.1": {
     "version":     "19.1",
-    "released_at": 1710517400,
+    "released_at": 1710755563,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease191",
       "upgrade": "https://shsec.io/shieldupgradeguide191"
@@ -25,6 +25,7 @@
         "pro_only":    false,
         "title":       "Code Rewrite & Cleaning",
         "description": [
+          "Major overhaul of how the plugin works under-the-hood in order to simplify future development and speed-up processing."
         ],
         "href":        ""
       },

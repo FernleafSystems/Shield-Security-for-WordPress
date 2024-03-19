@@ -27,6 +27,8 @@ class Reset extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\
 	}
 
 	public function cmdReset( $null, $args ) {
+		$this->showDeprecatedWarning();
+
 		if ( !$this->isForceFlag( $args ) ) {
 			WP_CLI::confirm( __( 'Are you sure you want to reset the Shield plugin to defaults?', 'wp-simple-firewall' ) );
 		}

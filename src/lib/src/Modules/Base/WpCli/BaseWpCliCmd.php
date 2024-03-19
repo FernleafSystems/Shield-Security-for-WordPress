@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseWpCliCmd extends ExecOnceModConsumer {
 
+	protected function showDeprecatedWarning() {
+		\WP_CLI::error( 'This WP-CLI command is deprecated and will soon be removed.', false );
+	}
+
 	protected function canRun() :bool {
 		return $this->mod()
 					->getWpCli()

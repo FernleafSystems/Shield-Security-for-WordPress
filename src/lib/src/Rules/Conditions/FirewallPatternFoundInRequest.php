@@ -93,8 +93,8 @@ class FirewallPatternFoundInRequest extends Base {
 
 	private function getAllParameterExclusions() :array {
 		$exclusions = self::con()->cfg->configuration->def( 'default_whitelist' );
-		if ( \method_exists( self::con()->opts, 'optGet' ) ) {
-			$customWhitelist = self::con()->opts->optGet( 'page_params_whitelist', [] );
+		if ( self::con()->comps !== null ) {
+			$customWhitelist = self::con()->comps->opts_lookup->getFirewallParametersWhitelist();
 		}
 		else {
 			$customWhitelist = self::con()->getModule_Firewall()->opts()->getOpt( 'page_params_whitelist', [] );
@@ -103,7 +103,7 @@ class FirewallPatternFoundInRequest extends Base {
 		foreach ( \is_array( $customWhitelist ) ? $customWhitelist : [] as $page => $params ) {
 			if ( !empty( $params ) && \is_array( $params ) ) {
 				$exclusions[ $page ] = \array_merge(
-					$exclusions[ $page ],
+					$exclusions[ $page ] ?? [],
 					\array_map(
 						function ( $param ) {
 							return sprintf( '#^%s$#i', \preg_quote( $param, '#' ) );

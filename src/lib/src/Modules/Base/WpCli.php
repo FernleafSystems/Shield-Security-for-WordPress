@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\ModuleStandard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -38,7 +39,9 @@ class WpCli extends ExecOnceModConsumer {
 	 */
 	protected function getAllCmdHandlers() :array {
 		$handlers = $this->enumCmdHandlers();
-		$handlers[] = ModuleStandard::class;
+		if ( !\in_array( $this->mod()->cfg->slug, [ EnumModules::LICENSE ] ) ) {
+			$handlers[] = ModuleStandard::class;
+		}
 		return $handlers;
 	}
 

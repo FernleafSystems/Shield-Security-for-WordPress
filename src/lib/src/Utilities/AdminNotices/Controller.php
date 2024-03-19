@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetTracking;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -380,7 +381,7 @@ class Controller {
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
-				'link_to_see'      => self::con()->getModule_Plugin()->getLinkToTrackingDataDump(),
+				'link_to_see'      => self::con()->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
 			]
 		];

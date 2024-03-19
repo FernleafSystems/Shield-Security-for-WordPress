@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\WpCli;
 
 use WP_CLI;
 
+/**
+ * @deprecated 19.1
+ */
 class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd {
 
 	/**
@@ -43,6 +46,8 @@ class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdAction( array $null, array $aA ) {
+
+		$this->showDeprecatedWarning();
 
 		switch ( $aA[ 'action' ] ) {
 			case 'status':

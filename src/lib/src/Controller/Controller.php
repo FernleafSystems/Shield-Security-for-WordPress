@@ -512,7 +512,7 @@ class Controller extends DynPropertiesClass {
 	 * @throws \TypeError - Potentially. Not sure how the plugin hasn't initiated by that stage.
 	 */
 	public function onWpActivatePlugin() {
-		$this->getModule_Plugin()->setActivatedAt();
+		$this->opts->optSet( 'activated_at', Services::Request()->ts() );
 		$this->is_activating = true;
 		do_action( 'shield/plugin_activated' );
 	}

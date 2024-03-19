@@ -92,6 +92,8 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdModAction( $null, $args ) {
+		$this->showDeprecatedWarning();
+
 		switch ( $args[ 'action' ] ) {
 			case 'status':
 				$this->mod()->isModOptEnabled() ?
@@ -111,6 +113,8 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdOptGet( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		$opts = self::con()->opts;
 
 		$optKey = $args[ 'key' ];
@@ -141,11 +145,15 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdOptSet( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		self::con()->opts->optSet( $args[ 'key' ], $args[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
 	}
 
 	public function cmdOptList( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		$opts = self::con()->opts;
 		$strings = new StringsOptions();
 		$optsList = [];
@@ -191,7 +199,7 @@ class ModuleStandard extends BaseWpCliCmd {
 	 */
 	protected function getOptionsForWpCli() :array {
 		return \array_filter(
-			\array_keys( self::con()->cfg->configuration->optsForModule( $this->mod() ) ),
+			\array_keys( self::con()->cfg->configuration->optsForModule( $this->mod()->cfg->slug ) ),
 			function ( $key ) {
 				return self::con()->opts->optDef( $key )[ 'section' ] !== 'section_hidden';
 			}

@@ -53,6 +53,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 	public function onWpInit() {
 		( new Components\AnonRestApiDisable() )->execute();
 		( new Lib\SiteHealthController() )->execute();
+		self::con()->comps->wpcli->execute();
 	}
 
 	public function runHourlyCron() {

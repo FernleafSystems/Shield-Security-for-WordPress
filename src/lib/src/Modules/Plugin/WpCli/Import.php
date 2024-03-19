@@ -60,6 +60,7 @@ class Import extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdImport( array $null, array $args ) {
+		$this->showDeprecatedWarning();
 
 		$source = $args[ 'source' ] ?? '';
 		if ( empty( $source ) ) {

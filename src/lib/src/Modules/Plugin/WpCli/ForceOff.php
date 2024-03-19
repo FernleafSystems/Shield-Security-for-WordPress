@@ -38,6 +38,8 @@ class ForceOff extends BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdForceOff( $null, $args ) {
+		$this->showDeprecatedWarning();
+
 		$FS = Services::WpFs();
 		$path = path_join( self::con()->getRootDir(), 'forceoff' );
 

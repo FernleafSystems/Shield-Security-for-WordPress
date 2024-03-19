@@ -37,6 +37,8 @@ class Export extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdExport( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		$FS = Services::WpFs();
 
 		$file = $args[ 'file' ];

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class HandleOptionsSaveRequest {
 
@@ -93,9 +92,6 @@ class HandleOptionsSaveRequest {
 			}
 			elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
 				$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), '\trim' );
-			}
-			elseif ( $optType == 'comma_separated_lists' ) {
-				$optValue = Services::Data()->extractCommaSeparatedList( $optValue );
 			}
 
 			$optsCon->optSet( $optKey, $optValue );

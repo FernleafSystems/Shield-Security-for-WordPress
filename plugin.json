@@ -1,7 +1,7 @@
 {
   "properties":       {
-    "version":                 "19.0.109",
-    "release_timestamp":       1710753000,
+    "version":                 "19.1.0",
+    "release_timestamp":       1710755563,
     "build":                   "202403.1801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
@@ -1979,8 +1979,8 @@
         "key":         "page_params_whitelist",
         "section":     "section_whitelist",
         "advanced":    true,
-        "default":     "",
-        "type":        "comma_separated_lists",
+        "default":     "[]",
+        "type":        "array",
         "link_info":   "https://shsec.io/2a",
         "link_blog":   "",
         "beacon_id":   335,

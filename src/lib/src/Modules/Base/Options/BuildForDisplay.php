@@ -154,22 +154,8 @@ class BuildForDisplay {
 				if ( empty( $value ) || !\is_array( $value ) ) {
 					$value = [];
 				}
-
 				$option[ 'rows' ] = \count( $value ) + 2;
 				$value = \stripslashes( \implode( "\n", $value ) );
-
-				break;
-
-			case 'comma_separated_lists':
-				$converted = [];
-				if ( !empty( $value ) && \is_array( $value ) ) {
-					foreach ( $value as $page => $params ) {
-						$converted[] = $page.', '.\implode( ", ", $params );
-					}
-				}
-				$option[ 'rows' ] = \count( $converted ) + 1;
-				$value = \implode( "\n", $converted );
-
 				break;
 
 			case 'multiple_select':
@@ -214,6 +200,10 @@ class BuildForDisplay {
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
 				}
+				break;
+
+			case 'page_params_whitelist':
+				$option[ 'value' ] = \str_replace( ',', ', ', (string)$option[ 'value' ] );
 				break;
 
 			case 'importexport_secretkey':

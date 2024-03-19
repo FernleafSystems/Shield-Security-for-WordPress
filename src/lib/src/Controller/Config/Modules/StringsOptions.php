@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
@@ -1117,8 +1118,10 @@ class StringsOptions {
 				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', $con->getModule_Plugin()
-																		->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						self::con()->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
+						__( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' )
+					)
 				];
 				break;
 

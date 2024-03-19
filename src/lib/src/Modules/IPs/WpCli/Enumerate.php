@@ -11,6 +11,8 @@ class Enumerate extends Base {
 	 * @throws \Exception
 	 */
 	protected function addCmds() {
+		$this->showDeprecatedWarning();
+
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'print' ] ),
 			[ $this, 'cmdPrint' ], $this->mergeCommonCmdArgs( [

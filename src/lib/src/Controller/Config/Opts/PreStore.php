@@ -17,6 +17,7 @@ class PreStore {
 	public function run() {
 		$this->audit();
 		$this->comments();
+		$this->firewall();
 		$this->headers();
 		$this->ips();
 		$this->lockdown();
@@ -58,7 +59,34 @@ class PreStore {
 		}
 	}
 
-	public function lockdown() :void {
+	private function firewall() :void {
+		$opts = self::con()->opts;
+
+		if ( $opts->optChanged( 'page_params_whitelist' ) ) {
+			$parsed = [];
+			foreach ( $opts->optGet( 'page_params_whitelist' ) as $line ) {
+				$line = \str_replace( ' ', '', \trim( (string)$line ) );
+				if ( !empty( $line ) ) {
+					$parts = \explode( ',', $line );
+					if ( \count( $parts ) > 1 ) {
+						$page = \array_shift( $parts );
+						if ( !isset( $parsed[ $page ] ) ) {
+							$parsed[ $page ] = [];
+						}
+						$parsed[ $page ] = \array_map( '\strtolower', \array_unique( \array_merge( $parsed[ $page ], $parts ) ) );
+					}
+				}
+			}
+			$final = [];
+			foreach ( $parsed as $page => $params ) {
+				\array_unshift( $params, $page );
+				$final[] = \implode( ',', $params );
+			}
+			$opts->optSet( 'page_params_whitelist', $final );
+		}
+	}
+
+	private function lockdown() :void {
 		$opts = self::con()->opts;
 
 		$exc = $opts->optGet( 'api_namespace_exclusions' );
@@ -68,7 +96,7 @@ class PreStore {
 		}
 	}
 
-	public function login() :void {
+	private function login() :void {
 		$opts = self::con()->opts;
 
 		if ( self::con()->opts->optChanged( 'enable_email_authentication' ) ) {
@@ -118,7 +146,7 @@ class PreStore {
 		}
 	}
 
-	public function ips() :void {
+	private function ips() :void {
 		$opts = self::con()->opts;
 
 		if ( !\defined( \strtoupper( $opts->optGet( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
@@ -180,7 +208,7 @@ class PreStore {
 		}
 	}
 
-	public function plugin() :void {
+	private function plugin() :void {
 		$opts = self::con()->opts;
 
 		if ( $opts->optGet( 'ipdetect_at' ) === 0
@@ -334,7 +362,7 @@ class PreStore {
 		}
 	}
 
-	public function user() :void {
+	private function user() :void {
 		$opts = self::con()->opts;
 		$optsLookup = self::con()->comps->opts_lookup;
 

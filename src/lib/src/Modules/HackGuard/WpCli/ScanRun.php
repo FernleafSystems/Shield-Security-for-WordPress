@@ -42,6 +42,8 @@ class ScanRun extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdScanRun( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		$scansCon = self::con()->comps->scans;
 
 		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : \array_keys( $args );

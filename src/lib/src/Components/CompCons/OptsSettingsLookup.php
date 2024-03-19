@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -119,8 +119,48 @@ class OptsSettingsLookup {
 				 && $con->isPremiumActive() ) ? $con->opts->optGet( 'email_checks' ) : [];
 	}
 
+	/**
+	 * Structure of stored data changed with 19.1, so this method handles old & new. It'll resave it as the newer format.
+	 */
+	public function getFirewallParametersWhitelist() :array {
+		$list = [];
+		$raw = self::con()->opts->optGet( 'page_params_whitelist' );
+		if ( !empty( $raw ) ) {
+			$reconstructed = [];
+			foreach ( \array_filter( $raw ) as $idxOrPage => $paramsLineOrArray ) {
+
+				$page = null;
+				$params = null;
+
+				if ( \is_string( $paramsLineOrArray ) ) {
+					$parts = \array_map( '\trim', \explode( ',', $paramsLineOrArray, 2 ) );
+					if ( \count( $parts ) === 2 ) {
+						[ $page, $params ] = $parts;
+						$params = \array_map( '\trim', \explode( ',', $params ) );
+					}
+				}
+				elseif ( \is_array( $paramsLineOrArray ) && !\is_numeric( $idxOrPage ) ) {
+					$page = $idxOrPage;
+					$params = $paramsLineOrArray;
+				}
+
+				if ( !empty( $page ) && !empty( $params ) ) {
+					$list[ $page ] = $params;
+					$reconstructed[] = \implode( ',', \array_merge( [ $page ], $params ) );
+				}
+			}
+
+			self::con()->opts->optSet( 'page_params_whitelist', $reconstructed );
+		}
+		return $list;
+	}
+
+	public function getInstalledAt() :int {
+		return (int)self::con()->opts->optGet( 'installation_time' );
+	}
+
 	public function getIpAutoBlockTTL() :int {
-		return (int)constant( \strtoupper( self::con()->opts->optGet( 'auto_expire' ).'_IN_SECONDS' ) );
+		return (int)\constant( \strtoupper( self::con()->opts->optGet( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
 	public function getIpAutoBlockOffenseLimit() :int {
