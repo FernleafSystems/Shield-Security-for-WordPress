@@ -12,7 +12,7 @@ class EventsEnum extends Actions\Render\BaseRender {
 	public const TEMPLATE = '/wpadmin/components/events_enum.twig';
 
 	protected function getRenderData() :array {
-		$srvEvents = self::con()->service_events;
+		$srvEvents = self::con()->comps->events;
 
 		$eventsSortedByLevel = [
 			'Alert'   => [],

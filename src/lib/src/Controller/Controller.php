@@ -124,7 +124,7 @@ class Controller extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'caps':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$this->caps = $val = new License\Lib\Capabilities();
 				}
 				break;
@@ -136,7 +136,7 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'labels':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$this->labels = $val = $this->labels();
 				}
 				break;
@@ -155,7 +155,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'service_events':
 				if ( empty( $val ) ) {
-					$this->service_events = $val = new Shield\Events\EventsService();
+					$this->service_events = $val = ( $this->comps === null ? new Shield\Events\EventsService() : $this->comps->events );
 				}
 				break;
 

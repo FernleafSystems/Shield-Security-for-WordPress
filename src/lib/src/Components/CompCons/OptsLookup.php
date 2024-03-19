@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class OptsSettingsLookup {
+class OptsLookup {
 
 	use PluginControllerConsumer;
 

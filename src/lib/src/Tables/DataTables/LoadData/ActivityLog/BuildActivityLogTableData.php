@@ -38,7 +38,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'identity' ] = $this->getColumnContent_Identity();
-				$data[ 'event' ] = self::con()->service_events->getEventName( $this->log->event_slug );
+				$data[ 'event' ] = self::con()->comps->events->getEventName( $this->log->event_slug );
 				$this->log->created_at = \max( $this->log->updated_at, $this->log->created_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
@@ -123,7 +123,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		return \array_filter(
 			$loader->run(),
 			function ( $logRecord ) {
-				return self::con()->service_events->eventExists( $logRecord->event_slug );
+				return self::con()->comps->events->eventExists( $logRecord->event_slug );
 			}
 		);
 	}
@@ -197,7 +197,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	private function getColumnContent_Message() :string {
 		$msg = ActivityLogMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
 		return sprintf( '<span class="message-header">%s</span><p class="m-0">%s</p>',
-			self::con()->service_events->getEventName( $this->log->event_slug ),
+			self::con()->comps->events->getEventName( $this->log->event_slug ),
 			sanitize_textarea_field( \implode( "<br/>", $msg ) )
 		);
 	}
@@ -214,7 +214,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Level() :string {
-		return self::con()->service_events->getEventDef( $this->log->event_slug )[ 'level' ];
+		return self::con()->comps->events->getEventDef( $this->log->event_slug )[ 'level' ];
 	}
 
 	private function getColumnContent_SeverityIcon() :string {

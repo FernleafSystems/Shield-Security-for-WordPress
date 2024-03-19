@@ -51,7 +51,7 @@ class PageStats extends BasePluginAdminPage {
 				if ( !empty( \array_filter( $sums ) ) ) {
 					$stats[ $event ] = [
 						'key'    => $event,
-						'name'   => self::con()->service_events->getEventName( $event ),
+						'name'   => self::con()->comps->events->getEventName( $event ),
 						'counts' => $this->buildSums( $event ),
 					];
 				}

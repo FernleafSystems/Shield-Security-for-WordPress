@@ -57,7 +57,7 @@ class BuildForScans extends BuildBase {
 				$metaSelect = self::con()->db_con->dbhActivityLogsMeta()->getQuerySelector();
 
 				$repairs[ $event ] = [
-					'name'    => self::con()->service_events->getEventName( $event ),
+					'name'    => self::con()->comps->events->getEventName( $event ),
 					'count'   => $eventTotal,
 					'repairs' => \array_unique( \array_map(
 						function ( $meta ) {

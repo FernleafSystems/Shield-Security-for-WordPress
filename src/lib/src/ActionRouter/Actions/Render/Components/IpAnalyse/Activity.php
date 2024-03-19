@@ -17,7 +17,7 @@ class Activity extends Base {
 
 		$logs = [];
 		foreach ( $logLoader->run() as $key => $record ) {
-			if ( self::con()->service_events->eventExists( $record->event_slug ) ) {
+			if ( self::con()->comps->events->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();
 
 				$asArray[ 'event' ] = \implode( ' ', ActivityLogMessageBuilder::BuildFromLogRecord( $record ) );

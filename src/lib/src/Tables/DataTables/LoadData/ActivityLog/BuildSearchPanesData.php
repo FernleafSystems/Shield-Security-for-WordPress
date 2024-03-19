@@ -67,7 +67,7 @@ class BuildSearchPanesData {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
 					$evt = [
-						'label' => self::con()->service_events->getEventName( $evt ),
+						'label' => self::con()->comps->events->getEventName( $evt ),
 						'value' => $evt,
 					];
 				}

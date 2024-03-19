@@ -113,7 +113,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 					function ( $evt ) {
 						/** @var EventsDB\Record $evt */
 						return [
-							'name' => self::con()->service_events->getEventName( $evt->event ),
+							'name' => self::con()->comps->events->getEventName( $evt->event ),
 							'at'   => Services::Request()
 											  ->carbon()
 											  ->setTimestamp( $evt->created_at )

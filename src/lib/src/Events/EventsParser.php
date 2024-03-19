@@ -17,7 +17,7 @@ class EventsParser {
 	}
 
 	public function offenses() :array {
-		return \array_filter( self::con()->service_events->getEvents(), function ( array $event ) {
+		return \array_filter( self::con()->comps->events->getEvents(), function ( array $event ) {
 			return $event[ 'offense' ] ?? false;
 		} );
 	}
@@ -69,10 +69,10 @@ class EventsParser {
 	}
 
 	private function extract( array $events ) :array {
-		return \array_intersect_key( self::con()->service_events->getEvents(), \array_flip( $events ) );
+		return \array_intersect_key( self::con()->comps->events->getEvents(), \array_flip( $events ) );
 	}
 
 	private function events() :array {
-		return \array_keys( self::con()->service_events->getEvents() );
+		return \array_keys( self::con()->comps->events->getEvents() );
 	}
 }
