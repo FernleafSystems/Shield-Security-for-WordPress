@@ -983,6 +983,13 @@
         "beacon_id":   136
       },
       {
+        "slug":        "section_alerts",
+        "module":      "plugin",
+        "title":       "Instant Alerts",
+        "title_short": "Instant Alerts",
+        "beacon_id":   788
+      },
+      {
         "slug":        "section_importexport",
         "module":      "plugin",
         "title":       "Import / Export",
@@ -3954,9 +3961,9 @@
         "link_info":     "https://shsec.io/h9",
         "link_blog":     "",
         "beacon_id":     233,
-        "name":          "Alert Frequency",
-        "summary":       "How Often Should You Be Sent Important Alerts",
-        "description":   "Decide when you should be sent important and critical alerts about your site security."
+        "name":          "Alert Reports Frequency",
+        "summary":       "How Often Should You Be Sent Reports With Important Alerts",
+        "description":   "Decide when you should be sent reports with alerts about your site security."
       },
       {
         "key":           "frequency_info",
@@ -3992,34 +3999,106 @@
         "link_info":     "https://shsec.io/ha",
         "link_blog":     "",
         "beacon_id":     232,
-        "name":          "Info Frequency",
+        "name":          "Info Reports Frequency",
         "summary":       "How Often Should You Be Sent Information Reports",
         "description":   "Decide when you should be sent non-critical information and reports about your site security."
       },
       {
-        "key":           "instant_alerts",
-        "section":       "section_reporting",
-        "premium":       true,
-        "cap":           "instant_alerts",
-        "type":          "multiple_select",
-        "advanced":      true,
-        "default":       [],
+        "key":           "instant_alert_shield_deactivated",
+        "section":       "section_alerts",
+        "type":          "select",
+        "default":       "email",
         "value_options": [
           {
-            "value_key": "admins",
-            "text":      "Administrator Account Changes"
+            "value_key": "disabled",
+            "text":      "Disabled"
           },
           {
-            "value_key": "vulnerabilities",
-            "text":      "Vulnerabilities"
+            "value_key": "email",
+            "text":      "Email"
           }
         ],
-        "link_info":     "https://shsec.io/eb",
-        "link_blog":     "",
         "beacon_id":     788,
-        "name":          "Instant Alerts",
-        "summary":       "Instant Alerts",
-        "description":   "Select which events you'd like to receive instant alerts for."
+        "link_info":     "",
+        "link_blog":     "",
+        "name":          "Shield Deactivated",
+        "summary":       "Be alerted when the Shield plugin is deactivated",
+        "description":   "Be alerted when the Shield plugin is deactivated."
+      },
+      {
+        "key":           "instant_alert_admins",
+        "section":       "section_alerts",
+        "premium":       true,
+        "cap":           "instant_alerts",
+        "type":          "select",
+        "default":       "disabled",
+        "value_options": [
+          {
+            "value_key": "disabled",
+            "text":      "Disabled"
+          },
+          {
+            "value_key": "email",
+            "text":      "Email",
+            "premium":   true
+          }
+        ],
+        "beacon_id":     788,
+        "link_info":     "",
+        "link_blog":     "",
+        "name":          "Admin Accounts",
+        "summary":       "Be alerted to any important change on any admin account",
+        "description":   "Be alerted to any important change on any admin account."
+      },
+      {
+        "key":           "instant_alert_vulnerabilities",
+        "section":       "section_alerts",
+        "premium":       true,
+        "cap":           "instant_alerts",
+        "type":          "select",
+        "default":       "disabled",
+        "value_options": [
+          {
+            "value_key": "disabled",
+            "text":      "Disabled"
+          },
+          {
+            "value_key": "email",
+            "text":      "Email",
+            "premium":   true
+          }
+        ],
+        "beacon_id":     788,
+        "link_info":     "",
+        "link_blog":     "",
+        "name":          "Vulnerabilities",
+        "summary":       "Be alerted to discovery of any vulnerable plugin/theme",
+        "description":   "Be alerted to discovery of any vulnerable plugin/theme."
+      },
+      {
+        "key":           "instant_alert_filelocker",
+        "section":       "section_alerts",
+        "premium":       true,
+        "cap":           "instant_alerts",
+        "type":          "select",
+        "default":       "disabled",
+        "value_options": [
+          {
+            "value_key": "disabled",
+            "text":      "Disabled"
+          },
+          {
+            "value_key": "email",
+            "text":      "Email",
+            "premium":   true
+          }
+        ],
+        "beacon_id":     788,
+        "link_info":     "",
+        "link_blog":     "",
+        "name":          "FileLocker Changes",
+        "summary":       "Be alerted to any changes to FileLocker items",
+        "description":   "Be alerted to any changes to FileLocker items."
       },
       {
         "key":     "transient_tracking",

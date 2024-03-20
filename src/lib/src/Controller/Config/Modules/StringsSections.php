@@ -378,9 +378,16 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Important default settings used throughout the plugin.', 'wp-simple-firewall' ) ),
 				];
 				break;
+			case 'section_alerts' :
+				$title = __( 'Instant Alerts', 'wp-simple-firewall' );
+				$short = __( 'Instant Alerts', 'wp-simple-firewall' );
+				$summary = [
+					__( 'Receive instant alerts from the plugin for important events.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'section_reporting' :
-				$title = __( 'Reporting', 'wp-simple-firewall' );
-				$short = __( 'Reporting', 'wp-simple-firewall' );
+				$title = __( 'Reports', 'wp-simple-firewall' );
+				$short = __( 'Reports', 'wp-simple-firewall' );
 				$summary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
 					sprintf( 'Your reporting email address is: %s',

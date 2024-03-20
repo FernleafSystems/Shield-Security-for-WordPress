@@ -8,13 +8,13 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class OurLatestBlogPosts {
 
-	public function retrieve( int $limit = 2, bool $refresh = false ) :array {
+	public function retrieve( int $limit = 2 ) :array {
 		$posts = Transient::Get( 'apto-shield-latest-blog-posts' );
-		if ( $refresh || !\is_array( $posts ) ) {
+		if ( !\is_array( $posts ) ) {
 			$rawPosts = @\json_decode(
-				Services::HttpRequest()->getContent( URL::Build( 'https://getshieldsecurity.com/wp-json/wp/v2/posts', [
-					'per_page' => '5'
-				] ) ),
+				Services::HttpRequest()->getContent(
+					URL::Build( 'https://getshieldsecurity.com/wp-json/wp/v2/posts', [ 'per_page' => '5' ] )
+				),
 				true
 			);
 

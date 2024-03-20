@@ -210,6 +210,7 @@ class PreStore {
 
 	private function plugin() :void {
 		$opts = self::con()->opts;
+		$comps = self::con()->comps;
 
 		if ( $opts->optGet( 'ipdetect_at' ) === 0
 			 || ( $opts->optChanged( 'visitor_address_source' ) && $opts->optGet( 'visitor_address_source' ) === 'AUTO_DETECT_IP' )
@@ -217,11 +218,18 @@ class PreStore {
 			$opts->optSet( 'ipdetect_at', 1 );
 		}
 
+		if ( $opts->optGet( 'instant_alert_filelocker' ) !== 'disabled' && !$comps->file_locker->isEnabled() ) {
+			$opts->optSet( 'instant_alert_filelocker', 'disabled' );
+		}
+		if ( $opts->optGet( 'instant_alert_vulnerabilities' ) !== 'disabled' && !$comps->scans->WPV()->isEnabled() ) {
+			$opts->optSet( 'instant_alert_vulnerabilities', 'disabled' );
+		}
+
 		if ( !\preg_match( '#^[a-z]{2,3}(_[A-Z]{2,3})?$#', $opts->optGet( 'locale_override' ) ) ) {
 			$opts->optSet( 'locale_override', '' );
 		}
 
-		if ( self::con()->comps->opts_lookup->enabledTelemetry() && $opts->optGet( 'tracking_permission_set_at' ) === 0 ) {
+		if ( $comps->opts_lookup->enabledTelemetry() && $opts->optGet( 'tracking_permission_set_at' ) === 0 ) {
 			$opts->optSet( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 

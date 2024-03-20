@@ -1302,16 +1302,16 @@ class StringsOptions {
 				break;
 
 			case 'frequency_alert' :
-				$name = __( 'Alert Frequency', 'wp-simple-firewall' );
-				$summary = __( 'How Often Important Alerts Will Be Sent To You', 'wp-simple-firewall' );
+				$name = __( 'Alert Reports Frequency', 'wp-simple-firewall' );
+				$summary = __( 'How Often Should You Be Sent Reports With Important Alerts', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Choose when you should be sent important and critical alerts about your site security.', 'wp-simple-firewall' ),
+					__( 'Choose when you should be sent reports containing important critical alerts about your site security.', 'wp-simple-firewall' ),
 					__( 'Critical alerts are typically results from your most recent site scans.', 'wp-simple-firewall' )
 				];
 				break;
 
 			case 'frequency_info' :
-				$name = __( 'Info Frequency', 'wp-simple-firewall' );
+				$name = __( 'Info Reports Frequency', 'wp-simple-firewall' );
 				$summary = __( 'How Often Informational Reports Will Be Sent To You', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
@@ -1319,22 +1319,28 @@ class StringsOptions {
 				];
 				break;
 
-			case 'instant_alerts' :
-				$name = __( 'Instant Alerts', 'wp-simple-firewall' );
-				$summary = __( 'Instant Alert Events', 'wp-simple-firewall' );
+			case 'instant_alert_admins' :
+				$name = __( 'Admin Accounts', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted to important changes on any admin account', 'wp-simple-firewall' );
 				$desc = [
-					__( "Select the security events for which you'd like to receive instant alerts.", 'wp-simple-firewall' ),
-					'The option to be alerted on Administrator Account Changes will result in email alerts when:'.
-					sprintf( '<ul style="list-style: circle"><li>%s</li></ul>', \implode( '</li><li>', [
-						'an admin account is newly created',
-						'an admin account is deleted',
-						'an admin account is demoted to non-admin',
-						'a non-admin account is promoted to admin',
-						'an admin updates their password',
-						'an admin updates their email address',
-					] ) ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
-						__( "With Shield's exclusive monitoring technology, these changes will be detected whether they're made via WordPress itself, or when the MySQL database is modified directly.", 'wp-simple-firewall' ) ),
+					__( "Be alerted to any important change on any admin account.", 'wp-simple-firewall' ),
+					__( "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!", 'wp-simple-firewall' ),
+				];
+				break;
+			case 'instant_alert_vulnerabilities' :
+				$name = __( 'Vulnerabilities', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted to discovery of any vulnerable plugin/theme', 'wp-simple-firewall' );
+				$desc = [
+					__( "Be alerted to discovery of any vulnerable plugin/theme.", 'wp-simple-firewall' ),
+					__( "Vulnerability scanning must be active to enable this option.", 'wp-simple-firewall' ),
+				];
+				break;
+			case 'instant_alert_filelocker' :
+				$name = __( 'FileLocker Changes', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted to any changes to FileLocker items', 'wp-simple-firewall' );
+				$desc = [
+					__( "Be alerted to any changes to FileLocker items.", 'wp-simple-firewall' ),
+					__( "FileLocker must be active to enable this option.", 'wp-simple-firewall' ),
 				];
 				break;
 

@@ -11,7 +11,7 @@ abstract class InstantAlertBase {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	protected $alertActionData;
+	protected $alertActionData = [];
 
 	abstract protected function alertAction() :string;
 

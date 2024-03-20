@@ -131,6 +131,8 @@ class Constants {
 		Actions\Render\Components\Docs\Changelog::class,
 		Actions\Render\Components\Docs\EventsEnum::class,
 		Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertAdmins::class,
+		Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertFileLocker::class,
+		Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertShieldDeactivated::class,
 		Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertVulnerabilities::class,
 		Actions\Render\Components\Email\Footer::class,
 		Actions\Render\Components\Email\UnblockMagicLink::class,

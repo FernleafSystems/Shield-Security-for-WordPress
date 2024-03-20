@@ -46,7 +46,6 @@ class License extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdAction( array $null, array $aA ) {
-
 		$this->showDeprecatedWarning();
 
 		switch ( $aA[ 'action' ] ) {

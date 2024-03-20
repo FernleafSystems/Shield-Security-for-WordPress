@@ -11,8 +11,6 @@ class Enumerate extends Base {
 	 * @throws \Exception
 	 */
 	protected function addCmds() {
-		$this->showDeprecatedWarning();
-
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'print' ] ),
 			[ $this, 'cmdPrint' ], $this->mergeCommonCmdArgs( [
@@ -30,6 +28,8 @@ class Enumerate extends Base {
 	}
 
 	public function cmdPrint( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		$dbh = self::con()->db_con->dbhIPRules();
 
 		try {

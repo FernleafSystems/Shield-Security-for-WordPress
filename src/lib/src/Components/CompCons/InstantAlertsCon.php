@@ -11,22 +11,48 @@ class InstantAlertsCon {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
+	private $alerts;
+
 	protected function canRun() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::PLUGIN )
-			   && \count( self::con()->opts->optGet( 'instant_alerts' ) ) > 0;
+		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::PLUGIN );
 	}
 
 	protected function run() {
-		foreach ( \array_intersect_key( $this->enum(), \array_flip( self::con()->opts->optGet( 'instant_alerts' ) ) ) as $alert ) {
-			/** @var InstantAlerts\InstantAlertBase|string $alert */
-			( new $alert() )->execute();
+		foreach ( $this->getAlerts() as $alert ) {
+			$alert->execute();
 		}
+	}
+
+	/**
+	 * @return InstantAlerts\InstantAlertBase[]
+	 */
+	private function getAlerts() :array {
+		if ( $this->alerts === null ) {
+			$this->alerts = [];
+
+			$alertOptions = \array_filter( \array_keys( self::con()->cfg->configuration->options ), function ( string $key ) {
+				return \str_starts_with( $key, 'instant_alert_' );
+			} );
+
+			foreach ( $alertOptions as $alertKey ) {
+				if ( self::con()->opts->optGet( $alertKey ) !== 'disabled' ) {
+					/** @var ?InstantAlerts\InstantAlertBase|string $alert */
+					$alert = $this->enum()[ \str_replace( 'instant_alert_', '', $alertKey ) ] ?? null;
+					if ( !empty( $alert ) ) {
+						$this->alerts[ $alertKey ] = new $alert();
+					}
+				}
+			}
+		}
+		return $this->alerts;
 	}
 
 	private function enum() :array {
 		return [
-			'admins'          => InstantAlerts\InstantAlertAdmins::class,
-			'vulnerabilities' => InstantAlerts\InstantAlertVulnerabilities::class,
+			'shield_deactivated' => InstantAlerts\InstantAlertShieldDeactivated::class,
+			'admins'             => InstantAlerts\InstantAlertAdmins::class,
+			'filelocker'         => InstantAlerts\InstantAlertFileLocker::class,
+			'vulnerabilities'    => InstantAlerts\InstantAlertVulnerabilities::class,
 		];
 	}
 }

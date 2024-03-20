@@ -8,48 +8,64 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class EmailInstantAlertVulnerabilities extends InstantAlertBase {
 
 	public const SLUG = 'email_instant_alert_vulnerabilities';
-	public const TEMPLATE = '/email/instant_alerts/instant_alert_vulnerabilities.twig';
 
 	protected function getBodyData() :array {
-		return [
+		return Services::DataManipulation()->mergeArraysRecursive( parent::getBodyData(), [
 			'strings' => [
-				'details_below' => __( 'Details for the request are given below:', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'site_url' => Services::WpGeneral()->getHomeUrl(),
-				'vulnerabilities' => [
-					'plugins' => \array_map(
-						function ( string $itemID ) {
-							$VO = Services::WpPlugins()->getPluginAsVo( $itemID );
-							return [
-								'name'    => $VO->Name,
-								'version' => $VO->Version,
-								'href'    => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
-									'type'    => 'plugin',
-									'slug'    => $VO->slug,
-									'version' => $VO->Version,
-								] ),
-							];
-						},
-						$this->action_data[ 'alert_data' ][ 'plugins' ]
-					),
-					'themes'  => \array_map(
-						function ( string $itemID ) {
-							$VO = Services::WpThemes()->getThemeAsVo( $itemID );
-							return [
-								'name'    => $VO->Name,
-								'version' => $VO->Version,
-								'href'    => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
-									'type'    => 'theme',
-									'slug'    => $VO->slug,
-									'version' => $VO->Version,
-								] ),
-							];
-						},
-						$this->action_data[ 'alert_data' ][ 'themes' ]
-					)
+				'intro' => [
+					__( 'Vulnerabilities have just been detected on your site.', 'wp-simple-firewall' ),
+					__( 'Please take urgent action to either upgrade any vulnerable items, or remove them from your site.', 'wp-simple-firewall' )
 				],
-			]
-		];
+				'outro' => [
+					__( "Important: If you've set Shield to automatically upgrade vulnerable plugins, it may have been upgraded by the time you view this.", 'wp-simple-firewall' )
+				],
+			],
+		] );
+	}
+
+	protected function buildAlertGroups() :array {
+		$alertGroups = [];
+		foreach ( \array_filter( $this->action_data[ 'alert_data' ] ) as $alertKey => $alertItems ) {
+			$alertGroups[ $alertKey ] = [
+				'title' => $this->titleFor( $alertKey ),
+				'items' => []
+			];
+
+			$WPP = Services::WpPlugins();
+			$WPT = Services::WpThemes();
+			foreach ( $alertItems as $alertItem ) {
+				if ( $alertKey === 'plugins' ) {
+					$VO = $WPP->getPluginAsVo( $alertItem );
+					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
+						'text' => sprintf( '%s v%s', $VO->Name, $VO->Version ),
+						'href' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+							'type'    => 'plugin',
+							'slug'    => $VO->slug,
+							'version' => $VO->Version,
+						] ),
+					];
+				}
+				elseif ( $alertKey === 'themes' ) {
+					$VO = $WPT->getThemeAsVo( $alertItem );
+					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
+						'text' => sprintf( '%s v%s', $VO->Name, $VO->Version ),
+						'href' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+							'type'    => 'plugin',
+							'slug'    => $VO->slug,
+							'version' => $VO->Version,
+						] ),
+					];
+				}
+			}
+		}
+
+		return $alertGroups;
+	}
+
+	private function titleFor( string $key ) :string {
+		return [
+				   'plugins' => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
+				   'themes'  => __( 'Vulnerable Themes', 'wp-simple-firewall' ),
+			   ][ $key ];
 	}
 }

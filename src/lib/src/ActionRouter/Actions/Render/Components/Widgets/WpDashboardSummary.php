@@ -108,7 +108,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 						'svg'  => $con->svgs->raw( 'sliders.svg' ),
 					],
 				],
-				'blog_posts'         => ( new OurLatestBlogPosts() )->retrieve( 3, $refresh ),
+				'blog_posts'         => ( new OurLatestBlogPosts() )->retrieve( 3 ),
 				'recent_events'      => \array_map(
 					function ( $evt ) {
 						/** @var EventsDB\Record $evt */
