@@ -168,8 +168,9 @@ class EventsService {
 			'suppress_offense'   => false, // events that normally trigger offense can be forcefully suppressed
 			'audit_multiple'     => false, // allow multiple audit entries in the same request
 			'audit_countable'    => false, // allow shortcut to audit trail to allow events to be counted
-			'snapshot_discovery' => false, // event is capture through snapshot discovery
+			'snapshot_discovery' => false, // event is captured through snapshot discovery
 			'audit_params'       => [],
+			'data'               => [], // a general container for general event-specific-related data
 		];
 		foreach ( $events as $eventKey => $evt ) {
 			$events[ $eventKey ] = \array_merge( $defaults, $evt );

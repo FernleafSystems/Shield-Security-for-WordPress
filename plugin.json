@@ -4006,6 +4006,10 @@
         "default":       [],
         "value_options": [
           {
+            "value_key": "admins",
+            "text":      "Administrator Account Changes"
+          },
+          {
             "value_key": "vulnerabilities",
             "text":      "Vulnerabilities"
           }

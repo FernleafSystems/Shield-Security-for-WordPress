@@ -1323,7 +1323,18 @@ class StringsOptions {
 				$name = __( 'Instant Alerts', 'wp-simple-firewall' );
 				$summary = __( 'Instant Alert Events', 'wp-simple-firewall' );
 				$desc = [
-					__( "Select the security events for which you'd like to receive instant alerts.", 'wp-simple-firewall' )
+					__( "Select the security events for which you'd like to receive instant alerts.", 'wp-simple-firewall' ),
+					'The option to be alerted on Administrator Account Changes will result in email alerts when:'.
+					sprintf( '<ul style="list-style: circle"><li>%s</li></ul>', \implode( '</li><li>', [
+						'an admin account is newly created',
+						'an admin account is deleted',
+						'an admin account is demoted to non-admin',
+						'a non-admin account is promoted to admin',
+						'an admin updates their password',
+						'an admin updates their email address',
+					] ) ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+						__( "With Shield's exclusive monitoring technology, these changes will be detected whether they're made via WordPress itself, or when the MySQL database is modified directly.", 'wp-simple-firewall' ) ),
 				];
 				break;
 

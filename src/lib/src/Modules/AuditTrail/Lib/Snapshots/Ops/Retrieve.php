@@ -21,17 +21,33 @@ class Retrieve {
 	 * @return SnapshotsDB\Record[]
 	 */
 	public function all() :array {
-		$diffs = [];
+		/** @var SnapshotsDB\Record[] $snaps */
+		$snaps = [];
 		$selector = self::con()
 			->db_con
 			->dbhSnapshots()
 			->getQuerySelector()
 			->setNoOrderBy();
+
+		$toDelete = [];
 		foreach ( $selector->all() as $record ) {
 			/** @var SnapshotsDB\Record $record */
-			$diffs[ $record->slug ] = $record;
+			if ( isset( $snaps[ $record->slug ] ) && $snaps[ $record->slug ]->created_at > $record->created_at ) {
+				$toDelete[] = $record->id;
+				continue;
+			}
+			$snaps[ $record->slug ] = $record;
 		}
-		return $diffs;
+
+		// This shouldn't be necessary, but we build this in here defensively, just in case snapshots start to cumulate
+		if ( !empty( $toDelete ) ) {
+			self::con()->db_con->dbhSnapshots()
+							   ->getQuerySelector()
+							   ->addWhereIn( 'id', $toDelete )
+							   ->query();
+		}
+
+		return $snaps;
 	}
 
 	public function latest( string $slug ) :?SnapshotsDB\Record {

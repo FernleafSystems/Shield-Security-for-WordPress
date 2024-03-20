@@ -20,6 +20,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		if ( !$components->opts_lookup->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
 			$components->requests_log->execute();
 			$components->activity_log->execute();
+			$components->instant_alerts->execute();
 			$components->sec_admin->execute();
 			$components->ips_con->execute();
 			$components->whitelabel->execute();
@@ -31,7 +32,6 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 			$components->badge->execute();
 			$components->import_export->execute();
 			$components->comment_spam->execute();
-			$components->instant_alerts->execute();
 			new Events\StatsWriter();
 			( new Lib\AllowBetaUpgrades() )->execute();
 			( new Lib\OverrideLocale() )->execute();

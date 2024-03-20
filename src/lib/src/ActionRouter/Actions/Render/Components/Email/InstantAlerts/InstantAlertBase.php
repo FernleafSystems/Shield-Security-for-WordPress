@@ -4,4 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 abstract class InstantAlertBase extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase {
 
+	protected function getRequiredDataKeys() :array {
+		return [
+			'alert_data',
+		];
+	}
 }

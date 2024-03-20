@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\DiffVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\SnapshotVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,7 +23,7 @@ class AuditCon {
 	private $auditors = null;
 
 	/**
-	 * @var Snapshots\SnapshotVO[]
+	 * @var Record[]
 	 */
 	private $latestSnapshots;
 
@@ -182,8 +180,8 @@ class AuditCon {
 	/**
 	 * @throws \Exception
 	 */
-	private function getCurrentDiff( Auditors\Base $auditor ) :DiffVO {
-		$diff = new DiffVO();
+	private function getCurrentDiff( Auditors\Base $auditor ) :Snapshots\DiffVO {
+		$diff = new Snapshots\DiffVO();
 		$diff->slug = $auditor::Slug();
 
 		$current = ( new Ops\Build() )->run( $diff->slug );
@@ -208,10 +206,7 @@ class AuditCon {
 	 * @throws \Exception
 	 */
 	public function getSnapshot( string $slug ) :Record {
-		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
-			$this->latestSnapshots[ $slug ] = ( new Ops\Retrieve() )->latest( $slug );
-		}
-		if ( empty( $this->latestSnapshots[ $slug ] )
+		if ( empty( $this->getSnapshots()[ $slug ] )
 			 || !\is_a( $this->latestSnapshots[ $slug ], '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record' ) ) {
 			throw new \Exception( 'Snapshot could not be loaded for '.$slug );
 		}
@@ -225,17 +220,23 @@ class AuditCon {
 	/**
 	 * @throws \Exception
 	 */
-	public function updateStoredSnapshot( Auditors\Base $auditor, ?SnapshotVO $current = null ) {
+	public function updateStoredSnapshot( Auditors\Base $auditor, ?Snapshots\SnapshotVO $current = null ) {
 		$con = self::con();
-
 		if ( !$con->plugin_deleting && $con->db_con->dbhSnapshots()->isReady() ) {
 			$slug = $auditor::Slug();
 			if ( empty( $current ) ) {
 				$current = ( new Ops\Build() )->run( $slug );
 			}
+			else {
+				try {
+					do_action( 'shield/pre_snapshot_update', $auditor, $current, Ops\Convert::RecordToSnap( $this->getSnapshot( $slug ) ) );
+				}
+				catch ( \Exception $e ) {
+				}
+			}
 
 			if ( !empty( $current ) ) {
-				unset( $this->latestSnapshots[ $slug ] );
+				$this->latestSnapshots = null;
 				( new Ops\Delete() )->delete( $slug );
 				( new Ops\Store() )->store( $current );
 			}
@@ -248,7 +249,8 @@ class AuditCon {
 	 */
 	public function updateItemOnSnapshot( Auditors\Base $auditor, $item ) :void {
 		try {
-			$latest = $this->getSnapshot( $auditor::Slug() );
+			// Clone: we don't to update our locally stored snapshot record. Instead, force it to be reloaded from DB as required.
+			$latest = clone $this->getSnapshot( $auditor::Slug() );
 			$latest->data = $auditor->getSnapper()->updateItemOnSnapshot( $latest->data, $item );
 			$this->updateStoredSnapshot( $auditor, Ops\Convert::RecordToSnap( $latest ) );
 		}
@@ -263,7 +265,8 @@ class AuditCon {
 	 */
 	public function removeItemFromSnapshot( Auditors\Base $auditor, $item ) :void {
 		try {
-			$latest = $this->getSnapshot( $auditor::Slug() );
+			// Clone: we don't to update our locally stored snapshot record. Instead, force it to be reloaded from DB as required.
+			$latest = clone $this->getSnapshot( $auditor::Slug() );
 			$latest->data = $auditor->getSnapper()->deleteItemOnSnapshot( $latest->data, $item );
 			$this->updateStoredSnapshot( $auditor, Ops\Convert::RecordToSnap( $latest ) );
 		}

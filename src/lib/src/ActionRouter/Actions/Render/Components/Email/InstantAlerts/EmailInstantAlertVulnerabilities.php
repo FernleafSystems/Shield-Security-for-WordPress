@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class InstantAlertVulnerabilities extends InstantAlertBase {
+class EmailInstantAlertVulnerabilities extends InstantAlertBase {
 
 	public const SLUG = 'email_instant_alert_vulnerabilities';
 	public const TEMPLATE = '/email/instant_alerts/instant_alert_vulnerabilities.twig';
@@ -31,7 +31,7 @@ class InstantAlertVulnerabilities extends InstantAlertBase {
 								] ),
 							];
 						},
-						$this->action_data[ 'plugins' ]
+						$this->action_data[ 'alert_data' ][ 'plugins' ]
 					),
 					'themes'  => \array_map(
 						function ( string $itemID ) {
@@ -46,17 +46,10 @@ class InstantAlertVulnerabilities extends InstantAlertBase {
 								] ),
 							];
 						},
-						$this->action_data[ 'themes' ]
+						$this->action_data[ 'alert_data' ][ 'themes' ]
 					)
 				],
 			]
-		];
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'plugins',
-			'themes',
 		];
 	}
 }
