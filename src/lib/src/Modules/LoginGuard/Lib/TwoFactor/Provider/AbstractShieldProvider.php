@@ -46,6 +46,10 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 		return $this->hasValidatedProfile() && $this->isProviderAvailableToUser();
 	}
 
+	public function isProviderEnabled() :bool {
+		return static::ProviderEnabled();
+	}
+
 	/**
 	 * @return mixed
 	 */
