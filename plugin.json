@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "19.1.1",
-    "release_timestamp":       1711030000,
-    "build":                   "202403.2101",
+    "version":                 "19.1.2",
+    "release_timestamp":       1711120000,
+    "build":                   "202403.2201",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -1699,6 +1699,13 @@
       },
       {
         "key":       "delay_tracking",
+        "section":   "section_hidden",
+        "sensitive": true,
+        "type":      "array",
+        "default":   []
+      },
+      {
+        "key":       "instant_alerts_data",
         "section":   "section_hidden",
         "sensitive": true,
         "type":      "array",

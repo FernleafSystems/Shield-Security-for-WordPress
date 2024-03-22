@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class EmailInstantAlertShieldDeactivated extends InstantAlertBase {
+class EmailInstantAlertShieldDeactivated extends EmailInstantAlertBase {
 
 	public const SLUG = 'email_instant_alert_shield_deactivated';
 

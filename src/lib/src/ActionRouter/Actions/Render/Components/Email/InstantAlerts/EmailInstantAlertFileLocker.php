@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class EmailInstantAlertFileLocker extends InstantAlertBase {
+class EmailInstantAlertFileLocker extends EmailInstantAlertBase {
 
 	public const SLUG = 'email_instant_alert_filelocker';
 

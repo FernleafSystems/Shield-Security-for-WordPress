@@ -1,7 +1,7 @@
 {
   "19.1": {
     "version":     "19.1",
-    "released_at": 1710858000,
+    "released_at": 1711120000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease191",
       "upgrade": "https://shsec.io/shieldupgradeguide191"
@@ -15,6 +15,14 @@
         "title":       "Instant Alerts",
         "description": [
           "You can now configure Shield to send you instant alert notification for important events. (more events to follow)"
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Scan Results Display Config",
+        "description": [
+          "You can now set Shield to display scan results that would normally be hidden because they've already been processed/ignored."
         ],
         "href":        ""
       },

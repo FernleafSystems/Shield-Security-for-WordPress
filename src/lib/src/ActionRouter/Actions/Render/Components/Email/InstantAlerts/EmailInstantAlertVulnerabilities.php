@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class EmailInstantAlertVulnerabilities extends InstantAlertBase {
+class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 
 	public const SLUG = 'email_instant_alert_vulnerabilities';
 

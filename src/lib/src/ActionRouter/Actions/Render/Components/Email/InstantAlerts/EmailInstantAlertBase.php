@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class InstantAlertBase extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase {
+abstract class EmailInstantAlertBase extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase {
 
 	public const TEMPLATE = '/email/instant_alerts/instant_alert_standard.twig';
 
