@@ -248,7 +248,12 @@ class OptsHandler extends DynPropertiesClass {
 		$proValues = [];
 		foreach ( ( $con->isPremiumActive() && $this->startedAsPremium ) ? $this->values() : $this->mod_opts_all[ 'values' ][ self::TYPE_PRO ] as $optKey => $optValue ) {
 			$store = false;
-			if ( !isset( $freeValues[ $optKey ] ) ) {
+
+			// Special case: These values can vary depending on whether free/pro
+			if ( \in_array( $optKey, [ 'audit_trail_auto_clean', 'auto_clean' ] ) ) {
+				$store = true;
+			}
+			elseif ( !isset( $freeValues[ $optKey ] ) ) {
 				$freeValues[ $optKey ] = $optValue;
 			}
 			elseif ( \is_scalar( $optValue ) ) {
@@ -263,7 +268,7 @@ class OptsHandler extends DynPropertiesClass {
 				}
 			}
 			else {
-				$store = true; // ?
+				$store = true;
 			}
 
 			if ( $store ) {
@@ -350,7 +355,7 @@ class OptsHandler extends DynPropertiesClass {
 			$cap = $this->optCap( $key );
 			if ( $value === null
 				 || !$this->optIsValueTypeValid( $key, $value )
-				 || !empty( $cap ) && !$con->caps->hasCap( $cap )
+				 || ( !empty( $cap ) && !$con->caps->hasCap( $cap ) )
 				 || ( empty( $cap ) && ( $this->optDef( $key )[ 'premium' ] ?? false ) && !$con->isPremiumActive() )
 			) {
 				$this->optReset( $key );

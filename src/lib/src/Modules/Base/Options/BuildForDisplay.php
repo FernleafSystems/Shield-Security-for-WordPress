@@ -32,6 +32,9 @@ class BuildForDisplay {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function standard() :array {
+		// ensures firewall parameters are in correct format for display. This can be removed ~19.3+
+		self::con()->comps->opts_lookup->getFirewallParametersWhitelist();
+
 		return \array_filter( \array_map(
 			function ( array $section ) {
 				$notices = new SectionNotices();
