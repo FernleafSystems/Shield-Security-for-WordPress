@@ -32,20 +32,24 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 				}
 
 				// Certain events should only be sent if the NotBot isn't set for this IP i.e. captcha failure
-				if ( !$def[ 'only_send_on_notbot_fail' ]
-					 ||
-					 ( new BotSignalsRecord() )
-						 ->setIP( Services::Request()->ip() )
-						 ->retrieve()->notbot_at === 0 ) {
+				try {
+					if ( !$def[ 'only_send_on_notbot_fail' ]
+						 ||
+						 ( new BotSignalsRecord() )
+							 ->setIP( Services::Request()->ip() )
+							 ->retrieve()->notbot_at === 0 ) {
 
-					$signal = [
-						'scenario' => $def[ 'scenario' ],
-						'scope'    => $scope,
-						'value'    => $value,
-						'milli_at' => $this->getMilliseconds(),
-					];
-					// We prevent storing duplicate scenarios using the hash
-					$this->signals[ \md5( serialize( $signal ) ) ] = $signal;
+						$signal = [
+							'scenario' => $def[ 'scenario' ],
+							'scope'    => $scope,
+							'value'    => $value,
+							'milli_at' => $this->getMilliseconds(),
+						];
+						// We prevent storing duplicate scenarios using the hash
+						$this->signals[ \md5( \serialize( $signal ) ) ] = $signal;
+					}
+				}
+				catch ( \Exception $e ) {
 				}
 			}
 		}
@@ -53,17 +57,17 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 
 	protected function onShutdown() {
 		if ( $this->isCommit() && !empty( $this->signals ) ) {
-			$notBotFail = ( new BotSignalsRecord() )
-							  ->setIP( Services::Request()->ip() )
-							  ->retrieve()->notbot_at === 0;
-
-			if ( $notBotFail ) {
-				$this->signals[] = [
-					'scenario' => 'notbotfail',
-					'scope'    => CrowdSecConstants::SCOPE_IP,
-					'value'    => Services::Request()->ip(),
-					'milli_at' => $this->getMilliseconds(),
-				];
+			try {
+				if ( ( new BotSignalsRecord() )->setIP( Services::Request()->ip() )->retrieve()->notbot_at === 0 ) {
+					$this->signals[] = [
+						'scenario' => 'notbotfail',
+						'scope'    => CrowdSecConstants::SCOPE_IP,
+						'value'    => Services::Request()->ip(),
+						'milli_at' => $this->getMilliseconds(),
+					];
+				}
+			}
+			catch ( \Exception $e ) {
 			}
 
 			$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();

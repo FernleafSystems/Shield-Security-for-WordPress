@@ -30,7 +30,7 @@ class SetBulk extends Base {
 
 					$opts->optSet( $key, $opt[ 'value' ] );
 
-					if ( serialize( $opt[ 'value' ] ) !== serialize( $opts->optGet( $key ) ) ) {
+					if ( \serialize( $opt[ 'value' ] ) !== \serialize( $opts->optGet( $key ) ) ) {
 						throw new ApiException( sprintf( 'Failed to update option (%s). Value may be of an incorrect type.', $key ) );
 					}
 				}

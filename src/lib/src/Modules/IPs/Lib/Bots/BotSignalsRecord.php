@@ -57,7 +57,10 @@ class BotSignalsRecord {
 		);
 	}
 
-	public function retrieve( bool $createNew = true ) :BotSignalRecord {
+	/**
+	 * @throws \Exception
+	 */
+	public function retrieve() :BotSignalRecord {
 		$thisReq = self::con()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
@@ -74,18 +77,7 @@ class BotSignalsRecord {
 		}
 
 		if ( empty( $r ) ) {
-			if ( $createNew ) {
-				$r = new BotSignalRecord();
-				try {
-					$r->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
-				}
-				catch ( \Exception $e ) {
-					$r->ip_ref = -1;
-				}
-			}
-			else {
-				throw new \Exception( 'No BotSignals record exists' );
-			}
+			$r = new BotSignalRecord();
 		}
 
 		$ruleStatus = new IpRuleStatus( $this->getIP() );
@@ -140,12 +132,13 @@ class BotSignalsRecord {
 		return $r;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function store( BotSignalRecord $record ) :bool {
 
 		if ( !isset( $record->id ) ) {
-			if ( $record->ip_ref == -1 ) {
-				unset( $record->ip_ref );
-			}
+			$record->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
 			$success = self::con()
 				->db_con
 				->dbhBotSignal()
@@ -172,6 +165,7 @@ class BotSignalsRecord {
 
 	/**
 	 * @throws \LogicException
+	 * @throws \Exception
 	 */
 	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
 

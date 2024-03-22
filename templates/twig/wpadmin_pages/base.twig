@@ -2,7 +2,7 @@
 {% endblock %}
 
 {% block top_container %}
-	<div id="PageContainer-Shield" class="container-fluid {{ classes.top_container|default('') }}">
+	<div id="PageContainer-Shield" class="container-fluid g-2 {{ classes.top_container|default('') }}">
 		{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
 		{% block body %}
 			<div class="row" id="PageHead-Shield">
@@ -34,11 +34,8 @@
 				</div>
 			</div>
 
-			<div class="row" id="odp-PageFoot">
-				<div class="col">
-					{% block page_foot %}Override this block for the footer area{% endblock %}
-				</div>
-			</div>
+			{% block page_foot %}{% endblock %}
+
 		{% endblock %}
 
 		{% block html_placeholders %}
