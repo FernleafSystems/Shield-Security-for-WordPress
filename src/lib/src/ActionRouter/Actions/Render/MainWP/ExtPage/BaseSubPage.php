@@ -211,9 +211,8 @@ class BaseSubPage extends BaseMWP {
 	}
 
 	protected function getExtensionRootUri() :string {
-		$req = Services::Request();
 		$mwp = self::con()->mwpVO->official_extension_data;
-		return URL::Build( $req->getPath(), [
+		return URL::Build( Services::Request()->getPath(), [
 			'page' => $mwp[ 'page' ] ?? 'Extensions-Wp-Simple-Firewall',
 		] );
 	}
