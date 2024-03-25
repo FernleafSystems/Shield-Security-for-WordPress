@@ -13,12 +13,11 @@ class WhitelabelController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->isEnabled();
+		return !self::con()->this_req->wp_is_wpcli && $this->isEnabled();
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isOpt( 'whitelabel_enable', 'Y' )
-			   && $this->mod()->getSecurityAdminController()->isEnabledSecAdmin();
+		return self::con()->opts->optIs( 'whitelabel_enable', 'Y' ) && self::con()->comps->sec_admin->isEnabledSecAdmin();
 	}
 
 	protected function run() {
@@ -109,11 +108,14 @@ class WhitelabelController {
 	 * Verify whitelabel images
 	 */
 	public function verifyUrls() {
+		$opts = self::con()->opts;
 		$DP = Services::Data();
-		$opts = $this->opts();
 		foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
-			if ( $opts->isOptChanged( $key ) && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
-				$opts->resetOptToDefault( $key );
+			$changed = \method_exists( $opts, 'optChanged' ) ?
+				$opts->optChanged( $key ) : $this->opts()->isOptChanged( $key );
+			if ( $changed && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
+				\method_exists( $opts, 'optReset' ) ?
+					$opts->optReset( $key ) : $this->opts()->resetOptToDefault( $key );
 			}
 		}
 	}
@@ -149,18 +151,21 @@ class WhitelabelController {
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
 	 */
 	private function constructImageURL( string $key ) :string {
-		$opts = $this->opts();
+		$optsCon = self::con()->opts;
+		$useCon = \method_exists( $optsCon, 'optGet' );
 
-		$url = $opts->getOpt( $key );
+		$url = $useCon ? $optsCon->optGet( $key ) : $this->opts()->getOpt( $key );
 		if ( empty( $url ) ) {
-			$opts->resetOptToDefault( $key );
-			$url = $opts->getOpt( $key );
+			$useCon ? $optsCon->optReset( $key ) : $this->opts()->resetOptToDefault( $key );
+			$url = $useCon ? $optsCon->optGet( $key ) : $this->opts()->getOpt( $key );
 		}
 		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && \strpos( $url, '/' ) !== 0 ) {
 			$url = self::con()->urls->forImage( $url );
 			if ( empty( $url ) ) {
-				$opts->resetOptToDefault( $key );
-				$url = self::con()->urls->forImage( $opts->getOpt( $key ) );
+				$useCon ? $optsCon->optReset( $key ) : $this->opts()->resetOptToDefault( $key );
+				$url = self::con()->urls->forImage(
+					$useCon ? $optsCon->optGet( $key ) : $this->opts()->getOpt( $key )
+				);
 			}
 		}
 

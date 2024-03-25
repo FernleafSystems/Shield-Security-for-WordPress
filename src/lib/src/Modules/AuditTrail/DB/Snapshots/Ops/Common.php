@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Snapshots\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 trait Common {
 
 	public function filterIsDiff() :self {

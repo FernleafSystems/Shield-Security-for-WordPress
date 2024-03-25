@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
-
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'login_protect';
 
@@ -13,26 +11,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 */
 	private $mfaCon;
 
-	public function getDbH_Mfa() :DB\Mfa\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'mfa' );
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getMfaController() :Lib\TwoFactor\MfaController {
-		return $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController();
+		return self::con()->comps !== null ? self::con()->comps->mfa :
+			( $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController() );
 	}
 
-	public function onConfigChanged() :void {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
-			try {
-				self::con()->action_router->action( MfaEmailSendVerification::class );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getGaspKey() :string {
 		/** @var Options $opts */
 		$opts = $this->opts();
@@ -44,10 +33,16 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return self::con()->prefix( $key );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getTextImAHuman() :string {
 		return \stripslashes( $this->getTextOpt( 'text_imahuman' ) );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getTextPleaseCheckBox() :string {
 		return \stripslashes( $this->getTextOpt( 'text_pleasecheckbox' ) );
 	}
@@ -65,5 +60,12 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 				break;
 		}
 		return $text;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Mfa() :\FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'mfa' );
 	}
 }

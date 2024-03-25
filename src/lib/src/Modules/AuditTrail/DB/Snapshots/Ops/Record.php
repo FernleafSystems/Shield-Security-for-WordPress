@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Snapshot
 /**
  * @property string $slug
  * @property array  $data
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

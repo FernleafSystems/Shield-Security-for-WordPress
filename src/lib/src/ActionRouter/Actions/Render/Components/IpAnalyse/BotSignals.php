@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalNames;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignals extends Base {
@@ -13,9 +13,6 @@ class BotSignals extends Base {
 	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_botsignals.twig';
 
 	protected function getRenderData() :array {
-		/** @var Strings $strings */
-		$strings = self::con()->getModule_IPs()->getStrings();
-
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )
 			->setIP( $this->action_data[ 'ip' ] )
@@ -61,7 +58,7 @@ class BotSignals extends Base {
 				'when'             => __( 'When', 'wp-simple-firewall' ),
 				'bot_probability'  => __( 'Bad Bot Probability', 'wp-simple-firewall' ),
 				'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
-				'signal_names'     => $strings->getBotSignalNames(),
+				'signal_names'     => ( new BotSignalNames() )->getBotSignalNames(),
 				'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
 			],
 			'ajax'    => [

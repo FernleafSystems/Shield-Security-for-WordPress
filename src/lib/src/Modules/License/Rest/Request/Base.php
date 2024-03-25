@@ -13,7 +13,7 @@ abstract class Base extends Process {
 	protected function getLicenseDetails() :array {
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
-		$licHandler = self::con()->getModule_License()->getLicenseHandler();
+		$licHandler = self::con()->comps->license;
 
 		$details = [ false ];
 		if ( $licHandler->hasValidWorkingLicense() ) {

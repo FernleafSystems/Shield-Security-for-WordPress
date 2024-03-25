@@ -189,10 +189,10 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function getUserHref( int $uid ) :string {
-		$user = Services::WpUsers()->getUserById( $uid );
-		return empty( $user ) ?
-			sprintf( 'Unavailable (ID:%s)', $uid ) :
-			sprintf( '<a href="%s" target="_blank">%s</a>', Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+		$WPP = Services::WpUsers();
+		$user = $WPP->getUserById( $uid );
+		return empty( $user ) ? sprintf( 'Unavailable (ID:%s)', $uid ) :
+			sprintf( '<a href="%s" target="_blank">%s</a>', $WPP->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 	}
 
 	protected function getIpAnalysisLink( string $ip ) :string {
@@ -205,12 +205,12 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$ip
 			);
 		}
-		elseif ( Services::IP()->isValidIp( $ip ) ) {
+		elseif ( $srvIP->isValidIp( $ip ) ) {
 			$content = sprintf(
 				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
 				self::con()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
-				'offcanvas_ip_analysis ipv'.Services::IP()->version( $ip ),
+				'offcanvas_ip_analysis ipv'.$srvIP->version( $ip ),
 				$ip,
 				$ip
 			);

@@ -5,12 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 class MetaRecords {
 
 	use ModConsumer;
 
 	public function loadMeta( int $userID, bool $autoCreate = true ) :?Ops\Record {
-		$dbh = $this->mod()->getDbH_UserMeta();
+		$dbh = self::con()->db_con->dbhUserMeta();
 		/** @var Ops\Select $select */
 		$select = $dbh->getQuerySelector();
 		$record = $select->setNoOrderBy()
@@ -29,7 +32,7 @@ class MetaRecords {
 	}
 
 	public function addMeta( int $userID ) :bool {
-		$dbh = $this->mod()->getDbH_UserMeta();
+		$dbh = self::con()->db_con->dbhUserMeta();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

@@ -4,21 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Verify {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
 	 */
 	public function run() {
-		$mod = $this->mod();
-		$opts = $this->opts();
-		$licHandler = $mod->getLicenseHandler();
+		$licHandler = self::con()->comps->license;
 
 		$wasLicenseActive = $licHandler->isActive();
 		$licenseLookupSuccess = false;
@@ -32,9 +30,8 @@ class Verify {
 				$existing = $license;
 				$existing->updateLastVerifiedAt( true );
 				if ( !$wasLicenseActive ) {
-					$opts->setOpt( 'license_activated_at', Services::Request()->ts() );
+					self::con()->opts->optSet( 'license_activated_at', Services::Request()->ts() );
 				}
-				$mod->clearLastErrors();
 				$licenseLookupSuccess = true;
 			}
 			else {
@@ -68,9 +65,6 @@ class Verify {
 					'type' => 'HTTP'
 				]
 			] );
-			$mod->setLastErrors( [
-				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
-			] );
 
 			$licHandler->maybeDeactivateWithGrace();
 
@@ -80,8 +74,10 @@ class Verify {
 
 	private function preVerify() {
 		Services::WpFs()->touch( self::con()->paths->forFlag( 'license_check' ) );
-		$this->opts()->setOpt( 'license_last_checked_at', Services::Request()->ts() );
-		self::con()->opts->store();
+		self::con()
+			->opts
+			->optSet( 'license_last_checked_at', Services::Request()->ts() )
+			->store();
 	}
 
 	/**
@@ -89,7 +85,7 @@ class Verify {
 	 */
 	private function sendRequest() :ShieldLicense {
 		$lookup = new Lookup();
-		$lookup->url = $this->opts()->getMasterSiteLicenseURL();
+		$lookup->url = apply_filters( 'shield/master_site_license_url', Services::WpGeneral()->getHomeUrl( '', true ) );
 		$lookup->install_ids = [
 			'shieldpro' => ( new InstallationID() )->id(),
 		];

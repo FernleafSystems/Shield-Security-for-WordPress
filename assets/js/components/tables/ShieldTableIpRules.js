@@ -34,6 +34,9 @@ export class ShieldTableIpRules extends ShieldTableBase {
 	buildDatatableConfig() {
 		let cfg = super.buildDatatableConfig();
 		cfg.language.search = "Search IP";
+		cfg.select = {
+			style: 'api'
+		};
 		return cfg;
 	}
 }

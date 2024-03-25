@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	ModConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 
 class CalculateVisitorBotScores {

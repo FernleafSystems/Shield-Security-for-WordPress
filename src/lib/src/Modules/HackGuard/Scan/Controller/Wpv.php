@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\WpvAddPluginRows;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,12 +20,22 @@ class Wpv extends BaseForAssets {
 			$this->scheduleOnDemandScan();
 		}, 10, 0 );
 		add_action( 'load-plugins.php', function () {
-			( new HackGuard\Scan\Utilities\WpvAddPluginRows() )->execute();
+			( new WpvAddPluginRows() )->execute();
 		}, 10, 2 );
 
 		if ( $this->isAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], \PHP_INT_MAX, 2 );
 		}
+	}
+
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+			'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
+		];
 	}
 
 	public function getAdminMenuItems() :array {
@@ -59,6 +68,10 @@ class Wpv extends BaseForAssets {
 		return $doAutoUpdate || $this->hasVulnerabilities( $itemFile );
 	}
 
+	public function getQueueGroupSize() :int {
+		return 10;
+	}
+
 	public function hasVulnerabilities( string $file ) :bool {
 		return \count( $this->getResultsForDisplay()->getItemsForSlug( $file ) ) > 0;
 	}
@@ -76,7 +89,10 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' ) && !$this->isRestricted();
+		$con = self::con();
+		return $con->comps !== null
+			   && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_wpvuln_scan', 'Y' )
+			   && !$this->isRestricted();
 	}
 
 	public function buildScanAction() :Scans\Wpv\ScanActionVO {

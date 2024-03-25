@@ -1,8 +1,9 @@
 $primary: #008000;
+$secondary: #3F3D56;
 $info: #0ea8c7;
 $warning: #d1a00c;
 $danger: #c62f3e;
-$code-color: $primary;
+$code-color: $secondary;
 @import "~bootstrap/scss/bootstrap";
 @import '~datatables.net-bs5/css/dataTables.bootstrap5.min.css';
 @import '~datatables.net-select-bs5/css/select.bootstrap5.min.css';
@@ -718,16 +719,6 @@ dl.pro-features dd {
   opacity: 0;
 }
 
-.importexport-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-  background-color: rgba(119, 107, 12, 1);
-  border-color: rgba(119, 107, 12, 1);
-}
-
-.importexport-checkbox.custom-switch .custom-control-input:disabled:checked ~ .custom-control-label::before {
-  background-color: rgba(119, 107, 12, 0.3);
-  border-color: rgba(119, 107, 12, 0.3);
-}
-
 #FileLockerDiffContents {
   margin-bottom: 20px;
 }
@@ -969,10 +960,6 @@ body.folded #FooterBannerGoPro {
   #FooterBannerGoPro {
     padding-left: 40px;
   }
-}
-
-#odp-PageFoot {
-  height: 12px;
 }
 
 .select2-selection {
@@ -1265,8 +1252,8 @@ td.detected {
 
 th.status,
 td.status {
-  max-width: 170px;
-  width: 170px;
+  max-width: 200px;
+  width: 200px;
 }
 
 td.status ul,

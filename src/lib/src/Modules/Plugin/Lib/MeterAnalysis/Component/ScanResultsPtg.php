@@ -8,7 +8,7 @@ class ScanResultsPtg extends ScanResultsBase {
 	public const SLUG = 'scan_results_ptg';
 
 	protected function countResults() :int {
-		$counter = self::con()->getModule_HackGuard()->getScansCon()->getScanResultsCount();
+		$counter = self::con()->comps->scans->getScanResultsCount();
 		return $counter->countThemeFiles() + $counter->countPluginFiles();
 	}
 

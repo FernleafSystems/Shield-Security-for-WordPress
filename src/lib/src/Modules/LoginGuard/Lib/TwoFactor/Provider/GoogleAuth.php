@@ -10,7 +10,7 @@ use Dolondro\GoogleAuthenticator\{
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops as MfaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -24,6 +24,10 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	 * @var Secret
 	 */
 	private $tempSecret;
+
+	public static function ProviderEnabled() :bool {
+		return parent::ProviderEnabled() && self::con()->opts->optIs( 'enable_google_authenticator', 'Y' );
+	}
 
 	protected function maybeMigrate() :void {
 		$meta = self::con()->user_metas->for( $this->getUser() );
@@ -67,8 +71,8 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()
 																										  ->getHumanName() ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
-					'remove_google_auth' => __( 'Remove Google Authenticator', 'wp-simple-firewall' ),
-					'generated_at'       => sprintf( '%s: %s', __( 'Registered', 'wp-simple-firewall' ),
+					'remove_google_auth'    => __( 'Remove Google Authenticator', 'wp-simple-firewall' ),
+					'generated_at'          => sprintf( '%s: %s', __( 'Registered', 'wp-simple-firewall' ),
 						empty( $record ) ? '' : Services::Request()
 														->carbon()
 														->setTimestamp( $record->created_at )
@@ -184,9 +188,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	}
 
 	public function resetSecret() :string {
-		$temp = $this->genNewSecret();
-		self::con()->user_metas->for( $this->getUser() )->ga_temp_secret = $temp;
-		return $temp;
+		return self::con()->user_metas->for( $this->getUser() )->ga_temp_secret = $this->genNewSecret();
 	}
 
 	protected function isValidSecret( $secret ) :bool {
@@ -194,7 +196,8 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isEnabledGoogleAuthenticator();
+		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
+			$this->opts()->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
 	public static function ProviderName() :string {

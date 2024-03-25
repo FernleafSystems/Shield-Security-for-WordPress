@@ -1,7 +1,63 @@
 {
+  "19.1": {
+    "version":     "19.1",
+    "released_at": 1711360000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease191",
+      "upgrade": "https://shsec.io/shieldupgradeguide191"
+    },
+    "title":       "Clean & Optimise",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Instant Alerts",
+        "description": [
+          "You can now configure Shield to send you instant alert notification for important events. (more events to follow)"
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Scan Results Display Config",
+        "description": [
+          "You can now set Shield to display scan results that would normally be hidden because they've already been processed/ignored."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Code Rewrite & Cleaning",
+        "description": [
+          "Major overhaul of how the plugin works under-the-hood in order to simplify future development and speed-up processing."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Some improvements to how Shield handles WPMS",
+        "description": [
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Filter to prevent running of the Site Health Security component",
+        "description": [
+        ],
+        "href":        "https://shsec.io/m7"
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "19.0": {
     "version":     "19.0",
-    "released_at": 1707133000,
+    "released_at": 1711126000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease190",
       "upgrade": "https://shsec.io/shieldupgradeguide190"

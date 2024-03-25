@@ -222,6 +222,7 @@ class Capabilities {
 			'http_headers_csp',
 			'import_export_level_1',
 			'import_export_level_2',
+			'instant_alerts',
 			'ips_import_from_file',
 			'scan_malware_local',
 			'scan_malware_malai',

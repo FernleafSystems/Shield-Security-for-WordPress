@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\PublicKeyRetrievalFailure;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
@@ -35,7 +35,7 @@ class BaseOps {
 	 */
 	protected function getPublicKey() :array {
 		$getter = new GetPublicKey();
-		$getter->last_error = $this->mod()->getFileLocker()->getState()[ 'last_error' ] ?? '';
+		$getter->last_error = self::con()->comps->file_locker->getState()[ 'last_error' ] ?? '';
 
 		$key = $getter->retrieve();
 		if ( empty( $key ) || !\is_array( $key ) ) {

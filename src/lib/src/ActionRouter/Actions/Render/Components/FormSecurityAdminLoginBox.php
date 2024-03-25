@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 
 class FormSecurityAdminLoginBox extends BaseRender {
 
@@ -14,11 +13,11 @@ class FormSecurityAdminLoginBox extends BaseRender {
 	public const TEMPLATE = '/components/security_admin/login_box.twig';
 
 	protected function getRenderData() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_SecAdmin()->opts();
+		$opts = self::con()->opts;
 		return [
 			'flags'   => [
-				'restrict_options' => $opts->isRestrictWpOptions()
+				'restrict_options' => \method_exists( $opts, 'optIs' ) ? $opts->optIs( 'admin_access_restrict_options', 'Y' )
+					: self::con()->getModule_SecAdmin()->opts()->isOpt( 'admin_access_restrict_options', 'Y' ),
 			],
 			'strings' => [
 				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),

@@ -2,12 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Base;
 
 class BaseForScan extends Base {
-
-	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'detected';

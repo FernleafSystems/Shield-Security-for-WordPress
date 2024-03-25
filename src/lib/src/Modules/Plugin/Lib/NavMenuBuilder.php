@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -130,12 +131,27 @@ class NavMenuBuilder {
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'shield-shaded' ),
 			'img_hover' => $con->svgs->raw( 'shield-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-			'active'    => $this->inav() === PluginNavs::NAV_SCANS,
-			'introjs'   => [
-				'title' => __( 'Security Scans', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
-					self::con()->getHumanName() ),
+			'sub_items' => [
+				$this->createSubItemForNavAndSub(
+					__( 'Results', 'wp-simple-firewall' ),
+					PluginNavs::NAV_SCANS,
+					PluginNavs::SUBNAV_SCANS_RESULTS
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Run', 'wp-simple-firewall' ),
+					PluginNavs::NAV_SCANS,
+					PluginNavs::SUBNAV_SCANS_RUN
+				),
+//				$this->createSubItemForNavAndSub(
+//					__( 'History', 'wp-simple-firewall' ),
+//					PluginNavs::NAV_SCANS,
+//					PluginNavs::SUBNAV_SCANS_HISTORY
+//				),
+//				$this->createSubItemForNavAndSub(
+//					__( 'State (todo)', 'wp-simple-firewall' ),
+//					PluginNavs::NAV_SCANS,
+//					PluginNavs::SUBNAV_SCANS_STATE
+//				),
 			],
 		];
 	}
@@ -168,16 +184,18 @@ class NavMenuBuilder {
 		foreach ( $con->modules as $mod ) {
 			$cfg = $mod->cfg;
 			if ( $cfg->properties[ 'show_module_options' ] ) {
+				$enabled = $cfg->slug === EnumModules::PLUGIN ? $con->opts->optIs( 'global_enable_plugin_features', 'Y' )
+					: $con->comps->opts_lookup->isModEnabled( $cfg->slug );
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
 					'slug'          => PluginNavs::NAV_OPTIONS_CONFIG.'-'.$cfg->slug,
-					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
-					'tooltip'       => $mod->isModOptEnabled() ?
-						sprintf( 'Configure options for %s', __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ) )
+					'title'         => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
+					'tooltip'       => $enabled ?
+						sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) )
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
-					'href'          => $con->plugin_urls->modCfg( $mod ),
+					'href'          => $con->plugin_urls->modCfg( $cfg->slug ),
 					'classes'       => \array_filter( \array_merge( $baseClasses, [
-						$mod->isModOptEnabled() ? '' : 'text-danger'
+						$enabled ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
 						'dynamic_page_load' => \json_encode( [
@@ -188,7 +206,7 @@ class NavMenuBuilder {
 						] ),
 					],
 					'active'        => Services::Request()->query( Constants::NAV_SUB_ID ) === $cfg->slug,
-					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],
+					'menu_priority' => $cfg->properties[ 'config_menu_priority' ],
 				];
 			}
 		}
@@ -254,7 +272,6 @@ class NavMenuBuilder {
 	}
 
 	private function rules() :array {
-		$pageURLs = self::con()->plugin_urls;
 		return [
 			'slug'      => PluginNavs::NAV_RULES,
 			'title'     => __( 'Rules', 'wp-simple-firewall' ),

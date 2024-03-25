@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\PluginVulnerabilityWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,7 +32,7 @@ class WpvAddPluginRows {
 	}
 
 	private function isWpvulnPluginsHighlightEnabled() :bool {
-		if ( $this->mod()->getScansCon()->WPV()->isEnabled() ) {
+		if ( self::con()->comps->scans->WPV()->isEnabled() ) {
 			$opt = apply_filters( 'shield/wpvuln_scan_display', 'securityadmin' );
 		}
 		else {
@@ -96,10 +95,7 @@ class WpvAddPluginRows {
 	public function filterPluginsToView( $plugins ) {
 		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			/** @var Wpv\ResultsSet $vulnerableRes */
-			$vulnerableRes = $this->mod()
-								  ->getScansCon()
-								  ->WPV()
-								  ->getResultsForDisplay();
+			$vulnerableRes = self::con()->comps->scans->WPV()->getResultsForDisplay();
 			global $status;
 			$status = 'vulnerable';
 			$plugins = \array_intersect_key(
@@ -122,9 +118,6 @@ class WpvAddPluginRows {
 	}
 
 	private function countVulnerablePlugins() :int {
-		return $this->mod()
-					->getScansCon()
-					->getScanResultsCount()
-					->countVulnerableAssets();
+		return self::con()->comps->scans->getScanResultsCount()->countVulnerableAssets();
 	}
 }

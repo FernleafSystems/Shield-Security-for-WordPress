@@ -9,10 +9,7 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 	public const SLUG = 'mfa_passkey_registration_verify';
 
 	protected function exec() {
-		$available = $this->con()
-						  ->getModule_LoginGuard()
-						  ->getMfaController()
-						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Passkey $provider */
 		$provider = $available[ Passkey::ProviderSlug() ];
 
@@ -28,8 +25,8 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 		else {
 			$result = $provider->verifyRegistrationResponse( $wanAuth, $this->action_data[ 'label' ] ?? '' );
 			$response = [
-				'success'     => $result->success,
-				'message'     => $result->success ? $result->msg_text : $result->error_text,
+				'success' => $result->success,
+				'message' => $result->success ? $result->msg_text : $result->error_text,
 			];
 		}
 

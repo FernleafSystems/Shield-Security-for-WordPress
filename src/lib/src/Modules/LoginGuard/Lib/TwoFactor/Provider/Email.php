@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailAutoLog
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SureSendController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,6 +16,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class Email extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'email';
+
+	public static function ProviderEnabled() :bool {
+		return parent::ProviderEnabled()
+			   && self::con()->opts->optIs( 'enable_email_authentication', 'Y' )
+			   && self::con()->opts->optGet( 'email_can_send_verified_at' ) > 0;
+	}
 
 	protected function maybeMigrate() :void {
 		$meta = self::con()->user_metas->for( $this->getUser() );
@@ -71,9 +77,7 @@ class Email extends AbstractShieldProviderMfaDB {
 			'help_link'   => 'https://shsec.io/3t',
 			'size'        => 6,
 			'datas'       => [
-				'auto_send' => $this->mod()
-									->getMfaController()
-									->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
+				'auto_send' => self::con()->comps->mfa->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
 			],
 			'supp'        => [
 				'send_email' => __( 'Send OTP Code', 'wp-simple-firewall' ),
@@ -86,59 +90,61 @@ class Email extends AbstractShieldProviderMfaDB {
 	}
 
 	public function hasValidatedProfile() :bool {
-		$meta = self::con()->user_metas->for( $this->getUser() );
 		return $this->isEnforced()
-			   || ( $this->opts()->isEnabledEmailAuthAnyUserSet() && $meta->email_2fa_enabled );
+			   || ( $this->opts()->isOpt( 'email_any_user_set', 'Y' )
+					&& self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled );
 	}
 
 	public function isEnforced() :bool {
-		return \count( \array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
+		return self::con()->comps !== null
+			   && \count( \array_intersect( self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
 	public function sendEmailTwoFactorVerify( string $plainNonce, string $autoRedirect = '' ) :bool {
 		$con = self::con();
-		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
-		$useSureSend = ( new SureSendController() )->can_2FA( $user );
 
 		$success = false;
 		try {
-			if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {
+			if ( !$con->comps->mfa->verifyLoginNonce( $user, $plainNonce ) ) {
 				throw new \Exception( 'No such login intent' );
 			}
 
-			$hashedNonce = $mfaCon->findHashedNonce( $user, $plainNonce );
-			$intents = $mfaCon->getActiveLoginIntents( $user );
+			$hashedNonce = $con->comps->mfa->findHashedNonce( $user, $plainNonce );
+			$intents = $con->comps->mfa->getActiveLoginIntents( $user );
 			$intents[ $hashedNonce ][ 'auto_email_sent' ] = true;
 			$con->user_metas->for( $user )->login_intents = $intents;
 
 			$otp = $this->generate2faCode( $hashedNonce );
 
-			$success = ( $useSureSend && ( new SendEmail() )->send2FA( $this->getUser(), $otp ) )
-					   ||
-					   $con->email_con->sendVO(
-						   EmailVO::Factory(
-							   $user->user_email,
-							   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-							   $con->action_router->render( MfaLoginCode::SLUG, [
-								   'home_url'       => Services::WpGeneral()->getHomeUrl(),
-								   'ip'             => $con->this_req->ip,
-								   'user_id'        => $user->ID,
-								   'otp'            => $otp,
-								   'url_auto_login' => $con->plugin_urls->noncedPluginAction(
-									   MfaEmailAutoLogin::class,
-									   null,
-									   [
-										   $this->getLoginIntentFormParameter() => $otp,
-										   'login_nonce'                        => $plainNonce,
-										   'user_id'                            => $user->ID,
-										   // breaks without encoding.
-										   'redirect_to'                        => \base64_encode( $autoRedirect ),
-									   ]
-								   ),
-							   ] )
-						   )
-					   );
+			if ( ( new SureSendController() )->can_2FA( $user ) ) {
+				$success = ( new SendEmail() )->send2FA( $this->getUser(), $otp );
+			}
+			if ( !$success ) {
+				$success = $con->email_con->sendVO(
+					EmailVO::Factory(
+						$user->user_email,
+						__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+						$con->action_router->render( MfaLoginCode::class, [
+							'home_url'       => Services::WpGeneral()->getHomeUrl(),
+							'ip'             => $con->this_req->ip,
+							'user_id'        => $user->ID,
+							'otp'            => $otp,
+							'url_auto_login' => $con->plugin_urls->noncedPluginAction(
+								MfaEmailAutoLogin::class,
+								null,
+								[
+									$this->getLoginIntentFormParameter() => $otp,
+									'login_nonce'                        => $plainNonce,
+									'user_id'                            => $user->ID,
+									// breaks without encoding.
+									'redirect_to'                        => \base64_encode( $autoRedirect ),
+								]
+							),
+						] )
+					)
+				);
+			}
 		}
 		catch ( \Exception $e ) {
 		}
@@ -162,12 +168,13 @@ class Email extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isEmailAuthenticationActive();
+		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
+			$this->opts()->isOpt( 'enable_email_authentication', 'Y' );
 	}
 
 	public function isProviderAvailableToUser() :bool {
 		return parent::isProviderAvailableToUser()
-			   && ( $this->isEnforced() || $this->opts()->isEnabledEmailAuthAnyUserSet() );
+			   && ( $this->isEnforced() || $this->opts()->isOpt( 'email_any_user_set', 'Y' ) );
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {

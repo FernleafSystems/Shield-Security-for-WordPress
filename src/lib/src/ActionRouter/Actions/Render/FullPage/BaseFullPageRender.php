@@ -22,7 +22,7 @@ abstract class BaseFullPageRender extends BaseRender {
 		$WP = Services::WpGeneral();
 		return [
 			'flags'   => [
-				'is_whitelabelled' => $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled()
+				'is_whitelabelled' => $con->comps->whitelabel->isEnabled()
 			],
 			'head'    => [
 				'scripts' => $this->getScripts(),

@@ -24,8 +24,8 @@ class MatchRequestCountryCode extends Base {
 	public function getParamsDef() :array {
 		return [
 			'match_code' => [
-				'type'  => EnumParameters::TYPE_STRING,
-				'label' => sprintf( '%s (ISO 3166-1 alpha-2)', __( 'Country Code', 'wp-simple-firewall' ) ),
+				'type'         => EnumParameters::TYPE_STRING,
+				'label'        => sprintf( '%s (ISO 3166-1 alpha-2)', __( 'Country Code', 'wp-simple-firewall' ) ),
 				'verify_regex' => '/^([A-Z]{2})$/'
 			],
 		];

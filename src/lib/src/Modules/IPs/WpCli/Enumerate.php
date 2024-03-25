@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use WP_CLI;
 
 class Enumerate extends Base {
@@ -28,6 +28,8 @@ class Enumerate extends Base {
 	}
 
 	public function cmdPrint( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		$dbh = self::con()->db_con->dbhIPRules();
 
 		try {

@@ -2,18 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
-
 class AdeLostPassword extends AdeBase {
 
 	public const SLUG = 'ade_lostpassword';
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()
-					->getModule_LoginGuard()
-					->opts();
-		return parent::testIfProtected() && $opts->isProtectLostPassword();
+		return self::con()->comps->opts_lookup->enabledLoginProtectionArea( 'password' );
 	}
 
 	public function title() :string {

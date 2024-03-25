@@ -18,12 +18,14 @@ class CaptureRestApiAction extends CaptureActionBase {
 
 	protected function theRun() {
 		foreach ( self::con()->modules as $module ) {
-			if ( !empty( $module->opts()->getDef( 'rest_api' )[ 'publish' ] ) ) {
+			$restProperties = $module->cfg->properties[ 'rest_api' ] ?? [];
+//			error_log( var_export( $restProperties, true ) );
+			if ( !empty( $restProperties[ 'publish' ] ) ) {
 				try {
 					$restClass = $module->findElementClass( 'Rest' );
 					/** @var Rest|string $restClass */
 					if ( @\class_exists( $restClass ) ) {
-						$rest = new $restClass( $module->opts()->getDef( 'rest_api' ) );
+						$rest = new $restClass( $restProperties );
 						$rest->setMod( $module )->init();
 					}
 				}

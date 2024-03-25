@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops as MfaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 
 class MfaRecordsHandler {
@@ -33,10 +33,11 @@ class MfaRecordsHandler {
 	}
 
 	public function delete( MfaDB\Record $record ) {
-		$this->mod()
-			 ->getDbH_Mfa()
-			 ->getQueryDeleter()
-			 ->deleteRecord( $record );
+		self::con()
+			->db_con
+			->dbhMfa()
+			->getQueryDeleter()
+			->deleteRecord( $record );
 		unset( self::$records[ $record->user_id ] );
 	}
 
@@ -73,7 +74,7 @@ class MfaRecordsHandler {
 	public function loadForUser( \WP_User $user ) {
 		if ( !isset( self::$records[ $user->ID ] ) ) {
 			/** @var MfaDB\Select $selector */
-			$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
+			$selector = self::con()->db_con->dbhMfa()->getQuerySelector();
 			self::$records[ $user->ID ] = \array_values( $selector->filterByUserID( $user->ID )->queryWithResult() );
 		}
 		return self::$records[ $user->ID ];

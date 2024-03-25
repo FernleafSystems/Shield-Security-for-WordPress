@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\{
 	Modules
 };
 
+/**
+ * @deprecated 19.1
+ */
 class OptUtils {
 
 	/**

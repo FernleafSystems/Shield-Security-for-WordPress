@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
+	Counts,
+	Retrieve\RetrieveCount
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
@@ -10,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
@@ -27,6 +32,11 @@ class PageScansResults extends PageScansBase {
 		$con = self::con();
 		return [
 			[
+				'text'    => __( 'Results Display Options', 'wp-simple-firewall' ),
+				'href'    => 'javascript:{}',
+				'classes' => [ 'offcanvas_form_scans_results_options' ],
+			],
+			[
 				'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
 			],
@@ -35,7 +45,7 @@ class PageScansResults extends PageScansBase {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_HackGuard()->cfg->slug
+					'config_item' => EnumModules::SCANS,
 				],
 			],
 		];
@@ -43,8 +53,7 @@ class PageScansResults extends PageScansBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_HackGuard();
-		$scansCon = $mod->getScansCon();
+		$scansCon = $con->comps->scans;
 
 		( new CleanQueue() )->execute();
 		foreach ( $scansCon->getAllScanCons() as $scanCon ) {
@@ -53,7 +62,7 @@ class PageScansResults extends PageScansBase {
 
 		$vulnerableOrAbandonedPlugins = 0;
 		$vulnerableOrAbandonedThemes = 0;
-		$counter = $scansCon->getScanResultsCount();
+		$counter = new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
 		if ( $counter->countVulnerableAssets() > 0 ) {
 			foreach ( $scansCon->WPV()->getAllResults()->getAllItems() as $result ) {
 				/** @var Wpv\ResultItem $result */
@@ -91,10 +100,10 @@ class PageScansResults extends PageScansBase {
 			'file_locker' => $this->getFileLockerVars(),
 			'flags'       => [
 				'is_premium'      => $con->isPremiumActive(),
-				'module_disabled' => !$mod->isModOptEnabled(),
+				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
 			],
 			'hrefs'       => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgSection( EnumModules::SCANS, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [

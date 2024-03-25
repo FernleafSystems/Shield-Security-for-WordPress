@@ -12,11 +12,10 @@ class PageLicense extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_License();
-		$opts = $mod->opts();
+		$config = $con->cfg->configuration;
 		$carb = Services::Request()->carbon();
 
-		$lic = $mod->getLicenseHandler()->getLicense();
+		$lic = $con->comps->license->getLicense();
 
 		$expiresAt = $lic->getExpiresAt();
 		if ( $expiresAt > 0 && $expiresAt != \PHP_INT_MAX ) {
@@ -46,8 +45,6 @@ class PageLicense extends BasePluginAdminPage {
 			);
 		}
 
-		$license = $mod->getLicenseHandler()->getLicense();
-
 		return [
 			'flags'   => [
 				'show_ads'              => false,
@@ -55,15 +52,14 @@ class PageLicense extends BasePluginAdminPage {
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
 				'is_pro'                => $con->isPremiumActive(),
-				'has_error'             => $mod->hasLastErrors()
 			],
 			'hrefs'   => [
 				'shield_pro_url' => 'https://shsec.io/shieldpro',
-				'iframe_url'     => $opts->getDef( 'landing_page_url' ),
-				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
+				'iframe_url'     => $config->def( 'landing_page_url' ),
+				'keyless_cp'     => $config->def( 'keyless_cp' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'award' ),
+				'inner_page_title_icon' => $con->svgs->raw( 'award' ),
 				'svgs'                  => [
 					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' ),
 				],
@@ -71,27 +67,38 @@ class PageLicense extends BasePluginAdminPage {
 			'inputs'  => [
 				'license_key' => [
 					'name'      => $con->prefix( 'license_key', '_' ),
-					'maxlength' => $opts->getDef( 'license_key_length' ),
+					'maxlength' => $config->def( 'license_key_length' ),
 				]
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'ShieldPRO License Management', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Seamlessly activate and manage your ShieldPRO license without any license keys.', 'wp-simple-firewall' ),
 				'pro_features'        => $this->getProFeatureStrings(),
+
+				'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
+				'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
+				'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
+				'clear_license'            => __( 'Remove License', 'wp-simple-firewall' ),
+				'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
+				'activate_site_in'         => sprintf(
+					__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
+					__( 'Keyless Activation', 'wp-simple-firewall' )
+				),
+				'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
+				'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
+				'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'license_table'  => [
-					'product_name'    => $license->item_name,
-					'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
+					'product_name'    => $lic->item_name,
+					'license_active'  => $con->comps->license->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
 					'license_expires' => $expiresAtHuman,
 					'license_email'   => $lic->customer_email,
 					'last_checked'    => $checked,
-					'last_errors'     => $mod->hasLastErrors() ? $mod->getLastErrors( true ) : '',
-					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ? '&#10004;' : '&#10006;',
+					'wphashes_token'  => $con->comps->api_token->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => ( new InstallationID() )->id(),
 				],
 				'activation_url' => Services::WpGeneral()->getHomeUrl(),
-				'error'          => $mod->getLastErrors( true ),
 			],
 		];
 	}
@@ -192,14 +199,13 @@ class PageLicense extends BasePluginAdminPage {
 	}
 
 	private function getAllIntegrationNames() :array {
-		$modIntegrations = self::con()->getModule_Integrations();
 		return \array_map(
-			function ( $provider ) use ( $modIntegrations ) {
+			function ( $provider ) {
 				return ( new $provider() )->getHandlerName();
 			},
 			\array_merge(
-				$modIntegrations->getController_UserForms()->enumProviders(),
-				$modIntegrations->getController_SpamForms()->enumProviders()
+				self::con()->comps->forms_users->enumProviders(),
+				self::con()->comps->forms_spam->enumProviders()
 			)
 		);
 	}

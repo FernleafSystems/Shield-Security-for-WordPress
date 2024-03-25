@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpRulesTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 
 class PageIpRulesTable extends BasePluginAdminPage {
@@ -24,7 +25,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_IPs()->cfg->slug
+					'config_item' => EnumModules::IPS
 				],
 			],
 			[

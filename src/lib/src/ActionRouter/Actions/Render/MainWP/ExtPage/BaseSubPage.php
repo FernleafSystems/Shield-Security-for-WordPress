@@ -95,12 +95,12 @@ class BaseSubPage extends BaseMWP {
 		$con = self::con();
 		$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
 		$sync = LoadShieldSyncData::Load( $mwpSite );
-		$meta = $sync->meta;
 
-		$shd = $sync->getRawData();
 		$status = ( new ClientPluginStatus() )
 			->setMwpSite( $mwpSite )
 			->detect();
+
+		$shd = $sync->getRawData();
 		$shd[ 'status_key' ] = \key( $status );
 		$shd[ 'status' ] = \current( $status );
 
@@ -122,28 +122,29 @@ class BaseSubPage extends BaseMWP {
 			ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 			ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 		] );
-		$shd[ 'has_update' ] = (bool)$meta->has_update;
+		$shd[ 'has_update' ] = (bool)$sync->meta->has_update;
 		$shd[ 'has_issues' ] = false;
 
 		if ( $shd[ 'is_active' ] ) {
 
-			$shd[ 'sync_at_text' ] = Services::WpGeneral()->getTimeStringForDisplay( $meta->sync_at );
-			$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
+			$shd[ 'sync_at_text' ] = Services::WpGeneral()->getTimeStringForDisplay( $sync->meta->sync_at );
+			$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $sync->meta->sync_at )->diffForHumans();
 
-			if ( empty( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) ) {
+			$totalIssues = \array_sum( $sync->scan_issues ?? [] );
+			if ( $totalIssues === 0 ) {
 				$shd[ 'issues' ] = __( 'No Issues', 'wp-simple-firewall' );
 				$shd[ 'has_issues' ] = false;
 			}
 			else {
 				$shd[ 'has_issues' ] = true;
-				$shd[ 'issues' ] = \array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
+				$shd[ 'issues' ] = $totalIssues;
 			}
 
 			$shd[ 'href_issues' ] = $this->getJumpUrlFor(
 				(string)$site[ 'id' ],
 				$con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
 			);
-			$gradeLetter = $sync->modules[ 'plugin' ][ 'grades' ][ 'integrity' ][ 'totals' ][ 'letter_score' ] ?? '-';
+			$gradeLetter = $sync->integrity[ 'totals' ][ 'letter_score' ] ?? '-';
 			$shd[ 'grades' ] = [
 				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminHome() ),
 				'integrity' => $gradeLetter,

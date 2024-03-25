@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
-	NoCipherAvailableException};
+	NoCipherAvailableException
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildEncryptedFilePayload extends BaseOps {

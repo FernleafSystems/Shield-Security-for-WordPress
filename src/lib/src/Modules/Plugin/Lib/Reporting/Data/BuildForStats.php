@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsParser;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 
 class BuildForStats extends BuildBase {
@@ -74,7 +74,7 @@ class BuildForStats extends BuildBase {
 			$sumPrevious = $countsPrevious[ $event ];
 			$diff = $sumCurrent - $sumPrevious;
 			$data[ $event ] = [
-				'name'                   => $con->service_events->getEventName( $event ),
+				'name'                   => $con->comps->events->getEventName( $event ),
 				'count_current_period'   => $sumCurrent,
 				'count_previous_period'  => $sumPrevious,
 				'is_zero_stat'           => empty( $sumCurrent ) && empty( $sumPrevious ),

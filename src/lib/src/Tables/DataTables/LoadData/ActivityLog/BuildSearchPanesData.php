@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForUsers;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function build() :array {
 		return [
@@ -67,7 +67,7 @@ class BuildSearchPanesData {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
 					$evt = [
-						'label' => self::con()->service_events->getEventName( $evt ),
+						'label' => self::con()->comps->events->getEventName( $evt ),
 						'value' => $evt,
 					];
 				}
@@ -78,6 +78,7 @@ class BuildSearchPanesData {
 	}
 
 	private function runQuery( string $select ) :array {
+		$dbCon = self::con()->db_con;
 		$results = Services::WpDb()->selectCustom(
 			sprintf( 'SELECT DISTINCT %s
 						FROM `%s` as `log`
@@ -87,9 +88,9 @@ class BuildSearchPanesData {
 							ON `ips`.`id` = `req`.`ip_ref` 
 				',
 				$select,
-				self::con()->db_con->dbhActivityLogs()->getTableSchema()->table,
-				self::con()->db_con->dbhReqLogs()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table
+				$dbCon->dbhActivityLogs()->getTableSchema()->table,
+				$dbCon->dbhReqLogs()->getTableSchema()->table,
+				$dbCon->dbhIPs()->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];

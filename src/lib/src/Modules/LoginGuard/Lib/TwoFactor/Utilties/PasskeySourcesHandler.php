@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops as MfaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
@@ -91,7 +91,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			throw new \Exception( 'Source does not exist.' );
 		}
 
-		$data[ 'data']= \base64_encode( \wp_json_encode( $publicKeyCredentialSource->jsonSerialize() ) );
+		$data[ 'data' ] = \base64_encode( \wp_json_encode( $publicKeyCredentialSource->jsonSerialize() ) );
 
 		( new MfaRecordsHandler() )->update( $record, $data );
 	}

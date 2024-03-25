@@ -13,6 +13,10 @@ class Controller {
 
 	public const MIN_VERSION_MAINWP = '4.1';
 
+	protected function canRun() :bool {
+		return true;
+	}
+
 	protected function run() {
 		try {
 			$this->runServerSide();

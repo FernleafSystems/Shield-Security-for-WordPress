@@ -14,19 +14,21 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	public function __construct( $mod ) {
 		$this->setMod( $mod );
 		add_action( 'init', [ $this, 'onWpInit' ], $this->getWpHookPriority( 'init' ) );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $this->getWpHookPriority( 'wp_loaded' ) );
 		$this->setupCronHooks();
 	}
 
 	public function onWpInit() {
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function onWpLoaded() {
-		if ( self::con()->getModule_Plugin()->opts()->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
-			add_filter( self::con()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
-		}
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		return $groups;
 	}

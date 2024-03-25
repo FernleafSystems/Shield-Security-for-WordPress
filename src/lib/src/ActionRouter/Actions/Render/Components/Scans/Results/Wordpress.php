@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForWordpress;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -27,11 +29,7 @@ class Wordpress extends Base {
 
 	private function buildWordpressData() :array {
 		$WP = Services::WpGeneral();
-		$count = self::con()
-					 ->getModule_HackGuard()
-					 ->getScansCon()
-					 ->getScanResultsCount()
-					 ->countWPFiles();
+		$count = ( new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY ) )->countWPFiles();
 		$data = [
 			'info'  => [
 				'type'    => 'wordpress',

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
-
 class SecurityAdminOptions extends Base {
 
 	use Traits\OptConfigBased;
@@ -16,12 +14,8 @@ class SecurityAdminOptions extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_SecAdmin();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled()
-			   && $mod->getSecurityAdminController()->isEnabledSecAdmin()
-			   && $opts->isRestrictWpOptions();
+		return self::con()->comps->sec_admin->isEnabledSecAdmin()
+			   && self::con()->opts->optIs( 'admin_access_restrict_options', 'Y' );
 	}
 
 	public function title() :string {

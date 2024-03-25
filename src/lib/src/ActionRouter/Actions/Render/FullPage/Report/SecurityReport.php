@@ -96,7 +96,7 @@ class SecurityReport extends BaseFullPageRender {
 				],
 				'site_url_host' => \parse_url( $WP->getHomeUrl(), \PHP_URL_HOST ),
 				'areas'         => $areas,
-				'inline_js' => [
+				'inline_js'     => [
 					Services::WpFs()->getFileContent( self::con()->paths->forDistJS( 'reports' ) ),
 				],
 			],

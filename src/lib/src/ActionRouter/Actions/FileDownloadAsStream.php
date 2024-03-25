@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\LoadRequestLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	IpRuleRecord,
+	LoadIpRules
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\ConvertLogsToFlatText;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
@@ -80,7 +82,6 @@ class FileDownloadAsStream extends BaseAction {
 			}
 
 			yield \implode( "\n", $lines );
-
 		} while ( true );
 	}
 

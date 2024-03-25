@@ -3,18 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	Lib\CrowdSec\Api\PushSignals,
-	ModConsumer
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PushSignalsToCS {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const LIMIT = 100;
 
@@ -29,33 +27,39 @@ class PushSignalsToCS {
 	}
 
 	protected function canRun() :bool {
-		$mod = $this->mod();
-		return self::con()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
+		return self::con()->is_mode_live && self::con()->comps->crowdsec->getApi()->isReady();
 	}
 
 	protected function run() {
-		$api = $this->mod()->getCrowdSecCon()->getApi();
+		$api = self::con()->comps->crowdsec->getApi();
 
-		$recordsCount = 0;
+		$pushCount = 0;
 		do {
 			$records = $this->getNextRecordSet();
-			if ( !empty( $records ) ) {
+			$this->deleteRecords( $records );
+
+			$toPush = \array_filter(
+				$records,
+				function ( CrowdsecSignalsDB\Record $record ) {
+					return $this->shouldRecordBeSent( $record );
+				}
+			);
+
+			if ( !empty( $toPush ) ) {
 				try {
 					( new PushSignals( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )
-						->run( $this->convertRecordsToPayload( $records ) );
+						->run( $this->convertRecordsToPayload( $toPush ) );
+					$pushCount += \count( $toPush );
 				}
 				catch ( PushSignalsFailedException $e ) {
 				}
-				$this->deleteRecords( $records );
-
-				$recordsCount += \count( $records );
 			}
 		} while ( !empty( $records ) );
 
-		if ( !empty( $recordsCount ) ) {
+		if ( !empty( $pushCount ) ) {
 			self::con()->fireEvent( 'crowdsec_signals_pushed', [
 				'audit_params' => [
-					'count' => $recordsCount
+					'count' => $pushCount
 				]
 			] );
 		}
@@ -66,16 +70,15 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function convertRecordsToPayload( array $records ) :array {
-		$api = $this->mod()->getCrowdSecCon()->getApi();
 		return \array_map(
-			function ( CrowdsecSignalsDB\Record $record ) use ( $api ) {
+			function ( CrowdsecSignalsDB\Record $record ) {
 				$carbon = Services::Request()->carbon();
 				$carbon->setTimestamp( $record->created_at );
 				$carbon->setTimezone( 'UTC' );
 				$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
 					\trim( $carbon->toRfc3339String(), 'Z' ) );
 				return [
-					'machine_id'       => $api->getMachineID(),
+					'machine_id'       => self::con()->comps->crowdsec->getApi()->getMachineID(),
 					'scenario'         => 'shield/'.$record->scenario,
 					'message'          => 'Shield reporting scenario '.$record->scenario,
 					'scenario_hash'    => '',
@@ -90,19 +93,8 @@ class PushSignalsToCS {
 					'stop_at'          => $ts
 				];
 			},
-			\array_filter( $records, function ( CrowdsecSignalsDB\Record $record ) {
-				return $this->shouldRecordBeSent( $record );
-			} )
+			$records
 		);
-	}
-
-	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
-		$send = true;
-		if ( $record->scenario === 'btxml' ) {
-			$send = $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' )
-					|| $this->opts()->getOffenseCountFor( 'track_xmlrpc' ) > 0;
-		}
-		return $send;
 	}
 
 	/**
@@ -118,6 +110,16 @@ class PushSignalsToCS {
 				break;
 		}
 		return $records;
+	}
+
+	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
+		if ( $record->scenario === 'btxml' ) {
+			$send = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_xmlrpc' ) > 0;
+		}
+		else {
+			$send = true;
+		}
+		return $send;
 	}
 
 	/**
@@ -184,16 +186,18 @@ class PushSignalsToCS {
 	}
 
 	private function deleteRecords( array $records ) {
-		self::con()
-			->db_con
-			->dbhCrowdSecSignals()
-			->getQueryDeleter()
-			->filterByIDs( \array_map(
-				function ( $record ) {
-					return $record->id;
-				},
-				$records
-			) )
-			->query();
+		if ( !empty( $records ) ) {
+			self::con()
+				->db_con
+				->dbhCrowdSecSignals()
+				->getQueryDeleter()
+				->filterByIDs( \array_map(
+					function ( $record ) {
+						return $record->id;
+					},
+					$records
+				) )
+				->query();
+		}
 	}
 }

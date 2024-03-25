@@ -13,7 +13,7 @@ class CustomChartData extends BaseBuildChartData {
 		switch ( \current( $req->events ) ) {
 			case 'comment_block':
 				$req->events = \array_filter(
-					\array_keys( self::con()->service_events->getEvents() ),
+					\array_keys( self::con()->comps->events->getEvents() ),
 					function ( $event ) {
 						return \strpos( $event, 'spam_block_' ) === 0;
 					}
@@ -21,7 +21,7 @@ class CustomChartData extends BaseBuildChartData {
 				break;
 			case 'bot_blocks':
 				$req->events = \array_filter(
-					\array_keys( self::con()->service_events->getEvents() ),
+					\array_keys( self::con()->comps->events->getEvents() ),
 					function ( $event ) {
 						return \strpos( $event, 'bottrack_' ) === 0;
 					}

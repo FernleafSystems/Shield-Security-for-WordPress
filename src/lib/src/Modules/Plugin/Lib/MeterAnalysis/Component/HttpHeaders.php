@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers\Options;
-
 class HttpHeaders extends Base {
 
 	use Traits\OptConfigBased;
@@ -12,18 +10,17 @@ class HttpHeaders extends Base {
 	public const WEIGHT = 1;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Headers();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled()
-			   && $opts->isEnabledXFrame()
-			   && $opts->isEnabledXssProtection()
-			   && $opts->isEnabledContentTypeHeader()
-			   && $opts->isReferrerPolicyEnabled();
+		$con = self::con();
+		$optsCon = $con->opts;
+		return $con->comps->opts_lookup->isModFromOptEnabled( $this->getOptConfigKey() )
+			   && \in_array( $optsCon->optGet( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] )
+			   && $optsCon->optIs( 'x_xss_protect', 'Y' )
+			   && $optsCon->optIs( 'x_content_type', 'Y' )
+			   && !$optsCon->optIs( 'x_referrer_policy', 'disabled' );
 	}
 
 	protected function getOptConfigKey() :string {
-		return 'section_security_headers';
+		return 'x_frame';
 	}
 
 	public function title() :string {

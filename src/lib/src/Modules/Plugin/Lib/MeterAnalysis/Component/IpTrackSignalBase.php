@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
-
 abstract class IpTrackSignalBase extends IpBase {
 
 	protected const SIGNAL_KEY = '';
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_IPs();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return parent::testIfProtected() && $opts->getOffenseCountFor( static::SIGNAL_KEY ) > 0;
+		return self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( $this->getOptConfigKey() ) > 0;
 	}
 
 	protected function getOptConfigKey() :string {

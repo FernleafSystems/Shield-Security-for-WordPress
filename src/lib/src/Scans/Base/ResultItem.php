@@ -22,7 +22,7 @@ class ResultItem extends DynPropertiesClass {
 		return 'No description';
 	}
 
-	public function getStatusForHuman() :string {
-		return 'No Status';
+	public function getStatusForHuman() :array {
+		return [ 'No Status' ];
 	}
 }

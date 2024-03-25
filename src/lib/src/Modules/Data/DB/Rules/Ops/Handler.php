@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderV
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
+/**
+ * @deprecated 19.1
+ */
 class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
 	public const TYPE_SHIELD = 'S';

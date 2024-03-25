@@ -3,18 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\{
+	BaseScanActionVO,
+	ResultItem,
+	ResultsSet
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
 	use ExecOnce;
-	use HackGuard\ModConsumer;
+	use ModConsumer;
 
 	public const SCAN_SLUG = '';
 
@@ -58,17 +61,10 @@ abstract class Base {
 	}
 
 	/**
-	 * @deprecated 19.0.6
-	 */
-	public function getScansController() :HackGuard\Scan\ScansController {
-		return $this->mod()->getScansCon();
-	}
-
-	/**
 	 * @param ResultItem $item
 	 */
-	public function cleanStaleResultItem( $item ) {
-		return true;
+	public function cleanStaleResultItem( $item ) :bool {
+		return false;
 	}
 
 	/**
@@ -138,13 +134,21 @@ abstract class Base {
 	 * @return Scans\Afs\ScanActionVO|Scans\Apc\ScanActionVO|BaseScanActionVO|Scans\Wpv\ScanActionVO|null
 	 */
 	public function getScanActionVO() {
-		return $this->scanActionVO ?? $this->scanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
+		return $this->scanActionVO ?? $this->scanActionVO = ScanActionFromSlug::GetAction( $this->getSlug() );
 	}
 
 	public function getScanName() :string {
-		/** @var HackGuard\Strings $strings */
-		$strings = $this->mod()->getStrings();
-		return $strings->getScanStrings()[ $this->getSlug() ][ 'name' ];
+		return $this->getStrings()[ 'name' ];
+	}
+
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => 'no name',
+			'subtitle' => 'no subtitle',
+		];
 	}
 
 	public function isCronAutoRepair() :bool {
@@ -238,5 +242,5 @@ abstract class Base {
 	 */
 	abstract public function buildScanAction();
 
-	abstract public function buildScanResult( array $rawResult ) :HackGuard\DB\ResultItems\Ops\Record;
+	abstract public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record;
 }

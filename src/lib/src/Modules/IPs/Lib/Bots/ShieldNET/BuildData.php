@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -78,7 +78,7 @@ class BuildData {
 	}
 
 	/**
-	 * @param BotSignal\BotSignalRecord[] $records
+	 * @param BotSignalRecord[] $records
 	 */
 	private function markRecordsAsSent( array $records ) {
 		if ( !empty( $records ) ) {
@@ -97,7 +97,7 @@ class BuildData {
 
 	/**
 	 * Optimised to ensure that only signals are sent if they've been updated since the last SNAPI-Send
-	 * @return BotSignal\BotSignalRecord[]
+	 * @return BotSignalRecord[]
 	 */
 	private function getRecords() :array {
 		$serverIPs = \array_map(
@@ -123,7 +123,7 @@ class BuildData {
 
 		return \array_map(
 			function ( $record ) {
-				return ( new BotSignal\BotSignalRecord() )->applyFromArray( $record );
+				return ( new BotSignalRecord() )->applyFromArray( $record );
 			},
 			\is_array( $records ) ? $records : []
 		);

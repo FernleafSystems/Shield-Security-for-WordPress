@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVer
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseRender extends BaseAction {
@@ -111,12 +110,10 @@ abstract class BaseRender extends BaseAction {
 		$thisReq = $con->this_req;
 		$urlBuilder = $con->urls;
 
-		/** @var Options $pluginOptions */
-		$pluginOptions = $con->getModule_Plugin()->opts();
-
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
-		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+		$isWhitelabelled = ( $con->comps === null ?
+			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
 		return [
 			'unique_render_id' => uniqid(),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
@@ -128,16 +125,12 @@ abstract class BaseRender extends BaseAction {
 				] ) )
 			],
 			'flags'            => [
-				'has_session'             => $con->getModule_Plugin()->getSessionCon()->current()->valid,
-				'display_helpdesk_widget' => !$isWhitelabelled,
-				'is_whitelabelled'        => $isWhitelabelled,
-				'is_ip_whitelisted'       => $ipStatus->isBypass(),
-				'is_ip_blocked'           => $ipStatus->isBlocked(),
-				'is_mode_live'            => $con->is_mode_live,
-				'is_premium'              => $con->isPremiumActive(),
-				'show_transfer_switch'    => $con->isPremiumActive(),
-				'is_wpcli'                => $pluginOptions->isEnabledWpcli(),
-				'is_security_admin'       => $con->isPluginAdmin(),
+				'is_whitelabelled'  => $isWhitelabelled,
+				'is_ip_whitelisted' => $ipStatus->isBypass(),
+				'is_ip_blocked'     => $ipStatus->isBlocked(),
+				'is_mode_live'      => $con->is_mode_live,
+				'is_premium'        => $con->isPremiumActive(),
+				'is_security_admin' => $con->isPluginAdmin(),
 			],
 			'head'             => [
 				'html'    => [
@@ -215,27 +208,7 @@ abstract class BaseRender extends BaseAction {
 	}
 
 	private function getDisplayStrings() :array {
-		$WP = Services::WpGeneral();
 		$con = self::con();
-		$name = $con->getHumanName();
-
-		$proFeatures = [
-			__( 'More Scans', 'wp-simple-firewall' ),
-			__( 'Malware Scanner', 'wp-simple-firewall' ),
-			__( 'Scan Every Hour', 'wp-simple-firewall' ),
-			__( 'White Label', 'wp-simple-firewall' ),
-			__( 'Import/Export', 'wp-simple-firewall' ),
-			__( 'Better Bot Detection', 'wp-simple-firewall' ),
-			__( 'Password Policies', 'wp-simple-firewall' ),
-			__( 'WooCommerce Support', 'wp-simple-firewall' ),
-			__( 'MainWP Integration', 'wp-simple-firewall' ),
-		];
-		shuffle( $proFeatures );
-		$proFeaturesDisplay = \array_slice( $proFeatures, 0, 6 );
-		$proFeaturesDisplay[] = __( 'and much more!' );
-
-		$isAdvanced = self::con()->getModule_Plugin()->isShowAdvanced();
-
 		return [
 			'btn_save'          => __( 'Save Options' ),
 			'btn_options'       => __( 'Options' ),
@@ -276,15 +249,8 @@ abstract class BaseRender extends BaseAction {
 			'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
 
 			'mode'            => __( 'Mode', 'wp-simple-firewall' ),
-			'mode_simple'     => __( 'Simple', 'wp-simple-firewall' ),
-			'mode_advanced'   => __( 'Advanced', 'wp-simple-firewall' ),
-			'mode_switchto'   => sprintf( '%s: %s', __( 'Switch To', 'wp-simple-firewall' ),
-				$isAdvanced ? __( 'Simple', 'wp-simple-firewall' ) : __( 'Advanced', 'wp-simple-firewall' ) ),
-			'mode_switchfrom' => sprintf( '%s: %s', __( 'Mode', 'wp-simple-firewall' ),
-				$isAdvanced ? __( 'Advanced', 'wp-simple-firewall' ) : __( 'Simple', 'wp-simple-firewall' ) ),
 
 			'dashboard'        => __( 'Dashboard', 'wp-simple-firewall' ),
-			'dashboard_shield' => sprintf( __( '%s Dashboard', 'wp-simple-firewall' ), $con->getHumanName() ),
 
 			'are_you_sure'                 => __( 'Are you sure?', 'wp-simple-firewall' ),
 			'description'                  => __( 'Description', 'wp-simple-firewall' ),
@@ -294,8 +260,6 @@ abstract class BaseRender extends BaseAction {
 			'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
 			'aar_submit_access_key'        => __( 'Submit PIN', 'wp-simple-firewall' ),
 			'aar_forget_key'               => __( 'Forgotten PIN', 'wp-simple-firewall' ),
-			'supply_password'              => __( 'Supply Password', 'wp-simple-firewall' ),
-			'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
 			'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
 			'offense' => __( 'offense', 'wp-simple-firewall' ),
@@ -314,31 +278,13 @@ abstract class BaseRender extends BaseAction {
 			'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 			'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
-			'wphashes_token'      => 'ShieldPRO API Token',
-			'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
+			'wphashes_token' => 'ShieldPRO API Token',
 
-			'search_select'   => [
-				'title' => ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
-			],
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
-						$WP->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
+						Services::WpGeneral()->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
 			),
-
-			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
-			'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
-			'check_availability'       => __( 'Check License Availability For This Site', 'wp-simple-firewall' ),
-			'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
-			'clear_license'            => __( 'Clear License Status', 'wp-simple-firewall' ),
-			'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
-			'activate_site_in'         => sprintf(
-				__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
-				__( 'Keyless Activation', 'wp-simple-firewall' )
-			),
-			'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
-			'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
-			'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
 
 			'product_name'    => __( 'Name', 'wp-simple-firewall' ),
 			'license_active'  => __( 'Active', 'wp-simple-firewall' ),
@@ -347,9 +293,8 @@ abstract class BaseRender extends BaseAction {
 			'license_expires' => __( 'Expires', 'wp-simple-firewall' ),
 			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
-			'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
 
-			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $name ),
+			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->getHumanName() ),
 			'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 			'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),

@@ -34,6 +34,12 @@ class MfaController {
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
 	}
 
+	public function getLoginIntentMinutes() :int {
+		return (int)\max( 1,
+			apply_filters( 'shield/login_intent_timeout', self::con()->cfg->configuration->def( 'login_intent_timeout' ) )
+		);
+	}
+
 	/**
 	 * We only want to auto send email if:
 	 * - email is the only provider
@@ -84,10 +90,6 @@ class MfaController {
 
 	public function onWpInit() {
 		( new LoginRequestCapture() )->execute();
-	}
-
-	public function useLoginIntentPage() :bool {
-		return $this->opts()->isOpt( 'mfa_verify_page', 'custom_shield' );
 	}
 
 	public function getMfaProfilesCon() :MfaProfilesController {
@@ -229,6 +231,10 @@ class MfaController {
 		return $this->getProvidersForUser( $user );
 	}
 
+	public function getMfaSkip() :int { // seconds
+		return \DAY_IN_SECONDS*( self::con()->opts->optGet( 'mfa_skip' ) );
+	}
+
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions
 			   && \count( $this->getProvidersActiveForUser( $user ) ) > 0;
@@ -263,16 +269,9 @@ class MfaController {
 		return \array_filter(
 			\is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			function ( $intent ) {
-				$opts = $this->opts();
-
-				$active = false;
-				if ( \is_array( $intent ) ) {
-					$active = $intent[ 'start' ] > ( Services::Request()->ts() - $opts->getLoginIntentMinutes()*60 )
-							  &&
-							  $intent[ 'attempts' ] < $opts->getLoginIntentMaxAttempts();
-				}
-
-				return $active;
+				return \is_array( $intent )
+					   && $intent[ 'start' ] > ( Services::Request()->ts() - $this->getLoginIntentMinutes()*60 )
+					   && $intent[ 'attempts' ] < self::con()->cfg->configuration->def( 'login_intent_max_attempts' );
 			}
 		);
 	}

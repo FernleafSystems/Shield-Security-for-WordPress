@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\WpCli {
+/**
+ * @deprecated 19.1
+ */
+class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli {
 
 	protected function isFeatureAvailable() :bool {
 		return self::con()->caps->canWpcliLevel1();

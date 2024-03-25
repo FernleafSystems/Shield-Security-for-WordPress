@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Report\Changes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ZoneReportComments extends BaseZoneReport {
@@ -53,7 +53,7 @@ class ZoneReportComments extends BaseZoneReport {
 		}
 		else {
 			$link = [
-				'href' => get_edit_comment_link( $comment ),
+				'href' => get_edit_comment_link( $log->meta_data[ 'comment_id' ] ),
 				'text' => __( 'View Comment' ),
 			];
 		}

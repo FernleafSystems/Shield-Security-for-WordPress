@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
-
 class LockdownXmlrpc extends Base {
 
 	use Traits\OptConfigBased;
@@ -12,10 +10,7 @@ class LockdownXmlrpc extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Lockdown();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isXmlrpcDisabled();
+		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'disable_xmlrpc', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

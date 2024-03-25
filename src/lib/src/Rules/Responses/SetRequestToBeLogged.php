@@ -12,7 +12,7 @@ class SetRequestToBeLogged extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'do_log' => [
+			'do_log'        => [
 				'type'    => EnumParameters::TYPE_BOOL,
 				'label'   => __( 'Whether to log request', 'wp-simple-firewall' ),
 				'default' => true,

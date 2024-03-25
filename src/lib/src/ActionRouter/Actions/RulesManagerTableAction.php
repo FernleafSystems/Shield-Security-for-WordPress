@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\RuleRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ReorderCustomRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules\BuildSecurityRulesTableData;
 

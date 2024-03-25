@@ -27,7 +27,7 @@ class BlockPageSiteBlockdown extends BaseBlock {
 				'subtitle'      => __( 'Access to this site has been temporarily restricted.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact site admin to request access if required.', 'wp-simple-firewall' ),
 			],
-			'vars' => [
+			'vars'    => [
 			]
 		];
 	}

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property bool   $is_pro
@@ -12,7 +12,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
  * @property string $version
  * @property bool   $has_update
  */
-class SyncMetaVO {
+class SyncMetaVO extends DynPropertiesClass {
 
-	use DynProperties;
 }

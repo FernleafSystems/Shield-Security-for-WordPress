@@ -19,7 +19,7 @@ class Init {
 		$con = self::con();
 
 		// TODO: Consider have an "error" screen message to show it's not enabled instead?
-		if ( !$this->opts()->isEnabledMainWP() ) {
+		if ( !$con->comps->opts_lookup->enabledIntegrationMainwp() ) {
 			throw new \Exception( 'MainWP Extension is not enabled' );
 		}
 

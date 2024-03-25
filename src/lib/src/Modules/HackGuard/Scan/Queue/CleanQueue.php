@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ScanItems\Ops as ScanItemsDB,
 	Scans\Ops as ScansDB
 };
@@ -23,7 +23,7 @@ class CleanQueue {
 
 	private function resetStaleScanItems() {
 		Services::WpDb()->doSql(
-			sprintf( "UPDATE `%s` SET `started_at`=0 WHERE `started_at` > 0 AND `started_at` < %s",
+			sprintf( "UPDATE `%s` SET `started_at`=0 WHERE `finished_at`=0 AND `started_at` > 0 AND `started_at` < %s",
 				self::con()->db_con->dbhScanItems()->getTableSchema()->table,
 				Services::Request()->carbon()->subMinutes( 2 )->timestamp
 			)

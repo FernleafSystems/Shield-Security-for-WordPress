@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 
 class LoginCooldown extends Base {
 
@@ -12,10 +12,8 @@ class LoginCooldown extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_LoginGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isEnabledCooldown();
+		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::LOGIN )
+			   && self::con()->opts->optGet( 'login_limit_interval' ) > 0;
 	}
 
 	protected function getOptConfigKey() :string {

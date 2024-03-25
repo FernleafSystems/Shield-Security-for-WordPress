@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops;
 
+/**
+ * @deprecated 19.1
+ */
 trait Common {
 
 	public function filterByMetaKey( string $key ) {

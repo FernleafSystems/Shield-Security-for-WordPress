@@ -104,8 +104,7 @@ class MfaProfilesController {
 						],
 						'data'    => function () {
 							$user = Services::WpUsers()->getCurrentWpUser();
-							$providers = $user instanceof \WP_User ?
-								$this->mod()->getMfaController()->getProvidersAvailableToUser( $user ) : [];
+							$providers = $user instanceof \WP_User ? self::con()->comps->mfa->getProvidersAvailableToUser( $user ) : [];
 							return [
 								'ajax'    => [
 									'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),

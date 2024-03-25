@@ -25,12 +25,10 @@ class LoginRequestCapture {
 
 	protected function captureLogin( \WP_User $user ) {
 		$con = self::con();
-		$mfaCon = $this->mod()->getMfaController();
+		$mfaCon = $con->comps->mfa;
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 
 			if ( !$this->canUserMfaSkip( $user ) ) {
-				$opts = $this->opts();
-
 				$loginNonce = \bin2hex( random_bytes( 32 ) );
 				$loginNonceHashed = wp_hash_password( $loginNonce.$user->ID );
 
@@ -55,7 +53,7 @@ class LoginRequestCapture {
 				$req = Services::Request();
 				try {
 					$con->action_router->action( FullPageDisplayDynamic::class, [
-						'render_slug' => ( $opts->getMfaLoginIntentFormat() === $mfaCon::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
+						'render_slug' => ( $con->opts->optGet( 'mfa_verify_page' ) === $mfaCon::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
 							ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 						'render_data' => [
 							'user_id'           => $user->ID,

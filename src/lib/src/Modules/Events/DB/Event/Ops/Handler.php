@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
 	/**
@@ -16,12 +19,10 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 	}
 
 	public function commitEvent( string $evt, int $count = 1 ) :bool {
-		/** @var Record $entry */
 		$entry = $this->getRecord();
 		$entry->event = $evt;
 		$entry->count = \max( 1, $count );
 		$entry->created_at = Services::Request()->ts();
-		/** @var Insert $QI */
 		$QI = $this->getQueryInserter();
 		return $QI->insert( $entry );
 	}

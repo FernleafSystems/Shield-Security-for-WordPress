@@ -9,10 +9,7 @@ class MfaSmsVerify extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_sms_verify';
 
 	protected function exec() {
-		$available = self::con()
-						 ->getModule_LoginGuard()
-						 ->getMfaController()
-						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Sms $provider */
 		$provider = $available[ Sms::ProviderSlug() ];
 

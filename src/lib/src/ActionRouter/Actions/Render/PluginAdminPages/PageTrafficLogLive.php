@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Traffic\TrafficLiveLogs,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 
 class PageTrafficLogLive extends PageTrafficLogBase {
 
@@ -24,8 +23,6 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 	}
 
 	protected function getRenderData() :array {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_Traffic()->opts();
 		$limit = $this->action_data[ 'limit' ] ?? 200;
 		return [
 			'ajax'    => [
@@ -34,7 +31,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 				] ),
 			],
 			'flags'   => [
-				'is_enabled' => $opts->liveLoggingTimeRemaining() > 0,
+				'is_enabled' => self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0,
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'stoplights' ),

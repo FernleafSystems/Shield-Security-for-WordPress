@@ -8,6 +8,7 @@ class RetrieveCount extends RetrieveBase {
 
 	public const CONTEXT_ACTIVE_PROBLEMS = 0;
 	public const CONTEXT_NOT_YET_NOTIFIED = 1;
+	public const CONTEXT_RESULTS_DISPLAY = 2;
 
 	public function buildQuery( array $selectFields = [] ) :string {
 		return sprintf(
@@ -40,6 +41,22 @@ class RetrieveCount extends RetrieveBase {
 					];
 					break;
 
+				case self::CONTEXT_RESULTS_DISPLAY:
+					$specificWheres = [
+						"`ri`.`auto_filtered_at`=0",
+					];
+					$includes = self::con()->opts->optGet( 'scan_results_table_display' );
+					if ( !\in_array( 'include_ignored', $includes ) ) {
+						$specificWheres[] = "`ri`.`ignored_at`=0";
+					}
+					if ( !\in_array( 'include_repaired', $includes ) ) {
+						$specificWheres[] = "`ri`.`item_repaired_at`=0";
+					}
+					if ( !\in_array( 'include_deleted', $includes ) ) {
+						$specificWheres[] = "`ri`.`item_deleted_at`=0";
+					}
+					break;
+
 				case self::CONTEXT_ACTIVE_PROBLEMS:
 				default:
 					$specificWheres = [
@@ -59,7 +76,7 @@ class RetrieveCount extends RetrieveBase {
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
-		$mod = $this->mod();
+		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`
@@ -69,10 +86,10 @@ class RetrieveCount extends RetrieveBase {
 						INNER JOIN `%s` as %s
 							ON %s.`ri_ref` = `ri`.id
 						WHERE %%s;",
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table,
-			$mod->getDbH_ResultItemMeta()->getTableSchema()->table,
+			$dbCon->dbhScanResults()->getTableSchema()->table,
+			$dbCon->dbhScans()->getTableSchema()->table,
+			$dbCon->dbhResultItems()->getTableSchema()->table,
+			$dbCon->dbhResultItemMeta()->getTableSchema()->table,
 			self::ABBR_RESULTITEMMETA,
 			self::ABBR_RESULTITEMMETA
 		);

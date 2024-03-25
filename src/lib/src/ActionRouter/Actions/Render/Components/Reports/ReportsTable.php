@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,9 +16,8 @@ class ReportsTable extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/reports/table_reports.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
 		/** @var ReportDB\Select $selector */
-		$selector = $con->db_con->dbhReports()->getQuerySelector();
+		$selector = self::con()->db_con->dbhReports()->getQuerySelector();
 		$limit = $this->action_data[ 'reports_limit' ] ?? 0;
 		if ( $limit > 0 ) {
 			$selector->setLimit( $limit );
@@ -26,8 +25,8 @@ class ReportsTable extends BaseRender {
 		$activeID = $this->action_data[ 'active_id' ] ?? '';
 
 		$reports = \array_filter( \array_map(
-			function ( ReportDB\Record $report ) use ( $con, $activeID ) {
-				$repCon = $con->getModule_Plugin()->getReportingController();
+			function ( ReportDB\Record $report ) use ( $activeID ) {
+				$repCon = self::con()->comps->reports;
 				return empty( $report->content ) ? null
 					: [
 						'href'       => $repCon->getReportURL( $report->unique_id ),
@@ -42,7 +41,7 @@ class ReportsTable extends BaseRender {
 							'delete' => [
 								'title'   => __( 'Delete' ),
 								'classes' => [ 'btn-danger', 'shield_dynamic_action_button' ],
-								'svg'     => $con->svgs->raw( 'trash3-fill.svg' ),
+								'svg'     => self::con()->svgs->raw( 'trash3-fill.svg' ),
 								'data'    => ActionData::Build( ReportTableAction::class, false, [
 									'report_action' => 'delete',
 									'rid'           => $report->id,
@@ -70,7 +69,7 @@ class ReportsTable extends BaseRender {
 				'has_reports' => \count( $reports ) > 0,
 			],
 			'hrefs'   => [
-				'page_reports' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS ),
+				'page_reports' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS ),
 			],
 			'strings' => [
 				'no_reports' => __( 'No reports have been generated yet.' ),

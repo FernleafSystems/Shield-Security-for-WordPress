@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class FileScanner {
 
@@ -11,7 +12,7 @@ class FileScanner {
 	use ScanActionConsumer;
 
 	public function scan( string $fullPath ) :?ResultItem {
-		$scanCon = $this->mod()->getScansCon()->AFS();
+		$scanCon = self::con()->comps->scans->AFS();
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
@@ -126,6 +127,10 @@ class FileScanner {
 			}
 		}
 
+		if ( !empty( $item ) && Services::WpFs()->isAccessibleFile( $fullPath ) ) {
+			$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
+		}
+
 		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.
 		if ( empty( $item ) && $validFile ) {
 			$validFiles = \is_array( $action->valid_files ) ? $action->valid_files : [];
@@ -138,7 +143,7 @@ class FileScanner {
 
 	private function getResultItem( string $fullPath ) :ResultItem {
 		/** @var ResultItem $item */
-		$item = $this->mod()->getScansCon()->AFS()->getNewResultItem();
+		$item = self::con()->comps->scans->AFS()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
 		$item->path_fragment = \str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
 		return $item;

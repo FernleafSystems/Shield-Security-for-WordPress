@@ -10,12 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	OtpVerificationFailedException,
 	TooManyAttemptsException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
 
 class LoginIntentRequestValidate {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use WpUserConsumer;
 
 	/**
@@ -27,7 +27,7 @@ class LoginIntentRequestValidate {
 	 * @throws TooManyAttemptsException
 	 */
 	public function run( string $plainNonce, bool $isCancel = false ) :string {
-		$mfaCon = self::con()->getModule_LoginGuard()->getMfaController();
+		$mfaCon = self::con()->comps->mfa;
 		$user = $this->getWpUser();
 
 		if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {

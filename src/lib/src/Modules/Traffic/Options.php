@@ -4,69 +4,53 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
-
-	public function preSave() :void {
-		if ( $this->isOptChanged( 'custom_exclusions' ) ) {
-			$this->setOpt( 'custom_exclusions', \array_filter( \array_map(
-				function ( $excl ) {
-					return \trim( esc_js( $excl ) );
-				},
-				$this->getOpt( 'custom_exclusions' )
-			) ) );
-		}
-
-		if ( $this->isOpt( 'enable_limiter', 'Y' ) && !$this->isTrafficLoggerEnabled() ) {
-			$this->setOpt( 'enable_logger', 'Y' );
-			if ( $this->getAutoCleanDays() === 0 ) {
-				$this->resetOptToDefault( 'auto_clean' );
-			}
-		}
-
-		if ( $this->isOpt( 'enable_live_log', 'Y' ) && !$this->isTrafficLoggerEnabled() ) {
-			$this->setOpt( 'enable_live_log', 'N' )
-				 ->setOpt( 'live_log_started_at', 0 );
-		}
-	}
+/**
+ * @deprecated 19.1
+ */
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
 	/**
-	 * @inheritDoc
+	 * @deprecated 19.1
 	 */
-	protected function preSetOptChecks( string $key, $newValue ) {
-		if ( $key === 'auto_clean' && $newValue > self::con()->caps->getMaxLogRetentionDays() ) {
-			throw new \Exception( 'Cannot set log retention days to anything longer than max' );
-		}
-	}
-
 	public function getAutoCleanDays() :int {
 		$days = (int)\min( $this->getOpt( 'auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
 		$this->setOpt( 'auto_clean', $days );
 		return $days;
 	}
 
-	public function getCustomExclusions() :array {
-		return $this->getOpt( 'custom_exclusions' );
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getLimitRequestCount() :int {
 		return (int)$this->getOpt( 'limit_requests' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getLimitTimeSpan() :int {
 		return (int)$this->getOpt( 'limit_time_span' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isTrafficLoggerEnabled() :bool {
 		return $this->isOpt( 'enable_traffic', 'Y' )
-			   && $this->isOpt( 'enable_logger', 'Y' )
-			   && $this->getAutoCleanDays() > 0;
+			   && $this->isOpt( 'enable_logger', 'Y' );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isTrafficLimitEnabled() :bool {
 		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function liveLoggingTimeRemaining() :int {
 		$now = Services::Request()->ts();
 
@@ -89,7 +73,17 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		return $startedAt > 0 ? \max( 0, $this->liveLoggingDuration() - ( $now - $startedAt ) ) : 0;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function liveLoggingDuration() :int {
 		return (int)\min( \DAY_IN_SECONDS, \max( \MINUTE_IN_SECONDS, apply_filters( 'shield/live_traffic_log_duration', \HOUR_IN_SECONDS/2 ) ) );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getCustomExclusions() :array {
+		return $this->getOpt( 'custom_exclusions' );
 	}
 }

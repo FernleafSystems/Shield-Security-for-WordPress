@@ -8,6 +8,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops
  * @property string $event_slug
  * @property string $ip
  * @property int    $updated_at
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

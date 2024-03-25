@@ -24,7 +24,7 @@ class PluginURLs {
 	}
 
 	public function rootAdminPageSlug() :string {
-		return self::con()->getModule_Plugin()->getModSlug();
+		return self::con()->prefix( self::con()->getModule_Plugin()->cfg->slug );
 	}
 
 	public function adminHome() :string {
@@ -51,20 +51,31 @@ class PluginURLs {
 	}
 
 	/**
-	 * @param ModCon|mixed $mod
+	 * @param ModCon|string|mixed $mod
 	 */
 	public function modCfg( $mod ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, $mod->cfg->slug );
+		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, \is_string( $mod ) ? $mod : $mod->cfg->slug );
 	}
 
 	public function modCfgOption( string $optKey ) :string {
-		$mod = OptUtils::ModFromOpt( $optKey );
-		$def = $mod->opts()->getOptDefinition( $optKey );
-		return empty( $def[ 'section' ] ) ? $this->modCfg( $mod ) : $this->modCfgSection( $mod, $def[ 'section' ] );
+		$con = self::con();
+		if ( isset( $con->cfg->configuration ) ) {
+			$url = $this->modCfgSection(
+				$con->cfg->configuration->modFromOpt( $optKey ),
+				$con->opts->optDef( $optKey )[ 'section' ]
+			);
+		}
+		else {
+			/** @deprecated 19.1 */
+			$mod = OptUtils::ModFromOpt( $optKey );
+			$def = $mod->opts()->getOptDefinition( $optKey );
+			$url = empty( $def[ 'section' ] ) ? $this->modCfg( $mod ) : $this->modCfgSection( $mod, $def[ 'section' ] );
+		}
+		return $url;
 	}
 
 	/**
-	 * @param ModCon|mixed $mod
+	 * @param ModCon|string|mixed $mod
 	 */
 	public function modCfgSection( $mod, string $optSection ) :string {
 		return $this->modCfg( $mod ).'#tab-'.$optSection;

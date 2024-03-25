@@ -2,12 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\MetaRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserMetas {
 
-	use Shield\Modules\PluginControllerConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var \WP_User
@@ -23,7 +24,7 @@ class UserMetas {
 		if ( $user instanceof \WP_User ) {
 			$this->user = $user;
 			try {
-				$meta = Shield\Users\ShieldUserMeta::Load( self::con()->prefix(), (int)$user->ID );
+				$meta = ShieldUserMeta::Load( self::con()->prefix(), (int)$user->ID );
 				if ( !isset( $meta->record ) ) {
 					$this->loadMetaRecord( $meta );
 					$this->setup( $meta );
@@ -37,7 +38,7 @@ class UserMetas {
 		return $meta;
 	}
 
-	private function setup( Shield\Users\ShieldUserMeta $meta ) {
+	private function setup( ShieldUserMeta $meta ) {
 		$rec = $meta->record;
 
 		$newHash = \substr( \sha1( $this->user->user_pass ), 6, 4 );
@@ -55,13 +56,13 @@ class UserMetas {
 		}
 	}
 
-	private function loadMetaRecord( Shield\Users\ShieldUserMeta $meta ) {
+	private function loadMetaRecord( ShieldUserMeta $meta ) {
 
-		$metaLoader = new Shield\Modules\Data\DB\UserMeta\MetaRecords();
+		$metaLoader = new MetaRecords();
 		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 
 		if ( empty( $metaRecord ) ) {
-			$metaRecord = self::con()->getModule_Data()->getDbH_UserMeta()->getRecord();
+			$metaRecord = self::con()->db_con->dbhUserMeta()->getRecord();
 		}
 		else {
 			$dataToUpdate = [];
@@ -95,8 +96,8 @@ class UserMetas {
 
 			if ( !empty( $dataToUpdate ) ) {
 				self::con()
-					->getModule_Data()
-					->getDbH_UserMeta()
+					->db_con
+					->dbhUserMeta()
 					->getQueryUpdater()
 					->updateRecord( $metaRecord, $dataToUpdate );
 				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );

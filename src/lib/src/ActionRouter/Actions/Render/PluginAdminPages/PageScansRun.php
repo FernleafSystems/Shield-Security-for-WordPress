@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
 class PageScansRun extends PageScansBase {
 
@@ -12,18 +12,17 @@ class PageScansRun extends PageScansBase {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_run.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = self::con();
 		return [
 			[
 				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			[
 				'text'    => __( 'Configure Scans', 'wp-simple-firewall' ),
 				'href'    => '#',
 				'classes' => [ 'offcanvas_form_mod_cfg' ],
 				'datas'   => [
-					'config_item' => $con->getModule_HackGuard()->cfg->slug
+					'config_item' => EnumModules::SCANS,
 				],
 			],
 		];
@@ -31,19 +30,18 @@ class PageScansRun extends PageScansBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$mod = $con->getModule_HackGuard();
 
 		( new CleanQueue() )->execute();
 
 		// Can Scan Checks:
-		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
+		$reasonsCantScan = $con->comps->scans->getReasonsScansCantExecute();
 		return [
 			'flags'   => [
 				'can_scan'        => \count( $reasonsCantScan ) === 0,
-				'module_disabled' => !$mod->isModOptEnabled(),
+				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
 			],
 			'hrefs'   => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgSection( EnumModules::SCANS, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [
@@ -78,22 +76,21 @@ class PageScansRun extends PageScansBase {
 	}
 
 	private function buildScansVars() :array {
-		$mod = self::con()->getModule_HackGuard();
-		$opts = $mod->opts();
-		/** @var Strings $strings */
-		$strings = $mod->getStrings();
-		$scanStrings = $strings->getScanStrings();
+		$con = self::con();
 
 		$scans = [];
-		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+		foreach ( $con->comps->scans->getAllScanCons() as $scanCon ) {
 			$slug = $scanCon->getSlug();
 
 			$subItems = [];
-			if ( $slug === $mod->getScansCon()->AFS()->getSlug() ) {
-				foreach ( $opts->getOptDefinition( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
-					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $opts->getOpt( 'file_scan_areas' ) );
+			if ( $slug === $con->comps->scans->AFS()->getSlug() ) {
+				foreach ( $con->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
+					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $con->opts->optGet( 'file_scan_areas' ) );
 				}
 			}
+
+			$strings = $scanCon->getStrings();
+			$strings[ 'sub_items' ] = $subItems;
 
 			$data = [
 				'flags'   => [
@@ -101,13 +98,9 @@ class PageScansRun extends PageScansBase {
 					'is_restricted' => $scanCon->isRestricted(),
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
-									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
+					//									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
-				'strings' => [
-					'title'     => $scanStrings[ $slug ][ 'name' ],
-					'subtitle'  => $scanStrings[ $slug ][ 'subtitle' ],
-					'sub_items' => $subItems,
-				],
+				'strings' => $strings,
 				'vars'    => [
 					'slug' => $scanCon->getSlug(),
 				],

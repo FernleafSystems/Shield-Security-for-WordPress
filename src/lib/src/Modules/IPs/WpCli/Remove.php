@@ -23,6 +23,8 @@ class Remove extends BaseAddRemove {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdIpRemove( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		try {
 			$this->checkList( $args[ 'list' ] );
 

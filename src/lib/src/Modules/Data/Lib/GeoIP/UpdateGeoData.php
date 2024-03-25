@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
 	IpMetaRecord,
 	LoadIpMeta,
 	Ops as IPMetaDB
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 class UpdateGeoData {
 

@@ -26,11 +26,13 @@ export class ShieldEventsHandler extends BaseService {
 					const t = evt.target;
 					for ( const selector in this.eventHandlers[ eventType ] ) {
 						if ( t.closest( selector ) ) {
-							if ( this.isSuppressEvent( eventType ) ) {
+
+							const theHandler = this.eventHandlers[ eventType ][ selector ];
+							if ( theHandler.suppress ) {
 								evt.preventDefault();
 							}
-							this.eventHandlers[ eventType ][ selector ]( t.closest( selector ), evt );
-							if ( this.isSuppressEvent( eventType ) ) {
+							theHandler.callback( t.closest( selector ), evt );
+							if ( theHandler.suppress ) {
 								return false;
 							}
 						}
@@ -40,28 +42,31 @@ export class ShieldEventsHandler extends BaseService {
 		}
 	}
 
-	addHandler( event, selector, callback ) {
-		this.eventHandlers[ event ][ selector ] = callback;
+	addHandler( event, selector, callback, suppress = null ) {
+		this.eventHandlers[ event ][ selector ] = {
+			callback: callback,
+			suppress: suppress === null ? this.isSuppressEvent( event ) : suppress
+		};
 	}
 
-	add_Change( selector, callback ) {
-		this.addHandler( 'change', selector, callback );
+	add_Change( selector, callback, suppress = null ) {
+		this.addHandler( 'change', selector, callback, suppress );
 	}
 
-	add_Click( selector, callback ) {
-		this.addHandler( 'click', selector, callback );
+	add_Click( selector, callback, suppress = null ) {
+		this.addHandler( 'click', selector, callback, suppress );
 	}
 
-	add_Keypress( selector, callback ) {
-		this.addHandler( 'keypress', selector, callback );
+	add_Keypress( selector, callback, suppress = null ) {
+		this.addHandler( 'keypress', selector, callback, suppress );
 	}
 
-	add_Keyup( selector, callback ) {
-		this.addHandler( 'keyup', selector, callback );
+	add_Keyup( selector, callback, suppress = null ) {
+		this.addHandler( 'keyup', selector, callback, suppress );
 	}
 
-	add_Submit( selector, callback ) {
-		this.addHandler( 'submit', selector, callback );
+	add_Submit( selector, callback, suppress = null ) {
+		this.addHandler( 'submit', selector, callback, suppress );
 	}
 
 	isSuppressEvent( event ) {

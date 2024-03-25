@@ -16,7 +16,7 @@ class ImportExportController {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isOpt( 'importexport_enable', 'Y' );
+		return self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
 	protected function run() {
@@ -33,7 +33,7 @@ class ImportExportController {
 			$this->importFromFlag();
 		} );
 
-		if ( $this->opts()->hasImportExportMasterImportUrl() ) {
+		if ( !empty( $this->getImportExportMasterImportUrl() ) ) {
 			// For auto update whitelist notifications:
 			add_action( self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
 				( new Import() )->autoImportFromMaster();
@@ -44,33 +44,43 @@ class ImportExportController {
 	public function addUrlToImportExportWhitelistUrls( string $url ) {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
-			$urls = $this->opts()->getImportExportWhitelist();
-			$urls[] = $url;
-			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			self::con()->opts->store();
+			self::con()
+				->opts
+				->optSet(
+					'importexport_whitelist', \array_unique( \array_merge( $this->getImportExportWhitelist(), [ $url ] ) )
+				)
+				->store();
 		}
 	}
 
 	public function removeUrlFromImportExportWhitelistUrls( string $url ) {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
-			$urls = $this->opts()->getImportExportWhitelist();
-			$key = \array_search( $url, $urls );
-			if ( $key !== false ) {
-				unset( $urls[ $key ] );
-			}
-			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			self::con()->opts->store();
+			self::con()
+				->opts
+				->optSet( 'importexport_whitelist', \array_diff( $this->getImportExportWhitelist(), [ $url ] ) )
+				->store();
 		}
 	}
 
-	protected function getImportExportSecretKey() :string {
-		$ID = $this->opts()->getOpt( 'importexport_secretkey', '' );
-		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
+	public function getImportExportMasterImportUrl() :string {
+		return self::con()->opts->optGet( 'importexport_masterurl' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() :array {
+		return self::con()->opts->optGet( 'importexport_whitelist' );
+	}
+
+	public function getImportExportSecretKey() :string {
+		$opts = self::con()->opts;
+		$ID = $opts->optGet( 'importexport_secretkey' );
+		if ( empty( $ID ) || Services::Request()->ts() > $opts->optGet( 'importexport_secretkey_expires_at' ) ) {
 			$ID = \sha1( ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
-			$this->opts()
-				 ->setOpt( 'importexport_secretkey', $ID )
-				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
+			$opts->optSet( 'importexport_secretkey', $ID )
+				 ->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
 		return $ID;
 	}
@@ -79,8 +89,11 @@ class ImportExportController {
 		return !empty( $secret ) && $this->getImportExportSecretKey() == $secret;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	protected function isImportExportSecretKeyExpired() :bool {
-		return Services::Request()->ts() > $this->opts()->getOpt( 'importexport_secretkey_expires_at' );
+		return Services::Request()->ts() > self::con()->opts->optGet( 'importexport_secretkey_expires_at' );
 	}
 
 	private function importFromFlag() {
@@ -95,16 +108,18 @@ class ImportExportController {
 	 * We've been notified that there's an update to pull in from the master site, so we set a cron to do this.
 	 */
 	public function runOptionsUpdateNotified() {
+		$con = self::con();
 		// Ensure import/export feature is enabled (for cron and auto-import to run)
-		$this->opts()->setOpt( 'importexport_enable', 'Y' );
+		$con->opts->optSet( 'importexport_enable', 'Y' );
 
-		$cronHook = self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
+		$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( !wp_next_scheduled( $cronHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + \rand( 30, 180 ), $cronHook );
-			self::con()->fireEvent(
-				'import_notify_received',
-				[ 'audit_params' => [ 'master_site' => $this->opts()->getImportExportMasterImportUrl() ] ]
-			);
+			$con->fireEvent( 'import_notify_received', [
+				'audit_params' => [
+					'master_site' => $con->opts->optGet( 'importexport_masterurl' )
+				]
+			] );
 		}
 	}
 

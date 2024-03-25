@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return self::con()->getModule_SecAdmin();
+		return self::con()->modules[ EnumModules::SECURITY_ADMIN ];
 	}
 
 	public function opts() :Options {

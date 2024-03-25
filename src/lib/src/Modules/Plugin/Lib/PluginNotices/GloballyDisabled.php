@@ -2,14 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
-
 class GloballyDisabled extends Base {
 
 	public function check() :?array {
-		/** @var Options $pluginOpts */
-		$pluginOpts = self::con()->getModule_Plugin()->opts();
-		return $pluginOpts->isPluginGloballyDisabled() ?
+		$con = self::con();
+		return ( $con->comps !== null && $con->comps->opts_lookup->isPluginGloballyDisabled() ) ?
 			[
 				'id'        => 'plugin_globally_disabled',
 				'type'      => 'warning',

@@ -58,14 +58,17 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		if ( $this->opts()->isProtectLogin() ) {
-			$this->login();
-		}
-		if ( $this->opts()->isProtectRegister() ) {
-			$this->register();
-		}
-		if ( $this->opts()->isProtectLostPassword() ) {
-			$this->lostpassword();
+		if ( self::con()->comps !== null ) {
+			$locations = self::con()->opts->optGet( 'bot_protection_locations' );
+			if ( \in_array( 'login', $locations ) ) {
+				$this->login();
+			}
+			if ( \in_array( 'register', $locations ) ) {
+				$this->register();
+			}
+			if ( \in_array( 'password', $locations ) ) {
+				$this->lostpassword();
+			}
 		}
 	}
 

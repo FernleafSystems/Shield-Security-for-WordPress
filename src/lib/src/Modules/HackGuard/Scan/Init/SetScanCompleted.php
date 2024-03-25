@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class SetScanCompleted {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run( string $scan ) {
 		$count = (int)Services::WpDb()->getVar(
@@ -43,7 +43,7 @@ class SetScanCompleted {
 				] )
 				->query();
 
-			$scanCon = $this->mod()->getScansCon()->getScanCon( $scan );
+			$scanCon = self::con()->comps->scans->getScanCon( $scan );
 			self::con()->fireEvent( 'scan_run', [
 				'audit_params' => [
 					'scan' => $scanCon->getScanName()

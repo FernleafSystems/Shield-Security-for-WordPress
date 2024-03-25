@@ -3,7 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -15,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var string|int|null
@@ -33,7 +34,8 @@ class Scanner {
 	private $spamCodes;
 
 	protected function canRun() :bool {
-		return Services::WpComments()->isCommentSubmission();
+		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::COMMENTS )
+			   && Services::WpComments()->isCommentSubmission();
 	}
 
 	protected function run() {
@@ -46,7 +48,7 @@ class Scanner {
 	 * @return array
 	 */
 	public function checkComment( $approval, $comm ) {
-		$opts = $this->opts();
+		$con = self::con();
 
 		// Note: use strict \in_array() here because when approval is '0', always returns 'true'
 		if ( !\in_array( $approval, [ 'spam', 'trash' ], true )
@@ -61,22 +63,21 @@ class Scanner {
 			if ( \count( $errorCodes ) > 0 ) {
 
 				foreach ( $errorCodes as $errorCode ) {
-					self::con()
-						->fireEvent(
-							'spam_block_'.$errorCode,
-							[ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
-						);
+					$con->fireEvent(
+						'spam_block_'.$errorCode,
+						[ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
+					);
 				}
 
-				self::con()->fireEvent( 'comment_spam_block' );
+				$con->fireEvent( 'comment_spam_block' );
 
 				// if we're configured to actually block...
-				if ( $opts->isEnabledAntiBot() && \in_array( 'antibot', $errorCodes ) ) {
-					$newStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
+				if ( $con->comps->opts_lookup->enabledAntiBotCommentSpam() && \in_array( 'antibot', $errorCodes ) ) {
+					$newStatus = $con->opts->optGet( 'comments_default_action_spam_bot' );
 				}
-				elseif ( $opts->isEnabledHumanCheck()
+				elseif ( $con->comps->opts_lookup->enabledHumanCommentSpam()
 						 && \count( \array_intersect( [ 'human', 'humanrepeated', 'cooldown' ], $errorCodes ) ) > 0 ) {
-					$newStatus = $opts->getOpt( 'comments_default_action_human_spam' );
+					$newStatus = $con->opts->optGet( 'comments_default_action_human_spam' );
 				}
 				else {
 					$newStatus = null;
@@ -102,18 +103,12 @@ class Scanner {
 	}
 
 	private function runScans( array $commData ) :\WP_Error {
-		$opts = $this->opts();
-
 		$errors = new \WP_Error();
 
-		$isBot = self::con()
-					 ->getModule_IPs()
-					 ->getBotSignalsController()
-					 ->isBot();
-		if ( $isBot ) {
+		if ( self::con()->comps->bot_signals->isBot() ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
-		elseif ( $opts->isEnabledHumanCheck() ) {
+		elseif ( self::con()->comps->opts_lookup->enabledHumanCommentSpam() ) {
 
 			if ( ( new IsCooldownTriggered() )->test() ) {
 				$errors->add( 'cooldown', __( 'Comments Cooldown Triggered', 'wp-simple-firewall' ) );
@@ -135,7 +130,7 @@ class Scanner {
 				}
 			}
 
-			$opts->setOpt( 'last_comment_request_at', Services::Request()->ts() );
+			self::con()->opts->optSet( 'last_comment_request_at', Services::Request()->ts() );
 		}
 
 		return $errors;

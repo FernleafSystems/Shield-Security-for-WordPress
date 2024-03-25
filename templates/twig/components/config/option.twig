@@ -4,8 +4,8 @@
 
 	<div class="col-2" style="min-width: 140px">
 		<label for="Opt-{{ option.key }}"
-		       id="Label-{{ option.key }}"
-		       class="col-form-label">
+			   id="Label-{{ option.key }}"
+			   class="col-form-label">
 			<span class="option_label_name">{{ option.name }}
 
 				{% if option.beacon_id|default(false) %}
@@ -37,63 +37,63 @@
 		{% if option.type is same as('checkbox') %}
 			<div class="form-check">
 				<input type="checkbox"
-				       class="form-check-input"
-				       id="Opt-{{ option.key }}"
-				       name="{{ option.key }}"
-				       {% if option.disabled %}disabled="disabled"{% endif %}
-				       aria-labelledby="Label-{{ option.key }}"
-				       value="Y"
+					   class="form-check-input"
+					   id="Opt-{{ option.key }}"
+					   name="{{ option.key }}"
+					   {% if option.disabled %}disabled="disabled"{% endif %}
+					   aria-labelledby="Label-{{ option.key }}"
+					   value="Y"
 						{{ ( option.value is same as('Y') ) ? 'checked="checked"' : '' }}
 				/>
 				<label class="form-check-label"
-				       for="Opt-{{ option.key }}">{{ option.summary }}</label>
+					   for="Opt-{{ option.key }}">{{ option.summary }}</label>
 			</div>
 
 		{% elseif option.type is same as('text') %}
 
 			<input type="text" name="{{ option.key }}"
-			       id="Opt-{{ option.key }}"
-			       value="{{ option.value|raw }}"
-			       placeholder="{{ option.value }}"
+				   id="Opt-{{ option.key }}"
+				   value="{{ option.value|raw }}"
+				   placeholder="{{ option.value }}"
 					{% if option.disabled %}
 						disabled="disabled"
 					{% endif %}
-					   class="form-control" />
+				   class="form-control" />
 
 		{% elseif option.type is same as('password') %}
 
 			<input type="password" name="{{ option.key }}"
-			       id="Opt-{{ option.key }}"
-			       value="{{ option.value|raw }}"
-			       placeholder="{{ strings.supply_password }}"
-			       autocomplete="new-password"
-			       {% if option.disabled %}disabled="disabled"{% endif %}
-			       class="form-control mb-2" />
+				   id="Opt-{{ option.key }}"
+				   value="{{ option.value|raw }}"
+				   placeholder="{{ strings.supply_password }}"
+				   autocomplete="new-password"
+				   {% if option.disabled %}disabled="disabled"{% endif %}
+				   class="form-control mb-2" />
 
 			<input type="password" name="{{ option.key }}_confirm"
-			       id="Opt-{{ option.key }}_confirm"
-			       value="{{ option.value|raw }}"
-			       placeholder="{{ strings.confirm_password }}"
-			       autocomplete="new-password"
-			       {% if option.disabled %}disabled="disabled"{% endif %}
-			       class="form-control" />
+				   id="Opt-{{ option.key }}_confirm"
+				   value="{{ option.value|raw }}"
+				   placeholder="{{ strings.confirm_password }}"
+				   autocomplete="new-password"
+				   {% if option.disabled %}disabled="disabled"{% endif %}
+				   class="form-control" />
 
 		{% elseif option.type is same as('email') %}
 
 			<input type="text" name="{{ option.key }}"
-			       id="Opt-{{ option.key }}"
-			       value="{{ option.value|raw }}"
-			       placeholder="{{ option.value }}"
-			       {% if option.disabled %}disabled="disabled"{% endif %}
-			       class="form-control" />
+				   id="Opt-{{ option.key }}"
+				   value="{{ option.value|raw }}"
+				   placeholder="{{ option.value }}"
+				   {% if option.disabled %}disabled="disabled"{% endif %}
+				   class="form-control" />
 
 		{% elseif option.type is same as('select') %}
 
 			<select name="{{ option.key }}"
-			        class="form-select"
-			        id="Opt-{{ option.key }}"
-			        {% if option.disabled %}disabled="disabled"{% endif %}
-					    aria-label="Select for: {{ option.name }}">
+					class="form-select"
+					id="Opt-{{ option.key }}"
+					{% if option.disabled %}disabled="disabled"{% endif %}
+					aria-label="Select for: {{ option.name }}">
 				{% for option_value, option_value_settings in option.value_options %}
 					<option
 							value="{{ option_value }}"
@@ -108,19 +108,19 @@
 			{% for option_value, option_value_settings in option.value_options %}
 				<div class="form-check">
 					<input type="checkbox"
-					       class="form-check-input"
-					       id="Opt-{{ option.key }}_{{ option_value }}"
-					       name="{{ option.key }}[]"
-					       value="{{ option_value }}"
-					       {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
+						   class="form-check-input"
+						   id="Opt-{{ option.key }}_{{ option_value }}"
+						   name="{{ option.key }}[]"
+						   value="{{ option_value }}"
+						   {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
 							{% if option_value in option.value %}
 								checked="checked"
 							{% endif %}
 							{% if option.disabled %}disabled="disabled"{% endif %}
 					/>
 					<label class="form-check-label"
-					       for="Opt-{{ option.key }}_{{ option_value }}"
-					       {% if not option_value_settings.is_available %}title="Available with ShieldPRO"{% endif %}
+						   for="Opt-{{ option.key }}_{{ option_value }}"
+						   {% if not option_value_settings.is_available %}title="Available with ShieldPRO"{% endif %}
 					>
 							{% if option_value in option.value %}
 								<strong>{{ option_value_settings.name|raw }}</strong>
@@ -133,36 +133,36 @@
 		{% elseif option.type is same as('array') %}
 
 			<textarea name="{{ option.key }}"
-			          id="Opt-{{ option.key }}"
-			          placeholder="{{ option.value|raw }}"
-			          rows="{{ option.rows }}"
-			          {% if option.disabled %}disabled="disabled"{% endif %}
+					  id="Opt-{{ option.key }}"
+					  placeholder="{{ option.value|raw }}"
+					  rows="{{ option.rows }}"
+					  {% if option.disabled %}disabled="disabled"{% endif %}
 					  class="form-control">{{ option.value|raw }}</textarea>
 
 		{% elseif option.type is same as('comma_separated_lists') %}
 
 			<textarea name="{{ option.key }}"
-			          id="Opt-{{ option.key }}"
-			          placeholder="{{ option.value }}"
-			          rows="{{ option.rows }}"
-			          {% if option.disabled %}disabled="disabled"{% endif %}
+					  id="Opt-{{ option.key }}"
+					  placeholder="{{ option.value }}"
+					  rows="{{ option.rows }}"
+					  {% if option.disabled %}disabled="disabled"{% endif %}
 					  class="form-control">{{ option.value }}</textarea>
 
 		{% elseif option.type is same as('noneditable_text') %}
 
 			<input name="{{ option.key }}" id="Opt-{{ option.key }}"
-			       type="text" readonly
-			       class="form-control"
-			       value="{{ option.value }}" />
+				   type="text" readonly
+				   class="form-control"
+				   value="{{ option.value }}" />
 
 		{% elseif option.type is same as('integer') %}
 
 			<input type="text" name="{{ option.key }}"
-			       id="Opt-{{ option.key }}"
-			       value="{{ option.value }}"
-			       placeholder="{{ option.value }}"
-			       {% if option.disabled %}disabled="disabled"{% endif %}
-			       class="form-control" />
+				   id="Opt-{{ option.key }}"
+				   value="{{ option.value }}"
+				   placeholder="{{ option.value }}"
+				   {% if option.disabled %}disabled="disabled"{% endif %}
+				   class="form-control" />
 
 		{% else %}
 			ERROR: Should never reach this point.
@@ -222,30 +222,29 @@
 
 				{% if flags.is_wpcli %}
 					<span href="#" style="cursor:pointer;"
-					      class="float-end"
-					      data-bs-toggle="tooltip"
-					      data-bs-placement="left"
-					      data-bs-title="WP-CLI Option Key: {{ option.key }}"
+						  class="float-end"
+						  data-bs-toggle="tooltip"
+						  data-bs-placement="left"
+						  data-bs-title="WP-CLI Option Key: {{ option.key }}"
 					>wp-cli:&gt;</span>
 				{% endif %}
 
 				{% if flags.show_transfer_switch %}
-					{% if attribute(vars.xferable_opts, option.key) is not same as(false) %}
-						<span class="form-check float-end importexport-checkbox"
-						      data-bs-toggle="tooltip"
-						      data-bs-placement="left"
-						      data-bs-title="{{ strings.is_opt_importexport }}"
+
+					{% if option.key in vars.xferable_opts %}
+						<span class="form-check float-end toggle-importexport-inclusion"
+							  data-bs-toggle="tooltip"
+							  data-bs-placement="left"
+							  data-bs-title="{{ strings.is_opt_importexport }}"
 						>
 							<input type="checkbox"
-							       class="form-check-input optxfer-exclude"
-							       id="optxfer-{{ option.key }}"
-							       name="optxfer-{{ option.key }}"
-							       aria-labelledby="Label-{{ option.key }}"
-							       value="Y"
-								{{ ( attribute(vars.xferable_opts, option.key) is same as('Y') ) ? 'checked="checked"' : '' }}
+								   class="form-check-input"
+								   aria-labelledby="Label-{{ option.key }}"
+								   data-key="{{ option.key }}"
+								{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
 							/>
 							<label class="custom-control-label"
-							       for="optxfer-{{ option.key }}">&nbsp;</label>
+								   for="optxfer-{{ option.key }}">&nbsp;</label>
 						</span>
 					{% endif %}
 				{% endif %}

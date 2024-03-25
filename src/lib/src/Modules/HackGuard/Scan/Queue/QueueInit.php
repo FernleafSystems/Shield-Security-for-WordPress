@@ -30,7 +30,7 @@ class QueueInit {
 	private function createScans( string $slug ) {
 		( new PopulateScanItems() )
 			->setRecord( ( new CreateNewScan() )->run( $slug ) )
-			->setScanController( $this->mod()->getScansCon()->getScanCon( $slug ) )
+			->setScanController( self::con()->comps->scans->getScanCon( $slug ) )
 			->run();
 	}
 }

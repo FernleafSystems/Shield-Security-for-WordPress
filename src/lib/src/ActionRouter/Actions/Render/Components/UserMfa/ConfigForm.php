@@ -22,14 +22,13 @@ class ConfigForm extends UserMfaBase {
 
 	protected function getRenderData() :array {
 		$WPU = Services::WpUsers();
-		$mod = self::con()->getModule_LoginGuard();
 		$user = $WPU->getUserById( $this->action_data[ 'user_id' ] ?? $WPU->getCurrentWpUserId() );
 
 		$providerRenders = \array_map(
 			function ( $provider ) {
 				return $provider->renderUserProfileConfigFormField();
 			},
-			$user instanceof \WP_User ? $mod->getMfaController()->getProvidersAvailableToUser( $user ) : []
+			$user instanceof \WP_User ? self::con()->comps->mfa->getProvidersAvailableToUser( $user ) : []
 		);
 
 		return apply_filters( 'shield/render_data_custom_profiles_mfa', [

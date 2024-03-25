@@ -18,7 +18,7 @@ class FirewallBlock extends Base {
 	 * @throws \Exception
 	 */
 	private function runBlock() {
-		$mod = self::con()->getModule_Firewall();
+		$optsCon = self::con()->opts;
 
 		$this->preBlock();
 
@@ -27,7 +27,8 @@ class FirewallBlock extends Base {
 		Services::WpGeneral()->turnOffCache();
 		nocache_headers();
 
-		switch ( $mod->getBlockResponse() ) {
+		$response = $optsCon->optGet( 'block_response' );
+		switch ( empty( $response ) ? $optsCon->optDefault( 'block_response' ) : $response ) {
 			case 'redirect_die':
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
@@ -52,11 +53,12 @@ class FirewallBlock extends Base {
 	}
 
 	private function preBlock() {
-		$mod = self::con()->getModule_Firewall();
-		if ( $mod->opts()->isOpt( 'block_send_email', 'Y' ) ) {
-			self::con()->fireEvent(
+		$con = self::con();
+		if ( $con->opts->optIs( 'block_send_email', 'Y' ) ) {
+			do_action( 'shield/firewall_pre_block' );
+			$con->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
-				[ 'audit_params' => [ 'to' => self::con()->getModule_Plugin()->getPluginReportEmail() ] ]
+				[ 'audit_params' => [ 'to' => $con->comps->opts_lookup->getReportEmail() ] ]
 			);
 		}
 	}
@@ -69,7 +71,7 @@ class FirewallBlock extends Base {
 
 		return $con->email_con->sendVO(
 			EmailVO::Factory(
-				$con->getModule_Plugin()->getPluginReportEmail(),
+				$con->comps->opts_lookup->getReportEmail(),
 				__( 'Firewall Block Alert', 'wp-simple-firewall' ),
 				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
 					'ip'         => $this->req->ip,

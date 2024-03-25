@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	ActivityLogs\Ops as LogsDB,
+	ActivityLogsMeta\Ops as MetaDB,
+	ReqLogs\Ops as ReqLogsDB,
+	ReqLogs\RequestRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LocalDbWriter extends AbstractProcessingHandler {
@@ -20,7 +23,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	private $log;
 
 	protected function write( array $record ) :void {
-		$dbhMeta = $this->mod()->getDbH_Meta();
+		$dbhMeta = self::con()->db_con->dbhActivityLogsMeta();
 
 		$this->log = $record;
 
@@ -54,7 +57,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$this->triggerRequestLogger();
 		}
 		catch ( \Exception $e ) {
-//			error_log( 'DEBUG::EXCEPTION: '.$e->getMessage() );
+			error_log( 'DEBUG::EXCEPTION: '.$e->getMessage() );
 		}
 	}
 
@@ -63,15 +66,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	protected function updateRecentLogEntry() :bool {
+		$dbCon = self::con()->db_con;
 
 		$ipRecordID = ( new IPRecords() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
-		/** @var ReqLogs\Ops\Select $reqSelector */
-		$reqSelector = self::con()
-						   ->getModule_Data()
-						   ->getDbH_ReqLogs()
-						   ->getQuerySelector();
+		/** @var ReqLogsDB\Select $reqSelector */
+		$reqSelector = $dbCon->dbhReqLogs()->getQuerySelector();
 		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;
@@ -82,7 +83,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		/** @var LogsDB\Select $select */
-		$select = $this->mod()->getDbH_Logs()->getQuerySelector();
+		$select = $dbCon->dbhActivityLogs()->getQuerySelector();
 		/** @var LogsDB\Record $existingLog */
 		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
 							  ->filterByRequestRefs( $reqIDs )
@@ -96,13 +97,12 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				sprintf( "UPDATE `%s` SET `meta_value` = `meta_value`+1
 					WHERE `log_ref`=%s
 						AND `meta_key`='audit_count'
-				", $this->mod()->getDbH_Meta()->getTableSchema()->table, $existingLog->id )
+				", $dbCon->dbhActivityLogsMeta()->getTableSchema()->table, $existingLog->id )
 			);
 			// this can fail under load, but doesn't actually matter:
-			$this->mod()
-				 ->getDbH_Logs()
-				 ->getQueryUpdater()
-				 ->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
+			$dbCon->dbhActivityLogs()
+				  ->getQueryUpdater()
+				  ->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
 		}
 		return !empty( $existingLog );
 	}
@@ -111,19 +111,30 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord() :LogsDB\Record {
-		$dbh = $this->mod()->getDbH_Logs();
+		$dbh = self::con()->db_con->dbhActivityLogs();
 		/** @var LogsDB\Record $record */
 		$record = $dbh->getRecord();
+		/**
+		 * @deprecated 19.1
+		 */
+		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record' ) ) {
+			throw new \Exception( 'Not a valid class.' );
+		}
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		// Create the underlying request log.
-		self::con()
-			->getModule_Traffic()
-			->getRequestLogger()
-			->createDependentLog();
+		if ( self::con()->comps === null ) {
+			self::con()
+				->getModule_Traffic()
+				->getRequestLogger()
+				->createDependentLog();
+		}
+		else {
+			self::con()->comps->requests_log->createDependentLog();
+		}
 
-		$requestRecord = ( new ReqLogs\RequestRecords() )->loadReq(
+		$requestRecord = ( new RequestRecords() )->loadReq(
 			$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
 			( new IPRecords() )
 				->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )

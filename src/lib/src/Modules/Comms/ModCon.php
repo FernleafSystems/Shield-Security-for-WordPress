@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Comms;
 
 /**
- * @deprecated 19.0
+ * @deprecated 19.1
  */
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'comms';
 

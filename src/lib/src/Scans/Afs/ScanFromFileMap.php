@@ -2,32 +2,36 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Code\AssessPhpFile;
 
 class ScanFromFileMap {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
 	public function run() :ResultsSet {
 		$action = $this->getScanActionVO();
-		$results = $this->mod()
-						->getScansCon()
-						->AFS()
-						->getNewResultsSet();
+		$results = self::con()
+			->comps
+			->scans
+			->AFS()
+			->getNewResultsSet();
 
-		$isAutoFilter = $this->opts()->isAutoFilterResults();
+		$isAutoFilter = self::con()->comps->opts_lookup->isScanAutoFilterResults();
 
 		if ( \is_array( $action->items ) ) {
 			foreach ( $action->items as $fullPath ) {
-
 				$fullPath = \base64_decode( $fullPath );
 
-				// We can exclude files that are empty of relevant code
-				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
+				$canScan = !empty( $fullPath )
+						   && $this->isAllowableFileSize( $fullPath )
+						   && ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) );
 
+				// We can exclude files that are empty of relevant code
+				if ( $canScan ) {
 					$item = ( new FileScanner() )
 						->setScanActionVO( $action )
 						->scan( $fullPath );
@@ -39,6 +43,17 @@ class ScanFromFileMap {
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Allowable size if the file doesn't exist at all (this will be picked up in the actual scan)
+	 * or, the file exists & it's below the max
+	 */
+	protected function isAllowableFileSize( string $path ) :bool {
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		return !Services::WpFs()->isAccessibleFile( $path )
+			   || Services::WpFs()->getFileSize( $path ) < $action->max_file_size;
 	}
 
 	protected function isEmptyOfCode( string $path ) :bool {

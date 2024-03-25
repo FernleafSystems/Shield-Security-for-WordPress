@@ -2,17 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Enum,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
+abstract class BuildFirewallBase extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core\BuildRuleCoreShieldBase {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const SCAN_CATEGORY = '';
 
@@ -35,8 +34,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		$opts = $this->opts();
-
+		$whitelistedPaths = self::con()->cfg->configuration->def( 'whitelisted_paths' );
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [
@@ -48,12 +46,12 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'conditions' => Conditions\RequestHasAnyParameters::class,
 				],
 
-				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
+				self::con()->opts->optIs( 'whitelist_admins', 'Y' ) ? [
 					'conditions' => Conditions\IsUserAdminNormal::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				] : null,
 
-				empty( $opts->getDef( 'whitelisted_paths' ) ) ? null : [
+				empty( $whitelistedPaths ) ? null : [
 					'logic'      => Enum\EnumLogic::LOGIC_AND,
 					'conditions' => \array_map(
 						function ( string $path ) {
@@ -66,7 +64,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 								],
 							];
 						},
-						$opts->getDef( 'whitelisted_paths' )
+						$whitelistedPaths
 					),
 				],
 			] )
@@ -95,7 +93,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getFirewallPatterns() :array {
-		return $this->opts()->getDef( 'firewall_patterns' )[ static::SCAN_CATEGORY ] ?? [];
+		return self::con()->cfg->configuration->def( 'firewall_patterns' )[ static::SCAN_CATEGORY ] ?? [];
 	}
 
 	protected function getFirewallPatterns_Regex() :array {

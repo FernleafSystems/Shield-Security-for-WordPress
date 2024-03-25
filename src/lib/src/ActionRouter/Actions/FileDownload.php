@@ -47,9 +47,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			case 'filelocker':
-				$fileDetails = $con->getModule_HackGuard()
-								   ->getFileLocker()
-								   ->handleFileDownloadRequest();
+				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest();
 				break;
 
 			case 'scan_file':
@@ -69,9 +67,7 @@ class FileDownload extends BaseAction {
 			case 'report_download_pdf':
 				$fileDetails = [
 					'name'    => wp_rand().'.pdf',
-					'content' => $con->getModule_Plugin()
-									 ->getReportingController()
-									 ->convertToPdf( (int)$this->action_data[ 'rid' ] ?? -1 )
+					'content' => self::con()->comps->reports->convertToPdf( (int)$this->action_data[ 'rid' ] ?? -1 )
 				];
 				break;
 

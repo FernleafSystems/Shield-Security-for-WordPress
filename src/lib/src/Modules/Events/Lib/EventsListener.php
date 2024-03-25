@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 abstract class EventsListener {
 
 	use PluginControllerConsumer;
@@ -41,7 +44,7 @@ abstract class EventsListener {
 	}
 
 	public function isCommit() :bool {
-		return $this->commit;
+		return !self::con()->plugin_deleting && $this->commit;
 	}
 
 	/**

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 class SecurityBadge extends Base {
 
@@ -23,20 +23,14 @@ class SecurityBadge extends Base {
 		];
 	}
 
-	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+	public function processStepFormSubmit( array $form ) :Response {
 		$value = $form[ 'SecurityPluginBadge' ] ?? '';
 		if ( empty( $value ) ) {
 			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
-		$mod = self::con()->getModule_Plugin();
-
 		$toEnable = $value === 'Y';
-		if ( $toEnable ) { // we don't disable the whole module
-			$mod->setIsMainFeatureEnabled( true );
-		}
-		$mod->opts()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
-		self::con()->opts->store();
+		self::con()->opts->optSet( 'display_plugin_badge', $toEnable ? 'Y' : 'N' )->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

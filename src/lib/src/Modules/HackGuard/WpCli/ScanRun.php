@@ -14,7 +14,7 @@ class ScanRun extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 */
 	protected function addCmds() {
 		$params = [];
-		foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {
+		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
 			$params[] = [
 				'type'        => 'flag',
 				'name'        => $scanCon->getSlug(),
@@ -42,7 +42,9 @@ class ScanRun extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCl
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdScanRun( array $null, array $args ) {
-		$scansCon = $this->mod()->getScansCon();
+		$this->showDeprecatedWarning();
+
+		$scansCon = self::con()->comps->scans;
 
 		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : \array_keys( $args );
 		if ( empty( $scans ) ) {

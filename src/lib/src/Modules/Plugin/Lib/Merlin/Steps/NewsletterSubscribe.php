@@ -56,9 +56,6 @@ class NewsletterSubscribe extends Base {
 
 	public function skipStep() :bool {
 		return isset( self::con()->user_metas->current()->flags[ 'merlin_step_newsletter_subscribe' ] )
-			   || !self::con()
-					   ->getModule_Plugin()
-					   ->getShieldNetApiController()
-					   ->canHandshake();
+			   || !self::con()->comps->shieldnet->canHandshake();
 	}
 }

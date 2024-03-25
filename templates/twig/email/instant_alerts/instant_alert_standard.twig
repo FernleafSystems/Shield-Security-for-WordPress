@@ -1,0 +1,43 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+
+	{% block email_intro %}
+		<p>{{ body.strings.url_site }}: {{ body.hrefs.url_site }}</p>
+		{% for p in body.strings.intro|default([]) %}
+			<p>{{ p }}</p>
+		{% endfor %}
+	{% endblock %}
+
+	{% block alerted_changes %}
+
+		{% for alert_type,alert_group_data in body.vars.alert_groups %}
+
+			{% if alert_group_data.items|length > 0 %}
+				<h5 style="margin-bottom: 5px;">{{ alert_group_data.title }}</h5>
+				<div style="margin:6px 0;padding:20px;border:1px dashed gray;display:inline-block;background-color: #ff000005;">
+					<ul style="margin:5px 0 0 0;padding:0;">
+						{% for item in alert_group_data.items %}
+							<li>
+								{% if item.href|default('')|length > 0 %}
+									<a href="{{ item.href }}" target="_blank">{{ item.text|raw }}</a>
+								{% else %}
+									{{ item.text|raw }}
+								{% endif %}
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
+
+		{% endfor %}
+
+	{% endblock %}
+
+	{% block email_outro %}
+		{% for p in body.strings.outro|default([]) %}
+			<p>{{ p }}</p>
+		{% endfor %}
+	{% endblock %}
+
+{% endblock %}

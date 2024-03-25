@@ -12,7 +12,7 @@ class Idle extends Base {
 	 */
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
 		$r = \array_intersect(
-			$this->opts()->getSuspendAutoIdleUserRoles(),
+			self::con()->comps->user_suspend->getSuspendAutoIdleUserRoles(),
 			\array_map( '\strtolower', $user->roles )
 		);
 
@@ -30,6 +30,7 @@ class Idle extends Base {
 	}
 
 	protected function isLastVerifiedAtExpired( ShieldUserMeta $meta ) :bool {
-		return ( Services::Request()->ts() - $meta->last_verified_at > $this->opts()->getSuspendAutoIdleTime() );
+		return Services::Request()->ts() - $meta->last_verified_at
+			   > self::con()->comps->user_suspend->getSuspendAutoIdleTime();
 	}
 }

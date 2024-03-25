@@ -2,25 +2,27 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginDeactivate {
 
-	use Shield\Modules\PluginControllerConsumer;
-	use ExecOnce;
+	use PluginControllerConsumer;
 
-	protected function run() {
-		$this->modDeactivate();
+	public function run() {
+		do_action( self::con()->prefix( 'deactivate_plugin' ) );
+		$this->purgeScans();
 		$this->deleteCrons();
 	}
 
-	private function modDeactivate() {
+	private function purgeScans() {
 		// 1. Clean out the scanners
-		foreach ( self::con()->modules as $mod ) {
-			$mod->onPluginDeactivate();
+		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
+			$scanCon->purge();
 		}
+		self::con()->db_con->dbhScanItems()->tableDelete();
+		self::con()->db_con->dbhScanResults()->tableDelete();
+		self::con()->comps->file_locker->purge();
 	}
 
 	private function deleteCrons() {

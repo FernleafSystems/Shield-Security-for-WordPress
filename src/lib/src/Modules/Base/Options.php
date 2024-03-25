@@ -2,19 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\ModConfigVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\OptValueSanitize;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Options {
 
 	use ModConsumer;
-
-	/**
-	 * @var array
-	 */
-	protected $aOptionsValues;
 
 	/**
 	 * @var array
@@ -31,20 +24,24 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getAllOptionsValues() :array {
+		$opts = self::con()->opts;
 		try {
-			$values = self::con()->opts->getFor( $this->mod() );
+			if ( \method_exists( $opts, 'values' ) ) {
+				$values = $opts->values();
+			}
+			else {
+				$values = self::con()->opts->getFor( $this->mod() );
+			}
 			if ( $values === null ) {
 				throw new \Exception( 'No shared-stored options available' );
 			}
 		}
 		catch ( \Exception $e ) {
-			try {
-				$values = ( new Options\Storage() )->setMod( $this->mod() )->loadOptions();
-			}
-			catch ( \Exception $e ) {
-				$values = [];
-			}
+			$values = [];
 			self::con()->opts->setFor( $this->mod(), $values );
 		}
 		return $values;
@@ -52,10 +49,11 @@ class Options {
 
 	/**
 	 * Returns an array of all the transferable options and their values
+	 * @deprecated 19.1
 	 */
 	public function getTransferableOptions() :array {
 		$transferable = [];
-		foreach ( $this->cfg()->options as $option ) {
+		foreach ( $this->mod()->cfg->options as $option ) {
 			if ( $option[ 'transferable' ] ?? true ) {
 				$transferable[ $option[ 'key' ] ] = $this->getOpt( $option[ 'key' ] );
 			}
@@ -64,115 +62,28 @@ class Options {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getOptionsForWpCli() :array {
-		return \array_filter(
-			$this->getOptionsKeys(),
-			function ( $key ) {
-				$opt = $this->getOptDefinition( $key );
-				return !empty( $opt[ 'section' ] ) && $opt[ 'section' ] !== 'section_non_ui';
-			}
-		);
-	}
-
-	/**
-	 * Returns an array of all the options with the values for "sensitive" options masked out.
-	 */
-	public function getOptionsForTracking() :array {
-		$opts = [];
-		if ( !$this->mod()->cfg->properties[ 'tracking_exclude' ] ) {
-
-			$options = $this->getAllOptionsValues();
-			foreach ( $this->getOptionsKeys() as $key ) {
-				if ( !isset( $options[ $key ] ) ) {
-					$options[ $key ] = $this->getOptDefault( $key );
-				}
-			}
-			foreach ( $this->cfg()->options as $optDef ) {
-				if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
-					unset( $options[ $optDef[ 'key' ] ] );
-				}
-			}
-			$opts = \array_diff_key( $options, \array_flip( $this->getVirtualCommonOptions() ) );
-		}
-		return $opts;
-	}
-
-	/**
 	 * @return mixed|null
-	 */
-	public function getFeatureProperty( string $property ) {
-		return $this->cfg()->properties[ $property ] ?? null;
-	}
-
-	/**
-	 * @return mixed|null
+	 * @deprecated 19.1
 	 */
 	public function getDef( string $key ) {
-		return $this->cfg()->definitions[ $key ] ?? null;
-	}
-
-	public function getEvents() :array {
-		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
-	}
-
-	public function getAdminNotices() :array {
-		return $this->cfg()->admin_notices ?? [];
-	}
-
-	public function ensureOptValueType( string $key, $value ) {
-		switch ( $this->getOptionType( $key ) ) {
-			case 'boolean':
-				$value = (bool)$value;
-				break;
-			case 'integer':
-				$value = (int)$value;
-				break;
-			case 'text':
-				$value = (string)$value;
-				break;
-			case 'array':
-			case 'multiple_select':
-				if ( !\is_array( $value ) ) {
-					$value = (array)$value;
-				}
-				break;
-			default:
-				break;
-		}
-		return $value;
-	}
-
-	public function isValidOptionValueType( string $key, $value ) :bool {
-		switch ( $this->getOptionType( $key ) ) {
-			case 'array':
-			case 'multiple_select':
-				$valid = \is_array( $value );
-				break;
-			case 'integer':
-				$valid = \is_numeric( $value );
-				break;
-			default:
-				$valid = true;
-				break;
-		}
-		return $valid;
+		$config = self::con()->cfg->configuration;
+		return empty( $config ) ? ( $this->mod()->cfg->definitions[ $key ] ?? null ) : $config->def( $key );
 	}
 
 	/**
 	 * @return array[]
+	 * @deprecated 19.1
 	 */
 	public function getHiddenOptions() :array {
 		$optionsData = [];
 
-		foreach ( $this->cfg()->sections as $rawSection ) {
+		foreach ( $this->mod()->cfg->sections as $rawSection ) {
 
 			// if hidden isn't specified we skip
 			if ( !isset( $rawSection[ 'hidden' ] ) || !$rawSection[ 'hidden' ] ) {
 				continue;
 			}
-			foreach ( $this->cfg()->options as $rawOption ) {
+			foreach ( $this->mod()->cfg->options as $rawOption ) {
 
 				if ( $rawOption[ 'section' ] != $rawSection[ 'slug' ] ) {
 					continue;
@@ -183,259 +94,156 @@ class Options {
 		return $optionsData;
 	}
 
-	public function getSection( string $section ) :?array {
-		return $this->getSections()[ $section ] ?? null;
-	}
-
 	/**
-	 * @return array[]
+	 * @deprecated 19.1
 	 */
-	public function getSections( bool $includeHidden = false ) :array {
-		$sections = [];
-		foreach ( $this->cfg()->sections as $section ) {
-			if ( $includeHidden || empty( $section[ 'hidden' ] ) ) {
-				$sections[ $section[ 'slug' ] ] = $section;
-			}
-		}
-		return $sections;
-	}
-
-	public function getPrimarySection() :array {
-		$theSection = [];
-		foreach ( $this->getSections() as $section ) {
-			if ( $section[ 'primary' ] ?? false ) {
-				$theSection = $section;
-				break;
-			}
-		}
-		return $theSection;
-	}
-
-	public function getSection_Requirements( string $slug ) :array {
-		$section = $this->getSection( $slug );
-		return \array_merge(
-			[
-				'php_min' => '7.2',
-				'wp_min'  => '5.7',
-			],
-			( \is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getVisibleOptions() :array {
-		return \array_filter(
-			$this->cfg()->options,
-			function ( $optDef ) {
-				if ( $optDef[ 'hidden' ] ?? false ) {
-					return null;
-				}
-				$section = $this->getSection( $optDef[ 'section' ] );
-				if ( empty( $section ) || ( $section[ 'hidden' ] ?? false ) ) {
-					return null;
-				}
-				return $optDef;
-			}
-		);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getVisibleOptionsKeys() :array {
-		return \array_map( function ( $optDef ) {
-			return $optDef[ 'key' ];
-		}, $this->getVisibleOptions() );
-	}
-
 	public function getNeedSave() :bool {
 		return $this->bNeedSave;
 	}
 
 	/**
-	 * @param string $key
-	 * @return mixed|null
-	 */
-	public function getOldValue( string $key ) {
-		return $this->isOptChanged( $key ) ? $this->aOld[ $key ] : null;
-	}
-
-	/**
 	 * @param mixed $mDefault
 	 * @return mixed
+	 * @deprecated 19.1
 	 */
 	public function getOpt( string $key, $mDefault = false ) {
-		$value = $this->getAllOptionsValues()[ $key ] ?? null;
-
-		if ( $value === null || !$this->isValidOptionValueType( $key, $value ) ) {
-			$this->resetOptToDefault( $key );
-		}
-
-		$cap = $this->optCap( $key );
-		if ( empty( $cap ) || self::con()->caps->hasCap( $cap ) ) {
-			$value = $this->getAllOptionsValues()[ $key ] ?? $mDefault;
+		if ( \method_exists( self::con()->opts, 'optGet' ) ) {
+			$value = self::con()->opts->optGet( $key );
 		}
 		else {
-			$value = $this->getOptDefault( $key, $mDefault );
-		}
+			$value = $this->getAllOptionsValues()[ $key ] ?? null;
 
-		return $this->ensureOptValueType( $key, $value );
+			if ( $value === null ) {
+				$this->resetOptToDefault( $key );
+			}
+
+			$cap = $this->optCap( $key );
+			if ( empty( $cap ) || self::con()->caps->hasCap( $cap ) ) {
+				$value = $this->getAllOptionsValues()[ $key ] ?? $mDefault;
+			}
+			else {
+				$value = $this->getOptDefault( $key, $mDefault );
+			}
+		}
+		return $value;
 	}
 
 	/**
 	 * @param mixed $mDefault
 	 * @return mixed|null
+	 * @deprecated 19.1
 	 */
 	public function getOptDefault( string $key, $mDefault = null ) {
-		$def = $this->getOptDefinition( $key );
-		return $def[ 'default' ] ?? ( $def[ 'value' ] ?? $mDefault );
-	}
-
-	public function getOptDefinition( string $key ) :array {
-		return $this->cfg()->options[ $key ] ?? [];
-	}
-
-	public function optCap( string $key ) :?string {
-		$def = $this->getOptDefinition( $key );
-		return $def[ 'cap' ] ?? null;
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optDefault' ) ? $opts->optDefault( $key )
+			: ( $this->getOptDefinition( $key )[ 'default' ] ?? $mDefault );
 	}
 
 	/**
-	 * @param mixed $mValueToTest
+	 * @deprecated 19.1
 	 */
-	public function isOpt( string $key, $mValueToTest, bool $strict = false ) :bool {
-		return $strict ? $this->getOpt( $key ) === $mValueToTest : $this->getOpt( $key ) == $mValueToTest;
+	public function getOptDefinition( string $key ) :array {
+		return self::con()->cfg->configuration->options[ 'key' ] ?? ( $this->mod()->cfg->options[ $key ] ?? [] );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
+	public function optCap( string $key ) :?string {
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optCap' ) ? $opts->optCap( $key ) : ( $this->getOptDefinition( $key )[ 'cap' ] ?? null );
+	}
+
+	/**
+	 * @param mixed $value
+	 * @deprecated 19.1
+	 */
+	public function isOpt( string $key, $value ) :bool {
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optIs' ) ? $opts->optIs( $key, $value ) : $this->getOpt( $key ) == $value;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getOptionType( string $key ) :?string {
-		return $this->getOptDefinition( $key )[ 'type' ] ?? null;
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optType' ) ? $opts->optType( $key ) : ( $this->getOptDefinition( $key )[ 'type' ] ?? null );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
-			$this->aOptionsKeys = \array_merge( \array_keys( $this->cfg()->options ), $this->getVirtualCommonOptions() );
+			$this->aOptionsKeys = \array_merge(
+				\array_keys( $this->mod()->cfg->options ),
+				$this->getVirtualCommonOptions()
+			);
 		}
 		return $this->aOptionsKeys;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @deprecated 19.1
 	 */
 	public function getOptProperty( string $key, string $prop ) {
 		return $this->getOptDefinition( $key )[ $prop ] ?? null;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function cfg() :ModConfigVO {
 		return $this->mod()->cfg;
 	}
 
-	public function getRawData_FullFeatureConfig() :array {
-		return $this->cfg()->getRawData();
-	}
-
-	public function getSelectOptionValueKeys( string $key ) :array {
-		$keys = [];
-		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
-			$keys[] = $opt[ 'value_key' ];
-		}
-		return $keys;
-	}
-
-	public function getSelectOptionValueText( string $key ) :string {
-		$text = '';
-		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
-			if ( $opt[ 'value_key' ] == $this->getOpt( $key ) ) {
-				$text = $opt[ 'text' ];
-				break;
-			}
-		}
-		return $text;
-	}
-
-	public function isOptAdvanced( string $key ) :bool {
-		return (bool)$this->getOptProperty( $key, 'advanced' );
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isOptChanged( string $key ) :bool {
-		return \is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
-	}
-
-	public function isOptPremium( string $key ) :bool {
-		return (bool)$this->getOptProperty( $key, 'premium' );
-	}
-
-	public function optExists( string $key ) :bool {
-		return !empty( $this->getOptDefinition( $key ) );
-	}
-
-	public function resetOptToDefault( string $key ) :self {
-		return $this->setOpt( $key, $this->getOptDefault( $key ) );
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optChanged' ) ? $opts->optChanged( $key ) : ( \is_array( $this->aOld ) && isset( $this->aOld[ $key ] ) );
 	}
 
 	/**
-	 * Will traverse each premium option and set it to the default.
+	 * @deprecated 19.1
 	 */
-	public function resetPremiumOptsToDefault() {
-		foreach ( $this->cfg()->options as $opt ) {
-			if ( $opt[ 'premium' ] ?? false ) {
-				$this->resetOptToDefault( $opt[ 'key' ] );
-			}
-		}
+	public function optExists( string $key ) :bool {
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optExists' ) ? $opts->optExists( $key ) : !empty( $this->getOptDefinition( $key ) );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
+	public function resetOptToDefault( string $key ) {
+		$opts = self::con()->opts;
+		\method_exists( $opts, 'optReset' ) ? $opts->optReset( $key ) : ( $this->setOpt( $key, $this->getOptDefault( $key ) ) );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
 	public function setNeedSave( bool $need ) {
 		$this->bNeedSave = $need;
-	}
-
-	public function setMultipleOptions( array $options ) {
-		foreach ( $options as $key => $value ) {
-			$this->setOpt( $key, $value );
-		}
 	}
 
 	/**
 	 * @param mixed $newValue
 	 * @return $this
+	 * @deprecated 19.1
 	 */
 	public function setOpt( string $key, $newValue ) :self {
-
-		// NOTE: can't use getOpt() for current value as it'll create infinite loop
-		$mCurrent = $this->getAllOptionsValues()[ $key ] ?? null;
-
-		try {
-			$newValue = ( new OptValueSanitize() )
-				->setMod( $this->mod() )
-				->run( $key, $newValue );
-			$this->preSetOptChecks( $key, $newValue );
-			$verified = true;
+		if ( \method_exists( self::con()->opts, 'optSet' ) ) {
+			self::con()->opts->optSet( $key, $newValue );
 		}
-		catch ( \Exception $e ) {
-			$verified = false;
-		}
-
-		if ( $verified ) {
-			// Here we try to ensure that values that are repeatedly changed properly reflect their changed
-			// states, as they may be reverted to their original state and we "think" it's been changed.
-			$valueIsDifferent = \serialize( $mCurrent ) !== \serialize( $newValue );
-			// basically if we're actually resetting back to the original value
-			$isResetting = $valueIsDifferent && $this->isOptChanged( $key )
-						   && ( \serialize( $this->getOldValue( $key ) ) === \serialize( $newValue ) );
-
-			if ( $valueIsDifferent && $this->verifyCanSet( $key, $newValue ) ) {
-				$this->setNeedSave( true );
-
-				//Load the config and do some pre-set verification where possible. This will slowly grow.
-				if ( $this->getOptionType( $key ) === 'boolean' && !\is_bool( $newValue ) ) {
-					return $this->resetOptToDefault( $key );
-				}
+		else {
+			// NOTE: can't use getOpt() for current value as it'll create infinite loop
+			$mCurrent = $this->getAllOptionsValues()[ $key ] ?? null;
+			if ( \serialize( $mCurrent ) !== \serialize( $newValue ) ) {
 				$this->setOldOptValue( $key, $mCurrent )
 					 ->setOptValue( $key, $newValue );
-			}
-
-			if ( $isResetting ) {
-				unset( $this->aOld[ $key ] );
 			}
 		}
 
@@ -445,10 +253,14 @@ class Options {
 	/**
 	 * @param mixed $newValue
 	 * @throws \Exception
+	 * @deprecated 19.1
 	 */
 	protected function preSetOptChecks( string $key, $newValue ) {
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function preSave() :void {
 	}
 
@@ -456,6 +268,7 @@ class Options {
 	 * Use this to directly set the option value without the risk of any recursion.
 	 * @param mixed $value
 	 * @return $this
+	 * @deprecated 19.1
 	 */
 	protected function setOptValue( string $key, $value ) {
 		$values = $this->getAllOptionsValues();
@@ -465,48 +278,16 @@ class Options {
 
 	/**
 	 * @param mixed $mPotentialValue
+	 * @deprecated 19.1
 	 */
 	private function verifyCanSet( string $key, $mPotentialValue ) :bool {
-		$valid = true;
-
-		switch ( $this->getOptionType( $key ) ) {
-
-			case 'integer':
-				$min = $this->getOptProperty( $key, 'min' );
-				if ( $min !== null ) {
-					$valid = $mPotentialValue >= $min;
-				}
-				if ( $valid ) {
-					$max = $this->getOptProperty( $key, 'max' );
-					if ( $max !== null ) {
-						$valid = $mPotentialValue <= $max;
-					}
-				}
-				break;
-
-			case 'array':
-				$valid = \is_array( $mPotentialValue );
-				break;
-
-			case 'select':
-				$valid = \in_array( $mPotentialValue, \array_map(
-					function ( $valueOptions ) {
-						return $valueOptions[ 'value_key' ];
-					},
-					$this->getOptProperty( $key, 'value_options' )
-				) );
-				break;
-
-			case 'email':
-				$valid = empty( $mPotentialValue ) || Services::Data()->validEmail( $mPotentialValue );
-				break;
-		}
-		return $valid;
+		return true;
 	}
 
 	/**
 	 * @param mixed $value
 	 * @return $this
+	 * @deprecated 19.1
 	 */
 	private function setOldOptValue( string $key, $value ) {
 		if ( !\is_array( $this->aOld ) ) {
@@ -518,16 +299,8 @@ class Options {
 		return $this;
 	}
 
-	public function unsetOpt( string $key ) {
-		$values = $this->getAllOptionsValues();
-		unset( $values[ $key ] );
-		$this->setOptionsValues( $values );
-	}
-
 	protected function getVirtualCommonOptions() :array {
 		return [
-			'dismissed_notices',
-			'ui_track',
 			'xfer_excluded',
 		];
 	}
@@ -536,35 +309,77 @@ class Options {
 	 * @return string[]
 	 */
 	public function getXferExcluded() :array {
-		return \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
+		$comps = self::con()->comps;
+		return $comps !== null ? $comps->opts_lookup->getXferExcluded() :
+			( \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [] );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function resetChangedOpts() {
 		$this->aOld = [];
 	}
 
 	/**
 	 * @return $this
+	 * @deprecated 19.1
 	 */
 	public function setOptionsValues( array $values = [] ) {
-
-		$values = \array_intersect_key( $values, \array_flip( $this->getOptionsKeys() ) );
-
-		if ( isset( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = $values;
-		}
-
-		self::con()->opts->setFor( $this->mod(), $values );
-
-		$this->setNeedSave( true );
-
+		self::con()->opts->setFor( $this->mod(), \array_intersect_key( $values, \array_flip( $this->getOptionsKeys() ) ) );
 		return $this;
 	}
 
 	/**
-	 * @deprecated 18.6
+	 * @deprecated 19.1
 	 */
-	protected function getCommonStandardOptions() :array {
-		return [];
+	public function getEvents() :array {
+		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function ensureOptValueType( string $key, $value ) {
+		return $value;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getSection( string $section ) :?array {
+		return $this->getSections()[ $section ] ?? null;
+	}
+
+	/**
+	 * @return array[]
+	 * @deprecated 19.1
+	 */
+	public function getSections() :array {
+		$sections = [];
+		foreach ( $this->mod()->cfg->sections as $section ) {
+			if ( empty( $section[ 'hidden' ] ) ) {
+				$sections[ $section[ 'slug' ] ] = $section;
+			}
+		}
+		return $sections;
+	}
+
+	/**
+	 * @param string $key
+	 * @return mixed|null
+	 * @deprecated 19.1
+	 */
+	public function getOldValue( string $key ) {
+		return $this->isOptChanged( $key ) ? $this->aOld[ $key ] : null;
+	}
+
+	/**
+	 * @param string $key
+	 * @param        $value
+	 * @deprecated 19.1
+	 */
+	public function isValidOptionValueType( string $key, $value ) :bool {
+		return true;
 	}
 }

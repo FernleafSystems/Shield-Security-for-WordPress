@@ -5,45 +5,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog\BuildActivityLogTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'audit_trail';
 
 	/**
-	 * @var Lib\AuditLogger
-	 */
-	private $auditLogger;
-
-	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon
+	 * @var Lib\AuditCon
+	 * @deprecated 19.1
 	 */
 	private $auditCon;
 
-	public function getAuditCon() :Lib\AuditCon {
-		return $this->auditCon ?? $this->auditCon = new Lib\AuditCon();
-	}
-
-	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_logs' );
-	}
-
-	public function getDbH_Meta() :DB\Meta\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'at_meta' );
-	}
-
-	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'snapshots' );
-	}
-
-	public function getAuditLogger() :Lib\AuditLogger {
-		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger();
-	}
-
 	/**
-	 * @throws \Exception
+	 * @deprecated 19.1
 	 */
-	protected function isReadyToExecute() :bool {
-		return $this->getDbH_Logs()->isReady();
+	public function getAuditCon() :Lib\AuditCon {
+		return self::con()->comps !== null ? self::con()->comps->activity_log :
+			( $this->auditCon ?? $this->auditCon = new Lib\AuditCon() );
 	}
 
 	/**
@@ -81,7 +58,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 			if ( !empty( $exportData ) ) {
 				$exportItems[] = [
-					'group_id'          => $this->getModSlug(),
+					'group_id'          => $con->prefix( $this->cfg->slug ),
 					'group_label'       => sprintf( __( '[%s] Activity Log Entries', 'wp-simple-firewall' ),
 						$con->getHumanName() ),
 					'group_description' => sprintf( __( '[%s] Activity Log Entries referencing the given user.', 'wp-simple-firewall' ),
@@ -123,5 +100,26 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		catch ( \Exception $e ) {
 		}
 		return $data;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Logs() :DB\Logs\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'at_logs' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Meta() :DB\Meta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'at_meta' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'snapshots' );
 	}
 }

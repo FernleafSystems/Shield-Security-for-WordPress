@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterUsers extends MeterBase {
@@ -10,8 +11,8 @@ class MeterUsers extends MeterBase {
 
 	protected function getWorkingMods() :array {
 		return [
-			self::con()->getModule_LoginGuard(),
-			self::con()->getModule_UserManagement()
+			EnumModules::LOGIN,
+			EnumModules::USERS,
 		];
 	}
 
@@ -44,7 +45,7 @@ class MeterUsers extends MeterBase {
 			Component\UserPasswordStrength::class,
 			Component\HttpHeaders::class,
 		];
-		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !self::con()->comps->whitelabel->isEnabled() ) {
 			$components[] = Component\PluginBadge::class;
 		}
 		return $components;

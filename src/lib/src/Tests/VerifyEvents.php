@@ -9,15 +9,13 @@ class VerifyEvents {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$con = self::con();
-
 		$NoKey = [];
 		$NotEnoughSubstitutions = [];
 		$SubstitutionsMismatch = [];
 		$OldStyleSprintfSubstitutions = [];
 		$NotEnoughParams = [];
 		$NoMsgs = [];
-		$srvEvents = $con->service_events;
+		$srvEvents = self::con()->comps->events;
 		foreach ( $srvEvents->getEvents() as $evt ) {
 			$key = $evt[ 'key' ] ?? '';
 			if ( empty( $key ) ) {

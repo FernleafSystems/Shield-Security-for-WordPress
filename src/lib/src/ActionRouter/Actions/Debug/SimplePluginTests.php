@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertVulnerabilities;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Events,
 	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncodingFailure,
 	HackGuard\Lib\FileLocker\Exceptions\FileContentsEncryptionFailure,
 	HackGuard\Lib\FileLocker\Ops\BuildEncryptedFilePayload,
@@ -44,30 +47,12 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
-
-	private function dbg_filelocker() {
-		$publicKey = ( new GetPublicKey() )->retrieve();
-		try {
-			$enc = ( new BuildEncryptedFilePayload() )->fromPath(
-				path_join( ABSPATH, 'wp-config.php' ),
-				\reset( $publicKey ),
-				'rc4'
-			);
-			var_dump( $enc );
-			$vo = ( new OpenSslEncryptVo() )->applyFromArray( \json_decode( $enc, true ) );
-			$content = ( new DecryptFile() )->retrieve( $vo, \key( $publicKey ) );
-			var_dump( $content );
-		}
-		catch ( FileContentsEncodingFailure|FileContentsEncryptionFailure $e ) {
-			var_dump( $e->getMessage() );
-		}
-	}
 	private function dbg_eventsSum() {
 		$dbhEvents = self::con()->db_con->dbhEvents();
-		/** @var Events\DB\Event\Ops\Select $select */
+		/** @var Select $select */
 		$select = $dbhEvents->getQuerySelector();
 		$res = $select->filterByBoundary( 1692677238, Services::Request()->carbon()->timestamp )
-					  ->sumEventsSeparately( \array_keys( ( new Events\Lib\EventsParser() )->wordpress() ) );
+					  ->sumEventsSeparately( \array_keys( ( new EventsParser() )->wordpress() ) );
 		var_dump( $res );
 	}
 
@@ -90,7 +75,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_snapshots() {
-		$audCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		$audCon = self::con()->comps->activity_log;
 		$slug = AuditTrail\Auditors\Comments::Slug();
 		try {
 			$current = ( new AuditTrail\Lib\Snapshots\Ops\Build() )->run( $slug );
@@ -114,44 +99,16 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_apitoken() {
-		self::con()->getModule_License()->getWpHashesTokenManager()
+		self::con()->comps->api_token
 			->setCanRequestOverride( true )
 			->getToken();
 	}
 
 	private function dbg_handshake() {
-		$snapi = self::con()->getModule_Plugin()->getShieldNetApiController();
+		$snapi = self::con()->comps->shieldnet;
 		var_dump( $snapi->vo );
-		var_dump( $snapi->canHandshake(true) );
+		var_dump( $snapi->canHandshake( true ) );
 		var_dump( $snapi->vo );
-	}
-
-	private function dbg_changetrack() {
-		$params = [
-			'fields'             =>
-				[
-					0 => 'id',
-					1 => 'user_pass',
-					2 => 'user_email',
-				],
-			'number'             => 50,
-			'paged'              => 1,
-			'capability__not_in' =>
-				[
-					0 => 'manage_options',
-				],
-		];
-		$args = wp_parse_args(
-			$params,
-			[
-			]
-		);
-
-		var_dump( $args );
-		var_dump( $params );
-
-		$users = get_users( $args );
-		var_dump( $users );
 	}
 
 	private function dbg_importnotify() {

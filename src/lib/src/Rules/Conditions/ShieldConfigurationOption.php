@@ -16,18 +16,14 @@ class ShieldConfigurationOption extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$matched = false;
-		foreach ( self::con()->modules as $module ) {
-			if ( $module->opts()->optExists( $this->p->name ) ) {
-				$matched = ( new Utility\PerformConditionMatch(
-					$module->opts()->getOpt( $this->p->name ),
-					$this->p->match_value,
-					$this->p->match_type
-				) )->doMatch();
-				break;
-			}
-		}
-		return $matched;
+		$opts = self::con()->opts;
+		return \method_exists( $opts, 'optExists' ) &&
+			   $opts->optExists( $this->p->name ) &&
+			   ( new Utility\PerformConditionMatch(
+				   $opts->optGet( $this->p->name ),
+				   $this->p->match_value,
+				   $this->p->match_type
+			   ) )->doMatch();
 	}
 
 	public function getParamsDef() :array {

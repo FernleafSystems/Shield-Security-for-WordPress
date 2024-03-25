@@ -9,10 +9,7 @@ class MfaBackupCodeDelete extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_backup_code_delete';
 
 	protected function exec() {
-		$available = self::con()
-						 ->getModule_LoginGuard()
-						 ->getMfaController()
-						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {

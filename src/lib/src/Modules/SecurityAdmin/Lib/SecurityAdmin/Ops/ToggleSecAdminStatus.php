@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ToggleSecAdminStatus {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function turnOn() :bool {
 		return $this->toggle( true );
@@ -18,7 +18,7 @@ class ToggleSecAdminStatus {
 	}
 
 	private function toggle( bool $onOrOff ) :bool {
-		$sessionCon = self::con()->getModule_Plugin()->getSessionCon();
+		$sessionCon = self::con()->comps->session;
 		$current = $sessionCon->current();
 		if ( $current->valid ) {
 			$sessionCon->updateSessionParameter( $current, 'secadmin_at', $onOrOff ? Services::Request()->ts() : 0 );

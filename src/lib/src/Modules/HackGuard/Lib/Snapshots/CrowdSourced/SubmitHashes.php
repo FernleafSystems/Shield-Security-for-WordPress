@@ -36,7 +36,7 @@ class SubmitHashes {
 
 		if ( $this->canSubmitAsset() ) {
 			$this->hashes = ( new Build\BuildHashesForCrowdSource() )
-				->build( $asset, $this->opts()->getDef( 'file_scan_extensions' ) );
+				->build( $asset, self::con()->cfg->configuration->def( 'file_scan_extensions' ) );
 
 			if ( !empty( $this->hashes ) && $this->isSubmitRequired() ) {
 				$this->submit();

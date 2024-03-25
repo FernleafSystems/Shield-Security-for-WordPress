@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\RemoveSecAdmin;
 
 class SecurityAdminRemove extends SecurityAdminBase {
@@ -12,7 +13,7 @@ class SecurityAdminRemove extends SecurityAdminBase {
 		( new RemoveSecAdmin() )->remove( (bool)$this->action_data[ 'quietly' ] ?? false );
 		$this->response()->next_step = [
 			'type' => 'redirect',
-			'url'  => self::con()->plugin_urls->modCfg( self::con()->getModule_SecAdmin() ),
+			'url'  => self::con()->plugin_urls->modCfg( EnumModules::SECURITY_ADMIN ),
 		];
 	}
 }

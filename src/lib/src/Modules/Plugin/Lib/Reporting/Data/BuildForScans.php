@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	Event\Ops as EventsDB,
+	ActivityLogs\Ops as LogsDB,
+	ActivityLogsMeta\Ops as MetaDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Afs,
@@ -27,9 +29,9 @@ class BuildForScans extends BuildBase {
 	private function buildForRepairs() :array {
 		/** @var EventsDB\Select $selectorEvents */
 		$selectorEvents = self::con()
-							  ->db_con
-							  ->dbhEvents()
-							  ->getQuerySelector();
+			->db_con
+			->dbhEvents()
+			->getQuerySelector();
 
 		$repairs = [];
 		foreach ( [ 'scan_item_repair_success', 'scan_item_delete_success', /*'scan_item_repair_fail'*/ ] as $event ) {
@@ -55,7 +57,7 @@ class BuildForScans extends BuildBase {
 				$metaSelect = self::con()->db_con->dbhActivityLogsMeta()->getQuerySelector();
 
 				$repairs[ $event ] = [
-					'name'    => self::con()->service_events->getEventName( $event ),
+					'name'    => self::con()->comps->events->getEventName( $event ),
 					'count'   => $eventTotal,
 					'repairs' => \array_unique( \array_map(
 						function ( $meta ) {
@@ -74,7 +76,7 @@ class BuildForScans extends BuildBase {
 	}
 
 	private function buildForResultsContext( int $context ) :array {
-		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
+		$scansCon = self::con()->comps->scans;
 		$c = new Counts( $context );
 		$scanCounts = [
 			'file_locker'             => [
@@ -82,7 +84,7 @@ class BuildForScans extends BuildBase {
 				'count'     => $context === RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ?
 					\count( ( new LoadFileLocks() )->withProblems() )
 					: \count( ( new LoadFileLocks() )->withProblemsNotNotified() ),
-				'available' => self::con()->getModule_HackGuard()->getFileLocker()->isEnabled(),
+				'available' => self::con()->comps->file_locker->isEnabled(),
 			],
 			Wpv::SCAN_SLUG            => [
 				'name'      => $scansCon->WPV()->getScanName(),

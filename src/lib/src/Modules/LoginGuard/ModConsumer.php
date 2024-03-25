@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return self::con()->getModule_LoginGuard();
+		return self::con()->modules[ EnumModules::LOGIN ];
 	}
 
 	public function opts() :Options {

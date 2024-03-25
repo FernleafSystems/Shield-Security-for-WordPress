@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 class UserSuspendInactive extends Base {
 
 	use Traits\OptConfigBased;
@@ -15,8 +17,7 @@ class UserSuspendInactive extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_UserManagement();
-		return $mod->isModOptEnabled() && $mod->opts()->getOpt( 'auto_idle_days' ) > 0;
+		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::USERS ) && self::con()->opts->optGet( 'auto_idle_days' ) > 0;
 	}
 
 	public function title() :string {
@@ -25,7 +26,7 @@ class UserSuspendInactive extends Base {
 
 	public function descProtected() :string {
 		return sprintf( __( 'Inactive user accounts are automatically suspended after %s.', 'wp-simple-firewall' ),
-			self::con()->getModule_UserManagement()->opts()->getOpt( 'auto_idle_days' ) );
+			self::con()->opts->optGet( 'auto_idle_days' ) );
 	}
 
 	public function descUnprotected() :string {

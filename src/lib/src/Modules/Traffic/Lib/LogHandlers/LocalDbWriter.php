@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandlers;
 
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * Logic is a bit convoluted here. Basically a request is logged when:
@@ -18,7 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
  */
 class LocalDbWriter extends AbstractProcessingHandler {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function write( array $record ) :void {
 		try {
@@ -32,11 +32,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord( array $logData ) :bool {
-		$modData = self::con()->getModule_Data();
-
 		$ipRecord = ( new IPRecords() )->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
-		$reqRecord = ( new ReqLogs\RequestRecords() )->loadReq(
+		$reqRecord = ( new RequestRecords() )->loadReq(
 			$logData[ 'extra' ][ 'meta_request' ][ 'rid' ],
 			$ipRecord->id
 		);
@@ -60,9 +58,11 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$update[ 'meta' ] = \base64_encode( \json_encode( \array_diff_key( $meta, $update ) ) );
 		$update[ 'transient' ] = false;
 
-		$success = $modData->getDbH_ReqLogs()
-						   ->getQueryUpdater()
-						   ->updateById( $reqRecord->id, $update );
+		$success = self::con()
+			->db_con
+			->dbhReqLogs()
+			->getQueryUpdater()
+			->updateById( $reqRecord->id, $update );
 
 		if ( !$success ) {
 			throw new \Exception( 'Failed to insert' );

@@ -10,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 
 interface Provider2faInterface {
 
+	public static function ProviderEnabled() :bool;
+
 	/**
 	 * Must Match: /^[a-z]+$/
 	 */

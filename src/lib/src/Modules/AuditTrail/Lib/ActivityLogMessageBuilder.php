@@ -2,11 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
-
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-
-use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
 
 class ActivityLogMessageBuilder {
 
@@ -17,11 +14,7 @@ class ActivityLogMessageBuilder {
 	}
 
 	public static function Build( string $event, array $metaData = [], string $logSeparator = "\n" ) :string {
-		$srvEvents = \method_exists( __CLASS__, 'con' ) ?
-			self::con()->service_events ?? self::con()->loadEventsService()
-			: get_plugin()->getController()->loadEventsService();
-
-		$raw = \implode( $logSeparator, $srvEvents->getEventAuditStrings( $event ) );
+		$raw = \implode( $logSeparator, self::con()->service_events->getEventAuditStrings( $event ) );
 
 		$stringSubs = [];
 		foreach ( $metaData as $subKey => $subValue ) {
@@ -31,7 +24,7 @@ class ActivityLogMessageBuilder {
 		$log = \preg_replace( '#{{[a-z_]+}}#i', 'missing data', \strtr( $raw, $stringSubs ) );
 
 		$auditCount = (int)( $metaData[ 'audit_count' ] ?? 1 );
-		$eventDef = $srvEvents->getEventDef( $event );
+		$eventDef = self::con()->service_events->getEventDef( $event );
 		if ( $eventDef[ 'audit_countable' ] && $auditCount > 1 ) {
 			$log .= $logSeparator.sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
 		}

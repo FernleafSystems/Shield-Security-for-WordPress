@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
-
 class CommentSpamHuman extends Base {
 
 	use Traits\OptConfigBased;
@@ -12,10 +10,7 @@ class CommentSpamHuman extends Base {
 	public const WEIGHT = 2;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Comments();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isEnabledHumanCheck();
+		return self::con()->comps->opts_lookup->enabledHumanCommentSpam();
 	}
 
 	protected function getOptConfigKey() :string {

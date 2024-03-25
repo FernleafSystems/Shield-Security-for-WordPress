@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
 	MergeAutoBlockRules,
-	Ops\Handler
+	Ops as IpRulesDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -77,25 +77,27 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForCrowdsec() :array {
-		return $this->getRules( [ Handler::T_CROWDSEC ] );
+		return $this->getRules( [ IpRulesDB\Handler::T_CROWDSEC ] );
 	}
 
 	/**
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForBypass() :array {
-		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BYPASS ] ) );
+		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ IpRulesDB\Handler::T_MANUAL_BYPASS ] ) );
 	}
 
 	/**
 	 * @return IpRuleRecord[]
 	 */
 	private function getRulesForAutoBlock() :array {
-		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
+		$rules = $this->getRules( [ IpRulesDB\Handler::T_AUTO_BLOCK ] );
 
 		if ( \count( $rules ) === 1 ) {
 			$record = \current( $rules );
-			if ( $record->last_access_at < ( Services::Request()->ts() - $this->opts()->getAutoExpireTime() ) ) {
+			$ttl = self::con()->comps === null ? $this->opts()->getAutoExpireTime()
+				: self::con()->comps->opts_lookup->getIpAutoBlockTTL();
+			if ( $record->last_access_at < ( Services::Request()->ts() - $ttl ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
@@ -109,7 +111,7 @@ class IpRuleStatus {
 			self::ClearStatusForIP( $this->getIP() );
 		}
 
-		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
+		$rules = $this->getRules( [ IpRulesDB\Handler::T_AUTO_BLOCK ] );
 
 		// Just in case we've previously blocked a Search Provider - perhaps a failed rDNS at the time.
 		if ( !empty( $rules ) ) {
@@ -122,7 +124,7 @@ class IpRuleStatus {
 						( new DeleteRule() )->byRecord( $rule );
 					}
 					self::ClearStatusForIP( $this->getIP() );
-					$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
+					$rules = $this->getRules( [ IpRulesDB\Handler::T_AUTO_BLOCK ] );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -136,7 +138,7 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForManualBlock() :array {
-		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BLOCK ] ) );
+		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ IpRulesDB\Handler::T_MANUAL_BLOCK ] ) );
 	}
 
 	/**
@@ -171,13 +173,6 @@ class IpRuleStatus {
 	public function hasAutoBlock() :bool {
 		$rule = $this->getRuleForAutoBlock();
 		return !empty( $rule ) && $rule->blocked_at > 0 && ( $rule->blocked_at >= $rule->unblocked_at );
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public function hasHighReputation() :bool {
-		return false;
 	}
 
 	public function hasManualBlock() :bool {
@@ -287,7 +282,7 @@ class IpRuleStatus {
 
 		$records = [];
 
-		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
+		if ( self::con()->db_con->dbhIPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [
@@ -358,7 +353,7 @@ class IpRuleStatus {
 				$loader = new LoadIpRules();
 				$loader->wheres = [
 					sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() ),
-					sprintf( "`ir`.`type`='%s'", Handler::T_MANUAL_BYPASS ),
+					sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_MANUAL_BYPASS ),
 					"`ir`.`is_range`='0'",
 				];
 				self::$bypass = \array_values( $loader->select() );

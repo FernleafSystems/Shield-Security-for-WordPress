@@ -3,27 +3,34 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\ModConfigVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ConfigurationVO;
 
 /**
- * @property array         $properties
- * @property array         $modules
- * @property array         $requirements
- * @property array         $paths
- * @property array         $includes
- * @property array         $menu
- * @property array         $labels
- * @property array         $action_links
- * @property array         $meta
- * @property array         $plugin_meta
- * @property array         $upgrade_reqs
- * @property array         $version_upgrades
- * @property array         $reqs_rest
+ * @property array                 $properties
+ * @property array{
+ *     modules:array,
+ *     sections:array,
+ *     options:array,
+ *     defs:array,
+ *     admin_notices:array,
+ *     }                           $config_spec
+ * @property array                 $requirements
+ * @property array                 $paths
+ * @property array                 $includes
+ * @property array                 $menu
+ * @property array                 $labels
+ * @property array                 $action_links
+ * @property array                 $meta
+ * @property array                 $plugin_meta
+ * @property array                 $upgrade_reqs
+ * @property array                 $version_upgrades
+ * @property array                 $reqs_rest
  *                                   -- not part of config file --
- * @property string        $hash
- * @property string        $previous_version
- * @property array         $update_first_detected
- * @property ModConfigVO[] $mods_cfg
+ * @property string                $hash
+ * @property string                $previous_version
+ * @property array                 $update_first_detected
+ * @property Modules\ModConfigVO[] $mods_cfg
+ * @property ConfigurationVO       $configuration
  */
 class ConfigVO extends DynPropertiesClass {
 
@@ -71,10 +78,14 @@ class ConfigVO extends DynPropertiesClass {
 			case 'mods_cfg':
 				$val = \array_filter( \array_map(
 					function ( $cfg ) {
-						return \is_array( $cfg ) ? ( new ModConfigVO() )->applyFromArray( $cfg ) : null;
+						return \is_array( $cfg ) ? ( new Modules\ModConfigVO() )->applyFromArray( $cfg ) : null;
 					},
 					\is_array( $val ) ? $val : []
 				) );
+				break;
+
+			case 'configuration':
+				$val = \is_array( $val ) ? ( new Modules\ConfigurationVO() )->applyFromArray( $val ) : null;
 				break;
 
 			default:
@@ -89,10 +100,13 @@ class ConfigVO extends DynPropertiesClass {
 			case 'mods_cfg':
 				$value = \array_filter( \array_map(
 					function ( $cfg ) {
-						return $cfg instanceof ModConfigVO ? $cfg->getRawData() : null;
+						return empty( $cfg ) ? null : $cfg->getRawData();
 					},
 					\is_array( $value ) ? $value : []
 				) );
+				break;
+			case 'configuration':
+				$value = empty( $value ) ? null : $value->getRawData();
 				break;
 
 			default:

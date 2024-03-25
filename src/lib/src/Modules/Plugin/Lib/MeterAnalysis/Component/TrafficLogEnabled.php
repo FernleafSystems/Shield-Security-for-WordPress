@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 
 class TrafficLogEnabled extends Base {
 
@@ -18,12 +17,8 @@ class TrafficLogEnabled extends Base {
 
 	protected function testIfProtected() :bool {
 		try {
-			$mod = self::con()->getModule_Traffic();
-			/** @var Options $opts */
-			$opts = $mod->opts();
-
 			( new Monolog() )->assess();
-			$protected = $mod->isModOptEnabled() && $opts->isTrafficLoggerEnabled();
+			$protected = self::con()->comps->opts_lookup->enabledTrafficLogger();
 		}
 		catch ( \Exception $e ) {
 			$protected = false;

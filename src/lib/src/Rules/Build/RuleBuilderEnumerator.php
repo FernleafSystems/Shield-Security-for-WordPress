@@ -2,19 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Data\DB\Rules\RuleRecords,
-	Firewall,
-	IPs,
-	Lockdown,
-	Plugin,
-	PluginControllerConsumer,
-	SecurityAdmin,
-	Traffic,
-	UserManagement
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
+	Ops as RulesDB,
+	RuleRecords
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 
 class RuleBuilderEnumerator {
 
@@ -53,33 +46,33 @@ class RuleBuilderEnumerator {
 
 	private function shieldCoreRules() :array {
 		return [
-			Plugin\Rules\Build\RequestIsSiteBlockdownBlocked::class,
+			Core\RequestIsSiteBlockdownBlocked::class,
 
-			SecurityAdmin\Rules\Build\IsSecurityAdmin::class,
+			Core\IsSecurityAdmin::class,
 
-			Traffic\Rules\Build\ShieldLogRequest::class,
-			Traffic\Rules\Build\ShieldExcludeLogRequest::class,
-			Traffic\Rules\Build\IsRateLimitExceeded::class,
+			Core\ShieldLogRequest::class,
+			Core\ShieldExcludeLogRequest::class,
+			Core\IsRateLimitExceeded::class,
 
-			IPs\Rules\Build\IpWhitelisted::class,
-			IPs\Rules\Build\HighReputationIp::class,
-			IPs\Rules\Build\IpBlockedShield::class,
-			IPs\Rules\Build\IpBlockedCrowdsec::class,
-			IPs\Rules\Build\BotTrack404::class,
-			IPs\Rules\Build\BotTrackXmlrpc::class,
-			IPs\Rules\Build\BotTrackFakeWebCrawler::class,
-			IPs\Rules\Build\BotTrackInvalidScript::class,
+			Core\IpWhitelisted::class,
+			Core\HighReputationIp::class,
+			Core\IpBlockedShield::class,
+			Core\IpBlockedCrowdsec::class,
+			Core\BotTrack404::class,
+			Core\BotTrackXmlrpc::class,
+			Core\BotTrackFakeWebCrawler::class,
+			Core\BotTrackInvalidScript::class,
 
-			Lockdown\Rules\Build\DisableXmlrpc::class,
-			Lockdown\Rules\Build\DisableFileEditing::class,
-			Lockdown\Rules\Build\ForceSslAdmin::class,
-			Lockdown\Rules\Build\IsRequestAuthorDiscovery::class,
-			Lockdown\Rules\Build\HideGeneratorTag::class,
+			Core\DisableXmlrpc::class,
+			Core\DisableFileEditing::class,
+			Core\ForceSslAdmin::class,
+			Core\IsRequestAuthorDiscovery::class,
+			Core\HideGeneratorTag::class,
 
-			Firewall\Rules\Build\Firewall::class,
+			Core\Firewall::class,
 
-			UserManagement\Rules\Build\LockSessionFail::class,
-			UserManagement\Rules\Build\DestroyIdleSessions::class,
+			Core\LockSessionFail::class,
+			Core\DestroyIdleSessions::class,
 		];
 	}
 }

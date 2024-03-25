@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
-
 class ForTraffic extends Base {
-
-	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'date';

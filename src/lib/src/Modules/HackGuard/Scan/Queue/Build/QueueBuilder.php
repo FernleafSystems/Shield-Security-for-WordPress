@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
@@ -15,8 +16,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		$scans = $this->opts()->getScansToBuild();
-		$scan = \key( $scans );
+		$scan = \key( self::con()->comps->scans->getScansToBuild() );
 
 		$batch = new \stdClass();
 		$batch->key = $scan;
@@ -35,6 +35,22 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 		$this->save();
 		// Perform remote post.
 		parent::dispatch();
+	}
+
+	protected function get_post_args() {
+		$args = parent::get_post_args();
+
+		/**
+		 * Automatically add HTTP AUTH header if the current request has it.
+		 */
+		if ( Services::Request()->server[ 'HTTP_AUTHORIZATION' ] ?? false ) {
+			if ( !\is_array( $args[ 'headers' ] ?? null ) ) {
+				$args[ 'headers' ] = [];
+			}
+			$args[ 'headers' ][ 'Authorization' ] = Services::Request()->server[ 'HTTP_AUTHORIZATION' ];
+		}
+
+		return $args;
 	}
 
 	/**
@@ -67,10 +83,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-		$this->mod()
-			 ->getScanQueueController()
-			 ->getQueueProcessor()
-			 ->dispatch();
+		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
 	}
 
 	/**
@@ -80,7 +93,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $scanSlug ) {
-		$this->opts()->addRemoveScanToBuild( $scanSlug, false );
+		self::con()->comps->scans->addRemoveScanToBuild( $scanSlug, false );
 		$this->save();
 		return $this;
 	}
@@ -91,7 +104,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		return \count( $this->opts()->getScansToBuild() ) === 0;
+		return empty( self::con()->comps->scans->getScansToBuild() );
 	}
 
 	/**

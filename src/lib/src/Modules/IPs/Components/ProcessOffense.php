@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\{
 	AddRule,
 	IpRulesCache
@@ -29,6 +29,10 @@ class ProcessOffense {
 	 * @throws \Exception
 	 */
 	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) :void {
+		$con = self::con();
+		$limit = $con->comps === null ?
+			$this->opts()->getOffenseLimit() : $con->comps->opts_lookup->getIpAutoBlockOffenseLimit();
+
 		$IP = ( new AddRule() )
 			->setIP( $this->getIP() )
 			->toAutoBlacklist();
@@ -37,14 +41,14 @@ class ProcessOffense {
 
 		$newCount = $originalCount + $incrementBy;
 		$toBlock = $blockIP
-				   || ( $newCount >= $this->opts()->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
+				   || ( $newCount >= $limit && $IP->blocked_at <= $IP->unblocked_at );
 
 		if ( $toBlock ) {
 			$newCount = (int)\max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
 		}
 
 		if ( $fireEvents ) {
-			self::con()->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
+			$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit_params' => [
 						'from' => $originalCount,
@@ -55,7 +59,7 @@ class ProcessOffense {
 		}
 
 		/** @var IpRulesDB\Update $updater */
-		$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
+		$updater = $con->db_con->dbhIPRules()->getQueryUpdater();
 		$updater->updateTransgressions( $IP, $newCount );
 
 		/**
@@ -65,11 +69,11 @@ class ProcessOffense {
 		 */
 		if ( $toBlock ) {
 			/** @var IpRulesDB\Update $updater */
-			$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
+			$updater = $con->db_con->dbhIPRules()->getQueryUpdater();
 			$updater->setBlocked( $IP );
 
 			if ( $fireEvents ) {
-				self::con()->fireEvent( 'ip_offense',
+				$con->fireEvent( 'ip_offense',
 					[
 						'suppress_audit' => true,
 						'audit_params'   => [

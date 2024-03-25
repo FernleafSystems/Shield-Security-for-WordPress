@@ -31,6 +31,8 @@ class Add extends BaseAddRemove {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdIpAdd( array $null, array $args ) {
+		$this->showDeprecatedWarning();
+
 		try {
 			$this->checkList( $args[ 'list' ] ?? '' );
 

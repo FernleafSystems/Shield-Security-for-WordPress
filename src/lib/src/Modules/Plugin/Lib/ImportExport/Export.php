@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -29,7 +29,7 @@ class Export {
 	}
 
 	public function toJson() :void {
-		$ieCon = $this->mod()->getImpExpController();
+		$ieCon = self::con()->comps->import_export;
 		$req = Services::Request();
 
 		$success = false;
@@ -107,11 +107,14 @@ class Export {
 	}
 
 	public function getExportData() :array {
-		$all = [];
-		foreach ( $this->getRawOptionsExport() as $modSlug => $modOptions ) {
-			$mod = self::con()->modules[ $modSlug ];
-			$all[ $mod->getOptionsStorageKey() ] = $modOptions;
-		}
+		$all = [
+			'site_url'      => Services::WpGeneral()->getHomeUrl(),
+			'exported_at'   => Services::Request()->ts(),
+			'exported_date' => Services::Request()->carbon( true )->toIso8601String(),
+			'slug'          => 'wp-simple-firewall',
+			'version'       => self::con()->cfg->version(),
+			'options'       => $this->getRawOptionsExport(),
+		];
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
@@ -136,20 +139,19 @@ class Export {
 		return $all;
 	}
 
-	public function getRawOptionsExport( bool $filterExcluded = true ) :array {
+	public function getFullTransferableOptionsExport() :array {
 		$all = [];
-		foreach ( self::con()->modules as $mod ) {
-			$opts = $mod->opts();
-			$xfr = $opts->getTransferableOptions();
-			if ( $filterExcluded ) {
-				$xfr = \array_diff_key(
-					$xfr,
-					\array_flip( $opts->getXferExcluded() )
-				);
-			}
-			$all[ $mod->cfg->slug ] = $xfr;
+		foreach ( self::con()->cfg->configuration->transferableOptions() as $optKey => $optDef ) {
+			$all[ $optKey ] = self::con()->opts->optGet( $optKey );
 		}
 		return $all;
+	}
+
+	/**
+	 * Removes any options marked as to be excluded from import/export
+	 */
+	public function getRawOptionsExport() :array {
+		return \array_diff_key( $this->getFullTransferableOptionsExport(), \array_flip( self::con()->comps->opts_lookup->getXferExcluded() ) );
 	}
 
 	/**
@@ -164,15 +166,11 @@ class Export {
 	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
 	 */
 	private function verifyUrl( string $url, string $id, string $secret ) :bool {
-
-		$urlIDs = $this->opts()->getOpt( 'import_url_ids' );
-		if ( !\is_array( $urlIDs ) ) {
-			$urlIDs = [];
-		}
+		$urlIDs = self::con()->opts->optGet( 'import_url_ids' );
 
 		$verified = !empty( $url ) &&
 					(
-						$this->mod()->getImpExpController()->verifySecretKey( $secret )
+						self::con()->comps->import_export->verifySecretKey( $secret )
 						|| ( !empty( $id ) && ( $urlIDs[ \md5( $url ) ] ?? '' ) === $id )
 						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
 					);
@@ -180,11 +178,20 @@ class Export {
 		// Update the stored ID, so it can be used at a later date.
 		if ( $verified && !empty( $id ) ) {
 			$urlIDs[ \md5( $url ) ] = $id;
-			$this->opts()->setOpt( 'import_url_ids', $urlIDs );
-			self::con()->opts->store();
+			self::con()
+				->opts
+				->optSet( 'import_url_ids', $urlIDs )
+				->store();
 		}
 
 		return $verified;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() :array {
+		return self::con()->opts->optGet( 'importexport_whitelist' );
 	}
 
 	private function isUrlOnWhitelist( string $url ) :bool {
@@ -196,7 +203,7 @@ class Export {
 				function ( $whitelistedURL ) {
 					return $this->parseURL( $whitelistedURL );
 				},
-				$this->opts()->getImportExportWhitelist()
+				self::con()->comps->import_export->getImportExportWhitelist()
 			);
 
 			foreach ( $whiteURLs as $whiteURL ) {

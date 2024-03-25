@@ -8,7 +8,7 @@ class ScanEnabledAfsAreaWpContent extends ScanEnabledAfsAreaBase {
 	public const WEIGHT = 2;
 
 	protected function testIfProtected() :bool {
-		return self::con()->getModule_HackGuard()->getScansCon()->AFS()->isScanEnabledWpRoot();
+		return self::con()->comps->scans->AFS()->isScanEnabledWpRoot();
 	}
 
 	public function title() :string {

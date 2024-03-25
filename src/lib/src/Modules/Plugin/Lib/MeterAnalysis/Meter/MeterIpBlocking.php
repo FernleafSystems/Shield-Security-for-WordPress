@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterIpBlocking extends MeterBase {
@@ -9,7 +10,7 @@ class MeterIpBlocking extends MeterBase {
 	public const SLUG = 'ips';
 
 	protected function getWorkingMods() :array {
-		return [ self::con()->getModule_IPs() ];
+		return [ EnumModules::IPS ];
 	}
 
 	public function title() :string {

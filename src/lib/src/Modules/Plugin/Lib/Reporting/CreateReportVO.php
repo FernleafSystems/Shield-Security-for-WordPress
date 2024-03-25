@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
 
-	use Plugin\ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var ReportVO
@@ -29,7 +29,7 @@ class CreateReportVO {
 			 ->setIntervalBoundaries();
 
 		$this->rep->title = sprintf( '%s :: %s :: %s',
-			$this->mod()->getReportingController()->getReportTypeName( $reportType ),
+			self::con()->comps->reports->getReportTypeName( $reportType ),
 			\ucfirst( $this->rep->interval ),
 			__( 'Auto-Generated', 'wp-simple-firewall' )
 		);
@@ -50,7 +50,7 @@ class CreateReportVO {
 				break;
 			case Constants::REPORT_TYPE_INFO:
 			default:
-				$this->rep->areas = $this->mod()->getReportingController()->getReportAreas( true );
+				$this->rep->areas = self::con()->comps->reports->getReportAreas( true );
 				break;
 		}
 		return $this;
@@ -59,11 +59,11 @@ class CreateReportVO {
 	private function setReportInterval() :self {
 		switch ( $this->rep->type ) {
 			case Constants::REPORT_TYPE_ALERT:
-				$this->rep->interval = $this->opts()->getReportFrequencyAlert();
+				$this->rep->interval = self::con()->comps->reports->getReportFrequencyAlert();
 				break;
 			case Constants::REPORT_TYPE_INFO:
 			default:
-				$this->rep->interval = $this->opts()->getReportFrequencyInfo();
+				$this->rep->interval = self::con()->comps->reports->getReportFrequencyInfo();
 				break;
 		}
 		return $this;

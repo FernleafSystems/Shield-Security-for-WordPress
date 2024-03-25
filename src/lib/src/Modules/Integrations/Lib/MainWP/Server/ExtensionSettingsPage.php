@@ -23,7 +23,7 @@ class ExtensionSettingsPage {
 		}, 10, 2 );
 
 		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
-			$components[ 'mainwp_server' ] =  [
+			$components[ 'mainwp_server' ] = [
 				'key'     => 'mainwp_server',
 				'handles' => [
 					'mainwp_server',

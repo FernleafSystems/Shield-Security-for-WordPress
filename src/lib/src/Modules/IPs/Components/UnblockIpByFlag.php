@@ -3,15 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\DeleteRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockIpByFlag {
 
 	use ExecOnce;
-	use IPs\ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return !empty( Services::WpFs()->findFileInDir( 'unblock', self::con()->paths->forFlag() ) );
@@ -26,11 +26,10 @@ class UnblockIpByFlag {
 		if ( !empty( $path ) && $FS->isAccessibleFile( $path ) ) {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
-
 				foreach ( \array_map( '\trim', \explode( "\n", $content ) ) as $ip ) {
 					if ( Services::IP()->isValidIp( $ip ) ) {
 						foreach ( ( new IpRuleStatus( $ip ) )->getRulesForBlock() as $record ) {
-							$removed = ( new IPs\Lib\IpRules\DeleteRule() )->byRecord( $record );
+							$removed = ( new DeleteRule() )->byRecord( $record );
 							if ( $removed ) {
 								$IPs[] = $ip;
 								self::con()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );

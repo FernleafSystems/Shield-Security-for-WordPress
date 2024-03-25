@@ -3,14 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class QueryRemainingOffenses {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
 	public function run() :int {
-		return $this->opts()->getOffenseLimit() - ( new IpRuleStatus( $this->getIP() ) )->getOffenses() - 1;
+		return self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit()
+			   - ( new IpRuleStatus( $this->getIP() ) )->getOffenses()
+			   - 1;
 	}
 }

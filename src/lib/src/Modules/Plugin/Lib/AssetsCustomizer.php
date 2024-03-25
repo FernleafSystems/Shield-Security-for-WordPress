@@ -9,15 +9,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	LoginGuard,
-	Plugin
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
-	ForSecurityRules,
 	ForIpRules,
+	ForScansHistory,
+	ForSecurityRules,
 	ForSessions,
 	ForTraffic,
 	Scans\ForMalware,
@@ -280,21 +278,48 @@ class AssetsCustomizer {
 					'login_guard',
 				],
 				'data'    => function () {
-					$mod = self::con()->getModule_LoginGuard();
-					/** @var LoginGuard\Options $opts */
-					$opts = $mod->opts();
+					$con = self::con();
+					if ( $con->comps === null ) {
+						$mod = self::con()->getModule_LoginGuard();
+						/** @var LoginGuard\Options $opts */
+						$opts = $mod->opts();
+						$selectors = \array_merge( [
+							'#loginform',
+						], $opts->getOpt( 'antibot_form_ids', [] ) );
+						$isGasp = $opts->isOpt( 'enable_login_gasp_check', 'Y' );
+						$cbName = $mod->getGaspKey();
+						$label = $mod->getTextOpt( 'text_imahuman' );
+						$alert = $mod->getTextOpt( 'text_pleasecheckbox' );
+					}
+					else {
+						$selectors = \array_merge( [
+							'#loginform',
+						], $con->opts->optGet( 'antibot_form_ids' ) );
+						$isGasp = $con->comps->opts_lookup->enabledLoginGuardGaspCheck();
+						$cbName = $con->comps->opts_lookup->getLoginGuardGaspKey();
+						$label = $con->opts->optGet( 'text_imahuman' );
+						if ( $label === 'default' ) {
+							$con->opts->optReset( 'text_imahuman' );
+							$label = $con->opts->optGet( 'text_imahuman' );
+						}
+						$alert = $con->opts->optGet( 'text_pleasecheckbox' );
+						if ( $alert === 'default' ) {
+							$con->opts->optReset( 'text_pleasecheckbox' );
+							$label = $con->opts->optGet( 'text_pleasecheckbox' );
+						}
+					}
 					return [
-						'form_selectors' => $opts->getAntiBotFormSelectors(),
-						'uniq'           => \preg_replace( '#[^\da-zA-Z]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-						'cbname'         => $mod->getGaspKey(),
+						'form_selectors' => $selectors,
+						'uniq'           => uniqid(),
+						'cbname'         => $cbName,
 						'strings'        => [
-							'label'   => $mod->getTextImAHuman(),
-							'alert'   => $mod->getTextPleaseCheckBox(),
+							'label'   => __( \stripslashes( $label ), 'wp-simple-firewall' ),
+							'alert'   => __( \stripslashes( $alert ), 'wp-simple-firewall' ),
 							'loading' => __( 'Loading', 'wp-simple-firewall' )
 						],
 						'flags'          => [
-							'gasp' => $opts->isEnabledGaspCheck(),
-						]
+							'gasp' => $isGasp,
+						],
 					];
 				},
 			],
@@ -359,8 +384,9 @@ class AssetsCustomizer {
 				'data'    => function () {
 					return [
 						'ajax' => [
-							'form_save'        => ActionData::Build( Actions\ModuleOptionsSave::class ),
-							'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ModConfig::class ),
+							'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
+							'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
+							'render_offcanvas'    => ActionData::BuildAjaxRender( Components\OffCanvas\ModConfig::class ),
 						]
 					];
 				},
@@ -454,7 +480,7 @@ class AssetsCustomizer {
 					'main',
 				],
 				'data'     => function () {
-					return self::con()->getModule_Plugin()->getReportingController()->getCreateReportFormVars();
+					return self::con()->comps->reports->getCreateReportFormVars();
 				},
 			],
 			'scans'            => [
@@ -471,11 +497,15 @@ class AssetsCustomizer {
 							'start'            => ActionData::Build( Actions\ScansStart::class ),
 							'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
 							'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
+
+							'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
+							'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
 						],
 						'flags' => [
-							'initial_check' => $con->getModule_HackGuard()
-												   ->getScanQueueController()
-												   ->hasRunningScans(),
+							'initial_check' => $con->comps === null ?
+								$con->getModule_HackGuard()
+									->getScanQueueController()
+									->hasRunningScans() : $con->comps->scans_queue->hasRunningScans(),
 						],
 						'hrefs' => [
 							'results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
@@ -621,6 +651,20 @@ class AssetsCustomizer {
 							]
 						];
 					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_HISTORY ) ) {
+						$data[ 'scans_history' ] = [
+							'ajax'    => [
+								'table_action' => ActionData::Build( Actions\ScansHistoryTableAction::class ),
+							],
+							'hrefs'   => [
+							],
+							'strings' => [
+							],
+							'vars'    => [
+								'datatables_init' => ( new ForScansHistory() )->buildRaw(),
+							]
+						];
+					}
 					return $data;
 				}
 			],
@@ -631,13 +675,15 @@ class AssetsCustomizer {
 					'wpadmin',
 				],
 				'data'    => function () {
+					$con = self::con();
 					/**
 					 * This is temporary and only to be used to determine (via telemetry) whether clients can
 					 * actually use this method of requests.
 					 * @deprecated 18.5
 					 */
-					$opts = self::con()->getModule_Plugin()->opts();
-					$data = $opts->getOpt( 'test_rest_data' );
+					$data = \method_exists( $con->opts, 'optGet' ) ?
+						$con->opts->optGet( 'test_rest_data' )
+						: $con->getModule_Plugin()->opts()->getOpt( 'test_rest_data' );
 					if ( empty( $data ) || \array_key_exists( 'test_at', $data ) ) {
 						$data = [];
 					}
@@ -658,8 +704,11 @@ class AssetsCustomizer {
 						$run = false;
 					}
 
-					$opts->setOpt( 'test_rest_data', $data );
-					self::con()->opts->store();
+					\method_exists( $con->opts, 'optSet' ) ?
+						$con->opts->optSet( 'test_rest_data', $data )
+						: $con->getModule_Plugin()->opts()->setOpt( 'test_rest_data', $data );
+
+					$con->opts->store();
 
 					return [
 						'ajax'  => [
@@ -704,15 +753,16 @@ class AssetsCustomizer {
 	}
 
 	private function isIpAutoDetectRequired() :bool {
-		$req = Services::Request();
-		/** @var Plugin\Options $optsPlugin */
-		$optsPlugin = self::con()->getModule_Plugin()->opts();
-		$ipDetectAt = $optsPlugin->getOpt( 'ipdetect_at' );
-		$sinceLastRequest = $req->ts() - $ipDetectAt;
-		return !empty( $ipDetectAt ) &&
-			   ( $sinceLastRequest > \MONTH_IN_SECONDS
-				 || ( $optsPlugin->getIpSource() === 'AUTO_DETECT_IP' && $sinceLastRequest > \DAY_IN_SECONDS )
-				 || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
-			   );
+		$con = self::con();
+		$required = false;
+		if ( $con->comps !== null ) {
+			$req = Services::Request();
+			$since = $req->ts() - $con->opts->optGet( 'ipdetect_at' );
+			$required = ( $since > \MONTH_IN_SECONDS
+						  || ( $con->comps->opts_lookup->ipSource() === 'AUTO_DETECT_IP' && $since > \DAY_IN_SECONDS )
+						  || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
+			);
+		}
+		return $required;
 	}
 }

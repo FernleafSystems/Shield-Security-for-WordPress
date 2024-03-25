@@ -32,8 +32,6 @@ class BlockFirewall extends BaseBlock {
 
 	protected function getRestrictionDetailsPoints() :array {
 		$blockMeta = $this->action_data[ 'block_meta_data' ];
-		/** @var Firewall\Strings $str */
-		$str = self::con()->getModule_Firewall()->getStrings();
 
 		$remainingOffenses = \max( 0, ( new QueryRemainingOffenses() )
 			->setIP( self::con()->this_req->ip )
@@ -43,7 +41,7 @@ class BlockFirewall extends BaseBlock {
 			[
 				__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
 				__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>
-					$str->getFirewallCategoryName( (string)$blockMeta[ 'match_category' ] ?? '' ),
+					( new Firewall\Lib\FirewallCategoryNames() )->getFor( (string)$blockMeta[ 'match_category' ] ?? '' ),
 				__( 'Request Parameter', 'wp-simple-firewall' )          => $blockMeta[ 'match_request_param' ],
 				__( 'Request Parameter Value', 'wp-simple-firewall' )    => $blockMeta[ 'match_request_value' ],
 				__( 'Firewall Pattern', 'wp-simple-firewall' )           => $blockMeta[ 'match_pattern' ],

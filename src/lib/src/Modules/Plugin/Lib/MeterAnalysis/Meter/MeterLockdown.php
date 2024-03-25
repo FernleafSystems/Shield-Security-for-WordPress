@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterLockdown extends MeterBase {
@@ -9,7 +10,7 @@ class MeterLockdown extends MeterBase {
 	public const SLUG = 'lockdown';
 
 	protected function getWorkingMods() :array {
-		return [ self::con()->getModule_Lockdown() ];
+		return [ EnumModules::LOCKDOWN ];
 	}
 
 	public function title() :string {

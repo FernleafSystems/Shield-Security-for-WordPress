@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
 
 class OffenseTracker extends EventsListener {
 
@@ -37,26 +37,15 @@ class OffenseTracker extends EventsListener {
 		return $this->offenseCount;
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function setIsBlocked( bool $isBlocked ) {
 		$this->isBlocked = $isBlocked;
-		return $this;
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function incrementCount( int $increment = 1 ) {
-		return $this->setOffenseCount( $this->getOffenseCount() + $increment );
+		$this->setOffenseCount( $this->getOffenseCount() + $increment );
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function setOffenseCount( int $offenseCount ) {
 		$this->offenseCount = (int)\max( $offenseCount, $this->getOffenseCount() );
-		return $this;
 	}
 }

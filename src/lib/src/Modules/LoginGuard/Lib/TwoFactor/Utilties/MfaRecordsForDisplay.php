@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops\Record;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaRecordsForDisplay {

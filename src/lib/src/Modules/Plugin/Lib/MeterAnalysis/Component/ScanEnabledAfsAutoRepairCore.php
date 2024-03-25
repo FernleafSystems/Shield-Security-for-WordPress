@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-
 class ScanEnabledAfsAutoRepairCore extends ScanEnabledAfsAutoRepairBase {
 
 	public const SLUG = 'scan_enabled_afs_autorepair_core';
@@ -14,9 +12,7 @@ class ScanEnabledAfsAutoRepairCore extends ScanEnabledAfsAutoRepairBase {
 	}
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_HackGuard()->opts();
-		return parent::testIfProtected() && $opts->isRepairFileWP();
+		return self::con()->comps->scans->AFS()->isRepairFileWP();
 	}
 
 	public function title() :string {

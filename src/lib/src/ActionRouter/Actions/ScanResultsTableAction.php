@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 
 class ScanResultsTableAction extends ScansBase {
 
@@ -11,7 +11,19 @@ class ScanResultsTableAction extends ScansBase {
 
 	protected function exec() {
 		try {
-			$response = $this->delegate( $this->action_data[ 'sub_action' ] ?? '' );
+			switch ( $this->action_data[ 'sub_action' ] ?? '' ) {
+				case 'retrieve_table_data':
+					$response = $this->retrieveTableData();
+					break;
+				case 'delete':
+				case 'ignore':
+				case 'repair':
+				case 'repair-delete':
+					$response = $this->doAction( $this->action_data[ 'sub_action' ] );
+					break;
+				default:
+					throw new \Exception( 'Not a supported scan tables sub_action: '.$this->action_data[ 'sub_action' ] );
+			}
 		}
 		catch ( \Exception $e ) {
 			$response = [
@@ -27,33 +39,7 @@ class ScanResultsTableAction extends ScansBase {
 	/**
 	 * @throws \Exception
 	 */
-	private function delegate( string $action ) :array {
-		switch ( $action ) {
-
-			case 'retrieve_table_data':
-				$response = $this->retrieveTableData();
-				break;
-
-			case 'delete':
-			case 'ignore':
-			case 'repair':
-			case 'repair-delete':
-				$response = $this->doAction( $action );
-				break;
-
-			default:
-				throw new \Exception( 'Not a supported scan tables sub_action: '.$action );
-		}
-
-		return $response;
-	}
-
-	/**
-	 * @throws \Exception
-	 */
 	private function doAction( string $action ) :array {
-		$mod = self::con()->getModule_HackGuard();
-
 		$items = $this->getItemIDs();
 
 		$scanSlugs = [];
@@ -62,7 +48,7 @@ class ScanResultsTableAction extends ScansBase {
 			try {
 				$item = ( new RetrieveItems() )->byID( $itemID );
 				$scanSlugs[] = $item->VO->scan;
-				if ( $mod->getScansCon()->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
+				if ( self::con()->comps->scans->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
 					$successfulItems[] = $item->VO->scanresult_id;
 				}
 			}
@@ -71,7 +57,7 @@ class ScanResultsTableAction extends ScansBase {
 		}
 
 		foreach ( \array_unique( $scanSlugs ) as $slug ) {
-			$mod->getScansCon()->getScanCon( $slug )->cleanStalesResults();
+			self::con()->comps->scans->getScanCon( $slug )->cleanStalesResults();
 		}
 
 		if ( \count( $successfulItems ) === \count( $items ) ) {

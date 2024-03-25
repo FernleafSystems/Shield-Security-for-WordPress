@@ -33,7 +33,8 @@ class Footer extends Base {
 		];
 		shuffle( $benefits );
 
-		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+		$isWhitelabelled = ( $con->comps === null ?
+			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
 		return [
 			'flags'   => [
 				'is_pro'           => $con->isPremiumActive(),
@@ -59,8 +60,7 @@ class Footer extends Base {
 				'delays'              => __( 'Note: Any email delays or delivery issues are caused by website hosting and email providers.', 'wp-simple-firewall' ),
 				'time_sent'           => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
 				'configure_recipient' => sprintf( __( 'Configure security email recipient (%s)', 'wp-simple-firewall' ),
-					sprintf( __( 'currently %s', 'wp-simple-firewall' ),
-						$con->getModule_Plugin()->getPluginReportEmail() )
+					sprintf( __( 'currently %s', 'wp-simple-firewall' ), $con->comps->opts_lookup->getReportEmail() )
 				),
 			],
 		];

@@ -43,7 +43,7 @@ class UserSessionRotateAuthCookies extends Base {
 			}
 
 			if ( !empty( $parsed[ 'token' ] ) ) {
-				$sessionCon = self::con()->getModule_Plugin()->getSessionCon();
+				$sessionCon = self::con()->comps->session;
 				$current = $sessionCon->current();
 				$userID = $current->shield[ 'user_id' ] ?? 0;
 

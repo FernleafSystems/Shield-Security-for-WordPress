@@ -2,12 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
 
 	public const SCAN_SLUG = 'apc';
+
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+			'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
+		];
+	}
 
 	public function getAdminMenuItems() :array {
 		$items = [];
@@ -30,7 +39,7 @@ class Apc extends BaseForAssets {
 	}
 
 	public function getQueueGroupSize() :int {
-		return 3;
+		return 100;
 	}
 
 	/**
@@ -41,7 +50,8 @@ class Apc extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isOpt( 'enabled_scan_apc', 'Y' );
+		$con = self::con();
+		return $con->comps !== null && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enabled_scan_apc', 'Y' );
 	}
 
 	protected function isPremiumOnly() :bool {

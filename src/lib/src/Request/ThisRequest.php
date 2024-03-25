@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\{
-	IpMetaRecord,
-	LoadIpMeta
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
+	LoadIpMeta,
+	IpMetaRecord
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * This is set within Rule processing when checking for logged-in user.
@@ -94,12 +93,5 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 
 	public function getIpStatus() :IpRuleStatus {
 		return $this->ipStatus ?? $this->ipStatus = new IpRuleStatus( $this->ip );
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	private function getIpID() :string {
-		return Services::IP()->getIpDetector()->getIPIdentity();
 	}
 }

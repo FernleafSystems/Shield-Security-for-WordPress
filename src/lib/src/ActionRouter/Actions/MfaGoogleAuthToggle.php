@@ -9,10 +9,7 @@ class MfaGoogleAuthToggle extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_toggle_ga';
 
 	protected function exec() {
-		$available = self::con()
-						 ->getModule_LoginGuard()
-						 ->getMfaController()
-						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var GoogleAuth $provider */
 		$provider = $available[ GoogleAuth::ProviderSlug() ];
 
@@ -20,8 +17,8 @@ class MfaGoogleAuthToggle extends MfaUserConfigBase {
 		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );
 
 		$this->response()->action_response_data = [
-			'success'     => $result->success,
-			'message'     => $result->success ? $result->msg_text : $result->error_text,
+			'success' => $result->success,
+			'message' => $result->success ? $result->msg_text : $result->error_text,
 		];
 	}
 }

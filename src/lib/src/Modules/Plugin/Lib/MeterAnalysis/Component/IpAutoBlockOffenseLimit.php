@@ -2,16 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
-
 class IpAutoBlockOffenseLimit extends IpBase {
 
 	public const SLUG = 'ip_autoblock_limit';
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
-		return parent::testIfProtected() && $opts->isEnabledAutoBlackList() && $opts->getOffenseLimit() <= 10;
+		$opts = self::con()->comps->opts_lookup;
+		return $opts->enabledIpAutoBlock() && $opts->getIpAutoBlockOffenseLimit() <= 20;
 	}
 
 	protected function getOptConfigKey() :string {
@@ -23,16 +20,12 @@ class IpAutoBlockOffenseLimit extends IpBase {
 	}
 
 	public function descProtected() :string {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
-		return sprintf( __( "The maximum allowable offenses allowed before blocking is reasonably low: %s", 'wp-simple-firewall' ),
-			$opts->getOffenseLimit() );
+		return sprintf( __( "The maximum allowable offenses allowed before blocking is reasonable: %s", 'wp-simple-firewall' ),
+			self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() );
 	}
 
 	public function descUnprotected() :string {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
 		return sprintf( __( "Your maximum offense limit before blocking an IP seems high: %s", 'wp-simple-firewall' ),
-			$opts->getOffenseLimit() );
+			self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() );
 	}
 }

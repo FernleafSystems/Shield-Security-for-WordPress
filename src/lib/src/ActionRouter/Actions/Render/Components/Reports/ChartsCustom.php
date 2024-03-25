@@ -33,7 +33,7 @@ class ChartsCustom extends Base {
 	 */
 	private function buildPossibleEvents() :array {
 		return \array_intersect_key(
-			self::con()->service_events->getEventNames(),
+			self::con()->comps->events->getEventNames(),
 			\array_flip( self::con()
 				->db_con
 				->dbhEvents()

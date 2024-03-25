@@ -10,11 +10,10 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 
 	protected function exec() {
 		$con = self::con();
-		$opts = $con->getModule_LoginGuard()->opts();
-
-		if ( $opts->getOpt( 'email_can_send_verified_at' ) < 1 ) {
-			$opts->setOpt( 'email_can_send_verified_at', Services::Request()->ts() );
-			$con->opts->store();
+		if ( $con->opts->optGet( 'email_can_send_verified_at' ) < 1 ) {
+			$con->opts
+				->optSet( 'email_can_send_verified_at', Services::Request()->ts() )
+				->store();
 			$con->admin_notices->addFlash(
 				__( 'Email verification completed successfully.', 'wp-simple-firewall' ),
 				$this->getActiveWPUser()

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Placeholders\PlaceholderMeter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\GenericRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
 	OverviewActivity,
 	OverviewIpBlocks,
@@ -23,7 +22,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$scansCon = $con->getModule_HackGuard()->getScansCon();
+		$scansCon = self::con()->comps->scans;
 		$counter = $scansCon->getScanResultsCount();
 		$filesCount = $counter->countThemeFiles() + $counter->countPluginFiles() + $counter->countWPFiles();
 		return [

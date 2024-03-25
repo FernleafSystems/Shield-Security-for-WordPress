@@ -6,7 +6,7 @@ class WooCommerce extends BaseFormProvider {
 
 	protected function run() {
 		parent::run();
-		if ( $this->opts()->isProtect( 'checkout_woo' ) ) {
+		if ( \in_array( 'checkout_woo', self::con()->opts->optGet( 'bot_protection_locations' ) ) ) {
 			$this->woocheckout();
 		}
 	}

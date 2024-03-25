@@ -16,10 +16,7 @@ class PageMerlin extends BasePluginAdminPage {
 		try {
 			return [
 				'content' => [
-					'steps' => self::con()
-								   ->getModule_Plugin()
-								   ->getWizardCon()
-								   ->buildSteps( $this->action_data[ 'nav_sub' ] )
+					'steps' => self::con()->comps->wizards->buildSteps( $this->action_data[ 'nav_sub' ] )
 				],
 				'flags'   => [
 					'show_sidebar_nav' => 0

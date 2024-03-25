@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Utility\DbDescribeTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
@@ -164,7 +163,7 @@ class Collate {
 		foreach ( self::con()->db_con->loadAll() as $dbhDef ) {
 			/** @var Handler $dbh */
 			$dbh = $dbhDef[ 'handler' ];
-			$DBs[ $dbhDef[ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
+			$DBs[ $dbhDef[ 'def' ][ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
 				$dbh->getTableSchema()->table,
 				$dbh->isReady() ? 'Ready' : 'Not Ready',
 				sprintf( 'Rows: %s', $dbh->isReady() ? $dbh->getQuerySelector()->count() : '-' ),
@@ -179,7 +178,7 @@ class Collate {
 	private function snapshots() :array {
 		$data = [];
 
-		$auditCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		$auditCon = self::con()->comps->activity_log;
 		foreach ( $auditCon->getAuditors() as $auditor ) {
 			try {
 				if ( $auditor->getSnapper() ) {
@@ -212,7 +211,7 @@ class Collate {
 		$data = [
 			'Can Loopback Request'       => $loopback,
 			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )->test() ? 'Yes' : 'No',
-			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
+			'Handshake ShieldNET'        => $con->comps->shieldnet->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
@@ -225,9 +224,7 @@ class Collate {
 
 	private function getShieldSummary() :array {
 		$con = self::con();
-		$modLicense = $con->getModule_License();
-		$modPlugin = $con->getModule_Plugin();
-		$wpHashes = $modLicense->getWpHashesTokenManager();
+		$wpHashes = $con->comps->api_token;
 
 		$nPrevAttempt = $wpHashes->getPreviousAttemptAt();
 		if ( empty( $nPrevAttempt ) ) {
@@ -244,19 +241,19 @@ class Collate {
 			'Version'                => $con->cfg->version(),
 			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
 			'WP Hashes Token'        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
-			'Security Admin Enabled' => $con->getModule_SecAdmin()
-											->getSecurityAdminController()
-											->isEnabledSecAdmin() ? 'Yes' : 'No',
-			'CrowdSec API Status'    => $con->getModule_IPs()
-											->getCrowdSecCon()
-											->getApi()
-											->getAuthStatus(),
+			'Security Admin Enabled' => $con->comps->sec_admin->isEnabledSecAdmin() ? 'Yes' : 'No',
+			'CrowdSec API Status'    => $con->comps->crowdsec->getApi()->getAuthStatus(),
 			'TMP Dir'                => $con->cache_dir_handler->dir(),
 		];
 
-		/** @var Options $optsPlugin */
-		$optsPlugin = $modPlugin->opts();
-		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
+		$source = 'unknown';
+		foreach ( $con->opts->optDef( 'visitor_address_source' )[ 'value_options' ] as $optionValue ) {
+			if ( $optionValue[ 'value_key' ] == $con->opts->optGet( 'visitor_address_source' ) ) {
+				$source = $optionValue[ 'text' ];
+				break;
+			}
+		}
+
 		$ip = Services::Request()->ip();
 		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
 

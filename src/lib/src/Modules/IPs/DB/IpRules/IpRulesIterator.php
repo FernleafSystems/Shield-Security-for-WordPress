@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 use Elliotchance\Iterator\AbstractPagedIterator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 class IpRulesIterator extends AbstractPagedIterator {
 
 	use ModConsumer;

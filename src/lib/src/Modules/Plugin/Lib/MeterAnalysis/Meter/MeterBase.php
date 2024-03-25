@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	BaseShield,
-	Plugin,
-	Plugin\Lib\MeterAnalysis\Components,
-	PluginControllerConsumer
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	Component,
+	Components
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class MeterBase {
 
@@ -16,7 +16,7 @@ abstract class MeterBase {
 	public const SLUG = '';
 
 	/**
-	 * @return BaseShield\ModCon[]|Plugin\ModCon[]
+	 * @return string[]
 	 */
 	protected function getWorkingMods() :array {
 		return [];
@@ -24,22 +24,21 @@ abstract class MeterBase {
 
 	public function warning() :array {
 		$con = self::con();
-		$pluginMod = $con->getModule_Plugin();
-		/** @var Plugin\Options $pluginOpts */
-		$pluginOpts = $pluginMod->opts();
 		$warning = [];
-		if ( $pluginOpts->isPluginGloballyDisabled() ) {
+		if ( $con->comps->opts_lookup->isPluginGloballyDisabled() ) {
 			$warning = [
 				'text' => __( 'The plugin is currently entirely disabled.' ),
 				'href' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
 			];
 		}
 		else {
-			foreach ( $this->getWorkingMods() as $workingMod ) {
-				if ( !$workingMod->isModOptEnabled() ) {
+			foreach ( $this->getWorkingMods() as $slug ) {
+				if ( !$con->comps->opts_lookup->isModEnabled( $slug ) ) {
 					$warning = [
 						'text' => __( 'A module that manages some of these settings is disabled.' ),
-						'href' => $con->plugin_urls->modCfgOption( $workingMod->getEnableModOptKey() ),
+						'href' => $con->plugin_urls->modCfgOption(
+							'enable_'.( $slug === EnumModules::PLUGIN ? 'global_enable_plugin_features' : $slug )
+						),
 					];
 					break;
 				}
@@ -50,8 +49,7 @@ abstract class MeterBase {
 
 	public function buildComponents() :array {
 		$con = self::con();
-		$pluginOpts = $con->getModule_Plugin()->opts();
-		$prefs = $pluginOpts->getOpt( 'sec_overview_prefs' );
+		$prefs = $con->opts->optGet( 'sec_overview_prefs' );
 
 		$viewAs = $prefs[ 'view_as' ] ?? '';
 		if ( !\in_array( $viewAs, [ 'free', 'starter', 'business' ], true ) ) {
@@ -62,7 +60,7 @@ abstract class MeterBase {
 		}
 
 		$prefs[ 'view_as' ] = $viewAs;
-		$pluginOpts->setOpt( 'sec_overview_prefs', $prefs );
+		$con->opts->optSet( 'sec_overview_prefs', $prefs );
 
 		$componentClasses = \array_filter(
 			\array_intersect( $this->getComponents(), Components::COMPONENTS ),
@@ -97,7 +95,7 @@ abstract class MeterBase {
 	}
 
 	/**
-	 * @return Plugin\Lib\MeterAnalysis\Component\Base[]|string[]
+	 * @return Component\Base[]|string[]
 	 */
 	protected function getComponents() :array {
 		return [];

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,6 +30,8 @@ class PluginNavs {
 	public const SUBNAV_RULES_BUILD = 'build';
 	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
+	public const SUBNAV_SCANS_STATE = 'state';
+	public const SUBNAV_SCANS_HISTORY = 'history';
 	public const SUBNAV_SCANS_RESULTS = 'results';
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
@@ -72,7 +74,7 @@ class PluginNavs {
 	 * Handle special case for Config, so we ensure plugin general config is always default.
 	 */
 	public static function GetDefaultSubNavForNav( string $nav ) :string {
-		return $nav === self::NAV_OPTIONS_CONFIG ? ModCon::SLUG : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
+		return $nav === self::NAV_OPTIONS_CONFIG ? EnumModules::PLUGIN : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
 	}
 
 	public static function GetNavHierarchy() :array {
@@ -152,10 +154,10 @@ class PluginNavs {
 				self::NAV_RULES          => [
 					'name'     => __( 'Rules', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_RULES_MANAGE     => [
+						self::SUBNAV_RULES_MANAGE  => [
 							'handler' => PluginAdminPages\PageRulesManage::class,
 						],
-						self::SUBNAV_RULES_BUILD     => [
+						self::SUBNAV_RULES_BUILD   => [
 							'handler' => PluginAdminPages\PageRulesBuild::class,
 						],
 						self::SUBNAV_RULES_SUMMARY => [
@@ -171,6 +173,12 @@ class PluginNavs {
 						],
 						self::SUBNAV_SCANS_RUN     => [
 							'handler' => PluginAdminPages\PageScansRun::class,
+						],
+						self::SUBNAV_SCANS_HISTORY     => [
+							'handler' => PluginAdminPages\PageScansHistory::class,
+						],
+						self::SUBNAV_SCANS_STATE     => [
+							'handler' => PluginAdminPages\PageScansHistory::class,
 						],
 					],
 				],

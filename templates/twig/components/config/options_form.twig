@@ -1,10 +1,10 @@
-<form action="{{ hrefs.form_action }}" method="post"
-      class="icwpOptionsForm form py-0"
-      novalidate="novalidate"
-      autocomplete="off"
-      data-context="{{ vars.form_context }}"
+<form method="post"
+	  class="icwpOptionsForm form py-0"
+	  novalidate="novalidate"
+	  autocomplete="off"
+	  data-context="{{ vars.form_context }}"
 >
-	<input type="hidden" name="working_mod" value="{{ vars.working_mod }}" />
+	<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
 
 	<div id="ModuleOptionsNav" aria-orientation="horizontal">
 		<ul class="nav nav-tabs shield_body-sub-nav" role="tablist">
@@ -25,7 +25,7 @@
 	<div class="tab-content container-fluid">
 		{% for opt_section in vars.all_options %}
 			<div class="tab-pane {% if opt_section.slug == vars.focus_section %}active show{% endif %}"
-			     role="tabpanel" id="tab-{{ opt_section.slug }}">
+				 role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">
 					<div class="col-12">
@@ -108,7 +108,7 @@
 		<div class="row">
 			<div class="col text-start">
 				<button type="submit" class="btn btn-primary ms-3 mt-3 icwp-form-button"
-				        name="submit">{{ strings.save_all_settings }}</button>
+						name="submit">{{ strings.save_all_settings }}</button>
 			</div>
 		</div>
 </form>

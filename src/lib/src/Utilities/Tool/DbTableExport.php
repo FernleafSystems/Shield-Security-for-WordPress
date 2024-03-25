@@ -40,7 +40,7 @@ class DbTableExport {
 			$entry[ 'ip' ] = $record->ip;
 		}
 		if ( $schema->hasColumn( 'meta' ) ) {
-			$entry[ 'meta' ] = serialize( $record->meta );
+			$entry[ 'meta' ] = \serialize( $record->meta );
 		}
 		return $entry;
 	}

@@ -2,20 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSkip {
 
-	use LoginGuard\ModConsumer;
+	use ModConsumer;
 
 	public function addMfaSkip( \WP_User $user ) {
 		$meta = self::con()->user_metas->for( $user );
 		$hashes = \is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
-		$maxExpires = $this->opts()->getMfaSkip();
+		$maxExpires = self::con()->comps->mfa->getMfaSkip();
 		if ( $maxExpires > 0 ) {
 			$hashes = \array_filter( $hashes,
 				function ( $ts ) use ( $maxExpires ) {
@@ -30,7 +29,7 @@ class MfaSkip {
 	public function canMfaSkip( \WP_User $user ) :bool {
 		$canSkip = false;
 
-		$mfaSkip = $this->opts()->getMfaSkip();
+		$mfaSkip = self::con()->comps->mfa->getMfaSkip();
 		if ( $mfaSkip > 0 ) {
 			$agentHash = $this->getAgentHash();
 			$meta = self::con()->user_metas->for( $user );

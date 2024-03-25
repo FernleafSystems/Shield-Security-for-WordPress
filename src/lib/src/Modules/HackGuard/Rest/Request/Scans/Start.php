@@ -13,7 +13,7 @@ class Start extends Base {
 		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
 			throw new \Exception( 'Scans are already running.' );
 		}
-		$this->mod()->getScansCon()->startNewScans( $req->scan_slugs );
+		self::con()->comps->scans->startNewScans( $req->scan_slugs );
 
 		return $this->getScansStatus();
 	}

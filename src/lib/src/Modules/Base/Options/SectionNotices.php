@@ -3,15 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Integrations\Lib\Bots\Common\BaseHandler,
-	IPs,
 	IPs\Lib\IpRules\IpRuleStatus,
-	LoginGuard,
 	LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck,
-	PluginControllerConsumer,
-	Traffic\Options,
-	UserManagement
+	PluginControllerConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
@@ -43,17 +40,16 @@ class SectionNotices {
 
 	public function notices( string $section ) :array {
 		$con = self::con();
+		$opts = $con->opts;
 
 		$notices = [];
 		switch ( $section ) {
 
 			case 'section_2fa_email':
-				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->opts();
-				if ( $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
+				if ( $opts->optIs( 'enable_email_authentication', 'Y' ) && $opts->optGet( 'email_can_send_verified_at' ) < 1 ) {
 					$notices[] = \implode( ' ', [
 						__( "The ability of this site to send email hasn't been verified.", 'wp-simple-firewall' ),
-						__( 'Please click to re-save your settings to trigger another verification email.', 'wp-simple-firewall' )
+						__( 'Please re-save your settings to trigger another verification email.', 'wp-simple-firewall' )
 					] );
 				}
 
@@ -66,10 +62,8 @@ class SectionNotices {
 				break;
 
 			case 'section_user_forms':
-				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->opts();
-				if ( $opts->isEnabledAntiBot() ) {
-					$locations = $opts->getBotProtectionLocations();
+				if ( $con->comps->opts_lookup->enabledLoginGuardAntiBotCheck() ) {
+					$locations = $opts->optGet( 'bot_protection_locations' );
 					$locations = \array_intersect_key(
 						\array_merge(
 							\array_flip( $locations ),
@@ -90,7 +84,7 @@ class SectionNotices {
 							$locations
 						),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->plugin_urls->modCfg( $con->getModule_LoginGuard() ),
+							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}
@@ -104,6 +98,7 @@ class SectionNotices {
 
 	public function warnings( string $section ) :array {
 		$con = self::con();
+		$optsLookup = $con->comps->opts_lookup;
 
 		$warnings = [];
 
@@ -120,29 +115,30 @@ class SectionNotices {
 								  .'<br/>'.sprintf( '%s: %s', __( 'Reason', 'wp-simple-firewall' ), $e->getMessage() );
 				}
 
-				/** @var Options $trafficOpts */
-				$trafficOpts = $con->getModule_Traffic()->opts();
 				if ( $section === 'section_traffic_options' ) {
-					if ( $trafficOpts->liveLoggingTimeRemaining() > 0 ) {
+					if ( $optsLookup->getTrafficLiveLogTimeRemaining() > 0 ) {
 						$warnings[] = \implode( ' ', [
 							__( 'Live traffic logging increases load on your database and is designed to be active only temporarily.', 'wp-simple-firewall' ),
 							__( 'We recommend disabling it if you no longer need it running.', 'wp-simple-firewall' ),
 						] );
 					}
-					if ( $trafficOpts->isTrafficLimitEnabled() > 0 ) {
+					if ( $optsLookup->enabledTrafficLimiter() ) {
 						$warnings[] = \implode( ' ', [
 							__( "To disable traffic logging, please first disable Traffic Rate Limiting.", 'wp-simple-firewall' ),
 						] );
 					}
 				}
+				break;
 
+			case 'section_deprecated':
+				if ( $con->opts->optIs( 'enable_antibot_check', 'Y' ) ) {
+					$warnings[] = __( 'You must disable ADE protection if you want to enable these options.', 'wp-simple-firewall' );
+				}
 				break;
 
 			case 'section_user_session_management':
 				$source = Services::Request()->getIpDetector()->getPublicRequestSource();
-				/** @var UserManagement\Options $optsUser */
-				$optsUser = $con->getModule_UserManagement()->opts();
-				if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $optsUser->getOpt( 'session_lock' ) ) ) {
+				if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $con->opts->optGet( 'session_lock' ) ) ) {
 					$warnings[] = sprintf( '%s %s',
 						sprintf( __( "Visitor IP addresses can be spoofed on your site, so the Session Lock feature may not work as well as expected.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', $source ) ),
@@ -153,15 +149,16 @@ class SectionNotices {
 				break;
 
 			case 'section_whitelabel':
-				if ( !$con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
+				if ( !$con->comps->sec_admin->isEnabledSecAdmin() ) {
 					$warnings[] = __( 'Please also supply a Security Admin PIN, as whitelabel settings are only applied when the Security Admin feature is active.', 'wp-simple-firewall' );
 				}
 				break;
 
 			case 'section_2fa_email':
-				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->opts();
-				$nonRoles = \array_diff( $opts->getEmail2FaRoles(), Services::WpUsers()->getAvailableUserRoles() );
+				$nonRoles = \array_diff(
+					$optsLookup->getLoginGuardEmailAuth2FaRoles(),
+					Services::WpUsers()->getAvailableUserRoles()
+				);
 				if ( \count( $nonRoles ) > 0 ) {
 					$warnings[] = sprintf( '%s: %s',
 						__( "Certain user roles are set for email authentication enforcement that aren't currently available" ),
@@ -193,21 +190,18 @@ class SectionNotices {
 				break;
 
 			case 'section_brute_force_login_protection':
-				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->opts();
-
-				if ( empty( $opts->getBotProtectionLocations() ) ) {
+				if ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
 					$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
 				}
-				elseif ( !$con->getModule_IPs()->isModOptEnabled() ) {
+				elseif ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_IPs(), 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->modules[ EnumModules::IPS ], 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
 				}
 
 				$installedButNotEnabledProviders = \array_filter(
-					self::con()->getModule_Integrations()->getController_UserForms()->getInstalled(),
+					$con->comps->forms_users->getInstalled(),
 					function ( string $provider ) {
 						return !( new $provider() )->isEnabled();
 					}
@@ -217,7 +211,7 @@ class SectionNotices {
 					$warnings[] = sprintf( __( "%s has an integration available to protect the login forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
 						$con->getHumanName(),
 						sprintf( '<a href="%s">%s</a>',
-							$con->plugin_urls->modCfgSection( $con->getModule_Integrations(), 'section_user_forms' ),
+							$con->plugin_urls->modCfgSection( $con->modules[ EnumModules::INTEGRATIONS ], 'section_user_forms' ),
 							sprintf( __( "View the available integrations.", 'wp-simple-firewall' ), $con->getHumanName() )
 						)
 					);
@@ -225,42 +219,37 @@ class SectionNotices {
 				break;
 
 			case 'section_user_forms':
-				if ( !$con->getModule_IPs()->isModOptEnabled() ) {
+				if ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_IPs(), 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::IPS, 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
 				}
-				else {
-					/** @var LoginGuard\Options $opts */
-					$opts = $con->getModule_LoginGuard()->opts();
-					if ( !$opts->isEnabledAntiBot() ) {
-						$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
-							__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
-							sprintf( '<a href="%s" target="_blank">%s</a>',
-								$con->plugin_urls->modCfg( $con->getModule_LoginGuard() ),
-								__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
-						);
-					}
+				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
+					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
+						__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" target="_blank">%s</a>',
+							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
+							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
+					);
 				}
 				break;
 
 			case 'section_spam':
-				if ( !$con->getModule_IPs()->isModOptEnabled() ) {
+				if ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_IPs(), 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::IPS, 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
 				}
 				else {
-					$mod = $con->getModule_Integrations();
 					/** @var BaseHandler[] $installedButNotEnabledProviders */
 					$installedButNotEnabledProviders = \array_filter(
 						\array_map(
 							function ( $provider ) {
 								return new $provider();
 							},
-							$mod->getController_SpamForms()->enumProviders()
+							$con->comps->forms_spam->enumProviders()
 						),
 						function ( $provider ) {
 							return !$provider->isEnabled() && $provider::IsProviderAvailable();
@@ -281,17 +270,14 @@ class SectionNotices {
 				break;
 
 			case 'section_auto_black_list':
-				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->opts();
-				if ( !$opts->isEnabledAutoBlackList() ) {
-					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
+				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledIpAutoBlock() ) {
+					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'IP blocking is turned-off because the offenses limit is set to 0.', 'wp-simple-firewall' ) );
 				}
 				break;
 
 			case 'section_antibot':
-				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->opts();
-				if ( !$opts->isEnabledAntiBotEngine() ) {
+				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
 				}
@@ -302,14 +288,11 @@ class SectionNotices {
 				break;
 
 			case 'section_bot_behaviours':
-				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->opts();
-				if ( !$opts->isEnabledAutoBlackList() ) {
-					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
+				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledIpAutoBlock() ) {
+					$warnings[] = __( 'Since the offenses limit is set to 0, these options have no effect.', 'wp-simple-firewall' );
 				}
-
 				if ( \strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$warnings[] = __( "Your User Agent appears to be empty. We don't recommend turning on this option.", 'wp-simple-firewall' );
+					$warnings[] = __( "Your User Agent appears to be empty. We don't recommend turning on the useragent option.", 'wp-simple-firewall' );
 				}
 				break;
 
@@ -319,9 +302,7 @@ class SectionNotices {
 				}
 
 				if ( $con->isPremiumActive() ) {
-					$canHandshake = $con->getModule_Plugin()
-										->getShieldNetApiController()
-										->canHandshake();
+					$canHandshake = $con->comps->shieldnet->canHandshake();
 					if ( !$canHandshake ) {
 						$warnings[] = __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' );
 					}

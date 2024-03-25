@@ -2,15 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return self::con()->getModule_Data();
-	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
+		return self::con()->modules[ EnumModules::DATA ];
 	}
 }

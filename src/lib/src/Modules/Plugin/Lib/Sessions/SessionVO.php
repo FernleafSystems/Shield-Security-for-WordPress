@@ -17,6 +17,7 @@ class SessionVO extends DynPropertiesClass {
 	 * @var bool
 	 */
 	public $valid;
+
 	/**
 	 * @var string
 	 */

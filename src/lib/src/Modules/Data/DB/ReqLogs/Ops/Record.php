@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops;
  * @property int    $uid
  * @property bool   $offense
  * @property bool   $is_transient
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

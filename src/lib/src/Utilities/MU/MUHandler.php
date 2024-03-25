@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\MU;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class MUHandler {
 
 	use PluginControllerConsumer;

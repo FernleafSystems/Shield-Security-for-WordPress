@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
-
 class UserEmailValidation extends Base {
 
 	use Traits\OptConfigBased;
@@ -16,10 +14,7 @@ class UserEmailValidation extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_UserManagement();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isValidateEmailOnRegistration();
+		return !empty( self::con()->comps->opts_lookup->getEmailValidateChecks() );
 	}
 
 	public function title() :string {

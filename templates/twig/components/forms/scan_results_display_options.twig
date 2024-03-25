@@ -1,0 +1,50 @@
+<form class="form" id="FormScanResultsDisplayOptions" autocomplete="off">
+
+	<div class="mb-3">
+		<div class="form-check form-switch">
+			<label>
+				<input class="form-check-input"
+					   name="include_ignored"
+					   value="Y"
+					   title="title"
+					   type="checkbox"
+					   role="switch"
+					   {% if 'include_ignored' in vars.current %}checked{% endif %} >
+				{{ strings.include_ignored }}
+			</label>
+		</div>
+	</div>
+
+	<div class="mb-3">
+		<div class="form-check form-switch">
+			<label>
+				<input class="form-check-input"
+					   name="include_repaired"
+					   value="Y"
+					   title="title"
+					   type="checkbox"
+					   role="switch"
+					   {% if 'include_repaired' in vars.current %}checked{% endif %} >
+				{{ strings.include_repaired }}
+			</label>
+		</div>
+	</div>
+
+	<div class="mb-3">
+		<div class="form-check form-switch">
+			<label>
+				<input class="form-check-input"
+					   name="include_deleted"
+					   value="Y"
+					   title="title"
+					   type="checkbox"
+					   role="switch"
+					   {% if 'include_deleted' in vars.current %}checked{% endif %} >
+				{{ strings.include_deleted }}
+			</label>
+		</div>
+	</div>
+
+	<button type="submit" class="btn btn-primary mb-3" name="submit" value="submit">{{ strings.submit }}</button>
+
+</form>

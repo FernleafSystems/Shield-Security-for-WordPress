@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class TabSitesListing extends BaseSubPage {
 
 	public const SLUG = 'mainwp_page_sites_listing';
@@ -11,9 +9,7 @@ class TabSitesListing extends BaseSubPage {
 	public const TAB = 'sites';
 
 	protected function getRenderData() :array {
-		$con = self::con();
-		$mwp = $con->mwpVO;
-		$WP = Services::WpGeneral();
+		$mwp = self::con()->mwpVO;
 
 		$statsHead = [
 			'connected'    => 0,

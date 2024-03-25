@@ -2,17 +2,35 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
-	use HackGuard\ModConsumer;
+	use PluginControllerConsumer;
 
 	public function dispatch() {
 		// Perform remote post.
 		return parent::dispatch();
+	}
+
+	protected function get_post_args() {
+		$args = parent::get_post_args();
+
+		/**
+		 * Automatically add HTTP AUTH header if the current request has it.
+		 */
+		if ( Services::Request()->server[ 'HTTP_AUTHORIZATION' ] ?? false ) {
+			if ( !\is_array( $args[ 'headers' ] ?? null ) ) {
+				$args[ 'headers' ] = [];
+			}
+			$args[ 'headers' ][ 'Authorization' ] = Services::Request()->server[ 'HTTP_AUTHORIZATION' ];
+		}
+
+		return $args;
 	}
 
 	/**
@@ -29,7 +47,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 			$batch->key = $qItem->qitem_id;
 			$batch->data = [ $qItem ];
 		}
-		catch ( HackGuard\Scan\Exceptions\NoQueueItems $e ) {
+		catch ( NoQueueItems $e ) {
 			// This should never happen as "is_empty()" is called before
 			error_log( $e->getMessage() );
 		}

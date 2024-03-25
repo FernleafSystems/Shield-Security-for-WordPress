@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 class LoadIpRules extends BaseLoadRecordsForIPJoins {
 
 	use ModConsumer;
@@ -30,6 +33,6 @@ class LoadIpRules extends BaseLoadRecordsForIPJoins {
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return $this->mod()->getDbH_IPRules()->getTableSchema();
+		return self::con()->db_con->dbhIPRules()->getTableSchema();
 	}
 }

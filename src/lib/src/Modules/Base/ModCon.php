@@ -3,16 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\{
+	Controller\Config\Modules\ModConfigVO,
 	Crons,
 	Modules
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 /**
  * @property bool $is_booted
  */
-abstract class ModCon extends DynPropertiesClass {
+class ModCon extends DynPropertiesClass {
 
 	use Modules\PluginControllerConsumer;
 	use Crons\PluginCronsConsumer;
@@ -20,7 +21,7 @@ abstract class ModCon extends DynPropertiesClass {
 	public const SLUG = '';
 
 	/**
-	 * @var Config\ModConfigVO
+	 * @var ModConfigVO
 	 */
 	public $cfg;
 
@@ -40,15 +41,9 @@ abstract class ModCon extends DynPropertiesClass {
 	private $wpCli;
 
 	/**
-	 * @var AdminNotices
-	 * @deprecated 18.6
-	 */
-	private $adminNotices;
-
-	/**
 	 * @throws \Exception
 	 */
-	public function __construct( Config\ModConfigVO $cfg ) {
+	public function __construct( ModConfigVO $cfg ) {
 		$this->cfg = $cfg;
 	}
 
@@ -63,48 +58,18 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 	}
 
-	protected function moduleReadyCheck() :bool {
-		try {
-			$ready = ( new Lib\CheckModuleRequirements() )
-				->setMod( $this )
-				->run();
-		}
-		catch ( \Exception $e ) {
-			$ready = false;
-		}
-		return $ready;
+	protected function doPostConstruction() {
 	}
 
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
-		add_action( self::con()->prefix( 'pre_options_store' ), function () {
-			$this->onConfigChanged();
-		} );
-
 		$this->setupCronHooks();
-		$this->setupCustomHooks();
-	}
-
-	protected function setupCustomHooks() {
-	}
-
-	protected function doPostConstruction() {
-	}
-
-	/**
-	 * @return false|Modules\Base\Upgrade|mixed
-	 */
-	public function getUpgradeHandler() {
-		return $this->loadModElement( 'Upgrade' );
 	}
 
 	public function onRunProcessors() {
-		if ( $this->cfg->properties[ 'auto_load_processor' ] ) {
-			$this->loadProcessor();
-		}
 		try {
-			if ( !$this->cfg->properties[ 'skip_processor' ] && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
-				$this->doExecuteProcessor();
+			if ( $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+				$this->getProcessor()->execute();
 			}
 		}
 		catch ( \Exception $e ) {
@@ -118,8 +83,16 @@ abstract class ModCon extends DynPropertiesClass {
 		return !\is_null( $this->getProcessor() );
 	}
 
-	protected function doExecuteProcessor() {
-		$this->getProcessor()->execute();
+	/**
+	 * @return Processor|mixed
+	 * @throws \Exception
+	 */
+	public function getProcessor() {
+		if ( !isset( $this->oProcessor ) ) {
+			$class = $this->findElementClass( 'Processor' );
+			$this->oProcessor = new $class( $this );
+		}
+		return $this->oProcessor;
 	}
 
 	public function onWpInit() {
@@ -141,38 +114,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * Override this and adapt per feature
-	 * @return Modules\Base\Processor|mixed
-	 */
-	protected function loadProcessor() {
-		if ( !isset( $this->oProcessor ) ) {
-			try {
-				$class = $this->findElementClass( 'Processor' );
-			}
-			catch ( \Exception $e ) {
-				return null;
-			}
-			$this->oProcessor = new $class( $this );
-		}
-		return $this->oProcessor;
-	}
-
-	public function getOptionsStorageKey() :string {
-		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
-	}
-
-	/**
-	 * @return Modules\Base\Processor|\FernleafSystems\Utilities\Logic\ExecOnce|mixed
-	 */
-	public function getProcessor() {
-		return $this->loadProcessor();
-	}
-
-	public function getUrl_OptionsConfigPage() :string {
-		return self::con()->plugin_urls->modCfg( $this );
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
@@ -182,82 +123,29 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function isModuleEnabled() :bool {
 		$con = self::con();
-		/** @var Modules\Plugin\Options $pluginOpts */
-		$pluginOpts = $con->getModule_Plugin()->opts();
-
-		if ( !$this->moduleReadyCheck() ) {
+		if ( $con->comps->opts_lookup->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
-		elseif ( $this->cfg->properties[ 'auto_enabled' ] ) {
-			// Auto enabled modules always run regardless
-			$enabled = true;
-		}
-		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
-			$enabled = false;
-		}
-		elseif ( self::con()->this_req->is_force_off ) {
-			$enabled = false;
-		}
-		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
+		elseif ( $con->this_req->is_force_off ) {
 			$enabled = false;
 		}
 		else {
 			$enabled = $this->isModOptEnabled();
 		}
-
 		return $enabled;
 	}
 
 	public function isModOptEnabled() :bool {
-		return $this->opts()->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $this->opts()->isOpt( $this->getEnableModOptKey(), true, true );
+		return $this->opts()->isOpt( $this->getEnableModOptKey(), 'Y' );
 	}
 
 	public function getEnableModOptKey() :string {
 		return 'enable_'.$this->cfg->slug;
 	}
 
-	public function getMainFeatureName() :string {
-		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
-	}
-
 	/**
-	 * @return array{title: string, subtitle: string, description: array}
+	 * @deprecated 19.1
 	 */
-	public function getDescriptors() :array {
-		return [
-			'title'       => $this->getMainFeatureName(),
-			'subtitle'    => __( $this->cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),
-			'description' => [],
-		];
-	}
-
-	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? self::con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function clearLastErrors() {
-		return $this->setLastErrors();
-	}
-
-	/**
-	 * @return string|array
-	 */
-	public function getLastErrors( bool $asString = false, string $glue = " " ) {
-		$errors = $this->opts()->getOpt( 'last_errors' );
-		if ( !\is_array( $errors ) ) {
-			$errors = [];
-		}
-		return $asString ? \implode( $glue, $errors ) : $errors;
-	}
-
-	public function hasLastErrors() :bool {
-		return \count( $this->getLastErrors() ) > 0;
-	}
-
 	public function getTextOpt( string $key ) :string {
 		$txt = $this->opts()->getOpt( $key, 'default' );
 		if ( $txt == 'default' ) {
@@ -271,45 +159,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param array|string $mErrors
-	 * @return $this
-	 */
-	public function setLastErrors( $mErrors = [] ) {
-		if ( !\is_array( $mErrors ) ) {
-			if ( \is_string( $mErrors ) ) {
-				$mErrors = [ $mErrors ];
-			}
-			else {
-				$mErrors = [];
-			}
-		}
-		$this->opts()->setOpt( 'last_errors', $mErrors );
-		return $this;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getDismissedNotices() :array {
-		$notices = $this->opts()->getOpt( 'dismissed_notices' );
-		return \is_array( $notices ) ? $notices : [];
-	}
-
-	public function getUiTrack() :Lib\Components\UiTrack {
-		$a = $this->opts()->getOpt( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )->applyFromArray( \is_array( $a ) ? $a : [] );
-	}
-
-	public function setDismissedNotices( array $dis ) {
-		$this->opts()->setOpt( 'dismissed_notices', $dis );
-	}
-
-	public function setUiTrack( Lib\Components\UiTrack $UI ) {
-		$this->opts()->setOpt( 'ui_track', $UI->getRawData() );
-	}
-
-	/**
-	 * Handle any required actions after particular configuration changes.
+	 * @deprecated 19.1
 	 */
 	public function onConfigChanged() :void {
 	}
@@ -319,13 +169,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function saveModOptions() {
 		self::con()->opts->store();
-	}
-
-	public function onPluginDeactivate() {
-	}
-
-	public function isAccessRestricted() :bool {
-		return $this->cfg->properties[ 'access_restricted' ] && !self::con()->isPluginAdmin();
 	}
 
 	/**
@@ -365,17 +208,19 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return null|Modules\Base\Strings
+	 * @return Modules\ModConsumer
 	 */
 	public function getStrings() {
-		return $this->loadStrings()->setMod( $this );
+		$str = $this->loadModElement( 'Strings' );
+		$str->setMod( $this );
+		return $str;
 	}
 
 	/**
-	 * @return Modules\Base\Strings|mixed
+	 * @return false|Modules\Base\Upgrade|mixed
 	 */
-	protected function loadStrings() {
-		return $this->loadModElement( 'Strings' );
+	public function getUpgradeHandler() {
+		return $this->loadModElement( 'Upgrade' );
 	}
 
 	/**
@@ -402,9 +247,16 @@ abstract class ModCon extends DynPropertiesClass {
 	public function findElementClass( string $element ) :string {
 		$theClass = null;
 
-		$roots = \array_map( function ( $root ) {
-			return \rtrim( $root, '\\' ).'\\';
-		}, $this->getNamespaceRoots() );
+		$roots = \array_map(
+			function ( $root ) {
+				return \rtrim( $root, '\\' ).'\\';
+			},
+			[
+				( new \ReflectionClass( $this ) )->getNamespaceName(),
+				'\FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield',
+				__NAMESPACE__
+			]
+		);
 
 		foreach ( $roots as $NS ) {
 			$maybe = $NS.$element;
@@ -422,18 +274,11 @@ abstract class ModCon extends DynPropertiesClass {
 		return $theClass;
 	}
 
-	protected function getBaseNamespace() :string {
-		return __NAMESPACE__;
-	}
-
-	protected function getNamespace() :string {
-		return ( new \ReflectionClass( $this ) )->getNamespaceName();
-	}
-
 	protected function getNamespaceRoots() :array {
 		return [
-			$this->getNamespace(),
-			$this->getBaseNamespace()
+			( new \ReflectionClass( $this ) )->getNamespaceName(),
+			'\FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield',
+			__NAMESPACE__
 		];
 	}
 
@@ -446,15 +291,59 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.6
+	 * @return Modules\Base\Strings|mixed
+	 * @deprecated 19.1
 	 */
-	public function getAdminNotices() {
-		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
+	protected function loadStrings() {
+		return $this->loadModElement( 'Strings' );
 	}
 
 	/**
-	 * @deprecated 19.0
+	 * @deprecated 19.1
 	 */
-	public function onWpLoaded() {
+	protected function moduleReadyCheck() :bool {
+		return true;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getMainFeatureName() :string {
+		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	protected function getNamespace() :string {
+		return ( new \ReflectionClass( $this ) )->getNamespaceName();
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	protected function getBaseNamespace() :string {
+		return __NAMESPACE__;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getModSlug( bool $prefix = true ) :string {
+		return $prefix ? self::con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function getOptionsStorageKey() :string {
+		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
+	}
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public function name() :string {
+		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
 	}
 }

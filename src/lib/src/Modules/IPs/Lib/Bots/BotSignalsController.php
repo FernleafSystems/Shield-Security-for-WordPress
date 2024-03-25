@@ -46,20 +46,15 @@ class BotSignalsController {
 	public function isBot( string $IP = '', bool $allowEventFire = true, bool $forceCheck = false ) :bool {
 
 		if ( !isset( $this->isBots[ $IP ] ) || $forceCheck ) {
+			$con = self::con();
 
 			$this->isBots[ $IP ] = false;
 
-			$opts = $this->opts();
-
-			if ( !$opts->isEnabledAntiBotEngine() ) {
-				self::con()->fireEvent( 'ade_check_option_disabled' );
-			}
-			elseif ( !$this->mod()->isModOptEnabled() ) {
-				self::con()->fireEvent( 'ade_check_module_disabled' );
+			if ( !$con->comps->opts_lookup->enabledAntiBotEngine() ) {
+				$con->fireEvent( 'ade_check_option_disabled' );
 			}
 			else {
-				$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum', $opts->getAntiBotMinimum() );
-
+				$botScoreMinimum = $con->comps->opts_lookup->getAntiBotMinScore();
 				if ( $botScoreMinimum > 0 ) {
 
 					$score = ( new Calculator\CalculateVisitorBotScores() )
@@ -69,7 +64,7 @@ class BotSignalsController {
 					$this->isBots[ $IP ] = $score < $botScoreMinimum;
 
 					if ( $allowEventFire ) {
-						self::con()->fireEvent(
+						$con->fireEvent(
 							'antibot_'.( $this->isBots[ $IP ] ? 'fail' : 'pass' ),
 							[
 								'audit_params' => [
@@ -87,7 +82,8 @@ class BotSignalsController {
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
-		return $this->handlerNotBot ?? $this->handlerNotBot = new NotBotHandler();
+		return self::con()->comps !== null ? self::con()->comps->not_bot :
+			( $this->handlerNotBot ?? $this->handlerNotBot = new NotBotHandler() );
 	}
 
 	public function getEventListener() :BotEventListener {
@@ -98,23 +94,24 @@ class BotSignalsController {
 	 * @return string[]
 	 */
 	private function enumerateBotTrackers() :array {
+		$con = self::con();
 
 		$trackers = [
 			BotTrack\TrackCommentSpam::class
 		];
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			if ( !self::con()->this_req->request_bypasses_all_restrictions ) {
-				if ( $this->opts()->isEnabledTrackLoginFailed() ) {
+			if ( !$con->this_req->request_bypasses_all_restrictions ) {
+				if ( !$con->opts->optIs( 'track_loginfailed', 'disabled' ) ) {
 					$trackers[] = BotTrack\TrackLoginFailed::class;
 				}
-				if ( $this->opts()->isEnabledTrackLoginInvalid() ) {
+				if ( !$con->opts->optIs( 'track_logininvalid', 'disabled' ) ) {
 					$trackers[] = BotTrack\TrackLoginInvalid::class;
 				}
 			}
 		}
 
-		if ( $this->opts()->isEnabledTrackLinkCheese() ) {
+		if ( !$con->opts->optIs( 'track_linkcheese', 'disabled' ) ) {
 			$trackers[] = BotTrack\TrackLinkCheese::class;
 		}
 

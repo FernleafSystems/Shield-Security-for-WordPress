@@ -2,29 +2,58 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Events;
+
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
+	use ModConsumer;
+
 	protected function run() {
-		$mod = self::con()->getModule_Plugin();
+		$con = self::con();
+		$components = $con->comps;
 
 		$this->removePluginConflicts();
-		( new Lib\OverrideLocale() )->execute();
 
-		$mod->getShieldNetApiController()->execute();
-		$mod->getPluginBadgeCon()->execute();
+		$components->license->execute();
 
-		( new Lib\AllowBetaUpgrades() )->execute();
-		( new Lib\SiteHealthController() )->execute();
+		if ( !$components->opts_lookup->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
+			$components->requests_log->execute();
+			$components->activity_log->execute();
+			$components->instant_alerts->execute();
+			$components->sec_admin->execute();
+			$components->ips_con->execute();
+			$components->whitelabel->execute();
+			$components->scans->execute();
+			$components->file_locker->execute();
+			$components->http_headers->execute();
+			$components->reports->execute();
+			$components->autoupdates->execute();
+			$components->badge->execute();
+			$components->import_export->execute();
+			$components->comment_spam->execute();
+			new Events\StatsWriter();
+			( new Lib\AllowBetaUpgrades() )->execute();
+			( new Lib\OverrideLocale() )->execute();
 
-		if ( $this->opts()->isOpt( 'importexport_enable', 'Y' ) ) {
-			$mod->getImpExpController()->execute();
+			$components->forms_spam->execute();
+			add_action( 'init', function () {
+				self::con()->comps->forms_users->execute();
+			}, HookTimings::INIT_USER_FORMS_SETUP );
 		}
 
-		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
-			return $isDelete || $this->opts()->isOpt( 'delete_on_deactivate', 'Y' );
-		} );
+		$components->mainwp->execute();
+		$components->shieldnet->execute();
 
-		$mod->getReportingController()->execute();
+		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+			return $isDelete || self::con()->opts->optIs( 'delete_on_deactivate', 'Y' );
+		} );
+	}
+
+	public function onWpInit() {
+		( new Components\AnonRestApiDisable() )->execute();
+		( new Lib\SiteHealthController() )->execute();
+		self::con()->comps->wpcli->execute();
 	}
 
 	public function runHourlyCron() {
@@ -44,6 +73,8 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 	public function runDailyCron() {
 		self::con()->fireEvent( 'test_cron_run' );
 		( new Lib\PluginTelemetry() )->collectAndSend();
+		( new Events\ConsolidateAllEvents() )->run();
+		( new Components\CleanRubbish() )->execute();
 	}
 
 	/**

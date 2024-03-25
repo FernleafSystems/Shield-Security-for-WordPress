@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItemMeta as ResultItemMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
@@ -20,6 +19,7 @@ class RetrieveItems extends RetrieveBase {
 	public const CONTEXT_RESULTS_TABLE = 0;
 	public const CONTEXT_AUTOREPAIR = 1;
 	public const CONTEXT_LATEST = 2;
+	public const CONTEXT_NOT_YET_NOTIFIED = 3;
 
 	public function retrieveResults( int $context ) {
 		$results = null;
@@ -29,8 +29,6 @@ class RetrieveItems extends RetrieveBase {
 
 			$this->addWheres( [
 				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`ri`.`item_repaired_at`=0",
-				"`ri`.`item_deleted_at`=0",
 				"`ri`.`deleted_at`=0",
 			] );
 
@@ -38,20 +36,37 @@ class RetrieveItems extends RetrieveBase {
 
 				case self::CONTEXT_RESULTS_TABLE:
 					$specificWheres = [
-						"`ri`.`ignored_at`=0"
+//						"`ri`.`item_repaired_at`=0",
+//						"`ri`.`item_deleted_at`=0",
+//						"`ri`.`ignored_at`=0"
 					];
 					break;
 
 				case self::CONTEXT_AUTOREPAIR:
 					$specificWheres = [
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
 						"`ri`.`attempt_repair_at`=0",
 						"`ri`.`ignored_at`=0"
 					];
 					break;
 
+				case self::CONTEXT_NOT_YET_NOTIFIED:
+					$specificWheres = [
+						"`ri`.`auto_filtered_at`=0",
+						"`ri`.`ignored_at`=0",
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
+						"`ri`.`notified_at`=0",
+					];
+					break;
+
 				case self::CONTEXT_LATEST:
 				default:
-					$specificWheres = [];
+					$specificWheres = [
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
+					];
 					break;
 			}
 
@@ -176,6 +191,7 @@ class RetrieveItems extends RetrieveBase {
 	 * @return ResultsSet|mixed
 	 */
 	protected function convertToResultsSet( array $results ) {
+		$con = self::con();
 		$resultsSet = $this->getNewResultsSet();
 
 		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
@@ -187,7 +203,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$this->addMetaToResults( $scanResults );
 
-		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
+		$scansCon = $con->comps === null ? $con->getModule_HackGuard()->getScansCon() : $con->comps->scans;
 		foreach ( $scanResults as $vo ) {
 
 			// we haven't specified a type of scan, so we're collecting all results.
@@ -215,7 +231,6 @@ class RetrieveItems extends RetrieveBase {
 	 * @param ScanResultVO[] $results
 	 */
 	private function addMetaToResults( array $results ) {
-
 		$offset = 0;
 		$length = 200;
 		do {
@@ -225,9 +240,9 @@ class RetrieveItems extends RetrieveBase {
 					return $res->resultitem_id;
 				}, $resultsSlice );
 
-				/** @var ResultItemMetaDB\Ops\Select $rimSelector */
-				$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
-				/** @var ResultItemMetaDB\Ops\Record[] $metas */
+				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Select $rimSelector */
+				$rimSelector = self::con()->db_con->dbhResultItemMeta()->getQuerySelector();
+				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Record[] $metas */
 				$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
 				foreach ( $resultsSlice as $result ) {
@@ -245,7 +260,7 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
-		$mod = $this->mod();
+		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`
@@ -257,12 +272,12 @@ class RetrieveItems extends RetrieveBase {
 						%s
 						%s
 						%s;",
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table,
+			$dbCon->dbhScanResults()->getTableSchema()->table,
+			$dbCon->dbhScans()->getTableSchema()->table,
+			$dbCon->dbhResultItems()->getTableSchema()->table,
 			$joinWithResultMeta ?
 				sprintf( 'INNER JOIN `%s` as %s ON %s.`ri_ref` = `ri`.id',
-					$mod->getDbH_ResultItemMeta()->getTableSchema()->table,
+					$dbCon->dbhResultItemMeta()->getTableSchema()->table,
 					self::ABBR_RESULTITEMMETA,
 					self::ABBR_RESULTITEMMETA
 				) : '',

@@ -13,8 +13,8 @@ abstract class BaseMainwpPage extends Actions\Render\FullPage\BaseFullPageRender
 	protected function getScripts() :array {
 		$scripts = parent::getScripts();
 		$scripts[ 35 ] = [
-			'src' => self::con()->urls->forDistJS( 'mainwp_server' ),
-			'id'  => 'shield-plugin',
+			'src'    => self::con()->urls->forDistJS( 'mainwp_server' ),
+			'id'     => 'shield-plugin',
 			'footer' => true,
 		];
 		return $scripts;

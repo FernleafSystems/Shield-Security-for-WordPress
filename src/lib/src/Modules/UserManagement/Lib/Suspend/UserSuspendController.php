@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Sus
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -15,18 +15,45 @@ class UserSuspendController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isSuspendEnabled();
+		return $this->isSuspendEnabled();
+	}
+
+	public function getSuspendAutoIdleTime() :int {
+		return ( \method_exists( self::con()->opts, 'optGet' ) ? self::con()->opts->optGet( 'auto_idle_days' )
+				: $this->opts()->getOpt( 'auto_idle_days', 0 ) )*\DAY_IN_SECONDS;
+	}
+
+	public function getSuspendAutoIdleUserRoles() :array {
+		return self::con()->opts->optGet( 'auto_idle_roles' );
+	}
+
+	public function isSuspendEnabled() :bool {
+		return $this->isSuspendManualEnabled() || $this->isSuspendAutoIdleEnabled() || $this->isSuspendAutoPasswordEnabled();
+	}
+
+	public function isSuspendManualEnabled() :bool {
+		return self::con()->opts->optIs( 'manual_suspend', 'Y' );
+	}
+
+	public function isSuspendAutoIdleEnabled() :bool {
+		return $this->getSuspendAutoIdleTime() > 0 && \count( $this->getSuspendAutoIdleUserRoles() ) > 0;
+	}
+
+	public function isSuspendAutoPasswordEnabled() :bool {
+		return self::con()->comps->opts_lookup->isPassPoliciesEnabled()
+			   && self::con()->opts->optIs( 'auto_password', 'Y' )
+			   && self::con()->comps->opts_lookup->getPassExpireTimeout() > 0;
 	}
 
 	protected function run() {
 		if ( !self::con()->this_req->is_ip_whitelisted ) {
-			if ( $this->opts()->isSuspendManualEnabled() ) {
+			if ( $this->isSuspendManualEnabled() ) {
 				( new Suspended() )->execute();
 			}
-			if ( $this->opts()->isSuspendAutoIdleEnabled() ) {
+			if ( $this->isSuspendAutoIdleEnabled() ) {
 				( new Idle() )->execute();
 			}
-			if ( $this->opts()->isSuspendAutoPasswordEnabled() ) {
+			if ( $this->isSuspendAutoPasswordEnabled() ) {
 				( new PasswordExpiry() )->execute();
 			}
 		}
@@ -70,21 +97,20 @@ class UserSuspendController {
 	 * filter the User Tables
 	 */
 	private function addSuspendedUserFilters() {
-		$opts = $this->opts();
 		$ts = Services::Request()->ts();
 
-		$userMetaDB = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta();
+		$userMetaDB = self::con()->db_con->dbhUserMeta();
 
 		/** @var Select $metaSelect */
 		$metaSelect = $userMetaDB->getQuerySelector();
 
-		$manual = $opts->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
-		$passwords = $opts->isSuspendAutoPasswordEnabled() ?
-			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getPassExpireTimeout() )->count() : 0;
-		$idle = $opts->isSuspendAutoPasswordEnabled() ?
-			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getSuspendAutoIdleTime() )->count() : 0;
+		$expireTimeout = self::con()->comps->opts_lookup->getPassExpireTimeout();
+
+		$manual = $this->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
+		$passwords = $this->isSuspendAutoPasswordEnabled() ?
+			$metaSelect->reset()->filterByPassExpired( $ts - $expireTimeout )->count() : 0;
+		$idle = $this->isSuspendAutoPasswordEnabled() ?
+			$metaSelect->reset()->filterByPassExpired( $ts - $this->getSuspendAutoIdleTime() )->count() : 0;
 
 		if ( $manual + $passwords + $idle > 0 ) {
 			// Filter the user list database query
@@ -94,10 +120,7 @@ class UserSuspendController {
 
 				if ( \is_array( $args ) ) {
 					/** @var Select $metaSelect */
-					$metaSelect = self::con()
-									  ->getModule_Data()
-									  ->getDbH_UserMeta()
-									  ->getQuerySelector();
+					$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
 
 					if ( $manual > 0 && $req->query( 'shield_users_suspended' ) ) {
 						$filtered = true;
@@ -105,11 +128,11 @@ class UserSuspendController {
 					}
 					elseif ( $idle > 0 && $req->query( 'shield_users_idle' ) ) {
 						$filtered = true;
-						$metaSelect->filterByPassExpired( $ts - $this->opts()->getPassExpireTimeout() );
+						$metaSelect->filterByPassExpired( $ts - self::con()->comps->opts_lookup->getPassExpireTimeout() );
 					}
 					elseif ( $passwords > 0 && $req->query( 'shield_users_pass' ) ) {
 						$filtered = true;
-						$metaSelect->filterByIdle( $ts - $this->opts()->getSuspendAutoIdleTime() );
+						$metaSelect->filterByIdle( $ts - $this->getSuspendAutoIdleTime() );
 					}
 					else {
 						$filtered = false;

@@ -8,7 +8,7 @@ class ScanResultsWpv extends ScanResultsBase {
 	public const SLUG = 'scan_results_wpv';
 
 	protected function countResults() :int {
-		return self::con()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countVulnerableAssets();
+		return self::con()->comps->scans->getScanResultsCount()->countVulnerableAssets();
 	}
 
 	public function title() :string {

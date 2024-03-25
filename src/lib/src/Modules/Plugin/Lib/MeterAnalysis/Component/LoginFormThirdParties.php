@@ -24,12 +24,12 @@ class LoginFormThirdParties extends Base {
 				$provider = new $providerClass();
 				return $provider->isEnabled() ? null : $provider->getHandlerName();
 			},
-			self::con()->getModule_Integrations()->getController_UserForms()->getInstalled()
+			self::con()->comps->forms_users->getInstalled()
 		) );
 	}
 
 	protected function isApplicable() :bool {
-		$installed = self::con()->getModule_Integrations()->getController_UserForms()->getInstalled();
+		$installed = self::con()->comps->forms_users->getInstalled();
 		unset( $installed[ WordPress::Slug() ] );
 		return \count( $installed ) > 0;
 	}

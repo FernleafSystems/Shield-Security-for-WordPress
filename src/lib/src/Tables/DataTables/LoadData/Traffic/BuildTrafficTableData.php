@@ -2,21 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	LogRecord,
 	Ops as RegLogsDB,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
-
-	use ModConsumer;
 
 	/**
 	 * @var LogRecord

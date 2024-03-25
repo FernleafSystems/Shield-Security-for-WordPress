@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,7 +17,7 @@ class Activity extends Base {
 
 		$logs = [];
 		foreach ( $logLoader->run() as $key => $record ) {
-			if ( self::con()->service_events->eventExists( $record->event_slug ) ) {
+			if ( self::con()->comps->events->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();
 
 				$asArray[ 'event' ] = \implode( ' ', ActivityLogMessageBuilder::BuildFromLogRecord( $record ) );

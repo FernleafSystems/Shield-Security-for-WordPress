@@ -10,7 +10,7 @@ class ShieldPro extends Base {
 	public const WEIGHT = 5;
 
 	protected function isApplicable() :bool {
-		return !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+		return !self::con()->comps->whitelabel->isEnabled();
 	}
 
 	protected function testIfProtected() :bool {

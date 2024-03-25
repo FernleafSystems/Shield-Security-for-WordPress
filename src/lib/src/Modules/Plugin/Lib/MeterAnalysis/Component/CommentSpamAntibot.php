@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
-
 class CommentSpamAntibot extends Base {
 
 	use Traits\OptConfigBased;
@@ -12,10 +10,7 @@ class CommentSpamAntibot extends Base {
 	public const WEIGHT = 7;
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Comments();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isEnabledAntiBot();
+		return self::con()->comps->opts_lookup->enabledAntiBotCommentSpam();
 	}
 
 	protected function getOptConfigKey() :string {

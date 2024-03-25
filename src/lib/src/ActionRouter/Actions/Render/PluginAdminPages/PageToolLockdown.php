@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageToolLockdown extends BasePluginAdminPage {
@@ -21,9 +21,7 @@ class PageToolLockdown extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		/** @var Options $opts */
-		$opts = $con->getModule_Plugin()->opts();
-		$cfg = $opts->getBlockdownCfg();
+		$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 		return [
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'sign-stop-fill' ),

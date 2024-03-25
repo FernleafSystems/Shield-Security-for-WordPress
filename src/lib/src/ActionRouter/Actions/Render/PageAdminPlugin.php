@@ -19,16 +19,15 @@ class PageAdminPlugin extends BaseRender {
 	protected function getRenderData() :array {
 		$con = self::con();
 
-		$nav = $con->getModule_Plugin()->isAccessRestricted()
-			? PluginNavs::NAV_RESTRICTED
-			: $this->action_data[ Constants::NAV_ID ] ?? PluginNavs::NAV_DASHBOARD;
+		$nav = self::con()->isPluginAdmin() ?
+			( $this->action_data[ Constants::NAV_ID ] ?? PluginNavs::NAV_DASHBOARD ) : PluginNavs::NAV_RESTRICTED;
 		$subNav = $nav === PluginNavs::NAV_RESTRICTED ? '' : $this->action_data[ Constants::NAV_SUB_ID ] ?? '';
 		if ( empty( $subNav ) || $subNav === PluginNavs::SUBNAV_INDEX ) {
 			$subNav = PluginNavs::GetDefaultSubNavForNav( $nav );
 		}
 
 		// The particular renderer for the main page body area, based on navigation
-		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ];
+		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ] ?? '';
 		if ( empty( $delegateAction ) ) {
 			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );
 		}
@@ -44,7 +43,7 @@ class PageAdminPlugin extends BaseRender {
 				] ),
 			],
 			'flags'   => [
-				'is_advanced' => $con->getModule_Plugin()->isShowAdvanced(),
+				'is_advanced' => false,
 			],
 			'imgs'    => [
 				'logo_banner' => $con->labels->url_img_pagebanner,

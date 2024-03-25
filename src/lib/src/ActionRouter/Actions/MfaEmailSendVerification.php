@@ -13,17 +13,15 @@ class MfaEmailSendVerification extends BaseAction {
 	public const SLUG = 'mfa_email_send_verification';
 
 	protected function exec() {
-		/** @var Options $opts */
-		$opts = self::con()->getModule_LoginGuard()->opts();
-
-		if ( !$opts->isEnabledEmailAuth() ) {
+		$opts = self::con()->opts;
+		if ( !$opts->optIs( 'enable_email_authentication', 'Y' ) ) {
 			$msg = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
 		}
-		elseif ( $opts->getIfCanSendEmailVerified() ) {
+		elseif ( $opts->optGet( 'email_can_send_verified_at' ) > 0 ) {
 			$msg = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		else {
-			$opts->setOpt( 'email_can_send_verified_at', 0 );
+			$opts->optSet( 'email_can_send_verified_at', 0 );
 			$this->sendEmailVerifyCanSend();
 			$msg = __( 'Verification email resent.', 'wp-simple-firewall' );
 		}

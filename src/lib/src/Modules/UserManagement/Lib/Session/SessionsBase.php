@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 
 class SessionsBase {
@@ -12,10 +12,7 @@ class SessionsBase {
 	protected function queryUserMetaForIDs( int $page ) :array {
 		// Select the most recently active based on updated Shield User Meta
 		/** @var Select $metaSelect */
-		$metaSelect = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta()
-						  ->getQuerySelector();
+		$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
 		$results = $metaSelect->setResultsAsVo( false )
 							  ->setSelectResultsFormat( ARRAY_A )
 							  ->setColumnsToSelect( [ 'user_id' ] )

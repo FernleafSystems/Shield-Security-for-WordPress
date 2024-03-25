@@ -25,6 +25,9 @@ class LicenseHandler {
 	private $caps;
 
 	protected function run() {
+
+		( new PluginNameSuffix() )->execute();
+
 		add_action( self::con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );
@@ -86,13 +89,13 @@ class LicenseHandler {
 	}
 
 	public function clearLicense() {
-		$this->mod()->clearLastErrors();
 		$this->updateLicenseData( [] );
 	}
 
 	public function updateLicenseData( array $data ) {
-		$this->opts()->setOpt( 'license_data', $data );
-		$this->unsetLicense();
+		\method_exists( self::con()->opts, 'optSet' ) ?
+			self::con()->opts->optSet( 'license_data', $data ) : $this->opts()->setOpt( 'license_data', $data );
+		$this->license = null;
 	}
 
 	public function maybeDeactivateWithGrace() {
@@ -113,7 +116,7 @@ class LicenseHandler {
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
-			$this->opts()->setOpt( 'license_deactivated_at', Services::Request()->ts() );
+			self::con()->opts->optSet( 'license_deactivated_at', Services::Request()->ts() );
 			if ( $sendEmail ) {
 				( new LicenseEmails() )->sendLicenseDeactivatedEmail();
 			}
@@ -123,19 +126,27 @@ class LicenseHandler {
 
 	public function getLicense() :ShieldLicense {
 		if ( !isset( $this->license ) ) {
-			$data = $this->opts()->getOpt( 'license_data', [] );
-			$this->license = ( new ShieldLicense() )->applyFromArray( \is_array( $data ) ? $data : [] );
+			$this->license = ( new ShieldLicense() )->applyFromArray(
+				\method_exists( self::con()->opts, 'optGet' ) ?
+					self::con()->opts->optGet( 'license_data' ) : $this->opts()->getOpt( 'license_data' )
+			);
 		}
 		return $this->license;
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function unsetLicense() :self {
 		unset( $this->license );
 		return $this;
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {
-		return (int)( Services::Request()->ts() - $this->opts()->getOpt( 'license_last_checked_at' ) );
+		$opts = self::con()->opts;
+		$last = \method_exists( $opts, 'optGet' ) ?
+			$opts->optGet( 'license_last_checked_at' ) : $this->opts()->getOpt( 'license_last_checked_at' );
+		return (int)( Services::Request()->ts() - $last );
 	}
 
 	/**
@@ -170,9 +181,16 @@ class LicenseHandler {
 	}
 
 	public function isActive() :bool {
-		$opts = $this->opts();
-		return ( $opts->getOpt( 'license_activated_at' ) > 0 )
-			   && ( $opts->getOpt( 'license_deactivated_at' ) < $opts->getOpt( 'license_activated_at' ) );
+		$opts = self::con()->opts;
+		if ( \method_exists( $opts, 'optGet' ) ) {
+			return ( $opts->optGet( 'license_activated_at' ) > 0 )
+				   && ( $opts->optGet( 'license_deactivated_at' ) < $opts->optGet( 'license_activated_at' ) );
+		}
+		else {
+			$opts = $this->opts();
+			return ( $opts->getOpt( 'license_activated_at' ) > 0 )
+				   && ( $opts->getOpt( 'license_deactivated_at' ) < $opts->getOpt( 'license_activated_at' ) );
+		}
 	}
 
 	public function isLastVerifiedExpired() :bool {

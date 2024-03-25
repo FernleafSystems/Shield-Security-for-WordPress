@@ -6,7 +6,7 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 
 	protected function upgrade_1907() {
 		if ( !self::con()->isPremiumActive() ) {
-			$this->opts()->resetOptToDefault( 'session_lock' );
+			self::con()->opts->optReset( 'session_lock' );
 		}
 	}
 }

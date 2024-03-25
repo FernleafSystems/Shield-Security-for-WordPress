@@ -5,14 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class AntiBot extends BaseProtectionProvider {
 
 	public function performCheck( $formProvider ) {
-		if ( $this->isFactorTested() ) {
-			return;
-		}
-		$isBot = self::con()
-					 ->getModule_IPs()
-					 ->getBotSignalsController()
-					 ->isBot( self::con()->this_req->ip );
-		if ( $isBot ) {
+		if ( !$this->isFactorTested() && self::con()->comps->bot_signals->isBot( self::con()->this_req->ip ) ) {
 			$this->processFailure();
 			throw new \Exception( __( 'Failed AntiBot Test', 'wp-simple-firewall' ) );
 		}

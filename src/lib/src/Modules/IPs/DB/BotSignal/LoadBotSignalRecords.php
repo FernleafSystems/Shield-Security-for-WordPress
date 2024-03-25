@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class LoadBotSignalRecords {
 
 	use ModConsumer;
@@ -23,15 +26,15 @@ class LoadBotSignalRecords {
 
 	private function selectRaw() :array {
 		$raw = Services::WpDb()->selectRow(
-			sprintf( "SELECT ips.ip, bs.*
-						FROM `%s` as bs
-						INNER JOIN `%s` as ips
-							ON `ips`.id = `bs`.ip_ref 
+			sprintf( "SELECT `ips`.`ip`, `bs`.*
+						FROM `%s` as `bs`
+						INNER JOIN `%s` as `ips`
+							ON `ips`.`id` = `bs`.`ip_ref` 
 							AND `ips`.`ip`=INET6_ATON('%s')
-						ORDER BY `bs`.updated_at DESC
+						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
-				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
+				self::con()->db_con->dbhIPs()->getTableSchema()->table,
 				$this->getIP()
 			)
 		);

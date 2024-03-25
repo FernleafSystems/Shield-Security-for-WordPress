@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
-
 class TrafficRateLimiting extends Base {
 
 	use Traits\OptConfigBased;
@@ -17,10 +15,7 @@ class TrafficRateLimiting extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_Traffic();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->isTrafficLimitEnabled();
+		return self::con()->comps->opts_lookup->enabledTrafficLimiter();
 	}
 
 	public function title() :string {

@@ -25,8 +25,7 @@ class PageDashboardMeters extends BasePluginAdminPage {
 		$con = self::con();
 		$URLs = $con->plugin_urls;
 
-		$currentViewAs = self::con()->getModule_Plugin()->opts()->getOpt( 'sec_overview_prefs' )[ 'view_as' ]
-						 ?? 'business';
+		$currentViewAs = $con->opts->optGet( 'sec_overview_prefs' )[ 'view_as' ] ?? 'business';
 
 		if ( !$con->isPremiumActive() ) { // Free
 			$showViewAs = true;

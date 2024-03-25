@@ -13,13 +13,12 @@ class ContactFormSpam extends Base {
 	 * @return string[]
 	 */
 	private function getUnprotectedProvidersByName() :array {
-		$modIntegrations = self::con()->getModule_Integrations();
 		return \array_filter( \array_map(
 			function ( string $providerClass ) {
 				$provider = new $providerClass();
 				return $provider->isEnabled() ? null : $provider->getHandlerName();
 			},
-			$modIntegrations->getController_SpamForms()->getInstalled()
+			self::con()->comps->forms_spam->getInstalled()
 		) );
 	}
 
@@ -28,7 +27,7 @@ class ContactFormSpam extends Base {
 	}
 
 	protected function isApplicable() :bool {
-		return \count( self::con()->getModule_Integrations()->getController_SpamForms()->getInstalled() ) > 0;
+		return \count( self::con()->comps->forms_spam->getInstalled() ) > 0;
 	}
 
 	protected function testIfProtected() :bool {

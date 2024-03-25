@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as RulesDB,
 	RuleRecords
 };

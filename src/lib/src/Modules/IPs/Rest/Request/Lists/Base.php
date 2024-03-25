@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
 
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 abstract class Base extends Process {

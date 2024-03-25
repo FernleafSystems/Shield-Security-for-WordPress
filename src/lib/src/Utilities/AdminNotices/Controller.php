@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetTracking;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	LoginGuard,
 	Plugin,
 	PluginControllerConsumer,
 	SecurityAdmin
@@ -178,7 +178,7 @@ class Controller {
 				], $noticeDef );
 				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},
-			self::con()->getModule_Plugin()->cfg->admin_notices
+			self::con()->cfg->configuration->admin_notices
 		);
 	}
 
@@ -187,10 +187,16 @@ class Controller {
 		/** @var Plugin\Options $opts */
 		$opts = $con->getModule_Plugin()->opts();
 
+		$installedAt = $con->getModule_Plugin()->getInstallDate();
+		if ( empty( $installedAt ) ) {
+			return 0;
+		}
+		$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
+
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
 		}
-		elseif ( $notice->type == 'promo' && !$opts->isShowPromoAdminNotices() ) {
+		elseif ( $notice->type == 'promo' && !$opts->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
 			$notice->non_display_reason = 'promo_hidden';
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
@@ -202,7 +208,7 @@ class Controller {
 		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
 			$notice->non_display_reason = 'is_plugin_admin';
 		}
-		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $opts->getInstallationDays() ) {
+		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
 			$notice->non_display_reason = 'min_install_days';
 		}
 		elseif ( $this->count > 0 && $notice->type !== 'error' ) {
@@ -226,13 +232,15 @@ class Controller {
 	private function isNoticeDismissed( NoticeVO $notice ) :bool {
 		$dismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
 
-		$dismissedMod = ( self::con()->getModule_Plugin()->getDismissedNotices()[ $notice->id ] ?? 0 ) > 0;
+		$at = ( ( \method_exists( $this, 'getDismissed' ) ?
+				$this->getDismissed() :
+				self::con()->getModule_Plugin()->getDismissedNotices() )[ $notice->id ] ?? 0 ) > 0;
 
-		if ( !$notice->per_user && $dismissedUser && !$dismissedMod ) {
+		if ( !$notice->per_user && $dismissedUser && !$at ) {
 			$this->setNoticeDismissed( $notice );
 		}
 
-		return $dismissedUser || $dismissedMod;
+		return $dismissedUser || $at;
 	}
 
 	private function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
@@ -265,16 +273,22 @@ class Controller {
 			}
 		}
 		else {
-			$mod = self::con()->getModule_Plugin();
-			$allDismissed = $mod->getDismissedNotices();
+			$allDismissed = $this->getDismissed();
 			$allDismissed[ $notice->id ] = Services::Request()->ts();
-			$mod->setDismissedNotices( $allDismissed );
+			self::con()->opts->optSet( 'dismissed_notices', $allDismissed );
 
 			// Clear out any old
 			if ( !empty( $meta ) ) {
 				unset( $meta->{$noticeMetaKey} );
 			}
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDismissed() :array {
+		return self::con()->opts->optGet( 'dismissed_notices' );
 	}
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {
@@ -367,7 +381,7 @@ class Controller {
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
-				'link_to_see'      => self::con()->getModule_Plugin()->getLinkToTrackingDataDump(),
+				'link_to_see'      => self::con()->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
 			]
 		];
@@ -451,45 +465,46 @@ class Controller {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
+		$con = self::con();
+		if ( !\method_exists( $con->opts, 'optGet' ) ) {
+			return false;
+		}
 		switch ( $notice->id ) {
 			case 'override-forceoff':
-				$needed = self::con()->this_req->is_force_off && !self::con()->isPluginAdminPageRequest();
+				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
 			case 'allow-tracking':
-				/** @var Plugin\Options $opts */
-				$opts = self::con()->getModule_Plugin()->opts();
-				$needed = !$opts->isTrackingPermissionSet();
+				$needed = $con->opts->optGet( 'tracking_permission_set_at' ) === 0;
 				break;
 			case 'blockdown-active':
-				$needed = self::con()->this_req->is_site_lockdown_active && !self::con()->isPluginAdminPageRequest();
+				$needed = $con->this_req->is_site_lockdown_active && !$con->isPluginAdminPageRequest();
 				break;
 			case 'email-verification-sent':
-				/** @var LoginGuard\Options $opts */
-				$opts = self::con()->getModule_LoginGuard()->opts();
-				$needed = $opts->isEnabledEmailAuth() && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
+				$needed = $con->opts->optIs( 'enable_email_authentication', 'Y' )
+						  && $con->opts->optGet( 'email_can_send_verified_at' ) < 1;
 				break;
 			case 'admin-users-restricted':
 				/** @var SecurityAdmin\Options $opts */
-				$opts = self::con()->getModule_SecAdmin()->opts();
+				$opts = $con->getModule_SecAdmin()->opts();
 				$needed = \in_array( Services::WpPost()->getCurrentPage(), $opts->getDef( 'restricted_pages_users' ) );
 				break;
 			case 'certain-options-restricted':
-				/** @var SecurityAdmin\Options $opts */
-				$opts = self::con()->getModule_SecAdmin()->opts();
+				if ( $con->comps === null ) {
+					/** @var SecurityAdmin\Options $opts */
+					$opts = $con->getModule_SecAdmin()->opts();
+					$restricted = $opts->getOptionsPagesToRestrict();
+				}
+				else {
+					$def = $con->cfg->configuration->def( 'options_to_restrict' );
+					$restricted = $def[ ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages' ] ?? [];
+				}
 				$needed = empty( Services::Request()->query( 'page' ) )
-						  && \in_array( Services::WpPost()->getCurrentPage(), $opts->getOptionsPagesToRestrict() );
+						  && \in_array( Services::WpPost()->getCurrentPage(), $restricted );
 				break;
 			default:
 				$needed = false;
 				break;
 		}
 		return $needed;
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	protected function collectAllPluginNotices() :array {
-		return [];
 	}
 }

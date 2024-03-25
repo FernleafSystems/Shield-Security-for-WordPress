@@ -3,7 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
+use FernleafSystems\Wordpress\Services\Services;
 
 class AdminBarMenu {
 
@@ -11,8 +15,11 @@ class AdminBarMenu {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return self::con()->getMeetsBasePermissions() &&
-			   apply_filters( 'shield/show_admin_bar_menu', self::con()->cfg->properties[ 'show_admin_bar_menu' ] );
+		$con = self::con();
+		return !$con->this_req->is_force_off
+			   && $con->isValidAdminArea()
+			   && apply_filters( 'shield/show_admin_bar_menu', $con->cfg->properties[ 'show_admin_bar_menu' ] )
+			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' );
 	}
 
 	protected function run() {
@@ -24,15 +31,18 @@ class AdminBarMenu {
 	}
 
 	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) {
-		$con = self::con();
 
-		$groups = \array_filter( apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] ) );
-		$totalWarnings = 0;
+		$groups = \array_filter( [
+			$this->ipsBlocked(),
+			$this->ipsOffended(),
+			$this->hackGuard(),
+			$this->users(),
+		] );
 
 		if ( !empty( $groups ) ) {
-
+			$con = self::con();
+			$totalWarnings = 0;
 			$topNodeID = $con->prefix( 'adminbarmenu' );
-
 			foreach ( $groups as $key => $group ) {
 
 				$group[ 'id' ] = $con->prefix( 'adminbarmenu-sub'.$key );
@@ -57,5 +67,107 @@ class AdminBarMenu {
 				'href'  => $con->plugin_urls->adminHome()
 			] );
 		}
+	}
+
+	private function hackGuard() :?array {
+		$items = [];
+		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
+			if ( $scanCon->isEnabled() ) {
+				$items = \array_merge( $items, $scanCon->getAdminMenuItems() );
+			}
+		}
+
+		$thisGroup = null;
+		if ( !empty( $items ) ) {
+
+			$totalWarnings = 0;
+			foreach ( $items as $item ) {
+				$totalWarnings += $item[ 'warnings' ];
+			}
+
+			$thisGroup = [
+				'title' => sprintf(
+					'%s %s', __( 'Scan Results', 'wp-simple-firewall' ),
+					sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
+				),
+				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'items' => $items,
+			];
+		}
+
+		return $thisGroup;
+	}
+
+	private function ipsOffended() :?array {
+		$con = self::con();
+		$thisGroup = null;
+
+		$IPs = ( new RecentStats() )->getRecentlyOffendedIPs();
+		if ( !empty( $IPs ) ) {
+			$thisGroup = [
+				'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls->adminIpRules(),
+				'items' => \array_map( function ( $ip ) use ( $con ) {
+					return [
+						'id'    => $con->prefix( 'ip-'.$ip->id ),
+						'title' => $ip->ip,
+						'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+					];
+				}, $IPs ),
+			];
+		}
+
+		return $thisGroup;
+	}
+
+	private function ipsBlocked() :?array {
+		$con = self::con();
+		$thisGroup = null;
+
+		$IPs = ( new RecentStats() )->getRecentlyBlockedIPs();
+		if ( !empty( $IPs ) ) {
+			$thisGroup = [
+				'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls->adminIpRules(),
+				'items' => \array_map( function ( $ip ) use ( $con ) {
+					return [
+						'id'    => $con->prefix( 'ip-'.$ip->id ),
+						'title' => $ip->ip,
+						'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+					];
+				}, $IPs ),
+			];
+		}
+
+		return $thisGroup;
+	}
+
+	private function users() :?array {
+		$con = self::con();
+
+		$thisGroup = null;
+
+		$recent = ( new FindSessions() )->mostRecent();
+		if ( !empty( $recent ) ) {
+			$items = [];
+			foreach ( $recent as $userID => $user ) {
+				$items[] = [
+					'id'    => $con->prefix( 'meta-'.$userID ),
+					'title' => sprintf( '<a href="%s">%s (%s)</a>',
+						Services::WpUsers()->getAdminUrl_ProfileEdit( $userID ),
+						$user[ 'user_login' ],
+						$user[ 'ip' ]
+					),
+				];
+			}
+
+			$thisGroup = [
+				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+				'items' => $items,
+			];
+		}
+
+		return $thisGroup;
 	}
 }

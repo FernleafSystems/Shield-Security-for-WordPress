@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 /**
  * Try to fill missing audit parameters data from the Request object if it's missing.
+ * @deprecated 19.1
  */
 class FillEventAuditParamsFromRequest {
 

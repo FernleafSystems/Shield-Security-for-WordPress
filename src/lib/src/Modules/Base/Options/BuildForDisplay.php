@@ -2,18 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
+	StringsOptions,
+	StringsSections
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildForDisplay {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $focusOption;
 
 	private $focusSection;
 
-	public function __construct( string $focusSection = '', string $focusOption = '' ) {
+	private $modSlug;
+
+	public function __construct( string $modSlug, string $focusSection = '', string $focusOption = '' ) {
+		$this->modSlug = $modSlug;
 		$this->focusSection = $focusSection;
 		$this->focusOption = $focusOption;
 	}
@@ -25,98 +32,64 @@ class BuildForDisplay {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function standard() :array {
-		$con = self::con();
+		// ensures firewall parameters are in correct format for display. This can be removed ~19.3+
+		self::con()->comps->opts_lookup->getFirewallParametersWhitelist();
 
-		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
-		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
+		return \array_filter( \array_map(
+			function ( array $section ) {
+				$notices = new SectionNotices();
 
-		$sections = $this->buildAvailableSections();
-		$notices = new SectionNotices();
-
-		foreach ( $sections as $sectKey => $sect ) {
-
-			if ( !empty( $sect[ 'options' ] ) ) {
-
-				foreach ( $sect[ 'options' ] as $optKey => $opt ) {
+				foreach ( $section[ 'options' ] as $optKey => $opt ) {
 					$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
-					$isOptPremium = ( $opt[ 'premium' ] ?? false ) || !empty( $opt[ 'cap' ] );
-					$isAdv = $opt[ 'advanced' ] ?? false;
-					if ( ( !$isOptPremium || $isPremium ) && ( !$isAdv || $showAdvanced ) ) {
-						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
-						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
-					}
-					else {
-						unset( $sect[ 'options' ][ $optKey ] );
-					}
+					$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
+					$section[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
 				}
 
-				if ( empty( $sect[ 'options' ] ) ) {
-					unset( $sections[ $sectKey ] );
+				if ( empty( $section[ 'options' ] ) ) {
+					$section = null;
 				}
 				else {
-					try {
-						$sect = \array_merge(
-							$sect,
-							$this->mod()
-								 ->getStrings()
-								 ->getSectionStrings( $sect[ 'slug' ] )
-						);
-					}
-					catch ( \Exception $e ) {
-					}
-					$sections[ $sectKey ] = $sect;
+					$section = \array_merge( $section, ( new StringsSections() )->getFor( $section[ 'slug' ] ) );
+					$section[ 'is_focus' ] = $section[ 'slug' ] === $this->focusSection;
+					$section[ 'notices' ] = $notices->notices( $section[ 'slug' ] );
+					$section[ 'warnings' ] = $notices->warnings( $section[ 'slug' ] );
+					$section[ 'critical_warnings' ] = $notices->critical( $section[ 'slug' ] );
 				}
 
-				$sections[ $sectKey ][ 'is_focus' ] = $sect[ 'slug' ] === $this->focusSection;
-
-				if ( isset( $sections[ $sectKey ] ) ) {
-					$sections[ $sectKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
-					$sections[ $sectKey ][ 'warnings' ] = $notices->warnings( $sect[ 'slug' ] );
-					$sections[ $sectKey ][ 'critical_warnings' ] = $notices->critical( $sect[ 'slug' ] );
-				}
-			}
-		}
-
-		return $sections;
+				return $section;
+			},
+			$this->buildAvailableSections()
+		) );
 	}
 
 	protected function buildAvailableSections() :array {
-		$opts = $this->opts();
+		return \array_filter( \array_map(
+			function ( array $nonHiddenSection ) {
 
-		$optionsData = [];
-
-		foreach ( $opts->getSections() as $section ) {
-
-			$section = \array_merge(
-				[
+				$nonHiddenSection = \array_merge( [
 					'primary'   => false,
-					'options'   => $this->buildOptionsForSection( $section[ 'slug' ] ),
+					'options'   => $this->buildOptionsForSection( $nonHiddenSection[ 'slug' ] ),
 					'beacon_id' => false,
-				],
-				$section
-			);
-
-			if ( !empty( $section[ 'options' ] ) ) {
+				], $nonHiddenSection );
 
 				if ( self::con()->labels->is_whitelabelled ) {
-					$section[ 'beacon_id' ] = false;
+					$nonHiddenSection[ 'beacon_id' ] = false;
 				}
 
-				$optionsData[] = $section;
-			}
-		}
-
-		return $optionsData;
+				return empty( $nonHiddenSection[ 'options' ] ) ? null : $nonHiddenSection;
+			},
+			self::con()->cfg->configuration->sectionsForModule( $this->modSlug )
+		) );
 	}
 
 	protected function buildOptionsForSection( string $section ) :array {
 		$con = self::con();
-		$opts = $this->opts();
 
 		$isPremiumActive = $con->isPremiumActive();
 
 		$allOptions = [];
-		foreach ( $opts->getVisibleOptions() as $optDef ) {
+
+		foreach ( $section === 'section_hidden' ? [] : $con->cfg->configuration->optsForSection( $section ) as $optDef ) {
 
 			if ( $optDef[ 'section' ] !== $section ) {
 				continue;
@@ -131,7 +104,7 @@ class BuildForDisplay {
 				'beacon_id'     => false
 			], $optDef );
 
-			$optDef[ 'value' ] = $opts->getOpt( $optDef[ 'key' ] );
+			$optDef[ 'value' ] = $con->opts->optGet( $optDef[ 'key' ] );
 
 			if ( \in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$available = [];
@@ -184,22 +157,8 @@ class BuildForDisplay {
 				if ( empty( $value ) || !\is_array( $value ) ) {
 					$value = [];
 				}
-
 				$option[ 'rows' ] = \count( $value ) + 2;
 				$value = \stripslashes( \implode( "\n", $value ) );
-
-				break;
-
-			case 'comma_separated_lists':
-				$converted = [];
-				if ( !empty( $value ) && \is_array( $value ) ) {
-					foreach ( $value as $page => $params ) {
-						$converted[] = $page.', '.\implode( ", ", $params );
-					}
-				}
-				$option[ 'rows' ] = \count( $converted ) + 1;
-				$value = \implode( "\n", $converted );
-
 				break;
 
 			case 'multiple_select':
@@ -209,7 +168,7 @@ class BuildForDisplay {
 				break;
 
 			case 'text':
-				$value = \stripslashes( $this->mod()->getTextOpt( $option[ 'key' ] ) );
+				$value = \stripslashes( $con->opts->optGet( $option[ 'key' ] ) );
 				break;
 		}
 
@@ -224,7 +183,7 @@ class BuildForDisplay {
 
 		// add strings
 		try {
-			$optStrings = $this->mod()->getStrings()->getOptionStrings( $option[ 'key' ] );
+			$optStrings = ( new StringsOptions() )->getFor( $option[ 'key' ] );
 			if ( !\is_array( $optStrings[ 'description' ] ) ) {
 				$optStrings[ 'description' ] = [ $optStrings[ 'description' ] ];
 			}
@@ -244,6 +203,15 @@ class BuildForDisplay {
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
 				}
+				break;
+
+			case 'page_params_whitelist':
+				$option[ 'value' ] = \str_replace( ',', ', ', (string)$option[ 'value' ] );
+				break;
+
+			case 'importexport_secretkey':
+				// need to dynamically regenerate the key for display if it's required.
+				$option[ 'value' ] = self::con()->comps->import_export->getImportExportSecretKey();
 				break;
 
 			case 'file_scan_areas':

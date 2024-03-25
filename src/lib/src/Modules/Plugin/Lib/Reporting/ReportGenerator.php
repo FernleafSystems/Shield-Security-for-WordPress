@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
@@ -115,9 +115,7 @@ class ReportGenerator {
 
 		$con->fireEvent( 'report_generated', [
 			'audit_params' => [
-				'type'     => $this->mod()
-								   ->getReportingController()
-								   ->getReportTypeName( $record->type ),
+				'type'     => $con->comps->reports->getReportTypeName( $record->type ),
 				'interval' => $record->interval_length,
 			]
 		] );
@@ -152,7 +150,7 @@ class ReportGenerator {
 
 		try {
 			$email = EmailVO::Factory(
-				$con->getModule_Plugin()->getPluginReportEmail(),
+				$con->comps->opts_lookup->getReportEmail(),
 				__( 'Security Report', 'wp-simple-firewall' ).' - '.$con->getHumanName(),
 				$con->action_router->render(
 					ReportsActions\Contexts\EmailReport::SLUG,
@@ -190,7 +188,7 @@ class ReportGenerator {
 		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
 			$updater->markNotified( $record );
 		}
-		$con->getModule_HackGuard()->getFileLocker()->clearLocks();
+		$con->comps->file_locker->clearLocks();
 
 		// Standard Scan Results
 		$con->db_con

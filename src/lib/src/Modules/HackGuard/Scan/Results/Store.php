@@ -2,19 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModConsumer,
 	Scan\Queue\QueueItemVO
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ResultItemMeta\Ops as ResultItemMetaDB,
-	ResultItems\Ops as ResultItemsDB,
+	ResultItems\Ops as ResultItemsDB
 };
 use FernleafSystems\Wordpress\Services\Services;
 
 class Store {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function store( QueueItemVO $queueItem, array $results ) {
 		$dbCon = self::con()->db_con;
@@ -26,10 +27,7 @@ class Store {
 
 		foreach ( $results as $result ) {
 
-			$scanResult = $this->mod()
-							   ->getScansCon()
-							   ->getScanCon( $queueItem->scan )
-							   ->buildScanResult( $result );
+			$scanResult = self::con()->comps->scans->getScanCon( $queueItem->scan )->buildScanResult( $result );
 
 			/** @var ResultItemsDB\Record $resultRecord */
 			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )

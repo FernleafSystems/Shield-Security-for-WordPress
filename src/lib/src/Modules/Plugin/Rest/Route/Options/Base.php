@@ -20,7 +20,7 @@ abstract class Base extends RouteBase {
 				'value',
 				'module',
 			],
-			\array_keys( $this->mod()->opts()->getOptDefinition( 'global_enable_plugin_features' ) )
+			\array_keys( self::con()->opts->optDef( 'global_enable_plugin_features' ) )
 		) );
 
 		return [
@@ -67,10 +67,7 @@ abstract class Base extends RouteBase {
 
 	protected function getAllPossibleOptKeys() :array {
 		if ( !isset( self::$allOpts ) ) {
-			$allOpts = [];
-			foreach ( ( new Export() )->getRawOptionsExport() as $modOpts ) {
-				$allOpts = \array_merge( $allOpts, \array_keys( $modOpts ) );
-			}
+			$allOpts = \array_keys( ( new Export() )->getRawOptionsExport() );
 			\natsort( $allOpts );
 			self::$allOpts = \array_values( $allOpts );
 		}

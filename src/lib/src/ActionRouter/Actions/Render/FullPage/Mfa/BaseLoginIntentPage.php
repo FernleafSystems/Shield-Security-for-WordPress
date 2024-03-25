@@ -14,8 +14,9 @@ abstract class BaseLoginIntentPage extends Actions\Render\FullPage\BaseFullPageR
 	use Actions\Traits\AuthNotRequired;
 
 	public function getLoginIntentJavascript() :array {
-		$mfa = self::con()->getModule_LoginGuard()->getMfaController();
-		$prov = $mfa->getProvidersActiveForUser( Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] ) );
+		$prov = self::con()->comps->mfa->getProvidersActiveForUser(
+			Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )
+		);
 
 		return [
 			'ajax'  => [

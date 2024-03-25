@@ -2,11 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @deprecated 19.1
+ */
 class EventStrings {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $strings = null;
 
@@ -408,13 +411,6 @@ class EventStrings {
 				'name'  => __( 'SureSend Success', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Successfully sent email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
-				],
-			],
-			'ade_check_module_disabled'    => [
-				'name'  => __( 'ADE Bot Check Invalid (Options)', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'A Bot Check was performed on a visitor but the ADE option is disabled in settings.', 'wp-simple-firewall' ),
-					__( "The visitor passed the checks since they couldn't be performed correctly.", 'wp-simple-firewall' ),
 				],
 			],
 			'ade_check_option_disabled'    => [

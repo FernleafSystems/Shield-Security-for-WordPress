@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public const SLUG = 'license';
 
@@ -20,10 +20,12 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 * @return Lib\LicenseHandler
 	 */
 	public function getLicenseHandler() :Lib\LicenseHandler {
-		return $this->licenseHandler ?? $this->licenseHandler = new Lib\LicenseHandler();
+		return self::con()->comps !== null ? self::con()->comps->license :
+			( $this->licenseHandler ?? $this->licenseHandler = new Lib\LicenseHandler() );
 	}
 
 	public function getWpHashesTokenManager() :Lib\WpHashes\ApiTokenManager {
-		return $this->wpHashesTokenManager ?? $this->wpHashesTokenManager = new Lib\WpHashes\ApiTokenManager();
+		return self::con()->comps !== null ? self::con()->comps->api_token :
+			( $this->wpHashesTokenManager ?? $this->wpHashesTokenManager = new Lib\WpHashes\ApiTokenManager() );
 	}
 }

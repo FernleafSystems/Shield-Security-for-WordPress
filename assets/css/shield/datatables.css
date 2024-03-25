@@ -36,8 +36,8 @@ th.date {
 }
 td.meta,
 th.meta {
-	width: 40px !important;
-	max-width: 40px !important;
+	width: 60px !important;
+	max-width: 60px !important;
 }
 td.identity a.ipv6 {
 	letter-spacing: -1px;

@@ -14,7 +14,9 @@ abstract class ShieldUser2faBase extends Base {
 
 	protected function get2faProviderForParamDef() :array {
 		$providers = [];
-		foreach ( self::con()->getModule_LoginGuard()->getMfaController()->collateMfaProviderClasses() as $provider ) {
+		$mfa = self::con()->comps === null ? self::con()->getModule_LoginGuard()->getMfaController()
+			: self::con()->comps->mfa;
+		foreach ( $mfa->collateMfaProviderClasses() as $provider ) {
 			$providers[ $provider::ProviderSlug() ] = $provider::ProviderName();
 		}
 		return $providers;

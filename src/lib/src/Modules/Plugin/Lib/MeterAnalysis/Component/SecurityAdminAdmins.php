@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
-
 class SecurityAdminAdmins extends Base {
 
 	use Traits\OptConfigBased;
@@ -16,26 +14,17 @@ class SecurityAdminAdmins extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_SecAdmin();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled()
-			   && $mod->getSecurityAdminController()->isEnabledSecAdmin()
-			   && $opts->isSecAdminRestrictUsersEnabled();
+		return self::con()->comps->sec_admin->isEnabledSecAdmin()
+			   && self::con()->opts->optIs( 'admin_access_restrict_admin_users', 'Y' );
 	}
 
 	public function href() :string {
-		$mod = self::con()->getModule_SecAdmin();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		if ( !$mod->isModOptEnabled() ) {
+		$lookup = self::con()->comps->opts_lookup;
+		if ( !$lookup->isModFromOptEnabled( 'admin_access_key' ) ) {
 			$href = $this->getOptLink( 'enable_admin_access_restriction' );
 		}
-		elseif ( !$opts->hasSecurityPIN() ) {
+		elseif ( empty( $lookup->getSecAdminPIN() ) ) {
 			$href = $this->getOptLink( 'admin_access_key' );
-		}
-		elseif ( !$opts->hasSecurityPIN() ) {
-			$href = $this->getOptLink( 'admin_access_timeout' );
 		}
 		else {
 			$href = $this->getOptLink( 'admin_access_restrict_admin_users' );

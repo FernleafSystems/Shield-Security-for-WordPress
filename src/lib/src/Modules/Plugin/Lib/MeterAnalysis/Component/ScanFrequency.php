@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-
 class ScanFrequency extends Base {
 
 	use Traits\OptConfigBased;
@@ -17,10 +15,7 @@ class ScanFrequency extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_HackGuard();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-		return $mod->isModOptEnabled() && $opts->getScanFrequency() > 1;
+		return self::con()->opts->optGet( 'scan_frequency' ) > 1;
 	}
 
 	public function title() :string {

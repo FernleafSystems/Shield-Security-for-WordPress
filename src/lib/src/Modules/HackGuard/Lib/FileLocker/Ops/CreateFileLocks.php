@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
 	LockDbInsertFailure,
-	NoFileLockPathsExistException,
 	NoCipherAvailableException,
+	NoFileLockPathsExistException,
 	PublicKeyRetrievalFailure
 };
 
@@ -50,7 +50,7 @@ class CreateFileLocks extends BaseOps {
 		$record->path = $path;
 		$record->hash_original = \hash_file( 'sha1', $path );
 
-		$record->cipher = $this->mod()->getFileLocker()->getState()[ 'cipher' ] ?? '';
+		$record->cipher = self::con()->comps->file_locker->getState()[ 'cipher' ] ?? '';
 		if ( empty( $record->cipher ) ) {
 			throw new NoCipherAvailableException();
 		}
@@ -65,6 +65,6 @@ class CreateFileLocks extends BaseOps {
 			throw new LockDbInsertFailure( sprintf( 'Failed to insert file locker record for path: "%s"', $path ) );
 		}
 
-		$this->mod()->getFileLocker()->clearLocks();
+		self::con()->comps->file_locker->clearLocks();
 	}
 }

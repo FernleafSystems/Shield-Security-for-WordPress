@@ -23,15 +23,20 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	protected $screenID;
 
 	protected function exec() {
-		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
-			if ( apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
-				add_action( 'admin_menu', function () {
+		if ( !Services::WpGeneral()->isAjax()
+			 && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
+
+			add_action( 'admin_menu', function () {
+				if ( !Services::WpGeneral()->isMultisite() && is_admin() ) {
 					$this->createAdminMenu();
-				} );
-				add_action( 'network_admin_menu', function () {
+				}
+			} );
+
+			add_action( 'network_admin_menu', function () {
+				if ( Services::WpGeneral()->isMultisite() && is_network_admin() && is_main_network() ) {
 					$this->createNetworkAdminMenu();
-				} );
-			}
+				}
+			} );
 
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
@@ -61,7 +66,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 				$con->getHumanName(),
 				$con->labels->MenuTitle,
 				$con->cfg->properties[ 'base_permissions' ],
-				$this->getPrimaryMenuSlug(),
+				$con->plugin_urls->rootAdminPageSlug(),
 				[ $this, 'displayModuleAdminPage' ],
 				$con->labels->icon_url_16x16
 			);
@@ -72,7 +77,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 			if ( $menu[ 'do_submenu_fix' ] ) {
 				global $submenu;
-				$menuID = $this->getPrimaryMenuSlug();
+				$menuID = $con->plugin_urls->rootAdminPageSlug();
 				if ( isset( $submenu[ $menuID ] ) ) {
 //					$submenu[ $menuID ][ 0 ][ 0 ] = __( 'Security Dashboard', 'wp-simple-firewall' );
 					unset( $submenu[ $menuID ][ 0 ] );
@@ -113,8 +118,8 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			$doMarkupTitle = $currentNav === $submenuNavID;
 
 			add_submenu_page(
-				$this->getPrimaryMenuSlug(),
-				sprintf( '%s | %s', $submenuTitle, self::con()->getHumanName() ),
+				$con->plugin_urls->rootAdminPageSlug(),
+				sprintf( '%s | %s', $submenuTitle, $con->getHumanName() ),
 				$doMarkupTitle ? $markupTitle : $submenuTitle,
 				$con->cfg->properties[ 'base_permissions' ],
 				$con->prefix( $submenuNavID ),
@@ -127,7 +132,10 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 		echo self::con()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	private function getPrimaryMenuSlug() :string {
-		return self::con()->getModule_Plugin()->getModSlug();
+		return self::con()->prefix( self::con()->getModule_Plugin()->cfg->slug );
 	}
 }

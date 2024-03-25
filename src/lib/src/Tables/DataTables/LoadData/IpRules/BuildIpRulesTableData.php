@@ -2,21 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
-	CleanIpRules,
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
-	Ops as IpRulesDB,
+	Ops as IpRulesDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
-
-	use ModConsumer;
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
@@ -135,8 +132,6 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	}
 
 	private function getColumnContent_Status( IpRuleRecord $record ) :string {
-		$opts = $this->opts();
-
 		$content = [
 			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), IpRulesDB\Handler::GetTypeName( $record->type ) )
 		];
@@ -149,7 +144,11 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
 		}
 
-		if ( \in_array( $record->type, [ IpRulesDB\Handler::T_AUTO_BLOCK, IpRulesDB\Handler::T_MANUAL_BLOCK, IpRulesDB\Handler::T_CROWDSEC ] ) ) {
+		if ( \in_array( $record->type, [
+			IpRulesDB\Handler::T_AUTO_BLOCK,
+			IpRulesDB\Handler::T_MANUAL_BLOCK,
+			IpRulesDB\Handler::T_CROWDSEC
+		] ) ) {
 
 			if ( $record->blocked_at > 0 ) {
 				if ( $record->blocked_at > $record->unblocked_at ) {
@@ -168,7 +167,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 									Services::Request()
 											->carbon()
 											->timestamp( $record->last_access_at )
-											->addSeconds( $opts->getAutoExpireTime() )
+											->addSeconds( self::con()->comps->opts_lookup->getIpAutoBlockTTL() )
 											->diffForHumans() );
 							}
 							else {
@@ -176,7 +175,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 									Services::Request()
 											->carbon()
 											->timestamp( $record->last_access_at )
-											->addSeconds( $opts->getAutoExpireTime() )
+											->addSeconds( self::con()->comps->opts_lookup->getIpAutoBlockTTL() )
 											->diffForHumans() );
 							}
 							break;
@@ -200,7 +199,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			}
 			else {
 				$color = 'warning';
-				$remaining = $opts->getOffenseLimit() - $record->offenses;
+				$remaining = self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() - $record->offenses;
 				$blockedStatus = sprintf(
 					_n( '%s offense until block',
 						'%s offenses until block',

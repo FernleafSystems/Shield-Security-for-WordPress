@@ -23,7 +23,7 @@ class PageDebug extends BasePluginAdminPage {
 				),
 			],
 			[
-				'text' => __( 'Print', 'wp-simple-firewall' ),
+				'text'    => __( 'Print', 'wp-simple-firewall' ),
 				'href'    => "javascript:{}",
 				'classes' => [ 'shield_div_print' ],
 				'datas'   => [ 'selector' => '#PageMainBody_Inner-Shield' ],

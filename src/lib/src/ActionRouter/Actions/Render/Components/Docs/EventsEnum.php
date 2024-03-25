@@ -12,7 +12,7 @@ class EventsEnum extends Actions\Render\BaseRender {
 	public const TEMPLATE = '/wpadmin/components/events_enum.twig';
 
 	protected function getRenderData() :array {
-		$srvEvents = self::con()->service_events;
+		$srvEvents = self::con()->comps->events;
 
 		$eventsSortedByLevel = [
 			'Alert'   => [],
@@ -28,8 +28,6 @@ class EventsEnum extends Actions\Render\BaseRender {
 				'attr' => [
 					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
 					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
-					'module'  => sprintf( 'Module: %s',
-						self::con()->getModule( $event[ 'module' ] )->getMainFeatureName() ),
 				]
 			];
 		}

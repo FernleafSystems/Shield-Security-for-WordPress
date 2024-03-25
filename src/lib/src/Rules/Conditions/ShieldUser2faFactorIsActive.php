@@ -21,10 +21,9 @@ class ShieldUser2faFactorIsActive extends ShieldUser2faBase {
 		$matched = false;
 		$user = $this->getUserFromSession();
 		if ( !empty( $user ) ) {
-			$provider = self::con()
-							->getModule_LoginGuard()
-							->getMfaController()
-							->getProvidersForUser( $user )[ $this->p->provider ] ?? null;
+			$mfa = self::con()->comps === null ? self::con()->getModule_LoginGuard()->getMfaController()
+				: self::con()->comps->mfa;
+			$provider = $mfa->getProvidersForUser( $user )[ $this->p->provider ] ?? null;
 			$matched = !empty( $provider ) && $provider->isProfileActive();
 		}
 		return $matched;

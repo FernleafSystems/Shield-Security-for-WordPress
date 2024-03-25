@@ -15,7 +15,6 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function enqueueJS() {
-
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
 			$assets[] = 'login_guard';
 			return $assets;
@@ -30,7 +29,7 @@ class GaspJs extends BaseProtectionProvider {
 
 		$this->setFactorTested( true );
 
-		$gasp = $req->post( $this->mod()->getGaspKey() );
+		$gasp = $req->post( self::con()->comps->opts_lookup->getLoginGuardGaspKey() );
 
 		$username = $formProvider->getUserToAudit();
 		$action = $formProvider->getActionToAudit();
@@ -73,9 +72,5 @@ class GaspJs extends BaseProtectionProvider {
 
 	public function buildFormInsert( $formProvider ) :string {
 		return self::con()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
-	}
-
-	protected function isFactorJsRequired() :bool {
-		return parent::isFactorJsRequired() || !empty( $this->opts()->getAntiBotFormSelectors() );
 	}
 }

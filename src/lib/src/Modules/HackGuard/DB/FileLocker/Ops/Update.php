@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocke
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Update {
 
 	public function markNotified( Record $entry ) :bool {

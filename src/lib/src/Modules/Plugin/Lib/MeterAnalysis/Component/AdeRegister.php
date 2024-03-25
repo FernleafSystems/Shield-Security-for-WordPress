@@ -2,18 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
-
 class AdeRegister extends AdeBase {
 
 	public const SLUG = 'ade_register';
 
 	protected function testIfProtected() :bool {
-		/** @var Options $opts */
-		$opts = self::con()
-					->getModule_LoginGuard()
-					->opts();
-		return parent::testIfProtected() && $opts->isProtectRegister();
+		return self::con()->comps->opts_lookup->enabledLoginProtectionArea( 'register' );
 	}
 
 	public function title() :string {

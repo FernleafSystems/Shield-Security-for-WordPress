@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DebugRecentEvents extends Actions\Render\BaseRender {
@@ -27,7 +27,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	}
 
 	private function getData() :array {
-		$srvEvents = self::con()->service_events;
+		$srvEvents = self::con()->comps->events;
 
 		$theStats = \array_filter(
 			$srvEvents->getEvents(),

@@ -11,7 +11,7 @@ class QueryUserPasswordExpired {
 
 	public function check( \WP_User $user ) :bool {
 		$expired = false;
-		$timeout = $this->opts()->getPassExpireTimeout();
+		$timeout = self::con()->comps->opts_lookup->getPassExpireTimeout();
 		if ( $timeout > 0 ) {
 			$startedAt = self::con()->user_metas->for( $user )->record->pass_started_at;
 			$expired = $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $timeout );

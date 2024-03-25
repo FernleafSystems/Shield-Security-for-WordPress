@@ -14,12 +14,4 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Commo
 	public function isTerminating() :bool {
 		return false;
 	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public function setConditionTriggerMeta( array $meta ) :self {
-		$this->conditionTriggerMeta = $meta;
-		return $this;
-	}
 }

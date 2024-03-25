@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class GetLogFileContent {
 
-	use Shield\Modules\AuditTrail\ModConsumer;
+	use ModConsumer;
 
 	public function run() :string {
-		$logFile = $this->opts()->getLogFilePath();
+		$logFile = self::con()->comps->activity_log->getLogFilePath();
 		$FS = Services::WpFs();
 		return $FS->isAccessibleFile( $logFile ) ? (string)$FS->getFileContent( $logFile ) : '';
 	}

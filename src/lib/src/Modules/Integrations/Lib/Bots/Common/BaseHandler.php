@@ -35,7 +35,7 @@ abstract class BaseHandler {
 	public function getHandlerName() :string {
 		$name = 'Undefined Name';
 
-		$valueOptions = $this->opts()->getOptDefinition(
+		$valueOptions = self::con()->opts->optDef(
 			$this->getHandlerController()->getSelectedProvidersOptKey()
 		)[ 'value_options' ];
 
@@ -50,10 +50,15 @@ abstract class BaseHandler {
 
 	protected function isBot() :bool {
 		if ( \is_null( self::$isBot ) ) {
-			self::$isBot = self::con()
-							   ->getModule_IPs()
-							   ->getBotSignalsController()
-							   ->isBot( self::con()->this_req->ip );
+			if ( self::con()->comps === null ) {
+				self::$isBot = self::con()
+								   ->getModule_IPs()
+								   ->getBotSignalsController()
+								   ->isBot( self::con()->this_req->ip );
+			}
+			else {
+				self::$isBot = self::con()->comps->bot_signals->isBot( self::con()->this_req->ip );
+			}
 			$this->fireBotEvent();
 		}
 		return self::$isBot;

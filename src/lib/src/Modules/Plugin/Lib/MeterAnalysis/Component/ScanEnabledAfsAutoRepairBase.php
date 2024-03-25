@@ -13,7 +13,6 @@ abstract class ScanEnabledAfsAutoRepairBase extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = self::con()->getModule_HackGuard();
-		return $mod->isModOptEnabled() && $mod->getScansCon()->AFS()->isEnabled();
+		return self::con()->comps->scans->AFS()->isEnabled();
 	}
 }

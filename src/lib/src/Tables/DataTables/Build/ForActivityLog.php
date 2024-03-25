@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
-
 class ForActivityLog extends Base {
-
-	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'date';
@@ -68,7 +64,7 @@ class ForActivityLog extends Base {
 			],
 			'severity'   => [
 				'data'        => 'severity',
-				'title'       => __( 'Severity' ),
+				'title'       => '',
 				'className'   => 'severity',
 				'orderable'   => false,
 				'searchable'  => false,

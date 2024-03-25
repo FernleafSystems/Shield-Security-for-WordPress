@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
+	StringsOptions,StringsSections };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class SelectSearchData {
@@ -360,7 +361,6 @@ class SelectSearchData {
 
 	private function getIntegrationsSearch() :array {
 		$con = self::con();
-		$modIntegrations = $con->getModule_Integrations();
 
 		$integrations = [
 			[
@@ -374,9 +374,7 @@ class SelectSearchData {
 			]
 		];
 
-		foreach (
-			$modIntegrations->opts()->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item
-		) {
+		foreach ( $con->opts->optDef( 'user_form_providers' )[ 'value_options' ] as $item ) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
@@ -388,9 +386,7 @@ class SelectSearchData {
 			];
 		}
 
-		foreach (
-			$modIntegrations->opts()->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item
-		) {
+		foreach ( $con->opts->optDef( 'form_spam_providers' )[ 'value_options' ] as $item ) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
@@ -413,47 +409,43 @@ class SelectSearchData {
 	private function getConfigSearch() :array {
 		$con = self::con();
 
-		$search = [];
-		foreach ( $con->modules as $module ) {
-			if ( $module->cfg->properties[ 'show_module_options' ] ) {
-				$config = [];
-				foreach ( $module->opts()->getVisibleOptionsKeys() as $optKey ) {
-					try {
-						$config[] = [
-							'id'     => 'config_'.$optKey,
-							'text'   => $module->getStrings()->getOptionStrings( $optKey )[ 'name' ],
-							'link'   => [
-								'href' => $con->plugin_urls->modCfgOption( $optKey ),
-							],
-							'icon'   => $con->svgs->raw( 'sliders.svg' ),
-							'tokens' => $this->getSearchableTextForModuleOption( $module, $optKey ),
-						];
-					}
-					catch ( \Exception $e ) {
-					}
-				}
+		$stringsOptions = new StringsOptions();
 
-				if ( !empty( $config ) ) {
-					$search[] = [
-						'text'     => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), $module->getMainFeatureName() ),
-						'children' => $config
-					];
-				}
+		$opts = \array_keys( \array_filter( $con->cfg->configuration->options, function ( array $optDef ) {
+			return $optDef[ 'section' ] !== 'section_hidden';
+		} ) );
+
+		$config = [];
+		foreach ( $opts as $optKey ) {
+			try {
+				$config[] = [
+					'id'     => 'config_'.$optKey,
+					'text'   => $stringsOptions->getFor( $optKey )[ 'name' ],
+					'link'   => [
+						'href' => $con->plugin_urls->modCfgOption( $optKey ),
+					],
+					'icon'   => $con->svgs->raw( 'sliders.svg' ),
+					'tokens' => $this->getSearchableTextForOption( $optKey ),
+				];
+			}
+			catch ( \Exception $e ) {
 			}
 		}
-		return $search;
+
+		return [
+			[
+				'text'     => __( 'Config', 'wp-simple-firewall' ),
+				'children' => $config
+			]
+		];
 	}
 
 	/**
-	 * @param ModCon|mixed $mod
 	 * @throws \Exception
 	 */
-	private function getSearchableTextForModuleOption( $mod, string $optKey ) :string {
-		$modOpts = $mod->opts();
-		$modStrings = $mod->getStrings();
-
-		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
-		$strOpts = $modStrings->getOptionStrings( $optKey );
+	private function getSearchableTextForOption( string $optKey ) :string {
+		$strSection = ( new StringsSections() )->getFor( self::con()->opts->optDef( $optKey )[ 'section' ] );
+		$strOpts = ( new StringsOptions() )->getFor( $optKey );
 
 		$allWords = \array_filter( \array_map( '\trim',
 			\explode( ' ', \preg_replace( '#\(\):-#', ' ', \strip_tags( \implode( ' ', \array_merge(

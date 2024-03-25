@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 
 class Controller {
 
+	use ExecOnce;
 	use ModConsumer;
 
 	/**
@@ -20,7 +22,7 @@ class Controller {
 	 */
 	private $queueProcessor;
 
-	public function __construct() {
+	protected function run() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
@@ -72,7 +74,13 @@ class Controller {
 	}
 
 	public function hasRunningScans() :bool {
-		return \count( $this->getRunningScans() ) > 0 || \count( $this->opts()->getScansToBuild() ) > 0;
+		if ( self::con()->comps === null ) {
+			$toBuild = $this->opts()->getScansToBuild();
+		}
+		else {
+			$toBuild = self::con()->comps->scans->getScansToBuild();
+		}
+		return \count( $this->getRunningScans() ) > 0 || \count( $toBuild ) > 0;
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {

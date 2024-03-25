@@ -36,20 +36,15 @@ class IpDetect extends Base {
 	}
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
-		$mod = self::con()->getModule_Plugin();
-		/** @var Shield\Modules\Plugin\Options $opts */
-		$opts = $mod->opts();
-
 		$source = $form[ 'ip_source' ] ?? '';
 		if ( empty( $source ) ) {
 			throw new \Exception( 'Not a valid request' );
 		}
-		if ( !\in_array( $source, $opts->getSelectOptionValueKeys( 'visitor_address_source' ) ) ) {
-			throw new \Exception( 'Not a valid visitor IP Source' );
-		}
 
-		$opts->setVisitorAddressSource( $source );
-		self::con()->opts->store();
+		self::con()
+			->opts
+			->optSet( 'visitor_address_source', $source )
+			->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

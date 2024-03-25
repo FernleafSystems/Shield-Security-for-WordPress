@@ -2,13 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Services\Services;
 
-class EventsToSignals extends EventsListener {
+class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener {
 
 	/**
 	 * @var array[]
@@ -34,20 +32,24 @@ class EventsToSignals extends EventsListener {
 				}
 
 				// Certain events should only be sent if the NotBot isn't set for this IP i.e. captcha failure
-				if ( !$def[ 'only_send_on_notbot_fail' ]
-					 ||
-					 ( new BotSignalsRecord() )
-						 ->setIP( Services::Request()->ip() )
-						 ->retrieve()->notbot_at === 0 ) {
+				try {
+					if ( !$def[ 'only_send_on_notbot_fail' ]
+						 ||
+						 ( new BotSignalsRecord() )
+							 ->setIP( Services::Request()->ip() )
+							 ->retrieve()->notbot_at === 0 ) {
 
-					$signal = [
-						'scenario' => $def[ 'scenario' ],
-						'scope'    => $scope,
-						'value'    => $value,
-						'milli_at' => $this->getMilliseconds(),
-					];
-					// We prevent storing duplicate scenarios using the hash
-					$this->signals[ \md5( serialize( $signal ) ) ] = $signal;
+						$signal = [
+							'scenario' => $def[ 'scenario' ],
+							'scope'    => $scope,
+							'value'    => $value,
+							'milli_at' => $this->getMilliseconds(),
+						];
+						// We prevent storing duplicate scenarios using the hash
+						$this->signals[ \md5( \serialize( $signal ) ) ] = $signal;
+					}
+				}
+				catch ( \Exception $e ) {
 				}
 			}
 		}
@@ -55,24 +57,21 @@ class EventsToSignals extends EventsListener {
 
 	protected function onShutdown() {
 		if ( $this->isCommit() && !empty( $this->signals ) ) {
-			$modIPs = self::con()->getModule_IPs();
-
-			$notBotFail = ( new BotSignalsRecord() )
-							  ->setIP( Services::Request()->ip() )
-							  ->retrieve()->notbot_at === 0;
-
-			if ( $notBotFail ) {
-				$this->signals[] = [
-					'scenario' => 'notbotfail',
-					'scope'    => CrowdSecConstants::SCOPE_IP,
-					'value'    => Services::Request()->ip(),
-					'milli_at' => $this->getMilliseconds(),
-				];
+			try {
+				if ( ( new BotSignalsRecord() )->setIP( Services::Request()->ip() )->retrieve()->notbot_at === 0 ) {
+					$this->signals[] = [
+						'scenario' => 'notbotfail',
+						'scope'    => CrowdSecConstants::SCOPE_IP,
+						'value'    => Services::Request()->ip(),
+						'milli_at' => $this->getMilliseconds(),
+					];
+				}
+			}
+			catch ( \Exception $e ) {
 			}
 
-			$dbhSignals = $modIPs->getDbH_CrowdSecSignals();
+			$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
 			foreach ( $this->signals as $signal ) {
-				/** @var CrowdsecSignalsDB\Record $record */
 				$dbhSignals->getQueryInserter()
 						   ->insert(
 							   $dbhSignals->getRecord()->applyFromArray( $signal )

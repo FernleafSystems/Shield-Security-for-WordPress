@@ -30,6 +30,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
  * @property int $ratelimit_at
  * @property int $updated_at
  * @property int $snsent_at
+ * @deprecated 19.1
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
+
 class ModuleStandard extends BaseWpCliCmd {
 
 	protected function addCmds() {
@@ -41,7 +43,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'key',
 					'optional'    => false,
-					'options'     => $this->opts()->getOptionsForWpCli(),
+					'options'     => $this->getOptionsForWpCli(),
 					'description' => 'The option key to get.',
 				],
 			],
@@ -56,7 +58,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'key',
 					'optional'    => false,
-					'options'     => $this->opts()->getOptionsForWpCli(),
+					'options'     => $this->getOptionsForWpCli(),
 					'description' => 'The option key to updateModuleStandard.php
 					.',
 				],
@@ -90,6 +92,8 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdModAction( $null, $args ) {
+		$this->showDeprecatedWarning();
+
 		switch ( $args[ 'action' ] ) {
 			case 'status':
 				$this->mod()->isModOptEnabled() ?
@@ -109,48 +113,58 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdOptGet( array $null, array $args ) {
-		$opts = $this->opts();
+		$this->showDeprecatedWarning();
 
-		$mVal = $opts->getOpt( $args[ 'key' ], $null );
-		$aOpt = $opts->getOptDefinition( $args[ 'key' ] );
-		if ( !\is_numeric( $mVal ) && empty( $mVal ) ) {
-			\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
+		$opts = self::con()->opts;
+
+		$optKey = $args[ 'key' ];
+		if ( !$opts->optExists( $optKey ) ) {
+			\WP_CLI::log( __( 'Not a valid option key.', 'wp-simple-firewall' ) );
 		}
 		else {
-			$sExplain = '';
-
-			if ( \is_array( $mVal ) ) {
-				$mVal = sprintf( '[ %s ]', \implode( ', ', $mVal ) );
+			$value = $opts->optGet( $optKey );
+			if ( !\is_numeric( $value ) && empty( $value ) ) {
+				\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
 			}
+			else {
+				$explain = '';
 
-			if ( $aOpt[ 'type' ] === 'checkbox' ) {
-				$sExplain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off' ) );
-			}
+				if ( \is_array( $value ) ) {
+					$value = sprintf( '[ %s ]', \implode( ', ', $value ) );
+				}
+				if ( $opts->optType( $optKey ) === 'checkbox' ) {
+					$explain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off' ) );
+				}
 
-			\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $mVal ) );
-			if ( !empty( $sExplain ) ) {
-				\WP_CLI::log( $sExplain );
+				\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $value ) );
+				if ( !empty( $explain ) ) {
+					\WP_CLI::log( $explain );
+				}
 			}
 		}
 	}
 
 	public function cmdOptSet( array $null, array $args ) {
-		$this->opts()->setOpt( $args[ 'key' ], $args[ 'value' ] );
+		$this->showDeprecatedWarning();
+
+		self::con()->opts->optSet( $args[ 'key' ], $args[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
 	}
 
 	public function cmdOptList( array $null, array $args ) {
-		$opts = $this->opts();
-		$strings = $this->mod()->getStrings();
+		$this->showDeprecatedWarning();
+
+		$opts = self::con()->opts;
+		$strings = new StringsOptions();
 		$optsList = [];
-		foreach ( $opts->getOptionsForWpCli() as $key ) {
+		foreach ( $this->getOptionsForWpCli() as $key ) {
 			try {
 				$optsList[] = [
 					'key'     => $key,
-					'name'    => $strings->getOptionStrings( $key )[ 'name' ],
-					'type'    => $opts->getOptionType( $key ),
-					'current' => $opts->getOpt( $key ),
-					'default' => $opts->getOptDefault( $key ),
+					'name'    => $strings->getFor( $key )[ 'name' ],
+					'type'    => $opts->optType( $key ),
+					'current' => $opts->optGet( $key ),
+					'default' => $opts->optDefault( $key ),
 				];
 			}
 			catch ( \Exception $e ) {
@@ -178,5 +192,17 @@ class ModuleStandard extends BaseWpCliCmd {
 				$allKeys
 			);
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getOptionsForWpCli() :array {
+		return \array_filter(
+			\array_keys( self::con()->cfg->configuration->optsForModule( $this->mod()->cfg->slug ) ),
+			function ( $key ) {
+				return self::con()->opts->optDef( $key )[ 'section' ] !== 'section_hidden';
+			}
+		);
 	}
 }

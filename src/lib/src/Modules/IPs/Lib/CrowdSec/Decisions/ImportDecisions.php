@@ -5,22 +5,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decis
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\DownloadDecisionsStreamFailedException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportDecisions {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		$csCon = $this->mod()->getCrowdSecCon();
+		$csCon = self::con()->comps->crowdsec;
 		return ( Services::Request()->ts() - $this->getImportInterval() > $csCon->cfg()->decisions_update_attempt_at )
 			   && $csCon->getApi()->isReady();
 	}
 
 	protected function run() {
-		$csCon = $this->mod()->getCrowdSecCon();
+		$csCon = self::con()->comps->crowdsec;
 
 		$cfg = $csCon->cfg();
 		$cfg->decisions_update_attempt_at = Services::Request()->ts();
@@ -34,7 +34,6 @@ class ImportDecisions {
 	}
 
 	public function runImport() {
-		$api = $this->mod()->getCrowdSecCon()->getApi();
 		// We currently only import decisions that have a TTL of at least 5 days.
 		$minimumExpiresAt = Services::Request()
 									->carbon()
@@ -52,7 +51,7 @@ class ImportDecisions {
 			}
 		}
 		catch ( \Exception $e ) {
-			error_log( 'Auth token: '.$api->getAuthorizationToken() );
+			error_log( 'Auth token: '.self::con()->comps->crowdsec->getApi()->getAuthorizationToken() );
 			error_log( $e->getMessage() );
 		}
 	}
@@ -70,7 +69,7 @@ class ImportDecisions {
 	 * @throws DownloadDecisionsStreamFailedException
 	 */
 	private function downloadDecisions() :array {
-		$api = $this->mod()->getCrowdSecCon()->getApi();
+		$api = self::con()->comps->crowdsec->getApi();
 		return ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
 	}
 

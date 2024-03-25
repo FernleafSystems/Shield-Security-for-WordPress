@@ -25,7 +25,7 @@ class BlockAuthorFishing extends BaseBlock {
 			)
 		];
 
-		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !self::con()->comps->whitelabel->isEnabled() ) {
 			$additional[ 'learn_more_link' ] = sprintf( '<a href="%s" target="_blank">%s</a>',
 				'https://shsec.io/7l',
 				__( 'Learn More', 'wp-simple-firewall' )

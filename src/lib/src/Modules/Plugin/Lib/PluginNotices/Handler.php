@@ -17,6 +17,7 @@ class Handler {
 				ForceOff::class,
 				SiteInLockdown::class,
 				GloballyDisabled::class,
+				HighReputation::class,
 				IpStatus::class,
 				LicenseStatus::class,
 				RulesEngine::class,

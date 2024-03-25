@@ -13,8 +13,6 @@ class ShieldConfigPluginGlobalDisabled extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $opts */
-		$opts = self::con()->getModule_Plugin()->opts();
-		return $opts->isPluginGloballyDisabled();
+		return self::con()->comps !== null && self::con()->comps->opts_lookup->isPluginGloballyDisabled();
 	}
 }

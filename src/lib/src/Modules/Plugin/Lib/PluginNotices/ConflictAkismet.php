@@ -8,13 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class ConflictAkismet extends Base {
 
 	public function check() :?array {
-		$mod = self::con()->getModule_Comments();
-		/** @var Options $opts */
-		$opts = $mod->opts();
-
 		$issue = null;
 
-		if ( $mod->isModuleEnabled() && $opts->isEnabledHumanCheck() ) {
+		if ( self::con()->comps->opts_lookup->enabledHumanCommentSpam() ) {
 
 			$WPP = Services::WpPlugins();
 			$file = $WPP->findPluginFileFromDirName( 'akismet' );

@@ -51,7 +51,7 @@ class PluginsPageSupplements {
 		$con = self::con();
 		$WP = Services::WpGeneral();
 
-		if ( $con->mu_handler->isActiveMU() ) {
+		if ( $con->comps->mu->isActiveMU() ) {
 			foreach ( $actionLinks as $key => $actionHref ) {
 				if ( \strpos( $actionHref, 'action=deactivate' ) ) {
 					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',

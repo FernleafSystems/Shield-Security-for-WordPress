@@ -2,13 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
 	MatchRequestParamFileUploads,
 	RequestBypassesAllRestrictions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 
+/**
+ * @deprecated 19.2 - TODO
+ */
 class FirewallExeFileUploads extends BuildFirewallBase {
 
 	public const SLUG = 'shield/firewall_exe_file_uploads';

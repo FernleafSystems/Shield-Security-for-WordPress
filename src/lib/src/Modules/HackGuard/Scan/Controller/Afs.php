@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
 	Scan
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -22,6 +22,16 @@ class Afs extends Base {
 		$this->setupCronHooks();
 		( new Scan\Utilities\PtgAddReinstallLinks() )->execute();
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->execute();
+	}
+
+	/**
+	 * @return array{name:string, subtitle:string}
+	 */
+	public function getStrings() :array {
+		return [
+			'name'     => __( 'WordPress Filesystem Scan', 'wp-simple-firewall' ),
+			'subtitle' => __( 'Filesystem Scan looking for modified, missing and unrecognised files (use config to adjust scan areas)', 'wp-simple-firewall' ),
+		];
 	}
 
 	public function getAdminMenuItems() :array {
@@ -123,20 +133,18 @@ class Afs extends Base {
 	 * Can only possibly repair themes, plugins or core files.
 	 */
 	protected function getItemsToAutoRepair() :Scans\Afs\ResultsSet {
-		$opts = $this->opts();
-
 		$repairResults = $this->getNewResultsSet();
 
 		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $item ) {
 
-			if ( $item->is_in_core && $opts->isRepairFileWP() ) {
+			if ( $item->is_in_core && $this->isRepairFileWP() ) {
 				$repairResults->addItem( $item );
 			}
-			if ( $item->is_in_plugin && $opts->isRepairFilePlugin() ) {
+			if ( $item->is_in_plugin && $this->isRepairFilePlugin() ) {
 				$repairResults->addItem( $item );
 			}
-			if ( $item->is_in_theme && $opts->isRepairFileTheme() ) {
+			if ( $item->is_in_theme && $this->isRepairFileTheme() ) {
 				$repairResults->addItem( $item );
 			}
 		}
@@ -147,30 +155,31 @@ class Afs extends Base {
 	/**
 	 * @param Scans\Afs\ResultItem $item
 	 */
-	public function cleanStaleResultItem( $item ) {
+	public function cleanStaleResultItem( $item ) :bool {
 		$dbhResultItems = self::con()->db_con->dbhResultItems();
 		/** @var ResultItemsDB\Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 
-		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
-			$updater->setItemDeleted( $item->VO->resultitem_id );
+		$changed = false;
+		if ( ( $item->is_unrecognised || $item->is_mal )
+			 && $item->VO->item_deleted_at === 0
+			 && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
+			$changed = $updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {
 			$CFH = Services::CoreFileHashes();
 			if ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
-				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
 			elseif ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
-				$updater->setItemRepaired( $item->VO->resultitem_id );
+				$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 			}
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
 				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
-				if ( $item->is_checksumfail && $verifiedHash ) {
-					/** @var ResultItemsDB\Update $updater */
-					$updater = $dbhResultItems->getQueryUpdater();
-					$updater->setItemRepaired( $item->VO->resultitem_id );
+				if ( $item->VO->item_repaired_at === 0 && $item->is_checksumfail && $verifiedHash ) {
+					$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 				}
 			}
 			catch ( Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
@@ -178,7 +187,7 @@ class Afs extends Base {
 			}
 			catch ( Lib\Hashes\Exceptions\NonAssetFileException $e ) {
 				// asset has probably been since removed
-				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
 			catch ( Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
 				// unrecognised file
@@ -186,10 +195,12 @@ class Afs extends Base {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		return $changed;
 	}
 
 	public function getQueueGroupSize() :int {
-		return $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
+		return self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
 	}
 
 	protected function newItemActionHandler() :Scans\Afs\Utilities\ItemActionHandler {
@@ -197,46 +208,47 @@ class Afs extends Base {
 	}
 
 	public function isCronAutoRepair() :bool {
-		return \count( $this->opts()->getRepairAreas() ) > 0;
+		return \count( $this->getRepairAreas() ) > 0;
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isEnabledAutoFileScanner();
+		$con = self::con();
+		return $con->comps !== null && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'malware_php', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'malware_php', $this->getFileScanAreas() )
 			   && self::con()->caps->canScanMalwareLocal();
 	}
 
 	public function isScanEnabledPlugins() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'plugins', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'plugins', $this->getFileScanAreas() )
 			   && self::con()->cache_dir_handler->exists()
 			   && self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledThemes() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'themes', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'themes', $this->getFileScanAreas() )
 			   && self::con()->cache_dir_handler->exists()
 			   && self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledWpContent() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'wpcontent', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'wpcontent', $this->getFileScanAreas() )
 			   && self::con()->caps->canScanAllFiles();
 	}
 
 	public function isScanEnabledWpCore() :bool {
-		return $this->isEnabled() && \in_array( 'wp', $this->opts()->getFileScanAreas() );
+		return $this->isEnabled() && \in_array( 'wp', $this->getFileScanAreas() );
 	}
 
 	public function isScanEnabledWpRoot() :bool {
 		return $this->isEnabled()
-			   && \in_array( 'wproot', $this->opts()->getFileScanAreas() )
+			   && \in_array( 'wproot', $this->getFileScanAreas() )
 			   && self::con()->caps->canScanAllFiles();
 	}
 
@@ -258,5 +270,41 @@ class Afs extends Base {
 	public function purge() {
 		parent::purge();
 		( new Lib\Snapshots\StoreAction\DeleteAll() )->execute();
+	}
+
+	public function getFileScanAreas() :array {
+		$areas = [];
+
+		$opts = self::con()->opts;
+		if ( \method_exists( $opts, 'optGet' ) ) {
+			$areas = $opts->optGet( 'file_scan_areas' );
+			if ( !self::con()->isPremiumActive() ) {
+				$available = [];
+				foreach ( $opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
+					if ( empty( $valueOption[ 'premium' ] ) ) {
+						$available[] = $valueOption[ 'value_key' ];
+					}
+				}
+				$areas = \array_diff( $areas, $available );
+			}
+		}
+
+		return $areas;
+	}
+
+	public function isRepairFilePlugin() :bool {
+		return $this->isScanEnabledPlugins() && \in_array( 'plugin', $this->getRepairAreas() );
+	}
+
+	public function isRepairFileTheme() :bool {
+		return $this->isScanEnabledThemes() && \in_array( 'theme', $this->getRepairAreas() );
+	}
+
+	public function isRepairFileWP() :bool {
+		return $this->isScanEnabledWpCore() && \in_array( 'wp', $this->getRepairAreas() );
+	}
+
+	public function getRepairAreas() :array {
+		return self::con()->opts->optGet( 'file_repair_areas' );
 	}
 }

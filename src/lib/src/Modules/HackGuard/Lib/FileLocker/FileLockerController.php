@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -28,33 +29,30 @@ class FileLockerController {
 
 	private $locks = null;
 
+	public function isEnabled() :bool {
+		return ( \count( $this->getFilesToLock() ) > 0 )
+			   && self::con()->comps->opts_lookup->isModEnabled( EnumModules::SCANS )
+			   && self::con()->db_con->dbhFileLocker()->isReady()
+			   && self::con()->comps->shieldnet->canHandshake();
+	}
+
 	protected function canRun() :bool {
 		return $this->isEnabled();
 	}
 
-	public function isEnabled() :bool {
-		return ( \count( $this->opts()->getFilesToLock() ) > 0 )
-			   && self::con()->db_con->dbhFileLocker()->isReady()
-			   && self::con()
-					  ->getModule_Plugin()
-					  ->getShieldNetApiController()
-					  ->canHandshake();
-	}
-
 	protected function run() {
+		add_action( 'wp_loaded', function () {
 
-		/**
-		 * This cron block must ALWAYS be executed on or before wp_loaded. ALWAYS.
-		 */
-		if ( wp_next_scheduled( $this->getCronHook() ) ) {
-			add_action( $this->getCronHook(), function () {
-				$this->runLocksCreation();
-			} );
-		}
+			if ( !self::con()->this_req->wp_is_cron ) {
+				$this->runAnalysis();
+			}
 
-		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			$this->runAnalysis();
-		} );
+			if ( wp_next_scheduled( $this->getCronHook() ) ) {
+				add_action( $this->getCronHook(), function () {
+					$this->runLocksCreation();
+				} );
+			}
+		}, 1000 );
 
 		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 
@@ -87,14 +85,15 @@ class FileLockerController {
 		return $links;
 	}
 
+	public function getFilesToLock() :array {
+		return $this->opts()->getOpt( 'file_locker', [] );
+	}
+
 	/**
 	 * @return FileLockerDB\Record[]
 	 */
 	public function getLocks() :array {
-		if ( \is_null( $this->locks ) ) {
-			$this->locks = ( new Ops\LoadFileLocks() )->loadLocks();
-		}
-		return $this->locks;
+		return $this->locks ?? $this->locks = ( new Ops\LoadFileLocks() )->loadLocks();
 	}
 
 	public function clearLocks() :void {
@@ -147,6 +146,10 @@ class FileLockerController {
 	}
 
 	private function runAnalysis() {
+		if ( \version_compare( self::con()->cfg->version(), '19.0.7', '<=' ) ) {
+			return;
+		}
+
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 			$this->opts()->setOpt( 'file_locker', [] );
 			$this->setState( [] );
@@ -161,6 +164,7 @@ class FileLockerController {
 
 			// 3. Create any outstanding locks.
 			if ( is_main_network()
+				 && !wp_next_scheduled( $this->getCronHook() )
 				 && !Services::WpGeneral()->isCron()
 				 && !empty( ( new Ops\GetFileLocksToCreate() )->run() )
 			) {
@@ -203,7 +207,7 @@ class FileLockerController {
 				|NoCipherAvailableException|PublicKeyRetrievalFailure
 				|UnsupportedFileLockType $e ) {
 					// Remove the key if there are no files on-disk to lock
-					$this->opts()->setOpt( 'file_locker', \array_diff( $this->opts()->getFilesToLock(), [ $type ] ) );
+					$this->opts()->setOpt( 'file_locker', \array_diff( $this->getFilesToLock(), [ $type ] ) );
 					error_log( $e->getMessage() );
 				}
 				catch ( \Exception $e ) {
@@ -220,6 +224,7 @@ class FileLockerController {
 	}
 
 	public function getState() :array {
+		$opts = self::con()->opts;
 		return \array_merge(
 			[
 				'abspath'                      => ABSPATH,
@@ -229,12 +234,15 @@ class FileLockerController {
 				'cipher'                       => '',
 				'cipher_last_checked_at'       => 0,
 			],
-			$this->opts()->getOpt( 'filelocker_state' )
+			\method_exists( $opts, 'optGet' ) ?
+				$opts->optGet( 'filelocker_state' ) : $this->opts()->getOpt( 'filelocker_state' )
 		);
 	}
 
 	protected function setState( array $state ) {
-		$this->opts()->setOpt( 'filelocker_state', $state );
+		$opts = self::con()->opts;
+		\method_exists( $opts, 'optSet' ) ?
+			$opts->optSet( 'filelocker_state', $state ) : $this->opts()->setOpt( 'filelocker_state', $state );
 		self::con()->opts->store();
 	}
 

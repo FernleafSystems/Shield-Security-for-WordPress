@@ -4,8 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options {
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getInstallationDays() :int {
 		$installedAt = self::con()
 						   ->getModule_Plugin()
@@ -16,14 +22,10 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Opti
 		return (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 	}
 
-	public function isShowPluginNotices() :bool {
-		return $this->isShowPromoAdminNotices();
-	}
-
+	/**
+	 * @deprecated 19.1
+	 */
 	public function isShowPromoAdminNotices() :bool {
-		return self::con()
-				   ->getModule_Plugin()
-				   ->opts()
-				   ->isOpt( 'enable_upgrade_admin_notice', 'Y' );
+		return self::con()->getModule_Plugin()->opts()->isOpt( 'enable_upgrade_admin_notice', 'Y' );
 	}
 }

@@ -11,4 +11,16 @@ abstract class PageScansBase extends BasePluginAdminPage {
 			'new_window' => true,
 		];
 	}
+
+	protected function getRenderData() :array {
+		return [
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'node-plus-fill' ),
+			],
+			'strings' => [
+				'inner_page_title'    => $this->getInnerPageTitle(),
+				'inner_page_subtitle' => $this->getInnerPageSubTitle(),
+			],
+		];
+	}
 }

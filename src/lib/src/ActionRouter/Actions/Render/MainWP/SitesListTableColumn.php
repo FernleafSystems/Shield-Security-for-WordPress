@@ -26,12 +26,7 @@ class SitesListTableColumn extends BaseRender {
 
 		$statusKey = \key( $status );
 		$isActive = $statusKey === ClientPluginStatus::ACTIVE;
-		if ( $isActive ) {
-			$issuesCount = \array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
-		}
-		else {
-			$issuesCount = 0;
-		}
+		$issuesCount = $isActive ? \array_sum( $sync->scan_issues ) : 0;
 
 		return [
 			'flags'   => [

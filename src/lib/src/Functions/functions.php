@@ -28,10 +28,7 @@ function get_visitor_score( $IP = null ) :int {
  * @throws \Exception
  */
 function test_ip_is_bot( $IP = null ) :bool {
-	return shield_security_get_plugin()->getController()
-									   ->getModule_IPs()
-									   ->getBotSignalsController()
-									   ->isBot( (string)$IP );
+	return shield_security_get_plugin()->getController()->comps->bot_signals->isBot( (string)$IP );
 }
 
 function get_ip_state( string $ip = '' ) :string {
@@ -63,8 +60,6 @@ function fire_event( string $event ) {
 function start_scans( array $scans ) {
 	$con = shield_security_get_plugin()->getController();
 	if ( $con->caps->hasCap( 'scan_frequent' ) ) {
-		$con->getModule_HackGuard()
-			->getScansCon()
-			->startNewScans( $scans );
+		$con->comps->scans->startNewScans( $scans );
 	}
 }

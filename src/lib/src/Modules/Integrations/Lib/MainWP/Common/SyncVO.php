@@ -6,6 +6,9 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property array[]    $modules
+ * @property array[]    $options
+ * @property array[]    $integrity
+ * @property array[]    $scan_issues
  * @property SyncMetaVO $meta
  */
 class SyncVO extends DynPropertiesClass {

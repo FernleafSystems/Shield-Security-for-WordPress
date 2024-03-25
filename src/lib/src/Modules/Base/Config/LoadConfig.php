@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @description 19.1
+ */
 class LoadConfig {
 
 	use PluginControllerConsumer;
@@ -75,24 +78,9 @@ class LoadConfig {
 		}
 
 		$cfg[ 'properties' ] = \array_merge( [
-			'namespace'             => \str_replace( ' ', '', ucwords( \str_replace( '_', ' ', $cfg[ 'slug' ] ) ) ),
-			'storage_key'           => $cfg[ 'slug' ],
-			'tagline'               => '',
-			'premium'               => false,
-			'access_restricted'     => true,
-			'auto_enabled'          => false,
-			'auto_load_processor'   => false,
-			'skip_processor'        => false,
-			'show_module_options'   => false,
-			'run_if_whitelisted'    => true,
-			'run_if_verified_bot'   => true,
-			'run_if_wpcli'          => true,
-			'tracking_exclude'      => false,
-			'sidebar_name'          => $cfg[ 'properties' ][ 'name' ],
-			'menu_title'            => $cfg[ 'properties' ][ 'name' ],
-			'menu_priority'         => 100,
-			'highlight_menu_item'   => false,
-			'show_module_menu_item' => false,
+			'storage_key'   => $cfg[ 'slug' ],
+			'tagline'       => '',
+			'menu_priority' => 100,
 		], $cfg[ 'properties' ] );
 
 		$cfg[ 'menus' ] = \array_merge( [

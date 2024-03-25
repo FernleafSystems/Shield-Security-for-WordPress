@@ -14,7 +14,7 @@ class RequestVO extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Re
 			case 'scan_slugs':
 				$value = (array)$value;
 				if ( empty( $value ) ) {
-					$value = self::con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
+					$value = self::con()->comps->scans->getScanSlugs();
 				}
 				break;
 		}

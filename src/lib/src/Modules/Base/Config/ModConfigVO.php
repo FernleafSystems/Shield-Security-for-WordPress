@@ -16,6 +16,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $definitions
  *                                   -- not part of config file --
  * @property string $slug
+ * @description 19.1
  */
 class ModConfigVO extends DynPropertiesClass {
 

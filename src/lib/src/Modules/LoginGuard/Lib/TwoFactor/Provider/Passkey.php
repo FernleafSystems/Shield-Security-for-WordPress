@@ -39,6 +39,12 @@ class Passkey extends AbstractShieldProviderMfaDB {
 
 	private $sourceRepo = null;
 
+	public static function ProviderEnabled() :bool {
+		return parent::ProviderEnabled()
+			   && self::con()->opts->optIs( 'enable_passkeys', 'Y' )
+			   && ( new PasskeyCompatibilityCheck() )->run();
+	}
+
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getJavascriptVars(),
@@ -256,7 +262,8 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isOpt( 'enable_passkeys', 'Y' ) && ( new PasskeyCompatibilityCheck() )->run();
+		return ( \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
+				$this->opts()->isOpt( 'enable_passkeys', 'Y' ) ) && ( new PasskeyCompatibilityCheck() )->run();
 	}
 
 	public static function ProviderName() :string {
