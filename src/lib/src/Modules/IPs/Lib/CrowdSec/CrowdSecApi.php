@@ -312,7 +312,27 @@ class CrowdSecApi {
 
 	private function getCsAuths() :array {
 		$auths = Services::WpGeneral()->getOption( self::con()->prefix( 'cs_auths' ) );
-		return \is_array( $auths ) ? $auths : [];
+		if ( empty( $auths ) || !\is_array( $auths ) ) {
+			$auths = self::con()->comps->crowdsec->cfg()->cs_auths;
+		}
+
+		if ( !\is_array( $auths ) ) {
+			$auths = [];
+		}
+
+		$url = Services::WpGeneral()->getWpUrl();
+		$auths[ $url ] = \array_merge( [
+			'url'              => $url,
+			'auth_token'       => '',
+			'auth_start_at'    => 0,
+			'auth_expire'      => '',
+			'machine_enrolled' => false,
+			'machine_id'       => '',
+			'password'         => '',
+		], $auths[ $url ] ?? [] );
+		Services::WpGeneral()->updateOption( self::con()->prefix( 'cs_auths' ), $auths );
+
+		return $auths;
 	}
 
 	private function storeCsAuth( array $csAuth ) {
