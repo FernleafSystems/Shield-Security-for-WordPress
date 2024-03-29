@@ -17,9 +17,11 @@ class AdminBarMenu {
 	protected function canRun() :bool {
 		$con = self::con();
 		return !$con->this_req->is_force_off
-			   && $con->isValidAdminArea()
+			   && !$con->this_req->wp_is_ajax
 			   && apply_filters( 'shield/show_admin_bar_menu', $con->cfg->properties[ 'show_admin_bar_menu' ] )
-			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' );
+			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' )
+			   && $con->isValidAdminArea()
+			   && Services::WpUsers()->isUserAdmin();
 	}
 
 	protected function run() {
@@ -60,16 +62,14 @@ class AdminBarMenu {
 				$subNodeGroupsToAdd[] = $group;
 			}
 
-			if ( Services::WpUsers()->isUserAdmin() ) {
-				// The top menu item.
-				$adminBar->add_node( [
-					'id'    => $topNodeID,
-					'title' => sprintf( '%s %s', $con->getHumanName(),
-						empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
-					),
-					'href'  => $con->plugin_urls->adminHome()
-				] );
-			}
+			// The top menu item.
+			$adminBar->add_node( [
+				'id'    => $topNodeID,
+				'title' => sprintf( '%s %s', $con->getHumanName(),
+					empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
+				),
+				'href'  => $con->plugin_urls->adminHome()
+			] );
 
 			if ( $con->isPluginAdmin() ) {
 				foreach ( $subNodeGroupsToAdd as $nodeGroup ) {

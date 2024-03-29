@@ -53,6 +53,16 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "6",
+        "released_at": 1711724000,
+        "items":       [
+          {
+            "title": "Ensure Shield admin menu bar displays only for admins.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "19.0": {
