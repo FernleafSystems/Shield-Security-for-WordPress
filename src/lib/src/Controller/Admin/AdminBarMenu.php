@@ -39,6 +39,8 @@ class AdminBarMenu {
 			$this->users(),
 		] );
 
+		$subNodeGroupsToAdd = [];
+
 		if ( !empty( $groups ) ) {
 			$con = self::con();
 			$totalWarnings = 0;
@@ -55,17 +57,25 @@ class AdminBarMenu {
 
 				unset( $group[ 'items' ] );
 				$group[ 'parent' ] = $topNodeID;
-				$adminBar->add_node( $group );
+				$subNodeGroupsToAdd[] = $group;
 			}
 
-			// The top menu item.
-			$adminBar->add_node( [
-				'id'    => $topNodeID,
-				'title' => sprintf( '%s %s', $con->getHumanName(),
-					empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
-				),
-				'href'  => $con->plugin_urls->adminHome()
-			] );
+			if ( Services::WpUsers()->isUserAdmin() ) {
+				// The top menu item.
+				$adminBar->add_node( [
+					'id'    => $topNodeID,
+					'title' => sprintf( '%s %s', $con->getHumanName(),
+						empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
+					),
+					'href'  => $con->plugin_urls->adminHome()
+				] );
+			}
+
+			if ( $con->isPluginAdmin() ) {
+				foreach ( $subNodeGroupsToAdd as $nodeGroup ) {
+					$adminBar->add_node( $nodeGroup );
+				}
+			}
 		}
 	}
 
