@@ -17,9 +17,11 @@ class AdminBarMenu {
 	protected function canRun() :bool {
 		$con = self::con();
 		return !$con->this_req->is_force_off
-			   && $con->isValidAdminArea()
+			   && !$con->this_req->wp_is_ajax
 			   && apply_filters( 'shield/show_admin_bar_menu', $con->cfg->properties[ 'show_admin_bar_menu' ] )
-			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' );
+			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' )
+			   && $con->isValidAdminArea()
+			   && Services::WpUsers()->isUserAdmin();
 	}
 
 	protected function run() {
@@ -39,6 +41,8 @@ class AdminBarMenu {
 			$this->users(),
 		] );
 
+		$subNodeGroupsToAdd = [];
+
 		if ( !empty( $groups ) ) {
 			$con = self::con();
 			$totalWarnings = 0;
@@ -55,7 +59,7 @@ class AdminBarMenu {
 
 				unset( $group[ 'items' ] );
 				$group[ 'parent' ] = $topNodeID;
-				$adminBar->add_node( $group );
+				$subNodeGroupsToAdd[] = $group;
 			}
 
 			// The top menu item.
@@ -66,6 +70,12 @@ class AdminBarMenu {
 				),
 				'href'  => $con->plugin_urls->adminHome()
 			] );
+
+			if ( $con->isPluginAdmin() ) {
+				foreach ( $subNodeGroupsToAdd as $nodeGroup ) {
+					$adminBar->add_node( $nodeGroup );
+				}
+			}
 		}
 	}
 

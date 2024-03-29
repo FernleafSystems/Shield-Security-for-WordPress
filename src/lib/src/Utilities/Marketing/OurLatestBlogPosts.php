@@ -39,7 +39,7 @@ class OurLatestBlogPosts {
 				\is_array( $rawPosts ) ? $rawPosts : []
 			) ), 0, $limit );
 
-			Transient::Set( 'apto-shield-latest-blog-posts', $posts, \DAY_IN_SECONDS*3 );
+			Transient::Set( 'apto-shield-latest-blog-posts', $posts, \DAY_IN_SECONDS*2 );
 		}
 		return $posts;
 	}
