@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FileDownloadAsStream,
 	Constants
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;

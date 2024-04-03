@@ -11,16 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UserAuthRequiredException,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ActionsMap;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ActionProcessor {
-
-	use PluginControllerConsumer;
-
-	/**
-	 * @var array
-	 */
-	private static $actions = [];
 
 	/**
 	 * @throws ActionDoesNotExistException
