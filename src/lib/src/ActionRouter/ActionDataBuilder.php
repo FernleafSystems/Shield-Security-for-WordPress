@@ -8,11 +8,11 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class ActionData {
+class ActionDataBuilder {
 
 	public const FIELD_ACTION = 'action';
 	public const FIELD_AJAXURL = 'ajaxurl';
-	public const FIELD_SHIELD = 'shield_action';
+	public const FIELD_PLUGIN_ACTION = 'shield_action';
 	public const FIELD_EXECUTE = 'ex';
 	public const FIELD_NONCE = 'exnonce';
 	public const FIELD_REST_NONCE = '_wpnonce';
@@ -30,7 +30,7 @@ class ActionData {
 
 	public static function BuildVO( ActionDataVO $VO ) :array {
 		$data = \array_merge( [
-			self::FIELD_ACTION  => self::FIELD_SHIELD,
+			self::FIELD_ACTION  => self::FIELD_PLUGIN_ACTION,
 			self::FIELD_EXECUTE => $VO->action::SLUG,
 			self::FIELD_NONCE   => ActionNonce::Create( $VO->action ),
 		], $VO->aux );

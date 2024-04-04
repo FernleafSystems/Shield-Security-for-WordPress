@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class CaptureShieldAction extends CaptureActionBase {
+class CapturePluginAction extends CaptureActionBase {
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_ajax && parent::canRun();
