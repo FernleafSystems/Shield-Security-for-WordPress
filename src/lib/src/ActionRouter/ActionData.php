@@ -12,12 +12,17 @@ class ActionData {
 
 	public const FIELD_ACTION = 'action';
 	public const FIELD_AJAXURL = 'ajaxurl';
-	public const FIELD_SHIELD = 'shield_action';
+	public const FIELD_PLUGIN_ACTION = 'shield_action';
 	public const FIELD_EXECUTE = 'ex';
 	public const FIELD_NONCE = 'exnonce';
 	public const FIELD_REST_NONCE = '_wpnonce';
 	public const FIELD_REST_URL = '_rest_url';
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
+
+	/**
+	 * @deprecated 19.1
+	 */
+	public const FIELD_SHIELD = 'shield_action';
 
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
 		$vo = new ActionDataVO();

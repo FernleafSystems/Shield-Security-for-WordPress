@@ -117,7 +117,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 			$url => '',
 		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
 
-		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ] );
+		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ], $con->opts->optGet( 'preferred_temp_dir' ) );
 		$lastKnownDirs[ $url ] = \dirname( $cacheDirFinder->dir() );
 		$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
 

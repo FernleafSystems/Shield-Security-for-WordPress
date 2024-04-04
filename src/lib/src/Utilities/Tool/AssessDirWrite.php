@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.1
+ */
 class AssessDirWrite {
 
 	private $dir;
