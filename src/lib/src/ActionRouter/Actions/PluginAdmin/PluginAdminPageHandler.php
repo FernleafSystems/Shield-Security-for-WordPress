@@ -129,6 +129,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	public function displayModuleAdminPage() {
-		echo self::con()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
+		echo self::con()->action_router->render( Actions\Render\PageAdminPlugin::class );
 	}
 }

@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\AssessDirWrite;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\AssessDirWrite;
 
 class CacheDirHandler {
 
@@ -14,8 +14,11 @@ class CacheDirHandler {
 
 	private $lastKnownBaseDir;
 
-	public function __construct( string $lastKnownBaseDir = '' ) {
+	private $preferredDir;
+
+	public function __construct( string $lastKnownBaseDir = '', string $preferredDir = '' ) {
 		$this->lastKnownBaseDir = $lastKnownBaseDir;
+		$this->preferredDir = $preferredDir;
 	}
 
 	public function dir( bool $retest = false ) :string {
@@ -162,7 +165,7 @@ class CacheDirHandler {
 					return untrailingslashit( wp_normalize_path( $path ) );
 				},
 				\array_filter( [
-					self::con()->opts->optGet( 'preferred_temp_dir' ),
+					$this->preferredDir,
 					$this->lastKnownBaseDir,
 					WP_CONTENT_DIR,
 					path_join( ABSPATH, 'wp-content' ),

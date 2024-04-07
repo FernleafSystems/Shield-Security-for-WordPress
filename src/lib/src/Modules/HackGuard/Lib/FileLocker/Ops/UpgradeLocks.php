@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
 /**
  * If the current cipher is unsupported by both local server and SNAPI, we recreate encrypted content
@@ -17,48 +19,66 @@ class UpgradeLocks extends BaseOps {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$conFL = self::con()->comps->file_locker;
+		$flCon = self::con()->comps->file_locker;
+		$flCon->canEncrypt( true );
 
-		$ciphers = new GetAvailableCiphers();
+		if ( !empty( $flCon->getState()[ 'cipher' ] ) ) {
 
-		$changed = false;
-		foreach ( $conFL->getLocks() as $lock ) {
+			$repaired = false;
 
-			if ( \in_array( $lock->cipher, $ciphers->full() ) ) {
-				continue; // nothing to upgrade.
+			foreach ( $flCon->getLocks() as $lock ) {
+
+				$upgradeRequired = false;
+
+				if ( \in_array( $lock->cipher, ( new GetAvailableCiphers() )->full() ) ) {
+					// We must also check the stored VO as we're also storing the cipher in there from an earlier bug.
+					$decoded = \json_decode( $lock->content, true );
+					if ( \is_array( $decoded ) ) {
+						$VO = ( new OpenSslEncryptVo() )->applyFromArray( $decoded );
+						$upgradeRequired = !\in_array( $VO->cipher, ( new GetAvailableCiphers() )->full() );
+					}
+				}
+				else {
+					$upgradeRequired = true;
+				}
+
+				if ( $upgradeRequired ) {
+					$this->runLockRepair( $lock );
+					$repaired = true;
+				}
 			}
 
-			$first = $ciphers->firstFull();
-			try {
-				$publicKey = $this->getPublicKey();
-				$raw = ( new BuildEncryptedFilePayload() )->fromContent(
-					( new ReadOriginalFileContent() )->run( $lock ),
-					\reset( $publicKey ),
-					$first
-				);
-
-				self::con()
-					->db_con
-					->file_locker
-					->getQueryUpdater()
-					->updateRecord( $lock, [
-						'content'       => \base64_encode( $raw ),
-						'public_key_id' => \key( $publicKey ),
-						'cipher'        => $first,
-						'updated_at'    => Services::Request()->ts(),
-					] );
-
-				$changed = true;
-			}
-			catch ( \Exception $e ) {
-				( new DeleteFileLock() )->delete( $lock );
-				$changed = true;
+			if ( $repaired ) {
+				$flCon->clearLocks();
 			}
 		}
+	}
 
-		if ( $changed ) {
-			$conFL->canEncrypt( true );
-			$conFL->clearLocks();
+	private function runLockRepair( FileLockerDB\Record $lock ) :void {
+		$flCon = self::con()->comps->file_locker;
+		try {
+			$cipher = $flCon->getState()[ 'cipher' ];
+			$publicKey = $this->getPublicKey();
+
+			self::con()
+				->db_con
+				->file_locker
+				->getQueryUpdater()
+				->updateRecord( $lock, [
+					'content'       => \base64_encode(
+						( new BuildEncryptedFilePayload() )->fromContent(
+							( new ReadOriginalFileContent() )->run( $lock ),
+							\reset( $publicKey ),
+							$cipher
+						)
+					),
+					'public_key_id' => \key( $publicKey ),
+					'cipher'        => $cipher,
+					'updated_at'    => Services::Request()->ts(),
+				] );
+		}
+		catch ( \Exception $e ) {
+			( new DeleteFileLock() )->delete( $lock );
 		}
 	}
 }
