@@ -5,7 +5,7 @@ export class ToastifyService {
 
 	showMessage( msg, success, options = {} ) {
 		Toastify( ObjectOps.Merge( {
-			className: 'shield-toastify ' + ( success ? 'toastify-success' : 'toastify-failure' ),
+			className: 'apto-toastify ' + ( success ? 'toastify-success' : 'toastify-failure' ),
 			text: msg,
 			duration: 5000,
 			destination: null,

@@ -516,7 +516,7 @@ table.odp-table.scan-table td.column-path code {
 }
 
 /** copied from bootstrap to override WP admin styles */
-.icwpOptionsForm {
+.aptoOptionsForm {
   font-size: 14px;
   padding-top: 10px;
 }
@@ -565,25 +565,25 @@ table.odp-table.scan-table td.column-path code {
   font-size: 12px;
 }
 
-.icwpOptionsForm .tab-content {
+.aptoOptionsForm .tab-content {
   border-top: 0 none;
   padding-top: 14px;
 }
 
-.icwpOptionsForm .option_form_row.row {
+.aptoOptionsForm .option_form_row.row {
   margin-bottom: 10px;
   padding: 10px 0;
 }
 
-.icwpOptionsForm .option-description {
+.aptoOptionsForm .option-description {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.icwpOptionsForm .option-description p {
+.aptoOptionsForm .option-description p {
   margin-bottom: 5px;
 }
 
-.icwpOptionsForm .option_label_name {
+.aptoOptionsForm .option_label_name {
   position: relative;
   /*display: block;*/
 }
@@ -592,7 +592,7 @@ table.odp-table.scan-table td.column-path code {
   width: 14px;
 }
 
-.icwpOptionsForm .option_link_info > .dashicons {
+.aptoOptionsForm .option_link_info > .dashicons {
   font-size: 16px;
   text-decoration: none;
 }
@@ -986,7 +986,7 @@ body.folded #FooterBannerGoPro {
   color: #b7b7b7 !important;
 }
 
-#PageMainBody_Inner-Shield {
+#PageMainBody_Inner-Apto {
   background-color: rgba(251, 251, 251, 1);
   padding: 14px 20px 20px;
   min-height: 800px;
@@ -994,9 +994,9 @@ body.folded #FooterBannerGoPro {
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
 }
 
-#PageMainBody_Inner-Shield p,
-#PageMainBody_Inner-Shield li,
-#PageMainBody_Inner-Shield label {
+#PageMainBody_Inner-Apto p,
+#PageMainBody_Inner-Apto li,
+#PageMainBody_Inner-Apto label {
   font-size: 14px;
 }
 
@@ -1369,30 +1369,30 @@ td.status_file_size {
   background: green !important;
 }
 
-#ShieldOffcanvas .offcanvas-header {
+#AptoOffcanvas .offcanvas-header {
   background-color: white;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-#ShieldOffcanvas .offcanvas-body {
+#AptoOffcanvas .offcanvas-body {
   background-color: #f1f1f1;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-#ShieldOffcanvas.offcanvas_modconfig {
+#AptoOffcanvas.offcanvas_modconfig {
   width: 80%;
 }
 
-#ShieldOffcanvas.offcanvas_meter_analysis {
+#AptoOffcanvas.offcanvas_meter_analysis {
   background-color: #ffffff;
   width: 600px;
 }
 
-#ShieldOffcanvas.offcanvas_ipanalysis {
+#AptoOffcanvas.offcanvas_ipanalysis {
   width: 800px;
 }
 
-#ShieldOffcanvas.offcanvas_form_report_create {
+#AptoOffcanvas.offcanvas_form_report_create {
   width: 800px;
 }
 

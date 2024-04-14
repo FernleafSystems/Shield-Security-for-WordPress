@@ -11,7 +11,7 @@ export class OffCanvasService extends BaseComponent {
 
 	init() {
 		OffCanvasService.canvasTracker = [];
-		OffCanvasService.offCanvasEl = document.getElementById( 'ShieldOffcanvas' ) || false;
+		OffCanvasService.offCanvasEl = document.getElementById( 'AptoOffcanvas' ) || false;
 		this.exec();
 	}
 

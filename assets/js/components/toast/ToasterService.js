@@ -4,7 +4,7 @@ import { Toast } from 'bootstrap';
 export class ToasterService {
 
 	constructor() {
-		let toastDIV = document.getElementById( 'icwpWpsfOptionsToast' );
+		let toastDIV = document.getElementById( 'AptoOptionsToast' );
 
 		this.$toast = $( toastDIV );
 		this.$toast.on( 'hidden.bs.toast', function () {
