@@ -34,7 +34,7 @@ class PageAdminPlugin extends BaseRender {
 
 		return [
 			'classes' => [
-				'page_container' => 'page-insights page-'.$nav
+				'page_container' => 'page-'.$nav
 			],
 			'content' => [
 				'rendered_page_body' => self::con()->action_router->render( $delegateAction::SLUG, [
