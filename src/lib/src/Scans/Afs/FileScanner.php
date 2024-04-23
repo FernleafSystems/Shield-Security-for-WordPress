@@ -3,6 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
+	IsExcludedPhpTranslationFile,
+	IsFileContentExcluded
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,7 +25,8 @@ class FileScanner {
 		$validFile = false;
 		try {
 			$validFile =
-				( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
+				$this->isFileExcludedFromScans( $fullPath )
+				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
 						->setScanActionVO( $action )
 						->isFileValid() )
 				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
@@ -147,5 +152,9 @@ class FileScanner {
 		$item->path_full = wp_normalize_path( $fullPath );
 		$item->path_fragment = \str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
 		return $item;
+	}
+
+	private function isFileExcludedFromScans( string $fullPath ) :bool {
+		return ( new IsFileContentExcluded() )->check( $fullPath ) || ( new IsExcludedPhpTranslationFile() )->check( $fullPath );
 	}
 }
