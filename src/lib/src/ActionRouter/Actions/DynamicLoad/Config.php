@@ -21,7 +21,7 @@ class Config extends Base {
 	}
 
 	protected function getContent() :string {
-		return self::con()->action_router->render( PageConfig::SLUG, $this->action_data );
+		return self::con()->action_router->render( PageConfig::class, $this->action_data );
 	}
 
 	protected function getRequiredDataKeys() :array {

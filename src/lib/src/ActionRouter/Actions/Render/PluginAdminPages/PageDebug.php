@@ -57,7 +57,7 @@ class PageDebug extends BasePluginAdminPage {
 
 		return [
 			'content' => [
-				'recent_events' => $con->action_router->render( DebugRecentEvents::SLUG ),
+				'recent_events' => $con->action_router->render( DebugRecentEvents::class ),
 			],
 			'flags'   => [
 				'display_tests' => !empty( $availableTests ),

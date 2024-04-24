@@ -12,7 +12,7 @@ class MeterAnalysis extends OffCanvasBase {
 	private $meterComponents;
 
 	protected function buildCanvasBody() :string {
-		return self::con()->action_router->render( Analysis::SLUG, [
+		return self::con()->action_router->render( Analysis::class, [
 			'meter_components' => $this->getMeterComponents()
 		] );
 	}

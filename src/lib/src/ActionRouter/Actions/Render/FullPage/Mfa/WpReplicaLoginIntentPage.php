@@ -33,14 +33,14 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 		$con = self::con();
 		return [
 			'content' => [
-				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::SLUG,
+				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::class,
 					\array_merge( $this->action_data, [
 						'title' => __( 'Login 2FA Verification', 'wp-simple-firewall' )
 					] )
 				),
 				'body'   => $this->action_data[ 'include_body' ] ?
-					$con->action_router->render( Components\WpLoginReplicaBody::SLUG, $this->action_data ) : '',
-				'footer' => $con->action_router->render( Components\WpLoginReplicaFooter::SLUG, $this->action_data ),
+					$con->action_router->render( Components\WpLoginReplicaBody::class, $this->action_data ) : '',
+				'footer' => $con->action_router->render( Components\WpLoginReplicaFooter::class, $this->action_data ),
 			]
 		];
 	}

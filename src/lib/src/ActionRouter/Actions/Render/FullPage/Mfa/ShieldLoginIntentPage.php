@@ -27,7 +27,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 			],
 			'content' => [
-				'form' => $con->action_router->render( Components\LoginIntentFormShield::SLUG, $this->action_data ),
+				'form' => $con->action_router->render( Components\LoginIntentFormShield::class, $this->action_data ),
 			],
 			'vars'    => [
 				'inline_js' => [

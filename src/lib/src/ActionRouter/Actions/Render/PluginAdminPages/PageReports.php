@@ -82,7 +82,7 @@ class PageReports extends BasePluginAdminPage {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
 			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$content = [
-					'create_report' => $AR->render( Reports\PageReportsView::SLUG ),
+					'create_report' => $AR->render( Reports\PageReportsView::class ),
 				];
 				break;
 			default:

@@ -26,7 +26,7 @@ class ScansCheck extends ScansBase {
 			'success' => true,
 			'running' => $scansQueueCon->getScansRunningStates(),
 			'vars'    => [
-				'progress_html' => self::con()->action_router->render( ScansProgress::SLUG, [
+				'progress_html' => self::con()->action_router->render( ScansProgress::class, [
 					'current_scan'    => $currentScan,
 					'remaining_scans' => $running === 0 ?
 						__( 'No scans remaining.', 'wp-simple-firewall' )

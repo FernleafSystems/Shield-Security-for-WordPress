@@ -89,11 +89,11 @@ class PageScansResults extends PageScansBase {
 		return [
 			'content'     => [
 				'section' => [
-					'plugins'    => $con->action_router->render( Plugins::SLUG ),
-					'themes'     => $con->action_router->render( Themes::SLUG ),
-					'wordpress'  => $con->action_router->render( Wordpress::SLUG ),
-					'malware'    => $con->action_router->render( Malware::SLUG ),
-					'filelocker' => $con->action_router->render( FileLocker::SLUG ),
+					'plugins'    => $con->action_router->render( Plugins::class ),
+					'themes'     => $con->action_router->render( Themes::class ),
+					'wordpress'  => $con->action_router->render( Wordpress::class ),
+					'malware'    => $con->action_router->render( Malware::class ),
+					'filelocker' => $con->action_router->render( FileLocker::class ),
 					'logs'       => 'logs todo',
 				]
 			],
