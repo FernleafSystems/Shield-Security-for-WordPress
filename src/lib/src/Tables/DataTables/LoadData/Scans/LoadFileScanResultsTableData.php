@@ -305,6 +305,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$meta[] = \sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 				$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )->diffForHumans()
 			);
+			if ( $this->isOldWpCoreFile( $item ) ) {
+				$meta[] = __( 'Obsolete WP core file', 'wp-simple-firewall' );
+			}
 		}
 		elseif ( $item->VO->item_deleted_at > 0 ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Deleted', 'wp-simple-firewall' ),
@@ -331,6 +334,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		return $content;
+	}
+
+	private function isOldWpCoreFile( ResultItem $item ) :bool {
+		$coreFile = path_join( ABSPATH, 'wp-admin/includes/update-core.php' );
+		if ( Services::WpFs()->isAccessibleFile( $coreFile ) ) {
+			include_once $coreFile;
+		}
+		global $_old_files;
+		return \is_array( $_old_files ) && \in_array( $item->path_fragment, $_old_files, true );
 	}
 
 	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
