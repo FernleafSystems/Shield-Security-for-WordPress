@@ -54,27 +54,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		try {
-			$files = \array_filter( \array_map(
+			$files = \array_map(
 				function ( ResultItem $item ) {
-					$displayOptions = self::con()->opts->optGet( 'scan_results_table_display' );
-
-					$display = $item->VO->item_deleted_at === 0 && $item->VO->item_repaired_at === 0 && $item->VO->ignored_at === 0;
-					if ( !$display ) {
-						if ( $item->VO->item_deleted_at > 0 && \in_array( 'include_deleted', $displayOptions ) ) {
-							$display = true;
-						}
-						if ( $item->VO->item_repaired_at > 0 && \in_array( 'include_repaired', $displayOptions ) ) {
-							$display = true;
-						}
-						if ( $item->VO->ignored_at > 0 && \in_array( 'include_ignored', $displayOptions ) ) {
-							$display = true;
-						}
-					}
-
-					return $display ? $this->getDataFromItem( $item ) : null;
+					return $this->getDataFromItem( $item );
 				},
 				$results->getItems()
-			) );
+			);
 		}
 		catch ( \Exception $e ) {
 			$files = [];
@@ -320,6 +305,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$meta[] = \sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 				$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )->diffForHumans()
 			);
+			if ( $this->isOldWpCoreFile( $item ) ) {
+				$meta[] = __( 'Obsolete WP core file', 'wp-simple-firewall' );
+			}
 		}
 		elseif ( $item->VO->item_deleted_at > 0 ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Deleted', 'wp-simple-firewall' ),
@@ -346,6 +334,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		return $content;
+	}
+
+	private function isOldWpCoreFile( ResultItem $item ) :bool {
+		$coreFile = path_join( ABSPATH, 'wp-admin/includes/update-core.php' );
+		if ( Services::WpFs()->isAccessibleFile( $coreFile ) ) {
+			include_once $coreFile;
+		}
+		global $_old_files;
+		return \is_array( $_old_files ) && \in_array( $item->path_fragment, $_old_files, true );
 	}
 
 	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {

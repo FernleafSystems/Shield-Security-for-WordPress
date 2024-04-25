@@ -62,7 +62,7 @@ td.message {
 	min-width: 200px !important;
 	max-width: 400px !important;
 }
-#PageMainBody_Inner-Shield td.message > p {
+#PageMainBody_Inner-Apto td.message > p {
 	font-size: 12px;
 	overflow: auto;
 	max-height: 100px;

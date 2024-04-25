@@ -60,16 +60,6 @@ class PluginNavs {
 		return self::GetNav() === $nav && self::GetSubNav() === $subNav;
 	}
 
-	public static function GetAllNavs() :array {
-		$cons = ( new \ReflectionClass( __CLASS__ ) )->getConstants();
-		return \array_intersect_key( $cons, \array_flip( \array_filter(
-			\array_keys( $cons ),
-			function ( string $nav ) {
-				return \strpos( $nav, 'NAV_' ) === 0;
-			}
-		) ) );
-	}
-
 	/**
 	 * Handle special case for Config, so we ensure plugin general config is always default.
 	 */

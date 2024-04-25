@@ -35,11 +35,13 @@ class RetrieveItems extends RetrieveBase {
 			switch ( $context ) {
 
 				case self::CONTEXT_RESULTS_TABLE:
-					$specificWheres = [
-//						"`ri`.`item_repaired_at`=0",
-//						"`ri`.`item_deleted_at`=0",
-//						"`ri`.`ignored_at`=0"
-					];
+					$includes = self::con()->opts->optGet( 'scan_results_table_display' );
+					$specificWheres = \array_keys( \array_filter( [
+						"`ri`.`auto_filtered_at`=0" => true,
+						"`ri`.`ignored_at`=0"       => !\in_array( 'include_ignored', $includes ),
+						"`ri`.`item_repaired_at`=0" => !\in_array( 'include_repaired', $includes ),
+						"`ri`.`item_deleted_at`=0"  => !\in_array( 'include_deleted', $includes ),
+					] ) );
 					break;
 
 				case self::CONTEXT_AUTOREPAIR:

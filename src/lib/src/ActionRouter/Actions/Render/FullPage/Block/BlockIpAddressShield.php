@@ -82,6 +82,6 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function renderEmailMagicLinkContent() :string {
-		return self::con()->action_router->render( Components\MagicLink::SLUG );
+		return self::con()->action_router->render( Components\MagicLink::class );
 	}
 }

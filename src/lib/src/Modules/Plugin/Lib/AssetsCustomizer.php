@@ -33,11 +33,6 @@ class AssetsCustomizer {
 
 	private $handles = [];
 
-	/**
-	 * @var ?array
-	 */
-	private $components = null;
-
 	protected function canRun() :bool {
 		return !Services::WpGeneral()->isAjax();
 	}

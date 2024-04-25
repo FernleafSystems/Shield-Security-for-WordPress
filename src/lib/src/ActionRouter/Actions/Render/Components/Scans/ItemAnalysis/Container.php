@@ -16,19 +16,19 @@ class Container extends Base {
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
 			'content' => [
-				'tab_info'         => $con->action_router->render( Info::SLUG, [
+				'tab_info'         => $con->action_router->render( Info::class, [
 					'scan_item' => $item
 				] ),
-				'tab_history'      => $con->action_router->render( History::SLUG, [
+				'tab_history'      => $con->action_router->render( History::class, [
 					'scan_item' => $item
 				] ),
-				'tab_filecontents' => $con->action_router->render( Content::SLUG, [
+				'tab_filecontents' => $con->action_router->render( Content::class, [
 					'scan_item' => $item
 				] ),
-				'tab_diff'         => $con->action_router->render( Diff::SLUG, [
+				'tab_diff'         => $con->action_router->render( Diff::class, [
 					'scan_item' => $item
 				] ),
-				'tab_malai'        => $con->action_router->render( Malai::SLUG, [
+				'tab_malai'        => $con->action_router->render( Malai::class, [
 					'scan_item' => $item
 				] ),
 			],
