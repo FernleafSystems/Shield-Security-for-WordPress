@@ -8,6 +8,6 @@ export class ShieldServicesPlugin extends BaseService {
 	}
 
 	container_ShieldPage() {
-		return document.getElementById( 'PageContainer-Shield' ) || false;
+		return document.getElementById( 'PageContainer-Apto' ) || false;
 	}
 }

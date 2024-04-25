@@ -54,6 +54,40 @@
     ],
     "patches":     [
       {
+        "version":     "8",
+        "released_at": 1714037000,
+        "items":       [
+          {
+            "title": "Attempt to automatically identify PHP-based translation files to prevent excess noise scan results.",
+            "type":  "improved"
+          },
+          {
+            "title": "Attempt to identify obsolete core WordPress files which weren't properly delete during a recent upgrade, and detail this in scan results table.",
+            "type":  "improved"
+          },
+          {
+            "title": "Bug: Scan results show a number of files results exists, but actual results table is empty.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug: Upgrade process for FileLocker records improved.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Mitigate potential fatal error during scan.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Fix for automatic self-update.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Update assets used by the plugin.",
+            "type":  "improved"
+          }
+        ]
+      },
+      {
         "version":     "6",
         "released_at": 1711724000,
         "items":       [
