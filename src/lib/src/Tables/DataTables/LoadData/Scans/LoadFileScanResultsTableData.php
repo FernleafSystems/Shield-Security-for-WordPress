@@ -54,27 +54,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		try {
-			$files = \array_filter( \array_map(
+			$files = \array_map(
 				function ( ResultItem $item ) {
-					$displayOptions = self::con()->opts->optGet( 'scan_results_table_display' );
-
-					$display = $item->VO->item_deleted_at === 0 && $item->VO->item_repaired_at === 0 && $item->VO->ignored_at === 0;
-					if ( !$display ) {
-						if ( $item->VO->item_deleted_at > 0 && \in_array( 'include_deleted', $displayOptions ) ) {
-							$display = true;
-						}
-						if ( $item->VO->item_repaired_at > 0 && \in_array( 'include_repaired', $displayOptions ) ) {
-							$display = true;
-						}
-						if ( $item->VO->ignored_at > 0 && \in_array( 'include_ignored', $displayOptions ) ) {
-							$display = true;
-						}
-					}
-
-					return $display ? $this->getDataFromItem( $item ) : null;
+					return $this->getDataFromItem( $item );
 				},
 				$results->getItems()
-			) );
+			);
 		}
 		catch ( \Exception $e ) {
 			$files = [];
