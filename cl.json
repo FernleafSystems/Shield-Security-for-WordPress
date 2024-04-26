@@ -14,7 +14,7 @@
         "type":        "new",
         "title":       "Instant Alerts",
         "description": [
-          "You can now configure Shield to send you instant alert notification for important events. (more events to follow)"
+          "You can now configure Shield to send you instant alert notifications for important events. (more events to follow)"
         ],
         "href":        ""
       },
@@ -55,18 +55,18 @@
     "patches":     [
       {
         "version":     "8",
-        "released_at": 1714037000,
+        "released_at": 1714123000,
         "items":       [
           {
-            "title": "Attempt to automatically identify PHP-based translation files to prevent excess noise scan results.",
+            "title": "Attempt to automatically detect PHP-based translation files to prevent noisy scan results.",
             "type":  "improved"
           },
           {
-            "title": "Attempt to identify obsolete core WordPress files which weren't properly delete during a recent upgrade, and detail this in scan results table.",
+            "title": "Attempt to identify obsolete core WordPress files which weren't properly deleted during recent upgrades, and detail this in scan results table.",
             "type":  "improved"
           },
           {
-            "title": "Bug: Scan results show a number of files results exists, but actual results table is empty.",
+            "title": "Bug: Scan results show a number of file results exists, but actual results table is empty.",
             "type":  "fixed"
           },
           {
