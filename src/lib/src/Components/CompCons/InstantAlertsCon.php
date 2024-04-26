@@ -47,15 +47,17 @@ class InstantAlertsCon {
 		$alertsData = $this->getAlertsData();
 		$this->setAlertsData( [] );
 		foreach ( $alertsData as $handlerClass => $alertGroupData ) {
-			foreach ( $this->getAlertHandlers() as $handler ) {
-				if ( \is_a( $handler, $handlerClass ) ) {
-					self::con()->email_con->sendVO(
-						EmailVO::Factory(
-							self::con()->comps->opts_lookup->getReportEmail(),
-							sprintf( '%s: %s', __( 'Alert', 'wp-simple-firewall' ), $handler->alertTitle() ),
-							self::con()->action_router->render( $handler->alertAction(), [ 'alert_data' => $alertGroupData ] )
-						)
-					);
+			if ( !empty( $alertGroupData ) ) {
+				foreach ( $this->getAlertHandlers() as $handler ) {
+					if ( \is_a( $handler, $handlerClass ) ) {
+						self::con()->email_con->sendVO(
+							EmailVO::Factory(
+								self::con()->comps->opts_lookup->getReportEmail(),
+								sprintf( '%s: %s', __( 'Alert', 'wp-simple-firewall' ), $handler->alertTitle() ),
+								self::con()->action_router->render( $handler->alertAction(), [ 'alert_data' => $alertGroupData ] )
+							)
+						);
+					}
 				}
 			}
 		}
@@ -81,7 +83,7 @@ class InstantAlertsCon {
 		foreach ( $alertGroupData as $type => $alertGroupDatum ) {
 			$dataForHandler[ $type ] = \array_unique( \array_merge( $dataForHandler[ $type ] ?? [], $alertGroupDatum ) );
 		}
-		$dataForHandler = \array_intersect_key( $dataForHandler, \array_flip( $handler->alertDataKeys() ) );
+		$dataForHandler = \array_filter( \array_intersect_key( $dataForHandler, \array_flip( $handler->alertDataKeys() ) ) );
 
 		$this->setAlertsData( \array_merge( $this->getAlertsData(), [ \get_class( $handler ) => $dataForHandler ] ) );
 
