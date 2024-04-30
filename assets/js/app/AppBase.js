@@ -1,6 +1,4 @@
 import { BaseAutoExecComponent } from "../components/BaseAutoExecComponent";
-import { OffCanvasService } from "../components/ui/OffCanvasService";
-import { BootstrapTooltips } from "../components/ui/BootstrapTooltips";
 
 export class AppBase extends BaseAutoExecComponent {
 
