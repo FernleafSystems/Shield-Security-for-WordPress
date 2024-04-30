@@ -54,8 +54,8 @@
     ],
     "patches":     [
       {
-        "version":     "8",
-        "released_at": 1714123000,
+        "version":     "9",
+        "released_at": 1714470000,
         "items":       [
           {
             "title": "Attempt to automatically detect PHP-based translation files to prevent noisy scan results.",
