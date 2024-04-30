@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Diff;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
 
 class ScansFileLockerDiff extends BaseScans {
 
@@ -85,14 +85,10 @@ class ScansFileLockerDiff extends BaseScans {
 			$data[ 'vars' ][ 'file_modified_ago' ] =
 				$carb->setTimestamp( $FS->getModifiedTime( $lock->path ) )->diffForHumans();
 			$data[ 'vars' ][ 'change_detected_at' ] = $carb->setTimestamp( $lock->detected_at )->diffForHumans();
-			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->path ) ?
-				FormatBytes::Format( $FS->getFileSize( $lock->path ), 3 )
-				: 0;
+			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->path ) ? FormatBytes::Format( $FS->getFileSize( $lock->path ), 3 ) : 0;
 			$data[ 'vars' ][ 'file_name' ] = \basename( $lock->path );
 
-			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( \strlen(
-				( new FileLocker\Ops\ReadOriginalFileContent() )->run( $lock ) // potential exception
-			), 3 );
+			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( \strlen( ( new FileLocker\Ops\ReadOriginalFileContent() )->run( $lock ) ), 3 );
 
 			$data[ 'success' ] = true;
 		}

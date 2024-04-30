@@ -13,7 +13,7 @@ class WpLoginReplicaBody extends Base {
 		$errorMsg = $this->action_data[ 'msg_error' ] ?? '';
 		return [
 			'content' => [
-				'form' => self::con()->action_router->render( LoginIntentFormWpReplica::SLUG, $this->action_data ),
+				'form' => self::con()->action_router->render( LoginIntentFormWpReplica::class, $this->action_data ),
 			],
 			'flags'   => [
 				'has_error_msg'    => !empty( $errorMsg ),

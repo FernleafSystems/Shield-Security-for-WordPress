@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
 	RetrieveCount,
 	RetrieveItems
@@ -11,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
@@ -54,27 +54,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		try {
-			$files = \array_filter( \array_map(
+			$files = \array_map(
 				function ( ResultItem $item ) {
-					$displayOptions = self::con()->opts->optGet( 'scan_results_table_display' );
-
-					$display = $item->VO->item_deleted_at === 0 && $item->VO->item_repaired_at === 0 && $item->VO->ignored_at === 0;
-					if ( !$display ) {
-						if ( $item->VO->item_deleted_at > 0 && \in_array( 'include_deleted', $displayOptions ) ) {
-							$display = true;
-						}
-						if ( $item->VO->item_repaired_at > 0 && \in_array( 'include_repaired', $displayOptions ) ) {
-							$display = true;
-						}
-						if ( $item->VO->ignored_at > 0 && \in_array( 'include_ignored', $displayOptions ) ) {
-							$display = true;
-						}
-					}
-
-					return $display ? $this->getDataFromItem( $item ) : null;
+					return $this->getDataFromItem( $item );
 				},
 				$results->getItems()
-			) );
+			);
 		}
 		catch ( \Exception $e ) {
 			$files = [];
@@ -224,8 +209,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function column_fileSize( ResultItem $item ) :string {
 		$FS = Services::WpFs();
-		return $FS->isAccessibleFile( $item->path_full ) ?
-			FormatBytes::Format( $FS->getFileSize( $item->path_full ) ) : '-';
+		return $FS->isAccessibleFile( $item->path_full ) ? FormatBytes::Format( $FS->getFileSize( $item->path_full ) ) : '-';
 	}
 
 	protected function column_fileType( ResultItem $item ) :string {
@@ -321,6 +305,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$meta[] = \sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 				$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )->diffForHumans()
 			);
+			if ( $this->isOldWpCoreFile( $item ) ) {
+				$meta[] = __( 'Obsolete WP core file', 'wp-simple-firewall' );
+			}
 		}
 		elseif ( $item->VO->item_deleted_at > 0 ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Deleted', 'wp-simple-firewall' ),
@@ -347,6 +334,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		return $content;
+	}
+
+	private function isOldWpCoreFile( ResultItem $item ) :bool {
+		$coreFile = path_join( ABSPATH, 'wp-admin/includes/update-core.php' );
+		if ( Services::WpFs()->isAccessibleFile( $coreFile ) ) {
+			include_once $coreFile;
+		}
+		global $_old_files;
+		return \is_array( $_old_files ) && \in_array( $item->path_fragment, $_old_files, true );
 	}
 
 	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {

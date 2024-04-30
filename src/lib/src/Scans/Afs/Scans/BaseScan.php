@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions\{
 	WpRootFileUnidentifiedException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFileContentExcluded;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFilePathExcluded;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 
@@ -85,8 +84,7 @@ abstract class BaseScan {
 	}
 
 	protected function isFileExcluded() :bool {
-		return ( new IsFilePathExcluded() )->check( $this->pathFull, $this->getPathExcludes() )
-			   || ( new IsFileContentExcluded() )->check( $this->pathFull );
+		return ( new IsFilePathExcluded() )->check( $this->pathFull, $this->getPathExcludes() );
 	}
 
 	protected function getPathExcludes() :array {

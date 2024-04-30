@@ -50,13 +50,13 @@ class ExtensionPageContainer extends BaseMWP {
 		$con = self::con();
 
 		if ( !$con->isPremiumActive() ) {
-			$bodyToRender = NotShieldPro::SLUG;
+			$bodyToRender = NotShieldPro::class;
 		}
 		elseif ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
-			$bodyToRender = ShieldOutOfDate::SLUG;
+			$bodyToRender = ShieldOutOfDate::class;
 		}
 		elseif ( !Controller::isMainWPServerVersionSupported() ) {
-			$bodyToRender = MwpOutOfDate::SLUG;
+			$bodyToRender = MwpOutOfDate::class;
 		}
 		else {
 			$bodyToRender = $this->enumPages()[ $this->action_data[ 'current_tab' ] ] ?? null;

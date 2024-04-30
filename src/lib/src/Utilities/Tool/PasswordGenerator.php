@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
+/**
+ * @deprecated 19.1
+ */
 class PasswordGenerator {
 
 	public static function Gen(

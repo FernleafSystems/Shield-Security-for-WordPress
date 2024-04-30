@@ -13,7 +13,7 @@ class Config extends Base {
 		return self::con()->plugin_urls->modCfg( $this->action_data[ 'mod_slug' ] );
 	}
 
-	protected function getPageTitle() :string {#
+	protected function getPageTitle() :string {
 		return sprintf( '%s > %s',
 			__( 'Configuration', 'wp-simple-firewall' ),
 			( new StringsModules() )->getFor( $this->action_data[ 'mod_slug' ] )[ 'name' ]
@@ -21,7 +21,7 @@ class Config extends Base {
 	}
 
 	protected function getContent() :string {
-		return self::con()->action_router->render( PageConfig::SLUG, $this->action_data );
+		return self::con()->action_router->render( PageConfig::class, $this->action_data );
 	}
 
 	protected function getRequiredDataKeys() :array {

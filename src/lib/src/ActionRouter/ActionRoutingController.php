@@ -18,7 +18,7 @@ class ActionRoutingController {
 
 	protected function run() {
 		( new CaptureRedirects() )->run();
-		( new CaptureShieldAction() )->execute();
+		( new CapturePluginAction() )->execute();
 		( new CaptureAjaxAction() )->execute();
 		( new CaptureRestApiAction() )->execute();
 	}

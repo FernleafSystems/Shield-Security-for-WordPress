@@ -2,10 +2,10 @@
 {% endblock %}
 
 {% block top_container %}
-	<div id="PageContainer-Shield" class="container-fluid g-2 {{ classes.top_container|default('') }}">
+	<div id="PageContainer-Apto" class="container-fluid g-2 {{ classes.top_container|default('') }}">
 		{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
 		{% block body %}
-			<div class="row" id="PageHead-Shield">
+			<div class="row" id="PageHead-Apto">
 				<div class="col">
 					{% block page_head %}Override this block for the header area{% endblock %}
 				</div>
@@ -13,7 +13,7 @@
 
 			<div class="d-flex flex-row justify-content-start" id="PageMain-Shield">
 				{% if flags.show_sidebar_nav|default(true) %}
-					<div id="PageMainSide-Shield" class="d-flex flex-column">
+					<div id="PageMainSide-Apto" class="d-flex flex-column">
 
 						{% include '/wpadmin/components/page/logo_sidebar.twig' %}
 						{% include '/wpadmin/components/search/super_search.twig' %}
@@ -24,7 +24,7 @@
 					</div>
 				{% endif %}
 
-				<div id="PageMainBody_Inner-Shield" class="mt-2 flex-fill" >
+				<div id="PageMainBody_Inner-Apto" class="mt-2 flex-fill" >
 					<div class="row row-cols-1">
 						<div class="col">
 							{% block page_main %}

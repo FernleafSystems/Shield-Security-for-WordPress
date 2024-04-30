@@ -54,17 +54,20 @@ class AlertHandlerAdmins extends AlertHandlerBase {
 
 							foreach ( $diff->changed as $change ) {
 								if ( isset( $change[ 'old' ] ) && isset( $change[ 'new' ] ) ) {
-									$diff = \array_diff( $change[ 'old' ], $change[ 'new' ] );
-									foreach ( [ 'user_pass', 'user_email' ] as $type ) {
-										if ( isset( $diff[ $type ] ) ) {
+
+									if ( $change[ 'old' ][ 'is_admin' ] || $change[ 'new' ][ 'is_admin' ] ) {
+										$diff = \array_diff( $change[ 'old' ], $change[ 'new' ] );
+										foreach ( [ 'user_pass', 'user_email' ] as $type ) {
+											if ( isset( $diff[ $type ] ) ) {
+												$data[ $type ] = \array_merge( $data[ $type ] ?? [], [ $change[ 'new' ][ 'user_login' ] ] );
+											}
+										}
+
+										// admin has been demoted or promoted
+										if ( isset( $diff[ 'is_admin' ] ) ) {
+											$type = $change[ 'new' ][ 'is_admin' ] ? 'promoted' : 'demoted';
 											$data[ $type ] = \array_merge( $data[ $type ] ?? [], [ $change[ 'new' ][ 'user_login' ] ] );
 										}
-									}
-
-									// admin has been demoted or promoted
-									if ( isset( $diff[ 'is_admin' ] ) ) {
-										$type = $change[ 'new' ][ 'is_admin' ] ? 'promoted' : 'demoted';
-										$data[ $type ] = \array_merge( $data[ $type ] ?? [], [ $change[ 'new' ][ 'user_login' ] ] );
 									}
 								}
 							}

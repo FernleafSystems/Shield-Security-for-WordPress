@@ -44,91 +44,6 @@ body.rtl {
   padding: 0;
 }
 
-.pluginlogo_16 {
-  background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
-}
-
-.footer-form-actions {
-  background: rgba(0, 0, 0, 0.1);
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  height: 70px;
-  width: 100%;
-  z-index: 100;
-  text-align: center;
-}
-
-.footer-form-actions .row > div {
-  background-color: transparent; /*#d8d8d8;*/
-}
-
-.footer-form-actions .btn {
-  display: inline-block;
-  margin-top: 10px;
-}
-
-.footer-form-actions .btn {
-  box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.3);
-  opacity: 0.85;
-}
-
-.footer-form-actions .btn:hover {
-  box-shadow: none;
-  opacity: 1;
-}
-
-#ColumnOptions form {
-  margin-bottom: 50px;
-}
-
-.row.option_section_row {
-  margin-left: 0;
-  padding-bottom: 24px;
-}
-
-.submit span {
-  font-size: smaller;
-  font-style: italic;
-}
-
-.option_section {
-  background-color: transparent;
-  border: 1px dashed transparent;
-  border-radius: 4px;
-  padding: 8px 10px;
-}
-
-.option_section input,
-.option_section select,
-.option_section textarea {
-  width: 100%;
-}
-
-.option_section label {
-  background-color: transparent;
-  width: 100%;
-}
-
-.nonselected_item {
-  background-color: transparent;
-}
-
-.nonselected_item label {
-  font-weight: normal;
-}
-
-.option_section:hover {
-  background-color: #ffffff;
-  border: 1px dashed #bbbbbb;
-}
-
-/** OPTIONS PAGES **/
-label input[type=checkbox] {
-  height: 16px !important;
-}
-
-/** NEW FORMS **/
 #wpwrap {
   background-color: #f1f1f1;
 }
@@ -138,33 +53,18 @@ label input[type=checkbox] {
   background-color: #f1f1f1;
 }
 
-#ModulePageTopRow {
-  min-width: 760px; /** prevents col breaking **/
+.pluginlogo_16 {
+  background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
 
-#ColumnModules {
-  width: 200px;
-  margin-left: 15px;
-  margin-top: 8px;
+.submit span {
+  font-size: smaller;
+  font-style: italic;
 }
 
-#ColumnOptions {
-  min-width: 590px; /** prevents col breaking **/
-  margin-bottom: 45px; /** acount for fix save button **/
-}
-
-.module-headline {
-  font-size: 14px;
-  padding: 14px 16px 10px;
-}
-
-.headline-title {
-  font-variant: small-caps;
-}
-
-.module-tagline {
-  font-size: 14px;
-  display: block;
+/** OPTIONS PAGES **/
+label input[type=checkbox] {
+  height: 16px !important;
 }
 
 .modules a.module {
@@ -176,9 +76,6 @@ label input[type=checkbox] {
   padding: 10px 0 0 0;
   color: #222222;
   font-size: 16px;
-}
-
-.modules a.module:first-child {
 }
 
 .modules a.module:hover,
@@ -219,10 +116,6 @@ label input[type=checkbox] {
   font-size: 14px;
 }
 
-.form-label-inner {
-  padding-left: 10px;
-}
-
 .carousel-item {
   transition: -webkit-transform 0.3s ease;
   transition: transform 0.2s ease, -webkit-transform 0.2s ease;
@@ -258,27 +151,27 @@ label input[type=checkbox] {
 }
 
 /* TABLES */
-#PageContainer-Shield .card {
+#PageContainer-Apto .card {
   box-shadow: none;
   margin-top: 0;
   max-width: none;
   padding: 0;
 }
 
-.page-insights #PageHead-Shield {
+#PageHead-Apto {
   top: 40px;
   z-index: 3;
 }
 
-#PageHead-Shield .navbar {
+#PageHead-Apto .navbar {
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-#PageHead-Shield .nav-link {
+#PageHead-Apto .nav-link {
   color: #343434;
 }
 
-#PageHead-Shield .nav-link.active {
+#PageHead-Apto .nav-link.active {
   font-weight: bold;
   color: #008000;
 }
@@ -516,7 +409,7 @@ table.odp-table.scan-table td.column-path code {
 }
 
 /** copied from bootstrap to override WP admin styles */
-.icwpOptionsForm {
+.aptoOptionsForm {
   font-size: 14px;
   padding-top: 10px;
 }
@@ -565,25 +458,25 @@ table.odp-table.scan-table td.column-path code {
   font-size: 12px;
 }
 
-.icwpOptionsForm .tab-content {
+.aptoOptionsForm .tab-content {
   border-top: 0 none;
   padding-top: 14px;
 }
 
-.icwpOptionsForm .option_form_row.row {
+.aptoOptionsForm .option_form_row.row {
   margin-bottom: 10px;
   padding: 10px 0;
 }
 
-.icwpOptionsForm .option-description {
+.aptoOptionsForm .option-description {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.icwpOptionsForm .option-description p {
+.aptoOptionsForm .option-description p {
   margin-bottom: 5px;
 }
 
-.icwpOptionsForm .option_label_name {
+.aptoOptionsForm .option_label_name {
   position: relative;
   /*display: block;*/
 }
@@ -592,7 +485,7 @@ table.odp-table.scan-table td.column-path code {
   width: 14px;
 }
 
-.icwpOptionsForm .option_link_info > .dashicons {
+.aptoOptionsForm .option_link_info > .dashicons {
   font-size: 16px;
   text-decoration: none;
 }
@@ -727,7 +620,7 @@ dl.pro-features dd {
   padding: 1.25rem;
 }
 
-#PageContainer-Shield .overview.card {
+#PageContainer-Apto .overview.card {
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -970,23 +863,23 @@ body.folded #FooterBannerGoPro {
   background-color: #f1f1f1;
 }
 
-#PageMainSide-Shield {
+#PageMainSide-Apto {
   background-color: transparent;
   border: 0 none;
   min-width: 200px;
   width: 200px;
 }
 
-#PageMainSide-Shield > .logo-container {
+#PageMainSide-Apto > .logo-container {
   padding: 5px 20px 8px;
 }
 
-#PageMainSide-Shield .nav-link.disabled {
+#PageMainSide-Apto .nav-link.disabled {
   opacity: 0.4 !important;
   color: #b7b7b7 !important;
 }
 
-#PageMainBody_Inner-Shield {
+#PageMainBody_Inner-Apto {
   background-color: rgba(251, 251, 251, 1);
   padding: 14px 20px 20px;
   min-height: 800px;
@@ -994,9 +887,9 @@ body.folded #FooterBannerGoPro {
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
 }
 
-#PageMainBody_Inner-Shield p,
-#PageMainBody_Inner-Shield li,
-#PageMainBody_Inner-Shield label {
+#PageMainBody_Inner-Apto p,
+#PageMainBody_Inner-Apto li,
+#PageMainBody_Inner-Apto label {
   font-size: 14px;
 }
 
@@ -1203,14 +1096,6 @@ body.folded #FooterBannerGoPro {
   background-color: rgba(0, 128, 0, 0.3);
 }
 
-.ui-dialog-titlebar .ui-dialog-titlebar-close {
-  float: right;
-}
-
-button.bs-placeholder {
-  display: none;
-}
-
 #ShieldProgressMeterOffcanvas {
   width: 600px;
 }
@@ -1223,18 +1108,18 @@ button.bs-placeholder {
   padding: 0;
 }
 
-#ShieldGeneralPurposeDialog {
+#AptoGeneralPurposeDialog {
   z-index: 99999; /** Above WP admin bar **/
 }
 
-#ShieldGeneralPurposeDialog .card {
+#AptoGeneralPurposeDialog .card {
   max-width: none;
   padding: 0;
   margin: 0;
   border: 0 none;
 }
 
-#ShieldGeneralPurposeDialog .card-header {
+#AptoGeneralPurposeDialog .card-header {
   background: transparent;
 }
 
@@ -1293,29 +1178,6 @@ td.status_file_size {
   max-width: 60px;
 }
 
-#apto-PageHeader {
-  border-top: 3px solid #008000;
-  border-bottom: 1px solid #008000;
-  padding: 5px 0;
-  margin-left: -20px;
-  background: #ffffff;
-}
-
-#apto-PageHeader .page-header-item {
-  margin: 0 6px;
-}
-
-#apto-PageHeader .page-header-icon {
-  border-radius: 50px;
-}
-
-#apto-PageHeader .page-header-icon > svg {
-  width: 24px;
-  height: 24px;
-  color: #008000;
-  margin: 3px;
-}
-
 #SuperSearchLaunch > input {
   border: 2px solid rgba(0, 128, 0, 0.1);
   cursor: pointer;
@@ -1369,30 +1231,30 @@ td.status_file_size {
   background: green !important;
 }
 
-#ShieldOffcanvas .offcanvas-header {
+#AptoOffcanvas .offcanvas-header {
   background-color: white;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-#ShieldOffcanvas .offcanvas-body {
+#AptoOffcanvas .offcanvas-body {
   background-color: #f1f1f1;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-#ShieldOffcanvas.offcanvas_modconfig {
+#AptoOffcanvas.offcanvas_modconfig {
   width: 80%;
 }
 
-#ShieldOffcanvas.offcanvas_meter_analysis {
+#AptoOffcanvas.offcanvas_meter_analysis {
   background-color: #ffffff;
   width: 600px;
 }
 
-#ShieldOffcanvas.offcanvas_ipanalysis {
+#AptoOffcanvas.offcanvas_ipanalysis {
   width: 800px;
 }
 
-#ShieldOffcanvas.offcanvas_form_report_create {
+#AptoOffcanvas.offcanvas_form_report_create {
   width: 800px;
 }
 
@@ -1456,16 +1318,16 @@ td.status_file_size {
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.4);
 }
 
-.shield-top_page_warning.bg-danger,
-.shield-top_page_warning.bg-danger a {
+.apto-top_page_warning.bg-danger,
+.apto-top_page_warning.bg-danger a {
   color: white;
 }
 
-.shield-top_page_warning {
+.apto-top_page_warning {
   text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
 }
 
-.shield-top_page_warning a {
+.apto-top_page_warning a {
   font-weight: bolder;
 }
 

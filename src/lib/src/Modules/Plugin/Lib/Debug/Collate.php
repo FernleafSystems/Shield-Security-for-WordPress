@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Utility\
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses;
 
@@ -52,17 +52,20 @@ class Collate {
 
 		$sig = $req->server( 'SERVER_SIGNATURE' );
 		$soft = $req->server( 'SERVER_SOFTWARE' );
-		$aIPs = $srvIP->getServerPublicIPs();
+		$IPs = $srvIP->getServerPublicIPs();
 		$rDNS = '';
-		foreach ( $aIPs as $ip ) {
+		foreach ( $IPs as $ip ) {
 			if ( $srvIP->getIpVersion( $ip ) === 4 ) {
 				$rDNS = \gethostbyaddr( $ip );
 				break;
 			}
 		}
 
-		$totalDisk = \function_exists( '\disk_total_space' ) ? \disk_total_space( ABSPATH ) : '-';
-		$freeDisk = \function_exists( '\disk_free_space' ) ? \disk_free_space( ABSPATH ) : '-';
+		$totalDisk = \function_exists( '\disk_total_space' ) ?
+			( \disk_total_space( ABSPATH ) === false ? '-' : (int)\disk_total_space( ABSPATH ) ) : '-';
+		$freeDisk = \function_exists( '\disk_free_space' ) ?
+			( \disk_free_space( ABSPATH ) === false ? '-' : (int)\disk_free_space( ABSPATH ) ) : '-';
+
 		try {
 			$diff = ( new WorldTimeApi() )->diffServerWithReal();
 		}
@@ -74,7 +77,7 @@ class Collate {
 			'Host OS'                => \PHP_OS,
 			'Server Hostname'        => \gethostname(),
 			'Server Time Difference' => $diff,
-			'Server IPs'             => \implode( ', ', $aIPs ),
+			'Server IPs'             => \implode( ', ', $IPs ),
 			'CloudFlare'             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
 			'rDNS'                   => empty( $rDNS ) ? '-' : $rDNS,
 			'Server Name'            => $req->server( 'SERVER_NAME' ),

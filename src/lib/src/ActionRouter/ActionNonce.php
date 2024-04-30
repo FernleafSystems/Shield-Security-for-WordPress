@@ -2,26 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ActionsMap;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActionNonce {
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction|string $action
-	 * @return string
+	 * @param Actions\BaseAction|string $action
 	 */
 	public static function Create( string $action ) :string {
 		return self::CreateNonces( $action )[ 0 ];
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction|string $action
+	 * @param Actions\BaseAction|string $action
 	 */
 	public static function CreateNonces( string $action ) :array {
 		return \array_map(
 			function ( int $distance ) use ( $action ) {
-				$action = ActionsMap::ActionFromSlug( $action );
+				$action = Utility\ActionsMap::ActionFromSlug( $action );
 
 				$nonceCfg = \array_merge( [
 					'ip'  => true,

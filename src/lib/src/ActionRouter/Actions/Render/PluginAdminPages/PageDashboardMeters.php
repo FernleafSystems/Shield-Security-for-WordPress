@@ -63,7 +63,7 @@ class PageDashboardMeters extends BasePluginAdminPage {
 
 		return [
 			'content' => [
-				'progress_meters' => $con->action_router->render( ProgressMeters::SLUG ),
+				'progress_meters' => $con->action_router->render( ProgressMeters::class ),
 			],
 			'flags'   => [
 				'is_show_view_as_message' => $viewAsState[ 'is_show_view_as' ],

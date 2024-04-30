@@ -24,7 +24,7 @@ export class ShieldOverlay {
 			theID = containerID;
 		}
 		else {
-			const ShieldContainer = document.getElementById( 'PageContainer-Shield' ) || false;
+			const ShieldContainer = document.getElementById( 'PageContainer-Apto' ) || false;
 			if ( ShieldContainer ) {
 				theID = ShieldContainer.id;
 			}

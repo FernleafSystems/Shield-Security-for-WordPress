@@ -174,12 +174,14 @@ abstract class BaseRender extends BaseAction {
 				'form_action'    => Services::Request()->getUri(),
 
 				'facebook_group' => 'https://shsec.io/pluginshieldsecuritygroupfb',
+				'email_signup'   => 'https://shsec.io/emailsubscribe',
 			],
 			'imgs'             => [
 				'svgs'           => [
 					'exit'        => $con->svgs->raw( 'box-arrow-left.svg' ),
 					'help'        => $con->svgs->raw( 'question-circle.svg' ),
 					'helpdesk'    => $con->svgs->raw( 'life-preserver.svg' ),
+					'newsletter'  => $con->svgs->raw( 'envelope.svg' ),
 					'ignore'      => $con->svgs->raw( 'eye-slash-fill.svg' ),
 					'info_square' => $con->svgs->raw( 'info-square.svg' ),
 					'megaphone'   => $con->svgs->raw( 'megaphone.svg' ),
@@ -248,9 +250,9 @@ abstract class BaseRender extends BaseAction {
 			'pro_only_option'   => __( 'Upgrade Required', 'wp-simple-firewall' ),
 			'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
 
-			'mode'            => __( 'Mode', 'wp-simple-firewall' ),
+			'mode' => __( 'Mode', 'wp-simple-firewall' ),
 
-			'dashboard'        => __( 'Dashboard', 'wp-simple-firewall' ),
+			'dashboard' => __( 'Dashboard', 'wp-simple-firewall' ),
 
 			'are_you_sure'                 => __( 'Are you sure?', 'wp-simple-firewall' ),
 			'description'                  => __( 'Description', 'wp-simple-firewall' ),

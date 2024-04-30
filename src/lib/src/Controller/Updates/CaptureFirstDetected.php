@@ -18,11 +18,13 @@ class CaptureFirstDetected {
 	public function capture( $updates ) {
 		$con = self::con();
 		$file = $con->base_file;
-		if ( \is_object( $updates ) && !empty( $data->response[ $file ] ) ) {
-			$new = Services::WpPlugins()->getUpdateNewVersion( $file );
+		if ( \is_object( $updates ) ) {
+			$new = $updates->response[ $file ]->new_version ?? '';
 			if ( !empty( $new ) ) {
 				$con->cfg->update_first_detected = \array_slice(
-					\array_merge( [ $new => Services::Request()->ts() ], $con->cfg->update_first_detected ),
+					\array_merge( [
+						$new => Services::Request()->ts()
+					], $con->cfg->update_first_detected ),
 					-3
 				);
 			}

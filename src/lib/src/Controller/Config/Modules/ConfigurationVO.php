@@ -66,6 +66,7 @@ class ConfigurationVO extends DynPropertiesClass {
 		$value = parent::__get( $key );
 
 		switch ( $key ) {
+			case 'admin_notices':
 			case 'modules':
 			case 'sections':
 			case 'options':

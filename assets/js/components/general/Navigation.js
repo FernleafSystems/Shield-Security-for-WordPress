@@ -23,7 +23,7 @@ export class Navigation extends BaseComponent {
 		// Add the active nav-tab to the current URL to support refresh.
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
-			'#PageMainBody_Inner-Shield .nav-item > a.nav-link',
+			'#PageMainBody_Inner-Apto .nav-item > a.nav-link',
 			( targetEl ) => {
 				const d = targetEl.dataset;
 				if ( 'bsToggle' in d && targetEl.id ) {
@@ -54,7 +54,7 @@ export class Navigation extends BaseComponent {
 		let placeholder = document.querySelector( '.shield_loading_placeholder_config' ).cloneNode( true );
 		placeholder.id = '';
 		placeholder.classList.remove( 'd-none' );
-		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = placeholder.innerHTML;
+		document.querySelector( '#PageMainBody_Inner-Apto' ).innerHTML = placeholder.innerHTML;
 
 		let req = ObjectOps.ObjClone( this._base_data.ajax.dynamic_load );
 		req.dynamic_load_params = params;
@@ -75,7 +75,7 @@ export class Navigation extends BaseComponent {
 	};
 
 	handleDynamicLoad( response ) {
-		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = response.data.html;
+		document.querySelector( '#PageMainBody_Inner-Apto' ).innerHTML = response.data.html;
 
 		const urlHash = window.location.hash ? window.location.hash : '';
 		this.setActiveNavTab( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );

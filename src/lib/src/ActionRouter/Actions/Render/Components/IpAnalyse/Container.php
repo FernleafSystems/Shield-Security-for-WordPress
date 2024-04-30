@@ -17,19 +17,19 @@ class Container extends Base {
 		$actionRouter = self::con()->action_router;
 		return [
 			'content' => [
-				'general'  => $actionRouter->render( General::SLUG, [
+				'general'  => $actionRouter->render( General::class, [
 					'ip' => $ip,
 				] ),
-				'signals'  => $actionRouter->render( BotSignals::SLUG, [
+				'signals'  => $actionRouter->render( BotSignals::class, [
 					'ip' => $ip,
 				] ),
-				'sessions' => $actionRouter->render( Sessions::SLUG, [
+				'sessions' => $actionRouter->render( Sessions::class, [
 					'ip' => $ip,
 				] ),
-				'activity' => $actionRouter->render( Activity::SLUG, [
+				'activity' => $actionRouter->render( Activity::class, [
 					'ip' => $ip,
 				] ),
-				'traffic'  => $actionRouter->render( Traffic::SLUG, [
+				'traffic'  => $actionRouter->render( Traffic::class, [
 					'ip' => $ip,
 				] ),
 			],

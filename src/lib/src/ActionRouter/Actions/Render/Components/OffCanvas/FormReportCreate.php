@@ -16,6 +16,6 @@ class FormReportCreate extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		return self::con()->action_router->render( FormCreateReport::SLUG );
+		return self::con()->action_router->render( FormCreateReport::class );
 	}
 }
