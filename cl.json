@@ -54,6 +54,16 @@
     ],
     "patches":     [
       {
+        "version":     "10",
+        "released_at": 1714486300,
+        "items":       [
+          {
+            "title": "Bug: Fix for javascript error breaking parts of MainWP admin area.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "9",
         "released_at": 1714470000,
         "items":       [
