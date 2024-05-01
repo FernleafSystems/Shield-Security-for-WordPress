@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "19.1.11",
-    "release_timestamp":       1714490000,
-    "build":                   "202404.3003",
+    "version":                 "19.1.13",
+    "release_timestamp":       1714561000,
+    "build":                   "202405.0102",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -4134,6 +4134,12 @@
       },
       {
         "key":     "activated_at",
+        "section": "section_hidden",
+        "type":    "integer",
+        "default": 0
+      },
+      {
+        "key":     "last_wizard_redirect_at",
         "section": "section_hidden",
         "type":    "integer",
         "default": 0

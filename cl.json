@@ -54,6 +54,24 @@
     ],
     "patches":     [
       {
+        "version":     "13",
+        "released_at": 1714561000,
+        "items":       [
+          {
+            "title": "Try to ensure that the correct visitor IP address is assigned to any new WP comments.",
+            "type":  "improved"
+          },
+          {
+            "title": "Bug: remove .mo noise from malware scanning.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug: prevent minor PHP logging for error when creating DB table and it already exists.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "11",
         "released_at": 1714490000,
         "items":       [
