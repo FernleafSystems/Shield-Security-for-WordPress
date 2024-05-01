@@ -54,8 +54,8 @@
     ],
     "patches":     [
       {
-        "version":     "12",
-        "released_at": 1714560000,
+        "version":     "13",
+        "released_at": 1714561000,
         "items":       [
           {
             "title": "Bug: remove .mo noise from malware scanning.",
