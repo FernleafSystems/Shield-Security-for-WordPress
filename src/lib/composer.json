@@ -21,7 +21,7 @@
   "require":           {
     "php":                                   ">=7.2",
     "dolondro/google-authenticator":         "^2.2",
-    "fernleafsystems/wordpress-plugin-core": "2.4.5",
+    "fernleafsystems/wordpress-plugin-core": "2.4.7",
     "fernleafsystems/zxcvbn-php":            "^1.1",
     "symfony/polyfill-iconv":                "^1.27",
     "nyholm/psr7":                           "^1.8",

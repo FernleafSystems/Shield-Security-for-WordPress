@@ -36,7 +36,9 @@ class CaptureRedirects {
 				$navID = PluginNavs::NavExists( $matches[ 1 ] ) ? $matches[ 1 ] : PluginNavs::NAV_DASHBOARD;
 				$redirectTo = $urls->adminTopNav( $navID, PluginNavs::GetDefaultSubNavForNav( $navID ) );
 			}
-			elseif ( $con->comps->opts_lookup->getActivatedPeriod() < 5 ) {
+			elseif ( $con->comps->opts_lookup->getActivatedPeriod() < 20 && $con->opts->optGet( 'last_wizard_redirect_at' ) === 0 ) {
+				$con->opts->optSet( 'last_wizard_redirect_at', $req->ts() );
+				$con->opts->store();
 				$redirectTo = $urls->adminTopNav( PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME );
 			}
 
