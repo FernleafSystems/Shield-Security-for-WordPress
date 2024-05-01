@@ -22,10 +22,12 @@ class FileScanner {
 
 		$item = null;
 
+		$fileExcluded = $this->isFileExcludedFromScans( $fullPath );
+
 		$validFile = false;
 		try {
 			$validFile =
-				$this->isFileExcludedFromScans( $fullPath )
+				$fileExcluded
 				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
 						->setScanActionVO( $action )
 						->isFileValid() )
@@ -100,7 +102,7 @@ class FileScanner {
 			//Never reached
 		}
 
-		if ( $scanCon->isEnabledMalwareScanPHP() && ( empty( $item ) || !$item->is_missing ) ) {
+		if ( !$fileExcluded && $scanCon->isEnabledMalwareScanPHP() && ( empty( $item ) || !$item->is_missing ) ) {
 			try {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setScanActionVO( $action )
