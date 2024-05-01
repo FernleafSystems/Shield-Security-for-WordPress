@@ -58,6 +58,10 @@
         "released_at": 1714561000,
         "items":       [
           {
+            "title": "Try to ensure that the correct visitor IP address is assigned to any new WP comments.",
+            "type":  "improved"
+          },
+          {
             "title": "Bug: remove .mo noise from malware scanning.",
             "type":  "fixed"
           },

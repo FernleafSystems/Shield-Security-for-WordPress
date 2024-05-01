@@ -31,6 +31,8 @@ class CommentSpamCon {
 			}
 		}
 
+		add_filter( 'pre_comment_user_ip', [ $this, 'setCorrectCommentIP' ], 10, 0 );
+
 		( new CommentAdditiveCleaner() )->execute();
 	}
 
@@ -43,5 +45,9 @@ class CommentSpamCon {
 	public function clearCommentNotificationEmail( $emails ) {
 		$status = apply_filters( self::con()->prefix( 'cf_status' ), '' );
 		return \in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
+	}
+
+	public function setCorrectCommentIP() :string {
+		return Services::Request()->ip();
 	}
 }
