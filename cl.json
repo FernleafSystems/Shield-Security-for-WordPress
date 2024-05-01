@@ -60,6 +60,10 @@
           {
             "title": "Bug: remove .mo noise from malware scanning.",
             "type":  "fixed"
+          },
+          {
+            "title": "Bug: prevent minor PHP logging for error when creating DB table and it already exists.",
+            "type":  "fixed"
           }
         ]
       },
