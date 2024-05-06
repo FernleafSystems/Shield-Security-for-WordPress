@@ -149,9 +149,6 @@ class LoginIntentRequestCapture {
 					],
 				] );
 			}
-			else {
-				$con->admin_notices->addFlash( __( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ), $this->user );
-			}
 
 			$redirect = $req->request( 'redirect_to', false, $req->getPath() );
 			Services::Response()->redirect(
