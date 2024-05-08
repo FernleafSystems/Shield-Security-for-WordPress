@@ -11,6 +11,7 @@ export class ShieldEventsHandler extends BaseService {
 	init() {
 		this.eventHandlers = {
 			click: {},
+			dblclick: {},
 			change: {},
 			keypress: {},
 			keyup: {},
@@ -55,6 +56,10 @@ export class ShieldEventsHandler extends BaseService {
 
 	add_Click( selector, callback, suppress = null ) {
 		this.addHandler( 'click', selector, callback, suppress );
+	}
+
+	add_DblClick( selector, callback, suppress = null ) {
+		this.addHandler( 'dblclick', selector, callback, suppress );
 	}
 
 	add_Keypress( selector, callback, suppress = null ) {

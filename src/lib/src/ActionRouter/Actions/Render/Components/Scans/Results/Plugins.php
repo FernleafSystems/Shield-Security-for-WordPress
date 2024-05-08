@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Plugins extends PluginThemesBase {
 
 	public const SLUG = 'scanresults_plugins';
-	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/plugins/index.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/assets/plugins_index.twig';
 
 	protected function getRenderData() :array {
 		$items = $this->buildPluginsData();
@@ -51,9 +46,8 @@ class Plugins extends PluginThemesBase {
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
-				'no_items'      => __( "Previous scans didn't detect any modified or unrecognised files in any plugin directories.", 'wp-simple-firewall' ),
-				'no_files'      => __( "Previous scans didn't detect any modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
-				'files_found'   => __( "Previous scans detected 1 or more modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
+				'no_files'      => __( "Scans didn't detect any modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
+				'files_found'   => __( "Scans detected modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
 				'not_active'    => __( "This plugin isn't active and should be uninstalled.", 'wp-simple-firewall' ),
 				'wporg_ok'      => __( "This plugin is installed from WordPress.org so actions such as file repair and file diff are available.", 'wp-simple-firewall' ),
 				'not_wporg'     => __( "This plugin isn't installed from WordPress.org so actions such as file repair and file diff aren't available.", 'wp-simple-firewall' ),
@@ -78,72 +72,5 @@ class Plugins extends PluginThemesBase {
 			},
 			Services::WpPlugins()->getPluginsAsVo()
 		);
-	}
-
-	private function buildPluginData( WpPluginVo $plugin ) :array {
-		$carbon = Services::Request()->carbon();
-
-		$abandoned = $this->getAbandoned()->getItemForSlug( $plugin->file );
-
-		$resultsLoader = new LoadFileScanResultsTableData();
-		$resultsLoader->custom_record_retriever_wheres = [
-			sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
-			sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $plugin->file ),
-		];
-		$countGuardFiles = $resultsLoader->countAll();
-
-		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
-
-		$isCheckActive = apply_filters( 'shield/scans_check_plugin_active', true );
-		$isCheckUpdates = apply_filters( 'shield/scans_check_plugin_update', true );
-
-		$flags = \array_merge( [
-			'has_update'      => $plugin->hasUpdate(),
-			'has_guard_files' => $countGuardFiles > 0,
-			'is_abandoned'    => !empty( $abandoned ),
-			'is_active'       => $plugin->active,
-			'is_vulnerable'   => !empty( $vulnerabilities ),
-		], $this->getCachedFlags( $plugin ) );
-
-		$flags[ 'has_issue' ] = $flags[ 'is_abandoned' ]
-								|| $flags[ 'has_guard_files' ]
-								|| $flags[ 'is_vulnerable' ];
-		$flags[ 'has_warning' ] = !$flags[ 'has_issue' ]
-								  && (
-									  ( $isCheckActive && !$flags[ 'is_active' ] )
-									  ||
-									  ( $isCheckUpdates && $flags[ 'has_update' ] )
-								  );
-
-		return [
-			'info'  => [
-				'type'         => 'plugin',
-				'name'         => $plugin->Title,
-				'slug'         => $plugin->slug,
-				'description'  => $plugin->Description,
-				'version'      => $plugin->Version,
-				'author'       => $plugin->AuthorName,
-				'author_url'   => $plugin->AuthorURI,
-				'file'         => $plugin->file,
-				'installed_at' => $carbon->setTimestamp( ( new DetectInstallationDate() )->plugin( $plugin ) )
-										 ->diffForHumans(),
-				'dir'          => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $plugin->getInstallDir() ) ),
-				'abandoned_at' => empty( $abandoned ) ? 0
-					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
-			],
-			'hrefs' => [
-				'vul_info' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
-					'type'    => $plugin->asset_type,
-					'slug'    => $plugin->slug,
-					'version' => $plugin->Version,
-				] ),
-			],
-			'flags' => $flags,
-			'vars'  => [
-				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
-				'count_items'   => $countGuardFiles + \count( $vulnerabilities )
-								   + ( empty( $abandoned ) ? 0 : 1 )
-			],
-		];
 	}
 }

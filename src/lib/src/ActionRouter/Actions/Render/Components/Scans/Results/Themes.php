@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class Themes extends PluginThemesBase {
 
 	public const SLUG = 'scanresults_themes';
-	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/themes/index.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/assets/themes_index.twig';
 
 	protected function getRenderData() :array {
 		$items = $this->buildThemesData();
@@ -51,9 +51,8 @@ class Themes extends PluginThemesBase {
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
-				'no_items'     => __( "Previous scans didn't detect any modified or unrecognised files in any Theme directories.", 'wp-simple-firewall' ),
-				'no_files'     => __( "Previous scans didn't detect any modified or unrecognised files in the Theme directories.", 'wp-simple-firewall' ),
-				'files_found'  => __( "Previous scans detected 1 or more modified or unrecognised files in the theme directory.", 'wp-simple-firewall' ),
+				'no_files'     => __( "Scans didn't detect any modified or unrecognised files in the Theme directories.", 'wp-simple-firewall' ),
+				'files_found'  => __( "Scans detected 1 or more modified or unrecognised files in the theme directory.", 'wp-simple-firewall' ),
 				'not_active'   => __( "This theme isn't active and should be uninstalled.", 'wp-simple-firewall' ),
 				'go_to_themes' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes' ) ),
 			],
@@ -75,102 +74,5 @@ class Themes extends PluginThemesBase {
 			},
 			Services::WpThemes()->getThemesAsVo()
 		);
-	}
-
-	private function buildThemeData( WpThemeVo $theme ) :array {
-		$carbon = Services::Request()->carbon();
-
-		$abandoned = $this->getAbandoned()->getItemForSlug( $theme->stylesheet );
-
-		$resultsLoader = new LoadFileScanResultsTableData();
-		$resultsLoader->custom_record_retriever_wheres = [
-			sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
-			sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $theme->stylesheet ),
-		];
-		$countGuardFiles = $resultsLoader->countAll();
-
-		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
-
-		$flags = \array_merge( [
-			'has_update'      => $theme->hasUpdate(),
-			'is_abandoned'    => !empty( $abandoned ),
-			'has_guard_files' => $countGuardFiles > 0,
-			'is_active'       => $theme->active || $theme->is_parent,
-			'is_ignored'      => $theme->active || $theme->is_parent,
-			'is_vulnerable'   => !empty( $vulnerabilities ),
-			'is_child'        => $theme->is_child,
-			'is_parent'       => $theme->is_parent,
-		], $this->getCachedFlags( $theme ) );
-
-		$isCheckActive = apply_filters( 'shield/scans_check_theme_active', true );
-		$isCheckUpdates = apply_filters( 'shield/scans_check_theme_update', true );
-
-		$flags[ 'has_issue' ] = $flags[ 'is_abandoned' ]
-								|| $flags[ 'has_guard_files' ]
-								|| $flags[ 'is_vulnerable' ];
-		$flags[ 'has_warning' ] = !$flags[ 'has_issue' ]
-								  && (
-									  ( $isCheckActive && !$flags[ 'is_active' ] )
-									  ||
-									  ( $isCheckUpdates && $flags[ 'has_update' ] )
-								  );
-
-		if ( $flags[ 'is_wporg' ] && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
-			$wpOrgThemes = \implode( '|', \array_map( function ( $ver ) {
-				return 'twenty'.$ver;
-			}, [
-				'twentyseven',
-				'twentysix',
-				'twentyfive',
-				'twentyfour',
-				'twentythree',
-				'twentytwo',
-				'twentyone',
-				'twenty',
-				'nineteen',
-				'seventeen',
-				'sixteen',
-				'fifteen',
-				'fourteen',
-				'thirteen',
-				'twelve',
-				'eleven',
-				'ten',
-			] ) );
-			if ( \preg_match( sprintf( '#^%s$#', $wpOrgThemes ), \strtolower( (string)$theme->slug ) ) ) {
-				$flags[ 'has_warning' ] = false;
-			}
-		}
-
-		return [
-			'info'  => [
-				'type'         => 'theme',
-				'name'         => $theme->Name,
-				'slug'         => $theme->slug,
-				'description'  => $theme->Description,
-				'version'      => $theme->Version,
-				'author'       => $theme->Author,
-				'author_url'   => $theme->AuthorURI,
-				'file'         => $theme->stylesheet,
-				'dir'          => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $theme->getInstallDir() ) ),
-				'abandoned_at' => empty( $abandoned ) ? 0
-					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
-				'installed_at' => $carbon->setTimestamp( ( new DetectInstallationDate() )->theme( $theme ) )
-										 ->diffForHumans(),
-				'child_theme'  => $theme->is_parent ? $theme->child_theme->Name : '',
-				'parent_theme' => $theme->is_child ? $theme->parent_theme->Name : '',
-			],
-			'hrefs' => [
-				'vul_info' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
-					'type'    => $theme->asset_type,
-					'slug'    => $theme->stylesheet,
-					'version' => $theme->Version,
-				] ),
-			],
-			'flags' => $flags,
-			'vars'  => [
-				'count_items' => $countGuardFiles + \count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
-			],
-		];
 	}
 }
