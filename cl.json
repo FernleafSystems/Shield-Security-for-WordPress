@@ -64,6 +64,10 @@
           {
             "title": "Remove unnecessary admin notice upon login.",
             "type":  "improved"
+          },
+          {
+            "title": "Remove old WP options table data.",
+            "type":  "improved"
           }
         ]
       },
