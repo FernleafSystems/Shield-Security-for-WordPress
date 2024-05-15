@@ -4,21 +4,20 @@
 		<ul class="nav nav-tabs flex-column">
 			{% for plugin_key,plugin in vars.plugins %}
 				<li class="nav-item mb-2">
-					<a class="nav-link {% if plugin_key < 1 %}active{% endif %} position-relative"
+					<a class="nav-link position-relative"
 					   href="#plugin-tab-{{ plugin.info.slug }}"
 					   data-bs-toggle="tab"
+					   data-asset_type="plugin"
+					   data-unique_id="{{ plugin.info.unique_id }}"
 					>
 						{% if plugin.vars.count_items > 0 %}
-							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-								{{ plugin.vars.count_items }}
+							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
 							</span>
 						{% elseif plugin.flags.has_warning %}
 							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-warning border border-light rounded-circle">
-{#								&excl;#}
 							</span>
 						{% else %}
 							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle">
-{#								&check;#}
 							</span>
 						{% endif %}
 						{{ plugin.info.name }}
@@ -31,13 +30,11 @@
 	<div class="col-10">
 		<div class="tab-content">
 			{% for plugin_key,plugin in vars.plugins %}
-				<div class="tab-pane {% if plugin_key < 1 %}show active{% endif %}"
+				<div class="tab-pane"
 					 id="plugin-tab-{{ plugin.info.slug }}"
 					 role="tabpanel"
 					 aria-labelledby="profile-tab"
-				>
-					{% include '/wpadmin_pages/insights/scans/results/section/plugins/plugin_panel.twig' %}
-				</div>
+				></div>
 			{% endfor %}
 		</div>
 	</div>

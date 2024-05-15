@@ -54,6 +54,24 @@
     ],
     "patches":     [
       {
+        "version":     "14",
+        "released_at": 1715170000,
+        "items":       [
+          {
+            "title": "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
+            "type":  "improved"
+          },
+          {
+            "title": "Remove unnecessary admin notice upon login.",
+            "type":  "improved"
+          },
+          {
+            "title": "Remove old WP options table data.",
+            "type":  "improved"
+          }
+        ]
+      },
+      {
         "version":     "13",
         "released_at": 1714561000,
         "items":       [
