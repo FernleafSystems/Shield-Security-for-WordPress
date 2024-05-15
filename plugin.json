@@ -5224,6 +5224,9 @@
               "macro_type": "varchar",
               "length":     256,
               "attr":       []
+            },
+            "meta":     {
+              "macro_type": "meta"
             }
           },
           "cols_timestamps": {

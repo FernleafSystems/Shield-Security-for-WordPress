@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,8 +14,23 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	 */
 	private $signals;
 
+	/**
+	 * @var ?int
+	 */
+	private $capturedStatusCode = null;
+
 	protected function init() {
 		$this->signals = [];
+
+		/**
+		 * This could be a global service.
+		 */
+		add_filter( 'status_header', function ( $status_header = null, $code = null ) {
+			if ( $code !== null ) {
+				$this->capturedStatusCode = $code;
+			}
+			return $status_header;
+		}, \PHP_INT_MAX, 2 );
 	}
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
@@ -72,10 +88,16 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 
 			$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
 			foreach ( $this->signals as $signal ) {
-				$dbhSignals->getQueryInserter()
-						   ->insert(
-							   $dbhSignals->getRecord()->applyFromArray( $signal )
-						   );
+				/** @var CrowdsecSignalsDB\Record $record */
+				$record = $dbhSignals->getRecord()->applyFromArray( $signal );
+				$record->meta = [
+					'context' => [
+						'target_uri' => self::con()->this_req->path,
+						'user_agent' => self::con()->this_req->useragent,
+						'status'     => $this->capturedStatusCode === null ? http_response_code() : $this->capturedStatusCode,
+					],
+				];
+				$dbhSignals->getQueryInserter()->insert( $record );
 			}
 
 			// and finally, trigger send to Crowdsec
