@@ -78,6 +78,10 @@ class OptsLookup {
 			(int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) : 0;
 	}
 
+	public function getAntiBotComplexity() :string {
+		return self::con()->opts->optGet( 'altcha_complexity' );
+	}
+
 	public function getBlockdownCfg() :array {
 		return \array_merge( [
 			'activated_at' => 0,

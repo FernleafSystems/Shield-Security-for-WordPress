@@ -38,12 +38,15 @@ class ScoreLogic {
 	 * @note Copied from ShieldNET API
 	 */
 	protected function buildFallback() :array {
-		return \array_map( function ( $score ) {
-			return $score + [
-					0  => 0,
-					-1 => 0,
-				];
-		}, \array_merge( $this->getPositiveSignals(), $this->getNegativeSignals() ) );
+		return \array_map(
+			function ( $score ) {
+				return $score + [
+						0  => 0,
+						-1 => 0,
+					];
+			},
+			\array_merge( $this->getPositiveSignals(), $this->getNegativeSignals() )
+		);
 	}
 
 	protected function getPositiveSignals() :array {
@@ -53,6 +56,11 @@ class ScoreLogic {
 				15 => 15,
 			],
 			'notbot'      => [
+				0               => -10,
+				HOUR_IN_SECONDS => 100,
+				-1              => 75,
+			],
+			'altcha'      => [
 				0               => -10,
 				HOUR_IN_SECONDS => 150,
 				-1              => 75,

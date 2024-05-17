@@ -6,8 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionDataVO,
-	Actions\CaptureNotBot,
-	Actions\CaptureNotBotNonce
+	Actions\CaptureNotBot
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -36,21 +35,17 @@ class InsertNotBotJs {
 						$notBotVO->action = CaptureNotBot::class;
 						$notBotVO->ip_in_nonce = false;
 
-						$notBotNonceVO = new ActionDataVO();
-						$notBotNonceVO->action = CaptureNotBotNonce::class;
-						$notBotNonceVO->excluded_fields = [
-							ActionData::FIELD_NONCE,
-							ActionData::FIELD_AJAXURL,
-						];
-
 						return [
 							'ajax'  => [
-								'not_bot'       => ActionData::BuildVO( $notBotVO ),
-								'not_bot_nonce' => ActionData::BuildVO( $notBotNonceVO ),
+								'not_bot' => ActionData::BuildVO( $notBotVO ),
 							],
 							'flags' => [
+								'skip'     => $this->isSkip(),
 								'required' => $this->isFreshSignalRequired(),
 							],
+							'vars'  => [
+								'altcha' => ( new AltChaHandler() )->generateChallenge(),
+							]
 						];
 					},
 				];
@@ -61,25 +56,14 @@ class InsertNotBotJs {
 		} );
 	}
 
+	private function isSkip() :bool {
+		return Services::IP()->getIpDetector()->getIPIdentity() === 'gtmetrix';
+	}
+
 	private function isFreshSignalRequired() :bool {
 		$req = Services::Request();
-
-		if ( self::con()->comps === null ) {
-			$lastAt = self::con()
-						  ->getModule_IPs()
-						  ->getBotSignalsController()
-						  ->getHandlerNotBot()
-						  ->getLastNotBotSignalAt();
-		}
-		else {
-			$lastAt = self::con()->comps->not_bot->getLastNotBotSignalAt();
-		}
-
 		return $req->query( 'force_notbot' ) == 1 ||
-			   (
-				   ( $req->ts() - $lastAt > \MINUTE_IN_SECONDS*30 )
-				   && Services::IP()->getIpDetector()->getIPIdentity() !== 'gtmetrix'
-			   );
+			   ( !$this->isSkip() && !empty( self::con()->comps->not_bot->getNonRequiredSignals() ) );
 	}
 
 	/**
