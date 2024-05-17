@@ -2709,6 +2709,40 @@
         "description": "Un-Checking this option will completely disable the IP Manager module"
       },
       {
+        "key":           "altcha_complexity",
+        "section":       "section_antibot",
+        "default":       "low",
+        "type":          "select",
+        "value_options": [
+          {
+            "value_key": "none",
+            "text":      "None"
+          },
+          {
+            "value_key": "adaptive",
+            "text":      "Adaptive"
+          },
+          {
+            "value_key": "low",
+            "text":      "Low"
+          },
+          {
+            "value_key": "medium",
+            "text":      "Medium"
+          },
+          {
+            "value_key": "high",
+            "text":      "High"
+          }
+        ],
+        "link_info":     "https://shsec.io/jy",
+        "link_blog":     "https://shsec.io/jz",
+        "beacon_id":     424,
+        "name":          "Bot Challenge Complexity",
+        "summary":       "Bot Challenge Complexity",
+        "description":   "Bot Challenge Complexity"
+      },
+      {
         "key":         "antibot_minimum",
         "section":     "section_antibot",
         "default":     45,
@@ -5098,6 +5132,10 @@
               "macro_type": "timestamp",
               "comment":    "NotBot"
             },
+            "altcha_at":          {
+              "macro_type": "timestamp",
+              "comment":    "Altcha"
+            },
             "frontpage_at":       {
               "macro_type": "timestamp",
               "comment":    "Any Frontend Page Loaded"
@@ -6095,6 +6133,11 @@
         ],
         "level":        "alert",
         "offense":      true
+      },
+      "bottrack_multiple":            {
+        "offense": false,
+        "stat":    false,
+        "level":   "debug"
       },
       "bottrack_notbot":              {
         "offense": false,

@@ -8,18 +8,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 class AjaxResponseAdapter extends BaseAdapter {
 
 	public function adapt( ActionResponse $response ) {
-		$responseData = \array_merge(
-			[
-				'success'    => false,
-				'message'    => $response->message ?? '',
-				'error'      => $response->error ?? '',
-				'html'       => '-',
-				'page_title' => '-',
-				'page_url'   => '-',
-				'show_toast' => true,
-			],
-			$response->getRawData(),
-			\is_array( $response->action_response_data ) ? $response->action_response_data : []
+		$responseData = \array_diff_key(
+			\array_merge(
+				[
+					'success'    => false,
+					'message'    => $response->message ?? '',
+					'error'      => $response->error ?? '',
+					'html'       => '-',
+					'page_title' => '-',
+					'page_url'   => '-',
+					'show_toast' => true,
+				],
+				$response->getRawData(),
+				\is_array( $response->action_response_data ) ? $response->action_response_data : []
+			),
+			\array_flip( [
+				'action_response_data',
+			] )
 		);
 
 		/**

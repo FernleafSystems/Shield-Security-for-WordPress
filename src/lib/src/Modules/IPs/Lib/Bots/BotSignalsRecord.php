@@ -99,10 +99,6 @@ class BotSignalsRecord {
 			}
 		}
 
-		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
-			$r->notbot_at = self::con()->comps->not_bot->hasCookie() ? Services::Request()->ts() : 0;
-		}
-
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
 			$userMetaSelect = self::con()->db_con->user_meta->getQuerySelector();
@@ -165,17 +161,32 @@ class BotSignalsRecord {
 	 * @throws \LogicException
 	 * @throws \Exception
 	 */
-	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
+	public function updateSignalFields( array $fields, ?int $ts = null ) :BotSignalRecord {
 
-		if ( !self::con()->db_con->bot_signals->getTableSchema()->hasColumn( $field ) ) {
-			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
+		foreach ( $fields as $field ) {
+			if ( !self::con()->db_con->bot_signals->getTableSchema()->hasColumn( $field ) ) {
+				throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
+			}
 		}
 
+		if ( $ts === null ) {
+			$ts = Services::Request()->ts();
+		}
 		$record = $this->retrieve(); // false as we're going to store it anyway
-		$record->{$field} = \is_null( $ts ) ? Services::Request()->ts() : $ts;
+		foreach ( $fields as $field ) {
+			$record->{$field} = $ts;
+		}
 
 		$this->store( $record );
 
 		return $record;
+	}
+
+	/**
+	 * @throws \LogicException
+	 * @throws \Exception
+	 */
+	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
+		return $this->updateSignalFields( [ $field ], $ts );
 	}
 }

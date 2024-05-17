@@ -570,6 +570,16 @@ class StringsOptions {
 				];
 
 				break;
+			case 'altcha_complexity' :
+				$name = __( 'Bot Challenge Complexity', 'wp-simple-firewall' );
+				$summary = __( 'Adjust Bot Challenge Complexity', 'wp-simple-firewall' );
+				$desc = [
+					__( "Shield's improved NotBot system employs ALTCHA that challenges bots to perform complex work.", 'wp-simple-firewall' ),
+					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work help us to better discriminate between them and humans as they navigate your site.", 'wp-simple-firewall' ),
+					__( "Higher complexity presents a bigger cost/challenge to bots, but may be an excess burden for legitimate visitors using older/slower devices.", 'wp-simple-firewall' ),
+					__( "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor.", 'wp-simple-firewall' ),
+				];
+				break;
 			case 'antibot_minimum' :
 				$name = __( 'AntiBot Minimum Score', 'wp-simple-firewall' );
 				$summary = __( 'AntiBot Minimum Score (Percentage)', 'wp-simple-firewall' );
@@ -1094,7 +1104,7 @@ class StringsOptions {
 				$summary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
 				$desc = [
 					__( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),  __( "Please check the box to show us you're a human.", 'wp-simple-firewall' ) )
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( "Please check the box to show us you're a human.", 'wp-simple-firewall' ) )
 				];
 				break;
 

@@ -66,7 +66,7 @@ class Constants {
 		Actions\ModuleOptionsSave::class,
 		Actions\OptionTransferIncludeToggle::class,
 		Actions\CaptureNotBot::class,
-		Actions\CaptureNotBotNonce::class,
+		Actions\CaptureNotBotAltcha::class,
 		Actions\PluginAutoDbRepair::class,
 		Actions\PluginBadgeClose::class,
 		Actions\PluginDeleteForceOff::class,
