@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecS
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * https://crowdsecurity.github.io/api_doc/capi/#/watchers/post_signals
+ */
 class PushSignalsToCS {
 
 	use ExecOnce;
@@ -90,11 +93,23 @@ class PushSignalsToCS {
 						'ip'    => $record->value,
 					],
 					'start_at'         => $ts,
-					'stop_at'          => $ts
+					'stop_at'          => $ts,
+					'context'          => $this->buildContext( $record ),
 				];
 			},
 			$records
 		);
+	}
+
+	private function buildContext( CrowdsecSignalsDB\Record $record ) :array {
+		$context = [];
+		foreach ( $record->meta[ 'context' ] ?? [] as $key => $value ) {
+			$context[] = [
+				'key'   => $key,
+				'value' => $value,
+			];
+		}
+		return $context;
 	}
 
 	/**
