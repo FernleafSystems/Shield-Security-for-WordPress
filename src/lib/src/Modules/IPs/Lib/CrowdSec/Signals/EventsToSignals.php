@@ -34,9 +34,9 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	}
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
-		if ( $this->isEventCsSignal( $evt ) ) {
-			$def = $this->getSignalDef( $evt );
-			foreach ( $def[ 'scopes' ] as $scope ) {
+		$signalDef = $this->getSignalDef( $evt );
+		if ( !empty( $signalDef ) ) {
+			foreach ( $signalDef[ 'scopes' ] as $scope ) {
 
 				switch ( $scope ) {
 					case CrowdSecConstants::SCOPE_IP:
@@ -49,14 +49,14 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 
 				// Certain events should only be sent if the NotBot isn't set for this IP i.e. captcha failure
 				try {
-					if ( !$def[ 'only_send_on_notbot_fail' ]
+					if ( !$signalDef[ 'only_send_on_notbot_fail' ]
 						 ||
 						 ( new BotSignalsRecord() )
 							 ->setIP( Services::Request()->ip() )
 							 ->retrieve()->notbot_at === 0 ) {
 
 						$signal = [
-							'scenario' => $def[ 'scenario' ],
+							'scenario' => $signalDef[ 'scenario' ],
 							'scope'    => $scope,
 							'value'    => $value,
 							'milli_at' => $this->getMilliseconds(),
@@ -127,10 +127,6 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 				self::con()->prefix( 'adhoc_cron_crowdsec_signals' )
 			);
 		}
-	}
-
-	private function isEventCsSignal( string $evt ) :bool {
-		return !empty( $this->getSignalDef( $evt ) );
 	}
 
 	private function getSignalDef( string $evt ) :array {
@@ -212,5 +208,12 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 				'scenario' => 'markspam',
 			],
 		];
+	}
+
+	/**
+	 * @deprecated 19.1.14
+	 */
+	private function isEventCsSignal( string $evt ) :bool {
+		return !empty( $this->getSignalDef( $evt ) );
 	}
 }

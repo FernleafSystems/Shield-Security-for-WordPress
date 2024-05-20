@@ -99,56 +99,59 @@ class Email extends AbstractShieldProviderMfaDB {
 		return \count( \array_intersect( self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function sendEmailTwoFactorVerify( string $plainNonce, string $autoRedirect = '' ) :bool {
 		$con = self::con();
 		$user = $this->getUser();
 
-		$success = false;
-		try {
-			if ( !$con->comps->mfa->verifyLoginNonce( $user, $plainNonce ) ) {
-				throw new \Exception( 'No such login intent' );
-			}
+		/**
+		 * throw new \Exception() with desired message
+		 */
+		do_action( 'shield/2fa_send_email_pre_nonce_verify', $user, $plainNonce );
 
-			$hashedNonce = $con->comps->mfa->findHashedNonce( $user, $plainNonce );
-			$intents = $con->comps->mfa->getActiveLoginIntents( $user );
-			$intents[ $hashedNonce ][ 'auto_email_sent' ] = true;
-			$con->user_metas->for( $user )->login_intents = $intents;
-
-			$otp = $this->generate2faCode( $hashedNonce );
-
-			if ( ( new SureSendController() )->can_2FA( $user ) ) {
-				$success = ( new SendEmail() )->send2FA( $this->getUser(), $otp );
-			}
-			if ( !$success ) {
-				$success = $con->email_con->sendVO(
-					EmailVO::Factory(
-						$user->user_email,
-						__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-						$con->action_router->render( MfaLoginCode::class, [
-							'home_url'       => Services::WpGeneral()->getHomeUrl(),
-							'ip'             => $con->this_req->ip,
-							'user_id'        => $user->ID,
-							'otp'            => $otp,
-							'url_auto_login' => $con->plugin_urls->noncedPluginAction(
-								MfaEmailAutoLogin::class,
-								null,
-								[
-									$this->getLoginIntentFormParameter() => $otp,
-									'login_nonce'                        => $plainNonce,
-									'user_id'                            => $user->ID,
-									// breaks without encoding.
-									'redirect_to'                        => \base64_encode( $autoRedirect ),
-								]
-							),
-						] )
-					)
-				);
-			}
-		}
-		catch ( \Exception $e ) {
+		if ( !$con->comps->mfa->verifyLoginNonce( $user, $plainNonce ) ) {
+			throw new \Exception( 'No such login intent' );
 		}
 
-		return $success;
+		/**
+		 * throw new \Exception() with desired message
+		 */
+		do_action( 'shield/2fa_send_email_nonce_verified', $user, $plainNonce );
+
+		$hashedNonce = $con->comps->mfa->findHashedNonce( $user, $plainNonce );
+		$intents = $con->comps->mfa->getActiveLoginIntents( $user );
+		$intents[ $hashedNonce ][ 'auto_email_sent' ] = true;
+		$con->user_metas->for( $user )->login_intents = $intents;
+
+		$otp = $this->generate2faCode( $hashedNonce );
+
+		return ( ( new SureSendController() )->can_2FA( $user ) && ( new SendEmail() )->send2FA( $this->getUser(), $otp ) )
+			   ||
+			   $con->email_con->sendVO(
+				   EmailVO::Factory(
+					   $user->user_email,
+					   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+					   $con->action_router->render( MfaLoginCode::class, [
+						   'home_url'       => Services::WpGeneral()->getHomeUrl(),
+						   'ip'             => $con->this_req->ip,
+						   'user_id'        => $user->ID,
+						   'otp'            => $otp,
+						   'url_auto_login' => $con->plugin_urls->noncedPluginAction(
+							   MfaEmailAutoLogin::class,
+							   null,
+							   [
+								   $this->getLoginIntentFormParameter() => $otp,
+								   'login_nonce'                        => $plainNonce,
+								   'user_id'                            => $user->ID,
+								   // breaks without encoding.
+								   'redirect_to'                        => \base64_encode( $autoRedirect ),
+							   ]
+						   ),
+					   ] )
+				   )
+			   );
 	}
 
 	protected function getUserProfileFormRenderData() :array {
