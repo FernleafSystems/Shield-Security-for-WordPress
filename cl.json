@@ -66,7 +66,11 @@
             "type":  "improved"
           },
           {
-            "title": "Remove old WP options table data.",
+            "title": "Add contextual data to CrowdSec Signals.",
+            "type":  "improved"
+          },
+          {
+            "title": "Explicitly remove old WP auto-load options table data.",
             "type":  "improved"
           }
         ]
