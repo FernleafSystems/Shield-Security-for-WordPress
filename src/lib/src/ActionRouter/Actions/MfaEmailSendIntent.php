@@ -13,6 +13,7 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 
 	protected function exec() {
 		$success = false;
+		$msg = __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' );
 		$userID = $this->action_data[ 'wp_user_id' ];
 		$plainNonce = $this->action_data[ 'login_nonce' ];
 		if ( !empty( $userID ) && !empty( $plainNonce ) ) {
@@ -20,19 +21,25 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 			if ( $user instanceof \WP_User ) {
 				/** @var Email $p */
 				$p = self::con()->comps->mfa->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
-				$success = !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce, $this->action_data[ 'redirect_to' ] ?? '' );
+				try {
+					if ( !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce, $this->action_data[ 'redirect_to' ] ?? '' ) ) {
+						$success = true;
+						$msg = \implode( " \n", [
+							__( 'A new One-Time Password was sent to your email address.', 'wp-simple-firewall' ),
+							sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+								__( 'Previously created One-Time Passwords are invalid.', 'wp-simple-firewall' ) )
+						] );
+					}
+				}
+				catch ( \Exception $e ) {
+					$msg = $e->getMessage();
+				}
 			}
 		}
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
-			'message'     => $success ?
-				\implode( " \n", [
-					__( 'A new One-Time Password was sent to your email address.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
-						__( 'Previously created One-Time Passwords are invalid.', 'wp-simple-firewall' ) )
-				] )
-				: __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ),
+			'message'     => empty( $msg ) ? __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ) : $msg,
 			'page_reload' => false
 		];
 	}
