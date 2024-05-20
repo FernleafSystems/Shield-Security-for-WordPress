@@ -58,6 +58,10 @@
         "released_at": 1715170000,
         "items":       [
           {
+            "title": "Provided some WP actions/hooks during the 2FA email sending process to allow for developer integration.",
+            "type":  "added"
+          },
+          {
             "title": "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
             "type":  "improved"
           },

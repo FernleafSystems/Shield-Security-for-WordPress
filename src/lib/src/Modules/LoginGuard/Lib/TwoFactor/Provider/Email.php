@@ -110,7 +110,7 @@ class Email extends AbstractShieldProviderMfaDB {
 		/**
 		 * throw new \Exception() with desired message
 		 */
-		do_action( 'shield/2fa_send_email_pre_nonce_verify', $user, $plainNonce );
+		do_action( 'shield/2fa/email/pre_send_email/pre_nonce_verify', $user, $plainNonce );
 
 		if ( !$con->comps->mfa->verifyLoginNonce( $user, $plainNonce ) ) {
 			throw new \Exception( 'No such login intent' );
@@ -119,7 +119,7 @@ class Email extends AbstractShieldProviderMfaDB {
 		/**
 		 * throw new \Exception() with desired message
 		 */
-		do_action( 'shield/2fa_send_email_nonce_verified', $user, $plainNonce );
+		do_action( 'shield/2fa/email/pre_send_email/nonce_verified', $user, $plainNonce );
 
 		$hashedNonce = $con->comps->mfa->findHashedNonce( $user, $plainNonce );
 		$intents = $con->comps->mfa->getActiveLoginIntents( $user );
