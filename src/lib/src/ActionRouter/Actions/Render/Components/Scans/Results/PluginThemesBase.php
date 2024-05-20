@@ -66,7 +66,7 @@ abstract class PluginThemesBase extends Base {
 		if ( !isset( self::$wpOrgDataCache[ $item->unique_id ] ) ) {
 			self::$wpOrgDataCache[ $item->unique_id ] = [
 				'is_wporg' => $item->isWpOrg(),
-				'has_tag'  => $item->isWpOrg() && $item->svn_uses_tags,
+				'has_tag'  => $item->isWpOrg() && ( $item->svn_uses_tags || \is_a( $item, WpThemeVo::class ) ),
 			];
 			Transient::Set( 'apto-shield-plugintheme-flags-cache', self::$wpOrgDataCache, \HOUR_IN_SECONDS );
 		}

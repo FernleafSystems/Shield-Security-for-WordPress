@@ -18,7 +18,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 				'status_warning'    => __( 'Warning', 'wp-simple-firewall' ),
 				'abandoned'         => __( 'Abandoned', 'wp-simple-firewall' ),
 				'vulnerable'        => __( 'Vulnerable', 'wp-simple-firewall' ),
-				'vulnerable_known'  => __( 'Known vulnerabilities discovered.', 'wp-simple-firewall' ),
+				'vulnerable_known'  => __( 'Vulnerability Discovered', 'wp-simple-firewall' ),
 				'vulnerable_update' => __( "You should upgrade to the latest version or remove it if no updates are available.", 'wp-simple-firewall' ),
 				'update_available'  => __( 'Update Available', 'wp-simple-firewall' ),
 				'installed_at'      => __( 'Installed', 'wp-simple-firewall' ),
