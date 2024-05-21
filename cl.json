@@ -55,7 +55,7 @@
     "patches":     [
       {
         "version":     "14",
-        "released_at": 1715170000,
+        "released_at": 1716280000,
         "items":       [
           {
             "title": "Provided some WP actions/hooks during the 2FA email sending process to allow for developer integration.",
