@@ -58,24 +58,34 @@
         "released_at": 1716280000,
         "items":       [
           {
-            "title": "Provided some WP actions/hooks during the 2FA email sending process to allow for developer integration.",
-            "type":  "added"
+            "title":    "Provided some WP actions/hooks during the 2FA email sending process to allow for developer integration.",
+            "category": "developer",
+            "type":     "added"
           },
           {
-            "title": "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
-            "type":  "improved"
+            "title":    "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
+            "category": "enhancement",
+            "type":     "improved"
           },
           {
-            "title": "Remove unnecessary admin notice upon login.",
-            "type":  "improved"
+            "title":    "Remove unnecessary admin notice upon login.",
+            "category": "ux",
+            "type":     "improved"
           },
           {
-            "title": "Add contextual data to CrowdSec Signals.",
-            "type":  "improved"
+            "title":    "Add contextual data to CrowdSec Signals.",
+            "category": "enhancement",
+            "type":     "improved"
           },
           {
-            "title": "Explicitly remove old WP auto-load options table data.",
-            "type":  "improved"
+            "title":    "Explicitly remove old WP auto-load options table data.",
+            "category": "optimisation",
+            "type":     "improved"
+          },
+          {
+            "title":    "Updated integration with FluentForms to support their altered codebase.",
+            "category": "bug",
+            "type":     "fixed"
           }
         ]
       },
