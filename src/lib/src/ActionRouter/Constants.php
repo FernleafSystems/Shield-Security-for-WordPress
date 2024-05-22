@@ -102,6 +102,7 @@ class Constants {
 		Actions\ScanResultsDisplayFormSubmit::class,
 		Actions\SecurityOverviewViewAs::class,
 		Actions\SessionsTableAction::class,
+		Actions\ToolPurgeProviderIPs::class,
 		Actions\TrafficLogTableAction::class,
 		Actions\UserSessionDelete::class,
 
