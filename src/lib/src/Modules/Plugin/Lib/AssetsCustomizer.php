@@ -168,6 +168,19 @@ class AssetsCustomizer {
 					]
 				],
 			],
+			'debug_tools'      => [
+				'key'     => 'debug_tools',
+				'handles' => [
+					'main',
+				],
+				'data'    => function () {
+					return [
+						'ajax' => [
+							Actions\ToolPurgeProviderIPs::SLUG => ActionData::Build( Actions\ToolPurgeProviderIPs::class ),
+						],
+					];
+				},
+			],
 			'file_locker'      => [
 				'key'     => 'file_locker',
 				'handles' => [

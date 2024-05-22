@@ -37,6 +37,7 @@ import { Tours } from "../components/general/Tours";
 import { TrafficLiveLogs } from "../components/general/TrafficLiveLogs";
 import { TestRest } from "../components/general/TestRest";
 import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
+import { DebugTools } from "../components/debug/DebugTools";
 
 export class AppMain extends AppBase {
 
@@ -61,6 +62,7 @@ export class AppMain extends AppBase {
 		this.components.bootstrap_tooltips = new BootstrapTooltips();
 
 		this.components.blockdown = ( 'blockdown' in comps ) ? new Blockdown( comps.blockdown ) : null;
+		this.components.debug_tools = ( 'debug_tools' in comps ) ? new DebugTools( comps.debug_tools ) : null;
 		this.components.charts = ( 'charts' in comps ) ? new ChartsSummaryCharts( comps.charts ) : null;
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
 		this.components.div_printer = new DivPrinter();
