@@ -73,6 +73,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 
 	protected function onShutdown() {
 		if ( $this->isCommit() && !empty( $this->signals ) ) {
+			$con = self::con();
 			try {
 				if ( ( new BotSignalsRecord() )->setIP( Services::Request()->ip() )->retrieve()->notbot_at === 0 ) {
 					$this->signals[] = [
@@ -86,14 +87,15 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			catch ( \Exception $e ) {
 			}
 
-			$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
+			$dbhSignals = $con->db_con->dbhCrowdSecSignals();
 			foreach ( $this->signals as $signal ) {
 				/** @var CrowdsecSignalsDB\Record $record */
 				$record = $dbhSignals->getRecord()->applyFromArray( $signal );
 				$record->meta = [
 					'context' => [
-						'target_uri' => self::con()->this_req->path,
-						'user_agent' => self::con()->this_req->useragent,
+						'method'     => \strtoupper( $con->this_req->method ),
+						'target_uri' => $con->this_req->path,
+						'user_agent' => $con->this_req->useragent,
 						'status'     => $this->capturedStatusCode === null ? http_response_code() : $this->capturedStatusCode,
 					],
 				];
