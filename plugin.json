@@ -2839,7 +2839,7 @@
           }
         ],
         "link_info":     "",
-        "link_blog":     "",
+        "link_blog":     "https://shsec.io/nh",
         "beacon_id":     471,
         "name":          "CrowdSec IP Blocking",
         "summary":       "How To Handle Requests From IPs Found On CrowdSec Blocklist",
@@ -3633,7 +3633,7 @@
         "type":        "checkbox",
         "beacon_id":   763,
         "link_info":   "",
-        "link_blog":   "https://shsec.io/i9",
+        "link_blog":   "https://shsec.io/ni",
         "name":        "Enable Passkeys",
         "summary":     "Allow Registration Of Passkeys",
         "description": "Allow Registration Of Passkeys."

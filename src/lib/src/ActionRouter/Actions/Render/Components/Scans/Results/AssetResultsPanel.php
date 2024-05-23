@@ -15,12 +15,9 @@ class AssetResultsPanel extends PluginThemesBase {
 		$type = $this->action_data[ 'asset_type' ];
 		$uniqID = $this->action_data[ 'unique_id' ];
 
-		if ( $type === 'plugin' ) {
-			$data = $this->buildPluginData( Services::WpPlugins()->getPluginAsVo( $uniqID ), true );
-		}
-		else {
-			$data = $this->buildThemeData( Services::WpThemes()->getThemeAsVo( $uniqID ) );
-		}
+		$data = $type === 'plugin' ?
+			$this->buildPluginData( Services::WpPlugins()->getPluginAsVo( $uniqID ), true )
+			: $this->buildThemeData( Services::WpThemes()->getThemeAsVo( $uniqID ), true );
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [

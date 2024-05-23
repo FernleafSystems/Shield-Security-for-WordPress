@@ -6,8 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -141,7 +143,7 @@ abstract class PluginThemesBase extends Base {
 		];
 	}
 
-	protected function buildThemeData( WpThemeVo $theme ) :array {
+	protected function buildThemeData( WpThemeVo $theme, bool $queryWpOrgData = false ) :array {
 		$carbon = Services::Request()->carbon();
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $theme->stylesheet );
@@ -164,7 +166,7 @@ abstract class PluginThemesBase extends Base {
 			'is_vulnerable'   => !empty( $vulnerabilities ),
 			'is_child'        => $theme->is_child,
 			'is_parent'       => $theme->is_parent,
-		], $this->getCachedFlags( $theme ) );
+		], $queryWpOrgData ? $this->getCachedFlags( $theme ) : [] );
 
 		$isCheckActive = apply_filters( 'shield/scans_check_theme_active', true );
 		$isCheckUpdates = apply_filters( 'shield/scans_check_theme_update', true );
@@ -179,7 +181,8 @@ abstract class PluginThemesBase extends Base {
 									  ( $isCheckUpdates && $flags[ 'has_update' ] )
 								  );
 
-		if ( $flags[ 'is_wporg' ] && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
+		// We only run the API check for WordPress.org themes if certain conditions are met
+		if ( $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
 			$wpOrgThemes = \implode( '|', \array_map( function ( $ver ) {
 				return 'twenty'.$ver;
 			}, [
@@ -202,7 +205,10 @@ abstract class PluginThemesBase extends Base {
 				'ten',
 			] ) );
 			if ( \preg_match( sprintf( '#^%s$#', $wpOrgThemes ), \strtolower( (string)$theme->slug ) ) ) {
-				$flags[ 'has_warning' ] = false;
+				$flags = \array_merge( $flags, $this->getCachedFlags( $theme ) );
+				if ( $flags[ 'is_wporg' ] ) {
+					$flags[ 'has_warning' ] = false;
+				}
 			}
 		}
 
