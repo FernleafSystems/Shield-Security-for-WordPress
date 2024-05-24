@@ -2,13 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	Render\BaseRender,
-	Traits\SecurityAdminRequired
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
 
-class SuperSearchResults extends BaseRender {
+class SuperSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	use SecurityAdminRequired;
 
