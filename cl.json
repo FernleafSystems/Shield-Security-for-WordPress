@@ -54,11 +54,16 @@
     ],
     "patches":     [
       {
-        "version":     "14",
-        "released_at": 1716280000,
+        "version":     "15",
+        "released_at": 1716800000,
         "items":       [
           {
-            "title":    "Provided some WP actions/hooks during the 2FA email sending process to allow for developer integration.",
+            "title":    "Added WP actions/hooks during the 2FA email sending process to allow for developer integration.",
+            "category": "developer",
+            "type":     "added"
+          },
+          {
+            "title":    "Added WP actions/hooks for integration with Password Expiry, Account Suspension, and Idle status query.",
             "category": "developer",
             "type":     "added"
           },
