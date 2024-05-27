@@ -37,6 +37,7 @@ import { Tours } from "../components/general/Tours";
 import { TrafficLiveLogs } from "../components/general/TrafficLiveLogs";
 import { TestRest } from "../components/general/TestRest";
 import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
+import { DebugTools } from "../components/debug/DebugTools";
 
 export class AppMain extends AppBase {
 
@@ -61,6 +62,7 @@ export class AppMain extends AppBase {
 		this.components.bootstrap_tooltips = new BootstrapTooltips();
 
 		this.components.blockdown = ( 'blockdown' in comps ) ? new Blockdown( comps.blockdown ) : null;
+		this.components.debug_tools = ( 'debug_tools' in comps ) ? new DebugTools( comps.debug_tools ) : null;
 		this.components.charts = ( 'charts' in comps ) ? new ChartsSummaryCharts( comps.charts ) : null;
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
 		this.components.div_printer = new DivPrinter();
@@ -76,7 +78,6 @@ export class AppMain extends AppBase {
 		this.components.misc_hooks = new MiscHooks();
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
-		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
 		this.components.progress_meters = ( 'progress_meters' in comps ) ? new ProgressMeters( comps.progress_meters ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
 		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;
@@ -94,5 +95,7 @@ export class AppMain extends AppBase {
 		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
 		this.components.tables_scans_history = ( 'scans_history' in comps.tables ) ? new ShieldTableScansHistory( comps.tables.scans_history ) : null;
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
+
+		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
 	}
 }

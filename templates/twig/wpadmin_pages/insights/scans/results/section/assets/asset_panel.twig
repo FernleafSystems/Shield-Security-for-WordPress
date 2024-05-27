@@ -1,0 +1,138 @@
+{% set asset = vars.asset_data %}
+<div class="row scan-results-{{ asset.info.type }}-section" id="AssetSection-{{ asset.info.slug }}">
+	<div class="col">
+
+		<ul class="list-group list-group-flush">
+
+			{% block asset_info %}
+				<li class="list-group-item d-flex align-items-center justify-content-between">
+					<span>
+						<span class="fw-bold">{{ strings.name }}</span>: {{ asset.info.name }};
+					</span>
+					<span>
+						<span class="fw-bold">{{ strings.version }}</span>: {{ asset.info.version }};
+					</span>
+					<span>
+						<span class="fw-bold">{{ strings.author }}</span>:
+							<a href="{{ asset.info.author_url }}" target="_blank">{{ asset.info.author }}</a>;
+					</span>
+				</li>
+
+				<li class="list-group-item d-flex align-items-center justify-content-between">
+					<span>
+						<span class="fw-bold">{{ strings.installed_at }}</span>:
+						{{ asset.info.installed_at }} <small>({{ strings.estimated }})</small>
+					</span>
+					<span>
+						<span class="fw-bold">{{ strings.install_dir }}</span>:
+						<code>{{ asset.info.dir }}</code>
+					</span>
+				</li>
+			{% endblock %}
+
+			{% if asset.flags.is_vulnerable %}
+				<li class="list-group-item list-group-item-danger d-flex align-items-center justify-content-between">
+					<span>
+						<span class="svg-container">{{ imgs.svgs.shield_x|raw }}</span>
+						<span class="fw-bold">{{ strings.vulnerable_known }}</span>
+					</span>
+					<a href="{{ asset.hrefs.vul_info }}" target="_blank"
+					   class="btn btn-danger btn-sm py-0">{{ strings.more_info }}</a>
+				</li>
+			{% endif %}
+
+			{% if flags.ptg_is_restricted %}
+				<li class="list-group-item list-group-item-warning">
+					<span class="fw-bold">{{ strings.file_integrity }}</span>:
+					<span>{{ strings.ptg_not_available }}</span>
+				</li>
+			{% else %}
+				{% if asset.flags.has_guard_files %}
+					<li class="list-group-item list-group-item-danger d-flex align-items-center justify-content-start">
+						<span class="svg-container me-1">{{ imgs.svgs.shield_x|raw }}</span>
+						<span class="fw-bold me-1">{{ strings.file_integrity }}:</span>
+						<span>{{ strings.files_found }}</span>
+					</li>
+				{% endif %}
+			{% endif %}
+
+			{% if asset.flags.is_abandoned %}
+				<li class="list-group-item list-group-item-danger d-flex align-items-center justify-content-between">
+					<span>
+						<span class="svg-container">{{ imgs.svgs.shield_x|raw }}</span>
+						<span class="fw-bold">{{ strings.abandoned }}</span>: {{ asset.info.abandoned_at }}
+					</span>
+					<button class="btn btn-sm py-0 btn-light action standalone-action ignore"
+							title="Ignore"
+							data-rid="{{ asset.vars.abandoned_rid }}"
+							data-action="ignore"
+					>{{ imgs.svgs.ignore|raw }} {{ strings.ignore }}</button>
+				</li>
+			{% endif %}
+
+			{% if asset.flags.has_update %}
+				<li class="list-group-item list-group-item-warning d-flex align-items-center justify-content-between">
+					<span class="fw-bold">
+						<span class="svg-container">{{ imgs.svgs.shield_exclamation|raw }} {{ strings.update_available }}</span>
+					</span>
+					<a href="{{ hrefs.upgrade }}" target="_blank" class="btn btn-warning btn-sm py-0">{{ strings.updates }}</a>
+				</li>
+			{% endif %}
+
+			{% if not asset.flags.is_active %}
+				<li class="list-group-item list-group-item-warning d-flex align-items-center justify-content-between">
+					<span class="fw-bolder">
+						<span class="svg-container me-1">{{ imgs.svgs.shield_exclamation|raw }}</span>{{ strings.not_active }}:
+						<span class="fw-normal">{{ strings.should_uninstall }}</span>
+					</span>
+					<a href="{{ hrefs.page_manage }}" target="_blank"
+					   class="btn btn-warning btn-sm py-0">{{ strings.manage }}</a>
+				</li>
+			{% endif %}
+
+			{% if not flags.ptg_is_restricted and not asset.flags.has_guard_files %}
+				<li class="list-group-item list-group-item-success d-flex align-items-center justify-content-start">
+					<span class="svg-container me-1">{{ imgs.svgs.shield_check|raw }}</span>
+					<span>{{ strings.no_files }}</span>
+				</li>
+			{% endif %}
+
+			{% if not asset.flags.has_update %}
+				<li class="list-group-item list-group-item-success d-flex align-items-center justify-content-start">
+					<span class="">
+						<span class="svg-container me-1">{{ imgs.svgs.shield_check|raw }}</span>Up-To-Date
+					</span>
+				</li>
+			{% endif %}
+
+			{% if not asset.flags.is_wporg %}
+				<li class="list-group-item list-group-item-dark d-flex align-items-center justify-content-start">
+					<span class="svg-container me-1">{{ imgs.svgs.shield_exclamation|raw }}</span>{{ strings.not_wporg }}
+				</li>
+			{% elseif not asset.flags.has_tag %}
+				<li class="list-group-item list-group-item-dark d-flex align-items-center justify-content-start">
+					<span class="svg-container me-1">{{ imgs.svgs.shield_exclamation|raw }}</span>{{ strings.no_tags }}
+				</li>
+			{% else %}
+				<li class="list-group-item list-group-item-info d-flex align-items-center justify-content-start">
+					<span class="svg-container me-1">{{ imgs.svgs.shield_check|raw }}</span>{{ strings.wporg_ok }}
+				</li>
+			{% endif %}
+
+		</ul>
+	</div>
+</div>
+
+{% if asset.flags.has_guard_files %}
+	<div class="col-12">
+		<div class="row mt-3 shield-section-datatable">
+			<div class="col">
+				<table id="ShieldTable-{{ asset.info.type }}-{{ asset.info.slug }}"
+					   class="table table-striped table-bordered table-for-plugintheme"
+					   style="width: 100%;"
+					   data-type="{{ asset.info.type }}" data-file="{{ asset.info.file }}"
+				></table>
+			</div>
+		</div>
+	</div>
+{% endif %}

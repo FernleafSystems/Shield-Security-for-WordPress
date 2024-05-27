@@ -33,7 +33,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  * @property array    $tours
  * @property array    $flags
  * /*** VIRTUAL ***
- * @property int      $last_verified_at
+ * @property int      $most_recent_activity_at
  * /*** REMOVED ***
  * @property int      $first_seen_at
  * @property int      $last_login_at
@@ -50,7 +50,7 @@ class ShieldUserMeta extends UserMeta {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
-			case 'last_verified_at':
+			case 'most_recent_activity_at':
 				$value = \max( [
 					$this->record->last_login_at,
 					$this->record->pass_started_at,
@@ -70,6 +70,10 @@ class ShieldUserMeta extends UserMeta {
 					$value = ( new Uuid() )->V4();
 					$this->UID = $value;
 				}
+				break;
+			case 'last_verified_at':
+				/** @deprecated */
+				$value = $this->most_recent_activity_at;
 				break;
 			default:
 				break;

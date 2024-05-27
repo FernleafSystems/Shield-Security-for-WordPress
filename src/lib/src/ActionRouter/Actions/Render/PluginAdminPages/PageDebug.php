@@ -23,6 +23,11 @@ class PageDebug extends BasePluginAdminPage {
 				),
 			],
 			[
+				'text'    => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'tool_purge_provider_ips' ],
+			],
+			[
 				'text'    => __( 'Print', 'wp-simple-firewall' ),
 				'href'    => "javascript:{}",
 				'classes' => [ 'shield_div_print' ],

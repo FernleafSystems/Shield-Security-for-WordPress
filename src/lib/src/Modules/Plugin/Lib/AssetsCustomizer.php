@@ -168,6 +168,19 @@ class AssetsCustomizer {
 					]
 				],
 			],
+			'debug_tools'      => [
+				'key'     => 'debug_tools',
+				'handles' => [
+					'main',
+				],
+				'data'    => function () {
+					return [
+						'ajax' => [
+							Actions\ToolPurgeProviderIPs::SLUG => ActionData::Build( Actions\ToolPurgeProviderIPs::class ),
+						],
+					];
+				},
+			],
 			'file_locker'      => [
 				'key'     => 'file_locker',
 				'handles' => [
@@ -492,6 +505,8 @@ class AssetsCustomizer {
 							'start'            => ActionData::Build( Actions\ScansStart::class ),
 							'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
 							'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
+
+							'render_asset_results_panel' => ActionData::Build( Components\Scans\Results\AssetResultsPanel::class ),
 
 							'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
 							'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),

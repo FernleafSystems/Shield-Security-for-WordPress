@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	Render\BaseRender,
-	Traits\AuthNotRequired
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class RenderPluginBadge extends BaseRender {
+class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	use AuthNotRequired;
 
@@ -18,7 +14,7 @@ class RenderPluginBadge extends BaseRender {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		/** @var Options $secAdminOpts */
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options $secAdminOpts */
 		$secAdminOpts = $con->getModule_SecAdmin()->opts();
 
 		if ( $secAdminOpts->isOpt( 'wl_replace_badge_url', 'Y' ) ) {
