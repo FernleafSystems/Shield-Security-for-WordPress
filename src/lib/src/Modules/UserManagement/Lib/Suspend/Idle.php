@@ -12,14 +12,14 @@ class Idle extends Base {
 	 */
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
 		$susCon = self::con()->comps->user_suspend;
-		$idleInterval = $susCon->getSuspendAutoIdleTime();
+		$idleFor = Services::Request()->ts() - $meta->most_recent_activity_at;
 		$rolesToSuspend = $susCon->getSuspendAutoIdleUserRoles();
 
 		$isIdle = !empty( \array_intersect( $rolesToSuspend, \array_map( '\strtolower', $user->roles ) ) )
 				  &&
-				  ( Services::Request()->ts() - $meta->most_recent_activity_at > $idleInterval );
+				  ( $idleFor > $susCon->getSuspendAutoIdleTime() );
 
-		if ( apply_filters( 'shield/user/is_user_idle', $isIdle, $user, $meta, $idleInterval, $rolesToSuspend ) ) {
+		if ( apply_filters( 'shield/user/is_user_account_idle', $isIdle, $user, $idleFor, $rolesToSuspend ) ) {
 			$user = new \WP_Error(
 				self::con()->prefix( 'pass-expired' ),
 				\implode( ' ', [
