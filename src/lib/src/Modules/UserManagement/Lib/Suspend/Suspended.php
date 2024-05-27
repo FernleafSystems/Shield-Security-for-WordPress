@@ -12,7 +12,7 @@ class Suspended extends Base {
 	 * @return \WP_Error|\WP_User
 	 */
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
-		if ( apply_filters( 'shield/user/is_user_hard_suspended', $meta->record->hard_suspended_at > 0, $user, $meta ) ) {
+		if ( apply_filters( 'shield/user/is_user_hard_suspended', $meta->record->hard_suspended_at > 0, $user ) ) {
 			$user = new \WP_Error(
 				self::con()->prefix( 'hard-suspended' ),
 				\implode( ' ', [

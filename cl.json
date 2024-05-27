@@ -60,12 +60,13 @@
           {
             "title":    "Added WP actions/hooks during the 2FA email sending process to allow for developer integration.",
             "category": "developer",
-            "type":     "added"
+            "type":     "new"
           },
           {
             "title":    "Added WP actions/hooks for integration with Password Expiry, Account Suspension, and Idle status query.",
             "category": "developer",
-            "type":     "added"
+            "type":     "new",
+            "href":     "https://shsec.io/nn"
           },
           {
             "title":    "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
