@@ -54,8 +54,8 @@
     ],
     "patches":     [
       {
-        "version":     "15",
-        "released_at": 1716800000,
+        "version":     "16",
+        "released_at": 1716889000,
         "items":       [
           {
             "title":    "Added WP actions/hooks during the 2FA email sending process to allow for developer integration.",
@@ -63,7 +63,7 @@
             "type":     "new"
           },
           {
-            "title":    "Added WP actions/hooks for integration with Password Expiry, Account Suspension, and Idle status query.",
+            "title":    "Added WP actions/hooks for integration with Password Expiry, Account Suspension, and Idle status queries.",
             "category": "developer",
             "type":     "new",
             "href":     "https://shsec.io/nn"
