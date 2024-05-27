@@ -11,12 +11,15 @@ class Idle extends Base {
 	 * @return \WP_Error|\WP_User
 	 */
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
-		$r = \array_intersect(
-			self::con()->comps->user_suspend->getSuspendAutoIdleUserRoles(),
-			\array_map( '\strtolower', $user->roles )
-		);
+		$susCon = self::con()->comps->user_suspend;
+		$idleFor = Services::Request()->ts() - $meta->most_recent_activity_at;
+		$rolesToSuspend = $susCon->getSuspendAutoIdleUserRoles();
 
-		if ( \count( $r ) > 0 && $this->isLastVerifiedAtExpired( $meta ) ) {
+		$isIdle = !empty( \array_intersect( $rolesToSuspend, \array_map( '\strtolower', $user->roles ) ) )
+				  &&
+				  ( $idleFor > $susCon->getSuspendAutoIdleTime() );
+
+		if ( apply_filters( 'shield/user/is_user_account_idle', $isIdle, $user, $idleFor, $rolesToSuspend ) ) {
 			$user = new \WP_Error(
 				self::con()->prefix( 'pass-expired' ),
 				\implode( ' ', [
@@ -29,6 +32,9 @@ class Idle extends Base {
 		return $user;
 	}
 
+	/**
+	 * @deprecated 19.1.15
+	 */
 	protected function isLastVerifiedAtExpired( ShieldUserMeta $meta ) :bool {
 		return Services::Request()->ts() - $meta->last_verified_at
 			   > self::con()->comps->user_suspend->getSuspendAutoIdleTime();

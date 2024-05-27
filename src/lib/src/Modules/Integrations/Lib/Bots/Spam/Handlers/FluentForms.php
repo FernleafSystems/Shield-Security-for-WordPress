@@ -9,17 +9,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 class FluentForms extends Base {
 
 	protected function run() {
-		\FluentForm\App::getApplication()->addAction( 'fluentform_before_insert_submission',
+		\FluentForm\App\App::getInstance()->addAction(
+			'fluentform_before_insert_submission',
 			function () {
 				if ( $this->isBotBlockRequired() ) {
 					wp_send_json( [
 						'errors' => $this->getCommonSpamMessage()
 					], 422 );
 				}
-			}, 9, 0 );
+			},
+			9, 0
+		);
 	}
 
 	protected static function ProviderMeetsRequirements() :bool {
-		return @\method_exists( '\FluentForm\App', 'getApplication' );
+		return @\method_exists( '\FluentForm\App\App', 'getInstance' );
 	}
 }

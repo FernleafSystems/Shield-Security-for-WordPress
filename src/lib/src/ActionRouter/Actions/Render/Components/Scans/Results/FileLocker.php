@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 
-class FileLocker extends Actions\Render\Components\Scans\BaseScans {
+class FileLocker extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans {
 
 	public const SLUG = 'scanresults_filelocker';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig';

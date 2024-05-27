@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "19.1.13",
-    "release_timestamp":       1714561000,
-    "build":                   "202405.0102",
+    "version":                 "19.1.16",
+    "release_timestamp":       1716889000,
+    "build":                   "202405.2801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -2839,7 +2839,7 @@
           }
         ],
         "link_info":     "",
-        "link_blog":     "",
+        "link_blog":     "https://shsec.io/nh",
         "beacon_id":     471,
         "name":          "CrowdSec IP Blocking",
         "summary":       "How To Handle Requests From IPs Found On CrowdSec Blocklist",
@@ -3633,7 +3633,7 @@
         "type":        "checkbox",
         "beacon_id":   763,
         "link_info":   "",
-        "link_blog":   "https://shsec.io/i9",
+        "link_blog":   "https://shsec.io/ni",
         "name":        "Enable Passkeys",
         "summary":     "Allow Registration Of Passkeys",
         "description": "Allow Registration Of Passkeys."
@@ -5224,6 +5224,9 @@
               "macro_type": "varchar",
               "length":     256,
               "attr":       []
+            },
+            "meta":     {
+              "macro_type": "meta"
             }
           },
           "cols_timestamps": {

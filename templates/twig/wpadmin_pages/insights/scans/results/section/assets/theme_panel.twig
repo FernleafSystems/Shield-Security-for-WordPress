@@ -1,0 +1,16 @@
+{% extends '/wpadmin_pages/insights/scans/results/section/assets/asset_panel.twig' %}
+
+{% block asset_info %}
+	{{ parent() }}
+
+	{% if theme.flags.is_child %}
+		<li class="list-group-item">
+			<span class="fw-bold">{{ strings.parent_theme }}</span>: {{ theme.info.parent_theme }};
+		</li>
+	{% elseif theme.flags.is_parent %}
+		<li class="list-group-item">
+			<span class="fw-bold">{{ strings.child_theme }}</span>: {{ theme.info.child_theme }};
+		</li>
+	{% endif %}
+
+{% endblock %}

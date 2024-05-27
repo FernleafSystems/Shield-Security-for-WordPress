@@ -252,6 +252,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public function runDailyCron() {
 		( new WhitelistUs() )->all();
+		( new Lib\CleanOldOptions() )->execute();
 	}
 
 	public function isXmlrpcBypass() :bool {

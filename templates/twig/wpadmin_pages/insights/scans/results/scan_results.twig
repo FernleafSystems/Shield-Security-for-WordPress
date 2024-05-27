@@ -30,8 +30,11 @@
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-themes-tab" data-bs-toggle="tab" href="#h-tabs-themes"
-		   role="tab" aria-controls="h-tabs-themes">
+		<a class="nav-link" id="h-tabs-themes-tab"
+		   data-bs-toggle="tab"
+		   data-bs-target="#h-tabs-themes"
+		   role="tab"
+		   aria-controls="h-tabs-themes">
 			Themes
 			{% if vars.sections.themes.count > 0 %}
 				<span class="badge bg-danger">{{ vars.sections.themes.count }}</span>
