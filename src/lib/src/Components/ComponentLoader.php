@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\S
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\UserFormsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller as MainwpCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
@@ -35,6 +36,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
  * @property AuditCon                  $activity_log
+ * @property AltChaHandler             $altcha
  * @property AssetsCustomizer          $assets_customizer
  * @property ApiTokenManager           $api_token
  * @property CompCons\AutoUpdatesCon   $autoupdates
@@ -90,6 +92,7 @@ class ComponentLoader extends DynPropertiesClass {
 	private function getConsMap() :array {
 		return [
 			'activity_log'      => AuditCon::class,
+			'altcha'            => AltChaHandler::class,
 			'assets_customizer' => AssetsCustomizer::class,
 			'autoupdates'       => CompCons\AutoUpdatesCon::class,
 			'api_token'         => ApiTokenManager::class,

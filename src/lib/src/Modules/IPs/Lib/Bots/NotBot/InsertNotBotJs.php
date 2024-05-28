@@ -43,9 +43,6 @@ class InsertNotBotJs {
 							'flags' => [
 								'skip'     => $this->isSkip(),
 								'required' => $this->isFreshSignalRequired(),
-							],
-							'vars'  => [
-								'altcha' => ( new AltChaHandler() )->generateChallenge(),
 							]
 						];
 					},

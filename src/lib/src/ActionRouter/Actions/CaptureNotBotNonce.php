@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 
 /**
- * @deprecated 19.1.14
+ * @deprecated 19.2.0
  */
 class CaptureNotBotNonce extends BaseAction {
 

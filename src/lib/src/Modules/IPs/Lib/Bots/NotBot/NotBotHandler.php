@@ -48,38 +48,46 @@ class NotBotHandler {
 	}
 
 	public function getNonRequiredSignals() :array {
-		$BS = ( new BotSignalsRecord() )
-			->setIP( self::con()->this_req->ip )
-			->retrieve();
+		$con = self::con();
+		try {
+			$BS = ( new BotSignalsRecord() )
+				->setIP( $con->this_req->ip )
+				->retrieve();
+		}
+		catch ( \Exception $e ) {
+			$BS = null;
+		}
 		return \array_keys( \array_filter( [
-			'notbot' => Services::Request()->ts() - $BS->notbot_at < HOUR_IN_SECONDS,
-			'altcha' => Services::Request()->ts() - $BS->altcha_at < HOUR_IN_SECONDS,
+			'notbot' => empty( $BS ) || ( Services::Request()->ts() - $BS->notbot_at < HOUR_IN_SECONDS ),
+			'altcha' => empty( $BS )
+						|| !$con->comps->altcha->enabled()
+						|| ( Services::Request()->ts() - $BS->altcha_at < HOUR_IN_SECONDS ),
 		] ) );
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function hasCookie() :bool {
 		return false;
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function getHashForVisitorTS( int $ts ) {
 		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, ( new InstallationID() )->id() );
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet( 'shield-notbot-nonce', ActionNonce::Create( CaptureNotBot::class ), 120 );
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function getLastNotBotSignalAt() :int {
 		return ( new BotSignalsRecord() )
