@@ -54,6 +54,17 @@
     ],
     "patches":     [
       {
+        "version":     "19",
+        "released_at": 1716930000,
+        "items":       [
+          {
+            "title":    "Fix for limitation in CrowdSec API to ensure contextual data are of the expected format.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "18",
         "released_at": 1716896000,
         "items":       [
