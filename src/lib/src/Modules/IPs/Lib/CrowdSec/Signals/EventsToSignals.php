@@ -91,7 +91,8 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			foreach ( $this->signals as $signal ) {
 				/** @var CrowdsecSignalsDB\Record $record */
 				$record = $dbhSignals->getRecord()->applyFromArray( $signal );
-				$record->meta = [
+
+				$metaData = [
 					'context' => [
 						'method'     => \strtoupper( $con->this_req->method ),
 						'target_uri' => $con->this_req->path,
@@ -99,7 +100,10 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 						'status'     => $this->capturedStatusCode === null ? http_response_code() : $this->capturedStatusCode,
 					],
 				];
-				$dbhSignals->getQueryInserter()->insert( $record );
+				if ( !empty( $record->arrayDataWrap( $metaData ) ) ) {
+					$record->meta = $metaData;
+					$dbhSignals->getQueryInserter()->insert( $record );
+				}
 			}
 
 			// and finally, trigger send to Crowdsec
