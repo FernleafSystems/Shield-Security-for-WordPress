@@ -106,7 +106,7 @@ class PushSignalsToCS {
 		foreach ( $record->meta[ 'context' ] ?? [] as $key => $value ) {
 			$context[] = [
 				'key'   => $key,
-				'value' => $value,
+				'value' => \strval( $value ),
 			];
 		}
 		return $context;
