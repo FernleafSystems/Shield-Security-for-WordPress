@@ -54,8 +54,8 @@
     ],
     "patches":     [
       {
-        "version":     "17",
-        "released_at": 1716894000,
+        "version":     "18",
+        "released_at": 1716896000,
         "items":       [
           {
             "title":    "Funky characters in user-agents broke json_encode() - switched to wp_json_encode().",
