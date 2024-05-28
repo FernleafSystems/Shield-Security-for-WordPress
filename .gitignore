@@ -1,12 +1,13 @@
 .idea/
 /assets/dist
 /config/deprecated/
-/assets/dist
 /src/lib/strauss.phar
 /src/lib/vendor/
 /src/lib_scoped/vendor/
+/src/lib_scoped/vendor-prefixed
 composer.lock
 /node_modules
 /package-lock.json
 /_gsdata_
 /forceoff
+strauss.phar
