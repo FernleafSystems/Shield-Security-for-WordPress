@@ -5,8 +5,8 @@
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
-		 data-notice_id="{{ notice_id }}"
-	     class="{{ notice_classes|default('info') }} notice is-dismissible shield-notice-container">
+		 data-notice_id="{{ notice_id|default('') }}"
+		 class="{{ notice_classes|default('info') }} notice is-dismissible shield-notice-container">
 
 		<div class="notice-body" style="display: flex; flex-direction: row; ">
 
