@@ -85,7 +85,7 @@ class ImportDecisions {
 		}
 		else {
 			$csDec = $this->downloadDecisions();
-			$FS->putFileContent( $file, \json_encode( $csDec ) );
+			$FS->putFileContent( $file, \wp_json_encode( $csDec ) );
 		}
 		return $csDec;
 	}

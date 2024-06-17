@@ -90,7 +90,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 				'help_link'         => '',
 				'description'       => 'Passkey, Windows Hello, FIDO2, Yubikey, Titan',
 				'datas'             => [
-					'auth_challenge' => \base64_encode( \json_encode( $this->startNewAuth() ) ),
+					'auth_challenge' => \base64_encode( \wp_json_encode( $this->startNewAuth() ) ),
 				]
 			];
 		}

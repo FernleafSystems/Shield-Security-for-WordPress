@@ -10,7 +10,7 @@ class PluginImportExport_HandshakeConfirm extends PluginImportExport_Base {
 
 	protected function exec() {
 		if ( Services::Request()->ts() < self::con()->opts->optGet( 'importexport_handshake_expires_at' ) ) {
-			echo \json_encode( [ 'success' => true ] );
+			echo \wp_json_encode( [ 'success' => true ] );
 			die();
 		}
 		$this->response()->action_response_data = [

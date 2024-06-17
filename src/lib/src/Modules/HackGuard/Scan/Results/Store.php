@@ -58,7 +58,7 @@ class Store {
 				$metaInserter->setInsertData( [
 					'ri_ref'     => $resultRecord->id,
 					'meta_key'   => $metaKey,
-					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \json_encode( $metaValue ),
+					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \wp_json_encode( $metaValue ),
 				] )->query();
 			}
 
