@@ -100,7 +100,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 						'status'     => $this->capturedStatusCode === null ? http_response_code() : $this->capturedStatusCode,
 					],
 				];
-				if ( !empty( $record->arrayDataWrap( $metaData ) ) ) {
+				if ( \method_exists( $record, 'arrayDataWrap' ) && !empty( $record->arrayDataWrap( $metaData ) ) ) {
 					$record->meta = $metaData;
 					$dbhSignals->getQueryInserter()->insert( $record );
 				}

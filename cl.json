@@ -54,8 +54,19 @@
     ],
     "patches":     [
       {
-        "version":     "17",
-        "released_at": 1716894000,
+        "version":     "19",
+        "released_at": 1716930000,
+        "items":       [
+          {
+            "title":    "Fix for limitation in CrowdSec API to ensure contextual data are of the expected format.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
+        "version":     "18",
+        "released_at": 1716896000,
         "items":       [
           {
             "title":    "Funky characters in user-agents broke json_encode() - switched to wp_json_encode().",
