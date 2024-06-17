@@ -292,7 +292,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		return new Server(
 			new PublicKeyCredentialRpEntity(
 				sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
-				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
+				\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
 				null //Icon
 			),
 			$this->getSourceRepo(),

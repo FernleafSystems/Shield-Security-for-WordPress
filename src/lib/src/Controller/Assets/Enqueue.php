@@ -181,7 +181,7 @@ class Enqueue {
 	}
 
 	private function register( string $handle, string $url, array $deps = [] ) :void {
-		$path = \parse_url( $url, \PHP_URL_PATH );
+		$path = \wp_parse_url( $url, \PHP_URL_PATH );
 		if ( !empty( $path ) ) {
 			Paths::Ext( $path ) === 'js' ?
 				wp_register_script( $handle, $url, $deps, self::con()->cfg->version(), true )

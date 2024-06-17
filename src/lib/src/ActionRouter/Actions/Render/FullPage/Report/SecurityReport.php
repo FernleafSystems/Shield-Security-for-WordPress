@@ -94,7 +94,7 @@ class SecurityReport extends BaseFullPageRender {
 					'report_date_full_start' => $WP->getTimeStringForDisplay( $report->start_at ),
 					'report_date_full_end'   => $WP->getTimeStringForDisplay( $report->end_at ),
 				],
-				'site_url_host' => \parse_url( $WP->getHomeUrl(), \PHP_URL_HOST ),
+				'site_url_host' => \wp_parse_url( $WP->getHomeUrl(), \PHP_URL_HOST ),
 				'areas'         => $areas,
 				'inline_js'     => [
 					Services::WpFs()->getFileContent( self::con()->paths->forDistJS( 'reports' ) ),
