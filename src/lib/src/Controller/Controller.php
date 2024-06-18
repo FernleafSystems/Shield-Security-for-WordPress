@@ -786,7 +786,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 19.1
+	 * @deprecated 19.2
 	 */
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();

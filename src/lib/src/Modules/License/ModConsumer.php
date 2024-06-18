@@ -14,8 +14,4 @@ trait ModConsumer {
 	public function mod() :ModCon {
 		return self::con()->modules[ EnumModules::LICENSE ];
 	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
-	}
 }
