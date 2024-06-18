@@ -44,23 +44,23 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 
 	private function colActive( SecurityRulesDB\Record $rule ) :string {
 		return self::con()
-				   ->getRenderer()
-				   ->setTemplateEngineTwig()
-				   ->setTemplate( '/wpadmin/components/rules/activate_switch.twig' )
-				   ->setRenderVars( [
-					   'strings' => [
-						   'title' => $rule->is_active ? __( 'Deactivate Rule', 'wp-simple-firewall' ) : __( 'Activate Rule', 'wp-simple-firewall' ),
-					   ],
-					   'flags'   => [
-						   'is_checked' => $rule->is_active,
-						   'is_viable'  => !empty( $rule->form ),
-					   ],
-					   'vars'    => [
-						   'action' => $rule->is_active ? 'deactivate' : 'activate',
-						   'rid'    => $rule->id,
-					   ],
-				   ] )
-				   ->render();
+			->comps
+			->render
+			->setTemplate( '/wpadmin/components/rules/activate_switch.twig' )
+			->setData( [
+				'strings' => [
+					'title' => $rule->is_active ? __( 'Deactivate Rule', 'wp-simple-firewall' ) : __( 'Activate Rule', 'wp-simple-firewall' ),
+				],
+				'flags'   => [
+					'is_checked' => $rule->is_active,
+					'is_viable'  => !empty( $rule->form ),
+				],
+				'vars'    => [
+					'action' => $rule->is_active ? 'deactivate' : 'activate',
+					'rid'    => $rule->id,
+				],
+			] )
+			->render();
 	}
 
 	private function colActions( SecurityRulesDB\Record $rule ) :string {

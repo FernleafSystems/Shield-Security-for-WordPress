@@ -249,7 +249,6 @@ class Capabilities {
 			'user_auto_unblock',
 			'user_block_spam_registration',
 			'whitelabel',
-			'wpcli_level_1',
 			'wpcli_level_2',
 			'reports_local',
 			'reports_remote',

@@ -32,6 +32,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAd
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel\WhitelabelController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
+use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
@@ -60,6 +61,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property OffenseTracker            $offense_tracker
  * @property CompCons\OptsLookup       $opts_lookup
  * @property ReportingController       $reports
+ * @property RenderService             $render
  * @property RequestLogger             $requests_log
  * @property SecurityAdminController   $sec_admin
  * @property SessionController         $session
@@ -115,6 +117,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'not_bot'           => NotBotHandler::class,
 			'offense_tracker'   => OffenseTracker::class,
 			'opts_lookup'       => OptsLookup::class,
+			'render'            => RenderService::class,
 			'reports'           => ReportingController::class,
 			'requests_log'      => RequestLogger::class,
 			'sec_admin'         => SecurityAdminController::class,
