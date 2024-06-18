@@ -16,22 +16,24 @@ class CaptureNotBot extends BaseAction {
 		try {
 			$con->fireEvent( 'bottrack_multiple', [
 				'data' => [
-					'events' => \array_keys( \array_filter( [
-						'bottrack_notbot' => true,
-					] ) ),
+					'events' => [
+						'bottrack_notbot',
+					],
 				]
 			] );
 
-			$con->comps->not_bot->sendNotBotFlagCookie();
+			$notBotCon = $con->comps->not_bot;
+			$notBotCon->sendNotBotFlagCookie();
 
 			$this->response()->success = true;
 			$this->response()->action_response_data = [
 				'success'     => true,
-				'altcha_data' => ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ),
+				'altcha_data' => $notBotCon->getRequiredSignals() ?
+					ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ) : [],
 			];
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+//			error_log( $e->getMessage() );
 			$this->response()->success = false;
 		}
 	}

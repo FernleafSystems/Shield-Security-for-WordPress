@@ -10,7 +10,7 @@ class CaptureNotBotAltcha extends BaseAction {
 
 	protected function exec() {
 		try {
-			self::con()->fireEvent( 'bottrack_multiple', [
+			self::con()->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
 					'events' => \array_keys( \array_filter( [
 						'bottrack_notbot' => true,

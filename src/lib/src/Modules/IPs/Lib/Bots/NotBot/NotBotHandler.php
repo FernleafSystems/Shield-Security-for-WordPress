@@ -19,6 +19,8 @@ class NotBotHandler {
 
 	public const LIFETIME = 600;
 	public const COOKIE_SLUG = 'notbot';
+	public const SIGNAL_NOTBOT = 'notbot';
+	public const SIGNAL_ALTCHA = 'altcha';
 	/**
 	 * @deprecated 19.1
 	 */
@@ -48,6 +50,10 @@ class NotBotHandler {
 	}
 
 	public function getNonRequiredSignals() :array {
+		return \array_diff( $this->getSignalSlugs(), $this->getRequiredSignals() );
+	}
+
+	public function getRequiredSignals() :array {
 		$con = self::con();
 		try {
 			$BS = ( new BotSignalsRecord() )
@@ -58,11 +64,20 @@ class NotBotHandler {
 			$BS = null;
 		}
 		return \array_keys( \array_filter( [
-			'notbot' => empty( $BS ) || ( Services::Request()->ts() - $BS->notbot_at < HOUR_IN_SECONDS ),
-			'altcha' => empty( $BS )
-						|| !$con->comps->altcha->enabled()
-						|| ( Services::Request()->ts() - $BS->altcha_at < HOUR_IN_SECONDS ),
+			self::SIGNAL_NOTBOT => !empty( $BS )
+								   && $con->comps->altcha->complexityLevel() !== 'none'
+								   && ( Services::Request()->ts() - $BS->notbot_at > HOUR_IN_SECONDS ),
+			self::SIGNAL_ALTCHA => !empty( $BS )
+								   && $con->comps->altcha->enabled()
+								   && ( Services::Request()->ts() - $BS->altcha_at > HOUR_IN_SECONDS ),
 		] ) );
+	}
+
+	protected function getSignalSlugs() :array {
+		return [
+			self::SIGNAL_NOTBOT,
+			self::SIGNAL_ALTCHA,
+		];
 	}
 
 	/**

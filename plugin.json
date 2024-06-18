@@ -2711,12 +2711,16 @@
       {
         "key":           "altcha_complexity",
         "section":       "section_antibot",
-        "default":       "low",
+        "default":       "medium",
         "type":          "select",
         "value_options": [
           {
             "value_key": "none",
             "text":      "None"
+          },
+          {
+            "value_key": "legacy",
+            "text":      "Legacy"
           },
           {
             "value_key": "adaptive",

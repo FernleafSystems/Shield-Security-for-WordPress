@@ -64,7 +64,7 @@ class InsertNotBotJs {
 	private function isFreshSignalRequired() :bool {
 		$req = Services::Request();
 		return $req->query( 'force_notbot' ) == 1 ||
-			   ( !$this->isSkip() && !empty( self::con()->comps->not_bot->getNonRequiredSignals() ) );
+			   ( !$this->isSkip() && !empty( self::con()->comps->not_bot->getRequiredSignals() ) );
 	}
 
 	/**

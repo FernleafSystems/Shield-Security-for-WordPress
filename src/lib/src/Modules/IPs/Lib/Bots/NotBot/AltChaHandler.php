@@ -21,7 +21,7 @@ class AltChaHandler {
 	}
 
 	public function enabled() :bool {
-		return $this->complexityLevel() !== 'none' && $this->reqsMet();
+		return !\in_array( $this->complexityLevel(), [ 'none', 'legacy' ] ) && $this->reqsMet();
 	}
 
 	/**
