@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as SecurityRulesDB,
 	RuleRecords
@@ -66,10 +65,10 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 	private function colActions( SecurityRulesDB\Record $rule ) :string {
 		$con = self::con();
 		return $con
-			->getRenderer()
-			->setTemplateEngineTwig()
+			->comps
+			->render
 			->setTemplate( '/wpadmin/components/rules/action_buttons.twig' )
-			->setRenderVars( [
+			->setData( [
 				'strings' => [
 					'edit'   => __( 'Edit Rule', 'wp-simple-firewall' ),
 					'delete' => __( 'Delete Rule', 'wp-simple-firewall' ),
