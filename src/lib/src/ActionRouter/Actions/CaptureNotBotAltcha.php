@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaHandler;
-
 class CaptureNotBotAltcha extends BaseAction {
 
 	use Traits\AuthNotRequired;
@@ -12,7 +10,7 @@ class CaptureNotBotAltcha extends BaseAction {
 
 	protected function exec() {
 		try {
-			self::con()->fireEvent( 'bottrack_multiple', [
+			self::con()->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
 					'events' => \array_keys( \array_filter( [
 						'bottrack_notbot' => true,
@@ -43,7 +41,7 @@ class CaptureNotBotAltcha extends BaseAction {
 		];
 		if ( \count( \array_intersect_key( $data, \array_flip( $keys ) ) ) === \count( $keys ) ) {
 			try {
-				$verified = ( new AltChaHandler() )->verifySolution(
+				$verified = self::con()->comps->altcha->verifySolution(
 					$data[ 'algorithm' ],
 					$data[ 'salt' ],
 					$data[ 'challenge' ],

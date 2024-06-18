@@ -198,7 +198,7 @@ class NavMenuBuilder {
 						$enabled ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
-						'dynamic_page_load' => \json_encode( [
+						'dynamic_page_load' => \wp_json_encode( [
 							'dynamic_load_slug' => Config::SLUG,
 							'dynamic_load_data' => [
 								'mod_slug' => $cfg->slug,

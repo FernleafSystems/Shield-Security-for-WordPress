@@ -10,6 +10,43 @@ class AltChaHandler {
 	use PluginControllerConsumer;
 
 	/**
+	 * Very basic adaptive complexity for now. More to come.
+	 */
+	public function complexityLevel() :string {
+		$opt = self::con()->opts->optGet( 'altcha_complexity' );
+		if ( $opt === 'adaptive' ) {
+			$opt = wp_is_mobile() ? 'medium' : 'high';
+		}
+		return $opt;
+	}
+
+	public function enabled() :bool {
+		return !\in_array( $this->complexityLevel(), [ 'none', 'legacy' ] ) && $this->reqsMet();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function hmacKey() :string {
+		$key = wp_salt( 'shield-altcha' );
+		if ( empty( $key ) ) {
+			throw new \Exception( "Can't generate HMAC Key" );
+		}
+		return $key;
+	}
+
+	public function reqsMet() :bool {
+		try {
+			$this->hmacKey();
+			$met = true;
+		}
+		catch ( \Exception $e ) {
+			$met = false;
+		}
+		return $met;
+	}
+
+	/**
 	 * https://altcha.org/docs/server-integration/
 	 * @throws \Exception
 	 */
@@ -25,7 +62,7 @@ class AltChaHandler {
 			throw new \Exception( 'Challenge Failed' );
 		}
 		// signature_ok = equals(data.signature, hmac_sha2_hex(data.challenge, hmac_key))
-		if ( !\hash_equals( \hash_hmac( 'sha256', $challenge, $this->getHmacKey() ), $signature ) ) {
+		if ( !\hash_equals( \hash_hmac( 'sha256', $challenge, $this->hmacKey() ), $signature ) ) {
 			throw new \Exception( 'Signature Failed' );
 		}
 		return true;
@@ -35,7 +72,7 @@ class AltChaHandler {
 	 * @throws \Exception
 	 */
 	public function generateChallenge() :array {
-		$this->getHmacKey();
+		$this->hmacKey();
 		switch ( $this->complexityLevel() ) {
 			case 'high':
 				$secretMin = 10000;
@@ -54,7 +91,7 @@ class AltChaHandler {
 		$expires = Services::Request()->ts() + MINUTE_IN_SECONDS*5;
 		$salt = \bin2hex( \random_bytes( 12 ) ).$expires;
 		$challenge = \hash( 'sha256', $salt.\random_int( $secretMin, $secretMax ) );
-		$signature = \hash_hmac( 'sha256', $challenge, $this->getHmacKey() );
+		$signature = \hash_hmac( 'sha256', $challenge, $this->hmacKey() );
 		return [
 			'algorithm' => 'SHA-256',
 			'challenge' => $challenge,
@@ -63,27 +100,5 @@ class AltChaHandler {
 			'signature' => $signature,
 			'expires'   => $expires,
 		];
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function getHmacKey() :string {
-		$key = wp_salt( 'shield-altcha' );
-		if ( empty( $key ) ) {
-			throw new \Exception( "Can't generate HMAC Key" );
-		}
-		return $key;
-	}
-
-	/**
-	 * Very basic adaptive complexity for now. More to come.
-	 */
-	private function complexityLevel() :string {
-		$opt = self::con()->opts->optGet( 'altcha_complexity' );
-		if ( $opt === 'adaptive' ) {
-			$opt = wp_is_mobile() ? 'medium' : 'high';
-		}
-		return $opt;
 	}
 }

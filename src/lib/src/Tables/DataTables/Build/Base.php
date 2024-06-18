@@ -16,7 +16,7 @@ abstract class Base {
 	abstract protected function getOrderColumnSlug() :string;
 
 	public function build() :string {
-		return \json_encode( $this->buildRaw() );
+		return \wp_json_encode( $this->buildRaw() );
 	}
 
 	public function buildRaw() :array {

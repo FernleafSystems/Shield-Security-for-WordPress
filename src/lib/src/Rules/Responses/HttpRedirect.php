@@ -20,7 +20,7 @@ class HttpRedirect extends Base {
 	 */
 	private function canRedirect() :bool {
 		$req = $this->req;
-		$to = (array)\parse_url( $this->p->redirect_url );
+		$to = (array)\wp_parse_url( $this->p->redirect_url );
 		return !$this->req->wp_is_ajax
 			   &&
 			   ( $to[ 'host' ] ?? '' ) !== $req->host || \trim( $to[ 'path' ] ?? '', '/' ) !== \trim( $req->path, '/' );

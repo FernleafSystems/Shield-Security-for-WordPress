@@ -90,7 +90,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 				'help_link'         => '',
 				'description'       => 'Passkey, Windows Hello, FIDO2, Yubikey, Titan',
 				'datas'             => [
-					'auth_challenge' => \base64_encode( \json_encode( $this->startNewAuth() ) ),
+					'auth_challenge' => \base64_encode( \wp_json_encode( $this->startNewAuth() ) ),
 				]
 			];
 		}
@@ -291,7 +291,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		return new Server(
 			new PublicKeyCredentialRpEntity(
 				sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
-				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
+				\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
 				null //Icon
 			),
 			$this->getSourceRepo(),

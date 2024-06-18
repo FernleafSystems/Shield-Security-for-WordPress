@@ -31,7 +31,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 			],
 			'vars'    => [
 				'inline_js' => [
-					sprintf( 'var shield_vars_login_2fa = %s;', \json_encode(
+					sprintf( 'var shield_vars_login_2fa = %s;', \wp_json_encode(
 						[
 							'comps' => [
 								'login_2fa' => Services::DataManipulation()->mergeArraysRecursive(

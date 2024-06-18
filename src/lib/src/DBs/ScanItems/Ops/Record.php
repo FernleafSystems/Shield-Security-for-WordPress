@@ -47,9 +47,9 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
-				$json = \json_encode( $value );
+				$json = \wp_json_encode( $value );
 				if ( !\is_string( $json ) ) {
-					$json = \json_encode( [] );
+					$json = \wp_json_encode( [] );
 					error_log( 'problem encoding json for: '.var_export( $value, true ) );
 				}
 				$value = \base64_encode( $json );

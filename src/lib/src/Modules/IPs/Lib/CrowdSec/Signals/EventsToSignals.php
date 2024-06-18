@@ -217,7 +217,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	private function isEventCsSignal( string $evt ) :bool {
 		return !empty( $this->getSignalDef( $evt ) );

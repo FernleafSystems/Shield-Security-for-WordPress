@@ -87,7 +87,7 @@ class Export {
 	 * @return string[]
 	 */
 	public function toStandardArray() :array {
-		$export = \json_encode( $this->getExportData() );
+		$export = \wp_json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),

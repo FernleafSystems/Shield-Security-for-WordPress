@@ -575,8 +575,8 @@ class StringsOptions {
 				$summary = __( 'Adjust Bot Challenge Complexity', 'wp-simple-firewall' );
 				$desc = [
 					__( "Shield's improved NotBot system employs ALTCHA that challenges bots to perform complex work.", 'wp-simple-firewall' ),
-					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work help us to better discriminate between them and humans as they navigate your site.", 'wp-simple-firewall' ),
-					__( "Higher complexity presents a bigger cost/challenge to bots, but may be an excess burden for legitimate visitors using older/slower devices.", 'wp-simple-firewall' ),
+					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this help to discriminate between bots and humans.", 'wp-simple-firewall' ),
+					__( "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices.", 'wp-simple-firewall' ),
 					__( "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor.", 'wp-simple-firewall' ),
 				];
 				break;

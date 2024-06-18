@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class InsertNotBotJs {
 
@@ -42,9 +43,6 @@ class InsertNotBotJs {
 							'flags' => [
 								'skip'     => $this->isSkip(),
 								'required' => $this->isFreshSignalRequired(),
-							],
-							'vars'  => [
-								'altcha' => ( new AltChaHandler() )->generateChallenge(),
 							]
 						];
 					},
@@ -56,13 +54,16 @@ class InsertNotBotJs {
 		} );
 	}
 
+	/**
+	 * Skip NotBot if the current visitor is a known, identifiable entity.
+	 */
 	private function isSkip() :bool {
-		return Services::IP()->getIpDetector()->getIPIdentity() === 'gtmetrix';
+		return !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ IpID::VISITOR, IpID::UNKNOWN ], true );
 	}
 
 	private function isFreshSignalRequired() :bool {
 		$req = Services::Request();
 		return $req->query( 'force_notbot' ) == 1 ||
-			   ( !$this->isSkip() && !empty( self::con()->comps->not_bot->getNonRequiredSignals() ) );
+			   ( !$this->isSkip() && !empty( self::con()->comps->not_bot->getRequiredSignals() ) );
 	}
 }

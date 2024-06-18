@@ -1,6 +1,6 @@
 import { solveChallenge } from 'altcha-lib';
-import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxParseResponseService } from "../services/AjaxParseResponseService";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { GetCookie } from "../../util/GetCookie";
 import { ObjectOps } from "../../util/ObjectOps";
 import { PageQueryParam } from "../../util/PageQueryParam";
@@ -19,14 +19,6 @@ export class NotBotv2 extends BaseAutoExecComponent {
 		super.init();
 	}
 
-	/**
-	 * @since 11.2 we no longer wait until DOM is ready.
-	 * @since 12.0.10 we return to using cookies to optimise whether the AJAX request is sent.
-	 * This is AJAX, so it's asynchronous and won't hold up any other part of the page load.
-	 * Early execution also helps mitigate the case where login requests are
-	 * sent quickly, before browser has fired NotBot request.
-	 * @since 12.0.10 - rather than auto send each page load, check for cookie repeatedly and send if absent.
-	 */
 	run() {
 		this.fire();
 	};
@@ -74,6 +66,9 @@ export class NotBotv2 extends BaseAutoExecComponent {
 			else {
 				this.performPathNotbot().finally();
 			}
+		}
+		else if ( this.isNotBotRequired() ) {
+			this.performPathNotbot().finally();
 		}
 		else {
 			this.reFire();
@@ -143,8 +138,8 @@ export class NotBotv2 extends BaseAutoExecComponent {
 			else if ( ( 'altcha_data' in parsed.data ) && this.verifyAltchaChallengeData( parsed.data.altcha_data ) ) {
 				this.notbot_altcha_challenge_request_data = parsed.data.altcha_data;
 			}
-			else {
-				throw new Error( 'Could not verify the altcha challenge data.' );
+			else if ( this.isAltchaChallengeRequired() ) {
+				throw new Error( 'Could not verify the altcha challenge data in response.' );
 			}
 			return parsed;
 		} )

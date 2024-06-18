@@ -169,7 +169,7 @@ class RenameLogin {
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
 		if ( !Services::WpGeneral()->isLoginUrl()  && !Services::WpUsers()->isUserLoggedIn() ) {
-			if ( \trim( (string)\parse_url( $location, \PHP_URL_PATH ), '/' ) === $this->customPath() ) {
+			if ( \trim( (string)\wp_parse_url( $location, \PHP_URL_PATH ), '/' ) === $this->customPath() ) {
 				$this->doWpLoginFailedRedirect404();
 			}
 		}

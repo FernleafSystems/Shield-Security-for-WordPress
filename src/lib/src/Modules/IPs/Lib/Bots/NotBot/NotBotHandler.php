@@ -19,6 +19,8 @@ class NotBotHandler {
 
 	public const LIFETIME = 600;
 	public const COOKIE_SLUG = 'notbot';
+	public const SIGNAL_NOTBOT = 'notbot';
+	public const SIGNAL_ALTCHA = 'altcha';
 
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );
@@ -44,38 +46,59 @@ class NotBotHandler {
 	}
 
 	public function getNonRequiredSignals() :array {
-		$BS = ( new BotSignalsRecord() )
-			->setIP( self::con()->this_req->ip )
-			->retrieve();
+		return \array_diff( $this->getSignalSlugs(), $this->getRequiredSignals() );
+	}
+
+	public function getRequiredSignals() :array {
+		$con = self::con();
+		try {
+			$BS = ( new BotSignalsRecord() )
+				->setIP( $con->this_req->ip )
+				->retrieve();
+		}
+		catch ( \Exception $e ) {
+			$BS = null;
+		}
 		return \array_keys( \array_filter( [
-			'notbot' => Services::Request()->ts() - $BS->notbot_at < HOUR_IN_SECONDS,
-			'altcha' => Services::Request()->ts() - $BS->altcha_at < HOUR_IN_SECONDS,
+			self::SIGNAL_NOTBOT => !empty( $BS )
+								   && $con->comps->altcha->complexityLevel() !== 'none'
+								   && ( Services::Request()->ts() - $BS->notbot_at > HOUR_IN_SECONDS ),
+			self::SIGNAL_ALTCHA => !empty( $BS )
+								   && $con->comps->altcha->enabled()
+								   && ( Services::Request()->ts() - $BS->altcha_at > HOUR_IN_SECONDS ),
 		] ) );
 	}
 
+	protected function getSignalSlugs() :array {
+		return [
+			self::SIGNAL_NOTBOT,
+			self::SIGNAL_ALTCHA,
+		];
+	}
+
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function hasCookie() :bool {
 		return false;
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function getHashForVisitorTS( int $ts ) {
 		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, ( new InstallationID() )->id() );
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet( 'shield-notbot-nonce', ActionNonce::Create( CaptureNotBot::class ), 120 );
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	public function getLastNotBotSignalAt() :int {
 		return ( new BotSignalsRecord() )

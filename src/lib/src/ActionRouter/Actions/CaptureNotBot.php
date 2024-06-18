@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaHandler;
 
 class CaptureNotBot extends BaseAction {
 
@@ -13,26 +12,28 @@ class CaptureNotBot extends BaseAction {
 	public const SLUG = 'capture_not_bot';
 
 	protected function exec() {
-
+		$con = self::con();
 		try {
-			self::con()->fireEvent( 'bottrack_multiple', [
+			$con->fireEvent( 'bottrack_multiple', [
 				'data' => [
-					'events' => \array_keys( \array_filter( [
-						'bottrack_notbot' => true,
-					] ) ),
+					'events' => [
+						'bottrack_notbot',
+					],
 				]
 			] );
 
-			self::con()->comps->not_bot->sendNotBotFlagCookie();
+			$notBotCon = $con->comps->not_bot;
+			$notBotCon->sendNotBotFlagCookie();
 
 			$this->response()->success = true;
 			$this->response()->action_response_data = [
 				'success'     => true,
-				'altcha_data' => ActionData::Build( CaptureNotBotAltcha::class, true, $this->getAltChaChallenge() ),
+				'altcha_data' => $notBotCon->getRequiredSignals() ?
+					ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ) : [],
 			];
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+//			error_log( $e->getMessage() );
 			$this->response()->success = false;
 		}
 	}
@@ -42,12 +43,5 @@ class CaptureNotBot extends BaseAction {
 			'ip'  => false,
 			'ttl' => 24,
 		];
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function getAltChaChallenge() :array {
-		return ( new AltChaHandler() )->generateChallenge();
 	}
 }
