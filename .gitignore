@@ -2,12 +2,9 @@
 /assets/dist
 /config/deprecated/
 /src/lib/strauss.phar
-/src/lib/vendor/
-/src/lib_scoped/vendor/
-/src/lib_scoped/vendor-prefixed
+/src/lib/vendor*
 composer.lock
 /node_modules
 /package-lock.json
 /_gsdata_
 /forceoff
-strauss.phar

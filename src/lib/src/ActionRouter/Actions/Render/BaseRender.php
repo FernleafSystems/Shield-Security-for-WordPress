@@ -47,12 +47,12 @@ abstract class BaseRender extends BaseAction {
 
 		try {
 			$output = self::con()
-						  ->getRenderer()
-						  ->setTemplateEngineTwig()
-						  ->setTemplate( $template )
-						  ->setRenderVars( $renderData )
-						  ->setTwigEnvironmentVars( $this->getTwigEnvironmentVars() )
-						  ->render();
+				->comps
+				->render
+				->setTemplate( $template )
+				->setData( $renderData )
+				->setEnvironmentVars( $this->getTwigEnvironmentVars() )
+				->render();
 		}
 		catch ( \Exception $e ) {
 			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, $e->getMessage() );

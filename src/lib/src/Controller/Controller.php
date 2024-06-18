@@ -344,22 +344,22 @@ class Controller extends DynPropertiesClass {
 
 	public function adminNoticeDoesNotMeetRequirements() {
 		if ( !empty( $this->reqs_not_met ) ) {
-			$this->getRenderer()
-				 ->setTemplate( '/notices/does-not-meet-requirements.twig' )
-				 ->setTemplateEngineTwig()
-				 ->setRenderVars( [
-					 'strings' => [
-						 'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
-						 'requirements'     => $this->reqs_not_met,
-						 'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
-						 'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
-						 'more_information' => 'Click here for more information on requirements'
-					 ],
-					 'hrefs'   => [
-						 'more_information' => 'https://shsec.io/shieldsystemrequirements'
-					 ]
-				 ] )
-				 ->display();
+			$this->comps
+				->render
+				->setTemplate( '/notices/does-not-meet-requirements.twig' )
+				->setData( [
+					'strings' => [
+						'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
+						'requirements'     => $this->reqs_not_met,
+						'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
+						'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
+						'more_information' => 'Click here for more information on requirements'
+					],
+					'hrefs'   => [
+						'more_information' => 'https://shsec.io/shieldsystemrequirements'
+					]
+				] )
+				->display();
 		}
 	}
 
@@ -702,6 +702,17 @@ class Controller extends DynPropertiesClass {
 		return $this->cfg->properties[ 'text_domain' ];
 	}
 
+	/**
+	 * @throws Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException
+	 */
+	public function includePrefixedVendor() :void {
+		$auto = path_join( $this->getRootDir(), 'src/lib/vendor_prefixed/autoload.php' );
+		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
+			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( 'Prefixed Autoload Missing' );
+		}
+		require_once( $auto );
+	}
+
 	public function isPremiumActive() :bool {
 		return isset( $this->modules[ EnumModules::LICENSE ] )
 			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
@@ -839,6 +850,9 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::USERS ];
 	}
 
+	/**
+	 * @deprecated 19.1
+	 */
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();
 		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {

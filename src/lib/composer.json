@@ -21,17 +21,21 @@
   "require":           {
     "php":                                   ">=7.2",
     "dolondro/google-authenticator":         "^2.2",
-    "fernleafsystems/wordpress-plugin-core": "^2.4.10",
+    "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/zxcvbn-php":            "^1.1",
-    "symfony/polyfill-iconv":                "^1.27",
+    "monolog/monolog":                       "^2.9",
     "nyholm/psr7":                           "^1.8",
     "nyholm/psr7-server":                    "^1.0",
+    "symfony/polyfill-iconv":                "^1.29",
+    "twig/twig":                             "^3.10",
     "web-auth/webauthn-lib":                 "^3.3",
     "ext-json":                              "*",
     "ext-openssl":                           "*"
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
+  "replace":           {
+  },
   "autoload":          {
     "psr-4":    {
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src"
@@ -42,5 +46,45 @@
       "./functions/functions.php",
       "./src/Functions/functions.php"
     ]
+  },
+  "extra":             {
+    "strauss": {
+      "target_directory":               "vendor_prefixed",
+      "namespace_prefix":               "AptowebDeps\\",
+      "classmap_prefix":                "AptowebDeps_Pfx_",
+      "constant_prefix":                "APTOWEB_PFX_",
+      "packages":                       [
+        "monolog/monolog",
+        "twig/twig"
+      ],
+      "update_call_sites":              false,
+      "override_autoload":              {
+      },
+      "exclude_from_copy":              {
+        "packages":      [
+          "psr/log",
+          "symfony/deprecation-contracts",
+          "symfony/polyfill-ctype",
+          "symfony/polyfill-mbstring",
+          "symfony/polyfill-php80"
+        ],
+        "namespaces":    [
+        ],
+        "file_patterns": [
+        ]
+      },
+      "exclude_from_prefix":            {
+        "packages":      [
+        ],
+        "namespaces":    [
+        ],
+        "file_patterns": [
+        ]
+      },
+      "namespace_replacement_patterns": {
+      },
+      "delete_vendor_packages":         false,
+      "delete_vendor_files":            false
+    }
   }
 }
