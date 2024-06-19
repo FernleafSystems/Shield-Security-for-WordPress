@@ -31,17 +31,13 @@ class PreStore {
 
 	private function audit() {
 		$opts = self::con()->opts;
-		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
-			$current = $opts->optGet( $optKey );
-			if ( empty( $current ) ) {
-				$opts->optReset( $optKey );
-			}
-			elseif ( \in_array( 'disabled', $opts->optGet( $optKey ) ) ) {
-				$opts->optSet( $optKey, [ 'disabled' ] );
-			}
+
+		$current = $opts->optGet( 'log_level_db' );
+		if ( empty( $current ) ) {
+			$opts->optReset( 'log_level_db' );
 		}
-		if ( \in_array( 'same_as_db', $opts->optGet( 'log_level_file' ) ) ) {
-			$opts->optSet( 'log_level_file', [ 'same_as_db' ] );
+		elseif ( \in_array( 'disabled', $opts->optGet( 'log_level_db' ) ) ) {
+			$opts->optSet( 'log_level_db', [ 'disabled' ] );
 		}
 	}
 

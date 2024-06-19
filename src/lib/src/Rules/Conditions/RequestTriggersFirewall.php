@@ -21,7 +21,7 @@ class RequestTriggersFirewall extends Base {
 		$paramConditions = [];
 
 		foreach ( $con->cfg->configuration->def( 'firewall_patterns' ) as $key => $group ) {
-			if ( $key !== 'exe_file_uploads' && $con->opts->optIs( 'block_'.$key, 'Y' ) ) {
+			if ( $con->opts->optIs( 'block_'.$key, 'Y' ) ) {
 				foreach ( $group as $pattern ) {
 					$paramConditions[] = [
 						'conditions' => Conditions\FirewallPatternFoundInRequest::class,

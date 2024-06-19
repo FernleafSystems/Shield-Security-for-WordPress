@@ -34,6 +34,10 @@ class OptsLookup {
 		return $this->getIpAutoBlockOffenseLimit() > 0;
 	}
 
+	public function enabledWpCli() :bool {
+		return apply_filters( 'shield/enable_wpcli', true );
+	}
+
 	public function enabledLoginGuardAntiBotCheck() :bool {
 		return $this->optIsAndModForOptEnabled( 'enable_antibot_check', 'Y' );
 	}
@@ -124,7 +128,8 @@ class OptsLookup {
 	}
 
 	/**
-	 * Structure of stored data changed with 19.1, so this method handles old & new. It'll resave it as the newer format.
+	 * Structure of stored data changed with 19.1, so this method handles old & new. It'll resave it as the newer
+	 * format.
 	 */
 	public function getFirewallParametersWhitelist() :array {
 		$list = [];

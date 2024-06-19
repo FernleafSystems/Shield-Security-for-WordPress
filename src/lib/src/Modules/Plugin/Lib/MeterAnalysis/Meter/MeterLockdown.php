@@ -10,7 +10,7 @@ class MeterLockdown extends MeterBase {
 	public const SLUG = 'lockdown';
 
 	protected function getWorkingMods() :array {
-		return [ EnumModules::LOCKDOWN ];
+		return [ EnumModules::FIREWALL ];
 	}
 
 	public function title() :string {
@@ -48,10 +48,8 @@ class MeterLockdown extends MeterBase {
 			Component\LockdownAnonymousRestApi::class,
 			Component\FirewallDirTraversal::class,
 			Component\FirewallSqlQueries::class,
-			Component\FirewallWpTerms::class,
 			Component\FirewallFieldTruncation::class,
 			Component\FirewallPhpCode::class,
-			Component\FirewallExeFileUploads::class,
 			Component\FirewallAggressive::class,
 		];
 	}

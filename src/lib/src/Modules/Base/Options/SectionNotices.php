@@ -104,9 +104,8 @@ class SectionNotices {
 
 		switch ( $section ) {
 
-			case 'section_localdb':
-			case 'section_at_file':
-			case 'section_traffic_options':
+			case 'section_log_wordpress_activity':
+			case 'section_log_requests':
 				try {
 					( new Monolog() )->assess();
 				}
@@ -115,7 +114,7 @@ class SectionNotices {
 								  .'<br/>'.sprintf( '%s: %s', __( 'Reason', 'wp-simple-firewall' ), $e->getMessage() );
 				}
 
-				if ( $section === 'section_traffic_options' ) {
+				if ( $section === 'section_log_requests' ) {
 					if ( $optsLookup->getTrafficLiveLogTimeRemaining() > 0 ) {
 						$warnings[] = \implode( ' ', [
 							__( 'Live traffic logging increases load on your database and is designed to be active only temporarily.', 'wp-simple-firewall' ),

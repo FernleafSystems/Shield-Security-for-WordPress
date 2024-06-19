@@ -37,19 +37,15 @@ class Firewall extends BuildRuleCoreShieldBase {
 	protected function getConditions() :array {
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
-			'conditions' => \array_filter( [
+			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
-				self::con()->opts->optIs( 'whitelist_admins', 'Y' ) ? [
-					'conditions' => Conditions\IsUserAdminNormal::class,
-					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
-				] : null,
 				[
 					'conditions' => Conditions\RequestTriggersFirewall::class,
 				],
-			] )
+			]
 		];
 	}
 

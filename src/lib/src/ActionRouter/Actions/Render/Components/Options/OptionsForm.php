@@ -53,8 +53,7 @@ class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'confirm_password' => $secAdminEnabled ? __( 'Confirm Updated PIN', 'wp-simple-firewall' ) : __( 'Confirm PIN', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'is_wpcli'             => $con->isPremiumActive()
-										  && apply_filters( 'shield/enable_wpcli', $optsCon->optIs( 'enable_wpcli', 'Y' ) ),
+				'is_wpcli'             => $con->isPremiumActive() && $con->comps->opts_lookup->enabledWpCli(),
 				'show_transfer_switch' => $con->isPremiumActive(),
 			],
 			'vars'    => [

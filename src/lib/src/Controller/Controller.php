@@ -431,10 +431,8 @@ class Controller extends DynPropertiesClass {
 				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
 				EnumModules::IPS            => IPs\ModCon::class,
 				EnumModules::LICENSE        => License\ModCon::class,
-				EnumModules::LOCKDOWN       => Lockdown\ModCon::class,
 				EnumModules::LOGIN          => LoginGuard\ModCon::class,
 				EnumModules::PLUGIN         => Plugin\ModCon::class,
-				EnumModules::TRAFFIC        => Traffic\ModCon::class,
 				EnumModules::USERS          => UserManagement\ModCon::class,
 			];
 

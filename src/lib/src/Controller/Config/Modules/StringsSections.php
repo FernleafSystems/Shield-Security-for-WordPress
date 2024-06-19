@@ -24,20 +24,21 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ) )
 				];
 				break;
-			case 'section_at_file' :
-				$title = __( 'Log To File', 'wp-simple-firewall' );
-				$short = __( 'Log To File', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the DB Activity Log.', 'wp-simple-firewall' ) ),
-				];
-				break;
-			case 'section_localdb' :
-				$title = __( 'Log To DB', 'wp-simple-firewall' );
+			case 'section_log_wordpress_activity' :
+				$short = __( 'WordPress Activity', 'wp-simple-firewall' );
+				$title = __( 'WordPress Activity', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the file-based Activity Log.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
-				$short = __( 'Log To DB', 'wp-simple-firewall' );
+				break;
+			case 'section_log_requests' :
+				$short = __( 'Requests Logging', 'wp-simple-firewall' );
+				$title = __( 'Requests Logging', 'wp-simple-firewall' );
+				$summary = [
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Requests Logging system.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'Requests', 'wp-simple-firewall' ) ) )
+				];
 				break;
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
@@ -56,14 +57,6 @@ class StringsSections {
 				];
 				$short = __( 'WordPress Components', 'wp-simple-firewall' );
 				break;
-			case 'section_options' :
-				$title = __( 'Auto-Update Options', 'wp-simple-firewall' );
-				$short = __( 'Auto-Update Options', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Make adjustments to how automatic updates are handled on your site.', 'wp-simple-firewall' ) ),
-				];
-				break;
-
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Comments SPAM Protection', 'wp-simple-firewall' ) );
@@ -106,14 +99,14 @@ class StringsSections {
 				];
 				break;
 			case 'section_firewall_blocking_options' :
-				$title = __( 'Firewall Blocking Options', 'wp-simple-firewall' );
+				$short = __( 'Request Firewall', 'wp-simple-firewall' );
+				$title = __( 'Request Firewall Options', 'wp-simple-firewall' );
 				$summary = [
 					__( 'Here you choose what kind of malicious data to scan for.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( 'Turn on as many options here as you can.', 'wp-simple-firewall' ) )
 					.' '.__( 'If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Activity Log.', 'wp-simple-firewall' ),
 				];
-				$short = __( 'Firewall Blocking', 'wp-simple-firewall' );
 				break;
 			case 'section_choose_firewall_block_response' :
 				$title = __( 'Choose Firewall Block Response', 'wp-simple-firewall' );
@@ -268,29 +261,12 @@ class StringsSections {
 					),
 				];
 				break;
-
-			case 'section_enable_plugin_feature_wordpress_lockdown' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::LOCKDOWN )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Lockdown', 'wp-simple-firewall' ) ) )
-				];
-				break;
 			case 'section_apixml' :
 				$title = __( 'API & XML-RPC', 'wp-simple-firewall' );
 				$short = __( 'API & XML-RPC', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Lockdown certain core WordPress system features.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'This depends on your usage and needs for certain WordPress functions and features.', 'wp-simple-firewall' ) )
-				];
-				break;
-			case 'section_permission_access_options' :
-				$title = __( 'Permissions and Access Options', 'wp-simple-firewall' );
-				$short = __( 'Permissions', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control of certain WordPress permissions.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Only enable SSL if you have a valid certificate installed.', 'wp-simple-firewall' ) )
 				];
 				break;
 			case 'section_wordpress_obscurity_options' :
@@ -451,25 +427,9 @@ class StringsSections {
 				$short = __( 'White Label', 'wp-simple-firewall' );
 				break;
 
-			case 'section_enable_plugin_feature_traffic' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::TRAFFIC )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and review all requests to your site.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Required only if you need to review and investigate and monitor requests to your site', 'wp-simple-firewall' ) )
-				];
-				break;
-			case 'section_traffic_options' :
-				$short = __( 'Traffic Logging Options', 'wp-simple-firewall' );
-				$title = __( 'Traffic Logging Options', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Traffic Logging system.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
-				];
-				break;
 			case 'section_traffic_limiter' :
 				$title = __( 'Brute Force Traffic Rate Limiting', 'wp-simple-firewall' );
-				$short = __( 'Traffic Rate Limiting', 'wp-simple-firewall' );
+				$short = __( 'Rate Limiting', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Prevents excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), sprintf( __( 'This feature is only available while the Traffic Logger is active.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) ),
@@ -494,14 +454,6 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Have full control over passwords used by users on the site.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 				];
-				break;
-			case 'section_admin_login_notification' :
-				$title = __( 'Admin Login Notification', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
-				];
-				$short = __( 'Notifications', 'wp-simple-firewall' );
 				break;
 			case 'section_user_session_management' :
 				$title = __( 'User Session Management', 'wp-simple-firewall' );

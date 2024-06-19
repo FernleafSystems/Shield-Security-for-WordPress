@@ -65,7 +65,6 @@ class RuleBuilderEnumerator {
 
 			Core\DisableXmlrpc::class,
 			Core\DisableFileEditing::class,
-			Core\ForceSslAdmin::class,
 			Core\IsRequestAuthorDiscovery::class,
 			Core\HideGeneratorTag::class,
 

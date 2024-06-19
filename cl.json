@@ -18,11 +18,23 @@
         "href":        ""
       },
       {
+        "type":        "improved",
+        "title":       "Plugin Options Moved",
+        "description": [
+          "We've reorganised many of the plugin options to reduced modules & sections in order to simplify the UI."
+        ],
+        "href":        ""
+      },
+      {
         "type":        "removed",
         "title":       "Plugin Options Removed",
         "description": [
           "Removed: email notification setting for automatic updates. Now uses the general plugin reporting email option.",
-          "Removed: Automatically Update All Plugins & Automatically Update All Themes."
+          "Removed: Automatically Update All Plugins & Automatically Update All Themes.",
+          "Removed: Activity Logging to File.",
+          "Removed: Force SSL Admin.",
+          "Removed: Request Firewall options - WP Terms & EXE File Uploads.",
+          "Removed: Firewall Block Response select."
         ],
         "href":        ""
       }

@@ -276,7 +276,7 @@
       },
       "audit_trail":              {
         "slug":                 "audit_trail",
-        "name":                 "Activity Log",
+        "name":                 "Logging",
         "tagline":              "Track All Site Activity: Who, What, When and Where",
         "order":                110,
         "load_priority":        11,
@@ -332,7 +332,7 @@
         "tagline":              "Automatically block malicious HTTP requests and data sent to your site",
         "order":                30,
         "load_priority":        1000,
-        "config_menu_priority": 44,
+        "config_menu_priority": 39,
         "show_central":         true
       },
       "hack_protect":             {
@@ -408,15 +408,6 @@
           "publish": true
         }
       },
-      "lockdown":                 {
-        "slug":                 "lockdown",
-        "name":                 "Lockdown",
-        "tagline":              "Lockdown access to some built-in features of a WordPress site.",
-        "order":                90,
-        "load_priority":        100,
-        "config_menu_priority": 45,
-        "show_central":         true
-      },
       "login_protect":            {
         "slug":                 "login_protect",
         "storage_key":          "loginprotect",
@@ -442,22 +433,6 @@
         "show_central":         true,
         "rest_api":             {
           "publish": true
-        }
-      },
-      "traffic":                  {
-        "slug":                 "traffic",
-        "name":                 "Traffic",
-        "tagline":              "Track and monitor all HTTP requests to the site.",
-        "load_priority":        12,
-        "menu_priority":        50,
-        "order":                110,
-        "config_menu_priority": 35,
-        "show_central":         true,
-        "reqs":                 {
-          "dbs": [
-            "ips",
-            "req_logs"
-          ]
         }
       },
       "user_management":          {
@@ -522,11 +497,11 @@
         ]
       },
       {
-        "slug":        "section_localdb",
+        "slug":        "section_log_wordpress_activity",
         "primary":     true,
         "module":      "audit_trail",
-        "title":       "Log To DB",
-        "title_short": "Log To DB",
+        "title":       "WordPress Activity",
+        "title_short": "WP Activity",
         "beacon_id":   241,
         "summary":     [
           "Purpose - Provides finer control over the Activity Log itself.",
@@ -534,20 +509,20 @@
         ]
       },
       {
-        "slug":        "section_at_file",
+        "slug":        "section_log_requests",
         "module":      "audit_trail",
-        "title":       "Log To File",
-        "title_short": "Log To File",
-        "beacon_id":   241,
+        "title":       "Requests Logging",
+        "title_short": "Requests Logging",
+        "beacon_id":   153,
         "summary":     [
-          "Purpose - Provides finer control over the Activity Log itself.",
+          "Purpose - Provides finer control over the live traffic system.",
           "Recommendation - These settings are dependent on your requirements."
         ]
       },
       {
         "slug":        "section_enable_plugin_feature_audit_trail",
         "module":      "audit_trail",
-        "title":       "Enable Module: Activity Log",
+        "title":       "Enable Module: Logging",
         "title_short": "Disable Module",
         "beacon_id":   241,
         "summary":     [
@@ -566,14 +541,6 @@
           "Purpose - Control how automatic updates for each WordPress component is handled.",
           "Recommendation - You should at least allow minor updates for the WordPress core."
         ]
-      },
-      {
-        "slug":        "section_options",
-        "module":      "autoupdates",
-        "title":       "Auto-Update Options",
-        "title_short": "Auto-Update Options",
-        "beacon_id":   234,
-        "summary":     "Purpose - Make adjustments to how automatic updates are handled on your site."
       },
       {
         "slug":        "section_enable_plugin_feature_automatic_updates_control",
@@ -634,8 +601,8 @@
         "primary":     true,
         "slug":        "section_firewall_blocking_options",
         "module":      "firewall",
-        "title":       "Firewall Blocking Options",
-        "title_short": "Firewall Blocking",
+        "title":       "Request Firewall Options",
+        "title_short": "Request Firewall",
         "beacon_id":   333,
         "summary":     [
           "Here you choose what kind of malicious data to scan for.",
@@ -662,6 +629,39 @@
         "summary":     [
           "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",
           "Recommendation - Do not whitelist anything unless you are confident in what you are doing."
+        ]
+      },
+      {
+        "slug":        "section_apixml",
+        "module":      "firewall",
+        "title":       "WordPress System Lockdown",
+        "title_short": "System",
+        "beacon_id":   413,
+        "summary":     [
+          "Purpose - Lockdown certain core WordPress system features.",
+          "Recommendation - This depends on your usage and needs for certain WordPress functions and features."
+        ]
+      },
+      {
+        "slug":        "section_traffic_limiter",
+        "module":      "firewall",
+        "title":       "Rate Limiting",
+        "title_short": "Rate Limiting",
+        "beacon_id":   420,
+        "summary":     [
+          "Purpose - Provides ability to restrict excessive requests from a single visitor.",
+          "Recommendation - These settings are dependent on your requirements."
+        ]
+      },
+      {
+        "slug":        "section_wordpress_obscurity_options",
+        "module":      "firewall",
+        "title":       "WordPress Obscurity Options",
+        "title_short": "Obscurity",
+        "beacon_id":   418,
+        "summary":     [
+          "Purpose - Obscures certain WordPress settings from public view.",
+          "Recommendation - Obscurity is not true security and so these settings are down to your personal tastes."
         ]
       },
       {
@@ -834,51 +834,6 @@
       },
       {
         "primary":     true,
-        "slug":        "section_apixml",
-        "module":      "lockdown",
-        "title":       "WordPress System Lockdown",
-        "title_short": "System",
-        "beacon_id":   413,
-        "summary":     [
-          "Purpose - Lockdown certain core WordPress system features.",
-          "Recommendation - This depends on your usage and needs for certain WordPress functions and features."
-        ]
-      },
-      {
-        "slug":        "section_permission_access_options",
-        "module":      "lockdown",
-        "title":       "Permissions and Access Options",
-        "title_short": "Permissions",
-        "beacon_id":   415,
-        "summary":     [
-          "Purpose - Provides finer control of certain WordPress permissions.",
-          "Recommendation - Only enable SSL if you have a valid certificate installed."
-        ]
-      },
-      {
-        "slug":        "section_wordpress_obscurity_options",
-        "module":      "lockdown",
-        "title":       "WordPress Obscurity Options",
-        "title_short": "Obscurity",
-        "beacon_id":   418,
-        "summary":     [
-          "Purpose - Obscures certain WordPress settings from public view.",
-          "Recommendation - Obscurity is not true security and so these settings are down to your personal tastes."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_wordpress_lockdown",
-        "module":      "lockdown",
-        "title":       "Enable Module: Lockdown",
-        "title_short": "Disable Module",
-        "beacon_id":   272,
-        "summary":     [
-          "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
-          "Recommendation - Keep the Lockdown feature turned on."
-        ]
-      },
-      {
-        "primary":     true,
         "slug":        "section_brute_force_login_protection",
         "module":      "login_protect",
         "title":       "Brute Force Login Guard",
@@ -1004,40 +959,6 @@
       },
       {
         "primary":     true,
-        "slug":        "section_traffic_options",
-        "module":      "traffic",
-        "title":       "Traffic Log Options",
-        "title_short": "Options",
-        "beacon_id":   153,
-        "summary":     [
-          "Purpose - Provides finer control over the live traffic system.",
-          "Recommendation - These settings are dependent on your requirements."
-        ]
-      },
-      {
-        "slug":        "section_traffic_limiter",
-        "module":      "traffic",
-        "title":       "Traffic Rate Limiting",
-        "title_short": "Rate Limiting",
-        "beacon_id":   420,
-        "summary":     [
-          "Purpose - Provides ability to restrict excessive requests from a single visitor.",
-          "Recommendation - These settings are dependent on your requirements."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_traffic",
-        "module":      "traffic",
-        "title":       "Enable Module: Traffic Log",
-        "title_short": "Disable Module",
-        "beacon_id":   153,
-        "summary":     [
-          "Purpose - The Traffic Log module lets you monitor and review all requests to your site.",
-          "Recommendation - Required only if you need to review and investigate and monitor requests to your site."
-        ]
-      },
-      {
-        "primary":     true,
         "slug":        "section_user_session_management",
         "module":      "user_management",
         "title":       "User Session Management",
@@ -1078,17 +999,6 @@
         "beacon_id":   273,
         "summary":     [
           "Purpose - Automatically suspend accounts to prevent login by certain users.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
-      },
-      {
-        "slug":        "section_admin_login_notification",
-        "module":      "user_management",
-        "title":       "Admin Login Notification",
-        "title_short": "Notifications",
-        "beacon_id":   147,
-        "summary":     [
-          "Purpose - So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.",
           "Recommendation - Use of this feature is highly recommend."
         ]
       },
@@ -1460,7 +1370,7 @@
       },
       {
         "key":           "log_level_db",
-        "section":       "section_localdb",
+        "section":       "section_log_wordpress_activity",
         "type":          "multiple_select",
         "default":       [
           "alert",
@@ -1502,7 +1412,7 @@
       },
       {
         "key":         "audit_trail_auto_clean",
-        "section":     "section_localdb",
+        "section":     "section_log_wordpress_activity",
         "type":        "integer",
         "default":     7,
         "min":         1,
@@ -1512,52 +1422,6 @@
         "name":        "Auto Clean",
         "summary":     "Enable Audit Auto Cleaning",
         "description": "Events older than the number of days specified will be automatically cleaned from the database"
-      },
-      {
-        "key":           "log_level_file",
-        "section":       "section_at_file",
-        "premium":       true,
-        "cap":           "activity_logs_send_to_file",
-        "type":          "multiple_select",
-        "default":       [
-          "disabled"
-        ],
-        "value_options": [
-          {
-            "value_key": "disabled",
-            "text":      "Logging Disabled"
-          },
-          {
-            "value_key": "same_as_db",
-            "text":      "Same As DB"
-          },
-          {
-            "value_key": "alert",
-            "text":      "Alert"
-          },
-          {
-            "value_key": "warning",
-            "text":      "Warning"
-          },
-          {
-            "value_key": "notice",
-            "text":      "Notice"
-          },
-          {
-            "value_key": "info",
-            "text":      "Info"
-          },
-          {
-            "value_key": "debug",
-            "text":      "Debug"
-          }
-        ],
-        "link_info":     "",
-        "link_blog":     "",
-        "beacon_id":     375,
-        "name":          "File Logging Level",
-        "summary":       "Logging Level For File-Based Logs",
-        "description":   "Logging Level For File-Based Logs"
       },
       {
         "key":         "enable_autoupdates",
@@ -1613,7 +1477,7 @@
       },
       {
         "key":         "update_delay",
-        "section":     "section_options",
+        "section":     "section_automatic_updates_for_wordpress_components",
         "premium":     true,
         "type":        "integer",
         "default":     0,
@@ -1626,7 +1490,7 @@
       },
       {
         "key":         "enable_upgrade_notification_email",
-        "section":     "section_options",
+        "section":     "section_automatic_updates_for_wordpress_components",
         "default":     "N",
         "type":        "checkbox",
         "link_info":   "",
@@ -1808,6 +1672,30 @@
         "description": "Un-Checking this option will completely disable the Firewall module"
       },
       {
+        "key":         "block_send_email",
+        "section":     "section_firewall_blocking_options",
+        "default":     "N",
+        "type":        "checkbox",
+        "link_info":   "",
+        "link_blog":   "",
+        "name":        "Send Email Report",
+        "summary":     "Send Firewall Trigger Report Email",
+        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
+      },
+      {
+        "key":         "page_params_whitelist",
+        "section":     "section_firewall_blocking_options",
+        "advanced":    true,
+        "default":     "[]",
+        "type":        "array",
+        "link_info":   "https://shsec.io/2a",
+        "link_blog":   "",
+        "beacon_id":   335,
+        "name":        "Whitelist Parameters",
+        "summary":     "Detail pages and parameters that are whitelisted (ignored by the firewall)",
+        "description": "This should be used with caution and you should only provide parameter names that you must have excluded"
+      },
+      {
         "key":         "block_dir_traversal",
         "section":     "section_firewall_blocking_options",
         "default":     "Y",
@@ -1828,17 +1716,6 @@
         "name":        "SQL Queries",
         "summary":     "Block SQL Queries",
         "description": "This will block SQL in application parameters."
-      },
-      {
-        "key":         "block_wordpress_terms",
-        "section":     "section_firewall_blocking_options",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "WordPress Terms",
-        "summary":     "Block WordPress Specific Terms",
-        "description": "This will block WordPress specific terms in application parameters (wp_, user_login, etc.)."
       },
       {
         "key":         "block_field_truncation",
@@ -1863,17 +1740,6 @@
         "description": "This will block any data that appears to try and include PHP files. Will probably block saving within the Plugin/Theme file editors."
       },
       {
-        "key":         "block_exe_file_uploads",
-        "section":     "section_firewall_blocking_options",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Exe File Uploads",
-        "summary":     "Block Executable File Uploads",
-        "description": "This will block executable file uploads (.php, .exe, etc.)."
-      },
-      {
         "key":         "block_aggressive",
         "section":     "section_firewall_blocking_options",
         "advanced":    true,
@@ -1884,73 +1750,6 @@
         "name":        "Aggressive Scan",
         "summary":     "Aggressively Block Data",
         "description": "Employs a set of aggressive rules to detect and block malicious data submitted to your site. Warning - May cause an increase in false-positive firewall blocks."
-      },
-      {
-        "key":           "block_response",
-        "section":       "section_choose_firewall_block_response",
-        "advanced":      true,
-        "default":       "redirect_die_message",
-        "type":          "select",
-        "value_options": [
-          {
-            "value_key": "redirect_die_message",
-            "text":      "Die With Message"
-          },
-          {
-            "value_key": "redirect_die",
-            "text":      "Die"
-          },
-          {
-            "value_key": "redirect_home",
-            "text":      "Redirect To Home Page"
-          },
-          {
-            "value_key": "redirect_404",
-            "text":      "Return 404"
-          }
-        ],
-        "beacon_id":     334,
-        "link_info":     "",
-        "link_blog":     "",
-        "name":          "Block Response",
-        "summary":       "How the firewall responds when it blocks a request",
-        "description":   "We recommend dying with a message so you know what might have occurred when the firewall blocks you."
-      },
-      {
-        "key":         "block_send_email",
-        "section":     "section_choose_firewall_block_response",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Send Email Report",
-        "summary":     "When a visitor is blocked the firewall will send an email to the configured email address",
-        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
-      },
-      {
-        "key":         "page_params_whitelist",
-        "section":     "section_whitelist",
-        "advanced":    true,
-        "default":     "[]",
-        "type":        "array",
-        "link_info":   "https://shsec.io/2a",
-        "link_blog":   "",
-        "beacon_id":   335,
-        "name":        "Whitelist Parameters",
-        "summary":     "Detail pages and parameters that are whitelisted (ignored by the firewall)",
-        "description": "This should be used with caution and you should only provide parameter names that you must have excluded"
-      },
-      {
-        "key":         "whitelist_admins",
-        "section":     "section_whitelist",
-        "advanced":    true,
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Ignore Administrators",
-        "summary":     "Ignore Administrators",
-        "description": "Authenticated administrator users will not be processed by the firewall rules."
       },
       {
         "key":         "enable_hack_protect",
@@ -3180,19 +2979,6 @@
         "default": []
       },
       {
-        "key":         "enable_lockdown",
-        "section":     "section_enable_plugin_feature_wordpress_lockdown",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/4r",
-        "link_blog":   "",
-        "beacon_id":   272,
-        "name":        "Enable Lockdown",
-        "summary":     "Enable (or Disable) The Lockdown module",
-        "description": "Un-Checking this option will completely disable the Lockdown module"
-      },
-      {
         "key":         "disable_xmlrpc",
         "section":     "section_apixml",
         "default":     "N",
@@ -3237,7 +3023,7 @@
       },
       {
         "key":         "disable_file_editing",
-        "section":     "section_permission_access_options",
+        "section":     "section_wordpress_obscurity_options",
         "default":     "N",
         "type":        "checkbox",
         "link_info":   "https://shsec.io/4q",
@@ -3246,18 +3032,6 @@
         "name":        "Disable File Editing",
         "summary":     "Disable Ability To Edit Files From Within WordPress",
         "description": "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."
-      },
-      {
-        "key":         "force_ssl_admin",
-        "section":     "section_permission_access_options",
-        "default":     "N",
-        "type":        "checkbox",
-        "beacon_id":   417,
-        "link_info":   "https://shsec.io/4t",
-        "link_blog":   "",
-        "name":        "Force SSL Admin",
-        "summary":     "Forces WordPress Admin Dashboard To Be Delivered Over SSL",
-        "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
       },
       {
         "key":         "block_author_discovery",
@@ -3525,8 +3299,8 @@
         "link_info":   "https://shsec.io/k0",
         "link_blog":   "https://shsec.io/jo",
         "beacon_id":   426,
-        "name":        "AntiBot",
-        "summary":     "Use AntiBot Detection Engine",
+        "name":        "Block Login Bots",
+        "summary":     "Block Login Attempted By Automated Bots",
         "description": "Use Shield's AntiBot Detection Engine To Block Bots and Brute Force Attacks"
       },
       {
@@ -3735,8 +3509,32 @@
         "link_info":   "",
         "link_blog":   "",
         "name":        "Report Email",
-        "summary":     "Where to send all email reports and admin notifications for the plugin",
-        "description": "If this is empty, it will default to the blog admin email address."
+        "summary":     "Email For All Reports and Plugin Notifications",
+        "description": "Defaults to the blog admin email address."
+      },
+      {
+        "key":         "display_plugin_badge",
+        "section":     "section_defaults",
+        "default":     "N",
+        "type":        "checkbox",
+        "link_info":   "https://shsec.io/5v",
+        "link_blog":   "https://shsec.io/wpsf20",
+        "beacon_id":   130,
+        "vimeo_id":    "",
+        "name":        "Show Plugin Badge",
+        "summary":     "Display Plugin Security Badge On Your Site",
+        "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+      },
+      {
+        "key":         "enable_upgrade_admin_notice",
+        "section":     "section_defaults",
+        "default":     "Y",
+        "type":        "checkbox",
+        "link_info":   "",
+        "link_blog":   "",
+        "name":        "In-Plugin Notices",
+        "summary":     "Display Plugin Specific Notices",
+        "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
       },
       {
         "key":         "enable_tracking",
@@ -3746,21 +3544,8 @@
         "link_info":   "https://shsec.io/7i",
         "link_blog":   "",
         "name":        "Enable Information Gathering",
-        "summary":     "Permit Anonymous Usage Information Gathering",
+        "summary":     "Permit Anonymous Telemetry Reports",
         "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
-      },
-      {
-        "key":         "enable_shieldnet",
-        "section":     "section_defaults",
-        "premium":     true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "beacon_id":   437,
-        "link_info":   "https://shsec.io/kb",
-        "link_blog":   "https://shsec.io/kc",
-        "name":        "Enable ShieldNET",
-        "summary":     "Enhanced Website Security Through Network Intelligence",
-        "description": "Enhanced Website Security Through Network Intelligence."
       },
       {
         "key":           "autoupdate_plugin_self",
@@ -3788,44 +3573,6 @@
         "name":          "Self AutoUpdate",
         "summary":       "Always Automatically Update This Plugin",
         "description":   "Automatically update the Shield plugin."
-      },
-      {
-        "key":         "enable_upgrade_admin_notice",
-        "section":     "section_defaults",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "In-Plugin Notices",
-        "summary":     "Display Plugin Specific Notices",
-        "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
-      },
-      {
-        "key":         "enable_wpcli",
-        "section":     "section_defaults",
-        "advanced":    true,
-        "premium":     true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/i1",
-        "link_blog":   "https://shsec.io/i2",
-        "beacon_id":   308,
-        "name":        "Allow WP-CLI",
-        "summary":     "Allow Control Of This Plugin Via WP-CLI",
-        "description": "Turn off this option to disable this plugin's WP-CLI integration."
-      },
-      {
-        "key":         "display_plugin_badge",
-        "section":     "section_defaults",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/5v",
-        "link_blog":   "https://shsec.io/wpsf20",
-        "beacon_id":   130,
-        "vimeo_id":    "",
-        "name":        "Show Plugin Badge",
-        "summary":     "Display Plugin Security Badge On Your Site",
-        "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
       },
       {
         "key":         "delete_on_deactivate",
@@ -4222,33 +3969,20 @@
         "tracking_exclude": true
       },
       {
-        "key":         "enable_traffic",
-        "section":     "section_enable_plugin_feature_traffic",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/ed",
-        "link_blog":   "https://shsec.io/ee",
-        "beacon_id":   153,
-        "name":        "Enable Traffic Log",
-        "summary":     "Enable (or Disable) The Traffic Log Module",
-        "description": "Un-Checking this option will completely disable the Traffic Log module."
-      },
-      {
         "key":         "enable_logger",
-        "section":     "section_traffic_options",
+        "section":     "section_log_requests",
         "default":     "N",
         "type":        "checkbox",
         "link_info":   "https://shsec.io/hf",
         "link_blog":   "",
         "beacon_id":   153,
-        "name":        "Enable Traffic Logger",
-        "summary":     "Turn On The Traffic Logging Feature",
-        "description": "Enable or disable the ability to log and monitor requests to your site."
+        "name":        "Enable Request Logging",
+        "summary":     "Log Requests To Your WordPress Site",
+        "description": "Monitor web requests sent to your WordPress site."
       },
       {
         "key":         "enable_live_log",
-        "section":     "section_traffic_options",
+        "section":     "section_log_requests",
         "cap":         "traffic_live_log",
         "advanced":    true,
         "premium":     true,
@@ -4263,7 +3997,7 @@
       },
       {
         "key":           "type_exclusions",
-        "section":       "section_traffic_options",
+        "section":       "section_log_requests",
         "type":          "multiple_select",
         "advanced":      true,
         "default":       [
@@ -4298,13 +4032,13 @@
         "link_info":     "https://shsec.io/eb",
         "link_blog":     "",
         "beacon_id":     154,
-        "name":          "Traffic Log Exclusions",
+        "name":          "Request Log Exclusions",
         "summary":       "Select Which Types Of Requests To Exclude",
         "description":   "Deselect any requests that you don't want to appear in the traffic viewer."
       },
       {
         "key":         "custom_exclusions",
-        "section":     "section_traffic_options",
+        "section":     "section_log_requests",
         "advanced":    true,
         "premium":     true,
         "default":     [],
@@ -4318,7 +4052,7 @@
       },
       {
         "key":         "auto_clean",
-        "section":     "section_traffic_options",
+        "section":     "section_log_requests",
         "advanced":    true,
         "type":        "integer",
         "default":     7,
@@ -4389,7 +4123,7 @@
       },
       {
         "key":         "enable_user_login_email_notification",
-        "section":     "section_admin_login_notification",
+        "section":     "section_user_session_management",
         "sensitive":   false,
         "default":     "N",
         "type":        "checkbox",
@@ -4402,7 +4136,7 @@
       },
       {
         "key":         "enable_admin_login_email_notification",
-        "section":     "section_admin_login_notification",
+        "section":     "section_user_session_management",
         "sensitive":   true,
         "default":     "",
         "type":        "text",
@@ -4816,12 +4550,6 @@
           "#\\.\\./#i",
           "#loopback#i"
         ],
-        "wordpress_terms":  [
-          "#/\\*\\*/#i",
-          "#wp-config.php#i",
-          "#^user_login#",
-          "#^user_pass#"
-        ],
         "field_truncation": [
           "#\\s{49,}#",
           "#\\x00#"
@@ -4830,9 +4558,6 @@
           "#concat\\s*\\(#i",
           "#group_concat#i",
           "#union.*select#i"
-        ],
-        "exe_file_uploads": [
-          "#\\.(dll|rb|py|exe|php[3-9]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$#i"
         ],
         "php_code":         [
           "#(include|include_once|require|require_once)\\s*\\(.*\\)#"

@@ -139,7 +139,10 @@ class AuditLogger extends EventsListener {
 		}
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	private function getLogLevelsFile() :array {
-		return self::con()->opts->optGet( 'log_level_file' );
+		return [];
 	}
 }

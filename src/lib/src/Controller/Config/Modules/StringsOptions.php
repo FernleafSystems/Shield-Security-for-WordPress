@@ -57,27 +57,6 @@ class StringsOptions {
 					);
 				}
 				break;
-			case 'log_level_file' :
-				$auditCon = self::con()->comps->activity_log;
-				$name = __( 'File Logging Level', 'wp-simple-firewall' );
-				$summary = __( 'Logging Level For File-Based Logs', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Specify the logging levels when using the local filesystem.', 'wp-simple-firewall' ),
-					sprintf( '%s: <code>%s</code>',
-						__( 'Log File Location', 'wp-simple-firewall' ),
-						$auditCon->getLogFilePath()
-					),
-					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
-						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
-					),
-					sprintf( '%s: %s',
-						__( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( 'Log files will be rotated daily up to a limit of %s.', 'wp-simple-firewall' ),
-							sprintf( '<code>%s</code>', $auditCon->getLogFileRotationLimit() ) )
-					)
-				];
-				break;
 
 			case 'enable_autoupdates' :
 				$modName = $modStrings->getFor( EnumModules::AUTOUPDATES )[ 'name' ];
@@ -150,15 +129,16 @@ class StringsOptions {
 				];
 				break;
 			case 'enable_antibot_comments' :
-				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
-				$summary = __( "Use ADE To Detect SPAM Bots And Block Comment SPAM", 'wp-simple-firewall' );
+				$name = __( 'Block Bot Comment SPAM', 'wp-simple-firewall' );
+				$summary = __( 'Block The Most Prolific Type Of Comment SPAM', 'wp-simple-firewall' );
 				$desc = [
+					__( 'Block 99.9% of all WordPress comment SPAM without CAPTCHAs using our built-in bot detector.', 'wp-simple-firewall' ),
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
 						self::con()->getHumanName() ),
 				];
 				break;
 			case 'enable_comments_human_spam_filter' :
-				$name = __( 'Human SPAM Filter', 'wp-simple-firewall' );
+				$name = __( 'Block Human SPAM', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Feature', 'wp-simple-firewall' ), __( 'Human SPAM Filter', 'wp-simple-firewall' ) );
 				$desc = [
 					__( 'Most SPAM is automatic, by bots, but sometimes Humans also post comments to your site and these bypass Bot Detection rules.', 'wp-simple-firewall' ),
@@ -171,10 +151,10 @@ class StringsOptions {
 				$desc = [ sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' ) ];
 				break;
 			case 'comments_default_action_spam_bot' :
-				$name = __( 'SPAM Action', 'wp-simple-firewall' );
-				$summary = __( 'Where To Put SPAM Comments', 'wp-simple-firewall' );
+				$name = __( 'Bot SPAM Action', 'wp-simple-firewall' );
+				$summary = __( 'Where To Put Bot SPAM Comments', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( __( 'When a comment is detected as being SPAM, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
+					sprintf( __( 'When a comment is detected as being SPAM from a bot, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
 						self::con()->getHumanName() )
 				];
 				break;
@@ -202,11 +182,6 @@ class StringsOptions {
 				$summary = __( 'Block SQL Queries', 'wp-simple-firewall' );
 				$desc = [ sprintf( __( 'This will block sql in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), \base64_decode( 'dW5pb24gc2VsZWN0LCBjb25jYXQoLCAvKiovLCAuLik=' ) ) ];
 				break;
-			case 'block_wordpress_terms' :
-				$name = __( 'WordPress Terms', 'wp-simple-firewall' );
-				$summary = __( 'Block WordPress Specific Terms', 'wp-simple-firewall' );
-				$desc = [ __( 'This will block WordPress specific terms in application parameters (wp_, user_login, etc.).', 'wp-simple-firewall' ) ];
-				break;
 			case 'block_field_truncation' :
 				$name = __( 'Field Truncation', 'wp-simple-firewall' );
 				$summary = __( 'Block Field Truncation Attacks', 'wp-simple-firewall' );
@@ -220,11 +195,6 @@ class StringsOptions {
 					__( 'Will probably block saving within the Plugin/Theme file editors.', 'wp-simple-firewall' )
 				];
 				break;
-			case 'block_exe_file_uploads' :
-				$name = __( 'Exe File Uploads', 'wp-simple-firewall' );
-				$summary = __( 'Block Executable File Uploads', 'wp-simple-firewall' );
-				$desc = [ __( 'This will block executable file uploads (.php, .exe, etc.).', 'wp-simple-firewall' ) ];
-				break;
 			case 'block_aggressive' :
 				$name = __( 'Aggressive Scan', 'wp-simple-firewall' );
 				$summary = __( 'Aggressively Block Data', 'wp-simple-firewall' );
@@ -233,25 +203,15 @@ class StringsOptions {
 					sprintf( '<strong>%s</strong> - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'May cause an increase in false-positive firewall blocks.', 'wp-simple-firewall' ) )
 				];
 				break;
-			case 'block_response' :
-				$name = __( 'Block Response', 'wp-simple-firewall' );
-				$summary = __( 'Choose how the firewall responds when it blocks a request', 'wp-simple-firewall' );
-				$desc = [ __( 'We recommend dying with a message so you know what might have occurred when the firewall blocks you', 'wp-simple-firewall' ) ];
-				break;
 			case 'block_send_email' :
 				$name = __( 'Send Email Report', 'wp-simple-firewall' );
-				$summary = __( 'When a visitor is blocked the firewall will send an email to the configured email address', 'wp-simple-firewall' );
+				$summary = __( 'Send Firewall Trigger Report Email', 'wp-simple-firewall' );
 				$desc = [ __( 'Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host', 'wp-simple-firewall' ) ];
 				break;
 			case 'page_params_whitelist' :
 				$name = __( 'Whitelist Parameters', 'wp-simple-firewall' );
 				$summary = __( 'Detail pages and parameters that are whitelisted (ignored by the firewall)', 'wp-simple-firewall' );
 				$desc = [ __( 'This should be used with caution and you should only provide parameter names that you must have excluded', 'wp-simple-firewall' ) ];
-				break;
-			case 'whitelist_admins' :
-				$name = sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'Administrators', 'wp-simple-firewall' ) );
-				$summary = sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'Administrators', 'wp-simple-firewall' ) );
-				$desc = [ __( 'Authenticated administrator users will not be processed by the firewall rules.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'enable_hack_protect' :
@@ -753,13 +713,6 @@ class StringsOptions {
 					__( "Please read the information and blog links below to fully understand this service and its limitations.", 'wp-simple-firewall' ),
 				];
 				break;
-
-			case 'enable_lockdown' :
-				$modName = $modStrings->getFor( EnumModules::LOCKDOWN )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
-				break;
 			case 'disable_xmlrpc' :
 				$name = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), 'XML-RPC' );
 				$summary = sprintf( __( 'Disable The %s System', 'wp-simple-firewall' ), 'XML-RPC' );
@@ -802,14 +755,6 @@ class StringsOptions {
 				$desc = [
 					__( 'Removes the option to directly edit any files from within the WordPress admin area.', 'wp-simple-firewall' ),
 					__( 'Equivalent to setting "DISALLOW_FILE_EDIT" to TRUE.', 'wp-simple-firewall' )
-				];
-				break;
-			case 'force_ssl_admin' :
-				$name = __( 'Force SSL Admin', 'wp-simple-firewall' );
-				$summary = __( 'Forces WordPress Admin Dashboard To Be Delivered Over SSL', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Please only enable this option if you have a valid SSL certificate installed.', 'wp-simple-firewall' ),
-					__( 'Equivalent to setting "FORCE_SSL_ADMIN" to TRUE.', 'wp-simple-firewall' )
 				];
 				break;
 			case 'hide_wordpress_generator_tag' :
@@ -952,14 +897,12 @@ class StringsOptions {
 				];
 				break;
 			case 'enable_antibot_check' :
-				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
-				$summary = __( 'Use ADE To Detect Bots And Block Brute Force Logins', 'wp-simple-firewall' );
+				$name = __( 'Block Login Bots', 'wp-simple-firewall' );
+				$summary = __( 'Block Login Attempts From Automated Bots', 'wp-simple-firewall' );
 				$desc = [
+					__( "Use Shield's built-in bot detection system to identify malicious bots and block all requests to your WordPress login.", 'wp-simple-firewall' ),
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
 						$con->getHumanName() ),
-					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings.", 'wp-simple-firewall' ) )
 				];
 				break;
 			case 'bot_protection_locations' :
@@ -1094,7 +1037,7 @@ class StringsOptions {
 
 			case 'enable_tracking' :
 				$name = __( 'Anonymous Usage Statistics', 'wp-simple-firewall' );
-				$summary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );
+				$summary = __( 'Permit Anonymous Telemetry Reports', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
@@ -1111,14 +1054,6 @@ class StringsOptions {
 				$desc = [
 					__( 'Enable this option to allow shield to upgrade to beta and pre-release versions.', 'wp-simple-firewall' ),
 					__( "Please only enable this on non-critical sites, and if you're comfortable with bugs arising.", 'wp-simple-firewall' ),
-				];
-				break;
-
-			case 'enable_shieldnet' :
-				$name = __( 'Enable ShieldNET', 'wp-simple-firewall' );
-				$summary = __( 'Enhanced Website Security Through Network Intelligence', 'wp-simple-firewall' );
-				$desc = [
-					__( 'By leveraging and sharing information about threats to WordPress sites, ShieldNET brings the power of the entire network to your WordPress security.', 'wp-simple-firewall' )
 				];
 				break;
 
@@ -1147,7 +1082,7 @@ class StringsOptions {
 
 			case 'block_send_email_address' :
 				$name = __( 'Report Email', 'wp-simple-firewall' );
-				$summary = __( 'Where to send all email reports and admin notifications for the plugin', 'wp-simple-firewall' );
+				$summary = __( 'Email For All Reports and Plugin Notifications', 'wp-simple-firewall' );
 				$desc = [
 					__( "This lets you customise the default email address for all emails sent by the plugin.", 'wp-simple-firewall' ),
 					sprintf( __( "The plugin defaults to the site administration email address, which is: %s", 'wp-simple-firewall' ),
@@ -1177,13 +1112,6 @@ class StringsOptions {
 					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
 				];
 				break;
-
-			case 'enable_wpcli' :
-				$name = __( 'Allow WP-CLI', 'wp-simple-firewall' );
-				$summary = __( 'Allow Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
-				$desc = [ __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' ) ];
-				break;
-
 			case 'delete_on_deactivate' :
 				$name = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
 				$summary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );
@@ -1497,20 +1425,13 @@ class StringsOptions {
 				$summary = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
 				$desc = [ __( 'The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page.', 'wp-simple-firewall' ) ];
 				break;
-
-			case 'enable_traffic' :
-				$modName = $modStrings->getFor( EnumModules::TRAFFIC )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
-				break;
 			case 'enable_logger' :
-				$name = __( 'Enable Traffic Logger', 'wp-simple-firewall' );
-				$summary = __( 'Turn On The Traffic Logging Feature', 'wp-simple-firewall' );
-				$desc = [ __( 'Enable or disable the ability to log and monitor requests to your site', 'wp-simple-firewall' ) ];
+				$name = __( 'Enable Request Logging', 'wp-simple-firewall' );
+				$summary = __( 'Log Requests To Your WordPress Site', 'wp-simple-firewall' );
+				$desc = [ __( 'Monitor web requests sent to your WordPress site.', 'wp-simple-firewall' ) ];
 				break;
 			case 'type_exclusions' :
-				$name = __( 'Traffic Log Exclusions', 'wp-simple-firewall' );
+				$name = __( 'Request Log Exclusions', 'wp-simple-firewall' );
 				$summary = __( 'Select Which Types Of Requests To Exclude', 'wp-simple-firewall' );
 				$desc = [
 					__( "There's no need to have unnecessary traffic noise in your logs, so we automatically exclude certain types of requests.", 'wp-simple-firewall' ),
@@ -1578,7 +1499,7 @@ class StringsOptions {
 				$summary = __( 'Turn On The Rate Limiting Feature', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Limit requests to your site based on the your rate-limiting settings.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Enabling this option automatically switches-on the traffic log.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Enabling this option automatically switches-on request logging.', 'wp-simple-firewall' ) ),
 				];
 				break;
 			case 'limit_requests' :

@@ -15,9 +15,10 @@ class EnumModules {
 	public const INTEGRATIONS = 'integrations';
 	public const IPS = 'ips';
 	public const LICENSE = 'license';
-	public const LOCKDOWN = 'lockdown';
 	public const LOGIN = 'login_protect';
 	public const PLUGIN = 'plugin';
-	public const TRAFFIC = 'traffic';
 	public const USERS = 'user_management';
+	// @deprecated 19.2
+	public const LOCKDOWN = 'lockdown';
+	public const TRAFFIC = 'traffic';
 }

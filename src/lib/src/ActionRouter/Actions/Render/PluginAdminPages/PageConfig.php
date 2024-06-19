@@ -26,6 +26,10 @@ class PageConfig extends BasePluginAdminPage {
 					'text' => __( 'View Activity Log', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				];
+				$hrefs[] = [
+					'text' => __( 'View Request Log', 'wp-simple-firewall' ),
+					'href' => $URLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+				];
 				break;
 
 			case EnumModules::SECURITY_ADMIN:
@@ -61,13 +65,6 @@ class PageConfig extends BasePluginAdminPage {
 						CrowdsecResetEnrollment::class,
 						$URLs->modCfg( EnumModules::IPS )
 					),
-				];
-				break;
-
-			case EnumModules::TRAFFIC:
-				$hrefs[] = [
-					'text' => __( 'View Traffic Log', 'wp-simple-firewall' ),
-					'href' => $URLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 				];
 				break;
 

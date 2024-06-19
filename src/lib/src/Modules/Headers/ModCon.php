@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
 /**
- * @deprecated 19.1
+ * @deprecated 19.2
  */
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
