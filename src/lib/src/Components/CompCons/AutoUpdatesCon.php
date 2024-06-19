@@ -175,9 +175,6 @@ class AutoUpdatesCon {
 			if ( $this->isDelayed( $file, 'plugins' ) ) {
 				$doUpdate = false;
 			}
-			elseif ( self::con()->opts->optIs( 'enable_autoupdate_plugins', 'Y' ) ) {
-				$doUpdate = true;
-			}
 			elseif ( $file === self::con()->base_file ) {
 				$auto = self::con()->opts->optGet( 'autoupdate_plugin_self' );
 				if ( $auto === 'immediate' ) {
@@ -200,15 +197,8 @@ class AutoUpdatesCon {
 		if ( $this->disableAll() ) {
 			$doAutoUpdate = false;
 		}
-		else {
-			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
-
-			if ( $this->isDelayed( $file, 'themes' ) ) {
-				$doAutoUpdate = false;
-			}
-			elseif ( self::con()->opts->optIs( 'enable_autoupdate_themes', 'Y' ) ) {
-				$doAutoUpdate = true;
-			}
+		elseif ( $this->isDelayed( Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' ), 'themes' ) ) {
+			$doAutoUpdate = false;
 		}
 		return $doAutoUpdate;
 	}
@@ -262,9 +252,9 @@ class AutoUpdatesCon {
 	 * @return array
 	 */
 	public function autoupdate_email_override( $emailParams ) {
-		$override = self::con()->opts->optGet( 'override_email_address' );
-		if ( Services::Data()->validEmail( $override ) ) {
-			$emailParams[ 'to' ] = $override;
+		// @deprecated 19.2 - isset() required for upgrade from 19.0
+		if ( isset( self::con()->comps->opts_lookup ) ) {
+			$emailParams[ 'to' ] = self::con()->comps->opts_lookup->getReportEmail();
 		}
 		return $emailParams;
 	}

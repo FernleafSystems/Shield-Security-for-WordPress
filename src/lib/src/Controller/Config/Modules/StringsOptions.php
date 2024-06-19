@@ -91,14 +91,11 @@ class StringsOptions {
 				$desc = [ __( 'When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!', 'wp-simple-firewall' ) ];
 				break;
 			case 'autoupdate_plugin_self' :
-				$name = __( 'Auto Update Plugin', 'wp-simple-firewall' );
+				$name = __( 'Self AutoUpdate', 'wp-simple-firewall' );
 				$summary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
 				$desc = [
-					sprintf(
-						__( 'Regardless of any other settings, automatically update the "%s" plugin.', 'wp-simple-firewall' ),
-						$pluginName
-					),
-					__( 'The plugin will normally automatically update after approximately 2 days, if left to decide.', 'wp-simple-firewall' )
+					sprintf( __( 'Automatically update the "%s" plugin.', 'wp-simple-firewall' ), $pluginName ),
+					__( 'The plugin will normally automatically update after approximately 5 days, if left to decide.', 'wp-simple-firewall' )
 				];
 				break;
 			case 'autoupdate_core' :
@@ -106,35 +103,10 @@ class StringsOptions {
 				$summary = __( 'Decide how the WordPress Core will automatically update, if at all', 'wp-simple-firewall' );
 				$desc = [ __( 'At least automatically upgrading minor versions is recommended (and is the WordPress default).', 'wp-simple-firewall' ) ];
 				break;
-			case 'enable_autoupdate_translations' : // REMOVED 8.6.2
-				$name = __( 'Translations', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Update Translations', 'wp-simple-firewall' );
-				$desc = [ __( 'Note: Automatic updates for translations are enabled on WordPress by default.', 'wp-simple-firewall' ) ];
-				break;
-			case 'enable_autoupdate_plugins' :
-				$name = __( 'Plugins', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Update All Plugins', 'wp-simple-firewall' );
-				$desc = [ __( 'Note: Automatic updates for plugins are disabled on WordPress by default.', 'wp-simple-firewall' ) ];
-				break;
-			case 'enable_autoupdate_themes' :
-				$name = __( 'Themes', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Update Themes', 'wp-simple-firewall' );
-				$desc = [ __( 'Note: Automatic updates for themes are disabled on WordPress by default.', 'wp-simple-firewall' ) ];
-				break;
-			case 'enable_autoupdate_ignore_vcs' : // REMOVED 8.6.2
-				$name = __( 'Ignore Version Control', 'wp-simple-firewall' );
-				$summary = __( 'Ignore Version Control Systems Such As GIT and SVN', 'wp-simple-firewall' );
-				$desc = [ __( 'If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates.', 'wp-simple-firewall' ) ];
-				break;
 			case 'enable_upgrade_notification_email' :
 				$name = __( 'Send Report Email', 'wp-simple-firewall' );
 				$summary = __( 'Send email notices after automatic updates', 'wp-simple-firewall' );
 				$desc = [ __( 'You can turn on/off email notices from automatic updates by un/checking this box.', 'wp-simple-firewall' ) ];
-				break;
-			case 'override_email_address' :
-				$name = __( 'Report Email Address', 'wp-simple-firewall' );
-				$summary = __( 'Where to send upgrade notification reports', 'wp-simple-firewall' );
-				$desc = [ __( 'If this is empty, it will default to the Site Admin email address', 'wp-simple-firewall' ) ];
 				break;
 			case 'update_delay' :
 				$name = __( 'Update Delay', 'wp-simple-firewall' );
@@ -1208,7 +1180,7 @@ class StringsOptions {
 
 			case 'enable_wpcli' :
 				$name = __( 'Allow WP-CLI', 'wp-simple-firewall' );
-				$summary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
+				$summary = __( 'Allow Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
 				$desc = [ __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' ) ];
 				break;
 

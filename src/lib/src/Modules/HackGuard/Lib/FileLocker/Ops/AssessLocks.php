@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 class AssessLocks extends BaseOps {
 
 	public function run() {
-		// Required for upgrades from 19.0
+		// @deprecated 19.2 - required for upgrade from 19.0
 		if ( !isset( self::con()->comps->file_locker ) ) {
 			return;
 		}

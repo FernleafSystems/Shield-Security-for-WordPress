@@ -1612,29 +1612,6 @@
         "description":   "At least automatically upgrading minor versions is recommended (and is the WordPress default)."
       },
       {
-        "key":         "enable_autoupdate_plugins",
-        "section":     "section_automatic_updates_for_wordpress_components",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Plugins",
-        "summary":     "Automatically Update Plugins",
-        "description": "Note: Automatic updates for plugins are disabled on WordPress by default."
-      },
-      {
-        "key":         "enable_autoupdate_themes",
-        "section":     "section_automatic_updates_for_wordpress_components",
-        "advanced":    true,
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Themes",
-        "summary":     "Automatically Update Themes",
-        "description": "Note: Automatic updates for themes are disabled on WordPress by default."
-      },
-      {
         "key":         "update_delay",
         "section":     "section_options",
         "premium":     true,
@@ -1648,33 +1625,6 @@
         "description": "Shield will delay upgrades until the new update has been available for the set number of days."
       },
       {
-        "key":           "autoupdate_plugin_self",
-        "section":       "section_options",
-        "advanced":      true,
-        "default":       "auto",
-        "type":          "select",
-        "value_options": [
-          {
-            "value_key": "auto",
-            "text":      "Let The Plugin Decide"
-          },
-          {
-            "value_key": "disabled",
-            "text":      "Disabled"
-          },
-          {
-            "value_key": "immediate",
-            "text":      "As Soon As Possible"
-          }
-        ],
-        "link_info":     "https://shsec.io/3x",
-        "link_blog":     "",
-        "beacon_id":     409,
-        "name":          "Auto Update Plugin",
-        "summary":       "Always Automatically Update This Plugin",
-        "description":   "Regardless of any other settings, automatically update the Shield plugin."
-      },
-      {
         "key":         "enable_upgrade_notification_email",
         "section":     "section_options",
         "default":     "N",
@@ -1684,18 +1634,6 @@
         "name":        "Send Report Email",
         "summary":     "Send email notices after automatic updates",
         "description": "You can turn on/off email notices from automatic updates by un/checking this box."
-      },
-      {
-        "key":         "override_email_address",
-        "section":     "section_options",
-        "sensitive":   true,
-        "default":     "",
-        "type":        "email",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Report Email Address",
-        "summary":     "Where to send upgrade notification reports",
-        "description": "If this is empty, it will default to the Site Admin email address"
       },
       {
         "key":       "delay_tracking",
@@ -3825,6 +3763,33 @@
         "description": "Enhanced Website Security Through Network Intelligence."
       },
       {
+        "key":           "autoupdate_plugin_self",
+        "section":       "section_defaults",
+        "advanced":      true,
+        "default":       "auto",
+        "type":          "select",
+        "value_options": [
+          {
+            "value_key": "auto",
+            "text":      "Let The Plugin Decide"
+          },
+          {
+            "value_key": "disabled",
+            "text":      "Disabled"
+          },
+          {
+            "value_key": "immediate",
+            "text":      "As Soon As Possible"
+          }
+        ],
+        "link_info":     "https://shsec.io/3x",
+        "link_blog":     "",
+        "beacon_id":     409,
+        "name":          "Self AutoUpdate",
+        "summary":       "Always Automatically Update This Plugin",
+        "description":   "Automatically update the Shield plugin."
+      },
+      {
         "key":         "enable_upgrade_admin_notice",
         "section":     "section_defaults",
         "default":     "Y",
@@ -3846,7 +3811,7 @@
         "link_blog":   "https://shsec.io/i2",
         "beacon_id":   308,
         "name":        "Allow WP-CLI",
-        "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
+        "summary":     "Allow Control Of This Plugin Via WP-CLI",
         "description": "Turn off this option to disable this plugin's WP-CLI integration."
       },
       {
