@@ -67,8 +67,9 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'log' );
 						break;
 					case 'event':
+						error_log( var_export( $selected, true ) );
 						if ( \count( $selected ) > 1 ) {
-							$wheres[] = sprintf( "`log`.`event_slug` IN ('%s')", \implode( '`,`', $selected ) );
+							$wheres[] = sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", $selected ) );
 						}
 						else {
 							$wheres[] = sprintf( "`log`.`event_slug`='%s'", \array_pop( $selected ) );
