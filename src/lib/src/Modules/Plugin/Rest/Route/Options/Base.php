@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Route\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 
-abstract class Base extends RouteBase {
+abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase {
 
 	private static $allOpts;
 

@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase;
-
-class ShieldPluginAction extends RouteBase {
+class ShieldPluginAction extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase {
 
 	protected function getRouteArgsDefaults() :array {
 		return [

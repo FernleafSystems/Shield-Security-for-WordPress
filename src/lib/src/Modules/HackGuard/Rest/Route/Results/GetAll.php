@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Results;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\Base;
-
-class GetAll extends Base {
+class GetAll extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\Base {
 
 	protected function getRouteArgsCustom() :array {
 		return [
@@ -31,6 +28,6 @@ class GetAll extends Base {
 	}
 
 	protected function getRequestProcessorClass() :string {
-		return Results\GetAll::class;
+		return \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Results\GetAll::class;
 	}
 }

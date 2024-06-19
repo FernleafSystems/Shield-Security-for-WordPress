@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Route\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options;
-
 class SetBulk extends BaseBulk {
 
 	public const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
@@ -26,6 +24,6 @@ class SetBulk extends BaseBulk {
 	}
 
 	protected function getRequestProcessorClass() :string {
-		return Options\SetBulk::class;
+		return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options\SetBulk::class;
 	}
 }

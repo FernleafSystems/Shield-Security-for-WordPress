@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route\Lists;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route\Base;
-
-abstract class ListsBase extends Base {
+abstract class ListsBase extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route\Base {
 
 	public function getRoutePathPrefix() :string {
 		return '/ip_lists';

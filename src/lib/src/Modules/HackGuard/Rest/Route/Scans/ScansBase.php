@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\Base;
-
-abstract class ScansBase extends Base {
+abstract class ScansBase extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\Base {
 
 	public function getRoutePath() :string {
 		return '/scans';

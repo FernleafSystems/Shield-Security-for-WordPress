@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-
-abstract class Base extends Process {
+abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process {
 
 }

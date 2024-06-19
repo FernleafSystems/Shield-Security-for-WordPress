@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Route\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options;
-
 class SetSingle extends BaseSingle {
 
 	public const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
@@ -15,6 +13,6 @@ class SetSingle extends BaseSingle {
 	}
 
 	protected function getRequestProcessorClass() :string {
-		return Options\SetSingle::class;
+		return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options\SetSingle::class;
 	}
 }

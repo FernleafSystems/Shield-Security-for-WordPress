@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Route\Debug;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase;
-
-class Retrieve extends RouteBase {
+class Retrieve extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase {
 
 	protected function getRequestProcessorClass() :string {
 		return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Debug\Retrieve::class;

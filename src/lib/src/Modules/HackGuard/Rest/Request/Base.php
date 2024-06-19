@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-abstract class Base extends Process {
+abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process {
 
 	use PluginControllerConsumer;
 

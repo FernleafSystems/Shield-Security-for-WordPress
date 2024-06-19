@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route\Lists;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
-
 class AddIP extends ListsBase {
 
 	public const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
@@ -21,7 +19,7 @@ class AddIP extends ListsBase {
 	}
 
 	protected function getRequestProcessorClass() :string {
-		return Lists\AddIP::class;
+		return \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists\AddIP::class;
 	}
 
 	public function getRoutePath() :string {
