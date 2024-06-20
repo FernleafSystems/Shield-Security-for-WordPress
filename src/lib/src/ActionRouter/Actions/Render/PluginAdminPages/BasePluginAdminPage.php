@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumb
 
 abstract class BasePluginAdminPage extends BaseRender {
 
+	public const TEMPLATE = '/wpadmin/plugin_pages/base_inner_page.twig';
+
 	protected function getPageContextualHrefs() :array {
 		return [];
 	}

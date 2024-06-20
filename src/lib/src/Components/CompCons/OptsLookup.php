@@ -42,6 +42,10 @@ class OptsLookup {
 		return $this->optIsAndModForOptEnabled( 'enable_antibot_check', 'Y' );
 	}
 
+	public function enabledLoginGuardCooldown() :bool {
+		return $this->isModFromOptEnabled( 'login_limit_interval' ) && self::con()->opts->optGet( 'login_limit_interval' ) > 0;
+	}
+
 	public function enabledLoginGuardGaspCheck() :bool {
 		return !$this->enabledLoginGuardAntiBotCheck() && $this->optIsAndModForOptEnabled( 'enable_login_gasp_check', 'Y' );
 	}

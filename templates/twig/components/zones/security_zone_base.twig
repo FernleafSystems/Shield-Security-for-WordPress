@@ -1,0 +1,53 @@
+<style>
+	.security_zone .row-header {
+		/*height: 50px;*/
+		/*max-height: 50px;*/
+	}
+	.security_zone .row-header .description {
+		border-bottom: 1px dashed green;
+	}
+	.security_zone .row-header .icon {
+		height: 150px;
+		max-height: 150px;
+		color: green;
+	}
+	.security_zone .row-header .icon > svg {
+		width: 100%;
+		height: 100%;
+	}
+	.component-enabled-state > svg{
+		width: 48px;
+		height: 48px;
+	}
+</style>
+<div class="security_zone">
+
+	{% block row_header %}
+		<div class="row row-header">
+			<div class="col-8 p-4 section-description">
+				<div class="description h-100">
+					<h3>{{ strings.title }}</h3>
+					{% for line in strings.description %}
+						<p class="mb-1">{{ line }}</p>
+					{% endfor %}
+				</div>
+			</div>
+			<div class="col-4 section-icon">
+				<div class="icon p-4">
+					{{ imgs.svgs.title|raw }}
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+	{% block row_body %}
+		<div class="row row-body">
+			<div class="col p-4">
+				{% for component in vars.components %}
+					{{ component|raw }}
+				{% endfor %}
+			</div>
+		</div>
+	{% endblock %}
+	
+</div>

@@ -21,7 +21,7 @@ class WhitelabelController {
 	}
 
 	public function isEnabled() :bool {
-		return self::con()->opts->optIs( 'whitelabel_enable', 'Y' ) && self::con()->comps->sec_admin->isEnabledSecAdmin();
+		return self::con()->opts->optIs( 'whitelabel_enable', 'Y' );
 	}
 
 	protected function run() {

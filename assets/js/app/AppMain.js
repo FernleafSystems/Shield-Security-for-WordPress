@@ -38,6 +38,7 @@ import { TrafficLiveLogs } from "../components/general/TrafficLiveLogs";
 import { TestRest } from "../components/general/TestRest";
 import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
 import { DebugTools } from "../components/debug/DebugTools";
+import { ZonesManager } from "../components/zones/ZonesManager";
 
 export class AppMain extends AppBase {
 
@@ -97,5 +98,7 @@ export class AppMain extends AppBase {
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
 
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
+
+		this.components.zones_manager = ( 'zones_manager' in comps ) ? new ZonesManager( comps.zones_manager ) : null;
 	}
 }

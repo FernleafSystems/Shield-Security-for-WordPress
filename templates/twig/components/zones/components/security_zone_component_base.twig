@@ -1,0 +1,35 @@
+<div class="row mb-5">
+	<div class="col-12">
+		<div class="d-flex">
+
+			<div class="component-enabled-state">
+				{% if vars.enabled_status == 'good' %}
+					<span class="text-success component-enabled-state">{{ imgs.svgs.status_good|raw }}</span>
+				{% elseif vars.enabled_status == 'okay' %}
+					<span class="text-warning component-enabled-state">{{ imgs.svgs.status_okay|raw }}</span>
+				{% else %}
+					<span class="text-danger component-enabled-state">{{ imgs.svgs.status_bad|raw }}</span>
+				{% endif %}
+			</div>
+			<div class="component-details ms-3">
+
+				<h6 class="component-title">
+					<span>{{ strings.title }}</span>
+					<br /><small class="component-subtitle fw-normal">{{ strings.subtitle }}</small>
+				</h6>
+
+				<div class="component-actions mt-3">
+					{% for action in vars.actions %}
+						<button class="btn btn-sm {{ action.classes|join(' ') }}"
+								title="{{ action.title }}"
+								{% for key, value in action.data %}data-{{ key }}="{{ value }}"{% endfor %}
+						>
+							<span class="svg-container">{{ action.icon|raw }}</span>
+						</button>
+					{% endfor %}
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>

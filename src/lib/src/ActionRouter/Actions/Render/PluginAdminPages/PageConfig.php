@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class PageConfig extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_config';
-	public const TEMPLATE = '/wpadmin/plugin_pages/base_inner_page.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$URLs = self::con()->plugin_urls;

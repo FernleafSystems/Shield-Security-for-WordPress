@@ -737,6 +737,17 @@ class AssetsCustomizer {
 					],
 				],
 			],
+			'zones_manager'    => [
+				'key'     => 'zones_manager',
+				'handles' => [
+					'main',
+				],
+				'data'    => [
+					'ajax' => [
+						Components\OffCanvas\ZoneComponentConfig::SLUG => ActionData::BuildAjaxRender( Components\OffCanvas\ZoneComponentConfig::class ),
+					],
+				],
+			],
 		], $this->hook, $this->handles );
 	}
 

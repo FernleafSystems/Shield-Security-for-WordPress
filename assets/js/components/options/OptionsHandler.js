@@ -17,7 +17,7 @@ export class OptionsHandler extends BaseAutoExecComponent {
 		} );
 
 		shieldEventsHandler_Main.add_Click(
-			'form.aptoOptionsForm .toggle-importexport-inclusion > input[type=checkbox]',
+			'form.options_form_for .toggle-importexport-inclusion > input[type=checkbox]',
 			( targetEl ) => {
 				( new AjaxService() )
 				.bg(

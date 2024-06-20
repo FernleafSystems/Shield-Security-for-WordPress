@@ -9,7 +9,7 @@ import { ToasterService } from "../toast/ToasterService";
 export class OptionsFormSubmit extends BaseComponent {
 
 	init() {
-		shieldEventsHandler_Main.add_Submit( 'form.aptoOptionsForm', ( targetEl ) => this.#submitOptionsForm( targetEl ) );
+		shieldEventsHandler_Main.add_Submit( 'form.options_form_for', ( targetEl ) => this.#submitOptionsForm( targetEl ) );
 	}
 
 	#submitOptionsForm( form ) {

@@ -115,6 +115,7 @@ class Constants {
 		Actions\AjaxRender::class,
 
 		Actions\DynamicLoad\Config::class,
+		Actions\DynamicLoad\Zone::class,
 
 		Actions\PluginAdmin\PluginAdminPageHandler::class,
 
@@ -152,6 +153,7 @@ class Constants {
 		Actions\Render\Components\Meters\Analysis::class,
 		Actions\Render\Components\Meters\MeterCard::class,
 		Actions\Render\Components\Meters\ProgressMeters::class,
+		Actions\Render\Components\OffCanvas\ZoneComponentConfig::class,
 		Actions\Render\Components\OffCanvas\FormScanResultsDisplayOptions::class,
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
@@ -159,6 +161,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,
 		Actions\Render\Components\Options\OptionsForm::class,
+		Actions\Render\Components\Options\OptionsFormFor::class,
 		Actions\Render\Components\Placeholders\PlaceholderMeter::class,
 		Actions\Render\Components\Reports\ReportsTable::class,
 		Actions\Render\Components\Reports\FormCreateReport::class,
@@ -198,6 +201,8 @@ class Constants {
 		Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldShield::class,
 		Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldWpReplica::class,
 		Actions\Render\Components\Users\ProfileSuspend::class,
+		Actions\Render\Components\Zones\SecurityZone::class,
+		Actions\Render\Components\Zones\SecurityZoneComponent::class,
 		Actions\Render\FullPage\Block\BlockAuthorFishing::class,
 		Actions\Render\FullPage\Block\BlockFirewall::class,
 		Actions\Render\FullPage\Block\BlockIpAddressShield::class,

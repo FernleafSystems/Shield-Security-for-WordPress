@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
@@ -36,42 +37,43 @@ use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
- * @property AuditCon                  $activity_log
- * @property AltChaHandler             $altcha
- * @property AssetsCustomizer          $assets_customizer
- * @property ApiTokenManager           $api_token
- * @property CompCons\AutoUpdatesCon   $autoupdates
- * @property PluginBadge               $badge
- * @property BotSignalsController      $bot_signals
- * @property CommentSpamCon            $comment_spam
- * @property CrowdSecController        $crowdsec
- * @property EventsService             $events
- * @property FileLockerController      $file_locker
- * @property SpamController            $forms_spam
- * @property UserFormsController       $forms_users
- * @property CompCons\HttpHeadersCon   $http_headers
- * @property ImportExportController    $import_export
- * @property CompCons\InstantAlertsCon $instant_alerts
- * @property CompCons\IPsCon           $ips_con
- * @property LicenseHandler            $license
- * @property MainwpCon                 $mainwp
- * @property MfaController             $mfa
- * @property CompCons\MU\MUHandler     $mu
- * @property NotBotHandler             $not_bot
- * @property OffenseTracker            $offense_tracker
- * @property CompCons\OptsLookup       $opts_lookup
- * @property ReportingController       $reports
- * @property RenderService             $render
- * @property RequestLogger             $requests_log
- * @property SecurityAdminController   $sec_admin
- * @property SessionController         $session
- * @property Scan\ScansController      $scans
- * @property Scan\Queue\Controller     $scans_queue
- * @property ShieldNetApiController    $shieldnet
- * @property UserSuspendController     $user_suspend
- * @property WhitelabelController      $whitelabel
- * @property MerlinController          $wizards
- * @property CompCons\WpCliCon         $wpcli
+ * @property AuditCon                      $activity_log
+ * @property AltChaHandler                 $altcha
+ * @property AssetsCustomizer              $assets_customizer
+ * @property ApiTokenManager               $api_token
+ * @property CompCons\AutoUpdatesCon       $autoupdates
+ * @property PluginBadge                   $badge
+ * @property BotSignalsController          $bot_signals
+ * @property CommentSpamCon                $comment_spam
+ * @property CrowdSecController            $crowdsec
+ * @property EventsService                 $events
+ * @property FileLockerController          $file_locker
+ * @property SpamController                $forms_spam
+ * @property UserFormsController           $forms_users
+ * @property CompCons\HttpHeadersCon       $http_headers
+ * @property ImportExportController        $import_export
+ * @property CompCons\InstantAlertsCon     $instant_alerts
+ * @property CompCons\IPsCon               $ips_con
+ * @property LicenseHandler                $license
+ * @property MainwpCon                     $mainwp
+ * @property MfaController                 $mfa
+ * @property CompCons\MU\MUHandler         $mu
+ * @property NotBotHandler                 $not_bot
+ * @property OffenseTracker                $offense_tracker
+ * @property CompCons\OptsLookup           $opts_lookup
+ * @property ReportingController           $reports
+ * @property RenderService                 $render
+ * @property RequestLogger                 $requests_log
+ * @property SecurityAdminController       $sec_admin
+ * @property SessionController             $session
+ * @property Scan\ScansController          $scans
+ * @property Scan\Queue\Controller         $scans_queue
+ * @property Shield\Zones\SecurityZonesCon $zones
+ * @property ShieldNetApiController        $shieldnet
+ * @property UserSuspendController         $user_suspend
+ * @property WhitelabelController          $whitelabel
+ * @property MerlinController              $wizards
+ * @property CompCons\WpCliCon             $wpcli
  */
 class ComponentLoader extends DynPropertiesClass {
 
@@ -129,6 +131,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'whitelabel'        => WhitelabelController::class,
 			'wizards'           => MerlinController::class,
 			'wpcli'             => CompCons\WpCliCon::class,
+			'zones'             => Shield\Zones\SecurityZonesCon::class,
 		];
 	}
 }

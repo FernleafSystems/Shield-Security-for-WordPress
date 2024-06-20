@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildForDisplay {
+class BuildOptionsForDisplay {
 
 	use PluginControllerConsumer;
 
@@ -17,10 +17,13 @@ class BuildForDisplay {
 
 	private $focusSection;
 
-	private $modSlug;
+	private $options;
 
-	public function __construct( string $modSlug, string $focusSection = '', string $focusOption = '' ) {
-		$this->modSlug = $modSlug;
+	private $sections;
+
+	public function __construct( array $options = [], array $sections = [], string $focusSection = '', string $focusOption = '' ) {
+		$this->options = $options;
+		$this->sections = $sections;
 		$this->focusSection = $focusSection;
 		$this->focusOption = $focusOption;
 	}
@@ -35,20 +38,20 @@ class BuildForDisplay {
 		// ensures firewall parameters are in correct format for display. This can be removed ~19.3+
 		self::con()->comps->opts_lookup->getFirewallParametersWhitelist();
 
-		return \array_filter( \array_map(
+		$sections = \array_filter( \array_map(
 			function ( array $section ) {
-				$notices = new SectionNotices();
-
-				foreach ( $section[ 'options' ] as $optKey => $opt ) {
-					$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
-					$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
-					$section[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
-				}
 
 				if ( empty( $section[ 'options' ] ) ) {
 					$section = null;
 				}
 				else {
+					foreach ( $section[ 'options' ] as $optKey => $opt ) {
+						$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
+						$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
+						$section[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
+					}
+
+					$notices = new SectionNotices();
 					$section = \array_merge( $section, ( new StringsSections() )->getFor( $section[ 'slug' ] ) );
 					$section[ 'is_focus' ] = $section[ 'slug' ] === $this->focusSection;
 					$section[ 'notices' ] = $notices->notices( $section[ 'slug' ] );
@@ -60,25 +63,45 @@ class BuildForDisplay {
 			},
 			$this->buildAvailableSections()
 		) );
+
+		$hasFocus = \count( \array_filter( $sections, function ( array $section ) {
+				return $section[ 'is_focus' ];
+			} ) ) > 0;
+		if ( !$hasFocus ) {
+			$sections[ \key( $sections ) ][ 'is_focus' ] = true;
+		}
+
+		return $sections;
 	}
 
 	protected function buildAvailableSections() :array {
 		return \array_filter( \array_map(
 			function ( array $nonHiddenSection ) {
 
-				$nonHiddenSection = \array_merge( [
-					'primary'   => false,
-					'options'   => $this->buildOptionsForSection( $nonHiddenSection[ 'slug' ] ),
-					'beacon_id' => false,
-				], $nonHiddenSection );
+				$optionsForSection = $this->buildOptionsForSection( $nonHiddenSection[ 'slug' ] );
+				if ( empty( $optionsForSection ) ) {
+					$nonHiddenSection = null;
+				}
+				else {
+					$nonHiddenSection = \array_merge( [
+						'primary'   => false,
+						'options'   => $optionsForSection,
+						'beacon_id' => false,
+					], $nonHiddenSection );
 
-				if ( self::con()->labels->is_whitelabelled ) {
-					$nonHiddenSection[ 'beacon_id' ] = false;
+					if ( self::con()->labels->is_whitelabelled ) {
+						$nonHiddenSection[ 'beacon_id' ] = false;
+					}
 				}
 
-				return empty( $nonHiddenSection[ 'options' ] ) ? null : $nonHiddenSection;
+				return $nonHiddenSection;
 			},
-			self::con()->cfg->configuration->sectionsForModule( $this->modSlug )
+			\array_filter(
+				self::con()->cfg->configuration->sections,
+				function ( array $section ) {
+					return empty( $this->sections ) || \in_array( $section[ 'slug' ], $this->sections );
+				}
+			)
 		) );
 	}
 
@@ -91,7 +114,9 @@ class BuildForDisplay {
 
 		foreach ( $section === 'section_hidden' ? [] : $con->cfg->configuration->optsForSection( $section ) as $optDef ) {
 
-			if ( $optDef[ 'section' ] !== $section ) {
+			if ( $optDef[ 'section' ] !== $section
+				 || ( !empty( $this->options ) && !\in_array( $optDef[ 'key' ], $this->options ) )
+			) {
 				continue;
 			}
 

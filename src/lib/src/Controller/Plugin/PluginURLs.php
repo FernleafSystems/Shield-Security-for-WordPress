@@ -95,4 +95,8 @@ class PluginURLs {
 			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
 	}
+
+	public function zone( string $zoneSlug ) :string {
+		return $this->adminTopNav( PluginNavs::NAV_ZONES, $zoneSlug );
+	}
 }

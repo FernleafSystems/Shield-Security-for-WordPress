@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 class PageReports extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_reports';
-	public const TEMPLATE = '/wpadmin/plugin_pages/base_inner_page.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();

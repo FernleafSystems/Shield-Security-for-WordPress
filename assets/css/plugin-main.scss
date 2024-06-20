@@ -409,7 +409,7 @@ table.odp-table.scan-table td.column-path code {
 }
 
 /** copied from bootstrap to override WP admin styles */
-.aptoOptionsForm {
+.options_form_for {
   font-size: 14px;
   padding-top: 10px;
 }
@@ -458,25 +458,25 @@ table.odp-table.scan-table td.column-path code {
   font-size: 12px;
 }
 
-.aptoOptionsForm .tab-content {
+.options_form_for .tab-content {
   border-top: 0 none;
   padding-top: 14px;
 }
 
-.aptoOptionsForm .option_form_row.row {
+.options_form_for .option_form_row.row {
   margin-bottom: 10px;
   padding: 10px 0;
 }
 
-.aptoOptionsForm .option-description {
+.options_form_for .option-description {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.aptoOptionsForm .option-description p {
+.options_form_for .option-description p {
   margin-bottom: 5px;
 }
 
-.aptoOptionsForm .option_label_name {
+.options_form_for .option_label_name {
   position: relative;
   /*display: block;*/
 }
@@ -485,7 +485,7 @@ table.odp-table.scan-table td.column-path code {
   width: 14px;
 }
 
-.aptoOptionsForm .option_link_info > .dashicons {
+.options_form_for .option_link_info > .dashicons {
   font-size: 16px;
   text-decoration: none;
 }
@@ -1243,6 +1243,10 @@ td.status_file_size {
 
 #AptoOffcanvas.offcanvas_modconfig {
   width: 80%;
+}
+
+#AptoOffcanvas.offcanvas_zone_component_config {
+  width: 60%;
 }
 
 #AptoOffcanvas.offcanvas_meter_analysis {

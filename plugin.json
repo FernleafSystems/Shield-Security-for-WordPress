@@ -1214,146 +1214,179 @@
         "description":   "Careful: This will restrict access to page/post creation, editing and deletion."
       },
       {
-        "key":         "whitelabel_enable",
-        "section":     "section_whitelabel",
-        "premium":     true,
-        "cap":         "whitelabel",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/dr",
-        "link_blog":   "https://shsec.io/ds",
-        "beacon_id":   131,
-        "name":        "Enable White Label",
-        "summary":     "Activate Your White Label Settings",
-        "description": "Use this option to turn on/off the whole White Label feature."
+        "key":             "whitelabel_enable",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "premium":         true,
+        "cap":             "whitelabel",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/dr",
+        "link_blog":       "https://shsec.io/ds",
+        "beacon_id":       131,
+        "name":            "Enable White Label",
+        "summary":         "Activate Your White Label Settings",
+        "description":     "Use this option to turn on/off the whole White Label feature."
       },
       {
-        "key":         "wl_hide_updates",
-        "section":     "section_whitelabel",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Hide Updates",
-        "summary":     "Hide Available Updates From Non Security Admins",
-        "description": "Hides the availability of Shield updates from non-security admins."
+        "key":             "wl_hide_updates",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "default":         "Y",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Hide Updates",
+        "summary":         "Hide Available Updates From Non Security Admins",
+        "description":     "Hides the availability of Shield updates from non-security admins."
       },
       {
-        "key":         "wl_replace_badge_url",
-        "section":     "section_whitelabel",
-        "premium":     true,
-        "cap":         "whitelabel",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Replace Plugin Badge",
-        "summary":     "Replace Plugin Badge URL and Images",
-        "description": "When using the plugin badge, replace the URL and link with your Whitelabel settings."
+        "key":             "wl_replace_badge_url",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "premium":         true,
+        "cap":             "whitelabel",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Replace Plugin Badge",
+        "summary":         "Replace Plugin Badge URL and Images",
+        "description":     "When using the plugin badge, replace the URL and link with your Whitelabel settings."
       },
       {
-        "key":         "wl_pluginnamemain",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "Shield",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "https://shsec.io/dt",
-        "link_blog":   "",
-        "name":        "Plugin Name",
-        "summary":     "The Name Of The Plugin",
-        "description": "The Name Of The Plugin."
+        "key":             "wl_pluginnamemain",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "Shield",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "https://shsec.io/dt",
+        "link_blog":       "",
+        "name":            "Plugin Name",
+        "summary":         "The Name Of The Plugin",
+        "description":     "The Name Of The Plugin."
       },
       {
-        "key":         "wl_namemenu",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "Shield Security",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Menu Title",
-        "summary":     "The Main Menu Title Of The Plugin",
-        "description": "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
+        "key":             "wl_namemenu",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "Shield Security",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Menu Title",
+        "summary":         "The Main Menu Title Of The Plugin",
+        "description":     "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
       },
       {
-        "key":         "wl_companyname",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "Example Company Name",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "https://shsec.io/dt",
-        "link_blog":   "",
-        "name":        "Company Name",
-        "summary":     "The Name Of Your Company",
-        "description": "Provide the name of your company."
+        "key":             "wl_companyname",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "Example Company Name",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "https://shsec.io/dt",
+        "link_blog":       "",
+        "name":            "Company Name",
+        "summary":         "The Name Of Your Company",
+        "description":     "Provide the name of your company."
       },
       {
-        "key":         "wl_description",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Plugin Tag Line",
-        "summary":     "The Tag Line Of The Plugin",
-        "description": "The Tag Line Of The Plugin."
+        "key":             "wl_description",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Plugin Tag Line",
+        "summary":         "The Tag Line Of The Plugin",
+        "description":     "The Tag Line Of The Plugin."
       },
       {
-        "key":         "wl_homeurl",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "https://shsec.io/7f",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Home URL",
-        "summary":     "Plugin Home Page URL",
-        "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
+        "key":             "wl_homeurl",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "https://shsec.io/7f",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Home URL",
+        "summary":         "Plugin Home Page URL",
+        "description":     "When a user clicks the home link for this plugin, this is where they'll be directed."
       },
       {
-        "key":         "wl_menuiconurl",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "pluginlogo_16x16.png",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "https://shsec.io/dt",
-        "link_blog":   "",
-        "name":        "Menu Icon",
-        "summary":     "Menu Icon URL",
-        "description": "The URL of the icon displayed in the menu."
+        "key":             "wl_menuiconurl",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "pluginlogo_16x16.png",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "https://shsec.io/dt",
+        "link_blog":       "",
+        "name":            "Menu Icon",
+        "summary":         "Menu Icon URL",
+        "description":     "The URL of the icon displayed in the menu."
       },
       {
-        "key":         "wl_dashboardlogourl",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "pluginlogo_128x128.png",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Plugin Badge Logo",
-        "summary":     "Plugin Badge Logo URL",
-        "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
+        "key":             "wl_dashboardlogourl",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "pluginlogo_128x128.png",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Plugin Badge Logo",
+        "summary":         "Plugin Badge Logo URL",
+        "description":     "The URL of the logo displayed in the main dashboard. Should be 128x128px"
       },
       {
-        "key":         "wl_login2fa_logourl",
-        "section":     "section_whitelabel",
-        "sensitive":   true,
-        "default":     "pluginlogo_banner-772x250.png",
-        "type":        "text",
-        "beacon_id":   216,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Dashboard and 2FA Logo",
-        "summary":     "Dashboard and 2FA Logo URL",
-        "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
+        "key":             "wl_login2fa_logourl",
+        "section":         "section_whitelabel",
+        "zone_comp_slugs": [
+          "whitelabel"
+        ],
+        "sensitive":       true,
+        "default":         "pluginlogo_banner-772x250.png",
+        "type":            "text",
+        "beacon_id":       216,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Dashboard and 2FA Logo",
+        "summary":         "Dashboard and 2FA Logo URL",
+        "description":     "The URL of the logo displayed in the main dashboard. Should be 128x128px"
       },
       {
         "key":         "enable_audit_trail",
@@ -1369,15 +1402,18 @@
         "description": "Un-Checking this option will completely disable the Activity Log module"
       },
       {
-        "key":           "log_level_db",
-        "section":       "section_log_wordpress_activity",
-        "type":          "multiple_select",
-        "default":       [
+        "key":             "log_level_db",
+        "section":         "section_log_wordpress_activity",
+        "zone_comp_slugs": [
+          "activity_logging"
+        ],
+        "type":            "multiple_select",
+        "default":         [
           "alert",
           "warning",
           "notice"
         ],
-        "value_options": [
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Logging Disabled"
@@ -1403,25 +1439,28 @@
             "text":      "Debug"
           }
         ],
-        "link_info":     "",
-        "link_blog":     "",
-        "beacon_id":     375,
-        "name":          "Logging Level",
-        "summary":       "Logging Level For DB-Based Logs",
-        "description":   "Logging Level For DB-Based Logs"
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       375,
+        "name":            "Logging Level",
+        "summary":         "Logging Level For DB-Based Logs",
+        "description":     "Logging Level For DB-Based Logs"
       },
       {
-        "key":         "audit_trail_auto_clean",
-        "section":     "section_log_wordpress_activity",
-        "type":        "integer",
-        "default":     7,
-        "min":         1,
-        "link_info":   "https://shsec.io/a2",
-        "link_blog":   "https://shsec.io/a1",
-        "beacon_id":   375,
-        "name":        "Auto Clean",
-        "summary":     "Enable Audit Auto Cleaning",
-        "description": "Events older than the number of days specified will be automatically cleaned from the database"
+        "key":             "audit_trail_auto_clean",
+        "section":         "section_log_wordpress_activity",
+        "zone_comp_slugs": [
+          "activity_logging"
+        ],
+        "type":            "integer",
+        "default":         7,
+        "min":             1,
+        "link_info":       "https://shsec.io/a2",
+        "link_blog":       "https://shsec.io/a1",
+        "beacon_id":       375,
+        "name":            "Auto Clean",
+        "summary":         "Enable Audit Auto Cleaning",
+        "description":     "Events older than the number of days specified will be automatically cleaned from the database"
       },
       {
         "key":         "enable_autoupdates",
@@ -1559,23 +1598,29 @@
         "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
       },
       {
-        "key":         "enable_antibot_comments",
-        "section":     "section_bot_comment_spam_protection_filter",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/k1",
-        "link_blog":   "https://shsec.io/jo",
-        "beacon_id":   427,
-        "name":        "AntiBot Detection Technology",
-        "summary":     "Use Shield's Unique AntiBot Detection Technology",
-        "description": "Use Shield's AntiBot Detection Engine To Detect and Block SPAM Bots."
+        "key":             "enable_antibot_comments",
+        "section":         "section_bot_comment_spam_protection_filter",
+        "zone_comp_slugs": [
+          "comment_spam_block_bot"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/k1",
+        "link_blog":       "https://shsec.io/jo",
+        "beacon_id":       427,
+        "name":            "AntiBot Detection Technology",
+        "summary":         "Use Shield's Unique AntiBot Detection Technology",
+        "description":     "Use Shield's AntiBot Detection Engine To Detect and Block SPAM Bots."
       },
       {
-        "key":           "comments_default_action_spam_bot",
-        "section":       "section_bot_comment_spam_protection_filter",
-        "default":       "spam",
-        "type":          "select",
-        "value_options": [
+        "key":             "comments_default_action_spam_bot",
+        "section":         "section_bot_comment_spam_protection_filter",
+        "zone_comp_slugs": [
+          "comment_spam_block_bot"
+        ],
+        "default":         "spam",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "0",
             "text":      "Move To Pending Moderation"
@@ -1593,24 +1638,27 @@
             "text":      "Block And Redirect"
           }
         ],
-        "link_info":     "https://shsec.io/6j",
-        "link_blog":     "",
-        "beacon_id":     260,
-        "name":          "SPAM Action",
-        "summary":       "How To Categorise Comments When Identified To Be SPAM",
-        "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
+        "link_info":       "https://shsec.io/6j",
+        "link_blog":       "",
+        "beacon_id":       260,
+        "name":            "SPAM Action",
+        "summary":         "How To Categorise Comments When Identified To Be SPAM",
+        "description":     "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
       },
       {
-        "key":         "enable_comments_human_spam_filter",
-        "section":     "section_human_spam_filter",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/57",
-        "link_blog":   "https://shsec.io/9w",
-        "beacon_id":   262,
-        "name":        "Human SPAM Filter",
-        "summary":     "Enable (or Disable) The Human SPAM Filter module",
-        "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
+        "key":             "enable_comments_human_spam_filter",
+        "section":         "section_human_spam_filter",
+        "zone_comp_slugs": [
+          "comment_spam_block_human"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/57",
+        "link_blog":       "https://shsec.io/9w",
+        "beacon_id":       262,
+        "name":            "Human SPAM Filter",
+        "summary":         "Enable (or Disable) The Human SPAM Filter module",
+        "description":     "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
       },
       {
         "key":         "comments_cooldown",
@@ -1626,11 +1674,14 @@
         "description": "Prevents comment floods and ensure a minimum period before any further comments are accepted on the site."
       },
       {
-        "key":           "comments_default_action_human_spam",
-        "section":       "section_human_spam_filter",
-        "default":       "0",
-        "type":          "select",
-        "value_options": [
+        "key":             "comments_default_action_human_spam",
+        "section":         "section_human_spam_filter",
+        "zone_comp_slugs": [
+          "comment_spam_block_human"
+        ],
+        "default":         "0",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "0",
             "text":      "Move To Pending Moderation"
@@ -1648,9 +1699,9 @@
             "text":      "Block And Redirect"
           }
         ],
-        "name":          "SPAM Action",
-        "summary":       "How To Categorise Comments When Identified To Be SPAM'",
-        "description":   "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
+        "name":            "SPAM Action",
+        "summary":         "How To Categorise Comments When Identified To Be SPAM'",
+        "description":     "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
       },
       {
         "key":     "last_comment_request_at",
@@ -2246,13 +2297,16 @@
         "description":   "SureSend Emails."
       },
       {
-        "key":           "form_spam_providers",
-        "section":       "section_spam",
-        "premium":       true,
-        "advanced":      true,
-        "type":          "multiple_select",
-        "default":       [],
-        "value_options": [
+        "key":             "form_spam_providers",
+        "section":         "section_spam",
+        "zone_comp_slugs": [
+          "contact_form_spam_block_bot"
+        ],
+        "premium":         true,
+        "advanced":        true,
+        "type":            "multiple_select",
+        "default":         [],
+        "value_options":   [
           {
             "value_key": "calderaforms",
             "text":      "Caldera Forms (beta)",
@@ -2334,12 +2388,12 @@
             "cap":       "thirdparty_scan_spam"
           }
         ],
-        "link_info":     "https://shsec.io/k2",
-        "link_blog":     "https://shsec.io/k3",
-        "beacon_id":     138,
-        "name":          "Form SPAM Checking",
-        "summary":       "Select The Form Providers That Should Be Checked For SPAM",
-        "description":   "Select The Form Providers That Should Be Checked For SPAM."
+        "link_info":       "https://shsec.io/k2",
+        "link_blog":       "https://shsec.io/k3",
+        "beacon_id":       138,
+        "name":            "Form SPAM Checking",
+        "summary":         "Select The Form Providers That Should Be Checked For SPAM",
+        "description":     "Select The Form Providers That Should Be Checked For SPAM."
       },
       {
         "key":           "user_form_providers",
@@ -2511,25 +2565,31 @@
         "description": "Ensures that visitors with a high reputation are never blocked by Shield."
       },
       {
-        "key":         "transgression_limit",
-        "section":     "section_auto_black_list",
-        "type":        "integer",
-        "default":     10,
-        "min":         0,
-        "link_info":   "https://shsec.io/wpsf24",
-        "link_blog":   "https://shsec.io/wpsf26",
-        "beacon_id":   207,
-        "name":        "Offense Limit",
-        "summary":     "Visitor IP address will be Black Listed after X bad actions on your site",
-        "description": "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these offenses exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
+        "key":             "transgression_limit",
+        "section":         "section_auto_black_list",
+        "zone_comp_slugs": [
+          "auto_ip_blocking"
+        ],
+        "type":            "integer",
+        "default":         10,
+        "min":             0,
+        "link_info":       "https://shsec.io/wpsf24",
+        "link_blog":       "https://shsec.io/wpsf26",
+        "beacon_id":       207,
+        "name":            "Offense Limit",
+        "summary":         "Visitor IP address will be Black Listed after X bad actions on your site",
+        "description":     "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these offenses exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
       },
       {
-        "key":           "auto_expire",
-        "section":       "section_auto_black_list",
-        "advanced":      true,
-        "default":       "day",
-        "type":          "select",
-        "value_options": [
+        "key":             "auto_expire",
+        "section":         "section_auto_black_list",
+        "zone_comp_slugs": [
+          "auto_ip_blocking"
+        ],
+        "advanced":        true,
+        "default":         "day",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "hour",
             "text":      "Hour"
@@ -2547,12 +2607,12 @@
             "text":      "Month"
           }
         ],
-        "link_info":     "https://shsec.io/wpsf25",
-        "link_blog":     "https://shsec.io/wpsf26",
-        "beacon_id":     210,
-        "name":          "Auto Block Expiration",
-        "summary":       "After 1 'X' a black listed IP will be removed from the black list",
-        "description":   "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
+        "link_info":       "https://shsec.io/wpsf25",
+        "link_blog":       "https://shsec.io/wpsf26",
+        "beacon_id":       210,
+        "name":            "Auto Block Expiration",
+        "summary":         "After 1 'X' a black listed IP will be removed from the black list",
+        "description":     "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
       },
       {
         "key":           "user_auto_recover",
@@ -2594,12 +2654,14 @@
         "description": "Request Path Whitelist."
       },
       {
-        "key":           "cs_block",
-        "section":       "section_crowdsec",
-        "advanced":      true,
-        "default":       "block_with_unblock",
-        "type":          "select",
-        "value_options": [
+        "key":             "cs_block",
+        "section":         "section_crowdsec",
+        "zone_comp_slugs": [
+          "crowdsec_blocking"
+        ],
+        "default":         "block_with_unblock",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "block_with_unblock",
             "text":      "Block Request With Ability To Auto-Unblock"
@@ -2613,12 +2675,12 @@
             "text":      "Disabled"
           }
         ],
-        "link_info":     "",
-        "link_blog":     "https://shsec.io/nh",
-        "beacon_id":     471,
-        "name":          "CrowdSec IP Blocking",
-        "summary":       "How To Handle Requests From IPs Found On CrowdSec Blocklist",
-        "description":   "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+        "link_info":       "",
+        "link_blog":       "https://shsec.io/nh",
+        "beacon_id":       471,
+        "name":            "CrowdSec IP Blocking",
+        "summary":         "How To Handle Requests From IPs Found On CrowdSec Blocklist",
+        "description":     "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
       },
       {
         "key":         "cs_enroll_id",
@@ -2658,7 +2720,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block"
+            "text":      "Immediate IP Block"
           }
         ],
         "link_info":     "https://shsec.io/fn",
@@ -2669,11 +2731,14 @@
         "description":   "Penalise a visitor who fails to login using a valid username."
       },
       {
-        "key":           "track_xmlrpc",
-        "section":       "section_bot_behaviours",
-        "default":       "log",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_xmlrpc",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "xml_rpc_disable"
+        ],
+        "default":         "log",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2692,15 +2757,15 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block"
+            "text":      "Immediate IP Block"
           }
         ],
-        "link_info":     "https://shsec.io/fo",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     123,
-        "name":          "XML-RPC Access",
-        "summary":       "Identify A Bot When It Accesses XML-RPC",
-        "description":   "If you don't use XML-RPC, why would anyone access it?"
+        "link_info":       "https://shsec.io/fo",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       123,
+        "name":            "XML-RPC Access",
+        "summary":         "Identify A Bot When It Accesses XML-RPC",
+        "description":     "If you don't use XML-RPC, why would anyone access it?"
       },
       {
         "key":           "track_logininvalid",
@@ -2729,7 +2794,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block",
+            "text":      "Immediate IP Block",
             "premium":   true
           }
         ],
@@ -2767,7 +2832,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block",
+            "text":      "Immediate IP Block",
             "premium":   true
           }
         ],
@@ -2805,7 +2870,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block",
+            "text":      "Immediate IP Block",
             "premium":   true
           }
         ],
@@ -2843,7 +2908,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block",
+            "text":      "Immediate IP Block",
             "premium":   true
           }
         ],
@@ -2881,7 +2946,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block",
+            "text":      "Immediate IP Block",
             "premium":   true
           }
         ],
@@ -2919,7 +2984,7 @@
           },
           {
             "value_key": "block",
-            "text":      "Immediate Block"
+            "text":      "Immediate IP Block"
           }
         ],
         "link_info":     "https://shsec.io/fi",
@@ -2979,33 +3044,42 @@
         "default": []
       },
       {
-        "key":         "disable_xmlrpc",
-        "section":     "section_apixml",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/e6",
-        "link_blog":   "https://shsec.io/fb",
-        "beacon_id":   414,
-        "name":        "Disable XML-RPC",
-        "summary":     "Disable The XML-RPC System",
-        "description": "Checking this option will completely turn off the whole XML-RPC system."
+        "key":             "disable_xmlrpc",
+        "section":         "section_apixml",
+        "zone_comp_slugs": [
+          "xml_rpc_disable"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/e6",
+        "link_blog":       "https://shsec.io/fb",
+        "beacon_id":       414,
+        "name":            "Disable XML-RPC",
+        "summary":         "Disable The XML-RPC System",
+        "description":     "Checking this option will completely turn off the whole XML-RPC system."
       },
       {
-        "key":         "disable_anonymous_restapi",
-        "section":     "section_apixml",
-        "advanced":    true,
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Anonymous Rest API",
-        "summary":     "Disable The Anonymous Rest API",
-        "description": "Checking this option will completely turn off the whole Anonymous Rest API system."
+        "key":             "disable_anonymous_restapi",
+        "section":         "section_apixml",
+        "zone_comp_slugs": [
+          "anon_rest_api_disable"
+        ],
+        "advanced":        true,
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Anonymous Rest API",
+        "summary":         "Disable The Anonymous Rest API",
+        "description":     "Checking this option will completely turn off the whole Anonymous Rest API system."
       },
       {
-        "key":         "api_namespace_exclusions",
-        "section":     "section_apixml",
-        "default":     [
+        "key":             "api_namespace_exclusions",
+        "section":         "section_apixml",
+        "zone_comp_slugs": [
+          "anon_rest_api_disable"
+        ],
+        "default":         [
           "contact-form-7",
           "jetpack",
           "tho",
@@ -3014,12 +3088,12 @@
           "wpstatistics",
           "iawp"
         ],
-        "type":        "array",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Rest API Exclusions",
-        "summary":     "Anonymous REST API Exclusions",
-        "description": "Any namespaces provided here will be excluded from the Anonymous API restriction."
+        "type":            "array",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Rest API Exclusions",
+        "summary":         "Anonymous REST API Exclusions",
+        "description":     "Any namespaces provided here will be excluded from the Anonymous API restriction."
       },
       {
         "key":         "disable_file_editing",
@@ -3184,66 +3258,81 @@
         "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
       },
       {
-        "key":         "enable_google_authenticator",
-        "section":     "section_2fa_otp",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/shld7",
-        "link_blog":   "https://shsec.io/shld6",
-        "beacon_id":   245,
-        "name":        "Enable Google Authenticator",
-        "summary":     "Allow Users To Use Google Authenticator",
-        "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
+        "key":             "enable_google_authenticator",
+        "section":         "section_2fa_otp",
+        "zone_comp_slugs": [
+          "two_factor_auth"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/shld7",
+        "link_blog":       "https://shsec.io/shld6",
+        "beacon_id":       245,
+        "name":            "Enable Google Authenticator",
+        "summary":         "Allow Users To Use Google Authenticator",
+        "description":     "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
       },
       {
-        "key":         "enable_yubikey",
-        "section":     "section_2fa_otp",
-        "default":     "N",
-        "type":        "checkbox",
-        "beacon_id":   358,
-        "link_info":   "https://shsec.io/4f",
-        "link_blog":   "https://shsec.io/9t",
-        "name":        "Allow Yubikey OTP",
-        "summary":     "Allow Yubikey Registration For One Time Passwords",
-        "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
+        "key":             "enable_yubikey",
+        "section":         "section_2fa_otp",
+        "zone_comp_slugs": [
+          "two_factor_auth"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "beacon_id":       358,
+        "link_info":       "https://shsec.io/4f",
+        "link_blog":       "https://shsec.io/9t",
+        "name":            "Allow Yubikey OTP",
+        "summary":         "Allow Yubikey Registration For One Time Passwords",
+        "description":     "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
       },
       {
-        "key":         "yubikey_app_id",
-        "section":     "section_2fa_otp",
-        "sensitive":   true,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "https://shsec.io/4g",
-        "link_blog":   "",
-        "beacon_id":   360,
-        "name":        "Yubikey App ID",
-        "summary":     "Your Unique Yubikey App ID",
-        "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
+        "key":             "yubikey_app_id",
+        "section":         "section_2fa_otp",
+        "zone_comp_slugs": [
+          "two_factor_auth"
+        ],
+        "sensitive":       true,
+        "default":         "",
+        "type":            "text",
+        "link_info":       "https://shsec.io/4g",
+        "link_blog":       "",
+        "beacon_id":       360,
+        "name":            "Yubikey App ID",
+        "summary":         "Your Unique Yubikey App ID",
+        "description":     "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
       },
       {
-        "key":         "yubikey_api_key",
-        "section":     "section_2fa_otp",
-        "sensitive":   true,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "https://shsec.io/4g",
-        "link_blog":   "",
-        "beacon_id":   360,
-        "name":        "Yubikey API Key",
-        "summary":     "Your Unique Yubikey App API Key",
-        "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
+        "key":             "yubikey_api_key",
+        "section":         "section_2fa_otp",
+        "zone_comp_slugs": [
+          "two_factor_auth"
+        ],
+        "sensitive":       true,
+        "default":         "",
+        "type":            "text",
+        "link_info":       "https://shsec.io/4g",
+        "link_blog":       "",
+        "beacon_id":       360,
+        "name":            "Yubikey API Key",
+        "summary":         "Your Unique Yubikey App API Key",
+        "description":     "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
       },
       {
-        "key":         "enable_email_authentication",
-        "section":     "section_2fa_email",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/3t",
-        "link_blog":   "https://shsec.io/9q",
-        "beacon_id":   247,
-        "name":        "Enable Email Authentication",
-        "summary":     "Two-Factor Login Authentication By Email",
-        "description": "All users will be required to verify their login by email-based two-factor authentication."
+        "key":             "enable_email_authentication",
+        "section":         "section_2fa_email",
+        "zone_comp_slugs": [
+          "two_factor_auth"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/3t",
+        "link_blog":       "https://shsec.io/9q",
+        "beacon_id":       247,
+        "name":            "Enable Email Authentication",
+        "summary":         "Two-Factor Login Authentication By Email",
+        "description":     "All users will be required to verify their login by email-based two-factor authentication."
       },
       {
         "key":         "enable_email_auto_login",
@@ -3262,7 +3351,6 @@
       {
         "key":         "two_factor_auth_user_roles",
         "section":     "section_2fa_email",
-        "advanced":    true,
         "type":        "array",
         "default":     [
           "contributor",
@@ -3292,25 +3380,31 @@
         "description": "Allow Any User To Turn-On Two-Factor Authentication By Email."
       },
       {
-        "key":         "enable_antibot_check",
-        "section":     "section_brute_force_login_protection",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/k0",
-        "link_blog":   "https://shsec.io/jo",
-        "beacon_id":   426,
-        "name":        "Block Login Bots",
-        "summary":     "Block Login Attempted By Automated Bots",
-        "description": "Use Shield's AntiBot Detection Engine To Block Bots and Brute Force Attacks"
+        "key":             "enable_antibot_check",
+        "section":         "section_brute_force_login_protection",
+        "zone_comp_slugs": [
+          "limit_login"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/k0",
+        "link_blog":       "https://shsec.io/jo",
+        "beacon_id":       426,
+        "name":            "Block Login Bots",
+        "summary":         "Block Login Attempted By Automated Bots",
+        "description":     "Use Shield's AntiBot Detection Engine To Block Bots and Brute Force Attacks"
       },
       {
-        "key":           "bot_protection_locations",
-        "section":       "section_brute_force_login_protection",
-        "type":          "multiple_select",
-        "default":       [
+        "key":             "bot_protection_locations",
+        "section":         "section_brute_force_login_protection",
+        "zone_comp_slugs": [
+          "limit_login"
+        ],
+        "type":            "multiple_select",
+        "default":         [
           "login"
         ],
-        "value_options": [
+        "value_options":   [
           {
             "value_key": "login",
             "text":      "Login"
@@ -3328,25 +3422,28 @@
             "text":      "Checkout (WooCommerce)"
           }
         ],
-        "link_info":     "https://shsec.io/dv",
-        "link_blog":     "",
-        "beacon_id":     314,
-        "name":          "Protection Locations",
-        "summary":       "How Google reCAPTCHA Will Be Displayed",
-        "description":   "Choose for which forms bot protection measures will be deployed."
+        "link_info":       "https://shsec.io/dv",
+        "link_blog":       "",
+        "beacon_id":       314,
+        "name":            "Protection Locations",
+        "summary":         "How Google reCAPTCHA Will Be Displayed",
+        "description":     "Choose for which forms bot protection measures will be deployed."
       },
       {
-        "key":         "login_limit_interval",
-        "section":     "section_brute_force_login_protection",
-        "type":        "integer",
-        "default":     5,
-        "min":         0,
-        "link_info":   "https://shsec.io/3q",
-        "link_blog":   "https://shsec.io/9o",
-        "beacon_id":   242,
-        "name":        "Login Cooldown Interval",
-        "summary":     "Limit login attempts to every X seconds",
-        "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
+        "key":             "login_limit_interval",
+        "section":         "section_brute_force_login_protection",
+        "zone_comp_slugs": [
+          "limit_login"
+        ],
+        "type":            "integer",
+        "default":         5,
+        "min":             0,
+        "link_info":       "https://shsec.io/3q",
+        "link_blog":       "https://shsec.io/9o",
+        "beacon_id":       242,
+        "name":            "Login Cooldown Interval",
+        "summary":         "Limit login attempts to every X seconds",
+        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
       },
       {
         "key":         "enable_login_gasp_check",
@@ -3363,7 +3460,6 @@
       {
         "key":         "antibot_form_ids",
         "section":     "section_deprecated",
-        "advanced":    true,
         "premium":     true,
         "type":        "array",
         "default":     [],
@@ -3375,18 +3471,21 @@
         "description": "For Use With AnitBot JS (above)."
       },
       {
-        "key":         "enable_passkeys",
-        "section":     "section_2fa_passkeys",
-        "premium":     true,
-        "cap":         "2fa_webauthn",
-        "default":     "N",
-        "type":        "checkbox",
-        "beacon_id":   763,
-        "link_info":   "",
-        "link_blog":   "https://shsec.io/ni",
-        "name":        "Enable Passkeys",
-        "summary":     "Allow Registration Of Passkeys",
-        "description": "Allow Registration Of Passkeys."
+        "key":             "enable_passkeys",
+        "section":         "section_2fa_passkeys",
+        "zone_comp_slugs": [
+          "two_factor_auth"
+        ],
+        "premium":         true,
+        "cap":             "2fa_webauthn",
+        "default":         "N",
+        "type":            "checkbox",
+        "beacon_id":       763,
+        "link_info":       "",
+        "link_blog":       "https://shsec.io/ni",
+        "name":            "Enable Passkeys",
+        "summary":         "Allow Registration Of Passkeys",
+        "description":     "Allow Registration Of Passkeys."
       },
       {
         "key":         "text_imahuman",
@@ -3443,7 +3542,6 @@
       {
         "key":           "visitor_address_source",
         "section":       "section_defaults",
-        "advanced":      true,
         "sensitive":     false,
         "type":          "select",
         "default":       "AUTO_DETECT_IP",
@@ -3501,16 +3599,19 @@
         "description":   "There are many way to detect visitor IP addresses. Please select yours from the list."
       },
       {
-        "key":         "block_send_email_address",
-        "section":     "section_reporting",
-        "sensitive":   true,
-        "default":     "",
-        "type":        "email",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Report Email",
-        "summary":     "Email For All Reports and Plugin Notifications",
-        "description": "Defaults to the blog admin email address."
+        "key":             "block_send_email_address",
+        "section":         "section_reporting",
+        "zone_comp_slugs": [
+          "reporting"
+        ],
+        "sensitive":       true,
+        "default":         "",
+        "type":            "email",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Report Email",
+        "summary":         "Email For All Reports and Plugin Notifications",
+        "description":     "Defaults to the blog admin email address."
       },
       {
         "key":         "display_plugin_badge",
@@ -3550,7 +3651,6 @@
       {
         "key":           "autoupdate_plugin_self",
         "section":       "section_defaults",
-        "advanced":      true,
         "default":       "auto",
         "type":          "select",
         "value_options": [
@@ -3693,11 +3793,14 @@
         "description":  "Keep this Secret Key private as it will allow the import and export of options."
       },
       {
-        "key":           "frequency_alert",
-        "section":       "section_reporting",
-        "type":          "select",
-        "default":       "daily",
-        "value_options": [
+        "key":             "frequency_alert",
+        "section":         "section_reporting",
+        "zone_comp_slugs": [
+          "reporting"
+        ],
+        "type":            "select",
+        "default":         "daily",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -3715,19 +3818,22 @@
             "text":      "Weekly"
           }
         ],
-        "link_info":     "https://shsec.io/h9",
-        "link_blog":     "",
-        "beacon_id":     233,
-        "name":          "Alert Reports Frequency",
-        "summary":       "How Often Should You Be Sent Reports With Important Alerts",
-        "description":   "Decide when you should be sent reports with alerts about your site security."
+        "link_info":       "https://shsec.io/h9",
+        "link_blog":       "",
+        "beacon_id":       233,
+        "name":            "Alert Reports Frequency",
+        "summary":         "How Often Should You Be Sent Reports With Important Alerts",
+        "description":     "Decide when you should be sent reports with alerts about your site security."
       },
       {
-        "key":           "frequency_info",
-        "section":       "section_reporting",
-        "type":          "select",
-        "default":       "weekly",
-        "value_options": [
+        "key":             "frequency_info",
+        "section":         "section_reporting",
+        "zone_comp_slugs": [
+          "reporting"
+        ],
+        "type":            "select",
+        "default":         "weekly",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -3753,19 +3859,23 @@
             "text":      "Monthly"
           }
         ],
-        "link_info":     "https://shsec.io/ha",
-        "link_blog":     "",
-        "beacon_id":     232,
-        "name":          "Info Reports Frequency",
-        "summary":       "How Often Should You Be Sent Information Reports",
-        "description":   "Decide when you should be sent non-critical information and reports about your site security."
+        "link_info":       "https://shsec.io/ha",
+        "link_blog":       "",
+        "beacon_id":       232,
+        "name":            "Info Reports Frequency",
+        "summary":         "How Often Should You Be Sent Information Reports",
+        "description":     "Decide when you should be sent non-critical information and reports about your site security."
       },
       {
-        "key":           "instant_alert_shield_deactivated",
-        "section":       "section_alerts",
-        "type":          "select",
-        "default":       "email",
-        "value_options": [
+        "key":             "instant_alert_shield_deactivated",
+        "section":         "section_alerts",
+        "zone_comp_slugs": [
+          "instant_alerts",
+          "reporting"
+        ],
+        "type":            "select",
+        "default":         "email",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -3775,21 +3885,25 @@
             "text":      "Email"
           }
         ],
-        "beacon_id":     788,
-        "link_info":     "",
-        "link_blog":     "",
-        "name":          "Shield Deactivated",
-        "summary":       "Be alerted when the Shield plugin is deactivated",
-        "description":   "Be alerted when the Shield plugin is deactivated."
+        "beacon_id":       788,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Shield Deactivated",
+        "summary":         "Be alerted when the Shield plugin is deactivated",
+        "description":     "Be alerted when the Shield plugin is deactivated."
       },
       {
-        "key":           "instant_alert_admins",
-        "section":       "section_alerts",
-        "premium":       true,
-        "cap":           "instant_alerts",
-        "type":          "select",
-        "default":       "disabled",
-        "value_options": [
+        "key":             "instant_alert_admins",
+        "section":         "section_alerts",
+        "zone_comp_slugs": [
+          "instant_alerts",
+          "reporting"
+        ],
+        "premium":         true,
+        "cap":             "instant_alerts",
+        "type":            "select",
+        "default":         "disabled",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -3800,21 +3914,25 @@
             "premium":   true
           }
         ],
-        "beacon_id":     788,
-        "link_info":     "",
-        "link_blog":     "",
-        "name":          "Admin Accounts",
-        "summary":       "Be alerted to any important change on any admin account",
-        "description":   "Be alerted to any important change on any admin account."
+        "beacon_id":       788,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Admin Accounts",
+        "summary":         "Be alerted to any important change on any admin account",
+        "description":     "Be alerted to any important change on any admin account."
       },
       {
-        "key":           "instant_alert_vulnerabilities",
-        "section":       "section_alerts",
-        "premium":       true,
-        "cap":           "instant_alerts",
-        "type":          "select",
-        "default":       "disabled",
-        "value_options": [
+        "key":             "instant_alert_vulnerabilities",
+        "section":         "section_alerts",
+        "zone_comp_slugs": [
+          "instant_alerts",
+          "reporting"
+        ],
+        "premium":         true,
+        "cap":             "instant_alerts",
+        "type":            "select",
+        "default":         "disabled",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -3825,21 +3943,25 @@
             "premium":   true
           }
         ],
-        "beacon_id":     788,
-        "link_info":     "",
-        "link_blog":     "",
-        "name":          "Vulnerabilities",
-        "summary":       "Be alerted to discovery of any vulnerable plugin/theme",
-        "description":   "Be alerted to discovery of any vulnerable plugin/theme."
+        "beacon_id":       788,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Vulnerabilities",
+        "summary":         "Be alerted to discovery of any vulnerable plugin/theme",
+        "description":     "Be alerted to discovery of any vulnerable plugin/theme."
       },
       {
-        "key":           "instant_alert_filelocker",
-        "section":       "section_alerts",
-        "premium":       true,
-        "cap":           "instant_alerts",
-        "type":          "select",
-        "default":       "disabled",
-        "value_options": [
+        "key":             "instant_alert_filelocker",
+        "section":         "section_alerts",
+        "zone_comp_slugs": [
+          "instant_alerts",
+          "reporting"
+        ],
+        "premium":         true,
+        "cap":             "instant_alerts",
+        "type":            "select",
+        "default":         "disabled",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -3850,12 +3972,12 @@
             "premium":   true
           }
         ],
-        "beacon_id":     788,
-        "link_info":     "",
-        "link_blog":     "",
-        "name":          "FileLocker Changes",
-        "summary":       "Be alerted to any changes to FileLocker items",
-        "description":   "Be alerted to any changes to FileLocker items."
+        "beacon_id":       788,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "FileLocker Changes",
+        "summary":         "Be alerted to any changes to FileLocker items",
+        "description":     "Be alerted to any changes to FileLocker items."
       },
       {
         "key":     "transient_tracking",
@@ -3969,16 +4091,19 @@
         "tracking_exclude": true
       },
       {
-        "key":         "enable_logger",
-        "section":     "section_log_requests",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/hf",
-        "link_blog":   "",
-        "beacon_id":   153,
-        "name":        "Enable Request Logging",
-        "summary":     "Log Requests To Your WordPress Site",
-        "description": "Monitor web requests sent to your WordPress site."
+        "key":             "enable_logger",
+        "section":         "section_log_requests",
+        "zone_comp_slugs": [
+          "request_logging"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/hf",
+        "link_blog":       "",
+        "beacon_id":       153,
+        "name":            "Enable Request Logging",
+        "summary":         "Log Requests To Your WordPress Site",
+        "description":     "Monitor web requests sent to your WordPress site."
       },
       {
         "key":         "enable_live_log",
@@ -3996,18 +4121,21 @@
         "description": "Switch-on logging of all site traffic."
       },
       {
-        "key":           "type_exclusions",
-        "section":       "section_log_requests",
-        "type":          "multiple_select",
-        "advanced":      true,
-        "default":       [
+        "key":             "type_exclusions",
+        "section":         "section_log_requests",
+        "zone_comp_slugs": [
+          "request_logging"
+        ],
+        "type":            "multiple_select",
+        "advanced":        true,
+        "default":         [
           "logged_in",
           "server",
           "cron",
           "search",
           "uptime"
         ],
-        "value_options": [
+        "value_options":   [
           {
             "value_key": "logged_in",
             "text":      "Logged-In Users"
@@ -4029,12 +4157,12 @@
             "text":      "Uptime Monitoring Services"
           }
         ],
-        "link_info":     "https://shsec.io/eb",
-        "link_blog":     "",
-        "beacon_id":     154,
-        "name":          "Request Log Exclusions",
-        "summary":       "Select Which Types Of Requests To Exclude",
-        "description":   "Deselect any requests that you don't want to appear in the traffic viewer."
+        "link_info":       "https://shsec.io/eb",
+        "link_blog":       "",
+        "beacon_id":       154,
+        "name":            "Request Log Exclusions",
+        "summary":         "Select Which Types Of Requests To Exclude",
+        "description":     "Deselect any requests that you don't want to appear in the traffic viewer."
       },
       {
         "key":         "custom_exclusions",
@@ -4053,7 +4181,6 @@
       {
         "key":         "auto_clean",
         "section":     "section_log_requests",
-        "advanced":    true,
         "type":        "integer",
         "default":     7,
         "min":         1,
@@ -4064,42 +4191,51 @@
         "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
       },
       {
-        "key":         "enable_limiter",
-        "section":     "section_traffic_limiter",
-        "premium":     true,
-        "cap":         "traffic_rate_limiting",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/gw",
-        "link_blog":   "https://shsec.io/gx",
-        "beacon_id":   420,
-        "name":        "Enable Rate Limiting",
-        "summary":     "Turn On The Rate Limiting Feature",
-        "description": "Enable or disable the rate limiting feature according to your rate limiting parameters."
+        "key":             "enable_limiter",
+        "section":         "section_traffic_limiter",
+        "zone_comp_slugs": [
+          "rate_limiting"
+        ],
+        "premium":         true,
+        "cap":             "traffic_rate_limiting",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/gw",
+        "link_blog":       "https://shsec.io/gx",
+        "beacon_id":       420,
+        "name":            "Enable Rate Limiting",
+        "summary":         "Turn On The Rate Limiting Feature",
+        "description":     "Enable or disable the rate limiting feature according to your rate limiting parameters."
       },
       {
-        "key":         "limit_requests",
-        "section":     "section_traffic_limiter",
-        "type":        "integer",
-        "default":     60,
-        "min":         0,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Max Request Limit",
-        "summary":     "Maximum Number Of Requests Allowed In Time Limit",
-        "description": "The maximum number of requests that are allowed in the given time limit."
+        "key":             "limit_requests",
+        "section":         "section_traffic_limiter",
+        "zone_comp_slugs": [
+          "rate_limiting"
+        ],
+        "type":            "integer",
+        "default":         60,
+        "min":             0,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Max Request Limit",
+        "summary":         "Maximum Number Of Requests Allowed In Time Limit",
+        "description":     "The maximum number of requests that are allowed in the given time limit."
       },
       {
-        "key":         "limit_time_span",
-        "section":     "section_traffic_limiter",
-        "type":        "integer",
-        "default":     60,
-        "min":         0,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Request Limit Time Interval",
-        "summary":     "The Time Interval To Test For Excessive Requests",
-        "description": "The time limit within which to monitor for excessive requests that exceed the limit."
+        "key":             "limit_time_span",
+        "section":         "section_traffic_limiter",
+        "zone_comp_slugs": [
+          "rate_limiting"
+        ],
+        "type":            "integer",
+        "default":         60,
+        "min":             0,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Request Limit Time Interval",
+        "summary":         "The Time Interval To Test For Excessive Requests",
+        "description":     "The time limit within which to monitor for excessive requests that exceed the limit."
       },
       {
         "key":              "live_log_started_at",
@@ -4159,25 +4295,31 @@
         "description": "WordPress default is 2 days, or 14 days if you check the 'Remember Me' box."
       },
       {
-        "key":         "session_idle_timeout_interval",
-        "section":     "section_user_session_management",
-        "type":        "integer",
-        "default":     48,
-        "min":         0,
-        "link_info":   "https://support.getshieldsecurity.com/support/solutions/articles/3000070590",
-        "link_blog":   "",
-        "beacon_id":   397,
-        "name":        "Idle Timeout",
-        "summary":     "Specify How Many Hours After Inactivity To Automatically Logout User",
-        "description": "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
+        "key":             "session_idle_timeout_interval",
+        "section":         "section_user_session_management",
+        "zone_comp_slugs": [
+          "session_theft_protection"
+        ],
+        "type":            "integer",
+        "default":         48,
+        "min":             0,
+        "link_info":       "https://support.getshieldsecurity.com/support/solutions/articles/3000070590",
+        "link_blog":       "",
+        "beacon_id":       397,
+        "name":            "Idle Timeout",
+        "summary":         "Specify How Many Hours After Inactivity To Automatically Logout User",
+        "description":     "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
       },
       {
-        "key":           "session_lock",
-        "section":       "section_user_session_management",
-        "premium":       true,
-        "type":          "multiple_select",
-        "default":       [],
-        "value_options": [
+        "key":             "session_lock",
+        "section":         "section_user_session_management",
+        "zone_comp_slugs": [
+          "session_theft_protection"
+        ],
+        "premium":         true,
+        "type":            "multiple_select",
+        "default":         [],
+        "value_options":   [
           {
             "value_key": "ip",
             "text":      "IP Address"
@@ -4191,12 +4333,12 @@
             "text":      "Hostname"
           }
         ],
-        "beacon_id":     778,
-        "link_info":     "",
-        "link_blog":     "https://shsec.io/hh",
-        "name":          "Session Lock",
-        "summary":       "Lock User Sessions To ",
-        "description":   "."
+        "beacon_id":       778,
+        "link_info":       "",
+        "link_blog":       "https://shsec.io/hh",
+        "name":            "Session Lock",
+        "summary":         "Lock User Sessions To ",
+        "description":     "."
       },
       {
         "key":           "reg_email_validate",
@@ -4282,16 +4424,19 @@
         "description": "Turn on/off all password policies."
       },
       {
-        "key":         "pass_prevent_pwned",
-        "section":     "section_passwords",
-        "type":        "checkbox",
-        "default":     "Y",
-        "beacon_id":   758,
-        "link_info":   "",
-        "link_blog":   "https://shsec.io/by",
-        "name":        "Prevent Pwned Passwords",
-        "summary":     "Prevent Use Of Pwned Passwords",
-        "description": "Prevents users from using any passwords found on the public available list of pwned passwords."
+        "key":             "pass_prevent_pwned",
+        "section":         "section_passwords",
+        "zone_comp_slugs": [
+          "pwned_passwords"
+        ],
+        "type":            "checkbox",
+        "default":         "Y",
+        "beacon_id":       758,
+        "link_info":       "",
+        "link_blog":       "https://shsec.io/by",
+        "name":            "Prevent Pwned Passwords",
+        "summary":         "Prevent Use Of Pwned Passwords",
+        "description":     "Prevents users from using any passwords found on the public available list of pwned passwords."
       },
       {
         "key":           "pass_min_strength",

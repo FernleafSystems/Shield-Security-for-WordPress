@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\BuildForDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\BuildOptionsForDisplay;
 
 class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_options_form';
-	public const TEMPLATE = '/components/config/options_form.twig';
+	public const TEMPLATE = '/components/config/options_form_for.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();
@@ -63,7 +63,12 @@ class OptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 						return $optDef[ 'section' ] !== 'section_hidden';
 					}
 				) ),
-				'all_options'        => ( new BuildForDisplay( $modSlug, $focusSection, $focusOption ) )->standard(),
+				'all_options'        => ( new BuildOptionsForDisplay(
+					\array_keys( $config->optsForModule( $modSlug ) ),
+					\array_keys( $config->sectionsForModule( $modSlug ) ),
+					$focusSection,
+					$focusOption
+				) )->standard(),
 				'xferable_opts'      => \array_keys( $config->transferableOptions() ),
 				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),
 				'focus_section'      => $focusSection,

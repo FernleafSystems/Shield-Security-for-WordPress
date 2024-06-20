@@ -147,12 +147,6 @@ class SectionNotices {
 				}
 				break;
 
-			case 'section_whitelabel':
-				if ( !$con->comps->sec_admin->isEnabledSecAdmin() ) {
-					$warnings[] = __( 'Please also supply a Security Admin PIN, as whitelabel settings are only applied when the Security Admin feature is active.', 'wp-simple-firewall' );
-				}
-				break;
-
 			case 'section_2fa_email':
 				$nonRoles = \array_diff(
 					$optsLookup->getLoginGuardEmailAuth2FaRoles(),

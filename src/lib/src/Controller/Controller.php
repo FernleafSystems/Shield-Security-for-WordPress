@@ -25,12 +25,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Integrations,
 	IPs,
 	License,
-	Lockdown,
 	LoginGuard,
 	Plugin,
 	Plugin\Lib\Ops\ResetPlugin,
 	SecurityAdmin,
-	Traffic,
 	UserManagement
 };
 use FernleafSystems\Wordpress\Services\Services;

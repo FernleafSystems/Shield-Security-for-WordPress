@@ -139,7 +139,7 @@ class StringsOptions {
 				break;
 			case 'enable_comments_human_spam_filter' :
 				$name = __( 'Block Human SPAM', 'wp-simple-firewall' );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Feature', 'wp-simple-firewall' ), __( 'Human SPAM Filter', 'wp-simple-firewall' ) );
+				$summary = __( 'Block Comment SPAM Posted By Humans', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Most SPAM is automatic, by bots, but sometimes Humans also post comments to your site and these bypass Bot Detection rules.', 'wp-simple-firewall' ),
 					__( 'When this happens, you can scan the content for keywords that are typical of SPAM.', 'wp-simple-firewall' ),
@@ -1588,8 +1588,8 @@ class StringsOptions {
 				break;
 			case 'enable_password_policies' :
 				$name = __( 'Enable Password Policies', 'wp-simple-firewall' );
-				$summary = __( 'Enable The Password Policies Detailed Below', 'wp-simple-firewall' );
-				$desc = [ __( 'Turn on/off all password policy settings.', 'wp-simple-firewall' ) ];
+				$summary = __( 'Apply Password Policies', 'wp-simple-firewall' );
+				$desc = [ __( 'Apply configured password policies.', 'wp-simple-firewall' ) ];
 				break;
 			case 'pass_prevent_pwned' :
 				$name = __( 'Prevent Pwned Passwords', 'wp-simple-firewall' );

@@ -44,6 +44,10 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
+	public const NAV_ZONES = 'zones';
+	public const SUBNAV_ZONES_FIREWALL = 'firewall';
+	public const SUBNAV_ZONES_LOGGING = 'logging';
+	public const SUBNAV_ZONES_USERS = 'users';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
@@ -164,10 +168,10 @@ class PluginNavs {
 						self::SUBNAV_SCANS_RUN     => [
 							'handler' => PluginAdminPages\PageScansRun::class,
 						],
-						self::SUBNAV_SCANS_HISTORY     => [
+						self::SUBNAV_SCANS_HISTORY => [
 							'handler' => PluginAdminPages\PageScansHistory::class,
 						],
-						self::SUBNAV_SCANS_STATE     => [
+						self::SUBNAV_SCANS_STATE   => [
 							'handler' => PluginAdminPages\PageScansHistory::class,
 						],
 					],
@@ -210,6 +214,17 @@ class PluginNavs {
 							'handler' => PluginAdminPages\PageMerlin::class,
 						],
 					],
+				],
+				self::NAV_ZONES          => [
+					'name'     => __( 'Security Zones', 'wp-simple-firewall' ),
+					'sub_navs' => \array_map(
+						function () {
+							return [
+								'handler' => PluginAdminPages\PageDynamicLoad::class,
+							];
+						},
+						\array_flip( self::con()->comps->zones->getZoneSlugs() )
+					),
 				],
 			]
 		);

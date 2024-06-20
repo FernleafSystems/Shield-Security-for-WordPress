@@ -103,8 +103,7 @@ class AuditCon {
 	}
 
 	public function isLogToDB() :bool {
-		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
-			   && !\in_array( 'disabled', $this->getLogLevelsDB() );
+		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' ) && !\in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
 	private function primeSnapshots() {

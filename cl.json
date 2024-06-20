@@ -6,14 +6,15 @@
       "release": "https://shsec.io/shieldrelease192",
       "upgrade": "https://shsec.io/shieldupgradeguide192"
     },
-    "title":       "Clean & Optimise",
+    "title":       "Silent CAPTCHA",
     "description": [
     ],
     "items":       [
       {
         "type":        "new",
-        "title":       "Improved Bot Detection with Proof-of-Work CAPTCHA",
+        "title":       "Introducing Silent CAPTCHA",
         "description": [
+          "Silent CAPTCHA encompasses Shield's built-in technology for identifying and blocking malicious bots."
         ],
         "href":        ""
       },
@@ -24,6 +25,14 @@
           "In order to simplify some of the UI, we've reorganised many plugin options to reduce modules & sections."
         ],
         "href":        ""
+      },
+      {
+        "type":        "changed",
+        "pro_only":    true,
+        "title":       "Security Admin Not Required For Whitelabel",
+        "description": [
+          "The Security Admin feature no longer needs to be activated for Whitelabel to operate."
+        ]
       },
       {
         "type":        "removed",
