@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryNotFoundException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
@@ -21,6 +22,13 @@ class RenderService {
 
 	private $twigEnvVariables = [];
 
+	/**
+	 * @throws LibraryPrefixedAutoloadNotFoundException
+	 */
+	public function __construct() {
+		self::con()->includePrefixedVendor();
+	}
+
 	public function display() :void {
 		echo $this->render();
 	}
@@ -34,8 +42,6 @@ class RenderService {
 			if ( empty( $this->template ) ) {
 				throw new \Exception( 'No template provided.' );
 			}
-
-			self::con()->includePrefixedVendor();
 
 			$env = $this->getTwigEnvironment();
 			/**
@@ -58,12 +64,16 @@ class RenderService {
 			throw new LibraryNotFoundException( 'Prefixed Twig library (\AptowebDeps\Twig\Environment) could not be found.' );
 		}
 		return new \AptowebDeps\Twig\Environment(
-			new \AptowebDeps\Twig\Loader\FilesystemLoader( $this->getRoots() ),
+			$this->getTwigFileSystemLoader(),
 			\array_merge( [
 				'debug'            => true,
 				'strict_variables' => true,
 			], $this->twigEnvVariables )
 		);
+	}
+
+	protected function getTwigFileSystemLoader() :\AptowebDeps\Twig\Loader\FilesystemLoader {
+		return new \AptowebDeps\Twig\Loader\FilesystemLoader( $this->getRoots() );
 	}
 
 	public function getRoots() :array {
@@ -96,5 +106,9 @@ class RenderService {
 	public function setEnvironmentVars( array $vars ) :self {
 		$this->twigEnvVariables = $vars;
 		return $this;
+	}
+
+	public function templateExists( string $template ) :bool {
+		return $this->getTwigFileSystemLoader()->exists( $template );
 	}
 }

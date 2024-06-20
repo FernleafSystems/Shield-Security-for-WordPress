@@ -21,7 +21,7 @@
         "type":        "improved",
         "title":       "Plugin Options Moved",
         "description": [
-          "We've reorganised many of the plugin options to reduced modules & sections in order to simplify the UI."
+          "In order to simplify some of the UI, we've reorganised many plugin options to reduce modules & sections."
         ],
         "href":        ""
       },
