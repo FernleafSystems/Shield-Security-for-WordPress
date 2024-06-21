@@ -13,10 +13,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class SessionVO extends DynPropertiesClass {
 
-	/**
-	 * @var bool
-	 */
-	public $valid;
+	public $valid = false;
 
 	/**
 	 * @var string
