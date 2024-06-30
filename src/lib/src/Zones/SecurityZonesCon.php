@@ -92,7 +92,6 @@ class SecurityZonesCon {
 			Zone\Login::class,
 			Zone\Users::class,
 			Zone\Spam::class,
-			Zone\Logging::class,
 		];
 	}
 
