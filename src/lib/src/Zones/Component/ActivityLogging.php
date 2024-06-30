@@ -14,11 +14,6 @@ class ActivityLogging extends Base {
 		return __( 'See details of every action that happens on your WordPress site.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->activity_log->isLogToDB() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}

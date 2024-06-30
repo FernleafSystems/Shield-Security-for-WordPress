@@ -74,7 +74,7 @@ class OptsLookup {
 	}
 
 	public function enabledTrafficLogger() :bool {
-		return $this->optIsAndModForOptEnabled( 'enable_logger', 'Y' );
+		return self::con()->opts->optIs( 'enable_logger', 'Y' );
 	}
 
 	public function getActivatedPeriod() :int {
@@ -287,7 +287,8 @@ class OptsLookup {
 	}
 
 	public function isModEnabled( string $slug ) :bool {
-		return self::con()->opts->optIs( $slug === EnumModules::PLUGIN ? 'global_enable_plugin_features' : 'enable_'.$slug, 'Y' );
+		$optKey = $slug === EnumModules::PLUGIN ? 'global_enable_plugin_features' : 'enable_'.$slug;
+		return !self::con()->opts->optExists( $optKey ) || self::con()->opts->optIs( $optKey, 'Y' );
 	}
 
 	public function isPassPoliciesEnabled() :bool {

@@ -22,7 +22,7 @@ class ShieldConfigIsTrafficRateLimitingEnabled extends Base {
 				[
 					'conditions' => Conditions\ShieldConfigurationOption::class,
 					'params'     => [
-						'name'        => 'enable_audit_trail',
+						'name'        => 'enable_logger',
 						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 						'match_value' => 'Y',
 					]

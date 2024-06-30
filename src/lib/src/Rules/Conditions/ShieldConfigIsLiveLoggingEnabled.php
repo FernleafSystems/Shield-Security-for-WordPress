@@ -2,11 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Conditions,
-	Enum
-};
-
 class ShieldConfigIsLiveLoggingEnabled extends Base {
 
 	use Traits\TypeShield;
@@ -17,24 +12,5 @@ class ShieldConfigIsLiveLoggingEnabled extends Base {
 
 	protected function execConditionCheck() :bool {
 		return self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0;
-	}
-
-	protected function getSubConditions() :array {
-		return [
-			'logic'      => Enum\EnumLogic::LOGIC_AND,
-			'conditions' => [
-				[
-					'conditions' => Conditions\ShieldConfigurationOption::class,
-					'params'     => [
-						'name'        => 'enable_audit_trail',
-						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-						'match_value' => 'Y',
-					]
-				],
-				[
-					'conditions' => $this->getDefaultConditionCheckCallable(),
-				],
-			]
-		];
 	}
 }

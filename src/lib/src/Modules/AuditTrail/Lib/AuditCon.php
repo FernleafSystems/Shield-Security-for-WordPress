@@ -33,8 +33,7 @@ class AuditCon {
 	private $snapshotDiscoveryQueue;
 
 	protected function canRun() :bool {
-		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
-			   && self::con()->db_con->activity_logs->isReady();
+		return self::con()->db_con->activity_logs->isReady();
 	}
 
 	protected function run() {
@@ -103,7 +102,7 @@ class AuditCon {
 	}
 
 	public function isLogToDB() :bool {
-		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' ) && !\in_array( 'disabled', $this->getLogLevelsDB() );
+		return !\in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
 	private function primeSnapshots() {

@@ -283,6 +283,7 @@
         "config_menu_priority": 35,
         "menu_priority":        40,
         "show_central":         true,
+        "show_module_options":  false,
         "reqs":                 {
           "dbs": [
             "at_logs",
@@ -511,8 +512,8 @@
       {
         "slug":        "section_log_requests",
         "module":      "audit_trail",
-        "title":       "Requests Logging",
-        "title_short": "Requests Logging",
+        "title":       "Request Logging",
+        "title_short": "Request Logging",
         "beacon_id":   153,
         "summary":     [
           "Purpose - Provides finer control over the live traffic system.",
@@ -4106,19 +4107,22 @@
         "description":     "Monitor web requests sent to your WordPress site."
       },
       {
-        "key":         "enable_live_log",
-        "section":     "section_log_requests",
-        "cap":         "traffic_live_log",
-        "advanced":    true,
-        "premium":     true,
-        "default":     "N",
-        "type":        "checkbox",
-        "beacon_id":   759,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Live Logging",
-        "summary":     "Enable Live Logging Of All Traffic",
-        "description": "Switch-on logging of all site traffic."
+        "key":             "enable_live_log",
+        "section":         "section_log_requests",
+        "zone_comp_slugs": [
+          "request_logging"
+        ],
+        "cap":             "traffic_live_log",
+        "advanced":        true,
+        "premium":         true,
+        "default":         "N",
+        "type":            "checkbox",
+        "beacon_id":       759,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Live Logging",
+        "summary":         "Enable Live Logging Of All Traffic",
+        "description":     "Switch-on logging of all site traffic."
       },
       {
         "key":             "type_exclusions",
@@ -4165,30 +4169,36 @@
         "description":     "Deselect any requests that you don't want to appear in the traffic viewer."
       },
       {
-        "key":         "custom_exclusions",
-        "section":     "section_log_requests",
-        "advanced":    true,
-        "premium":     true,
-        "default":     [],
-        "type":        "array",
-        "link_info":   "https://shsec.io/ec",
-        "link_blog":   "",
-        "beacon_id":   154,
-        "name":        "Custom Exclusions",
-        "summary":     "Provide Custom Traffic Exclusions",
-        "description": "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
+        "key":             "custom_exclusions",
+        "section":         "section_log_requests",
+        "zone_comp_slugs": [
+          "request_logging"
+        ],
+        "advanced":        true,
+        "premium":         true,
+        "default":         [],
+        "type":            "array",
+        "link_info":       "https://shsec.io/ec",
+        "link_blog":       "",
+        "beacon_id":       154,
+        "name":            "Custom Exclusions",
+        "summary":         "Provide Custom Traffic Exclusions",
+        "description":     "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
       },
       {
-        "key":         "auto_clean",
-        "section":     "section_log_requests",
-        "type":        "integer",
-        "default":     7,
-        "min":         1,
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Log Retention",
-        "summary":     "Enable Traffic Log Auto Expiry",
-        "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
+        "key":             "auto_clean",
+        "section":         "section_log_requests",
+        "zone_comp_slugs": [
+          "request_logging"
+        ],
+        "type":            "integer",
+        "default":         7,
+        "min":             1,
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Log Retention",
+        "summary":         "Enable Traffic Log Auto Expiry",
+        "description":     "Automated DB cleanup will delete logs older than this maximum value (in days)."
       },
       {
         "key":             "enable_limiter",

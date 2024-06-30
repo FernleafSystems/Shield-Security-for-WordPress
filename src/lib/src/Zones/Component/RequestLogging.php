@@ -14,11 +14,6 @@ class RequestLogging extends Base {
 		return __( 'View details of web requests sent to your WordPress site.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->opts_lookup->enabledTrafficLogger() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY;
 	}

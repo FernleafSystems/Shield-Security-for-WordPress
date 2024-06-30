@@ -355,14 +355,12 @@ class PreStore {
 			) ) );
 		}
 
-		if ( self::con()->comps->opts_lookup->isModFromOptEnabled( 'enable_limiter' ) ) {
-			if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-				$opts->optSet( 'enable_logger', 'Y' );
-			}
-			if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-				$opts->optSet( 'enable_live_log', 'N' )
-					 ->optSet( 'live_log_started_at', 0 );
-			}
+		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_logger', 'Y' );
+		}
+		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_live_log', 'N' )
+				 ->optSet( 'live_log_started_at', 0 );
 		}
 	}
 

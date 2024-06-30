@@ -12,8 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ActivityLogging;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\InstantAlerts;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Reporting;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\RequestLogging;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Whitelabel;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -116,17 +118,29 @@ class NavMenuBuilder {
 	}
 
 	private function activity() :array {
-		$con = self::con();
 		return [
-			'slug'     => PluginNavs::NAV_ACTIVITY,
-			'title'    => __( 'Activity', 'wp-simple-firewall' ),
-			'subtitle' => __( "All WP Site Activity", 'wp-simple-firewall' ),
-			'img'      => self::con()->svgs->raw( 'person-lines-fill' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-			'active'   => $this->inav() === PluginNavs::NAV_ACTIVITY,
-			'introjs'  => [
+			'slug'      => PluginNavs::NAV_ACTIVITY,
+			'title'     => __( 'Activity', 'wp-simple-firewall' ),
+			'subtitle'  => __( "All WP Site Activity", 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->raw( 'person-lines-fill' ),
+			'active'    => $this->inav() === PluginNavs::NAV_ACTIVITY,
+			'introjs'   => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
+			],
+			'sub_items' => [
+				$this->createSubItemForNavAndSub( __( 'Log Viewer', 'wp-simple-firewall' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+				[
+					'slug'    => PluginNavs::NAV_ACTIVITY.'-config',
+					'title'   => __( 'Config', 'wp-simple-firewall' ),
+					'classes' => [
+						'zone_component_action',
+					],
+					'data'    => [
+						'zone_component_action' => ZoneComponentConfig::SLUG,
+						'zone_component_slug'   => ActivityLogging::Slug(),
+					],
+				]
 			],
 		];
 	}
@@ -401,7 +415,6 @@ class NavMenuBuilder {
 
 	private function reports() :array {
 		$con = self::con();
-		$zoneCon = $con->comps->zones;
 		return [
 			'slug'      => PluginNavs::NAV_REPORTS,
 			'title'     => __( 'Reports', 'wp-simple-firewall' ),
@@ -441,11 +454,25 @@ class NavMenuBuilder {
 			'title'    => __( 'Site Traffic', 'wp-simple-firewall' ),
 			'subtitle' => __( "View HTTP Requests", 'wp-simple-firewall' ),
 			'img'      => $con->svgs->raw( 'stoplights' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 			'active'   => $this->inav() === PluginNavs::NAV_TRAFFIC,
 			'introjs'  => [
 				'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
 				'body'  => __( "Dig deeper into your WordPress traffic as it hits your site.", 'wp-simple-firewall' ),
+			],
+			'sub_items' => [
+				$this->createSubItemForNavAndSub( __( 'Log Viewer' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+				$this->createSubItemForNavAndSub( __( 'Live Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+				[
+					'slug'    => PluginNavs::NAV_TRAFFIC.'-config',
+					'title'   => __( 'Config', 'wp-simple-firewall' ),
+					'classes' => [
+						'zone_component_action',
+					],
+					'data'    => [
+						'zone_component_action' => ZoneComponentConfig::SLUG,
+						'zone_component_slug'   => RequestLogging::Slug(),
+					],
+				],
 			],
 		];
 	}

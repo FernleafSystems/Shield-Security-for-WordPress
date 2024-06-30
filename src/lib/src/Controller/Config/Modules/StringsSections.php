@@ -33,8 +33,8 @@ class StringsSections {
 				];
 				break;
 			case 'section_log_requests' :
-				$short = __( 'Requests Logging', 'wp-simple-firewall' );
-				$title = __( 'Requests Logging', 'wp-simple-firewall' );
+				$short = __( 'Request Logging', 'wp-simple-firewall' );
+				$title = __( 'Request Logging', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Requests Logging system.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'Requests', 'wp-simple-firewall' ) ) )
