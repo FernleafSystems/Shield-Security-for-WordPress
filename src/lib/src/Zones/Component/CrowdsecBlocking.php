@@ -14,12 +14,6 @@ class CrowdsecBlocking extends Base {
 		return __( 'Crowd-Sourced IP address blocking in partnership with CrowdSec.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-			__( 'Firewall forms the core of your WordPress defense.', 'wp-simple-firewall' ),
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock()? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}

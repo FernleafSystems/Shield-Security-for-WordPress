@@ -14,11 +14,6 @@ class CommentSpamBlockBot extends Base {
 		return __( 'Block the most common form of WordPress Comment SPAM.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->opts_lookup->enabledAntiBotCommentSpam() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}

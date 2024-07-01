@@ -14,11 +14,6 @@ class LimitLogin extends Base {
 		return __( 'Protect the login page against bots and brute-force attacks.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		$con = self::con();
 		$lookup = $con->comps->opts_lookup;

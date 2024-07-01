@@ -14,11 +14,6 @@ class ContactFormSpamBlockBot extends Base {
 		return __( 'Block the most common type of Contact Form SPAM.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		return \count( $this->getUnprotectedProvidersByName() ) > 0 ? EnumEnabledStatus::BAD : EnumEnabledStatus::GOOD;
 	}

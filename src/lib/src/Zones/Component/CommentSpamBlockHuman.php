@@ -14,11 +14,6 @@ class CommentSpamBlockHuman extends Base {
 		return __( 'Block human Comment SPAM with dictionary-based scanning that preserves your privacy.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->opts_lookup->enabledHumanCommentSpam() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}

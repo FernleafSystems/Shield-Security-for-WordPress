@@ -14,12 +14,6 @@ class AutoIpBlocking extends Base {
 		return __( 'Monitor for malicious visitors and automatically block their IP addresses.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-			__( 'Firewall forms the core of your WordPress defense.', 'wp-simple-firewall' ),
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->opts_lookup->enabledIpAutoBlock() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}

@@ -14,12 +14,6 @@ class AnonRestApiDisable extends Base {
 		return __( 'Disable anonymous requests to the REST API.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-			__( '.', 'wp-simple-firewall' ),
-		];
-	}
-
 	public function enabledStatus() :string {
 		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'disable_anonymous_restapi', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}

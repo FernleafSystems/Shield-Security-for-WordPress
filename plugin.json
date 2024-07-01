@@ -345,6 +345,7 @@
         "menu_priority":        20,
         "config_menu_priority": 25,
         "show_central":         true,
+        "show_module_options":  false,
         "reqs":                 {
           "dbs": [
             "scans",
@@ -1817,27 +1818,33 @@
         "description": "Un-Checking this option will completely disable the Hack Guard module"
       },
       {
-        "key":         "enable_core_file_integrity_scan",
-        "section":     "section_file_guard",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/hd",
-        "link_blog":   "https://shsec.io/wpsf37",
-        "beacon_id":   454,
-        "name":        "WP Core File Scanner",
-        "summary":     "Automatically Scans WordPress Core Files For Alterations",
-        "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
+        "key":             "enable_core_file_integrity_scan",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "section":         "section_file_guard",
+        "default":         "Y",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/hd",
+        "link_blog":       "https://shsec.io/wpsf37",
+        "beacon_id":       454,
+        "name":            "WP Core File Scanner",
+        "summary":         "Automatically Scans WordPress Core Files For Alterations",
+        "description":     "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
       },
       {
-        "key":           "file_scan_areas",
-        "section":       "section_file_guard",
-        "premium":       true,
-        "cap":           "scan_file_areas",
-        "type":          "multiple_select",
-        "default":       [
+        "key":             "file_scan_areas",
+        "section":         "section_file_guard",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "cap":             "scan_file_areas",
+        "type":            "multiple_select",
+        "default":         [
           "wp"
         ],
-        "value_options": [
+        "value_options":   [
           {
             "value_key": "wp",
             "text":      "WP core files (excludes /wp-content/)",
@@ -1874,21 +1881,24 @@
             "cap":       "scan_files_everywhere"
           }
         ],
-        "link_info":     "https://shsec.io/wpsf36",
-        "link_blog":     "https://shsec.io/wpsf37",
-        "beacon_id":     743,
-        "name":          "File Scan Areas",
-        "summary":       "Which Files Should Be Scanned",
-        "description":   "Specific file scan areas."
+        "link_info":       "https://shsec.io/wpsf36",
+        "link_blog":       "https://shsec.io/wpsf37",
+        "beacon_id":       743,
+        "name":            "File Scan Areas",
+        "summary":         "Which Files Should Be Scanned",
+        "description":     "Specific file scan areas."
       },
       {
-        "key":           "file_repair_areas",
-        "section":       "section_file_guard",
-        "premium":       true,
-        "cap":           "scan_auto_repair",
-        "type":          "multiple_select",
-        "default":       [],
-        "value_options": [
+        "key":             "file_repair_areas",
+        "section":         "section_file_guard",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "cap":             "scan_auto_repair",
+        "type":            "multiple_select",
+        "default":         [],
+        "value_options":   [
           {
             "value_key": "wp",
             "text":      "WP Core"
@@ -1904,21 +1914,24 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/wpsf36",
-        "link_blog":     "https://shsec.io/wpsf37",
-        "beacon_id":     228,
-        "name":          "Auto File Repair",
-        "summary":       "Which Files Should Be Automatically Repaired?",
-        "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
+        "link_info":       "https://shsec.io/wpsf36",
+        "link_blog":       "https://shsec.io/wpsf37",
+        "beacon_id":       228,
+        "name":            "Auto File Repair",
+        "summary":         "Which Files Should Be Automatically Repaired?",
+        "description":     "When a file is modified, or malware is detected, Shield can try to repair files."
       },
       {
-        "key":           "file_locker",
-        "section":       "section_file_guard",
-        "premium":       true,
-        "cap":           "scan_file_locker",
-        "type":          "multiple_select",
-        "default":       [],
-        "value_options": [
+        "key":             "file_locker",
+        "section":         "section_file_guard",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "cap":             "scan_file_locker",
+        "type":            "multiple_select",
+        "default":         [],
+        "value_options":   [
           {
             "value_key": "wpconfig",
             "text":      "WP Config"
@@ -1936,20 +1949,23 @@
             "text":      "Root Web.Config"
           }
         ],
-        "link_info":     "https://shsec.io/h7",
-        "link_blog":     "https://shsec.io/h8",
-        "beacon_id":     226,
-        "vimeo_id":      "815602380",
-        "name":          "File Locker",
-        "summary":       "Lock Files Against Tampering and Changes",
-        "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
+        "link_info":       "https://shsec.io/h7",
+        "link_blog":       "https://shsec.io/h8",
+        "beacon_id":       226,
+        "vimeo_id":        "815602380",
+        "name":            "File Locker",
+        "summary":         "Lock Files Against Tampering and Changes",
+        "description":     "As soon as changes are detected to any selected files, the contents may be examined and reverted."
       },
       {
-        "key":         "scan_path_exclusions",
-        "section":     "section_file_guard",
-        "advanced":    true,
-        "premium":     true,
-        "default":     [
+        "key":             "scan_path_exclusions",
+        "section":         "section_file_guard",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "advanced":        true,
+        "premium":         true,
+        "default":         [
           "wp-content/cache/",
           "wp-content/nfwlog/",
           "wp-content/wflogs/",
@@ -1961,73 +1977,88 @@
           "*/.stylelintrc.json",
           "*/sucuri-*.php"
         ],
-        "type":        "array",
-        "link_info":   "",
-        "link_blog":   "",
-        "beacon_id":   441,
-        "name":        "Scan Exclusions",
-        "summary":     "Scan File and Folder Exclusions",
-        "description": "Scan File and Folder Exclusions."
+        "type":            "array",
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       441,
+        "name":            "Scan Exclusions",
+        "summary":         "Scan File and Folder Exclusions",
+        "description":     "Scan File and Folder Exclusions."
       },
       {
-        "key":         "enabled_scan_apc",
-        "section":     "section_scan_wpv",
-        "type":        "checkbox",
-        "default":     "Y",
-        "link_info":   "https://shsec.io/ew",
-        "link_blog":   "https://shsec.io/eo",
-        "beacon_id":   225,
-        "name":        "Abandoned Plugin Scanner",
-        "summary":     "Enable The Abandoned Plugin Scanner",
-        "description": "Scan your WordPress.org assets for whether they've been abandoned."
+        "key":             "enabled_scan_apc",
+        "section":         "section_scan_wpv",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "type":            "checkbox",
+        "default":         "Y",
+        "link_info":       "https://shsec.io/ew",
+        "link_blog":       "https://shsec.io/eo",
+        "beacon_id":       225,
+        "name":            "Abandoned Plugin Scanner",
+        "summary":         "Enable The Abandoned Plugin Scanner",
+        "description":     "Scan your WordPress.org assets for whether they've been abandoned."
       },
       {
-        "key":         "enable_wpvuln_scan",
-        "section":     "section_scan_wpv",
-        "premium":     true,
-        "cap":         "scan_vulnerabilities",
-        "type":        "checkbox",
-        "default":     "Y",
-        "beacon_id":   134,
-        "link_info":   "https://shsec.io/du",
-        "link_blog":   "https://shsec.io/ah",
-        "name":        "Vulnerability Scanner",
-        "summary":     "Enable The Vulnerability Scanner",
-        "description": "Scan all your WordPress assets for known security vulnerabilities."
+        "key":             "enable_wpvuln_scan",
+        "section":         "section_scan_wpv",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "cap":             "scan_vulnerabilities",
+        "type":            "checkbox",
+        "default":         "Y",
+        "beacon_id":       134,
+        "link_info":       "https://shsec.io/du",
+        "link_blog":       "https://shsec.io/ah",
+        "name":            "Vulnerability Scanner",
+        "summary":         "Enable The Vulnerability Scanner",
+        "description":     "Scan all your WordPress assets for known security vulnerabilities."
       },
       {
-        "key":         "wpvuln_scan_autoupdate",
-        "section":     "section_scan_wpv",
-        "premium":     true,
-        "cap":         "scan_vulnerabilities_autoupdate",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Automatic Updates",
-        "summary":     "Apply Updates Automatically To Vulnerable Plugins",
-        "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
+        "key":             "wpvuln_scan_autoupdate",
+        "section":         "section_scan_wpv",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "cap":             "scan_vulnerabilities_autoupdate",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Automatic Updates",
+        "summary":         "Apply Updates Automatically To Vulnerable Plugins",
+        "description":     "When an update becomes available, automatically apply updates to items with known vulnerabilities."
       },
       {
-        "key":         "optimise_scan_speed",
-        "section":     "section_scan_options",
-        "premium":     false,
-        "type":        "checkbox",
-        "default":     "Y",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Optimise File Scans",
-        "summary":     "Optimise File Scans",
-        "description": "Optimise file scans wherever possible."
+        "key":             "optimise_scan_speed",
+        "section":         "section_scan_options",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         false,
+        "type":            "checkbox",
+        "default":         "Y",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Optimise File Scans",
+        "summary":         "Optimise File Scans",
+        "description":     "Optimise file scans wherever possible."
       },
       {
-        "key":           "scan_frequency",
-        "section":       "section_scan_options",
-        "premium":       true,
-        "cap":           "scan_frequent",
-        "default":       "1",
-        "type":          "select",
-        "value_options": [
+        "key":             "scan_frequency",
+        "section":         "section_scan_options",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "cap":             "scan_frequent",
+        "default":         "1",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "1",
             "text":      "Once"
@@ -2068,25 +2099,28 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/b2",
-        "link_blog":     "https://shsec.io/kd",
-        "beacon_id":     223,
-        "name":          "Scan Frequency",
-        "summary":       "Number Of Times To Automatically Scan Core Files In 24 Hours",
-        "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
+        "link_info":       "https://shsec.io/b2",
+        "link_blog":       "https://shsec.io/kd",
+        "beacon_id":       223,
+        "name":            "Scan Frequency",
+        "summary":         "Number Of Times To Automatically Scan Core Files In 24 Hours",
+        "description":     "Default: Once every 24hrs. To improve security, increase the number of scans per day."
       },
       {
-        "key":         "ptg_reinstall_links",
-        "section":     "section_scan_options",
-        "premium":     true,
-        "type":        "checkbox",
-        "default":     "Y",
-        "link_info":   "https://shsec.io/bp",
-        "link_blog":   "",
-        "beacon_id":   135,
-        "name":        "Show Re-Install Links",
-        "summary":     "Show Re-Install Links For Plugins",
-        "description": "Show links to re-install plugins and offer re-install when activating plugins."
+        "key":             "ptg_reinstall_links",
+        "section":         "section_scan_options",
+        "zone_comp_slugs": [
+          "scans"
+        ],
+        "premium":         true,
+        "type":            "checkbox",
+        "default":         "Y",
+        "link_info":       "https://shsec.io/bp",
+        "link_blog":       "",
+        "beacon_id":       135,
+        "name":            "Show Re-Install Links",
+        "summary":         "Show Re-Install Links For Plugins",
+        "description":     "Show links to re-install plugins and offer re-install when activating plugins."
       },
       {
         "key":              "scans_to_build",
@@ -2501,11 +2535,14 @@
         "description": "Un-Checking this option will completely disable the IP Manager module"
       },
       {
-        "key":           "altcha_complexity",
-        "section":       "section_antibot",
-        "default":       "medium",
-        "type":          "select",
-        "value_options": [
+        "key":             "altcha_complexity",
+        "section":         "section_antibot",
+        "zone_comp_slugs": [
+          "silent_captcha"
+        ],
+        "default":         "medium",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "none",
             "text":      "None"
@@ -2531,45 +2568,52 @@
             "text":      "High"
           }
         ],
-        "link_info":     "https://shsec.io/jy",
-        "link_blog":     "https://shsec.io/jz",
-        "beacon_id":     424,
-        "name":          "Bot Challenge Complexity",
-        "summary":       "Bot Challenge Complexity",
-        "description":   "Bot Challenge Complexity"
+        "link_info":       "https://shsec.io/jy",
+        "link_blog":       "https://shsec.io/jz",
+        "beacon_id":       424,
+        "name":            "Bot Challenge Complexity",
+        "summary":         "Bot Challenge Complexity",
+        "description":     "Bot Challenge Complexity"
       },
       {
-        "key":         "antibot_minimum",
-        "section":     "section_antibot",
-        "default":     45,
-        "type":        "integer",
-        "min":         0,
-        "max":         99,
-        "link_info":   "https://shsec.io/jy",
-        "link_blog":   "https://shsec.io/jz",
-        "beacon_id":   424,
-        "name":        "AntiBot Threshold",
-        "summary":     "AntiBot Testing Threshold (Percentage)",
-        "description": "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
+        "key":             "antibot_minimum",
+        "section":         "section_antibot",
+        "zone_comp_slugs": [
+          "silent_captcha"
+        ],
+        "default":         45,
+        "type":            "integer",
+        "min":             0,
+        "max":             99,
+        "link_info":       "https://shsec.io/jy",
+        "link_blog":       "https://shsec.io/jz",
+        "beacon_id":       424,
+        "name":            "AntiBot Threshold",
+        "summary":         "AntiBot Testing Threshold (Percentage)",
+        "description":     "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
       },
       {
-        "key":         "antibot_high_reputation_minimum",
-        "section":     "section_antibot",
-        "type":        "integer",
-        "default":     250,
-        "min":         0,
-        "link_info":   "https://shsec.io/jy",
-        "link_blog":   "https://shsec.io/jz",
-        "beacon_id":   431,
-        "name":        "High Reputation Bypass",
-        "summary":     "Prevent IPs/Visitors With High Reputation Scores From Being Blocked",
-        "description": "Ensures that visitors with a high reputation are never blocked by Shield."
+        "key":             "antibot_high_reputation_minimum",
+        "section":         "section_antibot",
+        "zone_comp_slugs": [
+          "silent_captcha"
+        ],
+        "type":            "integer",
+        "default":         250,
+        "min":             0,
+        "link_info":       "https://shsec.io/jy",
+        "link_blog":       "https://shsec.io/jz",
+        "beacon_id":       431,
+        "name":            "High Reputation Bypass",
+        "summary":         "Prevent IPs/Visitors With High Reputation Scores From Being Blocked",
+        "description":     "Ensures that visitors with a high reputation are never blocked by Shield."
       },
       {
         "key":             "transgression_limit",
         "section":         "section_auto_black_list",
         "zone_comp_slugs": [
-          "auto_ip_blocking"
+          "auto_ip_blocking",
+          "ip_blocking_rules"
         ],
         "type":            "integer",
         "default":         10,
@@ -2585,7 +2629,8 @@
         "key":             "auto_expire",
         "section":         "section_auto_black_list",
         "zone_comp_slugs": [
-          "auto_ip_blocking"
+          "auto_ip_blocking",
+          "ip_blocking_rules"
         ],
         "advanced":        true,
         "default":         "day",
@@ -2616,14 +2661,17 @@
         "description":     "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
       },
       {
-        "key":           "user_auto_recover",
-        "section":       "section_auto_black_list",
-        "advanced":      true,
-        "premium":       true,
-        "cap":           "user_auto_unblock",
-        "default":       [],
-        "type":          "multiple_select",
-        "value_options": [
+        "key":             "user_auto_recover",
+        "section":         "section_auto_black_list",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "advanced":        true,
+        "premium":         true,
+        "cap":             "user_auto_unblock",
+        "default":         [],
+        "type":            "multiple_select",
+        "value_options":   [
           {
             "value_key": "gasp",
             "text":      "With Shield Bot Protection"
@@ -2633,32 +2681,36 @@
             "text":      "Magic Email Links To Unblock Logged-In Users"
           }
         ],
-        "link_info":     "https://shsec.io/f8",
-        "link_blog":     "",
-        "beacon_id":     125,
-        "name":          "User Auto Unblock",
-        "summary":       "Allow Visitors To Unblock Their IP",
-        "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
+        "link_info":       "https://shsec.io/f8",
+        "link_blog":       "",
+        "beacon_id":       125,
+        "name":            "User Auto Unblock",
+        "summary":         "Allow Visitors To Unblock Their IP",
+        "description":     "Allow visitors blocked by the plugin to automatically unblock themselves."
       },
       {
-        "key":         "request_whitelist",
-        "section":     "section_auto_black_list",
-        "advanced":    true,
-        "premium":     true,
-        "default":     [],
-        "type":        "array",
-        "link_info":   "https://shsec.io/gd",
-        "link_blog":   "",
-        "beacon_id":   126,
-        "name":        "Request Path Whitelist",
-        "summary":     "Request Path Whitelist",
-        "description": "Request Path Whitelist."
+        "key":             "request_whitelist",
+        "section":         "section_auto_black_list",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "advanced":        true,
+        "premium":         true,
+        "default":         [],
+        "type":            "array",
+        "link_info":       "https://shsec.io/gd",
+        "link_blog":       "",
+        "beacon_id":       126,
+        "name":            "Request Path Whitelist",
+        "summary":         "Request Path Whitelist",
+        "description":     "Request Path Whitelist."
       },
       {
         "key":             "cs_block",
         "section":         "section_crowdsec",
         "zone_comp_slugs": [
-          "crowdsec_blocking"
+          "crowdsec_blocking",
+          "ip_blocking_rules"
         ],
         "default":         "block_with_unblock",
         "type":            "select",
@@ -2684,25 +2736,31 @@
         "description":     "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
       },
       {
-        "key":         "cs_enroll_id",
-        "section":     "section_crowdsec",
-        "sensitive":   true,
-        "premium":     false,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "",
-        "link_blog":   "",
-        "beacon_id":   474,
-        "name":        "Enroll ID",
-        "summary":     "CrowdSec Enroll ID",
-        "description": "CrowdSec Enroll ID."
+        "key":             "cs_enroll_id",
+        "section":         "section_crowdsec",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "sensitive":       true,
+        "premium":         false,
+        "default":         "",
+        "type":            "text",
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       474,
+        "name":            "Enroll ID",
+        "summary":         "CrowdSec Enroll ID",
+        "description":     "CrowdSec Enroll ID."
       },
       {
-        "key":           "track_loginfailed",
-        "section":       "section_bot_behaviours",
-        "default":       "transgression-single",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_loginfailed",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "default":         "transgression-single",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2724,18 +2782,19 @@
             "text":      "Immediate IP Block"
           }
         ],
-        "link_info":     "https://shsec.io/fn",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     122,
-        "name":          "Failed Login",
-        "summary":       "Detect Failed Login Attempts By Valid Usernames",
-        "description":   "Penalise a visitor who fails to login using a valid username."
+        "link_info":       "https://shsec.io/fn",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       122,
+        "name":            "Failed Login",
+        "summary":         "Detect Failed Login Attempts By Valid Usernames",
+        "description":     "Penalise a visitor who fails to login using a valid username."
       },
       {
         "key":             "track_xmlrpc",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "xml_rpc_disable"
+          "xml_rpc_disable",
+          "ip_blocking_rules"
         ],
         "default":         "log",
         "type":            "select",
@@ -2769,12 +2828,15 @@
         "description":     "If you don't use XML-RPC, why would anyone access it?"
       },
       {
-        "key":           "track_logininvalid",
-        "section":       "section_bot_behaviours",
-        "premium":       true,
-        "default":       "log",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_logininvalid",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "premium":         true,
+        "default":         "log",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2799,20 +2861,23 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/fn",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     122,
-        "name":          "Invalid Usernames",
-        "summary":       "Detect Invalid Username Logins",
-        "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
+        "link_info":       "https://shsec.io/fn",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       122,
+        "name":            "Invalid Usernames",
+        "summary":         "Detect Invalid Username Logins",
+        "description":     "Identify A Bot When It Tries To Login With A Non-Existent Username."
       },
       {
-        "key":           "track_fakewebcrawler",
-        "section":       "section_bot_behaviours",
-        "premium":       true,
-        "default":       "log",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_fakewebcrawler",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "premium":         true,
+        "default":         "log",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2837,20 +2902,23 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/f5",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     124,
-        "name":          "Fake Web Crawler",
-        "summary":       "Detect Fake Search Engine Crawlers",
-        "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
+        "link_info":       "https://shsec.io/f5",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       124,
+        "name":            "Fake Web Crawler",
+        "summary":         "Detect Fake Search Engine Crawlers",
+        "description":     "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
       },
       {
-        "key":           "track_404",
-        "section":       "section_bot_behaviours",
-        "premium":       true,
-        "default":       "log",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_404",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "premium":         true,
+        "default":         "log",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2875,20 +2943,23 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/fo",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     123,
-        "name":          "404 Detect",
-        "summary":       "Identify A Bot When It Hits A 404",
-        "description":   "Detect When A Visitor Browses To A Non-Existent Page."
+        "link_info":       "https://shsec.io/fo",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       123,
+        "name":            "404 Detect",
+        "summary":         "Identify A Bot When It Hits A 404",
+        "description":     "Detect When A Visitor Browses To A Non-Existent Page."
       },
       {
-        "key":           "track_linkcheese",
-        "section":       "section_bot_behaviours",
-        "premium":       true,
-        "default":       "disabled",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_linkcheese",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "premium":         true,
+        "default":         "disabled",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2913,20 +2984,23 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/fo",
-        "link_blog":     "https://shsec.io/f6",
-        "beacon_id":     206,
-        "name":          "Link Cheese",
-        "summary":       "Tempt A Bot With A Fake Link To Follow",
-        "description":   "Detect A Bot That Follows A 'no-follow' Link."
+        "link_info":       "https://shsec.io/fo",
+        "link_blog":       "https://shsec.io/f6",
+        "beacon_id":       206,
+        "name":            "Link Cheese",
+        "summary":         "Tempt A Bot With A Fake Link To Follow",
+        "description":     "Detect A Bot That Follows A 'no-follow' Link."
       },
       {
-        "key":           "track_invalidscript",
-        "section":       "section_bot_behaviours",
-        "premium":       true,
-        "default":       "log",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_invalidscript",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "premium":         true,
+        "default":         "log",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2951,20 +3025,23 @@
             "premium":   true
           }
         ],
-        "link_info":     "https://shsec.io/fo",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     123,
-        "name":          "Invalid Script Load",
-        "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
-        "description":   "WordPress should only be loaded in a limited number of ways."
+        "link_info":       "https://shsec.io/fo",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       123,
+        "name":            "Invalid Script Load",
+        "summary":         "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
+        "description":     "WordPress should only be loaded in a limited number of ways."
       },
       {
-        "key":           "track_useragent",
-        "section":       "section_bot_behaviours",
-        "premium":       true,
-        "default":       "log",
-        "type":          "select",
-        "value_options": [
+        "key":             "track_useragent",
+        "section":         "section_bot_behaviours",
+        "zone_comp_slugs": [
+          "ip_blocking_rules"
+        ],
+        "premium":         true,
+        "default":         "log",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "disabled",
             "text":      "Disabled"
@@ -2988,12 +3065,12 @@
             "text":      "Immediate IP Block"
           }
         ],
-        "link_info":     "https://shsec.io/fi",
-        "link_blog":     "https://shsec.io/f7",
-        "beacon_id":     124,
-        "name":          "Empty User Agents",
-        "summary":       "Detect Requests With Empty User Agents",
-        "description":   "Identify a request as a bot if the user agent is not provided."
+        "link_info":       "https://shsec.io/fi",
+        "link_blog":       "https://shsec.io/f7",
+        "beacon_id":       124,
+        "name":            "Empty User Agents",
+        "summary":         "Detect Requests With Empty User Agents",
+        "description":     "Identify a request as a bot if the user agent is not provided."
       },
       {
         "key":     "crowdsec_cfg",

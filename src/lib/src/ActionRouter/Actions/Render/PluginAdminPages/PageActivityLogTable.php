@@ -12,20 +12,6 @@ class PageActivityLogTable extends BasePluginAdminPage {
 	public const SLUG = 'page_admin_plugin_activity_log_table';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_activity.twig';
 
-	protected function getPageContextualHrefs() :array {
-		$con = self::con();
-		return [
-			[
-				'text'    => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::ACTIVITY,
-				],
-			]
-		];
-	}
-
 	protected function getPageContextualHrefs_Help() :array {
 		return [
 			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ),

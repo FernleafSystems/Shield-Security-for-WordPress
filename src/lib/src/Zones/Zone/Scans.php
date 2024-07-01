@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
-
 class Scans extends Base {
 
 	public function components() :array {

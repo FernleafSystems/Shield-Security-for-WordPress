@@ -14,12 +14,6 @@ class TwoFactorAuth extends Base {
 		return __( "It's best to protect user account access with at least one 2FA method.", 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-			__( '.', 'wp-simple-firewall' ),
-		];
-	}
-
 	public function enabledStatus() :string {
 		$providers = \array_filter( self::con()->comps->mfa->collateMfaProviderClasses(), function ( $c ) {
 			return $c::ProviderEnabled();

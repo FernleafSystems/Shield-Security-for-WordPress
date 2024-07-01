@@ -14,11 +14,6 @@ class SessionTheftProtection extends Base {
 		return __( 'Protect against user session hijacking/theft.', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-		];
-	}
-
 	public function enabledStatus() :string {
 		$con = self::con();
 		$lookup = $con->comps->opts_lookup;

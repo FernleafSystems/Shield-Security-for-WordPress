@@ -6,54 +6,71 @@
 
 		<li class="nav-item {{ mitem.active|default(false) ? 'active':'' }}
 					{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
-		    {% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
+			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
-			<a class="nav-link fs-6 my-0 pt-2 pb-3 ps-2 pe-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }}
-					d-flex"
-					{% if mitem.sub_items|default([]) is not empty %}
-						data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
-					{% endif %}
-         href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
-					{% for data_key,data_val in mitem.data|default([]) %}
-						data-{{ data_key }}="{{ data_val }}"
-					{% endfor %}
-					{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
-					{% if mitem.introjs|default([]) is not empty %}
-						{% if mitem.introjs.title|default('') is not empty %}
-							data-introtitle="{{ mitem.introjs.title }}"
-						{% endif %}
-						data-intro="{{ mitem.introjs.body }}"
-						data-introposition="right"
-					{% endif %}
-			>
-
-				{% if mitem.img|default('') is not empty %}
-					<span class="nav-icon me-2 d-flex flex-column justify-content-center" style="vertical-align: text-bottom;">
-						{{ mitem.img|raw }}
-					</span>
-				{% endif %}
-				<span class="top-title d-flex flex-column">
-					<span class="title">
-						{{ mitem.title }}
+				<span class="nav-link fs-6 mt-0 mb-1 pt-2 pb-3 ps-2 pe-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }}
+						d-flex justify-content-start"
 						{% if mitem.sub_items|default([]) is not empty %}
-							{{ imgs.svgs.triangle|raw }}
+							data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
 						{% endif %}
-					</span>
-					<span class="subtitle p-0" style="font-size: 0.7rem">
-						{{ mitem.subtitle|default('') }}
-					</span>
+						{% for data_key,data_val in mitem.data|default([]) %}
+							data-{{ data_key }}="{{ data_val }}"
+						{% endfor %}
+						{% if mitem.introjs|default([]) is not empty %}
+							{% if mitem.introjs.title|default('') is not empty %}
+								data-introtitle="{{ mitem.introjs.title }}"
+							{% endif %}
+							data-intro="{{ mitem.introjs.body }}"
+							data-introposition="right"
+						{% endif %}
+				>
+					<a href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
+					   class="d-flex justify-content-start"
+					   {% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
+					>
+
+						{% if mitem.img|default('') is not empty %}
+							<span class="nav-icon me-2 d-flex flex-column justify-content-center"
+								  style="vertical-align: text-bottom;">
+								{{ mitem.img|raw }}
+							</span>
+						{% endif %}
+
+						<span class="top-title d-flex flex-column">
+							<span class="title">
+								{{ mitem.title }}
+								{% if mitem.sub_items|default([]) is not empty %}
+									{{ imgs.svgs.triangle|raw }}
+								{% endif %}
+							</span>
+							<span class="subtitle p-0" style="font-size: 0.7rem">
+								{{ mitem.subtitle|default('') }}
+							</span>
+						</span>
+
+						{% if mitem.badge|default([]) is not empty %}
+							<span class="badge bg-{{ mitem.badge.type|default('info') }}">
+								{{ mitem.badge.text }}
+							</span>
+						{% endif %}
+
+					</a>
+
+					{% if mitem.config|default([]) is not empty %}
+						<a class="flex-fill d-flex flex-row justify-content-end align-self-center me-2 z-3 fs-6 {{ mitem.config.classes|default([])|join( ' ' ) }}"
+						   href="{{ mitem.config.href|default('#') }}"
+						   {% if mitem.config.tooltip|default(false) is not empty %}title="{{ mitem.config.tooltip }}"{% endif %}
+								{% for data_key,data_val in mitem.config.data|default([]) %}
+									data-{{ data_key }}="{{ data_val }}"
+								{% endfor %}
+						><span class="svg-container">{{ mitem.config.img|raw }}</span></a>
+					{% endif %}
 				</span>
-				{% if mitem.badge|default([]) is not empty %}
-					<span class="badge bg-{{ mitem.badge.type|default('info') }}">
-						{{ mitem.badge.text }}
-					</span>
-				{% endif %}
-			</a>
 
 			{% if mitem.sub_items|default([]) is not empty %}
-				<div class="ms-2 subnava-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}"
-				     id="subnav-{{ mitem.slug }}"
-				     data-bs-parent="#ShieldCollapseNav"
+				<div class="ms-3 subnav-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}"
+					 id="subnav-{{ mitem.slug }}"
+					 data-bs-parent="#ShieldCollapseNav"
 				>
 					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
 						{% for sub in mitem.sub_items %}
