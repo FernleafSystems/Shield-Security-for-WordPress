@@ -11,10 +11,23 @@ class SilentCaptcha extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'silentCAPTCHA configuration to help detect and block bad bots.', 'wp-simple-firewall' );
+		return sprintf( __( "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology.", 'wp-simple-firewall' ),
+			self::con()->labels->Name );
 	}
 
 	public function enabledStatus() :string {
-		return EnumEnabledStatus::GOOD;
+		$con = self::con();
+		$complexity = $con->comps->altcha->complexityLevel();
+		$minimum = $con->opts->optGet( 'antibot_minimum' );
+		if ( \in_array( $complexity, [ 'none', 'legacy', 'low' ] ) || $minimum === 0 ) {
+			$status = EnumEnabledStatus::BAD;
+		}
+		elseif ( $minimum < 30 ) {
+			$status = EnumEnabledStatus::OKAY;
+		}
+		else {
+			$status = EnumEnabledStatus::GOOD;
+		}
+		return $status;
 	}
 }

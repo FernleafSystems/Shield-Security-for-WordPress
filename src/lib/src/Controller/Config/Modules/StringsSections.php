@@ -108,22 +108,6 @@ class StringsSections {
 					.' '.__( 'If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Activity Log.', 'wp-simple-firewall' ),
 				];
 				break;
-			case 'section_choose_firewall_block_response' :
-				$title = __( 'Choose Firewall Block Response', 'wp-simple-firewall' );
-				$summary = [
-					__( 'Here you choose how the plugin will respond when it detects malicious data.', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Choose the option "%s".', 'wp-simple-firewall' ), __( 'Die With Message', 'wp-simple-firewall' ) ) )
-				];
-				$short = __( 'Firewall Response', 'wp-simple-firewall' );
-				break;
-			case 'section_whitelist' :
-				$title = __( 'Whitelists - Pages, Parameters, and Users that bypass the Firewall', 'wp-simple-firewall' );
-				$summary = [
-					__( 'In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Do not whitelist anything unless you are confident in what you are doing.', 'wp-simple-firewall' ) )
-				];
-				$short = __( 'Whitelist', 'wp-simple-firewall' );
-				break;
 
 			case 'section_scan_options' :
 				$title = __( 'Scan Options', 'wp-simple-firewall' );
@@ -210,8 +194,8 @@ class StringsSections {
 				];
 				break;
 			case 'section_bot_behaviours':
-				$short = __( 'Bot Behaviours', 'wp-simple-firewall' );
-				$title = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
+				$short = __( 'Bot Actions', 'wp-simple-firewall' );
+				$title = __( 'How To Respond To Common Bot Behaviour', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Detect characteristics and behaviour commonly associated with illegitimate bots.", 'wp-simple-firewall' ) ),
@@ -219,9 +203,9 @@ class StringsSections {
 						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
 				];
 				break;
-			case 'section_antibot':
-				$short = __( 'AntiBot System', 'wp-simple-firewall' );
-				$title = __( 'AntiBot System', 'wp-simple-firewall' );
+			case 'section_silentcaptcha':
+				$short = __( 'silentCAPTCHA', 'wp-simple-firewall' );
+				$title = __( 'silentCAPTCHA AntiBot Technology', 'wp-simple-firewall' );
 				$summary = [];
 				break;
 			case 'section_crowdsec':

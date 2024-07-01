@@ -14,12 +14,6 @@ class PwnedPasswords extends Base {
 		return __( 'Prevent use of Pwned Passwords.', 'wp-simple-firewall' );
 	}
 
-	public function getOptions() :array {
-		return \array_merge( parent::getOptions(), [
-			'enable_password_policies'
-		] );
-	}
-
 	public function enabledStatus() :string {
 		return ( self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'pass_prevent_pwned', 'Y' )
 				 && self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_password_policies', 'Y' ) )

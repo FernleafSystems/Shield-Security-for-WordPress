@@ -21,7 +21,7 @@ class StringsOptions {
 		$con = self::con();
 		$caps = $con->caps;
 		$opts = $con->comps->opts_lookup;
-		$pluginName = $con->getHumanName();
+		$pluginName = $con->labels->Name;
 		$modStrings = new StringsModules();
 
 		switch ( $key ) {
@@ -103,7 +103,7 @@ class StringsOptions {
 				break;
 			case 'comments_cooldown' :
 				$name = __( 'Comments Cooldown', 'wp-simple-firewall' );
-				$summary = __( 'Minimum Time Interval Between Comments', 'wp-simple-firewall' );
+				$summary = __( 'Minimum Time Interval Between Comments', 'wp-simple-firewall' ).' ('.__( 'seconds' ).')';
 				$desc = [
 					__( 'Prevents comment floods and ensures a minimum period before any further comments are accepted on the site.', 'wp-simple-firewall' ),
 					__( 'Set to zero (0) to disable.', 'wp-simple-firewall' ),
@@ -129,12 +129,11 @@ class StringsOptions {
 				];
 				break;
 			case 'enable_antibot_comments' :
-				$name = __( 'Block Bot Comment SPAM', 'wp-simple-firewall' );
-				$summary = __( 'Block The Most Prolific Type Of Comment SPAM', 'wp-simple-firewall' );
+				$name = __( 'Block Bot SPAM', 'wp-simple-firewall' );
+				$summary = __( 'Use silentCAPTCHA To Block Bot Comment SPAM', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Block 99.9% of all WordPress comment SPAM without CAPTCHAs using our built-in bot detector.', 'wp-simple-firewall' ),
-					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
+					sprintf( __( 'Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA.', 'wp-simple-firewall' ), $pluginName ),
+					sprintf( __( "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges.", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
 			case 'enable_comments_human_spam_filter' :
@@ -154,8 +153,7 @@ class StringsOptions {
 				$name = __( 'Bot SPAM Action', 'wp-simple-firewall' );
 				$summary = __( 'Where To Put Bot SPAM Comments', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( __( 'When a comment is detected as being SPAM from a bot, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
-						self::con()->getHumanName() )
+					sprintf( __( 'When a comment is detected as being bot SPAM, %s will move the comment to this folder.', 'wp-simple-firewall' ), $pluginName )
 				];
 				break;
 
@@ -235,24 +233,27 @@ class StringsOptions {
 				break;
 			case 'enable_wpvuln_scan' :
 				$name = __( 'Vulnerability Scanner', 'wp-simple-firewall' );
-				$summary = __( 'Enable The Vulnerability Scanner', 'wp-simple-firewall' );
-				$desc = [ __( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.', 'wp-simple-firewall' ) ];
+				$summary = __( 'Scan For Vulnerabilities In Plugins & Themes', 'wp-simple-firewall' );
+				$desc = [ __( 'Runs a scan of all your assets against a database of known WordPress vulnerabilities.', 'wp-simple-firewall' ) ];
 				break;
 			case 'wpvuln_scan_autoupdate' :
 				$name = __( 'Automatic Updates', 'wp-simple-firewall' );
-				$summary = __( 'Apply Updates Automatically To Vulnerable Plugins', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Install Updates To Vulnerable Plugins', 'wp-simple-firewall' );
 				$desc = [ __( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.', 'wp-simple-firewall' ) ];
 				break;
 			case 'enable_core_file_integrity_scan' :
-				$name = sprintf( __( 'Automatic %s File Scanner', 'wp-simple-firewall' ), 'WordPress' );
-				$summary = sprintf( __( 'Scan And Monitor %s Files For Changes', 'wp-simple-firewall' ), 'WordPress' );
+				$name = sprintf( __( 'WordPress File Scanner', 'wp-simple-firewall' ), 'WordPress' );
+				$summary = __( 'Automatically Scan WordPress Files For Changes', 'wp-simple-firewall' );
 				$desc = [
-					__( 'It is important to regularly scan your WordPress files for signs of intrusion.', 'wp-simple-firewall' )
+					__( "It's critical to regularly scan WordPress files for signs of intrusion.", 'wp-simple-firewall' )
 					.' '.__( 'This is one of the fastest ways to detect malicious activity on the site.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) ),
 				];
 				$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
-					sprintf( __( "See the 'File Scan Areas' option to direct how and where the file scanner will operate.", 'wp-simple-firewall' ), 'ShieldPRO' ) );
+					$con->isPremiumActive() ?
+						sprintf( __( "See the 'File Scan Areas' option to specify which files should be scanned.", 'wp-simple-firewall' ), 'ShieldPRO' )
+						: __( 'Only core WordPress files are scans in the free version of Shield.', 'wp-simple-firewall' )
+				);
 				break;
 			case 'file_scan_areas' :
 				$name = __( 'File Scan Areas', 'wp-simple-firewall' );
@@ -399,18 +400,9 @@ class StringsOptions {
 				];
 				break;
 			case 'enabled_scan_apc' :
-				$name = __( 'Abandoned Plugin Scanner', 'wp-simple-firewall' );
-				$summary = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
+				$name = __( 'Abandoned Plugins', 'wp-simple-firewall' );
+				$summary = __( 'Scan For Plugins Abandoned By The Developer', 'wp-simple-firewall' );
 				$desc = [ __( "Scan your WordPress.org assets for whether they've been abandoned.", 'wp-simple-firewall' ) ];
-				break;
-			case 'mal_autorepair_surgical' :
-				$name = __( 'Surgical Auto-Repair', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Attempt To Surgically Remove Malware Code', 'wp-simple-firewall' );
-				$desc = [
-					__( "Attempts to automatically remove code from infected files.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This could break your site if code removal leaves remaining code in an inconsistent state.', 'wp-simple-firewall' ) ),
-					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Only applies to files that don't fall under the other categories for automatic repair.", 'wp-simple-firewall' ) )
-				];
 				break;
 
 			case 'enable_headers' :
@@ -502,12 +494,12 @@ class StringsOptions {
 				];
 
 				break;
-			case 'altcha_complexity' :
-				$name = __( 'Bot Challenge Complexity', 'wp-simple-firewall' );
-				$summary = __( 'Adjust Bot Challenge Complexity', 'wp-simple-firewall' );
+			case 'silentcaptcha_complexity' :
+				$name = __( 'silentCAPTCHA Complexity', 'wp-simple-firewall' );
+				$summary = __( 'Adjust silentCAPTCHA Challenge Complexity', 'wp-simple-firewall' );
 				$desc = [
-					__( "Shield's improved NotBot system employs ALTCHA that challenges bots to perform complex work.", 'wp-simple-firewall' ),
-					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this help to discriminate between bots and humans.", 'wp-simple-firewall' ),
+					__( "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work.", 'wp-simple-firewall' ),
+					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans.", 'wp-simple-firewall' ),
 					__( "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices.", 'wp-simple-firewall' ),
 					__( "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor.", 'wp-simple-firewall' ),
 				];
@@ -617,7 +609,6 @@ class StringsOptions {
 					__( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' ),
 					sprintf( __( "This includes the WordPress default %s username, if you've removed that account.", 'wp-simple-firewall' ),
 						'<code>admin</code>' ),
-					__( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' ),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
 				break;
@@ -642,8 +633,8 @@ class StringsOptions {
 				$summary = __( 'Detect Fake Search Engine Crawlers', 'wp-simple-firewall' );
 				$desc = [
 					__( "Identify a visitor as a Bot when it presents as an official web crawler, but analysis shows it's fake.", 'wp-simple-firewall' ),
-					__( "Many bots pretend to be a Google Bot.", 'wp-simple-firewall' )
-					.'<br/>'.__( "We can then know that a bot isn't here for anything good and block them.", 'wp-simple-firewall' ),
+					__( "Many bots pretend to be a Google Bot, or any other branded crawler.", 'wp-simple-firewall' )
+					.'<br/>'.__( "We will immediately know that a particular bot isn't here for anything good.", 'wp-simple-firewall' ),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots(),
 				];
 				break;
@@ -683,7 +674,7 @@ class StringsOptions {
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						__( 'Only the form types (login, registration, lost password), that you have selected in the Login Guard module will be checked.', 'wp-simple-firewall' ) ),
 					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::LOGIN, 'section_brute_force_login_protection' ),
-						sprintf( __( 'Choose the types of forms you want %s to check', 'wp-simple-firewall' ), $con->getHumanName() ) ),
+						sprintf( __( 'Choose the types of forms you want %s to check', 'wp-simple-firewall' ), $pluginName ) ),
 				];
 				if ( !$con->caps->canThirdPartyScanUsers() ) {
 					$desc[] = __( 'Please upgrade your plan if you need to protect and integrate with 3rd party user login forms.', 'wp-simple-firewall' );
@@ -900,9 +891,8 @@ class StringsOptions {
 				$name = __( 'Block Login Bots', 'wp-simple-firewall' );
 				$summary = __( 'Block Login Attempts From Automated Bots', 'wp-simple-firewall' );
 				$desc = [
-					__( "Use Shield's built-in bot detection system to identify malicious bots and block all requests to your WordPress login.", 'wp-simple-firewall' ),
-					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
-						$con->getHumanName() ),
+					__( "Use Shield's built-in silentCAPTCHA system to identify malicious bots and block all requests to your WordPress login.", 'wp-simple-firewall' ),
+					sprintf( __( "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
 			case 'bot_protection_locations' :
@@ -912,7 +902,7 @@ class StringsOptions {
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
 					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::INTEGRATIONS, 'section_user_forms' ),
-						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $con->getHumanName() ) )
+						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $pluginName ) )
 				];
 				break;
 			case 'enable_login_gasp_check' :
@@ -1024,10 +1014,10 @@ class StringsOptions {
 				break;
 
 			case 'global_enable_plugin_features' :
-				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $con->getHumanName() );
+				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $pluginName );
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $pluginName ),
 					sprintf( '<a href="%s">%s</a>',
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
 						'Launch Debug Info Page'
@@ -1125,8 +1115,8 @@ class StringsOptions {
 				if ( empty( $tmpDir ) ) {
 					$desc = [
 						sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ),
-							sprintf( __( "%s currently can't locate a temporary directory, so you'll need to provide one here.", 'wp-simple-firewall' ), $con->getHumanName() ) ),
-						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $con->getHumanName() )
+							sprintf( __( "%s currently can't locate a temporary directory, so you'll need to provide one here.", 'wp-simple-firewall' ), $pluginName ) ),
+						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $pluginName )
 						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
 						sprintf( __( "If you use the %s directive, this automatic process may fail and you'll need to use this option to specify a directory that WordPress can write to.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'open_basedir' ) ),
@@ -1135,9 +1125,9 @@ class StringsOptions {
 				}
 				else {
 					$desc = [
-						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $con->getHumanName() )
+						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $pluginName )
 						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
-						sprintf( __( "%s has successfully chosen the following location to create its temporary directory: %s", 'wp-simple-firewall' ), $con->getHumanName(),
+						sprintf( __( "%s has successfully chosen the following location to create its temporary directory: %s", 'wp-simple-firewall' ), $pluginName,
 							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];
@@ -1549,10 +1539,10 @@ class StringsOptions {
 				$desc = [ __( 'A notification is sent to each user when a successful login occurs for their account.', 'wp-simple-firewall' ) ];
 				break;
 			case 'session_timeout_interval' :
-				$name = __( 'Session Timeout', 'wp-simple-firewall' );
-				$summary = __( 'Specify How Many Days After Login To Automatically Force Re-Login', 'wp-simple-firewall' );
+				$name = __( 'Session Lifetime Override', 'wp-simple-firewall' );
+				$summary = __( 'Override Maximum Session Lifetime', 'wp-simple-firewall' );
 				$desc = [
-					__( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' ),
+					__( 'WordPress default is 2 days, or 14 days when you check the "Remember Me" box.', 'wp-simple-firewall' ),
 					__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' ),
 					sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' ),
 					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$con->opts->optDefault( 'session_timeout_interval' ).'</strong>' )
@@ -1587,9 +1577,9 @@ class StringsOptions {
 				$desc = [ __( 'Select the properties that should be tested during email address validation.', 'wp-simple-firewall' ) ];
 				break;
 			case 'enable_password_policies' :
-				$name = __( 'Enable Password Policies', 'wp-simple-firewall' );
-				$summary = __( 'Apply Password Policies', 'wp-simple-firewall' );
-				$desc = [ __( 'Apply configured password policies.', 'wp-simple-firewall' ) ];
+				$name = __( 'Enforce Password Policies', 'wp-simple-firewall' );
+				$summary = __( 'Enforce Any Configured Password Policies', 'wp-simple-firewall' );
+				$desc = [ __( 'Apply any configured password policies.', 'wp-simple-firewall' ) ];
 				break;
 			case 'pass_prevent_pwned' :
 				$name = __( 'Prevent Pwned Passwords', 'wp-simple-firewall' );

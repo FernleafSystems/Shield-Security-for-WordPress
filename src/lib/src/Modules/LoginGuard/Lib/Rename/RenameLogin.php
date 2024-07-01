@@ -13,8 +13,11 @@ class RenameLogin {
 	use ExecOnce;
 
 	protected function canRun() :bool {
+		return !self::con()->this_req->request_bypasses_all_restrictions && $this->isEnabled();
+	}
+
+	public function isEnabled() :bool {
 		return !empty( $this->customPath() )
-			   && !self::con()->this_req->request_bypasses_all_restrictions
 			   && !$this->hasPluginConflict()
 			   && !$this->hasUnsupportedConfiguration();
 	}
@@ -168,7 +171,7 @@ class RenameLogin {
 	 * @return string
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
-		if ( !Services::WpGeneral()->isLoginUrl()  && !Services::WpUsers()->isUserLoggedIn() ) {
+		if ( !Services::WpGeneral()->isLoginUrl() && !Services::WpUsers()->isUserLoggedIn() ) {
 			if ( \trim( (string)\wp_parse_url( $location, \PHP_URL_PATH ), '/' ) === $this->customPath() ) {
 				$this->doWpLoginFailedRedirect404();
 			}

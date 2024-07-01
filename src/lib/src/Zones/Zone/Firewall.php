@@ -8,9 +8,11 @@ class Firewall extends Base {
 
 	public function components() :array {
 		return [
-			Component\RateLimiting::class,
+			Component\UsernameFishingBlock::class,
 			Component\XmlRpcDisable::class,
+			Component\RateLimiting::class,
 			Component\AnonRestApiDisable::class,
+			Component\FileEditingBlock::class,
 		];
 	}
 
@@ -31,5 +33,9 @@ class Firewall extends Base {
 
 	public function subtitle() :string {
 		return __( 'The Firewall represents the core foundation to your WordPress security & protection.', 'wp-simple-firewall' );
+	}
+
+	protected function getUnderlyingModuleZone() :?string {
+		return Component\ModuleFirewall::class;
 	}
 }

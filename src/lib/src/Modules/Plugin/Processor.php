@@ -70,6 +70,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 	public function runDailyCron() {
 		self::con()->fireEvent( 'test_cron_run' );
+		self::con()->comps->mu->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
 		( new Events\ConsolidateAllEvents() )->run();
 		( new Components\CleanRubbish() )->execute();

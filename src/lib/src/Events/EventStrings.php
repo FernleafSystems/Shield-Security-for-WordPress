@@ -664,7 +664,7 @@ class EventStrings {
 			'spam_block_antibot'           => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'AntiBot System', 'wp-simple-firewall' )
+					__( 'silentCAPTCHA', 'wp-simple-firewall' )
 				),
 				'audit' => [
 					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )

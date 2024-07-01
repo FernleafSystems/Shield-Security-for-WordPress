@@ -11,15 +11,13 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		$con = self::con();
 		$zonesCon = $con->comps->zones;
 		$zone = $zonesCon->getZone( $this->action_data[ 'zone_slug' ] );
-		$config = $con->cfg->configuration;
-		$optsCon = $con->opts;
-		$actionData = $this->action_data;
 		return [
 			'flags'   => [
 			],
 			'imgs'    => [
 				'svgs' => [
-					'title' => $con->svgs->raw( $zone->icon() ),
+					'title'   => $con->svgs->raw( $zone->icon() ),
+					'heading' => $con->svgs->rawImage( sprintf( 'zones/zone_%s.svg', $zone::Slug() ) ),
 				],
 			],
 			'strings' => [
@@ -35,6 +33,7 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 					},
 					$zonesCon->getComponentsForZone( $zone )
 				),
+				'all_cfg'    => $zone->getAllConfigButtonVars(),
 			],
 		];
 	}

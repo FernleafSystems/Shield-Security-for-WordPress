@@ -1,53 +1,58 @@
 <style>
-	.security_zone .row-header {
-		/*height: 50px;*/
-		/*max-height: 50px;*/
-	}
-	.security_zone .row-header .description {
-		border-bottom: 1px dashed green;
-	}
-	.security_zone .row-header .icon {
-		height: 150px;
-		max-height: 150px;
+	.security_zone .icon {
+		height: 60px;
+		max-height: 60px;
 		color: green;
 	}
-	.security_zone .row-header .icon > svg {
+	.security_zone .icon > svg {
 		width: 100%;
 		height: 100%;
 	}
-	.component-enabled-state > svg{
+	.component-enabled-state > svg {
 		width: 48px;
 		height: 48px;
+	}
+	.title-image-container > svg {
+		width: 100%;
+		height: auto;
 	}
 </style>
 <div class="security_zone">
 
-	{% block row_header %}
-		<div class="row row-header">
-			<div class="col-8 p-4 section-description">
-				<div class="description h-100">
-					<h3>{{ strings.title }}</h3>
-					{% for line in strings.description %}
-						<p class="mb-1">{{ line }}</p>
-					{% endfor %}
-				</div>
-			</div>
-			<div class="col-4 section-icon">
-				<div class="icon p-4">
-					{{ imgs.svgs.title|raw }}
-				</div>
-			</div>
-		</div>
-	{% endblock %}
+	<div class="row">
 
-	{% block row_body %}
-		<div class="row row-body">
-			<div class="col p-4">
-				{% for component in vars.components %}
-					{{ component|raw }}
-				{% endfor %}
+		<div class="col-7 mt-4">
+			{% for component in vars.components %}
+				{{ component|raw }}
+			{% endfor %}
+		</div>
+
+		<div class="col-4 mt-3">
+			<div class="card">
+				<div class="w-100 title-image-container p-2">
+					{{ imgs.svgs.heading|raw }}
+				</div>
+				<div class="card-body">
+					<div class="section-description">
+						<div class="description h-100">
+							{% for line in strings.description %}
+								<p class="mb-2">{{ line }}</p>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+				{% if vars.all_cfg %}
+					<div class="card-footer">
+						<button class="btn btn-sm {{ vars.all_cfg.classes|join(' ') }}"
+								title="{{ vars.all_cfg.title }}"
+								{% for key, value in vars.all_cfg.data %}data-{{ key }}="{{ value }}"{% endfor %}
+						>
+							<span class="svg-container">{{ vars.all_cfg.icon|raw }}</span>
+							{{ vars.all_cfg.title }}
+						</button>
+					</div>
+				{% endif %}
 			</div>
 		</div>
-	{% endblock %}
-	
+	</div>
 </div>

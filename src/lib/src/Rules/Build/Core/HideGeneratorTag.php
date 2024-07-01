@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	WPHooksOrder
 };
 
+/**
+ * @deprecated 19.2
+ */
 class HideGeneratorTag extends BuildRuleLockdownBase {
 
 	public const SLUG = 'shield/hide_generator_tag';

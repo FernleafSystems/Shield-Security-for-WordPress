@@ -18,9 +18,11 @@ class SecurityZoneComponent extends \FernleafSystems\Wordpress\Plugin\Shield\Act
 			],
 			'imgs'    => [
 				'svgs' => [
-					'status_good' => $con->svgs->raw( 'shield-check' ),
-					'status_okay' => $con->svgs->raw( 'shield-fill-exclamation' ),
-					'status_bad'  => $con->svgs->raw( 'shield-fill-x' ),
+					'status_good'            => $con->svgs->raw( 'shield-check' ),
+					'status_okay'            => $con->svgs->raw( 'shield-fill-exclamation' ),
+					'status_bad'             => $con->svgs->raw( 'shield-fill-x' ),
+					'status_neutral'         => $con->svgs->raw( 'shield' ),
+					'status_neutral_enabled' => $con->svgs->raw( 'shield-check' ),
 				],
 			],
 			'strings' => [

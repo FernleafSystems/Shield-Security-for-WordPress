@@ -17,10 +17,8 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return __( 'No Subtitle Yet', 'wp-simple-firewall' );
 	}
 
-	public function description() :array {
-		return [
-			__( 'No Description Yet', 'wp-simple-firewall' )
-		];
+	public function explanation() :array {
+		return [];
 	}
 
 	abstract public function enabledStatus() :string;
@@ -30,8 +28,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	public function getActions() :array {
-		return [
-			'config' => [
+		$actions = [];
+		if ( $this->hasConfigAction() ) {
+			$actions[ 'config' ] = [
 				'title'   => __( 'Configure Options', 'wp-simple-firewall' ),
 				'data'    => [
 					'zone_component_action' => ZoneComponentConfig::SLUG,
@@ -42,8 +41,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 					'btn-outline-secondary',
 					'zone_component_action',
 				],
-			]
-		];
+			];
+		}
+		return $actions;
 	}
 
 	public function getOptions() :array {
@@ -54,5 +54,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	public function getLinks() :array {
 		return [];
+	}
+
+	protected function hasConfigAction() :bool {
+		return true;
 	}
 }

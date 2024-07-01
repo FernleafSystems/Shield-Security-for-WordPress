@@ -13,7 +13,7 @@ class AltChaHandler {
 	 * Very basic adaptive complexity for now. More to come.
 	 */
 	public function complexityLevel() :string {
-		$opt = self::con()->opts->optGet( 'altcha_complexity' );
+		$opt = self::con()->opts->optGet( 'silentcaptcha_complexity' );
 		if ( $opt === 'adaptive' ) {
 			$opt = wp_is_mobile() ? 'medium' : 'high';
 		}

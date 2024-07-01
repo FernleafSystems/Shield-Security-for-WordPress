@@ -7,6 +7,10 @@
 					<span class="text-success component-enabled-state">{{ imgs.svgs.status_good|raw }}</span>
 				{% elseif vars.enabled_status == 'okay' %}
 					<span class="text-warning component-enabled-state">{{ imgs.svgs.status_okay|raw }}</span>
+				{% elseif vars.enabled_status == 'neutral' %}
+					<span class="text-info component-enabled-state">{{ imgs.svgs.status_neutral|raw }}</span>
+				{% elseif vars.enabled_status == 'neutral_enabled' %}
+					<span class="text-info component-enabled-state">{{ imgs.svgs.status_neutral_enabled|raw }}</span>
 				{% else %}
 					<span class="text-danger component-enabled-state">{{ imgs.svgs.status_bad|raw }}</span>
 				{% endif %}

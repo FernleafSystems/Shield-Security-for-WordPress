@@ -11,7 +11,7 @@ class SessionTheftProtection extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Protect against user session hijacking/theft.', 'wp-simple-firewall' );
+		return __( 'Protect user sessions against the threat of hijacking and theft.', 'wp-simple-firewall' );
 	}
 
 	public function enabledStatus() :string {

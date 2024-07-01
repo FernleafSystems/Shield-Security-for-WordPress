@@ -43,7 +43,8 @@
           "Removed: Activity Logging to File.",
           "Removed: Force SSL Admin.",
           "Removed: Request Firewall options - WP Terms & EXE File Uploads.",
-          "Removed: Firewall Block Response select."
+          "Removed: Firewall Block Response select.",
+          "Removed: WP Generator tag removal option."
         ],
         "href":        ""
       }

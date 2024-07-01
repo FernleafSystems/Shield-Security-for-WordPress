@@ -269,7 +269,7 @@ class SectionNotices {
 				}
 				break;
 
-			case 'section_antibot':
+			case 'section_silentcaptcha':
 				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );

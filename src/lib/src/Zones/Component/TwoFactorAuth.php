@@ -11,14 +11,14 @@ class TwoFactorAuth extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( "It's best to protect user account access with at least one 2FA method.", 'wp-simple-firewall' );
+		return __( "It's best practice to protect user access with at least one 2FA method.", 'wp-simple-firewall' );
 	}
 
 	public function enabledStatus() :string {
 		$providers = \array_filter( self::con()->comps->mfa->collateMfaProviderClasses(), function ( $c ) {
 			return $c::ProviderEnabled();
 		} );
-		if ( self::con()->comps->opts_lookup->isModFromOptEnabled( 'login_limit_interval' ) || empty( $providers ) ) {
+		if ( empty( $providers ) ) {
 			$status = EnumEnabledStatus::BAD;
 		}
 		else {

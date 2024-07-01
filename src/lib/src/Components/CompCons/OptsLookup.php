@@ -78,16 +78,12 @@ class OptsLookup {
 	}
 
 	public function getActivatedPeriod() :int {
-		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
+		return Services::Request()->ts() - self::con()->opts->optGet( 'antibot_minimum' );
 	}
 
 	public function getAntiBotMinScore() :int {
 		return $this->isModFromOptEnabled( 'antibot_minimum' ) ?
 			(int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) : 0;
-	}
-
-	public function getAntiBotComplexity() :string {
-		return self::con()->opts->optGet( 'altcha_complexity' );
 	}
 
 	public function getBlockdownCfg() :array {
@@ -127,8 +123,7 @@ class OptsLookup {
 
 	public function getEmailValidateChecks() :array {
 		$con = self::con();
-		return ( $this->isModFromOptEnabled( 'email_checks' ) && $con->opts->optGet( 'reg_email_validate' ) !== 'disabled'
-				 && $con->isPremiumActive() ) ? $con->opts->optGet( 'email_checks' ) : [];
+		return ( $con->opts->optGet( 'reg_email_validate' ) !== 'disabled' && $con->isPremiumActive() ) ? $con->opts->optGet( 'email_checks' ) : [];
 	}
 
 	/**

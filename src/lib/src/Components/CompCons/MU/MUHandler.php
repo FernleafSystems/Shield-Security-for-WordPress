@@ -13,11 +13,13 @@ class MUHandler {
 
 	public function run() {
 		try {
-			self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_mu', 'Y' ) ? $this->convertToMU() : $this->convertToStandard();
+			self::con()->opts->optIs( 'enable_mu', 'Y' ) ? $this->convertToMU() : $this->convertToStandard();
 		}
 		catch ( \Exception $e ) {
 		}
-		self::con()->opts->optSet( 'enable_mu', $this->isActiveMU() ? 'Y' : 'N' );
+		finally {
+			self::con()->opts->optSet( 'enable_mu', $this->isActiveMU() ? 'Y' : 'N' );
+		}
 	}
 
 	public function isActiveMU() :bool {

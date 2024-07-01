@@ -7,11 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 class ContactFormSpamBlockBot extends Base {
 
 	public function title() :string {
-		return __( 'Block Bot SPAM on Contact Forms', 'wp-simple-firewall' );
+		return sprintf( '%s - %s', __( 'Contact Forms Integration', 'wp-simple-firewall' ), __( 'Block Bot SPAM', 'wp-simple-firewall' ) );
 	}
 
 	public function subtitle() :string {
-		return __( 'Block the most common type of Contact Form SPAM.', 'wp-simple-firewall' );
+		return __( 'Block SPAM posted to Contact Forms by automated Bots.', 'wp-simple-firewall' );
 	}
 
 	public function enabledStatus() :string {
