@@ -15,13 +15,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Autoupdates,
 	Base,
 	CommentsFilter,
 	Data,
 	Firewall,
 	HackGuard,
-	Headers,
 	Integrations,
 	IPs,
 	License,
@@ -420,12 +418,10 @@ class Controller extends DynPropertiesClass {
 			$enumClasses = [
 				EnumModules::SECURITY_ADMIN => SecurityAdmin\ModCon::class,
 				EnumModules::ACTIVITY       => AuditTrail\ModCon::class,
-				EnumModules::AUTOUPDATES    => Autoupdates\ModCon::class,
 				EnumModules::COMMENTS       => CommentsFilter\ModCon::class,
 				EnumModules::DATA           => Data\ModCon::class,
 				EnumModules::FIREWALL       => Firewall\ModCon::class,
 				EnumModules::SCANS          => HackGuard\ModCon::class,
-				EnumModules::HEADERS        => Headers\ModCon::class,
 				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
 				EnumModules::IPS            => IPs\ModCon::class,
 				EnumModules::LICENSE        => License\ModCon::class,

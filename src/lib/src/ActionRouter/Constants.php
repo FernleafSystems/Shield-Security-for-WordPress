@@ -115,6 +115,7 @@ class Constants {
 		Actions\AjaxRender::class,
 
 		Actions\DynamicLoad\Config::class,
+		Actions\DynamicLoad\ConfigForZoneComponents::class,
 		Actions\DynamicLoad\Zone::class,
 
 		Actions\PluginAdmin\PluginAdminPageHandler::class,
@@ -232,6 +233,7 @@ class Constants {
 		Actions\Render\PageAdminPlugin::class,
 		Actions\Render\PluginAdminPages\PageActivityLogTable::class,
 		Actions\Render\PluginAdminPages\PageConfig::class,
+		Actions\Render\PluginAdminPages\PageConfigForZoneComponents::class,
 		Actions\Render\PluginAdminPages\PageDebug::class,
 		Actions\Render\PluginAdminPages\PageDocs::class,
 		Actions\Render\PluginAdminPages\PageDynamicLoad::class,

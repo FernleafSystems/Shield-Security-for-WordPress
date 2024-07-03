@@ -41,6 +41,6 @@ class Spam extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\ModuleSpam::class;
+		return Component\Modules\ModuleSpam::class;
 	}
 }

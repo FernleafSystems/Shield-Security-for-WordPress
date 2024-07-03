@@ -15,7 +15,7 @@ class AdeLogin extends AdeBase {
 	}
 
 	public function descProtected() :string {
-		return __( 'Brute force bot attacks against your WordPress login are blocked by the AntiBot Detection Engine.', 'wp-simple-firewall' );
+		return __( 'Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {

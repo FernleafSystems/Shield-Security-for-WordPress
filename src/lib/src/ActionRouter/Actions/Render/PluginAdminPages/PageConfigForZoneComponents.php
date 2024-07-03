@@ -3,22 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PageConfigFor extends BasePluginAdminPage {
+class PageConfigForZoneComponents extends BasePluginAdminPage {
 
-	public const SLUG = 'admin_plugin_page_config_for';
+	public const SLUG = 'admin_plugin_page_config_for_zone_components';
 
 	protected function getPageContextualHrefs() :array {
+		return [];
 		$URLs = self::con()->plugin_urls;
 		$hrefs = [];
-		switch ( $this->action_data[ 'mod_slug' ] ) {
+		switch ( $zone::Slug() ) {
 
 			case EnumModules::ACTIVITY:
 				$hrefs[] = [
@@ -75,17 +76,19 @@ class PageConfigFor extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$modStrings = ( new StringsModules() )->getFor( $this->action_data[ 'mod_slug' ] );
+		$con = self::con();
 		return [
 			'content' => [
-				'options_form' => self::con()->action_router->render( OptionsForm::class, $this->action_data ),
+				'options_form' => $con->action_router->render( OptionsFormFor::class, [
+					'options' => ( new GetOptionsForZoneComponents() )->run( $this->action_data[ 'zone_component_slugs' ] ),
+				] ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
 			],
 			'strings' => [
-				'inner_page_title'    => $modStrings[ 'name' ],
-				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
+//				'inner_page_title'    => $modStrings[ 'name' ],
+//				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
 			],
 		];
 	}
@@ -94,10 +97,16 @@ class PageConfigFor extends BasePluginAdminPage {
 	 * Must manually build breadcrumbs for dynamic loaded config.
 	 */
 	protected function getBreadCrumbs() :array {
-		$crumbs = parent::getBreadCrumbs();
+		return $crumbs = parent::getBreadCrumbs();
 		if ( empty( $crumbs ) ) {
 			$crumbs = ( new BuildBreadCrumbs() )->for( PluginNavs::NAV_OPTIONS_CONFIG, $this->action_data[ 'mod_slug' ] );
 		}
 		return $crumbs;
+	}
+
+	protected function getRequiredDataKeys() :array {
+		return [
+			'zone_component_slugs',
+		];
 	}
 }

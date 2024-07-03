@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ModuleBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleBase;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\Base {
 

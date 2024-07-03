@@ -47,6 +47,6 @@ class Scans extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\ModuleScans::class;
+		return Component\Modules\ModuleScans::class;
 	}
 }

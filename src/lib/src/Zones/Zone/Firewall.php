@@ -36,6 +36,6 @@ class Firewall extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\ModuleFirewall::class;
+		return Component\Modules\ModuleFirewall::class;
 	}
 }

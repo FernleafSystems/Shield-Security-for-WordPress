@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\{
-	Config,
+	ConfigForZoneComponents,
 	Zone
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
@@ -17,11 +17,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InstantAlerts,
 	IpBlockingRules,
 	LoginHide,
-	ModuleScans,
+	Modules\ModuleScans,
 	Reporting,
 	RequestLogging,
 	SilentCaptcha,
-	Whitelabel};
+	Whitelabel
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class NavMenuBuilder {
@@ -32,14 +33,14 @@ class NavMenuBuilder {
 		$menu = [
 			$this->dashboard(),
 			$this->zones(),
-			$this->reports(),
 			$this->ips(),
 			$this->scans(),
 			$this->activity(),
-			$this->traffic(),
-			$this->configuration(),
+//			$this->traffic(),
 			$this->rules(),
 			$this->tools(),
+			$this->configuration(),
+			$this->reports(),
 			$this->gopro(),
 		];
 
@@ -129,16 +130,21 @@ class NavMenuBuilder {
 		$con = self::con();
 		return [
 			'slug'     => PluginNavs::NAV_ACTIVITY,
-			'title'    => __( 'Activity', 'wp-simple-firewall' ),
+			'title'    => __( 'Activity Logs', 'wp-simple-firewall' ),
 			'subtitle' => __( "All WP Site Activity", 'wp-simple-firewall' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+//			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 			'img'      => $con->svgs->raw( 'person-lines-fill' ),
 			'active'   => $this->inav() === PluginNavs::NAV_ACTIVITY,
 			'introjs'  => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
 			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [ ActivityLogging::Slug() ] ),
+			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [ ActivityLogging::Slug(), RequestLogging::Slug() ] ),
+			'sub_items' => [
+				$this->createSubItemForNavAndSub( __( 'WP Activity Log' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+				$this->createSubItemForNavAndSub( __( 'HTTP Request Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+				$this->createSubItemForNavAndSub( __( 'Live HTTP Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+			],
 		];
 	}
 
@@ -230,24 +236,22 @@ class NavMenuBuilder {
 					: $con->comps->opts_lookup->isModEnabled( $cfg->slug );
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
-					'slug'          => PluginNavs::NAV_OPTIONS_CONFIG.'-'.$cfg->slug,
+					'slug'          => PluginNavs::NAV_ZONE_CONFIG.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
 					'tooltip'       => $enabled ?
 						sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) )
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
-					'href'          => $con->plugin_urls->modCfg( $cfg->slug ),
-					'classes'       => \array_filter( \array_merge( $this->getBaseDynamicLoadClasses(), [
-						$enabled ? '' : 'text-danger'
-					] ) ),
+					'href'          => $con->plugin_urls->cfgForZoneComponent( $cfg->slug ),
+					'classes'       => $this->getBaseDynamicLoadClasses(),
 					'data'          => [
 						'dynamic_page_load' => \wp_json_encode( [
-							'dynamic_load_slug' => Config::SLUG,
+							'dynamic_load_slug' => ConfigForZoneComponents::SLUG,
 							'dynamic_load_data' => [
-								'mod_slug' => $cfg->slug,
+								'zone_component_slugs' => [ 'module_'.$cfg->slug ],
 							],
 						] ),
 					],
-					'active'        => $this->inav() === PluginNavs::NAV_OPTIONS_CONFIG && $this->subnav() === $cfg->slug,
+					'active'        => $this->inav() === PluginNavs::NAV_ZONE_CONFIG && $this->subnav() === 'module_'.$cfg->slug,
 					'menu_priority' => $cfg->properties[ 'config_menu_priority' ],
 				];
 			}

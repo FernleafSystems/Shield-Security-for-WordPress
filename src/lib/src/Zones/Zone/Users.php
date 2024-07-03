@@ -44,6 +44,6 @@ class Users extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\ModuleUsers::class;
+		return Component\Modules\ModuleUsers::class;
 	}
 }

@@ -32,8 +32,8 @@ class MeterLogin extends MeterBase {
 				__( "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare.", 'wp-simple-firewall' ),
 			] ),
 			\implode( ' ', [
-				__( "To address this we created our own system called the AntiBot Detection Engine.", 'wp-simple-firewall' ),
-				__( "It completely replaces the need for any CAPTCHAS and can integrate with almost any other contact forms and user login forms.", 'wp-simple-firewall' ),
+				__( "To address this we created our own system called silentCAPTCHA.", 'wp-simple-firewall' ),
+				__( "It completely replaces the need for any user CAPTCHAs and can integrate with almost any contact and user login forms.", 'wp-simple-firewall' ),
 				__( "And best of all, it's completely invisible to the user!", 'wp-simple-firewall' ),
 			] ),
 			\implode( ' ', [

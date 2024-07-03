@@ -61,10 +61,6 @@ class SecurityZonesCon {
 		return $this->zones;
 	}
 
-	public function getZoneSlugs() :array {
-		return \array_keys( $this->enumZones() );
-	}
-
 	public function enumZoneComponents() :array {
 		$indexed = [];
 		foreach ( $this->rawEnumZoneComponents() as $class ) {
@@ -93,6 +89,7 @@ class SecurityZonesCon {
 			Zone\Login::class,
 			Zone\Users::class,
 			Zone\Spam::class,
+			Zone\Headers::class,
 		];
 	}
 
@@ -112,19 +109,28 @@ class SecurityZonesCon {
 			Component\FileEditingBlock::class,
 			Component\FileLocker::class,
 			Component\FileScanning::class,
+			Component\HeadersGeneral::class,
+			Component\HeadersCsp::class,
+			Component\ImportExport::class,
 			Component\InactiveUsers::class,
 			Component\InstantAlerts::class,
 			Component\IpBlockingRules::class,
 			Component\LimitLogin::class,
 			Component\LoginHide::class,
-			Component\ModuleFirewall::class,
-			Component\ModuleIps::class,
-			Component\ModuleLogin::class,
-			Component\ModuleScans::class,
-			Component\ModuleSpam::class,
-			Component\ModuleSecadmin::class,
-			Component\ModuleUsers::class,
+			Component\LoginProtectionForms::class,
+			Component\Modules\ModuleAutoupdates::class,
+			Component\Modules\ModuleFirewall::class,
+			Component\Modules\ModuleHeaders::class,
+			Component\Modules\ModuleIntegrations::class,
+			Component\Modules\ModuleIps::class,
+			Component\Modules\ModuleLogin::class,
+			Component\Modules\ModulePlugin::class,
+			Component\Modules\ModuleScans::class,
+			Component\Modules\ModuleSpam::class,
+			Component\Modules\ModuleSecadmin::class,
+			Component\Modules\ModuleUsers::class,
 			Component\PasswordStrength::class,
+			Component\PluginGeneral::class,
 			Component\PwnedPasswords::class,
 			Component\RateLimiting::class,
 			Component\Reporting::class,

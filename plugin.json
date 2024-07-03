@@ -294,15 +294,6 @@
           ]
         }
       },
-      "autoupdates":              {
-        "slug":                 "autoupdates",
-        "name":                 "Auto Updates",
-        "tagline":              "Take back full control of WordPress automatic updates",
-        "order":                60,
-        "load_priority":        100,
-        "config_menu_priority": 55,
-        "show_central":         true
-      },
       "comments_filter":          {
         "slug":                 "comments_filter",
         "storage_key":          "commentsfilter",
@@ -361,15 +352,6 @@
         "rest_api":             {
           "publish": true
         }
-      },
-      "headers":                  {
-        "slug":                 "headers",
-        "name":                 "HTTP Headers",
-        "tagline":              "Control HTTP Security Headers",
-        "order":                80,
-        "load_priority":        100,
-        "config_menu_priority": 60,
-        "show_central":         true
       },
       "integrations":             {
         "slug":                 "integrations",
@@ -529,29 +511,6 @@
         ]
       },
       {
-        "slug":        "section_automatic_updates_for_wordpress_components",
-        "primary":     true,
-        "module":      "autoupdates",
-        "title":       "Automatic Updates For WordPress Components",
-        "title_short": "WordPress Components",
-        "beacon_id":   236,
-        "summary":     [
-          "Purpose - Control how automatic updates for each WordPress component is handled.",
-          "Recommendation - You should at least allow minor updates for the WordPress core."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_automatic_updates_control",
-        "module":      "autoupdates",
-        "title":       "Enable Module: Automatic Updates",
-        "title_short": "Disable Module",
-        "beacon_id":   234,
-        "summary":     [
-          "Purpose - Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.",
-          "Recommendation - Keep the Automatic Updates feature turned on."
-        ]
-      },
-      {
         "primary":     true,
         "slug":        "section_bot_comment_spam_protection_filter",
         "module":      "comments_filter",
@@ -697,62 +656,6 @@
       },
       {
         "primary":     true,
-        "slug":        "section_security_headers",
-        "module":      "headers",
-        "title":       "Advanced Security Headers",
-        "title_short": "Security Headers",
-        "beacon_id":   267,
-        "summary":     [
-          "Purpose - Protect visitors to your site by implementing increased security response headers.",
-          "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
-        ]
-      },
-      {
-        "slug":        "section_content_security_policy",
-        "module":      "headers",
-        "title":       "Content Security Policy",
-        "title_short": "Content Security Policy",
-        "beacon_id":   155,
-        "summary":     [
-          "Purpose - Restrict the sources and types of content that may be loaded and processed by visitor browsers.",
-          "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_headers",
-        "module":      "headers",
-        "title":       "Enable Module: HTTP Headers",
-        "title_short": "Disable Module",
-        "beacon_id":   265,
-        "summary":     [
-          "Purpose - Protect visitors to your site by implementing increased security response headers.",
-          "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
-        ]
-      },
-      {
-        "primary":     true,
-        "slug":        "section_integrations",
-        "module":      "integrations",
-        "title":       "Integrations",
-        "title_short": "Integrations",
-        "beacon_id":   404
-      },
-      {
-        "slug":        "section_spam",
-        "module":      "integrations",
-        "title":       "SPAM Detection",
-        "title_short": "SPAM Detection",
-        "beacon_id":   138
-      },
-      {
-        "slug":        "section_user_forms",
-        "module":      "integrations",
-        "title":       "User Forms Bot Detection",
-        "title_short": "User Forms Bot Detection",
-        "beacon_id":   239
-      },
-      {
-        "primary":     true,
         "slug":        "section_auto_black_list",
         "module":      "ips",
         "title":       "Automatic IP Black List",
@@ -805,6 +708,18 @@
         "beacon_id":   325,
         "summary":     [
           "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
+          "Recommendation - Use of this feature is highly recommend."
+        ]
+      },
+      {
+        "primary":     true,
+        "slug":        "section_user_session_management",
+        "module":      "login_protect",
+        "title":       "User Session Management",
+        "title_short": "Sessions",
+        "beacon_id":   397,
+        "summary":     [
+          "Purpose - Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.",
           "Recommendation - Use of this feature is highly recommend."
         ]
       },
@@ -909,6 +824,13 @@
         "beacon_id":   788
       },
       {
+        "slug":        "section_security_headers",
+        "module":      "plugin",
+        "title":       "Advanced Security Headers",
+        "title_short": "Security Headers",
+        "beacon_id":   267
+      },
+      {
         "slug":        "section_importexport",
         "module":      "plugin",
         "title":       "Import / Export",
@@ -934,7 +856,7 @@
       {
         "primary":     true,
         "slug":        "section_user_session_management",
-        "module":      "user_management",
+        "module":      "login_protect",
         "title":       "User Session Management",
         "title_short": "Session Options",
         "beacon_id":   397,
@@ -986,6 +908,28 @@
           "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
           "Recommendation - Keep the User Management feature turned on."
         ]
+      },
+      {
+        "primary":     true,
+        "slug":        "section_integrations",
+        "module":      "integrations",
+        "title":       "Integrations",
+        "title_short": "Integrations",
+        "beacon_id":   404
+      },
+      {
+        "slug":        "section_spam",
+        "module":      "integrations",
+        "title":       "SPAM Detection",
+        "title_short": "SPAM Detection",
+        "beacon_id":   138
+      },
+      {
+        "slug":        "section_user_forms",
+        "module":      "integrations",
+        "title":       "User Forms Bot Detection",
+        "title_short": "User Forms Bot Detection",
+        "beacon_id":   239
       }
     ],
     "options":       [
@@ -1452,80 +1396,20 @@
         "description":     "Events older than the number of days specified will be automatically cleaned from the database"
       },
       {
-        "key":         "enable_autoupdates",
-        "section":     "section_enable_plugin_feature_automatic_updates_control",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/3w",
-        "link_blog":   "https://shsec.io/hj",
-        "beacon_id":   234,
-        "name":        "Enable Automatic Updates",
-        "summary":     "Enable (or Disable) The Automatic Updates module",
-        "description": "Un-Checking this option will completely disable the Automatic Updates module"
-      },
-      {
-        "key":         "enable_autoupdate_disable_all",
-        "section":     "section_automatic_updates_for_wordpress_components",
-        "advanced":    true,
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/3v",
-        "link_blog":   "https://shsec.io/k6",
-        "beacon_id":   405,
-        "name":        "Disable All",
-        "summary":     "Completely Disable WordPress Automatic Updates",
-        "description": "When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!"
-      },
-      {
-        "key":           "autoupdate_core",
-        "section":       "section_automatic_updates_for_wordpress_components",
-        "default":       "core_minor",
-        "type":          "select",
-        "value_options": [
-          {
-            "value_key": "core_never",
-            "text":      "Never"
-          },
-          {
-            "value_key": "core_minor",
-            "text":      "Minor Versions Only"
-          },
-          {
-            "value_key": "core_major",
-            "text":      "Major and Minor Versions"
-          }
+        "key":             "update_delay",
+        "section":         "section_scan_wpv",
+        "zone_comp_slugs": [
+          "module_autoupdates"
         ],
-        "link_info":     "https://shsec.io/k5",
-        "link_blog":     "",
-        "beacon_id":     237,
-        "name":          "WordPress Core Updates",
-        "summary":       "Decide how the WordPress Core will automatically update, if at all",
-        "description":   "At least automatically upgrading minor versions is recommended (and is the WordPress default)."
-      },
-      {
-        "key":         "update_delay",
-        "section":     "section_automatic_updates_for_wordpress_components",
-        "premium":     true,
-        "type":        "integer",
-        "default":     0,
-        "link_info":   "https://shsec.io/e5",
-        "link_blog":   "",
-        "beacon_id":   137,
-        "name":        "Update Delay",
-        "summary":     "Delay Automatic Updates For Period Of Stability",
-        "description": "Shield will delay upgrades until the new update has been available for the set number of days."
-      },
-      {
-        "key":         "enable_upgrade_notification_email",
-        "section":     "section_automatic_updates_for_wordpress_components",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Send Report Email",
-        "summary":     "Send email notices after automatic updates",
-        "description": "You can turn on/off email notices from automatic updates by un/checking this box."
+        "premium":         true,
+        "type":            "integer",
+        "default":         0,
+        "link_info":       "https://shsec.io/e5",
+        "link_blog":       "",
+        "beacon_id":       137,
+        "name":            "Update Delay",
+        "summary":         "Delay Automatic Updates For Period Of Stability",
+        "description":     "Shield will delay upgrades until the new update has been available for the set number of days."
       },
       {
         "key":         "enable_comments_filter",
@@ -1552,9 +1436,9 @@
         "link_info":       "https://shsec.io/k1",
         "link_blog":       "https://shsec.io/jo",
         "beacon_id":       427,
-        "name":            "AntiBot Detection Technology",
-        "summary":         "Use Shield's Unique AntiBot Detection Technology",
-        "description":     "Use Shield's AntiBot Detection Engine To Detect and Block SPAM Bots."
+        "name":            "silentCAPTCHA",
+        "summary":         "Use Shield's Unique silentCAPTCHA Technology",
+        "description":     "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
       },
       {
         "key":             "comments_default_action_spam_bot",
@@ -2180,8 +2064,7 @@
       },
       {
         "key":         "enable_headers",
-        "section":     "section_enable_plugin_feature_headers",
-        "advanced":    true,
+        "section":     "section_hidden",
         "default":     "Y",
         "type":        "checkbox",
         "link_info":   "https://shsec.io/aj",
@@ -2192,363 +2075,50 @@
         "description": "Un-Checking this option will completely disable the HTTP Headers module"
       },
       {
-        "key":           "x_frame",
-        "section":       "section_security_headers",
-        "default":       "on_sameorigin",
-        "type":          "select",
-        "value_options": [
-          {
-            "value_key": "off",
-            "text":      "Off: iFrames Not Blocked"
-          },
-          {
-            "value_key": "on_sameorigin",
-            "text":      "On: Allow iFrames On The Same Domain"
-          },
-          {
-            "value_key": "on_deny",
-            "text":      "On: Block All iFrames"
-          }
-        ],
-        "link_info":     "https://shsec.io/78",
-        "link_blog":     "https://shsec.io/7c",
-        "name":          "Block iFrames",
-        "summary":       "Block Remote iFrames Of This Site",
-        "description":   "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
-      },
-      {
-        "key":         "x_xss_protect",
-        "section":     "section_security_headers",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/79",
-        "link_blog":   "https://shsec.io/7c",
-        "name":        "XSS Protection",
-        "summary":     "Employ Built-In Browser XSS Protection",
-        "description": "Directs compatible browsers to block what they detect as Reflective XSS attacks."
-      },
-      {
-        "key":         "x_content_type",
-        "section":     "section_security_headers",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/7a",
-        "link_blog":   "https://shsec.io/7c",
-        "name":        "Prevent Mime-Sniff",
-        "summary":     "Turn-Off Browser Mime-Sniff",
-        "description": "Reduces visitor exposure to malicious user-uploaded content."
-      },
-      {
-        "key":           "x_referrer_policy",
-        "section":       "section_security_headers",
-        "sensitive":     false,
-        "type":          "select",
-        "default":       "unsafe-url",
-        "value_options": [
-          {
-            "value_key": "unsafe-url",
-            "text":      "Default: Full Referrer URL (aka 'Unsafe URL')"
-          },
-          {
-            "value_key": "no-referrer",
-            "text":      "No Referrer"
-          },
-          {
-            "value_key": "no-referrer-when-downgrade",
-            "text":      "No Referrer When Downgrade"
-          },
-          {
-            "value_key": "same-origin",
-            "text":      "Same Origin"
-          },
-          {
-            "value_key": "origin",
-            "text":      "Origin"
-          },
-          {
-            "value_key": "strict-origin",
-            "text":      "Strict Origin"
-          },
-          {
-            "value_key": "origin-when-cross-origin",
-            "text":      "Origin When Cross-Origin"
-          },
-          {
-            "value_key": "strict-origin-when-cross-origin",
-            "text":      "Strict Origin When Cross-Origin"
-          },
-          {
-            "value_key": "empty",
-            "text":      "Empty Header"
-          },
-          {
-            "value_key": "disabled",
-            "text":      "Disabled - Don't Send This Header"
-          }
-        ],
-        "link_info":     "https://shsec.io/a5",
-        "link_blog":     "",
-        "name":          "Referrer Policy",
-        "summary":       "Referrer Policy Header",
-        "description":   "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
-      },
-      {
-        "key":         "enable_x_content_security_policy",
-        "section":     "section_content_security_policy",
-        "premium":     true,
-        "default":     "N",
-        "type":        "checkbox",
-        "beacon_id":   155,
-        "link_info":   "https://shsec.io/7d",
-        "link_blog":   "https://shsec.io/7c",
-        "name":        "Enable Content Security Policy",
-        "summary":     "Enable (or Disable) The Content Security Policy module",
-        "description": "Allows for permission and restriction of all resources loaded on your site."
-      },
-      {
-        "key":         "xcsp_custom",
-        "section":     "section_content_security_policy",
-        "premium":     true,
-        "cap":         "http_headers_csp",
-        "default":     [],
-        "type":        "array",
-        "link_info":   "https://shsec.io/g9",
-        "link_blog":   "",
-        "beacon_id":   155,
-        "name":        "Manual Rules",
-        "summary":     "Manual CSP Rules",
-        "description": "Manual CSP rules."
-      },
-      {
         "key":     "enable_integrations",
         "section": "section_hidden",
         "type":    "checkbox",
         "default": "Y"
       },
       {
-        "key":         "enable_mainwp",
-        "section":     "section_integrations",
-        "premium":     true,
-        "cap":         "mainwp_level_1",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/ir",
-        "link_blog":   "https://shsec.io/ke",
-        "beacon_id":   404,
-        "name":        "Enable MainWP",
-        "summary":     "Enable The Built-In MainWP Extension",
-        "description": "This option will enable Shield's built-in MainWP extension for both server and client."
+        "key":             "enable_mainwp",
+        "section":         "section_integrations",
+        "zone_comp_slugs": [
+          "module_integrations"
+        ],
+        "premium":         true,
+        "cap":             "mainwp_level_1",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/ir",
+        "link_blog":       "https://shsec.io/ke",
+        "beacon_id":       404,
+        "name":            "Enable MainWP",
+        "summary":         "Enable The Built-In MainWP Extension",
+        "description":     "This option will enable Shield's built-in MainWP extension for both server and client."
       },
       {
-        "key":           "suresend_emails",
-        "section":       "section_integrations",
-        "premium":       true,
-        "cap":           "2fa_sure_send",
-        "default":       [],
-        "type":          "multiple_select",
-        "value_options": [
+        "key":             "suresend_emails",
+        "section":         "section_integrations",
+        "zone_comp_slugs": [
+          "module_integrations"
+        ],
+        "premium":         true,
+        "cap":             "2fa_sure_send",
+        "default":         [],
+        "type":            "multiple_select",
+        "value_options":   [
           {
             "value_key": "2fa",
             "text":      "2FA Login Codes (admins only)"
           }
         ],
-        "beacon_id":     156,
-        "link_info":     "https://icwp.io/ij",
-        "link_blog":     "https://icwp.io/ik",
-        "name":          "SureSend Emails",
-        "summary":       "SureSend Emails",
-        "description":   "SureSend Emails."
-      },
-      {
-        "key":             "form_spam_providers",
-        "section":         "section_spam",
-        "zone_comp_slugs": [
-          "module_spam",
-          "contact_form_spam_block_bot"
-        ],
-        "premium":         true,
-        "advanced":        true,
-        "type":            "multiple_select",
-        "default":         [],
-        "value_options":   [
-          {
-            "value_key": "calderaforms",
-            "text":      "Caldera Forms (beta)",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "contactform7",
-            "text":      "Contact Form 7",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "elementorpro",
-            "text":      "Elementor Pro",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "fluentforms",
-            "text":      "Fluent Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "formidableforms",
-            "text":      "Formidable Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "forminator",
-            "text":      "Forminator",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "gravityforms",
-            "text":      "Gravity Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "groundhogg",
-            "text":      "Groundhogg",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "happyforms",
-            "text":      "HappyForms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "kaliforms",
-            "text":      "Kali Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "ninjaforms",
-            "text":      "Ninja Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "superforms",
-            "text":      "Super Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "supportcandy",
-            "text":      "Support Candy",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "weforms",
-            "text":      "WeForms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "wpforms",
-            "text":      "WP Forms",
-            "cap":       "thirdparty_scan_spam"
-          },
-          {
-            "value_key": "wpforo",
-            "text":      "wpForo",
-            "cap":       "thirdparty_scan_spam"
-          }
-        ],
-        "link_info":       "https://shsec.io/k2",
-        "link_blog":       "https://shsec.io/k3",
-        "beacon_id":       138,
-        "name":            "Form SPAM Checking",
-        "summary":         "Select The Form Providers That Should Be Checked For SPAM",
-        "description":     "Select The Form Providers That Should Be Checked For SPAM."
-      },
-      {
-        "key":           "user_form_providers",
-        "section":       "section_user_forms",
-        "advanced":      true,
-        "type":          "multiple_select",
-        "default":       [
-          "wordpress"
-        ],
-        "value_options": [
-          {
-            "value_key": "wordpress",
-            "text":      "WordPress"
-          },
-          {
-            "value_key": "buddyboss",
-            "text":      "BuddyBoss",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "buddypress",
-            "text":      "BuddyPress",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "easydigitaldownloads",
-            "text":      "Easy Digital Downloads",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "classifiedlisting",
-            "text":      "Classified Listing",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "learnpress",
-            "text":      "LearnPress",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "lifterlms",
-            "text":      "LifterLMS",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "memberpress",
-            "text":      "MemberPress",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "paidmembersubscriptions",
-            "text":      "Paid Member Subscriptions",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "profilebuilder",
-            "text":      "Profile Builder",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "profilepress",
-            "text":      "ProfilePress",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "restrictcontentpro",
-            "text":      "Restrict Content Pro",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "ultimatemember",
-            "text":      "Ultimate Member",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "woocommerce",
-            "text":      "WooCommerce",
-            "cap":       "thirdparty_scan_users"
-          },
-          {
-            "value_key": "wpmembers",
-            "text":      "WP Members",
-            "cap":       "thirdparty_scan_users"
-          }
-        ],
-        "link_info":     "https://shsec.io/k4",
-        "link_blog":     "https://shsec.io/k3",
-        "beacon_id":     239,
-        "name":          "User Form Checking",
-        "summary":       "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
-        "description":   "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
+        "beacon_id":       156,
+        "link_info":       "https://icwp.io/ij",
+        "link_blog":       "https://icwp.io/ik",
+        "name":            "SureSend Emails",
+        "summary":         "SureSend Emails",
+        "description":     "SureSend Emails."
       },
       {
         "key":         "enable_ips",
@@ -3293,6 +2863,7 @@
         "key":             "rename_wplogin_path",
         "section":         "section_rename_wplogin",
         "zone_comp_slugs": [
+          "module_login",
           "login_hide"
         ],
         "sensitive":       true,
@@ -3309,6 +2880,7 @@
         "key":             "rename_wplogin_redirect",
         "section":         "section_rename_wplogin",
         "zone_comp_slugs": [
+          "module_login",
           "login_hide"
         ],
         "advanced":        true,
@@ -3559,14 +3131,31 @@
         "beacon_id":       426,
         "name":            "Block Login Bots",
         "summary":         "Block Login Attempted By Automated Bots",
-        "description":     "Use Shield's AntiBot Detection Engine To Block Bots and Brute Force Attacks"
+        "description":     "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+      },
+      {
+        "key":             "login_limit_interval",
+        "section":         "section_brute_force_login_protection",
+        "zone_comp_slugs": [
+          "module_login",
+          "limit_login"
+        ],
+        "type":            "integer",
+        "default":         5,
+        "min":             0,
+        "link_info":       "https://shsec.io/3q",
+        "link_blog":       "https://shsec.io/9o",
+        "beacon_id":       242,
+        "name":            "Login Cooldown Interval",
+        "summary":         "Limit login attempts to every X seconds",
+        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
       },
       {
         "key":             "bot_protection_locations",
         "section":         "section_brute_force_login_protection",
         "zone_comp_slugs": [
           "module_login",
-          "limit_login"
+          "login_protection_forms"
         ],
         "type":            "multiple_select",
         "default":         [
@@ -3698,24 +3287,228 @@
         "sensitive": true
       },
       {
-        "key":         "global_enable_plugin_features",
-        "section":     "section_global_security_options",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "beacon_id":   389,
-        "name":        "Enable/Disable All Plugin Modules",
-        "summary":     "Global Plugin On/Off Switch",
-        "description": "Uncheck this option to disable all Shield features"
+        "key":             "form_spam_providers",
+        "section":         "section_spam",
+        "zone_comp_slugs": [
+          "module_spam",
+          "module_integrations",
+          "contact_form_spam_block_bot"
+        ],
+        "premium":         true,
+        "advanced":        true,
+        "type":            "multiple_select",
+        "default":         [],
+        "value_options":   [
+          {
+            "value_key": "calderaforms",
+            "text":      "Caldera Forms (beta)",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "contactform7",
+            "text":      "Contact Form 7",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "elementorpro",
+            "text":      "Elementor Pro",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "fluentforms",
+            "text":      "Fluent Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "formidableforms",
+            "text":      "Formidable Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "forminator",
+            "text":      "Forminator",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "gravityforms",
+            "text":      "Gravity Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "groundhogg",
+            "text":      "Groundhogg",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "happyforms",
+            "text":      "HappyForms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "kaliforms",
+            "text":      "Kali Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "ninjaforms",
+            "text":      "Ninja Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "superforms",
+            "text":      "Super Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "supportcandy",
+            "text":      "Support Candy",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "weforms",
+            "text":      "WeForms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "wpforms",
+            "text":      "WP Forms",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
+            "value_key": "wpforo",
+            "text":      "wpForo",
+            "cap":       "thirdparty_scan_spam"
+          }
+        ],
+        "link_info":       "https://shsec.io/k2",
+        "link_blog":       "https://shsec.io/k3",
+        "beacon_id":       138,
+        "name":            "Form SPAM Checking",
+        "summary":         "Select The Form Providers That Should Be Checked For SPAM",
+        "description":     "Select The Form Providers That Should Be Checked For SPAM."
       },
       {
-        "key":           "visitor_address_source",
-        "section":       "section_defaults",
-        "sensitive":     false,
-        "type":          "select",
-        "default":       "AUTO_DETECT_IP",
-        "value_options": [
+        "key":             "user_form_providers",
+        "section":         "section_user_forms",
+        "zone_comp_slugs": [
+          "module_integrations",
+          "login_protection_forms"
+        ],
+        "advanced":        true,
+        "type":            "multiple_select",
+        "default":         [
+          "wordpress"
+        ],
+        "value_options":   [
+          {
+            "value_key": "wordpress",
+            "text":      "WordPress"
+          },
+          {
+            "value_key": "buddyboss",
+            "text":      "BuddyBoss",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "buddypress",
+            "text":      "BuddyPress",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "easydigitaldownloads",
+            "text":      "Easy Digital Downloads",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "classifiedlisting",
+            "text":      "Classified Listing",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "learnpress",
+            "text":      "LearnPress",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "lifterlms",
+            "text":      "LifterLMS",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "memberpress",
+            "text":      "MemberPress",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "paidmembersubscriptions",
+            "text":      "Paid Member Subscriptions",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "profilebuilder",
+            "text":      "Profile Builder",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "profilepress",
+            "text":      "ProfilePress",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "restrictcontentpro",
+            "text":      "Restrict Content Pro",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "ultimatemember",
+            "text":      "Ultimate Member",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "woocommerce",
+            "text":      "WooCommerce",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "wpmembers",
+            "text":      "WP Members",
+            "cap":       "thirdparty_scan_users"
+          }
+        ],
+        "link_info":       "https://shsec.io/k4",
+        "link_blog":       "https://shsec.io/k3",
+        "beacon_id":       239,
+        "name":            "User Form Checking",
+        "summary":         "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
+        "description":     "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
+      },
+      {
+        "key":             "global_enable_plugin_features",
+        "section":         "section_global_security_options",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "default":         "Y",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       389,
+        "name":            "Enable/Disable All Plugin Modules",
+        "summary":         "Global Plugin On/Off Switch",
+        "description":     "Uncheck this option to disable all Shield features"
+      },
+      {
+        "key":             "visitor_address_source",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "sensitive":       false,
+        "type":            "select",
+        "default":         "AUTO_DETECT_IP",
+        "value_options":   [
           {
             "value_key": "AUTO_DETECT_IP",
             "text":      "Automatically Detect Visitor IP"
@@ -3761,12 +3554,12 @@
             "text":      "HTTP_CLIENT_IP"
           }
         ],
-        "link_info":     "https://shsec.io/dn",
-        "link_blog":     "",
-        "beacon_id":     391,
-        "name":          "Visitor IP Address",
-        "summary":       "Which Address Is Yours",
-        "description":   "There are many way to detect visitor IP addresses. Please select yours from the list."
+        "link_info":       "https://shsec.io/dn",
+        "link_blog":       "",
+        "beacon_id":       391,
+        "name":            "Visitor IP Address",
+        "summary":         "Which Address Is Yours",
+        "description":     "There are many way to detect visitor IP addresses. Please select yours from the list."
       },
       {
         "key":             "block_send_email_address",
@@ -3784,44 +3577,58 @@
         "description":     "Defaults to the blog admin email address."
       },
       {
-        "key":         "display_plugin_badge",
-        "section":     "section_defaults",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/5v",
-        "link_blog":   "https://shsec.io/wpsf20",
-        "beacon_id":   130,
-        "vimeo_id":    "",
-        "name":        "Show Plugin Badge",
-        "summary":     "Display Plugin Security Badge On Your Site",
-        "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+        "key":             "display_plugin_badge",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/5v",
+        "link_blog":       "https://shsec.io/wpsf20",
+        "beacon_id":       130,
+        "vimeo_id":        "",
+        "name":            "Show Plugin Badge",
+        "summary":         "Display Plugin Security Badge On Your Site",
+        "description":     "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
       },
       {
-        "key":         "enable_upgrade_admin_notice",
-        "section":     "section_defaults",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "In-Plugin Notices",
-        "summary":     "Display Plugin Specific Notices",
-        "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
+        "key":             "enable_upgrade_admin_notice",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "default":         "Y",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "In-Plugin Notices",
+        "summary":         "Display Plugin Specific Notices",
+        "description":     "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
       },
       {
-        "key":         "enable_tracking",
-        "section":     "section_defaults",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/7i",
-        "link_blog":   "",
-        "name":        "Enable Information Gathering",
-        "summary":     "Permit Anonymous Telemetry Reports",
-        "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
+        "key":             "enable_tracking",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/7i",
+        "link_blog":       "",
+        "name":            "Enable Information Gathering",
+        "summary":         "Permit Anonymous Telemetry Reports",
+        "description":     "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
       },
       {
         "key":             "enable_mu",
         "section":         "section_defaults",
         "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
         ],
         "advanced":        true,
         "premium":         true,
@@ -3836,11 +3643,15 @@
         "description":     "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."
       },
       {
-        "key":           "autoupdate_plugin_self",
-        "section":       "section_defaults",
-        "default":       "auto",
-        "type":          "select",
-        "value_options": [
+        "key":             "autoupdate_plugin_self",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "default":         "auto",
+        "type":            "select",
+        "value_options":   [
           {
             "value_key": "auto",
             "text":      "Let The Plugin Decide"
@@ -3854,36 +3665,44 @@
             "text":      "As Soon As Possible"
           }
         ],
-        "link_info":     "https://shsec.io/3x",
-        "link_blog":     "",
-        "beacon_id":     409,
-        "name":          "Self AutoUpdate",
-        "summary":       "Always Automatically Update This Plugin",
-        "description":   "Automatically update the Shield plugin."
+        "link_info":       "https://shsec.io/3x",
+        "link_blog":       "",
+        "beacon_id":       409,
+        "name":            "Self AutoUpdate",
+        "summary":         "Always Automatically Update This Plugin",
+        "description":     "Automatically update the Shield plugin."
       },
       {
-        "key":         "delete_on_deactivate",
-        "section":     "section_defaults",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Delete Plugin Settings",
-        "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-        "description": "Careful: Removes all plugin options when you deactivate the plugin."
+        "key":             "delete_on_deactivate",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Delete Plugin Settings",
+        "summary":         "Delete All Plugin Settings Upon Plugin Deactivation",
+        "description":     "Careful: Removes all plugin options when you deactivate the plugin."
       },
       {
-        "key":         "preferred_temp_dir",
-        "section":     "section_defaults",
-        "beacon_id":   787,
-        "advanced":    true,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Temp Dir",
-        "summary":     "Preferred Temporary Directory",
-        "description": "Preferred temporary directory override."
+        "key":             "preferred_temp_dir",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "beacon_id":       787,
+        "advanced":        true,
+        "default":         "",
+        "type":            "text",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Temp Dir",
+        "summary":         "Preferred Temporary Directory",
+        "description":     "Preferred temporary directory override."
       },
       {
         "key":         "locale_override",
@@ -3899,85 +3718,104 @@
         "description": "Careful: Removes all plugin options when you deactivate the plugin."
       },
       {
-        "key":         "enable_beta",
-        "section":     "section_defaults",
-        "premium":     true,
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "beacon_id":   472,
-        "name":        "Beta Access",
-        "summary":     "Enable Access To Beta Versions",
-        "description": "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
+        "key":             "enable_beta",
+        "section":         "section_defaults",
+        "zone_comp_slugs": [
+          "module_plugin",
+          "plugin_general"
+        ],
+        "premium":         true,
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       472,
+        "name":            "Beta Access",
+        "summary":         "Enable Access To Beta Versions",
+        "description":     "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
       },
       {
-        "key":         "importexport_enable",
-        "section":     "section_importexport",
-        "advanced":    true,
-        "premium":     true,
-        "cap":         "import_export_level_2",
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/do",
-        "link_blog":   "https://shsec.io/dp",
-        "beacon_id":   129,
-        "name":        "Allow Import/Export",
-        "summary":     "Allow Import Of Options To, And Export Of Options From, This Site",
-        "description": "Uncheck this box to completely disable import and export of options."
+        "key":             "importexport_enable",
+        "section":         "section_importexport",
+        "zone_comp_slugs": [
+          "import_export"
+        ],
+        "advanced":        true,
+        "premium":         true,
+        "cap":             "import_export_level_2",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/do",
+        "link_blog":       "https://shsec.io/dp",
+        "beacon_id":       129,
+        "name":            "Allow Import/Export",
+        "summary":         "Allow Import Of Options To, And Export Of Options From, This Site",
+        "description":     "Uncheck this box to completely disable import and export of options."
       },
       {
-        "key":         "importexport_masterurl",
-        "section":     "section_importexport",
-        "advanced":    true,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Auto-Import URL",
-        "summary":     "Automatically Import Options From This Site",
-        "description": "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
+        "key":             "importexport_masterurl",
+        "section":         "section_importexport",
+        "zone_comp_slugs": [
+          "import_export"
+        ],
+        "advanced":        true,
+        "default":         "",
+        "type":            "text",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Auto-Import URL",
+        "summary":         "Automatically Import Options From This Site",
+        "description":     "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
       },
       {
-        "key":          "importexport_whitelist",
-        "section":      "section_importexport",
-        "advanced":     true,
-        "transferable": false,
-        "sensitive":    true,
-        "default":      [],
-        "type":         "array",
-        "link_info":    "",
-        "link_blog":    "",
-        "name":         "Export Whitelist",
-        "summary":      "Whitelisted Sites Which Do Not Need The Secret Key To Export Options",
-        "description":  "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
+        "key":             "importexport_whitelist",
+        "section":         "section_importexport",
+        "zone_comp_slugs": [
+          "import_export"
+        ],
+        "advanced":        true,
+        "transferable":    false,
+        "sensitive":       true,
+        "default":         [],
+        "type":            "array",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Export Whitelist",
+        "summary":         "Whitelisted Sites Which Do Not Need The Secret Key To Export Options",
+        "description":     "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
       },
       {
-        "key":         "importexport_whitelist_notify",
-        "section":     "section_importexport",
-        "advanced":    true,
-        "sensitive":   true,
-        "default":     "N",
-        "type":        "checkbox",
-        "link_info":   "",
-        "link_blog":   "",
-        "name":        "Notify Whitelist",
-        "summary":     "Notify Sites On The Whitelist To Update Options From Master",
-        "description": "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
+        "key":             "importexport_whitelist_notify",
+        "section":         "section_importexport",
+        "zone_comp_slugs": [
+          "import_export"
+        ],
+        "advanced":        true,
+        "sensitive":       true,
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Notify Whitelist",
+        "summary":         "Notify Sites On The Whitelist To Update Options From Master",
+        "description":     "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
       },
       {
-        "key":          "importexport_secretkey",
-        "section":      "section_importexport",
-        "advanced":     true,
-        "transferable": false,
-        "sensitive":    true,
-        "default":      "",
-        "type":         "noneditable_text",
-        "link_info":    "",
-        "link_blog":    "",
-        "name":         "Secret Key",
-        "summary":      "Import/Export Secret Key",
-        "description":  "Keep this Secret Key private as it will allow the import and export of options."
+        "key":             "importexport_secretkey",
+        "section":         "section_importexport",
+        "zone_comp_slugs": [
+          "import_export"
+        ],
+        "advanced":        true,
+        "transferable":    false,
+        "sensitive":       true,
+        "default":         "",
+        "type":            "noneditable_text",
+        "link_info":       "",
+        "link_blog":       "",
+        "name":            "Secret Key",
+        "summary":         "Import/Export Secret Key",
+        "description":     "Keep this Secret Key private as it will allow the import and export of options."
       },
       {
         "key":             "frequency_alert",
@@ -4165,6 +4003,152 @@
         "name":            "FileLocker Changes",
         "summary":         "Be alerted to any changes to FileLocker items",
         "description":     "Be alerted to any changes to FileLocker items."
+      },
+      {
+        "key":             "x_frame",
+        "section":         "section_security_headers",
+        "zone_comp_slugs": [
+          "headers_general"
+        ],
+        "default":         "on_sameorigin",
+        "type":            "select",
+        "value_options":   [
+          {
+            "value_key": "off",
+            "text":      "Off: iFrames Not Blocked"
+          },
+          {
+            "value_key": "on_sameorigin",
+            "text":      "On: Allow iFrames On The Same Domain"
+          },
+          {
+            "value_key": "on_deny",
+            "text":      "On: Block All iFrames"
+          }
+        ],
+        "link_info":       "https://shsec.io/78",
+        "link_blog":       "https://shsec.io/7c",
+        "name":            "Block iFrames",
+        "summary":         "Block Remote iFrames Of This Site",
+        "description":     "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
+      },
+      {
+        "key":             "x_xss_protect",
+        "section":         "section_security_headers",
+        "zone_comp_slugs": [
+          "headers_general"
+        ],
+        "default":         "Y",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/79",
+        "link_blog":       "https://shsec.io/7c",
+        "name":            "XSS Protection",
+        "summary":         "Employ Built-In Browser XSS Protection",
+        "description":     "Directs compatible browsers to block what they detect as Reflective XSS attacks."
+      },
+      {
+        "key":             "x_content_type",
+        "section":         "section_security_headers",
+        "zone_comp_slugs": [
+          "headers_general"
+        ],
+        "default":         "Y",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/7a",
+        "link_blog":       "https://shsec.io/7c",
+        "name":            "Prevent Mime-Sniff",
+        "summary":         "Turn-Off Browser Mime-Sniff",
+        "description":     "Reduces visitor exposure to malicious user-uploaded content."
+      },
+      {
+        "key":             "x_referrer_policy",
+        "section":         "section_security_headers",
+        "zone_comp_slugs": [
+          "headers_general"
+        ],
+        "sensitive":       false,
+        "type":            "select",
+        "default":         "unsafe-url",
+        "value_options":   [
+          {
+            "value_key": "unsafe-url",
+            "text":      "Default: Full Referrer URL (aka 'Unsafe URL')"
+          },
+          {
+            "value_key": "no-referrer",
+            "text":      "No Referrer"
+          },
+          {
+            "value_key": "no-referrer-when-downgrade",
+            "text":      "No Referrer When Downgrade"
+          },
+          {
+            "value_key": "same-origin",
+            "text":      "Same Origin"
+          },
+          {
+            "value_key": "origin",
+            "text":      "Origin"
+          },
+          {
+            "value_key": "strict-origin",
+            "text":      "Strict Origin"
+          },
+          {
+            "value_key": "origin-when-cross-origin",
+            "text":      "Origin When Cross-Origin"
+          },
+          {
+            "value_key": "strict-origin-when-cross-origin",
+            "text":      "Strict Origin When Cross-Origin"
+          },
+          {
+            "value_key": "empty",
+            "text":      "Empty Header"
+          },
+          {
+            "value_key": "disabled",
+            "text":      "Disabled - Don't Send This Header"
+          }
+        ],
+        "link_info":       "https://shsec.io/a5",
+        "link_blog":       "",
+        "name":            "Referrer Policy",
+        "summary":         "Referrer Policy Header",
+        "description":     "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
+      },
+      {
+        "key":             "enable_x_content_security_policy",
+        "section":         "section_security_headers",
+        "zone_comp_slugs": [
+          "headers_csp"
+        ],
+        "premium":         true,
+        "default":         "N",
+        "type":            "checkbox",
+        "beacon_id":       155,
+        "link_info":       "https://shsec.io/7d",
+        "link_blog":       "https://shsec.io/7c",
+        "name":            "Enable Content Security Policy",
+        "summary":         "Enable (or Disable) The Content Security Policy module",
+        "description":     "Allows for permission and restriction of all resources loaded on your site."
+      },
+      {
+        "key":             "xcsp_custom",
+        "section":         "section_security_headers",
+        "zone_comp_slugs": [
+          "headers_csp"
+        ],
+        "premium":         true,
+        "cap":             "http_headers_csp",
+        "default":         [],
+        "type":            "array",
+        "link_info":       "https://shsec.io/g9",
+        "link_blog":       "",
+        "beacon_id":       155,
+        "name":            "CSP Rules",
+        "summary":         "Content Security Policy (CSP) Rules",
+        "description":     "Provide your custom set of CSP rules."
       },
       {
         "key":     "transient_tracking",
@@ -4491,7 +4475,7 @@
         "key":             "session_timeout_interval",
         "section":         "section_user_session_management",
         "zone_comp_slugs": [
-          "module_users",
+          "module_login",
           "session_theft_protection"
         ],
         "type":            "integer",
@@ -4507,7 +4491,7 @@
         "key":             "session_idle_timeout_interval",
         "section":         "section_user_session_management",
         "zone_comp_slugs": [
-          "module_users",
+          "module_login",
           "session_theft_protection"
         ],
         "type":            "integer",
@@ -4524,7 +4508,7 @@
         "key":             "session_lock",
         "section":         "section_user_session_management",
         "zone_comp_slugs": [
-          "module_users",
+          "module_login",
           "session_theft_protection"
         ],
         "premium":         true,

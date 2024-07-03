@@ -45,6 +45,6 @@ class Ips extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\ModuleIps::class;
+		return Component\Modules\ModuleIps::class;
 	}
 }

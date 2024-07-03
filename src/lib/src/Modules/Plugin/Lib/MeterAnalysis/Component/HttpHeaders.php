@@ -10,10 +10,8 @@ class HttpHeaders extends Base {
 	public const WEIGHT = 1;
 
 	protected function testIfProtected() :bool {
-		$con = self::con();
-		$optsCon = $con->opts;
-		return $con->comps->opts_lookup->isModFromOptEnabled( $this->getOptConfigKey() )
-			   && \in_array( $optsCon->optGet( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] )
+		$optsCon = self::con()->opts;
+		return \in_array( $optsCon->optGet( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] )
 			   && $optsCon->optIs( 'x_xss_protect', 'Y' )
 			   && $optsCon->optIs( 'x_content_type', 'Y' )
 			   && !$optsCon->optIs( 'x_referrer_policy', 'disabled' );

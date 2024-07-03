@@ -58,17 +58,6 @@ class StringsOptions {
 				}
 				break;
 
-			case 'enable_autoupdates' :
-				$modName = $modStrings->getFor( EnumModules::AUTOUPDATES )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
-				break;
-			case 'enable_autoupdate_disable_all' :
-				$name = __( 'Disable All', 'wp-simple-firewall' );
-				$summary = __( 'Completely Disable WordPress Automatic Updates', 'wp-simple-firewall' );
-				$desc = [ __( 'When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!', 'wp-simple-firewall' ) ];
-				break;
 			case 'autoupdate_plugin_self' :
 				$name = __( 'Self AutoUpdate', 'wp-simple-firewall' );
 				$summary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
@@ -76,16 +65,6 @@ class StringsOptions {
 					sprintf( __( 'Automatically update the "%s" plugin.', 'wp-simple-firewall' ), $pluginName ),
 					__( 'The plugin will normally automatically update after approximately 5 days, if left to decide.', 'wp-simple-firewall' )
 				];
-				break;
-			case 'autoupdate_core' :
-				$name = __( 'WordPress Core Updates', 'wp-simple-firewall' );
-				$summary = __( 'Decide how the WordPress Core will automatically update, if at all', 'wp-simple-firewall' );
-				$desc = [ __( 'At least automatically upgrading minor versions is recommended (and is the WordPress default).', 'wp-simple-firewall' ) ];
-				break;
-			case 'enable_upgrade_notification_email' :
-				$name = __( 'Send Report Email', 'wp-simple-firewall' );
-				$summary = __( 'Send email notices after automatic updates', 'wp-simple-firewall' );
-				$desc = [ __( 'You can turn on/off email notices from automatic updates by un/checking this box.', 'wp-simple-firewall' ) ];
 				break;
 			case 'update_delay' :
 				$name = __( 'Update Delay', 'wp-simple-firewall' );
@@ -405,12 +384,6 @@ class StringsOptions {
 				$desc = [ __( "Scan your WordPress.org assets for whether they've been abandoned.", 'wp-simple-firewall' ) ];
 				break;
 
-			case 'enable_headers' :
-				$modName = $modStrings->getFor( EnumModules::HEADERS )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
-				break;
 			case 'x_frame' :
 				$name = __( 'Block iFrames', 'wp-simple-firewall' );
 				$summary = __( 'Block Remote iFrames Of This Site', 'wp-simple-firewall' );
@@ -438,14 +411,19 @@ class StringsOptions {
 				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), 'CSP' );
 				$summary = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Content Security Policy', 'wp-simple-firewall' ) );
 				$desc = [
-					__( 'Allows for permission and restriction of all resources loaded on your site.', 'wp-simple-firewall' ),
-					__( 'Use this in conjunction with the Manual Rules section - you must supply your own CSP rules.', 'wp-simple-firewall' ),
+					__( 'Use this option to toggle on/off whether your custom CSP Rules are applied.', 'wp-simple-firewall' ),
 				];
 				break;
 			case 'xcsp_custom' :
-				$name = __( 'Manual Rules', 'wp-simple-firewall' );
-				$summary = __( 'Manual CSP Rules', 'wp-simple-firewall' );
+				$name = __( 'CSP Rules', 'wp-simple-firewall' );
+				$summary = __( 'Content Security Policy (CSP) Rules', 'wp-simple-firewall' );
 				$desc = [
+					\implode( ' ', [
+						__( 'CSP Rules allow you to provide granular control over your site content and how assets are served.', 'wp-simple-firewall' ),
+						__( "It's a complex area and if used incorrectly, can easily break your front-end user experience.", 'wp-simple-firewall' ),
+						__( "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments.", 'wp-simple-firewall' ),
+					] ),
+					__( "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin.", 'wp-simple-firewall' ),
 					'- '.__( 'Take a new line per rule.', 'wp-simple-firewall' ),
 					'- '.__( 'We provide this feature as-is: to allow you to add custom CSP rules to your site.', 'wp-simple-firewall' ),
 					'- '.__( "We don't provide support for creating CSP rules and whether they're correct for your site.", 'wp-simple-firewall' ),

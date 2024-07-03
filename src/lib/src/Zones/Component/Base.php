@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\Base {
 
@@ -21,7 +22,10 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return [];
 	}
 
-	abstract public function enabledStatus() :string;
+
+	public function enabledStatus() :string {
+		return EnumEnabledStatus::NEUTRAL;
+	}
 
 	protected function hasCapability() :bool {
 		return true;

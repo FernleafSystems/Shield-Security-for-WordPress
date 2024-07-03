@@ -15,10 +15,10 @@ class AdeLostPassword extends AdeBase {
 	}
 
 	public function descProtected() :string {
-		return __( 'Lost Password SPAMing by bots are blocked by the AntiBot Detection Engine.', 'wp-simple-firewall' );
+		return __( 'Lost Password SPAMing by bots is blocked by silentCAPTCHA.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
-		return __( "Lost Password SPAMing by bots aren't being blocked.", 'wp-simple-firewall' );
+		return __( "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA.", 'wp-simple-firewall' );
 	}
 }

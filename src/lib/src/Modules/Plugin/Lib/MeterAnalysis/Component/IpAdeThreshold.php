@@ -15,14 +15,14 @@ class IpAdeThreshold extends IpBase {
 	}
 
 	public function title() :string {
-		return __( 'AntiBot Detection Engine', 'wp-simple-firewall' );
+		return __( 'silentCAPTCHA', 'wp-simple-firewall' );
 	}
 
 	public function descProtected() :string {
-		return __( 'AntiBot Detection Engine is enabled with a minimum bot-score threshold.', 'wp-simple-firewall' );
+		return __( 'silentCAPTCHA is enabled with a minimum bot-score threshold.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
-		return __( "AntiBot Detection Engine is disabled as there is no minimum bot-score threshold provided.", 'wp-simple-firewall' );
+		return __( "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided.", 'wp-simple-firewall' );
 	}
 }

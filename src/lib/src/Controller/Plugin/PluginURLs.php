@@ -56,6 +56,13 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, \is_string( $mod ) ? $mod : $mod->cfg->slug );
 	}
 
+	/**
+	 * @param ModCon|string|mixed $componentSlug
+	 */
+	public function cfgForZoneComponent( string $componentSlug ) :string {
+		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, $componentSlug );
+	}
+
 	public function modCfgOption( string $optKey ) :string {
 		return $this->modCfgSection(
 			self::con()->cfg->configuration->modFromOpt( $optKey ),

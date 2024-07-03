@@ -18,11 +18,11 @@ class Secadmin extends Base {
 		$name = self::con()->getHumanName();
 		return [
 			sprintf( __( "%s's Security Admin system provides an additional security layer to the normal WordPress admin.", 'wp-simple-firewall' ), $name ),
-			sprintf( __( "By turning on the Security Admin system you protect the %s plugin itself from tampering or accidental changes by other WordPress admins.", 'wp-simple-firewall' ), $name ),
+			sprintf( __( "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins.", 'wp-simple-firewall' ), $name ),
 			\implode( ' ', [
-				__( "The Security Admin system can also prevent similar tampering or accidental changes to core WordPress settings, such as the site URL, permalinks, default user role, etc.", 'wp-simple-firewall' ),
+				__( "It can also prevent similar tampering or accidental changes to core WordPress settings, such as the site URL, permalinks, default user role, etc.", 'wp-simple-firewall' ),
 			] ),
-		];
+			__( "Perhaps one of its most powerful features is how it will prevent other admins from tampering with other admin accounts.", 'wp-simple-firewall' )		];
 	}
 
 	public function icon() :string {
@@ -38,6 +38,6 @@ class Secadmin extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\ModuleSecadmin::class;
+		return Component\Modules\ModuleSecadmin::class;
 	}
 }

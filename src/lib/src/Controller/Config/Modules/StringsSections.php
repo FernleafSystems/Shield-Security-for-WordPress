@@ -41,22 +41,6 @@ class StringsSections {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_automatic_updates_control' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::AUTOUPDATES )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic Updates', 'wp-simple-firewall' ) ) )
-				];
-				break;
-			case 'section_automatic_updates_for_wordpress_components' :
-				$title = __( 'Automatic Updates For WordPress Components', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Control how automatic updates for each WordPress component is handled.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'You should at least allow minor updates for the WordPress core.', 'wp-simple-firewall' ) )
-				];
-				$short = __( 'WordPress Components', 'wp-simple-firewall' );
-				break;
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Comments SPAM Protection', 'wp-simple-firewall' ) );
@@ -161,14 +145,6 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
 				break;
-			case 'section_content_security_policy' :
-				$title = __( 'Content Security Policy', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
-				];
-				$short = __( 'Content Security Policy', 'wp-simple-firewall' );
-				break;
 
 			case 'section_enable_plugin_feature_ips' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
@@ -237,7 +213,7 @@ class StringsSections {
 				$summary = [
 					sprintf( '%s - %s %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Shield can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ),
-						__( "It uses our exclusive AntiBot Detection Engine to reliably identify bots.", 'wp-simple-firewall' )
+						__( "It uses our exclusive silentCAPTCHA Engine to reliably identify bots.", 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s (%s)', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Only enable the integrations you require.", 'wp-simple-firewall' ),
@@ -440,12 +416,12 @@ class StringsSections {
 				];
 				break;
 			case 'section_user_session_management' :
+				$short = __( 'Sessions', 'wp-simple-firewall' );
 				$title = __( 'User Session Management', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
-				$short = __( 'Session Options', 'wp-simple-firewall' );
 				break;
 			case 'section_user_reg' :
 				$short = __( 'User Registrations', 'wp-simple-firewall' );

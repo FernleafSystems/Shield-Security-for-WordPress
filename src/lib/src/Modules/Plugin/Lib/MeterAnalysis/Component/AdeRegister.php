@@ -15,10 +15,10 @@ class AdeRegister extends AdeBase {
 	}
 
 	public function descProtected() :string {
-		return __( 'SPAM and bulk user registration by bots are blocked by the AntiBot Detection Engine.', 'wp-simple-firewall' );
+		return __( 'SPAM and bulk user registration by bots are blocked by silentCAPTCHA.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
-		return __( "SPAM and bulk user registration by bots aren't being blocked.", 'wp-simple-firewall' );
+		return __( "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA.", 'wp-simple-firewall' );
 	}
 }

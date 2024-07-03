@@ -19,6 +19,7 @@ class PluginNavs {
 	public const NAV_LICENSE = 'license';
 	public const SUBNAV_LICENSE_CHECK = 'check';
 	public const NAV_OPTIONS_CONFIG = 'config';
+	public const NAV_ZONE_CONFIG = 'zone_cfg';
 	public const NAV_DASHBOARD = 'dashboard';
 	public const SUBNAV_DASHBOARD_GRADES = 'grades';
 	public const SUBNAV_DASHBOARD_OVERVIEW = 'overview';
@@ -223,7 +224,18 @@ class PluginNavs {
 								'handler' => PluginAdminPages\PageDynamicLoad::class,
 							];
 						},
-						\array_flip( self::con()->comps->zones->getZoneSlugs() )
+						\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
+					),
+				],
+				self::NAV_ZONE_CONFIG    => [
+					'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
+					'sub_navs' => \array_map(
+						function () {
+							return [
+								'handler' => PluginAdminPages\PageDynamicLoad::class,
+							];
+						},
+						\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )
 					),
 				],
 			]

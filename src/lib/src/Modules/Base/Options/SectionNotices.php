@@ -80,7 +80,7 @@ class SectionNotices {
 
 					$notices[] = sprintf( '%s: %s %s', __( 'Note', 'wp-simple-firewall' ),
 						sprintf(
-							__( "The following types of user forms are protected by AntiBot Detection: %s.", 'wp-simple-firewall' ),
+							__( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ),
 							$locations
 						),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
@@ -184,7 +184,7 @@ class SectionNotices {
 
 			case 'section_brute_force_login_protection':
 				if ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
-					$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
+					$warnings[] = __( "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
 				}
 				elseif ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
 					$warnings[] = sprintf(
@@ -220,7 +220,7 @@ class SectionNotices {
 				}
 				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
 					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
+						__( "Use of silentCAPTCHA Engine for user forms isn't turned on.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
 							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
@@ -272,11 +272,11 @@ class SectionNotices {
 			case 'section_silentcaptcha':
 				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
+						sprintf( __( "silentCAPTCHA is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
 				}
 				elseif ( !( new TestNotBotLoading() )->test() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
+						sprintf( __( "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
 				}
 				break;
 

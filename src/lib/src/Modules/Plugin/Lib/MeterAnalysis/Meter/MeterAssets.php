@@ -32,7 +32,6 @@ class MeterAssets extends MeterBase {
 
 	protected function getComponents() :array {
 		return [
-			Component\WpCoreAutoUpdate::class,
 			Component\ScanEnabledWpv::class,
 			Component\ScanEnabledWpvAutoupdate::class,
 			Component\ScanEnabledApc::class,

@@ -15,14 +15,14 @@ abstract class AdeBase extends Base {
 	}
 
 	public function title() :string {
-		return __( 'AntiBot Detection Engine For Logins', 'wp-simple-firewall' );
+		return __( 'silentCAPTCHA For Logins', 'wp-simple-firewall' );
 	}
 
 	public function descProtected() :string {
-		return __( 'The AntiBot Detection Engine option is enabled.', 'wp-simple-firewall' );
+		return __( 'The silentCAPTCHA option is enabled.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
-		return __( "The AntiBot Detection Engine option is disabled, removing brute force protection for login, register and lost password forms.", 'wp-simple-firewall' );
+		return __( "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms.", 'wp-simple-firewall' );
 	}
 }
