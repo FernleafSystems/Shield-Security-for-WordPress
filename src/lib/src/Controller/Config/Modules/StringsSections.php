@@ -15,15 +15,6 @@ class StringsSections {
 		$modStrings = new StringsModules();
 
 		switch ( $key ) {
-
-			case 'section_enable_plugin_feature_audit_trail' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::ACTIVITY )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Activity Log is designed so you can look back on events and analyse what happened and what may have gone wrong.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ) )
-				];
-				break;
 			case 'section_log_wordpress_activity' :
 				$short = __( 'WordPress Activity', 'wp-simple-firewall' );
 				$title = __( 'WordPress Activity', 'wp-simple-firewall' );
@@ -41,14 +32,6 @@ class StringsSections {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Comments SPAM Protection', 'wp-simple-firewall' ) );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Comments Filter', 'wp-simple-firewall' ) ) )
-				];
-				break;
 			case 'section_bot_comment_spam_common' :
 				$short = __( 'Common Settings', 'wp-simple-firewall' );
 				$title = __( 'Common Settings For All SPAM Scanning', 'wp-simple-firewall' );
@@ -74,14 +57,6 @@ class StringsSections {
 				$short = __( 'Human SPAM', 'wp-simple-firewall' );
 				break;
 
-			case 'section_enable_plugin_feature_wordpress_firewall' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::FIREWALL )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Firewall', 'wp-simple-firewall' ) ) )
-				];
-				break;
 			case 'section_firewall_blocking_options' :
 				$short = __( 'Request Firewall', 'wp-simple-firewall' );
 				$title = __( 'Request Firewall Options', 'wp-simple-firewall' );
@@ -98,14 +73,6 @@ class StringsSections {
 				$short = __( 'Scan Options', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Set how frequently the Hack Guard scans will run.', 'wp-simple-firewall' ) )
-				];
-				break;
-			case 'section_enable_plugin_feature_hack_protection_tools' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::SCANS )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Hack Guard', 'wp-simple-firewall' ) ) )
 				];
 				break;
 			case 'section_scan_wpv' :
@@ -238,14 +205,6 @@ class StringsSections {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_login_protection' :
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::LOGIN )[ 'name' ] );
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Login Guard blocks all automated and brute force attempts to log in to your site.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) ) )
-				];
-				break;
 			case 'section_rename_wplogin' :
 				$title = __( 'Hide WordPress Login Page', 'wp-simple-firewall' );
 				$short = __( 'Hide Login', 'wp-simple-firewall' );
@@ -345,15 +304,6 @@ class StringsSections {
 				];
 				break;
 
-			case 'section_enable_admin_access_restriction' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ) ),
-					__( 'You need to also enter a new Security PIN to enable this feature.', 'wp-simple-firewall' ),
-				];
-				break;
 			case 'section_security_admin_settings' :
 				$title = __( 'Security Admin Restriction Settings', 'wp-simple-firewall' );
 				$summary = [

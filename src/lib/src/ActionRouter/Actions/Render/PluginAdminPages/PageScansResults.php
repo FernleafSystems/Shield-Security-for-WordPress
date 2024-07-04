@@ -103,7 +103,7 @@ class PageScansResults extends PageScansBase {
 				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
 			],
 			'hrefs'       => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgSection( EnumModules::SCANS, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgOption( 'section_file_guard' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [

@@ -15,17 +15,16 @@ class PreStore {
 	use PluginControllerConsumer;
 
 	public function run() {
+		( new RemoveModuleEnablerOptions() )->run();
 		$this->audit();
 		$this->comments();
 		$this->firewall();
 		$this->headers();
 		$this->ips();
-		$this->lockdown();
 		$this->login();
 		$this->plugin();
 		$this->scanners();
 		$this->securityAdmin();
-		$this->traffic();
 		$this->user();
 	}
 
@@ -38,6 +37,23 @@ class PreStore {
 		}
 		elseif ( \in_array( 'disabled', $opts->optGet( 'log_level_db' ) ) ) {
 			$opts->optSet( 'log_level_db', [ 'disabled' ] );
+		}
+
+		if ( $opts->optChanged( 'custom_exclusions' ) ) {
+			$opts->optSet( 'custom_exclusions', \array_filter( \array_map(
+				function ( $excl ) {
+					return \trim( esc_js( $excl ) );
+				},
+				$opts->optGet( 'custom_exclusions' )
+			) ) );
+		}
+
+		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_logger', 'Y' );
+		}
+		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_live_log', 'N' )
+				 ->optSet( 'live_log_started_at', 0 );
 		}
 	}
 
@@ -80,10 +96,6 @@ class PreStore {
 			}
 			$opts->optSet( 'page_params_whitelist', $final );
 		}
-	}
-
-	private function lockdown() :void {
-		$opts = self::con()->opts;
 
 		$exc = $opts->optGet( 'api_namespace_exclusions' );
 		if ( !\in_array( 'shield', $exc ) ) {
@@ -343,27 +355,6 @@ class PreStore {
 		( new CleanLockRecords() )->run();
 	}
 
-	private function traffic() {
-		$opts = self::con()->opts;
-
-		if ( $opts->optChanged( 'custom_exclusions' ) ) {
-			$opts->optSet( 'custom_exclusions', \array_filter( \array_map(
-				function ( $excl ) {
-					return \trim( esc_js( $excl ) );
-				},
-				$opts->optGet( 'custom_exclusions' )
-			) ) );
-		}
-
-		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-			$opts->optSet( 'enable_logger', 'Y' );
-		}
-		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-			$opts->optSet( 'enable_live_log', 'N' )
-				 ->optSet( 'live_log_started_at', 0 );
-		}
-	}
-
 	private function user() :void {
 		$opts = self::con()->opts;
 		$optsLookup = self::con()->comps->opts_lookup;
@@ -386,5 +377,17 @@ class PreStore {
 		if ( $opts->optChanged( 'email_checks' ) ) {
 			$opts->optSet( 'email_checks', \array_unique( \array_merge( $opts->optGet( 'email_checks' ), [ 'syntax' ] ) ) );
 		}
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	private function traffic() {
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	private function lockdown() :void {
 	}
 }

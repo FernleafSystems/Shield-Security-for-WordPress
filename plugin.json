@@ -465,18 +465,6 @@
         ]
       },
       {
-        "slug":        "section_enable_admin_access_restriction",
-        "module":      "admin_access_restriction",
-        "title":       "Enable Module: WordPress Security Admin",
-        "title_short": "Disable Module",
-        "beacon_id":   213,
-        "summary":     [
-          "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
-          "Recommendation - Keep the Security Admin feature turned on.",
-          "You need to also enter a new Access PIN to enable this feature."
-        ]
-      },
-      {
         "slug":        "section_log_wordpress_activity",
         "primary":     true,
         "module":      "audit_trail",
@@ -497,17 +485,6 @@
         "summary":     [
           "Purpose - Provides finer control over the live traffic system.",
           "Recommendation - These settings are dependent on your requirements."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_audit_trail",
-        "module":      "audit_trail",
-        "title":       "Enable Module: Logging",
-        "title_short": "Disable Module",
-        "beacon_id":   241,
-        "summary":     [
-          "Purpose - The Activity Log is designed so you can look back on events and analyse what happened and what may have gone wrong.",
-          "Recommendation - Keep the Activity Log feature turned on."
         ]
       },
       {
@@ -541,17 +518,6 @@
         "beacon_id":   152,
         "summary":     [
           "Purpose - Settings that apply to all comment SPAM scanning."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_spam_comments_protection_filter",
-        "module":      "comments_filter",
-        "title":       "Enable Module: Comments SPAM Protection",
-        "title_short": "Disable Module",
-        "beacon_id":   257,
-        "summary":     [
-          "Purpose - The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.",
-          "Recommendation - Keep the Comments Filter feature turned on."
         ]
       },
       {
@@ -600,17 +566,6 @@
         ]
       },
       {
-        "slug":        "section_enable_plugin_feature_wordpress_firewall",
-        "module":      "firewall",
-        "title":       "Enable Module: Firewall",
-        "title_short": "Disable Module",
-        "beacon_id":   253,
-        "summary":     [
-          "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
-          "Recommendation - Keep the Firewall feature turned on."
-        ]
-      },
-      {
         "primary":     true,
         "slug":        "section_file_guard",
         "module":      "hack_protect",
@@ -641,17 +596,6 @@
         "beacon_id":   217,
         "summary":     [
           "Purpose - Set how often the Hack Guard scans will run."
-        ]
-      },
-      {
-        "slug":        "section_enable_plugin_feature_hack_protection_tools",
-        "module":      "hack_protect",
-        "title":       "Enable Module: Hack Guard",
-        "title_short": "Disable Module",
-        "beacon_id":   217,
-        "summary":     [
-          "Purpose - Hack Guard is a set of tools to warn you and protect you against hacks on your site.",
-          "Recommendation - Keep the Hack Guard module turned on."
         ]
       },
       {
@@ -782,17 +726,6 @@
         ]
       },
       {
-        "slug":        "section_enable_plugin_feature_login_protection",
-        "module":      "login_protect",
-        "title":       "Disable Login Guard Module",
-        "title_short": "Disable",
-        "beacon_id":   249,
-        "summary":     [
-          "Purpose - Login Guard blocks all automated and brute force attempts to log in to your site.",
-          "Recommendation - Keep the Login Guard module turned on."
-        ]
-      },
-      {
         "slug":        "section_deprecated",
         "module":      "login_protect",
         "title":       "Deprecated",
@@ -854,7 +787,6 @@
         "title_short": "Disable Shield"
       },
       {
-        "primary":     true,
         "slug":        "section_user_session_management",
         "module":      "login_protect",
         "title":       "User Session Management",
@@ -934,17 +866,76 @@
     ],
     "options":       [
       {
-        "key":         "enable_admin_access_restriction",
-        "section":     "section_enable_admin_access_restriction",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "beacon_id":   213,
-        "link_info":   "",
-        "link_blog":   "https://shsec.io/wpsf02",
-        "name":        "Enable Security Admin",
-        "summary":     "Enforce Security Admin Access Restriction",
-        "description": "Enable this with great care and consideration. When this Access PIN option is enabled, you must specify a key below and use it to gain access to this plugin."
+        "key":     "enable_admin_access_restriction",
+        "section": "section_hidden",
+        "type":    "checkbox",
+        "default": "Y"
+      },
+      {
+        "key":     "enable_audit_trail",
+        "section": "section_hidden",
+        "type":    "checkbox",
+        "default": "Y"
+      },
+      {
+        "key":     "enable_comments_filter",
+        "section": "section_hidden",
+        "type":    "checkbox",
+        "default": "Y"
+      },
+      {
+        "key":     "enable_firewall",
+        "section": "section_hidden",
+        "type":    "checkbox",
+        "default": "Y"
+      },
+      {
+        "key":     "enable_hack_protect",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
+      },
+      {
+        "key":     "enable_headers",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
+      },
+      {
+        "key":     "enable_integrations",
+        "section": "section_hidden",
+        "type":    "checkbox",
+        "default": "Y"
+      },
+      {
+        "key":     "enable_ips",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
+      },
+      {
+        "key":     "enable_lockdown",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
+      },
+      {
+        "key":     "enable_login_protect",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
+      },
+      {
+        "key":     "enable_traffic",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
+      },
+      {
+        "key":     "enable_user_management",
+        "section": "section_hidden",
+        "default": "Y",
+        "type":    "checkbox"
       },
       {
         "key":             "admin_access_key",
@@ -1038,7 +1029,6 @@
           "module_secadmin",
           "secadmin_wp_admins"
         ],
-        "advanced":        true,
         "default":         "N",
         "type":            "checkbox",
         "link_info":       "https://shsec.io/a0",
@@ -1054,7 +1044,6 @@
         "zone_comp_slugs": [
           "module_secadmin"
         ],
-        "advanced":        true,
         "type":            "multiple_select",
         "default":         [],
         "value_options":   [
@@ -1322,19 +1311,6 @@
         "description":     "The URL of the logo displayed in the main dashboard. Should be 128x128px"
       },
       {
-        "key":         "enable_audit_trail",
-        "section":     "section_enable_plugin_feature_audit_trail",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/5p",
-        "link_blog":   "https://shsec.io/a1",
-        "beacon_id":   241,
-        "name":        "Enable Activity Log",
-        "summary":     "Enable (or Disable) The Activity Log module",
-        "description": "Un-Checking this option will completely disable the Activity Log module"
-      },
-      {
         "key":             "log_level_db",
         "section":         "section_log_wordpress_activity",
         "zone_comp_slugs": [
@@ -1410,19 +1386,6 @@
         "name":            "Update Delay",
         "summary":         "Delay Automatic Updates For Period Of Stability",
         "description":     "Shield will delay upgrades until the new update has been available for the set number of days."
-      },
-      {
-        "key":         "enable_comments_filter",
-        "section":     "section_enable_plugin_feature_spam_comments_protection_filter",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/3z",
-        "link_blog":   "https://shsec.io/wpsf04",
-        "beacon_id":   257,
-        "name":        "Enable SPAM Protection",
-        "summary":     "Enable (or Disable) The Comments SPAM Protection module",
-        "description": "Un-Checking this option will completely disable the Comments SPAM Protection module"
       },
       {
         "key":             "enable_antibot_comments",
@@ -1576,19 +1539,6 @@
         "description":     "Prevents comment floods and ensure a minimum period before any further comments are accepted on the site."
       },
       {
-        "key":         "enable_firewall",
-        "section":     "section_enable_plugin_feature_wordpress_firewall",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/43",
-        "link_blog":   "https://shsec.io/wpsf01",
-        "beacon_id":   253,
-        "name":        "Enable Firewall",
-        "summary":     "Enable (or Disable) The Firewall module",
-        "description": "Un-Checking this option will completely disable the Firewall module"
-      },
-      {
         "key":             "block_send_email",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
@@ -1688,19 +1638,6 @@
         "name":            "Aggressive Scan",
         "summary":         "Aggressively Block Data",
         "description":     "Employs a set of aggressive rules to detect and block malicious data submitted to your site. Warning - May cause an increase in false-positive firewall blocks."
-      },
-      {
-        "key":         "enable_hack_protect",
-        "section":     "section_enable_plugin_feature_hack_protection_tools",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/wpsf38",
-        "link_blog":   "",
-        "beacon_id":   217,
-        "name":        "Enable Hack Guard",
-        "summary":     "Enable (or Disable) The Hack Guard Module",
-        "description": "Un-Checking this option will completely disable the Hack Guard module"
       },
       {
         "key":             "enable_core_file_integrity_scan",
@@ -2063,24 +2000,6 @@
         "default":          []
       },
       {
-        "key":         "enable_headers",
-        "section":     "section_hidden",
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/aj",
-        "link_blog":   "https://shsec.io/7c",
-        "beacon_id":   265,
-        "name":        "Enable HTTP Headers",
-        "summary":     "Enable (or Disable) The HTTP Headers module",
-        "description": "Un-Checking this option will completely disable the HTTP Headers module"
-      },
-      {
-        "key":     "enable_integrations",
-        "section": "section_hidden",
-        "type":    "checkbox",
-        "default": "Y"
-      },
-      {
         "key":             "enable_mainwp",
         "section":         "section_integrations",
         "zone_comp_slugs": [
@@ -2119,19 +2038,6 @@
         "name":            "SureSend Emails",
         "summary":         "SureSend Emails",
         "description":     "SureSend Emails."
-      },
-      {
-        "key":         "enable_ips",
-        "section":     "section_enable_plugin_feature_ips",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/ea",
-        "link_blog":   "https://shsec.io/wpsf26",
-        "beacon_id":   208,
-        "name":        "Enable IP Manager",
-        "summary":     "Enable (or Disable) The IP Manager module",
-        "description": "Un-Checking this option will completely disable the IP Manager module"
       },
       {
         "key":             "silentcaptcha_complexity",
@@ -2847,19 +2753,6 @@
         "description":     "Automatically delete WordPress files like wp-config-sample.php."
       },
       {
-        "key":         "enable_login_protect",
-        "section":     "section_enable_plugin_feature_login_protection",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/51",
-        "link_blog":   "https://shsec.io/wpsf03",
-        "beacon_id":   249,
-        "name":        "Enable Login Guard",
-        "summary":     "Enable (or Disable) The Login Guard Module",
-        "description": "Un-Checking this option will completely disable the Login Guard module"
-      },
-      {
         "key":             "rename_wplogin_path",
         "section":         "section_rename_wplogin",
         "zone_comp_slugs": [
@@ -3185,23 +3078,6 @@
         "name":            "Protection Locations",
         "summary":         "How Google reCAPTCHA Will Be Displayed",
         "description":     "Choose for which forms bot protection measures will be deployed."
-      },
-      {
-        "key":             "login_limit_interval",
-        "section":         "section_brute_force_login_protection",
-        "zone_comp_slugs": [
-          "module_login",
-          "limit_login"
-        ],
-        "type":            "integer",
-        "default":         5,
-        "min":             0,
-        "link_info":       "https://shsec.io/3q",
-        "link_blog":       "https://shsec.io/9o",
-        "beacon_id":       242,
-        "name":            "Login Cooldown Interval",
-        "summary":         "Limit login attempts to every X seconds",
-        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
       },
       {
         "key":         "enable_login_gasp_check",
@@ -4426,19 +4302,6 @@
         "tracking_exclude": true,
         "type":             "integer",
         "default":          0
-      },
-      {
-        "key":         "enable_user_management",
-        "section":     "section_enable_plugin_feature_user_accounts_management",
-        "advanced":    true,
-        "default":     "Y",
-        "type":        "checkbox",
-        "link_info":   "https://shsec.io/e3",
-        "link_blog":   "https://shsec.io/hi",
-        "beacon_id":   273,
-        "name":        "Enable User Management",
-        "summary":     "Enable (or Disable) The User Management module",
-        "description": "Un-Checking this option will completely disable the User Management module"
       },
       {
         "key":             "enable_user_login_email_notification",
