@@ -17,4 +17,15 @@ class SecadminEnabled extends Base {
 	public function enabledStatus() :string {
 		return self::con()->comps->sec_admin->isEnabledSecAdmin() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}
+
+	public function explanation() :array {
+		return [
+				   EnumEnabledStatus::GOOD => [
+//					   __( 'A Security Admin PIN has been set.', 'wp-simple-firewall' ),
+				   ],
+				   EnumEnabledStatus::BAD  => [
+					   __( 'A PIN needs to be set to enable the Security Admin.', 'wp-simple-firewall' ),
+				   ],
+			   ][ $this->enabledStatus() ];
+	}
 }

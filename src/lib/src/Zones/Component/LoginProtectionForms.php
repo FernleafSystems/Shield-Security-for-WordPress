@@ -15,8 +15,28 @@ class LoginProtectionForms extends Base {
 			self::con()->getHumanName() );
 	}
 
-	public function enabledStatus() :string {
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
 		$forms = self::con()->opts->optGet( 'bot_protection_locations' );
-		return \in_array( 'login', $forms ) ? EnumEnabledStatus::GOOD : ( empty( $forms ) ? EnumEnabledStatus::BAD : EnumEnabledStatus::OKAY );
+
+		$status = parent::status();
+
+		if ( \in_array( 'login', $forms ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login." );
+			$status[ 'level' ] = \in_array( 'register', $forms ) ? EnumEnabledStatus::OKAY : EnumEnabledStatus::BAD;
+			if ( !\in_array( 'register', $forms ) ) {
+				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't active in protecting your WordPress registration." );
+			}
+			if ( !\in_array( 'password', $forms ) ) {
+				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't active in protecting your WordPress lost password form." );
+			}
+		}
+
+		return $status;
 	}
 }

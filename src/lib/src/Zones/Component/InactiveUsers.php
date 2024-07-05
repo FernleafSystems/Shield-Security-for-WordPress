@@ -14,7 +14,20 @@ class InactiveUsers extends Base {
 		return __( 'Disable account access for inactive users.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->comps->user_suspend->isSuspendAutoIdleEnabled() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		if ( self::con()->comps->user_suspend->isSuspendAutoIdleEnabled() ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "User accounts that become inactive over time may still allow access if the account is compromised.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

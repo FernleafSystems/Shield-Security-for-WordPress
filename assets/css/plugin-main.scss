@@ -21,6 +21,7 @@ $code-color: $secondary;
 
 @import './components/notices';
 @import './components/tables';
+@import './components/nav_sidebar_menu';
 
 /* GENERAL STYLES */
 body {
@@ -114,14 +115,6 @@ label input[type=checkbox] {
 
 .form-label {
   font-size: 14px;
-}
-
-.carousel-item {
-  transition: -webkit-transform 0.3s ease;
-  transition: transform 0.2s ease, -webkit-transform 0.2s ease;
-}
-
-#IcwpWpsfSecurityAdmin {
 }
 
 @media (max-width: 848px) {
@@ -893,120 +886,11 @@ body.folded #FooterBannerGoPro {
   font-size: 14px;
 }
 
-#NavSideBar .nav-link:hover {
-}
-
-#NavSideBar .nav-link.active {
-  font-weight: bolder;
-  font-size: 0.8rem;
-}
-
-#NavSideBar:hover ul.top-level-nav > .nav-item {
-}
-
-#NavSideBar ul.top-level-nav > .nav-item:hover {
-}
-
-#NavSideBar .top-level-nav > li.nav-item {
-  border: 1px solid transparent;
-  border-left: 2px solid transparent;
-  z-index: 1;
-}
-
-#NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
-  background-color: rgba(251, 251, 251, 1);
-  border-top: 1px solid rgba(0, 128, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 128, 0, 0.2);
-  border-left: 3px solid #008000;
-  box-shadow: -3px 5px 6px rgba(0, 0, 0, 0.03);
-  margin-right: -2px;
-}
-
-#NavSideBar .nav-item .nav-icon > svg {
-  width: 18px;
-  height: 18px;
-  color: #333333;
-}
-
-#NavSideBar .nav-item.activesub .nav-icon > svg,
-#NavSideBar .nav-item .active .nav-icon > svg,
-#NavSideBar .nav-item:hover .nav-icon > svg {
-  color: #008000;
-  transform: scaleX(-1);
-  transition: transform 0.25s;
-}
-
-.inner-page-header .dropstart button > svg {
-  transform: rotate(0deg);
-  transition: transform 0.5s;
-}
-
 .inner-page-header .inner-page-header-title > svg {
   width: 24px;
   height: 24px;
   margin-right: 9px;
   color: #008000;
-}
-
-.inner-page-header:hover .dropstart button > svg {
-  transform: rotate(45deg);
-  transition: transform 0.3s;
-}
-
-#NavSideBar .nav-item .top-title {
-  color: black;
-}
-
-#NavSideBar .nav-item .top-title svg {
-  transform-origin: 50% 50%;
-  transform: rotate(60deg);
-  height: 6px;
-  width: 6px;
-  margin-top: -4px;
-  margin-left: 2px;
-  margin-right: -2px;
-  transition: transform 0.5s ease;
-}
-
-#NavSideBar .nav-item.activesub .top-title svg {
-  transform: rotate(-30deg);
-}
-
-#NavSideBar .nav-item.activesub .top-title,
-#NavSideBar .nav-item .active .top-title,
-#NavSideBar .nav-item:hover .top-title {
-  color: #008000;
-}
-
-.primary_sub_menu {
-}
-
-.primary_sub_menu .nav-link.active {
-  border-left: 3px solid rgba(0, 128, 0, 0.4);
-  padding-left: 6px !important;
-}
-
-.primary_side_sub_menu {
-}
-
-.primary_side_sub_menu a {
-  border-left: 1px solid transparent;
-  padding-left: 24px;
-  text-decoration: none;
-  color: #111111;
-}
-
-.primary_side_sub_menu a:hover {
-  border-left: 3px solid rgba(0, 128, 0, 0.3);
-  padding-left: 22px;
-  color: #008000;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
-
-.primary_side_sub_menu a.active {
-  color: #008000;
-  border-left: 3px solid rgba(0, 128, 0, 0.7);
-  padding-left: 20px;
 }
 
 #StatsNav {
@@ -1382,4 +1266,12 @@ td.status_file_size {
 .ct-point {
   /* Size of your points */
   stroke-width: 6px !important;
+}
+
+.inner-page-header .inner-page-config button.dropdown-toggle {
+  border-radius: 40px;
+  padding: 10px;
+}
+.inner-page-header:hover .inner-page-config button.dropdown-toggle {
+  background: rgba(0, 128, 0, 0.1);
 }

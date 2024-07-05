@@ -2,9 +2,33 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Secadmin extends Base {
+
+	public function actions() :array {
+		$con = self::con();
+
+		$actions = parent::actions();
+		if ( $con->comps->sec_admin->isEnabledSecAdmin() ) {
+			$actions[ 'disable' ] = [
+				'title'   => __( 'Disable Security Admin', 'wp-simple-firewall' ),
+				'href'    => $con->plugin_urls->noncedPluginAction(
+					SecurityAdminRemove::class,
+					$con->plugin_urls->adminHome(),
+					[
+						'quietly' => '1',
+					]
+				),
+				'icon'    => self::con()->svgs->raw( 'toggle-off' ),
+				'classes' => [
+					'btn-outline-warning',
+				],
+			];
+		}
+		return $actions;
+	}
 
 	public function components() :array {
 		return [
@@ -37,6 +61,9 @@ class Secadmin extends Base {
 		return __( 'Add an additional WP admin layer to protect core WordPress settings.', 'wp-simple-firewall' );
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function getUnderlyingModuleZone() :?string {
 		return Component\Modules\ModuleSecadmin::class;
 	}

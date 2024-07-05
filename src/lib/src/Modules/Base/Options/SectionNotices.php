@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Integrations\Lib\Bots\Common\BaseHandler,
 	IPs\Lib\IpRules\IpRuleStatus,
@@ -12,6 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModulePlugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\SilentCaptcha;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
@@ -78,14 +79,9 @@ class SectionNotices {
 					);
 					$locations = empty( $locations ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $locations );
 
-					$notices[] = sprintf( '%s: %s %s', __( 'Note', 'wp-simple-firewall' ),
-						sprintf(
-							__( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ),
-							$locations
-						),
-						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
-							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
+					$notices[] = sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						sprintf( __( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ), $locations )
 					);
 				}
 				break;
@@ -142,7 +138,7 @@ class SectionNotices {
 						sprintf( __( "Visitor IP addresses can be spoofed on your site, so the Session Lock feature may not work as well as expected.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', $source ) ),
 						sprintf( '[<a href="%s">%s</a>]',
-							$con->plugin_urls->modCfgOption( 'visitor_address_source' ), __( 'View IP Source Config', 'wp-simple-firewall' ) )
+							$con->plugin_urls->cfgForZoneComponent( ModulePlugin::Slug() ), __( 'View IP Source Config', 'wp-simple-firewall' ) )
 					);
 				}
 				break;
@@ -189,24 +185,7 @@ class SectionNotices {
 				elseif ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgOption( 'antibot_minimum' ), 'silentCAPTCHA' )
-					);
-				}
-
-				$installedButNotEnabledProviders = \array_filter(
-					$con->comps->forms_users->getInstalled(),
-					function ( string $provider ) {
-						return !( new $provider() )->isEnabled();
-					}
-				);
-
-				if ( !empty( $installedButNotEnabledProviders ) ) {
-					$warnings[] = sprintf( __( "%s has an integration available to protect the login forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
-						$con->getHumanName(),
-						sprintf( '<a href="%s">%s</a>',
-							$con->plugin_urls->modCfgSection( $con->modules[ EnumModules::INTEGRATIONS ], 'section_user_forms' ),
-							sprintf( __( "View the available integrations.", 'wp-simple-firewall' ), $con->getHumanName() )
-						)
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
 					);
 				}
 				break;
@@ -215,15 +194,13 @@ class SectionNotices {
 				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgOption( 'antibot_minimum' ), 'silentCAPTCHA' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
 					);
 				}
 				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
-					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Use of silentCAPTCHA Engine for user forms isn't turned on.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->plugin_urls->modCfg( EnumModules::LOGIN ),
-							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
+					$warnings[] = sprintf( '%s: %s',
+						__( 'Important', 'wp-simple-firewall' ),
+						__( "Use of silentCAPTCHA for user forms isn't turned on.", 'wp-simple-firewall' )
 					);
 				}
 				break;
@@ -232,7 +209,7 @@ class SectionNotices {
 				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgOption( 'antibot_minimum' ), 'silentCAPTCHA' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
 					);
 				}
 				else {
@@ -319,7 +296,7 @@ class SectionNotices {
 							sprintf( __( "We don't recommend running Traffic Rate Limiting while your IP address source isn't set to %s.", 'wp-simple-firewall' ),
 								sprintf( '<code>%s</code>', $source ) ),
 							sprintf( '[<a href="%s" target="_blank">%s</a>]',
-								$con->plugin_urls->modCfgOption( 'visitor_address_source' ), __( 'View Config', 'wp-simple-firewall' ) )
+								$con->plugin_urls->cfgForZoneComponent( ModulePlugin::Slug() ), __( 'View Config', 'wp-simple-firewall' ) )
 						);
 					}
 				}

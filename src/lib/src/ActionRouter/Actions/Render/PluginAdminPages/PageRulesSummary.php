@@ -16,7 +16,7 @@ class PageRulesSummary extends PageRulesBase {
 		$con = self::con();
 		return [
 			[
-				'text' => __( 'Rules Builder', 'wp-simple-firewall' ),
+				'title' => __( 'Rules Builder', 'wp-simple-firewall' ),
 				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
 			],
 		];
@@ -36,7 +36,7 @@ class PageRulesSummary extends PageRulesBase {
 			],
 		];
 		add_action( 'apto/services/pre_render_twig', function ( $env ) {
-			/** @var \Twig_Environment $env */
+			/** @var \Twig\Environment $env */
 			$env->addExtension( new \Twig\Extension\DebugExtension() );
 		} );
 

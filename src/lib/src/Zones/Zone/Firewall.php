@@ -8,6 +8,7 @@ class Firewall extends Base {
 
 	public function components() :array {
 		return [
+			Component\WebApplicationFirewall::class,
 			Component\UsernameFishingBlock::class,
 			Component\XmlRpcDisable::class,
 			Component\RateLimiting::class,
@@ -18,8 +19,10 @@ class Firewall extends Base {
 
 	public function description() :array {
 		return [
-			__( 'Firewall forms the core of your WordPress defense.', 'wp-simple-firewall' ),
-			__( 'How well your site performs against attacks, what types of attacks are defended, and how you respond to repeated attacks, dictates your entire security posture.', 'wp-simple-firewall' ),
+			__( 'The Firewall is made up of many different components, and forms the perimeter defense of your WordPress site.', 'wp-simple-firewall' ),
+			__( 'What types of attacks your site defends against, and how your site responds to repeated attacks, determines your entire security posture.', 'wp-simple-firewall' ),
+			__( 'The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious.', 'wp-simple-firewall' ),
+			__( "The Firewall doesn't stand alone, as it works together with other components such as the Bot & IP blocking system, to form a complete protection system.", 'wp-simple-firewall' ),
 		];
 	}
 

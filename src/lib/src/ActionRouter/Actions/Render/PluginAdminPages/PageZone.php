@@ -2,29 +2,54 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\SecurityZone;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Firewall;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\{
+	Firewall,
+	Ips,
+	Scans,
+	Secadmin,
+};
 
 class PageZone extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_zone';
 
 	protected function getPageContextualHrefs() :array {
-		$URLs = self::con()->plugin_urls;
+		$con = self::con();
+		$URLs = $con->plugin_urls;
 		$hrefs = [];
 		switch ( $this->action_data[ 'zone_slug' ] ) {
-			case Firewall::Slug():
+
+			case Secadmin::Slug():
+				if ( $con->comps->sec_admin->isEnabledSecAdmin() ) {
+					$hrefs[] = [
+						'title' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
+						'href' => $URLs->noncedPluginAction( SecurityAdminRemove::class, $URLs->adminHome(), [
+							'quietly' => '1',
+						] ),
+					];
+				}
+				break;
+
+			case Ips::Slug():
 				$hrefs[] = [
-					'text' => __( 'View Activity Log', 'wp-simple-firewall' ),
-					'href' => $URLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-				];
-				$hrefs[] = [
-					'text' => __( 'View Request Log', 'wp-simple-firewall' ),
-					'href' => $URLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+					'title' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
+					'href' => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->adminHome() ),
 				];
 				break;
+
+			case Scans::Slug():
+				$hrefs[] = [
+					'title' => __( 'View Scan Results', 'wp-simple-firewall' ),
+					'href' => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				];
+				break;
+
+			case Firewall::Slug():
 			default:
 				break;
 		}
@@ -38,12 +63,12 @@ class PageZone extends BasePluginAdminPage {
 		$zone = $zonesCon->getZone( $this->action_data[ 'zone_slug' ] );
 		return [
 			'content' => [
-				'options_form' => self::con()->action_router->render( SecurityZone::class, [
+				'options_form' => $con->action_router->render( SecurityZone::class, [
 					'zone_slug' => $this->action_data[ 'zone_slug' ],
 				] ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
+				'inner_page_title_icon' => $con->svgs->raw( 'sliders' ),
 			],
 			'strings' => [
 				'inner_page_title'    => $zone->title(),

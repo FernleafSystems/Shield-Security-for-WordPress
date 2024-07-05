@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Reporting;
 
 class StringsSections {
 
@@ -175,8 +176,8 @@ class StringsSections {
 				];
 				break;
 			case 'section_user_forms':
-				$short = __( 'User Forms Bot Checking', 'wp-simple-firewall' );
-				$title = __( 'User Forms Bot Checking', 'wp-simple-firewall' );
+				$short = __( '3rd Party User Forms Bot Checking', 'wp-simple-firewall' );
+				$title = __( '3rd Party User Forms Bot Checking', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Shield can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ),
@@ -289,7 +290,7 @@ class StringsSections {
 						'<code>'.self::con()->comps->opts_lookup->getReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
-						self::con()->plugin_urls->modCfgOption( 'block_send_email_address' ),
+						self::con()->plugin_urls->cfgForZoneComponent( Reporting::Slug() ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),

@@ -7,41 +7,41 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
 
-class PageConfigForZoneComponents extends BasePluginAdminPage {
+class PageZoneComponentConfig extends BasePluginAdminPage {
 
-	public const SLUG = 'admin_plugin_page_config_for_zone_components';
+	public const SLUG = 'admin_plugin_page_zone_component_config';
 
 	protected function getRenderData() :array {
 		$con = self::con();
+		$component = $con->comps->zones->getZoneComponent( $this->zoneComponentSlug() );
 		return [
 			'content' => [
 				'options_form' => $con->action_router->render( OptionsFormFor::class, [
-					'options' => ( new GetOptionsForZoneComponents() )->run( $this->action_data[ 'zone_component_slugs' ] ),
+					'options' => ( new GetOptionsForZoneComponents() )->run( [ $component::Slug() ] ),
 				] ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
+				'inner_page_title_icon' => $con->svgs->raw( 'gear' ),
 			],
 			'strings' => [
-//				'inner_page_title'    => $modStrings[ 'name' ],
-//				'inner_page_subtitle' => $modStrings[ 'subtitle' ],
+				'inner_page_title'    => $component->title(),
+				'inner_page_subtitle' => $component->subtitle(),
 			],
 		];
+	}
+
+	private function zoneComponentSlug() :string {
+		return $this->action_data[ 'nav_sub' ];
 	}
 
 	/**
 	 * Must manually build breadcrumbs for dynamic loaded config.
 	 */
 	protected function getBreadCrumbs() :array {
+		$crumbs = parent::getBreadCrumbs();
 		if ( empty( $crumbs ) ) {
-			$crumbs = ( new BuildBreadCrumbs() )->for( PluginNavs::NAV_ZONE_COMPONENTS, \current( $this->action_data[ 'zone_component_slugs' ] ) );
+			$crumbs = ( new BuildBreadCrumbs() )->for( PluginNavs::NAV_ZONES, $this->zoneComponentSlug() );
 		}
 		return $crumbs;
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'zone_component_slugs',
-		];
 	}
 }

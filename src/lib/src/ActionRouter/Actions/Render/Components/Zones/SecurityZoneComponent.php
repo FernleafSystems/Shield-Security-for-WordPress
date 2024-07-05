@@ -11,7 +11,6 @@ class SecurityZoneComponent extends \FernleafSystems\Wordpress\Plugin\Shield\Act
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$zonesCon = $con->comps->zones;
 		$comp = $this->getZoneComponent();
 		return [
 			'flags'   => [
@@ -23,11 +22,13 @@ class SecurityZoneComponent extends \FernleafSystems\Wordpress\Plugin\Shield\Act
 					'status_bad'             => $con->svgs->raw( 'shield-fill-x' ),
 					'status_neutral'         => $con->svgs->raw( 'shield' ),
 					'status_neutral_enabled' => $con->svgs->raw( 'shield-check' ),
+					'explanation_info'       => $con->svgs->raw( 'info-square' ),
 				],
 			],
 			'strings' => [
-				'title'    => $comp->title(),
-				'subtitle' => $comp->subtitle(),
+				'title'       => $comp->title(),
+				'subtitle'    => $comp->subtitle(),
+				'explanation' => $comp->explanation(),
 			],
 			'vars'    => [
 				'enabled_status' => $comp->enabledStatus(),
@@ -48,9 +49,9 @@ class SecurityZoneComponent extends \FernleafSystems\Wordpress\Plugin\Shield\Act
 	}
 
 	/**
-	 * @return Base
+	 * @return mixed|Base
 	 */
 	private function getZoneComponent() {
-		return $this->action_data[ 'zone_component' ];
+		return self::con()->comps->zones->getZoneComponent( $this->action_data[ 'zone_component' ] );
 	}
 }

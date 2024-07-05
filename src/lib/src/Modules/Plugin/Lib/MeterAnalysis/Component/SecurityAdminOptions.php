@@ -14,8 +14,7 @@ class SecurityAdminOptions extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->sec_admin->isEnabledSecAdmin()
-			   && self::con()->opts->optIs( 'admin_access_restrict_options', 'Y' );
+		return self::con()->comps->sec_admin->isEnabledSecAdmin() && self::con()->opts->optIs( 'admin_access_restrict_options', 'Y' );
 	}
 
 	public function title() :string {

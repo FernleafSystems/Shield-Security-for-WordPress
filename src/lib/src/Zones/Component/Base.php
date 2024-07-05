@@ -19,12 +19,12 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	public function explanation() :array {
-		return [];
+		return $this->status()[ 'exp' ];
 	}
 
 
 	public function enabledStatus() :string {
-		return EnumEnabledStatus::NEUTRAL;
+		return $this->status()[ 'level' ];
 	}
 
 	protected function hasCapability() :bool {
@@ -62,5 +62,15 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	protected function hasConfigAction() :bool {
 		return true;
+	}
+
+	/**
+	 * @return array{level:string,expl:string[]}
+	 */
+	protected function status() :array {
+		return [
+			'level' => EnumEnabledStatus::NEUTRAL,
+			'exp'  => [],
+		];
 	}
 }

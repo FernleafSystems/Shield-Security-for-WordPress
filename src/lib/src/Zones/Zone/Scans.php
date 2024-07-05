@@ -2,9 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Scans extends Base {
+
+	public function actions() :array {
+		$con = self::con();
+		return \array_merge( parent::actions(), [
+			'scan_results' => [
+				'title'   => __( 'View Scan Results', 'wp-simple-firewall' ),
+				'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'icon'    => $con->svgs->raw( 'shield-shaded' ),
+				'classes' => [],
+			]
+		] );
+	}
 
 	public function components() :array {
 		return [

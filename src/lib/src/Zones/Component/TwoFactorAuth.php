@@ -14,16 +14,27 @@ class TwoFactorAuth extends Base {
 		return __( "It's best practice to protect user access with at least one 2FA method.", 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
 		$providers = \array_filter( self::con()->comps->mfa->collateMfaProviderClasses(), function ( $c ) {
 			return $c::ProviderEnabled();
 		} );
 		if ( empty( $providers ) ) {
-			$status = EnumEnabledStatus::BAD;
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "There are no active 2FA providers.", 'wp-simple-firewall' );
+		}
+		elseif ( \count( $providers ) === 1 ) {
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			$status[ 'exp' ][] = __( "Consider activating at least 1 more 2FA provider, as there is only 1 available for users to select.", 'wp-simple-firewall' );
 		}
 		else {
-			$status = \count( $providers ) > 1 ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY;
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
+
 		return $status;
 	}
 }

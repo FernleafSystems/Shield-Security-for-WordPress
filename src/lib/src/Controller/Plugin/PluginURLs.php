@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FileDownloadAsStream,
 	Constants
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,7 +24,7 @@ class PluginURLs {
 	}
 
 	public function rootAdminPageSlug() :string {
-		return self::con()->prefix( self::con()->getModule_Plugin()->cfg->slug );
+		return self::con()->prefix( EnumModules::PLUGIN );
 	}
 
 	public function adminHome() :string {
@@ -51,6 +52,7 @@ class PluginURLs {
 
 	/**
 	 * @param ModCon|string|mixed $mod
+	 * @deprecated 19.2
 	 */
 	public function modCfg( $mod ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, \is_string( $mod ) ? $mod : $mod->cfg->slug );
@@ -60,21 +62,20 @@ class PluginURLs {
 	 * @param ModCon|string|mixed $componentSlug
 	 */
 	public function cfgForZoneComponent( string $componentSlug ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, $componentSlug );
-	}
-
-	public function modCfgOption( string $optKey ) :string {
-		return $this->modCfgSection(
-			self::con()->cfg->configuration->modFromOpt( $optKey ),
-			self::con()->opts->optDef( $optKey )[ 'section' ]
-		);
+		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}
 
 	/**
-	 * @param ModCon|string|mixed $mod
+	 * @param ModCon|string|mixed $optKey
 	 */
-	public function modCfgSection( $mod, string $optSection ) :string {
-		return $this->modCfg( $mod ).'#tab-'.$optSection;
+	public function cfgForOpt( string $optKey ) :string {
+		$def = self::con()->opts->optDef( $optKey );
+		if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {
+			$def = self::con()->opts->optDef( 'visitor_address_source' );
+			error_log( $optKey );
+			error_log( __METHOD__ );
+		}
+		return $this->cfgForZoneComponent( \current( $def[ 'zone_comp_slugs' ] ) );
 	}
 
 	/**
@@ -105,5 +106,20 @@ class PluginURLs {
 
 	public function zone( string $zoneSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONES, $zoneSlug );
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function modCfgOption( string $optKey ) :string {
+		return '';
+	}
+
+	/**
+	 * @param ModCon|string|mixed $mod
+	 * @deprecated 19.2
+	 */
+	public function modCfgSection( $mod, string $optSection ) :string {
+		return '';
 	}
 }

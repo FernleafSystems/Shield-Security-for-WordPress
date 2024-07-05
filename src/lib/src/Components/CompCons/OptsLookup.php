@@ -22,7 +22,7 @@ class OptsLookup {
 	}
 
 	public function enabledCrowdSecAutoBlock() :bool {
-		return !self::con()->opts->optIs( 'cs_block', 'disabled' ) && $this->isPluginEnabled();
+		return !self::con()->opts->optIs( 'cs_block', 'disabled' );
 	}
 
 	public function enabledCrowdSecAutoUnblock() :bool {
@@ -39,10 +39,6 @@ class OptsLookup {
 
 	public function enabledLoginGuardAntiBotCheck() :bool {
 		return self::con()->opts->optIs( 'enable_antibot_check', 'Y' );
-	}
-
-	public function enabledLoginGuardCooldown() :bool {
-		return $this->isPluginEnabled() && self::con()->opts->optGet( 'login_limit_interval' ) > 0;
 	}
 
 	public function enabledIntegrationMainwp() :bool {
@@ -166,7 +162,7 @@ class OptsLookup {
 	}
 
 	public function getIpAutoBlockOffenseLimit() :int {
-		return $this->isPluginEnabled() ? (int)self::con()->opts->optGet( 'transgression_limit' ) : 0;
+		return self::con()->opts->optGet( 'transgression_limit' );
 	}
 
 	public function getLoginGuardEmailAuth2FaRoles() :array {

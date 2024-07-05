@@ -6,6 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class CrowdsecBlocking extends Base {
 
+	public function explanation() :array {
+		return [
+				   EnumEnabledStatus::GOOD => [
+				   ],
+				   EnumEnabledStatus::BAD  => [
+					   __( 'Switch-on the CrowdSec feature to block known (crowd-sourced) malicious IPs.', 'wp-simple-firewall' ),
+				   ],
+			   ][ $this->enabledStatus() ];
+	}
+
 	public function title() :string {
 		return __( 'CrowdSec IP Blocking', 'wp-simple-firewall' );
 	}

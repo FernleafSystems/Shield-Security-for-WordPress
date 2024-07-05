@@ -14,7 +14,20 @@ class UsernameFishingBlock extends Base {
 		return __( 'Block requests that attempt to fish for WordPress usernames.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->opts->optIs( 'block_author_discovery', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		if ( self::con()->opts->optIs( 'block_author_discovery', 'Y' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "It's possible to detect the usernames of authors+ on your site.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

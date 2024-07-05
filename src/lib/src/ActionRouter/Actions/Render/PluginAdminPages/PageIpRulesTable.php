@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpRulesTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 
 class PageIpRulesTable extends BasePluginAdminPage {
@@ -16,12 +15,12 @@ class PageIpRulesTable extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
-				'text'    => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'title' => __( 'Create New IP Rule', 'wp-simple-firewall' ),
 				'href'    => 'javascript:{}',
 				'classes' => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
-				'text'     => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
+				'title' => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
 				'href'     => $con->plugin_urls->fileDownloadAsStream( 'ip_rules' ),
 				'disabled' => !$con->isPremiumActive(),
 			],
@@ -30,7 +29,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
+			'title' => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/212-ip-rules-section-how-to-use-ip-management-and-analysis-tool',
 			'new_window' => true,
 		];

@@ -11,4 +11,13 @@ class HeadersCsp extends Base {
 	public function subtitle() :string {
 		return __( 'Configure advanced CSP headers to provide granular control over your site content and how assets are served.', 'wp-simple-firewall' );
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+		$status[ 'exp' ][] = __( "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section.", 'wp-simple-firewall' );
+		return $status;
+	}
 }

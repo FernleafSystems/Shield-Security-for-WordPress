@@ -22,7 +22,18 @@
 					<br /><small class="component-subtitle fw-normal">{{ strings.subtitle }}</small>
 				</h6>
 
-				<div class="component-actions mt-3">
+				{% if strings.explanation|default(false) is not empty %}
+					<div class="explanations">
+						<ul class="list-group list-group-flush">
+							{% for expl in strings.explanation %}
+								<li class="list-group-item list-group-item-info"
+								><span class="svg-container me-1">{{ imgs.svgs.explanation_info|raw }}</span>{{ expl }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endif %}
+
+				<div class="component-actions mt-2">
 					{% for action in vars.actions %}
 						<button class="btn btn-sm {{ action.classes|join(' ') }}"
 								title="{{ action.title }}"

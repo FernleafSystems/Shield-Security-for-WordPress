@@ -12,8 +12,12 @@ class IsAdeScore extends Base {
 
 	use Traits\TypeShield;
 
+	public function getName() :string {
+		return __( 'Is silentCAPTCHA score', 'wp-simple-firewall' );
+	}
+
 	public function getDescription() :string {
-		return __( 'Is Visitor ADE Score ...', 'wp-simple-firewall' );
+		return __( 'Is Visitor silentCAPTCHA Score ...', 'wp-simple-firewall' );
 	}
 
 	protected function execConditionCheck() :bool {

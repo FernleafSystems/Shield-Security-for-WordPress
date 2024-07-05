@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "19.1.109",
-    "release_timestamp":       1719830450,
-    "build":                   "202407.0101",
+    "version":                 "19.1.110",
+    "release_timestamp":       1720183000,
+    "build":                   "202407.0501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -948,7 +948,6 @@
           "secadmin_enabled",
           "module_secadmin"
         ],
-        "advanced":        true,
         "type":            "integer",
         "default":         30,
         "min":             1,
@@ -965,7 +964,6 @@
         "zone_comp_slugs": [
           "module_secadmin"
         ],
-        "advanced":        true,
         "sensitive":       true,
         "premium":         true,
         "default":         [],
@@ -983,7 +981,6 @@
         "zone_comp_slugs": [
           "module_secadmin"
         ],
-        "advanced":        true,
         "default":         "Y",
         "type":            "checkbox",
         "link_info":       "https://shsec.io/gf",
@@ -997,8 +994,8 @@
         "key":             "admin_access_restrict_options",
         "section":         "section_admin_access_restriction_areas",
         "zone_comp_slugs": [
-          "module_secadmin",
-          "secadmin_wp_options"
+          "secadmin_wp_options",
+          "module_secadmin"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -1013,8 +1010,8 @@
         "key":             "admin_access_restrict_admin_users",
         "section":         "section_admin_access_restriction_areas",
         "zone_comp_slugs": [
-          "module_secadmin",
-          "secadmin_wp_admins"
+          "secadmin_wp_admins",
+          "module_secadmin"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -1063,7 +1060,6 @@
         "zone_comp_slugs": [
           "module_secadmin"
         ],
-        "advanced":        true,
         "type":            "multiple_select",
         "default":         [],
         "value_options":   [
@@ -1378,8 +1374,8 @@
         "key":             "enable_antibot_comments",
         "section":         "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
-          "module_spam",
-          "comment_spam_block_bot"
+          "comment_spam_block_bot",
+          "module_spam"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -1394,8 +1390,8 @@
         "key":             "comments_default_action_spam_bot",
         "section":         "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
-          "module_spam",
-          "comment_spam_block_bot"
+          "comment_spam_block_bot",
+          "module_spam"
         ],
         "default":         "spam",
         "type":            "select",
@@ -1428,8 +1424,8 @@
         "key":             "enable_comments_human_spam_filter",
         "section":         "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
-          "module_spam",
-          "comment_spam_block_human"
+          "comment_spam_block_human",
+          "module_spam"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -1444,8 +1440,8 @@
         "key":             "comments_default_action_human_spam",
         "section":         "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
-          "module_spam",
-          "comment_spam_block_human"
+          "comment_spam_block_human",
+          "module_spam"
         ],
         "default":         "0",
         "type":            "select",
@@ -1529,6 +1525,7 @@
         "key":             "block_send_email",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
         "default":         "N",
@@ -1543,9 +1540,9 @@
         "key":             "page_params_whitelist",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
-        "advanced":        true,
         "default":         "[]",
         "type":            "array",
         "link_info":       "https://shsec.io/2a",
@@ -1559,6 +1556,7 @@
         "key":             "block_dir_traversal",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
         "default":         "Y",
@@ -1573,6 +1571,7 @@
         "key":             "block_sql_queries",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
         "default":         "Y",
@@ -1587,6 +1586,7 @@
         "key":             "block_field_truncation",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
         "default":         "Y",
@@ -1601,6 +1601,7 @@
         "key":             "block_php_code",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
         "default":         "N",
@@ -1615,9 +1616,9 @@
         "key":             "block_aggressive",
         "section":         "section_firewall_blocking_options",
         "zone_comp_slugs": [
+          "web_application_firewall",
           "module_firewall"
         ],
-        "advanced":        true,
         "default":         "N",
         "type":            "checkbox",
         "link_info":       "",
@@ -1629,8 +1630,8 @@
       {
         "key":             "enable_core_file_integrity_scan",
         "zone_comp_slugs": [
-          "module_scans",
-          "file_scanning"
+          "file_scanning",
+          "module_scans"
         ],
         "section":         "section_file_guard",
         "default":         "Y",
@@ -1646,8 +1647,8 @@
         "key":             "file_scan_areas",
         "section":         "section_file_guard",
         "zone_comp_slugs": [
-          "module_scans",
-          "file_scanning"
+          "file_scanning",
+          "module_scans"
         ],
         "premium":         true,
         "cap":             "scan_file_areas",
@@ -1703,8 +1704,8 @@
         "key":             "file_repair_areas",
         "section":         "section_file_guard",
         "zone_comp_slugs": [
-          "module_scans",
-          "file_scanning"
+          "file_scanning",
+          "module_scans"
         ],
         "premium":         true,
         "cap":             "scan_auto_repair",
@@ -1737,8 +1738,8 @@
         "key":             "file_locker",
         "section":         "section_file_guard",
         "zone_comp_slugs": [
-          "module_scans",
-          "file_locker"
+          "file_locker",
+          "module_scans"
         ],
         "premium":         true,
         "cap":             "scan_file_locker",
@@ -1776,7 +1777,6 @@
         "zone_comp_slugs": [
           "module_scans"
         ],
-        "advanced":        true,
         "premium":         true,
         "default":         [
           "wp-content/cache/",
@@ -1802,8 +1802,8 @@
         "key":             "enabled_scan_apc",
         "section":         "section_scan_wpv",
         "zone_comp_slugs": [
-          "module_scans",
-          "vulnerability_scanning"
+          "vulnerability_scanning",
+          "module_scans"
         ],
         "type":            "checkbox",
         "default":         "Y",
@@ -1818,8 +1818,8 @@
         "key":             "enable_wpvuln_scan",
         "section":         "section_scan_wpv",
         "zone_comp_slugs": [
-          "module_scans",
-          "vulnerability_scanning"
+          "vulnerability_scanning",
+          "module_scans"
         ],
         "premium":         true,
         "cap":             "scan_vulnerabilities",
@@ -1836,8 +1836,8 @@
         "key":             "wpvuln_scan_autoupdate",
         "section":         "section_scan_wpv",
         "zone_comp_slugs": [
-          "module_scans",
-          "vulnerability_scanning"
+          "vulnerability_scanning",
+          "module_scans"
         ],
         "premium":         true,
         "cap":             "scan_vulnerabilities_autoupdate",
@@ -2030,8 +2030,8 @@
         "key":             "silentcaptcha_complexity",
         "section":         "section_silentcaptcha",
         "zone_comp_slugs": [
-          "module_ips",
-          "silent_captcha"
+          "silent_captcha",
+          "module_ips"
         ],
         "default":         "medium",
         "type":            "select",
@@ -2072,8 +2072,8 @@
         "key":             "antibot_minimum",
         "section":         "section_silentcaptcha",
         "zone_comp_slugs": [
-          "module_ips",
-          "silent_captcha"
+          "silent_captcha",
+          "module_ips"
         ],
         "default":         45,
         "type":            "integer",
@@ -2082,16 +2082,16 @@
         "link_info":       "https://shsec.io/jy",
         "link_blog":       "https://shsec.io/jz",
         "beacon_id":       424,
-        "name":            "AntiBot Threshold",
-        "summary":         "AntiBot Testing Threshold (Percentage)",
+        "name":            "silentCAPTCHA Bot Minimum Score",
+        "summary":         "silentCAPTCHA Bot Minimum Score (Percentage)",
         "description":     "When using Shield's silentCAPTCHA system, this is the threshold used for testing (between 1 and 99)."
       },
       {
         "key":             "antibot_high_reputation_minimum",
         "section":         "section_silentcaptcha",
         "zone_comp_slugs": [
-          "module_ips",
-          "silent_captcha"
+          "silent_captcha",
+          "module_ips"
         ],
         "type":            "integer",
         "default":         250,
@@ -2107,9 +2107,9 @@
         "key":             "transgression_limit",
         "section":         "section_auto_black_list",
         "zone_comp_slugs": [
-          "module_ips",
           "auto_ip_blocking",
-          "ip_blocking_rules"
+          "ip_blocking_rules",
+          "module_ips"
         ],
         "type":            "integer",
         "default":         10,
@@ -2125,12 +2125,11 @@
         "key":             "auto_expire",
         "section":         "section_auto_black_list",
         "zone_comp_slugs": [
-          "module_ips",
           "auto_ip_blocking",
-          "ip_blocking_rules"
+          "ip_blocking_rules",
+          "module_ips"
         ],
-        "advanced":        true,
-        "default":         "day",
+        "default":         "hour",
         "type":            "select",
         "value_options":   [
           {
@@ -2161,10 +2160,9 @@
         "key":             "user_auto_recover",
         "section":         "section_auto_black_list",
         "zone_comp_slugs": [
-          "module_ips",
-          "ip_blocking_rules"
+          "ip_blocking_rules",
+          "module_ips"
         ],
-        "advanced":        true,
         "premium":         true,
         "cap":             "user_auto_unblock",
         "default":         [],
@@ -2190,10 +2188,9 @@
         "key":             "request_whitelist",
         "section":         "section_auto_black_list",
         "zone_comp_slugs": [
-          "module_ips",
-          "ip_blocking_rules"
+          "ip_blocking_rules",
+          "module_ips"
         ],
-        "advanced":        true,
         "premium":         true,
         "default":         [],
         "type":            "array",
@@ -2208,9 +2205,9 @@
         "key":             "cs_block",
         "section":         "section_crowdsec",
         "zone_comp_slugs": [
-          "module_ips",
           "crowdsec_blocking",
-          "ip_blocking_rules"
+          "ip_blocking_rules",
+          "module_ips"
         ],
         "default":         "block_with_unblock",
         "type":            "select",
@@ -2239,8 +2236,8 @@
         "key":             "cs_enroll_id",
         "section":         "section_crowdsec",
         "zone_comp_slugs": [
-          "module_ips",
-          "ip_blocking_rules"
+          "ip_blocking_rules",
+          "module_ips"
         ],
         "sensitive":       true,
         "premium":         false,
@@ -2257,9 +2254,9 @@
         "key":             "track_loginfailed",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "default":         "transgression-single",
         "type":            "select",
@@ -2296,10 +2293,10 @@
         "key":             "track_xmlrpc",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "xml_rpc_disable",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "default":         "log",
         "type":            "select",
@@ -2336,9 +2333,9 @@
         "key":             "track_logininvalid",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "premium":         true,
         "default":         "log",
@@ -2379,9 +2376,9 @@
         "key":             "track_fakewebcrawler",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "premium":         true,
         "default":         "log",
@@ -2422,9 +2419,9 @@
         "key":             "track_404",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "premium":         true,
         "default":         "log",
@@ -2465,9 +2462,9 @@
         "key":             "track_linkcheese",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "premium":         true,
         "default":         "disabled",
@@ -2508,9 +2505,9 @@
         "key":             "track_invalidscript",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "premium":         true,
         "default":         "log",
@@ -2551,9 +2548,9 @@
         "key":             "track_useragent",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "module_ips",
           "ip_blocking_rules",
-          "bot_actions"
+          "bot_actions",
+          "module_ips"
         ],
         "premium":         true,
         "default":         "log",
@@ -2642,8 +2639,8 @@
         "key":             "disable_xmlrpc",
         "section":         "section_apixml",
         "zone_comp_slugs": [
-          "module_firewall",
-          "xml_rpc_disable"
+          "xml_rpc_disable",
+          "module_firewall"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -2658,10 +2655,9 @@
         "key":             "disable_anonymous_restapi",
         "section":         "section_apixml",
         "zone_comp_slugs": [
-          "module_firewall",
-          "anon_rest_api_disable"
+          "anon_rest_api_disable",
+          "module_firewall"
         ],
-        "advanced":        true,
         "default":         "N",
         "type":            "checkbox",
         "link_info":       "",
@@ -2674,8 +2670,8 @@
         "key":             "api_namespace_exclusions",
         "section":         "section_apixml",
         "zone_comp_slugs": [
-          "module_firewall",
-          "anon_rest_api_disable"
+          "anon_rest_api_disable",
+          "module_firewall"
         ],
         "default":         [
           "contact-form-7",
@@ -2697,8 +2693,8 @@
         "key":             "disable_file_editing",
         "section":         "section_wordpress_obscurity_options",
         "zone_comp_slugs": [
-          "module_firewall",
-          "file_editing_block"
+          "file_editing_block",
+          "module_firewall"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -2713,8 +2709,8 @@
         "key":             "block_author_discovery",
         "section":         "section_wordpress_obscurity_options",
         "zone_comp_slugs": [
-          "module_firewall",
-          "username_fishing_block"
+          "username_fishing_block",
+          "module_firewall"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -2743,8 +2739,8 @@
         "key":             "rename_wplogin_path",
         "section":         "section_rename_wplogin",
         "zone_comp_slugs": [
-          "module_login",
-          "login_hide"
+          "login_hide",
+          "module_login"
         ],
         "sensitive":       true,
         "default":         "",
@@ -2760,10 +2756,9 @@
         "key":             "rename_wplogin_redirect",
         "section":         "section_rename_wplogin",
         "zone_comp_slugs": [
-          "module_login",
-          "login_hide"
+          "login_hide",
+          "module_login"
         ],
-        "advanced":        true,
         "sensitive":       true,
         "default":         "",
         "type":            "text",
@@ -2865,8 +2860,8 @@
         "key":             "enable_google_authenticator",
         "section":         "section_2fa_otp",
         "zone_comp_slugs": [
-          "module_login",
-          "two_factor_auth"
+          "two_factor_auth",
+          "module_login"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -2881,8 +2876,8 @@
         "key":             "enable_yubikey",
         "section":         "section_2fa_otp",
         "zone_comp_slugs": [
-          "module_login",
-          "two_factor_auth"
+          "two_factor_auth",
+          "module_login"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -2897,8 +2892,8 @@
         "key":             "yubikey_app_id",
         "section":         "section_2fa_otp",
         "zone_comp_slugs": [
-          "module_login",
-          "two_factor_auth"
+          "two_factor_auth",
+          "module_login"
         ],
         "sensitive":       true,
         "default":         "",
@@ -2914,8 +2909,8 @@
         "key":             "yubikey_api_key",
         "section":         "section_2fa_otp",
         "zone_comp_slugs": [
-          "module_login",
-          "two_factor_auth"
+          "two_factor_auth",
+          "module_login"
         ],
         "sensitive":       true,
         "default":         "",
@@ -2931,8 +2926,8 @@
         "key":             "enable_email_authentication",
         "section":         "section_2fa_email",
         "zone_comp_slugs": [
-          "module_login",
-          "two_factor_auth"
+          "two_factor_auth",
+          "module_login"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -3001,8 +2996,8 @@
         "key":             "enable_antibot_check",
         "section":         "section_brute_force_login_protection",
         "zone_comp_slugs": [
-          "module_login",
-          "limit_login"
+          "limit_login",
+          "module_login"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -3017,8 +3012,8 @@
         "key":             "login_limit_interval",
         "section":         "section_brute_force_login_protection",
         "zone_comp_slugs": [
-          "module_login",
-          "limit_login"
+          "limit_login",
+          "module_login"
         ],
         "type":            "integer",
         "default":         5,
@@ -3034,8 +3029,8 @@
         "key":             "bot_protection_locations",
         "section":         "section_brute_force_login_protection",
         "zone_comp_slugs": [
-          "module_login",
-          "login_protection_forms"
+          "login_protection_forms",
+          "module_login"
         ],
         "type":            "multiple_select",
         "default":         [
@@ -3095,8 +3090,8 @@
         "key":             "enable_passkeys",
         "section":         "section_2fa_passkeys",
         "zone_comp_slugs": [
-          "module_login",
-          "two_factor_auth"
+          "two_factor_auth",
+          "module_login"
         ],
         "premium":         true,
         "cap":             "2fa_webauthn",
@@ -3120,12 +3115,11 @@
         "key":             "form_spam_providers",
         "section":         "section_spam",
         "zone_comp_slugs": [
-          "module_spam",
+          "contact_form_spam_block_bot",
           "module_integrations",
-          "contact_form_spam_block_bot"
+          "module_spam"
         ],
         "premium":         true,
-        "advanced":        true,
         "type":            "multiple_select",
         "default":         [],
         "value_options":   [
@@ -3221,10 +3215,9 @@
         "key":             "user_form_providers",
         "section":         "section_user_forms",
         "zone_comp_slugs": [
-          "module_integrations",
-          "login_protection_forms"
+          "login_protection_forms",
+          "module_integrations"
         ],
-        "advanced":        true,
         "type":            "multiple_select",
         "default":         [
           "wordpress"
@@ -3316,8 +3309,8 @@
         "key":             "global_enable_plugin_features",
         "section":         "section_global_security_options",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -3332,8 +3325,8 @@
         "key":             "visitor_address_source",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "sensitive":       false,
         "type":            "select",
@@ -3410,8 +3403,8 @@
         "key":             "display_plugin_badge",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -3427,8 +3420,8 @@
         "key":             "enable_upgrade_admin_notice",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -3442,8 +3435,8 @@
         "key":             "enable_tracking",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -3457,10 +3450,9 @@
         "key":             "enable_mu",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
-        "advanced":        true,
         "premium":         true,
         "cap":             "run_as_mu",
         "default":         "N",
@@ -3476,8 +3468,8 @@
         "key":             "autoupdate_plugin_self",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "default":         "auto",
         "type":            "select",
@@ -3506,8 +3498,8 @@
         "key":             "delete_on_deactivate",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -3521,11 +3513,10 @@
         "key":             "preferred_temp_dir",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "beacon_id":       787,
-        "advanced":        true,
         "default":         "",
         "type":            "text",
         "link_info":       "",
@@ -3538,7 +3529,6 @@
         "key":         "locale_override",
         "section":     "section_hidden",
         "beacon_id":   393,
-        "advanced":    true,
         "default":     "",
         "type":        "text",
         "link_info":   "https://icwp.io/il",
@@ -3551,8 +3541,8 @@
         "key":             "enable_beta",
         "section":         "section_defaults",
         "zone_comp_slugs": [
-          "module_plugin",
-          "plugin_general"
+          "plugin_general",
+          "module_plugin"
         ],
         "premium":         true,
         "default":         "N",
@@ -3570,7 +3560,6 @@
         "zone_comp_slugs": [
           "import_export"
         ],
-        "advanced":        true,
         "premium":         true,
         "cap":             "import_export_level_2",
         "default":         "N",
@@ -3588,7 +3577,6 @@
         "zone_comp_slugs": [
           "import_export"
         ],
-        "advanced":        true,
         "default":         "",
         "type":            "text",
         "link_info":       "",
@@ -3603,7 +3591,6 @@
         "zone_comp_slugs": [
           "import_export"
         ],
-        "advanced":        true,
         "transferable":    false,
         "sensitive":       true,
         "default":         [],
@@ -3620,7 +3607,6 @@
         "zone_comp_slugs": [
           "import_export"
         ],
-        "advanced":        true,
         "sensitive":       true,
         "default":         "N",
         "type":            "checkbox",
@@ -3636,7 +3622,6 @@
         "zone_comp_slugs": [
           "import_export"
         ],
-        "advanced":        true,
         "transferable":    false,
         "sensitive":       true,
         "default":         "",
@@ -4095,7 +4080,8 @@
         "key":             "enable_logger",
         "section":         "section_log_requests",
         "zone_comp_slugs": [
-          "request_logging"
+          "request_logging",
+          "request_live_logging"
         ],
         "default":         "N",
         "type":            "checkbox",
@@ -4110,10 +4096,10 @@
         "key":             "enable_live_log",
         "section":         "section_log_requests",
         "zone_comp_slugs": [
-          "request_logging"
+          "request_logging",
+          "request_live_logging"
         ],
         "cap":             "traffic_live_log",
-        "advanced":        true,
         "premium":         true,
         "default":         "N",
         "type":            "checkbox",
@@ -4131,7 +4117,6 @@
           "request_logging"
         ],
         "type":            "multiple_select",
-        "advanced":        true,
         "default":         [
           "logged_in",
           "server",
@@ -4174,8 +4159,6 @@
         "zone_comp_slugs": [
           "request_logging"
         ],
-        "advanced":        true,
-        "premium":         true,
         "default":         [],
         "type":            "array",
         "link_info":       "https://shsec.io/ec",
@@ -4204,8 +4187,8 @@
         "key":             "enable_limiter",
         "section":         "section_traffic_limiter",
         "zone_comp_slugs": [
-          "module_firewall",
-          "rate_limiting"
+          "rate_limiting",
+          "module_firewall"
         ],
         "premium":         true,
         "cap":             "traffic_rate_limiting",
@@ -4222,8 +4205,8 @@
         "key":             "limit_requests",
         "section":         "section_traffic_limiter",
         "zone_comp_slugs": [
-          "module_firewall",
-          "rate_limiting"
+          "rate_limiting",
+          "module_firewall"
         ],
         "type":            "integer",
         "default":         60,
@@ -4238,8 +4221,8 @@
         "key":             "limit_time_span",
         "section":         "section_traffic_limiter",
         "zone_comp_slugs": [
-          "module_firewall",
-          "rate_limiting"
+          "rate_limiting",
+          "module_firewall"
         ],
         "type":            "integer",
         "default":         60,
@@ -4292,8 +4275,8 @@
         "key":             "session_timeout_interval",
         "section":         "section_user_session_management",
         "zone_comp_slugs": [
-          "module_login",
-          "session_theft_protection"
+          "session_theft_protection",
+          "module_login"
         ],
         "type":            "integer",
         "default":         2,
@@ -4308,8 +4291,8 @@
         "key":             "session_idle_timeout_interval",
         "section":         "section_user_session_management",
         "zone_comp_slugs": [
-          "module_login",
-          "session_theft_protection"
+          "session_theft_protection",
+          "module_login"
         ],
         "type":            "integer",
         "default":         48,
@@ -4325,8 +4308,8 @@
         "key":             "session_lock",
         "section":         "section_user_session_management",
         "zone_comp_slugs": [
-          "module_login",
-          "session_theft_protection"
+          "session_theft_protection",
+          "module_login"
         ],
         "premium":         true,
         "type":            "multiple_select",
@@ -4356,8 +4339,8 @@
         "key":             "reg_email_validate",
         "section":         "section_user_reg",
         "zone_comp_slugs": [
-          "module_users",
-          "spam_user_register_block"
+          "spam_user_register_block",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_block_spam_registration",
@@ -4395,8 +4378,8 @@
         "key":             "email_checks",
         "section":         "section_user_reg",
         "zone_comp_slugs": [
-          "module_users",
-          "spam_user_register_block"
+          "spam_user_register_block",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_block_spam_registration",
@@ -4435,10 +4418,10 @@
         "key":             "enable_password_policies",
         "section":         "section_passwords",
         "zone_comp_slugs": [
-          "module_users",
           "password_policies",
           "password_strength",
-          "pwned_passwords"
+          "pwned_passwords",
+          "module_users"
         ],
         "type":            "checkbox",
         "default":         "N",
@@ -4453,9 +4436,9 @@
         "key":             "pass_prevent_pwned",
         "section":         "section_passwords",
         "zone_comp_slugs": [
-          "module_users",
           "password_policies",
-          "pwned_passwords"
+          "pwned_passwords",
+          "module_users"
         ],
         "type":            "checkbox",
         "default":         "Y",
@@ -4470,9 +4453,9 @@
         "key":             "pass_min_strength",
         "section":         "section_passwords",
         "zone_comp_slugs": [
-          "module_users",
           "password_strength",
-          "password_policies"
+          "password_policies",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_password_policies",
@@ -4515,8 +4498,8 @@
         "key":             "pass_expire",
         "section":         "section_passwords",
         "zone_comp_slugs": [
-          "module_users",
-          "password_policies"
+          "password_policies",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_password_policies",
@@ -4533,8 +4516,8 @@
         "key":             "pass_force_existing",
         "section":         "section_passwords",
         "zone_comp_slugs": [
-          "module_users",
-          "password_policies"
+          "password_policies",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_password_policies",
@@ -4584,8 +4567,8 @@
         "key":             "auto_idle_days",
         "section":         "section_suspend",
         "zone_comp_slugs": [
-          "module_users",
-          "inactive_users"
+          "inactive_users",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_suspension",
@@ -4603,8 +4586,8 @@
         "key":             "auto_idle_roles",
         "section":         "section_suspend",
         "zone_comp_slugs": [
-          "module_users",
-          "inactive_users"
+          "inactive_users",
+          "module_users"
         ],
         "premium":         true,
         "cap":             "user_suspension",

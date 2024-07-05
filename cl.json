@@ -47,7 +47,8 @@
           "Removed: Force SSL Admin.",
           "Removed: Request Firewall options - WP Terms & EXE File Uploads.",
           "Removed: Firewall Block Response select.",
-          "Removed: WP Generator tag removal option."
+          "Removed: WP Generator tag removal option.",
+          "Removed: All GASP JS deprecated options."
         ],
         "href":        ""
       }

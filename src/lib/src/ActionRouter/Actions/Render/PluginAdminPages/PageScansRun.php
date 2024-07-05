@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 
 class PageScansRun extends PageScansBase {
@@ -14,7 +13,7 @@ class PageScansRun extends PageScansBase {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
+				'title' => __( 'Scan Results', 'wp-simple-firewall' ),
 				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 		];
@@ -32,7 +31,6 @@ class PageScansRun extends PageScansBase {
 				'can_scan' => \count( $reasonsCantScan ) === 0,
 			],
 			'hrefs'   => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgOption( 'enable_core_file_integrity_scan' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [

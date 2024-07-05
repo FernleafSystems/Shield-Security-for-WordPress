@@ -220,15 +220,6 @@
 					>&nbsp;</a>
 				{% endif %}
 
-				{% if flags.is_wpcli %}
-					<span href="#" style="cursor:pointer;"
-						  class="float-end"
-						  data-bs-toggle="tooltip"
-						  data-bs-placement="left"
-						  data-bs-title="WP-CLI Option Key: {{ option.key }}"
-					>wp-cli:&gt;</span>
-				{% endif %}
-
 				{% if flags.show_transfer_switch %}
 
 					{% if option.key in vars.xferable_opts %}
@@ -243,8 +234,10 @@
 								   data-key="{{ option.key }}"
 								{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
 							/>
-							<label class="custom-control-label"
-								   for="optxfer-{{ option.key }}">&nbsp;</label>
+							<label class="custom-control-label" for="optxfer-{{ option.key }}">
+								<span class="svg-container"
+									  title="{{ strings.importexport }}"
+								>{{ imgs.svgs.importexport|raw }}</span></label>
 						</span>
 					{% endif %}
 				{% endif %}

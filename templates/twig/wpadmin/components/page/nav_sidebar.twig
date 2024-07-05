@@ -57,7 +57,7 @@
 					</a>
 
 					{% if mitem.config|default([]) is not empty %}
-						<a class="flex-fill d-flex flex-row justify-content-end align-self-center me-2 z-3 fs-6 {{ mitem.config.classes|default([])|join( ' ' ) }}"
+						<a class="flex-fill d-flex flex-row justify-content-end align-self-center me-1 z-3 fs-6 {{ mitem.config.classes|default([])|join( ' ' ) }}"
 						   href="{{ mitem.config.href|default('#') }}"
 						   {% if mitem.config.tooltip|default(false) is not empty %}title="{{ mitem.config.tooltip }}"{% endif %}
 								{% for data_key,data_val in mitem.config.data|default([]) %}

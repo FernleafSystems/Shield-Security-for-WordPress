@@ -20,7 +20,7 @@ class SiteHealthController {
 			   && !$WP->isAjax()
 			   && ( is_admin() || is_network_admin() )
 			   && Services::Request()->isGet()
-			   && apply_filters( 'shield/can_run_site_health_security', true );
+			   && apply_filters( 'shield/can_run_site_health_security', self::con()->comps->opts_lookup->isPluginEnabled() );
 	}
 
 	protected function run() {

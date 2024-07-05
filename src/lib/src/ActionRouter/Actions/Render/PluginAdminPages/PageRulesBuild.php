@@ -13,7 +13,7 @@ class PageRulesBuild extends PageRulesBase {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => __( 'Manage Rules', 'wp-simple-firewall' ),
+				'title' => __( 'Manage Rules', 'wp-simple-firewall' ),
 				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ),
 			],
 		];

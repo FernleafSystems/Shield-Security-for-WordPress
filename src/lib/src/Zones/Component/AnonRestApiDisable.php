@@ -14,7 +14,20 @@ class AnonRestApiDisable extends Base {
 		return __( 'Disable anonymous requests to the REST API.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		if ( self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			$status[ 'exp' ][] = __( "Anonymous (unauthenticated) requests to the WP REST API is allowed.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

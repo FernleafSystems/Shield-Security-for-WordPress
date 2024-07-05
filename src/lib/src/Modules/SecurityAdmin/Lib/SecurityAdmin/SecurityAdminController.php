@@ -93,8 +93,7 @@ class SecurityAdminController {
 	}
 
 	public function isEnabledSecAdmin() :bool {
-		return !empty( self::con()->comps->opts_lookup->getSecAdminPIN() )
-			   && self::con()->comps->opts_lookup->isPluginEnabled();
+		return !empty( self::con()->comps->opts_lookup->getSecAdminPIN() );
 	}
 
 	private function enqueueJS() {

@@ -14,7 +14,29 @@ class FileLocker extends Base {
 		return __( "Protect key WP core files that can't normally be protected.", 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->comps->file_locker->isEnabled() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$con = self::con();
+		$status = parent::status();
+
+		$toLock = $con->comps->file_locker->getFilesToLock();
+		if ( empty( $toLock ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+		}
+		elseif ( \in_array( 'wpconfig', $toLock ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'exp' ][] = __( "wp-config.php file isn't protected against tampering.", 'wp-simple-firewall' );
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+		}
+
+		if ( !\in_array( 'root_index', $toLock ) ) {
+			$status[ 'exp' ][] = __( "Root index.php file isn't protected against tampering.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

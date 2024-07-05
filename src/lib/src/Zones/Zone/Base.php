@@ -27,24 +27,28 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return __( 'No Subtitle Yet', 'wp-simple-firewall' );
 	}
 
-	public function getAllConfigButtonVars() :?array {
+	public function actions() :array {
+		$actions = [];
 		$moduleZone = $this->getUnderlyingModuleZone();
-		return empty( $moduleZone ) ? null : [
-			'title'   => __( 'Configure All Options', 'wp-simple-firewall' ),
-			'data'    => [
-				'zone_component_action' => ZoneComponentConfig::SLUG,
-				'zone_component_slug'   => $moduleZone::Slug(),
-			],
-			'icon'    => self::con()->svgs->raw( 'sliders' ),
-			'classes' => [
-				'btn-outline-secondary',
-				'zone_component_action',
-			],
-		];
+		if ( !empty( $moduleZone ) ) {
+			$actions[ 'config' ] = [
+				'title'   => __( 'Configure All Options', 'wp-simple-firewall' ),
+				'data'    => [
+					'zone_component_action' => ZoneComponentConfig::SLUG,
+					'zone_component_slug'   => $moduleZone::Slug(),
+				],
+				'icon'    => self::con()->svgs->raw( 'sliders' ),
+				'classes' => [
+					'btn-outline-secondary',
+					'zone_component_action',
+				],
+			];
+		}
+		return $actions;
 	}
 
 	/**
-	 * @return string|ModuleBase
+	 * @return ?string|ModuleBase
 	 */
 	protected function getUnderlyingModuleZone() :?string {
 		return null;

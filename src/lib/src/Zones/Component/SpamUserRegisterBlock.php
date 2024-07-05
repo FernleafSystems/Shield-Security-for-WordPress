@@ -14,7 +14,20 @@ class SpamUserRegisterBlock extends Base {
 		return __( 'Attempt to identify SPAM users and prevent their successful account creation.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return !empty( self::con()->comps->opts_lookup->getEmailValidateChecks() ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		if ( !empty( self::con()->comps->opts_lookup->getEmailValidateChecks() ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "There are no checks against user email addresses as a part of user registration.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

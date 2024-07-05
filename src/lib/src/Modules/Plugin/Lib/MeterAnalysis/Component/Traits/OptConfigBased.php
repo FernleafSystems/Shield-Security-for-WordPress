@@ -11,7 +11,7 @@ trait OptConfigBased {
 	}
 
 	protected function getOptLink( string $for ) :string {
-		return self::con()->plugin_urls->modCfgOption( $for );
+		return self::con()->plugin_urls->cfgForOpt( $for );
 	}
 
 	protected function hrefFull() :string {

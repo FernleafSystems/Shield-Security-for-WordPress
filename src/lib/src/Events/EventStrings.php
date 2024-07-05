@@ -411,10 +411,10 @@ class EventStrings {
 				],
 			],
 			'ade_check_option_disabled'    => [
-				'name'  => __( 'ADE Bot Check Invalid (Module)', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Check Invalid (Module)', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'A Bot Check was performed on a visitor but the IP Blocking module is disabled in settings.', 'wp-simple-firewall' ),
-					__( "The visitor passed the checks since they couldn't be performed correctly.", 'wp-simple-firewall' ),
+					__( 'A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ),
+					__( "The visitor was allowed to pass the checks since they couldn't be applied.", 'wp-simple-firewall' ),
 				],
 			],
 			'conn_kill'                    => [

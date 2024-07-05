@@ -6,6 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class SecadminWpAdmins extends Base {
 
+	public function explanation() :array {
+		return [
+				   EnumEnabledStatus::GOOD => [
+				   ],
+				   EnumEnabledStatus::BAD  => [
+					   __( 'Turn on the option to restrict access to WordPress admin accounts.', 'wp-simple-firewall' ),
+				   ],
+			   ][ $this->enabledStatus() ];
+	}
+
 	public function title() :string {
 		return __( 'Administrator Accounts Protection', 'wp-simple-firewall' );
 	}

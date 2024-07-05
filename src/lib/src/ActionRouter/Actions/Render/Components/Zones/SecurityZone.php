@@ -23,17 +23,18 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 			'strings' => [
 				'title'       => $zone->title(),
 				'description' => $zone->description(),
+				'actions' => __( 'Actions', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'components' => \array_map(
 					function ( $zoneComponent ) {
 						return self::con()->action_router->render( SecurityZoneComponent::class, [
-							'zone_component' => $zoneComponent
+							'zone_component' => $zoneComponent::Slug(),
 						] );
 					},
 					$zonesCon->getComponentsForZone( $zone )
 				),
-				'all_cfg'    => $zone->getAllConfigButtonVars(),
+				'actions' => $zone->actions(),
 			],
 		];
 	}

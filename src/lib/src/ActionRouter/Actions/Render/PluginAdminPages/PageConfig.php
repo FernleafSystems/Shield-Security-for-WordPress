@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsMod
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Ips;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageConfig extends BasePluginAdminPage {
@@ -22,11 +23,11 @@ class PageConfig extends BasePluginAdminPage {
 
 			case EnumModules::ACTIVITY:
 				$hrefs[] = [
-					'text' => __( 'View Activity Log', 'wp-simple-firewall' ),
+					'title' => __( 'View Activity Log', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				];
 				$hrefs[] = [
-					'text' => __( 'View Request Log', 'wp-simple-firewall' ),
+					'title' => __( 'View Request Log', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 				];
 				break;
@@ -34,7 +35,7 @@ class PageConfig extends BasePluginAdminPage {
 			case EnumModules::SECURITY_ADMIN:
 				if ( self::con()->comps->sec_admin->isEnabledSecAdmin() ) {
 					$hrefs[] = [
-						'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
+						'title' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
 						'href' => $URLs->noncedPluginAction(
 							SecurityAdminRemove::class,
 							Services::WpGeneral()->getAdminUrl(),
@@ -48,22 +49,19 @@ class PageConfig extends BasePluginAdminPage {
 
 			case EnumModules::SCANS:
 				$hrefs[] = [
-					'text' => __( 'Scan Results', 'wp-simple-firewall' ),
+					'title' => __( 'Scan Results', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 				];
 				$hrefs[] = [
-					'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
+					'title' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
 				];
 				break;
 
 			case EnumModules::IPS:
 				$hrefs[] = [
-					'text' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
-					'href' => $URLs->noncedPluginAction(
-						CrowdsecResetEnrollment::class,
-						$URLs->modCfg( EnumModules::IPS )
-					),
+					'title' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
+					'href' => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->zone( Ips::Slug() ) ),
 				];
 				break;
 

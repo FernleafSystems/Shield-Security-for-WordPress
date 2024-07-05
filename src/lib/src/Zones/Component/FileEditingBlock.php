@@ -14,7 +14,20 @@ class FileEditingBlock extends Base {
 		return __( 'Restrict the ability to edit files from within the WordPress admin area.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->opts->optIs( 'disable_file_editing', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		if ( self::con()->opts->optIs( 'disable_file_editing', 'Y' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "It's possible to edit files from within the WordPress admin area.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

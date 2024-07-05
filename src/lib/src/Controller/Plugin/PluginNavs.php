@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginNavs {
@@ -19,7 +19,6 @@ class PluginNavs {
 	public const NAV_LICENSE = 'license';
 	public const SUBNAV_LICENSE_CHECK = 'check';
 	public const NAV_OPTIONS_CONFIG = 'config';
-	public const NAV_ZONE_CONFIG = 'zone_cfg';
 	public const NAV_DASHBOARD = 'dashboard';
 	public const SUBNAV_DASHBOARD_GRADES = 'grades';
 	public const SUBNAV_DASHBOARD_OVERVIEW = 'overview';
@@ -46,6 +45,7 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const NAV_ZONES = 'zones';
+	public const NAV_ZONE_COMPONENTS = 'zone_components';
 	public const SUBNAV_ZONES_FIREWALL = 'firewall';
 	public const SUBNAV_ZONES_LOGGING = 'logging';
 	public const SUBNAV_ZONES_USERS = 'users';
@@ -69,7 +69,7 @@ class PluginNavs {
 	 * Handle special case for Config, so we ensure plugin general config is always default.
 	 */
 	public static function GetDefaultSubNavForNav( string $nav ) :string {
-		return $nav === self::NAV_OPTIONS_CONFIG ? EnumModules::PLUGIN : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
+		return $nav === self::NAV_ZONES ? Secadmin::Slug() : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
 	}
 
 	public static function GetNavHierarchy() :array {
@@ -221,12 +221,12 @@ class PluginNavs {
 						\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
 					),
 				],
-				self::NAV_ZONE_CONFIG    => [
+				self::NAV_ZONE_COMPONENTS    => [
 					'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
 					'sub_navs' => \array_map(
 						function () {
 							return [
-								'handler' => PluginAdminPages\PageDynamicLoad::class,
+								'handler' => PluginAdminPages\PageZoneComponentConfig::class,
 							];
 						},
 						\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )

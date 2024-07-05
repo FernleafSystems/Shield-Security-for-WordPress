@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,10 +13,18 @@ class AntibotSetup {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !self::con()->this_req->request_bypasses_all_restrictions && !Services::WpUsers()->isUserLoggedIn();
+		return !self::con()->this_req->request_bypasses_all_restrictions;
 	}
 
 	protected function run() {
+		add_action( 'init', function () {
+			if ( !Services::WpUsers()->isUserLoggedIn() ) {
+				$this->setup();
+			}
+		}, HookTimings::INIT_ANTIBOT_SETUP );
+	}
+
+	private function setup() {
 		$con = self::con();
 
 		$providers = [];

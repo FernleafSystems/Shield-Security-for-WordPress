@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
+use FernleafSystems\Wordpress\Services\Services;
 
 class WordpressUpdates extends Base {
 
@@ -14,11 +15,29 @@ class WordpressUpdates extends Base {
 		return __( 'A high-level overview of your WordPress updates status.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return EnumEnabledStatus::GOOD;
-	}
-
 	protected function hasConfigAction() :bool {
 		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+		if ( Services::WpGeneral()->hasCoreUpdate() ) {
+			$level = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "WP Core update is available.", 'wp-simple-firewall' );
+		}
+		if ( \count( Services::WpPlugins()->getUpdates() ) ) {
+			$status[ 'exp' ][] = __( "WP plugin update(s) available.", 'wp-simple-firewall' );
+		}
+		if ( \count( Services::WpThemes()->getUpdates() ) ) {
+			$status[ 'exp' ][] = __( "WP theme update(s) available.", 'wp-simple-firewall' );
+		}
+		if ( empty( $level ) ) {
+			$level = \count( $status[ 'exp' ] ) === 0 ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY;
+		}
+		$status[ 'level' ] = $level;
+		return $status;
 	}
 }

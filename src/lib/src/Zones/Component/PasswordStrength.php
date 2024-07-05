@@ -14,7 +14,25 @@ class PasswordStrength extends Base {
 		return __( 'Enforce strong passwords for all users.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->opts->optGet( 'pass_min_strength' ) >= 3 ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$opts = self::con()->opts;
+
+		$status = parent::status();
+
+		if ( $opts->optGet( 'pass_min_strength' ) >= 3 && $opts->optIs( 'enable_password_policies', 'Y' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			if ( !$opts->optIs( 'enable_password_policies', 'Y' ) ) {
+				$status[ 'exp' ][] = __( "All password policies are disabled.", 'wp-simple-firewall' );
+			}
+			$status[ 'exp' ][] = __( "Users are allowed to set passwords that aren't 'strong'.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

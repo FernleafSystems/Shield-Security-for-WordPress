@@ -21,7 +21,7 @@
 
 	<div class="row">
 
-		<div class="col-7 mt-4">
+		<div class="col-8 mt-4">
 			{% for component in vars.components %}
 				{{ component|raw }}
 			{% endfor %}
@@ -41,15 +41,26 @@
 						</div>
 					</div>
 				</div>
-				{% if vars.all_cfg %}
+				{% if vars.actions is not empty %}
 					<div class="card-footer">
-						<button class="btn btn-sm {{ vars.all_cfg.classes|join(' ') }}"
-								title="{{ vars.all_cfg.title }}"
-								{% for key, value in vars.all_cfg.data %}data-{{ key }}="{{ value }}"{% endfor %}
-						>
-							<span class="svg-container">{{ vars.all_cfg.icon|raw }}</span>
-							{{ vars.all_cfg.title }}
-						</button>
+						<div class="btn-group dropstart">
+							<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+									aria-expanded="false">{{ strings.actions }}</button>
+							<ul class="dropdown-menu">
+								{% for action in vars.actions %}
+									<li>
+										<a class="dropdown-item {{ action.classes|join(' ') }}"
+										   title="{{ action.title }}"
+										   href="{{ action.href|default('#') }}"
+										   title="{{ action.title }}"
+										   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+										>
+											<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}
+										</a>
+									</li>
+								{% endfor %}
+							</ul>
+						</div>
 					</div>
 				{% endif %}
 			</div>

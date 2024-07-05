@@ -14,9 +14,25 @@ class PwnedPasswords extends Base {
 		return __( 'Prevent use of Pwned Passwords.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return ( self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' )
-				 && self::con()->opts->optIs( 'enable_password_policies', 'Y' ) )
-			? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$opts = self::con()->opts;
+
+		$status = parent::status();
+
+		if ( $opts->optIs( 'pass_prevent_pwned', 'Y' ) && $opts->optIs( 'enable_password_policies', 'Y' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			if ( !$opts->optIs( 'enable_password_policies', 'Y' ) ) {
+				$status[ 'exp' ][] = __( "All password policies are disabled.", 'wp-simple-firewall' );
+			}
+			$status[ 'exp' ][] = __( "Users are allowed to re-use compromised passwords.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

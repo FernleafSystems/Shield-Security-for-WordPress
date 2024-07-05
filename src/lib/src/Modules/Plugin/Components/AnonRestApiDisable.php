@@ -13,11 +13,15 @@ class AnonRestApiDisable {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !Services::WpUsers()->isUserLoggedIn() && self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' );
+		return self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' );
 	}
 
 	protected function run() {
-		add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
+		add_action( 'init', function () {
+			if ( !Services::WpUsers()->isUserLoggedIn() ) {
+				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
+			}
+		} );
 	}
 
 	/**

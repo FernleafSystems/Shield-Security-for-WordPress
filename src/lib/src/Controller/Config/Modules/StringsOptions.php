@@ -483,8 +483,8 @@ class StringsOptions {
 				];
 				break;
 			case 'antibot_minimum' :
-				$name = __( 'AntiBot Minimum Score', 'wp-simple-firewall' );
-				$summary = __( 'AntiBot Minimum Score (Percentage)', 'wp-simple-firewall' );
+				$name = __( 'silentCAPTCHA Bot Minimum Score', 'wp-simple-firewall' );
+				$summary = __( 'silentCAPTCHA Bot Score (Percentage)', 'wp-simple-firewall' );
 				$desc = [
 					__( "Every IP address accessing your site gets its own unique visitor score - the higher the score, the better the visitor i.e. the more likely it's human.", 'wp-simple-firewall' ),
 					__( "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot.", 'wp-simple-firewall' ),
@@ -650,9 +650,7 @@ class StringsOptions {
 					.' '.__( "They aren't normally checked for Bots since they require a custom integration.", 'wp-simple-firewall' ),
 					__( "Select your 3rd party providers to have Shield automatically detect Bot requests to these forms.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						__( 'Only the form types (login, registration, lost password), that you have selected in the Login Guard module will be checked.', 'wp-simple-firewall' ) ),
-					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::LOGIN, 'section_brute_force_login_protection' ),
-						sprintf( __( 'Choose the types of forms you want %s to check', 'wp-simple-firewall' ), $pluginName ) ),
+						__( "Only form types (login, registration, lost password), that you've selected will be monitored.", 'wp-simple-firewall' ) ),
 				];
 				if ( !$con->caps->canThirdPartyScanUsers() ) {
 					$desc[] = __( 'Please upgrade your plan if you need to protect and integrate with 3rd party user login forms.', 'wp-simple-firewall' );
@@ -692,7 +690,7 @@ class StringsOptions {
 				$summary = sprintf( __( 'Disable The %s System', 'wp-simple-firewall' ), __( 'Anonymous Rest API', 'wp-simple-firewall' ) );
 				$desc = [
 					__( 'You can completely disable anonymous access to the REST API.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Enabling this option may break plugins that use the REST API for your site visitors.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Disabling anonymous access may break plugins that use the REST API for your site visitors.', 'wp-simple-firewall' ) ),
 					__( 'Use the exclusions option to allow anonymous access to specific API endpoints.', 'wp-simple-firewall' ),
 				];
 				break;
@@ -879,8 +877,6 @@ class StringsOptions {
 				$desc = [
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
-					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::INTEGRATIONS, 'section_user_forms' ),
-						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $pluginName ) )
 				];
 				break;
 			case 'login_limit_interval' :

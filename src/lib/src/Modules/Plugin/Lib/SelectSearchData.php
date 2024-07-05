@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ContactFormSpamBlockBot;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\LoginProtectionForms;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
 
 class SelectSearchData {
 
@@ -369,7 +372,7 @@ class SelectSearchData {
 				'id'     => 'integration_mainwp',
 				'text'   => 'Integration with MainWP',
 				'link'   => [
-					'href' => $con->plugin_urls->modCfgOption( 'enable_mainwp' ),
+					'href' => $con->plugin_urls->cfgForZoneComponent( ModuleIntegrations::Slug() ),
 				],
 				'tokens' => 'integration main mainwp',
 				'icon'   => $con->svgs->raw( 'sliders.svg' ),
@@ -381,7 +384,7 @@ class SelectSearchData {
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
 				'link'   => [
-					'href' => $con->plugin_urls->modCfgOption( 'user_form_providers' ),
+					'href' => $con->plugin_urls->cfgForZoneComponent( LoginProtectionForms::Slug() ),
 				],
 				'tokens' => 'integration login form bots '.$item[ 'text' ],
 				'icon'   => $con->svgs->raw( 'sliders.svg' ),
@@ -393,7 +396,7 @@ class SelectSearchData {
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
 				'link'   => [
-					'href' => $con->plugin_urls->modCfgOption( 'form_spam_providers' ),
+					'href' => $con->plugin_urls->cfgForZoneComponent( ContactFormSpamBlockBot::Slug() ),
 				],
 				'tokens' => 'contact integration form forms spam '.$item[ 'text' ],
 				'icon'   => $con->svgs->raw( 'sliders.svg' ),
@@ -424,9 +427,9 @@ class SelectSearchData {
 					'id'     => 'config_'.$optKey,
 					'text'   => $stringsOptions->getFor( $optKey )[ 'name' ],
 					'link'   => [
-						'href' => $con->plugin_urls->modCfgOption( $optKey ),
+						'href' => $con->plugin_urls->cfgForOpt( $optKey ),
 					],
-					'icon'   => $con->svgs->raw( 'sliders.svg' ),
+					'icon'   => $con->svgs->raw( 'gear' ),
 					'tokens' => $this->getSearchableTextForOption( $optKey ),
 				];
 			}

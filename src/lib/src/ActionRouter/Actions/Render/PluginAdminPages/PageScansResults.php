@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
@@ -29,16 +28,15 @@ class PageScansResults extends PageScansBase {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_results.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = self::con();
 		return [
 			[
-				'text'    => __( 'Results Display Options', 'wp-simple-firewall' ),
+				'title' => __( 'Results Display Options', 'wp-simple-firewall' ),
 				'href'    => 'javascript:{}',
 				'classes' => [ 'offcanvas_form_scans_results_options' ],
 			],
 			[
-				'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
+				'title' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
+				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
 			],
 		];
 	}
@@ -94,7 +92,6 @@ class PageScansResults extends PageScansBase {
 				'is_premium' => $con->isPremiumActive(),
 			],
 			'hrefs'       => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgOption( 'enable_core_file_integrity_scan' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [

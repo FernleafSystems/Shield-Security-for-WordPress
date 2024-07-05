@@ -13,7 +13,7 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 	protected function getPageContextualHrefs() :array {
 		$hrefs = parent::getPageContextualHrefs();
 		\array_unshift( $hrefs, [
-			'text' => __( 'Switch To Live Logs', 'wp-simple-firewall' ),
+			'title' => __( 'Switch To Live Logs', 'wp-simple-firewall' ),
 			'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
 		] );
 		return $hrefs;
@@ -24,9 +24,6 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 		return [
 			'flags'   => [
 				'is_enabled' => $con->comps->opts_lookup->enabledTrafficLogger(),
-			],
-			'hrefs'   => [
-				'please_enable' => $con->plugin_urls->modCfgOption( 'enable_logger' ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->raw( 'stoplights' ),

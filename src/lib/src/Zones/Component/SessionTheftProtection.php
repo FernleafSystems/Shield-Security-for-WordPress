@@ -14,18 +14,32 @@ class SessionTheftProtection extends Base {
 		return __( 'Protect user sessions against the threat of hijacking and theft.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
 		$con = self::con();
 		$lookup = $con->comps->opts_lookup;
-		if ( ( empty( $con->opts->optGet( 'session_lock' ) ) && $lookup->getSessionIdleInterval() === 0 ) ) {
-			$status = EnumEnabledStatus::BAD;
+
+		$status = parent::status();
+
+		if ( empty( $con->opts->optGet( 'session_lock' ) ) && $lookup->getSessionIdleInterval() === 0 ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
 		}
 		elseif ( !empty( $con->opts->optGet( 'session_lock' ) ) && $lookup->getSessionIdleInterval() > 0 ) {
-			$status = EnumEnabledStatus::GOOD;
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
-			$status = EnumEnabledStatus::OKAY;
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 		}
+
+		if ( empty( $con->opts->optGet( 'session_lock' ) ) ) {
+			$status[ 'exp' ][] = __( "It's good practice to lock a session at least 1 characteristic.", 'wp-simple-firewall' );
+		}
+		if ( $lookup->getSessionIdleInterval() === 0 ) {
+			$status[ 'exp' ][] = __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' );
+		}
+
 		return $status;
 	}
 }

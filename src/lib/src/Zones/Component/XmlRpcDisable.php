@@ -14,7 +14,20 @@ class XmlRpcDisable extends Base {
 		return __( 'Disable the XML-RPC endpoint and block all requests.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->opts->optIs( 'disable_xmlrpc', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		if ( self::con()->opts->optIs( 'disable_xmlrpc', 'Y' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "Requests to the XML-RPC endpoint are allowed on your site.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

@@ -4,6 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\AntibotSetup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename\RenameLogin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password\UserPasswordHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration\EmailValidate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\UserSessionHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
@@ -15,47 +22,73 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 		$components->license->execute();
 
-		if ( $components->opts_lookup->isPluginEnabled() && !$con->this_req->is_force_off ) {
-			$components->requests_log->execute();
-			$components->activity_log->execute();
-			$components->instant_alerts->execute();
-			$components->sec_admin->execute();
-			$components->ips_con->execute();
-			$components->whitelabel->execute();
-			$components->scans->execute();
-			$components->file_locker->execute();
-			$components->http_headers->execute();
-			$components->reports->execute();
-			$components->autoupdates->execute();
-			$components->badge->execute();
-			$components->import_export->execute();
-			$components->comment_spam->execute();
-			new Events\StatsWriter();
-			( new Lib\AllowBetaUpgrades() )->execute();
-			( new Lib\OverrideLocale() )->execute();
+		if ( $components->opts_lookup->isPluginEnabled() ) {
 
-			$components->forms_spam->execute();
-			add_action( 'init', function () {
-				self::con()->comps->forms_users->execute();
-			}, HookTimings::INIT_USER_FORMS_SETUP );
+			if ( !$con->this_req->is_force_off ) {
+				$components->requests_log->execute();
+				$components->activity_log->execute();
+				$components->instant_alerts->execute();
+				$components->sec_admin->execute();
+				$components->ips_con->execute();
+				$components->whitelabel->execute();
+				$components->scans->execute();
+				$components->file_locker->execute();
+				$components->http_headers->execute();
+				$components->reports->execute();
+				$components->autoupdates->execute();
+				$components->badge->execute();
+				$components->import_export->execute();
+				$components->comment_spam->execute();
+
+				new Events\StatsWriter();
+				( new Lib\AllowBetaUpgrades() )->execute();
+				( new Lib\OverrideLocale() )->execute();
+
+				$components->forms_spam->execute();
+
+				add_action( 'init', function () {
+					self::con()->comps->forms_users->execute();
+				}, HookTimings::INIT_USER_FORMS_SETUP );
+
+				( new RenameLogin() )->execute();
+
+				( new AntibotSetup() )->execute();
+
+				( new Components\AnonRestApiDisable() )->execute();
+				( new Lib\SiteHealthController() )->execute();
+
+				// Adds last login indicator column
+				add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
+				add_filter( 'wpmu_users_columns', [ $this, 'addUserStatusLastLogin' ] );
+
+				// This controller handles visitor whitelisted status internally.
+				self::con()->comps->user_suspend->execute();
+
+				// All newly created users have their first seen and password start date set
+				add_action( 'user_register', function ( $userID ) {
+					self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
+				} );
+
+				( new UserPasswordHandler() )->execute();
+				( new EmailValidate() )->execute();
+				( new UserSessionHandler() )->execute();
+			}
+
+			$components->mfa->execute();
 		}
 
 		$components->mainwp->execute();
 		$components->shieldnet->execute();
+		$components->wpcli->execute();
 
 		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || self::con()->opts->optIs( 'delete_on_deactivate', 'Y' );
 		} );
 	}
 
-	public function onWpInit() {
-		( new Components\AnonRestApiDisable() )->execute();
-		( new Lib\SiteHealthController() )->execute();
-		self::con()->comps->wpcli->execute();
-	}
-
 	public function runHourlyCron() {
 		$this->setEarlyLoadOrder();
+		( new BulkUpdateUserMeta() )->execute();
 	}
 
 	protected function setEarlyLoadOrder() {
@@ -86,5 +119,63 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		if ( @\function_exists( '\wp_cache_setting' ) ) {
 			@\wp_cache_setting( 'wp_super_cache_late_init', 1 );
 		}
+	}
+
+	/**
+	 * Adds the column to the users listing table to indicate
+	 * @param array $cols
+	 * @return array
+	 */
+	public function addUserStatusLastLogin( $cols ) {
+
+		if ( \is_array( $cols ) ) {
+			$customColName = self::con()->prefix( 'col_user_status' );
+			if ( !isset( $cols[ $customColName ] ) ) {
+				$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
+			}
+
+			add_filter( 'manage_users_custom_column', function ( $content, $colName, $userID ) use ( $customColName ) {
+
+				if ( $colName === $customColName ) {
+					$user = Services::WpUsers()->getUserById( $userID );
+					if ( $user instanceof \WP_User ) {
+						$con = self::con();
+
+						$meta = $con->user_metas->for( $user );
+						$lastLoginAt = (int)$meta->record->last_login_at;
+						$carbon = Services::Request()
+										  ->carbon()
+										  ->setTimestamp( $lastLoginAt );
+
+						/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record $ipRecord */
+						$ipRecord = $con->db_con->ips->getQuerySelector()->byId( $meta->record->ip_ref );
+
+						$additionalContent = apply_filters( 'shield/user_status_column', [
+							$content,
+							sprintf( '<em title="%s">%s</em>: %s',
+								$lastLoginAt > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
+								__( 'Last Login', 'wp-simple-firewall' ),
+								$lastLoginAt > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
+							),
+							sprintf( '<em title="%s">%s</em>: %s',
+								empty( $ipRecord->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : $ipRecord->ip,
+								__( 'Last Known IP', 'wp-simple-firewall' ),
+								empty( $ipRecord->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+									sprintf( '<a href="%s" target="_blank">%s</a>',
+										$con->plugin_urls->ipAnalysis( $ipRecord->ip ),
+										$ipRecord->ip
+									)
+							),
+						], $user );
+
+						$content = \implode( '<br/>', \array_filter( \array_map( '\trim', $additionalContent ) ) );
+					}
+				}
+
+				return $content;
+			}, 10, 3 );
+		}
+
+		return $cols;
 	}
 }

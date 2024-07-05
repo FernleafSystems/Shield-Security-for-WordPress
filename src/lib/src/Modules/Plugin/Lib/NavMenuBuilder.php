@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\{
-	ConfigForZoneComponents,
-	Zone
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Zone;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -22,7 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	Reporting,
 	RequestLogging,
 	SilentCaptcha,
-	Whitelabel};
+	Whitelabel
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class NavMenuBuilder {
@@ -130,14 +128,17 @@ class NavMenuBuilder {
 			'slug'     => PluginNavs::NAV_ACTIVITY,
 			'title'    => __( 'Activity Logs', 'wp-simple-firewall' ),
 			'subtitle' => __( "All WP Site Activity", 'wp-simple-firewall' ),
-//			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+			//			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 			'img'      => $con->svgs->raw( 'person-lines-fill' ),
 			'active'   => $this->inav() === PluginNavs::NAV_ACTIVITY,
 			'introjs'  => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
 			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [ ActivityLogging::Slug(), RequestLogging::Slug() ] ),
+			'config' => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [
+				ActivityLogging::Slug(),
+				RequestLogging::Slug()
+			] ),
 			'sub_items' => [
 				$this->createSubItemForNavAndSub( __( 'WP Activity Log' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				$this->createSubItemForNavAndSub( __( 'HTTP Request Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
@@ -197,7 +198,7 @@ class NavMenuBuilder {
 			$subItems[ $slug ] = [
 				'slug'    => PluginNavs::NAV_ZONES.'-'.$slug,
 				'title'   => $zone->title(),
-				'tooltip' => 'Zone Tooltip',
+				'tooltip' => $zone->subtitle(),
 				'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ZONES, $slug ),
 				'classes' => \array_filter( \array_merge( $this->getBaseDynamicLoadClasses(), [] ) ),
 				'data'    => [
@@ -223,55 +224,6 @@ class NavMenuBuilder {
 				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
 					$con->getHumanName() ),
 			],
-		];
-	}
-
-	private function configuration() :array {
-		$con = self::con();
-
-		$subItems = [];
-		foreach ( $con->modules as $mod ) {
-			$cfg = $mod->cfg;
-			if ( $cfg->properties[ 'show_module_options' ] ) {
-				$subItems[ $cfg->slug ] = [
-					'mod_slug'      => $cfg->slug,
-					'slug'          => PluginNavs::NAV_ZONE_CONFIG.'-'.$cfg->slug,
-					'title'         => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
-					'tooltip' => sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) ),
-					'href'          => $con->plugin_urls->cfgForZoneComponent( $cfg->slug ),
-					'classes'       => $this->getBaseDynamicLoadClasses(),
-					'data'          => [
-						'dynamic_page_load' => \wp_json_encode( [
-							'dynamic_load_slug' => ConfigForZoneComponents::SLUG,
-							'dynamic_load_data' => [
-								'zone_component_slugs' => [ 'module_'.$cfg->slug ],
-							],
-						] ),
-					],
-					'active'        => $this->inav() === PluginNavs::NAV_ZONE_CONFIG && $this->subnav() === 'module_'.$cfg->slug,
-					'menu_priority' => $cfg->properties[ 'config_menu_priority' ],
-				];
-			}
-		}
-
-		\uasort( $subItems, function ( $a, $b ) {
-			if ( $a[ 'menu_priority' ] == $b[ 'menu_priority' ] ) {
-				return 0;
-			}
-			return ( $a[ 'menu_priority' ] < $b[ 'menu_priority' ] ) ? -1 : 1;
-		} );
-
-		return [
-			'slug'      => PluginNavs::NAV_OPTIONS_CONFIG,
-			'title'     => __( 'Config', 'wp-simple-firewall' ),
-			'subtitle'  => __( "Setup Your Security", 'wp-simple-firewall' ),
-			'img'       => self::con()->svgs->raw( 'sliders' ),
-			'introjs'   => [
-				'title' => __( 'Plugin Configuration', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ),
-					self::con()->getHumanName() ),
-			],
-			'sub_items' => $subItems,
 		];
 	}
 
@@ -442,11 +394,12 @@ class NavMenuBuilder {
 		];
 	}
 
-	private function createConfigItemForNav( string $primaryNavSlug, array $componentSlugs ) :array {
+	private function createConfigItemForNav( string $primaryNavSlug, array $componentSlugs, string $tooltip = '' ) :array {
 		return [
 			'slug'    => $primaryNavSlug.'-config',
 			'title'   => __( 'Config', 'wp-simple-firewall' ),
-			'img'     => self::con()->svgs->raw( 'sliders' ),
+			'img'     => self::con()->svgs->raw( 'gear' ),
+			'tooltip' => empty( $tooltip ) ? __( 'Configuration' ) : $tooltip,
 			'classes' => [
 				'zone_component_action',
 			],

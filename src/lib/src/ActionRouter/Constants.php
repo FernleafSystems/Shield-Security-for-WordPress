@@ -254,6 +254,8 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageToolLockdown::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
+		Actions\Render\PluginAdminPages\PageZone::class,
+		Actions\Render\PluginAdminPages\PageZoneComponentConfig::class,
 		Actions\Render\Utility\DbDescribeTable::class,
 	];
 }

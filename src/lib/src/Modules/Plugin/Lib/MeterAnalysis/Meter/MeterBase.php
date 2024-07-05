@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Components
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModulePlugin;
 
 abstract class MeterBase {
 
@@ -19,7 +20,7 @@ abstract class MeterBase {
 		if ( !self::con()->comps->opts_lookup->isPluginEnabled() ) {
 			$warning = [
 				'text' => __( 'The plugin is currently entirely disabled.' ),
-				'href' => self::con()->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
+				'href' => self::con()->plugin_urls->cfgForZoneComponent( ModulePlugin::Slug() ),
 			];
 		}
 		return $warning;

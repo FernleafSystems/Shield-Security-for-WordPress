@@ -14,8 +14,24 @@ class ContactFormSpamBlockBot extends Base {
 		return __( 'Block SPAM posted to Contact Forms by automated Bots.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
-		return \count( $this->getUnprotectedProvidersByName() ) > 0 ? EnumEnabledStatus::BAD : EnumEnabledStatus::GOOD;
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
+
+		$unprotected = $this->getUnprotectedProvidersByName();
+
+		if ( empty( $unprotected ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+			$status[ 'exp' ][] = __( "If you use a WP forms plugin for which we don't have an integration, please reach out to us.", 'wp-simple-firewall' );
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = sprintf( __( "It looks like you're using a WP forms plugin for which we have an integration: %s.", 'wp-simple-firewall' ), implode( ', ', $unprotected ) );
+		}
+
+		return $status;
 	}
 
 	/**

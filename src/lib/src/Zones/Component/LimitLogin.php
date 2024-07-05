@@ -14,19 +14,29 @@ class LimitLogin extends Base {
 		return __( 'Protect the login page against bots and brute-force attacks.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
 		$con = self::con();
-		$lookup = $con->comps->opts_lookup;
 
-		$status = EnumEnabledStatus::BAD;
-		if ( \in_array( 'login', $con->opts->optGet( 'bot_protection_locations' ) ) ) {
-			if ( $lookup->enabledLoginGuardAntiBotCheck() ) {
-				$status = EnumEnabledStatus::GOOD;
-			}
-			elseif ( $lookup->enabledLoginGuardCooldown() ) {
-				$status = EnumEnabledStatus::OKAY;
+		$status = parent::status();
+
+		if ( $con->comps->opts_lookup->enabledLoginGuardAntiBotCheck() ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't running on your login page." );
+		}
+
+		if ( $con->opts->optGet( 'login_limit_interval' ) === 0 ) {
+			$status[ 'exp' ][] = __( "Login cooldown, that helps prevent brute-force attacks on your login, is disabled." );
+			if ( $status[ 'level' ] === EnumEnabledStatus::GOOD ) {
+				$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			}
 		}
+
 		return $status;
 	}
 }

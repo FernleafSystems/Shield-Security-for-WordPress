@@ -10,17 +10,27 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 	public const TEMPLATE = '/components/config/options_form_for.twig';
 
 	protected function getRenderData() :array {
+		$con = self::con();
+		$config = $con->cfg->configuration;
 		$options = $this->action_data[ 'options' ];
 		return [
 			'strings' => [
-				'inner_page_title'    => __( 'Configuration' ),
+				'inner_page_title' => __( 'Configuration' ),
+				'import_export'    => __( 'Import/Export' ),
 			],
 			'flags'   => [
+				'show_transfer_switch' => $con->isPremiumActive(),
+			],
+			'imgs'    => [
+				'svgs' => [
+					'importexport' => $con->svgs->raw( 'arrow-down-up' )
+				],
 			],
 			'vars'    => [
 				'all_opts_keys' => $options,
 				'all_options'   => ( new BuildOptionsForDisplay( $options ) )->standard(),
 				'form_context'  => $this->action_data[ 'form_context' ] ?? 'normal',
+				'xferable_opts' => \array_keys( $config->transferableOptions() ),
 			],
 		];
 	}
