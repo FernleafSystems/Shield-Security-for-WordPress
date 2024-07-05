@@ -147,21 +147,6 @@
         }
       },
       {
-        "handle": "login_guard",
-        "zones":  [
-          "page_login"
-        ],
-        "deps":   [
-          "wp-jquery"
-        ],
-        "types":  [
-          "js"
-        ],
-        "flags":  {
-          "admin_only": false
-        }
-      },
-      {
         "handle": "notbot",
         "types":  [
           "js"
@@ -2187,7 +2172,7 @@
         "value_options":   [
           {
             "value_key": "gasp",
-            "text":      "With Shield Bot Protection"
+            "text":      "Protected By silentCAPTCHA"
           },
           {
             "value_key": "email",
@@ -3125,44 +3110,11 @@
         "description":     "Allow Registration Of Passkeys."
       },
       {
-        "key":         "text_imahuman",
-        "section":     "section_deprecated",
-        "sensitive":   true,
-        "premium":     true,
-        "default":     "I'm a human",
-        "type":        "text",
-        "link_info":   "https://shsec.io/dz",
-        "link_blog":   "",
-        "name":        "GASP Checkbox Text",
-        "summary":     "The Message Displayed Next To The GASP Checkbox",
-        "description": "You can change the text displayed to the user beside the checkbox if you need a customized message."
-      },
-      {
-        "key":         "text_pleasecheckbox",
-        "section":     "section_deprecated",
-        "sensitive":   true,
-        "premium":     true,
-        "default":     "Please check the box to show us you're a human.",
-        "type":        "text",
-        "link_info":   "https://shsec.io/dz",
-        "link_blog":   "",
-        "name":        "GASP Alert Text",
-        "summary":     "The Message Displayed If The User Doesn't Check The Box",
-        "description": "You can change the text displayed to the user in the alert message if they don't check the box."
-      },
-      {
         "key":     "email_can_send_verified_at",
         "section": "section_hidden",
         "type":    "integer",
         "default": 0,
         "min":     0
-      },
-      {
-        "key":       "gasp_key",
-        "section":   "section_hidden",
-        "type":      "text",
-        "default":   "",
-        "sensitive": true
       },
       {
         "key":             "form_spam_providers",

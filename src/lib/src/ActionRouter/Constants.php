@@ -222,7 +222,6 @@ class Constants {
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaBody::class,
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaFooter::class,
 		Actions\Render\FullPage\Report\SecurityReport::class,
-		Actions\Render\Legacy\GaspJs::class,
 		Actions\Render\MainWP\SitesListTableColumn::class,
 		Actions\Render\MainWP\ExtensionPageContainer::class,
 		Actions\Render\MainWP\ExtPage\MwpOutOfDate::class,

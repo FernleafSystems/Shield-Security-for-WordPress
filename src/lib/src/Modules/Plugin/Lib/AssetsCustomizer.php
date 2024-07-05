@@ -280,43 +280,6 @@ class AssetsCustomizer {
 					],
 				],
 			],
-			'login_guard'      => [
-				'key'     => 'login_guard',
-				'handles' => [
-					'login_guard',
-				],
-				'data'    => function () {
-					$con = self::con();
-					$selectors = \array_merge( [
-						'#loginform',
-					], $con->opts->optGet( 'antibot_form_ids' ) );
-					$isGasp = $con->comps->opts_lookup->enabledLoginGuardGaspCheck();
-					$cbName = $con->comps->opts_lookup->getLoginGuardGaspKey();
-					$label = $con->opts->optGet( 'text_imahuman' );
-					if ( $label === 'default' ) {
-						$con->opts->optReset( 'text_imahuman' );
-						$label = $con->opts->optGet( 'text_imahuman' );
-					}
-					$alert = $con->opts->optGet( 'text_pleasecheckbox' );
-					if ( $alert === 'default' ) {
-						$con->opts->optReset( 'text_pleasecheckbox' );
-						$label = $con->opts->optGet( 'text_pleasecheckbox' );
-					}
-					return [
-						'form_selectors' => $selectors,
-						'uniq'           => uniqid(),
-						'cbname'         => $cbName,
-						'strings'        => [
-							'label'   => __( \stripslashes( $label ), 'wp-simple-firewall' ),
-							'alert'   => __( \stripslashes( $alert ), 'wp-simple-firewall' ),
-							'loading' => __( 'Loading', 'wp-simple-firewall' )
-						],
-						'flags'          => [
-							'gasp' => $isGasp,
-						],
-					];
-				},
-			],
 			'license'          => [
 				'key'      => 'license',
 				'required' => PluginNavs::IsNavs( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK ),

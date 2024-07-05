@@ -22,9 +22,6 @@ class AntibotSetup {
 		if ( $con->opts->optGet( 'login_limit_interval' ) > 0 && $con->cache_dir_handler->exists() ) {
 			$providers[] = ProtectionProviders\CoolDown::class;
 		}
-		if ( $con->comps->opts_lookup->enabledLoginGuardGaspCheck() ) {
-			$providers[] = ProtectionProviders\GaspJs::class;
-		}
 
 		if ( !empty( $providers ) ) {
 

@@ -15,7 +15,7 @@ class PreStore {
 	use PluginControllerConsumer;
 
 	public function run() {
-		( new RemoveModuleEnablerOptions() )->run();
+		( new OptionsCorrections() )->run();
 		$this->audit();
 		$this->comments();
 		$this->firewall();
@@ -115,10 +115,6 @@ class PreStore {
 			}
 		}
 
-		if ( $opts->optIs( 'enable_antibot_check', 'Y' ) ) {
-			$opts->optSet( 'enable_login_gasp_check', 'N' );
-		}
-
 		$opts->optSet( 'two_factor_auth_user_roles', self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles() );
 
 		$redirect = \preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->optGet( 'rename_wplogin_redirect' ) );
@@ -132,17 +128,6 @@ class PreStore {
 
 		if ( empty( $opts->optGet( 'mfa_user_setup_pages' ) ) ) {
 			$opts->optSet( 'mfa_user_setup_pages', [ 'profile' ] );
-		}
-
-		if ( $opts->optChanged( 'antibot_form_ids' ) ) {
-			$opts->optSet( 'antibot_form_ids',
-				\array_values( \array_unique( \array_filter(
-					$opts->optGet( 'antibot_form_ids' ),
-					function ( $id ) {
-						return \trim( strip_tags( (string)$id ) );
-					}
-				) ) )
-			);
 		}
 
 		if ( $opts->optChanged( 'rename_wplogin_path' ) ) {

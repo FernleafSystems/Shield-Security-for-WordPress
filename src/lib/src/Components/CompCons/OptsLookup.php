@@ -45,10 +45,6 @@ class OptsLookup {
 		return $this->isPluginEnabled() && self::con()->opts->optGet( 'login_limit_interval' ) > 0;
 	}
 
-	public function enabledLoginGuardGaspCheck() :bool {
-		return !$this->enabledLoginGuardAntiBotCheck() && self::con()->opts->optIs( 'enable_login_gasp_check', 'Y' );
-	}
-
 	public function enabledIntegrationMainwp() :bool {
 		return self::con()->opts->optIs( 'enable_mainwp', 'Y' );
 	}
@@ -171,15 +167,6 @@ class OptsLookup {
 
 	public function getIpAutoBlockOffenseLimit() :int {
 		return $this->isPluginEnabled() ? (int)self::con()->opts->optGet( 'transgression_limit' ) : 0;
-	}
-
-	public function getLoginGuardGaspKey() :string {
-		$key = self::con()->opts->optGet( 'gasp_key' );
-		if ( empty( $key ) ) {
-			$key = \uniqid();
-			self::con()->opts->optSet( 'gasp_key', $key );
-		}
-		return self::con()->prefix( $key );
 	}
 
 	public function getLoginGuardEmailAuth2FaRoles() :array {
@@ -313,5 +300,19 @@ class OptsLookup {
 	 */
 	public function isModEnabled( string $slug = '' ) :bool {
 		return $this->isPluginEnabled();
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getLoginGuardGaspKey() :string {
+		return '';
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function enabledLoginGuardGaspCheck() :bool {
+		return false;
 	}
 }

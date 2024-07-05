@@ -883,30 +883,6 @@ class StringsOptions {
 						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $pluginName ) )
 				];
 				break;
-			case 'enable_login_gasp_check' :
-				$name = __( 'Bot Protection', 'wp-simple-firewall' );
-				$summary = sprintf( '[DEPRECATED - %s] %s',
-					'Please use the newer AntiBot setting',
-					__( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' )
-				);
-				$desc = [
-					__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) )
-				];
-				break;
-			case 'antibot_form_ids' :
-				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
-				$summary = sprintf( '%s %s',
-					'[DEPRECATED - Please use the newer AntiBot setting]',
-					__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' )
-				);
-				$desc = [
-					__( 'Provide DOM selectors to attach AntiBot protection to any form.', 'wp-simple-firewall' ),
-					__( 'IDs are prefixed with "#".', 'wp-simple-firewall' ),
-					__( 'Classes are prefixed with ".".', 'wp-simple-firewall' ),
-					__( 'IDs are preferred over classes.', 'wp-simple-firewall' )
-				];
-				break;
 			case 'login_limit_interval' :
 				$name = __( 'Cooldown Period', 'wp-simple-firewall' );
 				$summary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
@@ -972,22 +948,6 @@ class StringsOptions {
 					__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' ),
 					__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' ),
 					__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' ),
-				];
-				break;
-			case 'text_imahuman' :
-				$name = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
-				$summary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
-				$desc = [
-					__( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( "I'm a human.", 'wp-simple-firewall' ) )
-				];
-				break;
-			case 'text_pleasecheckbox' :
-				$name = __( 'GASP Alert Text', 'wp-simple-firewall' );
-				$summary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
-				$desc = [
-					__( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( "Please check the box to show us you're a human.", 'wp-simple-firewall' ) )
 				];
 				break;
 

@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 19.2
+ */
 class GaspJs extends BaseProtectionProvider {
 
 	public function setup() {
@@ -16,7 +18,6 @@ class GaspJs extends BaseProtectionProvider {
 
 	public function enqueueJS() {
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
-			$assets[] = 'login_guard';
 			return $assets;
 		} );
 	}
@@ -71,6 +72,6 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function buildFormInsert( $formProvider ) :string {
-		return self::con()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
+		return '';
 	}
 }

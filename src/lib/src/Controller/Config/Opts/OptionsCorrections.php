@@ -4,11 +4,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-class RemoveModuleEnablerOptions {
+class OptionsCorrections {
 
 	use PluginControllerConsumer;
 
-	public function run() {
+	public function run() :void {
+		$this->removeDeprecated();
+		$this->removeModuleEnablers();
+	}
+
+	protected function removeDeprecated() {
+		$opts = self::con()->opts;
+		if ( $opts->optIs( 'enable_login_gasp_check', 'Y' ) ) {
+			$opts->optSet( 'enable_antibot_check', 'Y' );
+			$opts->optSet( 'enable_login_gasp_check', 'N' );
+		}
+	}
+
+	protected function removeModuleEnablers() {
 		$opts = self::con()->opts;
 		if ( $opts->optIs( 'enable_admin_access_restriction', 'N' ) ) {
 			$opts->optReset( 'admin_access_key' );
