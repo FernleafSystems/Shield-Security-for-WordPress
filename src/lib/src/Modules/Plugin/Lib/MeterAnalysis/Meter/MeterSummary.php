@@ -8,15 +8,6 @@ class MeterSummary extends MeterBase {
 
 	public const SLUG = 'summary';
 
-	protected function getWorkingMods() :array {
-		return \array_keys( \array_filter(
-			self::con()->modules,
-			function ( $mod ) {
-				return ( $mod->cfg->properties[ 'show_module_options' ] ?? false ) && $mod->cfg->slug !== 'plugin';
-			}
-		) );
-	}
-
 	public function title() :string {
 		return __( 'High-Level System Security Summary', 'wp-simple-firewall' );
 	}

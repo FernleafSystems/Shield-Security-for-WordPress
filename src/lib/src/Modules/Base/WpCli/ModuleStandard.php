@@ -96,9 +96,7 @@ class ModuleStandard extends BaseWpCliCmd {
 
 		switch ( $args[ 'action' ] ) {
 			case 'status':
-				$this->mod()->isModOptEnabled() ?
-					\WP_CLI::log( 'Module is currently enabled.' )
-					: \WP_CLI::log( 'Module is currently disabled.' );
+				self::con()->comps->opts_lookup->isPluginEnabled() ? \WP_CLI::log( 'Plugin is currently enabled.' ) : \WP_CLI::log( 'Plugin is currently disabled.' );
 				break;
 			case 'enable':
 				$this->mod()->setIsMainFeatureEnabled( true );

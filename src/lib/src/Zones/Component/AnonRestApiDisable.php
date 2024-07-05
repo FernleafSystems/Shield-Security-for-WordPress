@@ -15,6 +15,6 @@ class AnonRestApiDisable extends Base {
 	}
 
 	public function enabledStatus() :string {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'disable_anonymous_restapi', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+		return self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}
 }

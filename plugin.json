@@ -359,6 +359,7 @@
         "load_priority":        20,
         "config_menu_priority": 50,
         "show_central":         true,
+        "show_module_options":  false,
         "reqs":                 {
           "dbs": [
             "botsignal",
@@ -420,6 +421,7 @@
         "order":                10,
         "config_menu_priority": 10,
         "show_central":         true,
+        "show_module_options":  false,
         "rest_api":             {
           "publish": true
         }
@@ -1375,7 +1377,7 @@
         "key":             "update_delay",
         "section":         "section_scan_wpv",
         "zone_comp_slugs": [
-          "module_autoupdates"
+          "module_scans"
         ],
         "premium":         true,
         "type":            "integer",

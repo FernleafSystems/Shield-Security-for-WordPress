@@ -14,7 +14,8 @@ class EmailValidate {
 	private $track;
 
 	protected function canRun() :bool {
-		return !empty( self::con()->comps->opts_lookup->getEmailValidateChecks() );
+		return !self::con()->this_req->request_bypasses_all_restrictions
+			   && !empty( self::con()->comps->opts_lookup->getEmailValidateChecks() );
 	}
 
 	protected function run() {

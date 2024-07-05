@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,7 +10,7 @@ class OptsLookup {
 	use PluginControllerConsumer;
 
 	public function enabledAntiBotCommentSpam() :bool {
-		return $this->optIsAndModForOptEnabled( 'enable_antibot_comments', 'Y' );
+		return self::con()->opts->optIs( 'enable_antibot_comments', 'Y' );
 	}
 
 	public function enabledAntiBotEngine() :bool {
@@ -19,15 +18,15 @@ class OptsLookup {
 	}
 
 	public function enabledHumanCommentSpam() :bool {
-		return $this->optIsAndModForOptEnabled( 'enable_comments_human_spam_filter', 'Y' );
+		return self::con()->opts->optIs( 'enable_comments_human_spam_filter', 'Y' );
 	}
 
 	public function enabledCrowdSecAutoBlock() :bool {
-		return !self::con()->opts->optIs( 'cs_block', 'disabled' ) && $this->isModFromOptEnabled( 'cs_block' );
+		return !self::con()->opts->optIs( 'cs_block', 'disabled' ) && $this->isPluginEnabled();
 	}
 
 	public function enabledCrowdSecAutoUnblock() :bool {
-		return $this->optIsAndModForOptEnabled( 'cs_block', 'block_with_unblock' );
+		return self::con()->opts->optIs( 'cs_block', 'block_with_unblock' );
 	}
 
 	public function enabledIpAutoBlock() :bool {
@@ -39,19 +38,19 @@ class OptsLookup {
 	}
 
 	public function enabledLoginGuardAntiBotCheck() :bool {
-		return $this->optIsAndModForOptEnabled( 'enable_antibot_check', 'Y' );
+		return self::con()->opts->optIs( 'enable_antibot_check', 'Y' );
 	}
 
 	public function enabledLoginGuardCooldown() :bool {
-		return $this->isModFromOptEnabled( 'login_limit_interval' ) && self::con()->opts->optGet( 'login_limit_interval' ) > 0;
+		return $this->isPluginEnabled() && self::con()->opts->optGet( 'login_limit_interval' ) > 0;
 	}
 
 	public function enabledLoginGuardGaspCheck() :bool {
-		return !$this->enabledLoginGuardAntiBotCheck() && $this->optIsAndModForOptEnabled( 'enable_login_gasp_check', 'Y' );
+		return !$this->enabledLoginGuardAntiBotCheck() && self::con()->opts->optIs( 'enable_login_gasp_check', 'Y' );
 	}
 
 	public function enabledIntegrationMainwp() :bool {
-		return $this->optIsAndModForOptEnabled( 'enable_mainwp', 'Y' );
+		return self::con()->opts->optIs( 'enable_mainwp', 'Y' );
 	}
 
 	/**
@@ -62,7 +61,7 @@ class OptsLookup {
 	}
 
 	public function enabledTelemetry() :bool {
-		return self::con()->isPremiumActive() || $this->optIsAndModForOptEnabled( 'enable_tracking', 'Y' );
+		return self::con()->isPremiumActive() || self::con()->opts->optIs( 'enable_tracking', 'Y' );
 	}
 
 	public function enabledTrafficLimiter() :bool {
@@ -82,8 +81,7 @@ class OptsLookup {
 	}
 
 	public function getAntiBotMinScore() :int {
-		return $this->isModFromOptEnabled( 'antibot_minimum' ) ?
-			(int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) : 0;
+		return $this->isPluginEnabled() ? (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) : 0;
 	}
 
 	public function getBlockdownCfg() :array {
@@ -98,7 +96,7 @@ class OptsLookup {
 
 	public function getBotTrackOffenseCountFor( string $key ) :int {
 		$count = 0;
-		if ( $this->isModFromOptEnabled( $key ) ) {
+		if ( $this->isPluginEnabled() ) {
 			$optValue = self::con()->opts->optGet( $key );
 			if ( $optValue === 'transgression-double' ) {
 				$count = 2;
@@ -118,7 +116,7 @@ class OptsLookup {
 	}
 
 	public function getCommenterTrustedMinimum() :int {
-		return $this->isModFromOptEnabled( 'trusted_commenter_minimum' ) ? self::con()->opts->optGet( 'trusted_commenter_minimum' ) : 1;
+		return $this->isPluginEnabled() ? self::con()->opts->optGet( 'trusted_commenter_minimum' ) : 1;
 	}
 
 	public function getEmailValidateChecks() :array {
@@ -172,7 +170,7 @@ class OptsLookup {
 	}
 
 	public function getIpAutoBlockOffenseLimit() :int {
-		return $this->isModFromOptEnabled( 'transgression_limit' ) ? (int)self::con()->opts->optGet( 'transgression_limit' ) : 0;
+		return $this->isPluginEnabled() ? (int)self::con()->opts->optGet( 'transgression_limit' ) : 0;
 	}
 
 	public function getLoginGuardGaspKey() :string {
@@ -192,7 +190,7 @@ class OptsLookup {
 	}
 
 	public function getPassExpireTimeout() :int {
-		return $this->isModFromOptEnabled( 'pass_expire' ) ? self::con()->opts->optGet( 'pass_expire' )*\DAY_IN_SECONDS : 0;
+		return $this->isPluginEnabled() ? self::con()->opts->optGet( 'pass_expire' )*\DAY_IN_SECONDS : 0;
 	}
 
 	public function getReportEmail() :string {
@@ -270,38 +268,50 @@ class OptsLookup {
 	}
 
 	public function isBotTrackImmediateBlock( string $key ) :bool {
-		return $this->optIsAndModForOptEnabled( $key, 'block' );
+		return self::con()->opts->optIs( $key, 'block' );
 	}
 
 	public function isScanAutoFilterResults() :bool {
 		return (bool)apply_filters( 'shield/scan_auto_filter_results', true );
 	}
 
-	public function isModFromOptEnabled( string $optKey ) :bool {
-		return $this->isModEnabled( self::con()->cfg->configuration->modFromOpt( $optKey ) );
-	}
-
-	public function isModEnabled( string $slug ) :bool {
-		$optKey = $slug === EnumModules::PLUGIN ? 'global_enable_plugin_features' : 'enable_'.$slug;
-		return !self::con()->opts->optExists( $optKey ) || self::con()->opts->optIs( $optKey, 'Y' );
+	public function isPluginEnabled() :bool {
+		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
 	}
 
 	public function isPassPoliciesEnabled() :bool {
-		return $this->optIsAndModForOptEnabled( 'enable_password_policies', 'Y' );
+		return self::con()->opts->optIs( 'enable_password_policies', 'Y' );
 	}
 
 	public function isPassPreventPwned() :bool {
 		return $this->isPassPoliciesEnabled() && self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function isPluginGloballyDisabled() :bool {
-		return !self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
+		return !$this->isPluginEnabled();
 	}
 
 	/**
-	 * shortcut for doing optIs() check alongside module enabled check for said option.
+	 * @deprecated 19.2
 	 */
 	public function optIsAndModForOptEnabled( string $optKey, $optIs ) :bool {
-		return self::con()->opts->optIs( $optKey, $optIs ) && $this->isModFromOptEnabled( $optKey );
+		return self::con()->opts->optIs( $optKey, $optIs ) && $this->isPluginEnabled();
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function isModFromOptEnabled( string $optKey ) :bool {
+		return $this->isPluginEnabled();
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function isModEnabled( string $slug = '' ) :bool {
+		return $this->isPluginEnabled();
 	}
 }

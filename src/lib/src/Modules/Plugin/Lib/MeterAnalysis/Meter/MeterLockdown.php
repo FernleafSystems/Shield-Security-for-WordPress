@@ -9,10 +9,6 @@ class MeterLockdown extends MeterBase {
 
 	public const SLUG = 'lockdown';
 
-	protected function getWorkingMods() :array {
-		return [ EnumModules::FIREWALL ];
-	}
-
 	public function title() :string {
 		return __( 'Site Lockdown and Firewall', 'wp-simple-firewall' );
 	}

@@ -31,9 +31,6 @@ class LoginProtection extends Base {
 		}
 
 		$toEnable = $value === 'Y';
-		if ( $toEnable ) { // we don't disable the whole module
-			self::con()->opts->optSet( 'enable_'.EnumModules::LOGIN, 'Y' );
-		}
 		self::con()
 			->opts
 			->optSet( 'enable_antibot_check', $toEnable ? 'Y' : 'N' )

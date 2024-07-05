@@ -15,6 +15,10 @@ class UserSessionHandler {
 	use PluginControllerConsumer;
 	use WpLoginCapture;
 
+	protected function canRun() :bool {
+		return !self::con()->this_req->request_bypasses_all_restrictions;
+	}
+
 	protected function run() {
 		$this->setupLoginCaptureHooks();
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -212,10 +216,8 @@ class UserSessionHandler {
 			throw new \Exception( 'session_notfound' );
 		}
 
-		$ts = Services::Request()->ts();
-
 		$max = self::con()->comps->opts_lookup->getSessionMax();
-		if ( $max > 0 && ( $ts - $sess->login > $max ) ) {
+		if ( $max > 0 && ( Services::Request()->ts() - $sess->login > $max ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 	}

@@ -50,7 +50,7 @@ class Apc extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enabled_scan_apc', 'Y' );
+		return self::con()->opts->optIs( 'enabled_scan_apc', 'Y' );
 	}
 
 	protected function isPremiumOnly() :bool {

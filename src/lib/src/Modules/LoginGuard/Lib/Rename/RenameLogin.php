@@ -13,7 +13,9 @@ class RenameLogin {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return !self::con()->this_req->request_bypasses_all_restrictions && $this->isEnabled();
+		return !self::con()->this_req->request_bypasses_all_restrictions
+			   && !self::con()->this_req->wp_is_xmlrpc
+			   && $this->isEnabled();
 	}
 
 	public function isEnabled() :bool {

@@ -11,16 +11,7 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();
-		$hrefs = [
-			[
-				'text'    => __( 'Configure Reporting', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => 'section_reporting'
-				],
-			]
-		];
+		$hrefs = [];
 		if ( $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
 				'text'    => __( 'Create Custom Report', 'wp-simple-firewall' ),

@@ -169,12 +169,6 @@ class PluginNavs {
 						self::SUBNAV_SCANS_RUN     => [
 							'handler' => PluginAdminPages\PageScansRun::class,
 						],
-						self::SUBNAV_SCANS_HISTORY => [
-							'handler' => PluginAdminPages\PageScansHistory::class,
-						],
-						self::SUBNAV_SCANS_STATE   => [
-							'handler' => PluginAdminPages\PageScansHistory::class,
-						],
 					],
 				],
 				self::NAV_TOOLS          => [

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Component,
 	Components
@@ -15,34 +14,13 @@ abstract class MeterBase {
 
 	public const SLUG = '';
 
-	/**
-	 * @return string[]
-	 */
-	protected function getWorkingMods() :array {
-		return [];
-	}
-
 	public function warning() :array {
-		$con = self::con();
 		$warning = [];
-		if ( $con->comps->opts_lookup->isPluginGloballyDisabled() ) {
+		if ( !self::con()->comps->opts_lookup->isPluginEnabled() ) {
 			$warning = [
 				'text' => __( 'The plugin is currently entirely disabled.' ),
-				'href' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
+				'href' => self::con()->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
 			];
-		}
-		else {
-			foreach ( $this->getWorkingMods() as $slug ) {
-				if ( !$con->comps->opts_lookup->isModEnabled( $slug ) ) {
-					$warning = [
-						'text' => __( 'A module that manages some of these settings is disabled.' ),
-						'href' => $con->plugin_urls->modCfgOption(
-							'enable_'.( $slug === EnumModules::PLUGIN ? 'global_enable_plugin_features' : $slug )
-						),
-					];
-					break;
-				}
-			}
 		}
 		return $warning;
 	}

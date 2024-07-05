@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-
 class UserSuspendInactive extends Base {
 
 	use Traits\OptConfigBased;
@@ -17,7 +15,7 @@ class UserSuspendInactive extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::USERS ) && self::con()->opts->optGet( 'auto_idle_days' ) > 0;
+		return self::con()->opts->optGet( 'auto_idle_days' ) > 0;
 	}
 
 	public function title() :string {

@@ -21,14 +21,6 @@ class PageIpRulesTable extends BasePluginAdminPage {
 				'classes' => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
-				'text'    => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::IPS
-				],
-			],
-			[
 				'text'     => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
 				'href'     => $con->plugin_urls->fileDownloadAsStream( 'ip_rules' ),
 				'disabled' => !$con->isPremiumActive(),

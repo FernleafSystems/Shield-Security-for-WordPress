@@ -81,6 +81,26 @@ class BotSignalsController {
 		return $this->isBots[ $IP ] ?? false;
 	}
 
+	public function getAllowable404s() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
+			function ( $ext ) {
+				return !empty( $ext ) && \is_string( $ext ) && \preg_match( '#^[a-z\d]+$#i', $ext );
+			}
+		) );
+	}
+
+	public function getAllowableScripts() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
+			function ( $script ) {
+				return !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' );
+			}
+		) );
+	}
+
 	public function getEventListener() :BotEventListener {
 		return $this->eventListener ?? $this->eventListener = new BotEventListener();
 	}

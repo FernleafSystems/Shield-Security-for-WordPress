@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
@@ -17,12 +16,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InstantAlerts,
 	IpBlockingRules,
 	LoginHide,
+	Modules\ModuleIntegrations,
+	Modules\ModulePlugin,
 	Modules\ModuleScans,
 	Reporting,
 	RequestLogging,
 	SilentCaptcha,
-	Whitelabel
-};
+	Whitelabel};
 use FernleafSystems\Wordpress\Services\Services;
 
 class NavMenuBuilder {
@@ -36,10 +36,8 @@ class NavMenuBuilder {
 			$this->ips(),
 			$this->scans(),
 			$this->activity(),
-//			$this->traffic(),
 			$this->rules(),
 			$this->tools(),
-			$this->configuration(),
 			$this->reports(),
 			$this->gopro(),
 		];
@@ -176,7 +174,7 @@ class NavMenuBuilder {
 		return [
 			'slug'     => PluginNavs::NAV_DASHBOARD,
 			'title'    => __( 'Dashboard', 'wp-simple-firewall' ),
-			'subtitle' => __( 'Security Posture At A Glance', 'wp-simple-firewall' ),
+			'subtitle' => __( 'Security At A Glance', 'wp-simple-firewall' ),
 			'img'      => $con->svgs->raw( 'speedometer' ),
 			'href'     => $con->plugin_urls->adminHome(),
 			'introjs'  => [
@@ -184,6 +182,9 @@ class NavMenuBuilder {
 				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
 					$con->getHumanName() ),
 			],
+			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_DASHBOARD, [
+				ModulePlugin::Slug(),
+			] ),
 		];
 	}
 
@@ -232,15 +233,11 @@ class NavMenuBuilder {
 		foreach ( $con->modules as $mod ) {
 			$cfg = $mod->cfg;
 			if ( $cfg->properties[ 'show_module_options' ] ) {
-				$enabled = $cfg->slug === EnumModules::PLUGIN ? $con->opts->optIs( 'global_enable_plugin_features', 'Y' )
-					: $con->comps->opts_lookup->isModEnabled( $cfg->slug );
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
 					'slug'          => PluginNavs::NAV_ZONE_CONFIG.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
-					'tooltip'       => $enabled ?
-						sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) )
-						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
+					'tooltip' => sprintf( 'Configure options for %s', __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ) ),
 					'href'          => $con->plugin_urls->cfgForZoneComponent( $cfg->slug ),
 					'classes'       => $this->getBaseDynamicLoadClasses(),
 					'data'          => [
@@ -389,6 +386,13 @@ class NavMenuBuilder {
 						'title' => __( 'Hide Login', 'wp-simple-firewall' ),
 					]
 				),
+				\array_merge(
+					$zoneCon->getZoneComponent( ModuleIntegrations::Slug() )->getActions()[ 'config' ],
+					[
+						'slug'  => PluginNavs::NAV_TOOLS.'-integrations',
+						'title' => __( 'Integrations', 'wp-simple-firewall' ),
+					]
+				),
 				[
 					'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
 					'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
@@ -426,25 +430,6 @@ class NavMenuBuilder {
 				InstantAlerts::Slug(),
 				Reporting::Slug()
 			] ),
-		];
-	}
-
-	private function traffic() :array {
-		return [
-			'slug'      => PluginNavs::NAV_TRAFFIC.'-log',
-			'title'     => __( 'Site Traffic', 'wp-simple-firewall' ),
-			'subtitle'  => __( "View HTTP Requests", 'wp-simple-firewall' ),
-			'img'       => self::con()->svgs->raw( 'stoplights' ),
-			'active'    => $this->inav() === PluginNavs::NAV_TRAFFIC,
-			'introjs'   => [
-				'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
-				'body'  => __( "Dig deeper into your WordPress traffic as it hits your site.", 'wp-simple-firewall' ),
-			],
-			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_TRAFFIC, [ RequestLogging::Slug() ] ),
-			'sub_items' => [
-				$this->createSubItemForNavAndSub( __( 'Log Viewer' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-				$this->createSubItemForNavAndSub( __( 'Live Log Viewer' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
-			],
 		];
 	}
 

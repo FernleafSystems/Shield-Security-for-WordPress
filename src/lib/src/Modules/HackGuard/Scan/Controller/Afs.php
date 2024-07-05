@@ -212,7 +212,7 @@ class Afs extends Base {
 	}
 
 	public function isEnabled() :bool {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_core_file_integrity_scan', 'Y' );
+		return self::con()->opts->optIs( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {

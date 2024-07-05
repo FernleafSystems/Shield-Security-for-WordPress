@@ -15,7 +15,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 
 		$components->license->execute();
 
-		if ( !$components->opts_lookup->isPluginGloballyDisabled() && !$con->this_req->is_force_off ) {
+		if ( $components->opts_lookup->isPluginEnabled() && !$con->this_req->is_force_off ) {
 			$components->requests_log->execute();
 			$components->activity_log->execute();
 			$components->instant_alerts->execute();

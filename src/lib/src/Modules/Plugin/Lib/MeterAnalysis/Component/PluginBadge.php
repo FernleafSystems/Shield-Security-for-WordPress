@@ -14,7 +14,7 @@ class PluginBadge extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'display_plugin_badge', 'Y' );
+		return self::con()->opts->optIs( 'display_plugin_badge', 'Y' );
 	}
 
 	public function title() :string {

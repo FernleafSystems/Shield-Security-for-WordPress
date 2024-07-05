@@ -19,7 +19,7 @@ class LimitLogin extends Base {
 		$lookup = $con->comps->opts_lookup;
 
 		$status = EnumEnabledStatus::BAD;
-		if ( $lookup->isModFromOptEnabled( 'enable_antibot_check' ) && \in_array( 'login', $con->opts->optGet( 'bot_protection_locations' ) ) ) {
+		if ( \in_array( 'login', $con->opts->optGet( 'bot_protection_locations' ) ) ) {
 			if ( $lookup->enabledLoginGuardAntiBotCheck() ) {
 				$status = EnumEnabledStatus::GOOD;
 			}

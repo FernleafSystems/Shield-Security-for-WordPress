@@ -186,10 +186,10 @@ class SectionNotices {
 				if ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
 					$warnings[] = __( "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
 				}
-				elseif ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
+				elseif ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
-						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->modules[ EnumModules::IPS ], 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgOption( 'antibot_minimum' ), 'silentCAPTCHA' )
 					);
 				}
 
@@ -212,10 +212,10 @@ class SectionNotices {
 				break;
 
 			case 'section_user_forms':
-				if ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
+				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
-						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::IPS, 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgOption( 'antibot_minimum' ), 'silentCAPTCHA' )
 					);
 				}
 				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
@@ -229,10 +229,10 @@ class SectionNotices {
 				break;
 
 			case 'section_spam':
-				if ( !$optsLookup->isModEnabled( EnumModules::IPS ) ) {
+				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
-						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( EnumModules::IPS, 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgOption( 'antibot_minimum' ), 'silentCAPTCHA' )
 					);
 				}
 				else {
@@ -263,14 +263,14 @@ class SectionNotices {
 				break;
 
 			case 'section_auto_black_list':
-				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledIpAutoBlock() ) {
+				if ( !$optsLookup->enabledIpAutoBlock() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
 						__( 'IP blocking is turned-off because the offenses limit is set to 0.', 'wp-simple-firewall' ) );
 				}
 				break;
 
 			case 'section_silentcaptcha':
-				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledAntiBotEngine() ) {
+				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "silentCAPTCHA is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
 				}
@@ -281,7 +281,7 @@ class SectionNotices {
 				break;
 
 			case 'section_bot_behaviours':
-				if ( $optsLookup->isModEnabled( EnumModules::IPS ) && !$optsLookup->enabledIpAutoBlock() ) {
+				if ( !$optsLookup->enabledIpAutoBlock() ) {
 					$warnings[] = __( 'Since the offenses limit is set to 0, these options have no effect.', 'wp-simple-firewall' );
 				}
 				if ( \strlen( Services::Request()->getUserAgent() ) == 0 ) {

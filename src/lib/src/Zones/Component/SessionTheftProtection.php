@@ -17,9 +17,7 @@ class SessionTheftProtection extends Base {
 	public function enabledStatus() :string {
 		$con = self::con();
 		$lookup = $con->comps->opts_lookup;
-		if ( !$lookup->isModFromOptEnabled( 'session_lock' )
-			 || ( empty( $con->opts->optGet( 'session_lock' ) ) && $lookup->getSessionIdleInterval() === 0 )
-		) {
+		if ( ( empty( $con->opts->optGet( 'session_lock' ) ) && $lookup->getSessionIdleInterval() === 0 ) ) {
 			$status = EnumEnabledStatus::BAD;
 		}
 		elseif ( !empty( $con->opts->optGet( 'session_lock' ) ) && $lookup->getSessionIdleInterval() > 0 ) {

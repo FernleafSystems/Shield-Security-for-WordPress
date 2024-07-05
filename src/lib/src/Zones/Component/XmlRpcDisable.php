@@ -15,6 +15,6 @@ class XmlRpcDisable extends Base {
 	}
 
 	public function enabledStatus() :string {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'disable_xmlrpc', 'Y' )? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
+		return self::con()->opts->optIs( 'disable_xmlrpc', 'Y' ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}
 }

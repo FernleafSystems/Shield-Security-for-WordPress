@@ -13,19 +13,6 @@ class PageImportExport extends BasePluginAdminPage {
 	public const SLUG = 'admin_plugin_page_importexport';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/import.twig';
 
-	protected function getPageContextualHrefs() :array {
-		return [
-			[
-				'text'    => __( 'Configure Auto Import', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => 'section_importexport'
-				],
-			],
-		];
-	}
-
 	protected function getPageContextualHrefs_Help() :array {
 		return [
 			'text'       => sprintf( '%s: %s/%s', __( 'Help', 'wp-simple-firewall' ), __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),

@@ -99,13 +99,12 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 		$navs = [
 			PluginNavs::NAV_DASHBOARD      => __( 'Security Dashboard', 'wp-simple-firewall' ),
-			PluginNavs::NAV_RULES          => __( 'Custom Rules', 'wp-simple-firewall' ),
 			PluginNavs::NAV_IPS            => __( 'IP Manager', 'wp-simple-firewall' ),
 			PluginNavs::NAV_SCANS          => __( 'Scans', 'wp-simple-firewall' ),
 			PluginNavs::NAV_ACTIVITY       => __( 'Activity', 'wp-simple-firewall' ),
 			PluginNavs::NAV_TRAFFIC        => __( 'Traffic', 'wp-simple-firewall' ),
+			PluginNavs::NAV_RULES          => __( 'Custom Rules', 'wp-simple-firewall' ),
 			PluginNavs::NAV_REPORTS        => __( 'Reports', 'wp-simple-firewall' ),
-			PluginNavs::NAV_OPTIONS_CONFIG => __( 'Configuration', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {
 			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );

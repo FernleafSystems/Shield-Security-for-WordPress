@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,7 +15,7 @@ class InstantAlertsCon {
 	private $alerts;
 
 	protected function canRun() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::PLUGIN );
+		return self::con()->comps->opts_lookup->isPluginEnabled();
 	}
 
 	protected function run() {

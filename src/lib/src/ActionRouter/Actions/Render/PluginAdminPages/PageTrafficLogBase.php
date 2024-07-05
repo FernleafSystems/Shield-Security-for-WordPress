@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-
 abstract class PageTrafficLogBase extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
@@ -13,14 +11,6 @@ abstract class PageTrafficLogBase extends BasePluginAdminPage {
 				'text'     => __( 'Download Request Logs', 'wp-simple-firewall' ),
 				'href'     => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
 				'disabled' => !$con->isPremiumActive(),
-			],
-			[
-				'text'    => __( 'Configure Request Logging', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::ACTIVITY
-				],
 			],
 		];
 	}

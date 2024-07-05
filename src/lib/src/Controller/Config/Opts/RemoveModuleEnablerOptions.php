@@ -104,6 +104,7 @@ class RemoveModuleEnablerOptions {
 			$opts->optReset( 'email_checks' );
 			$opts->optReset( 'enable_password_policies' );
 			$opts->optReset( 'auto_idle_days' );
+			$opts->optReset( 'pass_expire' );
 			$opts->optReset( 'enable_user_management' );
 		}
 	}

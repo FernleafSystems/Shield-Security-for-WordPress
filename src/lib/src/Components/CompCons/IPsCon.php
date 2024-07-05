@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BlacklistHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -13,8 +12,7 @@ class IPsCon {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::IPS )
-			   && self::con()->db_con->ip_rules->isReady();
+		return self::con()->comps->opts_lookup->isPluginEnabled() && self::con()->db_con->ip_rules->isReady();
 	}
 
 	protected function run() {

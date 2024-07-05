@@ -18,15 +18,6 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
 		add_filter( 'wpmu_users_columns', [ $this, 'addUserStatusLastLogin' ] );
 
-		/** Everything from this point on must consider XMLRPC compatibility **/
-
-		// XML-RPC Compatibility
-		if ( $con->this_req->wp_is_xmlrpc && $con->getModule_Plugin()->isXmlrpcBypass() ) {
-			return;
-		}
-
-		/** Everything from this point on must consider XMLRPC compatibility **/
-
 		// This controller handles visitor whitelisted status internally.
 		self::con()->comps->user_suspend->execute();
 
@@ -35,11 +26,9 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 			self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
-		if ( !$con->this_req->request_bypasses_all_restrictions ) {
-			( new Lib\Session\UserSessionHandler() )->execute();
-			( new Lib\Password\UserPasswordHandler() )->execute();
-			( new Lib\Registration\EmailValidate() )->execute();
-		}
+		( new Lib\Password\UserPasswordHandler() )->execute();
+		( new Lib\Registration\EmailValidate() )->execute();
+		( new Lib\Session\UserSessionHandler() )->execute();
 	}
 
 	/**

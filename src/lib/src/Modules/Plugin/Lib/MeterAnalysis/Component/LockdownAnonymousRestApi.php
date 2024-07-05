@@ -10,7 +10,7 @@ class LockdownAnonymousRestApi extends Base {
 	public const WEIGHT = 2;
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'disable_anonymous_restapi', 'Y' );
+		return self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

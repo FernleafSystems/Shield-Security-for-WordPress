@@ -20,16 +20,7 @@ class SecurityAdminAdmins extends Base {
 
 	public function href() :string {
 		$lookup = self::con()->comps->opts_lookup;
-		if ( !$lookup->isModFromOptEnabled( 'admin_access_key' ) ) {
-			$href = $this->getOptLink( 'enable_admin_access_restriction' );
-		}
-		elseif ( empty( $lookup->getSecAdminPIN() ) ) {
-			$href = $this->getOptLink( 'admin_access_key' );
-		}
-		else {
-			$href = $this->getOptLink( 'admin_access_restrict_admin_users' );
-		}
-		return $href;
+		return empty( $lookup->getSecAdminPIN() ) ? $this->getOptLink( 'admin_access_key' ) : $this->getOptLink( 'admin_access_restrict_admin_users' );
 	}
 
 	public function title() :string {

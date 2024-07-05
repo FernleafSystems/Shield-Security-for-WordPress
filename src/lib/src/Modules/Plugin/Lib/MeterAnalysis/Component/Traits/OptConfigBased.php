@@ -7,9 +7,7 @@ trait OptConfigBased {
 	abstract protected function getOptConfigKey() :string;
 
 	protected function cfgItem() :string {
-		$con = self::con();
-		$mod = $con->modules[ $con->cfg->configuration->modFromOpt( $this->getOptConfigKey() ) ];
-		return $mod->isModOptEnabled() ? $this->getOptConfigKey() : $mod->getEnableModOptKey();
+		return $this->getOptConfigKey();
 	}
 
 	protected function getOptLink( string $for ) :string {

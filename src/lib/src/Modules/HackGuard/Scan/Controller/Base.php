@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
@@ -169,7 +168,7 @@ abstract class Base {
 	}
 
 	public function isReady() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::SCANS ) && $this->isEnabled() && !$this->isRestricted();
+		return self::con()->comps->opts_lookup->isPluginEnabled() && $this->isEnabled() && !$this->isRestricted();
 	}
 
 	public function isRestricted() :bool {

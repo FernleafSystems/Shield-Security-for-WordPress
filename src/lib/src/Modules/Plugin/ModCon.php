@@ -163,10 +163,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		( new Lib\CleanOldOptions() )->execute();
 	}
 
-	public function isXmlrpcBypass() :bool {
-		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
-	}
-
 	protected function setupHooks() {
 		parent::setupHooks();
 

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotic
 class GloballyDisabled extends Base {
 
 	public function check() :?array {
-		return  self::con()->comps->opts_lookup->isPluginGloballyDisabled() ?
+		return !self::con()->comps->opts_lookup->isPluginEnabled() ?
 			[
 				'id'        => 'plugin_globally_disabled',
 				'type'      => 'warning',

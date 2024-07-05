@@ -9,13 +9,6 @@ class MeterUsers extends MeterBase {
 
 	public const SLUG = 'users';
 
-	protected function getWorkingMods() :array {
-		return [
-			EnumModules::LOGIN,
-			EnumModules::USERS,
-		];
-	}
-
 	public function title() :string {
 		return __( 'Customer And Visitor Protection', 'wp-simple-firewall' );
 	}

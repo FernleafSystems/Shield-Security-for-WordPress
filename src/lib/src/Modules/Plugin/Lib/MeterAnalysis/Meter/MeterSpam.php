@@ -9,10 +9,6 @@ class MeterSpam extends MeterBase {
 
 	public const SLUG = 'spam';
 
-	protected function getWorkingMods() :array {
-		return [ EnumModules::COMMENTS ];
-	}
-
 	public function title() :string {
 		return __( 'Comment & Contact Form SPAM Protection', 'wp-simple-firewall' );
 	}

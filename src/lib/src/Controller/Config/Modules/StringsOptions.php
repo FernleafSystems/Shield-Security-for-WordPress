@@ -567,7 +567,7 @@ class StringsOptions {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						\implode( ', ', $con->getModule_IPs()->getAllowable404s() )
+						\implode( ', ', $con->comps->bot_signals->getAllowable404s() )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -601,7 +601,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( "Currently permitted scripts", 'wp-simple-firewall' ),
 						sprintf( '<ul><li><code>%s</code></li></ul>',
-							\implode( '</code></li><li><code>', $con->getModule_IPs()->getAllowableScripts() ) )
+							\implode( '</code></li><li><code>', $con->comps->bot_signals->getAllowableScripts() ) )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];

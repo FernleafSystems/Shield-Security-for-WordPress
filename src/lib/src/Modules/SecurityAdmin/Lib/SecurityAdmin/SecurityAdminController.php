@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
 	SecurityAdminLogin,
 	SecurityAdminRequestRemoveByEmail
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
@@ -94,7 +94,7 @@ class SecurityAdminController {
 
 	public function isEnabledSecAdmin() :bool {
 		return !empty( self::con()->comps->opts_lookup->getSecAdminPIN() )
-			   && self::con()->comps->opts_lookup->isModFromOptEnabled( 'admin_access_key' );
+			   && self::con()->comps->opts_lookup->isPluginEnabled();
 	}
 
 	private function enqueueJS() {

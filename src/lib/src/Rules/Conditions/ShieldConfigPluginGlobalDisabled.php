@@ -13,6 +13,6 @@ class ShieldConfigPluginGlobalDisabled extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return self::con()->comps->opts_lookup->isPluginGloballyDisabled();
+		return !self::con()->comps->opts_lookup->isPluginEnabled();
 	}
 }

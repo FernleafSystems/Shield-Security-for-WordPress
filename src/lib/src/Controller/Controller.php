@@ -695,8 +695,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return isset( $this->modules[ EnumModules::LICENSE ] )
-			   && $this->comps->license->hasValidWorkingLicense();
+		return isset( $this->modules[ EnumModules::LICENSE ] ) && $this->comps->license->hasValidWorkingLicense();
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
@@ -751,6 +750,9 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::SCANS ];
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getModule_IPs() :IPs\ModCon {
 		return $this->modules[ EnumModules::IPS ];
 	}
@@ -762,6 +764,9 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::LICENSE ];
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getModule_LoginGuard() :LoginGuard\ModCon {
 		return $this->modules[ EnumModules::LOGIN ];
 	}

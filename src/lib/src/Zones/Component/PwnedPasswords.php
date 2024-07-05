@@ -15,8 +15,8 @@ class PwnedPasswords extends Base {
 	}
 
 	public function enabledStatus() :string {
-		return ( self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'pass_prevent_pwned', 'Y' )
-				 && self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'enable_password_policies', 'Y' ) )
+		return ( self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' )
+				 && self::con()->opts->optIs( 'enable_password_policies', 'Y' ) )
 			? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}
 }

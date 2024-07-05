@@ -38,7 +38,6 @@ class BotBlocking extends Base {
 
 		self::con()
 			->opts
-			->optSet( 'enable_'.EnumModules::IPS, 'Y' )
 			->optSet( 'transgression_limit', $offenses )
 			->optSet( 'auto_expire', $blockLength )
 			->optSet( 'cs_block', $csBlock === 'Y' ? 'block_with_unblock' : 'disabled' )

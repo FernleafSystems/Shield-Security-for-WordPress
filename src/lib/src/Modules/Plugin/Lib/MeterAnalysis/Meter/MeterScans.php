@@ -9,10 +9,6 @@ class MeterScans extends MeterBase {
 
 	public const SLUG = 'scans';
 
-	protected function getWorkingMods() :array {
-		return [ EnumModules::SCANS ];
-	}
-
 	public function title() :string {
 		return __( 'Site Scanning', 'wp-simple-firewall' );
 	}

@@ -4,14 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\ProviderNotActiveForUserException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\MfaController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 
 abstract class AbstractProvider implements Provider2faInterface {
-
-	/**
-	 * @deprecated 19.2
-	 */
-	use ModConsumer;
 
 	protected const SLUG = '';
 

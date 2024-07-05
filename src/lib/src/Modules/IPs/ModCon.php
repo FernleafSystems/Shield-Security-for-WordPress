@@ -13,6 +13,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return self::con()->comps->offense_tracker;
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getAllowable404s() :array {
 		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
 		return \array_unique( \array_filter(
@@ -23,6 +26,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		) );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function getAllowableScripts() :array {
 		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
 		return \array_unique( \array_filter(

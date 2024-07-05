@@ -9,10 +9,6 @@ class MeterIpBlocking extends MeterBase {
 
 	public const SLUG = 'ips';
 
-	protected function getWorkingMods() :array {
-		return [ EnumModules::IPS ];
-	}
-
 	public function title() :string {
 		return __( 'Bad-Bot Detection and IP Blocking', 'wp-simple-firewall' );
 	}

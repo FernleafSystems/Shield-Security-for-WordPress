@@ -16,18 +16,7 @@ class LoginProtectionForms extends Base {
 	}
 
 	public function enabledStatus() :string {
-		$con = self::con();
-		$lookup = $con->comps->opts_lookup;
-
-		$status = EnumEnabledStatus::BAD;
-		if ( $lookup->isModFromOptEnabled( 'enable_antibot_check' ) && \in_array( 'login', $con->opts->optGet( 'bot_protection_locations' ) ) ) {
-			if ( $lookup->enabledLoginGuardAntiBotCheck() ) {
-				$status = EnumEnabledStatus::GOOD;
-			}
-			elseif ( $lookup->enabledLoginGuardCooldown() ) {
-				$status = EnumEnabledStatus::OKAY;
-			}
-		}
-		return $status;
+		$forms = self::con()->opts->optGet( 'bot_protection_locations' );
+		return \in_array( 'login', $forms ) ? EnumEnabledStatus::GOOD : ( empty( $forms ) ? EnumEnabledStatus::BAD : EnumEnabledStatus::OKAY );
 	}
 }

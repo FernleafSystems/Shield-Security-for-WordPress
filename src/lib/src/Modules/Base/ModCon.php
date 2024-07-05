@@ -122,21 +122,11 @@ class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModuleEnabled() :bool {
-		$con = self::con();
-		if ( $con->comps->opts_lookup->isPluginGloballyDisabled() ) {
-			$enabled = false;
-		}
-		elseif ( $con->this_req->is_force_off ) {
-			$enabled = false;
-		}
-		else {
-			$enabled = $this->isModOptEnabled();
-		}
-		return $enabled;
+		return self::con()->comps->opts_lookup->isPluginEnabled() && !self::con()->this_req->is_force_off;
 	}
 
 	public function isModOptEnabled() :bool {
-		return self::con()->opts->optIs( $this->getEnableModOptKey(), 'Y' );
+		return true;
 	}
 
 	public function getEnableModOptKey() :string {

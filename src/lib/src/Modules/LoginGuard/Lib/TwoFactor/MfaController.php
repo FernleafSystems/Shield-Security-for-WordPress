@@ -27,6 +27,10 @@ class MfaController {
 
 	private $mfaProfilesCon;
 
+	protected function canRun(): bool {
+		return !self::con()->this_req->wp_is_xmlrpc;
+	}
+
 	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling

@@ -2,11 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Counts,
-	Retrieve\RetrieveCount
-};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
@@ -16,8 +11,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
+	Counts,
+	Retrieve\RetrieveCount
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 	Apc,
 	Wpv
@@ -39,14 +39,6 @@ class PageScansResults extends PageScansBase {
 			[
 				'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
-			],
-			[
-				'text'    => __( 'Configure Scans', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::SCANS,
-				],
 			],
 		];
 	}
@@ -99,11 +91,10 @@ class PageScansResults extends PageScansBase {
 			],
 			'file_locker' => $this->getFileLockerVars(),
 			'flags'       => [
-				'is_premium'      => $con->isPremiumActive(),
-				'module_disabled' => !$con->comps->opts_lookup->isModEnabled( EnumModules::SCANS ),
+				'is_premium' => $con->isPremiumActive(),
 			],
 			'hrefs'       => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgOption( 'section_file_guard' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgOption( 'enable_core_file_integrity_scan' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [
@@ -124,8 +115,6 @@ class PageScansResults extends PageScansBase {
 				'no_entries_to_display' => __( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
-				'module_disabled'       => __( "Scans can't run because the module that controls them is currently disabled.", 'wp-simple-firewall' ),
-				'review_scanner_config' => __( "Review Scanner Module configuration", 'wp-simple-firewall' ),
 			],
 			'vars'        => [
 				'sections' => [
