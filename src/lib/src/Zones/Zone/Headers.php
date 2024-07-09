@@ -42,6 +42,6 @@ class Headers extends Base {
 	}
 
 	protected function getUnderlyingModuleZone() :?string {
-		return Component\Modules\ModuleSpam::class;
+		return Component\Modules\ModuleHeaders::class;
 	}
 }

@@ -3823,7 +3823,8 @@
         "key":             "x_frame",
         "section":         "section_security_headers",
         "zone_comp_slugs": [
-          "headers_general"
+          "headers_general",
+          "module_headers"
         ],
         "default":         "on_sameorigin",
         "type":            "select",
@@ -3851,7 +3852,8 @@
         "key":             "x_xss_protect",
         "section":         "section_security_headers",
         "zone_comp_slugs": [
-          "headers_general"
+          "headers_general",
+          "module_headers"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -3865,7 +3867,8 @@
         "key":             "x_content_type",
         "section":         "section_security_headers",
         "zone_comp_slugs": [
-          "headers_general"
+          "headers_general",
+          "module_headers"
         ],
         "default":         "Y",
         "type":            "checkbox",
@@ -3879,7 +3882,8 @@
         "key":             "x_referrer_policy",
         "section":         "section_security_headers",
         "zone_comp_slugs": [
-          "headers_general"
+          "headers_general",
+          "module_headers"
         ],
         "sensitive":       false,
         "type":            "select",
@@ -3936,7 +3940,8 @@
         "key":             "enable_x_content_security_policy",
         "section":         "section_security_headers",
         "zone_comp_slugs": [
-          "headers_csp"
+          "headers_csp",
+          "module_headers"
         ],
         "premium":         true,
         "default":         "N",
@@ -3952,7 +3957,8 @@
         "key":             "xcsp_custom",
         "section":         "section_security_headers",
         "zone_comp_slugs": [
-          "headers_csp"
+          "headers_csp",
+          "module_headers"
         ],
         "premium":         true,
         "cap":             "http_headers_csp",

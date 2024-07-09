@@ -37,7 +37,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 					'zone_component_action' => ZoneComponentConfig::SLUG,
 					'zone_component_slug'   => $moduleZone::Slug(),
 				],
-				'icon'    => self::con()->svgs->raw( 'sliders' ),
+				'icon'    => self::con()->svgs->raw( 'gear' ),
 				'classes' => [
 					'btn-outline-secondary',
 					'zone_component_action',

@@ -489,7 +489,7 @@ class StringsOptions {
 					__( "Every IP address accessing your site gets its own unique visitor score - the higher the score, the better the visitor i.e. the more likely it's human.", 'wp-simple-firewall' ),
 					__( "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot.", 'wp-simple-firewall' ),
 					__( 'When a bot tries to login, or post a comment, we test its visitor score.', 'wp-simple-firewall' )
-					.' '.__( 'If the visitor score fails to meet your Minimum AntiBot Score, we prevent the request. If its higher, we allow it.', 'wp-simple-firewall' ),
+					.' '.__( 'If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it.', 'wp-simple-firewall' ),
 					__( "This means: choose a higher minimum score to be more strict and capture more bots (but potentially block someone that appears to be a bot, but isn't).", 'wp-simple-firewall' )
 					.' '.__( "Or choose a lower minimum score to perhaps allow through more bots (but reduce the chances of accidentally blocking legitimate visitors).", 'wp-simple-firewall' ),
 				];

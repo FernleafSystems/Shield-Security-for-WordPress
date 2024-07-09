@@ -119,6 +119,7 @@ class SecurityZonesCon {
 			Component\LoginHide::class,
 			Component\LoginProtectionForms::class,
 			Component\Modules\ModuleFirewall::class,
+			Component\Modules\ModuleHeaders::class,
 			Component\Modules\ModuleIntegrations::class,
 			Component\Modules\ModuleIps::class,
 			Component\Modules\ModuleLogin::class,
