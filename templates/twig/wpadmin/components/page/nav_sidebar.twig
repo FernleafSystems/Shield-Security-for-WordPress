@@ -63,6 +63,11 @@
 								{% for data_key,data_val in mitem.config.data|default([]) %}
 									data-{{ data_key }}="{{ data_val }}"
 								{% endfor %}
+								{% if mitem.config.tooltip|default(false) is not empty %}
+									data-bs-toggle="tooltip"
+									data-bs-placement="right"
+									data-bs-title="{{ mitem.config.tooltip }}"
+								{% endif %}
 						><span class="svg-container">{{ mitem.config.img|raw }}</span></a>
 					{% endif %}
 				</span>

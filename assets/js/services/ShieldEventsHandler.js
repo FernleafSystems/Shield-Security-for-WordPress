@@ -15,7 +15,9 @@ export class ShieldEventsHandler extends BaseService {
 			change: {},
 			keypress: {},
 			keyup: {},
+			mouseenter: {},
 			mouseover: {},
+			mouseout: {},
 			submit: {},
 			'shown.bs.tab': {},
 			'hidden.bs.offcanvas': {}
@@ -73,6 +75,14 @@ export class ShieldEventsHandler extends BaseService {
 
 	add_Mouseover( selector, callback, suppress = null ) {
 		this.addHandler( 'mouseover', selector, callback, suppress );
+	}
+
+	add_Mouseenter( selector, callback, suppress = null ) {
+		this.addHandler( 'mouseenter', selector, callback, suppress );
+	}
+
+	add_Mouseout( selector, callback, suppress = null ) {
+		this.addHandler( 'mouseout', selector, callback, suppress );
 	}
 
 	add_Submit( selector, callback, suppress = null ) {
