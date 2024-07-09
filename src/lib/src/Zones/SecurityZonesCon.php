@@ -129,6 +129,7 @@ class SecurityZonesCon {
 			Component\Modules\ModuleUsers::class,
 			Component\PasswordStrength::class,
 			Component\PluginGeneral::class,
+			Component\PasswordPolicies::class,
 			Component\PwnedPasswords::class,
 			Component\RateLimiting::class,
 			Component\Reporting::class,

@@ -114,7 +114,6 @@ class Constants {
 
 		Actions\AjaxRender::class,
 
-		Actions\DynamicLoad\Config::class,
 		Actions\DynamicLoad\ConfigForZoneComponents::class,
 		Actions\DynamicLoad\Zone::class,
 
@@ -159,9 +158,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
 		Actions\Render\Components\OffCanvas\MeterAnalysis::class,
-		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,
-		Actions\Render\Components\Options\OptionsForm::class,
 		Actions\Render\Components\Options\OptionsFormFor::class,
 		Actions\Render\Components\Placeholders\PlaceholderMeter::class,
 		Actions\Render\Components\Reports\ReportsTable::class,
@@ -231,7 +228,6 @@ class Constants {
 		Actions\Render\MainWP\ExtPage\TabSitesListing::class,
 		Actions\Render\PageAdminPlugin::class,
 		Actions\Render\PluginAdminPages\PageActivityLogTable::class,
-		Actions\Render\PluginAdminPages\PageConfig::class,
 		Actions\Render\PluginAdminPages\PageConfigForZoneComponents::class,
 		Actions\Render\PluginAdminPages\PageDebug::class,
 		Actions\Render\PluginAdminPages\PageDocs::class,
