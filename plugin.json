@@ -4836,6 +4836,9 @@
           "woff",
           "woff2"
         ],
+        "allowable_paths_404s":        [
+          "#^/autodiscover/autodiscover\\.xml$#"
+        ],
         "allowable_invalid_scripts": [
           "index.php",
           "admin-ajax.php",

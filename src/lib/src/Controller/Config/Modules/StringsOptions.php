@@ -567,7 +567,7 @@ class StringsOptions {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						\implode( ', ', $con->comps->bot_signals->getAllowable404s() )
+						\implode( ', ', $con->comps->bot_signals->getAllowableExt404s() )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
