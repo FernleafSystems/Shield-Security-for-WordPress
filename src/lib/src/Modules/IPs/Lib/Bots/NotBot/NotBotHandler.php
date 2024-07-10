@@ -23,7 +23,8 @@ class NotBotHandler {
 	public const SIGNAL_ALTCHA = 'altcha';
 
 	protected function canRun() :bool {
-		return (bool)apply_filters( 'shield/can_run_antibot', true );
+		$con = self::con();
+		return (bool)apply_filters( 'shield/can_run_antibot', $con->comps->opts_lookup->enabledAntiBotEngine() && $con->db_con->bot_signals->isReady() );
 	}
 
 	protected function run() {

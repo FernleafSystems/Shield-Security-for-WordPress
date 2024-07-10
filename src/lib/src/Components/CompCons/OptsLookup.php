@@ -73,7 +73,7 @@ class OptsLookup {
 	}
 
 	public function getAntiBotMinScore() :int {
-		return $this->isPluginEnabled() ? (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) : 0;
+		return (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) );
 	}
 
 	public function getBlockdownCfg() :array {
