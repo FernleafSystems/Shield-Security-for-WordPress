@@ -22,6 +22,7 @@ $code-color: $secondary;
 @import './components/notices';
 @import './components/tables';
 @import './components/nav_sidebar_menu';
+@import './components/bootstrap';
 
 /* GENERAL STYLES */
 body {
@@ -481,10 +482,6 @@ table.odp-table.scan-table td.column-path code {
 .options_form_for .option_link_info > .dashicons {
   font-size: 16px;
   text-decoration: none;
-}
-
-.tooltip .arrow {
-  display: none !important;
 }
 
 .introjs-helperLayer {
