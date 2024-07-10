@@ -6,19 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class AutoIpBlocking extends Base {
 
-	public function explanation() :array {
-		return [
-				   EnumEnabledStatus::GOOD => [
-				   ],
-				   EnumEnabledStatus::OKAY => [
-					   __( 'The offense limit is quite high - you may want to consider decreasing it.', 'wp-simple-firewall' ),
-				   ],
-				   EnumEnabledStatus::BAD  => [
-					   __( 'Set a limit to offenses allowed before visitor IP is automatically blocked.', 'wp-simple-firewall' ),
-				   ],
-			   ][ $this->enabledStatus() ];
-	}
-
 	public function title() :string {
 		return __( 'Automatic IP Blocking', 'wp-simple-firewall' );
 	}
@@ -27,8 +14,28 @@ class AutoIpBlocking extends Base {
 		return __( 'Monitor for malicious visitors and automatically block their IP addresses.', 'wp-simple-firewall' );
 	}
 
-	public function enabledStatus() :string {
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
 		$lookup = self::con()->comps->opts_lookup;
-		return $lookup->enabledIpAutoBlock() ? ( $lookup->getIpAutoBlockOffenseLimit() < 20 ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY ) : EnumEnabledStatus::BAD;
+
+		$status = parent::status();
+
+		if ( $lookup->enabledIpAutoBlock() ) {
+			if ( $lookup->getIpAutoBlockOffenseLimit() < 20 ) {
+				$status[ 'level' ] = EnumEnabledStatus::GOOD;
+			}
+			else {
+				$status[ 'level' ] = EnumEnabledStatus::OKAY;
+				$status[ 'exp' ][] = __( 'The offense limit is quite high - you may want to consider decreasing it.', 'wp-simple-firewall' );
+			}
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "Set a limit to offenses allowed before visitor IP is automatically blocked.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

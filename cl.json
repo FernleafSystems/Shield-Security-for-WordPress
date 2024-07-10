@@ -1,28 +1,30 @@
 {
-  "19.2": {
-    "version":     "19.2",
+  "20.0": {
+    "version":     "20.0",
     "released_at": 1718787607,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease192",
-      "upgrade": "https://shsec.io/shieldupgradeguide192"
+      "release": "https://shsec.io/shieldrelease200",
+      "upgrade": "https://shsec.io/shieldupgradeguide200"
     },
-    "title":       "Silent CAPTCHA",
+    "title":       "silentCAPTCHA",
     "description": [
     ],
     "items":       [
       {
         "type":        "new",
-        "title":       "Introducing Silent CAPTCHA",
+        "title":       "Introducing silentCAPTCHA",
         "description": [
-          "Silent CAPTCHA encompasses Shield's built-in technology for identifying and blocking malicious bots."
+          "silentCAPTCHA is the umbrella term for Shield's built-in malicious bot detection technology."
         ],
         "href":        ""
       },
       {
         "type":        "improved",
-        "title":       "Plugin Options Moved",
+        "title":       "UI Overhaul",
         "description": [
-          "In order to simplify some of the UI, we've reorganised many plugin options to reduce modules & sections."
+          "A part of our mission to simplify Shield for all our members, this release see the biggest overhaul of the UI for several years.",
+          "We've completely removed the dedicated 'Configuration' sections and replaced them with contextual configuration links so you can easily configure the options for each zone independently.",
+          "We've also removed several legacy options that are no longer practical."
         ],
         "href":        ""
       },
@@ -31,7 +33,7 @@
         "pro_only":    true,
         "title":       "Security Admin Not Required For Whitelabel",
         "description": [
-          "The Security Admin feature no longer needs to be activated for Whitelabel to operate."
+          "The Security Admin feature no longer needs to be active for Whitelabel to operate."
         ]
       },
       {

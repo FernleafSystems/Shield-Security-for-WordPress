@@ -8,7 +8,7 @@
 					{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
 			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
-				<span class="nav-link fs-6 mt-0 mb-1 pt-2 pb-3 ps-2 pe-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }}
+				<span class="nav-link fs-6 mt-0 pt-2 pb-3 ps-2 pe-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }}
 						d-flex justify-content-start"
 						{% if mitem.sub_items|default([]) is not empty %}
 							data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"

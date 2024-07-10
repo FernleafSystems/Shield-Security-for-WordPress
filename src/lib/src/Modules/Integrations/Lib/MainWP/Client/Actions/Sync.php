@@ -26,7 +26,7 @@ class Sync {
 			'scan_issues' => ( new Counts() )->all(),
 		] : [];
 		return \array_merge( [
-			'meta'    => [
+			'meta' => [
 				'is_pro'       => $con->isPremiumActive(),
 				'is_mainwp_on' => $this->isPermitted(),
 				'installed_at' => $con->comps->opts_lookup->getInstalledAt(),

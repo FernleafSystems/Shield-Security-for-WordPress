@@ -11,6 +11,24 @@
 		</div>
 	{% endif %}
 
+{#	<div class="row my-2">#}
+{#		<div class="col-12">#}
+{#			<div class="d-flex justify-content-around">#}
+{#				{% for zone_href in hrefs.all_zones %}#}
+{#					<div class="text-center">#}
+{#						<a class="{{ zone_href.classes|join(' ') }}"#}
+{#						   title="{{ zone_href.title }}"#}
+{#						   href="{{ zone_href.href|default('#') }}"#}
+{#						   {% for key, value in zone_href.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}#}
+{#						>#}
+{#							{{ zone_href.title }}#}
+{#						</a>#}
+{#					</div>#}
+{#				{% endfor %}#}
+{#			</div>#}
+{#		</div>#}
+{#	</div>#}
+
 	<div class="row">
 
 		<div class="col-8 mt-4">
@@ -44,7 +62,6 @@
 										<a class="dropdown-item {{ action.classes|join(' ') }}"
 										   title="{{ action.title }}"
 										   href="{{ action.href|default('#') }}"
-										   title="{{ action.title }}"
 										   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
 										>
 											<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}

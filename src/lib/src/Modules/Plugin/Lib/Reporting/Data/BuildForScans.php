@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
-	Event\Ops as EventsDB,
 	ActivityLogs\Ops as LogsDB,
-	ActivityLogsMeta\Ops as MetaDB
+	ActivityLogsMeta\Ops as MetaDB,
+	Event\Ops as EventsDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{

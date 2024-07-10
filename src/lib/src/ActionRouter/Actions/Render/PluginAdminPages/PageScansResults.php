@@ -30,7 +30,7 @@ class PageScansResults extends PageScansBase {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'title' => __( 'Results Display Options', 'wp-simple-firewall' ),
+				'title'   => __( 'Results Display Options', 'wp-simple-firewall' ),
 				'href'    => 'javascript:{}',
 				'classes' => [ 'offcanvas_form_scans_results_options' ],
 			],
@@ -92,7 +92,7 @@ class PageScansResults extends PageScansBase {
 				'is_premium' => $con->isPremiumActive(),
 			],
 			'hrefs'       => [
-				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'scans_results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),

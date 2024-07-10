@@ -27,7 +27,7 @@ class MfaController {
 
 	private $mfaProfilesCon;
 
-	protected function canRun(): bool {
+	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_xmlrpc;
 	}
 

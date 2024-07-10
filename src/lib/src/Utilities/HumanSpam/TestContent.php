@@ -56,7 +56,8 @@ class TestContent {
 	}
 
 	private function downloadBlacklist() :array {
-		$rawList = Services::HttpRequest()->getContent( self::con()->cfg->configuration->def( 'url_spam_blacklist_terms' ) );
+		$rawList = Services::HttpRequest()
+						   ->getContent( self::con()->cfg->configuration->def( 'url_spam_blacklist_terms' ) );
 		return \array_filter( \array_map( '\trim', \explode( "\n", $rawList ) ) );
 	}
 

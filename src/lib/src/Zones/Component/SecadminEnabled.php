@@ -14,18 +14,20 @@ class SecadminEnabled extends Base {
 		return sprintf( __( 'The Security Admin system protects WordPress and the %s plugin against tampering.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
-	public function enabledStatus() :string {
-		return self::con()->comps->sec_admin->isEnabledSecAdmin() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
-	}
+	/**
+	 * @inheritDoc
+	 */
+	protected function status() :array {
+		$status = parent::status();
 
-	public function explanation() :array {
-		return [
-				   EnumEnabledStatus::GOOD => [
-//					   __( 'A Security Admin PIN has been set.', 'wp-simple-firewall' ),
-				   ],
-				   EnumEnabledStatus::BAD  => [
-					   __( 'A PIN needs to be set to enable the Security Admin.', 'wp-simple-firewall' ),
-				   ],
-			   ][ $this->enabledStatus() ];
+		if ( self::con()->comps->sec_admin->isEnabledSecAdmin() ) {
+			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		else {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' );
+		}
+
+		return $status;
 	}
 }

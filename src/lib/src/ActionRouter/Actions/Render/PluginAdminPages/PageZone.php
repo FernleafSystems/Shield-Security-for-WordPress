@@ -28,7 +28,7 @@ class PageZone extends BasePluginAdminPage {
 				if ( $con->comps->sec_admin->isEnabledSecAdmin() ) {
 					$hrefs[] = [
 						'title' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
-						'href' => $URLs->noncedPluginAction( SecurityAdminRemove::class, $URLs->adminHome(), [
+						'href'  => $URLs->noncedPluginAction( SecurityAdminRemove::class, $URLs->adminHome(), [
 							'quietly' => '1',
 						] ),
 					];
@@ -38,14 +38,14 @@ class PageZone extends BasePluginAdminPage {
 			case Ips::Slug():
 				$hrefs[] = [
 					'title' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
-					'href' => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->adminHome() ),
+					'href'  => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->adminHome() ),
 				];
 				break;
 
 			case Scans::Slug():
 				$hrefs[] = [
 					'title' => __( 'View Scan Results', 'wp-simple-firewall' ),
-					'href' => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+					'href'  => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 				];
 				break;
 

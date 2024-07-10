@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class WebApplicationFirewall extends Base {
@@ -18,14 +19,36 @@ class WebApplicationFirewall extends Base {
 	 * @inheritDoc
 	 */
 	protected function status() :array {
+		$opts = self::con()->opts;
 		$status = parent::status();
 
-		if ( self::con()->opts->optIs( 'block_author_discovery', 'Y' ) ) {
+		$keys = [
+			'block_dir_traversal',
+			'block_sql_queries',
+			'block_field_truncation',
+			'block_php_code',
+			'block_aggressive',
+		];
+
+		$rules = [];
+		foreach ( $keys as $key ) {
+			$rules[ $key ] = $opts->optIs( $key, 'Y' );
+		}
+		$enabled = \array_keys( \array_filter( $rules ) );
+
+		if ( \count( $enabled ) > 3 ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		}
+		elseif ( \count( $enabled ) > 2 ) {
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "It's possible to detect the usernames of authors+ on your site.", 'wp-simple-firewall' );
+		}
+
+		$optStrings = new StringsOptions();
+		foreach ( \array_diff( $keys, $enabled ) as $key ) {
+			$status[ 'exp' ][] = sprintf( "Requests that trigger the firewall rule '%s' aren't intercepted.", $optStrings->getFor( $key )[ 'name' ] );
 		}
 
 		return $status;

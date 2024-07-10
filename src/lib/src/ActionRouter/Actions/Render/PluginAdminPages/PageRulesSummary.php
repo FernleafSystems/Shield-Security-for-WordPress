@@ -17,7 +17,7 @@ class PageRulesSummary extends PageRulesBase {
 		return [
 			[
 				'title' => __( 'Rules Builder', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+				'href'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
 			],
 		];
 	}

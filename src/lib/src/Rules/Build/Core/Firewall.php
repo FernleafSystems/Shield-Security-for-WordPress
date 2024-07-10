@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Firewall extends BuildRuleCoreShieldBase {
 

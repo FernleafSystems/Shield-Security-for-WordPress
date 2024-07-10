@@ -46,7 +46,8 @@ class Secadmin extends Base {
 			\implode( ' ', [
 				__( "It can also prevent similar tampering or accidental changes to core WordPress settings, such as the site URL, permalinks, default user role, etc.", 'wp-simple-firewall' ),
 			] ),
-			__( "Perhaps one of its most powerful features is how it will prevent other admins from tampering with other admin accounts.", 'wp-simple-firewall' )		];
+			__( "Perhaps one of its most powerful features is how it will prevent other admins from tampering with other admin accounts.", 'wp-simple-firewall' )
+		];
 	}
 
 	public function icon() :string {

@@ -491,9 +491,9 @@ class EventStrings {
 				],
 			],
 			'bottrack_notbot'              => [
-				'name'  => __( 'NotBot Registration', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Registration', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Visitor registered using NotBot.', 'wp-simple-firewall' ),
+					__( 'Visitor registered using silentCAPTCHA.', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_404'                 => [

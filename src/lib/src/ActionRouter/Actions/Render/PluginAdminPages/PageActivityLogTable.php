@@ -13,7 +13,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title' => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/238-review-your-site-activities-with-the-activity-log-viewer',
 			'new_window' => true,
 		];

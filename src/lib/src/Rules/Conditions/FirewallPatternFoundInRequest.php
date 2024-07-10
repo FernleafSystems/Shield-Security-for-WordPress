@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Utility\PerformConditionMatch
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 
 class FirewallPatternFoundInRequest extends Base {
 

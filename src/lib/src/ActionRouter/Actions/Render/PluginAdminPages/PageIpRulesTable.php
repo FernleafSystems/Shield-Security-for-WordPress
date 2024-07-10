@@ -15,12 +15,12 @@ class PageIpRulesTable extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
-				'title' => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'title'   => __( 'Create New IP Rule', 'wp-simple-firewall' ),
 				'href'    => 'javascript:{}',
 				'classes' => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
-				'title' => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
+				'title'    => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
 				'href'     => $con->plugin_urls->fileDownloadAsStream( 'ip_rules' ),
 				'disabled' => !$con->isPremiumActive(),
 			],
@@ -29,7 +29,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title' => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/212-ip-rules-section-how-to-use-ip-management-and-analysis-tool',
 			'new_window' => true,
 		];

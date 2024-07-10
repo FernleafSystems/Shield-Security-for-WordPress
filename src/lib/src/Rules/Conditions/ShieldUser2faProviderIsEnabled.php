@@ -2,9 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Enum
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
 	BackupCodes,
 	Email,
@@ -12,7 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Pro
 	Passkey,
 	Yubikey
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum
+};
 
 class ShieldUser2faProviderIsEnabled extends ShieldUser2faBase {
 

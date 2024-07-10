@@ -22,7 +22,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return $this->status()[ 'exp' ];
 	}
 
-
 	public function enabledStatus() :string {
 		return $this->status()[ 'level' ];
 	}
@@ -40,7 +39,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 					'zone_component_action' => ZoneComponentConfig::SLUG,
 					'zone_component_slug'   => static::Slug(),
 				],
-				'icon'    => self::con()->svgs->raw( 'sliders' ),
+				'icon'    => self::con()->svgs->raw( 'gear' ),
 				'classes' => [
 					'btn-outline-secondary',
 					'zone_component_action',
@@ -70,7 +69,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	protected function status() :array {
 		return [
 			'level' => EnumEnabledStatus::NEUTRAL,
-			'exp'  => [],
+			'exp'   => [],
 		];
 	}
 }

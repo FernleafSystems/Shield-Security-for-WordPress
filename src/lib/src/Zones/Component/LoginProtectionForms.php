@@ -28,12 +28,15 @@ class LoginProtectionForms extends Base {
 		}
 		else {
 			$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login." );
-			$status[ 'level' ] = \in_array( 'register', $forms ) ? EnumEnabledStatus::OKAY : EnumEnabledStatus::BAD;
-			if ( !\in_array( 'register', $forms ) ) {
-				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't active in protecting your WordPress registration." );
+			if ( \in_array( 'register', $forms ) ) {
+				$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			}
+			else {
+				$status[ 'level' ] = EnumEnabledStatus::BAD;
+				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting your WordPress registration." );
 			}
 			if ( !\in_array( 'password', $forms ) ) {
-				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't active in protecting your WordPress lost password form." );
+				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form." );
 			}
 		}
 

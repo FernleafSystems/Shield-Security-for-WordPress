@@ -1,9 +1,32 @@
-import $ from 'jquery';
 import { BaseComponent } from "../BaseComponent";
 import { Popover, Tooltip } from 'bootstrap';
 
 export class BootstrapTooltips extends BaseComponent {
 	init() {
+		this.popovers();
+		this.tooltips();
+	}
+
+	popovers() {
+		/*
+		shieldEventsHandler_Main.add_Mouseover(
+			'[data-bs-toggle="popover"]',
+			( targetEl ) => {
+				let po = Popover.getInstance( targetEl );
+				if ( !po ) {
+					po = Popover.getOrCreateInstance( targetEl );
+					targetEl.addEventListener( 'shown.bs.popover', () => {
+						alert( 'asdf' );
+						window.setTimeout( () => po.hide(), 7000 );
+					} );
+				}
+			},
+			false
+		);
+		 */
+	};
+
+	tooltips() {
 		this.actionTooltips = [];
 		shieldEventsHandler_Main.add_Mouseover(
 			'[data-bs-toggle="tooltip"]',
@@ -27,12 +50,5 @@ export class BootstrapTooltips extends BaseComponent {
 			},
 			false
 		);
-		$( document ).ajaxComplete( () => {
-			let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
-			popoverTriggerList.map( ( popoverElement ) => new Popover( popoverElement, {} ) );
-
-			// let tooltipTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="tooltip"]' ) )
-			// tooltipTriggerList.map( ( tooltipElement ) => new Tooltip( tooltipElement, {} ) );
-		} );
-	}
+	};
 }

@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 

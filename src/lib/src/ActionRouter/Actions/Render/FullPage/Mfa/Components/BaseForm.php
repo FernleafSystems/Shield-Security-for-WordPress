@@ -33,7 +33,7 @@ abstract class BaseForm extends Base {
 				) ),
 			],
 			'flags'   => [
-				'can_skip_mfa' => $mfaCon->getMfaSkip() > 0,
+				'can_skip_mfa'       => $mfaCon->getMfaSkip() > 0,
 				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 			],
 			'hrefs'   => [

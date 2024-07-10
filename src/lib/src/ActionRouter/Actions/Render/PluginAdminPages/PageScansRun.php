@@ -14,7 +14,7 @@ class PageScansRun extends PageScansBase {
 		return [
 			[
 				'title' => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 		];
 	}
@@ -31,7 +31,7 @@ class PageScansRun extends PageScansBase {
 				'can_scan' => \count( $reasonsCantScan ) === 0,
 			],
 			'hrefs'   => [
-				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'scans_results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),

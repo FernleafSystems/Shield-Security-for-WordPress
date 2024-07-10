@@ -19,6 +19,7 @@ export class ShieldEventsHandler extends BaseService {
 			mouseover: {},
 			mouseout: {},
 			submit: {},
+			'shown.bs.popover': {},
 			'shown.bs.tab': {},
 			'hidden.bs.offcanvas': {}
 		}

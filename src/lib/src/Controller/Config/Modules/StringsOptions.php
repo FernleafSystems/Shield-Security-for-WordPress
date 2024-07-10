@@ -510,19 +510,6 @@ class StringsOptions {
 					),
 				];
 				break;
-			case 'force_notbot' :
-				$name = __( 'Force NotBot JS', 'wp-simple-firewall' );
-				$summary = __( 'Force Loading Of NotBot JS', 'wp-simple-firewall' );
-				$desc = [
-					sprintf( __( '%s uses Javascript to help identify bots versus legitimate visitors.', 'wp-simple-firewall' ),
-						$pluginName )
-					.' '.__( "However, caching plugins often interfere, preventing it loading for your visitors.", 'wp-simple-firewall' ),
-					__( "This may cause some of your legitimate users to be identified as bots, when they're not.", 'wp-simple-firewall' ),
-					__( "Turn this option on if you're using an aggressive caching system, to ensure NotBot JS is loaded for all visitors.", 'wp-simple-firewall' ),
-					__( "When this option is disabled we'll automatically optimise loading of the Javascript so it's only loaded where it's required.", 'wp-simple-firewall' )
-					.' '.__( "You should test your site and keep a lookout for user login issues after disabling this option.", 'wp-simple-firewall' )
-				];
-				break;
 			case 'cs_block' :
 				$name = __( 'CrowdSec IP Blocking', 'wp-simple-firewall' );
 				$summary = __( 'How To Handle Requests From IPs Found On CrowdSec Blocklist', 'wp-simple-firewall' );

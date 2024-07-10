@@ -20,7 +20,8 @@ class OverrideLocale {
 		add_filter(
 			'plugin_locale',
 			function ( $locale, $domain = '' ) {
-				return ( $domain === self::con()->getTextDomain() ) ? self::con()->opts->optGet( 'locale_override' ) : $locale;
+				return ( $domain === self::con()
+										 ->getTextDomain() ) ? self::con()->opts->optGet( 'locale_override' ) : $locale;
 			},
 			100, 2
 		);

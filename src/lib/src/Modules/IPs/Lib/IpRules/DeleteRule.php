@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	ModConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
 
 class DeleteRule {
 

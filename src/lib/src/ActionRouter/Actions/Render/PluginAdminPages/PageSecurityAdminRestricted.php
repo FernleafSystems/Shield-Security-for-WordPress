@@ -16,8 +16,8 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 		return [
 			[
 				'title' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
-				'href' => '#',
-				'id'   => 'SecAdminRemoveConfirmEmail',
+				'href'  => '#',
+				'id'    => 'SecAdminRemoveConfirmEmail',
 			],
 		];
 	}

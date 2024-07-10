@@ -14,7 +14,7 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 		$hrefs = parent::getPageContextualHrefs();
 		\array_unshift( $hrefs, [
 			'title' => __( 'Switch To Live Logs', 'wp-simple-firewall' ),
-			'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+			'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
 		] );
 		return $hrefs;
 	}

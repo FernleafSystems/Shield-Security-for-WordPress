@@ -13,7 +13,7 @@ class PageToolLockdown extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title' => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Site Lockdown', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Site Lockdown', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/769-what-is-the-site-lockdown-feature-and-how-to-use-it',
 			'new_window' => true,
 		];

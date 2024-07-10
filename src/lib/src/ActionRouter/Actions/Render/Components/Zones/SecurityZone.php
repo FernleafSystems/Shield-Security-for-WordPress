@@ -17,6 +17,29 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 			'flags'   => [
 				'global_plugin_disabled' => !$con->comps->opts_lookup->isPluginEnabled(),
 			],
+			'hrefs'   => [
+				// not currently used
+				//				'all_zones' => \array_filter( \array_map(
+				//					function ( $zone ) {
+				//						return [
+				//							'title'   => $zone->title(),
+				//							'classes' => [
+				//								'dynamic_body_load',
+				//								'body_content_link'
+				//							],
+				//							'data'    => [
+				//								'dynamic_page_load' => \wp_json_encode( [
+				//									'dynamic_load_slug' => Zone::SLUG,
+				//									'dynamic_load_data' => [
+				//										'zone_slug' => $zone::Slug(),
+				//									],
+				//								] ),
+				//							],
+				//						];
+				//					},
+				//					$zonesCon->getZones()
+				//				) ),
+			],
 			'imgs'    => [
 				'svgs' => [
 					'title'   => $con->svgs->raw( $zone->icon() ),
@@ -33,7 +56,7 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 			'vars'    => [
 				'href_global_plugin_enable' => $zonesCon->getZoneComponent( GlobalPluginEnable::Slug() )
 														->getActions()[ 'config' ],
-				'components' => \array_map(
+				'components'                => \array_map(
 					function ( $zoneComponent ) {
 						return self::con()->action_router->render( SecurityZoneComponent::class, [
 							'zone_component' => $zoneComponent::Slug(),
@@ -41,7 +64,7 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 					},
 					$zonesCon->getComponentsForZone( $zone )
 				),
-				'actions' => $zone->actions(),
+				'actions'                   => $zone->actions(),
 			],
 		];
 	}

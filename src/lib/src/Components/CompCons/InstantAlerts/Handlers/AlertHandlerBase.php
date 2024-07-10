@@ -20,7 +20,7 @@ abstract class AlertHandlerBase {
 
 	abstract public function alertDataKeys() :array;
 
-	public function isImmediateAlert() :bool{
+	public function isImmediateAlert() :bool {
 		return false;
 	}
 }

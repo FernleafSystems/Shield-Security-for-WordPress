@@ -228,6 +228,7 @@ class BuildOptionsForDisplay {
 			case 'enable_logger':
 				if ( self::con()->comps->opts_lookup->enabledTrafficLimiter() ) {
 					$option[ 'disabled' ] = true;
+					$option[ 'description' ][] = __( 'Request logging is required when you have activated Traffic Rate Limiting.', 'wp-simple-firewall' );
 				}
 				break;
 

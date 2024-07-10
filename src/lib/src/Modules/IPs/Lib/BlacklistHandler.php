@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\{
-	UnblockIpByFlag,
-	ImportIpsFromFile
+	ImportIpsFromFile,
+	UnblockIpByFlag
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 

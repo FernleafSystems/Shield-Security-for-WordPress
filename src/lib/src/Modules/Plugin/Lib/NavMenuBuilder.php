@@ -125,17 +125,17 @@ class NavMenuBuilder {
 	private function activity() :array {
 		$con = self::con();
 		return [
-			'slug'     => PluginNavs::NAV_ACTIVITY,
-			'title'    => __( 'Activity Logs', 'wp-simple-firewall' ),
-			'subtitle' => __( "All WP Site Activity", 'wp-simple-firewall' ),
+			'slug'      => PluginNavs::NAV_ACTIVITY,
+			'title'     => __( 'Activity Logs', 'wp-simple-firewall' ),
+			'subtitle'  => __( "All WP Site Activity", 'wp-simple-firewall' ),
 			//			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-			'img'      => $con->svgs->raw( 'person-lines-fill' ),
-			'active'   => $this->inav() === PluginNavs::NAV_ACTIVITY,
-			'introjs'  => [
+			'img'       => $con->svgs->raw( 'person-lines-fill' ),
+			'active'    => $this->inav() === PluginNavs::NAV_ACTIVITY,
+			'introjs'   => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
 			],
-			'config' => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [
+			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [
 				ActivityLogging::Slug(),
 				RequestLogging::Slug()
 			] ),

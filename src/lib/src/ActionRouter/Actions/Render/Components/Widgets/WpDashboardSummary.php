@@ -84,22 +84,22 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 					[
 						'href' => $con->plugin_urls->adminHome(),
 						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
-						'svg' => $con->svgs->raw( 'speedometer' ),
+						'svg'  => $con->svgs->raw( 'speedometer' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminIpRules(),
 						'text' => __( 'IPs', 'wp-simple-firewall' ),
-						'svg' => $con->svgs->raw( 'diagram-3' ),
+						'svg'  => $con->svgs->raw( 'diagram-3' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
-						'svg' => $con->svgs->raw( 'person-lines-fill' ),
+						'svg'  => $con->svgs->raw( 'person-lines-fill' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
-						'svg' => $con->svgs->raw( 'stoplights' ),
+						'svg'  => $con->svgs->raw( 'stoplights' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ZONES ),

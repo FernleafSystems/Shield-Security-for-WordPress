@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
+	BotSignalRecord,
+	LoadBotSignalRecords,
+	Ops as BotSignalDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord
-};
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
-	Ops as BotSignalDB,
-	BotSignalRecord,
-	LoadBotSignalRecords
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops as UserMetaDB;
