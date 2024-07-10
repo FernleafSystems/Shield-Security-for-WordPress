@@ -1,6 +1,6 @@
 {
   "properties":       {
-    "version":                 "19.1.111",
+    "version":                 "19.1.109",
     "release_timestamp":       1720531411,
     "build":                   "202407.0901",
     "slug_parent":             "icwp",
@@ -2254,8 +2254,8 @@
         "key":             "track_loginfailed",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "default":         "transgression-single",
@@ -2293,9 +2293,9 @@
         "key":             "track_xmlrpc",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
+          "bot_actions",
           "xml_rpc_disable",
           "ip_blocking_rules",
-          "bot_actions",
           "module_ips"
         ],
         "default":         "log",
@@ -2333,8 +2333,8 @@
         "key":             "track_logininvalid",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "premium":         true,
@@ -2376,8 +2376,8 @@
         "key":             "track_fakewebcrawler",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "premium":         true,
@@ -2419,8 +2419,8 @@
         "key":             "track_404",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "premium":         true,
@@ -2462,8 +2462,8 @@
         "key":             "track_linkcheese",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "premium":         true,
@@ -2505,8 +2505,8 @@
         "key":             "track_invalidscript",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "premium":         true,
@@ -2548,8 +2548,8 @@
         "key":             "track_useragent",
         "section":         "section_bot_behaviours",
         "zone_comp_slugs": [
-          "ip_blocking_rules",
           "bot_actions",
+          "ip_blocking_rules",
           "module_ips"
         ],
         "premium":         true,

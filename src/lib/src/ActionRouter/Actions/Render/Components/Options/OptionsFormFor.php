@@ -11,12 +11,12 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$config = $con->cfg->configuration;
 		$options = $this->action_data[ 'options' ];
 		return [
 			'strings' => [
-				'inner_page_title' => __( 'Configuration' ),
-				'import_export'    => __( 'Import/Export' ),
+				'inner_page_title'    => __( 'Configuration' ),
+				'import_export'       => __( 'Import/Export' ),
+				'is_opt_importexport' => __( 'Check to include this option in import/export' ),
 			],
 			'flags'   => [
 				'show_transfer_switch' => $con->isPremiumActive(),
@@ -27,10 +27,11 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				],
 			],
 			'vars'    => [
-				'all_opts_keys' => $options,
-				'all_options'   => ( new BuildOptionsForDisplay( $options ) )->standard(),
-				'form_context'  => $this->action_data[ 'form_context' ] ?? 'normal',
-				'xferable_opts' => \array_keys( $config->transferableOptions() ),
+				'all_opts_keys'      => $options,
+				'all_options'        => ( new BuildOptionsForDisplay( $options ) )->standard(),
+				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
+				'xferable_opts'      => \array_keys( $con->cfg->configuration->transferableOptions() ),
+				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),
 			],
 		];
 	}
