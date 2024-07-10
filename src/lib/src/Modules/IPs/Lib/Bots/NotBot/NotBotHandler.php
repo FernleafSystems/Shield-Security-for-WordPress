@@ -38,9 +38,11 @@ class NotBotHandler {
 	}
 
 	public function sendNotBotFlagCookie() {
+		$cookieParts = $this->getNonRequiredSignals();
+		$cookieParts[] = 'exp-'.( Services::Request()->ts() + self::LIFETIME );
 		Services::Response()->cookieSet(
 			self::con()->prefix( self::COOKIE_SLUG ),
-			\implode( 'Z', $this->getNonRequiredSignals() ),
+			\implode( 'Z', $cookieParts ),
 			apply_filters( 'shield/notbot_cookie_life', self::LIFETIME )
 		);
 	}

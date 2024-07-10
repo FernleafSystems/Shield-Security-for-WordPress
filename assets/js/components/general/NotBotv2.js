@@ -138,9 +138,23 @@ export class NotBotv2 extends BaseAutoExecComponent {
 		return PageQueryParam.Retrieve( 'force_notbot' ) === '1' || !this.getNonRequiredFlagsFromCookie().includes( 'altcha' );
 	}
 
+	/**
+	 * We now include the expiry of the cookie within the cookie itself. This is because Chrome doesn't update the
+	 * cookie data to account for cookie expiration within the same page load. So we must provide a mechanism for
+	 * informing the script that the known cookie status has expired.
+	 */
 	getNonRequiredFlagsFromCookie() {
+		let parts = [];
 		const current = GetCookie.Get( 'icwp-wpsf-notbot' );
-		return ( ( typeof current === typeof undefined || current === undefined || current === '' ) ? '' : current ).split( 'Z' );
+		let maybeParts = ( ( typeof current === typeof undefined || current === undefined || current === '' ) ? '' : current ).split( 'Z' );
+		let expiry = maybeParts.pop();
+		if ( expiry ) {
+			let regResult = /^exp-([0-9]+)$/.exec( expiry );
+			if ( regResult && ( Math.round( Date.now() / 1000 ) < Number( regResult[ 1 ] ) ) ) {
+				parts = maybeParts;
+			}
+		}
+		return parts;
 	}
 
 	async fetch_NotBot() {
