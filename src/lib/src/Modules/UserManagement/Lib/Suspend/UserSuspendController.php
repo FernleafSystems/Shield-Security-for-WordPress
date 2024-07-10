@@ -39,13 +39,14 @@ class UserSuspendController {
 	}
 
 	public function isSuspendAutoPasswordEnabled() :bool {
-		return self::con()->comps->opts_lookup->isPassPoliciesEnabled()
-			   && self::con()->opts->optIs( 'auto_password', 'Y' )
-			   && self::con()->comps->opts_lookup->getPassExpireTimeout() > 0;
+		$con = self::con();
+		return $con->comps->opts_lookup->isPassPoliciesEnabled()
+			   && $con->opts->optIs( 'auto_password', 'Y' )
+			   && $con->comps->opts_lookup->getPassExpireTimeout() > 0;
 	}
 
 	protected function run() {
-		if ( !self::con()->this_req->is_ip_whitelisted ) {
+		if ( !self::con()->this_req->request_bypasses_all_restrictions ) {
 			if ( $this->isSuspendManualEnabled() ) {
 				( new Suspended() )->execute();
 			}

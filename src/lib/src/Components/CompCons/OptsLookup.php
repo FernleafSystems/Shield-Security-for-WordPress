@@ -108,7 +108,7 @@ class OptsLookup {
 	}
 
 	public function getCommenterTrustedMinimum() :int {
-		return $this->isPluginEnabled() ? self::con()->opts->optGet( 'trusted_commenter_minimum' ) : 1;
+		return self::con()->opts->optGet( 'trusted_commenter_minimum' );
 	}
 
 	public function getEmailValidateChecks() :array {
@@ -173,7 +173,7 @@ class OptsLookup {
 	}
 
 	public function getPassExpireTimeout() :int {
-		return $this->isPluginEnabled() ? self::con()->opts->optGet( 'pass_expire' )*\DAY_IN_SECONDS : 0;
+		return self::con()->opts->optGet( 'pass_expire' )*\DAY_IN_SECONDS;
 	}
 
 	public function getReportEmail() :string {
