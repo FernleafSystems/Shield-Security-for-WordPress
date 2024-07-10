@@ -197,16 +197,18 @@ class BuildOptionsForDisplay {
 				break;
 		}
 
-		$isOptDisabled = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
-						 || ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
-		$params = [
-			'value'    => \is_scalar( $value ) ? esc_attr( $value ) : $value,
-			'disabled' => $isOptDisabled,
-		];
-		$params[ 'enabled' ] = !$params[ 'disabled' ];
-		$option = \array_merge( [ 'rows' => '2' ], $option, $params );
+		$isOptUnavailable = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
+							|| ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
+		$option = \array_merge(
+			[ 'rows' => '2' ],
+			$option,
+			[
+				'value'       => \is_scalar( $value ) ? esc_attr( $value ) : $value,
+				'unavailable' => $isOptUnavailable,
+				'disabled'    => $isOptUnavailable,
+			]
+		);
 
-		// add strings
 		try {
 			$optStrings = ( new StringsOptions() )->getFor( $option[ 'key' ] );
 			if ( !\is_array( $optStrings[ 'description' ] ) ) {
@@ -222,6 +224,12 @@ class BuildOptionsForDisplay {
 
 	private function addPerOptionCustomisation( array $option ) :array {
 		switch ( $option[ 'key' ] ) {
+
+			case 'enable_logger':
+				if ( self::con()->comps->opts_lookup->enabledTrafficLimiter() ) {
+					$option[ 'disabled' ] = true;
+				}
+				break;
 
 			case 'file_locker':
 				if ( !Services::Data()->isWindows() ) {

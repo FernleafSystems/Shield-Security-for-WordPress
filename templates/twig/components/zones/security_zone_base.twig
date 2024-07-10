@@ -1,23 +1,15 @@
-<style>
-	.security_zone .icon {
-		height: 60px;
-		max-height: 60px;
-		color: green;
-	}
-	.security_zone .icon > svg {
-		width: 100%;
-		height: 100%;
-	}
-	.component-enabled-state > svg {
-		width: 48px;
-		height: 48px;
-	}
-	.title-image-container > svg {
-		width: 100%;
-		height: auto;
-	}
-</style>
 <div class="security_zone">
+
+	{% if flags.global_plugin_disabled %}
+		<div class="alert alert-danger" role="alert">
+			{{ strings.global_plugin_disabled }}
+			<a href="javascript:{}"
+			   class="{{ vars.href_global_plugin_enable.classes|join(' ') }}"
+			   {% for key, value in vars.href_global_plugin_enable.data %}data-{{ key }}="{{ value }}"{% endfor %}
+			>{{ strings.reenable_plugin }}</a>
+
+		</div>
+	{% endif %}
 
 	<div class="row">
 

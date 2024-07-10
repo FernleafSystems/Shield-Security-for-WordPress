@@ -109,6 +109,7 @@ class SecurityZonesCon {
 			Component\FileEditingBlock::class,
 			Component\FileLocker::class,
 			Component\FileScanning::class,
+			Component\GlobalPluginEnable::class,
 			Component\HeadersGeneral::class,
 			Component\HeadersCsp::class,
 			Component\ImportExport::class,

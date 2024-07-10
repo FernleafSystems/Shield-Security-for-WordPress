@@ -22,7 +22,7 @@
 				{% endif %}
 			</span>
 
-			{% if option.disabled %}
+			{% if option.disabled and option.unavailable %}
 				<br />
 				<div class="badge bg-success">
 					<a href="{{ hrefs.go_pro }}" target="_blank"

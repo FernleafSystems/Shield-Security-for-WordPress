@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\GlobalPluginEnable;
+
 class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_security_zone';
@@ -13,6 +15,7 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		$zone = $zonesCon->getZone( $this->action_data[ 'zone_slug' ] );
 		return [
 			'flags'   => [
+				'global_plugin_disabled' => !$con->comps->opts_lookup->isPluginEnabled(),
 			],
 			'imgs'    => [
 				'svgs' => [
@@ -21,11 +24,15 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 				],
 			],
 			'strings' => [
-				'title'       => $zone->title(),
-				'description' => $zone->description(),
-				'actions' => __( 'Actions', 'wp-simple-firewall' ),
+				'global_plugin_disabled' => sprintf( __( "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled.", 'wp-simple-firewall' ), $con->labels->Name ),
+				'reenable_plugin'        => __( 'Re-enable Protection.', 'wp-simple-firewall' ),
+				'title'                  => $zone->title(),
+				'description'            => $zone->description(),
+				'actions'                => __( 'Actions', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
+				'href_global_plugin_enable' => $zonesCon->getZoneComponent( GlobalPluginEnable::Slug() )
+														->getActions()[ 'config' ],
 				'components' => \array_map(
 					function ( $zoneComponent ) {
 						return self::con()->action_router->render( SecurityZoneComponent::class, [
