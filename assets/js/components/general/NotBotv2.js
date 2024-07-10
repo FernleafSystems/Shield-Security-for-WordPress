@@ -8,8 +8,10 @@ import { PageQueryParam } from "../../util/PageQueryParam";
 export class NotBotv2 extends BaseAutoExecComponent {
 
 	init() {
+		this.window_focus_at = Date.now();
+		this.window_blur_at = 0;
+
 		this.notbot_altcha_challenge_request_data = null;
-		this.altcha_solution = null;
 
 		this.request_count = 0;
 		this.failed_request_count = 0;
@@ -20,6 +22,13 @@ export class NotBotv2 extends BaseAutoExecComponent {
 	}
 
 	run() {
+		window.addEventListener( 'focus', () => {
+			this.window_focus_at = Date.now();
+		} );
+		window.addEventListener( 'blur', () => {
+			this.window_blur_at = Date.now();
+		} );
+
 		this.fire();
 	};
 
@@ -60,6 +69,9 @@ export class NotBotv2 extends BaseAutoExecComponent {
 					 .then( () => this.reFire() )
 					 .catch( error => {
 						 console.log( 'hasAltchaChallengeData() error: ' + error );
+					 } )
+					 .finally( () => {
+						 this.notbot_altcha_challenge_request_data = null;
 					 } );
 				 } );
 			}
@@ -75,8 +87,20 @@ export class NotBotv2 extends BaseAutoExecComponent {
 		}
 	}
 
-	reFire( timeout = 120000 ) {
-		window.setTimeout( () => this.fire(), timeout );
+	reFire( reFireTimeout = 120000 ) {
+		this.start_refire_at = Date.now();
+		window.setTimeout( () => {
+
+			if ( reFireTimeout === 0 || this.windowHasHadFocus() ) {
+				//console.log( reFireTimeout === 0 ? 'forced refire timeout=0' : "debug: had focus: fire()" );
+				this.fire();
+			}
+			else {
+				//console.log( "debug: window had no focus so re-firing in 2.5 seconds" );
+				this.reFire( 2500 );
+			}
+
+		}, reFireTimeout );
 	}
 
 	async performPathNotbot() {
@@ -160,4 +184,8 @@ export class NotBotv2 extends BaseAutoExecComponent {
 			},
 		};
 	};
+
+	windowHasHadFocus() {
+		return this.window_focus_at > this.window_blur_at || this.window_focus_at > this.start_refire_at;
+	}
 }
