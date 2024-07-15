@@ -15,7 +15,7 @@ class CommentSpam extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( "Block 100% Bots Comment SPAM Without CAPTCHAs!", 'wp-simple-firewall' ),
+				'step_title' => __( "Block 100% Bots Comment SPAM With silentCAPTCHA", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'video_id' => '269193270'

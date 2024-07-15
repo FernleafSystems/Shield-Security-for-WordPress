@@ -41,7 +41,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 				],
 				'icon'    => self::con()->svgs->raw( 'gear' ),
 				'classes' => [
-					'btn-outline-secondary',
 					'zone_component_action',
 				],
 			];

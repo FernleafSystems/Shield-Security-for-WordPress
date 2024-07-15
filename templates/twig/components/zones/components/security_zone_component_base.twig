@@ -1,8 +1,8 @@
-<div class="row mb-5">
+<div class="row mb-5 security_zone_component">
 	<div class="col-12">
 		<div class="d-flex">
 
-			<div class="component-enabled-state">
+			<div class="component-enabled-state d-flex flex-column justify-content-between align-items-center">
 				{% if vars.enabled_status == 'good' %}
 					<span class="text-success component-enabled-state">{{ imgs.svgs.status_good|raw }}</span>
 				{% elseif vars.enabled_status == 'okay' %}
@@ -13,6 +13,13 @@
 					<span class="text-info component-enabled-state">{{ imgs.svgs.status_neutral_enabled|raw }}</span>
 				{% else %}
 					<span class="text-danger component-enabled-state">{{ imgs.svgs.status_bad|raw }}</span>
+				{% endif %}
+				{% if vars.actions.config is defined %}
+					<a class="{{ vars.actions.config.classes|join(' ') }} mt-2 p-1"
+					   href="javascript:{}"
+					   title="{{ vars.actions.config.title }}"
+					   {% for key, value in vars.actions.config.data %}data-{{ key }}="{{ value }}"{% endfor %}
+					>{{ vars.actions.config.icon|raw }}</a>
 				{% endif %}
 			</div>
 			<div class="component-details ms-3">
@@ -33,16 +40,16 @@
 					</div>
 				{% endif %}
 
-				<div class="component-actions mt-2">
-					{% for action in vars.actions %}
-						<button class="btn btn-sm {{ action.classes|join(' ') }}"
-								title="{{ action.title }}"
-								{% for key, value in action.data %}data-{{ key }}="{{ value }}"{% endfor %}
-						>
-							<span class="svg-container">{{ action.icon|raw }}</span>
-						</button>
-					{% endfor %}
-				</div>
+				{#                <div class="component-actions mt-2"> #}
+				{#                    {% for action in vars.actions %} #}
+				{#                        <button class="btn btn-sm {{ action.classes|join(' ') }}" #}
+				{#                                title="{{ action.title }}" #}
+				{#                                {% for key, value in action.data %}data-{{ key }}="{{ value }}"{% endfor %} #}
+				{#                        > #}
+				{#                            <span class="svg-container">{{ action.icon|raw }}</span> #}
+				{#                        </button> #}
+				{#                    {% endfor %} #}
+				{#                </div> #}
 			</div>
 
 		</div>

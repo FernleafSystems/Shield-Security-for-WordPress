@@ -113,7 +113,7 @@ class NavMenuBuilder {
 			'active'   => $this->inav() === PluginNavs::NAV_IPS,
 			'introjs'  => [
 				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
-				'body'  => __( "Protection start by detecting bad bots - Review all IP Rules that have an impact on your site visitors.", 'wp-simple-firewall' ),
+				'body'  => __( "Review IP Rules that control whether a site visitor is blocked.", 'wp-simple-firewall' ),
 			],
 			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [
 				IpBlockingRules::Slug(),
@@ -220,8 +220,8 @@ class NavMenuBuilder {
 			'img'       => $con->svgs->raw( 'grid-1x2-fill' ),
 			'sub_items' => $subItems,
 			'introjs'   => [
-				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
+				'title' => __( 'Security Zones', 'wp-simple-firewall' ),
+				'body'  => sprintf( __( "Security Zones are the primary areas to configure your site security.", 'wp-simple-firewall' ),
 					$con->getHumanName() ),
 			],
 		];
