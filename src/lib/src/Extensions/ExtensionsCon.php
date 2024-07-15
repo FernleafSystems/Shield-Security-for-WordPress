@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\NormaliseConfigComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ExtensionsCon {
@@ -30,6 +31,16 @@ class ExtensionsCon {
 		foreach ( $this->getAvailableExtensions() as $ext ) {
 
 			add_action( 'shield/modules_configuration', function () use ( $ext ) {
+
+				// @deprecated 20.0 - temporarily add zone_comp_slugs to all extension options to ensure it gets picked-up.
+				$extOptions = $ext->cfg()->options;
+				foreach ( $extOptions as &$extOption ) {
+					if ( empty( $extOption[ 'zone_comp_slugs' ] ) ) {
+						$extOption[ 'zone_comp_slugs' ] = [ ModuleIntegrations::Slug() ];
+					}
+				}
+				$ext->cfg()->options = $extOptions;
+
 				$normaliser = new NormaliseConfigComponents();
 				$configuration = self::con()->cfg->configuration;
 				$configuration->sections = \array_merge( $configuration->sections, $normaliser->indexSections( $ext->cfg()->sections ) );
@@ -95,7 +106,7 @@ class ExtensionsCon {
 			$this->extensions = [];
 			/** @var BaseExtension $ext */
 			foreach ( apply_filters( 'shield/get_extensions', [], $this ) as $ext ) {
-				if ( \is_object( $ext ) && \is_a( $ext, BaseExtension::class ) ) {
+				if ( \is_object( $ext ) && \is_a( $ext, BaseExtension::class ) && !empty( $ext::SLUG ) ) {
 					$this->extensions[ $ext::SLUG ] = $ext;
 				}
 			}
