@@ -123,7 +123,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	protected function auditLogin( bool $success ) {
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
 				'audit_params' => [

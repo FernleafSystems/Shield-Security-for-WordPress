@@ -28,7 +28,7 @@ class AddRule {
 				'label'          => 'auto',
 				'last_access_at' => Services::Request()->ts(),
 			] );
-			self::con()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
+			self::con()->comps->events->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		}
 		catch ( \Exception $e ) {
 			$IP = ( new IpRuleStatus( $this->getIP() ) )->getRuleForAutoBlock();
@@ -48,7 +48,7 @@ class AddRule {
 		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLOCK, [
 			'label' => $label,
 		] );
-		self::con()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
+		self::con()->comps->events->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $IP;
 	}
 
@@ -60,7 +60,7 @@ class AddRule {
 		$data[ 'can_export' ] = true;
 
 		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BYPASS, $data );
-		self::con()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
+		self::con()->comps->events->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $IP;
 	}
 

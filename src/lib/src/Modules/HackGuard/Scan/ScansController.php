@@ -146,7 +146,7 @@ class ScansController {
 	public function getReasonsScansCantExecute() :array {
 		try {
 			$reasons = \array_keys( \array_filter( [
-				'reason_not_call_self' => !self::con()->getModule_Plugin()->canSiteLoopback()
+				'reason_not_call_self' => !self::con()->plugin->canSiteLoopback()
 			] ) );
 		}
 		catch ( \Exception $e ) {

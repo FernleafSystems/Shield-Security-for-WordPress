@@ -202,10 +202,9 @@ class Collate {
 
 	private function getShieldCapabilities() :array {
 		$con = self::con();
-		$modPlug = $con->getModule_Plugin();
 
 		try {
-			$loopback = $modPlug->canSiteLoopback() ? 'Yes' : 'No';
+			$loopback = $con->plugin->canSiteLoopback() ? 'Yes' : 'No';
 		}
 		catch ( \Exception $e ) {
 			$loopback = 'Unknown - requires WP v5.4+';

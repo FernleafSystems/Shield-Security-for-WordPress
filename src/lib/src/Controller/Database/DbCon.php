@@ -390,13 +390,12 @@ class DbCon extends DynPropertiesClass {
 
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
-			$modPlug = $con->getModule_Plugin();
 			/** @var Handler|mixed $dbh */
 			$dbh = new $dbh[ 'handler_class' ]( $dbDef );
 			$dbh->use_table_ready_cache = !$con->plugin_reset
 										  && $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
-										  && ( Services::Request()
-													   ->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
+										  && ( Services::Request()->ts()
+											   - $con->plugin->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ][ 'handler' ] = $dbh;

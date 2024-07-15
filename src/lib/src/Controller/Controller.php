@@ -16,7 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Base,
-	CommentsFilter,
 	Firewall,
 	HackGuard,
 	Integrations,
@@ -25,8 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	LoginGuard,
 	Plugin,
 	Plugin\Lib\Ops\ResetPlugin,
-	SecurityAdmin,
-	UserManagement
+	SecurityAdmin
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -78,6 +76,14 @@ class Controller extends DynPropertiesClass {
 	 */
 	public static $oInstance;
 
+	/**
+	 * @var ?Plugin\ModCon
+	 */
+	public $plugin = null;
+
+	/**
+	 * @deprecated 19.2
+	 */
 	public function fireEvent( string $event, array $meta = [] ) :self {
 		$this->comps->events->fireEvent( $event, $meta );
 		return $this;
@@ -378,7 +384,7 @@ class Controller extends DynPropertiesClass {
 
 			$this->rules->processRules();
 
-			$this->getModule_Plugin()->getProcessor()->execute();
+			$this->plugin->getProcessor()->execute();
 
 			// This is where any rules responses will execute (i.e. after processors are run):
 			do_action( $this->prefix( 'after_run_processors' ) );
@@ -391,58 +397,21 @@ class Controller extends DynPropertiesClass {
 	private function loadModules() {
 		if ( !$this->modules_loaded ) {
 
-			$this->modules_loaded = true;
-
 			$configuration = $this->cfg->configuration;
 			if ( empty( $configuration ) || $this->cfg->rebuilt ) {
 				$this->cfg->configuration = ( new Config\Modules\LoadModuleConfigs() )->run();
 			}
 
-			do_action( 'shield/modules_configuration' ); // Extensions jump in here to augment options/sections
+			// Extensions jump in here to augment options/sections
+			do_action( 'shield/modules_configuration' );
 
-			$configuration = $this->cfg->configuration;
-
-			$enumClasses = [
-				EnumModules::SECURITY_ADMIN => SecurityAdmin\ModCon::class,
-				EnumModules::ACTIVITY       => AuditTrail\ModCon::class,
-				EnumModules::COMMENTS       => CommentsFilter\ModCon::class,
-				EnumModules::FIREWALL       => Firewall\ModCon::class,
-				EnumModules::SCANS          => HackGuard\ModCon::class,
-				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
-				EnumModules::IPS            => IPs\ModCon::class,
-				EnumModules::LOGIN          => LoginGuard\ModCon::class,
-				EnumModules::PLUGIN         => Plugin\ModCon::class,
-				EnumModules::USERS          => UserManagement\ModCon::class,
-			];
-
-			$modules = $this->modules ?? [];
-			foreach ( $this->cfg->configuration->modules as $slug => $moduleProps ) {
-
-				$cfg = new ModConfigVO();
-				$cfg->slug = $slug;
-				$cfg->properties = $moduleProps;
-				$cfg->sections = $configuration->sectionsForModule( $cfg->slug );
-				$cfg->options = $configuration->optsForModule( $cfg->slug );
-
-				/** @var ModConfigVO $cfg */
-				$cfg = apply_filters( 'shield/load_mod_cfg', $cfg, $slug );
-
-				$slug = $cfg->properties[ 'slug' ];
-				if ( empty( $enumClasses[ $slug ] ) || !@\class_exists( $enumClasses[ $slug ] ) ) {
-					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
-					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $slug ) );
-				}
-
-				$modules[ $slug ] = new $enumClasses[ $slug ]();
-				$this->modules = $modules;
-			}
+			$this->modules_loaded = true;
 
 			// Register the Controller hooks
 			$this->doRegisterHooks();
 
-			foreach ( $this->modules as $module ) {
-				$module->boot();
-			}
+			$this->plugin = new Plugin\ModCon();
+			$this->plugin->boot();
 		}
 	}
 
@@ -700,7 +669,22 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->modules[ EnumModules::PLUGIN ];
+		return $this->plugin;
+	}
+
+	public function modCfg( string $slug = '' ) :ModConfigVO {
+		$modules = $this->modules ?? [];
+		if ( !isset( $modules[ $slug ] ) ) {
+			$configuration = $this->cfg->configuration;
+			$cfg = new ModConfigVO();
+			$cfg->slug = $slug;
+			$cfg->properties = $configuration->modules[ $slug ];
+			$cfg->sections = $configuration->sectionsForModule( $cfg->slug );
+			$cfg->options = $configuration->optsForModule( $cfg->slug );
+			$modules[ $slug ] = $cfg;
+			$this->modules = $modules;
+		}
+		return $modules[ $slug ];
 	}
 
 	private function labels() :Config\Labels {

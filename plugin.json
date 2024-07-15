@@ -245,29 +245,20 @@
   "config_spec":      {
     "modules":       {
       "admin_access_restriction": {
-        "slug":                 "admin_access_restriction",
-        "name":                 "Security Admin",
-        "tagline":              "Security admin allows you to restrict access to the security plugin itself.",
-        "load_priority":        11,
-        "config_menu_priority": 15,
-        "order":                20,
-        "show_central":         true,
-        "show_module_options":  false,
-        "wpcli":                {
+        "slug":         "admin_access_restriction",
+        "name":         "Security Admin",
+        "tagline":      "Security admin allows you to restrict access to the security plugin itself.",
+        "show_central": true,
+        "wpcli":        {
           "cmd_base": "secadmin"
         }
       },
       "audit_trail":              {
-        "slug":                 "audit_trail",
-        "name":                 "Logging",
-        "tagline":              "Track All Site Activity: Who, What, When and Where",
-        "order":                110,
-        "load_priority":        11,
-        "config_menu_priority": 35,
-        "menu_priority":        40,
-        "show_central":         true,
-        "show_module_options":  false,
-        "reqs":                 {
+        "slug":         "audit_trail",
+        "name":         "Logging",
+        "tagline":      "Track All Site Activity: Who, What, When and Where",
+        "show_central": true,
+        "reqs":         {
           "dbs": [
             "at_logs",
             "at_meta",
@@ -277,42 +268,29 @@
         }
       },
       "comments_filter":          {
-        "slug":                 "comments_filter",
-        "storage_key":          "commentsfilter",
-        "name":                 "SPAM",
-        "tagline":              "Block comment SPAM while retaining your privacy",
-        "order":                50,
-        "load_priority":        100,
-        "config_menu_priority": 40,
-        "show_central":         true,
-        "show_module_options":  false,
-        "reqs":                 {
+        "slug":         "comments_filter",
+        "storage_key":  "commentsfilter",
+        "name":         "SPAM",
+        "tagline":      "Block comment SPAM while retaining your privacy",
+        "show_central": true,
+        "reqs":         {
           "dbs": [
             "botsignal"
           ]
         }
       },
       "firewall":                 {
-        "slug":                 "firewall",
-        "name":                 "Firewall",
-        "tagline":              "Automatically block malicious HTTP requests and data sent to your site",
-        "order":                30,
-        "load_priority":        1000,
-        "config_menu_priority": 39,
-        "show_central":         true,
-        "show_module_options":  false
+        "slug":         "firewall",
+        "name":         "Firewall",
+        "tagline":      "Automatically block malicious HTTP requests and data sent to your site",
+        "show_central": true
       },
       "hack_protect":             {
-        "slug":                 "hack_protect",
-        "name":                 "Scanners",
-        "tagline":              "Automatically detect & repair vulnerable and suspicious files, plugins and themes.",
-        "order":                70,
-        "load_priority":        100,
-        "menu_priority":        20,
-        "config_menu_priority": 25,
-        "show_central":         true,
-        "show_module_options":  false,
-        "reqs":                 {
+        "slug":         "hack_protect",
+        "name":         "Scanners",
+        "tagline":      "Automatically detect & repair vulnerable and suspicious files, plugins and themes.",
+        "show_central": true,
+        "reqs":         {
           "dbs": [
             "scans",
             "scanitems",
@@ -323,13 +301,10 @@
         }
       },
       "integrations":             {
-        "slug":                 "integrations",
-        "name":                 "Integrations",
-        "load_priority":        20,
-        "config_menu_priority": 50,
-        "show_central":         true,
-        "show_module_options":  false,
-        "reqs":                 {
+        "slug":         "integrations",
+        "name":         "Integrations",
+        "show_central": true,
+        "reqs":         {
           "dbs": [
             "botsignal",
             "ips"
@@ -337,56 +312,39 @@
         }
       },
       "ips":                      {
-        "slug":                 "ips",
-        "name":                 "Bot/IP Blocking",
-        "tagline":              "Detect malicious bots and visitors, and block them from accessing the site.",
-        "order":                100,
-        "load_priority":        15,
-        "menu_priority":        30,
-        "config_menu_priority": 20,
-        "show_central":         true,
-        "show_module_options":  false,
-        "reqs":                 {
+        "slug":         "ips",
+        "name":         "Bot/IP Blocking",
+        "tagline":      "Detect malicious bots and visitors, and block them from accessing the site.",
+        "show_central": true,
+        "reqs":         {
           "dbs": [
             "ips"
           ]
         }
       },
       "login_protect":            {
-        "slug":                 "login_protect",
-        "storage_key":          "loginprotect",
-        "name":                 "Login Protection",
-        "tagline":              "Add protections to your WordPress login forms and protect user accounts with 2-Factor Authentication.",
-        "order":                40,
-        "load_priority":        100,
-        "config_menu_priority": 30,
-        "show_central":         true,
-        "show_module_options":  false,
-        "reqs":                 {
+        "slug":         "login_protect",
+        "storage_key":  "loginprotect",
+        "name":         "Login Protection",
+        "tagline":      "Add protections to your WordPress login forms and protect user accounts with 2-Factor Authentication.",
+        "show_central": true,
+        "reqs":         {
           "dbs": [
             "botsignal"
           ]
         }
       },
       "plugin":                   {
-        "slug":                 "plugin",
-        "name":                 "General",
-        "tagline":              "General plugin settings that apply across the entire plugin operation.",
-        "load_priority":        1,
-        "order":                10,
-        "config_menu_priority": 10,
-        "show_central":         true,
-        "show_module_options":  false
+        "slug":         "plugin",
+        "name":         "General",
+        "tagline":      "General plugin settings that apply across the entire plugin operation.",
+        "show_central": true
       },
       "user_management":          {
-        "slug":                 "user_management",
-        "name":                 "Users",
-        "tagline":              "Control user sessions, duration, timeouts and account sharing.",
-        "load_priority":        100,
-        "order":                40,
-        "config_menu_priority": 31,
-        "show_central":         true,
-        "show_module_options":  false
+        "slug":         "user_management",
+        "name":         "Users",
+        "tagline":      "Control user sessions, duration, timeouts and account sharing.",
+        "show_central": true
       }
     },
     "sections":      [

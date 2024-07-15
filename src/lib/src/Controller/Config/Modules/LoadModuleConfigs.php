@@ -27,26 +27,6 @@ class LoadModuleConfigs {
 		$configuration->sections = $normalizer->indexSections( $configuration->sections );
 		$configuration->options = $normalizer->indexOptions( $configuration->options );
 
-		$modules = [];
-		foreach ( $configuration->modules as $slug => $moduleProps ) {
-			$modules[ $slug ] = \array_merge( [
-				'storage_key'         => $slug,
-				'show_module_options' => true,
-				'load_priority'       => 10,
-				'menu_priority'       => 100,
-			], $moduleProps );
-		}
-
-		// Order Modules based on their load priority
-		\uasort( $modules, function ( array $a, array $b ) {
-			if ( $a[ 'load_priority' ] == $b[ 'load_priority' ] ) {
-				return 0;
-			}
-			return ( $a[ 'load_priority' ] < $b[ 'load_priority' ] ) ? -1 : 1;
-		} );
-
-		$configuration->modules = $modules;
-
 		return $configuration;
 	}
 }

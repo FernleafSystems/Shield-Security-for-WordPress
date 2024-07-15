@@ -26,7 +26,7 @@ class HandleUpgrade {
 
 		$hook = $con->prefix( 'plugin-upgrade' );
 		if ( \version_compare( $prev, $con->cfg->version(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
-			$con->getModule_Plugin()->deleteAllPluginCrons();
+			$con->plugin->deleteAllPluginCrons();
 			Services::ServiceProviders()->clearProviders();
 			wp_schedule_single_event( Services::Request()->ts() + 1, $hook, [ $prev ] );
 		}
