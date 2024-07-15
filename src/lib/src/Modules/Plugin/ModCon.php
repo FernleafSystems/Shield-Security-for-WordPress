@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
 	CacheDirHandler,
@@ -14,12 +16,37 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'plugin';
+	use PluginCronsConsumer;
+
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::PLUGIN;
+
+	/**
+	 * @var Processor
+	 */
+	private $processor;
 
 	/**
 	 * @var Lib\TrackingVO
 	 */
 	private $tracking;
+
+	/**
+	 * @throws \Exception
+	 */
+	public function boot() {
+		if ( !$this->is_booted ) {
+			$this->is_booted = true;
+			$this->doPostConstruction();
+			$this->setupHooks();
+		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function getProcessor() :Processor {
+		return $this->processor ?? $this->processor = new Processor();
+	}
 
 	/**
 	 * @deprecated 19.2
@@ -42,12 +69,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		$this->storeRealInstallDate();
 	}
 
-	public function isModuleEnabled() :bool {
-		return true;
-	}
-
 	public function onWpInit() {
-		parent::onWpInit();
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}
@@ -164,7 +186,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	protected function setupHooks() {
-		parent::setupHooks();
+		$this->setupCronHooks();
+
+		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 
 		add_action( 'admin_footer', function () {
 			if ( self::con()->isPluginAdminPageRequest() ) {
@@ -183,6 +207,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return $this->tracking;
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function isModOptEnabled() :bool {
 		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
 	}

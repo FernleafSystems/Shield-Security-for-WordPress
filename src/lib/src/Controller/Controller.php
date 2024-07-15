@@ -389,9 +389,7 @@ class Controller extends DynPropertiesClass {
 
 			$this->rules->processRules();
 
-			foreach ( $this->modules as $module ) {
-				$module->onRunProcessors();
-			}
+			$this->getModule_Plugin()->getProcessor()->execute();
 
 			// This is where any rules responses will execute (i.e. after processors are run):
 			do_action( $this->prefix( 'after_run_processors' ) );
@@ -419,12 +417,10 @@ class Controller extends DynPropertiesClass {
 				EnumModules::SECURITY_ADMIN => SecurityAdmin\ModCon::class,
 				EnumModules::ACTIVITY       => AuditTrail\ModCon::class,
 				EnumModules::COMMENTS       => CommentsFilter\ModCon::class,
-				EnumModules::DATA           => Data\ModCon::class,
 				EnumModules::FIREWALL       => Firewall\ModCon::class,
 				EnumModules::SCANS          => HackGuard\ModCon::class,
 				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
 				EnumModules::IPS            => IPs\ModCon::class,
-				EnumModules::LICENSE        => License\ModCon::class,
 				EnumModules::LOGIN          => LoginGuard\ModCon::class,
 				EnumModules::PLUGIN         => Plugin\ModCon::class,
 				EnumModules::USERS          => UserManagement\ModCon::class,
@@ -448,7 +444,7 @@ class Controller extends DynPropertiesClass {
 					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $slug ) );
 				}
 
-				$modules[ $slug ] = new $enumClasses[ $slug ]( $cfg );
+				$modules[ $slug ] = new $enumClasses[ $slug ]();
 				$this->modules = $modules;
 			}
 
@@ -695,7 +691,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return isset( $this->modules[ EnumModules::LICENSE ] ) && $this->comps->license->hasValidWorkingLicense();
+		return $this->comps->license->hasValidWorkingLicense();
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
@@ -719,6 +715,35 @@ class Controller extends DynPropertiesClass {
 		$flags = $this->flags;
 		$flags[ $flag ] = $value;
 		$this->flags = $flags;
+	}
+
+	public function getModule_Plugin() :Plugin\ModCon {
+		return $this->modules[ EnumModules::PLUGIN ];
+	}
+
+	private function labels() :Config\Labels {
+		$labels = \array_map( '\stripslashes', $this->cfg->labels );
+
+		foreach (
+			[
+				'icon_url_16x16',
+				'icon_url_32x32',
+				'icon_url_128x128',
+				'url_img_pagebanner',
+				'url_img_logo_small',
+			] as $img
+		) {
+			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
+				$labels[ $img ] = $this->urls->forImage( $labels[ $img ] );
+			}
+		}
+
+		$labels = ( new Config\Labels() )->applyFromArray( $labels );
+		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
+		$labels->url_helpdesk = 'https://shsec.io/shieldhelpdesk';
+		$labels->is_whitelabelled = false;
+
+		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 
 	/**
@@ -771,10 +796,6 @@ class Controller extends DynPropertiesClass {
 		return $this->modules[ EnumModules::LOGIN ];
 	}
 
-	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->modules[ EnumModules::PLUGIN ];
-	}
-
 	/**
 	 * @deprecated 19.2
 	 */
@@ -792,30 +813,5 @@ class Controller extends DynPropertiesClass {
 		}
 		$render->setTemplateRoot( $this->getPath_Templates() );
 		return $render;
-	}
-
-	private function labels() :Config\Labels {
-		$labels = \array_map( '\stripslashes', $this->cfg->labels );
-
-		foreach (
-			[
-				'icon_url_16x16',
-				'icon_url_32x32',
-				'icon_url_128x128',
-				'url_img_pagebanner',
-				'url_img_logo_small',
-			] as $img
-		) {
-			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
-				$labels[ $img ] = $this->urls->forImage( $labels[ $img ] );
-			}
-		}
-
-		$labels = ( new Config\Labels() )->applyFromArray( $labels );
-		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
-		$labels->url_helpdesk = 'https://shsec.io/shieldhelpdesk';
-		$labels->is_whitelabelled = false;
-
-		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 }

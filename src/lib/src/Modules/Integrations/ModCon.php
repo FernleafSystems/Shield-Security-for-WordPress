@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'integrations';
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::INTEGRATIONS;
 }

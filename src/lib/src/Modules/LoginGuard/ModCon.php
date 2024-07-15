@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'login_protect';
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::LOGIN;
 }

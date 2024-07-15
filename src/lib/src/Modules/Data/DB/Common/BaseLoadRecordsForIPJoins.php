@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string   $order_dir
  * @property string[] $ip_table_select_fields
  * @property string[] $joined_table_select_fields
+ * @deprecated 19.2
  */
 abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 

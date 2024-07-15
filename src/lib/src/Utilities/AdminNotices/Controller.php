@@ -171,7 +171,6 @@ class Controller {
 					'display'          => false,
 					'min_install_days' => 0,
 					'twig'             => true,
-					'mod'              => self::con()->getModule_Plugin()->cfg->slug, // @deprecated 19.1?
 				], $noticeDef );
 				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},

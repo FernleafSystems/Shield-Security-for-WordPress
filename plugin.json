@@ -37,9 +37,6 @@
     }
   },
   "version_upgrades": [
-    "19.0.7",
-    "18.2.0",
-    "18.2.8"
   ],
   "paths":            {
     "config":           "config",
@@ -295,16 +292,6 @@
           ]
         }
       },
-      "data":                     {
-        "slug":                "data",
-        "name":                "Data",
-        "load_priority":       2,
-        "show_central":        false,
-        "show_module_options": false,
-        "wpcli":               {
-          "enabled": false
-        }
-      },
       "firewall":                 {
         "slug":                 "firewall",
         "name":                 "Firewall",
@@ -333,9 +320,6 @@
             "resultitem_meta",
             "scanresults"
           ]
-        },
-        "rest_api":             {
-          "publish": true
         }
       },
       "integrations":             {
@@ -366,20 +350,6 @@
           "dbs": [
             "ips"
           ]
-        },
-        "rest_api":             {
-          "publish": true
-        }
-      },
-      "license":                  {
-        "slug":                "license",
-        "name":                "Pro Security",
-        "tagline":             "The Best In WordPress Security, Only Better.",
-        "load_priority":       0,
-        "show_module_options": false,
-        "show_central":        false,
-        "rest_api":            {
-          "publish": true
         }
       },
       "login_protect":            {
@@ -406,10 +376,7 @@
         "order":                10,
         "config_menu_priority": 10,
         "show_central":         true,
-        "show_module_options":  false,
-        "rest_api":             {
-          "publish": true
-        }
+        "show_module_options":  false
       },
       "user_management":          {
         "slug":                 "user_management",
@@ -4843,7 +4810,7 @@
           "woff",
           "woff2"
         ],
-        "allowable_paths_404s":        [
+        "allowable_paths_404s":      [
           "#^/autodiscover/autodiscover\\.xml$#"
         ],
         "allowable_invalid_scripts": [
@@ -4864,9 +4831,6 @@
         ]
       },
       "keyless_cp":                   "https://shsec.io/c5",
-      "license_item_name":            "Shield Security Pro",
-      "license_item_id":              "6047",
-      "license_item_name_sc":         "Shield Security Pro (via Shield Central)",
       "lic_verify_expire_days":       14,
       "lic_verify_expire_grace_days": 3,
       "keyless":                      true,

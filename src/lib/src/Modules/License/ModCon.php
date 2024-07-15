@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'license';
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::LICENSE;
 
 	/**
 	 * @deprecated 19.2

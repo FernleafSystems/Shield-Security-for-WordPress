@@ -2,20 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class Process extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Request\Process {
 
-	use ModConsumer;
-
-	/**
-	 * @return RequestVO|mixed
-	 */
-	protected function getRequestVO() {
-		/** @var RequestVO $req */
-		$req = parent::getRequestVO();
-		return $req->setMod( $this->mod() );
-	}
+	use PluginControllerConsumer;
 
 	/**
 	 * @return RequestVO

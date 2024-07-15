@@ -2,12 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BulkUpdateUserMeta extends ExecOnceModConsumer {
+class BulkUpdateUserMeta {
 
+	use ExecOnce;
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {

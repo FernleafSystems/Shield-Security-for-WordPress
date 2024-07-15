@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\FirewallCategoryNames;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Firewall\FirewallCategoryNames;
 
 abstract class FirewallBase extends Base {
 

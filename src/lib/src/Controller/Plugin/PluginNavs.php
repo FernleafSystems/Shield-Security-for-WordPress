@@ -119,17 +119,6 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_OPTIONS_CONFIG  => [
-					'name'     => __( 'Config', 'wp-simple-firewall' ),
-					'sub_navs' => \array_map(
-						function () {
-							return [
-								'handler' => PluginAdminPages\PageDynamicLoad::class,
-							];
-						},
-						self::con()->modules
-					),
-				],
 				self::NAV_REPORTS         => [
 					'name'     => __( 'Reports', 'wp-simple-firewall' ),
 					'sub_navs' => [

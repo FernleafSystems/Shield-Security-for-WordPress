@@ -2,17 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\AntibotSetup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename\RenameLogin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password\UserPasswordHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration\EmailValidate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\UserSessionHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
+class Processor {
+
+	use ExecOnce;
+	use PluginControllerConsumer;
+	use PluginCronsConsumer;
+
+	public function __construct() {
+		$this->setupCronHooks();
+	}
 
 	protected function run() {
 		$con = self::con();
@@ -49,6 +60,10 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Pr
 				add_action( 'init', function () {
 					self::con()->comps->forms_users->execute();
 				}, HookTimings::INIT_USER_FORMS_SETUP );
+
+				add_action( 'init', function () {
+					self::con()->comps->scans_queue->execute();
+				}, HookTimings::INIT_PROCESSOR_DEFAULT );
 
 				( new RenameLogin() )->execute();
 

@@ -8,13 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AuditCon {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	/**
@@ -71,22 +71,6 @@ class AuditCon {
 		$days = (int)\min( $con->opts->optGet( 'audit_trail_auto_clean' ), $con->caps->getMaxLogRetentionDays() );
 		$con->opts->optSet( 'audit_trail_auto_clean', $days );
 		return $days;
-	}
-
-	public function getLogFilePath() :string {
-		try {
-			$dir = ( new LogFileDirCreate() )->run();
-		}
-		catch ( \Exception $e ) {
-			$dir = '';
-		}
-
-		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
-		return apply_filters( 'shield/audit_trail_log_file_path', $path );
-	}
-
-	public function getLogFileRotationLimit() :int {
-		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
 	}
 
 	public function getLogLevelsDB() :array {
@@ -303,5 +287,27 @@ class AuditCon {
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
 		return $this->snapshotDiscoveryQueue ?? $this->snapshotDiscoveryQueue = new Snapshots\Queues\SnapshotDiscovery(
 			'snapshot_discovery', self::con()->prefix() );
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getLogFilePath() :string {
+		try {
+			$dir = ( new LogFileDirCreate() )->run();
+		}
+		catch ( \Exception $e ) {
+			$dir = '';
+		}
+
+		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
+		return apply_filters( 'shield/audit_trail_log_file_path', $path );
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getLogFileRotationLimit() :int {
+		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
 	}
 }

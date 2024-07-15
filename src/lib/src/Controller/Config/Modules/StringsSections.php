@@ -97,14 +97,6 @@ class StringsSections {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_headers' :
-				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::HEADERS )[ 'name' ] );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Protect visitors to your site by implementing increased security response headers.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
-				];
-				break;
 			case 'section_security_headers' :
 				$title = __( 'Advanced Security Headers', 'wp-simple-firewall' );
 				$short = __( 'Security Headers', 'wp-simple-firewall' );

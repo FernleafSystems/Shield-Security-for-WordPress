@@ -10,12 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ReqLogs\Ops as ReqLogsDB,
 	ReqLogs\RequestRecords
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LocalDbWriter extends AbstractProcessingHandler {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var array

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Utility\GetLogFileContent;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
@@ -38,13 +37,6 @@ class FileDownload extends BaseAction {
 		$con = self::con();
 
 		switch ( $downloadID ) {
-
-			case 'db_log':
-				$fileDetails = [
-					'name'    => sprintf( 'log_file-%s.json', date( 'Ymd_His' ) ),
-					'content' => ( new GetLogFileContent() )->run()
-				];
-				break;
 
 			case 'filelocker':
 				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest();

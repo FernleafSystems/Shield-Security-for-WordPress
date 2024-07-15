@@ -2,23 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Route\RouteBase {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function getNamespace() :string {
 		return 'shield';
-	}
-
-	protected function getRequestProcessor() {
-		/** @var Process $proc */
-		$proc = parent::getRequestProcessor();
-		return $proc->setMod( $this->mod() );
 	}
 
 	protected function verifyPermission( \WP_REST_Request $req ) {

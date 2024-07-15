@@ -7,5 +7,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
  */
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'traffic';
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::TRAFFIC;
 }

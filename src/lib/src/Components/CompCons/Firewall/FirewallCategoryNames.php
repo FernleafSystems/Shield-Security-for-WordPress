@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Firewall;
 
-class FirewallCategoryNames extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
+class FirewallCategoryNames {
 
 	public function getFor( string $category ) :string {
 		return [

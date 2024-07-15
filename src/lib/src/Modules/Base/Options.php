@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
+/**
+ * @deprecated 19.2
+ */
 class Options {
 
 	use ModConsumer;

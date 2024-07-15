@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * @property string[] $filter_fields
  */
 class RequestVO extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Request\RequestVO {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

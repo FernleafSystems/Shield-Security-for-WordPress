@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Firewall\FirewallCategoryNames;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 
@@ -41,7 +42,7 @@ class BlockFirewall extends BaseBlock {
 			[
 				__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
 				__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>
-					( new Firewall\Lib\FirewallCategoryNames() )->getFor( (string)$blockMeta[ 'match_category' ] ?? '' ),
+					( new FirewallCategoryNames() )->getFor( (string)$blockMeta[ 'match_category' ] ?? '' ),
 				__( 'Request Parameter', 'wp-simple-firewall' )          => $blockMeta[ 'match_request_param' ],
 				__( 'Request Parameter Value', 'wp-simple-firewall' )    => $blockMeta[ 'match_request_value' ],
 				__( 'Firewall Pattern', 'wp-simple-firewall' )           => $blockMeta[ 'match_pattern' ],

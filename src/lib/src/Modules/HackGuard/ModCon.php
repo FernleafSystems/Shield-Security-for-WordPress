@@ -4,12 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'hack_protect';
-
-	public function onWpInit() {
-		parent::onWpInit();
-		self::con()->comps->scans_queue->execute();
-	}
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::SCANS;
 
 	/**
 	 * @deprecated 19.2

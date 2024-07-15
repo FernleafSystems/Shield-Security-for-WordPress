@@ -55,7 +55,7 @@ class PluginURLs {
 	 * @deprecated 19.2
 	 */
 	public function modCfg( $mod ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, \is_string( $mod ) ? $mod : $mod->cfg->slug );
+		return '';
 	}
 
 	/**
