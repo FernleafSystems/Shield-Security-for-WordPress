@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 class CaptureRestApiAction extends CaptureActionBase {
 
 	protected function canRun() :bool {
-		return self::con()->is_rest_enabled;
+		return true;
 	}
 
 	protected function run() {

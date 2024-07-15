@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	Base,
 	CommentsFilter,
-	Data,
 	Firewall,
 	HackGuard,
 	Integrations,
@@ -57,7 +56,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                     $is_mode_staging
  * @property bool                                     $is_mode_live
  * @property bool                                     $is_my_upgrade
- * @property bool                                     $is_rest_enabled
  * @property bool                                     $modules_loaded
  * @property bool                                     $plugin_deactivating
  * @property bool                                     $plugin_deleting
@@ -201,15 +199,6 @@ class Controller extends DynPropertiesClass {
 			case 'plugin_reset':
 				if ( $val === null ) {
 					$this->plugin_reset = $val = Services::WpFs()->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
-				}
-				break;
-
-			case 'is_rest_enabled':
-				if ( $val === null ) {
-					$restReqs = $this->cfg->reqs_rest;
-					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
-						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
-					$this->is_rest_enabled = $val;
 				}
 				break;
 
@@ -508,10 +497,7 @@ class Controller extends DynPropertiesClass {
 		 * Support for WP-CLI and it marks the cli as plugin admin
 		 */
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $byPass ) {
-			if ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() ) {
-				$byPass = true;
-			}
-			return $byPass;
+			return $byPass || ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() );
 		}, \PHP_INT_MAX );
 	}
 
@@ -628,10 +614,6 @@ class Controller extends DynPropertiesClass {
 			$this->user_can_base_permissions = current_user_can( $this->cfg->properties[ 'base_permissions' ] );
 		}
 		return $this->user_can_base_permissions;
-	}
-
-	public function getOptionStoragePrefix() :string {
-		return $this->getPluginPrefix( '_' ).'_';
 	}
 
 	public function getPluginPrefix( string $glue = '-' ) :string {

@@ -21,4 +21,19 @@ class EnumModules {
 	public const LICENSE = 'license';
 	public const LOCKDOWN = 'lockdown';
 	public const TRAFFIC = 'traffic';
+
+	public static function All() :array {
+		return [
+			self::SECURITY_ADMIN,
+			self::ACTIVITY,
+			self::COMMENTS,
+			self::FIREWALL,
+			self::SCANS,
+			self::INTEGRATIONS,
+			self::IPS,
+			self::LOGIN,
+			self::PLUGIN,
+			self::USERS,
+		];
+	}
 }
