@@ -1,7 +1,7 @@
 {
   "20.0": {
     "version":     "20.0",
-    "released_at": 1718787607,
+    "released_at": 1721130000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease200",
       "upgrade": "https://shsec.io/shieldupgradeguide200"
@@ -27,6 +27,13 @@
           "We've also removed several legacy options that are no longer practical."
         ],
         "href":        ""
+      },
+      {
+        "type":        "improved",
+        "title":       "Code and Performance Improvements",
+        "description": [
+          "We're continuing our efforts to purge Shield of legacy code and improve the codebase making it as fast and efficient as possible."
+        ]
       },
       {
         "type":        "changed",
@@ -56,152 +63,6 @@
       }
     ],
     "patches":     [
-      {
-        "version":     "19",
-        "released_at": 1716930000,
-        "items":       [
-          {
-            "title":    "Fix for limitation in CrowdSec API to ensure contextual data are of the expected format.",
-            "category": "bug",
-            "type":     "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "18",
-        "released_at": 1716896000,
-        "items":       [
-          {
-            "title":    "Funky characters in user-agents broke json_encode() - switched to wp_json_encode().",
-            "category": "bug",
-            "type":     "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "16",
-        "released_at": 1716889000,
-        "items":       [
-          {
-            "title":    "Added WP actions/hooks during the 2FA email sending process to allow for developer integration.",
-            "category": "developer",
-            "type":     "new"
-          },
-          {
-            "title":    "Added WP actions/hooks for integration with Password Expiry, Account Suspension, and Idle status queries.",
-            "category": "developer",
-            "type":     "new",
-            "href":     "https://shsec.io/nn"
-          },
-          {
-            "title":    "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Remove unnecessary admin notice upon login.",
-            "category": "ux",
-            "type":     "improved"
-          },
-          {
-            "title":    "Add contextual data to CrowdSec Signals.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Explicitly remove old WP auto-load options table data.",
-            "category": "optimisation",
-            "type":     "improved"
-          },
-          {
-            "title":    "Updated integration with FluentForms to support their altered codebase.",
-            "category": "bug",
-            "type":     "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "13",
-        "released_at": 1714561000,
-        "items":       [
-          {
-            "title": "Try to ensure that the correct visitor IP address is assigned to any new WP comments.",
-            "type":  "improved"
-          },
-          {
-            "title": "Bug: remove .mo noise from malware scanning.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Bug: prevent minor PHP logging for error when creating DB table and it already exists.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "11",
-        "released_at": 1714490000,
-        "items":       [
-          {
-            "title": "Minor Security Fix. Details to be released at a future date.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "10",
-        "released_at": 1714486300,
-        "items":       [
-          {
-            "title": "Bug: Fix for javascript error breaking parts of MainWP admin area.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "9",
-        "released_at": 1714470000,
-        "items":       [
-          {
-            "title": "Attempt to automatically detect PHP-based translation files to prevent noisy scan results.",
-            "type":  "improved"
-          },
-          {
-            "title": "Attempt to identify obsolete core WordPress files which weren't properly deleted during recent upgrades, and detail this in scan results table.",
-            "type":  "improved"
-          },
-          {
-            "title": "Bug: Scan results show a number of file results exists, but actual results table is empty.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Bug: Upgrade process for FileLocker records improved.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Mitigate potential fatal error during scan.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Fix for automatic self-update.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Update assets used by the plugin.",
-            "type":  "improved"
-          }
-        ]
-      },
-      {
-        "version":     "6",
-        "released_at": 1711724000,
-        "items":       [
-          {
-            "title": "Ensure Shield admin menu bar displays only for admins.",
-            "type":  "fixed"
-          }
-        ]
-      }
     ]
   },
   "19.1": {
