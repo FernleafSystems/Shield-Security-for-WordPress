@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum
