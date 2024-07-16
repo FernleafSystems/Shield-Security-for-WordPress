@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
 	IsFileContentExcluded
@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class FileScanner {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
 	public function scan( string $fullPath ) :?ResultItem {

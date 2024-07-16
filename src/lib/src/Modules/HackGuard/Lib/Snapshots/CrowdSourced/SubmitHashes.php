@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSour
 
 class SubmitHashes {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var WpPluginVo|WpThemeVo

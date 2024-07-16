@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ItemIgnoreHandler {
 
-	use HackGuard\ModConsumer;
+	use PluginControllerConsumer;
 	use ScanItemConsumer;
 
 	/**

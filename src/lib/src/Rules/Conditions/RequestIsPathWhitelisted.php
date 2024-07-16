@@ -3,16 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestIsPathWhitelisted extends Base {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use Traits\TypeShield;
 
 	public const SLUG = 'request_is_path_whitelisted';

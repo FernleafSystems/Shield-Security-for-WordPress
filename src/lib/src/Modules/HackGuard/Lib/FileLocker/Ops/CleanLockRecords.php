@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class CleanLockRecords {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run() {
 		if ( self::con()->caps->hasCap( 'scan_file_locker' ) ) {

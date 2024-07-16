@@ -8,13 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\{
 	AddRule,
 	IpRulesCache
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ProcessOffense {
 
 	use ExecOnce;
-	use ModConsumer;
 	use IpAddressConsumer;
+	use PluginControllerConsumer;
 
 	protected function run() {
 		try {

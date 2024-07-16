@@ -3,12 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\ProcessOffense;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ProcessOffenses {
 
 	use ExecOnce;
-	use IPs\ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return self::con()->this_req->ip_is_public;
@@ -20,7 +21,7 @@ class ProcessOffenses {
 			if ( !self::con()->plugin_deleting
 				 && self::con()->comps->offense_tracker->hasVisitorOffended()
 				 && self::con()->comps->offense_tracker->isCommit() ) {
-				( new IPs\Components\ProcessOffense() )
+				( new ProcessOffense() )
 					->setIp( self::con()->this_req->ip )
 					->execute();
 			}

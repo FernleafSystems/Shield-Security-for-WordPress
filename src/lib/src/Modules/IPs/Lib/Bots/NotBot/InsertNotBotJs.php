@@ -8,14 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionDataVO,
 	Actions\CaptureNotBot
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class InsertNotBotJs {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/notbot_js_insert', true );

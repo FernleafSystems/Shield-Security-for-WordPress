@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops as MalwareDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai;
 
 class ReportToMalai {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run( int $limit = 25 ) :array {
 		$dbh = self::con()->db_con->malware;

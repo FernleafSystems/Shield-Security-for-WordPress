@@ -49,7 +49,7 @@ class AssessLocks extends BaseOps {
 	 */
 	private function getUpdater() {
 		$dbCon = self::con()->db_con;
-		return ( isset( $dbCon->file_locker ) ? $dbCon->file_locker : $dbCon->dbhFileLocker() )->getQueryUpdater();
+		return ( $dbCon->file_locker !== null ? $dbCon->file_locker : $dbCon->dbhFileLocker() )->getQueryUpdater();
 	}
 
 	private function removeDuplicates() {

@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 

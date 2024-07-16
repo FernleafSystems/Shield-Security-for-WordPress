@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 
+/**
+ * @deprecated 19.2
+ */
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;

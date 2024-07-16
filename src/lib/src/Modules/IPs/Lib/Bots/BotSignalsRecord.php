@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
 	LoadBotSignalRecords,
 	Ops as BotSignalDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord
 };
@@ -15,14 +16,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	Lib\IpRules\IpRuleStatus,
-	ModConsumer
 };
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsRecord {
 
-	use ModConsumer;
 	use IpAddressConsumer;
+	use PluginControllerConsumer;
 
 	public function delete() :bool {
 		$thisReq = self::con()->this_req;

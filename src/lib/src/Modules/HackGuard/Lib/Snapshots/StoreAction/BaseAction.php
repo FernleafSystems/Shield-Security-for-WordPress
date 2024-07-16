@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 
 class BaseAction {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var WpPluginVo|WpThemeVo

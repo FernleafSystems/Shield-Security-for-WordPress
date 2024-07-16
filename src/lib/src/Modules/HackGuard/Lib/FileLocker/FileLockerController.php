@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -15,18 +16,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	PublicKeyRetrievalFailure,
 	UnsupportedFileLockType
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController {
 
 	use ExecOnce;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
-
-	/**
-	 * @deprecated 19.2
-	 */
-	use ModConsumer;
 
 	public const CRON_DELAY = 60;
 

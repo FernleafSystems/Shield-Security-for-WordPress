@@ -47,7 +47,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 	}
 
 	public function __set( string $key, $value ) {
-		if ( \serialize( $value ) !== \serialize( ( $this->getRawData()[ $key ] ?? null ) ) ) {
+		if ( \serialize( $value ) !== \serialize( $this->{$key} ) ) {
 			$this->modified = true;
 		}
 		parent::__set( $key, $value );

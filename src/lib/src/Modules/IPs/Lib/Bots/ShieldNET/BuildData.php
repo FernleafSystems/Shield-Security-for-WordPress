@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildData {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function build( bool $quiet = false ) :array {
 

@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 abstract class BaseBuildScores {
 
 	use RecordConsumer;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	abstract public function build() :array;
 

@@ -3,14 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class LoadFileLocks {
 
-	/**
-	 * @deprecated 19.2
-	 */
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var FileLockerDB\Record[]

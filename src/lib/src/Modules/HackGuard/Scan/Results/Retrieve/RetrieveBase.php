@@ -4,15 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * @property string[] $wheres
  */
 abstract class RetrieveBase extends DynPropertiesClass {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ScanControllerConsumer;
 
 	public const ABBR_RESULTITEMMETA = '`rim`';

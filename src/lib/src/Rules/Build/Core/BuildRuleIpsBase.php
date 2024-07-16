@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class BuildRuleIpsBase extends BuildRuleCoreShieldBase {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 }
