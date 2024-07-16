@@ -2,7 +2,7 @@
 	<div class="col-12">
 		<div class="d-flex">
 
-			<div class="component-enabled-state d-flex flex-column justify-content-between align-items-center">
+			<div class="component-enabled-state d-flex flex-column justify-content-start align-items-center">
 				{% if vars.enabled_status == 'good' %}
 					<span class="text-success component-enabled-state">{{ imgs.svgs.status_good|raw }}</span>
 				{% elseif vars.enabled_status == 'okay' %}

@@ -71,6 +71,7 @@ class BotSignalsRecord {
 			$r = ( new LoadBotSignalRecords() )
 				->setIP( $this->getIP() )
 				->loadRecord();
+			$r->modified = false;
 		}
 		catch ( \Exception $e ) {
 			$r = null;
@@ -78,6 +79,7 @@ class BotSignalsRecord {
 
 		if ( empty( $r ) ) {
 			$r = new BotSignalRecord();
+			$r->modified = true;
 		}
 
 		$ruleStatus = new IpRuleStatus( $this->getIP() );
@@ -139,7 +141,7 @@ class BotSignalsRecord {
 				->getQueryInserter()
 				->insert( $record );
 		}
-		else {
+		elseif ( $record->modified ) {
 			$data = $record->getRawData();
 			$data[ 'updated_at' ] = Services::Request()->ts();
 			$success = self::con()
@@ -147,6 +149,9 @@ class BotSignalsRecord {
 				->bot_signals
 				->getQueryUpdater()
 				->updateById( $record->id, $data );
+		}
+		else {
+			$success = true;
 		}
 
 		$thisReq = self::con()->this_req;

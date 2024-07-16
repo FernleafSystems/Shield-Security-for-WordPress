@@ -3,17 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	BotTrack,
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var NotBotHandler
@@ -145,9 +143,18 @@ class BotSignalsController {
 
 	private function registerFrontPageLoad() {
 		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			if ( Services::Request()->isGet() && did_action( 'wp' )
-				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
-				$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
+			$req = Services::Request();
+			if ( $req->isGet() && did_action( 'wp' ) && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+				try {
+					$record = ( new BotSignalsRecord() )
+						->setIP( self::con()->this_req->ip )
+						->retrieve();
+					if ( $req->ts() - $record->frontpage_at > MINUTE_IN_SECONDS*30 ) {
+						$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		} );
 	}
@@ -156,7 +163,16 @@ class BotSignalsController {
 		add_action( 'login_footer', function () {
 			$req = Services::Request();
 			if ( $req->isGet() ) {
-				$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'loginpage_load' );
+				try {
+					$record = ( new BotSignalsRecord() )
+						->setIP( self::con()->this_req->ip )
+						->retrieve();
+					if ( $req->ts() - $record->loginpage_at > MINUTE_IN_SECONDS*10 ) {
+						$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'loginpage_load' );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		} );
 	}

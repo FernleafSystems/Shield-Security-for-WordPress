@@ -6,16 +6,12 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * No upgrade processing at the moment.
- */
 class HandleUpgrade {
 
 	use Modules\PluginControllerConsumer;
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return false;
 		$previous = self::con()->cfg->previous_version;
 		return !empty( $previous );
 	}
@@ -32,12 +28,15 @@ class HandleUpgrade {
 		}
 
 		add_action( $hook, function ( $previousVersion ) {
+			self::con()->plugin->deleteAllPluginCrons();
+			Services::ServiceProviders()->clearProviders();
 		} );
 
 		$con->cfg->previous_version = $con->cfg->version();
 	}
 
 	protected function upgradeModule() {
+		/*
 		$upgrades = self::con()->cfg->version_upgrades;
 		\asort( $upgrades );
 		foreach ( $upgrades as $version ) {
@@ -46,5 +45,6 @@ class HandleUpgrade {
 				$this->{$upgradeMethod}();
 			}
 		}
+		*/
 	}
 }
