@@ -17,7 +17,7 @@ class NotBotHandler {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	public const LIFETIME = 300;
+	public const LIFETIME = 600;
 	public const COOKIE_SLUG = 'notbot';
 	public const SIGNAL_NOTBOT = 'notbot';
 	public const SIGNAL_ALTCHA = 'altcha';
