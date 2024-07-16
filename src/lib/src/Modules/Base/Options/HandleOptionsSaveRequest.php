@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class HandleOptionsSaveRequest {
 

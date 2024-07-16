@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use Carbon\Carbon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Exceptions\ReportDataEmptyException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportGenerator;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportCreateCustom extends BaseAction {
