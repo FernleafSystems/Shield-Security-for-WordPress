@@ -28,8 +28,19 @@ class HandleUpgrade {
 		}
 
 		add_action( $hook, function ( $previousVersion ) {
-			self::con()->plugin->deleteAllPluginCrons();
+			$con = self::con();
+
 			Services::ServiceProviders()->clearProviders();
+			$con->plugin->deleteAllPluginCrons();
+
+			if ( $con->extensions_controller->canRunExtensions() ) {
+				foreach ( $con->extensions_controller->getAvailableExtensions() as $availableExtension ) {
+					$handler = $availableExtension->getUpgradesHandler();
+					if ( !empty( $handler ) && \method_exists( $handler, 'forceUpdateCheck' ) ) {
+						$handler->forceUpdateCheck();
+					}
+				}
+			}
 		} );
 
 		$con->cfg->previous_version = $con->cfg->version();

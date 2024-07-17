@@ -27,6 +27,10 @@ class ExtensionsCon {
 		$this->extendRules();
 	}
 
+	public function canRunExtensions() :bool {
+		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && self::con()->isPremiumActive();
+	}
+
 	private function initExtensions() :void {
 		foreach ( $this->getAvailableExtensions() as $ext ) {
 
@@ -54,7 +58,7 @@ class ExtensionsCon {
 
 	public function extendRules() :void {
 		add_filter( 'shield/rules/enum_conditions', function ( array $conditions ) {
-			foreach ( $this->getExtensions() as $extension ) {
+			foreach ( $this->getAvailableExtensions() as $extension ) {
 				if ( $extension->canExtendRules() ) {
 					$conditions = \array_merge( $conditions, $extension->getRuleConditions() );
 				}
@@ -62,7 +66,7 @@ class ExtensionsCon {
 			return \array_unique( $conditions );
 		} );
 		add_filter( 'shield/rules/enum_responses', function ( array $responses ) {
-			foreach ( $this->getExtensions() as $extension ) {
+			foreach ( $this->getAvailableExtensions() as $extension ) {
 				if ( $extension->canExtendRules() ) {
 					$responses = \array_merge( $responses, $extension->getRuleResponses() );
 				}
@@ -70,7 +74,7 @@ class ExtensionsCon {
 			return \array_unique( $responses );
 		} );
 		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
-			foreach ( $this->getExtensions() as $extension ) {
+			foreach ( $this->getAvailableExtensions() as $extension ) {
 				if ( $extension->canExtendRules() ) {
 					$builders = \array_merge( $builders, $extension->getRuleBuilders() );
 				}
@@ -78,7 +82,7 @@ class ExtensionsCon {
 			return \array_unique( $builders );
 		} );
 		add_filter( 'shield/rules/enum_types', function ( array $builders ) {
-			foreach ( $this->getExtensions() as $extension ) {
+			foreach ( $this->getAvailableExtensions() as $extension ) {
 				if ( $extension->canExtendRules() ) {
 					$builders = \array_merge( $builders, $extension->getRuleEnumTypes() );
 				}
@@ -101,6 +105,15 @@ class ExtensionsCon {
 	/**
 	 * @return BaseExtension[]
 	 */
+	public function getAvailableExtensions() :array {
+		return \array_filter( $this->getExtensions(), function ( $ext ) {
+			return $ext->isAvailable() && \in_array( $ext::SLUG, EnumExtensions::All() );
+		} );
+	}
+
+	/**
+	 * @return BaseExtension[]
+	 */
 	protected function getExtensions() :array {
 		if ( $this->extensions === null ) {
 			$this->extensions = [];
@@ -112,14 +125,5 @@ class ExtensionsCon {
 			}
 		}
 		return $this->extensions;
-	}
-
-	/**
-	 * @return BaseExtension[]
-	 */
-	protected function getAvailableExtensions() :array {
-		return \array_filter( $this->getExtensions(), function ( $ext ) {
-			return $ext->isAvailable() && \in_array( $ext::SLUG, EnumExtensions::All() );
-		} );
 	}
 }
