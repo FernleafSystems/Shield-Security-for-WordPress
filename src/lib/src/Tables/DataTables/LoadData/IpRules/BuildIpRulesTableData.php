@@ -94,7 +94,13 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		if ( !empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
 			$ip = \preg_replace( '#[^0-9a-f:.]#i', '', $this->table_data[ 'search' ][ 'value' ] );
 			if ( !empty( $ip ) ) {
-				$wheres[] = sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ip );
+				// Support searches for hexadecimal IP representation
+				if ( \preg_match( '#[.:]#', $ip ) ) {
+					$wheres[] = sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ip );
+				}
+				else {
+					$wheres[] = sprintf( "`ips`.`ip`=X'%s'", $ip );
+				}
 			}
 		}
 		return $wheres;

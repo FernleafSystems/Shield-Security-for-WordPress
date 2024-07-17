@@ -57,13 +57,24 @@ class SelectSearchData {
 		$results = [];
 		$dbhIPs = self::con()->db_con->ips;
 		foreach ( $ipTerms as $ipTerm ) {
-			$ips = $dbhIPs->getQuerySelector()
-						  ->addRawWhere( [
-							  sprintf( 'INET6_NTOA(`%s`.`ip`)', $dbhIPs->getTableSchema()->table ),
-							  'LIKE',
-							  "'%$ipTerm%'"
-						  ] )
-						  ->queryWithResult();
+			$selector = $dbhIPs->getQuerySelector();
+			// Support searches for hexadecimal IP representation
+			if ( \preg_match( '#[.:]#', $ipTerm ) ) {
+				$selector->addRawWhere( [
+					sprintf( 'INET6_NTOA(`%s`.`ip`)', $dbhIPs->getTableSchema()->table ),
+					'LIKE',
+					"'%$ipTerm%'"
+				] );
+			}
+			else {
+				$selector->addRawWhere( [
+					sprintf( '`%s`.`ip`', $dbhIPs->getTableSchema()->table ),
+					'=',
+					"X'$ipTerm'"
+				] );
+			}
+
+			$ips = $selector->queryWithResult();
 			$results = \array_merge(
 				$results,
 				\array_map(
@@ -417,7 +428,7 @@ class SelectSearchData {
 		$stringsOptions = new StringsOptions();
 
 		$opts = \array_keys( \array_filter( $con->cfg->configuration->options, function ( array $optDef ) {
-			return $optDef[ 'section' ] !== 'section_hidden';
+			return !\in_array( $optDef[ 'section' ], [ 'section_hidden', 'section_deprecated' ], true );
 		} ) );
 
 		$config = [];
