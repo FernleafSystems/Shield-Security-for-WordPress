@@ -35,7 +35,7 @@ class Firewall extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'The Firewall represents the core foundation to your WordPress security & protection.', 'wp-simple-firewall' );
+		return __( 'The Firewall represents the crucial perimeter defense of your WordPress site.', 'wp-simple-firewall' );
 	}
 
 	protected function getUnderlyingModuleZone() :?string {

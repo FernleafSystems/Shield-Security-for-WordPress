@@ -216,12 +216,12 @@
     "url_repo_home":       "https://shsec.io/eh",
     "privacy_policy_href": "https://shsec.io/shieldprivacypolicy"
   },
-  "plugin_meta":      [
-    {
-      "name": "5&#10025; Rate This Plugin",
+  "plugin_meta":      {
+    "rate": {
+      "name": "Love it? Rate This Plugin &#10025;",
       "href": "https://shsec.io/wpsf29"
     }
-  ],
+  },
   "action_links":     {
     "remove": null,
     "add":    [
@@ -1059,36 +1059,6 @@
         "name":            "Enable White Label",
         "summary":         "Activate Your White Label Settings",
         "description":     "Use this option to turn on/off the whole White Label feature."
-      },
-      {
-        "key":             "wl_hide_updates",
-        "section":         "section_whitelabel",
-        "zone_comp_slugs": [
-          "whitelabel"
-        ],
-        "default":         "Y",
-        "type":            "checkbox",
-        "link_info":       "",
-        "link_blog":       "",
-        "name":            "Hide Updates",
-        "summary":         "Hide Available Updates From Non Security Admins",
-        "description":     "Hides the availability of Shield updates from non-security admins."
-      },
-      {
-        "key":             "wl_replace_badge_url",
-        "section":         "section_whitelabel",
-        "zone_comp_slugs": [
-          "whitelabel"
-        ],
-        "premium":         true,
-        "cap":             "whitelabel",
-        "default":         "N",
-        "type":            "checkbox",
-        "link_info":       "",
-        "link_blog":       "",
-        "name":            "Replace Plugin Badge",
-        "summary":         "Replace Plugin Badge URL and Images",
-        "description":     "When using the plugin badge, replace the URL and link with your Whitelabel settings."
       },
       {
         "key":             "wl_pluginnamemain",

@@ -37,7 +37,7 @@ class Spam extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Protection for users and their sessions.', 'wp-simple-firewall' );
+		return __( 'Block WordPress Comment SPAM and Contact Form SPAM.', 'wp-simple-firewall' );
 	}
 
 	protected function getUnderlyingModuleZone() :?string {

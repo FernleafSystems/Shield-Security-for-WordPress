@@ -16,7 +16,7 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 		$con = self::con();
 		$opts = $con->opts;
 
-		if ( $opts->optIs( 'wl_replace_badge_url', 'Y' ) ) {
+		if ( $con->comps->whitelabel->isEnabled() ) {
 			$badgeUrl = $opts->optGet( 'wl_homeurl' );
 			$name = $opts->optGet( 'wl_pluginnamemain' );
 			$logo = $opts->optGet( 'wl_dashboardlogourl' );

@@ -30,7 +30,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reporti
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel\WhitelabelController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
@@ -72,7 +71,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property Shield\Zones\SecurityZonesCon $zones
  * @property ShieldNetApiController        $shieldnet
  * @property UserSuspendController         $user_suspend
- * @property WhitelabelController          $whitelabel
+ * @property CompCons\WhitelabelCon        $whitelabel
  * @property MerlinController              $wizards
  * @property CompCons\WpCliCon             $wpcli
  */
@@ -130,7 +129,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'scans'             => Scan\ScansController::class,
 			'scans_queue'       => Scan\Queue\Controller::class,
 			'user_suspend'      => UserSuspendController::class,
-			'whitelabel'        => WhitelabelController::class,
+			'whitelabel'        => CompCons\WhitelabelCon::class,
 			'wizards'           => MerlinController::class,
 			'wpcli'             => CompCons\WpCliCon::class,
 			'zones'             => Shield\Zones\SecurityZonesCon::class,

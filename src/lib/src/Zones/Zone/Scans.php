@@ -56,7 +56,7 @@ class Scans extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Protection for users and their sessions.', 'wp-simple-firewall' );
+		return __( 'Regular scanning help identify compromise and prevent exploitation of vulnerabilies.', 'wp-simple-firewall' );
 	}
 
 	protected function getUnderlyingModuleZone() :?string {

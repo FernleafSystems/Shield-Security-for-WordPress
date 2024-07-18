@@ -41,7 +41,6 @@ class Processor {
 				$components->instant_alerts->execute();
 				$components->sec_admin->execute();
 				$components->ips_con->execute();
-				$components->whitelabel->execute();
 				$components->scans->execute();
 				$components->file_locker->execute();
 				$components->http_headers->execute();
@@ -50,6 +49,7 @@ class Processor {
 				$components->badge->execute();
 				$components->import_export->execute();
 				$components->comment_spam->execute();
+				$components->whitelabel->execute();
 
 				new Events\StatsWriter();
 				( new Lib\AllowBetaUpgrades() )->execute();

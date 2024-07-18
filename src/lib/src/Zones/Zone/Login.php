@@ -33,7 +33,7 @@ class Login extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Protection for user login and sessions.', 'wp-simple-firewall' );
+		return __( 'Protection for user logins alongside session hijacking prevention.', 'wp-simple-firewall' );
 	}
 
 	protected function getUnderlyingModuleZone() :?string {

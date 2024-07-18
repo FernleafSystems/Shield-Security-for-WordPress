@@ -38,7 +38,7 @@ class Headers extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Protection for users and their sessions.', 'wp-simple-firewall' );
+		return __( 'HTTP Headers provide protection for your site visitors.', 'wp-simple-firewall' );
 	}
 
 	protected function getUnderlyingModuleZone() :?string {

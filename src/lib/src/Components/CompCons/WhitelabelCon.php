@@ -1,20 +1,16 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class WhitelabelController {
+class WhitelabelCon {
 
 	use ExecOnce;
-
-	/**
-	 * @deprecated 19.2
-	 */
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_wpcli && $this->isEnabled();
@@ -29,17 +25,6 @@ class WhitelabelController {
 		add_filter( $con->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
-
-		if ( self::con()->opts->optIs( 'wl_hide_updates', 'Y' ) && is_admin()
-			 && !Services::WpGeneral()->isCron() && !$con->isPluginAdmin() ) {
-
-			if ( \in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
-				add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
-			}
-			else {
-				add_filter( 'wp_get_update_data', [ $this, 'adjustUpdateDataCount' ] );
-			}
-		}
 	}
 
 	public function applyWhiteLabels( Labels $labels ) :Labels {
@@ -129,8 +114,9 @@ class WhitelabelController {
 	 */
 	public function removePluginMetaLinks( $pluginMeta, $pluginBaseFile ) {
 		if ( $pluginBaseFile == self::con()->base_file ) {
-			unset( $pluginMeta[ 2 ] ); // View details
-			unset( $pluginMeta[ 3 ] ); // Rate 5*
+			foreach ( \array_keys( self::con()->cfg->plugin_meta ) as $slug ) {
+				unset( $pluginMeta[ $slug ] );
+			}
 		}
 		return $pluginMeta;
 	}
@@ -139,9 +125,9 @@ class WhitelabelController {
 	 * Hides the update if the page loaded is the plugins page or the updates page.
 	 * @param \stdClass $plugins
 	 * @return \stdClass
+	 * @deprecated 20.0
 	 */
 	public function hidePluginUpdatesFromUI( $plugins ) {
-		unset( $plugins->response[ self::con()->base_file ] );
 		return $plugins;
 	}
 

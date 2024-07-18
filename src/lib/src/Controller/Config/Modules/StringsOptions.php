@@ -1280,20 +1280,10 @@ class StringsOptions {
 				$summary = __( 'Activate Your White Label Settings', 'wp-simple-firewall' );
 				$desc = [ __( 'Turn your White Label settings on/off.', 'wp-simple-firewall' ) ];
 				break;
-			case 'wl_hide_updates' :
-				$name = __( 'Hide Updates', 'wp-simple-firewall' );
-				$summary = __( 'Hide Plugin Updates From Non-Security Admins', 'wp-simple-firewall' );
-				$desc = [ sprintf( __( 'Hide available %s updates from non-security administrators.', 'wp-simple-firewall' ), $pluginName ) ];
-				break;
 			case 'wl_pluginnamemain' :
 				$name = __( 'Plugin Name', 'wp-simple-firewall' );
 				$summary = __( 'The Name Of The Plugin', 'wp-simple-firewall' );
 				$desc = [ __( 'The name of the plugin that will be displayed to your site users.', 'wp-simple-firewall' ) ];
-				break;
-			case 'wl_replace_badge_url' :
-				$name = __( 'Replace Plugin Badge', 'wp-simple-firewall' );
-				$summary = __( 'Replace Plugin Badge URL and Images', 'wp-simple-firewall' );
-				$desc = [ __( 'When using the plugin badge, replace the URL and link with your Whitelabel settings.', 'wp-simple-firewall' ) ];
 				break;
 			case 'wl_namemenu' :
 				$name = __( 'Menu Title', 'wp-simple-firewall' );
