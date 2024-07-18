@@ -21,7 +21,8 @@ export class ShieldEventsHandler extends BaseService {
 			submit: {},
 			'shown.bs.popover': {},
 			'shown.bs.tab': {},
-			'hidden.bs.offcanvas': {}
+			'hidden.bs.offcanvas': {},
+			'hidden.bs.modal': {}
 		}
 
 		const container = document.querySelector( this._base_data.events_container_selector );

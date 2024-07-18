@@ -1,0 +1,16 @@
+{% extends '/components/modals/base_modal_content.twig' %}
+
+{% block modal_body %}
+	<p class="fs-6">
+		There are many important changes to Shield v20, so
+		<a href="{{ hrefs.release_guide }}" target="_blank" class="text-decoration-underline">we encourage you to review the Release Guide here</a>.
+	</p>
+	<p class="fs-6">
+		The video below demos the biggest UI changes and how to find what you need within the new UI.
+	</p>
+	<div style="padding:49.17% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/986378588?h=fde2b1c5f7&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Shield Security for WordPress v20 Introduction"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+{% endblock %}
+
+{% block modal_footer %}
+	<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+{% endblock %}

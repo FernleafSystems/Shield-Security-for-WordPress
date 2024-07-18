@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
@@ -330,6 +329,26 @@ class AssetsCustomizer {
 								],
 							]
 						]
+					];
+				},
+			],
+			'misc_hooks'       => [
+				'key'      => 'misc_hooks',
+				'required' => true,
+				'handles'  => [
+					'main',
+				],
+				'data'     => function () {
+					$con = self::con();
+					return [
+						'ajax'  => [
+							Components\Modals\IntroVideoModal::SLUG     => ActionData::Build( Components\Modals\IntroVideoModal::class ),
+							Actions\SetFlagShieldIntroVideoClosed::SLUG => ActionData::Build( Actions\SetFlagShieldIntroVideoClosed::class ),
+						],
+						'flags' => [
+							'show_video' => $con->opts->optGet( 'v20_intro_closed_at' ) === 0
+											&& $con->opts->optGet( 'installation_time' ) < $con->cfg->properties[ 'release_timestamp' ]
+						],
 					];
 				},
 			],
