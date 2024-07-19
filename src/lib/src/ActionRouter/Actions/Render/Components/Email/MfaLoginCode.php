@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaLoginCode extends EmailBase {
