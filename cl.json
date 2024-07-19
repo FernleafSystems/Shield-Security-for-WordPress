@@ -36,6 +36,13 @@
         ]
       },
       {
+        "type":        "improved",
+        "title":       "Optimised Autoload Size",
+        "description": [
+          "Reduced the size of the autoload option storage by ~50%."
+        ]
+      },
+      {
         "type":        "changed",
         "pro_only":    true,
         "title":       "Security Admin Not Required For Whitelabel",

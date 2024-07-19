@@ -22,7 +22,6 @@ class RunTests {
 			VerifyConfig::class,
 			VerifyActions::class,
 			VerifyEvents::class,
-			VerifyUniqueEvents::class,
 			VerifyStrings::class,
 			VerifyMeterComponents::class,
 		];

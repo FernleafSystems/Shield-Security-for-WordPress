@@ -85,7 +85,7 @@ class Verify {
 	 */
 	private function sendRequest() :ShieldLicense {
 		$lookup = new Lookup();
-		$lookup->url = apply_filters( 'shield/master_site_license_url', Services::WpGeneral()->getHomeUrl( '', true ) );
+		$lookup->url = apply_filters( 'shield/master_site_license_url', self::con()->comps->license->activationURL() );
 		$lookup->install_ids = [
 			'shieldpro' => ( new InstallationID() )->id(),
 		];

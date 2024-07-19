@@ -47,6 +47,11 @@ class LicenseHandler {
 		} );
 	}
 
+	public function activationURL() :string {
+		$WP = Services::WpGeneral();
+		return $WP->isMultisite() ? get_blogaddress_by_id( get_main_site_id( get_main_network_id() ) ) : get_option( 'home' );
+	}
+
 	public function runHourlyCron() {
 		self::con()->comps->api_token->getToken();
 	}
