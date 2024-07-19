@@ -4,17 +4,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RenameLogin {
 
-	use LoginGuard\ModConsumer;
+	use PluginControllerConsumer;
 	use ExecOnce;
 
 	protected function canRun() :bool {
+		return !self::con()->this_req->request_bypasses_all_restrictions
+			   && !self::con()->this_req->wp_is_xmlrpc
+			   && $this->isEnabled();
+	}
+
+	public function isEnabled() :bool {
 		return !empty( $this->customPath() )
-			   && !self::con()->this_req->request_bypasses_all_restrictions
 			   && !$this->hasPluginConflict()
 			   && !$this->hasUnsupportedConfiguration();
 	}
@@ -154,8 +159,7 @@ class RenameLogin {
 		if ( !empty( $redirectPath ) && \str_contains( $redirectPath, 'wp-login.php' ) ) {
 
 			$queryArgs = \explode( '?', $location );
-			$path = \method_exists( $this, 'customPath' ) ? $this->customPath() : $this->opts()->getCustomLoginPath();
-			$location = home_url( $path );
+			$location = home_url( $this->customPath() );
 			if ( !empty( $queryArgs[ 1 ] ) ) {
 				$location .= '?'.$queryArgs[ 1 ];
 			}
@@ -169,9 +173,8 @@ class RenameLogin {
 	 * @return string
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
-		if ( !Services::WpGeneral()->isLoginUrl()  && !Services::WpUsers()->isUserLoggedIn() ) {
-			$path = \method_exists( $this, 'customPath' ) ? $this->customPath() : $this->opts()->getCustomLoginPath();
-			if ( \trim( (string)\parse_url( $location, \PHP_URL_PATH ), '/' ) === $path ) {
+		if ( !Services::WpGeneral()->isLoginUrl() && !Services::WpUsers()->isUserLoggedIn() ) {
+			if ( \trim( (string)\wp_parse_url( $location, \PHP_URL_PATH ), '/' ) === $this->customPath() ) {
 				$this->doWpLoginFailedRedirect404();
 			}
 		}
@@ -212,7 +215,7 @@ class RenameLogin {
 	 * @return array
 	 */
 	public function fAddToEtMaintenanceExceptions( $urlExceptions ) {
-		$urlExceptions[] = \method_exists( $this, 'customPath' ) ? $this->customPath() : $this->opts()->getCustomLoginPath();
+		$urlExceptions[] = $this->customPath();
 		return $urlExceptions;
 	}
 
@@ -223,7 +226,7 @@ class RenameLogin {
 
 		self::con()->fireEvent( 'hide_login_url' );
 
-		$redirectPath = $this->opts()->getOpt( 'rename_wplogin_redirect' );
+		$redirectPath = self::con()->opts->optGet( 'rename_wplogin_redirect' );
 		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );
 		$redirectUrl = apply_filters( 'shield/renamewplogin_redirect_url',
 			apply_filters( 'icwp_shield_renamewplogin_redirect_url', $redirectUrl ) );

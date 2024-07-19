@@ -13,6 +13,10 @@ class Svgs {
 		return (string)Services::WpFs()->getFileContent( self::con()->paths->forSVG( $image ) );
 	}
 
+	public function rawImage( string $image ) :string {
+		return (string)Services::WpFs()->getFileContent( self::con()->paths->forImage( $image ) );
+	}
+
 	public function url( string $image ) :string {
 		return self::con()->urls->forImage( $image );
 	}

@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
+/**
+ * @deprecated 19.2
+ */
 class ForceSslAdmin extends BuildRuleLockdownBase {
 
 	public const SLUG = 'shield/force_ssl_admin';

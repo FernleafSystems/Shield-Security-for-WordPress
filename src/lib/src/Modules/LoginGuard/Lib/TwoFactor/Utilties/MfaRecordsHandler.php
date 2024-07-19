@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class MfaRecordsHandler {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var MfaDB\Record[][]
@@ -17,7 +17,7 @@ class MfaRecordsHandler {
 	public function insert( MfaDB\Record $record ) {
 		self::con()
 			->db_con
-			->dbhMfa()
+			->mfa
 			->getQueryInserter()
 			->insert( $record );
 		unset( self::$records[ $record->user_id ] );
@@ -26,7 +26,7 @@ class MfaRecordsHandler {
 	public function update( MfaDB\Record $record, array $updateData ) {
 		self::con()
 			->db_con
-			->dbhMfa()
+			->mfa
 			->getQueryUpdater()
 			->updateRecord( $record, $updateData );
 		unset( self::$records[ $record->user_id ] );
@@ -35,7 +35,7 @@ class MfaRecordsHandler {
 	public function delete( MfaDB\Record $record ) {
 		self::con()
 			->db_con
-			->dbhMfa()
+			->mfa
 			->getQueryDeleter()
 			->deleteRecord( $record );
 		unset( self::$records[ $record->user_id ] );
@@ -74,7 +74,7 @@ class MfaRecordsHandler {
 	public function loadForUser( \WP_User $user ) {
 		if ( !isset( self::$records[ $user->ID ] ) ) {
 			/** @var MfaDB\Select $selector */
-			$selector = self::con()->db_con->dbhMfa()->getQuerySelector();
+			$selector = self::con()->db_con->mfa->getQuerySelector();
 			self::$records[ $user->ID ] = \array_values( $selector->filterByUserID( $user->ID )->queryWithResult() );
 		}
 		return self::$records[ $user->ID ];

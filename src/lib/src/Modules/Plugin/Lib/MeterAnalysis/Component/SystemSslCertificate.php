@@ -2,19 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\SslStatus;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Ssl;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class SystemSslCertificate extends Base {
 
 	public const SLUG = 'system_ssl_certificate';
 	public const WEIGHT = 5;
-
-	/**
-	 * @var ?string
-	 */
-	private $status = null;
 
 	public function build() :array {
 		$this->getSslStatus(); // Ensure we've run the test and set the status before building begins
@@ -97,44 +92,6 @@ class SystemSslCertificate extends Base {
 	}
 
 	private function getSslStatus() :string {
-		if ( empty( $this->status ) ) {
-
-			$srvSSL = new Ssl();
-			$homeURL = Services::WpGeneral()->getHomeUrl();
-
-			if ( \strpos( $homeURL, 'https://' ) !== 0 ) {
-				$status = 'visitor_unprotected';
-			}
-			elseif ( \strpos( Services::WpGeneral()->getWpUrl(), 'https://' ) !== 0 ) {
-				$status = 'settings_inconsistent';
-			}
-			elseif ( $srvSSL->isEnvSupported() ) {
-				try {
-					// first verify SSL cert:
-					$srvSSL->getCertDetailsForDomain( $homeURL );
-
-					// If we didn't throw an exception, we got it.
-					$expiresAt = $srvSSL->getExpiresAt( $homeURL );
-					if ( $expiresAt < 0 ) {
-						throw new \Exception( 'Failed to get expiry.' );
-					}
-
-					$timeRemaining = $expiresAt - Services::Request()->ts();
-					$isExpired = $timeRemaining < 0;
-					$daysLeft = $isExpired ? 0 : (int)\round( $timeRemaining/\DAY_IN_SECONDS, 0, \PHP_ROUND_HALF_DOWN );
-					$status = $isExpired ? 'ssl_expired' : ( $daysLeft < 15 ? 'ssl_expires_soon' : 'ssl_valid' );
-				}
-				catch ( \Exception $e ) {
-					$status = 'ssl_test_fail';
-				}
-			}
-			else {
-				$status = 'ssl_test_unavailable';
-			}
-
-			$this->status = $status;
-		}
-
-		return $this->status;
+		return SslStatus::Check();
 	}
 }

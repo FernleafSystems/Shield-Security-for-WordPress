@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Update {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ScanControllerConsumer;
 
 	public function clearIgnored() {
@@ -34,9 +34,9 @@ class Update {
 							ON `scans`.id = `sr`.scan_ref
 						SET %%s
 						WHERE %%s",
-			$dbCon->dbhResultItems()->getTableSchema()->table,
-			$dbCon->dbhScanResults()->getTableSchema()->table,
-			$dbCon->dbhScans()->getTableSchema()->table
+			$dbCon->scan_result_items->getTable(),
+			$dbCon->scan_results->getTable(),
+			$dbCon->scans->getTable()
 		);
 	}
 }

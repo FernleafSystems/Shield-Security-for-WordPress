@@ -14,22 +14,19 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options $secAdminOpts */
-		$secAdminOpts = $con->getModule_SecAdmin()->opts();
+		$opts = $con->opts;
 
-		if ( $secAdminOpts->isOpt( 'wl_replace_badge_url', 'Y' ) ) {
-			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
-			$name = $secAdminOpts->getOpt( 'wl_pluginnamemain' );
-			$logo = $secAdminOpts->getOpt( 'wl_dashboardlogourl' );
+		if ( $con->comps->whitelabel->isEnabled() ) {
+			$badgeUrl = $opts->optGet( 'wl_homeurl' );
+			$name = $opts->optGet( 'wl_pluginnamemain' );
+			$logo = $opts->optGet( 'wl_dashboardlogourl' );
 		}
 		else {
 			$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
 			$name = $con->getHumanName();
 			$logo = $con->urls->forImage( 'shield/shield-security-logo-colour-32px.png' );
 
-			$lic = $con->getModule_License()
-					   ->getLicenseHandler()
-					   ->getLicense();
+			$lic = $con->comps->license->getLicense();
 			if ( !empty( $lic->aff_ref ) ) {
 				$badgeUrl = URL::Build( $badgeUrl, [ 'ref' => $lic->aff_ref ] );
 			}

@@ -62,7 +62,7 @@ class UserMetas {
 		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 
 		if ( empty( $metaRecord ) ) {
-			$metaRecord = self::con()->db_con->dbhUserMeta()->getRecord();
+			$metaRecord = self::con()->db_con->user_meta->getRecord();
 		}
 		else {
 			$dataToUpdate = [];
@@ -97,7 +97,7 @@ class UserMetas {
 			if ( !empty( $dataToUpdate ) ) {
 				self::con()
 					->db_con
-					->dbhUserMeta()
+					->user_meta
 					->getQueryUpdater()
 					->updateRecord( $metaRecord, $dataToUpdate );
 				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );

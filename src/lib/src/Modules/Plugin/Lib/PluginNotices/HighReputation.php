@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\SilentCaptcha;
+
 class HighReputation extends Base {
 
 	public function check() :?array {
@@ -16,7 +18,7 @@ class HighReputation extends Base {
 						sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
 							sprintf( __( "Your IP address is currently on the Auto-Block list, but you're not being block because your IP address is considered a High Reputation IP.", 'wp-simple-firewall' ), $con->getHumanName() ) ),
 						sprintf( '<a href="%s" class="">%s</a>',
-							$con->plugin_urls->modCfgOption( 'antibot_high_reputation_minimum' ),
+							$con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ),
 							__( 'View IP Reputation Option', 'wp-simple-firewall' )
 						)
 					)

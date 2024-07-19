@@ -6,13 +6,13 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
@@ -87,13 +87,6 @@ class ImportExportController {
 
 	public function verifySecretKey( string $secret ) :bool {
 		return !empty( $secret ) && $this->getImportExportSecretKey() == $secret;
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	protected function isImportExportSecretKeyExpired() :bool {
-		return Services::Request()->ts() > self::con()->opts->optGet( 'importexport_secretkey_expires_at' );
 	}
 
 	private function importFromFlag() {

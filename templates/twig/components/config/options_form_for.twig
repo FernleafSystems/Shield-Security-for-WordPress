@@ -1,0 +1,117 @@
+<form method="post"
+	  class="options_form_for form py-0"
+	  novalidate="novalidate"
+	  autocomplete="off"
+	  data-context="{{ vars.form_context }}"
+>
+	<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
+
+	<div id="ModuleOptionsNav" aria-orientation="horizontal">
+		{% if vars.all_options|length > 1 %}
+			<ul class="nav nav-tabs shield_body-sub-nav" role="tablist">
+			{% for opt_sect_key,opt_section in vars.all_options %}
+				<li class="nav-item">
+					<a data-bs-target="#tab-{{ unique_render_id }}-{{ opt_section.slug }}"
+					   class="force-cursor-pointer nav-link {{ opt_section.is_focus ? 'active' : '' }}"
+					   {% if opt_section.is_focus %}aria-selected="true"{% endif %}
+					   id="tab-navlink-{{ opt_section.slug }}"
+					   data-bs-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
+							<span>{{ opt_section.title_short }}</span>
+					</a>
+				</li>
+			{% endfor %}
+			</ul>
+		{% else %}
+		{% endif %}
+	</div>
+
+	<div class="tab-content container-fluid">
+		{% for opt_section in vars.all_options %}
+			<div class="tab-pane {% if opt_section.is_focus %}active show{% endif %}"
+				 role="tabpanel" id="tab-{{ unique_render_id }}-{{ opt_section.slug }}">
+
+				<div class="row">
+					<div class="col-12">
+						<h5 class="mt-3">
+							<span class="mb-3 d-inline-block">{{ opt_section.title }}</span>
+
+							{% if opt_section.beacon_id|default(false) %}
+								<a href="javascript:{}" class="beacon-article"
+								   data-beacon_article_id="{{ opt_section.beacon_id }}"
+								   data-beacon_article_format="modal"
+								   title="{{ strings.opt_info_helpdesk }}">
+									<sup>{{ imgs.svgs.help|raw }}</sup>
+								</a>
+
+							{% else %}
+								{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
+
+									<a class="section_title_info"
+									   data-bs-toggle="collapse"
+									   data-bs-target="#collapse-{{ opt_section.slug }}"
+									><span class="dashicons dashicons-editor-help"></span></a>
+									<br />
+									<div class="collapse mb-3" id="collapse-{{ opt_section.slug }}">
+										<div class="card">
+											<div class="card-body">
+												{% for item in opt_section.summary %}
+													<p class="card-text">{{ item|raw }}</p>
+												{% endfor %}
+											</div>
+										</div>
+									</div>
+								{% endif %}
+							{% endif %}
+
+						</h5>
+					</div>
+				</div>
+
+				{% if opt_section.warnings|length %}
+					{% for section_warning in opt_section.warnings %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-warning text-center">{{ section_warning|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% if opt_section.critical_warnings|length %}
+					{% for section_warning in opt_section.critical_warnings %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-danger">
+									<h4 class="alert-heading">Important!</h4>
+									{{ section_warning|raw }}
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% if opt_section.notices|length %}
+					{% for section_notice in opt_section.notices %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-info text-center">{{ section_notice|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% include '/components/config/custom/'~opt_section.slug~'.twig' ignore missing %}
+
+				{% for key, option in opt_section.options %}
+					{% include '/components/config/option.twig' %}
+				{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+		<div class="row">
+			<div class="col text-start">
+				<button type="submit" class="btn btn-primary ms-3 mt-3 icwp-form-button"
+						name="submit">{{ strings.save_all_settings }}</button>
+			</div>
+		</div>
+</form>

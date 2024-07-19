@@ -4,15 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 
+/**
+ * @deprecated 19.2
+ */
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
 		return self::con()->modules[ EnumModules::LICENSE ];
-	}
-
-	public function opts() :Options {
-		return $this->mod()->opts();
 	}
 }

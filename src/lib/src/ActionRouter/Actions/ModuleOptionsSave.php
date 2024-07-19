@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\HandleOptionsSaveRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 
 class ModuleOptionsSave extends BaseAction {
 
@@ -10,7 +10,7 @@ class ModuleOptionsSave extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		
+
 		$wasSecAdminEnabled = $con->comps->sec_admin->isEnabledSecAdmin();
 
 		$success = ( new HandleOptionsSaveRequest() )->handleSave();
@@ -18,7 +18,8 @@ class ModuleOptionsSave extends BaseAction {
 		$this->response()->action_response_data = [
 			'success'     => $success,
 			'html'        => '',
-			'page_reload' => !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin(), // for Sec Admin activation
+			'page_reload' => !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin(),
+			// for Sec Admin activation
 			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->getHumanName() )
 				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $con->getHumanName() )

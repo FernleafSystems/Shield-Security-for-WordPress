@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class Firewall extends BuildRuleCoreShieldBase {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const SLUG = 'shield/firewall';
 
@@ -35,23 +35,17 @@ class Firewall extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		$whitelistAdmins = \method_exists( self::con()->opts, 'optIs' ) ?
-			self::con()->opts->optIs( 'whitelist_admins', 'Y' ) : $this->opts()->isOpt( 'whitelist_admins', 'Y' );
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
-			'conditions' => \array_filter( [
+			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
-				$whitelistAdmins ? [
-					'conditions' => Conditions\IsUserAdminNormal::class,
-					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
-				] : null,
 				[
 					'conditions' => Conditions\RequestTriggersFirewall::class,
 				],
-			] )
+			]
 		];
 	}
 

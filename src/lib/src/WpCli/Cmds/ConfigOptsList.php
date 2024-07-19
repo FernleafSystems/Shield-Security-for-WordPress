@@ -18,14 +18,6 @@ class ConfigOptsList extends ConfigBase {
 		return [
 			[
 				'type'        => 'assoc',
-				'name'        => 'module',
-				'optional'    => true,
-				'options'     => \array_merge( [ '' ], \array_keys( self::con()->modules ) ),
-				'default'     => '',
-				'description' => 'Filter options by a specific module. Leave empty to show all options',
-			],
-			[
-				'type'        => 'assoc',
 				'name'        => 'format',
 				'optional'    => true,
 				'options'     => [

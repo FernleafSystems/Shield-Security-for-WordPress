@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
 
 class FileScanOptimiser {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function addFiles( array $files ) {
 		$FS = Services::WpFs();

@@ -35,7 +35,7 @@ class InstallationID {
 			$IDs[ $url ] = [
 				'id'         => \strtolower( $id ),
 				'ts'         => Services::Request()->ts(),
-				'install_at' => self::con()->getModule_Plugin()->storeRealInstallDate(),
+				'install_at' => self::con()->plugin->storeRealInstallDate(),
 			];
 			$WP->updateOption( $optKey, $IDs );
 		}

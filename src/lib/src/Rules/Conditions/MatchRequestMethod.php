@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MatchRequestMethod extends Base {
 

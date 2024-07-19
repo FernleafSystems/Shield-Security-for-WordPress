@@ -62,7 +62,7 @@ class UpgradeLocks extends BaseOps {
 
 			self::con()
 				->db_con
-				->dbhFileLocker()
+				->file_locker
 				->getQueryUpdater()
 				->updateRecord( $lock, [
 					'content'       => \base64_encode(

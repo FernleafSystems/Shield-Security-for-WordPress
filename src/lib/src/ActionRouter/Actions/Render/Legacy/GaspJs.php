@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Legacy;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
+/**
+ * @deprecated 19.2
+ */
+class GaspJs extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
-class GaspJs extends BaseRender {
-
-	use Traits\AuthNotRequired;
+	use \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 
 	public const SLUG = 'legacy_gasp_js';
 	public const TEMPLATE = '/snippets/anti_bot/gasp_js.twig';

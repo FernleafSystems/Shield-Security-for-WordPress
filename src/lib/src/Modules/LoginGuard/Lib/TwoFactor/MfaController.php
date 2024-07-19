@@ -6,13 +6,13 @@ use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaController {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * These values MUST align with the option 'mfa_verify_page'
@@ -26,6 +26,10 @@ class MfaController {
 	private $providers;
 
 	private $mfaProfilesCon;
+
+	protected function canRun() :bool {
+		return !self::con()->this_req->wp_is_xmlrpc;
+	}
 
 	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent

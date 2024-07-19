@@ -1,0 +1,117 @@
+﻿
+#ShieldDashboardWidget a.shield-logo {
+  padding: 5px 20px 8px;
+}
+
+#ShieldDashboardWidget a {
+  color: #008000 !important;
+  text-decoration: none;
+  text-shadow: 0 0 0 rgba(0, 0, 0, 0.4);
+}
+
+#ShieldDashboardWidget p {
+  font-size: 14px;
+}
+
+#ShieldDashboardWidget p.no-entries {
+  margin: 3px 0 0 0;
+}
+
+#ShieldDashboardWidget .subheader {
+  font-weight: bolder;
+  margin: 1rem 0 0;
+}
+
+#ShieldDashboardWidget .subheader > small {
+  font-weight: normal;
+}
+
+#ShieldDashboardWidget table thead th {
+  background-color: #97b797;
+  color: white;
+  font-weight: bolder;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+#ShieldDashboardWidget table.table-recent {
+  border-collapse: collapse;
+  box-shadow: 3px 3px 2px rgb(0 0 0 / 10%);
+}
+
+#ShieldDashboardWidget .mini-scrolling-table {
+  margin-top: 3px;
+  overflow: auto;
+  min-height: 60px;
+  max-height: 150px;
+}
+
+#ShieldDashboardWidget .mini-scrolling-table th {
+  padding: 2px 10px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+#ShieldDashboardWidget .jump-buttons {
+  margin: 20px 3px 14px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 7px;
+}
+
+#ShieldDashboardWidget a.jump-link {
+  text-decoration: none;
+  flex-grow: 1;
+  font-size: smaller;
+}
+
+#ShieldDashboardWidget a.jump-link > svg {
+  vertical-align: text-bottom;
+}
+
+#ShieldDashboardWidget .shield-progress-bar {
+  height: 20px;
+  width: 49%;
+  background: #e9e9e9;
+  border-radius: 25px;
+  padding: 6px;
+  box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.3);
+}
+
+#ShieldDashboardWidget .shield-progress-bar > .thebar {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  background-color: rgb(43, 194, 83);
+  background-image: linear-gradient(
+                  center bottom,
+                  rgb(43, 194, 83) 37%,
+                  rgb(84, 240, 84) 69%
+  );
+  box-shadow: inset 0 2px 9px rgba(255, 255, 255, 0.3),
+  inset 0 -2px 6px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+#ShieldDashboardWidget .shield-progress-bar > .thebar > .thepercent {
+  text-shadow: 0 0 1px rgba(0, 0, 0, 1);
+  font-weight: bolder;
+  color: white;
+  text-align: center;
+}
+
+#ShieldDashboardWidget .shield-progress-bar.orange > .thebar {
+  background-color: #f1a165;
+  background-image: linear-gradient(to bottom, #f1a165, #f36d0a);
+}
+
+#ShieldDashboardWidget .shield-progress-bar.red > .thebar {
+  background-color: #f0a3a3;
+  background-image: linear-gradient(to bottom, #f0a3a3, #f42323);
+}

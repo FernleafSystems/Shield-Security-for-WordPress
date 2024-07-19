@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Exceptions\NoResponseActionDefinedException,
 	Exceptions\NoSuchResponseHandlerException,
@@ -11,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	RuleVO,
 	Utility
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 class ResponseProcessor {
 

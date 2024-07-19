@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -141,7 +141,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsByScope() :array {
-		$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
+		$dbhSignals = self::con()->db_con->crowdsec_signals;
 
 		if ( !isset( $this->distinctScopes ) ) {
 			$scopes = $dbhSignals->getQuerySelector()->getDistinctForColumn( 'scope' );
@@ -175,7 +175,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsGroupedByIP() :array {
-		$dbhSignals = self::con()->db_con->dbhCrowdSecSignals();
+		$dbhSignals = self::con()->db_con->crowdsec_signals;
 
 		if ( !isset( $this->distinctIPs ) ) {
 			$ips = $dbhSignals->getQuerySelector()
@@ -204,7 +204,7 @@ class PushSignalsToCS {
 		if ( !empty( $records ) ) {
 			self::con()
 				->db_con
-				->dbhCrowdSecSignals()
+				->crowdsec_signals
 				->getQueryDeleter()
 				->filterByIDs( \array_map(
 					function ( $record ) {

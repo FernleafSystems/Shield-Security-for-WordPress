@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
@@ -15,33 +14,45 @@ class PreStore {
 	use PluginControllerConsumer;
 
 	public function run() {
+		( new OptionsCorrections() )->run();
 		$this->audit();
 		$this->comments();
 		$this->firewall();
 		$this->headers();
 		$this->ips();
-		$this->lockdown();
 		$this->login();
 		$this->plugin();
 		$this->scanners();
 		$this->securityAdmin();
-		$this->traffic();
 		$this->user();
 	}
 
 	private function audit() {
 		$opts = self::con()->opts;
-		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
-			$current = $opts->optGet( $optKey );
-			if ( empty( $current ) ) {
-				$opts->optReset( $optKey );
-			}
-			elseif ( \in_array( 'disabled', $opts->optGet( $optKey ) ) ) {
-				$opts->optSet( $optKey, [ 'disabled' ] );
-			}
+
+		$current = $opts->optGet( 'log_level_db' );
+		if ( empty( $current ) ) {
+			$opts->optReset( 'log_level_db' );
 		}
-		if ( \in_array( 'same_as_db', $opts->optGet( 'log_level_file' ) ) ) {
-			$opts->optSet( 'log_level_file', [ 'same_as_db' ] );
+		elseif ( \in_array( 'disabled', $opts->optGet( 'log_level_db' ) ) ) {
+			$opts->optSet( 'log_level_db', [ 'disabled' ] );
+		}
+
+		if ( $opts->optChanged( 'custom_exclusions' ) ) {
+			$opts->optSet( 'custom_exclusions', \array_filter( \array_map(
+				function ( $excl ) {
+					return \trim( esc_js( $excl ) );
+				},
+				$opts->optGet( 'custom_exclusions' )
+			) ) );
+		}
+
+		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_logger', 'Y' );
+		}
+		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_live_log', 'N' )
+				 ->optSet( 'live_log_started_at', 0 );
 		}
 	}
 
@@ -84,10 +95,6 @@ class PreStore {
 			}
 			$opts->optSet( 'page_params_whitelist', $final );
 		}
-	}
-
-	private function lockdown() :void {
-		$opts = self::con()->opts;
 
 		$exc = $opts->optGet( 'api_namespace_exclusions' );
 		if ( !\in_array( 'shield', $exc ) ) {
@@ -107,10 +114,6 @@ class PreStore {
 			}
 		}
 
-		if ( $opts->optIs( 'enable_antibot_check', 'Y' ) ) {
-			$opts->optSet( 'enable_login_gasp_check', 'N' );
-		}
-
 		$opts->optSet( 'two_factor_auth_user_roles', self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles() );
 
 		$redirect = \preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->optGet( 'rename_wplogin_redirect' ) );
@@ -124,17 +127,6 @@ class PreStore {
 
 		if ( empty( $opts->optGet( 'mfa_user_setup_pages' ) ) ) {
 			$opts->optSet( 'mfa_user_setup_pages', [ 'profile' ] );
-		}
-
-		if ( $opts->optChanged( 'antibot_form_ids' ) ) {
-			$opts->optSet( 'antibot_form_ids',
-				\array_values( \array_unique( \array_filter(
-					$opts->optGet( 'antibot_form_ids' ),
-					function ( $id ) {
-						return \trim( strip_tags( (string)$id ) );
-					}
-				) ) )
-			);
 		}
 
 		if ( $opts->optChanged( 'rename_wplogin_path' ) ) {
@@ -174,7 +166,7 @@ class PreStore {
 			);
 		}
 
-		$dbhIPRules = self::con()->db_con->dbhIPRules();
+		$dbhIPRules = self::con()->db_con->ip_rules;
 		if ( $opts->optChanged( 'cs_block' ) && $opts->optIs( 'cs_block', 'disabled' ) ) {
 			/** @var Delete $deleter */
 			$deleter = $dbhIPRules->getQueryDeleter();
@@ -345,29 +337,6 @@ class PreStore {
 		}
 
 		( new CleanLockRecords() )->run();
-	}
-
-	private function traffic() {
-		$opts = self::con()->opts;
-
-		if ( $opts->optChanged( 'custom_exclusions' ) ) {
-			$opts->optSet( 'custom_exclusions', \array_filter( \array_map(
-				function ( $excl ) {
-					return \trim( esc_js( $excl ) );
-				},
-				$opts->optGet( 'custom_exclusions' )
-			) ) );
-		}
-
-		if ( self::con()->comps->opts_lookup->isModFromOptEnabled( 'enable_limiter' ) ) {
-			if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-				$opts->optSet( 'enable_logger', 'Y' );
-			}
-			if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-				$opts->optSet( 'enable_live_log', 'N' )
-					 ->optSet( 'live_log_started_at', 0 );
-			}
-		}
 	}
 
 	private function user() :void {

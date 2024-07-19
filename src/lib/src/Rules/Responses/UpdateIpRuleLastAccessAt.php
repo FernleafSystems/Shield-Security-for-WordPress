@@ -12,7 +12,7 @@ class UpdateIpRuleLastAccessAt extends Base {
 	public function execResponse() :void {
 		foreach ( ( new IpRuleStatus( $this->req->ip ) )->getRules() as $rule ) {
 			/** @var Update $updater */
-			$updater = self::con()->db_con->dbhIPRules()->getQueryUpdater();
+			$updater = self::con()->db_con->ip_rules->getQueryUpdater();
 			$updater->updateLastAccessAt( $rule );
 		}
 	}

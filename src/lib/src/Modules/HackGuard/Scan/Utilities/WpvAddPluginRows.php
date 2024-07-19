@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\PluginVulnerabilityWarning;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
 class WpvAddPluginRows {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ExecOnce;
 
 	/**

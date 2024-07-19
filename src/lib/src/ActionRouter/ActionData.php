@@ -72,6 +72,6 @@ class ActionData {
 	}
 
 	public static function BuildJson( string $actionClass, bool $isAjax = true, array $aux = [] ) :string {
-		return \json_encode( (object)self::Build( $actionClass, $isAjax, $aux ) );
+		return \wp_json_encode( (object)self::Build( $actionClass, $isAjax, $aux ) );
 	}
 }

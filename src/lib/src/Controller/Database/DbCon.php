@@ -163,93 +163,156 @@ class DbCon extends DynPropertiesClass {
 
 	public function runDailyCron() {
 		( new CleanDatabases() )->all();
-		( new TableIndices( $this->dbhIPRules()->getTableSchema() ) )->applyFromSchema();
+		( new TableIndices( $this->ip_rules->getTableSchema() ) )->applyFromSchema();
 	}
 
 	public function runHourlyCron() {
 		( new CleanIpRules() )->cleanAutoBlocks();
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhActivityLogs() :ActivityLogs\Ops\Handler {
 		return $this->loadDbH( 'at_logs' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhActivityLogsMeta() :ActivityLogsMeta\Ops\Handler {
 		return $this->loadDbH( 'at_meta' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhEvents() :Event\Ops\Handler {
 		return $this->loadDbH( 'event' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhFileLocker() :FileLocker\Ops\Handler {
 		return $this->loadDbH( 'file_locker' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhBotSignal() :BotSignal\Ops\Handler {
 		return $this->loadDbH( 'botsignal' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhCrowdSecSignals() :CrowdSecSignals\Ops\Handler {
 		return $this->loadDbH( 'crowdsec_signals' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhIPs() :IPs\Ops\Handler {
 		return $this->loadDbH( 'ips' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhIPMeta() :IpMeta\Ops\Handler {
 		return $this->loadDbH( 'ip_meta' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhIPRules() :IpRules\Ops\Handler {
 		return $this->loadDbH( 'ip_rules' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhMalware() :Malware\Ops\Handler {
 		return $this->loadDbH( 'malware' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhMfa() :Mfa\Ops\Handler {
 		return $this->loadDbH( 'mfa' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhReports() :Reports\Ops\Handler {
 		return $this->loadDbH( 'reports' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhReqLogs() :ReqLogs\Ops\Handler {
 		return $this->loadDbH( 'req_logs' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhRules() :Rules\Ops\Handler {
 		return $this->loadDbH( 'rules' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhResultItems() :ResultItems\Ops\Handler {
 		return $this->loadDbH( 'resultitems' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhResultItemMeta() :ResultItemMeta\Ops\Handler {
 		return $this->loadDbH( 'resultitem_meta' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhScans() :Scans\Ops\Handler {
 		return $this->loadDbH( 'scans' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhScanItems() :ScanItems\Ops\Handler {
 		return $this->loadDbH( 'scanitems' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhScanResults() :ScanResults\Ops\Handler {
 		return $this->loadDbH( 'scanresults' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhSnapshots() :Snapshots\Ops\Handler {
 		return $this->loadDbH( 'snapshots' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function dbhUserMeta() :UserMeta\Ops\Handler {
 		return $this->loadDbH( 'user_meta' );
 	}
@@ -327,12 +390,12 @@ class DbCon extends DynPropertiesClass {
 
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
-			$modPlug = $con->getModule_Plugin();
 			/** @var Handler|mixed $dbh */
 			$dbh = new $dbh[ 'handler_class' ]( $dbDef );
 			$dbh->use_table_ready_cache = !$con->plugin_reset
 										  && $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
-										  && ( Services::Request()->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
+										  && ( Services::Request()->ts()
+											   - $con->plugin->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ][ 'handler' ] = $dbh;

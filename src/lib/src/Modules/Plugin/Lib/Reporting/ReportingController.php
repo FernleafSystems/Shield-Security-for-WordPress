@@ -8,11 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogs\Ops as AuditDB,
 	Reports\Ops\Record
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ConvertHtmlToPDF;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -51,11 +51,7 @@ class ReportingController {
 	 */
 	public function convertToPdf( int $reportID ) :string {
 		/** @var Record $report */
-		$report = self::con()
-			->db_con
-			->dbhReports()
-			->getQuerySelector()
-			->byId( $reportID );
+		$report = self::con()->db_con->reports->getQuerySelector()->byId( $reportID );
 		if ( empty( $report ) ) {
 			throw new \Exception( 'Invalid report' );
 		}
@@ -112,7 +108,7 @@ class ReportingController {
 	public function getCreateReportFormVars() :array {
 		$req = Services::Request();
 
-		$dbh = self::con()->db_con->dbhActivityLogs();
+		$dbh = self::con()->db_con->activity_logs;
 		/** @var AuditDB\Record $firstAudit */
 		$firstAudit = $dbh->getQuerySelector()
 						  ->setOrderBy( 'created_at', 'ASC', true )

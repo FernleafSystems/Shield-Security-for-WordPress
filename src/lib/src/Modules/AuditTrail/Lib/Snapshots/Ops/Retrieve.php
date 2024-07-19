@@ -12,7 +12,7 @@ class Retrieve {
 	public function count() :int {
 		return self::con()
 			->db_con
-			->dbhSnapshots()
+			->activity_snapshots
 			->getQuerySelector()
 			->count();
 	}
@@ -25,7 +25,7 @@ class Retrieve {
 		$snaps = [];
 		$selector = self::con()
 			->db_con
-			->dbhSnapshots()
+			->activity_snapshots
 			->getQuerySelector()
 			->setNoOrderBy();
 
@@ -52,12 +52,8 @@ class Retrieve {
 
 	public function latest( string $slug ) :?SnapshotsDB\Record {
 		/** @var SnapshotsDB\Select $select */
-		$select = self::con()->db_con->dbhSnapshots()->getQuerySelector();
+		$select = self::con()->db_con->activity_snapshots->getQuerySelector();
 		/** @var ?SnapshotsDB\Record $record */
-		$record = $select->filterBySlug( $slug )->first();
-		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record' ) ) {
-			$record = null;
-		}
-		return $record;
+		return $select->filterBySlug( $slug )->first();
 	}
 }

@@ -24,7 +24,7 @@ class MergeAutoBlockRules {
 	 * @throws \Exception
 	 */
 	public function byRecords( array $records ) :void {
-		$dbh = self::con()->db_con->dbhIPRules();
+		$dbh = self::con()->db_con->ip_rules;
 
 		if ( \count( $records ) < 2 ) {
 			throw new \Exception( 'At least 2 records are required to merge.' );

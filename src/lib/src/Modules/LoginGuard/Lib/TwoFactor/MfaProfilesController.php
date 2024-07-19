@@ -3,18 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaProfilesController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $rendered = false;
 
@@ -37,11 +36,11 @@ class MfaProfilesController {
 			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 				$this->enqueueAssets( false );
 
-				if ( \in_array( 'dedicated', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'dedicated', self::con()->opts->optGet( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserLoginSecurityPage();
 				}
 
-				if ( \in_array( 'profile', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'profile', self::con()->opts->optGet( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserProfileSections();
 				}
 			}

@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginNavs {
@@ -44,6 +44,11 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
+	public const NAV_ZONES = 'zones';
+	public const NAV_ZONE_COMPONENTS = 'zone_components';
+	public const SUBNAV_ZONES_FIREWALL = 'firewall';
+	public const SUBNAV_ZONES_LOGGING = 'logging';
+	public const SUBNAV_ZONES_USERS = 'users';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
@@ -64,7 +69,7 @@ class PluginNavs {
 	 * Handle special case for Config, so we ensure plugin general config is always default.
 	 */
 	public static function GetDefaultSubNavForNav( string $nav ) :string {
-		return $nav === self::NAV_OPTIONS_CONFIG ? EnumModules::PLUGIN : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
+		return $nav === self::NAV_ZONES ? Secadmin::Slug() : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
 	}
 
 	public static function GetNavHierarchy() :array {
@@ -79,7 +84,7 @@ class PluginNavs {
 				return $nav;
 			},
 			[
-				self::NAV_ACTIVITY       => [
+				self::NAV_ACTIVITY        => [
 					'name'     => __( 'Activity', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_LOGS => [
@@ -87,7 +92,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_DASHBOARD      => [
+				self::NAV_DASHBOARD       => [
 					'name'     => __( 'Dashboard', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_DASHBOARD_OVERVIEW => [
@@ -98,7 +103,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_IPS            => [
+				self::NAV_IPS             => [
 					'name'     => __( 'IPs', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_IPS_RULES => [
@@ -106,7 +111,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_LICENSE        => [
+				self::NAV_LICENSE         => [
 					'name'     => __( 'License', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_LICENSE_CHECK => [
@@ -114,18 +119,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_OPTIONS_CONFIG => [
-					'name'     => __( 'Config', 'wp-simple-firewall' ),
-					'sub_navs' => \array_map(
-						function () {
-							return [
-								'handler' => PluginAdminPages\PageDynamicLoad::class,
-							];
-						},
-						self::con()->modules
-					),
-				],
-				self::NAV_REPORTS        => [
+				self::NAV_REPORTS         => [
 					'name'     => __( 'Reports', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_REPORTS_LIST => [
@@ -133,7 +127,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_RESTRICTED     => [
+				self::NAV_RESTRICTED      => [
 					'name'     => __( 'Restricted', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_INDEX => [
@@ -141,7 +135,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_RULES          => [
+				self::NAV_RULES           => [
 					'name'     => __( 'Rules', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_RULES_MANAGE  => [
@@ -155,7 +149,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_SCANS          => [
+				self::NAV_SCANS           => [
 					'name'     => __( 'Scans', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_SCANS_RESULTS => [
@@ -164,15 +158,9 @@ class PluginNavs {
 						self::SUBNAV_SCANS_RUN     => [
 							'handler' => PluginAdminPages\PageScansRun::class,
 						],
-						self::SUBNAV_SCANS_HISTORY     => [
-							'handler' => PluginAdminPages\PageScansHistory::class,
-						],
-						self::SUBNAV_SCANS_STATE     => [
-							'handler' => PluginAdminPages\PageScansHistory::class,
-						],
 					],
 				],
-				self::NAV_TOOLS          => [
+				self::NAV_TOOLS           => [
 					'name'     => __( 'Tools', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_TOOLS_BLOCKDOWN => [
@@ -192,7 +180,7 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_TRAFFIC        => [
+				self::NAV_TRAFFIC         => [
 					'name'     => __( 'Traffic', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_LOGS => [
@@ -203,13 +191,35 @@ class PluginNavs {
 						],
 					],
 				],
-				self::NAV_WIZARD         => [
+				self::NAV_WIZARD          => [
 					'name'     => __( 'Wizards', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_WIZARD_WELCOME => [
 							'handler' => PluginAdminPages\PageMerlin::class,
 						],
 					],
+				],
+				self::NAV_ZONES           => [
+					'name'     => __( 'Security Zones', 'wp-simple-firewall' ),
+					'sub_navs' => \array_map(
+						function () {
+							return [
+								'handler' => PluginAdminPages\PageDynamicLoad::class,
+							];
+						},
+						\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
+					),
+				],
+				self::NAV_ZONE_COMPONENTS => [
+					'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
+					'sub_navs' => \array_map(
+						function () {
+							return [
+								'handler' => PluginAdminPages\PageZoneComponentConfig::class,
+							];
+						},
+						\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )
+					),
 				],
 			]
 		);

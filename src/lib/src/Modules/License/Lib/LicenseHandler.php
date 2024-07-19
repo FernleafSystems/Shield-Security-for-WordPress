@@ -5,13 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	/**
@@ -35,7 +35,7 @@ class LicenseHandler {
 		$this->setupCronHooks();
 
 		add_action( 'init', function () {
-			$this->mod()->getWpHashesTokenManager()->execute();
+			self::con()->comps->api_token->execute();
 		} );
 
 		add_action( 'wp_loaded', function () {
@@ -47,8 +47,13 @@ class LicenseHandler {
 		} );
 	}
 
+	public function activationURL() :string {
+		$WP = Services::WpGeneral();
+		return $WP->isMultisite() ? get_blogaddress_by_id( get_main_site_id( get_main_network_id() ) ) : get_option( 'home' );
+	}
+
 	public function runHourlyCron() {
-		$this->mod()->getWpHashesTokenManager()->getToken();
+		self::con()->comps->api_token->getToken();
 	}
 
 	public function scheduleAdHocCheck( ?int $delay = null ) {
@@ -93,8 +98,7 @@ class LicenseHandler {
 	}
 
 	public function updateLicenseData( array $data ) {
-		\method_exists( self::con()->opts, 'optSet' ) ?
-			self::con()->opts->optSet( 'license_data', $data ) : $this->opts()->setOpt( 'license_data', $data );
+		self::con()->opts->optSet( 'license_data', $data );
 		$this->license = null;
 	}
 
@@ -126,27 +130,13 @@ class LicenseHandler {
 
 	public function getLicense() :ShieldLicense {
 		if ( !isset( $this->license ) ) {
-			$this->license = ( new ShieldLicense() )->applyFromArray(
-				\method_exists( self::con()->opts, 'optGet' ) ?
-					self::con()->opts->optGet( 'license_data' ) : $this->opts()->getOpt( 'license_data' )
-			);
+			$this->license = ( new ShieldLicense() )->applyFromArray( self::con()->opts->optGet( 'license_data' ) );
 		}
 		return $this->license;
 	}
 
-	/**
-	 * @deprecated 19.1
-	 */
-	public function unsetLicense() :self {
-		unset( $this->license );
-		return $this;
-	}
-
 	public function getLicenseNotCheckedForInterval() :int {
-		$opts = self::con()->opts;
-		$last = \method_exists( $opts, 'optGet' ) ?
-			$opts->optGet( 'license_last_checked_at' ) : $this->opts()->getOpt( 'license_last_checked_at' );
-		return (int)( Services::Request()->ts() - $last );
+		return (int)( Services::Request()->ts() - self::con()->opts->optGet( 'license_last_checked_at' ) );
 	}
 
 	/**
@@ -182,15 +172,8 @@ class LicenseHandler {
 
 	public function isActive() :bool {
 		$opts = self::con()->opts;
-		if ( \method_exists( $opts, 'optGet' ) ) {
-			return ( $opts->optGet( 'license_activated_at' ) > 0 )
-				   && ( $opts->optGet( 'license_deactivated_at' ) < $opts->optGet( 'license_activated_at' ) );
-		}
-		else {
-			$opts = $this->opts();
-			return ( $opts->getOpt( 'license_activated_at' ) > 0 )
-				   && ( $opts->getOpt( 'license_deactivated_at' ) < $opts->getOpt( 'license_activated_at' ) );
-		}
+		return ( $opts->optGet( 'license_activated_at' ) > 0 )
+			   && ( $opts->optGet( 'license_deactivated_at' ) < $opts->optGet( 'license_activated_at' ) );
 	}
 
 	public function isLastVerifiedExpired() :bool {
@@ -251,10 +234,10 @@ class LicenseHandler {
 	}
 
 	private function getLicVerifyExpireDays() :int {
-		return $this->opts()->getDef( 'lic_verify_expire_days' );
+		return self::con()->cfg->configuration->def( 'lic_verify_expire_days' );
 	}
 
 	private function getLicExpireGraceDays() :int {
-		return $this->opts()->getDef( 'lic_verify_expire_grace_days' );
+		return self::con()->cfg->configuration->def( 'lic_verify_expire_grace_days' );
 	}
 }

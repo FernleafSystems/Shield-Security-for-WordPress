@@ -1,0 +1,57 @@
+<div class="row mb-5 security_zone_component">
+	<div class="col-12">
+		<div class="d-flex">
+
+			<div class="component-enabled-state d-flex flex-column justify-content-start align-items-center">
+				{% if vars.enabled_status == 'good' %}
+					<span class="text-success component-enabled-state">{{ imgs.svgs.status_good|raw }}</span>
+				{% elseif vars.enabled_status == 'okay' %}
+					<span class="text-warning component-enabled-state">{{ imgs.svgs.status_okay|raw }}</span>
+				{% elseif vars.enabled_status == 'neutral' %}
+					<span class="text-info component-enabled-state">{{ imgs.svgs.status_neutral|raw }}</span>
+				{% elseif vars.enabled_status == 'neutral_enabled' %}
+					<span class="text-info component-enabled-state">{{ imgs.svgs.status_neutral_enabled|raw }}</span>
+				{% else %}
+					<span class="text-danger component-enabled-state">{{ imgs.svgs.status_bad|raw }}</span>
+				{% endif %}
+				{% if vars.actions.config is defined %}
+					<a class="{{ vars.actions.config.classes|join(' ') }} mt-2 p-1"
+					   href="javascript:{}"
+					   title="{{ vars.actions.config.title }}"
+					   {% for key, value in vars.actions.config.data %}data-{{ key }}="{{ value }}"{% endfor %}
+					>{{ vars.actions.config.icon|raw }}</a>
+				{% endif %}
+			</div>
+			<div class="component-details ms-3">
+
+				<h6 class="component-title">
+					<span>{{ strings.title }}</span>
+					<br /><small class="component-subtitle fw-normal">{{ strings.subtitle }}</small>
+				</h6>
+
+				{% if strings.explanation|default(false) is not empty %}
+					<div class="explanations">
+						<ul class="list-group list-group-flush">
+							{% for expl in strings.explanation %}
+								<li class="list-group-item list-group-item-info"
+								><span class="svg-container me-1">{{ imgs.svgs.explanation_info|raw }}</span>{{ expl }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endif %}
+
+				{#                <div class="component-actions mt-2"> #}
+				{#                    {% for action in vars.actions %} #}
+				{#                        <button class="btn btn-sm {{ action.classes|join(' ') }}" #}
+				{#                                title="{{ action.title }}" #}
+				{#                                {% for key, value in action.data %}data-{{ key }}="{{ value }}"{% endfor %} #}
+				{#                        > #}
+				{#                            <span class="svg-container">{{ action.icon|raw }}</span> #}
+				{#                        </button> #}
+				{#                    {% endfor %} #}
+				{#                </div> #}
+			</div>
+
+		</div>
+	</div>
+</div>

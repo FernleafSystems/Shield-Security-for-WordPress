@@ -1,0 +1,78 @@
+<div class="security_zone">
+
+	{% if flags.global_plugin_disabled %}
+		<div class="alert alert-danger" role="alert">
+			{{ strings.global_plugin_disabled }}
+			<a href="javascript:{}"
+			   class="{{ vars.href_global_plugin_enable.classes|join(' ') }}"
+			   {% for key, value in vars.href_global_plugin_enable.data %}data-{{ key }}="{{ value }}"{% endfor %}
+			>{{ strings.reenable_plugin }}</a>
+
+		</div>
+	{% endif %}
+
+{#	<div class="row my-2">#}
+{#		<div class="col-12">#}
+{#			<div class="d-flex justify-content-around">#}
+{#				{% for zone_href in hrefs.all_zones %}#}
+{#					<div class="text-center">#}
+{#						<a class="{{ zone_href.classes|join(' ') }}"#}
+{#						   title="{{ zone_href.title }}"#}
+{#						   href="{{ zone_href.href|default('#') }}"#}
+{#						   {% for key, value in zone_href.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}#}
+{#						>#}
+{#							{{ zone_href.title }}#}
+{#						</a>#}
+{#					</div>#}
+{#				{% endfor %}#}
+{#			</div>#}
+{#		</div>#}
+{#	</div>#}
+
+	<div class="row">
+
+		<div class="col-8 mt-4">
+			{% for component in vars.components %}
+				{{ component|raw }}
+			{% endfor %}
+		</div>
+
+		<div class="col-4 mt-3">
+			<div class="card">
+				<div class="w-100 title-image-container p-2">
+					{{ imgs.svgs.heading|raw }}
+				</div>
+				<div class="card-body">
+					<div class="section-description">
+						<div class="description h-100">
+							{% for line in strings.description %}
+								<p class="mb-2">{{ line }}</p>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+				{% if vars.actions is not empty %}
+					<div class="card-footer">
+						<div class="btn-group dropstart">
+							<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+									aria-expanded="false">{{ strings.actions }}</button>
+							<ul class="dropdown-menu">
+								{% for action in vars.actions %}
+									<li>
+										<a class="dropdown-item {{ action.classes|join(' ') }}"
+										   title="{{ action.title }}"
+										   href="{{ action.href|default('#') }}"
+										   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+										>
+											<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}
+										</a>
+									</li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>

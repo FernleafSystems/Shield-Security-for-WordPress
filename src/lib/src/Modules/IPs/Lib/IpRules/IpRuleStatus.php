@@ -2,20 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
 	MergeAutoBlockRules,
 	Ops as IpRulesDB
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
 
 class IpRuleStatus {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $ipOrRange;
 
@@ -95,9 +95,8 @@ class IpRuleStatus {
 
 		if ( \count( $rules ) === 1 ) {
 			$record = \current( $rules );
-			$ttl = self::con()->comps === null ? $this->opts()->getAutoExpireTime()
-				: self::con()->comps->opts_lookup->getIpAutoBlockTTL();
-			if ( $record->last_access_at < ( Services::Request()->ts() - $ttl ) ) {
+			if ( $record->last_access_at < ( Services::Request()
+													 ->ts() - self::con()->comps->opts_lookup->getIpAutoBlockTTL() ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
@@ -282,7 +281,7 @@ class IpRuleStatus {
 
 		$records = [];
 
-		if ( self::con()->db_con->dbhIPRules()->isReady() ) {
+		if ( self::con()->db_con->ip_rules->isReady() ) {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [

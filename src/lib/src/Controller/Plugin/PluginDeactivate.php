@@ -20,8 +20,8 @@ class PluginDeactivate {
 		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
 			$scanCon->purge();
 		}
-		self::con()->db_con->dbhScanItems()->tableDelete();
-		self::con()->db_con->dbhScanResults()->tableDelete();
+		self::con()->db_con->scan_items->tableDelete();
+		self::con()->db_con->scan_results->tableDelete();
 		self::con()->comps->file_locker->purge();
 	}
 

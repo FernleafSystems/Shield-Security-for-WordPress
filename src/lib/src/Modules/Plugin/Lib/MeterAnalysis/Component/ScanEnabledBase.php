@@ -8,9 +8,9 @@ abstract class ScanEnabledBase extends Base {
 
 	protected function testIfProtected() :bool {
 		return self::con()
-				   ->comps
-				   ->scans
-				   ->getScanCon( \explode( '_', static::slug() )[ 2 ] )
-				   ->isEnabled();
+			->comps
+			->scans
+			->getScanCon( \explode( '_', static::slug() )[ 2 ] )
+			->isEnabled();
 	}
 }

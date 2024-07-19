@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SureSendController {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function can_2FA( \WP_User $user ) :bool {
 		return $this->isEnabled( '2fa' ) && $this->canUserSend( $user );
@@ -18,7 +18,6 @@ class SureSendController {
 	}
 
 	private function isEnabled( string $slug ) :bool {
-		$emails = $this->opts()->getOpt( 'suresend_emails' );
-		return \in_array( $slug, \is_array( $emails ) ? $emails : [] );
+		return \in_array( $slug, self::con()->opts->optGet( 'suresend_emails' ) );
 	}
 }

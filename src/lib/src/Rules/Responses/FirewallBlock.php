@@ -18,8 +18,6 @@ class FirewallBlock extends Base {
 	 * @throws \Exception
 	 */
 	private function runBlock() {
-		$optsCon = self::con()->opts;
-
 		$this->preBlock();
 
 		remove_filter( 'wp_robots', 'wp_robots_noindex_search' );
@@ -27,28 +25,12 @@ class FirewallBlock extends Base {
 		Services::WpGeneral()->turnOffCache();
 		nocache_headers();
 
-		$response = $optsCon->optGet( 'block_response' );
-		switch ( empty( $response ) ? $optsCon->optDefault( 'block_response' ) : $response ) {
-			case 'redirect_die':
-				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
-				break;
-			case 'redirect_die_message':
-				self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
-					'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
-					'render_data' => [
-						'block_meta_data' => self::con()->rules->getConditionMeta()->getRawData(),
-					],
-				] );
-				break;
-			case 'redirect_home':
-				Services::Response()->redirectToHome();
-				break;
-			case 'redirect_404':
-				Services::Response()->sendApache404();
-				break;
-			default:
-				break;
-		}
+		self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
+			'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
+			'render_data' => [
+				'block_meta_data' => self::con()->rules->getConditionMeta()->getRawData(),
+			],
+		] );
 		die();
 	}
 

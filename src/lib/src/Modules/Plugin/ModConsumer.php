@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+/**
+ * @deprecated 19.2
+ */
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;

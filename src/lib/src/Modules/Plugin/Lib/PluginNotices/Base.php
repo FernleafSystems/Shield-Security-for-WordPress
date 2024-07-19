@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class Base {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	abstract public function check() :?array;
 }

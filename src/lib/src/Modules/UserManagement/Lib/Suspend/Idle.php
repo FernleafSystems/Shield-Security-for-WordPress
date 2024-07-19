@@ -31,12 +31,4 @@ class Idle extends Base {
 		}
 		return $user;
 	}
-
-	/**
-	 * @deprecated 19.1.15
-	 */
-	protected function isLastVerifiedAtExpired( ShieldUserMeta $meta ) :bool {
-		return Services::Request()->ts() - $meta->last_verified_at
-			   > self::con()->comps->user_suspend->getSuspendAutoIdleTime();
-	}
 }

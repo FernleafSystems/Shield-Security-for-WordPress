@@ -2,19 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterUsers extends MeterBase {
 
 	public const SLUG = 'users';
-
-	protected function getWorkingMods() :array {
-		return [
-			EnumModules::LOGIN,
-			EnumModules::USERS,
-		];
-	}
 
 	public function title() :string {
 		return __( 'Customer And Visitor Protection', 'wp-simple-firewall' );

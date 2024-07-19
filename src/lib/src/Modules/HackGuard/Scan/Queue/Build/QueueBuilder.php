@@ -2,13 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueInit;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
-	use HackGuard\ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * Get batch
@@ -66,7 +67,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function task( $slug ) {
 		try {
-			( new HackGuard\Scan\Queue\QueueInit() )->init( (string)$slug );
+			( new QueueInit() )->init( (string)$slug );
 		}
 		catch ( \Exception $e ) {
 		}

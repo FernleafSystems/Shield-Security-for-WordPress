@@ -10,12 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ReqLogs\Ops as ReqLogsDB,
 	ReqLogs\RequestRecords
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LocalDbWriter extends AbstractProcessingHandler {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var array
@@ -23,10 +23,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	private $log;
 
 	protected function write( array $record ) :void {
-		$dbhMeta = self::con()->db_con->dbhActivityLogsMeta();
-
 		$this->log = $record;
-
 		try {
 			if ( $record[ 'context' ][ 'event_def' ][ 'audit_countable' ] && $this->updateRecentLogEntry() ) {
 				return; // event is countable
@@ -46,6 +43,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				$metas[ 'audit_count' ] = 1;
 			}
 
+			$dbhMeta = self::con()->db_con->activity_logs_meta;
 			/** @var MetaDB\Record $metaRecord */
 			$metaRecord = $dbhMeta->getRecord();
 			$metaRecord->log_ref = $log->id;
@@ -72,7 +70,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogsDB\Select $reqSelector */
-		$reqSelector = $dbCon->dbhReqLogs()->getQuerySelector();
+		$reqSelector = $dbCon->req_logs->getQuerySelector();
 		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;
@@ -83,7 +81,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		/** @var LogsDB\Select $select */
-		$select = $dbCon->dbhActivityLogs()->getQuerySelector();
+		$select = $dbCon->activity_logs->getQuerySelector();
 		/** @var LogsDB\Record $existingLog */
 		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
 							  ->filterByRequestRefs( $reqIDs )
@@ -97,12 +95,12 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				sprintf( "UPDATE `%s` SET `meta_value` = `meta_value`+1
 					WHERE `log_ref`=%s
 						AND `meta_key`='audit_count'
-				", $dbCon->dbhActivityLogsMeta()->getTableSchema()->table, $existingLog->id )
+				", $dbCon->activity_logs_meta->getTable(), $existingLog->id )
 			);
 			// this can fail under load, but doesn't actually matter:
-			$dbCon->dbhActivityLogs()
-				  ->getQueryUpdater()
-				  ->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
+			$dbCon->activity_logs->getQueryUpdater()->updateById( $existingLog->id, [
+				'updated_at' => Services::Request()->ts()
+			] );
 		}
 		return !empty( $existingLog );
 	}
@@ -111,28 +109,14 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord() :LogsDB\Record {
-		$dbh = self::con()->db_con->dbhActivityLogs();
+		$dbh = self::con()->db_con->activity_logs;
 		/** @var LogsDB\Record $record */
 		$record = $dbh->getRecord();
-		/**
-		 * @deprecated 19.1
-		 */
-		if ( !\is_a( $record, '\FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record' ) ) {
-			throw new \Exception( 'Not a valid class.' );
-		}
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		// Create the underlying request log.
-		if ( self::con()->comps === null ) {
-			self::con()
-				->getModule_Traffic()
-				->getRequestLogger()
-				->createDependentLog();
-		}
-		else {
-			self::con()->comps->requests_log->createDependentLog();
-		}
+		self::con()->comps->requests_log->createDependentLog();
 
 		$requestRecord = ( new RequestRecords() )->loadReq(
 			$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],

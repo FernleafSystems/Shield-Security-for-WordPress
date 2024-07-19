@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\FirewallCategoryNames;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Firewall\FirewallCategoryNames;
 
 abstract class FirewallBase extends Base {
 
@@ -11,9 +11,7 @@ abstract class FirewallBase extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$con = self::con();
-		return $con->comps->opts_lookup->isModFromOptEnabled( 'block_'.$this->getFirewallKey() )
-			   && $con->opts->optIs( 'block_'.$this->getFirewallKey(), 'Y' );
+		return self::con()->opts->optIs( 'block_'.$this->getFirewallKey(), 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

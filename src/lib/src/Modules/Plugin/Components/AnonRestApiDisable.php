@@ -13,11 +13,15 @@ class AnonRestApiDisable {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !Services::WpUsers()->isUserLoggedIn() && self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' );
+		return self::con()->opts->optIs( 'disable_anonymous_restapi', 'Y' );
 	}
 
 	protected function run() {
-		add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
+		add_action( 'init', function () {
+			if ( !Services::WpUsers()->isUserLoggedIn() ) {
+				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
+			}
+		} );
 	}
 
 	/**
@@ -32,27 +36,24 @@ class AnonRestApiDisable {
 		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus ) ) {
 			$con = self::con();
 
-			if ( \method_exists( $con->opts, 'optGet' ) ) {
+			$exclusions = \array_unique( \array_merge(
+				ArrayOps::CleanStrings(
+					apply_filters( 'shield/anonymous_rest_api_exclusions', $con->opts->optGet( 'api_namespace_exclusions' ) ),
+					'#[^\da-z_-]#i'
+				)
+			) );
 
-				$exclusions = \array_unique( \array_merge(
-					ArrayOps::CleanStrings(
-						apply_filters( 'shield/anonymous_rest_api_exclusions', $con->opts->optGet( 'api_namespace_exclusions' ) ),
-						'#[^\da-z_-]#i'
-					)
-				) );
+			if ( !\in_array( $namespace, $exclusions ) ) {
+				$mStatus = new \WP_Error(
+					'shield_block_anon_restapi',
+					sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ),
+						$con->getHumanName() ),
+					[ 'status' => rest_authorization_required_code() ] );
 
-				if ( !\in_array( $namespace, $exclusions ) ) {
-					$mStatus = new \WP_Error(
-						'shield_block_anon_restapi',
-						sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ),
-							$con->getHumanName() ),
-						[ 'status' => rest_authorization_required_code() ] );
-
-					$con->fireEvent(
-						'block_anonymous_restapi',
-						[ 'audit_params' => [ 'namespace' => $namespace ] ]
-					);
-				}
+				$con->fireEvent(
+					'block_anonymous_restapi',
+					[ 'audit_params' => [ 'namespace' => $namespace ] ]
+				);
 			}
 		}
 

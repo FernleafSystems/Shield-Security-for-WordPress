@@ -29,7 +29,7 @@ class ForScansHistory extends Base {
 					'show' => false,
 				],
 			],
-			'id'         => [
+			'id'          => [
 				'data'           => 'id',
 				'title'          => __( 'ID' ),
 				'className'      => 'id',

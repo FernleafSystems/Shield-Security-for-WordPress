@@ -123,8 +123,6 @@ class EmailCon {
 	 * @return string
 	 */
 	public function verifyEmailAddress( $e = '' ) {
-		return Services::Data()->validEmail( $e ) ? $e :
-			( self::con()->comps === null ? self::con()->comps->opts_lookup->getReportEmail()
-				: self::con()->getModule_Plugin()->getPluginReportEmail() );
+		return Services::Data()->validEmail( $e ) ? $e : self::con()->comps->opts_lookup->getReportEmail();
 	}
 }

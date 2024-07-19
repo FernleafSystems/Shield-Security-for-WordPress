@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * There's a bit of timing issue with the order of the available hooks/filters.
  * The disallowed keywords check is performed AFTER Shield updates the content of the comment to say it's been flagged.
  * So we must allow that content edit to happen, but if we discover that WP has already flagged a comment for whatever
- * reason, we should honour it and then remove our edits afterwards.
+ * reason, we should honour it and then remove our edits afterward.
  */
 class Scanner {
 
@@ -34,8 +33,7 @@ class Scanner {
 	private $spamCodes;
 
 	protected function canRun() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::COMMENTS )
-			   && Services::WpComments()->isCommentSubmission();
+		return Services::WpComments()->isCommentSubmission();
 	}
 
 	protected function run() {

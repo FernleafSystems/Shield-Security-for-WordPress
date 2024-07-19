@@ -17,8 +17,7 @@ class ShieldConfigurationOption extends Base {
 
 	protected function execConditionCheck() :bool {
 		$opts = self::con()->opts;
-		return \method_exists( $opts, 'optExists' ) &&
-			   $opts->optExists( $this->p->name ) &&
+		return $opts->optExists( $this->p->name ) &&
 			   ( new Utility\PerformConditionMatch(
 				   $opts->optGet( $this->p->name ),
 				   $this->p->match_value,

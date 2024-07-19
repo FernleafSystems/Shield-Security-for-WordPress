@@ -55,16 +55,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		$update = \array_intersect_key( $meta, \array_flip( [ 'verb', 'code', 'path', 'type', 'uid', 'offense' ] ) );
-		$update[ 'meta' ] = \base64_encode( \json_encode( \array_diff_key( $meta, $update ) ) );
+		$update[ 'meta' ] = \base64_encode( \wp_json_encode( \array_diff_key( $meta, $update ) ) );
 		$update[ 'transient' ] = false;
 
-		$success = self::con()
-			->db_con
-			->dbhReqLogs()
-			->getQueryUpdater()
-			->updateById( $reqRecord->id, $update );
-
-		if ( !$success ) {
+		if ( !self::con()->db_con->req_logs->getQueryUpdater()->updateById( $reqRecord->id, $update ) ) {
 			throw new \Exception( 'Failed to insert' );
 		}
 

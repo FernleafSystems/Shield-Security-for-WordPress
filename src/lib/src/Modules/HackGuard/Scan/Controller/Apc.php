@@ -26,7 +26,7 @@ class Apc extends BaseForAssets {
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
-		$count = $this->mod()->getScansCon()->getScanResultsCount()->countAbandoned();
+		$count = self::con()->comps->scans->getScanResultsCount()->countAbandoned();
 		if ( $count > 0 ) {
 			$warning = $template;
 			$warning[ 'id' ] .= '-apc';
@@ -50,8 +50,7 @@ class Apc extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		$con = self::con();
-		return $con->comps !== null && $con->comps->opts_lookup->optIsAndModForOptEnabled( 'enabled_scan_apc', 'Y' );
+		return self::con()->opts->optIs( 'enabled_scan_apc', 'Y' );
 	}
 
 	protected function isPremiumOnly() :bool {

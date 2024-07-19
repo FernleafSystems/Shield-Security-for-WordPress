@@ -86,10 +86,10 @@ class RetrieveCount extends RetrieveBase {
 						INNER JOIN `%s` as %s
 							ON %s.`ri_ref` = `ri`.id
 						WHERE %%s;",
-			$dbCon->dbhScanResults()->getTableSchema()->table,
-			$dbCon->dbhScans()->getTableSchema()->table,
-			$dbCon->dbhResultItems()->getTableSchema()->table,
-			$dbCon->dbhResultItemMeta()->getTableSchema()->table,
+			$dbCon->scan_results->getTable(),
+			$dbCon->scans->getTable(),
+			$dbCon->scan_result_items->getTable(),
+			$dbCon->scan_result_item_meta->getTable(),
 			self::ABBR_RESULTITEMMETA,
 			self::ABBR_RESULTITEMMETA
 		);

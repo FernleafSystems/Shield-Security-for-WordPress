@@ -12,7 +12,7 @@ class StringsModules {
 	 * @return array{name:string, subtitle:string, description:string[]}
 	 */
 	public function getFor( string $modSlug ) :array {
-		$cfg = self::con()->modules[ $modSlug ]->cfg;
+		$cfg = self::con()->modCfg( $modSlug );
 		return [
 			'name'        => __( $cfg->properties[ 'name' ], 'wp-simple-firewall' ),
 			'subtitle'    => __( $cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),

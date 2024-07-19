@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Monolog {
 
@@ -16,16 +15,14 @@ class Monolog {
 	 * to test whether we can run it (if there are changes)
 	 *
 	 * @throws Exceptions\LibraryNotFoundException
-	 * @throws Exceptions\LibraryTooOldException
-	 * @throws Exceptions\LibraryTooOldToBeUseableException
+	 * @throws \Exception
 	 */
 	public function assess() :void {
-		$newAutoLoad = path_join( \dirname( self::con()->root_file ), 'src/lib_scoped/vendor/scoper-autoload.php' );
-		if ( Services::WpFs()->isAccessibleFile( $newAutoLoad ) ) {
-			require_once( $newAutoLoad );
+		if ( \method_exists( self::con(), 'includePrefixedVendor' ) ) {
+			self::con()->includePrefixedVendor();
 		}
 		if ( !@\class_exists( '\AptowebDeps\Monolog\Logger' ) ) {
-			throw new Exceptions\LibraryNotFoundException( 'Scoped Monolog library could not be found.' );
+			throw new Exceptions\LibraryNotFoundException( 'Prefixed Monolog library could not be found.' );
 		}
 	}
 }

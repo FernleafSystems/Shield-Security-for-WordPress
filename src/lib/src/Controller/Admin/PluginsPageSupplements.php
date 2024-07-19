@@ -36,8 +36,8 @@ class PluginsPageSupplements {
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
 		if ( $pluginFile === self::con()->base_file ) {
 			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( self::con()->cfg->plugin_meta as $href ) {
-				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
+			foreach ( self::con()->cfg->plugin_meta as $slug => $href ) {
+				$pluginMeta[ $slug ] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
 			}
 		}
 		return $pluginMeta;

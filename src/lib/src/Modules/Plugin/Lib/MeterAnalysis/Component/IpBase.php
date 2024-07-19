@@ -2,14 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-
 abstract class IpBase extends Base {
 
 	use Traits\OptConfigBased;
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->isModEnabled( EnumModules::IPS );
+		return self::con()->comps->opts_lookup->isPluginEnabled();
 	}
 
 	protected function getOptConfigKey() :string {

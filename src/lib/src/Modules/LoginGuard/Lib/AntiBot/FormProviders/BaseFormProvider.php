@@ -3,15 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseFormProvider extends ExecOnceModConsumer {
+abstract class BaseFormProvider {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var string
@@ -58,17 +57,15 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		if ( self::con()->comps !== null ) {
-			$locations = self::con()->opts->optGet( 'bot_protection_locations' );
-			if ( \in_array( 'login', $locations ) ) {
-				$this->login();
-			}
-			if ( \in_array( 'register', $locations ) ) {
-				$this->register();
-			}
-			if ( \in_array( 'password', $locations ) ) {
-				$this->lostpassword();
-			}
+		$locations = self::con()->opts->optGet( 'bot_protection_locations' );
+		if ( \in_array( 'login', $locations ) ) {
+			$this->login();
+		}
+		if ( \in_array( 'register', $locations ) ) {
+			$this->register();
+		}
+		if ( \in_array( 'password', $locations ) ) {
+			$this->lostpassword();
 		}
 	}
 

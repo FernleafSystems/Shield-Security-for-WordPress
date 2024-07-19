@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\SiteHealth\Analysis;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SiteHealthController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const TAB_SLUG = 'shield_security';
 
@@ -20,7 +20,7 @@ class SiteHealthController {
 			   && !$WP->isAjax()
 			   && ( is_admin() || is_network_admin() )
 			   && Services::Request()->isGet()
-			   && apply_filters( 'shield/can_run_site_health_security', true );
+			   && apply_filters( 'shield/can_run_site_health_security', self::con()->comps->opts_lookup->isPluginEnabled() );
 	}
 
 	protected function run() {

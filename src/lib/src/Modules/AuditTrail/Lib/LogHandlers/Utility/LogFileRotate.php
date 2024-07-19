@@ -2,10 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LogFileRotate extends ExecOnceModConsumer {
+/**
+ * @deprecated 19.2
+ */
+class LogFileRotate {
+
+	use ExecOnce;
 
 	private $logFile;
 

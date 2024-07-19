@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
-
-class BotScoringLogic extends Common\BaseShieldNetApi {
+class BotScoringLogic extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2 {
 
 	public const API_ACTION = 'bot/antibot_scoring_logic';
 

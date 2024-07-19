@@ -47,12 +47,12 @@ abstract class BaseRender extends BaseAction {
 
 		try {
 			$output = self::con()
-						  ->getRenderer()
-						  ->setTemplateEngineTwig()
-						  ->setTemplate( $template )
-						  ->setRenderVars( $renderData )
-						  ->setTwigEnvironmentVars( $this->getTwigEnvironmentVars() )
-						  ->render();
+				->comps
+				->render
+				->setTemplate( $template )
+				->setData( $renderData )
+				->setEnvironmentVars( $this->getTwigEnvironmentVars() )
+				->render();
 		}
 		catch ( \Exception $e ) {
 			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, $e->getMessage() );
@@ -112,8 +112,7 @@ abstract class BaseRender extends BaseAction {
 
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
-		$isWhitelabelled = ( $con->comps === null ?
-			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
+		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
 			'unique_render_id' => uniqid(),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
@@ -178,26 +177,27 @@ abstract class BaseRender extends BaseAction {
 			],
 			'imgs'             => [
 				'svgs'           => [
-					'exit'        => $con->svgs->raw( 'box-arrow-left.svg' ),
-					'help'        => $con->svgs->raw( 'question-circle.svg' ),
-					'helpdesk'    => $con->svgs->raw( 'life-preserver.svg' ),
-					'newsletter'  => $con->svgs->raw( 'envelope.svg' ),
-					'ignore'      => $con->svgs->raw( 'eye-slash-fill.svg' ),
-					'info_square' => $con->svgs->raw( 'info-square.svg' ),
-					'megaphone'   => $con->svgs->raw( 'megaphone.svg' ),
-					'video'       => $con->svgs->raw( 'youtube.svg' ),
-					'search'      => $con->svgs->raw( 'search.svg' ),
-					'settings'    => $con->svgs->raw( 'gear.svg' ),
-					'email'       => $con->svgs->raw( 'envelope-fill.svg' ),
-					'triangle'    => $con->svgs->raw( 'triangle-fill.svg' ),
-					'home'        => $con->svgs->raw( 'house-door.svg' ),
-					'facebook'    => $con->svgs->raw( 'facebook.svg' ),
-					'twitter'     => $con->svgs->raw( 'twitter.svg' ),
-					'wordpress'   => $con->svgs->raw( 'wordpress.svg' ),
+					'exit'        => $con->svgs->raw( 'box-arrow-left' ),
+					'help'        => $con->svgs->raw( 'question-circle' ),
+					'helpdesk'    => $con->svgs->raw( 'life-preserver' ),
+					'newsletter'  => $con->svgs->raw( 'envelope' ),
+					'ignore'      => $con->svgs->raw( 'eye-slash-fill' ),
+					'info_square' => $con->svgs->raw( 'info-square' ),
+					'megaphone'   => $con->svgs->raw( 'megaphone' ),
+					'video'       => $con->svgs->raw( 'youtube' ),
+					'search'      => $con->svgs->raw( 'search' ),
+					'settings'    => $con->svgs->raw( 'gear' ),
+					'menu'        => $con->svgs->raw( 'card-list' ),
+					'email'       => $con->svgs->raw( 'envelope-fill' ),
+					'triangle'    => $con->svgs->raw( 'triangle-fill' ),
+					'home'        => $con->svgs->raw( 'house-door' ),
+					'facebook'    => $con->svgs->raw( 'facebook' ),
+					'twitter'     => $con->svgs->raw( 'twitter' ),
+					'wordpress'   => $con->svgs->raw( 'wordpress' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
-				'background_svg' => $urlBuilder->forImage( 'shield/background-blob.svg' )
+				'background_svg' => $urlBuilder->forImage( 'shield/background-blob' )
 			],
 			'content'          => [
 				'options_form' => '',

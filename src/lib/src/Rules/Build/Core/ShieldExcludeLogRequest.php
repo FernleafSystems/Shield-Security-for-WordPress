@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
@@ -11,8 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class ShieldExcludeLogRequest extends BuildRuleCoreShieldBase {
-
-	use ModConsumer;
 
 	public const SLUG = 'shield/exclude_log_request';
 
@@ -25,7 +22,6 @@ class ShieldExcludeLogRequest extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		$opts = self::con()->opts;
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -46,8 +42,7 @@ class ShieldExcludeLogRequest extends BuildRuleCoreShieldBase {
 									]
 								];
 							},
-							\method_exists( $opts, 'optGet' ) ?
-								$opts->optGet( 'custom_exclusions' ) : $this->opts()->getOpt( 'custom_exclusions' )
+							self::con()->opts->optGet( 'custom_exclusions' )
 						),
 						[
 							[

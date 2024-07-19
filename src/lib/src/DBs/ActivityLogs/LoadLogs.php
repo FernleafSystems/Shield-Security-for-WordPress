@@ -30,12 +30,12 @@ class LoadLogs extends DynPropertiesClass {
 		$stdKeys = \array_flip( \array_unique( \array_merge(
 			self::con()
 				->db_con
-				->dbhActivityLogs()
+				->activity_logs
 				->getTableSchema()
 				->getColumnNames(),
 			self::con()
 				->db_con
-				->dbhIPs()
+				->ips
 				->getTableSchema()
 				->getColumnNames(),
 			[
@@ -92,11 +92,11 @@ class LoadLogs extends DynPropertiesClass {
 		return Services::WpDb()->selectCustom(
 			\sprintf( $this->getRawQuery( $this->includeMeta ),
 				\implode( ', ', $selectFields ),
-				$con->db_con->dbhActivityLogs()->getTableSchema()->table,
-				$con->db_con->dbhReqLogs()->getTableSchema()->table,
-				$con->db_con->dbhIPs()->getTableSchema()->table,
+				$con->db_con->activity_logs->getTableSchema()->table,
+				$con->db_con->req_logs->getTableSchema()->table,
+				$con->db_con->ips->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
-				$this->includeMeta ? $con->db_con->dbhActivityLogsMeta()->getTableSchema()->table : '',
+				$this->includeMeta ? $con->db_con->activity_logs_meta->getTable() : '',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				$this->buildOrderBy(),
 				isset( $this->limit ) ? \sprintf( 'LIMIT %s', $this->limit ) : '',
@@ -114,9 +114,9 @@ class LoadLogs extends DynPropertiesClass {
 		return (int)Services::WpDb()->getVar(
 			\sprintf( $this->getRawQuery( false ),
 				'COUNT(*)',
-				$con->db_con->dbhActivityLogs()->getTableSchema()->table,
-				$con->db_con->dbhReqLogs()->getTableSchema()->table,
-				$con->db_con->dbhIPs()->getTableSchema()->table,
+				$con->db_con->activity_logs->getTable(),
+				$con->db_con->req_logs->getTable(),
+				$con->db_con->ips->getTable(),
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				'',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),

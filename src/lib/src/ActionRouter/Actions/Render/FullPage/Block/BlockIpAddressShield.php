@@ -39,7 +39,7 @@ class BlockIpAddressShield extends BaseBlock {
 			],
 			'vars'    => [
 				'inline_js' => [
-					sprintf( 'var shield_vars_blockpage = %s;', \json_encode( [
+					sprintf( 'var shield_vars_blockpage = %s;', \wp_json_encode( [
 						'magic_unblock' => [
 							'ajax' => [
 								'unblock_request' => ActionData::Build( IpAutoUnblockShieldUserLinkRequest::class, true, [

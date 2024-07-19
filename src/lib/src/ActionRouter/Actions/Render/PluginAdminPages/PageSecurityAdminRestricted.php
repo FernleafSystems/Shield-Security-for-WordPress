@@ -15,9 +15,9 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
-				'href' => '#',
-				'id'   => 'SecAdminRemoveConfirmEmail',
+				'title' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
+				'href'  => '#',
+				'id'    => 'SecAdminRemoveConfirmEmail',
 			],
 		];
 	}

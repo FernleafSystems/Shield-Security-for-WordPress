@@ -26,6 +26,6 @@ class LoadIpRules extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\Ba
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return self::con()->db_con->dbhIPRules()->getTableSchema();
+		return self::con()->db_con->ip_rules->getTableSchema();
 	}
 }

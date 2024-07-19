@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModConsumer,
-	Scan\Queue\QueueItemVO
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ResultItemMeta\Ops as ResultItemMetaDB,
 	ResultItems\Ops as ResultItemsDB
@@ -20,10 +17,9 @@ class Store {
 	public function store( QueueItemVO $queueItem, array $results ) {
 		$dbCon = self::con()->db_con;
 
-		$dbhResItems = $dbCon->dbhResultItems();
-		$dbhResItemMetas = $dbCon->dbhResultItemMeta();
+		$dbhResItemMetas = $dbCon->scan_result_item_meta;
 		/** @var ResultItemsDB\Select $resultSelector */
-		$resultSelector = $dbhResItems->getQuerySelector();
+		$resultSelector = $dbCon->scan_result_items->getQuerySelector();
 
 		foreach ( $results as $result ) {
 
@@ -35,13 +31,13 @@ class Store {
 										   ->filterByItemNotRepaired()
 										   ->first();
 			if ( empty( $resultRecord ) ) {
-				$dbhResItems->getQueryInserter()->insert( $scanResult );
+				$dbCon->scan_result_items->getQueryInserter()->insert( $scanResult );
 				$resultRecord = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 			}
 			else {
 				// If a result item is now auto-filtered, where before it wasn't, update it.
 				if ( empty( $resultRecord->auto_filtered_at ) && $scanResult->auto_filtered_at > 0 ) {
-					$dbhResItems->getQueryUpdater()->updateRecord( $resultRecord, [
+					$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
 						'auto_filtered_at' => $scanResult->auto_filtered_at
 					] );
 				}
@@ -58,17 +54,16 @@ class Store {
 				$metaInserter->setInsertData( [
 					'ri_ref'     => $resultRecord->id,
 					'meta_key'   => $metaKey,
-					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \json_encode( $metaValue ),
+					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \wp_json_encode( $metaValue ),
 				] )->query();
 			}
 
-			$dbCon->dbhScanResults()
-				  ->getQueryInserter()
-				  ->setInsertData( [
-					  'scan_ref'       => $queueItem->scan_id,
-					  'resultitem_ref' => $resultRecord->id,
-				  ] )
-				  ->query();
+			$dbCon->scan_results->getQueryInserter()
+								->setInsertData( [
+									'scan_ref'       => $queueItem->scan_id,
+									'resultitem_ref' => $resultRecord->id,
+								] )
+								->query();
 		}
 		$this->markQueueItemAsFinished( $queueItem );
 	}
@@ -76,7 +71,7 @@ class Store {
 	private function markQueueItemAsFinished( QueueItemVO $queueItem ) {
 		self::con()
 			->db_con
-			->dbhScanItems()
+			->scan_items
 			->getQueryUpdater()
 			->updateById( $queueItem->qitem_id, [
 				'finished_at' => Services::Request()->ts()

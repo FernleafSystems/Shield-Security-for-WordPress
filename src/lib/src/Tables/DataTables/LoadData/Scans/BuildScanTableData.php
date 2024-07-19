@@ -36,14 +36,6 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
-					case 'event':
-						if ( \count( $selected ) > 1 ) {
-							$wheres[] = sprintf( "log.event_slug IN ('%s')", \implode( '`,`', $selected ) );
-						}
-						else {
-							$wheres[] = sprintf( "log.event_slug='%s'", \array_pop( $selected ) );
-						}
-						break;
 					case 'ip':
 						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;

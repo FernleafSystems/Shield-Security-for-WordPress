@@ -1,4 +1,77 @@
 {
+  "20.0": {
+    "version":     "20.0",
+    "released_at": 1721400000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease200",
+      "upgrade": "https://shsec.io/shieldupgradeguide200"
+    },
+    "title":       "silentCAPTCHA",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Introducing silentCAPTCHA",
+        "description": [
+          "silentCAPTCHA is the umbrella term for Shield's built-in malicious bot detection technology."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "title":       "UI Overhaul",
+        "description": [
+          "A part of our mission to simplify Shield for all our members, this release see the biggest overhaul of the UI for several years.",
+          "We've completely removed the dedicated 'Configuration' sections and replaced them with contextual configuration links so you can easily configure the options for each zone independently.",
+          "We've also removed several legacy options that are no longer practical."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "title":       "Code and Performance Improvements",
+        "description": [
+          "We're continuing our efforts to purge Shield of legacy code and improve the codebase making it as fast and efficient as possible."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Optimised Autoload Size",
+        "description": [
+          "Reduced the size of the autoload option storage by ~50%."
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    true,
+        "title":       "Security Admin Not Required For Whitelabel",
+        "description": [
+          "The Security Admin feature no longer needs to be active for Whitelabel to operate."
+        ]
+      },
+      {
+        "type":        "removed",
+        "title":       "Plugin Options Removed",
+        "description": [
+          "Removed: email notification setting for automatic updates. Now uses the general plugin reporting email option.",
+          "Removed: Automatically Update All Plugins & Automatically Update All Themes.",
+          "Removed: Disable All WordPress Automatic Updates.",
+          "Removed: WordPress Core Updates (minor/major/never).",
+          "Removed: Send Report Email for Automatic Updates.",
+          "Removed: Activity Logging to File.",
+          "Removed: Force SSL Admin.",
+          "Removed: Request Firewall options - WP Terms & EXE File Uploads.",
+          "Removed: Firewall Block Response select.",
+          "Removed: WP Generator tag removal option.",
+          "Removed: All GASP JS deprecated options."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "19.1": {
     "version":     "19.1",
     "released_at": 1711362000,
@@ -445,7 +518,7 @@
         "title":       "Google reCAPTCHA and hCAPTHCA",
         "description": [
           "reCAPTCHA has been deprecated for over a year already and have finally been removed from the plugin.",
-          "Consider using Shield's own Antibot Detection Engine feature."
+          "Consider using Shield's silentCAPTCHA feature."
         ],
         "href":        ""
       }
@@ -1767,7 +1840,7 @@
         "title":       "Removed: Legacy Comment SPAM Detection",
         "description": [
           "We've completely removed the older, less reliable comment spam detection using Javascript and CAPTCHAs.",
-          "Please use the newer AntiBot Detection Engine."
+          "Please use the newer silentCAPTCHA."
         ]
       },
       {
@@ -1830,7 +1903,7 @@
         "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Login Forms",
         "description": [
           "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Login SPAM has been deprecated.",
-          "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
+          "These options are replaced with the silentCAPTCHA and will be completely removed in a future release."
         ]
       },
       {
@@ -2071,7 +2144,7 @@
         "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Comments",
         "description": [
           "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Comment SPAM has been deprecated.",
-          "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
+          "These options are replaced with the silentCAPTCHA and will be completely removed in a future release."
         ]
       },
       {
@@ -2981,7 +3054,7 @@
     },
     "title":       "AntiBot Scoring Improvements",
     "description": [
-      "Shield 11.0 brought the new AntiBot Detection Engine, designed to detect bad bots and block them automatically.",
+      "Shield 11.0 brought the new silentCAPTCHA, designed to detect bad bots and block them automatically.",
       "With feedback from customers and ongoing research, we've made some major improvements and adjustments to the system."
     ],
     "items":       [
@@ -3003,11 +3076,11 @@
       },
       {
         "type":        "improved",
-        "title":       "AntiBot Detection Engine Improvements.",
+        "title":       "silentCAPTCHA Improvements.",
         "description": [
           "We've adjusted some of the bot scoring and improved the ability to detect legitimate users based on earlier logins.",
           "We've also removed the need for the small cookie that was needed to help track the NotBot status.",
-          "The AntiBot Detection Engine can now be disabled by setting the minimum reputation score to 0."
+          "silentCAPTCHA can now be disabled by setting the minimum reputation score to 0."
         ]
       },
       {
@@ -3115,7 +3188,7 @@
       },
       {
         "type":        "improved",
-        "title":       "Automatic User Unblock now makes use of Shield's AntiBot Detection Engine.",
+        "title":       "Automatic User Unblock now makes use of Shield's silentCAPTCHA.",
         "description": []
       },
       {
@@ -3192,16 +3265,16 @@
       "release": "https://shsec.io/shieldrelease110",
       "upgrade": "https://shsec.io/shieldupgradeguide110"
     },
-    "title":       "All-New Shield AntiBot Detection Engine",
+    "title":       "All-New Shield silentCAPTCHA",
     "description": [
       "WordPress security nearly always starts with bots - detecting bad bots and blocking them.",
-      "This release delivers your new and exclusive AntiBot Detection Engine allowing Shield to more quickly identify bad bots and block their requests."
+      "This release delivers your new and exclusive silentCAPTCHA allowing Shield to more quickly identify bad bots and block their requests."
     ],
     "items":       [
       {
         "type":        "new",
         "pro_only":    false,
-        "title":       "AntiBot Detection Engine",
+        "title":       "silentCAPTCHA",
         "description": [
           "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
           "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
@@ -3212,7 +3285,7 @@
         "type":        "new",
         "title":       "Contact Form SPAM Protection",
         "description": [
-          "With the arrival of our AntiBot Detection Engine, we can now more easily integrate with 3rd party plugins.",
+          "With the arrival of our silentCAPTCHA, we can now more easily integrate with 3rd party plugins.",
           "You can add Shield's SPAM protection to Elementor PRO Gravity Forms, Contact Form 7, Ninja Forms, and many more."
         ]
       },

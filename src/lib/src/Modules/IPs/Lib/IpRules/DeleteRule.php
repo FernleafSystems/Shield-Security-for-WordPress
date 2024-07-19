@@ -2,16 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	Components\IpAddressConsumer,
-	ModConsumer
-};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class DeleteRule {
 
-	use ModConsumer;
 	use IpAddressConsumer;
+	use PluginControllerConsumer;
 
 	public function byRecords( array $records ) {
 		foreach ( $records as $record ) {
@@ -20,7 +18,7 @@ class DeleteRule {
 	}
 
 	public function byRecord( IpRuleRecord $record ) :bool {
-		$dbh = self::con()->db_con->dbhIPRules();
+		$dbh = self::con()->db_con->ip_rules;
 		$deleted = $dbh->getQueryDeleter()->deleteById( $record->id );
 
 		if ( $record->is_range ) {

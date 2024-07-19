@@ -3,21 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\{
 	ShieldLoginIntentPage,
 	WpReplicaLoginIntentPage
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoginRequestCapture {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
-	use Shield\Utilities\Consumer\WpLoginCapture;
+	use PluginControllerConsumer;
+	use WpLoginCapture;
 
 	protected function run() {
 		$this->setupLoginCaptureHooks();

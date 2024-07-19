@@ -26,10 +26,10 @@ class Sync {
 			'scan_issues' => ( new Counts() )->all(),
 		] : [];
 		return \array_merge( [
-			'meta'    => [
+			'meta' => [
 				'is_pro'       => $con->isPremiumActive(),
 				'is_mainwp_on' => $this->isPermitted(),
-				'installed_at' => $con->getModule_Plugin()->getInstallDate(),
+				'installed_at' => $con->comps->opts_lookup->getInstalledAt(),
 				'sync_at'      => Services::Request()->ts(),
 				'version'      => $con->cfg->version(),
 				'has_update'   => Services::WpPlugins()->isUpdateAvailable( $con->base_file ),

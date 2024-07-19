@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class IsUserSecurityAdmin extends Base {
 
 	use Traits\TypeShield;
@@ -15,8 +17,9 @@ class IsUserSecurityAdmin extends Base {
 	protected function execConditionCheck() :bool {
 		$secAdminCon = self::con()->comps->sec_admin;
 		return (
-			!$secAdminCon->isEnabledSecAdmin()
-			|| $secAdminCon->isCurrentUserRegisteredSecAdmin()
+			!self::con()->comps->opts_lookup->isPluginEnabled()
+			|| !$secAdminCon->isEnabledSecAdmin()
+			|| $secAdminCon->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
 			|| $secAdminCon->getSecAdminTimeRemaining() > 0
 		);
 	}

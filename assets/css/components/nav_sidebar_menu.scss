@@ -1,0 +1,120 @@
+
+#NavSideBar .nav-link:hover {
+}
+
+#NavSideBar .nav-link.active {
+  font-weight: bolder;
+  font-size: 0.8rem;
+  background-color: #fbfbfb;
+}
+
+#NavSideBar:hover ul.top-level-nav > .nav-item {
+}
+
+#NavSideBar ul.top-level-nav > .nav-item:hover {
+}
+
+#NavSideBar .top-level-nav > li.nav-item {
+  border: 1px solid transparent;
+  border-left: 2px solid transparent;
+  z-index: 1;
+}
+
+#NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
+  background-color: rgba(251, 251, 251, 1);
+  border-top: 1px solid rgba(0, 128, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 128, 0, 0.2);
+  border-left: 3px solid #008000;
+  box-shadow: -3px 5px 6px rgba(0, 0, 0, 0.03);
+  margin-right: -2px;
+}
+
+#NavSideBar .nav-item .nav-icon > svg {
+  width: 18px;
+  height: 18px;
+  color: #333333;
+}
+
+#NavSideBar .nav-item.activesub .nav-icon > svg,
+#NavSideBar .nav-item .active .nav-icon > svg,
+#NavSideBar .nav-item:hover .nav-icon > svg {
+  color: #008000;
+  transform: scaleX(-1);
+  transition: transform 0.25s;
+}
+
+#NavSideBar .nav-item .top-title {
+  color: black;
+}
+
+#NavSideBar .nav-item .top-title svg {
+  transform-origin: 50% 50%;
+  transform: rotate(60deg);
+  height: 6px;
+  width: 6px;
+  margin-top: -4px;
+  margin-left: 2px;
+  margin-right: -2px;
+  transition: transform 0.5s ease;
+}
+
+#NavSideBar .nav-item.activesub .top-title svg {
+  transform: rotate(-30deg);
+}
+
+#NavSideBar .nav-item.activesub .top-title,
+#NavSideBar .nav-item .active .top-title,
+#NavSideBar .nav-item:hover .top-title {
+  color: #008000;
+}
+
+.primary_side_sub_menu {
+}
+
+.primary_side_sub_menu a {
+  border-left: 1px solid transparent;
+  padding-left: 24px;
+  text-decoration: none;
+  color: #111111;
+}
+
+.primary_side_sub_menu a:hover {
+  border-left: 3px solid rgba(0, 128, 0, 0.3);
+  padding-left: 22px;
+  color: #008000;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.primary_side_sub_menu a.nav-link {
+  color: $secondary;
+}
+
+.primary_side_sub_menu a.nav-link.active {
+  color: $primary;
+  border-left: 3px solid rgba(0, 128, 0, 0.7);
+  padding-left: 20px;
+}
+
+.top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+}
+
+.top-level-nav > li.nav-item > .nav-link > a.zone_component_action .svg-container {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 5px 1px;
+}
+
+.top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container {
+  //border-color: $primary;
+  background-color: rgba(0, 128, 0, 0.1);
+}
+
+.top-level-nav > li.nav-item > .nav-link > a.zone_component_action .svg-container > svg {
+  transform: rotate(0deg);
+  transition: transform 0.5s;
+}
+
+.top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > svg {
+  transform: rotate(45deg);
+  transition: transform 0.3s;
+}

@@ -4,28 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
-	public const SLUG = 'license';
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::LICENSE;
 
 	/**
-	 * @var Lib\LicenseHandler
-	 */
-	private $licenseHandler;
-
-	/**
-	 * @var Lib\WpHashes\ApiTokenManager
-	 */
-	private $wpHashesTokenManager;
-
-	/**
-	 * @return Lib\LicenseHandler
+	 * @deprecated 19.2
 	 */
 	public function getLicenseHandler() :Lib\LicenseHandler {
-		return self::con()->comps !== null ? self::con()->comps->license :
-			( $this->licenseHandler ?? $this->licenseHandler = new Lib\LicenseHandler() );
-	}
-
-	public function getWpHashesTokenManager() :Lib\WpHashes\ApiTokenManager {
-		return self::con()->comps !== null ? self::con()->comps->api_token :
-			( $this->wpHashesTokenManager ?? $this->wpHashesTokenManager = new Lib\WpHashes\ApiTokenManager() );
+		return self::con()->comps->license;
 	}
 }

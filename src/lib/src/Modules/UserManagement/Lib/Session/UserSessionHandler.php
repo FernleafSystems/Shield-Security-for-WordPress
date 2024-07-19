@@ -5,15 +5,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Ses
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use WpLoginCapture;
+
+	protected function canRun() :bool {
+		return !self::con()->this_req->request_bypasses_all_restrictions;
+	}
 
 	protected function run() {
 		$this->setupLoginCaptureHooks();
@@ -212,10 +216,8 @@ class UserSessionHandler {
 			throw new \Exception( 'session_notfound' );
 		}
 
-		$ts = Services::Request()->ts();
-
 		$max = self::con()->comps->opts_lookup->getSessionMax();
-		if ( $max > 0 && ( $ts - $sess->login > $max ) ) {
+		if ( $max > 0 && ( Services::Request()->ts() - $sess->login > $max ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 	}
@@ -225,8 +227,7 @@ class UserSessionHandler {
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
-		$max = self::con()->comps === null ?
-			$this->opts()->getMaxSessionTime() : self::con()->comps->opts_lookup->getSessionMax();
+		$max = self::con()->comps->opts_lookup->getSessionMax();
 		return $max > 0 ? \min( $timeout, $max ) : $timeout;
 	}
 

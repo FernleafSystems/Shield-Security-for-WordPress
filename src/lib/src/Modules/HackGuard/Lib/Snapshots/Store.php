@@ -205,7 +205,7 @@ class Store {
 		if ( $this->isReady() ) {
 			$success = (bool)Services::WpFs()->putFileContent(
 				$this->getSnapStoreMetaPath(),
-				\json_encode( $this->getSnapMeta() ),
+				\wp_json_encode( $this->getSnapMeta() ),
 				true
 			);
 		}

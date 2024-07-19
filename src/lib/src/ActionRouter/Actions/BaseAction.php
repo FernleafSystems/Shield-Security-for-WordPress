@@ -154,7 +154,7 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	public static function NonceCfg() :array {
 		return [
-			'ip'  => true,
+			'ip'  => false,
 			'ttl' => 12,
 		];
 	}

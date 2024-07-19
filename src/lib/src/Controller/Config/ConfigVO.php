@@ -24,7 +24,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\Configurat
  * @property array                 $plugin_meta
  * @property array                 $upgrade_reqs
  * @property array                 $version_upgrades
- * @property array                 $reqs_rest
  *                                   -- not part of config file --
  * @property string                $hash
  * @property string                $previous_version
@@ -38,6 +37,8 @@ class ConfigVO extends DynPropertiesClass {
 	 * @var bool
 	 */
 	public $rebuilt = false;
+
+	public $builtHash = '';
 
 	public function version() :string {
 		return $this->properties[ 'version' ];

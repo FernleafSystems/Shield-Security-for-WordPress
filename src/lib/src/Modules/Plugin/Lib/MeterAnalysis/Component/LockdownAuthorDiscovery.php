@@ -9,7 +9,7 @@ class LockdownAuthorDiscovery extends Base {
 	public const SLUG = 'lockdown_author_discovery';
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->optIsAndModForOptEnabled( 'block_author_discovery', 'Y' );
+		return self::con()->opts->optIs( 'block_author_discovery', 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

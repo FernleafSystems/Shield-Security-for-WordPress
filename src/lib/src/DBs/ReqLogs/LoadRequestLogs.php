@@ -37,6 +37,6 @@ class LoadRequestLogs extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Commo
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return self::con()->db_con->dbhReqLogs()->getTableSchema();
+		return self::con()->db_con->req_logs->getTableSchema();
 	}
 }

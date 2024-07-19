@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
 	CacheDirHandler,
@@ -12,34 +16,17 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
-class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
+class ModCon extends DynPropertiesClass {
 
-	public const SLUG = 'plugin';
+	use PluginControllerConsumer;
+	use PluginCronsConsumer;
 
-	/**
-	 * @var Lib\ImportExport\ImportExportController
-	 */
-	private $importExportCon;
+	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::PLUGIN;
 
 	/**
-	 * @var Components\PluginBadge
+	 * @var Processor
 	 */
-	private $pluginBadgeCon;
-
-	/**
-	 * @var Lib\Reporting\ReportingController
-	 */
-	private $reportsCon;
-
-	/**
-	 * @var ShieldNetApiController
-	 */
-	private $shieldNetCon;
-
-	/**
-	 * @var Lib\Sessions\SessionController
-	 */
-	private $sessionCon;
+	private $processor;
 
 	/**
 	 * @var Lib\TrackingVO
@@ -47,37 +34,21 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	private $tracking;
 
 	/**
-	 * @deprecated 19.1
+	 * @throws \Exception
 	 */
-	public function getImpExpController() :Lib\ImportExport\ImportExportController {
-		return self::con()->comps !== null ? self::con()->comps->import_export :
-			( $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController() );
+	public function boot() {
+		if ( !$this->is_booted ) {
+			$this->is_booted = true;
+			$this->doPostConstruction();
+			$this->setupHooks();
+		}
 	}
 
 	/**
-	 * @deprecated 19.1
+	 * @throws \Exception
 	 */
-	public function getPluginBadgeCon() :Components\PluginBadge {
-		return self::con()->comps !== null ? self::con()->comps->badge :
-			( $this->pluginBadgeCon ?? $this->pluginBadgeCon = new Components\PluginBadge() );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getReportingController() :Lib\Reporting\ReportingController {
-		return self::con()->comps !== null ? self::con()->comps->reports :
-			( $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController() );
-	}
-
-	public function getSessionCon() :Lib\Sessions\SessionController {
-		return self::con()->comps !== null ? self::con()->comps->session :
-			( $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController() );
-	}
-
-	public function getShieldNetApiController() :ShieldNetApiController {
-		return self::con()->comps !== null ? self::con()->comps->shieldnet :
-			( $this->shieldNetCon ?? $this->shieldNetCon = new ShieldNetApiController() );
+	public function getProcessor() :Processor {
+		return $this->processor ?? $this->processor = new Processor();
 	}
 
 	protected function doPostConstruction() {
@@ -87,24 +58,11 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		$this->storeRealInstallDate();
 	}
 
-	public function isModuleEnabled() :bool {
-		return true;
-	}
-
 	public function onWpInit() {
-		parent::onWpInit();
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}
 		self::con()->comps->assets_customizer->execute();
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 19.1
-	 */
-	public function getDismissedNotices() :array {
-		return $this->opts()->getOpt( 'dismissed_notices' );
 	}
 
 	protected function setupCacheDir() {
@@ -183,35 +141,10 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 	}
 
 	/**
-	 * @deprecated 19.1
+	 * @deprecated 19.2
 	 */
-	public function getLinkToTrackingDataDump() :string {
-		return self::con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getPluginReportEmail() :string {
-		$con = self::con();
-		$e = (string)$this->opts()->getOpt( 'block_send_email_address' );
-		if ( $con->isPremiumActive() ) {
-			$e = apply_filters( $con->prefix( 'report_email' ), $e );
-		}
-		$e = \trim( $e );
-		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
-	}
-
 	public function getInstallDate() :int {
-		return self::con()->comps === null ? $this->opts()->getOpt( 'installation_time' )
-			: self::con()->comps->opts_lookup->getInstalledAt();
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function isShowAdvanced() :bool {
-		return false;
+		return self::con()->comps->opts_lookup->getInstalledAt();
 	}
 
 	/**
@@ -224,7 +157,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 			$wpDate = Services::Request()->ts();
 		}
 
-		$date = $this->getInstallDate();
+		$date = self::con()->comps->opts_lookup->getInstalledAt();
 		if ( $date == 0 ) {
 			$date = Services::Request()->ts();
 		}
@@ -236,31 +169,15 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 		return $finalDate;
 	}
 
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getActivateLength() :int {
-		return Services::Request()->ts() - (int)$this->opts()->getOpt( 'activated_at', 0 );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function setActivatedAt() {
-		self::con()->opts->optSet( 'activated_at', Services::Request()->ts() );
-	}
-
 	public function runDailyCron() {
 		( new WhitelistUs() )->all();
 		( new Lib\CleanOldOptions() )->execute();
 	}
 
-	public function isXmlrpcBypass() :bool {
-		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
-	}
-
 	protected function setupHooks() {
-		parent::setupHooks();
+		$this->setupCronHooks();
+
+		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 
 		add_action( 'admin_footer', function () {
 			if ( self::con()->isPluginAdminPageRequest() ) {
@@ -271,23 +188,32 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCo
 
 	public function getTracking() :Lib\TrackingVO {
 		if ( !isset( $this->tracking ) ) {
-			$opts = self::con()->opts;
-
-			$data = \method_exists( $opts, 'optGet' ) ?
-				$opts->optGet( 'transient_tracking' ) : $this->opts()->getOpt( 'transient_tracking' );
-			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( $data );
-
+			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
 			add_action( self::con()->prefix( 'pre_options_store' ), function () {
-				$opts = self::con()->opts;
-				\method_exists( $opts, 'optSet' ) ?
-					$opts->optSet( 'transient_tracking', $this->tracking->getRawData() )
-					: $this->opts()->setOpt( 'transient_tracking', $this->tracking->getRawData() );
+				self::con()->opts->optSet( 'transient_tracking', $this->tracking->getRawData() );
 			} );
 		}
 		return $this->tracking;
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function isModOptEnabled() :bool {
-		return $this->opts()->isOpt( 'global_enable_plugin_features', 'Y' );
+		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getSessionCon() :Lib\Sessions\SessionController {
+		return self::con()->comps->session;
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getShieldNetApiController() :ShieldNetApiController {
+		return self::con()->comps->shieldnet;
 	}
 }

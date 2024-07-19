@@ -2,16 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterScans extends MeterBase {
 
 	public const SLUG = 'scans';
-
-	protected function getWorkingMods() :array {
-		return [ EnumModules::SCANS ];
-	}
 
 	public function title() :string {
 		return __( 'Site Scanning', 'wp-simple-firewall' );

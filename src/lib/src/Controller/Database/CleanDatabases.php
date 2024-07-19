@@ -30,7 +30,7 @@ class CleanDatabases {
 	public function cleanBotSignals() :void {
 		self::con()
 			->db_con
-			->dbhBotSignal()
+			->bot_signals
 			->getQueryDeleter()
 			->addWhereOlderThan( Services::Request()->carbon( true )->subweeks( 2 )->timestamp, 'updated_at' )
 			->query();
@@ -43,20 +43,18 @@ class CleanDatabases {
 		// 1. Clean Requests & Audit Trail
 		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
 
-		$con->db_con
-			->dbhReqLogs()
-			->deleteRowsOlderThan(
-				Services::Request()
-						->carbon( true )
-						->startOfDay()
-						->subDays(
-							\max( $comps->requests_log->getAutoCleanDays(), $comps->activity_log->getAutoCleanDays() )
-						)->timestamp
-			);
+		$con->db_con->req_logs->deleteRowsOlderThan(
+			Services::Request()
+					->carbon( true )
+					->startOfDay()
+					->subDays(
+						\max( $comps->requests_log->getAutoCleanDays(), $comps->activity_log->getAutoCleanDays() )
+					)->timestamp
+		);
 
 		// 2. Delete transient logs older than 1 hr.
 		$con->db_con
-			->dbhReqLogs()
+			->req_logs
 			->getQueryDeleter()
 			->addWhereOlderThan( Services::Request()->carbon( true )->subHour()->timestamp )
 			->addWhereEquals( 'transient', '1' )
@@ -71,10 +69,10 @@ class CleanDatabases {
 							  ->subDays( $comps->requests_log->getAutoCleanDays() )->timestamp;
 			Services::WpDb()->doSql(
 				sprintf( 'DELETE FROM `%s` WHERE `created_at` < %s AND `id` NOT IN ( %s );',
-					$con->db_con->dbhReqLogs()->getTableSchema()->table,
+					$con->db_con->req_logs->getTable(),
 					$oldest,
 					sprintf( 'SELECT DISTINCT `req_ref` FROM `%s` WHERE `created_at` < %s',
-						$con->db_con->dbhActivityLogs()->getTableSchema()->table,
+						$con->db_con->activity_logs->getTable(),
 						$oldest
 					)
 				)
@@ -84,7 +82,7 @@ class CleanDatabases {
 
 	public function cleanStaleReports() :void {
 		/** @var ReportsDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhReports()->getQueryDeleter();
+		$deleter = self::con()->db_con->reports->getQueryDeleter();
 		$deleter->filterByProtected( false )
 				->addWhereOlderThan( Services::Request()->carbon( true )->startOfDay()->subDay()->timestamp )
 				->query();
@@ -99,17 +97,14 @@ class CleanDatabases {
 			'DELETE `meta` FROM `%s` as `meta`
 				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id`
 				WHERE `users`.`ID` IS NULL;',
-			self::con()->db_con->dbhUserMeta()->getTableSchema()->table,
+			self::con()->db_con->user_meta->getTable(),
 			Services::WpDb()->getTable_Users()
 		) );
 	}
 
 	private function cleanOldEmail2FA() {
 		/** @var MfaDB\Delete $deleter */
-		$deleter = self::con()
-			->db_con
-			->dbhMfa()
-			->getQueryDeleter();
+		$deleter = self::con()->db_con->mfa->getQueryDeleter();
 		$deleter->filterBySlug( Email::ProviderSlug() )
 				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
 				->query();
@@ -129,10 +124,10 @@ class CleanDatabases {
 		$ipIDsInUse = [];
 		foreach (
 			[
-				$con->db_con->dbhReqLogs()->getQuerySelector(),
-				$con->db_con->dbhBotSignal()->getQuerySelector(),
-				$con->db_con->dbhIPRules()->getQuerySelector(),
-				$con->db_con->dbhUserMeta()->getQuerySelector(),
+				$con->db_con->req_logs->getQuerySelector(),
+				$con->db_con->bot_signals->getQuerySelector(),
+				$con->db_con->ip_rules->getQuerySelector(),
+				$con->db_con->user_meta->getQuerySelector(),
 			] as $dbSelector
 		) {
 			/** @var Select $dbSelector */
@@ -142,10 +137,6 @@ class CleanDatabases {
 			) );
 		}
 
-		$con->db_con
-			->dbhIPs()
-			->getQueryDeleter()
-			->addWhereNotIn( 'id', $ipIDsInUse )
-			->query();
+		$con->db_con->ips->getQueryDeleter()->addWhereNotIn( 'id', $ipIDsInUse )->query();
 	}
 }

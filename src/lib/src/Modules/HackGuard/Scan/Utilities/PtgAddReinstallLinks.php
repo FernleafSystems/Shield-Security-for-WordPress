@@ -6,13 +6,13 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginReinstall;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ReinstallDialog;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PtgAddReinstallLinks {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return self::con()->isValidAdminArea( true ) && self::con()->opts->optIs( 'ptg_reinstall_links', 'Y' );

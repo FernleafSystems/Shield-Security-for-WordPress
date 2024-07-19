@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class PluginImportFromSite extends BaseAction {
 
@@ -28,7 +28,7 @@ class PluginImportFromSite extends BaseAction {
 					(string)$formParams[ 'MasterSiteSecretKey' ],
 					$doNetwork
 				);
-				self::con()->getModule_Plugin()->opts()->setOpt( 'importexport_enable', 'Y' );
+				self::con()->opts->optSet( 'importexport_enable', 'Y' );
 				$success = true;
 				$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
 			}

@@ -91,13 +91,12 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	public function hasValidatedProfile() :bool {
 		return $this->isEnforced()
-			   || ( $this->opts()->isOpt( 'email_any_user_set', 'Y' )
+			   || ( self::con()->opts->optIs( 'email_any_user_set', 'Y' )
 					&& self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled );
 	}
 
 	public function isEnforced() :bool {
-		return self::con()->comps !== null
-			   && \count( \array_intersect( self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles(), $this->getUser()->roles ) ) > 0;
+		return \count( \array_intersect( self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
 	/**
@@ -170,14 +169,9 @@ class Email extends AbstractShieldProviderMfaDB {
 		);
 	}
 
-	public function isProviderEnabled() :bool {
-		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
-			$this->opts()->isOpt( 'enable_email_authentication', 'Y' );
-	}
-
 	public function isProviderAvailableToUser() :bool {
 		return parent::isProviderAvailableToUser()
-			   && ( $this->isEnforced() || $this->opts()->isOpt( 'email_any_user_set', 'Y' ) );
+			   && ( $this->isEnforced() || self::con()->opts->optIs( 'email_any_user_set', 'Y' ) );
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {

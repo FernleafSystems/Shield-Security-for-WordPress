@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
@@ -14,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\S
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\UserFormsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller as MainwpCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
@@ -28,46 +30,50 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reporti
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel\WhitelabelController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
+use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
- * @property AuditCon                  $activity_log
- * @property AssetsCustomizer          $assets_customizer
- * @property ApiTokenManager           $api_token
- * @property CompCons\AutoUpdatesCon   $autoupdates
- * @property PluginBadge               $badge
- * @property BotSignalsController      $bot_signals
- * @property CommentSpamCon            $comment_spam
- * @property CrowdSecController        $crowdsec
- * @property EventsService             $events
- * @property FileLockerController      $file_locker
- * @property SpamController            $forms_spam
- * @property UserFormsController       $forms_users
- * @property CompCons\HttpHeadersCon   $http_headers
- * @property ImportExportController    $import_export
- * @property CompCons\InstantAlertsCon $instant_alerts
- * @property CompCons\IPsCon           $ips_con
- * @property LicenseHandler            $license
- * @property MainwpCon                 $mainwp
- * @property MfaController             $mfa
- * @property CompCons\MU\MUHandler     $mu
- * @property NotBotHandler             $not_bot
- * @property OffenseTracker            $offense_tracker
- * @property CompCons\OptsLookup       $opts_lookup
- * @property ReportingController       $reports
- * @property RequestLogger             $requests_log
- * @property SecurityAdminController   $sec_admin
- * @property SessionController         $session
- * @property Scan\ScansController      $scans
- * @property Scan\Queue\Controller     $scans_queue
- * @property ShieldNetApiController    $shieldnet
- * @property UserSuspendController     $user_suspend
- * @property WhitelabelController      $whitelabel
- * @property MerlinController          $wizards
- * @property CompCons\WpCliCon         $wpcli
+ * @property AuditCon                      $activity_log
+ * @property AltChaHandler                 $altcha
+ * @property AssetsCustomizer              $assets_customizer
+ * @property ApiTokenManager               $api_token
+ * @property CompCons\AutoUpdatesCon       $autoupdates
+ * @property PluginBadge                   $badge
+ * @property BotSignalsController          $bot_signals
+ * @property CommentSpamCon                $comment_spam
+ * @property CrowdSecController            $crowdsec
+ * @property EventsService                 $events
+ * @property FileLockerController          $file_locker
+ * @property SpamController                $forms_spam
+ * @property UserFormsController           $forms_users
+ * @property CompCons\HttpHeadersCon       $http_headers
+ * @property ImportExportController        $import_export
+ * @property CompCons\InstantAlertsCon     $instant_alerts
+ * @property CompCons\IPsCon               $ips_con
+ * @property LicenseHandler                $license
+ * @property MainwpCon                     $mainwp
+ * @property MfaController                 $mfa
+ * @property CompCons\MU\MUHandler         $mu
+ * @property NotBotHandler                 $not_bot
+ * @property OffenseTracker                $offense_tracker
+ * @property CompCons\OptsLookup           $opts_lookup
+ * @property ReportingController           $reports
+ * @property RenderService                 $render
+ * @property RequestLogger                 $requests_log
+ * @property CompCons\RestHandler          $rest
+ * @property SecurityAdminController       $sec_admin
+ * @property SessionController             $session
+ * @property Scan\ScansController          $scans
+ * @property Scan\Queue\Controller         $scans_queue
+ * @property Shield\Zones\SecurityZonesCon $zones
+ * @property ShieldNetApiController        $shieldnet
+ * @property UserSuspendController         $user_suspend
+ * @property CompCons\WhitelabelCon        $whitelabel
+ * @property MerlinController              $wizards
+ * @property CompCons\WpCliCon             $wpcli
  */
 class ComponentLoader extends DynPropertiesClass {
 
@@ -90,6 +96,7 @@ class ComponentLoader extends DynPropertiesClass {
 	private function getConsMap() :array {
 		return [
 			'activity_log'      => AuditCon::class,
+			'altcha'            => AltChaHandler::class,
 			'assets_customizer' => AssetsCustomizer::class,
 			'autoupdates'       => CompCons\AutoUpdatesCon::class,
 			'api_token'         => ApiTokenManager::class,
@@ -112,17 +119,20 @@ class ComponentLoader extends DynPropertiesClass {
 			'not_bot'           => NotBotHandler::class,
 			'offense_tracker'   => OffenseTracker::class,
 			'opts_lookup'       => OptsLookup::class,
+			'render'            => RenderService::class,
 			'reports'           => ReportingController::class,
 			'requests_log'      => RequestLogger::class,
+			'rest'              => CompCons\RestHandler::class,
 			'sec_admin'         => SecurityAdminController::class,
 			'session'           => SessionController::class,
 			'shieldnet'         => ShieldNetApiController::class,
 			'scans'             => Scan\ScansController::class,
 			'scans_queue'       => Scan\Queue\Controller::class,
 			'user_suspend'      => UserSuspendController::class,
-			'whitelabel'        => WhitelabelController::class,
+			'whitelabel'        => CompCons\WhitelabelCon::class,
 			'wizards'           => MerlinController::class,
 			'wpcli'             => CompCons\WpCliCon::class,
+			'zones'             => Shield\Zones\SecurityZonesCon::class,
 		];
 	}
 }

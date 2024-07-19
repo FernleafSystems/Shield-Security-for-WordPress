@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
@@ -280,57 +279,6 @@ class AssetsCustomizer {
 					],
 				],
 			],
-			'login_guard'      => [
-				'key'     => 'login_guard',
-				'handles' => [
-					'login_guard',
-				],
-				'data'    => function () {
-					$con = self::con();
-					if ( $con->comps === null ) {
-						$mod = self::con()->getModule_LoginGuard();
-						/** @var LoginGuard\Options $opts */
-						$opts = $mod->opts();
-						$selectors = \array_merge( [
-							'#loginform',
-						], $opts->getOpt( 'antibot_form_ids', [] ) );
-						$isGasp = $opts->isOpt( 'enable_login_gasp_check', 'Y' );
-						$cbName = $mod->getGaspKey();
-						$label = $mod->getTextOpt( 'text_imahuman' );
-						$alert = $mod->getTextOpt( 'text_pleasecheckbox' );
-					}
-					else {
-						$selectors = \array_merge( [
-							'#loginform',
-						], $con->opts->optGet( 'antibot_form_ids' ) );
-						$isGasp = $con->comps->opts_lookup->enabledLoginGuardGaspCheck();
-						$cbName = $con->comps->opts_lookup->getLoginGuardGaspKey();
-						$label = $con->opts->optGet( 'text_imahuman' );
-						if ( $label === 'default' ) {
-							$con->opts->optReset( 'text_imahuman' );
-							$label = $con->opts->optGet( 'text_imahuman' );
-						}
-						$alert = $con->opts->optGet( 'text_pleasecheckbox' );
-						if ( $alert === 'default' ) {
-							$con->opts->optReset( 'text_pleasecheckbox' );
-							$label = $con->opts->optGet( 'text_pleasecheckbox' );
-						}
-					}
-					return [
-						'form_selectors' => $selectors,
-						'uniq'           => uniqid(),
-						'cbname'         => $cbName,
-						'strings'        => [
-							'label'   => __( \stripslashes( $label ), 'wp-simple-firewall' ),
-							'alert'   => __( \stripslashes( $alert ), 'wp-simple-firewall' ),
-							'loading' => __( 'Loading', 'wp-simple-firewall' )
-						],
-						'flags'          => [
-							'gasp' => $isGasp,
-						],
-					];
-				},
-			],
 			'license'          => [
 				'key'      => 'license',
 				'required' => PluginNavs::IsNavs( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK ),
@@ -384,6 +332,26 @@ class AssetsCustomizer {
 					];
 				},
 			],
+			'misc_hooks'       => [
+				'key'      => 'misc_hooks',
+				'required' => true,
+				'handles'  => [
+					'main',
+				],
+				'data'     => function () {
+					$con = self::con();
+					return [
+						'ajax'  => [
+							Components\Modals\IntroVideoModal::SLUG     => ActionData::Build( Components\Modals\IntroVideoModal::class ),
+							Actions\SetFlagShieldIntroVideoClosed::SLUG => ActionData::Build( Actions\SetFlagShieldIntroVideoClosed::class ),
+						],
+						'flags' => [
+							'show_video' => $con->opts->optGet( 'v20_intro_closed_at' ) === 0
+											&& $con->opts->optGet( 'installation_time' ) < $con->cfg->properties[ 'release_timestamp' ]
+						],
+					];
+				},
+			],
 			'mod_options'      => [
 				'key'     => 'mod_options',
 				'handles' => [
@@ -394,7 +362,6 @@ class AssetsCustomizer {
 						'ajax' => [
 							'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
 							'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
-							'render_offcanvas'    => ActionData::BuildAjaxRender( Components\OffCanvas\ModConfig::class ),
 						]
 					];
 				},
@@ -512,10 +479,7 @@ class AssetsCustomizer {
 							'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
 						],
 						'flags' => [
-							'initial_check' => $con->comps === null ?
-								$con->getModule_HackGuard()
-									->getScanQueueController()
-									->hasRunningScans() : $con->comps->scans_queue->hasRunningScans(),
+							'initial_check' => $con->comps->scans_queue->hasRunningScans(),
 						],
 						'hrefs' => [
 							'results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
@@ -691,9 +655,7 @@ class AssetsCustomizer {
 					 * actually use this method of requests.
 					 * @deprecated 18.5
 					 */
-					$data = \method_exists( $con->opts, 'optGet' ) ?
-						$con->opts->optGet( 'test_rest_data' )
-						: $con->getModule_Plugin()->opts()->getOpt( 'test_rest_data' );
+					$data = $con->opts->optGet( 'test_rest_data' );
 					if ( empty( $data ) || \array_key_exists( 'test_at', $data ) ) {
 						$data = [];
 					}
@@ -714,11 +676,8 @@ class AssetsCustomizer {
 						$run = false;
 					}
 
-					\method_exists( $con->opts, 'optSet' ) ?
-						$con->opts->optSet( 'test_rest_data', $data )
-						: $con->getModule_Plugin()->opts()->setOpt( 'test_rest_data', $data );
-
-					$con->opts->store();
+					$con->opts->optSet( 'test_rest_data', $data )
+							  ->store();
 
 					return [
 						'ajax'  => [
@@ -759,20 +718,26 @@ class AssetsCustomizer {
 					],
 				],
 			],
+			'zones_manager'    => [
+				'key'     => 'zones_manager',
+				'handles' => [
+					'main',
+				],
+				'data'    => [
+					'ajax' => [
+						Components\OffCanvas\ZoneComponentConfig::SLUG => ActionData::BuildAjaxRender( Components\OffCanvas\ZoneComponentConfig::class ),
+					],
+				],
+			],
 		], $this->hook, $this->handles );
 	}
 
 	private function isIpAutoDetectRequired() :bool {
-		$con = self::con();
-		$required = false;
-		if ( $con->comps !== null ) {
-			$req = Services::Request();
-			$since = $req->ts() - $con->opts->optGet( 'ipdetect_at' );
-			$required = ( $since > \MONTH_IN_SECONDS
-						  || ( $con->comps->opts_lookup->ipSource() === 'AUTO_DETECT_IP' && $since > \DAY_IN_SECONDS )
-						  || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
-			);
-		}
-		return $required;
+		$req = Services::Request();
+		$since = $req->ts() - self::con()->opts->optGet( 'ipdetect_at' );
+		return ( $since > \MONTH_IN_SECONDS
+				 || ( self::con()->comps->opts_lookup->ipSource() === 'AUTO_DETECT_IP' && $since > \DAY_IN_SECONDS )
+				 || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
+		);
 	}
 }

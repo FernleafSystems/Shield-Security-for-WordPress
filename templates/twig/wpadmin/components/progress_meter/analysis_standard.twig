@@ -19,8 +19,9 @@
 				  {% if comp.is_optcfg|default(false) or not comp.href_full_target_blank %}{% else %}target="_blank"{% endif %}
 			  {% endif %}
 			  data-config_item="{{ comp.config_item }}"
+			  {% for key, value in comp.href_data %}data-{{ key }}="{{ value }}"{% endfor %}
 			  class="list-group-item list-group-item-action meter-analysis-link
-				     {% if comp.is_optcfg %}offcanvas_form_mod_cfg{% endif %}
+				     {% if comp.is_optcfg %}zone_component_action{% endif %}
 				     {{ comp.is_critical|default(false) ? 'list-group-item-danger' : (comp.is_protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
 			  aria-current="true">
 

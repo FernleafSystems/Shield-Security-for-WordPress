@@ -27,7 +27,7 @@ class ShieldLogRequest extends BuildRuleCoreShieldBase {
 				[
 					'conditions' => Conditions\ShieldConfigurationOption::class,
 					'params'     => [
-						'name'        => 'enable_traffic',
+						'name'        => 'enable_audit_trail',
 						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 						'match_value' => 'Y',
 					]

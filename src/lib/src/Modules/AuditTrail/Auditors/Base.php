@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Report\Changes\BaseZoneReport;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Snapper\BaseSnap;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Base {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ExecOnce;
 
 	protected $isRunningSnapshotDiscovery = false;
@@ -51,8 +51,7 @@ class Base {
 		}
 		elseif ( $this->canSnapRealtime() ) {
 			try {
-				( self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log )
-					->updateStoredSnapshot( $this );
+				self::con()->comps->activity_log->updateStoredSnapshot( $this );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -66,15 +65,13 @@ class Base {
 
 	protected function removeSnapshotItem( $item ) {
 		if ( !$this->isRunningSnapshotDiscovery ) {
-			( self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log )
-				->removeItemFromSnapshot( $this, $item );
+			self::con()->comps->activity_log->removeItemFromSnapshot( $this, $item );
 		}
 	}
 
 	protected function updateSnapshotItem( $item ) {
 		if ( !$this->isRunningSnapshotDiscovery ) {
-			( self::con()->comps === null ? $this->mod()->getAuditCon() : self::con()->comps->activity_log )
-				->updateItemOnSnapshot( $this, $item );
+			self::con()->comps->activity_log->updateItemOnSnapshot( $this, $item );
 		}
 	}
 }

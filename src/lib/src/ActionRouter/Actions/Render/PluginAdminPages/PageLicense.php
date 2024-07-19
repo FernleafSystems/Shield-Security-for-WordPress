@@ -98,7 +98,7 @@ class PageLicense extends BasePluginAdminPage {
 					'wphashes_token'  => $con->comps->api_token->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => ( new InstallationID() )->id(),
 				],
-				'activation_url' => Services::WpGeneral()->getHomeUrl(),
+				'activation_url' => $con->comps->license->activationURL(),
 			],
 		];
 	}

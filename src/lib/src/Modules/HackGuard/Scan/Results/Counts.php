@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Counts {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $counts = [];
 
@@ -61,7 +61,7 @@ class Counts {
 	private function getCount( $resultType ) :int {
 
 		if ( !isset( $this->counts[ $resultType ] ) ) {
-			$scansCon = $this->mod()->getScansCon();
+			$scansCon = self::con()->comps->scans;
 			$resultsCount = new RetrieveCount();
 
 			switch ( $resultType ) {

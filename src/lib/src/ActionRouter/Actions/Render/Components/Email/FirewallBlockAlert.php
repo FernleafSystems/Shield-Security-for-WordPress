@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\WebApplicationFirewall;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -30,7 +31,7 @@ class FirewallBlockAlert extends EmailBase {
 			],
 			'hrefs'   => [
 				'ip_lookup'   => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
-				'unsubscribe' => $con->plugin_urls->modCfgOption( 'block_send_email' ),
+				'unsubscribe' => $con->plugin_urls->cfgForZoneComponent( WebApplicationFirewall::Slug() ),
 			],
 			'vars'    => [
 				'req_details' => [

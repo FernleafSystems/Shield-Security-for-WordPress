@@ -43,7 +43,7 @@ class CreateFileLocks extends BaseOps {
 	 * @throws NoCipherAvailableException
 	 */
 	private function createLockForPath( string $path ) {
-		$dbh = self::con()->db_con->dbhFileLocker();
+		$dbh = self::con()->db_con->file_locker;
 		/** @var FileLockerDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->type = $this->file->type;

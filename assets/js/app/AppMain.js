@@ -38,6 +38,7 @@ import { TrafficLiveLogs } from "../components/general/TrafficLiveLogs";
 import { TestRest } from "../components/general/TestRest";
 import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
 import { DebugTools } from "../components/debug/DebugTools";
+import { ZonesManager } from "../components/zones/ZonesManager";
 
 export class AppMain extends AppBase {
 
@@ -75,7 +76,7 @@ export class AppMain extends AppBase {
 		this.components.leanbe = ( 'leanbe' in comps ) ? new LeanBe( comps.leanbe ) : null;
 		this.components.license = ( 'license' in comps ) ? new LicenseHandler( comps.license ) : null;
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
-		this.components.misc_hooks = new MiscHooks();
+		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.progress_meters = ( 'progress_meters' in comps ) ? new ProgressMeters( comps.progress_meters ) : null;
@@ -97,5 +98,7 @@ export class AppMain extends AppBase {
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
 
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
+
+		this.components.zones_manager = ( 'zones_manager' in comps ) ? new ZonesManager( comps.zones_manager ) : null;
 	}
 }

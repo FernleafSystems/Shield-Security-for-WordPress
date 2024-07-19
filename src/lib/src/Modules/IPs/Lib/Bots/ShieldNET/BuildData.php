@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildData {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function build( bool $quiet = false ) :array {
 
@@ -85,7 +85,7 @@ class BuildData {
 			Services::WpDb()
 					->doSql(
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
-							self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
+							self::con()->db_con->bot_signals->getTable(),
 							Services::Request()->ts(),
 							\implode( ',', \array_map( function ( $record ) {
 								return $record->id;
@@ -108,15 +108,15 @@ class BuildData {
 		);
 
 		$records = Services::WpDb()->selectCustom(
-			sprintf( "SELECT ips.ip, bs.*
-						FROM `%s` as bs
-						INNER JOIN `%s` as ips
-							ON `ips`.id = `bs`.ip_ref 
+			sprintf( "SELECT `ips`.`ip`, `bs`.*
+						FROM `%s` as `bs`
+						INNER JOIN `%s` as `ips`
+							ON `ips`.`id` = `bs`.`ip_ref` 
 							%s
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 200;",
-				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table,
+				self::con()->db_con->bot_signals->getTable(),
+				self::con()->db_con->ips->getTable(),
 				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", \implode( ",", $serverIPs ) )
 			)
 		);

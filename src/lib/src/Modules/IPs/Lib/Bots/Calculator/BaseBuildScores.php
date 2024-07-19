@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 abstract class BaseBuildScores {
 
 	use RecordConsumer;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	abstract public function build() :array;
 
@@ -41,11 +41,7 @@ abstract class BaseBuildScores {
 				return \str_replace( '_at', '', $col );
 			},
 			\array_filter(
-				self::con()
-					->db_con
-					->dbhBotSignal()
-					->getTableSchema()
-					->getColumnNames(),
+				self::con()->db_con->bot_signals->getTableSchema()->getColumnNames(),
 				function ( $col ) {
 					return \preg_match( '#_at$#', $col ) &&
 						   !\in_array( $col, [ 'snsent_at', 'updated_at', 'deleted_at' ] );

@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\WildCardOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanItems {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function preBuild() {
 		$con = self::con();

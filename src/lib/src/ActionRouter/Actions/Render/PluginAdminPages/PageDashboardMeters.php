@@ -33,8 +33,8 @@ class PageDashboardMeters extends BasePluginAdminPage {
 				__( "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features.", 'wp-simple-firewall' )
 				: __( "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features.", 'wp-simple-firewall' );
 			$viewAsHref = [
-				'text' => $currentViewAs === 'free' ? __( 'View As ShieldPRO', 'wp-simple-firewall' ) : __( 'View As ShieldFREE', 'wp-simple-firewall' ),
-				'href' => $URLs->noncedPluginAction(
+				'title' => $currentViewAs === 'free' ? __( 'View As ShieldPRO', 'wp-simple-firewall' ) : __( 'View As ShieldFREE', 'wp-simple-firewall' ),
+				'href'  => $URLs->noncedPluginAction(
 					SecurityOverviewViewAs::class,
 					$URLs->adminHome(),
 					[

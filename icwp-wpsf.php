@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: https://shsec.io/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 19.1.19
+ * Version: 20.0.1
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
  * Author: Shield Security

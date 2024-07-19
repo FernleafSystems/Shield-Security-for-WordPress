@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class BuildBase {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected $report;
 

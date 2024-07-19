@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRulesIterator,
 	Ops as IpRulesDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -32,7 +32,7 @@ class BuildSearchPanesData {
 		/** @var ?IpRulesDB\Record $first */
 		$first = self::con()
 			->db_con
-			->dbhIPRules()
+			->ip_rules
 			->getQuerySelector()
 			->setOrderBy( 'last_access_at', 'ASC' )
 			->addWhereNewerThan( 0, 'last_access_at' )
@@ -57,9 +57,7 @@ class BuildSearchPanesData {
 
 	private function buildForIpType() :array {
 		$results = Services::WpDb()->selectCustom(
-			sprintf( "SELECT DISTINCT `ir`.`type` FROM `%s` as `ir`;",
-				self::con()->db_con->dbhIPRules()->getTableSchema()->table
-			)
+			sprintf( "SELECT DISTINCT `ir`.`type` FROM `%s` as `ir`;", self::con()->db_con->ip_rules->getTable() )
 		);
 		return \array_filter( \array_map(
 			function ( $result ) {

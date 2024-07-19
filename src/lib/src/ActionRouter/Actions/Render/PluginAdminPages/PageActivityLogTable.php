@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActivityLogTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 
 class PageActivityLogTable extends BasePluginAdminPage {
@@ -12,23 +11,9 @@ class PageActivityLogTable extends BasePluginAdminPage {
 	public const SLUG = 'page_admin_plugin_activity_log_table';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_activity.twig';
 
-	protected function getPageContextualHrefs() :array {
-		$con = self::con();
-		return [
-			[
-				'text'    => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::ACTIVITY,
-				],
-			]
-		];
-	}
-
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/238-review-your-site-activities-with-the-activity-log-viewer',
 			'new_window' => true,
 		];

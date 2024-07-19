@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use MainWP\Dashboard\MainWP_DB;
 
 class SyncHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function run() {
 		add_action( 'mainwp_sync_others_data', function ( $othersData, $website ) {

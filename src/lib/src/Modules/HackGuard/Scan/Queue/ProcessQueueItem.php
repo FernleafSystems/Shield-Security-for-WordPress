@@ -2,21 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Store;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ProcessQueueItem {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run( QueueItemVO $item ) {
 		self::con()
 			->db_con
-			->dbhScanItems()
+			->scan_items
 			->getQueryUpdater()
 			->updateById( $item->qitem_id, [
 				'started_at' => Services::Request()->ts()
@@ -29,7 +29,7 @@ class ProcessQueueItem {
 
 			self::con()
 				->db_con
-				->dbhScanItems()
+				->scan_items
 				->getQueryUpdater()
 				->updateById( $item->qitem_id, [
 					'finished_at' => Services::Request()->ts()

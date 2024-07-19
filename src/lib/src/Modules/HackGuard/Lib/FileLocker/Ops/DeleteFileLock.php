@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
@@ -9,9 +9,9 @@ class DeleteFileLock extends BaseOps {
 	public function delete( FileLockerDB\Record $lock ) :void {
 		self::con()
 			->db_con
-			->dbhFileLocker()
+			->file_locker
 			->getQueryDeleter()
 			->deleteRecord( $lock );
-		$this->mod()->getFileLocker()->clearLocks();
+		self::con()->comps->file_locker->clearLocks();
 	}
 }

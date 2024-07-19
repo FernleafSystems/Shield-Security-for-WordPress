@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class QueryUserPasswordExpired {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function check( \WP_User $user ) :bool {
 		$expireTTL = self::con()->comps->opts_lookup->getPassExpireTimeout();

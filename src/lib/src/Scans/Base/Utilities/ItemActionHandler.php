@@ -2,16 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ItemActionHandler {
 
-	use HackGuard\ModConsumer;
+	use PluginControllerConsumer;
 	use ScanItemConsumer;
-	use HackGuard\Scan\Controller\ScanControllerConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -52,7 +53,7 @@ abstract class ItemActionHandler {
 		if ( $item->deleted ) {
 			self::con()
 				->db_con
-				->dbhResultItems()
+				->scan_result_items
 				->getQueryUpdater()
 				->updateById( $item->VO->resultitem_id, [
 					'item_deleted_at' => Services::Request()->ts()
@@ -103,7 +104,7 @@ abstract class ItemActionHandler {
 			}
 			self::con()
 				->db_con
-				->dbhResultItems()
+				->scan_result_items
 				->getQueryUpdater()
 				->updateById( $item->VO->resultitem_id, $updateInfo );
 

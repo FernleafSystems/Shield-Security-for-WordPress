@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class CrowdSecController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	/**
@@ -35,11 +35,7 @@ class CrowdSecController {
 	}
 
 	public function cfg() :CrowdSecCfg {
-		$opts = self::con()->opts;
-		return ( new CrowdSecCfg() )->applyFromArray(
-			\method_exists( $opts, 'optGet' ) ?
-				$opts->optGet( 'crowdsec_cfg' ) : $this->opts()->getOpt( 'crowdsec_cfg' )
-		);
+		return ( new CrowdSecCfg() )->applyFromArray( self::con()->opts->optGet( 'crowdsec_cfg' ) );
 	}
 
 	public function getApi() :CrowdSecApi {
@@ -47,11 +43,7 @@ class CrowdSecController {
 	}
 
 	public function storeCfg( CrowdSecCfg $cfg ) {
-		$opts = self::con()->opts;
-		\method_exists( $opts, 'optSet' ) ?
-			$opts->optSet( 'crowdsec_cfg', $cfg->getRawData() )
-			: $this->opts()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
-		self::con()->opts->store();
+		self::con()->opts->optSet( 'crowdsec_cfg', $cfg->getRawData() )->store();
 	}
 
 	public function runHourlyCron() {

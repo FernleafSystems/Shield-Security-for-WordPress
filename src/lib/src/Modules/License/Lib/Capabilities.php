@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Capabilities {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function canActivityLogsSendToFile() :bool {
 		return $this->hasCap( 'activity_logs_send_to_file' ) || $this->canActivityLogsSendToIntegrations();
@@ -177,7 +177,7 @@ class Capabilities {
 	}
 
 	public function hasCap( string $cap ) :bool {
-		$license = $this->mod()->getLicenseHandler()->getLicense();
+		$license = self::con()->comps->license->getLicense();
 		return !$this->isPremiumOnlyCap( $cap )
 			   || (
 				   self::con()->isPremiumActive()
@@ -193,7 +193,7 @@ class Capabilities {
 			$max = 31;
 		}
 		else {
-			$max = self::con()->getModule_AuditTrail()->opts()->getDef( 'max_free_days' );
+			$max = self::con()->cfg->configuration->def( 'max_free_days' );
 		}
 		return $max;
 	}
@@ -249,7 +249,6 @@ class Capabilities {
 			'user_auto_unblock',
 			'user_block_spam_registration',
 			'whitelabel',
-			'wpcli_level_1',
 			'wpcli_level_2',
 			'reports_local',
 			'reports_remote',

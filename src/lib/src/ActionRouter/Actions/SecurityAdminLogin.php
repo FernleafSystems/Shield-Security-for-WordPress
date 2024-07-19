@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\{
 	ToggleSecAdminStatus,
 	VerifyPinRequest
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 

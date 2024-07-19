@@ -22,7 +22,6 @@ class SetSecAdminPin {
 
 		self::con()
 			->opts
-			->optSet( 'enable_'.EnumModules::SECURITY_ADMIN, 'Y' )
 			->optSet( 'admin_access_key', \md5( $pin ) )
 			->store();
 	}

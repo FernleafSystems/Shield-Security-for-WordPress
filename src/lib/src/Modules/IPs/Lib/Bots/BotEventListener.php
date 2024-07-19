@@ -3,39 +3,46 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class BotEventListener {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !self::con()->this_req->is_trusted_request && self::con()->db_con->dbhBotSignal()->isReady();
+		return !self::con()->this_req->is_trusted_request && self::con()->db_con->bot_signals->isReady();
 	}
 
 	protected function run() {
-		add_action( 'shield/event', function ( $event ) {
-			$this->fireEventForIP( self::con()->this_req->ip, $event );
-		} );
+		add_action( 'shield/event', function ( string $event, array $meta = [] ) {
+			if ( $event === 'bottrack_multiple' && !empty( $meta[ 'data' ][ 'events' ] ) ) {
+				$this->fireEventsForIP( self::con()->this_req->ip, $meta[ 'data' ][ 'events' ] );
+			}
+			else {
+				$this->fireEventForIP( self::con()->this_req->ip, $event );
+			}
+		}, 10, 2 );
 	}
 
 	public function fireEventForIP( $ip, $event ) {
-		$events = $this->getEventsToColumn();
+		$this->fireEventsForIP( $ip, [ $event ] );
+	}
 
-		foreach ( $events as $eventTrigger => $column ) {
-			if ( $eventTrigger === $event ) {
-				try {
-					( new BotSignalsRecord() )
-						->setIP( $ip )
-						->updateSignalField( $column );
-				}
-				catch ( \LogicException $e ) {
-					error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
-				}
-				catch ( \Exception $e ) {
+	public function fireEventsForIP( $ip, array $events ) {
+		$signalFields = \array_values( \array_intersect_key( $this->getEventsToColumn(), \array_flip( $events ) ) );
+
+		if ( !empty( $signalFields ) ) {
+			try {
+				( new BotSignalsRecord() )
+					->setIP( $ip )
+					->updateSignalFields( $signalFields );
+			}
+			catch ( \LogicException $e ) {
+				error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
+			}
+			catch ( \Exception $e ) {
 //					error_log( 'Error updating bot signal: '.$e->getMessage() );
-				}
 			}
 		}
 	}
@@ -50,6 +57,7 @@ class BotEventListener {
 			},
 			[
 				'bottrack_notbot'         => 'notbot',
+				'bottrack_altcha'         => 'altcha',
 				'frontpage_load'          => 'frontpage',
 				'loginpage_load'          => 'loginpage',
 				'bottrack_404'            => 'bt404',

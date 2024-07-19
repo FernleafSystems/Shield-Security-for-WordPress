@@ -108,11 +108,7 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 		foreach ( $this->loadMfaRecords() as $loadMfaRecord ) {
 			if ( wp_check_password( \str_replace( '-', '', $otp ), $loadMfaRecord->unique_id ) ) {
 				$valid = true;
-				self::con()
-					->db_con
-					->dbhMfa()
-					->getQueryDeleter()
-					->deleteRecord( $loadMfaRecord );
+				self::con()->db_con->mfa->getQueryDeleter()->deleteRecord( $loadMfaRecord );
 			}
 		}
 		return $valid;
@@ -123,8 +119,7 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 	}
 
 	public function isProviderEnabled() :bool {
-		return \method_exists( $this, 'ProviderEnabled' ) ? static::ProviderEnabled() :
-			$this->opts()->isOpt( 'allow_backupcodes', 'Y' );
+		return static::ProviderEnabled();
 	}
 
 	public function resetSecret() :string {

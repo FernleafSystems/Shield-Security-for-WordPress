@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as RulesDB,
 	RuleRecords
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 
 class RuleBuilderEnumerator {
@@ -65,9 +65,7 @@ class RuleBuilderEnumerator {
 
 			Core\DisableXmlrpc::class,
 			Core\DisableFileEditing::class,
-			Core\ForceSslAdmin::class,
 			Core\IsRequestAuthorDiscovery::class,
-			Core\HideGeneratorTag::class,
 
 			Core\Firewall::class,
 

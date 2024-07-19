@@ -2,32 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
+	BotSignalRecord,
+	LoadBotSignalRecords,
+	Ops as BotSignalDB
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord
-};
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
-	Ops as BotSignalDB,
-	BotSignalRecord,
-	LoadBotSignalRecords
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	Lib\IpRules\IpRuleStatus,
-	ModConsumer
 };
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsRecord {
 
-	use ModConsumer;
 	use IpAddressConsumer;
+	use PluginControllerConsumer;
 
 	public function delete() :bool {
 		$thisReq = self::con()->this_req;
 		/** @var BotSignalDB\Delete $deleter */
-		$deleter = self::con()->db_con->dbhBotSignal()->getQueryDeleter();
+		$deleter = self::con()->db_con->bot_signals->getQueryDeleter();
 
 		if ( $thisReq->ip === $this->getIP() ) {
 			unset( $thisReq->botsignal_record );
@@ -50,8 +50,8 @@ class BotSignalsRecord {
 							AND `ips`.`ip`=INET6_ATON('%s')
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
-				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table,
+				self::con()->db_con->bot_signals->getTable(),
+				self::con()->db_con->ips->getTable(),
 				$this->getIP()
 			)
 		);
@@ -71,6 +71,7 @@ class BotSignalsRecord {
 			$r = ( new LoadBotSignalRecords() )
 				->setIP( $this->getIP() )
 				->loadRecord();
+			$r->modified = false;
 		}
 		catch ( \Exception $e ) {
 			$r = null;
@@ -78,6 +79,7 @@ class BotSignalsRecord {
 
 		if ( empty( $r ) ) {
 			$r = new BotSignalRecord();
+			$r->modified = true;
 		}
 
 		$ruleStatus = new IpRuleStatus( $this->getIP() );
@@ -99,15 +101,9 @@ class BotSignalsRecord {
 			}
 		}
 
-		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
-			$botSignalsCon = self::con()->comps === null ?
-				$this->mod()->getBotSignalsController() : self::con()->comps->bot_signals;
-			$r->notbot_at = $botSignalsCon->getHandlerNotBot()->hasCookie() ? Services::Request()->ts() : 0;
-		}
-
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
-			$userMetaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
+			$userMetaSelect = self::con()->db_con->user_meta->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
@@ -119,7 +115,7 @@ class BotSignalsRecord {
 		}
 
 		/** Clean out old signals that have no bearing on bot calculations */
-		foreach ( self::con()->db_con->dbhBotSignal()->getTableSchema()->getColumnNames() as $col ) {
+		foreach ( self::con()->db_con->bot_signals->getTableSchema()->getColumnNames() as $col ) {
 			if ( \preg_match( '#_at$#i', $col )
 				 && !\in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
 				 && Services::Request()->carbon()->subMonth()->timestamp > $r->{$col} ) {
@@ -141,18 +137,21 @@ class BotSignalsRecord {
 			$record->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
 			$success = self::con()
 				->db_con
-				->dbhBotSignal()
+				->bot_signals
 				->getQueryInserter()
 				->insert( $record );
 		}
-		else {
+		elseif ( $record->modified ) {
 			$data = $record->getRawData();
 			$data[ 'updated_at' ] = Services::Request()->ts();
 			$success = self::con()
 				->db_con
-				->dbhBotSignal()
+				->bot_signals
 				->getQueryUpdater()
 				->updateById( $record->id, $data );
+		}
+		else {
+			$success = true;
 		}
 
 		$thisReq = self::con()->this_req;
@@ -167,17 +166,32 @@ class BotSignalsRecord {
 	 * @throws \LogicException
 	 * @throws \Exception
 	 */
-	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
+	public function updateSignalFields( array $fields, ?int $ts = null ) :BotSignalRecord {
 
-		if ( !self::con()->db_con->dbhBotSignal()->getTableSchema()->hasColumn( $field ) ) {
-			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
+		foreach ( $fields as $field ) {
+			if ( !self::con()->db_con->bot_signals->getTableSchema()->hasColumn( $field ) ) {
+				throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
+			}
 		}
 
+		if ( $ts === null ) {
+			$ts = Services::Request()->ts();
+		}
 		$record = $this->retrieve(); // false as we're going to store it anyway
-		$record->{$field} = \is_null( $ts ) ? Services::Request()->ts() : $ts;
+		foreach ( $fields as $field ) {
+			$record->{$field} = $ts;
+		}
 
 		$this->store( $record );
 
 		return $record;
+	}
+
+	/**
+	 * @throws \LogicException
+	 * @throws \Exception
+	 */
+	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
+		return $this->updateSignalFields( [ $field ], $ts );
 	}
 }

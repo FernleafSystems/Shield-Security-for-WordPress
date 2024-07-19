@@ -15,29 +15,21 @@ class VerifyStrings {
 
 		$strings = new StringsOptions();
 
-		foreach ( self::con()->modules as $module ) {
+		foreach ( self::con()->cfg->configuration->options as $key => $option ) {
 
-			$keys = \array_keys( \array_filter(
-				self::con()->cfg->configuration->optsForModule( $module->cfg->slug ),
-				function ( array $optDef ) {
-					return $optDef[ 'section' ] !== 'section_hidden';
-				}
-			) );
-
-			foreach ( $keys as $optKey ) {
+			if ( !\in_array( $option[ 'section' ], [ 'section_hidden', 'section_deprecated' ] ) ) {
 				try {
-					$strings = $strings->getFor( $optKey );
-					if ( !\is_array( $strings[ 'description' ] ) ) {
-						$descNotArray[] = $optKey;
+					if ( \count( \array_filter( $strings->getFor( $key ) ) ) !== 3 ) {
+						$descNotArray[] = $key;
 					}
 				}
 				catch ( \Exception $e ) {
-					var_dump( 'no strings for : '.$optKey );
+					var_dump( 'no strings for : '.$key );
 				}
 			}
 		}
 
-		var_dump( 'Descriptions not array:' );
+		var_dump( 'Not all strings available for the following options:' );
 		var_dump( $descNotArray );
 	}
 }

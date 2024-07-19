@@ -13,11 +13,7 @@ class UserSessionTokenDuration extends Base {
 
 	protected function execConditionCheck() :bool {
 		return ( new Utility\PerformConditionMatch(
-			self::con()
-				->getModule_Plugin()
-				->getSessionCon()
-				->current()
-				->shield[ 'token_duration' ] ?? 0,
+			self::con()->comps->session->current()->shield[ 'token_duration' ] ?? 0,
 			$this->p->match_value,
 			$this->p->match_type
 		) )->doMatch();

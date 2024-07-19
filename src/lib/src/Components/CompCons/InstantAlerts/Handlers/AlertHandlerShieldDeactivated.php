@@ -36,7 +36,7 @@ class AlertHandlerShieldDeactivated extends AlertHandlerBase {
 		} );
 	}
 
-	public function isImmediateAlert() :bool{
+	public function isImmediateAlert() :bool {
 		return true;
 	}
 }

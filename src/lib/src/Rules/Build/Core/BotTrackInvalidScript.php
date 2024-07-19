@@ -24,8 +24,6 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
-		$botSignals = \method_exists( $this->mod(), 'getAllowableScripts' ) ?
-			self::con()->getModule_IPs()->getAllowableScripts() : $this->opts()->botSignalsGetAllowableScripts();
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -54,7 +52,7 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 						'match_script_name' => sprintf( '#(%s)#i',
 							implode( '|', \array_map( function ( $script ) {
 								return \preg_quote( $script, '#' );
-							}, $botSignals ) )
+							}, self::con()->comps->bot_signals->getAllowableScripts() ) )
 						),
 					],
 				],
@@ -63,22 +61,13 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 	}
 
 	protected function getResponses() :array {
-		if ( self::con()->comps === null ) {
-			$count = $this->opts()->getOffenseCountFor( 'track_invalidscript' );
-			$block = $this->opts()->isTrackOptImmediateBlock( 'track_invalidscript' );
-		}
-		else {
-			$count = self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_invalidscript' );
-			$block = self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_invalidscript' );
-		}
-
 		return [
 			[
 				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_invalidscript',
-					'offense_count'    => $count,
-					'block'            => $block,
+					'offense_count'    => self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_invalidscript' ),
+					'block'            => self::con()->comps->opts_lookup->isBotTrackImmediateBlock( 'track_invalidscript' ),
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

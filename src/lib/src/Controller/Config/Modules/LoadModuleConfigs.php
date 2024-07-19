@@ -22,30 +22,23 @@ class LoadModuleConfigs {
 			throw new PluginConfigInvalidException( 'No modules specified in the plugin config.' );
 		}
 
+		// clean out strings from the config spec to reduce size (these Strings are necessary for Central, only).
+		foreach ( $cfgSpec[ 'sections' ] as &$section ) {
+			unset( $section[ 'title' ] );
+			unset( $section[ 'title_short' ] );
+		}
+		foreach ( $cfgSpec[ 'options' ] as &$option ) {
+			unset( $option[ 'name' ] );
+			unset( $option[ 'summary' ] );
+			unset( $option[ 'description' ] );
+		}
+
 		$normalizer = new NormaliseConfigComponents();
 		$configuration = ( new ConfigurationVO() )->applyFromArray( $cfgSpec );
 		$configuration->sections = $normalizer->indexSections( $configuration->sections );
 		$configuration->options = $normalizer->indexOptions( $configuration->options );
 
-		$modules = [];
-		foreach ( $configuration->modules as $slug => $moduleProps ) {
-			$modules[ $slug ] = \array_merge( [
-				'storage_key'         => $slug,
-				'show_module_options' => true,
-				'load_priority'       => 10,
-				'menu_priority'       => 100,
-			], $moduleProps );
-		}
-
-		// Order Modules based on their load priority
-		\uasort( $modules, function ( array $a, array $b ) {
-			if ( $a[ 'load_priority' ] == $b[ 'load_priority' ] ) {
-				return 0;
-			}
-			return ( $a[ 'load_priority' ] < $b[ 'load_priority' ] ) ? -1 : 1;
-		} );
-
-		$configuration->modules = $modules;
+		self::con()->cfg->config_spec = null;
 
 		return $configuration;
 	}

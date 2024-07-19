@@ -14,7 +14,7 @@ class ActivityLogMessageBuilder {
 	}
 
 	public static function Build( string $event, array $metaData = [], string $logSeparator = "\n" ) :string {
-		$raw = \implode( $logSeparator, self::con()->service_events->getEventAuditStrings( $event ) );
+		$raw = \implode( $logSeparator, self::con()->comps->events->getEventAuditStrings( $event ) );
 
 		$stringSubs = [];
 		foreach ( $metaData as $subKey => $subValue ) {
@@ -24,7 +24,7 @@ class ActivityLogMessageBuilder {
 		$log = \preg_replace( '#{{[a-z_]+}}#i', 'missing data', \strtr( $raw, $stringSubs ) );
 
 		$auditCount = (int)( $metaData[ 'audit_count' ] ?? 1 );
-		$eventDef = self::con()->service_events->getEventDef( $event );
+		$eventDef = self::con()->comps->events->getEventDef( $event );
 		if ( $eventDef[ 'audit_countable' ] && $auditCount > 1 ) {
 			$log .= $logSeparator.sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
 		}

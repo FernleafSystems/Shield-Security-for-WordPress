@@ -14,7 +14,7 @@ class FillEventAuditParamsFromRequest {
 	use ThisRequestConsumer;
 
 	public function run( string $eventKey, array $params = [] ) :array {
-		$eventDef = self::con()->service_events->getEventDef( $eventKey );
+		$eventDef = self::con()->comps->events->getEventDef( $eventKey );
 		if ( !empty( $eventDef ) ) {
 			$map = $this->requestToParamsMap();
 			foreach ( \array_diff( $eventDef[ 'audit_params' ] ?? [], \array_keys( $params[ 'audit_params' ] ?? [] ) ) as $paramKey ) {

@@ -6,7 +6,8 @@ class GetFileLocksToCreate extends BaseOps {
 
 	public function run() :array {
 		$locksToCreate = [];
-		if ( self::con()->comps !== null ) {
+		// @deprecated 19.2 - isset() required for upgrade from 19.0
+		if ( isset( self::con()->comps->file_locker ) ) {
 			foreach ( self::con()->comps->file_locker->getFilesToLock() as $fileType ) {
 				try {
 					$file = ( new BuildFileFromFileKey() )->build( $fileType );
@@ -19,7 +20,6 @@ class GetFileLocksToCreate extends BaseOps {
 				}
 			}
 		}
-
 		return $locksToCreate;
 	}
 }

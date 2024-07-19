@@ -8,23 +8,26 @@
 				<ul class="nav nav-tabs shield_body-sub-nav">
 
 					<li class="nav-item">
-						<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#toFile"
-						   aria-selected="true"
-						   data-bs-toggle="tab">
+						<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#importExportConfig"
+						   aria-selected="true">
+							{{ strings.tab_config }}
+						</a>
+					</li>
+
+					<li class="nav-item">
+						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#toFile">
 							{{ strings.tab_to_file }}
 						</a>
 					</li>
 
 					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#byFile"
-						   data-bs-toggle="tab">
+						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#byFile">
 							{{ strings.tab_by_file }}
 						</a>
 					</li>
 
 					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#fromSite"
-						   data-bs-toggle="tab">
+						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#fromSite">
 							{{ strings.tab_by_site }}
 						</a>
 					</li>
@@ -35,7 +38,15 @@
 
 		<div class="tab-content">
 
-			<div class="tab-pane fade show active" id="toFile" role="tabpanel" aria-labelledby="toFile">
+			<div class="tab-pane fade show active" id="importExportConfig" role="tabpanel" aria-labelledby="importExportConfig">
+				<div class="row">
+					<div class="col">
+						{{ content.import_export_config|raw }}
+					</div>
+				</div>
+			</div>
+
+			<div class="tab-pane fade" id="toFile" role="tabpanel" aria-labelledby="toFile">
 				<div class="row">
 					<div class="col">
 						{% if flags.can_importexport_file %}

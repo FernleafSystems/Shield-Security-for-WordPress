@@ -7,8 +7,8 @@ Tags: security, activity log, login protection, two-factor authentication, intru
 Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
-Tested up to: 6.5
-Stable tag: 19.1.19
+Tested up to: 6.6
+Stable tag: 20.0.1
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, before they hack your site.
 
@@ -46,7 +46,7 @@ Shield is the only WordPress security plugin to form strategic partnerships to b
 
 ### All The Features You'll Absolutely Love
 
-* Exclusive [AntiBot Detection Engine Security](https://shsec.io/ju) - a powerful security alternative to Google reCAPTCHA and CloudFlare Turnstile.
+* Exclusive [silentCAPTCHA Security](https://shsec.io/ju) - exclusive bot-detection alternative to Google reCAPTCHA and CloudFlare Turnstile.
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security intelligence to block bad bots.
 * **Instant Bad Bot Blocking with [our exclusive CrowdSec Security integration](https://shsec.io/l5)**
 * Easy To Understand Security Dashboard that highlights quick wins and areas to rapidly improve site security

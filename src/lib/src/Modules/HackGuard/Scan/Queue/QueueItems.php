@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class QueueItems {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws NoQueueItems
@@ -23,8 +23,8 @@ class QueueItems {
 						WHERE `scans`.`ready_at` > 0 AND `scans`.`finished_at`=0
 						ORDER BY `si`.`id` ASC
 						LIMIT 1;",
-				self::con()->db_con->dbhScans()->getTableSchema()->table,
-				self::con()->db_con->dbhScanItems()->getTableSchema()->table
+				self::con()->db_con->scans->getTable(),
+				self::con()->db_con->scan_items->getTable()
 			)
 		);
 		if ( empty( $result ) ) {

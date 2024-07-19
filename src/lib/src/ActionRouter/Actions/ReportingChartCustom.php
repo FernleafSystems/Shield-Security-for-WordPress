@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class ReportingChartCustom extends ReportingChartBase {
 

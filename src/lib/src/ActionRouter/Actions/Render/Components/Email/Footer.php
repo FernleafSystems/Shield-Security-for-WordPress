@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Reporting;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Footer extends Base {
@@ -31,10 +32,9 @@ class Footer extends Base {
 			'Exclusive Customer Support',
 			'That Warm And Fuzzy Feeling That Comes From Supporting Future Development',
 		];
-		shuffle( $benefits );
+		\shuffle( $benefits );
 
-		$isWhitelabelled = ( $con->comps === null ?
-			$con->getModule_SecAdmin()->getWhiteLabelController() : $con->comps->whitelabel )->isEnabled();
+		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
 			'flags'   => [
 				'is_pro'           => $con->isPremiumActive(),
@@ -46,7 +46,7 @@ class Footer extends Base {
 			'hrefs'   => [
 				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',
 				'much_more'           => 'https://shsec.io/gp',
-				'configure_recipient' => $con->plugin_urls->modCfgOption( 'block_send_email_address' ),
+				'configure_recipient' => $con->plugin_urls->cfgForZoneComponent( Reporting::Slug() ),
 			],
 			'strings' => [
 				'benefits'            => $benefits,

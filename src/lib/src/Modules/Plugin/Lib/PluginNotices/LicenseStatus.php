@@ -7,7 +7,7 @@ class LicenseStatus extends Base {
 	public function check() :?array {
 		$con = self::con();
 		$issue = null;
-		if ( $con->isPremiumActive() && !$con->getModule_License()->getWpHashesTokenManager()->hasToken() ) {
+		if ( $con->isPremiumActive() && !$con->comps->api_token->hasToken() ) {
 			$issue = [
 				'id'        => 'api_token_missing',
 				'type'      => 'warning',

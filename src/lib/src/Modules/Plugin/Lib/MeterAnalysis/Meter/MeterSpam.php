@@ -2,16 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterSpam extends MeterBase {
 
 	public const SLUG = 'spam';
-
-	protected function getWorkingMods() :array {
-		return [ EnumModules::COMMENTS ];
-	}
 
 	public function title() :string {
 		return __( 'Comment & Contact Form SPAM Protection', 'wp-simple-firewall' );
@@ -24,7 +19,7 @@ class MeterSpam extends MeterBase {
 	public function description() :array {
 		$desc = [
 			__( "WordPress comment SPAM is primarily done via automated Bots.", 'wp-simple-firewall' ),
-			__( "With our powerful AntiBot Detection Engine we can thwart nearly 100% of all bot SPAM.", 'wp-simple-firewall' ),
+			__( "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM.", 'wp-simple-firewall' ),
 			__( "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties.", 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->comps->whitelabel->isEnabled() ) {

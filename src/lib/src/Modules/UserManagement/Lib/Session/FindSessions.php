@@ -43,8 +43,8 @@ class FindSessions {
 						%s
 						ORDER BY %s DESC
 						%s;',
-				self::con()->db_con->dbhUserMeta()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table,
+				self::con()->db_con->user_meta->getTable(),
+				self::con()->db_con->ips->getTable(),
 				$DB->getTable_Users(),
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				$orderBy,

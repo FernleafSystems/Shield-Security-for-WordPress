@@ -12,7 +12,6 @@ class EmailReport extends EmailBase {
 	public const TEMPLATE = '/email/reports/cron_alert_info_report.twig';
 
 	protected function getBodyData() :array {
-		$con = self::con();
 		return [
 			'vars'    => [
 				'reports'     => \array_map(
@@ -28,9 +27,6 @@ class EmailReport extends EmailBase {
 				),
 				'site_url'    => $this->action_data[ 'home_url' ],
 				'report_date' => Services::WpGeneral()->getTimeStampForDisplay(),
-			],
-			'hrefs'   => [
-				'click_adjust' => $con->plugin_urls->modCfgSection( $con->getModule_Plugin(), 'section_reporting' )
 			],
 			'strings' => [
 				'generated'   => __( 'Date Generated', 'wp-simple-firewall' ),

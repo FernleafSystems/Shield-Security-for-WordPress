@@ -33,7 +33,7 @@ abstract class BaseForm extends Base {
 				) ),
 			],
 			'flags'   => [
-				'can_skip_mfa' => $mfaCon->getMfaSkip() > 0,
+				'can_skip_mfa'       => $mfaCon->getMfaSkip() > 0,
 				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 			],
 			'hrefs'   => [
@@ -91,7 +91,7 @@ abstract class BaseForm extends Base {
 
 		$cancelHref = $this->action_data[ 'cancel_href' ] ?? '';
 		if ( empty( $cancelHref ) && Services::Data()->isValidWebUrl( $referUrl ) ) {
-			$cancelHref = \parse_url( $referUrl, \PHP_URL_PATH );
+			$cancelHref = \wp_parse_url( $referUrl, \PHP_URL_PATH );
 		}
 
 		global $interim_login;

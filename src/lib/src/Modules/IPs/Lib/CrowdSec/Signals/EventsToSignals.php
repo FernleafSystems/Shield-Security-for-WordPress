@@ -87,7 +87,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			catch ( \Exception $e ) {
 			}
 
-			$dbhSignals = $con->db_con->dbhCrowdSecSignals();
+			$dbhSignals = $con->db_con->crowdsec_signals;
 			foreach ( $this->signals as $signal ) {
 				/** @var CrowdsecSignalsDB\Record $record */
 				$record = $dbhSignals->getRecord()->applyFromArray( $signal );
@@ -217,7 +217,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	}
 
 	/**
-	 * @deprecated 19.1.14
+	 * @deprecated 19.2.0
 	 */
 	private function isEventCsSignal( string $evt ) :bool {
 		return !empty( $this->getSignalDef( $evt ) );

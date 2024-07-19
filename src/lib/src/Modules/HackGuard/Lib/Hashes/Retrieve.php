@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSour
 
 class Retrieve {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private static $hashes;
 

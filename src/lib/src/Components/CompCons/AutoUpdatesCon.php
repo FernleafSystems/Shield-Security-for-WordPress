@@ -11,10 +11,6 @@ class AutoUpdatesCon {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	protected function canRun() :bool {
-		return self::con()->opts->optIs( 'enable_autoupdates', 'Y' );
-	}
-
 	/**
 	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
@@ -22,33 +18,15 @@ class AutoUpdatesCon {
 	protected function run() {
 		$priority = (int)self::con()->cfg->configuration->def( 'action_hook_priority' );
 
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $priority );
-
-		add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $priority );
-		add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $priority );
-
 		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $priority, 2 );
 		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $priority, 2 );
 		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $priority, 2 );
 
-		if ( !$this->disableAll() ) {
-			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $priority, 0 );
-			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $priority );
-			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $priority );
-			add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
-			add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
-			add_action( 'set_site_transient_update_themes', [ $this, 'trackUpdateTimesThemes' ] );
-		}
-	}
-
-	public function onWpLoaded() {
-		if ( $this->disableAll() ) {
-			remove_all_filters( 'automatic_updater_disabled' );
-			add_filter( 'automatic_updater_disabled', '__return_true', \PHP_INT_MAX );
-			if ( !\defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-				\define( 'WP_AUTO_UPDATE_CORE', false );
-			}
-		}
+		add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $priority );
+		add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $priority );
+		add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
+		add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
+		add_action( 'set_site_transient_update_themes', [ $this, 'trackUpdateTimesThemes' ] );
 	}
 
 	/**
@@ -56,7 +34,7 @@ class AutoUpdatesCon {
 	 */
 	public function trackUpdateTimesCore( $updates ) {
 
-		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) && \method_exists( $this, 'getDelayTracking' ) ) {
+		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) ) {
 
 			$delayTracking = $this->getDelayTracking();
 
@@ -94,9 +72,7 @@ class AutoUpdatesCon {
 	 * @param string    $context - plugins/themes
 	 */
 	protected function trackUpdateTimeCommon( $updates, $context ) {
-		if ( !empty( $updates ) && isset( $updates->response )
-			 && \is_array( $updates->response ) && \method_exists( $this, 'getDelayTracking' )
-		) {
+		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
 			$delayTracking = $this->getDelayTracking();
 
 			foreach ( $updates->response as $slug => $theUpdate ) {
@@ -119,45 +95,12 @@ class AutoUpdatesCon {
 	}
 
 	/**
-	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $toUpdate
-	 * @return bool
-	 */
-	public function autoupdate_core_major( $toUpdate ) {
-		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
-			$toUpdate = false;
-		}
-		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
-			$toUpdate = self::con()->opts->optIs( 'autoupdate_core', 'core_major' );
-		}
-		return $toUpdate;
-	}
-
-	/**
-	 * This is a filter method designed to say whether a minor core WordPress upgrade should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $doUpdate
-	 * @return bool
-	 */
-	public function autoupdate_core_minor( $doUpdate ) {
-		if ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() ) {
-			$doUpdate = false;
-		}
-		elseif ( !( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) ) {
-			$doUpdate = !self::con()->opts->optIs( 'autoupdate_core', 'core_never' );
-		}
-		return $doUpdate;
-	}
-
-	/**
 	 * @param bool      $doUpdate
 	 * @param \stdClass $coreUpgrade
 	 * @return bool
 	 */
 	public function autoupdate_core( $doUpdate, $coreUpgrade ) {
-		if ( ( \method_exists( $this, 'isCoreAutoUpgradesDisabled' ) && $this->isCoreAutoUpgradesDisabled() )
-			 || $this->isDelayed( $coreUpgrade, 'core' ) ) {
+		if ( $this->isDelayed( $coreUpgrade, 'core' ) ) {
 			$doUpdate = false;
 		}
 		return $doUpdate;
@@ -170,26 +113,18 @@ class AutoUpdatesCon {
 	 */
 	public function autoupdate_plugins( $doUpdate, $mItem ) {
 
-		if ( ( \method_exists( $this, 'disableAll' ) && $this->disableAll() ) ) {
+		$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
+
+		if ( $this->isDelayed( $file, 'plugins' ) ) {
 			$doUpdate = false;
 		}
-		else {
-			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
-
-			if ( $this->isDelayed( $file, 'plugins' ) ) {
-				$doUpdate = false;
-			}
-			elseif ( self::con()->opts->optIs( 'enable_autoupdate_plugins', 'Y' ) ) {
+		elseif ( $file === self::con()->base_file ) {
+			$auto = self::con()->opts->optGet( 'autoupdate_plugin_self' );
+			if ( $auto === 'immediate' ) {
 				$doUpdate = true;
 			}
-			elseif ( $file === self::con()->base_file ) {
-				$auto = self::con()->opts->optGet( 'autoupdate_plugin_self' );
-				if ( $auto === 'immediate' ) {
-					$doUpdate = true;
-				}
-				elseif ( $auto === 'disabled' ) {
-					$doUpdate = false;
-				}
+			elseif ( $auto === 'disabled' ) {
+				$doUpdate = false;
 			}
 		}
 
@@ -202,21 +137,9 @@ class AutoUpdatesCon {
 	 * @return bool
 	 */
 	public function autoupdate_themes( $doAutoUpdate, $mItem ) {
-
-		if ( ( \method_exists( $this, 'disableAll' ) && $this->disableAll() ) ) {
+		if ( $this->isDelayed( Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' ), 'themes' ) ) {
 			$doAutoUpdate = false;
 		}
-		else {
-			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
-
-			if ( $this->isDelayed( $file, 'themes' ) ) {
-				$doAutoUpdate = false;
-			}
-			elseif ( self::con()->opts->optIs( 'enable_autoupdate_themes', 'Y' ) ) {
-				$doAutoUpdate = true;
-			}
-		}
-
 		return $doAutoUpdate;
 	}
 
@@ -226,7 +149,7 @@ class AutoUpdatesCon {
 	private function isDelayed( $slug, string $context ) :bool {
 		$delayed = false;
 
-		if ( \method_exists( $this, 'isDelayUpdates' ) && $this->isDelayUpdates() ) {
+		if ( $this->isDelayUpdates() ) {
 
 			$delayTracking = $this->getDelayTracking();
 
@@ -249,18 +172,11 @@ class AutoUpdatesCon {
 
 			if ( !empty( $version ) && isset( $itemTrack[ $version ] ) ) {
 				$delayed = ( Services::Request()->ts() - $itemTrack[ $version ] )
-						   < self::con()->opts->optGet( 'update_delay' )*\DAY_IN_SECONDS;
+						   < self::con()->opts->optGet( 'update_delay' )*DAY_IN_SECONDS;
 			}
 		}
 
 		return $delayed;
-	}
-
-	/**
-	 * A filter on whether a notification email is sent after core upgrades are attempted.
-	 */
-	public function autoupdate_send_email() :bool {
-		return self::con()->opts->optIs( 'enable_upgrade_notification_email', 'Y' );
 	}
 
 	/**
@@ -269,9 +185,9 @@ class AutoUpdatesCon {
 	 * @return array
 	 */
 	public function autoupdate_email_override( $emailParams ) {
-		$override = self::con()->opts->optGet( 'override_email_address' );
-		if ( Services::Data()->validEmail( $override ) ) {
-			$emailParams[ 'to' ] = $override;
+		// @deprecated 19.2 - isset() required for upgrade from 19.0
+		if ( isset( self::con()->comps->opts_lookup ) ) {
+			$emailParams[ 'to' ] = self::con()->comps->opts_lookup->getReportEmail();
 		}
 		return $emailParams;
 	}
@@ -290,15 +206,56 @@ class AutoUpdatesCon {
 		return $opts->optGet( 'delay_tracking' );
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function isCoreAutoUpgradesDisabled() :bool {
-		return $this->disableAll() || self::con()->opts->optIs( 'autoupdate_core', 'core_never' );
+		return false;
 	}
 
 	public function isDelayUpdates() :bool {
 		return self::con()->opts->optGet( 'update_delay' ) > 0;
 	}
 
+	/**
+	 * @deprecated 19.2
+	 */
 	public function disableAll() :bool {
-		return self::con()->opts->optIs( 'enable_autoupdate_disable_all', 'Y' );
+		return false;
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function onWpLoaded() {
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function autoupdate_send_email() :bool {
+		return true;
+	}
+
+	/**
+	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
+	 * based on the plugin settings.
+	 * @param bool $toUpdate
+	 * @return bool
+	 * @deprecated 19.2
+	 */
+	public function autoupdate_core_major( $toUpdate ) {
+		return $toUpdate;
+	}
+
+	/**
+	 * This is a filter method designed to say whether a minor core WordPress upgrade should be permitted,
+	 * based on the plugin settings.
+	 * @param bool $doUpdate
+	 * @return bool
+	 * @deprecated 19.2
+	 */
+	public function autoupdate_core_minor( $doUpdate ) {
+		return $doUpdate;
 	}
 }

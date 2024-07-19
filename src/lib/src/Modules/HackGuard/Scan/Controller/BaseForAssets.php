@@ -21,7 +21,7 @@ abstract class BaseForAssets extends Base {
 		$changed = false;
 		if ( empty( $asset ) ) {
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Update $updater */
-			$updater = self::con()->db_con->dbhResultItems()->getQueryUpdater();
+			$updater = self::con()->db_con->scan_result_items->getQueryUpdater();
 			$changed = $updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		return $changed;
@@ -29,7 +29,7 @@ abstract class BaseForAssets extends Base {
 
 	public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record $record */
-		$record = self::con()->db_con->dbhResultItems()->getRecord();
+		$record = self::con()->db_con->scan_result_items->getRecord();
 		$record->item_id = $rawResult[ 'slug' ];
 		$record->item_type = \strpos( $rawResult[ 'slug' ], '/' ) ?
 			\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :

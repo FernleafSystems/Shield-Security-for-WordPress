@@ -100,7 +100,7 @@ abstract class BaseApi extends DynPropertiesClass {
 					$value = [];
 				}
 				if ( $this->headers[ 'Content-Type' ] ?? '' === 'application/json' ) {
-					$value = \json_encode( $value );
+					$value = \wp_json_encode( $value );
 				}
 				break;
 

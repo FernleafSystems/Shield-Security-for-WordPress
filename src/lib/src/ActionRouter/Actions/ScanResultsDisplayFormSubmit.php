@@ -21,7 +21,6 @@ class ScanResultsDisplayFormSubmit extends BaseAction {
 			\natsort( $new );
 			$con->opts->optSet( 'scan_results_table_display', $new );
 
-
 			$msg = __( 'Display Options Updated', 'wp-simple-firewall' );
 			$success = true;
 		}

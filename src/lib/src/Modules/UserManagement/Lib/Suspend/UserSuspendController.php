@@ -5,22 +5,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Sus
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class UserSuspendController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return $this->isSuspendEnabled();
 	}
 
 	public function getSuspendAutoIdleTime() :int {
-		return ( \method_exists( self::con()->opts, 'optGet' ) ? self::con()->opts->optGet( 'auto_idle_days' )
-				: $this->opts()->getOpt( 'auto_idle_days', 0 ) )*\DAY_IN_SECONDS;
+		return self::con()->opts->optGet( 'auto_idle_days' )*\DAY_IN_SECONDS;
 	}
 
 	public function getSuspendAutoIdleUserRoles() :array {
@@ -40,13 +39,14 @@ class UserSuspendController {
 	}
 
 	public function isSuspendAutoPasswordEnabled() :bool {
-		return self::con()->comps->opts_lookup->isPassPoliciesEnabled()
-			   && self::con()->opts->optIs( 'auto_password', 'Y' )
-			   && self::con()->comps->opts_lookup->getPassExpireTimeout() > 0;
+		$con = self::con();
+		return $con->comps->opts_lookup->isPassPoliciesEnabled()
+			   && $con->opts->optIs( 'auto_password', 'Y' )
+			   && $con->comps->opts_lookup->getPassExpireTimeout() > 0;
 	}
 
 	protected function run() {
-		if ( !self::con()->this_req->is_ip_whitelisted ) {
+		if ( !self::con()->this_req->request_bypasses_all_restrictions ) {
 			if ( $this->isSuspendManualEnabled() ) {
 				( new Suspended() )->execute();
 			}
@@ -99,10 +99,8 @@ class UserSuspendController {
 	private function addSuspendedUserFilters() {
 		$ts = Services::Request()->ts();
 
-		$userMetaDB = self::con()->db_con->dbhUserMeta();
-
 		/** @var Select $metaSelect */
-		$metaSelect = $userMetaDB->getQuerySelector();
+		$metaSelect = self::con()->db_con->user_meta->getQuerySelector();
 
 		$expireTimeout = self::con()->comps->opts_lookup->getPassExpireTimeout();
 
@@ -120,7 +118,7 @@ class UserSuspendController {
 
 				if ( \is_array( $args ) ) {
 					/** @var Select $metaSelect */
-					$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
+					$metaSelect = self::con()->db_con->user_meta->getQuerySelector();
 
 					if ( $manual > 0 && $req->query( 'shield_users_suspended' ) ) {
 						$filtered = true;

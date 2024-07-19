@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseAutoUnblock {
 
-	use IPs\ModConsumer;
+	use PluginControllerConsumer;
 
 	public function canRunAutoUnblockProcess() :bool {
 		return $this->isUnblockAvailable();
@@ -67,13 +67,9 @@ abstract class BaseAutoUnblock {
 	 * @throws \Exception
 	 */
 	protected function updateLastAttemptAt() {
-		self::con()
-			->db_con
-			->dbhIPRules()
-			->getQueryUpdater()
-			->updateById( $this->getIpRecord()->id, [
-				'last_unblock_attempt_at' => Services::Request()->ts(),
-			] );
+		self::con()->db_con->ip_rules->getQueryUpdater()->updateById( $this->getIpRecord()->id, [
+			'last_unblock_attempt_at' => Services::Request()->ts(),
+		] );
 	}
 
 	/**
@@ -94,15 +90,11 @@ abstract class BaseAutoUnblock {
 //					error_log( 'Error updating bot signal: '.$e->getMessage() );
 		}
 
-		$unblocked = self::con()
-			->db_con
-			->dbhIPRules()
-			->getQueryUpdater()
-			->updateById( $record->id, [
-				'offenses'       => 0,
-				'unblocked_at'   => Services::Request()->ts(),
-				'last_access_at' => Services::Request()->ts(),
-			] );
+		$unblocked = self::con()->db_con->ip_rules->getQueryUpdater()->updateById( $record->id, [
+			'offenses'       => 0,
+			'unblocked_at'   => Services::Request()->ts(),
+			'last_access_at' => Services::Request()->ts(),
+		] );
 
 		$this->fireEvent();
 

@@ -23,7 +23,7 @@ export class Navigation extends BaseComponent {
 		// Add the active nav-tab to the current URL to support refresh.
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
-			'#PageMainBody_Inner-Apto .nav-item > a.nav-link',
+			'#PageMainBody_Inner-Apto .nav-item > .nav-link',
 			( targetEl ) => {
 				const d = targetEl.dataset;
 				if ( 'bsToggle' in d && targetEl.id ) {
@@ -98,7 +98,7 @@ export class Navigation extends BaseComponent {
 			replaceStateUrl
 		);
 
-		let activeLinks = document.querySelectorAll( '#NavSideBar a.nav-link.active' );
+		let activeLinks = document.querySelectorAll( '#NavSideBar .nav-link.active' );
 		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
 		}
@@ -106,7 +106,7 @@ export class Navigation extends BaseComponent {
 
 		let parentNav = this.activeMenuItem.closest( 'ul' ).closest( 'li.nav-item' );
 		if ( parentNav !== null ) {
-			parentNav.querySelector( 'li.nav-item > a.nav-link' ).classList.add( 'active' );
+			parentNav.querySelector( 'li.nav-item > .nav-link' ).classList.add( 'active' );
 		}
 	};
 }

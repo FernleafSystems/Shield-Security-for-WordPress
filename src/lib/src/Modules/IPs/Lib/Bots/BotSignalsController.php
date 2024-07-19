@@ -3,17 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	BotTrack,
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var NotBotHandler
@@ -38,7 +36,7 @@ class BotSignalsController {
 				( new $botTrackerClass() )->execute();
 			}
 		} );
-		$this->getHandlerNotBot()->execute();
+		self::con()->comps->not_bot->execute();
 		$this->registerFrontPageLoad();
 		$this->registerLoginPageLoad();
 	}
@@ -81,9 +79,34 @@ class BotSignalsController {
 		return $this->isBots[ $IP ] ?? false;
 	}
 
-	public function getHandlerNotBot() :NotBot\NotBotHandler {
-		return self::con()->comps !== null ? self::con()->comps->not_bot :
-			( $this->handlerNotBot ?? $this->handlerNotBot = new NotBotHandler() );
+	public function getAllowableExt404s() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
+			function ( $ext ) {
+				return !empty( $ext ) && \is_string( $ext ) && \preg_match( '#^[a-z\d]+$#i', $ext );
+			}
+		) );
+	}
+
+	public function getAllowablePaths404s() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_paths_404s' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_paths_404s', $def ),
+			function ( $ext ) {
+				return !empty( $ext ) && \is_string( $ext );
+			}
+		) );
+	}
+
+	public function getAllowableScripts() :array {
+		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
+		return \array_unique( \array_filter(
+			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
+			function ( $script ) {
+				return !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' );
+			}
+		) );
 	}
 
 	public function getEventListener() :BotEventListener {
@@ -120,9 +143,18 @@ class BotSignalsController {
 
 	private function registerFrontPageLoad() {
 		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			if ( Services::Request()->isGet() && did_action( 'wp' )
-				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
-				$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
+			$req = Services::Request();
+			if ( $req->isGet() && did_action( 'wp' ) && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+				try {
+					$record = ( new BotSignalsRecord() )
+						->setIP( self::con()->this_req->ip )
+						->retrieve();
+					if ( $req->ts() - $record->frontpage_at > MINUTE_IN_SECONDS*30 ) {
+						$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		} );
 	}
@@ -131,7 +163,16 @@ class BotSignalsController {
 		add_action( 'login_footer', function () {
 			$req = Services::Request();
 			if ( $req->isGet() ) {
-				$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'loginpage_load' );
+				try {
+					$record = ( new BotSignalsRecord() )
+						->setIP( self::con()->this_req->ip )
+						->retrieve();
+					if ( $req->ts() - $record->loginpage_at > MINUTE_IN_SECONDS*10 ) {
+						$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'loginpage_load' );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		} );
 	}

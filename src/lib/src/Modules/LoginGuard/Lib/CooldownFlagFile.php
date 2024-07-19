@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CooldownFlagFile {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function getCooldownRemaining() :int {
-		return (int)\max( 0, $this->opts()->getOpt( 'login_limit_interval' ) - $this->getSecondsSinceLastLogin() );
+		return (int)\max( 0, self::con()->opts->optGet( 'login_limit_interval' ) - $this->getSecondsSinceLastLogin() );
 	}
 
 	public function getFlagFilePath() :string {
@@ -23,14 +23,10 @@ class CooldownFlagFile {
 		return Services::Request()->ts() - ( $FS->exists( $file ) ? $FS->getModifiedTime( $file ) : 0 );
 	}
 
-	/**
-	 * @return $this
-	 */
-	public function updateCooldownFlag() {
+	public function updateCooldownFlag() :void {
 		$FS = Services::WpFs();
 		$file = $this->getFlagFilePath();
 		$FS->deleteFile( $file );
 		$FS->touch( $file, Services::Request()->ts() );
-		return $this;
 	}
 }

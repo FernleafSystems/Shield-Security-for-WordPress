@@ -16,22 +16,22 @@ class PageDebug extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
-				'href' => URL::Build(
+				'title' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
+				'href'  => URL::Build(
 					self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
 					[ 'shield_check_ip_source' => '1' ]
 				),
 			],
 			[
-				'text'    => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
+				'title'   => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
 				'href'    => '#',
 				'classes' => [ 'tool_purge_provider_ips' ],
 			],
 			[
-				'text'    => __( 'Print', 'wp-simple-firewall' ),
+				'title'   => __( 'Print', 'wp-simple-firewall' ),
 				'href'    => "javascript:{}",
 				'classes' => [ 'shield_div_print' ],
-				'datas'   => [ 'selector' => '#PageMainBody_Inner-Apto' ],
+				'data'    => [ 'selector' => '#PageMainBody_Inner-Apto' ],
 			],
 		];
 	}

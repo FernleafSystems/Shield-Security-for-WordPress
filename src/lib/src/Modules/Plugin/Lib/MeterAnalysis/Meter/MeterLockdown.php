@@ -2,16 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 class MeterLockdown extends MeterBase {
 
 	public const SLUG = 'lockdown';
-
-	protected function getWorkingMods() :array {
-		return [ EnumModules::LOCKDOWN ];
-	}
 
 	public function title() :string {
 		return __( 'Site Lockdown and Firewall', 'wp-simple-firewall' );
@@ -48,10 +43,8 @@ class MeterLockdown extends MeterBase {
 			Component\LockdownAnonymousRestApi::class,
 			Component\FirewallDirTraversal::class,
 			Component\FirewallSqlQueries::class,
-			Component\FirewallWpTerms::class,
 			Component\FirewallFieldTruncation::class,
 			Component\FirewallPhpCode::class,
-			Component\FirewallExeFileUploads::class,
 			Component\FirewallAggressive::class,
 		];
 	}

@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class BaseBotDetectionController {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $installedProviders;
 
@@ -44,7 +44,7 @@ abstract class BaseBotDetectionController {
 	 * @return string[]
 	 */
 	public function getSelectedProviders() :array {
-		return $this->opts()->getOpt( $this->getSelectedProvidersOptKey(), [] );
+		return self::con()->opts->optGet( $this->getSelectedProvidersOptKey() );
 	}
 
 	abstract public function getSelectedProvidersOptKey() :string;

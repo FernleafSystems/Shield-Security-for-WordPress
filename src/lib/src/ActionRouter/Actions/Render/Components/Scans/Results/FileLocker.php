@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Scans;
 
 class FileLocker extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans {
 
@@ -18,8 +19,7 @@ class FileLocker extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\A
 				'is_restricted' => !self::con()->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'options'       => $con->plugin_urls->modCfgOption( 'file_locker' ),
-				'please_enable' => $con->plugin_urls->modCfgOption( 'file_locker' ),
+				'please_enable' => $con->plugin_urls->zone( Scans::Slug() ),
 			],
 			'vars'    => [
 				'file_locks' => [

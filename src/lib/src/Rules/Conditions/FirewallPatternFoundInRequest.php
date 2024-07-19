@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Utility\PerformConditionMatch
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 
 class FirewallPatternFoundInRequest extends Base {
 
@@ -34,15 +34,7 @@ class FirewallPatternFoundInRequest extends Base {
 
 	private function getFirewallRuleNameFromCategory( string $category ) :string {
 		try {
-			if ( @\class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions' ) ) {
-				$ruleName = ( new StringsOptions() )->getFor( 'block_'.$category )[ 'name' ];
-			}
-			else {
-				$ruleName = self::con()
-								->getModule_Firewall()
-								->getStrings()
-								->getOptionStrings( 'block_'.$category )[ 'name' ] ?? 'Unknown';
-			}
+			$ruleName = ( new StringsOptions() )->getFor( 'block_'.$category )[ 'name' ];
 		}
 		catch ( \Exception $e ) {
 			$ruleName = 'Unknown';
@@ -52,7 +44,7 @@ class FirewallPatternFoundInRequest extends Base {
 
 	private function findCategoryFromPattern( string $pattern ) :string {
 		$category = '';
-		foreach ( self::con()->getModule_Firewall()->opts()->getDef( 'firewall_patterns' ) as $cat => $group ) {
+		foreach ( self::con()->cfg->configuration->def( 'firewall_patterns' ) as $cat => $group ) {
 			if ( \in_array( $pattern, $group ) ) {
 				$category = $cat;
 				break;
@@ -93,14 +85,7 @@ class FirewallPatternFoundInRequest extends Base {
 
 	private function getAllParameterExclusions() :array {
 		$exclusions = self::con()->cfg->configuration->def( 'default_whitelist' );
-		if ( self::con()->comps !== null ) {
-			$customWhitelist = self::con()->comps->opts_lookup->getFirewallParametersWhitelist();
-		}
-		else {
-			$customWhitelist = self::con()->getModule_Firewall()->opts()->getOpt( 'page_params_whitelist', [] );
-		}
-
-		foreach ( \is_array( $customWhitelist ) ? $customWhitelist : [] as $page => $params ) {
+		foreach ( self::con()->comps->opts_lookup->getFirewallParametersWhitelist() as $page => $params ) {
 			if ( !empty( $params ) && \is_array( $params ) ) {
 				$exclusions[ $page ] = \array_merge(
 					$exclusions[ $page ] ?? [],

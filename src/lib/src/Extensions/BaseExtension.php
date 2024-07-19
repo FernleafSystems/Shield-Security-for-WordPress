@@ -25,6 +25,11 @@ abstract class BaseExtension {
 	private $cfg;
 
 	/**
+	 * @var UpgradeHandlersBase
+	 */
+	protected $upgradesHandler;
+
+	/**
 	 * @throws \Exception
 	 */
 	public function __construct( string $file, array $cfg ) {
@@ -47,7 +52,7 @@ abstract class BaseExtension {
 
 	protected function run() {
 		add_action( 'init', function () {
-			$this->initUpgrades();
+			$this->getUpgradesHandler();
 		} );
 	}
 
@@ -55,7 +60,11 @@ abstract class BaseExtension {
 		return $this->requirementsMet();
 	}
 
-	protected function initUpgrades() {
+	/**
+	 * @return ?UpgradeHandlersBase
+	 */
+	public function getUpgradesHandler() :?UpgradeHandlersBase {
+		return null;
 	}
 
 	public function canExtendRules() :bool {
@@ -102,7 +111,7 @@ abstract class BaseExtension {
 				'min' => '7.4',
 			],
 			'shield' => [
-				'min' => '19.0',
+				'min' => '20.0',
 			],
 			'wp'     => [
 				'min' => '5.7',

@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PopulateScanItems {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use RecordConsumer;
 	use ScanControllerConsumer;
 
@@ -19,7 +19,7 @@ class PopulateScanItems {
 	 */
 	public function run() {
 		$scanCon = $this->getScanController();
-		$dbhItems = self::con()->db_con->dbhScanItems();
+		$dbhItems = self::con()->db_con->scan_items;
 
 		$scanRecord = $this->getRecord();
 		$scanAction = $scanCon->buildScanAction();
@@ -29,13 +29,9 @@ class PopulateScanItems {
 		unset( $scanAction->items );
 
 		$scanRecord->meta = $scanAction->getRawData();
-		self::con()
-			->db_con
-			->dbhScans()
-			->getQueryUpdater()
-			->updateById( $scanRecord->id, [
-				'meta' => $scanRecord->getRawData()[ 'meta' ]
-			] );
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanRecord->id, [
+			'meta' => $scanRecord->getRawData()[ 'meta' ]
+		] );
 
 		$sliceSize = $scanCon->getQueueGroupSize();
 
@@ -51,12 +47,8 @@ class PopulateScanItems {
 		// Marks the scan record as ready to run. It cannot run until this flag is set.
 		// This prevents a timing issue where we're populating scan items but the scan could get picked up and executed.
 		// TODO: review whether this entirely necessary depending on how scans are kicked off.
-		self::con()
-			->db_con
-			->dbhScans()
-			->getQueryUpdater()
-			->updateRecord( $scanRecord, [
-				'ready_at' => Services::Request()->ts()
-			] );
+		self::con()->db_con->scans->getQueryUpdater()->updateRecord( $scanRecord, [
+			'ready_at' => Services::Request()->ts()
+		] );
 	}
 }

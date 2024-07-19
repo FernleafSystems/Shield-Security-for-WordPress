@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class BadgeWidget extends \WP_Widget {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function __construct() {
 		parent::__construct(

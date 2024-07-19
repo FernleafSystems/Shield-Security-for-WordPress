@@ -12,9 +12,7 @@ class PluginReportEmail extends Base {
 	public const WEIGHT = 1;
 
 	protected function testIfProtected() :bool {
-		return Services::Data()->validEmail(
-			self::con()->getModule_Plugin()->opts()->getOpt( 'block_send_email_address' )
-		);
+		return Services::Data()->validEmail( self::con()->opts->optGet( 'block_send_email_address' ) );
 	}
 
 	protected function getOptConfigKey() :string {

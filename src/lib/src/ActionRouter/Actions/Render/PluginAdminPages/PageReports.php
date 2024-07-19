@@ -8,23 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 class PageReports extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_reports';
-	public const TEMPLATE = '/wpadmin/plugin_pages/base_inner_page.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();
-		$hrefs = [
-			[
-				'text'    => __( 'Configure Reporting', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => 'section_reporting'
-				],
-			]
-		];
+		$hrefs = [];
 		if ( $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
-				'text'    => __( 'Create Custom Report', 'wp-simple-firewall' ),
+				'title'   => __( 'Create Custom Report', 'wp-simple-firewall' ),
 				'href'    => '#',
 				'classes' => [ 'offcanvas_report_create_form' ],
 			] );
@@ -34,7 +24,7 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Reports', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Reports', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/collection/77-reporting',
 			'new_window' => true,
 		];

@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\{
+	ModuleSecadmin,
+	ModuleUsers
+};
 
 class PageUserSessions extends BasePluginAdminPage {
 
@@ -10,29 +13,20 @@ class PageUserSessions extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_sessions.twig';
 
 	protected function getPageContextualHrefs() :array {
+		$zones = self::con()->comps->zones;
+		$cfgUsers = $zones->getZoneComponent( ModuleUsers::Slug() )->getActions()[ 'config' ];
+		$cfgUsers[ 'title' ] = __( 'User Controls', 'wp-simple-firewall' );
+		$cfgSecAdmin = $zones->getZoneComponent( ModuleSecadmin::Slug() )->getActions()[ 'config' ];
+		$cfgSecAdmin[ 'title' ] = __( 'Configure Security Admin', 'wp-simple-firewall' );
 		return [
-			[
-				'text'    => __( 'User Controls', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::USERS,
-				],
-			],
-			[
-				'text'    => __( 'Configure Security Admin', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => EnumModules::SECURITY_ADMIN,
-				],
-			],
+			$cfgUsers,
+			$cfgSecAdmin,
 		];
 	}
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'text'       => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'User Sessions', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'User Sessions', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/434-user-sessions-management-tool',
 			'new_window' => true,
 		];
@@ -60,7 +54,7 @@ class PageUserSessions extends BasePluginAdminPage {
 
 	private function getDistinctUsernames() :array {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\Ops\Select $metaSelect */
-		$metaSelect = self::con()->db_con->dbhUserMeta()->getQuerySelector();
+		$metaSelect = self::con()->db_con->user_meta->getQuerySelector();
 		$results = $metaSelect->setResultsAsVo( false )
 							  ->setSelectResultsFormat( ARRAY_A )
 							  ->setColumnsToSelect( [ 'user_id' ] )

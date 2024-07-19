@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\ScanExistsException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateNewScan {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws ScanExistsException|\Exception
@@ -19,7 +19,7 @@ class CreateNewScan {
 			throw new ScanExistsException( $slug );
 		}
 
-		$dbh = self::con()->db_con->dbhScans();
+		$dbh = self::con()->db_con->scans;
 		/** @var ScansDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->scan = $slug;
@@ -33,7 +33,7 @@ class CreateNewScan {
 
 	private function scanExists( string $slug ) :bool {
 		/** @var ScansDB\Select $selector */
-		$selector = self::con()->db_con->dbhScans()->getQuerySelector();
+		$selector = self::con()->db_con->scans->getQuerySelector();
 		return $selector->filterByScan( $slug )
 						->filterByNotFinished()
 						->count() > 0;

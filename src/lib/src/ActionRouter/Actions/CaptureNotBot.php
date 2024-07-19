@@ -2,28 +2,40 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 
 class CaptureNotBot extends BaseAction {
 
 	use Traits\AuthNotRequired;
+	use Traits\NonceVerifyNotRequired;
 
 	public const SLUG = 'capture_not_bot';
 
 	protected function exec() {
-		$notBotHandler = self::con()->comps->not_bot;
+		$con = self::con();
+		try {
+			$con->fireEvent( 'bottrack_multiple', [
+				'data' => [
+					'events' => [
+						'bottrack_notbot',
+					],
+				]
+			] );
 
-		$cookieLife = apply_filters( 'shield/notbot_cookie_life', $notBotHandler::LIFETIME );
-		$ts = Services::Request()->ts() + $cookieLife;
-		Services::Response()->cookieSet(
-			self::con()->prefix( $notBotHandler::COOKIE_SLUG ),
-			sprintf( '%sz%s', $ts, $notBotHandler->getHashForVisitorTS( $ts ) ),
-			$cookieLife
-		);
+			$notBotCon = $con->comps->not_bot;
+			$notBotCon->sendNotBotFlagCookie();
 
-		self::con()->fireEvent( 'bottrack_notbot' );
-
-		$this->response()->success = true;
+			$this->response()->success = true;
+			$this->response()->action_response_data = [
+				'success'     => true,
+				'altcha_data' => $notBotCon->getRequiredSignals() ?
+					ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ) : [],
+			];
+		}
+		catch ( \Exception $e ) {
+//			error_log( $e->getMessage() );
+			$this->response()->success = false;
+		}
 	}
 
 	public static function NonceCfg() :array {

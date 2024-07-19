@@ -2,19 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BulkUpdateUserMeta extends ExecOnceModConsumer {
+class BulkUpdateUserMeta {
 
+	use ExecOnce;
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return self::con()
 			->db_con
-			->dbhUserMeta()
+			->user_meta
 			->isReady();
 	}
 
@@ -41,7 +41,7 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	private function getExistingUserMetaIDsQuery() :string {
 		return self::con()
 			->db_con
-			->dbhUserMeta()
+			->user_meta
 			->getQuerySelector()
 			->setResultsAsVo( false )
 			->setSelectResultsFormat( ARRAY_A )

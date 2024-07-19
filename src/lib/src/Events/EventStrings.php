@@ -411,10 +411,10 @@ class EventStrings {
 				],
 			],
 			'ade_check_option_disabled'    => [
-				'name'  => __( 'ADE Bot Check Invalid (Module)', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Check Invalid (Module)', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'A Bot Check was performed on a visitor but the IP Blocking module is disabled in settings.', 'wp-simple-firewall' ),
-					__( "The visitor passed the checks since they couldn't be performed correctly.", 'wp-simple-firewall' ),
+					__( 'A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ),
+					__( "The visitor was allowed to pass the checks since they couldn't be applied.", 'wp-simple-firewall' ),
 				],
 			],
 			'conn_kill'                    => [
@@ -491,9 +491,9 @@ class EventStrings {
 				],
 			],
 			'bottrack_notbot'              => [
-				'name'  => __( 'NotBot Registration', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Registration', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Visitor registered using NotBot.', 'wp-simple-firewall' ),
+					__( 'Visitor registered using silentCAPTCHA.', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_404'                 => [
@@ -664,7 +664,7 @@ class EventStrings {
 			'spam_block_antibot'           => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'AntiBot System', 'wp-simple-firewall' )
+					__( 'silentCAPTCHA', 'wp-simple-firewall' )
 				),
 				'audit' => [
 					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )

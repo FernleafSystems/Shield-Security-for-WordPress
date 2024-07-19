@@ -15,9 +15,14 @@ export class ShieldEventsHandler extends BaseService {
 			change: {},
 			keypress: {},
 			keyup: {},
+			mouseenter: {},
+			mouseover: {},
+			mouseout: {},
 			submit: {},
+			'shown.bs.popover': {},
 			'shown.bs.tab': {},
-			'hidden.bs.offcanvas': {}
+			'hidden.bs.offcanvas': {},
+			'hidden.bs.modal': {}
 		}
 
 		const container = document.querySelector( this._base_data.events_container_selector );
@@ -68,6 +73,18 @@ export class ShieldEventsHandler extends BaseService {
 
 	add_Keyup( selector, callback, suppress = null ) {
 		this.addHandler( 'keyup', selector, callback, suppress );
+	}
+
+	add_Mouseover( selector, callback, suppress = null ) {
+		this.addHandler( 'mouseover', selector, callback, suppress );
+	}
+
+	add_Mouseenter( selector, callback, suppress = null ) {
+		this.addHandler( 'mouseenter', selector, callback, suppress );
+	}
+
+	add_Mouseout( selector, callback, suppress = null ) {
+		this.addHandler( 'mouseout', selector, callback, suppress );
 	}
 
 	add_Submit( selector, callback, suppress = null ) {

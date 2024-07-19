@@ -27,6 +27,7 @@ abstract class Base {
 			'desc_unprotected'       => $this->descUnprotected(),
 			'href_full'              => $this->hrefFull(),
 			'href_full_target_blank' => $this->hrefFullTargetBlank(),
+			'href_data'              => $this->hrefData(),
 			'is_protected'           => $this->isProtected(),
 			'is_applicable'          => $this->isApplicable(),
 			'is_critical'            => $this->isCritical(),
@@ -57,6 +58,10 @@ abstract class Base {
 
 	protected function href() :string {
 		return $this->hrefFull();
+	}
+
+	protected function hrefData() :array {
+		return [];
 	}
 
 	protected function hrefFull() :string {

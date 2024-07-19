@@ -51,6 +51,9 @@ class LockSessionFail extends Build\Core\BuildRuleCoreShieldBase {
 					'conditions' => Conditions\IsLoggedInNormal::class,
 				],
 				[
+					'conditions' => Conditions\ShieldHasValidCurrentSession::class,
+				],
+				[
 					'logic'      => Enum\EnumLogic::LOGIC_OR,
 					'conditions' => [
 						[

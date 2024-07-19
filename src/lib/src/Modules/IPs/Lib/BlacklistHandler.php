@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\{
-	UnblockIpByFlag,
-	ImportIpsFromFile
+	ImportIpsFromFile,
+	UnblockIpByFlag
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -17,7 +17,7 @@ class BlacklistHandler {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return self::con()->comps->opts_lookup->enabledIpAutoBlock() && self::con()->db_con->dbhIPRules()->isReady();
+		return self::con()->comps->opts_lookup->enabledIpAutoBlock() && self::con()->db_con->ip_rules->isReady();
 	}
 
 	protected function run() {

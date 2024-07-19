@@ -28,8 +28,8 @@ class LoadBotSignalRecords {
 							AND `ips`.`ip`=INET6_ATON('%s')
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
-				self::con()->db_con->dbhBotSignal()->getTableSchema()->table,
-				self::con()->db_con->dbhIPs()->getTableSchema()->table,
+				self::con()->db_con->bot_signals->getTable(),
+				self::con()->db_con->ips->getTable(),
 				$this->getIP()
 			)
 		);

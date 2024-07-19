@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class VerifyConfig {
@@ -10,8 +9,8 @@ class VerifyConfig {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$sectionDuplicateExceptions = [ 'section_non_ui' ];
-		$optsDuplicateExceptions = [ 'xfer_excluded' ];
+		$sectionDuplicateExceptions = [];
+		$optsDuplicateExceptions = [];
 
 		$allSections = [];
 		$allOpts = [];
@@ -42,53 +41,7 @@ class VerifyConfig {
 		}
 
 		if ( !empty( $sectionsMissingModule ) ) {
-			var_dump( 'sections missing module setting: '.implode( ', ', $sectionsMissingModule ) );
-		}
-	}
-
-	public function verifyCfg( ModCon $mod ) {
-		$conOpts = self::con()->opts;
-		$opts = $mod->opts();
-		foreach ( \array_keys( self::con()->cfg->configuration->options ) as $key ) {
-			$optType = $conOpts->optType( $key );
-			if ( empty( $optType ) ) {
-				var_dump( $key.': no type' );
-				continue;
-			}
-
-			$mDefault = $conOpts->optDefault( $key );
-			if ( \is_null( $mDefault ) ) {
-				var_dump( sprintf( '%s: opt has no default.', $key ) );
-				continue;
-			}
-
-			$mVal = $opts->getOpt( $key );
-			$valType = gettype( $mVal );
-
-			$isBroken = false;
-			switch ( $optType ) {
-
-				case 'integer':
-					if ( $valType != 'integer' ) {
-						$isBroken = true;
-					}
-					break;
-
-				case 'text':
-					if ( $valType != 'string' ) {
-						$isBroken = true;
-					}
-					break;
-
-				default:
-					break;
-			}
-
-			if ( $isBroken ) {
-				var_dump( sprintf( '%s: opt type is %s, value is %s at "%s". Default is: %s',
-					$key, $optType, $valType, var_export( $mVal, true ), $opts->getOptDefault( $key ) ) );
-//				$opts->resetOptToDefault( $sKey );
-			}
+			var_dump( 'sections missing module setting: '.\implode( ', ', $sectionsMissingModule ) );
 		}
 	}
 }

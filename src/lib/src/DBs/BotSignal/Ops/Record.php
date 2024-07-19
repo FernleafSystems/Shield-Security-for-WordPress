@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\Ops;
 /**
  * @property int $ip_ref
  * @property int $notbot_at
+ * @property int $altcha_at
  * @property int $frontpage_at
  * @property int $loginpage_at
  * @property int $bt404_at
@@ -33,6 +34,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\Ops;
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
+	public $modified = false;
+
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
@@ -41,5 +44,12 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		}
 
 		return $value;
+	}
+
+	public function __set( string $key, $value ) {
+		if ( \serialize( $value ) !== \serialize( $this->{$key} ) ) {
+			$this->modified = true;
+		}
+		parent::__set( $key, $value );
 	}
 }

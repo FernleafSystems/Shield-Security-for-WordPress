@@ -14,8 +14,8 @@ class TrackLinkCheese extends Base {
 	private const CHEESE_WORD = 'link-cheese';
 
 	protected function canRun() :bool {
-		$isSplit = \trim( (string)\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' )
-				   !== \trim( (string)\parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_PATH ), '/' );
+		$isSplit = \trim( (string)\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' )
+				   !== \trim( (string)\wp_parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_PATH ), '/' );
 		return !Services::WpFs()->exists( path_join( ABSPATH, 'robots.txt' ) )
 			   && ( !$isSplit || !Services::WpFs()->exists( path_join( \dirname( ABSPATH ), 'robots.txt' ) ) );
 	}
@@ -72,7 +72,7 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 
 		return $WP->isPermalinksEnabled() ?
-			\trim( $req->getPath(), '/' ) === \trim( (string)\parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), \PHP_URL_PATH ), '/' )
+			\trim( $req->getPath(), '/' ) === \trim( (string)\wp_parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), \PHP_URL_PATH ), '/' )
 			: $req->query( $this->getCheeseWord() ) == '1';
 	}
 

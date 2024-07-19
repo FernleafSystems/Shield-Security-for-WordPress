@@ -20,7 +20,7 @@ class Restore extends BaseOps {
 
 		if ( $reverted ) {
 			/** @var FileLockerDB\Update $update */
-			$update = self::con()->db_con->dbhFileLocker()->getQueryUpdater();
+			$update = self::con()->db_con->file_locker->getQueryUpdater();
 			$update->markReverted( $record );
 			self::con()->comps->file_locker->clearLocks();
 		}

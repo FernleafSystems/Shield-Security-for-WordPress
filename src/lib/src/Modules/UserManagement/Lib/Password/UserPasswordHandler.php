@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 use ZxcvbnPhp\Zxcvbn;
@@ -14,12 +14,15 @@ use ZxcvbnPhp\Zxcvbn;
 class UserPasswordHandler {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use WpLoginCapture;
 
 	protected function run() {
+		$con = self::con();
+
 		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
-		if ( self::con()->comps->opts_lookup->isPassPoliciesEnabled() ) {
+
+		if ( $con->comps->opts_lookup->isPassPoliciesEnabled() && !$con->this_req->request_bypasses_all_restrictions ) {
 			$this->setupLoginCaptureHooks();
 			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100 );

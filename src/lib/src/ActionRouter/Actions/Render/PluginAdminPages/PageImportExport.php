@@ -4,28 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ImportExport;
 
 class PageImportExport extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_importexport';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/import.twig';
 
-	protected function getPageContextualHrefs() :array {
-		return [
-			[
-				'text'    => __( 'Configure Auto Import', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => 'section_importexport'
-				],
-			],
-		];
-	}
-
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'text'       => sprintf( '%s: %s/%s', __( 'Help', 'wp-simple-firewall' ), __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s/%s', __( 'Help', 'wp-simple-firewall' ), __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/129-how-to-create-shield-security-network-with-automatic-import-export-feature',
 			'new_window' => true,
 		];
@@ -35,6 +25,11 @@ class PageImportExport extends BasePluginAdminPage {
 		$con = self::con();
 		$importMasterURL = $con->comps->import_export->getImportExportMasterImportUrl();
 		return [
+			'content' => [
+				'import_export_config' => $con->action_router->render( OptionsFormFor::class, [
+					'options' => ( new GetOptionsForZoneComponents() )->run( [ ImportExport::Slug() ] )
+				] ),
+			],
 			'flags'   => [
 				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),
 				'can_importexport_file' => $con->caps->canImportExportFile(),
@@ -58,8 +53,9 @@ class PageImportExport extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'Quickly setup your site by importing from another site or a backup.', 'wp-simple-firewall' ),
 
 				'tab_by_file'        => __( 'Import From File', 'wp-simple-firewall' ),
-				'tab_by_site'        => __( 'Import From Another Site', 'wp-simple-firewall' ),
+				'tab_by_site'        => __( 'Run Import From Another Site', 'wp-simple-firewall' ),
 				'tab_to_file'        => __( 'Export To File', 'wp-simple-firewall' ),
+				'tab_config'         => __( 'Configuration', 'wp-simple-firewall' ),
 				'title_import_file'  => __( 'Import From File', 'wp-simple-firewall' ),
 				'select_import_file' => __( 'Select file to import options from', 'wp-simple-firewall' ),
 				'i_understand'       => __( 'I Understand Existing Options Will Be Overwritten', 'wp-simple-firewall' ),

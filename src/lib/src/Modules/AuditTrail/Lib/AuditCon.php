@@ -8,13 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AuditCon {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	/**
@@ -33,8 +33,7 @@ class AuditCon {
 	private $snapshotDiscoveryQueue;
 
 	protected function canRun() :bool {
-		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
-			   && self::con()->db_con->dbhActivityLogs()->isReady();
+		return self::con()->db_con->activity_logs->isReady();
 	}
 
 	protected function run() {
@@ -49,7 +48,7 @@ class AuditCon {
 		}, $this->getAuditors() );
 
 		// Realtime Snapshotting
-		if ( self::con()->db_con->dbhSnapshots()->isReady() ) {
+		if ( self::con()->db_con->activity_snapshots->isReady() ) {
 			add_action( 'wp_loaded', function () {
 				\array_map(
 					function ( $auditor ) {
@@ -74,22 +73,6 @@ class AuditCon {
 		return $days;
 	}
 
-	public function getLogFilePath() :string {
-		try {
-			$dir = ( new LogFileDirCreate() )->run();
-		}
-		catch ( \Exception $e ) {
-			$dir = '';
-		}
-
-		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
-		return apply_filters( 'shield/audit_trail_log_file_path', $path );
-	}
-
-	public function getLogFileRotationLimit() :int {
-		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
-	}
-
 	public function getLogLevelsDB() :array {
 		$optsCon = self::con()->opts;
 		$levels = $optsCon->optGet( 'log_level_db' );
@@ -103,8 +86,7 @@ class AuditCon {
 	}
 
 	public function isLogToDB() :bool {
-		return self::con()->opts->optIs( 'enable_audit_trail', 'Y' )
-			   && !\in_array( 'disabled', $this->getLogLevelsDB() );
+		return !\in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
 	private function primeSnapshots() {
@@ -206,8 +188,7 @@ class AuditCon {
 	 * @throws \Exception
 	 */
 	public function getSnapshot( string $slug ) :Record {
-		if ( empty( $this->getSnapshots()[ $slug ] )
-			 || !\is_a( $this->latestSnapshots[ $slug ], '\FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record' ) ) {
+		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
 			throw new \Exception( 'Snapshot could not be loaded for '.$slug );
 		}
 		return $this->latestSnapshots[ $slug ];
@@ -222,7 +203,7 @@ class AuditCon {
 	 */
 	public function updateStoredSnapshot( Auditors\Base $auditor, ?Snapshots\SnapshotVO $current = null ) {
 		$con = self::con();
-		if ( !$con->plugin_deleting && $con->db_con->dbhSnapshots()->isReady() ) {
+		if ( !$con->plugin_deleting && $con->db_con->activity_snapshots->isReady() ) {
 			$slug = $auditor::Slug();
 			if ( empty( $current ) ) {
 				$current = ( new Ops\Build() )->run( $slug );
@@ -306,5 +287,27 @@ class AuditCon {
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
 		return $this->snapshotDiscoveryQueue ?? $this->snapshotDiscoveryQueue = new Snapshots\Queues\SnapshotDiscovery(
 			'snapshot_discovery', self::con()->prefix() );
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getLogFilePath() :string {
+		try {
+			$dir = ( new LogFileDirCreate() )->run();
+		}
+		catch ( \Exception $e ) {
+			$dir = '';
+		}
+
+		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
+		return apply_filters( 'shield/audit_trail_log_file_path', $path );
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getLogFileRotationLimit() :int {
+		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
 	}
 }

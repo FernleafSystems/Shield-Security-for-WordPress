@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions\{
 	MalwareFileException,
 	PluginFileChecksumFailException,
@@ -23,7 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 abstract class BaseScan {
 
 	use ScanActionConsumer;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var string

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * @property string $path_full
@@ -24,7 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var ?Record
@@ -86,7 +86,7 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
 			$this->record = self::con()
 				->db_con
-				->dbhMalware()
+				->malware
 				->getQuerySelector()
 				->byId( $this->malware_record_id );
 		}

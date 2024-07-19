@@ -15,25 +15,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Autoupdates,
 	Base,
-	CommentsFilter,
-	Comms,
-	Data,
-	Events,
 	Firewall,
 	HackGuard,
-	Headers,
 	Integrations,
 	IPs,
 	License,
-	Lockdown,
 	LoginGuard,
 	Plugin,
 	Plugin\Lib\Ops\ResetPlugin,
-	SecurityAdmin,
-	Traffic,
-	UserManagement
+	SecurityAdmin
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -63,7 +54,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                     $is_mode_staging
  * @property bool                                     $is_mode_live
  * @property bool                                     $is_my_upgrade
- * @property bool                                     $is_rest_enabled
  * @property bool                                     $modules_loaded
  * @property bool                                     $plugin_deactivating
  * @property bool                                     $plugin_deleting
@@ -73,8 +63,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                   $base_file
  * @property string                                   $root_file
  * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
- * @property Shield\Utilities\MU\MUHandler            $mu_handler
- * @property Shield\Events\EventsService              $service_events
  * @property Shield\Users\UserMetas                   $user_metas
  * @property Base\ModCon[]|mixed                      $modules
  * @property Shield\Crons\HourlyCron                  $cron_hourly
@@ -88,8 +76,16 @@ class Controller extends DynPropertiesClass {
 	 */
 	public static $oInstance;
 
+	/**
+	 * @var ?Plugin\ModCon
+	 */
+	public $plugin = null;
+
+	/**
+	 * @deprecated 19.2
+	 */
 	public function fireEvent( string $event, array $meta = [] ) :self {
-		$this->service_events->fireEvent( $event, $meta );
+		$this->comps->events->fireEvent( $event, $meta );
 		return $this;
 	}
 
@@ -154,9 +150,8 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'service_events':
-				if ( empty( $val ) ) {
-					$this->service_events = $val = ( $this->comps === null ? new Shield\Events\EventsService() : $this->comps->events );
-				}
+				/** @deprecated 19.2 */
+				$this->comps->events;
 				break;
 
 			case 'admin_notices':
@@ -213,15 +208,6 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
-			case 'is_rest_enabled':
-				if ( $val === null ) {
-					$restReqs = $this->cfg->reqs_rest;
-					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
-						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
-					$this->is_rest_enabled = $val;
-				}
-				break;
-
 			case 'cache_dir_handler':
 				if ( empty( $val ) ) {
 					throw new \Exception( 'Accessing Cache Dir Handler too early.' );
@@ -244,12 +230,6 @@ class Controller extends DynPropertiesClass {
 				if ( $val === null ) {
 					$val = ( new Shield\Controller\Modes\StagingMode() )->isModeActive();
 					$this->is_mode_staging = $val;
-				}
-				break;
-
-			case 'mu_handler':
-				if ( $val === null ) {
-					$this->mu_handler = $val = new Shield\Utilities\MU\MUHandler();
 				}
 				break;
 
@@ -344,22 +324,22 @@ class Controller extends DynPropertiesClass {
 
 	public function adminNoticeDoesNotMeetRequirements() {
 		if ( !empty( $this->reqs_not_met ) ) {
-			$this->getRenderer()
-				 ->setTemplate( '/notices/does-not-meet-requirements.twig' )
-				 ->setTemplateEngineTwig()
-				 ->setRenderVars( [
-					 'strings' => [
-						 'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
-						 'requirements'     => $this->reqs_not_met,
-						 'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
-						 'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
-						 'more_information' => 'Click here for more information on requirements'
-					 ],
-					 'hrefs'   => [
-						 'more_information' => 'https://shsec.io/shieldsystemrequirements'
-					 ]
-				 ] )
-				 ->display();
+			$this->comps
+				->render
+				->setTemplate( '/notices/does-not-meet-requirements.twig' )
+				->setData( [
+					'strings' => [
+						'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
+						'requirements'     => $this->reqs_not_met,
+						'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
+						'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
+						'more_information' => 'Click here for more information on requirements'
+					],
+					'hrefs'   => [
+						'more_information' => 'https://shsec.io/shieldsystemrequirements'
+					]
+				] )
+				->display();
 		}
 	}
 
@@ -404,9 +384,7 @@ class Controller extends DynPropertiesClass {
 
 			$this->rules->processRules();
 
-			foreach ( $this->modules as $module ) {
-				$module->onRunProcessors();
-			}
+			$this->plugin->getProcessor()->execute();
 
 			// This is where any rules responses will execute (i.e. after processors are run):
 			do_action( $this->prefix( 'after_run_processors' ) );
@@ -419,64 +397,21 @@ class Controller extends DynPropertiesClass {
 	private function loadModules() {
 		if ( !$this->modules_loaded ) {
 
-			$this->modules_loaded = true;
-
 			$configuration = $this->cfg->configuration;
 			if ( empty( $configuration ) || $this->cfg->rebuilt ) {
 				$this->cfg->configuration = ( new Config\Modules\LoadModuleConfigs() )->run();
 			}
 
-			do_action( 'shield/modules_configuration' ); // Extensions jump in here to augment options/sections
+			// Extensions jump in here to augment options/sections
+			do_action( 'shield/modules_configuration' );
 
-			$configuration = $this->cfg->configuration;
-
-			$enumClasses = [
-				EnumModules::SECURITY_ADMIN => SecurityAdmin\ModCon::class,
-				EnumModules::ACTIVITY       => AuditTrail\ModCon::class,
-				EnumModules::AUTOUPDATES    => Autoupdates\ModCon::class,
-				EnumModules::COMMENTS       => CommentsFilter\ModCon::class,
-				EnumModules::DATA           => Data\ModCon::class,
-				EnumModules::FIREWALL       => Firewall\ModCon::class,
-				EnumModules::SCANS          => HackGuard\ModCon::class,
-				EnumModules::HEADERS        => Headers\ModCon::class,
-				EnumModules::INTEGRATIONS   => Integrations\ModCon::class,
-				EnumModules::IPS            => IPs\ModCon::class,
-				EnumModules::LICENSE        => License\ModCon::class,
-				EnumModules::LOCKDOWN       => Lockdown\ModCon::class,
-				EnumModules::LOGIN          => LoginGuard\ModCon::class,
-				EnumModules::PLUGIN         => Plugin\ModCon::class,
-				EnumModules::TRAFFIC        => Traffic\ModCon::class,
-				EnumModules::USERS          => UserManagement\ModCon::class,
-			];
-
-			$modules = $this->modules ?? [];
-			foreach ( $this->cfg->configuration->modules as $slug => $moduleProps ) {
-
-				$cfg = new ModConfigVO();
-				$cfg->slug = $slug;
-				$cfg->properties = $moduleProps;
-				$cfg->sections = $configuration->sectionsForModule( $cfg->slug );
-				$cfg->options = $configuration->optsForModule( $cfg->slug );
-
-				/** @var ModConfigVO $cfg */
-				$cfg = apply_filters( 'shield/load_mod_cfg', $cfg, $slug );
-
-				$slug = $cfg->properties[ 'slug' ];
-				if ( empty( $enumClasses[ $slug ] ) || !@\class_exists( $enumClasses[ $slug ] ) ) {
-					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
-					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $slug ) );
-				}
-
-				$modules[ $slug ] = new $enumClasses[ $slug ]( $cfg );
-				$this->modules = $modules;
-			}
+			$this->modules_loaded = true;
 
 			// Register the Controller hooks
 			$this->doRegisterHooks();
 
-			foreach ( $this->modules as $module ) {
-				$module->boot();
-			}
+			$this->plugin = new Plugin\ModCon();
+			$this->plugin->boot();
 		}
 	}
 
@@ -531,10 +466,7 @@ class Controller extends DynPropertiesClass {
 		 * Support for WP-CLI and it marks the cli as plugin admin
 		 */
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $byPass ) {
-			if ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() ) {
-				$byPass = true;
-			}
-			return $byPass;
+			return $byPass || ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() );
 		}, \PHP_INT_MAX );
 	}
 
@@ -614,6 +546,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
+		$this->cfg->builtHash = \md5( \serialize( $this->cfg->getRawData() ) );
 		$this->plugin_urls;
 		$this->saveCurrentPluginControllerOptions();
 	}
@@ -651,10 +584,6 @@ class Controller extends DynPropertiesClass {
 			$this->user_can_base_permissions = current_user_can( $this->cfg->properties[ 'base_permissions' ] );
 		}
 		return $this->user_can_base_permissions;
-	}
-
-	public function getOptionStoragePrefix() :string {
-		return $this->getPluginPrefix( '_' ).'_';
 	}
 
 	public function getPluginPrefix( string $glue = '-' ) :string {
@@ -702,9 +631,19 @@ class Controller extends DynPropertiesClass {
 		return $this->cfg->properties[ 'text_domain' ];
 	}
 
+	/**
+	 * @throws Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException
+	 */
+	public function includePrefixedVendor() :void {
+		$auto = path_join( $this->getRootDir(), 'src/lib/vendor_prefixed/autoload.php' );
+		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
+			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( 'Prefixed Autoload Missing' );
+		}
+		require_once( $auto );
+	}
+
 	public function isPremiumActive() :bool {
-		return isset( $this->modules[ EnumModules::LICENSE ] )
-			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
+		return $this->comps->license->hasValidWorkingLicense();
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
@@ -715,7 +654,22 @@ class Controller extends DynPropertiesClass {
 			Transient::Delete( $this->getConfigStoreKey() );
 		}
 		elseif ( isset( $this->cfg ) ) {
-			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $this->cfg->getRawData() );
+			$serial = \serialize( $this->cfg->getRawData() );
+			if ( !isset( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
+				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
+					$zip = @\gzdeflate( $serial );
+					if ( !empty( $zip ) && \gzinflate( $zip ) === $serial ) {
+						$enc = \base64_encode( $zip );
+						if ( !empty( $enc ) ) {
+							$data = $enc;
+						}
+					}
+				}
+				else {
+					$data = $this->cfg->getRawData();
+				}
+				Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $data );
+			}
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
@@ -730,122 +684,23 @@ class Controller extends DynPropertiesClass {
 		$this->flags = $flags;
 	}
 
-	/**
-	 * @return Base\ModCon|null|mixed
-	 */
-	public function getModule( string $slug ) {
-		return $this->modules[ $slug ] ?? null;
-	}
-
-	public function getModule_AuditTrail() :AuditTrail\ModCon {
-		return $this->modules[ EnumModules::ACTIVITY ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Autoupdates() :Autoupdates\ModCon {
-		return $this->modules[ EnumModules::AUTOUPDATES ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Comments() :CommentsFilter\ModCon {
-		return $this->modules[ EnumModules::COMMENTS ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Comms() :Comms\ModCon {
-		return $this->getModule( Comms\ModCon::SLUG );
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Data() :Data\ModCon {
-		return $this->modules[ EnumModules::DATA ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Events() :Events\ModCon {
-		return $this->getModule( Events\ModCon::SLUG );
-	}
-
-	public function getModule_Firewall() :Firewall\ModCon {
-		return $this->modules[ EnumModules::FIREWALL ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Lockdown() :Lockdown\ModCon {
-		return $this->modules[ EnumModules::LOCKDOWN ];
-	}
-
-	public function getModule_HackGuard() :HackGuard\ModCon {
-		return $this->modules[ EnumModules::SCANS ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Headers() :Headers\ModCon {
-		return $this->modules[ EnumModules::HEADERS ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Integrations() :Integrations\ModCon {
-		return $this->modules[ EnumModules::INTEGRATIONS ];
-	}
-
-	public function getModule_IPs() :IPs\ModCon {
-		return $this->modules[ EnumModules::IPS ];
-	}
-
-	public function getModule_License() :License\ModCon {
-		return $this->modules[ EnumModules::LICENSE ];
-	}
-
-	public function getModule_LoginGuard() :LoginGuard\ModCon {
-		return $this->modules[ EnumModules::LOGIN ];
-	}
-
 	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->modules[ EnumModules::PLUGIN ];
+		return $this->plugin;
 	}
 
-	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
-		return $this->modules[ EnumModules::SECURITY_ADMIN ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_Traffic() :Traffic\ModCon {
-		return $this->modules[ EnumModules::TRAFFIC ];
-	}
-
-	/**
-	 * @deprecated 19.1
-	 */
-	public function getModule_UserManagement() :UserManagement\ModCon {
-		return $this->modules[ EnumModules::USERS ];
-	}
-
-	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
-		$render = Services::Render();
-		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {
-			$render->setTwigTemplateRoot( $dir );
+	public function modCfg( string $slug = '' ) :ModConfigVO {
+		$modules = $this->modules ?? [];
+		if ( !isset( $modules[ $slug ] ) ) {
+			$configuration = $this->cfg->configuration;
+			$cfg = new ModConfigVO();
+			$cfg->slug = $slug;
+			$cfg->properties = $configuration->modules[ $slug ];
+			$cfg->sections = $configuration->sectionsForModule( $cfg->slug );
+			$cfg->options = $configuration->optsForModule( $cfg->slug );
+			$modules[ $slug ] = $cfg;
+			$this->modules = $modules;
 		}
-		$render->setTemplateRoot( $this->getPath_Templates() );
-		return $render;
+		return $modules[ $slug ];
 	}
 
 	private function labels() :Config\Labels {
@@ -871,5 +726,74 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
+	/**
+	 * @return Base\ModCon|null|mixed
+	 * @deprecated 19.2
+	 */
+	public function getModule( string $slug ) {
+		return $this->modules[ $slug ] ?? null;
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_AuditTrail() :AuditTrail\ModCon {
+		return $this->modules[ EnumModules::ACTIVITY ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_Firewall() :Firewall\ModCon {
+		return $this->modules[ EnumModules::FIREWALL ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_HackGuard() :HackGuard\ModCon {
+		return $this->modules[ EnumModules::SCANS ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_IPs() :IPs\ModCon {
+		return $this->modules[ EnumModules::IPS ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_License() :License\ModCon {
+		return $this->modules[ EnumModules::LICENSE ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_LoginGuard() :LoginGuard\ModCon {
+		return $this->modules[ EnumModules::LOGIN ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
+		return $this->modules[ EnumModules::SECURITY_ADMIN ];
+	}
+
+	/**
+	 * @deprecated 19.2
+	 */
+	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
+		$render = Services::Render();
+		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {
+			$render->setTwigTemplateRoot( $dir );
+		}
+		$render->setTemplateRoot( $this->getPath_Templates() );
+		return $render;
 	}
 }

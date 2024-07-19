@@ -19,61 +19,94 @@ class NotBotHandler {
 
 	public const LIFETIME = 600;
 	public const COOKIE_SLUG = 'notbot';
-	/**
-	 * @deprecated 19.1
-	 */
-	public const SLUG = 'notbot';
-
-	private $previousNotBotSignalAt = null;
+	public const SIGNAL_NOTBOT = 'notbot';
+	public const SIGNAL_ALTCHA = 'altcha';
 
 	protected function canRun() :bool {
-		return (bool)apply_filters( 'shield/can_run_antibot', true );
+		$con = self::con();
+		return (bool)apply_filters( 'shield/can_run_antibot', $con->comps->opts_lookup->enabledAntiBotEngine() && $con->db_con->bot_signals->isReady() );
 	}
 
 	protected function run() {
 		if ( \defined( 'LOGGED_IN_COOKIE' ) && Services::Request()->cookie( LOGGED_IN_COOKIE ) ) {
-			add_action( 'init', [ $this, 'sendNotBotNonceCookie' ] );
+			add_action( 'init', [ $this, 'sendNotBotFlagCookie' ] );
 		}
 		else {
-			$this->sendNotBotNonceCookie();
+			$this->sendNotBotFlagCookie();
 		}
 
 		( new InsertNotBotJs() )->execute();
 	}
 
-	public function getLastNotBotSignalAt() :int {
-		if ( $this->previousNotBotSignalAt === null ) {
-			$this->previousNotBotSignalAt = ( new BotSignalsRecord() )
-				->setIP( self::con()->this_req->ip )
-				->retrieveNotBotAt();
+	public function sendNotBotFlagCookie() {
+		$cookieParts = $this->getNonRequiredSignals();
+		$cookieParts[] = 'exp-'.( Services::Request()->ts() + self::LIFETIME );
+		Services::Response()->cookieSet(
+			self::con()->prefix( self::COOKIE_SLUG ),
+			\implode( 'Z', $cookieParts ),
+			apply_filters( 'shield/notbot_cookie_life', self::LIFETIME )
+		);
+	}
+
+	public function getNonRequiredSignals() :array {
+		return \array_diff( $this->getSignalSlugs(), $this->getRequiredSignals() );
+	}
+
+	public function getRequiredSignals() :array {
+		$con = self::con();
+		try {
+			$BS = ( new BotSignalsRecord() )
+				->setIP( $con->this_req->ip )
+				->retrieve();
 		}
-		return $this->previousNotBotSignalAt;
+		catch ( \Exception $e ) {
+			$BS = null;
+		}
+		return \array_keys( \array_filter( [
+			self::SIGNAL_NOTBOT => !empty( $BS )
+								   && $con->comps->altcha->complexityLevel() !== 'none'
+								   && ( Services::Request()->ts() - $BS->notbot_at > HOUR_IN_SECONDS ),
+			self::SIGNAL_ALTCHA => !empty( $BS )
+								   && $con->comps->altcha->enabled()
+								   && ( Services::Request()->ts() - $BS->altcha_at > HOUR_IN_SECONDS ),
+		] ) );
+	}
+
+	protected function getSignalSlugs() :array {
+		return [
+			self::SIGNAL_NOTBOT,
+			self::SIGNAL_ALTCHA,
+		];
 	}
 
 	/**
-	 * Hooked to "setup_theme" (at least) as ActionData::Build() requires $wp_rewrite to be initialised,
-	 * and this is the earliest we can hook into.
+	 * @deprecated 19.2.0
+	 */
+	public function hasCookie() :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 19.2.0
+	 */
+	public function getHashForVisitorTS( int $ts ) {
+		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, ( new InstallationID() )->id() );
+	}
+
+	/**
+	 * @deprecated 19.2.0
 	 */
 	public function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet( 'shield-notbot-nonce', ActionNonce::Create( CaptureNotBot::class ), 120 );
 	}
 
-	public function hasCookie() :bool {
-		$cookie = [];
-		$req = Services::Request();
-		$notBot = $req->cookie( self::con()->prefix( self::COOKIE_SLUG ), '' );
-		if ( !empty( $notBot ) && \strpos( $notBot, 'z' ) ) {
-			[ $ts, $hash ] = \explode( 'z', $notBot );
-			$cookie[ 'ts' ] = (int)$ts;
-			$cookie[ 'hash' ] = $hash;
-		}
-
-		return !empty( $cookie )
-			   && ( $req->ts() < $cookie[ 'ts' ] )
-			   && \hash_equals( $this->getHashForVisitorTS( $cookie[ 'ts' ] ), $cookie[ 'hash' ] );
-	}
-
-	public function getHashForVisitorTS( int $ts ) {
-		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, ( new InstallationID() )->id() );
+	/**
+	 * @deprecated 19.2.0
+	 */
+	public function getLastNotBotSignalAt() :int {
+		return ( new BotSignalsRecord() )
+			->setIP( self::con()->this_req->ip )
+			->retrieve()
+			->notbot_at;
 	}
 }

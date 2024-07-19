@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 class LoginProtection extends Base {
@@ -16,7 +15,7 @@ class LoginProtection extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( "Brute Force Login Protection", 'wp-simple-firewall' ),
+				'step_title' => __( "Brute Force Login Protection with silentCAPTCHA", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'video_id' => '269191603'
@@ -31,9 +30,6 @@ class LoginProtection extends Base {
 		}
 
 		$toEnable = $value === 'Y';
-		if ( $toEnable ) { // we don't disable the whole module
-			self::con()->opts->optSet( 'enable_'.EnumModules::LOGIN, 'Y' );
-		}
 		self::con()
 			->opts
 			->optSet( 'enable_antibot_check', $toEnable ? 'Y' : 'N' )

@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-
-class Analysis extends BaseRender {
+class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_progress_meter_analysis';
 	public const TEMPLATE = '/wpadmin/components/progress_meter/analysis_standard.twig';

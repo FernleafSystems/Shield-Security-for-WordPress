@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\{
 	BaseScanActionVO,
@@ -17,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base {
 
 	use ExecOnce;
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const SCAN_SLUG = '';
 
@@ -41,7 +41,7 @@ abstract class Base {
 		add_action(
 			self::con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
 			function () {
-				$this->mod()->getScansCon()->startNewScans( [ $this->getSlug() ] );
+				self::con()->comps->scans->startNewScans( [ $this->getSlug() ] );
 			}
 		);
 	}
@@ -164,7 +164,7 @@ abstract class Base {
 	}
 
 	public function isReady() :bool {
-		return $this->mod()->isModuleEnabled() && $this->isEnabled() && !$this->isRestricted();
+		return self::con()->comps->opts_lookup->isPluginEnabled() && $this->isEnabled() && !$this->isRestricted();
 	}
 
 	public function isRestricted() :bool {

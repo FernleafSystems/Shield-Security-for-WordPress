@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BaseBuildChartData {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use ChartRequestConsumer;
 
 	/**
@@ -79,7 +79,6 @@ class BaseBuildChartData {
 
 	protected function buildDataForEvents( array $events ) :array {
 		$req = $this->getChartRequest();
-		$dbhEvents = self::con()->db_con->dbhEvents();
 
 		$tick = 0;
 		$carbon = Services::Request()->carbon();
@@ -89,7 +88,7 @@ class BaseBuildChartData {
 		do {
 
 			/** @var EventsDB\Select $eventSelect */
-			$eventSelect = $dbhEvents->getQuerySelector();
+			$eventSelect = self::con()->db_con->events->getQuerySelector();
 			switch ( $req->interval ) {
 				case 'hourly':
 					$eventSelect->filterByBoundary_Hour( $carbon->timestamp );

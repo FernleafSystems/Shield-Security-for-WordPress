@@ -18,7 +18,7 @@ class IsLoggedInNormal extends Base {
 	protected function execConditionCheck() :bool {
 		$matched = Services::WpUsers()->isUserLoggedIn();
 		if ( $matched && !isset( $this->req->session ) ) {
-			$this->req->session = self::con()->getModule_Plugin()->getSessionCon()->current();
+			$this->req->session = self::con()->comps->session->current();
 		}
 		return $matched;
 	}

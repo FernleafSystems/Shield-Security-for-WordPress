@@ -78,7 +78,7 @@ class RuleBuilderAction extends BaseAction {
 			$parsed->form_builder_version = $con->cfg->version();
 
 			try {
-				$record = $con->db_con->dbhRules()->insertFromForm( $parsed, $asDraft );
+				$record = $con->db_con->rules->insertFromForm( $parsed, $asDraft );
 				$success = true;
 				if ( !$asDraft ) {
 					$msg = __( 'Rule Saved' );
