@@ -34,7 +34,7 @@ class SessionTheftProtection extends Base {
 		}
 
 		if ( empty( $con->opts->optGet( 'session_lock' ) ) ) {
-			$status[ 'exp' ][] = __( "It's good practice to lock a session at least 1 characteristic.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = __( "It's good practice to lock a session at least 1 property to help prevent theft of the session.", 'wp-simple-firewall' );
 		}
 		if ( $lookup->getSessionIdleInterval() === 0 ) {
 			$status[ 'exp' ][] = __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' );

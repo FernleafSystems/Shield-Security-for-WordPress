@@ -359,22 +359,14 @@
         "primary":     true,
         "title":       "Security Admin Restriction Settings",
         "title_short": "Security Admin Settings",
-        "beacon_id":   215,
-        "summary":     [
-          "Purpose - Restrict access using a simple Access PIN.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   215
       },
       {
         "slug":        "section_admin_access_restriction_areas",
         "module":      "admin_access_restriction",
         "title":       "Security Admin Restriction Zones",
         "title_short": "Access Restriction Zones",
-        "beacon_id":   214,
-        "summary":     [
-          "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   214
       },
       {
         "slug":        "section_log_wordpress_activity",
@@ -382,22 +374,14 @@
         "module":      "audit_trail",
         "title":       "WordPress Activity",
         "title_short": "WP Activity",
-        "beacon_id":   241,
-        "summary":     [
-          "Purpose - Provides finer control over the Activity Log itself.",
-          "Recommendation - These settings are dependent on your requirements."
-        ]
+        "beacon_id":   241
       },
       {
         "slug":        "section_log_requests",
         "module":      "audit_trail",
         "title":       "Request Logging",
         "title_short": "Request Logging",
-        "beacon_id":   153,
-        "summary":     [
-          "Purpose - Provides finer control over the live traffic system.",
-          "Recommendation - These settings are dependent on your requirements."
-        ]
+        "beacon_id":   153
       },
       {
         "primary":     true,
@@ -405,32 +389,21 @@
         "module":      "comments_filter",
         "title":       "Automatic Bot Comment SPAM Protection Filter",
         "title_short": "Bot SPAM",
-        "beacon_id":   260,
-        "summary":     [
-          "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   260
       },
       {
         "slug":        "section_human_spam_filter",
         "module":      "comments_filter",
         "title":       "Human Comment SPAM Protection",
         "title_short": "Human SPAM",
-        "beacon_id":   262,
-        "summary":     [
-          "Purpose - Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.",
-          "Recommendation - Use of this feature is highly recommend.This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis."
-        ]
+        "beacon_id":   262
       },
       {
         "slug":        "section_bot_comment_spam_common",
         "module":      "comments_filter",
         "title":       "Common Settings For All SPAM Scanning",
         "title_short": "Common Settings",
-        "beacon_id":   152,
-        "summary":     [
-          "Purpose - Settings that apply to all comment SPAM scanning."
-        ]
+        "beacon_id":   152
       },
       {
         "primary":     true,
@@ -438,44 +411,28 @@
         "module":      "firewall",
         "title":       "Request Firewall Options",
         "title_short": "Request Firewall",
-        "beacon_id":   333,
-        "summary":     [
-          "Here you choose what kind of malicious data to scan for.",
-          "Recommendation - Turn on as many options here as you can. If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Activity Log."
-        ]
+        "beacon_id":   333
       },
       {
         "slug":        "section_apixml",
         "module":      "firewall",
         "title":       "WordPress System Lockdown",
         "title_short": "System",
-        "beacon_id":   413,
-        "summary":     [
-          "Purpose - Lockdown certain core WordPress system features.",
-          "Recommendation - This depends on your usage and needs for certain WordPress functions and features."
-        ]
+        "beacon_id":   413
       },
       {
         "slug":        "section_traffic_limiter",
         "module":      "firewall",
         "title":       "Rate Limiting",
         "title_short": "Rate Limiting",
-        "beacon_id":   420,
-        "summary":     [
-          "Purpose - Provides ability to restrict excessive requests from a single visitor.",
-          "Recommendation - These settings are dependent on your requirements."
-        ]
+        "beacon_id":   420
       },
       {
         "slug":        "section_wordpress_obscurity_options",
         "module":      "firewall",
         "title":       "WordPress Obscurity Options",
         "title_short": "Obscurity",
-        "beacon_id":   418,
-        "summary":     [
-          "Purpose - Obscures certain WordPress settings from public view.",
-          "Recommendation - Obscurity is not true security and so these settings are down to your personal tastes."
-        ]
+        "beacon_id":   418
       },
       {
         "primary":     true,
@@ -483,32 +440,21 @@
         "module":      "hack_protect",
         "title":       "File Guard",
         "title_short": "File Guard",
-        "beacon_id":   217,
-        "summary":     [
-          "Purpose - Monitor WordPress files and protect against malicious intrusion and hacking.",
-          "Recommendation - Keep the File Guard features turned on."
-        ]
+        "beacon_id":   217
       },
       {
         "slug":        "section_scan_wpv",
         "module":      "hack_protect",
         "title":       "Vulnerability Scanner",
         "title_short": "Vulnerability Scanner",
-        "beacon_id":   217,
-        "summary":     [
-          "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
-          "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-        ]
+        "beacon_id":   217
       },
       {
         "slug":        "section_scan_options",
         "module":      "hack_protect",
         "title":       "Scan Options",
         "title_short": "Scan Options",
-        "beacon_id":   217,
-        "summary":     [
-          "Purpose - Set how often the Hack Guard scans will run."
-        ]
+        "beacon_id":   217
       },
       {
         "primary":     true,
@@ -516,11 +462,7 @@
         "module":      "ips",
         "title":       "Automatic IP Black List",
         "title_short": "Auto IP Blocking Rules",
-        "beacon_id":   208,
-        "summary":     [
-          "Purpose - The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.",
-          "Recommendation - Keep the Automatic IP Black List feature turned on."
-        ]
+        "beacon_id":   208
       },
       {
         "slug":        "section_silentcaptcha",
@@ -539,21 +481,14 @@
         "module":      "ips",
         "title":       "Identify Common Bot Behaviours",
         "title_short": "Bot Behaviours",
-        "beacon_id":   124,
-        "summary":     [
-          "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
-        ]
+        "beacon_id":   124
       },
       {
         "slug":        "section_enable_plugin_feature_ips",
         "module":      "ips",
         "title":       "Enable Module: IP Manager",
         "title_short": "Disable Module",
-        "beacon_id":   208,
-        "summary":     [
-          "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",
-          "Recommendation - Keep the IP Manager feature turned on. You should also carefully review the automatic black list settings."
-        ]
+        "beacon_id":   208
       },
       {
         "primary":     true,
@@ -561,11 +496,7 @@
         "module":      "login_protect",
         "title":       "Brute Force Login Guard",
         "title_short": "Brute Force",
-        "beacon_id":   325,
-        "summary":     [
-          "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   325
       },
       {
         "primary":     true,
@@ -573,78 +504,48 @@
         "module":      "login_protect",
         "title":       "User Session Management",
         "title_short": "Sessions",
-        "beacon_id":   397,
-        "summary":     [
-          "Purpose - Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   397
       },
       {
         "slug":        "section_twofactor_auth",
         "module":      "login_protect",
         "title":       "Multi-Factor Authentication",
         "title_short": "2-Factor Auth",
-        "beacon_id":   326,
-        "summary":     [
-          "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-          "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
-          "Note: You may combine multiple authentication factors for increased security."
-        ]
+        "beacon_id":   326
       },
       {
         "slug":        "section_2fa_email",
         "module":      "login_protect",
         "title":       "Email Two-Factor Authentication",
         "title_short": "2FA - Email",
-        "beacon_id":   246,
-        "summary":     [
-          "Purpose - Verifies the identity of users who log in to your site using email-based one-time-passwords.",
-          "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
-          "Note: You may combine multiple authentication factors for increased security."
-        ]
+        "beacon_id":   246
       },
       {
         "slug":        "section_2fa_otp",
         "module":      "login_protect",
         "title":       "One-Time Passwords",
         "title_short": "OTP",
-        "beacon_id":   244,
-        "summary":     [
-          "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
-          "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
-          "Note: You may combine multiple authentication factors for increased security."
-        ]
+        "beacon_id":   244
       },
       {
         "slug":        "section_2fa_passkeys",
         "module":      "login_protect",
         "title":       "Hardware 2-Factor Authentication",
         "title_short": "2FA - Hardware",
-        "beacon_id":   249,
-        "summary":     [
-          "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
-          "Note: You may combine multiple authentication factors for increased security."
-        ]
+        "beacon_id":   249
       },
       {
         "slug":        "section_rename_wplogin",
         "module":      "login_protect",
         "title":       "Hide WP Login Page",
         "title_short": "Hide Login Page",
-        "beacon_id":   316,
-        "summary":     [
-          "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
-          "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
-        ]
+        "beacon_id":   316
       },
       {
         "slug":        "section_deprecated",
         "module":      "login_protect",
         "title":       "Deprecated",
-        "title_short": "Deprecated",
-        "summary":     [
-          "These options will be removed in the future. Please use the ADE option under Bot SPAM section."
-        ]
+        "title_short": "Deprecated"
       },
       {
         "slug":        "section_defaults",
@@ -687,10 +588,7 @@
         "module":      "plugin",
         "title":       "Shield White Label",
         "title_short": "White Label",
-        "beacon_id":   131,
-        "summary":     [
-          "Purpose - Rename and re-brand the Shield Security plugin for your client site installations."
-        ]
+        "beacon_id":   131
       },
       {
         "slug":        "section_global_security_options",
@@ -703,55 +601,35 @@
         "module":      "login_protect",
         "title":       "User Session Management",
         "title_short": "Session Options",
-        "beacon_id":   397,
-        "summary":     [
-          "Purpose - Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   397
       },
       {
         "slug":        "section_passwords",
         "module":      "user_management",
         "title":       "Password Policies",
         "title_short": "Password Policies",
-        "beacon_id":   256,
-        "summary":     [
-          "Purpose - Have full control over passwords used by users on the site.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   256
       },
       {
         "slug":        "section_user_reg",
         "module":      "user_management",
         "title":       "User Registration",
         "title_short": "User Registration",
-        "beacon_id":   145,
-        "summary":     [
-          "Purpose - Control user registration and prevent SPAM.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   145
       },
       {
         "slug":        "section_suspend",
         "module":      "user_management",
         "title":       "Automatic And Manual User Suspension",
         "title_short": "User Suspension",
-        "beacon_id":   273,
-        "summary":     [
-          "Purpose - Automatically suspend accounts to prevent login by certain users.",
-          "Recommendation - Use of this feature is highly recommend."
-        ]
+        "beacon_id":   273
       },
       {
         "slug":        "section_enable_plugin_feature_user_accounts_management",
         "module":      "user_management",
         "title":       "Enable Module: User Management",
         "title_short": "Disable Module",
-        "beacon_id":   273,
-        "summary":     [
-          "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
-          "Recommendation - Keep the User Management feature turned on."
-        ]
+        "beacon_id":   273
       },
       {
         "primary":     true,

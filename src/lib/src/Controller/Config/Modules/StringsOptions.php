@@ -846,8 +846,8 @@ class StringsOptions {
 					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), sprintf( __( 'This setting only applies to %s.', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) ) ),
 					__( 'Enforces email-based authentication on all users with the selected roles.', 'wp-simple-firewall' ),
 					__( 'If a user has multiple roles assigned to it, all roles will be checked against this list.', 'wp-simple-firewall' ),
-					sprintf( '%s:<br /><ul><li><code>%s</code></li></ul>', __( 'All User Roles Available On This Site', 'wp-simple-firewall' ),
-						\implode( '</code></li><li><code>', Services::WpUsers()->getAvailableUserRoles() ) )
+					sprintf( '%s:<br /><code>%s</code>', __( 'All User Roles Available On This Site', 'wp-simple-firewall' ),
+						\implode( '</code>, <code>', Services::WpUsers()->getAvailableUserRoles() ) )
 				];
 				break;
 			case 'enable_antibot_check' :
