@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Firewall\FirewallCategoryNames;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 
 class BlockFirewall extends BaseBlock {

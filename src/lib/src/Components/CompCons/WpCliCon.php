@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	ConfigOptGet,
 	ConfigOptSet,
 	ConfigOptsList,
+	DebugMode,
 	ForceOff,
 	IpRuleAdd,
 	IpRuleRemove,
@@ -21,8 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	ScansRun,
 	SecurityAdminAdd,
 	SecurityAdminPin,
-	SecurityAdminRemove,
-	DebugMode
+	SecurityAdminRemove
 };
 use FernleafSystems\Wordpress\Services\Services;
 
