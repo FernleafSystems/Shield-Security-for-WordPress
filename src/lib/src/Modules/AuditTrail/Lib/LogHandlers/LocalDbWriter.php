@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
 use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogs\Ops as LogsDB,
 	ActivityLogsMeta\Ops as MetaDB,
 	ReqLogs\Ops as ReqLogsDB,
 	ReqLogs\RequestRecords
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 

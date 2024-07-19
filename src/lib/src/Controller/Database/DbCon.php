@@ -11,6 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\{
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	ActivityLogs,
+	ActivityLogsMeta,
 	BotSignal,
 	CrowdSecSignals,
 	Event,
@@ -18,14 +20,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	IpMeta,
 	IpRules,
 	IPs,
-	ActivityLogs,
 	Malware,
-	ActivityLogsMeta,
 	Mfa,
 	Reports,
+	ReqLogs,
 	ResultItemMeta,
 	ResultItems,
-	ReqLogs,
 	Rules,
 	ScanItems,
 	ScanResults,

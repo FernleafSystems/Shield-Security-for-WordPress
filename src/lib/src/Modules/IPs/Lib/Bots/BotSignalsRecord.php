@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
 	LoadBotSignalRecords,
 	Ops as BotSignalDB
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord
 };
@@ -17,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	Lib\IpRules\IpRuleStatus,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsRecord {
