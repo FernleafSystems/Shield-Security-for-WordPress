@@ -40,7 +40,7 @@ class LoadConfig {
 	public function run() :ConfigVO {
 		$WPP = Services::WpPlugins();
 
-		$def = Services::WpGeneral()->getOption( $this->store_key );
+		$def = $this->parseDef();
 		$rebuild = empty( $def ) || !\is_array( $def );
 
 		$specHash = \hash_file( 'sha1', $this->path );
@@ -71,6 +71,32 @@ class LoadConfig {
 		}
 
 		return $cfg;
+	}
+
+	/**
+	 * With WP 6.6 we predict nervous breakdowns from the fact that SiteHealth will report that the total Autoload
+	 * data is "too big" (i.e. bigger than the arbitrarily defined 800KB).
+	 *
+	 * So to offset this potential meltdown, we deflate/inflate the data, moving down from ~180KB to ~30KB.
+	 *
+	 * There is a performance cost to this. Basic timer tests show that without compression, it takes 0.001s to
+	 * process, and with compression, it takes 0.002s. Not huge by any measure.
+	 */
+	private function parseDef() :?array {
+		$def = Services::WpGeneral()->getOption( $this->store_key );
+		if ( \is_string( $def ) ) {
+			$gz = @\base64_decode( $def );
+			if ( !empty( $gz ) ) {
+				$serial = @\gzinflate( $gz );
+				if ( !empty( $serial ) ) {
+					$maybeDef = @\unserialize( $serial );
+					if ( !empty( $maybeDef ) ) {
+						$def = $maybeDef;
+					}
+				}
+			}
+		}
+		return \is_array( $def ) ? $def : null;
 	}
 
 	/**

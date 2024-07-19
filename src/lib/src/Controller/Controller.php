@@ -546,6 +546,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
+		$this->cfg->builtHash = \md5( \serialize( $this->cfg->getRawData() ) );
 		$this->plugin_urls;
 		$this->saveCurrentPluginControllerOptions();
 	}
@@ -653,7 +654,22 @@ class Controller extends DynPropertiesClass {
 			Transient::Delete( $this->getConfigStoreKey() );
 		}
 		elseif ( isset( $this->cfg ) ) {
-			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $this->cfg->getRawData() );
+			$serial = \serialize( $this->cfg->getRawData() );
+			if ( !isset( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
+				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
+					$zip = @\gzdeflate( $serial );
+					if ( !empty( $zip ) && \gzinflate( $zip ) === $serial ) {
+						$enc = \base64_encode( $zip );
+						if ( !empty( $enc ) ) {
+							$data = $enc;
+						}
+					}
+				}
+				else {
+					$data = $this->cfg->getRawData();
+				}
+				Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $data );
+			}
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}

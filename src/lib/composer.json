@@ -30,7 +30,8 @@
     "twig/twig":                             "^3.10",
     "web-auth/webauthn-lib":                 "^3.3",
     "ext-json":                              "*",
-    "ext-openssl":                           "*"
+    "ext-openssl":                           "*",
+    "ext-zlib":                              "*"
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
