@@ -43,6 +43,12 @@
         ]
       },
       {
+        "type":        "new",
+        "title":       "Added silentCAPTCHA Support for ARMember and ARForms",
+        "description": [
+        ]
+      },
+      {
         "type":        "changed",
         "pro_only":    true,
         "title":       "Security Admin Not Required For Whitelabel",

@@ -2897,6 +2897,11 @@
         "default":         [],
         "value_options":   [
           {
+            "value_key": "arforms_lite",
+            "text":      "ARForms (lite)",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
             "value_key": "calderaforms",
             "text":      "Caldera Forms (beta)",
             "cap":       "thirdparty_scan_spam"
@@ -2999,6 +3004,11 @@
           {
             "value_key": "wordpress",
             "text":      "WordPress"
+          },
+          {
+            "value_key": "armember_lite",
+            "text":      "ARMember (lite)",
+            "cap":       "thirdparty_scan_users"
           },
           {
             "value_key": "buddyboss",

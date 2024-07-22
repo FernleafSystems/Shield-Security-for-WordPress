@@ -195,7 +195,7 @@ class SectionNotices {
 				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
 					$warnings[] = sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
-						__( "Use of silentCAPTCHA for user forms isn't turned on.", 'wp-simple-firewall' )
+						__( "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone.", 'wp-simple-firewall' )
 					);
 				}
 				break;
