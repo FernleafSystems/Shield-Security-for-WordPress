@@ -346,8 +346,9 @@ class AssetsCustomizer {
 							Actions\SetFlagShieldIntroVideoClosed::SLUG => ActionData::Build( Actions\SetFlagShieldIntroVideoClosed::class ),
 						],
 						'flags' => [
-							'show_video' => $con->opts->optGet( 'v20_intro_closed_at' ) === 0
-											&& $con->opts->optGet( 'installation_time' ) < $con->cfg->properties[ 'release_timestamp' ]
+							'show_video' => $con->comps->sec_admin->isCurrentlySecAdmin()
+											&& $con->opts->optGet( 'v20_intro_closed_at' ) === 0
+											&& $con->opts->optGet( 'installation_time' ) < 1721722000
 						],
 					];
 				},

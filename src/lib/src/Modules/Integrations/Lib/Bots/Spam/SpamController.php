@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
-class SpamController extends BaseBotDetectionController {
+class SpamController extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController {
 
 	protected function canRun() :bool {
 		return parent::canRun() && self::con()->caps->canThirdPartyScanSpam();
@@ -20,6 +19,7 @@ class SpamController extends BaseBotDetectionController {
 	 */
 	public function enumProviders() :array {
 		return [
+			Find::ARFORMS_LITE     => Handlers\ArformsLite::class,
 			Find::CALDERA_FORMS    => Handlers\CalderaForms::class,
 			Find::CONTACT_FORM_7   => Handlers\ContactForm7::class,
 			Find::ELEMENTOR_PRO    => Handlers\ElementorPro::class,
