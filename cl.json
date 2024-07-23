@@ -1,7 +1,7 @@
 {
   "20.0": {
     "version":     "20.0",
-    "released_at": 1721400000,
+    "released_at": 1721722000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease200",
       "upgrade": "https://shsec.io/shieldupgradeguide200"
@@ -16,7 +16,7 @@
         "description": [
           "silentCAPTCHA is the umbrella term for Shield's built-in malicious bot detection technology."
         ],
-        "href":        ""
+        "href":        "https://shsec.io/silentcaptchawordpress"
       },
       {
         "type":        "improved",
@@ -40,6 +40,12 @@
         "title":       "Optimised Autoload Size",
         "description": [
           "Reduced the size of the autoload option storage by ~50%."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Added silentCAPTCHA Support for ARMember and ARForms",
+        "description": [
         ]
       },
       {

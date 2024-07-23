@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "20.0.1",
-    "release_timestamp":       1721400000,
-    "build":                   "202407.1901",
+    "version":                 "20.0.3",
+    "release_timestamp":       1721722000,
+    "build":                   "202407.2301",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -20,16 +20,7 @@
     "wordpress": "5.7",
     "mysql":     "5.6"
   },
-  "reqs_rest":        {
-    "php": "7.0",
-    "wp":  "5.7"
-  },
   "upgrade_reqs":     {
-    "18.2": {
-      "php":   "7.2",
-      "wp":    "5.7",
-      "mysql": "5.6"
-    },
     "19.0": {
       "php":   "7.4",
       "wp":    "5.7",
@@ -52,17 +43,8 @@
   "includes":         {
     "tp":   {
       "bootstrap":    {
-        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css",
-        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"
-      },
-      "highlightjs":  {
-        "js": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
-      },
-      "hcaptcha":     {
-        "js": "https://hcaptcha.com/1/api.js"
-      },
-      "recaptcha":    {
-        "js": "https://www.google.com/recaptcha/api.js"
+        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css",
+        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
       },
       "vimeo_player": {
         "js": "https://player.vimeo.com/api/player.js"
@@ -1835,8 +1817,8 @@
           }
         ],
         "link_info":       "https://shsec.io/jy",
-        "link_blog":       "https://shsec.io/jz",
-        "beacon_id":       424,
+        "link_blog":       "https://shsec.io/oc",
+        "beacon_id":       795,
         "name":            "Bot Challenge Complexity",
         "summary":         "Bot Challenge Complexity",
         "description":     "Bot Challenge Complexity"
@@ -1853,7 +1835,7 @@
         "min":             0,
         "max":             99,
         "link_info":       "https://shsec.io/jy",
-        "link_blog":       "https://shsec.io/jz",
+        "link_blog":       "https://shsec.io/oc",
         "beacon_id":       424,
         "name":            "silentCAPTCHA Bot Minimum Score",
         "summary":         "silentCAPTCHA Bot Minimum Score (Percentage)",
@@ -1870,7 +1852,7 @@
         "default":         250,
         "min":             0,
         "link_info":       "https://shsec.io/jy",
-        "link_blog":       "https://shsec.io/jz",
+        "link_blog":       "https://shsec.io/oc",
         "beacon_id":       431,
         "name":            "High Reputation Bypass",
         "summary":         "Prevent IPs/Visitors With High Reputation Scores From Being Blocked",
@@ -2897,6 +2879,11 @@
         "default":         [],
         "value_options":   [
           {
+            "value_key": "arforms_lite",
+            "text":      "ARForms (lite)",
+            "cap":       "thirdparty_scan_spam"
+          },
+          {
             "value_key": "calderaforms",
             "text":      "Caldera Forms (beta)",
             "cap":       "thirdparty_scan_spam"
@@ -2978,7 +2965,7 @@
           }
         ],
         "link_info":       "https://shsec.io/k2",
-        "link_blog":       "https://shsec.io/k3",
+        "link_blog":       "https://shsec.io/oc",
         "beacon_id":       138,
         "name":            "Form SPAM Checking",
         "summary":         "Select The Form Providers That Should Be Checked For SPAM",
@@ -2999,6 +2986,11 @@
           {
             "value_key": "wordpress",
             "text":      "WordPress"
+          },
+          {
+            "value_key": "armember_lite",
+            "text":      "ARMember (lite)",
+            "cap":       "thirdparty_scan_users"
           },
           {
             "value_key": "buddyboss",
@@ -3072,7 +3064,7 @@
           }
         ],
         "link_info":       "https://shsec.io/k4",
-        "link_blog":       "https://shsec.io/k3",
+        "link_blog":       "https://shsec.io/oc",
         "beacon_id":       239,
         "name":            "User Form Checking",
         "summary":         "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",

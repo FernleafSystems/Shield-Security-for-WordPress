@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
-class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionController {
+class UserFormsController extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController {
 
 	protected function canRun() :bool {
 		return parent::canRun()
@@ -23,6 +22,7 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 	 */
 	public function enumProviders() :array {
 		return [
+			Find::ARMEMBER_LITE             => Handlers\ArmemberLite::class,
 			Find::BUDDYBOSS                 => Handlers\Buddyboss::class,
 			Find::BUDDYPRESS                => Handlers\Buddypress::class,
 			Find::CLASSIFIED_LISTING        => Handlers\ClassifiedListing::class,
