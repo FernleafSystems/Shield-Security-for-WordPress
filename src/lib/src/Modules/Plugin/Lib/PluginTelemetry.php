@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\SendPluginTelemetry;
 use FernleafSystems\Wordpress\Services\Services;
@@ -37,65 +36,44 @@ class PluginTelemetry {
 	 * @return array[]
 	 */
 	public function collectTrackingData() :array {
-		$con = self::con();
-
 		$data = $this->getBaseTrackingData();
-		foreach ( $con->modules as $mod ) {
-			$data[ $mod->cfg->slug ] = $this->buildOptionsDataForMod( $mod );
-		}
 
-		if ( !empty( $data[ 'events' ] ) ) {
-			/** @var EventsDB\Select $select */
-			$select = self::con()->db_con->events->getQuerySelector();
-			$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
-		}
+		/** @var EventsDB\Select $select */
+		$select = self::con()->db_con->events->getQuerySelector();
+		$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
 
-		if ( !empty( $data[ 'admin_access_restriction' ] ) ) {
-			$keys = [
-				'admin_access_restrict_plugins',
-				'admin_access_restrict_themes',
-				'admin_access_restrict_posts'
-			];
-			foreach ( $keys as $key ) {
-				$data[ 'admin_access_restriction' ][ 'options' ][ $key ]
-					= empty( $data[ 'admin_access_restriction' ][ 'options' ][ $key ] ) ? 0 : 1;
-			}
-		}
-
-		if ( !empty( $data[ 'plugin' ] ) ) {
-			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = ( new InstallationID() )->id();
-		}
+		$data[ 'options' ] = $this->buildOptionsData();
+		\ksort( $data[ 'options' ] );
 
 		return $data;
 	}
 
-	/**
-	 * @param ModCon|mixed $mod
-	 */
-	private function buildOptionsDataForMod( $mod ) :array {
-		$con = self::con();
-		$config = $con->cfg->configuration;
+	private function buildOptionsData() :array {
+		$opts = self::con()->opts;
+		return \array_map(
+			function ( array $optDef ) use ( $opts ) {
+				$value = $opts->optGet( $optDef[ 'key' ] );
+				if ( $optDef[ 'type' ] === 'checkbox ' ) {
+					$value = $value === 'Y' ? 1 : 0;
+				}
 
-		$data = [];
+				if ( \in_array( $optDef[ 'key' ], [
+					'admin_access_restrict_plugins',
+					'admin_access_restrict_themes',
+					'admin_access_restrict_posts'
+				] ) ) {
+					$value = (int) !empty( $value );
+				}
 
-		$options = \array_intersect_key( $con->opts->values(), $config->optsForModule( $mod->cfg->slug ) );
-		foreach ( $config->optsForModule( $mod->cfg->slug ) as $key => $optDef ) {
-			if ( !isset( $options[ $key ] ) ) {
-				$options[ $key ] = $con->opts->optDefault( $key );
-			}
-			if ( $con->opts->optType( $key ) === 'checkbox ' ) {
-				$options[ $key ] = $options[ $key ] == 'Y' ? 1 : 0;
-			}
-
-			if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
-				unset( $options[ $key ] );
-			}
-		}
-
-		$data[ 'options' ] = $options;
-		$data[ 'dbs' ] = [];
-
-		return $data;
+				return $value;
+			},
+			\array_filter(
+				self::con()->cfg->configuration->options,
+				function ( array $optDef ) {
+					return empty( $optDef[ 'sensitive' ] ) && empty( $optDef[ 'tracking_exclude' ] );
+				}
+			)
+		);
 	}
 
 	private function getBaseTrackingData() :array {
@@ -103,7 +81,7 @@ class PluginTelemetry {
 		$WP = Services::WpGeneral();
 		$WPP = Services::WpPlugins();
 		return [
-			'env' => [
+			'env'    => [
 				'slug'             => $con->cfg->properties[ 'slug_plugin' ],
 				'installation_id'  => ( new InstallationID() )->id(),
 				'unique_site_hash' => \sha1( network_home_url( '/' ) ),
@@ -118,7 +96,9 @@ class PluginTelemetry {
 				'plugins_total'    => \count( $WPP->getPlugins() ),
 				'plugins_active'   => \count( $WPP->getActivePlugins() ),
 				'plugins_updates'  => \count( $WPP->getUpdates() ),
-			]
+				'opts_structure'   => 'flat',
+			],
+			'events' => [],
 		];
 	}
 }

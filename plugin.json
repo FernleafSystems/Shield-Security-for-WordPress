@@ -2335,10 +2335,11 @@
         "description":     "Identify a request as a bot if the user agent is not provided."
       },
       {
-        "key":     "crowdsec_cfg",
-        "section": "section_hidden",
-        "type":    "array",
-        "default": []
+        "key":       "crowdsec_cfg",
+        "sensitive": true,
+        "section":   "section_hidden",
+        "type":      "array",
+        "default":   []
       },
       {
         "key":     "license_activated_at",
@@ -2378,10 +2379,11 @@
         "sensitive": true
       },
       {
-        "key":     "wphashes_api_token",
-        "section": "section_hidden",
-        "type":    "array",
-        "default": []
+        "key":              "wphashes_api_token",
+        "tracking_exclude": true,
+        "section":          "section_hidden",
+        "type":             "array",
+        "default":          []
       },
       {
         "key":             "disable_xmlrpc",
@@ -3731,10 +3733,11 @@
         "description":     "Provide your custom set of CSP rules."
       },
       {
-        "key":     "transient_tracking",
-        "section": "section_hidden",
-        "type":    "array",
-        "default": []
+        "key":              "transient_tracking",
+        "tracking_exclude": true,
+        "section":          "section_hidden",
+        "type":             "array",
+        "default":          []
       },
       {
         "key":     "tracking_last_sent_at",
@@ -3787,10 +3790,11 @@
         "sensitive": true
       },
       {
-        "key":     "last_known_cache_basedirs",
-        "section": "section_hidden",
-        "type":    "array",
-        "default": []
+        "key":       "last_known_cache_basedirs",
+        "sensitive": true,
+        "section":   "section_hidden",
+        "type":      "array",
+        "default":   []
       },
       {
         "key":     "ipdetect_at",
