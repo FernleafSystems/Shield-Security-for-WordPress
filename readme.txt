@@ -20,11 +20,11 @@ Real security is stopping attackers dead, before they hack your site. Bad Bots A
 
 Bad bots are you're #1 security threat. They account for nearly all WordPress security probes, attacks, injections, malware and vulnerability exploitation.
 
-Google reCAPTCHA and CloudFlare Turnstile are considered the best way to detect bots, but these along with all out CAPTCHAs interrupt the user experience.
+Google reCAPTCHA and CloudFlare Turnstile are considered the best way to detect bots, but these along with all other CAPTCHAs interrupt the user experience.
 
 Shield's exclusive *silent*CAPTCHA detects bad bots and blocks them from taking any abusive actions on your site, like brute-force user login attacks and WP Comments SPAM.
 
-Prevention is key to your site security.
+Furthermore, privacy directives from legislation such as Europe's GDPR restrict what data you're allowed to share of your visitors. All *silent*CAPTCHA data is kept on your WordPress site and ensures your compliance with GDPR regulations.
 
 ### Comprehensive Activity Log Coverage
 
