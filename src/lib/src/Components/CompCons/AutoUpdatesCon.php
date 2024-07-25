@@ -186,7 +186,7 @@ class AutoUpdatesCon {
 	 */
 	public function autoupdate_email_override( $emailParams ) {
 		// @deprecated 19.2 - isset() required for upgrade from 19.0
-		if ( isset( self::con()->comps->opts_lookup ) ) {
+		if ( !\is_null( self::con()->comps ) && !\is_null( self::con()->comps->opts_lookup ) ) {
 			$emailParams[ 'to' ] = self::con()->comps->opts_lookup->getReportEmail();
 		}
 		return $emailParams;
