@@ -206,56 +206,7 @@ class AutoUpdatesCon {
 		return $opts->optGet( 'delay_tracking' );
 	}
 
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isCoreAutoUpgradesDisabled() :bool {
-		return false;
-	}
-
 	public function isDelayUpdates() :bool {
 		return self::con()->opts->optGet( 'update_delay' ) > 0;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function disableAll() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function onWpLoaded() {
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function autoupdate_send_email() :bool {
-		return true;
-	}
-
-	/**
-	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $toUpdate
-	 * @return bool
-	 * @deprecated 19.2
-	 */
-	public function autoupdate_core_major( $toUpdate ) {
-		return $toUpdate;
-	}
-
-	/**
-	 * This is a filter method designed to say whether a minor core WordPress upgrade should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $doUpdate
-	 * @return bool
-	 * @deprecated 19.2
-	 */
-	public function autoupdate_core_minor( $doUpdate ) {
-		return $doUpdate;
 	}
 }

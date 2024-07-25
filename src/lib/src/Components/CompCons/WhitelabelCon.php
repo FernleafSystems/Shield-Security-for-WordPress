@@ -122,16 +122,6 @@ class WhitelabelCon {
 	}
 
 	/**
-	 * Hides the update if the page loaded is the plugins page or the updates page.
-	 * @param \stdClass $plugins
-	 * @return \stdClass
-	 * @deprecated 20.0
-	 */
-	public function hidePluginUpdatesFromUI( $plugins ) {
-		return $plugins;
-	}
-
-	/**
 	 * We cater for 3 options:
 	 * Full URL
 	 * Relative path URL: i.e. starts with /

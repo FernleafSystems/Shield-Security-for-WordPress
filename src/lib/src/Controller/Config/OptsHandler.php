@@ -408,13 +408,6 @@ class OptsHandler extends DynPropertiesClass {
 		return $valid;
 	}
 
-	/**
-	 * @deprecated 19.0.7
-	 */
-	public function commit() :void {
-		$this->store();
-	}
-
 	private function defaultAllStorageStruct() :array {
 		return [
 			'version'       => self::con()->cfg->version(),

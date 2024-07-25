@@ -14,9 +14,7 @@ class ShieldHasValidCurrentSession extends Base {
 
 	protected function execConditionCheck() :bool {
 		if ( !isset( $this->req->session ) ) {
-			$con = self::con();
-			$this->req->session = ( $con->comps->session !== null ) ?
-				$con->comps->session->current() : $con->getModule_Plugin()->getSessionCon()->current();
+			$this->req->session = self::con()->comps->session->current();
 		}
 		return $this->req->session->valid;
 	}

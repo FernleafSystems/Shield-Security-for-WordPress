@@ -269,46 +269,4 @@ class OptsLookup {
 	public function isPassPreventPwned() :bool {
 		return $this->isPassPoliciesEnabled() && self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' );
 	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isPluginGloballyDisabled() :bool {
-		return !$this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function optIsAndModForOptEnabled( string $optKey, $optIs ) :bool {
-		return self::con()->opts->optIs( $optKey, $optIs ) && $this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isModFromOptEnabled( string $optKey ) :bool {
-		return $this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isModEnabled( string $slug = '' ) :bool {
-		return $this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getLoginGuardGaspKey() :string {
-		return '';
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function enabledLoginGuardGaspCheck() :bool {
-		return false;
-	}
 }

@@ -64,7 +64,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                   $root_file
  * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
  * @property Shield\Users\UserMetas                   $user_metas
- * @property Base\ModCon[]|mixed                      $modules
+ * @property ModConfigVO[]|mixed                      $modules
  * @property Shield\Crons\HourlyCron                  $cron_hourly
  * @property Shield\Crons\DailyCron                   $cron_daily
  * @property string[]                                 $reqs_not_met
@@ -147,11 +147,6 @@ class Controller extends DynPropertiesClass {
 				if ( empty( $val ) ) {
 					$this->email_con = $val = new Email\EmailCon();
 				}
-				break;
-
-			case 'service_events':
-				/** @deprecated 19.2 */
-				$this->comps->events;
 				break;
 
 			case 'admin_notices':
@@ -726,74 +721,5 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
-	}
-
-	/**
-	 * @return Base\ModCon|null|mixed
-	 * @deprecated 19.2
-	 */
-	public function getModule( string $slug ) {
-		return $this->modules[ $slug ] ?? null;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_AuditTrail() :AuditTrail\ModCon {
-		return $this->modules[ EnumModules::ACTIVITY ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_Firewall() :Firewall\ModCon {
-		return $this->modules[ EnumModules::FIREWALL ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_HackGuard() :HackGuard\ModCon {
-		return $this->modules[ EnumModules::SCANS ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_IPs() :IPs\ModCon {
-		return $this->modules[ EnumModules::IPS ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_License() :License\ModCon {
-		return $this->modules[ EnumModules::LICENSE ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_LoginGuard() :LoginGuard\ModCon {
-		return $this->modules[ EnumModules::LOGIN ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
-		return $this->modules[ EnumModules::SECURITY_ADMIN ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
-		$render = Services::Render();
-		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {
-			$render->setTwigTemplateRoot( $dir );
-		}
-		$render->setTemplateRoot( $this->getPath_Templates() );
-		return $render;
 	}
 }

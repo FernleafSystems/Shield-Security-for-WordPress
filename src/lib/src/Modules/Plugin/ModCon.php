@@ -141,13 +141,6 @@ class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 19.2
-	 */
-	public function getInstallDate() :int {
-		return self::con()->comps->opts_lookup->getInstalledAt();
-	}
-
-	/**
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
@@ -194,26 +187,5 @@ class ModCon extends DynPropertiesClass {
 			} );
 		}
 		return $this->tracking;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isModOptEnabled() :bool {
-		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getSessionCon() :Lib\Sessions\SessionController {
-		return self::con()->comps->session;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getShieldNetApiController() :ShieldNetApiController {
-		return self::con()->comps->shieldnet;
 	}
 }
