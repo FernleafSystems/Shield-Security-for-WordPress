@@ -41,10 +41,12 @@ class Retrieve {
 
 		// This shouldn't be necessary, but we build this in here defensively, just in case snapshots start to cumulate
 		if ( !empty( $toDelete ) ) {
-			self::con()->db_con->dbhSnapshots()
-							   ->getQuerySelector()
-							   ->addWhereIn( 'id', $toDelete )
-							   ->query();
+			self::con()
+				->db_con
+				->activity_snapshots
+				->getQueryDeleter()
+				->addWhereIn( 'id', $toDelete )
+				->query();
 		}
 
 		return $snaps;
