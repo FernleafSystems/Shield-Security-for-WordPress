@@ -171,13 +171,6 @@ class DbCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 19.2
-	 */
-	public function dbhSnapshots() :Snapshots\Ops\Handler {
-		return $this->loadDbH( 'snapshots' );
-	}
-
-	/**
 	 * @return array[]
 	 */
 	public function getHandlers() :array {
@@ -276,5 +269,12 @@ class DbCon extends DynPropertiesClass {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * @deprecated 19.2 - required for upgrade from 19.0
+	 */
+	public function dbhFileLocker() :FileLocker\Ops\Handler {
+		return $this->loadDbH( 'file_locker' );
 	}
 }
