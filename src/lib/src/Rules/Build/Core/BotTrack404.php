@@ -22,24 +22,29 @@ class BotTrack404 extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		$whitelistedConditions = [];
-		$whitelistedConditions[] = [
-			'conditions' => Conditions\MatchRequestPath::class,
-			'logic'      => Enum\EnumLogic::LOGIC_INVERT,
-			'params'     => [
-				'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
-				'match_path' => sprintf( "#\\.(%s)$#i", \implode( '|', self::con()->comps->bot_signals->getAllowableExt404s() ) ),
-			],
-		];
-		foreach ( self::con()->comps->bot_signals->getAllowablePaths404s() as $allowablePaths404 ) {
+		if ( \method_exists( self::con()->comps->bot_signals, 'getAllowableExt404s' ) ) {
 			$whitelistedConditions[] = [
 				'conditions' => Conditions\MatchRequestPath::class,
 				'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				'params'     => [
 					'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
-					'match_path' => $allowablePaths404,
+					'match_path' => sprintf( "#\\.(%s)$#i", \implode( '|', self::con()->comps->bot_signals->getAllowableExt404s() ) ),
 				],
 			];
 		}
+		if ( \method_exists( self::con()->comps->bot_signals, 'getAllowablePaths404s' ) ) {
+			foreach ( self::con()->comps->bot_signals->getAllowablePaths404s() as $allowablePaths404 ) {
+				$whitelistedConditions[] = [
+					'conditions' => Conditions\MatchRequestPath::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_path' => $allowablePaths404,
+					],
+				];
+			}
+		}
+
 		$whitelistedConditions[] = [
 			'conditions' => Conditions\IsRequestToInvalidPlugin::class,
 		];
