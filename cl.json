@@ -76,6 +76,17 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "4",
+        "released_at": 1721982000,
+        "items":       [
+          {
+            "title":    "Minor bug fixes.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      }
     ]
   },
   "19.1": {
