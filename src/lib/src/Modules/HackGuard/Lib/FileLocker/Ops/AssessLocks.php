@@ -9,7 +9,7 @@ class AssessLocks extends BaseOps {
 
 	public function run() {
 		// @deprecated 19.2 - required for upgrade from 19.0
-		if ( !isset( self::con()->comps->file_locker ) ) {
+		if ( \is_null( self::con()->comps ) || \is_null( self::con()->comps->file_locker ) ) {
 			return;
 		}
 

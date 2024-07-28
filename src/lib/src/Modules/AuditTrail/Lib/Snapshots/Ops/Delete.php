@@ -10,8 +10,7 @@ class Delete {
 	use PluginControllerConsumer;
 
 	public function delete( string $slug ) :bool {
-		$dbh = self::con()->db_con->activity_snapshots ?? null;
-		/** @deprecated 19.2 - to be retained for upgrades from 19.0. */
+		$dbh = self::con()->db_con->activity_snapshots;
 		if ( empty( $dbh ) ) {
 			$dbh = self::con()->db_con->loadDbH( 'snapshots' );
 		}

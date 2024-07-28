@@ -40,8 +40,7 @@ class BaseCapabilitiesRestrict extends Base {
 	}
 
 	protected function isCapabilityToBeRestricted( string $cap ) :bool {
-		return \in_array( $cap, $this->getApplicableCapabilities() )
-			   && \in_array( $cap, $this->getRestrictedCapabilities() );
+		return \in_array( $cap, $this->getApplicableCapabilities() ) && \in_array( $cap, $this->getRestrictedCapabilities() );
 	}
 
 	protected function hasRestrictedCapabilities() :bool {
