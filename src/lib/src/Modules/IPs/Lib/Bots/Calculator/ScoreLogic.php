@@ -23,12 +23,14 @@ class ScoreLogic {
 				$logicLoader = new BotScoringLogic();
 				$logicLoader->shield_net_params_required = false;
 				$logic = $logicLoader->retrieve();
-				if ( !empty( $logic ) ) {
-					Transient::Set( 'shield-bot-scoring-logic', $logic, \DAY_IN_SECONDS );
+
+				if ( empty( $logic ) ) {
+					$logic = $this->buildFallback();
 				}
+				Transient::Set( 'shield-bot-scoring-logic', $logic, \DAY_IN_SECONDS );
 			}
 
-			$this->rawLogic = empty( $logic ) ? $this->buildFallback() : $logic;
+			$this->rawLogic = $logic;
 		}
 		return $this->rawLogic;
 	}

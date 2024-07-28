@@ -77,6 +77,17 @@
     ],
     "patches":     [
       {
+        "version":     "5",
+        "released_at": 1722150000,
+        "items":       [
+          {
+            "title":    "Ensure fallback code for looking up Bot Scoring logic from the API kicks in correctly.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "4",
         "released_at": 1721982000,
         "items":       [
