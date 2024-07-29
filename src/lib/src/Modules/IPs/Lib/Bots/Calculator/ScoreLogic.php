@@ -16,21 +16,24 @@ class ScoreLogic {
 		return $this->getScoringLogic()[ $field ] ?? [];
 	}
 
-	private function getScoringLogic() :array {
+	/**
+	 * Triggered on a daily cron from BotSignalsCon to force update, but if for whatever reason the cron isn't
+	 * running, it'll be automatically updated as-required every 3 days using the fallback.
+	 *
+	 * Basically: if the cron isn't ever running to update the scoring logic, then fallback data is always used.
+	 */
+	public function getScoringLogic( bool $buildFromAPI = false ) :array {
 		if ( empty( $this->rawLogic ) ) {
 			$logic = Transient::Get( 'shield-bot-scoring-logic' );
-			if ( empty( $logic ) ) {
+			if ( empty( $logic ) && $buildFromAPI ) {
 				$logicLoader = new BotScoringLogic();
 				$logicLoader->shield_net_params_required = false;
 				$logic = $logicLoader->retrieve();
-
-				if ( empty( $logic ) ) {
-					$logic = $this->buildFallback();
+				if ( !empty( $logic ) ) {
+					Transient::Set( 'shield-bot-scoring-logic', $logic, \WEEK_IN_SECONDS );
 				}
-				Transient::Set( 'shield-bot-scoring-logic', $logic, \DAY_IN_SECONDS );
 			}
-
-			$this->rawLogic = $logic;
+			$this->rawLogic = empty( $logic ) ? $this->buildFallback() : $logic;
 		}
 		return $this->rawLogic;
 	}

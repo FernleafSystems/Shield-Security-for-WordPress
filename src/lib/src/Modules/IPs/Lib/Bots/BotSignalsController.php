@@ -3,13 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\ScoreLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController {
 
+	use PluginCronsConsumer;
 	use ExecOnce;
 	use PluginControllerConsumer;
 
@@ -25,20 +28,25 @@ class BotSignalsController {
 
 	private $isBots = [];
 
-	protected function canRun() :bool {
-		return self::con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' );
+	protected function run() {
+
+		if ( self::con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' ) ) {
+			$this->getEventListener()->execute();
+			add_action( 'init', function () {
+				foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
+					( new $botTrackerClass() )->execute();
+				}
+			} );
+			self::con()->comps->not_bot->execute();
+			$this->registerFrontPageLoad();
+			$this->registerLoginPageLoad();
+		}
+
+		$this->setupCronHooks();
 	}
 
-	protected function run() {
-		$this->getEventListener()->execute();
-		add_action( 'init', function () {
-			foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
-				( new $botTrackerClass() )->execute();
-			}
-		} );
-		self::con()->comps->not_bot->execute();
-		$this->registerFrontPageLoad();
-		$this->registerLoginPageLoad();
+	public function runDailyCron() {
+		( new ScoreLogic() )->getScoringLogic( true );
 	}
 
 	public function isBot( string $IP = '', bool $allowEventFire = true, bool $forceCheck = false ) :bool {
