@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
-
-class SendIPReputation extends Common\BaseShieldNetApi {
+class SendIPReputation extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi {
 
 	public const API_ACTION = 'ip/reputation/receive';
 

@@ -77,6 +77,22 @@
     ],
     "patches":     [
       {
+        "version":     "6",
+        "released_at": 1722266000,
+        "items":       [
+          {
+            "title":    "Address responsibly disclosed Reflected XSS.",
+            "category": "security",
+            "type":     "security"
+          },
+          {
+            "title":    "Further reduce any likelihood that a site relies on Shield's website to be online to operate normally.",
+            "category": "enhancement",
+            "type":     "improved"
+          }
+        ]
+      },
+      {
         "version":     "5",
         "released_at": 1722150000,
         "items":       [

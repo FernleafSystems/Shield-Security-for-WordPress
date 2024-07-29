@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SendSms extends BaseShieldNetApi {
+class SendSms extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi {
 
 	public const API_ACTION = 'sure-send/sms';
 
