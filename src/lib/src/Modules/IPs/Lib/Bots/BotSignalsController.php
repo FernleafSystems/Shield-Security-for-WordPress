@@ -12,9 +12,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController {
 
-	use PluginCronsConsumer;
 	use ExecOnce;
 	use PluginControllerConsumer;
+	use PluginCronsConsumer;
 
 	/**
 	 * @var NotBotHandler
