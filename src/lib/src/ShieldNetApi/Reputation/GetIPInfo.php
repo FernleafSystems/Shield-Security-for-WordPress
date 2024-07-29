@@ -3,9 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-class GetIPInfo extends Common\BaseShieldNetApiV2 {
+class GetIPInfo extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2 {
 
 	use IpAddressConsumer;
 

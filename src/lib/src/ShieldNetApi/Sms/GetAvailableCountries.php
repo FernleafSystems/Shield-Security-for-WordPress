@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
-
-class GetAvailableCountries extends Common\BaseShieldNetApi {
+class GetAvailableCountries extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi {
 
 	public const API_ACTION = 'sms/countries';
 

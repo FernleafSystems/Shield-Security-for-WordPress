@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SendEmail extends BaseShieldNetApi {
+class SendEmail extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi {
 
 	public const API_ACTION = 'sure-send/email';
 
@@ -37,7 +36,7 @@ class SendEmail extends BaseShieldNetApi {
 		$raw = $this->sendReq();
 		$success = \is_array( $raw ) && empty( $raw[ 'error' ] );
 
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
 				'audit_params' => [

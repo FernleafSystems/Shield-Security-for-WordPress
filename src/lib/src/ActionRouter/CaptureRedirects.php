@@ -22,19 +22,19 @@ class CaptureRedirects {
 
 			if ( $page === $urls->rootAdminPageSlug() ) {
 
-				$navID = (string)$req->query( Constants::NAV_ID );
-				$subnav = (string)$req->query( Constants::NAV_SUB_ID );
+				$nav = (string)$req->query( Constants::NAV_ID );
+				$subNav = (string)$req->query( Constants::NAV_SUB_ID );
 
-				if ( !PluginNavs::NavExists( $navID ) ) {
+				if ( !PluginNavs::NavExists( $nav ) ) {
 					$redirectTo = $urls->adminHome();
 				}
-				elseif ( empty( $subnav ) || $subnav === PluginNavs::SUBNAV_INDEX ) {
-					$redirectTo = $urls->adminTopNav( $navID, PluginNavs::GetDefaultSubNavForNav( $navID ) );
+				elseif ( empty( $subNav ) || $subNav === PluginNavs::SUBNAV_INDEX || !PluginNavs::NavExists( $nav, $subNav ) ) {
+					$redirectTo = $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) );
 				}
 			}
 			elseif ( \preg_match( sprintf( '#^%s-([a-z_]+)$#', \preg_quote( $con->prefix(), '#' ) ), $page, $matches ) ) {
-				$navID = PluginNavs::NavExists( $matches[ 1 ] ) ? $matches[ 1 ] : PluginNavs::NAV_DASHBOARD;
-				$redirectTo = $urls->adminTopNav( $navID, PluginNavs::GetDefaultSubNavForNav( $navID ) );
+				$nav = PluginNavs::NavExists( $matches[ 1 ] ) ? $matches[ 1 ] : PluginNavs::NAV_DASHBOARD;
+				$redirectTo = $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) );
 			}
 			elseif ( $con->comps->opts_lookup->getActivatedPeriod() < 20 && $con->opts->optGet( 'last_wizard_redirect_at' ) === 0 ) {
 				$con->opts->optSet( 'last_wizard_redirect_at', $req->ts() );

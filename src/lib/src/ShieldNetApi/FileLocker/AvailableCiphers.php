@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2;
-
-class AvailableCiphers extends BaseShieldNetApiV2 {
+class AvailableCiphers extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2 {
 
 	public const API_ACTION = 'filelocker/ciphers';
 

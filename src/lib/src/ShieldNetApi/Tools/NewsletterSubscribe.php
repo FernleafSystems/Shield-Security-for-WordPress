@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
-
-class NewsletterSubscribe extends Common\BaseShieldNetApiV2 {
+class NewsletterSubscribe extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2 {
 
 	public const API_ACTION = 'newsletter/subscribe';
 

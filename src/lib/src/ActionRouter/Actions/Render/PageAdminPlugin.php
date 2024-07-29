@@ -19,11 +19,24 @@ class PageAdminPlugin extends BaseRender {
 	protected function getRenderData() :array {
 		$con = self::con();
 
-		$nav = self::con()->isPluginAdmin() ?
-			( $this->action_data[ Constants::NAV_ID ] ?? PluginNavs::NAV_DASHBOARD ) : PluginNavs::NAV_RESTRICTED;
-		$subNav = $nav === PluginNavs::NAV_RESTRICTED ? '' : $this->action_data[ Constants::NAV_SUB_ID ] ?? '';
-		if ( empty( $subNav ) || $subNav === PluginNavs::SUBNAV_INDEX ) {
-			$subNav = PluginNavs::GetDefaultSubNavForNav( $nav );
+		if ( self::con()->isPluginAdmin() ) {
+			$nav = sanitize_key( (string)$this->action_data[ Constants::NAV_ID ] ?? '' );
+			if ( !PluginNavs::NavExists( $nav ) ) {
+				$nav = PluginNavs::NAV_DASHBOARD;
+			}
+		}
+		else {
+			$nav = PluginNavs::NAV_RESTRICTED;
+		}
+
+		if ( $nav === PluginNavs::NAV_RESTRICTED ) {
+			$subNav = PluginNavs::SUBNAV_INDEX;
+		}
+		else {
+			$subNav = sanitize_key( (string)$this->action_data[ Constants::NAV_SUB_ID ] ?? '' );
+			if ( !PluginNavs::NavExists( $nav, $subNav ) ) {
+				$subNav = PluginNavs::GetDefaultSubNavForNav( $nav );
+			}
 		}
 
 		// The particular renderer for the main page body area, based on navigation
