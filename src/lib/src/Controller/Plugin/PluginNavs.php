@@ -46,19 +46,16 @@ class PluginNavs {
 	public const NAV_WIZARD = 'merlin';
 	public const NAV_ZONES = 'zones';
 	public const NAV_ZONE_COMPONENTS = 'zone_components';
-	public const SUBNAV_ZONES_FIREWALL = 'firewall';
-	public const SUBNAV_ZONES_LOGGING = 'logging';
-	public const SUBNAV_ZONES_USERS = 'users';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
 
 	public static function GetNav() :string {
-		return (string)Services::Request()->query( self::FIELD_NAV );
+		return sanitize_key( (string)Services::Request()->query( self::FIELD_NAV ) );
 	}
 
 	public static function GetSubNav() :string {
-		return (string)Services::Request()->query( self::FIELD_SUBNAV );
+		return sanitize_key( (string)Services::Request()->query( self::FIELD_SUBNAV ) );
 	}
 
 	public static function IsNavs( string $nav, string $subNav ) :bool {
@@ -225,7 +222,8 @@ class PluginNavs {
 		);
 	}
 
-	public static function NavExists( string $nav ) :bool {
-		return isset( self::GetNavHierarchy()[ $nav ] );
+	public static function NavExists( string $nav, ?string $subNav = null ) :bool {
+		return isset( self::GetNavHierarchy()[ $nav ] )
+			   && ( $subNav === null || isset( self::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ] ) );
 	}
 }
