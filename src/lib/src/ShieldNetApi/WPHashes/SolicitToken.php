@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\WPHashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SolicitToken extends Common\BaseShieldNetApi {
+class SolicitToken extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi {
 
 	public const API_ACTION = 'wphashes/token';
 

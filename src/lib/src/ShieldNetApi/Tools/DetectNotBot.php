@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
-
-class DetectNotBot extends Common\BaseShieldNetApi {
+class DetectNotBot extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi {
 
 	public const API_ACTION = 'tools/detect/notbot';
 
