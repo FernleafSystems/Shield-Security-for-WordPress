@@ -31,29 +31,34 @@
 
 	<div class="row">
 
-		<div class="col-8 mt-4">
+		<div class="col-lg-8 mt-4">
 			{% for component in vars.components %}
 				{{ component|raw }}
 			{% endfor %}
 		</div>
 
-		<div class="col-4 mt-3">
+		<div class="col-lg-4 mt-3">
 			<div class="card">
-				<div class="w-100 title-image-container p-2">
-					{{ imgs.svgs.heading|raw }}
-				</div>
-				<div class="card-body">
-					<div class="section-description">
-						<div class="description h-100">
-							{% for line in strings.description %}
-								<p class="mb-2">{{ line }}</p>
-							{% endfor %}
-						</div>
-					</div>
-				</div>
 				{% if vars.actions is not empty %}
-					<div class="card-footer">
-						<div class="btn-group dropstart">
+					<div class="card-header">
+						<div class="btn-group dropstart d-sm-none d-lg-inline-flex">
+							<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+									aria-expanded="false">{{ strings.actions }}</button>
+							<ul class="dropdown-menu">
+								{% for action in vars.actions %}
+									<li>
+										<a class="dropdown-item {{ action.classes|join(' ') }}"
+										   title="{{ action.title }}"
+										   href="{{ action.href|default('#') }}"
+										   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+										>
+											<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}
+										</a>
+									</li>
+								{% endfor %}
+							</ul>
+						</div>
+						<div class="btn-group dropup d-lg-none">
 							<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
 									aria-expanded="false">{{ strings.actions }}</button>
 							<ul class="dropdown-menu">
@@ -72,6 +77,20 @@
 						</div>
 					</div>
 				{% endif %}
+
+				<div class="w-100 title-image-container p-2">
+					{{ imgs.svgs.heading|raw }}
+				</div>
+
+				<div class="card-body">
+					<div class="section-description">
+						<div class="description h-100">
+							{% for line in strings.description %}
+								<p class="mb-2">{{ line }}</p>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -51,7 +51,7 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 				'reenable_plugin'        => __( 'Re-enable Protection.', 'wp-simple-firewall' ),
 				'title'                  => $zone->title(),
 				'description'            => $zone->description(),
-				'actions'                => __( 'Actions', 'wp-simple-firewall' ),
+				'actions'                => __( 'Zone Actions', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'href_global_plugin_enable' => $zonesCon->getZoneComponent( GlobalPluginEnable::Slug() )

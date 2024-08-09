@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Cont
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use MainWP\Dashboard\MainWP_Extensions_Groups;
 
 class Init {
 
@@ -93,6 +94,34 @@ class Init {
 			}
 			return $value;
 		} );
+
+		// Add Shield extension to the MainWP Security menu
+		if ( \defined( 'MAINWP_VERSION' ) && \version_compare( MAINWP_VERSION, '5.1', '>' ) ) {
+			add_filter( 'mainwp_plugins_install_checks', function ( $plugins ) {
+				$plugins[] = [
+					'page'     => 'Extensions-Wp-Simple-Firewall',
+					'slug'     => self::con()->base_file,
+					'slug_pro' => self::con()->base_file,
+					'name'     => 'Shield Security',
+				];
+				return $plugins;
+			} );
+			add_action( 'mainwp_admin_menu', function () {
+				if ( \class_exists( '\MainWP\Dashboard\MainWP_Extensions_Groups' ) ) {
+					MainWP_Extensions_Groups::add_extension_menu( [
+						'type'                 => 'extension',
+						'title'                => esc_html__( 'Shield Security', 'wp-simple-fiewall' ),
+						'slug'                 => self::con()->base_file,
+						'parent_key'           => 'Extensions-Mainwp-Security',
+						'ext_page'             => 'admin.php?page=Extensions-Wp-Simple-Firewall',
+						'leftsub_order_level2' => 0,
+						'level'                => 2,
+						'active_path'          => [ 'Extensions-Wp-Simple-Firewall' => 'managesites' ],
+					], 2 );
+				}
+			}, 10, 2 );
+		}
+
 
 		return new ExtensionSettingsPage();
 	}
