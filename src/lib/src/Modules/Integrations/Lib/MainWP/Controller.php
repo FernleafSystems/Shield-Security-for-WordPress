@@ -87,7 +87,6 @@ class Controller {
 	}
 
 	public static function isMainWPServerVersionSupported() :bool {
-		return \defined( 'MAINWP_VERSION' )
-			   && \version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
+		return \defined( 'MAINWP_VERSION' ) && \version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
 	}
 }

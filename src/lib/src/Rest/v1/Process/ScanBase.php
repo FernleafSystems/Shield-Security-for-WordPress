@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\RequestVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class ScanBase extends Base {
 
 	use PluginControllerConsumer;
-
-	protected function newReqVO() {
-		return new RequestVO();
-	}
 
 	protected function getScansStatus() :array {
 		$current = ( new ScansStatus() )->current();
