@@ -656,6 +656,7 @@ class Controller extends DynPropertiesClass {
 		elseif ( isset( $this->cfg ) ) {
 			$serial = \serialize( $this->cfg->getRawData() );
 			if ( !isset( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
+				$data = $this->cfg->getRawData();
 				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
 					$zip = @\gzdeflate( $serial );
 					if ( !empty( $zip ) && \gzinflate( $zip ) === $serial ) {
@@ -664,9 +665,6 @@ class Controller extends DynPropertiesClass {
 							$data = $enc;
 						}
 					}
-				}
-				else {
-					$data = $this->cfg->getRawData();
 				}
 				Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $data );
 			}
