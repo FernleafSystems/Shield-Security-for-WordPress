@@ -78,10 +78,15 @@
     "patches":     [
       {
         "version":     "7",
-        "released_at": 1722266000,
+        "released_at": 1723370000,
         "items":       [
           {
-            "title":    "Add Shield Security to MainWP's Security Extensions menu.",
+            "title":    "Address an issue with Shield configuration whereby it get 'stuck' in an invalid state.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Add Shield Security to MainWP's newer Security Extensions menu.",
             "category": "enhancement",
             "type":     "improved"
           }

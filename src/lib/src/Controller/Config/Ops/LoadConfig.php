@@ -41,7 +41,7 @@ class LoadConfig {
 		$WPP = Services::WpPlugins();
 
 		$def = $this->parseDef();
-		$rebuild = empty( $def ) || !\is_array( $def );
+		$rebuild = empty( $def ) || !\is_array( $def ) || ( empty( $def[ 'config_spec' ] ) && empty( $def[ 'configuration' ] ) );
 
 		$specHash = \hash_file( 'sha1', $this->path );
 		$previousVersion = ( \is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
