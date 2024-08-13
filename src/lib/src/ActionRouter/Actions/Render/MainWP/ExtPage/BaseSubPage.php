@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetOpt;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
 	SiteActionActivate,
 	SiteActionDeactivate,
@@ -13,10 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerAc
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -46,7 +44,6 @@ class BaseSubPage extends BaseMWP {
 			],
 			'strings' => [
 				'manage'              => __( 'Manage', 'wp-simple-firewall' ),
-				'actions'             => __( 'Actions', 'wp-simple-firewall' ),
 				'site'                => __( 'Site', 'wp-simple-firewall' ),
 				'url'                 => __( 'URL', 'wp-simple-firewall' ),
 				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
@@ -73,99 +70,20 @@ class BaseSubPage extends BaseMWP {
 				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
 				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
 				'st_unknown'          => __( "Couldn't determine Shield plugin status.", 'wp-simple-firewall' ),
-				'act_sync'            => __( 'Sync Shield', 'wp-simple-firewall' ),
-				'act_activate'        => __( 'Activate Shield', 'wp-simple-firewall' ),
-				'act_align'           => __( 'Align Shield', 'wp-simple-firewall' ),
-				'act_deactivate'      => __( 'Deactivate Shield', 'wp-simple-firewall' ),
-				'act_install'         => __( 'Install Shield', 'wp-simple-firewall' ),
-				'act_update'          => __( 'Update Shield', 'wp-simple-firewall' ),
-				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
-				'act_license'         => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
-				'act_mwp'             => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
 				'overall_grade'       => __( 'Grade', 'wp-simple-firewall' ),
+				'actions'             => [
+					'sync'       => __( 'Sync Shield', 'wp-simple-firewall' ),
+					'activate'   => __( 'Activate Shield', 'wp-simple-firewall' ),
+					'align'      => __( 'Align Shield', 'wp-simple-firewall' ),
+					'deactivate' => __( 'Deactivate Shield', 'wp-simple-firewall' ),
+					'install'    => __( 'Install Shield', 'wp-simple-firewall' ),
+					'update'     => __( 'Update Shield', 'wp-simple-firewall' ),
+					'uninstall'  => __( 'Uninstall Shield', 'wp-simple-firewall' ),
+					'license'    => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
+					'mwp_on'     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
+				],
 			]
 		];
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	protected function buildEntireSiteData( array $site ) :array {
-		$req = Services::Request();
-		$con = self::con();
-		$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
-		$sync = LoadShieldSyncData::Load( $mwpSite );
-
-		$status = ( new ClientPluginStatus() )
-			->setMwpSite( $mwpSite )
-			->detect();
-
-		$shd = $sync->getRawData();
-		$shd[ 'status_key' ] = \key( $status );
-		$shd[ 'status' ] = \current( $status );
-
-		$shd[ 'is_active' ] = $shd[ 'status_key' ] === ClientPluginStatus::ACTIVE;
-		$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === ClientPluginStatus::INACTIVE;
-		$shd[ 'is_notinstalled' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_INSTALLED;
-		$shd[ 'is_notpro' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_PRO;
-		$shd[ 'is_mwpnoton' ] = $shd[ 'status_key' ] === ClientPluginStatus::MWP_NOT_ON;
-		$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === ClientPluginStatus::NEED_SYNC;
-		$shd[ 'is_client_older' ] = $shd[ 'status_key' ] === ClientPluginStatus::VERSION_OLDER_THAN_SERVER;
-		$shd[ 'is_client_newer' ] = $shd[ 'status_key' ] === ClientPluginStatus::VERSION_NEWER_THAN_SERVER;
-		$shd[ 'is_version_mismatch' ] = \in_array( $shd[ 'status_key' ], [
-			ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
-			ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
-		] );
-		$shd[ 'can_sync' ] = \in_array( $shd[ 'status_key' ], [
-			ClientPluginStatus::ACTIVE,
-			ClientPluginStatus::NEED_SYNC,
-			ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
-			ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
-		] );
-		$shd[ 'has_update' ] = (bool)$sync->meta->has_update;
-		$shd[ 'has_issues' ] = false;
-
-		if ( $shd[ 'is_active' ] ) {
-
-			$shd[ 'sync_at_text' ] = Services::WpGeneral()->getTimeStringForDisplay( $sync->meta->sync_at );
-			$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $sync->meta->sync_at )->diffForHumans();
-
-			$totalIssues = \array_sum( $sync->scan_issues ?? [] );
-			if ( $totalIssues === 0 ) {
-				$shd[ 'issues' ] = __( 'No Issues', 'wp-simple-firewall' );
-				$shd[ 'has_issues' ] = false;
-			}
-			else {
-				$shd[ 'has_issues' ] = true;
-				$shd[ 'issues' ] = $totalIssues;
-			}
-
-			$shd[ 'href_issues' ] = $this->getJumpUrlFor(
-				(string)$site[ 'id' ],
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
-			);
-			$gradeLetter = $sync->integrity[ 'totals' ][ 'letter_score' ] ?? '-';
-			$shd[ 'grades' ] = [
-				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminHome() ),
-				'integrity' => $gradeLetter,
-				'good'      => \in_array( $gradeLetter, [ 'A', 'B' ] ),
-			];
-
-			$shd[ 'href_manage' ] = $this->createInternalExtensionHref( [
-				'tab'     => TabSiteManage::TAB,
-				'site_id' => $site[ 'id' ],
-			] );
-		}
-
-		$site[ 'shield' ] = $shd;
-		$site[ 'hrefs' ] = [
-			'manage_site' => $this->createInternalExtensionHref( [
-				'tab'     => 'manage_site',
-				'site_id' => $site[ 'id' ],
-			] )
-		];
-
-		return $site;
 	}
 
 	protected function getCurrentTab() :string {
@@ -204,9 +122,19 @@ class BaseSubPage extends BaseMWP {
 			'license'    => [
 				'site_action_slug'   => SiteCustomAction::SLUG,
 				'site_action_params' => [
-					'sub_action_slug' => LicenseLookup::SLUG
+					'sub_action_slug' => LicenseLookup::SLUG,
 				],
-			]
+			],
+			'mwp_on'     => [
+				'site_action_slug'   => SiteCustomAction::SLUG,
+				'site_action_params' => [
+					'sub_action_slug'   => PluginSetOpt::SLUG,
+					'sub_action_params' => [
+						'opt_key'   => 'enable_mainwp',
+						'opt_value' => 'Y',
+					],
+				],
+			],
 		];
 	}
 

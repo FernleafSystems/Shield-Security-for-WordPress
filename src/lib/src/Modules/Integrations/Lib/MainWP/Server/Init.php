@@ -38,8 +38,8 @@ class Init {
 			$this->attachSitesListingShieldColumn();
 			$extensionsPage->execute();
 
-			add_action( 'mainwp_secure_check_admin_referer_is_accepted', function ( $isRequestAccepted ) {
-				$this->blockPluginDisable( $isRequestAccepted );
+			add_action( 'admin_init', function () {
+				$this->blockPluginDisable();
 			} );
 		}
 
@@ -117,11 +117,10 @@ class Init {
 						'leftsub_order_level2' => 0,
 						'level'                => 2,
 						'active_path'          => [ 'Extensions-Wp-Simple-Firewall' => 'managesites' ],
-					], 2 );
+					] );
 				}
 			}, 10, 2 );
 		}
-
 
 		return new ExtensionSettingsPage();
 	}
@@ -134,14 +133,30 @@ class Init {
 	 * We step in here and prevent this, and instead just disable the MainWP option within Shield.
 	 * We also then return an error message outlining what's happened. If they want to actually disable
 	 * the Shield plugin, they can do that, separately.
+	 *
+	 * 2024-08-12
+	 * Since MainWP 5.1+ we had to change our approach as a particular filter was eliminated. Now we just query the
+	 * actual raw POST data to see if it's a match.  We also copy their nonce verification.
 	 */
-	private function blockPluginDisable( $isRequestAccepted ) {
-		if ( $isRequestAccepted ) {
-			$con = self::con();
-			$req = Services::Request();
-			if ( $req->post( 'action' ) === 'mainwp_extension_plugin_action'
-				 && $req->post( 'what' ) === 'disable'
-				 && $req->post( 'slug' ) === $con->base_file ) {
+	private function blockPluginDisable() {
+		$con = self::con();
+		$req = Services::Request();
+		if ( $con->this_req->wp_is_ajax && !empty( $req->post( 'security' ) ) ) {
+			$requestIsAMatch = true;
+			foreach (
+				[
+					'action' => 'mainwp_extension_plugin_action',
+					'slug'   => $con->base_file,
+					'what'   => 'disable',
+				] as $key => $value
+			) {
+				if ( $req->post( $key ) !== $value ) {
+					$requestIsAMatch = false;
+					break;
+				}
+			}
+
+			if ( $requestIsAMatch && wp_verify_nonce( sanitize_key( $req->post( 'security' ) ), 'mainwp_extension_plugin_action' ) ) {
 				$con->opts->optSet( 'enable_mainwp', 'N' );
 				wp_send_json( [
 					'error' => sprintf( 'The MainWP integration within %s has been disabled.',
@@ -152,6 +167,5 @@ class Init {
 				die();
 			}
 		}
-		return $isRequestAccepted;
 	}
 }

@@ -54,7 +54,7 @@
 			<div class="sixteen column">
 
 				<table id="mainwp-shield-extension-table-sites" class="mainwp-shield-ext-table ui single line table"
-				       style="width:100%">
+					   style="width:100%">
 					<thead>
 						<tr>
 							<th class="collapsing no-sort check-column">
@@ -123,72 +123,42 @@
 									{{ site.shield.sync_at_diff }}
 									<br /><small>{{ site.shield.sync_at_text }}</small>
 								</td>
-							{% elseif site.shield.is_inactive %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_inactive }}</td>
-							{% elseif site.shield.is_notpro %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_notpro }}</td>
-							{% elseif site.shield.is_mwpnoton %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_mwpnoton }}</td>
-							{% elseif site.shield.is_client_newer %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_client_newer }}</td>
-							{% elseif site.shield.is_client_older %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_client_older }}</td>
-							{% elseif site.shield.is_sync_rqd %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_sync_rqd }}</td>
-							{% elseif site.shield.is_version_mismatch %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_version_mismatch }}</td>
-							{% elseif site.shield.is_notinstalled %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_notinstalled }}</td>
 							{% else %}
-								<td colspan="4" class="cell-span-issue">{{ strings.st_unknown }}</td>
+								<td colspan="4" class="cell-span-issue">
+									{% if site.shield.is_inactive %}
+										{{ strings.st_inactive }}
+									{% elseif site.shield.is_notpro %}
+										{{ strings.st_notpro }}
+									{% elseif site.shield.is_mwpnoton %}
+										{{ strings.st_mwpnoton }}
+									{% elseif site.shield.is_client_newer %}
+										{{ strings.st_client_newer }}
+									{% elseif site.shield.is_client_older %}
+										{{ strings.st_client_older }}
+									{% elseif site.shield.is_sync_rqd %}
+										{{ strings.st_sync_rqd }}
+									{% elseif site.shield.is_version_mismatch %}
+										{{ strings.st_version_mismatch }}
+									{% elseif site.shield.is_notinstalled %}
+										{{ strings.st_notinstalled }}
+									{% else %}
+										{{ strings.st_unknown }}
+									{% endif %}
+								</td>
 							{% endif %}
 							<td>
 								<div class="site-dropdown ui left pointing dropdown icon mini basic green button"
-								     style="z-index: 999;" tabindex="0">
+									 style="z-index: 999;" tabindex="0">
 									<i class="ellipsis horizontal icon"></i>
 									<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
 
-										<a href="#"
-										   data-site_action='{{ vars.site_actions.sync|raw }}'
-										   class="item site_action {% if not site.shield.can_sync %}disabled{% endif %}"
-										>{{ strings.act_sync }}</a>
-
-										{% if site.shield.has_update %}
+										{% for site_action in site.shield.site_actions %}
 											<a href="#"
-											   data-site_action='{{ vars.site_actions.update|raw }}'
 											   class="item site_action"
-											>{{ strings.act_update }}</a>
-										{% endif %}
+											   data-site_action='{{ vars.site_actions[site_action]|raw }}'
+											>{{ strings.actions[site_action] }}</a>
+										{% endfor %}
 
-										{% if site.shield.is_inactive %}
-											<a href="#"
-											   data-site_action='{{ vars.site_actions.activate|raw }}'
-											   class="item site_action"
-											>{{ strings.act_activate }}</a>
-
-										{% elseif site.shield.is_notinstalled %}
-											<a href="#"
-											   data-site_action='{{ vars.site_actions.install|raw }}'
-											   class="item site_action"
-											>{{ strings.act_install }}</a>
-
-										{% else %}
-											<a href="#"
-											   data-site_action='{{ vars.site_actions.deactivate|raw }}'
-											   class="item site_action"
-											>{{ strings.act_deactivate }}</a>
-										{% endif %}
-
-										<a href="#"
-										   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
-												{% if site.shield.is_mwpnoton %}
-													data-site_action="mwp"
-													{% set linktxt = strings.act_mwp %}
-												{% else %}
-													data-site_action='{{ vars.site_actions.license|raw }}'
-													{% set linktxt = strings.act_license %}
-												{% endif %}
-										>{{ linktxt }}</a>
 									</div>
 								</div>
 							</td>

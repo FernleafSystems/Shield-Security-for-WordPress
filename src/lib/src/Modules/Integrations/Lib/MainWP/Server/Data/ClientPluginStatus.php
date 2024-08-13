@@ -63,10 +63,7 @@ class ClientPluginStatus {
 		return [ $status => $this->getStatusText()[ $status ] ];
 	}
 
-	/**
-	 * @return array|null
-	 */
-	public function getInstalledPlugin() {
+	public function getInstalledPlugin() :?array {
 		$thePlugin = null;
 
 		$baseName = \basename( self::con()->base_file );
@@ -81,7 +78,7 @@ class ClientPluginStatus {
 	}
 
 	public function isActive() :bool {
-		return !empty( $this->getInstalledPlugin()[ 'active' ] );
+		return $this->isInstalled() && !empty( $this->getInstalledPlugin()[ 'active' ] );
 	}
 
 	public function isInstalled() :bool {
