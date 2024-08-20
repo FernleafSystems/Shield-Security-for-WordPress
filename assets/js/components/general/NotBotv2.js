@@ -33,7 +33,7 @@ export class NotBotv2 extends BaseAutoExecComponent {
 	};
 
 	fire() {
-		if ( !this._base_data.flags.skip && this.request_count < 10 && this.failed_request_count < 5 ) {
+		if ( this.request_count < 10 && this.failed_request_count < 5 ) {
 			this.performPathAltcha();
 		}
 	}
