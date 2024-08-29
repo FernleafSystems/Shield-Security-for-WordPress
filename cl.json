@@ -77,6 +77,22 @@
     ],
     "patches":     [
       {
+        "version":     "8",
+        "released_at": 1725000000,
+        "items":       [
+          {
+            "title":    "Improved silentCAPTCHA logic to reduce likelihood of interruption caused by aggressive Page Caching.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Improved how Shield works with MainWP integration to bring it up to date with latest MainWP code.",
+            "category": "enhancement",
+            "type":     "improved"
+          }
+        ]
+      },
+      {
         "version":     "7",
         "released_at": 1723370000,
         "items":       [

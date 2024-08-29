@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class InsertNotBotJs {
 
@@ -41,7 +40,7 @@ class InsertNotBotJs {
 								'not_bot' => ActionData::BuildVO( $notBotVO ),
 							],
 							'flags' => [
-								'skip'     => $this->isSkip(),
+								'skip'     => false,
 								'required' => $this->isFreshSignalRequired(),
 							]
 						];
@@ -56,9 +55,10 @@ class InsertNotBotJs {
 
 	/**
 	 * Skip NotBot if the current visitor is a known, identifiable entity.
+	 * @deprecated 20.0.8
 	 */
 	private function isSkip() :bool {
-		return !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ IpID::VISITOR, IpID::UNKNOWN ], true );
+		return false;
 	}
 
 	private function isFreshSignalRequired() :bool {

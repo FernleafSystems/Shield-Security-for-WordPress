@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class NotBotHandler {
 
@@ -57,11 +58,20 @@ class NotBotHandler {
 		catch ( \Exception $e ) {
 			$BS = null;
 		}
+
+		$isVisitorUnidentified = \in_array( Services::IP()->getIpDetector()->getIPIdentity(), [
+			IpID::UNKNOWN,
+			IpID::LOOPBACK,
+			IpID::THIS_SERVER
+		], true );
+
 		return \array_keys( \array_filter( [
 			self::SIGNAL_NOTBOT => !empty( $BS )
+								   && $isVisitorUnidentified
 								   && $con->comps->altcha->complexityLevel() !== 'none'
 								   && ( Services::Request()->ts() - $BS->notbot_at > HOUR_IN_SECONDS ),
 			self::SIGNAL_ALTCHA => !empty( $BS )
+								   && $isVisitorUnidentified
 								   && $con->comps->altcha->enabled()
 								   && ( Services::Request()->ts() - $BS->altcha_at > HOUR_IN_SECONDS ),
 		] ) );
