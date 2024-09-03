@@ -103,6 +103,7 @@ class Constants {
 		Actions\SecurityOverviewViewAs::class,
 		Actions\SessionsTableAction::class,
 		Actions\SetFlagShieldIntroVideoClosed::class,
+		Actions\PluginSetOpt::class,
 		Actions\ToolPurgeProviderIPs::class,
 		Actions\TrafficLogTableAction::class,
 		Actions\UserSessionDelete::class,
