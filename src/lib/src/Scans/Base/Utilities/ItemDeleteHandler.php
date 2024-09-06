@@ -34,9 +34,7 @@ class ItemDeleteHandler {
 	}
 
 	protected function deleteSupported() :bool {
-		return \in_array( $this->getScanItem()->VO->scan, [
-			Controller\Afs::SCAN_SLUG,
-		] );
+		return $this->getScanItem()->VO->scan === Controller\Afs::SCAN_SLUG;
 	}
 
 	/**

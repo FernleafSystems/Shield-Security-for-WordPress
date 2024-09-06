@@ -126,7 +126,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			$parts = [
 				'otp'   => $otp,
 				'nonce' => \md5( \uniqid( Services::Request()->getID() ) ),
-				'id'    => self::con()->opts->optGet( 'yubikey_app_id', '' )
+				'id'    => self::con()->opts->optGet( 'yubikey_app_id' )
 			];
 
 			$response = Services::HttpRequest()->getContent( URL::Build( self::URL_YUBIKEY_VERIFY, $parts ) );

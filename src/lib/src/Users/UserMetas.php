@@ -58,8 +58,7 @@ class UserMetas {
 
 	private function loadMetaRecord( ShieldUserMeta $meta ) {
 
-		$metaLoader = new MetaRecords();
-		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
+		$metaRecord = ( new MetaRecords() )->loadMeta( (int)$meta->user_id );
 
 		if ( empty( $metaRecord ) ) {
 			$metaRecord = self::con()->db_con->user_meta->getRecord();
@@ -100,7 +99,7 @@ class UserMetas {
 					->user_meta
 					->getQueryUpdater()
 					->updateRecord( $metaRecord, $dataToUpdate );
-				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
+				$metaRecord = ( new MetaRecords() )->loadMeta( (int)$meta->user_id );
 			}
 		}
 

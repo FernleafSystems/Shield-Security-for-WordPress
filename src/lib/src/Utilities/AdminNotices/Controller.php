@@ -182,45 +182,44 @@ class Controller {
 		$con = self::con();
 
 		$installedAt = $con->comps->opts_lookup->getInstalledAt();
-		if ( empty( $installedAt ) ) {
-			return 0;
-		}
-		$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
+		if ( !empty( $installedAt ) ) {
+			$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 
-		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
-			$notice->non_display_reason = 'plugin_page_only';
-		}
-		elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
-			$notice->non_display_reason = 'promo_hidden';
-		}
-		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
-			$notice->non_display_reason = 'not_admin_area';
-		}
-		elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
-			$notice->non_display_reason = 'not_plugin_admin';
-		}
-		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
-			$notice->non_display_reason = 'is_plugin_admin';
-		}
-		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
-			$notice->non_display_reason = 'min_install_days';
-		}
-		elseif ( $this->count > 0 && $notice->type !== 'error' ) {
-			$notice->non_display_reason = 'max_nonerror_count';
-		}
-		elseif ( $notice->can_dismiss && $this->isNoticeDismissed( $notice ) ) {
-			$notice->non_display_reason = 'dismissed';
-		}
-		elseif ( !$this->isDisplayNeeded( $notice ) ) {
-			$notice->non_display_reason = 'not_needed';
-		}
-		else {
-			$this->count++;
-			$notice->display = true;
-			$notice->non_display_reason = 'n/a';
-		}
+			if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
+				$notice->non_display_reason = 'plugin_page_only';
+			}
+			elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
+				$notice->non_display_reason = 'promo_hidden';
+			}
+			elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
+				$notice->non_display_reason = 'not_admin_area';
+			}
+			elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
+				$notice->non_display_reason = 'not_plugin_admin';
+			}
+			elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
+				$notice->non_display_reason = 'is_plugin_admin';
+			}
+			elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
+				$notice->non_display_reason = 'min_install_days';
+			}
+			elseif ( $this->count > 0 && $notice->type !== 'error' ) {
+				$notice->non_display_reason = 'max_nonerror_count';
+			}
+			elseif ( $notice->can_dismiss && $this->isNoticeDismissed( $notice ) ) {
+				$notice->non_display_reason = 'dismissed';
+			}
+			elseif ( !$this->isDisplayNeeded( $notice ) ) {
+				$notice->non_display_reason = 'not_needed';
+			}
+			else {
+				$this->count++;
+				$notice->display = true;
+				$notice->non_display_reason = 'n/a';
+			}
 
-		$notice->template = '/notices/'.$notice->id;
+			$notice->template = '/notices/'.$notice->id;
+		}
 	}
 
 	private function isNoticeDismissed( NoticeVO $notice ) :bool {

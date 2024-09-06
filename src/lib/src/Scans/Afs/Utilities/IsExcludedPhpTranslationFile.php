@@ -42,7 +42,7 @@ class IsExcludedPhpTranslationFile {
 		$namedTokensCounts = [];
 
 		$hasValidTokensOnly = true;
-		foreach ( \token_get_all( $content ) as $idx => $t ) {
+		foreach ( \token_get_all( $content ) as $t ) {
 			if ( \is_array( $t ) ) {
 
 				if ( !isset( $nameNumberMap[ $t[ 0 ] ] ) ) {

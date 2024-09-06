@@ -136,7 +136,7 @@ class BuildScanItems {
 		$files = [];
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
 			try {
-				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, $action->file_exts ) as $item ) {
+				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, \is_array( $action->file_exts ) ? $action->file_exts : [] ) as $item ) {
 					/** @var \SplFileInfo $item */
 					try {
 						if ( !$this->isAutoFilterFile( $item ) ) {

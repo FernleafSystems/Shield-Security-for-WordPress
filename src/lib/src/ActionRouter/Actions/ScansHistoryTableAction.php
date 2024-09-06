@@ -9,8 +9,6 @@ class ScansHistoryTableAction extends BaseAction {
 	public const SLUG = 'scans_history_table_action';
 
 	protected function exec() {
-		$con = self::con();
-
 		$response = [
 			'success'     => false,
 			'page_reload' => false,
@@ -18,14 +16,10 @@ class ScansHistoryTableAction extends BaseAction {
 		];
 
 		try {
-			$action = $this->action_data[ 'sub_action' ] ?? '';
-			switch ( $action ) {
-				case 'retrieve_table_data':
-					$response = $this->retrieveTableData();
-					break;
+			if ( ( $this->action_data[ 'sub_action' ] ?? '' ) === 'retrieve_table_data' ) {
+				$response = $this->retrieveTableData();
 			}
-
-			$con->rules->buildAndStore();
+			self::con()->rules->buildAndStore();
 		}
 		catch ( \Exception $e ) {
 			$response = [
