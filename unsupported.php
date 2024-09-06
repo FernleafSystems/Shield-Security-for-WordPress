@@ -8,7 +8,7 @@ function icwp_wpsf_unsupported_php() {
 	$text = array(
 		'Sorry, your website runs an incredibly old version of PHP that Shield Security no longer supports, as of Shield v9.0',
 		"Your PHP no longer gets upgrades and it's difficult to maintain code for.",
-		'We recommend that you contact your website hosting provider on how to upgrade to at least PHP 7.0'
+		'We recommend that you contact your website hosting provider on how to upgrade to at least PHP 7.4'
 	);
 	echo sprintf(
 		'<div class="error"><h4>%s</h4><p>%s</p>' .

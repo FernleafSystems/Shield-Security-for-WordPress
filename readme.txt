@@ -5,7 +5,7 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: firewall, activity log, waf, 2fa, security
 Requires at least: 5.7
-Requires PHP: 7.2.5
+Requires PHP: 7.4
 Recommended PHP: 7.4
 Tested up to: 6.6
 Stable tag: 20.0.8

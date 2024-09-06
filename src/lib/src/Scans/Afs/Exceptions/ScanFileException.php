@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
 
 class ScanFileException extends \Exception {
 
-	private $scanFileData = [];
+	private $scanFileData;
 
 	public function __construct( string $file, array $data = [] ) {
 		parent::__construct( $file );

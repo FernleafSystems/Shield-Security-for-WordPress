@@ -9,7 +9,7 @@
  * Author: Shield Security
  * Author URI: https://shsec.io/bv
  * Requires at least: 5.7
- * Requires PHP: 7.2.5
+ * Requires PHP: 7.4
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 if ( defined( 'ABSPATH' ) ) {
-	if ( version_compare( PHP_VERSION, '7.2.5', '<' ) ) {
+	if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 		global $sIcwpWpsfPluginFile;
 		$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 		include_once( dirname( __FILE__ ).'/unsupported.php' );
@@ -62,7 +62,7 @@ if ( defined( 'ABSPATH' ) ) {
 				'Shield Security Plugin - Broken Installation',
 				implode( '<br/>', [
 					'It appears the Shield Security plugin was not upgraded/installed correctly.',
-					"We run a quick check to make sure certain important files are present in-case a faulty installation breaks your site.",
+					"We run a check to make sure certain critical files are present in-case a faulty installation breaks your site.",
 					'Try refreshing this page, and if you continue to see this notice, we recommend that you reinstall the Shield Security plugin.'
 				] )
 			);

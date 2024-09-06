@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
@@ -12,20 +11,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
 	Integration\WhitelistUs
 };
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
-use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
+use FernleafSystems\Wordpress\Services\Utilities\Net\{
+	RequestIpDetect,
+	VisitorIpDetection
+};
 
-class ModCon extends DynPropertiesClass {
+class ModCon {
 
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::PLUGIN;
 
-	/**
-	 * @var Processor
-	 */
-	private $processor;
+	private bool $is_booted = false;
+
+	private ?Processor $processor = null;
 
 	/**
 	 * @var Lib\TrackingVO
@@ -47,7 +47,7 @@ class ModCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function getProcessor() :Processor {
-		return $this->processor ?? $this->processor = new Processor();
+		return $this->processor ??= new Processor();
 	}
 
 	protected function doPostConstruction() {

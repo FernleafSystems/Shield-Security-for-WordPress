@@ -1,4 +1,27 @@
 {
+  "20.1": {
+    "version":     "20.1",
+    "released_at": 1725613137,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease201",
+      "upgrade": "https://shsec.io/shieldupgradeguide201"
+    },
+    "title":       "PHP 7.4",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "improved",
+        "title":       "PHP 7.4",
+        "description": [
+          "We've increased our minimum required PHP version to 7.4."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "20.0": {
     "version":     "20.0",
     "released_at": 1721722000,

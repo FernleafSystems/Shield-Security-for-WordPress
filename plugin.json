@@ -16,16 +16,9 @@
     "enable_premium":          true
   },
   "requirements":     {
-    "php":       "7.2",
+    "php":       "7.4",
     "wordpress": "5.7",
     "mysql":     "5.6"
-  },
-  "upgrade_reqs":     {
-    "19.0": {
-      "php":   "7.4",
-      "wp":    "5.7",
-      "mysql": "5.6"
-    }
   },
   "version_upgrades": [
   ],
