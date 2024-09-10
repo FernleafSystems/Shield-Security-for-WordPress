@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
+use AptowebDeps\CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,33 +33,33 @@ class PushSignalsToCS {
 	}
 
 	protected function run() {
-		$api = self::con()->comps->crowdsec->getApi();
+		$watcher = self::con()->comps->crowdsec->getWatcher();
 
 		$pushCount = 0;
 		do {
 			$records = $this->getNextRecordSet();
 			$this->deleteRecords( $records );
 
-			$toPush = \array_filter(
-				$records,
-				function ( CrowdsecSignalsDB\Record $record ) {
-					return $this->shouldRecordBeSent( $record );
-				}
+			$toPush = \array_map(
+				fn( CrowdsecSignalsDB\Record $record ) => $this->convertRecordsToSignal( $record ),
+				\array_filter(
+					$records,
+					fn( CrowdsecSignalsDB\Record $record ) => $this->shouldRecordBeSent( $record )
+				)
 			);
 
 			if ( !empty( $toPush ) ) {
 				try {
-					( new PushSignals( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )
-						->run( $this->convertRecordsToPayload( $toPush ) );
+					$watcher->pushSignals( $toPush );
 					$pushCount += \count( $toPush );
 				}
-				catch ( PushSignalsFailedException $e ) {
+				catch ( ClientException $e ) {
 				}
 			}
 		} while ( !empty( $records ) );
 
-		if ( !empty( $pushCount ) ) {
-			self::con()->fireEvent( 'crowdsec_signals_pushed', [
+		if ( $pushCount > 0 ) {
+			self::con()->comps->events->fireEvent( 'crowdsec_signals_pushed', [
 				'audit_params' => [
 					'count' => $pushCount
 				]
@@ -68,36 +67,29 @@ class PushSignalsToCS {
 		}
 	}
 
-	/**
-	 * @param CrowdsecSignalsDB\Record[] $records
-	 * @return CrowdsecSignalsDB\Record[]
-	 */
-	private function convertRecordsToPayload( array $records ) :array {
-		return \array_map(
-			function ( CrowdsecSignalsDB\Record $record ) {
-				$carbon = Services::Request()->carbon();
-				$carbon->setTimestamp( $record->created_at );
-				$carbon->setTimezone( 'UTC' );
-				$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
-					\trim( $carbon->toRfc3339String(), 'Z' ) );
-				return [
-					'machine_id'       => self::con()->comps->crowdsec->getApi()->getMachineID(),
-					'scenario'         => 'shield/'.$record->scenario,
-					'message'          => 'Shield reporting scenario '.$record->scenario,
-					'scenario_hash'    => '',
-					'scenario_version' => '0.1',
-					'source'           => [
-						'id'    => $record->id,
-						'scope' => $record->scope,
-						'value' => $record->value,
-						'ip'    => $record->value,
-					],
-					'start_at'         => $ts,
-					'stop_at'          => $ts,
-					'context'          => $this->buildContext( $record ),
-				];
-			},
-			$records
+	private function convertRecordsToSignal( CrowdsecSignalsDB\Record $record ) :array {
+		$carbon = Services::Request()->carbon();
+		$carbon->setTimezone( 'UTC' );
+		$carbon->setTimestamp( $record->created_at );
+		$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
+			\trim( $carbon->toRfc3339String(), 'Z' ) );
+
+		return self::con()->comps->crowdsec->getWatcher()->buildSignal(
+			[
+				'scenario'         => 'shield/'.$record->scenario,
+				'scenario_version' => '0.1',
+				'message'          => 'Shield reporting scenario '.$record->scenario,
+				'created_at'       => $ts,
+				'start_at'         => $ts,
+				'stop_at'          => $ts,
+				/** doesn't appear to be used in CAPI wrapper */
+				'context'          => $this->buildContext( $record ),
+			],
+			[
+				'id'    => $record->id,
+				'scope' => $record->scope,
+				'value' => $record->value,
+			]
 		);
 	}
 

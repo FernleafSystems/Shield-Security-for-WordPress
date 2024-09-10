@@ -20,7 +20,7 @@
   },
   "require":           {
     "php":                                   ">=7.4",
-    "crowdsec/capi-client":                  "3.1",
+    "crowdsec/capi-client":                  "^3.1",
     "dolondro/google-authenticator":         "^2.2",
     "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/zxcvbn-php":            "^1.1",

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
+use AptowebDeps\CrowdSec\CapiClient\Watcher;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -21,6 +22,17 @@ class CrowdSecController {
 
 	protected function canRun() :bool {
 		return self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock();
+	}
+
+	public function getWatcher() :Watcher {
+		$storage = new Capi\Storage();
+		return new Watcher(
+			[
+				'env'       => 'dev',
+				'scenarios' => $storage->retrieveScenarios(),
+			],
+			$storage,
+		);
 	}
 
 	protected function run() {
