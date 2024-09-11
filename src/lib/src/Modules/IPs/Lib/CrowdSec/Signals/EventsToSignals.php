@@ -12,12 +12,12 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	/**
 	 * @var array[]
 	 */
-	private $signals;
+	private array $signals;
 
 	/**
 	 * @var ?int
 	 */
-	private $capturedStatusCode = null;
+	private ?int $capturedStatusCode = null;
 
 	protected function init() {
 		$this->signals = [];
@@ -27,7 +27,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 		 */
 		add_filter( 'status_header', function ( $status_header = null, $code = null ) {
 			if ( $code !== null ) {
-				$this->capturedStatusCode = $code;
+				$this->capturedStatusCode = (int)$code;
 			}
 			return $status_header;
 		}, \PHP_INT_MAX, 2 );
@@ -97,7 +97,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 						'method'     => \strtoupper( $con->this_req->method ),
 						'target_uri' => $con->this_req->path,
 						'user_agent' => $con->this_req->useragent,
-						'status'     => $this->capturedStatusCode === null ? http_response_code() : $this->capturedStatusCode,
+						'status'     => $this->capturedStatusCode === null ? (int)http_response_code() : $this->capturedStatusCode,
 					],
 				];
 				if ( \method_exists( $record, 'arrayDataWrap' ) && !empty( $record->arrayDataWrap( $metaData ) ) ) {

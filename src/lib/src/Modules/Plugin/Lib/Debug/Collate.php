@@ -244,7 +244,7 @@ class Collate {
 			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
 			'WP Hashes Token'        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
 			'Security Admin Enabled' => $con->comps->sec_admin->isEnabledSecAdmin() ? 'Yes' : 'No',
-			'CrowdSec API Status'    => $con->comps->crowdsec->getApi()->getAuthStatus(),
+			'CrowdSec API Status'    => 'TODO', // $con->comps->crowdsec->getApi()->getAuthStatus(),
 			'TMP Dir'                => $con->cache_dir_handler->dir(),
 		];
 

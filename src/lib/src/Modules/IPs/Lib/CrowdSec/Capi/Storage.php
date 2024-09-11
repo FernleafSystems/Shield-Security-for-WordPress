@@ -50,15 +50,13 @@ class Storage implements StorageInterface {
 		return $this->setAuthItem( 'auth_token', $token );
 	}
 
-	private function getAuth() :array {
+	public function getAuths() :array {
 		$auths = Services::WpGeneral()->getOption( self::con()->prefix( 'cs_auths' ) );
-		if ( empty( $auths ) || !\is_array( $auths ) ) {
-			$auths = self::con()->comps->crowdsec->cfg()->cs_auths;
-		}
+		return ( empty( $auths ) || !\is_array( $auths ) ) ? self::con()->comps->crowdsec->cfg()->cs_auths : $auths;
+	}
 
-		if ( !\is_array( $auths ) ) {
-			$auths = [];
-		}
+	public function getAuth() :array {
+		$auths = $this->getAuths();
 
 		$url = Services::WpGeneral()->getWpUrl();
 		$auths[ $url ] = \array_merge( [
@@ -67,12 +65,13 @@ class Storage implements StorageInterface {
 			'auth_start_at'    => 0,
 			'auth_expire'      => '',
 			'machine_enrolled' => false,
+			'enrolled_id'      => '',
 			'machine_id'       => '',
 			'password'         => '',
 		], $auths[ $url ] ?? [] );
 		Services::WpGeneral()->updateOption( self::con()->prefix( 'cs_auths' ), $auths );
 
-		return $auths;
+		return $auths[ $url ];
 	}
 
 	private function setAuthItem( string $item, $value ) :bool {
@@ -81,9 +80,9 @@ class Storage implements StorageInterface {
 		return $this->storeAuth( $auth );
 	}
 
-	private function storeAuth( array $auth ) :bool {
+	public function storeAuth( array $auth ) :bool {
 		if ( !empty( $auth[ 'url' ] ) ) {
-			$auths = $this->getAuth();
+			$auths = $this->getAuths();
 			$auths[ $auth[ 'url' ] ] = $auth;
 			$auths = \array_filter( $auths, function ( $auth ) {
 				return empty( $auth[ 'auth_expire' ] )

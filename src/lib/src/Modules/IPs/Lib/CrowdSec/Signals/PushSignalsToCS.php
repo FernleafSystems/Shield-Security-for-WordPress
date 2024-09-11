@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signa
 
 use AptowebDeps\CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,23 +19,25 @@ class PushSignalsToCS {
 
 	public const LIMIT = 100;
 
-	private $distinctIPs;
-
-	private $distinctScopes;
-
-	private $groupedBy;
-
-	public function __construct( string $groupedBy = '' ) {
-		$this->groupedBy = $groupedBy;
-	}
+	private ?array $distinctScopes = null;
 
 	protected function canRun() :bool {
-		return self::con()->is_mode_live && self::con()->comps->crowdsec->getApi()->isReady();
+		return self::con()->is_mode_live;
 	}
 
 	protected function run() {
-		$watcher = self::con()->comps->crowdsec->getWatcher();
+		try {
+			$this->push();
+		}
+		catch ( LibraryPrefixedAutoloadNotFoundException $e ) {
+		}
+	}
 
+	/**
+	 * @throws LibraryPrefixedAutoloadNotFoundException
+	 */
+	public function push() {
+		$watcher = self::con()->comps->crowdsec->getCApiWatcher();
 		$pushCount = 0;
 		do {
 			$records = $this->getNextRecordSet();
@@ -54,6 +57,7 @@ class PushSignalsToCS {
 					$pushCount += \count( $toPush );
 				}
 				catch ( ClientException $e ) {
+					error_log( $e->getMessage() );
 				}
 			}
 		} while ( !empty( $records ) );
@@ -67,21 +71,23 @@ class PushSignalsToCS {
 		}
 	}
 
+	/**
+	 * @throws LibraryPrefixedAutoloadNotFoundException
+	 */
 	private function convertRecordsToSignal( CrowdsecSignalsDB\Record $record ) :array {
 		$carbon = Services::Request()->carbon();
 		$carbon->setTimezone( 'UTC' );
 		$carbon->setTimestamp( $record->created_at );
-		$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
-			\trim( $carbon->toRfc3339String(), 'Z' ) );
+		$carbon->setMillis( $record->milli_at );
 
-		return self::con()->comps->crowdsec->getWatcher()->buildSignal(
+		return self::con()->comps->crowdsec->getCApiWatcher()->buildSignal(
 			[
 				'scenario'         => 'shield/'.$record->scenario,
 				'scenario_version' => '0.1',
 				'message'          => 'Shield reporting scenario '.$record->scenario,
-				'created_at'       => $ts,
-				'start_at'         => $ts,
-				'stop_at'          => $ts,
+				'created_at'       => $carbon,
+				'start_at'         => $carbon,
+				'stop_at'          => $carbon,
 				/** doesn't appear to be used in CAPI wrapper */
 				'context'          => $this->buildContext( $record ),
 			],
@@ -108,15 +114,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getNextRecordSet() :array {
-		switch ( $this->groupedBy ) {
-			case 'ip':
-				$records = $this->getRecordsGroupedByIP();
-				break;
-			default:
-				$records = $this->getRecordsByScope();
-				break;
-		}
-		return $records;
+		return $this->getRecordsByScope();
 	}
 
 	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
@@ -158,35 +156,6 @@ class PushSignalsToCS {
 					break;
 				}
 			} while ( !empty( $this->distinctScopes ) );
-		}
-
-		return \is_array( $records ) ? $records : [];
-	}
-
-	/**
-	 * @return CrowdsecSignalsDB\Record[]
-	 */
-	private function getRecordsGroupedByIP() :array {
-		$dbhSignals = self::con()->db_con->crowdsec_signals;
-
-		if ( !isset( $this->distinctIPs ) ) {
-			$ips = $dbhSignals->getQuerySelector()
-							  ->addWhereEquals( 'scope', 'ip' )
-							  ->addColumnToSelect( 'value' )
-							  ->setIsDistinct( true )
-							  ->queryWithResult();
-			$this->distinctIPs = \is_array( $ips ) ? \array_filter( $ips ) : [];
-		}
-
-		/** @var CrowdsecSignalsDB\Record[] $records */
-		$records = [];
-		if ( !empty( $this->distinctIPs ) ) {
-			$ip = \array_shift( $this->distinctIPs );
-			/** @var CrowdsecSignalsDB\Select $selector */
-			$selector = $dbhSignals->getQuerySelector();
-			$records = $selector->filterByScope( 'ip' )
-								->filterByValue( $ip )
-								->queryWithResult();
 		}
 
 		return \is_array( $records ) ? $records : [];

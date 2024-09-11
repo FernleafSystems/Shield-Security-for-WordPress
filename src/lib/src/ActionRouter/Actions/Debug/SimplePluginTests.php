@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
+use AptowebDeps\CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
@@ -9,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
+	IPs\Lib\CrowdSec\Decisions\ImportDecisions,
 	Plugin
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -48,6 +50,25 @@ class SimplePluginTests extends BaseAction {
 		var_dump( $res );
 	}
 
+	private function dbg_cs() {
+		try {
+			( new ImportDecisions() )->testDownloadDecisionsViaFile();
+		}
+		catch ( ClientException $ce ) {
+			if ( $ce->getCode() === 403 && \str_contains( $ce->getMessage(), 'The machine_id or password is incorrect' ) ) {
+				// reset
+			}
+			var_dump( $ce );
+			error_log( 'client exception: '.$ce->getMessage() );
+		}
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
 	private function dbg_db() {
 		$column = 'data';
 		$schema = self::con()->db_con->activity_snapshots->getTableSchema();

@@ -42,20 +42,16 @@ class PageDebug extends BasePluginAdminPage {
 		$availableTests = [];
 		if ( $con->this_req->is_security_admin && ( $this->action_data[ 'show' ] ?? false ) ) {
 			$availableTests = \array_map(
-				function ( $method ) {
-					return sprintf(
-						'<a href="%s" target="_blank">%s</a>',
-						self::con()->plugin_urls->noncedPluginAction( SimplePluginTests::class, null, [
-							'test' => $method->getName()
-						] ),
-						\str_replace( 'dbg_', '', $method->getName() )
-					);
-				},
+				fn( $method ) => sprintf(
+					'<a href="%s" target="_blank">%s</a>',
+					$con->plugin_urls->noncedPluginAction( SimplePluginTests::class, null, [
+						'test' => $method->getName()
+					] ),
+					\str_replace( 'dbg_', '', $method->getName() )
+				),
 				\array_filter(
 					( new \ReflectionClass( SimplePluginTests::class ) )->getMethods(),
-					function ( $method ) {
-						return \strpos( $method->getName(), 'dbg_' ) === 0;
-					}
+					fn( $method ) => \strpos( $method->getName(), 'dbg_' ) === 0
 				)
 			);
 		}

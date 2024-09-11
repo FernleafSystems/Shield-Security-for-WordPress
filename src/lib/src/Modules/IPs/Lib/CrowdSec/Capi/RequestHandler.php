@@ -34,9 +34,15 @@ class RequestHandler implements CapiHandlerInterface {
 	}
 
 	protected function buildWpRemoteRequest( Request $request ) :array {
+		$headers = $request->getHeaders();
+		foreach ( $headers as $key => $value ) {
+			if ( \preg_match( '#^(user-agent)$#i', (string)$key, $matches ) ) {
+				$headers[ $matches[ 1 ] ] = $this->getApiUserAgent();
+			}
+		}
 		return [
 			'method'     => \strtoupper( $request->getMethod() ),
-			'headers'    => $request->getHeaders(),
+			'headers'    => $headers,
 			'user-agent' => $this->getApiUserAgent(),
 			'body'       => $request->getMethod() === 'GET' ? '' : \wp_json_encode( $request->getParams() ),
 		];

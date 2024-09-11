@@ -67,7 +67,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		$newCount = empty( $this->newDecisions ) ? 0 : $this->processNew();
 
 		if ( $newCount > 0 || $deletedCount > 0 ) {
-			self::con()->fireEvent( 'crowdsec_decisions_acquired', [
+			self::con()->comps->events->fireEvent( 'crowdsec_decisions_acquired', [
 				'audit_params' => [
 					'count_new'     => $newCount,
 					'count_deleted' => $deletedCount,

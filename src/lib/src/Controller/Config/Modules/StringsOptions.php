@@ -519,7 +519,12 @@ class StringsOptions {
 				];
 				break;
 			case 'cs_enroll_id':
-				$machID = $con->comps->crowdsec->getApi()->getMachineID();
+				try {
+					$machID = $con->comps->crowdsec->getCApiStore()->retrieveMachineId();
+				}
+				catch ( \Exception $e ) {
+					$machID = '';
+				}
 				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
 				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
 				$desc = [
