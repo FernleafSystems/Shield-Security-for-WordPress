@@ -20,15 +20,6 @@
     "wordpress": "5.7",
     "mysql":     "5.6"
   },
-  "upgrade_reqs":     {
-    "19.0": {
-      "php":   "7.4",
-      "wp":    "5.7",
-      "mysql": "5.6"
-    }
-  },
-  "version_upgrades": [
-  ],
   "paths":            {
     "config":           "config",
     "source":           "src",
