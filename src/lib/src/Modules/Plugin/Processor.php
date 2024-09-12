@@ -190,7 +190,7 @@ class Processor {
 				}
 
 				return $content;
-			}, 10, 3 );
+			}, 20, 3 );
 		}
 
 		return $cols;
