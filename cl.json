@@ -100,6 +100,27 @@
     ],
     "patches":     [
       {
+        "version":     "9",
+        "released_at": 1726154000,
+        "items":       [
+          {
+            "title":    "'Zone Actions' has been simplified into a list of buttons.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Updated all internal assets to address vulnerabilities reported within dependent libraries.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Eliminated deprecated PHP notice due to developer not using WP filter correctly.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "8",
         "released_at": 1725000000,
         "items":       [
