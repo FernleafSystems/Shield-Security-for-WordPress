@@ -157,33 +157,35 @@ class Processor {
 						$con = self::con();
 
 						$meta = $con->user_metas->for( $user );
-						$lastLoginAt = (int)$meta->record->last_login_at;
+						$lastLoginAt = $meta->record->last_login_at;
 						$carbon = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $lastLoginAt );
 
-						/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record $ipRecord */
-						$ipRecord = $con->db_con->ips->getQuerySelector()->byId( $meta->record->ip_ref );
+						/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record $ip */
+						$ip = $con->db_con->ips->getQuerySelector()->byId( $meta->record->ip_ref );
 
-						$additionalContent = apply_filters( 'shield/user_status_column', [
-							$content,
-							sprintf( '<em title="%s">%s</em>: %s',
-								$lastLoginAt > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
-								__( 'Last Login', 'wp-simple-firewall' ),
-								$lastLoginAt > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
-							),
-							sprintf( '<em title="%s">%s</em>: %s',
-								empty( $ipRecord->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : $ipRecord->ip,
-								__( 'Last Known IP', 'wp-simple-firewall' ),
-								empty( $ipRecord->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) :
-									sprintf( '<a href="%s" target="_blank">%s</a>',
-										$con->plugin_urls->ipAnalysis( $ipRecord->ip ),
-										$ipRecord->ip
-									)
-							),
-						], $user );
-
-						$content = \implode( '<br/>', \array_filter( \array_map( '\trim', $additionalContent ) ) );
+						$content = \implode( '<br/>', \array_filter( \array_map(
+							function ( $line ) {
+								/**
+								 * need to cast as string as crappy programmers can't use filters properly.
+								 * @see https://wordpress.org/support/topic/firewall-creating-errors-on-site/
+								 */
+								return \trim( (string)$line );
+							},
+							apply_filters( 'shield/user_status_column', [
+								$content,
+								sprintf( '<em title="%s">%s</em>: %s',
+									$lastLoginAt > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
+									__( 'Last Login', 'wp-simple-firewall' ),
+									$lastLoginAt > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
+								),
+								sprintf( '<em title="%s">%s</em>: %s',
+									empty( $ip->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : $ip->ip, __( 'Last Known IP', 'wp-simple-firewall' ),
+									empty( $ip->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : sprintf( '<a href="%s" target="_blank">%s</a>', $con->plugin_urls->ipAnalysis( $ip->ip ), $ip->ip )
+								),
+							], $user )
+						) ) );
 					}
 				}
 

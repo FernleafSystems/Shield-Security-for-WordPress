@@ -20,8 +20,6 @@
     "wordpress": "5.7",
     "mysql":     "5.6"
   },
-  "version_upgrades": [
-  ],
   "paths":            {
     "config":           "config",
     "source":           "src",

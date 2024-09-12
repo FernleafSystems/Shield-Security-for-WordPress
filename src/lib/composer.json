@@ -28,7 +28,7 @@
     "nyholm/psr7":                           "^1.8",
     "nyholm/psr7-server":                    "^1.1",
     "symfony/polyfill-iconv":                "^1.29",
-    "twig/twig":                             "3.10.3",
+    "twig/twig":                             "^3.11",
     "web-auth/webauthn-lib":                 "^3.3",
     "ext-json":                              "*",
     "ext-openssl":                           "*",
