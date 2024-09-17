@@ -38,14 +38,14 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	protected function getAction_Config() :?array {
 		$moduleZone = $this->getUnderlyingModuleZone();
 		return empty( $moduleZone ) ? null : [
-			'title'   => sprintf( __( "Configure All Related '%s' Options", 'wp-simple-firewall' ), $this->title() ),
+			'title'   => sprintf( __( "Configure All '%s' Options", 'wp-simple-firewall' ), $this->title() ),
 			'data'    => [
 				'zone_component_action' => ZoneComponentConfig::SLUG,
 				'zone_component_slug'   => $moduleZone::Slug(),
 			],
 			'icon'    => self::con()->svgs->raw( 'gear' ),
 			'classes' => [
-				'btn-outline-secondary',
+				'list-group-item-primary',
 				'zone_component_action',
 			],
 		];

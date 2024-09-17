@@ -27,7 +27,7 @@
     "nyholm/psr7":                           "^1.8",
     "nyholm/psr7-server":                    "^1.0",
     "symfony/polyfill-iconv":                "^1.29",
-    "twig/twig":                             "3.10.3",
+    "twig/twig":                             "^3.11",
     "web-auth/webauthn-lib":                 "^3.3",
     "ext-json":                              "*",
     "ext-openssl":                           "*",
@@ -67,7 +67,8 @@
           "symfony/deprecation-contracts",
           "symfony/polyfill-ctype",
           "symfony/polyfill-mbstring",
-          "symfony/polyfill-php80"
+          "symfony/polyfill-php80",
+          "symfony/polyfill-php81"
         ],
         "namespaces":    [
         ],

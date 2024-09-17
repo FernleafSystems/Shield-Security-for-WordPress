@@ -8,14 +8,6 @@
   font-weight: bolder;
 }
 
-ul.nav-tabs li a {
-  color: #008000;
-}
-
-ul.nav-tabs li.active a {
-  color: #000000;
-}
-
 body.plugins-php .wrap > ul li.vulnerable a {
   color: darkred;
 }
@@ -53,7 +45,7 @@ tr.shield-plugin-vulnerability dd {
   margin-bottom: 3px;
 }
 
-.restricted-option {
+.shield-restricted-option {
   background-color: rgba(255, 255, 255, 0.6);
   border: 1px solid;
   border-radius: 3px;
@@ -63,9 +55,6 @@ tr.shield-plugin-vulnerability dd {
   line-height: 22px;
   margin: 2px 0 4px;
   padding: 7px 8px 5px 6px;
-}
-
-.shield-user-options-block {
 }
 
 .shield-user-options-block table {
@@ -86,18 +75,18 @@ tr.shield-plugin-vulnerability dd {
   color: #00ff00;
 }
 
-.icwp-toaster {
+.shield-toaster {
   position: fixed;
   top: 100px;
   right: 60px;
   z-index: -1;
 }
 
-.icwp-toaster .toast-body {
+.shield-toaster .toast-body {
   white-space: nowrap;
 }
 
-.icwp-toaster.toast {
+.shield-toaster.toast {
   max-width: none;
 }
 

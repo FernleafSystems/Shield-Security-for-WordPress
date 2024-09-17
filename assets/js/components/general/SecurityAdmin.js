@@ -83,7 +83,7 @@ export class SecurityAdmin extends BaseComponent {
 				$element.prop( 'disabled', true );
 				$element.parents( 'tr' ).addClass( 'restricted-option-row' );
 				$element.parents( 'td' ).append(
-					'<div style="clear:both"></div><div class="restricted-option">' +
+					'<div style="clear:both"></div><div class="shield-restricted-option">' +
 					'<span class="dashicons dashicons-lock"></span>' +
 					this._base_data.strings.editing_restricted +
 					' ' + this._base_data.strings.unlock_link +

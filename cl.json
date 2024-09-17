@@ -77,6 +77,32 @@
     ],
     "patches":     [
       {
+        "version":     "10",
+        "released_at": 1726564000,
+        "items":       [
+          {
+            "title":    "'Zone Actions' has been simplified into a list of buttons.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Updated all internal assets to address vulnerabilities reported within dependent libraries.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Remove some unnecessary admin styles.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Eliminated deprecated PHP notice due to developer not using WP filter correctly.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "8",
         "released_at": 1725000000,
         "items":       [
@@ -97,12 +123,12 @@
         "released_at": 1723370000,
         "items":       [
           {
-            "title":    "Address an issue with Shield configuration whereby it get 'stuck' in an invalid state.",
+            "title":    "Address an issue with Shield configuration whereby it would get 'stuck' in an invalid state.",
             "category": "bug",
             "type":     "fixed"
           },
           {
-            "title":    "Add Shield Security to MainWP's newer Security Extensions menu.",
+            "title":    "Add Shield Security to MainWP's new Security Extensions menu.",
             "category": "enhancement",
             "type":     "improved"
           }

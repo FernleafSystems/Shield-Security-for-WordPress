@@ -23,7 +23,7 @@ class Secadmin extends Base {
 				),
 				'icon'    => self::con()->svgs->raw( 'toggle-off' ),
 				'classes' => [
-					'btn-outline-warning',
+					'list-group-item-warning',
 				],
 			];
 		}

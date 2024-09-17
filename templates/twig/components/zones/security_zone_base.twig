@@ -11,24 +11,6 @@
 		</div>
 	{% endif %}
 
-{#	<div class="row my-2">#}
-{#		<div class="col-12">#}
-{#			<div class="d-flex justify-content-around">#}
-{#				{% for zone_href in hrefs.all_zones %}#}
-{#					<div class="text-center">#}
-{#						<a class="{{ zone_href.classes|join(' ') }}"#}
-{#						   title="{{ zone_href.title }}"#}
-{#						   href="{{ zone_href.href|default('#') }}"#}
-{#						   {% for key, value in zone_href.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}#}
-{#						>#}
-{#							{{ zone_href.title }}#}
-{#						</a>#}
-{#					</div>#}
-{#				{% endfor %}#}
-{#			</div>#}
-{#		</div>#}
-{#	</div>#}
-
 	<div class="row">
 
 		<div class="col-lg-8 mt-4">
@@ -41,39 +23,17 @@
 			<div class="card">
 				{% if vars.actions is not empty %}
 					<div class="card-header">
-						<div class="btn-group dropstart d-sm-none d-lg-inline-flex">
-							<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-									aria-expanded="false">{{ strings.actions }}</button>
-							<ul class="dropdown-menu">
-								{% for action in vars.actions %}
-									<li>
-										<a class="dropdown-item {{ action.classes|join(' ') }}"
-										   title="{{ action.title }}"
-										   href="{{ action.href|default('#') }}"
-										   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
-										>
-											<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}
-										</a>
-									</li>
-								{% endfor %}
-							</ul>
-						</div>
-						<div class="btn-group dropup d-lg-none">
-							<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-									aria-expanded="false">{{ strings.actions }}</button>
-							<ul class="dropdown-menu">
-								{% for action in vars.actions %}
-									<li>
-										<a class="dropdown-item {{ action.classes|join(' ') }}"
-										   title="{{ action.title }}"
-										   href="{{ action.href|default('#') }}"
-										   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
-										>
-											<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}
-										</a>
-									</li>
-								{% endfor %}
-							</ul>
+
+						<div class="list-group">
+							{% for action in vars.actions %}
+								<a class="list-group-item list-group-item-action {{ action.classes|join(' ') }}"
+								   title="{{ action.title }}"
+								   href="{{ action.href|default('#') }}"
+								   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+								   >
+									<span class="svg-container me-1">{{ action.icon|raw }}</span>{{ action.title }}
+								</a>
+							{% endfor %}
 						</div>
 					</div>
 				{% endif %}

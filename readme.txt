@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
 Tested up to: 6.6
-Stable tag: 20.0.8
+Stable tag: 20.0.10
 
 Real security is stopping attackers dead, before they hack your site. Bad Bots Are Your #1 Security Threat.
 
@@ -22,7 +22,7 @@ Bad bots are you're #1 security threat. They account for nearly all WordPress se
 
 Google reCAPTCHA and CloudFlare Turnstile are considered the best way to detect bots, but these along with all other CAPTCHAs interrupt the user experience.
 
-Shield's exclusive *silent*CAPTCHA detects bad bots and blocks them from taking any abusive actions on your site, like brute-force user login attacks and WP Comments SPAM.
+Shield's exclusive *silent*CAPTCHA detects bad bots and blocks them from taking any abusive actions on your site, such as brute-force user login attacks and WP Comments SPAM.
 
 Furthermore, privacy directives from legislation such as Europe's GDPR restrict what data you're allowed to share of your visitors. All *silent*CAPTCHA data is kept on your WordPress site and ensures your compliance with GDPR regulations.
 
