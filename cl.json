@@ -11,6 +11,15 @@
     ],
     "items":       [
       {
+        "type":        "new",
+        "title":       "Support For Simple Membership",
+        "pro_only":    true,
+        "description": [
+          "Added silentCAPTCHA bot detection support for Simple Membership plugin."
+        ],
+        "href":        "https://shsec.io/silentcaptchawordpress"
+      },
+      {
         "type":        "improved",
         "title":       "PHP 7.4",
         "description": [
