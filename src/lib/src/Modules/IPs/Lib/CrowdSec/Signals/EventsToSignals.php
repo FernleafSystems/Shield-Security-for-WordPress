@@ -106,8 +106,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 				}
 			}
 
-			// and finally, trigger send to Crowdsec
-			$this->triggerSignalsCron();
+			$con->comps->crowdsec->scheduleSignalsPushCron();
 		}
 	}
 
@@ -123,16 +122,6 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			}
 		}
 		return \strlen( $milli ) > 0 ? $milli : '0';
-	}
-
-	private function triggerSignalsCron() {
-		if ( !wp_next_scheduled( self::con()->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
-			wp_schedule_single_event(
-				Services::Request()
-						->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', \MINUTE_IN_SECONDS*5 ),
-				self::con()->prefix( 'adhoc_cron_crowdsec_signals' )
-			);
-		}
 	}
 
 	private function getSignalDef( string $evt ) :array {
@@ -214,5 +203,11 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 				'scenario' => 'markspam',
 			],
 		];
+	}
+
+	/**
+	 * @deprecated 20.1
+	 */
+	private function triggerSignalsCron() :void {
 	}
 }

@@ -5,13 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 class EasyDigitalDownloads extends Base {
 
 	protected function register() {
-		add_action( 'edd_process_register_form', [ $this, 'checkRegister_EDD' ] );
+		add_action( 'edd_process_register_form', [ $this, 'checkRegister' ] );
 	}
 
-	public function checkRegister_EDD() {
+	public function checkRegister() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$this->fireEventBlockRegister();
-			\edd_set_error( \uniqid(), $this->getErrorMessage() );
+			\edd_set_error( \uniqid( 'shield-' ), $this->getErrorMessage() );
 		}
 	}
 }

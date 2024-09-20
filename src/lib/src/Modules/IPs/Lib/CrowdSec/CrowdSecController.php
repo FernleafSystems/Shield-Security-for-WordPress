@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Capi\Enroll;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecController {
 
@@ -23,14 +24,13 @@ class CrowdSecController {
 	}
 
 	protected function run() {
-		$this->setupCronHooks();
-
+		$this->attachHooks();
 		( new Signals\EventsToSignals() )->setIfCommit( self::con()->is_mode_live );
+	}
 
-		add_action( self::con()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
-			// This cron is initiated from within SignalsBuilder
-			( new Signals\PushSignalsToCS() )->execute();
-		} );
+	protected function attachHooks() :void {
+		$this->setupCronHooks();
+		add_action( $this->cronSignalsPushKey(), fn() => ( new Signals\PushSignalsToCS() )->execute() );
 	}
 
 	public function cfg() :CrowdSecCfg {
@@ -71,7 +71,26 @@ class CrowdSecController {
 		}
 		catch ( \Exception $e ) {
 		}
+
 		( new Decisions\ImportDecisions() )->execute();
+
+		if ( self::con()->db_con->crowdsec_signals->getQuerySelector()->count() > 0 ) {
+			$this->scheduleSignalsPushCron();
+		}
+	}
+
+	public function scheduleSignalsPushCron() :void {
+		if ( !wp_next_scheduled( $this->cronSignalsPushKey() ) ) {
+			wp_schedule_single_event(
+				Services::Request()->ts()
+				+ apply_filters( 'shield/crowdsec/signals_cron_interval', \MINUTE_IN_SECONDS*5 ),
+				$this->cronSignalsPushKey()
+			);
+		}
+	}
+
+	private function cronSignalsPushKey() :string {
+		return self::con()->prefix( 'adhoc_cron_crowdsec_signals' );
 	}
 
 	/**

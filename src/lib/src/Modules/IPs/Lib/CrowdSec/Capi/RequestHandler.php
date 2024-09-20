@@ -30,14 +30,14 @@ class RequestHandler implements CapiHandlerInterface {
 	}
 
 	protected function buildUri( Request $request ) :string {
-		return $request->getMethod() === 'GET' ? $request->getUri() : URL::Build( $request->getUri(), $request->getParams() );
+		return $request->getMethod() === 'GET' ? URL::Build( $request->getUri(), $request->getParams() ) : $request->getUri();
 	}
 
 	protected function buildWpRemoteRequest( Request $request ) :array {
 		$headers = $request->getHeaders();
 		foreach ( $headers as $key => $value ) {
-			if ( \preg_match( '#^(user-agent)$#i', (string)$key, $matches ) ) {
-				$headers[ $matches[ 1 ] ] = $this->getApiUserAgent();
+			if ( \preg_match( '#^(user-agent)$#i', (string)$key ) ) {
+				$headers[ $key ] = $this->getApiUserAgent();
 			}
 		}
 		return [

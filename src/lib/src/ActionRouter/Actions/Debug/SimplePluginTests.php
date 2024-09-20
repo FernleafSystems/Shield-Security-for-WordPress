@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	IPs\Lib\CrowdSec\Decisions\ImportDecisions,
+	IPs\Lib\CrowdSec\Signals\PushSignalsToCS,
 	Plugin
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -52,7 +53,8 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_cs() {
 		try {
-			( new ImportDecisions() )->testDownloadDecisionsViaFile();
+			( new PushSignalsToCS() )->push();
+//			( new ImportDecisions() )->testDownloadDecisionsViaFile();
 		}
 		catch ( ClientException $ce ) {
 			if ( $ce->getCode() === 403 && \str_contains( $ce->getMessage(), 'The machine_id or password is incorrect' ) ) {
