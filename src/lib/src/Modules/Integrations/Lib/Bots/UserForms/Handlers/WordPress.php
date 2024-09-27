@@ -6,8 +6,12 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WordPress extends Base {
 
+	public function isEnabled() :bool {
+		return \in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
+	}
+
 	protected function login() {
-		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
+		// Priority of 10 so that we jump in before WordPress does its own validation.
 		add_filter( 'authenticate', [ $this, 'checkLogin_WP' ], 10, 2 );
 	}
 
@@ -28,8 +32,7 @@ class WordPress extends Base {
 	 */
 	public function checkLogin_WP( $userOrError, $username ) {
 		if ( !is_wp_error( $userOrError ) || empty( $userOrError->get_error_codes() ) ) {
-			$this->setAuditAction( 'login' )
-				 ->setAuditUser( $username );
+			$this->setAuditAction( 'login' )->setAuditUser( $username );
 			if ( $this->isBotBlockRequired() ) {
 				$this->fireEventBlockLogin();
 				$userOrError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
@@ -67,8 +70,7 @@ class WordPress extends Base {
 	 */
 	public function checkRegister_WP( $wpError, $username ) {
 		if ( !is_wp_error( $wpError ) || empty( $wpError->get_error_codes() ) ) {
-			$this->setAuditAction( 'register' )
-				 ->setAuditUser( $username );
+			$this->setAuditAction( 'register' )->setAuditUser( $username );
 			if ( $this->isBotBlockRequired() ) {
 				$this->fireEventBlockRegister();
 				$wpError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
