@@ -60,7 +60,7 @@ abstract class BaseHandler {
 
 	abstract protected function fireBotEvent();
 
-	abstract protected function getContext() :string;
+	abstract protected function getCooldownContext() :string;
 
 	protected function isBotBlockEnabled() :bool {
 		return $this->isEnabled();
@@ -72,24 +72,15 @@ abstract class BaseHandler {
 
 	public function isCoolDownBlockRequired() :bool {
 		$required = false;
-		if ( $this->isCoolDownEnabled() ) {
+		if ( self::con()->comps->cool_down->isCooldownContextEnabled( $this->getCooldownContext() ) ) {
 			if ( $this->isCooldown === null ) {
-				$this->isCooldown = self::con()->comps->cool_down->isCooldownTriggered( $this->getContext() );
-				if ( $this->isCooldown ) {
+				if ( $this->isCooldown = self::con()->comps->cool_down->isCooldownTriggered( $this->getCooldownContext() ) ) {
 					self::con()->comps->events->fireEvent( 'cooldown_fail' );
 				}
 			}
 			$required = $this->isCooldown;
 		}
 		return $required;
-	}
-
-	public function isCoolDownEnabled() :bool {
-		return false;
-	}
-
-	protected function isSpam_Human() :bool {
-		return false;
 	}
 
 	public function isEnabled() :bool {

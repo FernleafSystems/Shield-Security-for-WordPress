@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\AntiBot\CoolDownHandler;
+
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler {
 
 	public function getHandlerController() {
@@ -24,7 +26,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 			self::con()->getHumanName() );
 	}
 
-	protected function getContext() :string {
-		return 'spam';
+	protected function getCooldownContext() :string {
+		return CoolDownHandler::CONTEXT_SPAM;
 	}
 }

@@ -9,10 +9,16 @@ class CoolDownHandler {
 
 	use PluginControllerConsumer;
 
+	public const CONTEXT_AUTH = 'auth';
+	public const CONTEXT_COMMENTS = 'comments';
+	public const CONTEXT_SPAM = 'spam';
+
 	private array $secondsSinceLastReq = [];
 
 	public function isCooldownTriggered( string $context ) :bool {
-		return $this->serviceAvailable() && $this->cooldownRemaining( $context ) > 0;
+		return $this->serviceAvailable()
+			   && $this->isCooldownContextEnabled( $context )
+			   && $this->cooldownRemaining( $context ) > 0;
 	}
 
 	public function cooldownRemaining( string $context ) :int {
@@ -28,7 +34,19 @@ class CoolDownHandler {
 				$this->secondsSinceLastReq[ $context ] = \PHP_INT_MAX;
 			}
 		}
-		return (int)\max( 0, self::con()->opts->optGet( 'login_limit_interval' ) - $this->secondsSinceLastReq[ $context ] );
+		return (int)\max( 0, $this->intervalPerContext( $context ) - $this->secondsSinceLastReq[ $context ] );
+	}
+
+	private function intervalPerContext( string $context ) :int {
+		$key = [
+				   self::CONTEXT_AUTH     => 'login_limit_interval',
+				   self::CONTEXT_COMMENTS => 'comments_cooldown',
+			   ][ $context ] ?? null;
+		return empty( $key ) ? 0 : self::con()->opts->optGet( $key );
+	}
+
+	public function isCooldownContextEnabled( string $context ) :bool {
+		return $this->intervalPerContext( $context ) > 0;
 	}
 
 	private function serviceAvailable() :bool {

@@ -1678,12 +1678,6 @@
         "description":     "Show links to re-install plugins and offer re-install when activating plugins."
       },
       {
-        "key":     "last_comment_request_at",
-        "section": "section_hidden",
-        "type":    "integer",
-        "default": 0
-      },
-      {
         "key":       "delay_tracking",
         "section":   "section_hidden",
         "sensitive": true,

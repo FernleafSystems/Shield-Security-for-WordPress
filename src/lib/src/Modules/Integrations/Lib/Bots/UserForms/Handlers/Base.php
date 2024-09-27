@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\AntiBot\CoolDownHandler;
+
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler {
 
 	private ?string $auditAction = null;
@@ -22,16 +24,12 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		$this->checkout();
 	}
 
-	protected function getContext() :string {
-		return 'auth';
+	protected function getCooldownContext() :string {
+		return CoolDownHandler::CONTEXT_AUTH;
 	}
 
 	public function isEnabled() :bool {
 		return parent::isEnabled() && self::con()->caps->canThirdPartyScanUsers();
-	}
-
-	public function isCoolDownEnabled() :bool {
-		return self::con()->opts->optGet( 'login_limit_interval' ) > 0;
 	}
 
 	protected function login() {
@@ -107,7 +105,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		return $this->isCoolDownBlockRequired() ?
 			\implode( ' ', [
 				__( 'Cooldown in effect.', 'wp-simple-firewall' ),
-				sprintf( __( 'Please wait %s seconds before attempting this action again.', 'wp-simple-firewall' ), self::con()->comps->cool_down->cooldownRemaining( $this->getContext() ) )
+				sprintf( __( 'Please wait %s seconds before attempting this action again.', 'wp-simple-firewall' ), self::con()->comps->cool_down->cooldownRemaining( $this->getCooldownContext() ) )
 			] )
 			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->getHumanName() );
 	}
