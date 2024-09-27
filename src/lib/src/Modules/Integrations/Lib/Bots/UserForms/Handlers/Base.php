@@ -2,19 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
+abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler {
 
-abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
+	private ?string $auditAction = null;
 
-	/**
-	 * @var string
-	 */
-	private $auditAction;
-
-	/**
-	 * @var string
-	 */
-	private $auditUser;
+	private ?string $auditUser = null;
 
 	protected function run() {
 		$opts = self::con()->comps->opts_lookup;
@@ -30,8 +22,16 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 		$this->checkout();
 	}
 
+	protected function getContext() :string {
+		return 'auth';
+	}
+
 	public function isEnabled() :bool {
 		return parent::isEnabled() && self::con()->caps->canThirdPartyScanUsers();
+	}
+
+	public function isCoolDownEnabled() :bool {
+		return self::con()->opts->optGet( 'login_limit_interval' ) > 0;
 	}
 
 	protected function login() {
@@ -75,7 +75,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function fireBotEvent() {
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			sprintf( 'user_form_bot_%s', $this->isBot() ? 'fail' : 'pass' ),
 			[
 				'audit_params' => [
@@ -88,26 +88,27 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function fireEventBlockLogin() {
-		self::con()->fireEvent( 'login_block' );
+		self::con()->comps->events->fireEvent( 'login_block' );
 	}
 
 	protected function fireEventBlockRegister() {
-		self::con()->fireEvent( 'block_register' );
+		self::con()->comps->events->fireEvent( 'block_register' );
 	}
 
 	protected function fireEventBlockLostpassword() {
-		self::con()->fireEvent( 'block_lostpassword' );
+		self::con()->comps->events->fireEvent( 'block_lostpassword' );
 	}
 
 	protected function fireEventBlockCheckout() {
-		self::con()->fireEvent( 'block_checkout' );
-	}
-
-	protected function isBotBlockEnabled() :bool {
-		return self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck();
+		self::con()->comps->events->fireEvent( 'block_checkout' );
 	}
 
 	protected function getErrorMessage() :string {
-		return sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->getHumanName() );
+		return $this->isCoolDownBlockRequired() ?
+			\implode( ' ', [
+				__( 'Cooldown in effect.', 'wp-simple-firewall' ),
+				sprintf( __( 'Please wait %s seconds before attempting this action again.', 'wp-simple-firewall' ), self::con()->comps->cool_down->cooldownRemaining( $this->getContext() ) )
+			] )
+			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->getHumanName() );
 	}
 }

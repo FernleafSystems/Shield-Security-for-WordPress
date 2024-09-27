@@ -15,9 +15,14 @@ class OptionsCorrections {
 
 	protected function removeDeprecated() {
 		$opts = self::con()->opts;
-		if ( $opts->optIs( 'enable_login_gasp_check', 'Y' ) ) {
+		if ( $opts->optExists( 'enable_login_gasp_check' ) && $opts->optIs( 'enable_login_gasp_check', 'Y' ) ) {
 			$opts->optSet( 'enable_antibot_check', 'Y' );
 			$opts->optSet( 'enable_login_gasp_check', 'N' );
+		}
+		// If the original antibot option was disabled, since we're removing it, we must remove all bot locations.
+		if ( $opts->optExists( 'enable_antibot_check' ) && $opts->optIs( 'enable_antibot_check', 'N' ) ) {
+			$opts->optSet( 'bot_protection_locations', [] )
+				 ->optSet( 'enable_antibot_check', 'Y' );
 		}
 	}
 

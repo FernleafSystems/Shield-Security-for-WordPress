@@ -2734,39 +2734,6 @@
         "description":     "Allow Any User To Turn-On Two-Factor Authentication By Email."
       },
       {
-        "key":             "enable_antibot_check",
-        "section":         "section_brute_force_login_protection",
-        "zone_comp_slugs": [
-          "limit_login",
-          "module_login"
-        ],
-        "default":         "N",
-        "type":            "checkbox",
-        "link_info":       "https://shsec.io/k0",
-        "link_blog":       "https://shsec.io/jo",
-        "beacon_id":       426,
-        "name":            "Block Login Bots",
-        "summary":         "Block Login Attempted By Automated Bots",
-        "description":     "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
-      },
-      {
-        "key":             "login_limit_interval",
-        "section":         "section_brute_force_login_protection",
-        "zone_comp_slugs": [
-          "limit_login",
-          "module_login"
-        ],
-        "type":            "integer",
-        "default":         5,
-        "min":             0,
-        "link_info":       "https://shsec.io/3q",
-        "link_blog":       "https://shsec.io/9o",
-        "beacon_id":       242,
-        "name":            "Login Cooldown Interval",
-        "summary":         "Limit login attempts to every X seconds",
-        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
-      },
-      {
         "key":             "bot_protection_locations",
         "section":         "section_brute_force_login_protection",
         "zone_comp_slugs": [
@@ -2798,9 +2765,38 @@
         "link_info":       "https://shsec.io/dv",
         "link_blog":       "",
         "beacon_id":       314,
-        "name":            "Protection Locations",
-        "summary":         "How Google reCAPTCHA Will Be Displayed",
-        "description":     "Choose for which forms bot protection measures will be deployed."
+        "name":            "Protected Forms",
+        "summary":         "Which WordPress Forms Should Be Protected From Bots",
+        "description":     "Choose on which forms silentCAPTHA Bot Protection will be deployed."
+      },
+      {
+        "key":             "login_limit_interval",
+        "section":         "section_brute_force_login_protection",
+        "zone_comp_slugs": [
+          "login_protection_forms",
+          "module_login"
+        ],
+        "type":            "integer",
+        "default":         5,
+        "min":             0,
+        "link_info":       "https://shsec.io/3q",
+        "link_blog":       "https://shsec.io/9o",
+        "beacon_id":       242,
+        "name":            "Login Cooldown Interval",
+        "summary":         "Limit login attempts to every X seconds",
+        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
+      },
+      {
+        "key":             "enable_antibot_check",
+        "section":         "section_deprecated",
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "https://shsec.io/k0",
+        "link_blog":       "https://shsec.io/jo",
+        "beacon_id":       426,
+        "name":            "Block Login Bots",
+        "summary":         "Block Login Attempted By Automated Bots",
+        "description":     "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
       },
       {
         "key":         "enable_login_gasp_check",

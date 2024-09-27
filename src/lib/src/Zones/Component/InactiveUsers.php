@@ -25,7 +25,7 @@ class InactiveUsers extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "User accounts that become inactive over time may still allow access if the account is compromised.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = __( "User accounts that become inactive may still be allowed access, even if the account is compromised.", 'wp-simple-firewall' );
 		}
 
 		return $status;

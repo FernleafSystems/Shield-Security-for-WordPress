@@ -855,18 +855,11 @@ class StringsOptions {
 						\implode( '</code>, <code>', Services::WpUsers()->getAvailableUserRoles() ) )
 				];
 				break;
-			case 'enable_antibot_check':
-				$name = __( 'Block Login Bots', 'wp-simple-firewall' );
-				$summary = __( 'Block Login Attempts From Automated Bots', 'wp-simple-firewall' );
-				$desc = [
-					__( "Use Shield's built-in silentCAPTCHA system to identify malicious bots and block all requests to your WordPress login.", 'wp-simple-firewall' ),
-					sprintf( __( "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ), $pluginName ),
-				];
-				break;
 			case 'bot_protection_locations':
-				$name = __( 'Protection Locations', 'wp-simple-firewall' );
-				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
+				$name = __( 'Protected Forms', 'wp-simple-firewall' );
+				$summary = __( 'Which WordPress Forms Should Be Protected From Bots', 'wp-simple-firewall' );
 				$desc = [
+					sprintf( __( '%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology.', 'wp-simple-firewall' ), $pluginName ),
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
 				];

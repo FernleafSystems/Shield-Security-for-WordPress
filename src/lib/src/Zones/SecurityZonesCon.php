@@ -116,7 +116,6 @@ class SecurityZonesCon {
 			Component\InactiveUsers::class,
 			Component\InstantAlerts::class,
 			Component\IpBlockingRules::class,
-			Component\LimitLogin::class,
 			Component\LoginHide::class,
 			Component\LoginProtectionForms::class,
 			Component\Modules\ModuleFirewall::class,

@@ -26,6 +26,22 @@
           "We've increased our minimum required PHP version to 7.4."
         ],
         "href":        ""
+      },
+      {
+        "type":        "improved",
+        "title":       "Refactored Login Cooldown System",
+        "description": [
+          "We've rewritten and improved the login cooldown system to work more directly with the silentCAPTCHA bot detection"
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "removed",
+        "title":       "Removed Redundant Options Checkbox",
+        "description": [
+          "To simplify plugin configuration, we removed an unnecessary option checkbox leaving a single option to control silentCAPTCHA on the WordPress login forms."
+        ],
+        "href":        ""
       }
     ],
     "patches":     [

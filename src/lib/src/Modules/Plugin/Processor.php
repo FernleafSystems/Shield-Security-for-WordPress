@@ -67,8 +67,6 @@ class Processor {
 
 				( new RenameLogin() )->execute();
 
-				( new AntibotSetup() )->execute();
-
 				( new Components\AnonRestApiDisable() )->execute();
 				( new Lib\SiteHealthController() )->execute();
 

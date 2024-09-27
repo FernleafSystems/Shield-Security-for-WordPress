@@ -6,12 +6,8 @@ abstract class AdeBase extends Base {
 
 	use Traits\OptConfigBased;
 
-	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck();
-	}
-
 	protected function getOptConfigKey() :string {
-		return self::con()->comps->opts_lookup->enabledLoginGuardAntiBotCheck() ? 'bot_protection_locations' : 'enable_antibot_check';
+		return 'bot_protection_locations';
 	}
 
 	public function title() :string {

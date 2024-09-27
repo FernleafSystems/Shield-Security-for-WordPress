@@ -33,14 +33,6 @@ class OptsLookup {
 		return $this->getIpAutoBlockOffenseLimit() > 0;
 	}
 
-	public function enabledWpCli() :bool {
-		return apply_filters( 'shield/enable_wpcli', true );
-	}
-
-	public function enabledLoginGuardAntiBotCheck() :bool {
-		return self::con()->opts->optIs( 'enable_antibot_check', 'Y' );
-	}
-
 	public function enabledIntegrationMainwp() :bool {
 		return self::con()->opts->optIs( 'enable_mainwp', 'Y' );
 	}
@@ -49,7 +41,7 @@ class OptsLookup {
 	 * @param string $area - login, register, password, woocommerce
 	 */
 	public function enabledLoginProtectionArea( string $area ) :bool {
-		return $this->enabledLoginGuardAntiBotCheck() && \in_array( $area, self::con()->opts->optGet( 'bot_protection_locations' ) );
+		return \in_array( $area, self::con()->opts->optGet( 'bot_protection_locations' ) );
 	}
 
 	public function enabledTelemetry() :bool {
@@ -200,16 +192,6 @@ class OptsLookup {
 
 	public function getSessionMax() :int {
 		return self::con()->opts->optGet( 'session_timeout_interval' )*\DAY_IN_SECONDS;
-	}
-
-	public function getTrafficAutoClean() :int {
-		$con = self::con();
-		$days = $con->opts->optGet( 'auto_clean' );
-		if ( $days !== $con->caps->getMaxLogRetentionDays() ) {
-			$days = (int)\min( $days, $con->caps->getMaxLogRetentionDays() );
-			$con->opts->optSet( 'auto_clean', $days );
-		}
-		return $days;
 	}
 
 	public function getTrafficLiveLogTimeRemaining() :int {

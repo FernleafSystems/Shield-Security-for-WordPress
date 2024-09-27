@@ -8,7 +8,6 @@ class Login extends Base {
 
 	public function components() :array {
 		return [
-			Component\LimitLogin::class,
 			Component\LoginProtectionForms::class,
 			Component\TwoFactorAuth::class,
 			Component\SessionTheftProtection::class,

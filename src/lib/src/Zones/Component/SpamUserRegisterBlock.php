@@ -25,7 +25,7 @@ class SpamUserRegisterBlock extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "There are no checks against user email addresses as a part of user registration.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = __( 'There are no checks for SPAM user email addresses during user registration.', 'wp-simple-firewall' );
 		}
 
 		return $status;

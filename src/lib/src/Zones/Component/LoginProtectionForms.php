@@ -7,7 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 class LoginProtectionForms extends Base {
 
 	public function title() :string {
-		return __( 'Login, Register & Lost Password Forms', 'wp-simple-firewall' );
+		return sprintf( '%s: %s',
+			__( 'Limit Attempts', 'wp-simple-firewall' ),
+			__( 'Login, Register & Lost Password Forms', 'wp-simple-firewall' )
+		);
 	}
 
 	public function subtitle() :string {
