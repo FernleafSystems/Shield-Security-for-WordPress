@@ -46,9 +46,7 @@ class FileLockerController {
 			}
 
 			if ( wp_next_scheduled( $this->getCronHook() ) ) {
-				add_action( $this->getCronHook(), function () {
-					$this->runLocksCreation();
-				} );
+				add_action( $this->getCronHook(), fn() => $this->runLocksCreation() );
 			}
 		}, 1000 );
 

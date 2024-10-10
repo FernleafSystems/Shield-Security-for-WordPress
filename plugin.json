@@ -1490,6 +1490,10 @@
             "text":      "WP Config"
           },
           {
+            "value_key": "theme_functions",
+            "text":      "Theme functions.php"
+          },
+          {
             "value_key": "root_htaccess",
             "text":      "Root .htaccess"
           },

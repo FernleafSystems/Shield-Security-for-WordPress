@@ -62,7 +62,7 @@ if ( defined( 'ABSPATH' ) ) {
 				'Shield Security Plugin - Broken Installation',
 				implode( '<br/>', [
 					'It appears the Shield Security plugin was not upgraded/installed correctly.',
-					"We run a check to make sure certain critical files are present in-case a faulty installation breaks your site.",
+					"We check to ensure critical files are present in-case a faulty installation breaks your site.",
 					'Try refreshing this page, and if you continue to see this notice, we recommend that you reinstall the Shield Security plugin.'
 				] )
 			);

@@ -237,6 +237,9 @@ class BuildOptionsForDisplay {
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
 				}
+				if ( !Services::WpFs()->isAccessibleFile( path_join( get_stylesheet_directory(), 'functions.php' ) ) ) {
+					$option[ 'value_options' ][ 'theme_functions' ][ 'is_available' ] = false;
+				}
 				break;
 
 			case 'page_params_whitelist':

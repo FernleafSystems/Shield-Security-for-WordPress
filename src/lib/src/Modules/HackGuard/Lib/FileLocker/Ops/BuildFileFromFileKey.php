@@ -13,6 +13,7 @@ class BuildFileFromFileKey {
 	public function build( string $fileType ) :File {
 		// TODO: $isSplitWpUrl = false;
 		$maxPaths = 1;
+		$dir = ABSPATH;
 		switch ( $fileType ) {
 			case 'wpconfig':
 				$fileName = 'wp-config.php';
@@ -28,6 +29,12 @@ class BuildFileFromFileKey {
 				$levels = 1; // $isSplitWpUrl ? 2 : 1;
 				break;
 
+			case 'theme_functions':
+				$fileName = 'functions.php';
+				$dir = get_stylesheet_directory();
+				$levels = 1;
+				break;
+
 			case 'root_webconfig':
 				$fileName = 'Web.Config';
 				$levels = 1; // $isSplitWpUrl ? 2 : 1;
@@ -41,7 +48,7 @@ class BuildFileFromFileKey {
 				throw new UnsupportedFileLockType( $fileType );
 		}
 
-		$file = new File( $fileType, $fileName );
+		$file = new File( $fileType, $fileName, $dir );
 		$file->max_levels = $levels;
 		$file->max_paths = $maxPaths;
 		return $file;

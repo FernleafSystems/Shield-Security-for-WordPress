@@ -28,15 +28,11 @@ class LicenseHandler {
 
 		( new PluginNameSuffix() )->execute();
 
-		add_action( self::con()->prefix( 'adhoc_cron_license_check' ), function () {
-			$this->runAdhocLicenseCheck();
-		} );
+		add_action( self::con()->prefix( 'adhoc_cron_license_check' ), fn() => $this->runAdhocLicenseCheck() );
 
 		$this->setupCronHooks();
 
-		add_action( 'init', function () {
-			self::con()->comps->api_token->execute();
-		} );
+		add_action( 'init', fn() => self::con()->comps->api_token->execute() );
 
 		add_action( 'wp_loaded', function () {
 			try {

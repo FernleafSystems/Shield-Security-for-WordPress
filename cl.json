@@ -20,6 +20,14 @@
         "href":        "https://shsec.io/silentcaptchawordpress"
       },
       {
+        "type":        "new",
+        "title":       "FileLocker Support For Theme functions.php",
+        "description": [
+          "We've added FileLocker protection for the the active theme's functions.php file."
+        ],
+        "href":        ""
+      },
+      {
         "type":        "improved",
         "title":       "PHP 7.4",
         "description": [
@@ -31,7 +39,7 @@
         "type":        "improved",
         "title":       "Refactored Login Cooldown System",
         "description": [
-          "We've rewritten and improved the login cooldown system to work more directly with the silentCAPTCHA bot detection"
+          "We've rewritten and improved the login cooldown system to work more directly with the silentCAPTCHA bot detection."
         ],
         "href":        ""
       },
