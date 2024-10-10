@@ -26,7 +26,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\Configurat
  *                                   -- not part of config file --
  * @property string                $hash
  * @property string                $previous_version
- * @property array                 $update_first_detected
  * @property Modules\ModConfigVO[] $mods_cfg
  * @property ConfigurationVO       $configuration
  */
@@ -66,7 +65,6 @@ class ConfigVO extends DynPropertiesClass {
 				break;
 
 			case 'modules':
-			case 'update_first_detected':
 			case 'meta':
 			case 'plugin_meta':
 				if ( !\is_array( $val ) ) {
