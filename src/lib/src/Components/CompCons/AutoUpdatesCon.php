@@ -137,8 +137,13 @@ class AutoUpdatesCon {
 	public function autoupdate_plugins( $autoupdate, $item ) {
 
 		if ( \is_object( $item ) && !empty( $item->plugin ) ) {
-			if ( $item->plugin === self::con()->base_file ) {
-				$auto = self::con()->opts->optGet( 'autoupdate_plugin_self' );
+			$con = self::con();
+			$WPV = $con->comps->scans->WPV();
+			if ( $WPV->isAutoupdatesEnabled() && $WPV->hasVulnerabilities( $item->plugin ) ) {
+				$autoupdate = true;
+			}
+			elseif ( $item->plugin === $con->base_file ) {
+				$auto = $con->opts->optGet( 'autoupdate_plugin_self' );
 				$autoupdate = $auto !== 'disabled'
 							  && ( $auto === 'immediate' || !$this->isDelayed( $item->plugin, 'plugins' ) );
 			}

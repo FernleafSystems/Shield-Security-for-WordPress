@@ -22,10 +22,6 @@ class Wpv extends BaseForAssets {
 		add_action( 'load-plugins.php', function () {
 			( new WpvAddPluginRows() )->execute();
 		}, 10, 2 );
-
-		if ( $this->isAutoupdatesEnabled() ) {
-			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], \PHP_INT_MAX, 2 );
-		}
 	}
 
 	/**
@@ -58,15 +54,6 @@ class Wpv extends BaseForAssets {
 		return $items;
 	}
 
-	/**
-	 * @param bool|mixed       $doAutoUpdate
-	 * @param \stdClass|string $mItem
-	 */
-	public function autoupdateVulnerablePlugins( $doAutoUpdate, $mItem ) :bool {
-		$itemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
-		return $doAutoUpdate || $this->hasVulnerabilities( $itemFile );
-	}
-
 	public function getQueueGroupSize() :int {
 		return 10;
 	}
@@ -96,5 +83,15 @@ class Wpv extends BaseForAssets {
 			->setScanActionVO( $this->getScanActionVO() )
 			->build()
 			->getScanActionVO();
+	}
+
+	/**
+	 * @param bool|mixed       $doAutoUpdate
+	 * @param \stdClass|string $mItem
+	 * @deprecated 20.1
+	 */
+	public function autoupdateVulnerablePlugins( $doAutoUpdate, $mItem ) :bool {
+		$itemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
+		return $doAutoUpdate || $this->hasVulnerabilities( $itemFile );
 	}
 }
