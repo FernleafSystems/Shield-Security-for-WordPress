@@ -12,6 +12,13 @@ class AutoUpdatesCon {
 	use PluginControllerConsumer;
 
 	/**
+	 * CP done gone and messed about with automatic updates, so we don't even consider supporting their filters.
+	 */
+	protected function canRun() {
+		return !Services::WpGeneral()->isClassicPress();
+	}
+
+	/**
 	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
