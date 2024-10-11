@@ -13,24 +13,17 @@ class SecurityZonesCon {
 	/**
 	 * @var Zone\Base[]
 	 */
-	private $zones = null;
+	private ?array $zones = null;
 
-	protected function run() {
-	}
-
-	/**
-	 * @return Zone\Base|mixed
-	 */
-	public function getZone( string $slug ) {
+	public function getZone( string $slug ) :Zone\Base {
 		return $this->getZones()[ $slug ];
 	}
 
 	/**
 	 * @return Component\Base|mixed
 	 */
-	public function getZoneComponent( string $slug ) {
-		$class = $this->enumZoneComponents()[ $slug ];
-		return new $class();
+	public function getZoneComponent( string $slug ) :Component\Base {
+		return new ( $this->enumZoneComponents()[ $slug ] )();
 	}
 
 	/**
@@ -38,27 +31,14 @@ class SecurityZonesCon {
 	 * @return Component\Base[]
 	 */
 	public function getComponentsForZone( $zone ) :array {
-		return \array_map(
-			function ( string $class ) {
-				return new $class();
-			},
-			$zone->components()
-		);
+		return \array_map( fn( string $class ) => new $class(), $zone->components() );
 	}
 
 	/**
 	 * @return Zone\Base[]|mixed
 	 */
 	public function getZones() :array {
-		if ( $this->zones === null ) {
-			$this->zones = \array_map(
-				function ( string $class ) {
-					return new $class();
-				},
-				$this->enumZones()
-			);
-		}
-		return $this->zones;
+		return $this->zones ??= \array_map( fn( string $class ) => new $class(), $this->enumZones() );
 	}
 
 	public function enumZoneComponents() :array {

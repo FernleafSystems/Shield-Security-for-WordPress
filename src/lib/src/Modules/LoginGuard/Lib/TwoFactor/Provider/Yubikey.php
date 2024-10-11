@@ -86,8 +86,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					'title'                 => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
-					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
+					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				],
 			]
@@ -96,7 +95,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
-
 		foreach ( $this->loadMfaRecords() as $record ) {
 			try {
 				if ( \strpos( $otp, $record->unique_id ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
@@ -110,7 +108,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			catch ( InvalidYubikeyAppConfiguration $e ) {
 			}
 		}
-
 		return $valid;
 	}
 

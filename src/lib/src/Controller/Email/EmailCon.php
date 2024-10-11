@@ -101,10 +101,10 @@ class EmailCon {
 			$name = $proposed;
 		}
 		elseif ( empty( $name ) ) {
-			$name = self::con()->getHumanName();
+			$name = self::con()->labels->Name;
 		}
 		else {
-			$name = sprintf( '%s - %s', $name, self::con()->getHumanName() );
+			$name = sprintf( '%s - %s', $name, self::con()->labels->Name );
 		}
 		return $name;
 	}

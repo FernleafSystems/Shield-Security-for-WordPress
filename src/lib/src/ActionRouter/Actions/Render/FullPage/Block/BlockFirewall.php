@@ -13,7 +13,7 @@ class BlockFirewall extends BaseBlock {
 		$con = self::con();
 		return [
 			'strings' => [
-				'page_title' => sprintf( '%s | %s', __( 'Request Blocked by Firewall', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'page_title' => sprintf( '%s | %s', __( 'Request Blocked by Firewall', 'wp-simple-firewall' ), $con->labels->Name ),
 				'title'      => __( 'Request Blocked', 'wp-simple-firewall' ),
 				'subtitle'   => __( 'Firewall terminated the request because it triggered a firewall rule.', 'wp-simple-firewall' ),
 			],

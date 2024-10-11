@@ -23,7 +23,7 @@ class PrivacyEraser {
 			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 		$registered[] = [
-			'eraser_friendly_name' => self::con()->getHumanName(),
+			'eraser_friendly_name' => self::con()->labels->Name,
 			'callback'             => [ $this, 'wpPrivacyErase' ],
 		];
 		return $registered;

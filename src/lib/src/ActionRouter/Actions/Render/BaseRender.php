@@ -231,7 +231,7 @@ abstract class BaseRender extends BaseAction {
 			'username'          => __( 'Username' ),
 			'blog'              => __( 'Blog', 'wp-simple-firewall' ),
 			'save_all_settings' => __( 'Save Settings', 'wp-simple-firewall' ),
-			'plugin_name'       => $con->getHumanName(),
+			'plugin_name'       => $con->labels->Name,
 			'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 			'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 			'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
@@ -282,7 +282,7 @@ abstract class BaseRender extends BaseAction {
 
 			'wphashes_token' => 'ShieldPRO API Token',
 
-			'running_version' => sprintf( '%s %s', $con->getHumanName(),
+			'running_version' => sprintf( '%s %s', $con->labels->Name,
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
 						Services::WpGeneral()->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
@@ -296,7 +296,7 @@ abstract class BaseRender extends BaseAction {
 			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
 
-			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->getHumanName() ),
+			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->labels->Name ),
 			'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 			'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
@@ -309,12 +309,12 @@ abstract class BaseRender extends BaseAction {
 			'um_last_activity_uri'     => __( 'Last Activity URI', 'wp-simple-firewall' ),
 			'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
 
-			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->getHumanName() ),
+			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
 			'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 			'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
 			'search_suggestions'       => [
-				sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->getHumanName() ),
-				sprintf( __( '%s tools and features', 'wp-simple-firewall' ), $con->getHumanName() ),
+				sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->labels->Name ),
+				sprintf( __( '%s tools and features', 'wp-simple-firewall' ), $con->labels->Name ),
 				__( 'IP addresses', 'wp-simple-firewall' ),
 				__( 'Help docs & resources', 'wp-simple-firewall' ),
 			],

@@ -53,7 +53,7 @@ class Footer extends Base {
 				'much_more'           => 'And So Much More',
 				'upgrade'             => $goPro[ \array_rand( $goPro ) ],
 				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
-					$con->getHumanName(),
+					$con->labels->Name,
 					$con->cfg->version(),
 					$WP->getHomeUrl()
 				),

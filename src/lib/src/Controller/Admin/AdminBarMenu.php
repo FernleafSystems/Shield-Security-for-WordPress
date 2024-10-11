@@ -65,7 +65,7 @@ class AdminBarMenu {
 			// The top menu item.
 			$adminBar->add_node( [
 				'id'    => $topNodeID,
-				'title' => sprintf( '%s %s', $con->getHumanName(),
+				'title' => sprintf( '%s %s', $con->labels->Name,
 					empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
 				),
 				'href'  => $con->plugin_urls->adminHome()

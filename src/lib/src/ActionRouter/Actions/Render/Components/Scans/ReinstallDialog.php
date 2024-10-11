@@ -29,8 +29,7 @@ class ReinstallDialog extends BaseScans {
 				'reinstall_activate' => __( 'Re-install First', 'wp-simple-firewall' ).'. '.__( 'Then Activate', 'wp-simple-firewall' ),
 				'cancel'             => __( 'Cancel', 'wp-simple-firewall' ),
 				'download'           => sprintf(
-					__( 'For best security practices, %s will download and re-install the latest available version of this plugin.', 'wp-simple-firewall' ),
-					self::con()->getHumanName()
+					__( 'For best security practices, %s will download and re-install the latest available version of this plugin.', 'wp-simple-firewall' ), self::con()->labels->Name
 				)
 			],
 		];

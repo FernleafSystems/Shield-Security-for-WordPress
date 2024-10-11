@@ -14,8 +14,7 @@ class LoginProtectionForms extends Base {
 	}
 
 	public function subtitle() :string {
-		return sprintf( __( 'Select which user forms should be protected against brute-force attacks.', 'wp-simple-firewall' ),
-			self::con()->getHumanName() );
+		return sprintf( __( 'Select which user forms should be protected against brute-force attacks.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	/**

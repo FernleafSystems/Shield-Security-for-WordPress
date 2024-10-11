@@ -18,9 +18,7 @@ class MwpExtensionLoader {
 		$req = Services::Request();
 
 		// Adjust the title at the top of the page, so it's not "Wp Simple Firewall"
-		add_filter( 'mainwp_header_title', function () {
-			return self::con()->getHumanName();
-		}, 100, 0 );
+		add_filter( 'mainwp_header_title', fn() => self::con()->labels->Name, 100, 0 );
 
 		// Render the main extension page content
 		echo self::con()->action_router->render( ExtensionPageContainer::SLUG, [

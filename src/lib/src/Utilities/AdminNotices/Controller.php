@@ -57,7 +57,7 @@ class Controller {
 		$msg = \trim( sanitize_text_field( $msg ) );
 		if ( !empty( $msg ) && $meta instanceof UserMeta ) {
 			$meta->flash_msg = [
-				'message'    => sprintf( '[%s] %s', self::con()->getHumanName(), $msg ),
+				'message'    => sprintf( '[%s] %s', $con->labels->Name, $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
 				'error'      => $isError,
 				'show_login' => $bShowOnLoginPage,
@@ -318,7 +318,7 @@ class Controller {
 	}
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
-		$name = self::con()->getHumanName();
+		$name = self::con()->labels->Name;
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -349,7 +349,7 @@ class Controller {
 	}
 
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
-		$name = self::con()->getHumanName();
+		$name = self::con()->labels->Name;
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -395,7 +395,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'             => self::con()->getHumanName()
+				'title'             => self::con()->labels->Name
 									   .': '.__( 'Please verify email has been received', 'wp-simple-firewall' ),
 				'need_you_confirm'  => __( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
 				'please_click_link' => __( "Please click the link in the email you received.", 'wp-simple-firewall' ),
@@ -414,7 +414,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
 									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
 			],
@@ -423,7 +423,7 @@ class Controller {
 					'<a href="%s" title="%s">%s</a>',
 					$con->plugin_urls->zone( Secadmin::Slug() ),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
 				)
 			]
 		];
@@ -434,7 +434,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
 									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
 				'unlock_link'    => sprintf(
@@ -449,7 +449,7 @@ class Controller {
 					'<a href="%s" title="%s">%s</a>',
 					$con->plugin_urls->zone( Secadmin::Slug() ),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
 				)
 			]
 		];

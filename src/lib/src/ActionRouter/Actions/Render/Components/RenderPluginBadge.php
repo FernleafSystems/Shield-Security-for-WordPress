@@ -23,7 +23,7 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 		}
 		else {
 			$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
-			$name = $con->getHumanName();
+			$name = $con->labels->Name;
 			$logo = $con->urls->forImage( 'shield/shield-security-logo-colour-32px.png' );
 
 			$lic = $con->comps->license->getLicense();

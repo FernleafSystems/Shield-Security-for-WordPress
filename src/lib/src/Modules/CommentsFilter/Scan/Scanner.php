@@ -164,8 +164,7 @@ class Scanner {
 				'shield/comment_spam_explanation',
 				sprintf(
 					"## Comment SPAM Protection: %s %s ##\n",
-					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
-						self::con()->getHumanName(), $humanStatus ),
+					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
 				$this->spamStatus,

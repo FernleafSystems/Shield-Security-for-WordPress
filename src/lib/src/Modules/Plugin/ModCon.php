@@ -139,10 +139,7 @@ class ModCon {
 		return $can;
 	}
 
-	/**
-	 * @return int - the real install timestamp
-	 */
-	public function storeRealInstallDate() {
+	public function storeRealInstallDate() :int {
 		$key = self::con()->prefix( 'install_date', '_' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
@@ -154,7 +151,7 @@ class ModCon {
 			$date = Services::Request()->ts();
 		}
 
-		$finalDate = \min( $date, $wpDate );
+		$finalDate = (int)\min( $date, $wpDate );
 		Services::WpGeneral()->updateOption( $key, $finalDate );
 		self::con()->opts->optSet( 'installation_time', $date );
 

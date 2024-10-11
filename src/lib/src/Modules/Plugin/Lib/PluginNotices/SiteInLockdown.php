@@ -17,7 +17,7 @@ class SiteInLockdown extends Base {
 						'%s %s',
 						sprintf( '%s: %s',
 							__( 'Warning', 'wp-simple-firewall' ),
-							sprintf( __( 'Your site is in lockdown.', 'wp-simple-firewall' ), $con->getHumanName() )
+							sprintf( __( 'Your site is in lockdown.', 'wp-simple-firewall' ), $con->labels->Name )
 						),
 						sprintf( '<a href="%s">%s</a>',
 							$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ),

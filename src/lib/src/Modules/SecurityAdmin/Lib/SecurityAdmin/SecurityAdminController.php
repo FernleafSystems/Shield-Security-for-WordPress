@@ -67,8 +67,7 @@ class SecurityAdminController {
 					__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s</a>',
 						$con->plugin_urls->adminHome(),
-						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ),
-							$con->getHumanName() )
+						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ), $con->labels->Name )
 					)
 				)
 			);

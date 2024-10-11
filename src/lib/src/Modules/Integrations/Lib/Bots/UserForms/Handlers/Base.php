@@ -107,6 +107,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 				__( 'Cooldown in effect.', 'wp-simple-firewall' ),
 				sprintf( __( 'Please wait %s seconds before attempting this action again.', 'wp-simple-firewall' ), self::con()->comps->cool_down->cooldownRemaining( $this->getCooldownContext() ) )
 			] )
-			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->getHumanName() );
+			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 }

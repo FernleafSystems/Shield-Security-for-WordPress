@@ -17,8 +17,6 @@ class ConfigEdit extends UserMfaBase {
 		$con = self::con();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
-		$pluginName = $con->getHumanName();
-
 		$providers = \array_map(
 			function ( $provider ) {
 				return $provider->getProviderName();
@@ -35,16 +33,14 @@ class ConfigEdit extends UserMfaBase {
 			],
 			'strings' => [
 				'title'            => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-				'provided_by'      => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $pluginName ),
+				'provided_by'      => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $con->labels->Name ),
 				'currently_active' => __( 'Currently active MFA Providers on this profile are' ),
 				'remove_all'       => __( 'Remove All MFA Providers' ),
 				'remove_all_from'  => __( 'Remove All MFA Providers From This User Profile' ),
 				'remove_warning'   => __( "Certain providers may not be removed if they're enforced." ),
 				'no_providers'     => __( 'There are no MFA providers active on this user account.' ),
-				'only_secadmin'    => sprintf( __( 'Only %s Security Admins may modify the MFA settings of another admin account.' ),
-					$pluginName ),
-				'authenticate'     => sprintf( __( 'You may authenticate with the %s Security Admin system and return here.' ),
-					$pluginName ),
+				'only_secadmin'    => sprintf( __( 'Only %s Security Admins may modify the MFA settings of another admin account.' ), $con->labels->Name ),
+				'authenticate'     => sprintf( __( 'You may authenticate with the %s Security Admin system and return here.' ), $con->labels->Name ),
 			],
 			'vars'    => [
 				'user_id'          => $user->ID,

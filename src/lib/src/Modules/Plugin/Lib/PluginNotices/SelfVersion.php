@@ -13,7 +13,6 @@ class SelfVersion extends Base {
 		$issue = null;
 
 		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
-
 			if ( $this->isPluginTooOld() ) {
 				$issue = [
 					'id'        => 'self_update_available',
@@ -21,10 +20,7 @@ class SelfVersion extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
-							sprintf(
-								__( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ),
-								$con->getHumanName()
-							),
+							sprintf( __( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ), $con->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
 								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
 								__( 'Upgrade Now', 'wp-simple-firewall' )

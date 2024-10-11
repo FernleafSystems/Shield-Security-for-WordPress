@@ -9,15 +9,15 @@ class LoadSessions extends SessionsBase {
 	/**
 	 * @var array[]
 	 */
-	private $sessions;
+	private ?array $sessions = null;
 
-	private $maxSessions;
+	private int $maxSessions;
 
-	private $maxUsers;
+	private int $maxUsers;
 
-	private $userID;
+	private ?int $userID;
 
-	public function __construct( ?int $userID = null, $maxUsers = 1000, $maxSessions = 10000 ) {
+	public function __construct( ?int $userID = null, int $maxUsers = 1000, int $maxSessions = 10000 ) {
 		$this->userID = $userID;
 		$this->maxUsers = $maxUsers;
 		$this->maxSessions = $maxSessions;
@@ -46,7 +46,7 @@ class LoadSessions extends SessionsBase {
 	}
 
 	public function all() :array {
-		if ( !isset( $this->sessions ) ) {
+		if ( $this->sessions === null ) {
 			$this->sessions = [];
 			$page = 1;
 			do {

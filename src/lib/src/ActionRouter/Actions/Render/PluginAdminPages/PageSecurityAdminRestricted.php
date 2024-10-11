@@ -33,8 +33,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => sprintf( __( 'Access to the %s Security plugin is restricted.', 'wp-simple-firewall' ),
-					$con->getHumanName() ),
+				'inner_page_subtitle' => sprintf( __( 'Access to the %s Security plugin is restricted.', 'wp-simple-firewall' ), $con->labels->Name ),
 
 				'force_remove_email' => __( "If you've forgotten your PIN, use the menu above to disable this restriction.", 'wp-simple-firewall' ),
 				'send_to_email'      => sprintf( __( 'Confirmation email will be sent to %s', 'wp-simple-firewall' ),

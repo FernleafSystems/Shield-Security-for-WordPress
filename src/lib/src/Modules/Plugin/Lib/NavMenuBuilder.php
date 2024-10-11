@@ -180,8 +180,7 @@ class NavMenuBuilder {
 			'href'     => $con->plugin_urls->adminHome(),
 			'introjs'  => [
 				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
-					$con->getHumanName() ),
+				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->labels->Name ),
 			],
 			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_DASHBOARD, [
 				ModulePlugin::Slug(),
@@ -221,8 +220,7 @@ class NavMenuBuilder {
 			'sub_items' => $subItems,
 			'introjs'   => [
 				'title' => __( 'Security Zones', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Security Zones are the primary areas to configure your site security.", 'wp-simple-firewall' ),
-					$con->getHumanName() ),
+				'body'  => sprintf( __( "Security Zones are the primary areas to configure your site security.", 'wp-simple-firewall' ), $con->labels->Name ),
 			],
 		];
 	}

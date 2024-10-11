@@ -28,9 +28,9 @@ class AssetsCustomizer {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $hook = '';
+	private string $hook = '';
 
-	private $handles = [];
+	private array $handles = [];
 
 	protected function canRun() :bool {
 		return !Services::WpGeneral()->isAjax();

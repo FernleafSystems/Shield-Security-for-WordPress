@@ -14,7 +14,7 @@ class ToastPlaceholder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRo
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
-				'title' => self::con()->getHumanName(),
+				'title' => self::con()->labels->Name,
 			],
 		];
 	}

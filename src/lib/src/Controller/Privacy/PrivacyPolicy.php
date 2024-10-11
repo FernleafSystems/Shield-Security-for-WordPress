@@ -16,7 +16,7 @@ class PrivacyPolicy {
 	}
 
 	protected function run() {
-		wp_add_privacy_policy_content( self::con()->getHumanName(), $this->buildPrivacyPolicyContent() );
+		wp_add_privacy_policy_content( self::con()->labels->Name, $this->buildPrivacyPolicyContent() );
 	}
 
 	private function buildPrivacyPolicyContent() :string {

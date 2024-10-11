@@ -8,13 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	ReportAreaScansResults,
 	ReportAreaStats
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\BaseFullPageRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
+	Constants,
+	ReportVO
+};
 use FernleafSystems\Wordpress\Services\Services;
 
-class SecurityReport extends BaseFullPageRender {
+class SecurityReport extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\BaseFullPageRender {
 
 	use AuthNotRequired;
 
@@ -82,7 +83,7 @@ class SecurityReport extends BaseFullPageRender {
 			'hrefs'   => [
 			],
 			'strings' => [
-				'report_header_title' => sprintf( __( '%s Website Security Report', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'report_header_title' => sprintf( __( '%s Website Security Report', 'wp-simple-firewall' ), $con->labels->Name ),
 				'intro'               => __( 'This report outlines the most significant events and statistics on your WordPress site for given reporting period.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

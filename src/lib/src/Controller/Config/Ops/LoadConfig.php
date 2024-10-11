@@ -13,15 +13,9 @@ class LoadConfig {
 
 	use PluginControllerConsumer;
 
-	/**
-	 * @var string
-	 */
-	private $path;
+	private string $path;
 
-	/**
-	 * @var string
-	 */
-	private $store_key;
+	private string $store_key;
 
 	/**
 	 * @throws \Exception

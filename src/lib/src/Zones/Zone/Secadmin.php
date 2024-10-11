@@ -21,7 +21,7 @@ class Secadmin extends Base {
 						'quietly' => '1',
 					]
 				),
-				'icon'    => self::con()->svgs->raw( 'toggle-off' ),
+				'icon'    => $con->svgs->raw( 'toggle-off' ),
 				'classes' => [
 					'list-group-item-warning',
 				],
@@ -39,10 +39,9 @@ class Secadmin extends Base {
 	}
 
 	public function description() :array {
-		$name = self::con()->getHumanName();
 		return [
-			sprintf( __( "%s's Security Admin system provides an additional security layer to the normal WordPress admin.", 'wp-simple-firewall' ), $name ),
-			sprintf( __( "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins.", 'wp-simple-firewall' ), $name ),
+			sprintf( __( "%s's Security Admin system provides an additional security layer to the normal WordPress admin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+			sprintf( __( "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 			\implode( ' ', [
 				__( "It can also prevent similar tampering or accidental changes to core WordPress settings, such as the site URL, permalinks, default user role, etc.", 'wp-simple-firewall' ),
 			] ),

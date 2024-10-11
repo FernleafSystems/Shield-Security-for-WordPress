@@ -12,7 +12,7 @@ class StringsSections {
 
 	public function getFor( string $key ) :array {
 		$con = self::con();
-		$pluginName = $con->getHumanName();
+		$name = $con->labels->Name;
 		$modStrings = new StringsModules();
 
 		switch ( $key ) {
@@ -125,7 +125,7 @@ class StringsSections {
 					.' '.sprintf(
 						__( 'When the counter reaches the limit below (default: %s), %s will block that IP completely.', 'wp-simple-firewall' ),
 						$con->opts->optDefault( 'transgression_limit' ),
-						$pluginName
+						$name
 					)
 				];
 				break;
@@ -254,7 +254,7 @@ class StringsSections {
 
 			case 'section_global_security_options' :
 				$title = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
-				$short = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $pluginName );
+				$short = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $name );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Use this option to completely disable all active Shield Protection.', 'wp-simple-firewall' ) ),
 				];
@@ -319,12 +319,12 @@ class StringsSections {
 					sprintf( '%s - %s',
 						__( 'Purpose', 'wp-simple-firewall' ),
 						sprintf( __( 'Rename and re-brand the %s plugin for your client site installations.', 'wp-simple-firewall' ),
-							$pluginName )
+							$name )
 					),
 					sprintf( '%s - %s',
 						__( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( 'The Security Admin system must be active for these settings to apply.', 'wp-simple-firewall' ),
-							$pluginName )
+							$name )
 					)
 				];
 				$short = __( 'White Label', 'wp-simple-firewall' );

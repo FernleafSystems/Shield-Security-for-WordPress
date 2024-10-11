@@ -68,15 +68,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  */
 class Controller extends DynPropertiesClass {
 
-	/**
-	 * @var Controller
-	 */
-	public static $oInstance;
+	public static Controller $oInstance;
 
-	/**
-	 * @var ?Plugin\ModCon
-	 */
-	public $plugin = null;
+	public ?Plugin\ModCon $plugin = null;
 
 	/**
 	 * @deprecated 19.2
@@ -580,14 +574,6 @@ class Controller extends DynPropertiesClass {
 		return sprintf( '%s%s%s', $this->cfg->properties[ 'slug_parent' ], $glue, $this->cfg->properties[ 'slug_plugin' ] );
 	}
 
-	/**
-	 * Default is to take the 'Name' from the labels section but can override with "human_name" from property section.
-	 * @return string
-	 */
-	public function getHumanName() {
-		return $this->labels->Name;
-	}
-
 	public function getIsPage_PluginAdmin() :bool {
 		return \strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
@@ -645,7 +631,7 @@ class Controller extends DynPropertiesClass {
 		}
 		elseif ( isset( $this->cfg ) ) {
 			$serial = \serialize( $this->cfg->getRawData() );
-			if ( !isset( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
+			if ( empty( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
 				$data = $this->cfg->getRawData();
 				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
 					$zip = @\gzdeflate( $serial );
@@ -664,16 +650,6 @@ class Controller extends DynPropertiesClass {
 
 	private function getConfigStoreKey() :string {
 		return 'aptoweb_controller_'.\substr( \md5( \get_class( $this ) ), 0, 6 );
-	}
-
-	public function setFlag( string $flag, $value ) {
-		$flags = $this->flags;
-		$flags[ $flag ] = $value;
-		$this->flags = $flags;
-	}
-
-	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->plugin;
 	}
 
 	public function modCfg( string $slug = '' ) :ModConfigVO {
@@ -714,5 +690,14 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
+	/**
+	 * Default is to take the 'Name' from the labels section but can override with "human_name" from property section.
+	 * @return string
+	 * @deprecated 20.1
+	 */
+	public function getHumanName() {
+		return $this->labels->Name;
 	}
 }
