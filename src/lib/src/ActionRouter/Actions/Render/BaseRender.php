@@ -310,6 +310,7 @@ abstract class BaseRender extends BaseAction {
 			'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
 
 			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
+			'search_shield_label'      => __( 'Click to launch plugin search modal', 'wp-simple-firewall' ),
 			'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 			'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
 			'search_suggestions'       => [

@@ -1055,6 +1055,9 @@ td.status_file_size {
   text-indent: 20px;
   font-size: 11px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 5px rgba(255, 255, 255, 0.4);
+  padding: 5px;
+  border-radius: 6px;
+  text-align: left;
 }
 
 #SuperSearchLaunch > input:hover {
@@ -1260,6 +1263,7 @@ td.status_file_size {
   border-radius: 40px;
   padding: 10px;
 }
+
 .inner-page-header:hover .inner-page-config button.dropdown-toggle {
   background: rgba(0, 128, 0, 0.1);
 }

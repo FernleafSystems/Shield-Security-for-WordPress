@@ -1,11 +1,12 @@
-<div class="mx-2 d-flex flex-column align-items-center"
-     id="SuperSearchLaunch">
-	<input type="text"
-	       class="tour-navigation_v1"
-	       placeholder="{{ strings.search_shield }}"
-	       {% if not flags.is_security_admin %}disabled="disabled" class="disabled"{% endif %}
-	       data-introtitle="Shield Super Search"
-	       data-introposition="right"
-	       data-intro="Use the Super Search box to find absolutely anything within the Shield plugin, including options, IP address, tools, help, etc."
+<div class="mx-2 d-flex flex-column align-items-center" id="SuperSearchLaunch">
+	<input type="button"
+		   id="SuperSearchLaunchButton"
+		   class="tour-navigation_v1"
+		   {% if not flags.is_security_admin %}disabled="disabled" class="disabled"{% endif %}
+		   data-introtitle="Shield Super Search"
+		   data-introposition="right"
+		   data-intro="Use the Super Search box to find absolutely anything within the Shield plugin, including options, IP address, tools, help, etc."
+		   value="{{ strings.search_shield }}"
 	/>
+	<label class="visually-hidden-focusable" for="SuperSearchLaunchButton">{{ strings.search_shield_label }}</label>
 </div>
