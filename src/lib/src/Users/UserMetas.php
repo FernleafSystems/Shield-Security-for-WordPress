@@ -41,7 +41,7 @@ class UserMetas {
 	private function setup( ShieldUserMeta $meta ) {
 		$rec = $meta->record;
 
-		$newHash = \substr( \sha1( $this->user->user_pass ), 6, 4 );
+		$newHash = \substr( \hash( 'sha1', $this->user->user_pass ), 6, 4 );
 		if ( empty( $rec->pass_started_at ) || !isset( $meta->pass_hash ) || ( $meta->pass_hash !== $newHash ) ) {
 			$meta->pass_hash = $newHash;
 			$rec->pass_started_at = Services::Request()->ts();

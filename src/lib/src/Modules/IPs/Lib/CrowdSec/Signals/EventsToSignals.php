@@ -62,7 +62,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 							'milli_at' => $this->getMilliseconds(),
 						];
 						// We prevent storing duplicate scenarios using the hash
-						$this->signals[ \md5( \serialize( $signal ) ) ] = $signal;
+						$this->signals[ \hash( 'md5', \serialize( $signal ) ) ] = $signal;
 					}
 				}
 				catch ( \Exception $e ) {

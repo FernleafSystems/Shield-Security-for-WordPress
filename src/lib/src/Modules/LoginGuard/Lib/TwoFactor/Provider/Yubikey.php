@@ -122,7 +122,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			// 2021-09-27: API requires at least 16 chars in the nonce, or it fails.
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => \md5( \uniqid( Services::Request()->getID() ) ),
+				'nonce' => \hash( 'md5', \uniqid( Services::Request()->getID() ) ),
 				'id'    => self::con()->opts->optGet( 'yubikey_app_id' )
 			];
 

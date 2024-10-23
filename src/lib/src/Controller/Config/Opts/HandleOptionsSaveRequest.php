@@ -88,7 +88,7 @@ class HandleOptionsSaveRequest {
 					throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 				}
 
-				$optValue = \md5( $tempValue );
+				$optValue = \hash( 'md5', $tempValue );
 			}
 			elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
 				$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), '\trim' );

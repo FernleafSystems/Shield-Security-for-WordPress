@@ -78,7 +78,7 @@ class ImportExportController {
 		$opts = self::con()->opts;
 		$ID = $opts->optGet( 'importexport_secretkey' );
 		if ( empty( $ID ) || Services::Request()->ts() > $opts->optGet( 'importexport_secretkey_expires_at' ) ) {
-			$ID = \sha1( ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
+			$ID = \hash( 'sha1', ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
 			$opts->optSet( 'importexport_secretkey', $ID )
 				 ->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}

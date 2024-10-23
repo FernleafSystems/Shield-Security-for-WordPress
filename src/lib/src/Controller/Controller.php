@@ -530,7 +530,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
-		$this->cfg->builtHash = \md5( \serialize( $this->cfg->getRawData() ) );
+		$this->cfg->builtHash = \hash( 'md5', \serialize( $this->cfg->getRawData() ) );
 		$this->plugin_urls;
 		$this->saveCurrentPluginControllerOptions();
 	}
@@ -631,7 +631,7 @@ class Controller extends DynPropertiesClass {
 		}
 		elseif ( isset( $this->cfg ) ) {
 			$serial = \serialize( $this->cfg->getRawData() );
-			if ( empty( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
+			if ( empty( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \hash( 'md5', $serial ) ) ) {
 				$data = $this->cfg->getRawData();
 				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
 					$zip = @\gzdeflate( $serial );
@@ -649,7 +649,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function getConfigStoreKey() :string {
-		return 'aptoweb_controller_'.\substr( \md5( \get_class( $this ) ), 0, 6 );
+		return 'aptoweb_controller_'.\substr( \hash( 'md5', \get_class( $this ) ), 0, 6 );
 	}
 
 	public function modCfg( string $slug = '' ) :ModConfigVO {

@@ -43,7 +43,7 @@ class MfaSkip {
 
 	private function getAgentHash() :string {
 		$hashData = apply_filters( 'shield/2fa_remember_me_params', $this->getDefaultHashParams() );
-		return \md5( \serialize( empty( $hashData ) ? $this->getDefaultHashParams() : $hashData ) );
+		return \hash( 'md5', \serialize( empty( $hashData ) ? $this->getDefaultHashParams() : $hashData ) );
 	}
 
 	private function getDefaultHashParams() :array {

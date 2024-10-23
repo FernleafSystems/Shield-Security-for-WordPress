@@ -304,7 +304,7 @@ class ParseRuleBuilderForm {
 				unset( $item[ 'name' ] );
 
 				\ksort( $item );
-				$newHash = \sha1( \serialize( $item ) );
+				$newHash = \hash( 'sha1', \serialize( $item ) );
 
 				$keep = !\in_array( $newHash, $hashes );
 				if ( $keep ) {
