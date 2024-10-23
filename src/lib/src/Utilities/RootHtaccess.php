@@ -24,7 +24,7 @@ class RootHtaccess {
 	}
 
 	public function runDailyCron() {
-		Transient::Set( self::con()->prefix( \hash( 'md5', __FILE__ ) ), 1, \WEEK_IN_SECONDS );
+		Transient::Set( self::con()->prefix( \hash( 'md5', __FILE__ ) ), 1, DAY_IN_SECONDS );
 
 		$hadFile = (bool)Services::WpFs()->exists( $this->getPathToHtaccess() );
 		$couldAccess = $this->testCanAccessURL();
