@@ -32,16 +32,6 @@ class EnumMatchTypes {
 		];
 	}
 
-	public static function MatchTypesForProviders() :array {
-		return [
-			self::MATCH_TYPE_EQUALS,
-			self::MATCH_TYPE_EQUALS_I,
-			self::MATCH_TYPE_CONTAINS,
-			self::MATCH_TYPE_CONTAINS_I,
-			self::MATCH_TYPE_REGEX,
-		];
-	}
-
 	public static function MatchTypesForStrings() :array {
 		return [
 			self::MATCH_TYPE_EQUALS,

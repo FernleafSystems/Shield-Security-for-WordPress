@@ -28,6 +28,14 @@
         "href":        ""
       },
       {
+        "type":        "new",
+        "title":       "Added new condition for Custom Rules: Hostname",
+        "description": [
+          "You can now check against the hostname of your visitors when creating custom rules."
+        ],
+        "href":        ""
+      },
+      {
         "type":        "improved",
         "title":       "PHP 7.4",
         "description": [

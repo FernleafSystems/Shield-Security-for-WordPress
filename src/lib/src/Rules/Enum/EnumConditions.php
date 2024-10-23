@@ -50,6 +50,7 @@ class EnumConditions {
 		Conditions\UserHasWpCapability::class,
 		Conditions\UserHasWpRole::class,
 		Conditions\MatchRequestCountryCode::class,
+		Conditions\MatchRequestHostname::class,
 		Conditions\MatchRequestIpAddress::class,
 		Conditions\MatchRequestIpIdentity::class,
 		Conditions\MatchRequestMethod::class,
