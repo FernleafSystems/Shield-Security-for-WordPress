@@ -11,10 +11,7 @@ final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
 	 */
 	protected $_name = 'shieldantibot';
 
-	/**
-	 * @var NinjaForms
-	 */
-	private $shieldNinjaFormsHandler;
+	private NinjaForms $shieldNinjaFormsHandler;
 
 	/**
 	 * @var array
@@ -26,11 +23,7 @@ final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
 		$this->_nicename = esc_html__( 'Shield Anti-Spam', 'ninja-forms' );
 	}
 
-	/**
-	 * @param NinjaForms $handler
-	 * @return $this
-	 */
-	public function setHandler( NinjaForms $handler ) {
+	public function setHandler( NinjaForms $handler ) :self {
 		$this->shieldNinjaFormsHandler = $handler;
 		return $this;
 	}

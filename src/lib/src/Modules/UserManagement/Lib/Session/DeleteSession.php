@@ -25,32 +25,26 @@ class DeleteSession extends SessionsBase {
 	public function searchForSessionID( string $id ) :?array {
 		$theSession = null;
 
+		$theUserID = null;
 		$page = 1;
 		$processedUserIDs = [];
 		do {
-			$UIDs = $this->queryUserMetaForIDs( $page );
-			if ( empty( $UIDs ) ) {
-				break;
-			}
-			else {
-				$theUserID = null;
-				foreach ( $UIDs as $UID ) {
-					if ( !\in_array( $UID, $processedUserIDs ) ) {
-						$processedUserIDs[] = $UID;
-						$handler = \WP_Session_Tokens::get_instance( $UID );
-						if ( $handler instanceof \WP_User_Meta_Session_Tokens ) {
-							foreach ( $handler->get_all() as $session ) {
-								if ( !empty( $session[ 'shield' ] ) && ( $session[ 'shield' ][ 'unique' ] ?? '' ) === $id ) {
-									$theUserID = $UID;
-									break 3;
-								}
+			$UIDs = $this->queryUserMetaForIDs( $page++ );
+			foreach ( $UIDs as $UID ) {
+				if ( !\in_array( $UID, $processedUserIDs ) ) {
+					$processedUserIDs[] = $UID;
+					$handler = \WP_Session_Tokens::get_instance( $UID );
+					if ( $handler instanceof \WP_User_Meta_Session_Tokens ) {
+						foreach ( $handler->get_all() as $session ) {
+							if ( !empty( $session[ 'shield' ] ) && ( $session[ 'shield' ][ 'unique' ] ?? '' ) === $id ) {
+								$theUserID = $UID;
+								break 3;
 							}
 						}
 					}
 				}
 			}
-			$page++;
-		} while ( true );
+		} while ( !empty( $UIDs ) );
 
 		if ( !empty( $theUserID ) ) {
 			$metaSessions = get_user_meta( $theUserID, 'session_tokens', true );

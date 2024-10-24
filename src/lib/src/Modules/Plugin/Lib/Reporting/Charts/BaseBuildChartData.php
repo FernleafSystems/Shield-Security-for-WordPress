@@ -11,10 +11,7 @@ class BaseBuildChartData {
 	use PluginControllerConsumer;
 	use ChartRequestConsumer;
 
-	/**
-	 * @var array
-	 */
-	protected $labels;
+	protected array $labels = [];
 
 	/**
 	 * @throws \InvalidArgumentException
@@ -86,7 +83,6 @@ class BaseBuildChartData {
 		$labels = [];
 		$dataSeries = [];
 		do {
-
 			/** @var EventsDB\Select $eventSelect */
 			$eventSelect = self::con()->db_con->events->getQuerySelector();
 			switch ( $req->interval ) {
@@ -118,9 +114,7 @@ class BaseBuildChartData {
 			}
 
 			$dataSeries[] = $eventSelect->sumEvents( $events );
-
-			$tick++;
-		} while ( $tick < $req->ticks );
+		} while ( ++$tick < $req->ticks );
 
 		if ( empty( $this->labels ) ) {
 			$this->labels = $labels;

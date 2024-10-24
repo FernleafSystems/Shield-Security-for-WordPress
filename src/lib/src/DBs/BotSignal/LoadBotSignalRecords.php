@@ -11,6 +11,9 @@ class LoadBotSignalRecords {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadRecord() :BotSignalRecord {
 		$raw = $this->selectRaw();
 		if ( empty( $raw ) ) {

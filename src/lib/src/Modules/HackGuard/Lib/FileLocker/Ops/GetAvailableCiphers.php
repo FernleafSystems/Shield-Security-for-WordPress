@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
 class GetAvailableCiphers {
 
-	private static ?array $local = null;
+	private static array $local;
 
-	private static ?array $snapi = null;
+	private static array $snapi;
 
 	public function full() :array {
 		return \array_values( \array_intersect(

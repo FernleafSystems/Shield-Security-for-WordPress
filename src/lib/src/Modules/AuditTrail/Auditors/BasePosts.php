@@ -14,9 +14,9 @@ abstract class BasePosts extends Base {
 	}
 
 	/**
-	 * @param int      $postID
-	 * @param \WP_Post $post
-	 * @param \WP_Post $postOld
+	 * @param int|mixed      $postID
+	 * @param \WP_Post|mixed $post
+	 * @param \WP_Post|mixed $postOld
 	 */
 	public function auditPostUpdated( $postID, $post, $postOld ) :void {
 		if ( $post instanceof \WP_Post

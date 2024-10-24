@@ -25,7 +25,7 @@ class ModCon {
 
 	private bool $is_booted = false;
 
-	private ?Processor $processor = null;
+	private Processor $processor;
 
 	/**
 	 * @var Lib\TrackingVO

@@ -17,7 +17,7 @@ class CrowdSecController {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
-	private ?Capi\Storage $cApiStore;
+	private Capi\Storage $cApiStore;
 
 	protected function canRun() :bool {
 		return self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock();

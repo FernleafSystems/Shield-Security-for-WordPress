@@ -136,8 +136,8 @@ class Processor {
 
 	/**
 	 * Adds the column to the users listing table to indicate
-	 * @param array $cols
-	 * @return array
+	 * @param array|mixed $cols
+	 * @return array|mixed
 	 */
 	public function addUserStatusLastLogin( $cols ) {
 

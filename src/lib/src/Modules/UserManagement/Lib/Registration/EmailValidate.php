@@ -23,7 +23,7 @@ class EmailValidate {
 	}
 
 	/**
-	 * @param array $userData
+	 * @param array|mixed $userData
 	 * @return array
 	 */
 	public function validateNewUserEmail( $userData ) {

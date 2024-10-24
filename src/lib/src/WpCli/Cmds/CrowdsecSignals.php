@@ -33,9 +33,9 @@ class CrowdsecSignals extends CrowdsecBase {
 	public function runCmd() :void {
 		switch ( $this->execCmdArgs[ 'action' ] ) {
 			case 'list':
-				var_dump(
-					\array_map( fn( $record ) => $record->getRawData(), ( new PushSignalsToCS() )->getRecordsByScope() )
-				);
+//				var_dump(
+//					\array_map( fn( $record ) => $record->getRawData(), ( new PushSignalsToCS() )->getRecordsByScope() )
+//				);
 				break;
 			case 'push':
 				try {

@@ -16,17 +16,9 @@ class BotSignalsController {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
-	/**
-	 * @var NotBotHandler
-	 */
-	private $handlerNotBot;
+	private BotEventListener $eventListener;
 
-	/**
-	 * @var BotEventListener
-	 */
-	private $eventListener;
-
-	private $isBots = [];
+	private array $isBots = [];
 
 	protected function run() {
 
@@ -118,7 +110,7 @@ class BotSignalsController {
 	}
 
 	public function getEventListener() :BotEventListener {
-		return $this->eventListener ?? $this->eventListener = new BotEventListener();
+		return $this->eventListener ??= new BotEventListener();
 	}
 
 	/**
