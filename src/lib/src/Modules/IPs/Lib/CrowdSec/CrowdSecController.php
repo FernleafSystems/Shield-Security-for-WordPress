@@ -38,25 +38,27 @@ class CrowdSecController {
 	}
 
 	/**
+	 * IMPORTANT: since this includes the prefixed vendor, it should only be called sparingly and only as-required. Ideally on a CRON.
 	 * @throws LibraryPrefixedAutoloadNotFoundException
 	 */
 	public function getCApiStore() :Capi\Storage {
-		self::con()->includePrefixedVendor(); // TODO: confirm this method isn't called every load.
+		self::con()->includePrefixedVendor();
 		return $this->cApiStore ??= new Capi\Storage();
 	}
 
 	/**
+	 * IMPORTANT: since this includes the prefixed vendor, it should only be called sparingly and only as-required. Ideally on a CRON.
 	 * @throws LibraryPrefixedAutoloadNotFoundException
 	 */
 	public function getCApiWatcher() :Watcher {
-		self::con()->includePrefixedVendor(); // TODO: confirm this method isn't called every load.
+		$store = $this->getCApiStore();
 		return new Watcher(
 			[
 				'env'               => self::con()->is_mode_live ? 'prod' : 'dev',
 				'machine_id_prefix' => \substr( \str_replace( '-', '', ( new InstallationID() )->id() ), 0, 16 ),
-				'scenarios'         => $this->getCApiStore()->retrieveScenarios(),
+				'scenarios'         => $store->retrieveScenarios(),
 			],
-			$this->getCApiStore(),
+			$store,
 			new Capi\RequestHandler()
 		);
 	}

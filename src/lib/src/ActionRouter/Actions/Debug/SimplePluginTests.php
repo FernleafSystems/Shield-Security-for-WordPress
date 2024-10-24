@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	IPs\Lib\CrowdSec\Decisions\ImportDecisions,
+	IPs\Lib\CrowdSec\Capi\Enroll,
 	IPs\Lib\CrowdSec\Signals\PushSignalsToCS,
 	Plugin
 };
@@ -52,9 +52,20 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_cs() {
+
+		add_filter( 'pre_http_request', function ( $pre, $args, $url ) {
+			if ( \str_contains( $url, 'crowdsec.net' ) ) {
+				error_log( var_export( $args, true ) );
+				error_log( var_export( $url, true ) );
+				var_dump( $args, true );
+				var_dump( $url, true );
+			}
+			return $pre;
+		}, 11, 3 );
+
 		try {
+			( new Enroll() )->enroll();
 			( new PushSignalsToCS() )->push();
-//			( new ImportDecisions() )->testDownloadDecisionsViaFile();
 		}
 		catch ( ClientException $ce ) {
 			if ( $ce->getCode() === 403 && \str_contains( $ce->getMessage(), 'The machine_id or password is incorrect' ) ) {

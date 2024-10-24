@@ -16,7 +16,7 @@ class RequestHandler implements CapiHandlerInterface {
 	use PluginControllerConsumer;
 
 	public function getListDecisions( string $url, array $headers = [] ) :string {
-		return 'not yet implemented';
+		return 'not implemented';
 	}
 
 	public function handle( Request $request ) :Response {
@@ -24,8 +24,11 @@ class RequestHandler implements CapiHandlerInterface {
 		if ( is_wp_error( $result ) ) {
 			throw new ClientException( $result->get_error_message() );
 		}
-		/** @var \WP_HTTP_Requests_Response $res */
-		$res = $result[ 'http_response' ];
+		/** @var ?\WP_HTTP_Requests_Response $res */
+		$res = $result[ 'http_response' ] ?? null;
+		if ( !$res instanceof \WP_HTTP_Requests_Response ) {
+			throw new ClientException( 'HTTP request was interrupted. Response object was null.' );
+		}
 		return new Response( $res->get_data(), $res->get_status(), $res->get_headers()->getAll() );
 	}
 

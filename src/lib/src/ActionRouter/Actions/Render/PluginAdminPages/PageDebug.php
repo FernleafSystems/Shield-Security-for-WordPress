@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -14,11 +15,12 @@ class PageDebug extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/debug.twig';
 
 	protected function getPageContextualHrefs() :array {
+		$URLs = self::con()->plugin_urls;
 		return [
 			[
 				'title' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
 				'href'  => URL::Build(
-					self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+					$URLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
 					[ 'shield_check_ip_source' => '1' ]
 				),
 			],
@@ -26,6 +28,10 @@ class PageDebug extends BasePluginAdminPage {
 				'title'   => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
 				'href'    => '#',
 				'classes' => [ 'tool_purge_provider_ips' ],
+			],
+			[
+				'title' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
+				'href'  => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ) ),
 			],
 			[
 				'title'   => __( 'Print', 'wp-simple-firewall' ),

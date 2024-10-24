@@ -393,7 +393,6 @@ class Controller extends DynPropertiesClass {
 
 			$this->modules_loaded = true;
 
-			// Register the Controller hooks
 			$this->doRegisterHooks();
 
 			$this->plugin = new Plugin\ModCon();

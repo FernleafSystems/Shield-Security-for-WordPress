@@ -31,7 +31,6 @@ class Enroll {
 
 		// Enroll if we have the ID
 		$enrollID = \preg_replace( '#[^a-z\d]#i', '', self::con()->opts->optGet( 'cs_enroll_id' ) );
-		var_dump($enrollID);
 		if ( empty( $enrollID ) ) {
 			if ( empty( $auth[ 'machine_enrolled' ] ) ) {
 				$auth[ 'enrolled_id' ] = '';
