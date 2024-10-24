@@ -29,7 +29,7 @@ class AdminNotice extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
 		$data[ 'notice_classes' ] = \implode( ' ', \array_unique( $data[ 'notice_classes' ] ) );
 
-		$data[ 'unique_render_id' ] = \uniqid( (string)$notice->id );
+		$data[ 'unique_render_id' ] = $notice->id.wp_generate_password( 12, false );
 		$data[ 'notice_id' ] = $notice->id;
 
 		$data[ 'imgs' ] = [

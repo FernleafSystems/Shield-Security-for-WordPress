@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 
 abstract class BaseRender extends BaseAction {
 
@@ -114,7 +115,7 @@ abstract class BaseRender extends BaseAction {
 
 		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
-			'unique_render_id' => uniqid(),
+			'unique_render_id' => PasswordGenerator::Gen( 6, false, true, false ),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 			'classes'          => [
 				'top_container' => \implode( ' ', \array_filter( [

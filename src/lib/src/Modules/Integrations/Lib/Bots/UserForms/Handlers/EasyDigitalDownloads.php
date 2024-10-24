@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
+
 class EasyDigitalDownloads extends Base {
 
 	protected function register() {
@@ -11,7 +13,7 @@ class EasyDigitalDownloads extends Base {
 	public function checkRegister() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$this->fireEventBlockRegister();
-			\edd_set_error( \uniqid( 'shield-' ), $this->getErrorMessage() );
+			\edd_set_error( 'shield-'.PasswordGenerator::Gen( 6, false, true, false ), $this->getErrorMessage() );
 		}
 	}
 }

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 
 class SessionController {
 
@@ -111,7 +112,7 @@ class SessionController {
 			$shieldMeta[ 'host' ] = $thisReq->host ?? $req->getHost();
 		}
 		if ( empty( $shieldMeta[ 'unique' ] ) ) {
-			$shieldMeta[ 'unique' ] = uniqid();
+			$shieldMeta[ 'unique' ] = PasswordGenerator::Gen( 12, false, true, false );
 		}
 		if ( !isset( $shieldMeta[ 'useragent' ] ) ) {
 			$shieldMeta[ 'useragent' ] = self::con()->this_req->useragent;

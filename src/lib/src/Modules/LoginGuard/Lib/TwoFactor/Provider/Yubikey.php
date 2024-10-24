@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Yubikey extends AbstractShieldProviderMfaDB {
@@ -122,7 +123,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			// 2021-09-27: API requires at least 16 chars in the nonce, or it fails.
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => \hash( 'md5', \uniqid( Services::Request()->getID() ) ),
+				'nonce' => \hash( 'md5', Services::Request()->getID().PasswordGenerator::Gen( 32, false, true, false ) ),
 				'id'    => self::con()->opts->optGet( 'yubikey_app_id' )
 			];
 
