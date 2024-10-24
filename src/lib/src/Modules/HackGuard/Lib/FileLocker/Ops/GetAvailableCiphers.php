@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
 class GetAvailableCiphers {
 
-	private static ?GetAvailableCiphers $local = null;
+	private static ?array $local = null;
 
 	private static ?array $snapi = null;
 
