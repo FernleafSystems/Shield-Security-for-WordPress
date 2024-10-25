@@ -12,7 +12,7 @@ class InstantAlertsCon {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $alerts;
+	private ?array $alerts = null;
 
 	protected function canRun() :bool {
 		return self::con()->comps->opts_lookup->isPluginEnabled();
