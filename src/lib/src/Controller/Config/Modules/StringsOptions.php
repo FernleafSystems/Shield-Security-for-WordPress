@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
@@ -1051,18 +1050,6 @@ class StringsOptions {
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];
 				}
-				break;
-
-			case 'locale_override':
-				$name = __( 'Locale Override', 'wp-simple-firewall' );
-				$summary = __( 'Set Global Locale For This Plugin For All Users', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Use this if you want to force a language for this plugin for all users at all times.', 'wp-simple-firewall' ),
-					__( "We don't recommend setting this unless you're sure of the consequences for all users.", 'wp-simple-firewall' ),
-					__( "If you provide a locale for which there are no translations, defaults will apply.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
-						\implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
-				];
 				break;
 
 			case 'importexport_enable':

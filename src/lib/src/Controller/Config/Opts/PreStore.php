@@ -217,10 +217,6 @@ class PreStore {
 			$opts->optSet( 'instant_alert_vulnerabilities', 'disabled' );
 		}
 
-		if ( !\preg_match( '#^[a-z]{2,3}(_[A-Z]{2,3})?$#', $opts->optGet( 'locale_override' ) ) ) {
-			$opts->optSet( 'locale_override', '' );
-		}
-
 		if ( $comps->opts_lookup->enabledTelemetry() && $opts->optGet( 'tracking_permission_set_at' ) === 0 ) {
 			$opts->optSet( 'tracking_permission_set_at', Services::Request()->ts() );
 		}

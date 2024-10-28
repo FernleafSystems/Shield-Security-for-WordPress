@@ -3272,18 +3272,6 @@
         "description":     "Preferred temporary directory override."
       },
       {
-        "key":         "locale_override",
-        "section":     "section_hidden",
-        "beacon_id":   393,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "https://icwp.io/il",
-        "link_blog":   "",
-        "name":        "Locale Override",
-        "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-        "description": "Careful: Removes all plugin options when you deactivate the plugin."
-      },
-      {
         "key":             "enable_beta",
         "section":         "section_defaults",
         "zone_comp_slugs": [
