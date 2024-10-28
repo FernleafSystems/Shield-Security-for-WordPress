@@ -22,11 +22,15 @@ class LoadTextDomain {
 			return $moFile;
 		}, 100, 2 );
 
+		/**
+		 * No longer needed, apparently:
+		 * https://make.wordpress.org/core/2024/10/21/i18n-improvements-6-7/
 		load_plugin_textdomain(
 			self::con()->getTextDomain(),
 			false,
 			plugin_basename( self::con()->getPath_Languages() )
 		);
+		 */
 	}
 
 	/**
