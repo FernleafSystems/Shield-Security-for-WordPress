@@ -77,6 +77,27 @@
     ],
     "patches":     [
       {
+        "version":     "11",
+        "released_at": 1727500000,
+        "items":       [
+          {
+            "title":    "Add silentCAPTCHA bot detection support for Simple Membership plugin.",
+            "category": "enhancement",
+            "type":     "new"
+          },
+          {
+            "title":    "Improved compatibility with WordPress 6.7.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Fixed bug with fully capturing bot-based logins on WordPress forms.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "10",
         "released_at": 1726564000,
         "items":       [
