@@ -86,6 +86,11 @@
             "type":     "new"
           },
           {
+            "title":    "Improved compatibility with WordPress 6.7.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
             "title":    "Fixed bug with fully capturing bot-based logins on WordPress forms.",
             "category": "bug",
             "type":     "fixed"
