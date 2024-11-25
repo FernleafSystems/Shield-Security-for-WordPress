@@ -1,7 +1,7 @@
 {
   "20.1": {
     "version":     "20.1",
-    "released_at": 1725613137,
+    "released_at": 1732530000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease201",
       "upgrade": "https://shsec.io/shieldupgradeguide201"
@@ -10,15 +10,6 @@
     "description": [
     ],
     "items":       [
-      {
-        "type":        "new",
-        "title":       "Support For Simple Membership",
-        "pro_only":    true,
-        "description": [
-          "Added silentCAPTCHA bot detection support for Simple Membership plugin."
-        ],
-        "href":        "https://shsec.io/silentcaptchawordpress"
-      },
       {
         "type":        "new",
         "title":       "FileLocker Support For Theme functions.php",
@@ -34,6 +25,15 @@
           "You can now check against the hostname of your visitors when creating custom rules."
         ],
         "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Simple Membership",
+        "pro_only":    true,
+        "description": [
+          "Added silentCAPTCHA bot detection support for Simple Membership plugin."
+        ],
+        "href":        "https://shsec.io/silentcaptchawordpress"
       },
       {
         "type":        "improved",

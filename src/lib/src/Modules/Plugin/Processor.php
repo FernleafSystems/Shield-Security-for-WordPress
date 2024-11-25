@@ -6,7 +6,6 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Events;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\AntibotSetup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename\RenameLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password\UserPasswordHandler;
@@ -53,17 +52,11 @@ class Processor {
 
 				new Events\StatsWriter();
 				( new Lib\AllowBetaUpgrades() )->execute();
-				( new Lib\OverrideLocale() )->execute();
 
 				$components->forms_spam->execute();
 
-				add_action( 'init', function () {
-					self::con()->comps->forms_users->execute();
-				}, HookTimings::INIT_USER_FORMS_SETUP );
-
-				add_action( 'init', function () {
-					self::con()->comps->scans_queue->execute();
-				}, HookTimings::INIT_PROCESSOR_DEFAULT );
+				add_action( 'init', fn() => self::con()->comps->forms_users->execute(), HookTimings::INIT_USER_FORMS_SETUP );
+				add_action( 'init', fn() => self::con()->comps->scans_queue->execute(), HookTimings::INIT_PROCESSOR_DEFAULT );
 
 				( new RenameLogin() )->execute();
 
@@ -78,9 +71,8 @@ class Processor {
 				self::con()->comps->user_suspend->execute();
 
 				// All newly created users have their first seen and password start date set
-				add_action( 'user_register', function ( $userID ) {
-					self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
-				} );
+				add_action( 'user_register',
+					fn( $userID ) => self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) ) );
 
 				( new UserPasswordHandler() )->execute();
 				( new EmailValidate() )->execute();
@@ -94,9 +86,8 @@ class Processor {
 		$components->shieldnet->execute();
 		$components->wpcli->execute();
 
-		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
-			return $isDelete || self::con()->opts->optIs( 'delete_on_deactivate', 'Y' );
-		} );
+		add_filter( self::con()->prefix( 'delete_on_deactivate' ),
+			fn( $isDelete ) => $isDelete || self::con()->opts->optIs( 'delete_on_deactivate', 'Y' ) );
 	}
 
 	public function runHourlyCron() {
@@ -164,13 +155,11 @@ class Processor {
 						$ip = $con->db_con->ips->getQuerySelector()->byId( $meta->record->ip_ref );
 
 						$content = \implode( '<br/>', \array_filter( \array_map(
-							function ( $line ) {
-								/**
-								 * need to cast as string as crappy programmers can't use filters properly.
-								 * @see https://wordpress.org/support/topic/firewall-creating-errors-on-site/
-								 */
-								return \trim( (string)$line );
-							},
+							/**
+							 * need to cast as string as crappy programmers can't use filters properly.
+							 * @see https://wordpress.org/support/topic/firewall-creating-errors-on-site/
+							 */
+							fn( $line ) => \trim( (string)$line ),
 							apply_filters( 'shield/user_status_column', [
 								$content,
 								sprintf( '<em title="%s">%s</em>: %s',
