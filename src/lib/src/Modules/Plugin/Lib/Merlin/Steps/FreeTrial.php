@@ -13,7 +13,7 @@ class FreeTrial extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'hrefs'   => [
-				'free_trial' => 'https://shsec.io/freetrialwizard',
+				'free_trial' => 'https://clk.shldscrty.com/freetrialwizard',
 				'features'   => 'https://getshieldsecurity.com/features/',
 			],
 			'imgs'    => [

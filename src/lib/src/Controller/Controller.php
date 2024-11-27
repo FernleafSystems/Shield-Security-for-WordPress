@@ -322,7 +322,7 @@ class Controller extends DynPropertiesClass {
 						'more_information' => 'Click here for more information on requirements'
 					],
 					'hrefs'   => [
-						'more_information' => 'https://shsec.io/shieldsystemrequirements'
+						'more_information' => 'https://clk.shldscrty.com/shieldsystemrequirements'
 					]
 				] )
 				->display();
@@ -684,8 +684,8 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$labels = ( new Config\Labels() )->applyFromArray( $labels );
-		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
-		$labels->url_helpdesk = 'https://shsec.io/shieldhelpdesk';
+		$labels->url_secadmin_forgotten_key = 'https://clk.shldscrty.com/gc';
+		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;

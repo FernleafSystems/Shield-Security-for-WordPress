@@ -1,12 +1,12 @@
 #### 9.1 Series
-*Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
+*Released: 23rd April 2020* - [Release Announcement](https://clk.shldscrty.com/shieldrelease91)
 
-##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
+##### [Please review the full Shield 9.1 Upgrade Guide here](https://clk.shldscrty.com/shieldupgradeguide91).
 
-* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://shsec.io/hw) Support for WP-CLI (beta).
-* **(.0)  NEW**:		[*PRO*] [U2F Login](https://shsec.io/hv) - Support for registration and use of U2F keys for 2-factor authentication.
-* **(.0)  NEW**:		[*PRO*] [Custom Email Templates](https://shsec.io/hy) - Support for custom email templates, starting with 2FA.
-* **(.0)  NEW**:		[*PRO*] [Affiliate Rewards](https://shsec.io/hz) - We now offer affiliate rewards with ShieldPRO.
+* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://clk.shldscrty.com/hw) Support for WP-CLI (beta).
+* **(.0)  NEW**:		[*PRO*] [U2F Login](https://clk.shldscrty.com/hv) - Support for registration and use of U2F keys for 2-factor authentication.
+* **(.0)  NEW**:		[*PRO*] [Custom Email Templates](https://clk.shldscrty.com/hy) - Support for custom email templates, starting with 2FA.
+* **(.0)  NEW**:		[*PRO*] [Affiliate Rewards](https://clk.shldscrty.com/hz) - We now offer affiliate rewards with ShieldPRO.
 * **(.0)  IMPROVED**:	WP-Config File Locker protection now correctly display the file diff for empty lines.
 * **(.0)  IMPROVED**:	2-Factor Authentication "Remember Me" now uses the visitor IP address as a factor.
 * **(.0)  IMPROVED**:	Restored the option search but turned it into a modal dialog.
@@ -17,9 +17,9 @@
 * **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available (v1.39).
 
 #### 9.0 Series
-*Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
+*Released: 5th April 2020* - [Release Announcement](https://clk.shldscrty.com/hq)
 
-##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
+##### [Please review the full Shield 9.0 Upgrade Guide here](https://clk.shldscrty.com/shieldupgradeguide90).
 
 * **(.4)  FIX**:		Timing error in some cases attempting to access database table when it hasn't been created.
 * **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
@@ -31,13 +31,13 @@
 * **(.3)  FIX**:		Support MemberPress Password Reset that has an Auto-Login.
 * **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
 * **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
-* **(.2)  IMPROVED**:	[WPHashes.com](https://shsec.io/hs) API token update is more reliable.
+* **(.2)  IMPROVED**:	[WPHashes.com](https://clk.shldscrty.com/hs) API token update is more reliable.
 * **(.2)  FIXED**:		Applying a plugin update from within the Vulnerabilities scanner no longer disables that plugin.
 * **(.1)  FIXED**:		Javascript for Anti-Bot Login Protection not loading in all cases.
 * **(.1)  FIXED**:		MemberPress Registration PHP error.
-* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
-* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://clk.shldscrty.com/h4) to protect `wp-config.php` files.
+* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://clk.shldscrty.com/hl) - Support for excluding individual options from import and export.
+* **(.0)  NEW**:		[Support for hCaptcha](https://clk.shldscrty.com/h5) in-place of Google reCAPTCHA.
 * **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
 * **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
 * **(.0)  NEW**:		Debug page to show summary and important information for debugging.
@@ -52,15 +52,15 @@
 * **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
 
 #### 8.7 Series
-*Released: 16th March 2020* - [Release Announcement](https://shsec.io/gy)
+*Released: 16th March 2020* - [Release Announcement](https://clk.shldscrty.com/gy)
 
-* **(.0)**  NEW:		[*PRO*] [Traffic Rate Limiting Feature](https://shsec.io/gv).
+* **(.0)**  NEW:		[*PRO*] [Traffic Rate Limiting Feature](https://clk.shldscrty.com/gv).
 * **(.0)**  ADDED:		Support for registration forms in plugins: Profile Builder and Paid Member Subscriptions
 * **(.0)**  IMPROVED:	Tweaks and changes to UI.
 * **(.0)**  FIXED:		Minor issues with the MFA page.
 
 = 8.6 - Series =
-*Released: 19th February, 2020* - [Release Notes](https://shsec.io/gl)
+*Released: 19th February, 2020* - [Release Notes](https://clk.shldscrty.com/gl)
 
 * **(.3)**  IMPROVED:	AJAX handling and general plugin requests have been refined to be less prone to errors.
 * **(.3)**  IMPROVED:	The Traffic Log Viewer will now be displayed even if it's disabled.
@@ -76,7 +76,7 @@
 * **(.1)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
 
 = 8.5 - Series =
-*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
+*Released: 8th January, 2020* - [Release Notes](https://clk.shldscrty.com/gb)
 
 * **(.7)**  ADDED:		New admin notice to indicate that the plugin is currently disabled.
 * **(.7)**  IMPROVED:	Optimised loading of libraries that run for certain options, if they aren't enabled.
@@ -114,7 +114,7 @@
 * **(.0)**  UPDATED:	Twitter Bootstrap library.
 
 = 8.4 - Series =
-*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
+*Released: 29th November, 2019* - [Release Notes](https://clk.shldscrty.com/g5)
 
 * **(.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
 * **(.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
@@ -128,9 +128,9 @@
 * **(.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
 
 = 8.3 - Series =
-*Released: 18th November, 2019* - [Release Notes](https://shsec.io/g3)
+*Released: 18th November, 2019* - [Release Notes](https://clk.shldscrty.com/g3)
 
-* **(.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://shsec.io/g3) by specific lines, not just by file.
+* **(.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://clk.shldscrty.com/g3) by specific lines, not just by file.
 * **(.0)**  IMPROVED:	Support colons (:) in IP addresses during visitor IP address detection.
 * **(.0)**  IMPROVED:	Ensure license lookups use the correct site URL.
 * **(.0)**  IMPROVED:	Attempt to ensure that if there is an interruption in the API, malware patterns are available for scanning.
@@ -138,9 +138,9 @@
 * **(.0)**  IMPROVED:	Spanish, French, Japanese translations.
 
 = 8.2 - Series =
-*Released: 1st October, 2019* - [Release Notes](https://shsec.io/g0)
+*Released: 1st October, 2019* - [Release Notes](https://clk.shldscrty.com/g0)
 
-* **(.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://shsec.io/g1).
+* **(.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://clk.shldscrty.com/g1).
 * **(.3)**  FIXED:		Fix for Rest API detection.
 * **(.3)**  FIXED:		Fix for translation of some strings.
 * **(.2)**  FIXED:		Fixes for scans running under Windows/IIS.
@@ -171,7 +171,7 @@
 * **(.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
 
 = 8.1 - Series =
-*Released: 18th September, 2019* - [Release Notes](https://shsec.io/fy)
+*Released: 18th September, 2019* - [Release Notes](https://clk.shldscrty.com/fy)
 
 * **(.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
 * **(.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
@@ -184,7 +184,7 @@
 * **(.0)**  IMPROVED:	Lots of cleanup of deprecated PHP code following the the v7-v8 upgrade.
 
 = 8.0 - Series =
-*Released: 27th August, 2019* - [Release Notes](https://shsec.io/fv)
+*Released: 27th August, 2019* - [Release Notes](https://clk.shldscrty.com/fv)
 
 * **(.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
 * **(.2)**  IMPROVED:	Dutch translations have been adjusted.
@@ -192,19 +192,19 @@
 * **(.2)**  FIXED:		Certain admin notices not displayed when they should be.
 * **(.1)**  FIXED:		Comment SPAM blocking wasn't working if set to "Detect and Reject".
 * **(.1)**  FIXED:		Shield Widget/Badge broken in some cases.
-* **(.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://shsec.io/gistshieldlocale).
+* **(.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://clk.shldscrty.com/gistshieldlocale).
 * **(.1)**  ADDED:		Russian translations are now at 100% and some Dutch translations have been adjusted.
 * **(.0)**  NEW:		[*PRO*] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
 * **(.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
 * **(.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
 * **(.0)**  IMPROVED:	Plugin notification system is much improved.
-* **(.0)**  IMPROVED:	[*PRO*] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://shsec.io/fw).
+* **(.0)**  IMPROVED:	[*PRO*] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://clk.shldscrty.com/fw).
 * **(.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
 * **(.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
 * **(.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
 
 = 7.4 - Series =
-*Released: 13th May, 2019* - [Release Notes](https://shsec.io/fc)
+*Released: 13th May, 2019* - [Release Notes](https://clk.shldscrty.com/fc)
 
 * **(.2)**  NEW:		Options finder/jumper menu lets you find and jump to any option in the plugin instantly.
 * **(.2)**  NEW:		Help/explainer videos for a few sections - more to come.
@@ -212,7 +212,7 @@
 * **(.2)**  FIXED:		Welcome wizard launching was broken.
 * **(.1)**  NEW:		Adjustments and redesign of Shield options pages.
 * **(.1)**  IMPROVED:	Further prep for better internationalization.
-* **(.0)**  NEW:		[*PRO*] [Manual/Automatic User Suspension](https://shsec.io/fa)
+* **(.0)**  NEW:		[*PRO*] [Manual/Automatic User Suspension](https://clk.shldscrty.com/fa)
 * **(.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
 * **(.0)**  NEW:		[*PRO*] Comment SPAM - Trusted user roles where comments scanning is skipped
 * **(.0)**  IMPROVED:	AntiBot JS was improperly included when not required.
@@ -223,12 +223,12 @@
 * **(.0)**  ADDED:		Prep for upcoming malware scanner.
 
 = 7.3 - Series =
-*Released: 15th April, 2019* - [Release Notes](https://shsec.io/f0)
+*Released: 15th April, 2019* - [Release Notes](https://clk.shldscrty.com/f0)
 
-* **(.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://shsec.io/ez) options.
+* **(.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://clk.shldscrty.com/ez) options.
 * **(.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
 * **(.1)**  FIX:		Protection against 404 tracking blocking visitors in some cases.
-* **(.0)**  NEW:		[*PRO*] [7x New Bot Signals](https://shsec.io/ez) - rules to catch and block bad bots.
+* **(.0)**  NEW:		[*PRO*] [7x New Bot Signals](https://clk.shldscrty.com/ez) - rules to catch and block bad bots.
 * **(.0)**  ADDED:		Date picker for filtering Audit Log entries.
 * **(.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
 * **(.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
@@ -236,18 +236,18 @@
 * **(.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
 
 = 7.2 - Series =
-*Released: 7th March, 2019* - [Release Notes](https://shsec.io/ep)
+*Released: 7th March, 2019* - [Release Notes](https://clk.shldscrty.com/ep)
 
 * **(.2)**  SKIPPED:	with error.
 * **(.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
 * **(.1)**  FIX:		Fix PHP warning notice on login page.
 * **(.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
-* **(.0)**  NEW:		[Scanner to detect and alert](https://shsec.io/eq) to presence of abandoned plugins.
+* **(.0)**  NEW:		[Scanner to detect and alert](https://clk.shldscrty.com/eq) to presence of abandoned plugins.
 * **(.0)**  FIX:		Fix bug with Security Admin passwords.
 * **(.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
 
 = 7.1 - Series =
-*Released: 21st February, 2019* - [Release Notes](https://shsec.io/ek)
+*Released: 21st February, 2019* - [Release Notes](https://clk.shldscrty.com/ek)
 
 * **(.2)**  IMPROVED:	Firewall email notification content now better reflect the information in the audit trail.
 * **(.2)**  FIX:		Firewall email notification was breaking in some instances.
@@ -261,7 +261,7 @@
 * **(.0)**  IMPROVED:	Consolidate crons into fewer crons. e.g. all scans run under the same cron.
 
 = 7.0 - Series =
-*Released: 28th January, 2019* - [Release Notes](https://shsec.io/ef)
+*Released: 28th January, 2019* - [Release Notes](https://clk.shldscrty.com/ef)
 
 * **(.4)**  IMPROVED:	Refactored IP address blocking with improved audit trail messages.
 * **(.4)**  CHANGED:	Expanded anonymous REST API whitelist to include 'wpstatistics' namespace.
@@ -286,7 +286,7 @@
 * **(.0)**  CHANGED:	Too many many changes and bug fixes to list -best to just take a look! :)
 
 = 6.10 - Series =
-*Released: 15th October, 2018* - [Release Notes](https://shsec.io/dg)
+*Released: 15th October, 2018* - [Release Notes](https://clk.shldscrty.com/dg)
 
 * **(.9)**  FIXED:		Admin notices displaying to non-admins.
 * **(.7)**  ADDED:		[*PRO*] New option to specify usernames for Security Admin role.
@@ -301,7 +301,7 @@
 * **(.3)**  ADDED:		Support for Ultimate Member forms
 * **(.3)**  ADDED:		Support for LearnPress login/registration forms
 * **(.3)**  FIXED:		Security Admin now correctly honours the WordPress Options zone setting.
-* **(.3)**  IMPROVED:	Distinguish which sub-site (sub-domain) for WPMS installations on [Traffic Watcher](https://shsec.io/c1).
+* **(.3)**  IMPROVED:	Distinguish which sub-site (sub-domain) for WPMS installations on [Traffic Watcher](https://clk.shldscrty.com/c1).
 * **(.3)**  IMPROVED:	Server's own IP lookup is only attempted once.
 * **(.3)**  ADDED:		Experimental feature to help with some custom 3rd party login/registration forms
 * **(.2)**  IMPROVED:	Visitor IP address detection
@@ -324,10 +324,10 @@
 * **(.0)**  ADDED:		Optional plugin deactivation survey.
 
 = 6.9.0 - Series =
-*Released: 6th September, 2018* - [Release Notes](https://shsec.io/dc)
+*Released: 6th September, 2018* - [Release Notes](https://clk.shldscrty.com/dc)
 
-* **(.0)**  NEW:		[*PRO*] [Traffic Watcher](https://shsec.io/c1) - live tracking of all requests to your site.
-* **(.0)**  NEW:		[*PRO*] [Yubikey](https://shsec.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(.0)**  NEW:		[*PRO*] [Traffic Watcher](https://clk.shldscrty.com/c1) - live tracking of all requests to your site.
+* **(.0)**  NEW:		[*PRO*] [Yubikey](https://clk.shldscrty.com/c1) - Allows for multiple Yubikeys on the same user profile.
 * **(.0)**  ADDED:		[*PRO*] Option to include listing of affected files within Hack Guard notification emails.
 * **(.0)**  ADDED:		Option to delete the Security Admin Access Key
 * **(.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
@@ -352,7 +352,7 @@
 * **(.0)**  FIXED:		PHP Warning(s).
 
 = 6.8 Series =
-*Released: 11th June, 2018* - [Release Notes](https://shsec.io/d4)
+*Released: 11th June, 2018* - [Release Notes](https://clk.shldscrty.com/d4)
 
 * **(.2)**  FIXED:		Bug with multi-factor authentication verification.
 * **(.2)**  FIXED:		Bug with chosen reCAPTCHA style not being honoured on login pages
@@ -368,7 +368,7 @@
 * **(.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
 = 6.7 Series =
-*Released: 21st May, 2018* - [Release Notes](https://shsec.io/cx)
+*Released: 21st May, 2018* - [Release Notes](https://clk.shldscrty.com/cx)
 
 * **(.2)**  ADDED:		[*PRO*] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
 * **(.2)**  UPDATED:	Some translations.
@@ -386,7 +386,7 @@
 * **(.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
 
 = 6.6 Series =
-*Released: 19th March, 2018* - [Release Notes](https://shsec.io/c3)
+*Released: 19th March, 2018* - [Release Notes](https://clk.shldscrty.com/c3)
 
 * **(.7)**  IMPROVED:	reCAPTCHA JS is only included on pages where it's actually used by Shield.
 * **(.7)**  IMPROVED:	Upgrade Bootstrap library to 4.1.0.
@@ -396,17 +396,17 @@
 * **(.6)**  ADDED:		Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
 * **(.1-4)**  FIXED:	Various small fixes and improvements
 * **(.4)**  FIXED:		PHP Fatal Error on wp object cache.
-* **(.0)**  NEW:		[*PRO*] [Keyless Activation of Pro licenses](https://shsec.io/c1).
-* **(.0)**  ADDED:		[WordPress Password Policies](https://shsec.io/c2).
+* **(.0)**  NEW:		[*PRO*] [Keyless Activation of Pro licenses](https://clk.shldscrty.com/c1).
+* **(.0)**  ADDED:		[WordPress Password Policies](https://clk.shldscrty.com/c2).
 * **(.0)**  ADDED:		Pwned Passwords Detection.
 * **(.0)**  IMPROVED:	Major rewrite of plugin AJAX handling.
 * **(.0)**  IMPROVED:	Notices to indicate the time of the last scans.
 * **(.0)**  FIXED:		A few bugs
 
 = 6.5 Series =
-*Released: 5th March, 2018* - [Release Notes](https://shsec.io/bu)
+*Released: 5th March, 2018* - [Release Notes](https://clk.shldscrty.com/bu)
 
-* **(.0)**  IMPROVED:		[Plugin Guard](https://shsec.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
+* **(.0)**  IMPROVED:		[Plugin Guard](https://clk.shldscrty.com/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
 * **(.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
 * **(.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
 * **(.0)**  ADDED:			[*PRO*] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
@@ -414,25 +414,25 @@
 * **(.0)**  FIXED:			A few small bugs
 
 = 6.4 Series =
-*Released: 26th February, 2018* - [Release Notes](https://shsec.io/br)
+*Released: 26th February, 2018* - [Release Notes](https://clk.shldscrty.com/br)
 
 * **(.1-4)**  FIXED:		Various Fixes
-* **(.0)**  ADDED:			[*PRO*] New Scanner to [detect file changes for active plugins and themes](https://shsec.io/bq)
-* **(.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](https://shsec.io/bc)
+* **(.0)**  ADDED:			[*PRO*] New Scanner to [detect file changes for active plugins and themes](https://clk.shldscrty.com/bq)
+* **(.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](https://clk.shldscrty.com/bc)
 * **(.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.3 Series =
-*Released: 12th February, 2018* - [Release Notes](https://shsec.io/bc)
+*Released: 12th February, 2018* - [Release Notes](https://clk.shldscrty.com/bc)
 
 * **(.3)**  FIXED:			Bug with automatic updates delay setting
-* **(.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](https://shsec.io/bi)
+* **(.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](https://clk.shldscrty.com/bi)
 * **(.1)**  FIXED:			Options page javascript to work around conflicts.
-* **(.0)**  ADDED:			[*PRO*] [Automatic updates stability delay](https://shsec.io/bc)
-* **(.0)**  IMPROVED:		Complete [plugin UI rebuild](https://shsec.io/bd), using the new Bootstrap 4.
+* **(.0)**  ADDED:			[*PRO*] [Automatic updates stability delay](https://clk.shldscrty.com/bc)
+* **(.0)**  IMPROVED:		Complete [plugin UI rebuild](https://clk.shldscrty.com/bd), using the new Bootstrap 4.
 * **(.0)**  FIXED:			A few bugs with Google Authenticator.
 
 = 6.2 Series =
-*Released: 31st January, 2018* - [Release Notes](https://shsec.io/b6)
+*Released: 31st January, 2018* - [Release Notes](https://clk.shldscrty.com/b6)
 
 * **(.2)**  FIXED:			Fix for IP Manager PHP error.
 * **(.2)**  IMPROVED:		Two-factor verification email.
@@ -445,7 +445,7 @@
 * **(.0)**  ADDED:			[*PRO*] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
 = 6.1 Series =
-*Released: 15th January, 2018* - [Release Notes](https://shsec.io/ay)
+*Released: 15th January, 2018* - [Release Notes](https://clk.shldscrty.com/ay)
 
 * **(.1)**  FIXED:			Verify link missing from the two-factor authentication verification email.
 * **(.0)**  ADDED:			3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.
@@ -458,9 +458,9 @@
 *Released: 18th December, 2017*
 
 * **(.0)**  ADDED:			All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.
-* **(.0)**  ADDED:			[*PRO*] [Shield options import and export](https://shsec.io/at)
+* **(.0)**  ADDED:			[*PRO*] [Shield options import and export](https://clk.shldscrty.com/at)
 * **(.0)**  ADDED:			[*PRO*] In conjunction with import/export - Shield Security Network: automated options syncing.
-* **(.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](https://shsec.io/au). Existing features will remain unaffected.
+* **(.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](https://clk.shldscrty.com/au). Existing features will remain unaffected.
 
 = 5.20 Series =
 *Released: 11th December, 2017*
@@ -540,18 +540,18 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.2)**  IMPROVEMENTS:	Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.
 * **(.2)**  FIX:			Restore display of help links for options.
 * **(.1)**  FIX:			PHP 5.2 incompatibility.
-* **(.0)**  ADDED:			New option for [Unrecognised File Scanner](https://shsec.io/94) to scan the Uploads folder for JS and PHP files.
-* **(.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](https://shsec.io/94).
+* **(.0)**  ADDED:			New option for [Unrecognised File Scanner](https://clk.shldscrty.com/94) to scan the Uploads folder for JS and PHP files.
+* **(.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](https://clk.shldscrty.com/94).
 
 = 5.12 Series =
 *Released: 3rd August, 2017*
 
-* **(.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](https://shsec.io/94)
+* **(.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](https://clk.shldscrty.com/94)
 * **(.2)**  CHANGED:		Removed the email-based 2FA automatic login link.
 * **(.2)**  FIX:			Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.
-* **(.1)**  ADDED:			A few more exclusions for the [Unrecognised File Scanner](https://shsec.io/94)
+* **(.1)**  ADDED:			A few more exclusions for the [Unrecognised File Scanner](https://clk.shldscrty.com/94)
 * **(.1)**  FIX:			Fix for Fatal error.
-* **(.0)**  ADDED:			[Unrecognised File Scanner](https://shsec.io/94) release. Automatically detect and delete
+* **(.0)**  ADDED:			[Unrecognised File Scanner](https://clk.shldscrty.com/94) release. Automatically detect and delete
 							any files present in core WordPress directories that aren't part of your core installation.
 * **(.0)**  ADDED:			Updated Firewall rules for SQL under the 'Aggressive' rule set.
 
@@ -559,14 +559,14 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 *Released: 26th July, 2017*
 
 * **(.1)**  FIX:			JSON syntax
-* **(.0)**  IMPROVEMENTS:	Final preparation for [Shield Central](https://shsec.io/83) release.
+* **(.0)**  IMPROVEMENTS:	Final preparation for [Shield Central](https://clk.shldscrty.com/83) release.
 
 = 5.10 Series =
 *Released: 19th June, 2017*
 
 * **(.2)**  FIXED:			Fatal error with GASP + Password Reset.
 * **(.2)**  FIXED:			Fatal error with failing reCAPTCHA HTTP requests.
-* **(.1)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://shsec.io/83) release.
+* **(.1)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://clk.shldscrty.com/83) release.
 * **(.0)**  ADDED:			More in-depth reporting and statistics gathering - options for reports will be made available
  							in a later release.
 
@@ -589,8 +589,8 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.2)**  CHANGE:		Changed timeout for two-factor authentication email to 5 minutes to account for slower email-sending providers.
 * **(.2)**  CHANGE:		Added further clarification to the Login Notification email indicating that two-factor authentication was pending.
 * **(.1)**  FIXED:			Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.
-* **(.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](https://shsec.io/87).
-* **(.0)**  CHANGE:		[Introduction of Login Authentication Portal](https://shsec.io/86) for improved Multi-Factor Authentication.
+* **(.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](https://clk.shldscrty.com/87).
+* **(.0)**  CHANGE:		[Introduction of Login Authentication Portal](https://clk.shldscrty.com/86) for improved Multi-Factor Authentication.
 * **(.0)**  ADDED:			Option to choose between two-factor or multi-factor login authentication.
 * **(.0)**  ADDED:			Administrators can remove Google Authenticator from another user's profile.
 * **(.0)**  ADDED:			When Security Admin is active, only Security Admins may remove Google Authenticator from other admins.
@@ -598,18 +598,18 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.0)**  CHANGE:		Email-based login authentication no longer uses a separate database table.
 * **(.0)**  FIXED:			Core file scanning now adequately handles Windows/Unix new lines during scan.
 * **(.0)**  FIXED:			Certain crons weren't setup correctly.
-* **(.0)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://shsec.io/83) release.
+* **(.0)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://clk.shldscrty.com/83) release.
 
 = 5.7 Series =
 
 * **(.3)**  FIXED:			Attempt to improve the Google Authenticator flow for more reliable activation.
 * **(.2)**  IMPROVEMENTS:	More admin notices when saving Google Authenticator settings.
-* **(.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://shsec.io/83) release.
+* **(.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://clk.shldscrty.com/83) release.
 * **(.1)**  Skipped
 * **(.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
 * **(.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
 * **(.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.
-* **(.0)**  IMPROVEMENTS:	Preparation for [Shield Central](https://shsec.io/83) release.
+* **(.0)**  IMPROVEMENTS:	Preparation for [Shield Central](https://clk.shldscrty.com/83) release.
 * **(.0)**  IMPROVEMENTS:	Security Admin notices are more refined and optimized.
 * **(.0)**  IMPROVEMENTS:	Removed unnecessary files/code.
 
@@ -637,7 +637,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.2)**  FIXED:			Missing Link
 * **(.2)**  FIXED:			Plugin Installation ID wasn't always being set
 * **(.2)**  TRANSLATIONS:	Dutch (56%)
-* **(.1)**  ADDED:			Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability [more info](https://shsec.io/7j)
+* **(.1)**  ADDED:			Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability [more info](https://clk.shldscrty.com/7j)
 * **(.1)**  IMPROVED:		Better XMLRPC Lockdown - prevents ANY XMLRPC command processing.
 * **(.1)**  IMPROVED:		Make certain strings translatable
 * **(.1)**  IMPROVED:		Wrap-up certain login form elements into spans/divs to allow styling etc.
@@ -670,7 +670,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
 * **(.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
-* **(.2)**  CHANGED:		[HTTP Security Headers](https://shsec.io/7b) module is enabled by default on new installs.
+* **(.2)**  CHANGED:		[HTTP Security Headers](https://clk.shldscrty.com/7b) module is enabled by default on new installs.
 * **(.1)**  FIXED:			Nasty bug that caused an infinite loop bug in some configurations.
 * **(.0)**  ADDED:			Per-site plugin statistics gathering - summary display on admin dashboard.
 * **(.0)**  ADDED:			HTML class to the "I'm a human" checkbox field.
@@ -681,11 +681,11 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 
 = 5.3 Series =
 
-* **(.2)**  IMPROVED:		[HTTP Security Headers](https://shsec.io/7b) Content Security Policy now supports specifying HTTPS for domains/hosts.
+* **(.2)**  IMPROVED:		[HTTP Security Headers](https://clk.shldscrty.com/7b) Content Security Policy now supports specifying HTTPS for domains/hosts.
 * **(.2)**  FIXED:			Human Comment SPAM Feature didn't fire under certain circumstances.
 * **(.2)**  FIXED:			Fixed parsing of Human Comment SPAM dictionary words.
 * **(.1)**  TRANSLATIONS:	Dutch (32%)
-* **(.0)**  ADDED:			New Feature - [HTTP Security Headers](https://shsec.io/7b).
+* **(.0)**  ADDED:			New Feature - [HTTP Security Headers](https://clk.shldscrty.com/7b).
 * **(.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
 = 5.2 Series =
@@ -694,7 +694,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.0)**  CHANGED:		Logic for brute force login checking is improved - they all run before username/password checking
 * **(.0)**  FIXED:			Certain older versions of PHP don't like combined IPv4 and IPv6 filter flags
 * **(.0)**  FIXED:			Google reCAPTCHA for WordPress sites that have restrictive settings for sockets etc.
-* **(.0)**  REMOVED:		[Plugin vulnerabilities scanner](https://shsec.io/75). It's out-of-date and unsuitable.
+* **(.0)**  REMOVED:		[Plugin vulnerabilities scanner](https://clk.shldscrty.com/75). It's out-of-date and unsuitable.
 
 = 5.1 Series =
 
@@ -707,15 +707,15 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 5.0 Series =
 
 * **(.3)**  FIXED:			Issue with setting session cookies with PHP 7
-* **(.2)**  FIXED:			[Rename WordPress Login URL](https://shsec.io/5s) bug
+* **(.2)**  FIXED:			[Rename WordPress Login URL](https://clk.shldscrty.com/5s) bug
 * **(.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
-* **(.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](https://shsec.io/wpsf40) feature.
+* **(.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](https://clk.shldscrty.com/wpsf40) feature.
 * **(.1)**  CHANGED:		A WordPress filter to change the plugin badge text content (see FAQ)
 * **(.1)**  CHANGED:		Tweaked the plugin badge styling.
 * **(.1)**  CHANGED:		All emails sent by the plugin contain the name of the site and the current plugin version in the email footer.
-* **(.1)**  ADDED:			In-plugin links to blogs and info articles for Google ReCaptcha and [Google Authenticator](https://shsec.io/wpsf43)
+* **(.1)**  ADDED:			In-plugin links to blogs and info articles for Google ReCaptcha and [Google Authenticator](https://clk.shldscrty.com/wpsf43)
 * **(.0)**  NEW:			WordPress Simple Firewall plugin has been re-branded and is called **Shield**
-* **(.0)**  ADDED:			NEW feature - [Google ReCaptcha](https://shsec.io/shld2) for Comment SPAM and Login protection.
+* **(.0)**  ADDED:			NEW feature - [Google ReCaptcha](https://clk.shldscrty.com/shld2) for Comment SPAM and Login protection.
 * **(.0)**  ADDED:			Support for this plugin is now Premium. Added Premium Support page that links to Helpdesk.
 * **(.0)**  CHANGED:		Refactor of comment spam code.
 * **(.0)**  CHANGED:		Core File Scanner now handles the odd Hungarian distribution.
@@ -723,8 +723,8 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 4.17 Series =
 *Released: 17th February, 2016*
 
-* **(.0)**  ADDED:			NEW feature - [Google Authenticator Login option](https://shsec.io/wpsf43).
-* **(.0)**  ADDED:			[Core File Scanner](https://shsec.io/wpsf40) now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
+* **(.0)**  ADDED:			NEW feature - [Google Authenticator Login option](https://clk.shldscrty.com/wpsf43).
+* **(.0)**  ADDED:			[Core File Scanner](https://clk.shldscrty.com/wpsf40) now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
 * **(.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you'll be provided with a link to go straight to the admin area.
 * **(.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load.
 * **(.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
@@ -734,15 +734,15 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 4.16 Series =
 *Released: 20th January, 2016*
 
-* **(.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](https://shsec.io/wpsf40).
-* **(.2)**  CHANGED:		Improvements to the [automatic black list system](https://shsec.io/wpsf27) for failed login attempts.
+* **(.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](https://clk.shldscrty.com/wpsf40).
+* **(.2)**  CHANGED:		Improvements to the [automatic black list system](https://clk.shldscrty.com/wpsf27) for failed login attempts.
 * **(.2)**  TRANSLATIONS:	Turkish (100%)
-* **(.1)**  CHANGED:		Improved the contents of the [Core File Scanner](https://shsec.io/wpsf40) notification email with links to original source files.
+* **(.1)**  CHANGED:		Improved the contents of the [Core File Scanner](https://clk.shldscrty.com/wpsf40) notification email with links to original source files.
 * **(.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may update independently.
 * **(.1)**  CHANGED:		Handles the special case of [old index.php files](https://wordpress.org/support/topic/problem-with-checksum-hashes)
-* **(.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](https://shsec.io/wpsf40) and detects alterations from the default WordPress Core File data
+* **(.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](https://clk.shldscrty.com/wpsf40) and detects alterations from the default WordPress Core File data
 * **(.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
-* **(.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://shsec.io/wpsf41).
+* **(.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://clk.shldscrty.com/wpsf41).
 * **(.0)**  ADDED:			Two-Factor Authentication links now honour the WordPress 'redirect_to' parameter.
 
 = 4.15 Series =
@@ -761,7 +761,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
 * **(.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
 * **(.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
-* **(.0)**  ADDED:			[Custom Automatic Update Notifications Email](https://shsec.io/wpsf33) that runs separately to the in-built WordPress core notification email.
+* **(.0)**  ADDED:			[Custom Automatic Update Notifications Email](https://clk.shldscrty.com/wpsf33) that runs separately to the in-built WordPress core notification email.
 * **(.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
 * **(.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
@@ -784,13 +784,13 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 4.12 Series =
 *Released: 10th October, 2015*
 
-* **(.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](https://shsec.io/wpsf31)
+* **(.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](https://clk.shldscrty.com/wpsf31)
 * **(.0)**  CHANGED:		Logged-in users are automatically forwarded to the WordPress admin only if they are Administrators.
 
 = 4.11 Series =
 *Released: 5th October, 2015*
 
-* **(.0)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](https://shsec.io/wpsf30)
+* **(.0)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](https://clk.shldscrty.com/wpsf30)
 * **(.0)**  FIXED:			Various small bugs with the IP Manager UI ajax.
 * **(.0)**  FIXED:			Uncaught PHP Exception when a site's hosting isn't properly configured to handle IPv6 addresses.
 * **(.0)**  TRANSLATIONS:	Danish - 57%, Czech - 100%, Finnish - 94%
@@ -816,8 +816,8 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(.1)**  FIX:       	Removed transgression counting on failed logins - WP data is inconsistent.
 * **(.1)**  CHANGED:		Original legacy white list now takes priority over new auto black list
 * **(.1)**  CHANGED:		Default transgressions limit is now 7
-* **(.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file. [more info](https://shsec.io/wpsf28)
-* **(.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](https://shsec.io/wpsf27).
+* **(.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file. [more info](https://clk.shldscrty.com/wpsf28)
+* **(.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](https://clk.shldscrty.com/wpsf27).
 
 Simply put, FABLE will automatically block all malicious traffic by IP, based on their activity. This Security Plugin will track malicious behaviour
 and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the specified number transgressions, FABLE
@@ -849,7 +849,7 @@ Which actions will trigger an ABLE transgression?
 * **(.8)**  CHANGED:       Firewall, User Sessions and Lockdown Feature Modules are now enabled by default for new installations.
 * **(.8)**  FIX:           Some server email programs can't handle colons (:) in the email subject (because supporting all characters would be waaay too radical man).
 * **(.8)**  ADDED:       	Function to better get the WordPress home URL to prevent interference from other plugins.
-* **(.8)**  CHANGED:       Updated Text For [Author Scan Block](https://shsec.io/6e) feature.
+* **(.8)**  CHANGED:       Updated Text For [Author Scan Block](https://clk.shldscrty.com/6e) feature.
 * **(.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.
 * **(.6)**  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -> Obscurity)
 * **(.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
@@ -864,7 +864,7 @@ Which actions will trigger an ABLE transgression?
 * **(.2)**  ADDED:         Email notifications sent out to report email address on a daily cron. [more info](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/)
 * **(.2)**  FIX:           Work around a WordPress inline plugin update Javascript bug.
 * **(.1)**  FIX:           Fix syntax support for earlier versions of PHP.
-* **(.0)**  FEATURE:       Plugin Vulnerabilities Detection: If you're running plugins with known vulnerabilities you will be warned - [more info](https://shsec.io/wpsf22)
+* **(.0)**  FEATURE:       Plugin Vulnerabilities Detection: If you're running plugins with known vulnerabilities you will be warned - [more info](https://clk.shldscrty.com/wpsf22)
 
 = 4.8 Series =
 *Released: 21st June, 2015*
@@ -905,8 +905,8 @@ Which actions will trigger an ABLE transgression?
 = 4.6 Series =
 *Released: 10th April, 2015*
 
-* **(.3)**  SECURITY:  Added protection against XSS vulnerability in WordPress comments. [Learn More](https://shsec.io/63) - Note: This is not a vulnerability with the Firewall plugin.
-* **(.3)**  SECURITY:  Added extra precautions to WordPress URL redirects. [Learn More](https://shsec.io/64).
+* **(.3)**  SECURITY:  Added protection against XSS vulnerability in WordPress comments. [Learn More](https://clk.shldscrty.com/63) - Note: This is not a vulnerability with the Firewall plugin.
+* **(.3)**  SECURITY:  Added extra precautions to WordPress URL redirects. [Learn More](https://clk.shldscrty.com/64).
 * **(.3)**  TRANSLATIONS: Russian (70%), Czech (67%)
 * **(.2)**  FIX:       Bug with the database table verification logic.
 * **(.2)**  TRANSLATIONS: Russian (New- 54%), Romanian (100%), Turkish (89%), Czech (53%)
@@ -914,7 +914,7 @@ Which actions will trigger an ABLE transgression?
 * **(.1)**  UPDATED:   Plugin Badge styling
 * **(.1)**  UPDATED:   Updated Czech(41%) and Spanish (60%) translations
 * **(.0)**  ADDED:     New feature that displays the last login time for all users on the users listing page (User Management feature must be enabled).
-* **(.0)**  ADDED:     **Completely optional** promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. [Learn More](https://shsec.io/5x)
+* **(.0)**  ADDED:     **Completely optional** promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. [Learn More](https://clk.shldscrty.com/5x)
 * **(.0)**  UPDATED:   Updated Czech(38%) translations
 
 = 4.5 Series =
@@ -950,7 +950,7 @@ Which actions will trigger an ABLE transgression?
 * **(.5)**  CHANGED:   Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted
 * **(.4)**  FIXES:     Work around for cases where PHP can't successfully run parse_url()
 * **(.2)**  IMPROVED:  Refactoring for better code organisation
-*   ADDED:      New Feature - [Rename WP Login Page](https://shsec.io/5s).
+*   ADDED:      New Feature - [Rename WP Login Page](https://clk.shldscrty.com/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
 *   CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the "Dashboard" area
 *   IMPROVED:   Firewall processing code is simplified and more efficient.
@@ -1106,7 +1106,7 @@ Which actions will trigger an ABLE transgression?
 = 2.6.3 =
 
 *   ADDED:      More in-line plugin links to help/blog resources
-*   ENHANCED:   [Admin Access Protection](https://shsec.io/5b) is further enhanced in 3 ways:
+*   ENHANCED:   [Admin Access Protection](https://clk.shldscrty.com/5b) is further enhanced in 3 ways:
 
 1.  More robust cookie values using MD5s
 1.  Blocks plugin options updating right at the point of WordPress options update so nothing can rewrite the actual plugin options.
@@ -1175,7 +1175,7 @@ Which actions will trigger an ABLE transgression?
 
 = 2.5.0 =
 
-*	FEATURE:    Two-Factor Authenticated Login using [Yubikey](https://shsec.io/4i) One Time Passwords (OTP).
+*	FEATURE:    Two-Factor Authenticated Login using [Yubikey](https://clk.shldscrty.com/4i) One Time Passwords (OTP).
 
 = 2.4.3 =
 
@@ -1296,7 +1296,7 @@ Which actions will trigger an ABLE transgression?
 
 = 1.8.1 =
 
-*	ADDED:		Feature- Access Key Restriction [more info](https://shsec.io/2s).
+*	ADDED:		Feature- Access Key Restriction [more info](https://clk.shldscrty.com/2s).
 *	ADDED:		Feature- WordPress Lockdown. Currently only provides 1 option, but more to come.
 
 = 1.7.3 =

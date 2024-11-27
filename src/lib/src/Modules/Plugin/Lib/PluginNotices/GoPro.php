@@ -25,7 +25,7 @@ class GoPro extends Base {
 								__( "Whitelabel, Manual/Auto User Suspension, Unlimited Logs, Site Sync Import/Export, are just some of what's available when you upgrade your plan.", 'wp-simple-firewall' ),
 							] ) ),
 							sprintf( '<a href="%s" class="btn btn-sm btn-light link-underline-opacity-25" style="--bs-btn-padding-y: 0;--bs-btn-padding-x: .35rem;" target="_blank">%s</a>',
-								'https://shsec.io/buyshieldpricing',
+								'https://clk.shldscrty.com/buyshieldpricing',
 								__( 'View Plans', 'wp-simple-firewall' )
 							)
 						)

@@ -167,14 +167,14 @@ abstract class BaseRender extends BaseAction {
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'helpdesk'       => $con->labels->url_helpdesk,
 				'plugin_home'    => $con->labels->PluginURI,
-				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
-				'goprofooter'    => 'https://shsec.io/goprofooter',
+				'go_pro'         => 'https://clk.shldscrty.com/shieldgoprofeature',
+				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
 
-				'facebook_group' => 'https://shsec.io/pluginshieldsecuritygroupfb',
-				'email_signup'   => 'https://shsec.io/emailsubscribe',
+				'facebook_group' => 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
+				'email_signup'   => 'https://clk.shldscrty.com/emailsubscribe',
 			],
 			'imgs'             => [
 				'svgs'           => [

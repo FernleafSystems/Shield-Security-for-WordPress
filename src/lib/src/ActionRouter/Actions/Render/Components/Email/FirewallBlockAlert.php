@@ -28,7 +28,7 @@ class FirewallBlockAlert extends EmailBase {
 				'already_blocked' => sprintf( __( '%s has already taken the necessary action of blocking the request.' ), $con->labels->Name ),
 			],
 			'hrefs'   => [
-				'ip_lookup'   => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
+				'ip_lookup'   => URL::Build( 'https://clk.shldscrty.com/botornot', [ 'ip' => $ip ] ),
 				'unsubscribe' => $con->plugin_urls->cfgForZoneComponent( WebApplicationFirewall::Slug() ),
 			],
 			'vars'    => [

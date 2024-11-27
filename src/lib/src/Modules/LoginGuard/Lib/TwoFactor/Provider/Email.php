@@ -74,7 +74,7 @@ class Email extends AbstractShieldProviderMfaDB {
 			'placeholder' => __( 'A1B2C3', 'wp-simple-firewall' ),
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter code sent to your email', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/3t',
+			'help_link'   => 'https://clk.shldscrty.com/3t',
 			'size'        => 6,
 			'datas'       => [
 				'auto_send' => self::con()->comps->mfa->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,

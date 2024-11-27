@@ -17,7 +17,7 @@ class IpDetect extends Base {
 		$allIPs = $this->gatherUniqueIpSources();
 		return [
 			'hrefs'   => [
-				'visitor_ip' => 'https://shsec.io/visitorip',
+				'visitor_ip' => 'https://clk.shldscrty.com/visitorip',
 			],
 			'flags'   => [
 				'has_none'     => \count( $allIPs ) === 0,

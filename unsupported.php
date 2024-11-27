@@ -17,7 +17,7 @@ function icwp_wpsf_unsupported_php() {
 
 		sprintf( 'Shield Security Plugin - Unsupported PHP Version: %s', PHP_VERSION ),
 		implode( '<br/>', $text ),
-		'https://shsec.io/dl',
+		'https://clk.shldscrty.com/dl',
 		'Click here for more info',
 		add_query_arg(
 			array(

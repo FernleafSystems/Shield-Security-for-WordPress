@@ -129,7 +129,7 @@ abstract class PluginThemesBase extends Base {
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
 			'hrefs' => [
-				'vul_info' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+				'vul_info' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
 					'type'    => $plugin->asset_type,
 					'slug'    => $plugin->slug,
 					'version' => $plugin->Version,
@@ -232,7 +232,7 @@ abstract class PluginThemesBase extends Base {
 				'parent_theme' => $theme->is_child ? $theme->parent_theme->Name : '',
 			],
 			'hrefs' => [
-				'vul_info' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+				'vul_info' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
 					'type'    => $theme->asset_type,
 					'slug'    => $theme->stylesheet,
 					'version' => $theme->Version,

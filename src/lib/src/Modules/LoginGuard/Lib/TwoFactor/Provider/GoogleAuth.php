@@ -149,7 +149,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 			'placeholder' => __( '123456', 'wp-simple-firewall' ),
 			'text'        => __( 'Authenticator OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter 6-digit code from your authenticator app', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/wpsf42',
+			'help_link'   => 'https://clk.shldscrty.com/wpsf42',
 			'extras'      => [
 				'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
 			]

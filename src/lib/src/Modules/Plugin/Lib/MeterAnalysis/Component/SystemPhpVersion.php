@@ -14,7 +14,7 @@ class SystemPhpVersion extends Base {
 	}
 
 	protected function hrefFull() :string {
-		return 'https://shsec.io/helpshieldminimumrequirements';
+		return 'https://clk.shldscrty.com/helpshieldminimumrequirements';
 	}
 
 	protected function hrefFullTargetBlank() :bool {

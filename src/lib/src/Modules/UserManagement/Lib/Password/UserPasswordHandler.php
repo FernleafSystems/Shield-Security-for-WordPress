@@ -262,7 +262,7 @@ class UserPasswordHandler {
 				\implode( ' ', [
 					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
 					sprintf( '(<a href="%s" target="_blank">%s</a>)',
-						'https://shsec.io/la',
+						'https://clk.shldscrty.com/la',
 						sprintf( _n( '%s time', '%s times', $countPwned, 'wp-simple-firewall' ), $countPwned )
 					)
 				] ),

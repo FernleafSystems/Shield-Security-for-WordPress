@@ -44,8 +44,8 @@ class Footer extends Base {
 				], $this->action_data[ 'email_flags' ] ?? [] )
 			],
 			'hrefs'   => [
-				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',
-				'much_more'           => 'https://shsec.io/gp',
+				'upgrade'             => 'https://clk.shldscrty.com/buyshieldproemailfooter',
+				'much_more'           => 'https://clk.shldscrty.com/gp',
 				'configure_recipient' => $con->plugin_urls->cfgForZoneComponent( Reporting::Slug() ),
 			],
 			'strings' => [

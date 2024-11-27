@@ -18,7 +18,7 @@ class BlockPageSiteBlockdown extends BaseBlock {
 			'flags'   => [
 			],
 			'hrefs'   => [
-				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
+				'how_to_unblock' => 'https://clk.shldscrty.com/shieldhowtounblock',
 			],
 			'strings' => [
 				'page_title'    => sprintf( '%s | %s', __( 'Site Is Under Lockdown', 'wp-simple-firewall' ), self::con()->labels->Name ),

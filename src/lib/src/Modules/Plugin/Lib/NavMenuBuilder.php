@@ -241,12 +241,12 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'license-trial',
 					'title'  => __( 'Free Trial', 'wp-simple-firewall' ),
-					'href'   => 'https://shsec.io/shieldfreetrialinplugin',
+					'href'   => 'https://clk.shldscrty.com/shieldfreetrialinplugin',
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'license-features',
-					'href'   => 'https://shsec.io/gp',
+					'href'   => 'https://clk.shldscrty.com/gp',
 					'title'  => __( 'ShieldPRO Features', 'wp-simple-firewall' ),
 					'target' => '_blank',
 				],

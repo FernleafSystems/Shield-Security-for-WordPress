@@ -22,7 +22,7 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 			$logo = $opts->optGet( 'wl_dashboardlogourl' );
 		}
 		else {
-			$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
+			$badgeUrl = 'https://clk.shldscrty.com/wpsecurityfirewall';
 			$name = $con->labels->Name;
 			$logo = $con->urls->forImage( 'shield/shield-security-logo-colour-32px.png' );
 

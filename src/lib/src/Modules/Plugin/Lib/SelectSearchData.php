@@ -224,7 +224,7 @@ class SelectSearchData {
 						'id'          => 'external_review',
 						'text'        => __( 'Leave A Review', 'wp-simple-firewall' ),
 						'link'        => [
-							'href' => 'https://shsec.io/l1',
+							'href' => 'https://clk.shldscrty.com/l1',
 						],
 						'is_external' => true,
 						'tokens'      => 'review reviews stars',
@@ -234,7 +234,7 @@ class SelectSearchData {
 						'id'          => 'external_testimonials',
 						'text'        => __( 'Read Customer Testimonials', 'wp-simple-firewall' ),
 						'link'        => [
-							'href' => 'https://shsec.io/l2',
+							'href' => 'https://clk.shldscrty.com/l2',
 						],
 						'is_external' => true,
 						'tokens'      => 'review reviews testimonial testimonials',

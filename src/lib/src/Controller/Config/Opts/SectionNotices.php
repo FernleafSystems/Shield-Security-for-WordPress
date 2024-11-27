@@ -57,7 +57,7 @@ class SectionNotices {
 				$notices[] = \implode( '<br/>', [
 					__( 'Email-based 2-Factor Authentication needs a reliable email delivery system on your WordPress site.', 'wp-simple-firewall' ),
 					__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-					.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', \trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) )
+					.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://clk.shldscrty.com/dd', \trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) )
 				] );
 
 				break;

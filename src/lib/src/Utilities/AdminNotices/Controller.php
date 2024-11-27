@@ -373,7 +373,7 @@ class Controller {
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
 				'link_to_see'      => self::con()->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
-				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
+				'link_to_moreinfo' => 'https://clk.shldscrty.com/shieldtrackinginfo',
 			]
 		];
 	}

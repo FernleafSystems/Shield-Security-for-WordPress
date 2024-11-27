@@ -530,7 +530,7 @@ class StringsOptions {
 					__( 'CrowdSec Instance Enroll ID.', 'wp-simple-firewall' ),
 					__( 'You can link this WordPress site to your CrowdSec console by providing your Enroll ID.', 'wp-simple-firewall' ),
 					sprintf( '%s: <a href="%s" target="_blank">%s</a>', __( 'Login or Signup for your free CrowdSec console', 'wp-simple-firewall' ),
-						'https://shsec.io/crowdsecapp', 'https://app.crowdsec.net' ),
+						'https://clk.shldscrty.com/crowdsecapp', 'https://app.crowdsec.net' ),
 					empty( $machID ) ? __( "Your site isn't registered with CrowdSec yet.", 'wp-simple-firewall' )
 						: sprintf( __( "Your registered machine ID with CrowdSec is: %s", 'wp-simple-firewall' ), '<code>'.$machID.'</code>' ),
 				];
@@ -979,7 +979,7 @@ class StringsOptions {
 						__( "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it.", 'wp-simple-firewall' ),
 						sprintf(
 							'<p class="mt-2 text-center"><a href="%s" class="btn btn-secondary btn-sm" target="_blank">%s</a></p>',
-							'https://shsec.io/shieldwhatismyip',
+							'https://clk.shldscrty.com/shieldwhatismyip',
 							__( 'What Is My IP Address?', 'wp-simple-firewall' )
 						),
 						sprintf( __( "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address.", 'wp-simple-firewall' ),
@@ -1017,7 +1017,7 @@ class StringsOptions {
 					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
 					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral.", 'wp-simple-firewall' ),
-					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
+					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://clk.shldscrty.com/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
 				];
 				break;
 			case 'delete_on_deactivate':

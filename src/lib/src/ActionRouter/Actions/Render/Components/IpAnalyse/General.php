@@ -54,7 +54,7 @@ class General extends Base {
 				'has_geo' => !empty( $countryCode ),
 			],
 			'hrefs'   => [
-				'snapi_reputation_details' => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
+				'snapi_reputation_details' => URL::Build( 'https://clk.shldscrty.com/botornot', [ 'ip' => $ip ] ),
 			],
 			'strings' => [
 				'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),

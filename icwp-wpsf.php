@@ -1,13 +1,13 @@
 <?php
 /*
  * Plugin Name: Shield Security
- * Plugin URI: https://shsec.io/2f
+ * Plugin URI: https://clk.shldscrty.com/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
  * Version: 20.1.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
  * Author: Shield Security
- * Author URI: https://shsec.io/bv
+ * Author URI: https://clk.shldscrty.com/bv
  * Requires at least: 5.7
  * Requires PHP: 7.4
  */

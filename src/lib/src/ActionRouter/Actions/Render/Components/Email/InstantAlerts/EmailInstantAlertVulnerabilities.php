@@ -38,7 +38,7 @@ class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 					$VO = $WPP->getPluginAsVo( $alertItem );
 					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
 						'text' => sprintf( '%s v%s', $VO->Name, $VO->Version ),
-						'href' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+						'href' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
 							'type'    => 'plugin',
 							'slug'    => $VO->slug,
 							'version' => $VO->Version,
@@ -49,7 +49,7 @@ class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 					$VO = $WPT->getThemeAsVo( $alertItem );
 					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
 						'text' => sprintf( '%s v%s', $VO->Name, $VO->Version ),
-						'href' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+						'href' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
 							'type'    => 'plugin',
 							'slug'    => $VO->slug,
 							'version' => $VO->Version,

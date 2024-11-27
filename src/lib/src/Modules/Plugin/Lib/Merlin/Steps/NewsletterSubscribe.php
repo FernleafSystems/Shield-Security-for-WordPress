@@ -17,7 +17,7 @@ class NewsletterSubscribe extends Base {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		return [
 			'hrefs'   => [
-				'email' => 'https://shsec.io/pluginshieldsecuritynewsletter',
+				'email' => 'https://clk.shldscrty.com/pluginshieldsecuritynewsletter',
 			],
 			'strings' => [
 				'step_title' => __( 'Join The Shield Security Newsletter', 'wp-simple-firewall' ),

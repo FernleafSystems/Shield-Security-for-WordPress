@@ -227,7 +227,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			'value'       => '',
 			'text'        => __( 'Yubikey OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Use your Yubikey to generate a new code', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/4i'
+			'help_link'   => 'https://clk.shldscrty.com/4i'
 		];
 	}
 

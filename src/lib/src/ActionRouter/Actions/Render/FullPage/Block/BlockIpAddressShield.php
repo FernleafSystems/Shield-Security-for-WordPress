@@ -27,7 +27,7 @@ class BlockIpAddressShield extends BaseBlock {
 				'has_magiclink'   => !empty( $magicLink ),
 			],
 			'hrefs'   => [
-				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
+				'how_to_unblock' => 'https://clk.shldscrty.com/shieldhowtounblock',
 			],
 			'strings' => [
 				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), self::con()->labels->Name ),
