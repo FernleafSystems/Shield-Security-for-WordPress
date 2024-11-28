@@ -67,7 +67,7 @@ export class ProgressMeters extends BaseAutoExecComponent {
 							.finally();
 		} );
 		shieldEventsHandler_Main.add_Click( 'div.progress-metercard .description > :not(.alert)', ( targetEl ) => {
-			targetEl.querySelectorAll( '.toggleable' ).forEach(
+			targetEl.querySelectorAll( '.toggleable-text' ).forEach(
 				( toggleableElem ) => toggleableElem.classList.toggle( 'hidden' )
 			);
 		} );

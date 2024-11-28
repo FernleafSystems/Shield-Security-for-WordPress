@@ -61,6 +61,8 @@ export class OffCanvasService extends BaseComponent {
 			if ( resp.success ) {
 				OffCanvasService.offCanvasEl.classList.add( canvasProperties.render_slug );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
+
+				global.shieldAppMain.components.bootstrap_tooltips.registerNewTooltipsWithin( OffCanvasService.offCanvasEl );
 			}
 			else if ( typeof resp.data.error !== 'undefined' ) {
 				alert( resp.data.error );

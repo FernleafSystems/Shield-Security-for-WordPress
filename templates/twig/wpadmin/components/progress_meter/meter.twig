@@ -38,15 +38,15 @@
 				{% endif %}
 
 				<div class="">
-					<div class="{% if meter.description|length > 1 %}toggleable{% endif %}">
+					<div class="{% if meter.description|length > 1 %}toggleable-text{% endif %}">
 						<p class="mb-2">{{ meter.description|first }}</p>
 					</div>
-					<div class="hidden {% if meter.description|length > 1 %}toggleable{% endif %}">
+					<div class="hidden {% if meter.description|length > 1 %}toggleable-text{% endif %}">
 						{% for desc in meter.description %}
 							<p class="mb-2">{{ desc }}</p>
 						{% endfor %}
 					</div>
-					<div class="mt-2 {% if meter.description|length > 1 %}toggleable{% else %}hidden{% endif %}">
+					<div class="mt-2 {% if meter.description|length > 1 %}toggleable-text{% else %}hidden{% endif %}">
 						<a href="javascript:{}" class="d-block fst-italic">more...</a>
 					</div>
 				</div>

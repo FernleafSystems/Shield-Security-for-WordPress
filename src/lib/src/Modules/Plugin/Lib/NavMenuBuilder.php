@@ -397,7 +397,7 @@ class NavMenuBuilder {
 			'slug'    => $primaryNavSlug.'-config',
 			'title'   => __( 'Config', 'wp-simple-firewall' ),
 			'img'     => self::con()->svgs->raw( 'gear' ),
-			'tooltip' => empty( $tooltip ) ? __( 'Configuration' ) : $tooltip,
+			'tooltip' => empty( $tooltip ) ? __( 'Edit Settings' ) : $tooltip,
 			'classes' => [
 				'zone_component_action',
 			],

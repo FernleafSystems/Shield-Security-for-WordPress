@@ -14,9 +14,10 @@ class ConfigForZoneComponents extends Base {
 
 	protected function getPageTitle() :string {
 		return sprintf( '%s > %s',
-			__( 'Configuration', 'wp-simple-firewall' ),
-			self::con()->comps->zones->getZoneComponent( \current( $this->action_data[ 'zone_component_slugs' ] ) )
-									 ->title()
+			__( 'Edit Settings', 'wp-simple-firewall' ),
+			self::con()->comps->zones
+				->getZoneComponent( \current( $this->action_data[ 'zone_component_slugs' ] ) )
+				->title()
 		);
 	}
 

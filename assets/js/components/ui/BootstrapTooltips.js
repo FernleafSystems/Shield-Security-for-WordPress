@@ -31,24 +31,23 @@ export class BootstrapTooltips extends BaseComponent {
 		shieldEventsHandler_Main.add_Mouseover(
 			'[data-bs-toggle="tooltip"]',
 			( targetEl ) => {
-				let found = false;
-				this.actionTooltips.forEach( ( tt ) => {
-					if ( tt === targetEl ) {
-						found = true;
-					}
-				} );
-				if ( !found ) {
-					this.actionTooltips.push( Tooltip.getOrCreateInstance( targetEl ) );
-				}
+				Tooltip.getOrCreateInstance( targetEl )
 			},
 			false
 		);
 		shieldEventsHandler_Main.add_Mouseout(
 			'[data-bs-toggle="tooltip"]',
 			( targetEl ) => {
-				this.actionTooltips.pop();
+				// this.actionTooltips.pop();
 			},
 			false
 		);
 	};
+
+	registerNewTooltipsWithin( container ) {
+		if ( container ) {
+			container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => Tooltip.getOrCreateInstance( targetEl ) );
+		}
+		console.log( container );
+	}
 }

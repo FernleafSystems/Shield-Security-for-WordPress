@@ -34,7 +34,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		$actions = [];
 		if ( $this->hasConfigAction() ) {
 			$actions[ 'config' ] = [
-				'title'   => __( 'Configure Options', 'wp-simple-firewall' ),
+				'title'   => __( 'Edit Settings', 'wp-simple-firewall' ),
 				'data'    => [
 					'zone_component_action' => ZoneComponentConfig::SLUG,
 					'zone_component_slug'   => static::Slug(),

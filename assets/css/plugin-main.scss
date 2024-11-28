@@ -463,6 +463,27 @@ table.odp-table.scan-table td.column-path code {
   padding: 10px 0;
 }
 
+.options_form_for .option_form_row.row .option-help-container {
+  opacity: 0.3;
+  transition: opacity 0.5s;
+}
+.options_form_for .option_form_row.row .option-help-container a {
+  color: $dark;
+  transition: color 0.5s;
+}
+
+.options_form_for .option_form_row.row:hover .option-help-container {
+  opacity: 1.0;
+}
+.options_form_for .option_form_row.row:hover .option-help-container a {
+  color: $primary !important;
+}
+
+.option-help-container .svg-container > svg {
+  width: 18px;
+  height: 18px;
+}
+
 .options_form_for .option-description {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -902,6 +923,14 @@ body.folded #FooterBannerGoPro {
   line-height: 3.5rem;
 }
 
+.toggleable-text {
+  cursor: pointer;
+}
+
+.tooltip {
+  background-color: #0f630f !important;
+}
+
 .progress-metercard .letter-score {
   position: absolute;
   font-size: 3rem;
@@ -915,10 +944,6 @@ body.folded #FooterBannerGoPro {
 
 .progress-metercard.progress-metercard-summary .description {
   border-bottom-color: transparent;
-}
-
-.progress-metercard .toggleable {
-  cursor: pointer;
 }
 
 .progress-metercard-summary {
@@ -1113,14 +1138,17 @@ td.status_file_size {
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+#AptoOffcanvas.offcanvas {
+  min-width: 600px;
+}
+
 #AptoOffcanvas.offcanvas_modconfig,
 #AptoOffcanvas.offcanvas_zone_component_config {
-  width: 80%;
+  width: 50%;
 }
 
 #AptoOffcanvas.offcanvas_meter_analysis {
   background-color: #ffffff;
-  width: 600px;
 }
 
 #AptoOffcanvas.offcanvas_ipanalysis {

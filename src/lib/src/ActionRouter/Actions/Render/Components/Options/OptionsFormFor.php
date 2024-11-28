@@ -14,12 +14,12 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 		$options = $this->action_data[ 'options' ];
 		return [
 			'strings' => [
-				'inner_page_title'    => __( 'Configuration' ),
+				'inner_page_title'    => __( 'Edit Settings' ),
 				'import_export'       => __( 'Import/Export' ),
 				'is_opt_importexport' => __( 'Check to include this option in import/export' ),
 			],
 			'flags'   => [
-				'show_transfer_switch' => $con->isPremiumActive(),
+				'show_transfer_switch' => $con->isPremiumActive() && !empty( $con->comps->import_export->getImportExportMasterImportUrl() ),
 			],
 			'imgs'    => [
 				'svgs' => [
