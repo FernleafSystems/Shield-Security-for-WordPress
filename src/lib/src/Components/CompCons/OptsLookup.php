@@ -61,7 +61,7 @@ class OptsLookup {
 	}
 
 	public function getActivatedPeriod() :int {
-		return Services::Request()->ts() - self::con()->opts->optGet( 'antibot_minimum' );
+		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
 	}
 
 	public function getAntiBotMinScore() :int {

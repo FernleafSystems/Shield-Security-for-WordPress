@@ -17,10 +17,7 @@ class MerlinController {
 	}
 
 	protected function run() {
-		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook ) {
-			$assets[] = 'shield/tp/vimeo_player';
-			return $assets;
-		}, 10, 2 );
+		add_filter( 'shield/custom_enqueue_assets', fn( array $assets ) => \array_merge( $assets, [ 'shield/tp/vimeo_player' ] ) );
 	}
 
 	/**
@@ -43,18 +40,14 @@ class MerlinController {
 	 */
 	public function buildSteps( string $wizardKey ) :array {
 		return \array_map(
-			function ( $handler ) {
-				return [
-					'step_slug' => $handler::SLUG,
-					'step_name' => $handler->getName(),
-					'step_body' => $handler->render(),
-				];
-			},
+			fn( $handler ) => [
+				'step_slug' => $handler::SLUG,
+				'step_name' => $handler->getName(),
+				'step_body' => $handler->render(),
+			],
 			\array_filter(
 				$this->getWizardHandlers( $wizardKey ),
-				function ( $handler ) {
-					return !$handler->skipStep();
-				}
+				fn( $handler ) => !$handler->skipStep()
 			)
 		);
 	}
@@ -76,16 +69,11 @@ class MerlinController {
 	 * @throws \Exception
 	 */
 	private function getWizardHandlers( string $wizardKey ) :array {
-		return \array_map(
-			function ( string $handlerClass ) {
-				return new $handlerClass();
-			},
-			$this->getWizardSteps( $wizardKey )
-		);
+		return \array_map( fn( string $handlerClass ) => new $handlerClass(), $this->getWizardSteps( $wizardKey ) );
 	}
 
 	/**
-	 * @return Steps\Base[]|string|null
+	 * @return Steps\Base|string|null
 	 */
 	private function getHandlerFromSlug( string $slug ) :?string {
 		$theHandler = null;
