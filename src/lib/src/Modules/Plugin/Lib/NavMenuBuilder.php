@@ -115,10 +115,13 @@ class NavMenuBuilder {
 				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
 				'body'  => __( "Review IP Rules that control whether a site visitor is blocked.", 'wp-simple-firewall' ),
 			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [
-				IpBlockingRules::Slug(),
-				SilentCaptcha::Slug(),
-			] ),
+			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY,
+				[
+					IpBlockingRules::Slug(),
+					SilentCaptcha::Slug(),
+				],
+				__( 'Edit IP block settings', 'wp-simple-firewall' )
+			),
 		];
 	}
 
@@ -135,10 +138,13 @@ class NavMenuBuilder {
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
 			],
-			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY, [
-				ActivityLogging::Slug(),
-				RequestLogging::Slug()
-			] ),
+			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY,
+				[
+					ActivityLogging::Slug(),
+					RequestLogging::Slug()
+				],
+				__( 'Edit all activity log settings', 'wp-simple-firewall' )
+			),
 			'sub_items' => [
 				$this->createSubItemForNavAndSub( __( 'WP Activity Log' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				$this->createSubItemForNavAndSub( __( 'HTTP Request Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
@@ -154,7 +160,10 @@ class NavMenuBuilder {
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'shield-shaded' ),
-			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS, [ ModuleScans::Slug(), ] ),
+			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS,
+				[ ModuleScans::Slug(), ],
+				__( 'Edit all scan settings', 'wp-simple-firewall' )
+			),
 			'sub_items' => [
 				$this->createSubItemForNavAndSub(
 					__( 'Results', 'wp-simple-firewall' ),
@@ -182,9 +191,10 @@ class NavMenuBuilder {
 				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
 				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->labels->Name ),
 			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_DASHBOARD, [
-				ModulePlugin::Slug(),
-			] ),
+			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_DASHBOARD,
+				[ ModulePlugin::Slug() ],
+				__( 'Edit general plugin settings', 'wp-simple-firewall' )
+			),
 		];
 	}
 
@@ -376,10 +386,13 @@ class NavMenuBuilder {
 				'title' => __( 'Reports', 'wp-simple-firewall' ),
 				'body'  => __( "Security Reports.", 'wp-simple-firewall' ),
 			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_REPORTS, [
-				InstantAlerts::Slug(),
-				Reporting::Slug()
-			] ),
+			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_REPORTS,
+				[
+					InstantAlerts::Slug(),
+					Reporting::Slug()
+				],
+				__( 'Edit reporting settings', 'wp-simple-firewall' )
+			),
 		];
 	}
 

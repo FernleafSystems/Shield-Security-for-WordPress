@@ -14,6 +14,10 @@ class XmlRpcDisable extends Base {
 		return __( 'Disable the XML-RPC endpoint and block all requests.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Switch on/off access to the XML-RPC endpoint', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

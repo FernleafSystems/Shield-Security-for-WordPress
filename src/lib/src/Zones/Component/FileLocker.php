@@ -14,6 +14,10 @@ class FileLocker extends Base {
 		return __( "Protect key WP core files that can't normally be protected.", 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit which key files to protect', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

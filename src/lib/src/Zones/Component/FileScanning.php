@@ -14,6 +14,10 @@ class FileScanning extends Base {
 		return __( 'Regularly scan the WordPress filesystem for infections, suspicious code, or unexpected changes.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit automatic file scanning settings', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

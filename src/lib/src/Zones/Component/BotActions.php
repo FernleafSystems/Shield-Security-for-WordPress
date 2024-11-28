@@ -16,6 +16,10 @@ class BotActions extends Base {
 			self::con()->labels->Name );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Control the response to specific bot requests', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

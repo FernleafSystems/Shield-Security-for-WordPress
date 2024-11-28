@@ -14,6 +14,10 @@ class UsernameFishingBlock extends Base {
 		return __( 'Block requests that attempt to fish for WordPress usernames.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Switch on/off username fishing detection', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

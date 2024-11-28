@@ -18,6 +18,10 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return __( 'No Subtitle Yet', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return '';
+	}
+
 	public function explanation() :array {
 		return $this->status()[ 'exp' ];
 	}
@@ -35,10 +39,18 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		if ( $this->hasConfigAction() ) {
 			$actions[ 'config' ] = [
 				'title'   => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'data'    => [
-					'zone_component_action' => ZoneComponentConfig::SLUG,
-					'zone_component_slug'   => static::Slug(),
-				],
+				'data'    => \array_merge(
+					[
+						'zone_component_action' => ZoneComponentConfig::SLUG,
+						'zone_component_slug'   => static::Slug(),
+					],
+					empty( $this->tooltip() ) ? [] : [
+						'bs-toggle'    => 'tooltip',
+						'bs-trigger'   => 'hover',
+						'bs-placement' => 'right',
+						'bs-title'     => $this->tooltip(),
+					]
+				),
 				'icon'    => self::con()->svgs->raw( 'gear' ),
 				'classes' => [
 					'zone_component_action',

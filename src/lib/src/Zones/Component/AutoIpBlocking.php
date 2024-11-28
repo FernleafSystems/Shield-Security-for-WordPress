@@ -14,6 +14,10 @@ class AutoIpBlocking extends Base {
 		return __( 'Monitor for malicious visitors and automatically block their IP addresses.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings that control automatic IP blocking', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

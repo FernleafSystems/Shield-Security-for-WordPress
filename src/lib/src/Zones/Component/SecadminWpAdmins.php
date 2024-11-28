@@ -14,6 +14,10 @@ class SecadminWpAdmins extends Base {
 		return __( 'Prevent creation, deletion, or demotion of WordPress administrator accounts.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Switch on/off ability of admins to manage other admin accounts', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

@@ -17,6 +17,10 @@ class LoginProtectionForms extends Base {
 		return sprintf( __( 'Select which user forms should be protected against brute-force attacks.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings that apply protection to your login & user forms', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

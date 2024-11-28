@@ -3,11 +3,11 @@ import { Popover, Tooltip } from 'bootstrap';
 
 export class BootstrapTooltips extends BaseComponent {
 	init() {
-		this.popovers();
+		// this.popovers();
 		this.tooltips();
 	}
 
-	popovers() {
+	popovers1() {
 		/*
 		shieldEventsHandler_Main.add_Mouseover(
 			'[data-bs-toggle="popover"]',
@@ -26,19 +26,23 @@ export class BootstrapTooltips extends BaseComponent {
 		 */
 	};
 
+	popovers() {
+		this.actionTooltips = [];
+		shieldEventsHandler_Main.add_Mouseover(
+			'[data-bs-toggle="popover"]',
+			( targetEl ) => {
+				Popover.getOrCreateInstance( targetEl )
+			},
+			false
+		);
+	};
+
 	tooltips() {
 		this.actionTooltips = [];
 		shieldEventsHandler_Main.add_Mouseover(
 			'[data-bs-toggle="tooltip"]',
 			( targetEl ) => {
 				Tooltip.getOrCreateInstance( targetEl )
-			},
-			false
-		);
-		shieldEventsHandler_Main.add_Mouseout(
-			'[data-bs-toggle="tooltip"]',
-			( targetEl ) => {
-				// this.actionTooltips.pop();
 			},
 			false
 		);

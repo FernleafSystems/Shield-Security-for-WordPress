@@ -14,6 +14,10 @@ class InactiveUsers extends Base {
 		return __( 'Disable account access for inactive users.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings on user auto-suspension', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

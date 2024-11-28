@@ -14,6 +14,10 @@ class PwnedPasswords extends Base {
 		return __( 'Prevent use of Pwned Passwords.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( "Edit settings to prevent use of 'pwned' passwords", 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

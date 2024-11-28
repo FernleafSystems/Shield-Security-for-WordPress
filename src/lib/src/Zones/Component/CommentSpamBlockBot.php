@@ -14,6 +14,10 @@ class CommentSpamBlockBot extends Base {
 		return __( 'Block the most common form of WordPress Comment SPAM.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit bot-SPAM comment settings', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

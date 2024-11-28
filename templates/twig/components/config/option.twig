@@ -55,11 +55,13 @@
 
 				{% if option.vimeo_id|default('') is not empty %}
 					<a href="#"
-					   class="d-inline-block option-video me-1"
-					   title="View the video about this option"
+					   class="d-inline-block me-1 svg-container "
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="Watch the video about this option"
 					   data-vimeoid="{{ option.vimeo_id }}"
-					   style="background: no-repeat no-repeat url('data:image/svg+xml,{{ imgs.svgs.video|url_encode }}'); width: 16px; height: 16px"
-					>&nbsp;</a>
+					>{{ imgs.svgs.video|raw }}</a>
 				{% endif %}
 
 				{% if option.link_blog %}
@@ -68,7 +70,7 @@
 					   data-bs-toggle="tooltip"
 					   data-bs-trigger="hover"
 					   data-bs-placement="top"
-					   data-bs-title="Read the blog article about this topic"
+					   data-bs-title="{{ strings.opt_info_blog }}"
 					>{{ imgs.svgs.blog|raw }}</a>
 				{% endif %}
 

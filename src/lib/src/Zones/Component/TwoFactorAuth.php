@@ -14,6 +14,10 @@ class TwoFactorAuth extends Base {
 		return __( "It's best practice to protect user access with at least one 2FA method.", 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings for the most common 2FA factors', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

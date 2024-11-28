@@ -15,6 +15,10 @@ class SilentCaptcha extends Base {
 			self::con()->labels->Name );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings that control how silentCAPTCHA detects bots', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @return array{level:string,expl:string[]}
 	 */

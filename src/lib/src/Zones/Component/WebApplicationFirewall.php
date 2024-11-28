@@ -15,6 +15,10 @@ class WebApplicationFirewall extends Base {
 		return __( 'Block requests to the site that contain suspicious data.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit WAF settings', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */
