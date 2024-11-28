@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Spam extends Base {
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire SPAM blocking zone';
+	}
+
 	public function components() :array {
 		return [
 			Component\CommentSpamBlockBot::class,

@@ -102,7 +102,7 @@ export class Navigation extends BaseComponent {
 		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
 		}
-		this.activeMenuItem.classList.add( 'active' );
+		this.activeMenuItem.closest( '.nav-link' ).classList.add( 'active' );
 
 		let parentNav = this.activeMenuItem.closest( 'ul' ).closest( 'li.nav-item' );
 		if ( parentNav !== null ) {

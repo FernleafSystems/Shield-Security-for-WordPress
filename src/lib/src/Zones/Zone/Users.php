@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Users extends Base {
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire Users Zone';
+	}
+
 	public function components() :array {
 		return [
 			Component\PwnedPasswords::class,

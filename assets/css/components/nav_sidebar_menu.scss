@@ -2,7 +2,8 @@
 #NavSideBar .nav-link:hover {
 }
 
-#NavSideBar .nav-link.active {
+#NavSideBar .nav-link.active,
+.primary_side_sub_menu > li > a.active {
   font-weight: bolder;
   font-size: 0.8rem;
   background-color: #fbfbfb;
@@ -71,25 +72,31 @@
 .primary_side_sub_menu {
 }
 
-.primary_side_sub_menu a {
-  border-left: 1px solid transparent;
-  padding-left: 24px;
+.primary_side_sub_menu > li a {
   text-decoration: none;
-  color: #111111;
 }
-
-.primary_side_sub_menu a:hover {
-  border-left: 3px solid rgba(0, 128, 0, 0.3);
-  padding-left: 22px;
-  color: #008000;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
-
-.primary_side_sub_menu a.nav-link {
+.primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
+  border-left: 3px solid transparent;
   color: $secondary;
 }
+.primary_side_sub_menu > li > .nav-link > a.zone_config {
+  color: $primary;
+}
+.primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
+  border-left: 1px solid transparent;
+  padding-left: 24px;
+}
 
-.primary_side_sub_menu a.nav-link.active {
+.primary_side_sub_menu > li > .nav-link:hover > a {
+}
+.primary_side_sub_menu > li > .nav-link:hover > a:not(.zone_config) {
+  border-left: 3px solid rgba(0, 128, 0, 0.3);
+  //padding-left: 22px;
+  color: $primary;
+  //text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.primary_side_sub_menu .nav-link.active > a:not(.zone_config) {
   color: $primary;
   border-left: 3px solid rgba(0, 128, 0, 0.7);
   padding-left: 20px;
@@ -98,22 +105,23 @@
 .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
 }
 
-.top-level-nav > li.nav-item > .nav-link > a.zone_component_action .svg-container {
+.top-level-nav li > .nav-link > a.zone_component_action .svg-container {
   border: 1px solid transparent;
   border-radius: 10px;
   padding: 0 5px 1px;
 }
 
-.top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container {
+.top-level-nav li:hover > .nav-link > a.zone_component_action .svg-container {
   //border-color: $primary;
   background-color: rgba(0, 128, 0, 0.1);
 }
 
-.top-level-nav > li.nav-item > .nav-link > a.zone_component_action .svg-container > svg {
+.top-level-nav > li > .nav-link > a.zone_component_action .svg-container > svg {
   transform: rotate(0deg);
   transition: transform 0.5s;
 }
 
+.primary_side_sub_menu > li:hover a.zone_config .svg-container > svg,
 .top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > svg {
   transform: rotate(45deg);
   transition: transform 0.3s;

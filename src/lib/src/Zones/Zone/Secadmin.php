@@ -30,6 +30,10 @@ class Secadmin extends Base {
 		return $actions;
 	}
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire Security Admin zone';
+	}
+
 	public function components() :array {
 		return [
 			Component\SecadminEnabled::class,

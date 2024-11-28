@@ -78,17 +78,40 @@
 					 data-bs-parent="#ShieldCollapseNav"
 				>
 					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
-						{% for sub in mitem.sub_items %}
+						{% for sub_item in mitem.sub_items %}
 							<li class="mb-0 pl-0 py-0">
-							<a class="py-1 m0-1 pe-0 nav-link fs-6 {{ sub.classes|default([])|join( ' ' ) }}"
-							   href="{{ sub.href|default('#') }}"
-							   {% if sub.tooltip|default(false) is not empty %}title="{{ sub.tooltip }}"{% endif %}
-									{% for data_key,data_val in sub.data|default([]) %}
-										data-{{ data_key }}="{{ data_val }}"
-									{% endfor %}
-									{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
-							>{{ sub.title }}</a>
-						</li>
+
+								<span class="nav-link d-flex justify-content-between py-1 pe-1 ps-0 {{ sub_item.active ? 'active':'' }} ">
+
+									<a class="flex-fill fs-6 {{ sub_item.classes|default([])|join( ' ' ) }}"
+									   href="{{ sub_item.href|default('#') }}"
+									   {% if sub_item.tooltip|default(false) is not empty %}title="{{ sub_item.tooltip }}"{% endif %}
+											{% for data_key,data_val in sub_item.data|default([]) %}
+												data-{{ data_key }}="{{ data_val }}"
+											{% endfor %}
+											{% if sub_item.target|default('') is not empty %}target="{{ sub_item.target }}"{% endif %}
+									>
+										{{ sub_item.title }}
+									</a>
+
+									{% if sub_item.config|default(null) is not empty %}
+										<a class="zone_config text-end fs-6 {{ sub_item.config.classes|default([])|join( ' ' ) }}"
+										   href="{{ sub_item.config.href|default('#') }}"
+										   {% if sub_item.config.tooltip|default(false) is not empty %}title="{{ sub_item.config.tooltip }}"{% endif %}
+												{% for data_key,data_val in sub_item.config.data|default([]) %}
+													data-{{ data_key }}="{{ data_val }}"
+												{% endfor %}
+												{% if sub_item.config.tooltip|default(false) is not empty %}
+													data-bs-toggle="tooltip"
+													data-bs-placement="right"
+													data-bs-title="{{ sub_item.config.tooltip }}"
+												{% endif %}
+										><span class="svg-container">{{ sub_item.config.icon|raw }}</span></a>
+									{% endif %}
+
+								</span>
+
+							</li>
 						{% endfor %}
 					</ul>
 				</div>

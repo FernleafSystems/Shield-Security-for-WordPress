@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Ips extends Base {
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire IP Blocking Zone';
+	}
+
 	public function components() :array {
 		return [
 			Component\AutoIpBlocking::class,

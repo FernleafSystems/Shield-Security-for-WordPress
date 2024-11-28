@@ -115,13 +115,13 @@ class NavMenuBuilder {
 				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
 				'body'  => __( "Review IP Rules that control whether a site visitor is blocked.", 'wp-simple-firewall' ),
 			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY,
-				[
-					IpBlockingRules::Slug(),
-					SilentCaptcha::Slug(),
-				],
-				__( 'Edit IP block settings', 'wp-simple-firewall' )
-			),
+//			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_IPS,
+//				[
+//					IpBlockingRules::Slug(),
+//					SilentCaptcha::Slug(),
+//				],
+//				__( 'Edit IP block settings', 'wp-simple-firewall' )
+//			),
 		];
 	}
 
@@ -160,10 +160,10 @@ class NavMenuBuilder {
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'shield-shaded' ),
-			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS,
-				[ ModuleScans::Slug(), ],
-				__( 'Edit all scan settings', 'wp-simple-firewall' )
-			),
+//			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS,
+//				[ ModuleScans::Slug(), ],
+//				__( 'Edit all scan settings', 'wp-simple-firewall' )
+//			),
 			'sub_items' => [
 				$this->createSubItemForNavAndSub(
 					__( 'Results', 'wp-simple-firewall' ),
@@ -210,6 +210,7 @@ class NavMenuBuilder {
 				'tooltip' => $zone->subtitle(),
 				'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ZONES, $slug ),
 				'classes' => \array_filter( \array_merge( $this->getBaseDynamicLoadClasses(), [] ) ),
+				'config'  => $zone->getAction_Config(),
 				'data'    => [
 					'dynamic_page_load' => \wp_json_encode( [
 						'dynamic_load_slug' => Zone::SLUG,
