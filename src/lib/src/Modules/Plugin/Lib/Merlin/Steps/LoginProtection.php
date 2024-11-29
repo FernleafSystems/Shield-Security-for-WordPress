@@ -24,21 +24,17 @@ class LoginProtection extends Base {
 	}
 
 	public function processStepFormSubmit( array $form ) :Response {
-		$value = $form[ 'LoginProtectOption' ] ?? '';
-		if ( empty( $value ) ) {
-			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
-		}
 		$opts = self::con()->opts;
 
+		$value = $form[ 'LoginProtectOption' ] ?? '';
 		$locs = $opts->optGet( 'bot_protection_locations' );
-		$locs = $value === 'Y' ? \array_unshift( $locs, 'login' ) : \array_diff( $locs, [ 'login' ] );
-		$opts->optSet( 'bot_protection_locations', \array_unique( $locs ) )
-			 ->store();
+		$value === 'Y' ? \array_unshift( $locs, 'login' ) : ( $locs = \array_diff( $locs, [ 'login' ] ) );
+		$opts->optSet( 'bot_protection_locations', \array_unique( $locs ) )->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->message = $value === 'Y' ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
-			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
+		$resp->message = $value === 'Y' ? __( 'Your WordPress login form is now protected', 'wp-simple-firewall' )
+			: __( 'Your WordPress login form is unprotected', 'wp-simple-firewall' );
 		return $resp;
 	}
 }

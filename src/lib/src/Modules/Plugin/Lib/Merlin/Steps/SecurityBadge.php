@@ -25,10 +25,6 @@ class SecurityBadge extends Base {
 
 	public function processStepFormSubmit( array $form ) :Response {
 		$value = $form[ 'SecurityPluginBadge' ] ?? '';
-		if ( empty( $value ) ) {
-			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
-		}
-
 		$toEnable = $value === 'Y';
 		self::con()->opts->optSet( 'display_plugin_badge', $toEnable ? 'Y' : 'N' )->store();
 
