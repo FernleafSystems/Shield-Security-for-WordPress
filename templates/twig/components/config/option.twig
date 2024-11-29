@@ -253,7 +253,7 @@
 
 
 		<div id="Description-{{ option.key }}"
-			 class="option-description option-description-{{ option.key }} ps-3 pt-2 hidden">
+			 class="option-description option-description-{{ option.key }} ps-3 pt-2 {{ option.is_focus ? '':'hidden' }}">
 			{% for desc in option.description %}
 				<p>{{ desc|raw }}</p>
 			{% endfor %}

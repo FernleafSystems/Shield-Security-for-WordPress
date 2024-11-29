@@ -1,66 +1,64 @@
 {% block body %}
-  {% block body_components %}
+	{% block body_components %}
+		<div class="mb-4">
+			<h4 class="m-0">{{ strings.total_score }}:
+				<span class="badge bg-dark text-white float-end">{{ vars.total_percentage_score }}/100</span>
+			</h4>
+		</div>
 
-	  <div class="mb-4">
-		  <h4 class="m-0">{{ strings.total_score }}:
-			  <span class="badge bg-dark text-white float-end">
-				 {{ vars.total_percentage_score }}/100
-			  </span>
-		  </h4>
-	  </div>
-
-	  <ul class="list-group">
+		<ul class="list-group component-list">
 
 		  {% for slug,comp in vars.components %}
-			  {% if comp.href_full is empty %}
-				  <span
-			  {% else %}
-				  <a href="{{ comp.href_full }}"
-				  {% if comp.is_optcfg|default(false) or not comp.href_full_target_blank %}{% else %}target="_blank"{% endif %}
-			  {% endif %}
-			  data-config_item="{{ comp.config_item }}"
-			  {% for key, value in comp.href_data %}data-{{ key }}="{{ value }}"{% endfor %}
-			  class="list-group-item list-group-item-action meter-analysis-link
-				     {% if comp.is_optcfg %}zone_component_action{% endif %}
-				     {{ comp.is_critical|default(false) ? 'list-group-item-danger' : (comp.is_protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
-			  aria-current="true">
+			  <li class="component-item position-relative list-group-item list-group-item-action
+				     {{ comp.is_critical|default(false) ? 'list-group-item-danger' : (comp.is_protected ? 'list-group-item-success' : 'list-group-item-warning') }}">
+			  <div class="component-content">
 
 			  <div class="w-100">
-					  <h5 class="mb-1">{{ comp.title|default('NO Title') }}
-						  <div class="float-end">
-							  {% if comp.score == 0 %}
-								  <span class="badge bg-dark text-white opacity-25">
-									 0/{{ comp.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
-								  </span>
-							  {% elseif comp.score == comp.weight %}
-								  <span class="badge bg-dark text-white">
-									 &plus;{{ comp.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
-								  </span>
-							  {% else %}
-								  <span class="badge bg-secondary text-white ">
-									 &plus;{{ comp.score_as_percent }}/{{ comp.weight_as_percent|default(0) }}<small
-											  style="font-size: xx-small;">pts</small>
-								  </span>
-							  {% endif %}
-						  </div>
-					  </h5>
-				  </div>
+				  <h5 class="mb-1">{{ comp.title|default('NO Title') }}
+					  <div class="float-end">
+						  {% if comp.score == 0 %}
+							  <span class="badge bg-dark text-white opacity-25">
+								 0/{{ comp.weight_as_percent|default(0) }}<small
+										  style="font-size: xx-small;">pts</small>
+							  </span>
+						  {% elseif comp.score == comp.weight %}
+							  <span class="badge bg-dark text-white">
+								 &plus;{{ comp.weight_as_percent|default(0) }}<small
+										  style="font-size: xx-small;">pts</small>
+							  </span>
+						  {% else %}
+							  <span class="badge bg-secondary text-white ">
+								 &plus;{{ comp.score_as_percent }}/{{ comp.weight_as_percent|default(0) }}<small
+										  style="font-size: xx-small;">pts</small>
+							  </span>
+						  {% endif %}
+					  </div>
+				  </h5>
+			  </div>
 
 			  <p class="mb-1">
 				  {{ comp.is_protected ? comp.desc_protected|default('NO DESCRIPTION') : comp.desc_unprotected|default('NO DESCRIPTION') }}
 			  </p>
 
-			  {% if comp.href_full is empty %}
-				  </span>
-			  {% else %}
-				  </a>
-			  {% endif %}
+			  </div>
+			  <div class="component-overlay">
 
+				  {% if comp.href_full is not empty %}
+					  <a href="{{ comp.href_full }}"
+						 class="meter-analysis-link component-overlay-text btn btn-secondary py-1 p-3 {% if comp.is_optcfg %}zone_component_action{% endif %}"
+						 {% if comp.is_optcfg|default(false) or not comp.href_full_target_blank %}{% else %}target="_blank"{% endif %}
+						 data-config_item="{{ comp.config_item }}"
+							  {% for key, value in comp.href_data %}data-{{ key }}="{{ value }}"{% endfor %}>
+						  {{ comp.is_protected ? 'Review' : 'Fix' }}
+					  </a>
+				  {% endif %}
+			  </div>
+		  </li>
 		  {% endfor %}
 	  </ul>
-  {% endblock %}
+	{% endblock %}
 
-  <p class="mt-4">
+	<p class="mt-4">
   * {{ strings.scores_footnote1 }} {{ strings.scores_footnote2 }}
   </p>
 {% endblock %}

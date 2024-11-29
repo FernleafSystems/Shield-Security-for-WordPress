@@ -30,11 +30,9 @@
 			  </h6>
 
 				{% if meter.warning|default([]) is not empty %}
-					<div class="alert alert-danger">
-			      {{ meter.warning.text }}
-						<a href="{{ meter.warning.href }}" class="alert-link"
-						   target="_blank">{{ strings.view_details }}</a>
-		      </div>
+					<div class="alert alert-danger">{{ meter.warning.text }}
+						<a href="{{ meter.warning.href }}" class="alert-link" target="_blank">{{ strings.view_details }}</a>
+					</div>
 				{% endif %}
 
 				<div class="">

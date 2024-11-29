@@ -16,6 +16,7 @@ $code-color: $secondary;
 @import "./plugin-wpadmin.scss";
 @import './shield/datatables.css';
 @import './shield/merlin.css';
+@import './shield/meters.scss';
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 @import './shield/zones';
@@ -1145,10 +1146,6 @@ td.status_file_size {
 #AptoOffcanvas.offcanvas_modconfig,
 #AptoOffcanvas.offcanvas_zone_component_config {
   width: 50%;
-}
-
-#AptoOffcanvas.offcanvas_meter_analysis {
-  background-color: #ffffff;
 }
 
 #AptoOffcanvas.offcanvas_ipanalysis {
