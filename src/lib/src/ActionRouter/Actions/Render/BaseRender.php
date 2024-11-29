@@ -231,6 +231,7 @@ abstract class BaseRender extends BaseAction {
 			'view_details'      => __( 'View Details', 'wp-simple-firewall' ),
 			'opt_info_helpdesk' => __( 'View HelpDesk article', 'wp-simple-firewall' ),
 			'opt_info_blog'     => __( 'View Blog article', 'wp-simple-firewall' ),
+			'opt_info_video'    => __( 'Watch the explainer video', 'wp-simple-firewall' ),
 			'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 			'username'          => __( 'Username' ),
 			'blog'              => __( 'Blog', 'wp-simple-firewall' ),

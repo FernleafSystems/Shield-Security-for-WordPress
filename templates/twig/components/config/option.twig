@@ -13,13 +13,13 @@
 			<div class="mt-1 text-start text-nowrap">
 
 				{% if option.description|length > 0 %}
-					{#					{{ _self.options_helper(#}
-					{#						imgs.svgs.expand,#}
-					{#						'Expand description',#}
-					{#						'javascript:{}',#}
-					{#						['option-description-expander'],#}
-					{#						['data-option_description_key="'~option.key~"']#}
-					{#					) }}#}
+					{#                    {{ _self.options_helper( #}
+					{#                        imgs.svgs.expand, #}
+					{#                        'Expand description', #}
+					{#                        'javascript:{}', #}
+					{#                        ['option-description-expander'], #}
+					{#                        ['data-option_description_key="'~option.key~"'] #}
+					{#                    ) }} #}
 
 					<a href="javascript:{}"
 					   class="d-inline-block me-1 svg-container  option-description-expander"
@@ -55,11 +55,11 @@
 
 				{% if option.vimeo_id|default('') is not empty %}
 					<a href="#"
-					   class="d-inline-block me-1 svg-container "
+					   class="d-inline-block me-1 svg-container option-video"
 					   data-bs-toggle="tooltip"
 					   data-bs-trigger="hover"
 					   data-bs-placement="top"
-					   data-bs-title="Watch the video about this option"
+					   data-bs-title="{{ strings.opt_info_video }}"
 					   data-vimeoid="{{ option.vimeo_id }}"
 					>{{ imgs.svgs.video|raw }}</a>
 				{% endif %}
@@ -264,7 +264,7 @@
 
 {% macro options_helper(svg, tooltip, href="javascript:{}", classes=[], attributes=[]) %}
 	<a href="{{ href }}"
-	   class="d-inline-block me-1 svg-container  {{ classes|join(' ') }}"
+	   class="d-inline-block me-1 svg-container {{ classes|join(' ') }}"
 	   data-bs-toggle="tooltip"
 	   data-bs-trigger="hover"
 	   data-bs-placement="top"
