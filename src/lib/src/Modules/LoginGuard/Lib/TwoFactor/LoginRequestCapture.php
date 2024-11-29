@@ -19,6 +19,10 @@ class LoginRequestCapture {
 	use PluginControllerConsumer;
 	use WpLoginCapture;
 
+	protected function canRun() :bool {
+		return !self::con()->this_req->wp_is_ajax;
+	}
+
 	protected function run() {
 		$this->setupLoginCaptureHooks();
 	}
@@ -29,7 +33,7 @@ class LoginRequestCapture {
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 
 			if ( !$this->canUserMfaSkip( $user ) ) {
-				$loginNonce = \bin2hex( random_bytes( 32 ) );
+				$loginNonce = \bin2hex( \random_bytes( 32 ) );
 				$loginNonceHashed = wp_hash_password( $loginNonce.$user->ID );
 
 				$intents = $mfaCon->getActiveLoginIntents( $user );

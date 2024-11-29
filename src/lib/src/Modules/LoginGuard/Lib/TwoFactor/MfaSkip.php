@@ -16,11 +16,7 @@ class MfaSkip {
 
 		$maxExpires = self::con()->comps->mfa->getMfaSkip();
 		if ( $maxExpires > 0 ) {
-			$hashes = \array_filter( $hashes,
-				function ( $ts ) use ( $maxExpires ) {
-					return Services::Request()->ts() - $ts < $maxExpires;
-				}
-			);
+			$hashes = \array_filter( $hashes, fn( $ts ) => Services::Request()->ts() - $ts < $maxExpires );
 		}
 
 		$meta->hash_loginmfa = $hashes;

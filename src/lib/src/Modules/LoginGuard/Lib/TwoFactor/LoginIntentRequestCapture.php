@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
-	Exceptions\ActionException
+	Exceptions\ActionDoesNotExistException,
+	Exceptions\ActionException,
+	Exceptions\ActionTypeDoesNotExistException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
@@ -24,17 +24,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LoginIntentRequestCapture {
 
-	use ExecOnce;
 	use PluginControllerConsumer;
 
-	/**
-	 * @var \WP_User
-	 */
-	private $user;
-
-	protected function canRun() :bool {
-		return false;
-	}
+	private \WP_User $user;
 
 	public function runCapture() {
 		$con = self::con();
@@ -42,7 +34,7 @@ class LoginIntentRequestCapture {
 
 		try {
 			$user = $req->post( 'wp_user_id' ) ? Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) ) : null;
-			if ( empty( $user ) ) {
+			if ( !$user instanceof \WP_User ) {
 				throw new NotValidUserException();
 			}
 			$this->user = $user;
@@ -108,8 +100,8 @@ class LoginIntentRequestCapture {
 	 * @throws LoginCancelException
 	 * @throws NoActiveProvidersForUserException
 	 * @throws OtpVerificationFailedException
-	 * @throws Shield\ActionRouter\Exceptions\ActionDoesNotExistException
-	 * @throws Shield\ActionRouter\Exceptions\ActionTypeDoesNotExistException
+	 * @throws ActionDoesNotExistException
+	 * @throws ActionTypeDoesNotExistException
 	 * @throws TooManyAttemptsException
 	 */
 	private function capture() {
@@ -132,9 +124,7 @@ class LoginIntentRequestCapture {
 			global $interim_login;
 			$interim_login = (bool)$req->request( 'interim-login' );
 			if ( $interim_login ) {
-				add_filter( 'login_message', function () {
-					return '';
-				}, 100, 0 );
+				add_filter( 'login_message', '__return_empty_string', 100, 0 );
 
 				$con->action_router->action( FullPageDisplayDynamic::class, [
 					'render_slug' => WpReplicaLoginIntentPage::SLUG,
