@@ -1,23 +1,22 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>To better tailor this Guided Wizard to your needs, if you have a ShieldPRO license activated for this site,
-	   please click the button below to install the license automatically.</p>
-	<p>If this doesn't apply to you, don't worry, you can <a href="javascript:{}" class="skip-step">skip to the next step</a>.</p>
+	<p>If you already have a ShieldPRO license assigned to this site,
+	   you can check below for your license automatically.</p>
+	<p>If this doesn't apply to you, <a href="javascript:{}" class="skip-step">skip to the next step</a>.</p>
 {% endblock %}
 
 {% block slide_body_action_area %}
 	{% import '/common/macros.twig' as icwp_macros %}
 
 	<form class="form-horizontal merlin-form ajax-form">
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 
 		<div class="row">
-			<div class="col-4">
-				Check License
-			</div>
-			<div class="col-8">
-				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-				{{ icwp_macros.formInput_Submit2( 'Check For ShieldPRO License', null, null, false, 'mt-2' ) }}
+			<div class="col">
+				<button type="submit" class="btn btn-primary py-2 px-4">
+					Check For ShieldPRO License
+				</button>
 			</div>
 		</div>
 
