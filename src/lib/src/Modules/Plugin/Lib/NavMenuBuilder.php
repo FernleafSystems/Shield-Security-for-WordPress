@@ -143,7 +143,7 @@ class NavMenuBuilder {
 					ActivityLogging::Slug(),
 					RequestLogging::Slug()
 				],
-				__( 'Edit all activity log settings', 'wp-simple-firewall' )
+				__( 'Edit logging settings', 'wp-simple-firewall' )
 			),
 			'sub_items' => [
 				$this->createSubItemForNavAndSub( __( 'WP Activity Log' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),

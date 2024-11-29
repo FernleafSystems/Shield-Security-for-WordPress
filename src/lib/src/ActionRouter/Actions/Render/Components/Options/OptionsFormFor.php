@@ -28,7 +28,9 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'vars'    => [
 				'all_opts_keys'      => $options,
-				'all_options'        => ( new BuildOptionsForDisplay( $options ) )->standard(),
+				'all_options'        => ( new BuildOptionsForDisplay( $options, [] ) )
+					->setFocusOption( $this->action_data[ 'config_item' ] ?? '' )
+					->standard(),
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
 				'xferable_opts'      => \array_keys( $con->cfg->configuration->transferableOptions() ),
 				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),

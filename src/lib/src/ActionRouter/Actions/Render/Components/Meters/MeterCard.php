@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 
-class MeterCard extends BaseRender {
+class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_progress_meter_card';
 	public const TEMPLATE = '/wpadmin/components/progress_meter/meter.twig';
@@ -18,11 +17,11 @@ class MeterCard extends BaseRender {
 
 		return [
 			'strings' => [
-				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
+				'analysis' => __( 'Analyse & Fix', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
 				'svgs' => [
-					'analysis' => self::con()->svgs->raw( 'clipboard2-data-fill.svg' ),
+					'analysis' => self::con()->svgs->raw( 'zoom-in' ),
 				],
 			],
 			'vars'    => [

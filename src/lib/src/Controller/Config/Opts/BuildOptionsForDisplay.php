@@ -13,19 +13,27 @@ class BuildOptionsForDisplay {
 
 	use PluginControllerConsumer;
 
-	private $focusOption;
+	private string $focusOption = '';
 
-	private $focusSection;
+	private string $focusSection = '';
 
-	private $options;
+	private array $options;
 
-	private $sections;
+	private array $sections;
 
-	public function __construct( array $options = [], array $sections = [], string $focusSection = '', string $focusOption = '' ) {
+	public function __construct( array $options = [], array $sections = [] ) {
 		$this->options = $options;
 		$this->sections = $sections;
-		$this->focusSection = $focusSection;
-		$this->focusOption = $focusOption;
+	}
+
+	public function setFocusOption( string $optKey ) :self {
+		$this->focusOption = $optKey;
+		return $this;
+	}
+
+	public function setFocusSection( string $sectionKey ) :self {
+		$this->focusSection = $sectionKey;
+		return $this;
 	}
 
 	/**

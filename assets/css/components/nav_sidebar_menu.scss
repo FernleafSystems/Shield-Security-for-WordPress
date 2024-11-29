@@ -80,7 +80,11 @@
   color: $secondary;
 }
 .primary_side_sub_menu > li > .nav-link > a.zone_config {
+  opacity: 0.5;
   color: $primary;
+}
+.primary_side_sub_menu > li > .nav-link > a.zone_config:hover {
+  opacity: 1;
 }
 .primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
   border-left: 1px solid transparent;
