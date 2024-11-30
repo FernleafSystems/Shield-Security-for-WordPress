@@ -9,6 +9,7 @@ class Wizards {
 		Steps\GuidedSetupWelcome::class,
 		Steps\License::class,
 		Steps\NewsletterSubscribe::class,
+		Steps\ApplySecurityProfile::class,
 		Steps\SecurityAdmin::class,
 		Steps\BotBlocking::class,
 		Steps\LoginProtection::class,

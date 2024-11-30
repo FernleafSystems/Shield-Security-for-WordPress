@@ -3,8 +3,8 @@
 {% block slide_body_video_section_blurb %}
 	<p>Security Admin is a security layer that ensures only vetted admins may adjust your security settings,
 	   while simultaneously protecting critical WP settings.</p>
-	<p>It's activated by a PIN (<span class="fw-bold">that you create</span>)
-	   which you then use to authenticate with the Shield plugin as required.</p>
+	<p>It's activated by a PIN (<span class="fw-bold">that you create below</span>),
+	   which you then use to authenticate with the Shield plugin when you need to.</p>
 {% endblock %}
 
 {% block slide_body_action_area %}
@@ -21,7 +21,7 @@
 
 		<div class="row">
 			<div class="col">
-				{{ icwp_macros.formInput_Password( 'SecAdminPIN', '', 'PIN', 'my secret PIN', "Don't forget this PIN" ) }}
+				{{ icwp_macros.formInput_Password( 'SecAdminPIN', '', 'PIN', 'Create a new secret PIN', "Don't forget this PIN" ) }}
 				{{ icwp_macros.formInput_Password( 'SecAdminPINConfirm', '', 'Confirm PIN', 'Confirm PIN','','','my-2' ) }}
 				{{ icwp_macros.formInput_Submit2( 'Turn On Security Admin', null, 'secondary', false, 'mt-2' ) }}
 			</div>

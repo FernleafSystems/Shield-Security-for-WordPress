@@ -187,3 +187,7 @@
 		</div>
 	</div>
 {% endmacro %}
+
+{% macro silentcaptcha( classes=[] ) %}
+	<span class="silentcaptcha {{ classes|join(' ') }}"><span class="fst-italic">silent</span><span class="text-capitalize">CAPTCHA</span></span></span>
+{% endmacro %}
