@@ -1251,7 +1251,7 @@
           "module_spam"
         ],
         "type":            "integer",
-        "default":         30,
+        "default":         10,
         "min":             0,
         "link_info":       "https://clk.shldscrty.com/ll",
         "link_blog":       "",

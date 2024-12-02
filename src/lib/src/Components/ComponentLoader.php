@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\{
+	Profiles,
+	Zones
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
@@ -69,7 +72,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property SessionController                $session
  * @property Scan\ScansController             $scans
  * @property Scan\Queue\Controller            $scans_queue
- * @property Shield\Zones\SecurityZonesCon    $zones
+ * @property Zones\SecurityZonesCon           $zones
+ * @property Profiles\SecurityProfilesCon     $security_profiles
  * @property ShieldNetApiController           $shieldnet
  * @property UserSuspendController            $user_suspend
  * @property CompCons\WhitelabelCon           $whitelabel
@@ -130,11 +134,12 @@ class ComponentLoader extends DynPropertiesClass {
 			'shieldnet'         => ShieldNetApiController::class,
 			'scans'             => Scan\ScansController::class,
 			'scans_queue'       => Scan\Queue\Controller::class,
+			'security_profiles' => Profiles\SecurityProfilesCon::class,
 			'user_suspend'      => UserSuspendController::class,
 			'whitelabel'        => CompCons\WhitelabelCon::class,
 			'wizards'           => MerlinController::class,
 			'wpcli'             => CompCons\WpCliCon::class,
-			'zones'             => Shield\Zones\SecurityZonesCon::class,
+			'zones'             => Zones\SecurityZonesCon::class,
 		];
 	}
 }
