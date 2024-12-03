@@ -268,17 +268,6 @@ class AssetsCustomizer {
 					];
 				},
 			],
-			'leanbe'           => [
-				'key'     => 'leanbe',
-				'handles' => [
-					'main',
-				],
-				'data'    => [
-					'vars' => [
-						'widget_key' => '62e5437476b962001357b06d',
-					],
-				],
-			],
 			'license'          => [
 				'key'      => 'license',
 				'required' => PluginNavs::IsNavs( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK ),
