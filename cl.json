@@ -77,6 +77,17 @@
     ],
     "patches":     [
       {
+        "version":     "12",
+        "released_at": 1733220000,
+        "items":       [
+          {
+            "title":    "Fixed bug with translation being triggered too early.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "11",
         "released_at": 1732460000,
         "items":       [

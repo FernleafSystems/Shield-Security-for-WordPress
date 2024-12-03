@@ -3,12 +3,12 @@ Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: firewall, activity log, waf, 2fa, security
+Tags: firewall, bots, activity log, 2fa, security
 Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
 Tested up to: 6.7
-Stable tag: 20.0.11
+Stable tag: 20.0.12
 
 Real security is stopping attackers dead, before they hack your site. Bad Bots Are Your #1 Security Threat.
 
