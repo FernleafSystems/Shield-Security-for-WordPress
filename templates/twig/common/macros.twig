@@ -51,8 +51,8 @@
 	<h4 class="my-3">{{ content }}</h4>
 {% endmacro %}
 
-{% macro formInput_Hidden(name,value) %}
-	<input name="{{ name }}" value="{{ value }}" type="hidden" />
+{% macro formInput_Hidden(name,value,id='') %}
+	<input name="{{ name }}" value="{{ value }}" {% if id is not empty %}id="{{ id }}"{% endif %} type="hidden" />
 {% endmacro %}
 
 {% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false, classes=[]) %}

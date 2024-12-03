@@ -68,7 +68,7 @@ export class Navigation extends BaseComponent {
 	setActiveNavTab( urlHash = null ) {
 		if ( urlHash ) {
 			let theTabToShow = document.querySelector( urlHash );
-			if ( theTabToShow ) {
+			if ( theTabToShow && theTabToShow.classList.contains( 'nav-link' ) ) {
 				( new Tab( theTabToShow ) ).show();
 			}
 		}

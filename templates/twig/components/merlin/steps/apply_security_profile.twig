@@ -1,132 +1,78 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>Shield uses a default security profile when the plugin is first activated which applies some basic security
+	<p>Shield uses a default security profile when first activated, which applies basic security
 	   measures so that your site is protected from some common attacks.</p>
-	<p>We recommend you apply as many security restrictions as you can, but for production sites that have integrations
-	   with 3rd party services already running, this can cause some issues.</p>
+	<p>We recommend you apply as many security restrictions as your site allows. Production sites that already
+	   have integrations with 3rd party services in-place, this may cause some issues and we recommend
+	   you test these integrations and review the Activity Logs for any issues.</p>
 	<p>Please review the 3 pre-made security profiles below, or customise the settings manually.</p>
 {% endblock %}
 
-{% block slide_body_action_area %}
+{% block slide_body_video_section %}
 	{% import '/common/macros.twig' as icwp_macros %}
-
-	<div class="row mb-2">
-		<div class=" mb-2 col-lg-12 col-xl-4">
-			<div class="card">
-
-				<div class="card-header">
-					Light
-				</div>
-
-				<div class="card-body">
-					<ul class="list-group list-group-flush">
-						<li class="list-group-item">
-						  {{ icwp_macros.silentcaptcha() }} threshold: 25
-						</li>
-						<li class="list-group-item">
-							Forms Protected: Registration
-						</li>
-						<li class="list-group-item">Session lock: none</li>
-						<li class="list-group-item">
-							Firewall
-							<ul style="list-style: outside square">
-								<li>Username fishing</li>
-								<li>WP File Editing</li>
-								<li>WAF: Directory Traversal</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-
-				<div class="card-footer">
-				</div>
-
-			</div>
-		</div>
-		<div class=" mb-2 col-lg-12 col-xl-4">
-			<div class="card">
-
-				<div class="card-header">
-					Medium - <span class="fst-italic">same as light</span>, plus:
-				</div>
-
-				<div class="card-body">
-					<ul class="list-group list-group-flush">
-						<li class="list-group-item">
-							{{ icwp_macros.silentcaptcha() }} threshold: 45
-						</li>
-						<li class="list-group-item">
-							Forms Protected:
-							<ul style="list-style: outside square">
-								<li>Login</li>
-								<li>Registration</li>
-								<li>Password reset</li>
-							</ul>
-						</li>
-						<li class="list-group-item">Session lock: IP address</li>
-						<li class="list-group-item">
-							Firewall, plus:
-							<ul style="list-style: outside square">
-								<li>XML-RPC blocked</li>
-								<li>Anonymous REST API</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-
-				<div class="card-footer">
-				</div>
-
-			</div>
-		</div>
-		<div class=" mb-2 col-lg-12 col-xl-4">
-			<div class="card">
-
-				<div class="card-header">
-					Strong - <span class="fst-italic">same as medium</span>, plus:
-				</div>
-
-				<div class="card-body">
-					<ul class="list-group list-group-flush">
-						<li class="list-group-item">
-							{{ icwp_macros.silentcaptcha() }} threshold: 75
-						</li>
-						<li class="list-group-item">
-							Session lock:
-							<ul style="list-style: outside square">
-								<li>IP address</li>
-								<li>browser</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-
-				<div class="card-footer">
-
-				</div>
-
-			</div>
-		</div>
-	</div>
-
 
 	<form class="form-horizontal merlin-form ajax-form">
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+		{{ icwp_macros.formInput_Hidden( 'security_profile', '', 'SelectedSecurityProfile' ) }}
 
 		<div class="row mb-2">
 			<div class="col">
-				<h6 class="pb-1 border-bottom d-inline-block">Login Protection Settings</h6>
+				<h6 class="pb-1 border-bottom d-inline-block">Choose Security Profile</h6>
+				<p>Skip this step if you don't want to automatically apply a built-in profile.</p>
 			</div>
 		</div>
 
-		{{ icwp_macros.formInput_Checkbox(
-			'LoginProtectOption', 'Y', 'Protect Login',
-			'Protect WordPress login from bot attacks',
-			"silentCAPTCHA will detect bots that attempt to login to your site, without challenging your legitimate users."
-			~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
-			null, true, 'me-0'
-		) }}
-		{{ icwp_macros.formInput_Submit2( 'Set Login Protection', null, 'secondary', false ) }}
+		<div class="row mb-2 security_profiles_section">
+			{% for level_key,level in vars.profile_levels %}
+				<div class="mb-2 col-lg-12 col-xl-4">
+					<div class="card" data-profile="{{ level_key }}">
+
+						<div class="card-header">
+							<h4 class="m-0">{{ level.title }}</h4>
+							<small>{{ level.subtitle }}</small>
+						</div>
+
+						<div class="card-body">
+							<ul class="list-group list-group-flush">
+
+								{% for section_key,section in level.structure %}
+									<li class="list-group-item">
+										<span class="fw-bold">{{ section.title }}</span>
+										<ul class="ps-2" style="list-style: outside square">
+											{% for item in section.opts %}
+												<li class="d-flex justify-content-between">
+													<span class="{% if not item.is_available %}text-secondary text-opacity-50{% endif %}"
+														{% if item.tooltip is not empty %}
+															data-bs-toggle="tooltip"
+															data-bs-trigger="hover"
+															data-bs-placement="top"
+															data-bs-title="{{ item.tooltip }}"
+															title="{{ item.tooltip }}"
+														{% endif %}
+													>{{ item.title }}</span>
+													{% if item.value is same as (true) or item.value is same as ('Y') %}
+														<span class="text-primary {% if not item.is_available %}text-opacity-50{% endif %}">{{ imgs.svgs.shield_check|raw }}</span>
+													{% elseif item.value is same as (false) or item.value is same as ('N') %}
+														<span class="text-warning {% if not item.is_available %}text-opacity-50{% endif %}">{{ imgs.svgs.shield_x|raw }}</span>
+													{% else %}
+														<span class="code {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">{{ item.value }}</span>
+													{% endif %}
+												</li>
+											{% endfor %}
+										</ul>
+									</li>
+								{% endfor %}
+							</ul>
+						</div>
+
+						{#                    <div class="card-footer"></div> #}
+
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+
+		{{ icwp_macros.formInput_Submit2( 'Apply The Selected Profile', null, 'secondary', false, 'mt-2' ) }}
 	</form>
 {% endblock %}
