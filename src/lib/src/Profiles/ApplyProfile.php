@@ -22,29 +22,23 @@ class ApplyProfile {
 			foreach ( $section[ 'opts' ] as $opt ) {
 				$optKey = $opt[ 'opt_key' ];
 				$optValue = $opt[ 'value' ];
-				if ( !self::con()->opts->optExists( $optKey ) ) {
-					continue;
-				}
+				if ( $opts->optHasAccess( $optKey ) ) {
 
-				$cap = $opts->optCap( $optKey );
-				if ( !empty( $cap ) && !$con->caps->hasCap( $cap ) ) {
-					continue;
-				}
-
-				if ( \is_bool( $optValue ) ) {
-					if ( $opts->optDef( $optKey )[ 'type' ] === 'multiple_select' ) {
-						$current = $opts->optGet( $optKey );
-						$opts->optSet( $optKey,
-							\array_unique( $optValue ? \array_merge( $current, [ $opt[ 'item_key' ] ] ) : \array_diff( $current, [ $opt[ 'item_key' ] ] ) )
-						);
+					if ( \is_bool( $optValue ) ) {
+						if ( $opts->optDef( $optKey )[ 'type' ] === 'multiple_select' ) {
+							$current = $opts->optGet( $optKey );
+							$opts->optSet( $optKey,
+								\array_unique( $optValue ? \array_merge( $current, [ $opt[ 'item_key' ] ] ) : \array_diff( $current, [ $opt[ 'item_key' ] ] ) )
+							);
+						}
+						/* Special Cases */
+						elseif ( $optKey === 'cs_block' ) {
+							$opts->optSet( 'cs_block', $optValue ? 'block_with_unblock' : 'disabled' );
+						}
 					}
-					/* Special Cases */
-					elseif ( $optKey === 'cs_block' ) {
-						$opts->optSet( 'cs_block', $optValue ? 'block_with_unblock' : 'disabled' );
+					else {
+						$opts->optSet( $optKey, $optValue );
 					}
-				}
-				else {
-					$opts->optSet( $optKey, $optValue );
 				}
 			}
 		}

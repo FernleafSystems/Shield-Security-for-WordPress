@@ -23,8 +23,8 @@ class SecurityProfilesCon {
 	 *
 	 * We take the specified options for each level and assign them to the structure
 	 */
-	public function buildForLevel( string $level ) :array {
-		$structure = Levels::Sub( $level ) === null ? $this->getStructure() : $this->buildForLevel( Levels::Sub( $level ) );
+	public function buildForLevel( string $level, bool $filterNullOpts = true ) :array {
+		$structure = Levels::Sub( $level ) === null ? $this->getStructure() : $this->buildForLevel( Levels::Sub( $level ), false );
 		foreach ( $this->getOptsForLevels() as $topKey => $levels ) {
 			if ( !empty( $structure[ $topKey ] ) ) {
 				$section = $structure[ $topKey ];
@@ -35,7 +35,9 @@ class SecurityProfilesCon {
 						}
 					}
 				}
-				$section[ 'opts' ] = \array_filter( $section[ 'opts' ], fn( array $opt ) => $opt[ 'value' ] !== null );
+				if ( $filterNullOpts ) {
+					$section[ 'opts' ] = \array_filter( $section[ 'opts' ], fn( array $opt ) => $opt[ 'value' ] !== null );
+				}
 				$structure[ $topKey ] = $section;
 			}
 		}
@@ -145,6 +147,27 @@ class SecurityProfilesCon {
 	}
 
 	private function getStructure() :array {
+		return \array_map(
+			static function ( array $section ) {
+				$section[ 'opts' ] = \array_map(
+					function ( array $opt ) {
+						return \array_merge( $opt, [
+							'tooltip'      => sprintf('%s%s',
+								self::con()->opts->optHasAccess( $opt[ 'opt_key' ] ) ? '' : '(Upgrade Required) ',
+								$opt[ 'tooltip' ]
+							),
+							'is_available' => self::con()->opts->optHasAccess( $opt[ 'opt_key' ] ),
+						] );
+					},
+					$section[ 'opts' ]
+				);
+				return $section;
+			},
+			$this->getRawStructure()
+		);
+	}
+
+	private function getRawStructure() :array {
 		return [
 			'auto_block'    => [
 				'title' => 'Auto IP Blocking',
@@ -161,14 +184,14 @@ class SecurityProfilesCon {
 						'opt_key'  => 'auto_expire',
 						'value'    => null,
 						'title'    => __( 'Block duration', 'wp-simple-firewall' ),
-						'tooltip'  => __( 'How long an automatically blocked will stay blocked', 'wp-simple-firewall' ),
+						'tooltip'  => __( 'How long an automatically blocked IP will remain blocked', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'cs_block',
 						'opt_key'  => 'cs_block',
 						'value'    => null,
 						'title'    => __( 'CrowdSec', 'wp-simple-firewall' ),
-						'tooltip'  => __( 'Use crowd-sourcing IP blocklists from CrowdSec', 'wp-simple-firewall' ),
+						'tooltip'  => __( 'Participate in crowd-sourcing IP blocklists from CrowdSec', 'wp-simple-firewall' ),
 					],
 				],
 			],
@@ -178,7 +201,7 @@ class SecurityProfilesCon {
 					[
 						'item_key' => 'antibot_minimum',
 						'opt_key'  => 'antibot_minimum',
-						'value'    => null,
+						'value'    => 0,
 						'title'    => __( 'Bot threshold', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Minimum silentCAPTCHA score required to indicate visitor is human', 'wp-simple-firewall' ),
 					]
@@ -197,21 +220,21 @@ class SecurityProfilesCon {
 					[
 						'item_key' => 'register',
 						'opt_key'  => 'bot_protection_locations',
-						'value'    => null,
+						'value'    => false,
 						'title'    => __( 'Registration', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Protect user registration forms against bots', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'login',
 						'opt_key'  => 'bot_protection_locations',
-						'value'    => null,
+						'value'    => false,
 						'title'    => __( 'Login', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Protect user login forms against bots', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'password',
 						'opt_key'  => 'bot_protection_locations',
-						'value'    => null,
+						'value'    => false,
 						'title'    => __( 'Password Reset', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Protect password reset forms against bots', 'wp-simple-firewall' ),
 					],
@@ -223,14 +246,14 @@ class SecurityProfilesCon {
 					[
 						'item_key' => 'browser',
 						'opt_key'  => 'session_lock',
-						'value'    => null,
+						'value'    => false,
 						'title'    => __( 'Browser', 'wp-simple-firewall' ),
-						'tooltip'  => __( 'Lock user session to browser ID detected at login', 'wp-simple-firewall' ),
+						'tooltip'  => __( 'Lock user session to browser detected at login', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'ip_address',
 						'opt_key'  => 'session_lock',
-						'value'    => null,
+						'value'    => false,
 						'title'    => __( 'IP Address', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Lock user sessions to IP address detected at login', 'wp-simple-firewall' ),
 					],
@@ -242,35 +265,35 @@ class SecurityProfilesCon {
 					[
 						'item_key' => 'disable_file_editing',
 						'opt_key'  => 'disable_file_editing',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => __( 'WP File Editing', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Restrict file editing within WP admin dashboard', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'block_dir_traversal',
 						'opt_key'  => 'block_dir_traversal',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => sprintf( '%s: %s', 'WAF', __( 'Dir Traversal', 'wp-simple-firewall' ) ),
 						'tooltip'  => sprintf( '%s: %s', __( 'WAF Rule', 'wp-simple-firewall' ), __( 'Block directory traversal requests', 'wp-simple-firewall' ) ),
 					],
 					[
 						'item_key' => 'block_author_discovery',
 						'opt_key'  => 'block_author_discovery',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => __( 'Username fishing', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Block username fishing/enumeration requests', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'disable_xmlrpc',
 						'opt_key'  => 'disable_xmlrpc',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => __( 'Disable XML-RPC', 'wp-simple-firewall' ),
-						'tooltip'  => __( 'Disable requests to XML-RPC endpoint', 'wp-simple-firewall' ),
+						'tooltip'  => __( 'Disable processing of requests sent to XML-RPC endpoint', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'disable_anonymous_restapi',
 						'opt_key'  => 'disable_anonymous_restapi',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => __( 'Block Anon REST API', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Disable anonymous requests to REST API endpoint', 'wp-simple-firewall' ),
 					],
@@ -282,21 +305,21 @@ class SecurityProfilesCon {
 					[
 						'item_key' => 'enable_antibot_comments',
 						'opt_key'  => 'enable_antibot_comments',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => __( 'Bot SPAM', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Block WP comments posted by bots', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'enable_comments_human_spam_filter',
 						'opt_key'  => 'enable_comments_human_spam_filter',
-						'value'    => null,
+						'value'    => 'N',
 						'title'    => __( 'Human SPAM', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Block WP comments posted by humans that appear to be SPAM', 'wp-simple-firewall' ),
 					],
 					[
 						'item_key' => 'comments_cooldown',
 						'opt_key'  => 'comments_cooldown',
-						'value'    => null,
+						'value'    => 0,
 						'title'    => __( 'Comments Cooldown', 'wp-simple-firewall' ),
 						'tooltip'  => __( '1 WP comment post permitted per interval (seconds)', 'wp-simple-firewall' ),
 					],

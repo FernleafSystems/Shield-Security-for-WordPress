@@ -115,6 +115,7 @@ class BuildOptionsForDisplay {
 
 	protected function buildOptionsForSection( string $section ) :array {
 		$con = self::con();
+		$opts = $con->opts;
 
 		$isPremiumActive = $con->isPremiumActive();
 
@@ -137,19 +138,16 @@ class BuildOptionsForDisplay {
 				'beacon_id'     => false
 			], $optDef );
 
-			$optDef[ 'value' ] = $con->opts->optGet( $optDef[ 'key' ] );
+			$optDef[ 'value' ] = $opts->optGet( $optDef[ 'key' ] );
 
 			if ( \in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
 
-					$isDisabled = ( !empty( $valueOpt[ 'premium' ] ) && !$isPremiumActive )
-								  || ( !empty( $valueOpt[ 'cap' ] ) && !$con->caps->hasCap( $valueOpt[ 'cap' ] ) );
-
 					$converted[ $valueOpt[ 'value_key' ] ] = [
 						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => !$isDisabled,
+						'is_available' => $opts->optHasAccess( $optDef[ 'key' ] ),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -205,15 +203,14 @@ class BuildOptionsForDisplay {
 				break;
 		}
 
-		$isOptUnavailable = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
-							|| ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
+		$isOptAvailable = $con->opts->optHasAccess( $option[ 'key' ] );
 		$option = \array_merge(
 			[ 'rows' => '2' ],
 			$option,
 			[
 				'value'       => \is_scalar( $value ) ? esc_attr( $value ) : $value,
-				'unavailable' => $isOptUnavailable,
-				'disabled'    => $isOptUnavailable,
+				'unavailable' => !$isOptAvailable,
+				'disabled'    => !$isOptAvailable,
 			]
 		);
 
