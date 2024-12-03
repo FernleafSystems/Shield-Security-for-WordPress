@@ -149,7 +149,7 @@ class SecurityProfilesCon {
 		];
 	}
 
-	private function getStructure() :array {
+	public function getStructure() :array {
 		return \array_map(
 			static function ( array $section ) {
 				$section[ 'opts' ] = \array_map(

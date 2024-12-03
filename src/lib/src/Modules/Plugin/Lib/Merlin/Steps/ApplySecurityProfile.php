@@ -52,7 +52,8 @@ class ApplySecurityProfile extends Base {
 				],
 			],
 			'vars'    => [
-				'profile_levels' => [
+				'profile_structure' => $secProfiles->getStructure(),
+				'profile_levels'    => [
 					Levels::LIGHT  => \array_merge(
 						$secProfiles->meta( Levels::LIGHT ),
 						[

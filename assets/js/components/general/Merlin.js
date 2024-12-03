@@ -29,39 +29,37 @@ export class Merlin extends BaseComponent {
 	}
 
 	slideSecurityProfiles() {
-		shieldEventsHandler_Main.add_Mouseover( '.security_profiles_section .card', ( targetEl ) => {
-			this.merlinContainer.querySelectorAll( '.security_profiles_section .card' ).forEach( ( card ) => {
-				if ( !card.classList.contains( 'active_profile' ) ) {
-					card.classList.remove( 'border-primary' );
-				}
+
+		shieldEventsHandler_Main.add_Mouseover( '#TableSecurityProfiles .level_cell', ( targetEl ) => {
+			const level = targetEl.dataset.level;
+			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell' ).forEach( ( cell ) => {
+				cell.classList.remove( 'hover_column' );
 			} );
-			targetEl.classList.add( 'border-primary' );
+			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell_' + level ).forEach( ( cell ) => {
+				cell.classList.add( 'hover_column' );
+			} );
 		} );
-		shieldEventsHandler_Main.add_Mouseout( '.security_profiles_section .card', ( targetEl ) => {
-			this.merlinContainer.querySelectorAll( '.security_profiles_section .card' ).forEach( ( card ) => {
-				if ( !card.classList.contains( 'active_profile' ) ) {
-					card.classList.remove( 'border-primary' );
-				}
+		shieldEventsHandler_Main.add_Mouseout( '#TableSecurityProfiles .level_cell', ( targetEl ) => {
+			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell' ).forEach( ( cell ) => {
+				cell.classList.remove( 'hover_column' );
 			} );
-			if ( targetEl.classList.contains( 'active_profile' ) ) {
-				targetEl.classList.add( 'border-primary' );
-			}
 		} );
-		shieldEventsHandler_Main.add_Click( '.security_profiles_section .card', ( targetEl ) => {
-			const isActive = targetEl.classList.contains( 'active_profile' );
-			this.merlinContainer.querySelectorAll( '.security_profiles_section .card' ).forEach( ( card ) => {
-				card.classList.remove( 'active_profile' );
-				card.classList.remove( 'border-primary' );
+
+		shieldEventsHandler_Main.add_Click( '#TableSecurityProfiles .level_cell', ( cell ) => {
+			const level = cell.dataset.level;
+			const wasActive = cell.classList.contains( 'active_column' );
+			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell' ).forEach( ( levelCell ) => {
+				levelCell.classList.remove( 'active_column' );
 			} );
-			if ( !isActive ) {
-				targetEl.classList.add( 'active_profile' );
-				targetEl.classList.add( 'border-primary' );
+			if ( !wasActive ) {
+				this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell_' + level ).forEach( ( levelCell ) => {
+					levelCell.classList.add( 'active_column' );
+				} );
 			}
 
 			const input = document.getElementById( 'SelectedSecurityProfile' ) || false;
 			if ( input ) {
-				const activeContainer = this.merlinContainer.querySelector( '.security_profiles_section .card.active_profile' );
-				input.value = activeContainer ? activeContainer.dataset[ 'profile' ] : '';
+				input.value = wasActive ? '' : level;
 			}
 		} );
 	}

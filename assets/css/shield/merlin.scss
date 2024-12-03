@@ -41,20 +41,76 @@
   width: 60px;
 }
 
-.security_profiles_section .card:hover {
-  box-shadow: 0 0 15px rgba(0, 128, 0, 0.5);
+#TableSecurityProfiles td,
+#TableSecurityProfiles th,
+#TableSecurityProfiles .level_cell {
+  border-color: transparent;
+  background-color: transparent;
   cursor: pointer;
 }
 
-.security_profiles_section .card.active_profile {
-  box-shadow: 2px 2px 4px rgba(0, 128, 0, 0.3);
+#TableSecurityProfiles .level_cell > div {
+  transition: background-color, border-color 0.25s;
+  -webkit-transition: background-color, border-color .25s;
+  -o-transition: background-color, border-color .25s;
+  -moz-transition: background-color, border-color .25s;
 }
 
-.security_profiles_section .card.active_profile > .card-header {
+#TableSecurityProfiles .level_cell > div {
+  border-width: 0 2px 0 2px;
+  border-style: solid;
+  border-color: transparent;
+}
+
+#TableSecurityProfiles thead th.level_cell > div {
+  border-radius: 5px 5px 0 0;
+}
+
+#TableSecurityProfiles .level_cell.active_column,
+#TableSecurityProfiles .level_cell.hover_column {
+  background-color: rgba(0, 128, 0, 0.1);
+}
+
+#TableSecurityProfiles .level_cell.active_column > div,
+#TableSecurityProfiles .level_cell.hover_column > div {
+  border-color: $primary;
+}
+
+#TableSecurityProfiles tfoot th.level_cell > div {
+  border-top: 2px;
+  border-top-style: solid;
+  border-top-color: transparent;
+}
+
+#TableSecurityProfiles th.level_cell.active_column > div,
+#TableSecurityProfiles th.level_cell.hover_column > div {
+  border-top-color: $primary;
+}
+
+#TableSecurityProfiles th.level_cell > div {
+  border-top: 2px;
+  border-top-style: solid;
+  border-top-color: transparent;
+}
+
+#TableSecurityProfiles th.level_cell.active_column > div,
+#TableSecurityProfiles th.level_cell.hover_column > div {
+  border-top-color: $primary;
+}
+
+#TableSecurityProfiles th.level_cell > div,
+#TableSecurityProfiles tfoot td.level_cell > div {
+  border-bottom: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: transparent;
+}
+
+#TableSecurityProfiles thead th.level_cell.active_column > div,
+#TableSecurityProfiles tfoot td.level_cell.hover_column > div {
+  border-bottom-color: $primary;
+}
+
+#TableSecurityProfiles thead th.level_cell.active_column > div {
   color: $white;
   background-color: $primary;
-}
-
-.security_profiles_section .card.active_profile > .card-body {
-  background-color: rgba(0,128,0,0.1);
 }
