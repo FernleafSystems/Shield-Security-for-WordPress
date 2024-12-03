@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Profiles\Levels;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 class ApplySecurityProfile extends Base {
@@ -9,42 +10,26 @@ class ApplySecurityProfile extends Base {
 	public const SLUG = 'apply_security_profile';
 
 	public function processStepFormSubmit( array $form ) :Response {
-
-		$offenses = $form[ 'offenses' ] ?? '';
-		if ( empty( $offenses ) ) {
-			throw new \Exception( 'Please provide an offense limit' );
-		}
-		$offenses = (int)$offenses;
-		if ( $offenses <= 1 ) {
-			throw new \Exception( 'The offense limit should be at least 2' );
-		}
-		if ( $offenses > 20 ) {
-			throw new \Exception( 'The offense limit should be less than 20' );
-		}
-
-		$blockLength = $form[ 'block_length' ] ?? '';
-		if ( empty( $blockLength ) ) {
-			throw new \Exception( 'Please provide a block length' );
-		}
-		if ( !\in_array( $blockLength, [ 'day', 'week', 'month' ], true ) ) {
-			throw new \Exception( 'Invalid request.' );
-		}
-
-		$csBlock = $form[ 'cs_block' ] ?? '';
-		if ( !\in_array( $csBlock, [ '', 'Y' ], true ) ) {
-			throw new \Exception( 'Invalid request.' );
-		}
-
-		self::con()
-			->opts
-			->optSet( 'transgression_limit', $offenses )
-			->optSet( 'auto_expire', $blockLength )
-			->optSet( 'cs_block', $csBlock === 'Y' ? 'block_with_unblock' : 'disabled' )
-			->store();
-
 		$resp = parent::processStepFormSubmit( $form );
-		$resp->success = true;
-		$resp->message = __( 'IP blocking options have been applied', 'wp-simple-firewall' );
+		$con = self::con();
+
+		$level = \strtolower( $form[ 'security_profile' ] ?? '' );
+		if ( empty( $level ) ) {
+			$resp->success = true;
+			$resp->message = __( 'No profile was applied' );
+		}
+		else {
+			try {
+				$con->comps->security_profiles->applyLevel( $level );
+				$resp->success = true;
+				$resp->message = sprintf( __( "Profile '%s' was applied.", 'wp-simple-firewall' ), $con->comps->security_profiles->meta( $level )[ 'title' ] );
+			}
+			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
+				$resp->success = false;
+				$resp->message = $resp->error = __( 'An unsupported profile was selected' );
+			}
+		}
 		return $resp;
 	}
 
@@ -53,12 +38,41 @@ class ApplySecurityProfile extends Base {
 	}
 
 	protected function getStepRenderData() :array {
+		$con = self::con();
+		$secProfiles = $con->comps->security_profiles;
 		return [
 			'strings' => [
 				'step_title' => __( 'Apply Ready-Made Security Profile', 'wp-simple-firewall' ),
 			],
+			'imgs'    => [
+				'svgs' => [
+					'shield_x'           => $con->svgs->raw( 'shield-fill-x.svg' ),
+					'shield_check'       => $con->svgs->raw( 'shield-fill-check.svg' ),
+					'shield_exclamation' => $con->svgs->raw( 'shield-fill-exclamation.svg' ),
+				],
+			],
 			'vars'    => [
-			]
+				'profile_levels' => [
+					Levels::LIGHT  => \array_merge(
+						$secProfiles->meta( Levels::LIGHT ),
+						[
+							'structure' => $secProfiles->buildForLevel( Levels::LIGHT ),
+						],
+					),
+					Levels::MEDIUM => \array_merge(
+						$secProfiles->meta( Levels::MEDIUM ),
+						[
+							'structure' => $secProfiles->buildForLevel( Levels::MEDIUM ),
+						],
+					),
+					Levels::STRONG => \array_merge(
+						$secProfiles->meta( Levels::STRONG ),
+						[
+							'structure' => $secProfiles->buildForLevel( Levels::STRONG ),
+						],
+					),
+				],
+			],
 		];
 	}
 }

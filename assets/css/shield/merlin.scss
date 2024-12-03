@@ -1,0 +1,59 @@
+﻿:root {
+  --sw-border-color: #eeeeee;
+  --sw-toolbar-btn-color: #ffffff;
+  --sw-toolbar-btn-background-color: #4aa938;
+  --sw-anchor-default-primary-color: #f8f9fa;
+  --sw-anchor-default-secondary-color: #e7e7e7;
+  --sw-anchor-active-primary-color: #5aaf51;
+  --sw-anchor-active-secondary-color: #ffffff;
+  --sw-anchor-done-primary-color: #abc0ab;
+  --sw-anchor-done-secondary-color: #fefefe;
+  --sw-anchor-disabled-primary-color: #f8f9fa;
+  --sw-anchor-disabled-secondary-color: #dbe0e5;
+  --sw-anchor-error-primary-color: #dc3545;
+  --sw-anchor-error-secondary-color: #ffffff;
+  --sw-anchor-warning-primary-color: #ffc107;
+  --sw-anchor-warning-secondary-color: #ffffff;
+  --sw-progress-color: #3fad41;
+  --sw-progress-background-color: #f8f9fa;
+  --sw-loader-color: #59a84d;
+  --sw-loader-background-color: #f8f9fa;
+  --sw-loader-background-wrapper-color: rgba(255, 255, 255, 0.7);
+}
+
+.sw .list-group {
+  --bs-list-group-bg: transparent;
+}
+
+.sw h4 {
+}
+
+.sw li,
+.sw p {
+  font-size: 14px;
+}
+
+.sw .vimeo-feather {
+  box-shadow: 2px 2px 5px rgb(0 0 0 / 20%);
+}
+
+.sw input[name=offenses] {
+  width: 60px;
+}
+
+.security_profiles_section .card:hover {
+  cursor: pointer;
+}
+
+.security_profiles_section .card.active_profile {
+  box-shadow: 2px 2px 4px rgba(0, 128, 0, 0.3);
+}
+
+.security_profiles_section .card.active_profile > .card-header {
+  color: $white;
+  background-color: $primary;
+}
+
+.security_profiles_section .card.active_profile > .card-body {
+  background-color: rgba(0,128,0,0.1);
+}

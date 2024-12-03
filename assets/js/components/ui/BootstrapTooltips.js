@@ -38,20 +38,25 @@ export class BootstrapTooltips extends BaseComponent {
 	};
 
 	tooltips() {
-		this.actionTooltips = [];
-		shieldEventsHandler_Main.add_Mouseover(
-			'[data-bs-toggle="tooltip"]',
-			( targetEl ) => {
-				Tooltip.getOrCreateInstance( targetEl )
-			},
-			false
-		);
+		const primaryContainer = document.getElementById( 'PageContainer-Apto' ) || false;
+		if ( primaryContainer ) {
+			BootstrapTooltips.RegisterNewTooltipsWithin( primaryContainer );
+		}
+		// shieldEventsHandler_Main.add_Mouseover(
+		// 	'[data-bs-toggle="tooltip"]',
+		// 	( targetEl ) => {
+		// 		Tooltip.getOrCreateInstance( targetEl )
+		// 	},
+		// 	false
+		// );
 	};
 
-	registerNewTooltipsWithin( container ) {
+	static RegisterNewTooltipsWithin( container ) {
 		if ( container ) {
-			container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => Tooltip.getOrCreateInstance( targetEl ) );
+			container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => {
+				Tooltip.getOrCreateInstance( targetEl )
+			} );
 		}
-		console.log( container );
+		// console.log( container );
 	}
 }
