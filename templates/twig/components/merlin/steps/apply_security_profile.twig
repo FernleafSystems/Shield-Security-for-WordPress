@@ -41,7 +41,7 @@
 										<span class="fw-bold">{{ section.title }}</span>
 										<ul class="ps-2" style="list-style: outside square">
 											{% for item in section.opts %}
-												<li class="d-flex justify-content-between">
+												<li class="d-flex justify-content-between mb-1">
 													<span class="{% if not item.is_available %}text-secondary text-opacity-50{% endif %}"
 														{% if item.tooltip is not empty %}
 															data-bs-toggle="tooltip"
@@ -56,7 +56,7 @@
 													{% elseif item.value is same as (false) or item.value is same as ('N') %}
 														<span class="text-warning {% if not item.is_available %}text-opacity-50{% endif %}">{{ imgs.svgs.shield_x|raw }}</span>
 													{% else %}
-														<span class="code {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">{{ item.value }}</span>
+														<span class="badge text-bg-secondary {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">{{ item.value }}</span>
 													{% endif %}
 												</li>
 											{% endfor %}

@@ -1,4 +1,4 @@
-﻿=== Shield Security - Smart Bot Blocking & Intrusion Prevention Security  ===
+﻿=== Shield: Blocks Bots, Protects Users, and Prevents Security Breaches  ===
 Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://clk.shldscrty.com/bw
 License: GPLv3
@@ -10,7 +10,7 @@ Recommended PHP: 7.4
 Tested up to: 6.7
 Stable tag: 20.1.0
 
-Real security is stopping attackers dead, before they hack your site. Bad Bots Are Your #1 Security Threat.
+Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield stops them.
 
 == Description ==
 
@@ -24,17 +24,17 @@ Google reCAPTCHA and CloudFlare Turnstile are considered the best way to detect 
 
 Shield's exclusive *silent*CAPTCHA detects bad bots and blocks them from taking any abusive actions on your site, such as brute-force user login attacks and WP Comments SPAM.
 
-Furthermore, privacy directives from legislation such as Europe's GDPR restrict what data you're allowed to share of your visitors. All *silent*CAPTCHA data is kept on your WordPress site and ensures your compliance with GDPR regulations.
+Furthermore, privacy directives from legislation such as Europe's GDPR restrict what data you may share of your visitors. All *silent*CAPTCHA data is kept on your WordPress site and ensures full compliance with GDPR regulations.
 
-### Comprehensive Activity Log Coverage
+### Comprehensive Activity Log
 
 Shield's has best-in-class logging that documents every WP action on your site.
 
-Unlike your current logging solution, Shield detects changes to your WordPress sites that occur directly on your database. e.g. by hackers that have infiltrated your defenses via an exposed vulnerability.
+Unlike existing logging solutions, Shield detects changes to your WordPress sites that happen directly on your database. e.g. by hackers that have infiltrated your defenses via an exposed vulnerability.
 
 No other WordPress security plugin does this.
 
-### Limit Login Attempts and Block Registration Forms SPAM
+### Limit Login Attempts and Block User Registration SPAM
 
 *silent*CAPTCHA technology is invisible to your visitors and protects your WordPress login, registration and lost password forms from brute force attacks, and eliminates user registration SPAM from bots.
 

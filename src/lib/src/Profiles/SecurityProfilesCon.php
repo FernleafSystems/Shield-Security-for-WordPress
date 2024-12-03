@@ -123,8 +123,11 @@ class SecurityProfilesCon {
 				Levels::MEDIUM => [
 					'block_author_discovery' => 'Y',
 					'disable_xmlrpc'         => 'Y',
+					'block_sql_queries'      => 'Y',
 				],
 				Levels::STRONG => [
+					'block_php_code'            => 'Y',
+					'block_aggressive'          => 'Y',
 					'disable_anonymous_restapi' => 'Y',
 				],
 			],
@@ -152,7 +155,7 @@ class SecurityProfilesCon {
 				$section[ 'opts' ] = \array_map(
 					function ( array $opt ) {
 						return \array_merge( $opt, [
-							'tooltip'      => sprintf('%s%s',
+							'tooltip'      => sprintf( '%s%s',
 								self::con()->opts->optHasAccess( $opt[ 'opt_key' ] ) ? '' : '(Upgrade Required) ',
 								$opt[ 'tooltip' ]
 							),
@@ -270,13 +273,6 @@ class SecurityProfilesCon {
 						'tooltip'  => __( 'Restrict file editing within WP admin dashboard', 'wp-simple-firewall' ),
 					],
 					[
-						'item_key' => 'block_dir_traversal',
-						'opt_key'  => 'block_dir_traversal',
-						'value'    => 'N',
-						'title'    => sprintf( '%s: %s', 'WAF', __( 'Dir Traversal', 'wp-simple-firewall' ) ),
-						'tooltip'  => sprintf( '%s: %s', __( 'WAF Rule', 'wp-simple-firewall' ), __( 'Block directory traversal requests', 'wp-simple-firewall' ) ),
-					],
-					[
 						'item_key' => 'block_author_discovery',
 						'opt_key'  => 'block_author_discovery',
 						'value'    => 'N',
@@ -296,6 +292,34 @@ class SecurityProfilesCon {
 						'value'    => 'N',
 						'title'    => __( 'Block Anon REST API', 'wp-simple-firewall' ),
 						'tooltip'  => __( 'Disable anonymous requests to REST API endpoint', 'wp-simple-firewall' ),
+					],
+					[
+						'item_key' => 'block_dir_traversal',
+						'opt_key'  => 'block_dir_traversal',
+						'value'    => 'N',
+						'title'    => sprintf( '%s: %s', 'WAF', __( 'Dir Traversal', 'wp-simple-firewall' ) ),
+						'tooltip'  => sprintf( '%s: %s', __( 'WAF Rule', 'wp-simple-firewall' ), __( 'Block directory traversal requests', 'wp-simple-firewall' ) ),
+					],
+					[
+						'item_key' => 'block_sql_queries',
+						'opt_key'  => 'block_sql_queries',
+						'value'    => 'N',
+						'title'    => sprintf( '%s: %s', 'WAF', __( 'SQL Queries', 'wp-simple-firewall' ) ),
+						'tooltip'  => sprintf( '%s: %s', __( 'WAF Rule', 'wp-simple-firewall' ), __( 'Block sql queries in requests', 'wp-simple-firewall' ) ),
+					],
+					[
+						'item_key' => 'block_php_code',
+						'opt_key'  => 'block_php_code',
+						'value'    => 'N',
+						'title'    => sprintf( '%s: %s', 'WAF', __( 'PHP Code', 'wp-simple-firewall' ) ),
+						'tooltip'  => sprintf( '%s: %s', __( 'WAF Rule', 'wp-simple-firewall' ), __( 'Block PHP code in requests', 'wp-simple-firewall' ) ),
+					],
+					[
+						'item_key' => 'block_aggressive',
+						'opt_key'  => 'block_aggressive',
+						'value'    => 'N',
+						'title'    => sprintf( '%s: %s', 'WAF', __( 'Aggressive Rules', 'wp-simple-firewall' ) ),
+						'tooltip'  => sprintf( '%s: %s', __( 'WAF Rule', 'wp-simple-firewall' ), __( 'Aggressive ruleset to block malicious requests', 'wp-simple-firewall' ) ),
 					],
 				],
 			],

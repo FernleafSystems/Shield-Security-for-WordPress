@@ -59,11 +59,9 @@ export class Merlin extends BaseComponent {
 			}
 
 			const input = document.getElementById( 'SelectedSecurityProfile' ) || false;
-			console.log( input );
 			if ( input ) {
 				const activeContainer = this.merlinContainer.querySelector( '.security_profiles_section .card.active_profile' );
-				console.log( activeContainer.dataset );
-				input.value = activeContainer ? activeContainer.dataset[ 'profile' ] : 'none';
+				input.value = activeContainer ? activeContainer.dataset[ 'profile' ] : '';
 			}
 		} );
 	}

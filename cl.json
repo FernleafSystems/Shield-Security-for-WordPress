@@ -1,7 +1,7 @@
 {
   "20.1": {
     "version":     "20.1",
-    "released_at": 1732530000,
+    "released_at": 1733232000,
     "hrefs":       {
       "release": "https://clk.shldscrty.com/shieldrelease201",
       "upgrade": "https://clk.shldscrty.com/shieldupgradeguide201"
@@ -15,6 +15,14 @@
         "title":       "FileLocker Support For Theme functions.php",
         "description": [
           "We've added FileLocker protection for the the active theme's functions.php file."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Security Profiles (beta)",
+        "description": [
+          "We've introduced the ability to apply pre-configured security profiles to save time during setup."
         ],
         "href":        ""
       },
