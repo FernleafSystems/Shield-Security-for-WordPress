@@ -373,22 +373,6 @@ class Controller extends DynPropertiesClass {
 		$this->comps->execute();
 
 		( new Updates\HandleUpgrade() )->execute();
-
-		// Should execute after modules have initiated
-		$this->rules = new Shield\Rules\RulesController();
-		$this->rules
-			->setThisRequest( $this->this_req )
-			->execute();
-
-		if ( !$this->cfg->rebuilt ) {
-
-			$this->rules->processRules();
-
-			$this->plugin->getProcessor()->execute();
-
-			// This is where any rules responses will execute (i.e. after processors are run):
-			do_action( $this->prefix( 'after_run_processors' ) );
-		}
 	}
 
 	/**
@@ -455,6 +439,7 @@ class Controller extends DynPropertiesClass {
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
+		add_action( 'after_setup_theme', [ $this, 'onWpAfterSetupTheme' ], \PHP_INT_MIN );
 		add_action( 'init', [ $this, 'onWpInit' ], Shield\Controller\Plugin\HookTimings::INIT_MAIN_CONTROLLER );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
@@ -468,6 +453,32 @@ class Controller extends DynPropertiesClass {
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $byPass ) {
 			return $byPass || ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() );
 		}, \PHP_INT_MAX );
+	}
+
+	public function onWpAfterSetupTheme() {
+		$this->execRules();
+	}
+
+	/**
+	 * Since WP 6.7+ the earliest we can run this is 'after_setup_theme' due to the changes with translations.
+	 */
+	private function execRules() {
+		// Should execute after modules have initiated
+		$this->rules = new Shield\Rules\RulesController();
+		$this->rules
+			->setThisRequest( $this->this_req )
+			->execute();
+
+		if ( !$this->cfg->rebuilt ) {
+			try {
+				$this->rules->processRules();
+				$this->plugin->getProcessor()->execute();
+			}
+			catch ( \Exception $e ) {
+			}
+			// This is where any rules responses will execute (i.e. after processors are run):
+			do_action( $this->prefix( 'after_run_processors' ) );
+		}
 	}
 
 	public function onWpAdminInit() {
