@@ -38,22 +38,28 @@ if ( defined( 'ABSPATH' ) ) {
 	}
 	elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
-		require_once( dirname( __FILE__ ).'/plugin_autoload.php' );
+		try {
+			require_once( dirname( __FILE__ ).'/plugin_compatibility.php' );
 
-		add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
-		function icwp_wpsf_init() {
-			$rootFile = __FILE__;
-			require_once( dirname( __FILE__ ).'/plugin_init.php' );
+			require_once( dirname( __FILE__ ).'/plugin_autoload.php' );
+
+			add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
+			function icwp_wpsf_init() {
+				$rootFile = __FILE__;
+				require_once( dirname( __FILE__ ).'/plugin_init.php' );
+			}
+
+			register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
+			function icwp_wpsf_onactivate() {
+				icwp_wpsf_init();
+				try {
+					\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
+				}
+				catch ( \Exception|\Error $e ) {
+				}
+			}
 		}
-
-		register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
-		function icwp_wpsf_onactivate() {
-			icwp_wpsf_init();
-			try {
-				\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
-			}
-			catch ( \Exception|\Error $e ) {
-			}
+		catch ( \Exception $e ) {
 		}
 	}
 	else {

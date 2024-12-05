@@ -60,6 +60,14 @@
         "href":        ""
       },
       {
+        "type":        "improved",
+        "title":       "Added Conflict Protection",
+        "description": [
+          "Added protection against fatal errors caused by plugin conflicts. When conflict found, Shield is 'paused'. For now only plugin is WP RSS Aggregator."
+        ],
+        "href":        ""
+      },
+      {
         "type":        "removed",
         "title":       "Removed Redundant Options Checkbox",
         "description": [
