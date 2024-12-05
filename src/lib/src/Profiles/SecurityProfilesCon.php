@@ -18,6 +18,10 @@ class SecurityProfilesCon {
 		( new ApplyProfile( $this->buildForLevel( $level ) ) )->run();
 	}
 
+	public function buildForCurrent() :array {
+		return ( new ProfileFromConfig() )->build();
+	}
+
 	/**
 	 * Each level is build upon the sublevel so that we can create each profile as a diff from the previous.
 	 *
@@ -47,15 +51,19 @@ class SecurityProfilesCon {
 
 	public function meta( string $level ) :array {
 		return [
-				   Levels::LIGHT  => [
+				   Levels::CURRENT => [
+					   'title'    => __( 'Current', 'wp-simple-firewall' ),
+					   'subtitle' => __( 'Your current security posture', 'wp-simple-firewall' ),
+				   ],
+				   Levels::LIGHT   => [
 					   'title'    => __( 'Light', 'wp-simple-firewall' ),
 					   'subtitle' => __( 'A light-touch security posture', 'wp-simple-firewall' ),
 				   ],
-				   Levels::MEDIUM => [
+				   Levels::MEDIUM  => [
 					   'title'    => __( 'Medium', 'wp-simple-firewall' ),
 					   'subtitle' => __( 'A robust security posture', 'wp-simple-firewall' ),
 				   ],
-				   Levels::STRONG => [
+				   Levels::STRONG  => [
 					   'title'    => __( 'Strong', 'wp-simple-firewall' ),
 					   'subtitle' => __( 'A powerful security posture', 'wp-simple-firewall' ),
 				   ],

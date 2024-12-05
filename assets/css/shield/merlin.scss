@@ -43,10 +43,28 @@
 
 #TableSecurityProfiles td,
 #TableSecurityProfiles th,
-#TableSecurityProfiles .level_cell {
+#TableSecurityProfiles .level_cell,
+#TableSecurityProfiles .level_current {
   border-color: transparent;
   background-color: transparent;
   cursor: pointer;
+}
+
+#TableSecurityProfiles .level_current > div {
+  border-width: 0 2px 0 2px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.1);
+  cursor: auto;
+}
+
+#TableSecurityProfiles thead th.level_current > div {
+  border-top-width: 2px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+#TableSecurityProfiles tfoot td.level_current > div {
+  border-bottom-width: 2px;
 }
 
 #TableSecurityProfiles .level_cell > div {
@@ -62,12 +80,13 @@
   border-color: transparent;
 }
 
+#TableSecurityProfiles thead th.level_current > div,
 #TableSecurityProfiles thead th.level_cell > div {
   border-radius: 5px 5px 0 0;
 }
 
-#TableSecurityProfiles .level_cell.active_column,
-#TableSecurityProfiles .level_cell.hover_column {
+#TableSecurityProfiles .level_cell.active_column > div,
+#TableSecurityProfiles .level_cell.hover_column > div {
   background-color: rgba(0, 128, 0, 0.1);
 }
 

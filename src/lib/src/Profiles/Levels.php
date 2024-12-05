@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Profiles;
 
 class Levels {
 
+	public const CURRENT = 'current';
 	public const LIGHT = 'light';
 	public const MEDIUM = 'medium';
 	public const STRONG = 'strong';

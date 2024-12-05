@@ -26,13 +26,15 @@
 
 		<div class="row mb-2 security_profiles_section">
 
-			<table class="table table-sm table-borderless table-hover table-responsive" id="TableSecurityProfiles" style="height:fit-content">
+			<table class="table table-sm table-borderless table-hover table-responsive" id="TableSecurityProfiles"
+				   style="height:fit-content">
 				<thead>
 				<tr>
 					<th>&nbsp;</th>
 					{% for level_key,level in vars.profile_levels %}
-						<th class="p-0 border-0 level_cell level_cell_{{ level_key }}" data-level="{{ level_key }}">
-							<div class="p-2">
+						<th class="p-0 border-0 {% if level_key == 'current' %}level_current{% else %}level_cell level_cell_{{ level_key }}{% endif %}"
+							data-level="{{ level_key }}">
+							<div class="ms-1 p-2">
 								<h4 class="m-0">{{ level.title }}</h4>
 								<small>{{ level.subtitle }}</small>
 							</div>
@@ -45,30 +47,30 @@
 					<tr>
 						<th><div class="pt-3">{{ section.title }}</div></th>
 						{% for level_key,level in vars.profile_levels %}
-							<td class="p-0 border-0 level_cell level_cell_{{ level_key }}" data-level="{{ level_key }}">
-								<div class="p-2" style="line-height: 30px;">&nbsp;</div>
+							<td class="p-0 border-0 {% if level_key == 'current' %}level_current{% else %}level_cell level_cell_{{ level_key }}{% endif %}" data-level="{{ level_key }}">
+								<div class="ms-1 p-2" style="line-height: 30px;">&nbsp;</div>
 							</td>
 						{% endfor %}
 					</tr>
 
 					{% for item_key,item in section.opts %}
 					<tr class="h-100"
-							                            {% if item.tooltip is not empty %}
-							                                data-bs-toggle="tooltip"
-							                                data-bs-trigger="hover"
-							                                data-bs-placement="top"
-							                                data-bs-title="{{ item.tooltip }}"
-							                                title="{{ item.tooltip }}"
-							                            {% endif %}
+							{% if item.tooltip is not empty %}
+								data-bs-toggle="tooltip"
+								data-bs-trigger="hover"
+								data-bs-placement="top"
+								data-bs-title="{{ item.tooltip }}"
+								title="{{ item.tooltip }}"
+							{% endif %}
 					>
 						<td class="border-0 py-0">
 							<div class="ps-4 py-2 pe-0 fs-6 {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">{{ item.title }}</div>
 						</td>
 
 						{% for level_key,level in vars.profile_levels %}
-							<td class="p-0 border-0 fs-6 level_cell level_cell_{{ level_key }}"
+							<td class="p-0 border-0 fs-6 {% if level_key == 'current' %}level_current{% else %}level_cell level_cell_{{ level_key }}{% endif %}"
 								data-level="{{ level_key }}">
-								<div class="h-100 p-2 text-center">
+								<div class="h-100 ms-1 p-2 text-center">
 									{% set item_value = level.structure[section_key]['opts'][item_key].value %}
 									{% if item_value is same as (true) or item_value is same as ('Y') %}
 										<span class=" text-primary {% if not item.is_available %}text-opacity-50{% endif %}">{{ imgs.svgs.shield_check|raw }}</span>
@@ -87,8 +89,8 @@
 				<tfoot>
 					<th>&nbsp;</th>
 					{% for level_key,level in vars.profile_levels %}
-						<td class="p-0 border-0 level_cell level_cell_{{ level_key }}" data-level="{{ level_key }}">
-							<div class="p-2">&nbsp;</div>
+						<td class="p-0 border-0 {% if level_key == 'current' %}level_current{% else %} level_cell level_cell_{{ level_key }}{% endif %}" data-level="{{ level_key }}">
+							<div class="ms-1 p-2">&nbsp;</div>
 						</td>
 					{% endfor %}
 				</tfoot>
