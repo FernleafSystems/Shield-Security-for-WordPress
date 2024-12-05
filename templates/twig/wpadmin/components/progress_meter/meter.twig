@@ -16,14 +16,31 @@
 	{# https://github.com/tomik23/circular-progress-bar #}
 		<div class="row">
 
-			<div class="col-auto mb-3 mb-sm-0 d-flex justify-content-center align-items-start px-3">
+			<div class="col-auto mb-3 mb-sm-0 d-flex flex-column justify-content-start align-items-center px-3">
 
-				<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
-					 data-value="{{ meter.totals.percentage }}"
-					 data-grade="{{ meter.totals.letter_score }}"
-					 data-rgbs="{{ meter.rgbs|join(',') }}"
-				></div>
+				<div class="mb-2">
+					<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
+						 data-value="{{ meter.totals.percentage }}"
+						 data-grade="{{ meter.totals.letter_score }}"
+						 data-rgbs="{{ meter.rgbs|join(',') }}"
+					></div>
+				</div>
 
+				<div>
+
+				<a class="mt-2 btn offcanvas_meter_analysis
+					btn-outline-{% if meter.status == 'l' %}danger
+					{% elseif meter.status == 'm' %}warning
+					{% elseif meter.status == 'h' %}success
+					{% else %}primary
+					{% endif %}"
+				   data-meter="{{ meter_slug }}"
+				   href="javascript:{}"
+				   aria-controls="ShieldProgressMeterOffcanvas">
+					<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+					{{ strings.analysis }}
+					</a>
+				</div>
 			</div>
 
 			<div class="col description pb-1 px-2">
@@ -51,21 +68,6 @@
 					</div>
 				</div>
 
-			</div>
-
-			<div class="col-lg-12 col-xl-4 d-flex justify-content-center align-items-start border-1">
-				<a class="mt-2 btn offcanvas_meter_analysis
-					btn-outline-{% if meter.status == 'l' %}danger
-					{% elseif meter.status == 'm' %}warning
-					{% elseif meter.status == 'h' %}success
-					{% else %}primary
-					{% endif %}"
-				   data-meter="{{ meter_slug }}"
-				   href="javascript:{}"
-				   aria-controls="ShieldProgressMeterOffcanvas">
-					<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
-					{{ strings.analysis }}
-					</a>
 			</div>
 
 		</div>
