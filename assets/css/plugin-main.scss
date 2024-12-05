@@ -1,7 +1,7 @@
 $primary: #008000;
 $secondary: #3F3D56;
 $info: #0ea8c7;
-$warning: #d1a00c;
+$warning: #edb41d;
 $danger: #c62f3e;
 $code-color: $secondary;
 @import "~bootstrap/scss/bootstrap";
@@ -17,6 +17,7 @@ $code-color: $secondary;
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
 @import './shield/meters.scss';
+@import './shield/options.scss';
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
@@ -194,6 +195,10 @@ label input[type=checkbox] {
 
 #SectionStats {
   overflow: auto;
+}
+
+.btn-outline-warning {
+  color: $secondary;
 }
 
 .stat.card .card-header {
@@ -484,10 +489,6 @@ table.odp-table.scan-table td.column-path code {
 .option-help-container .svg-container > svg {
   width: 18px;
   height: 18px;
-}
-
-.options_form_for .option-description {
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .options_form_for .option-description p {
@@ -931,24 +932,6 @@ body.folded #FooterBannerGoPro {
 
 .tooltip {
   background-color: #0f630f !important;
-}
-
-.progress-metercard .letter-score {
-  position: absolute;
-  font-size: 3rem;
-  margin: -10px auto 0;
-  text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
-}
-
-.progress-metercard .description {
-  border-bottom: 1px solid #dddddd;
-}
-
-.progress-metercard.progress-metercard-summary .description {
-  border-bottom-color: transparent;
-}
-
-.progress-metercard-summary {
 }
 
 #ScanResultsTabs table td.actions {

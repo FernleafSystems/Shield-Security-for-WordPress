@@ -82,28 +82,6 @@
 					   data-bs-placement="top"
 					   data-bs-title="Upgrade to Pro to unlock">{{ imgs.svgs.upgrade|raw }}</a>
 				{% endif %}
-
-				{% if flags.show_transfer_switch %}
-
-					{% if option.key in vars.xferable_opts %}
-						<span class="form-check float-end toggle-importexport-inclusion"
-							  data-bs-toggle="tooltip"
-							  data-bs-placement="left"
-							  data-bs-title="{{ strings.is_opt_importexport }}"
-						>
-							<input type="checkbox"
-								   class="form-check-input"
-								   aria-labelledby="Label-{{ option.key }}"
-								   data-key="{{ option.key }}"
-								{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
-							/>
-							<label class="custom-control-label" for="optxfer-{{ option.key }}">
-								<span class="svg-container"
-									  title="{{ strings.importexport }}"
-								>{{ imgs.svgs.importexport|raw }}</span></label>
-						</span>
-					{% endif %}
-				{% endif %}
 				<div class="clearfix"></div>
 			</div>
 
@@ -115,7 +93,7 @@
 		{% if option.type is same as('checkbox') %}
 			<div class="form-check">
 				<input type="checkbox"
-					   class="form-check-input"
+					   class="form-check-input me-0"
 					   id="Opt-{{ option.key }}"
 					   name="{{ option.key }}"
 					   {% if option.disabled %}disabled="disabled"{% endif %}
@@ -253,10 +231,33 @@
 
 
 		<div id="Description-{{ option.key }}"
-			 class="option-description option-description-{{ option.key }} ps-3 pt-2 {{ option.is_focus ? '':'hidden' }}">
+			 class="pt-2 option-description option-description-{{ option.key }} {{ option.is_focus ? '':'hidden' }}">
 			{% for desc in option.description %}
 				<p>{{ desc|raw }}</p>
 			{% endfor %}
+
+			{% if flags.show_transfer_switch %}
+
+				{% if option.key in vars.xferable_opts %}
+					<div class="form-check toggle-importexport-container mt-3 mb-4 p-2 border border-1 rounded"
+						 data-bs-toggle="tooltip"
+						 data-bs-trigger="hover"
+						 data-bs-placement="left"
+						 data-bs-title="{{ strings.toggle_importexport }}"
+					>
+						<label class="custom-control-label toggle-importexport-inclusion" for="optxfer-{{ option.key }}">
+							<input type="checkbox"
+								   id="optxfer-{{ option.key }}"
+{#								   class="form-check-input"#}
+								   aria-labelledby="Label-{{ option.key }}"
+								   data-key="{{ option.key }}"
+									{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
+							/>
+							{{ strings.is_opt_importexport }}
+						</label>
+					</div>
+				{% endif %}
+			{% endif %}
 		</div>
 
 	</div>
