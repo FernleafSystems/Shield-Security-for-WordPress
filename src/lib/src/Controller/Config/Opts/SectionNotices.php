@@ -68,7 +68,7 @@ class SectionNotices {
 					$notices[] = sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
 						sprintf( __( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ),
-							\implode( ', ',
+							'<br />'.\implode( ', ',
 								\array_intersect_key(
 									\array_merge(
 										\array_flip( $locations ),

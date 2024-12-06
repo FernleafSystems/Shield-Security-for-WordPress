@@ -619,6 +619,15 @@ class StringsOptions {
 				];
 				break;
 
+			case 'enable_auto_integrations':
+				$name = __( 'Auto-Integrations', 'wp-simple-firewall' );
+				$summary = __( "Automatically Switch-On Built-in Integrations As They're Detected", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available.', 'wp-simple-firewall' ),
+					__( "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'enable_mainwp':
 				$name = __( 'MainWP Integration', 'wp-simple-firewall' );
 				$summary = __( "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations", 'wp-simple-firewall' );

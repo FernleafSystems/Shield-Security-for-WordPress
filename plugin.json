@@ -3048,6 +3048,11 @@
             "cap":       "thirdparty_scan_users"
           },
           {
+            "value_key": "simplemembership",
+            "text":      "Simple Membership",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
             "value_key": "ultimatemember",
             "text":      "Ultimate Member",
             "cap":       "thirdparty_scan_users"
