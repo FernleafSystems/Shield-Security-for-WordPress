@@ -1,5 +1,5 @@
 {
-  "properties":       {
+  "properties":   {
     "version":                 "20.1.0",
     "release_timestamp":       1733232000,
     "build":                   "202412.0301",
@@ -15,12 +15,12 @@
     "autoupdate_days":         5,
     "enable_premium":          true
   },
-  "requirements":     {
+  "requirements": {
     "php":       "7.4",
     "wordpress": "5.7",
     "mysql":     "5.6"
   },
-  "paths":            {
+  "paths":        {
     "config":           "config",
     "source":           "src",
     "autoload":         "lib/vendor/autoload.php",
@@ -31,7 +31,7 @@
     "flags":            "flags",
     "cache":            "shield"
   },
-  "includes":         {
+  "includes":     {
     "tp":   {
       "bootstrap":    {
         "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css",
@@ -163,13 +163,13 @@
       }
     ]
   },
-  "menu":             {
+  "menu":         {
     "show":           true,
     "top_level":      true,
     "do_submenu_fix": true,
     "has_submenu":    true
   },
-  "labels":           {
+  "labels":       {
     "Name":                "Shield Security",
     "MenuTitle":           "Shield Security",
     "Description":         "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
@@ -185,17 +185,17 @@
     "icon_url_32x32":      "pluginlogo_32x32.png",
     "icon_url_128x128":    "pluginlogo_128x128.png"
   },
-  "meta":             {
+  "meta":         {
     "url_repo_home":       "https://clk.shldscrty.com/eh",
     "privacy_policy_href": "https://clk.shldscrty.com/shieldprivacypolicy"
   },
-  "plugin_meta":      {
+  "plugin_meta":  {
     "rate": {
       "name": "Love it? Rate This Plugin &#10025;",
       "href": "https://clk.shldscrty.com/wpsf29"
     }
   },
-  "action_links":     {
+  "action_links": {
     "remove": null,
     "add":    [
       {
@@ -215,7 +215,7 @@
       }
     ]
   },
-  "config_spec":      {
+  "config_spec":  {
     "modules":       {
       "admin_access_restriction": {
         "slug":         "admin_access_restriction",
@@ -1682,18 +1682,22 @@
         "description":     "Show links to re-install plugins and offer re-install when activating plugins."
       },
       {
-        "key":       "delay_tracking",
-        "section":   "section_hidden",
-        "sensitive": true,
-        "type":      "array",
-        "default":   []
+        "key":     "delay_tracking",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":       "instant_alerts_data",
-        "section":   "section_hidden",
-        "sensitive": true,
-        "type":      "array",
-        "default":   []
+        "key":     "auto_integrations_track",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
+      },
+      {
+        "key":     "instant_alerts_data",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
       },
       {
         "key":              "scans_to_build",
@@ -1722,6 +1726,22 @@
         "tracking_exclude": true,
         "type":             "array",
         "default":          []
+      },
+      {
+        "key":             "enable_auto_integrations",
+        "section":         "section_integrations",
+        "zone_comp_slugs": [
+          "module_integrations"
+        ],
+        "premium":         true,
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       "",
+        "name":            "Enable Auto-Integrations",
+        "summary":         "Automatically Enable 3rd Party Integrations As They're Detected",
+        "description":     "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
       },
       {
         "key":             "enable_mainwp",
@@ -2785,16 +2805,16 @@
         "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
       },
       {
-        "key":             "enable_antibot_check",
-        "section":         "section_deprecated",
-        "default":         "N",
-        "type":            "checkbox",
-        "link_info":       "https://clk.shldscrty.com/k0",
-        "link_blog":       "https://clk.shldscrty.com/jo",
-        "beacon_id":       426,
-        "name":            "Block Login Bots",
-        "summary":         "Block Login Attempted By Automated Bots",
-        "description":     "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+        "key":         "enable_antibot_check",
+        "section":     "section_deprecated",
+        "default":     "N",
+        "type":        "checkbox",
+        "link_info":   "https://clk.shldscrty.com/k0",
+        "link_blog":   "https://clk.shldscrty.com/jo",
+        "beacon_id":   426,
+        "name":        "Block Login Bots",
+        "summary":     "Block Login Attempted By Automated Bots",
+        "description": "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
       },
       {
         "key":         "enable_login_gasp_check",

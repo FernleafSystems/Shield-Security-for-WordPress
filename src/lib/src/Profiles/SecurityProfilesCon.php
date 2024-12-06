@@ -57,7 +57,7 @@ class SecurityProfilesCon {
 				   ],
 				   Levels::LIGHT   => [
 					   'title'    => __( 'Light', 'wp-simple-firewall' ),
-					   'subtitle' => __( 'A light-touch security posture', 'wp-simple-firewall' ),
+					   'subtitle' => __( 'A light-touch security profile', 'wp-simple-firewall' ),
 				   ],
 				   Levels::MEDIUM  => [
 					   'title'    => __( 'Medium', 'wp-simple-firewall' ),
@@ -65,7 +65,7 @@ class SecurityProfilesCon {
 				   ],
 				   Levels::STRONG  => [
 					   'title'    => __( 'Strong', 'wp-simple-firewall' ),
-					   'subtitle' => __( 'A powerful security posture', 'wp-simple-firewall' ),
+					   'subtitle' => __( 'A powerful, defensive security posture', 'wp-simple-firewall' ),
 				   ],
 			   ][ $level ] ?? [];
 	}
@@ -152,6 +152,15 @@ class SecurityProfilesCon {
 				Levels::STRONG => [
 					'enable_comments_human_spam_filter' => 'Y',
 					'comments_cooldown'                 => 60,
+				],
+			],
+			'integrations'  => [
+				Levels::LIGHT  => [
+				],
+				Levels::MEDIUM => [
+				],
+				Levels::STRONG => [
+					'enable_auto_integrations' => 'Y',
 				],
 			],
 		];
@@ -354,6 +363,18 @@ class SecurityProfilesCon {
 						'value'    => 0,
 						'title'    => __( 'Comments Cooldown', 'wp-simple-firewall' ),
 						'tooltip'  => __( '1 WP comment post permitted per interval (seconds)', 'wp-simple-firewall' ),
+					],
+				],
+			],
+			'integrations'  => [
+				'title' => __( 'Integrations', 'wp-simple-firewall' ),
+				'opts'  => [
+					[
+						'item_key' => 'enable_auto_integrations',
+						'opt_key'  => 'enable_auto_integrations',
+						'value'    => 'N',
+						'title'    => __( 'Auto-Integrations', 'wp-simple-firewall' ),
+						'tooltip'  => __( 'Automatically detect and enable 3rd party integrations as they become available', 'wp-simple-firewall' ),
 					],
 				],
 			],
