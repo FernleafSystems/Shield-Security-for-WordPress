@@ -11,6 +11,7 @@ class Wizards {
 		Steps\NewsletterSubscribe::class,
 		Steps\ApplySecurityProfile::class,
 		Steps\SecurityAdmin::class,
+		Steps\Integrations::class,
 //		Steps\BotBlocking::class,
 //		Steps\LoginProtection::class,
 //		Steps\CommentSpam::class,

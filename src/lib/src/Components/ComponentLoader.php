@@ -44,7 +44,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property AssetsCustomizer                 $assets_customizer
  * @property ApiTokenManager                  $api_token
  * @property CompCons\AutoUpdatesCon          $autoupdates
- * @property CompCons\AutoIntegrationsCon     $auto_integrations
  * @property CompCons\AntiBot\CoolDownHandler $cool_down
  * @property PluginBadge                      $badge
  * @property BotSignalsController             $bot_signals
@@ -57,6 +56,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property CompCons\HttpHeadersCon          $http_headers
  * @property ImportExportController           $import_export
  * @property CompCons\InstantAlertsCon        $instant_alerts
+ * @property CompCons\IntegrationsCon         $integrations
  * @property CompCons\IPsCon                  $ips_con
  * @property LicenseHandler                   $license
  * @property MainwpCon                        $mainwp
@@ -105,7 +105,6 @@ class ComponentLoader extends DynPropertiesClass {
 			'altcha'            => AltChaHandler::class,
 			'assets_customizer' => AssetsCustomizer::class,
 			'autoupdates'       => CompCons\AutoUpdatesCon::class,
-			'auto_integrations' => CompCons\AutoIntegrationsCon::class,
 			'api_token'         => ApiTokenManager::class,
 			'badge'             => PluginBadge::class,
 			'bot_signals'       => BotSignalsController::class,
@@ -119,6 +118,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'http_headers'      => CompCons\HttpHeadersCon::class,
 			'import_export'     => ImportExportController::class,
 			'instant_alerts'    => CompCons\InstantAlertsCon::class,
+			'integrations'      => CompCons\IntegrationsCon::class,
 			'ips_con'           => CompCons\IPsCon::class,
 			'license'           => LicenseHandler::class,
 			'mainwp'            => MainwpCon::class,

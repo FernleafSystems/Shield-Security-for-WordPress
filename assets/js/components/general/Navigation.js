@@ -2,6 +2,7 @@ import { Tab } from 'bootstrap';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class Navigation extends BaseComponent {
 
@@ -62,7 +63,7 @@ export class Navigation extends BaseComponent {
 		( new AjaxService() )
 		.send( req, false )
 		.then( ( resp ) => this.handleDynamicLoad( resp ) )
-		.finally();
+		.finally( () => BootstrapTooltips.RegisterNewTooltipsWithin( document.getElementById( 'PageMainBody_Inner-Apto' ) ) );
 	};
 
 	setActiveNavTab( urlHash = null ) {

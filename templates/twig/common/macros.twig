@@ -55,7 +55,7 @@
 	<input name="{{ name }}" value="{{ value }}" {% if id is not empty %}id="{{ id }}"{% endif %} type="hidden" />
 {% endmacro %}
 
-{% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false, classes=[]) %}
+{% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false, classes=[], enabled=true) %}
 
 	{% if id is not defined or id|length < 1 %}
 		{% set id='_'~name %}
@@ -66,9 +66,10 @@
 		<div class="col-8">
 			<div class="form-check">
 				<input type="checkbox" name="{{ name }}"
-					   class="form-check-input {{ classes|join(' ') }}"
+					   class="form-check-input {{ classes|join(' ') }} {{ enabled ? '' : 'disabled' }}"
 					   id="{{ id }}" value="{{ value }}"
 						{{ checked ? 'checked checked="checked"' : '' }}
+						{{ enabled ? '' : 'disabled' }}
 				/>
 				<label class="form-check-label" for="{{ id }}">
 					{{ label|raw }}
@@ -189,5 +190,6 @@
 {% endmacro %}
 
 {% macro silentcaptcha( classes=[] ) %}
-	<span class="silentcaptcha {{ classes|join(' ') }}"><span class="fst-italic">silent</span><span class="text-capitalize">CAPTCHA</span></span></span>
+	<span class="silentcaptcha {{ classes|join(' ') }}"><span class="fst-italic">silent</span><span
+				class="text-capitalize">CAPTCHA</span></span></span>
 {% endmacro %}

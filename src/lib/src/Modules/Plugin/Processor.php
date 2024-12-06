@@ -49,7 +49,7 @@ class Processor {
 				$components->import_export->execute();
 				$components->comment_spam->execute();
 				$components->whitelabel->execute();
-				$components->auto_integrations->execute();
+				$components->integrations->execute();
 
 				new Events\StatsWriter();
 				( new Lib\AllowBetaUpgrades() )->execute();

@@ -56,18 +56,12 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		return self::con()->comps->forms_users;
 	}
 
-	/**
-	 * @return $this
-	 */
-	protected function setAuditAction( string $action ) {
+	protected function setAuditAction( string $action ) :self {
 		$this->auditAction = $action;
 		return $this;
 	}
 
-	/**
-	 * @return $this
-	 */
-	protected function setAuditUser( string $user ) {
+	protected function setAuditUser( string $user ) :self {
 		$this->auditUser = sanitize_user( $user );
 		return $this;
 	}

@@ -228,7 +228,7 @@ class SecurityProfilesCon {
 				],
 			],
 			'user_forms'    => [
-				'title' => __( 'Protected user forms', 'wp-simple-firewall' ),
+				'title' => __( 'User forms', 'wp-simple-firewall' ),
 				'opts'  => [
 					[
 						'item_key' => 'login_limit_interval',

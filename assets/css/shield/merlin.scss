@@ -50,6 +50,12 @@
   cursor: pointer;
 }
 
+#TableSecurityProfiles .level_cell svg,
+#TableSecurityProfiles .level_current svg {
+  height: 24px;
+  width: 24px;
+}
+
 #TableSecurityProfiles .level_current > div {
   border-width: 0 2px 0 2px;
   border-style: solid;
