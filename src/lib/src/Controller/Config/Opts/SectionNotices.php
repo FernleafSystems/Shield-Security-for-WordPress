@@ -76,7 +76,6 @@ class SectionNotices {
 											'login'        => __( 'Login', 'wp-simple-firewall' ),
 											'register'     => __( 'Registration', 'wp-simple-firewall' ),
 											'password'     => __( 'Lost Password', 'wp-simple-firewall' ),
-											'checkout_woo' => __( 'Checkout', 'wp-simple-firewall' ),
 										]
 									),
 									\array_flip( $locations )

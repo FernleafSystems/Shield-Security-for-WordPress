@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "20.1.0",
-    "release_timestamp":       1733232000,
-    "build":                   "202412.0301",
+    "version":                 "20.1.1",
+    "release_timestamp":       1733736000,
+    "build":                   "202412.0901",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -2774,10 +2774,6 @@
           {
             "value_key": "password",
             "text":      "Lost Password"
-          },
-          {
-            "value_key": "checkout_woo",
-            "text":      "Checkout (WooCommerce)"
           }
         ],
         "link_info":       "https://clk.shldscrty.com/dv",

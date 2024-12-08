@@ -115,12 +115,12 @@ class SecurityProfilesCon {
 			],
 			'session_lock'  => [
 				Levels::LIGHT  => [
-					'browser' => true,
+					'useragent' => true,
 				],
 				Levels::MEDIUM => [
-					'ip_address' => true,
 				],
 				Levels::STRONG => [
+					'ip' => true,
 				],
 			],
 			'firewall'      => [
@@ -264,14 +264,14 @@ class SecurityProfilesCon {
 				'title' => __( 'Session lock', 'wp-simple-firewall' ),
 				'opts'  => [
 					[
-						'item_key' => 'browser',
+						'item_key' => 'useragent',
 						'opt_key'  => 'session_lock',
 						'value'    => false,
 						'title'    => __( 'Browser', 'wp-simple-firewall' ),
-						'tooltip'  => __( 'Lock user session to browser detected at login', 'wp-simple-firewall' ),
+						'tooltip'  => __( 'Lock user sessions to browser detected at login', 'wp-simple-firewall' ),
 					],
 					[
-						'item_key' => 'ip_address',
+						'item_key' => 'ip',
 						'opt_key'  => 'session_lock',
 						'value'    => false,
 						'title'    => __( 'IP Address', 'wp-simple-firewall' ),

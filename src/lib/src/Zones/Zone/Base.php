@@ -32,11 +32,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	public function actions() :array {
-		$actions = [];
-		if ( !empty( $this->getUnderlyingModuleZone() ) ) {
-			$actions[ 'config' ] = $this->getAction_Config();
-		}
-		return $actions;
+		return [];
 	}
 
 	public function getAction_Config() :?array {

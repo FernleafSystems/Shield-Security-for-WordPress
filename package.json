@@ -4,7 +4,7 @@
   "devDependencies": {
     "@simplewebauthn/browser": "^8.3.7",
     "altcha-lib":  "^1.1.1",
-    "bigpicture": "^2.6.2",
+    "bigpicture": "^2.6.3",
     "chartist": "^1.3.0",
     "chartist-plugin-legend": "^0.6.2",
     "intro.js": "^7.2.0",
@@ -35,11 +35,11 @@
     "matches-selector-polyfill": "^1.0.0",
     "mini-css-extract-plugin": "^2.9.2",
     "postcss-loader": "^8.1.1",
-    "sass": "^1.81.0",
-    "sass-loader": "^16.0.3",
+    "sass": "^1.82.0",
+    "sass-loader": "^16.0.4",
     "style-loader": "^4.0.0",
     "url-loader": "^4.1.1",
-    "webpack": "^5.96.1",
+    "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
@@ -49,7 +49,7 @@
     "datatables.net-select-bs5": "^2.1.0",
     "jquery-mousewheel": "^3.1.13",
     "select2": "^4.1.0-rc.0",
-    "sortablejs": "^1.15.4"
+    "sortablejs": "^1.15.6"
   },
   "scripts": {
     "start": "webpack --config webpack.config.js",

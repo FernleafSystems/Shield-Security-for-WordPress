@@ -1,7 +1,7 @@
 {
   "20.1": {
     "version":     "20.1",
-    "released_at": 1733232000,
+    "released_at": 1733736000,
     "hrefs":       {
       "release": "https://clk.shldscrty.com/shieldrelease201",
       "upgrade": "https://clk.shldscrty.com/shieldupgradeguide201"
@@ -23,6 +23,14 @@
         "title":       "Security Profiles (beta)",
         "description": [
           "We've introduced the ability to apply pre-configured security profiles to save time during setup."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Automatic Integrations",
+        "description": [
+          "Shield can automatically detect when a 3rd party plugin is active for which we have a built-in integration, and switch it on."
         ],
         "href":        ""
       },
