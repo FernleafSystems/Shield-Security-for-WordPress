@@ -1,7 +1,7 @@
 {
   "20.1": {
     "version":     "20.1",
-    "released_at": 1733736000,
+    "released_at": 1733823000,
     "hrefs":       {
       "release": "https://clk.shldscrty.com/shieldrelease201",
       "upgrade": "https://clk.shldscrty.com/shieldupgradeguide201"
@@ -72,6 +72,14 @@
         "title":       "Added Conflict Protection",
         "description": [
           "Added protection against fatal errors caused by plugin conflicts. When conflict found, Shield is 'paused'. For now only plugin is WP RSS Aggregator."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "fixed",
+        "title":       "NinjaForms Integration",
+        "description": [
+          "Changes in NinjaForms code meant our silentCAPTCHA integration wasn't firing when it should be."
         ],
         "href":        ""
       },
