@@ -1,16 +1,16 @@
-﻿=== Shield Security - Smart Bot Blocking & Intrusion Prevention Security  ===
+﻿=== Shield: Blocks Bots, Protects Users, and Prevents Security Breaches  ===
 Contributors: paultgoodchild, getshieldsecurity
-Donate link: https://shsec.io/bw
+Donate link: https://clk.shldscrty.com/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: firewall, bots, activity log, 2fa, security
 Requires at least: 5.7
-Requires PHP: 7.2.5
+Requires PHP: 7.4
 Recommended PHP: 7.4
 Tested up to: 6.7
-Stable tag: 20.0.12
+Stable tag: 20.1.2
 
-Real security is stopping attackers dead, before they hack your site. Bad Bots Are Your #1 Security Threat.
+Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield stops them.
 
 == Description ==
 
@@ -24,17 +24,17 @@ Google reCAPTCHA and CloudFlare Turnstile are considered the best way to detect 
 
 Shield's exclusive *silent*CAPTCHA detects bad bots and blocks them from taking any abusive actions on your site, such as brute-force user login attacks and WP Comments SPAM.
 
-Furthermore, privacy directives from legislation such as Europe's GDPR restrict what data you're allowed to share of your visitors. All *silent*CAPTCHA data is kept on your WordPress site and ensures your compliance with GDPR regulations.
+Furthermore, privacy directives from legislation such as Europe's GDPR restrict what data you may share of your visitors. All *silent*CAPTCHA data is kept on your WordPress site and ensures full compliance with GDPR regulations.
 
-### Comprehensive Activity Log Coverage
+### Comprehensive Activity Log
 
 Shield's has best-in-class logging that documents every WP action on your site.
 
-Unlike your current logging solution, Shield detects changes to your WordPress sites that occur directly on your database. e.g. by hackers that have infiltrated your defenses via an exposed vulnerability.
+Unlike existing logging solutions, Shield detects changes to your WordPress sites that happen directly on your database. e.g. by hackers that have infiltrated your defenses via an exposed vulnerability.
 
 No other WordPress security plugin does this.
 
-### Limit Login Attempts and Block Registration Forms SPAM
+### Limit Login Attempts and Block User Registration SPAM
 
 *silent*CAPTCHA technology is invisible to your visitors and protects your WordPress login, registration and lost password forms from brute force attacks, and eliminates user registration SPAM from bots.
 
@@ -56,11 +56,11 @@ Shield is the only WordPress security plugin with strategic partnerships that br
 
 ### All The Features You'll Absolutely Love
 
-* Exclusive [silentCAPTCHA Security](https://shsec.io/ju) - WordPress-specific bot-detection alternative to Google reCAPTCHA and CloudFlare Turnstile.
-* [Automatic Bot & IP Blocking](https://shsec.io/j0) - reputation-based security intelligence to block repeat offenders automatically.
-* **Instant Bad Bot Blocking with [our exclusive CrowdSec Security integration](https://shsec.io/l5)**
+* Exclusive [silentCAPTCHA Security](https://clk.shldscrty.com/ju) - WordPress-specific bot-detection alternative to Google reCAPTCHA and CloudFlare Turnstile.
+* [Automatic Bot & IP Blocking](https://clk.shldscrty.com/j0) - reputation-based security intelligence to block repeat offenders automatically.
+* **Instant Bad Bot Blocking with [our exclusive CrowdSec Security integration](https://clk.shldscrty.com/l5)**
 * Easy To Understand Security Dashboard that highlights quick wins and areas to rapidly improve site security
-* [ShieldPRO] [Artificial Intelligence based PHP Malware Detection](https://shsec.io/lf)
+* [ShieldPRO] [Artificial Intelligence based PHP Malware Detection](https://clk.shldscrty.com/lf)
 * Security for your important user forms, by blocking Block Bots:
     * Login Forms
     * User Registration Forms
@@ -68,11 +68,11 @@ Shield is the only WordPress security plugin with strategic partnerships that br
     * [ShieldPRO] WooCommerce & Easy Digital Downloads
     * [ShieldPRO] Contact Form SPAM Protection: Contact Form 7, NinjaForms, Elementor, WP Forms, and more!
     * [ShieldPRO] Memberpress, LearnPress, BuddyPress, WP Members, ProfileBuilder
-* [Brute Force Security Protection, Limit Login Attempts + Login Cooldown](https://shsec.io/iw)
+* [Brute Force Security Protection, Limit Login Attempts + Login Cooldown](https://clk.shldscrty.com/iw)
 * Powerful Firewall Rules
 * Restricted Security Admin Access
-   * [Prevents Unauthorized Changes By Compromised Admins](https://shsec.io/ix).
-* (MFA) [Two-Factor / Multi-Factor Login Authentication](https://shsec.io/iy):
+   * [Prevents Unauthorized Changes By Compromised Admins](https://clk.shldscrty.com/ix).
+* (MFA) [Two-Factor / Multi-Factor Login Authentication](https://clk.shldscrty.com/iy):
     * Email
     * Google Authenticator
     * Yubikey
@@ -80,22 +80,22 @@ Shield is the only WordPress security plugin with strategic partnerships that br
     * [ShieldPRO] Backup Login Codes
     * [ShieldPRO] Multiple Yubikey per User
     * [ShieldPRO] Remember Me (reduces 2FA requests for users)
-* [Block XML-RPC](https://shsec.io/iz) (*including* Pingbacks and Trackbacks)
+* [Block XML-RPC](https://clk.shldscrty.com/iz) (*including* Pingbacks and Trackbacks)
 * Security firewall for the REST API - block anonymous requests
 * Powerful IP Addresses-based Security:
-    * [Automatic IP Address Blocking Using Points-Based System](https://shsec.io/j0)
+    * [Automatic IP Address Blocking Using Points-Based System](https://clk.shldscrty.com/j0)
     * Block or Bypass individual IPs
     * Block or Bypass IP Subnets
     * Full IP Security Analysis in 1 place to review activity on your sites
 * Comprehensive WordPress File Scanner for Intrusions and Hacks
-    * Detect File Changes - [Scan & Repair WordPress Core Files](https://shsec.io/j1)
-    * [Detect Unknown/Suspicious PHP Files](https://shsec.io/j2)
+    * Detect File Changes - [Scan & Repair WordPress Core Files](https://clk.shldscrty.com/j1)
+    * [Detect Unknown/Suspicious PHP Files](https://clk.shldscrty.com/j2)
     * Detect Abandoned Plugins.
     * [ShieldPRO] Malware Scanner - detects known and unknown malware.
     * [ShieldPRO] Plugin and Theme Scanning - identify file changes in your plugins/themes.
     * [ShieldPRO] Detect Plugins/Themes With Known Security Vulnerabilities.
-* [Create a **Private Secure Login URL** by hiding wp-login.php](https://shsec.io/j3)
-* Comment SPAM Blocking - Block [Comment SPAM from Bots and Humans](https://shsec.io/jf).
+* [Create a **Private Secure Login URL** by hiding wp-login.php](https://clk.shldscrty.com/j3)
+* Comment SPAM Blocking - Block [Comment SPAM from Bots and Humans](https://clk.shldscrty.com/jf).
 * **Never Block Google**: Smart Security Automatically Detects Known Good Bots: GoogleBot, Bing and other Official Search Engines including:
     * Google
     * Bing,
@@ -109,7 +109,7 @@ Shield is the only WordPress security plugin with strategic partnerships that br
     * Pingdom, NodePing, Statuscake, UptimeRobot, GTMetrix
     * Stripe, PayPal IPN
     * CloudFlare, SEMRush
-* Full Security Activity Log - [Monitor **All** Site Activity, including](https://shsec.io/j5):
+* Full Security Activity Log - [Monitor **All** Site Activity, including](https://clk.shldscrty.com/j5):
     * Activity log for all user login & registration attempts
     * Plugin and Theme installation activity logs, including activation & deactivation etc.
     * User creation activity log, including detection of administrator promotions
@@ -121,19 +121,19 @@ Shield is the only WordPress security plugin with strategic partnerships that br
     * User Enumeration Blocking - Firewall blocks requests to `?author=x`
     * [ShieldPRO] Security for old and idle user account with manual and automatic User Suspend.
 * Full/Automatic Support for All IP Address Sources including Proxy Support
-* HTTP Request/Traffic Logging - [Full Traffic Logging and Request Monitoring](https://shsec.io/j7)
+* HTTP Request/Traffic Logging - [Full Traffic Logging and Request Monitoring](https://clk.shldscrty.com/j7)
 * [ShieldPRO] Traffic Rate Limiting Security - prevent server overload from DoS Attacks
-* [HTTP Security Headers & Content Security Policies (CSP)](https://shsec.io/j6)
+* [HTTP Security Headers & Content Security Policies (CSP)](https://clk.shldscrty.com/j6)
 
-#### [Full Shield Security Features List](https://shsec.io/shieldfeatures)
+#### [Full Shield Security Features List](https://clk.shldscrty.com/shieldfeatures)
 
 Shield is the only security plugin for WordPress that prioritises protection and intrusion prevention before repair. With Shield Security, your site will immediately to block visitors as they probe your site looking for vulnerabilities, and before they can do damage.
 
-**No other standalone WordPress security plugin** (including [Wordfence](https://shsec.io/shieldvswordfence), WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield Security does both.
+**No other standalone WordPress security plugin** (including [Wordfence](https://clk.shldscrty.com/shieldvswordfence), WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield Security does both.
 
 #### Get the highest rated 5* Security Plugin for WordPress
 
-Per download, Shield Security [has the highest 5* rating](https://shsec.io/jl) in the WordPress plugin repository.
+Per download, Shield Security [has the highest 5* rating](https://clk.shldscrty.com/jl) in the WordPress plugin repository.
 
 ## Leave Behind the Security Marketing Hype and Scare Mongering
 
@@ -199,9 +199,9 @@ Shield handles many problems for you, making intelligent decisions without noisy
 ### Dedicated Premium Support When You Go PRO
 
 The Shield Security team prioritises email technical support over the WordPress.org forums.
-Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://shsec.io/ab).
+Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://clk.shldscrty.com/ab).
 
-Discover all the advantages of switching your WordPress security Pro at [our Shield Security store](https://shsec.io/ab).
+Discover all the advantages of switching your WordPress security Pro at [our Shield Security store](https://clk.shldscrty.com/ab).
 
 == Installation ==
 
@@ -216,7 +216,7 @@ A new menu item will appear on the left-hand side called 'Shield'.
 
 == Frequently Asked Questions ==
 
-Please see the dedicated security [help centre](https://shsec.io/firewallhelp) for details on features and some FAQs.
+Please see the dedicated security [help centre](https://clk.shldscrty.com/firewallhelp) for details on features and some FAQs.
 
 = How does the Shield Security compare with other WordPress Security Plugins? =
 
@@ -300,15 +300,15 @@ Login Cooldown Security prevents more than 1 login attempt to your site every "s
 
 This security system completely blocks any level of brute-force login attacks and a cooldown of just 1 second goes a long way to adding security to your WordPress login.
 
-[More Info](https://shsec.io/2t)
+[More Info](https://clk.shldscrty.com/2t)
 
 = How does the GASP Login Guard work? =
 
-This is best [described on the blog](https://shsec.io/2u)
+This is best [described on the blog](https://clk.shldscrty.com/2u)
 
 = How does the 2-factor authentication security work? =
 
-2-Factor Authentication [is best described here](https://shsec.io/2v).
+2-Factor Authentication [is best described here](https://clk.shldscrty.com/2v).
 
 = I'm not receiving the email with 2FA verification code.? =
 
@@ -316,7 +316,7 @@ Email delivery is a huge problem with WordPress sites and is very common.
 
 Your WordPress is not designed to send emails. The best solution is to use a service that is dedicated to the purpose of sending emails.
 
-[This is what we recommend](https://shsec.io/jj).
+[This is what we recommend](https://clk.shldscrty.com/jj).
 
 = I'm getting an update message although I have auto update enabled? =
 
@@ -325,7 +325,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 = I'm getting large volumes of comment SPAM. How can I stop this? =
 
-You can use Shield Security to block 100% of automated spam bots and also block and analyse human spam. [This is best described here](https://shsec.io/jg).
+You can use Shield Security to block 100% of automated spam bots and also block and analyse human spam. [This is best described here](https://clk.shldscrty.com/jg).
 
 = Do you offer White Label? =
 
@@ -333,11 +333,11 @@ Yes, we do. You can essentially rename the Shield Security plugin to whatever yo
 
 It ensures a more consistent brand offering and presents your business offering as a more holistic, integrated solution.
 
-We go into [further detail here](https://shsec.io/jh).
+We go into [further detail here](https://clk.shldscrty.com/jh).
 
 = I’d like to customise 2FA emails sent to my site users. How can I do that? =
 
-You can use our custom [templates for this purpose](https://shsec.io/ji).
+You can use our custom [templates for this purpose](https://clk.shldscrty.com/ji).
 
 = How can I change the text/html in the Plugin Security Badge? =
 
@@ -358,7 +358,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
  using **(.1)** notation.  So for example, version 10.1**.1** will have changelog items appended with **(.1)**
 
-You can view the entire [Shield changelog here](https://shsec.io/shieldwporgfullchangelog).
+You can view the entire [Shield changelog here](https://clk.shldscrty.com/shieldwporgfullchangelog).
 
 == Screenshots ==
 
@@ -370,11 +370,11 @@ You can view the entire [Shield changelog here](https://shsec.io/shieldwporgfull
 
 == Changelog ==
 
-#### [View Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+#### [View Shield Security Changelog](https://clk.shldscrty.com/shieldwporgfullchangelog)
 
 ShieldPRO delivers exclusive, enhanced security features for the serious site administrator
 looking to maximise their WordPress security for themselves and their clients.
 
 You'll of course have direct access to our technical support team and the option to reach out to us for any security questions or concerns.
 
-[Go Pro](https://shsec.io/aa) or grab the [free ShieldPRO Trial](https://shsec.io/shieldfreetrialwporgreadme).
+[Go Pro](https://clk.shldscrty.com/aa) or grab the [free ShieldPRO Trial](https://clk.shldscrty.com/shieldfreetrialwporgreadme).

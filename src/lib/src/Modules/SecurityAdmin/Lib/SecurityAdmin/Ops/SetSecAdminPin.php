@@ -21,7 +21,7 @@ class SetSecAdminPin {
 
 		self::con()
 			->opts
-			->optSet( 'admin_access_key', \md5( $pin ) )
+			->optSet( 'admin_access_key', wp_hash_password( $pin ) )
 			->store();
 	}
 }

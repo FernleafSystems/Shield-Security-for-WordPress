@@ -72,7 +72,7 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Backup Codes' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Backup Codes', 'wp-simple-firewall' ) ),
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
+						self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
 					'generated_at'          => sprintf( '%s: %s', __( 'Code Generated', 'wp-simple-firewall' ),
 						empty( $record ) ? '' : Services::Request()

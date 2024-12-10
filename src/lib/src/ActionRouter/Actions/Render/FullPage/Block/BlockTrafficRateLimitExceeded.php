@@ -15,8 +15,7 @@ class BlockTrafficRateLimitExceeded extends BaseBlock {
 
 		return [
 			'strings' => [
-				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ),
-					self::con()->getHumanName() ),
+				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'title'         => __( 'Access Restricted', 'wp-simple-firewall' ),
 				'subtitle'      => __( 'There have been too many requests from your IP address.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact the site administrator if you need further guidance.', 'wp-simple-firewall' ),

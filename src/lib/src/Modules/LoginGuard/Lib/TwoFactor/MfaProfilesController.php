@@ -15,23 +15,18 @@ class MfaProfilesController {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $rendered = false;
+	private bool $rendered = false;
 
-	private $isFrontend = false;
+	private bool $isFrontend = false;
 
 	protected function run() {
 		// shortcode for placing user authentication handling anywhere
 		if ( self::con()->isPremiumActive() ) {
-			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-				$this->rendered = true;
-				return '<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container"><p>Loading ...</p></div>';
-			} );
+			add_shortcode( 'SHIELD_USER_PROFILE_MFA', fn() => $this->renderUserProfileMFA() );
 		}
 
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			add_action( 'wp', function () {
-				$this->enqueueAssets( true );
-			} );
+			add_action( 'wp', fn() => $this->enqueueAssets( true ) );
 
 			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 				$this->enqueueAssets( false );
@@ -48,18 +43,16 @@ class MfaProfilesController {
 	}
 
 	private function provideUserLoginSecurityPage() {
-		add_action( 'admin_menu', function () {
-			add_users_page(
-				sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), self::con()->getHumanName() ),
-				__( 'Login Security', 'wp-simple-firewall' ),
-				'read',
-				'shield-login-security',
-				function () {
-					echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::SLUG );
-				},
-				4
-			);
-		} );
+		add_action( 'admin_menu', fn() => add_users_page(
+			sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), self::con()->labels->Name ),
+			__( 'Login Security', 'wp-simple-firewall' ),
+			'read',
+			'shield-login-security',
+			function () {
+				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::SLUG );
+			},
+			4
+		) );
 	}
 
 	private function provideUserProfileSections() {
@@ -88,12 +81,7 @@ class MfaProfilesController {
 			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
 				$assets[] = 'userprofile';
 
-				add_filter( 'shield/custom_dequeues', function ( $assets ) {
-					if ( !$this->rendered ) {
-						$assets[] = 'userprofile';
-					}
-					return $assets;
-				} );
+				add_filter( 'shield/custom_dequeues', fn( $assets ) => \array_merge( $assets, $this->rendered ? [] : [ 'userprofile' ] ) );
 
 				add_filter( 'shield/custom_localisations/components', function ( array $components ) {
 					$components[ 'userprofile' ] = [

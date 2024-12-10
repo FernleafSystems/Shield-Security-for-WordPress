@@ -63,7 +63,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 		if ( $menu[ 'top_level' ] ) {
 
 			$this->pageHookSuffix = add_menu_page(
-				$con->getHumanName(),
+				$con->labels->Name,
 				$con->labels->MenuTitle,
 				$con->cfg->properties[ 'base_permissions' ],
 				$con->plugin_urls->rootAdminPageSlug(),
@@ -119,7 +119,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 			add_submenu_page(
 				$con->plugin_urls->rootAdminPageSlug(),
-				sprintf( '%s | %s', $submenuTitle, $con->getHumanName() ),
+				sprintf( '%s | %s', $submenuTitle, $con->labels->Name ),
 				$doMarkupTitle ? $markupTitle : $submenuTitle,
 				$con->cfg->properties[ 'base_permissions' ],
 				$con->prefix( $submenuNavID ),

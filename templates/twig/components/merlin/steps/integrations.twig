@@ -1,0 +1,48 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section_blurb %}
+	{% import '/common/macros.twig' as icwp_macros %}
+
+	<p>Shield Security provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots.</p>
+	<p>Each integration is custom-built and implements our {{ icwp_macros.silentcaptcha() }} anti-bot technology.</p>
+	<p>The types of forms that can be protected include:</p>
+	<ul style="list-style: square">
+		<li>Contact Forms</li>
+		<li>Login Forms</li>
+		<li>Registration Forms</li>
+		<li>Password Reset Forms</li>
+	</ul>
+	<p>Protection for WordPress forms is included as-standard, and you'll
+	   have access to some, or all, 3rd party integrations, depending on your Shield plan.</p>
+
+{% endblock slide_body_video_section_blurb %}
+
+{% block slide_body_action_area %}
+	{% import '/common/macros.twig' as icwp_macros %}
+
+	<form class="form-horizontal merlin-form ajax-form">
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+
+		<div class="row">
+			<div class="col mb-2">
+				<h6 class="pb-1 border-bottom d-inline-block">Select 3rd Party Integrations</h6>
+			</div>
+		</div>
+
+		{% for integration in vars.integrations %}
+			{{ icwp_macros.formInput_Checkbox(
+				integration.slug,
+				'Y',
+				integration.name,
+				'Switch-on integration for ' ~ integration.name,
+				integration.has_cap ?
+				icwp_macros.silentcaptcha()~" will detect and block bot requests to these forms, without challenging your legitimate visitors."
+				~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]'
+				: 'Not available on your current plan.'~' [<a href="'~hrefs.go_pro~'" target="_blank">more info</a>]',
+				null, true, 'me-0', integration.has_cap
+			) }}
+		{% endfor %}
+
+		{{ icwp_macros.formInput_Submit2( 'Enable Selected Integrations', null, 'secondary', false ) }}
+	</form>
+{% endblock %}

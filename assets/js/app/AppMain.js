@@ -10,7 +10,6 @@ import { HelpscoutBeacon } from "../components/general/HelpscoutBeacon";
 import { IpSourceAutoDetect } from "../components/ips/IpSourceAutoDetect";
 import { IpRules } from "../components/ips/IpRules";
 import { IpAnalyse } from "../components/ips/IpAnalyse";
-import { LeanBe } from "../components/third/LeanBe";
 import { LicenseHandler } from "../components/general/LicenseHandler";
 import { Merlin } from "../components/general/Merlin";
 import { MiscHooks } from "../components/general/MiscHooks";
@@ -73,7 +72,6 @@ export class AppMain extends AppBase {
 		this.components.ip_analyse = ( 'ip_analyse' in comps ) ? new IpAnalyse( comps.ip_analyse ) : null;
 		this.components.ip_detect = ( 'ip_detect' in comps ) ? new IpSourceAutoDetect( comps.ip_detect ) : null;
 		this.components.ip_rules = ( 'ip_rules' in comps ) ? new IpRules( comps.ip_rules ) : null;
-		this.components.leanbe = ( 'leanbe' in comps ) ? new LeanBe( comps.leanbe ) : null;
 		this.components.license = ( 'license' in comps ) ? new LicenseHandler( comps.license ) : null;
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
 		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;

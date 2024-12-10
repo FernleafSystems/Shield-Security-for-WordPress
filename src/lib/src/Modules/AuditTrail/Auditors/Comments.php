@@ -29,8 +29,8 @@ class Comments extends Base {
 	}
 
 	/**
-	 * @param int         $commentID
-	 * @param \WP_Comment $comment
+	 * @param int|mixed          $commentID
+	 * @param ?\WP_Comment|mixed $comment
 	 */
 	public function auditDelete( $commentID, $comment = null ) :void {
 		if ( $comment instanceof \WP_Comment ) {
@@ -48,9 +48,9 @@ class Comments extends Base {
 	 * We don't audit for 'delete' since this is an exception in how status is handled
 	 * internally within WordPress
 	 *
-	 * @param string      $newStatus
-	 * @param string      $oldStatus
-	 * @param \WP_Comment $comment
+	 * @param string|mixed      $newStatus
+	 * @param string|mixed      $oldStatus
+	 * @param \WP_Comment|mixed $comment
 	 */
 	public function auditStatusUpdate( $newStatus, $oldStatus, $comment ) :void {
 		if ( $comment instanceof \WP_Comment && $newStatus !== 'delete' ) {

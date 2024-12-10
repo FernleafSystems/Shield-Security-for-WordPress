@@ -16,7 +16,7 @@ class HighReputation extends Base {
 					sprintf(
 						'%s %s',
 						sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-							sprintf( __( "Your IP address is currently on the Auto-Block list, but you're not being block because your IP address is considered a High Reputation IP.", 'wp-simple-firewall' ), $con->getHumanName() ) ),
+							sprintf( __( "Your IP address is currently on the Auto-Block list, but you're not being block because your IP address is considered a High Reputation IP.", 'wp-simple-firewall' ), $con->labels->Name ) ),
 						sprintf( '<a href="%s" class="">%s</a>',
 							$con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ),
 							__( 'View IP Reputation Option', 'wp-simple-firewall' )

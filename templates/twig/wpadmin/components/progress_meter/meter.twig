@@ -4,63 +4,69 @@
 	{% set meter_slug = vars.meter_slug %}
 
 	<div class="
-	{% if meter.has_critical|default(false) %}
-		meter-critical
-	{% elseif meter.totals.percentage > 50 %}
-		meter-success
-	{% else %}
-		meter-warning
-	{% endif %}
+		{% if meter.has_critical|default(false) %}
+			meter-critical
+		{% elseif meter.totals.percentage > 50 %}
+			meter-success
+		{% else %}
+			meter-warning
+		{% endif %}
+		mb-0 mb-md-4 mb-lg-2
 	">
 	{# https://github.com/tomik23/circular-progress-bar #}
 		<div class="row">
-			<div class="{{ vars.display.dimensions_column_chart|default('col-xl-3 mb-4 mb-xl-0') }} d-flex justify-content-center align-items-start px-3">
-				<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
-					 data-value="{{ meter.totals.percentage }}"
-					 data-grade="{{ meter.totals.letter_score }}"
-					 data-rgbs="{{ meter.rgbs|join(',') }}"
-				>
+
+			<div class="col-auto mb-3 mb-sm-0 d-flex flex-column justify-content-start align-items-center px-3">
+
+				<div class="mb-2">
+					<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
+						 data-value="{{ meter.totals.percentage }}"
+						 data-grade="{{ meter.totals.letter_score }}"
+						 data-rgbs="{{ meter.rgbs|join(',') }}"
+					></div>
 				</div>
 
+				<div>
+					<a class="mt-2 offcanvas_meter_analysis btn btn-sm
+						btn-outline-{% if meter.status == 'l' %}danger
+						{% elseif meter.status == 'm' %}warning
+						{% elseif meter.status == 'h' %}success
+						{% else %}primary
+						{% endif %}"
+					   data-meter="{{ meter_slug }}"
+					   href="javascript:{}"
+					   aria-controls="ShieldProgressMeterOffcanvas">
+						<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+						{{ strings.analysis }}
+						</a>
+				</div>
 			</div>
-			<div class="{{ vars.display.dimensions_column_description|default('col') }} description pb-1 px-2">
-			  <h6>
-		      {{ meter.title }}
-				  <br /><small class="text-muted">{{ meter.subtitle }}</small>
-			  </h6>
+
+			<div class="col description pb-1 px-2">
+				<h6>{{ meter.title }}<br /><small class="text-muted">{{ meter.subtitle }}</small></h6>
 
 				{% if meter.warning|default([]) is not empty %}
-					<div class="alert alert-danger">
-			      {{ meter.warning.text }}
-						<a href="{{ meter.warning.href }}" class="alert-link"
+					<div class="alert alert-danger">{{ meter.warning.text }}
+						<a href="{{ meter.warning.href }}"
+						   class="alert-link"
 						   target="_blank">{{ strings.view_details }}</a>
-		      </div>
+					</div>
 				{% endif %}
 
 				<div class="">
-					<div class="{% if meter.description|length > 1 %}toggleable{% endif %}">
+					<div class="{% if meter.description|length > 1 %}toggleable-text{% endif %}">
 						<p class="mb-2">{{ meter.description|first }}</p>
 					</div>
-					<div class="hidden {% if meter.description|length > 1 %}toggleable{% endif %}">
+					<div class="hidden {% if meter.description|length > 1 %}toggleable-text{% endif %}">
 						{% for desc in meter.description %}
 							<p class="mb-2">{{ desc }}</p>
 						{% endfor %}
 					</div>
-					<div class="mt-2 {% if meter.description|length > 1 %}toggleable{% else %}hidden{% endif %}">
+					<div class="mt-2 {% if meter.description|length > 1 %}toggleable-text{% else %}hidden{% endif %}">
 						<a href="javascript:{}" class="d-block fst-italic">more...</a>
 					</div>
 				</div>
 
-			</div>
-
-			<div class="{{ vars.display.dimensions_column_analysis|default('col-2') }} d-flex justify-content-center align-items-start">
-		    <a class="mt-2 btn offcanvas_meter_analysis {% if meter.status == 'l' %}btn-danger{% elseif meter.status == 'm' %}btn-warning{% elseif meter.status == 'h' %}btn-success{% else %}btn-primary{% endif %}"
-			   data-meter="{{ meter_slug }}"
-			   href="javascript:{}"
-			   aria-controls="ShieldProgressMeterOffcanvas">
-				<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
-				{{ strings.analysis }}
-				</a>
 			</div>
 
 		</div>

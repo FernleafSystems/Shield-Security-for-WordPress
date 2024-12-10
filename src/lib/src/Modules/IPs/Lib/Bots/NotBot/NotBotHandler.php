@@ -3,11 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionNonce,
-	Actions\CaptureNotBot
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -87,36 +82,5 @@ class NotBotHandler {
 			self::SIGNAL_NOTBOT,
 			self::SIGNAL_ALTCHA,
 		];
-	}
-
-	/**
-	 * @deprecated 19.2.0
-	 */
-	public function hasCookie() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 19.2.0
-	 */
-	public function getHashForVisitorTS( int $ts ) {
-		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, ( new InstallationID() )->id() );
-	}
-
-	/**
-	 * @deprecated 19.2.0
-	 */
-	public function sendNotBotNonceCookie() {
-		Services::Response()->cookieSet( 'shield-notbot-nonce', ActionNonce::Create( CaptureNotBot::class ), 120 );
-	}
-
-	/**
-	 * @deprecated 19.2.0
-	 */
-	public function getLastNotBotSignalAt() :int {
-		return ( new BotSignalsRecord() )
-			->setIP( self::con()->this_req->ip )
-			->retrieve()
-			->notbot_at;
 	}
 }

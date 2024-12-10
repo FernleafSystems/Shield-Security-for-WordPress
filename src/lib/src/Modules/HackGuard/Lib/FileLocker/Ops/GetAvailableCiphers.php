@@ -7,14 +7,14 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
 class GetAvailableCiphers {
 
-	private static $local = null;
+	private static array $local;
 
-	private static $snapi = null;
+	private static array $snapi;
 
 	public function full() :array {
 		return \array_values( \array_intersect(
-			$this->snapi(),
-			$this->local()
+			self::$snapi ??= ( new AvailableCiphers() )->retrieve(),
+			self::$local ??= ( new CipherTests() )->findAvailableCiphers()
 		) );
 	}
 
@@ -23,17 +23,17 @@ class GetAvailableCiphers {
 		return \is_string( $first ) ? $first : null;
 	}
 
+	/**
+	 * @deprecated 20.1
+	 */
 	public function local() :array {
-		if ( self::$local === null ) {
-			self::$local = ( new CipherTests() )->findAvailableCiphers();
-		}
-		return self::$local;
+		return self::$local ??= ( new CipherTests() )->findAvailableCiphers();
 	}
 
+	/**
+	 * @deprecated 20.1
+	 */
 	public function snapi() :array {
-		if ( self::$snapi === null ) {
-			self::$snapi = ( new AvailableCiphers() )->retrieve();
-		}
-		return self::$snapi;
+		return self::$snapi ??= ( new AvailableCiphers() )->retrieve();
 	}
 }

@@ -30,16 +30,16 @@ class AllComponents extends Base {
 	}
 
 	public function title() :string {
-		return sprintf( __( '%s Plugin Configuration', 'wp-simple-firewall' ), self::con()->getHumanName() );
+		return sprintf( __( '%s Plugin Configuration', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function descProtected() :string {
 		return sprintf( __( "You've configured the %s plugin to protect your site to a high level.", 'wp-simple-firewall' ),
-			self::con()->getHumanName() );
+			self::con()->labels->Name );
 	}
 
 	public function descUnprotected() :string {
 		return sprintf( __( 'There is room for improvement in your %s plugin configuration.', 'wp-simple-firewall' ),
-			self::con()->getHumanName() );
+			self::con()->labels->Name );
 	}
 }

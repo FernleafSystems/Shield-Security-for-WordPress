@@ -14,6 +14,10 @@ class SpamUserRegisterBlock extends Base {
 		return __( 'Attempt to identify SPAM users and prevent their successful account creation.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings for SPAM user registrations', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -25,7 +29,7 @@ class SpamUserRegisterBlock extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "There are no checks against user email addresses as a part of user registration.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = __( 'There are no checks for SPAM user email addresses during user registration.', 'wp-simple-firewall' );
 		}
 
 		return $status;

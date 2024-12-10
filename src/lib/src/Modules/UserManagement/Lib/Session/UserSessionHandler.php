@@ -34,7 +34,7 @@ class UserSessionHandler {
 
 	/**
 	 * Only show Go To Admin link for Authors+
-	 * @param string $msg
+	 * @param string|mixed $msg
 	 */
 	public function printLinkToAdmin( $msg = '' ) :string {
 		$user = Services::WpUsers()->getCurrentWpUser();
@@ -130,35 +130,29 @@ class UserSessionHandler {
 			'subscriber'    => 'read',
 		];
 
-		$roleToCheck = \strtolower( apply_filters(
-			$con->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		$roleToCheck = \strtolower( apply_filters( $con->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !\array_key_exists( $roleToCheck, $userCapToRolesMap ) ) {
 			$roleToCheck = 'administrator';
 		}
-		$pluginName = \ucwords( \str_replace( '_', ' ', $roleToCheck ) ).'+';
+		$roleName = \ucwords( \str_replace( '_', ' ', $roleToCheck ) ).'+';
 
 		$isUserSignificantEnough = false;
-		foreach ( $userCapToRolesMap as $sRole => $sCap ) {
-			if ( isset( $user->allcaps[ $sCap ] ) && $user->allcaps[ $sCap ] ) {
+		foreach ( $userCapToRolesMap as $role => $cap ) {
+			if ( isset( $user->allcaps[ $cap ] ) && $user->allcaps[ $cap ] ) {
 				$isUserSignificantEnough = true;
 			}
-			if ( $roleToCheck == $sRole ) {
+			if ( $roleToCheck == $role ) {
 				break; // we've hit our role limit.
 			}
 		}
 		if ( $isUserSignificantEnough ) {
-
 			$homeURL = Services::WpGeneral()->getHomeUrl();
-
 			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
 				$con->email_con->sendEmailWithWrap(
 					$to,
-					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
+					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $roleName, $homeURL ) ),
 					[
-						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
-							$con->getHumanName(),
-							$pluginName
-						),
+						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ), $con->labels->Name, $roleName ),
 						'',
 						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
 						'',
@@ -194,7 +188,7 @@ class UserSessionHandler {
 			if ( !$srvIP->isLoopback() ) {
 				$event = $e->getMessage();
 
-				$con->fireEvent( $event, [
+				$con->comps->events->fireEvent( $event, [
 					'audit_params' => [
 						'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
 					]
@@ -223,8 +217,8 @@ class UserSessionHandler {
 	}
 
 	/**
-	 * @param int $timeout
-	 * @return int
+	 * @param int|mixed $timeout
+	 * @return int|mixed
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
 		$max = self::con()->comps->opts_lookup->getSessionMax();
@@ -232,8 +226,8 @@ class UserSessionHandler {
 	}
 
 	/**
-	 * @param \WP_Error $error
-	 * @return \WP_Error
+	 * @param \WP_Error|mixed $error
+	 * @return \WP_Error|mixed
 	 */
 	public function addLoginMessage( $error ) {
 		if ( !$error instanceof \WP_Error ) {
@@ -242,34 +236,24 @@ class UserSessionHandler {
 
 		$forceLogoutParam = Services::Request()->query( 'shield-forcelogout' );
 		if ( $forceLogoutParam ) {
-
 			switch ( $forceLogoutParam ) {
 				case 'session_expired':
 					$msg = __( 'Your session has expired.', 'wp-simple-firewall' );
 					break;
-
 				case 'session_idle':
 					$msg = __( 'Your session was idle for too long.', 'wp-simple-firewall' );
 					break;
-
 				case 'session_iplock':
 					$msg = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
 					break;
-
 				case 'session_notfound':
-					$msg = sprintf(
-						__( 'You do not currently have a %s user session.', 'wp-simple-firewall' ),
-						self::con()->getHumanName()
-					);
+					$msg = sprintf( __( 'You do not currently have a %s user session.', 'wp-simple-firewall' ), self::con()->labels->Name );
 					break;
-
 				default:
 					$msg = __( 'Your session was terminated.', 'wp-simple-firewall' );
 					break;
 			}
-
-			$msg .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
-			$error->add( 'shield-forcelogout', $msg );
+			$error->add( 'shield-forcelogout', $msg.'<br />'.__( 'Please login again.', 'wp-simple-firewall' ) );
 		}
 		return $error;
 	}

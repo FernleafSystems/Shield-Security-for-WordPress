@@ -14,6 +14,10 @@ class AnonRestApiDisable extends Base {
 		return __( 'Disable anonymous requests to the REST API.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Enable or disable access to the anonymous Rest API', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

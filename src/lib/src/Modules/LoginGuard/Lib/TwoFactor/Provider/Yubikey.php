@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Yubikey extends AbstractShieldProviderMfaDB {
@@ -86,8 +87,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					'title'                 => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
-					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
+					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				],
 			]
@@ -96,7 +96,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
-
 		foreach ( $this->loadMfaRecords() as $record ) {
 			try {
 				if ( \strpos( $otp, $record->unique_id ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
@@ -110,7 +109,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			catch ( InvalidYubikeyAppConfiguration $e ) {
 			}
 		}
-
 		return $valid;
 	}
 
@@ -125,8 +123,8 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			// 2021-09-27: API requires at least 16 chars in the nonce, or it fails.
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => \md5( \uniqid( Services::Request()->getID() ) ),
-				'id'    => self::con()->opts->optGet( 'yubikey_app_id', '' )
+				'nonce' => \hash( 'md5', Services::Request()->getID().PasswordGenerator::Gen( 32, false, true, false ) ),
+				'id'    => self::con()->opts->optGet( 'yubikey_app_id' )
 			];
 
 			$response = Services::HttpRequest()->getContent( URL::Build( self::URL_YUBIKEY_VERIFY, $parts ) );
@@ -229,7 +227,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			'value'       => '',
 			'text'        => __( 'Yubikey OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Use your Yubikey to generate a new code', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/4i'
+			'help_link'   => 'https://clk.shldscrty.com/4i'
 		];
 	}
 

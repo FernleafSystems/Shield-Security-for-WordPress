@@ -50,7 +50,7 @@ class BuildHashesFromDir {
 	 * @return $this
 	 */
 	public function setDepth( int $depth ) {
-		$this->depth = \max( 0, $depth );
+		$this->depth = (int)\max( 0, $depth );
 		return $this;
 	}
 

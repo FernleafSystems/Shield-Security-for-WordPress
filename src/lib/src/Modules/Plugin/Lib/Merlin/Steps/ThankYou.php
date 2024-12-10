@@ -14,9 +14,9 @@ class ThankYou extends Base {
 		$con = self::con();
 		return [
 			'hrefs'   => [
-				'facebook' => 'https://shsec.io/pluginshieldsecuritygroupfb',
-				'twitter'  => 'https://shsec.io/pluginshieldsecuritytwitter',
-				'email'    => 'https://shsec.io/pluginshieldsecuritynewsletter',
+				'facebook' => 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
+				'twitter'  => 'https://clk.shldscrty.com/pluginshieldsecuritytwitter',
+				'email'    => 'https://clk.shldscrty.com/pluginshieldsecuritynewsletter',
 			],
 			'imgs'    => [
 				'facebook' => $con->svgs->raw( 'facebook.svg' ),

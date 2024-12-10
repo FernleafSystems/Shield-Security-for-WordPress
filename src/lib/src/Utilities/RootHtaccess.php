@@ -16,7 +16,7 @@ class RootHtaccess {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return empty( Transient::Get( self::con()->prefix( \md5( __FILE__ ) ) ) );
+		return empty( Transient::Get( self::con()->prefix( \hash( 'md5', __FILE__ ) ) ) );
 	}
 
 	protected function run() {
@@ -24,7 +24,7 @@ class RootHtaccess {
 	}
 
 	public function runDailyCron() {
-		Transient::Set( self::con()->prefix( \md5( __FILE__ ) ), 1, \WEEK_IN_SECONDS );
+		Transient::Set( self::con()->prefix( \hash( 'md5', __FILE__ ) ), 1, DAY_IN_SECONDS );
 
 		$hadFile = (bool)Services::WpFs()->exists( $this->getPathToHtaccess() );
 		$couldAccess = $this->testCanAccessURL();

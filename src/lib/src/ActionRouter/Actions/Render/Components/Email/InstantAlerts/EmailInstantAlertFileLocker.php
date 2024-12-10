@@ -39,10 +39,11 @@ class EmailInstantAlertFileLocker extends EmailInstantAlertBase {
 
 	private function titleFor( string $key ) :string {
 		return [
-				   'wpconfig'       => __( 'WP Config', 'wp-simple-firewall' ),
-				   'root_htaccess'  => __( 'Root .htaccess', 'wp-simple-firewall' ),
-				   'root_index'     => __( 'Root index.php', 'wp-simple-firewall' ),
-				   'root_webconfig' => __( 'Root Web.config', 'wp-simple-firewall' ),
-			   ][ $key ];
+				   'wpconfig'        => __( 'WP Config', 'wp-simple-firewall' ),
+				   'theme_functions' => __( 'Theme functions.php', 'wp-simple-firewall' ),
+				   'root_htaccess'   => __( 'Root .htaccess', 'wp-simple-firewall' ),
+				   'root_index'      => __( 'Root index.php', 'wp-simple-firewall' ),
+				   'root_webconfig'  => __( 'Root Web.config', 'wp-simple-firewall' ),
+			   ][ $key ] ?? 'BUG: No Title Provided Yet';
 	}
 }

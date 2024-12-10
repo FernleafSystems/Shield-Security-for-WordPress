@@ -15,23 +15,25 @@
   ],
   "config":            {
     "platform": {
-      "php": "7.2.5"
+      "php": "7.4"
     }
   },
   "require":           {
-    "php":                                   ">=7.2",
+    "php":                                   ">=7.4",
+    "crowdsec/capi-client":                  "^3.2",
     "dolondro/google-authenticator":         "^2.2",
     "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/zxcvbn-php":            "^1.1",
     "monolog/monolog":                       "^2.9",
     "nyholm/psr7":                           "^1.8",
-    "nyholm/psr7-server":                    "^1.0",
+    "nyholm/psr7-server":                    "^1.1",
     "symfony/polyfill-iconv":                "^1.29",
     "twig/twig":                             "^3.11",
     "web-auth/webauthn-lib":                 "^3.3",
     "ext-json":                              "*",
     "ext-openssl":                           "*",
-    "ext-zlib":                              "*"
+    "ext-zlib":                              "*",
+    "ext-curl":                              "*"
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
@@ -56,7 +58,8 @@
       "constant_prefix":                "APTOWEB_PFX_",
       "packages":                       [
         "monolog/monolog",
-        "twig/twig"
+        "twig/twig",
+        "crowdsec/capi-client"
       ],
       "update_call_sites":              false,
       "override_autoload":              {
@@ -67,8 +70,9 @@
           "symfony/deprecation-contracts",
           "symfony/polyfill-ctype",
           "symfony/polyfill-mbstring",
+          "symfony/polyfill-php81",
           "symfony/polyfill-php80",
-          "symfony/polyfill-php81"
+          "symfony/polyfill-uuid"
         ],
         "namespaces":    [
         ],

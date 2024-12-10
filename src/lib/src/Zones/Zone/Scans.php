@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Scans extends Base {
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire Scans Zone';
+	}
+
 	public function actions() :array {
 		$con = self::con();
 		return \array_merge( parent::actions(), [
@@ -52,7 +56,7 @@ class Scans extends Base {
 	}
 
 	public function title() :string {
-		return __( 'Scans & Integrity', 'wp-simple-firewall' );
+		return __( 'Scans', 'wp-simple-firewall' );
 	}
 
 	public function subtitle() :string {

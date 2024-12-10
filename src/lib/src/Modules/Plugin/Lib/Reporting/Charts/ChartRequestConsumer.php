@@ -4,23 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\C
 
 trait ChartRequestConsumer {
 
-	/**
-	 * @var ChartRequestVO
-	 */
-	protected $chartReq;
+	protected ChartRequestVO $chartReq;
 
-	/**
-	 * @return ChartRequestVO
-	 */
-	public function getChartRequest() {
+	public function getChartRequest() :ChartRequestVO {
 		return $this->chartReq;
 	}
 
-	/**
-	 * @param ChartRequestVO $req
-	 * @return $this
-	 */
-	public function setChartRequest( $req ) {
+	public function setChartRequest( ChartRequestVO $req ) :self {
 		$this->chartReq = $req;
 		return $this;
 	}

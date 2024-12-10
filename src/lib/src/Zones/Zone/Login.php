@@ -6,9 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Login extends Base {
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire Login Security Zone';
+	}
+
 	public function components() :array {
 		return [
-			Component\LimitLogin::class,
 			Component\LoginProtectionForms::class,
 			Component\TwoFactorAuth::class,
 			Component\SessionTheftProtection::class,

@@ -57,31 +57,31 @@ class SectionNotices {
 				$notices[] = \implode( '<br/>', [
 					__( 'Email-based 2-Factor Authentication needs a reliable email delivery system on your WordPress site.', 'wp-simple-firewall' ),
 					__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-					.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', \trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) )
+					.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://clk.shldscrty.com/dd', \trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) )
 				] );
 
 				break;
 
 			case 'section_user_forms':
-				if ( $con->comps->opts_lookup->enabledLoginGuardAntiBotCheck() ) {
-					$locations = $opts->optGet( 'bot_protection_locations' );
-					$locations = \array_intersect_key(
-						\array_merge(
-							\array_flip( $locations ),
-							[
-								'login'        => __( 'Login', 'wp-simple-firewall' ),
-								'register'     => __( 'Registration', 'wp-simple-firewall' ),
-								'password'     => __( 'Lost Password', 'wp-simple-firewall' ),
-								'checkout_woo' => __( 'Checkout', 'wp-simple-firewall' ),
-							]
-						),
-						\array_flip( $locations )
-					);
-					$locations = empty( $locations ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $locations );
-
+				$locations = $opts->optGet( 'bot_protection_locations' );
+				if ( !empty( $locations ) ) {
 					$notices[] = sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ), $locations )
+						sprintf( __( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ),
+							'<br />'.\implode( ', ',
+								\array_intersect_key(
+									\array_merge(
+										\array_flip( $locations ),
+										[
+											'login'        => __( 'Login', 'wp-simple-firewall' ),
+											'register'     => __( 'Registration', 'wp-simple-firewall' ),
+											'password'     => __( 'Lost Password', 'wp-simple-firewall' ),
+										]
+									),
+									\array_flip( $locations )
+								)
+							)
+						)
 					);
 				}
 				break;
@@ -117,12 +117,6 @@ class SectionNotices {
 							__( 'We recommend disabling it if you no longer need it running.', 'wp-simple-firewall' ),
 						] );
 					}
-				}
-				break;
-
-			case 'section_deprecated':
-				if ( $con->opts->optIs( 'enable_antibot_check', 'Y' ) ) {
-					$warnings[] = __( 'You must disable ADE protection if you want to enable these options.', 'wp-simple-firewall' );
 				}
 				break;
 
@@ -192,7 +186,7 @@ class SectionNotices {
 						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
 					);
 				}
-				elseif ( !$optsLookup->enabledLoginGuardAntiBotCheck() ) {
+				elseif ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
 					$warnings[] = sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
 						__( "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone.", 'wp-simple-firewall' )
@@ -223,7 +217,7 @@ class SectionNotices {
 
 					if ( !empty( $installedButNotEnabledProviders ) ) {
 						$warnings[] = sprintf( __( "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
-							$con->getHumanName(),
+							$con->labels->Name,
 							\implode( ', ', \array_map(
 								function ( $provider ) {
 									return $provider->getHandlerName();

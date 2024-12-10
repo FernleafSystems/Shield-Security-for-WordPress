@@ -43,7 +43,7 @@ class PageRulesSummary extends PageRulesBase {
 		$simpleID = 0;
 
 		$rules = [];
-		foreach ( self::con()->rules->getRules() as $idx => $rule ) {
+		foreach ( self::con()->rules->getRules() as $rule ) {
 
 			if ( empty( $rule->wp_hook ) ) {
 				$rule->wp_hook = 'immediate';

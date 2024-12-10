@@ -23,9 +23,9 @@ class MfaController {
 	/**
 	 * @var Provider\AbstractProvider[][]
 	 */
-	private $providers;
+	private array $providers;
 
-	private $mfaProfilesCon;
+	private MfaProfilesController $mfaProfilesCon;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_xmlrpc;
@@ -97,7 +97,7 @@ class MfaController {
 	}
 
 	public function getMfaProfilesCon() :MfaProfilesController {
-		return $this->mfaProfilesCon ?? $this->mfaProfilesCon = new MfaProfilesController();
+		return $this->mfaProfilesCon ??= new MfaProfilesController();
 	}
 
 	public function onWpLoaded() {
@@ -123,12 +123,7 @@ class MfaController {
 				$twoFAat > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
 			);
 
-			$providers = \array_map(
-				function ( $provider ) {
-					return $provider->getProviderName();
-				},
-				$this->getProvidersActiveForUser( $user )
-			);
+			$providers = \array_map( fn( $p ) => $p->getProviderName(), $this->getProvidersActiveForUser( $user ) );
 			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
 				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $providers ) );
 
@@ -140,55 +135,32 @@ class MfaController {
 	 * @return Provider\AbstractProvider[]
 	 */
 	public function collateMfaProviderClasses() :array {
-		$shieldProviders = [
-			Provider\Email::class,
-			Provider\GoogleAuth::class,
-			Provider\Yubikey::class,
-			Provider\BackupCodes::class,
-			Provider\Passkey::class,
-		];
-		$finalProviders = apply_filters( 'shield/2fa_providers', $shieldProviders );
 
-		/**
-		 * Ensure we have a valid data structure before proceeding.
-		 */
-		if ( !\is_array( $finalProviders ) ) {
-			$finalProviders = $shieldProviders;
-		}
-
-		$finalValid = \array_filter(
-			$finalProviders,
-			function ( string $providerClass ) {
-				/** @var Provider\Provider2faInterface $providerClass - not really, but helps with intelli */
-				return isset( \class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
-					   && \preg_match( '#^[a-z0-9]+$#', $providerClass::ProviderSlug() );
-			}
+		$enum = apply_filters( 'shield/2fa_providers', $this->enumShieldProviders() );
+		$providerClasses = \array_filter(
+			\array_filter( \is_array( $enum ) ? $enum : $this->enumShieldProviders(), '\is_string' ),
+			/** @var Provider\Provider2faInterface|string $providerClass */
+			fn( string $provider ) => isset( \class_implements( $provider )[ Provider\Provider2faInterface::class ] )
+									  && \preg_match( '#^[a-z0-9]+$#', $provider::ProviderSlug() )
 		);
 
-		// Filter out any duplicate slugs.
+		// Find duplicate slugs.
 		$duplicateSlugs = \array_filter(
 			\array_count_values( \array_map(
-				function ( $provider ) {
-					/** @var Provider\Provider2faInterface $provider */
-					return \strtolower( $provider::ProviderSlug() );
-				},
-				$finalValid
+			/** @var Provider\Provider2faInterface|string $provider */
+				fn( string $provider ) => \strtolower( $provider::ProviderSlug() ),
+				$providerClasses
 			) ),
-			function ( $count ) {
-				return $count > 1;
-			}
+			fn( $count ) => $count > 1
 		);
-		if ( !empty( $duplicateSlugs ) ) {
-			$finalValid = \array_filter(
-				$finalValid,
-				function ( $providerClass ) use ( $duplicateSlugs ) {
-					/** @var Provider\Provider2faInterface $providerClass */
-					return !\array_key_exists( $providerClass::ProviderSlug(), $duplicateSlugs );
-				}
-			);
-		}
 
-		return $finalValid;
+		return empty( $duplicateSlugs ) ?
+			$providerClasses :
+			\array_filter(
+				$providerClasses,
+				/** @var Provider\Provider2faInterface|string $provider */
+				fn( string $provider ) => !\array_key_exists( $provider::ProviderSlug(), $duplicateSlugs )
+			);
 	}
 
 	/**
@@ -196,10 +168,8 @@ class MfaController {
 	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
+		$this->providers ??= [];
 
-		if ( !\is_array( $this->providers ) ) {
-			$this->providers = [];
-		}
 		if ( !isset( $this->providers[ $user->ID ] ) ) {
 			$this->providers[ $user->ID ] = [];
 			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
@@ -207,18 +177,16 @@ class MfaController {
 			}
 		}
 
-		$Ps = \array_filter(
+		$userProviders = \array_filter(
 			$this->providers[ $user->ID ],
-			function ( $provider ) use ( $onlyActive ) {
-				return $provider->isProviderAvailableToUser() && ( !$onlyActive || $provider->isProfileActive() );
-			}
+			fn( $provider ) => $provider->isProviderAvailableToUser() && ( !$onlyActive || $provider->isProfileActive() )
 		);
 
 		// If you have only 1 provider, and it's not a standalone provider, we don't offer any providers.
-		if ( \count( $Ps ) === 1 && !reset( $Ps )->isProviderStandalone() ) {
-			$Ps = [];
+		if ( \count( $userProviders ) === 1 && !\reset( $userProviders )->isProviderStandalone() ) {
+			$userProviders = [];
 		}
-		return $Ps;
+		return $userProviders;
 	}
 
 	/**
@@ -272,11 +240,9 @@ class MfaController {
 		$meta = self::con()->user_metas->for( $user );
 		return \array_filter(
 			\is_array( $meta->login_intents ) ? $meta->login_intents : [],
-			function ( $intent ) {
-				return \is_array( $intent )
-					   && $intent[ 'start' ] > ( Services::Request()->ts() - $this->getLoginIntentMinutes()*60 )
-					   && $intent[ 'attempts' ] < self::con()->cfg->configuration->def( 'login_intent_max_attempts' );
-			}
+			fn( $intent ) => \is_array( $intent )
+							 && $intent[ 'start' ] > ( Services::Request()->ts() - $this->getLoginIntentMinutes()*60 )
+							 && $intent[ 'attempts' ] < self::con()->cfg->configuration->def( 'login_intent_max_attempts' )
 		);
 	}
 
@@ -301,5 +267,15 @@ class MfaController {
 			] );
 		}
 		return $valid;
+	}
+
+	private function enumShieldProviders() :array {
+		return [
+			Provider\Email::class,
+			Provider\GoogleAuth::class,
+			Provider\Yubikey::class,
+			Provider\BackupCodes::class,
+			Provider\Passkey::class,
+		];
 	}
 }

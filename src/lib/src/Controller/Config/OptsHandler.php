@@ -20,13 +20,13 @@ class OptsHandler extends DynPropertiesClass {
 	public const TYPE_FREE = 'free';
 	public const TYPE_PRO = 'pro';
 
-	private $changes = [];
+	private array $changes = [];
 
-	private $values = null;
+	private ?array $values = null;
 
 	private $merged = false;
 
-	private $startedAsPremium = false;
+	private bool $startedAsPremium = false;
 
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
@@ -353,6 +353,19 @@ class OptsHandler extends DynPropertiesClass {
 		return $this->optGet( $key ) == $value;
 	}
 
+	/**
+	 * Determine whether current installation has access to a given option, based on capabilities and/or premium status.
+	 */
+	public function optHasAccess( string $key ) :bool {
+		$access = $this->optExists( $key );
+		if ( $access ) {
+			$def = $this->optDef( $key );
+			$access = ( empty( $def[ 'cap' ] ) || self::con()->caps->hasCap( $def[ 'cap' ] ) )
+					  && ( empty( $def[ 'premium' ] ) || self::con()->isPremiumActive() );
+		}
+		return $access;
+	}
+
 	public function optReset( string $key ) :void {
 		$this->optSet( $key, $this->optDefault( $key ) );
 	}
@@ -406,13 +419,6 @@ class OptsHandler extends DynPropertiesClass {
 				break;
 		}
 		return $valid;
-	}
-
-	/**
-	 * @deprecated 19.0.7
-	 */
-	public function commit() :void {
-		$this->store();
 	}
 
 	private function defaultAllStorageStruct() :array {

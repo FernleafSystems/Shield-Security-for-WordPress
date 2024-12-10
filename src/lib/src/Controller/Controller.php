@@ -11,12 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Base,
-	Firewall,
 	HackGuard,
 	Integrations,
 	IPs,
@@ -64,22 +61,16 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                   $root_file
  * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
  * @property Shield\Users\UserMetas                   $user_metas
- * @property Base\ModCon[]|mixed                      $modules
+ * @property ModConfigVO[]|mixed                      $modules
  * @property Shield\Crons\HourlyCron                  $cron_hourly
  * @property Shield\Crons\DailyCron                   $cron_daily
  * @property string[]                                 $reqs_not_met
  */
 class Controller extends DynPropertiesClass {
 
-	/**
-	 * @var Controller
-	 */
-	public static $oInstance;
+	public static Controller $oInstance;
 
-	/**
-	 * @var ?Plugin\ModCon
-	 */
-	public $plugin = null;
+	public ?Plugin\ModCon $plugin = null;
 
 	/**
 	 * @deprecated 19.2
@@ -147,11 +138,6 @@ class Controller extends DynPropertiesClass {
 				if ( empty( $val ) ) {
 					$this->email_con = $val = new Email\EmailCon();
 				}
-				break;
-
-			case 'service_events':
-				/** @deprecated 19.2 */
-				$this->comps->events;
 				break;
 
 			case 'admin_notices':
@@ -336,7 +322,7 @@ class Controller extends DynPropertiesClass {
 						'more_information' => 'Click here for more information on requirements'
 					],
 					'hrefs'   => [
-						'more_information' => 'https://shsec.io/shieldsystemrequirements'
+						'more_information' => 'https://clk.shldscrty.com/shieldsystemrequirements'
 					]
 				] )
 				->display();
@@ -391,7 +377,6 @@ class Controller extends DynPropertiesClass {
 
 			$this->modules_loaded = true;
 
-			// Register the Controller hooks
 			$this->doRegisterHooks();
 
 			$this->plugin = new Plugin\ModCon();
@@ -511,9 +496,7 @@ class Controller extends DynPropertiesClass {
 		$this->admin_notices->execute();
 		$this->initCrons();
 		( new Admin\AdminBarMenu() )->execute();
-		( new Updates\CaptureFirstDetected() )->execute();
 		( new Updates\CaptureMyUpgrade() )->execute();
-		( new Updates\AdjustAuto() )->execute();
 	}
 
 	protected function initCrons() :void {
@@ -557,7 +540,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
-		$this->cfg->builtHash = \md5( \serialize( $this->cfg->getRawData() ) );
+		$this->cfg->builtHash = \hash( 'md5', \serialize( $this->cfg->getRawData() ) );
 		$this->plugin_urls;
 		$this->saveCurrentPluginControllerOptions();
 	}
@@ -599,14 +582,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getPluginPrefix( string $glue = '-' ) :string {
 		return sprintf( '%s%s%s', $this->cfg->properties[ 'slug_parent' ], $glue, $this->cfg->properties[ 'slug_plugin' ] );
-	}
-
-	/**
-	 * Default is to take the 'Name' from the labels section but can override with "human_name" from property section.
-	 * @return string
-	 */
-	public function getHumanName() {
-		return $this->labels->Name;
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
@@ -666,7 +641,7 @@ class Controller extends DynPropertiesClass {
 		}
 		elseif ( isset( $this->cfg ) ) {
 			$serial = \serialize( $this->cfg->getRawData() );
-			if ( !isset( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \md5( $serial ) ) ) {
+			if ( empty( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \hash( 'md5', $serial ) ) ) {
 				$data = $this->cfg->getRawData();
 				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
 					$zip = @\gzdeflate( $serial );
@@ -684,17 +659,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function getConfigStoreKey() :string {
-		return 'aptoweb_controller_'.\substr( \md5( \get_class( $this ) ), 0, 6 );
-	}
-
-	public function setFlag( string $flag, $value ) {
-		$flags = $this->flags;
-		$flags[ $flag ] = $value;
-		$this->flags = $flags;
-	}
-
-	public function getModule_Plugin() :Plugin\ModCon {
-		return $this->plugin;
+		return 'aptoweb_controller_'.\substr( \hash( 'md5', \get_class( $this ) ), 0, 6 );
 	}
 
 	public function modCfg( string $slug = '' ) :ModConfigVO {
@@ -730,79 +695,19 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$labels = ( new Config\Labels() )->applyFromArray( $labels );
-		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
-		$labels->url_helpdesk = 'https://shsec.io/shieldhelpdesk';
+		$labels->url_secadmin_forgotten_key = 'https://clk.shldscrty.com/gc';
+		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 
 	/**
-	 * @return Base\ModCon|null|mixed
-	 * @deprecated 19.2
+	 * Default is to take the 'Name' from the labels section but can override with "human_name" from property section.
+	 * @return string
+	 * @deprecated 20.1
 	 */
-	public function getModule( string $slug ) {
-		return $this->modules[ $slug ] ?? null;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_AuditTrail() :AuditTrail\ModCon {
-		return $this->modules[ EnumModules::ACTIVITY ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_Firewall() :Firewall\ModCon {
-		return $this->modules[ EnumModules::FIREWALL ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_HackGuard() :HackGuard\ModCon {
-		return $this->modules[ EnumModules::SCANS ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_IPs() :IPs\ModCon {
-		return $this->modules[ EnumModules::IPS ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_License() :License\ModCon {
-		return $this->modules[ EnumModules::LICENSE ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_LoginGuard() :LoginGuard\ModCon {
-		return $this->modules[ EnumModules::LOGIN ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getModule_SecAdmin() :SecurityAdmin\ModCon {
-		return $this->modules[ EnumModules::SECURITY_ADMIN ];
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
-		$render = Services::Render();
-		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {
-			$render->setTwigTemplateRoot( $dir );
-		}
-		$render->setTemplateRoot( $this->getPath_Templates() );
-		return $render;
+	public function getHumanName() {
+		return $this->labels->Name;
 	}
 }

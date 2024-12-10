@@ -1,8 +1,8 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>Shield watches every IP address that connects to your site and when they trigger your
-		defenses enough times (offense limit), they're blacklisted.
+	<p>Shield assesses every IP address that accesses your site and when they trigger your
+		defenses often enough (offense limit), they're blacklisted.
 	</p>
 {% endblock %}
 
@@ -10,10 +10,11 @@
 	{% import '/common/macros.twig' as icwp_macros %}
 
 	<form class="form-horizontal merlin-form ajax-form">
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 
-		<div class="row">
-			<div class="col-12 mb-2">
-				<h6>Configure Automatic IP Blocking</h6>
+		<div class="row mb-2">
+			<div class="col">
+				<h6 class="pb-1 border-bottom d-inline-block">Automatic IP Blocking Settings</h6>
 			</div>
 		</div>
 
@@ -40,15 +41,14 @@
 				<div class="mt-3"></div>
 				{{ icwp_macros.formInput_Checkbox(
 					'cs_block', 'Y', 'Crowd-Sourced IPs',
-					'Use CrowdSec Blocklists'~' <span class="badge text-bg-success">NEW</span>',
-					"Crowd-sourced IP block-lists involves sharing your IP block-list with others, and they share them with you."
-					~' [<a href="https://shsec.io/l7" target="_blank">more info</a>]',
+					'Use CrowdSec Blocklists',
+					"Crowd-sourced IP block-lists involves sharing your IP block-list with others, and they share their lists with you."
+					~' [<a href="https://clk.shldscrty.com/l7" target="_blank">more info</a>]',
 					null, true
 				) }}
 
 				<div class="mt-3"></div>
-				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-				{{ icwp_macros.formInput_Submit2( 'Set IP Blocking Options', null, null, false, 'mt-2' ) }}
+				{{ icwp_macros.formInput_Submit2( 'Set IP Blocking Options', null, 'secondary', false, 'mt-2' ) }}
 			</div>
 		</div>
 

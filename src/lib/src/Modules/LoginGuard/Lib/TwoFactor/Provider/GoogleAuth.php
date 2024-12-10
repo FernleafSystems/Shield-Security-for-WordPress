@@ -68,8 +68,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 					'title'                 => __( 'Google Authenticator', 'wp-simple-firewall' ),
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Google Authenticator' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) ),
-					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()
-																										  ->getHumanName() ),
+					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
 					'remove_google_auth'    => __( 'Remove Google Authenticator', 'wp-simple-firewall' ),
 					'generated_at'          => sprintf( '%s: %s', __( 'Registered', 'wp-simple-firewall' ),
@@ -150,7 +149,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 			'placeholder' => __( '123456', 'wp-simple-firewall' ),
 			'text'        => __( 'Authenticator OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter 6-digit code from your authenticator app', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/wpsf42',
+			'help_link'   => 'https://clk.shldscrty.com/wpsf42',
 			'extras'      => [
 				'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
 			]

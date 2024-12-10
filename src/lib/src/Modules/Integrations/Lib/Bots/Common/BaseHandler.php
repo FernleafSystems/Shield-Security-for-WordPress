@@ -11,7 +11,9 @@ abstract class BaseHandler {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private static $isBot = null;
+	private static ?bool $isBot = null;
+
+	private ?bool $isCooldown = null;
 
 	protected function canRun() :bool {
 		return static::ProviderMeetsRequirements();
@@ -58,16 +60,27 @@ abstract class BaseHandler {
 
 	abstract protected function fireBotEvent();
 
+	abstract protected function getCooldownContext() :string;
+
 	protected function isBotBlockEnabled() :bool {
 		return $this->isEnabled();
 	}
 
 	public function isBotBlockRequired() :bool {
-		return $this->isBot() && $this->isBotBlockEnabled();
+		return $this->isCoolDownBlockRequired() || ( $this->isBot() && $this->isBotBlockEnabled() );
 	}
 
-	protected function isSpam_Human() :bool {
-		return false;
+	public function isCoolDownBlockRequired() :bool {
+		$required = false;
+		if ( self::con()->comps->cool_down->isCooldownContextEnabled( $this->getCooldownContext() ) ) {
+			if ( $this->isCooldown === null ) {
+				if ( $this->isCooldown = self::con()->comps->cool_down->isCooldownTriggered( $this->getCooldownContext() ) ) {
+					self::con()->comps->events->fireEvent( 'cooldown_fail' );
+				}
+			}
+			$required = $this->isCooldown;
+		}
+		return $required;
 	}
 
 	public function isEnabled() :bool {
@@ -80,8 +93,7 @@ abstract class BaseHandler {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		$slug = static::Slug();
-		return $slug === 'wordpress' || ( new Find() )->isPluginActive( $slug );
+		return static::Slug() === 'wordpress' || ( new Find() )->isPluginActive( static::Slug() );
 	}
 
 	protected static function ProviderMeetsRequirements() :bool {

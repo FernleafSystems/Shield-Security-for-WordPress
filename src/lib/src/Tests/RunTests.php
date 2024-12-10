@@ -10,7 +10,7 @@ class RunTests {
 
 	public function run() {
 		\array_map(
-			fn( $test ) => ( new $test() )->run(), $this->enumPluginTests()
+			fn( $test ) => ( new $test() )->enroll(), $this->enumPluginTests()
 		);
 	}
 

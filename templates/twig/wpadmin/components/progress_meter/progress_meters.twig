@@ -8,14 +8,14 @@
   </div>
 </div>
 
-{% for meter_slug in vars.meter_slugs %}
-	<div class="row row-cols-1">
-		<div class="col mb-4 pb-4">
+<div class="row">
+	{% for meter_slug in vars.meter_slugs %}
+		<div class="col-lg-12 col-xl-6 mb-4 pb-4">
 			<div class="progress-metercard progress-metercard-{{ meter_slug }}"
 				 style="height: 100%"
 				 data-meter_slug="{{ meter_slug }}">
 				{% include '/components/html/loading_placeholders/progress_meter.twig' %}
 			</div>
-	  </div>
-	</div>
-{% endfor %}
+		</div>
+	{% endfor %}
+</div>

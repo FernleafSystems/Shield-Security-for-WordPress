@@ -201,15 +201,12 @@ class Store {
 	 * @throws \Exception
 	 */
 	public function saveMeta() :bool {
-		$success = false;
-		if ( $this->isReady() ) {
-			$success = (bool)Services::WpFs()->putFileContent(
-				$this->getSnapStoreMetaPath(),
-				\wp_json_encode( $this->getSnapMeta() ),
-				true
-			);
-		}
-		return $success;
+		return $this->isReady() &&
+			   Services::WpFs()->putFileContent(
+				   $this->getSnapStoreMetaPath(),
+				   \wp_json_encode( $this->getSnapMeta() ),
+				   true
+			   );
 	}
 
 	/**

@@ -11,4 +11,8 @@ class GlobalPluginEnable extends Base {
 	public function subtitle() :string {
 		return __( "Set the entire plugin's enabled/disabled status.", 'wp-simple-firewall' );
 	}
+
+	protected function tooltip() :string {
+		return __( 'Globally enable/disable security protections', 'wp-simple-firewall' );
+	}
 }

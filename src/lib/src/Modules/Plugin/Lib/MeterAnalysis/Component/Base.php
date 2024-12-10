@@ -12,27 +12,37 @@ abstract class Base {
 	public const MINIMUM_EDITION = 'free';
 	public const WEIGHT = 3;
 
-	protected $isProtected = null;
+	protected ?bool $isProtected = null;
 
 	public function build() :array {
+		return \array_merge(
+			[
+				'slug'                   => $this->slug(),
+				'categories'             => $this->categories(),
+				'weight'                 => $this->weight(),
+				'score'                  => $this->score(),
+				'href_full'              => $this->hrefFull(),
+				'href_full_target_blank' => $this->hrefFullTargetBlank(),
+				'href_data'              => $this->hrefData(),
+				'is_protected'           => $this->isProtected(),
+				'is_applicable'          => $this->isApplicable(),
+				'is_critical'            => $this->isCritical(),
+				'is_optcfg'              => $this->isOptConfigBased(),
+				'config_item'            => $this->cfgItem(),
+				'text'                   => $this->text(),
+			],
+			$this->text(),
+		);
+	}
+
+	protected function text() :array {
 		return [
-			'slug'                   => $this->slug(),
-			'categories'             => $this->categories(),
-			'weight'                 => $this->weight(),
-			'score'                  => $this->score(),
-			'title'                  => $this->title(),
-			'title_protected'        => $this->titleProtected(),
-			'title_unprotected'      => $this->titleUnprotected(),
-			'desc_protected'         => $this->descProtected(),
-			'desc_unprotected'       => $this->descUnprotected(),
-			'href_full'              => $this->hrefFull(),
-			'href_full_target_blank' => $this->hrefFullTargetBlank(),
-			'href_data'              => $this->hrefData(),
-			'is_protected'           => $this->isProtected(),
-			'is_applicable'          => $this->isApplicable(),
-			'is_critical'            => $this->isCritical(),
-			'is_optcfg'              => $this->isOptConfigBased(),
-			'config_item'            => $this->cfgItem(),
+			'title'             => $this->title(),
+			'title_protected'   => $this->titleProtected(),
+			'title_unprotected' => $this->titleUnprotected(),
+			'desc_protected'    => $this->descProtected(),
+			'desc_unprotected'  => $this->descUnprotected(),
+			'fix'               => __( 'Fix', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -89,10 +99,7 @@ abstract class Base {
 	}
 
 	protected function isProtected() :bool {
-		if ( \is_null( $this->isProtected ) ) {
-			$this->isProtected = $this->isApplicable() && $this->testIfProtected();
-		}
-		return $this->isProtected;
+		return $this->isProtected ??= $this->isApplicable() && $this->testIfProtected();
 	}
 
 	protected function categories() :array {

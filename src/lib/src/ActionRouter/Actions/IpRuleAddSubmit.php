@@ -45,19 +45,15 @@ class IpRuleAddSubmit extends BaseAction {
 			$ipAdder = ( new IpRules\AddRule() )->setIP( $formIP );
 			switch ( $form[ 'type' ] ) {
 				case $dbh::T_MANUAL_BYPASS:
-					$IP = $ipAdder->toManualWhitelist( $label );
+					$ipAdder->toManualWhitelist( $label );
 					break;
 
 				case $dbh::T_MANUAL_BLOCK:
-					$IP = $ipAdder->toManualBlacklist( $label );
+					$ipAdder->toManualBlacklist( $label );
 					break;
 
 				default:
 					throw new \Exception( 'Please select one of the IP Rule Types - Block or Bypass' );
-			}
-
-			if ( empty( $IP ) ) {
-				throw new \Exception( 'There appears to have been a problem adding the IP rule' );
 			}
 
 			$msg = __( 'IP address added successfully', 'wp-simple-firewall' );

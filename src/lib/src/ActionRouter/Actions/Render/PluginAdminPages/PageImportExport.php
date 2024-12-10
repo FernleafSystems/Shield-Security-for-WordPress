@@ -55,7 +55,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'tab_by_file'        => __( 'Import From File', 'wp-simple-firewall' ),
 				'tab_by_site'        => __( 'Run Import From Another Site', 'wp-simple-firewall' ),
 				'tab_to_file'        => __( 'Export To File', 'wp-simple-firewall' ),
-				'tab_config'         => __( 'Configuration', 'wp-simple-firewall' ),
+				'tab_config'         => __( 'Edit Settings', 'wp-simple-firewall' ),
 				'title_import_file'  => __( 'Import From File', 'wp-simple-firewall' ),
 				'select_import_file' => __( 'Select file to import options from', 'wp-simple-firewall' ),
 				'i_understand'       => __( 'I Understand Existing Options Will Be Overwritten', 'wp-simple-firewall' ),

@@ -41,7 +41,7 @@ class UserMetas {
 	private function setup( ShieldUserMeta $meta ) {
 		$rec = $meta->record;
 
-		$newHash = \substr( \sha1( $this->user->user_pass ), 6, 4 );
+		$newHash = \substr( \hash( 'sha1', $this->user->user_pass ), 6, 4 );
 		if ( empty( $rec->pass_started_at ) || !isset( $meta->pass_hash ) || ( $meta->pass_hash !== $newHash ) ) {
 			$meta->pass_hash = $newHash;
 			$rec->pass_started_at = Services::Request()->ts();
@@ -58,8 +58,7 @@ class UserMetas {
 
 	private function loadMetaRecord( ShieldUserMeta $meta ) {
 
-		$metaLoader = new MetaRecords();
-		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
+		$metaRecord = ( new MetaRecords() )->loadMeta( (int)$meta->user_id );
 
 		if ( empty( $metaRecord ) ) {
 			$metaRecord = self::con()->db_con->user_meta->getRecord();
@@ -100,7 +99,7 @@ class UserMetas {
 					->user_meta
 					->getQueryUpdater()
 					->updateRecord( $metaRecord, $dataToUpdate );
-				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
+				$metaRecord = ( new MetaRecords() )->loadMeta( (int)$meta->user_id );
 			}
 		}
 

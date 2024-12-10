@@ -15,7 +15,7 @@ class LoginProtection extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( "Brute Force Login Protection with silentCAPTCHA", 'wp-simple-firewall' ),
+				'step_title' => __( 'Brute Force Login Protection with silentCAPTCHA', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'video_id' => '269191603'
@@ -24,21 +24,17 @@ class LoginProtection extends Base {
 	}
 
 	public function processStepFormSubmit( array $form ) :Response {
-		$value = $form[ 'LoginProtectOption' ] ?? '';
-		if ( empty( $value ) ) {
-			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
-		}
+		$opts = self::con()->opts;
 
-		$toEnable = $value === 'Y';
-		self::con()
-			->opts
-			->optSet( 'enable_antibot_check', $toEnable ? 'Y' : 'N' )
-			->store();
+		$value = $form[ 'LoginProtectOption' ] ?? '';
+		$locs = $opts->optGet( 'bot_protection_locations' );
+		$value === 'Y' ? \array_unshift( $locs, 'login' ) : ( $locs = \array_diff( $locs, [ 'login' ] ) );
+		$opts->optSet( 'bot_protection_locations', \array_unique( $locs ) )->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->message = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
-			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
+		$resp->message = $value === 'Y' ? __( 'Your WordPress login form is now protected', 'wp-simple-firewall' )
+			: __( 'Your WordPress login form is unprotected', 'wp-simple-firewall' );
 		return $resp;
 	}
 }

@@ -13,7 +13,7 @@ class BlockFirewall extends BaseBlock {
 		$con = self::con();
 		return [
 			'strings' => [
-				'page_title' => sprintf( '%s | %s', __( 'Request Blocked by Firewall', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'page_title' => sprintf( '%s | %s', __( 'Request Blocked by Firewall', 'wp-simple-firewall' ), $con->labels->Name ),
 				'title'      => __( 'Request Blocked', 'wp-simple-firewall' ),
 				'subtitle'   => __( 'Firewall terminated the request because it triggered a firewall rule.', 'wp-simple-firewall' ),
 			],
@@ -33,21 +33,16 @@ class BlockFirewall extends BaseBlock {
 	protected function getRestrictionDetailsPoints() :array {
 		$blockMeta = $this->action_data[ 'block_meta_data' ];
 
-		$remainingOffenses = \max( 0, ( new QueryRemainingOffenses() )
-			->setIP( self::con()->this_req->ip )
-			->run() );
+		$remainingOffenses = \max( 0, ( new QueryRemainingOffenses() )->setIP( self::con()->this_req->ip )->run() );
 
-		return \array_merge(
-			[
-				__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
-				__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>
-					( new FirewallCategoryNames() )->getFor( (string)$blockMeta[ 'match_category' ] ?? '' ),
-				__( 'Request Parameter', 'wp-simple-firewall' )          => $blockMeta[ 'match_request_param' ],
-				__( 'Request Parameter Value', 'wp-simple-firewall' )    => $blockMeta[ 'match_request_value' ],
-				__( 'Firewall Pattern', 'wp-simple-firewall' )           => $blockMeta[ 'match_pattern' ],
-			],
-			parent::getRestrictionDetailsPoints()
-		);
+		return \array_merge( [
+			__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
+			__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>
+				( new FirewallCategoryNames() )->getFor( (string)$blockMeta[ 'match_category' ] ?? '' ),
+			__( 'Request Parameter', 'wp-simple-firewall' )          => $blockMeta[ 'match_request_param' ],
+			__( 'Request Parameter Value', 'wp-simple-firewall' )    => $blockMeta[ 'match_request_value' ],
+			__( 'Firewall Pattern', 'wp-simple-firewall' )           => $blockMeta[ 'match_pattern' ],
+		], parent::getRestrictionDetailsPoints() );
 	}
 
 	protected function getRequiredDataKeys() :array {

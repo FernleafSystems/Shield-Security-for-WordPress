@@ -33,14 +33,6 @@ class OptsLookup {
 		return $this->getIpAutoBlockOffenseLimit() > 0;
 	}
 
-	public function enabledWpCli() :bool {
-		return apply_filters( 'shield/enable_wpcli', true );
-	}
-
-	public function enabledLoginGuardAntiBotCheck() :bool {
-		return self::con()->opts->optIs( 'enable_antibot_check', 'Y' );
-	}
-
 	public function enabledIntegrationMainwp() :bool {
 		return self::con()->opts->optIs( 'enable_mainwp', 'Y' );
 	}
@@ -49,7 +41,7 @@ class OptsLookup {
 	 * @param string $area - login, register, password, woocommerce
 	 */
 	public function enabledLoginProtectionArea( string $area ) :bool {
-		return $this->enabledLoginGuardAntiBotCheck() && \in_array( $area, self::con()->opts->optGet( 'bot_protection_locations' ) );
+		return \in_array( $area, self::con()->opts->optGet( 'bot_protection_locations' ) );
 	}
 
 	public function enabledTelemetry() :bool {
@@ -69,7 +61,7 @@ class OptsLookup {
 	}
 
 	public function getActivatedPeriod() :int {
-		return Services::Request()->ts() - self::con()->opts->optGet( 'antibot_minimum' );
+		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
 	}
 
 	public function getAntiBotMinScore() :int {
@@ -202,16 +194,6 @@ class OptsLookup {
 		return self::con()->opts->optGet( 'session_timeout_interval' )*\DAY_IN_SECONDS;
 	}
 
-	public function getTrafficAutoClean() :int {
-		$con = self::con();
-		$days = $con->opts->optGet( 'auto_clean' );
-		if ( $days !== $con->caps->getMaxLogRetentionDays() ) {
-			$days = (int)\min( $days, $con->caps->getMaxLogRetentionDays() );
-			$con->opts->optSet( 'auto_clean', $days );
-		}
-		return $days;
-	}
-
 	public function getTrafficLiveLogTimeRemaining() :int {
 		$opts = self::con()->opts;
 		$now = Services::Request()->ts();
@@ -268,47 +250,5 @@ class OptsLookup {
 
 	public function isPassPreventPwned() :bool {
 		return $this->isPassPoliciesEnabled() && self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' );
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isPluginGloballyDisabled() :bool {
-		return !$this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function optIsAndModForOptEnabled( string $optKey, $optIs ) :bool {
-		return self::con()->opts->optIs( $optKey, $optIs ) && $this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isModFromOptEnabled( string $optKey ) :bool {
-		return $this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isModEnabled( string $slug = '' ) :bool {
-		return $this->isPluginEnabled();
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getLoginGuardGaspKey() :string {
-		return '';
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function enabledLoginGuardGaspCheck() :bool {
-		return false;
 	}
 }

@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -51,22 +50,14 @@ class PluginURLs {
 	}
 
 	/**
-	 * @param ModCon|string|mixed $mod
-	 * @deprecated 19.2
-	 */
-	public function modCfg( $mod ) :string {
-		return '';
-	}
-
-	/**
-	 * @param ModCon|string|mixed $componentSlug
+	 * @param string|mixed $componentSlug
 	 */
 	public function cfgForZoneComponent( string $componentSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}
 
 	/**
-	 * @param ModCon|string|mixed $optKey
+	 * @param string|mixed $optKey
 	 */
 	public function cfgForOpt( string $optKey ) :string {
 		$def = self::con()->opts->optDef( $optKey );
@@ -106,20 +97,5 @@ class PluginURLs {
 
 	public function zone( string $zoneSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONES, $zoneSlug );
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function modCfgOption( string $optKey ) :string {
-		return '';
-	}
-
-	/**
-	 * @param ModCon|string|mixed $mod
-	 * @deprecated 19.2
-	 */
-	public function modCfgSection( $mod, string $optSection ) :string {
-		return '';
 	}
 }

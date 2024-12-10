@@ -17,7 +17,6 @@ class MeterLogin extends MeterBase {
 	}
 
 	public function description() :array {
-		$name = self::con()->getHumanName();
 		return [
 			\implode( ' ', [
 				__( "CAPTCHAs are horrible.", 'wp-simple-firewall' ),
@@ -30,7 +29,7 @@ class MeterLogin extends MeterBase {
 			] ),
 			\implode( ' ', [
 				__( "Another crucial element of user login security is 2-Factor Authentication.", 'wp-simple-firewall' ),
-				sprintf( __( "%s offers email, Yubikey, Google Authenticator and U2F.", 'wp-simple-firewall' ), $name ),
+				sprintf( __( "%s offers email, Yubikey, Google Authenticator and U2F.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				__( "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility.", 'wp-simple-firewall' ),
 			] ),
 		];
@@ -39,7 +38,6 @@ class MeterLogin extends MeterBase {
 	protected function getComponents() :array {
 		return [
 			Component\IpAdeThreshold::class,
-			Component\AdeLoginGuard::class,
 			Component\AdeLogin::class,
 			Component\AdeRegister::class,
 			Component\AdeLostPassword::class,

@@ -121,6 +121,6 @@ class ProcessConditions {
 		foreach ( $data as &$datum ) {
 			\ksort( $datum );
 		}
-		return \sha1( \get_class( $handler ).\serialize( $data ) );
+		return \hash( 'sha1', \get_class( $handler ).\serialize( $data ) );
 	}
 }

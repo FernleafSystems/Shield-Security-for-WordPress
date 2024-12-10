@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
+use AptowebDeps\CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
@@ -9,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
+	IPs\Lib\CrowdSec\Capi\Enroll,
+	IPs\Lib\CrowdSec\Signals\PushSignalsToCS,
 	Plugin
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -48,6 +51,37 @@ class SimplePluginTests extends BaseAction {
 		var_dump( $res );
 	}
 
+	private function dbg_cs() {
+
+		add_filter( 'pre_http_request', function ( $pre, $args, $url ) {
+			if ( \str_contains( $url, 'crowdsec.net' ) ) {
+				error_log( var_export( $args, true ) );
+				error_log( var_export( $url, true ) );
+				var_dump( $args, true );
+				var_dump( $url, true );
+			}
+			return $pre;
+		}, 11, 3 );
+
+		try {
+			( new Enroll() )->enroll();
+			( new PushSignalsToCS() )->push();
+		}
+		catch ( ClientException $ce ) {
+			if ( $ce->getCode() === 403 && \str_contains( $ce->getMessage(), 'The machine_id or password is incorrect' ) ) {
+				// reset
+			}
+			var_dump( $ce );
+			error_log( 'client exception: '.$ce->getMessage() );
+		}
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
 	private function dbg_db() {
 		$column = 'data';
 		$schema = self::con()->db_con->activity_snapshots->getTableSchema();

@@ -10,12 +10,16 @@
 				<h4 class="mb-3">{{ strings.step_title|default('NO TITLE') }}</h4>
 			{% endblock %}
 
+			{% block slide_body_section_pre_content %}
+				<div class="row">
+					<div class="col-lg-12 col-xl-8">
+						{% block slide_body_video_section_blurb %}{% endblock %}
+					</div>
+				</div>
+			{% endblock %}
 			{% block slide_body_video_section %}
 				<div class="row">
 					<div class="col col-8">
-						{% block slide_body_video_section_blurb %}
-						{% endblock %}
-
 						<div class="mt-4">
 							{% block slide_body_action_area %}{% endblock %}
 						</div>

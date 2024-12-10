@@ -26,7 +26,7 @@ class DashboardWidget {
 		$con = self::con();
 		wp_add_dashboard_widget(
 			$con->prefix( 'dashboard_widget' ),
-			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->getHumanName(), __( 'Overview', 'wp-simple-firewall' ) ) ),
+			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ) ),
 			function () {
 				echo sprintf( '<div id="ShieldDashboardWidget"><div class="spinner-border" role="status"><span class="visually-hidden">%s...</span></div></div>',
 					__( 'Loading', 'wp-simple-firewall' ) );

@@ -209,7 +209,7 @@ class RetrieveItems extends RetrieveBase {
 
 			// we haven't specified a type of scan, so we're collecting all results.
 			if ( empty( $workingScan ) ) {
-				foreach ( $vo->meta as $scanSlug => $scanMeta ) {
+				foreach ( $vo->meta as $scanMeta ) {
 					$item = $con->comps
 						->scans
 						->getScanCon( $vo->scan )

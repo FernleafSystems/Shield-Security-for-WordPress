@@ -51,11 +51,11 @@
 	<h4 class="my-3">{{ content }}</h4>
 {% endmacro %}
 
-{% macro formInput_Hidden(name,value) %}
-	<input name="{{ name }}" value="{{ value }}" type="hidden" />
+{% macro formInput_Hidden(name,value,id='') %}
+	<input name="{{ name }}" value="{{ value }}" {% if id is not empty %}id="{{ id }}"{% endif %} type="hidden" />
 {% endmacro %}
 
-{% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false) %}
+{% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false, classes=[], enabled=true) %}
 
 	{% if id is not defined or id|length < 1 %}
 		{% set id='_'~name %}
@@ -66,9 +66,10 @@
 		<div class="col-8">
 			<div class="form-check">
 				<input type="checkbox" name="{{ name }}"
-					   class="form-check-input"
+					   class="form-check-input {{ classes|join(' ') }} {{ enabled ? '' : 'disabled' }}"
 					   id="{{ id }}" value="{{ value }}"
 						{{ checked ? 'checked checked="checked"' : '' }}
+						{{ enabled ? '' : 'disabled' }}
 				/>
 				<label class="form-check-label" for="{{ id }}">
 					{{ label|raw }}
@@ -132,19 +133,7 @@
 	<div class="row">
 		<div class="col-8 offset-4">
 			<button type="submit"
-					class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %} {{ classes }}"
-					{% if name is defined %} name="{{ name }}" {% endif %}
-			>{{ label|default('Submit')|raw }}</button>
-		</div>
-	</div>
-{% endmacro %}
-
-{% macro formInput_Submit(label,name,btn,large=false) %}
-	<div class="row">
-		<div class="col-6"></div>
-		<div class="col-6">
-			<button type="submit"
-					class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
+					class="btn btn-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %} {{ classes }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
@@ -198,4 +187,9 @@
 			</a>
 		</div>
 	</div>
+{% endmacro %}
+
+{% macro silentcaptcha( classes=[] ) %}
+	<span class="silentcaptcha {{ classes|join(' ') }}"><span class="fst-italic">silent</span><span
+				class="text-capitalize">CAPTCHA</span></span></span>
 {% endmacro %}

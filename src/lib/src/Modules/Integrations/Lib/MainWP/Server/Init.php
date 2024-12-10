@@ -159,10 +159,8 @@ class Init {
 			if ( $requestIsAMatch && wp_verify_nonce( sanitize_key( $req->post( 'security' ) ), 'mainwp_extension_plugin_action' ) ) {
 				$con->opts->optSet( 'enable_mainwp', 'N' );
 				wp_send_json( [
-					'error' => sprintf( 'The MainWP integration within %s has been disabled.',
-							$con->getHumanName() )
-							   .' '.sprintf( "You'll need to re-enable the option to view the %s extension on this page again.",
-							$con->getHumanName() )
+					'error' => sprintf( 'The MainWP integration within %s has been disabled.', $con->labels->Name )
+							   .' '.sprintf( "You'll need to re-enable the option to view the %s extension on this page again.", $con->labels->Name )
 				] );
 				die();
 			}

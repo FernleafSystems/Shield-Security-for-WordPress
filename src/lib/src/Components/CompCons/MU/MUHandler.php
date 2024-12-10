@@ -108,7 +108,7 @@ class MUHandler {
 		}
 		$replacements = [
 			'SHIELD_ROOT_FILE'     => $con->getRootFile(),
-			'SHIELD_PLUGIN_NAME'   => $con->getHumanName(),
+			'SHIELD_PLUGIN_NAME'   => $con->labels->Name,
 			'SHIELD_PLUGIN_URL'    => $con->labels->PluginURI,
 			'SHIELD_PLUGIN_AUTHOR' => $con->labels->Author,
 		];

@@ -11,13 +11,13 @@ class BuildFileFromFileKey {
 	 * @throws UnsupportedFileLockType
 	 */
 	public function build( string $fileType ) :File {
-		$isSplitWpUrl = false; // TODO: is split URL?
+		// TODO: $isSplitWpUrl = false;
 		$maxPaths = 1;
+		$dir = ABSPATH;
 		switch ( $fileType ) {
 			case 'wpconfig':
 				$fileName = 'wp-config.php';
-				$maxPaths = 1;
-				$levels = $isSplitWpUrl ? 3 : 2;
+				$levels = 2; // $isSplitWpUrl ? 3 : 2;
 				$openBaseDir = \ini_get( 'open_basedir' );
 				if ( !empty( $openBaseDir ) ) {
 					$levels--;
@@ -26,23 +26,29 @@ class BuildFileFromFileKey {
 
 			case 'root_htaccess':
 				$fileName = '.htaccess';
-				$levels = $isSplitWpUrl ? 2 : 1;
+				$levels = 1; // $isSplitWpUrl ? 2 : 1;
+				break;
+
+			case 'theme_functions':
+				$fileName = 'functions.php';
+				$dir = get_stylesheet_directory();
+				$levels = 1;
 				break;
 
 			case 'root_webconfig':
 				$fileName = 'Web.Config';
-				$levels = $isSplitWpUrl ? 2 : 1;
+				$levels = 1; // $isSplitWpUrl ? 2 : 1;
 				break;
 
 			case 'root_index':
 				$fileName = 'index.php';
-				$levels = $isSplitWpUrl ? 2 : 1;
+				$levels = 1; // $isSplitWpUrl ? 2 : 1;
 				break;
 			default:
 				throw new UnsupportedFileLockType( $fileType );
 		}
 
-		$file = new File( $fileType, $fileName );
+		$file = new File( $fileType, $fileName, $dir );
 		$file->max_levels = $levels;
 		$file->max_paths = $maxPaths;
 		return $file;

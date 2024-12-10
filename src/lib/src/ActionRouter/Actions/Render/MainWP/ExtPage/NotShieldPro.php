@@ -14,7 +14,7 @@ class NotShieldPro extends BaseSubPage {
 				'go_pro'  => __( 'Upgrade Membership' ),
 			],
 			'hrefs'   => [
-				'go_pro' => 'https://shsec.io/mainwpservergopro'
+				'go_pro' => 'https://clk.shldscrty.com/mainwpservergopro'
 			],
 		];
 	}

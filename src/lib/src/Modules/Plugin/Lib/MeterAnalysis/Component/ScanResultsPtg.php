@@ -17,10 +17,10 @@ class ScanResultsPtg extends ScanResultsBase {
 	}
 
 	public function descProtected() :string {
-		return __( "All plugin & theme files appear to be valid.", 'wp-simple-firewall' );
+		return __( 'All plugin & theme files appear to be valid.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
-		return __( "At least 1 of your plugins or themes appears to be modified.", 'wp-simple-firewall' );
+		return __( 'At least 1 of your plugins or themes appears to be modified.', 'wp-simple-firewall' );
 	}
 }

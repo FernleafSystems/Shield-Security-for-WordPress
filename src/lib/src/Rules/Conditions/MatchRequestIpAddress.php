@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
-	IpsToMatchUnavailableException,
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumMatchTypes,
+	EnumParameters
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\IpsToMatchUnavailableException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 

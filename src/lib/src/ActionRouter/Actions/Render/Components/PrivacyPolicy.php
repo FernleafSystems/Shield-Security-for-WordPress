@@ -13,17 +13,10 @@ class PrivacyPolicy extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		if ( $con->comps->whitelabel->isEnabled() ) {
-			$name = $con->getHumanName();
-			$href = $con->labels->PluginURI;
-		}
-		else {
-			$name = $con->cfg->menu[ 'title' ];
-			$href = $con->cfg->meta[ 'privacy_policy_href' ];
-		}
+		$white = $con->comps->whitelabel->isEnabled();
 		return [
-			'name'             => $name,
-			'href'             => $href,
+			'name'             => $white ? $con->labels->Name : $con->cfg->menu[ 'title' ],
+			'href'             => $white ? $con->labels->PluginURI : $con->cfg->meta[ 'privacy_policy_href' ],
 			'audit_trail_days' => $con->comps->activity_log->getAutoCleanDays()
 		];
 	}

@@ -25,7 +25,7 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	public const SLUG = '';
 
-	private $response;
+	private ActionResponse $response;
 
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;

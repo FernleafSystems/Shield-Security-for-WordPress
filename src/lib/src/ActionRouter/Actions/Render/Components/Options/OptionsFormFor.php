@@ -14,12 +14,14 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 		$options = $this->action_data[ 'options' ];
 		return [
 			'strings' => [
-				'inner_page_title'    => __( 'Configuration' ),
+				'inner_page_title'    => __( 'Edit Settings' ),
 				'import_export'       => __( 'Import/Export' ),
-				'is_opt_importexport' => __( 'Check to include this option in import/export' ),
+				'is_opt_importexport' => __( 'Include this setting during import/export' ),
+				'toggle_importexport' => __( 'Toggle whether this setting is included in import and export operations' ),
 			],
 			'flags'   => [
-				'show_transfer_switch' => $con->isPremiumActive(),
+				'show_transfer_switch' => true,
+//				'show_transfer_switch' => $con->isPremiumActive() && !empty( $con->comps->import_export->getImportExportMasterImportUrl() ),
 			],
 			'imgs'    => [
 				'svgs' => [
@@ -28,7 +30,9 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'vars'    => [
 				'all_opts_keys'      => $options,
-				'all_options'        => ( new BuildOptionsForDisplay( $options ) )->standard(),
+				'all_options'        => ( new BuildOptionsForDisplay( $options, [] ) )
+					->setFocusOption( $this->action_data[ 'config_item' ] ?? '' )
+					->standard(),
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
 				'xferable_opts'      => \array_keys( $con->cfg->configuration->transferableOptions() ),
 				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),

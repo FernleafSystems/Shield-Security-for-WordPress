@@ -57,7 +57,7 @@ class Controller {
 		$msg = \trim( sanitize_text_field( $msg ) );
 		if ( !empty( $msg ) && $meta instanceof UserMeta ) {
 			$meta->flash_msg = [
-				'message'    => sprintf( '[%s] %s', self::con()->getHumanName(), $msg ),
+				'message'    => sprintf( '[%s] %s', $con->labels->Name, $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
 				'error'      => $isError,
 				'show_login' => $bShowOnLoginPage,
@@ -182,45 +182,44 @@ class Controller {
 		$con = self::con();
 
 		$installedAt = $con->comps->opts_lookup->getInstalledAt();
-		if ( empty( $installedAt ) ) {
-			return 0;
-		}
-		$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
+		if ( !empty( $installedAt ) ) {
+			$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 
-		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
-			$notice->non_display_reason = 'plugin_page_only';
-		}
-		elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
-			$notice->non_display_reason = 'promo_hidden';
-		}
-		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
-			$notice->non_display_reason = 'not_admin_area';
-		}
-		elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
-			$notice->non_display_reason = 'not_plugin_admin';
-		}
-		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
-			$notice->non_display_reason = 'is_plugin_admin';
-		}
-		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
-			$notice->non_display_reason = 'min_install_days';
-		}
-		elseif ( $this->count > 0 && $notice->type !== 'error' ) {
-			$notice->non_display_reason = 'max_nonerror_count';
-		}
-		elseif ( $notice->can_dismiss && $this->isNoticeDismissed( $notice ) ) {
-			$notice->non_display_reason = 'dismissed';
-		}
-		elseif ( !$this->isDisplayNeeded( $notice ) ) {
-			$notice->non_display_reason = 'not_needed';
-		}
-		else {
-			$this->count++;
-			$notice->display = true;
-			$notice->non_display_reason = 'n/a';
-		}
+			if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
+				$notice->non_display_reason = 'plugin_page_only';
+			}
+			elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
+				$notice->non_display_reason = 'promo_hidden';
+			}
+			elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
+				$notice->non_display_reason = 'not_admin_area';
+			}
+			elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
+				$notice->non_display_reason = 'not_plugin_admin';
+			}
+			elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
+				$notice->non_display_reason = 'is_plugin_admin';
+			}
+			elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
+				$notice->non_display_reason = 'min_install_days';
+			}
+			elseif ( $this->count > 0 && $notice->type !== 'error' ) {
+				$notice->non_display_reason = 'max_nonerror_count';
+			}
+			elseif ( $notice->can_dismiss && $this->isNoticeDismissed( $notice ) ) {
+				$notice->non_display_reason = 'dismissed';
+			}
+			elseif ( !$this->isDisplayNeeded( $notice ) ) {
+				$notice->non_display_reason = 'not_needed';
+			}
+			else {
+				$this->count++;
+				$notice->display = true;
+				$notice->non_display_reason = 'n/a';
+			}
 
-		$notice->template = '/notices/'.$notice->id;
+			$notice->template = '/notices/'.$notice->id;
+		}
 	}
 
 	private function isNoticeDismissed( NoticeVO $notice ) :bool {
@@ -319,7 +318,7 @@ class Controller {
 	}
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
-		$name = self::con()->getHumanName();
+		$name = self::con()->labels->Name;
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -350,7 +349,7 @@ class Controller {
 	}
 
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
-		$name = self::con()->getHumanName();
+		$name = self::con()->labels->Name;
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -374,7 +373,7 @@ class Controller {
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
 				'link_to_see'      => self::con()->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
-				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
+				'link_to_moreinfo' => 'https://clk.shldscrty.com/shieldtrackinginfo',
 			]
 		];
 	}
@@ -396,7 +395,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'             => self::con()->getHumanName()
+				'title'             => self::con()->labels->Name
 									   .': '.__( 'Please verify email has been received', 'wp-simple-firewall' ),
 				'need_you_confirm'  => __( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
 				'please_click_link' => __( "Please click the link in the email you received.", 'wp-simple-firewall' ),
@@ -415,7 +414,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
 									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
 			],
@@ -424,7 +423,7 @@ class Controller {
 					'<a href="%s" title="%s">%s</a>',
 					$con->plugin_urls->zone( Secadmin::Slug() ),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
 				)
 			]
 		];
@@ -435,7 +434,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
 									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
 				'unlock_link'    => sprintf(
@@ -450,7 +449,7 @@ class Controller {
 					'<a href="%s" title="%s">%s</a>',
 					$con->plugin_urls->zone( Secadmin::Slug() ),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
 				)
 			]
 		];

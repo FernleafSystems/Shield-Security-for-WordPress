@@ -16,11 +16,7 @@ class MfaSkip {
 
 		$maxExpires = self::con()->comps->mfa->getMfaSkip();
 		if ( $maxExpires > 0 ) {
-			$hashes = \array_filter( $hashes,
-				function ( $ts ) use ( $maxExpires ) {
-					return Services::Request()->ts() - $ts < $maxExpires;
-				}
-			);
+			$hashes = \array_filter( $hashes, fn( $ts ) => Services::Request()->ts() - $ts < $maxExpires );
 		}
 
 		$meta->hash_loginmfa = $hashes;
@@ -43,7 +39,7 @@ class MfaSkip {
 
 	private function getAgentHash() :string {
 		$hashData = apply_filters( 'shield/2fa_remember_me_params', $this->getDefaultHashParams() );
-		return \md5( \serialize( empty( $hashData ) ? $this->getDefaultHashParams() : $hashData ) );
+		return \hash( 'md5', \serialize( empty( $hashData ) ? $this->getDefaultHashParams() : $hashData ) );
 	}
 
 	private function getDefaultHashParams() :array {

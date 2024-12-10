@@ -1,0 +1,141 @@
+﻿:root {
+  --sw-border-color: #eeeeee;
+  --sw-toolbar-btn-color: #ffffff;
+  --sw-toolbar-btn-background-color: #4aa938;
+  --sw-anchor-default-primary-color: #f8f9fa;
+  --sw-anchor-default-secondary-color: #e7e7e7;
+  --sw-anchor-active-primary-color: #5aaf51;
+  --sw-anchor-active-secondary-color: #ffffff;
+  --sw-anchor-done-primary-color: #abc0ab;
+  --sw-anchor-done-secondary-color: #fefefe;
+  --sw-anchor-disabled-primary-color: #f8f9fa;
+  --sw-anchor-disabled-secondary-color: #dbe0e5;
+  --sw-anchor-error-primary-color: #dc3545;
+  --sw-anchor-error-secondary-color: #ffffff;
+  --sw-anchor-warning-primary-color: #ffc107;
+  --sw-anchor-warning-secondary-color: #ffffff;
+  --sw-progress-color: #3fad41;
+  --sw-progress-background-color: #f8f9fa;
+  --sw-loader-color: #59a84d;
+  --sw-loader-background-color: #f8f9fa;
+  --sw-loader-background-wrapper-color: rgba(255, 255, 255, 0.7);
+}
+
+.sw .list-group {
+  --bs-list-group-bg: transparent;
+}
+
+.sw h4 {
+}
+
+.sw li,
+.sw p {
+  font-size: 14px;
+}
+
+.sw .vimeo-feather {
+  box-shadow: 2px 2px 5px rgb(0 0 0 / 20%);
+}
+
+.sw input[name=offenses] {
+  width: 60px;
+}
+
+#TableSecurityProfiles td,
+#TableSecurityProfiles th,
+#TableSecurityProfiles .level_cell,
+#TableSecurityProfiles .level_current {
+  border-color: transparent;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+#TableSecurityProfiles .level_cell svg,
+#TableSecurityProfiles .level_current svg {
+  height: 24px;
+  width: 24px;
+}
+
+#TableSecurityProfiles .level_current > div {
+  border-width: 0 2px 0 2px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.1);
+  cursor: auto;
+}
+
+#TableSecurityProfiles thead th.level_current > div {
+  border-top-width: 2px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+#TableSecurityProfiles tfoot td.level_current > div {
+  border-bottom-width: 2px;
+}
+
+#TableSecurityProfiles .level_cell > div {
+  transition: background-color, border-color 0.25s;
+  -webkit-transition: background-color, border-color .25s;
+  -o-transition: background-color, border-color .25s;
+  -moz-transition: background-color, border-color .25s;
+}
+
+#TableSecurityProfiles .level_cell > div {
+  border-width: 0 2px 0 2px;
+  border-style: solid;
+  border-color: transparent;
+}
+
+#TableSecurityProfiles thead th.level_current > div,
+#TableSecurityProfiles thead th.level_cell > div {
+  border-radius: 5px 5px 0 0;
+}
+
+#TableSecurityProfiles .level_cell.active_column > div,
+#TableSecurityProfiles .level_cell.hover_column > div {
+  background-color: rgba(0, 128, 0, 0.1);
+}
+
+#TableSecurityProfiles .level_cell.active_column > div,
+#TableSecurityProfiles .level_cell.hover_column > div {
+  border-color: $primary;
+}
+
+#TableSecurityProfiles tfoot th.level_cell > div {
+  border-top: 2px;
+  border-top-style: solid;
+  border-top-color: transparent;
+}
+
+#TableSecurityProfiles th.level_cell.active_column > div,
+#TableSecurityProfiles th.level_cell.hover_column > div {
+  border-top-color: $primary;
+}
+
+#TableSecurityProfiles th.level_cell > div {
+  border-top: 2px;
+  border-top-style: solid;
+  border-top-color: transparent;
+}
+
+#TableSecurityProfiles th.level_cell.active_column > div,
+#TableSecurityProfiles th.level_cell.hover_column > div {
+  border-top-color: $primary;
+}
+
+#TableSecurityProfiles th.level_cell > div,
+#TableSecurityProfiles tfoot td.level_cell > div {
+  border-bottom: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: transparent;
+}
+
+#TableSecurityProfiles thead th.level_cell.active_column > div,
+#TableSecurityProfiles tfoot td.level_cell.hover_column > div {
+  border-bottom-color: $primary;
+}
+
+#TableSecurityProfiles thead th.level_cell.active_column > div {
+  color: $white;
+  background-color: $primary;
+}

@@ -12,6 +12,6 @@
 > Download and install Shield now for FREE so that you have the most powerful WordPress security system working for you and protecting your site.
 >
 **Shield + iControlWP**
-> If you have multiple sites, then Shield [combined with iControlWP](https://shsec.io/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
+> If you have multiple sites, then Shield [combined with iControlWP](https://clk.shldscrty.com/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
 
 See readme.txt for full details and changelog

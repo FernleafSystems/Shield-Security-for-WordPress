@@ -1,36 +1,29 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>Shield will protect your WP Login from bots and limit login attempts,
-	   using our exclusive GDPR-compliant <strong>silentCAPTCHA</strong> technology that's completely invisible to your visitors.
-	</p>
+	<p>Shield protects your WP Login against bots using our exclusive, GDPR-compliant
+		<strong><span class="fst-italic">silent</span>CAPTCHA</strong> technology.</p>
 {% endblock %}
 
 {% block slide_body_action_area %}
 	{% import '/common/macros.twig' as icwp_macros %}
 
 	<form class="form-horizontal merlin-form ajax-form">
-
-		<div class="row">
-			<div class="col-12 mb-2">
-				<h6>Turn On Brute Force Login Protection</h6>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-12">
-				{{ icwp_macros.formInput_Radio_Wizard(
-					'LoginProtectOption',
-					{
-						'Y': '<span>Turn On</span> - Protect my WordPress login from automated attacks',
-						'N': "<span>Turn Off</span> - Don't protect my WordPress login"
-					},
-					'Bot Login Protection'
-				) }}
-			</div>
-		</div>
-
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-		{{ icwp_macros.formInput_Submit2( 'Set Login Protection', null, null, false ) }}
+
+		<div class="row mb-2">
+			<div class="col">
+				<h6 class="pb-1 border-bottom d-inline-block">Login Protection Settings</h6>
+			</div>
+		</div>
+
+		{{ icwp_macros.formInput_Checkbox(
+			'LoginProtectOption', 'Y', 'Protect Login',
+			'Protect WordPress login from bot attacks',
+			"silentCAPTCHA will detect bots that attempt to login to your site, without challenging your legitimate users."
+			~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
+			null, true, 'me-0'
+		) }}
+		{{ icwp_macros.formInput_Submit2( 'Set Login Protection', null, 'secondary', false ) }}
 	</form>
 {% endblock %}

@@ -2,42 +2,98 @@
 
 <div class="row option_form_row {{ option.is_focus ? 'focus_option':'nonfocus_option' }}">
 
-	<div class="col-2" style="min-width: 140px">
+	<div class="col-4" style="min-width: 140px">
 		<label for="Opt-{{ option.key }}"
 			   id="Label-{{ option.key }}"
-			   class="col-form-label">
-			<span class="option_label_name">{{ option.name }}
+			   class="col-form-label pb-0">
+			<span class="option_label_name">{{ option.name }}</span>
+		</label>
+
+		<div class="option-help-container ps-1 pt-1">
+			<div class="mt-1 text-start text-nowrap">
+
+				{% if option.description|length > 0 %}
+					{#                    {{ _self.options_helper( #}
+					{#                        imgs.svgs.expand, #}
+					{#                        'Expand description', #}
+					{#                        'javascript:{}', #}
+					{#                        ['option-description-expander'], #}
+					{#                        ['data-option_description_key="'~option.key~"'] #}
+					{#                    ) }} #}
+
+					<a href="javascript:{}"
+					   class="d-inline-block me-1 svg-container  option-description-expander"
+					   data-option_description_key="{{ option.key }}"
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="Expand description"
+					>{{ imgs.svgs.expand|raw }}</a>
+				{% endif %}
 
 				{% if option.beacon_id|default(false) %}
 					<a href="javascript:{}"
-					   class="beacon-article"
-					   data-beacon_article_id="{{ option.beacon_id }}"
+					   class="d-inline-block me-1 svg-container  beacon-article"
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="{{ strings.opt_info_helpdesk }}"
 					   data-beacon_article_format="sidebar"
-					   title="{{ strings.opt_info_helpdesk }}">
-					<sup>{{ imgs.svgs.help|raw }}</sup>
-					</a>
-				{% elseif option.link_info %}
-					<a href="{{ option.link_info }}" class="option_link_info d-inline-block" target="_blank"
-					   title="{{ strings.opt_info_helpdesk }}"></a>
-				{% endif %}
-			</span>
+					   data-beacon_article_id="{{ option.beacon_id }}"
+					>{{ imgs.svgs.help|raw }}</a>
 
-			{% if option.disabled and option.unavailable %}
-				<br />
-				<div class="badge bg-success">
+				{% elseif option.link_info %}
+					<a href="{{ option.link_info }}"
+					   class="d-inline-block me-1 svg-container "
+					   target="_blank"
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="{{ strings.opt_info_helpdesk }}"
+					>{{ imgs.svgs.help|raw }}</a>
+				{% endif %}
+
+				{% if option.vimeo_id|default('') is not empty %}
+					<a href="#"
+					   class="d-inline-block me-1 svg-container option-video"
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="{{ strings.opt_info_video }}"
+					   data-vimeoid="{{ option.vimeo_id }}"
+					>{{ imgs.svgs.video|raw }}</a>
+				{% endif %}
+
+				{% if option.link_blog %}
+					<a href="{{ option.link_blog }}" target="_blank"
+					   class="d-inline-block me-1 svg-container "
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="{{ strings.opt_info_blog }}"
+					>{{ imgs.svgs.blog|raw }}</a>
+				{% endif %}
+
+				{% if option.disabled and option.unavailable %}
 					<a href="{{ hrefs.go_pro }}" target="_blank"
-					   class="text-light">{{ strings.pro_only_option }}</a>
-				</div>
-			{% endif %}
-		</label>
+					   class="d-inline-block me-1 svg-container text-primary"
+					   data-bs-toggle="tooltip"
+					   data-bs-trigger="hover"
+					   data-bs-placement="top"
+					   data-bs-title="Upgrade to Pro to unlock">{{ imgs.svgs.upgrade|raw }}</a>
+				{% endif %}
+				<div class="clearfix"></div>
+			</div>
+
+		</div>
 	</div>
 
-	<div class="col-4">
+	<div class="col-8">
 
 		{% if option.type is same as('checkbox') %}
 			<div class="form-check">
 				<input type="checkbox"
-					   class="form-check-input"
+					   class="form-check-input me-0"
 					   id="Opt-{{ option.key }}"
 					   name="{{ option.key }}"
 					   {% if option.disabled %}disabled="disabled"{% endif %}
@@ -170,80 +226,50 @@
 
 		{% if option.type is not same as('checkbox') %}
 			{# checkboxes display slightly differently #}
-			<div class="options-summary">{{ option.summary }}</div>
+			<div class="options-summary my-2">{{ option.summary }}</div>
 		{% endif %}
-	</div>
 
-	<div class="col option-description">
-		<div id="Description-{{ option.key }}">
-			<div>
-				{% for desc in option.description %}
-					<p>{{ desc|raw }}</p>
-				{% endfor %}
-			</div>
 
-			<div class="mt-3 text-start text-nowrap">
+		<div id="Description-{{ option.key }}"
+			 class="pt-2 option-description option-description-{{ option.key }} {{ option.is_focus ? '':'hidden' }}">
+			{% for desc in option.description %}
+				<p>{{ desc|raw }}</p>
+			{% endfor %}
 
-				{% if option.beacon_id|default(false) %}
-					<a href="javascript:{}"
-					   class="d-inline-block me-2 text-danger"
-					   data-beacon-article-sidebar="{{ option.beacon_id }}"
-					   title="{{ strings.opt_info_helpdesk }}"
-					   style="background: no-repeat no-repeat url('data:image/svg+xml,{{ imgs.svgs.help|url_encode }}'); width: 16px; height: 16px;
-							   filter: brightness(0.5) sepia(1) hue-rotate(140deg) saturate(6);"
-					>&nbsp;</a>
+			{% if flags.show_transfer_switch %}
 
-				{% elseif option.link_info %}
-					<a href="{{ option.link_info }}"
-					   class="d-inline-block me-2"
-					   target="_blank"
-					   title="{{ strings.opt_info_helpdesk }}"
-					   style="background: no-repeat no-repeat url('data:image/svg+xml,{{ imgs.svgs.help|url_encode }}'); width: 16px; height: 16px;
-							   filter: brightness(0.5) sepia(1) hue-rotate(140deg) saturate(6);"
-					>&nbsp;</a>
-				{% endif %}
-
-				{% if option.vimeo_id|default('') is not empty %}
-					<a href="#"
-					   class="d-inline-block option-video me-2"
-					   title="View the video about this option"
-					   data-vimeoid="{{ option.vimeo_id }}"
-					   style="background: no-repeat no-repeat url('data:image/svg+xml,{{ imgs.svgs.video|url_encode }}'); width: 16px; height: 16px"
-					>&nbsp;</a>
-				{% endif %}
-
-				{% if option.link_blog %}
-					<a href="{{ option.link_blog }}" target="_blank"
-					   class="d-inline-block me-2"
-					   title="{{ strings.opt_info_blog }}"
-					   style="background: no-repeat no-repeat url('data:image/svg+xml,{{ imgs.svgs.wordpress|url_encode }}'); width: 16px; height: 16px"
-					>&nbsp;</a>
-				{% endif %}
-
-				{% if flags.show_transfer_switch %}
-
-					{% if option.key in vars.xferable_opts %}
-						<span class="form-check float-end toggle-importexport-inclusion"
-							  data-bs-toggle="tooltip"
-							  data-bs-placement="left"
-							  data-bs-title="{{ strings.is_opt_importexport }}"
-						>
+				{% if option.key in vars.xferable_opts %}
+					<div class="form-check toggle-importexport-container mt-3 mb-4 p-2 border border-1 rounded d-inline-block"
+						 data-bs-toggle="tooltip"
+						 data-bs-trigger="hover"
+						 data-bs-placement="left"
+						 data-bs-title="{{ strings.toggle_importexport }}"
+					>
+						<label class="custom-control-label toggle-importexport-inclusion" for="optxfer-{{ option.key }}">
 							<input type="checkbox"
-								   class="form-check-input"
+								   id="optxfer-{{ option.key }}"
+{#								   class="form-check-input"#}
 								   aria-labelledby="Label-{{ option.key }}"
 								   data-key="{{ option.key }}"
-								{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
+									{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
 							/>
-							<label class="custom-control-label" for="optxfer-{{ option.key }}">
-								<span class="svg-container"
-									  title="{{ strings.importexport }}"
-								>{{ imgs.svgs.importexport|raw }}</span></label>
-						</span>
-					{% endif %}
+							{{ strings.is_opt_importexport }}
+						</label>
+					</div>
 				{% endif %}
-				<div class="clearfix"></div>
-			</div>
-
+			{% endif %}
 		</div>
+
 	</div>
 </div>
+
+{% macro options_helper(svg, tooltip, href="javascript:{}", classes=[], attributes=[]) %}
+	<a href="{{ href }}"
+	   class="d-inline-block me-1 svg-container {{ classes|join(' ') }}"
+	   data-bs-toggle="tooltip"
+	   data-bs-trigger="hover"
+	   data-bs-placement="top"
+	   data-bs-title="{{ tooltip }}"
+			{{ attributes|join(' ') }}
+	>{{ svg|raw }}</a>
+{% endmacro %}

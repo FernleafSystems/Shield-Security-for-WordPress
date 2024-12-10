@@ -121,11 +121,4 @@ class AuditLogger extends EventsListener {
 			}
 		}
 	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	private function getLogLevelsFile() :array {
-		return [];
-	}
 }

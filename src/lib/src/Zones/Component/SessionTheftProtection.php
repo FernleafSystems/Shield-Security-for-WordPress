@@ -14,6 +14,10 @@ class SessionTheftProtection extends Base {
 		return __( 'Protect user sessions against the threat of hijacking and theft.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit settings which lock-down user login sessions', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

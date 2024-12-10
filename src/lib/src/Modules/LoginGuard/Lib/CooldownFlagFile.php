@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 20.1
+ */
 class CooldownFlagFile {
 
 	use PluginControllerConsumer;

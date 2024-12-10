@@ -18,19 +18,17 @@ class FirewallBlockAlert extends EmailBase {
 
 		return [
 			'strings' => [
-				'shield_blocked'  => sprintf( __( '%s Firewall has blocked a request to your WordPress site.', 'wp-simple-firewall' ),
-					$con->getHumanName() ),
+				'shield_blocked'  => sprintf( __( '%s Firewall has blocked a request to your WordPress site.', 'wp-simple-firewall' ), $con->labels->Name ),
 				'details_below'   => __( 'Details for the request are given below:', 'wp-simple-firewall' ),
 				'details'         => __( 'Request Details', 'wp-simple-firewall' ),
 				'ip_lookup'       => __( 'IP Address Lookup' ),
 				'this_is_info'    => __( 'This is for informational purposes only.' ),
 				'unsubscribe_1'   => __( "Don't want these email alerts?", 'wp-simple-firewall' ),
 				'unsubscribe_2'   => __( 'Configure Firewall Block alert emails', 'wp-simple-firewall' ),
-				'already_blocked' => sprintf( __( '%s has already taken the necessary action of blocking the request.' ),
-					$con->getHumanName() ),
+				'already_blocked' => sprintf( __( '%s has already taken the necessary action of blocking the request.' ), $con->labels->Name ),
 			],
 			'hrefs'   => [
-				'ip_lookup'   => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
+				'ip_lookup'   => URL::Build( 'https://clk.shldscrty.com/botornot', [ 'ip' => $ip ] ),
 				'unsubscribe' => $con->plugin_urls->cfgForZoneComponent( WebApplicationFirewall::Slug() ),
 			],
 			'vars'    => [

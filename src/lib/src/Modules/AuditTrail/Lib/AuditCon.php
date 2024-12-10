@@ -6,7 +6,6 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -287,27 +286,5 @@ class AuditCon {
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
 		return $this->snapshotDiscoveryQueue ?? $this->snapshotDiscoveryQueue = new Snapshots\Queues\SnapshotDiscovery(
 			'snapshot_discovery', self::con()->prefix() );
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getLogFilePath() :string {
-		try {
-			$dir = ( new LogFileDirCreate() )->run();
-		}
-		catch ( \Exception $e ) {
-			$dir = '';
-		}
-
-		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
-		return apply_filters( 'shield/audit_trail_log_file_path', $path );
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getLogFileRotationLimit() :int {
-		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
 	}
 }

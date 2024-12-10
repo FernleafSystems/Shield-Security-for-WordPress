@@ -26,5 +26,18 @@ export class OptionsHandler extends BaseAutoExecComponent {
 			},
 			false
 		);
+
+		shieldEventsHandler_Main.add_Click(
+			'form.options_form_for .option-description-expander',
+			( targetEl ) => {
+				const toToggle = document.querySelector(
+					'.option-description.option-description-' + targetEl.dataset.option_description_key
+				);
+				if ( toToggle ) {
+					toToggle.classList.toggle( 'hidden' )
+				}
+			},
+			false
+		);
 	}
 }

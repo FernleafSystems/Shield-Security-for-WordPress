@@ -91,7 +91,7 @@ class Export {
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
-			'# Hash: '.\sha1( $export ),
+			'# Hash: '.\hash( 'sha1', $export ),
 			$export
 		];
 	}
@@ -171,13 +171,13 @@ class Export {
 		$verified = !empty( $url ) &&
 					(
 						self::con()->comps->import_export->verifySecretKey( $secret )
-						|| ( !empty( $id ) && ( $urlIDs[ \md5( $url ) ] ?? '' ) === $id )
+						|| ( !empty( $id ) && ( $urlIDs[ \hash( 'md5', $url ) ] ?? '' ) === $id )
 						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
 					);
 
 		// Update the stored ID, so it can be used at a later date.
 		if ( $verified && !empty( $id ) ) {
-			$urlIDs[ \md5( $url ) ] = $id;
+			$urlIDs[ \hash( 'md5', $url ) ] = $id;
 			self::con()
 				->opts
 				->optSet( 'import_url_ids', $urlIDs )

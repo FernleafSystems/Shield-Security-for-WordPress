@@ -14,6 +14,10 @@ class ContactFormSpamBlockBot extends Base {
 		return __( 'Block SPAM posted to Contact Forms by automated Bots.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Switch on/off SPAM protection for your favourite contact forms plugin', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

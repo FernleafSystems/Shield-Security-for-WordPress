@@ -25,10 +25,6 @@ class CommentSpam extends Base {
 
 	public function processStepFormSubmit( array $form ) :Response {
 		$value = $form[ 'CommentsFilterOption' ] ?? '';
-		if ( empty( $value ) ) {
-			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
-		}
-
 		$toEnable = $value === 'Y';
 		self::con()->opts->optSet( 'enable_antibot_comments', $toEnable ? 'Y' : 'N' );
 

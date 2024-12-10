@@ -12,12 +12,12 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	/**
 	 * @var array[]
 	 */
-	private $signals;
+	private array $signals;
 
 	/**
 	 * @var ?int
 	 */
-	private $capturedStatusCode = null;
+	private ?int $capturedStatusCode = null;
 
 	protected function init() {
 		$this->signals = [];
@@ -27,7 +27,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 		 */
 		add_filter( 'status_header', function ( $status_header = null, $code = null ) {
 			if ( $code !== null ) {
-				$this->capturedStatusCode = $code;
+				$this->capturedStatusCode = (int)$code;
 			}
 			return $status_header;
 		}, \PHP_INT_MAX, 2 );
@@ -62,7 +62,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 							'milli_at' => $this->getMilliseconds(),
 						];
 						// We prevent storing duplicate scenarios using the hash
-						$this->signals[ \md5( \serialize( $signal ) ) ] = $signal;
+						$this->signals[ \hash( 'md5', \serialize( $signal ) ) ] = $signal;
 					}
 				}
 				catch ( \Exception $e ) {
@@ -97,7 +97,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 						'method'     => \strtoupper( $con->this_req->method ),
 						'target_uri' => $con->this_req->path,
 						'user_agent' => $con->this_req->useragent,
-						'status'     => $this->capturedStatusCode === null ? http_response_code() : $this->capturedStatusCode,
+						'status'     => $this->capturedStatusCode === null ? (int)http_response_code() : $this->capturedStatusCode,
 					],
 				];
 				if ( \method_exists( $record, 'arrayDataWrap' ) && !empty( $record->arrayDataWrap( $metaData ) ) ) {
@@ -106,8 +106,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 				}
 			}
 
-			// and finally, trigger send to Crowdsec
-			$this->triggerSignalsCron();
+			$con->comps->crowdsec->scheduleSignalsPushCron();
 		}
 	}
 
@@ -123,16 +122,6 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			}
 		}
 		return \strlen( $milli ) > 0 ? $milli : '0';
-	}
-
-	private function triggerSignalsCron() {
-		if ( !wp_next_scheduled( self::con()->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
-			wp_schedule_single_event(
-				Services::Request()
-						->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', \MINUTE_IN_SECONDS*5 ),
-				self::con()->prefix( 'adhoc_cron_crowdsec_signals' )
-			);
-		}
 	}
 
 	private function getSignalDef( string $evt ) :array {
@@ -217,9 +206,8 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 	}
 
 	/**
-	 * @deprecated 19.2.0
+	 * @deprecated 20.1
 	 */
-	private function isEventCsSignal( string $evt ) :bool {
-		return !empty( $this->getSignalDef( $evt ) );
+	private function triggerSignalsCron() :void {
 	}
 }

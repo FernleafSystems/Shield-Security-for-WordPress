@@ -14,7 +14,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		return [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
-				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->labels->Name ),
 			],
 			'hrefs'   => [
 				'what_is_this' => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',

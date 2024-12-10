@@ -14,6 +14,10 @@ class CrowdsecBlocking extends Base {
 		return __( 'Crowd-Sourced IP address blocking in partnership with CrowdSec.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Switch on/off CrowdSec IP block lists', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

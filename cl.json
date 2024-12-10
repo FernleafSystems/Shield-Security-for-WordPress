@@ -1,10 +1,106 @@
 {
+  "20.1": {
+    "version":     "20.1",
+    "released_at": 1733823000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease201",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide201"
+    },
+    "title":       "PHP 7.4",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "FileLocker Support For Theme functions.php",
+        "description": [
+          "We've added FileLocker protection for the the active theme's functions.php file."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Security Profiles (beta)",
+        "description": [
+          "We've introduced the ability to apply pre-configured security profiles to save time during setup."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Automatic Integrations",
+        "description": [
+          "Shield can automatically detect when a 3rd party plugin is active for which we have a built-in integration, and switch it on."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Added new condition for Custom Rules: Hostname",
+        "description": [
+          "You can now check against the hostname of your visitors when creating custom rules."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Simple Membership",
+        "pro_only":    true,
+        "description": [
+          "Added silentCAPTCHA bot detection support for Simple Membership plugin."
+        ],
+        "href":        "https://clk.shldscrty.com/silentcaptchawordpress"
+      },
+      {
+        "type":        "improved",
+        "title":       "PHP 7.4",
+        "description": [
+          "We've increased our minimum required PHP version to 7.4."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "title":       "Refactored Login Cooldown System",
+        "description": [
+          "We've rewritten and improved the login cooldown system to work more directly with the silentCAPTCHA bot detection."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "title":       "Added Conflict Protection",
+        "description": [
+          "Added protection against fatal errors caused by plugin conflicts. When conflict found, Shield is 'paused'. For now only plugin is WP RSS Aggregator."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "fixed",
+        "title":       "NinjaForms Integration",
+        "description": [
+          "Changes in NinjaForms code meant our silentCAPTCHA integration wasn't firing when it should be."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "removed",
+        "title":       "Removed Redundant Options Checkbox",
+        "description": [
+          "To simplify plugin configuration, we removed an unnecessary option checkbox leaving a single option to control silentCAPTCHA on the WordPress login forms."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "20.0": {
     "version":     "20.0",
     "released_at": 1721722000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease200",
-      "upgrade": "https://shsec.io/shieldupgradeguide200"
+      "release": "https://clk.shldscrty.com/shieldrelease200",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide200"
     },
     "title":       "silentCAPTCHA",
     "description": [
@@ -16,7 +112,7 @@
         "description": [
           "silentCAPTCHA is the umbrella term for Shield's built-in malicious bot detection technology."
         ],
-        "href":        "https://shsec.io/silentcaptchawordpress"
+        "href":        "https://clk.shldscrty.com/silentcaptchawordpress"
       },
       {
         "type":        "improved",
@@ -210,8 +306,8 @@
     "version":     "19.1",
     "released_at": 1711362000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease191",
-      "upgrade": "https://shsec.io/shieldupgradeguide191"
+      "release": "https://clk.shldscrty.com/shieldrelease191",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide191"
     },
     "title":       "Clean & Optimise",
     "description": [
@@ -256,7 +352,7 @@
         "title":       "Filter to prevent running of the Site Health Security component",
         "description": [
         ],
-        "href":        "https://shsec.io/m7"
+        "href":        "https://clk.shldscrty.com/m7"
       }
     ],
     "patches":     [
@@ -295,7 +391,7 @@
             "title":    "Added WP actions/hooks for integration with Password Expiry, Account Suspension, and Idle status queries.",
             "category": "developer",
             "type":     "new",
-            "href":     "https://shsec.io/nn"
+            "href":     "https://clk.shldscrty.com/nn"
           },
           {
             "title":    "Optimised loading of scan result tables so that plugin & theme tables are loaded on-demand.",
@@ -412,8 +508,8 @@
     "version":     "19.0",
     "released_at": 1711126000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease190",
-      "upgrade": "https://shsec.io/shieldupgradeguide190"
+      "release": "https://clk.shldscrty.com/shieldrelease190",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide190"
     },
     "title":       "Security DIY: Custom Rules Builder",
     "description": [
@@ -426,7 +522,7 @@
         "description": [
           "The Security Rules Builder lets you design and build your own set of security rules for any security restrictions you desire."
         ],
-        "href":        "https://shsec.io/lq"
+        "href":        "https://clk.shldscrty.com/lq"
       },
       {
         "type":        "new",
@@ -445,7 +541,7 @@
           "You can now lock user sessions to IP addresses, User Agents, or both.",
           "This helps to prevent session theft and hijacking, and re-use of user sessions on other devices."
         ],
-        "href":        "https://shsec.io/lr"
+        "href":        "https://clk.shldscrty.com/lr"
       },
       {
         "type":        "improved",
@@ -463,7 +559,7 @@
         "description": [
           "Updated the FileLocker system to ensure compatibility with the Shield.NET API."
         ],
-        "href":        "https://shsec.io/lu"
+        "href":        "https://clk.shldscrty.com/lu"
       },
       {
         "type":        "improved",
@@ -482,7 +578,7 @@
         "description": [
           "Ensure Passkeys can be used on hosts that don't have the GMP extension active."
         ],
-        "href":        "https://shsec.io/lm"
+        "href":        "https://clk.shldscrty.com/lm"
       },
       {
         "type":        "improved",
@@ -539,8 +635,8 @@
     "version":     "18.5",
     "released_at": 1700478000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease185",
-      "upgrade": "https://shsec.io/shieldupgradeguide185"
+      "release": "https://clk.shldscrty.com/shieldrelease185",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide185"
     },
     "title":       "Smoother WordPress Two-Factor Authentication",
     "description": [
@@ -734,8 +830,8 @@
     "version":     "18.4",
     "released_at": 1695730000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease184",
-      "upgrade": "https://shsec.io/shieldupgradeguide184"
+      "release": "https://clk.shldscrty.com/shieldrelease184",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide184"
     },
     "title":       "Performance Optimisations",
     "description": [
@@ -841,8 +937,8 @@
     "version":     "18.3",
     "released_at": 1695036000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease183",
-      "upgrade": "https://shsec.io/shieldupgradeguide183"
+      "release": "https://clk.shldscrty.com/shieldrelease183",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide183"
     },
     "title":       "All-New Reporting",
     "description": [
@@ -960,8 +1056,8 @@
     "version":     "18.2",
     "released_at": 1690360000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease182",
-      "upgrade": "https://shsec.io/shieldupgradeguide182"
+      "release": "https://clk.shldscrty.com/shieldrelease182",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide182"
     },
     "title":       "Change Reporting",
     "description": [
@@ -974,7 +1070,7 @@
         "description": [
           "You can now create summary and detailed reports for important changes on your WordPress site."
         ],
-        "href":        "https://shsec.io/li"
+        "href":        "https://clk.shldscrty.com/li"
       },
       {
         "type":        "new",
@@ -983,7 +1079,7 @@
         "description": [
           "Shield now captures events such as plugin/theme uninstallation and user password updates."
         ],
-        "href":        "https://shsec.io/li"
+        "href":        "https://clk.shldscrty.com/li"
       },
       {
         "type":        "new",
@@ -993,7 +1089,7 @@
           "Shield now logs changes to the site that were done 'outside' of the WordPress environment.",
           "It can capture changes to critical WordPress core options that were modified directly on WordPress DB, for example."
         ],
-        "href":        "https://shsec.io/li"
+        "href":        "https://clk.shldscrty.com/li"
       },
       {
         "type":        "new",
@@ -1086,8 +1182,8 @@
     "version":     "18.1",
     "released_at": 1686215000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease181",
-      "upgrade": "https://shsec.io/shieldupgradeguide181"
+      "release": "https://clk.shldscrty.com/shieldrelease181",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide181"
     },
     "title":       "Cleanup, Optimise, & Bug-Fix",
     "description": [
@@ -1108,7 +1204,7 @@
         "description": [
           "Ensures that requests coming from WP Umbrella are never interrupted or trigger Shield's defenses."
         ],
-        "href":        "https://shsec.io/wpumbrella"
+        "href":        "https://clk.shldscrty.com/wpumbrella"
       },
       {
         "type":        "improvements",
@@ -1162,8 +1258,8 @@
     "version":     "18.0",
     "released_at": 1681725600,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease180",
-      "upgrade": "https://shsec.io/shieldupgradeguide180"
+      "release": "https://clk.shldscrty.com/shieldrelease180",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide180"
     },
     "title":       "Bringing Artificial Intelligence To Malware Detection",
     "description": [
@@ -1175,7 +1271,7 @@
         "title":       "MAL{ai} - Artificial Intelligence for WordPress Malware Detection",
         "description": [
         ],
-        "href":        "https://shsec.io/le"
+        "href":        "https://clk.shldscrty.com/le"
       },
       {
         "type":        "new",
@@ -1265,8 +1361,8 @@
     "version":     "17.0",
     "released_at": 1677582000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease170",
-      "upgrade": "https://shsec.io/shieldupgradeguide170"
+      "release": "https://clk.shldscrty.com/shieldrelease170",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide170"
     },
     "title":       "Simplified Control and UI, Faster Processing & Major Code Enhancements",
     "description": [
@@ -1394,7 +1490,7 @@
         "description": [
           "To stay ahead and on top of the latest developments in our PHP libraries, we've pushed our minimum PHP version to 7.2."
         ],
-        "href":        "https://shsec.io/l8"
+        "href":        "https://clk.shldscrty.com/l8"
       },
       {
         "type":        "changed",
@@ -1463,7 +1559,7 @@
           {
             "title": "Prevent fatal errors in the event of a Monolog library conflict, but disable Activity Logging features to facilitate this.",
             "type":  "fixed",
-            "href":  "https://shsec.io/lc"
+            "href":  "https://clk.shldscrty.com/lc"
           }
         ]
       },
@@ -1474,7 +1570,7 @@
           {
             "title": "Attempt to prevent errors being thrown with conflicting Monolog libraries.",
             "type":  "fixed",
-            "href":  "https://shsec.io/lb"
+            "href":  "https://clk.shldscrty.com/lb"
           },
           {
             "title": "Prevent unnecessary logs being generated for disabled reports.",
@@ -1506,8 +1602,8 @@
     "version":     "16.1",
     "released_at": 1662984000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease161",
-      "upgrade": "https://shsec.io/shieldupgradeguide161"
+      "release": "https://clk.shldscrty.com/shieldrelease161",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide161"
     },
     "title":       "CrowdSec Partnership + All-new IP Address Management",
     "description": [
@@ -1520,7 +1616,7 @@
         "description": [
           "Shield Security and CrowdSec are now partnered to deliver powerful IP block lists to WordPress sites."
         ],
-        "href":        "https://shsec.io/l0"
+        "href":        "https://clk.shldscrty.com/l0"
       },
       {
         "type":        "new",
@@ -1540,7 +1636,7 @@
           "It's impossible that Shield can log every possibly event for every plugin and scenario, so you can now add logging for all your desired site events.",
           "This is an advanced option and will require professional software development experience to implement."
         ],
-        "href":        "https://shsec.io/l3"
+        "href":        "https://clk.shldscrty.com/l3"
       },
       {
         "type":        "new",
@@ -1576,7 +1672,7 @@
         "description": [
           "A new option is provided to allow easy access to beta version of the Shield Security plugin."
         ],
-        "href":        "https://shsec.io/l4"
+        "href":        "https://clk.shldscrty.com/l4"
       },
       {
         "type":        "improved",
@@ -1647,7 +1743,7 @@
           {
             "title": "Marks Shield 16.x as the final series supporting PHP 7.0 and 7.1. Shield 17 will require PHP 7.2.",
             "type":  "changed",
-            "href":  "https://shsec.io/l8"
+            "href":  "https://clk.shldscrty.com/l8"
           },
           {
             "title": "Performance improved when loading the WordPress Users page for sites with large users counts.",
@@ -1826,8 +1922,8 @@
     "version":     "15.1",
     "released_at": 1654522432,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease151",
-      "upgrade": "https://shsec.io/shieldupgradeguide151"
+      "release": "https://clk.shldscrty.com/shieldrelease151",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide151"
     },
     "title":       "Optimisations",
     "description": [
@@ -1930,8 +2026,8 @@
     "version":     "15.0",
     "released_at": 1652090000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease150",
-      "upgrade": "https://shsec.io/shieldupgradeguide150"
+      "release": "https://clk.shldscrty.com/shieldrelease150",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide150"
     },
     "title":       "Rules Engine",
     "description": [
@@ -1946,7 +2042,7 @@
           "Massive performance and processing optimisations with a brand new core Shield Rules Engine.",
           "All requests are now processed using a unique and customisable (future releases) set of rules."
         ],
-        "href":        "https://shsec.io/ks"
+        "href":        "https://clk.shldscrty.com/ks"
       },
       {
         "type":        "new",
@@ -2178,8 +2274,8 @@
     "version":     "14.1",
     "released_at": 1647269718,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease141",
-      "upgrade": "https://shsec.io/shieldupgradeguide141"
+      "release": "https://clk.shldscrty.com/shieldrelease141",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide141"
     },
     "title":       "REST API Integrations",
     "description": [
@@ -2207,7 +2303,7 @@
           "check for, and remove, ShieldPRO license",
           "run Debug to get general site information summary for debug purposes"
         ],
-        "href":        "https://shsec.io/shieldrestapidocs"
+        "href":        "https://clk.shldscrty.com/shieldrestapidocs"
       },
       {
         "type":        "new",
@@ -2377,8 +2473,8 @@
     "version":     "14.0",
     "released_at": 1643364060,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease140",
-      "upgrade": "https://shsec.io/shieldupgradeguide140"
+      "release": "https://clk.shldscrty.com/shieldrelease140",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide140"
     },
     "title":       "Two-Factor Authentication Overhaul",
     "description": [
@@ -2496,8 +2592,8 @@
     "version":     "13.0",
     "released_at": 1636970660,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease130",
-      "upgrade": "https://shsec.io/shieldupgradeguide130"
+      "release": "https://clk.shldscrty.com/shieldrelease130",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide130"
     },
     "title":       "Scanning Engine Overhaul",
     "description": [
@@ -2679,7 +2775,7 @@
             "description": [
               "Privately disclosed to us by Yoru Oni - thank you."
             ],
-            "href":        "https://shsec.io/kh"
+            "href":        "https://clk.shldscrty.com/kh"
           },
           {
             "type":  "changed",
@@ -2693,8 +2789,8 @@
     "version":     "12.0",
     "released_at": 1631783098,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease120",
-      "upgrade": "https://shsec.io/shieldupgradeguide120"
+      "release": "https://clk.shldscrty.com/shieldrelease120",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide120"
     },
     "title":       "Events & Audit Trail Overhaul",
     "description": [
@@ -2811,7 +2907,7 @@
           "Shield processed IPv4 and IPv6 addresses and stores them in the MySQL database.",
           "With this upgrade, the minimum required MySQL database engine is moving to 5.6."
         ],
-        "href":        "https://shsec.io/shieldsystemrequirements"
+        "href":        "https://clk.shldscrty.com/shieldsystemrequirements"
       }
     ],
     "patches":     [
@@ -2879,8 +2975,8 @@
     "version":     "11.5",
     "released_at": 1626779164,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease115",
-      "upgrade": "https://shsec.io/shieldupgradeguide115"
+      "release": "https://clk.shldscrty.com/shieldrelease115",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide115"
     },
     "title":       "Revamped Scan Results",
     "description": [
@@ -3038,8 +3134,8 @@
     "version":     "11.4",
     "released_at": 1625560514,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease114",
-      "upgrade": "https://shsec.io/shieldupgradeguide114"
+      "release": "https://clk.shldscrty.com/shieldrelease114",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide114"
     },
     "title":       "ShieldNET Integration",
     "description": [
@@ -3130,8 +3226,8 @@
     "version":     "11.3",
     "released_at": 1623057021,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease113",
-      "upgrade": "https://shsec.io/shieldupgradeguide113"
+      "release": "https://clk.shldscrty.com/shieldrelease113",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide113"
     },
     "title":       "",
     "description": [
@@ -3183,8 +3279,8 @@
     "version":     "11.2",
     "released_at": 1621844125,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease112",
-      "upgrade": "https://shsec.io/shieldupgradeguide112"
+      "release": "https://clk.shldscrty.com/shieldrelease112",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide112"
     },
     "title":       "AntiBot Scoring Improvements",
     "description": [
@@ -3238,7 +3334,7 @@
         "description": [
           "Added support for protecting Groundhogg forms from bots."
         ],
-        "href":        "https://shsec.io/groundhogg"
+        "href":        "https://clk.shldscrty.com/groundhogg"
       },
       {
         "type":        "new",
@@ -3289,8 +3385,8 @@
     "version":     "11.1",
     "released_at": 1616666000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease111",
-      "upgrade": "https://shsec.io/shieldupgradeguide111"
+      "release": "https://clk.shldscrty.com/shieldrelease111",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide111"
     },
     "title":       "UI Cleanup and Enhancement",
     "description": [
@@ -3306,7 +3402,7 @@
           "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
           "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
         ],
-        "href":        "https://shsec.io/jb"
+        "href":        "https://clk.shldscrty.com/jb"
       },
       {
         "type":        "new",
@@ -3396,8 +3492,8 @@
     "version":     "11.0",
     "released_at": 1616666000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease110",
-      "upgrade": "https://shsec.io/shieldupgradeguide110"
+      "release": "https://clk.shldscrty.com/shieldrelease110",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide110"
     },
     "title":       "All-New Shield silentCAPTCHA",
     "description": [
@@ -3413,7 +3509,7 @@
           "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
           "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
         ],
-        "href":        "https://shsec.io/jb"
+        "href":        "https://clk.shldscrty.com/jb"
       },
       {
         "type":        "new",
@@ -3443,13 +3539,13 @@
         "description": [
           "For example, you can override the hour at which the Shield crons run, including the scans."
         ],
-        "href":        "https://shsec.io/jv"
+        "href":        "https://clk.shldscrty.com/jv"
       },
       {
         "type":        "new",
         "title":       "Allow webmaster to specify certain web crawlers and search engines that aren't automatically whitelisted.",
         "description": [],
-        "href":        "https://shsec.io/jt"
+        "href":        "https://clk.shldscrty.com/jt"
       },
       {
         "type":        "improved",
@@ -3505,8 +3601,8 @@
     "version":     "10.2",
     "released_at": 1613037000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease102",
-      "upgrade": "https://shsec.io/shieldupgradeguide102"
+      "release": "https://clk.shldscrty.com/shieldrelease102",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide102"
     },
     "title":       "Removal of simple Content Security Policy settings and bugfixes",
     "description": [
@@ -3522,7 +3618,7 @@
           "Due to the complexity of CSP and the superficial nature of our CSP implementation, we've decided to remove these options.",
           "We explore the issue in full detail in our blog post on this topic."
         ],
-        "href":        "https://shsec.io/jb"
+        "href":        "https://clk.shldscrty.com/jb"
       },
       {
         "type":        "new",
@@ -3633,8 +3729,8 @@
     "version":     "10.1",
     "released_at": 1605606920,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease101",
-      "upgrade": "https://shsec.io/shieldupgradeguide101"
+      "release": "https://clk.shldscrty.com/shieldrelease101",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide101"
     },
     "title":       "Enhanced Dashboard + MainWP Integration",
     "description": [
@@ -3661,7 +3757,7 @@
           "The Shield Security Extension page will highlight all sites with any scan issues that need your attention.",
           "For now, the functionality is limited to installing, activating and deactivating the Shield plugin."
         ],
-        "href":        "https://shsec.io/ir"
+        "href":        "https://clk.shldscrty.com/ir"
       },
       {
         "type":        "new",
@@ -3680,7 +3776,7 @@
           "Based on customer feedback we've added the ability to customize the plugin badge based on Whitelabel settings.",
           "You'll may also use a WordPress filter to make fine adjustments to settings and styles of the badge."
         ],
-        "href":        "https://shsec.io/is"
+        "href":        "https://clk.shldscrty.com/is"
       },
       {
         "type":        "improved",
@@ -3769,8 +3865,8 @@
     "version":     "10.0",
     "released_at": 1603281600,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease100",
-      "upgrade": "https://shsec.io/shieldupgradeguide100"
+      "release": "https://clk.shldscrty.com/shieldrelease100",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide100"
     },
     "title":       "All-New PHP-7 Optimised Shield Security",
     "description": [
@@ -3908,8 +4004,8 @@
     "version":     "9.2",
     "released_at": 1599135934,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease92",
-      "upgrade": "https://shsec.io/shieldupgradeguide92"
+      "release": "https://clk.shldscrty.com/shieldrelease92",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide92"
     },
     "title":       "Improved UX For Logged-In Users",
     "description": [
@@ -3925,7 +4021,7 @@
           "When a user's IP address is blocked on a site, they may automatically unblock it if they're logged-in.",
           "By using a magic unblock-link, users may regain access to a site without intervention from an admin."
         ],
-        "href":        "https://shsec.io/ii"
+        "href":        "https://clk.shldscrty.com/ii"
       },
       {
         "type":        "new",
@@ -3935,7 +4031,7 @@
           "Files such as wp-config-sample.php, readme.html and license.txt are replaced each time WordPress upgrades.",
           "This new option ensures that they are removed each time they are restored to your site after an upgrade."
         ],
-        "href":        "https://shsec.io/hv"
+        "href":        "https://clk.shldscrty.com/hv"
       },
       {
         "type":        "new",

@@ -152,7 +152,7 @@ class ReportGenerator {
 		try {
 			$email = EmailVO::Factory(
 				$con->comps->opts_lookup->getReportEmail(),
-				__( 'Security Report', 'wp-simple-firewall' ).' - '.$con->getHumanName(),
+				__( 'Security Report', 'wp-simple-firewall' ).' - '.$con->labels->Name,
 				$con->action_router->render(
 					ReportsActions\Contexts\EmailReport::SLUG,
 					[

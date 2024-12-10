@@ -203,13 +203,12 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Meta() :string {
-		return sprintf(
-			'<button type="button" class="btn btn-link"'.
-			' data-toggle="popover"'.
-			' data-rid="%s">%s</button>', $this->log->rid,
-			sprintf( '<span class="meta-icon">%s</span>',
-				self::con()->svgs->raw( 'tags.svg' )
-			)
+		$label = __( 'Click to display meta data for this request in a popover', 'wp-simple-firewall' );
+		return sprintf( '<button type="button" aria-label="%s" class="btn btn-link" title="%s" data-toggle="popover" data-rid="%s">%s</button>',
+			$label,
+			$label,
+			$this->log->rid,
+			sprintf( '<span class="meta-icon">%s</span>', self::con()->svgs->raw( 'tags.svg' ) )
 		);
 	}
 

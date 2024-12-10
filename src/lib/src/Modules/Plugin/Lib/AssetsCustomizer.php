@@ -28,9 +28,9 @@ class AssetsCustomizer {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $hook = '';
+	private string $hook = '';
 
-	private $handles = [];
+	private array $handles = [];
 
 	protected function canRun() :bool {
 		return !Services::WpGeneral()->isAjax();
@@ -267,17 +267,6 @@ class AssetsCustomizer {
 						],
 					];
 				},
-			],
-			'leanbe'           => [
-				'key'     => 'leanbe',
-				'handles' => [
-					'main',
-				],
-				'data'    => [
-					'vars' => [
-						'widget_key' => '62e5437476b962001357b06d',
-					],
-				],
 			],
 			'license'          => [
 				'key'      => 'license',

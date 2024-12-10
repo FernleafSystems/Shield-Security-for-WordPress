@@ -14,6 +14,10 @@ class RateLimiting extends Base {
 		return __( 'Apply rate limiting restrictions to high-volume requests.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Edit rate limit settings for abusive visitors', 'wp-simple-firewall' );
+	}
+
 	protected function hasCapability() :bool {
 		return self::con()->caps->canTrafficRateLimit();
 	}

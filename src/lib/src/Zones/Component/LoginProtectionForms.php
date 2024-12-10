@@ -7,12 +7,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 class LoginProtectionForms extends Base {
 
 	public function title() :string {
-		return __( 'Login, Register & Lost Password Forms', 'wp-simple-firewall' );
+		return sprintf( '%s: %s',
+			__( 'Limit Attempts', 'wp-simple-firewall' ),
+			__( 'Login, Register & Lost Password Forms', 'wp-simple-firewall' )
+		);
 	}
 
 	public function subtitle() :string {
-		return sprintf( __( 'Select which user forms should be protected against brute-force attacks.', 'wp-simple-firewall' ),
-			self::con()->getHumanName() );
+		return sprintf( __( 'Select which user forms should be protected against brute-force attacks.', 'wp-simple-firewall' ), self::con()->labels->Name );
+	}
+
+	protected function tooltip() :string {
+		return __( 'Edit settings that apply protection to your login & user forms', 'wp-simple-firewall' );
 	}
 
 	/**

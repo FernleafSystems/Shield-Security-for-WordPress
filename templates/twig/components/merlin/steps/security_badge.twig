@@ -1,36 +1,29 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>Shield's Security Badge demonstrates clearly that you take security seriously,
-	   both for yourself and also that of your customers.</p>
-	<p>Enabling this option adds a translucent badge to the footer of your site.</p>
+	<p>Shield's Security Badge demonstrates that you take security seriously,
+	   both for yourself and also for your customers.</p>
+	<p>Turning this option on will add a translucent badge to the footer of your website.</p>
 {% endblock %}
 
 {% block slide_body_action_area %}
 	{% import '/common/macros.twig' as icwp_macros %}
 
 	<form class="form-horizontal merlin-form ajax-form">
-
-		<div class="row">
-			<div class="col-12 mb-2">
-				<h6>Demonstrate your commitment to security for your visitors</h6>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-12">
-				{{ icwp_macros.formInput_Radio_Wizard(
-					'SecurityPluginBadge',
-					{
-						'Y': '<span>Turn On</span> - Display Security Badge To Visitors',
-						'N': "<span>Turn Off</span> - Don't Show Visitors Security Badge"
-					},
-					'Set Visitor Security Badge'
-				) }}
-			</div>
-		</div>
-
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-		{{ icwp_macros.formInput_Submit2( 'Set Security Badge', null, null, false ) }}
+
+		<div class="row">
+			<div class="col mb-2">
+				<h6 class="pb-1 border-bottom d-inline-block">Display Security Badge</h6>
+			</div>
+		</div>
+
+		{{ icwp_macros.formInput_Checkbox(
+			'SecurityPluginBadge', 'Y', 'Security Badge',
+			'Display Security Badge To Visitors',
+			'', null, true, 'me-0'
+		) }}
+
+		{{ icwp_macros.formInput_Submit2( 'Set Security Badge', null, 'secondary', false ) }}
 	</form>
 {% endblock %}

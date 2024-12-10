@@ -38,6 +38,6 @@ class ExtensionSettingsPage {
 				},
 			];
 			return $components;
-		}, 10 );
+		} );
 	}
 }

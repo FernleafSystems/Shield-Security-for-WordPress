@@ -27,22 +27,30 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return __( 'No Subtitle Yet', 'wp-simple-firewall' );
 	}
 
-	public function actions() :array {
-		$actions = [];
-		if ( !empty( $this->getUnderlyingModuleZone() ) ) {
-			$actions[ 'config' ] = $this->getAction_Config();
-		}
-		return $actions;
+	public function tooltip() :string {
+		return '';
 	}
 
-	protected function getAction_Config() :?array {
+	public function actions() :array {
+		return [];
+	}
+
+	public function getAction_Config() :?array {
 		$moduleZone = $this->getUnderlyingModuleZone();
 		return empty( $moduleZone ) ? null : [
 			'title'   => sprintf( __( "Configure All '%s' Options", 'wp-simple-firewall' ), $this->title() ),
-			'data'    => [
-				'zone_component_action' => ZoneComponentConfig::SLUG,
-				'zone_component_slug'   => $moduleZone::Slug(),
-			],
+			'data'    => \array_merge(
+				[
+					'zone_component_action' => ZoneComponentConfig::SLUG,
+					'zone_component_slug'   => $moduleZone::Slug(),
+				],
+				empty( $this->tooltip() ) ? [] : [
+					'bs-toggle'    => 'tooltip',
+					'bs-trigger'   => 'hover',
+					'bs-placement' => 'right',
+					'bs-title'     => $this->tooltip(),
+				]
+			),
 			'icon'    => self::con()->svgs->raw( 'gear' ),
 			'classes' => [
 				'list-group-item-primary',

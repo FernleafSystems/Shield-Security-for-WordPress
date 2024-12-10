@@ -1,8 +1,8 @@
 {
-  "properties":       {
-    "version":                 "20.0.12",
-    "release_timestamp":       1733220000,
-    "build":                   "202412.0301",
+  "properties":   {
+    "version":                 "20.1.2",
+    "release_timestamp":       1733823000,
+    "build":                   "202412.1001",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -15,12 +15,12 @@
     "autoupdate_days":         5,
     "enable_premium":          true
   },
-  "requirements":     {
-    "php":       "7.2",
+  "requirements": {
+    "php":       "7.4",
     "wordpress": "5.7",
     "mysql":     "5.6"
   },
-  "paths":            {
+  "paths":        {
     "config":           "config",
     "source":           "src",
     "autoload":         "lib/vendor/autoload.php",
@@ -31,7 +31,7 @@
     "flags":            "flags",
     "cache":            "shield"
   },
-  "includes":         {
+  "includes":     {
     "tp":   {
       "bootstrap":    {
         "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css",
@@ -163,21 +163,21 @@
       }
     ]
   },
-  "menu":             {
+  "menu":         {
     "show":           true,
     "top_level":      true,
     "do_submenu_fix": true,
     "has_submenu":    true
   },
-  "labels":           {
+  "labels":       {
     "Name":                "Shield Security",
     "MenuTitle":           "Shield Security",
     "Description":         "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
     "Title":               "Shield Security",
     "Author":              "Shield Security",
     "AuthorName":          "Shield Security",
-    "PluginURI":           "https://shsec.io/2f",
-    "AuthorURI":           "https://shsec.io/bv",
+    "PluginURI":           "https://clk.shldscrty.com/2f",
+    "AuthorURI":           "https://clk.shldscrty.com/bv",
     "url_img_pagebanner":  "pluginlogo_banner-1544x500.png",
     "url_img_logo_small":  "pluginlogo_banner-170x40.png",
     "icon_url_16x16":      "pluginlogo_16x16.png",
@@ -185,17 +185,17 @@
     "icon_url_32x32":      "pluginlogo_32x32.png",
     "icon_url_128x128":    "pluginlogo_128x128.png"
   },
-  "meta":             {
-    "url_repo_home":       "https://shsec.io/eh",
-    "privacy_policy_href": "https://shsec.io/shieldprivacypolicy"
+  "meta":         {
+    "url_repo_home":       "https://clk.shldscrty.com/eh",
+    "privacy_policy_href": "https://clk.shldscrty.com/shieldprivacypolicy"
   },
-  "plugin_meta":      {
+  "plugin_meta":  {
     "rate": {
       "name": "Love it? Rate This Plugin &#10025;",
-      "href": "https://shsec.io/wpsf29"
+      "href": "https://clk.shldscrty.com/wpsf29"
     }
   },
-  "action_links":     {
+  "action_links": {
     "remove": null,
     "add":    [
       {
@@ -208,14 +208,14 @@
       {
         "name":      "&uarr; Go Pro &uarr;",
         "title":     "Get All PRO Security Features",
-        "href":      "https://shsec.io/d8",
+        "href":      "https://clk.shldscrty.com/d8",
         "target":    "_blank",
         "highlight": true,
         "show":      "free"
       }
     ]
   },
-  "config_spec":      {
+  "config_spec":  {
     "modules":       {
       "admin_access_restriction": {
         "slug":         "admin_access_restriction",
@@ -704,7 +704,7 @@
         "default":         "",
         "type":            "password",
         "beacon_id":       215,
-        "link_info":       "https://shsec.io/42",
+        "link_info":       "https://clk.shldscrty.com/42",
         "link_blog":       "",
         "name":            "Security Admin Access PIN",
         "summary":         "Provide/Update Security Admin Access PIN",
@@ -720,7 +720,7 @@
         "type":            "integer",
         "default":         30,
         "min":             1,
-        "link_info":       "https://shsec.io/41",
+        "link_info":       "https://clk.shldscrty.com/41",
         "link_blog":       "",
         "beacon_id":       387,
         "name":            "Security Admin Timeout",
@@ -737,7 +737,7 @@
         "premium":         true,
         "default":         [],
         "type":            "array",
-        "link_info":       "https://shsec.io/dk",
+        "link_info":       "https://clk.shldscrty.com/dk",
         "link_blog":       "",
         "beacon_id":       132,
         "name":            "Security Admins",
@@ -752,7 +752,7 @@
         ],
         "default":         "Y",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/gf",
+        "link_info":       "https://clk.shldscrty.com/gf",
         "link_blog":       "",
         "beacon_id":       385,
         "name":            "Allow Email Override",
@@ -768,8 +768,8 @@
         ],
         "default":         "Y",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/a0",
-        "link_blog":       "https://shsec.io/wpsf32",
+        "link_info":       "https://clk.shldscrty.com/a0",
+        "link_blog":       "https://clk.shldscrty.com/wpsf32",
         "beacon_id":       214,
         "name":            "WordPress Options",
         "summary":         "Restrict Access To Certain WordPress Admin Options",
@@ -784,7 +784,7 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/a0",
+        "link_info":       "https://clk.shldscrty.com/a0",
         "link_blog":       "",
         "beacon_id":       214,
         "name":            "Admin Users",
@@ -817,8 +817,8 @@
             "text":      "Delete"
           }
         ],
-        "link_info":       "https://shsec.io/a0",
-        "link_blog":       "https://shsec.io/wpsf21",
+        "link_info":       "https://clk.shldscrty.com/a0",
+        "link_blog":       "https://clk.shldscrty.com/wpsf21",
         "beacon_id":       214,
         "summary":         "Restrict Access To Key WordPress Plugin Actions",
         "description":     "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
@@ -853,8 +853,8 @@
             "text":      "Delete"
           }
         ],
-        "link_info":       "https://shsec.io/a0",
-        "link_blog":       "https://shsec.io/wpsf21",
+        "link_info":       "https://clk.shldscrty.com/a0",
+        "link_blog":       "https://clk.shldscrty.com/wpsf21",
         "beacon_id":       214,
         "summary":         "Restrict Access To WordPress Theme Actions",
         "description":     "Careful: This will restrict access to theme installation, update, activation and deletion."
@@ -881,8 +881,8 @@
             "text":      "Delete"
           }
         ],
-        "link_info":       "https://shsec.io/a0",
-        "link_blog":       "https://shsec.io/wpsf21",
+        "link_info":       "https://clk.shldscrty.com/a0",
+        "link_blog":       "https://clk.shldscrty.com/wpsf21",
         "beacon_id":       214,
         "summary":         "Restrict Access To Key WordPress Posts And Pages Actions",
         "description":     "Careful: This will restrict access to page/post creation, editing and deletion."
@@ -897,8 +897,8 @@
         "cap":             "whitelabel",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/dr",
-        "link_blog":       "https://shsec.io/ds",
+        "link_info":       "https://clk.shldscrty.com/dr",
+        "link_blog":       "https://clk.shldscrty.com/ds",
         "beacon_id":       131,
         "name":            "Enable White Label",
         "summary":         "Activate Your White Label Settings",
@@ -914,7 +914,7 @@
         "default":         "Shield",
         "type":            "text",
         "beacon_id":       216,
-        "link_info":       "https://shsec.io/dt",
+        "link_info":       "https://clk.shldscrty.com/dt",
         "link_blog":       "",
         "name":            "Plugin Name",
         "summary":         "The Name Of The Plugin",
@@ -946,7 +946,7 @@
         "default":         "Example Company Name",
         "type":            "text",
         "beacon_id":       216,
-        "link_info":       "https://shsec.io/dt",
+        "link_info":       "https://clk.shldscrty.com/dt",
         "link_blog":       "",
         "name":            "Company Name",
         "summary":         "The Name Of Your Company",
@@ -975,7 +975,7 @@
           "whitelabel"
         ],
         "sensitive":       true,
-        "default":         "https://shsec.io/7f",
+        "default":         "https://clk.shldscrty.com/7f",
         "type":            "text",
         "beacon_id":       216,
         "link_info":       "",
@@ -994,7 +994,7 @@
         "default":         "pluginlogo_16x16.png",
         "type":            "text",
         "beacon_id":       216,
-        "link_info":       "https://shsec.io/dt",
+        "link_info":       "https://clk.shldscrty.com/dt",
         "link_blog":       "",
         "name":            "Menu Icon",
         "summary":         "Menu Icon URL",
@@ -1086,8 +1086,8 @@
         "type":            "integer",
         "default":         7,
         "min":             1,
-        "link_info":       "https://shsec.io/a2",
-        "link_blog":       "https://shsec.io/a1",
+        "link_info":       "https://clk.shldscrty.com/a2",
+        "link_blog":       "https://clk.shldscrty.com/a1",
         "beacon_id":       375,
         "name":            "Auto Clean",
         "summary":         "Enable Audit Auto Cleaning",
@@ -1102,7 +1102,7 @@
         "premium":         true,
         "type":            "integer",
         "default":         0,
-        "link_info":       "https://shsec.io/e5",
+        "link_info":       "https://clk.shldscrty.com/e5",
         "link_blog":       "",
         "beacon_id":       137,
         "name":            "Update Delay",
@@ -1118,8 +1118,8 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/k1",
-        "link_blog":       "https://shsec.io/jo",
+        "link_info":       "https://clk.shldscrty.com/k1",
+        "link_blog":       "https://clk.shldscrty.com/jo",
         "beacon_id":       427,
         "name":            "silentCAPTCHA",
         "summary":         "Use Shield's Unique silentCAPTCHA Technology",
@@ -1152,7 +1152,7 @@
             "text":      "Block And Redirect"
           }
         ],
-        "link_info":       "https://shsec.io/6j",
+        "link_info":       "https://clk.shldscrty.com/6j",
         "link_blog":       "",
         "beacon_id":       260,
         "name":            "SPAM Action",
@@ -1168,8 +1168,8 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/57",
-        "link_blog":       "https://shsec.io/9w",
+        "link_info":       "https://clk.shldscrty.com/57",
+        "link_blog":       "https://clk.shldscrty.com/9w",
         "beacon_id":       262,
         "name":            "Human SPAM Filter",
         "summary":         "Enable (or Disable) The Human SPAM Filter module",
@@ -1215,7 +1215,7 @@
         "type":            "integer",
         "default":         1,
         "min":             1,
-        "link_info":       "https://shsec.io/fu",
+        "link_info":       "https://clk.shldscrty.com/fu",
         "link_blog":       "",
         "beacon_id":       152,
         "name":            "Trusted Commenter Minimum",
@@ -1237,7 +1237,7 @@
           "subscriber"
         ],
         "type":            "array",
-        "link_info":       "https://shsec.io/fu",
+        "link_info":       "https://clk.shldscrty.com/fu",
         "link_blog":       "",
         "beacon_id":       152,
         "name":            "Trusted Users",
@@ -1251,9 +1251,9 @@
           "module_spam"
         ],
         "type":            "integer",
-        "default":         30,
+        "default":         10,
         "min":             0,
-        "link_info":       "https://shsec.io/ll",
+        "link_info":       "https://clk.shldscrty.com/ll",
         "link_blog":       "",
         "beacon_id":       762,
         "name":            "Comments Cooldown",
@@ -1284,7 +1284,7 @@
         ],
         "default":         "[]",
         "type":            "array",
-        "link_info":       "https://shsec.io/2a",
+        "link_info":       "https://clk.shldscrty.com/2a",
         "link_blog":       "",
         "beacon_id":       335,
         "name":            "Whitelist Parameters",
@@ -1375,8 +1375,8 @@
         "section":         "section_file_guard",
         "default":         "Y",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/hd",
-        "link_blog":       "https://shsec.io/wpsf37",
+        "link_info":       "https://clk.shldscrty.com/hd",
+        "link_blog":       "https://clk.shldscrty.com/wpsf37",
         "beacon_id":       454,
         "name":            "WP Core File Scanner",
         "summary":         "Automatically Scans WordPress Core Files For Alterations",
@@ -1432,8 +1432,8 @@
             "cap":       "scan_files_everywhere"
           }
         ],
-        "link_info":       "https://shsec.io/wpsf36",
-        "link_blog":       "https://shsec.io/wpsf37",
+        "link_info":       "https://clk.shldscrty.com/wpsf36",
+        "link_blog":       "https://clk.shldscrty.com/wpsf37",
         "beacon_id":       743,
         "name":            "File Scan Areas",
         "summary":         "Which Files Should Be Scanned",
@@ -1466,8 +1466,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/wpsf36",
-        "link_blog":       "https://shsec.io/wpsf37",
+        "link_info":       "https://clk.shldscrty.com/wpsf36",
+        "link_blog":       "https://clk.shldscrty.com/wpsf37",
         "beacon_id":       228,
         "name":            "Auto File Repair",
         "summary":         "Which Files Should Be Automatically Repaired?",
@@ -1490,6 +1490,10 @@
             "text":      "WP Config"
           },
           {
+            "value_key": "theme_functions",
+            "text":      "Theme functions.php"
+          },
+          {
             "value_key": "root_htaccess",
             "text":      "Root .htaccess"
           },
@@ -1502,8 +1506,8 @@
             "text":      "Root Web.Config"
           }
         ],
-        "link_info":       "https://shsec.io/h7",
-        "link_blog":       "https://shsec.io/h8",
+        "link_info":       "https://clk.shldscrty.com/h7",
+        "link_blog":       "https://clk.shldscrty.com/h8",
         "beacon_id":       226,
         "vimeo_id":        "815602380",
         "name":            "File Locker",
@@ -1546,8 +1550,8 @@
         ],
         "type":            "checkbox",
         "default":         "Y",
-        "link_info":       "https://shsec.io/ew",
-        "link_blog":       "https://shsec.io/eo",
+        "link_info":       "https://clk.shldscrty.com/ew",
+        "link_blog":       "https://clk.shldscrty.com/eo",
         "beacon_id":       225,
         "name":            "Abandoned Plugin Scanner",
         "summary":         "Enable The Abandoned Plugin Scanner",
@@ -1565,8 +1569,8 @@
         "type":            "checkbox",
         "default":         "Y",
         "beacon_id":       134,
-        "link_info":       "https://shsec.io/du",
-        "link_blog":       "https://shsec.io/ah",
+        "link_info":       "https://clk.shldscrty.com/du",
+        "link_blog":       "https://clk.shldscrty.com/ah",
         "name":            "Vulnerability Scanner",
         "summary":         "Enable The Vulnerability Scanner",
         "description":     "Scan all your WordPress assets for known security vulnerabilities."
@@ -1639,8 +1643,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/b2",
-        "link_blog":       "https://shsec.io/kd",
+        "link_info":       "https://clk.shldscrty.com/b2",
+        "link_blog":       "https://clk.shldscrty.com/kd",
         "beacon_id":       223,
         "name":            "Scan Frequency",
         "summary":         "Number Of Times To Automatically Scan Core Files In 24 Hours",
@@ -1670,7 +1674,7 @@
         "premium":         true,
         "type":            "checkbox",
         "default":         "Y",
-        "link_info":       "https://shsec.io/bp",
+        "link_info":       "https://clk.shldscrty.com/bp",
         "link_blog":       "",
         "beacon_id":       135,
         "name":            "Show Re-Install Links",
@@ -1678,24 +1682,22 @@
         "description":     "Show links to re-install plugins and offer re-install when activating plugins."
       },
       {
-        "key":     "last_comment_request_at",
+        "key":     "delay_tracking",
         "section": "section_hidden",
-        "type":    "integer",
-        "default": 0
+        "type":    "array",
+        "default": []
       },
       {
-        "key":       "delay_tracking",
-        "section":   "section_hidden",
-        "sensitive": true,
-        "type":      "array",
-        "default":   []
+        "key":     "auto_integrations_track",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
       },
       {
-        "key":       "instant_alerts_data",
-        "section":   "section_hidden",
-        "sensitive": true,
-        "type":      "array",
-        "default":   []
+        "key":     "instant_alerts_data",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
       },
       {
         "key":              "scans_to_build",
@@ -1726,6 +1728,22 @@
         "default":          []
       },
       {
+        "key":             "enable_auto_integrations",
+        "section":         "section_integrations",
+        "zone_comp_slugs": [
+          "module_integrations"
+        ],
+        "premium":         true,
+        "default":         "N",
+        "type":            "checkbox",
+        "link_info":       "",
+        "link_blog":       "",
+        "beacon_id":       "",
+        "name":            "Enable Auto-Integrations",
+        "summary":         "Automatically Enable 3rd Party Integrations As They're Detected",
+        "description":     "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
+      },
+      {
         "key":             "enable_mainwp",
         "section":         "section_integrations",
         "zone_comp_slugs": [
@@ -1735,8 +1753,8 @@
         "cap":             "mainwp_level_1",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/ir",
-        "link_blog":       "https://shsec.io/ke",
+        "link_info":       "https://clk.shldscrty.com/ir",
+        "link_blog":       "https://clk.shldscrty.com/ke",
         "beacon_id":       404,
         "name":            "Enable MainWP",
         "summary":         "Enable The Built-In MainWP Extension",
@@ -1800,8 +1818,8 @@
             "text":      "High"
           }
         ],
-        "link_info":       "https://shsec.io/jy",
-        "link_blog":       "https://shsec.io/oc",
+        "link_info":       "https://clk.shldscrty.com/jy",
+        "link_blog":       "https://clk.shldscrty.com/oc",
         "beacon_id":       795,
         "name":            "Bot Challenge Complexity",
         "summary":         "Bot Challenge Complexity",
@@ -1818,8 +1836,8 @@
         "type":            "integer",
         "min":             0,
         "max":             99,
-        "link_info":       "https://shsec.io/jy",
-        "link_blog":       "https://shsec.io/oc",
+        "link_info":       "https://clk.shldscrty.com/jy",
+        "link_blog":       "https://clk.shldscrty.com/oc",
         "beacon_id":       424,
         "name":            "silentCAPTCHA Bot Minimum Score",
         "summary":         "silentCAPTCHA Bot Minimum Score (Percentage)",
@@ -1835,8 +1853,8 @@
         "type":            "integer",
         "default":         250,
         "min":             0,
-        "link_info":       "https://shsec.io/jy",
-        "link_blog":       "https://shsec.io/oc",
+        "link_info":       "https://clk.shldscrty.com/jy",
+        "link_blog":       "https://clk.shldscrty.com/oc",
         "beacon_id":       431,
         "name":            "High Reputation Bypass",
         "summary":         "Prevent IPs/Visitors With High Reputation Scores From Being Blocked",
@@ -1853,8 +1871,8 @@
         "type":            "integer",
         "default":         10,
         "min":             0,
-        "link_info":       "https://shsec.io/wpsf24",
-        "link_blog":       "https://shsec.io/wpsf26",
+        "link_info":       "https://clk.shldscrty.com/wpsf24",
+        "link_blog":       "https://clk.shldscrty.com/wpsf26",
         "beacon_id":       207,
         "name":            "Offense Limit",
         "summary":         "Visitor IP address will be Black Listed after X bad actions on your site",
@@ -1888,8 +1906,8 @@
             "text":      "Month"
           }
         ],
-        "link_info":       "https://shsec.io/wpsf25",
-        "link_blog":       "https://shsec.io/wpsf26",
+        "link_info":       "https://clk.shldscrty.com/wpsf25",
+        "link_blog":       "https://clk.shldscrty.com/wpsf26",
         "beacon_id":       210,
         "name":            "Auto Block Expiration",
         "summary":         "After 1 'X' a black listed IP will be removed from the black list",
@@ -1916,7 +1934,7 @@
             "text":      "Magic Email Links To Unblock Logged-In Users"
           }
         ],
-        "link_info":       "https://shsec.io/f8",
+        "link_info":       "https://clk.shldscrty.com/f8",
         "link_blog":       "",
         "beacon_id":       125,
         "name":            "User Auto Unblock",
@@ -1933,7 +1951,7 @@
         "premium":         true,
         "default":         [],
         "type":            "array",
-        "link_info":       "https://shsec.io/gd",
+        "link_info":       "https://clk.shldscrty.com/gd",
         "link_blog":       "",
         "beacon_id":       126,
         "name":            "Request Path Whitelist",
@@ -1965,7 +1983,7 @@
           }
         ],
         "link_info":       "",
-        "link_blog":       "https://shsec.io/nh",
+        "link_blog":       "https://clk.shldscrty.com/nh",
         "beacon_id":       471,
         "name":            "CrowdSec IP Blocking",
         "summary":         "How To Handle Requests From IPs Found On CrowdSec Blocklist",
@@ -2021,8 +2039,8 @@
             "text":      "Immediate IP Block"
           }
         ],
-        "link_info":       "https://shsec.io/fn",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/fn",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       122,
         "name":            "Failed Login",
         "summary":         "Detect Failed Login Attempts By Valid Usernames",
@@ -2061,8 +2079,8 @@
             "text":      "Immediate IP Block"
           }
         ],
-        "link_info":       "https://shsec.io/fo",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/fo",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       123,
         "name":            "XML-RPC Access",
         "summary":         "Identify A Bot When It Accesses XML-RPC",
@@ -2104,8 +2122,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/fn",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/fn",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       122,
         "name":            "Invalid Usernames",
         "summary":         "Detect Invalid Username Logins",
@@ -2147,8 +2165,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/f5",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/f5",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       124,
         "name":            "Fake Web Crawler",
         "summary":         "Detect Fake Search Engine Crawlers",
@@ -2190,8 +2208,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/fo",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/fo",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       123,
         "name":            "404 Detect",
         "summary":         "Identify A Bot When It Hits A 404",
@@ -2233,8 +2251,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/fo",
-        "link_blog":       "https://shsec.io/f6",
+        "link_info":       "https://clk.shldscrty.com/fo",
+        "link_blog":       "https://clk.shldscrty.com/f6",
         "beacon_id":       206,
         "name":            "Link Cheese",
         "summary":         "Tempt A Bot With A Fake Link To Follow",
@@ -2276,8 +2294,8 @@
             "premium":   true
           }
         ],
-        "link_info":       "https://shsec.io/fo",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/fo",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       123,
         "name":            "Invalid Script Load",
         "summary":         "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
@@ -2318,8 +2336,8 @@
             "text":      "Immediate IP Block"
           }
         ],
-        "link_info":       "https://shsec.io/fi",
-        "link_blog":       "https://shsec.io/f7",
+        "link_info":       "https://clk.shldscrty.com/fi",
+        "link_blog":       "https://clk.shldscrty.com/f7",
         "beacon_id":       124,
         "name":            "Empty User Agents",
         "summary":         "Detect Requests With Empty User Agents",
@@ -2385,8 +2403,8 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/e6",
-        "link_blog":       "https://shsec.io/fb",
+        "link_info":       "https://clk.shldscrty.com/e6",
+        "link_blog":       "https://clk.shldscrty.com/fb",
         "beacon_id":       414,
         "name":            "Disable XML-RPC",
         "summary":         "Disable The XML-RPC System",
@@ -2439,8 +2457,8 @@
         ],
         "default":         "Y",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/4q",
-        "link_blog":       "https://shsec.io/hk",
+        "link_info":       "https://clk.shldscrty.com/4q",
+        "link_blog":       "https://clk.shldscrty.com/hk",
         "beacon_id":       416,
         "name":            "Disable File Editing",
         "summary":         "Disable Ability To Edit Files From Within WordPress",
@@ -2457,7 +2475,7 @@
         "type":            "checkbox",
         "beacon_id":       418,
         "link_info":       "",
-        "link_blog":       "https://shsec.io/wpsf23",
+        "link_blog":       "https://clk.shldscrty.com/wpsf23",
         "name":            "Block Username Fishing",
         "summary":         "Block the ability to discover WordPress usernames based on author IDs",
         "description":     "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."
@@ -2486,8 +2504,8 @@
         "sensitive":       true,
         "default":         "",
         "type":            "text",
-        "link_info":       "https://shsec.io/5q",
-        "link_blog":       "https://shsec.io/5r",
+        "link_info":       "https://clk.shldscrty.com/5q",
+        "link_blog":       "https://clk.shldscrty.com/5r",
         "beacon_id":       316,
         "name":            "Hide WP Login & Admin",
         "summary":         "Hide The WordPress Login And Admin Areas",
@@ -2503,8 +2521,8 @@
         "sensitive":       true,
         "default":         "",
         "type":            "text",
-        "link_info":       "https://shsec.io/5q",
-        "link_blog":       "https://shsec.io/5r",
+        "link_info":       "https://clk.shldscrty.com/5q",
+        "link_blog":       "https://clk.shldscrty.com/5r",
         "beacon_id":       455,
         "name":            "WP Login & Admin Redirect",
         "summary":         "Automatic Redirect URL For Hidden Pages",
@@ -2573,7 +2591,7 @@
         "type":            "integer",
         "default":         0,
         "min":             0,
-        "link_info":       "https://shsec.io/b1",
+        "link_info":       "https://clk.shldscrty.com/b1",
         "link_blog":       "",
         "beacon_id":       141,
         "name":            "2FA Remember Me",
@@ -2590,8 +2608,8 @@
         "cap":             "2fa_login_backup_codes",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/dx",
-        "link_blog":       "https://shsec.io/dy",
+        "link_info":       "https://clk.shldscrty.com/dx",
+        "link_blog":       "https://clk.shldscrty.com/dy",
         "beacon_id":       143,
         "name":            "Allow Backup Codes",
         "summary":         "Allow Users To Generate A Backup Code",
@@ -2606,8 +2624,8 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/shld7",
-        "link_blog":       "https://shsec.io/shld6",
+        "link_info":       "https://clk.shldscrty.com/shld7",
+        "link_blog":       "https://clk.shldscrty.com/shld6",
         "beacon_id":       245,
         "name":            "Enable Google Authenticator",
         "summary":         "Allow Users To Use Google Authenticator",
@@ -2623,8 +2641,8 @@
         "default":         "N",
         "type":            "checkbox",
         "beacon_id":       358,
-        "link_info":       "https://shsec.io/4f",
-        "link_blog":       "https://shsec.io/9t",
+        "link_info":       "https://clk.shldscrty.com/4f",
+        "link_blog":       "https://clk.shldscrty.com/9t",
         "name":            "Allow Yubikey OTP",
         "summary":         "Allow Yubikey Registration For One Time Passwords",
         "description":     "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
@@ -2639,7 +2657,7 @@
         "sensitive":       true,
         "default":         "",
         "type":            "text",
-        "link_info":       "https://shsec.io/4g",
+        "link_info":       "https://clk.shldscrty.com/4g",
         "link_blog":       "",
         "beacon_id":       360,
         "name":            "Yubikey App ID",
@@ -2656,7 +2674,7 @@
         "sensitive":       true,
         "default":         "",
         "type":            "text",
-        "link_info":       "https://shsec.io/4g",
+        "link_info":       "https://clk.shldscrty.com/4g",
         "link_blog":       "",
         "beacon_id":       360,
         "name":            "Yubikey API Key",
@@ -2672,8 +2690,8 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/3t",
-        "link_blog":       "https://shsec.io/9q",
+        "link_info":       "https://clk.shldscrty.com/3t",
+        "link_blog":       "https://clk.shldscrty.com/9q",
         "beacon_id":       247,
         "name":            "Enable Email Authentication",
         "summary":         "Two-Factor Login Authentication By Email",
@@ -2689,8 +2707,8 @@
         "cap":             "2fa_webauthn",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/3t",
-        "link_blog":       "https://shsec.io/9q",
+        "link_info":       "https://clk.shldscrty.com/3t",
+        "link_blog":       "https://clk.shldscrty.com/9q",
         "beacon_id":       247,
         "name":            "Email Auto-Login",
         "summary":         "Enable Email Auto-Login Links",
@@ -2709,7 +2727,7 @@
           "editor",
           "administrator"
         ],
-        "link_info":       "https://shsec.io/4v",
+        "link_info":       "https://clk.shldscrty.com/4v",
         "link_blog":       "",
         "beacon_id":       243,
         "name":            "Enforce - Email Authentication",
@@ -2726,45 +2744,12 @@
         "cap":             "2fa_email_any_user",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/gj",
+        "link_info":       "https://clk.shldscrty.com/gj",
         "link_blog":       "",
         "beacon_id":       142,
         "name":            "Allow Any User",
         "summary":         "Allow Any User To Turn-On Two-Factor Authentication By Email",
         "description":     "Allow Any User To Turn-On Two-Factor Authentication By Email."
-      },
-      {
-        "key":             "enable_antibot_check",
-        "section":         "section_brute_force_login_protection",
-        "zone_comp_slugs": [
-          "limit_login",
-          "module_login"
-        ],
-        "default":         "N",
-        "type":            "checkbox",
-        "link_info":       "https://shsec.io/k0",
-        "link_blog":       "https://shsec.io/jo",
-        "beacon_id":       426,
-        "name":            "Block Login Bots",
-        "summary":         "Block Login Attempted By Automated Bots",
-        "description":     "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
-      },
-      {
-        "key":             "login_limit_interval",
-        "section":         "section_brute_force_login_protection",
-        "zone_comp_slugs": [
-          "limit_login",
-          "module_login"
-        ],
-        "type":            "integer",
-        "default":         5,
-        "min":             0,
-        "link_info":       "https://shsec.io/3q",
-        "link_blog":       "https://shsec.io/9o",
-        "beacon_id":       242,
-        "name":            "Login Cooldown Interval",
-        "summary":         "Limit login attempts to every X seconds",
-        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
       },
       {
         "key":             "bot_protection_locations",
@@ -2789,26 +2774,51 @@
           {
             "value_key": "password",
             "text":      "Lost Password"
-          },
-          {
-            "value_key": "checkout_woo",
-            "text":      "Checkout (WooCommerce)"
           }
         ],
-        "link_info":       "https://shsec.io/dv",
+        "link_info":       "https://clk.shldscrty.com/dv",
         "link_blog":       "",
         "beacon_id":       314,
-        "name":            "Protection Locations",
-        "summary":         "How Google reCAPTCHA Will Be Displayed",
-        "description":     "Choose for which forms bot protection measures will be deployed."
+        "name":            "Protected Forms",
+        "summary":         "Which WordPress Forms Should Be Protected From Bots",
+        "description":     "Choose on which forms silentCAPTHA Bot Protection will be deployed."
+      },
+      {
+        "key":             "login_limit_interval",
+        "section":         "section_brute_force_login_protection",
+        "zone_comp_slugs": [
+          "login_protection_forms",
+          "module_login"
+        ],
+        "type":            "integer",
+        "default":         5,
+        "min":             0,
+        "link_info":       "https://clk.shldscrty.com/3q",
+        "link_blog":       "https://clk.shldscrty.com/9o",
+        "beacon_id":       242,
+        "name":            "Login Cooldown Interval",
+        "summary":         "Limit login attempts to every X seconds",
+        "description":     "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
+      },
+      {
+        "key":         "enable_antibot_check",
+        "section":     "section_deprecated",
+        "default":     "N",
+        "type":        "checkbox",
+        "link_info":   "https://clk.shldscrty.com/k0",
+        "link_blog":   "https://clk.shldscrty.com/jo",
+        "beacon_id":   426,
+        "name":        "Block Login Bots",
+        "summary":     "Block Login Attempted By Automated Bots",
+        "description": "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
       },
       {
         "key":         "enable_login_gasp_check",
         "section":     "section_deprecated",
         "default":     "N",
         "type":        "checkbox",
-        "link_info":   "https://shsec.io/3r",
-        "link_blog":   "https://shsec.io/9n",
+        "link_info":   "https://clk.shldscrty.com/3r",
+        "link_blog":   "https://clk.shldscrty.com/9n",
         "beacon_id":   313,
         "name":        "Bot Protection",
         "summary":     "Protect WP Login From Automated Login Attempts By Bots",
@@ -2820,7 +2830,7 @@
         "premium":     true,
         "type":        "array",
         "default":     [],
-        "link_info":   "https://shsec.io/hg",
+        "link_info":   "https://clk.shldscrty.com/hg",
         "link_blog":   "",
         "beacon_id":   144,
         "name":        "AntiBot Forms",
@@ -2840,7 +2850,7 @@
         "type":            "checkbox",
         "beacon_id":       763,
         "link_info":       "",
-        "link_blog":       "https://shsec.io/ni",
+        "link_blog":       "https://clk.shldscrty.com/ni",
         "name":            "Enable Passkeys",
         "summary":         "Allow Registration Of Passkeys",
         "description":     "Allow Registration Of Passkeys."
@@ -2950,8 +2960,8 @@
             "cap":       "thirdparty_scan_spam"
           }
         ],
-        "link_info":       "https://shsec.io/k2",
-        "link_blog":       "https://shsec.io/oc",
+        "link_info":       "https://clk.shldscrty.com/k2",
+        "link_blog":       "https://clk.shldscrty.com/oc",
         "beacon_id":       138,
         "name":            "Form SPAM Checking",
         "summary":         "Select The Form Providers That Should Be Checked For SPAM",
@@ -3034,6 +3044,11 @@
             "cap":       "thirdparty_scan_users"
           },
           {
+            "value_key": "simplemembership",
+            "text":      "Simple Membership",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
             "value_key": "ultimatemember",
             "text":      "Ultimate Member",
             "cap":       "thirdparty_scan_users"
@@ -3049,8 +3064,8 @@
             "cap":       "thirdparty_scan_users"
           }
         ],
-        "link_info":       "https://shsec.io/k4",
-        "link_blog":       "https://shsec.io/oc",
+        "link_info":       "https://clk.shldscrty.com/k4",
+        "link_blog":       "https://clk.shldscrty.com/oc",
         "beacon_id":       239,
         "name":            "User Form Checking",
         "summary":         "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
@@ -3129,7 +3144,7 @@
             "text":      "HTTP_CLIENT_IP"
           }
         ],
-        "link_info":       "https://shsec.io/dn",
+        "link_info":       "https://clk.shldscrty.com/dn",
         "link_blog":       "",
         "beacon_id":       391,
         "name":            "Visitor IP Address",
@@ -3160,8 +3175,8 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/5v",
-        "link_blog":       "https://shsec.io/wpsf20",
+        "link_info":       "https://clk.shldscrty.com/5v",
+        "link_blog":       "https://clk.shldscrty.com/wpsf20",
         "beacon_id":       130,
         "vimeo_id":        "",
         "name":            "Show Plugin Badge",
@@ -3192,7 +3207,7 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/7i",
+        "link_info":       "https://clk.shldscrty.com/7i",
         "link_blog":       "",
         "name":            "Enable Information Gathering",
         "summary":         "Permit Anonymous Telemetry Reports",
@@ -3209,8 +3224,8 @@
         "cap":             "run_as_mu",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/i1",
-        "link_blog":       "https://shsec.io/lk",
+        "link_info":       "https://clk.shldscrty.com/i1",
+        "link_blog":       "https://clk.shldscrty.com/lk",
         "beacon_id":       460,
         "name":            "Run In MU Mode",
         "summary":         "Run Plugin In Must-Use (MU) Mode",
@@ -3239,7 +3254,7 @@
             "text":      "As Soon As Possible"
           }
         ],
-        "link_info":       "https://shsec.io/3x",
+        "link_info":       "https://clk.shldscrty.com/3x",
         "link_blog":       "",
         "beacon_id":       409,
         "name":            "Self AutoUpdate",
@@ -3278,18 +3293,6 @@
         "description":     "Preferred temporary directory override."
       },
       {
-        "key":         "locale_override",
-        "section":     "section_hidden",
-        "beacon_id":   393,
-        "default":     "",
-        "type":        "text",
-        "link_info":   "https://icwp.io/il",
-        "link_blog":   "",
-        "name":        "Locale Override",
-        "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-        "description": "Careful: Removes all plugin options when you deactivate the plugin."
-      },
-      {
         "key":             "enable_beta",
         "section":         "section_defaults",
         "zone_comp_slugs": [
@@ -3316,8 +3319,8 @@
         "cap":             "import_export_level_2",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/do",
-        "link_blog":       "https://shsec.io/dp",
+        "link_info":       "https://clk.shldscrty.com/do",
+        "link_blog":       "https://clk.shldscrty.com/dp",
         "beacon_id":       129,
         "name":            "Allow Import/Export",
         "summary":         "Allow Import Of Options To, And Export Of Options From, This Site",
@@ -3410,7 +3413,7 @@
             "text":      "Weekly"
           }
         ],
-        "link_info":       "https://shsec.io/h9",
+        "link_info":       "https://clk.shldscrty.com/h9",
         "link_blog":       "",
         "beacon_id":       233,
         "name":            "Alert Reports Frequency",
@@ -3451,7 +3454,7 @@
             "text":      "Monthly"
           }
         ],
-        "link_info":       "https://shsec.io/ha",
+        "link_info":       "https://clk.shldscrty.com/ha",
         "link_blog":       "",
         "beacon_id":       232,
         "name":            "Info Reports Frequency",
@@ -3594,8 +3597,8 @@
             "text":      "On: Block All iFrames"
           }
         ],
-        "link_info":       "https://shsec.io/78",
-        "link_blog":       "https://shsec.io/7c",
+        "link_info":       "https://clk.shldscrty.com/78",
+        "link_blog":       "https://clk.shldscrty.com/7c",
         "name":            "Block iFrames",
         "summary":         "Block Remote iFrames Of This Site",
         "description":     "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
@@ -3609,8 +3612,8 @@
         ],
         "default":         "Y",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/79",
-        "link_blog":       "https://shsec.io/7c",
+        "link_info":       "https://clk.shldscrty.com/79",
+        "link_blog":       "https://clk.shldscrty.com/7c",
         "name":            "XSS Protection",
         "summary":         "Employ Built-In Browser XSS Protection",
         "description":     "Directs compatible browsers to block what they detect as Reflective XSS attacks."
@@ -3624,8 +3627,8 @@
         ],
         "default":         "Y",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/7a",
-        "link_blog":       "https://shsec.io/7c",
+        "link_info":       "https://clk.shldscrty.com/7a",
+        "link_blog":       "https://clk.shldscrty.com/7c",
         "name":            "Prevent Mime-Sniff",
         "summary":         "Turn-Off Browser Mime-Sniff",
         "description":     "Reduces visitor exposure to malicious user-uploaded content."
@@ -3682,7 +3685,7 @@
             "text":      "Disabled - Don't Send This Header"
           }
         ],
-        "link_info":       "https://shsec.io/a5",
+        "link_info":       "https://clk.shldscrty.com/a5",
         "link_blog":       "",
         "name":            "Referrer Policy",
         "summary":         "Referrer Policy Header",
@@ -3699,8 +3702,8 @@
         "default":         "N",
         "type":            "checkbox",
         "beacon_id":       155,
-        "link_info":       "https://shsec.io/7d",
-        "link_blog":       "https://shsec.io/7c",
+        "link_info":       "https://clk.shldscrty.com/7d",
+        "link_blog":       "https://clk.shldscrty.com/7c",
         "name":            "Enable Content Security Policy",
         "summary":         "Enable (or Disable) The Content Security Policy module",
         "description":     "Allows for permission and restriction of all resources loaded on your site."
@@ -3716,7 +3719,7 @@
         "cap":             "http_headers_csp",
         "default":         [],
         "type":            "array",
-        "link_info":       "https://shsec.io/g9",
+        "link_info":       "https://clk.shldscrty.com/g9",
         "link_blog":       "",
         "beacon_id":       155,
         "name":            "CSP Rules",
@@ -3851,7 +3854,7 @@
         ],
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/hf",
+        "link_info":       "https://clk.shldscrty.com/hf",
         "link_blog":       "",
         "beacon_id":       153,
         "name":            "Enable Request Logging",
@@ -3912,7 +3915,7 @@
             "text":      "Uptime Monitoring Services"
           }
         ],
-        "link_info":       "https://shsec.io/eb",
+        "link_info":       "https://clk.shldscrty.com/eb",
         "link_blog":       "",
         "beacon_id":       154,
         "name":            "Request Log Exclusions",
@@ -3927,7 +3930,7 @@
         ],
         "default":         [],
         "type":            "array",
-        "link_info":       "https://shsec.io/ec",
+        "link_info":       "https://clk.shldscrty.com/ec",
         "link_blog":       "",
         "beacon_id":       154,
         "name":            "Custom Exclusions",
@@ -3960,8 +3963,8 @@
         "cap":             "traffic_rate_limiting",
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/gw",
-        "link_blog":       "https://shsec.io/gx",
+        "link_info":       "https://clk.shldscrty.com/gw",
+        "link_blog":       "https://clk.shldscrty.com/gx",
         "beacon_id":       420,
         "name":            "Enable Rate Limiting",
         "summary":         "Turn On The Rate Limiting Feature",
@@ -4015,7 +4018,7 @@
         "sensitive":       false,
         "default":         "N",
         "type":            "checkbox",
-        "link_info":       "https://shsec.io/e2",
+        "link_info":       "https://clk.shldscrty.com/e2",
         "link_blog":       "",
         "beacon_id":       147,
         "name":            "User Login Notification Email",
@@ -4096,7 +4099,7 @@
         ],
         "beacon_id":       778,
         "link_info":       "",
-        "link_blog":       "https://shsec.io/hh",
+        "link_blog":       "https://clk.shldscrty.com/hh",
         "name":            "Session Lock",
         "summary":         "Lock User Sessions To ",
         "description":     "."
@@ -4135,7 +4138,7 @@
         ],
         "beacon_id":       145,
         "link_info":       "",
-        "link_blog":       "https://shsec.io/hh",
+        "link_blog":       "https://clk.shldscrty.com/hh",
         "name":            "Validate Email Addresses",
         "summary":         "Validate Email Addresses When User Attempts To Register",
         "description":     "Validate Email Addresses When User Attempts To Register."
@@ -4175,7 +4178,7 @@
         ],
         "beacon_id":       145,
         "link_info":       "",
-        "link_blog":       "https://shsec.io/hh",
+        "link_blog":       "https://clk.shldscrty.com/hh",
         "name":            "Email Checks",
         "summary":         "The Email Address Properties That Will Be Tested",
         "description":     "."
@@ -4192,8 +4195,8 @@
         "type":            "checkbox",
         "default":         "N",
         "beacon_id":       146,
-        "link_info":       "https://shsec.io/e1",
-        "link_blog":       "https://shsec.io/c4",
+        "link_info":       "https://clk.shldscrty.com/e1",
+        "link_blog":       "https://clk.shldscrty.com/c4",
         "name":            "Enable Password Policies",
         "summary":         "Enable The Password Policies Below",
         "description":     "Turn on/off all password policies."
@@ -4210,7 +4213,7 @@
         "default":         "Y",
         "beacon_id":       758,
         "link_info":       "",
-        "link_blog":       "https://shsec.io/by",
+        "link_blog":       "https://clk.shldscrty.com/by",
         "name":            "Prevent Pwned Passwords",
         "summary":         "Prevent Use Of Pwned Passwords",
         "description":     "Prevents users from using any passwords found on the public available list of pwned passwords."
@@ -4305,8 +4308,8 @@
         "cap":             "user_suspension",
         "type":            "checkbox",
         "default":         "N",
-        "link_info":       "https://shsec.io/fq",
-        "link_blog":       "https://shsec.io/fr",
+        "link_info":       "https://clk.shldscrty.com/fq",
+        "link_blog":       "https://clk.shldscrty.com/fr",
         "beacon_id":       399,
         "name":            "Allow Manual User Suspension",
         "summary":         "Manually Suspend User Accounts To Prevent Login",
@@ -4322,8 +4325,8 @@
         "cap":             "user_suspension",
         "type":            "checkbox",
         "default":         "Y",
-        "link_info":       "https://shsec.io/fs",
-        "link_blog":       "https://shsec.io/fr",
+        "link_info":       "https://clk.shldscrty.com/fs",
+        "link_blog":       "https://clk.shldscrty.com/fr",
         "beacon_id":       400,
         "name":            "Auto-Suspend Expired Passwords",
         "summary":         "Automatically Suspend Users With Expired Passwords",
@@ -4341,8 +4344,8 @@
         "type":            "integer",
         "default":         0,
         "min":             0,
-        "link_info":       "https://shsec.io/ft",
-        "link_blog":       "https://shsec.io/fr",
+        "link_info":       "https://clk.shldscrty.com/ft",
+        "link_blog":       "https://clk.shldscrty.com/fr",
         "beacon_id":       400,
         "name":            "Auto-Suspend Idle Users",
         "summary":         "Automatically Suspend Idle User Accounts",
@@ -4363,7 +4366,7 @@
           "editor",
           "author"
         ],
-        "link_info":       "https://shsec.io/ft",
+        "link_info":       "https://clk.shldscrty.com/ft",
         "link_blog":       "",
         "beacon_id":       400,
         "name":            "Auto-Suspend Idle Users",
@@ -4622,14 +4625,14 @@
           "umbrella-application.php"
         ]
       },
-      "keyless_cp":                   "https://shsec.io/c5",
+      "keyless_cp":                   "https://clk.shldscrty.com/c5",
       "lic_verify_expire_days":       14,
       "lic_verify_expire_grace_days": 3,
       "keyless":                      true,
       "keyless_handshake_expire":     90,
       "login_intent_timeout":         5,
       "login_intent_max_attempts":    5,
-      "href_privacy_policy":          "https://shsec.io/wpshieldprivacypolicy",
+      "href_privacy_policy":          "https://clk.shldscrty.com/wpshieldprivacypolicy",
       "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range"
     },
     "admin_notices": {

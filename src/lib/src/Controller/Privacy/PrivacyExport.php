@@ -23,7 +23,7 @@ class PrivacyExport {
 			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 		$registered[] = [
-			'exporter_friendly_name' => self::con()->getHumanName(),
+			'exporter_friendly_name' => self::con()->labels->Name,
 			'callback'               => [ $this, 'wpPrivacyExport' ],
 		];
 		return $registered;

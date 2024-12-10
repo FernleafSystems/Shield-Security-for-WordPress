@@ -1,0 +1,102 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section_blurb %}
+	<p>Shield uses a default security profile when first activated, which applies basic security
+	   measures so that your site is protected from some common attacks.</p>
+	<p>We recommend you apply as many security restrictions as your site allows. Production sites that already
+	   have integrations with 3rd party services in-place, this may cause some issues and we recommend
+	   you test these integrations and review the Activity Logs for any issues.</p>
+	<p>Please review the 3 pre-made security profiles below, or customise the settings manually.</p>
+{% endblock %}
+
+{% block slide_body_video_section %}
+	{% import '/common/macros.twig' as icwp_macros %}
+
+	<form class="form-horizontal merlin-form ajax-form">
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+		{{ icwp_macros.formInput_Hidden( 'security_profile', '', 'SelectedSecurityProfile' ) }}
+
+		<div class="row mb-2">
+			<div class="col">
+				<h6 class="pb-1 border-bottom d-inline-block">Choose Security Profile</h6>
+				<p>Skip this step if you don't want to automatically apply a built-in profile.</p>
+			</div>
+		</div>
+
+
+		<div class="row mb-2 security_profiles_section">
+
+			<table class="table table-sm table-borderless table-hover table-responsive" id="TableSecurityProfiles"
+				   style="height:fit-content">
+				<thead>
+				<tr>
+					<th>&nbsp;</th>
+					{% for level_key,level in vars.profile_levels %}
+						<th class="p-0 border-0 {% if level_key == 'current' %}level_current{% else %}level_cell level_cell_{{ level_key }}{% endif %}"
+							data-level="{{ level_key }}">
+							<div class="ms-1 p-2">
+								<h4 class="m-0">{{ level.title }}</h4>
+								<small>{{ level.subtitle }}</small>
+							</div>
+						</th>
+					{% endfor %}
+				</tr>
+				</thead>
+				<tbody>
+				{% for section_key,section in vars.profile_structure %}
+					<tr>
+						<th><div class="pt-3">{{ section.title }}</div></th>
+						{% for level_key,level in vars.profile_levels %}
+							<td class="p-0 border-0 {% if level_key == 'current' %}level_current{% else %}level_cell level_cell_{{ level_key }}{% endif %}" data-level="{{ level_key }}">
+								<div class="ms-1 p-2" style="line-height: 30px;">&nbsp;</div>
+							</td>
+						{% endfor %}
+					</tr>
+
+					{% for item_key,item in section.opts %}
+					<tr class="h-100"
+							{% if item.tooltip is not empty %}
+								data-bs-toggle="tooltip"
+								data-bs-trigger="hover"
+								data-bs-placement="top"
+								data-bs-title="{{ item.tooltip }}"
+								title="{{ item.tooltip }}"
+							{% endif %}
+					>
+						<td class="border-0 py-0">
+							<div class="ps-4 py-2 pe-0 fs-6 {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">{{ item.title }}</div>
+						</td>
+
+						{% for level_key,level in vars.profile_levels %}
+							<td class="p-0 border-0 fs-6 {% if level_key == 'current' %}level_current{% else %}level_cell level_cell_{{ level_key }}{% endif %}"
+								data-level="{{ level_key }}">
+								<div class="h-100 ms-1 p-2 text-center">
+									{% set item_value = level.structure[section_key]['opts'][item_key].value %}
+									{% if item_value is same as (true) or item_value is same as ('Y') %}
+										<span class=" text-primary {% if not item.is_available %}text-opacity-50{% endif %}">{{ imgs.svgs.shield_check|raw }}</span>
+														{% elseif item_value is same as (false) or item_value is same as ('N') %}
+										<span class=" text-warning {% if not item.is_available %}text-opacity-50{% endif %}">{{ imgs.svgs.shield_x|raw }}</span>
+														{% else %}
+										<span class=" badge text-bg-secondary {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">{{ item_value }}</span>
+									{% endif %}
+								</div>
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+				{% endfor %}
+				</tbody>
+				<tfoot>
+					<th>&nbsp;</th>
+					{% for level_key,level in vars.profile_levels %}
+						<td class="p-0 border-0 {% if level_key == 'current' %}level_current{% else %} level_cell level_cell_{{ level_key }}{% endif %}" data-level="{{ level_key }}">
+							<div class="ms-1 p-2">&nbsp;</div>
+						</td>
+					{% endfor %}
+				</tfoot>
+			</table>
+		</div>
+
+		{{ icwp_macros.formInput_Submit2( 'Apply The Selected Profile', null, 'secondary', false, 'mt-2' ) }}
+	</form>
+{% endblock %}

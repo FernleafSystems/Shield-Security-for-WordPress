@@ -10,7 +10,7 @@ class IntroVideoModal extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 	protected function getRenderData() :array {
 		return [
 			'hrefs'   => [
-				'release_guide' => 'https://shsec.io/ob',
+				'release_guide' => 'https://clk.shldscrty.com/ob',
 			],
 			'strings' => [
 				'modal_title' => __( 'Demo: Important UI changes with Shield v20', 'wp-simple-firewall' ),

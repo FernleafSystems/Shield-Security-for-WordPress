@@ -14,6 +14,10 @@ class SecadminEnabled extends Base {
 		return sprintf( __( 'The Security Admin system protects WordPress and the %s plugin against tampering.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Provide a secret PIN to restrict admin access to your security settings', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

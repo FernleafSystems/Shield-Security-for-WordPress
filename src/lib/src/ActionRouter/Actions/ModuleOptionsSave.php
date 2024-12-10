@@ -21,8 +21,8 @@ class ModuleOptionsSave extends BaseAction {
 			'page_reload' => !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin(),
 			// for Sec Admin activation
 			'message'     => $success ?
-				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->getHumanName() )
-				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $con->getHumanName() )
+				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->labels->Name )
+				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $con->labels->Name )
 		];
 	}
 }

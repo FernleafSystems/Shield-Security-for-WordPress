@@ -25,7 +25,7 @@ class PageDocs extends BasePluginAdminPage {
 				'show_free_trial' => !$con->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'free_trial'    => 'https://shsec.io/shieldfreetrialinplugin',
+				'free_trial'    => 'https://clk.shldscrty.com/shieldfreetrialinplugin',
 				'knowledgebase' => 'https://help.getshieldsecurity.com',
 			],
 			'imgs'    => [

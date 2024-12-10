@@ -11,28 +11,23 @@
 	{% import '/common/macros.twig' as icwp_macros %}
 
 	<form class="form-horizontal merlin-form ajax-form">
-
-		<div class="row">
-			<div class="col-12 mb-2">
-				<h6>Configure Comment SPAM Blocking</h6>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-12">
-			  {{ icwp_macros.formInput_Radio_Wizard(
-				  'CommentsFilterOption',
-				  {
-					  'Y': '<span>Turn On</span> - Block automated bot SPAM comments',
-					  'N': "<span>Turn Off</span> - Don't block automated comment SPAM"
-				  },
-				  'Comment SPAM Blocking'
-			  ) }}
-			</div>
-		</div>
-
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-		{{ icwp_macros.formInput_Submit2( 'Set Comment SPAM Protection', null, null, false ) }}
+
+		<div class="row">
+			<div class="col mb-2">
+				<h6 class="pb-1 border-bottom d-inline-block">Comment SPAM Settings</h6>
+			</div>
+		</div>
+
+		{{ icwp_macros.formInput_Checkbox(
+			'CommentsFilterOption', 'Y', 'Comment SPAM',
+			'Protect WordPress Comments from bot SPAM',
+			"silentCAPTCHA will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+			~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
+			null, true, 'me-0'
+		) }}
+
+		{{ icwp_macros.formInput_Submit2( 'Block Comment SPAM', null, 'secondary', false ) }}
 	</form>
 
 {% endblock %}

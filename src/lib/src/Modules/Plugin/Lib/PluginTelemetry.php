@@ -84,7 +84,7 @@ class PluginTelemetry {
 			'env'    => [
 				'slug'             => $con->cfg->properties[ 'slug_plugin' ],
 				'installation_id'  => ( new InstallationID() )->id(),
-				'unique_site_hash' => \sha1( network_home_url( '/' ) ),
+				'unique_site_hash' => \hash( 'sha1', network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
 				'version'          => $con->cfg->version(),

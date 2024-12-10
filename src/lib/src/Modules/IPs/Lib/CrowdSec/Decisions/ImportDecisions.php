@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
+use AptowebDeps\CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\DownloadDecisionsStreamFailedException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,9 +14,8 @@ class ImportDecisions {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		$csCon = self::con()->comps->crowdsec;
-		return ( Services::Request()->ts() - $this->getImportInterval() > $csCon->cfg()->decisions_update_attempt_at )
-			   && $csCon->getApi()->isReady();
+		return ( Services::Request()->carbon()->subSeconds( $this->getImportInterval() )->timestamp
+				 > self::con()->comps->crowdsec->cfg()->decisions_update_attempt_at );
 	}
 
 	protected function run() {
@@ -50,8 +49,11 @@ class ImportDecisions {
 				}
 			}
 		}
+		catch ( ClientException $ce ) {
+			// TODO: if 403 reset auth.
+			error_log( sprintf( 'client exception: "%s" : "%s"', $ce->getCode(), $ce->getMessage() ) );
+		}
 		catch ( \Exception $e ) {
-			error_log( 'Auth token: '.self::con()->comps->crowdsec->getApi()->getAuthorizationToken() );
 			error_log( $e->getMessage() );
 		}
 	}
@@ -66,17 +68,17 @@ class ImportDecisions {
 	}
 
 	/**
-	 * @throws DownloadDecisionsStreamFailedException
+	 * @throws LibraryPrefixedAutoloadNotFoundException
+	 * @throws ClientException
 	 */
 	private function downloadDecisions() :array {
-		$api = self::con()->comps->crowdsec->getApi();
-		return ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
+		return self::con()->comps->crowdsec->getCApiWatcher()->getStreamDecisions();
 	}
 
 	/**
-	 * @throws DownloadDecisionsStreamFailedException
+	 * @throws LibraryPrefixedAutoloadNotFoundException
 	 */
-	private function testDownloadDecisionsViaFile() :array {
+	public function testDownloadDecisionsViaFile() :array {
 		$FS = Services::WpFs();
 		$file = ABSPATH.'csDec.txt';
 		if ( $FS->exists( $file ) ) {
@@ -90,8 +92,8 @@ class ImportDecisions {
 		return $csDec;
 	}
 
-	private function getImportInterval() {
-		return self::con()->isPremiumActive() ?
-			apply_filters( 'shield/crowdsec/decisions_update_interval', \HOUR_IN_SECONDS*2 ) : \WEEK_IN_SECONDS;
+	private function getImportInterval() :int {
+		$pro = self::con()->isPremiumActive();
+		return (int)\max( \HOUR_IN_SECONDS, $pro ? apply_filters( 'shield/crowdsec/decisions_update_interval', \HOUR_IN_SECONDS*2 ) : \WEEK_IN_SECONDS );
 	}
 }

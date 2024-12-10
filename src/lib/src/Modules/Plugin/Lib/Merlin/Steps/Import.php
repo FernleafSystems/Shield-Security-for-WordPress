@@ -9,6 +9,7 @@ class Import extends Base {
 	public const SLUG = 'import';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+		throw new \Exception( 'not yet implemented.' );
 	}
 
 	public function getName() :string {

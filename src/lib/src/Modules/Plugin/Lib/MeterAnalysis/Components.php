@@ -14,7 +14,6 @@ class Components {
 
 		Component\ActivityLogEnabled::class,
 		Component\AdeLogin::class,
-		Component\AdeLoginGuard::class,
 		Component\AdeLostPassword::class,
 		Component\AdeRegister::class,
 		Component\IpAdeThreshold::class,

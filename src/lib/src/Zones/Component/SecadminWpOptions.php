@@ -14,6 +14,10 @@ class SecadminWpOptions extends Base {
 		return __( 'Prevent tampering and accidental changes to the core WordPress configuration.', 'wp-simple-firewall' );
 	}
 
+	protected function tooltip() :string {
+		return __( 'Switch on/off ability to edit critical WP settings', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @inheritDoc
 	 */

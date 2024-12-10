@@ -74,7 +74,7 @@ class Email extends AbstractShieldProviderMfaDB {
 			'placeholder' => __( 'A1B2C3', 'wp-simple-firewall' ),
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter code sent to your email', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/3t',
+			'help_link'   => 'https://clk.shldscrty.com/3t',
 			'size'        => 6,
 			'datas'       => [
 				'auto_send' => self::con()->comps->mfa->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
@@ -162,8 +162,7 @@ class Email extends AbstractShieldProviderMfaDB {
 					'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
 					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
 					'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
-					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() )
+					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name )
 				]
 			]
 		);

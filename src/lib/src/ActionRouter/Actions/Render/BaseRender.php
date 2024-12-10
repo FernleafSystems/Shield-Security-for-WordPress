@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 
 abstract class BaseRender extends BaseAction {
 
@@ -114,7 +115,7 @@ abstract class BaseRender extends BaseAction {
 
 		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
-			'unique_render_id' => uniqid(),
+			'unique_render_id' => PasswordGenerator::Gen( 6, false, true, false ),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 			'classes'          => [
 				'top_container' => \implode( ' ', \array_filter( [
@@ -166,14 +167,14 @@ abstract class BaseRender extends BaseAction {
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'helpdesk'       => $con->labels->url_helpdesk,
 				'plugin_home'    => $con->labels->PluginURI,
-				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
-				'goprofooter'    => 'https://shsec.io/goprofooter',
+				'go_pro'         => 'https://clk.shldscrty.com/shieldgoprofeature',
+				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
 
-				'facebook_group' => 'https://shsec.io/pluginshieldsecuritygroupfb',
-				'email_signup'   => 'https://shsec.io/emailsubscribe',
+				'facebook_group' => 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
+				'email_signup'   => 'https://clk.shldscrty.com/emailsubscribe',
 			],
 			'imgs'             => [
 				'svgs'           => [
@@ -190,10 +191,13 @@ abstract class BaseRender extends BaseAction {
 					'menu'        => $con->svgs->raw( 'card-list' ),
 					'email'       => $con->svgs->raw( 'envelope-fill' ),
 					'triangle'    => $con->svgs->raw( 'triangle-fill' ),
+					'expand'      => $con->svgs->raw( 'chevron-bar-expand' ),
 					'home'        => $con->svgs->raw( 'house-door' ),
 					'facebook'    => $con->svgs->raw( 'facebook' ),
 					'twitter'     => $con->svgs->raw( 'twitter' ),
 					'wordpress'   => $con->svgs->raw( 'wordpress' ),
+					'blog'        => $con->svgs->raw( 'file-text-fill' ),
+					'upgrade'     => $con->svgs->raw( 'coin' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
@@ -215,7 +219,7 @@ abstract class BaseRender extends BaseAction {
 			'btn_save'          => __( 'Save Options' ),
 			'btn_options'       => __( 'Options' ),
 			'btn_help'          => __( 'Help' ),
-			'go_to_settings'    => __( 'Configuration', 'wp-simple-firewall' ),
+			'go_to_settings'    => __( 'Edit Settings', 'wp-simple-firewall' ),
 			'on'                => __( 'On', 'wp-simple-firewall' ),
 			'off'               => __( 'Off', 'wp-simple-firewall' ),
 			'yes'               => __( 'Yes' ),
@@ -225,13 +229,14 @@ abstract class BaseRender extends BaseAction {
 			'time_since'        => __( 'Since', 'wp-simple-firewall' ),
 			'more_info'         => __( 'Info', 'wp-simple-firewall' ),
 			'view_details'      => __( 'View Details', 'wp-simple-firewall' ),
-			'opt_info_helpdesk' => __( 'Read the HelpDesk article for this option', 'wp-simple-firewall' ),
-			'opt_info_blog'     => __( 'Read our Blog article for this option', 'wp-simple-firewall' ),
+			'opt_info_helpdesk' => __( 'HelpDesk article', 'wp-simple-firewall' ),
+			'opt_info_blog'     => __( 'Blog article', 'wp-simple-firewall' ),
+			'opt_info_video'    => __( 'Watch the explainer video', 'wp-simple-firewall' ),
 			'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 			'username'          => __( 'Username' ),
 			'blog'              => __( 'Blog', 'wp-simple-firewall' ),
 			'save_all_settings' => __( 'Save Settings', 'wp-simple-firewall' ),
-			'plugin_name'       => $con->getHumanName(),
+			'plugin_name'       => $con->labels->Name,
 			'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 			'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 			'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
@@ -282,7 +287,7 @@ abstract class BaseRender extends BaseAction {
 
 			'wphashes_token' => 'ShieldPRO API Token',
 
-			'running_version' => sprintf( '%s %s', $con->getHumanName(),
+			'running_version' => sprintf( '%s %s', $con->labels->Name,
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
 						Services::WpGeneral()->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
@@ -296,7 +301,7 @@ abstract class BaseRender extends BaseAction {
 			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
 
-			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->getHumanName() ),
+			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->labels->Name ),
 			'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 			'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
@@ -309,12 +314,13 @@ abstract class BaseRender extends BaseAction {
 			'um_last_activity_uri'     => __( 'Last Activity URI', 'wp-simple-firewall' ),
 			'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
 
-			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->getHumanName() ),
+			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
+			'search_shield_label'      => __( 'Click to launch plugin search modal', 'wp-simple-firewall' ),
 			'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 			'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
 			'search_suggestions'       => [
-				sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->getHumanName() ),
-				sprintf( __( '%s tools and features', 'wp-simple-firewall' ), $con->getHumanName() ),
+				sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->labels->Name ),
+				sprintf( __( '%s tools and features', 'wp-simple-firewall' ), $con->labels->Name ),
 				__( 'IP addresses', 'wp-simple-firewall' ),
 				__( 'Help docs & resources', 'wp-simple-firewall' ),
 			],

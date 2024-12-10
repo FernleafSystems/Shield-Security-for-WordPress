@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
@@ -519,14 +518,19 @@ class StringsOptions {
 				];
 				break;
 			case 'cs_enroll_id':
-				$machID = $con->comps->crowdsec->getApi()->getMachineID();
+				try {
+					$machID = $con->comps->crowdsec->getCApiStore()->retrieveMachineId();
+				}
+				catch ( \Exception $e ) {
+					$machID = '';
+				}
 				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
 				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
 				$desc = [
 					__( 'CrowdSec Instance Enroll ID.', 'wp-simple-firewall' ),
 					__( 'You can link this WordPress site to your CrowdSec console by providing your Enroll ID.', 'wp-simple-firewall' ),
 					sprintf( '%s: <a href="%s" target="_blank">%s</a>', __( 'Login or Signup for your free CrowdSec console', 'wp-simple-firewall' ),
-						'https://shsec.io/crowdsecapp', 'https://app.crowdsec.net' ),
+						'https://clk.shldscrty.com/crowdsecapp', 'https://app.crowdsec.net' ),
 					empty( $machID ) ? __( "Your site isn't registered with CrowdSec yet.", 'wp-simple-firewall' )
 						: sprintf( __( "Your registered machine ID with CrowdSec is: %s", 'wp-simple-firewall' ), '<code>'.$machID.'</code>' ),
 				];
@@ -612,6 +616,15 @@ class StringsOptions {
 						__( 'For example, your browser user agent is', 'wp-simple-firewall' ),
 						esc_html( Services::Request()->getUserAgent() ) ),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots(),
+				];
+				break;
+
+			case 'enable_auto_integrations':
+				$name = __( 'Auto-Integrations', 'wp-simple-firewall' );
+				$summary = __( "Automatically Switch-On Built-in Integrations As They're Detected", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available.', 'wp-simple-firewall' ),
+					__( "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration.", 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -850,18 +863,11 @@ class StringsOptions {
 						\implode( '</code>, <code>', Services::WpUsers()->getAvailableUserRoles() ) )
 				];
 				break;
-			case 'enable_antibot_check':
-				$name = __( 'Block Login Bots', 'wp-simple-firewall' );
-				$summary = __( 'Block Login Attempts From Automated Bots', 'wp-simple-firewall' );
-				$desc = [
-					__( "Use Shield's built-in silentCAPTCHA system to identify malicious bots and block all requests to your WordPress login.", 'wp-simple-firewall' ),
-					sprintf( __( "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ), $pluginName ),
-				];
-				break;
 			case 'bot_protection_locations':
-				$name = __( 'Protection Locations', 'wp-simple-firewall' );
-				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
+				$name = __( 'Protected Forms', 'wp-simple-firewall' );
+				$summary = __( 'Which WordPress Forms Should Be Protected From Bots', 'wp-simple-firewall' );
 				$desc = [
+					sprintf( __( '%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology.', 'wp-simple-firewall' ), $pluginName ),
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
 				];
@@ -982,7 +988,7 @@ class StringsOptions {
 						__( "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it.", 'wp-simple-firewall' ),
 						sprintf(
 							'<p class="mt-2 text-center"><a href="%s" class="btn btn-secondary btn-sm" target="_blank">%s</a></p>',
-							'https://shsec.io/shieldwhatismyip',
+							'https://clk.shldscrty.com/shieldwhatismyip',
 							__( 'What Is My IP Address?', 'wp-simple-firewall' )
 						),
 						sprintf( __( "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address.", 'wp-simple-firewall' ),
@@ -1020,7 +1026,7 @@ class StringsOptions {
 					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
 					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral.", 'wp-simple-firewall' ),
-					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
+					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://clk.shldscrty.com/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
 				];
 				break;
 			case 'delete_on_deactivate':
@@ -1053,18 +1059,6 @@ class StringsOptions {
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];
 				}
-				break;
-
-			case 'locale_override':
-				$name = __( 'Locale Override', 'wp-simple-firewall' );
-				$summary = __( 'Set Global Locale For This Plugin For All Users', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Use this if you want to force a language for this plugin for all users at all times.', 'wp-simple-firewall' ),
-					__( "We don't recommend setting this unless you're sure of the consequences for all users.", 'wp-simple-firewall' ),
-					__( "If you provide a locale for which there are no translations, defaults will apply.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
-						\implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
-				];
 				break;
 
 			case 'importexport_enable':

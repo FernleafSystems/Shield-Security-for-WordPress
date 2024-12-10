@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\AntiBot\CoolDownHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -61,13 +62,13 @@ class Scanner {
 			if ( \count( $errorCodes ) > 0 ) {
 
 				foreach ( $errorCodes as $errorCode ) {
-					$con->fireEvent(
+					$con->comps->events->fireEvent(
 						'spam_block_'.$errorCode,
 						[ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
 					);
 				}
 
-				$con->fireEvent( 'comment_spam_block' );
+				$con->comps->events->fireEvent( 'comment_spam_block' );
 
 				// if we're configured to actually block...
 				if ( $con->comps->opts_lookup->enabledAntiBotCommentSpam() && \in_array( 'antibot', $errorCodes ) ) {
@@ -101,14 +102,15 @@ class Scanner {
 	}
 
 	private function runScans( array $commData ) :\WP_Error {
+		$con = self::con();
 		$errors = new \WP_Error();
 
-		if ( self::con()->comps->bot_signals->isBot() ) {
+		if ( $con->comps->bot_signals->isBot() ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
-		elseif ( self::con()->comps->opts_lookup->enabledHumanCommentSpam() ) {
+		elseif ( $con->comps->opts_lookup->enabledHumanCommentSpam() ) {
 
-			if ( ( new IsCooldownTriggered() )->test() ) {
+			if ( $con->comps->cool_down->isCooldownTriggered( CoolDownHandler::CONTEXT_COMMENTS ) ) {
 				$errors->add( 'cooldown', __( 'Comments Cooldown Triggered', 'wp-simple-firewall' ) );
 			}
 			else {
@@ -128,7 +130,7 @@ class Scanner {
 				}
 			}
 
-			self::con()->opts->optSet( 'last_comment_request_at', Services::Request()->ts() );
+			$con->opts->optSet( 'last_comment_request_at', Services::Request()->ts() );
 		}
 
 		return $errors;
@@ -162,8 +164,7 @@ class Scanner {
 				'shield/comment_spam_explanation',
 				sprintf(
 					"## Comment SPAM Protection: %s %s ##\n",
-					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
-						self::con()->getHumanName(), $humanStatus ),
+					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
 				$this->spamStatus,

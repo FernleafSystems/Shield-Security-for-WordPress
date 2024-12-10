@@ -36,7 +36,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				'sessions'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
 				'ips'        => $con->plugin_urls->adminIpRules(),
-				'blog_posts' => 'https://shsec.io/recentblogposts',
+				'blog_posts' => 'https://clk.shldscrty.com/recentblogposts',
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()

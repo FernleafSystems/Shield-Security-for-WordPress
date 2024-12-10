@@ -2,31 +2,30 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
 	CacheDirHandler,
 	Integration\WhitelistUs
 };
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
-use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
+use FernleafSystems\Wordpress\Services\Utilities\Net\{
+	RequestIpDetect,
+	VisitorIpDetection
+};
 
-class ModCon extends DynPropertiesClass {
+class ModCon {
 
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
 	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::PLUGIN;
 
-	/**
-	 * @var Processor
-	 */
-	private $processor;
+	private bool $is_booted = false;
+
+	private Processor $processor;
 
 	/**
 	 * @var Lib\TrackingVO
@@ -48,7 +47,7 @@ class ModCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function getProcessor() :Processor {
-		return $this->processor ?? $this->processor = new Processor();
+		return $this->processor ??= new Processor();
 	}
 
 	protected function doPostConstruction() {
@@ -140,17 +139,7 @@ class ModCon extends DynPropertiesClass {
 		return $can;
 	}
 
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getInstallDate() :int {
-		return self::con()->comps->opts_lookup->getInstalledAt();
-	}
-
-	/**
-	 * @return int - the real install timestamp
-	 */
-	public function storeRealInstallDate() {
+	public function storeRealInstallDate() :int {
 		$key = self::con()->prefix( 'install_date', '_' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
@@ -162,7 +151,7 @@ class ModCon extends DynPropertiesClass {
 			$date = Services::Request()->ts();
 		}
 
-		$finalDate = \min( $date, $wpDate );
+		$finalDate = (int)\min( $date, $wpDate );
 		Services::WpGeneral()->updateOption( $key, $finalDate );
 		self::con()->opts->optSet( 'installation_time', $date );
 
@@ -194,26 +183,5 @@ class ModCon extends DynPropertiesClass {
 			} );
 		}
 		return $this->tracking;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function isModOptEnabled() :bool {
-		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getSessionCon() :Lib\Sessions\SessionController {
-		return self::con()->comps->session;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function getShieldNetApiController() :ShieldNetApiController {
-		return self::con()->comps->shieldnet;
 	}
 }

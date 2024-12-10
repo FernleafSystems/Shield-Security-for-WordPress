@@ -3,11 +3,11 @@ import { Popover, Tooltip } from 'bootstrap';
 
 export class BootstrapTooltips extends BaseComponent {
 	init() {
-		this.popovers();
+		// this.popovers();
 		this.tooltips();
 	}
 
-	popovers() {
+	popovers1() {
 		/*
 		shieldEventsHandler_Main.add_Mouseover(
 			'[data-bs-toggle="popover"]',
@@ -26,29 +26,37 @@ export class BootstrapTooltips extends BaseComponent {
 		 */
 	};
 
-	tooltips() {
+	popovers() {
 		this.actionTooltips = [];
 		shieldEventsHandler_Main.add_Mouseover(
-			'[data-bs-toggle="tooltip"]',
+			'[data-bs-toggle="popover"]',
 			( targetEl ) => {
-				let found = false;
-				this.actionTooltips.forEach( ( tt ) => {
-					if ( tt === targetEl ) {
-						found = true;
-					}
-				} );
-				if ( !found ) {
-					this.actionTooltips.push( Tooltip.getOrCreateInstance( targetEl ) );
-				}
-			},
-			false
-		);
-		shieldEventsHandler_Main.add_Mouseout(
-			'[data-bs-toggle="tooltip"]',
-			( targetEl ) => {
-				this.actionTooltips.pop();
+				Popover.getOrCreateInstance( targetEl )
 			},
 			false
 		);
 	};
+
+	tooltips() {
+		const primaryContainer = document.getElementById( 'PageContainer-Apto' ) || false;
+		if ( primaryContainer ) {
+			BootstrapTooltips.RegisterNewTooltipsWithin( primaryContainer );
+		}
+		// shieldEventsHandler_Main.add_Mouseover(
+		// 	'[data-bs-toggle="tooltip"]',
+		// 	( targetEl ) => {
+		// 		Tooltip.getOrCreateInstance( targetEl )
+		// 	},
+		// 	false
+		// );
+	};
+
+	static RegisterNewTooltipsWithin( container ) {
+		if ( container ) {
+			container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => {
+				Tooltip.getOrCreateInstance( targetEl )
+			} );
+		}
+		// console.log( container );
+	}
 }

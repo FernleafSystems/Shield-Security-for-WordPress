@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	ConfigOptGet,
 	ConfigOptSet,
 	ConfigOptsList,
+	CrowdsecDebug,
+	CrowdsecSignals,
 	DebugMode,
 	ForceOff,
 	IpRuleAdd,
@@ -22,8 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	ScansRun,
 	SecurityAdminAdd,
 	SecurityAdminPin,
-	SecurityAdminRemove
-};
+	SecurityAdminRemove};
 use FernleafSystems\Wordpress\Services\Services;
 
 class WpCliCon {
@@ -62,6 +63,8 @@ class WpCliCon {
 			ConfigOptSet::class,
 			ConfigExport::class,
 			ConfigImport::class,
+			CrowdsecDebug::class,
+			CrowdsecSignals::class,
 			ForceOff::class,
 			License::class,
 			IpRuleAdd::class,

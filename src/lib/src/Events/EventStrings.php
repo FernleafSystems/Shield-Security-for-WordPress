@@ -106,8 +106,7 @@ class EventStrings {
 			'attempt_deactivation'         => [
 				'name'  => __( 'Unauthorized Deactivation Attempt', 'wp-simple-firewall' ),
 				'audit' => [
-					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
+					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				],
 			],
 			'debug_log'                    => [

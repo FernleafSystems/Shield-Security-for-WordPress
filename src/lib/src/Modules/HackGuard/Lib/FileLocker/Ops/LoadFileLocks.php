@@ -10,11 +10,6 @@ class LoadFileLocks {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var FileLockerDB\Record[]
-	 */
-	private static $FileLockRecords;
-
-	/**
 	 * @return FileLockerDB\Record[]
 	 */
 	public function loadLocks() :array {

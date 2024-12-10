@@ -52,7 +52,9 @@ abstract class BaseCmd {
 
 	abstract protected function cmdParts() :array;
 
-	abstract protected function cmdSynopsis() :array;
+	protected function cmdSynopsis() :array {
+		return [];
+	}
 
 	/**
 	 * @throws \Exception

@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -26,7 +27,7 @@ class FileLockerController {
 
 	public const CRON_DELAY = 60;
 
-	private $locks = null;
+	private ?array $locks = null;
 
 	public function isEnabled() :bool {
 		return ( \count( $this->getFilesToLock() ) > 0 )
@@ -46,9 +47,7 @@ class FileLockerController {
 			}
 
 			if ( wp_next_scheduled( $this->getCronHook() ) ) {
-				add_action( $this->getCronHook(), function () {
-					$this->runLocksCreation();
-				} );
+				add_action( $this->getCronHook(), fn() => $this->runLocksCreation() );
 			}
 		}, 1000 );
 
@@ -77,7 +76,7 @@ class FileLockerController {
 			$links[ $type ] = self::con()->plugin_urls->fileDownload( 'filelocker', [
 				'type' => $type,
 				'rid'  => $lock->id,
-				'rand' => \uniqid(),
+				'rand' => PasswordGenerator::Gen( 6, false, true, false ),
 			] );
 		}
 		return $links;
@@ -91,7 +90,7 @@ class FileLockerController {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function getLocks() :array {
-		return $this->locks ?? $this->locks = ( new Ops\LoadFileLocks() )->loadLocks();
+		return $this->locks ??= ( new Ops\LoadFileLocks() )->loadLocks();
 	}
 
 	public function clearLocks() :void {

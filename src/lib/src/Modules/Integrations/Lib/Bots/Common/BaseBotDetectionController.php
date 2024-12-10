@@ -10,7 +10,7 @@ abstract class BaseBotDetectionController {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $installedProviders;
+	private array $installedProviders;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions;
@@ -20,22 +20,12 @@ abstract class BaseBotDetectionController {
 	 * @return BaseHandler[]|string[]
 	 */
 	public function getInstalled() :array {
-		if ( !isset( $this->installedProviders ) ) {
-			$this->installedProviders = \array_filter(
-				$this->enumProviders(),
-				function ( string $provider ) {
-					return $provider::IsProviderAvailable();
-				}
-			);
-		}
-		return $this->installedProviders;
+		return $this->installedProviders ??= \array_filter( $this->enumProviders(), fn( string $p ) => $p::IsProviderAvailable() );
 	}
 
 	protected function run() {
 		\array_map(
-			function ( string $providerClass ) {
-				( new $providerClass() )->execute();
-			},
+			fn( string $providerClass ) => ( new $providerClass() )->execute(),
 			\array_intersect_key( $this->getInstalled(), \array_flip( $this->getSelectedProviders() ) )
 		);
 	}

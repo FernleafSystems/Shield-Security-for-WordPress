@@ -12,6 +12,13 @@ class AutoUpdatesCon {
 	use PluginControllerConsumer;
 
 	/**
+	 * CP done gone and messed about with automatic updates, so we don't even consider supporting their filters.
+	 */
+	protected function canRun() {
+		return !Services::WpGeneral()->isClassicPress();
+	}
+
+	/**
 	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
@@ -27,10 +34,29 @@ class AutoUpdatesCon {
 		add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
 		add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
 		add_action( 'set_site_transient_update_themes', [ $this, 'trackUpdateTimesThemes' ] );
+
+		add_filter( 'plugins_list', [ $this, 'indicateAutoUpdate' ] );
 	}
 
 	/**
-	 * @param \stdClass $updates
+	 * Indicate on the plugins table that the plugin is set to automatically update based on the plugin's config
+	 * (and regardless of any delays).
+	 * @param array[]|mixed $plugins
+	 */
+	public function indicateAutoUpdate( $plugins ) :array {
+		return \array_map(
+			function ( $section ) {
+				if ( isset( $section[ self::con()->base_file ] ) ) {
+					$section[ self::con()->base_file ][ 'auto-update-forced' ] = self::con()->opts->optGet( 'autoupdate_plugin_self' ) !== 'disabled';
+				}
+				return $section;
+			},
+			\is_array( $plugins ) ? $plugins : []
+		);
+	}
+
+	/**
+	 * @param \stdClass|mixed $updates
 	 */
 	public function trackUpdateTimesCore( $updates ) {
 
@@ -54,24 +80,24 @@ class AutoUpdatesCon {
 	}
 
 	/**
-	 * @param \stdClass $updates
+	 * @param \stdClass|mixed $updates
 	 */
 	public function trackUpdateTimesPlugins( $updates ) {
 		$this->trackUpdateTimeCommon( $updates, 'plugins' );
 	}
 
 	/**
-	 * @param \stdClass $updates
+	 * @param \stdClass|mixed $updates
 	 */
 	public function trackUpdateTimesThemes( $updates ) {
 		$this->trackUpdateTimeCommon( $updates, 'themes' );
 	}
 
 	/**
-	 * @param \stdClass $updates
-	 * @param string    $context - plugins/themes
+	 * Context is either 'plugins' or 'themes'
+	 * @param \stdClass|mixed $updates
 	 */
-	protected function trackUpdateTimeCommon( $updates, $context ) {
+	protected function trackUpdateTimeCommon( $updates, string $context ) {
 		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
 			$delayTracking = $this->getDelayTracking();
 
@@ -95,52 +121,47 @@ class AutoUpdatesCon {
 	}
 
 	/**
-	 * @param bool      $doUpdate
-	 * @param \stdClass $coreUpgrade
-	 * @return bool
+	 * @param bool|mixed      $autoupdate
+	 * @param \stdClass|mixed $coreUpgrade
+	 * @return bool|mixed
 	 */
-	public function autoupdate_core( $doUpdate, $coreUpgrade ) {
-		if ( $this->isDelayed( $coreUpgrade, 'core' ) ) {
-			$doUpdate = false;
-		}
-		return $doUpdate;
+	public function autoupdate_core( $autoupdate, $coreUpgrade ) {
+		return $this->isDelayed( $coreUpgrade, 'core' ) ? false : $autoupdate;
 	}
 
 	/**
-	 * @param bool             $doUpdate
-	 * @param \stdClass|string $mItem
-	 * @return bool
+	 * @param bool|mixed       $autoupdate
+	 * @param \stdClass|string $item
+	 * @return bool|mixed
 	 */
-	public function autoupdate_plugins( $doUpdate, $mItem ) {
+	public function autoupdate_plugins( $autoupdate, $item ) {
 
-		$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
-
-		if ( $this->isDelayed( $file, 'plugins' ) ) {
-			$doUpdate = false;
-		}
-		elseif ( $file === self::con()->base_file ) {
-			$auto = self::con()->opts->optGet( 'autoupdate_plugin_self' );
-			if ( $auto === 'immediate' ) {
-				$doUpdate = true;
+		if ( \is_object( $item ) && !empty( $item->plugin ) ) {
+			$con = self::con();
+			$WPV = $con->comps->scans->WPV();
+			if ( $WPV->isAutoupdatesEnabled() && $WPV->hasVulnerabilities( $item->plugin ) ) {
+				$autoupdate = true;
 			}
-			elseif ( $auto === 'disabled' ) {
-				$doUpdate = false;
+			elseif ( $item->plugin === $con->base_file ) {
+				$auto = $con->opts->optGet( 'autoupdate_plugin_self' );
+				$autoupdate = $auto !== 'disabled'
+							  && ( $auto === 'immediate' || !$this->isDelayed( $item->plugin, 'plugins' ) );
+			}
+			elseif ( $this->isDelayed( $item->plugin, 'plugins' ) ) {
+				$autoupdate = false;
 			}
 		}
 
-		return $doUpdate;
+		return $autoupdate;
 	}
 
 	/**
-	 * @param bool             $doAutoUpdate
-	 * @param \stdClass|string $mItem
-	 * @return bool
+	 * @param bool|mixed      $autoupdate
+	 * @param \stdClass|mixed $item
+	 * @return bool|mixed
 	 */
-	public function autoupdate_themes( $doAutoUpdate, $mItem ) {
-		if ( $this->isDelayed( Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' ), 'themes' ) ) {
-			$doAutoUpdate = false;
-		}
-		return $doAutoUpdate;
+	public function autoupdate_themes( $autoupdate, $item ) {
+		return ( \is_object( $item ) && !empty( $item->theme ) && $this->isDelayed( $item->theme, 'themes' ) ) ? false : $autoupdate;
 	}
 
 	/**
@@ -149,31 +170,31 @@ class AutoUpdatesCon {
 	private function isDelayed( $slug, string $context ) :bool {
 		$delayed = false;
 
-		if ( $this->isDelayUpdates() ) {
-
-			$delayTracking = $this->getDelayTracking();
+		$delay = self::con()->opts->optGet( 'update_delay' );
+		if ( $delay > 0 ) {
 
 			$version = '';
-			if ( $context == 'core' ) {
+			if ( $context === 'core' ) {
 				$version = $slug->current; // \stdClass from transient update_core
 				$slug = 'wp';
 			}
 
-			$itemTrack = $delayTracking[ $context ][ $slug ] ?? [];
-
 			if ( $context == 'plugins' ) {
 				$pluginInfo = Services::WpPlugins()->getUpdateInfo( $slug );
 				$version = $pluginInfo->new_version ?? '';
+				if ( $slug === self::con()->base_file ) {
+					$delay = \max( $delay, self::con()->cfg->properties[ 'autoupdate_days' ] );
+				}
 			}
 			elseif ( $context == 'themes' ) {
 				$themeInfo = Services::WpThemes()->getUpdateInfo( $slug );
 				$version = $themeInfo[ 'new_version' ] ?? '';
 			}
 
-			if ( !empty( $version ) && isset( $itemTrack[ $version ] ) ) {
-				$delayed = ( Services::Request()->ts() - $itemTrack[ $version ] )
-						   < self::con()->opts->optGet( 'update_delay' )*DAY_IN_SECONDS;
-			}
+			$track = $this->getDelayTracking()[ $context ][ $slug ] ?? [];
+			$delayed = !empty( $version )
+					   && isset( $track[ $version ] )
+					   && ( Services::Request()->ts() - $track[ $version ] ) < $delay*DAY_IN_SECONDS;
 		}
 
 		return $delayed;
@@ -181,12 +202,12 @@ class AutoUpdatesCon {
 
 	/**
 	 * A filter on the target email address to which to send upgrade notification emails.
-	 * @param array $emailParams
-	 * @return array
+	 * @param array|mixed $emailParams
+	 * @return array|mixed
 	 */
 	public function autoupdate_email_override( $emailParams ) {
 		// @deprecated 19.2 - isset() required for upgrade from 19.0
-		if ( !\is_null( self::con()->comps ) && !\is_null( self::con()->comps->opts_lookup ) ) {
+		if ( \is_array( $emailParams ) && !\is_null( self::con()->comps ) && !\is_null( self::con()->comps->opts_lookup ) ) {
 			$emailParams[ 'to' ] = self::con()->comps->opts_lookup->getReportEmail();
 		}
 		return $emailParams;
@@ -207,55 +228,9 @@ class AutoUpdatesCon {
 	}
 
 	/**
-	 * @deprecated 19.2
+	 * @deprecated 20.1
 	 */
-	public function isCoreAutoUpgradesDisabled() :bool {
-		return false;
-	}
-
 	public function isDelayUpdates() :bool {
 		return self::con()->opts->optGet( 'update_delay' ) > 0;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function disableAll() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function onWpLoaded() {
-	}
-
-	/**
-	 * @deprecated 19.2
-	 */
-	public function autoupdate_send_email() :bool {
-		return true;
-	}
-
-	/**
-	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $toUpdate
-	 * @return bool
-	 * @deprecated 19.2
-	 */
-	public function autoupdate_core_major( $toUpdate ) {
-		return $toUpdate;
-	}
-
-	/**
-	 * This is a filter method designed to say whether a minor core WordPress upgrade should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $doUpdate
-	 * @return bool
-	 * @deprecated 19.2
-	 */
-	public function autoupdate_core_minor( $doUpdate ) {
-		return $doUpdate;
 	}
 }

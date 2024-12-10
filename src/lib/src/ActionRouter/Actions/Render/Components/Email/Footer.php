@@ -44,8 +44,8 @@ class Footer extends Base {
 				], $this->action_data[ 'email_flags' ] ?? [] )
 			],
 			'hrefs'   => [
-				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',
-				'much_more'           => 'https://shsec.io/gp',
+				'upgrade'             => 'https://clk.shldscrty.com/buyshieldproemailfooter',
+				'much_more'           => 'https://clk.shldscrty.com/gp',
 				'configure_recipient' => $con->plugin_urls->cfgForZoneComponent( Reporting::Slug() ),
 			],
 			'strings' => [
@@ -53,7 +53,7 @@ class Footer extends Base {
 				'much_more'           => 'And So Much More',
 				'upgrade'             => $goPro[ \array_rand( $goPro ) ],
 				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
-					$con->getHumanName(),
+					$con->labels->Name,
 					$con->cfg->version(),
 					$WP->getHomeUrl()
 				),

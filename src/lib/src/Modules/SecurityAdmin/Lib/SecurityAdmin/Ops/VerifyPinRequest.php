@@ -16,7 +16,7 @@ class VerifyPinRequest {
 			if ( wp_check_password( $pin, $hashedPIN ) ) {
 				$valid = true;
 			}
-			elseif ( \hash_equals( $hashedPIN, \md5( $pin ) ) ) {
+			elseif ( \hash_equals( $hashedPIN, \hash( 'md5', $pin ) ) ) {
 				self::con()->opts->optSet( 'admin_access_key', wp_hash_password( $pin ) );
 				$valid = true;
 			}

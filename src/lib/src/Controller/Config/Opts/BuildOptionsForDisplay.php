@@ -13,19 +13,27 @@ class BuildOptionsForDisplay {
 
 	use PluginControllerConsumer;
 
-	private $focusOption;
+	private string $focusOption = '';
 
-	private $focusSection;
+	private string $focusSection = '';
 
-	private $options;
+	private array $options;
 
-	private $sections;
+	private array $sections;
 
-	public function __construct( array $options = [], array $sections = [], string $focusSection = '', string $focusOption = '' ) {
+	public function __construct( array $options = [], array $sections = [] ) {
 		$this->options = $options;
 		$this->sections = $sections;
-		$this->focusSection = $focusSection;
-		$this->focusOption = $focusOption;
+	}
+
+	public function setFocusOption( string $optKey ) :self {
+		$this->focusOption = $optKey;
+		return $this;
+	}
+
+	public function setFocusSection( string $sectionKey ) :self {
+		$this->focusSection = $sectionKey;
+		return $this;
 	}
 
 	/**
@@ -107,6 +115,7 @@ class BuildOptionsForDisplay {
 
 	protected function buildOptionsForSection( string $section ) :array {
 		$con = self::con();
+		$opts = $con->opts;
 
 		$isPremiumActive = $con->isPremiumActive();
 
@@ -129,19 +138,16 @@ class BuildOptionsForDisplay {
 				'beacon_id'     => false
 			], $optDef );
 
-			$optDef[ 'value' ] = $con->opts->optGet( $optDef[ 'key' ] );
+			$optDef[ 'value' ] = $opts->optGet( $optDef[ 'key' ] );
 
 			if ( \in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
 
-					$isDisabled = ( !empty( $valueOpt[ 'premium' ] ) && !$isPremiumActive )
-								  || ( !empty( $valueOpt[ 'cap' ] ) && !$con->caps->hasCap( $valueOpt[ 'cap' ] ) );
-
 					$converted[ $valueOpt[ 'value_key' ] ] = [
 						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => !$isDisabled,
+						'is_available' => $opts->optHasAccess( $optDef[ 'key' ] ),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -197,15 +203,14 @@ class BuildOptionsForDisplay {
 				break;
 		}
 
-		$isOptUnavailable = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
-							|| ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
+		$isOptAvailable = $con->opts->optHasAccess( $option[ 'key' ] );
 		$option = \array_merge(
 			[ 'rows' => '2' ],
 			$option,
 			[
 				'value'       => \is_scalar( $value ) ? esc_attr( $value ) : $value,
-				'unavailable' => $isOptUnavailable,
-				'disabled'    => $isOptUnavailable,
+				'unavailable' => !$isOptAvailable,
+				'disabled'    => !$isOptAvailable,
 			]
 		);
 
@@ -236,6 +241,9 @@ class BuildOptionsForDisplay {
 				if ( !Services::Data()->isWindows() ) {
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
+				}
+				if ( !Services::WpFs()->isAccessibleFile( path_join( get_stylesheet_directory(), 'functions.php' ) ) ) {
+					$option[ 'value_options' ][ 'theme_functions' ][ 'is_available' ] = false;
 				}
 				break;
 

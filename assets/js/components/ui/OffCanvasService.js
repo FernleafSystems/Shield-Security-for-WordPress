@@ -2,6 +2,7 @@ import { Offcanvas } from "bootstrap";
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
+import { BootstrapTooltips } from "./BootstrapTooltips";
 
 export class OffCanvasService extends BaseComponent {
 
@@ -61,6 +62,8 @@ export class OffCanvasService extends BaseComponent {
 			if ( resp.success ) {
 				OffCanvasService.offCanvasEl.classList.add( canvasProperties.render_slug );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
+
+				BootstrapTooltips.RegisterNewTooltipsWithin( OffCanvasService.offCanvasEl );
 			}
 			else if ( typeof resp.data.error !== 'undefined' ) {
 				alert( resp.data.error );

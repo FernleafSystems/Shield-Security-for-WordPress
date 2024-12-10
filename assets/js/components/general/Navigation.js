@@ -2,6 +2,7 @@ import { Tab } from 'bootstrap';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class Navigation extends BaseComponent {
 
@@ -62,13 +63,13 @@ export class Navigation extends BaseComponent {
 		( new AjaxService() )
 		.send( req, false )
 		.then( ( resp ) => this.handleDynamicLoad( resp ) )
-		.finally();
+		.finally( () => BootstrapTooltips.RegisterNewTooltipsWithin( document.getElementById( 'PageMainBody_Inner-Apto' ) ) );
 	};
 
 	setActiveNavTab( urlHash = null ) {
 		if ( urlHash ) {
 			let theTabToShow = document.querySelector( urlHash );
-			if ( theTabToShow ) {
+			if ( theTabToShow && theTabToShow.classList.contains( 'nav-link' ) ) {
 				( new Tab( theTabToShow ) ).show();
 			}
 		}
@@ -102,7 +103,7 @@ export class Navigation extends BaseComponent {
 		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
 		}
-		this.activeMenuItem.classList.add( 'active' );
+		this.activeMenuItem.closest( '.nav-link' ).classList.add( 'active' );
 
 		let parentNav = this.activeMenuItem.closest( 'ul' ).closest( 'li.nav-item' );
 		if ( parentNav !== null ) {

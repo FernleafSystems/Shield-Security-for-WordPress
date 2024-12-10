@@ -172,8 +172,7 @@ class Sms extends AbstractShieldProvider {
 					'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
 					'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
 													 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
-					'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() ),
+					'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
 				],
 				'vars'    => [

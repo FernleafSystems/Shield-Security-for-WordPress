@@ -17,7 +17,6 @@ class BlockIpAddressShield extends BaseBlock {
 	protected function getRenderData() :array {
 		$autoUnblock = \trim( $this->renderAutoUnblock() );
 		$magicLink = \trim( $this->renderEmailMagicLinkContent() );
-
 		return [
 			'content' => [
 				'auto_unblock'  => $autoUnblock,
@@ -28,11 +27,10 @@ class BlockIpAddressShield extends BaseBlock {
 				'has_magiclink'   => !empty( $magicLink ),
 			],
 			'hrefs'   => [
-				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
+				'how_to_unblock' => 'https://clk.shldscrty.com/shieldhowtounblock',
 			],
 			'strings' => [
-				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ),
-					self::con()->getHumanName() ),
+				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'title'         => __( 'Access Restricted', 'wp-simple-firewall' ),
 				'subtitle'      => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
@@ -58,12 +56,9 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
-		$blurb = \array_merge(
-			[
-				__( "Too many requests from your IP address have triggered the site's automated defenses.", 'wp-simple-firewall' ),
-			],
-			parent::getRestrictionDetailsBlurb()
-		);
+		$blurb = \array_merge( [
+			__( "Too many requests from your IP address have triggered the site's automated defenses.", 'wp-simple-firewall' ),
+		], parent::getRestrictionDetailsBlurb() );
 		unset( $blurb[ 'activity_recorded' ] );
 		return $blurb;
 	}

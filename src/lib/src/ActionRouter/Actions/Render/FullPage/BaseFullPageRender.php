@@ -30,8 +30,8 @@ abstract class BaseFullPageRender extends BaseRender {
 			],
 			'hrefs'   => [
 				'shield_logo'    => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
-				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
-				'helpdesk'       => 'https://shsec.io/shieldhelpdesk'
+				'how_to_unblock' => 'https://clk.shldscrty.com/shieldhowtounblock',
+				'helpdesk'       => 'https://clk.shldscrty.com/shieldhelpdesk'
 			],
 			'imgs'    => [
 				'about_shield' => $con->urls->forImage( 'pluginlogo_128x128.png' ),

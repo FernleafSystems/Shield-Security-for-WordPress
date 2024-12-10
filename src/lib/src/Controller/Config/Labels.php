@@ -25,4 +25,17 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class Labels extends DynPropertiesClass {
 
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+
+		switch ( $key ) {
+			case 'Name':
+				$value = (string)$value;
+				break;
+			default:
+				break;
+		}
+
+		return $value;
+	}
 }

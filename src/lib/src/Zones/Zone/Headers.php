@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Headers extends Base {
 
+	public function tooltip() :string {
+		return 'Edit settings for the entire HTTP Headers Zone';
+	}
+
 	public function components() :array {
 		return [
 			Component\HeadersGeneral::class,

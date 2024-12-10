@@ -1,7 +1,7 @@
 ﻿/** https://tigrr.github.io/circle-progress/examples.html **/
 
 .circle-progress circle-progress::part(base) {
-  width: 140px;
+  width: 80px;
   height: auto;
 }
 
@@ -61,4 +61,21 @@
 .circle-progress.circle-progress-status-l circle-progress::part(value),
 .circle-progress.circle-progress-status-l .circle-progress-value {
   stroke: rgb(200, 50, 10);
+}
+
+.progress-metercard .letter-score {
+  position: absolute;
+  font-size: 3rem;
+  margin: -10px auto 0;
+  text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
+}
+
+.progress-metercard .description {
+}
+
+.progress-metercard.progress-metercard-summary .description {
+  border-bottom-color: transparent;
+}
+
+.progress-metercard-summary {
 }

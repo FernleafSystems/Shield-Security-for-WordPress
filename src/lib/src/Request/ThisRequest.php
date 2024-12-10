@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Services\Utilities\Net\DNS;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
 	IpMetaRecord,
 	LoadIpMeta
@@ -93,5 +94,9 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 
 	public function getIpStatus() :IpRuleStatus {
 		return $this->ipStatus ?? $this->ipStatus = new IpRuleStatus( $this->ip );
+	}
+
+	public function getHostname() :string {
+		return DNS::Reverse( $this->ip );
 	}
 }
