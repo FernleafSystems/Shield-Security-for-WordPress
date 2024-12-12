@@ -21,8 +21,7 @@ abstract class BaseBuildScores {
 		catch ( \Exception $e ) {
 			$ipID = null;
 		}
-		return ( empty( $ipID ) || \in_array( $ipID, [ IpID::UNKNOWN, IpID::VISITOR ] ) )
-			? 0 : 100;
+		return ( empty( $ipID ) || \in_array( $ipID, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) ? 0 : 100;
 	}
 
 	protected function lastAtTs( $fieldFunction ) :int {
@@ -37,24 +36,18 @@ abstract class BaseBuildScores {
 
 	protected function getAllFields( $filterForMethods = false ) :array {
 		$fields = \array_map(
-			function ( $col ) {
-				return \str_replace( '_at', '', $col );
-			},
+			fn( $col ) => \str_replace( '_at', '', $col ),
 			\array_filter(
 				self::con()->db_con->bot_signals->getTableSchema()->getColumnNames(),
-				function ( $col ) {
-					return \preg_match( '#_at$#', $col ) &&
-						   !\in_array( $col, [ 'snsent_at', 'updated_at', 'deleted_at' ] );
-				}
+				fn( $col ) => \preg_match( '#_at$#', $col ) &&
+							  !\in_array( $col, [
+								  'snsent_at',
+								  'updated_at',
+								  'deleted_at'
+							  ] )
 			)
 		);
 
-		if ( $filterForMethods ) {
-			$fields = \array_filter( $fields, function ( $field ) {
-				return \method_exists( $this, 'score_'.$field );
-			} );
-		}
-
-		return $fields;
+		return $filterForMethods ? \array_filter( $fields, fn( $f ) => \method_exists( $this, 'score_'.$f ) ) : $fields;
 	}
 }

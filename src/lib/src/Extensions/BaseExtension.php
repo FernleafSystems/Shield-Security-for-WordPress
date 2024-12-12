@@ -51,9 +51,7 @@ abstract class BaseExtension {
 	}
 
 	protected function run() {
-		add_action( 'init', function () {
-			$this->getUpgradesHandler();
-		} );
+		add_action( 'init', fn() => $this->getUpgradesHandler() );
 	}
 
 	public function isAvailable() :bool {

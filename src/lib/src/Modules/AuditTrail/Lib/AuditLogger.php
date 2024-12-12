@@ -11,15 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\L
 
 class AuditLogger extends EventsListener {
 
-	/**
-	 * @var array[]
-	 */
-	private $auditLogs = [];
+	private array $auditLogs = [];
 
-	/**
-	 * @var Logger
-	 */
-	private $logger;
+	private Logger $logger;
 
 	protected function init() {
 		if ( self::con()->comps->activity_log->isLogToDB() ) {
@@ -89,12 +83,7 @@ class AuditLogger extends EventsListener {
 	}
 
 	public function getLogger() :Logger {
-		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'audit', [], \array_map( function ( $class ) {
-				return new $class();
-			}, $this->enumMetaProcessors() ) );
-		}
-		return $this->logger;
+		return $this->logger ??= new Logger( 'audit', [], \array_map( fn( $c ) => new $c(), $this->enumMetaProcessors() ) );
 	}
 
 	protected function enumMetaProcessors() :array {

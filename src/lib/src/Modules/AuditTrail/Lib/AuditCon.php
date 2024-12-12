@@ -42,24 +42,16 @@ class AuditCon {
 
 		( new AuditLogger() )->setIfCommit( true );
 
-		\array_map( function ( $auditor ) {
-			$auditor->execute();
-		}, $this->getAuditors() );
+		\array_map( fn( $auditor ) => $auditor->execute(), $this->getAuditors() );
 
 		// Realtime Snapshotting
 		if ( self::con()->db_con->activity_snapshots->isReady() ) {
-			add_action( 'wp_loaded', function () {
-				\array_map(
-					function ( $auditor ) {
-						if ( $auditor->canSnapRealtime() ) {
-							$this->runSnapshotDiscovery( $auditor );
-						}
-					},
-					$this->getAuditors()
-				);
+			add_action( 'wp_loaded', fn() => \array_map(
+				fn( $auditor ) => $auditor->canSnapRealtime() ? $this->runSnapshotDiscovery( $auditor ) : null,
+				$this->getAuditors()
+			) );
 
-				$this->primeSnapshots();
-			} );
+			$this->primeSnapshots();
 
 			$this->getSnapshotDiscoveryQueue();
 		}
@@ -92,6 +84,7 @@ class AuditCon {
 		$primerHook = self::con()->prefix( 'auditcon_prime_snapshots' );
 
 		if ( !wp_next_scheduled( $primerHook ) ) {
+
 			$countAllSnappers = \count( \array_filter( \array_map(
 				function ( $auditor ) {
 					try {
@@ -104,6 +97,7 @@ class AuditCon {
 				},
 				$this->getAuditors()
 			) ) );
+
 			if ( ( new Ops\Retrieve() )->count() !== $countAllSnappers ) {
 				wp_schedule_single_event( Services::Request()->ts() + 60, $primerHook );
 			}
@@ -136,17 +130,13 @@ class AuditCon {
 			$diff = $this->getCurrentDiff( $auditor );
 			if ( $diff->has_diffs ) {
 				\array_map(
-					function ( $method ) use ( $auditor, $diff ) {
-						$auditor->{$method->name}( $diff );
-					},
+					fn( $method ) => $auditor->{$method->name}( $diff ),
 					\array_filter(
 						( new \ReflectionClass( $auditor ) )->getMethods(),
-						function ( $method ) {
-							return \strpos(
-								(string)$method->getDocComment(),
-								Services::WpGeneral()->isCron() ? '* @snapshotDiffCron' : '* @snapshotDiff'
-							);
-						}
+						fn( $method ) => \strpos(
+							(string)$method->getDocComment(),
+							Services::WpGeneral()->isCron() ? '* @snapshotDiffCron' : '* @snapshotDiff'
+						)
 					)
 				);
 			}

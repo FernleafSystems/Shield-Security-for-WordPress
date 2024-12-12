@@ -40,9 +40,7 @@ abstract class Base {
 	protected function run() {
 		add_action(
 			self::con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
-			function () {
-				self::con()->comps->scans->startNewScans( [ $this->getSlug() ] );
-			}
+			fn() => self::con()->comps->scans->startNewScans( [ $this->getSlug() ] )
 		);
 	}
 

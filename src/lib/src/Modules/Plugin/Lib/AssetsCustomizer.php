@@ -47,32 +47,27 @@ class AssetsCustomizer {
 	private function buildForComponents() :array {
 		$data = [];
 
-		$allComponents = $this->components();
+		$all = $this->components();
 		foreach ( $this->handles ?? [] as $handle ) {
-			$components = \array_filter(
-				$allComponents,
-				function ( array $comp ) use ( $handle ) {
-					return \in_array( $handle, $comp[ 'handles' ] ) && ( !isset( $comp[ 'required' ] ) || $comp[ 'required' ] );
-				}
+			$components = \array_filter( $all,
+				fn( array $c ) => \in_array( $handle, $c[ 'handles' ] ) && ( !isset( $c[ 'required' ] ) || $c[ 'required' ] )
 			);
 
-			if ( !empty( $components ) ) {
-				if ( empty( $data[ $handle ] ) ) {
-					$data[ $handle ] = [
-						$handle,
-						'shield_vars_'.$handle,
-						[
-							'strings' => [
-								'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-								'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
-								'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
-							],
-							'comps'   => \array_map( function ( array $comp ) {
-								return \is_callable( $comp[ 'data' ] ?? null ) ? \call_user_func( $comp[ 'data' ] ) : $comp[ 'data' ];
-							}, $components ),
-						]
-					];
-				}
+			if ( !empty( $components ) && empty( $data[ $handle ] ) ) {
+				$data[ $handle ] = [
+					$handle,
+					'shield_vars_'.$handle,
+					[
+						'strings' => [
+							'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+							'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
+							'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
+						],
+						'comps'   => \array_map(
+							fn( array $c ) => \is_callable( $c[ 'data' ] ?? null ) ? \call_user_func( $c[ 'data' ] ) : $c[ 'data' ],
+							$components ),
+					]
+				];
 			}
 		}
 
@@ -87,74 +82,68 @@ class AssetsCustomizer {
 				'handles' => [
 					'badge',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'plugin_badge_close' => ActionData::Build( Actions\PluginBadgeClose::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'plugin_badge_close' => ActionData::Build( Actions\PluginBadgeClose::class ),
+					],
+				],
 			],
 			'blockdown'        => [
 				'key'     => 'blockdown',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							Actions\BlockdownFormSubmit::SLUG        => ActionData::Build( Actions\BlockdownFormSubmit::class ),
-							Actions\BlockdownDisableFormSubmit::SLUG => ActionData::Build( Actions\BlockdownDisableFormSubmit::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						Actions\BlockdownFormSubmit::SLUG        => ActionData::Build( Actions\BlockdownFormSubmit::class ),
+						Actions\BlockdownDisableFormSubmit::SLUG => ActionData::Build( Actions\BlockdownDisableFormSubmit::class ),
+					],
+				],
 			],
 			'charts'           => [
 				'key'     => 'charts',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'summary_charts' => [
-							'ajax'   => [
-								'render_summary_chart' => ActionData::Build( Actions\ReportingChartSummary::class ),
-							],
-							'charts' => \array_map(
-								function ( string $event ) {
-									return [
-										'event_id'      => $event,
-										'init_render'   => true,
-										'show_title'    => false,
-										'req_params'    => [
-											'interval'       => 'daily',
-											'events'         => [ $event ],
-											'combine_events' => true
-										],
-										'chart_options' => [
-											'axisX' => [
-												'showLabel' => false,
-											]
-										],
-									];
-								},
-								[
-									'login_block',
-									'bot_blocks',
-									'ip_offense',
-									'conn_kill',
-									'ip_blocked',
-									'comment_block',
-								]
-							),
+				'data'    => fn() => [
+					'summary_charts' => [
+						'ajax'   => [
+							'render_summary_chart' => ActionData::Build( Actions\ReportingChartSummary::class ),
 						],
-						'custom_charts'  => [
-							'ajax' => [
-								'render_custom_chart' => ActionData::Build( Actions\ReportingChartCustom::class ),
-							],
+						'charts' => \array_map(
+							function ( string $event ) {
+								return [
+									'event_id'      => $event,
+									'init_render'   => true,
+									'show_title'    => false,
+									'req_params'    => [
+										'interval'       => 'daily',
+										'events'         => [ $event ],
+										'combine_events' => true
+									],
+									'chart_options' => [
+										'axisX' => [
+											'showLabel' => false,
+										]
+									],
+								];
+							},
+							[
+								'login_block',
+								'bot_blocks',
+								'ip_offense',
+								'conn_kill',
+								'ip_blocked',
+								'comment_block',
+							]
+						),
+					],
+					'custom_charts'  => [
+						'ajax' => [
+							'render_custom_chart' => ActionData::Build( Actions\ReportingChartCustom::class ),
 						],
-					];
-				},
+					],
+				],
 			],
 			'dashboard_widget' => [
 				'key'     => 'dashboard_widget',
@@ -172,27 +161,23 @@ class AssetsCustomizer {
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							Actions\ToolPurgeProviderIPs::SLUG => ActionData::Build( Actions\ToolPurgeProviderIPs::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						Actions\ToolPurgeProviderIPs::SLUG => ActionData::Build( Actions\ToolPurgeProviderIPs::class ),
+					],
+				],
 			],
 			'file_locker'      => [
 				'key'     => 'file_locker',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'file_action' => ActionData::Build( Actions\ScansFileLockerAction::class ),
-							'render_diff' => ActionData::BuildAjaxRender( Components\Scans\ScansFileLockerDiff::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'file_action' => ActionData::Build( Actions\ScansFileLockerAction::class ),
+						'render_diff' => ActionData::BuildAjaxRender( Components\Scans\ScansFileLockerDiff::class ),
+					],
+				],
 			],
 			'helpscout'        => [
 				'key'     => 'helpscout',
@@ -209,20 +194,18 @@ class AssetsCustomizer {
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'import_from_site' => ActionData::Build( Actions\PluginImportFromSite::class ),
-						]
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'import_from_site' => ActionData::Build( Actions\PluginImportFromSite::class ),
+					],
+				],
 			],
 			'ip_analyse'       => [
 				'key'     => 'ip_analyse',
 				'handles' => [
 					'main',
 				],
-				'data'    => [
+				'data'    => fn() => [
 					'ajax' => [
 						'action'           => ActionData::Build( Actions\IpAnalyseAction::class ),
 						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\IpAnalysis::class ),
@@ -235,38 +218,34 @@ class AssetsCustomizer {
 					'main',
 					'wpadmin',
 				],
-				'data'    => function () {
-					return [
-						'url'     => 'https://ip-detect.workers.aptoweb.com',
-						'ajax'    => ActionData::Build( Actions\PluginIpDetect::class ),
-						'flags'   => [
-							'is_check_required' => $this->isIpAutoDetectRequired(),
-							'quiet'             => empty( Services::Request()->query( 'shield_check_ip_source' ) ),
-						],
-						'strings' => [
-							'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
-							'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),
-							'reloading'    => __( 'Please reload the page.', 'wp-simple-firewall' ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'url'     => 'https://ip-detect.workers.aptoweb.com',
+					'ajax'    => ActionData::Build( Actions\PluginIpDetect::class ),
+					'flags'   => [
+						'is_check_required' => $this->isIpAutoDetectRequired(),
+						'quiet'             => empty( Services::Request()->query( 'shield_check_ip_source' ) ),
+					],
+					'strings' => [
+						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
+						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),
+						'reloading'    => __( 'Please reload the page.', 'wp-simple-firewall' ),
+					],
+				],
 			],
 			'ip_rules'         => [
 				'key'     => 'ip_rules',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax'    => [
-							'add_form_submit'  => ActionData::Build( Actions\IpRuleAddSubmit::class ),
-							'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\IpRuleAddForm::class ),
-						],
-						'strings' => [
-							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax'    => [
+						'add_form_submit'  => ActionData::Build( Actions\IpRuleAddSubmit::class ),
+						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\IpRuleAddForm::class ),
+					],
+					'strings' => [
+						'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
+					],
+				],
 			],
 			'license'          => [
 				'key'      => 'license',
@@ -274,15 +253,13 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => function () {
-					return [
-						'ajax' => [
-							'lookup' => ActionData::Build( Actions\LicenseLookup::class ),
-							'clear'  => ActionData::Build( Actions\LicenseClear::class ),
-							'debug'  => ActionData::Build( Actions\LicenseCheckDebug::class )
-						],
-					];
-				},
+				'data'     => fn() => [
+					'ajax' => [
+						'lookup' => ActionData::Build( Actions\LicenseLookup::class ),
+						'clear'  => ActionData::Build( Actions\LicenseClear::class ),
+						'debug'  => ActionData::Build( Actions\LicenseCheckDebug::class )
+					],
+				],
 			],
 			'merlin'           => [
 				'key'      => 'merlin',
@@ -290,36 +267,34 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => function () {
-					return [
-						'ajax' => [
-							'action' => ActionData::Build( Actions\MerlinAction::class )
-						],
-						'vars' => [
-							/** http://techlaboratory.net/jquery-smartwizard#advanced-options */
-							'smartwizard_cfg' => [
-								'selected'          => 0,
-								'theme'             => 'dots',
-								'justified'         => true,
-								'autoAdjustHeight'  => true,
-								'backButtonSupport' => true,
-								'enableUrlHash'     => true,
-								'lang'              => [
-									'next'     => __( 'Next Step', 'wp-simple-firewall' ),
-									'previous' => __( 'Previous Step', 'wp-simple-firewall' ),
-								],
-								'toolbar'           => [
-									// both, top, none
-									'position' => 'bottom',
-									//							'extraHtml'     => '<a href="https://testing.aptotechnologies.com/test1/wp-admin/admin.php?page=icwp-wpsf-insights&amp;inav=overview"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
-									//  <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"></path>
-									//  <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"></path>
-									//</svg> Exit Wizard</a>',
-								],
-							]
+				'data'     => fn() => [
+					'ajax' => [
+						'action' => ActionData::Build( Actions\MerlinAction::class )
+					],
+					'vars' => [
+						/** http://techlaboratory.net/jquery-smartwizard#advanced-options */
+						'smartwizard_cfg' => [
+							'selected'          => 0,
+							'theme'             => 'dots',
+							'justified'         => true,
+							'autoAdjustHeight'  => true,
+							'backButtonSupport' => true,
+							'enableUrlHash'     => true,
+							'lang'              => [
+								'next'     => __( 'Next Step', 'wp-simple-firewall' ),
+								'previous' => __( 'Previous Step', 'wp-simple-firewall' ),
+							],
+							'toolbar'           => [
+								// both, top, none
+								'position' => 'bottom',
+								//							'extraHtml'     => '<a href="https://testing.aptotechnologies.com/test1/wp-admin/admin.php?page=icwp-wpsf-insights&amp;inav=overview"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+								//  <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"></path>
+								//  <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"></path>
+								//</svg> Exit Wizard</a>',
+							],
 						]
-					];
-				},
+					]
+				],
 			],
 			'misc_hooks'       => [
 				'key'      => 'misc_hooks',
@@ -327,47 +302,40 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => function () {
-					$con = self::con();
-					return [
-						'ajax'  => [
-							Components\Modals\IntroVideoModal::SLUG     => ActionData::Build( Components\Modals\IntroVideoModal::class ),
-							Actions\SetFlagShieldIntroVideoClosed::SLUG => ActionData::Build( Actions\SetFlagShieldIntroVideoClosed::class ),
-						],
-						'flags' => [
-							'show_video' => $con->comps->sec_admin->isCurrentlySecAdmin()
-											&& $con->opts->optGet( 'v20_intro_closed_at' ) === 0
-											&& $con->opts->optGet( 'installation_time' ) < 1721722000
-						],
-					];
-				},
+				'data'     => fn() => [
+					'ajax'  => [
+						Components\Modals\IntroVideoModal::SLUG     => ActionData::Build( Components\Modals\IntroVideoModal::class ),
+						Actions\SetFlagShieldIntroVideoClosed::SLUG => ActionData::Build( Actions\SetFlagShieldIntroVideoClosed::class ),
+					],
+					'flags' => [
+						'show_video' => $con->comps->sec_admin->isCurrentlySecAdmin()
+										&& $con->opts->optGet( 'v20_intro_closed_at' ) === 0
+										&& $con->opts->optGet( 'installation_time' ) < 1721722000
+					],
+				],
 			],
 			'mod_options'      => [
 				'key'     => 'mod_options',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
-							'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
-						]
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
+						'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
+					]
+				],
 			],
 			'navi'             => [
 				'key'     => 'navi',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'dynamic_load' => ActionData::Build( Actions\DynamicPageLoad::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'dynamic_load' => ActionData::Build( Actions\DynamicPageLoad::class ),
+					]
+				],
 			],
 			'notices'          => [
 				'key'     => 'notices',
@@ -375,18 +343,16 @@ class AssetsCustomizer {
 					'main',
 					'wpadmin',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'resend_verification_email'        => ActionData::Build( Actions\MfaEmailSendVerification::class ),
-							'profile_email2fa_disable'         => ActionData::Build( Actions\MfaEmailDisable::class ),
-							Actions\DismissAdminNotice::SLUG   => ActionData::Build( Actions\DismissAdminNotice::class ),
-							Actions\PluginSetTracking::SLUG    => ActionData::Build( Actions\PluginSetTracking::class ),
-							Actions\PluginAutoDbRepair::SLUG   => ActionData::Build( Actions\PluginAutoDbRepair::class ),
-							Actions\PluginDeleteForceOff::SLUG => ActionData::Build( Actions\PluginDeleteForceOff::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'resend_verification_email'        => ActionData::Build( Actions\MfaEmailSendVerification::class ),
+						'profile_email2fa_disable'         => ActionData::Build( Actions\MfaEmailDisable::class ),
+						Actions\DismissAdminNotice::SLUG   => ActionData::Build( Actions\DismissAdminNotice::class ),
+						Actions\PluginSetTracking::SLUG    => ActionData::Build( Actions\PluginSetTracking::class ),
+						Actions\PluginAutoDbRepair::SLUG   => ActionData::Build( Actions\PluginAutoDbRepair::class ),
+						Actions\PluginDeleteForceOff::SLUG => ActionData::Build( Actions\PluginDeleteForceOff::class ),
+					]
+				],
 			],
 			'offcanvas'        => [
 				'key'     => 'offcanvas',
@@ -429,14 +395,12 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => function () {
-					return [
-						'ajax' => [
-							'render_metercard' => ActionData::BuildAjaxRender( Components\Meters\MeterCard::class ),
-							'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\MeterAnalysis::class ),
-						],
-					];
-				},
+				'data'     => fn() => [
+					'ajax' => [
+						'render_metercard' => ActionData::BuildAjaxRender( Components\Meters\MeterCard::class ),
+						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\MeterAnalysis::class ),
+					]
+				],
 			],
 			'reports'          => [
 				'key'      => 'reports',
@@ -444,9 +408,7 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => function () {
-					return self::con()->comps->reports->getCreateReportFormVars();
-				},
+				'data'     => fn() => self::con()->comps->reports->getCreateReportFormVars(),
 			],
 			'scans'            => [
 				'key'      => 'scans',
@@ -454,101 +416,96 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => function () {
-					$con = self::con();
-					return [
-						'ajax'  => [
-							'check'            => ActionData::Build( Actions\ScansCheck::class ),
-							'start'            => ActionData::Build( Actions\ScansStart::class ),
-							'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
-							'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
+				'data'     => fn() => [
+					'ajax'  => [
+						'check'            => ActionData::Build( Actions\ScansCheck::class ),
+						'start'            => ActionData::Build( Actions\ScansStart::class ),
+						'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
+						'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
 
-							'render_asset_results_panel' => ActionData::Build( Components\Scans\Results\AssetResultsPanel::class ),
+						'render_asset_results_panel' => ActionData::Build( Components\Scans\Results\AssetResultsPanel::class ),
 
-							'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
-							'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
-						],
-						'flags' => [
-							'initial_check' => $con->comps->scans_queue->hasRunningScans(),
-						],
-						'hrefs' => [
-							'results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-						],
-						'vars'  => [
-							'scan_results_tables' => [
-								'malware'      => [
-									'ajax' => [
-										'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-										'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true, [
-											'type' => 'malware',
-											'file' => 'malware',
-										] ),
-									],
-									'vars' => [
-										'table_selector'  => '#ShieldTable-ScanResultsMalware',
-										'datatables_init' => ( new ForMalware() )->buildRaw(),
-									],
+						'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
+						'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
+					],
+					'flags' => [
+						'initial_check' => $con->comps->scans_queue->hasRunningScans(),
+					],
+					'hrefs' => [
+						'results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+					],
+					'vars'  => [
+						'scan_results_tables' => [
+							'malware'      => [
+								'ajax' => [
+									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
+									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true, [
+										'type' => 'malware',
+										'file' => 'malware',
+									] ),
 								],
-								'wordpress'    => [
-									'ajax' => [
-										'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-										'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true, [
-											'type' => 'wordpress',
-											'file' => 'wordpress',
-										] ),
-									],
-									'vars' => [
-										'table_selector'  => '#ShieldTable-ScanResultsWordpress',
-										'datatables_init' => ( new ForWordpress() )->buildRaw(),
-									],
+								'vars' => [
+									'table_selector'  => '#ShieldTable-ScanResultsMalware',
+									'datatables_init' => ( new ForMalware() )->buildRaw(),
 								],
-								'plugin_theme' => [
-									'ajax'    => [
-										'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-										'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class ),
-									],
-									'strings' => [
-										'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-										'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
-										'absolutely_sure'          => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
-										'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-										'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-									],
-									'vars'    => [
-										'table_selector'  => '.shield-section-datatable .table-for-plugintheme',
-										'datatables_init' => ( new ForPluginTheme() )->buildRaw(),
-									],
+							],
+							'wordpress'    => [
+								'ajax' => [
+									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
+									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true, [
+										'type' => 'wordpress',
+										'file' => 'wordpress',
+									] ),
+								],
+								'vars' => [
+									'table_selector'  => '#ShieldTable-ScanResultsWordpress',
+									'datatables_init' => ( new ForWordpress() )->buildRaw(),
+								],
+							],
+							'plugin_theme' => [
+								'ajax'    => [
+									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
+									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class ),
+								],
+								'strings' => [
+									'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+									'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
+									'absolutely_sure'          => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
+									'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+									'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+								],
+								'vars'    => [
+									'table_selector'  => '.shield-section-datatable .table-for-plugintheme',
+									'datatables_init' => ( new ForPluginTheme() )->buildRaw(),
 								],
 							],
 						],
-					];
-				},
+					],
+				],
 			],
 			'super_search'     => [
 				'key'     => 'super_search',
 				'handles' => [
 					'main',
 				],
-				'data'    => function () {
-					return [
-						'ajax'    => [
-							'render_search_results' => ActionData::BuildAjaxRender( Components\SuperSearchResults::class ),
-							'select_search'         => ActionData::Build( Actions\PluginSuperSearch::class ),
-						],
-						'strings' => [
-							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
-							'placeholder'            => sprintf( '%s (%s)',
-								__( 'Search for anything', 'wp-simple-firewall' ),
-								'e.g. '.\implode( ', ', [
-									__( 'IPs', 'wp-simple-firewall' ),
-									__( 'options', 'wp-simple-firewall' ),
-									__( 'tools', 'wp-simple-firewall' ),
-									__( 'help', 'wp-simple-firewall' ),
-								] )
-							),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax'    => [
+						'render_search_results' => ActionData::BuildAjaxRender( Components\SuperSearchResults::class ),
+						'select_search'         => ActionData::Build( Actions\PluginSuperSearch::class ),
+					],
+					'strings' => [
+						'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
+						'placeholder'            => sprintf( '%s (%s)',
+							__( 'Search for anything', 'wp-simple-firewall' ),
+							'e.g. '.\implode( ', ', [
+								__( 'IPs', 'wp-simple-firewall' ),
+								__( 'options', 'wp-simple-firewall' ),
+								__( 'tools', 'wp-simple-firewall' ),
+								__( 'help', 'wp-simple-firewall' ),
+							] )
+						),
+					],
+				],
 			],
 			'tables'           => [
 				'key'     => 'tables',

@@ -25,14 +25,10 @@ class AdminBarMenu {
 	}
 
 	protected function run() {
-		add_action( 'admin_bar_menu', function ( $adminBar ) {
-			if ( $adminBar instanceof \WP_Admin_Bar ) {
-				$this->createAdminBarMenu( $adminBar );
-			}
-		}, 100 );
+		add_action( 'admin_bar_menu', fn( $adminBar ) => $adminBar instanceof \WP_Admin_Bar ? $this->createAdminBarMenu( $adminBar ) : null, 100 );
 	}
 
-	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) {
+	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) :void {
 
 		$groups = \array_filter( [
 			$this->ipsBlocked(),
@@ -117,13 +113,11 @@ class AdminBarMenu {
 			$thisGroup = [
 				'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
 				'href'  => $con->plugin_urls->adminIpRules(),
-				'items' => \array_map( function ( $ip ) use ( $con ) {
-					return [
-						'id'    => $con->prefix( 'ip-'.$ip->id ),
-						'title' => $ip->ip,
-						'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
-					];
-				}, $IPs ),
+				'items' => \array_map( fn( $ip ) => [
+					'id'    => $con->prefix( 'ip-'.$ip->id ),
+					'title' => $ip->ip,
+					'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+				], $IPs ),
 			];
 		}
 
@@ -139,13 +133,11 @@ class AdminBarMenu {
 			$thisGroup = [
 				'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
 				'href'  => $con->plugin_urls->adminIpRules(),
-				'items' => \array_map( function ( $ip ) use ( $con ) {
-					return [
-						'id'    => $con->prefix( 'ip-'.$ip->id ),
-						'title' => $ip->ip,
-						'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
-					];
-				}, $IPs ),
+				'items' => \array_map( fn( $ip ) => [
+					'id'    => $con->prefix( 'ip-'.$ip->id ),
+					'title' => $ip->ip,
+					'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+				], $IPs ),
 			];
 		}
 
