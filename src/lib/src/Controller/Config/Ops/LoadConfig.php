@@ -41,14 +41,17 @@ class LoadConfig {
 		$previousVersion = ( \is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
 		if ( !$rebuild ) {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
-
-			$rebuild = empty( $def[ 'hash' ] ) || !\hash_equals( $def[ 'hash' ], $specHash )
-					   || ( $version !== $WPP->getPluginAsVo( self::con()->base_file )->Version );
+			$rebuild = empty( $def[ 'hash' ] )
+					   || !\hash_equals( $def[ 'hash' ], $specHash )
+					   || ( $version !== $WPP->getPluginAsVo( self::con()->base_file )->Version )
+					   || empty( $def[ 'last_file_load_at' ] )
+					   || Services::Request()->ts() - $def[ 'last_file_load_at' ] > MINUTE_IN_SECONDS*15;
 			$def[ 'hash' ] = $specHash;
 		}
 
 		if ( $rebuild ) {
 			$def = $this->fromFile();
+			$def[ 'last_file_load_at' ] = Services::Request()->ts();
 			$def[ 'previous_version' ] = $previousVersion;
 		}
 
