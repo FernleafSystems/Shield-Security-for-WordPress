@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\Configurat
  * @property array            $version_upgrades
  *                                   -- not part of config file --
  * @property string           $hash
+ * @property int              $last_file_load_at
  * @property string           $previous_version
  * @property ?ConfigurationVO $configuration
  */

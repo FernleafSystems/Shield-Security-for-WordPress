@@ -17,11 +17,10 @@ class AnonRestApiDisable {
 	}
 
 	protected function run() {
-		add_action( 'init', function () {
-			if ( !Services::WpUsers()->isUserLoggedIn() ) {
-				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
-			}
-		} );
+		add_action( 'init',
+			fn() => !Services::WpUsers()->isUserLoggedIn()
+					&& add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 )
+		);
 	}
 
 	/**
@@ -53,7 +52,7 @@ class AnonRestApiDisable {
 					[ 'status' => rest_authorization_required_code() ]
 				);
 
-				$con->fireEvent(
+				$con->comps->events->fireEvent(
 					'block_anonymous_restapi',
 					[ 'audit_params' => [ 'namespace' => $namespace ] ]
 				);

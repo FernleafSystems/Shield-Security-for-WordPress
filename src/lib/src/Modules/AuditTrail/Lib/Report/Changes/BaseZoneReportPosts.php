@@ -11,12 +11,7 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 
 	protected function loadLogs() :array {
 		$logs = parent::loadLogs();
-		return \array_filter(
-			$logs,
-			function ( $log ) {
-				return ( $log->meta_data[ 'type' ] ?? 'post' ) === $this->loadLogsFilterPostType();
-			}
-		);
+		return \array_filter( $logs, fn( $log ) => ( $log->meta_data[ 'type' ] ?? 'post' ) === $this->loadLogsFilterPostType() );
 	}
 
 	protected function buildSummaryForLog( LogRecord $log ) :string {

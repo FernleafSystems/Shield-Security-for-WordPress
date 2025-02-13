@@ -52,9 +52,7 @@ class BotEventListener {
 	 */
 	private function getEventsToColumn() :array {
 		return \array_map(
-			function ( $column ) {
-				return \str_replace( '_at', '', $column ).'_at';
-			},
+			fn( $column ) => \str_replace( '_at', '', $column ).'_at',
 			[
 				'bottrack_notbot'         => 'notbot',
 				'bottrack_altcha'         => 'altcha',

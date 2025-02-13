@@ -17,7 +17,7 @@ class AllowBetaUpgrades {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var \stdClass
+	 * @var false|\stdClass
 	 */
 	private $beta;
 
@@ -44,19 +44,16 @@ class AllowBetaUpgrades {
 
 	private function getBeta() {
 		if ( !isset( $this->beta ) ) {
-			$con = self::con();
 
 			$this->beta = false;
 
-			$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
+			$thisPlugin = Services::WpPlugins()->getPluginAsVo( self::con()->base_file );
 			$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
 			$betas = \array_filter(
 				$versionsLookup->all(),
-				function ( $betaVersion ) {
-					return \is_string( $betaVersion )
-						   && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-						   && \version_compare( $betaVersion, self::con()->cfg->version(), '>' );
-				}
+				fn( $betaVersion ) => \is_string( $betaVersion )
+									  && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
+									  && \version_compare( $betaVersion, self::con()->cfg->version(), '>' )
 			);
 			if ( !empty( $betas ) ) {
 				\natsort( $betas );
@@ -67,7 +64,7 @@ class AllowBetaUpgrades {
 					$this->beta = new \stdClass();
 					$this->beta->id = $thisPlugin->id;
 					$this->beta->slug = $thisPlugin->slug;
-					$this->beta->plugin = $con->base_file;
+					$this->beta->plugin = self::con()->base_file;
 					$this->beta->new_version = $beta;
 					$this->beta->package = $url;
 					$this->beta->icons = [

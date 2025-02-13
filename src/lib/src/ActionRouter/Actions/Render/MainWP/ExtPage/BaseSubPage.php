@@ -36,9 +36,7 @@ class BaseSubPage extends BaseMWP {
 			'vars'    => [
 				'menu_topnav'  => $this->getMenuTopNavItems(),
 				'site_actions' => \array_map(
-					function ( $action ) {
-						return wp_json_encode( \is_array( $action ) ? $action : [ 'site_action_slug' => $action ] );
-					},
+					fn( $action ) => wp_json_encode( \is_array( $action ) ? $action : [ 'site_action_slug' => $action ] ),
 					$this->getSiteActions()
 				),
 			],

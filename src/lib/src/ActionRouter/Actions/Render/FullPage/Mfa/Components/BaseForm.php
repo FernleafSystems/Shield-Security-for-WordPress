@@ -24,9 +24,7 @@ abstract class BaseForm extends Base {
 		return [
 			'content' => [
 				'login_fields' => \array_filter( \array_map(
-					function ( $provider ) {
-						return $provider->renderLoginIntentFormField( self::con()->opts->optGet( 'mfa_verify_page' ) );
-					},
+					fn( $p ) => $p->renderLoginIntentFormField( self::con()->opts->optGet( 'mfa_verify_page' ) ),
 					$mfaCon->getProvidersActiveForUser(
 						Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )
 					)

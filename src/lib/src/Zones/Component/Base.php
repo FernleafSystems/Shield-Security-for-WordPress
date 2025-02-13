@@ -61,9 +61,10 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	public function getOptions() :array {
-		return \array_keys( \array_filter( self::con()->cfg->configuration->options, function ( array $option ) {
-			return \in_array( static::Slug(), $option[ 'zone_comp_slugs' ] ?? [] );
-		} ) );
+		return \array_keys( \array_filter(
+			self::con()->cfg->configuration->options,
+			fn( array $option ) => \in_array( static::Slug(), $option[ 'zone_comp_slugs' ] ?? [] )
+		) );
 	}
 
 	public function getLinks() :array {
