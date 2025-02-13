@@ -175,14 +175,14 @@ class Themes extends Base {
 			$old = $changed[ 'old' ];
 			$new = $changed[ 'new' ];
 			$vo = $WPP->getThemeAsVo( $old[ 'uniq' ], true );
-			$pluginData = [
+			$data = [
 				'plugin'  => $vo->stylesheet,
 				'version' => \ltrim( $vo->Version, 'v' ),
 				'name'    => $vo->Name,
 			];
 
 			if ( !$old[ 'is_active' ] && $new[ 'is_active' ] ) {
-				$this->fireAuditEvent( 'theme_activated', $pluginData );
+				$this->fireAuditEvent( 'theme_activated', $data );
 			}
 
 			$versionCompare = \version_compare( $old[ 'version' ], $new[ 'version' ] );

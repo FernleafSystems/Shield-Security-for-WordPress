@@ -2,6 +2,14 @@
 	<h6 class="my-4 ps-3">{{ strings.reviewing_locked_file }}: <code>{{ vars.full_path }}</code></h6>
 
 	{% if flags.has_diff %}
+
+		{% if flags.original_file_missing or flags.current_content_empty  %}
+			<div class="row text-center mt-4">
+				<div class="alert alert-warning">
+					<h6 class="m-0">Warning: {{ flags.original_file_missing ? 'File is missing and cannot be read' : 'File contents are empty' }}</h6>
+				</div>
+			</div>
+		{% endif %}
 		<div class="row text-center mt-4">
 			<div class="col"><h5>{{ strings.file_content_original }}</h5></div>
 			<div class="col"><h5>{{ strings.file_content_current }}</h5></div>

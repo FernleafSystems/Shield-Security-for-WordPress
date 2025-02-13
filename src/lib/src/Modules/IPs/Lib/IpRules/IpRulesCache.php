@@ -87,7 +87,7 @@ class IpRulesCache {
 
 			foreach ( self::GROUPS as $groupKey => $groupSettings ) {
 
-				$groupData = \array_filter(
+				$group = \array_filter(
 					$cache[ $groupKey ],
 					function ( array $data ) use ( $groupSettings ) {
 						return Services::Request()->ts() - $data[ '_at' ] < $groupSettings[ 'lifetime' ];
@@ -95,15 +95,11 @@ class IpRulesCache {
 				);
 
 				// We want the newest item ordered earlier so that the array_slice() removes older items
-				if ( \count( $groupData ) > 1 ) {
-					\uasort( $groupData, function ( $a, $b ) {
-						$atA = $a[ '_at' ];
-						$atB = $b[ '_at' ];
-						return $atA < $atB ? 1 : ( $atA > $atB ? -1 : 0 );
-					} );
+				if ( \count( $group ) > 1 ) {
+					\uasort( $group, fn( $a, $b ) => $a[ '_at' ] < $b[ '_at' ] ? 1 : ( $a[ '_at' ] > $b[ '_at' ] ? -1 : 0 ) );
 				}
 
-				$cache[ $groupKey ] = \array_slice( $groupData, 0, $groupSettings[ 'limit' ] );
+				$cache[ $groupKey ] = \array_slice( $group, 0, $groupSettings[ 'limit' ] );
 			}
 
 			self::$ipCache = $cache;
