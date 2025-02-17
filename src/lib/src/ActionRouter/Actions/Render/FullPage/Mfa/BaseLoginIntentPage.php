@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaPasskeyAuthenticationStart;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions,
+	Actions\MfaEmailSendIntent,
+	Actions\MfaPasskeyAuthenticationStart
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 use FernleafSystems\Wordpress\Services\Services;
 
