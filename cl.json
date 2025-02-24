@@ -98,6 +98,11 @@
         "released_at": 1740400000,
         "items":       [
           {
+            "title":    "Custom Rule: HTTP Redirect now allows for relative (local) path URLs, so a full URL doesn't need to be provided in these cases.",
+            "category": "enhancement",
+            "type":     "new"
+          },
+          {
             "title":    "Add ability to pre-set Passkey label using a filter to eliminate JS prompt for users.",
             "category": "enhancement",
             "type":     "new"
