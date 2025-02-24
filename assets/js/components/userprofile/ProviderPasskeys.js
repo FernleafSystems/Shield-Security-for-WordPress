@@ -46,10 +46,16 @@ export class ProviderPasskeys extends ProviderBase {
 					throw error;
 				}
 
-				let label, valid;
+				let label = resp.data.passkey_label;
+				if ( !( new RegExp( "^[\\s\\da-zA-Z_-]{1,16}$" ) ).test( label ) ) {
+					label = '';
+				}
+				let valid;
 				do {
 					valid = false;
-					label = prompt( this._base_data.strings.label_prompt_dialog, "<Provide A Label>" );
+					if ( label.length === 0 ) {
+						label = prompt( this._base_data.strings.label_prompt_dialog, "<Provide A Label>" );
+					}
 					if ( label === null ) {
 						break;
 					}
@@ -58,6 +64,7 @@ export class ProviderPasskeys extends ProviderBase {
 					}
 					else if ( !( new RegExp( "^[\\s\\da-zA-Z_-]{1,16}$" ) ).test( label ) ) {
 						alert( this._base_data.strings.err_invalid_label );
+						label = '';
 					}
 					else {
 						valid = true;

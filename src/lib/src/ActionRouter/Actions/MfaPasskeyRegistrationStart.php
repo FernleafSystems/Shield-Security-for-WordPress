@@ -30,9 +30,10 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 			else {
 				try {
 					$response = [
-						'success'     => true,
-						'challenge'   => $provider->startNewRegistration(),
-						'page_reload' => false
+						'success'       => true,
+						'challenge'     => $provider->startNewRegistration(),
+						'passkey_label' => \preg_replace( '#[^A-Z\s\d]#i', '', (string)apply_filters( 'shield/2fa_passkey_registration_label', '' ) ),
+						'page_reload'   => false
 					];
 				}
 				catch ( \Exception $e ) {

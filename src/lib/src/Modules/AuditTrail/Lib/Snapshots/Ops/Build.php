@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Exceptions\InconsistentDataException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\SnapshotVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -11,6 +12,7 @@ class Build {
 	use PluginControllerConsumer;
 
 	/**
+	 * @throws InconsistentDataException
 	 * @throws \Exception
 	 */
 	public function run( string $slug ) :SnapshotVO {

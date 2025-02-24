@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Exceptions\InconsistentDataException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -155,19 +156,23 @@ class AuditCon {
 		$diff = new Snapshots\DiffVO();
 		$diff->slug = $auditor::Slug();
 
-		$current = ( new Ops\Build() )->run( $diff->slug );
-
 		try {
+			$current = ( new Ops\Build() )->run( $diff->slug );
+
 			$latest = $this->getSnapshot( $diff->slug );
 			$diff = ( new Ops\Diff( Ops\Convert::RecordToSnap( $latest ), $current ) )->run();
 			$store = $diff->has_diffs;
 		}
+		catch ( InconsistentDataException $ide ) {
+			$store = false;
+		}
 		catch ( \Exception $e ) {
 			$store = true;
 		}
-
-		if ( $store ) {
-			$this->updateStoredSnapshot( $auditor, $current );
+		finally {
+			if ( $store ) {
+				$this->updateStoredSnapshot( $auditor, $current );
+			}
 		}
 
 		return $diff;
