@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	ParameterIncorrectTypeException,
 	ParametersMissingException

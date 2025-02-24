@@ -94,8 +94,8 @@
     ],
     "patches":     [
       {
-        "version":     "3",
-        "released_at": 1740400000,
+        "version":     "4",
+        "released_at": 1740407600,
         "items":       [
           {
             "title":    "Custom Rule: HTTP Redirect now allows for relative (local) path URLs, so a full URL doesn't need to be provided in these cases.",
@@ -108,8 +108,13 @@
             "type":     "new"
           },
           {
-            "title":    "FileLocker now gracefully handles scenarion where 'locked' file has been completely deleted.",
+            "title":    "FileLocker now gracefully handles scenarios where 'locked' file has been completely deleted.",
             "category": "enhancement",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Background processing for file scanning was broken due to dependent library changes.",
+            "category": "bug",
             "type":     "fixed"
           },
           {
