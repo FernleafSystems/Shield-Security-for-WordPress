@@ -24,7 +24,7 @@ class OptsHandler extends DynPropertiesClass {
 
 	private ?array $values = null;
 
-	private $merged = false;
+	private bool $merged = false;
 
 	private bool $startedAsPremium = false;
 
