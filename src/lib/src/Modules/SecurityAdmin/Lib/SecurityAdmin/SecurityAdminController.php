@@ -59,7 +59,7 @@ class SecurityAdminController {
 		$con = self::con();
 		if ( !$con->isPluginAdmin() ) {
 			if ( !Services::WpUsers()->isUserAdmin() ) {
-				$con->fireEvent( 'attempt_deactivation' );
+				$con->comps->events->fireEvent( 'attempt_deactivation' );
 			}
 			Services::WpGeneral()->wpDie(
 				sprintf(
@@ -184,7 +184,7 @@ class SecurityAdminController {
 	}
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
-		return $isPluginAdmin && self::con()->this_req->is_security_admin;
+		return $isPluginAdmin && ( self::con()->cfg->rebuilt || self::con()->this_req->is_security_admin );
 	}
 
 	public function printPinLoginForm() {
