@@ -6,15 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
 
 class OffenseTracker extends EventsListener {
 
-	/**
-	 * @var bool
-	 */
-	private $isBlocked = false;
+	private bool $isBlocked = false;
 
-	/**
-	 * @var int
-	 */
-	private $offenseCount = 0;
+	private int $offenseCount = 0;
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {
