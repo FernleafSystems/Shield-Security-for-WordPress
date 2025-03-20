@@ -303,6 +303,9 @@ class Controller extends DynPropertiesClass {
 				throw new \Exception( 'Plugin does not meet minimum requirements' );
 			}
 
+			if ( !$FS->isDir( $this->paths->forFlag() ) ) {
+				$FS->mkdir( $this->paths->forFlag() );
+			}
 			$FS->touch( $this->paths->forFlag( 'reqs_met.flag' ) );
 		}
 	}
