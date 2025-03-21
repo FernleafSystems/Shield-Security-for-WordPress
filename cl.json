@@ -94,8 +94,8 @@
     ],
     "patches":     [
       {
-        "version":     "5",
-        "released_at": 1740500000,
+        "version":     "7",
+        "released_at": 1742575000,
         "items":       [
           {
             "title":    "Custom Rule: HTTP Redirect now allows for relative (local) path URLs, so a full URL doesn't need to be provided in these cases.",

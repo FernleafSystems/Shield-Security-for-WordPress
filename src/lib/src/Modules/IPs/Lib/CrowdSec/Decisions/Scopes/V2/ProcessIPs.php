@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes\V2;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
@@ -10,9 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Services\Services;
-use IPLib\Factory;
-use IPLib\Range\RangeInterface;
-use IPLib\Range\Type;
+use IPLib\{
+	Factory,
+	Range\RangeInterface,
+	Range\Type
+};
 
 class ProcessIPs extends ProcessBase {
 
@@ -52,18 +54,19 @@ class ProcessIPs extends ProcessBase {
 				// 2. Insert all new IP addresses into the IP table that don't already exist.
 				$DB->doSql( sprintf( 'INSERT IGNORE INTO `%s` (`ip`, `created_at`) VALUES %s;',
 					$ipTableName,
-					\implode( ', ', \array_map( function ( $ip ) use ( $now ) {
-						return sprintf( "( INET6_ATON('%s'), %s )", $ip, $now );
-					}, \array_keys( $slice ) ) )
+					\implode( ',', \array_map(
+						fn( $ip ) => sprintf( "(INET6_ATON('%s'), %s)", $ip, $now ),
+						\array_keys( $slice )
+					) )
 				) );
 
 				// 3. Select the IP records required to insert the new CS records.
-				$ipRecords = $DB->selectCustom( sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
-					$ipTableName,
-					\implode( ', ', \array_map( function ( $ip ) {
-						return sprintf( "INET6_ATON('%s')", $ip );
-					}, \array_keys( $slice ) ) )
-				) );
+				$ipRecords = $DB->selectCustom(
+					sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
+						$ipTableName,
+						\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), \array_keys( $slice ) ) )
+					)
+				);
 
 				$insertValues = [];
 				foreach ( $ipRecords as $ipRecord ) {
@@ -112,43 +115,11 @@ class ProcessIPs extends ProcessBase {
 		return $total;
 	}
 
-	protected function removeDuplicatesFromNewStreamLegacy() {
-
-		$loader = new LoadIpRules();
-		$loader->wheres = [
-			sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
-		];
-		$loader->joined_table_select_fields = [
-			'cidr',
-		];
-		$loader->limit = 250;
-
-		$page = 0;
-		do {
-			$loader->offset = $page*$loader->limit;
-			/** @var RangeInterface[] $existingRanges */
-			$existingRanges = \array_map( function ( $record ) {
-				return Factory::parseRangeString( sprintf( '%s/%s', $record->ip, $record->cidr ) );
-			}, $loader->select() );
-
-			foreach ( $existingRanges as $range ) {
-				foreach ( $this->newDecisions as $ip => $decision ) {
-					if ( $range->containsRange( $decision[ 'parsed' ] ) ) {
-						unset( $this->newDecisions[ $ip ] );
-						break;
-					}
-				}
-			}
-
-			$page++;
-		} while ( !empty( $existingRanges ) );
-	}
-
 	/**
 	 * Loop through all existing CS rules and if a new rule/decision already exists, remove it from the new stream.
 	 */
 	protected function removeDuplicatesFromNewStream() {
-		$preExisting = [];
+		$duplicates = [];
 
 		$page = 0;
 		$pageSize = 250;
@@ -156,34 +127,34 @@ class ProcessIPs extends ProcessBase {
 			$slice = \array_slice( $this->newDecisions, $page*$pageSize, $pageSize );
 			if ( !empty( $slice ) ) {
 
-				$singles = \array_keys( \array_filter( $slice, function ( array $dec ) {
-					/** @var RangeInterface $range */
-					$range = $dec[ 'parsed' ];
-					return $range->getSize() === 1;
-				} ) );
+				// We don't need to deal with ranges just yet:
+//				$singles = \array_keys( \array_filter( $slice, function ( array $dec ) {
+//					/** @var RangeInterface $range */
+//					$range = $dec[ 'parsed' ];
+//					return $range->getSize() === 1;
+//				} ) );
 
+				$singles = \array_keys( $slice );
 				if ( !empty( $singles ) ) {
 					$loader = new LoadIpRules();
 					$loader->wheres = [
 						sprintf( "`ips`.`ip` IN (%s)",
-							\implode( ', ', \array_map( function ( $ip ) {
-								return sprintf( "INET6_ATON('%s')", $ip );
-							}, $singles ) )
+							\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), $singles ) )
 						),
 						sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
 					];
 
 					foreach ( $loader->select() as $preExistingRule ) {
-						if ( isset( $slice[ $preExistingRule->ip ] ) ) {
-							$preExisting[] = $preExistingRule->ip;
+						if ( \in_array( $preExistingRule->ip, $singles ) ) {
+							$duplicates[] = $preExistingRule->ip;
 						}
-						elseif ( \strpos( $preExistingRule->ip, ':' ) !== false ) {
+						elseif ( \str_contains( $preExistingRule->ip, ':' ) ) {
 							$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
 							// handle variance of IPv6 notation.
-							foreach ( \array_keys( $slice ) as $sliceIP ) {
-								if ( \strpos( $sliceIP, ':' ) !== false &&
+							foreach ( $singles as $sliceIP ) {
+								if ( \str_contains( $sliceIP, ':' ) &&
 									 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
-									$preExisting[] = $sliceIP;
+									$duplicates[] = $sliceIP;
 									break;
 								}
 							}
@@ -191,20 +162,20 @@ class ProcessIPs extends ProcessBase {
 					}
 				}
 
-				$ranges = \array_filter( $slice, function ( array $dec ) {
-					/** @var RangeInterface $range */
-					$range = $dec[ 'parsed' ];
-					return $range->getSize() > 1;
-				} );
-				if ( !empty( $ranges ) ) {
-					// TODO.
-				}
+//				$ranges = \array_filter( $slice, function ( array $dec ) {
+//					/** @var RangeInterface $range */
+//					$range = $dec[ 'parsed' ];
+//					return $range->getSize() > 1;
+//				} );
+//				if ( !empty( $ranges ) ) {
+//					// TODO.
+//				}
 			}
 
 			$page++;
 		} while ( !empty( $slice ) );
 
-		$this->newDecisions = \array_diff_key( $this->newDecisions, \array_flip( $preExisting ) );
+		$this->newDecisions = \array_diff_key( $this->newDecisions, \array_flip( $duplicates ) );
 	}
 
 	protected function processDeleted() :int {
@@ -246,22 +217,27 @@ class ProcessIPs extends ProcessBase {
 		return \count( $idsToDelete );
 	}
 
-	protected function extractScopeDecisionData_New( array $decisions ) :array {
-		$extracted = [];
-		foreach ( $decisions as $decision ) {
-			if ( \is_array( $decision ) ) {
+	protected function extractScopeDecisionData_New( array $rawDecisionsGroups ) :array {
+		$group = [];
+		\array_map(
+			function ( array $decisionsGroup ) use ( &$group ) {
 				try {
-					$ip = $this->getDecisionValue( $decision );
-					$extracted[ $ip ] = [
-						'expires_at' => $this->getDecisionExpiresAt( $decision ),
-						'parsed'     => Factory::parseRangeString( $ip ),
-					];
+					foreach ( $this->getDecisionValuesFromGroup( $decisionsGroup ) as $decision ) {
+						// Since we are strictly only permitting non-ranged IPs, we optimise here and don't
+						// store the Range object for use later on.  When this position changes, this code can update.
+						$group[ $decision[ 'value' ] ] = [
+							'expires_at' => $this->getDecisionExpiresAt( $decision )
+							// 'parsed'     => Factory::parseRangeString( $ip ),
+						];
+					}
 				}
 				catch ( \Exception $e ) {
 				}
-			}
-		}
-		return $extracted;
+				return null;
+			},
+			\array_filter( $rawDecisionsGroups, '\is_array' )
+		);
+		return $group;
 	}
 
 	/**
