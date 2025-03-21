@@ -158,7 +158,6 @@ class AuditCon {
 
 		try {
 			$current = ( new Ops\Build() )->run( $diff->slug );
-
 			$latest = $this->getSnapshot( $diff->slug );
 			$diff = ( new Ops\Diff( Ops\Convert::RecordToSnap( $latest ), $current ) )->run();
 			$store = $diff->has_diffs;
@@ -171,7 +170,7 @@ class AuditCon {
 		}
 		finally {
 			if ( $store ) {
-				$this->updateStoredSnapshot( $auditor, $current );
+				$this->updateStoredSnapshot( $auditor, $current ?? null );
 			}
 		}
 
