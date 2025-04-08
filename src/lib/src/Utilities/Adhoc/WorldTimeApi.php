@@ -6,10 +6,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WorldTimeApi {
 
+	private static int $current;
+
 	/**
 	 * @throws \Exception
 	 */
 	public function current() :int {
+		return self::$current ??= $this->req();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function req() :int {
 		$raw = Services::HttpRequest()->getContent( 'https://api.aptoweb.com/api/v1/time' );
 		if ( empty( $raw ) ) {
 			throw new \Exception( 'Request to World Clock Api Failed' );
