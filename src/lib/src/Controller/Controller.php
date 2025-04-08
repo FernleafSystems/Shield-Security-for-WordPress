@@ -262,7 +262,6 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
-			case 'rules':
 			default:
 				break;
 		}
@@ -304,6 +303,9 @@ class Controller extends DynPropertiesClass {
 				throw new \Exception( 'Plugin does not meet minimum requirements' );
 			}
 
+			if ( !$FS->isDir( $this->paths->forFlag() ) ) {
+				$FS->mkdir( $this->paths->forFlag() );
+			}
 			$FS->touch( $this->paths->forFlag( 'reqs_met.flag' ) );
 		}
 	}
@@ -454,16 +456,14 @@ class Controller extends DynPropertiesClass {
 			->setThisRequest( $this->this_req )
 			->execute();
 
-		if ( !$this->cfg->rebuilt ) {
-			try {
-				$this->rules->processRules();
-				$this->plugin->getProcessor()->execute();
-			}
-			catch ( \Exception $e ) {
-			}
-			// This is where any rules responses will execute (i.e. after processors are run):
-			do_action( $this->prefix( 'after_run_processors' ) );
+		try {
+			$this->rules->processRules();
+			$this->plugin->getProcessor()->execute();
 		}
+		catch ( \Exception $e ) {
+		}
+		// This is where any rules responses will execute (i.e. after processors are run):
+		do_action( $this->prefix( 'after_run_processors' ) );
 	}
 
 	public function onWpAdminInit() {

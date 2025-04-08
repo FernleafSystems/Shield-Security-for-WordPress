@@ -47,8 +47,8 @@ class VerifyParams {
 				$invalidMsg = __( 'Provide a valid IP address or range', 'wp-simple-firewall' );
 				break;
 			case EnumParameters::TYPE_URL:
-				$invalidType = \filter_var( $paramValue, FILTER_VALIDATE_URL ) === false;
-				$invalidMsg = __( 'Provide a complete URL', 'wp-simple-firewall' );
+				$invalidType = !\str_starts_with( $paramValue, '/' ) && \filter_var( $paramValue, \FILTER_VALIDATE_URL ) === false;
+				$invalidMsg = __( 'Provide a relative path (with a leading /), or a complete URL', 'wp-simple-firewall' );
 				break;
 			case EnumParameters::TYPE_SCALAR:
 				$invalidType = !\is_scalar( $paramValue );

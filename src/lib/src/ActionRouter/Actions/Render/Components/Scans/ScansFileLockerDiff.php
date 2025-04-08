@@ -22,15 +22,29 @@ class ScansFileLockerDiff extends BaseScans {
 			$lock = $FLCon->getFileLock( $RID );
 			$isDifferent = $lock->detected_at > 0;
 
+			if ( !$FS->isAccessibleFile( $lock->path ) ) {
+				$originalFileMissing = true;
+				$current = '';
+			}
+			else {
+				$originalFileMissing = false;
+				$current = (string)$FS->getFileContent( $lock->path );
+				if ( empty( $current ) ) {
+					$currentContentEmpty = false;
+				}
+			}
+
 			$data = [
 				'error'   => '',
 				'success' => false,
 				'ajax'    => $FLCon->createFileDownloadLinks( $lock ),
 				'flags'   => [
-					'has_diff' => $isDifferent,
+					'has_diff'              => $isDifferent,
+					'original_file_missing' => $originalFileMissing,
+					'current_content_empty' => $currentContentEmpty ?? false,
 				],
 				'html'    => [
-					'diff' => $isDifferent ? ( new Diff() )->run( $lock ) : '',
+					'diff' => $isDifferent ? ( new Diff() )->run( $lock, $current ) : '',
 				],
 				'vars'    => [
 					'rid' => $RID,

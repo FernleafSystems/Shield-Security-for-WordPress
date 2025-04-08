@@ -66,9 +66,7 @@ abstract class Base extends Common\BaseConditionResponse {
 	}
 
 	protected function getDefaultConditionCheckCallable() :\Closure {
-		return function () {
-			return $this->execConditionCheck();
-		};
+		return fn() => $this->execConditionCheck();
 	}
 
 	public function getType() :string {

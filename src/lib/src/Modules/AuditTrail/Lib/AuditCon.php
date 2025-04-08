@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Exceptions\InconsistentDataException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -42,24 +43,16 @@ class AuditCon {
 
 		( new AuditLogger() )->setIfCommit( true );
 
-		\array_map( function ( $auditor ) {
-			$auditor->execute();
-		}, $this->getAuditors() );
+		\array_map( fn( $auditor ) => $auditor->execute(), $this->getAuditors() );
 
 		// Realtime Snapshotting
 		if ( self::con()->db_con->activity_snapshots->isReady() ) {
-			add_action( 'wp_loaded', function () {
-				\array_map(
-					function ( $auditor ) {
-						if ( $auditor->canSnapRealtime() ) {
-							$this->runSnapshotDiscovery( $auditor );
-						}
-					},
-					$this->getAuditors()
-				);
+			add_action( 'wp_loaded', fn() => \array_map(
+				fn( $auditor ) => $auditor->canSnapRealtime() ? $this->runSnapshotDiscovery( $auditor ) : null,
+				$this->getAuditors()
+			) );
 
-				$this->primeSnapshots();
-			} );
+			$this->primeSnapshots();
 
 			$this->getSnapshotDiscoveryQueue();
 		}
@@ -92,6 +85,7 @@ class AuditCon {
 		$primerHook = self::con()->prefix( 'auditcon_prime_snapshots' );
 
 		if ( !wp_next_scheduled( $primerHook ) ) {
+
 			$countAllSnappers = \count( \array_filter( \array_map(
 				function ( $auditor ) {
 					try {
@@ -104,6 +98,7 @@ class AuditCon {
 				},
 				$this->getAuditors()
 			) ) );
+
 			if ( ( new Ops\Retrieve() )->count() !== $countAllSnappers ) {
 				wp_schedule_single_event( Services::Request()->ts() + 60, $primerHook );
 			}
@@ -136,17 +131,13 @@ class AuditCon {
 			$diff = $this->getCurrentDiff( $auditor );
 			if ( $diff->has_diffs ) {
 				\array_map(
-					function ( $method ) use ( $auditor, $diff ) {
-						$auditor->{$method->name}( $diff );
-					},
+					fn( $method ) => $auditor->{$method->name}( $diff ),
 					\array_filter(
 						( new \ReflectionClass( $auditor ) )->getMethods(),
-						function ( $method ) {
-							return \strpos(
-								(string)$method->getDocComment(),
-								Services::WpGeneral()->isCron() ? '* @snapshotDiffCron' : '* @snapshotDiff'
-							);
-						}
+						fn( $method ) => \strpos(
+							(string)$method->getDocComment(),
+							Services::WpGeneral()->isCron() ? '* @snapshotDiffCron' : '* @snapshotDiff'
+						)
 					)
 				);
 			}
@@ -165,19 +156,22 @@ class AuditCon {
 		$diff = new Snapshots\DiffVO();
 		$diff->slug = $auditor::Slug();
 
-		$current = ( new Ops\Build() )->run( $diff->slug );
-
 		try {
+			$current = ( new Ops\Build() )->run( $diff->slug );
 			$latest = $this->getSnapshot( $diff->slug );
 			$diff = ( new Ops\Diff( Ops\Convert::RecordToSnap( $latest ), $current ) )->run();
 			$store = $diff->has_diffs;
 		}
+		catch ( InconsistentDataException $ide ) {
+			$store = false;
+		}
 		catch ( \Exception $e ) {
 			$store = true;
 		}
-
-		if ( $store ) {
-			$this->updateStoredSnapshot( $auditor, $current );
+		finally {
+			if ( $store ) {
+				$this->updateStoredSnapshot( $auditor, $current ?? null );
+			}
 		}
 
 		return $diff;

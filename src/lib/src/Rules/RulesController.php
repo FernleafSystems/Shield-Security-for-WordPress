@@ -17,17 +17,11 @@ class RulesController {
 	/**
 	 * @var RuleVO[]
 	 */
-	private $rules;
+	private ?array $rules = null;
 
-	/**
-	 * @var RulesStorageHandler
-	 */
-	public $processComplete;
+	public bool $processComplete;
 
-	/**
-	 * @var ConditionMetaStore
-	 */
-	private $conditionMeta;
+	private ConditionMetaStore $conditionMeta;
 
 	public function __construct() {
 		$this->processComplete = false;
@@ -116,23 +110,19 @@ class RulesController {
 	 * @return RuleVO[]
 	 */
 	public function getRules() :array {
-		if ( !isset( $this->rules ) ) {
-			try {
-				$this->rules = \array_map(
-					function ( $rule ) {
-						return ( new RuleVO() )->applyFromArray( $rule );
-					},
-					( new RulesStorageHandler() )->loadRules()[ 'rules' ]
-				);
-			}
-			catch ( \Exception $e ) {
-				$this->rules = [];
-			}
+		try {
+			$this->rules ??= \array_map(
+				fn( $rule ) => ( new RuleVO() )->applyFromArray( $rule ),
+				( new RulesStorageHandler() )->loadRules()[ 'rules' ]
+			);
+		}
+		catch ( \Exception $e ) {
+			$this->rules = [];
 		}
 		return $this->rules;
 	}
 
 	public function getConditionMeta() :ConditionMetaStore {
-		return $this->conditionMeta ?? $this->conditionMeta = new ConditionMetaStore();
+		return $this->conditionMeta ??= new ConditionMetaStore();
 	}
 }

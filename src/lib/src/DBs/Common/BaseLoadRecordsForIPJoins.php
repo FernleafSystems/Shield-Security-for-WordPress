@@ -53,9 +53,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		);
 
 		return \array_values( \array_filter( \array_map(
-			function ( $result ) {
-				return \is_array( $result ) ? ( $result[ 'ip' ] ?? null ) : null;
-			},
+			fn( $result ) => \is_array( $result ) ? ( $result[ 'ip' ] ?? null ) : null,
 			\is_array( $results ) ? $results : []
 		) ) );
 	}
@@ -67,15 +65,11 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		$selectFields = \array_merge(
 			$this->getSelectFieldsForIPTable(),
 			\array_map(
-				function ( string $field ) {
-					return sprintf( '`%s`.%s', $this->getJoinedTableAbbreviation(), $field );
-				},
+				fn( string $field ) => sprintf( '`%s`.%s', $this->getJoinedTableAbbreviation(), $field ),
 				$this->getSelectFieldsForJoinedTable()
 			),
 			\array_map(
-				function ( string $field ) {
-					return sprintf( '`%s`.%s', 'ipm', $field );
-				},
+				fn( string $field ) => sprintf( '`%s`.%s', 'ipm', $field ),
 				$this->getSelectFieldsForIPMetaTable()
 			)
 		);

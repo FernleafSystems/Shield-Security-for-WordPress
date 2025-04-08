@@ -93,6 +93,42 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "8",
+        "released_at": 1744102000,
+        "items":       [
+          {
+            "title":    "Custom Rule: HTTP Redirect now allows for relative (local) path URLs, so a full URL doesn't need to be provided in these cases.",
+            "category": "enhancement",
+            "type":     "new"
+          },
+          {
+            "title":    "Add ability to pre-set Passkey label using a filter to eliminate JS prompt for users.",
+            "category": "enhancement",
+            "type":     "new"
+          },
+          {
+            "title":    "FileLocker now gracefully handles scenarios where 'locked' file has been completely deleted.",
+            "category": "enhancement",
+            "type":     "fixed"
+          },
+          {
+            "title":    "SPAM comments manually marked as spam will correctly trigger an offense against that IP address.",
+            "category": "enhancement",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Background processing for file scanning was broken due to dependent library changes.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Add protection against stale, corrupt plugin configuration being stored and retained.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      }
     ]
   },
   "20.0": {

@@ -94,12 +94,8 @@ abstract class BaseCmd {
 
 	protected function getCommonCmdArgs() :array {
 		return [
-			'before_invoke' => function () {
-				$this->beforeInvokeCmd();
-			},
-			'after_invoke'  => function () {
-				$this->afterInvokeCmd();
-			},
+			'before_invoke' => fn() => $this->beforeInvokeCmd(),
+			'after_invoke'  => fn() => $this->afterInvokeCmd(),
 			'when'          => 'before_wp_load',
 		];
 	}

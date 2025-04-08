@@ -49,7 +49,7 @@ class ProcessOffense {
 		}
 
 		if ( $fireEvents ) {
-			$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
+			$con->comps->events->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit_params' => [
 						'from' => $originalCount,

@@ -11,7 +11,12 @@ class HttpRedirect extends Base {
 			throw new \Exception( 'Redirection skipped to prevent infinite redirects.' );
 		}
 		\header( 'Cache-Control: no-store, no-cache' );
-		wp_redirect( $this->p->redirect_url, $this->p->status_code );
+		if ( \str_starts_with( $this->p->redirect_url, '/' ) ) {
+			wp_safe_redirect( $this->p->redirect_url, $this->p->status_code );
+		}
+		else {
+			wp_redirect( $this->p->redirect_url, $this->p->status_code );
+		}
 		die();
 	}
 

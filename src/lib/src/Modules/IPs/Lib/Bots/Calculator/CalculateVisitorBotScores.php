@@ -30,12 +30,7 @@ class CalculateVisitorBotScores {
 	}
 
 	private function getActiveScores() :array {
-		return \array_filter(
-			$this->scores,
-			function ( $score ) {
-				return $score !== -1;
-			}
-		);
+		return \array_filter( $this->scores, fn( $score ) => $score !== -1 );
 	}
 
 	private function loadRecord() :BotSignalRecord {

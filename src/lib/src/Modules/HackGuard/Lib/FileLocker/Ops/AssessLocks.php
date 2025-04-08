@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
@@ -18,7 +19,14 @@ class AssessLocks extends BaseOps {
 		$locksChanged = false;
 		foreach ( self::con()->comps->file_locker->getLocks() as $lock ) {
 			try {
-				if ( ( new CompareHash() )->isEqualFileSha1( $lock->path, $lock->hash_original ) ) {
+				if ( !Services::WpFs()->isFile( $lock->path ) ) {
+					if ( $lock->hash_current !== '-' ) {
+						$this->getUpdater()->updateCurrentHash( $lock, '-' );
+						$this->getUpdater()->markProblem( $lock );
+						$locksChanged = true;
+					}
+				}
+				elseif ( ( new CompareHash() )->isEqualFileSha1( $lock->path, $lock->hash_original ) ) {
 					if ( !empty( $lock->hash_current ) ) {
 						$this->getUpdater()->updateCurrentHash( $lock );
 						$locksChanged = true;

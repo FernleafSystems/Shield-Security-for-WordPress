@@ -59,11 +59,11 @@ class ImportDecisions {
 	}
 
 	/**
-	 * @return Scopes\ProcessBase[]
+	 * @return Scopes\V2\ProcessBase[]
 	 */
 	private function enumSupportedScopeProcessors() :array {
 		return [
-			Scopes\ProcessIPs::class,
+			Scopes\V2\ProcessIPs::class,
 		];
 	}
 

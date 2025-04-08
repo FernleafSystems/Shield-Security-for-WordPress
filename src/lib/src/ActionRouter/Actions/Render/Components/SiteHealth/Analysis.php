@@ -16,7 +16,7 @@ class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Act
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$allComponents = ( new Handler() )->getMeter( MeterOverallConfig::SLUG, false )[ 'components' ];
+		$components = ( new Handler() )->getMeter( MeterOverallConfig::SLUG, false )[ 'components' ];
 		return [
 			'hrefs'   => [
 				'dashboard_home' => $con->plugin_urls->adminHome(),
@@ -36,16 +36,9 @@ class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Act
 				'powered_by'                     => sprintf( __( 'Powered by %s', 'wp-simple-firewall' ), $con->labels->Name )
 			],
 			'vars'    => [
-				'protected_components'   => \array_filter( $allComponents, function ( $comp ) {
-					return $comp[ 'is_protected' ];
-				} ),
-				'critical_components'    => \array_filter( $allComponents, function ( $comp ) {
-					return !$comp[ 'is_protected' ] && $comp[ 'weight' ] >= self::CRITICAL_BOUNDARY;
-				} ),
-				'improvement_components' => \array_filter( $allComponents, function ( $comp ) {
-					return !$comp[ 'is_protected' ] && $comp[ 'weight' ] < self::CRITICAL_BOUNDARY;
-				} ),
-
+				'protected_components'   => \array_filter( $components, fn( $c ) => $c[ 'is_protected' ] ),
+				'critical_components'    => \array_filter( $components, fn( $c ) => !$c[ 'is_protected' ] && $c[ 'weight' ] >= self::CRITICAL_BOUNDARY ),
+				'improvement_components' => \array_filter( $components, fn( $c ) => !$c[ 'is_protected' ] && $c[ 'weight' ] < self::CRITICAL_BOUNDARY ),
 			],
 		];
 	}

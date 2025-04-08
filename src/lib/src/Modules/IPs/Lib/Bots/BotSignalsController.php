@@ -24,11 +24,7 @@ class BotSignalsController {
 
 		if ( self::con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' ) ) {
 			$this->getEventListener()->execute();
-			add_action( 'init', function () {
-				foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
-					( new $botTrackerClass() )->execute();
-				}
-			} );
+			add_action( 'init', fn() => \array_map( fn( $c ) => ( new $c() )->execute(), $this->enumerateBotTrackers() ) );
 			self::con()->comps->not_bot->execute();
 			$this->registerFrontPageLoad();
 			$this->registerLoginPageLoad();
@@ -83,9 +79,7 @@ class BotSignalsController {
 		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
 		return \array_unique( \array_filter(
 			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
-			function ( $ext ) {
-				return !empty( $ext ) && \is_string( $ext ) && \preg_match( '#^[a-z\d]+$#i', $ext );
-			}
+			fn( $ext ) => !empty( $ext ) && \is_string( $ext ) && \preg_match( '#^[a-z\d]+$#i', $ext )
 		) );
 	}
 
