@@ -15,6 +15,8 @@ abstract class BaseHandler {
 
 	private ?bool $isCooldown = null;
 
+	protected bool $suppressCooldownCheck = false;
+
 	protected function canRun() :bool {
 		return static::ProviderMeetsRequirements();
 	}
@@ -72,7 +74,9 @@ abstract class BaseHandler {
 
 	public function isCoolDownBlockRequired() :bool {
 		$required = false;
-		if ( self::con()->comps->cool_down->isCooldownContextEnabled( $this->getCooldownContext() ) ) {
+		if ( !$this->suppressCooldownCheck
+			 && self::con()->comps->cool_down->isCooldownContextEnabled( $this->getCooldownContext() ) ) {
+
 			if ( $this->isCooldown === null ) {
 				if ( $this->isCooldown = self::con()->comps->cool_down->isCooldownTriggered( $this->getCooldownContext() ) ) {
 					self::con()->comps->events->fireEvent( 'cooldown_fail' );
