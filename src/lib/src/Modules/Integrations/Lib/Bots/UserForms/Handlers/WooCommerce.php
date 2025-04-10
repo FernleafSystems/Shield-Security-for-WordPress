@@ -14,6 +14,18 @@ class WooCommerce extends Base {
 
 	protected function checkout() {
 		add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkCheckout_Woo' ], 11, 2 );
+		add_action( 'woocommerce_store_api_cart_errors', fn( $cartErrors = null ) => $this->checkCheckout_WooRestApi( $cartErrors ), 11 );
+	}
+
+	/**
+	 * Cooldown checks are suppressed for this hook, because it's triggered frequently.
+	 * @param \WP_Error|mixed $cartErrors
+	 */
+	public function checkCheckout_WooRestApi( $cartErrors ) :void {
+		if ( is_wp_error( $cartErrors ) ) {
+			$this->suppressCooldownCheck = true;
+			$this->check( 'checkout', $cartErrors );
+		}
 	}
 
 	/**
@@ -58,5 +70,9 @@ class WooCommerce extends Base {
 			}
 			$wpError->add( 'shield-user-'.$context, $this->getErrorMessage() );
 		}
+	}
+
+	public function isCoolDownBlockRequired() :bool {
+		return !$this->suppressCooldownCheck && parent::isCoolDownBlockRequired();
 	}
 }
