@@ -94,6 +94,17 @@
     ],
     "patches":     [
       {
+        "version":     "9",
+        "released_at": 1744300000,
+        "items":       [
+          {
+            "title":    "Add bot protection to WooCommerce checkout requests that use the newer REST API.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "8",
         "released_at": 1744102000,
         "items":       [
@@ -106,6 +117,11 @@
             "title":    "Add ability to pre-set Passkey label using a filter to eliminate JS prompt for users.",
             "category": "enhancement",
             "type":     "new"
+          },
+          {
+            "title":    "CrowdSec IP Blocklists weren't always being updated.",
+            "category": "bug",
+            "type":     "fixed"
           },
           {
             "title":    "FileLocker now gracefully handles scenarios where 'locked' file has been completely deleted.",

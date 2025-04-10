@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.4
 Recommended PHP: 7.4
 Tested up to: 6.8
-Stable tag: 20.1.8
+Stable tag: 20.1.9
 
 Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield stops them.
 
