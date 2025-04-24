@@ -33,7 +33,9 @@
     "ext-json":                              "*",
     "ext-openssl":                           "*",
     "ext-zlib":                              "*",
-    "ext-curl":                              "*"
+    "ext-curl":                              "*",
+    "ext-sqlite3":                           "*",
+    "ext-zip":                               "*"
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
