@@ -92,7 +92,7 @@ class DataExportHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Compone
 	private function zipURL() :string {
 		return remove_query_arg(
 			'ver',
-			self::con()->getPluginUrl(
+			self::con()->urls->forPluginItem(
 				sprintf( '%s/%s', untrailingslashit( $this->baseArchivePath() ), \basename( $this->targetZip() ) )
 			)
 		);

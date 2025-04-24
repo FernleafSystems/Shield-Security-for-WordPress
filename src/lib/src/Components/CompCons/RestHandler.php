@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route;
+use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route as WorpdriveRoutes;
 
 class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 
@@ -41,6 +42,13 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 			'lists_addip' => Route\IpRulesAddIpRule::class,
 
 			'debug_get' => Route\Debug::class,
+
+			'worpdrive_clean'    => WorpdriveRoutes\Clean::class,
+			'worpdrive_checks'   => WorpdriveRoutes\Checks::class,
+			'worpdrive_download' => WorpdriveRoutes\Download::class,
+			'worpdrive_fs_map'   => WorpdriveRoutes\FilesystemMap::class,
+			'worpdrive_fs_zip'   => WorpdriveRoutes\FilesystemZip::class,
+			'worpdrive_db'       => WorpdriveRoutes\Database::class,
 		];
 	}
 }

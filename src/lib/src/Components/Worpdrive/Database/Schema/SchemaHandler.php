@@ -102,7 +102,7 @@ class SchemaHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\
 	private function zipURL() :string {
 		return remove_query_arg(
 			'ver',
-			self::con()->getPluginUrl(
+			self::con()->urls->forPluginItem(
 				sprintf( '%s/%s', untrailingslashit( $this->baseArchivePath() ), \basename( $this->targetZip() ) )
 			)
 		);

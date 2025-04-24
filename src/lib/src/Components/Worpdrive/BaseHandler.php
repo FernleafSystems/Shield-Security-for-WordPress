@@ -36,7 +36,6 @@ abstract class BaseHandler {
 	}
 
 	protected function baseArchivePath() :string {
-		$con = self::con();
-		return sprintf( '%s/archive-%s/', $con->cache_dir_handler->dir(), $this->uuid );
+		return sprintf( '%s/archive-%s/', 'tmp', $this->uuid );
 	}
 }

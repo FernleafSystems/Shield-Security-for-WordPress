@@ -167,8 +167,8 @@ class MapHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 	private function mapURL() :string {
 		return remove_query_arg(
 			'ver',
-			self::con()
-				->getPluginUrl( sprintf( '%s/%s', untrailingslashit( $this->baseArchivePath() ), $this->dbFile() ) ),
+			self::con()->urls->forPluginItem(
+				sprintf( '%s/%s', untrailingslashit( $this->baseArchivePath() ), $this->dbFile() ) ),
 		);
 	}
 }
