@@ -32,7 +32,12 @@ class MapHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 		$completed = false;
 
 		$this->filter = new FileFilter(
-			\array_map( '\base64_decode', $this->mapVO->exclusions[ 'contains' ] ?? [] ),
+			\array_merge(
+				\array_map( '\base64_decode', $this->mapVO->exclusions[ 'contains' ] ?? [] ),
+				[
+					\str_replace( wp_normalize_path( ABSPATH ), '', \dirname( $this->workingDir() ) ),
+				]
+			),
 			\array_map( '\base64_decode', $this->mapVO->exclusions[ 'regex' ] ?? [] ),
 			$this->mapVO->maxFileSize,
 			$this->mapVO->newerThanTS,

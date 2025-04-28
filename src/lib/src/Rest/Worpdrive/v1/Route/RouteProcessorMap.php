@@ -21,13 +21,13 @@ class RouteProcessorMap {
 	 */
 	public static function Map() :array {
 		return [
-			Clean::class         => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Checks::class        => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Download::class      => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
+			Clean::class    => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Checks::class   => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Download::class => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
 
 			FilesystemMap::class => function ( Req $req ) {
 				$mapVO = new Map\MapVO();
-				$mapVO->type = $req->get_param( 'type' );
+				$mapVO->type = $req->get_param( 'type' ) === 'map' ? 'full' : $req->get_param( 'type' );
 				$mapVO->dir = $req->get_param( 'dir' );
 				$mapVO->exclusions = $req->get_param( 'file_exclusions' );
 				return ( new Map\MapHandler(
@@ -44,17 +44,17 @@ class RouteProcessorMap {
 				BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
 			) )->run(),
 
-			Database::class      => fn( Req $req ) => $req->get_param( 'type' ) === 'data' ?
-				( new DataExportHandler(
-					$req->get_param( 'table_export_map' ),
-					$req->get_param( 'uuid' ),
-					BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
-				) )->run()
-				: ( new SchemaHandler(
-					$req->get_param( 'dump_method' ),
-					$req->get_param( 'uuid' ),
-					BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
-				) )->run(),
+			DatabaseSchema::class => fn( Req $req ) => ( new SchemaHandler(
+				$req->get_param( 'dump_method' ),
+				$req->get_param( 'uuid' ),
+				BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
+			) )->run(),
+
+			DatabaseData::class => fn( Req $req ) => ( new DataExportHandler(
+				$req->get_param( 'table_export_map' ),
+				$req->get_param( 'uuid' ),
+				BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
+			) )->run(),
 		];
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route;
 
-class Database extends BaseWorpdrive {
+class BaseDatabase extends BaseWorpdrive {
 
 	public function getRoutePath() :string {
 		return sprintf( '/db/(?P<type>%s)', \implode( '|', $this->enumTypes() ) );

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Process;
 
-class StandardWorpdriveByCallable extends BaseWorpdrive {
+class StandardWorpdriveByCallable extends \FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process\Base {
 
 	protected \Closure $processCallable;
 
@@ -12,6 +12,6 @@ class StandardWorpdriveByCallable extends BaseWorpdrive {
 	}
 
 	protected function process() :array {
-		return \call_user_func( $this->processCallable, $this->getWpRestRequest() );
+		return [ 'status' => \call_user_func( $this->processCallable, $this->getWpRestRequest() ) ];
 	}
 }

@@ -48,7 +48,8 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 			'worpdrive_download' => WorpdriveRoutes\Download::class,
 			'worpdrive_fs_map'   => WorpdriveRoutes\FilesystemMap::class,
 			'worpdrive_fs_zip'   => WorpdriveRoutes\FilesystemZip::class,
-			'worpdrive_db'       => WorpdriveRoutes\Database::class,
+			'worpdrive_db'       => WorpdriveRoutes\DatabaseSchema::class,
+			'worpdrive_data'     => WorpdriveRoutes\DatabaseData::class,
 		];
 	}
 }

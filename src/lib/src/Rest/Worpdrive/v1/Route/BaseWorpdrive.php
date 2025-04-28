@@ -23,7 +23,7 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 		/** @var \WP_Error|bool $v */
 		$v = apply_filters( 'shield/rest_api_verify_permission', parent::verifyPermission( $req ), $req );
 		return $v === true
-			   || ( ( ( is_wp_error( $v ) && $v->has_errors() ) || $v === false ) && $this->isRequestFromWorpdrive() );
+			   || ( is_wp_error( $v ) && !$v->has_errors() && $this->isRequestFromWorpdrive() );
 	}
 
 	protected function isRequestFromWorpdrive() :bool {
