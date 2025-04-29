@@ -22,13 +22,12 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 	protected function verifyPermission( \WP_REST_Request $req ) {
 		/** @var \WP_Error|bool $v */
 		$v = apply_filters( 'shield/rest_api_verify_permission', parent::verifyPermission( $req ), $req );
-		return $v === true
-			   || ( is_wp_error( $v ) && !$v->has_errors() && $this->isRequestFromWorpdrive() );
+		return $v === true || $this->isRequestFromWorpdrive();
 	}
 
 	protected function isRequestFromWorpdrive() :bool {
 		try {
-			$isShield = ( new IpID( self::con()->this_req->ip ) )->run()[ 0 ] === ServiceProviders::PROVIDER_WORPDRIVE;
+			$isShield = IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE );
 		}
 		catch ( \Exception $e ) {
 			$isShield = false;

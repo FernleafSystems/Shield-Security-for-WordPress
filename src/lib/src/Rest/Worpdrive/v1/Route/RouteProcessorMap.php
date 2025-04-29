@@ -30,6 +30,10 @@ class RouteProcessorMap {
 				$mapVO->type = $req->get_param( 'type' ) === 'map' ? 'full' : $req->get_param( 'type' );
 				$mapVO->dir = $req->get_param( 'dir' );
 				$mapVO->exclusions = $req->get_param( 'file_exclusions' );
+				$mapVO->newerThanTS = $req->get_param( 'newer_than_ts' ) ?: 0;
+				if ( $mapVO->type === 'hashless' ) {
+					$mapVO->hashAlgo = '';
+				}
 				return ( new Map\MapHandler(
 					$mapVO,
 					$req->get_param( 'uuid' ),

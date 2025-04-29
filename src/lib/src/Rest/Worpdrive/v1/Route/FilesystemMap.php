@@ -62,6 +62,12 @@ class FilesystemMap extends BaseWorpdrive {
 				'type'        => 'object',
 				'required'    => true,
 			],
+			'newer_than_ts' => [
+				'description' => 'Only maps files that are newer than this Timestamp (Unix Timestamp in seconds)',
+				'type'        => 'integer',
+				'default'     => 0,
+				'required'    => false,
+			],
 		];
 	}
 }
