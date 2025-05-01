@@ -50,6 +50,7 @@ class CompatibilityChecks extends BaseHandler {
 			$enum[ $file ] = [
 				'name'    => $p[ 'Name' ] ?? '',
 				'version' => $p[ 'Version' ] ?? '',
+				'dir'     => \dirname( $file ),
 				'active'  => (int)is_plugin_active( $file ),
 			];
 		}
@@ -64,6 +65,7 @@ class CompatibilityChecks extends BaseHandler {
 			if ( $t instanceof \WP_Theme ) {
 				$enum[ $t->get_stylesheet() ] = [
 					'name'    => $t->get( 'Name' ),
+					'dir'     => $t->get_stylesheet(),
 					'version' => $t->get( 'Version' ),
 					'active'  => $active === $t->get_stylesheet() ? 1 : 0,
 				];
