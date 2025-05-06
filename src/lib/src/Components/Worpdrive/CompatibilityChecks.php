@@ -22,6 +22,7 @@ class CompatibilityChecks extends BaseHandler {
 			'wp'       => [
 				'wp_version'   => \function_exists( 'wp_get_wp_version' ) ? wp_get_wp_version() : \get_bloginfo( 'version' ),
 				'url_home'     => $WP->getHomeUrl(),
+				'url_rest'     => rest_url(),
 				/** TODO: Delete url_site */
 				'url_site'     => $WP->getHomeUrl(),
 				'url_wp'       => $WP->getWpUrl(),
