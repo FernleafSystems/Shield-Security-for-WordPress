@@ -27,9 +27,9 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 
 	protected function isVerifiedWorpdriveRequest( \WP_REST_Request $req ) :bool {
 		try {
-			return IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE )
-				   && !empty( $req->get_param( 'auth' ) )
-				   && \hash_equals( $this->getStoredAuth(), \hash( 'sha512', $req->get_param( 'auth' ) ) );
+			return !empty( $req->get_param( 'auth_key' ) ) && !empty( $this->getStoredAuth() )
+				   && \hash_equals( $this->getStoredAuth(), \hash( 'sha512', $req->get_param( 'auth_key' ) ) )
+				   && IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE );
 		}
 		catch ( \Exception $e ) {
 			return false;
@@ -86,8 +86,6 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 				'description' => 'Auth Key used to verify request from known WorpDrive sources',
 				'type'        => 'string',
 				'required'    => true,
-				'readonly'    => true,
-				'default'     => '',
 			],
 			'uuid'       => [
 				'description' => 'Request UUID',

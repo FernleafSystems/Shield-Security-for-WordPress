@@ -34,8 +34,8 @@
   "includes":     {
     "tp":   {
       "bootstrap":    {
-        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css",
-        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
+        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.6/css/bootstrap.min.css",
+        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.6/js/bootstrap.min.js"
       },
       "vimeo_player": {
         "js": "https://player.vimeo.com/api/player.js"
