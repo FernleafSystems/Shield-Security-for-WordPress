@@ -42,10 +42,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  */
 class ShieldUserMeta extends UserMeta {
 
-	/**
-	 * @var Record
-	 */
-	public $record;
+	public ?Record $record = null;
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

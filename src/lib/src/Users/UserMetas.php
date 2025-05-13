@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\MetaRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\{
+	MetaRecords,
+	Ops\Record
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -10,24 +13,18 @@ class UserMetas {
 
 	use PluginControllerConsumer;
 
-	/**
-	 * @var \WP_User
-	 */
-	private $user;
-
 	public function current() :?ShieldUserMeta {
 		return $this->for( Services::WpUsers()->getCurrentWpUser() );
 	}
 
 	public function for( ?\WP_User $user ) :?ShieldUserMeta {
 		$meta = null;
-		if ( $user instanceof \WP_User ) {
-			$this->user = $user;
+		if ( !empty( $user ) ) {
 			try {
 				$meta = ShieldUserMeta::Load( self::con()->prefix(), (int)$user->ID );
 				if ( !isset( $meta->record ) ) {
 					$this->loadMetaRecord( $meta );
-					$this->setup( $meta );
+					$this->setupMeta( $user, $meta );
 					// TODO: a query to delete all of these
 					Services::WpUsers()->deleteUserMeta( self::con()->prefix( 'meta-version' ), $user->ID );
 				}
@@ -38,10 +35,10 @@ class UserMetas {
 		return $meta;
 	}
 
-	private function setup( ShieldUserMeta $meta ) {
+	private function setupMeta( \WP_User $user, ShieldUserMeta $meta ) :void {
 		$rec = $meta->record;
 
-		$newHash = \substr( \hash( 'sha1', $this->user->user_pass ), 6, 4 );
+		$newHash = \substr( \hash( 'sha1', $user->user_pass ), 6, 4 );
 		if ( empty( $rec->pass_started_at ) || !isset( $meta->pass_hash ) || ( $meta->pass_hash !== $newHash ) ) {
 			$meta->pass_hash = $newHash;
 			$rec->pass_started_at = Services::Request()->ts();
@@ -103,6 +100,14 @@ class UserMetas {
 			}
 		}
 
-		$meta->record = $metaRecord;
+		if ( $metaRecord instanceof Record ) {
+			$meta->record = $metaRecord;
+		}
+	}
+
+	/**
+	 * @deprecated 21.0
+	 */
+	private function setup( ShieldUserMeta $meta ) :void {
 	}
 }
