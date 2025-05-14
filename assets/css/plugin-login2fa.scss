@@ -11,6 +11,10 @@ input[type="text"][name="icwp_wpsf_ga_otp"] {
   font-weight: bolder;
 }
 
+.shield_2fa_field_container input[type="text"]::placeholder {
+  opacity: 0.50;
+}
+
 .otp-description {
   display: block;
   margin: 3px 0 10px;
