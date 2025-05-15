@@ -1,4 +1,42 @@
 {
+  "21.0": {
+    "version":     "21.0",
+    "released_at": 1747300000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease210",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide210"
+    },
+    "title":       "ShieldBACKUPS!",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Support for ShieldBACKUPS",
+        "description": [
+          "We're adding a new pro feature to provide vital disaster recovery options for your WordPress sites and data."
+        ],
+        "href":        "https://clk.shldscrty.com/shieldbackups"
+      },
+      {
+        "type":        "improved",
+        "title":       "WooCommerce Bot Protection",
+        "description": [
+          "We've improved how Shield works to detect bots on your WooCommerce checkout."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "fixed",
+        "title":       "Various small bugfixes",
+        "description": [
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "20.1": {
     "version":     "20.1",
     "released_at": 1733823000,
