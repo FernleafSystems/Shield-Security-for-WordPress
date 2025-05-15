@@ -20,7 +20,7 @@ class PluginIpDetect extends BaseAction {
 		}
 		$this->response()->action_response_data = [
 			'success'   => !empty( $source ),
-			'message'   => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source,
+			'message'   => empty( $source ) ? sprintf( 'Could not find source from IP: %s', \esc_html( $this->action_data[ 'ip' ] ) ) : 'IP Source Found: '.$source,
 			'ip_source' => $source,
 		];
 	}

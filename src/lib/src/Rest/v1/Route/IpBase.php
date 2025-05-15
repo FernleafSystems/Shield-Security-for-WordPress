@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Exceptions\NotIpAddressException;
 use FernleafSystems\Wordpress\Services\Services;
 

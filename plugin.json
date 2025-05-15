@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "20.1.9",
-    "release_timestamp":       1744300000,
-    "build":                   "202504.1001",
+    "version":                 "21.0.0",
+    "release_timestamp":       1747300000,
+    "build":                   "202505.1501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -34,8 +34,8 @@
   "includes":     {
     "tp":   {
       "bootstrap":    {
-        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css",
-        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
+        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.6/css/bootstrap.min.css",
+        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.6/js/bootstrap.min.js"
       },
       "vimeo_player": {
         "js": "https://player.vimeo.com/api/player.js"
@@ -1680,6 +1680,12 @@
         "name":            "Show Re-Install Links",
         "summary":         "Show Re-Install Links For Plugins",
         "description":     "Show links to re-install plugins and offer re-install when activating plugins."
+      },
+      {
+        "key":     "shieldbackups_status",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
       },
       {
         "key":     "delay_tracking",

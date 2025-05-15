@@ -62,7 +62,7 @@ class RootHtaccess {
 			$this->getPathToHtaccess(),
 			\implode( "\n", [
 				'Order Allow,Deny',
-				'<FilesMatch "^.*\.(css|js|png|jpg|svg)$" >',
+				'<FilesMatch "^.*\.(zip|archive|sqlite3|css|js|png|jpg|svg)$" >',
 				' Allow from all',
 				'</FilesMatch>',
 			] )
