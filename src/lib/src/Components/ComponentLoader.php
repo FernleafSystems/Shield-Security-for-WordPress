@@ -44,6 +44,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property AssetsCustomizer                 $assets_customizer
  * @property ApiTokenManager                  $api_token
  * @property CompCons\AutoUpdatesCon          $autoupdates
+ * @property CompCons\BackupsCon              $backups
  * @property CompCons\AntiBot\CoolDownHandler $cool_down
  * @property PluginBadge                      $badge
  * @property BotSignalsController             $bot_signals
@@ -106,6 +107,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'assets_customizer' => AssetsCustomizer::class,
 			'autoupdates'       => CompCons\AutoUpdatesCon::class,
 			'api_token'         => ApiTokenManager::class,
+			'backups'           => CompCons\BackupsCon::class,
 			'badge'             => PluginBadge::class,
 			'bot_signals'       => BotSignalsController::class,
 			'comment_spam'      => CommentSpamCon::class,

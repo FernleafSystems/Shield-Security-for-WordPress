@@ -374,6 +374,11 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
 				break;
+			case 'section_backups' :
+				$short = __( 'ShieldBACKUPS', 'wp-simple-firewall' );
+				$title = __( 'ShieldBACKUPS', 'wp-simple-firewall' );
+				$summary = [];
+				break;
 			case 'section_suspend' :
 				$short = __( 'User Suspension', 'wp-simple-firewall' );
 				$title = __( 'Automatic And Manual User Suspension', 'wp-simple-firewall' );

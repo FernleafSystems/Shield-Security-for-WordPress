@@ -1682,6 +1682,12 @@
         "description":     "Show links to re-install plugins and offer re-install when activating plugins."
       },
       {
+        "key":     "shieldbackups_status",
+        "section": "section_hidden",
+        "type":    "array",
+        "default": []
+      },
+      {
         "key":     "delay_tracking",
         "section": "section_hidden",
         "type":    "array",

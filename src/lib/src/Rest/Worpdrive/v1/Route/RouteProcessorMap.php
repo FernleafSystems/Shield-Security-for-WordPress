@@ -11,19 +11,24 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\{
 	Filesystem\Map,
 	Filesystem\Zip\ZipHandler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Utility\BuildTimeLimit;
 use WP_REST_Request as Req;
 
 class RouteProcessorMap {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @return \Closure[]
 	 */
 	public static function Map() :array {
 		return [
-			Clean::class    => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Checks::class   => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Download::class => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
+			ArchiveBegin::class => fn( Req $req ) => self::con()->comps->backups->beginBackup(),
+			ArchiveEnd::class   => fn( Req $req ) => self::con()->comps->backups->endBackup( (bool)$req->get_param( 'archive_success' ) ),
+			Clean::class        => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Checks::class       => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Download::class     => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
 
 			FilesystemMap::class => function ( Req $req ) {
 				$mapVO = new Map\MapVO();
