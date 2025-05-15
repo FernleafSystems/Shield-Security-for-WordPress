@@ -22,12 +22,11 @@ class CompatibilityChecks extends BaseHandler {
 			'wp'       => [
 				'wp_version'   => \function_exists( 'wp_get_wp_version' ) ? wp_get_wp_version() : \get_bloginfo( 'version' ),
 				'url_home'     => $WP->getHomeUrl(),
-				'url_rest'     => rest_url(),
-				/** TODO: Delete url_site */
-				'url_site'     => $WP->getHomeUrl(),
 				'url_wp'       => $WP->getWpUrl(),
+				'url_rest'     => rest_url(),
 				'url_content'  => content_url(),
 				'locale'       => get_locale(),
+				'timezone'     => wp_timezone_string(),
 				'wplang'       => \defined( 'WPLANG' ) ? WPLANG : '',
 				'is_multisite' => is_multisite(),
 				'plugins'      => $this->plugins(),
