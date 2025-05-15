@@ -43,15 +43,14 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 
 			'debug_get' => Route\Debug::class,
 
-			'worpdrive_archive_begin' => WorpdriveRoutes\ArchiveBegin::class,
-			'worpdrive_archive_end'   => WorpdriveRoutes\ArchiveEnd::class,
-			'worpdrive_clean'         => WorpdriveRoutes\Clean::class,
-			'worpdrive_checks'        => WorpdriveRoutes\Checks::class,
-			'worpdrive_download'      => WorpdriveRoutes\Download::class,
-			'worpdrive_fs_map'        => WorpdriveRoutes\FilesystemMap::class,
-			'worpdrive_fs_zip'        => WorpdriveRoutes\FilesystemZip::class,
-			'worpdrive_db'            => WorpdriveRoutes\DatabaseSchema::class,
-			'worpdrive_data'          => WorpdriveRoutes\DatabaseData::class,
+			'worpdrive_signal'   => WorpdriveRoutes\Signal::class,
+			'worpdrive_clean'    => WorpdriveRoutes\Clean::class,
+			'worpdrive_checks'   => WorpdriveRoutes\Checks::class,
+			'worpdrive_download' => WorpdriveRoutes\Download::class,
+			'worpdrive_fs_map'   => WorpdriveRoutes\FilesystemMap::class,
+			'worpdrive_fs_zip'   => WorpdriveRoutes\FilesystemZip::class,
+			'worpdrive_db'       => WorpdriveRoutes\DatabaseSchema::class,
+			'worpdrive_data'     => WorpdriveRoutes\DatabaseData::class,
 		];
 	}
 }
