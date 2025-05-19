@@ -24,11 +24,13 @@ class RouteProcessorMap {
 	 */
 	public static function Map() :array {
 		return [
-			ArchiveBegin::class => fn( Req $req ) => self::con()->comps->backups->beginBackup(),
-			ArchiveEnd::class   => fn( Req $req ) => self::con()->comps->backups->endBackup( (bool)$req->get_param( 'archive_success' ) ),
-			Clean::class        => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Checks::class       => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Download::class     => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
+			Signal::class   => fn( Req $req ) => self::con()->comps->backups->processSignal(
+				$req->get_param( 'context' ),
+				$req->get_param( 'signal_data' )
+			),
+			Clean::class    => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Checks::class   => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Download::class => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
 
 			FilesystemMap::class => function ( Req $req ) {
 				$mapVO = new Map\MapVO();
