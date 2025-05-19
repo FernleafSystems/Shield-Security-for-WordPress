@@ -76,6 +76,7 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 				break;
 			default:
 				$valid = parent::customValidateRequestArg( $value, $request, $reqArgKey );
+				break;
 		}
 		return $valid;
 	}

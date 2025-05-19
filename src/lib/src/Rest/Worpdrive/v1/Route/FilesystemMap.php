@@ -40,6 +40,7 @@ class FilesystemMap extends BaseWorpdrive {
 				break;
 			default:
 				$valid = parent::customValidateRequestArg( $value, $request, $reqArgKey );
+				break;
 		}
 		return $valid;
 	}
