@@ -35,6 +35,17 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "3",
+        "released_at": 1747655000,
+        "items":       [
+          {
+            "title":    "Remove debug code.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      }
     ]
   },
   "20.1": {
