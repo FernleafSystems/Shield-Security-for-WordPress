@@ -36,6 +36,17 @@
     ],
     "patches":     [
       {
+        "version":     "6",
+        "released_at": 1748870002,
+        "items":       [
+          {
+            "title":    "Add support for testing disk space capacity (up to 100MB) for ShieldBACKUPS compatibility pre-checks.",
+            "category": "enhancement",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "3",
         "released_at": 1747655000,
         "items":       [
