@@ -29,7 +29,11 @@ class RouteProcessorMap {
 				$req->get_param( 'signal_data' )
 			),
 			Clean::class    => fn( Req $req ) => ( new WdClean( $req->get_param( 'uuid' ), 0 ) )->run(),
-			Checks::class   => fn( Req $req ) => ( new WdCheck( $req->get_param( 'uuid' ), 0 ) )->run(),
+			Checks::class   => fn( Req $req ) => ( new WdCheck(
+				\is_array( $req->get_param( 'check_params' ) ) ? $req->get_param( 'check_params' ) : [],
+				$req->get_param( 'uuid' ),
+				0
+			) )->run(),
 			Download::class => fn( Req $req ) => ( new WdDownload( $req->get_param( 'download_type' ), $req->get_param( 'uuid' ), 0 ) )->run(),
 
 			FilesystemMap::class => function ( Req $req ) {
