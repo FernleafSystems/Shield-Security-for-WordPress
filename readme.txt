@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.4
 Recommended PHP: 7.4
 Tested up to: 6.8
-Stable tag: 21.0.6
+Stable tag: 21.0.7
 
 Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield stops them.
 
@@ -16,15 +16,17 @@ Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield
 
 ## Key Security Features At A Glance
 
-### [PRO-Only] Zero-Configuration Fast & Reliable WordPress Backups
+### [PRO-Only] Zero-Configuration, Fast & Reliable WordPress Backups Included
 
 We've made WordPress backups faster than ever with our integrated WordPress Disaster Recovery Backups solution - [ShieldBACKUPS](https://clk.shldscrty.com/shieldbackups).
 
-No more fiddling with cloud storage, OAuth, broken backups, exposed credentials sitting on your WordPress sites. ShieldBACKUPS keeps your data off-site, and away from hackers.
+No more risky Cloud Storage/OAuth credentials exposed on your sites; Backups that work without relying on a temperamental WordPress cron.
+
+ShieldBACKUPS keeps your data off-site, encrypted, and far away from hackers.
 
 ### *silent*CAPTCHA Bad Bot Protection
 
-Bad bots are your #1 security threat. They account for nearly all WordPress security probes, attacks, injections, malware and vulnerability exploitation.
+Bad bots are your #1 security threat. They account for nearly all WordPress security probes, attacks, injections, malware, and vulnerability exploitation.
 
 Google reCAPTCHA and CloudFlare Turnstile are considered the best way to detect bots, but these along with all other CAPTCHAs interrupt the user experience.
 

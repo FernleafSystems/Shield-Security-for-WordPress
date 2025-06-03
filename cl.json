@@ -36,6 +36,17 @@
     ],
     "patches":     [
       {
+        "version":     "7",
+        "released_at": 1748944000,
+        "items":       [
+          {
+            "title":    "Adjust the compatibility checks for ShieldBACKUPS to be more lenient and configurable in real-time.",
+            "category": "enhancement",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "6",
         "released_at": 1748870002,
         "items":       [
