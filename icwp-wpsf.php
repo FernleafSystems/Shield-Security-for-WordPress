@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: https://clk.shldscrty.com/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 21.0.6
+ * Version: 21.0.7
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
  * Author: Shield Security
