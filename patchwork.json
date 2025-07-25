@@ -1,0 +1,9 @@
+{
+  "redefinable-internals": [
+    "defined",
+    "function_exists",
+    "class_exists",
+    "interface_exists",
+    "trait_exists"
+  ]
+}

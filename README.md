@@ -14,4 +14,10 @@
 **Shield + iControlWP**
 > If you have multiple sites, then Shield [combined with iControlWP](https://clk.shldscrty.com/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
 
+## Development
+
+### Testing
+
+See [TESTING.md](TESTING.md) for complete testing documentation.
+
 See readme.txt for full details and changelog

@@ -50,7 +50,17 @@ module.exports = {
 				use: [
 					MiniCssExtractPlugin.loader,
 					'css-loader',
-					'sass-loader',
+					{
+						loader: 'sass-loader',
+						options: {
+							sassOptions: {
+								// Suppress deprecation warnings for now
+								// TODO: Update to modern Sass module system in future
+								quietDeps: true,
+								silenceDeprecations: ['import'],
+							},
+						},
+					},
 				],
 			},
 			{

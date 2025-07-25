@@ -1,0 +1,53 @@
+// Modern SCSS with @use instead of @import to fix deprecation warnings
+// This file can replace plugin-main.scss when ready to modernize
+
+// Define variables
+$primary: #008000;
+$secondary: #3F3D56;
+$info: #0ea8c7;
+$warning: #edb41d;
+$danger: #c62f3e;
+$code-color: $secondary;
+
+// Use @use with namespace for better organization
+// Note: This requires updating how Bootstrap is configured
+// For now, keeping @import for Bootstrap as it requires significant refactoring
+@import "~bootstrap/scss/bootstrap";
+
+// External library styles - these are CSS files so @import is still appropriate
+@import '~datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+@import '~datatables.net-select-bs5/css/select.bootstrap5.min.css';
+@import '~datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css';
+@import '~datatables.net-searchpanes-bs5/css/searchPanes.bootstrap5.min.css';
+@import '~vanillajs-datepicker/sass/datepicker-bs5';
+@import "~intro.js/introjs.css";
+@import '~smartwizard/dist/css/smart_wizard_all.css';
+@import '~select2/dist/css/select2.css';
+
+// Internal styles - these should eventually use @use
+@import "./plugin-wpadmin.scss";
+@import './shield/datatables.css';
+@import './shield/merlin.scss';
+@import './shield/meters.scss';
+@import './shield/options.scss';
+@import './shield/notices.scss';
+@import './shield/tables.scss';
+@import './shield/charts.scss';
+@import './shield/general.scss';
+@import './shield/sections/overview.scss';
+@import './shield/icwp-icons.css';
+@import './shield/toastify';
+@import './shield/micromodal';
+@import './shield/user-profile.scss';
+@import './shield/reports.scss';
+@import './components/offcanvas';
+@import './components/modal';
+@import './shield/integration/mainwp-server';
+
+// Note: To fully resolve the warnings, you would need to:
+// 1. Update to Bootstrap 5.3+ which has better Sass module support
+// 2. Configure Bootstrap to use math.div() instead of deprecated division
+// 3. Update color functions to use color.channel() instead of red(), green(), blue()
+// 4. Convert all @import to @use/@forward where possible
+//
+// This is a significant refactoring that should be done carefully in a future update

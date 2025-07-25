@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<ruleset name="Shield Security Plugin">
+    <description>WordPress Coding Standards for Shield Security Plugin</description>
+
+    <!-- Files to check -->
+    <file>src/lib/src</file>
+    <file>icwp-wpsf.php</file>
+    <file>plugin_init.php</file>
+    
+    <!-- Exclude paths -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/vendor_prefixed/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    
+    <!-- Use WordPress coding standards -->
+    <rule ref="WordPress">
+        <!-- Allow use of short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+        <!-- We use tabs, not spaces -->
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent"/>
+    </rule>
+    
+    <!-- PHP compatibility -->
+    <config name="testVersion" value="7.4-"/>
+    <rule ref="PHPCompatibilityWP"/>
+    
+    <!-- Set text domain for i18n -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="wp-simple-firewall"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>

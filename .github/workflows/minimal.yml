@@ -1,0 +1,231 @@
+name: Minimal Working CI
+
+on:
+  push:
+    branches: [ feature/claude ]
+  workflow_dispatch:
+    inputs:
+      run_phpcs:
+        type: boolean
+        default: false
+        description: 'Enable PHPCS code standards check'
+
+jobs:
+  minimal-test:
+    name: 'Minimal Test'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        
+    - name: 🔍 Verify PHP works
+      run: php --version
+      
+    - name: 📦 Build plugin package
+      run: |
+        PACKAGE_DIR="/tmp/test-package"
+        echo "Building plugin package..."
+        
+        # Create package directory
+        mkdir -p "$PACKAGE_DIR"
+        
+        # Copy plugin files (matching WordPress.org structure)
+        for file in icwp-wpsf.php plugin_init.php readme.txt plugin.json cl.json \
+                    plugin_autoload.php plugin_compatibility.php uninstall.php unsupported.php; do
+          if [ -f "$file" ]; then
+            cp "$file" "$PACKAGE_DIR/"
+            echo "Copied: $file"
+          fi
+        done
+        
+        # Copy directories
+        for dir in src assets flags languages templates; do
+          if [ -d "$dir" ]; then
+            cp -R "$dir" "$PACKAGE_DIR/"
+            echo "Copied directory: $dir"
+          fi
+        done
+        
+        echo "Package built successfully"
+        ls -la "$PACKAGE_DIR"
+        
+    - name: ✅ Test package
+      run: |
+        echo "Running trivial test on package..."
+        if [ -d "/tmp/test-package" ]; then
+          echo "Package directory exists"
+          if [ -f "/tmp/test-package/icwp-wpsf.php" ]; then
+            echo "Main plugin file exists"
+            php -l /tmp/test-package/icwp-wpsf.php
+            echo "PHP syntax check passed"
+          else
+            echo "Main plugin file missing"
+            exit 1
+          fi
+        else
+          echo "Package directory missing"
+          exit 1
+        fi
+
+  phpcs:
+    name: '🔍 Code Standards'
+    if: github.event.inputs.run_phpcs == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+        
+    - name: 📦 Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+    - name: 🔍 Run PHPCS
+      run: php ./vendor/squizlabs/php_codesniffer/bin/phpcs --report=full --runtime-set ignore_errors_on_exit true --runtime-set ignore_warnings_on_exit true
+
+  phpunit:
+    name: '🧪 Unit Tests'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+        
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd src/lib && composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd ../..
+        npm ci --no-audit --no-fund
+        
+    - name: 🔨 Build assets
+      run: |
+        echo "=== Before npm build ==="
+        [ -d "assets/dist" ] && echo "assets/dist already exists" || echo "assets/dist does not exist yet"
+        npm run build
+        echo "=== After npm build ==="
+        [ -d "assets/dist" ] && echo "✓ assets/dist created" || echo "✗ assets/dist NOT created"
+        ls -la assets/dist/ 2>/dev/null | head -10 || echo "assets/dist not found"
+      
+    - name: 🔨 Build plugin package with Strauss
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        ./bin/build-package.sh "$PACKAGE_DIR" "${{ github.workspace }}"
+        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
+      
+    - name: 🧪 Run unit tests against package
+      run: |
+        # Debug: Show environment
+        echo "=== Test environment ==="
+        echo "SHIELD_PACKAGE_PATH: ${{ env.SHIELD_PACKAGE_PATH }}"
+        echo "Current directory: $(pwd)"
+        [ -f phpunit-unit.xml ] && echo "PHPUnit config exists: YES" || echo "PHPUnit config exists: NO"
+        
+        # Run tests from source directory, pointing at built package
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage || {
+          echo "Tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
+          exit 1
+        }
+
+  integration-tests:
+    name: '🧪 Integration Tests'
+    runs-on: ubuntu-latest
+    needs: phpunit  # Need package from unit tests
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+        
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd src/lib && composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd ../..
+        npm ci --no-audit --no-fund
+        
+    - name: 🔨 Build assets
+      run: npm run build
+      
+    - name: 🔨 Build plugin package for integration testing
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-integration-package"
+        ./bin/build-package.sh "$PACKAGE_DIR" "${{ github.workspace }}"
+        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
+        
+    - name: 📦 Install subversion
+      run: sudo apt-get update && sudo apt-get install -y subversion
+      
+    - name: 🌐 Install WordPress Tests for integration
+      shell: bash
+      run: bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+      
+    - name: 🧪 Run integration tests against package
+      run: |
+        echo "=== Integration Test Environment ==="
+        echo "SHIELD_PACKAGE_PATH: ${{ env.SHIELD_PACKAGE_PATH }}"
+        echo "Package exists: $([ -d "${{ env.SHIELD_PACKAGE_PATH }}" ] && echo "YES" || echo "NO")"
+        echo "WordPress tests lib: $([ -d "/tmp/wordpress-tests-lib" ] && echo "YES" || echo "NO")"
+        echo "WordPress dir: $([ -d "/tmp/wordpress" ] && echo "YES" || echo "NO")"
+        echo ""
+        
+        # Verify WordPress functions will be available (should work with new WordPress pattern)
+        echo "Testing environment setup with new WordPress integration bootstrap..."
+        
+        # Run integration tests with new dedicated WordPress PHPUnit config
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage || {
+          echo "Integration tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
+          exit 1
+        }
+        
+        echo "=== Post-Test Verification ==="
+        echo "✓ Integration tests completed with new WordPress configuration"
