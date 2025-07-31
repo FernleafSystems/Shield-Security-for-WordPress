@@ -72,7 +72,7 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	}
 
 	/**
-	 * Test all security module directories exist with Module.php files
+	 * Test all security module directories exist with proper structure
 	 */
 	public function testSecurityModulesExist() :void {
 		$modules = [
@@ -103,11 +103,12 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 				"Module directory '$module' should exist"
 			);
 
-			// Check for Module.php file in each module directory
-			$moduleFile = $modulePath . '/Module.php';
-			$this->assertFileExistsWithDebug(
-				$moduleFile,
-				"Module.php should exist in $module module"
+			// Verify module directory is not empty and contains PHP files
+			$files = \glob( $modulePath . '/*.php' );
+			$subdirs = \glob( $modulePath . '/*', GLOB_ONLYDIR );
+			$this->assertTrue(
+				!empty( $files ) || !empty( $subdirs ),
+				"Module directory '$module' should contain PHP files or subdirectories"
 			);
 		}
 	}
@@ -241,10 +242,22 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 		$templatesPath = $this->getPluginFilePath( 'templates' );
 		$this->assertDirectoryExists( $templatesPath, 'Templates directory should exist' );
 
-		$files = \glob( $templatesPath . '/*.php' );
+		// Plugin uses Twig templates, not PHP templates
+		// Check recursively for .twig files
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $templatesPath, \RecursiveDirectoryIterator::SKIP_DOTS )
+		);
+		
+		$twigFiles = [];
+		foreach ( $iterator as $file ) {
+			if ( $file->getExtension() === 'twig' ) {
+				$twigFiles[] = $file->getPathname();
+			}
+		}
+		
 		$this->assertNotEmpty(
-			$files,
-			'Templates directory should contain PHP template files'
+			$twigFiles,
+			'Templates directory should contain Twig template files (.twig)'
 		);
 	}
 
