@@ -2,7 +2,7 @@ name: Minimal Working CI
 
 on:
   push:
-    branches: [ feature/claude ]
+    branches: [ feature/claude, feature/expanded_testing, develop ]
   workflow_dispatch:
     inputs:
       run_phpcs:
