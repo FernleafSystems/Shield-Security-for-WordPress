@@ -58,9 +58,21 @@ The plugin uses a modern testing setup with:
    ```
    Replace database credentials as needed.
 
-3. **Run tests (two approaches):**
+3. **Run all tests (see "Running ALL Tests" section below for details):**
+   ```bash
+   composer test                    # THE primary command - runs ALL tests
+   ```
 
-   **Option A: Package-Based Testing (Recommended)**
+   **Alternative testing options:**
+
+   **Option A: Smoke Tests (Fastest - No WordPress Required)**
+   ```powershell
+   # Windows PowerShell - rapid validation
+   .\bin\run-smoke-tests.ps1       # Run all smoke tests
+   composer test:smoke             # Alternative using Composer
+   ```
+
+   **Option B: Package-Based Testing (Advanced)**
    ```powershell
    # Windows PowerShell - tests the packaged plugin
    .\bin\test-package.ps1          # Build package and run all tests
@@ -68,10 +80,37 @@ The plugin uses a modern testing setup with:
    .\bin\test-package.ps1 -SkipBuild  # Use existing package
    ```
 
-   **Option B: Traditional Source Testing**
-   ```bash
-   composer test                    # Run all tests on source code
-   ```
+## Running ALL Tests - The Primary Command
+
+To run ALL tests for the Shield Security plugin, use this single command:
+
+```bash
+composer test
+```
+
+**This command runs EVERYTHING:**
+- ✅ Smoke tests (rapid validation)
+- ✅ Unit tests (source code testing)
+- ✅ Integration tests (if environment is set up)
+- ✅ All other configured test suites
+
+**IMPORTANT**: This is THE primary way to run all tests locally. Do NOT manually run individual test scripts unless you specifically need to test only one component.
+
+### Why Use `composer test`?
+
+- **Complete Coverage**: Runs all test types in the correct order
+- **Consistent**: Same command works for all developers
+- **CI/CD Aligned**: Matches what runs in continuous integration
+- **Dependency Aware**: Automatically handles test dependencies
+- **Error Reporting**: Comprehensive failure reporting across all test suites
+
+### When to Use Individual Test Commands
+
+Only use individual test scripts when you need to:
+- Test a specific component during development
+- Debug a particular test suite
+- Run tests with special configuration
+- Focus on one test type for performance reasons
 
 ## Test Structure
 
@@ -101,6 +140,15 @@ Configuration Files:
 
 ### Test Types
 
+#### Smoke Tests (`tests/unit/` - specific smoke test files)
+- Ultra-fast validation of critical functionality
+- No WordPress or database required
+- Validates plugin.json configuration integrity
+- Checks critical file existence and autoloader
+- Perfect for CI/CD pipeline integration
+- Complete in under 10 seconds
+- See [Smoke Tests Documentation](tests/README-SMOKE-TESTS.md) for details
+
 #### Unit Tests (`tests/unit/`)
 - Test individual classes/methods in isolation
 - Use Brain Monkey for mocking WordPress functions
@@ -114,6 +162,44 @@ Configuration Files:
 - Slower but more realistic
 
 ## Running Tests
+
+**REMINDER**: For running ALL tests, use `composer test` - see the "Running ALL Tests" section above.
+
+The commands below are for running SPECIFIC test types only:
+
+### Smoke Tests (Fastest Validation)
+
+Smoke tests provide rapid validation without requiring WordPress or database setup:
+
+**Windows PowerShell:**
+```powershell
+# Run all smoke tests
+.\bin\run-smoke-tests.ps1
+
+# Run with verbose output
+.\bin\run-smoke-tests.ps1 -Verbose
+
+# Run specific smoke tests
+.\bin\run-smoke-tests.ps1 -TestFilter json    # Only JSON validation
+.\bin\run-smoke-tests.ps1 -TestFilter core    # Only core functionality
+
+# Stop on first failure
+.\bin\run-smoke-tests.ps1 -FailFast
+```
+
+**Composer Commands:**
+```bash
+composer test:smoke         # Run all smoke tests
+composer test:smoke:json    # Run JSON validation only
+composer test:smoke:core    # Run core functionality only
+```
+
+**Direct PHPUnit:**
+```bash
+# Run specific smoke test
+vendor/bin/phpunit -c phpunit-unit.xml tests/Unit/PluginJsonSchemaTest.php
+vendor/bin/phpunit -c phpunit-unit.xml tests/Unit/CorePluginSmokeTest.php
+```
 
 ### Package-Based Testing (Recommended)
 
@@ -157,9 +243,9 @@ SHIELD_TEST_PACKAGE=true vendor/bin/phpunit -c phpunit-unit-package.xml
 
 ### Traditional Source Testing
 ```bash
-composer test                # Run all tests on source
-composer test:unit           # Unit tests only
-composer test:integration    # Integration tests only
+composer test                # Run ALL tests (THIS IS THE PRIMARY COMMAND)
+composer test:unit           # Unit tests only (specific component)
+composer test:integration    # Integration tests only (specific component)
 composer test:coverage       # Generate coverage reports
 ```
 
@@ -308,6 +394,7 @@ composer audit              # Check for vulnerable dependencies
 The repository includes two CI/CD workflows:
 
 1. **ci-optimized.yml** (70% faster, recommended)
+   - Smoke tests run first for rapid validation
    - Single build job creating comprehensive artifact
    - Parallel execution of all test types
    - Smart caching for dependencies and WordPress files
@@ -317,6 +404,29 @@ The repository includes two CI/CD workflows:
 2. **ci.yml** (legacy, being phased out)
    - Sequential execution with redundant builds
    - Tests source code instead of package
+
+### Smoke Tests in CI/CD
+
+Smoke tests are ideal for CI/CD pipelines due to their speed and reliability:
+
+```yaml
+# Example GitHub Actions integration
+smoke-tests:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+    - name: Install dependencies
+      run: composer install --no-progress
+    - name: Run smoke tests
+      run: composer test:smoke
+    - name: Continue with full tests if smoke tests pass
+      if: success()
+      run: composer test
+```
 
 ### Performance Improvements
 

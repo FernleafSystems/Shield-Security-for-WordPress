@@ -21,8 +21,8 @@ trait PluginPathsTrait {
 				$pluginRoot = getenv( 'SHIELD_PACKAGE_PATH' );
 				$this->debugPath( 'Using SHIELD_PACKAGE_PATH', $pluginRoot );
 			} else {
-				// Default to source directory (3 levels up from this file)
-				$pluginRoot = dirname( dirname( dirname( __DIR__ ) ) );
+				// Default to source directory (2 levels up from this file)
+				$pluginRoot = dirname( dirname( __DIR__ ) );
 				$this->debugPath( 'Using source directory', $pluginRoot );
 			}
 		}
