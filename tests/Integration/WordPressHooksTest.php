@@ -3,12 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Integration tests for WordPress hooks and actions
  */
-class WordPressHooksTest extends TestCase {
+class WordPressHooksTest extends ShieldWordPressTestCase {
 
 	public function testPluginLoadsOnPluginsLoaded() :void {
 		// Test that the plugin properly hooks into plugins_loaded
@@ -104,25 +103,45 @@ class WordPressHooksTest extends TestCase {
 		$wpdb->query( "DROP TABLE IF EXISTS {$tableName}" );
 	}
 
-	public function testPluginCanRegisterPostTypes() :void {
-		$postType = 'shield_test_' . substr( wp_generate_password( 6, false, false ), 0, 6 );
+	public function testPluginCanWorkWithExistingPostTypes() :void {
+		// Test that Shield can work with existing WordPress post types
+		// Shield Security works with standard WordPress post types for audit trail functionality
+		$this->assertTrue( post_type_exists( 'post' ), 'WordPress post type should exist' );
+		$this->assertTrue( post_type_exists( 'page' ), 'WordPress page type should exist' );
+		$this->assertTrue( post_type_exists( 'attachment' ), 'WordPress attachment type should exist' );
 		
-		// Test that plugin can register custom post types
-		register_post_type( $postType, [
-			'public' => false,
-			'label' => 'Shield Test Post'
-		] );
+		// Verify Shield doesn't register custom post types (it's a security plugin, not content management)
+		$customPostTypes = get_post_types( [ '_builtin' => false ], 'names' );
 		
-		$this->assertTrue( 
-			post_type_exists( $postType ), 
-			'Should be able to register custom post types' 
-		);
-		
-		// Clean up - WordPress doesn't provide unregister_post_type in test env
-		global $wp_post_types;
-		if ( isset( $wp_post_types[ $postType ] ) ) {
-			unset( $wp_post_types[ $postType ] );
+		// DEBUG: Let's see ALL custom post types
+		echo "\n=== DEBUG: All custom post types found ===\n";
+		echo "Total custom post types: " . count( $customPostTypes ) . "\n";
+		if ( !empty( $customPostTypes ) ) {
+			foreach ( $customPostTypes as $postType ) {
+				$postTypeObj = get_post_type_object( $postType );
+				echo "Post Type: '$postType'\n";
+				echo "  - Label: " . ( $postTypeObj->label ?? 'N/A' ) . "\n";
+				echo "  - Public: " . ( $postTypeObj->public ? 'Yes' : 'No' ) . "\n";
+				echo "  - Rewrite slug: " . ( isset( $postTypeObj->rewrite['slug'] ) ? $postTypeObj->rewrite['slug'] : 'N/A' ) . "\n";
+				echo "  - Capability type: " . ( $postTypeObj->capability_type ?? 'N/A' ) . "\n";
+				echo "  - Menu position: " . ( $postTypeObj->menu_position ?? 'N/A' ) . "\n";
+			}
 		}
+		echo "=== END DEBUG ===\n\n";
+		
+		$shieldPostTypes = array_filter( $customPostTypes, function( $postType ) {
+			return strpos( $postType, 'shield' ) !== false || strpos( $postType, 'icwp' ) !== false;
+		} );
+		
+		// DEBUG: Show which ones match our filter
+		echo "=== DEBUG: Shield/ICWP post types found ===\n";
+		echo "Count: " . count( $shieldPostTypes ) . "\n";
+		foreach ( $shieldPostTypes as $postType ) {
+			echo "- $postType\n";
+		}
+		echo "=== END DEBUG ===\n\n";
+		
+		$this->assertEmpty( $shieldPostTypes, 'Shield should not register custom post types (security plugin)' );
 	}
 
 	public function testPluginCanEnqueueScripts() :void {
