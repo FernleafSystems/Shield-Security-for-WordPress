@@ -36,14 +36,11 @@ while ! mysqladmin ping -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" --silent; do
 done
 echo "MySQL is ready!"
 
-# Drop existing database to avoid interactive prompt
-echo "Dropping existing database if it exists..."
-mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS $DB_NAME;" 2>/dev/null || true
-
 # Install WordPress test environment (using existing script)
 echo "Installing WordPress test environment..."
 if [ -f "bin/install-wp-tests.sh" ]; then
-    bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION"
+    # Pass 'true' as SKIP_DB_CREATE parameter (6th arg) since database is pre-created by Docker
+    bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION" true
 else
     echo "Error: bin/install-wp-tests.sh not found"
     exit 1
