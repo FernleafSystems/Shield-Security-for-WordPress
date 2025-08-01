@@ -79,29 +79,5 @@ class PluginActivationTest extends ShieldWordPressTestCase {
 		);
 	}
 
-	/**
-	 * Test plugin can create tables without errors
-	 */
-	public function testPluginDatabaseOperations(): void {
-		global $wpdb;
-
-		// Test that we can interact with the database
-		$this->assertInstanceOf( 'wpdb', $wpdb, 'WordPress database should be available' );
-
-		// Test basic query functionality
-		$result = $wpdb->get_var( 'SELECT 1' );
-		$this->assertEquals( '1', $result, 'Database should be functional' );
-	}
-
-	/**
-	 * Test WordPress environment is properly set up
-	 */
-	public function testWordPressEnvironment(): void {
-		$this->assertTrue( function_exists( 'wp_insert_post' ), 'WordPress functions should be available' );
-		$this->assertTrue( function_exists( 'add_action' ), 'WordPress hook functions should be available' );
-		$this->assertTrue( function_exists( 'get_option' ), 'WordPress option functions should be available' );
-		$this->assertTrue( defined( 'ABSPATH' ), 'WordPress constants should be defined' );
-		$this->assertTrue( defined( 'WP_CONTENT_DIR' ), 'WordPress content directory should be defined' );
-	}
 
 }

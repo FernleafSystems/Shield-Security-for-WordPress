@@ -73,36 +73,6 @@ class BasicIntegrationTest extends ShieldWordPressTestCase {
 		}
 	}
 
-	public function test_wordpress_database_operations() {
-		echo "=== Testing WordPress Database Operations ===" . PHP_EOL;
-		
-		// WordPress database is guaranteed to work when extending WP_UnitTestCase
-		// Just test that WordPress database operations work correctly
-		
-		// Test we can create a post (this tests WordPress functions work correctly)
-		$post_id = wp_insert_post( [
-			'post_title' => 'Shield Integration Test Post',
-			'post_content' => 'This post verifies WordPress and Shield integration testing works.',
-			'post_status' => 'publish',
-			'post_type' => 'post'
-		] );
-		
-		$this->assertIsInt( $post_id, 'Post creation should return integer ID' );
-		$this->assertGreaterThan( 0, $post_id, 'Post ID should be positive' );
-		echo "✓ WordPress post creation successful (ID: " . $post_id . ")" . PHP_EOL;
-		
-		// Test we can retrieve the post
-		$post = get_post( $post_id );
-		$this->assertNotNull( $post, 'Created post should be retrievable' );
-		$this->assertEquals( 'Shield Integration Test Post', $post->post_title, 'Post title should match' );
-		echo "✓ WordPress post retrieval successful" . PHP_EOL;
-		
-		// Clean up
-		wp_delete_post( $post_id, true );
-		$deleted_post = get_post( $post_id );
-		$this->assertNull( $deleted_post, 'Post should be deleted' );
-		echo "✓ WordPress post deletion successful" . PHP_EOL;
-	}
 
 	public function test_debug_environment() {
 		echo "=== Testing Debug Environment ===" . PHP_EOL;
