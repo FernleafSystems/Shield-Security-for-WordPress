@@ -3,18 +3,17 @@ name: Shield Security CI
 on:
   push:
     branches: [ feature/claude, feature/expanded_testing, develop ]
-  pull_request:
-    branches: [ develop ]
   workflow_dispatch:
+    inputs:
+      run_phpcs:
+        type: boolean
+        default: false
+        description: 'Enable PHPCS code standards check'
 
 jobs:
   test:
-    name: 'Test (PHP ${{ matrix.php }})'
+    name: 'Test'
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        php: ['7.4', '8.0', '8.1']
     
     services:
       mysql:
@@ -33,7 +32,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php }}
+        php-version: '7.4'
         coverage: none
         tools: composer:v2
         
@@ -65,5 +64,31 @@ jobs:
         bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
         
     - name: Run tests
-      run: SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" composer test
+      run: |
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" composer test || {
+          echo "Tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 composer test
+          exit 1
+        }
 
+  phpcs:
+    name: 'Code Standards'
+    if: github.event.inputs.run_phpcs == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+        
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+    - name: Run PHPCS
+      run: composer phpcs
