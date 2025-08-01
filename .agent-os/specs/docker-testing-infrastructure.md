@@ -508,6 +508,8 @@ Based on evidence from working CI/CD (minimal.yml) and research, the following m
 
 2. **Line Endings** ✅
    - All bash scripts use Unix line endings (LF not CRLF)
+   - Fixed CRLF issues found in initial validation
+   - Added `.gitattributes` file to enforce LF line endings for all .sh files
    - Verified with: `git show HEAD:bin/run-tests-docker.sh | file -`
    - Result: "Bourne-Again shell script, ASCII text executable"
 
@@ -563,3 +565,19 @@ docker-compose -f tests/docker/docker-compose.yml run --rm test-runner
 - Repository mounted to /app
 
 This validation ensures the Docker CI/CD implementation will work correctly when pushed to GitHub.
+
+### Critical Fixes Applied (2025-08-01)
+
+During final validation, the following critical issues were identified and fixed:
+
+1. **Line Ending Issue**: 
+   - **Problem**: Bash scripts had Windows CRLF line endings which cause CI/CD failures on Linux
+   - **Solution**: Converted all .sh files to Unix LF line endings
+   - **Prevention**: Added `.gitattributes` with `*.sh text eol=lf` rule
+   - **Impact**: Prevents "bash: /r: command not found" errors in GitHub Actions
+
+2. **Script Organization**:
+   - Created reusable PowerShell script for line ending conversion
+   - Script saved at `scripts/Convert-ShellScriptLineEndings.ps1` for future use
+
+These fixes ensure reliable CI/CD execution across all environments.

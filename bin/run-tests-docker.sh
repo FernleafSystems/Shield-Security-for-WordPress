@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # Shield Security Docker Test Runner
 # Based on Easy Digital Downloads run-tests-internal-only.sh pattern
 

@@ -55,7 +55,7 @@ on:
 jobs:
   # Simple Docker test job (following EDD pattern)
   docker-test:
-    name: 'Docker Test (PHP ${{ github.event.inputs.php_version || '8.2' }}, WP ${{ github.event.inputs.wp_version || '6.4' }})'
+    name: "Docker Test (PHP ${{ github.event.inputs.php_version || '8.2' }}, WP ${{ github.event.inputs.wp_version || '6.4' }})"
     runs-on: ubuntu-latest
     
     steps:
