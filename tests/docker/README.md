@@ -1,10 +1,10 @@
 # Docker Testing Infrastructure for Shield Security
 
-This directory contains Docker configuration for running Shield Security tests in containerized environments.
+This directory contains Docker configuration for running Shield Security tests in containerized environments with support for both source and package testing.
 
-## Philosophy: Minimal Scripts, Maximum Simplicity
+## Philosophy: Unified Test Runner
 
-We use Docker Compose directly and leverage Composer for testing commands. The only scripts provided are minimal convenience wrappers for starting containers.
+Following WordPress plugin best practices (Yoast, EDD, WooCommerce), we use a unified test runner (`bin/run-tests.ps1`) that supports both native and Docker testing with environment detection in bootstrap files. This maintains 100% backward compatibility while adding Docker support.
 
 ## Quick Start
 
@@ -13,80 +13,96 @@ We use Docker Compose directly and leverage Composer for testing commands. The o
 - Docker Compose (included with Docker Desktop)
 - 4GB+ RAM allocated to Docker
 
-### No Setup Required - Just Run!
+### Source Testing (Default)
+
+Test against current source code - unified runner approach:
 
 ```bash
-# Start containers (works immediately with defaults)
-docker-compose up -d
+# Using unified test runner (recommended)
+.\bin\run-tests.ps1 all -Docker                    # All tests
+.\bin\run-tests.ps1 unit -Docker                   # Unit tests only
+.\bin\run-tests.ps1 integration -Docker            # Integration tests only
 
-# Or use the minimal convenience script:
-./docker-up.sh       # Linux/Mac
-.\docker-up.ps1      # Windows
+# Using Composer commands
+composer docker:test                           # All tests
+composer docker:test:unit                      # Unit tests only
+composer docker:test:integration               # Integration tests only
 ```
 
-**That's it!** No configuration files to copy, no manual setup needed.
+### Package Testing
 
-### Running Tests
+Test against built, production-ready plugin package:
 
-**Using Composer (Recommended):**
 ```bash
-# Run all tests
-composer test
+# Using unified test runner (builds package automatically)
+.\bin\run-tests.ps1 all -Docker -Package           # All tests against package
+.\bin\run-tests.ps1 unit -Docker -Package          # Unit tests against package
 
-# Run unit tests only
-composer test:unit
-
-# Run integration tests only
-composer test:integration
+# Using Composer commands
+composer docker:test:package                   # All tests against package
 ```
 
-**Using Docker Compose directly:**
-```bash
-# Run all tests
-docker-compose exec test-runner phpunit
+## Unified Test Runner
 
-# Run specific test file
-docker-compose exec test-runner phpunit tests/Unit/PluginJsonSchemaTest.php
+### PowerShell: `bin/run-tests.ps1`
 
-# Run with specific configuration
-docker-compose exec test-runner phpunit -c phpunit-unit.xml
+The unified test runner supports both native and Docker testing:
+
+```powershell
+# Native testing (default)
+.\bin\run-tests.ps1 all                            # All tests
+.\bin\run-tests.ps1 unit                           # Unit tests only  
+.\bin\run-tests.ps1 integration                    # Integration tests only
+
+# Docker testing (add -Docker flag)
+.\bin\run-tests.ps1 all -Docker                    # All tests in Docker
+.\bin\run-tests.ps1 unit -Docker                   # Unit tests in Docker
+.\bin\run-tests.ps1 integration -Docker            # Integration tests in Docker
+
+# Package testing (add -Package flag)
+.\bin\run-tests.ps1 all -Docker -Package           # Test built package
+.\bin\run-tests.ps1 unit -Docker -Package          # Unit tests on package
+
+# Custom versions
+.\bin\run-tests.ps1 all -Docker -PhpVersion 8.1 -WpVersion 6.3
 ```
 
 ## Architecture
 
 ### Services
-- **wordpress**: WordPress 6.4 with PHP 8.2 and test dependencies
-- **mysql**: MySQL 8.0 database server
+- **wordpress**: WordPress with PHP and test dependencies
+- **mysql**: MySQL 8.0 database server  
 - **test-runner**: Dedicated container for running tests
 
 ### Key Files
-- `Dockerfile`: Builds the test environment with PHPUnit and dependencies
-- `docker-compose.yml`: Defines the multi-container test environment (works without configuration)
-- `.env.example`: Shows available customization options (optional)
-- `docker-up.sh/ps1`: Minimal convenience scripts to start containers
+- `Dockerfile`: Builds test environment with PHPUnit, Composer, and WordPress test suite
+- `docker-compose.yml`: Multi-container environment with flexible volume mapping
+- `.env.example`: Available customization options (all optional)
+- `../../bin/run-tests.ps1`: Unified test runner with Docker support and package building
 
-## Optional Customization
+### Environment Detection
 
-The Docker setup works out of the box with sensible defaults:
+Bootstrap files automatically detect the testing environment:
+
+1. **Package testing**: When `SHIELD_PACKAGE_PATH` environment variable is set
+2. **Docker testing**: When `/var/www/html/wp-content/plugins/wp-simple-firewall` directory exists  
+3. **Source testing**: Default mode using current repository directory
+
+This follows the same pattern as Yoast WordPress SEO, Easy Digital Downloads, and WooCommerce. The unified test runner (`bin/run-tests.ps1`) handles both native and Docker environments seamlessly.
+
+## Configuration Options
+
+### Default Settings
+
+Works immediately without any configuration:
 - PHP 8.2
-- WordPress 6.4
+- WordPress 6.4  
 - MySQL 8.0
+- Source code testing
 
-### Customizing Versions (Optional)
+### Environment Variables
 
-To use different versions, create a `.env` file (see `.env.example` for all options):
-
-```bash
-# Example: Test with PHP 8.3 and WordPress 6.5
-echo "PHP_VERSION=8.3" > .env
-echo "WP_VERSION=6.5" >> .env
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-### Available Environment Variables
-
-All variables have defaults, so `.env` is completely optional:
+All variables have defaults - `.env` file is completely optional:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -96,67 +112,161 @@ All variables have defaults, so `.env` is completely optional:
 | `MYSQL_DATABASE` | wordpress_test | Database name |
 | `MYSQL_USER` | wordpress | Database user |
 | `MYSQL_PASSWORD` | wordpress | Database password |
+| `PLUGIN_SOURCE` | `../../` | Plugin source directory (for volume mounting) |
+| `SHIELD_PACKAGE_PATH` | (empty) | Set to enable package testing mode |
+
+### Package Testing Configuration
+
+Package testing is handled automatically by the test runner scripts, but you can also configure manually:
+
+```bash
+# Create .env for manual package testing
+cat > tests/docker/.env << EOF
+PLUGIN_SOURCE=/tmp/my-package-dir
+SHIELD_PACKAGE_PATH=/var/www/html/wp-content/plugins/wp-simple-firewall
+EOF
+```
+
+## Manual Docker Commands
+
+For advanced usage or debugging:
+
+```bash
+# Start containers manually
+docker-compose -f tests/docker/docker-compose.yml up -d
+
+# Stop containers
+docker-compose -f tests/docker/docker-compose.yml down
+
+# View logs
+docker-compose -f tests/docker/docker-compose.yml logs -f
+
+# Run commands in container
+docker-compose -f tests/docker/docker-compose.yml exec test-runner bash
+
+# Run specific test file
+docker-compose -f tests/docker/docker-compose.yml exec test-runner composer test:unit -- tests/Unit/PluginJsonSchemaTest.php
+
+# Rebuild images
+docker-compose -f tests/docker/docker-compose.yml build --no-cache
+
+# Remove everything (including volumes)
+docker-compose -f tests/docker/docker-compose.yml down -v
+```
+
+## Composer Integration
+
+The project's `composer.json` includes Docker testing commands that use the unified test runner:
+
+```bash
+# Source testing
+composer docker:test                    # All tests in Docker
+composer docker:test:unit               # Unit tests in Docker
+composer docker:test:integration        # Integration tests in Docker
+
+# Package testing (builds package automatically)
+composer docker:test:package            # Build package and run all tests in Docker
+```
+
+All commands use `bin/run-tests.ps1` internally with appropriate flags.
 
 ## Troubleshooting
 
+### Test Runner Script Issues
+```bash
+# Make scripts executable (Linux/Mac)
+chmod +x tests/docker/run-tests.sh
+
+# Check script permissions
+ls -la tests/docker/run-tests.*
+```
+
 ### Database Connection Issues
-If tests fail with database errors:
-1. Ensure MySQL container is healthy: `docker-compose ps`
-2. Check logs: `docker-compose logs mysql`
-3. Restart containers: `docker-compose down && docker-compose up -d`
+```bash
+# Check service health
+docker-compose -f tests/docker/docker-compose.yml ps
+
+# View MySQL logs
+docker-compose -f tests/docker/docker-compose.yml logs mysql
+
+# Restart with fresh database
+docker-compose -f tests/docker/docker-compose.yml down -v
+docker-compose -f tests/docker/docker-compose.yml up -d
+```
+
+### Package Build Issues
+```bash
+# Test package building manually
+./bin/build-package.sh /tmp/test-package
+
+# Check package structure
+ls -la /tmp/test-package/
+ls -la /tmp/test-package/src/lib/vendor_prefixed/
+```
 
 ### Permission Issues (Linux/Mac)
-If you encounter permission errors:
 ```bash
+# Fix ownership
 sudo chown -R $(whoami):$(whoami) .
+
+# Check Docker group membership
+groups $USER
 ```
 
 ### Windows-Specific Issues
-- Ensure Docker Desktop is using WSL2 backend
-- Allocate sufficient resources in Docker Desktop settings
+- Ensure Docker Desktop uses WSL2 backend
+- Allocate 4GB+ RAM in Docker Desktop settings
 - Use PowerShell or Git Bash, not Command Prompt
+- Ensure file sharing is enabled for the project directory
 
-## Direct Docker Commands Reference
+## Development Workflow
 
-```bash
-# Start containers
-docker-compose up -d
+### Typical Development Cycle
+```powershell
+# 1. Make code changes
+# 2. Test changes with source testing
+.\bin\run-tests.ps1 unit -Docker
 
-# Stop containers
-docker-compose down
+# 3. Test full integration
+.\bin\run-tests.ps1 integration -Docker
 
-# View logs
-docker-compose logs -f
-
-# Run commands in container
-docker-compose exec test-runner bash
-
-# Rebuild images
-docker-compose build --no-cache
-
-# Remove everything (including volumes)
-docker-compose down -v
+# 4. Before release: test packaged plugin
+.\bin\run-tests.ps1 all -Docker -Package
 ```
 
-## Integration with Composer
-
-The project's `composer.json` includes commands for both native and Docker testing. When running inside Docker containers, use the standard Composer commands.
+### CI/CD Integration
+The Docker infrastructure is designed to work in CI/CD environments:
+- No interactive prompts
+- Proper exit codes
+- Comprehensive error reporting
+- Automatic cleanup
 
 ## Maintenance
 
-### Updating Images
+### Keeping Images Updated
 ```bash
-docker-compose pull
-docker-compose build --no-cache
+# Update base images
+docker-compose -f tests/docker/docker-compose.yml pull
+docker-compose -f tests/docker/docker-compose.yml build --no-cache
+
+# Clean up old images
+docker system prune -f
 ```
 
-### Cleaning Up
+### Performance Optimization
 ```bash
-docker-compose down -v  # Removes containers and volumes
-docker system prune     # Removes unused images/containers
+# Use Docker BuildKit for faster builds
+export DOCKER_BUILDKIT=1
+docker-compose -f tests/docker/docker-compose.yml build --no-cache
+
+# Allocate more resources in Docker Desktop settings:
+# - Memory: 4GB+ recommended
+# - CPUs: 2+ recommended  
+# - Disk space: 20GB+ recommended
 ```
 
 ## Next Steps
 - See main project README for non-Docker testing options
-- Check `.github/workflows/` for CI/CD integration examples
+- Check `.github/workflows/` for CI/CD integration examples  
+- View unified test runner: `.\bin\run-tests.ps1` supports both native and Docker testing
 - Report issues in the project's issue tracker

@@ -18,8 +18,25 @@
 
 ### Testing
 
-**Quick Start**: Run `composer test` for all tests.
+**Docker (Recommended)**: `.\bin\run-tests.ps1 all -Docker` - Zero setup required, runs in isolated containers
+
+**Native**: `.\bin\run-tests.ps1 all` or `composer test` - Uses your local PHP/MySQL setup
+
+**Package Testing**: `.\bin\run-tests.ps1 all -Docker -Package` - Tests built production package
 
 See [TESTING.md](TESTING.md) for complete testing documentation.
+
+### Quick Start Testing
+
+```powershell
+# Docker testing (recommended - no setup required)
+.\bin\run-tests.ps1 all -Docker
+
+# Native testing (requires local PHP/MySQL)
+.\bin\run-tests.ps1 all
+
+# Package testing (tests production build)
+.\bin\run-tests.ps1 all -Docker -Package
+```
 
 See readme.txt for full details and changelog

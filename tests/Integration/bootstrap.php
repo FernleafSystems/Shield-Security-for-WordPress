@@ -27,11 +27,12 @@ if ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ) {
 	}
 }
 
-// Task 2.1.2: Detect and Setup Package vs Source Testing
+// Task 2.1.2: Detect and Setup Package vs Docker vs Source Testing  
 // Preserve existing SHIELD_PACKAGE_PATH logic for package testing
-if ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ) {
+$shield_package_path = getenv( 'SHIELD_PACKAGE_PATH' );
+if ( $shield_package_path !== false && !empty( $shield_package_path ) ) {
 	// Package testing mode - use the built package
-	$plugin_dir = getenv( 'SHIELD_PACKAGE_PATH' );
+	$plugin_dir = $shield_package_path;
 	echo "📦 Package testing mode detected" . PHP_EOL;
 	echo "Package path: " . $plugin_dir . PHP_EOL;
 	
@@ -50,6 +51,19 @@ if ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ) {
 		define( 'WP_PLUGIN_DIR', $wp_plugin_dir );
 	}
 	echo "✓ WP_PLUGIN_DIR set to: " . $wp_plugin_dir . PHP_EOL;
+} elseif ( is_dir( '/var/www/html/wp-content/plugins/wp-simple-firewall' ) ) {
+	// Docker testing mode - plugin is mounted at WordPress plugin directory
+	$plugin_dir = '/var/www/html/wp-content/plugins/wp-simple-firewall';
+	echo "🐳 Docker testing mode detected" . PHP_EOL;
+	echo "Docker plugin directory: " . $plugin_dir . PHP_EOL;
+	
+	// Verify plugin structure exists
+	$main_plugin_file = $plugin_dir . '/icwp-wpsf.php';
+	if ( ! file_exists( $main_plugin_file ) ) {
+		echo "❌ ERROR: Main plugin file not found at: " . $main_plugin_file . PHP_EOL;
+		exit( 1 );
+	}
+	echo "✓ Main plugin file verified: " . $main_plugin_file . PHP_EOL;
 } else {
 	// Source testing mode - use the current repository
 	$plugin_dir = dirname( dirname( __DIR__ ) );

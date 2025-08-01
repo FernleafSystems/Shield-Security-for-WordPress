@@ -26,7 +26,8 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
+      # Mount source for development or package for testing (configured via .env)
+      - ${PLUGIN_SOURCE:-../../}:/var/www/html/wp-content/plugins/wp-simple-firewall
     environment:
       WORDPRESS_DB_HOST: mysql:3306
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress_test}
@@ -34,6 +35,8 @@ services:
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
       WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-true}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
+      # Set SHIELD_PACKAGE_PATH when testing packaged plugin
+      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH:-}
 
   test-runner:
     build:
@@ -45,7 +48,10 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
+      # Mount source for development or package for testing (configured via .env)
+      - ${PLUGIN_SOURCE:-../../}:/var/www/html/wp-content/plugins/wp-simple-firewall
+      # Mount source directory for accessing tests and build tools
+      - ../../:/workspace
     environment:
       WORDPRESS_DB_HOST: mysql:3306
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress_test}
@@ -55,6 +61,8 @@ services:
       WP_TESTS_DB_NAME: ${MYSQL_DATABASE:-wordpress_test}
       WP_TESTS_DB_USER: ${MYSQL_USER:-wordpress}
       WP_TESTS_DB_PASS: ${MYSQL_PASSWORD:-wordpress}
+      # Set SHIELD_PACKAGE_PATH when testing packaged plugin
+      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH:-}
     command: tail -f /dev/null  # Keep container running
 
 volumes:

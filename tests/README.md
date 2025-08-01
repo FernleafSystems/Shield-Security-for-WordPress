@@ -6,6 +6,47 @@ This directory contains the test suite for the Shield Security WordPress plugin.
 - **Unit Tests**: Fast tests that don't require WordPress
 - **Integration Tests**: Tests that require WordPress test framework
 
+## Testing Options
+
+### Option 1: Docker Testing (Recommended)
+
+**Fastest setup** - No local PHP/MySQL/WordPress setup required:
+
+```powershell
+# Source testing (current code) - unified runner
+.\bin\run-tests.ps1 all -Docker                # All tests
+.\bin\run-tests.ps1 unit -Docker               # Unit tests only
+.\bin\run-tests.ps1 integration -Docker        # Integration tests only
+
+# Package testing (production build)
+.\bin\run-tests.ps1 all -Docker -Package       # All tests on built package
+.\bin\run-tests.ps1 unit -Docker -Package      # Unit tests on built package
+
+# Alternative: Composer commands
+composer docker:test                        # All tests
+composer docker:test:unit                   # Unit tests only  
+composer docker:test:integration            # Integration tests only
+composer docker:test:package                # Package testing
+```
+
+See `tests/docker/README.md` for complete Docker documentation.
+
+### Option 2: Native Testing
+
+**Full control** - Uses your local PHP/MySQL setup:
+
+```powershell
+# Unified test runner (native mode - default)
+.\bin\run-tests.ps1 all                        # All tests
+.\bin\run-tests.ps1 unit                       # Unit tests only
+.\bin\run-tests.ps1 integration                # Integration tests only
+
+# Alternative: Direct Composer commands
+composer test                               # All tests
+composer test:unit                          # Unit tests only
+composer test:integration                   # Integration tests only
+```
+
 ## Requirements
 
 - PHP 8.3+ (Important: Not PHP 8.2)
@@ -115,8 +156,33 @@ Make sure you're using PHP 8.3, not PHP 8.2:
 php -v
 ```
 
+## Docker Testing Features
+
+The unified test runner provides these Docker capabilities:
+
+### Automatic Environment Detection
+- **Package Testing**: Set via `SHIELD_PACKAGE_PATH` environment variable
+- **Docker Environment**: Detected when plugin mounted at `/var/www/html/wp-content/plugins/wp-simple-firewall`
+- **Source Testing**: Default mode using current repository directory
+
+### Unified Bootstrap Files
+- Single bootstrap files work for native, Docker, and package testing
+- No separate Docker-specific bootstrap files needed
+- Follows WordPress plugin patterns from Yoast, EDD, WooCommerce
+
+### Flexible Package Testing
+```powershell
+# Package testing builds the plugin automatically
+.\\bin\\run-tests.ps1 unit -Docker -Package          # Test built package
+```
+
+### Automatic Cleanup
+- Temporary files and containers cleaned up automatically
+- No manual cleanup required after test runs
+
 ## Additional Resources
 
 - [PHPUnit Documentation](https://phpunit.de/documentation.html)
 - [WordPress Plugin Unit Tests](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/)
 - [Brain Monkey Documentation](https://brain-wp.github.io/BrainMonkey/)
+- [Docker Testing Documentation](docker/README.md)

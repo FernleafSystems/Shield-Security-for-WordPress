@@ -54,9 +54,9 @@
         "test:integration": "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml",
         "phpcs": "phpcs",
         "phpcs:fix": "phpcbf",
-        "docker:up": "docker-compose -f tests/docker/docker-compose.yml up -d",
-        "docker:down": "docker-compose -f tests/docker/docker-compose.yml down",
-        "docker:test": "docker-compose -f tests/docker/docker-compose.yml exec -T test-runner composer test",
-        "docker:test:unit": "docker-compose -f tests/docker/docker-compose.yml exec -T test-runner composer test:unit"
+        "docker:test": "powershell -ExecutionPolicy Bypass -File bin/run-tests.ps1 all -Docker",
+        "docker:test:unit": "powershell -ExecutionPolicy Bypass -File bin/run-tests.ps1 unit -Docker",
+        "docker:test:integration": "powershell -ExecutionPolicy Bypass -File bin/run-tests.ps1 integration -Docker",
+        "docker:test:package": "powershell -ExecutionPolicy Bypass -File bin/run-tests.ps1 all -Docker -Package"
     }
 }
