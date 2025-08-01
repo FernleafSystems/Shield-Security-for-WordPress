@@ -1,43 +1,60 @@
 # Docker Compose for Shield Security testing
+# Works out of the box with defaults, customize via .env file if needed
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:${MYSQL_VERSION:-8.0}
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: wordpress_test
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress_test}
+      MYSQL_USER: ${MYSQL_USER:-wordpress}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
       timeout: 10s
       retries: 5
       start_period: 30s
 
   wordpress:
-    build: .
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION:-6.4}
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
       - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
     environment:
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DB_NAME: wordpress_test
-      WORDPRESS_DB_USER: root
-      WORDPRESS_DB_PASSWORD: root
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress_test}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-true}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
 
   test-runner:
-    build: .
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION:-6.4}
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
       - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
     environment:
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DB_NAME: wordpress_test
-      WORDPRESS_DB_USER: root
-      WORDPRESS_DB_PASSWORD: root
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress_test}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+      WP_TESTS_DB_HOST: mysql:3306
+      WP_TESTS_DB_NAME: ${MYSQL_DATABASE:-wordpress_test}
+      WP_TESTS_DB_USER: ${MYSQL_USER:-wordpress}
+      WP_TESTS_DB_PASS: ${MYSQL_PASSWORD:-wordpress}
     command: tail -f /dev/null  # Keep container running
 
 volumes:

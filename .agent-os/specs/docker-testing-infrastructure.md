@@ -47,18 +47,14 @@ services:
 tests/
 ├── docker/
 │   ├── Dockerfile                    # Main test runner image
-│   ├── Dockerfile.wordpress          # Custom WordPress image if needed
 │   ├── docker-compose.yml            # Full test environment
-│   ├── docker-compose.unit.yml       # Unit tests only
-│   ├── docker-compose.integration.yml # Integration tests only
 │   ├── .env.example                  # Environment configuration
-│   └── scripts/
-│       ├── setup.sh                  # Initial setup script
-│       ├── setup.ps1                 # Windows setup script
-│       ├── run-tests.sh              # Test execution wrapper
-│       ├── run-tests.ps1             # Windows test wrapper
-│       └── wait-for-db.sh            # Database readiness check
+│   ├── docker-up.sh                  # Minimal script to start containers
+│   ├── docker-up.ps1                 # Windows version
+│   └── README.md                     # Documentation
 ```
+
+**Simplification Note**: Following industry best practices (WooCommerce, Yoast), we've minimized scripts to just 2 convenience wrappers. All testing is done through Composer commands and direct docker-compose usage.
 
 ## Technical Decisions
 
@@ -87,6 +83,11 @@ tests/
 - **Rationale**: Simplicity, automatic DNS resolution
 - **Security**: Isolated from host network
 
+### 6. Script Minimization
+- **Decision**: Reduce from 5 scripts to 2 minimal wrappers
+- **Rationale**: Follow industry standards, leverage existing tools (Composer, docker-compose)
+- **Implementation**: Scripts only start containers, all testing via Composer
+
 ## Implementation Plan
 
 ### Phase 1: Basic Docker Setup (Week 1)
@@ -109,11 +110,12 @@ tests/
 - **Dependencies**: Task 1.1
 - **Deliverables**: tests/docker/docker-compose.yml with service definitions
 
-#### Task 1.4: Implement Setup Scripts
+#### Task 1.4: Implement Minimal Scripts
 - **Agent**: `powershell-script-developer`
-- **Description**: Create cross-platform setup scripts (setup.sh and setup.ps1)
+- **Description**: Create minimal convenience scripts (docker-up.sh and docker-up.ps1)
 - **Dependencies**: Tasks 1.2, 1.3
-- **Deliverables**: Executable setup scripts for both platforms
+- **Deliverables**: Minimal scripts that only start containers
+- **Decision**: Simplified from 5 scripts to 2 minimal wrappers following industry best practices
 
 #### Task 1.5: Write Initial Documentation
 - **Agent**: `documentation-architect`
@@ -308,7 +310,7 @@ Will be created during implementation based on discovered issues.
   - [x] Task 1.1: Create Docker Directory Structure
   - [x] Task 1.2: Design Base Dockerfile
   - [x] Task 1.3: Create Docker Compose Configuration
-  - [x] Task 1.4: Implement Setup Scripts
+  - [x] Task 1.4: Implement Minimal Scripts (2 instead of 5)
   - [x] Task 1.5: Write Initial Documentation
 - [ ] Phase 2: Test Integration
 - [ ] Phase 3: CI/CD Integration

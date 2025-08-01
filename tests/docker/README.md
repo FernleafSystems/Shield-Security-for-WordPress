@@ -2,6 +2,10 @@
 
 This directory contains Docker configuration for running Shield Security tests in containerized environments.
 
+## Philosophy: Minimal Scripts, Maximum Simplicity
+
+We use Docker Compose directly and leverage Composer for testing commands. The only scripts provided are minimal convenience wrappers for starting containers.
+
 ## Quick Start
 
 ### Prerequisites
@@ -9,43 +13,44 @@ This directory contains Docker configuration for running Shield Security tests i
 - Docker Compose (included with Docker Desktop)
 - 4GB+ RAM allocated to Docker
 
-### Setup (First Time)
+### No Setup Required - Just Run!
 
-**Linux/Mac:**
 ```bash
-cd tests/docker
-./scripts/setup.sh
+# Start containers (works immediately with defaults)
+docker-compose up -d
+
+# Or use the minimal convenience script:
+./docker-up.sh       # Linux/Mac
+.\docker-up.ps1      # Windows
 ```
 
-**Windows:**
-```powershell
-cd tests\docker
-.\scripts\setup.ps1
-```
+**That's it!** No configuration files to copy, no manual setup needed.
 
 ### Running Tests
 
-**Run all tests:**
+**Using Composer (Recommended):**
 ```bash
-./scripts/run-tests.sh
+# Run all tests
+composer test
+
+# Run unit tests only
+composer test:unit
+
+# Run integration tests only
+composer test:integration
 ```
 
-**Run unit tests only:**
+**Using Docker Compose directly:**
 ```bash
-./scripts/run-tests.sh --unit
-```
+# Run all tests
+docker-compose exec test-runner phpunit
 
-**Run integration tests only:**
-```bash
-./scripts/run-tests.sh --integration
-```
+# Run specific test file
+docker-compose exec test-runner phpunit tests/Unit/PluginJsonSchemaTest.php
 
-**Run specific test file:**
-```bash
-./scripts/run-tests.sh tests/Unit/PluginJsonSchemaTest.php
+# Run with specific configuration
+docker-compose exec test-runner phpunit -c phpunit-unit.xml
 ```
-
-**Windows users:** Use `.\scripts\run-tests.ps1` with the same arguments.
 
 ## Architecture
 
@@ -56,23 +61,41 @@ cd tests\docker
 
 ### Key Files
 - `Dockerfile`: Builds the test environment with PHPUnit and dependencies
-- `docker-compose.yml`: Defines the multi-container test environment
-- `.env.example`: Environment variables template (copy to `.env`)
+- `docker-compose.yml`: Defines the multi-container test environment (works without configuration)
+- `.env.example`: Shows available customization options (optional)
+- `docker-up.sh/ps1`: Minimal convenience scripts to start containers
 
-### Scripts
-- `setup.sh/ps1`: Initial setup and image building
-- `run-tests.sh/ps1`: Test execution wrapper
-- `wait-for-db.sh`: Database readiness check
+## Optional Customization
 
-## Environment Variables
+The Docker setup works out of the box with sensible defaults:
+- PHP 8.2
+- WordPress 6.4
+- MySQL 8.0
 
-Copy `.env.example` to `.env` and modify as needed:
+### Customizing Versions (Optional)
+
+To use different versions, create a `.env` file (see `.env.example` for all options):
+
+```bash
+# Example: Test with PHP 8.3 and WordPress 6.5
+echo "PHP_VERSION=8.3" > .env
+echo "WP_VERSION=6.5" >> .env
+docker-compose build --no-cache
+docker-compose up -d
 ```
-WORDPRESS_DB_HOST=mysql
-WORDPRESS_DB_NAME=wordpress_test
-WORDPRESS_DB_USER=root
-WORDPRESS_DB_PASSWORD=root
-```
+
+### Available Environment Variables
+
+All variables have defaults, so `.env` is completely optional:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PHP_VERSION` | 8.2 | PHP version |
+| `WP_VERSION` | 6.4 | WordPress version |
+| `MYSQL_VERSION` | 8.0 | MySQL version |
+| `MYSQL_DATABASE` | wordpress_test | Database name |
+| `MYSQL_USER` | wordpress | Database user |
+| `MYSQL_PASSWORD` | wordpress | Database password |
 
 ## Troubleshooting
 
@@ -92,6 +115,32 @@ sudo chown -R $(whoami):$(whoami) .
 - Ensure Docker Desktop is using WSL2 backend
 - Allocate sufficient resources in Docker Desktop settings
 - Use PowerShell or Git Bash, not Command Prompt
+
+## Direct Docker Commands Reference
+
+```bash
+# Start containers
+docker-compose up -d
+
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Run commands in container
+docker-compose exec test-runner bash
+
+# Rebuild images
+docker-compose build --no-cache
+
+# Remove everything (including volumes)
+docker-compose down -v
+```
+
+## Integration with Composer
+
+The project's `composer.json` includes commands for both native and Docker testing. When running inside Docker containers, use the standard Composer commands.
 
 ## Maintenance
 

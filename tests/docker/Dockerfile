@@ -1,5 +1,9 @@
-# Shield Security - Simple Test Runner
-FROM wordpress:6.4-php8.2
+# Shield Security - Test Runner
+# Build arguments for customization
+ARG PHP_VERSION=8.2
+ARG WP_VERSION=6.4
+
+FROM wordpress:${WP_VERSION}-php${PHP_VERSION}
 
 # Install test dependencies
 RUN apt-get update && apt-get install -y \
@@ -18,10 +22,13 @@ RUN composer global require --dev \
     yoast/phpunit-polyfills:^1.1 \
     && composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 
+# Re-declare ARG after FROM to use in RUN commands
+ARG WP_VERSION=6.4
+
 # Set up WordPress test framework
 RUN cd /tmp && \
-    svn co --quiet https://develop.svn.wordpress.org/tags/6.4/tests/phpunit/includes/ /tmp/wordpress-tests-lib/includes && \
-    svn co --quiet https://develop.svn.wordpress.org/tags/6.4/tests/phpunit/data/ /tmp/wordpress-tests-lib/data
+    svn co --quiet https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/ /tmp/wordpress-tests-lib/includes && \
+    svn co --quiet https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ /tmp/wordpress-tests-lib/data
 
 # Configure PHP
 RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/testing.ini
