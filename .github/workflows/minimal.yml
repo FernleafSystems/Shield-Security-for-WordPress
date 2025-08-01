@@ -12,8 +12,12 @@ on:
 
 jobs:
   test:
-    name: 'Test'
+    name: 'Test (PHP ${{ matrix.php }})'
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
     
     services:
       mysql:
@@ -32,7 +36,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: ${{ matrix.php }}
         coverage: none
         tools: composer:v2
         
