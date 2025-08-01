@@ -1,0 +1,21 @@
+# Reference Docker Compose for Shield Security testing
+# Actual testing happens in D:\Work\Dev\Tests\WP_Plugin-Shield\
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress_test
+
+  wordpress:
+    build: .
+    depends_on:
+      - mysql
+    volumes:
+      - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_NAME: wordpress_test
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: root
