@@ -52,11 +52,6 @@
         ],
         "test:unit": "phpunit -c phpunit-unit.xml",
         "test:integration": "phpunit -c phpunit-integration.xml",
-        "test:package": "phpunit -c phpunit.xml --testsuite Package",
-        "test:smoke": "powershell -ExecutionPolicy Bypass -File bin/run-smoke-tests.ps1",
-        "test:smoke:json": "powershell -Command \"$PhpPath = 'C:\\Users\\' + $env:USERNAME + '\\.config\\herd\\bin\\php83\\php.exe'; & $PhpPath vendor\\bin\\phpunit -c phpunit-unit.xml --filter PluginJsonSchemaTest --no-interaction\"",
-        "test:smoke:core": "powershell -Command \"$PhpPath = 'C:\\Users\\' + $env:USERNAME + '\\.config\\herd\\bin\\php83\\php.exe'; & $PhpPath vendor\\bin\\phpunit -c phpunit-unit.xml --filter CorePluginSmokeTest --no-interaction\"",
-        "test:coverage": "phpunit -c phpunit-unit.xml --coverage-html coverage/unit && phpunit -c phpunit-integration.xml --coverage-html coverage/integration",
         "phpcs": "phpcs",
         "phpcs:fix": "phpcbf"
     }

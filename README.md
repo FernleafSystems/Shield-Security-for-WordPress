@@ -18,6 +18,8 @@
 
 ### Testing
 
+**Quick Start**: Run `composer test` for all tests.
+
 See [TESTING.md](TESTING.md) for complete testing documentation.
 
 See readme.txt for full details and changelog
