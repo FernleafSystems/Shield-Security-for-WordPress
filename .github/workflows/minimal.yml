@@ -65,9 +65,17 @@ jobs:
         
     - name: Run tests
       run: |
-        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" composer test || {
-          echo "Tests failed - Running again with debug enabled"
-          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 composer test
+        # Run unit tests against package
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage || {
+          echo "Unit tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
+          exit 1
+        }
+        
+        # Run integration tests against package
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage || {
+          echo "Integration tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
           exit 1
         }
 
