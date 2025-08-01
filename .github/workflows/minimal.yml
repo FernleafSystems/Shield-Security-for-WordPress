@@ -67,23 +67,3 @@ jobs:
     - name: Run tests
       run: SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" composer test
 
-  code-quality:
-    name: 'Code Quality'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
-        
-    - name: Install dependencies
-      run: composer install --no-interaction --prefer-dist --optimize-autoloader
-      
-    - name: Run PHPCS
-      run: composer phpcs

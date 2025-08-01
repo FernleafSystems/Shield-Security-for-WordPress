@@ -15,17 +15,28 @@ Write-Host "Shield Security - Test Runner" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Validate composer exists
-if (-not (Get-Command "composer" -ErrorAction SilentlyContinue)) {
-    Write-Host "❌ Composer not found in PATH" -ForegroundColor Red
-    Write-Host "Please install Composer: https://getcomposer.org/" -ForegroundColor Yellow
+# Set up PHP and Composer paths for Windows/Laravel Herd
+$PhpPath = "C:\Users\paulg\.config\herd\bin\php83\php.exe"
+$ComposerPhar = "C:\Users\paulg\.config\herd\bin\composer.phar"
+
+# Validate PHP exists
+if (-not (Test-Path $PhpPath)) {
+    Write-Host "❌ PHP not found at: $PhpPath" -ForegroundColor Red
+    Write-Host "Please check your Laravel Herd installation" -ForegroundColor Yellow
+    exit 1
+}
+
+# Validate composer.phar exists
+if (-not (Test-Path $ComposerPhar)) {
+    Write-Host "❌ Composer not found at: $ComposerPhar" -ForegroundColor Red
+    Write-Host "Please check your Laravel Herd installation" -ForegroundColor Yellow
     exit 1
 }
 
 # Validate vendor directory exists
 if (-not (Test-Path "vendor")) {
     Write-Host "❌ Vendor directory not found" -ForegroundColor Red
-    Write-Host "Please run: composer install" -ForegroundColor Yellow
+    Write-Host "Please run: & `"$PhpPath`" `"$ComposerPhar`" install --no-interaction" -ForegroundColor Yellow
     exit 1
 }
 
@@ -33,15 +44,15 @@ if (-not (Test-Path "vendor")) {
 switch ($TestType) {
     'unit' {
         Write-Host "Running unit tests only..." -ForegroundColor Yellow
-        & composer test:unit
+        & $PhpPath $ComposerPhar test:unit --no-interaction
     }
     'integration' {
         Write-Host "Running integration tests only..." -ForegroundColor Yellow
-        & composer test:integration
+        & $PhpPath $ComposerPhar test:integration --no-interaction
     }
     default {
         Write-Host "Running all tests..." -ForegroundColor Yellow
-        & composer test
+        & $PhpPath $ComposerPhar test --no-interaction
     }
 }
 
