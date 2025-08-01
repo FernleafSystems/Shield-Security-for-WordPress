@@ -108,11 +108,11 @@ jobs:
         echo "Using MariaDB 10.2 + test-runner architecture (matching EDD's docker-compose-phpunit.yml)"
         
         # Run tests in Docker container (EDD pattern: docker-compose run)
-        docker-compose -f tests/docker/docker-compose.yml run --rm test-runner
+        docker compose -f tests/docker/docker-compose.yml run --rm test-runner
         
     - name: Cleanup Docker containers
       if: always()
       run: |
         echo "Cleaning up Docker containers and volumes"
-        docker-compose -f tests/docker/docker-compose.yml down -v --remove-orphans || true
+        docker compose -f tests/docker/docker-compose.yml down -v --remove-orphans || true
         rm -f tests/docker/.env
