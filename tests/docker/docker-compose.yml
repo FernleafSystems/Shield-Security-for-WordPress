@@ -1,17 +1,23 @@
-# Reference Docker Compose for Shield Security testing
-# Actual testing happens in D:\Work\Dev\Tests\WP_Plugin-Shield\
-
+# Docker Compose for Shield Security testing
 services:
   mysql:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wordpress_test
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   wordpress:
     build: .
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     volumes:
       - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
     environment:
@@ -19,3 +25,20 @@ services:
       WORDPRESS_DB_NAME: wordpress_test
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: root
+
+  test-runner:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_NAME: wordpress_test
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: root
+    command: tail -f /dev/null  # Keep container running
+
+volumes:
+  mysql_data:
