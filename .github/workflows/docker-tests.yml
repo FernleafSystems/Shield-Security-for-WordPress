@@ -42,11 +42,6 @@ on:
         required: false
         default: '6.4'
         type: string
-      test_package:
-        description: 'Test against packaged plugin'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   # Simple Docker test job (following EDD pattern)
@@ -57,6 +52,34 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    - name: Setup PHP for dependencies
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        coverage: none
+        tools: composer:v2
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        echo "Installing composer dependencies"
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd src/lib && composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd ../..
+        
+        echo "Installing npm dependencies"
+        npm ci --no-audit --no-fund
+        
+    - name: Build assets
+      run: |
+        echo "Building JavaScript and CSS assets"
+        npm run build
       
     - name: Setup Docker environment
       run: |
@@ -74,6 +97,8 @@ jobs:
       run: |
         echo "Running tests in Docker (following EDD docker-compose pattern)"
         echo "Using MariaDB 10.2 + test-runner architecture (matching EDD's docker-compose-phpunit.yml)"
+        
+        # Run tests in Docker container (EDD pattern: docker-compose run)
         docker-compose -f tests/docker/docker-compose.yml run --rm test-runner
         
     - name: Cleanup Docker containers
@@ -82,4 +107,3 @@ jobs:
         echo "Cleaning up Docker containers and volumes"
         docker-compose -f tests/docker/docker-compose.yml down -v --remove-orphans || true
         rm -f tests/docker/.env
-

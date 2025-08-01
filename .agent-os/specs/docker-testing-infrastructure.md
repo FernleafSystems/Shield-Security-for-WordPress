@@ -494,3 +494,72 @@ Following these proven patterns, we implemented:
 - **Documentation**: Comprehensive updates to all testing documentation files
 - **Validation**: Successfully tested Docker container startup, environment detection, and test execution
 - **Architecture Decision**: Followed WordPress plugin patterns (Yoast, EDD, WooCommerce) using single bootstrap files with environment detection
+
+### Phase 3 Validation Checklist ✅
+
+Based on evidence from working CI/CD (minimal.yml) and research, the following must be verified before pushing:
+
+#### Pre-Push Validation Requirements:
+
+1. **Script Permissions** ✅
+   - `bin/run-tests-docker.sh` has executable permissions (755)
+   - Verified with: `git ls-files --stage bin/run-tests-docker.sh`
+   - Result: `100755` (correct)
+
+2. **Line Endings** ✅
+   - All bash scripts use Unix line endings (LF not CRLF)
+   - Verified with: `git show HEAD:bin/run-tests-docker.sh | file -`
+   - Result: "Bourne-Again shell script, ASCII text executable"
+
+3. **Build Dependencies** ✅
+   - Node.js setup added to workflow
+   - NPM dependencies installation added
+   - Asset building step added (`npm run build`)
+   - Evidence: Working CI requires these steps (lines 43-57 in minimal.yml)
+
+4. **Composer Dependencies** ✅
+   - Main dependencies: `composer install`
+   - Runtime dependencies: `cd src/lib && composer install`
+   - Both required based on working CI evidence
+
+5. **Docker Compose Validation** ✅
+   - Configuration validates: `docker-compose -f tests/docker/docker-compose.yml config`
+   - Services defined: mysql (MariaDB 10.2), test-runner
+   - Volumes mount correctly to /app
+
+6. **Environment Variables** ✅
+   - TEST_PHP_VERSION and TEST_WP_VERSION set in .env
+   - Matches docker-compose.yml expectations
+
+7. **Docker Image Build** ✅
+   - Dockerfile includes Composer installation
+   - Git safe.directory configured for container
+   - WordPress test dependencies included
+
+#### Local Testing Commands:
+
+```bash
+# Validate Docker Compose configuration
+docker-compose -f tests/docker/docker-compose.yml config
+
+# Test Docker build
+docker-compose -f tests/docker/docker-compose.yml build
+
+# Run actual test (simulating GitHub Actions)
+docker-compose -f tests/docker/docker-compose.yml run --rm test-runner
+```
+
+#### GitHub Actions Workflow Verification:
+
+1. **Manual Trigger Only** ✅ - Prevents automated overhead
+2. **Ubuntu Runner** ✅ - Standard for GitHub Actions
+3. **Direct docker-compose** ✅ - No PowerShell on Linux
+4. **Cleanup Always Runs** ✅ - `if: always()` ensures cleanup
+
+#### Known Working Pattern (from EDD):
+- Simple docker-compose with MariaDB + test runner
+- Scripts run inside container, not on host
+- Manual workflow_dispatch trigger
+- Repository mounted to /app
+
+This validation ensures the Docker CI/CD implementation will work correctly when pushed to GitHub.
