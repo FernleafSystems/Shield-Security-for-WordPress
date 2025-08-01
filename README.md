@@ -26,6 +26,30 @@
 
 See [TESTING.md](TESTING.md) for complete testing documentation.
 
+### Docker CI/CD Integration
+
+Shield Security includes **optional Docker CI/CD testing** following evidence-based patterns from established WordPress plugins:
+
+**Manual Docker CI Workflow**:
+- **Trigger**: GitHub Actions `workflow_dispatch` (manual trigger only)
+- **Pattern**: Based on Easy Digital Downloads' optional Docker testing approach
+- **Configuration**: Configurable PHP (7.4-8.4) and WordPress versions
+- **Architecture**: Simple MariaDB + test-runner setup following proven patterns
+
+**Why Manual Trigger Only?**
+Research of successful WordPress plugins (Yoast SEO, Easy Digital Downloads, WooCommerce) revealed that:
+- Most established plugins use native GitHub Actions without Docker
+- Optional Docker testing provides flexibility without CI/CD overhead
+- Manual triggers allow testing specific version combinations when needed
+
+**Usage**:
+1. Go to Actions tab in GitHub repository
+2. Select "Shield Security Docker CI" workflow
+3. Click "Run workflow" and configure PHP/WordPress versions
+4. Monitor test execution in containerized environment
+
+This approach provides Docker testing benefits while maintaining the proven simplicity of native CI/CD workflows.
+
 ### Quick Start Testing
 
 ```powershell

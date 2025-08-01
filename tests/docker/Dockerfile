@@ -36,4 +36,7 @@ RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/testing.ini
 # Add composer global bin to PATH
 ENV PATH="/root/.composer/vendor/bin:${PATH}"
 
+# Configure Git for Docker usage (fix ownership issues)
+RUN git config --global --add safe.directory '*'
+
 WORKDIR /var/www/html

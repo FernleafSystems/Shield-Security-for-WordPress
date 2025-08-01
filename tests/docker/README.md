@@ -235,11 +235,40 @@ groups $USER
 ```
 
 ### CI/CD Integration
+
 The Docker infrastructure is designed to work in CI/CD environments:
 - No interactive prompts
 - Proper exit codes
 - Comprehensive error reporting
 - Automatic cleanup
+
+#### GitHub Actions Docker Workflow
+
+Shield Security includes an **optional GitHub Actions Docker CI workflow** following evidence-based patterns:
+
+**Accessing the Workflow:**
+1. Navigate to **Actions** tab in GitHub repository
+2. Select **"Shield Security Docker CI"** workflow  
+3. Click **"Run workflow"** and configure:
+   - PHP Version: 7.4, 8.0, 8.1, 8.2, 8.3, or 8.4
+   - WordPress Version: Any valid WordPress version
+   - Test Package: Option to test production build
+
+**Evidence-Based Design:**
+- **Manual Trigger Only**: Based on Easy Digital Downloads pattern
+- **Simple Architecture**: MariaDB 10.2 + test-runner (following EDD's docker-compose-phpunit.yml)
+- **Standard Integration**: Uses existing bin/install-wp-tests.sh and run-tests-docker.sh
+- **Proven Patterns**: Minimal approach following successful WordPress plugins
+
+**Why Manual-Only Trigger:**
+Research of established WordPress plugins (Yoast SEO, Easy Digital Downloads, WooCommerce) revealed that most use native GitHub Actions for regular CI/CD, with Docker reserved for optional testing scenarios to avoid overhead.
+
+**Workflow Features:**
+- Manual workflow_dispatch trigger prevents CI/CD overhead
+- Configurable PHP and WordPress versions for matrix testing
+- Uses same MariaDB 10.2 + test-runner architecture as local Docker setup
+- Automatic environment cleanup after test execution
+- Based on proven patterns from successful WordPress plugin ecosystems
 
 ## Maintenance
 

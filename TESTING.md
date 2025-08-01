@@ -78,6 +78,35 @@ SHIELD_PACKAGE_PATH=               # Set for package testing mode
 PLUGIN_SOURCE=                     # Plugin source directory path
 ```
 
+## GitHub Actions Docker Workflow
+
+Shield Security includes **optional GitHub Actions Docker CI/CD testing** following evidence-based patterns:
+
+**Accessing the Workflow**:
+1. Navigate to the **Actions** tab in the GitHub repository
+2. Select **"Shield Security Docker CI"** workflow
+3. Click **"Run workflow"** button
+4. Configure options:
+   - **PHP Version**: 7.4, 8.0, 8.1, 8.2, 8.3, or 8.4 (default: 8.2)
+   - **WordPress Version**: Any valid version (default: 6.4)
+   - **Test Package**: Option to test built production package
+
+**Evidence-Based Design**:
+- **Manual Trigger Only**: Based on Easy Digital Downloads pattern - prevents CI/CD overhead
+- **Simple Architecture**: MariaDB + test-runner following EDD's `docker-compose-phpunit.yml`
+- **Standard Integration**: Uses existing `bin/install-wp-tests.sh` and PHPUnit configurations
+- **Proven Pattern**: Minimal script approach based on EDD's `run-tests-internal-only.sh`
+
+**Workflow Features**:
+- Configurable PHP and WordPress versions
+- Uses MariaDB 10.2 (following EDD pattern)
+- Mounts entire repository to `/app` container
+- Automatic environment configuration
+- Clean container cleanup after execution
+
+**Why Manual-Only?**
+Research of established WordPress plugins (Yoast SEO, EDD, WooCommerce) showed that most successful plugins use native GitHub Actions without automated Docker CI, reserving Docker for optional/manual testing scenarios.
+
 ## Docker vs Local Testing
 
 **Docker Testing Benefits:**
@@ -88,6 +117,7 @@ PLUGIN_SOURCE=                     # Plugin source directory path
 - ✅ Identical to CI/CD environment
 - ✅ Automatic package building and testing
 - ✅ Environment detection in bootstrap files
+- ✅ GitHub Actions integration for CI/CD testing
 
 **Local Testing Benefits:**
 - ✅ Faster execution (no container overhead)

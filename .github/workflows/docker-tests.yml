@@ -1,0 +1,85 @@
+name: Shield Security Docker CI
+
+# Evidence-Based Docker CI/CD Implementation
+#
+# This workflow implements optional Docker testing following proven patterns from established WordPress plugins:
+#
+# RESEARCH FINDINGS:
+# - Yoast SEO: No Docker in CI/CD, uses native GitHub Actions with MySQL services, matrix testing
+# - Easy Digital Downloads: Optional Docker with docker-compose-phpunit.yml, manual trigger only
+# - WooCommerce: No Docker usage found, relies on native GitHub Actions
+#
+# OUR APPROACH (Following EDD Pattern):
+# - Manual trigger only (workflow_dispatch) - prevents CI/CD overhead
+# - Simple MariaDB + test-runner architecture (matching EDD's docker-compose-phpunit.yml)
+# - Repository mounted to /app (following EDD volume pattern)
+# - Uses standard WordPress testing with bin/install-wp-tests.sh
+# - Minimal script approach based on EDD's run-tests-internal-only.sh
+#
+# WHY MANUAL TRIGGER ONLY:
+# - Established plugins use native CI/CD for speed and simplicity
+# - Docker testing provides optional environment testing without overhead
+# - Manual triggers allow testing specific PHP/WordPress combinations when needed
+# - Maintains proven patterns while adding Docker flexibility
+
+on:
+  workflow_dispatch:
+    inputs:
+      php_version:
+        description: 'PHP version to test'
+        required: false
+        default: '8.2'
+        type: choice
+        options:
+          - '7.4'
+          - '8.0'
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
+      wp_version:
+        description: 'WordPress version to test'
+        required: false
+        default: '6.4'
+        type: string
+      test_package:
+        description: 'Test against packaged plugin'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # Simple Docker test job (following EDD pattern)
+  docker-test:
+    name: 'Docker Test (PHP ${{ github.event.inputs.php_version || '8.2' }}, WP ${{ github.event.inputs.wp_version || '6.4' }})'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Docker environment
+      run: |
+        # Create Docker environment file (following EDD pattern)
+        # EDD uses .env files for configuration in their docker-compose-phpunit.yml setup
+        cat > tests/docker/.env << EOF
+        TEST_PHP_VERSION=${{ github.event.inputs.php_version || '8.2' }}
+        TEST_WP_VERSION=${{ github.event.inputs.wp_version || '6.4' }}
+        EOF
+        
+        echo "Docker environment configured (EDD pattern):"
+        cat tests/docker/.env
+        
+    - name: Run Docker tests
+      run: |
+        echo "Running tests in Docker (following EDD docker-compose pattern)"
+        echo "Using MariaDB 10.2 + test-runner architecture (matching EDD's docker-compose-phpunit.yml)"
+        docker-compose -f tests/docker/docker-compose.yml run --rm test-runner
+        
+    - name: Cleanup Docker containers
+      if: always()
+      run: |
+        echo "Cleaning up Docker containers and volumes"
+        docker-compose -f tests/docker/docker-compose.yml down -v --remove-orphans || true
+        rm -f tests/docker/.env
+
