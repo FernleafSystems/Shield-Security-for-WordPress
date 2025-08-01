@@ -36,6 +36,10 @@ while ! mysqladmin ping -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" --silent; do
 done
 echo "MySQL is ready!"
 
+# Drop existing database to avoid interactive prompt
+echo "Dropping existing database if it exists..."
+mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS $DB_NAME;" 2>/dev/null || true
+
 # Install WordPress test environment (using existing script)
 echo "Installing WordPress test environment..."
 if [ -f "bin/install-wp-tests.sh" ]; then
