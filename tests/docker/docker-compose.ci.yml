@@ -1,0 +1,8 @@
+# Docker Compose override for CI/CD environments
+# Uses pre-built image instead of building from Dockerfile
+services:
+  test-runner:
+    # Use pre-built image from GitHub Actions cache
+    image: shield-test-runner:latest
+    # Remove build configuration since we're using pre-built image
+    build: !reset

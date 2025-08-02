@@ -1,5 +1,10 @@
 name: Docker Tests
 
+# Cancel previous runs for the same branch
+concurrency:
+  group: docker-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 # Evidence-Based Docker CI/CD Implementation - FULLY VALIDATED ✅
 #
 # This workflow implements optional Docker testing following proven patterns from established WordPress plugins:
@@ -54,14 +59,96 @@ on:
         type: string
 
 jobs:
-  # Simple Docker test job (following EDD pattern)
-  docker-test:
-    name: "Docker Test (PHP ${{ github.event.inputs.php_version || '8.2' }}, WP ${{ github.event.inputs.wp_version || '6.4' }})"
+  # Detect WordPress versions dynamically
+  detect-wp-versions:
+    name: "Detect WordPress Versions"
     runs-on: ubuntu-latest
+    outputs:
+      latest: ${{ steps.detect.outputs.latest }}
+      previous: ${{ steps.detect.outputs.previous }}
+    
+    steps:
+    - name: Detect WordPress versions
+      id: detect
+      run: |
+        # Fetch version data from WordPress API
+        API_RESPONSE=$(curl -s https://api.wordpress.org/core/version-check/1.7/)
+        
+        # Extract versions using jq (available in GitHub Actions)
+        LATEST=$(echo "$API_RESPONSE" | jq -r '.offers[0].version')
+        echo "Latest WordPress version: $LATEST"
+        
+        # Extract major.minor from latest version
+        LATEST_MAJOR_MINOR=$(echo "$LATEST" | sed 's/\.[0-9]*$//')
+        LATEST_MAJOR=$(echo "$LATEST_MAJOR_MINOR" | cut -d. -f1)
+        LATEST_MINOR=$(echo "$LATEST_MAJOR_MINOR" | cut -d. -f2)
+        
+        # Calculate previous major.minor
+        PREVIOUS_MINOR=$((LATEST_MINOR - 1))
+        PREVIOUS_MAJOR_MINOR="$LATEST_MAJOR.$PREVIOUS_MINOR"
+        
+        # Find the latest patch version for the previous major.minor
+        PREVIOUS=$(echo "$API_RESPONSE" | jq -r --arg pm "$PREVIOUS_MAJOR_MINOR" '.offers[] | select(.version | startswith($pm)) | .version' | head -n1)
+        
+        # If not found, try previous major version
+        if [ -z "$PREVIOUS" ]; then
+          PREVIOUS_MAJOR=$((LATEST_MAJOR - 1))
+          PREVIOUS=$(echo "$API_RESPONSE" | jq -r --arg pm "$PREVIOUS_MAJOR" '.offers[] | select(.version | startswith($pm)) | .version' | head -n1)
+        fi
+        
+        echo "Previous major latest: $PREVIOUS"
+        
+        # Set outputs
+        echo "latest=$LATEST" >> $GITHUB_OUTPUT
+        echo "previous=$PREVIOUS" >> $GITHUB_OUTPUT
+
+  # Matrix Docker test job
+  docker-test:
+    name: "Test PHP ${{ matrix.php }} / WP ${{ matrix.wordpress }}"
+    needs: detect-wp-versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    # Use matrix for automatic runs, single job for manual runs
+    strategy:
+      fail-fast: false
+      matrix:
+        # When manually triggered, use specified versions or defaults
+        # When automatically triggered, use full matrix
+        php: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', github.event.inputs.php_version || '8.2')) || fromJSON('["7.4", "8.0", "8.1", "8.2", "8.3", "8.4"]') }}
+        wordpress: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', github.event.inputs.wp_version || needs.detect-wp-versions.outputs.latest)) || fromJSON(format('["{0}", "{1}"]', needs.detect-wp-versions.outputs.latest, needs.detect-wp-versions.outputs.previous)) }}
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    # Cache Composer dependencies
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+    
+    # Cache built assets
+    - name: Cache built assets
+      uses: actions/cache@v3
+      with:
+        path: |
+          assets/js/dist
+          assets/css/dist
+        key: ${{ runner.os }}-assets-${{ hashFiles('package-lock.json', 'webpack.config.js', 'assets/js/**/*.js', 'assets/css/**/*.scss') }}
+        restore-keys: |
+          ${{ runner.os }}-assets-
+    
+    # Setup Docker Buildx for advanced caching
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
     
     - name: Setup PHP for dependencies
       uses: shivammathur/setup-php@v2
@@ -88,8 +175,13 @@ jobs:
         
     - name: Build assets
       run: |
-        echo "Building JavaScript and CSS assets"
-        npm run build
+        # Check if assets are already built (from cache)
+        if [ -d "assets/js/dist" ] && [ -d "assets/css/dist" ] && [ -n "$(ls -A assets/js/dist)" ] && [ -n "$(ls -A assets/css/dist)" ]; then
+          echo "✓ Assets already built (from cache)"
+        else
+          echo "Building JavaScript and CSS assets"
+          npm run build
+        fi
         
     - name: Build plugin package
       run: |
@@ -99,28 +191,50 @@ jobs:
       
     - name: Setup Docker environment
       run: |
-        # Create Docker environment file (following EDD pattern)
-        # EDD uses .env files for configuration in their docker-compose-phpunit.yml setup
+        # Create Docker environment file
+        # Use matrix values when running automatically, or manual inputs when triggered manually
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          PHP_VERSION="${{ github.event.inputs.php_version || '8.2' }}"
+          WP_VERSION="${{ github.event.inputs.wp_version || matrix.wordpress }}"
+        else
+          PHP_VERSION="${{ matrix.php }}"
+          WP_VERSION="${{ matrix.wordpress }}"
+        fi
+        
         cat > tests/docker/.env << EOF
-        TEST_PHP_VERSION=${{ github.event.inputs.php_version || '8.2' }}
-        TEST_WP_VERSION=${{ github.event.inputs.wp_version || '6.4' }}
+        TEST_PHP_VERSION=$PHP_VERSION
+        TEST_WP_VERSION=$WP_VERSION
         PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}
         EOF
         
-        echo "Docker environment configured (EDD pattern):"
+        echo "Docker environment configured:"
+        echo "PHP Version: $PHP_VERSION"
+        echo "WordPress Version: $WP_VERSION"
         cat tests/docker/.env
         
+    - name: Build Docker test image with cache
+      uses: docker/build-push-action@v5
+      with:
+        context: tests/docker
+        file: tests/docker/Dockerfile
+        tags: shield-test-runner:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        load: true
+        build-args: |
+          PHP_VERSION=${{ matrix.php }}
+    
     - name: Run Docker tests
       run: |
-        echo "Running tests in Docker (following EDD docker-compose pattern)"
-        echo "Using MariaDB 10.2 + test-runner architecture (matching EDD's docker-compose-phpunit.yml)"
+        echo "Running tests in Docker"
+        echo "PHP ${{ matrix.php }} / WordPress ${{ matrix.wordpress }}"
         
-        # Run tests using package override (following PowerShell pattern)
-        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.package.yml run --rm test-runner
+        # Run tests using the cached image with CI override
+        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml run --rm test-runner
         
     - name: Cleanup Docker containers
       if: always()
       run: |
         echo "Cleaning up Docker containers and volumes"
-        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.package.yml down -v --remove-orphans || true
+        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml down -v --remove-orphans || true
         rm -f tests/docker/.env

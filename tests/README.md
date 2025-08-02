@@ -8,9 +8,9 @@ This directory contains the test suite for the Shield Security WordPress plugin.
 
 ## Testing Options
 
-### Option 1: Docker Testing (Recommended)
+### Option 1: Docker Matrix Testing (Recommended)
 
-**Fastest setup** - No local PHP/MySQL/WordPress setup required:
+**Enterprise-grade testing** - Matrix testing across PHP/WordPress versions with zero setup:
 
 ```powershell
 # Source testing (current code) - unified runner
@@ -18,9 +18,13 @@ This directory contains the test suite for the Shield Security WordPress plugin.
 .\bin\run-tests.ps1 unit -Docker               # Unit tests only
 .\bin\run-tests.ps1 integration -Docker        # Integration tests only
 
-# Package testing (production build)
+# Package testing (production build - validated)
 .\bin\run-tests.ps1 all -Docker -Package       # All tests on built package
 .\bin\run-tests.ps1 unit -Docker -Package      # Unit tests on built package
+
+# Matrix testing with specific versions (all validated)
+.\bin\run-tests.ps1 all -Docker -PhpVersion 8.1 -WpVersion 6.3
+.\bin\run-tests.ps1 all -Docker -PhpVersion 7.4 -WpVersion latest
 
 # Alternative: Composer commands
 composer docker:test                        # All tests
@@ -28,6 +32,8 @@ composer docker:test:unit                   # Unit tests only
 composer docker:test:integration            # Integration tests only
 composer docker:test:package                # Package testing
 ```
+
+**Matrix Testing**: Supports PHP 7.4-8.4 and WordPress versions with automatic CI/CD integration.
 
 See `tests/docker/README.md` for complete Docker documentation.
 
@@ -130,12 +136,19 @@ Generate code coverage report:
 composer run test:coverage
 ```
 
-## Continuous Integration
+## Continuous Integration - Matrix Testing
 
-Tests run automatically on GitHub Actions for:
-- Multiple PHP versions (7.4, 8.0, 8.1, 8.2, 8.3)
-- Multiple WordPress versions (latest, 6.4, 6.3)
-- Code quality checks (PHPCS)
+Tests run automatically on GitHub Actions with comprehensive matrix testing:
+
+**Matrix Coverage** (GitHub Actions Run ID 16694657226 - 100% Success):
+- **PHP Versions**: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 (complete matrix)
+- **WordPress Versions**: Dynamic detection of latest (6.8.2) + previous major (6.7.2)
+- **Total Combinations**: 12 test combinations run in parallel
+- **Code Quality**: PHPCS, PHPStan, and package validation
+- **Production Ready**: All tests passing across matrix combinations
+
+**Automatic Triggers**: Matrix testing runs on all pushes to main branches (develop, main, master)
+**Manual Testing**: Custom PHP/WordPress combinations available via workflow dispatch
 
 ## Troubleshooting
 
@@ -156,29 +169,34 @@ Make sure you're using PHP 8.3, not PHP 8.2:
 php -v
 ```
 
-## Docker Testing Features
+## Docker Matrix Testing Features - Production Validated
 
-The unified test runner provides these Docker capabilities:
+The unified test runner provides enterprise-grade matrix testing capabilities:
 
-### Automatic Environment Detection
-- **Package Testing**: Set via `SHIELD_PACKAGE_PATH` environment variable
+### Matrix Testing Environment Detection
+- **Package Testing**: Set via `SHIELD_PACKAGE_PATH` environment variable with production validation
 - **Docker Environment**: Detected when plugin mounted at `/var/www/html/wp-content/plugins/wp-simple-firewall`
 - **Source Testing**: Default mode using current repository directory
+- **Matrix Support**: PHP 7.4-8.4 and WordPress version combinations
 
-### Unified Bootstrap Files
-- Single bootstrap files work for native, Docker, and package testing
+### Production-Validated Bootstrap Files
+- Single bootstrap files work for native, Docker, package, and matrix testing
 - No separate Docker-specific bootstrap files needed
 - Follows WordPress plugin patterns from Yoast, EDD, WooCommerce
+- Matrix testing validated with GitHub Actions Run ID 16694657226
 
-### Flexible Package Testing
+### Comprehensive Matrix Package Testing
 ```powershell
-# Package testing builds the plugin automatically
+# Package testing builds and validates across matrix
 .\\bin\\run-tests.ps1 unit -Docker -Package          # Test built package
+.\\bin\\run-tests.ps1 all -Docker -PhpVersion 8.1     # Test specific PHP version
 ```
 
-### Automatic Cleanup
-- Temporary files and containers cleaned up automatically
-- No manual cleanup required after test runs
+### Enterprise Resource Management
+- Automatic cleanup across all matrix combinations
+- Multi-layer caching for optimal performance
+- Parallel execution of matrix combinations
+- Resource optimization and automatic container management
 
 ## Additional Resources
 

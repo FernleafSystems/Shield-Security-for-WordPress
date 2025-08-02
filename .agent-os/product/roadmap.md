@@ -47,6 +47,27 @@
 
 **Status**: This enhancement is **fully implemented, validated, and ready for production use**. All build steps copied from working minimal.yml evidence, ensuring reliable execution.
 
+### 1.2.1 Docker Matrix Testing Enhancement
+**Status**: Planning
+**Timeline**: August 2025
+
+**Objective**: Enhance Docker testing with matrix support for comprehensive PHP and WordPress version coverage
+
+**Key Deliverables**:
+- Matrix testing across PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4
+- Dynamic WordPress version detection (latest + previous major)
+- Build optimization to maintain <15 minute execution time
+- Research-based implementation following WooCommerce/Yoast/EDD patterns
+- Comprehensive caching strategy for performance
+
+**Current Planning Phase**:
+- Research matrix testing approaches in major WordPress plugins
+- Design WordPress version detection system
+- Plan Docker build optimization strategies
+- Create comprehensive implementation spec
+
+**Impact**: Ensures plugin compatibility across all supported PHP and WordPress versions with optimized CI/CD performance
+
 ### 1.3 Agent OS Migration
 **Status**: In Progress
 **Timeline**: August 2025

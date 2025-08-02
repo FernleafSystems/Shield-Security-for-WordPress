@@ -3,7 +3,9 @@
 ARG PHP_VERSION=8.2
 ARG WP_VERSION=6.4
 
-FROM wordpress:${WP_VERSION}-php${PHP_VERSION}
+# WordPress Docker images use format: wordpress:phpX.X (gets latest WP with that PHP)
+# Note: WordPress version is controlled by the testing environment, not the image
+FROM wordpress:php${PHP_VERSION}
 
 # Install test dependencies
 RUN apt-get update && apt-get install -y \

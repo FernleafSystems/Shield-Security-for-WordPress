@@ -13,10 +13,54 @@ param(
     [switch]$Docker,
     [switch]$Package,
     [string]$PhpVersion = "8.2",
-    [string]$WpVersion = "6.4"
+    [string]$WpVersion = "6.4",
+    [switch]$DynamicWpVersion
 )
 
 $ErrorActionPreference = "Stop"
+
+# Dynamic WordPress version detection
+if ($Docker -and ($DynamicWpVersion -or $WpVersion -eq "latest" -or $WpVersion -eq "previous")) {
+    Write-Host "Detecting WordPress versions..." -ForegroundColor Cyan
+    try {
+        $response = Invoke-RestMethod -Uri "https://api.wordpress.org/core/version-check/1.7/" -ErrorAction Stop
+        $versions = $response.offers | Select-Object -ExpandProperty version
+        
+        # Get the latest version
+        $detectedLatest = $versions[0]
+        
+        # Parse version components for previous major
+        $latestMajorMinor = $detectedLatest -replace '\.\d+$', ''
+        $latestMajor = $latestMajorMinor.Split('.')[0]
+        $latestMinor = $latestMajorMinor.Split('.')[1]
+        
+        # Find the latest version of the previous major release
+        $previousMajor = "$latestMajor.$([int]$latestMinor - 1)"
+        $detectedPrevious = $versions | Where-Object { $_ -like "$previousMajor.*" } | Select-Object -First 1
+        
+        if (-not $detectedPrevious) {
+            # If previous minor not found, try previous major version
+            $previousMajor = "$([int]$latestMajor - 1)"
+            $detectedPrevious = $versions | Where-Object { $_ -like "$previousMajor.*" } | Select-Object -First 1
+        }
+        
+        Write-Host "✓ Detected latest WordPress: $detectedLatest" -ForegroundColor Green
+        Write-Host "✓ Detected previous major: $detectedPrevious" -ForegroundColor Green
+        
+        # Apply version based on parameter
+        if ($WpVersion -eq "latest") {
+            $WpVersion = $detectedLatest
+        } elseif ($WpVersion -eq "previous") {
+            $WpVersion = $detectedPrevious
+        } elseif ($DynamicWpVersion -and $WpVersion -eq "6.4") {
+            # Only override default if DynamicWpVersion is specified
+            $WpVersion = $detectedLatest
+        }
+    }
+    catch {
+        Write-Host "⚠ Could not detect WordPress versions, using default: $WpVersion" -ForegroundColor Yellow
+    }
+}
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Shield Security - Test Runner" -ForegroundColor Cyan
