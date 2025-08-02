@@ -14,17 +14,19 @@ services:
     build:
       context: .
       args:
-        PHP_VERSION: ${TEST_PHP_VERSION:-8.2}
-        WP_VERSION: ${TEST_WP_VERSION:-6.4}
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION:-6.4}
     depends_on:
       - mysql
     volumes:
       - ../../:/app
     working_dir: /app
     environment:
-      TEST_PHP_VERSION: ${TEST_PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${TEST_WP_VERSION:-6.4}
-    command: bin/run-tests-docker.sh wordpress_test root '' mysql ${TEST_WP_VERSION:-6.4}
+      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
+      TEST_WP_VERSION: ${WP_VERSION:-6.4}
+      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
+      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
+    command: bin/run-tests-docker.sh wordpress_test root '' mysql ${WP_VERSION:-6.4}
 
 volumes:
   mysql_data:

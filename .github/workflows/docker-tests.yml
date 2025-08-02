@@ -89,6 +89,12 @@ jobs:
       run: |
         echo "Building JavaScript and CSS assets"
         npm run build
+        
+    - name: Build plugin package
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        ./bin/build-package.sh "$PACKAGE_DIR" "${{ github.workspace }}"
+        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
       
     - name: Setup Docker environment
       run: |
@@ -97,6 +103,7 @@ jobs:
         cat > tests/docker/.env << EOF
         TEST_PHP_VERSION=${{ github.event.inputs.php_version || '8.2' }}
         TEST_WP_VERSION=${{ github.event.inputs.wp_version || '6.4' }}
+        SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}
         EOF
         
         echo "Docker environment configured (EDD pattern):"
