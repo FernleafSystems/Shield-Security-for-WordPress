@@ -52,7 +52,7 @@ Research of successful WordPress plugins (Yoast SEO, Easy Digital Downloads, Woo
 
 **Usage**:
 1. Go to Actions tab in GitHub repository
-2. Select "Shield Security Docker CI" workflow
+2. Select "Docker Tests" workflow
 3. Click "Run workflow" and configure PHP/WordPress versions
 4. Monitor test execution in containerized environment
 

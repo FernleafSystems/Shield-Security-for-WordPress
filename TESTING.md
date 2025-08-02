@@ -281,14 +281,14 @@ SKIP_DB_CREATE=false
 DEBUG=true
 ```
 
-## GitHub Actions Docker CI Workflow
+## GitHub Actions Docker Tests Workflow
 
 ### Manual Trigger Workflow
-Shield Security includes **optional GitHub Actions Docker CI testing** with manual trigger:
+Shield Security includes **optional GitHub Actions Docker Tests testing** with manual trigger:
 
 **Accessing the Workflow:**
 1. Navigate to **Actions** tab in GitHub repository
-2. Select **"Shield Security Docker CI"** workflow
+2. Select **"Docker Tests"** workflow
 3. Click **"Run workflow"** and configure:
    - **PHP Version**: 7.4, 8.0, 8.1, 8.2, 8.3, or 8.4 (default: 8.2)
    - **WordPress Version**: Any valid WordPress version (default: 6.4)

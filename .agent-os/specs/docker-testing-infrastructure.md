@@ -350,7 +350,7 @@ Will be created during implementation based on discovered issues.
 
 #### Deliverables Created
 
-**1. GitHub Actions Docker CI Workflow**
+**1. GitHub Actions Docker Tests Workflow**
 - **File**: `.github/workflows/docker-tests.yml`
 - **Type**: Manual-trigger workflow (`workflow_dispatch` only)
 - **Configuration**: Configurable PHP (7.4-8.4) and WordPress versions via inputs

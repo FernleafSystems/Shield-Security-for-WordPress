@@ -268,13 +268,13 @@ The Docker infrastructure is designed to work in CI/CD environments:
 
 #### GitHub Actions Docker Workflow
 
-Shield Security includes a **production-ready GitHub Actions Docker CI workflow** following evidence-based patterns:
+Shield Security includes a **production-ready GitHub Actions Docker Tests workflow** following evidence-based patterns:
 
 **Status**: **Production Ready** ✅ - Validated with GitHub Actions Run ID 16694657226 showing all tests passing
 
 **Accessing the Workflow:**
 1. Navigate to **Actions** tab in GitHub repository
-2. Select **"Shield Security Docker CI"** workflow  
+2. Select **"Docker Tests"** workflow  
 3. Click **"Run workflow"** and configure:
    - PHP Version: 7.4, 8.0, 8.1, 8.2, 8.3, or 8.4
    - WordPress Version: Any valid WordPress version
