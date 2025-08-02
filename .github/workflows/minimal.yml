@@ -1,4 +1,4 @@
-name: Shield Security CI
+name: Tests
 
 on:
   push:
