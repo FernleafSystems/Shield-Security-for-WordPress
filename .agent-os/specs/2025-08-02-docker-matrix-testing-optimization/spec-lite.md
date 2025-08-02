@@ -1,0 +1,3 @@
+# Spec Summary (Lite)
+
+This specification outlines the enhancement of Shield Security's Docker testing infrastructure to support matrix testing across multiple PHP versions (7.4, 8.0, 8.1, 8.2, 8.3, 8.4) and dynamically determined WordPress versions, with a focus on build optimization and performance. The approach aims to achieve comprehensive compatibility validation while minimizing CI/CD time and costs.
