@@ -103,7 +103,7 @@ jobs:
         cat > tests/docker/.env << EOF
         TEST_PHP_VERSION=${{ github.event.inputs.php_version || '8.2' }}
         TEST_WP_VERSION=${{ github.event.inputs.wp_version || '6.4' }}
-        SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}
+        PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}
         EOF
         
         echo "Docker environment configured (EDD pattern):"
@@ -114,12 +114,12 @@ jobs:
         echo "Running tests in Docker (following EDD docker-compose pattern)"
         echo "Using MariaDB 10.2 + test-runner architecture (matching EDD's docker-compose-phpunit.yml)"
         
-        # Run tests in Docker container (EDD pattern: docker-compose run)
-        docker compose -f tests/docker/docker-compose.yml run --rm test-runner
+        # Run tests using package override (following PowerShell pattern)
+        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.package.yml run --rm test-runner
         
     - name: Cleanup Docker containers
       if: always()
       run: |
         echo "Cleaning up Docker containers and volumes"
-        docker compose -f tests/docker/docker-compose.yml down -v --remove-orphans || true
+        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.package.yml down -v --remove-orphans || true
         rm -f tests/docker/.env
