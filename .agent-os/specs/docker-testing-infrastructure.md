@@ -159,7 +159,7 @@ tests/
 
 #### Task 3.1: Analyze Current GitHub Actions
 - **Agent**: `cicd-testing-engineer`
-- **Description**: Review .github/workflows/minimal.yml for integration points
+- **Description**: Review .github/workflows/tests.yml for integration points
 - **Dependencies**: Phase 2 complete
 - **Deliverables**: CI/CD integration plan
 
@@ -509,7 +509,7 @@ Following these proven patterns, we implemented:
 
 ### Phase 3 Validation Checklist ✅
 
-Based on evidence from working CI/CD (minimal.yml) and research, the following must be verified before pushing:
+Based on evidence from working CI/CD (tests.yml) and research, the following must be verified before pushing:
 
 #### Pre-Push Validation Requirements:
 
@@ -529,7 +529,7 @@ Based on evidence from working CI/CD (minimal.yml) and research, the following m
    - Node.js setup added to workflow
    - NPM dependencies installation added
    - Asset building step added (`npm run build`)
-   - Evidence: Working CI requires these steps (lines 43-57 in minimal.yml)
+   - Evidence: Working CI requires these steps (lines 43-57 in tests.yml)
 
 4. **Composer Dependencies** ✅
    - Main dependencies: `composer install`
@@ -625,7 +625,7 @@ The test failures revealed that Docker tests were running against raw source cod
 - Twig references in autoload files (should be cleaned during build)
 
 #### Solution Implemented
-Following the pattern from the working `minimal.yml` workflow, implemented package building in Docker testing:
+Following the pattern from the working `tests.yml` workflow, implemented package building in Docker testing:
 
 1. **Workflow Updates (.github/workflows/docker-tests.yml)**:
    - Added package building step after asset building

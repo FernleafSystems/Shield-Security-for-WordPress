@@ -39,7 +39,7 @@ Shield Security includes **optional Docker CI/CD testing** following evidence-ba
 - **Status**: **Fully implemented and validated** ✅
 
 **Evidence-Based Implementation**:
-- Build steps copied from working `minimal.yml` workflow
+- Build steps copied from working `tests.yml` workflow
 - Node.js setup, npm dependencies, and asset building are mandatory
 - All dependencies included following successful CI patterns
 - Validation checklist ensures workflow will execute successfully

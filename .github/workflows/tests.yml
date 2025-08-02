@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ feature/claude, feature/expanded_testing, develop ]
+    branches: [ develop, main, master ]
   workflow_dispatch:
     inputs:
       run_phpcs:

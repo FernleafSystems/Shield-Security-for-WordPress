@@ -285,7 +285,7 @@ Shield Security includes a **production-ready GitHub Actions Docker Tests workfl
 - **Manual Trigger Only**: Based on Easy Digital Downloads pattern
 - **Simple Architecture**: MariaDB 10.2 + test-runner (following EDD's docker-compose-phpunit.yml)
 - **Standard Integration**: Uses existing bin/install-wp-tests.sh and run-tests-docker.sh
-- **Proven Patterns**: All build steps copied from working `minimal.yml` evidence
+- **Proven Patterns**: All build steps copied from working `tests.yml` evidence
 
 **Production Validation Completed:**
 - ✅ **GitHub Actions Run ID 16694657226**: All tests passing in production

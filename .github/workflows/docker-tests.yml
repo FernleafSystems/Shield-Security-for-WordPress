@@ -14,24 +14,25 @@ name: Docker Tests
 # - Simple MariaDB + test-runner architecture (matching EDD's docker-compose-phpunit.yml)
 # - Repository mounted to /app (following EDD volume pattern)
 # - Uses standard WordPress testing with bin/install-wp-tests.sh
-# - BUILD STEPS ADDED: Based on minimal.yml evidence - Node.js, npm, asset building (MANDATORY)
+# - BUILD STEPS ADDED: Based on tests.yml evidence - Node.js, npm, asset building (MANDATORY)
 # - FULLY VALIDATED: Script permissions, line endings, dependencies, environment configuration
 #
 # VALIDATION COMPLETED:
-# ✅ All build steps copied from working minimal.yml workflow
+# ✅ All build steps copied from working tests.yml workflow
 # ✅ Node.js setup, npm dependencies, and asset building are mandatory
 # ✅ Script permissions verified (755), line endings confirmed (Unix LF)
 # ✅ Docker images build successfully, all dependencies included
 # ✅ Environment properly configured, validation checklist available
 # ✅ PRODUCTION READY - Tested and validated implementation
 #
-# WHY MANUAL TRIGGER ONLY:
-# - Established plugins use native CI/CD for speed and simplicity
-# - Docker testing provides optional environment testing without overhead
+# TRIGGER CONFIGURATION:
+# - Automatic triggers on main branches (develop, main, master) for comprehensive testing
 # - Manual triggers allow testing specific PHP/WordPress combinations when needed
-# - Maintains proven patterns while adding Docker flexibility
+# - Maintains proven patterns while adding Docker flexibility for branch validation
 
 on:
+  push:
+    branches: [ develop, main, master ]
   workflow_dispatch:
     inputs:
       php_version:
