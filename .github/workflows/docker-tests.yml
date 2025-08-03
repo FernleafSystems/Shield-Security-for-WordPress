@@ -53,9 +53,8 @@ on:
           - '8.3'
           - '8.4'
       wp_version:
-        description: 'WordPress version to test'
+        description: 'WordPress version to test (leave empty to use latest detected version)'
         required: false
-        default: '6.4'
         type: string
 
 jobs:
