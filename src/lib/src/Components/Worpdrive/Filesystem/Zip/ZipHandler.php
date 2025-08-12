@@ -3,8 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\Zip;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\ZipCreate\Zipper;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\FileNameFor;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\{
+	DeletePreExistingFilesForType,
+	FileNameFor
+};
+use FernleafSystems\Wordpress\Services\{
+	Services,
+	Utilities\PasswordGenerator
+};
 
 class ZipHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\BaseFsHandler {
 
@@ -25,7 +31,7 @@ class ZipHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 	 */
 	public function run() :array {
 		try {
-			$this->createZip();
+			( new Zipper( $this->dir, $this->paths, $this->targetZip() ) )->create();
 		}
 		catch ( \Exception $e ) {
 			Services::WpFs()->deleteFile( $this->targetZip() );
@@ -36,20 +42,10 @@ class ZipHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 		];
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	private function createZip() :void {
-		( new Zipper(
-			$this->dir,
-			$this->paths,
-			$this->targetZip()
-		) )->create();
-	}
-
 	private function targetZip() :string {
 		if ( empty( $this->targetZIP ) ) {
-			$this->targetZIP = path_join( $this->workingDir(), FileNameFor::For( 'files_zip' ) );
+			( new DeletePreExistingFilesForType() )->delete( $this->workingDir(), 'files_zip' );
+			$this->targetZIP = path_join( $this->workingDir(), PasswordGenerator::Uniqid( 4 ).'_'.FileNameFor::For( 'files_zip' ) );
 			if ( \is_file( $this->targetZIP ) ) {
 				Services::WpFs()->deleteFile( $this->targetZIP );
 			}
