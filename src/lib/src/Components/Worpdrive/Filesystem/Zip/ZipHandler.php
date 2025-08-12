@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesyste
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\ZipCreate\Zipper;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\FileNameFor;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\{
+	Services,
+	Utilities\PasswordGenerator
+};
 
 class ZipHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\BaseFsHandler {
 
@@ -49,12 +52,27 @@ class ZipHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 
 	private function targetZip() :string {
 		if ( empty( $this->targetZIP ) ) {
-			$this->targetZIP = path_join( $this->workingDir(), FileNameFor::For( 'files_zip' ) );
+			$this->deletePreviousZips();
+			$this->targetZIP = path_join( $this->workingDir(), PasswordGenerator::Uniqid( 4 ).'_'.FileNameFor::For( 'files_zip' ) );
 			if ( \is_file( $this->targetZIP ) ) {
 				Services::WpFs()->deleteFile( $this->targetZIP );
 			}
 		}
 		return $this->targetZIP;
+	}
+
+	private function deletePreviousZips() :void {
+		try {
+			$pattern = FileNameFor::For( 'files_zip' );
+			foreach ( new \FilesystemIterator( $this->workingDir() ) as $item ) {
+				/** @var \FilesystemIterator $item */
+				if ( $item->isFile() && \str_contains( $item->getBasename(), $pattern ) ) {
+					Services::WpFs()->deleteFile( $item->getPathname() );
+				}
+			}
+		}
+		catch ( \Exception $e ) {
+		}
 	}
 
 	private function zipURL() :string {
