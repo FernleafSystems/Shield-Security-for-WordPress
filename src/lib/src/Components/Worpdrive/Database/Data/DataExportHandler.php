@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Exc\TimeLimitReachedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\ZipCreate\Zipper;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\{
-	DeletePreExistingFilesFor,
+	DeletePreExistingFilesForType,
 	FileNameFor
 };
 use FernleafSystems\Wordpress\Services\{
@@ -87,7 +87,7 @@ class DataExportHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Compone
 
 	private function targetZip() :string {
 		if ( empty( $this->targetZIP ) ) {
-			( new DeletePreExistingFilesFor() )->deleteFor( $this->workingDir(), 'db_exports_zip' );
+			( new DeletePreExistingFilesForType() )->delete( $this->workingDir(), 'db_exports_zip' );
 			$this->targetZIP = path_join( $this->workingDir(), PasswordGenerator::Uniqid( 4 ).'_'.FileNameFor::For( 'db_exports_zip' ) );
 			if ( \is_file( $this->targetZIP ) ) {
 				Services::WpFs()->deleteFile( $this->targetZIP );

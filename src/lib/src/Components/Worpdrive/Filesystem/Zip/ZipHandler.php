@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesyste
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\ZipCreate\Zipper;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\{
-	DeletePreExistingFilesFor,
+	DeletePreExistingFilesForType,
 	FileNameFor
 };
 use FernleafSystems\Wordpress\Services\{
@@ -44,7 +44,7 @@ class ZipHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 
 	private function targetZip() :string {
 		if ( empty( $this->targetZIP ) ) {
-			( new DeletePreExistingFilesFor() )->deleteFor( $this->workingDir(), 'files_zip' );
+			( new DeletePreExistingFilesForType() )->delete( $this->workingDir(), 'files_zip' );
 			$this->targetZIP = path_join( $this->workingDir(), PasswordGenerator::Uniqid( 4 ).'_'.FileNameFor::For( 'files_zip' ) );
 			if ( \is_file( $this->targetZIP ) ) {
 				Services::WpFs()->deleteFile( $this->targetZIP );

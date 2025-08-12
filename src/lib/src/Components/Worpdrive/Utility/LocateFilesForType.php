@@ -2,21 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility;
 
-use FernleafSystems\Wordpress\Services\Services;
+class LocateFilesForType {
 
-class DeletePreExistingFilesFor {
-
-	public function deleteFor( string $workingDir, string $category ) :void {
+	public function find( string $workingDir, string $type ) :array {
+		$files = [];
 		try {
-			$pattern = FileNameFor::For( $category );
+			$pattern = FileNameFor::For( $type );
 			foreach ( new \FilesystemIterator( $workingDir ) as $item ) {
 				/** @var \FilesystemIterator $item */
 				if ( $item->isFile() && \str_contains( $item->getBasename(), $pattern ) ) {
-					Services::WpFs()->deleteFile( $item->getPathname() );
+					$files[] = $item->getPathname();
 				}
 			}
 		}
 		catch ( \Exception $e ) {
 		}
+		return $files;
 	}
 }
