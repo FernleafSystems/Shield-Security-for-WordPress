@@ -2,21 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class LocateFilesForType {
 
 	public function find( string $workingDir, string $type ) :array {
-		$files = [];
-		try {
-			$pattern = FileNameFor::For( $type );
-			foreach ( new \FilesystemIterator( $workingDir ) as $item ) {
-				/** @var \FilesystemIterator $item */
-				if ( $item->isFile() && \str_contains( $item->getBasename(), $pattern ) ) {
-					$files[] = $item->getPathname();
-				}
-			}
-		}
-		catch ( \Exception $e ) {
-		}
-		return $files;
+		return \array_filter(
+			Services::WpFs()->enumItemsInDir( $workingDir ),
+			fn( $path ) => \str_contains( \basename( $path ), FileNameFor::For( $type ) ) && \is_file( $path )
+		);
 	}
 }

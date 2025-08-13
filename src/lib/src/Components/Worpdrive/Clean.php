@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Clean extends BaseHandler {
 
-	/**
-	 * @throws \Exception
-	 */
 	public function run() :array {
 		$this->deleteOtherArchivesFromWorkingDirContainer();
 		$this->cleanWorkingDir();
@@ -29,7 +26,6 @@ class Clean extends BaseHandler {
 
 	/**
 	 * This should be the final call, as any other calls to ->workingDir() will recreate that dir.
-	 * @throws \Exception
 	 */
 	public function cleanWorkingDir() {
 		Services::WpFs()->deleteDir( $this->workingDir() );
