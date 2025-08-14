@@ -22,10 +22,10 @@ class Download extends BaseHandler {
 	public function run() :array {
 		$files = ( new LocateFilesForType() )->find( $this->workingDir(), $this->downloadType );
 		if ( \count( $files ) === 0 ) {
-			throw new \Exception( sprintf( 'File type "%s" in dir "%s" does not exist.', $this->downloadType, $this->workingDir() ) );
+			throw new \Exception( sprintf( 'Files of type "%s" does not exist.', $this->downloadType ) );
 		}
 		if ( \count( $files ) > 1 ) {
-			throw new \Exception( sprintf( 'There is more than 1 file of type "%s" in dir "%s".', $this->downloadType, $this->workingDir() ) );
+			throw new \Exception( sprintf( 'There is more than 1 file of type "%s".', $this->downloadType ) );
 		}
 		$file = \current( $files );
 		\header( "Pragma: public" );
