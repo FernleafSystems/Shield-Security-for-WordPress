@@ -12,9 +12,9 @@ class CacheDirHandler {
 
 	private $cacheDir;
 
-	private $lastKnownBaseDir;
+	private string $lastKnownBaseDir;
 
-	private $preferredDir;
+	private string $preferredDir;
 
 	public function __construct( string $lastKnownBaseDir = '', string $preferredDir = '' ) {
 		$this->lastKnownBaseDir = $lastKnownBaseDir;

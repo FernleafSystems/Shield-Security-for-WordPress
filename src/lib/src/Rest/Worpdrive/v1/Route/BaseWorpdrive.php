@@ -47,7 +47,7 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 		/** @var StandardWorpdriveByCallable $pro */
 		$pro = $this->getRequestProcessor();
 		return $pro->setWpRestRequest( $req )
-				   ->setProcessCallable( RouteProcessorMap::Map()[ static::class ] )
+				   ->setProcessCallable( ( new RouteProcessorMap() )->map()[ static::class ] )
 				   ->run();
 	}
 

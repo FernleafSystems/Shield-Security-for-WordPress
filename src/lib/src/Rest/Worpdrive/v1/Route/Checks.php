@@ -7,4 +7,15 @@ class Checks extends BaseWorpdrive {
 	public function getRoutePath() :string {
 		return '/checks';
 	}
+
+	protected function getRouteArgsCustom() :array {
+		return [
+			'check_params' => [
+				'description' => 'Check Params',
+				'type'        => 'object',
+				'default'     => [],
+				'required'    => true,
+			],
+		];
+	}
 }

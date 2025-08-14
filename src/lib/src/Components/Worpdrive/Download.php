@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\FileNameFor;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\LocateFilesForType;
 
 class Download extends BaseHandler {
 
@@ -20,10 +20,14 @@ class Download extends BaseHandler {
 	 * @throws \Exception
 	 */
 	public function run() :array {
-		$file = path_join( $this->workingDir(), FileNameFor::For( $this->downloadType ) );
-		if ( !\is_file( $file ) ) {
-			throw new \Exception( sprintf( 'File type "%s" file path "%s" does not exist.', $this->downloadType, $file ) );
+		$files = ( new LocateFilesForType() )->find( $this->workingDir(), $this->downloadType );
+		if ( \count( $files ) === 0 ) {
+			throw new \Exception( sprintf( 'Files of type "%s" does not exist.', $this->downloadType ) );
 		}
+		if ( \count( $files ) > 1 ) {
+			throw new \Exception( sprintf( 'There is more than 1 file of type "%s".', $this->downloadType ) );
+		}
+		$file = \current( $files );
 		\header( "Pragma: public" );
 		\header( "Expires: 0" );
 		\header( "Cache-Control: must-revalidate, post-check=0, pre-check=0" );

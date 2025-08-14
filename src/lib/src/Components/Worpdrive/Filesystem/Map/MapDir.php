@@ -92,7 +92,7 @@ class MapDir {
 		}
 		foreach ( $it as $item ) {
 			/** @var \SplFileInfo $item */
-			if ( $item->isDir() ) {
+			if ( $item->isDir() && !$item->isLink() ) {
 				$normalisedPath = $this->normalisePath( $item->getPathname() );
 				if ( !$this->tracker->isDirCompleted( $normalisedPath ) && !$this->filter->isExcluded( $normalisedPath ) ) {
 					$dirs[] = $item->getPathname();

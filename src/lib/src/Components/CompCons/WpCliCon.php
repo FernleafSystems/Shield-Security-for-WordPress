@@ -24,7 +24,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	ScansRun,
 	SecurityAdminAdd,
 	SecurityAdminPin,
-	SecurityAdminRemove};
+	SecurityAdminRemove,
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class WpCliCon {
@@ -40,10 +41,7 @@ class WpCliCon {
 		add_action( 'cli_init', function () {
 			try {
 				\array_map(
-					function ( $handlerClass ) {
-						/** @var BaseCmd $handlerClass */
-						( new $handlerClass() )->execute();
-					},
+					fn( $handlerClass ) => /** @var BaseCmd $handlerClass */ ( new $handlerClass() )->execute(),
 					$this->enumCmdHandlers()
 				);
 			}
@@ -53,7 +51,7 @@ class WpCliCon {
 	}
 
 	/**
-	 * @return string[] - FQ class names
+	 * @return class-string<BaseCmd>[] - FQ class names
 	 */
 	protected function enumCmdHandlers() :array {
 		return [
@@ -76,6 +74,7 @@ class WpCliCon {
 			SecurityAdminRemove::class,
 			SecurityAdminPin::class,
 			DebugMode::class,
+//			Testing::class,
 		];
 	}
 }

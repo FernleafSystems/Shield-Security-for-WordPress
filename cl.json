@@ -36,6 +36,22 @@
     ],
     "patches":     [
       {
+        "version":     "7",
+        "released_at": 1755083000,
+        "items":       [
+          {
+            "title":    "Improvements and fixes to ShieldBACKUPS.",
+            "category": "enhancement",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Adjust the compatibility checks for ShieldBACKUPS to be more lenient and configurable in real-time.",
+            "category": "enhancement",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "6",
         "released_at": 1748870002,
         "items":       [
