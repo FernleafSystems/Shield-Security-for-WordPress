@@ -88,14 +88,25 @@ elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 	WP_TESTS_TAG="trunk"
 else
 	# http serves a single offer, whereas https serves multiple. we only want one
+	echo "=== SHIELD DEBUG: Downloading latest WordPress version info ==="
 	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
+	if [ -f /tmp/wp-latest.json ]; then
+		echo "=== SHIELD DEBUG: wp-latest.json downloaded successfully ==="
+		echo "=== SHIELD DEBUG: wp-latest.json contents: $(head -c 200 /tmp/wp-latest.json) ==="
+	else
+		echo "=== SHIELD ERROR: Failed to download wp-latest.json ==="
+		exit 1
+	fi
 	grep '[0-9]+\.[0-9]+(\.[0-9]+)?' /tmp/wp-latest.json
 	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | sed 's/"version":"//')
 	if [[ -z "$LATEST_VERSION" ]]; then
-		echo "Latest WordPress version could not be found"
+		echo "=== SHIELD ERROR: Latest WordPress version could not be found ==="
+		echo "=== SHIELD DEBUG: wp-latest.json content: $(cat /tmp/wp-latest.json) ==="
 		exit 1
 	fi
+	echo "=== SHIELD DEBUG: Latest WordPress version found: $LATEST_VERSION ==="
 	WP_TESTS_TAG="tags/$LATEST_VERSION"
+	echo "=== SHIELD DEBUG: WP_TESTS_TAG set to: $WP_TESTS_TAG ==="
 fi
 set -ex
 
@@ -151,10 +162,36 @@ install_test_suite() {
 
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
+		echo "=== SHIELD DEBUG: Creating WordPress test directory: $WP_TESTS_DIR ==="
 		# set up testing suite
 		mkdir -p $WP_TESTS_DIR
+		echo "=== SHIELD DEBUG: Checking out WordPress test includes from: https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ==="
 		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
+		if [ $? -eq 0 ]; then
+			echo "=== SHIELD DEBUG: SVN checkout for includes successful ==="
+		else
+			echo "=== SHIELD ERROR: SVN checkout for includes failed with exit code: $? ==="
+		fi
+		echo "=== SHIELD DEBUG: Checking out WordPress test data from: https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ==="
 		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
+		if [ $? -eq 0 ]; then
+			echo "=== SHIELD DEBUG: SVN checkout for data successful ==="
+		else
+			echo "=== SHIELD ERROR: SVN checkout for data failed with exit code: $? ==="
+		fi
+	else
+		echo "=== SHIELD DEBUG: WordPress test directory already exists: $WP_TESTS_DIR ==="
+	fi
+	
+	echo "=== SHIELD DEBUG: Verifying WordPress test framework installation ==="
+	if [ -f "$WP_TESTS_DIR/includes/functions.php" ]; then
+		echo "=== SHIELD DEBUG: WordPress test functions.php found at: $WP_TESTS_DIR/includes/functions.php ==="
+	else
+		echo "=== SHIELD ERROR: WordPress test functions.php NOT found at: $WP_TESTS_DIR/includes/functions.php ==="
+		echo "=== SHIELD DEBUG: Listing contents of $WP_TESTS_DIR: ==="
+		ls -la "$WP_TESTS_DIR" 2>/dev/null || echo "Directory does not exist"
+		echo "=== SHIELD DEBUG: Listing contents of $WP_TESTS_DIR/includes: ==="
+		ls -la "$WP_TESTS_DIR/includes" 2>/dev/null || echo "Directory does not exist"
 	fi
 
 	if [ ! -f wp-tests-config.php ]; then
