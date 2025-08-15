@@ -12,6 +12,10 @@ ARG WP_VERSION=latest
 #
 FROM ubuntu:22.04 AS base-deps
 
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
@@ -35,6 +39,10 @@ RUN git config --global --add safe.directory '*'
 #
 FROM base-deps AS php-runtime
 ARG PHP_VERSION
+
+# Ensure non-interactive mode is maintained
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
 
 # Add PHP repository
 RUN add-apt-repository ppa:ondrej/php && apt-get update
