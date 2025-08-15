@@ -120,7 +120,13 @@ RUN if [ "${WP_VERSION}" != "latest" ]; then \
         echo "=== DOCKER BUILD: Checking out data from: https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ ===" && \
         svn co https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ /tmp/wordpress-tests-lib/data && \
         echo "=== DOCKER BUILD: Verifying functions.php exists ===" && \
-        ls -la /tmp/wordpress-tests-lib/includes/functions.php; \
+        ls -la /tmp/wordpress-tests-lib/includes/functions.php && \
+        echo "=== DOCKER BUILD: Downloading WordPress core files for version: ${WP_VERSION} ===" && \
+        mkdir -p /tmp/wordpress && \
+        curl -L https://wordpress.org/wordpress-${WP_VERSION}.tar.gz -o /tmp/wordpress.tar.gz && \
+        tar --strip-components=1 -zxf /tmp/wordpress.tar.gz -C /tmp/wordpress && \
+        echo "=== DOCKER BUILD: Verifying WordPress core files ===" && \
+        ls -la /tmp/wordpress/wp-includes/class-wp-phpmailer.php; \
     else \
         echo "WordPress test framework will be downloaded at runtime for version: ${WP_VERSION}"; \
     fi
