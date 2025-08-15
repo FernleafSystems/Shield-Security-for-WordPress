@@ -222,6 +222,7 @@ jobs:
         load: true
         build-args: |
           PHP_VERSION=${{ matrix.php }}
+          WP_VERSION=${{ matrix.wordpress }}
     
     - name: Run Docker tests
       run: |
