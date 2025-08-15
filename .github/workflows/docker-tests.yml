@@ -58,48 +58,45 @@ on:
         type: string
 
 jobs:
-  # Detect WordPress versions dynamically
+  # Detect WordPress versions dynamically using comprehensive detection script
   detect-wp-versions:
     name: "Detect WordPress Versions"
     runs-on: ubuntu-latest
     outputs:
       latest: ${{ steps.detect.outputs.latest }}
       previous: ${{ steps.detect.outputs.previous }}
+      lts: ${{ steps.detect.outputs.lts }}
+      matrix_ready: ${{ steps.detect.outputs.matrix_ready }}
+      detection_method: ${{ steps.detect.outputs.detection_method }}
+      cache_used: ${{ steps.detect.outputs.cache_used }}
     
     steps:
-    - name: Detect WordPress versions
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Cache WordPress version detection results
+    - name: Cache WordPress version data
+      uses: actions/cache@v3
+      with:
+        path: ~/.wp-api-cache
+        key: wp-versions-${{ runner.os }}-${{ hashFiles('.github/scripts/detect-wp-versions.sh') }}-${{ github.run_id }}
+        restore-keys: |
+          wp-versions-${{ runner.os }}-${{ hashFiles('.github/scripts/detect-wp-versions.sh') }}-
+          wp-versions-${{ runner.os }}-
+    
+    - name: Make version detection script executable
+      run: chmod +x .github/scripts/detect-wp-versions.sh
+    
+    - name: Detect WordPress versions with comprehensive fallback system
       id: detect
       run: |
-        # Fetch version data from WordPress API
-        API_RESPONSE=$(curl -s https://api.wordpress.org/core/version-check/1.7/)
+        echo "Starting WordPress version detection with 5-level fallback system..."
+        echo "Script: .github/scripts/detect-wp-versions.sh"
         
-        # Extract versions using jq (available in GitHub Actions)
-        LATEST=$(echo "$API_RESPONSE" | jq -r '.offers[0].version')
-        echo "Latest WordPress version: $LATEST"
+        # Run the comprehensive version detection script
+        ./.github/scripts/detect-wp-versions.sh --debug
         
-        # Extract major.minor from latest version
-        LATEST_MAJOR_MINOR=$(echo "$LATEST" | sed 's/\.[0-9]*$//')
-        LATEST_MAJOR=$(echo "$LATEST_MAJOR_MINOR" | cut -d. -f1)
-        LATEST_MINOR=$(echo "$LATEST_MAJOR_MINOR" | cut -d. -f2)
-        
-        # Calculate previous major.minor
-        PREVIOUS_MINOR=$((LATEST_MINOR - 1))
-        PREVIOUS_MAJOR_MINOR="$LATEST_MAJOR.$PREVIOUS_MINOR"
-        
-        # Find the latest patch version for the previous major.minor
-        PREVIOUS=$(echo "$API_RESPONSE" | jq -r --arg pm "$PREVIOUS_MAJOR_MINOR" '.offers[] | select(.version | startswith($pm)) | .version' | head -n1)
-        
-        # If not found, try previous major version
-        if [ -z "$PREVIOUS" ]; then
-          PREVIOUS_MAJOR=$((LATEST_MAJOR - 1))
-          PREVIOUS=$(echo "$API_RESPONSE" | jq -r --arg pm "$PREVIOUS_MAJOR" '.offers[] | select(.version | startswith($pm)) | .version' | head -n1)
-        fi
-        
-        echo "Previous major latest: $PREVIOUS"
-        
-        # Set outputs
-        echo "latest=$LATEST" >> $GITHUB_OUTPUT
-        echo "previous=$PREVIOUS" >> $GITHUB_OUTPUT
+        echo "WordPress version detection completed successfully"
 
   # Matrix Docker test job
   docker-test:
