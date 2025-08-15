@@ -17,13 +17,26 @@ trait PluginPathsTrait {
 		
 		if ( $pluginRoot === null ) {
 			// Check if we're testing a package
-			if ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ) {
-				$pluginRoot = getenv( 'SHIELD_PACKAGE_PATH' );
+			$envPath = getenv( 'SHIELD_PACKAGE_PATH' );
+			if ( $envPath !== false && !empty($envPath) ) {
+				$pluginRoot = $envPath;
 				$this->debugPath( 'Using SHIELD_PACKAGE_PATH', $pluginRoot );
 			} else {
 				// Default to source directory (2 levels up from this file)
 				$pluginRoot = dirname( dirname( __DIR__ ) );
 				$this->debugPath( 'Using source directory', $pluginRoot );
+				
+				// Fix for Docker: If empty or root, use fallback methods
+				if ( empty($pluginRoot) || $pluginRoot === '/' ) {
+					$pluginRoot = getcwd();
+					$this->debugPath( 'Fallback to getcwd()', $pluginRoot );
+				}
+				
+				// Final fallback: check for known plugin file in /app
+				if ( !file_exists($pluginRoot . '/icwp-wpsf.php') && file_exists('/app/icwp-wpsf.php') ) {
+					$pluginRoot = '/app';
+					$this->debugPath( 'Fallback to /app (Docker detected)', $pluginRoot );
+				}
 			}
 		}
 		

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 if [ $# -lt 3 ]; then
 	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]"
@@ -212,9 +212,15 @@ install_db() {
 	# create database
 	if [ $(mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA --execute="SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE schema_name = '$DB_NAME';" | tail -1) != 0 ]
 	then
-		echo "Recreate the existing database '$DB_NAME'? [y/N]"
-		read REPLY
-		recreate_db $REPLY
+		# In CI environments (GitHub Actions, etc.), automatically recreate the database
+		if [ -n "$CI" ] || [ -n "$GITHUB_ACTIONS" ] || [ -n "$CONTINUOUS_INTEGRATION" ]; then
+			echo "CI environment detected - automatically recreating database '$DB_NAME'"
+			recreate_db "y"
+		else
+			echo "Recreate the existing database '$DB_NAME'? [y/N]"
+			read REPLY
+			recreate_db $REPLY
+		fi
 	else
 		create_db
 	fi
