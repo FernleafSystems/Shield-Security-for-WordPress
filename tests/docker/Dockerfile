@@ -113,9 +113,14 @@ RUN mkdir -p /tmp/wordpress-tests-lib
 # Download WordPress test framework if specific version provided
 # Skip download for 'latest' - will be handled at runtime by test script
 RUN if [ "${WP_VERSION}" != "latest" ]; then \
+        echo "=== DOCKER BUILD: Downloading WordPress test framework for version: ${WP_VERSION} ===" && \
         cd /tmp && \
-        svn co --quiet https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/ /tmp/wordpress-tests-lib/includes && \
-        svn co --quiet https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ /tmp/wordpress-tests-lib/data; \
+        echo "=== DOCKER BUILD: Checking out includes from: https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/ ===" && \
+        svn co https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/ /tmp/wordpress-tests-lib/includes && \
+        echo "=== DOCKER BUILD: Checking out data from: https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ ===" && \
+        svn co https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ /tmp/wordpress-tests-lib/data && \
+        echo "=== DOCKER BUILD: Verifying functions.php exists ===" && \
+        ls -la /tmp/wordpress-tests-lib/includes/functions.php; \
     else \
         echo "WordPress test framework will be downloaded at runtime for version: ${WP_VERSION}"; \
     fi
