@@ -229,6 +229,10 @@
   - [x] BOM removal from shell scripts (critical Docker compatibility)
   - [x] Path resolution fixes in Docker environments
   - [x] Environment variable configuration corrections
+  - [x] **Interactive Input Fixes (CRITICAL)**:
+    - [x] Docker TTY allocation fix: Added `-T` flag to prevent pseudo-TTY allocation in CI
+    - [x] MySQL password prompt fix: Updated scripts to use `${DB_PASS:+--password="$DB_PASS"}` syntax
+    - [x] Root cause identified: Interactive input prompts (not just BOM issues) caused hanging
   - [x] Working simplified matrix validates approach
 
 ### Full Matrix Ready for Re-enablement
@@ -243,6 +247,15 @@
 - [ ] **Gradual Matrix Expansion**: Add one PHP version at a time to validate scaling
 - [ ] **Docker Infrastructure Stress Testing**: Validate multi-stage builds under load
 - [ ] **Caching Performance Analysis**: Measure actual cache hit rates and build time improvements
+
+## Critical Infrastructure Resolution ✅
+All research tasks completed and **critical hanging issues resolved**. Interactive input prompts were the true root cause of CI failures, not just BOM issues. With Docker TTY and MySQL password fixes applied, the foundation is now stable for matrix re-expansion.
+
+### Key Resolution Summary
+- **Root Cause**: Interactive input prompts waiting for user input in non-interactive CI environment
+- **Docker Fix**: `-T` flag prevents TTY allocation that caused hanging
+- **MySQL Fix**: Conditional password syntax handles empty passwords without prompting
+- **Status**: Infrastructure blocking issues resolved, ready for matrix expansion
 
 ## Research Complete ✅
 All research tasks have been completed. Matrix testing temporarily simplified pending infrastructure stability validation. Full matrix implementation ready for deployment once simplified version proves stable.

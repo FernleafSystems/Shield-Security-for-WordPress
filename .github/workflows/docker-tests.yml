@@ -229,7 +229,7 @@ jobs:
         echo "PHP ${{ matrix.php }} / WordPress ${{ matrix.wordpress }}"
         
         # Run tests using the cached image with CI override
-        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml run --rm test-runner
+        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml run --rm -T test-runner
         
     - name: Cleanup Docker containers
       if: always()

@@ -174,7 +174,7 @@ recreate_db() {
 	shopt -s nocasematch
 	if [[ $1 =~ ^(y|yes)$ ]]
 	then
-		mysqladmin drop $DB_NAME -f --user="$DB_USER" --password="$DB_PASS"$EXTRA
+		mysqladmin drop $DB_NAME -f --user="$DB_USER" ${DB_PASS:+--password="$DB_PASS"}$EXTRA
 		create_db
 		echo "Recreated the database ($DB_NAME)."
 	else
@@ -184,7 +184,7 @@ recreate_db() {
 }
 
 create_db() {
-	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+	mysqladmin create $DB_NAME --user="$DB_USER" ${DB_PASS:+--password="$DB_PASS"}$EXTRA
 }
 
 install_db() {
@@ -210,7 +210,7 @@ install_db() {
 	fi
 
 	# create database
-	if [ $(mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA --execute="SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE schema_name = '$DB_NAME';" | tail -1) != 0 ]
+	if [ $(mysql --user="$DB_USER" ${DB_PASS:+--password="$DB_PASS"}$EXTRA --execute="SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE schema_name = '$DB_NAME';" | tail -1) != 0 ]
 	then
 		# In CI environments (GitHub Actions, etc.), automatically recreate the database
 		if [ -n "$CI" ] || [ -n "$GITHUB_ACTIONS" ] || [ -n "$CONTINUOUS_INTEGRATION" ]; then

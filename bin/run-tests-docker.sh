@@ -48,7 +48,7 @@ fi
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
 timeout=30
-while ! mysqladmin ping -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" --silent; do
+while ! mysqladmin ping -h"$DB_HOST" -u"$DB_USER" ${DB_PASS:+-p"$DB_PASS"} --silent; do
     timeout=$((timeout - 1))
     if [ $timeout -eq 0 ]; then
         echo "MySQL failed to start within 30 seconds"
