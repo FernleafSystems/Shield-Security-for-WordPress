@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     
     strategy:
+      fail-fast: false
       matrix:
         php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
     
@@ -40,6 +41,13 @@ jobs:
         coverage: none
         tools: composer:v2
         
+    - name: Display Environment Info
+      run: |
+        echo "PHP Version: $(php -v)"
+        echo "Composer Version: $(composer --version)"
+        echo "Node.js Version: $(node --version)"
+        echo "NPM Version: $(npm --version)"
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -59,13 +67,15 @@ jobs:
     - name: Build plugin package
       run: |
         PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        chmod +x ./bin/build-package.sh
         ./bin/build-package.sh "$PACKAGE_DIR" "${{ github.workspace }}"
         echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
         
     - name: Install WordPress Test Suite
       run: |
         sudo apt-get update && sudo apt-get install -y subversion
-        bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+        chmod +x ./bin/install-wp-tests.sh
+        ./bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
         
     - name: Run tests
       run: |

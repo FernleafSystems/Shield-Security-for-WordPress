@@ -37,7 +37,7 @@ concurrency:
 
 on:
   push:
-    branches: [ develop, main, master ]
+    branches: [ develop, main, master, docker-matrix-testing-research ]
   workflow_dispatch:
     inputs:
       php_version:
