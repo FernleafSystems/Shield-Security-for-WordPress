@@ -126,7 +126,7 @@ RUN if [ "${WP_VERSION}" != "latest" ]; then \
         curl -L https://wordpress.org/wordpress-${WP_VERSION}.tar.gz -o /tmp/wordpress.tar.gz && \
         tar --strip-components=1 -zxf /tmp/wordpress.tar.gz -C /tmp/wordpress && \
         echo "=== DOCKER BUILD: Verifying WordPress core files ===" && \
-        ls -la /tmp/wordpress/wp-includes/class-wp-phpmailer.php; \
+        ls -la /tmp/wordpress/wp-load.php; \
     else \
         echo "WordPress test framework will be downloaded at runtime for version: ${WP_VERSION}"; \
     fi

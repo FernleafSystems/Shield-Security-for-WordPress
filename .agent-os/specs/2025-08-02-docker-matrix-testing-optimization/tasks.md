@@ -1,8 +1,9 @@
-# Tasks - CRITICAL BUG FIXED - MATRIX TESTING FUNCTIONAL ✅
+# Tasks - NEW ISSUE DISCOVERED - WORDPRESS VERSION COMPATIBILITY ❌
 
-**DOCKER MATRIX TESTING STATUS**: FUNCTIONAL ✅  
-**Critical Issue**: RESOLVED - Docker ARG propagation bug has been fixed  
-**Infrastructure Status**: Docker images build successfully, matrix testing now operational (GitHub Actions Run 17036058733 - 6.8.2 job PASSED)
+**DOCKER MATRIX TESTING STATUS**: PARTIALLY FUNCTIONAL ⚠️  
+**Previous Issue**: RESOLVED - Docker ARG propagation bug fixed  
+**New Issue**: WordPress version compatibility - arbitrary file check breaks 6.7.3  
+**Infrastructure Status**: Matrix testing works for 6.8.2 but fails for 6.7.3 due to meaningless file verification
 
 ## Phase 0: Critical Bug Fix - WordPress Version Hardcoding
 
@@ -69,6 +70,39 @@ After fixing the Docker ARG bug, these verification steps are mandatory:
   - Result: GitHub Actions still failed with same error
 - **Multiple commits**: Environment variable fixes that missed the root cause
 - **Documentation updates**: Falsely marked as complete without verifying functionality
+
+## Phase 0.3: CRITICAL ISSUE - WordPress Version Compatibility ❌
+
+### Arbitrary File Verification Blocking WordPress 6.7.3
+- [ ] 0.3.1 Fix arbitrary WordPress core file verification
+  - [ ] Document the problem: Dockerfile checks for class-wp-phpmailer.php which doesn't exist in all versions
+  - [ ] Identify root cause: Arbitrary file chosen without justification in commit e78fad8e5
+  - [ ] Research impact: WordPress 6.7.3 fails while 6.8.2 passes due to this check
+  - [ ] Determine solution: Remove check or use wp-load.php which exists in all versions
+  - [ ] Fix Dockerfile line 129 to remove/replace the verification
+  - [ ] Test both WordPress 6.7.3 and 6.8.2 build successfully
+  - [ ] Verify GitHub Actions passes for both versions
+  - **Agent**: software-engineer-expert
+  - **Complexity**: Simple but critical
+  - **Success Criteria**: All WordPress versions in matrix build successfully
+  - **Status**: ❌ NOT STARTED - Blocking WordPress 6.7.3 from working
+
+### Problem Analysis
+**Issue**: Dockerfile line 129 checks for `/tmp/wordpress/wp-includes/class-wp-phpmailer.php`
+
+**Why it's wrong**:
+- PHPMailer file location changed across WordPress versions (deprecated since WP 5.5)
+- File is irrelevant to whether WordPress is properly installed for testing
+- Tests only need functions.php and bootstrap.php from test framework
+- Arbitrary choice with no documented justification in commit e78fad8e5
+
+**Evidence**:
+- GitHub Actions Run 17036058733: 6.7.3 job fails with "ls: cannot access '/tmp/wordpress/wp-includes/class-wp-phpmailer.php': No such file or directory"
+- Same run: 6.8.2 job passes (file may exist in that version)
+- Integration tests bootstrap.php only requires test framework files, not PHPMailer
+- WordPress core download succeeds (25.5M downloaded), but verification fails on arbitrary file
+
+**Impact**: Matrix testing fails for certain WordPress versions due to meaningless file check
 
 ## Phase 1: Research and Analysis
 
@@ -315,11 +349,12 @@ After fixing the Docker ARG bug, these verification steps are mandatory:
 
 **IMPLEMENTATION TIMELINE**: 
 - Phase 0: ✅ COMPLETED (Initial WordPress version hardcoding fixed)
-- **Phase 0.2: ✅ COMPLETED** (Critical Docker ARG bug fixed - matrix testing now functional)
+- **Phase 0.2: ✅ COMPLETED** (Critical Docker ARG bug fixed - matrix testing now functional for 6.8.2)
+- **Phase 0.3: ❌ BLOCKED** (WordPress version compatibility - arbitrary file check breaks 6.7.3)
 - Phase 1: ✅ COMPLETED (All research and analysis done)
 - Phase 2: ✅ COMPLETED (WordPress version detection system implemented)
-- **Phase 3: ✅ OPERATIONAL** (Matrix testing deployment functional - Docker builds working)
-- **Phase 4: 🔄 IN PROGRESS** (Performance testing and documentation - ready to proceed)
+- **Phase 3: 🔄 PARTIALLY FUNCTIONAL** (Matrix testing works for 6.8.2, fails for 6.7.3)
+- **Phase 4: ❌ BLOCKED** (Cannot proceed until all WordPress versions work)
 
 **ACTUAL STATUS - CRITICAL BUG RESOLVED, SYSTEM OPERATIONAL** ✅:
 1. ✅ **CRITICAL BUG FIXED**: Docker ARG propagation issue resolved, Docker images build successfully
@@ -350,13 +385,16 @@ After fixing the Docker ARG bug, these verification steps are mandatory:
 - **Phase 0.2: 1/1 task (100%) ✅ CRITICAL BUG FIXED**
 - Phase 1: 4/4 tasks (100%) ✅
 - Phase 2: 2/2 tasks (100%) ✅ VALIDATED & TESTED
-- **Phase 3: 3/3 tasks (100%) ✅ OPERATIONAL** - Matrix testing functional
 
-### In Progress Tasks  
-- **Phase 4: 1/3 tasks (33%) 🔄** - Task 4.2 completed, 4.1 Performance Testing and 4.3 Documentation remaining
-- Additional Implementation: Ready to proceed with operational foundation
+### Critical Blocker
+- **Phase 0.3: 0/1 task (0%) ❌ NEW CRITICAL ISSUE** - WordPress version compatibility blocking 6.7.3
 
-**INFRASTRUCTURE PROGRESS**: 85% complete - **OPERATIONAL AND READY FOR OPTIMIZATION** ✅
+### Blocked Tasks (Cannot proceed until Phase 0.3 is fixed)
+- **Phase 3: 3/3 tasks (50% functional)** - Works for 6.8.2, fails for 6.7.3
+- **Phase 4: All tasks BLOCKED** - Cannot optimize until all versions work
+- Additional Implementation: Cannot proceed with partial foundation
+
+**INFRASTRUCTURE PROGRESS**: 70% complete - **PARTIALLY FUNCTIONAL - NEW ISSUE BLOCKING 6.7.3** ❌
 
 ### ACTUAL IMPLEMENTATION STATUS ✅
 - **Infrastructure Implementation**: Docker testing architecture operational with ARG propagation bug fixed ✅
