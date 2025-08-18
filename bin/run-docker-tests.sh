@@ -50,53 +50,57 @@ PACKAGE_DIR="/tmp/shield-package-local"
 rm -rf "$PACKAGE_DIR"
 ./bin/build-package.sh "$PACKAGE_DIR" "$PROJECT_ROOT"
 
-# Create Docker environment file
+# Prepare Docker environment directory
 echo "⚙️  Setting up Docker environment..."
 mkdir -p tests/docker
-cat > tests/docker/.env << EOF
+
+# Build Docker images for each WordPress version (matching GitHub Actions approach)
+build_docker_image_for_wp_version() {
+    local WP_VERSION=$1
+    local VERSION_NAME=$2
+    
+    echo "🐳 Building Docker image for PHP 7.4 + WordPress $WP_VERSION ($VERSION_NAME)..."
+    docker build tests/docker/ \
+        --build-arg PHP_VERSION=7.4 \
+        --build-arg WP_VERSION=$WP_VERSION \
+        --tag shield-test-runner:wp-$WP_VERSION
+}
+
+# Function to run tests with specific WordPress version
+run_tests_for_wp_version() {
+    local WP_VERSION=$1
+    local VERSION_NAME=$2
+    
+    echo "🧪 Running tests with PHP 7.4 + WordPress $WP_VERSION ($VERSION_NAME)..."
+    
+    # Update environment for this WordPress version (matching GitHub Actions exactly)
+    cat > tests/docker/.env << EOF
 PHP_VERSION=7.4
-WP_VERSION=$LATEST_VERSION
+WP_VERSION=$WP_VERSION
 TEST_PHP_VERSION=7.4
-TEST_WP_VERSION=$LATEST_VERSION
+TEST_WP_VERSION=$WP_VERSION
 PLUGIN_SOURCE=$PACKAGE_DIR
 SHIELD_PACKAGE_PATH=$PACKAGE_DIR
 EOF
+    
+    # Update docker-compose to use the correct image for this WordPress version
+    export SHIELD_TEST_IMAGE=shield-test-runner:wp-$WP_VERSION
+    
+    # Run tests using the version-specific image
+    docker compose -f tests/docker/docker-compose.yml \
+        -f tests/docker/docker-compose.ci.yml \
+        -f tests/docker/docker-compose.package.yml \
+        run --rm -T test-runner
+}
 
-echo "   Environment configured for PHP 7.4 + WordPress $LATEST_VERSION"
+# Build Docker images for both WordPress versions
+echo "🏗️ Building Docker images for all WordPress versions..."
+build_docker_image_for_wp_version "$LATEST_VERSION" "latest"
+build_docker_image_for_wp_version "$PREVIOUS_VERSION" "previous"
 
-# Build Docker image with latest WordPress (we'll use this for both tests)
-echo "🐳 Building Docker test image with PHP 7.4..."
-docker build tests/docker/ \
-    --build-arg PHP_VERSION=7.4 \
-    --build-arg WP_VERSION=latest \
-    --tag shield-test-runner:latest
-
-# Run tests with latest WordPress
-echo "🧪 Running tests with PHP 7.4 + WordPress $LATEST_VERSION..."
-docker compose -f tests/docker/docker-compose.yml \
-    -f tests/docker/docker-compose.ci.yml \
-    -f tests/docker/docker-compose.package.yml \
-    run --rm -T test-runner
-
-# Update environment for previous WordPress version
-echo "⚙️  Switching to previous WordPress version..."
-cat > tests/docker/.env << EOF
-PHP_VERSION=7.4
-WP_VERSION=$PREVIOUS_VERSION
-TEST_PHP_VERSION=7.4
-TEST_WP_VERSION=$PREVIOUS_VERSION
-PLUGIN_SOURCE=$PACKAGE_DIR
-SHIELD_PACKAGE_PATH=$PACKAGE_DIR
-EOF
-
-echo "   Environment configured for PHP 7.4 + WordPress $PREVIOUS_VERSION"
-
-# Run tests with previous WordPress (reusing same image - runtime WordPress download)
-echo "🧪 Running tests with PHP 7.4 + WordPress $PREVIOUS_VERSION..."
-docker compose -f tests/docker/docker-compose.yml \
-    -f tests/docker/docker-compose.ci.yml \
-    -f tests/docker/docker-compose.package.yml \
-    run --rm -T test-runner
+# Run tests for both WordPress versions using the same package
+run_tests_for_wp_version "$LATEST_VERSION" "latest"
+run_tests_for_wp_version "$PREVIOUS_VERSION" "previous"
 
 # Cleanup
 echo "🧹 Cleaning up..."

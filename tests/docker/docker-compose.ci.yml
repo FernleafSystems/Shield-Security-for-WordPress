@@ -2,7 +2,7 @@
 # Uses pre-built image instead of building from Dockerfile
 services:
   test-runner:
-    # Use pre-built image from GitHub Actions cache
-    image: shield-test-runner:latest
+    # Use pre-built image - supports dynamic tags via SHIELD_TEST_IMAGE env var
+    image: ${SHIELD_TEST_IMAGE:-shield-test-runner:latest}
     # Remove build configuration since we're using pre-built image
     build: !reset

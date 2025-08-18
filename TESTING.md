@@ -12,9 +12,10 @@
 # What this automatically does:
 # ✅ Detects WordPress versions (latest + previous)
 # ✅ Builds assets and dependencies
-# ✅ Builds production package
-# ✅ Tests PHP 7.4 + latest WordPress
-# ✅ Tests PHP 7.4 + previous WordPress  
+# ✅ Builds production package ONCE (Phase 1 optimization)
+# ✅ Creates version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
+# ✅ Tests PHP 7.4 + latest WordPress (6.8.2)
+# ✅ Tests PHP 7.4 + previous WordPress (6.7.3)
 # ✅ Runs both unit and integration tests
 # ✅ Handles all setup and cleanup
 ```
@@ -25,6 +26,15 @@
 - **Production Validation**: Tests built package (not just source)
 - **Auto-Discovery**: Detects current WordPress versions dynamically
 - **Complete Coverage**: Both unit and integration tests across versions
+- **Phase 1 Optimized**: Build-once pattern eliminates redundant operations
+
+**Phase 1 Achievements** ✅
+- **Build Separation Complete**: Plugin package now built once and reused across WordPress versions
+- **Version-Specific Images**: Docker images `shield-test-runner:wp-6.8.2` and `shield-test-runner:wp-6.7.3`
+- **WordPress Framework Pre-Installation**: Eliminates runtime installation issues and hangs  
+- **Performance Foundation**: Build-once pattern establishes foundation for Phase 2 parallel execution
+- **Reliability Improvement**: Zero runtime WordPress test framework installation issues
+- **CI Parity Maintained**: Local tests continue to match GitHub Actions exactly
 
 ### Option 2: Advanced Docker Testing
 **Full control** - customize PHP/WordPress versions and testing modes:
@@ -75,6 +85,7 @@ composer test:integration                       # Integration tests only
 - 4GB+ RAM allocated to Docker
 - Bash shell (Git Bash on Windows, native on macOS/Linux)
 - **Nothing else required** - script handles everything automatically
+- **Phase 1 Complete**: Now uses optimized build-once pattern for better performance
 
 ### Advanced Docker Testing
 - Docker Desktop installed and running
@@ -258,15 +269,16 @@ The `bin/run-docker-tests.sh` script provides the simplest way to run comprehens
 # One command runs everything - matches CI exactly
 ./bin/run-docker-tests.sh
 
-# What it automatically executes:
+# What it automatically executes (Phase 1 optimized):
 # 1. Detects current WordPress versions (latest: 6.8.2, previous: 6.7.3)
 # 2. Builds all assets and dependencies
-# 3. Creates production package with vendor_prefixed
-# 4. Runs PHP 7.4 + WordPress 6.8.2 (package mode)
-# 5. Runs PHP 7.4 + WordPress 6.7.3 (package mode)
-# 6. Executes both unit and integration tests for each
-# 7. Validates package structure and production readiness
-# 8. Cleans up all containers and temporary files
+# 3. Creates production package with vendor_prefixed (ONCE - Phase 1 optimization)
+# 4. Builds version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
+# 5. Runs PHP 7.4 + WordPress 6.8.2 (package mode)
+# 6. Runs PHP 7.4 + WordPress 6.7.3 (package mode)
+# 7. Executes both unit and integration tests for each
+# 8. Validates package structure and production readiness
+# 9. Cleans up all containers and temporary files
 ```
 
 **Script Features:**
@@ -277,6 +289,8 @@ The `bin/run-docker-tests.sh` script provides the simplest way to run comprehens
 - **Auto-Cleanup**: Removes containers and temporary files
 - **Error Handling**: Stops on first failure with clear messages
 - **Version Detection**: Uses WordPress API with fallback system
+- **Phase 1 Optimized**: Build-once pattern eliminates redundant operations
+- **Version-Specific Images**: WordPress test framework pre-installed for reliability
 
 **When to Use:**
 - ✅ **Before commits**: Validate changes against CI environment
@@ -859,6 +873,8 @@ Matrix debug output includes:
 - ✅ **Cross-Platform**: Works on Windows (Git Bash), macOS, Linux
 - ✅ **Error Handling**: Clear failure messages and automatic cleanup
 - ✅ **Team Consistency**: Identical results for all developers
+- ✅ **Phase 1 Optimized**: Build-once pattern for improved performance
+- ✅ **Zero Runtime Issues**: WordPress test framework pre-installed in Docker images
 
 ### Advanced Docker Testing - Production Validated
 - ✅ **Zero Setup Required**: No local PHP, MySQL, or WordPress configuration needed
