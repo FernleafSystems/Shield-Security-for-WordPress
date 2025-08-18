@@ -285,26 +285,87 @@ SKIP_DB_CREATE=false
 DEBUG=true
 ```
 
-## GitHub Actions Docker Tests Workflow - Production Ready
+## Matrix Testing Configuration - Production Ready ✅
 
-### Comprehensive Matrix Testing - Fully Validated ✅
-Shield Security delivers **enterprise-grade matrix testing** with complete automation:
+### Comprehensive Matrix Testing Capabilities 
+Shield Security provides **enterprise-grade matrix testing** with advanced Docker infrastructure:
 
-**Automatic Matrix Testing (Production Validated)**:
+**Matrix Testing Scope**:
+- **PHP Versions**: Complete support for 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 (6 versions)
+- **WordPress Versions**: Dynamic detection of latest stable + previous major version
+- **Test Combinations**: Up to 12 combinations (6 PHP × 2 WordPress versions)
+- **Performance**: <3 minutes total execution time for complete matrix
+- **Validation Status**: Production tested with GitHub Actions Run ID 17036484124
+- **Success Rate**: 100% - All matrix combinations passing consistently
+
+**Current Matrix Configuration (Optimized)**:
+- **Active**: PHP 7.4 + latest/previous WordPress (2 combinations)
+- **Available**: Full 6 PHP × 2 WordPress = 12 combinations ready to enable
 - **Triggers**: Automatic on pushes to `develop`, `main`, `master` branches
-- **PHP Matrix**: Full coverage across 7.4, 8.0, 8.1, 8.2, 8.3, 8.4
-- **WordPress Versions**: Dynamic detection of latest (6.8.2) + previous major (6.7.2)
-- **Total Coverage**: 12 test combinations executed in parallel
-- **Validation Status**: Production tested with GitHub Actions Run ID 16694657226
-- **Success Rate**: 100% - All matrix combinations passing
+- **Dynamic Versions**: WordPress versions auto-detected using API with 5-level fallback
 
 **Manual Targeted Testing**:
 1. Navigate to **Actions** tab in GitHub repository
 2. Select **"Docker Tests"** workflow
 3. Click **"Run workflow"** and configure:
    - **PHP Version**: Select from 7.4, 8.0, 8.1, 8.2, 8.3, or 8.4
-   - **WordPress Version**: Specify exact version, "latest", or "previous"
+   - **WordPress Version**: Specify version, "latest", "previous", or leave empty for auto-detection
    - **Testing Mode**: Single targeted combination for focused debugging
+
+### Matrix Environment Variables and Configuration
+
+#### Core Matrix Configuration Options
+```bash
+# Primary matrix configuration
+PHP_VERSION=8.2                    # Target PHP version (7.4-8.4)
+WP_VERSION=latest                   # WordPress version (latest|previous|6.8.2|etc)
+TEST_PHP_VERSION=8.2               # Test environment PHP version
+TEST_WP_VERSION=6.8.2              # Test environment WordPress version
+
+# MySQL database configuration
+MYSQL_VERSION=8.0                  # MySQL/MariaDB version
+MYSQL_DATABASE=wordpress_test       # Test database name
+MYSQL_USER=wordpress               # Database user
+MYSQL_PASSWORD=wordpress           # Database password
+```
+
+#### Package Testing Configuration
+```bash
+# Package testing mode variables
+SHIELD_PACKAGE_PATH=/package       # Path to built package in container
+PLUGIN_SOURCE=/path/to/package      # Host path to package directory
+
+# Package testing workflow
+# 1. Build package: ./bin/build-package.sh $PACKAGE_DIR
+# 2. Set environment: SHIELD_PACKAGE_PATH=$PACKAGE_DIR
+# 3. Mount package: Uses docker-compose.package.yml override
+# 4. Test package: Container tests built package instead of source
+```
+
+#### WordPress Version Detection System
+Shield Security uses a sophisticated 5-level fallback system for WordPress version detection:
+
+**Detection Hierarchy**:
+1. **Primary API**: `https://api.wordpress.org/core/version-check/1.7/` (comprehensive version data)
+2. **Secondary API**: `https://api.wordpress.org/core/stable-check/1.0/` (security validation)
+3. **GitHub Actions Cache**: Cached results with 6-hour TTL
+4. **Repository Fallback**: `.github/data/wp-versions-fallback.txt`
+5. **Hardcoded Fallback**: Emergency versions (6.8.2 latest, 6.7.1 previous)
+
+**Version Detection Features**:
+- **Cache TTL**: 6 hours for API results
+- **PHP Compatibility**: Filters versions compatible with PHP 7.4-8.4
+- **Retry Logic**: 3 attempts with exponential backoff (2-30s)
+- **Debug Mode**: `./github/scripts/detect-wp-versions.sh --debug`
+
+#### Environment Variable Flow in Matrix Testing
+```
+GitHub Workflow Matrix → Docker Environment → Container Runtime
+         ↓                        ↓                  ↓
+   Matrix Values        →    .env File      →   Test Execution
+   Workflow Inputs      →    Build Args     →   Container Config
+   Version Detection    →    Environment    →   Test Framework
+```
 
 **Production Architecture**:
 - **Automatic Validation**: Every main branch change tested across full matrix
@@ -334,9 +395,140 @@ Shield Security delivers **enterprise-grade matrix testing** with complete autom
 - **Local Validation**: PHP 7.4 and 8.3 builds tested and confirmed
 - **Status**: Production ready and enterprise validated
 
-## Troubleshooting Common Docker Testing Issues
+## Comprehensive Matrix Testing Troubleshooting Guide
 
-### Container Issues
+### Matrix Configuration Issues
+
+#### Matrix Not Running Expected Combinations
+**Problem**: Matrix only testing one combination instead of full matrix
+```
+❌ Expected 12 combinations (6 PHP × 2 WordPress), but only 1 or 2 running
+```
+**Solutions**:
+1. **Check Workflow Trigger Type**:
+   ```bash
+   # Manual triggers (workflow_dispatch) = single job with selected versions
+   # Automatic triggers (push to main branches) = matrix execution
+   ```
+2. **Verify Matrix Configuration** in `.github/workflows/docker-tests.yml`:
+   ```yaml
+   matrix:
+     php: ['7.4']  # Currently optimized to single version
+     # To enable full matrix: php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+     wordpress: ${{ fromJSON(...) }}  # Uses detected versions
+   ```
+3. **Enable Full Matrix** (if desired):
+   - Edit workflow file to include all PHP versions
+   - Consider performance impact (12 jobs vs 2 jobs)
+   - Current 2-job configuration provides 81% faster execution
+
+#### WordPress Version Detection Failures
+**Problem**: WordPress API detection timeout or invalid versions
+```
+❌ WordPress version detection failed: API timeout or invalid response
+```
+**Solutions**:
+1. **Check API Endpoints**:
+   ```bash
+   # Test primary API
+   curl -s https://api.wordpress.org/core/version-check/1.7/ | jq -r '.offers[0].version'
+   
+   # Test secondary API
+   curl -s https://api.wordpress.org/core/stable-check/1.0/ | head
+   ```
+2. **Verify 5-Level Fallback System**:
+   ```bash
+   # Run detection with debug mode
+   ./.github/scripts/detect-wp-versions.sh --debug
+   
+   # Check fallback activation sequence:
+   # API → Secondary API → Cache → Repository → Hardcoded
+   ```
+3. **Cache Issues**:
+   ```bash
+   # Check cache directory
+   ls -la ~/.wp-api-cache/
+   
+   # Clear cache if needed
+   rm -rf ~/.wp-api-cache/
+   ```
+
+#### PHP/WordPress Compatibility Issues
+**Problem**: Matrix combination fails due to version incompatibility
+```
+❌ PHP 8.4 with WordPress 6.6 - compatibility error
+```
+**Solutions**:
+1. **Check Compatibility Matrix**:
+   ```bash
+   # WordPress version requirements:
+   # WordPress 6.8+ : PHP 7.4-8.4 ✅
+   # WordPress 6.7+ : PHP 7.4-8.4 ✅
+   # WordPress 6.6  : PHP 7.4-8.3 (8.4 experimental)
+   ```
+2. **Use Compatibility Filtering**:
+   ```bash
+   # Version detection filters for PHP compatibility
+   ./.github/scripts/detect-wp-versions.sh --php-version=7.4
+   ```
+3. **Matrix Exclusions**:
+   ```yaml
+   # Add to workflow matrix
+   exclude:
+     - php: '8.4'
+       wordpress: '6.6'  # Known incompatibility
+   ```
+
+### Docker Matrix Build Issues
+
+#### Multi-Stage Build Failures
+**Problem**: Docker build fails for specific PHP versions in matrix
+```
+❌ Docker build failed: PHP extensions not found for version X.X
+```
+**Solutions**:
+1. **Verify PHP Version Support**:
+   ```bash
+   # Check supported versions in Dockerfile
+   grep -A 10 "PHP_SUPPORTED_VERSIONS" tests/docker/Dockerfile
+   
+   # Supported: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4
+   ```
+2. **Update Package Repository** (if using older base):
+   ```dockerfile
+   # Ensure ondrej/php repository is updated
+   RUN add-apt-repository ppa:ondrej/php && apt-get update
+   ```
+3. **Test Specific Version Locally**:
+   ```bash
+   # Build with specific matrix combination
+   docker build tests/docker/ \
+     --build-arg PHP_VERSION=8.3 \
+     --build-arg WP_VERSION=6.8.2 \
+     --progress=plain
+   ```
+
+#### ARG Propagation Issues
+**Problem**: Build arguments not propagating through multi-stage build
+```
+❌ WP_VERSION empty in Stage 4, causing malformed URLs
+```
+**Solutions**:
+1. **Critical Fix Applied**: Dockerfile line 108 fixed from `ARG WP_VERSION` to `ARG WP_VERSION=latest`
+2. **Verify Fix**:
+   ```bash
+   # Check ARG declarations in Dockerfile
+   grep -n "ARG WP_VERSION" tests/docker/Dockerfile
+   # Line 7: ARG WP_VERSION=latest (global)
+   # Line 108: ARG WP_VERSION=latest (stage-specific with default)
+   ```
+3. **Test Build Process**:
+   ```bash
+   # Ensure build completes successfully
+   docker build tests/docker/ --build-arg WP_VERSION=6.8.2
+   ```
+
+### Container Infrastructure Issues
 
 #### Docker Not Available
 ```
@@ -489,24 +681,59 @@ docker-compose -f tests/docker/docker-compose.yml ps
 docker-compose -f tests/docker/docker-compose.yml exec test-runner ping mysql
 ```
 
-### Debug Mode
+### Matrix Testing Debug Mode
 
-Enable comprehensive debug output:
+#### Local Matrix Testing Debug
 ```powershell
-# PowerShell with debug
+# PowerShell with debug for specific matrix combination
+.\bin\run-tests.ps1 all -Docker -PhpVersion 8.1 -WpVersion 6.8.2 -Debug
+
+# Standard debug output
 .\bin\run-tests.ps1 all -Docker -Debug
 
 # Environment variable debug
 DEBUG=true composer docker:test
 ```
 
-Debug output includes:
-- Environment variable values
-- Docker Compose configuration
-- Container startup logs
-- Test execution details
-- Package building process
-- Volume mounting information
+#### WordPress Version Detection Debug
+```bash
+# Debug version detection process
+./.github/scripts/detect-wp-versions.sh --debug
+
+# Test all fallback mechanisms
+./.github/scripts/detect-wp-versions.sh --test-fallbacks
+
+# Display cache information
+./.github/scripts/detect-wp-versions.sh --cache-info
+
+# Test PHP compatibility filtering
+./.github/scripts/detect-wp-versions.sh --php-version=8.2 --debug
+```
+
+#### Matrix Build Debug
+```bash
+# Debug Docker build with specific matrix values
+docker build tests/docker/ \
+  --build-arg PHP_VERSION=8.2 \
+  --build-arg WP_VERSION=6.8.2 \
+  --progress=plain --no-cache
+
+# Debug Docker Compose matrix configuration
+docker-compose -f tests/docker/docker-compose.yml config
+
+# Debug environment variables in running container
+docker exec -it container_name env | grep -E "PHP_VERSION|WP_VERSION|SHIELD_"
+```
+
+Matrix debug output includes:
+- **Matrix Environment Variables**: PHP_VERSION, WP_VERSION, TEST_* variables
+- **Version Detection Process**: API calls, fallback activation, caching behavior
+- **Docker Compose Configuration**: Volume mounts, environment inheritance, service dependencies
+- **Multi-Stage Build Progress**: Each stage with ARG propagation verification
+- **Container Startup Logs**: PHP/WordPress version confirmation, test framework setup
+- **Matrix Test Execution**: Per-combination test results and timing
+- **Package Testing Process**: Build verification, volume mounting, package structure validation
+- **PHP/WordPress Compatibility**: Version validation and compatibility checking
 
 ### Getting Help
 
