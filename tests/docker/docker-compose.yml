@@ -1,15 +1,80 @@
 # Docker Compose for Shield Security testing
 # Based on Easy Digital Downloads docker-compose-phpunit.yml pattern
+# Updated for Phase 2: Parallel WordPress testing with database isolation
 services:
-  mysql:
-    image: mariadb:10.2
+  # MySQL service for WordPress 6.8.2 testing
+  mysql-wp682:
+    image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: ''
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: wordpress_test_wp682
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    volumes:
+      - mysql_wp682_data:/var/lib/mysql
+    ports:
+      - "3309:3306"  # Exposed on different port to avoid conflicts
+
+  # MySQL service for WordPress 6.7.3 testing
+  mysql-wp673:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: wordpress_test_wp673
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    volumes:
+      - mysql_wp673_data:/var/lib/mysql
+    ports:
+      - "3310:3306"  # Exposed on different port to avoid conflicts
+
+  # Legacy MySQL service (for backward compatibility)
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
       MYSQL_DATABASE: wordpress_test
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     volumes:
       - mysql_data:/var/lib/mysql
 
+  # Test runner for WordPress 6.8.2
+  test-runner-wp682:
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION_LATEST:-6.8.2}
+    depends_on:
+      - mysql-wp682
+    volumes:
+      - ../../:/app
+    working_dir: /app
+    environment:
+      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
+      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.8.2}
+      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
+      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
+    command: bin/run-tests-docker.sh wordpress_test_wp682 root testpass mysql-wp682 ${WP_VERSION_LATEST:-6.8.2}
+
+  # Test runner for WordPress 6.7.3
+  test-runner-wp673:
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.7.3}
+    depends_on:
+      - mysql-wp673
+    volumes:
+      - ../../:/app
+    working_dir: /app
+    environment:
+      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
+      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.7.3}
+      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
+      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
+    command: bin/run-tests-docker.sh wordpress_test_wp673 root testpass mysql-wp673 ${WP_VERSION_PREVIOUS:-6.7.3}
+
+  # Legacy test runner (for backward compatibility)
   test-runner:
     build:
       context: .
@@ -26,7 +91,9 @@ services:
       TEST_WP_VERSION: ${WP_VERSION:-6.4}
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test root '' mysql ${WP_VERSION:-6.4}
+    command: bin/run-tests-docker.sh wordpress_test root testpass mysql ${WP_VERSION:-6.4}
 
 volumes:
   mysql_data:
+  mysql_wp682_data:
+  mysql_wp673_data:

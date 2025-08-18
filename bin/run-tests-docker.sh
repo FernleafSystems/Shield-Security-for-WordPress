@@ -47,11 +47,26 @@ fi
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
+echo "Connection details: $DB_USER@$DB_HOST (password: ${DB_PASS:+***provided***}${DB_PASS:-not provided})"
+
+# Build mysqladmin command with proper password handling
+MYSQL_CMD="mysqladmin ping -h\"$DB_HOST\" -u\"$DB_USER\""
+if [ -n "$DB_PASS" ]; then
+    MYSQL_CMD="$MYSQL_CMD -p\"$DB_PASS\""
+fi
+MYSQL_CMD="$MYSQL_CMD --silent"
+
 timeout=30
-while ! mysqladmin ping -h"$DB_HOST" -u"$DB_USER" ${DB_PASS:+-p"$DB_PASS"} --silent; do
+while ! eval "$MYSQL_CMD"; do
     timeout=$((timeout - 1))
     if [ $timeout -eq 0 ]; then
-        echo "MySQL failed to start within 30 seconds"
+        echo "ERROR: MySQL failed to start within 30 seconds"
+        echo "Connection details: $DB_USER@$DB_HOST"
+        echo "Last attempted command: mysqladmin ping -h\"$DB_HOST\" -u\"$DB_USER\" ${DB_PASS:+-p***} --silent"
+        echo "Troubleshooting tips:"
+        echo "  - Verify MySQL container is running and accepting connections"
+        echo "  - Check if password is required and correctly provided"
+        echo "  - Ensure DB_HOST is accessible from this container"
         exit 1
     fi
     echo "Waiting for MySQL... ($timeout seconds left)"
