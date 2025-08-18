@@ -105,7 +105,7 @@ ENV PATH="/root/.composer/vendor/bin:${PATH}"
 # Optimized to be skipped when WP_VERSION=latest (runtime detection)
 #
 FROM test-framework AS wordpress-tests
-ARG WP_VERSION
+ARG WP_VERSION=latest
 
 # Create WordPress test lib directory
 RUN mkdir -p /tmp/wordpress-tests-lib
