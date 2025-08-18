@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Shield Plugin Package Builder
 # Creates a production package with Strauss prefixing and cleanup
 
@@ -49,7 +49,7 @@ composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Download and run Strauss v0.19.4 for package prefixing
 echo "Downloading Strauss v0.19.4..."
-curl -L https://github.com/BrianHenryIE/strauss/releases/download/0.19.4/strauss.phar -o strauss.phar
+curl -sL https://github.com/BrianHenryIE/strauss/releases/download/0.19.4/strauss.phar -o strauss.phar
 [ -f strauss.phar ] && echo "✓ strauss.phar downloaded" || { echo "✗ strauss.phar download FAILED"; exit 1; }
 
 echo "Current directory: $(pwd)"

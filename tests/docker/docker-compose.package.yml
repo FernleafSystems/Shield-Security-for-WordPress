@@ -9,3 +9,17 @@ services:
     environment:
       # Signal that we're running in package mode
       SHIELD_PACKAGE_PATH: /package
+
+  test-runner-wp682:
+    volumes:
+      - ../../:/app
+      - ${PLUGIN_SOURCE}:/package
+    environment:
+      SHIELD_PACKAGE_PATH: /package
+
+  test-runner-wp673:
+    volumes:
+      - ../../:/app
+      - ${PLUGIN_SOURCE}:/package
+    environment:
+      SHIELD_PACKAGE_PATH: /package
