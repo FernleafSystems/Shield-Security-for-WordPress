@@ -2,8 +2,32 @@
 
 ## Quick Start
 
-### Option 1: Docker Testing (Recommended)
-**Zero setup required** - runs in isolated containers with consistent environments:
+### Option 1: Simple Docker Testing (Recommended) ⚡
+**Ultimate zero setup** - automated CI-equivalent testing with one command:
+
+```bash
+# Simple command - matches CI exactly
+./bin/run-docker-tests.sh
+
+# What this automatically does:
+# ✅ Detects WordPress versions (latest + previous)
+# ✅ Builds assets and dependencies
+# ✅ Builds production package
+# ✅ Tests PHP 7.4 + latest WordPress
+# ✅ Tests PHP 7.4 + previous WordPress  
+# ✅ Runs both unit and integration tests
+# ✅ Handles all setup and cleanup
+```
+
+**Key Benefits:**
+- **Zero Configuration**: No setup, no parameters, just run
+- **CI Parity**: Identical to GitHub Actions matrix testing
+- **Production Validation**: Tests built package (not just source)
+- **Auto-Discovery**: Detects current WordPress versions dynamically
+- **Complete Coverage**: Both unit and integration tests across versions
+
+### Option 2: Advanced Docker Testing
+**Full control** - customize PHP/WordPress versions and testing modes:
 
 ```powershell
 # Source testing (test current development code)
@@ -29,7 +53,7 @@ composer docker:test:integration                # Integration tests only
 composer docker:test:package                    # Package testing
 ```
 
-### Option 2: Local Testing
+### Option 3: Local Testing
 Run tests using unified test runner (native mode) or direct Composer commands:
 
 ```powershell
@@ -46,9 +70,16 @@ composer test:integration                       # Integration tests only
 
 ## Prerequisites
 
-### Docker Testing
+### Simple Docker Testing (run-docker-tests.sh)
 - Docker Desktop installed and running
 - 4GB+ RAM allocated to Docker
+- Bash shell (Git Bash on Windows, native on macOS/Linux)
+- **Nothing else required** - script handles everything automatically
+
+### Advanced Docker Testing
+- Docker Desktop installed and running
+- 4GB+ RAM allocated to Docker
+- PowerShell (Windows) or Bash (macOS/Linux)
 - No additional setup required
 
 ### Local Testing
@@ -219,7 +250,42 @@ services:
 
 ## How to Run Docker Tests
 
-### Windows Users (PowerShell)
+### Universal: Simple CI-Equivalent Testing (All Platforms)
+
+The `bin/run-docker-tests.sh` script provides the simplest way to run comprehensive tests that exactly match CI:
+
+```bash
+# One command runs everything - matches CI exactly
+./bin/run-docker-tests.sh
+
+# What it automatically executes:
+# 1. Detects current WordPress versions (latest: 6.8.2, previous: 6.7.3)
+# 2. Builds all assets and dependencies
+# 3. Creates production package with vendor_prefixed
+# 4. Runs PHP 7.4 + WordPress 6.8.2 (package mode)
+# 5. Runs PHP 7.4 + WordPress 6.7.3 (package mode)
+# 6. Executes both unit and integration tests for each
+# 7. Validates package structure and production readiness
+# 8. Cleans up all containers and temporary files
+```
+
+**Script Features:**
+- **Zero Configuration**: Automatically detects all settings
+- **CI Parity**: Identical to GitHub Actions workflow
+- **Cross-Platform**: Works on Windows (Git Bash), macOS, Linux
+- **Production Testing**: Always tests built package (not source)
+- **Auto-Cleanup**: Removes containers and temporary files
+- **Error Handling**: Stops on first failure with clear messages
+- **Version Detection**: Uses WordPress API with fallback system
+
+**When to Use:**
+- ✅ **Before commits**: Validate changes against CI environment
+- ✅ **Pre-release**: Comprehensive production package validation
+- ✅ **New environment**: First-time setup with zero configuration
+- ✅ **Team collaboration**: Consistent results across all machines
+- ✅ **Regression testing**: Full validation after significant changes
+
+### Windows Users (PowerShell) - Advanced Control
 
 #### Basic Commands
 ```powershell
@@ -747,7 +813,23 @@ Matrix debug output includes:
 
 ## Complete Testing Workflow
 
-### Development Cycle
+### Recommended Development Cycle
+
+#### Option A: Simple CI-Equivalent Workflow (Recommended)
+```bash
+# 1. Make code changes
+# 2. Comprehensive validation (matches CI exactly)
+./bin/run-docker-tests.sh
+
+# This single command:
+# ✅ Validates all changes against production environment
+# ✅ Tests both WordPress versions (latest + previous)
+# ✅ Runs complete test suite (unit + integration)
+# ✅ Validates production package build
+# ✅ Matches GitHub Actions CI exactly
+```
+
+#### Option B: Granular Development Workflow
 ```powershell
 # 1. Make code changes
 # 2. Quick unit test validation
@@ -766,9 +848,19 @@ Matrix debug output includes:
 - **Multi-Version Testing**: Configurable PHP and WordPress versions
 - **Clean Environment**: Isolated containers prevent test pollution
 
-## Docker vs Local Testing Comparison
+## Testing Methods Comparison
 
-### Docker Testing Benefits - Production Validated
+### Simple Docker Testing (run-docker-tests.sh) - Ultimate Simplicity ⚡
+- ✅ **Ultimate Zero Setup**: One command, zero configuration
+- ✅ **CI Parity Guaranteed**: Identical to GitHub Actions (PHP 7.4 + latest/previous WordPress)
+- ✅ **Auto-Discovery**: Detects WordPress versions automatically
+- ✅ **Production Validation**: Always tests built package (vendor_prefixed)
+- ✅ **Complete Coverage**: Both unit and integration tests across versions
+- ✅ **Cross-Platform**: Works on Windows (Git Bash), macOS, Linux
+- ✅ **Error Handling**: Clear failure messages and automatic cleanup
+- ✅ **Team Consistency**: Identical results for all developers
+
+### Advanced Docker Testing - Production Validated
 - ✅ **Zero Setup Required**: No local PHP, MySQL, or WordPress configuration needed
 - ✅ **Matrix Testing**: 12 PHP/WordPress combinations validated in production
 - ✅ **Consistent Environment**: Identical results across Windows, macOS, and Linux
@@ -789,13 +881,20 @@ Matrix debug output includes:
 
 ### When to Use Each
 
-**Use Docker Testing for:**
-- New environment setup (zero configuration)
-- Cross-platform compatibility validation
-- Production package verification
-- CI/CD pipeline testing
-- Matrix testing across versions
-- Team collaboration (consistent environments)
+**Use Simple Docker Testing (run-docker-tests.sh) for:**
+- ✅ **Most scenarios** - comprehensive validation with minimal effort
+- ✅ **Pre-commit validation** - ensure changes work in CI environment
+- ✅ **New team members** - zero setup, immediate productivity
+- ✅ **Release preparation** - comprehensive production validation
+- ✅ **Regression testing** - validate major changes across versions
+- ✅ **Team consistency** - identical results for all developers
+
+**Use Advanced Docker Testing for:**
+- Specific PHP/WordPress version combinations
+- Custom testing scenarios and debugging
+- Matrix testing beyond CI scope
+- Development of testing infrastructure
+- Granular control over test execution
 
 **Use Local Testing for:**
 - Daily development (faster iteration)
@@ -806,4 +905,4 @@ Matrix debug output includes:
 
 ---
 
-**That's it.** Choose Docker for consistency and zero setup, or local testing for speed and debugging. Both use the same unified test runner for seamless switching between modes.
+**Recommendation:** Start with `./bin/run-docker-tests.sh` for comprehensive validation, then use local testing for rapid development iteration. The simple Docker script provides the best balance of thoroughness and ease of use.

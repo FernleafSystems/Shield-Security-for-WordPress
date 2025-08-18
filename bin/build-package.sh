@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Shield Plugin Package Builder
 # Creates a production package with Strauss prefixing and cleanup
 
