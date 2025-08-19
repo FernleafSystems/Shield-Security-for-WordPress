@@ -13,7 +13,6 @@
     "js-circle-progress": "^1.0.0-beta.0",
     "js-loading-overlay": "^1.2.0",
     "micromodal": "^0.6.1",
-    "node-sass": "^9.0.0",
     "qrcode": "^1.5.4",
     "qs": "^6.13.1",
     "smartwizard": "^6.0.6",
