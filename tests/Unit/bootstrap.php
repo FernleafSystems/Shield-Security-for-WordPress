@@ -51,8 +51,8 @@ require_once $autoload_path;
 // Load Brain Monkey
 require_once dirname( dirname( __DIR__ ) ) . '/vendor/brain/monkey/inc/patchwork-loader.php';
 
-// Load the Yoast WP Test Utils Brain Monkey bootstrap
-require_once dirname( dirname( __DIR__ ) ) . '/vendor/yoast/wp-test-utils/src/BrainMonkey/bootstrap.php';
+// Load our custom BrainMonkey bootstrap (replaces wp-test-utils)
+require_once dirname( __DIR__ ) . '/bootstrap/brain-monkey.php';
 
 // Load any test helpers
 $helpers_dir = dirname( __DIR__ ) . '/Helpers';

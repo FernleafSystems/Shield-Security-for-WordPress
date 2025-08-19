@@ -23,7 +23,10 @@ This guide helps you use Agent OS properly for Shield Security development.
 │       └── sub-specs/    # Technical details
 ├── standards/            # Coding standards (if needed)
 └── knowledge/            # Shared knowledge base
+    └── session-notes-rationale.md  # Why we use session notes
 
+.claude/
+└── session-notes/        # Historical technical discoveries
 ```
 
 ## Core Workflows
@@ -88,6 +91,22 @@ Shows:
 - ✅ Complete one spec before starting another
 - ✅ Keep roadmap.md updated with progress
 
+## Documentation Strategy: Specs + Session Notes
+
+Shield Security uses a dual documentation approach:
+
+### Agent OS Specs (Planning)
+- Forward-looking feature plans
+- Task breakdowns and tracking
+- Structured development workflow
+
+### Session Notes (Learning)
+- Historical technical discoveries
+- Problem-solving journeys
+- Lessons learned and gotchas
+
+**Why both?** Specs tell us what to build; session notes capture what we learned while building. See `.agent-os/knowledge/session-notes-rationale.md` for details.
+
 ## Common Commands
 
 ### View Current Tasks
@@ -97,6 +116,9 @@ cat .agent-os/specs/TASKS_INDEX.md
 
 # Check specific spec tasks
 cat .agent-os/specs/*/tasks.md | grep -E "^\s*- \[ \]"
+
+# Review recent learnings
+ls -la .claude/session-notes/*.md | tail -5
 ```
 
 ### Update Task Status

@@ -18,7 +18,7 @@ Successfully completed a comprehensive overhaul of the Shield Security plugin's 
 - **Implemented dual testing strategy**:
   - Unit tests with Brain Monkey (fast, no database)
   - Integration tests with WordPress Test Suite
-- **Added yoast/wp-test-utils** for cross-version compatibility
+- **~~Added yoast/wp-test-utils~~** Upgraded to PHPUnit Polyfills 4.0 directly (2025-01-27)
 - **Reorganized test structure** to PSR-4 compliant directories
 
 ### 3. Configuration Updates
@@ -71,7 +71,7 @@ Successfully completed a comprehensive overhaul of the Shield Security plugin's 
 ### Best Practices Adopted
 - Separate bootstrap files for unit vs integration tests
 - PSR-4 compliant test organization
-- Cross-version compatibility with yoast/wp-test-utils
+- Cross-version compatibility with PHPUnit Polyfills 4.0 (PHPUnit 7-12 support)
 - Matrix testing across multiple PHP/WP versions
 - Security scanning integrated into CI
 
@@ -81,15 +81,34 @@ Successfully completed a comprehensive overhaul of the Shield Security plugin's 
 - **Discovered and fixed SVN dependency issue** in GitHub Actions
 - **Researched modern WordPress testing approaches** (Yoast SEO, EDD)
 - **Implemented SVN-free test setup** using HTTP/GitHub downloads
-- **Updated integration bootstrap** to use `yoast/wp-test-utils` bootstrap_it()
+- **~~Updated integration bootstrap to use `yoast/wp-test-utils`~~** Removed in favor of direct approach
 - **Simplified test matrix** to PHP 7.4 + latest WP for initial testing
 - **Fixed vulnerability scanner** action name (10up/wp-scanner-action@v1)
 
 ### Key Technical Insights
 - **SVN is obsolete for testing**: Ubuntu 24.04 removed it from GitHub Actions
-- **yoast/wp-test-utils** provides automatic test file detection
+- **~~yoast/wp-test-utils provides automatic test file detection~~** Not needed - direct approach better
 - **Modern CI/CD** can run entirely without SVN (except final WP.org deployment)
 - **Docker-based solutions** like @wordpress/env are becoming standard
+
+## Session 3 Update: PHPUnit Polyfills 4.0 Upgrade (2025-01-27)
+
+### Upgrade Rationale
+- **Removed yoast/wp-test-utils**: Just a thin wrapper around BrainMonkey
+- **Upgraded to PHPUnit Polyfills 4.0**: Direct usage for better control
+- **No functionality loss**: BrainMonkey already provides all needed stubs
+
+### Technical Changes
+- Updated composer.json: PHPUnit Polyfills ^4.0
+- Created custom BrainMonkey bootstrap at `tests/bootstrap/brain-monkey.php`
+- Fixed one test file using old WPTestUtils reference
+- All WordPress constants and stubs handled by custom bootstrap
+
+### Benefits Gained
+- **Better PHPUnit support**: Now supports PHPUnit 7-12 (was limited to 9)
+- **Fewer dependencies**: Removed unnecessary wrapper library
+- **Direct control**: No middleman between us and testing tools
+- **Future-proof**: Better compatibility with newer PHPUnit versions
 
 ## Future Recommendations
 

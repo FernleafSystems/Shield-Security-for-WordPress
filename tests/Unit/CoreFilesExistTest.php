@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use Brain\Monkey;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
-use Yoast\WPTestUtils\BrainMonkey\TestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Test that core plugin files and autoloaders exist.
@@ -12,6 +13,16 @@ use Yoast\WPTestUtils\BrainMonkey\TestCase;
 class CoreFilesExistTest extends TestCase {
 
 	use PluginPathsTrait;
+
+	protected function setUp() :void {
+		parent::setUp();
+		Monkey\setUp();
+	}
+
+	protected function tearDown() :void {
+		Monkey\tearDown();
+		parent::tearDown();
+	}
 
 	/**
 	 * Test that the main plugin autoloader exists

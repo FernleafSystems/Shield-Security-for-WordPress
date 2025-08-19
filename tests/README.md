@@ -117,13 +117,14 @@ tests/
 ## Writing Tests
 
 ### Unit Tests
-- Extend `Yoast\PHPUnitPolyfills\TestCases\TestCase`
+- Extend `Yoast\PHPUnitPolyfills\TestCases\TestCase` (v4.0 - supports PHPUnit 7-12)
 - Don't use WordPress functions
 - Focus on isolated functionality
 - Use Brain\Monkey for mocking WordPress functions if needed
+- Note: We use PHPUnit Polyfills directly instead of wp-test-utils (removed as unnecessary wrapper)
 
 ### Integration Tests
-- Extend `Yoast\PHPUnitPolyfills\TestCases\TestCase`
+- Extend `WP_UnitTestCase` or custom base class
 - Require WordPress test environment
 - Can use WordPress functions and database
 - Test actual plugin integration with WordPress
@@ -198,9 +199,18 @@ The unified test runner provides enterprise-grade matrix testing capabilities:
 - Parallel execution of matrix combinations
 - Resource optimization and automatic container management
 
+## Test Dependencies
+
+### PHPUnit Polyfills 4.0
+We use Yoast PHPUnit Polyfills 4.0 directly for cross-version PHPUnit compatibility (PHPUnit 7-12). This replaced our previous use of wp-test-utils, which was removed as it was merely a thin wrapper around BrainMonkey functionality we already access directly.
+
+### BrainMonkey
+Provides WordPress function mocking including translation and escaping stubs (`stubTranslationFunctions()`, `stubEscapeFunctions()`). Our custom bootstrap (`tests/bootstrap/brain-monkey.php`) handles WordPress constants.
+
 ## Additional Resources
 
 - [PHPUnit Documentation](https://phpunit.de/documentation.html)
 - [WordPress Plugin Unit Tests](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/)
 - [Brain Monkey Documentation](https://brain-wp.github.io/BrainMonkey/)
+- [PHPUnit Polyfills Documentation](https://github.com/Yoast/PHPUnit-Polyfills)
 - [Docker Testing Documentation](docker/README.md)
