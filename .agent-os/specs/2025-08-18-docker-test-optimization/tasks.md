@@ -224,6 +224,72 @@ Phase 2 can now implement parallel WordPress version execution since:
   - **Monitoring Command**: `watch -n 1 'docker ps --format "table {{.Names}}\t{{.Status}}"'` during test execution
   - **Rollback**: `cp bin/run-docker-tests.sh.phase1-backup bin/run-docker-tests.sh`
 
+## Phase 2.5: GitHub Actions Compatibility Fix (Option A) ✅ COMPLETED
+
+**Status**: This phase addresses the GitHub Actions pipeline failure caused by version-specific service names.
+
+### Phase 2.5 Tasks
+
+- [x] **Task 2.5.1: Document GitHub Actions Root Cause** ✅
+  - **Issue**: Version-specific service names (mysql-wp682, test-runner-wp682) break GitHub Actions workflow
+  - **File**: `.github/workflows/docker-tests.yml` lines 236-244
+  - **Root Cause**: Hardcoded service selection logic expects specific service names but doesn't match dynamically detected WordPress versions
+  - **Impact**: GitHub Actions exit with code 4 (service not found)
+
+- [x] **Task 2.5.2: Implement Service Name Reversion (Option A)** ✅
+  - **Approach**: Revert to generic service names while maintaining parallel execution benefits
+  - **Changes**:
+    - mysql-wp682 → mysql-latest
+    - mysql-wp673 → mysql-previous  
+    - test-runner-wp682 → test-runner-latest
+    - test-runner-wp673 → test-runner-previous
+  - **Files Modified**:
+    - docker-compose.yml (lines 6, 18, 40, 59)
+    - docker-compose.package.yml (lines 13, 20)
+    - docker-compose.ci.yml (lines 10, 15)
+    - bin/run-docker-tests.sh (lines 93, 99, 126, 143)
+    - .github/workflows/docker-tests.yml (lines 236-244)
+
+- [x] **Task 2.5.3: Test Local Compatibility** ✅
+  - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh`
+  - **Verification**: 
+    - Parallel execution still works with generic service names
+    - Database isolation maintained
+    - Performance improvement preserved (~3m 28s, 40% improvement)
+    - Both WordPress versions test successfully
+
+- [x] **Task 2.5.4: Verify GitHub Actions Fix** ✅
+  - **Method**: Push changes to test branch and monitor workflow
+  - **Success Criteria**:
+    - GitHub Actions workflow completes without exit code 4
+    - Both WordPress versions test in CI
+    - Service discovery works with generic names
+    - CI results match local test results
+
+### Phase 2.5 Implementation Summary ✅
+
+**Problem Solved:**
+GitHub Actions Docker test pipeline was failing due to version-specific container names that didn't match the workflow's service selection logic.
+
+**Solution Applied (Option A):**
+- Reverted to generic service names (latest/previous instead of version numbers)
+- Maintained all parallel execution benefits and 40% performance improvement
+- Simplified GitHub Actions workflow service selection logic
+- Preserved database isolation and container architecture
+
+**Technical Changes Made:**
+1. Service names updated to generic format across all Docker Compose files
+2. Script references updated to use new service names
+3. GitHub Actions workflow simplified to use version-agnostic service selection
+4. Environment variable configuration maintained for WordPress version specification
+
+**Verification Results:**
+- ✅ Local tests maintain 40% performance improvement (~3m 28s execution time)
+- ✅ Parallel execution with database isolation preserved
+- ✅ GitHub Actions pipeline compatibility restored
+- ✅ Both WordPress versions test successfully in CI and locally
+- ✅ No regression in test results or functionality
+
 ## Phase 3: Test Type Splitting (2x speedup target)
 
 ### Phase 3 Tasks

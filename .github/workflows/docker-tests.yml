@@ -150,7 +150,7 @@ jobs:
     - name: Setup PHP for dependencies
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: ${{ matrix.php }}
         coverage: none
         tools: composer:v2
     
@@ -192,7 +192,7 @@ jobs:
         # Use matrix values when running automatically, or manual inputs when triggered manually
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           PHP_VERSION="${{ github.event.inputs.php_version || '8.2' }}"
-          WP_VERSION="${{ github.event.inputs.wp_version || matrix.wordpress }}"
+          WP_VERSION="${{ github.event.inputs.wp_version || needs.detect-wp-versions.outputs.latest }}"
         else
           PHP_VERSION="${{ matrix.php }}"
           WP_VERSION="${{ matrix.wordpress }}"
@@ -203,6 +203,8 @@ jobs:
         WP_VERSION=$WP_VERSION
         TEST_PHP_VERSION=$PHP_VERSION
         TEST_WP_VERSION=$WP_VERSION
+        WP_VERSION_LATEST=${{ needs.detect-wp-versions.outputs.latest }}
+        WP_VERSION_PREVIOUS=${{ needs.detect-wp-versions.outputs.previous }}
         PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}
         SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}
         EOF
@@ -230,8 +232,18 @@ jobs:
         echo "Running tests in Docker"
         echo "PHP ${{ matrix.php }} / WordPress ${{ matrix.wordpress }}"
         
-        # Run tests using the cached image with CI override
-        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml run --rm -T test-runner
+        # Determine service name based on WordPress version (Option A: Generic service names)
+        WP_VERSION="${{ matrix.wordpress }}"
+        if [[ "$WP_VERSION" == "${{ needs.detect-wp-versions.outputs.latest }}" ]]; then
+          SERVICE_NAME="test-runner-latest"
+        else
+          SERVICE_NAME="test-runner-previous"
+        fi
+        
+        echo "Using service: $SERVICE_NAME for WordPress $WP_VERSION"
+        
+        # Run tests using the dynamically selected service
+        docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml run --rm -T "$SERVICE_NAME"
         
     - name: Cleanup Docker containers
       if: always()

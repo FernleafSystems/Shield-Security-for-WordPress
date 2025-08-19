@@ -10,14 +10,14 @@ services:
       # Signal that we're running in package mode
       SHIELD_PACKAGE_PATH: /package
 
-  test-runner-wp682:
+  test-runner-latest:
     volumes:
       - ../../:/app
       - ${PLUGIN_SOURCE}:/package
     environment:
       SHIELD_PACKAGE_PATH: /package
 
-  test-runner-wp673:
+  test-runner-previous:
     volumes:
       - ../../:/app
       - ${PLUGIN_SOURCE}:/package

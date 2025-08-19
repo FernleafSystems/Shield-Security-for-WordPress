@@ -90,13 +90,13 @@ EOF
     docker compose -f tests/docker/docker-compose.yml \
         -f tests/docker/docker-compose.ci.yml \
         -f tests/docker/docker-compose.package.yml \
-        up -d mysql-wp682 mysql-wp673
+        up -d mysql-latest mysql-previous
     
     # Build test runner images to ensure they're ready
     docker compose -f tests/docker/docker-compose.yml \
         -f tests/docker/docker-compose.ci.yml \
         -f tests/docker/docker-compose.package.yml \
-        build test-runner-wp682 test-runner-wp673
+        build test-runner-latest test-runner-previous
     
     # Wait for databases to be ready
     echo "⏳ Waiting for databases to initialize..."
@@ -123,7 +123,7 @@ EOF
         docker compose -f tests/docker/docker-compose.yml \
             -f tests/docker/docker-compose.ci.yml \
             -f tests/docker/docker-compose.package.yml \
-            run --rm test-runner-wp682 >> /tmp/shield-test-latest.log 2>&1
+            run --rm test-runner-latest >> /tmp/shield-test-latest.log 2>&1
         echo $? > /tmp/shield-test-latest.exit
         echo "[LATEST] Tests completed at $(date) with exit code $(cat /tmp/shield-test-latest.exit)" >> /tmp/shield-test-latest.log
     ) &
@@ -140,7 +140,7 @@ EOF
         docker compose -f tests/docker/docker-compose.yml \
             -f tests/docker/docker-compose.ci.yml \
             -f tests/docker/docker-compose.package.yml \
-            run --rm test-runner-wp673 >> /tmp/shield-test-previous.log 2>&1
+            run --rm test-runner-previous >> /tmp/shield-test-previous.log 2>&1
         echo $? > /tmp/shield-test-previous.exit
         echo "[PREVIOUS] Tests completed at $(date) with exit code $(cat /tmp/shield-test-previous.exit)" >> /tmp/shield-test-previous.log
     ) &

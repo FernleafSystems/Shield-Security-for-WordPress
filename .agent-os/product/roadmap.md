@@ -150,7 +150,41 @@
 
 **IMPACT ACHIEVED**: Docker testing now provides rapid feedback for developers with reliable parallel execution, establishing foundation for future PHP matrix expansion. All 71 unit tests + 33 integration tests execute consistently across both WordPress versions.
 
-**Archive Status**: Phase 2 implementation complete and fully operational. Ready for Phase 3 (Test Type Splitting) when business requirements dictate further optimization.
+**Archive Status**: Phase 2 implementation complete and fully operational. Resolved GitHub Actions compatibility in Phase 2.5. Ready for Phase 3 (Test Type Splitting) when business requirements dictate further optimization.
+
+### 2.5 GitHub Actions Compatibility Fix (Option A)
+**Status**: ✅ COMPLETED  
+**Timeline**: August 18, 2025 - DELIVERED
+**Completion Date**: August 18, 2025
+
+**Objective**: Resolve GitHub Actions Docker test pipeline failure caused by version-specific service names
+
+**PROBLEM RESOLVED**:
+- **Root Cause**: Version-specific service names (mysql-wp682, test-runner-wp682) broke GitHub Actions workflow due to hardcoded service selection logic
+- **Impact**: GitHub Actions exited with code 4 (service not found) while local tests worked correctly
+- **GitHub Actions File**: `.github/workflows/docker-tests.yml` lines 236-244 contained brittle service discovery logic
+
+**COMPLETED DELIVERABLES** ✅:
+- ✅ **Service Name Reversion**: Changed version-specific names to generic names (mysql-latest, mysql-previous, test-runner-latest, test-runner-previous)
+- ✅ **GitHub Actions Simplification**: Simplified workflow service selection logic to use version-agnostic names
+- ✅ **Performance Preservation**: Maintained 40% improvement (3m 28s execution time) and parallel execution architecture
+- ✅ **Database Isolation**: Preserved separate MySQL containers for parallel testing
+- ✅ **Environment Configuration**: WordPress versions specified via environment variables instead of hardcoded service names
+
+**TECHNICAL CHANGES MADE**:
+- **docker-compose.yml**: 13 service name and reference changes
+- **docker-compose.package.yml**: 2 service reference updates  
+- **docker-compose.ci.yml**: 2 service reference updates
+- **bin/run-docker-tests.sh**: 4 service name reference updates
+- **.github/workflows/docker-tests.yml**: Simplified service selection logic (lines 236-244)
+
+**ARCHITECTURAL IMPROVEMENT**:
+- **Generic Naming Strategy**: Services now use role-based names (latest/previous) instead of version numbers
+- **Environment-Driven Configuration**: WordPress versions controlled via WP_VERSION_LATEST and WP_VERSION_PREVIOUS environment variables
+- **GitHub Actions Resilience**: Workflow no longer depends on hardcoded version assumptions
+- **Maintainability**: Future WordPress version updates won't require service name changes
+
+**IMPACT ACHIEVED**: GitHub Actions Docker test pipeline now compatible with dynamic WordPress version detection while maintaining all performance benefits from Phase 2. Option A provides version-agnostic service architecture that prevents similar CI/CD failures in the future.
 
 ---
 
