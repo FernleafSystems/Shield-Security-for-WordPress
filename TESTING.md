@@ -1,8 +1,134 @@
-# Testing Guide
+# Shield Security WordPress Plugin - Testing Documentation
+
+## Table of Contents
+
+- [Quick Reference Card](#quick-reference-card)
+- [Quick Start](#quick-start)
+  - [Option 1: Simple CI-Equivalent Testing (Recommended)](#option-1-simple-ci-equivalent-testing-recommended-)
+  - [Option 2: Advanced Docker Testing (Custom Control)](#option-2-advanced-docker-testing-custom-control)
+  - [Option 3: Local Native Testing](#option-3-local-native-testing)
+- [Testing Infrastructure Overview](#testing-infrastructure-overview)
+  - [Why Docker?](#why-docker)
+  - [Testing Philosophy](#testing-philosophy)
+  - [Architecture Components](#architecture-components)
+- [Prerequisites & Setup](#prerequisites--setup)
+  - [Simple Docker Testing Requirements](#simple-docker-testing-requirements)
+  - [Advanced Docker Testing Requirements](#advanced-docker-testing-requirements)
+  - [Local Testing Requirements](#local-testing-requirements)
+- [Running Tests](#running-tests)
+  - [Universal: Simple CI-Equivalent Testing](#universal-simple-ci-equivalent-testing)
+  - [Windows: PowerShell Testing](#windows-powershell-testing)
+  - [macOS/Linux/WSL: Bash Testing](#macoslinuxwsl-bash-testing)
+  - [Local Native Testing](#local-native-testing)
+- [Writing Tests](#writing-tests)
+  - [Test Structure](#test-structure)
+  - [Unit Tests](#unit-tests)
+  - [Integration Tests](#integration-tests)
+  - [Test Dependencies](#test-dependencies)
+  - [Code Coverage](#code-coverage)
+- [Advanced Topics](#advanced-topics)
+  - [Matrix Testing Configuration](#matrix-testing-configuration)
+  - [Package Testing vs Source Testing](#package-testing-vs-source-testing)
+  - [Environment Variables](#environment-variables)
+  - [CI/CD Integration](#cicd-integration)
+- [Docker Technical Details](#docker-technical-details)
+  - [Container Architecture](#container-architecture)
+  - [Multi-Stage Build Process](#multi-stage-build-process)
+  - [Environment Detection](#environment-detection)
+  - [Docker Compose Files](#docker-compose-files)
+  - [Manual Docker Commands](#manual-docker-commands)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Docker-Specific Issues](#docker-specific-issues)
+  - [Matrix Testing Issues](#matrix-testing-issues)
+  - [Windows-Specific Issues](#windows-specific-issues)
+  - [Performance Issues](#performance-issues)
+  - [Debug Mode](#debug-mode)
+- [Appendices](#appendices)
+  - [Testing Methods Comparison](#testing-methods-comparison)
+  - [Complete Testing Workflow](#complete-testing-workflow)
+  - [Maintenance](#maintenance)
+  - [Additional Resources](#additional-resources)
+  - [Related Documentation](#related-documentation)
+
+---
+
+## Quick Reference Card
+
+### Most Common Commands
+
+| Platform | Command | Time | Purpose |
+|----------|---------|------|------|
+| **All** 🚀 | `./bin/run-docker-tests.sh` | ~3.5m | ✅ **Recommended** - CI-equivalent testing |
+| **🪟 Windows** | `.\bin\run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
+| **🐧 Linux/🔧 WSL** | `pwsh ./bin/run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
+| **🍎 macOS** | `pwsh ./bin/run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
+| **Local** | `composer test` | ~2m | ⚡ Fast local testing (requires setup) |
+
+### Decision Tree: Which Testing Method Should I Use?
+
+```
+Need to test?
+├─ Before commit/PR? → ./bin/run-docker-tests.sh ✅
+├─ Daily development?
+│  ├─ Have local setup? → composer test ⚡
+│  └─ No setup? → ./bin/run-docker-tests.sh ✅
+├─ Specific PHP/WP version? → run-tests.ps1 -Docker -PhpVersion X -WpVersion Y 🔧
+├─ Debugging test failures? → Local testing with IDE 🔬
+└─ Release validation? → ./bin/run-docker-tests.sh ✅
+```
+
+### Quick Troubleshooting Checklist
+
+- [ ] **Docker running?** Check Docker Desktop is started
+- [ ] **4GB+ RAM allocated?** Docker Desktop → Settings → Resources
+- [ ] **Scripts executable?** `chmod +x ./bin/*.sh` (Linux/WSL/macOS)
+- [ ] **Line endings correct?** `dos2unix ./bin/*.sh` (Linux/WSL)
+- [ ] **In docker group?** `groups | grep docker` (Linux)
+- [ ] **WSL2 enabled?** `wsl --set-default-version 2` (Windows)
+
+### Essential Environment Variables
+
+```bash
+# Docker Testing
+PHP_VERSION=7.4           # PHP version (7.4-8.4)
+WP_VERSION=latest         # WordPress version or 'latest'/'previous'
+SHIELD_PACKAGE_PATH=      # Set for package testing mode
+
+# Local Testing
+WP_TESTS_DB_NAME=wordpress_test
+WP_TESTS_DB_USER=root
+WP_TESTS_DB_PASSWORD=root
+```
+
+### Common File Paths
+
+| Component | Path |
+|-----------|------|
+| **Test Runner** | `./bin/run-tests.ps1` (PowerShell) |
+| **CI Script** | `./bin/run-docker-tests.sh` (Bash) |
+| **Tests** | `tests/Unit/`, `tests/Integration/` |
+| **Docker Config** | `tests/docker/` |
+| **CI Workflow** | `.github/workflows/docker-tests.yml` |
+| **Bootstrap** | `tests/bootstrap.php` |
+
+### Jump to Common Tasks
+
+- [Run CI-equivalent tests](#universal-simple-ci-equivalent-testing) → Fastest validation
+- [Setup WSL2 for Docker](#wsl2-setup-for-docker) → Windows optimization
+- [Fix permission issues](#permission-issues-linuxmacoswsl) → Linux/WSL troubleshooting
+- [Test specific versions](#custom-versions) → Matrix testing
+- [Debug failing tests](#debug-mode) → Troubleshooting
+- [View test logs](#container-environment-debug) → Container debugging
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
 
 ## Quick Start
 
-### Option 1: Parallel Docker Testing (Recommended) ⚡
+### Option 1: Simple CI-Equivalent Testing (Recommended) ⚡
+
 **Ultimate zero setup** - automated parallel CI-equivalent testing with one command:
 
 ```bash
@@ -14,7 +140,7 @@
 # ✅ Builds assets and dependencies
 # ✅ Builds production package ONCE (Phase 1 optimization)
 # ✅ Creates version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
-# ✅ Creates isolated MySQL containers (mysql-wp682, mysql-wp673)
+# ✅ Creates isolated MySQL containers (mysql-latest, mysql-previous)
 # ✅ Tests PHP 7.4 + WordPress 6.8.2 AND 6.7.3 SIMULTANEOUSLY (Phase 2)
 # ✅ Runs both unit and integration tests in parallel streams
 # ✅ Handles all setup and cleanup with proper error aggregation
@@ -29,21 +155,8 @@
 - **Complete Coverage**: Both unit and integration tests across versions
 - **Database Isolation**: Separate MySQL containers prevent test interference
 
-**Phase 2 Achievements** ✅
-- **Parallel Execution**: WordPress 6.8.2 and 6.7.3 tests run simultaneously
-- **Database Isolation**: Separate MySQL containers (mysql-wp682, mysql-wp673) prevent test interference
-- **Performance Improvement**: 40% faster execution (6m 25s → 3m 28s)
-- **Matrix-Ready Naming**: Container names ready for PHP matrix expansion (test-runner-wp682, test-runner-wp673)
-- **Error Handling**: Comprehensive exit code aggregation and failure reporting
-- **Output Management**: Clean result presentation with separate log files
+### Option 2: Advanced Docker Testing (Custom Control)
 
-**Container Architecture:**
-- **MySQL Containers**: `mysql-wp682` (WordPress 6.8.2), `mysql-wp673` (WordPress 6.7.3)
-- **Test Runners**: `test-runner-wp682` (WordPress 6.8.2), `test-runner-wp673` (WordPress 6.7.3)
-- **Log Files**: `/tmp/shield-test-latest.log`, `/tmp/shield-test-previous.log`
-- **Package Location**: `/tmp/shield-package-local` (shared across both test streams)
-
-### Option 2: PowerShell Testing (Windows/Cross-Platform)
 **Full control** - customize PHP/WordPress versions and testing modes:
 
 ```powershell
@@ -70,7 +183,8 @@ composer docker:test:integration                # Integration tests only
 composer docker:test:package                    # Package testing
 ```
 
-### Option 3: Local Testing
+### Option 3: Local Native Testing
+
 Run tests using unified test runner (native mode) or direct Composer commands:
 
 ```powershell
@@ -83,221 +197,295 @@ Run tests using unified test runner (native mode) or direct Composer commands:
 composer test                                   # All tests
 composer test:unit                              # Unit tests only
 composer test:integration                       # Integration tests only
+
+# Direct PHPUnit (after setup)
+vendor/bin/phpunit                             # All tests
+vendor/bin/phpunit --testsuite=unit            # Unit tests only
+vendor/bin/phpunit --testsuite=integration     # Integration tests only
 ```
 
-## Prerequisites
+**See also:** [Local Testing Requirements](#local-testing-requirements) for setup instructions
 
-### Simple Docker Testing (run-docker-tests.sh)
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Testing Infrastructure Overview
+
+### Why Docker?
+
+Shield Security includes a comprehensive Docker-based testing infrastructure that enables consistent test execution across all environments. Docker provides:
+
+- **Zero Setup**: Containers include all required dependencies (PHP, MySQL, WordPress)
+- **Consistency**: Identical test environment across Windows, macOS, and Linux
+- **Isolation**: No conflicts with local development environment
+- **Matrix Testing**: Test multiple PHP/WordPress version combinations
+- **CI/CD Parity**: Exact match with GitHub Actions environment
+- **Production Validation**: Test actual packaged plugin (vendor_prefixed)
+
+### Testing Philosophy
+
+Following WordPress plugin best practices (Yoast, EDD, WooCommerce), we use:
+
+1. **Unified Test Runner**: Single `bin/run-tests.ps1` script handles both native and Docker testing
+2. **Environment Detection**: Bootstrap files automatically detect testing context
+3. **Two Testing Modes**: Source testing for development, package testing for production validation
+4. **Matrix Support**: Comprehensive testing across PHP 7.4-8.4 and multiple WordPress versions
+5. **Backward Compatibility**: 100% compatibility maintained while adding Docker support
+
+### Architecture Components
+
+```
+Shield Security Testing
+├── bin/
+│   ├── run-tests.ps1           # Unified test runner (PowerShell)
+│   ├── run-docker-tests.sh     # Simple CI-equivalent script
+│   ├── build-package.sh        # Package builder
+│   └── install-wp-tests.sh     # WordPress test framework installer
+├── tests/
+│   ├── Unit/                   # Fast unit tests (Brain Monkey)
+│   ├── Integration/            # WordPress integration tests
+│   ├── fixtures/               # Test data and base classes
+│   ├── bootstrap.php           # Main bootstrap file
+│   └── docker/                 # Docker configuration
+│       ├── Dockerfile          # Multi-stage test environment
+│       ├── docker-compose.yml  # Base container configuration
+│       ├── docker-compose.ci.yml  # CI-specific overrides for GitHub Actions
+│       └── docker-compose.package.yml  # Package testing configuration
+└── .github/
+    ├── workflows/
+    │   └── docker-tests.yml    # GitHub Actions matrix testing
+    └── scripts/
+        └── detect-wp-versions.sh  # WordPress version detection
+```
+
+**See also:** [Docker Compose Files](#docker-compose-files) for detailed configuration descriptions
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Prerequisites & Setup
+
+### Simple Docker Testing Requirements
+
+For `bin/run-docker-tests.sh`:
 - Docker Desktop installed and running
 - 4GB+ RAM allocated to Docker
-- Bash shell (Git Bash on Windows, native on macOS/Linux)
+- Bash shell (Git Bash on Windows, native on macOS/Linux/WSL)
 - **Nothing else required** - script handles everything automatically
-- **Phase 1 Complete**: Now uses optimized build-once pattern for better performance
 
-### Advanced Docker Testing
+#### WSL2 Setup for Docker
+
+**Initial WSL2 Installation:**
+```powershell
+# Windows PowerShell (as Administrator)
+wsl --install
+# Or update existing WSL1 to WSL2
+wsl --set-version Ubuntu 2
+wsl --set-default-version 2
+```
+
+**Docker Desktop Configuration for WSL2:**
+1. Install Docker Desktop for Windows
+2. Settings → General → Enable "Use the WSL 2 based engine"
+3. Settings → Resources → WSL Integration → Enable integration with your distro
+4. Settings → Resources → Advanced → Allocate 4GB+ RAM
+
+**Path Considerations in WSL:**
+```bash
+# WSL paths automatically mount Windows drives
+# Windows: D:\Work\Dev\Repos
+# WSL:     /mnt/d/Work/Dev/Repos
+
+# For better performance, clone repos in WSL filesystem
+cd ~/projects  # Native Linux filesystem (faster)
+git clone https://github.com/your-repo.git
+
+# Or work with Windows filesystem (slower but convenient)
+cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield
+```
+
+**WSL Performance Tips:**
+- Keep project files in WSL filesystem (`~/projects`) for 10x faster I/O
+- Use Windows filesystem (`/mnt/d`) only when sharing with Windows tools
+- Configure Git line endings: `git config --global core.autocrlf input`
+- Install Docker CLI in WSL: `sudo apt update && sudo apt install docker.io`
+
+#### Linux Native Setup
+
+**Docker Installation on Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install docker.io docker-compose
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add user to docker group (logout/login required)
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Verify installation
+docker --version
+docker-compose --version
+```
+
+**Docker Permissions on Linux:**
+```bash
+# Fix socket permissions if needed
+sudo chmod 666 /var/run/docker.sock
+
+# Or run with sudo (not recommended)
+sudo docker-compose up
+
+# Better: ensure user is in docker group
+groups $USER  # Should show 'docker' in the list
+```
+
+### Advanced Docker Testing Requirements
+
+For PowerShell/Composer Docker testing:
 - Docker Desktop installed and running
 - 4GB+ RAM allocated to Docker
-- PowerShell (Windows) or Bash (macOS/Linux)
-- No additional setup required
+- PowerShell (Windows) or PowerShell Core (Linux/macOS) or Bash
+- No PHP, MySQL, or WordPress installation required
 
-### Local Testing
-- PHP 7.4+, Composer, MySQL
-- Run once: `composer install`
-- For integration tests: `bash bin/install-wp-tests.sh wordpress_test root '' localhost latest`
+#### PowerShell Core on Linux/macOS
 
-
-## Test Structure
-
-```
-tests/
-├── Unit/           # Fast unit tests (Brain Monkey)
-├── Integration/    # WordPress integration tests
-└── fixtures/       # Test data
-```
-
-- **Unit tests**: Business logic, no WordPress required
-- **Integration tests**: Full WordPress environment with database
-
-## Environment Variables
-
-### Native Testing
+**Installing PowerShell Core:**
 ```bash
-WP_TESTS_DB_NAME=wordpress_test
-WP_TESTS_DB_USER=root
-WP_TESTS_DB_PASSWORD=root
-WP_TESTS_DB_HOST=127.0.0.1
+# Ubuntu/Debian
+wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt update
+sudo apt install powershell
+
+# Verify PowerShell Core installation
+pwsh --version
+# Expected output: PowerShell 7.x.x
+
+# Test PowerShell Core is working
+pwsh -Command "Write-Host 'PowerShell Core is working'"
+
+# macOS
+brew install --cask powershell
+
+# Verify installation on macOS
+pwsh --version
+
+# Troubleshooting if PowerShell Core doesn't install:
+# Ubuntu/Debian: Ensure packages-microsoft-prod.deb installed correctly
+sudo apt-cache policy powershell
+# macOS: Ensure Homebrew is up to date
+brew update && brew upgrade powershell
 ```
 
-### Docker Testing Environment Variables
-Docker testing uses comprehensive environment variable configuration:
-
-#### Core Configuration
+**Running PowerShell Scripts on Linux/macOS:**
 ```bash
-PHP_VERSION=8.2                    # PHP version (7.4-8.4)
-WP_VERSION=6.4                     # WordPress version
-MYSQL_VERSION=8.0                  # MySQL/MariaDB version
-MYSQL_DATABASE=wordpress_test       # Test database name
-MYSQL_USER=wordpress               # Database user
-MYSQL_PASSWORD=wordpress           # Database password
+# Using PowerShell Core
+pwsh ./bin/run-tests.ps1 all -Docker
+
+# Or make scripts executable
+chmod +x ./bin/run-tests.ps1
+pwsh ./bin/run-tests.ps1 all -Docker
 ```
 
-#### Testing Mode Control
+### Local Testing Requirements
+
+For native testing without Docker:
+- PHP 7.4+ (8.3+ recommended for development)
+- Composer
+- MySQL/MariaDB
+- SVN (for downloading WordPress test framework)
+
+**PHP Installation on Linux:**
 ```bash
-SHIELD_PACKAGE_PATH=               # Set for package testing mode
-PLUGIN_SOURCE=../../               # Plugin source directory
-SKIP_DB_CREATE=false              # Skip database creation
-DEBUG=false                       # Enable debug output
+# Ubuntu/Debian
+sudo apt update
+sudo apt install php8.3 php8.3-{mysql,xml,mbstring,curl,zip,gd,intl}
+sudo apt install composer subversion
+
+# Verify installation
+php -v
+composer --version
 ```
 
-#### Environment Detection Logic
-Bootstrap files automatically detect testing environment:
-1. **Package Testing**: When `SHIELD_PACKAGE_PATH` is set
-2. **Docker Testing**: When WordPress plugin directory exists in container
-3. **Source Testing**: Default mode using repository directory
+**MySQL Installation on Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt install mysql-server
+sudo mysql_secure_installation
 
-#### Variable Flow
-```
-PowerShell Script → .env file → docker-compose.yml → Container
-     ↓                ↓              ↓              ↓
-User Input    →  File Config  →  Service Env  →  Test Runtime
-```
-
-## Package Testing vs Source Testing
-
-### Understanding the Difference
-
-#### Source Testing (Development Mode)
-- **Purpose**: Test current development code
-- **Environment**: Uses development dependencies and source files
-- **Speed**: Faster, no build process required
-- **Use Case**: Daily development, TDD, debugging
-- **Command**: `.\bin\run-tests.ps1 all -Docker`
-
-#### Package Testing (Production Validation)
-- **Purpose**: Test production-ready built package
-- **Environment**: Uses `vendor_prefixed` dependencies, cleaned autoload files
-- **Process**: Automatically builds package using `bin/build-package.sh`
-- **Validation**: Ensures package structure and production readiness
-- **Command**: `.\bin\run-tests.ps1 all -Docker -Package`
-
-### Package Testing Process
-1. **Build Phase**: Runs `bin/build-package.sh` to create production package
-2. **Prefix Phase**: Dependencies moved to `vendor_prefixed` with Strauss
-3. **Clean Phase**: Development files excluded, autoload references cleaned
-4. **Test Phase**: Docker container tests the built package
-5. **Validation Phase**: Verifies package structure and functionality
-
-### Package Validation Tests
-Package testing validates:
-- ✅ `vendor_prefixed` directory exists with Strauss-prefixed dependencies
-- ✅ Development files (`.github`, tests) properly excluded
-- ✅ Twig references cleaned from autoload files
-- ✅ Plugin structure matches production requirements
-- ✅ All dependencies properly namespaced
-- ✅ No development artifacts in package
-- ✅ Production-ready package validated
-
-### When to Use Each Mode
-
-**Use Source Testing for:**
-- Daily development work
-- Test-driven development (TDD)
-- Debugging and troubleshooting
-- Feature development and iteration
-- Quick validation of changes
-
-**Use Package Testing for:**
-- Pre-release validation
-- Production readiness verification
-- Dependency conflict detection
-- Plugin distribution validation
-- CI/CD package verification
-
-## Docker Testing Infrastructure
-
-### Overview
-Shield Security includes a comprehensive Docker-based testing infrastructure that enables consistent test execution across all environments. The Docker setup supports both source testing (development) and package testing (production validation).
-
-### Key Features
-- **Zero Setup**: Docker containers include all required dependencies
-- **Two Testing Modes**: Source testing for development, package testing for production validation
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **GitHub Actions Integration**: Optional CI/CD testing with manual trigger
-- **Environment Detection**: Automatic detection of testing environment in bootstrap files
-
-### Docker Testing Modes
-
-#### Source Testing (Default)
-Tests against current repository source code:
-- Uses development dependencies and configuration
-- Faster for iterative development
-- No build process required
-- Ideal for TDD and debugging
-
-#### Package Testing
-Tests against production-ready built package:
-- Builds plugin with `vendor_prefixed` directory
-- Validates production package structure
-- Tests actual distribution package
-- Catches packaging and dependency issues
-
-### Architecture
-Docker testing uses a multi-container environment:
-- **test-runner**: Executes PHPUnit tests with all dependencies
-- **mysql**: MariaDB 10.2 database service
-- **Unified Runner**: PowerShell script handles both native and Docker modes
-
-### Container Configuration
-```yaml
-services:
-  mysql:
-    image: mariadb:10.2
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: wordpress_test
-  
-  test-runner:
-    build: .
-    depends_on:
-      - mysql
-    environment:
-      PHP_VERSION: 8.2
-      WP_VERSION: 6.4
-      SHIELD_PACKAGE_PATH: # Set for package testing
+# Create test database and user
+sudo mysql -e "CREATE DATABASE wordpress_test;"
+sudo mysql -e "CREATE USER 'wp_test'@'localhost' IDENTIFIED BY 'password';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON wordpress_test.* TO 'wp_test'@'localhost';"
+sudo mysql -e "FLUSH PRIVILEGES;"
 ```
 
-## How to Run Docker Tests
+**Initial Setup for Local Testing:**
 
-### Universal: Simple CI-Equivalent Testing (All Platforms)
+**See also:** [Local Native Testing](#local-native-testing) for running tests after setup
 
-The `bin/run-docker-tests.sh` script provides the simplest way to run comprehensive tests that exactly match CI:
+```bash
+# Install dependencies
+composer install
+cd src/lib && composer install
+
+# Setup WordPress test framework (one-time)
+# Windows PowerShell:
+.\bin\install-wp-tests.ps1 -DB_NAME wordpress_test -DB_USER root -DB_PASS your_password
+
+# Linux/macOS/WSL:
+bash bin/install-wp-tests.sh wordpress_test root 'your_password' localhost latest
+
+# File permissions on Linux (if needed)
+chmod +x bin/*.sh
+chmod +x bin/*.ps1
+```
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Running Tests
+
+### Universal: Simple CI-Equivalent Testing
+
+The `bin/run-docker-tests.sh` script provides the simplest way to run comprehensive tests:
 
 ```bash
 # One command runs everything - matches CI exactly
+# Works on all platforms: Windows (Git Bash), Linux, macOS, WSL
 ./bin/run-docker-tests.sh
 
-# What it automatically executes (Phase 1 optimized):
+# WSL/Linux: Ensure script is executable
+chmod +x ./bin/run-docker-tests.sh
+./bin/run-docker-tests.sh
+
+# Alternative: Use bash explicitly
+bash ./bin/run-docker-tests.sh
+
+# What it automatically executes:
 # 1. Detects current WordPress versions (latest: 6.8.2, previous: 6.7.3)
 # 2. Builds all assets and dependencies
 # 3. Creates production package with vendor_prefixed (ONCE - Phase 1 optimization)
 # 4. Builds version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
-# 5. Runs PHP 7.4 + WordPress 6.8.2 (package mode)
-# 6. Runs PHP 7.4 + WordPress 6.7.3 (package mode)
+# 5. Creates isolated MySQL containers (mysql-latest, mysql-previous)
+# 6. Runs PHP 7.4 + WordPress 6.8.2 AND 6.7.3 SIMULTANEOUSLY (Phase 2)
 # 7. Executes both unit and integration tests for each
 # 8. Validates package structure and production readiness
 # 9. Cleans up all containers and temporary files
 ```
 
-**Script Features:**
-- **Zero Configuration**: Automatically detects all settings
-- **CI Parity**: Identical to GitHub Actions workflow
-- **Cross-Platform**: Works on Windows (Git Bash), macOS, Linux
-- **Production Testing**: Always tests built package (not source)
-- **Auto-Cleanup**: Removes containers and temporary files
-- **Error Handling**: Stops on first failure with clear messages
-- **Version Detection**: Uses WordPress API with fallback system
-- **Phase 1 Optimized**: Build-once pattern eliminates redundant operations
-- **Version-Specific Images**: WordPress test framework pre-installed for reliability
+**Phase 2 Achievements** ✅
+- **Parallel Execution**: WordPress 6.8.2 and 6.7.3 tests run simultaneously
+- **Database Isolation**: Separate MySQL containers prevent test interference
+- **Performance Improvement**: 40% faster execution (6m 25s → 3m 28s)
+- **Matrix-Ready Naming**: Container names ready for PHP matrix expansion
+- **Error Handling**: Comprehensive exit code aggregation and failure reporting
+- **Output Management**: Clean result presentation with separate log files
 
 **When to Use:**
 - ✅ **Before commits**: Validate changes against CI environment
@@ -306,10 +494,11 @@ The `bin/run-docker-tests.sh` script provides the simplest way to run comprehens
 - ✅ **Team collaboration**: Consistent results across all machines
 - ✅ **Regression testing**: Full validation after significant changes
 
-### Windows Users (PowerShell) - Advanced Control
+### Windows: PowerShell Testing
 
 #### Basic Commands
 ```powershell
+# Windows PowerShell or PowerShell Core
 # All tests in Docker
 .\bin\run-tests.ps1 all -Docker
 
@@ -332,7 +521,23 @@ The `bin/run-docker-tests.sh` script provides the simplest way to run comprehens
 .\bin\run-tests.ps1 integration -Docker -PhpVersion 7.4 -WpVersion latest
 ```
 
-### macOS/Linux Users (Bash)
+### macOS/Linux/WSL: Bash Testing
+
+#### Using PowerShell Core on Linux/WSL
+```bash
+# Install PowerShell Core if not already installed
+sudo apt install -y powershell  # Ubuntu/Debian
+brew install --cask powershell  # macOS
+
+# Run tests using PowerShell Core
+pwsh ./bin/run-tests.ps1 all -Docker
+pwsh ./bin/run-tests.ps1 unit -Docker
+pwsh ./bin/run-tests.ps1 integration -Docker
+pwsh ./bin/run-tests.ps1 all -Docker -Package
+
+# With custom versions
+pwsh ./bin/run-tests.ps1 all -Docker -PhpVersion 8.1 -WpVersion 6.3
+```
 
 #### Using Composer
 ```bash
@@ -345,6 +550,23 @@ composer docker:test:integration        # Integration tests
 composer docker:test:package            # All tests on built package
 ```
 
+#### Cross-Platform Path Examples
+```bash
+# Windows paths in different contexts:
+# Windows:     D:\Work\Dev\Repos\Shield
+# Git Bash:    /d/Work/Dev/Repos/Shield
+# WSL:         /mnt/d/Work/Dev/Repos/Shield
+# Docker:      /var/www/html (mounted volume)
+
+# Running from WSL with Windows Docker Desktop
+cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield
+./bin/run-docker-tests.sh
+
+# Running from native Linux filesystem in WSL (faster)
+cd ~/projects/WP_Plugin-Shield
+./bin/run-docker-tests.sh
+```
+
 #### Direct Docker Compose
 ```bash
 # Manual container management
@@ -353,28 +575,148 @@ docker-compose -f tests/docker/docker-compose.yml exec test-runner composer test
 docker-compose -f tests/docker/docker-compose.yml down
 ```
 
-### Environment Configuration
+### Local Native Testing
 
-#### Default Settings
-Works immediately without configuration:
-- PHP 8.2
-- WordPress 6.4
-- MySQL 8.0 / MariaDB 10.2
-- Source code testing
-
-#### Custom Configuration
-Create `tests/docker/.env` file for custom settings:
 ```bash
-PHP_VERSION=8.1
-WP_VERSION=6.3
-MYSQL_VERSION=8.0
-SKIP_DB_CREATE=false
-DEBUG=true
+# After initial setup (see Prerequisites)
+
+# Windows: Using unified test runner
+.\bin\run-tests.ps1 all                # All tests
+.\bin\run-tests.ps1 unit               # Unit tests only
+.\bin\run-tests.ps1 integration        # Integration tests only
+
+# Linux/WSL/macOS: Using PowerShell Core
+pwsh ./bin/run-tests.ps1 all            # All tests
+pwsh ./bin/run-tests.ps1 unit           # Unit tests only
+pwsh ./bin/run-tests.ps1 integration    # Integration tests only
+
+# Using Composer
+composer test                           # All tests
+composer test:unit                      # Unit tests only
+composer test:integration               # Integration tests only
+
+# Direct PHPUnit
+vendor/bin/phpunit                      # All tests
+vendor/bin/phpunit --testsuite=unit     # Unit tests only
+vendor/bin/phpunit --testsuite=integration  # Integration tests only
 ```
 
-## Matrix Testing Configuration - Production Ready ✅
+**See also:** [Writing Tests](#writing-tests) for creating new test cases
 
-### Comprehensive Matrix Testing Capabilities 
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Writing Tests
+
+### Test Structure
+
+```
+tests/
+├── bootstrap.php          # Main test bootstrap file
+├── fixtures/             # Test fixtures and base classes
+│   └── TestCase.php     # Base test case
+├── Unit/                # Unit tests (no WordPress required)
+│   ├── BasicFunctionalityTest.php
+│   ├── ConfigurationValidationTest.php
+│   └── ControllerTest.php
+└── Integration/         # Integration tests (WordPress required)
+    ├── FilesHaveJsonFormatTest.php
+    ├── PluginActivationTest.php
+    └── WordPressHooksTest.php
+```
+
+### Unit Tests
+
+Unit tests run without WordPress and focus on isolated functionality:
+
+- Extend `Yoast\PHPUnitPolyfills\TestCases\TestCase` (v4.0 - supports PHPUnit 7-12)
+- Don't use WordPress functions directly
+- Use Brain\Monkey for mocking WordPress functions if needed
+- Focus on business logic and isolated components
+- Fast execution (no database required)
+
+**Example Unit Test:**
+```php
+namespace Tests\Unit;
+
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+use Brain\Monkey;
+
+class ExampleTest extends TestCase {
+    protected function set_up() {
+        parent::set_up();
+        Monkey\setUp();
+        Monkey\Functions\stubTranslationFunctions();
+    }
+
+    protected function tear_down() {
+        Monkey\tearDown();
+        parent::tear_down();
+    }
+
+    public function test_example() {
+        // Your test code here
+        $this->assertTrue(true);
+    }
+}
+```
+
+### Integration Tests
+
+Integration tests require WordPress test framework:
+
+- Extend `WP_UnitTestCase` or custom base class
+- Have access to WordPress functions and database
+- Test actual plugin integration with WordPress
+- Slower execution (database operations)
+
+**Example Integration Test:**
+```php
+namespace Tests\Integration;
+
+use WP_UnitTestCase;
+
+class PluginActivationTest extends WP_UnitTestCase {
+    public function test_plugin_activates() {
+        activate_plugin('wp-simple-firewall/icwp-wpsf.php');
+        $this->assertTrue(is_plugin_active('wp-simple-firewall/icwp-wpsf.php'));
+    }
+}
+```
+
+### Test Dependencies
+
+#### PHPUnit Polyfills 4.0
+- Provides cross-version PHPUnit compatibility (PHPUnit 7-12)
+- Used directly (replaced wp-test-utils wrapper)
+- Essential for supporting multiple PHP versions
+
+#### BrainMonkey
+- WordPress function mocking for unit tests
+- Provides translation and escaping stubs
+- Custom bootstrap handles WordPress constants
+
+### Code Coverage
+
+Generate code coverage reports:
+
+```bash
+# Requires Xdebug or PCOV
+composer run test:coverage
+
+# With Docker (if Xdebug installed in container)
+docker-compose -f tests/docker/docker-compose.yml exec test-runner composer test:coverage
+```
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Advanced Topics
+
+### Matrix Testing Configuration
+
 Shield Security provides **enterprise-grade matrix testing** with advanced Docker infrastructure:
 
 **Matrix Testing Scope**:
@@ -399,68 +741,147 @@ Shield Security provides **enterprise-grade matrix testing** with advanced Docke
    - **WordPress Version**: Specify version, "latest", "previous", or leave empty for auto-detection
    - **Testing Mode**: Single targeted combination for focused debugging
 
-### Matrix Environment Variables and Configuration
+**WordPress Version Detection System**:
 
-#### Core Matrix Configuration Options
+Shield Security uses a sophisticated 5-level fallback system:
+
+1. **Primary API**: `https://api.wordpress.org/core/version-check/1.7/` (comprehensive version data)
+2. **Secondary API**: `https://api.wordpress.org/core/stable-check/1.0/` (security validation)
+3. **GitHub Actions Cache**: Cached results with 6-hour TTL
+4. **Repository Fallback**: `.github/data/wp-versions-fallback.txt`
+5. **Hardcoded Fallback**: Emergency versions (6.8.2 latest, 6.7.3 previous)
+
+**Production Validation Results** ✅:
+- **GitHub Actions Run ID 17036484124**: Complete matrix success
+- **Unit Tests**: 71 tests, 2483 assertions - ALL PASSED
+- **Integration Tests**: 33 tests, 231 assertions - ALL PASSED
+- **Package Validation**: All 7 production tests - ALL PASSED
+- **Matrix Coverage**: 12 PHP/WordPress combinations - ALL PASSED
+- **Total Runtime**: ~3 minutes for complete matrix test suite
+- **Local Validation**: PHP 7.4 and 8.3 builds tested and confirmed
+- **Status**: Production ready and enterprise validated
+
+### Package Testing vs Source Testing
+
+#### Understanding the Difference
+
+**Source Testing (Development Mode)**
+- **Purpose**: Test current development code
+- **Environment**: Uses development dependencies and source files
+- **Speed**: Faster, no build process required
+- **Use Case**: Daily development, TDD, debugging
+- **Command**: `.\bin\run-tests.ps1 all -Docker`
+
+**Package Testing (Production Validation)**
+- **Purpose**: Test production-ready built package
+- **Environment**: Uses `vendor_prefixed` dependencies, cleaned autoload files
+- **Process**: Automatically builds package using `bin/build-package.sh`
+- **Validation**: Ensures package structure and production readiness
+- **Command**: `.\bin\run-tests.ps1 all -Docker -Package`
+
+#### Package Testing Process
+1. **Build Phase**: Runs `bin/build-package.sh` to create production package
+2. **Prefix Phase**: Dependencies moved to `vendor_prefixed` with Strauss
+3. **Clean Phase**: Development files excluded, autoload references cleaned
+4. **Test Phase**: Docker container tests the built package
+5. **Validation Phase**: Verifies package structure and functionality
+
+#### Package Validation Tests
+Package testing validates:
+- ✅ `vendor_prefixed` directory exists with Strauss-prefixed dependencies
+- ✅ Development files (`.github`, tests) properly excluded
+- ✅ Twig references cleaned from autoload files
+- ✅ Plugin structure matches production requirements
+- ✅ All dependencies properly namespaced
+- ✅ No development artifacts in package
+- ✅ Production-ready package validated
+
+#### When to Use Each Mode
+
+**Use Source Testing for:**
+- Daily development work
+- Test-driven development (TDD)
+- Debugging and troubleshooting
+- Feature development and iteration
+- Quick validation of changes
+
+**Use Package Testing for:**
+- Pre-release validation
+- Production readiness verification
+- Dependency conflict detection
+- Plugin distribution validation
+- CI/CD package verification
+
+### Environment Variables
+
+#### Native Testing
 ```bash
-# Primary matrix configuration
-PHP_VERSION=8.2                    # Target PHP version (7.4-8.4)
-WP_VERSION=latest                   # WordPress version (latest|previous|6.8.2|etc)
-TEST_PHP_VERSION=8.2               # Test environment PHP version
-TEST_WP_VERSION=6.8.2              # Test environment WordPress version
+WP_TESTS_DB_NAME=wordpress_test
+WP_TESTS_DB_USER=root
+WP_TESTS_DB_PASSWORD=root
+WP_TESTS_DB_HOST=127.0.0.1
+```
 
-# MySQL database configuration
+#### Docker Testing Environment Variables
+
+##### Core Configuration
+```bash
+PHP_VERSION=8.2                    # PHP version (7.4-8.4)
+WP_VERSION=6.4                     # WordPress version
 MYSQL_VERSION=8.0                  # MySQL/MariaDB version
 MYSQL_DATABASE=wordpress_test       # Test database name
 MYSQL_USER=wordpress               # Database user
 MYSQL_PASSWORD=wordpress           # Database password
 ```
 
-#### Package Testing Configuration
+##### Testing Mode Control
 ```bash
-# Package testing mode variables
-SHIELD_PACKAGE_PATH=/package       # Path to built package in container
-PLUGIN_SOURCE=/path/to/package      # Host path to package directory
-
-# Package testing workflow
-# 1. Build package: ./bin/build-package.sh $PACKAGE_DIR
-# 2. Set environment: SHIELD_PACKAGE_PATH=$PACKAGE_DIR
-# 3. Mount package: Uses docker-compose.package.yml override
-# 4. Test package: Container tests built package instead of source
+SHIELD_PACKAGE_PATH=               # Set for package testing mode
+PLUGIN_SOURCE=../../               # Plugin source directory
+SKIP_DB_CREATE=false              # Skip database creation
+DEBUG=false                       # Enable debug output
 ```
 
-#### WordPress Version Detection System
-Shield Security uses a sophisticated 5-level fallback system for WordPress version detection:
-
-**Detection Hierarchy**:
-1. **Primary API**: `https://api.wordpress.org/core/version-check/1.7/` (comprehensive version data)
-2. **Secondary API**: `https://api.wordpress.org/core/stable-check/1.0/` (security validation)
-3. **GitHub Actions Cache**: Cached results with 6-hour TTL
-4. **Repository Fallback**: `.github/data/wp-versions-fallback.txt`
-5. **Hardcoded Fallback**: Emergency versions (6.8.2 latest, 6.7.1 previous)
-
-**Version Detection Features**:
-- **Cache TTL**: 6 hours for API results
-- **PHP Compatibility**: Filters versions compatible with PHP 7.4-8.4
-- **Retry Logic**: 3 attempts with exponential backoff (2-30s)
-- **Debug Mode**: `./github/scripts/detect-wp-versions.sh --debug`
-
-#### Environment Variable Flow in Matrix Testing
-```
-GitHub Workflow Matrix → Docker Environment → Container Runtime
-         ↓                        ↓                  ↓
-   Matrix Values        →    .env File      →   Test Execution
-   Workflow Inputs      →    Build Args     →   Container Config
-   Version Detection    →    Environment    →   Test Framework
+##### Matrix-Specific Variables
+```bash
+SHIELD_DOCKER_PHP_VERSION=         # Container PHP info
+SHIELD_DOCKER_WP_VERSION=          # Container WordPress info
+SHIELD_TEST_MODE=docker            # Testing mode indicator
+CACHE_KEY_PREFIX=                  # Cache differentiation per matrix
+TEST_PHP_VERSION=                  # Test environment PHP version
+TEST_WP_VERSION=                   # Test environment WordPress version
 ```
 
-**Production Architecture**:
-- **Automatic Validation**: Every main branch change tested across full matrix
-- **Manual Flexibility**: Custom combinations for specific testing scenarios
-- **Consistent Triggers**: Standardized across both workflows for reliability
-- **Comprehensive Coverage**: Matrix testing supplements primary CI/CD for complete validation
+#### Environment Detection Logic
+Bootstrap files automatically detect testing environment:
+1. **Package Testing**: When `SHIELD_PACKAGE_PATH` is set
+2. **Docker Testing**: When WordPress plugin directory exists in container
+3. **Source Testing**: Default mode using repository directory
 
-**Advanced Features - All Production Tested**:
+#### Variable Flow
+```
+PowerShell Script → .env file → docker-compose.yml → Container
+     ↓                ↓              ↓              ↓
+User Input    →  File Config  →  Service Env  →  Test Runtime
+```
+
+### CI/CD Integration
+
+#### Continuous Integration - Matrix Testing
+
+Tests run automatically on GitHub Actions with comprehensive matrix testing:
+
+**Matrix Coverage** (GitHub Actions Run ID 17036484124 - 100% Success):
+- **PHP Versions**: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 (complete matrix)
+- **WordPress Versions**: Dynamic detection of latest (6.8.2) + previous major (6.7.3)
+- **Total Combinations**: 12 test combinations run in parallel
+- **Code Quality**: PHPCS, PHPStan, and package validation
+- **Production Ready**: All tests passing across matrix combinations
+
+**Automatic Triggers**: Matrix testing runs on all pushes to main branches (develop, main, master)
+**Manual Testing**: Custom PHP/WordPress combinations available via workflow dispatch
+
+#### GitHub Actions Features
 - **Full Build Pipeline**: Node.js, npm dependencies, and asset compilation integrated
 - **Dynamic Version Detection**: Automatic WordPress version discovery and caching
 - **Performance Optimizations**:
@@ -472,150 +893,273 @@ GitHub Workflow Matrix → Docker Environment → Container Runtime
 - **Environment Isolation**: Clean containerized environment for each test
 - **Automatic Resource Management**: Container cleanup and resource optimization
 
-**Production Validation Results** ✅:
-- **GitHub Actions Run ID 16694657226**: Complete matrix success
-- **Unit Tests**: 71 tests, 2483 assertions - ALL PASSED
-- **Integration Tests**: 33 tests, 231 assertions - ALL PASSED
-- **Package Validation**: All 7 production tests - ALL PASSED
-- **Matrix Coverage**: 12 PHP/WordPress combinations - ALL PASSED
-- **Total Runtime**: ~3 minutes for complete matrix test suite
-- **Local Validation**: PHP 7.4 and 8.3 builds tested and confirmed
-- **Status**: Production ready and enterprise validated
+---
 
-## Comprehensive Matrix Testing Troubleshooting Guide
+## Docker Technical Details
 
-### Matrix Configuration Issues
+### Container Architecture
 
-#### Matrix Not Running Expected Combinations
-**Problem**: Matrix only testing one combination instead of full matrix
+#### Phase 2 Parallel Architecture
+```yaml
+# Parallel test execution with isolated databases
+services:
+  mysql-latest:        # WordPress latest (6.8.2) database
+    image: mysql:8.0
+    container_name: mysql-latest
+    
+  mysql-previous:      # WordPress previous (6.7.3) database
+    image: mysql:8.0
+    container_name: mysql-previous
+    
+  test-runner-latest:  # WordPress latest (6.8.2) test runner
+    image: shield-test-runner:wp-6.8.2
+    container_name: test-runner-latest
+    depends_on:
+      - mysql-latest
+    
+  test-runner-previous: # WordPress previous (6.7.3) test runner
+    image: shield-test-runner:wp-6.7.3
+    container_name: test-runner-previous
+    depends_on:
+      - mysql-previous
 ```
-❌ Expected 12 combinations (6 PHP × 2 WordPress), but only 1 or 2 running
-```
-**Solutions**:
-1. **Check Workflow Trigger Type**:
-   ```bash
-   # Manual triggers (workflow_dispatch) = single job with selected versions
-   # Automatic triggers (push to main branches) = matrix execution
-   ```
-2. **Verify Matrix Configuration** in `.github/workflows/docker-tests.yml`:
-   ```yaml
-   matrix:
-     php: ['7.4']  # Currently optimized to single version
-     # To enable full matrix: php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-     wordpress: ${{ fromJSON(...) }}  # Uses detected versions
-   ```
-3. **Enable Full Matrix** (if desired):
-   - Edit workflow file to include all PHP versions
-   - Consider performance impact (12 jobs vs 2 jobs)
-   - Current 2-job configuration provides 81% faster execution
 
-#### WordPress Version Detection Failures
-**Problem**: WordPress API detection timeout or invalid versions
-```
-❌ WordPress version detection failed: API timeout or invalid response
-```
-**Solutions**:
-1. **Check API Endpoints**:
-   ```bash
-   # Test primary API
-   curl -s https://api.wordpress.org/core/version-check/1.7/ | jq -r '.offers[0].version'
-   
-   # Test secondary API
-   curl -s https://api.wordpress.org/core/stable-check/1.0/ | head
-   ```
-2. **Verify 5-Level Fallback System**:
-   ```bash
-   # Run detection with debug mode
-   ./.github/scripts/detect-wp-versions.sh --debug
-   
-   # Check fallback activation sequence:
-   # API → Secondary API → Cache → Repository → Hardcoded
-   ```
-3. **Cache Issues**:
-   ```bash
-   # Check cache directory
-   ls -la ~/.wp-api-cache/
-   
-   # Clear cache if needed
-   rm -rf ~/.wp-api-cache/
-   ```
+**Container Components:**
+- **MySQL Containers**: Isolated databases for each WordPress version
+- **Test Runners**: Version-specific containers with pre-installed WordPress test framework
+- **Log Files**: `/tmp/shield-test-latest.log`, `/tmp/shield-test-previous.log`
+- **Package Location**: `/tmp/shield-package-local` (shared across both test streams)
 
-#### PHP/WordPress Compatibility Issues
-**Problem**: Matrix combination fails due to version incompatibility
-```
-❌ PHP 8.4 with WordPress 6.6 - compatibility error
-```
-**Solutions**:
-1. **Check Compatibility Matrix**:
-   ```bash
-   # WordPress version requirements:
-   # WordPress 6.8+ : PHP 7.4-8.4 ✅
-   # WordPress 6.7+ : PHP 7.4-8.4 ✅
-   # WordPress 6.6  : PHP 7.4-8.3 (8.4 experimental)
-   ```
-2. **Use Compatibility Filtering**:
-   ```bash
-   # Version detection filters for PHP compatibility
-   ./.github/scripts/detect-wp-versions.sh --php-version=7.4
-   ```
-3. **Matrix Exclusions**:
-   ```yaml
-   # Add to workflow matrix
-   exclude:
-     - php: '8.4'
-       wordpress: '6.6'  # Known incompatibility
-   ```
+### Multi-Stage Build Process
 
-### Docker Matrix Build Issues
+The Dockerfile uses a 5-stage optimized build:
 
-#### Multi-Stage Build Failures
-**Problem**: Docker build fails for specific PHP versions in matrix
-```
-❌ Docker build failed: PHP extensions not found for version X.X
-```
-**Solutions**:
-1. **Verify PHP Version Support**:
-   ```bash
-   # Check supported versions in Dockerfile
-   grep -A 10 "PHP_SUPPORTED_VERSIONS" tests/docker/Dockerfile
-   
-   # Supported: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4
-   ```
-2. **Update Package Repository** (if using older base):
-   ```dockerfile
-   # Ensure ondrej/php repository is updated
-   RUN add-apt-repository ppa:ondrej/php && apt-get update
-   ```
-3. **Test Specific Version Locally**:
-   ```bash
-   # Build with specific matrix combination
-   docker build tests/docker/ \
-     --build-arg PHP_VERSION=8.3 \
-     --build-arg WP_VERSION=6.8.2 \
-     --progress=plain
-   ```
+1. **Base Stage**: Ubuntu with PHP and system dependencies
+2. **PHP Extensions**: Install PHP modules for all supported versions
+3. **Composer Stage**: Install Composer and PHPUnit
+4. **WordPress Stage**: Download and configure WordPress test framework
+5. **Final Stage**: Combine all components with proper permissions
 
-#### ARG Propagation Issues
-**Problem**: Build arguments not propagating through multi-stage build
-```
-❌ WP_VERSION empty in Stage 4, causing malformed URLs
-```
-**Solutions**:
-1. **Critical Fix Applied**: Dockerfile line 108 fixed from `ARG WP_VERSION` to `ARG WP_VERSION=latest`
-2. **Verify Fix**:
-   ```bash
-   # Check ARG declarations in Dockerfile
-   grep -n "ARG WP_VERSION" tests/docker/Dockerfile
-   # Line 7: ARG WP_VERSION=latest (global)
-   # Line 108: ARG WP_VERSION=latest (stage-specific with default)
-   ```
-3. **Test Build Process**:
-   ```bash
-   # Ensure build completes successfully
-   docker build tests/docker/ --build-arg WP_VERSION=6.8.2
-   ```
+**Critical ARG Propagation Fix**: 
+- Dockerfile line 108 fixed from `ARG WP_VERSION` to `ARG WP_VERSION=latest`
+- Ensures WordPress version propagates through all build stages
 
-### Container Infrastructure Issues
+### Environment Detection
+
+Bootstrap files automatically detect the testing environment:
+
+1. **Package Testing**: When `SHIELD_PACKAGE_PATH` environment variable is set
+2. **Docker Testing**: When `/var/www/html/wp-content/plugins/wp-simple-firewall` exists
+3. **Source Testing**: Default mode using current repository directory
+
+This follows patterns from Yoast WordPress SEO, Easy Digital Downloads, and WooCommerce.
+
+### Docker Compose Files
+
+The testing infrastructure uses multiple Docker Compose files for different purposes:
+
+**See also:** [Manual Docker Commands](#manual-docker-commands) for usage examples
+
+##### Base Configuration: docker-compose.yml
+- **Purpose**: Base container configuration for local development testing
+- **Services**: MySQL database and test runner containers
+- **Usage**: Default configuration for `run-tests.ps1` and manual Docker testing
+- **Environment**: Development-focused with source code mounting
+
+##### CI Configuration: docker-compose.ci.yml
+- **Purpose**: CI-specific overrides for GitHub Actions workflow
+- **Features**: 
+  - Optimized for automated testing environment
+  - Includes CI-specific environment variables
+  - Streamlined for parallel matrix execution
+- **Usage**: Automatically used by GitHub Actions workflow
+- **When to use**: Reference for understanding CI behavior, not for local use
+
+##### Package Testing: docker-compose.package.yml
+- **Purpose**: Override configuration for testing built packages
+- **Features**:
+  - Mounts built package instead of source code
+  - Tests production-ready plugin structure
+  - Validates vendor_prefixed dependencies
+- **Usage**: Applied with `-Package` flag or `composer docker:test:package`
+- **When to use**: Pre-release validation and production testing
+
+##### Relationship Between Files
+```yaml
+# Base configuration (always loaded)
+docker-compose.yml
+  ↓
+# Override for package testing (when -Package flag used)
+docker-compose.yml + docker-compose.package.yml
+  ↓
+# CI environment (GitHub Actions only)
+docker-compose.yml + docker-compose.ci.yml
+```
+
+### Manual Docker Commands
+
+For advanced usage or debugging:
+
+```bash
+# Start containers manually (source testing)
+docker-compose -f tests/docker/docker-compose.yml up -d
+
+# Start containers with package testing override
+docker-compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.package.yml up -d
+
+# Stop containers
+docker-compose -f tests/docker/docker-compose.yml down
+
+# View logs
+docker-compose -f tests/docker/docker-compose.yml logs -f
+
+# Run commands in container
+docker-compose -f tests/docker/docker-compose.yml exec test-runner bash
+
+# Run specific test file
+docker-compose -f tests/docker/docker-compose.yml exec test-runner composer test:unit -- tests/Unit/PluginJsonSchemaTest.php
+
+# Rebuild images
+docker-compose -f tests/docker/docker-compose.yml build --no-cache
+
+# Remove everything (including volumes)
+docker-compose -f tests/docker/docker-compose.yml down -v
+```
+
+**See also:** [Docker Compose Files](#docker-compose-files) for file descriptions | [Container Architecture](#container-architecture) for container organization
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Troubleshooting
+
+**Jump to:** [Docker Issues](#docker-specific-issues) | [Windows Issues](#windows-specific-issues) | [Performance](#performance-issues) | [Debug Mode](#debug-mode)
+
+### Cross-Platform Considerations
+
+#### Line Ending Configuration
+```bash
+# Configure Git for cross-platform development
+# Windows (preserve CRLF)
+git config --global core.autocrlf true
+
+# Linux/macOS/WSL (convert to LF)
+git config --global core.autocrlf input
+
+# Check current setting
+git config --get core.autocrlf
+
+# Fix line endings in existing files
+# Convert all files to LF (Linux/macOS/WSL)
+find . -type f -name "*.sh" -exec dos2unix {} \;
+find . -type f -name "*.php" -exec dos2unix {} \;
+
+# Or using Git
+git add --renormalize .
+git commit -m "Normalize line endings"
+```
+
+#### Path Separator Differences
+```bash
+# Windows uses backslash
+D:\Work\Dev\Repos\Shield
+
+# Linux/macOS/WSL uses forward slash
+/mnt/d/Work/Dev/Repos/Shield
+
+# Docker always uses forward slash
+/var/www/html/wp-content/plugins/wp-simple-firewall
+
+# PowerShell Core on Linux/WSL uses forward slash
+pwsh -c "Test-Path '/mnt/d/Work/Dev/Repos/Shield'"
+
+# PowerShell Core on Windows uses backslash
+pwsh -c "Test-Path 'D:\Work\Dev\Repos\Shield'"
+```
+
+#### Script Execution Permissions
+```bash
+# Linux/macOS/WSL: Make scripts executable
+chmod +x ./bin/*.sh
+chmod +x ./bin/*.ps1
+
+# Check permissions
+ls -la ./bin/
+
+# Run with explicit interpreter if not executable
+bash ./bin/run-docker-tests.sh
+pwsh ./bin/run-tests.ps1
+```
+
+#### Environment Variable Handling
+```bash
+# Windows PowerShell
+$env:WP_TESTS_DB_NAME = "wordpress_test"
+$env:WP_TESTS_DB_USER = "root"
+
+# Linux/macOS/WSL Bash
+export WP_TESTS_DB_NAME="wordpress_test"
+export WP_TESTS_DB_USER="root"
+
+# PowerShell Core (cross-platform)
+$env:WP_TESTS_DB_NAME = "wordpress_test"  # Works everywhere
+
+# Docker (via .env file)
+echo "WP_TESTS_DB_NAME=wordpress_test" >> tests/docker/.env
+```
+
+#### Case Sensitivity Issues
+```bash
+# Windows filesystem is case-insensitive
+# Linux/macOS/WSL filesystem is case-sensitive
+
+# This works on Windows but fails on Linux:
+require_once 'MyFile.php';  # File is actually myfile.php
+
+# Always use exact case matching
+require_once 'myfile.php';  # Works everywhere
+
+# Find case mismatches
+find . -type f -name "*.php" | while read file; do
+    basename="$(basename "$file")"
+    if [ "$basename" != "$(echo "$basename" | tr '[:upper:]' '[:lower:]')" ]; then
+        echo "Mixed case file: $file"
+    fi
+done
+```
+
+### Common Issues
+
+#### "WordPress test library not found"
+Run the install script to download WordPress test framework:
+```bash
+# Windows PowerShell
+.\bin\install-wp-tests.ps1 -DB_NAME wordpress_test -DB_USER root -DB_PASS your_password
+
+# Linux/macOS/WSL
+bash bin/install-wp-tests.sh wordpress_test root 'your_password' localhost latest
+```
+
+#### MySQL Connection Issues
+```bash
+# Ensure MySQL/MariaDB is running
+# Check database credentials
+# Create test database manually if needed:
+mysql -u root -p -e "CREATE DATABASE wordpress_test;"
+```
+
+**See also:** [Prerequisites & Setup](#prerequisites--setup) for complete setup instructions
+
+#### PHP Version Issues
+```bash
+# Check PHP version (8.3+ recommended, not 8.2)
+php -v
+```
+
+### Docker-Specific Issues
+
+**See also:** [Docker Technical Details](#docker-technical-details) for architecture information | [Simple Docker Testing Requirements](#simple-docker-testing-requirements) for setup
 
 #### Docker Not Available
 ```
@@ -626,14 +1170,91 @@ GitHub Workflow Matrix → Docker Environment → Container Runtime
 - macOS: Check Docker icon in menu bar
 - Linux: Verify Docker service is running
 
-#### Permission Issues (Linux/macOS)
+#### Permission Issues (Linux/macOS/WSL)
 ```
 docker: Got permission denied while trying to connect
 ```
 **Solution**: Add user to docker group
 ```bash
+# Add user to docker group
 sudo usermod -aG docker $USER
-# Log out and back in
+
+# Apply group changes without logout (Linux/WSL)
+newgrp docker
+
+# Or log out and back in
+exit
+# Log back in
+
+# Verify docker group membership
+groups | grep docker
+
+# Alternative: Fix socket permissions (temporary)
+sudo chmod 666 /var/run/docker.sock
+```
+
+#### Docker Socket Issues on WSL
+```
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock
+```
+**Solution**: Ensure Docker Desktop WSL integration is enabled
+```bash
+# Check if Docker is accessible from WSL
+docker version
+
+# If not, check Docker Desktop settings:
+# 1. Settings → Resources → WSL Integration
+# 2. Enable integration with your distro
+# 3. Restart Docker Desktop
+
+# Alternative: Use Docker context
+docker context ls
+docker context use default
+```
+
+#### SELinux/AppArmor Issues (Linux)
+```
+Permission denied when mounting volumes
+```
+**Solution**: Configure SELinux/AppArmor for Docker
+```bash
+# For SELinux (RHEL/CentOS/Fedora)
+# Add :Z flag to volume mounts in docker-compose.yml
+volumes:
+  - ./:/var/www/html:Z
+
+# Or disable SELinux temporarily (not recommended)
+sudo setenforce 0
+
+# For AppArmor (Ubuntu/Debian)
+# Check AppArmor status
+sudo aa-status
+
+# If issues persist, add to docker-compose.yml:
+security_opt:
+  - apparmor:unconfined
+```
+
+#### File Permission Errors on Linux
+```
+Failed to write to file: Permission denied
+```
+**Solution**: Fix file ownership and permissions
+```bash
+# Check current ownership
+ls -la tests/
+
+# Fix ownership (replace 'username' with your user)
+sudo chown -R username:username .
+
+# Fix directory permissions
+find . -type d -exec chmod 755 {} \;
+
+# Fix file permissions
+find . -type f -exec chmod 644 {} \;
+
+# Make scripts executable
+find ./bin -type f \( -name "*.sh" -o -name "*.ps1" \) -exec chmod +x {} \;
 ```
 
 #### Database Connection Issues
@@ -653,7 +1274,77 @@ docker-compose -f tests/docker/docker-compose.yml down -v
 docker-compose -f tests/docker/docker-compose.yml up -d
 ```
 
+### Matrix Testing Issues
+
+**See also:** [Matrix Testing Configuration](#matrix-testing-configuration) for full matrix details | [CI/CD Integration](#cicd-integration) for GitHub Actions setup
+
+#### Matrix Not Running Expected Combinations
+**Problem**: Matrix only testing one combination instead of full matrix
+
+**Solutions**:
+1. **Check Workflow Trigger Type**:
+   - Manual triggers (workflow_dispatch) = single job with selected versions
+   - Automatic triggers (push to main branches) = matrix execution
+
+2. **Verify Matrix Configuration** in `.github/workflows/docker-tests.yml`:
+   ```yaml
+   matrix:
+     php: ['7.4']  # Currently optimized to single version
+     # To enable full matrix: php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+     wordpress: ${{ fromJSON(...) }}  # Uses detected versions
+   ```
+
+3. **Enable Full Matrix** (if desired):
+   - Edit workflow file to include all PHP versions
+   - Consider performance impact (12 jobs vs 2 jobs)
+   - Current 2-job configuration provides 81% faster execution
+
+#### WordPress Version Detection Failures
+**Problem**: WordPress API detection timeout or invalid versions
+
+**Solutions**:
+1. **Check API Endpoints**:
+   ```bash
+   # Test primary API
+   curl -s https://api.wordpress.org/core/version-check/1.7/ | jq -r '.offers[0].version'
+   
+   # Test secondary API
+   curl -s https://api.wordpress.org/core/stable-check/1.0/ | head
+   ```
+
+2. **Verify 5-Level Fallback System**:
+   ```bash
+   # Run detection with debug mode
+   ./.github/scripts/detect-wp-versions.sh --debug
+   
+   # Clear cache if needed
+   rm -rf ~/.wp-api-cache/
+   ```
+
+#### PHP/WordPress Compatibility Issues
+**Problem**: Matrix combination fails due to version incompatibility
+
+**Solutions**:
+1. **Check Compatibility Matrix**:
+   ```bash
+   # WordPress version requirements:
+   # WordPress 6.8+ : PHP 7.4-8.4 ✅
+   # WordPress 6.7+ : PHP 7.4-8.4 ✅
+   # WordPress 6.6  : PHP 7.4-8.3 (8.4 experimental)
+   ```
+
+2. **Test Specific Version Locally**:
+   ```bash
+   # Build with specific matrix combination
+   docker build tests/docker/ \
+     --build-arg PHP_VERSION=8.3 \
+     --build-arg WP_VERSION=6.8.2 \
+     --progress=plain
+   ```
+
 ### Windows-Specific Issues
+
+**See also:** [WSL2 Setup for Docker](#wsl2-setup-for-docker) for WSL2 configuration | [WSL Performance Tips](#wsl2-setup-for-docker) for optimization
 
 #### File Sharing Not Enabled
 ```
@@ -670,9 +1361,55 @@ Error response from daemon: drive is not shared
 Docker Desktop requires WSL2
 ```
 **Solution**: Enable WSL2 backend
-- Install WSL2
-- Set as default in Docker Desktop settings
-- Allocate 4GB+ RAM in Docker Desktop
+```powershell
+# Windows PowerShell (as Administrator)
+# Install WSL2
+wsl --install
+
+# List installed distributions
+wsl --list --verbose
+
+# Convert existing WSL1 to WSL2
+wsl --set-version Ubuntu 2
+
+# Set WSL2 as default
+wsl --set-default-version 2
+
+# In Docker Desktop:
+# Settings → General → Use the WSL 2 based engine ✓
+# Settings → Resources → WSL Integration → Enable distro ✓
+# Settings → Resources → Advanced → Memory: 4GB+
+```
+
+#### WSL2 Performance Issues
+```
+Slow file operations in WSL2
+```
+**Solution**: Optimize file location and Docker settings
+```bash
+# Move project to WSL filesystem (10x faster)
+# Instead of: /mnt/d/Work/Dev/Repos/Shield
+# Use:        ~/projects/Shield
+
+# Clone directly in WSL
+cd ~/projects
+git clone https://github.com/your-repo/Shield.git
+cd Shield
+
+# Configure Docker to use WSL2 backend
+# Docker Desktop → Settings → General → Use WSL 2 based engine
+
+# Increase WSL2 memory limit
+# Create/edit %USERPROFILE%\.wslconfig
+[wsl2]
+memory=8GB
+processors=4
+swap=4GB
+
+# Restart WSL
+wsl --shutdown
+wsl
+```
 
 #### PowerShell Execution Policy
 ```
@@ -683,40 +1420,13 @@ Execution of scripts is disabled on this system
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-### Package Testing Issues
-
-#### Build Process Fails
-```
-Package building failed
-```
-**Solution**: Check build dependencies
-```bash
-# Ensure Node.js and npm are installed
-node --version
-npm --version
-
-# Ensure Composer dependencies are installed
-composer install
-cd src/lib && composer install
-
-# Manually test package building
-./bin/build-package.sh /tmp/test-package
-```
-
-#### Missing vendor_prefixed Directory
-```
-vendor_prefixed directory not found
-```
-**Solution**: Package was not built correctly
-- Ensure Strauss is installed in `src/lib/vendor`
-- Verify `strauss.phar` exists and is executable
-- Check package build output for errors
-
 ### Performance Issues
+
+**See also:** [WSL Performance Tips](#wsl2-setup-for-docker) for WSL2 optimization | [Performance Optimization](#performance-optimization) in Maintenance section
 
 #### Slow Container Startup
 **Solution**: Optimize Docker Desktop settings
-- Allocate 4GB+ RAM
+- Allocate 4GB+ RAM (8GB for parallel execution)
 - Enable 2+ CPU cores
 - Use WSL2 backend on Windows
 - Ensure SSD storage for Docker
@@ -731,55 +1441,15 @@ docker stats
 docker-compose -f tests/docker/docker-compose.yml build --no-cache
 ```
 
-### Environment Variable Issues
+### Debug Mode
 
-#### Variables Not Passed to Container
-**Solution**: Check environment variable flow
+#### PowerShell Debug Mode
 ```powershell
-# Debug PowerShell script
+# Enable debug output
 .\bin\run-tests.ps1 all -Docker -Debug
 
-# Check .env file creation
-cat tests/docker/.env
-
-# Verify docker-compose configuration
-docker-compose -f tests/docker/docker-compose.yml config
-```
-
-#### Package Path Not Recognized
-```
-SHIELD_PACKAGE_PATH not detected
-```
-**Solution**: Verify package mounting
-- Check package was built successfully
-- Verify package path exists
-- Ensure Docker Compose override is applied (Windows)
-
-### Network Issues
-
-#### Container Communication Failed
-**Solution**: Check Docker network
-```bash
-# Inspect network
-docker network ls
-docker-compose -f tests/docker/docker-compose.yml ps
-
-# Test container connectivity
-docker-compose -f tests/docker/docker-compose.yml exec test-runner ping mysql
-```
-
-### Matrix Testing Debug Mode
-
-#### Local Matrix Testing Debug
-```powershell
-# PowerShell with debug for specific matrix combination
+# Debug specific matrix combination
 .\bin\run-tests.ps1 all -Docker -PhpVersion 8.1 -WpVersion 6.8.2 -Debug
-
-# Standard debug output
-.\bin\run-tests.ps1 all -Docker -Debug
-
-# Environment variable debug
-DEBUG=true composer docker:test
 ```
 
 #### WordPress Version Detection Debug
@@ -792,117 +1462,58 @@ DEBUG=true composer docker:test
 
 # Display cache information
 ./.github/scripts/detect-wp-versions.sh --cache-info
-
-# Test PHP compatibility filtering
-./.github/scripts/detect-wp-versions.sh --php-version=8.2 --debug
 ```
 
-#### Matrix Build Debug
+#### Container Environment Debug
 ```bash
-# Debug Docker build with specific matrix values
-docker build tests/docker/ \
-  --build-arg PHP_VERSION=8.2 \
-  --build-arg WP_VERSION=6.8.2 \
-  --progress=plain --no-cache
-
-# Debug Docker Compose matrix configuration
-docker-compose -f tests/docker/docker-compose.yml config
-
 # Debug environment variables in running container
 docker exec -it container_name env | grep -E "PHP_VERSION|WP_VERSION|SHIELD_"
+
+# Check .env file creation
+cat tests/docker/.env
+
+# Verify docker-compose configuration
+docker-compose -f tests/docker/docker-compose.yml config
 ```
 
-Matrix debug output includes:
-- **Matrix Environment Variables**: PHP_VERSION, WP_VERSION, TEST_* variables
-- **Version Detection Process**: API calls, fallback activation, caching behavior
-- **Docker Compose Configuration**: Volume mounts, environment inheritance, service dependencies
-- **Multi-Stage Build Progress**: Each stage with ARG propagation verification
-- **Container Startup Logs**: PHP/WordPress version confirmation, test framework setup
-- **Matrix Test Execution**: Per-combination test results and timing
-- **Package Testing Process**: Build verification, volume mounting, package structure validation
-- **PHP/WordPress Compatibility**: Version validation and compatibility checking
-
-### Getting Help
-
-1. **Check Logs**: Always start with container logs
-2. **Debug Mode**: Use debug flags for detailed output
-3. **Validate Setup**: Ensure Docker Desktop is properly configured
-4. **Clean Rebuild**: When in doubt, rebuild containers
-5. **Documentation**: Refer to detailed docs in `tests/docker/README.md`
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
 
 ---
 
-## Complete Testing Workflow
+## Appendices
 
-### Recommended Development Cycle
+### Testing Methods Comparison
 
-#### Option A: Simple CI-Equivalent Workflow (Recommended)
-```bash
-# 1. Make code changes
-# 2. Comprehensive validation (matches CI exactly)
-./bin/run-docker-tests.sh
-
-# This single command:
-# ✅ Validates all changes against production environment
-# ✅ Tests both WordPress versions (latest + previous)
-# ✅ Runs complete test suite (unit + integration)
-# ✅ Validates production package build
-# ✅ Matches GitHub Actions CI exactly
-```
-
-#### Option B: Granular Development Workflow
-```powershell
-# 1. Make code changes
-# 2. Quick unit test validation
-.\bin\run-tests.ps1 unit -Docker
-
-# 3. Full integration testing
-.\bin\run-tests.ps1 integration -Docker
-
-# 4. Before release: validate production package
-.\bin\run-tests.ps1 all -Docker -Package
-```
-
-### CI/CD Integration
-- **GitHub Actions**: Manual Docker workflow available for targeted testing
-- **Package Validation**: Automatic package building and testing
-- **Multi-Version Testing**: Configurable PHP and WordPress versions
-- **Clean Environment**: Isolated containers prevent test pollution
-
-## Testing Methods Comparison
-
-### Simple Docker Testing (run-docker-tests.sh) - Ultimate Simplicity ⚡
+#### Simple Docker Testing (run-docker-tests.sh) - Ultimate Simplicity ⚡
 - ✅ **Ultimate Zero Setup**: One command, zero configuration
-- ✅ **CI Parity Guaranteed**: Identical to GitHub Actions (PHP 7.4 + latest/previous WordPress)
+- ✅ **CI Parity Guaranteed**: Identical to GitHub Actions
 - ✅ **Auto-Discovery**: Detects WordPress versions automatically
-- ✅ **Production Validation**: Always tests built package (vendor_prefixed)
-- ✅ **Complete Coverage**: Both unit and integration tests across versions
+- ✅ **Production Validation**: Always tests built package
+- ✅ **Complete Coverage**: Both unit and integration tests
 - ✅ **Cross-Platform**: Works on Windows (Git Bash), macOS, Linux
 - ✅ **Error Handling**: Clear failure messages and automatic cleanup
 - ✅ **Team Consistency**: Identical results for all developers
-- ✅ **Phase 1 Optimized**: Build-once pattern for improved performance
-- ✅ **Zero Runtime Issues**: WordPress test framework pre-installed in Docker images
+- ✅ **Phase 2 Optimized**: Parallel execution for 40% faster testing
 
-### Advanced Docker Testing - Production Validated
-- ✅ **Zero Setup Required**: No local PHP, MySQL, or WordPress configuration needed
-- ✅ **Matrix Testing**: 12 PHP/WordPress combinations validated in production
-- ✅ **Consistent Environment**: Identical results across Windows, macOS, and Linux
-- ✅ **Version Flexibility**: Test any PHP (7.4-8.4) and WordPress version combination
-- ✅ **No Local Conflicts**: Complete isolation from local development environment
-- ✅ **CI/CD Parity**: Exact match with GitHub Actions matrix testing environment
-- ✅ **Package Validation**: Production-ready package building and comprehensive testing
-- ✅ **Clean State**: Fresh database and environment for each test run
-- ✅ **Enterprise Grade**: Validated with comprehensive caching and optimization strategies
-- ✅ **Dynamic Versions**: Automatic WordPress version detection and compatibility testing
+#### Advanced Docker Testing - Production Validated
+- ✅ **Zero Setup Required**: No local PHP, MySQL, or WordPress needed
+- ✅ **Matrix Testing**: 12 PHP/WordPress combinations validated
+- ✅ **Consistent Environment**: Identical results across platforms
+- ✅ **Version Flexibility**: Test any PHP (7.4-8.4) and WordPress version
+- ✅ **No Local Conflicts**: Complete isolation from local environment
+- ✅ **CI/CD Parity**: Exact match with GitHub Actions
+- ✅ **Package Validation**: Production-ready package testing
+- ✅ **Clean State**: Fresh database for each test run
+- ✅ **Enterprise Grade**: Comprehensive caching and optimization
 
-### Local Testing Benefits
+#### Local Testing Benefits
 - ✅ **Faster Execution**: No container overhead (~30% faster)
-- ✅ **Direct Debugging**: Use local debugging tools (Xdebug, IDE integration)
+- ✅ **Direct Debugging**: Use local debugging tools (Xdebug, IDE)
 - ✅ **No Docker Dependency**: Works without Docker Desktop
 - ✅ **Resource Efficiency**: Lower memory and CPU usage
 - ✅ **Immediate Changes**: No container rebuilding needed
 
-### When to Use Each
+#### When to Use Each
 
 **Use Simple Docker Testing (run-docker-tests.sh) for:**
 - ✅ **Most scenarios** - comprehensive validation with minimal effort
@@ -910,7 +1521,6 @@ Matrix debug output includes:
 - ✅ **New team members** - zero setup, immediate productivity
 - ✅ **Release preparation** - comprehensive production validation
 - ✅ **Regression testing** - validate major changes across versions
-- ✅ **Team consistency** - identical results for all developers
 
 **Use Advanced Docker Testing for:**
 - Specific PHP/WordPress version combinations
@@ -926,154 +1536,118 @@ Matrix debug output includes:
 - Offline development
 - Integration with local development tools
 
----
+### Complete Testing Workflow
 
-**Recommendation:** Start with `./bin/run-docker-tests.sh` for comprehensive validation, then use local testing for rapid development iteration. The simple Docker script provides the best balance of thoroughness and ease of use.
+#### Recommended Development Cycle
 
----
-
-## Phase 2 Parallel Execution Troubleshooting
-
-### Parallel Test Stream Issues
-
-#### One WordPress Version Fails While Other Succeeds
-**Symptoms**: One test stream completes successfully, other fails
-**Diagnosis**:
+**Option A: Simple CI-Equivalent Workflow (Recommended)**
 ```bash
-# Check individual test outputs
-cat /tmp/shield-test-latest.log     # WordPress 6.8.2 stream
-cat /tmp/shield-test-previous.log   # WordPress 6.7.3 stream
+# 1. Make code changes
+# 2. Comprehensive validation (matches CI exactly)
+./bin/run-docker-tests.sh
 
-# Check exit codes
-cat /tmp/shield-test-latest.exit
-cat /tmp/shield-test-previous.exit
+# This single command:
+# ✅ Validates all changes against production environment
+# ✅ Tests both WordPress versions (latest + previous)
+# ✅ Runs complete test suite (unit + integration)
+# ✅ Validates production package build
+# ✅ Matches GitHub Actions CI exactly
 ```
 
-**Common Causes**:
-1. **MySQL container startup timing**: One database fails to start within timeout
-2. **Network isolation failure**: Containers accessing wrong database
-3. **Resource contention**: Insufficient memory/CPU for parallel execution
+**Option B: Granular Development Workflow**
+```powershell
+# 1. Make code changes
+# 2. Quick unit test validation
+.\bin\run-tests.ps1 unit -Docker
 
-**Solutions**:
+# 3. Full integration testing
+.\bin\run-tests.ps1 integration -Docker
+
+# 4. Before release: validate production package
+.\bin\run-tests.ps1 all -Docker -Package
+```
+
+### Maintenance
+
+#### Keeping Images Updated
 ```bash
-# Restart MySQL containers
-docker stop mysql-wp682 mysql-wp673
-docker rm mysql-wp682 mysql-wp673
+# Update base images
+docker-compose -f tests/docker/docker-compose.yml pull
+docker-compose -f tests/docker/docker-compose.yml build --no-cache
 
-# Increase Docker memory allocation (Docker Desktop → Settings → Resources)
-# Minimum 8GB RAM recommended for parallel execution
-
-# Verify container networking
-docker network ls | grep test
+# Clean up old images
+docker system prune -f
 ```
 
-#### Parallel Execution Performance Degradation
-**Symptoms**: Parallel execution slower than expected or times out
-**Diagnosis**:
+#### Performance Optimization
 ```bash
-# Monitor system resources during test execution
-htop                                # CPU/Memory usage
-docker stats                       # Container resource usage
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.CPUPerc}}\t{{.MemUsage}}"
+# Use Docker BuildKit for faster builds
+export DOCKER_BUILDKIT=1
+docker-compose -f tests/docker/docker-compose.yml build
+
+# Allocate more resources in Docker Desktop settings:
+# - Memory: 4GB+ recommended (8GB for parallel execution)
+# - CPUs: 2+ recommended
+# - Disk space: 20GB+ recommended
 ```
 
-**Solutions**:
-- **Resource Allocation**: Increase Docker Desktop memory to 8GB minimum
-- **Concurrent Limits**: System can handle 2 parallel WordPress streams reliably
-- **Clean Environment**: Remove unused containers and images to free resources
-
-### Database Isolation Issues
-
-#### Cross-Container Database Access
-**Symptoms**: Tests interfering with each other, inconsistent results
-**Verification**:
-```bash
-# Verify each test stream uses correct database
-docker exec test-runner-wp682 printenv | grep DB
-docker exec test-runner-wp673 printenv | grep DB
-
-# Check database isolation
-docker exec mysql-wp682 mysql -e "SHOW DATABASES;"
-docker exec mysql-wp673 mysql -e "SHOW DATABASES;"
-```
-
-**Solution**: Verify Docker Compose network configuration ensures proper service dependencies
-
-#### MySQL Authentication Issues (MySQL 8.0)
-**Symptoms**: "Authentication plugin 'caching_sha2_password' cannot be loaded"
-**Root Cause**: MySQL 8.0 default authentication not compatible with older clients
-
-**Verification**:
-```bash
-# Check MySQL authentication plugin
-docker exec mysql-wp682 mysql -e "SELECT user, plugin FROM mysql.user WHERE user='root';"
-```
-
-**Solution**: Ensure Docker Compose includes authentication configuration:
-```yaml
-environment:
-  MYSQL_AUTH_PLUGIN: mysql_native_password
-command: --default-authentication-plugin=mysql_native_password
-```
-
-### Container Management Issues
-
-#### Stale Container Conflicts
-**Symptoms**: "Container name already in use" or networking conflicts
-**Solution**:
-```bash
-# Complete cleanup of test infrastructure
-docker stop $(docker ps -q --filter "name=test-runner")
-docker stop $(docker ps -q --filter "name=mysql-wp")
-docker rm $(docker ps -aq --filter "name=test-runner")
-docker rm $(docker ps -aq --filter "name=mysql-wp")
-docker network prune -f
-
-# Verify cleanup
-docker ps -a | grep -E "(test-runner|mysql-wp)"
-```
-
-#### Log File Accumulation
-**Symptoms**: Disk space issues from accumulated test logs
-**Maintenance**:
-```bash
-# Clean up test logs (safe to delete)
-rm -f /tmp/shield-test-*.log
-rm -f /tmp/shield-test-*.exit
-
-# Clean up package builds (will be rebuilt)
-rm -rf /tmp/shield-package-local
-```
-
-### Performance Monitoring
-
-#### Monitoring Parallel Execution
-**Real-time Monitoring**:
+#### Parallel Execution Monitoring
 ```bash
 # Watch parallel test execution
 watch -n 2 'docker ps --filter "name=test-runner" --format "table {{.Names}}\t{{.Status}}\t{{.RunningFor}}"'
 
 # Monitor MySQL containers
-watch -n 2 'docker ps --filter "name=mysql-wp" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+watch -n 2 'docker ps --filter "name=mysql-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 
 # Check system resource usage
 watch -n 2 'docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}"'
 ```
 
-#### Performance Benchmarking
-**Timing Analysis**:
+#### Container Cleanup
 ```bash
-# Time the complete test execution
-time ./bin/run-docker-tests.sh
+# Complete cleanup of test infrastructure
+docker stop $(docker ps -q --filter "name=test-runner")
+docker stop $(docker ps -q --filter "name=mysql-")
+docker rm $(docker ps -aq --filter "name=test-runner")
+docker rm $(docker ps -aq --filter "name=mysql-")
+docker network prune -f
 
-# Expected results:
-# - Phase 1 baseline: ~6m 25s (sequential)
-# - Phase 2 target: ~3m 28s (parallel)
-# - Improvement: 40% reduction
+# Clean up test logs
+rm -f /tmp/shield-test-*.log
+rm -f /tmp/shield-test-*.exit
+rm -rf /tmp/shield-package-local
 ```
 
-**Performance Validation**:
-- **Total execution time**: Should be 3m 28s ± 30s for typical development machine
-- **Container startup**: MySQL containers should start within 30 seconds
-- **Test execution**: Each WordPress version completes in ~28 seconds
-- **Parallel efficiency**: Both streams should complete within 10 seconds of each other
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+### Additional Resources
+
+- [PHPUnit Documentation](https://phpunit.de/documentation.html)
+- [WordPress Plugin Unit Tests](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/)
+- [Brain Monkey Documentation](https://brain-wp.github.io/BrainMonkey/)
+- [PHPUnit Polyfills Documentation](https://github.com/Yoast/PHPUnit-Polyfills)
+- [Docker Documentation](https://docs.docker.com/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+
+### Related Documentation
+
+#### Project Documentation
+- **[README.md](README.md)** - Project overview and quick start guide
+- **[README-SMOKE-TESTS.md](README-SMOKE-TESTS.md)** - Specialized smoke testing procedures
+- **[.agent-os/knowledge/testing-infrastructure.md](.agent-os/knowledge/testing-infrastructure.md)** - Deep technical details and architecture
+
+#### CI/CD Configuration
+- **[.github/workflows/docker-tests.yml](.github/workflows/docker-tests.yml)** - GitHub Actions matrix testing workflow
+- **[.github/scripts/detect-wp-versions.sh](.github/scripts/detect-wp-versions.sh)** - WordPress version detection script
+
+#### Docker Configuration
+- **[tests/docker/Dockerfile](tests/docker/Dockerfile)** - Multi-stage Docker build definition
+- **[tests/docker/docker-compose.yml](tests/docker/docker-compose.yml)** - Base Docker Compose configuration
+- **[tests/docker/docker-compose.package.yml](tests/docker/docker-compose.package.yml)** - Package testing overrides
+- **[tests/docker/docker-compose.ci.yml](tests/docker/docker-compose.ci.yml)** - CI-specific configuration
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+**Recommendation:** Start with `./bin/run-docker-tests.sh` for comprehensive validation, then use local testing for rapid development iteration. The simple Docker script provides the best balance of thoroughness and ease of use.

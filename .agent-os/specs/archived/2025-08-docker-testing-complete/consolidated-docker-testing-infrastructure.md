@@ -164,8 +164,7 @@ This document consolidates all Docker testing infrastructure work across 5 relat
 - **Caching Strategy**: Per-version cache scoping with mode=max
 
 ## Documentation Created
-1. **TESTING.md**: Comprehensive one-page testing guide
-2. **tests/docker/README.md**: Docker setup and usage instructions
+1. **TESTING.md**: Comprehensive one-page testing guide (consolidates all testing documentation)
 3. **MIGRATION.md**: Developer migration guide from old scripts
 4. **Matrix Testing Documentation**: Configuration and troubleshooting
 5. **CI/CD Integration Guides**: GitHub Actions workflow documentation
