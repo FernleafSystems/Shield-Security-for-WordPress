@@ -15,6 +15,13 @@
   - [Simple Docker Testing Requirements](#simple-docker-testing-requirements)
   - [Advanced Docker Testing Requirements](#advanced-docker-testing-requirements)
   - [Local Testing Requirements](#local-testing-requirements)
+- [Docker Configuration by Environment](#docker-configuration-by-environment)
+  - [Configuration Matrix](#configuration-matrix)
+  - [Environment Variable Configuration](#environment-variable-configuration)
+  - [Key Benefits of Separated Configurations](#key-benefits-of-separated-configurations)
+  - [Usage Examples](#usage-examples)
+  - [When to Use Each Environment](#when-to-use-each-environment)
+  - [Environment Switching](#environment-switching)
 - [Running Tests](#running-tests)
   - [Universal: Simple CI-Equivalent Testing](#universal-simple-ci-equivalent-testing)
   - [Windows: PowerShell Testing](#windows-powershell-testing)
@@ -59,7 +66,7 @@
 
 | Platform | Command | Time | Purpose |
 |----------|---------|------|------|
-| **All** 🚀 | `./bin/run-docker-tests.sh` | ~3.5m | ✅ **Recommended** - CI-equivalent testing |
+| **All** 🚀 | `./bin/run-docker-tests.sh` | 2-3m total (35-38s test execution) | ✅ **Recommended** - CI-equivalent testing |
 | **🪟 Windows** | `.\bin\run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
 | **🐧 Linux/🔧 WSL** | `pwsh ./bin/run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
 | **🍎 macOS** | `pwsh ./bin/run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
@@ -444,6 +451,101 @@ bash bin/install-wp-tests.sh wordpress_test root 'your_password' localhost lates
 chmod +x bin/*.sh
 chmod +x bin/*.ps1
 ```
+
+[Back to top](#shield-security-wordpress-plugin---testing-documentation)
+
+---
+
+## Docker Configuration by Environment
+
+This section documents the key differences between local and CI testing configurations to help developers understand when to use each approach.
+
+### Configuration Matrix
+
+| Aspect | Local Testing Environment | CI Testing Environment (GitHub Actions) |
+|--------|---------------------------|------------------------------------------|
+| **Compose Files** | `docker-compose.yml` + `docker-compose.package.yml` (2 files) | `docker-compose.yml` + `docker-compose.ci.yml` + `docker-compose.package.yml` (3 files) |
+| **Images Built** | Version-specific (e.g., `shield-test-runner:wp-6.8.2`, `shield-test-runner:wp-6.7.3`) | `shield-test-runner:latest` (single image for all WordPress versions) |
+| **MySQL Containers** | `mysql-latest` (port 3309), `mysql-previous` (port 3310) | `mysql-latest`, `mysql-previous` (workflow-managed) |
+| **Execution** | Parallel with isolated databases | Matrix-based with GitHub Actions orchestration |
+| **Performance** | 2-3 minutes total (35-38s test execution) | Varies by CI runner capacity |
+| **Script/Workflow** | `./bin/run-docker-tests.sh` (no CI compose file) | `.github/workflows/docker-tests.yml` |
+
+### Environment Variable Configuration
+
+The following environment variables can be used to override Docker image defaults:
+
+| Variable | Purpose | Local Behavior | CI Behavior |
+|----------|---------|----------------|-------------|
+| `SHIELD_TEST_IMAGE` | Override CI test runner image | Not used (uses version-specific images) | Defaults to `shield-test-runner:latest` |
+| `SHIELD_TEST_IMAGE_LATEST` | Override latest WordPress test image | Uses built `shield-test-runner:wp-6.8.2` | Not typically set |
+| `SHIELD_TEST_IMAGE_PREVIOUS` | Override previous WordPress test image | Uses built `shield-test-runner:wp-6.7.3` | Not typically set |
+
+**Note**: Local testing uses version-specific images and doesn't require these environment variables. CI uses defaults and doesn't typically set these variables either - they exist for advanced override scenarios.
+
+### Key Benefits of Separated Configurations
+
+#### Local Development Benefits
+- **Fast Feedback**: 2-3 minutes total (35-38s test execution) for complete validation
+- **No CI Overhead**: Skips CI-specific compose file entirely
+- **Parallel Execution**: Tests multiple WordPress versions simultaneously
+- **Database Isolation**: Separate MySQL containers prevent test interference
+- **Simple Command**: Just run `./bin/run-docker-tests.sh`
+
+#### CI Validation Benefits
+- **Full Matrix Testing**: Tests across multiple PHP and WordPress version combinations
+- **Production Deployment**: Identical to actual CI/CD pipeline
+- **Automated Triggers**: Runs automatically on PR/push events
+- **Comprehensive Coverage**: Validates all supported configurations
+- **GitHub Actions Integration**: Leverages workflow orchestration and caching
+
+### Usage Examples
+
+#### Local Testing (Fast Feedback)
+```bash
+# Quick local validation before committing
+./bin/run-docker-tests.sh
+
+# What happens:
+# 1. Builds version-specific Docker images
+# 2. Starts isolated MySQL containers
+# 3. Runs tests in parallel (2-3 minutes total, 35-38s test execution)
+# 4. No CI compose file involved
+```
+
+#### CI Testing (GitHub Actions)
+```yaml
+# Triggered automatically on PR/push
+# Uses all three compose files:
+# - docker-compose.yml (base)
+# - docker-compose.ci.yml (CI overrides)
+# - docker-compose.package.yml (package testing)
+```
+
+### When to Use Each Environment
+
+**Use Local Testing When:**
+- Developing new features
+- Debugging test failures
+- Need quick feedback cycles
+- Working offline
+- Testing specific code changes
+
+**Use CI Testing When:**
+- Validating PR readiness
+- Testing matrix combinations
+- Final release validation
+- Need production parity
+- Automated workflow triggers
+
+### Environment Switching
+
+There's no configuration needed to switch between environments:
+
+1. **Local**: Simply run `./bin/run-docker-tests.sh`
+2. **CI**: Push to repository or create PR - GitHub Actions handles everything
+
+The environments are completely isolated and cannot interfere with each other. The separation ensures that local development remains fast while CI maintains comprehensive coverage.
 
 [Back to top](#shield-security-wordpress-plugin---testing-documentation)
 

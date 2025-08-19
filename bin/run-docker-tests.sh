@@ -88,13 +88,11 @@ EOF
     # Start MySQL containers and build test runners to ensure network is ready
     echo "🗄️ Starting isolated MySQL databases and preparing test runners..."
     docker compose -f tests/docker/docker-compose.yml \
-        -f tests/docker/docker-compose.ci.yml \
         -f tests/docker/docker-compose.package.yml \
         up -d mysql-latest mysql-previous
     
     # Build test runner images to ensure they're ready
     docker compose -f tests/docker/docker-compose.yml \
-        -f tests/docker/docker-compose.ci.yml \
         -f tests/docker/docker-compose.package.yml \
         build test-runner-latest test-runner-previous
     
@@ -121,7 +119,6 @@ EOF
         echo "[LATEST] Command: docker compose run test-runner-wp682" >> /tmp/shield-test-latest.log
         echo "[LATEST] ===============================================" >> /tmp/shield-test-latest.log
         docker compose -f tests/docker/docker-compose.yml \
-            -f tests/docker/docker-compose.ci.yml \
             -f tests/docker/docker-compose.package.yml \
             run --rm test-runner-latest >> /tmp/shield-test-latest.log 2>&1
         echo $? > /tmp/shield-test-latest.exit
@@ -138,7 +135,6 @@ EOF
         echo "[PREVIOUS] Command: docker compose run test-runner-wp673" >> /tmp/shield-test-previous.log
         echo "[PREVIOUS] ===============================================" >> /tmp/shield-test-previous.log
         docker compose -f tests/docker/docker-compose.yml \
-            -f tests/docker/docker-compose.ci.yml \
             -f tests/docker/docker-compose.package.yml \
             run --rm test-runner-previous >> /tmp/shield-test-previous.log 2>&1
         echo $? > /tmp/shield-test-previous.exit
@@ -298,7 +294,6 @@ EOF
     
     # Run tests using the version-specific image
     docker compose -f tests/docker/docker-compose.yml \
-        -f tests/docker/docker-compose.ci.yml \
         -f tests/docker/docker-compose.package.yml \
         run --rm -T test-runner
 }
@@ -345,7 +340,6 @@ fi
 # Cleanup
 echo "🧹 Cleaning up..."
 docker compose -f tests/docker/docker-compose.yml \
-    -f tests/docker/docker-compose.ci.yml \
     -f tests/docker/docker-compose.package.yml \
     down -v --remove-orphans || true
 rm -f tests/docker/.env
