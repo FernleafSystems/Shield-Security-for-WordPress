@@ -36,11 +36,49 @@ MYSQL_START_PID=$!
 echo "   MySQL containers starting in background (PID: $MYSQL_START_PID)"
 echo "   Containers will initialize while we build assets (~38 seconds typical)"
 
-# Build assets (like CI does)
+# Build assets (like CI does) - with caching for Task 4.6 optimization
 echo "🔨 Building assets..."
 if command -v npm >/dev/null 2>&1; then
-    npm ci --no-audit --no-fund
-    npm run build
+    # Task 4.6: Check if webpack build cache is valid
+    WEBPACK_CACHE_VALID=false
+    DIST_DIR="$PROJECT_ROOT/assets/dist"
+    SRC_DIR="$PROJECT_ROOT/assets/js"
+    
+    # Check if dist directory exists and has files
+    if [ -d "$DIST_DIR" ] && [ "$(ls -A $DIST_DIR 2>/dev/null)" ]; then
+        echo "   Checking webpack build cache validity..."
+        
+        # Find newest source file
+        NEWEST_SRC=$(find "$SRC_DIR" -type f -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
+        # Find oldest dist file  
+        OLDEST_DIST=$(find "$DIST_DIR" -type f -name "*.js" -o -name "*.css" 2>/dev/null | xargs ls -tr 2>/dev/null | head -1)
+        
+        if [ -n "$NEWEST_SRC" ] && [ -n "$OLDEST_DIST" ]; then
+            # Check if the oldest dist file is newer than newest source
+            if [ "$OLDEST_DIST" -nt "$NEWEST_SRC" ]; then
+                # Also check package.json and webpack.config.js haven't changed
+                if [ ! "$PROJECT_ROOT/package.json" -nt "$OLDEST_DIST" ] && \
+                   [ ! "$PROJECT_ROOT/webpack.config.js" -nt "$OLDEST_DIST" ]; then
+                    WEBPACK_CACHE_VALID=true
+                    echo "   ✅ Webpack build cache is valid - skipping rebuild (saves ~1m 40s)"
+                fi
+            fi
+        fi
+    fi
+    
+    if [ "$WEBPACK_CACHE_VALID" = false ]; then
+        echo "   Cache invalid or missing - running full build..."
+        npm ci --no-audit --no-fund
+        npm run build
+        echo "   Build complete - cache created for next run"
+    else
+        echo "   Using cached webpack build from previous run"
+        # Still need to ensure node_modules exist
+        if [ ! -d "node_modules" ]; then
+            echo "   Installing npm dependencies (node_modules missing)..."
+            npm ci --no-audit --no-fund
+        fi
+    fi
 else
     echo "   ⚠️  npm not found, skipping asset build"
 fi

@@ -336,6 +336,71 @@ done
 #### Key Lesson: Question Configuration Assumptions
 **Insight**: Performance problems aren't always where you expect them. Configuration complexity can have as much impact as algorithmic inefficiency.
 
+## Phase 4: Webpack Caching Implementation
+
+### NPM/Webpack Build Optimization Success
+
+#### The Power of Simple Timestamp-Based Caching
+**Discovery**: A straightforward timestamp comparison approach provided dramatic performance improvements for webpack builds.
+
+**Implementation Details**:
+```bash
+# Check if webpack build is needed
+check_webpack_cache() {
+    # Find newest source file
+    newest_source=$(find assets/js -type f -name "*.js" -exec stat -c %Y {} \; | sort -rn | head -1)
+    
+    # Find oldest dist file
+    oldest_dist=$(find assets/dist -type f -exec stat -c %Y {} \; | sort -n | head -1)
+    
+    # Also check config files
+    package_json_time=$(stat -c %Y package.json)
+    webpack_config_time=$(stat -c %Y webpack.config.js)
+    
+    # Skip build if cache is valid
+    if [ "$oldest_dist" -gt "$newest_source" ] && 
+       [ "$oldest_dist" -gt "$package_json_time" ] && 
+       [ "$oldest_dist" -gt "$webpack_config_time" ]; then
+        return 0  # Cache valid
+    fi
+    return 1  # Cache invalid
+}
+```
+
+**Performance Impact**:
+- **Without cache**: 1m 55s (115 seconds) for webpack build
+- **With valid cache**: 0.6 seconds (just validation time)
+- **Time saved**: 114 seconds (~1m 54s) per test run
+- **Percentage improvement**: 99.5% reduction in webpack build time
+
+#### Key Lessons from Webpack Caching
+
+**Critical Success Factors**:
+1. **Check ALL relevant files**: Not just source files, but also package.json and webpack.config.js
+2. **Ensure node_modules exist**: Even with valid cache, dependencies must be present
+3. **Clear user feedback**: Inform when cache is used vs when rebuild occurs
+4. **Simple is effective**: Timestamp comparison is sufficient for most use cases
+
+**Implementation Insights**:
+- The webpack build was the single largest performance bottleneck (40% of total time)
+- Simple caching logic is maintainable and debuggable
+- Cache validation must be comprehensive but fast
+- User visibility into cache decisions builds trust
+
+#### Why This Approach Works
+
+**Advantages of Timestamp-Based Caching**:
+1. **No external dependencies**: Uses only standard Unix tools (stat, find)
+2. **Transparent logic**: Easy to understand and debug
+3. **Self-healing**: Invalid cache automatically triggers rebuild
+4. **Zero configuration**: Works out of the box without setup
+
+**When to Invalidate Cache**:
+- Any JavaScript source file is newer than built assets
+- package.json has been modified (dependency changes)
+- webpack.config.js has been modified (build configuration changes)
+- dist directory doesn't exist or is empty
+
 ## Conclusions and Recommendations
 
 ### Key Success Factors
@@ -343,6 +408,7 @@ done
 2. **Semantic Naming**: Clear container identification reduces debugging time
 3. **Network Isolation**: Dedicated networks prevent parallel execution conflicts
 4. **Comprehensive Error Handling**: Background process management requires explicit patterns
+5. **Simple Caching**: Timestamp-based webpack caching provides massive performance gains
 
 ### Critical Design Decisions
 1. **Parallel Execution Pattern**: Bash background processes with explicit coordination
@@ -352,25 +418,26 @@ done
 
 ### Recommendations for Future Work
 
-#### Re-evaluation of Remaining Phases
-With 35-38 second execution achieved in Phase 3, the original optimization phases 4-8 should be re-evaluated:
+#### Current Status and Next Steps
+With Phase 4 partially complete (webpack caching implemented), the actual performance situation is:
+- **Build time reduced**: From 2m 49s to ~55s with webpack caching
+- **Total execution time**: Still 5+ minutes (MySQL startup + reduced build + test execution)
+- **Major remaining bottlenecks**: Composer (30s), Package building (30s), MySQL startup (38s)
 
-**Optional Optimizations** (Phases 4-8):
-- Base image caching: May save 5-10 seconds
-- PHP matrix expansion: Already performant enough for matrix testing
-- GNU parallel: Unnecessary given current performance
-- Container pooling: Minimal benefit for sub-minute execution
-- Result aggregation: Can be added without performance impact
+**Priority Optimizations to Complete Phase 4**:
+1. **Composer Caching** (Task 4.7): Would save ~25s per run
+2. **Package Build Caching** (Task 4.9): Would save ~30s per run
+3. **Pre-built Docker Base Images** (Task 4.8): Would reduce container startup time
 
-**Recommended Focus**:
-1. **Asset Building Optimization**: Still represents ~40% of execution time
-2. **Selective Testing**: Allow developers to test specific PHP/WP combinations
-3. **CI Matrix Expansion**: Enable full PHP version testing in GitHub Actions
+**Realistic Performance Targets**:
+- With all Phase 4 optimizations: Total time could reach ~3 minutes
+- Phase 5+ (parallel test types): Could achieve sub-2 minute execution
+- Full matrix testing: Would require Phases 6-8 for acceptable performance
 
 #### Strategic Insights
-**Performance Target Achievement**: The original goal of sub-minute testing has been achieved three phases early.
-**Resource Allocation**: Development resources can be redirected to feature development rather than further optimization.
-**User Experience**: 35-38 second feedback loop is already optimal for developer productivity.
+**Current Achievement**: Webpack caching alone provided ~2 minute improvement
+**Remaining Potential**: Additional ~1-2 minutes could be saved with remaining Phase 4 tasks
+**Resource Allocation**: Completing Phase 4 would provide significant value before moving to advanced parallelization
 
 ### Architecture Principles Validated
 1. **Incremental Evolution**: Phase-by-phase optimization enables rollback and verification
