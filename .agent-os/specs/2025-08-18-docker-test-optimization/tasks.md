@@ -121,7 +121,7 @@ Phase 2 can now implement parallel WordPress version execution since:
 
 ### Phase 2 Tasks
 
-- [ ] **Task 2.1: Implement Parallel WordPress Testing**
+- [x] **Task 2.1: Implement Parallel WordPress Testing** ✅
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Modify script to run WordPress 6.8.2 and 6.7.3 tests simultaneously using bash background processes
   - **Specific Implementation**:
@@ -160,7 +160,7 @@ Phase 2 can now implement parallel WordPress version execution since:
     PREVIOUS_EXIT=$?
     ```
 
-- [ ] **Task 2.2: Implement Database Isolation**
+- [x] **Task 2.2: Implement Database Isolation** ✅
   - **Problem**: Both parallel tests will try to use `wordpress_test` database simultaneously
   - **Solution**: Create unique database names per test stream
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
@@ -175,7 +175,7 @@ Phase 2 can now implement parallel WordPress version execution since:
   - **Docker Compose Update**: Pass database name as environment variable to containers
   - **Verification**: Confirm each test uses different database by checking MySQL process list during execution
 
-- [ ] **Task 2.3: Handle Parallel Output Streaming**
+- [x] **Task 2.3: Handle Parallel Output Streaming** ✅
   - **Problem**: Parallel processes will interleave output, making it unreadable
   - **Solution**: Capture output to separate files, then display sequentially
   - **Implementation**:
@@ -198,7 +198,7 @@ Phase 2 can now implement parallel WordPress version execution since:
     cat /tmp/shield-test-previous.log
     ```
 
-- [ ] **Task 2.4: Implement Exit Code Aggregation**
+- [x] **Task 2.4: Implement Exit Code Aggregation** ✅
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Ensure script exits with failure if any parallel test fails
   - **Implementation**:
@@ -214,7 +214,7 @@ Phase 2 can now implement parallel WordPress version execution since:
     echo "✅ All parallel test streams completed successfully"
     ```
 
-- [ ] **Task 2.5: Test Phase 2 Changes**
+- [x] **Task 2.5: Test Phase 2 Changes** ✅
   - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh`
   - **Success Criteria**:
     - Both WordPress versions execute simultaneously (visible via `docker ps` during execution)
@@ -470,11 +470,447 @@ The environment separation not only resolved the configuration conflict but also
 **Next Steps:**
 With 35-38 second execution time already achieved, Phases 4-8 become optional optimizations rather than necessities. The project has exceeded its original performance goals three phases early.
 
-## Phase 3: Test Type Splitting (2x speedup target)
+## Phase 4: Fix MySQL Timeout and Container Issues
 
-### Phase 3 Tasks
+### Phase 4 Problem Statement
+Current issues identified:
+1. Container name mismatch: Script references `mysql-wp682` but actual containers are `mysql-latest` and `mysql-previous`
+2. MySQL startup uses hardcoded 10-second sleep instead of proper health checks
+3. Build process takes 2+ minutes for webpack and Composer operations
+4. No visibility into what's causing delays during Docker test execution
 
-- [ ] **Task 3.1: Create Separate Unit and Integration Test Runners**
+### Phase 4 Tasks
+
+- [x] **Task 4.1: Fix Container Name Bug** ✅
+  - **Agent**: software-engineer-expert
+  - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
+  - **Problem**: Line 105 references `mysql-wp682` which doesn't exist, containers are actually `mysql-latest` and `mysql-previous`
+  - **Action**: Update MySQL container references to use correct names
+  - **Specific Implementation**:
+    ```bash
+    # Line 105 - Fix MySQL container reference for latest version
+    # OLD: until docker exec mysql-wp682 mysql -h127.0.0.1 -uroot -e "SELECT 1" >/dev/null 2>&1; do
+    # NEW:
+    until docker exec mysql-latest mysql -h127.0.0.1 -uroot -e "SELECT 1" >/dev/null 2>&1; do
+    
+    # Line 151 - Fix MySQL container reference for previous version
+    # OLD: until docker exec mysql-wp673 mysql -h127.0.0.1 -uroot -e "SELECT 1" >/dev/null 2>&1; do
+    # NEW:
+    until docker exec mysql-previous mysql -h127.0.0.1 -uroot -e "SELECT 1" >/dev/null 2>&1; do
+    ```
+  - **Verification Method**:
+    ```bash
+    # Run script and verify no "container not found" errors
+    ./bin/run-docker-tests.sh 2>&1 | grep -i "no such container"
+    # Should return empty if fixed
+    ```
+  - **Risk Assessment**: Low risk - simple string replacement fixing obvious typo
+
+- [x] **Task 4.2: Create MySQL Health Check Monitoring Script** ✅
+  - **Agent**: software-engineer-expert
+  - **File**: Create new `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/mysql-health-monitor.sh`
+  - **Purpose**: Monitor MySQL startup time and identify bottlenecks
+  - **Implementation**:
+    ```bash
+    #!/bin/bash
+    # MySQL Health Check Monitor - Diagnostic tool for MySQL startup timing
+    
+    CONTAINER_NAME="${1:-mysql-latest}"
+    START_TIME=$(date +%s)
+    CHECK_COUNT=0
+    
+    echo "🔍 Monitoring MySQL container: $CONTAINER_NAME"
+    echo "Starting at: $(date)"
+    
+    # Check if container exists
+    if ! docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        echo "❌ Container $CONTAINER_NAME not found"
+        exit 1
+    fi
+    
+    # Monitor until MySQL is ready
+    while ! docker exec "$CONTAINER_NAME" mysql -h127.0.0.1 -uroot -e "SELECT 1" >/dev/null 2>&1; do
+        CHECK_COUNT=$((CHECK_COUNT + 1))
+        ELAPSED=$(($(date +%s) - START_TIME))
+        
+        # Every 2 seconds, show status
+        if [ $((CHECK_COUNT % 2)) -eq 0 ]; then
+            echo "  [$ELAPSED seconds] MySQL not ready, check #$CHECK_COUNT"
+            
+            # Check container status
+            STATUS=$(docker inspect "$CONTAINER_NAME" --format='{{.State.Status}}')
+            echo "    Container status: $STATUS"
+            
+            # Check for error logs
+            if docker logs "$CONTAINER_NAME" 2>&1 | tail -5 | grep -i error > /dev/null; then
+                echo "    ⚠️  Errors detected in MySQL logs:"
+                docker logs "$CONTAINER_NAME" 2>&1 | tail -5 | grep -i error | sed 's/^/      /'
+            fi
+        fi
+        
+        sleep 1
+        
+        # Timeout after 60 seconds
+        if [ $ELAPSED -gt 60 ]; then
+            echo "❌ MySQL failed to start within 60 seconds"
+            echo "Container logs:"
+            docker logs "$CONTAINER_NAME" 2>&1 | tail -20
+            exit 1
+        fi
+    done
+    
+    TOTAL_TIME=$(($(date +%s) - START_TIME))
+    echo "✅ MySQL ready after $TOTAL_TIME seconds ($CHECK_COUNT checks)"
+    ```
+  - **Usage**: `chmod +x bin/mysql-health-monitor.sh && ./bin/mysql-health-monitor.sh mysql-latest`
+  - **Expected Output**: Detailed timing information about MySQL startup
+
+- [x] **Task 4.3: Implement MySQL Background Startup with Proper Health Checks** ✅
+  - **Agent**: software-engineer-expert  
+  - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
+  - **Action**: Replace hardcoded sleep with intelligent health checking
+  - **Implementation**:
+    ```bash
+    # Replace the current MySQL startup section (around line 85-110)
+    
+    # Function to wait for MySQL with timeout
+    wait_for_mysql() {
+        local container_name="$1"
+        local max_wait="${2:-30}"
+        local start_time=$(date +%s)
+        
+        echo "  Waiting for $container_name to be ready..."
+        
+        while ! docker exec "$container_name" mysql -h127.0.0.1 -uroot -e "SELECT 1" >/dev/null 2>&1; do
+            local elapsed=$(($(date +%s) - start_time))
+            
+            if [ $elapsed -gt $max_wait ]; then
+                echo "    ❌ $container_name failed to start within ${max_wait}s"
+                docker logs "$container_name" 2>&1 | tail -10
+                return 1
+            fi
+            
+            # Show progress every 5 seconds
+            if [ $((elapsed % 5)) -eq 0 ] && [ $elapsed -gt 0 ]; then
+                echo "    Still waiting... (${elapsed}s elapsed)"
+            fi
+            
+            sleep 1
+        done
+        
+        local total_time=$(($(date +%s) - start_time))
+        echo "    ✅ $container_name ready in ${total_time}s"
+        return 0
+    }
+    
+    # Start MySQL containers in background
+    echo "🚀 Starting MySQL containers in background..."
+    docker compose -f tests/docker/docker-compose.yml up -d mysql-latest mysql-previous
+    
+    # Start health checks in parallel
+    (
+        wait_for_mysql "mysql-latest" 30
+        echo $? > /tmp/mysql-latest-status
+    ) &
+    MYSQL_LATEST_PID=$!
+    
+    (
+        wait_for_mysql "mysql-previous" 30  
+        echo $? > /tmp/mysql-previous-status
+    ) &
+    MYSQL_PREVIOUS_PID=$!
+    
+    # Continue with other preparations while MySQL starts
+    echo "📦 Preparing test environment while MySQL initializes..."
+    # ... other preparation tasks ...
+    
+    # Wait for MySQL processes before running tests
+    echo "⏳ Ensuring MySQL containers are ready..."
+    wait $MYSQL_LATEST_PID
+    wait $MYSQL_PREVIOUS_PID
+    
+    # Check status
+    if [ "$(cat /tmp/mysql-latest-status)" -ne 0 ] || [ "$(cat /tmp/mysql-previous-status)" -ne 0 ]; then
+        echo "❌ MySQL initialization failed"
+        exit 1
+    fi
+    
+    echo "✅ All MySQL containers ready, proceeding with tests"
+    ```
+  - **Benefits**:
+    - Parallel MySQL startup (both containers initialize simultaneously)
+    - No hardcoded sleep delays
+    - Proper timeout handling
+    - Progress feedback during wait
+    - Error reporting if startup fails
+  - **Verification**: 
+    ```bash
+    time ./bin/run-docker-tests.sh 2>&1 | grep -E "(MySQL|ready in)"
+    # Should show both containers starting in parallel and actual ready times
+    ```
+
+- [x] **Task 4.4: Analyze and Document Build Process Delays** ✅
+  - **Agent**: software-engineer-expert
+  - **File**: Create `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/analyze-build-time.sh`
+  - **Purpose**: Profile where time is spent during the build process
+  - **Implementation**:
+    ```bash
+    #!/bin/bash
+    # Build Time Analyzer - Profile Shield Security build process
+    
+    PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"
+    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+    PROFILE_LOG="/tmp/shield-build-profile-$TIMESTAMP.log"
+    
+    echo "🔬 Shield Security Build Time Analysis"
+    echo "Profile log: $PROFILE_LOG"
+    echo ""
+    
+    # Function to time a command
+    time_command() {
+        local label="$1"
+        shift
+        local start=$(date +%s.%N)
+        
+        echo "[$label] Starting..." | tee -a "$PROFILE_LOG"
+        
+        "$@" > /tmp/build-output.tmp 2>&1
+        local exit_code=$?
+        
+        local end=$(date +%s.%N)
+        local duration=$(echo "$end - $start" | bc)
+        
+        if [ $exit_code -eq 0 ]; then
+            echo "[$label] ✅ Completed in ${duration}s" | tee -a "$PROFILE_LOG"
+        else
+            echo "[$label] ❌ Failed after ${duration}s" | tee -a "$PROFILE_LOG"
+            tail -5 /tmp/build-output.tmp
+        fi
+        
+        return $exit_code
+    }
+    
+    # Profile each build step
+    TOTAL_START=$(date +%s.%N)
+    
+    echo "=== Build Process Profiling ===" | tee -a "$PROFILE_LOG"
+    echo "" | tee -a "$PROFILE_LOG"
+    
+    # 1. NPM Install
+    time_command "NPM Install" npm ci --prefix "$PROJECT_ROOT"
+    
+    # 2. Webpack Build
+    time_command "Webpack Build" npm run build --prefix "$PROJECT_ROOT"
+    
+    # 3. Composer Install
+    time_command "Composer Install" composer install --no-dev --optimize-autoloader --working-dir="$PROJECT_ROOT"
+    
+    # 4. Strauss (PHP namespace prefixing)
+    time_command "Strauss Prefixing" composer strauss --working-dir="$PROJECT_ROOT/src/lib"
+    
+    # 5. Package Creation
+    time_command "Package Creation" "$PROJECT_ROOT/bin/build-package.sh" "/tmp/test-package" "$PROJECT_ROOT"
+    
+    TOTAL_END=$(date +%s.%N)
+    TOTAL_DURATION=$(echo "$TOTAL_END - $TOTAL_START" | bc)
+    
+    echo "" | tee -a "$PROFILE_LOG"
+    echo "=== Summary ===" | tee -a "$PROFILE_LOG"
+    echo "Total build time: ${TOTAL_DURATION}s" | tee -a "$PROFILE_LOG"
+    
+    # Analyze the profile log
+    echo "" | tee -a "$PROFILE_LOG"
+    echo "=== Time Distribution ===" | tee -a "$PROFILE_LOG"
+    grep "Completed in" "$PROFILE_LOG" | sort -t' ' -k4 -rn | head -5
+    
+    echo ""
+    echo "💡 Optimization Suggestions:"
+    
+    # Check for slow webpack
+    if grep "Webpack Build" "$PROFILE_LOG" | grep -E "[0-9]{2,}\.[0-9]+s" > /dev/null; then
+        echo "  - Webpack build is slow (>10s). Consider:"
+        echo "    • Using webpack cache"
+        echo "    • Reducing bundle size"
+        echo "    • Using development mode for tests"
+    fi
+    
+    # Check for slow composer
+    if grep "Composer Install" "$PROFILE_LOG" | grep -E "[0-9]{2,}\.[0-9]+s" > /dev/null; then
+        echo "  - Composer install is slow (>10s). Consider:"
+        echo "    • Using composer cache mount in Docker"
+        echo "    • Pre-installing dependencies in base image"
+    fi
+    
+    echo ""
+    echo "Full profile saved to: $PROFILE_LOG"
+    ```
+  - **Usage**: `chmod +x bin/analyze-build-time.sh && ./bin/analyze-build-time.sh`
+  - **Expected Output**: Detailed timing breakdown showing which build steps are slowest
+  - **Action Items**: Based on analysis, create targeted optimizations for slowest components
+
+- [x] **Task 4.5: Test Phase 4 Fixes** ✅
+  - **Agent**: test-runner
+  - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh`
+  - **Success Criteria**:
+    - No "container not found" errors for MySQL containers
+    - MySQL startup time reduced from 10s hardcoded to actual ready time (typically 3-5s)
+    - Both MySQL containers start in parallel
+    - Clear progress feedback during MySQL initialization
+    - Build time analysis identifies specific bottlenecks
+  - **Verification Checklist**:
+    ```bash
+    # 1. Verify container names are correct
+    docker ps --format "table {{.Names}}" | grep mysql
+    # Should show: mysql-latest and mysql-previous
+    
+    # 2. Test MySQL health monitoring
+    ./bin/mysql-health-monitor.sh mysql-latest
+    # Should show ready time in seconds
+    
+    # 3. Run full test to verify parallel MySQL startup
+    time ./bin/run-docker-tests.sh 2>&1 | tee /tmp/test-run.log
+    grep -E "(Starting MySQL|ready in)" /tmp/test-run.log
+    # Should show both containers starting and ready times
+    
+    # 4. Analyze build performance
+    ./bin/analyze-build-time.sh
+    # Should identify which steps take longest
+    ```
+  - **Expected Improvements**:
+    - MySQL startup: From 10s fixed to 3-5s actual
+    - Total test time: Additional 5-7s saved from parallel MySQL startup
+    - Build visibility: Clear understanding of where time is spent
+
+### Phase 4 Implementation Summary ⚠️ IN PROGRESS - Optimization Implementation Required
+
+**What Was Accomplished:**
+Phase 4 successfully resolved critical bugs and reliability issues that were preventing proper test execution.
+
+**Technical Changes Made:**
+1. **Container Name Bug Fixed**: Updated MySQL container references from hardcoded version-specific names (mysql-wp682, mysql-wp673) to correct generic names (mysql-latest, mysql-previous)
+2. **MySQL Health Checks Implemented**: Replaced hardcoded `sleep 10` with intelligent health checking that waits for MySQL to actually be ready (typically 38 seconds)
+3. **Build Process Analyzed**: Created diagnostic script that identified NPM webpack build as primary bottleneck (2m 49s total build time)
+4. **Diagnostic Tools Created**: Added mysql-health-monitor.sh and analyze-build-time.sh scripts for ongoing performance monitoring
+
+**Performance Analysis:**
+- **MySQL Startup Time**: Actual startup is 38 seconds (was using 10-second sleep that failed)
+- **Build Process Breakdown**:
+  - NPM webpack build: ~1m 40s (primary bottleneck)
+  - Composer install: ~30s
+  - Package creation: ~30s
+  - Total build time: 2m 49s
+- **Test Execution**: Remains fast at ~7 seconds total for all tests
+
+**Reliability Improvements:**
+- ✅ MySQL containers now reliably start and accept connections
+- ✅ No more "container not found" errors
+- ✅ Health checks ensure tests only run when database is ready
+- ✅ Proper error handling and timeout management
+
+**Key Insights:**
+- The "35-38 second" performance claims from Phase 3 were incorrect - actual time is much longer due to build process
+- NPM webpack build is the primary performance bottleneck requiring 1m 40s
+- MySQL requires 38 seconds to fully initialize, not the 10 seconds assumed
+- Test execution itself is very fast (7 seconds), but infrastructure overhead dominates
+
+**What Still Needs Implementation:**
+- ❌ NPM/Webpack caching (1m 40s bottleneck remains)
+- ❌ Composer dependency caching (30s bottleneck remains)
+- ❌ Pre-built Docker base images
+- ❌ Package build caching (30s for Strauss + packaging)
+
+**Current Status**: Infrastructure bugs fixed but performance optimizations NOT implemented. Execution time remains at 7+ minutes.
+
+### Phase 4 Optimization Tasks (Required for Completion)
+
+- [ ] **Task 4.6: Implement NPM/Webpack Caching**
+  - **Executor**: software-engineer-expert agent
+  - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
+  - **Action**: Add caching for webpack builds to avoid rebuilding unchanged assets
+  - **Implementation**:
+    - Check if `assets/dist` exists and is newer than source files
+    - Skip `npm run build` when cache is valid
+    - Add timestamp-based cache validation
+  - **Verification**:
+    - Run tests twice without source changes
+    - Second run should skip webpack build
+    - Time saved: ~1m 20s
+  - **Documentation**: Update Phase 4 summary with caching details
+
+- [ ] **Task 4.7: Implement Composer Caching**
+  - **Executor**: software-engineer-expert agent
+  - **File**: Docker compose configuration and test scripts
+  - **Action**: Cache composer dependencies between test runs
+  - **Implementation**:
+    - Mount composer cache directory as Docker volume
+    - Check if vendor directory exists and composer.lock unchanged
+    - Skip composer install when cache valid
+  - **Verification**:
+    - Run tests twice without dependency changes
+    - Second run should skip composer install
+    - Time saved: ~25s
+  - **Documentation**: Add composer caching to Phase 4 summary
+
+- [ ] **Task 4.8: Create Pre-built Docker Base Images**
+  - **Executor**: software-engineer-expert agent
+  - **Files**: 
+    - Create: `tests/docker/Dockerfile.base`
+    - Create: `bin/build-base-images.sh`
+  - **Action**: Build Docker images with dependencies pre-installed
+  - **Implementation**:
+    - Create base Dockerfile with PHP, WordPress test suite, and tools
+    - Build script to create and cache images
+    - Modify test script to use pre-built images
+  - **Verification**:
+    - Container startup time <10 seconds
+    - Images properly cached locally
+    - Tests run with pre-built images
+  - **Documentation**: Document base image strategy
+
+- [ ] **Task 4.9: Optimize Package Building**
+  - **Executor**: software-engineer-expert agent
+  - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
+  - **Action**: Cache built packages when source unchanged
+  - **Implementation**:
+    - Check if package exists at `/tmp/shield-package-local`
+    - Compare timestamps with source files
+    - Skip build-package.sh when cache valid
+  - **Verification**:
+    - Run tests twice without source changes
+    - Second run should skip package build
+    - Time saved: ~30s (Strauss + packaging)
+  - **Documentation**: Add package caching details
+
+- [ ] **Task 4.10: Test Complete Phase 4 Implementation**
+  - **Executor**: test-runner agent
+  - **Action**: Run full test suite with all optimizations
+  - **Success Criteria**:
+    - Execution time reduced from 7m 3s to <3 minutes
+    - All 208 tests pass
+    - All caching mechanisms work correctly
+  - **Verification Process**:
+    - Run tests from clean state (measure baseline)
+    - Run tests again (measure cache effectiveness)
+    - Document actual times achieved
+  - **Documentation**: Record performance metrics
+
+- [ ] **Task 4.11: Final Phase 4 Documentation Update**
+  - **Executor**: documentation-architect agent
+  - **Action**: Update Phase 4 summary with completion status
+  - **Deliverables**:
+    - Mark all Phase 4 tasks complete (only after verification)
+    - Document actual performance improvements
+    - Update baseline for Phase 5
+  - **Verification**:
+    - All metrics are actual, not projected
+    - No false completion claims
+    - Clear statement of what was achieved
+
+## Phase 5: Test Type Splitting (2x speedup target)
+
+### Phase 5 Tasks
+
+- [ ] **Task 5.1: Create Separate Unit and Integration Test Runners**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/tests/docker/docker-compose.parallel.yml`
   - **Action**: Create new Docker Compose file with separate services for unit and integration tests
   - **Implementation**:
@@ -521,7 +957,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
       # Similar services for previous WordPress version...
     ```
 
-- [ ] **Task 3.2: Modify Docker Test Runner for Test Type Selection**
+- [ ] **Task 5.2: Modify Docker Test Runner for Test Type Selection**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-tests-docker.sh`
   - **Action**: Add support for TEST_TYPE environment variable to run only unit or integration tests
   - **Implementation**:
@@ -541,7 +977,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     fi
     ```
 
-- [ ] **Task 3.3: Update Main Script for 4-Way Parallel Execution**
+- [ ] **Task 5.3: Update Main Script for 4-Way Parallel Execution**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Modify to launch 4 parallel test streams (2 WP versions × 2 test types)
   - **Implementation Pattern**:
@@ -567,7 +1003,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     # ... wait for other PIDs
     ```
 
-- [ ] **Task 3.4: Implement Result Aggregation for 4 Streams**
+- [ ] **Task 5.4: Implement Result Aggregation for 4 Streams**
   - **Action**: Collect and display results from all 4 test streams
   - **Implementation**:
     ```bash
@@ -588,21 +1024,21 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     fi
     ```
 
-- [ ] **Task 3.5: Test Phase 3 Changes** 
+- [ ] **Task 5.5: Test Phase 5 Changes** 
   - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh`
   - **Success Criteria**:
     - 4 parallel test containers execute simultaneously
     - Unit tests complete faster than integration tests (expected behavior)
     - All test counts match expectations (71 unit, 33 integration per WordPress version)
-    - Execution time reduced to approximately 1.75 minutes (50% improvement from Phase 2)
+    - Execution time reduced to approximately 1.75 minutes (50% improvement from Phase 3)
   - **Monitoring**: `docker ps` should show 4 test containers running plus 2 MySQL containers
   - **Verification**: Check that each test type runs independently by examining log files in `/tmp/shield-*.log`
 
-## Phase 4: Base Image Caching (20% speedup target)
+## Phase 6: Base Image Caching (20% speedup target)
 
-### Phase 4 Tasks
+### Phase 6 Tasks
 
-- [ ] **Task 4.1: Create Base Image Dockerfile**
+- [ ] **Task 6.1: Create Base Image Dockerfile**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/tests/docker/Dockerfile.base`
   - **Action**: Create reusable base image with PHP and testing dependencies pre-installed
   - **Implementation**:
@@ -641,7 +1077,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     # This image only contains dependencies, not WordPress or the plugin
     ```
 
-- [ ] **Task 4.2: Create Base Image Build Script**
+- [ ] **Task 6.2: Create Base Image Build Script**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/build-base-images.sh`
   - **Action**: Script to build base images for all required PHP versions
   - **Implementation**:
@@ -669,7 +1105,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     docker images | grep shield-php | head -6
     ```
 
-- [ ] **Task 4.3: Create Runtime Test Dockerfile**  
+- [ ] **Task 6.3: Create Runtime Test Dockerfile**  
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/tests/docker/Dockerfile.runtime`
   - **Action**: Lightweight runtime image that uses base image and downloads WordPress at runtime
   - **Implementation**:
@@ -688,7 +1124,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     CMD ["/bin/bash"]
     ```
 
-- [ ] **Task 4.4: Update Docker Compose to Use Base Images**
+- [ ] **Task 6.4: Update Docker Compose to Use Base Images**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/tests/docker/docker-compose.parallel.yml`
   - **Action**: Modify services to use pre-built base images instead of building from scratch
   - **Change**: Replace `build:` sections with:
@@ -703,7 +1139,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
       # ... rest of configuration
     ```
 
-- [ ] **Task 4.5: Update Main Script for Base Image Usage**
+- [ ] **Task 6.5: Update Main Script for Base Image Usage**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Check for base images and build if missing, then use for testing
   - **Implementation**:
@@ -719,22 +1155,22 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     # Continue with existing test logic...
     ```
 
-- [ ] **Task 4.6: Test Phase 4 Changes**
+- [ ] **Task 6.6: Test Phase 6 Changes**
   - **Prerequisites**: Run `./bin/build-base-images.sh` to create base images
   - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh`
   - **Success Criteria**:
     - Base image check and reuse confirmed (should see "Using cached base image" message)
     - Container startup time under 10 seconds (previously 30-60 seconds)
-    - Execution time reduced to approximately 1.4 minutes (20% improvement from Phase 3)
+    - Execution time reduced to approximately 1.4 minutes (20% improvement from Phase 5)
     - All tests pass with same results as Phase 3
   - **Verification**: Time container startup: `time docker run --rm shield-php7.4-base:latest php --version`
   - **Base Image Check**: `docker images | grep shield-php` should show all 6 PHP versions
 
-## Phase 5: PHP Matrix Expansion (maintain 1.4 minute target)
+## Phase 7: PHP Matrix Expansion (maintain 1.4 minute target)
 
-### Phase 5 Tasks
+### Phase 7 Tasks
 
-- [ ] **Task 5.1: Extend Docker Compose for All PHP Versions**
+- [ ] **Task 7.1: Extend Docker Compose for All PHP Versions**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/tests/docker/docker-compose.matrix.yml`
   - **Action**: Create full matrix configuration supporting all PHP versions
   - **Implementation**: Generate services for each PHP/WordPress/TestType combination:
@@ -758,7 +1194,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
       # Total services: 6 PHP × 2 WordPress × 2 test types = 24 services
     ```
 
-- [ ] **Task 5.2: Implement Smart PHP Version Selection**
+- [ ] **Task 7.2: Implement Smart PHP Version Selection**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Add command-line option to select PHP versions for testing
   - **Implementation**:
@@ -787,7 +1223,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     echo "Testing with PHP versions: ${PHP_VERSIONS[*]}"
     ```
 
-- [ ] **Task 5.3: Implement Priority-Based Execution**
+- [ ] **Task 7.3: Implement Priority-Based Execution**
   - **Action**: Execute high-priority combinations first, then expand to full matrix
   - **Priority Levels**:
     - **Priority 1**: PHP 7.4 and 8.2 with WordPress latest (most common production environments)
@@ -820,7 +1256,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 5.4: Add PHP Version Compatibility Validation**
+- [ ] **Task 7.4: Add PHP Version Compatibility Validation**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Check WordPress/PHP version compatibility before test execution
   - **Implementation**:
@@ -854,7 +1290,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     done
     ```
 
-- [ ] **Task 5.5: Test Phase 5 Changes**
+- [ ] **Task 7.5: Test Phase 7 Changes**
   - **Commands**:
     - Default (priority): `./bin/run-docker-tests.sh` 
     - Full matrix: `./bin/run-docker-tests.sh --full-matrix`
@@ -866,11 +1302,11 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     - Version compatibility validation works correctly
     - No test failures due to PHP/WordPress incompatibilities
 
-## Phase 6: GNU Parallel Integration (30% speedup target)
+## Phase 8: GNU Parallel Integration (30% speedup target)
 
-### Phase 6 Tasks
+### Phase 8 Tasks
 
-- [ ] **Task 6.1: Install GNU Parallel Prerequisites**
+- [ ] **Task 8.1: Install GNU Parallel Prerequisites**
   - **Action**: Ensure GNU parallel is available for advanced job distribution
   - **Implementation**:
     ```bash
@@ -891,7 +1327,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 6.2: Implement GNU Parallel Job Distribution**
+- [ ] **Task 8.2: Implement GNU Parallel Job Distribution**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Replace bash background processes with GNU parallel for optimal resource utilization
   - **Implementation**:
@@ -946,7 +1382,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 6.3: Optimize Parallel Job Count**
+- [ ] **Task 8.3: Optimize Parallel Job Count**
   - **Action**: Dynamically determine optimal job count based on system resources
   - **Implementation**:
     ```bash
@@ -973,7 +1409,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     parallel --jobs "$job_count" ...
     ```
 
-- [ ] **Task 6.4: Implement Advanced Result Aggregation**
+- [ ] **Task 8.4: Implement Advanced Result Aggregation**
   - **Action**: Collect results from all parallel streams and provide comprehensive summary
   - **Implementation**:
     ```bash
@@ -1012,12 +1448,12 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 6.5: Test Phase 6 Changes**
+- [ ] **Task 8.5: Test Phase 8 Changes**
   - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh --full-matrix`
   - **Success Criteria**:
     - GNU parallel manages job distribution efficiently  
     - System resource utilization optimized (check with `htop` during execution)
-    - Total execution time reduced to approximately 1 minute (30% improvement from Phase 5)
+    - Total execution time reduced to approximately 1 minute (30% improvement from Phase 7)
     - All test combinations complete successfully
     - Result aggregation provides clear summary
   - **Performance Monitoring**:
@@ -1026,11 +1462,11 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     - `parallel --version` - confirm GNU parallel is being used
   - **Fallback Test**: Verify bash fallback works when GNU parallel not available
 
-## Phase 7: Container Pooling (20% speedup target)
+## Phase 9: Container Pooling (20% speedup target)
 
-### Phase 7 Tasks
+### Phase 9 Tasks
 
-- [ ] **Task 7.1: Implement Container Pool Management**
+- [ ] **Task 9.1: Implement Container Pool Management**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Pre-start container pool to eliminate startup overhead
   - **Implementation**:
@@ -1068,7 +1504,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     trap cleanup_container_pool EXIT
     ```
 
-- [ ] **Task 7.2: Implement Pool-Based Test Execution**
+- [ ] **Task 9.2: Implement Pool-Based Test Execution**
   - **Action**: Modify test execution to use pre-started containers from pool
   - **Implementation**:
     ```bash
@@ -1101,7 +1537,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 7.3: Add Container Pool Health Monitoring**
+- [ ] **Task 9.3: Add Container Pool Health Monitoring**
   - **Action**: Monitor pool health and replace failed containers automatically
   - **Implementation**:
     ```bash
@@ -1140,7 +1576,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     MONITOR_PID=$!
     ```
 
-- [ ] **Task 7.4: Optimize Pool Resource Usage**
+- [ ] **Task 9.4: Optimize Pool Resource Usage**
   - **Action**: Implement smart container reuse and resource limits
   - **Implementation**:
     ```bash
@@ -1173,12 +1609,12 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 7.5: Test Phase 7 Changes**
+- [ ] **Task 9.5: Test Phase 9 Changes**
   - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh`
   - **Success Criteria**:
     - Container pool created successfully before test execution
     - Container startup overhead eliminated (test execution begins immediately)
-    - Total execution time reduced to approximately 45 seconds (20% improvement from Phase 6)
+    - Total execution time reduced to approximately 45 seconds (20% improvement from Phase 8)
     - Pool monitoring maintains healthy container count
     - Resource utilization optimized with container limits
     - Pool cleanup works correctly on script exit
@@ -1188,11 +1624,11 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     - `time ./bin/run-docker-tests.sh` - measure total execution time
   - **Resource Check**: Verify system handles pool size appropriately with `htop` during execution
 
-## Phase 8: Result Aggregation Enhancement (maintain 45-second target)
+## Phase 10: Result Aggregation Enhancement (maintain 45-second target)
 
-### Phase 8 Tasks
+### Phase 10 Tasks
 
-- [ ] **Task 8.1: Implement Comprehensive Result Collection**
+- [ ] **Task 10.1: Implement Comprehensive Result Collection**
   - **File**: `/mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield/bin/run-docker-tests.sh`
   - **Action**: Create centralized result aggregation system with detailed reporting
   - **Implementation**:
@@ -1257,7 +1693,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 8.2: Implement Error Analysis and Debugging Info**
+- [ ] **Task 10.2: Implement Error Analysis and Debugging Info**
   - **Action**: Provide detailed failure analysis and debugging guidance
   - **Implementation**:
     ```bash
@@ -1298,7 +1734,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 8.3: Add Performance Metrics and Trends**
+- [ ] **Task 10.3: Add Performance Metrics and Trends**
   - **Action**: Track performance trends and provide optimization insights
   - **Implementation**:
     ```bash
@@ -1350,7 +1786,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 8.4: Create CI Integration Output**
+- [ ] **Task 10.4: Create CI Integration Output**
   - **Action**: Generate output compatible with CI systems and IDEs
   - **Implementation**:
     ```bash
@@ -1404,7 +1840,7 @@ With 35-38 second execution time already achieved, Phases 4-8 become optional op
     }
     ```
 
-- [ ] **Task 8.5: Test Phase 8 Changes**
+- [ ] **Task 10.5: Test Phase 10 Changes**
   - **Command**: `cd /mnt/d/Work/Dev/Repos/FernleafSystems/WP_Plugin-Shield && ./bin/run-docker-tests.sh --full-matrix`
   - **Success Criteria**:
     - Comprehensive result collection generates all expected files

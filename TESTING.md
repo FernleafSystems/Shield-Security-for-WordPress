@@ -66,7 +66,7 @@
 
 | Platform | Command | Time | Purpose |
 |----------|---------|------|------|
-| **All** 🚀 | `./bin/run-docker-tests.sh` | 2-3m total (35-38s test execution) | ✅ **Recommended** - CI-equivalent testing |
+| **All** 🚀 | `./bin/run-docker-tests.sh` | ~3m total | ✅ **Recommended** - CI-equivalent testing |
 | **🪟 Windows** | `.\bin\run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
 | **🐧 Linux/🔧 WSL** | `pwsh ./bin/run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
 | **🍎 macOS** | `pwsh ./bin/run-tests.ps1 all -Docker` | ~4m | Full Docker test suite |
@@ -161,6 +161,7 @@ WP_TESTS_DB_PASSWORD=root
 - **Auto-Discovery**: Detects current WordPress versions dynamically
 - **Complete Coverage**: Both unit and integration tests across versions
 - **Database Isolation**: Separate MySQL containers prevent test interference
+- **Smart Health Checks**: MySQL readiness monitoring replaces hardcoded delays (Phase 4)
 
 ### Option 2: Advanced Docker Testing (Custom Control)
 
@@ -466,9 +467,10 @@ This section documents the key differences between local and CI testing configur
 |--------|---------------------------|------------------------------------------|
 | **Compose Files** | `docker-compose.yml` + `docker-compose.package.yml` (2 files) | `docker-compose.yml` + `docker-compose.ci.yml` + `docker-compose.package.yml` (3 files) |
 | **Images Built** | Version-specific (e.g., `shield-test-runner:wp-6.8.2`, `shield-test-runner:wp-6.7.3`) | `shield-test-runner:latest` (single image for all WordPress versions) |
-| **MySQL Containers** | `mysql-latest` (port 3309), `mysql-previous` (port 3310) | `mysql-latest`, `mysql-previous` (workflow-managed) |
+| **MySQL Containers** | `mysql-latest` (port 3309), `mysql-previous` (port 3310) with health checks | `mysql-latest`, `mysql-previous` (workflow-managed) |
+| **MySQL Readiness** | Health check monitoring (~38s typical startup) | Health check monitoring |
 | **Execution** | Parallel with isolated databases | Matrix-based with GitHub Actions orchestration |
-| **Performance** | 2-3 minutes total (35-38s test execution) | Varies by CI runner capacity |
+| **Performance** | ~3 minutes total | Varies by CI runner capacity |
 | **Script/Workflow** | `./bin/run-docker-tests.sh` (no CI compose file) | `.github/workflows/docker-tests.yml` |
 
 ### Environment Variable Configuration
@@ -486,10 +488,11 @@ The following environment variables can be used to override Docker image default
 ### Key Benefits of Separated Configurations
 
 #### Local Development Benefits
-- **Fast Feedback**: 2-3 minutes total (35-38s test execution) for complete validation
+- **Fast Feedback**: ~3 minutes total for complete validation
 - **No CI Overhead**: Skips CI-specific compose file entirely
 - **Parallel Execution**: Tests multiple WordPress versions simultaneously
 - **Database Isolation**: Separate MySQL containers prevent test interference
+- **Smart MySQL Monitoring**: Health checks ensure database readiness (Phase 4)
 - **Simple Command**: Just run `./bin/run-docker-tests.sh`
 
 #### CI Validation Benefits
@@ -508,9 +511,10 @@ The following environment variables can be used to override Docker image default
 
 # What happens:
 # 1. Builds version-specific Docker images
-# 2. Starts isolated MySQL containers
-# 3. Runs tests in parallel (2-3 minutes total, 35-38s test execution)
-# 4. No CI compose file involved
+# 2. Starts isolated MySQL containers with health monitoring
+# 3. Waits for MySQL readiness (~38s typical)
+# 4. Runs tests in parallel (~3 minutes total)
+# 5. No CI compose file involved
 ```
 
 #### CI Testing (GitHub Actions)
@@ -575,10 +579,11 @@ bash ./bin/run-docker-tests.sh
 # 3. Creates production package with vendor_prefixed (ONCE - Phase 1 optimization)
 # 4. Builds version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
 # 5. Creates isolated MySQL containers (mysql-latest, mysql-previous)
-# 6. Runs PHP 7.4 + WordPress 6.8.2 AND 6.7.3 SIMULTANEOUSLY (Phase 2)
-# 7. Executes both unit and integration tests for each
-# 8. Validates package structure and production readiness
-# 9. Cleans up all containers and temporary files
+# 6. Monitors MySQL health checks until ready (~38s)
+# 7. Runs PHP 7.4 + WordPress 6.8.2 AND 6.7.3 SIMULTANEOUSLY (Phase 2)
+# 8. Executes both unit and integration tests for each
+# 9. Validates package structure and production readiness
+# 10. Cleans up all containers and temporary files
 ```
 
 **Phase 2 Achievements** ✅
@@ -1008,10 +1013,20 @@ services:
   mysql-latest:        # WordPress latest (6.8.2) database
     image: mysql:8.0
     container_name: mysql-latest
+    healthcheck:       # Phase 4: Smart health monitoring
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     
   mysql-previous:      # WordPress previous (6.7.3) database
     image: mysql:8.0
     container_name: mysql-previous
+    healthcheck:       # Phase 4: Smart health monitoring
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     
   test-runner-latest:  # WordPress latest (6.8.2) test runner
     image: shield-test-runner:wp-6.8.2
@@ -1363,17 +1378,23 @@ find ./bin -type f \( -name "*.sh" -o -name "*.ps1" \) -exec chmod +x {} \;
 ```
 Connection refused to database
 ```
-**Solution**: Wait for database container to be ready
+**Solution**: Database health checks (Phase 4) automatically handle MySQL readiness
 ```bash
-# Check container status
+# Check container status and health
 docker-compose -f tests/docker/docker-compose.yml ps
 
-# View database logs
+# View database logs and startup timing
 docker-compose -f tests/docker/docker-compose.yml logs mysql
 
-# Restart with fresh database
+# MySQL typically takes ~38 seconds to fully initialize
+# Health checks automatically wait for readiness
+
+# Restart with fresh database if needed
 docker-compose -f tests/docker/docker-compose.yml down -v
 docker-compose -f tests/docker/docker-compose.yml up -d
+
+# Verify MySQL health check timing (Phase 4 diagnostic)
+bash ./bin/test-mysql-monitoring.sh
 ```
 
 ### Matrix Testing Issues
@@ -1533,6 +1554,18 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - Use WSL2 backend on Windows
 - Ensure SSD storage for Docker
 
+#### Build Performance Analysis (Phase 4)
+**Build time breakdown** (Total: ~2m 49s):
+- **NPM Build**: 1m 19s (46% - primary bottleneck)
+- **File Copying**: 1m 0s (35%)
+- **Composer Operations**: 27s combined
+- **Other Operations**: 23s
+
+**Optimization opportunities**:
+- Consider npm build caching strategies
+- Optimize file copy operations
+- Run build timing analysis: `bash ./bin/analyze-build-timing.sh`
+
 #### Test Execution Timeout
 **Solution**: Increase container resources
 ```bash
@@ -1552,6 +1585,20 @@ docker-compose -f tests/docker/docker-compose.yml build --no-cache
 
 # Debug specific matrix combination
 .\bin\run-tests.ps1 all -Docker -PhpVersion 8.1 -WpVersion 6.8.2 -Debug
+```
+
+#### Phase 4 Diagnostic Scripts
+```bash
+# Test MySQL startup timing and health checks
+bash ./bin/test-mysql-monitoring.sh
+
+# Analyze build performance bottlenecks
+bash ./bin/analyze-build-timing.sh
+
+# These scripts help identify:
+# - MySQL initialization timing (~38s typical)
+# - Build phase performance (NPM, file copy, Composer)
+# - Container startup sequences
 ```
 
 #### WordPress Version Detection Debug

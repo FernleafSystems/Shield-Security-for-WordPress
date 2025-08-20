@@ -26,6 +26,16 @@ fi
 echo "   Latest WordPress: $LATEST_VERSION"
 echo "   Previous WordPress: $PREVIOUS_VERSION"
 
+# Start MySQL containers early in background for parallel initialization
+# Based on testing, MySQL takes ~38 seconds to fully initialize
+echo "🗄️ Starting MySQL databases in background for parallel initialization..."
+docker compose -f tests/docker/docker-compose.yml \
+    -f tests/docker/docker-compose.package.yml \
+    up -d mysql-latest mysql-previous 2>&1 | tee /tmp/mysql-startup.log &
+MYSQL_START_PID=$!
+echo "   MySQL containers starting in background (PID: $MYSQL_START_PID)"
+echo "   Containers will initialize while we build assets (~38 seconds typical)"
+
 # Build assets (like CI does)
 echo "🔨 Building assets..."
 if command -v npm >/dev/null 2>&1; then
@@ -66,6 +76,38 @@ build_docker_image_for_wp_version() {
         --tag shield-test-runner:wp-$WP_VERSION
 }
 
+# Health check function for MySQL containers
+# Based on Task 4.2 testing, MySQL takes ~38 seconds to initialize
+wait_for_mysql() {
+    local container=$1
+    local max_attempts=60  # 60 seconds based on testing
+    local attempt=0
+    
+    echo "⏳ Waiting for $container to be ready (typically ~38 seconds)..."
+    while [ $attempt -lt $max_attempts ]; do
+        # Use mysqladmin ping to check if MySQL is ready
+        if docker exec $container mysqladmin ping -h localhost --silent 2>/dev/null; then
+            echo "✅ $container is ready (took $attempt seconds)"
+            return 0
+        fi
+        
+        attempt=$((attempt + 1))
+        
+        # Progress indicator every 10 seconds
+        if [ $((attempt % 10)) -eq 0 ]; then
+            echo "   Still waiting for $container... ($attempt/$max_attempts seconds)"
+        fi
+        
+        sleep 1
+    done
+    
+    # If we get here, MySQL failed to start
+    echo "❌ $container failed to start within $max_attempts seconds"
+    echo "   Container logs:"
+    docker logs --tail 20 $container
+    return 1
+}
+
 # Function to run tests in parallel with database isolation
 run_parallel_tests() {
     echo "🧪 Running parallel tests with isolated databases..."
@@ -85,24 +127,34 @@ SHIELD_TEST_IMAGE_LATEST=shield-test-runner:wp-$LATEST_VERSION
 SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:wp-$PREVIOUS_VERSION
 EOF
     
-    # Start MySQL containers and build test runners to ensure network is ready
-    echo "🗄️ Starting isolated MySQL databases and preparing test runners..."
-    docker compose -f tests/docker/docker-compose.yml \
-        -f tests/docker/docker-compose.package.yml \
-        up -d mysql-latest mysql-previous
+    # Ensure MySQL containers are running (they were started early)
+    echo "🗄️ Ensuring MySQL databases are running..."
+    # Check if containers are already running from early start
+    if ! docker ps | grep -q mysql-latest; then
+        echo "   MySQL containers not found, starting them now..."
+        docker compose -f tests/docker/docker-compose.yml \
+            -f tests/docker/docker-compose.package.yml \
+            up -d mysql-latest mysql-previous
+    else
+        echo "   MySQL containers already running from early initialization"
+    fi
     
     # Build test runner images to ensure they're ready
+    echo "🔨 Building test runner images..."
     docker compose -f tests/docker/docker-compose.yml \
         -f tests/docker/docker-compose.package.yml \
         build test-runner-latest test-runner-previous
     
-    # Wait for databases to be ready
-    echo "⏳ Waiting for databases to initialize..."
-    sleep 15
+    # Wait for both MySQL containers to be ready using health checks
+    echo "⏳ Ensuring MySQL databases are ready for testing..."
+    wait_for_mysql mysql-latest || exit 1
+    wait_for_mysql mysql-previous || exit 1
+    echo "✅ Both MySQL databases are ready!"
     
     # Layer 1 Verification: Verify containers are ready
     echo "🔍 Layer 1 Verification: Checking database containers..."
-    docker ps --filter "name=mysql-wp682" --filter "name=mysql-wp673" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    # Container names per Phase 2.5 - generic names for CI compatibility
+    docker ps --filter "name=mysql-latest" --filter "name=mysql-previous" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
     
     # Record start time for performance measurement
     PARALLEL_START_TIME=$(date +%s)
@@ -353,8 +405,8 @@ fi
 
 if [ "$PARALLEL_TESTING" = "true" ]; then
     echo "   Tests ran in PARALLEL mode with isolated databases:"
-    echo "   - WordPress $LATEST_VERSION (mysql-wp682:3309, database: wordpress_test_wp682)"
-    echo "   - WordPress $PREVIOUS_VERSION (mysql-wp673:3310, database: wordpress_test_wp673)"
+    echo "   - WordPress $LATEST_VERSION (mysql-latest:3309, database: wordpress_test_latest)"
+    echo "   - WordPress $PREVIOUS_VERSION (mysql-previous:3310, database: wordpress_test_previous)"
     echo "   - Execution mode: Parallel (faster)"
     echo "   - Output logs: /tmp/shield-test-*.log"
 else

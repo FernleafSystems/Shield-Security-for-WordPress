@@ -9,6 +9,8 @@
 /forceoff
 /vendor
 /docs
+/.agent-os/instructions
+/.agent-os/standards
 
 # Testing artifacts
 /coverage/
