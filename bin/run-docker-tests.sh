@@ -26,11 +26,17 @@ fi
 echo "   Latest WordPress: $LATEST_VERSION"
 echo "   Previous WordPress: $PREVIOUS_VERSION"
 
+# Set environment variables early to avoid Docker Compose warnings
+PACKAGE_DIR="/tmp/shield-package-local"
+export SHIELD_PACKAGE_PATH="$PACKAGE_DIR"
+# PLUGIN_SOURCE needs to be the actual path, not just "package"
+export PLUGIN_SOURCE="$PACKAGE_DIR"
+
 # Start MySQL containers early in background for parallel initialization
 # Based on testing, MySQL takes ~38 seconds to fully initialize
 echo "🗄️ Starting MySQL databases in background for parallel initialization..."
+# Only use base compose file for MySQL (package.yml requires package to exist)
 docker compose -f tests/docker/docker-compose.yml \
-    -f tests/docker/docker-compose.package.yml \
     up -d mysql-latest mysql-previous 2>&1 | tee /tmp/mysql-startup.log &
 MYSQL_START_PID=$!
 echo "   MySQL containers starting in background (PID: $MYSQL_START_PID)"
@@ -39,30 +45,38 @@ echo "   Containers will initialize while we build assets (~38 seconds typical)"
 # Build assets (like CI does) - with caching for Task 4.6 optimization
 echo "🔨 Building assets..."
 if command -v npm >/dev/null 2>&1; then
-    # Task 4.6: Check if webpack build cache is valid
+    # Task 4.6: Check if webpack build cache is valid using checksums (more reliable than timestamps)
     WEBPACK_CACHE_VALID=false
     DIST_DIR="$PROJECT_ROOT/assets/dist"
     SRC_DIR="$PROJECT_ROOT/assets/js"
+    CACHE_FILE="/tmp/shield-webpack-cache-checksum"
     
     # Check if dist directory exists and has files
     if [ -d "$DIST_DIR" ] && [ "$(ls -A $DIST_DIR 2>/dev/null)" ]; then
         echo "   Checking webpack build cache validity..."
         
-        # Find newest source file
-        NEWEST_SRC=$(find "$SRC_DIR" -type f -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
-        # Find oldest dist file  
-        OLDEST_DIST=$(find "$DIST_DIR" -type f -name "*.js" -o -name "*.css" 2>/dev/null | xargs ls -tr 2>/dev/null | head -1)
+        # Calculate checksum of all source files, package.json, and webpack.config.js
+        CURRENT_CHECKSUM=$(find "$SRC_DIR" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec md5sum {} \; 2>/dev/null | sort | md5sum | cut -d' ' -f1)
+        PACKAGE_CHECKSUM=$(md5sum "$PROJECT_ROOT/package.json" 2>/dev/null | cut -d' ' -f1)
+        WEBPACK_CHECKSUM=$(md5sum "$PROJECT_ROOT/webpack.config.js" 2>/dev/null | cut -d' ' -f1)
+        COMBINED_CHECKSUM="${CURRENT_CHECKSUM}-${PACKAGE_CHECKSUM}-${WEBPACK_CHECKSUM}"
         
-        if [ -n "$NEWEST_SRC" ] && [ -n "$OLDEST_DIST" ]; then
-            # Check if the oldest dist file is newer than newest source
-            if [ "$OLDEST_DIST" -nt "$NEWEST_SRC" ]; then
-                # Also check package.json and webpack.config.js haven't changed
-                if [ ! "$PROJECT_ROOT/package.json" -nt "$OLDEST_DIST" ] && \
-                   [ ! "$PROJECT_ROOT/webpack.config.js" -nt "$OLDEST_DIST" ]; then
+        # Check if we have a stored checksum and if it matches
+        if [ -f "$CACHE_FILE" ]; then
+            STORED_CHECKSUM=$(cat "$CACHE_FILE")
+            if [ "$COMBINED_CHECKSUM" = "$STORED_CHECKSUM" ]; then
+                # Also verify dist files actually exist
+                if [ -f "$DIST_DIR/shield-main.bundle.js" ] && [ -f "$DIST_DIR/shield-main.bundle.css" ]; then
                     WEBPACK_CACHE_VALID=true
                     echo "   ✅ Webpack build cache is valid - skipping rebuild (saves ~1m 40s)"
+                else
+                    echo "   Dist files missing - rebuild needed"
                 fi
+            else
+                echo "   Source files changed - rebuild needed"
             fi
+        else
+            echo "   No cache checksum found - first run"
         fi
     fi
     
@@ -70,7 +84,10 @@ if command -v npm >/dev/null 2>&1; then
         echo "   Cache invalid or missing - running full build..."
         npm ci --no-audit --no-fund
         npm run build
-        echo "   Build complete - cache created for next run"
+        
+        # Save the checksum for next run
+        echo "$COMBINED_CHECKSUM" > "$CACHE_FILE"
+        echo "   Build complete - cache checksum saved for next run"
     else
         echo "   Using cached webpack build from previous run"
         # Still need to ensure node_modules exist
@@ -94,7 +111,7 @@ fi
 
 # Build plugin package (like CI does)
 echo "📦 Building plugin package..."
-PACKAGE_DIR="/tmp/shield-package-local"
+# PACKAGE_DIR already set earlier to avoid Docker Compose warnings
 rm -rf "$PACKAGE_DIR"
 ./bin/build-package.sh "$PACKAGE_DIR" "$PROJECT_ROOT"
 
@@ -185,8 +202,26 @@ EOF
     
     # Wait for both MySQL containers to be ready using health checks
     echo "⏳ Ensuring MySQL databases are ready for testing..."
-    wait_for_mysql mysql-latest || exit 1
-    wait_for_mysql mysql-previous || exit 1
+    # Docker Compose appends suffixes to container names, find the actual names
+    MYSQL_LATEST_CONTAINER=$(docker ps --filter "name=mysql-latest" --format "{{.Names}}" | head -1)
+    MYSQL_PREVIOUS_CONTAINER=$(docker ps --filter "name=mysql-previous" --format "{{.Names}}" | head -1)
+    
+    if [ -z "$MYSQL_LATEST_CONTAINER" ]; then
+        echo "❌ Cannot find mysql-latest container"
+        docker ps -a | grep mysql
+        exit 1
+    fi
+    
+    if [ -z "$MYSQL_PREVIOUS_CONTAINER" ]; then
+        echo "❌ Cannot find mysql-previous container"
+        docker ps -a | grep mysql
+        exit 1
+    fi
+    
+    echo "   Found MySQL containers: $MYSQL_LATEST_CONTAINER, $MYSQL_PREVIOUS_CONTAINER"
+    
+    wait_for_mysql "$MYSQL_LATEST_CONTAINER" || exit 1
+    wait_for_mysql "$MYSQL_PREVIOUS_CONTAINER" || exit 1
     echo "✅ Both MySQL databases are ready!"
     
     # Layer 1 Verification: Verify containers are ready
