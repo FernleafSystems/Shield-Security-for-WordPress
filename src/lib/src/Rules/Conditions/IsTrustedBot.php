@@ -20,15 +20,13 @@ class IsTrustedBot extends Base {
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_OR,
 			'conditions' => \array_map(
-				function ( string $ID ) {
-					return [
-						'conditions' => Conditions\MatchRequestIpIdentity::class,
-						'params'     => [
-							'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-							'match_ip_id' => $ID,
-						],
-					];
-				},
+				fn( string $ID ) => [
+					'conditions' => Conditions\MatchRequestIpIdentity::class,
+					'params'     => [
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_ip_id' => $ID,
+					],
+				],
 				( new TrustedServices() )->enum()
 			),
 		];
