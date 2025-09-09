@@ -100,6 +100,7 @@ class Enqueue {
 				'mailjet',
 				'monsterinsights',
 				'udb-admin',
+				'thim-admin-custom',
 			];
 		}
 		else {

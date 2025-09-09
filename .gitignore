@@ -3,9 +3,77 @@
 /config/deprecated/
 /src/lib/strauss.phar
 /src/lib/vendor*
-composer.lock
 /node_modules
 /package-lock.json
 /_gsdata_
 /forceoff
 /vendor
+/docs
+/.agent-os/instructions
+/.agent-os/standards
+
+# Testing artifacts
+/coverage/
+/.phpunit.cache/
+/.phpunit.result.cache
+/tests-results.xml
+/tmp/
+/vendor/
+debug.log
+test-output.log
+test-*.log
+phpunit-*-package.xml
+/tests/Unit/bootstrap-package.php
+/tests/Integration/bootstrap-package.php
+/tests/package/
+
+# Local build packages (created by local build scripts)
+/shield-package
+/shield-package-local
+/shield-test-package
+/shield-build-*
+/shield-package-integration-full
+/integration-full-work
+integration-full.log
+
+# Local test artifacts
+/test-plugin-package/
+/test-plugin-work/
+test-plugin-*.log
+/bin/test-powershell-fixes.ps1
+/bin/test-simple.ps1
+/bin/cleanup-test-artifacts.ps1
+
+# Intermediary component test scripts and logs (should not be committed)
+component-*.ps1
+component-*.log
+*-component.ps1
+*-component.log
+
+# Local development
+.env
+.env.local
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+/.mcp.json
+.claude/settings.local.json
+
+# Claude planning and tracking files
+.claude/*.md
+CLAUDE.md
+
+/.serena
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
