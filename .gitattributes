@@ -1,1 +1,96 @@
+# Git Attributes for WorpDrive
+# Ensures consistent line endings across platforms
+
+# Default behavior for all files
+* text=auto
+
+# Shell scripts must always use LF line endings (Unix)
 *.sh text eol=lf
+
+# PowerShell scripts should use CRLF line endings (Windows)
+*.ps1 text eol=crlf
+
+# Batch files should use CRLF line endings (Windows)  
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# PHP files should use LF line endings
+*.php text eol=lf
+
+# Configuration files should use LF line endings
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.ini text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+.env* text eol=lf
+
+# Docker files should use LF line endings
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+
+# SQL files should use LF line endings
+*.sql text eol=lf
+
+# Web files should use LF line endings
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+
+# Markdown files should use LF line endings
+*.md text eol=lf
+
+# Version control files should use LF line endings
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files (mark as binary to prevent line ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.tgz binary
+*.gz binary
+*.7z binary
+*.rar binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.phar binary
+
+# Font files
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Archive and package files
+*.jar binary
+*.war binary
+*.ear binary
+*.class binary
+
+# Audio/Video files
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.wav binary
+*.ogg binary
+
+# Composer lock file should maintain exact line endings
+composer.lock text eol=lf
+
+# Package manager files
+package-lock.json text eol=lf
+yarn.lock text eol=lf
