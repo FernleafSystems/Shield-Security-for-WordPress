@@ -390,8 +390,8 @@ class StringsSections {
 
 			default:
 				$def = $con->cfg->configuration->sections[ $key ];
-				$title = __( $def[ 'title' ] ?? 'No Title', 'wp-simple-firewall' );
-				$short = __( $def[ 'title_short' ] ?? 'No Title', 'wp-simple-firewall' );
+				$title = empty( $def[ 'title' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title' ], 'wp-simple-firewall' );
+				$short = empty( $def[ 'title_short' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title_short' ], 'wp-simple-firewall' );
 				$summary = $def[ 'summary' ] ?? [];
 				break;
 		}

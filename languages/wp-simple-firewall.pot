@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security 21.0.7\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-simple-firewall"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-simple-firewall\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-24T11:40:09+00:00\n"
+"POT-Creation-Date: 2025-09-24T12:11:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
@@ -8353,6 +8353,11 @@ msgstr ""
 msgid "Automatically suspends accounts to prevent login by certain users."
 msgstr ""
 
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:393
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:394
+msgid "No Title"
+msgstr ""
+
 #: src/lib/src/Controller/Config/Ops/LoadConfig.php:25
 #, php-format
 msgid "Path to plugin config (%s) doesn't exist. Please reinstall the plugin."
@@ -10725,6 +10730,18 @@ msgstr ""
 #: src/lib/src/Modules/Integrations/Lib/Bots/Spam/Handlers/Base.php:25
 #, php-format
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/Bots/Spam/Handlers/FormidableForms.php:15
+msgid "Your entry appears to be spam!"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/Bots/Spam/Handlers/Helpers/NinjaForms_ShieldSpamAction.php:23
+msgid "Shield Anti-Spam"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/Bots/Spam/Handlers/Helpers/NinjaForms_ShieldSpamAction.php:33
+msgid "There was an error trying to send your message. Please try again later"
 msgstr ""
 
 #: src/lib/src/Modules/Integrations/Lib/Bots/Spam/Handlers/KaliForms.php:13
