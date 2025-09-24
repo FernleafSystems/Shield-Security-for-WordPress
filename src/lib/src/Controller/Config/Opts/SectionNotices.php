@@ -28,7 +28,7 @@ class SectionNotices {
 		switch ( $section ) {
 			case 'section_rename_wplogin':
 				if ( ( new IpRuleStatus( $con->this_req->ip ) )->isBypass() ) {
-					$critical[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s" ),
+					$critical[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s", 'wp-simple-firewall' ),
 						\basename( Services::WpGeneral()->getLoginUrl() ) );
 				}
 				break;
@@ -139,7 +139,7 @@ class SectionNotices {
 				);
 				if ( \count( $nonRoles ) > 0 ) {
 					$warnings[] = sprintf( '%s: %s',
-						__( "Certain user roles are set for email authentication enforcement that aren't currently available" ),
+						__( "Certain user roles are set for email authentication enforcement that aren't currently available", 'wp-simple-firewall' ),
 						\implode( ', ', $nonRoles ) );
 				}
 				break;

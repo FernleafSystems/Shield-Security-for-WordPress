@@ -79,7 +79,7 @@ class PageDashboardMeters extends BasePluginAdminPage {
 				'clear_filter'       => __( 'Clear Filter', 'wp-simple-firewall' ),
 				'go_to_options'      => sprintf(
 					__( 'Go To %s', 'wp-simple-firewall' ),
-					__( 'Options' )
+					__( 'Options', 'wp-simple-firewall' )
 				),
 				'view_as_message'    => $viewAsState[ 'view_as_msg' ],
 			],

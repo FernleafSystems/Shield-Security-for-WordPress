@@ -29,7 +29,7 @@ class ForSecurityRules extends Base {
 		return [
 			'active'      => [
 				'data'           => 'active',
-				'title'          => __( 'Active' ),
+				'title'          => __( 'Active', 'wp-simple-firewall' ),
 				'className'      => 'active',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -41,7 +41,7 @@ class ForSecurityRules extends Base {
 			],
 			'rid'         => [
 				'data'           => 'rid',
-				'title'          => __( 'ID' ),
+				'title'          => __( 'ID', 'wp-simple-firewall' ),
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -53,7 +53,7 @@ class ForSecurityRules extends Base {
 			],
 			'uuid'        => [
 				'data'           => 'uuid',
-				'title'          => __( 'Unique ID' ),
+				'title'          => __( 'Unique ID', 'wp-simple-firewall' ),
 				'className'      => 'uuid',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -65,7 +65,7 @@ class ForSecurityRules extends Base {
 			],
 			'exec_order'  => [
 				'data'           => 'exec_order',
-				'title'          => __( 'Exec Order' ),
+				'title'          => __( 'Exec Order', 'wp-simple-firewall' ),
 				'className'      => 'exec_order',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -77,7 +77,7 @@ class ForSecurityRules extends Base {
 			],
 			'details'     => [
 				'data'           => 'details',
-				'title'          => __( 'Details' ),
+				'title'          => __( 'Details', 'wp-simple-firewall' ),
 				'className'      => 'details',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -89,7 +89,7 @@ class ForSecurityRules extends Base {
 			],
 			'name'        => [
 				'data'           => 'name',
-				'title'          => __( 'Name' ),
+				'title'          => __( 'Name', 'wp-simple-firewall' ),
 				'className'      => 'name',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -101,7 +101,7 @@ class ForSecurityRules extends Base {
 			],
 			'description' => [
 				'data'           => 'description',
-				'title'          => __( 'Description' ),
+				'title'          => __( 'Description', 'wp-simple-firewall' ),
 				'className'      => 'description',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -113,7 +113,7 @@ class ForSecurityRules extends Base {
 			],
 			'version'     => [
 				'data'           => 'version',
-				'title'          => __( 'Version' ),
+				'title'          => __( 'Version', 'wp-simple-firewall' ),
 				'className'      => 'version',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -125,7 +125,7 @@ class ForSecurityRules extends Base {
 			],
 			'is_viable'   => [
 				'data'           => 'is_viable',
-				'title'          => __( 'Is Viable' ),
+				'title'          => __( 'Is Viable', 'wp-simple-firewall' ),
 				'className'      => 'is_viable',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -140,7 +140,7 @@ class ForSecurityRules extends Base {
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'         => __( 'Modified' ),
+				'title'         => __( 'Modified', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => false,
 				'orderSequence' => [ 'desc', 'asc' ],
@@ -152,7 +152,7 @@ class ForSecurityRules extends Base {
 			],
 			'actions'     => [
 				'data'        => 'actions',
-				'title'       => __( 'Actions' ),
+				'title'       => __( 'Actions', 'wp-simple-firewall' ),
 				'className'   => 'actions',
 				'orderable'   => false,
 				'searchable'  => false,

@@ -26,7 +26,7 @@ class ScansRun extends ScansBase {
 				'type'        => 'flag',
 				'name'        => $scanCon->getSlug(),
 				'optional'    => true,
-				'description' => sprintf( '%s: %s', __( 'Run Scan' ), $scanCon->getScanName() ),
+				'description' => sprintf( '%s: %s', __( 'Run Scan', 'wp-simple-firewall' ), $scanCon->getScanName() ),
 			];
 		}
 		return $params;

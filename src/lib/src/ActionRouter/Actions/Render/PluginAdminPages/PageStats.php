@@ -121,7 +121,7 @@ class PageStats extends BasePluginAdminPage {
 				]
 			],
 			[
-				'title'  => __( 'Login Guard' ),
+				'title'  => __( 'Login Guard', 'wp-simple-firewall' ),
 				'events' => [
 					'cooldown_fail',
 					'honeypot_fail',

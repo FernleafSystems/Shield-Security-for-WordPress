@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security 21.0.7\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-simple-firewall\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-simple-firewall"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-24T10:39:33+00:00\n"
+"POT-Creation-Date: 2025-09-24T11:40:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
@@ -85,7 +85,9 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/DynamicLoad/ConfigForZoneComponents.php:17
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:222
+#: src/lib/src/ActionRouter/Actions/Render/Components/Options/OptionsFormFor.php:17
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:58
+#: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:414
 #: src/lib/src/Zones/Component/Base.php:41
 msgid "Edit Settings"
 msgstr ""
@@ -118,6 +120,11 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/IpAnalyseAction.php:44
 msgid "Offenses couldn't be reset at this time."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/IpAnalyseAction.php:54
+#, php-format
+msgid "IP can't be blocked from this page as it's a known service IP: %s"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/IpAnalyseAction.php:60
@@ -532,6 +539,14 @@ msgstr ""
 msgid "Failed to update %s plugin options."
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/OptionTransferIncludeToggle.php:13
+msgid "Option excluded from import/export"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/OptionTransferIncludeToggle.php:17
+msgid "Option included in import/export"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php:101
 msgid "Security Dashboard"
 msgstr ""
@@ -631,6 +646,39 @@ msgstr ""
 msgid "Tour Finished"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/PluginReinstall.php:37
+msgid "Plugin re-installed. Reloading..."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/PluginReinstall.php:37
+msgid "Re-install failed."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:219
+msgid "Save Options"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:220
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:240
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:281
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardMeters.php:82
+msgid "Options"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:221
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:244
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageActivityLogTable.php:16
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:18
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageIpRulesTable.php:32
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageReports.php:27
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageRulesBase.php:31
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageScansBase.php:9
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageToolLockdown.php:16
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageTrafficLogBase.php:20
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageUserSessions.php:29
+msgid "Help"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:223
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:110
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:345
@@ -643,10 +691,30 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:225
+#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:81
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ReinstallDialog.php:23
+#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:83
+#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:312
+#: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:229
+msgid "Yes"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:226
+#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:82
+#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:82
+#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:236
+#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:312
+#: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:39
+#: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:229
+msgid "No"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:227
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageLicense.php:39
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageScansResults.php:104
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageScansRun.php:45
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Utilties/MfaRecordsForDisplay.php:36
 #: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:247
 #: src/lib/src/Tables/DataTables/Build/SearchPanes/BuildDataForDays.php:40
 #: src/lib/src/Tables/DataTables/LoadData/IpRules/BuildIpRulesTableData.php:235
@@ -663,6 +731,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:230
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Container.php:52
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:34
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Malai.php:29
 #: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:70
 msgid "Info"
@@ -685,8 +754,23 @@ msgid "Watch the explainer video"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:235
+#: src/lib/src/Tables/DataTables/Build/ForSessions.php:83
 #: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:197
 msgid "Logged-In"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:236
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:311
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/InstantAlerts/EmailInstantAlertAdmins.php:32
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/MfaLoginCode.php:33
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/UnblockMagicLink.php:40
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/UserLoginNotice.php:23
+#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Activity.php:38
+#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Sessions.php:41
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageUserSessions.php:45
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/BackupCodes.php:144
+#: src/lib/src/Modules/UserManagement/Lib/Session/UserSessionHandler.php:161
+msgid "Username"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:237
@@ -695,11 +779,6 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:238
 msgid "Save Settings"
-msgstr ""
-
-#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:240
-#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:281
-msgid "Options"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:241
@@ -712,19 +791,6 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:243
 msgid "Perform actions for this module"
-msgstr ""
-
-#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:244
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageActivityLogTable.php:16
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:18
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageIpRulesTable.php:32
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageReports.php:27
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageRulesBase.php:31
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageScansBase.php:9
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageToolLockdown.php:16
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageTrafficLogBase.php:20
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageUserSessions.php:29
-msgid "Help"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:245
@@ -744,7 +810,15 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/BackupCodes.php:145
 #: src/lib/src/Modules/UserManagement/Lib/Session/UserSessionHandler.php:163
 #: src/lib/src/Profiles/SecurityProfilesCon.php:277
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:36
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:91
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:30
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:87
 msgid "IP Address"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:248
+msgid "Select"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:249
@@ -802,6 +876,8 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:263
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:52
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1302
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:94
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:104
 msgid "Description"
 msgstr ""
 
@@ -884,17 +960,26 @@ msgid "YYYY-MM-DD"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:296
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Base.php:14
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:56
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:82
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:92
 msgid "Name"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:297
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:90
 #: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:136
 #: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:159
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:22
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:32
 msgid "Active"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:298
 #: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/BaseSubPage.php:48
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:52
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:98
 msgid "Status"
 msgstr ""
 
@@ -903,6 +988,7 @@ msgid "Key"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:300
+#: src/lib/src/Tables/DataTables/LoadData/Sessions/BuildSessionsTableData.php:67
 msgid "Expires"
 msgstr ""
 
@@ -937,19 +1023,6 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:310
 msgid "Current User Sessions"
-msgstr ""
-
-#: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:311
-#: src/lib/src/ActionRouter/Actions/Render/Components/Email/InstantAlerts/EmailInstantAlertAdmins.php:32
-#: src/lib/src/ActionRouter/Actions/Render/Components/Email/MfaLoginCode.php:33
-#: src/lib/src/ActionRouter/Actions/Render/Components/Email/UnblockMagicLink.php:40
-#: src/lib/src/ActionRouter/Actions/Render/Components/Email/UserLoginNotice.php:23
-#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Activity.php:38
-#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Sessions.php:41
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageUserSessions.php:45
-#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/BackupCodes.php:144
-#: src/lib/src/Modules/UserManagement/Lib/Session/UserSessionHandler.php:161
-msgid "Username"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/BaseRender.php:312
@@ -1018,8 +1091,11 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Docs/Changelog.php:26
 #: src/lib/src/ActionRouter/Actions/Render/Components/Docs/EventsEnum.php:41
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Base.php:13
 #: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/BaseSubPage.php:51
 #: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:257
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:106
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:116
 msgid "Version"
 msgstr ""
 
@@ -1067,12 +1143,25 @@ msgstr ""
 msgid "Request Details"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:24
+msgid "IP Address Lookup"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:25
+msgid "This is for informational purposes only."
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:26
 msgid "Don't want these email alerts?"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:27
 msgid "Configure Firewall Block alert emails"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:28
+#, php-format
+msgid "%s has already taken the necessary action of blocking the request."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:36
@@ -1204,6 +1293,7 @@ msgid "These changes may be normal and expected, but if anything looks strange, 
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/InstantAlerts/EmailInstantAlertAdmins.php:28
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:68
 msgid "Change Detected"
 msgstr ""
 
@@ -1233,6 +1323,7 @@ msgid "Demoted From Admin"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/InstantAlerts/EmailInstantAlertBase.php:18
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1249
 msgid "Site Address (URL)"
 msgstr ""
 
@@ -1282,6 +1373,9 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/InstantAlerts/EmailInstantAlertShieldDeactivated.php:41
 #: src/lib/src/ActionRouter/Actions/Render/Components/Widgets/WpDashboardSummary.php:65
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:127
+#: src/lib/src/Tables/DataTables/Build/ForSessions.php:38
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:150
 msgid "User"
 msgstr ""
 
@@ -1354,6 +1448,10 @@ msgid "Please click the link provided below to do so."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/UnblockMagicLink.php:36
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:70
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:80
+#: src/lib/src/Tables/DataTables/Build/ForSessions.php:50
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:54
 msgid "Details"
 msgstr ""
 
@@ -1444,6 +1542,7 @@ msgid "Security Admin"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Activity.php:40
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:44
 msgid "Event"
 msgstr ""
 
@@ -1594,28 +1693,12 @@ msgstr ""
 msgid "ShieldNET IP Reputation Score"
 msgstr ""
 
-#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:81
-#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ReinstallDialog.php:23
-#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:83
-#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:312
-#: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:229
-msgid "Yes"
-msgstr ""
-
-#: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:82
-#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:82
-#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:236
-#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:312
-#: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:39
-#: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:229
-msgid "No"
-msgstr ""
-
 #: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:85
 msgid "Is this a known IP address?"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:87
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:109
 msgid "Country"
 msgstr ""
 
@@ -1647,6 +1730,7 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:204
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReport.php:112
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportPosts.php:82
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Utilties/MfaRecordsForDisplay.php:44
 #: src/lib/src/Modules/Plugin/Processor.php:172
 #: src/lib/src/Modules/Plugin/Processor.php:173
 #: src/lib/src/Scans/Afs/Processing/MalwareStatus.php:26
@@ -1679,6 +1763,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Traffic.php:64
 #: src/lib/src/DBs/ReqLogs/GetRequestMeta.php:45
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:131
 msgid "Path"
 msgstr ""
 
@@ -1695,6 +1780,7 @@ msgid "Requested At"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/Traffic.php:68
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:65
 #: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:223
 msgid "Response"
 msgstr ""
@@ -1811,6 +1897,21 @@ msgstr ""
 msgid "Configure Component"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Options/OptionsFormFor.php:18
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:52
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:82
+#: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:332
+msgid "Import/Export"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Options/OptionsFormFor.php:19
+msgid "Include this setting during import/export"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Options/OptionsFormFor.php:20
+msgid "Toggle whether this setting is included in import and export operations"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/RenderPluginBadge.php:35
 #, php-format
 msgid "This Site Is Protected By %s"
@@ -1857,6 +1958,14 @@ msgstr ""
 msgid "Login Blocks"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:25
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:32
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:39
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:46
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:64
+msgid "Lifetime Total"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:27
 msgid "Total login attempts blocked."
 msgstr ""
@@ -1885,6 +1994,10 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:48
 msgid "Total connections blocked/killed after too many offenses."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:53
+msgid "Now"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:59
@@ -2006,6 +2119,15 @@ msgstr ""
 msgid "Upgrade To Create Custom Reports"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ReportsTable.php:42
+#: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:171
+msgid "Delete"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ReportsTable.php:75
+msgid "No reports have been generated yet."
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Rules/RuleBuilder.php:77
 #: src/lib/src/ActionRouter/Actions/Render/Components/Rules/RuleBuilder.php:79
 #: src/lib/src/ActionRouter/Actions/Render/Components/Rules/RuleBuilder.php:81
@@ -2076,6 +2198,8 @@ msgid "%s: %s"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Container.php:48
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:40
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:54
 msgid "File"
 msgstr ""
 
@@ -2125,8 +2249,49 @@ msgstr ""
 msgid "File detected as %s by %s scanner."
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/History.php:69
+msgid "File Detected By Scans"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/History.php:70
+msgid "File Repair Attempted"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/History.php:71
+msgid "File Repaired"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/History.php:72
+msgid "File Deleted"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/History.php:73
+msgid "Item Marked As Ignored"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/History.php:74
+msgid "Notification Of Scan Detection Sent"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:35
+#, php-format
+msgid "Malware status report from %s"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:36
 msgid "Malware status of this file is currently"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:39
+msgid "[Known] means that the code has been reviewed and is known and confirmed to be either clean or malware."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:40
+msgid "[False Positive] means the code looks like malware, but it's actually clean."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:41
+msgid "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet)."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:44
@@ -2218,6 +2383,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:188
 #: src/lib/src/Modules/HackGuard/Scan/Controller/Afs.php:50
+#: src/lib/src/Modules/Plugin/Lib/Reporting/Data/BuildForScans.php:97
 #: src/lib/src/Scans/Afs/ResultItem.php:70
 msgid "Potential Malware"
 msgstr ""
@@ -2235,7 +2401,10 @@ msgid "Missing"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:198
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:66
 #: src/lib/src/Scans/Afs/ResultItem.php:72
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:133
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:143
 #: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:272
 #: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:305
 msgid "Modified"
@@ -2388,6 +2557,10 @@ msgstr ""
 msgid "Scans detected modified/unrecognised files"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/AssetResultsPanel.php:26
+msgid "Inactive"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/AssetResultsPanel.php:27
 msgid "Should be uninstalled"
 msgstr ""
@@ -2421,6 +2594,10 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/AssetResultsPanel.php:55
 msgid "Invalid type."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Base.php:12
+msgid "Author"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Base.php:15
@@ -2476,6 +2653,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Base.php:24
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportPluginsThemes.php:21
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:94
 msgid "Installed"
 msgstr ""
 
@@ -2538,6 +2716,15 @@ msgstr ""
 msgid "Go To %s"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Plugins.php:55
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:265
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1230
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:81
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPlugins.php:26
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPlugins.php:40
+msgid "Plugins"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/PluginThemesBase.php:25
 msgid "Plugin/Theme Guard"
 msgstr ""
@@ -2558,12 +2745,114 @@ msgstr ""
 msgid "This theme isn't active and should be uninstalled."
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Themes.php:52
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:281
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1264
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:81
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportThemes.php:11
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportThemes.php:17
+msgid "Themes"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Wordpress.php:19
 msgid "Previous scans didn't detect any modified, missing, unrecognised or unidentified files in the WordPress core directories."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/Results/Wordpress.php:20
 msgid "Previous scans detected 1 or more modified, missing, unrecognised or unidentified files in the WordPress core directories."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:53
+msgid "There have been no changes to the selected file."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:54
+msgid "Restore File"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:55
+msgid "Accept Changes"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:57
+msgid "File Size"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:58
+msgid "Reviewing Locked File"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:59
+msgid "File Details"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:60
+msgid "Modified File"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:61
+msgid "Locked"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:62
+msgid "File Modified Timestamp"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:63
+msgid "File Modified"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:64
+msgid "Relative Path"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:65
+msgid "Full Path"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:67
+msgid "Download"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:69
+msgid "Original File Content"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:70
+msgid "Current File Content"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:71
+msgid "Download Original"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:72
+msgid "Download Modified"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:73
+msgid "File Download"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:74
+msgid "File Info"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:75
+msgid "Accept File Changes"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:76
+msgid "Are you sure you want to keep the file changes?"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:77
+msgid "Restore Original File"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:78
+#: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansFileLockerDiff.php:79
+msgid "Are you sure you want to restore the original file contents?"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Scans/ScansProgress.php:13
@@ -2618,9 +2907,17 @@ msgstr ""
 msgid "Click here for more details on this item"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/Components/SiteHealth/Analysis.php:35
+msgid "Passed tests"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/Components/SiteHealth/Analysis.php:36
 #, php-format
 msgid "Powered by %s"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/SuperSearchResults.php:22
+msgid "Sorry, there were no results for this search."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:35
@@ -2637,6 +2934,36 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Yubikey.php:90
 #, php-format
 msgid "Provided by %s"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:37
+msgid "Currently active MFA Providers on this profile are"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:38
+msgid "Remove All MFA Providers"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:39
+msgid "Remove All MFA Providers From This User Profile"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:40
+msgid "Certain providers may not be removed if they're enforced."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:41
+msgid "There are no MFA providers active on this user account."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:42
+#, php-format
+msgid "Only %s Security Admins may modify the MFA settings of another admin account."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:43
+#, php-format
+msgid "You may authenticate with the %s Security Admin system and return here."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigForm.php:19
@@ -2702,6 +3029,7 @@ msgid "There are no IPs available yet."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Widgets/WpDashboardSummary.php:48
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:78
 msgid "Level"
 msgstr ""
 
@@ -3035,6 +3363,20 @@ msgstr ""
 msgid "Go Back Home"
 msgstr ""
 
+#. translators: Login screen title. 1: Login screen name, 2: Network or site name.
+#: src/lib/src/ActionRouter/Actions/Render/FullPage/Mfa/Components/WpLoginReplicaHeader.php:37
+#, php-format
+msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/FullPage/Mfa/Components/WpLoginReplicaHeader.php:72
+msgid "https://wordpress.org/"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/FullPage/Mfa/Components/WpLoginReplicaHeader.php:85
+msgid "Powered by WordPress"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/FullPage/Mfa/ShieldLoginIntentPage.php:16
 msgid "What is this?"
 msgstr ""
@@ -3069,6 +3411,7 @@ msgid "Current Scan Results"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/FullPage/Report/SecurityReport.php:55
+#: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:97
 msgid "Scan File Repairs"
 msgstr ""
 
@@ -3207,6 +3550,31 @@ msgstr ""
 msgid "Sites Listing"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/MwpOutOfDate.php:16
+msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/MwpOutOfDate.php:17
+msgid "Minimum required MainWP server version"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/MwpOutOfDate.php:18
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/ShieldOutOfDate.php:16
+msgid "Go to WordPress Updates"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/NotShieldPro.php:13
+msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/NotShieldPro.php:14
+msgid "Upgrade Membership"
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/ShieldOutOfDate.php:15
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/MainWP/ExtPage/TabSitesListing.php:109
 msgid "No Issues"
 msgstr ""
@@ -3297,6 +3665,7 @@ msgid "View All Security Grades"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php:55
+#: src/lib/src/Modules/Plugin/Lib/Reporting/Data/BuildForScans.php:102
 msgid "WordPress Files"
 msgstr ""
 
@@ -3367,6 +3736,11 @@ msgstr ""
 msgid "Print"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageDebug.php:76
+#, php-format
+msgid "%s Debug Information"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageDebug.php:77
 msgid "Assess the state of the plugin and view various configuration information for your site."
 msgstr ""
@@ -3393,19 +3767,15 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:292
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:293
 #: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/Import.php:16
+#: src/lib/src/Zones/Component/ImportExport.php:8
 msgid "Import"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:18
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:292
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:293
+#: src/lib/src/Zones/Component/ImportExport.php:8
 msgid "Export"
-msgstr ""
-
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:52
-#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:82
-#: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:332
-msgid "Import/Export"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:53
@@ -3914,6 +4284,10 @@ msgstr ""
 msgid "Comment SPAM"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageStats.php:124
+msgid "Login Guard"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageToolLockdown.php:16
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageToolLockdown.php:32
 #: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:327
@@ -4147,6 +4521,10 @@ msgstr ""
 msgid "Rule won't be exported during sync"
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/RulesManagerTableAction.php:77
+msgid "Invalid Rule"
+msgstr ""
+
 #: src/lib/src/ActionRouter/Actions/ScanResultsDisplayFormSubmit.php:24
 msgid "Display Options Updated"
 msgstr ""
@@ -4268,6 +4646,10 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/SecurityAdminLogin.php:46
 msgid "No attempts remaining."
+msgstr ""
+
+#: src/lib/src/ActionRouter/Actions/SecurityAdminRequestRemoveByEmail.php:17
+msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/SessionsTableAction.php:23
@@ -4537,6 +4919,15 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:84
 msgid "Minimum Time Interval Between Comments"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:84
+#: src/lib/src/Rules/Conditions/IsRateLimitExceeded.php:50
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:40
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:41
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:42
+#: src/lib/src/Rules/Responses/HttpCookieSet.php:30
+msgid "seconds"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:86
@@ -4967,6 +5358,10 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:298
 #, php-format
 msgid "This scan area currently focuses on only %s files."
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:311
+msgid "WP root directory"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:313
@@ -5762,6 +6157,14 @@ msgstr ""
 msgid "Some plugins (e.g. %s) use the REST API anonymously so you need to provide exclusions for them to work correctly."
 msgstr ""
 
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:704
+msgid "Please contact the developer of a plugin to ask them for their REST API namespace if you need it."
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:705
+msgid "Some common namespaces"
+msgstr ""
+
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:720
 msgid "Disable File Editing"
 msgstr ""
@@ -5945,6 +6348,7 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:68
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:70
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:124
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:198
 msgid "Google Authenticator"
 msgstr ""
 
@@ -5974,6 +6378,8 @@ msgid "Two-Factor Login Authentication By %s"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:838
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:223
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Email.php:185
 #: src/lib/src/Modules/UserManagement/Lib/Session/UserSessionHandler.php:162
 msgid "Email"
 msgstr ""
@@ -6667,6 +7073,7 @@ msgid "WordPress must be at least version %s to activate this option."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1222
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPages.php:8
 msgid "Pages"
 msgstr ""
 
@@ -6688,11 +7095,6 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1226
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportPosts.php:73
 msgid "Edit"
-msgstr ""
-
-#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1230
-#: src/lib/src/Controller/Config/Modules/StringsSections.php:81
-msgid "Plugins"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1231
@@ -6724,8 +7126,49 @@ msgstr ""
 msgid "The following options will be restricted:"
 msgstr ""
 
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1244
+msgid "New User Default Role"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1245
+msgid "Permalink structure"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1246
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:93
+msgid "Site Title"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1247
+msgid "Tagline"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1248
+msgid "WordPress Address (URL)"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1250
+msgid "Administration Email Address"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1251
+msgid "Membership"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1251
+msgid "Anyone can register"
+msgstr ""
+
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1252
 msgid "Email notifications for new comments"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1253
+msgid "Comments must be manually approved"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1254
+msgid "Search engine visibility"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1259
@@ -6738,11 +7181,6 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1261
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
-msgstr ""
-
-#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1264
-#: src/lib/src/Controller/Config/Modules/StringsSections.php:81
-msgid "Themes"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1265
@@ -7680,6 +8118,10 @@ msgstr ""
 msgid "2FA"
 msgstr ""
 
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:215
+msgid "General"
+msgstr ""
+
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:216
 msgid "2FA General Configuration"
 msgstr ""
@@ -7706,12 +8148,22 @@ msgstr ""
 msgid "However, if your host blocks email sending you may lock yourself out."
 msgstr ""
 
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:232
+msgid "OTP"
+msgstr ""
+
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:233
 msgid "2FA One-Time Passwords"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:235
 msgid "Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords."
+msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsSections.php:240
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Passkey.php:155
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Passkey.php:269
+msgid "Passkeys"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:241
@@ -7963,6 +8415,11 @@ msgstr ""
 msgid "Invalid value type for %s"
 msgstr ""
 
+#: src/lib/src/Controller/Config/Opts/SectionNotices.php:31
+#, php-format
+msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
+msgstr ""
+
 #: src/lib/src/Controller/Config/Opts/SectionNotices.php:52
 msgid "The ability of this site to send email hasn't been verified."
 msgstr ""
@@ -7990,6 +8447,7 @@ msgid "The following types of user forms are protected by silentCAPTCHA: %s."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Opts/SectionNotices.php:76
+#: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/LoginProtection.php:12
 #: src/lib/src/Profiles/SecurityProfilesCon.php:251
 #: src/lib/src/Zones/Zone/Login.php:35
 msgid "Login"
@@ -8027,6 +8485,10 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Opts/SectionNotices.php:130
 msgid "View IP Source Config"
+msgstr ""
+
+#: src/lib/src/Controller/Config/Opts/SectionNotices.php:142
+msgid "Certain user roles are set for email authentication enforcement that aren't currently available"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Opts/SectionNotices.php:151
@@ -8223,6 +8685,8 @@ msgid "Invalid Request ID"
 msgstr ""
 
 #: src/lib/src/DBs/ReqLogs/GetRequestMeta.php:21
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:32
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:32
 msgid "Request ID"
 msgstr ""
 
@@ -8231,6 +8695,9 @@ msgid "Request Type"
 msgstr ""
 
 #: src/lib/src/DBs/ReqLogs/GetRequestMeta.php:33
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:37
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:115
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:142
 msgid "User ID"
 msgstr ""
 
@@ -8239,6 +8706,7 @@ msgid "Method"
 msgstr ""
 
 #: src/lib/src/DBs/ReqLogs/GetRequestMeta.php:48
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:98
 msgid "Response Code"
 msgstr ""
 
@@ -8304,6 +8772,10 @@ msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:26
 msgid "Detected user registration with invalid email address ({{email}})."
+msgstr ""
+
+#: src/lib/src/Events/EventStrings.php:27
+msgid "Email verification test that failed: {{reason}}"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:31
@@ -8707,12 +9179,25 @@ msgstr ""
 msgid "Redirecting wp-login due to hidden login URL"
 msgstr ""
 
+#: src/lib/src/Events/EventStrings.php:334
+msgid "Anonymous REST API"
+msgstr ""
+
 #: src/lib/src/Events/EventStrings.php:336
 msgid "Blocked Anonymous API Access through \"{{namespace}}\" namespace."
 msgstr ""
 
+#: src/lib/src/Events/EventStrings.php:340
+msgid "Author Fishing"
+msgstr ""
+
 #: src/lib/src/Events/EventStrings.php:342
 msgid "Blocked Author Discovery via username fishing technique."
+msgstr ""
+
+#: src/lib/src/Events/EventStrings.php:346
+#: src/lib/src/Events/EventStrings.php:543
+msgid "XML-RPC"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:348
@@ -8962,10 +9447,6 @@ msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:538
 msgid "Invalid user agent detected at \"{{useragent}}\"."
-msgstr ""
-
-#: src/lib/src/Events/EventStrings.php:543
-msgid "XML-RPC"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:545
@@ -9439,6 +9920,18 @@ msgstr ""
 msgid "Post entitled \"{{title}}\" was trashed."
 msgstr ""
 
+#: src/lib/src/Events/EventStrings.php:886
+#: src/lib/src/Events/EventStrings.php:893
+#: src/lib/src/Events/EventStrings.php:900
+#: src/lib/src/Events/EventStrings.php:907
+#: src/lib/src/Events/EventStrings.php:914
+#: src/lib/src/Events/EventStrings.php:921
+#: src/lib/src/Events/EventStrings.php:928
+#: src/lib/src/Events/EventStrings.php:935
+#: src/lib/src/Events/EventStrings.php:942
+msgid "Post Type: {{type}}"
+msgstr ""
+
 #: src/lib/src/Events/EventStrings.php:890
 msgid "Post Recovered"
 msgstr ""
@@ -9814,6 +10307,20 @@ msgstr ""
 msgid "Registered"
 msgstr ""
 
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportUsers.php:50
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportUsers.php:8
+#: src/lib/src/Zones/Zone/Users.php:43
+msgid "Users"
+msgstr ""
+
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportUsers.php:56
+msgid "Profile"
+msgstr ""
+
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportAdmins.php:8
+msgid "Admins"
+msgstr ""
+
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportComments.php:13
 #, php-format
 msgid "Created with status %s"
@@ -9824,8 +10331,22 @@ msgstr ""
 msgid "Status changed: %s&rarr;%s"
 msgstr ""
 
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportComments.php:33
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportComments.php:51
+msgid "Comments"
+msgstr ""
+
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportComments.php:57
+msgid "View Comment"
+msgstr ""
+
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportComments.php:64
 msgid "Comment"
+msgstr ""
+
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportDatabase.php:10
+#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:302
+msgid "Database"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportDatabase.php:25
@@ -9834,6 +10355,14 @@ msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportDatabase.php:28
 msgid "Deleted Tables"
+msgstr ""
+
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportMedia.php:8
+msgid "Media"
+msgstr ""
+
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPosts.php:8
+msgid "Posts"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportThemes.php:23
@@ -9890,20 +10419,22 @@ msgstr ""
 msgid "Anyone can register changed: %s&rarr;%s"
 msgstr ""
 
+#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:74
+#: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:90
+msgid "WordPress"
+msgstr ""
+
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:89
 msgid "WordPress Upgraded"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:91
+#: src/lib/src/Modules/LoginGuard/Lib/Rename/RenameLogin.php:91
 msgid "Permalinks"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:92
 msgid "Site Admin Email"
-msgstr ""
-
-#: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:93
-msgid "Site Title"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:94
@@ -9937,6 +10468,14 @@ msgstr ""
 
 #: src/lib/src/Modules/CommentsFilter/Scan/Scanner.php:114
 msgid "Comments Cooldown Triggered"
+msgstr ""
+
+#: src/lib/src/Modules/CommentsFilter/Scan/Scanner.php:153
+msgid "Trash"
+msgstr ""
+
+#: src/lib/src/Modules/CommentsFilter/Scan/Scanner.php:159
+msgid "Pending Moderation"
 msgstr ""
 
 #: src/lib/src/Modules/CommentsFilter/Scan/Scanner.php:166
@@ -10092,10 +10631,12 @@ msgid "WordPress Core Files"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Scan/Controller/Afs.php:68
+#: src/lib/src/Modules/Plugin/Lib/Reporting/Data/BuildForScans.php:107
 msgid "Plugin Files"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Scan/Controller/Afs.php:77
+#: src/lib/src/Modules/Plugin/Lib/Reporting/Data/BuildForScans.php:112
 msgid "Theme Files"
 msgstr ""
 
@@ -10202,6 +10743,30 @@ msgstr ""
 #: src/lib/src/Modules/Integrations/Lib/Bots/UserForms/Handlers/Base.php:104
 #, php-format
 msgid "%s Bot Check Failed."
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:91
+msgid "Not Pro"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:92
+msgid "MainWP Option Not Enabled"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:93
+msgid "Sync Required"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:95
+msgid "Not Installed"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:96
+msgid "Update Required"
+msgstr ""
+
+#: src/lib/src/Modules/Integrations/Lib/MainWP/Server/Data/ClientPluginStatus.php:97
+msgid "Ahead Of Server"
 msgstr ""
 
 #: src/lib/src/Modules/IPs/BotTrack/TrackLinkCheese.php:84
@@ -10467,6 +11032,16 @@ msgstr ""
 msgid "None"
 msgstr ""
 
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/MfaController.php:224
+#, php-format
+msgid "All MFA providers removed from user with ID %s."
+msgstr ""
+
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/MfaController.php:229
+#, php-format
+msgid "User doesn't exist with ID %s."
+msgstr ""
+
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/MfaProfilesController.php:47
 msgid "My Login Security"
 msgstr ""
@@ -10727,11 +11302,6 @@ msgstr ""
 msgid "Verify Passkey"
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Passkey.php:155
-#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Passkey.php:269
-msgid "Passkeys"
-msgstr ""
-
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Passkey.php:156
 msgid "Register New Passkey"
 msgstr ""
@@ -10781,6 +11351,14 @@ msgstr ""
 
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Sms.php:176
 msgid "Registered Mobile Number"
+msgstr ""
+
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Sms.php:195
+msgid "SMS"
+msgstr ""
+
+#: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Yubikey.php:54
+msgid "This doesn't appear to be a valid Yubikey OTP"
 msgstr ""
 
 #: src/lib/src/Modules/LoginGuard/Lib/TwoFactor/Provider/Yubikey.php:76
@@ -10924,6 +11502,10 @@ msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/AssetsCustomizer.php:475
 msgid "There was a problem downloading the file."
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/AssetsCustomizer.php:497
+msgid "Search using whole words of at least 3 characters..."
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/AssetsCustomizer.php:499
@@ -11225,10 +11807,6 @@ msgstr ""
 msgid "Debug Is On"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:302
-msgid "Database"
-msgstr ""
-
 #: src/lib/src/Modules/Plugin/Lib/Debug/Collate.php:303
 #, php-format
 msgid "Host: <code>%s</code>"
@@ -11293,10 +11871,20 @@ msgstr ""
 msgid "Imported"
 msgstr ""
 
+#: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/ApplySecurityProfile.php:19
+#: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/Integrations.php:32
+msgid "No profile was applied"
+msgstr ""
+
 #: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/ApplySecurityProfile.php:25
 #: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/Integrations.php:38
 #, php-format
 msgid "Profile '%s' was applied."
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/ApplySecurityProfile.php:30
+#: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/Integrations.php:43
+msgid "An unsupported profile was selected"
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/ApplySecurityProfile.php:37
@@ -11552,6 +12140,8 @@ msgid "Fix"
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/Base.php:106
+#: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:89
+#: src/lib/src/Modules/Plugin/Lib/SiteHealthController.php:33
 msgid "Security"
 msgstr ""
 
@@ -11662,6 +12252,10 @@ msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/IpAutoBlockCrowdsec.php:23
 msgid "Crowd-Sourced IP Blocking with CrowdSec is switched ON."
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/IpAutoBlockCrowdsec.php:25
+msgid "Additional IP block lists are available with an upgraded plan."
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/IpAutoBlockCrowdsec.php:31
@@ -12163,6 +12757,10 @@ msgstr ""
 msgid "OpenSSL Extension"
 msgstr ""
 
+#: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/SystemLibOpenssl.php:43
+msgid "We couldn't determine the version of your OpenSSL library."
+msgstr ""
+
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/SystemPhpVersion.php:25
 msgid "PHP Version"
 msgstr ""
@@ -12435,6 +13033,10 @@ msgstr ""
 msgid "Plugins are easily installed, so if you ever remove something you need to use again at a later date, reinstalling it is easy."
 msgstr ""
 
+#: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Meter/MeterBase.php:22
+msgid "The plugin is currently entirely disabled."
+msgstr ""
+
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Meter/MeterIpBlocking.php:12
 msgid "Bad-Bot Detection and IP Blocking"
 msgstr ""
@@ -12700,6 +13302,18 @@ msgstr ""
 msgid "Edit logging settings"
 msgstr ""
 
+#: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:149
+msgid "WP Activity Log"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:150
+msgid "HTTP Request Log"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:151
+msgid "Live HTTP Log"
+msgstr ""
+
 #: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:161
 msgid "Results & Manual Scans"
 msgstr ""
@@ -12953,6 +13567,14 @@ msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:71
 msgid "Custom"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:95
+msgid "New Results"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Lib/Reporting/ReportingController.php:96
+msgid "Current Summary"
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/SelectSearchData.php:97
@@ -13462,6 +14084,10 @@ msgstr ""
 msgid "Check request parameters that trigger firewall patterns."
 msgstr ""
 
+#: src/lib/src/Rules/Build/Core/RequestStatusBase.php:8
+msgid "Request Status"
+msgstr ""
+
 #: src/lib/src/Rules/Conditions/AccessiblePathExists.php:20
 msgid "Does a given path (file or directory) exist."
 msgstr ""
@@ -13954,6 +14580,14 @@ msgstr ""
 msgid "Does the value of the given Shield Session parameter match the given pattern."
 msgstr ""
 
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:38
+msgid "Hostname"
+msgstr ""
+
+#: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:39
+msgid "Useragent"
+msgstr ""
+
 #: src/lib/src/Rules/Conditions/ShieldSessionParameterValueMatches.php:40
 msgid "Idle Interval"
 msgstr ""
@@ -14397,8 +15031,130 @@ msgstr ""
 msgid "Clear All Filters"
 msgstr ""
 
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:56
+msgid "Event Slug"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:87
+msgid "Severity"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:103
+msgid "Identity"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:139
+msgid "Log Message"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:150
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:162
+msgid "Day"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:165
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:177
+msgid "Date"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForActivityLog.php:177
+msgid "Meta"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:41
+msgid "IP Address or Range"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:63
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:76
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:65
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:76
+msgid "Type"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:77
+msgid "Last Seen"
+msgstr ""
+
 #: src/lib/src/Tables/DataTables/Build/ForIpRules.php:89
 msgid "Last Access"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:101
+msgid "Last Access At"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:113
+#: src/lib/src/Tables/DataTables/LoadData/IpRules/BuildIpRulesTableData.php:217
+msgid "IP Block Status"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:124
+msgid "Unblocked At"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForIpRules.php:138
+msgid "Date Added"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:34
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:44
+#: src/lib/src/Tables/DataTables/Build/ForSessions.php:26
+msgid "ID"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:46
+msgid "Slug"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:58
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:68
+msgid "Exec Order"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:118
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:128
+msgid "Is Viable"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForScansHistory.php:145
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:155
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:123
+msgid "Actions"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForSecurityRules.php:56
+msgid "Unique ID"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForSessions.php:72
+msgid "Last Activity"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:43
+msgid "Page"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/ForTraffic.php:120
+msgid "Is Offense"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:87
+msgid "Size"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/Scans/BaseForScan.php:112
+msgid "Detected"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/Scans/ForMalware.php:26
+#: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:271
+#: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:286
+msgid "Pattern Detected"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/Build/Scans/ForMalware.php:37
+msgid "Malware Details"
 msgstr ""
 
 #: src/lib/src/Tables/DataTables/LoadData/ActivityLog/BuildActivityLogTableData.php:145
@@ -14460,10 +15216,6 @@ msgid_plural "%s offenses until block"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/lib/src/Tables/DataTables/LoadData/IpRules/BuildIpRulesTableData.php:217
-msgid "IP Block Status"
-msgstr ""
-
 #: src/lib/src/Tables/DataTables/LoadData/IpRules/BuildIpRulesTableData.php:225
 msgid "Never Seen"
 msgstr ""
@@ -14476,12 +15228,16 @@ msgstr ""
 msgid "View File Details"
 msgstr ""
 
-#: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:171
-msgid "Delete"
-msgstr ""
-
 #: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:188
 msgid "Repair"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:267
+msgid "MAL{ai} Malware Status"
+msgstr ""
+
+#: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:285
+msgid "False Positive Confidence"
 msgstr ""
 
 #: src/lib/src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php:309
@@ -14670,8 +15426,17 @@ msgstr ""
 
 #: src/lib/src/Utilities/Navigation/BuildBreadCrumbs.php:50
 #: src/lib/src/Utilities/Navigation/BuildBreadCrumbs.php:59
+msgid "Navigation"
+msgstr ""
+
+#: src/lib/src/Utilities/Navigation/BuildBreadCrumbs.php:50
+#: src/lib/src/Utilities/Navigation/BuildBreadCrumbs.php:59
 #, php-format
 msgid "%s Home"
+msgstr ""
+
+#: src/lib/src/WpCli/Cmds/ConfigExport.php:42
+msgid "File provied wasn't an absolute path, so we're using the following path to the export file"
 msgstr ""
 
 #: src/lib/src/WpCli/Cmds/ConfigExport.php:44
@@ -14731,6 +15496,10 @@ msgstr ""
 msgid "No value set."
 msgstr ""
 
+#: src/lib/src/WpCli/Cmds/ConfigOptGet.php:46
+msgid "\"Y\" = Turned On; \"N\" = Turned Off"
+msgstr ""
+
 #: src/lib/src/WpCli/Cmds/ConfigOptGet.php:49
 #, php-format
 msgid "Current value: %s"
@@ -14788,6 +15557,10 @@ msgstr ""
 
 #: src/lib/src/WpCli/Cmds/PluginReset.php:33
 msgid "Plugin reset to defaults."
+msgstr ""
+
+#: src/lib/src/WpCli/Cmds/ScansRun.php:29
+msgid "Run Scan"
 msgstr ""
 
 #: src/lib/src/WpCli/Cmds/SecurityAdminPin.php:51
@@ -15101,6 +15874,18 @@ msgstr ""
 
 #: src/lib/src/Zones/Component/LoginProtectionForms.php:21
 msgid "Edit settings that apply protection to your login & user forms"
+msgstr ""
+
+#: src/lib/src/Zones/Component/LoginProtectionForms.php:36
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr ""
+
+#: src/lib/src/Zones/Component/LoginProtectionForms.php:42
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr ""
+
+#: src/lib/src/Zones/Component/LoginProtectionForms.php:45
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
 msgstr ""
 
 #: src/lib/src/Zones/Component/PasswordPolicies.php:12
@@ -15662,10 +16447,6 @@ msgstr ""
 
 #: src/lib/src/Zones/Zone/Users.php:34
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
-msgstr ""
-
-#: src/lib/src/Zones/Zone/Users.php:43
-msgid "Users"
 msgstr ""
 
 #: src/lib/src/Zones/Zone/Users.php:47

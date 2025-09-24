@@ -51,7 +51,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
 				],
 				'strings' => [
-					'invalid_otp' => __( "This doesn't appear to be a valid Yubikey OTP" ),
+					'invalid_otp' => __( "This doesn't appear to be a valid Yubikey OTP", 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'registered_yubikeys' => \array_map(

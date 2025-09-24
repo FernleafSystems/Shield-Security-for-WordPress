@@ -212,7 +212,7 @@ class StringsSections {
 				];
 				break;
 			case 'section_twofactor_auth' :
-				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'General' ) );
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'General', 'wp-simple-firewall' ) );
 				$title = __( '2FA General Configuration', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.', 'wp-simple-firewall' ) ),
@@ -220,7 +220,7 @@ class StringsSections {
 				];
 				break;
 			case 'section_2fa_email' :
-				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'Email' ) );
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'Email', 'wp-simple-firewall' ) );
 				$title = __( '2FA by Email', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.', 'wp-simple-firewall' ) ),
@@ -229,7 +229,7 @@ class StringsSections {
 				];
 				break;
 			case 'section_2fa_otp' :
-				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'OTP' ) );
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'OTP', 'wp-simple-firewall' ) );
 				$title = __( '2FA One-Time Passwords', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.', 'wp-simple-firewall' ) ),
@@ -237,7 +237,7 @@ class StringsSections {
 				];
 				break;
 			case 'section_2fa_passkeys' :
-				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'Passkeys' ) );
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'Passkeys', 'wp-simple-firewall' ) );
 				$title = __( '2FA with Passkeys (WebAuthn)', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies user login with Passkeys/Authenticators via WebAuthn.', 'wp-simple-firewall' ) ),

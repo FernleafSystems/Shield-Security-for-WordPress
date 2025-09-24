@@ -49,7 +49,7 @@ class Themes extends PluginThemesBase {
 				'no_files'     => __( "Scans didn't detect any modified or unrecognised files in the Theme directories.", 'wp-simple-firewall' ),
 				'files_found'  => __( "Scans detected 1 or more modified or unrecognised files in the theme directory.", 'wp-simple-firewall' ),
 				'not_active'   => __( "This theme isn't active and should be uninstalled.", 'wp-simple-firewall' ),
-				'go_to_themes' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes' ) ),
+				'go_to_themes' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) ),
 			],
 			'hrefs'   => [
 				'page_themes' => Services::WpGeneral()->getAdminUrl_Themes()

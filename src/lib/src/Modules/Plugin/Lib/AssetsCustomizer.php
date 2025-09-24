@@ -494,7 +494,7 @@ class AssetsCustomizer {
 						'select_search'         => ActionData::Build( Actions\PluginSuperSearch::class ),
 					],
 					'strings' => [
-						'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
+						'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...', 'wp-simple-firewall' ),
 						'placeholder'            => sprintf( '%s (%s)',
 							__( 'Search for anything', 'wp-simple-firewall' ),
 							'e.g. '.\implode( ', ', [

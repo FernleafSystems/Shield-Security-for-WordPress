@@ -9,7 +9,7 @@ class LoginProtection extends Base {
 	public const SLUG = 'login_protection';
 
 	public function getName() :string {
-		return __( 'Login' );
+		return __( 'Login', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

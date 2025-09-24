@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Report\
 class ZoneReportAdmins extends BaseZoneReportUsers {
 
 	public function getZoneName() :string {
-		return __( 'Admins' );
+		return __( 'Admins', 'wp-simple-firewall' );
 	}
 
 	protected function loadLogs() :array {

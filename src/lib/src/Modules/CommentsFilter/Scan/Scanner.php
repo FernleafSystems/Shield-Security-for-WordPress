@@ -150,13 +150,13 @@ class Scanner {
 					break;
 
 				case 'trash':
-					$humanStatus = __( 'Trash' );
+					$humanStatus = __( 'Trash', 'wp-simple-firewall' );
 					break;
 
 				case 'hold':
 				case '0':
 				default:
-					$humanStatus = __( 'Pending Moderation' );
+					$humanStatus = __( 'Pending Moderation', 'wp-simple-firewall' );
 					break;
 			}
 

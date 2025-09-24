@@ -40,7 +40,7 @@ class SystemLibOpenssl extends Base {
 	public function descUnprotected() :string {
 		$this->parseVersion();
 		return empty( $this->currentFull ) ?
-			__( "We couldn't determine the version of your OpenSSL library." )
+			__( "We couldn't determine the version of your OpenSSL library.", 'wp-simple-firewall' )
 			: sprintf( "Your OpenSSL library is older than '%s' at version '%s,' which is a little old.", self::MIN_VERSION, $this->currentFull );
 	}
 

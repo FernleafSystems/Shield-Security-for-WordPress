@@ -39,7 +39,7 @@ class ReportsTable extends BaseRender {
 						'created_at' => Services::WpGeneral()->getTimeStringForDisplay( $report->created_at ),
 						'actions'    => [
 							'delete' => [
-								'title'   => __( 'Delete' ),
+								'title'   => __( 'Delete', 'wp-simple-firewall' ),
 								'classes' => [ 'btn-danger', 'shield_dynamic_action_button' ],
 								'svg'     => self::con()->svgs->raw( 'trash3-fill.svg' ),
 								'data'    => ActionData::Build( ReportTableAction::class, false, [
@@ -50,7 +50,7 @@ class ReportsTable extends BaseRender {
 							],
 							/*
 							'download' => [
-								'title'   => __( 'Download as PDF' ),
+								'title'   => __( 'Download as PDF', 'wp-simple-firewall' ),
 								'classes' => [ 'btn-light' ],
 								'href'    => $con->plugin_urls->fileDownload( 'report_download_pdf', [
 									'rid' => $report->id
@@ -72,7 +72,7 @@ class ReportsTable extends BaseRender {
 				'page_reports' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS ),
 			],
 			'strings' => [
-				'no_reports' => __( 'No reports have been generated yet.' ),
+				'no_reports' => __( 'No reports have been generated yet.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'reports' => $reports,

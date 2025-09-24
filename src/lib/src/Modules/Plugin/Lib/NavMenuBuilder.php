@@ -146,9 +146,9 @@ class NavMenuBuilder {
 				__( 'Edit logging settings', 'wp-simple-firewall' )
 			),
 			'sub_items' => [
-				$this->createSubItemForNavAndSub( __( 'WP Activity Log' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-				$this->createSubItemForNavAndSub( __( 'HTTP Request Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-				$this->createSubItemForNavAndSub( __( 'Live HTTP Log' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+				$this->createSubItemForNavAndSub( __( 'WP Activity Log', 'wp-simple-firewall' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+				$this->createSubItemForNavAndSub( __( 'HTTP Request Log', 'wp-simple-firewall' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+				$this->createSubItemForNavAndSub( __( 'Live HTTP Log', 'wp-simple-firewall' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
 			],
 		];
 	}
@@ -411,7 +411,7 @@ class NavMenuBuilder {
 			'slug'    => $primaryNavSlug.'-config',
 			'title'   => __( 'Config', 'wp-simple-firewall' ),
 			'img'     => self::con()->svgs->raw( 'gear' ),
-			'tooltip' => empty( $tooltip ) ? __( 'Edit Settings' ) : $tooltip,
+			'tooltip' => empty( $tooltip ) ? __( 'Edit Settings', 'wp-simple-firewall' ) : $tooltip,
 			'classes' => [
 				'zone_component_action',
 			],

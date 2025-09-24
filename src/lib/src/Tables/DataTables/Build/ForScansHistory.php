@@ -19,7 +19,7 @@ class ForScansHistory extends Base {
 		return [
 			'active'      => [
 				'data'           => 'active',
-				'title'          => __( 'Active' ),
+				'title'          => __( 'Active', 'wp-simple-firewall' ),
 				'className'      => 'active',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -31,7 +31,7 @@ class ForScansHistory extends Base {
 			],
 			'id'          => [
 				'data'           => 'id',
-				'title'          => __( 'ID' ),
+				'title'          => __( 'ID', 'wp-simple-firewall' ),
 				'className'      => 'id',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -43,7 +43,7 @@ class ForScansHistory extends Base {
 			],
 			'slug'        => [
 				'data'           => 'slug',
-				'title'          => __( 'Slug' ),
+				'title'          => __( 'Slug', 'wp-simple-firewall' ),
 				'className'      => 'slug',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -55,7 +55,7 @@ class ForScansHistory extends Base {
 			],
 			'exec_order'  => [
 				'data'           => 'exec_order',
-				'title'          => __( 'Exec Order' ),
+				'title'          => __( 'Exec Order', 'wp-simple-firewall' ),
 				'className'      => 'exec_order',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -67,7 +67,7 @@ class ForScansHistory extends Base {
 			],
 			'details'     => [
 				'data'           => 'details',
-				'title'          => __( 'Details' ),
+				'title'          => __( 'Details', 'wp-simple-firewall' ),
 				'className'      => 'details',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -79,7 +79,7 @@ class ForScansHistory extends Base {
 			],
 			'name'        => [
 				'data'           => 'name',
-				'title'          => __( 'Name' ),
+				'title'          => __( 'Name', 'wp-simple-firewall' ),
 				'className'      => 'name',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -91,7 +91,7 @@ class ForScansHistory extends Base {
 			],
 			'description' => [
 				'data'           => 'description',
-				'title'          => __( 'Description' ),
+				'title'          => __( 'Description', 'wp-simple-firewall' ),
 				'className'      => 'description',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -103,7 +103,7 @@ class ForScansHistory extends Base {
 			],
 			'version'     => [
 				'data'           => 'version',
-				'title'          => __( 'Version' ),
+				'title'          => __( 'Version', 'wp-simple-firewall' ),
 				'className'      => 'version',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -115,7 +115,7 @@ class ForScansHistory extends Base {
 			],
 			'is_viable'   => [
 				'data'           => 'is_viable',
-				'title'          => __( 'Is Viable' ),
+				'title'          => __( 'Is Viable', 'wp-simple-firewall' ),
 				'className'      => 'is_viable',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -130,7 +130,7 @@ class ForScansHistory extends Base {
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'         => __( 'Modified' ),
+				'title'         => __( 'Modified', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => false,
 				'orderSequence' => [ 'desc', 'asc' ],
@@ -142,7 +142,7 @@ class ForScansHistory extends Base {
 			],
 			'actions'     => [
 				'data'        => 'actions',
-				'title'       => __( 'Actions' ),
+				'title'       => __( 'Actions', 'wp-simple-firewall' ),
 				'className'   => 'actions',
 				'orderable'   => false,
 				'searchable'  => false,

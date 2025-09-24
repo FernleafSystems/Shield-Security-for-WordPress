@@ -264,11 +264,11 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
 			\implode( '</li><li>', [
 				sprintf( '%s: <span class="badge text-bg-%s">%s</span>',
-					__( 'MAL{ai} Malware Status' ),
+					__( 'MAL{ai} Malware Status', 'wp-simple-firewall' ),
 					$colourStyle,
 					( new MalwareStatus() )->nameFromStatusLabel( $record->malai_status )
 				),
-				sprintf( '%s: %s', __( 'Pattern Detected' ), $sig ),
+				sprintf( '%s: %s', __( 'Pattern Detected', 'wp-simple-firewall' ), $sig ),
 				sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 					Services::Request()
 							->carbon()
@@ -282,8 +282,8 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ) :string {
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
 			\implode( '</li><li>', [
-				sprintf( '%s: %s', __( 'False Positive Confidence' ), $confidence ),
-				sprintf( '%s: %s', __( 'Pattern Detected' ), $sig ),
+				sprintf( '%s: %s', __( 'False Positive Confidence', 'wp-simple-firewall' ), $confidence ),
+				sprintf( '%s: %s', __( 'Pattern Detected', 'wp-simple-firewall' ), $sig ),
 			] )
 		);
 	}

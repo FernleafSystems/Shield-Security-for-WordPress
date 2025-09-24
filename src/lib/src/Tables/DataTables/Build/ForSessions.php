@@ -23,7 +23,7 @@ class ForSessions extends Base {
 		return [
 			'rid'              => [
 				'data'           => 'rid',
-				'title'          => __( 'ID' ),
+				'title'          => __( 'ID', 'wp-simple-firewall' ),
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -35,7 +35,7 @@ class ForSessions extends Base {
 			],
 			'uid'              => [
 				'data'           => 'uid',
-				'title'          => __( 'User' ),
+				'title'          => __( 'User', 'wp-simple-firewall' ),
 				'className'      => 'uid',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -47,7 +47,7 @@ class ForSessions extends Base {
 			],
 			'details'          => [
 				'data'        => 'details',
-				'title'       => __( 'Details' ),
+				'title'       => __( 'Details', 'wp-simple-firewall' ),
 				'className'   => 'details',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -69,7 +69,7 @@ class ForSessions extends Base {
 			],
 			'last_activity_at' => [
 				'data'        => 'last_activity_at',
-				'title'       => __( 'Last Activity' ),
+				'title'       => __( 'Last Activity', 'wp-simple-firewall' ),
 				'className'   => 'last_activity_at',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -80,7 +80,7 @@ class ForSessions extends Base {
 			],
 			'logged_in_at'     => [
 				'data'        => 'logged_in_at',
-				'title'       => __( 'Logged-In' ),
+				'title'       => __( 'Logged-In', 'wp-simple-firewall' ),
 				'className'   => 'logged_in_at',
 				'orderable'   => false,
 				'searchable'  => false,

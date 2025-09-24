@@ -71,7 +71,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 	}
 
 	public function getZoneName() :string {
-		return __( 'WordPress' );
+		return __( 'WordPress', 'wp-simple-firewall' );
 	}
 
 	protected function getLoadLogsWheres() :array {

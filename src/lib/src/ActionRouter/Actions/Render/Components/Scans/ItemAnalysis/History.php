@@ -66,12 +66,12 @@ class History extends Base {
 
 	private function columnMap() :array {
 		return [
-			'created_at'        => __( 'File Detected By Scans' ),
-			'attempt_repair_at' => __( 'File Repair Attempted' ),
-			'item_repaired_at'  => __( 'File Repaired' ),
-			'item_deleted_at'   => __( 'File Deleted' ),
-			'ignored_at'        => __( 'Item Marked As Ignored' ),
-			'notified_at'       => __( 'Notification Of Scan Detection Sent' ),
+			'created_at'        => __( 'File Detected By Scans', 'wp-simple-firewall' ),
+			'attempt_repair_at' => __( 'File Repair Attempted', 'wp-simple-firewall' ),
+			'item_repaired_at'  => __( 'File Repaired', 'wp-simple-firewall' ),
+			'item_deleted_at'   => __( 'File Deleted', 'wp-simple-firewall' ),
+			'ignored_at'        => __( 'Item Marked As Ignored', 'wp-simple-firewall' ),
+			'notified_at'       => __( 'Notification Of Scan Detection Sent', 'wp-simple-firewall' ),
 		];
 	}
 

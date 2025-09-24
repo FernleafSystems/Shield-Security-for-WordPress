@@ -24,7 +24,7 @@ class EventStrings {
 				'name'  => __( 'Invalid User Email Registration', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Detected user registration with invalid email address ({{email}}).', 'wp-simple-firewall' ),
-					__( 'Email verification test that failed: {{reason}}' ),
+					__( 'Email verification test that failed: {{reason}}', 'wp-simple-firewall' ),
 				],
 			],
 			'password_expired'             => [
@@ -331,19 +331,19 @@ class EventStrings {
 				],
 			],
 			'block_anonymous_restapi'      => [
-				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Anonymous REST API' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Anonymous REST API', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Blocked Anonymous API Access through "{{namespace}}" namespace.', 'wp-simple-firewall' ),
 				],
 			],
 			'block_author_fishing'         => [
-				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Author Fishing' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Author Fishing', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Blocked Author Discovery via username fishing technique.', 'wp-simple-firewall' ),
 				],
 			],
 			'block_xml'                    => [
-				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'XML-RPC' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'XML-RPC', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'XML-RPC Request Blocked.', 'wp-simple-firewall' ),
 				],
@@ -883,63 +883,63 @@ class EventStrings {
 				'name'  => __( 'Post Trashed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was trashed.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_recovered'               => [
 				'name'  => __( 'Post Recovered', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was recovered from trash.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated'                 => [
 				'name'  => __( 'Post Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was updated.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_created'                 => [
 				'name'  => __( 'Post Created', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was created.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_published'               => [
 				'name'  => __( 'Post Published', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was published.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_unpublished'             => [
 				'name'  => __( 'Post Unpublished', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was unpublished.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated_content'         => [
 				'name'  => __( 'Post Content Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Content for Post ID {{post_id}} updated.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated_title'           => [
 				'name'  => __( 'Post Title Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Title for Post ID {{post_id}} updated from "{{title_old}}" to "{{title_new}}".', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated_slug'            => [
 				'name'  => __( 'Post Slug Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Slug for Post ID {{post_id}} updated from "{{slug_old}}" to "{{slug_new}}".', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'user_login'                   => [

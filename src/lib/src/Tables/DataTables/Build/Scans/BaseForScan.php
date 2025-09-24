@@ -37,7 +37,7 @@ class BaseForScan extends Base {
 			],
 			'file'             => [
 				'data'        => 'file',
-				'title'       => __( 'File' ),
+				'title'       => __( 'File', 'wp-simple-firewall' ),
 				'className'   => 'file',
 				'orderable'   => true,
 				'searchable'  => true,
@@ -51,7 +51,7 @@ class BaseForScan extends Base {
 					'_'    => 'file_as_href',
 					'sort' => 'file',
 				],
-				'title'       => __( 'File' ),
+				'title'       => __( 'File', 'wp-simple-firewall' ),
 				'className'   => 'file_as_href',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -62,7 +62,7 @@ class BaseForScan extends Base {
 			],
 			'file_type'        => [
 				'data'        => 'file_type',
-				'title'       => __( 'Type' ),
+				'title'       => __( 'Type', 'wp-simple-firewall' ),
 				'className'   => 'file_type',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -73,7 +73,7 @@ class BaseForScan extends Base {
 			],
 			'status_file_type' => [
 				'data'        => 'status_file_type',
-				'title'       => __( 'Type' ),
+				'title'       => __( 'Type', 'wp-simple-firewall' ),
 				'className'   => 'status_file_type',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -84,7 +84,7 @@ class BaseForScan extends Base {
 			],
 			'status_file_size' => [
 				'data'        => 'status_file_size',
-				'title'       => __( 'Size' ),
+				'title'       => __( 'Size', 'wp-simple-firewall' ),
 				'className'   => 'status_file_size',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -95,7 +95,7 @@ class BaseForScan extends Base {
 			],
 			'status'           => [
 				'data'        => 'status',
-				'title'       => __( 'Status' ),
+				'title'       => __( 'Status', 'wp-simple-firewall' ),
 				'className'   => 'status',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -109,7 +109,7 @@ class BaseForScan extends Base {
 					'_'    => 'detected_since',
 					'sort' => 'created_at',
 				],
-				'title'       => __( 'Detected' ),
+				'title'       => __( 'Detected', 'wp-simple-firewall' ),
 				'className'   => 'detected',
 				'orderable'   => true,
 				'searchable'  => false,
@@ -120,7 +120,7 @@ class BaseForScan extends Base {
 			],
 			'actions'          => [
 				'data'        => 'actions',
-				'title'       => __( 'Actions' ),
+				'title'       => __( 'Actions', 'wp-simple-firewall' ),
 				'className'   => 'actions',
 				'orderable'   => false,
 				'searchable'  => false,

@@ -29,7 +29,7 @@ class ForTraffic extends Base {
 		return [
 			'rid'      => [
 				'data'        => 'rid',
-				'title'       => __( 'Request ID' ),
+				'title'       => __( 'Request ID', 'wp-simple-firewall' ),
 				'className'   => 'rid',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -40,7 +40,7 @@ class ForTraffic extends Base {
 			],
 			'page'     => [
 				'data'        => 'page',
-				'title'       => __( 'Page' ),
+				'title'       => __( 'Page', 'wp-simple-firewall' ),
 				'className'   => 'page',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -51,7 +51,7 @@ class ForTraffic extends Base {
 			],
 			'details'  => [
 				'data'        => 'details',
-				'title'       => __( 'Details' ),
+				'title'       => __( 'Details', 'wp-simple-firewall' ),
 				'className'   => 'details',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -62,7 +62,7 @@ class ForTraffic extends Base {
 			],
 			'response' => [
 				'data'        => 'response',
-				'title'       => __( 'Response' ),
+				'title'       => __( 'Response', 'wp-simple-firewall' ),
 				'className'   => 'response',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -73,7 +73,7 @@ class ForTraffic extends Base {
 			],
 			'type'     => [
 				'data'        => 'type',
-				'title'       => __( 'Type' ),
+				'title'       => __( 'Type', 'wp-simple-firewall' ),
 				'className'   => 'type',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -84,7 +84,7 @@ class ForTraffic extends Base {
 			],
 			'ip'       => [
 				'data'        => 'ip',
-				'title'       => __( 'IP Address' ),
+				'title'       => __( 'IP Address', 'wp-simple-firewall' ),
 				'className'   => 'ip',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -95,7 +95,7 @@ class ForTraffic extends Base {
 			],
 			'code'     => [
 				'data'        => 'code',
-				'title'       => __( 'Response Code' ),
+				'title'       => __( 'Response Code', 'wp-simple-firewall' ),
 				'className'   => 'code',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -106,7 +106,7 @@ class ForTraffic extends Base {
 			],
 			'country'  => [
 				'data'        => 'country',
-				'title'       => __( 'Country' ),
+				'title'       => __( 'Country', 'wp-simple-firewall' ),
 				'className'   => 'country',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -117,7 +117,7 @@ class ForTraffic extends Base {
 			],
 			'offense'  => [
 				'data'        => 'offense',
-				'title'       => __( 'Is Offense' ),
+				'title'       => __( 'Is Offense', 'wp-simple-firewall' ),
 				'className'   => 'offense',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -128,7 +128,7 @@ class ForTraffic extends Base {
 			],
 			'path'     => [
 				'data'        => 'path',
-				'title'       => __( 'Path' ),
+				'title'       => __( 'Path', 'wp-simple-firewall' ),
 				'className'   => 'path',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -139,7 +139,7 @@ class ForTraffic extends Base {
 			],
 			'uid'      => [
 				'data'       => 'uid',
-				'title'      => __( 'User ID' ),
+				'title'      => __( 'User ID', 'wp-simple-firewall' ),
 				'className'  => 'uid',
 				'orderable'  => false,
 				'searchable' => false,
@@ -147,7 +147,7 @@ class ForTraffic extends Base {
 			],
 			'user'     => [
 				'data'           => 'user',
-				'title'          => __( 'User' ),
+				'title'          => __( 'User', 'wp-simple-firewall' ),
 				'className'      => 'user',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -159,7 +159,7 @@ class ForTraffic extends Base {
 			],
 			'day'      => [
 				'data'          => 'day',
-				'title'         => __( 'Day' ),
+				'title'         => __( 'Day', 'wp-simple-firewall' ),
 				'className'     => 'day',
 				'orderable'     => false,
 				'orderSequence' => [ 'desc' ],
@@ -174,7 +174,7 @@ class ForTraffic extends Base {
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'         => __( 'Date' ),
+				'title'         => __( 'Date', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => true,
 				'orderSequence' => [ 'desc', 'asc' ],

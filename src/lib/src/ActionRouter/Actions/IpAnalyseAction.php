@@ -51,7 +51,7 @@ class IpAnalyseAction extends BaseAction {
 				case 'block':
 					try {
 						if ( !\in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
-							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
+							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s", 'wp-simple-firewall' ), $ipName ) );
 						}
 						( new IpRules\AddRule() )
 							->setIP( $ip )

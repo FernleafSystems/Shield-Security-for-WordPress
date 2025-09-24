@@ -94,22 +94,22 @@ class BuildForScans extends BuildBase {
 				'available' => $scansCon->APC()->isEnabled(),
 			],
 			Afs::SCAN_SLUG.'_malware' => [
-				'name'      => __( 'Potential Malware' ),
+				'name'      => __( 'Potential Malware', 'wp-simple-firewall' ),
 				'count'     => $c->countMalware(),
 				'available' => $scansCon->AFS()->isEnabledMalwareScanPHP(),
 			],
 			Afs::SCAN_SLUG.'_wp'      => [
-				'name'      => __( 'WordPress Files' ),
+				'name'      => __( 'WordPress Files', 'wp-simple-firewall' ),
 				'count'     => $c->countWPFiles(),
 				'available' => $scansCon->AFS()->isScanEnabledWpCore(),
 			],
 			Afs::SCAN_SLUG.'_plugin'  => [
-				'name'      => __( 'Plugin Files' ),
+				'name'      => __( 'Plugin Files', 'wp-simple-firewall' ),
 				'count'     => $c->countPluginFiles(),
 				'available' => $scansCon->AFS()->isScanEnabledPlugins(),
 			],
 			Afs::SCAN_SLUG.'_theme'   => [
-				'name'      => __( 'Theme Files' ),
+				'name'      => __( 'Theme Files', 'wp-simple-firewall' ),
 				'count'     => $c->countThemeFiles(),
 				'available' => $scansCon->AFS()->isScanEnabledThemes(),
 			],

@@ -22,7 +22,7 @@ class IpAutoBlockCrowdsec extends IpBase {
 	public function descProtected() :string {
 		$desc = __( 'Crowd-Sourced IP Blocking with CrowdSec is switched ON.', 'wp-simple-firewall' );
 		if ( !self::con()->caps->canCrowdsecLevel2() ) {
-			$desc .= ' '.__( 'Additional IP block lists are available with an upgraded plan.' );
+			$desc .= ' '.__( 'Additional IP block lists are available with an upgraded plan.', 'wp-simple-firewall' );
 		}
 		return $desc;
 	}

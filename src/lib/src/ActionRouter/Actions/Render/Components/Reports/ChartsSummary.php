@@ -22,35 +22,35 @@ class ChartsSummary extends Base {
 			'login'          => [
 				'id'        => 'login_block',
 				'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
 					\number_format( $eventSelector->clearWheres()->sumEvent( 'login_block' ) ) ),
 				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
 			],
 			'bot_blocks'     => [
 				'id'        => 'bot_blocks',
 				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
 					\number_format( $eventSelector->clearWheres()->sumEventsLike( 'bottrack_' ) ) ),
 				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
 			],
 			'transgressions' => [
 				'id'        => 'ip_offense',
 				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
 					\number_format( $eventSelector->clearWheres()->sumEvent( 'ip_offense' ) ) ),
 				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
 			],
 			'conn_kills'     => [
 				'id'        => 'conn_kill',
 				'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
 					\number_format( $eventSelector->clearWheres()->sumEvent( 'conn_kill' ) ) ),
 				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
 			],
 			'ip_blocked'     => [
 				'id'        => 'ip_blocked',
 				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Now' ),
+				'val'       => sprintf( '%s: %s', __( 'Now', 'wp-simple-firewall' ),
 					\number_format( $ipRuleSelect->filterByTypes( [
 						IpRulesDB\Handler::T_AUTO_BLOCK,
 						IpRulesDB\Handler::T_MANUAL_BLOCK
@@ -61,7 +61,7 @@ class ChartsSummary extends Base {
 			'comments'       => [
 				'id'        => 'comment_block',
 				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
 					\number_format( $eventSelector->clearWheres()->sumEvents( [
 						'spam_block_bot',
 						'spam_block_human',

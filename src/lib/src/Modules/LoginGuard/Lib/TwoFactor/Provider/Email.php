@@ -182,7 +182,7 @@ class Email extends AbstractShieldProviderMfaDB {
 	}
 
 	public static function ProviderName() :string {
-		return __( 'Email' );
+		return __( 'Email', 'wp-simple-firewall' );
 	}
 
 	public function removeFromProfile() :void {

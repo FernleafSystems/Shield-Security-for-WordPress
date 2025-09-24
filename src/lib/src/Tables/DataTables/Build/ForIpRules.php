@@ -27,7 +27,7 @@ class ForIpRules extends Base {
 		return [
 			'ip'             => [
 				'data'        => 'ip',
-				'title'       => __( 'IP Address' ),
+				'title'       => __( 'IP Address', 'wp-simple-firewall' ),
 				'className'   => 'ip',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -38,7 +38,7 @@ class ForIpRules extends Base {
 			],
 			'ip_linked'      => [
 				'data'        => 'ip_linked',
-				'title'       => __( 'IP Address or Range' ),
+				'title'       => __( 'IP Address or Range', 'wp-simple-firewall' ),
 				'className'   => 'ip_linked',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -49,7 +49,7 @@ class ForIpRules extends Base {
 			],
 			'status'         => [
 				'data'        => 'status',
-				'title'       => __( 'Status' ),
+				'title'       => __( 'Status', 'wp-simple-firewall' ),
 				'className'   => 'status',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -60,7 +60,7 @@ class ForIpRules extends Base {
 			],
 			'type'           => [
 				'data'        => 'type',
-				'title'       => __( 'Type' ),
+				'title'       => __( 'Type', 'wp-simple-firewall' ),
 				'className'   => 'type',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -74,7 +74,7 @@ class ForIpRules extends Base {
 					'_'    => 'last_seen',
 					'sort' => 'last_access_at',
 				],
-				'title'         => __( 'Last Seen' ),
+				'title'         => __( 'Last Seen', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => true,
 				'orderSequence' => [ 'desc', 'asc' ],
@@ -98,7 +98,7 @@ class ForIpRules extends Base {
 			],
 			'last_access_at' => [
 				'data'          => 'last_access_at',
-				'title'         => __( 'Last Access At' ),
+				'title'         => __( 'Last Access At', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => true,
 				'orderSequence' => [ 'desc', 'asc' ],
@@ -110,7 +110,7 @@ class ForIpRules extends Base {
 			],
 			'is_blocked'     => [
 				'data'        => 'is_blocked',
-				'title'       => __( 'IP Block Status' ),
+				'title'       => __( 'IP Block Status', 'wp-simple-firewall' ),
 				'className'   => 'is_blocked',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -121,7 +121,7 @@ class ForIpRules extends Base {
 			],
 			'unblocked_at'   => [
 				'data'        => 'unblocked_at',
-				'title'       => __( 'Unblocked At' ),
+				'title'       => __( 'Unblocked At', 'wp-simple-firewall' ),
 				'className'   => 'unblocked_at',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -135,7 +135,7 @@ class ForIpRules extends Base {
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'         => __( 'Date Added' ),
+				'title'         => __( 'Date Added', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => true,
 				'orderSequence' => [ 'desc', 'asc' ],

@@ -43,7 +43,7 @@ class ConfigOptGet extends ConfigBase {
 					$value = sprintf( '[ %s ]', \implode( ', ', $value ) );
 				}
 				if ( $opts->optType( $optKey ) === 'checkbox' ) {
-					$explain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off' ) );
+					$explain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off', 'wp-simple-firewall' ) );
 				}
 
 				\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $value ) );

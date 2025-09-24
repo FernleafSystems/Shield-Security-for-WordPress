@@ -221,12 +221,12 @@ class MfaController {
 				$provider->removeFromProfile();
 			}
 			$result->success = true;
-			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.' ),
+			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.', 'wp-simple-firewall' ),
 				$userID );
 		}
 		else {
 			$result->success = false;
-			$result->error_text = sprintf( __( "User doesn't exist with ID %s." ),
+			$result->error_text = sprintf( __( "User doesn't exist with ID %s.", 'wp-simple-firewall' ),
 				$userID );
 		}
 

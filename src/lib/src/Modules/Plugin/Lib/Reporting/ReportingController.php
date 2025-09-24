@@ -86,15 +86,15 @@ class ReportingController {
 				self::con()->comps->activity_log->getAuditors()
 			) ),
 			Constants::REPORT_AREA_STATS   => [
-				'security'      => __( 'Security' ),
-				'wordpress'     => __( 'WordPress' ),
+				'security'      => __( 'Security', 'wp-simple-firewall' ),
+				'wordpress'     => __( 'WordPress', 'wp-simple-firewall' ),
 				'user_accounts' => __( 'User Accounts', 'wp-simple-firewall' ),
 				'user_access'   => __( 'User Access', 'wp-simple-firewall' ),
 			],
 			Constants::REPORT_AREA_SCANS   => [
-				'scan_results_new'     => __( 'New Results' ),
-				'scan_results_current' => __( 'Current Summary' ),
-				'scan_repairs'         => __( 'Scan File Repairs' ),
+				'scan_results_new'     => __( 'New Results', 'wp-simple-firewall' ),
+				'scan_results_current' => __( 'Current Summary', 'wp-simple-firewall' ),
+				'scan_repairs'         => __( 'Scan File Repairs', 'wp-simple-firewall' ),
 			],
 		];
 

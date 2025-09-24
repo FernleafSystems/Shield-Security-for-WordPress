@@ -32,7 +32,7 @@ class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Act
 				'critical_areas_to_improve'      => __( 'Critical Items', 'wp-simple-firewall' ),
 				'critical_areas_to_improve_desc' => __( 'Issues listed below should be addressed as quickly as possible', 'wp-simple-firewall' ),
 				'to_address_this_issue'          => __( 'Click here for more details on this item', 'wp-simple-firewall' ),
-				'passed_tests'                   => __( 'Passed tests' ),
+				'passed_tests'                   => __( 'Passed tests', 'wp-simple-firewall' ),
 				'powered_by'                     => sprintf( __( 'Powered by %s', 'wp-simple-firewall' ), $con->labels->Name )
 			],
 			'vars'    => [

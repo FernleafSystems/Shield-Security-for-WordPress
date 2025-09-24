@@ -81,7 +81,7 @@ class StringsOptions {
 				break;
 			case 'comments_cooldown':
 				$name = __( 'Comments Cooldown', 'wp-simple-firewall' );
-				$summary = __( 'Minimum Time Interval Between Comments', 'wp-simple-firewall' ).' ('.__( 'seconds' ).')';
+				$summary = __( 'Minimum Time Interval Between Comments', 'wp-simple-firewall' ).' ('.__( 'seconds', 'wp-simple-firewall' ).')';
 				$desc = [
 					__( 'Prevents comment floods and ensures a minimum period before any further comments are accepted on the site.', 'wp-simple-firewall' ),
 					__( 'Set to zero (0) to disable.', 'wp-simple-firewall' ),
@@ -262,7 +262,7 @@ class StringsOptions {
 				else {
 					$additional = __( 'Please upgrade to support scanning of all plugin files for tampering.', 'wp-simple-firewall' );
 				}
-				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'Plugins' ),
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'Plugins', 'wp-simple-firewall' ),
 					\implode( ' ', [
 						__( "Scans for file tampering within plugin directories.", 'wp-simple-firewall' ),
 						$additional
@@ -278,7 +278,7 @@ class StringsOptions {
 				else {
 					$additional = __( 'Upgrade your plan to support scanning of theme files for tampering.', 'wp-simple-firewall' );
 				}
-				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'Themes' ),
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'Themes', 'wp-simple-firewall' ),
 					\implode( ' ', [
 						__( "Scans for file tampering within the active theme.", 'wp-simple-firewall' ),
 						$additional
@@ -308,7 +308,7 @@ class StringsOptions {
 				else {
 					$additional = '';
 				}
-				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory' ),
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory', 'wp-simple-firewall' ),
 					\implode( ' ', [
 						sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
 						__( "Since it's normally messy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
@@ -701,8 +701,8 @@ class StringsOptions {
 					__( 'These REST API namespaces will be excluded from the Anonymous API restriction.', 'wp-simple-firewall' ),
 					sprintf( __( 'Some plugins (e.g. %s) use the REST API anonymously so you need to provide exclusions for them to work correctly.', 'wp-simple-firewall' ),
 						'Contact Form 7' ),
-					__( "Please contact the developer of a plugin to ask them for their REST API namespace if you need it." ),
-					__( 'Some common namespaces' ).':',
+					__( "Please contact the developer of a plugin to ask them for their REST API namespace if you need it.", 'wp-simple-firewall' ),
+					__( 'Some common namespaces', 'wp-simple-firewall' ).':',
 				];
 
 				$defaultEx = [
@@ -1241,17 +1241,17 @@ class StringsOptions {
 					sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict the ability of WordPress administrators from changing key WordPress settings.', 'wp-simple-firewall' ) ),
 					__( 'The following options will be restricted:', 'wp-simple-firewall' ),
 					sprintf( '<ul style="list-style-type: square"><li>%s</li></ul>', \implode( '</li><li>', [
-						sprintf( '%s %s', __( 'New User Default Role' ), '<span class="badge bg-success">new</span>' ),
-						sprintf( '%s %s', __( 'Permalink structure' ), '<span class="badge bg-success">new</span>' ),
-						__( 'Site Title' ),
-						__( 'Tagline' ),
-						__( 'WordPress Address (URL)' ),
-						__( 'Site Address (URL)' ),
-						__( 'Administration Email Address' ),
-						sprintf( '%s (%s)', __( 'Membership' ), __( 'Anyone can register' ) ),
+						sprintf( '%s %s', __( 'New User Default Role', 'wp-simple-firewall' ), '<span class="badge bg-success">new</span>' ),
+						sprintf( '%s %s', __( 'Permalink structure', 'wp-simple-firewall' ), '<span class="badge bg-success">new</span>' ),
+						__( 'Site Title', 'wp-simple-firewall' ),
+						__( 'Tagline', 'wp-simple-firewall' ),
+						__( 'WordPress Address (URL)', 'wp-simple-firewall' ),
+						__( 'Site Address (URL)', 'wp-simple-firewall' ),
+						__( 'Administration Email Address', 'wp-simple-firewall' ),
+						sprintf( '%s (%s)', __( 'Membership', 'wp-simple-firewall' ), __( 'Anyone can register', 'wp-simple-firewall' ) ),
 						__( 'Email notifications for new comments', 'wp-simple-firewall' ),
-						__( 'Comments must be manually approved' ),
-						__( 'Search engine visibility' ),
+						__( 'Comments must be manually approved', 'wp-simple-firewall' ),
+						__( 'Search engine visibility', 'wp-simple-firewall' ),
 					] ) )
 				];
 				break;

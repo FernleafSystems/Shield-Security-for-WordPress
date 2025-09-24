@@ -47,13 +47,13 @@ abstract class BaseZoneReportUsers extends BaseZoneReport {
 		if ( empty( $user ) ) {
 			$link = [
 				'href' => Services::WpGeneral()->getAdminUrl( 'users.php' ),
-				'text' => __( 'Users' ),
+				'text' => __( 'Users', 'wp-simple-firewall' ),
 			];
 		}
 		else {
 			$link = [
 				'href' => $WPU->getAdminUrl_ProfileEdit( $user ),
-				'text' => __( 'Profile' ),
+				'text' => __( 'Profile', 'wp-simple-firewall' ),
 			];
 		}
 		return $link;

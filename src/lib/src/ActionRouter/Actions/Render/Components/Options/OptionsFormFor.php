@@ -14,10 +14,10 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 		$options = $this->action_data[ 'options' ];
 		return [
 			'strings' => [
-				'inner_page_title'    => __( 'Edit Settings' ),
-				'import_export'       => __( 'Import/Export' ),
-				'is_opt_importexport' => __( 'Include this setting during import/export' ),
-				'toggle_importexport' => __( 'Toggle whether this setting is included in import and export operations' ),
+				'inner_page_title'    => __( 'Edit Settings', 'wp-simple-firewall' ),
+				'import_export'       => __( 'Import/Export', 'wp-simple-firewall' ),
+				'is_opt_importexport' => __( 'Include this setting during import/export', 'wp-simple-firewall' ),
+				'toggle_importexport' => __( 'Toggle whether this setting is included in import and export operations', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'show_transfer_switch' => true,

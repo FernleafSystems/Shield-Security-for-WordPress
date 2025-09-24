@@ -30,7 +30,7 @@ class ZoneReportComments extends BaseZoneReport {
 	}
 
 	public function getZoneName() :string {
-		return __( 'Comments' );
+		return __( 'Comments', 'wp-simple-firewall' );
 	}
 
 	protected function getLoadLogsWheres() :array {
@@ -48,13 +48,13 @@ class ZoneReportComments extends BaseZoneReport {
 		if ( empty( $comment ) ) {
 			$link = [
 				'href' => Services::WpGeneral()->getAdminUrl( 'edit-comments.php' ),
-				'text' => __( 'Comments' ),
+				'text' => __( 'Comments', 'wp-simple-firewall' ),
 			];
 		}
 		else {
 			$link = [
 				'href' => get_edit_comment_link( $log->meta_data[ 'comment_id' ] ),
-				'text' => __( 'View Comment' ),
+				'text' => __( 'View Comment', 'wp-simple-firewall' ),
 			];
 		}
 		return $link;

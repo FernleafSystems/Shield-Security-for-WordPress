@@ -8,13 +8,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class ZoneReportThemes extends BaseZoneReportPluginsThemes {
 
 	public function getZoneName() :string {
-		return __( 'Themes' );
+		return __( 'Themes', 'wp-simple-firewall' );
 	}
 
 	protected function getLinkForLog( LogRecord $log ) :array {
 		return [
 			'href' => Services::WpGeneral()->getAdminUrl_Themes(),
-			'text' => __( 'Themes' ),
+			'text' => __( 'Themes', 'wp-simple-firewall' ),
 		];
 	}
 

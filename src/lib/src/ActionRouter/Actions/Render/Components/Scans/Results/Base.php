@@ -9,9 +9,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
-				'author'            => __( 'Author' ),
-				'version'           => __( 'Version' ),
-				'name'              => __( 'Name' ),
+				'author'            => __( 'Author', 'wp-simple-firewall' ),
+				'version'           => __( 'Version', 'wp-simple-firewall' ),
+				'name'              => __( 'Name', 'wp-simple-firewall' ),
 				'install_dir'       => __( 'Installation Directory', 'wp-simple-firewall' ),
 				'file_integrity'    => __( 'File Integrity', 'wp-simple-firewall' ),
 				'status_good'       => __( 'Good', 'wp-simple-firewall' ),
