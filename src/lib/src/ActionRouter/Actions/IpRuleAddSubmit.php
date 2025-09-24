@@ -15,20 +15,20 @@ class IpRuleAddSubmit extends BaseAction {
 		$form = $this->action_data[ 'form_data' ];
 		try {
 			if ( empty( $form ) || !\is_array( $form ) ) {
-				throw new \Exception( 'No data. Please retry' );
+				throw new \Exception( __( 'No data. Please retry', 'wp-simple-firewall' ) );
 			}
 			$label = \trim( $form[ 'label' ] ?? '' );
 			if ( !empty( $label ) && \preg_match( '#[^a-z\d\s_-]#i', $label ) ) {
-				throw new \Exception( 'The label must be alphanumeric with no special characters' );
+				throw new \Exception( __( 'The label must be alphanumeric with no special characters', 'wp-simple-firewall' ) );
 			}
 			if ( empty( $form[ 'type' ] ) ) {
-				throw new \Exception( 'Please select one of the IP Rule Types - Block or Bypass' );
+				throw new \Exception( __( 'Please select one of the IP Rule Types - Block or Bypass', 'wp-simple-firewall' ) );
 			}
 			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
-				throw new \Exception( 'Please check the box to confirm this action' );
+				throw new \Exception( __( 'Please check the box to confirm this action', 'wp-simple-firewall' ) );
 			}
 			if ( empty( $form[ 'ip' ] ) ) {
-				throw new \Exception( 'Please provide an IP Address' );
+				throw new \Exception( __( 'Please provide an IP Address', 'wp-simple-firewall' ) );
 			}
 
 			$formIP = \preg_replace( '#[^a-f\d:./]#i', '', $form[ 'ip' ] );
@@ -39,7 +39,7 @@ class IpRuleAddSubmit extends BaseAction {
 				 && !empty( $range )
 				 && !( new IpRules\IpRuleStatus( $con->this_req->ip ) )->isBypass()
 				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
-				throw new \Exception( "Manually blocking your own IP address isn't supported." );
+				throw new \Exception( __( "Manually blocking your own IP address isn't supported.", 'wp-simple-firewall' ) );
 			}
 
 			$ipAdder = ( new IpRules\AddRule() )->setIP( $formIP );
@@ -53,7 +53,7 @@ class IpRuleAddSubmit extends BaseAction {
 					break;
 
 				default:
-					throw new \Exception( 'Please select one of the IP Rule Types - Block or Bypass' );
+					throw new \Exception( __( 'Please select one of the IP Rule Types - Block or Bypass', 'wp-simple-firewall' ) );
 			}
 
 			$msg = __( 'IP address added successfully', 'wp-simple-firewall' );

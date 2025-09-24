@@ -15,7 +15,7 @@ class FileDownload extends BaseAction {
 		try {
 			$cat = $this->action_data[ 'download_category' ] ?? '';
 			if ( empty( $cat ) ) {
-				throw new \Exception( 'Invalid download request.' );
+				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
 			}
 			$contents = $this->getFileDownloadContents( $cat );
 
@@ -64,7 +64,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			default:
-				throw new \Exception( 'Invalid download request.' );
+				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
 		}
 
 		return $fileDetails;

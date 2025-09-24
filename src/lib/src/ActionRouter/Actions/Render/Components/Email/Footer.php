@@ -15,22 +15,22 @@ class Footer extends Base {
 		$WP = Services::WpGeneral();
 
 		$goPro = [
-			'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;',
-			'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;',
-			'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;',
+			__( 'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;', 'wp-simple-firewall' ),
+			__( 'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;', 'wp-simple-firewall' ),
+			__( 'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;', 'wp-simple-firewall' ),
 		];
 		$benefits = [
-			'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere',
-			'MainWP Integration',
-			'Powerful, Auto-Learning Malware Scanner',
-			'Plugin and Theme File Guard',
-			'Vulnerability Scanner',
-			'Traffic Rate Limiting',
-			'WooCommerce Support',
-			'Automatic Import/Export Sync Of Options Across Your WP Portfolio',
-			'Powerful User Password Policies',
-			'Exclusive Customer Support',
-			'That Warm And Fuzzy Feeling That Comes From Supporting Future Development',
+			__( 'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere', 'wp-simple-firewall' ),
+			__( 'MainWP Integration', 'wp-simple-firewall' ),
+			__( 'Powerful, Auto-Learning Malware Scanner', 'wp-simple-firewall' ),
+			__( 'Plugin and Theme File Guard', 'wp-simple-firewall' ),
+			__( 'Vulnerability Scanner', 'wp-simple-firewall' ),
+			__( 'Traffic Rate Limiting', 'wp-simple-firewall' ),
+			__( 'WooCommerce Support', 'wp-simple-firewall' ),
+			__( 'Automatic Import/Export Sync Of Options Across Your WP Portfolio', 'wp-simple-firewall' ),
+			__( 'Powerful User Password Policies', 'wp-simple-firewall' ),
+			__( 'Exclusive Customer Support', 'wp-simple-firewall' ),
+			__( 'That Warm And Fuzzy Feeling That Comes From Supporting Future Development', 'wp-simple-firewall' ),
 		];
 		\shuffle( $benefits );
 
@@ -50,7 +50,7 @@ class Footer extends Base {
 			],
 			'strings' => [
 				'benefits'            => $benefits,
-				'much_more'           => 'And So Much More',
+				'much_more'           => __( 'And So Much More', 'wp-simple-firewall' ),
 				'upgrade'             => $goPro[ \array_rand( $goPro ) ],
 				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 					$con->labels->Name,

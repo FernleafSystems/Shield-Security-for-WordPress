@@ -144,8 +144,8 @@ abstract class Base {
 	 */
 	public function getStrings() :array {
 		return [
-			'name'     => 'no name',
-			'subtitle' => 'no subtitle',
+			'name'     => __( 'no name', 'wp-simple-firewall' ),
+			'subtitle' => __( 'no subtitle', 'wp-simple-firewall' ),
 		];
 	}
 

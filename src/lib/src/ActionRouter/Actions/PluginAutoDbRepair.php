@@ -45,10 +45,10 @@ class PluginAutoDbRepair extends BaseAction {
 			foreach ( $allHandlers as $handler ) {
 				$handler::GetTableReadyCache()->setReady( $handler->getTableSchema(), false );
 			}
-			$msg = "Tables deleted and they'll now be recreated.";
+			$msg = __( "Tables deleted and they'll now be recreated.", 'wp-simple-firewall' );
 		}
 		else {
-			$msg = "Tables appear to be valid and haven't been repaired.";
+			$msg = __( "Tables appear to be valid and haven't been repaired.", 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [

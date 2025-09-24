@@ -39,12 +39,12 @@ class BuildEncryptedFilePayload extends BaseOps {
 
 		$payload = $srvEnc->sealData( $contents, $publicKey, $cipher );
 		if ( !$payload->success ) {
-			throw new FileContentsEncryptionFailure( 'File contents could not be encrypted with message: '.$payload->message );
+			throw new FileContentsEncryptionFailure( __( 'File contents could not be encrypted. Message: ', 'wp-simple-firewall' ).$payload->message );
 		}
 
 		$encoded = wp_json_encode( $payload->getRawData() );
 		if ( empty( $encoded ) || !\is_string( $encoded ) ) {
-			throw new FileContentsEncodingFailure( 'File contents could not be wp_json_encode() after encryption.' );
+			throw new FileContentsEncodingFailure( __( 'File contents could not be wp_json_encode() after encryption.', 'wp-simple-firewall' ) );
 		}
 
 		return $encoded;

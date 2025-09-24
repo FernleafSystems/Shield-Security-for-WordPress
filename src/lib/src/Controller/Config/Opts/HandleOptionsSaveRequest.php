@@ -19,10 +19,10 @@ class HandleOptionsSaveRequest {
 
 			$form = $this->getForm();
 			if ( empty( $form ) ) {
-				throw new \Exception( 'options form parameters were empty.' );
+				throw new \Exception( __( 'Options form parameters were empty.', 'wp-simple-firewall' ) );
 			}
 			if ( empty( $form[ 'all_opts_keys' ] ) ) {
-				throw new \Exception( 'all_opts_keys form element not provided.' );
+				throw new \Exception( __( 'all_opts_keys form element not provided.', 'wp-simple-firewall' ) );
 			}
 
 			$this->storeOptions();

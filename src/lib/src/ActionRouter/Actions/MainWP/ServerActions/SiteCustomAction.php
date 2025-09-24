@@ -33,12 +33,12 @@ class SiteCustomAction extends BaseSiteMwpAction {
 		$response = $this->clientActionResponse;
 		$key = self::con()->prefix( 'mwp-action-response' );
 		if ( empty( $response ) || !\is_array( $response ) || !isset( $response[ $key ] ) ) {
-			throw new ActionException( 'Empty response from Shield client site' );
+			throw new ActionException( __( 'Empty response from Shield client site', 'wp-simple-firewall' ) );
 		}
 
 		$result = \json_decode( $response[ $key ], true );
 		if ( empty( $result ) || !\is_array( $result ) ) {
-			throw new ActionException( 'Invalid response from Shield client site' );
+			throw new ActionException( __( 'Invalid response from Shield client site', 'wp-simple-firewall' ) );
 		}
 
 		return true;

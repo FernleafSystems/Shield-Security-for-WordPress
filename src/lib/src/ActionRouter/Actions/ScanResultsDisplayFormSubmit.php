@@ -12,7 +12,7 @@ class ScanResultsDisplayFormSubmit extends BaseAction {
 
 		try {
 			if ( empty( $form ) || !\is_array( $form ) ) {
-				throw new \Exception( 'No data. Please retry' );
+				throw new \Exception( __( 'No data. Please retry', 'wp-simple-firewall' ) );
 			}
 
 			$new = \array_keys( \array_filter( $form, function ( $setting ) {

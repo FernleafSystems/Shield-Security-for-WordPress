@@ -9,11 +9,11 @@ class SiteActionInstall extends BaseSiteMwpAction {
 	public const SLUG = 'mwp_server_site_action_install';
 
 	protected function getMainwpActionFailureMessage() :string {
-		return "Shield plugin couldn't be installed";
+		return __( "Shield plugin couldn't be installed", 'wp-simple-firewall' );
 	}
 
 	protected function getMainwpActionSuccessMessage() :string {
-		return 'Shield plugin installed';
+		return __( 'Shield plugin installed', 'wp-simple-firewall' );
 	}
 
 	protected function checkResponse() :bool {

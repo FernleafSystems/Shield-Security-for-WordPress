@@ -64,7 +64,7 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 		}
 
 		if ( !$success ) {
-			throw new \Exception( "Failed to store the rule in the database." );
+			throw new \Exception( __( 'Failed to store the rule in the database.', 'wp-simple-firewall' ) );
 		}
 
 		return $record;

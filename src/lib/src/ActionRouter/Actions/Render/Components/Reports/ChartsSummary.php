@@ -73,7 +73,7 @@ class ChartsSummary extends Base {
 		foreach ( $statsData as $key => $statData ) {
 			$subtitle = sprintf( __( '7 %s', 'wp-simple-firewall' ), __( 'days', 'wp-simple-firewall' ) );
 			$statsData[ $key ][ 'title_sub' ] = $subtitle;
-			$statsData[ $key ][ 'tooltip_chart' ] = sprintf( '%s: %s.', __( 'Stats', 'wp-simple-firewall' ), $subtitle );
+			$statsData[ $key ][ 'tooltip_chart' ] = sprintf( __( '%s: %s.', 'wp-simple-firewall' ), __( 'Stats', 'wp-simple-firewall' ), $subtitle );
 		}
 
 		return [

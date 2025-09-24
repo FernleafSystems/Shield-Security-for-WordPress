@@ -278,7 +278,7 @@ class StringsSections {
 				$short = __( 'Reports', 'wp-simple-firewall' );
 				$summary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
-					sprintf( 'Your reporting email address is: %s',
+					sprintf( __( 'Your reporting email address is: %s', 'wp-simple-firewall' ),
 						'<code>'.self::con()->comps->opts_lookup->getReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',

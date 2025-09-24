@@ -12,7 +12,7 @@ class Container extends Base {
 	protected function getRenderData() :array {
 		$ip = $this->action_data[ 'ip' ];
 		if ( !Services::IP()->isValidIp( $ip ) ) {
-			throw new \Exception( "A valid IP address wasn't provided." );
+			throw new \Exception( __( "A valid IP address wasn't provided.", 'wp-simple-firewall' ) );
 		}
 		$actionRouter = self::con()->action_router;
 		return [

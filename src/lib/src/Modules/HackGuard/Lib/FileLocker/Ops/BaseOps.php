@@ -39,12 +39,12 @@ class BaseOps {
 
 		$key = $getter->retrieve();
 		if ( empty( $key ) || !\is_array( $key ) ) {
-			throw new PublicKeyRetrievalFailure( 'Failed to obtain public key from API.' );
+			throw new PublicKeyRetrievalFailure( __( 'Failed to obtain public key from API.', 'wp-simple-firewall' ) );
 		}
 
 		$thePublicKey = \reset( $key );
 		if ( empty( $thePublicKey ) || !\is_string( $thePublicKey ) ) {
-			throw new PublicKeyRetrievalFailure( 'Public key was empty' );
+			throw new PublicKeyRetrievalFailure( __( 'Public key was empty.', 'wp-simple-firewall' ) );
 		}
 
 		return $key;

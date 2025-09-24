@@ -103,7 +103,7 @@ class ScanResultsTableAction extends ScansBase {
 	private function getItemIDs() :array {
 		$items = $this->action_data[ 'rids' ] ?? '';
 		if ( empty( $items ) || !\is_array( $items ) ) {
-			throw new \Exception( 'No items selected.' );
+			throw new \Exception( __( 'No items selected.', 'wp-simple-firewall' ) );
 		}
 		return \array_filter(
 			\array_map(

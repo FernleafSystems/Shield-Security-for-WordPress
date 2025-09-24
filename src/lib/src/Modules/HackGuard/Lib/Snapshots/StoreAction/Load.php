@@ -15,7 +15,7 @@ class Load extends BaseAction {
 
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
 			if ( !Services::WpFs()->exists( $path ) ) {
-				throw new \Exception( 'Critical store file does not exist: '.$path );
+				throw new \Exception( __( 'Critical store file does not exist: ', 'wp-simple-firewall' ).$path );
 			}
 		}
 		return $store;

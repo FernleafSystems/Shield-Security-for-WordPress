@@ -17,7 +17,7 @@ class LoadBotSignalRecords {
 	public function loadRecord() :BotSignalRecord {
 		$raw = $this->selectRaw();
 		if ( empty( $raw ) ) {
-			throw new \Exception( 'No record' );
+			throw new \Exception( __( 'No record', 'wp-simple-firewall' ) );
 		}
 		return ( new BotSignalRecord() )->applyFromArray( $raw );
 	}

@@ -26,8 +26,8 @@ class EventsEnum extends Actions\Render\BaseRender {
 			$eventsSortedByLevel[ $level ][ $event[ 'key' ] ] = [
 				'name' => $srvEvents->getEventName( $event[ 'key' ] ),
 				'attr' => [
-					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
-					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
+					'stat'    => sprintf( __( 'Stat: %s', 'wp-simple-firewall' ), empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
+					'offense' => sprintf( __( 'Offense: %s', 'wp-simple-firewall' ), empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
 				]
 			];
 		}

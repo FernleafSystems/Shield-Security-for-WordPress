@@ -34,7 +34,7 @@ abstract class BaseExtension {
 	 */
 	public function __construct( string $file, array $cfg ) {
 		if ( empty( static::SLUG ) ) {
-			throw new \Exception( 'Invalid Shield extension configuration' );
+			throw new \Exception( __( 'Invalid Shield extension configuration', 'wp-simple-firewall' ) );
 		}
 		$this->file = $file;
 		$this->cfg = ( new ExtensionConfigVO() )->applyFromArray( $cfg );

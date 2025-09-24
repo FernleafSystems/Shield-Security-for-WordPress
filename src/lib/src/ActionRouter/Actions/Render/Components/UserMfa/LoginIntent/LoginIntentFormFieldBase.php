@@ -17,10 +17,10 @@ class LoginIntentFormFieldBase extends \FernleafSystems\Wordpress\Plugin\Shield\
 
 		$slug = $this->action_data[ 'vars' ][ 'provider_slug' ] ?? null;
 		if ( !\preg_match( '#^[a-z0-9_]+$#', (string)$slug ) ) {
-			throw new ActionException( 'Invalid Slug' );
+			throw new ActionException( __( 'Invalid Slug', 'wp-simple-firewall' ) );
 		}
 		if ( empty( $this->action_data[ 'vars' ][ 'field' ] ) ) {
-			throw new ActionException( 'No field data provided' );
+			throw new ActionException( __( 'No field data provided', 'wp-simple-firewall' ) );
 		}
 	}
 

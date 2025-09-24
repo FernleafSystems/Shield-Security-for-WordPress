@@ -61,7 +61,7 @@ class ZoneReportComments extends BaseZoneReport {
 	}
 
 	protected function getNameForLog( LogRecord $log ) :string {
-		return sprintf( '%s ID:%s', __( 'Comment' ), $log->meta_data[ 'comment_id' ] );
+		return sprintf( '%s ID:%s', __( 'Comment', 'wp-simple-firewall' ), $log->meta_data[ 'comment_id' ] );
 	}
 
 	protected function getUniqFromLog( LogRecord $log ) :string {

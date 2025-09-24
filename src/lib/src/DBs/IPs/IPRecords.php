@@ -22,7 +22,7 @@ class IPRecords {
 		else {
 			$parsedRange = Factory::parseRangeString( $ip );
 			if ( empty( $parsedRange ) ) {
-				throw new \Exception( 'Not a valid IP range' );
+				throw new \Exception( __( 'Not a valid IP range', 'wp-simple-firewall' ) );
 			}
 			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 

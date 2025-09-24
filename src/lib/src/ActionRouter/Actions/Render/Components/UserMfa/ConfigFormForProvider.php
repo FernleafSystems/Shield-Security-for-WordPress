@@ -20,7 +20,7 @@ class ConfigFormForProvider extends UserMfaBase {
 
 		$slug = $this->action_data[ 'vars' ][ 'provider_slug' ] ?? null;
 		if ( !\preg_match( '#^[a-z0-9_]+$#', (string)$slug ) ) {
-			throw new ActionException( 'Invalid Slug' );
+			throw new ActionException( __( 'Invalid Slug', 'wp-simple-firewall' ) );
 		}
 	}
 

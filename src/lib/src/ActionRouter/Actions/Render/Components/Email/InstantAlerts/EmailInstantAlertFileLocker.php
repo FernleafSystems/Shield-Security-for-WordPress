@@ -25,7 +25,7 @@ class EmailInstantAlertFileLocker extends EmailInstantAlertBase {
 		$alertGroups = [];
 		foreach ( \array_filter( $this->action_data[ 'alert_data' ] ) as $alertKey => $alertItems ) {
 			$alertGroups[ $alertKey ] = [
-				'title' => 'File Locker Changes Detected',
+				'title' => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
 				'items' => [],
 			];
 			foreach ( $alertItems as $type => $path ) {
@@ -44,6 +44,6 @@ class EmailInstantAlertFileLocker extends EmailInstantAlertBase {
 				   'root_htaccess'   => __( 'Root .htaccess', 'wp-simple-firewall' ),
 				   'root_index'      => __( 'Root index.php', 'wp-simple-firewall' ),
 				   'root_webconfig'  => __( 'Root Web.config', 'wp-simple-firewall' ),
-			   ][ $key ] ?? 'BUG: No Title Provided Yet';
+			   ][ $key ] ?? __( 'BUG: No Title Provided Yet', 'wp-simple-firewall' );
 	}
 }

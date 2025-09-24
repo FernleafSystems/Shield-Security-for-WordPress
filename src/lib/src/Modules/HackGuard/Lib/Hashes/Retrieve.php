@@ -78,7 +78,7 @@ class Retrieve {
 		}
 
 		if ( empty( $hashes ) ) {
-			throw new AssetHashesNotFound( sprintf( 'Could not locate hashes for VO: %s', $vo->slug ) );
+			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
 		return $hashes;
 	}
@@ -89,11 +89,11 @@ class Retrieve {
 	 */
 	private function fromCsHashes( $vo ) :array {
 		if ( !self::con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
-			throw new \Exception( 'Insufficient permissions to use CS Hashes for premium plugins/themes.' );
+			throw new \Exception( __( 'Insufficient permissions to use crowd-sourced hashes for premium plugins/themes.', 'wp-simple-firewall' ) );
 		}
 		$hashes = ( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo );
 		if ( empty( $hashes ) ) {
-			throw new \Exception( 'No CS Hashes available.' );
+			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) );
 		}
 		return $hashes;
 	}

@@ -104,7 +104,7 @@ abstract class BaseForm extends Base {
 			 * This server produced HTTP 402 error if the request to the login form didn't include wp-submit
 			 * https://secure.helpscout.net/conversation/1781553925/1153
 			 */
-			'wp-submit'     => 'Complete Login',
+			'wp-submit'     => __( 'Complete Login', 'wp-simple-firewall' ),
 		] );
 		$fields[ 'wp_user_id' ] = $this->action_data[ 'user_id' ];
 		return $fields;

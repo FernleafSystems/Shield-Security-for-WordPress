@@ -9,11 +9,11 @@ class SiteActionActivate extends BaseSiteMwpAction {
 	public const SLUG = 'mwp_server_site_action_activate';
 
 	protected function getMainwpActionFailureMessage() :string {
-		return "Shield plugin couldn't be activated";
+		return __( "Shield plugin couldn't be activated", 'wp-simple-firewall' );
 	}
 
 	protected function getMainwpActionSuccessMessage() :string {
-		return 'Shield plugin activated';
+		return __( 'Shield plugin activated', 'wp-simple-firewall' );
 	}
 
 	protected function getMainwpActionParams() :array {

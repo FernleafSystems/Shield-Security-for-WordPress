@@ -15,7 +15,7 @@ class RuleRecords {
 	public function byID( int $ID ) :?Ops\Record {
 		$record = $this->getSelector()->byId( $ID );
 		if ( !$record instanceof Ops\Record ) {
-			throw new \Exception( 'No such record ID' );
+			throw new \Exception( __( 'No such record ID', 'wp-simple-firewall' ) );
 		}
 		return $record;
 	}

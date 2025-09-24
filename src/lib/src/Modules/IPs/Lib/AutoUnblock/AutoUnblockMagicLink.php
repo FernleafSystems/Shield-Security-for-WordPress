@@ -13,7 +13,7 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 	}
 
 	protected function getUnblockMethodName() :string {
-		return 'Magic Link';
+		return __( 'Magic Link', 'wp-simple-firewall' );
 	}
 
 	/**
@@ -23,12 +23,12 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 		$con = self::con();
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( !$user instanceof \WP_User ) {
-			throw new \Exception( 'There is no user currently logged-in.' );
+			throw new \Exception( __( 'There is no user currently logged-in.', 'wp-simple-firewall' ) );
 		}
 
 		$reqIP = Services::Request()->request( 'ip' );
 		if ( empty( $reqIP ) || !Services::IP()->IpIn( $reqIP, [ $con->this_req->ip ] ) ) {
-			throw new \Exception( 'IP does not match.' );
+			throw new \Exception( __( 'IP does not match.', 'wp-simple-firewall' ) );
 		}
 
 		$con->email_con->sendVO(

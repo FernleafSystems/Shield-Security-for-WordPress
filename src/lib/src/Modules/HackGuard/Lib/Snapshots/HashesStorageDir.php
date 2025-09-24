@@ -39,7 +39,7 @@ class HashesStorageDir {
 			}
 		}
 		if ( empty( $dir ) ) {
-			throw new \Exception( "Dir doesn't exist" );
+			throw new \Exception( __( "Directory doesn't exist.", 'wp-simple-firewall' ) );
 		}
 		return $dir;
 	}

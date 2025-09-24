@@ -10,7 +10,7 @@ class BaseAutoUnblockShield extends BaseAutoUnblock {
 	protected function getIpRecord() :IpRuleRecord {
 		$theRecord = ( new IpRuleStatus( self::con()->this_req->ip ) )->getRuleForAutoBlock();
 		if ( empty( $theRecord ) ) {
-			throw new \Exception( "IP isn't on the automatic block list." );
+			throw new \Exception( __( "IP isn't on the automatic block list.", 'wp-simple-firewall' ) );
 		}
 		return $theRecord;
 	}

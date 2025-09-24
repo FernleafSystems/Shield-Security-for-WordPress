@@ -12,7 +12,9 @@ class PluginBadgeClose extends BaseAction {
 		$success = self::con()->comps->badge->setBadgeStateClosed();
 		$this->response()->action_response_data = [
 			'success' => $success,
-			'message' => $success ? 'Badge Closed' : 'Badge Not Closed'
+			'message' => $success
+				? __( 'Badge Closed', 'wp-simple-firewall' )
+				: __( 'Badge Not Closed', 'wp-simple-firewall' )
 		];
 	}
 }

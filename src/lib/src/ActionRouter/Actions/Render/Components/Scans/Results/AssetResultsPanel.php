@@ -52,7 +52,7 @@ class AssetResultsPanel extends PluginThemesBase {
 	protected function getRenderTemplate() :string {
 		$type = $this->action_data[ 'asset_type' ];
 		if ( !\in_array( $type, [ 'plugin', 'theme' ] ) ) {
-			throw new ActionException( 'Invalid type.' );
+			throw new ActionException( __( 'Invalid type.', 'wp-simple-firewall' ) );
 		}
 		return sprintf( self::TEMPLATE, $this->action_data[ 'asset_type' ] );
 	}

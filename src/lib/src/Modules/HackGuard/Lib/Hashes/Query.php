@@ -39,7 +39,7 @@ class Query {
 		$assetHashes = ( new Retrieve() )->byVO( $vo );
 		$hash = $assetHashes[ $fragment ] ?? ( $assetHashes[ \strtolower( $fragment ) ] ?? null );
 		if ( empty( $hash ) ) {
-			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );
+			throw new UnrecognisedAssetFile( sprintf( __( 'No hashes exist for file: %s', 'wp-simple-firewall' ), $path ) );
 		}
 
 		return \is_array( $hash ) ? $hash : [ $hash ];
@@ -53,8 +53,8 @@ class Query {
 		$vo = ( new Plugin\Files() )->findPluginFromFile( $path );
 		if ( empty( $vo ) ) {
 			$vo = ( new Theme\Files() )->findThemeFromFile( $path );
-			if ( empty( $vo ) ) {
-				throw new NonAssetFileException( 'Not a plugin or theme file path' );
+		if ( empty( $vo ) ) {
+				throw new NonAssetFileException( __( 'Not a plugin or theme file path.', 'wp-simple-firewall' ) );
 			}
 		}
 		return $vo;

@@ -29,7 +29,7 @@ class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 				'items' => \array_map(
 					function ( string $item ) {
 						return [
-							'text' => sprintf( '%s: %s', __( 'Username' ), $item ),
+							'text' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $item ),
 							'href' => '',
 						];
 					},
@@ -42,12 +42,12 @@ class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 
 	private function titleFor( string $key ) :string {
 		return [
-				   'added'      => 'New Admin(s)',
-				   'removed'    => 'Deleted Admin(s)',
-				   'user_pass'  => 'Password Updated',
-				   'user_email' => 'Email Updated',
-				   'promoted'   => 'Promoted To Admin',
-				   'demoted'    => 'Demoted From Admin',
+				   'added'      => __( 'New Admin(s)', 'wp-simple-firewall' ),
+				   'removed'    => __( 'Deleted Admin(s)', 'wp-simple-firewall' ),
+				   'user_pass'  => __( 'Password Updated', 'wp-simple-firewall' ),
+				   'user_email' => __( 'Email Updated', 'wp-simple-firewall' ),
+				   'promoted'   => __( 'Promoted To Admin', 'wp-simple-firewall' ),
+				   'demoted'    => __( 'Demoted From Admin', 'wp-simple-firewall' ),
 			   ][ $key ];
 	}
 }

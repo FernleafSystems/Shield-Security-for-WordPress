@@ -34,7 +34,7 @@ class MUHandler {
 			$file = $this->getMuFilePath();
 			Services::WpFs()->deleteFile( $file );
 			if ( $this->isActiveMU() ) {
-				throw new \Exception( sprintf( 'Could not delete the MU File: %s', $file ) );
+				throw new \Exception( sprintf( __( 'Could not delete the MU file: %s', 'wp-simple-firewall' ), $file ) );
 			}
 		}
 		return !$this->isActiveMU();
@@ -47,7 +47,7 @@ class MUHandler {
 		$FS = Services::WpFs();
 
 		if ( !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.6' ) ) {
-			throw new \Exception( sprintf( 'WP Version must be at least: %s', '5.6' ) );
+			throw new \Exception( sprintf( __( 'WordPress version must be at least: %s', 'wp-simple-firewall' ), '5.6' ) );
 		}
 
 		$muDir = $this->getMuDir();
@@ -56,7 +56,7 @@ class MUHandler {
 		}
 
 		if ( !$FS->isDir( $muDir ) ) {
-			throw new \Exception( sprintf( 'Could not create MU Dir: %s', $muDir ) );
+			throw new \Exception( sprintf( __( 'Could not create MU directory: %s', 'wp-simple-firewall' ), $muDir ) );
 		}
 
 		$file = $this->getMuFilePath();
@@ -64,16 +64,16 @@ class MUHandler {
 		$FS->putFileContent( $file, $content );
 
 		if ( !$FS->isAccessibleFile( $file ) ) {
-			throw new \Exception( sprintf( 'Could not create MU File: %s', $file ) );
+			throw new \Exception( sprintf( __( 'Could not create MU file: %s', 'wp-simple-firewall' ), $file ) );
 		}
 		if ( $FS->getFileContent( $file ) !== $content ) {
-			throw new \Exception( sprintf( 'Could not write content to MU File: %s', $file ) );
+			throw new \Exception( sprintf( __( 'Could not write content to MU file: %s', 'wp-simple-firewall' ), $file ) );
 		}
 
 		// Now test we haven't destroyed the site loading.
 		if ( !$this->testLoopback() ) {
 			$this->convertToStandard();
-			throw new \Exception( "Cancelled - Could not verify site loads successfully" );
+			throw new \Exception( __( 'Cancelled - could not verify site loads successfully', 'wp-simple-firewall' ) );
 		}
 
 		return $this->isActiveMU();
@@ -104,7 +104,7 @@ class MUHandler {
 		$templateFile = path_join( __DIR__, '.mu-template.txt' );
 		$template = $FS->getFileContent( $templateFile );
 		if ( empty( $template ) ) {
-			throw new \Exception( sprintf( "Couldn't read mu-plugin template from %s", $templateFile ) );
+			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
 		}
 		$replacements = [
 			'SHIELD_ROOT_FILE'     => $con->getRootFile(),

@@ -51,7 +51,7 @@ class BuildHashesFromApi {
 			}
 
 			if ( !$apiSupport ) {
-				throw new \Exception( 'Not a WordPress.org asset.' );
+				throw new \Exception( __( 'Not a WordPress.org asset.', 'wp-simple-firewall' ) );
 			}
 		}
 		return $this->retrieveForAsset( $asset );
@@ -71,14 +71,14 @@ class BuildHashesFromApi {
 		}
 		elseif ( $asset->asset_type === 'theme' ) {
 			if ( $asset->is_child ) {
-				throw new \Exception( 'Live hashes are not supported for child themes.' );
+				throw new \Exception( __( 'Live hashes are not supported for child themes.', 'wp-simple-firewall' ) );
 			}
 			$hashes = ( new Hashes\Theme() )
 				->setUseQueryCache( true )
 				->getHashes( $asset->stylesheet, $asset->version, 'md5' );
 		}
 		else {
-			throw new \Exception( 'Not a supported asset type' );
+			throw new \Exception( __( 'Not a supported asset type.', 'wp-simple-firewall' ) );
 		}
 
 		return \is_array( $hashes ) ? $hashes : null;

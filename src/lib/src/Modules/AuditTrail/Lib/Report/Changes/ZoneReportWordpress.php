@@ -16,49 +16,49 @@ class ZoneReportWordpress extends BaseZoneReport {
 				$text = sprintf( __( 'Core Reinstalled: v%s', 'wp-simple-firewall' ), $log->meta_data[ 'version' ] );
 				break;
 			case 'permalinks_structure':
-				$text = sprintf( 'Permalinks Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Permalinks changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_admin_email':
-				$text = sprintf( 'Site Email Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Site email changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_blogname':
-				$text = sprintf( 'Title Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Title changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_blogdescription':
-				$text = sprintf( 'Tagline Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Tagline changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_home':
-				$text = sprintf( 'Home URL Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Home URL changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_siteurl':
-				$text = sprintf( 'Site URL Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Site URL changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_default_role':
-				$text = sprintf( 'Default User Role Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Default user role changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_users_can_register':
-				$text = sprintf( 'Can Users Register Changed: %s&rarr;%s',
+				$text = sprintf( __( 'Anyone can register changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);

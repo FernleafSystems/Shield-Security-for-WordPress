@@ -45,12 +45,12 @@ class Container extends Base {
 				],
 			],
 			'strings' => [
-				'modal_title'      => sprintf( '%s: %s', 'File', $item->path_fragment ),
-				'tab_filecontents' => 'Contents',
-				'tab_diff'         => 'Diff',
-				'tab_history'      => 'History',
-				'tab_info'         => 'Info',
-				'tab_malai'        => 'MAL{ai} Lookup',
+				'modal_title'      => sprintf( __( '%s: %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ), $item->path_fragment ),
+				'tab_filecontents' => __( 'Contents', 'wp-simple-firewall' ),
+				'tab_diff'         => __( 'Diff', 'wp-simple-firewall' ),
+				'tab_history'      => __( 'History', 'wp-simple-firewall' ),
+				'tab_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'tab_malai'        => __( 'MAL{ai} Lookup', 'wp-simple-firewall' ),
 				'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
 			],
 		];

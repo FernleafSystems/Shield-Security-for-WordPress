@@ -26,7 +26,7 @@ class TrackLoginInvalid extends Base {
 					 && ( empty( $login ) || !Services::WpUsers()->exists( $login ) ) ) {
 
 					if ( empty( $login ) ) {
-						$this->user_login = 'empty username';
+						$this->user_login = __( 'empty username', 'wp-simple-firewall' );
 					}
 					else {
 						$this->user_login = Services::Data()->validEmail( $login ) ? $login : sanitize_user( $login );

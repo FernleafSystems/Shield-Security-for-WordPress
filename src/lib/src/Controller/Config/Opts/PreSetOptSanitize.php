@@ -61,7 +61,7 @@ class PreSetOptSanitize {
 		}
 
 		if ( !$valid ) {
-			throw new \Exception( sprintf( 'Invalid value scope for %s', $this->key ) );
+			throw new \Exception( sprintf( __( 'Invalid value scope for %s', 'wp-simple-firewall' ), $this->key ) );
 		}
 	}
 
@@ -73,7 +73,7 @@ class PreSetOptSanitize {
 			case 'auto_clean':
 			case 'audit_trail_auto_clean':
 				if ( $this->value > self::con()->caps->getMaxLogRetentionDays() ) {
-					throw new \Exception( 'Cannot set log retentions days to anything longer than max' );
+					throw new \Exception( __( 'Cannot set log retention days to anything longer than max.', 'wp-simple-firewall' ) );
 				}
 				break;
 			default:
@@ -86,7 +86,7 @@ class PreSetOptSanitize {
 	 */
 	public function exists() :void {
 		if ( !isset( self::con()->cfg->configuration->options[ $this->key ] ) ) {
-			throw new \Exception( sprintf( 'Not a valid option key for module: %s', $this->key ) );
+			throw new \Exception( sprintf( __( 'Not a valid option key for module: %s', 'wp-simple-firewall' ), $this->key ) );
 		}
 	}
 
@@ -147,7 +147,7 @@ class PreSetOptSanitize {
 		}
 
 		if ( !$valid ) {
-			throw new \Exception( sprintf( 'Invalid value type for %s', $this->key ) );
+			throw new \Exception( sprintf( __( 'Invalid value type for %s', 'wp-simple-firewall' ), $this->key ) );
 		}
 	}
 }

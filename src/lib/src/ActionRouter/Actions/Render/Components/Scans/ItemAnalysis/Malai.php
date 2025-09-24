@@ -16,7 +16,7 @@ class Malai extends Base {
 		$pathFull = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 
 		if ( !Services::WpFs()->isAccessibleFile( $pathFull ) ) {
-			throw new ActionException( "This file doesn't appear to be available on this site any longer." );
+			throw new ActionException( __( "This file doesn't appear to be available on this site any longer.", 'wp-simple-firewall' ) );
 		}
 		if ( !\in_array( \strtolower( Paths::Ext( $pathFull ) ), [ 'php', 'php7', 'phtml', 'phtm', 'ico' ] ) ) {
 			throw new ActionException(

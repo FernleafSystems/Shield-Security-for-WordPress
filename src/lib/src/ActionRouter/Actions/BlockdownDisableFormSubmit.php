@@ -16,7 +16,7 @@ class BlockdownDisableFormSubmit extends BaseAction {
 			$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 
 			if ( !$cfg->isLockdownActive() ) {
-				throw new \Exception( 'Invalid request - lockdown is not active.' );
+				throw new \Exception( __( 'Invalid request - lockdown is not active.', 'wp-simple-firewall' ) );
 			}
 
 			$cfg->disabled_at = Services::Request()->ts();

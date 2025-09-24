@@ -23,7 +23,7 @@ class RuleBuilderAction extends BaseAction {
 
 		$rawForm = $this->action_data[ 'rule_form' ] ?? [];
 		if ( empty( $rawForm ) ) {
-			$msg = __( 'Please provide the builder form' );
+			$msg = __( 'Please provide the builder form', 'wp-simple-firewall' );
 		}
 		else {
 			$action = $this->action_data[ 'builder_action' ] ?? '';
@@ -39,11 +39,11 @@ class RuleBuilderAction extends BaseAction {
 						$recordToReset = ( new RuleRecords() )->byID( $editRuleID );
 						if ( empty( $recordToReset->form ) ) {
 							$parsed->edit_rule_id = $editRuleID;
-							$msg = 'Rule Reset';
+							$msg = __( 'Rule Reset', 'wp-simple-firewall' );
 						}
 						else {
 							$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $recordToReset->form );
-							$msg = 'Rule reset to previous saved state';
+							$msg = __( 'Rule reset to previous saved state', 'wp-simple-firewall' );
 						}
 					}
 					catch ( \Exception $e ) {
@@ -81,7 +81,7 @@ class RuleBuilderAction extends BaseAction {
 				$record = $con->db_con->rules->insertFromForm( $parsed, $asDraft );
 				$success = true;
 				if ( !$asDraft ) {
-					$msg = __( 'Rule Saved' );
+					$msg = __( 'Rule Saved', 'wp-simple-firewall' );
 					$con->rules->buildAndStore();
 				}
 			}

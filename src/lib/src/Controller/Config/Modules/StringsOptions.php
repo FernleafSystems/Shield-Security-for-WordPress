@@ -310,7 +310,7 @@ class StringsOptions {
 				}
 				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory' ),
 					\implode( ' ', [
-						sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), 'WP root', '<code>/wp-content/</code>' ),
+						sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
 						__( "Since it's normally messy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
 						__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
 						$additional,
@@ -776,7 +776,7 @@ class StringsOptions {
 					__( 'Automatically redirect here for any requests made to hidden pages.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( 'Leave this blank to serve a standard "%s" error page.', 'wp-simple-firewall' ), 'HTTP 404 Not Found' )
+						sprintf( __( 'Leave this blank to serve a standard "%s" error page.', 'wp-simple-firewall' ), __( 'HTTP 404 Not Found', 'wp-simple-firewall' ) )
 					),
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
@@ -945,9 +945,9 @@ class StringsOptions {
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $pluginName ),
-					sprintf( '<a href="%s">%s</a>',
+						sprintf( '<a href="%s">%s</a>',
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
-						'Launch Debug Info Page'
+						__( 'Launch Debug Info Page', 'wp-simple-firewall' )
 					)
 				];
 				break;
@@ -1106,7 +1106,7 @@ class StringsOptions {
 					sprintf( '%s: %s %s',
 						__( 'Note', 'wp-simple-firewall' ),
 						__( 'This key is automatically regenerated every 24hrs.', 'wp-simple-firewall' ),
-						sprintf( 'Key set to expire: %s', Services::Request()
+						sprintf( __( 'Key set to expire: %s', 'wp-simple-firewall' ), Services::Request()
 																  ->carbon()
 																  ->timestamp( $con->opts->optGet( 'importexport_secretkey_expires_at' ) )
 																  ->diffForHumans() )
@@ -1196,7 +1196,7 @@ class StringsOptions {
 					sprintf(
 						'%s: %s',
 						__( 'Default', 'wp-simple-firewall' ),
-						sprintf( '%s minutes', $con->opts->optDefault( 'admin_access_timeout' ) )
+						sprintf( __( '%s minutes', 'wp-simple-firewall' ), $con->opts->optDefault( 'admin_access_timeout' ) )
 					)
 				];
 				break;

@@ -22,7 +22,7 @@ class Monolog {
 			self::con()->includePrefixedVendor();
 		}
 		if ( !@\class_exists( '\AptowebDeps\Monolog\Logger' ) ) {
-			throw new Exceptions\LibraryNotFoundException( 'Prefixed Monolog library could not be found.' );
+			throw new Exceptions\LibraryNotFoundException( __( 'Prefixed Monolog library could not be found.', 'wp-simple-firewall' ) );
 		}
 	}
 }

@@ -17,7 +17,7 @@ class ScansMalaiFileQuery extends ScansBase {
 
 		if ( self::con()->caps->canScanMalwareMalai() ) {
 			try {
-				$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report' ), 'MAL{ai}' ),
+				$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report', 'wp-simple-firewall' ), 'MAL{ai}' ),
 					( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatus() ) );
 				$success = true;
 			}
@@ -26,7 +26,7 @@ class ScansMalaiFileQuery extends ScansBase {
 			}
 		}
 		else {
-			$msg = __( 'Please upgrade your plan to access the MAL{ai} malware service.' );
+			$msg = __( 'Please upgrade your plan to access the MAL{ai} malware service.', 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [
@@ -45,10 +45,10 @@ class ScansMalaiFileQuery extends ScansBase {
 		$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] ?? -1 );
 		$path = $item->path_full;
 		if ( !$FS->isAccessibleFile( $path ) ) {
-			throw new \Exception( 'There was a problem locating or reading the file on this site' );
+			throw new \Exception( __( 'There was a problem locating or reading the file on this site', 'wp-simple-firewall' ) );
 		}
 		if ( $FS->getFileSize( $path ) === 0 ) {
-			throw new \Exception( 'The file is empty.' );
+			throw new \Exception( __( 'The file is empty.', 'wp-simple-firewall' ) );
 		}
 
 		$token = self::con()->comps->api_token->getToken();

@@ -86,7 +86,7 @@ class Controller extends DynPropertiesClass {
 	public static function GetInstance( ?string $rootFile = null ) :Controller {
 		if ( !isset( static::$oInstance ) ) {
 			if ( empty( $rootFile ) ) {
-				throw new \Exception( 'Empty root file provided for instantiation' );
+				throw new \Exception( __( 'Empty root file provided for instantiation', 'wp-simple-firewall' ) );
 			}
 			static::$oInstance = new static( $rootFile );
 		}
@@ -282,17 +282,17 @@ class Controller extends DynPropertiesClass {
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
 			if ( !empty( $minPHP ) && \version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
-				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', \PHP_VERSION, $minPHP );
+				$reqsMsg[] = sprintf( __( 'PHP does not meet minimum version. Your version: %s. Required version: %s.', 'wp-simple-firewall' ), \PHP_VERSION, $minPHP );
 			}
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
 			if ( !empty( $wp ) && \version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
-				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
+				$reqsMsg[] = sprintf( __( 'WordPress does not meet minimum version. Required version: %s.', 'wp-simple-firewall' ), $wp );
 			}
 
 			$mysql = $this->cfg->requirements[ 'mysql' ];
 			if ( !empty( $mysql ) && !( new Checks\Requirements() )->isMysqlVersionSupported( $mysql ) ) {
-				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
+				$reqsMsg[] = sprintf( __( "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;", 'wp-simple-firewall' ),
 					Services::WpDb()->getMysqlServerInfo(), $mysql );
 			}
 
@@ -300,7 +300,7 @@ class Controller extends DynPropertiesClass {
 				$this->reqs_not_met = $reqsMsg;
 				add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
 				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
-				throw new \Exception( 'Plugin does not meet minimum requirements' );
+				throw new \Exception( __( 'Plugin does not meet minimum requirements', 'wp-simple-firewall' ) );
 			}
 
 			if ( !$FS->isDir( $this->paths->forFlag() ) ) {
@@ -317,11 +317,11 @@ class Controller extends DynPropertiesClass {
 				->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				->setData( [
 					'strings' => [
-						'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
+						'not_met'          => __( 'Shield Security Plugin – minimum site requirements are not met', 'wp-simple-firewall' ),
 						'requirements'     => $this->reqs_not_met,
-						'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
-						'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
-						'more_information' => 'Click here for more information on requirements'
+						'summary_title'    => __( "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.", 'wp-simple-firewall' ),
+						'recommend'        => __( "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.", 'wp-simple-firewall' ),
+						'more_information' => __( 'Click here for more information on requirements', 'wp-simple-firewall' )
 					],
 					'hrefs'   => [
 						'more_information' => 'https://clk.shldscrty.com/shieldsystemrequirements'
@@ -623,7 +623,7 @@ class Controller extends DynPropertiesClass {
 	public function includePrefixedVendor() :void {
 		$auto = path_join( $this->getRootDir(), 'src/lib/vendor_prefixed/autoload.php' );
 		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
-			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( 'Prefixed Autoload Missing' );
+			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) );
 		}
 		require_once( $auto );
 	}

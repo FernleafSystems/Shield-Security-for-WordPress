@@ -24,7 +24,7 @@ class EmailInstantAlertShieldDeactivated extends EmailInstantAlertBase {
 		$alertGroups = [];
 		foreach ( \array_filter( $this->action_data[ 'alert_data' ] ) as $alertKey => $alertItems ) {
 			$alertGroups[ $alertKey ] = [
-				'title' => 'Plugin Deactivation Details',
+				'title' => __( 'Plugin Deactivation Details', 'wp-simple-firewall' ),
 				'items' => [],
 			];
 			foreach ( $alertItems as $type => $path ) {

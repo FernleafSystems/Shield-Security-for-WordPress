@@ -84,7 +84,7 @@ class PageScansResults extends PageScansBase {
 					'wordpress'  => $con->action_router->render( Wordpress::class ),
 					'malware'    => $con->action_router->render( Malware::class ),
 					'filelocker' => $con->action_router->render( FileLocker::class ),
-					'logs'       => 'logs todo',
+					'logs'       => __( 'Logs TODO', 'wp-simple-firewall' ),
 				]
 			],
 			'file_locker' => $this->getFileLockerVars(),

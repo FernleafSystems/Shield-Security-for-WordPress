@@ -17,7 +17,7 @@ class ReportCreateCustom extends BaseAction {
 		$form = FormParams::Retrieve();
 		try {
 			( new ReportGenerator() )->custom(
-				$form[ 'title' ] ?? sprintf( 'Custom Report on %s', Services::WpGeneral()->getTimeStringForDisplay() ),
+				$form[ 'title' ] ?? sprintf( __( 'Custom Report on %s', 'wp-simple-firewall' ), Services::WpGeneral()->getTimeStringForDisplay() ),
 				$this->carbonFromFormDate( $form[ 'start_date' ] )->startOfDay()->timestamp,
 				$this->carbonFromFormDate( $form[ 'end_date' ] )->endOfDay()->timestamp,
 				[
@@ -33,7 +33,7 @@ class ReportCreateCustom extends BaseAction {
 		}
 		catch ( ReportDataEmptyException $e ) {
 			$success = false;
-			$msg = __( 'Failed to create custom report.' );
+			$msg = __( 'Failed to create custom report.', 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [

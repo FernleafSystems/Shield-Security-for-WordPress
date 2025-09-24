@@ -67,7 +67,7 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 				'logo'  => $badgeAttrs[ 'logo' ],
 			],
 			'strings' => [
-				'alt'       => 'Powerful Protection for WordPress, from Shield Security',
+				'alt'       => __( 'Powerful Protection for WordPress, from Shield Security', 'wp-simple-firewall' ),
 				'protected' => $badgeAttrs[ 'protected_by' ],
 				'name'      => $badgeAttrs[ 'name' ],
 			],

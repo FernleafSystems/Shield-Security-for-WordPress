@@ -37,7 +37,7 @@ class Diff extends BaseOps {
 	private function useWpHashes( $original, $current ) :string {
 		$res = ( new WpHashes\Util\Diff() )->getDiff( $original, $current );
 		if ( !\is_array( $res ) || empty( $res[ 'html' ] ) ) {
-			throw new \Exception( 'Could not get a valid diff for this file.' );
+			throw new \Exception( __( 'Could not get a valid diff for this file.', 'wp-simple-firewall' ) );
 		}
 		return sprintf( '<style>%s</style>%s',
 			'table.diff.diff-wrapper tbody tr td:nth-child(2){ width:auto;}'.

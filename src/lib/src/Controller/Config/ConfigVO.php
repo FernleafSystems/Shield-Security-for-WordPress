@@ -54,7 +54,7 @@ class ConfigVO extends DynPropertiesClass {
 						'top_level'      => true,
 						'do_submenu_fix' => true,
 						'has_submenu'    => true,
-						'title'          => 'undefined menu title',
+						'title'          => __( 'undefined menu title', 'wp-simple-firewall' ),
 						'callback'       => 'undefinedMenuCallback',
 					],
 					\is_array( $val ) ? $val : []

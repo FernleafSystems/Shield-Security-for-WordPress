@@ -14,11 +14,11 @@ class ReportTableAction extends BaseAction {
 					->reports
 					->getQueryDeleter()
 					->deleteById( (int)$this->action_data[ 'rid' ] );
-				$msg = 'Report deleted.';
+				$msg = __( 'Report deleted.', 'wp-simple-firewall' );
 				break;
 			default:
 				$success = true;
-				$msg = 'Invalid action';
+				$msg = __( 'Invalid action', 'wp-simple-firewall' );
 				break;
 		}
 

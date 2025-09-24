@@ -25,7 +25,7 @@ class ProcessQueueWpcli {
 			$con->comps->scans->addRemoveScanToBuild( $scan, false );
 			$con->opts->store();
 			try {
-				WP_CLI::log( sprintf( 'Building scan items for scan: %s',
+				WP_CLI::log( sprintf( __( 'Building scan items for scan: %s', 'wp-simple-firewall' ),
 					$con->comps->scans->getScanCon( $scan )->getScanName()
 				) );
 				( new QueueInit() )->init( $scan );
@@ -34,11 +34,11 @@ class ProcessQueueWpcli {
 			}
 		}
 
-		WP_CLI::log( 'Starting Scans...' );
+		WP_CLI::log( __( 'Starting scans…', 'wp-simple-firewall' ) );
 
 		/** @var ScanItemsDB\Select $selector */
 		$selector = $con->db_con->scan_items->getQuerySelector();
-		$progress = WP_CLI\Utils\make_progress_bar( 'Scans Progress',
+		$progress = WP_CLI\Utils\make_progress_bar( __( 'Scans progress', 'wp-simple-firewall' ),
 			\array_sum( $selector->countAllForEachScan() ) );
 
 		do {
@@ -55,6 +55,6 @@ class ProcessQueueWpcli {
 		( new CompleteQueue() )->complete();
 
 		$progress->finish();
-		WP_CLI::log( 'Scans Complete.' );
+		WP_CLI::log( __( 'Scans complete.', 'wp-simple-firewall' ) );
 	}
 }

@@ -20,7 +20,7 @@ class EventsService {
 	public function fireEvent( string $event, array $meta = [] ) {
 		try {
 			if ( !$this->eventExists( $event ) ) {
-				throw new \Exception( sprintf( 'Event %s does not exist.', $event ) );
+				throw new \Exception( sprintf( __( 'Event %s does not exist.', 'wp-simple-firewall' ), $event ) );
 			}
 			do_action(
 				'shield/event',
@@ -42,13 +42,13 @@ class EventsService {
 		$metaParams = \array_keys( $meta[ 'audit_params' ] ?? [] );
 
 		if ( empty( $def ) && !empty( $metaParams ) ) {
-			error_log( sprintf( 'WARNING: Event (%s) receives params but none are defined.', $event ) );
+			error_log( sprintf( __( 'WARNING: Event (%s) receives params but none are defined.', 'wp-simple-firewall' ), $event ) );
 		}
 		elseif ( !empty( $def ) ) {
 
 			$missingParams = \array_diff( $def, $metaParams );
 			if ( !empty( $missingParams ) ) {
-				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, \implode( ', ', $missingParams ) ) );
+				throw new \Exception( sprintf( __( "Event (%s) definition has audit parameters that aren't present: %s", 'wp-simple-firewall' ), $event, \implode( ', ', $missingParams ) ) );
 			}
 
 			$extraMetaParams = \array_diff(
@@ -73,7 +73,7 @@ class EventsService {
 				$this->buildEvents( self::con()->cfg->configuration->events )
 			);
 			if ( empty( $this->events ) ) {
-				error_log( 'Shield events definitions is empty or not the correct format' );
+				error_log( __( 'Shield event definitions are empty or not in the correct format.', 'wp-simple-firewall' ) );
 			}
 		}
 
@@ -98,22 +98,22 @@ class EventsService {
 
 			$events = apply_filters( 'shield/events/custom_definitions', [] );
 			if ( !\is_array( $events ) ) {
-				throw new \Exception( "custom events isn't an array. Please ensure to return only an array to this filter." );
+				throw new \Exception( __( "Custom events must be provided as an array. Please ensure the filter returns only an array.", 'wp-simple-firewall' ) );
 			}
 
 			$events = \array_filter( $events );
 			foreach ( $events as $evtKey => $evtDef ) {
 				if ( \is_numeric( $evtKey ) || !\is_string( $evtKey ) || !\preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
-					throw new \Exception( "All Custom Event Keys must be: string; lowercase; length: 10-50; prefixed with 'custom_'; only characters: a-z and underscore (_)" );
+					throw new \Exception( __( "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores.", 'wp-simple-firewall' ) );
 				}
 				if ( !isset( $evtDef[ 'strings' ] ) || !\is_array( $evtDef[ 'strings' ] ) ) {
-					throw new \Exception( "All Custom Events must supply an array of strings with key 'strings'." );
+					throw new \Exception( __( "All custom events must supply an array of strings with key 'strings'.", 'wp-simple-firewall' ) );
 				}
 				if ( empty( $evtDef[ 'strings' ][ 'name' ] ) || !\is_string( $evtDef[ 'strings' ][ 'name' ] ) ) {
-					throw new \Exception( "All Custom Events must supply a 'name' as a string within the 'strings' array." );
+					throw new \Exception( __( "All custom events must supply a 'name' as a string within the 'strings' array.", 'wp-simple-firewall' ) );
 				}
 				if ( empty( $evtDef[ 'strings' ][ 'audit' ] ) || !\is_array( $evtDef[ 'strings' ][ 'audit' ] ) ) {
-					throw new \Exception( "All Custom Events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event." );
+					throw new \Exception( __( "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event.", 'wp-simple-firewall' ) );
 				}
 
 				// Clean out the audit strings to ensure type consistency later.

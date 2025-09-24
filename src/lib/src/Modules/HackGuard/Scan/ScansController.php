@@ -136,7 +136,7 @@ class ScansController {
 			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
-			error_log( 'Shield scans cannot execute.' );
+			error_log( __( 'Shield scans cannot execute.', 'wp-simple-firewall' ) );
 		}
 	}
 

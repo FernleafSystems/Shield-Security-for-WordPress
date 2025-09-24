@@ -18,7 +18,7 @@ class DisplayReport extends FullPageDisplayStatic {
 		/** @var ?|ReportDB\Record $report */
 		$report = $select->filterByReportID( $this->action_data[ 'report_unique_id' ] )->first();
 		if ( empty( $report ) ) {
-			throw new ActionException( 'Report could not be found.' );
+			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );
 		}
 		return \gzinflate( $report->content );
 	}

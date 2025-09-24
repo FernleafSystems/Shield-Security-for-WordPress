@@ -15,12 +15,12 @@ class Content extends Base {
 		$path = \path_join( ABSPATH, $this->getScanItem()->path_fragment );
 		$FS = Services::WpFs();
 		if ( !$FS->isAccessibleFile( $path ) ) {
-			throw new ActionException( 'File does not exist.' );
+			throw new ActionException( __( 'File does not exist.', 'wp-simple-firewall' ) );
 		}
 
 		$contents = $FS->getFileContent( $path );
 		if ( empty( $contents ) ) {
-			throw new ActionException( 'File is empty or could not be read.' );
+			throw new ActionException( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}
 
 		return [

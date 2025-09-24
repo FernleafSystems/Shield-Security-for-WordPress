@@ -97,7 +97,7 @@ class ExtensionsCon {
 	public function getExtension( string $slug ) :BaseExtension {
 		$ext = $this->getAvailableExtensions()[ $slug ] ?? null;
 		if ( empty( $ext ) ) {
-			throw new \Exception( sprintf( '%s extension is unavailable.', $slug ) );
+			throw new \Exception( sprintf( __( '%s extension is unavailable.', 'wp-simple-firewall' ), $slug ) );
 		}
 		return $ext;
 	}

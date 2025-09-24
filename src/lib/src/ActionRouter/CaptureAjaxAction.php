@@ -101,7 +101,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 				[
 					'success'     => false,
 					'page_reload' => false,
-					'message'     => 'No AJAX Message provided',
+				'message'     => __( 'No AJAX message provided', 'wp-simple-firewall' ),
 					'html'        => '',
 				],
 				$ajaxResponse

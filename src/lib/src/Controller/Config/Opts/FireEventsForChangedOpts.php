@@ -31,7 +31,7 @@ class FireEventsForChangedOpts {
 							$logValue = \implode( ', ', $logValue );
 							break;
 						default:
-							$logValue = sprintf( '%s (JSON Encoded)', \wp_json_encode( $logValue ) );
+							$logValue = sprintf( __( '%s (JSON Encoded)', 'wp-simple-firewall' ), \wp_json_encode( $logValue ) );
 							break;
 					}
 				}

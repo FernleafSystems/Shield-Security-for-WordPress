@@ -21,12 +21,12 @@ abstract class Base extends BaseScans {
 				$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] );
 			}
 			catch ( \Exception $e ) {
-				throw new ActionException( 'Not a valid scan item record' );
+				throw new ActionException( __( 'Not a valid scan item record', 'wp-simple-firewall' ) );
 			}
 
 			$fragment = $item->path_fragment;
 			if ( empty( $fragment ) ) {
-				throw new ActionException( 'Non-file scan items are not supported yet.' );
+				throw new ActionException( __( 'Non-file scan items are not supported yet.', 'wp-simple-firewall' ) );
 			}
 
 			static::$ScanItem = $item;

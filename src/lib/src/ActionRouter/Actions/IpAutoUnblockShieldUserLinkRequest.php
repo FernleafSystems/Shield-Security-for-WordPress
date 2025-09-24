@@ -19,7 +19,7 @@ class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 				$unBlocker->processEmailSend();
 				$this->response()->action_response_data = [
 					'success' => true,
-					'message' => 'Please check your email for the unblocking link.',
+					'message' => __( 'Please check your email for the unblocking link.', 'wp-simple-firewall' ),
 				];
 			}
 			catch ( \Exception $e ) {

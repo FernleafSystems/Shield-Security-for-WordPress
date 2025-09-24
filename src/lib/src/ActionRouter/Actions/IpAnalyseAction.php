@@ -37,7 +37,7 @@ class IpAnalyseAction extends BaseAction {
 					try {
 						$autoBlockIP = $ruleStatus->getRuleForAutoBlock();
 						if ( empty( $autoBlockIP ) ) {
-							throw new \Exception( "IP isn't on the auto block list." );
+							throw new \Exception( __( "IP isn't on the auto block list.", 'wp-simple-firewall' ) );
 						}
 						$success = ( new IpRules\DeleteRule() )->byRecord( $autoBlockIP );
 						$msg = $success ? __( 'Offenses reset to zero.', 'wp-simple-firewall' )
