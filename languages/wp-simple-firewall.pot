@@ -9,16 +9,10 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-24T12:23:22+00:00\n"
+"POT-Creation-Date: 2025-09-24T13:09:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
-
-#. Plugin Name of the plugin
-#. Author of the plugin
-#: icwp-wpsf.php
-msgid "Shield Security"
-msgstr ""
 
 #. Description of the plugin
 #: icwp-wpsf.php
@@ -554,6 +548,7 @@ msgid "Option included in import/export"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php:101
+#: src/lib/src/translations-strings-auto.php:89
 msgid "Security Dashboard"
 msgstr ""
 
@@ -1171,6 +1166,7 @@ msgid "%s has already taken the necessary action of blocking the request."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/FirewallBlockAlert.php:36
+#: src/lib/src/translations-strings-auto.php:347
 msgid "Visitor IP Address"
 msgstr ""
 
@@ -1231,6 +1227,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Email/Footer.php:27
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:213
+#: src/lib/src/translations-strings-auto.php:93
 msgid "Vulnerability Scanner"
 msgstr ""
 
@@ -1543,6 +1540,7 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1170
 #: src/lib/src/Modules/Plugin/Lib/Merlin/Steps/SecurityAdmin.php:40
 #: src/lib/src/Tables/DataTables/Build/ForSessions.php:61
+#: src/lib/src/translations-strings-auto.php:75
 #: src/lib/src/Zones/Zone/Secadmin.php:61
 msgid "Security Admin"
 msgstr ""
@@ -2113,6 +2111,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Reports/PageReportsView.php:21
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageReports.php:52
+#: src/lib/src/translations-strings-auto.php:495
 msgid "Security Reports"
 msgstr ""
 
@@ -2929,6 +2928,7 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:35
 #: src/lib/src/ActionRouter/Actions/Render/Components/UserMfa/ConfigForm.php:18
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:792
+#: src/lib/src/translations-strings-auto.php:32
 msgid "Multi-Factor Authentication"
 msgstr ""
 
@@ -3164,6 +3164,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/FullPage/Block/BlockAuthorFishing.php:12
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:743
+#: src/lib/src/translations-strings-auto.php:280
 #: src/lib/src/Zones/Component/UsernameFishingBlock.php:10
 msgid "Block Username Fishing"
 msgstr ""
@@ -3706,6 +3707,7 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php:119
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageIpRulesTable.php:32
 #: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:115
+#: src/lib/src/translations-strings-auto.php:493
 msgid "IP Rules"
 msgstr ""
 
@@ -3846,6 +3848,7 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:78
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:82
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1102
+#: src/lib/src/translations-strings-auto.php:387
 msgid "Secret Key"
 msgstr ""
 
@@ -4054,6 +4057,7 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:317
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:330
 #: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:340
+#: src/lib/src/translations-strings-auto.php:66
 #: src/lib/src/Zones/Component/Whitelabel.php:10
 msgid "White Label"
 msgstr ""
@@ -4161,6 +4165,7 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageScansRun.php:49
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:73
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:74
+#: src/lib/src/translations-strings-auto.php:54
 msgid "Scan Options"
 msgstr ""
 
@@ -4204,6 +4209,7 @@ msgstr ""
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageScansResults.php:138
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:334
 #: src/lib/src/Modules/HackGuard/Lib/FileLocker/FileLockerController.php:64
+#: src/lib/src/translations-strings-auto.php:193
 msgid "File Locker"
 msgstr ""
 
@@ -4427,6 +4433,7 @@ msgid "Switch To Live Logs"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/PluginAdminPages/PageTrafficLogTable.php:32
+#: src/lib/src/translations-strings-auto.php:496
 msgid "Request Logs"
 msgstr ""
 
@@ -4704,11 +4711,13 @@ msgstr ""
 #: src/lib/src/Components/CompCons/Firewall/FirewallCategoryNames.php:10
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:157
 #: src/lib/src/Profiles/SecurityProfilesCon.php:324
+#: src/lib/src/translations-strings-auto.php:173
 msgid "SQL Queries"
 msgstr ""
 
 #: src/lib/src/Components/CompCons/Firewall/FirewallCategoryNames.php:11
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:162
+#: src/lib/src/translations-strings-auto.php:176
 msgid "Field Truncation"
 msgstr ""
 
@@ -4720,6 +4729,7 @@ msgstr ""
 #: src/lib/src/Components/CompCons/Firewall/FirewallCategoryNames.php:13
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:167
 #: src/lib/src/Profiles/SecurityProfilesCon.php:331
+#: src/lib/src/translations-strings-auto.php:179
 msgid "PHP Code"
 msgstr ""
 
@@ -4733,6 +4743,7 @@ msgstr ""
 
 #: src/lib/src/Components/CompCons/InstantAlerts/Handlers/AlertHandlerShieldDeactivated.php:15
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1145
+#: src/lib/src/translations-strings-auto.php:395
 msgid "Shield Deactivated"
 msgstr ""
 
@@ -4845,10 +4856,12 @@ msgid "Un-Checking this option will completely disable the %s module."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:35
+#: src/lib/src/translations-strings-auto.php:140
 msgid "Logging Level"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:36
+#: src/lib/src/translations-strings-auto.php:141
 msgid "Logging Level For DB-Based Logs"
 msgstr ""
 
@@ -4866,6 +4879,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:47
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1385
+#: src/lib/src/translations-strings-auto.php:431
 msgid "Log Retention"
 msgstr ""
 
@@ -4884,10 +4898,12 @@ msgid "The maximum log retention limit (%s) may be increased by upgrading your S
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:61
+#: src/lib/src/translations-strings-auto.php:364
 msgid "Self AutoUpdate"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:62
+#: src/lib/src/translations-strings-auto.php:365
 msgid "Always Automatically Update This Plugin"
 msgstr ""
 
@@ -4901,10 +4917,12 @@ msgid "The plugin will normally automatically update after approximately 5 days,
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:69
+#: src/lib/src/translations-strings-auto.php:145
 msgid "Update Delay"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:70
+#: src/lib/src/translations-strings-auto.php:146
 msgid "Delay Automatic Updates For Period Of Stability"
 msgstr ""
 
@@ -4927,6 +4945,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:83
 #: src/lib/src/Profiles/SecurityProfilesCon.php:364
+#: src/lib/src/translations-strings-auto.php:163
 msgid "Comments Cooldown"
 msgstr ""
 
@@ -4952,14 +4971,17 @@ msgid "Set to zero (0) to disable."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:91
+#: src/lib/src/translations-strings-auto.php:157
 msgid "Trusted Commenter Minimum"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:92
+#: src/lib/src/translations-strings-auto.php:158
 msgid "Minimum Number Of Approved Comments Before Commenter Is Trusted"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:94
+#: src/lib/src/translations-strings-auto.php:159
 msgid "Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned."
 msgstr ""
 
@@ -5028,10 +5050,12 @@ msgid "When this happens, you can scan the content for keywords that are typical
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:126
+#: src/lib/src/translations-strings-auto.php:150
 msgid "SPAM Action"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:127
+#: src/lib/src/translations-strings-auto.php:151
 msgid "How To Categorise Comments When Identified To Be SPAM"
 msgstr ""
 
@@ -5070,10 +5094,12 @@ msgid "The firewall tests GET and POST, but with this option checked it will als
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:152
+#: src/lib/src/translations-strings-auto.php:170
 msgid "Directory Traversals"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:153
+#: src/lib/src/translations-strings-auto.php:171
 msgid "Block Directory Traversals"
 msgstr ""
 
@@ -5083,6 +5109,7 @@ msgid "This will block directory traversal paths in in application parameters (e
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:158
+#: src/lib/src/translations-strings-auto.php:174
 msgid "Block SQL Queries"
 msgstr ""
 
@@ -5092,6 +5119,7 @@ msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:163
+#: src/lib/src/translations-strings-auto.php:177
 msgid "Block Field Truncation Attacks"
 msgstr ""
 
@@ -5117,10 +5145,12 @@ msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:175
+#: src/lib/src/translations-strings-auto.php:181
 msgid "Aggressive Scan"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:176
+#: src/lib/src/translations-strings-auto.php:182
 msgid "Aggressively Block Data"
 msgstr ""
 
@@ -5133,10 +5163,12 @@ msgid "May cause an increase in false-positive firewall blocks."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:183
+#: src/lib/src/translations-strings-auto.php:165
 msgid "Send Email Report"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:184
+#: src/lib/src/translations-strings-auto.php:166
 msgid "Send Firewall Trigger Report Email"
 msgstr ""
 
@@ -5145,6 +5177,7 @@ msgid "Use with caution - if you get hit by automated bots you may send out too 
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:188
+#: src/lib/src/translations-strings-auto.php:168
 msgid "Whitelist Parameters"
 msgstr ""
 
@@ -5153,6 +5186,7 @@ msgid "Detail pages and parameters that are whitelisted (ignored by the firewall
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:190
+#: src/lib/src/translations-strings-auto.php:169
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr ""
 
@@ -5208,6 +5242,7 @@ msgid "Runs a scan of all your assets against a database of known WordPress vuln
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:218
+#: src/lib/src/translations-strings-auto.php:204
 msgid "Automatic Updates"
 msgstr ""
 
@@ -5216,6 +5251,7 @@ msgid "Automatically Install Updates To Vulnerable Plugins"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:220
+#: src/lib/src/translations-strings-auto.php:206
 msgid "When an update becomes available, automatically apply updates to items with known vulnerabilities."
 msgstr ""
 
@@ -5278,6 +5314,7 @@ msgid "Only core WordPress files are scans in the free version of Shield."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:237
+#: src/lib/src/translations-strings-auto.php:187
 msgid "File Scan Areas"
 msgstr ""
 
@@ -5455,19 +5492,23 @@ msgid "Locked Files"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:353
+#: src/lib/src/translations-strings-auto.php:212
 msgid "Show Re-Install Links"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:354
+#: src/lib/src/translations-strings-auto.php:213
 msgid "Show Re-Install Links For Plugins"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:355
+#: src/lib/src/translations-strings-auto.php:214
 msgid "Show links to re-install plugins and offer re-install when activating plugins."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:358
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:359
+#: src/lib/src/translations-strings-auto.php:210
 msgid "Optimise File Scans"
 msgstr ""
 
@@ -5480,6 +5521,7 @@ msgid "If you experience any errors in your logs or strange scanning behaviour, 
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:366
+#: src/lib/src/translations-strings-auto.php:196
 msgid "Scan Exclusions"
 msgstr ""
 
@@ -5531,14 +5573,17 @@ msgid "Scan For Plugins Abandoned By The Developer"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:383
+#: src/lib/src/translations-strings-auto.php:201
 msgid "Scan your WordPress.org assets for whether they've been abandoned."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:387
+#: src/lib/src/translations-strings-auto.php:404
 msgid "Block iFrames"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:388
+#: src/lib/src/translations-strings-auto.php:405
 msgid "Block Remote iFrames Of This Site"
 msgstr ""
 
@@ -5551,38 +5596,47 @@ msgid "This is useful for preventing so-called \"ClickJack attacks\"."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:395
+#: src/lib/src/translations-strings-auto.php:413
 msgid "Referrer Policy"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:396
+#: src/lib/src/translations-strings-auto.php:414
 msgid "Referrer Policy Header"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:397
+#: src/lib/src/translations-strings-auto.php:415
 msgid "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:400
+#: src/lib/src/translations-strings-auto.php:407
 msgid "XSS Protection"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:401
+#: src/lib/src/translations-strings-auto.php:408
 msgid "Employ Built-In Browser XSS Protection"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:402
+#: src/lib/src/translations-strings-auto.php:409
 msgid "Directs compatible browsers to block what they detect as Reflective XSS attacks."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:405
+#: src/lib/src/translations-strings-auto.php:410
 msgid "Prevent Mime-Sniff"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:406
+#: src/lib/src/translations-strings-auto.php:411
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:407
+#: src/lib/src/translations-strings-auto.php:412
 msgid "Reduces visitor exposure to malicious user-uploaded content."
 msgstr ""
 
@@ -5604,6 +5658,7 @@ msgid "Use this option to toggle on/off whether your custom CSP Rules are applie
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:417
+#: src/lib/src/translations-strings-auto.php:418
 msgid "CSP Rules"
 msgstr ""
 
@@ -5644,6 +5699,7 @@ msgid "Many WordPress caching plugins ignore HTTP Headers - if they're not showi
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:440
+#: src/lib/src/translations-strings-auto.php:227
 msgid "Offense Limit"
 msgstr ""
 
@@ -5667,10 +5723,12 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:445
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:123
+#: src/lib/src/translations-strings-auto.php:27
 msgid "Automatic IP Black List"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:449
+#: src/lib/src/translations-strings-auto.php:230
 msgid "Auto Block Expiration"
 msgstr ""
 
@@ -5687,19 +5745,23 @@ msgid "Performance of your block lists is optimised by automatically removing st
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:457
+#: src/lib/src/translations-strings-auto.php:233
 msgid "User Auto Unblock"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:458
+#: src/lib/src/translations-strings-auto.php:234
 msgid "Allow Visitors To Unblock Their IP"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:459
+#: src/lib/src/translations-strings-auto.php:235
 msgid "Allow visitors blocked by the plugin to automatically unblock themselves."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:462
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:463
+#: src/lib/src/translations-strings-auto.php:236
 msgid "Request Path Whitelist"
 msgstr ""
 
@@ -5740,6 +5802,7 @@ msgid "Adaptive complexity will try to present the most suitable challenge depen
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:485
+#: src/lib/src/translations-strings-auto.php:224
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr ""
 
@@ -5772,6 +5835,7 @@ msgid "Or choose a lower minimum score to perhaps allow through more bots (but r
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:497
+#: src/lib/src/translations-strings-auto.php:225
 msgid "High Reputation Bypass"
 msgstr ""
 
@@ -5793,11 +5857,13 @@ msgid "Your current IP Reputation score is %s."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:513
+#: src/lib/src/translations-strings-auto.php:238
 #: src/lib/src/Zones/Component/CrowdsecBlocking.php:10
 msgid "CrowdSec IP Blocking"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:514
+#: src/lib/src/translations-strings-auto.php:239
 msgid "How To Handle Requests From IPs Found On CrowdSec Blocklist"
 msgstr ""
 
@@ -5810,6 +5876,7 @@ msgid "To provide the greatest flexibility for your visitors in the case of fals
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:527
+#: src/lib/src/translations-strings-auto.php:242
 msgid "CrowdSec Enroll ID"
 msgstr ""
 
@@ -5840,6 +5907,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:539
 #: src/lib/src/Events/EventStrings.php:521
+#: src/lib/src/translations-strings-auto.php:244
 msgid "Failed Login"
 msgstr ""
 
@@ -5853,10 +5921,12 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:544
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/IpTrackSignalXmlrpc.php:12
+#: src/lib/src/translations-strings-auto.php:247
 msgid "XML-RPC Access"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:545
+#: src/lib/src/translations-strings-auto.php:248
 msgid "Identify A Bot When It Accesses XML-RPC"
 msgstr ""
 
@@ -5877,10 +5947,12 @@ msgid "You can monitor the Activity Log and when you're happy you won't block va
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:554
+#: src/lib/src/translations-strings-auto.php:256
 msgid "404 Detect"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:555
+#: src/lib/src/translations-strings-auto.php:257
 msgid "Identify A Bot When It Hits A 404"
 msgstr ""
 
@@ -5899,10 +5971,12 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:567
 #: src/lib/src/Events/EventStrings.php:514
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:25
+#: src/lib/src/translations-strings-auto.php:259
 msgid "Link Cheese"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:568
+#: src/lib/src/translations-strings-auto.php:260
 msgid "Tempt A Bot With A Fake Link To Follow"
 msgstr ""
 
@@ -5915,6 +5989,7 @@ msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofo
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:575
+#: src/lib/src/translations-strings-auto.php:250
 msgid "Invalid Usernames"
 msgstr ""
 
@@ -5932,6 +6007,7 @@ msgid "This includes the WordPress default %s username, if you've removed that a
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:585
+#: src/lib/src/translations-strings-auto.php:262
 msgid "Invalid Script Load"
 msgstr ""
 
@@ -5963,10 +6039,12 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:601
 #: src/lib/src/Events/EventStrings.php:506
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:24
+#: src/lib/src/translations-strings-auto.php:253
 msgid "Fake Web Crawler"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:602
+#: src/lib/src/translations-strings-auto.php:254
 msgid "Detect Fake Search Engine Crawlers"
 msgstr ""
 
@@ -5983,10 +6061,12 @@ msgid "We will immediately know that a particular bot isn't here for anything go
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:611
+#: src/lib/src/translations-strings-auto.php:265
 msgid "Empty User Agents"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:612
+#: src/lib/src/translations-strings-auto.php:266
 msgid "Detect Requests With Empty User Agents"
 msgstr ""
 
@@ -6036,6 +6116,7 @@ msgid "Please upgrade your plan if you need to run the MainWP integration."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:646
+#: src/lib/src/translations-strings-auto.php:72
 msgid "User Forms Bot Detection"
 msgstr ""
 
@@ -6092,6 +6173,7 @@ msgid "Please upgrade your plan if you need to protect and integrate with 3rd pa
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:673
+#: src/lib/src/translations-strings-auto.php:221
 msgid "SureSend Emails"
 msgstr ""
 
@@ -6138,6 +6220,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:689
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:690
+#: src/lib/src/translations-strings-auto.php:271
 msgid "Anonymous Rest API"
 msgstr ""
 
@@ -6154,10 +6237,12 @@ msgid "Use the exclusions option to allow anonymous access to specific API endpo
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:698
+#: src/lib/src/translations-strings-auto.php:274
 msgid "Rest API Exclusions"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:699
+#: src/lib/src/translations-strings-auto.php:275
 msgid "Anonymous REST API Exclusions"
 msgstr ""
 
@@ -6179,10 +6264,12 @@ msgid "Some common namespaces"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:720
+#: src/lib/src/translations-strings-auto.php:277
 msgid "Disable File Editing"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:721
+#: src/lib/src/translations-strings-auto.php:278
 msgid "Disable Ability To Edit Files From Within WordPress"
 msgstr ""
 
@@ -6207,10 +6294,12 @@ msgid "Remove a meta tag from your WordPress pages that publicly displays that y
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:733
+#: src/lib/src/translations-strings-auto.php:283
 msgid "Clean WP Files"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:734
+#: src/lib/src/translations-strings-auto.php:284
 msgid "Automatically Delete Unnecessary WP Files"
 msgstr ""
 
@@ -6227,6 +6316,7 @@ msgid "Files Deleted"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:744
+#: src/lib/src/translations-strings-auto.php:281
 msgid "Block the ability to discover WordPress usernames based on author IDs"
 msgstr ""
 
@@ -6240,10 +6330,12 @@ msgid "Enabling this option may interfere with expected operations of your site.
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:758
+#: src/lib/src/translations-strings-auto.php:286
 msgid "Hide WP Login & Admin"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:759
+#: src/lib/src/translations-strings-auto.php:287
 msgid "Hide The WordPress Login And Admin Areas"
 msgstr ""
 
@@ -6263,10 +6355,12 @@ msgid "Your current login URL is: %s"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:773
+#: src/lib/src/translations-strings-auto.php:289
 msgid "WP Login & Admin Redirect"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:774
+#: src/lib/src/translations-strings-auto.php:290
 msgid "Automatic Redirect URL For Hidden Pages"
 msgstr ""
 
@@ -6329,6 +6423,7 @@ msgid "At least 1 option must be provided and defaults to the user profile page 
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:814
+#: src/lib/src/translations-strings-auto.php:298
 msgid "2FA Remember Me"
 msgstr ""
 
@@ -6341,10 +6436,12 @@ msgid "The number of days a user can bypass 2FA after a successful 2FA. 0 to dis
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:820
+#: src/lib/src/translations-strings-auto.php:300
 msgid "Allow Backup Codes"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:821
+#: src/lib/src/translations-strings-auto.php:301
 msgid "Allow Users To Generate A Backup Code"
 msgstr ""
 
@@ -6366,6 +6463,7 @@ msgid "Google Authenticator"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:829
+#: src/lib/src/translations-strings-auto.php:304
 msgid "Allow Users To Use Google Authenticator"
 msgstr ""
 
@@ -6398,6 +6496,7 @@ msgid "Email"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:839
+#: src/lib/src/translations-strings-auto.php:316
 msgid "All users will be required to verify their login by email-based two-factor authentication."
 msgstr ""
 
@@ -6422,10 +6521,12 @@ msgid "If you believe, for whatever reason, you or your users' mailboxes are com
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:851
+#: src/lib/src/translations-strings-auto.php:323
 msgid "Allow Any User"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:852
+#: src/lib/src/translations-strings-auto.php:325
 msgid "Allow Any User To Turn-On Two-Factor Authentication By Email."
 msgstr ""
 
@@ -6438,6 +6539,7 @@ msgid "Enforce"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:857
+#: src/lib/src/translations-strings-auto.php:321
 msgid "All User Roles Subject To Email Authentication"
 msgstr ""
 
@@ -6459,10 +6561,12 @@ msgid "All User Roles Available On This Site"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:867
+#: src/lib/src/translations-strings-auto.php:326
 msgid "Protected Forms"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:868
+#: src/lib/src/translations-strings-auto.php:327
 msgid "Which WordPress Forms Should Be Protected From Bots"
 msgstr ""
 
@@ -6497,6 +6601,7 @@ msgid "Zero (0) turns this off."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:885
+#: src/lib/src/translations-strings-auto.php:69
 msgid "User Registration"
 msgstr ""
 
@@ -6525,10 +6630,12 @@ msgid "Passkeys include any FIDO2-compatible devices, such as:"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:912
+#: src/lib/src/translations-strings-auto.php:306
 msgid "Allow Yubikey OTP"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:913
+#: src/lib/src/translations-strings-auto.php:307
 msgid "Allow Yubikey Registration For One Time Passwords"
 msgstr ""
 
@@ -6537,10 +6644,12 @@ msgid "Combined with your Yubikey API details this will form the basis of your Y
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:917
+#: src/lib/src/translations-strings-auto.php:308
 msgid "Yubikey App ID"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:918
+#: src/lib/src/translations-strings-auto.php:309
 msgid "Your Unique Yubikey App ID"
 msgstr ""
 
@@ -6553,14 +6662,17 @@ msgid "Please review the info link on how to obtain your own Yubikey App ID and 
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:925
+#: src/lib/src/translations-strings-auto.php:311
 msgid "Yubikey API Key"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:926
+#: src/lib/src/translations-strings-auto.php:312
 msgid "Your Unique Yubikey App API Key"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:928
+#: src/lib/src/translations-strings-auto.php:313
 msgid "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
 msgstr ""
 
@@ -6614,6 +6726,7 @@ msgid "Anonymous Usage Statistics"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:957
+#: src/lib/src/translations-strings-auto.php:360
 msgid "Permit Anonymous Telemetry Reports"
 msgstr ""
 
@@ -6630,10 +6743,12 @@ msgid "Click to see the exact data that would be sent."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:969
+#: src/lib/src/translations-strings-auto.php:373
 msgid "Beta Access"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:970
+#: src/lib/src/translations-strings-auto.php:374
 msgid "Enable Access To Beta Versions"
 msgstr ""
 
@@ -6682,10 +6797,12 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1001
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/PluginReportEmail.php:23
+#: src/lib/src/translations-strings-auto.php:350
 msgid "Report Email"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1002
+#: src/lib/src/translations-strings-auto.php:351
 msgid "Email For All Reports and Plugin Notifications"
 msgstr ""
 
@@ -6703,6 +6820,7 @@ msgid "Review site settings"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1014
+#: src/lib/src/translations-strings-auto.php:356
 msgid "In-Plugin Notices"
 msgstr ""
 
@@ -6719,6 +6837,7 @@ msgid "These notices can be hidden by switching off this option."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1023
+#: src/lib/src/translations-strings-auto.php:353
 msgid "Show Plugin Badge"
 msgstr ""
 
@@ -6743,10 +6862,12 @@ msgid "Read this carefully before enabling this option."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1033
+#: src/lib/src/translations-strings-auto.php:367
 msgid "Delete Plugin Settings"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1034
+#: src/lib/src/translations-strings-auto.php:368
 msgid "Delete All Plugin Settings Upon Plugin Deactivation"
 msgstr ""
 
@@ -6755,10 +6876,12 @@ msgid "Careful: Removes all plugin options when you deactivate the plugin"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1039
+#: src/lib/src/translations-strings-auto.php:370
 msgid "Temp Dir"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1040
+#: src/lib/src/translations-strings-auto.php:371
 msgid "Preferred Temporary Directory"
 msgstr ""
 
@@ -6814,6 +6937,7 @@ msgid "You will need to upgrade your plan to use the Automatic Import/Export fea
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1076
+#: src/lib/src/translations-strings-auto.php:381
 msgid "Export Whitelist"
 msgstr ""
 
@@ -6854,14 +6978,17 @@ msgid "Use of this feature will overwrite existing options and replace them with
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1096
+#: src/lib/src/translations-strings-auto.php:384
 msgid "Notify Whitelist"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1097
+#: src/lib/src/translations-strings-auto.php:385
 msgid "Notify Sites On The Whitelist To Update Options From Master"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1098
+#: src/lib/src/translations-strings-auto.php:386
 msgid "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
 msgstr ""
 
@@ -6883,10 +7010,12 @@ msgid "Key set to expire: %s"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1118
+#: src/lib/src/translations-strings-auto.php:389
 msgid "Alert Reports Frequency"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1119
+#: src/lib/src/translations-strings-auto.php:390
 msgid "How Often Should You Be Sent Reports With Important Alerts"
 msgstr ""
 
@@ -6899,6 +7028,7 @@ msgid "Critical alerts are typically results from your most recent site scans."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1127
+#: src/lib/src/translations-strings-auto.php:392
 msgid "Info Reports Frequency"
 msgstr ""
 
@@ -6915,6 +7045,7 @@ msgid "Information and reports are typically statistics."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1136
+#: src/lib/src/translations-strings-auto.php:398
 msgid "Admin Accounts"
 msgstr ""
 
@@ -6924,6 +7055,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1139
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1148
+#: src/lib/src/translations-strings-auto.php:400
 msgid "Be alerted to any important change on any admin account."
 msgstr ""
 
@@ -6936,6 +7068,7 @@ msgid "Receive an alert upon plugin deactivation"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1149
+#: src/lib/src/translations-strings-auto.php:396
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr ""
 
@@ -6958,14 +7091,17 @@ msgid "Vulnerability scanning must be active to enable this option."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1161
+#: src/lib/src/translations-strings-auto.php:401
 msgid "FileLocker Changes"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1162
+#: src/lib/src/translations-strings-auto.php:402
 msgid "Be alerted to any changes to FileLocker items"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1164
+#: src/lib/src/translations-strings-auto.php:403
 msgid "Be alerted to any changes to FileLocker items."
 msgstr ""
 
@@ -7007,10 +7143,12 @@ msgid "Security PIN Currently Set"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1183
+#: src/lib/src/translations-strings-auto.php:99
 msgid "Security Admins"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1184
+#: src/lib/src/translations-strings-auto.php:100
 msgid "Persistent Security Admins"
 msgstr ""
 
@@ -7031,10 +7169,12 @@ msgid "Verified users will be converted to usernames."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1192
+#: src/lib/src/translations-strings-auto.php:96
 msgid "Security Admin Timeout"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1193
+#: src/lib/src/translations-strings-auto.php:97
 msgid "Specify An Automatic Timeout Interval For Security Admin Access"
 msgstr ""
 
@@ -7048,14 +7188,17 @@ msgid "%s minutes"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1204
+#: src/lib/src/translations-strings-auto.php:102
 msgid "Allow Email Override"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1205
+#: src/lib/src/translations-strings-auto.php:103
 msgid "Allow Email Override Of Admin Access Restrictions"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1207
+#: src/lib/src/translations-strings-auto.php:104
 msgid "Allow the use of verification emails to override and switch off the Security Admin restrictions."
 msgstr ""
 
@@ -7065,6 +7208,7 @@ msgid "The email address specified in %s's General settings will be used."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1212
+#: src/lib/src/translations-strings-auto.php:362
 msgid "Run In MU Mode"
 msgstr ""
 
@@ -7073,6 +7217,7 @@ msgid "Run Plugin In Must-Use (MU) Mode"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1215
+#: src/lib/src/translations-strings-auto.php:363
 msgid "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."
 msgstr ""
 
@@ -7091,6 +7236,7 @@ msgid "Pages"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1223
+#: src/lib/src/translations-strings-auto.php:114
 msgid "Restrict Access To Key WordPress Posts And Pages Actions"
 msgstr ""
 
@@ -7111,6 +7257,7 @@ msgid "Edit"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1231
+#: src/lib/src/translations-strings-auto.php:110
 msgid "Restrict Access To Key WordPress Plugin Actions"
 msgstr ""
 
@@ -7124,10 +7271,12 @@ msgid "Activate"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1238
+#: src/lib/src/translations-strings-auto.php:105
 msgid "WordPress Options"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1239
+#: src/lib/src/translations-strings-auto.php:106
 msgid "Restrict Access To Certain WordPress Admin Options"
 msgstr ""
 
@@ -7185,6 +7334,7 @@ msgid "Search engine visibility"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1259
+#: src/lib/src/translations-strings-auto.php:108
 msgid "Admin Users"
 msgstr ""
 
@@ -7197,6 +7347,7 @@ msgid "This will restrict the ability of WordPress administrators from creating,
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1265
+#: src/lib/src/translations-strings-auto.php:112
 msgid "Restrict Access To WordPress Theme Actions"
 msgstr ""
 
@@ -7218,6 +7369,7 @@ msgid "Enable"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1283
+#: src/lib/src/translations-strings-auto.php:116
 msgid "Activate Your White Label Settings"
 msgstr ""
 
@@ -7227,10 +7379,12 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1287
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1294
+#: src/lib/src/translations-strings-auto.php:117
 msgid "Plugin Name"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1288
+#: src/lib/src/translations-strings-auto.php:118
 msgid "The Name Of The Plugin"
 msgstr ""
 
@@ -7239,10 +7393,12 @@ msgid "The name of the plugin that will be displayed to your site users."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1292
+#: src/lib/src/translations-strings-auto.php:120
 msgid "Menu Title"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1293
+#: src/lib/src/translations-strings-auto.php:121
 msgid "The Main Menu Title Of The Plugin"
 msgstr ""
 
@@ -7252,14 +7408,17 @@ msgid "The Main Menu Title Of The Plugin. If left empty, the \"%s\" will be used
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1297
+#: src/lib/src/translations-strings-auto.php:123
 msgid "Company Name"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1298
+#: src/lib/src/translations-strings-auto.php:124
 msgid "The Name Of Your Company"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1299
+#: src/lib/src/translations-strings-auto.php:125
 msgid "Provide the name of your company."
 msgstr ""
 
@@ -7273,22 +7432,27 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1307
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:95
+#: src/lib/src/translations-strings-auto.php:129
 msgid "Home URL"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1308
+#: src/lib/src/translations-strings-auto.php:130
 msgid "Plugin Home Page URL"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1309
+#: src/lib/src/translations-strings-auto.php:131
 msgid "When a user clicks the home link for this plugin, this is where they'll be directed."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1312
+#: src/lib/src/translations-strings-auto.php:132
 msgid "Menu Icon"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1313
+#: src/lib/src/translations-strings-auto.php:133
 msgid "Menu Icon URL"
 msgstr ""
 
@@ -7307,10 +7471,12 @@ msgid "icon"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1320
+#: src/lib/src/translations-strings-auto.php:135
 msgid "Plugin Badge Logo"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1321
+#: src/lib/src/translations-strings-auto.php:136
 msgid "Plugin Badge Logo URL"
 msgstr ""
 
@@ -7332,22 +7498,27 @@ msgid "The URL of the logo to display on the Dashboard and the Two-Factor Authen
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1333
+#: src/lib/src/translations-strings-auto.php:420
 msgid "Enable Request Logging"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1334
+#: src/lib/src/translations-strings-auto.php:421
 msgid "Log Requests To Your WordPress Site"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1335
+#: src/lib/src/translations-strings-auto.php:422
 msgid "Monitor web requests sent to your WordPress site."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1338
+#: src/lib/src/translations-strings-auto.php:426
 msgid "Request Log Exclusions"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1339
+#: src/lib/src/translations-strings-auto.php:427
 msgid "Select Which Types Of Requests To Exclude"
 msgstr ""
 
@@ -7401,10 +7572,12 @@ msgid "Live logging will be automatically disabled: %s"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1376
+#: src/lib/src/translations-strings-auto.php:429
 msgid "Custom Exclusions"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1377
+#: src/lib/src/translations-strings-auto.php:430
 msgid "Provide Custom Traffic Exclusions"
 msgstr ""
 
@@ -7433,10 +7606,12 @@ msgid "Activity logs depend on these traffic logs so if they have a longer reten
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1402
+#: src/lib/src/translations-strings-auto.php:433
 msgid "Enable Rate Limiting"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1403
+#: src/lib/src/translations-strings-auto.php:434
 msgid "Turn On The Rate Limiting Feature"
 msgstr ""
 
@@ -7449,10 +7624,12 @@ msgid "Enabling this option automatically switches-on request logging."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1410
+#: src/lib/src/translations-strings-auto.php:436
 msgid "Max Request Limit"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1411
+#: src/lib/src/translations-strings-auto.php:437
 msgid "Maximum Number Of Requests Allowed In Time Limit"
 msgstr ""
 
@@ -7473,10 +7650,12 @@ msgid "Use a larger maximum request limit to reduce the risk of blocking legitim
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1420
+#: src/lib/src/translations-strings-auto.php:439
 msgid "Request Limit Time Interval"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1421
+#: src/lib/src/translations-strings-auto.php:440
 msgid "The Time Interval To Test For Excessive Requests"
 msgstr ""
 
@@ -7504,10 +7683,12 @@ msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1440
+#: src/lib/src/translations-strings-auto.php:445
 msgid "Admin Login Notification Email"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1441
+#: src/lib/src/translations-strings-auto.php:446
 msgid "Send An Notification Email When Administrator Logs In"
 msgstr ""
 
@@ -7528,14 +7709,17 @@ msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1451
+#: src/lib/src/translations-strings-auto.php:442
 msgid "User Login Notification Email"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1452
+#: src/lib/src/translations-strings-auto.php:443
 msgid "Send Email Notification To Each User Upon Successful Login"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1453
+#: src/lib/src/translations-strings-auto.php:444
 msgid "A notification is sent to each user when a successful login occurs for their account."
 msgstr ""
 
@@ -7561,10 +7745,12 @@ msgid "This cannot be less than %s."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1466
+#: src/lib/src/translations-strings-auto.php:451
 msgid "Idle Timeout"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1467
+#: src/lib/src/translations-strings-auto.php:452
 msgid "Specify How Many Hours After Inactivity To Automatically Logout User"
 msgstr ""
 
@@ -7590,14 +7776,17 @@ msgid "Protects against user compromise by preventing user session theft/hijacki
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1481
+#: src/lib/src/translations-strings-auto.php:456
 msgid "Validate Email Addresses"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1482
+#: src/lib/src/translations-strings-auto.php:457
 msgid "Validate Email Addresses When User Attempts To Register"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1484
+#: src/lib/src/translations-strings-auto.php:458
 msgid "Validate Email Addresses When User Attempts To Register."
 msgstr ""
 
@@ -7610,6 +7799,7 @@ msgid "Email Validation Checks"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1490
+#: src/lib/src/translations-strings-auto.php:460
 msgid "The Email Address Properties That Will Be Tested"
 msgstr ""
 
@@ -7630,6 +7820,7 @@ msgid "Apply any configured password policies."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1499
+#: src/lib/src/translations-strings-auto.php:463
 msgid "Prevent Pwned Passwords"
 msgstr ""
 
@@ -7642,22 +7833,27 @@ msgid "Prevents users from using any passwords found on the public available lis
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1504
+#: src/lib/src/translations-strings-auto.php:466
 msgid "Minimum Strength"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1505
+#: src/lib/src/translations-strings-auto.php:467
 msgid "Minimum Password Strength"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1506
+#: src/lib/src/translations-strings-auto.php:468
 msgid "All passwords that a user sets must meet this minimum strength."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1509
+#: src/lib/src/translations-strings-auto.php:472
 msgid "Apply To Existing Users"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1510
+#: src/lib/src/translations-strings-auto.php:473
 msgid "Apply Password Policies To Existing Users and Their Passwords"
 msgstr ""
 
@@ -7670,14 +7866,17 @@ msgid "Note: You may want to warn users prior to enabling this option."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1517
+#: src/lib/src/translations-strings-auto.php:469
 msgid "Password Expiration"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1518
+#: src/lib/src/translations-strings-auto.php:470
 msgid "Passwords Expire After This Many Days"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1520
+#: src/lib/src/translations-strings-auto.php:471
 msgid "Users will be forced to reset their passwords after the number of days specified."
 msgstr ""
 
@@ -7687,10 +7886,12 @@ msgid "Set to Zero(0) to disable."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1525
+#: src/lib/src/translations-strings-auto.php:475
 msgid "Allow Manual User Suspension"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1526
+#: src/lib/src/translations-strings-auto.php:476
 msgid "Manually Suspend User Accounts To Prevent Login"
 msgstr ""
 
@@ -7699,10 +7900,12 @@ msgid "Users may be suspended by administrators to prevent future login."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1530
+#: src/lib/src/translations-strings-auto.php:478
 msgid "Auto-Suspend Expired Passwords"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1531
+#: src/lib/src/translations-strings-auto.php:479
 msgid "Automatically Suspend Users With Expired Passwords"
 msgstr ""
 
@@ -7715,10 +7918,12 @@ msgid "Requires password expiration policy to be set."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1542
+#: src/lib/src/translations-strings-auto.php:481
 msgid "Auto-Suspend Idle Users"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1543
+#: src/lib/src/translations-strings-auto.php:482
 msgid "Automatically Suspend Idle User Accounts"
 msgstr ""
 
@@ -7748,6 +7953,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:20
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:21
+#: src/lib/src/translations-strings-auto.php:20
 msgid "WordPress Activity"
 msgstr ""
 
@@ -7797,6 +8003,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:28
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:29
+#: src/lib/src/translations-strings-auto.php:47
 #: src/lib/src/Zones/Component/RequestLogging.php:10
 msgid "Request Logging"
 msgstr ""
@@ -7810,10 +8017,12 @@ msgid "Requests"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:37
+#: src/lib/src/translations-strings-auto.php:50
 msgid "Common Settings"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:38
+#: src/lib/src/translations-strings-auto.php:23
 msgid "Common Settings For All SPAM Scanning"
 msgstr ""
 
@@ -7850,6 +8059,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:49
 #: src/lib/src/Profiles/SecurityProfilesCon.php:350
+#: src/lib/src/translations-strings-auto.php:48
 msgid "Bot SPAM"
 msgstr ""
 
@@ -7868,14 +8078,17 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:58
 #: src/lib/src/Profiles/SecurityProfilesCon.php:357
+#: src/lib/src/translations-strings-auto.php:49
 msgid "Human SPAM"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:62
+#: src/lib/src/translations-strings-auto.php:51
 msgid "Request Firewall"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:63
+#: src/lib/src/translations-strings-auto.php:24
 msgid "Request Firewall Options"
 msgstr ""
 
@@ -7925,10 +8138,12 @@ msgid "Monitor WordPress files and protect against malicious intrusion and hacki
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:101
+#: src/lib/src/translations-strings-auto.php:37
 msgid "Advanced Security Headers"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:102
+#: src/lib/src/translations-strings-auto.php:65
 msgid "Security Headers"
 msgstr ""
 
@@ -7955,6 +8170,7 @@ msgid "You should also carefully review the automatic black list settings."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:119
+#: src/lib/src/translations-strings-auto.php:55
 msgid "Auto IP Blocking Rules"
 msgstr ""
 
@@ -8053,6 +8269,7 @@ msgid "Contact Form SPAM Checking"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:167
+#: src/lib/src/translations-strings-auto.php:342
 msgid "Select The Form Providers That Should Be Checked For SPAM"
 msgstr ""
 
@@ -8087,6 +8304,7 @@ msgid "This depends on your usage and needs for certain WordPress functions and 
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:193
+#: src/lib/src/translations-strings-auto.php:26
 msgid "WordPress Obscurity Options"
 msgstr ""
 
@@ -8216,6 +8434,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:263
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:264
+#: src/lib/src/translations-strings-auto.php:63
 msgid "Plugin Defaults"
 msgstr ""
 
@@ -8225,6 +8444,7 @@ msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:270
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:271
+#: src/lib/src/translations-strings-auto.php:64
 #: src/lib/src/Zones/Component/InstantAlerts.php:10
 msgid "Instant Alerts"
 msgstr ""
@@ -8259,6 +8479,7 @@ msgid "This is a Pro-only feature."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:301
+#: src/lib/src/translations-strings-auto.php:18
 msgid "Security Admin Restriction Settings"
 msgstr ""
 
@@ -8267,10 +8488,12 @@ msgid "Restricts access to this plugin preventing unauthorized changes to your s
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:306
+#: src/lib/src/translations-strings-auto.php:44
 msgid "Security Admin Settings"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:309
+#: src/lib/src/translations-strings-auto.php:19
 msgid "Security Admin Restriction Zones"
 msgstr ""
 
@@ -8279,6 +8502,7 @@ msgid "Restricts access to key WordPress areas for all users not authenticated w
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:314
+#: src/lib/src/translations-strings-auto.php:45
 msgid "Access Restriction Zones"
 msgstr ""
 
@@ -8296,6 +8520,7 @@ msgid "Brute Force Traffic Rate Limiting"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:335
+#: src/lib/src/translations-strings-auto.php:52
 msgid "Rate Limiting"
 msgstr ""
 
@@ -8327,6 +8552,7 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:354
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:355
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/UserPasswordPolicies.php:10
+#: src/lib/src/translations-strings-auto.php:68
 #: src/lib/src/Zones/Component/PasswordPolicies.php:8
 msgid "Password Policies"
 msgstr ""
@@ -8340,6 +8566,7 @@ msgid "Sessions"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:363
+#: src/lib/src/translations-strings-auto.php:31
 msgid "User Session Management"
 msgstr ""
 
@@ -8362,10 +8589,12 @@ msgid "ShieldBACKUPS"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:383
+#: src/lib/src/translations-strings-auto.php:70
 msgid "User Suspension"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:384
+#: src/lib/src/translations-strings-auto.php:40
 msgid "Automatic And Manual User Suspension"
 msgstr ""
 
@@ -9598,7 +9827,7 @@ msgid "Item found in the scan was deleted."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:616
-msgid "Item deleted: \"{{path_full}}\""
+msgid "Item deleted: '{{path_full}}'"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:620
@@ -9610,7 +9839,7 @@ msgid "Repaired item found in the scan."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:623
-msgid "Item repaired: \"{{path_full}}\""
+msgid "Item repaired: '{{path_full}}'"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:627
@@ -9622,7 +9851,7 @@ msgid "Failed to repair scan item."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:630
-msgid "Failed item: \"{{path_full}}\""
+msgid "Failed item: '{{path_full}}'"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:634
@@ -9687,7 +9916,7 @@ msgid "Blocked human SPAM comment containing suspicious content."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:679
-msgid "Human SPAM filter found \"{{word}}\" in \"{{key}}\""
+msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:685
@@ -10480,7 +10709,7 @@ msgstr ""
 
 #: src/lib/src/Modules/CommentsFilter/Scan/HumanDictionary.php:44
 #, php-format
-msgid "Human SPAM filter found \"%s\" in \"%s\""
+msgid "Human SPAM filter found '%s' in '%s'"
 msgstr ""
 
 #: src/lib/src/Modules/CommentsFilter/Scan/HumanRepeat.php:55
@@ -10548,7 +10777,7 @@ msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Lib/FileLocker/Ops/CreateFileLocks.php:65
 #, php-format
-msgid "Failed to insert file locker record for path: \"%s\""
+msgid "Failed to insert file locker record for path: '%s'"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Lib/FileLocker/Ops/ReadOriginalFileContent.php:33
@@ -10604,7 +10833,7 @@ msgstr ""
 #: src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php:141
 #: src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php:166
 #, php-format
-msgid "Snapshot store does not exist: \"%s\""
+msgid "Snapshot store does not exist: '%s'"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php:153
@@ -13148,6 +13377,7 @@ msgid "There are also options to limit and disable built-in WordPress features s
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Meter/MeterLogin.php:12
+#: src/lib/src/translations-strings-auto.php:82
 msgid "Login Protection"
 msgstr ""
 
@@ -13324,6 +13554,7 @@ msgid "Review IP Rules that control whether a site visitor is blocked."
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:132
+#: src/lib/src/translations-strings-auto.php:484
 msgid "Activity Logs"
 msgstr ""
 
@@ -13615,6 +13846,7 @@ msgid "Current Summary"
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Lib/SelectSearchData.php:97
+#: src/lib/src/translations-strings-auto.php:491
 msgid "IP Addresses"
 msgstr ""
 
@@ -14055,6 +14287,7 @@ msgid "Block username fishing/enumeration requests"
 msgstr ""
 
 #: src/lib/src/Profiles/SecurityProfilesCon.php:303
+#: src/lib/src/translations-strings-auto.php:268
 msgid "Disable XML-RPC"
 msgstr ""
 
@@ -15320,6 +15553,962 @@ msgid_plural "%s offenses"
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/lib/src/translations-strings-auto.php:21
+msgid "Automatic Bot Comment SPAM Protection Filter"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:22
+msgid "Human Comment SPAM Protection"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:25
+msgid "WordPress System Lockdown"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:28
+msgid "Identify Common Bot Behaviours"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:29
+msgid "Enable Module: IP Manager"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:30
+msgid "Brute Force Login Guard"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:33
+msgid "Email Two-Factor Authentication"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:34
+msgid "One-Time Passwords"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:35
+msgid "Hardware 2-Factor Authentication"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:36
+msgid "Hide WP Login Page"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:38
+msgid "Shield White Label"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:39
+msgid "Global Plugin Security Options"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:41
+msgid "Enable Module: User Management"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:46
+msgid "WP Activity"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:53
+msgid "File Guard"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:56
+msgid "Bot Behaviours"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:57
+msgid "Disable Module"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:58
+msgid "Brute Force"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:59
+msgid "2-Factor Auth"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:60
+msgid "2FA - Email"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:61
+msgid "2FA - Hardware"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:62
+msgid "Hide Login Page"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:67
+msgid "Disable Shield"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:71
+msgid "SPAM Detection"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:76
+msgid "Security admin allows you to restrict access to the security plugin itself."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:77
+msgid "Track All Site Activity: Who, What, When and Where"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:78
+msgid "Block comment SPAM while retaining your privacy"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:79
+msgid "Automatically block malicious HTTP requests and data sent to your site"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:80
+msgid "Automatically detect & repair vulnerable and suspicious files, plugins and themes."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:81
+msgid "Detect malicious bots and visitors, and block them from accessing the site."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:83
+msgid "Add protections to your WordPress login forms and protect user accounts with 2-Factor Authentication."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:84
+msgid "General plugin settings that apply across the entire plugin operation."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:85
+msgid "Control user sessions, duration, timeouts and account sharing."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:88
+msgid "Love it? Rate This Plugin &#10025;"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:90
+msgid "Go To Security Dashboard"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:91
+msgid "&uarr; Go Pro &uarr;"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:92
+msgid "Get All PRO Security Features"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:94
+msgid "Security Admin Access PIN"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:95
+msgid "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:98
+msgid "This will automatically expire your Security Admin Session. Does not apply until you enter the access PIN again. Default: 60 minutes."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:101
+msgid "All emails, usernames, or user IDs entered here will always be Security Admins."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:107
+msgid "Careful: This will restrict the ability of WordPress administrators from changing key WordPress settings."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:109
+msgid "Careful: This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:111
+msgid "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:113
+msgid "Careful: This will restrict access to theme installation, update, activation and deletion."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:115
+msgid "Enable White Label"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:119
+msgid "The Name Of The Plugin."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:122
+msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:126
+msgid "Plugin Tag Line"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:127
+msgid "The Tag Line Of The Plugin"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:128
+msgid "The Tag Line Of The Plugin."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:134
+msgid "The URL of the icon displayed in the menu."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:137
+msgid "The URL of the logo displayed in the main dashboard. Should be 128x128px"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:138
+msgid "Dashboard and 2FA Logo"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:139
+msgid "Dashboard and 2FA Logo URL"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:142
+msgid "Auto Clean"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:143
+msgid "Enable Audit Auto Cleaning"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:144
+msgid "Events older than the number of days specified will be automatically cleaned from the database"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:147
+msgid "Shield will delay upgrades until the new update has been available for the set number of days."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:148
+msgid "Use Shield's Unique silentCAPTCHA Technology"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:149
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:152
+msgid "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:153
+msgid "Human SPAM Filter"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:154
+msgid "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:155
+msgid "How To Categorise Comments When Identified To Be SPAM'"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:156
+msgid "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:160
+msgid "Trusted Users"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:161
+msgid "Don't Scan Comments For Users With The Following Roles"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:162
+msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:164
+msgid "Prevents comment floods and ensure a minimum period before any further comments are accepted on the site."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:167
+msgid "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:172
+msgid "This will block directory traversal paths in in application parameters."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:175
+msgid "This will block SQL in application parameters."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:178
+msgid "This will block field truncation attacks in application parameters"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:180
+msgid "Block PHP Code Includes"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:183
+msgid "Employs a set of aggressive rules to detect and block malicious data submitted to your site. Warning - May cause an increase in false-positive firewall blocks."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:184
+msgid "WP Core File Scanner"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:185
+msgid "Automatically Scans WordPress Core Files For Alterations"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:186
+msgid "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:188
+msgid "Which Files Should Be Scanned"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:189
+msgid "Specific file scan areas."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:190
+msgid "Auto File Repair"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:191
+msgid "Which Files Should Be Automatically Repaired?"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:192
+msgid "When a file is modified, or malware is detected, Shield can try to repair files."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:194
+msgid "Lock Files Against Tampering and Changes"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:195
+msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:197
+msgid "Scan File and Folder Exclusions"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:198
+msgid "Scan File and Folder Exclusions."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:199
+msgid "Abandoned Plugin Scanner"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:200
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:202
+msgid "Enable The Vulnerability Scanner"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:203
+msgid "Scan all your WordPress assets for known security vulnerabilities."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:205
+msgid "Apply Updates Automatically To Vulnerable Plugins"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:207
+msgid "Scan Frequency"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:208
+msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:209
+msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:211
+msgid "Optimise file scans wherever possible."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:215
+msgid "Enable Auto-Integrations"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:216
+msgid "Automatically Enable 3rd Party Integrations As They're Detected"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:217
+msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:218
+msgid "Enable MainWP"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:219
+msgid "Enable The Built-In MainWP Extension"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:220
+msgid "This option will enable Shield's built-in MainWP extension for both server and client."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:222
+msgid "SureSend Emails."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:223
+msgid "Bot Challenge Complexity"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:226
+msgid "Ensures that visitors with a high reputation are never blocked by Shield."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:228
+msgid "Visitor IP address will be Black Listed after X bad actions on your site"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:229
+msgid "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these offenses exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:231
+msgid "After 1 'X' a black listed IP will be removed from the black list"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:232
+msgid "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:237
+msgid "Request Path Whitelist."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:240
+msgid "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:241
+msgid "Enroll ID"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:243
+msgid "CrowdSec Enroll ID."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:245
+msgid "Detect Failed Login Attempts By Valid Usernames"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:246
+msgid "Penalise a visitor who fails to login using a valid username."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:249
+msgid "If you don't use XML-RPC, why would anyone access it?"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:251
+msgid "Detect Invalid Username Logins"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:252
+msgid "Identify A Bot When It Tries To Login With A Non-Existent Username."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:255
+msgid "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:258
+msgid "Detect When A Visitor Browses To A Non-Existent Page."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:261
+msgid "Detect A Bot That Follows A 'no-follow' Link."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:263
+msgid "Identify A Bot Attempts To Load WordPress In A Non-Standard Way"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:264
+msgid "WordPress should only be loaded in a limited number of ways."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:267
+msgid "Identify a request as a bot if the user agent is not provided."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:269
+msgid "Disable The XML-RPC System"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:270
+msgid "Checking this option will completely turn off the whole XML-RPC system."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:272
+msgid "Disable The Anonymous Rest API"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:273
+msgid "Checking this option will completely turn off the whole Anonymous Rest API system."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:276
+msgid "Any namespaces provided here will be excluded from the Anonymous API restriction."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:279
+msgid "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:282
+msgid "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:285
+msgid "Automatically delete WordPress files like wp-config-sample.php."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:288
+msgid "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:291
+msgid "Automatically redirect requests to this location for the hidden pages."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:292
+msgid "MFA Verification Page"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:293
+msgid "Type Of MFA Verification Page"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:294
+msgid "Choose the page type for MFA verification"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:295
+msgid "User 2FA Setup"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:296
+msgid "User 2FA Setup Page Locations"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:297
+msgid "Pages available to users to configure 2FA."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:299
+msgid "Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:302
+msgid "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:303
+msgid "Enable Google Authenticator"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:305
+msgid "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:310
+msgid "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:314
+msgid "Enable Email Authentication"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:315
+msgid "Two-Factor Login Authentication By Email"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:317
+msgid "Email Auto-Login"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:318
+msgid "Enable Email Auto-Login Links"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:319
+msgid "2FA Email will contain an auto-login link so the user doesn't need to enter 2FA code manually."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:320
+msgid "Enforce - Email Authentication"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:322
+msgid "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:324
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:328
+msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:329
+msgid "Login Cooldown Interval"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:330
+msgid "Limit login attempts to every X seconds"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:331
+msgid "Block Login Bots"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:332
+msgid "Block Login Attempted By Automated Bots"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:333
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:334
+msgid "Bot Protection"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:335
+msgid "Protect WP Login From Automated Login Attempts By Bots"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:336
+msgid "AntiBot Forms"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:337
+msgid "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:338
+msgid "Enable Passkeys"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:339
+msgid "Allow Registration Of Passkeys"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:340
+msgid "Allow Registration Of Passkeys."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:341
+msgid "Form SPAM Checking"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:343
+msgid "Select The Form Providers That Should Be Checked For SPAM."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:344
+msgid "User Form Checking"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:345
+msgid "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:346
+msgid "Uncheck this option to disable all Shield features"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:348
+msgid "Which Address Is Yours"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:349
+msgid "There are many way to detect visitor IP addresses. Please select yours from the list."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:352
+msgid "Defaults to the blog admin email address."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:354
+msgid "Display Plugin Security Badge On Your Site"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:355
+msgid "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:357
+msgid "Display Plugin Specific Notices"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:358
+msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:359
+msgid "Enable Information Gathering"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:361
+msgid "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:366
+msgid "Automatically update the Shield plugin."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:369
+msgid "Careful: Removes all plugin options when you deactivate the plugin."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:372
+msgid "Preferred temporary directory override."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:375
+msgid "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:376
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:377
+msgid "Uncheck this box to completely disable import and export of options."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:378
+msgid "Auto-Import URL"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:379
+msgid "Automatically Import Options From This Site"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:380
+msgid "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:382
+msgid "Whitelisted Sites Which Do Not Need The Secret Key To Export Options"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:383
+msgid "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:388
+msgid "Keep this Secret Key private as it will allow the import and export of options."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:391
+msgid "Decide when you should be sent reports with alerts about your site security."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:393
+msgid "How Often Should You Be Sent Information Reports"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:394
+msgid "Decide when you should be sent non-critical information and reports about your site security."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:397
+msgid "Be alerted when the Shield plugin is deactivated."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:399
+msgid "Be alerted to any important change on any admin account"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:406
+msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:416
+msgid "Enable Content Security Policy"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:417
+msgid "Allows for permission and restriction of all resources loaded on your site."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:419
+msgid "Provide your custom set of CSP rules."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:423
+msgid "Live Logging"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:424
+msgid "Enable Live Logging Of All Traffic"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:425
+msgid "Switch-on logging of all site traffic."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:428
+msgid "Deselect any requests that you don't want to appear in the traffic viewer."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:432
+msgid "Enable Traffic Log Auto Expiry"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:435
+msgid "Enable or disable the rate limiting feature according to your rate limiting parameters."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:438
+msgid "The maximum number of requests that are allowed in the given time limit."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:441
+msgid "The time limit within which to monitor for excessive requests that exceed the limit."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:447
+msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:448
+msgid "Session Timeout"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:449
+msgid "Specify How Many Days After Login To Automatically Force Re-Login"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:450
+msgid "WordPress default is 2 days, or 14 days if you check the 'Remember Me' box."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:453
+msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:454
+msgid "Session Lock"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:455
+msgid "Lock User Sessions To "
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:459
+msgid "Email Checks"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:461
+msgid "Enable Password Policies"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:462
+msgid "Enable The Password Policies Below"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:464
+msgid "Prevent Use Of Pwned Passwords"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:465
+msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:474
+msgid "Forces existing users to update their passwords if they don't meet requirements, after they next login ."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:477
+msgid "Users may be suspended by administrators to prevent login."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:480
+msgid "Suspend login by users and require password reset to unsuspend."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:483
+msgid "Prevent login by idle users and require password reset to unsuspend."
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:485
+msgid "Activity Log Meta Data"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:486
+msgid "Site Snapshots"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:487
+msgid "Bot Signals Tracking"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:488
+msgid "CrowdSec Signals"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:489
+msgid "Shield Events & Stats"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:490
+msgid "File Locker Data"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:492
+msgid "IP Meta"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:494
+msgid "Malware File Tracking"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:497
+msgid "Scan Result Items"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:498
+msgid "Scan Result Items Metadata"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:499
+msgid "Scan Items"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:500
+msgid "Scan Result Sets"
+msgstr ""
+
+#: src/lib/src/translations-strings-auto.php:501
+msgid "User Meta"
+msgstr ""
+
 #: src/lib/src/Utilities/AdminNotices/Controller.php:325
 #, php-format
 msgid "%s is not protecting your site"
@@ -15606,7 +16795,7 @@ msgstr ""
 
 #: src/lib/src/WpCli/Cmds/SecurityAdminPin.php:57
 #, php-format
-msgid "Security admin pin set to: \"%s\""
+msgid "Security admin pin set to: `%s`"
 msgstr ""
 
 #: src/lib/src/WpCli/Cmds/SecurityAdminPin.php:63

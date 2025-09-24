@@ -613,21 +613,21 @@ class EventStrings {
 				'name'  => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Item found in the scan was deleted.', 'wp-simple-firewall' ),
-					__( 'Item deleted: "{{path_full}}"', 'wp-simple-firewall' ),
+					__( "Item deleted: '{{path_full}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'scan_item_repair_success'     => [
 				'name'  => __( 'Scan Item Repair Success', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
-					__( 'Item repaired: "{{path_full}}"', 'wp-simple-firewall' ),
+					__( "Item repaired: '{{path_full}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'scan_item_repair_fail'        => [
 				'name'  => __( 'Scan Item Repair Failure', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
-					__( 'Failed item: "{{path_full}}"', 'wp-simple-firewall' ),
+					__( "Failed item: '{{path_full}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'scan_items_found'             => [
@@ -676,7 +676,7 @@ class EventStrings {
 				),
 				'audit' => [
 					__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
-					__( 'Human SPAM filter found "{{word}}" in "{{key}}"', 'wp-simple-firewall' ),
+					__( "Human SPAM filter found '{{word}}' in '{{key}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'spam_block_humanrepeated'     => [

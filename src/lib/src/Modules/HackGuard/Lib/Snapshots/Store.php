@@ -138,7 +138,7 @@ class Store {
 		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
-			throw new \Exception( sprintf( __( 'Snapshot store does not exist: "%s"', 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
+			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
@@ -163,7 +163,7 @@ class Store {
 		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
-			throw new \Exception( sprintf( __( 'Snapshot store does not exist: "%s"', 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
+			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );

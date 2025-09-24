@@ -41,7 +41,7 @@ class HumanDictionary {
 
 			$result = new \WP_Error(
 				'human',
-				sprintf( __( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ), $word, $key ),
+				sprintf( __( "Human SPAM filter found '%s' in '%s'", 'wp-simple-firewall' ), $word, $key ),
 				[
 					'word' => $word,
 					'key'  => $key

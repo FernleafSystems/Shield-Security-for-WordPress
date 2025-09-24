@@ -62,7 +62,7 @@ class CreateFileLocks extends BaseOps {
 		/** @var FileLockerDB\Insert $inserter */
 		$inserter = $dbh->getQueryInserter();
 		if ( !$inserter->insert( $record ) ) {
-			throw new LockDbInsertFailure( sprintf( __( 'Failed to insert file locker record for path: "%s"', 'wp-simple-firewall' ), $path ) );
+			throw new LockDbInsertFailure( sprintf( __( "Failed to insert file locker record for path: '%s'", 'wp-simple-firewall' ), $path ) );
 		}
 
 		self::con()->comps->file_locker->clearLocks();
