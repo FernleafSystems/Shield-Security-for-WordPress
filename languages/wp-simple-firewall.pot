@@ -9,10 +9,16 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-24T12:11:57+00:00\n"
+"POT-Creation-Date: 2025-09-24T12:23:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: icwp-wpsf.php
+msgid "Shield Security"
+msgstr ""
 
 #. Description of the plugin
 #: icwp-wpsf.php
@@ -4577,6 +4583,13 @@ msgstr ""
 msgid "No scans remaining."
 msgstr ""
 
+#: src/lib/src/ActionRouter/Actions/ScansCheck.php:31
+#, php-format
+msgid "%s scan remaining."
+msgid_plural "%s scans remaining."
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/lib/src/ActionRouter/Actions/ScansFileLockerAction.php:30
 msgid "Not a supported file lock action."
 msgstr ""
@@ -7370,6 +7383,13 @@ msgstr ""
 #, php-format
 msgid "This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted."
 msgstr ""
+
+#: src/lib/src/Controller/Config/Modules/StringsOptions.php:1355
+#, php-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:1358
 msgid "Live Logs Viewer"

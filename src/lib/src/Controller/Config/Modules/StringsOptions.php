@@ -1352,7 +1352,7 @@ class StringsOptions {
 					__( "Requires standard traffic logging to be switched-on and logs all requests to the site (nothing is excluded).", 'wp-simple-firewall' ),
 					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
 					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
-						sprintf( _n( '%s minute', '%s minutes', $max ), $max ) ),
+						sprintf( _n( '%s minute', '%s minutes', $max, 'wp-simple-firewall' ), $max ) ),
 					sprintf( '<a href="%s">%s &rarr;</a>',
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
 						__( 'Live Logs Viewer', 'wp-simple-firewall' )
