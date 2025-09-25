@@ -9,15 +9,10 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-24T13:09:41+00:00\n"
+"POT-Creation-Date: 2025-09-25T12:20:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
-
-#. Description of the plugin
-#: icwp-wpsf.php
-msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
-msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/ActivityLogTableAction.php:23
 #, php-format
@@ -9101,7 +9096,7 @@ msgid "User Manually Suspended"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:79
-msgid "User \"{{user_login}}\" suspended by admin."
+msgid "User '{{user_login}}' suspended by admin."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:83
@@ -9109,7 +9104,7 @@ msgid "User Manually Unsuspended"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:85
-msgid "User \"{{user_login}}\" unsuspended by admin."
+msgid "User '{{user_login}}' unsuspended by admin."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:89
@@ -9155,7 +9150,7 @@ msgid "Plugin Option Changed"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:121
-msgid "Plugin option \"{{name}}\" ({{key}}) was updated to \"{{value}}\"."
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:125
@@ -9278,7 +9273,7 @@ msgid "AntiBot Pass"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:214
-msgid "Request passed the AntiBot Test with a Visitor Score of \"{{score}}\" (minimum score: {{minimum}})."
+msgid "Request passed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:218
@@ -9286,7 +9281,7 @@ msgid "AntiBot Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:220
-msgid "Request failed the AntiBot Test with a Visitor Score of \"{{score}}\" (minimum score: {{minimum}})."
+msgid "Request failed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:224
@@ -9342,7 +9337,7 @@ msgid "BotBox Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:263
-msgid "User \"{{user_login}}\" attempted \"{{action}}\" but Bot checkbox was not found."
+msgid "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:267
@@ -9358,7 +9353,7 @@ msgid "Honeypot Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:275
-msgid "User \"{{user_login}}\" attempted {{action}} but they were caught by the honeypot."
+msgid "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:279
@@ -9374,7 +9369,7 @@ msgid "2FA Verify Success"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:287
-msgid "User \"{{user_login}}\" verified their identity using \"{{method}}\"."
+msgid "User '{{user_login}}' verified their identity using '{{method}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:291
@@ -9382,7 +9377,7 @@ msgid "2FA Verify Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:293
-msgid "User \"{{user_login}}\" failed to verify their identity using \"{{method}}\"."
+msgid "User '{{user_login}}' failed to verify their identity using '{{method}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:297
@@ -9390,7 +9385,7 @@ msgid "2FA Nonce Verify Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:299
-msgid "An attempt was made to verify a 2FA login \"{{user_login}}\" using an invalid nonce."
+msgid "An attempt was made to verify a 2FA login '{{user_login}}' using an invalid nonce."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:304
@@ -9438,7 +9433,7 @@ msgid "Anonymous REST API"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:336
-msgid "Blocked Anonymous API Access through \"{{namespace}}\" namespace."
+msgid "Blocked Anonymous API Access through '{{namespace}}' namespace."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:340
@@ -9499,7 +9494,7 @@ msgid "SPAM Check Pass"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:379
-msgid "\"{{form_provider}}\" submission passed SPAM check."
+msgid "'{{form_provider}}' submission passed SPAM check."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:383
@@ -9507,7 +9502,7 @@ msgid "SPAM Check Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:385
-msgid "\"{{form_provider}}\" submission failed SPAM check."
+msgid "'{{form_provider}}' submission failed SPAM check."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:389
@@ -9515,7 +9510,7 @@ msgid "User Bot Check Pass"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:391
-msgid "\"{{form_provider}}\" submission for form \"{{action}}\" with username \"{{username}}\" passed Bot check."
+msgid "'{{form_provider}}' submission for form '{{action}}' with username '{{username}}' passed Bot check."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:395
@@ -9523,7 +9518,7 @@ msgid "User Bot Check Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:397
-msgid "\"{{form_provider}}\" submission for form \"{{action}}\" with username \"{{username}}\" failed Bot check."
+msgid "'{{form_provider}}' submission for form '{{action}}' with username '{{username}}' failed Bot check."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:401
@@ -9531,7 +9526,7 @@ msgid "SureSend Fail"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:403
-msgid "Failed to send email (type: {{slug}}) to \"{{email}}\" using SureSend."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:407
@@ -9539,7 +9534,7 @@ msgid "SureSend Success"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:409
-msgid "Successfully sent email (type: {{slug}}) to \"{{email}}\" using SureSend."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:413
@@ -9668,23 +9663,23 @@ msgid "Bots"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:501
-msgid "404 detected at \"{{path}}\"."
+msgid "404 detected at '{{path}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:508
-msgid "Fake Web Crawler detected at \"{{path}}\"."
+msgid "Fake Web Crawler detected at '{{path}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:509
-msgid "Fake Crawler misrepresented itself as \"{{crawler}}\"."
+msgid "Fake Crawler misrepresented itself as '{{crawler}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:516
-msgid "Link cheese access detected at \"{{path}}\"."
+msgid "Link cheese access detected at '{{path}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:523
-msgid "Attempted login failed by user \"{{user_login}}\"."
+msgid "Attempted login failed by user '{{user_login}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:528
@@ -9692,7 +9687,7 @@ msgid "Invalid Username Login"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:530
-msgid "Attempted login with invalid user \"{{user_login}}\"."
+msgid "Attempted login with invalid user '{{user_login}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:536
@@ -9700,11 +9695,11 @@ msgid "Invalid User-Agent"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:538
-msgid "Invalid user agent detected at \"{{useragent}}\"."
+msgid "Invalid user agent detected at '{{useragent}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:545
-msgid "Access to XML-RPC detected at \"{{path}}\"."
+msgid "Access to XML-RPC detected at '{{path}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:550
@@ -9713,7 +9708,7 @@ msgid "Invalid Scripts"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:552
-msgid "Tried to load an invalid WordPress PHP script \"{{script}}\"."
+msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:556
@@ -9875,11 +9870,11 @@ msgid "Request blocked by firewall rule: {{name}}."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:647
-msgid "Rule pattern detected: \"{{term}}\"."
+msgid "Rule pattern detected: '{{term}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:648
-msgid "The offending request parameter was \"{{param}}\" with a value of \"{{value}}\"."
+msgid "The offending request parameter was '{{param}}' with a value of '{{value}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:652
@@ -9978,7 +9973,7 @@ msgid "Plugin Activated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:741
-msgid "Plugin \"{{plugin}}\" was activated (v{{version}})."
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:745
@@ -9986,7 +9981,7 @@ msgid "Plugin Installed"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:747
-msgid "Plugin \"{{plugin}}\" was installed (v{{version}})."
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:751
@@ -9994,7 +9989,7 @@ msgid "Plugin Uninstalled"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:753
-msgid "Plugin \"{{plugin}}\" was uninstalled (v{{version}})."
+msgid "Plugin '{{plugin}}' was uninstalled (v{{version}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:757
@@ -10002,7 +9997,7 @@ msgid "Plugin Deactivated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:759
-msgid "Plugin \"{{plugin}}\" was deactivated (v{{version}})."
+msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:763
@@ -10010,7 +10005,7 @@ msgid "Plugin Upgraded"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:765
-msgid "Plugin \"{{plugin}}\" upgraded from version {{from}} to version {{to}}."
+msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:769
@@ -10018,7 +10013,7 @@ msgid "Plugin Downgraded"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:771
-msgid "Plugin \"{{plugin}}\" downgraded from version {{from}} to version {{to}}."
+msgid "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:775
@@ -10026,7 +10021,7 @@ msgid "Plugin File Edited"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:777
-msgid "An attempt was made to edit the plugin file \"{{file}}\" directly through the WordPress editor."
+msgid "An attempt was made to edit the plugin file '{{file}}' directly through the WordPress editor."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:781
@@ -10034,7 +10029,7 @@ msgid "Theme Activated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:783
-msgid "Theme \"{{theme}}\" was activated."
+msgid "Theme '{{theme}}' was activated."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:787
@@ -10042,7 +10037,7 @@ msgid "Theme Installed"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:789
-msgid "Theme \"{{theme}}\" was installed."
+msgid "Theme '{{theme}}' was installed."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:793
@@ -10050,7 +10045,7 @@ msgid "Theme Uninstalled"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:795
-msgid "Theme \"{{theme}}\" was uninstalled (v{{version}})."
+msgid "Theme '{{theme}}' was uninstalled (v{{version}})."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:799
@@ -10058,7 +10053,7 @@ msgid "Theme File Edited"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:801
-msgid "An attempt was made to edit the theme file \"{{file}}\" directly through the WordPress editor."
+msgid "An attempt was made to edit the theme file '{{file}}' directly through the WordPress editor."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:805
@@ -10066,7 +10061,7 @@ msgid "Theme Upgraded"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:807
-msgid "Theme \"{{theme}}\" was upgraded from version {{from}} to version {{to}}."
+msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:811
@@ -10074,7 +10069,7 @@ msgid "Theme Downgraded"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:813
-msgid "Theme \"{{theme}}\" was downgraded from version {{from}} to version {{to}}."
+msgid "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:817
@@ -10082,7 +10077,7 @@ msgid "WP Core Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:819
-msgid "WordPress Core was updated from \"{{from}}\" to \"{{to}}\"."
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:823
@@ -10099,7 +10094,7 @@ msgid "Permalinks Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:831
-msgid "WordPress Permalinks Structure was updated from \"{{from}}\" to \"{{to}}\"."
+msgid "WordPress Permalinks Structure was updated from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:835
@@ -10107,7 +10102,7 @@ msgid "WP Site Admin Email"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:837
-msgid "WordPress site admin email address was changed from \"{{from}}\" to \"{{to}}\"."
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:841
@@ -10115,7 +10110,7 @@ msgid "WP Site Tagline"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:843
-msgid "WordPress site tagline was changed from \"{{from}}\" to \"{{to}}\"."
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:847
@@ -10123,7 +10118,7 @@ msgid "WP Site title"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:849
-msgid "WordPress site title changed from \"{{from}}\" to \"{{to}}\"."
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:853
@@ -10131,7 +10126,7 @@ msgid "WP Default User Role"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:855
-msgid "The default role for new users was changed from \"{{from}}\" to \"{{to}}\"."
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:859
@@ -10139,7 +10134,7 @@ msgid "Home URL Changed"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:861
-msgid "The home URL was changed from \"{{from}}\" to \"{{to}}\"."
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:865
@@ -10147,7 +10142,7 @@ msgid "Site URL Changed"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:867
-msgid "The site URL was changed from \"{{from}}\" to \"{{to}}\"."
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:871
@@ -10155,7 +10150,7 @@ msgid "WP User Registration"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:873
-msgid "The option to allow anyone to register on the site was updated from \"{{from}}\" to \"{{to}}\"."
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:877
@@ -10163,7 +10158,7 @@ msgid "Post Deleted"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:879
-msgid "WordPress Post entitled \"{{title}}\" was permanently deleted from trash."
+msgid "WordPress Post entitled '{{title}}' was permanently deleted from trash."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:883
@@ -10171,7 +10166,7 @@ msgid "Post Trashed"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:885
-msgid "Post entitled \"{{title}}\" was trashed."
+msgid "Post entitled '{{title}}' was trashed."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:886
@@ -10191,7 +10186,7 @@ msgid "Post Recovered"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:892
-msgid "Post entitled \"{{title}}\" was recovered from trash."
+msgid "Post entitled '{{title}}' was recovered from trash."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:897
@@ -10199,7 +10194,7 @@ msgid "Post Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:899
-msgid "Post entitled \"{{title}}\" was updated."
+msgid "Post entitled '{{title}}' was updated."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:904
@@ -10207,7 +10202,7 @@ msgid "Post Created"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:906
-msgid "Post entitled \"{{title}}\" was created."
+msgid "Post entitled '{{title}}' was created."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:911
@@ -10215,7 +10210,7 @@ msgid "Post Published"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:913
-msgid "Post entitled \"{{title}}\" was published."
+msgid "Post entitled '{{title}}' was published."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:918
@@ -10223,7 +10218,7 @@ msgid "Post Unpublished"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:920
-msgid "Post entitled \"{{title}}\" was unpublished."
+msgid "Post entitled '{{title}}' was unpublished."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:925
@@ -10239,7 +10234,7 @@ msgid "Post Title Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:934
-msgid "Title for Post ID {{post_id}} updated from \"{{title_old}}\" to \"{{title_new}}\"."
+msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:939
@@ -10247,7 +10242,7 @@ msgid "Post Slug Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:941
-msgid "Slug for Post ID {{post_id}} updated from \"{{slug_old}}\" to \"{{slug_new}}\"."
+msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:946
@@ -10255,7 +10250,7 @@ msgid "User Login"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:948
-msgid "Attempted user login by \"{{user_login}}\" was successful."
+msgid "Attempted user login by '{{user_login}}' was successful."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:952
@@ -10267,7 +10262,7 @@ msgid "New WordPress user registered."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:955
-msgid "New username is \"{{user_login}}\" with email address \"{{email}}\"."
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:959
@@ -10279,7 +10274,7 @@ msgid "WordPress user deleted."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:962
-msgid "Username was \"{{user_login}}\" with email address \"{{email}}\"."
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:966
@@ -10287,7 +10282,7 @@ msgid "User Promoted"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:968
-msgid "User \"{{user_login}}\" promoted to administrator role."
+msgid "User '{{user_login}}' promoted to administrator role."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:972
@@ -10295,7 +10290,7 @@ msgid "User Demoted"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:974
-msgid "User \"{{user_login}}\" demoted from administrator role."
+msgid "User '{{user_login}}' demoted from administrator role."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:978
@@ -10303,7 +10298,7 @@ msgid "User Email Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:980
-msgid "Email updated for user \"{{user_login}}\"."
+msgid "Email updated for user '{{user_login}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:984
@@ -10311,7 +10306,7 @@ msgid "User Password Updated"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:986
-msgid "Password updated for user \"{{user_login}}\"."
+msgid "Password updated for user '{{user_login}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:990
@@ -10319,7 +10314,7 @@ msgid "User Deleted And Reassigned"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:992
-msgid "Deleted user posts were reassigned to user \"{{user_login}}\"."
+msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:996
@@ -10327,7 +10322,7 @@ msgid "Email Sent"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:998
-msgid "There was an attempt to send an email using the \"wp_mail\" function."
+msgid "There was an attempt to send an email using the 'wp_mail' function."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:999
@@ -10335,11 +10330,11 @@ msgid "This log entry doesn't mean it was sent or received successfully, but onl
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:1000
-msgid "It was sent to \"{{to}}\" with the subject \"{{subject}}\"."
+msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:1002
-msgid "The \"wp_mail\" function was called from the file \"{{bt_file}}\" on line {{bt_line}}."
+msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:1006
@@ -10347,7 +10342,7 @@ msgid "User Login By App Password"
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:1008
-msgid "Attempted login by \"{{user_login}}\" using application password was successful."
+msgid "Attempted login by '{{user_login}}' using application password was successful."
 msgstr ""
 
 #: src/lib/src/Events/EventStrings.php:1012
