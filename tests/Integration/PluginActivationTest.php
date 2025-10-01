@@ -12,9 +12,7 @@ class PluginActivationTest extends ShieldWordPressTestCase {
 	use PluginPathsTrait;
 
 	public function testPluginMainFileExists(): void {
-		// Use the correct plugin path for testing mode
-		$pluginDir = $this->getPluginRoot();
-		$pluginFile = $pluginDir . '/icwp-wpsf.php';
+		$pluginFile = $this->getPluginFilePath( 'icwp-wpsf.php' );
 		$this->assertFileExists( $pluginFile, 'Main plugin file should exist' );
 	}
 
@@ -54,17 +52,17 @@ class PluginActivationTest extends ShieldWordPressTestCase {
 	}
 
 	public function testAutoloadFileExists(): void {
-		$autoloadFile = dirname( dirname( __DIR__ ) ) . '/plugin_autoload.php';
+		$autoloadFile = $this->getPluginFilePath( 'plugin_autoload.php' );
 		$this->assertFileExists( $autoloadFile, 'Plugin autoload file should exist' );
 	}
 
 	public function testCompatibilityFileExists(): void {
-		$compatFile = dirname( dirname( __DIR__ ) ) . '/plugin_compatibility.php';
+		$compatFile = $this->getPluginFilePath( 'plugin_compatibility.php' );
 		$this->assertFileExists( $compatFile, 'Plugin compatibility file should exist' );
 	}
 
 	public function testInitFileExists(): void {
-		$initFile = dirname( dirname( __DIR__ ) ) . '/plugin_init.php';
+		$initFile = $this->getPluginFilePath( 'plugin_init.php' );
 		$this->assertFileExists( $initFile, 'Plugin init file should exist' );
 	}
 

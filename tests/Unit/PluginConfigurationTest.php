@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -9,14 +10,13 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  */
 class PluginConfigurationTest extends TestCase {
 
+	use PluginPathsTrait;
+
 	/**
 	 * Test that plugin configuration can be loaded and parsed
 	 */
 	public function testPluginConfigurationLoadsCorrectly() :void {
-		$configPath = dirname( dirname( __DIR__ ) ) . '/plugin.json';
-		$this->assertFileExists( $configPath );
-
-		$config = json_decode( file_get_contents( $configPath ), true );
+		$config = $this->getPluginConfigData();
 		$this->assertIsArray( $config );
 
 		// Test properties
@@ -34,8 +34,7 @@ class PluginConfigurationTest extends TestCase {
 	 * Test that plugin requirements are properly defined
 	 */
 	public function testPluginRequirementsAreDefined() :void {
-		$configPath = dirname( dirname( __DIR__ ) ) . '/plugin.json';
-		$config = json_decode( file_get_contents( $configPath ), true );
+		$config = $this->getPluginConfigData();
 
 		$this->assertArrayHasKey( 'requirements', $config );
 		$requirements = $config['requirements'];
@@ -57,8 +56,7 @@ class PluginConfigurationTest extends TestCase {
 	 * Test that plugin paths are correctly configured
 	 */
 	public function testPluginPathsConfiguration() :void {
-		$configPath = dirname( dirname( __DIR__ ) ) . '/plugin.json';
-		$config = json_decode( file_get_contents( $configPath ), true );
+		$config = $this->getPluginConfigData();
 
 		$this->assertArrayHasKey( 'paths', $config );
 		$paths = $config['paths'];
@@ -82,20 +80,17 @@ class PluginConfigurationTest extends TestCase {
 	 * Test that autoloader configuration is correct
 	 */
 	public function testAutoloaderPathExists() :void {
-		$baseDir = dirname( dirname( __DIR__ ) );
-		$autoloadPath = $baseDir . '/lib/vendor/autoload.php';
-		
-		// The main plugin autoloader should exist
-		$pluginAutoloadPath = $baseDir . '/plugin_autoload.php';
+		$pluginAutoloadPath = $this->getPluginFilePath( 'plugin_autoload.php' );
 		$this->assertFileExists( $pluginAutoloadPath, 'Plugin autoload file should exist' );
+		
+		$mainVendorAutoload = $this->getPluginFilePath( 'src/lib/vendor/autoload.php' );
+		$this->assertFileExists( $mainVendorAutoload, 'Main vendor autoload file should exist' );
 	}
 
 	/**
 	 * Test plugin directory structure
 	 */
 	public function testPluginDirectoryStructure() :void {
-		$baseDir = dirname( dirname( __DIR__ ) );
-
 		// Critical directories that should exist
 		$criticalDirs = [
 			'src/lib/src',
@@ -106,7 +101,7 @@ class PluginConfigurationTest extends TestCase {
 
 		foreach ( $criticalDirs as $dir ) {
 			$this->assertDirectoryExists( 
-				$baseDir . '/' . $dir, 
+				$this->getPluginFilePath( $dir ), 
 				"Directory {$dir} should exist" 
 			);
 		}
@@ -116,8 +111,7 @@ class PluginConfigurationTest extends TestCase {
 	 * Test that security modules are defined in configuration
 	 */
 	public function testSecurityModulesAreDefined() :void {
-		$configPath = dirname( dirname( __DIR__ ) ) . '/plugin.json';
-		$config = json_decode( file_get_contents( $configPath ), true );
+		$config = $this->getPluginConfigData();
 
 		// Plugin should have modules section under config_spec
 		$this->assertArrayHasKey( 'config_spec', $config );
@@ -149,5 +143,9 @@ class PluginConfigurationTest extends TestCase {
 			$module = $modules[$moduleKey];
 			$this->assertArrayHasKey( 'slug', $module );
 		}
+	}
+
+	private function getPluginConfigData() :array {
+		return $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration file' );
 	}
 }

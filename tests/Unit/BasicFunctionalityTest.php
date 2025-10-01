@@ -2,10 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+
 /**
  * Simple unit tests that don't require complex WordPress mocking
  */
 class BasicFunctionalityTest extends BaseUnitTest {
+
+	use PluginPathsTrait;
 
 	public function testComposerAutoloadWorks(): void {
 		$this->assertTrue(
@@ -23,30 +27,21 @@ class BasicFunctionalityTest extends BaseUnitTest {
 	}
 
 	public function testPluginFileExists(): void {
-		$pluginFile = dirname( dirname( __DIR__ ) ) . '/icwp-wpsf.php';
-		$this->assertFileExists( $pluginFile, 'Main plugin file should exist' );
-
-		$pluginContent = file_get_contents( $pluginFile );
+		$pluginContent = $this->getPluginFileContents( 'icwp-wpsf.php', 'Main plugin file' );
 		$this->assertStringContainsString( 'Plugin Name: Shield Security', $pluginContent );
 		$this->assertStringContainsString( 'wp-simple-firewall', $pluginContent );
 	}
 
 	public function testMainClassFilesExist(): void {
-		$controllerFile = dirname( dirname( __DIR__ ) ) . '/src/lib/src/Controller/Controller.php';
+		$controllerFile = $this->getPluginFilePath( 'src/lib/src/Controller/Controller.php' );
 		$this->assertFileExists( $controllerFile, 'Controller file should exist' );
 
-		$actionRouterFile = dirname( dirname( __DIR__ ) ) . '/src/lib/src/ActionRouter/ActionRoutingController.php';
+		$actionRouterFile = $this->getPluginFilePath( 'src/lib/src/ActionRouter/ActionRoutingController.php' );
 		$this->assertFileExists( $actionRouterFile, 'ActionRouter file should exist' );
 	}
 
 	public function testConfigurationFileExists(): void {
-		$configFile = dirname( dirname( __DIR__ ) ) . '/plugin.json';
-		$this->assertFileExists( $configFile, 'Plugin configuration file should exist' );
-
-		$configContent = file_get_contents( $configFile );
-		$configData    = json_decode( $configContent, true );
-
-		$this->assertIsArray( $configData, 'Configuration should be valid JSON' );
+		$configData = $this->decodePluginJsonFile( 'plugin.json', 'plugin.json' );
 		$this->assertArrayHasKey( 'properties', $configData, 'Config should have properties' );
 
 		// Check properties structure

@@ -3,17 +3,20 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Fixtures\TestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 
 /**
  * Unit tests for plugin configuration validation
  */
 class ConfigurationValidationTest extends TestCase {
 
+	use PluginPathsTrait;
+
 	private string $configPath;
 
 	protected function setUpTestEnvironment() :void {
 		parent::setUpTestEnvironment();
-		$this->configPath = dirname( dirname( __DIR__ ) ) . '/plugin.json';
+		$this->configPath = $this->getPluginFilePath( 'plugin.json' );
 	}
 
 	public function testPluginConfigurationFileExists() :void {
@@ -21,17 +24,12 @@ class ConfigurationValidationTest extends TestCase {
 	}
 
 	public function testPluginConfigurationIsValidJson() :void {
-		$configContent = file_get_contents( $this->configPath );
-		$this->assertNotFalse( $configContent, 'Should be able to read config file' );
-
-		$configData = json_decode( $configContent, true );
+		$configData = $this->getPluginConfigData();
 		$this->assertIsArray( $configData, 'Configuration should be valid JSON' );
-		$this->assertEquals( JSON_ERROR_NONE, json_last_error(), 'JSON should parse without errors' );
 	}
 
 	public function testPluginConfigurationHasRequiredProperties() :void {
-		$configContent = file_get_contents( $this->configPath );
-		$configData = json_decode( $configContent, true );
+		$configData = $this->getPluginConfigData();
 
 		// Test top-level structure
 		$this->assertArrayHasKey( 'properties', $configData, 'Config should have properties section' );
@@ -57,8 +55,7 @@ class ConfigurationValidationTest extends TestCase {
 	}
 
 	public function testPluginVersionIsValid() :void {
-		$configContent = file_get_contents( $this->configPath );
-		$configData = json_decode( $configContent, true );
+		$configData = $this->getPluginConfigData();
 		
 		$version = $configData['properties']['version'] ?? '';
 		
@@ -70,8 +67,7 @@ class ConfigurationValidationTest extends TestCase {
 		);
 		
 		// Version should match what's in the main plugin file
-		$pluginFile = dirname( dirname( __DIR__ ) ) . '/icwp-wpsf.php';
-		$pluginContent = file_get_contents( $pluginFile );
+		$pluginContent = $this->getPluginFileContents( 'icwp-wpsf.php', 'Main plugin file' );
 		
 		$this->assertStringContainsString( 
 			"Version: {$version}", 
@@ -81,16 +77,14 @@ class ConfigurationValidationTest extends TestCase {
 	}
 
 	public function testTextDomainIsValid() :void {
-		$configContent = file_get_contents( $this->configPath );
-		$configData = json_decode( $configContent, true );
+		$configData = $this->getPluginConfigData();
 		
 		$textDomain = $configData['properties']['text_domain'] ?? '';
 		
 		$this->assertEquals( 'wp-simple-firewall', $textDomain, 'Text domain should match expected value' );
 		
 		// Text domain should also exist in the main plugin file
-		$pluginFile = dirname( dirname( __DIR__ ) ) . '/icwp-wpsf.php';
-		$pluginContent = file_get_contents( $pluginFile );
+		$pluginContent = $this->getPluginFileContents( 'icwp-wpsf.php', 'Main plugin file' );
 		
 		$this->assertStringContainsString( 
 			"Text Domain: {$textDomain}", 
@@ -100,8 +94,7 @@ class ConfigurationValidationTest extends TestCase {
 	}
 
 	public function testPluginRequirementsAreValid() :void {
-		$configContent = file_get_contents( $this->configPath );
-		$configData = json_decode( $configContent, true );
+		$configData = $this->getPluginConfigData();
 		
 		$requirements = $configData['requirements'] ?? [];
 		
@@ -138,8 +131,7 @@ class ConfigurationValidationTest extends TestCase {
 	}
 
 	public function testPluginModulesStructure() :void {
-		$configContent = file_get_contents( $this->configPath );
-		$configData = json_decode( $configContent, true );
+		$configData = $this->getPluginConfigData();
 		
 		// The config should have some structure - test what actually exists
 		$this->assertIsArray( $configData, 'Config should be a valid array structure' );
@@ -162,5 +154,9 @@ class ConfigurationValidationTest extends TestCase {
 		// but not unreasonably large (let's say max 5MB)
 		$this->assertGreaterThan( 100000, $configSize, 'Config should be substantial in size' );
 		$this->assertLessThan( 5242880, $configSize, 'Config should not be unreasonably large (>5MB)' );
+	}
+
+	private function getPluginConfigData() :array {
+		return $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration file' );
 	}
 }

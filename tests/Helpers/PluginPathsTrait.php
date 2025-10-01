@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 /**
- * Trait to handle plugin paths consistently across all tests
- * Supports testing both source code and built packages
+ * Trait to handle plugin paths consistently across all tests.
+ *
+ * @note Every change here affects both source and packaged test runs. Tread carefully—
+ *       bootstrap logic, Docker runners, and package validation all depend on these helpers
+ *       resolving identical paths across environments.
  */
 trait PluginPathsTrait {
 
@@ -72,7 +75,27 @@ trait PluginPathsTrait {
 			echo "[PATH DEBUG] $label: $path\n";
 		}
 	}
-	
+
+	protected function getPluginJsonPath() :string {
+		return $this->getPluginFilePath( 'plugin.json' );
+	}
+
+	protected function getPluginFileContents( string $relativePath, string $context = 'file' ) :string {
+		$path = $this->getPluginFilePath( $relativePath );
+		$this->assertFileExistsWithDebug( $path, sprintf( '%s is missing: %s', $context, $relativePath ) );
+		$content = file_get_contents( $path );
+		$this->assertNotFalse( $content, sprintf( 'Unable to read %s at %s', $context, $path ) );
+		return $content;
+	}
+
+	protected function decodePluginJsonFile( string $relativePath, string $context = 'JSON file' ) :array {
+		$content = $this->getPluginFileContents( $relativePath, $context );
+		$decoded = json_decode( $content, true );
+		$this->assertSame( JSON_ERROR_NONE, json_last_error(), sprintf( '%s should contain valid JSON: %s', $context, json_last_error_msg() ) );
+		$this->assertIsArray( $decoded, sprintf( '%s should decode to an array structure', $context ) );
+		return $decoded;
+	}
+
 	/**
 	 * Assert file exists with helpful debug info
 	 * @param string $path

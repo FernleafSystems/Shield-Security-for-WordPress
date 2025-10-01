@@ -2,12 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests to validate the plugin package structure after build
  */
 class PluginPackageValidationTest extends TestCase {
+
+	use PluginPathsTrait;
 
 	/**
 	 * @var string The path to the packaged plugin (set via environment variable)
@@ -17,9 +20,12 @@ class PluginPackageValidationTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		
-		// Get package path from environment variable or use default
-		$envPath = getenv( 'SHIELD_PACKAGE_PATH' );
-		$this->packagePath = $envPath !== false ? $envPath : dirname( __DIR__, 2 );
+		$packageMode = $this->isTestingPackage();
+		$this->packagePath = $this->getPluginRoot();
+		
+		if ( !$packageMode ) {
+			$this->markTestSkipped( 'Package validation runs only when SHIELD_PACKAGE_PATH points to a built package.' );
+		}
 		
 		if ( !is_dir( $this->packagePath ) ) {
 			$this->markTestSkipped( 'Package directory not found: ' . $this->packagePath );

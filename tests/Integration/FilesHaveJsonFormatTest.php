@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
-use PHPUnit\Framework\TestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase as PolyfillTestCase;
 
 /**
@@ -10,16 +10,10 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase as PolyfillTestCase;
  */
 class FilesHaveJsonFormatTest extends PolyfillTestCase {
 
+	use PluginPathsTrait;
+
     public function testMainPluginJsonIsValid() :void {
-        $pluginJsonPath = dirname( dirname( __DIR__ ) ) . '/plugin.json';
-        $this->assertFileExists( $pluginJsonPath, 'plugin.json file should exist' );
-        
-        $jsonContent = file_get_contents( $pluginJsonPath );
-        $this->assertNotEmpty( $jsonContent, 'plugin.json should not be empty' );
-        
-        $jsonParsed = json_decode( $jsonContent, true );
-        $this->assertIsArray( $jsonParsed, 'plugin.json should contain valid JSON that decodes to array' );
-        $this->assertEmpty( json_last_error(), 'plugin.json should not have JSON parsing errors' );
+        $jsonParsed = $this->decodePluginJsonFile( 'plugin.json', 'plugin.json' );
         
         // Verify key structure exists
         $this->assertArrayHasKey( 'properties', $jsonParsed, 'plugin.json should have properties key' );
@@ -34,22 +28,15 @@ class FilesHaveJsonFormatTest extends PolyfillTestCase {
     }
 
     public function testChangelogJsonIsValid() :void {
-        $changelogPath = dirname( dirname( __DIR__ ) ) . '/cl.json';
-        $this->assertFileExists( $changelogPath, 'cl.json file should exist' );
-        
-        $jsonContent = file_get_contents( $changelogPath );
-        $this->assertNotEmpty( $jsonContent, 'cl.json should not be empty' );
-        
-        $jsonParsed = json_decode( $jsonContent, true );
+        $jsonParsed = $this->decodePluginJsonFile( 'cl.json', 'cl.json' );
         $this->assertIsArray( $jsonParsed, 'cl.json should contain valid JSON' );
-        $this->assertEmpty( json_last_error(), 'cl.json should not have JSON parsing errors' );
     }
 
     /**
      * Test that all JSON files in root directory are valid
      */
     public function testAllRootJsonFilesAreValid() :void {
-        $rootPath = dirname( dirname( __DIR__ ) );
+        $rootPath = $this->getPluginRoot();
         
         // Get all JSON files in root directory
         $jsonFiles = $this->getJsonFiles( $rootPath );
@@ -64,7 +51,7 @@ class FilesHaveJsonFormatTest extends PolyfillTestCase {
         }
         
         foreach ( $jsonFiles as $file ) {
-            $filePath = $rootPath . '/' . $file;
+            $filePath = $this->getPluginFilePath( $file );
             $jsonContent = file_get_contents( $filePath );
             
             // Test that file can be parsed as JSON
