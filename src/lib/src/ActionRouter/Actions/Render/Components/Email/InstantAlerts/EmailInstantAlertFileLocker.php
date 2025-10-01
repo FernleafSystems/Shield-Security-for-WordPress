@@ -39,7 +39,7 @@ class EmailInstantAlertFileLocker extends EmailInstantAlertBase {
 
 	private function titleFor( string $key ) :string {
 		return [
-				   'wpconfig'        => __( 'WP Config', 'wp-simple-firewall' ),
+				   'wpconfig'        => __( 'WP Configuration File', 'wp-simple-firewall' ),
 				   'theme_functions' => __( 'Theme functions.php', 'wp-simple-firewall' ),
 				   'root_htaccess'   => __( 'Root .htaccess', 'wp-simple-firewall' ),
 				   'root_index'      => __( 'Root index.php', 'wp-simple-firewall' ),

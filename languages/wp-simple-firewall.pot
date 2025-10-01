@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-25T12:20:32+00:00\n"
+"POT-Creation-Date: 2025-10-01T13:17:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
@@ -386,7 +386,7 @@ msgstr ""
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:236
 #: src/lib/src/Controller/Config/Opts/SectionNotices.php:69
 #: src/lib/src/Controller/Config/Opts/SectionNotices.php:233
-#: src/lib/src/Events/EventStrings.php:638
+#: src/lib/src/Events/EventStrings.php:632
 msgid "Note"
 msgstr ""
 
@@ -1675,7 +1675,7 @@ msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/IpAnalyse/General.php:74
 #: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:52
-#: src/lib/src/Events/EventStrings.php:444
+#: src/lib/src/Events/EventStrings.php:438
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:41
 msgid "IP Blocked"
 msgstr ""
@@ -1987,7 +1987,7 @@ msgid "Total offenses against the site."
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php:45
-#: src/lib/src/Events/EventStrings.php:420
+#: src/lib/src/Events/EventStrings.php:414
 msgid "Connection Killed"
 msgstr ""
 
@@ -3093,7 +3093,7 @@ msgid "Refresh"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Widgets/WpDashboardSummary.php:66
-#: src/lib/src/Events/EventStrings.php:237
+#: src/lib/src/Events/EventStrings.php:231
 msgid "Session Started"
 msgstr ""
 
@@ -3102,9 +3102,9 @@ msgid "Last Offense"
 msgstr ""
 
 #: src/lib/src/ActionRouter/Actions/Render/Components/Widgets/WpDashboardSummary.php:68
+#: src/lib/src/Events/EventStrings.php:328
 #: src/lib/src/Events/EventStrings.php:334
 #: src/lib/src/Events/EventStrings.php:340
-#: src/lib/src/Events/EventStrings.php:346
 #: src/lib/src/Tables/DataTables/LoadData/IpRules/BuildIpRulesTableData.php:162
 #: src/lib/src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php:259
 msgid "Blocked"
@@ -5901,7 +5901,7 @@ msgid "Your registered machine ID with CrowdSec is: %s"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:539
-#: src/lib/src/Events/EventStrings.php:521
+#: src/lib/src/Events/EventStrings.php:515
 #: src/lib/src/translations-strings-auto.php:244
 msgid "Failed Login"
 msgstr ""
@@ -5964,7 +5964,7 @@ msgid "404 errors generated for the following file types won't trigger an offens
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:567
-#: src/lib/src/Events/EventStrings.php:514
+#: src/lib/src/Events/EventStrings.php:508
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:25
 #: src/lib/src/translations-strings-auto.php:259
 msgid "Link Cheese"
@@ -6032,7 +6032,7 @@ msgid "Currently permitted scripts"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsOptions.php:601
-#: src/lib/src/Events/EventStrings.php:506
+#: src/lib/src/Events/EventStrings.php:500
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:24
 #: src/lib/src/translations-strings-auto.php:253
 msgid "Fake Web Crawler"
@@ -8059,7 +8059,7 @@ msgid "Bot SPAM"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:52
-#: src/lib/src/Events/EventStrings.php:675
+#: src/lib/src/Events/EventStrings.php:669
 msgid "Human"
 msgstr ""
 
@@ -8214,7 +8214,7 @@ msgid "Enable as many options as possible."
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:143
-#: src/lib/src/Events/EventStrings.php:666
+#: src/lib/src/Events/EventStrings.php:660
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/IpAdeThreshold.php:18
 #: src/lib/src/Zones/Component/SilentCaptcha.php:10
 msgid "silentCAPTCHA"
@@ -8225,11 +8225,11 @@ msgid "silentCAPTCHA AntiBot Technology"
 msgstr ""
 
 #: src/lib/src/Controller/Config/Modules/StringsSections.php:148
-#: src/lib/src/Events/EventStrings.php:568
-#: src/lib/src/Events/EventStrings.php:576
-#: src/lib/src/Events/EventStrings.php:583
-#: src/lib/src/Events/EventStrings.php:591
-#: src/lib/src/Events/EventStrings.php:600
+#: src/lib/src/Events/EventStrings.php:562
+#: src/lib/src/Events/EventStrings.php:570
+#: src/lib/src/Events/EventStrings.php:577
+#: src/lib/src/Events/EventStrings.php:585
+#: src/lib/src/Events/EventStrings.php:594
 #: src/lib/src/Profiles/SecurityProfilesCon.php:213
 msgid "CrowdSec"
 msgstr ""
@@ -9015,776 +9015,776 @@ msgstr ""
 msgid "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:24
+#: src/lib/src/Events/EventStrings.php:18
 msgid "Invalid User Email Registration"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:26
+#: src/lib/src/Events/EventStrings.php:20
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:27
+#: src/lib/src/Events/EventStrings.php:21
 msgid "Email verification test that failed: {{reason}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:31
+#: src/lib/src/Events/EventStrings.php:25
 #: src/lib/src/Modules/UserManagement/Lib/Suspend/UserSuspendController.php:180
 msgid "Password Expired"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:33
+#: src/lib/src/Events/EventStrings.php:27
 msgid "Forcing user ({{user_login}}) to update expired password."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:37
+#: src/lib/src/Events/EventStrings.php:31
 msgid "Forced Password Change"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:39
+#: src/lib/src/Events/EventStrings.php:33
 msgid "Forcing user ({{user_login}}) to update password that fails to meet policies."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:43
+#: src/lib/src/Events/EventStrings.php:37
 msgid "Password Change Blocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:45
+#: src/lib/src/Events/EventStrings.php:39
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:49
+#: src/lib/src/Events/EventStrings.php:43
 msgid "Session Not Found"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:51
+#: src/lib/src/Events/EventStrings.php:45
 msgid "Valid user session could not be found ({{user_login}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:52
-#: src/lib/src/Events/EventStrings.php:59
-#: src/lib/src/Events/EventStrings.php:66
-#: src/lib/src/Events/EventStrings.php:73
+#: src/lib/src/Events/EventStrings.php:46
+#: src/lib/src/Events/EventStrings.php:53
+#: src/lib/src/Events/EventStrings.php:60
+#: src/lib/src/Events/EventStrings.php:67
 msgid "Logging out."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:56
+#: src/lib/src/Events/EventStrings.php:50
 msgid "Session Expired"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:58
+#: src/lib/src/Events/EventStrings.php:52
 msgid "User session has expired ({{user_login}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:63
+#: src/lib/src/Events/EventStrings.php:57
 msgid "Session Idle"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:65
+#: src/lib/src/Events/EventStrings.php:59
 msgid "User session has expired due to inactivity ({{user_login}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:70
+#: src/lib/src/Events/EventStrings.php:64
 msgid "Session Locked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:72
+#: src/lib/src/Events/EventStrings.php:66
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:77
+#: src/lib/src/Events/EventStrings.php:71
 msgid "User Manually Suspended"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:79
+#: src/lib/src/Events/EventStrings.php:73
 msgid "User '{{user_login}}' suspended by admin."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:83
+#: src/lib/src/Events/EventStrings.php:77
 msgid "User Manually Unsuspended"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:85
+#: src/lib/src/Events/EventStrings.php:79
 msgid "User '{{user_login}}' unsuspended by admin."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:89
+#: src/lib/src/Events/EventStrings.php:83
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:36
 msgid "Rate Limit Exceeded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:91
+#: src/lib/src/Events/EventStrings.php:85
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:95
+#: src/lib/src/Events/EventStrings.php:89
 msgid "Security PIN Pass"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:97
+#: src/lib/src/Events/EventStrings.php:91
 msgid "Security PIN authentication successful."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:101
+#: src/lib/src/Events/EventStrings.php:95
 msgid "Security PIN Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:103
+#: src/lib/src/Events/EventStrings.php:97
 msgid "Security PIN authentication failed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:107
+#: src/lib/src/Events/EventStrings.php:101
 msgid "Unauthorized Deactivation Attempt"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:109
+#: src/lib/src/Events/EventStrings.php:103
 #, php-format
 msgid "An attempt to deactivate the %s plugin by a non-admin was intercepted."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:113
+#: src/lib/src/Events/EventStrings.php:107
 msgid "Custom Debug"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:119
+#: src/lib/src/Events/EventStrings.php:113
 msgid "Plugin Option Changed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:121
+#: src/lib/src/Events/EventStrings.php:115
 msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
 msgstr ""
 
+#: src/lib/src/Events/EventStrings.php:119
 #: src/lib/src/Events/EventStrings.php:125
-#: src/lib/src/Events/EventStrings.php:131
 msgid "Site Lockdown Started"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:127
+#: src/lib/src/Events/EventStrings.php:121
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:133
+#: src/lib/src/Events/EventStrings.php:127
 msgid "Site was taken out of lockdown."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:137
-#: src/lib/src/Events/EventStrings.php:144
+#: src/lib/src/Events/EventStrings.php:131
+#: src/lib/src/Events/EventStrings.php:138
 msgid "Loaded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:138
+#: src/lib/src/Events/EventStrings.php:132
 msgid "Front Page"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:140
+#: src/lib/src/Events/EventStrings.php:134
 msgid "Front page loaded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:145
+#: src/lib/src/Events/EventStrings.php:139
 msgid "Login Page"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:147
+#: src/lib/src/Events/EventStrings.php:141
 msgid "Login page loaded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:151
+#: src/lib/src/Events/EventStrings.php:145
 msgid "CAPTCHA Pass"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:153
+#: src/lib/src/Events/EventStrings.php:147
 msgid "CAPTCHA test successful."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:157
+#: src/lib/src/Events/EventStrings.php:151
 msgid "CAPTCHA Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:159
+#: src/lib/src/Events/EventStrings.php:153
 msgid "CAPTCHA test failed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:163
+#: src/lib/src/Events/EventStrings.php:157
 msgid "Test Cron Run"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:165
+#: src/lib/src/Events/EventStrings.php:159
 msgid "Test WP Cron ran successfully."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:169
+#: src/lib/src/Events/EventStrings.php:163
 msgid "Import Notify Sent"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:171
+#: src/lib/src/Events/EventStrings.php:165
 msgid "Sent notifications to whitelisted sites for required options import."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:175
+#: src/lib/src/Events/EventStrings.php:169
 msgid "Import Notify Received"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:177
+#: src/lib/src/Events/EventStrings.php:171
 msgid "Scheduled an automatic import after receiving notice that an options import was required from the master site."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:178
+#: src/lib/src/Events/EventStrings.php:172
 msgid "Current master site: {{master_site}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:182
+#: src/lib/src/Events/EventStrings.php:176
 msgid "Options Exported"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:184
+#: src/lib/src/Events/EventStrings.php:178
 msgid "Options exported to site: {{site}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:188
+#: src/lib/src/Events/EventStrings.php:182
 msgid "Options Imported"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:190
+#: src/lib/src/Events/EventStrings.php:184
 msgid "Options imported from site: {{site}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:194
+#: src/lib/src/Events/EventStrings.php:188
 msgid "Whitelist Site Added"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:196
+#: src/lib/src/Events/EventStrings.php:190
 msgid "Site added to export white list: {{site}}"
 msgstr ""
 
+#: src/lib/src/Events/EventStrings.php:194
 #: src/lib/src/Events/EventStrings.php:200
-#: src/lib/src/Events/EventStrings.php:206
 msgid "Whitelist Site Removed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:202
+#: src/lib/src/Events/EventStrings.php:196
 msgid "Site removed from export white list: {{site}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:208
+#: src/lib/src/Events/EventStrings.php:202
 msgid "Master Site URL set: {{site}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:212
+#: src/lib/src/Events/EventStrings.php:206
 msgid "AntiBot Pass"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:214
+#: src/lib/src/Events/EventStrings.php:208
 msgid "Request passed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:218
+#: src/lib/src/Events/EventStrings.php:212
 msgid "AntiBot Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:220
+#: src/lib/src/Events/EventStrings.php:214
 msgid "Request failed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:224
+#: src/lib/src/Events/EventStrings.php:218
 msgid "Report Generated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:226
+#: src/lib/src/Events/EventStrings.php:220
 msgid "Report Generated."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:227
+#: src/lib/src/Events/EventStrings.php:221
 msgid "Type: {{type}}; Interval: {{interval}};"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:231
+#: src/lib/src/Events/EventStrings.php:225
 msgid "Report Sent"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:233
+#: src/lib/src/Events/EventStrings.php:227
 msgid "Report Sent (via {{medium}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:239
+#: src/lib/src/Events/EventStrings.php:233
 msgid "Session started for user ({{user_login}}) with session ID {{session_id}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:243
+#: src/lib/src/Events/EventStrings.php:237
 msgid "Session Terminated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:245
+#: src/lib/src/Events/EventStrings.php:239
 msgid "Session terminated."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:249
+#: src/lib/src/Events/EventStrings.php:243
 msgid "Current Session Terminated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:251
+#: src/lib/src/Events/EventStrings.php:245
 msgid "Current session terminated for user ({{user_login}}) with session ID {{session_id}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:255
+#: src/lib/src/Events/EventStrings.php:249
 msgid "Login Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:257
+#: src/lib/src/Events/EventStrings.php:251
 msgid "Login successful."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:261
+#: src/lib/src/Events/EventStrings.php:255
 msgid "BotBox Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:263
+#: src/lib/src/Events/EventStrings.php:257
 msgid "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:267
+#: src/lib/src/Events/EventStrings.php:261
 msgid "Cooldown Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:269
+#: src/lib/src/Events/EventStrings.php:263
 msgid "Login/Register request triggered cooldown and was blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:273
+#: src/lib/src/Events/EventStrings.php:267
 msgid "Honeypot Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:275
+#: src/lib/src/Events/EventStrings.php:269
 msgid "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:279
+#: src/lib/src/Events/EventStrings.php:273
 msgid "2FA Login Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:281
+#: src/lib/src/Events/EventStrings.php:275
 msgid "Successful 2FA Login Verification"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:285
+#: src/lib/src/Events/EventStrings.php:279
 msgid "2FA Verify Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:287
+#: src/lib/src/Events/EventStrings.php:281
 msgid "User '{{user_login}}' verified their identity using '{{method}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:291
+#: src/lib/src/Events/EventStrings.php:285
 msgid "2FA Verify Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:293
+#: src/lib/src/Events/EventStrings.php:287
 msgid "User '{{user_login}}' failed to verify their identity using '{{method}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:297
+#: src/lib/src/Events/EventStrings.php:291
 msgid "2FA Nonce Verify Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:299
+#: src/lib/src/Events/EventStrings.php:293
 msgid "An attempt was made to verify a 2FA login '{{user_login}}' using an invalid nonce."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:304
+#: src/lib/src/Events/EventStrings.php:298
 msgid "Login Blocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:306
+#: src/lib/src/Events/EventStrings.php:300
 msgid "User login request blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:310
+#: src/lib/src/Events/EventStrings.php:304
 msgid "Registration Blocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:312
+#: src/lib/src/Events/EventStrings.php:306
 msgid "User registration request blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:316
+#: src/lib/src/Events/EventStrings.php:310
 msgid "Lost Password Blocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:318
+#: src/lib/src/Events/EventStrings.php:312
 msgid "User lost password request blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:322
+#: src/lib/src/Events/EventStrings.php:316
 msgid "Checkout Blocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:324
+#: src/lib/src/Events/EventStrings.php:318
 msgid "User attempting checkout request blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:328
+#: src/lib/src/Events/EventStrings.php:322
 msgid "Hidden Login URL Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:330
+#: src/lib/src/Events/EventStrings.php:324
 msgid "Redirecting wp-login due to hidden login URL"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:334
+#: src/lib/src/Events/EventStrings.php:328
 msgid "Anonymous REST API"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:336
+#: src/lib/src/Events/EventStrings.php:330
 msgid "Blocked Anonymous API Access through '{{namespace}}' namespace."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:340
+#: src/lib/src/Events/EventStrings.php:334
 msgid "Author Fishing"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:342
+#: src/lib/src/Events/EventStrings.php:336
 msgid "Blocked Author Discovery via username fishing technique."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:346
-#: src/lib/src/Events/EventStrings.php:543
+#: src/lib/src/Events/EventStrings.php:340
+#: src/lib/src/Events/EventStrings.php:537
 msgid "XML-RPC"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:348
+#: src/lib/src/Events/EventStrings.php:342
 msgid "XML-RPC Request Blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:352
+#: src/lib/src/Events/EventStrings.php:346
 msgid "License Check Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:354
+#: src/lib/src/Events/EventStrings.php:348
 msgid "License check succeeded."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:358
+#: src/lib/src/Events/EventStrings.php:352
 msgid "License Check Failed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:360
+#: src/lib/src/Events/EventStrings.php:354
 msgid "License check request failed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:361
+#: src/lib/src/Events/EventStrings.php:355
 msgid "Failure Type: {{type}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:365
+#: src/lib/src/Events/EventStrings.php:359
 msgid "License Failure Email Sent"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:367
+#: src/lib/src/Events/EventStrings.php:361
 msgid "License check failed. Sending Warning Email."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:371
+#: src/lib/src/Events/EventStrings.php:365
 msgid "License Deactivated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:373
+#: src/lib/src/Events/EventStrings.php:367
 msgid "A valid license could not be found - Deactivating Pro."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:377
+#: src/lib/src/Events/EventStrings.php:371
 msgid "SPAM Check Pass"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:379
+#: src/lib/src/Events/EventStrings.php:373
 msgid "'{{form_provider}}' submission passed SPAM check."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:383
+#: src/lib/src/Events/EventStrings.php:377
 msgid "SPAM Check Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:385
+#: src/lib/src/Events/EventStrings.php:379
 msgid "'{{form_provider}}' submission failed SPAM check."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:389
+#: src/lib/src/Events/EventStrings.php:383
 msgid "User Bot Check Pass"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:391
+#: src/lib/src/Events/EventStrings.php:385
 msgid "'{{form_provider}}' submission for form '{{action}}' with username '{{username}}' passed Bot check."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:395
+#: src/lib/src/Events/EventStrings.php:389
 msgid "User Bot Check Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:397
+#: src/lib/src/Events/EventStrings.php:391
 msgid "'{{form_provider}}' submission for form '{{action}}' with username '{{username}}' failed Bot check."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:401
+#: src/lib/src/Events/EventStrings.php:395
 msgid "SureSend Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:403
+#: src/lib/src/Events/EventStrings.php:397
 msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:407
+#: src/lib/src/Events/EventStrings.php:401
 msgid "SureSend Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:409
+#: src/lib/src/Events/EventStrings.php:403
 msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:413
+#: src/lib/src/Events/EventStrings.php:407
 msgid "silentCAPTCHA Check Invalid (Module)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:415
+#: src/lib/src/Events/EventStrings.php:409
 msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:416
+#: src/lib/src/Events/EventStrings.php:410
 msgid "The visitor was allowed to pass the checks since they couldn't be applied."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:422
+#: src/lib/src/Events/EventStrings.php:416
 msgid "Visitor found on the Block List and their connection was killed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:426
+#: src/lib/src/Events/EventStrings.php:420
 msgid "CrowdSec: Connection Killed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:428
+#: src/lib/src/Events/EventStrings.php:422
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:432
+#: src/lib/src/Events/EventStrings.php:426
 msgid "Connection Not Killed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:434
+#: src/lib/src/Events/EventStrings.php:428
 msgid "IP address has a high reputation so connection allowed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:438
+#: src/lib/src/Events/EventStrings.php:432
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:40
 msgid "Offense Triggered"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:440
+#: src/lib/src/Events/EventStrings.php:434
 msgid "Auto Black List offenses counter was incremented from {{from}} to {{to}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:446
+#: src/lib/src/Events/EventStrings.php:440
 msgid "IP blocked after incrementing offenses from {{from}} to {{to}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:450
+#: src/lib/src/Events/EventStrings.php:444
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:42
 msgid "IP Unblocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:452
+#: src/lib/src/Events/EventStrings.php:446
 msgid "{{ip}} removed from block list ({{type}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:456
+#: src/lib/src/Events/EventStrings.php:450
 msgid "IP Unblocked By Visitor"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:458
+#: src/lib/src/Events/EventStrings.php:452
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:462
+#: src/lib/src/Events/EventStrings.php:456
 msgid "IP Unblocked (Flag File)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:464
+#: src/lib/src/Events/EventStrings.php:458
 msgid "IP address '{{ip}}' removed from blacklist using 'unblock' file flag."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:468
+#: src/lib/src/Events/EventStrings.php:462
 msgid "IP Block List Add (Auto)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:470
+#: src/lib/src/Events/EventStrings.php:464
 msgid "IP address '{{ip}}' automatically added to block list as an offender."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:471
+#: src/lib/src/Events/EventStrings.php:465
 msgid "The IP may not be blocked yet."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:475
+#: src/lib/src/Events/EventStrings.php:469
 msgid "IP Block List Add (Manual)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:477
+#: src/lib/src/Events/EventStrings.php:471
 msgid "IP address '{{ip}}' manually added to block list."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:481
+#: src/lib/src/Events/EventStrings.php:475
 msgid "IP Bypass List Add (Manual)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:483
+#: src/lib/src/Events/EventStrings.php:477
 msgid "IP address '{{ip}}' manually added to bypass list."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:487
+#: src/lib/src/Events/EventStrings.php:481
 msgid "IP Bypass List Removed (Manual)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:489
+#: src/lib/src/Events/EventStrings.php:483
 msgid "IP address '{{ip}}' manually removed from the bypass list."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:493
+#: src/lib/src/Events/EventStrings.php:487
 msgid "silentCAPTCHA Registration"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:495
+#: src/lib/src/Events/EventStrings.php:489
 msgid "Visitor registered using silentCAPTCHA."
 msgstr ""
 
+#: src/lib/src/Events/EventStrings.php:493
 #: src/lib/src/Events/EventStrings.php:499
-#: src/lib/src/Events/EventStrings.php:505
-#: src/lib/src/Events/EventStrings.php:513
-#: src/lib/src/Events/EventStrings.php:520
-#: src/lib/src/Events/EventStrings.php:527
-#: src/lib/src/Events/EventStrings.php:535
-#: src/lib/src/Events/EventStrings.php:542
-#: src/lib/src/Events/EventStrings.php:549
+#: src/lib/src/Events/EventStrings.php:507
+#: src/lib/src/Events/EventStrings.php:514
+#: src/lib/src/Events/EventStrings.php:521
+#: src/lib/src/Events/EventStrings.php:529
+#: src/lib/src/Events/EventStrings.php:536
+#: src/lib/src/Events/EventStrings.php:543
 msgid "Bots"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:501
+#: src/lib/src/Events/EventStrings.php:495
 msgid "404 detected at '{{path}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:508
+#: src/lib/src/Events/EventStrings.php:502
 msgid "Fake Web Crawler detected at '{{path}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:509
+#: src/lib/src/Events/EventStrings.php:503
 msgid "Fake Crawler misrepresented itself as '{{crawler}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:516
+#: src/lib/src/Events/EventStrings.php:510
 msgid "Link cheese access detected at '{{path}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:523
+#: src/lib/src/Events/EventStrings.php:517
 msgid "Attempted login failed by user '{{user_login}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:528
+#: src/lib/src/Events/EventStrings.php:522
 msgid "Invalid Username Login"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:530
+#: src/lib/src/Events/EventStrings.php:524
 msgid "Attempted login with invalid user '{{user_login}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:536
+#: src/lib/src/Events/EventStrings.php:530
 msgid "Invalid User-Agent"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:538
+#: src/lib/src/Events/EventStrings.php:532
 msgid "Invalid user agent detected at '{{useragent}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:545
+#: src/lib/src/Events/EventStrings.php:539
 msgid "Access to XML-RPC detected at '{{path}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:550
+#: src/lib/src/Events/EventStrings.php:544
 #: src/lib/src/Modules/Plugin/Lib/MeterAnalysis/Component/IpTrackSignalInvalidScript.php:12
 msgid "Invalid Scripts"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:552
+#: src/lib/src/Events/EventStrings.php:546
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:556
+#: src/lib/src/Events/EventStrings.php:550
 msgid "Mark Comment SPAM (Manual)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:558
+#: src/lib/src/Events/EventStrings.php:552
 msgid "Comment manually marked as SPAM."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:562
+#: src/lib/src/Events/EventStrings.php:556
 msgid "Mark Comment Not SPAM (Manual)"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:564
+#: src/lib/src/Events/EventStrings.php:558
 msgid "Comment manually marked as not SPAM."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:568
+#: src/lib/src/Events/EventStrings.php:562
 msgid "Registered Site"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:570
+#: src/lib/src/Events/EventStrings.php:564
 msgid "Registered the website with the CrowdSec service."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:571
+#: src/lib/src/Events/EventStrings.php:565
 msgid "Website URL"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:572
+#: src/lib/src/Events/EventStrings.php:566
 msgid "Website ID"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:576
+#: src/lib/src/Events/EventStrings.php:570
 msgid "Acquired Authentication Token"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:578
+#: src/lib/src/Events/EventStrings.php:572
 msgid "Acquired authentication token for use with CrowdSec service."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:579
+#: src/lib/src/Events/EventStrings.php:573
 msgid "Expiration"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:583
+#: src/lib/src/Events/EventStrings.php:577
 msgid "Enrolled Site With Console"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:585
+#: src/lib/src/Events/EventStrings.php:579
 msgid "Enrolled site with CrowdSec console."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:586
+#: src/lib/src/Events/EventStrings.php:580
 msgid "Enrollment ID"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:587
+#: src/lib/src/Events/EventStrings.php:581
 msgid "Enrollment Name"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:591
+#: src/lib/src/Events/EventStrings.php:585
 msgid "Reputation Decisions Acquired"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:593
+#: src/lib/src/Events/EventStrings.php:587
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:594
+#: src/lib/src/Events/EventStrings.php:588
 #: src/lib/src/Modules/Plugin/Lib/NavMenuBuilder.php:294
 msgid "New"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:595
+#: src/lib/src/Events/EventStrings.php:589
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportUsers.php:21
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportComments.php:23
 #: src/lib/src/Scans/Afs/ResultItem.php:75
@@ -9792,628 +9792,628 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:596
+#: src/lib/src/Events/EventStrings.php:590
 msgid "Time Taken"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:600
+#: src/lib/src/Events/EventStrings.php:594
 msgid "Signals Pushed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:602
+#: src/lib/src/Events/EventStrings.php:596
 msgid "IP Reputation signals pushed successfully to CrowdSec."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:603
+#: src/lib/src/Events/EventStrings.php:597
 msgid "Total Signals"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:607
-#: src/lib/src/Events/EventStrings.php:609
+#: src/lib/src/Events/EventStrings.php:601
+#: src/lib/src/Events/EventStrings.php:603
 msgid "Scan Completed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:613
+#: src/lib/src/Events/EventStrings.php:607
 msgid "Scan Item Delete Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:615
+#: src/lib/src/Events/EventStrings.php:609
 msgid "Item found in the scan was deleted."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:616
+#: src/lib/src/Events/EventStrings.php:610
 msgid "Item deleted: '{{path_full}}'"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:620
+#: src/lib/src/Events/EventStrings.php:614
 msgid "Scan Item Repair Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:622
+#: src/lib/src/Events/EventStrings.php:616
 msgid "Repaired item found in the scan."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:623
+#: src/lib/src/Events/EventStrings.php:617
 msgid "Item repaired: '{{path_full}}'"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:627
+#: src/lib/src/Events/EventStrings.php:621
 msgid "Scan Item Repair Failure"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:629
+#: src/lib/src/Events/EventStrings.php:623
 msgid "Failed to repair scan item."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:630
+#: src/lib/src/Events/EventStrings.php:624
 msgid "Failed item: '{{path_full}}'"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:634
+#: src/lib/src/Events/EventStrings.php:628
 msgid "Items Found In Scan"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:636
+#: src/lib/src/Events/EventStrings.php:630
 msgid "{{scan}}: scan completed and items were discovered."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:639
+#: src/lib/src/Events/EventStrings.php:633
 msgid "These items wont display in results if you've previously marked them as ignored."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:644
+#: src/lib/src/Events/EventStrings.php:638
 msgid "Firewall Block"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:646
+#: src/lib/src/Events/EventStrings.php:640
 msgid "Request blocked by firewall rule: {{name}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:647
+#: src/lib/src/Events/EventStrings.php:641
 msgid "Rule pattern detected: '{{term}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:648
+#: src/lib/src/Events/EventStrings.php:642
 msgid "The offending request parameter was '{{param}}' with a value of '{{value}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:652
+#: src/lib/src/Events/EventStrings.php:646
 msgid "Firewall Block Email Success"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:654
+#: src/lib/src/Events/EventStrings.php:648
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:658
+#: src/lib/src/Events/EventStrings.php:652
 msgid "Firewall Block Email Fail"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:660
+#: src/lib/src/Events/EventStrings.php:654
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:665
-#: src/lib/src/Events/EventStrings.php:674
-#: src/lib/src/Events/EventStrings.php:684
-#: src/lib/src/Events/EventStrings.php:693
-#: src/lib/src/Events/EventStrings.php:702
-#: src/lib/src/Events/EventStrings.php:711
+#: src/lib/src/Events/EventStrings.php:659
+#: src/lib/src/Events/EventStrings.php:668
+#: src/lib/src/Events/EventStrings.php:678
+#: src/lib/src/Events/EventStrings.php:687
+#: src/lib/src/Events/EventStrings.php:696
+#: src/lib/src/Events/EventStrings.php:705
 msgid "SPAM Blocked"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:669
+#: src/lib/src/Events/EventStrings.php:663
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:678
+#: src/lib/src/Events/EventStrings.php:672
 msgid "Blocked human SPAM comment containing suspicious content."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:679
+#: src/lib/src/Events/EventStrings.php:673
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:685
+#: src/lib/src/Events/EventStrings.php:679
 msgid "Repeated Human SPAM"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:688
+#: src/lib/src/Events/EventStrings.php:682
 msgid "Blocked repeated attempts by the same visitor to post multiple SPAM comments."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:694
+#: src/lib/src/Events/EventStrings.php:688
 #: src/lib/src/Modules/IPs/Lib/Bots/BotSignalNames.php:31
 msgid "Cooldown Triggered"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:697
+#: src/lib/src/Events/EventStrings.php:691
 msgid "Blocked comment that triggered the Comment Cooldown."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:703
+#: src/lib/src/Events/EventStrings.php:697
 msgid "Bot"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:706
+#: src/lib/src/Events/EventStrings.php:700
 msgid "Blocked SPAM comment from Bot."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:712
+#: src/lib/src/Events/EventStrings.php:706
 msgid "CAPTCHA"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:715
+#: src/lib/src/Events/EventStrings.php:709
 msgid "Blocked SPAM comment that failed reCAPTCHA."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:719
-#: src/lib/src/Events/EventStrings.php:721
+#: src/lib/src/Events/EventStrings.php:713
+#: src/lib/src/Events/EventStrings.php:715
 msgid "Comment SPAM Blocked."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:725
+#: src/lib/src/Events/EventStrings.php:719
 msgid "DB Tables Added"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:727
+#: src/lib/src/Events/EventStrings.php:721
 msgid "Database table(s) added:"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:732
+#: src/lib/src/Events/EventStrings.php:726
 msgid "DB Tables Removed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:734
+#: src/lib/src/Events/EventStrings.php:728
 msgid "Database table(s) removed:"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:739
+#: src/lib/src/Events/EventStrings.php:733
 msgid "Plugin Activated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:741
+#: src/lib/src/Events/EventStrings.php:735
 msgid "Plugin '{{plugin}}' was activated (v{{version}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:745
+#: src/lib/src/Events/EventStrings.php:739
 msgid "Plugin Installed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:747
+#: src/lib/src/Events/EventStrings.php:741
 msgid "Plugin '{{plugin}}' was installed (v{{version}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:751
+#: src/lib/src/Events/EventStrings.php:745
 msgid "Plugin Uninstalled"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:753
+#: src/lib/src/Events/EventStrings.php:747
 msgid "Plugin '{{plugin}}' was uninstalled (v{{version}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:757
+#: src/lib/src/Events/EventStrings.php:751
 msgid "Plugin Deactivated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:759
+#: src/lib/src/Events/EventStrings.php:753
 msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:763
+#: src/lib/src/Events/EventStrings.php:757
 msgid "Plugin Upgraded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:765
+#: src/lib/src/Events/EventStrings.php:759
 msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:769
+#: src/lib/src/Events/EventStrings.php:763
 msgid "Plugin Downgraded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:771
+#: src/lib/src/Events/EventStrings.php:765
 msgid "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:775
+#: src/lib/src/Events/EventStrings.php:769
 msgid "Plugin File Edited"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:777
+#: src/lib/src/Events/EventStrings.php:771
 msgid "An attempt was made to edit the plugin file '{{file}}' directly through the WordPress editor."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:781
+#: src/lib/src/Events/EventStrings.php:775
 msgid "Theme Activated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:783
+#: src/lib/src/Events/EventStrings.php:777
 msgid "Theme '{{theme}}' was activated."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:787
+#: src/lib/src/Events/EventStrings.php:781
 msgid "Theme Installed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:789
+#: src/lib/src/Events/EventStrings.php:783
 msgid "Theme '{{theme}}' was installed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:793
+#: src/lib/src/Events/EventStrings.php:787
 msgid "Theme Uninstalled"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:795
+#: src/lib/src/Events/EventStrings.php:789
 msgid "Theme '{{theme}}' was uninstalled (v{{version}})."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:799
+#: src/lib/src/Events/EventStrings.php:793
 msgid "Theme File Edited"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:801
+#: src/lib/src/Events/EventStrings.php:795
 msgid "An attempt was made to edit the theme file '{{file}}' directly through the WordPress editor."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:805
+#: src/lib/src/Events/EventStrings.php:799
 msgid "Theme Upgraded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:807
+#: src/lib/src/Events/EventStrings.php:801
 msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:811
+#: src/lib/src/Events/EventStrings.php:805
 msgid "Theme Downgraded"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:813
+#: src/lib/src/Events/EventStrings.php:807
 msgid "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:817
+#: src/lib/src/Events/EventStrings.php:811
 msgid "WP Core Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:819
+#: src/lib/src/Events/EventStrings.php:813
 msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:823
+#: src/lib/src/Events/EventStrings.php:817
 #: src/lib/src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:90
 msgid "WordPress Reinstalled"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:825
+#: src/lib/src/Events/EventStrings.php:819
 msgid "WordPress Core v{{version}} was reinstalled."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:829
+#: src/lib/src/Events/EventStrings.php:823
 msgid "Permalinks Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:831
+#: src/lib/src/Events/EventStrings.php:825
 msgid "WordPress Permalinks Structure was updated from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:835
+#: src/lib/src/Events/EventStrings.php:829
 msgid "WP Site Admin Email"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:837
+#: src/lib/src/Events/EventStrings.php:831
 msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:841
+#: src/lib/src/Events/EventStrings.php:835
 msgid "WP Site Tagline"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:843
+#: src/lib/src/Events/EventStrings.php:837
 msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:847
+#: src/lib/src/Events/EventStrings.php:841
 msgid "WP Site title"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:849
+#: src/lib/src/Events/EventStrings.php:843
 msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:853
+#: src/lib/src/Events/EventStrings.php:847
 msgid "WP Default User Role"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:855
+#: src/lib/src/Events/EventStrings.php:849
 msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:859
+#: src/lib/src/Events/EventStrings.php:853
 msgid "Home URL Changed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:861
+#: src/lib/src/Events/EventStrings.php:855
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:865
+#: src/lib/src/Events/EventStrings.php:859
 msgid "Site URL Changed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:867
+#: src/lib/src/Events/EventStrings.php:861
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:871
+#: src/lib/src/Events/EventStrings.php:865
 msgid "WP User Registration"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:873
+#: src/lib/src/Events/EventStrings.php:867
 msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:877
+#: src/lib/src/Events/EventStrings.php:871
 msgid "Post Deleted"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:879
+#: src/lib/src/Events/EventStrings.php:873
 msgid "WordPress Post entitled '{{title}}' was permanently deleted from trash."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:883
+#: src/lib/src/Events/EventStrings.php:877
 msgid "Post Trashed"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:885
+#: src/lib/src/Events/EventStrings.php:879
 msgid "Post entitled '{{title}}' was trashed."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:886
-#: src/lib/src/Events/EventStrings.php:893
-#: src/lib/src/Events/EventStrings.php:900
-#: src/lib/src/Events/EventStrings.php:907
-#: src/lib/src/Events/EventStrings.php:914
-#: src/lib/src/Events/EventStrings.php:921
-#: src/lib/src/Events/EventStrings.php:928
-#: src/lib/src/Events/EventStrings.php:935
-#: src/lib/src/Events/EventStrings.php:942
+#: src/lib/src/Events/EventStrings.php:880
+#: src/lib/src/Events/EventStrings.php:887
+#: src/lib/src/Events/EventStrings.php:894
+#: src/lib/src/Events/EventStrings.php:901
+#: src/lib/src/Events/EventStrings.php:908
+#: src/lib/src/Events/EventStrings.php:915
+#: src/lib/src/Events/EventStrings.php:922
+#: src/lib/src/Events/EventStrings.php:929
+#: src/lib/src/Events/EventStrings.php:936
 msgid "Post Type: {{type}}"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:890
+#: src/lib/src/Events/EventStrings.php:884
 msgid "Post Recovered"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:892
+#: src/lib/src/Events/EventStrings.php:886
 msgid "Post entitled '{{title}}' was recovered from trash."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:897
+#: src/lib/src/Events/EventStrings.php:891
 msgid "Post Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:899
+#: src/lib/src/Events/EventStrings.php:893
 msgid "Post entitled '{{title}}' was updated."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:904
+#: src/lib/src/Events/EventStrings.php:898
 msgid "Post Created"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:906
+#: src/lib/src/Events/EventStrings.php:900
 msgid "Post entitled '{{title}}' was created."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:911
+#: src/lib/src/Events/EventStrings.php:905
 msgid "Post Published"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:913
+#: src/lib/src/Events/EventStrings.php:907
 msgid "Post entitled '{{title}}' was published."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:918
+#: src/lib/src/Events/EventStrings.php:912
 msgid "Post Unpublished"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:920
+#: src/lib/src/Events/EventStrings.php:914
 msgid "Post entitled '{{title}}' was unpublished."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:925
+#: src/lib/src/Events/EventStrings.php:919
 msgid "Post Content Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:927
+#: src/lib/src/Events/EventStrings.php:921
 msgid "Content for Post ID {{post_id}} updated."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:932
+#: src/lib/src/Events/EventStrings.php:926
 msgid "Post Title Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:934
+#: src/lib/src/Events/EventStrings.php:928
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:939
+#: src/lib/src/Events/EventStrings.php:933
 msgid "Post Slug Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:941
+#: src/lib/src/Events/EventStrings.php:935
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:946
+#: src/lib/src/Events/EventStrings.php:940
 msgid "User Login"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:948
+#: src/lib/src/Events/EventStrings.php:942
 msgid "Attempted user login by '{{user_login}}' was successful."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:952
+#: src/lib/src/Events/EventStrings.php:946
 msgid "User Registered"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:954
+#: src/lib/src/Events/EventStrings.php:948
 msgid "New WordPress user registered."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:955
+#: src/lib/src/Events/EventStrings.php:949
 msgid "New username is '{{user_login}}' with email address '{{email}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:959
+#: src/lib/src/Events/EventStrings.php:953
 msgid "User Deleted"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:961
+#: src/lib/src/Events/EventStrings.php:955
 msgid "WordPress user deleted."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:962
+#: src/lib/src/Events/EventStrings.php:956
 msgid "Username was '{{user_login}}' with email address '{{email}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:966
+#: src/lib/src/Events/EventStrings.php:960
 msgid "User Promoted"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:968
+#: src/lib/src/Events/EventStrings.php:962
 msgid "User '{{user_login}}' promoted to administrator role."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:972
+#: src/lib/src/Events/EventStrings.php:966
 msgid "User Demoted"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:974
+#: src/lib/src/Events/EventStrings.php:968
 msgid "User '{{user_login}}' demoted from administrator role."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:978
+#: src/lib/src/Events/EventStrings.php:972
 msgid "User Email Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:980
+#: src/lib/src/Events/EventStrings.php:974
 msgid "Email updated for user '{{user_login}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:984
+#: src/lib/src/Events/EventStrings.php:978
 msgid "User Password Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:986
+#: src/lib/src/Events/EventStrings.php:980
 msgid "Password updated for user '{{user_login}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:990
+#: src/lib/src/Events/EventStrings.php:984
 msgid "User Deleted And Reassigned"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:992
+#: src/lib/src/Events/EventStrings.php:986
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:996
+#: src/lib/src/Events/EventStrings.php:990
 msgid "Email Sent"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:998
+#: src/lib/src/Events/EventStrings.php:992
 msgid "There was an attempt to send an email using the 'wp_mail' function."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:999
+#: src/lib/src/Events/EventStrings.php:993
 msgid "This log entry doesn't mean it was sent or received successfully, but only that an attempt was made."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1000
+#: src/lib/src/Events/EventStrings.php:994
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1002
+#: src/lib/src/Events/EventStrings.php:996
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1006
+#: src/lib/src/Events/EventStrings.php:1000
 msgid "User Login By App Password"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1008
+#: src/lib/src/Events/EventStrings.php:1002
 msgid "Attempted login by '{{user_login}}' using application password was successful."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1012
+#: src/lib/src/Events/EventStrings.php:1006
 msgid "APP Password Created"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1014
+#: src/lib/src/Events/EventStrings.php:1008
 msgid "A new application password ({{app_pass_name}}) was created for user {{user_login}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1018
+#: src/lib/src/Events/EventStrings.php:1012
 msgid "APP Password Auth - Invalid Email"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1020
+#: src/lib/src/Events/EventStrings.php:1014
 msgid "Attempt to authenticate App Password with invalid email."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1024
+#: src/lib/src/Events/EventStrings.php:1018
 msgid "APP Password Auth - Invalid Username"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1026
+#: src/lib/src/Events/EventStrings.php:1020
 msgid "Attempt to authenticate App Password with invalid username."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1030
+#: src/lib/src/Events/EventStrings.php:1024
 msgid "Incorrect APP Password"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1032
+#: src/lib/src/Events/EventStrings.php:1026
 msgid "Attempt to authenticate with incorrect App Password."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1036
+#: src/lib/src/Events/EventStrings.php:1030
 msgid "App Passwords Disabled"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1038
+#: src/lib/src/Events/EventStrings.php:1032
 msgid "Attempt to authenticate with App Password when they're disabled."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1042
+#: src/lib/src/Events/EventStrings.php:1036
 msgid "App Passwords Disabled For User"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1044
+#: src/lib/src/Events/EventStrings.php:1038
 msgid "Attempt to authenticate with App Password when they're disabled for the user."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1048
+#: src/lib/src/Events/EventStrings.php:1042
 msgid "New Comment"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1050
+#: src/lib/src/Events/EventStrings.php:1044
 msgid "Comment ID:{{comment_id}} with status '{{status}}' was newly created on Post ID {{post_id}}."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1054
+#: src/lib/src/Events/EventStrings.php:1048
 msgid "Comment Deleted"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1056
+#: src/lib/src/Events/EventStrings.php:1050
 msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) with status '{{status}}' was permanently deleted."
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1060
+#: src/lib/src/Events/EventStrings.php:1054
 msgid "Comment Status Updated"
 msgstr ""
 
-#: src/lib/src/Events/EventStrings.php:1062
+#: src/lib/src/Events/EventStrings.php:1056
 msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) changed status from '{{status_old}}' to '{{status_new}}'."
 msgstr ""
 
