@@ -1,0 +1,4293 @@
+# Turkish translation for shield
+# This file is distributed under the same license as shield.
+msgid ""
+msgstr ""
+"Project-Id-Version: shield\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-02 13:06+0000\n"
+"PO-Revision-Date: 2025-10-02 13:06+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s Yorum İstenmeyen Koruması"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s Güvenlik Duvarı WordPress sitenize gelen bir isteği engelledi."
+
+msgid "%s Home"
+msgstr "%s Giriş"
+
+msgid "%s Login Verification"
+msgstr "%s Giriş Doğrulaması"
+
+msgid "%s Plugin Badge"
+msgstr "%s Eklenti Rozeti"
+
+msgid "%s Plugin options updated successfully."
+msgstr "%s Eklenti seçenekleri başarıyla güncellendi."
+
+msgid "%s and %s"
+msgstr "%s ve %s"
+
+msgid "%s day"
+msgstr "%s gün"
+
+msgid "%s days"
+msgstr "%s gün"
+
+msgid "%s directory"
+msgstr "%s dizini"
+
+msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
+msgstr "%s, %s eklentisinin şu anda yüklü sürümünün bilinen güvenlik açıklarına sahip olduğunu keşfetti."
+
+msgid "%s is a child of another theme."
+msgstr "%s başka bir temanın alt teması."
+
+msgid "%s is not currently protecting your site."
+msgstr "%s şu anda sitenizi korumuyor."
+
+msgid "%s is not protecting your site"
+msgstr "%s sitenizi korumuyor"
+
+msgid "%s minute"
+msgstr "%s dakika"
+
+msgid "%s minutes"
+msgstr "%s dakika"
+
+msgid "%s not installed from WordPress.org."
+msgstr "%s WordPress.org üzerinden yüklenmedi."
+
+msgid "%s offense"
+msgstr "%s ihlal"
+
+msgid "%s offense until block"
+msgstr "Engellemeye kadar %s ihlal"
+
+msgid "%s offenses"
+msgstr "%s ihlal"
+
+msgid "%s offenses until block"
+msgstr "Engellemeye kadar %s ihlal"
+
+msgid "%s seconds"
+msgstr "%s saniye"
+
+msgid "%s time"
+msgstr "%s kez"
+
+msgid "%s was added to your profile."
+msgstr "%s profilinize eklendi."
+
+msgid "%s was removed from your profile."
+msgstr "%s profilinizden kaldırıldı."
+
+msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
+msgstr "(kilitleme devre dışı bırakıldığında, IP adresi otomatik olarak beyaz listeden kaldırılacaktır)"
+
+msgid "1-minute"
+msgstr "1 dakika"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "15-minute"
+msgstr "15 dakika"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - E-posta"
+
+msgid "2FA At"
+msgstr "2FA Zamanı"
+
+msgid "2FA Login Success"
+msgstr "2FA Girişi Başarılı"
+
+msgid "2FA One-Time Passwords"
+msgstr "2FA Tek Kullanımlık Parolalar"
+
+msgid "2FA Provider"
+msgstr "2FA Sağlayıcısı"
+
+msgid "2FA User Config Page"
+msgstr "2FA Kullanıcı Yapılandırma Sayfası"
+
+msgid "2FA Verification Page"
+msgstr "2FA Doğrulama Sayfası"
+
+msgid "2FA by Email"
+msgstr "E-posta ile 2FA"
+
+msgid "32/64-bit"
+msgstr "32/64-bit"
+
+msgid "5-minute"
+msgstr "5 dakika"
+
+msgid "7 Days"
+msgstr "7 Gün"
+
+msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
+msgstr "<strong>Taranıyor</strong> temel WordPress dosyalarınız ve dizinleriniz değişiklikler ve yeni dosyalar için taranıyor."
+
+msgid "A PIN needs to be set to enable the Security Admin."
+msgstr "Security Admin'i etkinleştirmek için bir PIN ayarlanması gerekiyor."
+
+msgid "A User Can Bypass 2FA For The Set Number Of Days"
+msgstr "Kullanıcı Belirli Gün Sayısı Boyunca 2FA'yı Atlayabilir"
+
+msgid "A WordPress user (%s) has requested to remove the Security Admin restriction."
+msgstr "Bir WordPress kullanıcısı (%s) Güvenlik Yöneticisi kısıtlamasını kaldırmayı talep etti."
+
+msgid "A default will be used."
+msgstr "Varsayılan değer kullanılacak."
+
+msgid "A high-level overview of your WordPress updates status."
+msgstr "WordPress güncelleme durumunuzun üst düzey bir özeti."
+
+msgid "A light-touch security profile"
+msgstr "Hafif dokunuşlu güvenlik profili"
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "E-posta adresinize yeni bir Tek Kullanımlık Parola gönderildi."
+
+msgid "A1B2C3"
+msgstr "A1B2C3"
+
+msgid "ABSPATH"
+msgstr "ABSPATH"
+
+msgid "APP Password Created"
+msgstr "APP Parolası Oluşturuldu"
+
+msgid "Abandoned"
+msgstr "Terk Edilmiş"
+
+msgid "Abandoned Plugin Scanner"
+msgstr "Terk Edilmiş Eklenti Tarayıcısı"
+
+msgid "Abandoned Plugins"
+msgstr "Terk Edilmiş Eklentiler"
+
+msgid "Abandoned Plugins Found"
+msgstr "Terk Edilmiş Eklentiler Bulundu"
+
+msgid "Abandoned WordPress.org Plugins"
+msgstr "Terk Edilmiş WordPress.org Eklentileri"
+
+msgid "Absolutely"
+msgstr "Kesinlikle"
+
+msgid "Access Restricted"
+msgstr "Erişim Kısıtlandı"
+
+msgid "Access Restriction Zones"
+msgstr "Erişim Kısıtlama Bölgeleri"
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "'{{path}}' konumunda XML-RPC erişimi tespit edildi."
+
+msgid "Access to XML-RPC is available."
+msgstr "XML-RPC erişimi kullanılabilir."
+
+msgid "Access to XML-RPC is disabled."
+msgstr "XML-RPC erişimi devre dışı bırakıldı."
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "%s Güvenlik eklentisine erişim kısıtlandı."
+
+msgid "Actions"
+msgstr "Eylemler"
+
+msgid "Actions and Info"
+msgstr "Eylemler ve Bilgi"
+
+msgid "Activate"
+msgstr "etkinleştir"
+
+msgid "Activate Only"
+msgstr "Yalnızca Etkinleştir"
+
+msgid "Activate Rule"
+msgstr "Kuralı Etkinleştir"
+
+msgid "Activate Shield"
+msgstr "Shield'ı Etkinleştir"
+
+msgid "Activate ShieldPRO License"
+msgstr "ShieldPRO Lisansını Etkinleştir"
+
+msgid "Activate Your ShieldPRO License"
+msgstr "ShieldPRO Lisansınızı Etkinleştirin"
+
+msgid "Activate Your White Label Settings"
+msgstr "Beyaz Etiket Ayarlarınızı Etkinleştirin"
+
+msgid "Activated"
+msgstr "etkinleştirildi"
+
+msgid "Active"
+msgstr "Etkin"
+
+msgid "Active 2FA"
+msgstr "Etkin 2FA"
+
+msgid "Active Plugins (%s)"
+msgstr "Etkin Eklentiler (%s)"
+
+msgid "Active Rules Summary"
+msgstr "Etkin Kurallar Özeti"
+
+msgid "Active Themes (%s)"
+msgstr "Etkin Temalar (%s)"
+
+msgid "Active license found."
+msgstr "Etkin lisans bulundu."
+
+msgid "Activity"
+msgstr "Etkinlik"
+
+msgid "Activity Log"
+msgstr "Etkinlik Günlüğü"
+
+msgid "Activity Log Only"
+msgstr "Yalnızca Etkinlik Günlüğü"
+
+msgid "Admin Access Login"
+msgstr "Yönetici Erişim Girişi"
+
+msgid "Admin Accounts"
+msgstr "Yönetici Hesapları"
+
+msgid "Admin Changes Detected"
+msgstr "Yönetici Değişiklikleri Algılandı"
+
+msgid "Admin Login Notification Email"
+msgstr "Yönetici Giriş Bildirim E-postası"
+
+msgid "Admin Users"
+msgstr "Yönetici Kullanıcıları"
+
+msgid "Admins"
+msgstr "Yöneticiler"
+
+msgid "Alert"
+msgstr "Uyarı"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "%s kimlikli kullanıcıdan tüm MFA sağlayıcıları kaldırıldı."
+
+msgid "All WP Site Activity"
+msgstr "Tüm WP Site Etkinliği"
+
+msgid "All access to your site is blocked."
+msgstr "Sitenize tüm erişim engellendi."
+
+msgid "All installed plugins appear to be active and in-use."
+msgstr "Yüklü tüm eklentilerin etkin ve kullanımda olduğu görülüyor."
+
+msgid "All installed themes appear to be active and in-use."
+msgstr "Yüklü tüm temaların etkin ve kullanımda olduğu görülüyor."
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "Bu Sitede Seçeneklerin Otomatik İçe ve Dışa Aktarılmasına İzin Ver"
+
+msgid "Allow Export"
+msgstr "Dışa Aktarmaya İzin Ver"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "Bu Siteden Seçeneklerin İçe ve Dışa Aktarılmasına İzin Ver"
+
+msgid "Allow Passkeys"
+msgstr "Passkey'lere İzin Ver"
+
+msgid "Allow Registration Of Passkeys"
+msgstr "Passkey Kaydına İzin Ver"
+
+msgid "Allow Registration Of Passkeys."
+msgstr "Passkey kaydına izin verin."
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "Kullanıcıların Yedek Kod Oluşturmasına İzin Verin"
+
+msgid "Allow Users To Register Passkeys"
+msgstr "Kullanıcıların Passkey Kaydetmesine İzin Ver"
+
+msgid "Allow Yubikey OTP"
+msgstr "Yubikey OTP'ye İzin Ver"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "Tek Kullanımlık Parolalar İçin Yubikey Kaydına İzin Ver"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "Kullanıcıların yedek 2FA giriş kodu oluşturmasına izin verin."
+
+msgid "Analysis"
+msgstr "Analiz"
+
+msgid "Anyone Can Register"
+msgstr "Herkes Kayıt Olabilir"
+
+msgid "Anyone can register"
+msgstr "Herkes kayıt olabilir"
+
+msgid "App Passwords Disabled"
+msgstr "Uygulama Parolaları Devre Dışı"
+
+msgid "App Passwords Disabled For User"
+msgstr "Kullanıcı İçin Uygulama Parolaları Devre Dışı"
+
+msgid "Are WordPress permalinks enabled."
+msgstr "WordPress kalıcı bağlantıları etkin mi."
+
+msgid "At least 1 2FA option is available to protect user accounts."
+msgstr "Kullanıcı hesaplarını korumak için en az 1 2FA seçeneği kullanılabilir."
+
+msgid "Author"
+msgstr "yazar"
+
+msgid "Author Fishing"
+msgstr "Yazar Avlama"
+
+msgid "Auto Block"
+msgstr "Otomatik Engelleme"
+
+msgid "Auto Block Expiration"
+msgstr "Otomatik Engelleme Son Kullanma"
+
+msgid "Auto Clean"
+msgstr "Otomatik Temizleme"
+
+msgid "Auto File Repair"
+msgstr "Otomatik Dosya Onarımı"
+
+msgid "Auto File Repair and File Diff are available"
+msgstr "Otomatik Dosya Onarımı ve Dosya Farkı mevcut"
+
+msgid "Auto-Generated"
+msgstr "Otomatik Oluşturuldu"
+
+msgid "Auto-Import URL"
+msgstr "Otomatik İçe Aktarma Adresi"
+
+msgid "Auto-Integrations"
+msgstr "Otomatik Entegrasyonlar"
+
+msgid "Auto-Repair will never automatically delete new or unrecognised files."
+msgstr "Otomatik Onarım asla yeni veya tanınmayan dosyaları otomatik olarak silmez."
+
+msgid "Auto-Update Vulnerable Plugins"
+msgstr "Güvenlik Açığı Olan Eklentileri Otomatik Güncelle"
+
+msgid "Auto-repair of files from WordPress.org plugins is enabled."
+msgstr "WordPress.org eklentilerinden gelen dosyaların otomatik onarımı etkinleştirildi."
+
+msgid "Auto-repair of files from WordPress.org plugins isn't enabled."
+msgstr "WordPress.org eklentilerinden gelen dosyaların otomatik onarımı etkinleştirilmedi."
+
+msgid "Auto-repair of files from WordPress.org themes is enabled."
+msgstr "WordPress.org temalarından gelen dosyaların otomatik onarımı etkinleştirildi."
+
+msgid "Auto-repair of files from WordPress.org themes isn't enabled."
+msgstr "WordPress.org temalarından gelen dosyaların otomatik onarımı etkinleştirilmedi."
+
+msgid "Auto-repair of modified WordPress core files is enabled."
+msgstr "Değiştirilmiş WordPress çekirdek dosyalarının otomatik onarımı etkinleştirildi."
+
+msgid "Auto-repair of modified WordPress core files isn't enabled."
+msgstr "Değiştirilmiş WordPress çekirdek dosyalarının otomatik onarımı etkinleştirilmedi."
+
+msgid "Automatic Bot"
+msgstr "Otomatik Bot"
+
+msgid "Automatic File Repair"
+msgstr "Otomatik Dosya Onarımı"
+
+msgid "Automatic Import/Export"
+msgstr "Otomatik İçe/Dışa Aktar"
+
+msgid "Automatic Redirect URL For Hidden Pages"
+msgstr "Gizli Sayfalar İçin Otomatik Yönlendirme Adresi"
+
+msgid "Automatic Updates"
+msgstr "Otomatik Güncellemeler"
+
+msgid "Automatically Import Options From This Site"
+msgstr "Bu Siteden Seçenekleri Otomatik Olarak İçe Aktar"
+
+msgid "Automatically Import Options From This Site URL"
+msgstr "Bu Site Adresinden Seçenekleri Otomatik Olarak İçe Aktarın"
+
+msgid "Automatically Install Updates To Vulnerable Plugins"
+msgstr "Güvenlik Açığı Olan Eklentilere Güncellemeleri Otomatik Olarak Yükle"
+
+msgid "Automatically Scan WordPress Files For Changes"
+msgstr "WordPress Dosyalarını Değişiklikler İçin Otomatik Olarak Tara"
+
+msgid "Automatically redirect requests to this location for the hidden pages."
+msgstr "Gizli sayfalar için istekleri otomatik olarak bu konuma yönlendirin."
+
+msgid "Automatically update the \"%s\" plugin."
+msgstr "\"%s\" eklentisini otomatik olarak güncelle."
+
+msgid "Automatically update the Shield plugin."
+msgstr "Shield eklentisini otomatik olarak güncelle."
+
+msgid "Backup Code"
+msgstr "yedekleme kodu"
+
+msgid "Backup Login Code"
+msgstr "Yedek Giriş Kodu"
+
+msgid "Backup Login Code Just Used"
+msgstr "Yedek Giriş Kodu Kullanıldı"
+
+msgid "Badge"
+msgstr "Rozet"
+
+msgid "Be alerted to plugins and themes with known security vulnerabilities"
+msgstr "Bilinen güvenlik açıklarına sahip eklentiler ve temalar hakkında uyarı alın"
+
+msgid "Be alerted when the Shield plugin is deactivated"
+msgstr "Shield eklentisi devre dışı bırakıldığında uyarı alın"
+
+msgid "Be alerted when the Shield plugin is deactivated."
+msgstr "Shield eklentisi devre dışı bırakıldığında uyarı alın."
+
+msgid "Block %s"
+msgstr "%s Engelle"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "silentCAPTCHA ile %100 Bot İstenmeyen Yorumları Engelleyin"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Bot İstenmeyen Yorumları Engelle"
+
+msgid "Block Bot SPAM"
+msgstr "Bot İstenmeyeni Engelle"
+
+msgid "Block Human Comment SPAM"
+msgstr "İnsan İstenmeyen Yorumları Engelle"
+
+msgid "Block Human SPAM"
+msgstr "İnsan İstenmeyen Engelle"
+
+msgid "Block IP"
+msgstr "IP Engelle"
+
+msgid "Block IP Address?"
+msgstr "IP Adresi Engellensin mi?"
+
+msgid "Block Login Bots"
+msgstr "Giriş Botlarını Engelle"
+
+msgid "Block PHP Code Includes"
+msgstr "PHP Kod Dahil Etmelerini Engelle"
+
+msgid "Block PHP code in requests"
+msgstr "İsteklerdeki PHP kodunu engelleyin"
+
+msgid "Block Page"
+msgstr "Engelleme Sayfası"
+
+msgid "Block SPAM User Registrations"
+msgstr "İstenmeyen Kullanıcı Kayıtlarını Engelle"
+
+msgid "Block Username Fishing"
+msgstr "Kullanıcı Adı Avlamayı Engelle"
+
+msgid "Block XML-RPC"
+msgstr "XML-RPC'yi Engelle"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "Bypass/beyaz listedeki IP'ler dışında siteye tüm erişimi engelleyin."
+
+msgid "Block duration"
+msgstr "Engelleme süresi"
+
+msgid "Blocked"
+msgstr "Engellendi"
+
+msgid "Blocked & Bypass IPs"
+msgstr "Engellenen ve Atlanan IP'ler"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "Bot'tan gelen istenmeyen yorum engellendi."
+
+msgid "Blocked/High Reputation"
+msgstr "Engellendi/Yüksek İtibar"
+
+msgid "Blog"
+msgstr "blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Bot Eylemleri"
+
+msgid "Bot Comment SPAM"
+msgstr "Bot Yorum İstenmeyen"
+
+msgid "Bot Detection"
+msgstr "Bot Algılama"
+
+msgid "Bot Protection"
+msgstr "Bot Koruması"
+
+msgid "Bot SPAM"
+msgstr "Bot İstenmeyen"
+
+msgid "Bot Tracking"
+msgstr "Bot Takibi"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "Bot istenmeyen yorumları engellenmeyecek"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "Bot istenmeyen yorumları artık engellenecek"
+
+msgid "Bots"
+msgstr "Botlar"
+
+msgid "Bots & IP Rules"
+msgstr "Botlar & IP Kuralları"
+
+msgid "Bots & IPs"
+msgstr "Botlar ve IP'ler"
+
+msgid "Browser"
+msgstr "tarayıcı"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "Brute Force Giriş Koruması"
+
+msgid "Brute Force Login Protection"
+msgstr "Brute Force Giriş Koruması"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "silentCAPTCHA ile Brute Force Giriş Koruması"
+
+msgid "Brute Force Protection"
+msgstr "Brute Force Koruması"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Brute Force Trafik Rate Limiting"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "WordPress girişinize yönelik kaba kuvvet bot saldırıları silentCAPTCHA tarafından tespit edilir ve engellenir."
+
+msgid "Build Custom Security Rules"
+msgstr "Özel Güvenlik Kuralları Oluştur"
+
+msgid "Bypass"
+msgstr "Atla"
+
+msgid "Bypass IP"
+msgstr "IP Atla"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA Fail"
+msgstr "CAPTCHA Başarısız"
+
+msgid "CSP Rules"
+msgstr "CSP Kuralları"
+
+msgid "Calculating"
+msgstr "Hesaplanıyor"
+
+msgid "Callback"
+msgstr "Geri Çağırma"
+
+msgid "Cancel"
+msgstr "İptal"
+
+msgid "Cancel Login"
+msgstr "Girişi İptal Et"
+
+msgid "Capabilities"
+msgstr "yetkinlikler"
+
+msgid "Careful"
+msgstr "Dikkatli"
+
+msgid "Change Detected"
+msgstr "Değişiklik Algılandı"
+
+msgid "Change-Tracking"
+msgstr "Değişiklik Takibi"
+
+msgid "Changes"
+msgstr "Değişiklikler"
+
+msgid "Check License"
+msgstr "Lisansı Kontrol Et"
+
+msgid "Check ShieldPRO License"
+msgstr "ShieldPRO Lisansını Kontrol Et"
+
+msgid "Checked"
+msgstr "Kontrol Edildi"
+
+msgid "Child"
+msgstr "Alt"
+
+msgid "Choose the page type for MFA verification"
+msgstr "MFA doğrulaması için sayfa türünü seçin"
+
+msgid "Choose the type of page provided to users for MFA verification."
+msgstr "MFA doğrulaması için kullanıcılara sağlanan sayfa türünü seçin."
+
+msgid "Clean"
+msgstr "Temizle"
+
+msgid "Clean WP Files"
+msgstr "Temiz WP Dosyaları"
+
+msgid "Click to access the login or register cheese"
+msgstr "Giriş veya kayıt cheese'ine erişmek için tıklayın"
+
+msgid "Click to view your security summary in-full"
+msgstr "Güvenlik özetinizi tam olarak görüntülemek için tıklayın"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "Kod"
+
+msgid "Code Generated"
+msgstr "Kod Oluşturuldu"
+
+msgid "Comment"
+msgstr "yorum"
+
+msgid "Comment Deleted"
+msgstr "Yorum Silindi"
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) changed status from '{{status_old}}' to '{{status_new}}'."
+msgstr "Yorum Kimliği:{{comment_id}} (Yazı Kimliği {{post_id}} üzerinde) durumu '{{status_old}}' değerinden '{{status_new}}' değerine değiştirildi."
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) with status '{{status}}' was permanently deleted."
+msgstr "{{comment_id}} kimlikli yorum ({{post_id}} kimlikli yazı üzerinde) '{{status}}' durumu ile kalıcı olarak silindi."
+
+msgid "Comment ID:{{comment_id}} with status '{{status}}' was newly created on Post ID {{post_id}}."
+msgstr "{{comment_id}} kimlikli yorum '{{status}}' durumu ile {{post_id}} kimlikli yazı üzerinde yeni oluşturuldu."
+
+msgid "Comment SPAM"
+msgstr "Yorum İstenmeyen"
+
+msgid "Comment SPAM Blocked."
+msgstr "Yorum İstenmeyen Engellendi."
+
+msgid "Comment SPAM Protection"
+msgstr "Yorum İstenmeyen Koruması"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "İstenmeyen Yorum Koruması: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "Yorum Durumu Güncellendi"
+
+msgid "Comments"
+msgstr "Yorumlar"
+
+msgid "Comments Cooldown"
+msgstr "Yorum Bekleme Süresi"
+
+msgid "Common Settings"
+msgstr "Ortak Ayarlar"
+
+msgid "Common Settings For All SPAM Scanning"
+msgstr "Tüm İstenmeyen Tarama İçin Ortak Ayarlar"
+
+msgid "Company Name"
+msgstr "Şirket Adı"
+
+msgid "Config"
+msgstr "Yapılandırma"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "Kullanıcı 2FA Kurulumu İçin Yapılandırma Sayfaları"
+
+msgid "Confirmation"
+msgstr "Onay"
+
+msgid "Confirmation email will be sent to %s"
+msgstr "Onay e-postası %s adresine gönderilecek"
+
+msgid "Confirmation link"
+msgstr "Onay bağlantısı"
+
+msgid "Connected"
+msgstr "Bağlandı"
+
+msgid "Contains"
+msgstr "İçerir"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Content Security Policy (CSP) Kuralları"
+
+msgid "Content Updated"
+msgstr "İçerik Güncellendi"
+
+msgid "Content for Post ID {{post_id}} updated."
+msgstr "{{post_id}} kimlikli yazı için içerik güncellendi."
+
+msgid "Contents"
+msgstr "İçerikler"
+
+msgid "Cooldown"
+msgstr "Bekleme Süresi"
+
+msgid "Cooldown Fail"
+msgstr "Bekleme Süresi Başarısız"
+
+msgid "Coordinates"
+msgstr "Koordinatlar"
+
+msgid "Couldn't create the directory: %s"
+msgstr "Dizin oluşturulamadı: %s"
+
+msgid "Couldn't create the export file."
+msgstr "Dışa aktarma dosyası oluşturulamadı."
+
+msgid "Couldn't load plugin for slug '%s'."
+msgstr "'%s' kısa adı için eklenti yüklenemedi."
+
+msgid "Couldn't load theme for slug '%s'."
+msgstr "'%s' kısa adı için tema yüklenemedi."
+
+msgid "Country"
+msgstr "Ülke"
+
+msgid "Country Code"
+msgstr "Ülke Kodu"
+
+msgid "Create Backup 2FA Login Code"
+msgstr "Yedek 2FA Giriş Kodu Oluştur"
+
+msgid "Create Custom Rule"
+msgstr "Özel Kural Oluştur"
+
+msgid "Create New IP Rule"
+msgstr "Yeni IP Kuralı Oluştur"
+
+msgid "Create New Rule"
+msgstr "Yeni Kural Oluştur"
+
+msgid "Create and view all your custom security rules."
+msgstr "Tüm özel güvenlik kurallarınızı oluşturun ve görüntüleyin."
+
+msgid "Create custom rules to meet all your security needs"
+msgstr "Tüm güvenlik ihtiyaçlarınızı karşılamak için özel kurallar oluşturun"
+
+msgid "Created"
+msgstr "Oluşturuldu"
+
+msgid "Created with status %s"
+msgstr "%s durumu ile oluşturuldu"
+
+msgid "Critical File Protection"
+msgstr "Kritik Dosya Koruması"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "Kritik WordPress Ayarları Koruması"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "CrowdSec Ana Sayfa"
+
+msgid "Current"
+msgstr "Geçerli"
+
+msgid "Current File Content"
+msgstr "Geçerli Dosya İçeriği"
+
+msgid "Current Scan"
+msgstr "Geçerli Tarama"
+
+msgid "Current Scan Results"
+msgstr "Geçerli Tarama Sonuçları"
+
+msgid "Current Summary"
+msgstr "Geçerli Özet"
+
+msgid "Current User Sessions"
+msgstr "Geçerli Kullanıcı Oturumları"
+
+msgid "Current value: %s"
+msgstr "Geçerli değer: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "Bu profilde şu anda etkin MFA Sağlayıcıları"
+
+msgid "Custom"
+msgstr "Özel"
+
+msgid "Custom Debug"
+msgstr "Özel Hata Ayıklama"
+
+msgid "Custom Rules"
+msgstr "Özel Kurallar"
+
+msgid "Custom Security Rules"
+msgstr "Özel Güvenlik Kuralları"
+
+msgid "Daily"
+msgstr "Günlük"
+
+msgid "Daily Cron - %s"
+msgstr "Günlük Cron - %s"
+
+msgid "Dashboard"
+msgstr "Başlangıç ekranı"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "Kontrol Paneli ve 2FA Giriş Logosu Adresi"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "Kontrol Paneli ve 2FA Logosu"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "Kontrol Paneli ve 2FA Logo Adresi"
+
+msgid "Database"
+msgstr "Veritabanı"
+
+msgid "Databases"
+msgstr "Veritabanları"
+
+msgid "Date"
+msgstr "Tarih"
+
+msgid "Date Added"
+msgstr "Eklenme Tarihi"
+
+msgid "Date Generated"
+msgstr "Oluşturulma Tarihi"
+
+msgid "Date Range"
+msgstr "Tarih Aralığı"
+
+msgid "Day"
+msgstr "Gün"
+
+msgid "Deactivated"
+msgstr "Etkisizleştirildi"
+
+msgid "Debug"
+msgstr "Hata Ayıklama"
+
+msgid "Debug Info"
+msgstr "Hata Ayıklama Bilgisi"
+
+msgid "Debug Is On"
+msgstr "Debug Açık"
+
+msgid "Default"
+msgstr "varsayılan"
+
+msgid "Default Admin User"
+msgstr "Varsayılan Yönetici Kullanıcısı"
+
+msgid "Default User Role"
+msgstr "Varsayılan Kullanıcı Rolü"
+
+msgid "Defaults to the blog admin email address."
+msgstr "Varsayılan olarak blog yöneticisi e-posta adresi kullanılır."
+
+msgid "Delete"
+msgstr "Sil"
+
+msgid "Delete IP"
+msgstr "IP'yi Sil"
+
+msgid "Delete Login Backup Code"
+msgstr "Giriş Yedek Kodunu Sil"
+
+msgid "Delete Plugin Settings"
+msgstr "Eklenti Ayarlarını Sil"
+
+msgid "Delete Rule"
+msgstr "Kuralı Sil"
+
+msgid "Delete Success"
+msgstr "Silme Başarılı"
+
+msgid "Deleted"
+msgstr "Silindi"
+
+msgid "Deleted Admin(s)"
+msgstr "Yönetici(ler) Silindi"
+
+msgid "Deleted user posts were reassigned to user '{{user_login}}'."
+msgstr "Silinen kullanıcının yazıları '{{user_login}}' kullanıcısına yeniden atandı."
+
+msgid "Description"
+msgstr "Açıklama"
+
+msgid "Details"
+msgstr "Ayrıntılar"
+
+msgid "Detected"
+msgstr "Algılandı"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "Geçersiz e-posta adresiyle ({{email}}) kullanıcı kaydı tespit edildi."
+
+msgid "Detection of abandoned WordPress.org plugins is enabled."
+msgstr "Terk edilmiş WordPress.org eklentilerinin algılanması etkinleştirildi."
+
+msgid "Detection of abandoned WordPress.org plugins isn't enabled."
+msgstr "Terk edilmiş WordPress.org eklentilerinin algılanması etkinleştirilmedi."
+
+msgid "Diff"
+msgstr "Fark"
+
+msgid "Diff is unavailable for missing files."
+msgstr "Eksik dosyalar için fark kullanılamıyor."
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "XML-RPC uç noktasını devre dışı bırakın ve tüm istekleri engelleyin."
+
+msgid "Disconnected"
+msgstr "Bağlantı Kesildi"
+
+msgid "Discovered"
+msgstr "Keşfedildi"
+
+msgid "Display Options Updated"
+msgstr "Görüntüleme Seçenekleri Güncellendi"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "Sitenizde Eklenti Güvenlik Rozetini Görüntüleyin"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "Ziyaretçilerinize Eklenti Güvenlik Rozetini Görüntüleyin"
+
+msgid "Docs"
+msgstr "Belgeler"
+
+msgid "Does the method of the request match the given specified method to match."
+msgstr "İsteğin yöntemi eşleştirilecek belirtilen yöntemle eşleşiyor mu."
+
+msgid "Does the request path match the given path."
+msgstr "İstek yolu verilen yolla eşleşiyor mu."
+
+msgid "Does the request script name match the given name."
+msgstr "İstek betik adı verilen adla eşleşiyor mu."
+
+msgid "Does the request useragent match the given useragent."
+msgstr "İstek kullanıcı aracısı verilen kullanıcı aracısıyla eşleşiyor mu."
+
+msgid "Does the value of the given Shield Session parameter match the given pattern."
+msgstr "Verilen Shield Oturum parametresinin değeri verilen kalıpla eşleşiyor mu."
+
+msgid "Does the value of the given request parameter match the given pattern."
+msgstr "Verilen istek parametresinin değeri verilen kalıpla eşleşiyor mu."
+
+msgid "Download"
+msgstr "indir"
+
+msgid "Download File"
+msgstr "Dosyayı İndir"
+
+msgid "Download Modified"
+msgstr "Değiştirilen İndir"
+
+msgid "Download Options Export File"
+msgstr "Seçenekleri Dışa Aktarma Dosyasını İndir"
+
+msgid "Duration"
+msgstr "Süre"
+
+msgid "Edit"
+msgstr "Düzenle"
+
+msgid "Edit Rule"
+msgstr "Kuralı Düzenle"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "#%s Kuralını Düzenle (%s)"
+
+msgid "Edit Settings"
+msgstr "Ayarları Düzenle"
+
+msgid "Edit Theme Options"
+msgstr "Tema Seçeneklerini Düzenle"
+
+msgid "Edit activity log settings"
+msgstr "Etkinlik günlüğü ayarlarını düzenle"
+
+msgid "Edit automatic file scanning settings"
+msgstr "Otomatik dosya tarama ayarlarını düzenle"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "Bot istenmeyen yorum ayarlarını düzenle"
+
+msgid "Edit general plugin settings"
+msgstr "Genel eklenti ayarlarını düzenleyin"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "İnsan istenmeyen yorum ayarlarını düzenle"
+
+msgid "Edit reporting settings"
+msgstr "Raporlama ayarlarını düzenle"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "İstenmeyen kullanıcı kayıtları için ayarları düzenleyin"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "WordPress yönetici alanından dosya düzenlemeye izin veriliyor."
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "WordPress yönetici alanından dosya düzenleme devre dışı bırakıldı."
+
+msgid "Editing this option is currently restricted."
+msgstr "Bu seçeneğin düzenlenmesi şu anda kısıtlanmış."
+
+msgid "Email"
+msgstr "e-posta"
+
+msgid "Email 2FA activated."
+msgstr "E-posta 2FA etkinleştirildi."
+
+msgid "Email 2FA deactivated."
+msgstr "E-posta ile 2FA etkisizleştirildi."
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "E-posta 2FA seçeneği şu anda etkinleştirilmemiş."
+
+msgid "Email 2FA settings couldn't be changed."
+msgstr "E-posta 2FA ayarları değiştirilemedi."
+
+msgid "Email Auto-Login"
+msgstr "Otomatik Giriş E-postası"
+
+msgid "Email For All Reports and Plugin Notifications"
+msgstr "Tüm Raporlar ve Eklenti Bildirimleri İçin E-posta"
+
+msgid "Email OTP"
+msgstr "E-posta OTP"
+
+msgid "Email Sent"
+msgstr "E-posta Gönderildi"
+
+msgid "Email Updated"
+msgstr "E-posta Güncellendi"
+
+msgid "Email notifications for new comments"
+msgstr "Yeni yorumlar için e-posta bildirimleri"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "%s Eklentisi v%s tarafından %s tarihinde gönderilen e-posta."
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "'{{user_login}}' kullanıcısı için e-posta güncellendi."
+
+msgid "Enable"
+msgstr "etkinleştir"
+
+msgid "Enable %s"
+msgstr "%s Etkinleştir"
+
+msgid "Enable %s Protection"
+msgstr "%s Korumasını Etkinleştir"
+
+msgid "Enable Auto-Integrations"
+msgstr "Otomatik Entegrasyonları Etkinleştir"
+
+msgid "Enable Content Security Policy"
+msgstr "Content Security Policy'yi Etkinleştir"
+
+msgid "Enable MainWP"
+msgstr "MainWP Etkinleştir"
+
+msgid "Enable Passkeys"
+msgstr "Parola Anahtarlarını Etkinleştir"
+
+msgid "Enable Rate Limiting"
+msgstr "Rate Limiting Etkinleştir"
+
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr "Terk Edilmiş Eklenti Tarayıcısını Etkinleştir"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "Güvenlik Açığı Tarayıcısını Etkinleştir"
+
+msgid "Enable White Label"
+msgstr "Beyaz Etiketi Etkinleştir"
+
+msgid "Enable this option to allow automatic import and export of options between WordPress sites."
+msgstr "WordPress siteleri arasında seçeneklerin otomatik içe ve dışa aktarılmasına izin vermek için bu seçeneği etkinleştirin."
+
+msgid "Enforce"
+msgstr "Zorla"
+
+msgid "Enforce Security Admin Access Restriction"
+msgstr "Security Admin Erişim Kısıtlamasını Uygula"
+
+msgid "Enforce strong passwords for all users."
+msgstr "Tüm kullanıcılar için güçlü parolalar zorunlu kılın."
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Yubikey'den Tek Kullanımlık Parolayı Girin"
+
+msgid "Enter admin username, email or ID."
+msgstr "Yönetici kullanıcı adı, e-posta veya kimlik girin."
+
+msgid "Enter code sent to your email"
+msgstr "E-posta adresinize gönderilen kodu girin"
+
+msgid "Enter your Security Admin PIN"
+msgstr "Security Admin PIN'inizi girin"
+
+msgid "Environment"
+msgstr "Ortam"
+
+msgid "Equals"
+msgstr "Eşittir"
+
+msgid "Error"
+msgstr "hata"
+
+msgid "Event"
+msgstr "Olay"
+
+msgid "Event Details"
+msgstr "Olay Ayrıntıları"
+
+msgid "Event Slug"
+msgstr "Olay Kısaltması"
+
+msgid "Events"
+msgstr "Olaylar"
+
+msgid "Example"
+msgstr "Örnek"
+
+msgid "Expiration"
+msgstr "Son Kullanma"
+
+msgid "Expires"
+msgstr "Sona Eriyor"
+
+msgid "Export"
+msgstr "Dışa Aktar"
+
+msgid "Export To File"
+msgstr "Dosyaya Aktar"
+
+msgid "Export Whitelist"
+msgstr "Beyaz Listeyi Dışa Aktar"
+
+msgid "Export file path"
+msgstr "Dışa aktarma dosya yolu"
+
+msgid "Extensions"
+msgstr "Uzantılar"
+
+msgid "Extras"
+msgstr "Ekler"
+
+msgid "False"
+msgstr "Yanlış"
+
+msgid "File"
+msgstr "dosya"
+
+msgid "File Deleted"
+msgstr "Dosya Silindi"
+
+msgid "File Details"
+msgstr "Dosya Ayrıntıları"
+
+msgid "File Detected By Scans"
+msgstr "Taramalar Tarafından Algılanan Dosya"
+
+msgid "File Download"
+msgstr "Dosya İndirme"
+
+msgid "File Guard"
+msgstr "Dosya Koruması"
+
+msgid "File Info"
+msgstr "Dosya Bilgisi"
+
+msgid "File Locker"
+msgstr "Dosya Kilitleme"
+
+msgid "File Locker Changes Detected"
+msgstr "Dosya Kilitleme Değişiklikleri Algılandı"
+
+msgid "File Modified"
+msgstr "Dosya Değiştirildi"
+
+msgid "File Modified Timestamp"
+msgstr "Dosya Değiştirme Zaman Damgası"
+
+msgid "File Name"
+msgstr "Dosya Adı"
+
+msgid "File Repaired"
+msgstr "Dosya Onarıldı"
+
+msgid "File Scan Areas"
+msgstr "Dosya Tarama Alanları"
+
+msgid "File Scanning and Malware Protection"
+msgstr "Dosya Tarama ve Zararlı Yazılım Koruması"
+
+msgid "File Scans and Malware"
+msgstr "Dosya Taramaları ve Zararlı Yazılım"
+
+msgid "File Size"
+msgstr "Dosya Boyutu"
+
+msgid "File Status"
+msgstr "Dosya Durumu"
+
+msgid "FileLocker Changes"
+msgstr "FileLocker Değişiklikleri"
+
+msgid "FileLocker Changes Detected"
+msgstr "Dosya Kilitleme Değişiklikleri Algılandı"
+
+msgid "FileLocker has detected changes to critical files."
+msgstr "FileLocker kritik dosyalarda değişiklikler algıladı."
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: wp-config.php Koruması"
+
+msgid "Files Deleted"
+msgstr "Dosyalar Silindi"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Güvenlik Duvarı Engeli"
+
+msgid "Firewall Block Alert"
+msgstr "Güvenlik Duvarı Engelleme Uyarısı"
+
+msgid "Firewall Block Email Fail"
+msgstr "Güvenlik Duvarı Engelleme E-postası Başarısız"
+
+msgid "Firewall Block Email Success"
+msgstr "Güvenlik Duvarı Engelleme E-postası Başarılı"
+
+msgid "Firewall Pattern"
+msgstr "Firewall Deseni"
+
+msgid "Firewall Rule"
+msgstr "Firewall Kuralı"
+
+msgid "Fix"
+msgstr "düzeltme"
+
+msgid "For example, your browser user agent is"
+msgstr "Örneğin, tarayıcı kullanıcı aracınız"
+
+msgid "Format"
+msgstr "Biçim"
+
+msgid "Free Trial"
+msgstr "Ücretsiz deneme"
+
+msgid "Full Path"
+msgstr "Tam Yol"
+
+msgid "Full Path To File"
+msgstr "Dosyanın Tam Yolu"
+
+msgid "General"
+msgstr "Genel"
+
+msgid "General Info"
+msgstr "Genel Bilgi"
+
+msgid "General Settings"
+msgstr "Genel Ayarlar"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "TEK Kullanımlık Yedek 2FA Giriş Kodu Oluştur"
+
+msgid "Global Plugin Enable"
+msgstr "Genel Eklenti Etkinleştirme"
+
+msgid "Global Plugin Security Options"
+msgstr "Genel Eklenti Güvenlik Seçenekleri"
+
+msgid "Go PRO!"
+msgstr "PRO'ya Geç!"
+
+msgid "Go Pro!"
+msgstr "Pro'ya Geç!"
+
+msgid "Go To %s"
+msgstr "%s Sayfasına Git"
+
+msgid "Go To Admin"
+msgstr "Yönetim Paneline Git"
+
+msgid "Go To Option"
+msgstr "Seçeneğe Git"
+
+msgid "Go To Overview"
+msgstr "Genel Bakışa Git"
+
+msgid "Go To Security Dashboard"
+msgstr "Güvenlik Başlangıç Ekranına Git"
+
+msgid "Go To Shield Overview"
+msgstr "Shield Genel Görünüme Git"
+
+msgid "Go to WordPress Updates"
+msgstr "WordPress Güncellemelerine Git"
+
+msgid "Good"
+msgstr "İyi"
+
+msgid "Grade"
+msgstr "Not"
+
+msgid "Has Valid Shield User Sessions"
+msgstr "Geçerli Shield Kullanıcı Oturumlarına Sahip"
+
+msgid "Help"
+msgstr "Yardım"
+
+msgid "Hidden Login URL Fail"
+msgstr "Gizli Giriş Adresi Başarısız"
+
+msgid "Hide Login"
+msgstr "Girişi Gizle"
+
+msgid "Hide Login Page"
+msgstr "Giriş Sayfasını Gizle"
+
+msgid "Hide The WP Login Page."
+msgstr "WP Giriş Sayfasını Gizleyin."
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "WordPress Giriş ve Yönetici Alanlarını Gizleyin"
+
+msgid "Hide WP Login"
+msgstr "WP Girişini Gizle"
+
+msgid "Hide WP Login & Admin"
+msgstr "WP Giriş ve Yönetici Panelini Gizle"
+
+msgid "Hide WP Login Page"
+msgstr "WP Giriş Sayfasını Gizle"
+
+msgid "Hide WordPress Login Page"
+msgstr "WordPress Giriş Sayfasını Gizle"
+
+msgid "High Reputation Bypass"
+msgstr "Yüksek İtibar Atlama"
+
+msgid "History"
+msgstr "Geçmiş"
+
+msgid "Home URL"
+msgstr "Giriş Adresi"
+
+msgid "Home URL Changed"
+msgstr "Giriş Adresi Değiştirildi"
+
+msgid "Homepage"
+msgstr "Giriş sayfası"
+
+msgid "Hostname"
+msgstr "Ana Bilgisayar Adı"
+
+msgid "Hostname To Match"
+msgstr "Eşleştirilecek Ana Bilgisayar Adı"
+
+msgid "Hourly"
+msgstr "Saatlik"
+
+msgid "Human"
+msgstr "İnsan"
+
+msgid "Human Comment SPAM"
+msgstr "İnsan Yorum İstenmeyen"
+
+msgid "Human Comment SPAM Protection"
+msgstr "İnsan İstenmeyen Yorum Koruması"
+
+msgid "Human SPAM"
+msgstr "İnsan İstenmeyen"
+
+msgid "ID"
+msgstr "kimlik"
+
+msgid "IMPORTANT"
+msgstr "ÖNEMLİ"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP adresi"
+
+msgid "IP Address To Match"
+msgstr "Eşleştirilecek IP Adresi"
+
+msgid "IP Address or IP Range"
+msgstr "IP Adresi veya IP Aralığı"
+
+msgid "IP Address or Range"
+msgstr "IP Adresi veya Aralığı"
+
+msgid "IP Analysis"
+msgstr "IP Analizi"
+
+msgid "IP Auto-Block Offense Limit"
+msgstr "IP Otomatik Engelleme İhlal Sınırı"
+
+msgid "IP Block Status"
+msgstr "IP Engelleme Durumu"
+
+msgid "IP Blocked"
+msgstr "IP Engellendi"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "IP Bypass Listesinden Kaldırıldı (Manuel)"
+
+msgid "IP Equals"
+msgstr "IP Eşittir"
+
+msgid "IP ID To Match"
+msgstr "Eşleştirilecek IP Kimliği"
+
+msgid "IP Meta"
+msgstr "IP Üst Verisi"
+
+msgid "IP NotBot Score couldn't be reset at this time."
+msgstr "IP NotBot Puanı şu anda sıfırlanamadı."
+
+msgid "IP Offenses"
+msgstr "IP İhlalleri"
+
+msgid "IP Range"
+msgstr "IP Aralığı"
+
+msgid "IP Reputation Score"
+msgstr "IP İtibar Puanı"
+
+msgid "IP Rule couldn't be deleted from the list"
+msgstr "IP Kuralı listeden silinemedi"
+
+msgid "IP Rule deleted"
+msgstr "IP Kuralı silindi"
+
+msgid "IP Rules"
+msgstr "IP Kuralları"
+
+msgid "IP Status"
+msgstr "IP Durumu"
+
+msgid "IP Unavailable"
+msgstr "IP Kullanılamıyor"
+
+msgid "IP Unblocked"
+msgstr "IP Engeli Kaldırıldı"
+
+msgid "IP address added successfully"
+msgstr "IP adresi başarıyla eklendi"
+
+msgid "IP address added successfully."
+msgstr "IP adresi başarıyla eklendi."
+
+msgid "IP address added to Bypass list."
+msgstr "IP adresi Bypass listesine eklendi."
+
+msgid "IP address blocked."
+msgstr "IP adresi engellendi."
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "IP adresi şu anda Bypass listesinden kaldırılamadı."
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "IP adresi şu anda engellemesi kaldırılamadı."
+
+msgid "IP address removed from Bypass list."
+msgstr "IP adresi Bypass listesinden kaldırıldı."
+
+msgid "IP address removed successfully."
+msgstr "IP adresi başarıyla kaldırıldı."
+
+msgid "IP address unblocked."
+msgstr "IP adresi engeli kaldırıldı."
+
+msgid "IP does not match."
+msgstr "IP eşleşmiyor."
+
+msgid "IP isn't on the %s block list."
+msgstr "IP %s engelleme listesinde değil."
+
+msgid "IP isn't on the auto block list."
+msgstr "IP otomatik engelleme listesinde değil."
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP otomatik engelleme listesinde değil."
+
+msgid "IP provided was invalid."
+msgstr "Sağlanan IP geçersizdi."
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "IP silentCAPTCHA puanı sıfırlandı."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Identify a bot when the user agent is not provided."
+msgstr "Kullanıcı aracısı sağlanmadığında bir botu tanımlayın."
+
+msgid "Identity"
+msgstr "Kimlik"
+
+msgid "Idle"
+msgstr "Boşta"
+
+msgid "Idle Interval"
+msgstr "Boşta Kalma Aralığı"
+
+msgid "If"
+msgstr "Eğer"
+
+msgid "Ignore"
+msgstr "Yoksay"
+
+msgid "Ignore Success"
+msgstr "Yoksayma Başarılı"
+
+msgid "Ignored"
+msgstr "Yok sayıldı"
+
+msgid "Import"
+msgstr "İçe Aktar"
+
+msgid "Import / Export Settings"
+msgstr "Ayarları İçe/Dışa Aktar"
+
+msgid "Import From File"
+msgstr "Dosyadan İçe Aktar"
+
+msgid "Import From Site"
+msgstr "Siteden İçe Aktar"
+
+msgid "Import Options"
+msgstr "Seçenekleri İçe Aktar"
+
+msgid "Import Settings From Another Site"
+msgstr "Başka Bir Siteden Ayarları İçe Aktar"
+
+msgid "Import/Export"
+msgstr "İçe/Dışa Aktar"
+
+msgid "Import/Export Secret Key"
+msgstr "İçe/Dışa Aktarma Gizli Anahtarı"
+
+msgid "Important"
+msgstr "Önemli"
+
+msgid "Important: %s"
+msgstr "Önemli: %s"
+
+msgid "Imported"
+msgstr "İçe aktarıldı"
+
+msgid "In the case of plugins & themes, only those installed from WordPress.org can be repaired."
+msgstr "Eklentiler ve temalar söz konusu olduğunda yalnızca WordPress.org'dan yüklenenler onarılabilir."
+
+msgid "Inactive"
+msgstr "Etkin değil"
+
+msgid "Inactive Plugins"
+msgstr "Etkin Olmayan Eklentiler"
+
+msgid "Inactive Plugins (%s)"
+msgstr "Etkin Olmayan Eklentiler (%s)"
+
+msgid "Inactive Themes"
+msgstr "Etkin Olmayan Temalar"
+
+msgid "Inactive User Accounts"
+msgstr "Etkin Olmayan Kullanıcı Hesapları"
+
+msgid "Includes protection for: "
+msgstr "Şunlar için koruma içerir:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "%s IP Adresi İçin Bilgi"
+
+msgid "Install Shield"
+msgstr "Shield Yükle"
+
+msgid "Installed"
+msgstr "Yüklendi"
+
+msgid "Integrations"
+msgstr "Entegrasyonlar"
+
+msgid "Interval"
+msgstr "Aralık"
+
+msgid "Interval is measured in seconds."
+msgstr "Aralık saniye cinsinden ölçülür."
+
+msgid "Invalid"
+msgstr "geçersiz"
+
+msgid "Invalid Login Username"
+msgstr "Geçersiz Giriş Kullanıcı Adı"
+
+msgid "Invalid Request ID"
+msgstr "Geçersiz İstek Kimliği"
+
+msgid "Invalid Rule"
+msgstr "Geçersiz Kural"
+
+msgid "Invalid Script Access"
+msgstr "Geçersiz Betik Erişimi"
+
+msgid "Invalid Script Load"
+msgstr "Geçersiz Betik Yüklemesi"
+
+msgid "Invalid Slug"
+msgstr "Geçersiz Kısaltma"
+
+msgid "Invalid User Agent"
+msgstr "Geçersiz Kullanıcı Aracısı"
+
+msgid "Invalid User Email Registration"
+msgstr "Geçersiz Kullanıcı E-posta Kaydı"
+
+msgid "Invalid User-Agent"
+msgstr "Geçersiz Kullanıcı Aracısı"
+
+msgid "Invalid Username Login"
+msgstr "Geçersiz Kullanıcı Adı Girişi"
+
+msgid "Invalid download request."
+msgstr "Geçersiz indirme isteği."
+
+msgid "Invalid file locker type download"
+msgstr "Geçersiz dosya kilitleme türü indirmesi"
+
+msgid "Invalid request - lockdown is already active."
+msgstr "Geçersiz istek - kilitleme zaten etkin."
+
+msgid "Invalid request - lockdown is not active."
+msgstr "Geçersiz istek - kilitleme etkin değil."
+
+msgid "Invalid request with no User ID"
+msgstr "Kullanıcı Kimliği olmayan geçersiz istek"
+
+msgid "Invalid response from Shield client site"
+msgstr "Shield istemci sitesinden geçersiz yanıt"
+
+msgid "Invalid type."
+msgstr "Geçersiz tür."
+
+msgid "Invalid user agent detected at '{{useragent}}'."
+msgstr "'{{useragent}}' konumunda geçersiz kullanıcı aracısı tespit edildi."
+
+msgid "Invalid value type for %s"
+msgstr "%s için geçersiz değer türü"
+
+msgid "Is Offense"
+msgstr "İhlal mi"
+
+msgid "Is Request To The Login Page."
+msgstr "Giriş Sayfasına Yapılan İstek."
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Shield Trafik Rate Limiting Etkin mi."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Shield'ın Site Kilitlemesi etkin mi."
+
+msgid "Is The Shield Option Value..."
+msgstr "Shield Seçenek Değeri..."
+
+msgid "Is Valid Public IP Address"
+msgstr "Geçerli Genel IP Adresi"
+
+msgid "Is WP Admin"
+msgstr "WP Yönetici mi"
+
+msgid "Is WP CRON"
+msgstr "WP CRON mu"
+
+msgid "Is WP Debug Active"
+msgstr "WP Debug Etkin mi"
+
+msgid "Is WP Permalinks Enabled"
+msgstr "WP Kalıcı Bağlantıları Etkin mi"
+
+msgid "Is WP XML-RPC"
+msgstr "WP XML-RPC mi"
+
+msgid "Is a given 2FA provider enabled on the site."
+msgstr "Belirli bir 2FA sağlayıcısı sitede etkinleştirilmiş mi?"
+
+msgid "Is a given plugin installed & active."
+msgstr "Belirli bir eklenti yüklü ve etkin mi."
+
+msgid "Is a given plugin installed."
+msgstr "Belirli bir eklenti yüklü mü."
+
+msgid "Is a given theme installed & active."
+msgstr "Belirli bir tema yüklü ve etkin mi."
+
+msgid "Is a given theme installed."
+msgstr "Belirli bir tema yüklü mü."
+
+msgid "Is current user Security Admin."
+msgstr "Geçerli kullanıcı Security Admin."
+
+msgid "Is silentCAPTCHA score"
+msgstr "silentCAPTCHA puanı"
+
+msgid "Is the current IP address considered \"high reputation\"."
+msgstr "Geçerli IP adresi \"yüksek itibar\" olarak kabul ediliyor mu?"
+
+msgid "Is the request HTTPS."
+msgstr "İstek HTTPS mi."
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "İstek IP adresi Shield tarafından otomatik veya manuel olarak engellenmiş mi."
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "İstek IP adresi Shield'ın CrowdSec engelleme listesinde mi?"
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "İstek IP adresi Shield'ın Manuel engelleme listesinde mi."
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "İstek IP adresi Shield'ın otomatik engelleme listesinde mi."
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "İstek IP adresi Shield'ın manuel bypass listesinde/beyaz listesinde mi."
+
+msgid "Is the request from a logged-in user."
+msgstr "İstek oturum açmış bir kullanıcıdan mı?"
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "İstek yolu Shield tarafından beyaz listeye alınmış mı?"
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "İstek şu anda yüklü bir WordPress eklentisi içindeki bir yola mı."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "İstek şu anda yüklü bir WordPress teması içindeki bir yola mı."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "İstek potansiyel olarak yüklenmiş bir WordPress eklentisi içindeki bir yola mı."
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "İstek potansiyel olarak yüklenmiş bir WordPress teması içindeki bir yola mı."
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "İstek WordPress XML-RPC uç noktasına mı?"
+
+msgid "Is the request to the WordPress admin area."
+msgstr "İstek WordPress yönetici alanına mı?"
+
+msgid "Is the request to the WordPress cron."
+msgstr "İstek WordPress cron'a mı."
+
+msgid "Is the request whitelisted?"
+msgstr "İstek beyaz listede mi?"
+
+msgid "Is this a known IP address?"
+msgstr "Bu bilinen bir IP adresi mi?"
+
+msgid "Issues"
+msgstr "Sorunlar"
+
+msgid "Issues Found"
+msgstr "Bulunan Sorunlar"
+
+msgid "Key"
+msgstr "anahtar"
+
+msgid "Key registration was successful."
+msgstr "Anahtar kaydı başarılı oldu."
+
+msgid "Knowledgebase"
+msgstr "Bilgi Bankası"
+
+msgid "Label"
+msgstr "Etiket"
+
+msgid "Label For This IP Rule"
+msgstr "Bu IP Kuralı İçin Etiket"
+
+msgid "Launch Debug Info Page"
+msgstr "Hata Ayıklama Bilgisi Sayfasını Başlat"
+
+msgid "Level"
+msgstr "düzey"
+
+msgid "License"
+msgstr "Lisans"
+
+msgid "License Check Success"
+msgstr "Lisans Kontrolü Başarılı"
+
+msgid "License Deactivated"
+msgstr "Lisans Etkisizleştirildi"
+
+msgid "License Summary"
+msgstr "Lisans Özeti"
+
+msgid "License removed successfully."
+msgstr "Lisans başarıyla kaldırıldı."
+
+msgid "Lifetime"
+msgstr "Ömür"
+
+msgid "Lifetime Total"
+msgstr "Ömür Boyu Toplam"
+
+msgid "Light"
+msgstr "Açık"
+
+msgid "Limit requests to your site based on the your rate-limiting settings."
+msgstr "Rate limiting ayarlarınıza göre sitenize yapılan istekleri sınırlayın."
+
+msgid "Link Cheese"
+msgstr "Link Cheese"
+
+msgid "Link cheese access detected at '{{path}}'."
+msgstr "'{{path}}' konumunda link cheese erişimi tespit edildi."
+
+msgid "Link-Cheese"
+msgstr "Link-Cheese"
+
+msgid "Linked To Child Theme"
+msgstr "Alt Temaya Bağlı"
+
+msgid "Linked To Parent Theme"
+msgstr "Üst Temaya Bağlı"
+
+msgid "Load"
+msgstr "Yükle"
+
+msgid "Loaded"
+msgstr "Yüklendi"
+
+msgid "Loading"
+msgstr "Yükleniyor"
+
+msgid "Locale"
+msgstr "Yerel Ayar"
+
+msgid "Location"
+msgstr "konum"
+
+msgid "Lock User Sessions To "
+msgstr "Kullanıcı Oturumlarını Kilitle"
+
+msgid "Lock user sessions to IP address detected at login"
+msgstr "Kullanıcı oturumlarını giriş sırasında tespit edilen IP adresine kilitleyin"
+
+msgid "Lock user sessions to browser detected at login"
+msgstr "Kullanıcı oturumlarını giriş sırasında tespit edilen tarayıcıya kilitleyin"
+
+msgid "Lockdown The Site"
+msgstr "Siteyi Kilitle"
+
+msgid "Lockdown activated by:"
+msgstr "Kilitleme etkinleştiren:"
+
+msgid "Locked"
+msgstr "Kilitli"
+
+msgid "Locked Files"
+msgstr "Kilitli Dosyalar"
+
+msgid "Log Requests To Your WordPress Site"
+msgstr "WordPress Sitenize Gelen İstekleri Günlüğe Kaydedin"
+
+msgid "Logged At"
+msgstr "Günlük Zamanı"
+
+msgid "Logged In At"
+msgstr "Oturum Açma Zamanı"
+
+msgid "Logged-In"
+msgstr "Oturum Açıldı"
+
+msgid "Logged-In At"
+msgstr "Oturum Açma Zamanı"
+
+msgid "Login"
+msgstr "giriş"
+
+msgid "Login 2FA Verification"
+msgstr "Giriş 2FA Doğrulaması"
+
+msgid "Login Blocked"
+msgstr "Giriş Engellendi"
+
+msgid "Login Bot Protection"
+msgstr "Giriş Bot Koruması"
+
+msgid "Login Cooldown"
+msgstr "Giriş Bekleme Süresi"
+
+msgid "Login Cooldown Interval"
+msgstr "Giriş Bekleme Süresi Aralığı"
+
+msgid "Login Details"
+msgstr "Giriş Ayrıntıları"
+
+msgid "Login Fail"
+msgstr "Giriş Başarısız"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "Giriş IP'si"
+
+msgid "Login Page"
+msgstr "Giriş Sayfası"
+
+msgid "Login Protection"
+msgstr "Giriş Koruması"
+
+msgid "Login Security"
+msgstr "Giriş Güvenliği"
+
+msgid "Login Success"
+msgstr "Giriş Başarılı"
+
+msgid "Login page loaded"
+msgstr "Giriş sayfası yüklendi"
+
+msgid "Login successful."
+msgstr "Giriş başarılı."
+
+msgid "MFA Verification Page"
+msgstr "MFA Doğrulama Sayfası"
+
+msgid "MainWP Option Not Enabled"
+msgstr "MainWP Seçeneği Etkinleştirilmemiş"
+
+msgid "Malware"
+msgstr "Zararlı Yazılım"
+
+msgid "Malware Details"
+msgstr "Kötü Amaçlı Yazılım Ayrıntıları"
+
+msgid "Malware File Tracking"
+msgstr "Zararlı Yazılım Dosya İzleme"
+
+msgid "Malware Scanner"
+msgstr "Kötü Amaçlı Yazılım Tarayıcı"
+
+msgid "Malware status of this file is currently"
+msgstr "Bu dosyanın kötü amaçlı yazılım durumu şu anda"
+
+msgid "Manage"
+msgstr "Yönet"
+
+msgid "Manage IP Rules"
+msgstr "IP Kurallarını Yönet"
+
+msgid "Manage Rules"
+msgstr "Kuralları Yönet"
+
+msgid "Manual Block"
+msgstr "Manuel Engelleme"
+
+msgid "Manual Code"
+msgstr "Manuel Kod"
+
+msgid "Match Bot Type"
+msgstr "Bot Türünü Eşleştir"
+
+msgid "Match Patterns"
+msgstr "Eşleşme Desenleri"
+
+msgid "Match Type"
+msgstr "Eşleşme Türü"
+
+msgid "Match User Email Address"
+msgstr "Kullanıcı E-posta Adresini Eşleştir"
+
+msgid "Match User ID"
+msgstr "Kullanıcı Kimliğini Eşleştir"
+
+msgid "Match Useragent"
+msgstr "Kullanıcı Aracısı Eşleştir"
+
+msgid "Match Username"
+msgstr "Kullanıcı Adını Eşleştir"
+
+msgid "Match the username for currently logged-in user."
+msgstr "Şu anda oturum açmış kullanıcının kullanıcı adını eşleştir."
+
+msgid "Media"
+msgstr "Ortam"
+
+msgid "Medium"
+msgstr "Orta"
+
+msgid "Membership"
+msgstr "Üyelik"
+
+msgid "Menu Icon"
+msgstr "Menü Simgesi"
+
+msgid "Menu Icon URL"
+msgstr "Menü Simgesi Adresi"
+
+msgid "Menu Title"
+msgstr "Menü Başlığı"
+
+msgid "Meta"
+msgstr "üst veri"
+
+msgid "Meta Key"
+msgstr "Üst Veri Anahtarı"
+
+msgid "Meta Value"
+msgstr "Meta Değeri"
+
+msgid "Meta Value To Match"
+msgstr "Eşleştirilecek Meta Değeri"
+
+msgid "Method"
+msgstr "Yöntem"
+
+msgid "Minimum Time Interval Between Comments"
+msgstr "Yorumlar Arasındaki Minimum Zaman Aralığı"
+
+msgid "Minutes"
+msgstr "Dakika"
+
+msgid "Missing"
+msgstr "Eksik"
+
+msgid "Mode"
+msgstr "kip"
+
+msgid "Modified"
+msgstr "Değiştirildi"
+
+msgid "Modified File"
+msgstr "Değiştirilen Dosya"
+
+msgid "Monitor web requests sent to your WordPress site."
+msgstr "WordPress sitenize gönderilen web isteklerini izleyin."
+
+msgid "Monthly"
+msgstr "Aylık"
+
+msgid "More Info"
+msgstr "Daha Fazla Bilgi"
+
+msgid "Multisite"
+msgstr "çoklu site"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "Yok"
+
+msgid "NO TITLE"
+msgstr "BAŞLIK YOK"
+
+msgid "Name"
+msgstr "ad"
+
+msgid "Name: <code>%s</code>"
+msgstr "Ad: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "dolaşım"
+
+msgid "Needs Update"
+msgstr "Güncelleme Gerekli"
+
+msgid "Never"
+msgstr "Asla"
+
+msgid "Never Recorded"
+msgstr "Hiç Kaydedilmedi"
+
+msgid "New"
+msgstr "Yeni"
+
+msgid "New Admin(s)"
+msgstr "Yeni Yönetici(ler)"
+
+msgid "New Comment"
+msgstr "Yeni Yorum"
+
+msgid "New Results"
+msgstr "Yeni Sonuçlar"
+
+msgid "New Scan Results"
+msgstr "Yeni Tarama Sonuçları"
+
+msgid "New User Default Role"
+msgstr "Yeni Kullanıcı Varsayılan Rolü"
+
+msgid "New WordPress user registered."
+msgstr "Yeni WordPress kullanıcısı kaydedildi."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "Yeni kullanıcı adı '{{user_login}}', e-posta adresi '{{email}}'."
+
+msgid "No"
+msgstr "Hayır"
+
+msgid "No 2FA login providers found."
+msgstr "2FA giriş sağlayıcısı bulunamadı."
+
+msgid "No Change"
+msgstr "Değişiklik Yok"
+
+msgid "No Issues"
+msgstr "Sorun Yok"
+
+msgid "No Title"
+msgstr "Başlık Yok"
+
+msgid "No Update"
+msgstr "Güncelleme Yok"
+
+msgid "No active license present."
+msgstr "Etkin lisans bulunmuyor."
+
+msgid "No active providers for user."
+msgstr "Kullanıcı için etkin sağlayıcı yok."
+
+msgid "No activity logged for this IP address"
+msgstr "Bu IP adresi için günlüğe kaydedilmiş etkinlik yok"
+
+msgid "No email address - No Notification."
+msgstr "E-posta adresi yok - Bildirim gönderilmedi."
+
+msgid "No email provider for user."
+msgstr "Kullanıcı için e-posta sağlayıcısı yok."
+
+msgid "No license to remove."
+msgstr "Kaldırılacak lisans yok."
+
+msgid "No meta available"
+msgstr "Kullanılabilir meta yok"
+
+msgid "No record"
+msgstr "Kayıt yok"
+
+msgid "No requests logged for this IP address"
+msgstr "Bu IP adresi için günlüğe kaydedilmiş istek yok"
+
+msgid "No sessions recorded for this IP address"
+msgstr "Bu IP adresi için kaydedilmiş oturum yok"
+
+msgid "No title provided"
+msgstr "Başlık sağlanmadı"
+
+msgid "No value set."
+msgstr "Değer ayarlanmadı."
+
+msgid "Noise"
+msgstr "Gürültü"
+
+msgid "None"
+msgstr "Yok"
+
+msgid "Not Installed"
+msgstr "Yüklü Değil"
+
+msgid "Not Offense"
+msgstr "İhlal Değil"
+
+msgid "Not Pro"
+msgstr "Pro Değil"
+
+msgid "Not Ready"
+msgstr "Hazır Değil"
+
+msgid "Not Recorded"
+msgstr "Kaydedilmedi"
+
+msgid "Not a WordPress Core file"
+msgstr "WordPress Çekirdek dosyası değil"
+
+msgid "Not a plugin or theme file path."
+msgstr "Eklenti veya tema dosya yolu değil."
+
+msgid "Not a valid IP range"
+msgstr "Geçerli bir IP aralığı değil"
+
+msgid "Not a valid lock file record."
+msgstr "Geçerli bir kilit dosyası kaydı değil."
+
+msgid "Not a valid option key."
+msgstr "Geçerli bir seçenek anahtarı değil."
+
+msgid "Not a valid value for this parameter"
+msgstr "Bu parametre için geçerli bir değer değil"
+
+msgid "Not currently logged-in."
+msgstr "Şu anda oturum açılmamış."
+
+msgid "Note"
+msgstr "Not"
+
+msgid "Notice"
+msgstr "Bildirim"
+
+msgid "Notice: %s"
+msgstr "Bildirim: %s"
+
+msgid "Notification Of Scan Detection Sent"
+msgstr "Tarama Tespiti Bildirimi Gönderildi"
+
+msgid "Now"
+msgstr "Şimdi"
+
+msgid "Number of offenses"
+msgstr "İhlal sayısı"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Obscurity"
+msgstr "Belirsizlik"
+
+msgid "Off"
+msgstr "Kapalı"
+
+msgid "Offense"
+msgstr "İhlal"
+
+msgid "Offense Limit"
+msgstr "İhlal Sınırı"
+
+msgid "Offense: %s"
+msgstr "İhlal: %s"
+
+msgid "Offenses"
+msgstr "İhlaller"
+
+msgid "Offenses Limit"
+msgstr "İhlal Sınırı"
+
+msgid "Offenses couldn't be reset at this time."
+msgstr "İhlaller şu anda sıfırlanamadı."
+
+msgid "Offenses reset to zero."
+msgstr "İhlaller sıfıra sıfırlandı."
+
+msgid "On"
+msgstr "Açık"
+
+msgid "One-Time Password was sent to your phone."
+msgstr "Tek Kullanımlık Parola telefonunuza gönderildi."
+
+msgid "One-Time Passwords"
+msgstr "Tek Kullanımlık Parolalar"
+
+msgid "Only core WordPress files are scans in the free version of Shield."
+msgstr "Shield'ın ücretsiz sürümünde yalnızca çekirdek WordPress dosyaları taranır."
+
+msgid "Options"
+msgstr "Seçenekler"
+
+msgid "Options Imported"
+msgstr "Seçenekler İçe Aktarıldı"
+
+msgid "Options imported from site: {{site}}"
+msgstr "Seçenekler şu siteden içe aktarıldı: {{site}}"
+
+msgid "Options imported successfully"
+msgstr "Seçenekler başarıyla içe aktarıldı"
+
+msgid "Overview"
+msgstr "Genel bakış"
+
+msgid "Owner"
+msgstr "Sahip"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP & MySQL"
+
+msgid "PHP Code"
+msgstr "PHP Kodu"
+
+msgid "PHP Code Includes"
+msgstr "PHP Kod Dahil Etmeleri"
+
+msgid "PHP Malware"
+msgstr "PHP Zararlı Yazılımı"
+
+msgid "PHP Malware Scanner"
+msgstr "PHP Zararlı Yazılım Tarayıcısı"
+
+msgid "PHP Version"
+msgstr "PHP Sürümü"
+
+msgid "PHP malware scanner isn't enabled."
+msgstr "PHP zararlı yazılım tarayıcısı etkinleştirilmemiş."
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "Sayfa"
+
+msgid "Pages"
+msgstr "Sayfalar"
+
+msgid "Parameter Name"
+msgstr "Parametre Adı"
+
+msgid "Parameter Value"
+msgstr "Parametre Değeri"
+
+msgid "Parent"
+msgstr "üst"
+
+msgid "Passkeys"
+msgstr "Parola anahtarları"
+
+msgid "Password Change Blocked"
+msgstr "Parola Değişikliği Engellendi"
+
+msgid "Password Expiration"
+msgstr "Parola Son Kullanma"
+
+msgid "Password Reset"
+msgstr "Parola Sıfırlama"
+
+msgid "Password Updated"
+msgstr "Parola Güncellendi"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "'{{user_login}}' kullanıcısı için parola güncellendi."
+
+msgid "Path"
+msgstr "Yol"
+
+msgid "Path To Check"
+msgstr "Kontrol Edilecek Yol"
+
+msgid "Path To Match"
+msgstr "Eşleştirilecek Yol"
+
+msgid "Pattern Detected"
+msgstr "Desen Algılandı"
+
+msgid "Permalinks"
+msgstr "Kalıcı Bağlantılar"
+
+msgid "Permalinks Updated"
+msgstr "Kalıcı Bağlantılar Güncellendi"
+
+msgid "Permanently Deleted"
+msgstr "Kalıcı Olarak Silindi"
+
+msgid "Please check your license on-site: %s"
+msgstr "Lütfen lisansınızı sitede kontrol edin: %s"
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "Lütfen IP adresinizin engelinin kaldırılmasını istemek için site yöneticisiyle iletişime geçin."
+
+msgid "Please now save your profile settings."
+msgstr "Lütfen şimdi profil ayarlarınızı kaydedin."
+
+msgid "Please re-save your settings to trigger another verification email."
+msgstr "Başka bir doğrulama e-postası tetiklemek için lütfen ayarlarınızı yeniden kaydedin."
+
+msgid "Please select a file to review."
+msgstr "Lütfen incelemek için bir dosya seçin."
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "Lütfen IP Kural Türlerinden birini seçin - Engelle veya Bypass"
+
+msgid "Please select one of the options available"
+msgstr "Lütfen mevcut seçeneklerden birini seçin"
+
+msgid "Please turn on this scan in the options."
+msgstr "Lütfen bu taramayı seçeneklerde etkinleştirin."
+
+msgid "Please use one of %s."
+msgstr "Lütfen %s değerlerinden birini kullanın."
+
+msgid "Plugin"
+msgstr "eklenti"
+
+msgid "Plugin & Theme Files"
+msgstr "Eklenti ve Tema Dosyaları"
+
+msgid "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}."
+msgstr "'{{plugin}}' eklentisi {{from}} sürümünden {{to}} sürümüne düşürüldü."
+
+msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
+msgstr "'{{plugin}}' eklentisi {{from}} sürümünden {{to}} sürümüne yükseltildi."
+
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
+msgstr "'{{plugin}}' eklentisi etkinleştirildi (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
+msgstr "'{{plugin}}' eklentisi devre dışı bırakıldı (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "'{{plugin}}' eklentisi yüklendi (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was uninstalled (v{{version}})."
+msgstr "'{{plugin}}' eklentisi kaldırıldı (v{{version}})."
+
+msgid "Plugin Activated"
+msgstr "Eklenti Etkinleştirildi"
+
+msgid "Plugin Badge Logo"
+msgstr "Eklenti Rozet Logosu"
+
+msgid "Plugin Badge Logo URL"
+msgstr "Eklenti Rozet Logosu Adresi"
+
+msgid "Plugin Deactivated"
+msgstr "Eklenti Etkisizleştirildi"
+
+msgid "Plugin Defaults"
+msgstr "Eklenti Varsayılanları"
+
+msgid "Plugin Downgraded"
+msgstr "Eklenti Düşürüldü"
+
+msgid "Plugin Files"
+msgstr "Eklenti Dosyaları"
+
+msgid "Plugin Home Page URL"
+msgstr "Eklenti Ana Sayfa Adresi"
+
+msgid "Plugin Installed"
+msgstr "Eklenti Yüklü"
+
+msgid "Plugin Name"
+msgstr "Eklenti Adı"
+
+msgid "Plugin Option Changed"
+msgstr "Eklenti Seçeneği Değiştirildi"
+
+msgid "Plugin Security Badge"
+msgstr "Eklenti Güvenlik Rozeti"
+
+msgid "Plugin Uninstalled"
+msgstr "Eklenti Kaldırıldı"
+
+msgid "Plugin Upgraded"
+msgstr "Eklenti Yükseltildi"
+
+msgid "Plugin and Theme File Guard"
+msgstr "Eklenti ve Tema Dosya Koruması"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "Eklenti ve Tema Güvenlik Açığı Tarayıcısı"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "Eklenti seçeneği '{{name}}' ({{key}}) '{{value}}' değerine güncellendi."
+
+msgid "Plugin re-installed. Reloading..."
+msgstr "Eklenti yeniden yüklendi. Yeniden yükleniyor..."
+
+msgid "Plugin reset to defaults."
+msgstr "Eklenti varsayılanlara sıfırlandı."
+
+msgid "Plugin settings imported successfully."
+msgstr "Eklenti ayarları başarıyla içe aktarıldı."
+
+msgid "Plugin/Theme Guard"
+msgstr "Eklenti/Tema Koruması"
+
+msgid "Plugins"
+msgstr "Eklentiler"
+
+msgid "Plugins With Updates"
+msgstr "Güncellemesi Olan Eklentiler"
+
+msgid "Plugins with known vulnerabilities are automatically updated to protect your site."
+msgstr "Bilinen güvenlik açıklarına sahip eklentiler, sitenizi korumak için otomatik olarak güncellenir."
+
+msgid "Plugins with known vulnerabilities aren't automatically updated to protect your site."
+msgstr "Bilinen güvenlik açıklarına sahip eklentiler sitenizi korumak için otomatik olarak güncellenmiyor."
+
+msgid "Plugins, Themes, WordPress Core"
+msgstr "Eklentiler, Temalar, WordPress Çekirdeği"
+
+msgid "Post Content Updated"
+msgstr "Yazı İçeriği Güncellendi"
+
+msgid "Post Created"
+msgstr "Yazı Oluşturuldu"
+
+msgid "Post Deleted"
+msgstr "Yazı Silindi"
+
+msgid "Post Published"
+msgstr "Yazı Yayınlandı"
+
+msgid "Post Slug Updated"
+msgstr "Yazı Kısaltması Güncellendi"
+
+msgid "Post Title Updated"
+msgstr "Yazı Başlığı Güncellendi"
+
+msgid "Post Trashed"
+msgstr "Yazı Çöpe Atıldı"
+
+msgid "Post Type: {{type}}"
+msgstr "Yazı Türü: {{type}}"
+
+msgid "Post Unpublished"
+msgstr "Yazı Yayından Kaldırıldı"
+
+msgid "Post Updated"
+msgstr "Yazı Güncellendi"
+
+msgid "Posts"
+msgstr "Yazılar"
+
+msgid "Powerful Protection for WordPress, from Shield Security"
+msgstr "Shield Security'den WordPress için Güçlü Koruma"
+
+msgid "Predicted"
+msgstr "Tahmin Edildi"
+
+msgid "Previous scans detected 1 or more modified, missing, unrecognised or unidentified files in the WordPress core directories."
+msgstr "Önceki taramalar WordPress çekirdek dizinlerinde bir veya daha fazla değiştirilmiş, eksik, tanınmayan veya kimliği belirsiz dosya tespit etti."
+
+msgid "Print"
+msgstr "Yazdır"
+
+msgid "Priority"
+msgstr "Öncelik"
+
+msgid "Pro Only"
+msgstr "Yalnızca Pro"
+
+msgid "Profile"
+msgstr "profil"
+
+msgid "Protect your %s files"
+msgstr "%s dosyalarınızı koruyun"
+
+msgid "Protection for user accounts."
+msgstr "Kullanıcı hesapları için koruma."
+
+msgid "Provide The Security Admin PIN."
+msgstr "Security Admin PIN'ini girin."
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "Yubikey cihazınızdan Tek Kullanımlık Parolayı girin."
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "Güvenlik ayarlarınıza yönetici erişimini kısıtlamak için gizli bir PIN girin"
+
+msgid "Provide a valid IP address or range"
+msgstr "Geçerli bir IP adresi veya aralığı girin"
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "2FA giriş cihazınızdan Tek Kullanımlık Parolayı girin"
+
+msgid "Provide the name of your company."
+msgstr "Şirketinizin adını girin."
+
+msgid "Provide your custom set of CSP rules."
+msgstr "Özel CSP kurallarınızı girin."
+
+msgid "Provide/Update Security Admin PIN"
+msgstr "Security Admin PIN'ini Girin/Güncelleyin"
+
+msgid "Provided by %s"
+msgstr "%s tarafından sağlandı"
+
+msgid "Provided by Shield"
+msgstr "Shield tarafından sağlandı"
+
+msgid "Published"
+msgstr "Yayınlandı"
+
+msgid "Purpose"
+msgstr "Amaç"
+
+msgid "Query"
+msgstr "sorgu"
+
+msgid "Rate Limiting"
+msgstr "Rate limiting"
+
+msgid "Re-Install"
+msgstr "Yeniden Yükle"
+
+msgid "Re-enable Protection."
+msgstr "Korumayı yeniden etkinleştirin."
+
+msgid "Ready"
+msgstr "Hazır"
+
+msgid "Reason"
+msgstr "Neden"
+
+msgid "Reason: %s"
+msgstr "Neden: %s"
+
+msgid "Recommendation"
+msgstr "Öneri"
+
+msgid "Recommendations"
+msgstr "Öneriler"
+
+msgid "Redirect Location"
+msgstr "Yönlendirme Konumu"
+
+msgid "Redirect Status"
+msgstr "Yönlendirme Durumu"
+
+msgid "Refresh"
+msgstr "Yenile"
+
+msgid "Registered"
+msgstr "Kayıtlı"
+
+msgid "Registered Passkeys"
+msgstr "Kayıtlı Parola Anahtarları"
+
+msgid "Registered Site"
+msgstr "Kayıtlı Site"
+
+msgid "Registration"
+msgstr "Kayıt"
+
+msgid "Registration Blocked"
+msgstr "Kayıt Engellendi"
+
+msgid "Regularly scan WordPress plugins and themes for known security vulnerabilities."
+msgstr "WordPress eklentilerini ve temalarını bilinen güvenlik açıkları için düzenli olarak tarayın."
+
+msgid "Regularly scan your WordPress plugins and themes for known security vulnerabilities."
+msgstr "WordPress eklentilerinizi ve temalarınızı bilinen güvenlik açıkları için düzenli olarak tarayın."
+
+msgid "Reloading"
+msgstr "Yeniden Yükleniyor"
+
+msgid "Reloading page"
+msgstr "Sayfa yeniden yükleniyor"
+
+msgid "Remove %s"
+msgstr "%s Kaldır"
+
+msgid "Remove All MFA Providers"
+msgstr "Tüm MFA Sağlayıcılarını Kaldır"
+
+msgid "Remove All MFA Providers From This User Profile"
+msgstr "Bu Kullanıcı Profilinden Tüm MFA Sağlayıcılarını Kaldır"
+
+msgid "Remove IP Bypass"
+msgstr "IP Atlamayı Kaldır"
+
+msgid "Remove License"
+msgstr "Lisansı Kaldır"
+
+msgid "Repair"
+msgstr "Onar"
+
+msgid "Repair Success"
+msgstr "Onarım Başarılı"
+
+msgid "Repair/Delete Success"
+msgstr "Onarım/Silme Başarılı"
+
+msgid "Repaired"
+msgstr "Onarıldı"
+
+msgid "Reporting"
+msgstr "Raporlama"
+
+msgid "Reports"
+msgstr "Raporlar"
+
+msgid "Request Blocked"
+msgstr "İstek Engellendi"
+
+msgid "Request Blocked by Firewall"
+msgstr "İstek Güvenlik Duvarı Tarafından Engellendi"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "İstek Site Kilitleme tarafından engellendi."
+
+msgid "Request Details"
+msgstr "İstek Ayrıntıları"
+
+msgid "Request Firewall"
+msgstr "İstek Güvenlik Duvarı"
+
+msgid "Request Firewall Options"
+msgstr "İstek Güvenlik Duvarı Seçenekleri"
+
+msgid "Request ID"
+msgstr "İstek Kimliği"
+
+msgid "Request Limit Interval"
+msgstr "İstek Sınırı Aralığı"
+
+msgid "Request Limit Time Interval"
+msgstr "İstek Sınırı Zaman Aralığı"
+
+msgid "Request Log"
+msgstr "İstek Günlüğü"
+
+msgid "Request Method"
+msgstr "İstek Yöntemi"
+
+msgid "Request Parameter"
+msgstr "İstek Parametresi"
+
+msgid "Request Parameter Value"
+msgstr "İstek Parametre Değeri"
+
+msgid "Request Path"
+msgstr "İstek Yolu"
+
+msgid "Request Path Whitelist"
+msgstr "İstek Yolu Beyaz Listesi"
+
+msgid "Request Path Whitelist."
+msgstr "İstek Yolu Beyaz Listesi."
+
+msgid "Request Status"
+msgstr "İstek Durumu"
+
+msgid "Request Type"
+msgstr "İstek Türü"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "İstek güvenlik duvarı kuralı tarafından engellendi: {{name}}."
+
+msgid "Requested At"
+msgstr "İstek Zamanı"
+
+msgid "Requests"
+msgstr "İstekler"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "Bu IP adresinden gelen istekler engellenecektir."
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "Bu IP adresinden gelen istekler tüm güvenlik kurallarını atlayacaktır."
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "XML-RPC uç noktasına yapılan isteklere sitenizde izin veriliyor."
+
+msgid "Reset"
+msgstr "Sıfırla"
+
+msgid "Reset For This IP"
+msgstr "Bu IP İçin Sıfırla"
+
+msgid "Response"
+msgstr "Yanıt"
+
+msgid "Response Code"
+msgstr "Yanıt Kodu"
+
+msgid "Restrict Access To Certain WordPress Admin Options"
+msgstr "Belirli WordPress Yönetici Seçeneklerine Erişimi Kısıtla"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "Önemli WordPress Eklenti Eylemlerine Erişimi Kısıtla"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "Önemli WordPress Yazıları ve Sayfaları Eylemlerine Erişimi Kısıtla"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "WordPress Tema Eylemlerine Erişimi Kısıtla"
+
+msgid "Restrict WP File Editing"
+msgstr "WP Dosya Düzenlemeyi Kısıtla"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "WP yönetici panosunda dosya düzenlemeyi kısıtla"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "WordPress yönetici alanından dosya düzenleme yeteneğini kısıtlayın."
+
+msgid "Restricted"
+msgstr "Kısıtlandı"
+
+msgid "Restriction Details"
+msgstr "Kısıtlama Ayrıntıları"
+
+msgid "Results"
+msgstr "Sonuçlar"
+
+msgid "Results & Manual Scans"
+msgstr "Sonuçlar ve Manuel Taramalar"
+
+msgid "Results Display Options"
+msgstr "Sonuç Görüntüleme Seçenekleri"
+
+msgid "Review and manage current user sessions"
+msgstr "Geçerli kullanıcı oturumlarını inceleyin ve yönetin"
+
+msgid "Review site settings"
+msgstr "Site ayarlarını inceleyin"
+
+msgid "Root Web.config"
+msgstr "Kök Web.config"
+
+msgid "Rule Activated"
+msgstr "Kural Etkinleştirildi"
+
+msgid "Rule Deactivated"
+msgstr "Kural Devre Dışı Bırakıldı"
+
+msgid "Rule Reset"
+msgstr "Kuralı Sıfırla"
+
+msgid "Rule Slug"
+msgstr "Kural Kısaltması"
+
+msgid "Rule Type"
+msgstr "Kural Türü"
+
+msgid "Rule deleted"
+msgstr "Kural silindi"
+
+msgid "Rules"
+msgstr "Kurallar"
+
+msgid "Run"
+msgstr "Çalıştır"
+
+msgid "Run A File Scan"
+msgstr "Dosya Taraması Çalıştır"
+
+msgid "Run Database Repair"
+msgstr "Veritabanı Onarımını Çalıştır"
+
+msgid "Run Import From Another Site"
+msgstr "Başka Bir Siteden İçe Aktarmayı Çalıştır"
+
+msgid "Run Manual Scan"
+msgstr "Manuel Tarama Çalıştır"
+
+msgid "Run Scan"
+msgstr "Taramayı Çalıştır"
+
+msgid "Run Scans Now"
+msgstr "Taramaları Şimdi Çalıştır"
+
+msgid "Runs a scan of all your assets against a database of known WordPress vulnerabilities."
+msgstr "Tüm varlıklarınızı bilinen WordPress güvenlik açıkları veritabanına karşı tarar."
+
+msgid "Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities."
+msgstr "Tüm eklentilerinizi bilinen WordPress eklenti güvenlik açıkları veritabanına karşı tarar."
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Registration Removed"
+msgstr "SMS Kaydı Kaldırıldı"
+
+msgid "SPAM"
+msgstr "istenmeyen"
+
+msgid "SPAM Blocked"
+msgstr "İstenmeyen Engellendi"
+
+msgid "SPAM Bot detected."
+msgstr "İstenmeyen Bot algılandı."
+
+msgid "SPAM Check Fail"
+msgstr "İstenmeyen Kontrolü Başarısız"
+
+msgid "SPAM Detection"
+msgstr "İstenmeyen Algılama"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "Botlar tarafından gerçekleştirilen istenmeyen içerik ve toplu kullanıcı kaydı silentCAPTCHA tarafından engellenir."
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "Botlar tarafından gerçekleştirilen istenmeyen içerik ve toplu kullanıcı kaydı silentCAPTCHA tarafından engellenmiyor."
+
+msgid "Save Options"
+msgstr "Seçenekleri Kaydet"
+
+msgid "Save Settings"
+msgstr "Ayarları Kaydet"
+
+msgid "Scan For Vulnerabilities In Plugins & Themes"
+msgstr "Eklentiler ve Temalardaki Güvenlik Açıklarını Tara"
+
+msgid "Scan Options"
+msgstr "Tarama Seçenekleri"
+
+msgid "Scan Results"
+msgstr "Tarama Sonuçları"
+
+msgid "Scan your site for file changes, malware and vulnerabilities."
+msgstr "Sitenizi dosya değişiklikleri, kötü amaçlı yazılımlar ve güvenlik açıkları için tarayın."
+
+msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
+msgstr "Eklenti ve Tema Dosyalarını Tarama yalnızca ShieldPRO ile kullanılabilir."
+
+msgid "Scanning for PHP Malware is only available with ShieldPRO."
+msgstr "PHP Kötü Amaçlı Yazılım taraması yalnızca ShieldPRO ile kullanılabilir."
+
+msgid "Scans"
+msgstr "Taramalar"
+
+msgid "Scans Plugins For Known Vulnerabilities"
+msgstr "Eklentileri Bilinen Güvenlik Açıkları İçin Tarar"
+
+msgid "Scans all PHP files for malware patterns."
+msgstr "Tüm PHP dosyalarını kötü amaçlı yazılım kalıpları için tarar."
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "Geçerli WordPress sürümünüz için tüm WP dosyalarını tarar."
+
+msgid "Scans detected 1 or more modified or unrecognised files in the theme directory."
+msgstr "Taramalar tema dizininde bir veya daha fazla değiştirilmiş ya da tanınmayan dosya tespit etti."
+
+msgid "Scans detected modified or unrecognised files in the plugin directory."
+msgstr "Taramalar, eklenti dizininde değiştirilmiş veya tanınmayan dosyaları tespit etti."
+
+msgid "Scans detected modified/unrecognised files"
+msgstr "Taramalar değiştirilmiş/tanınmayan dosyaları tespit etti"
+
+msgid "Score"
+msgstr "Puan"
+
+msgid "Script Name To Match"
+msgstr "Eşleştirilecek Betik Adı"
+
+msgid "Seconds"
+msgstr "Saniye"
+
+msgid "Secret Key"
+msgstr "Gizli Anahtar"
+
+msgid "Security"
+msgstr "Güvenlik"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "Security Admin Erişim PIN'i"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin Etkinleştirildi"
+
+msgid "Security Admin Login"
+msgstr "Security Admin Girişi"
+
+msgid "Security Admin PIN"
+msgstr "Security Admin PIN"
+
+msgid "Security Admin Protection"
+msgstr "Security Admin Koruması"
+
+msgid "Security Admin Restriction Settings"
+msgstr "Security Admin Kısıtlama Ayarları"
+
+msgid "Security Admin Restriction Zones"
+msgstr "Security Admin Kısıtlama Bölgeleri"
+
+msgid "Security Admin Settings"
+msgstr "Security Admin Ayarları"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin artık etkin"
+
+msgid "Security Admins"
+msgstr "Güvenlik Yöneticileri"
+
+msgid "Security Analysis"
+msgstr "Güvenlik Analizi"
+
+msgid "Security Dashboard"
+msgstr "Güvenlik Başlangıç Ekranı"
+
+msgid "Security Overview"
+msgstr "Güvenlik Genel Bakışı"
+
+msgid "Security PIN Currently Set"
+msgstr "Security PIN Şu Anda Ayarlanmış"
+
+msgid "Security PIN Fail"
+msgstr "Security PIN Hatası"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "Security PIN Şu Anda Ayarlanmamış"
+
+msgid "Security Plugin Protection"
+msgstr "Güvenlik Eklentisi Koruması"
+
+msgid "Security Profile"
+msgstr "Güvenlik Profili"
+
+msgid "Security Reports"
+msgstr "Güvenlik Raporları"
+
+msgid "Security Reports."
+msgstr "Güvenlik Raporları."
+
+msgid "Security Rules"
+msgstr "Güvenlik Kuralları"
+
+msgid "Security Stats"
+msgstr "Güvenlik İstatistikleri"
+
+msgid "Security Tools"
+msgstr "Güvenlik Araçları"
+
+msgid "Security Zones"
+msgstr "Güvenlik Bölgeleri"
+
+msgid "Security Zones Config"
+msgstr "Güvenlik Bölgeleri Yapılandırması"
+
+msgid "Security admin pin removed."
+msgstr "Security admin PIN kaldırıldı."
+
+msgid "Security admin pin set to: `%s`"
+msgstr "Security admin PIN şu değere ayarlandı: `%s`"
+
+msgid "Select"
+msgstr "Seç"
+
+msgid "Select Scans To Run"
+msgstr "Çalıştırılacak Taramaları Seçin"
+
+msgid "Select file to import options from"
+msgstr "Seçenekleri içe aktarmak için dosya seçin"
+
+msgid "Session Duration"
+msgstr "Oturum Süresi"
+
+msgid "Session Idle"
+msgstr "Oturum Boşta"
+
+msgid "Session Lock"
+msgstr "Oturum Kilidi"
+
+msgid "Session Locked"
+msgstr "Oturum Kilitlendi"
+
+msgid "Session Not Found"
+msgstr "Oturum Bulunamadı"
+
+msgid "Session Parameter"
+msgstr "Oturum Parametresi"
+
+msgid "Session lock"
+msgstr "Oturum kilidi"
+
+msgid "Sessions"
+msgstr "Oturumlar"
+
+msgid "Set to %s to turn off this option."
+msgstr "Bu seçeneği kapatmak için %s olarak ayarlayın."
+
+msgid "Setup Your Security Zones"
+msgstr "Güvenlik Bölgelerinizi Ayarlayın"
+
+msgid "Severity"
+msgstr "Önem Derecesi"
+
+msgid "Shield 2FA Provider Enabled"
+msgstr "Shield 2FA Sağlayıcısı Etkinleştirildi"
+
+msgid "Shield Deactivated"
+msgstr "Shield Etkisizleştirildi"
+
+msgid "Shield Events & Stats"
+msgstr "Shield Olayları ve İstatistikleri"
+
+msgid "Shield Info"
+msgstr "Shield Bilgisi"
+
+msgid "Shield Option Key"
+msgstr "Shield Seçenek Anahtarı"
+
+msgid "Shield Security Home Page"
+msgstr "Shield Security Ana Sayfası"
+
+msgid "Shield User 2FA Provider Activated"
+msgstr "Shield Kullanıcı 2FA Sağlayıcısı Etkinleştirildi"
+
+msgid "Shield White Label"
+msgstr "Shield Beyaz Etiket"
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield bu sitede yüklü değil."
+
+msgid "Shield plugin activated"
+msgstr "Shield eklentisi etkinleştirildi"
+
+msgid "Shield plugin couldn't be activated"
+msgstr "Shield eklentisi etkinleştirilemedi"
+
+msgid "Shield plugin couldn't be deactivated"
+msgstr "Shield eklentisi devre dışı bırakılamadı"
+
+msgid "Shield plugin couldn't be installed"
+msgstr "Shield eklentisi yüklenemedi"
+
+msgid "Shield plugin couldn't be updated"
+msgstr "Shield eklentisi güncellenemedi"
+
+msgid "Shield plugin deactivated"
+msgstr "Shield eklentisi etkisizleştirildi"
+
+msgid "Shield plugin installed"
+msgstr "Shield eklentisi yüklendi"
+
+msgid "Shield plugin updated"
+msgstr "Shield eklentisi güncellendi"
+
+msgid "ShieldBACKUPS"
+msgstr "ShieldBACKUPS"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO Free Trial"
+msgstr "ShieldPRO Ücretsiz Deneme"
+
+msgid "ShieldPRO isn't activated on this site."
+msgstr "ShieldPRO bu sitede etkinleştirilmemiş."
+
+msgid "ShieldPRO license check was successful."
+msgstr "ShieldPRO lisans kontrolü başarılı oldu."
+
+msgid "Signal"
+msgstr "Sinyal"
+
+msgid "Since"
+msgstr "Başlangıç"
+
+msgid "Site"
+msgstr "site"
+
+msgid "Site Address (URL)"
+msgstr "Site Adresi (URL)"
+
+msgid "Site Admin Email"
+msgstr "Site Yönetici E-postası"
+
+msgid "Site In Lockdown"
+msgstr "Site Kilitlenme Modunda"
+
+msgid "Site Is In Lockdown"
+msgstr "Site Kilitlenmiş Durumda"
+
+msgid "Site Is Under Lockdown"
+msgstr "Site Kilitlenmiş Durumda"
+
+msgid "Site Lockdown"
+msgstr "Site Kilitleme"
+
+msgid "Site Lockdown and Firewall"
+msgstr "Site Kilitleme ve Güvenlik Duvarı"
+
+msgid "Site Scanning"
+msgstr "Site Tarama"
+
+msgid "Site Security Summary"
+msgstr "Site Güvenlik Özeti"
+
+msgid "Site Snapshots"
+msgstr "Site Anlık Görüntüleri"
+
+msgid "Site Tagline"
+msgstr "Site Sloganı"
+
+msgid "Site Title"
+msgstr "Site Başlığı"
+
+msgid "Site URL"
+msgstr "Site Adresi"
+
+msgid "Site URL Changed"
+msgstr "Site Adresi Değiştirildi"
+
+msgid "Site added to export white list: {{site}}"
+msgstr "Site dışa aktarma beyaz listesine eklendi: {{site}}"
+
+msgid "Site removed from export white list: {{site}}"
+msgstr "Site dışa aktarma beyaz listesinden kaldırıldı: {{site}}"
+
+msgid "Sites"
+msgstr "Siteler"
+
+msgid "Size"
+msgstr "Boyut"
+
+msgid "Slug"
+msgstr "kısaltma"
+
+msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
+msgstr "{{post_id}} kimlikli yazı için kısa ad '{{slug_old}}' değerinden '{{slug_new}}' değerine güncellendi."
+
+msgid "Snapshots"
+msgstr "Anlık Görüntüler"
+
+msgid "Statistics"
+msgstr "İstatistikler"
+
+msgid "Stats"
+msgstr "İstatistikler"
+
+msgid "Status"
+msgstr "durum"
+
+msgid "Strong"
+msgstr "Güçlü"
+
+msgid "Strong Passwords"
+msgstr "Güçlü Parolalar"
+
+msgid "Success"
+msgstr "Başarılı"
+
+msgid "Successful 2FA Login Verification"
+msgstr "Başarılı 2FA Giriş Doğrulaması"
+
+msgid "Successfully sent Firewall Block email alert to: {{to}}"
+msgstr "Güvenlik Duvarı Engelleme e-posta uyarısı başarıyla gönderildi: {{to}}"
+
+msgid "Summary"
+msgstr "Özet"
+
+msgid "Summary Generated"
+msgstr "Özet Oluşturuldu"
+
+msgid "Summary Security Reports."
+msgstr "Özet Güvenlik Raporları."
+
+msgid "Suspended"
+msgstr "Askıya Alındı"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "Kritik WP ayarlarını düzenleme yeteneğini açın/kapatın"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "XML-RPC uç noktasına erişimi açın/kapatın"
+
+msgid "Tagline"
+msgstr "slogan"
+
+msgid "Thanks!"
+msgstr "Teşekkürler!"
+
+msgid "Thanks! - Please check your email for confirmation."
+msgstr "Teşekkürler! - Lütfen onay için e-postanızı kontrol edin."
+
+msgid "Thanks."
+msgstr "Teşekkürler."
+
+msgid "The %s query parameter has been blocked to protect against username / author fishing."
+msgstr "%s sorgu parametresi kullanıcı adı / yazar avına karşı korumak için engellendi."
+
+msgid "The Description Of The Plugin"
+msgstr "Eklentinin Açıklaması"
+
+msgid "The Name Of The Plugin"
+msgstr "Eklentinin Adı"
+
+msgid "The Name Of The Plugin."
+msgstr "Eklentinin adı."
+
+msgid "The Name Of Your Company"
+msgstr "Şirketinizin Adı"
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "Güvenlik Rozeti ziyaretçilerinize görüntülenecek"
+
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr "Bu sitedeki Shield Security eklentisinin yükseltilmesi gerekiyor."
+
+msgid "The URL of the icon to display in the menu."
+msgstr "Menüde görüntülenecek simgenin adresi."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "Eklenti rozetinde görüntülenecek logonun adresi."
+
+msgid "The country code was missing."
+msgstr "Ülke kodu eksikti."
+
+msgid "The current request has a valid Shield user session"
+msgstr "Mevcut istek geçerli bir Shield kullanıcı oturumuna sahip"
+
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
+msgstr "Yeni kullanıcılar için varsayılan rol '{{from}}' değerinden '{{to}}' değerine değiştirildi."
+
+msgid "The email address specified in %s's General settings will be used."
+msgstr "%s'nin Genel ayarlarında belirtilen e-posta adresi kullanılacaktır."
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "Giriş adresi '{{from}}' değerinden '{{to}}' değerine değiştirildi."
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "Siteye herkesin kayıt olmasına izin verme seçeneği '{{from}}' değerinden '{{to}}' değerine güncellendi."
+
+msgid "The phone number was missing."
+msgstr "Telefon numarası eksikti."
+
+msgid "The secret key is found in: %s"
+msgstr "Gizli anahtar şurada bulunur: %s"
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "silentCAPTCHA seçeneği etkinleştirilmiş."
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "Site adresi '{{from}}' değerinden '{{to}}' değerine değiştirildi."
+
+msgid "Theme"
+msgstr "tema"
+
+msgid "Theme '{{theme}}' was activated."
+msgstr "'{{theme}}' teması etkinleştirildi."
+
+msgid "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}."
+msgstr "'{{theme}}' teması {{from}} sürümünden {{to}} sürümüne düşürüldü."
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "'{{theme}}' teması yüklendi."
+
+msgid "Theme '{{theme}}' was uninstalled (v{{version}})."
+msgstr "'{{theme}}' teması kaldırıldı (v{{version}})."
+
+msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
+msgstr "'{{theme}}' teması {{from}} sürümünden {{to}} sürümüne yükseltildi."
+
+msgid "Theme Activated"
+msgstr "Tema Etkinleştirildi"
+
+msgid "Theme Downgraded"
+msgstr "Tema Düşürüldü"
+
+msgid "Theme Files"
+msgstr "Tema Dosyaları"
+
+msgid "Theme Installed"
+msgstr "Tema Yüklü"
+
+msgid "Theme Uninstalled"
+msgstr "Tema Kaldırıldı"
+
+msgid "Theme Upgraded"
+msgstr "Tema Yükseltildi"
+
+msgid "Theme directory name to check"
+msgstr "Kontrol edilecek tema dizin adı"
+
+msgid "Themes"
+msgstr "Temalar"
+
+msgid "Themes With Updates"
+msgstr "Güncellemesi Olan Temalar"
+
+msgid "Then"
+msgstr "Ardından"
+
+msgid "Then Activate"
+msgstr "Ardından Etkinleştir"
+
+msgid "This Page"
+msgstr "Bu Sayfa"
+
+msgid "This Site Is Protected By %s"
+msgstr "Bu Site %s Tarafından Korunuyor"
+
+msgid "This file is confirmed to be clean and free from malware."
+msgstr "Bu dosyanın temiz olduğu ve kötü amaçlı yazılımdan arındırılmış olduğu doğrulandı."
+
+msgid "This file is located at the root of the WordPress installation directory."
+msgstr "Bu dosya WordPress kurulum dizininin kök dizininde bulunuyor."
+
+msgid "This file is located in a core WordPress directory isn't a recognised core file for WordPress %s."
+msgstr "Bu dosya bir çekirdek WordPress dizininde bulunuyor ancak WordPress %s için tanınmış bir çekirdek dosya değil."
+
+msgid "This file isn't a known core file for WordPress %s."
+msgstr "Bu dosya WordPress %s için bilinen bir çekirdek dosya değil."
+
+msgid "This is a recognised core file for WordPress %s."
+msgstr "Bu, WordPress %s için tanınmış bir çekirdek dosyadır."
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "Bu, benzersiz Yubikey Cihaz Kimliğinizdir."
+
+msgid "This scan is not currently enabled."
+msgstr "Bu tarama şu anda etkinleştirilmemiş."
+
+msgid "This will restrict access to page/post creation, editing and deletion."
+msgstr "Bu, sayfa/yazı oluşturma, düzenleme ve silme erişimini kısıtlayacaktır."
+
+msgid "Time"
+msgstr "Zaman"
+
+msgid "Time Limit"
+msgstr "Zaman Sınırı"
+
+msgid "Time Now"
+msgstr "Şu Anki Zaman"
+
+msgid "Time Range"
+msgstr "Zaman Aralığı"
+
+msgid "Time Sent: %s"
+msgstr "Gönderilme Zamanı: %s"
+
+msgid "Timestamp"
+msgstr "zaman damgası"
+
+msgid "Timezone"
+msgstr "saat dilimi"
+
+msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
+msgstr "{{post_id}} kimlikli yazı için başlık '{{title_old}}' değerinden '{{title_new}}' değerine güncellendi."
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "Yeni bir Yubikey cihazı kaydetmek için Yubikey'den Tek Kullanımlık Parola girin."
+
+msgid "To remove a Yubikey device, enter the registered device ID and save."
+msgstr "Bir Yubikey cihazını kaldırmak için kayıtlı cihaz kimliğini girin ve kaydedin."
+
+msgid "Tools"
+msgstr "Araçlar"
+
+msgid "Total Reputation Score"
+msgstr "Toplam İtibar Puanı"
+
+msgid "Total SPAM comments blocked."
+msgstr "Engellenen toplam istenmeyen yorum sayısı."
+
+msgid "Total Score"
+msgstr "Toplam Puan"
+
+msgid "Total offenses against the site."
+msgstr "Siteye karşı toplam ihlal sayısı."
+
+msgid "Track and monitor activity on your site by users, visitors and bots."
+msgstr "Sitenizdeki kullanıcılar, ziyaretçiler ve botlar tarafından gerçekleştirilen etkinlikleri izleyin ve takip edin."
+
+msgid "Traffic"
+msgstr "trafik"
+
+msgid "Traffic Rate Limiting"
+msgstr "Trafik Rate Limiting"
+
+msgid "Trash"
+msgstr "Çöp Kutusu"
+
+msgid "Trashed"
+msgstr "Çöpe atıldı"
+
+msgid "Turn Off"
+msgstr "Kapat"
+
+msgid "Turn On"
+msgstr "Aç"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "WordPress yönetici hesaplarına erişimi kısıtlama seçeneğini açın."
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "Kritik WordPress ayarlarına erişimi kısıtlama seçeneğini açın."
+
+msgid "Turn your White Label settings on/off."
+msgstr "Beyaz Etiket ayarlarınızı açın/kapatın."
+
+msgid "Type"
+msgstr "tür"
+
+msgid "Type Of 2FA Verification Page"
+msgstr "2FA Doğrulama Sayfası Türü"
+
+msgid "Type Of MFA Verification Page"
+msgstr "MFA Doğrulama Sayfası Türü"
+
+msgid "Type: {{type}}; Interval: {{interval}};"
+msgstr "Tür: {{type}}; Aralık: {{interval}};"
+
+msgid "URL"
+msgstr "adres"
+
+msgid "URL - Home"
+msgstr "Adres - Giriş"
+
+msgid "URL - Site"
+msgstr "Adres - Site"
+
+msgid "URL To Activate"
+msgstr "Etkinleştirme Adresi"
+
+msgid "Unavailable"
+msgstr "Kullanılamıyor"
+
+msgid "Unblocked"
+msgstr "Engeli Kaldırıldı"
+
+msgid "Unblocked At"
+msgstr "Engeli Kaldırılma Zamanı"
+
+msgid "Unclassified"
+msgstr "Sınıflandırılmamış"
+
+msgid "Unidentified"
+msgstr "Kimliği Belirsiz"
+
+msgid "Uninstalled"
+msgstr "Kaldırıldı"
+
+msgid "Unique ID"
+msgstr "Benzersiz Kimlik"
+
+msgid "Unknown"
+msgstr "Bilinmiyor"
+
+msgid "Unknown Name"
+msgstr "Bilinmeyen Ad"
+
+msgid "Unlock"
+msgstr "Kilidi Aç"
+
+msgid "Unlock Now"
+msgstr "Şimdi Kilidi Aç"
+
+msgid "Unpublished"
+msgstr "Yayından Kaldırıldı"
+
+msgid "Unrecognised"
+msgstr "Tanınmayan"
+
+msgid "Until"
+msgstr "Kadar"
+
+msgid "Update Available"
+msgstr "Güncelleme Mevcut"
+
+msgid "Update Display Options"
+msgstr "Görüntüleme Seçeneklerini Güncelle"
+
+msgid "Update Shield"
+msgstr "Shield'i Güncelle"
+
+msgid "Update This Rule"
+msgstr "Bu Kuralı Güncelle"
+
+msgid "Update reporting email address"
+msgstr "Raporlama e-posta adresini güncelle"
+
+msgid "Updated"
+msgstr "Güncellendi"
+
+msgid "Updates"
+msgstr "Güncellemeler"
+
+msgid "Updates and Changes"
+msgstr "Güncellemeler ve Değişiklikler"
+
+msgid "Upgrade Membership"
+msgstr "Üyeliği Yükselt"
+
+msgid "Upgrade Now"
+msgstr "Şimdi Yükselt"
+
+msgid "Upgrade To Create Custom Reports"
+msgstr "Özel Raporlar Oluşturmak İçin Yükseltin"
+
+msgid "Upgrade Your ShieldPRO Membership"
+msgstr "ShieldPRO Üyeliğinizi Yükseltin"
+
+msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
+msgstr "Tüm WordPress sitelerinizin güvenliğini yönetmek ve izlemek için MainWP kullanın."
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Botları ve Kaba Kuvvet Saldırılarını Engellemek İçin Shield'ın silentCAPTCHA'sını Kullanın"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "İstenmeyen Botları Tespit Etmek ve Engellemek İçin Shield'ın silentCAPTCHA'sını Kullanın."
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "Bot İstenmeyen Yorumları Engellemek İçin silentCAPTCHA Kullanın"
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "Yeni bir kod oluşturmak için Yubikey'inizi kullanın"
+
+msgid "Used"
+msgstr "Kullanıldı"
+
+msgid "User"
+msgstr "kullanıcı"
+
+msgid "User '{{user_login}}' suspended by admin."
+msgstr "'{{user_login}}' kullanıcısı yönetici tarafından askıya alındı."
+
+msgid "User 2FA Setup"
+msgstr "Kullanıcı 2FA Kurulumu"
+
+msgid "User 2FA Setup Page Locations"
+msgstr "Kullanıcı 2FA Kurulum Sayfası Konumları"
+
+msgid "User Access"
+msgstr "Kullanıcı Erişimi"
+
+msgid "User Accounts"
+msgstr "Kullanıcı Hesapları"
+
+msgid "User Agent"
+msgstr "Kullanıcı Aracısı"
+
+msgid "User Bot Check Fail"
+msgstr "Kullanıcı Bot Kontrolü Başarısız"
+
+msgid "User Deleted"
+msgstr "Kullanıcı Silindi"
+
+msgid "User Deleted And Reassigned"
+msgstr "Kullanıcı Silindi ve Yeniden Atandı"
+
+msgid "User Email Updated"
+msgstr "Kullanıcı E-postası Güncellendi"
+
+msgid "User ID"
+msgstr "Kullanıcı Kimliği"
+
+msgid "User Login"
+msgstr "Kullanıcı Girişi"
+
+msgid "User Login By App Password"
+msgstr "Uygulama Parolası ile Kullanıcı Girişi"
+
+msgid "User Login Notification Email"
+msgstr "Kullanıcı Giriş Bildirim E-postası"
+
+msgid "User Meta"
+msgstr "Kullanıcı Üst Verisi"
+
+msgid "User Password Updated"
+msgstr "Kullanıcı Parolası Güncellendi"
+
+msgid "User Register Bot Protection"
+msgstr "Kullanıcı Kaydı Bot Koruması"
+
+msgid "User Registered"
+msgstr "Kullanıcı Kaydedildi"
+
+msgid "User Registration"
+msgstr "Kullanıcı Kaydı"
+
+msgid "User Registration Email Validation"
+msgstr "Kullanıcı Kaydı E-posta Doğrulaması"
+
+msgid "User Registrations"
+msgstr "Kullanıcı Kayıtları"
+
+msgid "User Role"
+msgstr "Kullanıcı Rolü"
+
+msgid "User Session Lock"
+msgstr "Kullanıcı Oturumu Kilidi"
+
+msgid "User Sessions"
+msgstr "Kullanıcı Oturumları"
+
+msgid "User Status"
+msgstr "Kullanıcı Durumu"
+
+msgid "User login request blocked."
+msgstr "Kullanıcı giriş isteği engellendi."
+
+msgid "User registration request blocked."
+msgstr "Kullanıcı kayıt isteği engellendi."
+
+msgid "User session deleted"
+msgstr "Kullanıcı oturumu silindi"
+
+msgid "User: <code>%s</code>"
+msgstr "Kullanıcı: <code>%s</code>"
+
+msgid "Useragent"
+msgstr "Kullanıcı Aracısı"
+
+msgid "Username"
+msgstr "Kullanıcı adı"
+
+msgid "Username Fishing"
+msgstr "Kullanıcı Adı Avlama"
+
+msgid "Username Fishing Blocked"
+msgstr "Kullanıcı Adı Avlama Engellendi"
+
+msgid "Username fishing"
+msgstr "Kullanıcı adı avlama"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "Kullanıcı adı '{{user_login}}', e-posta adresi '{{email}}' idi."
+
+msgid "Username/Author Fishing is disabled on this site."
+msgstr "Bu sitede Kullanıcı Adı/Yazar Avlama devre dışı bırakıldı."
+
+msgid "Users"
+msgstr "kullanıcılar"
+
+msgid "Users are allowed to set weak passwords."
+msgstr "Kullanıcıların zayıf parolalar belirlemesine izin veriliyor."
+
+msgid "Valid license couldn't be found."
+msgstr "Geçerli lisans bulunamadı."
+
+msgid "Valid license found and installed."
+msgstr "Geçerli lisans bulundu ve yüklendi."
+
+msgid "Valid license found."
+msgstr "Geçerli lisans bulundu."
+
+msgid "Value To Match"
+msgstr "Eşleştirilecek Değer"
+
+msgid "Verb"
+msgstr "Fiil"
+
+msgid "Verification Code"
+msgstr "doğrulama kodu"
+
+msgid "Version"
+msgstr "Sürüm"
+
+msgid "Very Strong"
+msgstr "Çok Güçlü"
+
+msgid "Very Weak"
+msgstr "Çok Zayıf"
+
+msgid "View & Create"
+msgstr "Görüntüle ve Oluştur"
+
+msgid "View All"
+msgstr "Tümünü Görüntüle"
+
+msgid "View Comment"
+msgstr "Yorumu Görüntüle"
+
+msgid "View Config"
+msgstr "Yapılandırmayı Görüntüle"
+
+msgid "View Debug Info"
+msgstr "Hata Ayıklama Bilgisini Görüntüle"
+
+msgid "View Details"
+msgstr "Ayrıntıları Görüntüle"
+
+msgid "View File Contents"
+msgstr "Dosya İçeriğini Görüntüle"
+
+msgid "View File Details"
+msgstr "Dosya Ayrıntılarını Görüntüle"
+
+msgid "View IP Reputation Option"
+msgstr "IP İtibar Seçeneğini Görüntüle"
+
+msgid "View Results"
+msgstr "Sonuçları Görüntüle"
+
+msgid "View Scan Results"
+msgstr "Tarama Sonuçlarını Görüntüle"
+
+msgid "View Scan Results In-Full"
+msgstr "Tarama Sonuçlarını Tam Olarak Görüntüle"
+
+msgid "View Site Traffic"
+msgstr "Site Trafiğini Görüntüle"
+
+msgid "View Traffic and Request Log"
+msgstr "Trafik ve İstek Günlüğünü Görüntüle"
+
+msgid "View User Activity Log"
+msgstr "Kullanıcı Etkinlik Günlüğünü Görüntüle"
+
+msgid "View User Sessions"
+msgstr "Kullanıcı Oturumlarını Görüntüle"
+
+msgid "View and create new security reports."
+msgstr "Güvenlik raporlarını görüntüleyin ve yeni raporlar oluşturun."
+
+msgid "View and manage all scan results."
+msgstr "Tüm tarama sonuçlarını görüntüleyin ve yönetin."
+
+msgid "View and manage details of current user sessions on the site."
+msgstr "Sitedeki geçerli kullanıcı oturumlarının ayrıntılarını görüntüleyin ve yönetin."
+
+msgid "View details of web requests sent to your WordPress site."
+msgstr "WordPress sitenize gönderilen web isteklerinin ayrıntılarını görüntüleyin."
+
+msgid "View, edit and remove custom security rules"
+msgstr "Özel güvenlik kurallarını görüntüleyin, düzenleyin ve kaldırın"
+
+msgid "View/Create Reports"
+msgstr "Raporları Görüntüle/Oluştur"
+
+msgid "Vulnerabilities"
+msgstr "Güvenlik Açıkları"
+
+msgid "Vulnerabilities Detected"
+msgstr "Güvenlik Açıkları Algılandı"
+
+msgid "Vulnerabilities Scanner"
+msgstr "Güvenlik Açıkları Tarayıcısı"
+
+msgid "Vulnerability Discovered"
+msgstr "Güvenlik Açığı Keşfedildi"
+
+msgid "Vulnerability Scanner"
+msgstr "Güvenlik Açığı Tarayıcısı"
+
+msgid "Vulnerability Scanning"
+msgstr "Güvenlik Açığı Taraması"
+
+msgid "Vulnerable"
+msgstr "Güvenlik Açığı Var"
+
+msgid "Vulnerable Plugins"
+msgstr "Güvenlik Açığı Olan Eklentiler"
+
+msgid "Vulnerable Plugins & Themes"
+msgstr "Güvenlik Açığı Olan Eklentiler ve Temalar"
+
+msgid "Vulnerable Themes"
+msgstr "Güvenlik Açığı Olan Temalar"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "WP Etkinliği"
+
+msgid "WP Activity Log"
+msgstr "WP Etkinlik Günlüğü"
+
+msgid "WP Core File Scanner"
+msgstr "WP Çekirdek Dosya Tarayıcısı"
+
+msgid "WP Core Updated"
+msgstr "WP Çekirdeği Güncellendi"
+
+msgid "WP Core update is available."
+msgstr "WP Core güncellemesi mevcut."
+
+msgid "WP Database password is very strong."
+msgstr "WP Veritabanı parolası çok güçlü."
+
+msgid "WP Default User Role"
+msgstr "WP Varsayılan Kullanıcı Rolü"
+
+msgid "WP File Editing"
+msgstr "WP Dosya Düzenleme"
+
+msgid "WP Login & Admin Redirect"
+msgstr "WP Giriş ve Yönetici Yönlendirmesi"
+
+msgid "WP Site Admin Email"
+msgstr "WP Site Yönetici E-postası"
+
+msgid "WP Site Tagline"
+msgstr "WP Site Sloganı"
+
+msgid "WP Site title"
+msgstr "WP Site başlığı"
+
+msgid "WP User Registration"
+msgstr "WP Kullanıcı Kaydı"
+
+msgid "WP core files"
+msgstr "WP çekirdek dosyaları"
+
+msgid "WP plugin update(s) available."
+msgstr "WP eklenti güncellemesi mevcut."
+
+msgid "WP root"
+msgstr "WP kök dizini"
+
+msgid "WP root directory"
+msgstr "WP kök dizini"
+
+msgid "WP theme update(s) available."
+msgstr "WP tema güncellemesi mevcut."
+
+msgid "Warning"
+msgstr "Uyarı"
+
+msgid "Weak"
+msgstr "Zayıf"
+
+msgid "Weekly"
+msgstr "Haftalık"
+
+msgid "Welcome"
+msgstr "Hoş geldiniz"
+
+msgid "When"
+msgstr "Ne Zaman"
+
+msgid "When a file is modified, or malware is detected, Shield can try to repair files."
+msgstr "Bir dosya değiştirildiğinde veya kötü amaçlı yazılım tespit edildiğinde Shield dosyaları onarmayı deneyebilir."
+
+msgid "White Label"
+msgstr "Beyaz Etiket"
+
+msgid "Whitelist Site Added"
+msgstr "Beyaz Liste Sitesi Eklendi"
+
+msgid "Whitelist Site Removed"
+msgstr "Beyaz Liste Sitesi Kaldırıldı"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "Site Kilitleme için Beyaz Liste"
+
+msgid "Whitelisted Sites To Export Options From This Site"
+msgstr "Bu Siteden Seçenekleri Dışa Aktarmak İçin Beyaz Listeye Alınmış Siteler"
+
+msgid "With Issues"
+msgstr "Sorunlu Olanlar"
+
+msgid "Wizards"
+msgstr "Sihirbazlar"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Activity"
+msgstr "WordPress Etkinliği"
+
+msgid "WordPress Address (URL)"
+msgstr "WordPress Adresi (URL)"
+
+msgid "WordPress Admins Protection"
+msgstr "WordPress Yöneticileri Koruması"
+
+msgid "WordPress Core Auto-Repair"
+msgstr "WordPress Çekirdeği Otomatik Onarım"
+
+msgid "WordPress Core File Scanner"
+msgstr "WordPress Çekirdek Dosya Tarayıcısı"
+
+msgid "WordPress Core Files"
+msgstr "WordPress Çekirdek Dosyaları"
+
+msgid "WordPress Core Options Protection"
+msgstr "WordPress Çekirdek Seçenekleri Koruması"
+
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
+msgstr "WordPress Core '{{from}}' sürümünden '{{to}}' sürümüne güncellendi."
+
+msgid "WordPress File Editing Lockdown"
+msgstr "WordPress Dosya Düzenleme Kilitleme"
+
+msgid "WordPress File Scanner"
+msgstr "WordPress Dosya Tarayıcısı"
+
+msgid "WordPress File Scanning"
+msgstr "WordPress Dosya Taraması"
+
+msgid "WordPress Files"
+msgstr "WordPress Dosyaları"
+
+msgid "WordPress Info"
+msgstr "WordPress Bilgisi"
+
+msgid "WordPress Obscurity Options"
+msgstr "WordPress Gizlilik Seçenekleri"
+
+msgid "WordPress Options"
+msgstr "WordPress Seçenekleri"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "WordPress Eklenti Dosya Tarayıcısı"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "WordPress Site Kök Dizini Dosya Tarayıcısı"
+
+msgid "WordPress Stats"
+msgstr "WordPress İstatistikleri"
+
+msgid "WordPress Theme File Scanner"
+msgstr "WordPress Tema Dosya Tarayıcısı"
+
+msgid "WordPress Updates"
+msgstr "WordPress Güncellemeleri"
+
+msgid "WordPress Upgraded"
+msgstr "WordPress Yükseltildi"
+
+msgid "WordPress Version"
+msgstr "WordPress Sürümü"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "WordPress WP Content Dizini Dosya Tarayıcısı"
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress site yöneticisi e-posta adresi '{{from}}' değerinden '{{to}}' değerine değiştirildi."
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress site sloganı '{{from}}' değerinden '{{to}}' değerine değiştirildi."
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress site başlığı '{{from}}' değerinden '{{to}}' değerine değiştirildi."
+
+msgid "WordPress user deleted."
+msgstr "WordPress kullanıcısı silindi."
+
+msgid "WordPress will now download and install the latest available version of this plugin."
+msgstr "WordPress şimdi bu eklentinin mevcut en son sürümünü indirecek ve yükleyecek."
+
+msgid "WordPress.org Plugin Auto-Repair"
+msgstr "WordPress.org Eklenti Otomatik Onarımı"
+
+msgid "WordPress.org Theme Auto-Repair"
+msgstr "WordPress.org Tema Otomatik Onarımı"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "XML-RPC Erişimi"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC Kilitleme"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC İsteği Engellendi."
+
+msgid "YYYY-MM-DD"
+msgstr "YYYY-AA-GG"
+
+msgid "Yearly"
+msgstr "Yıllık"
+
+msgid "Yes"
+msgstr "Evet"
+
+msgid "Yes: %s"
+msgstr "Evet: %s"
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "1 numaralı güvenlik tehdidiniz otomatik botlardan kaynaklanıyor."
+
+msgid "Your Current IP"
+msgstr "Geçerli IP Adresiniz"
+
+msgid "Your IP Address"
+msgstr "IP Adresiniz"
+
+msgid "Your Unique Yubikey App ID"
+msgstr "Benzersiz Yubikey Uygulama Kimliğiniz"
+
+msgid "Your backup login code is: %s"
+msgstr "Yedek giriş kodunuz: %s"
+
+msgid "Your current IP Reputation score is %s."
+msgstr "Geçerli IP İtibar puanınız %s."
+
+msgid "Your current login URL is: %s"
+msgstr "Geçerli giriş adresiniz: %s"
+
+msgid "Your current security posture"
+msgstr "Geçerli güvenlik durumunuz"
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "CrowdSec ile kayıtlı makine kimliğiniz: %s"
+
+msgid "Your reporting email address is: %s"
+msgstr "Raporlama e-posta adresiniz: %s"
+
+msgid "Your session was locked to another IP Address."
+msgstr "Oturumunuz başka bir IP Adresine kilitlendi."
+
+msgid "Your site is currently in lockdown."
+msgstr "Siteniz şu anda kilitlenme modunda."
+
+msgid "Your site is in lockdown."
+msgstr "Siteniz kilitlenme modunda."
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "Siteniz Botlar tarafından otomatik Yorum istenmeyen içeriğine karşı korunuyor."
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "Siteniz Botlar tarafından otomatik Yorum istenmeyen içeriğine karşı korunmuyor."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey App ID"
+msgstr "Yubikey Uygulama Kimliği"
+
+msgid "Yubikey Device"
+msgstr "Yubikey Cihazı"
+
+msgid "Yubikey ID"
+msgstr "Yubikey Kimliği"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "Bölge"
+
+msgid "Zone Actions"
+msgstr "Bölge Eylemleri"
+
+msgid "Zones"
+msgstr "Bölgeler"
+
+msgid "and"
+msgstr "ve"
+
+msgid "case-insensitive"
+msgstr "büyük/küçük harf duyarsız"
+
+msgid "currently %s"
+msgstr "şu anda %s"
+
+msgid "days"
+msgstr "gün"
+
+msgid "estimated"
+msgstr "tahmini"
+
+msgid "expires"
+msgstr "sona eriyor"
+
+msgid "file import"
+msgstr "dosya içe aktarma"
+
+msgid "help"
+msgstr "yardım"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "icon"
+msgstr "simge"
+
+msgid "import file"
+msgstr "dosyayı içe aktar"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "yok"
+
+msgid "no label"
+msgstr "etiket yok"
+
+msgid "no name"
+msgstr "ad yok"
+
+msgid "not provided"
+msgstr "sağlanmadı"
+
+msgid "offense"
+msgstr "ihlal"
+
+msgid "options"
+msgstr "seçenekler"
+
+msgid "or"
+msgstr "veya"
+
+msgid "permanently"
+msgstr "kalıcı olarak"
+
+msgid "rDNS"
+msgstr "rDNS"
+
+msgid "recommendation"
+msgstr "öneri"
+
+msgid "seconds"
+msgstr "saniye"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA Bot Algılama, WordPress girişinize yönelik kaba kuvvet saldırılarına karşı koruma sağlamıyor."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr "silentCAPTCHA Bot Algılama, WordPress kaydınızı korumuyor."
+
+msgid "silentCAPTCHA Bot Minimum Score"
+msgstr "silentCAPTCHA Bot Minimum Puanı"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "silentCAPTCHA Bot Puanı (Yüzde)"
+
+msgid "silentCAPTCHA Registration"
+msgstr "silentCAPTCHA Kaydı"
+
+msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
+msgstr "silentCAPTCHA minimum puan %s olarak ayarlandığında devre dışı bırakılır."
+
+msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
+msgstr "silentCAPTCHA, WP Yorumlarınızı bot istenmeyen içeriğine karşı korumuyor."
+
+msgid "suggestion"
+msgstr "öneri"
+
+msgid "tools"
+msgstr "araçlar"
+
+msgid "unknown"
+msgstr "bilinmiyor"
+
+msgid "{{ip}} removed from block list ({{type}})."
+msgstr "{{ip}} engelleme listesinden kaldırıldı ({{type}})."
+

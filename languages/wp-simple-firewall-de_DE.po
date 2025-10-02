@@ -1,0 +1,4959 @@
+# German translation for shield
+# This file is distributed under the same license as shield.
+msgid ""
+msgstr ""
+"Project-Id-Version: shield\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-02 13:04+0000\n"
+"PO-Revision-Date: 2025-10-02 13:04+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s Kommentar-SPAM-Schutz"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s Firewall hat eine Anfrage an Ihre WordPress-Website blockiert."
+
+msgid "%s Home"
+msgstr "%s Startseite"
+
+msgid "%s Plugin Badge"
+msgstr "%s Plugin-Badge"
+
+msgid "%s Plugin options updated successfully."
+msgstr "%s Plugin-Optionen erfolgreich aktualisiert."
+
+msgid "%s Status Report"
+msgstr "%s-Statusbericht"
+
+msgid "%s and %s"
+msgstr "%s und %s"
+
+msgid "%s day"
+msgstr "%s Tag"
+
+msgid "%s days"
+msgstr "%s Tage"
+
+msgid "%s directory"
+msgstr "%s-Verzeichnis"
+
+msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
+msgstr "%s hat festgestellt, dass die derzeit installierte Version des %s-Plugins bekannte Sicherheitslücken aufweist."
+
+msgid "%s is a child of another theme."
+msgstr "%s ist ein Child-Theme eines anderen Themes."
+
+msgid "%s is not currently protecting your site."
+msgstr "%s schützt Ihre Website derzeit nicht."
+
+msgid "%s is not protecting your site"
+msgstr "%s schützt Ihre Website nicht"
+
+msgid "%s is protected against tampering."
+msgstr "%s ist gegen Manipulation geschützt."
+
+msgid "%s isn't protected against tampering."
+msgstr "%s ist nicht gegen Manipulation geschützt."
+
+msgid "%s minute"
+msgstr "%s Minute"
+
+msgid "%s minutes"
+msgstr "%s Minuten"
+
+msgid "%s not installed from WordPress.org."
+msgstr "%s nicht von WordPress.org installiert."
+
+msgid "%s offense"
+msgstr "%s Verstoß"
+
+msgid "%s offense until block"
+msgstr "%s Verstoß bis zur Blockierung"
+
+msgid "%s offenses"
+msgstr "%s Verstöße"
+
+msgid "%s offenses until block"
+msgstr "%s Verstöße bis zur Blockierung"
+
+msgid "%s options and modules"
+msgstr "%s Optionen und Module"
+
+msgid "%s seconds"
+msgstr "%s Sekunden"
+
+msgid "%s time"
+msgstr "%s Mal"
+
+msgid "%s was added to your profile."
+msgstr "%s wurde zu Ihrem Profil hinzugefügt."
+
+msgid "%s was removed from your profile."
+msgstr "%s wurde aus Ihrem Profil entfernt."
+
+msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
+msgstr "(wenn Lockdown deaktiviert ist, wird die IP-Adresse automatisch aus der Whitelist entfernt)"
+
+msgid "1-minute"
+msgstr "1 Minute"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "15-minute"
+msgstr "15 Minuten"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - E-Mail"
+
+msgid "2FA At"
+msgstr "2FA Um"
+
+msgid "2FA Login Success"
+msgstr "2FA-Anmeldung erfolgreich"
+
+msgid "2FA One-Time Passwords"
+msgstr "2FA-Einmalpasswörter"
+
+msgid "2FA Provider"
+msgstr "2FA-Anbieter"
+
+msgid "2FA User Config Page"
+msgstr "2FA-Benutzerkonfigurationsseite"
+
+msgid "2FA by Email"
+msgstr "2FA per E-Mail"
+
+msgid "2FA by email has been disabled"
+msgstr "2FA per E-Mail wurde deaktiviert"
+
+msgid "32/64-bit"
+msgstr "32/64-Bit"
+
+msgid "404 Detect"
+msgstr "404-Erkennung"
+
+msgid "404 Triggered"
+msgstr "404 ausgelöst"
+
+msgid "404 detected at '{{path}}'."
+msgstr "404 erkannt unter '{{path}}'."
+
+msgid "5-minute"
+msgstr "5 Minuten"
+
+msgid "7 Days"
+msgstr "7 Tage"
+
+msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
+msgstr "<strong>Scannen</strong> Ihrer WordPress-Kerndateien und -Verzeichnisse auf Änderungen und neue Dateien."
+
+msgid "A PIN needs to be set to enable the Security Admin."
+msgstr "Eine PIN muss festgelegt werden, um den Security Admin zu aktivieren."
+
+msgid "A WordPress user (%s) has requested to remove the Security Admin restriction."
+msgstr "Ein WordPress-Benutzer (%s) hat beantragt, die Security-Admin-Beschränkung zu entfernen."
+
+msgid "A default will be used."
+msgstr "Ein Standard wird verwendet."
+
+msgid "A high-level overview of your WordPress updates status."
+msgstr "Eine allgemeine Übersicht über den Status Ihrer WordPress-Updates."
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "Ein neues Einmalpasswort wurde an Ihre E-Mail-Adresse gesendet."
+
+msgid "A1B2C3"
+msgstr "A1B2C3"
+
+msgid "ABSPATH"
+msgstr "ABSPATH"
+
+msgid "Abandoned"
+msgstr "Aufgegeben"
+
+msgid "Abandoned Plugin Scanner"
+msgstr "Verwaiste-Plugins-Scanner"
+
+msgid "Abandoned Plugins"
+msgstr "Verwaiste Plugins"
+
+msgid "Abandoned Plugins Found"
+msgstr "Verwaiste Plugins gefunden"
+
+msgid "Abandoned WordPress.org Plugins"
+msgstr "Aufgegebene WordPress.org-Plugins"
+
+msgid "Absolutely"
+msgstr "Absolut"
+
+msgid "Access Restricted"
+msgstr "Zugriff eingeschränkt"
+
+msgid "Access Restriction Zones"
+msgstr "Zugriffsbeschränkungszonen"
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "Zugriff auf XML-RPC erkannt unter '{{path}}'."
+
+msgid "Access to XML-RPC is available."
+msgstr "Zugriff auf XML-RPC ist verfügbar."
+
+msgid "Access to XML-RPC is disabled."
+msgstr "Zugriff auf XML-RPC ist deaktiviert."
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "Der Zugriff auf das %s Security-Plugin ist eingeschränkt."
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "Actions and Info"
+msgstr "Aktionen und Informationen"
+
+msgid "Activate"
+msgstr "aktivieren"
+
+msgid "Activate Rule"
+msgstr "Regel aktivieren"
+
+msgid "Activate Shield"
+msgstr "Shield aktivieren"
+
+msgid "Activate ShieldPRO License"
+msgstr "ShieldPRO-Lizenz aktivieren"
+
+msgid "Activate Your ShieldPRO License"
+msgstr "ShieldPRO-Lizenz aktivieren"
+
+msgid "Activate Your White Label Settings"
+msgstr "White-Label-Einstellungen aktivieren"
+
+msgid "Activated"
+msgstr "aktiviert"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active 2FA"
+msgstr "Aktive 2FA"
+
+msgid "Active Plugins (%s)"
+msgstr "Aktive Plugins (%s)"
+
+msgid "Active Rules Summary"
+msgstr "Zusammenfassung aktiver Regeln"
+
+msgid "Active Themes (%s)"
+msgstr "Aktive Themes (%s)"
+
+msgid "Active license found."
+msgstr "Aktive Lizenz gefunden."
+
+msgid "Activity"
+msgstr "Aktivität"
+
+msgid "Activity Log"
+msgstr "Aktivitätsprotokoll"
+
+msgid "Activity Logging"
+msgstr "Aktivitäts-Protokollierung"
+
+msgid "Admin Access Login"
+msgstr "Admin-Zugriff-Login"
+
+msgid "Admin Accounts"
+msgstr "Admin-Konten"
+
+msgid "Admin Changes Detected"
+msgstr "Admin-Änderungen erkannt"
+
+msgid "Admin Login Notification Email"
+msgstr "Admin-Login-Benachrichtigungs-E-Mail"
+
+msgid "Admin Users"
+msgstr "Admin-Benutzer"
+
+msgid "Administrator Accounts Protection"
+msgstr "Schutz für Administrator-Konten"
+
+msgid "Admins"
+msgstr "Administratoren"
+
+msgid "Agree To Privacy Policy"
+msgstr "Datenschutzerklärung zustimmen"
+
+msgid "Alert"
+msgstr "Warnmeldung"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "Alle MFA-Provider vom Benutzer mit ID %s entfernt."
+
+msgid "All WP Site Activity"
+msgstr "Alle WP-Site-Aktivitäten"
+
+msgid "All WordPress Core files appear to be clean and unmodified."
+msgstr "Alle WordPress-Core-Dateien scheinen sauber und unverändert zu sein."
+
+msgid "All access to your site is blocked."
+msgstr "Jeglicher Zugriff auf Ihre Website ist blockiert."
+
+msgid "All installed plugins appear to be active and in-use."
+msgstr "Alle installierten Plugins scheinen aktiv und in Verwendung zu sein."
+
+msgid "All installed themes appear to be active and in-use."
+msgstr "Alle installierten Themes scheinen aktiv und in Verwendung zu sein."
+
+msgid "All new passwords are required to be be of high strength."
+msgstr "Alle neuen Passwörter müssen eine hohe Stärke aufweisen."
+
+msgid "All passwords that a user sets must meet this minimum strength."
+msgstr "Alle Passwörter, die ein Benutzer festlegt, müssen diese Mindeststärke erfüllen."
+
+msgid "All plugin & theme files appear to be valid."
+msgstr "Alle Plugin- & Theme-Dateien scheinen gültig zu sein."
+
+msgid "All rules have been deactivated"
+msgstr "Alle Regeln wurden deaktiviert"
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "Automatisierten Import und Export von Optionen auf dieser Website zulassen"
+
+msgid "Allow Email Override"
+msgstr "E-Mail-Override erlauben"
+
+msgid "Allow Export"
+msgstr "Export zulassen"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "Import von Optionen zu und Export von Optionen von dieser Website zulassen"
+
+msgid "Allow Passkeys"
+msgstr "Passkeys zulassen"
+
+msgid "Allow Registration Of Passkeys"
+msgstr "Registrierung von Passkeys zulassen"
+
+msgid "Allow Registration Of Passkeys."
+msgstr "Registrierung von Passkeys zulassen."
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "Benutzern erlauben, einen Backup-Code zu generieren"
+
+msgid "Allow Users To Register Passkeys"
+msgstr "Benutzern erlauben, Passkeys zu registrieren"
+
+msgid "Allow Yubikey OTP"
+msgstr "Yubikey-OTP zulassen"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "Yubikey-Registrierung für Einmalpasswörter zulassen"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "Benutzern erlauben, einen Backup-2FA-Anmeldecode zu generieren."
+
+msgid "Altering certain options has been restricted by your WordPress security administrator."
+msgstr "Das Ändern bestimmter Optionen wurde von Ihrem WordPress-Sicherheitsadministrator eingeschränkt."
+
+msgid "Analysis"
+msgstr "Analyse"
+
+msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
+msgstr "Brute-Force-Schutz auf Benutzerregistrierung und verlorene Passwörter anwenden"
+
+msgid "Apply Updates Automatically To Vulnerable Plugins"
+msgstr "Updates automatisch auf anfällige Plugins anwenden"
+
+msgid "Are WordPress permalinks enabled."
+msgstr "Sind WordPress-Permalinks aktiviert."
+
+msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
+msgstr "Wie angefordert benachrichtigt Sie %s über eine erfolgreiche %s-Anmeldung bei einer von Ihnen verwalteten WordPress-Website."
+
+msgid "At least 1 2FA option is available to protect user accounts."
+msgstr "Mindestens 1 2FA-Option ist verfügbar, um Benutzerkonten zu schützen."
+
+msgid "At least 1 WordPress Core file appears to be modified or unrecognised."
+msgstr "Mindestens eine WordPress-Kerndatei scheint modifiziert oder nicht erkannt zu sein."
+
+msgid "At least 1 of your plugins or themes appears to be modified."
+msgstr "Mindestens eines Ihrer Plugins oder Themes scheint modifiziert zu sein."
+
+msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
+msgstr "Mindestens 1 Option muss angegeben werden und ist standardmäßig die Benutzerprofilseite im WordPress-Admin-Bereich."
+
+msgid "At least 1 security report has been generated for your site."
+msgstr "Mindestens 1 Sicherheitsbericht wurde für Ihre Website erstellt."
+
+msgid "Attempted login with invalid user '{{user_login}}'."
+msgstr "Anmeldeversuch mit ungültigem Benutzer '{{user_login}}'."
+
+msgid "Attempted user login by '{{user_login}}' was successful."
+msgstr "Versuchte Benutzeranmeldung durch '{{user_login}}' war erfolgreich."
+
+msgid "Authenticated With Site"
+msgstr "Mit Website authentifiziert"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Auto Block"
+msgstr "Automatisch blockieren"
+
+msgid "Auto Block Expiration"
+msgstr "Auto-Block-Ablauf"
+
+msgid "Auto Clean"
+msgstr "Automatisch bereinigen"
+
+msgid "Auto File Repair"
+msgstr "Automatische Dateireparatur"
+
+msgid "Auto File Repair and File Diff are available"
+msgstr "Automatische Dateireparatur und Datei-Diff sind verfügbar"
+
+msgid "Auto File Repair and File Diff aren't available."
+msgstr "Automatische Dateireparatur und Datei-Diff sind nicht verfügbar."
+
+msgid "Auto-Generated"
+msgstr "Automatisch generiert"
+
+msgid "Auto-Import URL"
+msgstr "Auto-Import-URL"
+
+msgid "Auto-Integrations"
+msgstr "Auto-Integrationen"
+
+msgid "Auto-Repair will never automatically delete new or unrecognised files."
+msgstr "Auto-Reparatur wird niemals automatisch neue oder nicht erkannte Dateien löschen."
+
+msgid "Auto-repair of files from WordPress.org plugins is enabled."
+msgstr "Automatische Reparatur von Dateien aus WordPress.org-Plugins ist aktiviert."
+
+msgid "Auto-repair of files from WordPress.org plugins isn't enabled."
+msgstr "Automatische Reparatur von Dateien aus WordPress.org-Plugins ist nicht aktiviert."
+
+msgid "Auto-repair of files from WordPress.org themes is enabled."
+msgstr "Automatische Reparatur von Dateien aus WordPress.org-Themes ist aktiviert."
+
+msgid "Auto-repair of files from WordPress.org themes isn't enabled."
+msgstr "Automatische Reparatur von Dateien aus WordPress.org-Themes ist nicht aktiviert."
+
+msgid "Auto-repair of modified WordPress core files is enabled."
+msgstr "Automatische Reparatur von modifizierten WordPress-Core-Dateien ist aktiviert."
+
+msgid "Auto-repair of modified WordPress core files isn't enabled."
+msgstr "Automatische Reparatur von modifizierten WordPress-Core-Dateien ist nicht aktiviert."
+
+msgid "Automatic Bot"
+msgstr "Automatischer Bot"
+
+msgid "Automatic File Repair"
+msgstr "Automatische Dateireparatur"
+
+msgid "Automatic Import/Export"
+msgstr "Automatischer Import/Export"
+
+msgid "Automatic Redirect URL For Hidden Pages"
+msgstr "Automatische Weiterleitungs-URL für versteckte Seiten"
+
+msgid "Automatic Updates"
+msgstr "Automatische Aktualisierungen"
+
+msgid "Automatically Block Malicious IP Addresses"
+msgstr "Bösartige IP-Adressen automatisch blockieren"
+
+msgid "Automatically Import Options From This Site"
+msgstr "Optionen automatisch von dieser Website importieren"
+
+msgid "Automatically Import Options From This Site URL"
+msgstr "Optionen automatisch von dieser Website-URL importieren"
+
+msgid "Automatically Install Updates To Vulnerable Plugins"
+msgstr "Updates für anfällige Plugins automatisch installieren"
+
+msgid "Automatically Scan WordPress Files For Changes"
+msgstr "WordPress-Dateien automatisch auf Änderungen scannen"
+
+msgid "Automatically Scans WordPress Core Files For Alterations"
+msgstr "Scannt WordPress-Kerndateien automatisch auf Änderungen"
+
+msgid "Automatically redirect requests to this location for the hidden pages."
+msgstr "Anfragen automatisch an diesen Ort für die versteckten Seiten umleiten."
+
+msgid "Backup Code"
+msgstr "Backup-Code"
+
+msgid "Backup Login Code"
+msgstr "Backup-Anmeldecode"
+
+msgid "Backup Login Code Just Used"
+msgstr "Backup-Anmeldecode gerade verwendet"
+
+msgid "Badge"
+msgstr "Badge"
+
+msgid "Be alerted to plugins and themes with known security vulnerabilities"
+msgstr "Über Plugins und Themes mit bekannten Sicherheitslücken benachrichtigt werden"
+
+msgid "Be alerted when the Shield plugin is deactivated"
+msgstr "Benachrichtigt werden, wenn das Shield-Plugin deaktiviert wird"
+
+msgid "Be alerted when the Shield plugin is deactivated."
+msgstr "Benachrichtigt werden, wenn das Shield-Plugin deaktiviert wird."
+
+msgid "Block %s"
+msgstr "%s blockieren"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "100% Bot-Kommentar-SPAM mit silentCAPTCHA blockieren"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Bot-Kommentar-SPAM blockieren"
+
+msgid "Block Bot SPAM"
+msgstr "Bot-SPAM blockieren"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "Von Menschen geposteten Kommentar-SPAM blockieren"
+
+msgid "Block Human Comment SPAM"
+msgstr "Menschlichen Kommentar-SPAM blockieren"
+
+msgid "Block Human SPAM"
+msgstr "Menschlichen SPAM blockieren"
+
+msgid "Block IP"
+msgstr "IP blockieren"
+
+msgid "Block IP Address?"
+msgstr "IP-Adresse blockieren?"
+
+msgid "Block Login Attempted By Automated Bots"
+msgstr "Anmeldeversuch durch automatisierte Bots blockieren"
+
+msgid "Block Login Bots"
+msgstr "Anmelde-Bots blockieren"
+
+msgid "Block PHP Code Includes"
+msgstr "PHP-Code-Includes blockieren"
+
+msgid "Block PHP code in requests"
+msgstr "PHP-Code in Anfragen blockieren"
+
+msgid "Block Page"
+msgstr "Blockierungsseite"
+
+msgid "Block SPAM User Registrations"
+msgstr "SPAM-Benutzerregistrierungen blockieren"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "SPAM blockieren, das von automatisierten Bots an Kontaktformulare gesendet wird."
+
+msgid "Block WP comments posted by bots"
+msgstr "Von Bots gepostete WP-Kommentare blockieren"
+
+msgid "Block WP comments posted by humans that appear to be SPAM"
+msgstr "WP-Kommentare blockieren, die von Menschen gepostet wurden und als SPAM erscheinen"
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "Blockieren Sie WordPress-Kommentar-Spam und Kontaktformular-Spam."
+
+msgid "Block XML-RPC"
+msgstr "XML-RPC blockieren"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "Blockieren Sie jeden Zugriff auf die Website außer von IPs auf der Bypass-/Whitelist."
+
+msgid "Block comment SPAM while retaining your privacy"
+msgstr "Kommentar-SPAM blockieren und dabei Ihre Privatsphäre wahren"
+
+msgid "Block duration"
+msgstr "Blockierungsdauer"
+
+msgid "Blocked"
+msgstr "Blockiert"
+
+msgid "Blocked & Bypass IPs"
+msgstr "Blockierte & Bypass-IPs"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "SPAM-Kommentar von Bot blockiert."
+
+msgid "Blocked comment that triggered the Comment Cooldown."
+msgstr "Kommentar blockiert, der die Kommentar-Abkühlzeit ausgelöst hat."
+
+msgid "Blocks 100% of all automated bot-generated comment SPAM."
+msgstr "Blockiert 100% aller automatisierten, von Bots generierten Kommentar-SPAM."
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Bot-Aktionen"
+
+msgid "Bot Comment SPAM"
+msgstr "Bot-Kommentar-SPAM"
+
+msgid "Bot Detection"
+msgstr "Bot-Erkennung"
+
+msgid "Bot Protection"
+msgstr "Bot-Schutz"
+
+msgid "Bot SPAM"
+msgstr "Bot-SPAM"
+
+msgid "Bot Tracking"
+msgstr "Bot-Tracking"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "Bot-Kommentar-SPAM wird nicht blockiert"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "Bot-Kommentar-SPAM wird jetzt blockiert"
+
+msgid "Bot threshold"
+msgstr "Bot-Schwellenwert"
+
+msgid "Bots"
+msgstr "Bots"
+
+msgid "Bots & IP Rules"
+msgstr "Bots & IP-Regeln"
+
+msgid "Bots & IPs"
+msgstr "Bots & IPs"
+
+msgid "Browser"
+msgstr "Browser"
+
+msgid "Brute Force"
+msgstr "Brute-Force"
+
+msgid "Brute Force Login Guard"
+msgstr "Brute-Force-Login-Guard"
+
+msgid "Brute Force Login Protection"
+msgstr "Brute-Force-Login-Schutz"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "Brute-Force-Login-Schutz mit silentCAPTCHA"
+
+msgid "Brute Force Protection"
+msgstr "Brute-Force-Schutz"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Brute-Force-Traffic-Ratenbegrenzung"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "Brute-Force-Bot-Angriffe auf Ihr WordPress-Login werden durch silentCAPTCHA erkannt & blockiert."
+
+msgid "Brute force login attacks aren't blocked by the login cooldown system."
+msgstr "Brute-Force-Login-Angriffe werden nicht durch das Login-Cooldown-System blockiert."
+
+msgid "Brute force login attacks by bots aren't being blocked."
+msgstr "Brute-Force-Login-Angriffe durch Bots werden nicht blockiert."
+
+msgid "Build Custom Security Rules"
+msgstr "Benutzerdefinierte Sicherheitsregeln erstellen"
+
+msgid "Bypass"
+msgstr "Umgehen"
+
+msgid "Bypass IP"
+msgstr "IP umgehen"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA Fail"
+msgstr "CAPTCHA-Fehler"
+
+msgid "CSP Rules"
+msgstr "CSP-Regeln"
+
+msgid "Calculating"
+msgstr "Wird berechnet"
+
+msgid "Callback"
+msgstr "Callback"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Cancel Login"
+msgstr "Anmeldung abbrechen"
+
+msgid "Capabilities"
+msgstr "Berechtigungen"
+
+msgid "Careful"
+msgstr "Vorsichtig"
+
+msgid "Change Detected"
+msgstr "Änderung erkannt"
+
+msgid "Change-Tracking"
+msgstr "Änderungsverfolgung"
+
+msgid "Changes"
+msgstr "Änderungen"
+
+msgid "Check License"
+msgstr "Lizenz prüfen"
+
+msgid "Check ShieldPRO License"
+msgstr "ShieldPRO-Lizenz prüfen"
+
+msgid "Checked"
+msgstr "Geprüft"
+
+msgid "Child"
+msgstr "Untergeordnet"
+
+msgid "Clean"
+msgstr "Bereinigen"
+
+msgid "Clean WP Files"
+msgstr "Saubere WP-Dateien"
+
+msgid "Click to access the login or register cheese"
+msgstr "Klicken Sie hier, um auf den Login- oder Registrierungs-Cheese zuzugreifen"
+
+msgid "Click to view your security summary in-full"
+msgstr "Klicken Sie hier, um Ihre vollständige Sicherheitsübersicht anzuzeigen"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Code Generated"
+msgstr "Code generiert"
+
+msgid "Comment"
+msgstr "kommentieren"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "Kommentar- & Kontaktformular-SPAM-Schutz"
+
+msgid "Comment Deleted"
+msgstr "Kommentar gelöscht"
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) changed status from '{{status_old}}' to '{{status_new}}'."
+msgstr "Kommentar-ID:{{comment_id}} (bei Beitrag-ID {{post_id}}) hat den Status von '{{status_old}}' auf '{{status_new}}' geändert."
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) with status '{{status}}' was permanently deleted."
+msgstr "Kommentar-ID:{{comment_id}} (zu Beitrags-ID {{post_id}}) mit Status '{{status}}' wurde dauerhaft gelöscht."
+
+msgid "Comment ID:{{comment_id}} with status '{{status}}' was newly created on Post ID {{post_id}}."
+msgstr "Kommentar-ID:{{comment_id}} mit Status '{{status}}' wurde neu für Beitrag-ID {{post_id}} erstellt."
+
+msgid "Comment SPAM"
+msgstr "Kommentar-SPAM"
+
+msgid "Comment SPAM Blocked."
+msgstr "Kommentar-SPAM blockiert."
+
+msgid "Comment SPAM Protection"
+msgstr "Kommentar-SPAM-Schutz"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "Kommentar-SPAM-Schutz: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "Kommentarstatus aktualisiert"
+
+msgid "Comment Triggered Human SPAM Detection"
+msgstr "Kommentar hat menschliche SPAM-Erkennung ausgelöst"
+
+msgid "Comments"
+msgstr "Kommentare"
+
+msgid "Comments Cooldown"
+msgstr "Kommentare-Abklingzeit"
+
+msgid "Comments Cooldown Triggered"
+msgstr "Kommentare-Abklingzeit ausgelöst"
+
+msgid "Config"
+msgstr "Konfiguration"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "Konfigurationsseiten für Benutzer-2FA-Einrichtung"
+
+msgid "Confirmation"
+msgstr "Bestätigung"
+
+msgid "Confirmation email will be sent to %s"
+msgstr "Bestätigungs-E-Mail wird an %s gesendet"
+
+msgid "Confirmation link"
+msgstr "Bestätigungslink"
+
+msgid "Connected"
+msgstr "Verbunden"
+
+msgid "Contact Form SPAM"
+msgstr "Kontaktformular-Spam"
+
+msgid "Contains"
+msgstr "Enthält"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Content Security Policy (CSP) Regeln"
+
+msgid "Content Updated"
+msgstr "Inhalt aktualisiert"
+
+msgid "Content for Post ID {{post_id}} updated."
+msgstr "Inhalt für Beitrags-ID {{post_id}} aktualisiert."
+
+msgid "Contents"
+msgstr "Inhalte"
+
+msgid "Cooldown"
+msgstr "Abklingzeit"
+
+msgid "Cooldown Fail"
+msgstr "Abklingzeit-Fehler"
+
+msgid "Cooldown Triggered"
+msgstr "Abklingzeit ausgelöst"
+
+msgid "Coordinates"
+msgstr "Koordinaten"
+
+msgid "Core Reinstalled: v%s"
+msgstr "Core neu installiert: v%s"
+
+msgid "Could not create MU directory: %s"
+msgstr "MU-Verzeichnis konnte nicht erstellt werden: %s"
+
+msgid "Could not create MU file: %s"
+msgstr "MU-Datei konnte nicht erstellt werden: %s"
+
+msgid "Could not delete the MU file: %s"
+msgstr "Die MU-Datei konnte nicht gelöscht werden: %s"
+
+msgid "Couldn't create the directory: %s"
+msgstr "Das Verzeichnis konnte nicht erstellt werden: %s"
+
+msgid "Couldn't create the export file."
+msgstr "Die Exportdatei konnte nicht erstellt werden."
+
+msgid "Couldn't determine Shield plugin status."
+msgstr "Shield-Plugin-Status konnte nicht ermittelt werden."
+
+msgid "Couldn't load plugin for slug '%s'."
+msgstr "Plugin für Slug '%s' konnte nicht geladen werden."
+
+msgid "Couldn't load theme for slug '%s'."
+msgstr "Theme für Slug '%s' konnte nicht geladen werden."
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Country Code"
+msgstr "Ländercode"
+
+msgid "Create Backup 2FA Login Code"
+msgstr "Backup-2FA-Anmeldecode erstellen"
+
+msgid "Create Custom Report"
+msgstr "Individuellen Bericht erstellen"
+
+msgid "Create Custom Rule"
+msgstr "Individuelle Regel erstellen"
+
+msgid "Create New IP Rule"
+msgstr "Neue IP-Regel erstellen"
+
+msgid "Create New Report"
+msgstr "Neuen Bericht erstellen"
+
+msgid "Create New Rule"
+msgstr "Neue Regel erstellen"
+
+msgid "Create Report"
+msgstr "Bericht erstellen"
+
+msgid "Create and view all your custom security rules."
+msgstr "Alle Ihre individuellen Sicherheitsregeln erstellen und anzeigen."
+
+msgid "Create custom rules to meet all your security needs"
+msgstr "Individuelle Regeln erstellen, um alle Ihre Sicherheitsanforderungen zu erfüllen"
+
+msgid "Created"
+msgstr "erstellt"
+
+msgid "Created with status %s"
+msgstr "Erstellt mit Status %s"
+
+msgid "Critical File Protection"
+msgstr "Schutz kritischer Dateien"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "Schutz kritischer WordPress-Einstellungen"
+
+msgid "Critical WordPress settings are protected against tampering from other WordPress admins."
+msgstr "Kritische WordPress-Einstellungen sind gegen Manipulation durch andere WordPress-Administratoren geschützt."
+
+msgid "Critical WordPress settings aren't protected against tampering from other WordPress admins."
+msgstr "Kritische WordPress-Einstellungen sind nicht gegen Manipulation durch andere WordPress-Administratoren geschützt."
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "CrowdSec Startseite"
+
+msgid "Current"
+msgstr "Aktuell"
+
+msgid "Current File Content"
+msgstr "Aktueller Dateiinhalt"
+
+msgid "Current Scan"
+msgstr "Aktueller Scan"
+
+msgid "Current Scan Results"
+msgstr "Aktuelle Scan-Ergebnisse"
+
+msgid "Current Session Terminated"
+msgstr "Aktuelle Sitzung beendet"
+
+msgid "Current Summary"
+msgstr "Aktuelle Zusammenfassung"
+
+msgid "Current User Sessions"
+msgstr "Aktuelle Benutzersitzungen"
+
+msgid "Current session terminated for user ({{user_login}}) with session ID {{session_id}}."
+msgstr "Aktuelle Sitzung beendet für Benutzer ({{user_login}}) mit Sitzungs-ID {{session_id}}."
+
+msgid "Current value: %s"
+msgstr "Aktueller Wert: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "Derzeit aktive MFA-Provider in diesem Profil sind"
+
+msgid "Custom"
+msgstr "individuell"
+
+msgid "Custom Debug"
+msgstr "Individuelles Debug"
+
+msgid "Custom Report on %s"
+msgstr "Individueller Bericht zu %s"
+
+msgid "Custom Rules"
+msgstr "Individuelle Regeln"
+
+msgid "Custom Security Rules"
+msgstr "Benutzerdefinierte Sicherheitsregeln"
+
+msgid "Custom report created, reloading reports page."
+msgstr "Benutzerdefinierter Bericht erstellt, Berichtsseite wird neu geladen."
+
+msgid "Daily"
+msgstr "Täglich"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "Dashboard- und 2FA-Login-Logo-URL"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "Dashboard- und 2FA-Logo"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "Dashboard- und 2FA-Logo-URL"
+
+msgid "Database"
+msgstr "Datenbank"
+
+msgid "Databases"
+msgstr "Datenbanken"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Date Added"
+msgstr "Hinzugefügt am"
+
+msgid "Date Generated"
+msgstr "Generiert am"
+
+msgid "Date Range"
+msgstr "Datumsbereich"
+
+msgid "Day"
+msgstr "Tag"
+
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+msgid "Debug"
+msgstr "Debug"
+
+msgid "Debug Info"
+msgstr "Debug-Info"
+
+msgid "Debug Is On"
+msgstr "Debug ist aktiviert"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Default Admin User"
+msgstr "Standard-Admin-Benutzer"
+
+msgid "Default User Role"
+msgstr "Standard-Benutzerrolle"
+
+msgid "Defaults to the blog admin email address."
+msgstr "Standardmäßig die Blog-Admin-E-Mail-Adresse."
+
+msgid "Define Name"
+msgstr "Name festlegen"
+
+msgid "Define Value To Match"
+msgstr "Abzugleichenden Wert definieren"
+
+msgid "Delete"
+msgstr "löschen"
+
+msgid "Delete IP"
+msgstr "IP löschen"
+
+msgid "Delete Login Backup Code"
+msgstr "Login-Backup-Code löschen"
+
+msgid "Delete Plugin Settings"
+msgstr "Plugin-Einstellungen löschen"
+
+msgid "Delete Rule"
+msgstr "Regel löschen"
+
+msgid "Delete Success"
+msgstr "Erfolgreich gelöscht"
+
+msgid "Deleted"
+msgstr "Gelöscht"
+
+msgid "Deleted Admin(s)"
+msgstr "Gelöschte(r) Administrator(en)"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Detect Invalid Username Logins"
+msgstr "Ungültige Benutzernamen-Anmeldungen erkennen"
+
+msgid "Detected"
+msgstr "Erkannt"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "Benutzerregistrierung mit ungültiger E-Mail-Adresse ({{email}}) erkannt."
+
+msgid "Detection of abandoned WordPress.org plugins is enabled."
+msgstr "Erkennung von aufgegebenen WordPress.org-Plugins ist aktiviert."
+
+msgid "Detection of abandoned WordPress.org plugins isn't enabled."
+msgstr "Erkennung von aufgegebenen WordPress.org-Plugins ist nicht aktiviert."
+
+msgid "Diff"
+msgstr "Diff"
+
+msgid "Diff is unavailable for missing files."
+msgstr "Diff ist für fehlende Dateien nicht verfügbar."
+
+msgid "Disable %s"
+msgstr "%s deaktivieren"
+
+msgid "Disable 2FA by email"
+msgstr "2FA per E-Mail deaktivieren"
+
+msgid "Disable Ability To Edit Files From Within WordPress"
+msgstr "Möglichkeit zum Bearbeiten von Dateien innerhalb von WordPress deaktivieren"
+
+msgid "Disable All Rules"
+msgstr "Alle Regeln deaktivieren"
+
+msgid "Disable File Editing"
+msgstr "Dateibearbeitung deaktivieren"
+
+msgid "Disable Module"
+msgstr "Modul deaktivieren"
+
+msgid "Disable Security Admin"
+msgstr "Security Admin deaktivieren"
+
+msgid "Disable Shield"
+msgstr "Shield deaktivieren"
+
+msgid "Disable Site Lockdown"
+msgstr "Site-Lockdown deaktivieren"
+
+msgid "Disable XML-RPC"
+msgstr "XML-RPC deaktivieren"
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "Verarbeitung von Anfragen an den XML-RPC-Endpunkt deaktivieren"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "Deaktivieren Sie den XML-RPC-Endpunkt und blockieren Sie alle Anfragen."
+
+msgid "Disconnected"
+msgstr "Getrennt"
+
+msgid "Discovered"
+msgstr "Entdeckt"
+
+msgid "Display Options Updated"
+msgstr "Anzeigeoptionen aktualisiert"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "Plugin-Sicherheits-Badge auf Ihrer Website anzeigen"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "Plugin-Sicherheits-Badge Ihren Besuchern anzeigen"
+
+msgid "Docs"
+msgstr "Dokumentation"
+
+msgid "Does current user have the given WP role."
+msgstr "Hat der aktuelle Benutzer die angegebene WP-Rolle."
+
+msgid "Does the ID of the currently logged-in user equal that provided."
+msgstr "Entspricht die ID des aktuell angemeldeten Benutzers der angegebenen."
+
+msgid "Does the method of the request match the given specified method to match."
+msgstr "Entspricht die Methode der Anfrage der angegebenen zu vergleichenden Methode."
+
+msgid "Does the request path match the given path."
+msgstr "Stimmt der Anfragepfad mit dem angegebenen Pfad überein."
+
+msgid "Does the request script name match the given name."
+msgstr "Stimmt der Name des Anfrage-Skripts mit dem angegebenen Namen überein."
+
+msgid "Does the request useragent match the given useragent."
+msgstr "Stimmt der Anfrage-User-Agent mit dem angegebenen User-Agent überein."
+
+msgid "Doesn't scan within the %s directory."
+msgstr "Scannt nicht innerhalb des %s-Verzeichnisses."
+
+msgid "Download"
+msgstr "herunterladen"
+
+msgid "Download File"
+msgstr "Datei herunterladen"
+
+msgid "Download Modified"
+msgstr "Geänderte herunterladen"
+
+msgid "Download Options Export File"
+msgstr "Optionen-Export-Datei herunterladen"
+
+msgid "Duration"
+msgstr "Dauer"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Edit Rule"
+msgstr "Regel bearbeiten"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "Regel #%s (%s) bearbeiten"
+
+msgid "Edit Settings"
+msgstr "Einstellungen bearbeiten"
+
+msgid "Edit Theme Options"
+msgstr "Theme-Optionen bearbeiten"
+
+msgid "Edit activity log settings"
+msgstr "Aktivitätsprotokoll-Einstellungen bearbeiten"
+
+msgid "Edit automatic file scanning settings"
+msgstr "Einstellungen für automatisches Datei-Scannen bearbeiten"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "Bot-SPAM-Kommentar-Einstellungen bearbeiten"
+
+msgid "Edit general plugin settings"
+msgstr "Allgemeine Plugin-Einstellungen bearbeiten"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "Menschlicher-SPAM-Kommentar-Einstellungen bearbeiten"
+
+msgid "Edit logging settings"
+msgstr "Protokollierungseinstellungen bearbeiten"
+
+msgid "Edit reporting settings"
+msgstr "Berichtseinstellungen bearbeiten"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "Einstellungen für SPAM-Benutzerregistrierungen bearbeiten"
+
+msgid "Edit settings that apply protection to your login & user forms"
+msgstr "Einstellungen bearbeiten, die Schutz auf Ihre Login- & Benutzerformulare anwenden"
+
+msgid "Edit settings to apply minimum password strength"
+msgstr "Einstellungen bearbeiten, um minimale Passwortstärke anzuwenden"
+
+msgid "Edit which key files to protect"
+msgstr "Bearbeiten, welche Schlüsseldateien geschützt werden sollen"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "Das Bearbeiten von Dateien innerhalb des WordPress-Admin-Bereichs ist erlaubt."
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "Das Bearbeiten von Dateien innerhalb des WordPress-Admin-Bereichs ist deaktiviert."
+
+msgid "Editing this option is currently restricted."
+msgstr "Die Bearbeitung dieser Option ist derzeit eingeschränkt."
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Email 2FA activated."
+msgstr "E-Mail-2FA aktiviert."
+
+msgid "Email 2FA deactivated."
+msgstr "E-Mail-2FA deaktiviert."
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "E-Mail-2FA-Option ist derzeit nicht aktiviert."
+
+msgid "Email 2FA settings couldn't be changed."
+msgstr "E-Mail-2FA-Einstellungen konnten nicht geändert werden."
+
+msgid "Email Auto-Login"
+msgstr "E-Mail-Auto-Login"
+
+msgid "Email For All Reports and Plugin Notifications"
+msgstr "E-Mail für alle Berichte und Plugin-Benachrichtigungen"
+
+msgid "Email OTP"
+msgstr "E-Mail-OTP"
+
+msgid "Email Sent"
+msgstr "E-Mail gesendet"
+
+msgid "Email Updated"
+msgstr "E-Mail aktualisiert"
+
+msgid "Email notifications for new comments"
+msgstr "E-Mail-Benachrichtigungen für neue Kommentare"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "E-Mail gesendet vom %s Plugin v%s, am %s."
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "E-Mail für Benutzer '{{user_login}}' aktualisiert."
+
+msgid "Enable"
+msgstr "aktivieren"
+
+msgid "Enable %s"
+msgstr "%s aktivieren"
+
+msgid "Enable %s Module"
+msgstr "%s-Modul aktivieren"
+
+msgid "Enable %s Protection"
+msgstr "%s-Schutz aktivieren"
+
+msgid "Enable (or Disable) The %s Module"
+msgstr "Das %s-Modul aktivieren (oder deaktivieren)"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "Die Funktion zum Schutz vor Kommentar-SPAM aktivieren (oder deaktivieren)"
+
+msgid "Enable Auto-Integrations"
+msgstr "Auto-Integrationen aktivieren"
+
+msgid "Enable Content Security Policy"
+msgstr "Content Security Policy aktivieren"
+
+msgid "Enable MainWP"
+msgstr "MainWP aktivieren"
+
+msgid "Enable Module: %s"
+msgstr "Modul aktivieren: %s"
+
+msgid "Enable Passkeys"
+msgstr "Passkeys aktivieren"
+
+msgid "Enable Rate Limiting"
+msgstr "Ratenbegrenzung aktivieren"
+
+msgid "Enable Request Logging"
+msgstr "Anfrage-Protokollierung aktivieren"
+
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr "Den Abandoned-Plugin-Scanner aktivieren"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "Den Schwachstellen-Scanner aktivieren"
+
+msgid "Enable White Label"
+msgstr "White Label aktivieren"
+
+msgid "Enable this option to allow automatic import and export of options between WordPress sites."
+msgstr "Aktivieren Sie diese Option, um automatischen Import und Export von Optionen zwischen WordPress-Websites zu ermöglichen."
+
+msgid "Enforce"
+msgstr "Durchsetzen"
+
+msgid "Enforce Minimum Password Strength"
+msgstr "Minimale Passwortstärke durchsetzen"
+
+msgid "Enforce Security Admin Access Restriction"
+msgstr "Security-Admin-Zugriffsbeschränkung erzwingen"
+
+msgid "Enforce strong passwords for all users."
+msgstr "Starke Passwörter für alle Benutzer erzwingen."
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Einmalpasswort von Yubikey eingeben"
+
+msgid "Enter admin username, email or ID."
+msgstr "Geben Sie Admin-Benutzername, E-Mail oder ID ein."
+
+msgid "Enter code sent to your email"
+msgstr "Code eingeben, der an Ihre E-Mail gesendet wurde"
+
+msgid "Enter your Security Admin PIN"
+msgstr "Geben Sie Ihre Security Admin PIN ein"
+
+msgid "Environment"
+msgstr "Umgebung"
+
+msgid "Equals"
+msgstr "Entspricht"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Event"
+msgstr "Ereignis"
+
+msgid "Event Details"
+msgstr "Ereignis-Details"
+
+msgid "Event Slug"
+msgstr "Ereignis-Titelform"
+
+msgid "Events"
+msgstr "Ereignisse"
+
+msgid "Example"
+msgstr "Beispiel"
+
+msgid "Expiration"
+msgstr "Ablauf"
+
+msgid "Expires"
+msgstr "Läuft ab"
+
+msgid "Export"
+msgstr "Exportieren"
+
+msgid "Export To File"
+msgstr "In Datei exportieren"
+
+msgid "Export Whitelist"
+msgstr "Whitelist exportieren"
+
+msgid "Export file path"
+msgstr "Exportdateipfad"
+
+msgid "Extensions"
+msgstr "Erweiterungen"
+
+msgid "Extras"
+msgstr "Extras"
+
+msgid "False"
+msgstr "Falsch"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "File Deleted"
+msgstr "Datei gelöscht"
+
+msgid "File Details"
+msgstr "Datei-Details"
+
+msgid "File Detected By Scans"
+msgstr "Von Scans erkannte Datei"
+
+msgid "File Download"
+msgstr "Datei herunterladen"
+
+msgid "File Guard"
+msgstr "Datei-Guard"
+
+msgid "File Info"
+msgstr "Datei-Info"
+
+msgid "File Locker"
+msgstr "File-Locker"
+
+msgid "File Locker Changes Detected"
+msgstr "File-Locker-Änderungen erkannt"
+
+msgid "File Modified"
+msgstr "Datei geändert"
+
+msgid "File Modified Timestamp"
+msgstr "Zeitstempel der Dateiänderung"
+
+msgid "File Name"
+msgstr "Dateiname"
+
+msgid "File Repair Attempted"
+msgstr "Dateireparatur versucht"
+
+msgid "File Repaired"
+msgstr "Datei repariert"
+
+msgid "File Scan Areas"
+msgstr "Datei-Scan-Bereiche"
+
+msgid "File Scanning and Malware Protection"
+msgstr "Datei-Scanning und Malware-Schutz"
+
+msgid "File Scans and Malware"
+msgstr "Datei-Scans und Malware"
+
+msgid "File Size"
+msgstr "Dateigröße"
+
+msgid "File Status"
+msgstr "Dateistatus"
+
+msgid "File appears to be empty."
+msgstr "Datei scheint leer zu sein."
+
+msgid "File contents are empty."
+msgstr "Dateiinhalt ist leer."
+
+msgid "File detected as %s by %s scanner."
+msgstr "Datei als %s vom %s-Scanner erkannt."
+
+msgid "File extensions are empty."
+msgstr "Dateierweiterungen sind leer."
+
+msgid "FileLocker Changes"
+msgstr "FileLocker-Änderungen"
+
+msgid "FileLocker Changes Detected"
+msgstr "FileLocker-Änderungen erkannt"
+
+msgid "FileLocker has detected changes to critical files."
+msgstr "FileLocker hat Änderungen an kritischen Dateien erkannt."
+
+msgid "FileLocker must be active to enable this option."
+msgstr "FileLocker muss aktiv sein, um diese Option zu aktivieren."
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: wp-config.php Schutz"
+
+msgid "Files Deleted"
+msgstr "Dateien gelöscht"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Firewall-Blockierung"
+
+msgid "Firewall Block Alert"
+msgstr "Firewall-Blockierungs-Warnmeldung"
+
+msgid "Firewall Block Email Fail"
+msgstr "Firewall-Blockierungs-E-Mail fehlgeschlagen"
+
+msgid "Firewall Block Email Success"
+msgstr "Firewall-Blockierungs-E-Mail erfolgreich"
+
+msgid "Firewall Rule"
+msgstr "Firewall-Regel"
+
+msgid "Firewall Triggered"
+msgstr "Firewall ausgelöst"
+
+msgid "Fix"
+msgstr "Beheben"
+
+msgid "For example, your browser user agent is"
+msgstr "Zum Beispiel ist Ihr Browser-User-Agent"
+
+msgid "Force Check of Visitor IP Source"
+msgstr "Prüfung der Besucher-IP-Quelle erzwingen"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Full Path"
+msgstr "Vollständiger Pfad"
+
+msgid "Full Path To File"
+msgstr "Vollständiger Pfad zur Datei"
+
+msgid "General"
+msgstr "Allgemein"
+
+msgid "General Info"
+msgstr "Allgemeine Info"
+
+msgid "General Settings"
+msgstr "Allgemeine Einstellungen"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "EINMALIGEN Backup-2FA-Anmeldecode generieren"
+
+msgid "Global Plugin Enable"
+msgstr "Globale Plugin-Aktivierung"
+
+msgid "Global Plugin Security Options"
+msgstr "Globale Plugin-Sicherheitsoptionen"
+
+msgid "Global Security Plugin Disable"
+msgstr "Globales Sicherheits-Plugin deaktivieren"
+
+msgid "Go PRO!"
+msgstr "Jetzt PRO werden!"
+
+msgid "Go Pro!"
+msgstr "Jetzt Pro werden!"
+
+msgid "Go To %s"
+msgstr "Zu %s gehen"
+
+msgid "Go To Admin"
+msgstr "Zur Verwaltung gehen"
+
+msgid "Go To Option"
+msgstr "Zur Option gehen"
+
+msgid "Go To Overview"
+msgstr "Zur Übersicht gehen"
+
+msgid "Go To Security Dashboard"
+msgstr "Zum Security-Dashboard gehen"
+
+msgid "Go To Shield Overview"
+msgstr "Zur Shield-Übersicht gehen"
+
+msgid "Go to WordPress Updates"
+msgstr "Zu WordPress-Updates gehen"
+
+msgid "Good"
+msgstr "Gut"
+
+msgid "Grade"
+msgstr "Note"
+
+msgid "Has Valid Shield User Sessions"
+msgstr "Hat gültige Shield-Benutzersitzungen"
+
+msgid "Help"
+msgstr "Hilfe"
+
+msgid "Hidden Login URL Fail"
+msgstr "Versteckte Anmelde-URL fehlgeschlagen"
+
+msgid "Hide Login"
+msgstr "Anmeldung verbergen"
+
+msgid "Hide Login Page"
+msgstr "Anmeldeseite verbergen"
+
+msgid "Hide The WP Login Page."
+msgstr "WP-Anmeldeseite verbergen."
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "WordPress-Anmelde- und Admin-Bereiche verbergen"
+
+msgid "Hide WP Login"
+msgstr "WP-Anmeldung verbergen"
+
+msgid "Hide WP Login & Admin"
+msgstr "WP-Login & Admin verbergen"
+
+msgid "Hide WP Login Page"
+msgstr "WP-Anmeldeseite verbergen"
+
+msgid "Hide WordPress Login Page"
+msgstr "WordPress-Anmeldeseite verbergen"
+
+msgid "History"
+msgstr "Verlauf"
+
+msgid "Home URL"
+msgstr "Startseiten-URL"
+
+msgid "Home URL Changed"
+msgstr "Startseiten-URL geändert"
+
+msgid "Homepage"
+msgstr "Homepage"
+
+msgid "Hostname"
+msgstr "Hostname"
+
+msgid "Hostname To Match"
+msgstr "Abzugleichender Hostname"
+
+msgid "Hourly"
+msgstr "Stündlich"
+
+msgid "How WordPress logins are protected from brute force attacks"
+msgstr "Wie WordPress-Logins vor Brute-Force-Angriffen geschützt werden"
+
+msgid "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+msgstr "Wie soll Shield Anfragen von IP-Adressen blockieren, die auf CrowdSecs Liste bösartiger IP-Adressen gefunden werden."
+
+msgid "How should Shield block requests from IP addresses found on CrowdSec's list of malicious IP addresses?"
+msgstr "Wie soll Shield Anfragen von IP-Adressen blockieren, die auf CrowdSecs Liste bösartiger IP-Adressen gefunden werden?"
+
+msgid "How well core WordPress plugins and themes are protected"
+msgstr "Wie gut WordPress-Core, Plugins und Themes geschützt sind"
+
+msgid "How well you're protected against malicious bots and visitors"
+msgstr "Wie gut Sie gegen bösartige Bots und Besucher geschützt sind"
+
+msgid "Human"
+msgstr "Mensch"
+
+msgid "Human Comment SPAM"
+msgstr "Menschlicher Kommentar-SPAM"
+
+msgid "Human Comment SPAM Protection"
+msgstr "Menschlicher Kommentar-SPAM-Schutz"
+
+msgid "Human SPAM"
+msgstr "Human-SPAM"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IMPORTANT"
+msgstr "WICHTIG"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP-Adresse"
+
+msgid "IP Address To Match"
+msgstr "Abzugleichende IP-Adresse"
+
+msgid "IP Address or IP Range"
+msgstr "IP-Adresse oder IP-Bereich"
+
+msgid "IP Address or Range"
+msgstr "IP-Adresse oder Bereich"
+
+msgid "IP Addresses"
+msgstr "IP-Adressen"
+
+msgid "IP Analysis"
+msgstr "IP-Analyse"
+
+msgid "IP Block Status"
+msgstr "IP-Blockierungsstatus"
+
+msgid "IP Blocked"
+msgstr "IP blockiert"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "IP-Bypass-Liste entfernt (Manuell)"
+
+msgid "IP Equals"
+msgstr "IP entspricht"
+
+msgid "IP ID To Match"
+msgstr "Abzugleichende IP-ID"
+
+msgid "IP Meta"
+msgstr "IP-Meta"
+
+msgid "IP NotBot Score couldn't be reset at this time."
+msgstr "IP-NotBot-Score konnte zu diesem Zeitpunkt nicht zurückgesetzt werden."
+
+msgid "IP Offenses"
+msgstr "IP-Verstöße"
+
+msgid "IP Range"
+msgstr "IP-Bereich"
+
+msgid "IP Rule couldn't be deleted from the list"
+msgstr "IP-Regel konnte nicht aus der Liste gelöscht werden"
+
+msgid "IP Rule deleted"
+msgstr "IP-Regel gelöscht"
+
+msgid "IP Rules"
+msgstr "IP-Regeln"
+
+msgid "IP Source"
+msgstr "IP-Quelle"
+
+msgid "IP Source Found: %s"
+msgstr "IP-Quelle gefunden: %s"
+
+msgid "IP Status"
+msgstr "IP-Status"
+
+msgid "IP Unavailable"
+msgstr "IP nicht verfügbar"
+
+msgid "IP Unblocked"
+msgstr "IP entsperrt"
+
+msgid "IP Unblocked By Visitor"
+msgstr "IP durch Besucher entsperrt"
+
+msgid "IP address '{{ip}}' manually added to block list."
+msgstr "IP-Adresse '{{ip}}' manuell zur Sperrliste hinzugefügt."
+
+msgid "IP address '{{ip}}' manually added to bypass list."
+msgstr "IP-Adresse '{{ip}}' manuell zur Bypass-Liste hinzugefügt."
+
+msgid "IP address '{{ip}}' manually removed from the bypass list."
+msgstr "IP-Adresse '{{ip}}' manuell aus der Bypass-Liste entfernt."
+
+msgid "IP address added successfully"
+msgstr "IP-Adresse erfolgreich hinzugefügt"
+
+msgid "IP address added successfully."
+msgstr "IP-Adresse erfolgreich hinzugefügt."
+
+msgid "IP address added to Bypass list."
+msgstr "IP-Adresse zur Bypass-Liste hinzugefügt."
+
+msgid "IP address blocked."
+msgstr "IP-Adresse blockiert."
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "IP-Adresse konnte zu diesem Zeitpunkt nicht aus der Bypass-Liste entfernt werden."
+
+msgid "IP address couldn't be removed. (It may not be on this list)"
+msgstr "IP-Adresse konnte nicht entfernt werden. (Sie befindet sich möglicherweise nicht auf dieser Liste)"
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "IP-Adresse konnte zu diesem Zeitpunkt nicht freigegeben werden."
+
+msgid "IP address removed from Bypass list."
+msgstr "IP-Adresse aus Bypass-Liste entfernt."
+
+msgid "IP address removed successfully."
+msgstr "IP-Adresse erfolgreich entfernt."
+
+msgid "IP address unblocked."
+msgstr "IP-Adresse entsperrt."
+
+msgid "IP addresses"
+msgstr "IP-Adressen"
+
+msgid "IP does not match."
+msgstr "IP stimmt nicht überein."
+
+msgid "IP isn't on the %s block list."
+msgstr "IP befindet sich nicht auf der %s-Block-Liste."
+
+msgid "IP isn't on the auto block list."
+msgstr "IP befindet sich nicht auf der Auto-Block-Liste."
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP befindet sich nicht auf der automatischen Block-Liste."
+
+msgid "IP provided was invalid."
+msgstr "Die angegebene IP war ungültig."
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "IP-silentCAPTCHA-Score zurückgesetzt."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Identify a bot when the user agent is not provided."
+msgstr "Einen Bot identifizieren, wenn der User-Agent nicht bereitgestellt wird."
+
+msgid "Identify a request as a bot if the user agent is not provided."
+msgstr "Eine Anfrage als Bot identifizieren, wenn der User-Agent nicht bereitgestellt wird."
+
+msgid "Identity"
+msgstr "Identität"
+
+msgid "Idle"
+msgstr "Inaktiv"
+
+msgid "Idle Interval"
+msgstr "Inaktivitätsintervall"
+
+msgid "If"
+msgstr "Wenn"
+
+msgid "Ignore"
+msgstr "Ignorieren"
+
+msgid "Ignore Success"
+msgstr "Ignorieren erfolgreich"
+
+msgid "Ignored"
+msgstr "Ignoriert"
+
+msgid "Import"
+msgstr "Importieren"
+
+msgid "Import / Export Settings"
+msgstr "Einstellungen importieren / exportieren"
+
+msgid "Import From File"
+msgstr "Aus Datei importieren"
+
+msgid "Import From Site"
+msgstr "Von Website importieren"
+
+msgid "Import Options"
+msgstr "Optionen importieren"
+
+msgid "Import Settings From Another Site"
+msgstr "Einstellungen von einer anderen Website importieren"
+
+msgid "Import file was empty"
+msgstr "Importdatei war leer"
+
+msgid "Import/Export"
+msgstr "Import/Export"
+
+msgid "Import/Export Secret Key"
+msgstr "Import/Export-Geheimschlüssel"
+
+msgid "Important"
+msgstr "Wichtig"
+
+msgid "Important default settings used throughout the plugin."
+msgstr "Wichtige Standardeinstellungen, die im gesamten Plugin verwendet werden."
+
+msgid "Important: %s"
+msgstr "Wichtig: %s"
+
+msgid "Important: If you've set Shield to automatically upgrade vulnerable plugins, it may have been upgraded by the time you view this."
+msgstr "Wichtig: Wenn Sie Shield so eingestellt haben, dass anfällige Plugins automatisch aktualisiert werden, wurde es möglicherweise bereits aktualisiert, wenn Sie dies anzeigen."
+
+msgid "Imported"
+msgstr "Importiert"
+
+msgid "Inactive"
+msgstr "Inaktiv"
+
+msgid "Inactive Plugins"
+msgstr "Inaktive Plugins"
+
+msgid "Inactive Plugins (%s)"
+msgstr "Inaktive Plugins (%s)"
+
+msgid "Inactive Themes"
+msgstr "Inaktive Themes"
+
+msgid "Inactive User Accounts"
+msgstr "Inaktive Benutzerkonten"
+
+msgid "Inactive user accounts are automatically suspended after %s."
+msgstr "Inaktive Benutzerkonten werden automatisch nach %s gesperrt."
+
+msgid "Includes protection for: "
+msgstr "Beinhaltet Schutz für:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "Info für IP-Adresse %s"
+
+msgid "Install Shield"
+msgstr "Shield installieren"
+
+msgid "Installation Directory"
+msgstr "Installationsverzeichnis"
+
+msgid "Installation ID"
+msgstr "Installations-ID"
+
+msgid "Installed"
+msgstr "Installiert"
+
+msgid "Integrations"
+msgstr "Integrationen"
+
+msgid "Interval"
+msgstr "Intervall"
+
+msgid "Invalid"
+msgstr "ungültig"
+
+msgid "Invalid Login Username"
+msgstr "Ungültiger Login-Benutzername"
+
+msgid "Invalid Logins"
+msgstr "Ungültige Anmeldungen"
+
+msgid "Invalid Request ID"
+msgstr "Ungültige Anfrage-ID"
+
+msgid "Invalid Rule"
+msgstr "Ungültige Regel"
+
+msgid "Invalid Script Access"
+msgstr "Ungültiger Skriptzugriff"
+
+msgid "Invalid Script Load"
+msgstr "Ungültiges Laden von Skript"
+
+msgid "Invalid Slug"
+msgstr "Ungültige Titelform"
+
+msgid "Invalid User Agent"
+msgstr "Ungültiger User Agent"
+
+msgid "Invalid User Email Registration"
+msgstr "Ungültige Benutzer-E-Mail-Registrierung"
+
+msgid "Invalid User-Agent"
+msgstr "Ungültiger User-Agent"
+
+msgid "Invalid Username Login"
+msgstr "Ungültiger Benutzername-Login"
+
+msgid "Invalid download request."
+msgstr "Ungültige Download-Anfrage."
+
+msgid "Invalid file locker type download"
+msgstr "Ungültiger File-Locker-Typ-Download"
+
+msgid "Invalid request - lockdown is not active."
+msgstr "Ungültige Anfrage - Lockdown ist nicht aktiv."
+
+msgid "Invalid request with no User ID"
+msgstr "Ungültige Anfrage ohne Benutzer-ID"
+
+msgid "Invalid type."
+msgstr "Ungültiger Typ."
+
+msgid "Invalid user agent detected at '{{useragent}}'."
+msgstr "Ungültiger User-Agent erkannt unter '{{useragent}}'."
+
+msgid "Invalid value type for %s"
+msgstr "Ungültiger Werttyp für %s"
+
+msgid "Is It You?"
+msgstr "Sind Sie es?"
+
+msgid "Is Offense"
+msgstr "Ist Verstoß"
+
+msgid "Is Request Status 404"
+msgstr "Ist Anfragestatus 404"
+
+msgid "Is Request To The Login Page."
+msgstr "Ist Anfrage an die Login-Seite."
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Ist die Shield-Traffic-Ratenbegrenzung aktiviert."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Ist Shield's Site-Lockdown aktiv."
+
+msgid "Is The Shield Option Value..."
+msgstr "Ist der Shield-Optionswert..."
+
+msgid "Is Visitor silentCAPTCHA Score ..."
+msgstr "Ist Besucher-silentCAPTCHA-Score ..."
+
+msgid "Is WP Admin"
+msgstr "Ist WP-Admin"
+
+msgid "Is WP Debug Active"
+msgstr "Ist WP Debug aktiv"
+
+msgid "Is WP Permalinks Enabled"
+msgstr "Ist WP-Permalinks aktiviert"
+
+msgid "Is WP XML-RPC"
+msgstr "Ist WP XML-RPC"
+
+msgid "Is a given 2FA provider enabled on the site."
+msgstr "Ist ein bestimmter 2FA-Provider auf der Website aktiviert."
+
+msgid "Is a given plugin installed & active."
+msgstr "Ist ein bestimmtes Plugin installiert & aktiv."
+
+msgid "Is a given plugin installed."
+msgstr "Ist ein bestimmtes Plugin installiert."
+
+msgid "Is a given theme installed & active."
+msgstr "Ist ein bestimmtes Theme installiert & aktiv."
+
+msgid "Is a given theme installed."
+msgstr "Ist ein bestimmtes Theme installiert."
+
+msgid "Is current logged-in user a WordPress administrator."
+msgstr "Ist der aktuell angemeldete Benutzer ein WordPress-Administrator."
+
+msgid "Is current user Security Admin."
+msgstr "Aktueller Benutzer ist Security Admin."
+
+msgid "Is current user a logged-in WordPress administrator."
+msgstr "Ist der aktuelle Benutzer ein angemeldeter WordPress-Administrator."
+
+msgid "Is silentCAPTCHA score"
+msgstr "Ist silentCAPTCHA-Score"
+
+msgid "Is the request HTTPS."
+msgstr "Ist die Anfrage HTTPS."
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "Wird die Anfrage-IP automatisch oder manuell durch Shield blockiert."
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "Befindet sich die Anfrage-IP auf Shields Sperrliste."
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "Befindet sich die Anfrage-IP auf Shields CrowdSec-Block-Liste."
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "Befindet sich die Anfrage-IP auf Shields manueller Block-Liste."
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "Befindet sich die Anfrage-IP auf Shields Auto-Block-Liste."
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "Befindet sich die Anfrage-IP auf Shields manueller Bypass-Liste/Whitelist."
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "Wird die Anfrage durch Shield's Site-Lockdown-Funktion blockiert."
+
+msgid "Is the request from a logged-in user."
+msgstr "Ist die Anfrage von einem angemeldeten Benutzer."
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "Ist die Anfrage von einem Benutzer, der als Shield Security Admin authentifiziert ist."
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "Befindet sich der Anfragepfad auf Shields Whitelist."
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "Ist die Anfrage an einen Pfad innerhalb eines derzeit installierten WordPress-Plugins."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "Ist die Anfrage an einen Pfad innerhalb eines derzeit installierten WordPress-Themes."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "Ist die Anfrage an einen Pfad innerhalb eines möglicherweise installierten WordPress-Plugins, aber ungültig."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "Ist die Anfrage an einen Pfad innerhalb eines möglicherweise installierten WordPress-Plugins."
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "Ist die Anfrage an einen Pfad innerhalb eines möglicherweise installierten WordPress-Themes, aber ungültig."
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "Ist die Anfrage an einen Pfad innerhalb eines möglicherweise installierten WordPress-Themes."
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "Ist die Anfrage an den WordPress-XML-RPC-Endpunkt."
+
+msgid "Is the request to the WordPress admin area."
+msgstr "Ist die Anfrage an den WordPress-Admin-Bereich."
+
+msgid "Is the request whitelisted?"
+msgstr "Ist die Anfrage auf der Whitelist?"
+
+msgid "Is this a known IP address?"
+msgstr "Ist dies eine bekannte IP-Adresse?"
+
+msgid "Issues"
+msgstr "Probleme"
+
+msgid "Issues Found"
+msgstr "Probleme gefunden"
+
+msgid "It appears that certain contact forms aren't protected against Bot SPAM: %s"
+msgstr "Es scheint, dass bestimmte Kontaktformulare nicht gegen Bot-SPAM geschützt sind: %s"
+
+msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
+msgstr "Sie befindet sich in einem WordPress-Plugin-Verzeichnis und wird als gültige Datei für diese Plugin-Version erkannt."
+
+msgid "It's located in a WordPress theme directory, and is a recognised as a valid file for that theme version."
+msgstr "Sie befindet sich in einem WordPress-Theme-Verzeichnis und wird als gültige Datei für diese Theme-Version erkannt."
+
+msgid "It's possible to edit files from within the WordPress admin area."
+msgstr "Es ist möglich, Dateien innerhalb des WordPress-Admin-Bereichs zu bearbeiten."
+
+msgid "Key"
+msgstr "Schlüssel"
+
+msgid "Key registration was successful."
+msgstr "Die Schlüsselregistrierung war erfolgreich."
+
+msgid "Key set to expire: %s"
+msgstr "Schlüssel läuft ab: %s"
+
+msgid "Knowledgebase"
+msgstr "Wissensdatenbank"
+
+msgid "Label"
+msgstr "Bezeichnung"
+
+msgid "Label For This IP Rule"
+msgstr "Bezeichnung für diese IP-Regel"
+
+msgid "Launch Debug Info Page"
+msgstr "Debug-Info-Seite öffnen"
+
+msgid "Level"
+msgstr "Stufe"
+
+msgid "License"
+msgstr "Lizenz"
+
+msgid "License Check Success"
+msgstr "Lizenzprüfung erfolgreich"
+
+msgid "License Deactivated"
+msgstr "Lizenz deaktiviert"
+
+msgid "License Summary"
+msgstr "Lizenz-Zusammenfassung"
+
+msgid "License removed successfully."
+msgstr "Lizenz erfolgreich entfernt."
+
+msgid "Lifetime"
+msgstr "Lebensdauer"
+
+msgid "Light"
+msgstr "Hell"
+
+msgid "Link Cheese"
+msgstr "Link-Cheese"
+
+msgid "Link cheese access detected at '{{path}}'."
+msgstr "Link-Cheese-Zugriff erkannt unter '{{path}}'."
+
+msgid "Link-Cheese"
+msgstr "Link-Cheese"
+
+msgid "Linked To Child Theme"
+msgstr "Mit Child-Theme verknüpft"
+
+msgid "Linked To Parent Theme"
+msgstr "Mit Parent-Theme verknüpft"
+
+msgid "Load"
+msgstr "Laden"
+
+msgid "Loaded"
+msgstr "Geladen"
+
+msgid "Loading"
+msgstr "Wird geladen"
+
+msgid "Locale"
+msgstr "Gebietsschema"
+
+msgid "Location"
+msgstr "Position"
+
+msgid "Lock user sessions to IP address detected at login"
+msgstr "Benutzersitzungen an die beim Login erkannte IP-Adresse binden"
+
+msgid "Lockdown The Site"
+msgstr "Website sperren"
+
+msgid "Lockdown activated by:"
+msgstr "Lockdown aktiviert von:"
+
+msgid "Lockdown started:"
+msgstr "Lockdown gestartet:"
+
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgid "Locked Files"
+msgstr "Gesperrte Dateien"
+
+msgid "Log Requests To Your WordPress Site"
+msgstr "Anfragen an Ihre WordPress-Website protokollieren"
+
+msgid "Logged At"
+msgstr "Angemeldet um"
+
+msgid "Logged In At"
+msgstr "Angemeldet um"
+
+msgid "Logged-In"
+msgstr "Angemeldet"
+
+msgid "Logged-In At"
+msgstr "Angemeldet um"
+
+msgid "Logging Level"
+msgstr "Protokollierungsstufe"
+
+msgid "Logging isn't currently available on this site."
+msgstr "Protokollierung ist auf dieser Website derzeit nicht verfügbar."
+
+msgid "Login"
+msgstr "Anmeldung"
+
+msgid "Login Blocked"
+msgstr "Anmeldung blockiert"
+
+msgid "Login Bot Protection"
+msgstr "Anmelde-Bot-Schutz"
+
+msgid "Login Cooldown"
+msgstr "Anmelde-Abklingzeit"
+
+msgid "Login Cooldown Interval"
+msgstr "Anmeldungs-Cooldown-Intervall"
+
+msgid "Login Details"
+msgstr "Anmeldungs-Details"
+
+msgid "Login Fail"
+msgstr "Anmeldefehler"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "Anmelde-IP"
+
+msgid "Login Page"
+msgstr "Anmeldeseite"
+
+msgid "Login Protection"
+msgstr "Anmeldeschutz"
+
+msgid "Login Security"
+msgstr "Anmeldesicherheit"
+
+msgid "Login Success"
+msgstr "Anmeldung erfolgreich"
+
+msgid "Login backup codes have been removed from your profile"
+msgstr "Login-Backup-Codes wurden aus Ihrem Profil entfernt"
+
+msgid "Login page loaded"
+msgstr "Anmeldeseite geladen"
+
+msgid "Login successful."
+msgstr "Anmeldung erfolgreich."
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "Anmelde-, Registrierungs- & Passwort-vergessen-Formulare"
+
+msgid "Login/Register request triggered cooldown and was blocked."
+msgstr "Anmelde-/Registrierungsanfrage hat Abkühlzeit ausgelöst und wurde blockiert."
+
+msgid "Lost Password"
+msgstr "Passwort vergessen"
+
+msgid "Lost Password Blocked"
+msgstr "Passwort-vergessen blockiert"
+
+msgid "Lost Password Bot Protection"
+msgstr "Bot-Schutz für Passwort-vergessen"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "Passwort-vergessen-SPAM durch Bots wird durch silentCAPTCHA blockiert."
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "Passwort-vergessen-SPAM durch Bots wird nicht durch silentCAPTCHA blockiert."
+
+msgid "MainWP Option Not Enabled"
+msgstr "MainWP-Option nicht aktiviert"
+
+msgid "Malware"
+msgstr "Malware"
+
+msgid "Malware Details"
+msgstr "Malware-Details"
+
+msgid "Malware File Tracking"
+msgstr "Malware-Datei-Tracking"
+
+msgid "Malware Scanner"
+msgstr "Malware-Scanner"
+
+msgid "Malware status of this file is currently"
+msgstr "Der Malware-Status dieser Datei ist derzeit"
+
+msgid "Malware status report from %s"
+msgstr "Malware-Statusbericht von %s"
+
+msgid "Manage"
+msgstr "Verwalten"
+
+msgid "Manage IP Rules"
+msgstr "IP-Regeln verwalten"
+
+msgid "Manage Rules"
+msgstr "Regeln verwalten"
+
+msgid "Manual Block"
+msgstr "Manuelle Blockierung"
+
+msgid "Manual Code"
+msgstr "Manueller Code"
+
+msgid "Manually Suspended"
+msgstr "Manuell ausgesetzt"
+
+msgid "Match Bot Type"
+msgstr "Bot-Typ abgleichen"
+
+msgid "Match Patterns"
+msgstr "Übereinstimmungsvorlagen"
+
+msgid "Match Type"
+msgstr "Übereinstimmungstyp"
+
+msgid "Match User Email Address"
+msgstr "Benutzer-E-Mail-Adresse abgleichen"
+
+msgid "Match User ID"
+msgstr "Benutzer-ID abgleichen"
+
+msgid "Match Useragent"
+msgstr "Useragent abgleichen"
+
+msgid "Match Username"
+msgstr "Benutzername abgleichen"
+
+msgid "Match the username for currently logged-in user."
+msgstr "Benutzernamen des aktuell angemeldeten Benutzers abgleichen."
+
+msgid "Media"
+msgstr "Medien"
+
+msgid "Medium"
+msgstr "Mittel"
+
+msgid "Membership"
+msgstr "Mitgliedschaft"
+
+msgid "Menu Icon"
+msgstr "Menü-Symbol"
+
+msgid "Menu Icon URL"
+msgstr "Menü-Symbol-URL"
+
+msgid "Menu Title"
+msgstr "Menü-Titel"
+
+msgid "Meta"
+msgstr "Meta"
+
+msgid "Meta Key"
+msgstr "Meta-Schlüssel"
+
+msgid "Meta Value"
+msgstr "Meta-Wert"
+
+msgid "Meta Value To Match"
+msgstr "Abzugleichender Meta-Wert"
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "Minimum Password Strength"
+msgstr "Minimale Passwortstärke"
+
+msgid "Minimum Strength"
+msgstr "Mindeststärke"
+
+msgid "Minimum Time Interval Between Comments"
+msgstr "Minimales Zeitintervall zwischen Kommentaren"
+
+msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
+msgstr "Minimaler silentCAPTCHA-Score erforderlich, um anzuzeigen, dass der Besucher ein Mensch ist"
+
+msgid "Minutes"
+msgstr "Minuten"
+
+msgid "Missing"
+msgstr "Fehlend"
+
+msgid "Mode"
+msgstr "Modus"
+
+msgid "Modified"
+msgstr "Geändert"
+
+msgid "Modified File"
+msgstr "Geänderte Datei"
+
+msgid "Monitor for malicious visitors and automatically block their IP addresses."
+msgstr "Überwachen Sie bösartige Besucher und blockieren Sie automatisch deren IP-Adressen."
+
+msgid "Monitor web requests sent to your WordPress site."
+msgstr "Webanfragen überwachen, die an Ihre WordPress-Website gesendet werden."
+
+msgid "Monthly"
+msgstr "Monatlich"
+
+msgid "More Info"
+msgstr "Mehr Info"
+
+msgid "Multisite"
+msgstr "Multisite"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "N/V"
+
+msgid "NO TITLE"
+msgstr "KEIN TITEL"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Name: <code>%s</code>"
+msgstr "Name: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Never"
+msgstr "Niemals"
+
+msgid "Never Recorded"
+msgstr "Nie aufgezeichnet"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "New Admin(s)"
+msgstr "Neue(r) Admin(s)"
+
+msgid "New Comment"
+msgstr "Neuer Kommentar"
+
+msgid "New Results"
+msgstr "Neue Ergebnisse"
+
+msgid "New Scan Results"
+msgstr "Neue Scan-Ergebnisse"
+
+msgid "New User Default Role"
+msgstr "Standard-Rolle für neue Benutzer"
+
+msgid "New WordPress user registered."
+msgstr "Neuer WordPress-Benutzer registriert."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "Neuer Benutzername ist '{{user_login}}' mit E-Mail-Adresse '{{email}}'."
+
+msgid "No"
+msgstr "Nein"
+
+msgid "No 2FA login providers found."
+msgstr "Keine 2FA-Anmeldeanbieter gefunden."
+
+msgid "No Change"
+msgstr "Keine Änderung"
+
+msgid "No Issues"
+msgstr "Keine Probleme"
+
+msgid "No Name Yet"
+msgstr "Noch kein Name"
+
+msgid "No Title"
+msgstr "Kein Titel"
+
+msgid "No active license present."
+msgstr "Keine aktive Lizenz vorhanden."
+
+msgid "No active providers for user."
+msgstr "Keine aktiven Anbieter für Benutzer."
+
+msgid "No activity logged for this IP address"
+msgstr "Keine Aktivität für diese IP-Adresse protokolliert"
+
+msgid "No content yet"
+msgstr "Noch kein Inhalt"
+
+msgid "No email address - No Notification."
+msgstr "Keine E-Mail-Adresse - Keine Benachrichtigung."
+
+msgid "No email provider for user."
+msgstr "Kein E-Mail-Anbieter für Benutzer."
+
+msgid "No license to remove."
+msgstr "Keine Lizenz zum Entfernen vorhanden."
+
+msgid "No meta available"
+msgstr "Keine Metadaten verfügbar"
+
+msgid "No modules specified in the plugin config."
+msgstr "Keine Module in der Plugin-Konfiguration angegeben."
+
+msgid "No new session activity recorded yet."
+msgstr "Noch keine neue Sitzungsaktivität aufgezeichnet."
+
+msgid "No reports have been generated yet."
+msgstr "Es wurden noch keine Berichte erstellt."
+
+msgid "No requests logged for this IP address"
+msgstr "Keine Anfragen für diese IP-Adresse protokolliert"
+
+msgid "No scan for plugins which may have been abandoned by their author."
+msgstr "Kein Scan nach Plugins, die möglicherweise von ihrem Autor aufgegeben wurden."
+
+msgid "No sessions recorded for this IP address"
+msgstr "Keine Sitzungen für diese IP-Adresse aufgezeichnet"
+
+msgid "No site activity recorded yet."
+msgstr "Noch keine Website-Aktivität aufgezeichnet."
+
+msgid "No such user"
+msgstr "Kein solcher Benutzer"
+
+msgid "No title provided"
+msgstr "Kein Titel angegeben"
+
+msgid "No value set."
+msgstr "Kein Wert gesetzt."
+
+msgid "Noise"
+msgstr "Rauschen"
+
+msgid "None"
+msgstr "Keine"
+
+msgid "Not Installed"
+msgstr "Nicht installiert"
+
+msgid "Not Offense"
+msgstr "Kein Verstoß"
+
+msgid "Not Pro"
+msgstr "Nicht Pro"
+
+msgid "Not Ready"
+msgstr "Nicht bereit"
+
+msgid "Not Recorded"
+msgstr "Nicht aufgezeichnet"
+
+msgid "Not a WordPress Core file"
+msgstr "Keine WordPress-Core-Datei"
+
+msgid "Not a plugin or theme file path."
+msgstr "Kein Plugin- oder Theme-Dateipfad."
+
+msgid "Not a valid IP range"
+msgstr "Kein gültiger IP-Bereich"
+
+msgid "Not a valid option key for module: %s"
+msgstr "Kein gültiger Optionsschlüssel für Modul: %s"
+
+msgid "Not a valid option key."
+msgstr "Kein gültiger Optionsschlüssel."
+
+msgid "Not currently logged-in as security admin."
+msgstr "Derzeit nicht als Security Admin angemeldet."
+
+msgid "Not currently logged-in."
+msgstr "Derzeit nicht angemeldet."
+
+msgid "Not yet recorded"
+msgstr "Noch nicht aufgezeichnet"
+
+msgid "Note"
+msgstr "Hinweis"
+
+msgid "Notice"
+msgstr "Hinweis"
+
+msgid "Notice: %s"
+msgstr "Hinweis: %s"
+
+msgid "Notification Of Scan Detection Sent"
+msgstr "Benachrichtigung über Scan-Erkennung gesendet"
+
+msgid "Now"
+msgstr "Jetzt"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Obscurity"
+msgstr "Verschleierung"
+
+msgid "Obsolete WP core file"
+msgstr "Veraltete WP-Core-Datei"
+
+msgid "Off"
+msgstr "Aus"
+
+msgid "Offense"
+msgstr "Verstoß"
+
+msgid "Offense Triggered"
+msgstr "Verstoß ausgelöst"
+
+msgid "Offense: %s"
+msgstr "Verstoß: %s"
+
+msgid "Offenses"
+msgstr "Verstöße"
+
+msgid "Offenses couldn't be reset at this time."
+msgstr "Verstöße konnten zu diesem Zeitpunkt nicht zurückgesetzt werden."
+
+msgid "On"
+msgstr "An"
+
+msgid "One-Time Password was sent to your phone."
+msgstr "Einmalpasswort wurde an Ihr Telefon gesendet."
+
+msgid "One-Time Passwords"
+msgstr "Einmalpasswörter"
+
+msgid "Options"
+msgstr "Optionen"
+
+msgid "Options Imported"
+msgstr "Optionen importiert"
+
+msgid "Options imported from site: {{site}}"
+msgstr "Optionen importiert von Website: {{site}}"
+
+msgid "Options imported successfully"
+msgstr "Optionen erfolgreich importiert"
+
+msgid "Overview"
+msgstr "Übersicht"
+
+msgid "Owner"
+msgstr "Eigentümer"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP & MySQL"
+
+msgid "PHP Code"
+msgstr "PHP-Code"
+
+msgid "PHP Code Includes"
+msgstr "PHP-Code-Includes"
+
+msgid "PHP Define Name"
+msgstr "PHP-Define-Name"
+
+msgid "PHP Define Value"
+msgstr "PHP-Define-Wert"
+
+msgid "PHP Malware"
+msgstr "PHP-Malware"
+
+msgid "PHP Malware Scanner"
+msgstr "PHP-Malware-Scanner"
+
+msgid "PHP Version"
+msgstr "PHP-Version"
+
+msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
+msgstr "PHP erfüllt nicht die Mindestversion. Ihre Version: %s. Erforderliche Version: %s."
+
+msgid "PHP malware scanner isn't enabled."
+msgstr "PHP-Malware-Scanner ist nicht aktiviert."
+
+msgid "PIN Required"
+msgstr "PIN erforderlich"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "Pages"
+msgstr "Seiten"
+
+msgid "Parent"
+msgstr "Übergeordnet"
+
+msgid "Passkeys"
+msgstr "Passkeys"
+
+msgid "Passkeys aren't available for this user."
+msgstr "Passkeys sind für diesen Benutzer nicht verfügbar."
+
+msgid "Password Change Blocked"
+msgstr "Passwortänderung blockiert"
+
+msgid "Password Expiration"
+msgstr "Passwort-Ablauf"
+
+msgid "Password Reset"
+msgstr "Passwort zurücksetzen"
+
+msgid "Password Updated"
+msgstr "Passwort aktualisiert"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "Passwort für Benutzer '{{user_login}}' aktualisiert."
+
+msgid "Path"
+msgstr "Pfad"
+
+msgid "Path To Check"
+msgstr "Zu prüfender Pfad"
+
+msgid "Path To Match"
+msgstr "Abzugleichender Pfad"
+
+msgid "Permalinks"
+msgstr "Permalinks"
+
+msgid "Permalinks Updated"
+msgstr "Permalinks aktualisiert"
+
+msgid "Permanently Deleted"
+msgstr "Dauerhaft gelöscht"
+
+msgid "Please check your email for the unblocking link."
+msgstr "Bitte überprüfen Sie Ihre E-Mail für den Freigabe-Link."
+
+msgid "Please check your license on-site: %s"
+msgstr "Bitte überprüfen Sie Ihre Lizenz auf der Website: %s"
+
+msgid "Please contact site admin to request access if required."
+msgstr "Bitte kontaktieren Sie den Website-Administrator, um bei Bedarf Zugriff anzufordern."
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "Bitte kontaktieren Sie den Website-Administrator, um die Freigabe Ihrer IP-Adresse anzufordern."
+
+msgid "Please delete the \"%s\" file to reactivate %s protection"
+msgstr "Bitte löschen Sie die Datei \"%s\", um den %s-Schutz wieder zu aktivieren"
+
+msgid "Please login again."
+msgstr "Bitte melden Sie sich erneut an."
+
+msgid "Please now save your profile settings."
+msgstr "Bitte speichern Sie jetzt Ihre Profileinstellungen."
+
+msgid "Please provide a label to identify the device."
+msgstr "Bitte geben Sie eine Bezeichnung zur Identifizierung des Geräts an."
+
+msgid "Please reset your password to regain access."
+msgstr "Bitte setzen Sie Ihr Passwort zurück, um wieder Zugriff zu erhalten."
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "Bitte wählen Sie einen der IP-Regeltypen – Blockieren oder Umgehen"
+
+msgid "Please select one of the options available"
+msgstr "Bitte wählen Sie eine der verfügbaren Optionen"
+
+msgid "Please turn on this feature in the options."
+msgstr "Bitte aktivieren Sie diese Funktion in den Optionen."
+
+msgid "Please turn on this scan in the options."
+msgstr "Bitte aktivieren Sie diesen Scan in den Optionen."
+
+msgid "Please upgrade to support scanning of all plugin files for tampering."
+msgstr "Bitte upgraden Sie, um das Scannen aller Plugin-Dateien auf Manipulation zu unterstützen."
+
+msgid "Please use one of %s."
+msgstr "Bitte verwenden Sie eine der folgenden Optionen: %s."
+
+msgid "Please use the `--source=` argument to provide the source site URL or path to file."
+msgstr "Bitte verwenden Sie das Argument `--source=`, um die Quell-Website-URL oder den Pfad zur Datei anzugeben."
+
+msgid "Plugin"
+msgstr "Plugin"
+
+msgid "Plugin & Theme Files"
+msgstr "Plugin- & Theme-Dateien"
+
+msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
+msgstr "Plugin '{{plugin}}' wurde von Version {{from}} auf Version {{to}} aktualisiert."
+
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
+msgstr "Plugin '{{plugin}}' wurde aktiviert (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
+msgstr "Plugin '{{plugin}}' wurde deaktiviert (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "Plugin '{{plugin}}' wurde installiert (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was uninstalled (v{{version}})."
+msgstr "Plugin '{{plugin}}' wurde deinstalliert (v{{version}})."
+
+msgid "Plugin Activated"
+msgstr "Plugin aktiviert"
+
+msgid "Plugin Badge Logo"
+msgstr "Plugin-Badge-Logo"
+
+msgid "Plugin Badge Logo URL"
+msgstr "Plugin-Badge-Logo-URL"
+
+msgid "Plugin Deactivated"
+msgstr "Plugin deaktiviert"
+
+msgid "Plugin Defaults"
+msgstr "Plugin-Standardeinstellungen"
+
+msgid "Plugin Files"
+msgstr "Plugin-Dateien"
+
+msgid "Plugin Home Page URL"
+msgstr "Plugin-Homepage-URL"
+
+msgid "Plugin Installed"
+msgstr "Plugin installiert"
+
+msgid "Plugin Name"
+msgstr "Plugin-Name"
+
+msgid "Plugin Option Changed"
+msgstr "Plugin-Option geändert"
+
+msgid "Plugin Security Badge"
+msgstr "Plugin-Sicherheits-Badge"
+
+msgid "Plugin Uninstalled"
+msgstr "Plugin deinstalliert"
+
+msgid "Plugin Upgraded"
+msgstr "Plugin aktualisiert"
+
+msgid "Plugin and Theme File Guard"
+msgstr "Plugin- und Theme-Datei-Guard"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "Plugin- und Theme-Schwachstellen-Scanner"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "Plugin-Option '{{name}}' ({{key}}) wurde auf '{{value}}' aktualisiert."
+
+msgid "Plugin re-installed. Reloading..."
+msgstr "Plugin neu installiert. Wird neu geladen..."
+
+msgid "Plugin reset to defaults."
+msgstr "Plugin auf Standard zurückgesetzt."
+
+msgid "Plugin settings imported successfully."
+msgstr "Plugin-Einstellungen erfolgreich importiert."
+
+msgid "Plugin/Theme Guard"
+msgstr "Plugin/Theme-Guard"
+
+msgid "Plugins"
+msgstr "Plugins"
+
+msgid "Plugins With Updates"
+msgstr "Plugins mit Aktualisierungen"
+
+msgid "Plugins with known vulnerabilities are automatically updated to protect your site."
+msgstr "Plugins mit bekannten Schwachstellen werden automatisch aktualisiert, um Ihre Website zu schützen."
+
+msgid "Plugins with known vulnerabilities aren't automatically updated to protect your site."
+msgstr "Plugins mit bekannten Schwachstellen werden nicht automatisch aktualisiert, um Ihre Website zu schützen."
+
+msgid "Plugins, Themes, WordPress Core"
+msgstr "Plugins, Themes, WordPress Core"
+
+msgid "Post Content Updated"
+msgstr "Beitragsinhalt aktualisiert"
+
+msgid "Post Created"
+msgstr "Beitrag erstellt"
+
+msgid "Post Deleted"
+msgstr "Beitrag gelöscht"
+
+msgid "Post Published"
+msgstr "Beitrag veröffentlicht"
+
+msgid "Post Slug Updated"
+msgstr "Beitrags-Titelform aktualisiert"
+
+msgid "Post Title Updated"
+msgstr "Beitragstitel aktualisiert"
+
+msgid "Post Trashed"
+msgstr "Beitrag gelöscht"
+
+msgid "Post Type: {{type}}"
+msgstr "Beitragstyp: {{type}}"
+
+msgid "Post Unpublished"
+msgstr "Beitrag nicht veröffentlicht"
+
+msgid "Post Updated"
+msgstr "Beitrag aktualisiert"
+
+msgid "Posts"
+msgstr "Beiträge"
+
+msgid "Powerful Protection for WordPress, from Shield Security"
+msgstr "Leistungsstarker Schutz für WordPress, von Shield Security"
+
+msgid "Predicted"
+msgstr "Vorhergesagt"
+
+msgid "Previous scans detected 1 or more modified, missing, unrecognised or unidentified files in the WordPress core directories."
+msgstr "Frühere Scans haben eine oder mehrere geänderte, fehlende, nicht erkannte oder nicht identifizierte Dateien in den WordPress-Core-Verzeichnissen erkannt."
+
+msgid "Previously created One-Time Passwords are invalid."
+msgstr "Zuvor erstellte Einmalpasswörter sind ungültig."
+
+msgid "Print"
+msgstr "Drucken"
+
+msgid "Priority"
+msgstr "Priorität"
+
+msgid "Privacy Policy"
+msgstr "Datenschutzerklärung"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Protect Your Shield Plugin From Tampering"
+msgstr "Schützen Sie Ihr Shield-Plugin vor Manipulation"
+
+msgid "Protect key WP core files that can't normally be protected."
+msgstr "Schützen Sie wichtige WP-Core-Dateien, die normalerweise nicht geschützt werden können."
+
+msgid "Protect password reset forms against bots"
+msgstr "Passwort-zurücksetzen-Formulare vor Bots schützen"
+
+msgid "Protect user login forms against bots"
+msgstr "Benutzer-Anmeldeformulare vor Bots schützen"
+
+msgid "Protect user registration forms against bots"
+msgstr "Benutzerregistrierungsformulare vor Bots schützen"
+
+msgid "Protect your %s files"
+msgstr "Schützen Sie Ihre %s-Dateien"
+
+msgid "Protected Forms"
+msgstr "Geschützte Formulare"
+
+msgid "Protecting against the #1 source of <strong>Comment SPAM</strong>."
+msgstr "Schutz gegen die #1-Quelle von <strong>Kommentar-SPAM</strong>."
+
+msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
+msgstr "Schützen Sie Ihre <strong>wichtigen Benutzerformulare</strong> wie Login, Registrierung und Passwort vergessen."
+
+msgid "Protection for user accounts."
+msgstr "Schutz für Benutzerkonten."
+
+msgid "Provide The Security Admin PIN."
+msgstr "Geben Sie die Security Admin PIN an."
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "Geben Sie ein Einmalpasswort von Ihrem Yubikey ein."
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "Geben Sie eine geheime PIN an, um den Admin-Zugriff auf Ihre Sicherheitseinstellungen einzuschränken"
+
+msgid "Provide a valid IP address or range"
+msgstr "Gültige IP-Adresse oder Bereich angeben"
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "Geben Sie das Einmalpasswort von Ihrem 2FA-Anmeldegerät ein"
+
+msgid "Provide your custom set of CSP rules."
+msgstr "Geben Sie Ihre individuellen CSP-Regeln an."
+
+msgid "Provided by %s"
+msgstr "Bereitgestellt von %s"
+
+msgid "Provided by Shield"
+msgstr "Bereitgestellt von Shield"
+
+msgid "Published"
+msgstr "Veröffentlicht"
+
+msgid "Purpose"
+msgstr "Zweck"
+
+msgid "Query"
+msgstr "Abfrage"
+
+msgid "Rate Limiting"
+msgstr "Ratenbegrenzung"
+
+msgid "Re-Install"
+msgstr "Neu installieren"
+
+msgid "Re-Install It"
+msgstr "Neu installieren"
+
+msgid "Re-enable Protection."
+msgstr "Schutz wieder aktivieren."
+
+msgid "Ready"
+msgstr "Bereit"
+
+msgid "Reason"
+msgstr "Grund"
+
+msgid "Reason: %s"
+msgstr "Grund: %s"
+
+msgid "Recommendation"
+msgstr "Empfehlung"
+
+msgid "Recommendations"
+msgstr "Empfehlungen"
+
+msgid "Redirect Location"
+msgstr "Weiterleitungsziel"
+
+msgid "Redirect Status"
+msgstr "Weiterleitungsstatus"
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "Registered"
+msgstr "Registriert"
+
+msgid "Registered Passkeys"
+msgstr "Registrierte Passkeys"
+
+msgid "Registered Site"
+msgstr "Registrierte Website"
+
+msgid "Registration"
+msgstr "Registrierung"
+
+msgid "Registration Blocked"
+msgstr "Registrierung blockiert"
+
+msgid "Regularly scan WordPress plugins and themes for known security vulnerabilities."
+msgstr "Scannen Sie WordPress-Plugins und -Themes regelmäßig auf bekannte Sicherheitslücken."
+
+msgid "Regularly scan your WordPress plugins and themes for known security vulnerabilities."
+msgstr "Scannen Sie Ihre WordPress-Plugins und -Themes regelmäßig auf bekannte Sicherheitslücken."
+
+msgid "Reloading"
+msgstr "Wird neu geladen"
+
+msgid "Reloading page"
+msgstr "Seite wird neu geladen"
+
+msgid "Remove %s"
+msgstr "%s entfernen"
+
+msgid "Remove All MFA Providers"
+msgstr "Alle MFA-Provider entfernen"
+
+msgid "Remove All MFA Providers From This User Profile"
+msgstr "Alle MFA-Provider aus diesem Benutzerprofil entfernen"
+
+msgid "Remove IP Bypass"
+msgstr "IP-Bypass entfernen"
+
+msgid "Remove License"
+msgstr "Lizenz entfernen"
+
+msgid "Repair"
+msgstr "Reparieren"
+
+msgid "Repair Success"
+msgstr "Reparatur erfolgreich"
+
+msgid "Repair/Delete Success"
+msgstr "Reparatur/Löschen erfolgreich"
+
+msgid "Repaired"
+msgstr "Repariert"
+
+msgid "Report Email"
+msgstr "Berichts-E-Mail"
+
+msgid "Report Generated"
+msgstr "Bericht erstellt"
+
+msgid "Report Generated."
+msgstr "Bericht erstellt."
+
+msgid "Report Options"
+msgstr "Berichtsoptionen"
+
+msgid "Report Sent"
+msgstr "Bericht gesendet"
+
+msgid "Report Title"
+msgstr "Berichtstitel"
+
+msgid "Report Type"
+msgstr "Berichtstyp"
+
+msgid "Report could not be found."
+msgstr "Bericht konnte nicht gefunden werden."
+
+msgid "Report deleted."
+msgstr "Bericht gelöscht."
+
+msgid "Reporting"
+msgstr "Berichterstattung"
+
+msgid "Reports"
+msgstr "Berichte"
+
+msgid "Request Blocked"
+msgstr "Anfrage blockiert"
+
+msgid "Request Blocked by Firewall"
+msgstr "Anfrage von Firewall blockiert"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "Anfrage durch Site-Lockdown blockiert."
+
+msgid "Request Details"
+msgstr "Anfragedetails"
+
+msgid "Request Firewall"
+msgstr "Anfrage-Firewall"
+
+msgid "Request Firewall Options"
+msgstr "Anfrage-Firewall-Optionen"
+
+msgid "Request ID"
+msgstr "Anfrage-ID"
+
+msgid "Request Log"
+msgstr "Anfrage-Log"
+
+msgid "Request Logging"
+msgstr "Anfrage-Protokollierung"
+
+msgid "Request Method"
+msgstr "Anfragemethode"
+
+msgid "Request Path"
+msgstr "Anfragepfad"
+
+msgid "Request Path Whitelist"
+msgstr "Anfragepfad-Whitelist"
+
+msgid "Request Path Whitelist."
+msgstr "Anfragepfad-Whitelist."
+
+msgid "Request Status"
+msgstr "Anfragestatus"
+
+msgid "Request Type"
+msgstr "Anfragetyp"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "Anfrage durch Firewall-Regel blockiert: {{name}}."
+
+msgid "Request logging is required when you have activated Traffic Rate Limiting."
+msgstr "Anfragen-Protokollierung ist erforderlich, wenn Sie die Traffic-Ratenbegrenzung aktiviert haben."
+
+msgid "Requested At"
+msgstr "Angefordert um"
+
+msgid "Requests"
+msgstr "Anfragen"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "Anfragen von dieser IP-Adresse werden blockiert."
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "Anfragen von dieser IP-Adresse umgehen alle Sicherheitsregeln."
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "Anfragen an den XML-RPC-Endpunkt sind auf Ihrer Website erlaubt."
+
+msgid "Requires password expiration policy to be set."
+msgstr "Erfordert, dass eine Passwortablaufrichtlinie festgelegt ist."
+
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+msgid "Reset For This IP"
+msgstr "Für diese IP zurücksetzen"
+
+msgid "Response"
+msgstr "Antwort"
+
+msgid "Response Code"
+msgstr "Antwortcode"
+
+msgid "Restrict Access To Certain WordPress Admin Options"
+msgstr "Zugriff auf bestimmte WordPress-Admin-Optionen einschränken"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "Zugriff auf wichtige WordPress-Plugin-Aktionen einschränken"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "Zugriff auf wichtige WordPress-Beitrags- und Seitenaktionen einschränken"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "Zugriff auf WordPress-Theme-Aktionen einschränken"
+
+msgid "Restrict WP File Editing"
+msgstr "WP-Dateibearbeitung einschränken"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "Dateibearbeitung im WP-Admin-Dashboard einschränken"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "Beschränken Sie die Möglichkeit, Dateien innerhalb des WordPress-Admin-Bereichs zu bearbeiten."
+
+msgid "Restricted"
+msgstr "Eingeschränkt"
+
+msgid "Restriction Details"
+msgstr "Einschränkungsdetails"
+
+msgid "Results"
+msgstr "Ergebnisse"
+
+msgid "Results & Manual Scans"
+msgstr "Ergebnisse & manuelle Scans"
+
+msgid "Results Display Options"
+msgstr "Anzeigeoptionen für Ergebnisse"
+
+msgid "Root Web.config"
+msgstr "Root-Web.config"
+
+msgid "Rule Activated"
+msgstr "Regel aktiviert"
+
+msgid "Rule Deactivated"
+msgstr "Regel deaktiviert"
+
+msgid "Rule Reset"
+msgstr "Regel zurücksetzen"
+
+msgid "Rule Slug"
+msgstr "Regel-Titelform"
+
+msgid "Rule Type"
+msgstr "Regeltyp"
+
+msgid "Rule deleted"
+msgstr "Regel gelöscht"
+
+msgid "Rules"
+msgstr "Regeln"
+
+msgid "Run"
+msgstr "Ausführen"
+
+msgid "Run A File Scan"
+msgstr "Datei-Scan ausführen"
+
+msgid "Run Database Repair"
+msgstr "Datenbankreparatur ausführen"
+
+msgid "Run Import From Another Site"
+msgstr "Import von anderer Website ausführen"
+
+msgid "Run In MU Mode"
+msgstr "Im MU-Modus ausführen"
+
+msgid "Run Manual Scan"
+msgstr "Manuellen Scan ausführen"
+
+msgid "Run Plugin In Must-Use (MU) Mode"
+msgstr "Plugin im Must-Use (MU)-Modus ausführen"
+
+msgid "Run Scan"
+msgstr "Scan ausführen"
+
+msgid "Run Scans Now"
+msgstr "Scans jetzt ausführen"
+
+msgid "Runs a scan of all your assets against a database of known WordPress vulnerabilities."
+msgstr "Führt einen Scan aller Ihrer Assets gegen eine Datenbank bekannter WordPress-Schwachstellen durch."
+
+msgid "Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities."
+msgstr "Führt einen Scan aller Ihrer Plugins gegen eine Datenbank bekannter WordPress-Plugin-Schwachstellen durch."
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Registration Removed"
+msgstr "SMS-Registrierung entfernt"
+
+msgid "SPAM"
+msgstr "Spam"
+
+msgid "SPAM Blocked"
+msgstr "SPAM blockiert"
+
+msgid "SPAM Bot detected."
+msgstr "SPAM-Bot erkannt."
+
+msgid "SPAM Check Fail"
+msgstr "SPAM-Prüfung fehlgeschlagen"
+
+msgid "SPAM Detection"
+msgstr "SPAM-Erkennung"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "SPAM und Massenbenutzerregistrierung durch Bots werden durch silentCAPTCHA blockiert."
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM und Massenbenutzerregistrierung durch Bots wird nicht durch silentCAPTCHA blockiert."
+
+msgid "Save Options"
+msgstr "Optionen speichern"
+
+msgid "Save Settings"
+msgstr "Einstellungen speichern"
+
+msgid "Scan For Vulnerabilities In Plugins & Themes"
+msgstr "Nach Schwachstellen in Plugins & Themes scannen"
+
+msgid "Scan Options"
+msgstr "Scan-Optionen"
+
+msgid "Scan Results"
+msgstr "Scan-Ergebnisse"
+
+msgid "Scan your site for file changes, malware and vulnerabilities."
+msgstr "Scannen Sie Ihre Website nach Dateiänderungen, Malware und Schwachstellen."
+
+msgid "Scans"
+msgstr "Scans"
+
+msgid "Scans Plugins For Known Vulnerabilities"
+msgstr "Scannt Plugins auf bekannte Schwachstellen"
+
+msgid "Scans all PHP files for malware patterns."
+msgstr "Scannt alle PHP-Dateien nach Malware-Mustern."
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "Scannt alle WP-Dateien für Ihre aktuelle WordPress-Version."
+
+msgid "Scans detected 1 or more modified or unrecognised files in the theme directory."
+msgstr "Scans haben eine oder mehrere geänderte oder nicht erkannte Dateien im Theme-Verzeichnis erkannt."
+
+msgid "Scans detected modified or unrecognised files in the plugin directory."
+msgstr "Scans haben geänderte oder nicht erkannte Dateien im Plugin-Verzeichnis erkannt."
+
+msgid "Scans detected modified/unrecognised files"
+msgstr "Scans haben geänderte/nicht erkannte Dateien erkannt"
+
+msgid "Scans for file tampering within plugin directories."
+msgstr "Scannt auf Dateimanipulation innerhalb von Plugin-Verzeichnissen."
+
+msgid "Scans for file tampering within the active theme."
+msgstr "Scannt auf Dateimanipulation innerhalb des aktiven Themes."
+
+msgid "Scans started."
+msgstr "Scans gestartet."
+
+msgid "Score"
+msgstr "Bewertung"
+
+msgid "Script Name To Match"
+msgstr "Abzugleichender Skriptname"
+
+msgid "Seconds"
+msgstr "Sekunden"
+
+msgid "Secret Key"
+msgstr "Geheimer Schlüssel"
+
+msgid "Security"
+msgstr "Sicherheit"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "Security Admin Zugriffs-PIN"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin aktiviert"
+
+msgid "Security Admin Login"
+msgstr "Security-Admin-Login"
+
+msgid "Security Admin PIN"
+msgstr "Security Admin PIN"
+
+msgid "Security Admin Protection"
+msgstr "Security-Admin-Schutz"
+
+msgid "Security Admin Restriction Settings"
+msgstr "Security-Admin-Einschränkungseinstellungen"
+
+msgid "Security Admin Restriction Zones"
+msgstr "Security-Admin-Einschränkungszonen"
+
+msgid "Security Admin Settings"
+msgstr "Security-Admin-Einstellungen"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin ist jetzt aktiv"
+
+msgid "Security Admins"
+msgstr "Sicherheitsadministratoren"
+
+msgid "Security Analysis"
+msgstr "Sicherheitsanalyse"
+
+msgid "Security Dashboard"
+msgstr "Security-Dashboard"
+
+msgid "Security Overview"
+msgstr "Sicherheitsübersicht"
+
+msgid "Security PIN Currently Set"
+msgstr "Security PIN derzeit festgelegt"
+
+msgid "Security PIN Fail"
+msgstr "Security-PIN fehlgeschlagen"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "Security PIN derzeit NICHT festgelegt"
+
+msgid "Security Plugin Protection"
+msgstr "Sicherheits-Plugin-Schutz"
+
+msgid "Security Profile"
+msgstr "Sicherheitsprofil"
+
+msgid "Security Report"
+msgstr "Sicherheitsbericht"
+
+msgid "Security Reports"
+msgstr "Sicherheitsberichte"
+
+msgid "Security Reports."
+msgstr "Sicherheitsberichte."
+
+msgid "Security Rules"
+msgstr "Sicherheitsregeln"
+
+msgid "Security Stats"
+msgstr "Sicherheitsstatistiken"
+
+msgid "Security Tools"
+msgstr "Sicherheitswerkzeuge"
+
+msgid "Security Zones"
+msgstr "Sicherheitszonen"
+
+msgid "Security Zones Config"
+msgstr "Sicherheitszonen-Konfiguration"
+
+msgid "Security admin pin removed."
+msgstr "Security Admin PIN entfernt."
+
+msgid "Security admin pin set to: `%s`"
+msgstr "Security Admin PIN festgelegt auf: `%s`"
+
+msgid "Select"
+msgstr "Auswählen"
+
+msgid "Select Scans To Run"
+msgstr "Auszuführende Scans auswählen"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM"
+msgstr "Wählen Sie die Formularanbieter aus, die auf SPAM überprüft werden sollen"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM."
+msgstr "Wählen Sie die Formularanbieter aus, die auf SPAM überprüft werden sollen."
+
+msgid "Select The Form Providers That You Use"
+msgstr "Wählen Sie die von Ihnen verwendeten Formularanbieter aus"
+
+msgid "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
+msgstr "Wählen Sie die Benutzerformular-Anbieter aus, die auf SPAM-Registrierungen und -Anmeldungen überprüft werden sollen"
+
+msgid "Select The User Forms Provider That You Use"
+msgstr "Wählen Sie den von Ihnen verwendeten Benutzerformular-Anbieter aus"
+
+msgid "Select file to import options from"
+msgstr "Datei zum Importieren von Optionen auswählen"
+
+msgid "Select which user forms should be protected against brute-force attacks."
+msgstr "Wählen Sie aus, welche Benutzerformulare gegen Brute-Force-Angriffe geschützt werden sollen."
+
+msgid "Sent notifications to whitelisted sites for required options import."
+msgstr "Benachrichtigungen an Whitelist-Websites für erforderlichen Optionsimport gesendet."
+
+msgid "Session Duration"
+msgstr "Sitzungsdauer"
+
+msgid "Session Idle"
+msgstr "Sitzung inaktiv"
+
+msgid "Session Lifetime Override"
+msgstr "Sitzungsdauer-Override"
+
+msgid "Session Locked"
+msgstr "Sitzung gesperrt"
+
+msgid "Session Not Found"
+msgstr "Sitzung nicht gefunden"
+
+msgid "Session Started"
+msgstr "Sitzung gestartet"
+
+msgid "Session Terminated"
+msgstr "Sitzung beendet"
+
+msgid "Session started for user ({{user_login}}) with session ID {{session_id}}."
+msgstr "Sitzung gestartet für Benutzer ({{user_login}}) mit Sitzungs-ID {{session_id}}."
+
+msgid "Session terminated."
+msgstr "Sitzung beendet."
+
+msgid "Sessions"
+msgstr "Sitzungen"
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "Setzen Sie dies auf \"0\", um die %s-Funktion zu deaktivieren."
+
+msgid "Set to %s to turn off this option."
+msgstr "Auf %s setzen, um diese Option zu deaktivieren."
+
+msgid "Settings that apply to all comment SPAM scanning."
+msgstr "Einstellungen, die für alle Kommentar-SPAM-Scans gelten."
+
+msgid "Setup Your Security Zones"
+msgstr "Richten Sie Ihre Sicherheitszonen ein"
+
+msgid "Severity"
+msgstr "Schweregrad"
+
+msgid "Shield 2FA Provider Enabled"
+msgstr "Shield-2FA-Provider aktiviert"
+
+msgid "Shield Deactivated"
+msgstr "Shield deaktiviert"
+
+msgid "Shield Events & Stats"
+msgstr "Shield-Ereignisse & Statistiken"
+
+msgid "Shield Info"
+msgstr "Shield-Info"
+
+msgid "Shield Option Key"
+msgstr "Shield-Optionsschlüssel"
+
+msgid "Shield Security Home Page"
+msgstr "Shield Security Homepage"
+
+msgid "Shield Security plugin is installed but not activated."
+msgstr "Shield Security Plugin ist installiert, aber nicht aktiviert."
+
+msgid "Shield User 2FA Provider Activated"
+msgstr "Shield-Benutzer-2FA-Anbieter aktiviert"
+
+msgid "Shield White Label"
+msgstr "Shield White Label"
+
+msgid "Shield doesn't normally scan comments from logged-in or registered users."
+msgstr "Shield scannt normalerweise keine Kommentare von angemeldeten oder registrierten Benutzern."
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield ist auf dieser Website nicht installiert."
+
+msgid "Shield plugin activated"
+msgstr "Shield-Plugin aktiviert"
+
+msgid "Shield plugin couldn't be activated"
+msgstr "Shield-Plugin konnte nicht aktiviert werden"
+
+msgid "Shield plugin couldn't be deactivated"
+msgstr "Shield-Plugin konnte nicht deaktiviert werden"
+
+msgid "Shield plugin couldn't be installed"
+msgstr "Shield-Plugin konnte nicht installiert werden"
+
+msgid "Shield plugin couldn't be updated"
+msgstr "Shield-Plugin konnte nicht aktualisiert werden"
+
+msgid "Shield plugin deactivated"
+msgstr "Shield-Plugin deaktiviert"
+
+msgid "Shield plugin installed"
+msgstr "Shield-Plugin installiert"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Shield-Plugin ist installiert, aber nicht aktiv."
+
+msgid "Shield plugin updated"
+msgstr "Shield-Plugin aktualisiert"
+
+msgid "ShieldBACKUPS"
+msgstr "ShieldBACKUPS"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO isn't activated on this site."
+msgstr "ShieldPRO ist auf dieser Website nicht aktiviert."
+
+msgid "ShieldPRO license check was successful."
+msgstr "ShieldPRO-Lizenzprüfung war erfolgreich."
+
+msgid "Should be uninstalled"
+msgstr "Sollte deinstalliert werden"
+
+msgid "Signal"
+msgstr "Signal"
+
+msgid "Since"
+msgstr "Seit"
+
+msgid "Site"
+msgstr "Website"
+
+msgid "Site Address (URL)"
+msgstr "Site-Adresse (URL)"
+
+msgid "Site Admin Email"
+msgstr "Site-Admin-E-Mail"
+
+msgid "Site In Lockdown"
+msgstr "Website im Lockdown"
+
+msgid "Site Is In Lockdown"
+msgstr "Website befindet sich im Lockdown"
+
+msgid "Site Is Under Lockdown"
+msgstr "Website befindet sich im Lockdown"
+
+msgid "Site Lockdown"
+msgstr "Site-Lockdown"
+
+msgid "Site Lockdown Started"
+msgstr "Site-Lockdown gestartet"
+
+msgid "Site Lockdown and Firewall"
+msgstr "Site-Lockdown und Firewall"
+
+msgid "Site Scanning"
+msgstr "Website-Scanning"
+
+msgid "Site Security Summary"
+msgstr "Zusammenfassung der Website-Sicherheit"
+
+msgid "Site Snapshots"
+msgstr "Website-Snapshots"
+
+msgid "Site Tagline"
+msgstr "Website-Untertitel"
+
+msgid "Site Title"
+msgstr "Website-Titel"
+
+msgid "Site URL"
+msgstr "Website-URL"
+
+msgid "Site URL Changed"
+msgstr "Website-URL geändert"
+
+msgid "Site added to export white list: {{site}}"
+msgstr "Website zur Export-Whitelist hinzugefügt: {{site}}"
+
+msgid "Site removed from export white list: {{site}}"
+msgstr "Website aus Export-Whitelist entfernt: {{site}}"
+
+msgid "Sites"
+msgstr "Websites"
+
+msgid "Size"
+msgstr "Größe"
+
+msgid "Slug"
+msgstr "Titelform"
+
+msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
+msgstr "Titelform für Beitrags-ID {{post_id}} aktualisiert von '{{slug_old}}' auf '{{slug_new}}'."
+
+msgid "Snapshots"
+msgstr "Snapshots"
+
+msgid "Statistics"
+msgstr "Statistiken"
+
+msgid "Stats"
+msgstr "Statistiken"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Strong"
+msgstr "Stark"
+
+msgid "Strong Passwords"
+msgstr "Starke Passwörter"
+
+msgid "Success"
+msgstr "Erfolg"
+
+msgid "Successfully sent Firewall Block email alert to: {{to}}"
+msgstr "Firewall-Blockierungs-Warnmeldung erfolgreich per E-Mail gesendet an: {{to}}"
+
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+msgid "Summary Generated"
+msgstr "Zusammenfassung generiert"
+
+msgid "Summary Security Reports."
+msgstr "Zusammenfassende Sicherheitsberichte."
+
+msgid "Suspended"
+msgstr "Ausgesetzt"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "Ausschalten, um den gesamten Sicherheitsschutz zu deaktivieren"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "CrowdSec IP-Blockierlisten ein-/ausschalten"
+
+msgid "Switch on/off SPAM protection for your favourite contact forms plugin"
+msgstr "SPAM-Schutz für Ihr bevorzugtes Kontaktformular-Plugin ein-/ausschalten"
+
+msgid "Switch on/off ability of admins to manage other admin accounts"
+msgstr "Möglichkeit für Administratoren zur Verwaltung anderer Admin-Konten ein-/ausschalten"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "Möglichkeit zum Bearbeiten kritischer WP-Einstellungen ein-/ausschalten"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "Zugriff auf den XML-RPC-Endpunkt ein-/ausschalten"
+
+msgid "Switch on/off automatic scanning for vulnerabilities"
+msgstr "Automatisches Scannen nach Schwachstellen ein-/ausschalten"
+
+msgid "Switch on/off file editing within WP"
+msgstr "Dateibearbeitung innerhalb von WP ein-/ausschalten"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "Protokollierung des gesamten Website-Traffics einschalten."
+
+msgid "Tagline"
+msgstr "Untertitel"
+
+msgid "Thanks!"
+msgstr "Danke!"
+
+msgid "Thanks! - Please check your email for confirmation."
+msgstr "Danke! - Bitte überprüfen Sie Ihre E-Mail zur Bestätigung."
+
+msgid "Thanks."
+msgstr "Danke."
+
+msgid "The Description Of The Plugin"
+msgstr "Die Beschreibung des Plugins"
+
+msgid "The IP may not be blocked yet."
+msgstr "Die IP ist möglicherweise noch nicht blockiert."
+
+msgid "The Name Of The Plugin"
+msgstr "Der Name des Plugins"
+
+msgid "The Name Of The Plugin."
+msgstr "Der Name des Plugins."
+
+msgid "The Security Administrator has restricted the use of the email override feature."
+msgstr "Der Sicherheitsadministrator hat die Verwendung der E-Mail-Override-Funktion eingeschränkt."
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "Das Sicherheits-Badge wird Ihren Besuchern angezeigt"
+
+msgid "The Security Badge won't be displayed to your visitors"
+msgstr "Das Sicherheits-Badge wird Ihren Besuchern nicht angezeigt"
+
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr "Das Shield Security Plugin auf dieser Website muss aktualisiert werden."
+
+msgid "The Shield plugin has just been deactivated."
+msgstr "Das Shield-Plugin wurde soeben deaktiviert."
+
+msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
+msgstr "Das Shield-Plugin auf dieser Website hat keine aktive ShieldPRO-Lizenz."
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "Die URL des Symbols, das im Menü angezeigt wird."
+
+msgid "The URL of the icon to display in the menu."
+msgstr "Die URL des Symbols, das im Menü angezeigt werden soll."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "Die URL des Logos, das im Plugin-Badge angezeigt werden soll."
+
+msgid "The code provided was empty."
+msgstr "Der angegebene Code war leer."
+
+msgid "The country code was missing."
+msgstr "Der Ländercode fehlte."
+
+msgid "The current request has a valid Shield user session"
+msgstr "Die aktuelle Anfrage hat eine gültige Shield-Benutzersitzung"
+
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
+msgstr "Die Standardrolle für neue Benutzer wurde von '{{from}}' auf '{{to}}' geändert."
+
+msgid "The description of the plugin displayed on the plugins page."
+msgstr "Die Beschreibung des Plugins, die auf der Plugin-Seite angezeigt wird."
+
+msgid "The email address specified in %s's General settings will be used."
+msgstr "Die in den allgemeinen Einstellungen von %s angegebene E-Mail-Adresse wird verwendet."
+
+msgid "The email has been sent to you at blog admin address: %s"
+msgstr "Die E-Mail wurde an Sie an die Blog-Admin-Adresse gesendet: %s"
+
+msgid "The file is empty."
+msgstr "Die Datei ist leer."
+
+msgid "The following options will be restricted:"
+msgstr "Die folgenden Optionen werden eingeschränkt:"
+
+msgid "The following types of user forms are protected by silentCAPTCHA: %s."
+msgstr "Die folgenden Arten von Benutzerformularen werden durch silentCAPTCHA geschützt: %s."
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "Die Home-URL wurde von '{{from}}' auf '{{to}}' geändert."
+
+msgid "The name of the plugin that will be displayed to your site users."
+msgstr "Der Name des Plugins, der Ihren Website-Benutzern angezeigt wird."
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "Die Option, jedem die Registrierung auf der Website zu erlauben, wurde von '{{from}}' auf '{{to}}' aktualisiert."
+
+msgid "The plugin defaults to the site administration email address, which is: %s"
+msgstr "Das Plugin verwendet standardmäßig die E-Mail-Adresse der Website-Administration, die lautet: %s"
+
+msgid "The secret key is found in: %s"
+msgstr "Der Geheimschlüssel befindet sich in: %s"
+
+msgid "The security plugin is protected against tampering."
+msgstr "Das Security-Plugin ist gegen Manipulation geschützt."
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "Das Security-Plugin ist nicht gegen Manipulation geschützt."
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Die silentCAPTCHA-Option ist deaktiviert, wodurch der Brute-Force-Schutz für Anmelde-, Registrierungs- und Passwort-vergessen-Formulare entfernt wird."
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "Die silentCAPTCHA-Option ist aktiviert."
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "Die Site-URL wurde von '{{from}}' auf '{{to}}' geändert."
+
+msgid "Theme"
+msgstr "Theme"
+
+msgid "Theme '{{theme}}' was activated."
+msgstr "Theme '{{theme}}' wurde aktiviert."
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "Theme '{{theme}}' wurde installiert."
+
+msgid "Theme '{{theme}}' was uninstalled (v{{version}})."
+msgstr "Theme '{{theme}}' wurde deinstalliert (v{{version}})."
+
+msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
+msgstr "Theme '{{theme}}' wurde von Version {{from}} auf Version {{to}} aktualisiert."
+
+msgid "Theme Activated"
+msgstr "Theme aktiviert"
+
+msgid "Theme Files"
+msgstr "Theme-Dateien"
+
+msgid "Theme Installed"
+msgstr "Theme installiert"
+
+msgid "Theme Uninstalled"
+msgstr "Theme deinstalliert"
+
+msgid "Theme Upgraded"
+msgstr "Theme aktualisiert"
+
+msgid "Theme directory name to check"
+msgstr "Zu prüfender Theme-Verzeichnisname"
+
+msgid "Themes"
+msgstr "Themes"
+
+msgid "Themes With Updates"
+msgstr "Themes mit Aktualisierungen"
+
+msgid "Then"
+msgstr "Dann"
+
+msgid "Then Activate"
+msgstr "Dann aktivieren"
+
+msgid "There appears to be at least %s abandoned plugin(s) installed on your site."
+msgstr "Es scheinen mindestens %s aufgegebene(s) Plugin(s) auf Ihrer Website installiert zu sein."
+
+msgid "There appears to be at least 1 PHP malware file on your site."
+msgstr "Es scheint mindestens 1 PHP-Malware-Datei auf Ihrer Website zu geben."
+
+msgid "There appears to be at least 1 vulnerable plugin or theme installed on your site."
+msgstr "Es scheint mindestens 1 anfälliges Plugin oder Theme auf Ihrer Website installiert zu sein."
+
+msgid "There are currently no 2FA providers available on your account."
+msgstr "Es sind derzeit keine 2FA-Provider auf Ihrem Konto verfügbar."
+
+msgid "There are no 2FA options made available to help users protect their accounts."
+msgstr "Es sind keine 2FA-Optionen verfügbar, um Benutzern beim Schutz ihrer Konten zu helfen."
+
+msgid "There are no IPs available yet."
+msgstr "Es sind noch keine IPs verfügbar."
+
+msgid "There are no MFA providers active on this user account."
+msgstr "Es sind keine MFA-Provider auf diesem Benutzerkonto aktiv."
+
+msgid "There are no active 2FA providers."
+msgstr "Es sind keine aktiven 2FA-Anbieter vorhanden."
+
+msgid "There are no bot signals for this IP address."
+msgstr "Es gibt keine Bot-Signale für diese IP-Adresse."
+
+msgid "There are no custom security rules"
+msgstr "Es gibt keine individuellen Sicherheitsregeln"
+
+msgid "There are no important security notices at this time."
+msgstr "Es gibt derzeit keine wichtigen Sicherheitshinweise."
+
+msgid "There are no registered Yubikey devices on this profile."
+msgstr "Es sind keine registrierten Yubikey-Geräte in diesem Profil vorhanden."
+
+msgid "There doesn't appear to be any PHP malware files on your site."
+msgstr "Es scheinen keine PHP-Malware-Dateien auf Ihrer Website vorhanden zu sein."
+
+msgid "There doesn't appear to be any abandoned plugins on your site."
+msgstr "Es scheinen keine aufgegebenen Plugins auf Ihrer Website vorhanden zu sein."
+
+msgid "There doesn't appear to be any plugins or themes with known vulnerabilities."
+msgstr "Es scheinen keine Plugins oder Themes mit bekannten Schwachstellen vorhanden zu sein."
+
+msgid "There have been no changes to the selected file."
+msgstr "Es gab keine Änderungen an der ausgewählten Datei."
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "Es gibt keinen Schutz gegen WP-Kommentar-SPAM, das von Menschen gepostet wird."
+
+msgid "There is no user currently logged-in."
+msgstr "Es ist derzeit kein Benutzer angemeldet."
+
+msgid "This Is You"
+msgstr "Das sind Sie"
+
+msgid "This Page"
+msgstr "Diese Seite"
+
+msgid "This Site Is Protected By %s"
+msgstr "Diese Website wird geschützt durch %s"
+
+msgid "This doesn't appear to be a valid Yubikey OTP"
+msgstr "Dies scheint kein gültiges Yubikey-OTP zu sein"
+
+msgid "This feature isn't currently enabled."
+msgstr "Diese Funktion ist derzeit nicht aktiviert."
+
+msgid "This file contains malicious code - it's malware!"
+msgstr "Diese Datei enthält bösartigen Code - es ist Malware!"
+
+msgid "This file is located at the root of the WordPress installation directory."
+msgstr "Diese Datei befindet sich im Stammverzeichnis des WordPress-Installationsverzeichnisses."
+
+msgid "This file is located in a core WordPress directory isn't a recognised core file for WordPress %s."
+msgstr "Diese Datei befindet sich in einem WordPress-Kernverzeichnis und ist keine erkannte Kerndatei für WordPress %s."
+
+msgid "This file isn't a known core file for WordPress %s."
+msgstr "Diese Datei ist keine bekannte Kerndatei für WordPress %s."
+
+msgid "This is a recognised core file for WordPress %s."
+msgstr "Dies ist eine erkannte Kerndatei für WordPress %s."
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "Dies ist Ihre eindeutige Yubikey-Geräte-ID."
+
+msgid "This plugin is installed from WordPress.org so actions such as file repair and file diff are available."
+msgstr "Dieses Plugin ist von WordPress.org installiert, daher sind Aktionen wie Dateireparatur und Datei-Diff verfügbar."
+
+msgid "This plugin isn't active and should be uninstalled."
+msgstr "Dieses Plugin ist nicht aktiv und sollte deinstalliert werden."
+
+msgid "This plugin isn't installed from WordPress.org so actions such as file repair and file diff aren't available."
+msgstr "Dieses Plugin ist nicht von WordPress.org installiert, daher sind Aktionen wie Dateireparatur und Datei-Diff nicht verfügbar."
+
+msgid "This scan is not currently enabled."
+msgstr "Dieser Scan ist derzeit nicht aktiviert."
+
+msgid "This theme isn't active and should be uninstalled."
+msgstr "Dieses Theme ist nicht aktiv und sollte deinstalliert werden."
+
+msgid "This will automatically expire your Security Admin Session."
+msgstr "Dadurch wird Ihre Security Admin-Sitzung automatisch beendet."
+
+msgid "This will automatically expire your Security Admin Session. Does not apply until you enter the access PIN again. Default: 60 minutes."
+msgstr "Dadurch wird Ihre Security Admin-Sitzung automatisch beendet. Gilt erst, nachdem Sie die Zugangs-PIN erneut eingegeben haben. Standard: 60 Minuten."
+
+msgid "Time"
+msgstr "Zeit"
+
+msgid "Time Now"
+msgstr "Aktuelle Zeit"
+
+msgid "Time Range"
+msgstr "Zeitbereich"
+
+msgid "Time Sent: %s"
+msgstr "Gesendet um: %s"
+
+msgid "Timestamp"
+msgstr "Zeitstempel"
+
+msgid "Timezone"
+msgstr "Zeitzone"
+
+msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
+msgstr "Titel für Beitrags-ID {{post_id}} aktualisiert von '{{title_old}}' auf '{{title_new}}'."
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "Um ein neues Yubikey-Gerät zu registrieren, geben Sie ein Einmalpasswort vom Yubikey ein."
+
+msgid "To remove a Yubikey device, enter the registered device ID and save."
+msgstr "Um ein Yubikey-Gerät zu entfernen, geben Sie die registrierte Geräte-ID ein und speichern Sie."
+
+msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
+msgstr "Um Passkeys zu verwenden, muss Ihre PHP-Installation eine der folgenden Erweiterungen geladen haben: %s"
+
+msgid "Tools"
+msgstr "Werkzeuge"
+
+msgid "Track and monitor activity on your site by users, visitors and bots."
+msgstr "Aktivitäten auf Ihrer Website durch Benutzer, Besucher und Bots verfolgen und überwachen."
+
+msgid "Traffic"
+msgstr "Traffic"
+
+msgid "Traffic Logging"
+msgstr "Traffic-Protokollierung"
+
+msgid "Traffic Rate Limiting"
+msgstr "Traffic-Ratenbegrenzung"
+
+msgid "Trash"
+msgstr "Papierkorb"
+
+msgid "Trashed"
+msgstr "Gelöscht"
+
+msgid "Turn Off"
+msgstr "Ausschalten"
+
+msgid "Turn On"
+msgstr "Einschalten"
+
+msgid "Turn On The Rate Limiting Feature"
+msgstr "Ratenbegrenzungsfunktion aktivieren"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "Aktivieren Sie die Option, um den Zugriff auf WordPress-Admin-Konten einzuschränken."
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "Aktivieren Sie die Option, um den Zugriff auf kritische WordPress-Einstellungen einzuschränken."
+
+msgid "Turn your White Label settings on/off."
+msgstr "Schalten Sie Ihre White-Label-Einstellungen ein/aus."
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Type: {{type}}; Interval: {{interval}};"
+msgstr "Typ: {{type}}; Intervall: {{interval}};"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - Startseite"
+
+msgid "URL - Site"
+msgstr "URL - Website"
+
+msgid "URL To Activate"
+msgstr "Zu aktivierende URL"
+
+msgid "Unavailable"
+msgstr "Nicht verfügbar"
+
+msgid "Unblocked"
+msgstr "Entsperrt"
+
+msgid "Unblocked At"
+msgstr "Entsperrt um"
+
+msgid "Unclassified"
+msgstr "Nicht klassifiziert"
+
+msgid "Unidentified"
+msgstr "Nicht identifiziert"
+
+msgid "Uninstalled"
+msgstr "Deinstalliert"
+
+msgid "Unique ID"
+msgstr "Eindeutige ID"
+
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgid "Unknown Name"
+msgstr "Unbekannter Name"
+
+msgid "Unlock"
+msgstr "Entsperren"
+
+msgid "Unlock Now"
+msgstr "Jetzt entsperren"
+
+msgid "Unpublished"
+msgstr "Nicht veröffentlicht"
+
+msgid "Unrecognised"
+msgstr "Nicht erkannt"
+
+msgid "Unrecognised files will need to be manually deleted."
+msgstr "Nicht erkannte Dateien müssen manuell gelöscht werden."
+
+msgid "Until"
+msgstr "Bis"
+
+msgid "Updated"
+msgstr "Aktualisiert"
+
+msgid "Updates"
+msgstr "Aktualisierungen"
+
+msgid "Updates and Changes"
+msgstr "Aktualisierungen und Änderungen"
+
+msgid "Upgrade Membership"
+msgstr "Mitgliedschaft upgraden"
+
+msgid "Upgrade Now"
+msgstr "Jetzt upgraden"
+
+msgid "Upgrade Required"
+msgstr "Upgrade erforderlich"
+
+msgid "Upgrade To Create Custom Reports"
+msgstr "Upgraden, um individuelle Berichte zu erstellen"
+
+msgid "Upgrade Your ShieldPRO Membership"
+msgstr "ShieldPRO-Mitgliedschaft upgraden"
+
+msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
+msgstr "Verwenden Sie MainWP, um die Sicherheit aller Ihrer WordPress-Websites zu verwalten und zu überwachen."
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Verwenden Sie Shield's silentCAPTCHA, um Bots und Brute-Force-Angriffe zu blockieren"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "Verwenden Sie Shield's silentCAPTCHA, um SPAM-Bots zu erkennen und zu blockieren."
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "silentCAPTCHA verwenden, um Bot-Kommentar-SPAM zu blockieren"
+
+msgid "Use the link above to create a new one."
+msgstr "Verwenden Sie den obigen Link, um einen neuen zu erstellen."
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "Verwenden Sie diese Option, um den gesamten aktiven Shield-Schutz vollständig zu deaktivieren."
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "Verwenden Sie Ihren Yubikey, um einen neuen Code zu generieren"
+
+msgid "Used"
+msgstr "Verwendet"
+
+msgid "User"
+msgstr "Benutzer"
+
+msgid "User '{{user_login}}' suspended by admin."
+msgstr "Benutzer '{{user_login}}' vom Admin gesperrt."
+
+msgid "User 2FA Setup"
+msgstr "Benutzer-2FA-Einrichtung"
+
+msgid "User 2FA Setup Page Locations"
+msgstr "Speicherorte der Benutzer-2FA-Einrichtungsseite"
+
+msgid "User Access"
+msgstr "Benutzerzugriff"
+
+msgid "User Accounts"
+msgstr "Benutzerkonten"
+
+msgid "User Agent"
+msgstr "User-Agent"
+
+msgid "User Bot Check Fail"
+msgstr "Benutzer-Bot-Prüfung fehlgeschlagen"
+
+msgid "User Deleted"
+msgstr "Benutzer gelöscht"
+
+msgid "User Email Updated"
+msgstr "Benutzer-E-Mail aktualisiert"
+
+msgid "User Forms Bot Detection"
+msgstr "Benutzerformular-Bot-Erkennung"
+
+msgid "User ID"
+msgstr "Benutzer-ID"
+
+msgid "User Login"
+msgstr "Benutzeranmeldung"
+
+msgid "User Login Notification Email"
+msgstr "Benutzer-Login-Benachrichtigungs-E-Mail"
+
+msgid "User Manually Suspended"
+msgstr "Benutzer manuell ausgesetzt"
+
+msgid "User Meta"
+msgstr "Benutzer-Meta"
+
+msgid "User Password Updated"
+msgstr "Benutzerpasswort aktualisiert"
+
+msgid "User Register Bot Protection"
+msgstr "Benutzerregistrierungs-Bot-Schutz"
+
+msgid "User Registered"
+msgstr "Benutzer registriert"
+
+msgid "User Registration"
+msgstr "Benutzerregistrierung"
+
+msgid "User Registration Email Validation"
+msgstr "Benutzerregistrierungs-E-Mail-Validierung"
+
+msgid "User Registrations"
+msgstr "Benutzerregistrierungen"
+
+msgid "User Role"
+msgstr "Benutzerrolle"
+
+msgid "User Sessions"
+msgstr "Benutzersitzungen"
+
+msgid "User Status"
+msgstr "Benutzerstatus"
+
+msgid "User forms"
+msgstr "Benutzerformulare"
+
+msgid "User login request blocked."
+msgstr "Benutzeranmeldeanfrage blockiert."
+
+msgid "User lost password request blocked."
+msgstr "Benutzeranfrage für verlorenes Passwort blockiert."
+
+msgid "User must be logged-in."
+msgstr "Benutzer muss angemeldet sein."
+
+msgid "User registration request blocked."
+msgstr "Benutzerregistrierungsanfrage blockiert."
+
+msgid "User session deleted"
+msgstr "Benutzersitzung gelöscht"
+
+msgid "User: <code>%s</code>"
+msgstr "Benutzer: <code>%s</code>"
+
+msgid "Useragent"
+msgstr "Useragent"
+
+msgid "Username"
+msgstr "Benutzername"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "Benutzername war '{{user_login}}' mit E-Mail-Adresse '{{email}}'."
+
+msgid "Users"
+msgstr "Benutzer"
+
+msgid "Users are allowed to re-use compromised passwords."
+msgstr "Benutzern ist es erlaubt, kompromittierte Passwörter wiederzuverwenden."
+
+msgid "Users are allowed to set weak passwords."
+msgstr "Benutzern ist es erlaubt, schwache Passwörter festzulegen."
+
+msgid "Users provided will be security admins automatically, without needing the security PIN."
+msgstr "Angegebene Benutzer werden automatisch zu Security Admins, ohne die Security PIN zu benötigen."
+
+msgid "Valid license couldn't be found."
+msgstr "Gültige Lizenz konnte nicht gefunden werden."
+
+msgid "Valid license found and installed."
+msgstr "Gültige Lizenz gefunden und installiert."
+
+msgid "Valid license found."
+msgstr "Gültige Lizenz gefunden."
+
+msgid "Valid user session could not be found ({{user_login}})."
+msgstr "Gültige Benutzersitzung konnte nicht gefunden werden ({{user_login}})."
+
+msgid "Valid visitor IP address source discovered."
+msgstr "Gültige Besucher-IP-Adressquelle entdeckt."
+
+msgid "Value To Match"
+msgstr "Abzugleichender Wert"
+
+msgid "Verb"
+msgstr "Verb"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "View & Create"
+msgstr "Anzeigen & erstellen"
+
+msgid "View All"
+msgstr "Alle anzeigen"
+
+msgid "View As ShieldPRO"
+msgstr "Als ShieldPRO anzeigen"
+
+msgid "View Comment"
+msgstr "Kommentar anzeigen"
+
+msgid "View Config"
+msgstr "Konfiguration anzeigen"
+
+msgid "View Debug Info"
+msgstr "Debug-Info anzeigen"
+
+msgid "View Details"
+msgstr "Details anzeigen"
+
+msgid "View File Contents"
+msgstr "Dateiinhalt anzeigen"
+
+msgid "View File Details"
+msgstr "Dateidetails anzeigen"
+
+msgid "View IP Source Config"
+msgstr "IP-Quellkonfiguration anzeigen"
+
+msgid "View Report"
+msgstr "Bericht anzeigen"
+
+msgid "View Results"
+msgstr "Ergebnisse anzeigen"
+
+msgid "View Scan Results"
+msgstr "Scan-Ergebnisse anzeigen"
+
+msgid "View Scan Results In-Full"
+msgstr "Scan-Ergebnisse vollständig anzeigen"
+
+msgid "View Site Traffic"
+msgstr "Website-Traffic anzeigen"
+
+msgid "View Traffic and Request Log"
+msgstr "Traffic und Anfrage-Log anzeigen"
+
+msgid "View User Activity Log"
+msgstr "Benutzeraktivitätsprotokoll anzeigen"
+
+msgid "View User Sessions"
+msgstr "Benutzersitzungen anzeigen"
+
+msgid "View all active rules on your site at-a-glance"
+msgstr "Alle aktiven Regeln auf Ihrer Website auf einen Blick anzeigen"
+
+msgid "View and create new security reports."
+msgstr "Sicherheitsberichte anzeigen und neue erstellen."
+
+msgid "View and manage IP rules that block malicious visitors and bots."
+msgstr "IP-Regeln anzeigen und verwalten, die bösartige Besucher und Bots blockieren."
+
+msgid "View and manage all scan results."
+msgstr "Alle Scan-Ergebnisse anzeigen und verwalten."
+
+msgid "View and manage details of current user sessions on the site."
+msgstr "Zeigen Sie Details aktueller Benutzersitzungen auf der Website an und verwalten Sie diese."
+
+msgid "View details of web requests sent to your WordPress site."
+msgstr "Details von Webanfragen anzeigen, die an Ihre WordPress-Website gesendet wurden."
+
+msgid "View, edit and remove custom security rules"
+msgstr "Benutzerdefinierte Sicherheitsregeln anzeigen, bearbeiten und entfernen"
+
+msgid "View/Create Reports"
+msgstr "Berichte anzeigen/erstellen"
+
+msgid "Visitor IP"
+msgstr "Besucher-IP"
+
+msgid "Visitor IP Address"
+msgstr "Besucher-IP-Adresse"
+
+msgid "Visitor IP Source"
+msgstr "Besucher-IP-Quelle"
+
+msgid "Visitor IP address is determine by CloudFlare."
+msgstr "Besucher-IP-Adresse wird durch CloudFlare ermittelt."
+
+msgid "Visitor IP address source set"
+msgstr "Besucher-IP-Adressquelle festgelegt"
+
+msgid "Visitor found on the CrowdSec Block List and their request was killed."
+msgstr "Besucher auf der CrowdSec-Block-Liste gefunden und seine Anfrage wurde beendet."
+
+msgid "Vulnerabilities"
+msgstr "Schwachstellen"
+
+msgid "Vulnerabilities Detected"
+msgstr "Schwachstellen erkannt"
+
+msgid "Vulnerabilities Scanner"
+msgstr "Schwachstellen-Scanner"
+
+msgid "Vulnerabilities have just been detected on your site."
+msgstr "Schwachstellen wurden gerade auf Ihrer Website erkannt."
+
+msgid "Vulnerability Discovered"
+msgstr "Schwachstelle entdeckt"
+
+msgid "Vulnerability Scanner"
+msgstr "Schwachstellen-Scanner"
+
+msgid "Vulnerability Scanning"
+msgstr "Schwachstellen-Scanning"
+
+msgid "Vulnerability scanning must be active to enable this option."
+msgstr "Schwachstellen-Scan muss aktiv sein, um diese Option zu aktivieren."
+
+msgid "Vulnerable"
+msgstr "Verwundbar"
+
+msgid "Vulnerable Plugins"
+msgstr "Verwundbare Plugins"
+
+msgid "Vulnerable Plugins & Themes"
+msgstr "Anfällige Plugins & Themes"
+
+msgid "Vulnerable Themes"
+msgstr "Verwundbare Themes"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "WP-Aktivität"
+
+msgid "WP Activity Log"
+msgstr "WP-Aktivitätsprotokoll"
+
+msgid "WP Core File Scanner"
+msgstr "WP-Core-Datei-Scanner"
+
+msgid "WP Core Updated"
+msgstr "WP-Core aktualisiert"
+
+msgid "WP Database password appears to be weak."
+msgstr "Das WP-Datenbank-Passwort scheint schwach zu sein."
+
+msgid "WP Default User Role"
+msgstr "WP-Standard-Benutzerrolle"
+
+msgid "WP File Editing"
+msgstr "WP-Dateibearbeitung"
+
+msgid "WP Login & Admin Redirect"
+msgstr "WP-Login & Admin-Weiterleitung"
+
+msgid "WP Site Admin Email"
+msgstr "WP-Site-Admin-E-Mail"
+
+msgid "WP Site Tagline"
+msgstr "WP-Site-Tagline"
+
+msgid "WP Site title"
+msgstr "WP-Website-Titel"
+
+msgid "WP User Registration"
+msgstr "WP-Benutzerregistrierung"
+
+msgid "WP core files"
+msgstr "WP-Core-Dateien"
+
+msgid "WP root"
+msgstr "WP-Root"
+
+msgid "WP root directory"
+msgstr "WP-Root-Verzeichnis"
+
+msgid "Warning"
+msgstr "Warnung"
+
+msgid "Weak"
+msgstr "Schwach"
+
+msgid "Weekly"
+msgstr "Wöchentlich"
+
+msgid "Welcome"
+msgstr "Willkommen"
+
+msgid "When"
+msgstr "Wann"
+
+msgid "Which Files Should Be Automatically Repaired?"
+msgstr "Welche Dateien sollen automatisch repariert werden?"
+
+msgid "Which WordPress Forms Should Be Protected From Bots"
+msgstr "Welche WordPress-Formulare sollen vor Bots geschützt werden"
+
+msgid "White Label"
+msgstr "White-Label"
+
+msgid "Whitelist Site Added"
+msgstr "Whitelist-Website hinzugefügt"
+
+msgid "Whitelist Site Removed"
+msgstr "Whitelist-Website entfernt"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "Whitelist für Site-Lockdown"
+
+msgid "Whitelisted Sites To Export Options From This Site"
+msgstr "Whitelist-Websites zum Exportieren von Optionen von dieser Website"
+
+msgid "Whitelisted Sites Which Do Not Need The Secret Key To Export Options"
+msgstr "Whitelist-Websites, die den geheimen Schlüssel nicht benötigen, um Optionen zu exportieren"
+
+msgid "Whitelisted sites may export options from this site without the key."
+msgstr "Whitelist-Websites dürfen Optionen von dieser Website ohne Schlüssel exportieren."
+
+msgid "With Issues"
+msgstr "Mit Problemen"
+
+msgid "Wizards"
+msgstr "Assistenten"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Activity"
+msgstr "WordPress-Aktivität"
+
+msgid "WordPress Activity Logging"
+msgstr "WordPress-Aktivitätsprotokollierung"
+
+msgid "WordPress Address (URL)"
+msgstr "WordPress-Adresse (URL)"
+
+msgid "WordPress Admins Protection"
+msgstr "WordPress-Admins-Schutz"
+
+msgid "WordPress Core Auto-Repair"
+msgstr "WordPress Core Auto-Reparatur"
+
+msgid "WordPress Core File Scanner"
+msgstr "WordPress-Core-Datei-Scanner"
+
+msgid "WordPress Core Files"
+msgstr "WordPress-Core-Dateien"
+
+msgid "WordPress Core Options Protection"
+msgstr "WordPress-Core-Optionen-Schutz"
+
+msgid "WordPress Core files are protected against tampering."
+msgstr "WordPress-Kerndateien sind gegen Manipulation geschützt."
+
+msgid "WordPress Core v{{version}} was reinstalled."
+msgstr "WordPress Core v{{version}} wurde neu installiert."
+
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
+msgstr "WordPress Core wurde von '{{from}}' auf '{{to}}' aktualisiert."
+
+msgid "WordPress File Editing Lockdown"
+msgstr "WordPress-Dateibearbeitungs-Lockdown"
+
+msgid "WordPress File Scanner"
+msgstr "WordPress-Datei-Scanner"
+
+msgid "WordPress File Scanning"
+msgstr "WordPress-Datei-Scanning"
+
+msgid "WordPress Files"
+msgstr "WordPress-Dateien"
+
+msgid "WordPress Info"
+msgstr "WordPress-Info"
+
+msgid "WordPress Installation Directory"
+msgstr "WordPress-Installationsverzeichnis"
+
+msgid "WordPress Obscurity Options"
+msgstr "WordPress-Verschleierungsoptionen"
+
+msgid "WordPress Options"
+msgstr "WordPress-Optionen"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "WordPress-Plugin-Datei-Scanner"
+
+msgid "WordPress Reinstalled"
+msgstr "WordPress neu installiert"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "WordPress-Site-Root-Datei-Scanner"
+
+msgid "WordPress Stats"
+msgstr "WordPress-Statistiken"
+
+msgid "WordPress Theme File Scanner"
+msgstr "WordPress-Theme-Datei-Scanner"
+
+msgid "WordPress Updates"
+msgstr "WordPress-Aktualisierungen"
+
+msgid "WordPress Upgraded"
+msgstr "WordPress aktualisiert"
+
+msgid "WordPress Version"
+msgstr "WordPress-Version"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "WordPress WP-Content-Verzeichnis-Datei-Scanner"
+
+msgid "WordPress admin accounts are protected against tampering from other WordPress admins."
+msgstr "WordPress-Admin-Konten sind gegen Manipulation durch andere WordPress-Administratoren geschützt."
+
+msgid "WordPress admin accounts aren't protected against tampering from other WordPress admins."
+msgstr "WordPress-Admin-Konten sind nicht gegen Manipulation durch andere WordPress-Administratoren geschützt."
+
+msgid "WordPress does not meet minimum version. Required version: %s."
+msgstr "WordPress erfüllt nicht die Mindestversion. Erforderliche Version: %s."
+
+msgid "WordPress must be at least version %s to activate this option."
+msgstr "WordPress muss mindestens Version %s sein, um diese Option zu aktivieren."
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "WordPress-Plugin-Dateien sind gegen Manipulation geschützt."
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress-Site-Admin-E-Mail-Adresse wurde von '{{from}}' auf '{{to}}' geändert."
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress-Site-Untertitel wurde von '{{from}}' auf '{{to}}' geändert."
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress-Site-Titel von '{{from}}' auf '{{to}}' geändert."
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "WordPress-Theme-Dateien sind gegen Manipulation geschützt."
+
+msgid "WordPress user deleted."
+msgstr "WordPress-Benutzer gelöscht."
+
+msgid "WordPress version must be at least: %s"
+msgstr "WordPress-Version muss mindestens sein: %s"
+
+msgid "WordPress will now download and install the latest available version of this plugin."
+msgstr "WordPress wird nun die neueste verfügbare Version dieses Plugins herunterladen und installieren."
+
+msgid "WordPress.org Plugin Auto-Repair"
+msgstr "WordPress.org-Plugin-Autoreparatur"
+
+msgid "WordPress.org Theme Auto-Repair"
+msgstr "WordPress.org-Theme-Autoreparatur"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "XML-RPC-Zugriff"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC-Sperrung"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC-Anfrage blockiert."
+
+msgid "YYYY-MM-DD"
+msgstr "JJJJ-MM-TT"
+
+msgid "Yearly"
+msgstr "Jährlich"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Yes: %s"
+msgstr "Ja: %s"
+
+msgid "You should upgrade to the latest version or remove it if no updates are available."
+msgstr "Sie sollten auf die neueste Version aktualisieren oder es entfernen, wenn keine Updates verfügbar sind."
+
+msgid "You will need to upgrade your plan to use the Automatic Import/Export feature."
+msgstr "Sie müssen Ihren Plan upgraden, um die automatische Import/Export-Funktion zu nutzen."
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "Ihre größte Sicherheitsbedrohung geht von automatisierten Bots aus."
+
+msgid "Your Current IP"
+msgstr "Ihre aktuelle IP"
+
+msgid "Your IP Address"
+msgstr "Ihre IP-Adresse"
+
+msgid "Your WordPress login form is now protected"
+msgstr "Ihr WordPress-Anmeldeformular ist jetzt geschützt"
+
+msgid "Your backup login code is: %s"
+msgstr "Ihr Backup-Login-Code lautet: %s"
+
+msgid "Your current login URL is: %s"
+msgstr "Ihre aktuelle Anmelde-URL lautet: %s"
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "Ihre registrierte Maschinen-ID bei CrowdSec lautet: %s"
+
+msgid "Your reporting email address is: %s"
+msgstr "Ihre Berichts-E-Mail-Adresse lautet: %s"
+
+msgid "Your session was locked to another IP Address."
+msgstr "Ihre Sitzung war an eine andere IP-Adresse gebunden."
+
+msgid "Your session was terminated."
+msgstr "Ihre Sitzung wurde beendet."
+
+msgid "Your site is currently in lockdown."
+msgstr "Ihre Website befindet sich derzeit im Lockdown."
+
+msgid "Your site is in lockdown."
+msgstr "Ihre Website befindet sich im Lockdown."
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "Ihre Website ist gegen Kommentar-SPAM durch Menschen geschützt."
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "Ihre Website ist gegen automatisierten Kommentar-SPAM durch Bots geschützt."
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "Ihre Website ist nicht gegen Kommentar-SPAM durch Menschen geschützt."
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "Ihre Website ist nicht gegen automatisierten Kommentar-SPAM durch Bots geschützt."
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "Ihre Site ist noch nicht bei CrowdSec registriert."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey Device"
+msgstr "Yubikey-Gerät"
+
+msgid "Yubikey ID"
+msgstr "Yubikey-ID"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey-OTP"
+
+msgid "Zone"
+msgstr "Zone"
+
+msgid "Zone Actions"
+msgstr "Zonen-Aktionen"
+
+msgid "Zones"
+msgstr "Zonen"
+
+msgid "and"
+msgstr "und"
+
+msgid "case-insensitive"
+msgstr "Groß-/Kleinschreibung ignorieren"
+
+msgid "currently %s"
+msgstr "derzeit %s"
+
+msgid "days"
+msgstr "Tage"
+
+msgid "empty username"
+msgstr "leerer Benutzername"
+
+msgid "estimated"
+msgstr "geschätzt"
+
+msgid "expires"
+msgstr "läuft ab"
+
+msgid "file import"
+msgstr "Datei-Import"
+
+msgid "help"
+msgstr "Hilfe"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "icon"
+msgstr "Symbol"
+
+msgid "import file"
+msgstr "Datei importieren"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "n/v"
+
+msgid "no label"
+msgstr "keine Bezeichnung"
+
+msgid "no name"
+msgstr "kein Name"
+
+msgid "not provided"
+msgstr "nicht angegeben"
+
+msgid "offense"
+msgstr "Verstoß"
+
+msgid "options"
+msgstr "Optionen"
+
+msgid "or"
+msgstr "oder"
+
+msgid "permanently"
+msgstr "dauerhaft"
+
+msgid "rDNS"
+msgstr "rDNS"
+
+msgid "recommendation"
+msgstr "Empfehlung"
+
+msgid "seconds"
+msgstr "Sekunden"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA-Bot-Erkennung schützt nicht vor Brute-Force-Angriffen auf Ihr WordPress-Login."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
+msgstr "silentCAPTCHA-Bot-Erkennung schützt Ihr WordPress-Passwort-vergessen-Formular nicht."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr "silentCAPTCHA-Bot-Erkennung schützt Ihre WordPress-Registrierung nicht."
+
+msgid "silentCAPTCHA Bot Minimum Score"
+msgstr "silentCAPTCHA Bot-Mindestscore"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "silentCAPTCHA Bot-Score (Prozent)"
+
+msgid "silentCAPTCHA Check Invalid (Module)"
+msgstr "silentCAPTCHA-Prüfung ungültig (Modul)"
+
+msgid "silentCAPTCHA For Logins"
+msgstr "silentCAPTCHA für Anmeldungen"
+
+msgid "silentCAPTCHA Registration"
+msgstr "silentCAPTCHA-Registrierung"
+
+msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
+msgstr "silentCAPTCHA ist deaktiviert, da kein minimaler Bot-Score-Schwellenwert angegeben ist."
+
+msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
+msgstr "silentCAPTCHA ist deaktiviert, wenn ein Mindestscore von %s festgelegt ist."
+
+msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
+msgstr "silentCAPTCHA ist mit einem minimalen Bot-Score-Schwellenwert aktiviert."
+
+msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
+msgstr "silentCAPTCHA schützt Ihre WP-Kommentare nicht vor Bot-SPAM."
+
+msgid "suggestion"
+msgstr "Vorschlag"
+
+msgid "tools"
+msgstr "Werkzeuge"
+
+msgid "unknown"
+msgstr "unbekannt"
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "wp-config.php-Datei ist nicht gegen Manipulation geschützt."
+
+msgid "{{ip}} removed from block list ({{type}})."
+msgstr "{{ip}} aus Sperrliste entfernt ({{type}})."
+

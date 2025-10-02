@@ -1,0 +1,2601 @@
+# Hebrew translation for shield
+# This file is distributed under the same license as shield.
+msgid ""
+msgstr ""
+"Project-Id-Version: shield\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-02 13:05+0000\n"
+"PO-Revision-Date: 2025-10-02 13:05+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: he_IL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n==2 ? 1 : (n!=0 && n%10==0 ? 2 : 3)));\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "הגנה מפני ספאם בתגובות %s"
+
+msgid "%s Home"
+msgstr "דף הבית של %s"
+
+msgid "%s Login Verification"
+msgstr "אימות התחברות %s"
+
+msgid "%s Plugin Badge"
+msgstr "תג תוסף %s"
+
+msgid "%s Plugin options updated successfully."
+msgstr "אפשרויות התוסף %s עודכנו בהצלחה."
+
+msgid "%s and %s"
+msgstr "%s ו־%s"
+
+msgid "%s day"
+msgstr "%s יום"
+
+msgid "%s days"
+msgstr "%s ימים"
+
+msgid "%s directory"
+msgstr "תיקיית %s"
+
+msgid "%s is a child of another theme."
+msgstr "%s הוא ערכת נושא צאצא של ערכת נושא אחרת."
+
+msgid "%s is not currently protecting your site."
+msgstr "%s אינו מגן כרגע על האתר שלך."
+
+msgid "%s is not protecting your site"
+msgstr "%s אינו מגן על האתר שלך"
+
+msgid "%s minute"
+msgstr "%s דקות"
+
+msgid "%s minutes"
+msgstr "%s דקות"
+
+msgid "%s not installed from WordPress.org."
+msgstr "%s לא הותקן מ-WordPress.org."
+
+msgid "%s offense"
+msgstr "%s עבירה"
+
+msgid "%s offense until block"
+msgstr "%s עבירה עד לחסימה"
+
+msgid "%s offenses"
+msgstr "%s עבירות"
+
+msgid "%s offenses until block"
+msgstr "%s עבירות עד לחסימה"
+
+msgid "%s seconds"
+msgstr "%s שניות"
+
+msgid "%s time"
+msgstr "%s פעם"
+
+msgid "1-minute"
+msgstr "דקה אחת"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "15-minute"
+msgstr "15 דקות"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "אימות דו־שלבי - אימייל"
+
+msgid "2FA Login Success"
+msgstr "התחברות 2FA הצליחה"
+
+msgid "2FA User Config Page"
+msgstr "עמוד הגדרות 2FA למשתמש"
+
+msgid "2FA Verification Page"
+msgstr "עמוד אימות 2FA"
+
+msgid "32/64-bit"
+msgstr "32/64-bit"
+
+msgid "5-minute"
+msgstr "5 דקות"
+
+msgid "7 Days"
+msgstr "7 ימים"
+
+msgid "A default will be used."
+msgstr "ייעשה שימוש בברירת מחדל."
+
+msgid "A high-level overview of your WordPress updates status."
+msgstr "סקירה כללית של מצב העדכונים של וורדפרס שלך."
+
+msgid "A light-touch security profile"
+msgstr "פרופיל אבטחה קל"
+
+msgid "A1B2C3"
+msgstr "A1B2C3"
+
+msgid "ABSPATH"
+msgstr "ABSPATH"
+
+msgid "Abandoned"
+msgstr "נזנח"
+
+msgid "Abandoned Plugin Scanner"
+msgstr "סורק תוספים נטושים"
+
+msgid "Abandoned Plugins"
+msgstr "תוספים נטושים"
+
+msgid "Abandoned WordPress.org Plugins"
+msgstr "תוספים נטושים ב-WordPress.org"
+
+msgid "Absolutely"
+msgstr "בהחלט"
+
+msgid "Access Restricted"
+msgstr "גישה מוגבלת"
+
+msgid "Access Restriction Zones"
+msgstr "אזורי הגבלת גישה"
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "הגישה לתוסף האבטחה %s מוגבלת."
+
+msgid "Actions"
+msgstr "פעולות"
+
+msgid "Actions and Info"
+msgstr "פעולות ומידע"
+
+msgid "Activate"
+msgstr "הפעלה"
+
+msgid "Activate ShieldPRO License"
+msgstr "הפעלת רישיון ShieldPRO"
+
+msgid "Activate Your ShieldPRO License"
+msgstr "הפעלת רישיון ShieldPRO שלך"
+
+msgid "Activate Your White Label Settings"
+msgstr "הפעלת הגדרות White Label שלך"
+
+msgid "Activated"
+msgstr "הופעל"
+
+msgid "Active"
+msgstr "פעיל"
+
+msgid "Active 2FA"
+msgstr "2FA פעיל"
+
+msgid "Active Plugins (%s)"
+msgstr "תוספים פעילים (%s)"
+
+msgid "Active Rules Summary"
+msgstr "סיכום כללים פעילים"
+
+msgid "Active Themes (%s)"
+msgstr "תבניות פעילות (%s)"
+
+msgid "Activity"
+msgstr "פעילות"
+
+msgid "Admin Accounts"
+msgstr "חשבונות ניהול"
+
+msgid "Admin Changes Detected"
+msgstr "זוהו שינויים במנהל"
+
+msgid "Admin Login Notification Email"
+msgstr "דוא״ל התראה על התחברות מנהל"
+
+msgid "Admin Users"
+msgstr "משתמשי ניהול"
+
+msgid "Admins"
+msgstr "מנהלים"
+
+msgid "Alert"
+msgstr "התראה"
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "אפשרות לייבוא וייצוא אוטומטי של אפשרויות באתר זה"
+
+msgid "Allow Export"
+msgstr "אפשר ייצוא"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "אפשרות לייבוא אפשרויות לאתר זה וייצוא אפשרויות ממנו"
+
+msgid "Allow Passkeys"
+msgstr "אפשר Passkeys"
+
+msgid "Allow Registration Of Passkeys"
+msgstr "אפשרות להרשמת Passkeys"
+
+msgid "Allow Registration Of Passkeys."
+msgstr "אפשרות להרשמת Passkeys."
+
+msgid "Allow Users To Register Passkeys"
+msgstr "אפשרות למשתמשים לרשום Passkeys"
+
+msgid "Analysis"
+msgstr "ניתוח"
+
+msgid "Author"
+msgstr "מחבר"
+
+msgid "Auto Block"
+msgstr "חסימה אוטומטית"
+
+msgid "Auto Block Expiration"
+msgstr "תפוגת חסימה אוטומטית"
+
+msgid "Auto Clean"
+msgstr "ניקוי אוטומטי"
+
+msgid "Auto File Repair"
+msgstr "תיקון קבצים אוטומטי"
+
+msgid "Auto-Generated"
+msgstr "נוצר אוטומטית"
+
+msgid "Auto-Import URL"
+msgstr "כתובת URL לייבוא אוטומטי"
+
+msgid "Auto-Integrations"
+msgstr "אינטגרציות אוטומטיות"
+
+msgid "Backup Code"
+msgstr "קוד גיבוי"
+
+msgid "Badge"
+msgstr "תג"
+
+msgid "Block %s"
+msgstr "חסימת %s"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "חסימת 100% ספאם תגובות בוטים עם silentCAPTCHA"
+
+msgid "Block Bot Comment SPAM"
+msgstr "חסימת ספאם תגובות בוטים"
+
+msgid "Block Bot SPAM"
+msgstr "חסימת ספאם בוטים"
+
+msgid "Block Human Comment SPAM"
+msgstr "חסימת ספאם תגובות אנושי"
+
+msgid "Block Human SPAM"
+msgstr "חסימת ספאם אנושי"
+
+msgid "Block IP"
+msgstr "חסימת IP"
+
+msgid "Block Login Bots"
+msgstr "חסימת בוטי התחברות"
+
+msgid "Block PHP Code Includes"
+msgstr "חסימת הכללות קוד PHP"
+
+msgid "Block PHP code in requests"
+msgstr "חסימת קוד PHP בבקשות"
+
+msgid "Block Page"
+msgstr "עמוד חסימה"
+
+msgid "Block SPAM User Registrations"
+msgstr "חסימת רישומי משתמשים ספאם"
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "חסימת ספאם תגובות וורדפרס וספאם טפסי יצירת קשר."
+
+msgid "Block XML-RPC"
+msgstr "חסימת XML-RPC"
+
+msgid "Block duration"
+msgstr "משך זמן החסימה"
+
+msgid "Blocked"
+msgstr "חסום"
+
+msgid "Blocked & Bypass IPs"
+msgstr "כתובות IP חסומות ועוקפות"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "תגובת ספאם מבוט נחסמה."
+
+msgid "Blocked human SPAM comment containing suspicious content."
+msgstr "נחסמה תגובת ספאם אנושית המכילה תוכן חשוד."
+
+msgid "Blocked/High Reputation"
+msgstr "חסום/מוניטין גבוה"
+
+msgid "Blog"
+msgstr "אתר"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "פעולות Bot"
+
+msgid "Bot Comment SPAM"
+msgstr "ספאם תגובות בוטים"
+
+msgid "Bot Protection"
+msgstr "הגנה מפני בוטים"
+
+msgid "Bot SPAM"
+msgstr "ספאם בוטים"
+
+msgid "Bot Tracking"
+msgstr "מעקב אחר בוטים"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "ספאם תגובות בוטים לא ייחסם"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "ספאם תגובות בוטים ייחסם כעת"
+
+msgid "Bots"
+msgstr "Bot"
+
+msgid "Bots & IP Rules"
+msgstr "בוטים וכללי IP"
+
+msgid "Bots & IPs"
+msgstr "בוטים וכתובות IP"
+
+msgid "Browser"
+msgstr "דפדפן"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "הגנה מפני התחברות כוח גס"
+
+msgid "Brute Force Login Protection"
+msgstr "הגנה מפני התחברות Brute Force"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "הגנה מפני התחברות Brute Force עם silentCAPTCHA"
+
+msgid "Brute Force Protection"
+msgstr "הגנת Brute Force"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "הגבלת קצב תעבורה Brute Force"
+
+msgid "Build Custom Security Rules"
+msgstr "בניית כללי אבטחה מותאמים אישית"
+
+msgid "Bypass"
+msgstr "עקוף"
+
+msgid "Bypass IP"
+msgstr "עקוף IP"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA Fail"
+msgstr "כישלון CAPTCHA"
+
+msgid "CSP Rules"
+msgstr "כללי CSP"
+
+msgid "Calculating"
+msgstr "מחשב"
+
+msgid "Callback"
+msgstr "Callback"
+
+msgid "Cancel"
+msgstr "ביטול"
+
+msgid "Cancel Login"
+msgstr "ביטול התחברות"
+
+msgid "Capabilities"
+msgstr "הרשאות"
+
+msgid "Careful"
+msgstr "זהירות"
+
+msgid "Change Detected"
+msgstr "שינוי זוהה"
+
+msgid "Change-Tracking"
+msgstr "מעקב אחר שינויים"
+
+msgid "Changes"
+msgstr "שינויים"
+
+msgid "Checked"
+msgstr "נבדק"
+
+msgid "Child"
+msgstr "צאצא"
+
+msgid "Clean"
+msgstr "נקי"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "קוד"
+
+msgid "Code Generated"
+msgstr "קוד נוצר"
+
+msgid "Comment"
+msgstr "תגובה"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "הגנה מפני ספאם בתגובות ובטפסי יצירת קשר"
+
+msgid "Comment Deleted"
+msgstr "תגובה נמחקה"
+
+msgid "Comment SPAM"
+msgstr "ספאם בתגובות"
+
+msgid "Comment SPAM Blocked."
+msgstr "ספאם בתגובות נחסם."
+
+msgid "Comment SPAM Protection"
+msgstr "הגנה מפני ספאם בתגובות"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "הגנה מפני ספאם בתגובות: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "סטטוס תגובה עודכן"
+
+msgid "Comments"
+msgstr "תגובות"
+
+msgid "Comments Cooldown"
+msgstr "זמן המתנה לתגובות"
+
+msgid "Config"
+msgstr "הגדרות"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "עמודי הגדרות להתקנת 2FA למשתמש"
+
+msgid "Confirmation"
+msgstr "אישור"
+
+msgid "Confirmation link"
+msgstr "קישור אישור"
+
+msgid "Connected"
+msgstr "מחובר"
+
+msgid "Contains"
+msgstr "מכיל"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "כללי Content Security Policy (CSP)"
+
+msgid "Content Updated"
+msgstr "תוכן עודכן"
+
+msgid "Contents"
+msgstr "תוכן"
+
+msgid "Cooldown"
+msgstr "זמן המתנה"
+
+msgid "Cooldown Fail"
+msgstr "כישלון זמן המתנה"
+
+msgid "Coordinates"
+msgstr "קואורדינטות"
+
+msgid "Country"
+msgstr "מדינה"
+
+msgid "Country Code"
+msgstr "קוד מדינה"
+
+msgid "Created"
+msgstr "נוצר"
+
+msgid "Created with status %s"
+msgstr "נוצר עם סטטוס %s"
+
+msgid "Critical File Protection"
+msgstr "הגנה על קבצים קריטיים"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "הגנה על הגדרות וורדפרס קריטיות"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "דף הבית של CrowdSec"
+
+msgid "Current"
+msgstr "נוכחי"
+
+msgid "Current File Content"
+msgstr "תוכן קובץ נוכחי"
+
+msgid "Current Summary"
+msgstr "סיכום נוכחי"
+
+msgid "Current User Sessions"
+msgstr "הפעלות משתמש נוכחיות"
+
+msgid "Custom"
+msgstr "מותאם אישית"
+
+msgid "Custom Debug"
+msgstr "ניפוי שגיאות מותאם אישית"
+
+msgid "Custom Rules"
+msgstr "כללים מותאמים אישית"
+
+msgid "Custom Security Rules"
+msgstr "כללי אבטחה מותאמים אישית"
+
+msgid "Daily"
+msgstr "יומי"
+
+msgid "Dashboard"
+msgstr "לוח בקרה"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "כתובת URL ללוגו התחברות לוח בקרה ו-2FA"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "לוגו ללוח בקרה ו-2FA"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "כתובת URL ללוגו לוח בקרה ו-2FA"
+
+msgid "Database"
+msgstr "מסד נתונים"
+
+msgid "Databases"
+msgstr "מסדי נתונים"
+
+msgid "Date"
+msgstr "תאריך"
+
+msgid "Date Generated"
+msgstr "תאריך יצירה"
+
+msgid "Day"
+msgstr "יום"
+
+msgid "Deactivated"
+msgstr "הושבת"
+
+msgid "Debug"
+msgstr "ניפוי שגיאות"
+
+msgid "Debug Info"
+msgstr "מידע ניפוי שגיאות"
+
+msgid "Debug Is On"
+msgstr "מצב ניפוי שגיאות פעיל"
+
+msgid "Default"
+msgstr "ברירת מחדל"
+
+msgid "Default Admin User"
+msgstr "משתמש מנהל ברירת מחדל"
+
+msgid "Default User Role"
+msgstr "תפקיד משתמש ברירת מחדל"
+
+msgid "Delete"
+msgstr "מחק"
+
+msgid "Delete IP"
+msgstr "מחק IP"
+
+msgid "Delete Login Backup Code"
+msgstr "מחיקת קוד גיבוי להתחברות"
+
+msgid "Delete Plugin Settings"
+msgstr "מחק הגדרות תוסף"
+
+msgid "Delete Success"
+msgstr "מחיקה הצליחה"
+
+msgid "Deleted"
+msgstr "נמחק"
+
+msgid "Deleted Admin(s)"
+msgstr "מנהלים נמחקו"
+
+msgid "Description"
+msgstr "תיאור"
+
+msgid "Details"
+msgstr "פרטים"
+
+msgid "Detected"
+msgstr "זוהה"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "התגלתה הרשמת משתמש עם כתובת אימייל לא תקינה ({{email}})."
+
+msgid "Diff"
+msgstr "הבדל"
+
+msgid "Disconnected"
+msgstr "מנותק"
+
+msgid "Discovered"
+msgstr "התגלה"
+
+msgid "Display Options Updated"
+msgstr "אפשרויות תצוגה עודכנו"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "הצגת תג אבטחת תוסף באתר שלך"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "הצגת תג אבטחת התוסף למבקרים שלך"
+
+msgid "Docs"
+msgstr "תיעוד"
+
+msgid "Download"
+msgstr "הורדה"
+
+msgid "Download File"
+msgstr "הורדת קובץ"
+
+msgid "Download Modified"
+msgstr "הורדה שונתה"
+
+msgid "Download Options Export File"
+msgstr "הורדת קובץ ייצוא אפשרויות"
+
+msgid "Duration"
+msgstr "משך זמן"
+
+msgid "Edit"
+msgstr "ערוך"
+
+msgid "Edit Settings"
+msgstr "עריכת הגדרות"
+
+msgid "Edit Theme Options"
+msgstr "ערוך אפשרויות תבנית"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "עריכת הגדרות תגובות ספאם-בוטים"
+
+msgid "Edit general plugin settings"
+msgstr "עריכת הגדרות כלליות של התוסף"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "עריכת הגדרות תגובות ספאם-אנושי"
+
+msgid "Edit reporting settings"
+msgstr "עריכת הגדרות דיווח"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "עריכת הגדרות לרישומי משתמשים ספאם"
+
+msgid "Editing this option is currently restricted."
+msgstr "עריכת אפשרות זו מוגבלת כרגע."
+
+msgid "Email"
+msgstr "אימייל"
+
+msgid "Email 2FA activated."
+msgstr "אימות דו־שלבי באימייל הופעל."
+
+msgid "Email 2FA deactivated."
+msgstr "אימות דו־שלבי באימייל הושבת."
+
+msgid "Email Auto-Login"
+msgstr "התחברות אוטומטית באימייל"
+
+msgid "Email OTP"
+msgstr "OTP באימייל"
+
+msgid "Email Updated"
+msgstr "אימייל עודכן"
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "כתובת האימייל עודכנה עבור המשתמש '{{user_login}}'."
+
+msgid "Enable"
+msgstr "הפעלה"
+
+msgid "Enable %s"
+msgstr "הפעלת %s"
+
+msgid "Enable %s Protection"
+msgstr "הפעלת הגנת %s"
+
+msgid "Enable Auto-Integrations"
+msgstr "הפעלת אינטגרציות אוטומטיות"
+
+msgid "Enable Content Security Policy"
+msgstr "הפעלת Content Security Policy"
+
+msgid "Enable Passkeys"
+msgstr "הפעלת Passkeys"
+
+msgid "Enable Rate Limiting"
+msgstr "הפעלת הגבלת קצב"
+
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr "הפעלת סורק התוספים הנטושים"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "הפעלת סורק הפגיעויות"
+
+msgid "Enforce"
+msgstr "אכוף"
+
+msgid "Enforce Security Admin Access Restriction"
+msgstr "אכיפת הגבלת גישה למנהל אבטחה"
+
+msgid "Enter admin username, email or ID."
+msgstr "הזינו שם משתמש, דוא״ל או מזהה של מנהל."
+
+msgid "Enter your Security Admin PIN"
+msgstr "הזן את קוד ה-PIN של מנהל האבטחה שלך"
+
+msgid "Environment"
+msgstr "סביבה"
+
+msgid "Equals"
+msgstr "שווה ל"
+
+msgid "Error"
+msgstr "שגיאה"
+
+msgid "Event"
+msgstr "אירוע"
+
+msgid "Event Details"
+msgstr "פרטי אירוע"
+
+msgid "Event Slug"
+msgstr "מזהה אירוע"
+
+msgid "Events"
+msgstr "אירועים"
+
+msgid "Example"
+msgstr "דוגמה"
+
+msgid "Expiration"
+msgstr "תפוגה"
+
+msgid "Expires"
+msgstr "תוקף"
+
+msgid "Export"
+msgstr "ייצוא"
+
+msgid "Export To File"
+msgstr "ייצוא לקובץ"
+
+msgid "Export file path"
+msgstr "מסלול קובץ ייצוא"
+
+msgid "Extensions"
+msgstr "הרחבות"
+
+msgid "Extras"
+msgstr "תוספות"
+
+msgid "False"
+msgstr "שקר"
+
+msgid "File"
+msgstr "קובץ"
+
+msgid "File Deleted"
+msgstr "קובץ נמחק"
+
+msgid "File Details"
+msgstr "פרטי קובץ"
+
+msgid "File Download"
+msgstr "הורדת קובץ"
+
+msgid "File Guard"
+msgstr "שמירת קבצים"
+
+msgid "File Info"
+msgstr "מידע על קובץ"
+
+msgid "File Modified"
+msgstr "קובץ שונה"
+
+msgid "File Modified Timestamp"
+msgstr "חותמת זמן של שינוי קובץ"
+
+msgid "File Name"
+msgstr "שם קובץ"
+
+msgid "File Repaired"
+msgstr "קובץ תוקן"
+
+msgid "File Scanning and Malware Protection"
+msgstr "סריקת קבצים והגנה מפני תוכנות זדוניות"
+
+msgid "File Scans and Malware"
+msgstr "סריקת קבצים ותוכנות זדוניות"
+
+msgid "File Size"
+msgstr "גודל קובץ"
+
+msgid "File Status"
+msgstr "סטטוס קובץ"
+
+msgid "FileLocker Changes Detected"
+msgstr "התגלו שינויים ב-FileLocker"
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: הגנה על wp-config.php"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "חסימת חומת אש"
+
+msgid "Firewall Block Alert"
+msgstr "התראת חסימת חומת אש"
+
+msgid "Firewall Block Email Fail"
+msgstr "דוא״ל חסימת חומת אש נכשל"
+
+msgid "Firewall Block Email Success"
+msgstr "דוא״ל חסימת חומת אש נשלח בהצלחה"
+
+msgid "Fix"
+msgstr "תקן"
+
+msgid "For example, your browser user agent is"
+msgstr "לדוגמה, user agent של הדפדפן שלך הוא"
+
+msgid "Format"
+msgstr "פורמט"
+
+msgid "General"
+msgstr "כללי"
+
+msgid "General Info"
+msgstr "מידע כללי"
+
+msgid "General Settings"
+msgstr "הגדרות כלליות"
+
+msgid "Global Plugin Enable"
+msgstr "הפעלה גלובלית של תוסף"
+
+msgid "Global Plugin Security Options"
+msgstr "אפשרויות אבטחה גלובליות של התוסף"
+
+msgid "Good"
+msgstr "טוב"
+
+msgid "Grade"
+msgstr "דירוג"
+
+msgid "Help"
+msgstr "עזרה"
+
+msgid "Hide Login"
+msgstr "הסתרת התחברות"
+
+msgid "Hide Login Page"
+msgstr "הסתרת עמוד התחברות"
+
+msgid "Hide The WP Login Page."
+msgstr "הסתרת עמוד ההתחברות של וורדפרס."
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "הסתרת עמודי ההתחברות ולוח הבקרה של וורדפרס"
+
+msgid "Hide WP Login"
+msgstr "הסתרת התחברות WP"
+
+msgid "Hide WP Login & Admin"
+msgstr "הסתרת התחברות ולוח בקרה של WP"
+
+msgid "Hide WP Login Page"
+msgstr "הסתרת עמוד התחברות וורדפרס"
+
+msgid "Hide WordPress Login Page"
+msgstr "הסתרת עמוד התחברות וורדפרס"
+
+msgid "High Reputation Bypass"
+msgstr "עקיפה למוניטין גבוה"
+
+msgid "History"
+msgstr "היסטוריה"
+
+msgid "Home URL"
+msgstr "URL דף הבית"
+
+msgid "Homepage"
+msgstr "דף הבית"
+
+msgid "Hostname"
+msgstr "שם מארח"
+
+msgid "Hourly"
+msgstr "שעתי"
+
+msgid "Human"
+msgstr "אנושי"
+
+msgid "Human Comment SPAM"
+msgstr "ספאם תגובות אנושי"
+
+msgid "Human Comment SPAM Protection"
+msgstr "הגנה מפני ספאם תגובות אנושי"
+
+msgid "Human SPAM"
+msgstr "ספאם אנושי"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IMPORTANT"
+msgstr "חשוב"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "כתובת IP"
+
+msgid "IP Analysis"
+msgstr "ניתוח IP"
+
+msgid "IP Block Status"
+msgstr "סטטוס חסימת IP"
+
+msgid "IP Blocked"
+msgstr "כתובת IP נחסמה"
+
+msgid "IP Equals"
+msgstr "IP שווה ל"
+
+msgid "IP Meta"
+msgstr "מטא IP"
+
+msgid "IP Offenses"
+msgstr "עבירות IP"
+
+msgid "IP Reputation Score"
+msgstr "ציון מוניטין IP"
+
+msgid "IP Rules"
+msgstr "כללי IP"
+
+msgid "IP Status"
+msgstr "סטטוס IP"
+
+msgid "IP Unavailable"
+msgstr "IP לא זמין"
+
+msgid "IP Unblocked"
+msgstr "חסימת IP הוסרה"
+
+msgid "IP address blocked."
+msgstr "כתובת IP נחסמה."
+
+msgid "IP address unblocked."
+msgstr "כתובת IP שוחררה מחסימה."
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "איפוס ציון silentCAPTCHA של IP."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Identity"
+msgstr "זהות"
+
+msgid "Idle"
+msgstr "לא פעיל"
+
+msgid "Idle Interval"
+msgstr "מרווח חוסר פעילות"
+
+msgid "If"
+msgstr "אם"
+
+msgid "Ignore"
+msgstr "התעלם"
+
+msgid "Ignore Success"
+msgstr "התעלמות הצליחה"
+
+msgid "Ignored"
+msgstr "התעלם"
+
+msgid "Import"
+msgstr "ייבוא"
+
+msgid "Import / Export Settings"
+msgstr "ייבוא / ייצוא הגדרות"
+
+msgid "Import Options"
+msgstr "אפשרויות ייבוא"
+
+msgid "Import Settings From Another Site"
+msgstr "ייבוא הגדרות מאתר אחר"
+
+msgid "Import/Export"
+msgstr "ייבוא/ייצוא"
+
+msgid "Import/Export Secret Key"
+msgstr "מפתח סודי לייבוא/ייצוא"
+
+msgid "Important"
+msgstr "חשוב"
+
+msgid "Important: %s"
+msgstr "חשוב: %s"
+
+msgid "Imported"
+msgstr "יובא"
+
+msgid "Inactive"
+msgstr "לא פעיל"
+
+msgid "Inactive Plugins"
+msgstr "תוספים לא פעילים"
+
+msgid "Inactive Plugins (%s)"
+msgstr "תוספים לא פעילים (%s)"
+
+msgid "Inactive Themes"
+msgstr "תבניות לא פעילות"
+
+msgid "Inactive User Accounts"
+msgstr "חשבונות משתמש לא פעילים"
+
+msgid "Includes protection for: "
+msgstr "כולל הגנה עבור:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "מידע עבור כתובת IP %s"
+
+msgid "Install Shield"
+msgstr "התקנת Shield"
+
+msgid "Installed"
+msgstr "הותקן"
+
+msgid "Integrations"
+msgstr "אינטגרציות"
+
+msgid "Interval"
+msgstr "מרווח"
+
+msgid "Invalid"
+msgstr "לא תקין"
+
+msgid "Invalid Login Username"
+msgstr "שם משתמש לא תקין להתחברות"
+
+msgid "Invalid Slug"
+msgstr "מזהה כתובת לא תקין"
+
+msgid "Invalid User Email Registration"
+msgstr "רישום אימייל משתמש לא תקין"
+
+msgid "Invalid Username Login"
+msgstr "התחברות עם שם משתמש לא תקין"
+
+msgid "Invalid download request."
+msgstr "בקשת הורדה לא חוקית."
+
+msgid "Invalid request - lockdown is not active."
+msgstr "בקשה לא חוקית - נעילה אינה פעילה."
+
+msgid "Invalid request with no User ID"
+msgstr "בקשה לא חוקית ללא מזהה משתמש"
+
+msgid "Invalid type."
+msgstr "סוג לא תקין."
+
+msgid "Is Offense"
+msgstr "האם עבירה"
+
+msgid "Is Request To The Login Page."
+msgstr "האם זו בקשה לעמוד ההתחברות."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "האם נעילת האתר של Shield פעילה."
+
+msgid "Is Visitor silentCAPTCHA Score ..."
+msgstr "האם ציון silentCAPTCHA של המבקר..."
+
+msgid "Is WP Admin"
+msgstr "האם זה לוח בקרה של WP"
+
+msgid "Is WP Debug Active"
+msgstr "האם ניפוי שגיאות WP פעיל"
+
+msgid "Is WP XML-RPC"
+msgstr "האם זה WP XML-RPC"
+
+msgid "Is current user Security Admin."
+msgstr "המשתמש הנוכחי הוא מנהל אבטחה."
+
+msgid "Is silentCAPTCHA score"
+msgstr "האם ציון silentCAPTCHA"
+
+msgid "Is the request HTTPS."
+msgstr "האם הבקשה היא HTTPS."
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "האם כתובת ה-IP של הבקשה נמצאת ברשימת החסימה האוטומטית של Shield."
+
+msgid "Is the request from a logged-in user."
+msgstr "האם הבקשה מגיעה ממשתמש מחובר."
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "האם הבקשה היא לנתיב בתוך תוסף מותקן כרגע בוורדפרס."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "האם הבקשה היא לנתיב בתוך ערכת נושא מותקנת כרגע בוורדפרס."
+
+msgid "Issues"
+msgstr "בעיות"
+
+msgid "Key"
+msgstr "מפתח"
+
+msgid "Knowledgebase"
+msgstr "מאגר ידע"
+
+msgid "Label"
+msgstr "תווית"
+
+msgid "Launch Debug Info Page"
+msgstr "פתיחת עמוד מידע ניפוי שגיאות"
+
+msgid "Level"
+msgstr "רמה"
+
+msgid "License"
+msgstr "רישיון"
+
+msgid "License Deactivated"
+msgstr "רישיון הושבת"
+
+msgid "License Summary"
+msgstr "סיכום רישיון"
+
+msgid "Lifetime"
+msgstr "תוקף"
+
+msgid "Light"
+msgstr "בהיר"
+
+msgid "Link Cheese"
+msgstr "Link Cheese"
+
+msgid "Link-Cheese"
+msgstr "Link-Cheese"
+
+msgid "Load"
+msgstr "טען"
+
+msgid "Loaded"
+msgstr "נטען"
+
+msgid "Loading"
+msgstr "טוען"
+
+msgid "Locale"
+msgstr "שפה"
+
+msgid "Location"
+msgstr "מיקום"
+
+msgid "Locked"
+msgstr "נעול"
+
+msgid "Logged-In"
+msgstr "מחובר"
+
+msgid "Login"
+msgstr "התחברות"
+
+msgid "Login 2FA Verification"
+msgstr "אימות 2FA להתחברות"
+
+msgid "Login Blocked"
+msgstr "התחברות נחסמה"
+
+msgid "Login Bot Protection"
+msgstr "הגנה מפני בוטים בהתחברות"
+
+msgid "Login Cooldown"
+msgstr "זמן המתנה להתחברות"
+
+msgid "Login Cooldown Interval"
+msgstr "מרווח זמן המתנה להתחברות"
+
+msgid "Login Details"
+msgstr "פרטי התחברות"
+
+msgid "Login Fail"
+msgstr "כישלון התחברות"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "IP התחברות"
+
+msgid "Login Page"
+msgstr "עמוד התחברות"
+
+msgid "Login Protection"
+msgstr "הגנת התחברות"
+
+msgid "Login Security"
+msgstr "אבטחת התחברות"
+
+msgid "Login Success"
+msgstr "התחברות הצליחה"
+
+msgid "Login page loaded"
+msgstr "עמוד התחברות נטען"
+
+msgid "Login successful."
+msgstr "ההתחברות הצליחה."
+
+msgid "MFA Verification Page"
+msgstr "עמוד אימות MFA"
+
+msgid "Malware"
+msgstr "תוכנות זדוניות"
+
+msgid "Malware Details"
+msgstr "פרטי תוכנות זדוניות"
+
+msgid "Malware File Tracking"
+msgstr "מעקב אחר קבצי תוכנות זדוניות"
+
+msgid "Malware Scanner"
+msgstr "סורק תוכנות זדוניות"
+
+msgid "Malware status of this file is currently"
+msgstr "מצב התוכנה הזדונית של קובץ זה כרגע הוא"
+
+msgid "Manage"
+msgstr "נהל"
+
+msgid "Manage IP Rules"
+msgstr "נהל כללי IP"
+
+msgid "Manage Rules"
+msgstr "נהל כללים"
+
+msgid "Media"
+msgstr "מדיה"
+
+msgid "Medium"
+msgstr "בינוני"
+
+msgid "Membership"
+msgstr "חברות"
+
+msgid "Meta"
+msgstr "מטא"
+
+msgid "Meta Key"
+msgstr "מפתח מטא"
+
+msgid "Method"
+msgstr "שיטה"
+
+msgid "Minutes"
+msgstr "דקות"
+
+msgid "Missing"
+msgstr "חסר"
+
+msgid "Mode"
+msgstr "מצב"
+
+msgid "Modified"
+msgstr "שונה"
+
+msgid "Modified File"
+msgstr "קובץ ששונה"
+
+msgid "Monthly"
+msgstr "חודשי"
+
+msgid "Multisite"
+msgstr "רשת אתרים"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "לא זמין"
+
+msgid "Name"
+msgstr "שם"
+
+msgid "Name: <code>%s</code>"
+msgstr "שם: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "ניווט"
+
+msgid "Never"
+msgstr "אף פעם"
+
+msgid "New"
+msgstr "חדש"
+
+msgid "New Admin(s)"
+msgstr "מנהל/ת חדש/ה"
+
+msgid "New Comment"
+msgstr "תגובה חדשה"
+
+msgid "New Results"
+msgstr "תוצאות חדשות"
+
+msgid "New User Default Role"
+msgstr "תפקיד ברירת מחדל למשתמש חדש"
+
+msgid "New WordPress user registered."
+msgstr "משתמש חדש נרשם בוורדפרס."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "שם המשתמש החדש הוא '{{user_login}}' עם כתובת אימייל '{{email}}'."
+
+msgid "No"
+msgstr "לא"
+
+msgid "No Change"
+msgstr "ללא שינוי"
+
+msgid "No Issues"
+msgstr "אין בעיות"
+
+msgid "No active license present."
+msgstr "אין רישיון פעיל."
+
+msgid "No activity logged for this IP address"
+msgstr "לא נרשמה פעילות עבור כתובת IP זו"
+
+msgid "No email address - No Notification."
+msgstr "אין כתובת אימייל - אין התראה."
+
+msgid "No license to remove."
+msgstr "אין רישיון להסרה."
+
+msgid "No requests logged for this IP address"
+msgstr "לא נרשמו בקשות עבור כתובת IP זו"
+
+msgid "Noise"
+msgstr "רעש"
+
+msgid "None"
+msgstr "ללא"
+
+msgid "Not Installed"
+msgstr "לא מותקן"
+
+msgid "Not Offense"
+msgstr "לא עבירה"
+
+msgid "Not Pro"
+msgstr "לא PRO"
+
+msgid "Not Ready"
+msgstr "לא מוכן"
+
+msgid "Not a WordPress Core file"
+msgstr "אינו קובץ ליבת וורדפרס"
+
+msgid "Not a plugin or theme file path."
+msgstr "לא מסלול קובץ תוסף או ערכת נושא."
+
+msgid "Not currently logged-in."
+msgstr "לא מחובר כרגע."
+
+msgid "Note"
+msgstr "הערה"
+
+msgid "Notice"
+msgstr "הודעה"
+
+msgid "Notice: %s"
+msgstr "הודעה: %s"
+
+msgid "Now"
+msgstr "עכשיו"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Obscurity"
+msgstr "עמימות"
+
+msgid "Off"
+msgstr "כבוי"
+
+msgid "Offense"
+msgstr "עבירה"
+
+msgid "Offense: %s"
+msgstr "עבירה: %s"
+
+msgid "Offenses"
+msgstr "עבירות"
+
+msgid "On"
+msgstr "פעיל"
+
+msgid "Options"
+msgstr "אפשרויות"
+
+msgid "Options Imported"
+msgstr "אפשרויות יובאו"
+
+msgid "Options imported from site: {{site}}"
+msgstr "האפשרויות יובאו מהאתר: {{site}}"
+
+msgid "Options imported successfully"
+msgstr "האפשרויות יובאו בהצלחה"
+
+msgid "Overview"
+msgstr "סקירה כללית"
+
+msgid "Owner"
+msgstr "בעלים"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP ו־MySQL"
+
+msgid "PHP Code"
+msgstr "קוד PHP"
+
+msgid "PHP Malware"
+msgstr "תוכנות זדוניות PHP"
+
+msgid "PHP Malware Scanner"
+msgstr "סורק תוכנות זדוניות PHP"
+
+msgid "PHP Version"
+msgstr "גרסת PHP"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "עמוד"
+
+msgid "Pages"
+msgstr "עמודים"
+
+msgid "Parent"
+msgstr "הורה"
+
+msgid "Passkeys"
+msgstr "Passkeys"
+
+msgid "Path"
+msgstr "נתיב"
+
+msgid "Permalinks"
+msgstr "מבני קישור"
+
+msgid "Permalinks Updated"
+msgstr "מבני קישור עודכנו"
+
+msgid "Permanently Deleted"
+msgstr "נמחק לצמיתות"
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "אנא פנו למנהל האתר כדי לבקש ביטול חסימת כתובת ה-IP שלכם."
+
+msgid "Plugin"
+msgstr "תוסף"
+
+msgid "Plugin Activated"
+msgstr "תוסף הופעל"
+
+msgid "Plugin Badge Logo"
+msgstr "לוגו תג תוסף"
+
+msgid "Plugin Badge Logo URL"
+msgstr "כתובת URL לוגו תג תוסף"
+
+msgid "Plugin Deactivated"
+msgstr "תוסף הושבת"
+
+msgid "Plugin Home Page URL"
+msgstr "כתובת URL דף הבית של התוסף"
+
+msgid "Plugin Installed"
+msgstr "תוסף הותקן"
+
+msgid "Plugin Name"
+msgstr "שם תוסף"
+
+msgid "Plugin Security Badge"
+msgstr "תג אבטחת תוסף"
+
+msgid "Plugin Uninstalled"
+msgstr "תוסף הוסר"
+
+msgid "Plugin and Theme File Guard"
+msgstr "שמירה על קבצי תוספים וערכות נושא"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "סורק פגיעויות תוספים וערכות נושא"
+
+msgid "Plugin re-installed. Reloading..."
+msgstr "התוסף הותקן מחדש. טוען מחדש..."
+
+msgid "Plugin settings imported successfully."
+msgstr "הגדרות התוסף יובאו בהצלחה."
+
+msgid "Plugin/Theme Guard"
+msgstr "שמירה על תוספים/ערכות נושא"
+
+msgid "Plugins"
+msgstr "תוספים"
+
+msgid "Plugins With Updates"
+msgstr "תוספים עם עדכונים"
+
+msgid "Plugins, Themes, WordPress Core"
+msgstr "תוספים, ערכות נושא, ליבת וורדפרס"
+
+msgid "Posts"
+msgstr "פוסטים"
+
+msgid "Predicted"
+msgstr "חזוי"
+
+msgid "Print"
+msgstr "הדפסה"
+
+msgid "Priority"
+msgstr "עדיפות"
+
+msgid "Profile"
+msgstr "פרופיל"
+
+msgid "Protection for user accounts."
+msgstr "הגנה עבור חשבונות משתמש."
+
+msgid "Provide The Security Admin PIN."
+msgstr "ספק את קוד ה-PIN של מנהל האבטחה."
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "ספקו קוד PIN סודי להגבלת גישת מנהל להגדרות האבטחה שלכם"
+
+msgid "Provide your custom set of CSP rules."
+msgstr "ספקו את מערך כללי ה-CSP המותאמים אישית שלכם."
+
+msgid "Published"
+msgstr "פורסם"
+
+msgid "Purpose"
+msgstr "מטרה"
+
+msgid "Query"
+msgstr "שאילתא"
+
+msgid "Rate Limiting"
+msgstr "Rate limiting"
+
+msgid "Re-Install"
+msgstr "התקן מחדש"
+
+msgid "Re-enable Protection."
+msgstr "הפעלה מחדש של ההגנה."
+
+msgid "Ready"
+msgstr "מוכן"
+
+msgid "Reason"
+msgstr "סיבה"
+
+msgid "Reason: %s"
+msgstr "סיבה: %s"
+
+msgid "Recommendation"
+msgstr "המלצה"
+
+msgid "Recommendations"
+msgstr "המלצות"
+
+msgid "Redirect Location"
+msgstr "מיקום הפניה"
+
+msgid "Redirect Status"
+msgstr "סטטוס הפניה"
+
+msgid "Refresh"
+msgstr "רענן"
+
+msgid "Registered"
+msgstr "נרשם"
+
+msgid "Registered Passkeys"
+msgstr "Passkeys רשומים"
+
+msgid "Registered Site"
+msgstr "אתר רשום"
+
+msgid "Registration"
+msgstr "הרשמה"
+
+msgid "Registration Blocked"
+msgstr "רישום נחסם"
+
+msgid "Reloading"
+msgstr "טוען מחדש"
+
+msgid "Reloading page"
+msgstr "טוען מחדש את העמוד"
+
+msgid "Remove %s"
+msgstr "הסרת %s"
+
+msgid "Repair"
+msgstr "תקן"
+
+msgid "Repair Success"
+msgstr "תיקון הצליח"
+
+msgid "Repair/Delete Success"
+msgstr "תיקון/מחיקה הצליחו"
+
+msgid "Repaired"
+msgstr "תוקן"
+
+msgid "Reporting"
+msgstr "דיווח"
+
+msgid "Reports"
+msgstr "דוחות"
+
+msgid "Request Firewall Options"
+msgstr "אפשרויות חומת אש לבקשות"
+
+msgid "Request ID"
+msgstr "מזהה בקשה"
+
+msgid "Request Path"
+msgstr "נתיב בקשה"
+
+msgid "Request Status"
+msgstr "סטטוס בקשה"
+
+msgid "Request Type"
+msgstr "סוג בקשה"
+
+msgid "Requests"
+msgstr "בקשות"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "בקשות מכתובת IP זו ייחסמו."
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "בקשות מכתובת IP זו יעקפו את כל כללי האבטחה."
+
+msgid "Reset"
+msgstr "איפוס"
+
+msgid "Response"
+msgstr "תגובה"
+
+msgid "Response Code"
+msgstr "קוד תגובה"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "הגבלת גישה לפעולות מפתח של תוספי וורדפרס"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "הגבלת גישה לפעולות מפתח של פוסטים ועמודים בוורדפרס"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "הגבלת גישה לפעולות תבניות וורדפרס"
+
+msgid "Restrict WP File Editing"
+msgstr "הגבלת עריכת קבצי WP"
+
+msgid "Restricted"
+msgstr "מוגבל"
+
+msgid "Restriction Details"
+msgstr "פרטי הגבלה"
+
+msgid "Results"
+msgstr "תוצאות"
+
+msgid "Results Display Options"
+msgstr "אפשרויות תצוגת תוצאות"
+
+msgid "Rules"
+msgstr "כללים"
+
+msgid "Run"
+msgstr "הרץ"
+
+msgid "Run Database Repair"
+msgstr "הרצת תיקון מסד נתונים"
+
+msgid "Run Import From Another Site"
+msgstr "הרצת ייבוא מאתר אחר"
+
+msgid "Run Scans Now"
+msgstr "הרץ סריקות עכשיו"
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SPAM"
+msgstr "ספאם"
+
+msgid "SPAM Blocked"
+msgstr "ספאם נחסם"
+
+msgid "SPAM Bot detected."
+msgstr "זוהה בוט ספאם."
+
+msgid "Scans"
+msgstr "סריקות"
+
+msgid "Scans detected modified or unrecognised files in the plugin directory."
+msgstr "הסריקות זיהו קבצים שונו או לא מזוהים בתיקיית התוסף."
+
+msgid "Score"
+msgstr "ציון"
+
+msgid "Seconds"
+msgstr "שניות"
+
+msgid "Secret Key"
+msgstr "מפתח סודי"
+
+msgid "Security"
+msgstr "אבטחה"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "קוד PIN לגישת מנהל אבטחה"
+
+msgid "Security Admin Login"
+msgstr "התחברות מנהל אבטחה"
+
+msgid "Security Admin Protection"
+msgstr "הגנת Security Admin"
+
+msgid "Security Admin Restriction Settings"
+msgstr "הגדרות הגבלות Security Admin"
+
+msgid "Security Admin Restriction Zones"
+msgstr "אזורי הגבלה של Security Admin"
+
+msgid "Security Admin Settings"
+msgstr "הגדרות Security Admin"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin פעיל כעת"
+
+msgid "Security Admins"
+msgstr "מנהלי אבטחה"
+
+msgid "Security Analysis"
+msgstr "ניתוח אבטחה"
+
+msgid "Security Dashboard"
+msgstr "לוח בקרה אבטחה"
+
+msgid "Security PIN Currently Set"
+msgstr "קוד PIN אבטחה מוגדר כעת"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "קוד PIN אבטחה לא מוגדר כעת"
+
+msgid "Security Plugin Protection"
+msgstr "הגנת תוסף אבטחה"
+
+msgid "Security Profile"
+msgstr "פרופיל אבטחה"
+
+msgid "Security Reports"
+msgstr "דוחות אבטחה"
+
+msgid "Security Reports."
+msgstr "דוחות אבטחה."
+
+msgid "Security Rules"
+msgstr "כללי אבטחה"
+
+msgid "Security Stats"
+msgstr "סטטיסטיקות אבטחה"
+
+msgid "Security Tools"
+msgstr "כלי אבטחה"
+
+msgid "Security Zones"
+msgstr "אזורי אבטחה"
+
+msgid "Security Zones Config"
+msgstr "הגדרות אזורי אבטחה"
+
+msgid "Security admin pin set to: `%s`"
+msgstr "קוד PIN של מנהל אבטחה הוגדר ל: `%s`"
+
+msgid "Select"
+msgstr "בחר"
+
+msgid "Select Scans To Run"
+msgstr "בחר סריקות להרצה"
+
+msgid "Select file to import options from"
+msgstr "בחרו קובץ לייבוא אפשרויות ממנו"
+
+msgid "Sessions"
+msgstr "הפעלות"
+
+msgid "Set to %s to turn off this option."
+msgstr "הגדירו ל-%s כדי לכבות אפשרות זו."
+
+msgid "Setup Your Security Zones"
+msgstr "הגדרת אזורי האבטחה שלך"
+
+msgid "Severity"
+msgstr "חומרה"
+
+msgid "Shield Deactivated"
+msgstr "Shield הושבת"
+
+msgid "Shield Events & Stats"
+msgstr "אירועים וסטטיסטיקות של Shield"
+
+msgid "Shield Info"
+msgstr "מידע על Shield"
+
+msgid "Shield Option Key"
+msgstr "מפתח אפשרות Shield"
+
+msgid "Shield Security Home Page"
+msgstr "דף הבית של Shield Security"
+
+msgid "Shield plugin activated"
+msgstr "תוסף Shield הופעל"
+
+msgid "Shield plugin deactivated"
+msgstr "תוסף Shield הושבת"
+
+msgid "Shield plugin installed"
+msgstr "תוסף Shield הותקן"
+
+msgid "Shield plugin updated"
+msgstr "תוסף Shield עודכן"
+
+msgid "ShieldBACKUPS"
+msgstr "ShieldBACKUPS"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "Signal"
+msgstr "אות"
+
+msgid "Since"
+msgstr "מאז"
+
+msgid "Site"
+msgstr "אתר"
+
+msgid "Site Admin Email"
+msgstr "כתובת דוא״ל מנהל האתר"
+
+msgid "Site Is In Lockdown"
+msgstr "האתר בנעילה"
+
+msgid "Site Is Under Lockdown"
+msgstr "האתר נמצא בנעילה"
+
+msgid "Site Lockdown"
+msgstr "נעילת אתר"
+
+msgid "Site Lockdown and Firewall"
+msgstr "נעילת אתר וחומת אש"
+
+msgid "Site Scanning"
+msgstr "סריקת אתר"
+
+msgid "Site Security Summary"
+msgstr "סיכום אבטחת אתר"
+
+msgid "Site Snapshots"
+msgstr "תמונות מצב של האתר"
+
+msgid "Site Tagline"
+msgstr "כותרת משנה של אתר"
+
+msgid "Site URL"
+msgstr "כתובת האתר"
+
+msgid "Sites"
+msgstr "אתרים"
+
+msgid "Size"
+msgstr "גודל"
+
+msgid "Slug"
+msgstr "מזהה כתובת"
+
+msgid "Snapshots"
+msgstr "תמונות מצב"
+
+msgid "Statistics"
+msgstr "סטטיסטיקות"
+
+msgid "Stats"
+msgstr "סטטיסטיקות"
+
+msgid "Status"
+msgstr "סטטוס"
+
+msgid "Strong"
+msgstr "חזק"
+
+msgid "Success"
+msgstr "הצלחה"
+
+msgid "Successful 2FA Login Verification"
+msgstr "אימות התחברות 2FA הצליח"
+
+msgid "Summary"
+msgstr "סיכום"
+
+msgid "Summary Generated"
+msgstr "סיכום נוצר"
+
+msgid "Summary Security Reports."
+msgstr "סיכום דוחות אבטחה."
+
+msgid "Suspended"
+msgstr "מושעה"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "הפעלה/כיבוי של רשימות חסימת IP של CrowdSec"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "הפעלה/כיבוי של יכולת לערוך הגדרות קריטיות של WP"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "הפעלה/כיבוי של גישה לנקודת הקצה XML-RPC"
+
+msgid "Tagline"
+msgstr "כותרת משנה"
+
+msgid "Thanks!"
+msgstr "תודה!"
+
+msgid "Thanks."
+msgstr "תודה."
+
+msgid "The Description Of The Plugin"
+msgstr "תיאור התוסף"
+
+msgid "The Name Of The Plugin"
+msgstr "שם התוסף"
+
+msgid "The Name Of The Plugin."
+msgstr "שם התוסף."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "כתובת URL של הלוגו להצגה בתג התוסף."
+
+msgid "The email address specified in %s's General settings will be used."
+msgstr "ייעשה שימוש בכתובת האימייל שצוינה בהגדרות הכלליות של %s."
+
+msgid "Theme"
+msgstr "תבנית"
+
+msgid "Theme Activated"
+msgstr "תבנית הופעלה"
+
+msgid "Theme Installed"
+msgstr "תבנית הותקנה"
+
+msgid "Theme Uninstalled"
+msgstr "תבנית הוסרה"
+
+msgid "Themes"
+msgstr "תבניות"
+
+msgid "Themes With Updates"
+msgstr "תבניות עם עדכונים"
+
+msgid "Then"
+msgstr "אז"
+
+msgid "Then Activate"
+msgstr "לאחר מכן הפעלה"
+
+msgid "This Page"
+msgstr "עמוד זה"
+
+msgid "Time"
+msgstr "זמן"
+
+msgid "Time Now"
+msgstr "זמן נוכחי"
+
+msgid "Timestamp"
+msgstr "חותמת זמן"
+
+msgid "Timezone"
+msgstr "אזור זמן"
+
+msgid "Tools"
+msgstr "כלים"
+
+msgid "Traffic"
+msgstr "תעבורה"
+
+msgid "Traffic Rate Limiting"
+msgstr "הגבלת קצב תעבורה"
+
+msgid "Trash"
+msgstr "פח"
+
+msgid "Trashed"
+msgstr "הועבר לפח"
+
+msgid "Turn Off"
+msgstr "כיבוי"
+
+msgid "Turn On"
+msgstr "הפעלה"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "הפעילו את האפשרות להגביל גישה לחשבונות מנהל וורדפרס."
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "הפעילו את האפשרות להגביל גישה להגדרות קריטיות של וורדפרס."
+
+msgid "Turn your White Label settings on/off."
+msgstr "הפעלה/כיבוי של הגדרות White Label שלך."
+
+msgid "Type"
+msgstr "סוג"
+
+msgid "Type Of 2FA Verification Page"
+msgstr "סוג עמוד אימות 2FA"
+
+msgid "Type Of MFA Verification Page"
+msgstr "סוג עמוד אימות MFA"
+
+msgid "Type: {{type}}; Interval: {{interval}};"
+msgstr "סוג: {{type}}; מרווח: {{interval}};"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - דף הבית"
+
+msgid "URL - Site"
+msgstr "כתובת URL - אתר"
+
+msgid "Unavailable"
+msgstr "לא זמין"
+
+msgid "Unblocked"
+msgstr "בוטל החסימה"
+
+msgid "Unclassified"
+msgstr "לא מסווג"
+
+msgid "Unidentified"
+msgstr "לא מזוהה"
+
+msgid "Uninstalled"
+msgstr "הוסר"
+
+msgid "Unknown"
+msgstr "לא ידוע"
+
+msgid "Unknown Name"
+msgstr "שם לא ידוע"
+
+msgid "Unlock"
+msgstr "בטל נעילה"
+
+msgid "Unlock Now"
+msgstr "בטל נעילה עכשיו"
+
+msgid "Unpublished"
+msgstr "בוטל הפרסום"
+
+msgid "Unrecognised"
+msgstr "לא מזוהה"
+
+msgid "Until"
+msgstr "עד"
+
+msgid "Updated"
+msgstr "עודכן"
+
+msgid "Updates"
+msgstr "עדכונים"
+
+msgid "Updates and Changes"
+msgstr "עדכונים ושינויים"
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "שימוש ב-silentCAPTCHA של Shield לחסימת בוטים והתקפות כוח גס"
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "שימוש ב-silentCAPTCHA לחסימת ספאם תגובות בוטים"
+
+msgid "Used"
+msgstr "בשימוש"
+
+msgid "User"
+msgstr "משתמש"
+
+msgid "User 2FA Setup"
+msgstr "הגדרת 2FA למשתמש"
+
+msgid "User Access"
+msgstr "גישת משתמש"
+
+msgid "User Accounts"
+msgstr "חשבונות משתמש"
+
+msgid "User Agent"
+msgstr "User Agent"
+
+msgid "User Deleted"
+msgstr "משתמש נמחק"
+
+msgid "User Deleted And Reassigned"
+msgstr "משתמש נמחק והוקצה מחדש"
+
+msgid "User Email Updated"
+msgstr "אימייל משתמש עודכן"
+
+msgid "User ID"
+msgstr "מזהה משתמש"
+
+msgid "User Login"
+msgstr "התחברות משתמש"
+
+msgid "User Login Notification Email"
+msgstr "דוא״ל התראה על התחברות משתמש"
+
+msgid "User Meta"
+msgstr "מטא משתמש"
+
+msgid "User Register Bot Protection"
+msgstr "הגנה מפני בוטים ברישום משתמשים"
+
+msgid "User Registered"
+msgstr "משתמש נרשם"
+
+msgid "User Role"
+msgstr "תפקיד משתמש"
+
+msgid "User Sessions"
+msgstr "הפעלות משתמשים"
+
+msgid "User Status"
+msgstr "סטטוס משתמש"
+
+msgid "User login request blocked."
+msgstr "בקשת התחברות משתמש נחסמה."
+
+msgid "User registration request blocked."
+msgstr "בקשת רישום משתמש נחסמה."
+
+msgid "User: <code>%s</code>"
+msgstr "משתמש: <code>%s</code>"
+
+msgid "Useragent"
+msgstr "Useragent"
+
+msgid "Username"
+msgstr "שם משתמש"
+
+msgid "Users"
+msgstr "משתמשים"
+
+msgid "Verb"
+msgstr "פועל"
+
+msgid "Verification Code"
+msgstr "קוד אימות"
+
+msgid "Version"
+msgstr "גרסה"
+
+msgid "View Comment"
+msgstr "הצגת תגובה"
+
+msgid "View Config"
+msgstr "הצגת הגדרות"
+
+msgid "View Details"
+msgstr "הצגת פרטים"
+
+msgid "View File Contents"
+msgstr "הצגת תוכן הקובץ"
+
+msgid "View IP Reputation Option"
+msgstr "הצגת אפשרות מוניטין IP"
+
+msgid "View Results"
+msgstr "הצגת תוצאות"
+
+msgid "View and manage details of current user sessions on the site."
+msgstr "צפייה וניהול פרטי הפעלות משתמשים נוכחיות באתר."
+
+msgid "View, edit and remove custom security rules"
+msgstr "צפייה, עריכה והסרה של כללי אבטחה מותאמים אישית"
+
+msgid "Visitor IP"
+msgstr "IP מבקר"
+
+msgid "Vulnerabilities"
+msgstr "פגיעויות"
+
+msgid "Vulnerabilities Detected"
+msgstr "זוהו פגיעויות"
+
+msgid "Vulnerabilities Scanner"
+msgstr "סורק פגיעויות"
+
+msgid "Vulnerability Discovered"
+msgstr "התגלתה פגיעות"
+
+msgid "Vulnerability Scanner"
+msgstr "סורק פגיעויות"
+
+msgid "Vulnerability Scanning"
+msgstr "סריקת פגיעויות"
+
+msgid "Vulnerable"
+msgstr "פגיע"
+
+msgid "Vulnerable Plugins"
+msgstr "תוספים פגיעים"
+
+msgid "Vulnerable Plugins & Themes"
+msgstr "תוספים וערכות נושא פגיעים"
+
+msgid "Vulnerable Themes"
+msgstr "תבניות פגיעות"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "פעילות WP"
+
+msgid "WP Core File Scanner"
+msgstr "סורק קבצי ליבת WP"
+
+msgid "WP Default User Role"
+msgstr "תפקיד משתמש ברירת מחדל של WP"
+
+msgid "WP Login & Admin Redirect"
+msgstr "הפניית התחברות ולוח בקרה של WP"
+
+msgid "WP Site Admin Email"
+msgstr "כתובת דוא״ל מנהל אתר WP"
+
+msgid "WP Site Tagline"
+msgstr "כותרת משנה של אתר WP"
+
+msgid "WP User Registration"
+msgstr "רישום משתמש WP"
+
+msgid "WP root"
+msgstr "שורש WP"
+
+msgid "Warning"
+msgstr "אזהרה"
+
+msgid "Weak"
+msgstr "חלש"
+
+msgid "Weekly"
+msgstr "שבועי"
+
+msgid "Welcome"
+msgstr "ברוכים הבאים"
+
+msgid "When"
+msgstr "מתי"
+
+msgid "White Label"
+msgstr "White Label"
+
+msgid "With Issues"
+msgstr "עם בעיות"
+
+msgid "Wizards"
+msgstr "אשפים"
+
+msgid "WordPress"
+msgstr "וורדפרס"
+
+msgid "WordPress Activity"
+msgstr "פעילות וורדפרס"
+
+msgid "WordPress Address (URL)"
+msgstr "כתובת וורדפרס (URL)"
+
+msgid "WordPress Admins Protection"
+msgstr "הגנה על מנהלי וורדפרס"
+
+msgid "WordPress Core Auto-Repair"
+msgstr "תיקון אוטומטי של ליבת וורדפרס"
+
+msgid "WordPress Core File Scanner"
+msgstr "סורק קבצי ליבת וורדפרס"
+
+msgid "WordPress Core Options Protection"
+msgstr "הגנה על אפשרויות ליבת וורדפרס"
+
+msgid "WordPress File Editing Lockdown"
+msgstr "נעילת עריכת קבצי וורדפרס"
+
+msgid "WordPress File Scanner"
+msgstr "סורק קבצי וורדפרס"
+
+msgid "WordPress File Scanning"
+msgstr "סריקת קבצי וורדפרס"
+
+msgid "WordPress Info"
+msgstr "מידע על וורדפרס"
+
+msgid "WordPress Obscurity Options"
+msgstr "אפשרויות הסתרת וורדפרס"
+
+msgid "WordPress Options"
+msgstr "אפשרויות וורדפרס"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "סורק קבצי תוספים וורדפרס"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "סורק קבצי שורש האתר של וורדפרס"
+
+msgid "WordPress Stats"
+msgstr "סטטיסטיקות וורדפרס"
+
+msgid "WordPress Theme File Scanner"
+msgstr "סורק קבצי ערכות נושא וורדפרס"
+
+msgid "WordPress Updates"
+msgstr "עדכוני וורדפרס"
+
+msgid "WordPress Version"
+msgstr "גרסת וורדפרס"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "סורק קבצי תיקיית WP Content של וורדפרס"
+
+msgid "WordPress user deleted."
+msgstr "משתמש וורדפרס נמחק."
+
+msgid "WordPress.org Plugin Auto-Repair"
+msgstr "תיקון אוטומטי של תוספים מ-WordPress.org"
+
+msgid "WordPress.org Theme Auto-Repair"
+msgstr "תיקון אוטומטי של ערכות נושא מ-WordPress.org"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "גישת XML-RPC"
+
+msgid "XML-RPC Lockdown"
+msgstr "נעילת XML-RPC"
+
+msgid "XML-RPC Request Blocked."
+msgstr "בקשת XML-RPC נחסמה."
+
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+msgid "Yearly"
+msgstr "שנתי"
+
+msgid "Yes"
+msgstr "כן"
+
+msgid "Yes: %s"
+msgstr "כן: %s"
+
+msgid "Your Current IP"
+msgstr "כתובת ה-IP הנוכחית שלך"
+
+msgid "Your WordPress login form is now protected"
+msgstr "טופס ההתחברות של וורדפרס שלך מוגן כעת"
+
+msgid "Your backup login code is: %s"
+msgstr "קוד ההתחברות הגיבוי שלך הוא: %s"
+
+msgid "Your current IP Reputation score is %s."
+msgstr "ציון המוניטין הנוכחי של כתובת ה-IP שלך הוא %s."
+
+msgid "Your current login URL is: %s"
+msgstr "כתובת ההתחברות הנוכחית שלך היא: %s"
+
+msgid "Your current security posture"
+msgstr "מצב האבטחה הנוכחי שלך"
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "מזהה המכונה הרשום שלך ב-CrowdSec הוא: %s"
+
+msgid "Your reporting email address is: %s"
+msgstr "כתובת האימייל שלך לדיווחים היא: %s"
+
+msgid "Your site is currently in lockdown."
+msgstr "האתר שלך כרגע בנעילה."
+
+msgid "Your site is in lockdown."
+msgstr "האתר שלך בנעילה."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey ID"
+msgstr "מזהה Yubikey"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "אזור"
+
+msgid "Zone Actions"
+msgstr "פעולות אזור"
+
+msgid "Zones"
+msgstr "אזורים"
+
+msgid "and"
+msgstr "ו"
+
+msgid "case-insensitive"
+msgstr "לא רגיש לאותיות גדולות/קטנות"
+
+msgid "currently %s"
+msgstr "כרגע %s"
+
+msgid "days"
+msgstr "ימים"
+
+msgid "estimated"
+msgstr "משוער"
+
+msgid "expires"
+msgstr "תוקף"
+
+msgid "file import"
+msgstr "ייבוא קובץ"
+
+msgid "help"
+msgstr "עזרה"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "icon"
+msgstr "סמל"
+
+msgid "import file"
+msgstr "ייבוא קובץ"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "לא זמין"
+
+msgid "no label"
+msgstr "ללא תווית"
+
+msgid "no name"
+msgstr "ללא שם"
+
+msgid "offense"
+msgstr "עבירה"
+
+msgid "options"
+msgstr "אפשרויות"
+
+msgid "or"
+msgstr "או"
+
+msgid "permanently"
+msgstr "לצמיתות"
+
+msgid "rDNS"
+msgstr "rDNS"
+
+msgid "recommendation"
+msgstr "המלצה"
+
+msgid "seconds"
+msgstr "שניות"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Minimum Score"
+msgstr "ציון מינימלי לבוט silentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "ציון בוט silentCAPTCHA (אחוזים)"
+
+msgid "silentCAPTCHA Registration"
+msgstr "רישום silentCAPTCHA"
+
+msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
+msgstr "הציון המינימלי לבוט של silentCAPTCHA נמוך למדי (%s)."
+
+msgid "suggestion"
+msgstr "הצעה"
+
+msgid "tools"
+msgstr "כלים"
+
+msgid "unknown"
+msgstr "לא ידוע"
+

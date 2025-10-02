@@ -1,0 +1,5682 @@
+# Dutch translation for shield
+# This file is distributed under the same license as shield.
+msgid ""
+msgstr ""
+"Project-Id-Version: shield\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-02 13:04+0000\n"
+"PO-Revision-Date: 2025-10-02 13:04+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s reactie-SPAM beveiliging"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s Firewall heeft een verzoek naar uw WordPress site geblokkeerd."
+
+msgid "%s Home"
+msgstr "%s home"
+
+msgid "%s Plugin Badge"
+msgstr "%s plugin badge"
+
+msgid "%s Plugin options updated successfully."
+msgstr "%s Plugin opties succesvol geüpdatet."
+
+msgid "%s Status Report"
+msgstr "%s Statusrapport"
+
+msgid "%s and %s"
+msgstr "%s en %s"
+
+msgid "%s day"
+msgstr "%s dag"
+
+msgid "%s days"
+msgstr "%s dagen"
+
+msgid "%s directory"
+msgstr "%s map"
+
+msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
+msgstr "%s heeft ontdekt dat de momenteel geïnstalleerde versie van de %s plugin bekende beveiligingskwetsbaarheden heeft."
+
+msgid "%s is %s's exclusive service that protects your wp-config.php file."
+msgstr "%s is %s's exclusieve service die uw wp-config.php bestand beschermt."
+
+msgid "%s is not currently protecting your site."
+msgstr "%s beschermt uw site momenteel niet."
+
+msgid "%s is not protecting your site"
+msgstr "%s beschermt uw site niet"
+
+msgid "%s is protected against tampering."
+msgstr "%s is beschermd tegen manipulatie."
+
+msgid "%s isn't protected against tampering."
+msgstr "%s is niet beschermd tegen manipulatie."
+
+msgid "%s minute"
+msgstr "%s minuut"
+
+msgid "%s minutes"
+msgstr "%s minuten"
+
+msgid "%s not installed from WordPress.org."
+msgstr "%s niet geïnstalleerd vanaf WordPress.org."
+
+msgid "%s offense"
+msgstr "%s overtreding"
+
+msgid "%s offense until block"
+msgstr "%s overtreding tot blokkering"
+
+msgid "%s offenses"
+msgstr "%s overtredingen"
+
+msgid "%s offenses until block"
+msgstr "%s overtredingen tot blokkering"
+
+msgid "%s options and modules"
+msgstr "%s opties en modules"
+
+msgid "%s seconds"
+msgstr "%s seconden"
+
+msgid "%s time"
+msgstr "%s keer"
+
+msgid "%s times"
+msgstr "%s keer"
+
+msgid "%s tools and features"
+msgstr "%s tools en functies"
+
+msgid "%s was added to your profile."
+msgstr "%s is toegevoegd aan uw profiel."
+
+msgid "%s was removed from your profile."
+msgstr "%s is verwijderd van uw profiel."
+
+msgid "%s was successfully added to your account."
+msgstr "%s is succesvol toegevoegd aan uw account."
+
+msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
+msgstr "(wanneer lockdown is uitgeschakeld, zal het IP-adres automatisch van de whitelist worden verwijderd)"
+
+msgid "/wp-content/ directory isn't scanned."
+msgstr "/wp-content/ directory wordt niet gescand."
+
+msgid "1-minute"
+msgstr "1 minuut"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "15-minute"
+msgstr "15 minuten"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - E-mail"
+
+msgid "2FA At"
+msgstr "2FA Op"
+
+msgid "2FA Login Success"
+msgstr "2FA login succesvol"
+
+msgid "2FA One-Time Passwords"
+msgstr "2FA eenmalige wachtwoorden"
+
+msgid "2FA Provider"
+msgstr "2FA-provider"
+
+msgid "2FA User Config Page"
+msgstr "2FA gebruikersconfiguratiepagina"
+
+msgid "2FA by Email"
+msgstr "2FA via E-mail"
+
+msgid "2FA by email has been disabled"
+msgstr "2FA via e-mail is uitgeschakeld"
+
+msgid "32/64-bit"
+msgstr "32/64-bit"
+
+msgid "5-minute"
+msgstr "5 minuten"
+
+msgid "7 Days"
+msgstr "7 dagen"
+
+msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
+msgstr "<strong>Scannen</strong> van uw core WordPress bestanden en mappen op wijzigingen en nieuwe bestanden."
+
+msgid "A Known Service Provider/Bot"
+msgstr "Een Bekende Serviceprovider/Bot"
+
+msgid "A PIN needs to be set to enable the Security Admin."
+msgstr "Er moet een PIN worden ingesteld om de Security Admin in te schakelen."
+
+msgid "A User Can Bypass 2FA For The Set Number Of Days"
+msgstr "Een Gebruiker Kan 2FA Omzeilen Voor Het Ingestelde Aantal Dagen"
+
+msgid "A WordPress user (%s) has requested to remove the Security Admin restriction."
+msgstr "Een WordPress gebruiker (%s) heeft verzocht om de Security Admin beperking te verwijderen."
+
+msgid "A default will be used."
+msgstr "Er wordt een standaardwaarde gebruikt."
+
+msgid "A high-level overview of your WordPress updates status."
+msgstr "Een overzicht op hoog niveau van uw WordPress update status."
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "Een nieuw eenmalig wachtwoord is naar uw e-mailadres verzonden."
+
+msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Een silentCAPTCHA Bot Check werd uitgevoerd op een bezoeker maar de Bot-blokkeeroptie is uitgeschakeld in de instellingen."
+
+msgid "A1B2C3"
+msgstr "A1B2C3"
+
+msgid "ABSPATH"
+msgstr "ABSPATH"
+
+msgid "Abandoned"
+msgstr "Verlaten"
+
+msgid "Abandoned Plugin Scanner"
+msgstr "Verlaten plugin scanner"
+
+msgid "Abandoned Plugins"
+msgstr "Verlaten plugins"
+
+msgid "Abandoned Plugins Found"
+msgstr "Verlaten plugins gevonden"
+
+msgid "Abandoned WordPress.org Plugins"
+msgstr "Verlaten WordPress.org Plugins"
+
+msgid "Absolutely"
+msgstr "Absoluut"
+
+msgid "Access Restricted"
+msgstr "Toegang Beperkt"
+
+msgid "Access Restriction Zones"
+msgstr "Toegangsbeperkingszones"
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "Toegang tot XML-RPC gedetecteerd op '{{path}}'."
+
+msgid "Access to XML-RPC is available."
+msgstr "Toegang tot XML-RPC is beschikbaar."
+
+msgid "Access to XML-RPC is disabled."
+msgstr "Toegang tot XML-RPC is uitgeschakeld."
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "Toegang tot de %s Security plugin is beperkt."
+
+msgid "Actions"
+msgstr "Acties"
+
+msgid "Actions and Info"
+msgstr "Acties en Info"
+
+msgid "Activate"
+msgstr "activeren"
+
+msgid "Activate Rule"
+msgstr "Regel Activeren"
+
+msgid "Activate Shield"
+msgstr "Shield activeren"
+
+msgid "Activate ShieldPRO License"
+msgstr "ShieldPRO licentie activeren"
+
+msgid "Activate Your ShieldPRO License"
+msgstr "Activeer Uw ShieldPRO Licentie"
+
+msgid "Activate Your White Label Settings"
+msgstr "Activeer Uw White Label Instellingen"
+
+msgid "Activated"
+msgstr "Geactiveerd"
+
+msgid "Active"
+msgstr "Actief"
+
+msgid "Active 2FA"
+msgstr "Actieve 2FA"
+
+msgid "Active Plugins (%s)"
+msgstr "Actieve plugins (%s)"
+
+msgid "Active Rules Summary"
+msgstr "Overzicht Actieve Regels"
+
+msgid "Active Themes (%s)"
+msgstr "Actieve thema's (%s)"
+
+msgid "Active license found."
+msgstr "Actieve licentie gevonden."
+
+msgid "Activity"
+msgstr "Activiteit"
+
+msgid "Activity Log"
+msgstr "Activiteitenlog"
+
+msgid "Activity Logging"
+msgstr "Activiteitenlogboek"
+
+msgid "Added Tables"
+msgstr "Toegevoegde Tabellen"
+
+msgid "Admin Access Login"
+msgstr "Admin-toegangslogin"
+
+msgid "Admin Accounts"
+msgstr "Beheerdersaccounts"
+
+msgid "Admin Changes Detected"
+msgstr "Beheerwijzigingen Gedetecteerd"
+
+msgid "Admin Login Notification Email"
+msgstr "Admin login notificatie e-mail"
+
+msgid "Admin Users"
+msgstr "Beheerders"
+
+msgid "Administration Email Address"
+msgstr "Beheer E-mailadres"
+
+msgid "Admins"
+msgstr "Beheerders"
+
+msgid "Alert"
+msgstr "waarschuwing"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "Alle MFA-providers verwijderd van gebruiker met ID %s."
+
+msgid "All User Roles Available On This Site"
+msgstr "Alle Gebruikersrollen Beschikbaar Op Deze Site"
+
+msgid "All WP Site Activity"
+msgstr "Alle WP site-activiteit"
+
+msgid "All WordPress Core files appear to be clean and unmodified."
+msgstr "Alle WordPress Core bestanden lijken schoon en ongewijzigd te zijn."
+
+msgid "All access to your site is blocked."
+msgstr "Alle toegang tot uw site is geblokkeerd."
+
+msgid "All available plugin updates have been applied."
+msgstr "Alle beschikbare plugin-updates zijn toegepast."
+
+msgid "All available theme updates have been applied."
+msgstr "Alle beschikbare thema-updates zijn toegepast."
+
+msgid "All installed plugins appear to be active and in-use."
+msgstr "Alle geïnstalleerde plugins lijken actief en in gebruik te zijn."
+
+msgid "All installed themes appear to be active and in-use."
+msgstr "Alle geïnstalleerde thema's lijken actief en in gebruik te zijn."
+
+msgid "All new passwords are required to be be of high strength."
+msgstr "Alle nieuwe wachtwoorden moeten van hoge sterkte zijn."
+
+msgid "All passwords that a user sets must meet this minimum strength."
+msgstr "Alle wachtwoorden die een gebruiker instelt moeten aan deze minimale sterkte voldoen."
+
+msgid "All plugin & theme files appear to be valid."
+msgstr "Alle plugin- & themabestanden lijken geldig te zijn."
+
+msgid "All rules have been deactivated"
+msgstr "Alle regels zijn gedeactiveerd"
+
+msgid "All security protection offered by Shield is completely disabled."
+msgstr "Alle beveiligingsbescherming geboden door Shield is volledig uitgeschakeld."
+
+msgid "Allow Any User"
+msgstr "Elke Gebruiker Toestaan"
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "Geautomatiseerde Import En Export Van Opties Op Deze Site Toestaan"
+
+msgid "Allow Backup Codes"
+msgstr "Back-upcodes Toestaan"
+
+msgid "Allow Export"
+msgstr "Export Toestaan"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "Import Van Opties Naar, En Export Van Opties Vanaf, Deze Site Toestaan"
+
+msgid "Allow Passkeys"
+msgstr "Passkeys toestaan"
+
+msgid "Allow Registration Of Passkeys"
+msgstr "Registratie Van Passkeys Toestaan"
+
+msgid "Allow Registration Of Passkeys."
+msgstr "Registratie Van Passkeys Toestaan."
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "Gebruikers Toestaan Een Back-upcode Te Genereren"
+
+msgid "Allow Users To Register Passkeys"
+msgstr "Gebruikers Toestaan Passkeys Te Registreren"
+
+msgid "Allow Yubikey OTP"
+msgstr "Yubikey OTP Toestaan"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "Yubikey Registratie Voor Eenmalige Wachtwoorden Toestaan"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "Sta gebruikers toe om een back-up 2FA logincode te genereren."
+
+msgid "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
+msgstr "Sta gebruikers toe om een back-upcode te genereren die kan worden gebruikt om in te loggen als MFA-factoren niet beschikbaar zijn."
+
+msgid "An email address has been provided for reporting important security notices."
+msgstr "Er is een e-mailadres opgegeven voor het rapporteren van belangrijke beveiligingsmeldingen."
+
+msgid "Analysis"
+msgstr "Analyse"
+
+msgid "Any visitor that exceeds this number of requests in the given time period will register an offense against their IP address."
+msgstr "Elke bezoeker die dit aantal verzoeken in de opgegeven tijdsperiode overschrijdt, registreert een overtreding tegen hun IP-adres."
+
+msgid "Anyone Can Register"
+msgstr "Iedereen Kan Registreren"
+
+msgid "Anyone can register"
+msgstr "Iedereen kan registreren"
+
+msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
+msgstr "Brute Force Bescherming Toepassen Op Gebruikersregistratie En Verloren Wachtwoorden"
+
+msgid "Apply Ready-Made Security Profile"
+msgstr "Kant-en-klaar Beveiligingsprofiel Toepassen"
+
+msgid "Apply Updates Automatically To Vulnerable Plugins"
+msgstr "Updates Automatisch Toepassen Op Kwetsbare Plugins"
+
+msgid "Are WordPress permalinks enabled."
+msgstr "Zijn WordPress permalinks ingeschakeld."
+
+msgid "At least 1 2FA option is available to protect user accounts."
+msgstr "Minstens 1 2FA optie is beschikbaar om gebruikersaccounts te beschermen."
+
+msgid "At least 1 WordPress Core file appears to be modified or unrecognised."
+msgstr "Minstens 1 WordPress Core bestand lijkt gewijzigd of onherkend te zijn."
+
+msgid "At least 1 of your plugins or themes appears to be modified."
+msgstr "Minstens 1 van uw plugins of thema's lijkt gewijzigd te zijn."
+
+msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
+msgstr "Er moet minstens 1 optie worden opgegeven en standaard wordt de gebruikersprofielpagina binnen de WP admin ruimte gebruikt."
+
+msgid "At least 1 security report has been generated for your site."
+msgstr "Er is minstens 1 beveiligingsrapport gegenereerd voor uw site."
+
+msgid "Attempted login with invalid user '{{user_login}}'."
+msgstr "Inlogpoging met ongeldige gebruiker '{{user_login}}'."
+
+msgid "Attempts to automatically repair files that have been changed, or infected with malware."
+msgstr "Probeert automatisch bestanden te herstellen die zijn gewijzigd of geïnfecteerd met malware."
+
+msgid "Authenticated With Site"
+msgstr "Geauthenticeerd Met Site"
+
+msgid "Author"
+msgstr "Auteur"
+
+msgid "Author Fishing"
+msgstr "Auteur Fishing"
+
+msgid "Auto Block"
+msgstr "Automatisch blokkeren"
+
+msgid "Auto Block Expiration"
+msgstr "Automatisch Blokkeren Vervaldatum"
+
+msgid "Auto Blocking Rules"
+msgstr "Automatische Blokkeringsregels"
+
+msgid "Auto Clean"
+msgstr "Automatisch opschonen"
+
+msgid "Auto File Repair"
+msgstr "Automatisch Bestand Repareren"
+
+msgid "Auto File Repair and File Diff are available"
+msgstr "Automatisch Bestand Repareren en File Diff zijn beschikbaar"
+
+msgid "Auto File Repair and File Diff aren't available."
+msgstr "Automatisch Bestand Repareren en File Diff zijn niet beschikbaar."
+
+msgid "Auto IP Blocking Rules"
+msgstr "Automatische IP-blokkeringsregels"
+
+msgid "Auto IP blocking is switched-off as there is no offense limit provided."
+msgstr "Automatische IP blokkering is uitgeschakeld omdat er geen overtredingslimiet is opgegeven."
+
+msgid "Auto-Generated"
+msgstr "Automatisch gegenereerd"
+
+msgid "Auto-Import URL"
+msgstr "Auto-Import URL"
+
+msgid "Auto-Integrations"
+msgstr "Automatische integraties"
+
+msgid "Auto-Repair will never automatically delete new or unrecognised files."
+msgstr "Automatisch herstel zal nooit automatisch nieuwe of onbekende bestanden verwijderen."
+
+msgid "Auto-Update Vulnerable Plugins"
+msgstr "Kwetsbare Plugins Automatisch Updaten"
+
+msgid "Auto-repair of files from WordPress.org plugins is enabled."
+msgstr "Automatisch herstel van bestanden van WordPress.org-plugins is ingeschakeld."
+
+msgid "Auto-repair of files from WordPress.org plugins isn't enabled."
+msgstr "Automatisch herstel van bestanden van WordPress.org-plugins is niet ingeschakeld."
+
+msgid "Auto-repair of files from WordPress.org themes is enabled."
+msgstr "Automatisch herstel van bestanden van WordPress.org thema's is ingeschakeld."
+
+msgid "Auto-repair of files from WordPress.org themes isn't enabled."
+msgstr "Automatisch herstel van bestanden van WordPress.org-thema's is niet ingeschakeld."
+
+msgid "Auto-repair of modified WordPress core files is enabled."
+msgstr "Automatisch herstel van gewijzigde WordPress core bestanden is ingeschakeld."
+
+msgid "Auto-repair of modified WordPress core files isn't enabled."
+msgstr "Automatisch herstel van gewijzigde WordPress core bestanden is niet ingeschakeld."
+
+msgid "Automatic Bot"
+msgstr "Automatische Bot"
+
+msgid "Automatic File Repair"
+msgstr "Automatisch Bestandsherstel"
+
+msgid "Automatic IP Blocking"
+msgstr "Automatische IP-blokkering"
+
+msgid "Automatic Import/Export"
+msgstr "Automatisch Importeren/Exporteren"
+
+msgid "Automatic Redirect URL For Hidden Pages"
+msgstr "Automatische Doorverwijzings-URL Voor Verborgen Pagina's"
+
+msgid "Automatic Updates"
+msgstr "Automatische Updates"
+
+msgid "Automatically Block Malicious IP Addresses"
+msgstr "Kwaadaardige IP-Adressen Automatisch Blokkeren"
+
+msgid "Automatically Import Options From This Site"
+msgstr "Automatisch Opties Importeren Vanaf Deze Site"
+
+msgid "Automatically Import Options From This Site URL"
+msgstr "Automatisch Opties Importeren Vanaf Deze Site URL"
+
+msgid "Automatically Install Updates To Vulnerable Plugins"
+msgstr "Automatisch Updates Installeren Voor Kwetsbare Plugins"
+
+msgid "Automatically Scan WordPress Files For Changes"
+msgstr "WordPress Bestanden Automatisch Scannen Op Wijzigingen"
+
+msgid "Automatically detect & repair vulnerable and suspicious files, plugins and themes."
+msgstr "Automatisch kwetsbare en verdachte bestanden, plugins en thema's detecteren & repareren."
+
+msgid "Automatically redirect here for any requests made to hidden pages."
+msgstr "Verzoeken automatisch doorsturen naar deze locatie voor verborgen pagina's."
+
+msgid "Automatically redirect requests to this location for the hidden pages."
+msgstr "Verzoeken automatisch doorsturen naar deze locatie voor de verborgen pagina's."
+
+msgid "Automatically update the \"%s\" plugin."
+msgstr "De \"%s\" plugin automatisch updaten."
+
+msgid "Automatically update the Shield plugin."
+msgstr "De Shield plugin automatisch updaten."
+
+msgid "Available Roles"
+msgstr "Beschikbare Rollen"
+
+msgid "Backup Code"
+msgstr "Back-upcode"
+
+msgid "Backup Codes"
+msgstr "Back-upcodes"
+
+msgid "Backup Login Code"
+msgstr "Login back-upcode"
+
+msgid "Backup Login Code Just Used"
+msgstr "Login back-upcode zojuist gebruikt"
+
+msgid "Badge"
+msgstr "Badge"
+
+msgid "Be alerted to any important change on any admin account"
+msgstr "Ontvang waarschuwingen voor elke belangrijke wijziging op elk beheerdersaccount"
+
+msgid "Be alerted to any important change on any admin account."
+msgstr "Ontvang waarschuwingen voor elke belangrijke wijziging op elk beheerdersaccount."
+
+msgid "Be alerted to discovery of any vulnerable plugin/theme"
+msgstr "Ontvang een waarschuwing bij ontdekking van kwetsbare plugin/thema"
+
+msgid "Be alerted to discovery of any vulnerable plugin/theme."
+msgstr "Ontvang een waarschuwing bij ontdekking van kwetsbare plugin/thema."
+
+msgid "Be alerted to important changes on any admin account"
+msgstr "Ontvang waarschuwingen voor belangrijke wijzigingen op elk beheerdersaccount"
+
+msgid "Be alerted to plugins and themes with known security vulnerabilities"
+msgstr "Ontvang waarschuwingen over plugins en thema's met bekende beveiligingskwetsbaarheden"
+
+msgid "Be alerted when the Shield plugin is deactivated"
+msgstr "Ontvang een waarschuwing wanneer de Shield plugin wordt gedeactiveerd"
+
+msgid "Be alerted when the Shield plugin is deactivated."
+msgstr "Ontvang een waarschuwing wanneer de Shield plugin wordt gedeactiveerd."
+
+msgid "Block %s"
+msgstr "%s blokkeren"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "100% Bot Reactie SPAM Blokkeren Met silentCAPTCHA"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Bot reactie SPAM blokkeren"
+
+msgid "Block Bot SPAM"
+msgstr "Bot-SPAM blokkeren"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "Reactie SPAM Geplaatst Door Mensen Blokkeren"
+
+msgid "Block Human Comment SPAM"
+msgstr "Menselijke reactie SPAM blokkeren"
+
+msgid "Block Human SPAM"
+msgstr "Menselijke SPAM blokkeren"
+
+msgid "Block IP"
+msgstr "IP blokkeren"
+
+msgid "Block IP Address?"
+msgstr "IP-adres blokkeren?"
+
+msgid "Block Login Attempted By Automated Bots"
+msgstr "Loginpoging Door Geautomatiseerde Bots Blokkeren"
+
+msgid "Block Login Bots"
+msgstr "Loginbots blokkeren"
+
+msgid "Block PHP Code Includes"
+msgstr "PHP-code includes blokkeren"
+
+msgid "Block PHP code in requests"
+msgstr "PHP-code in verzoeken blokkeren"
+
+msgid "Block Page"
+msgstr "Pagina blokkeren"
+
+msgid "Block SPAM User Registrations"
+msgstr "SPAM gebruikersregistraties blokkeren"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "SPAM geplaatst op contactformulieren door geautomatiseerde bots blokkeren."
+
+msgid "Block Username Fishing"
+msgstr "Gebruikersnaam Fishing Blokkeren"
+
+msgid "Block WP comments posted by bots"
+msgstr "WP reacties geplaatst door bots blokkeren"
+
+msgid "Block WP comments posted by humans that appear to be SPAM"
+msgstr "WP reacties geplaatst door mensen die SPAM lijken te zijn blokkeren"
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "WordPress Reactie SPAM en Contactformulier SPAM blokkeren."
+
+msgid "Block XML-RPC"
+msgstr "XML-RPC blokkeren"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "Alle toegang tot de site blokkeren behalve van IP's op de bypass/white list."
+
+msgid "Block directory traversal requests"
+msgstr "Maptraversal-verzoeken blokkeren"
+
+msgid "Block duration"
+msgstr "Blokkeerduur"
+
+msgid "Blocked"
+msgstr "Geblokkeerd"
+
+msgid "Blocked & Bypass IPs"
+msgstr "Geblokkeerde & Omzeilde IPs"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "SPAM reactie van bot geblokkeerd."
+
+msgid "Blocked comment that triggered the Comment Cooldown."
+msgstr "Reactie geblokkeerd die de Reactie Cooldown activeerde."
+
+msgid "Blocked/High Reputation"
+msgstr "Geblokkeerd/Hoge Reputatie"
+
+msgid "Blocks 100% of all automated bot-generated comment SPAM."
+msgstr "Blokkeert 100% van alle geautomatiseerde bot-gegenereerde reactie SPAM."
+
+msgid "Blocks brute force hacking attacks against your login and registration pages."
+msgstr "Blokkeert brute force hackaanvallen tegen uw login- en registratiepagina's."
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Bot Acties"
+
+msgid "Bot Blocking"
+msgstr "Bot Blokkeren"
+
+msgid "Bot Comment SPAM"
+msgstr "Bot reactie SPAM"
+
+msgid "Bot Detection"
+msgstr "Botdetectie"
+
+msgid "Bot Protection"
+msgstr "Botbeveiliging"
+
+msgid "Bot SPAM"
+msgstr "Bot-SPAM"
+
+msgid "Bot SPAM Action"
+msgstr "Bot-SPAM Actie"
+
+msgid "Bot Signals"
+msgstr "Botsignalen"
+
+msgid "Bot Signals Tracking"
+msgstr "Botsignalen Tracking"
+
+msgid "Bot Tracking"
+msgstr "Bot-tracking"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "Bot reactie SPAM wordt niet geblokkeerd"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "Bot reactie SPAM wordt nu geblokkeerd"
+
+msgid "Bot threshold"
+msgstr "Bot drempel"
+
+msgid "Bots"
+msgstr "Bots"
+
+msgid "Bots & IP Rules"
+msgstr "Bots & IP-regels"
+
+msgid "Bots & IPs"
+msgstr "Bots & IP's"
+
+msgid "Browser"
+msgstr "Browser"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "Brute Force loginbeveiliging"
+
+msgid "Brute Force Login Protection"
+msgstr "Brute force loginbeveiliging"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "Brute force loginbeveiliging met silentCAPTCHA"
+
+msgid "Brute Force Protection"
+msgstr "Brute force beveiliging"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Brute force verkeer snelheidslimitering"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "Brute force bot aanvallen tegen uw WordPress login worden gedetecteerd & geblokkeerd door silentCAPTCHA."
+
+msgid "Brute force login attacks aren't blocked by the login cooldown system."
+msgstr "Brute force login aanvallen worden niet geblokkeerd door het login cooldown systeem."
+
+msgid "Brute force login attacks by bots aren't being blocked."
+msgstr "Brute force login aanvallen door bots worden niet geblokkeerd."
+
+msgid "Bypass"
+msgstr "Omzeilen"
+
+msgid "Bypass IP"
+msgstr "IP omzeilen"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA Fail"
+msgstr "CAPTCHA mislukt"
+
+msgid "CSP Rules"
+msgstr "CSP Regels"
+
+msgid "Calculating"
+msgstr "Berekenen"
+
+msgid "Callback"
+msgstr "callback"
+
+msgid "Can not use the Rename WP Login feature because you have chosen a path (\"%s\") that is already used on your WordPress site."
+msgstr "Kan de Rename WP Login functie niet gebruiken omdat u een pad (\"%s\") heeft gekozen dat al wordt gebruikt op uw WordPress site."
+
+msgid "Can not use the Rename WP Login feature because you have not enabled %s."
+msgstr "Kan de Rename WP Login functie niet gebruiken omdat u %s niet heeft ingeschakeld."
+
+msgid "Can not use the Rename WP Login feature because you have the \"%s\" plugin installed and it is active."
+msgstr "Kan de Rename WP Login functie niet gebruiken omdat u de \"%s\" plugin geïnstalleerd en actief heeft."
+
+msgid "Cancel"
+msgstr "annuleren"
+
+msgid "Cancel Login"
+msgstr "Login annuleren"
+
+msgid "Capabilities"
+msgstr "Mogelijkheden"
+
+msgid "Careful"
+msgstr "Voorzichtig"
+
+msgid "Change Detected"
+msgstr "Wijziging Gedetecteerd"
+
+msgid "Change-Tracking"
+msgstr "Wijzigingen bijhouden"
+
+msgid "Changes"
+msgstr "Wijzigingen"
+
+msgid "Check License"
+msgstr "Licentie Controleren"
+
+msgid "Check ShieldPRO License"
+msgstr "ShieldPRO licentie controleren"
+
+msgid "Checked"
+msgstr "Gecontroleerd"
+
+msgid "Checking this option on will link this site to Master site."
+msgstr "Deze optie aanvinken zal deze site koppelen aan de Master site."
+
+msgid "Checking this option will completely turn off the whole %s system."
+msgstr "Deze optie aanvinken zal het gehele %s systeem volledig uitschakelen."
+
+msgid "Checking this option will completely turn off the whole XML-RPC system."
+msgstr "Deze optie aanvinken zal het gehele XML-RPC systeem volledig uitschakelen."
+
+msgid "Child"
+msgstr "sub"
+
+msgid "Clean"
+msgstr "Schoon"
+
+msgid "Clean WP Files"
+msgstr "WP-bestanden opschonen"
+
+msgid "Click To Register A Passkey."
+msgstr "Klik Om Een Passkey Te Registreren."
+
+msgid "Click to access the login or register cheese"
+msgstr "Klik om toegang te krijgen tot de login- of registratiekaas"
+
+msgid "Click to view your security summary in-full"
+msgstr "Klik om uw volledige beveiligingssamenvatting te bekijken"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Code Generated"
+msgstr "Code Gegenereerd"
+
+msgid "Comment"
+msgstr "reactie"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "Reactie & Contactformulier SPAM Beveiliging"
+
+msgid "Comment Blocks"
+msgstr "Reactie Blokken"
+
+msgid "Comment Deleted"
+msgstr "Reactie verwijderd"
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) changed status from '{{status_old}}' to '{{status_new}}'."
+msgstr "Reactie ID:{{comment_id}} (op bericht-ID {{post_id}}) veranderde status van '{{status_old}}' naar '{{status_new}}'."
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) with status '{{status}}' was permanently deleted."
+msgstr "Reactie ID:{{comment_id}} (op bericht-ID {{post_id}}) met status '{{status}}' is permanent verwijderd."
+
+msgid "Comment ID:{{comment_id}} with status '{{status}}' was newly created on Post ID {{post_id}}."
+msgstr "Reactie ID:{{comment_id}} met status '{{status}}' is nieuw aangemaakt op bericht-ID {{post_id}}."
+
+msgid "Comment SPAM"
+msgstr "Reactie-SPAM"
+
+msgid "Comment SPAM Blocked."
+msgstr "Reactie-SPAM geblokkeerd."
+
+msgid "Comment SPAM Protection"
+msgstr "Reactie-SPAM beveiliging"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "Reactie-SPAM beveiliging: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "Reactiestatus Geüpdatet"
+
+msgid "Comment Triggered Human SPAM Detection"
+msgstr "Reactie Activeerde Menselijke SPAM Detectie"
+
+msgid "Comments"
+msgstr "reacties"
+
+msgid "Comments Cooldown"
+msgstr "Reacties Afkoelperiode"
+
+msgid "Comments Cooldown Triggered"
+msgstr "Reacties Afkoelperiode Geactiveerd"
+
+msgid "Comments From Users With These Roles Will Never Be Scanned"
+msgstr "Reacties Van Gebruikers Met Deze Rollen Worden Nooit Gescand"
+
+msgid "Config"
+msgstr "Configuratie"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "Configuratiepagina's voor gebruiker 2FA-instelling"
+
+msgid "Confirmation"
+msgstr "Bevestiging"
+
+msgid "Confirmation email will be sent to %s"
+msgstr "Bevestigingsmail wordt verzonden naar %s"
+
+msgid "Confirmation link"
+msgstr "Bevestigingslink"
+
+msgid "Connected"
+msgstr "Verbonden"
+
+msgid "Connection Killed"
+msgstr "Verbinding Verbroken"
+
+msgid "Connection Not Killed"
+msgstr "Verbinding Niet Verbroken"
+
+msgid "Contact Form SPAM"
+msgstr "Contactformulier SPAM"
+
+msgid "Contact Form SPAM Checking"
+msgstr "Contactformulier SPAM Controle"
+
+msgid "Contact Forms Integration"
+msgstr "Contactformulieren Integratie"
+
+msgid "Contains"
+msgstr "Bevat"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Content Security Policy (CSP) Regels"
+
+msgid "Content Updated"
+msgstr "Inhoud geüpdatet"
+
+msgid "Content for Post ID {{post_id}} updated."
+msgstr "Inhoud voor bericht-ID {{post_id}} geüpdatet."
+
+msgid "Contents"
+msgstr "Inhoud"
+
+msgid "Cooldown"
+msgstr "Afkoelperiode"
+
+msgid "Cooldown Fail"
+msgstr "Afkoelperiode Mislukt"
+
+msgid "Cooldown Triggered"
+msgstr "Afkoelperiode Geactiveerd"
+
+msgid "Cooldown in effect."
+msgstr "Afkoelperiode actief."
+
+msgid "Coordinates"
+msgstr "Coördinaten"
+
+msgid "Couldn't create the directory: %s"
+msgstr "Kon de map niet aanmaken: %s"
+
+msgid "Couldn't create the export file."
+msgstr "Kon het exportbestand niet aanmaken."
+
+msgid "Couldn't determine Shield plugin status."
+msgstr "Kon Shield plugin status niet bepalen."
+
+msgid "Couldn't load plugin for slug '%s'."
+msgstr "Kon plugin voor slug '%s' niet laden."
+
+msgid "Couldn't load theme for slug '%s'."
+msgstr "Kon thema voor slug '%s' niet laden."
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Country Code"
+msgstr "Landcode"
+
+msgid "Create Backup 2FA Login Code"
+msgstr "Back-up 2FA logincode aanmaken"
+
+msgid "Create Custom Report"
+msgstr "Aangepast Rapport Aanmaken"
+
+msgid "Create Custom Rule"
+msgstr "Aangepaste Regel Aanmaken"
+
+msgid "Create New IP Rule"
+msgstr "Nieuwe IP-regel aanmaken"
+
+msgid "Create New Report"
+msgstr "Nieuw Rapport Aanmaken"
+
+msgid "Create New Rule"
+msgstr "Nieuwe Regel Aanmaken"
+
+msgid "Create Report"
+msgstr "Rapport Aanmaken"
+
+msgid "Create and view all your custom security rules."
+msgstr "Maak en bekijk al uw aangepaste beveiligingsregels."
+
+msgid "Create custom rules to meet all your security needs"
+msgstr "Maak aangepaste regels om aan al uw beveiligingsbehoeften te voldoen"
+
+msgid "Created"
+msgstr "Aangemaakt"
+
+msgid "Created with status %s"
+msgstr "Aangemaakt met status %s"
+
+msgid "Critical File Protection"
+msgstr "Kritieke bestandsbescherming"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "Kritieke WordPress Instellingen Bescherming"
+
+msgid "Critical WordPress settings are protected against tampering from other WordPress admins."
+msgstr "Kritieke WordPress instellingen zijn beschermd tegen manipulatie door andere WordPress admins."
+
+msgid "Critical WordPress settings aren't protected against tampering from other WordPress admins."
+msgstr "Kritieke WordPress instellingen zijn niet beschermd tegen manipulatie door andere WordPress admins."
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "CrowdSec home"
+
+msgid "CrowdSec IP Blocking"
+msgstr "CrowdSec IP Blokkering"
+
+msgid "CrowdSec Signals"
+msgstr "CrowdSec-signalen"
+
+msgid "CrowdSec: Connection Killed"
+msgstr "CrowdSec: Verbinding Verbroken"
+
+msgid "Current"
+msgstr "Huidig"
+
+msgid "Current File Content"
+msgstr "Huidige bestandsinhoud"
+
+msgid "Current Scan"
+msgstr "Huidige Scan"
+
+msgid "Current Scan Results"
+msgstr "Huidige Scanresultaten"
+
+msgid "Current Summary"
+msgstr "Huidige Samenvatting"
+
+msgid "Current User Sessions"
+msgstr "Huidige Gebruikerssessies"
+
+msgid "Current master site: {{master_site}}"
+msgstr "Huidige master site: {{master_site}}"
+
+msgid "Current value: %s"
+msgstr "Huidige waarde: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "Momenteel actieve MFA Providers op dit profiel zijn"
+
+msgid "Custom"
+msgstr "Aangepast"
+
+msgid "Custom Debug"
+msgstr "Aangepaste Debug"
+
+msgid "Custom Report on %s"
+msgstr "Aangepast Rapport op %s"
+
+msgid "Custom Rules"
+msgstr "Aangepaste Regels"
+
+msgid "Custom Security Rules"
+msgstr "Aangepaste Beveiligingsregels"
+
+msgid "Custom report created, reloading reports page."
+msgstr "Aangepast rapport aangemaakt, rapportenpagina wordt herladen."
+
+msgid "Customer And Visitor Protection"
+msgstr "Klant- En Bezoekersbeveiliging"
+
+msgid "Daily"
+msgstr "Dagelijks"
+
+msgid "Daily Cron - %s"
+msgstr "Dagelijkse Cron - %s"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "Dashboard en 2FA login logo URL"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "Dashboard en 2FA logo"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "Dashboard en 2FA logo URL"
+
+msgid "Database"
+msgstr "database"
+
+msgid "Databases"
+msgstr "Databases"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Date Added"
+msgstr "Datum Toegevoegd"
+
+msgid "Date Generated"
+msgstr "Datum Gegenereerd"
+
+msgid "Date Range"
+msgstr "Datumbereik"
+
+msgid "Day"
+msgstr "Dag"
+
+msgid "Deactivated"
+msgstr "Gedeactiveerd"
+
+msgid "Debug"
+msgstr "Debug"
+
+msgid "Debug Info"
+msgstr "Debug-info"
+
+msgid "Debug Is On"
+msgstr "Debug staat aan"
+
+msgid "Default"
+msgstr "Standaard"
+
+msgid "Default Admin User"
+msgstr "Standaard Beheerder"
+
+msgid "Default User Role"
+msgstr "Standaard Gebruikersrol"
+
+msgid "Defaults to the blog admin email address."
+msgstr "Standaard het blog admin e-mailadres."
+
+msgid "Delete"
+msgstr "verwijderen"
+
+msgid "Delete All Bot Signals"
+msgstr "Alle botsignalen verwijderen"
+
+msgid "Delete IP"
+msgstr "IP verwijderen"
+
+msgid "Delete Login Backup Code"
+msgstr "Login back-upcode verwijderen"
+
+msgid "Delete Plugin Settings"
+msgstr "Plugin-instellingen verwijderen"
+
+msgid "Delete Rule"
+msgstr "Regel verwijderen"
+
+msgid "Delete Success"
+msgstr "Verwijderen geslaagd"
+
+msgid "Deleted"
+msgstr "verwijderd"
+
+msgid "Deleted Admin(s)"
+msgstr "Beheerder(s) verwijderd"
+
+msgid "Deleted Tables"
+msgstr "Verwijderde Tabellen"
+
+msgid "Deleted user posts were reassigned to user '{{user_login}}'."
+msgstr "Verwijderde gebruikersberichten zijn opnieuw toegewezen aan gebruiker '{{user_login}}'."
+
+msgid "Description"
+msgstr "beschrijving"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Details for the request are given below:"
+msgstr "Details voor het verzoek staan hieronder:"
+
+msgid "Details for this login are below:"
+msgstr "Details voor deze login staan hieronder:"
+
+msgid "Details for this user are below:"
+msgstr "Details voor deze gebruiker staan hieronder:"
+
+msgid "Detect Invalid Username Logins"
+msgstr "Detecteer Ongeldige Gebruikersnaam Logins"
+
+msgid "Detected"
+msgstr "Gedetecteerd"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "Gebruikersregistratie gedetecteerd met ongeldig e-mailadres ({{email}})."
+
+msgid "Detection of abandoned WordPress.org plugins is enabled."
+msgstr "Detectie van verlaten WordPress.org plugins is ingeschakeld."
+
+msgid "Detection of abandoned WordPress.org plugins isn't enabled."
+msgstr "Detectie van verlaten WordPress.org plugins is niet ingeschakeld."
+
+msgid "Diff"
+msgstr "Verschil"
+
+msgid "Diff is unavailable for missing files."
+msgstr "Diff is niet beschikbaar voor ontbrekende bestanden."
+
+msgid "Directory Traversal"
+msgstr "Maptraversal"
+
+msgid "Disable %s"
+msgstr "%s uitschakelen"
+
+msgid "Disable 2FA by email"
+msgstr "2FA via e-mail uitschakelen"
+
+msgid "Disable Ability To Edit Files From Within WordPress"
+msgstr "Mogelijkheid Om Bestanden Te Bewerken Vanuit WordPress Uitschakelen"
+
+msgid "Disable All Rules"
+msgstr "Alle Regels Uitschakelen"
+
+msgid "Disable File Editing"
+msgstr "Bestandsbewerking uitschakelen"
+
+msgid "Disable Security Admin"
+msgstr "Security Admin uitschakelen"
+
+msgid "Disable Shield"
+msgstr "Shield Uitschakelen"
+
+msgid "Disable Site Lockdown"
+msgstr "Site-lockdown uitschakelen"
+
+msgid "Disable The %s System"
+msgstr "Het %s Systeem Uitschakelen"
+
+msgid "Disable The XML-RPC System"
+msgstr "Het XML-RPC Systeem Uitschakelen"
+
+msgid "Disable XML-RPC"
+msgstr "XML-RPC uitschakelen"
+
+msgid "Disable account access for inactive users."
+msgstr "Accounttoegang uitschakelen voor inactieve gebruikers."
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "Verwerking van verzoeken verzonden naar XML-RPC eindpunt uitschakelen"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "Het XML-RPC eindpunt uitschakelen en alle verzoeken blokkeren."
+
+msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
+msgstr "Schakel deze optie uit om bepaalde plugin admin meldingen over beschikbare updates en post-update meldingen te verbergen."
+
+msgid "Disconnected"
+msgstr "Losgekoppeld"
+
+msgid "Discovered"
+msgstr "Ontdekt"
+
+msgid "Display Options Updated"
+msgstr "Weergaveopties geüpdatet"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "Plugin Beveiligingsbadge Op Uw Site Weergeven"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "Plugin Beveiligingsbadge Aan Uw Bezoekers Weergeven"
+
+msgid "Do any parameters in the request match the given set of firewall rule patterns."
+msgstr "Komen parameters in het verzoek overeen met de opgegeven set firewall regelpatronen."
+
+msgid "Docs"
+msgstr "Documentatie"
+
+msgid "Doesn't scan within the %s directory."
+msgstr "Scant niet binnen de %s map."
+
+msgid "Don't Scan Comments For Users With The Following Roles"
+msgstr "Scan Geen Reacties Voor Gebruikers Met De Volgende Rollen"
+
+msgid "Download"
+msgstr "download"
+
+msgid "Download File"
+msgstr "Bestand downloaden"
+
+msgid "Download Modified"
+msgstr "Gewijzigde Download"
+
+msgid "Download Options Export File"
+msgstr "Opties Exportbestand Downloaden"
+
+msgid "Duration"
+msgstr "Duur"
+
+msgid "Edit"
+msgstr "bewerken"
+
+msgid "Edit Rule"
+msgstr "Regel bewerken"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "Regel #%s bewerken (%s)"
+
+msgid "Edit Settings"
+msgstr "Instellingen bewerken"
+
+msgid "Edit Theme Options"
+msgstr "Thema-opties bewerken"
+
+msgid "Edit activity log settings"
+msgstr "Activiteitenlog-instellingen bewerken"
+
+msgid "Edit automatic file scanning settings"
+msgstr "Automatische bestandsscan-instellingen bewerken"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "Bot-SPAM reactie instellingen bewerken"
+
+msgid "Edit general plugin settings"
+msgstr "Algemene plugin-instellingen bewerken"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "Menselijke-SPAM reactie instellingen bewerken"
+
+msgid "Edit logging settings"
+msgstr "Logginstellingen bewerken"
+
+msgid "Edit rate limit settings for abusive visitors"
+msgstr "Bewerk snelheidslimitering-instellingen voor misbruikende bezoekers"
+
+msgid "Edit reporting settings"
+msgstr "Rapportage-instellingen bewerken"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "Instellingen voor SPAM gebruikersregistraties bewerken"
+
+msgid "Edit settings that apply protection to your login & user forms"
+msgstr "Bewerk instellingen die bescherming toepassen op uw login- & gebruikersformulieren"
+
+msgid "Edit settings to apply minimum password strength"
+msgstr "Bewerk instellingen om minimale wachtwoordsterkte toe te passen"
+
+msgid "Edit which key files to protect"
+msgstr "Bewerk welke belangrijke bestanden te beschermen"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "Bestanden bewerken vanuit de WordPress admin ruimte is toegestaan."
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "Bestanden bewerken vanuit de WordPress admin ruimte is uitgeschakeld."
+
+msgid "Editing this option is currently restricted."
+msgstr "Het bewerken van deze optie is momenteel beperkt."
+
+msgid "Either the country code or phone number were missing."
+msgstr "De landcode of het telefoonnummer ontbrak."
+
+msgid "Email"
+msgstr "e-mail"
+
+msgid "Email 2FA activated."
+msgstr "E-mail 2FA geactiveerd."
+
+msgid "Email 2FA deactivated."
+msgstr "E-mail 2FA gedeactiveerd."
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "E-mail 2FA optie is momenteel niet ingeschakeld."
+
+msgid "Email 2FA settings couldn't be changed."
+msgstr "E-mail 2FA instellingen konden niet worden gewijzigd."
+
+msgid "Email Auto-Login"
+msgstr "E-mail auto-login"
+
+msgid "Email For All Reports and Plugin Notifications"
+msgstr "E-mail Voor Alle Rapporten en Plugin Notificaties"
+
+msgid "Email OTP"
+msgstr "E-mail OTP"
+
+msgid "Email Sent"
+msgstr "E-mail verzonden"
+
+msgid "Email Updated"
+msgstr "E-mail geüpdatet"
+
+msgid "Email notifications for new comments"
+msgstr "E-mailmeldingen voor nieuwe reacties"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "E-mail verzonden vanuit de %s Plugin v%s, op %s."
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "E-mail geüpdatet voor gebruiker '{{user_login}}'."
+
+msgid "Enable"
+msgstr "Inschakelen"
+
+msgid "Enable %s"
+msgstr "%s inschakelen"
+
+msgid "Enable %s Protection"
+msgstr "%s beveiliging inschakelen"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "Schakel De Reactie-SPAM Beveiligingsfunctie In (of Uit)"
+
+msgid "Enable Auto-Integrations"
+msgstr "Automatische Integraties Inschakelen"
+
+msgid "Enable Content Security Policy"
+msgstr "Content Security Policy inschakelen"
+
+msgid "Enable MainWP"
+msgstr "MainWP inschakelen"
+
+msgid "Enable Passkeys"
+msgstr "Passkeys Inschakelen"
+
+msgid "Enable Rate Limiting"
+msgstr "Snelheidslimitering inschakelen"
+
+msgid "Enable Request Logging"
+msgstr "Request Logging Inschakelen"
+
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr "Verlaten Plugin Scanner inschakelen"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "Kwetsbaarhedenscanner inschakelen"
+
+msgid "Enable White Label"
+msgstr "White Label Inschakelen"
+
+msgid "Enable this option to allow automatic import and export of options between WordPress sites."
+msgstr "Schakel deze optie in om automatische import en export van opties tussen WordPress sites toe te staan."
+
+msgid "Enforce"
+msgstr "Afdwingen"
+
+msgid "Enforce Minimum Password Strength"
+msgstr "Minimale Wachtwoordsterkte Afdwingen"
+
+msgid "Enforce Security Admin Access Restriction"
+msgstr "Security Admin Toegangsbeperking Afdwingen"
+
+msgid "Enforce strong passwords for all users."
+msgstr "Dwing sterke wachtwoorden af voor alle gebruikers."
+
+msgid "Ensures that visitors with a high reputation are never blocked by Shield."
+msgstr "Zorgt ervoor dat bezoekers met een hoge reputatie nooit door Shield worden geblokkeerd."
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Voer Eenmalig Wachtwoord Van Yubikey In"
+
+msgid "Enter admin username, email or ID."
+msgstr "Voer beheerder gebruikersnaam, e-mail of ID in."
+
+msgid "Enter code sent to your email"
+msgstr "Voer de code in die naar uw e-mail is verzonden"
+
+msgid "Enter your Security Admin PIN"
+msgstr "Voer uw Security Admin PIN in"
+
+msgid "Environment"
+msgstr "Omgeving"
+
+msgid "Equals"
+msgstr "Gelijk aan"
+
+msgid "Error"
+msgstr "fout"
+
+msgid "Event"
+msgstr "Gebeurtenis"
+
+msgid "Event Details"
+msgstr "Gebeurtenis Details"
+
+msgid "Event Slug"
+msgstr "Gebeurtenis-slug"
+
+msgid "Event To Trigger"
+msgstr "Te Activeren Gebeurtenis"
+
+msgid "Events"
+msgstr "Gebeurtenissen"
+
+msgid "Example"
+msgstr "Voorbeeld"
+
+msgid "Exclusive Customer Support"
+msgstr "Exclusieve Klantenondersteuning"
+
+msgid "Expiration"
+msgstr "Vervaldatum"
+
+msgid "Expires"
+msgstr "Verloopt"
+
+msgid "Export"
+msgstr "Exporteren"
+
+msgid "Export To File"
+msgstr "Exporteren naar Bestand"
+
+msgid "Export Whitelist"
+msgstr "Whitelist exporteren"
+
+msgid "Export file path"
+msgstr "Exportbestandspad"
+
+msgid "Extensions"
+msgstr "Extensies"
+
+msgid "Extras"
+msgstr "Extra's"
+
+msgid "False"
+msgstr "Onwaar"
+
+msgid "File"
+msgstr "Bestand"
+
+msgid "File Deleted"
+msgstr "Bestand verwijderd"
+
+msgid "File Details"
+msgstr "Bestand Details"
+
+msgid "File Detected By Scans"
+msgstr "Bestand Gedetecteerd Door Scans"
+
+msgid "File Download"
+msgstr "Bestand downloaden"
+
+msgid "File Guard"
+msgstr "Bestandsbescherming"
+
+msgid "File Info"
+msgstr "Bestandsinfo"
+
+msgid "File Locker"
+msgstr "Bestandsvergrendeling"
+
+msgid "File Locker Changes Detected"
+msgstr "Bestandsvergrendeling Wijzigingen Gedetecteerd"
+
+msgid "File Modified"
+msgstr "Bestand Gewijzigd"
+
+msgid "File Modified Timestamp"
+msgstr "Bestand Gewijzigd Tijdstempel"
+
+msgid "File Name"
+msgstr "Bestandsnaam"
+
+msgid "File Repair Attempted"
+msgstr "Bestandsherstel Geprobeerd"
+
+msgid "File Repaired"
+msgstr "Bestand Hersteld"
+
+msgid "File Scan Areas"
+msgstr "Bestandsscan Gebieden"
+
+msgid "File Scanning and Malware Protection"
+msgstr "Bestandsscanning en Malwarebescherming"
+
+msgid "File Scans and Malware"
+msgstr "Bestandsscans en Malware"
+
+msgid "File Size"
+msgstr "Bestandsgrootte"
+
+msgid "File Status"
+msgstr "Bestandsstatus"
+
+msgid "File appears to be empty."
+msgstr "Bestand lijkt leeg te zijn."
+
+msgid "File contents are empty."
+msgstr "Bestandsinhoud is leeg."
+
+msgid "File detected as %s by %s scanner."
+msgstr "Bestand gedetecteerd als %s door %s scanner."
+
+msgid "File extensions are empty."
+msgstr "Bestandsextensies zijn leeg."
+
+msgid "FileLocker Changes"
+msgstr "FileLocker Wijzigingen"
+
+msgid "FileLocker Changes Detected"
+msgstr "FileLocker Wijzigingen Gedetecteerd"
+
+msgid "FileLocker can't be used because the PHP %s extension isn't available."
+msgstr "FileLocker kan niet worden gebruikt omdat de PHP %s extensie niet beschikbaar is."
+
+msgid "FileLocker has detected changes to critical files."
+msgstr "FileLocker heeft wijzigingen aan kritieke bestanden gedetecteerd."
+
+msgid "FileLocker must be active to enable this option."
+msgstr "FileLocker moet actief zijn om deze optie in te schakelen."
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: wp-config.php beveiliging"
+
+msgid "Files Deleted"
+msgstr "Bestanden verwijderd"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Firewall blok"
+
+msgid "Firewall Block Alert"
+msgstr "Firewall blok waarschuwing"
+
+msgid "Firewall Block Email Fail"
+msgstr "Firewall blok e-mail mislukt"
+
+msgid "Firewall Block Email Success"
+msgstr "Firewall blok e-mail geslaagd"
+
+msgid "Firewall Rule"
+msgstr "Firewallregel"
+
+msgid "Firewall Triggered"
+msgstr "Firewall Geactiveerd"
+
+msgid "Firewall is configured to block this category of requests."
+msgstr "Firewall is geconfigureerd om deze categorie verzoeken te blokkeren."
+
+msgid "Fix"
+msgstr "Repareren"
+
+msgid "For example, if you set WordPress to require visitors to login to post comments, this will expose your hidden URL."
+msgstr "Als u bijvoorbeeld WordPress instelt om bezoekers te verplichten in te loggen om reacties te plaatsen, zal dit uw verborgen URL blootleggen."
+
+msgid "For example, your browser user agent is"
+msgstr "Bijvoorbeeld, uw browser user agent is"
+
+msgid "For your security, please use the password section below to update your password."
+msgstr "Voor uw veiligheid, gebruik de wachtwoordsectie hieronder om uw wachtwoord bij te werken."
+
+msgid "Force Check of Visitor IP Source"
+msgstr "Controle van bezoeker IP-bron forceren"
+
+msgid "Forgotten PIN"
+msgstr "PIN Vergeten"
+
+msgid "Form SPAM Checking"
+msgstr "Formulier SPAM-controle"
+
+msgid "Format"
+msgstr "format"
+
+msgid "Front Page"
+msgstr "voorpagina"
+
+msgid "Front page loaded"
+msgstr "Voorpagina geladen"
+
+msgid "Full Path"
+msgstr "Volledig pad"
+
+msgid "Full Path To File"
+msgstr "Volledig pad naar bestand"
+
+msgid "General"
+msgstr "Algemeen"
+
+msgid "General Info"
+msgstr "Algemene info"
+
+msgid "General Settings"
+msgstr "Algemene instellingen"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "EENMALIGE Back-up 2FA Logincode Genereren"
+
+msgid "Global Plugin Enable"
+msgstr "Algemene plugin inschakelen"
+
+msgid "Global Plugin Security Options"
+msgstr "Algemene Plugin Beveiligingsopties"
+
+msgid "Global Security Plugin Disable"
+msgstr "Algemene beveiligingsplugin uitschakelen"
+
+msgid "Go PRO!"
+msgstr "Word PRO!"
+
+msgid "Go Pro!"
+msgstr "Word Pro!"
+
+msgid "Go To %s"
+msgstr "Ga naar %s"
+
+msgid "Go To Admin"
+msgstr "Ga naar Beheer"
+
+msgid "Go To Option"
+msgstr "Ga naar Optie"
+
+msgid "Go To Overview"
+msgstr "Ga naar Overzicht"
+
+msgid "Go To Security Dashboard"
+msgstr "Ga naar beveiligingsdashboard"
+
+msgid "Go To Shield Overview"
+msgstr "Ga naar Shield Overzicht"
+
+msgid "Go to WordPress Updates"
+msgstr "Ga naar WordPress Updates"
+
+msgid "Good"
+msgstr "Goed"
+
+msgid "Grade"
+msgstr "Beoordeling"
+
+msgid "Has Valid Shield User Sessions"
+msgstr "Heeft Geldige Shield Gebruikerssessies"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "Hidden Login URL Fail"
+msgstr "Verborgen login-URL mislukt"
+
+msgid "Hide Login"
+msgstr "Login verbergen"
+
+msgid "Hide Login Page"
+msgstr "Loginpagina verbergen"
+
+msgid "Hide The WP Login Page."
+msgstr "De WP loginpagina verbergen."
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "WordPress Login En Admin Gebieden Verbergen"
+
+msgid "Hide WP Login"
+msgstr "WP login verbergen"
+
+msgid "Hide WP Login & Admin"
+msgstr "WP login & admin verbergen"
+
+msgid "Hide WP Login Page"
+msgstr "WP loginpagina verbergen"
+
+msgid "Hide WordPress Login Page"
+msgstr "WordPress loginpagina verbergen"
+
+msgid "High Reputation Bypass"
+msgstr "Hoge Reputatie Omzeilen"
+
+msgid "High-Level System Security Summary"
+msgstr "Algemeen Overzicht Systeembeveiliging"
+
+msgid "History"
+msgstr "Geschiedenis"
+
+msgid "Home URL"
+msgstr "Home URL"
+
+msgid "Home URL Changed"
+msgstr "Home URL Gewijzigd"
+
+msgid "Homepage"
+msgstr "homepage"
+
+msgid "Hostname"
+msgstr "Hostnaam"
+
+msgid "Hostname To Match"
+msgstr "Hostnaam om te Matchen"
+
+msgid "Hourly"
+msgstr "Elk uur"
+
+msgid "How WordPress logins are protected from brute force attacks"
+msgstr "Hoe WordPress logins beschermd worden tegen brute force aanvallen"
+
+msgid "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+msgstr "Hoe moet Shield verzoeken blokkeren van IP-adressen die op CrowdSec's lijst van kwaadaardige IP-adressen staan."
+
+msgid "How should Shield block requests from IP addresses found on CrowdSec's list of malicious IP addresses?"
+msgstr "Hoe moet Shield verzoeken blokkeren van IP-adressen die op CrowdSec's lijst van kwaadaardige IP-adressen staan?"
+
+msgid "How well core WordPress plugins and themes are protected"
+msgstr "Hoe goed core WordPress plugins en thema's zijn beschermd"
+
+msgid "How well you're protected against malicious bots and visitors"
+msgstr "Hoe goed u beschermd bent tegen kwaadaardige bots en bezoekers"
+
+msgid "Human"
+msgstr "Menselijk"
+
+msgid "Human Comment SPAM"
+msgstr "Menselijke reactie-SPAM"
+
+msgid "Human Comment SPAM Protection"
+msgstr "Menselijke reactie-SPAM beveiliging"
+
+msgid "Human SPAM"
+msgstr "Menselijke SPAM"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IMPORTANT"
+msgstr "BELANGRIJK"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP-adres"
+
+msgid "IP Address To Match"
+msgstr "IP-adres om te matchen"
+
+msgid "IP Address or IP Range"
+msgstr "IP-adres of IP-bereik"
+
+msgid "IP Address or Range"
+msgstr "IP-adres of bereik"
+
+msgid "IP Addresses"
+msgstr "IP-adressen"
+
+msgid "IP Analysis"
+msgstr "IP Analyse"
+
+msgid "IP Auto-Block Offense Limit"
+msgstr "IP Auto-Blokkering Overtredingslimiet"
+
+msgid "IP Block Status"
+msgstr "IP Blokstatus"
+
+msgid "IP Blocked"
+msgstr "IP geblokkeerd"
+
+msgid "IP Blocking Rules"
+msgstr "IP Blokkeringsregels"
+
+msgid "IP Blocks"
+msgstr "IP Blokken"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "IP Bypass Lijst Verwijderd (Handmatig)"
+
+msgid "IP Equals"
+msgstr "IP Gelijk aan"
+
+msgid "IP ID To Match"
+msgstr "IP-ID om te matchen"
+
+msgid "IP Meta"
+msgstr "IP-meta"
+
+msgid "IP NotBot Score couldn't be reset at this time."
+msgstr "IP NotBot Score kon op dit moment niet worden gereset."
+
+msgid "IP Offenses"
+msgstr "IP Overtredingen"
+
+msgid "IP Range"
+msgstr "IP-bereik"
+
+msgid "IP Reputation Score"
+msgstr "IP-reputatiescore"
+
+msgid "IP Rule couldn't be deleted from the list"
+msgstr "IP-regel kon niet uit de lijst worden verwijderd"
+
+msgid "IP Rule deleted"
+msgstr "IP-regel verwijderd"
+
+msgid "IP Rules"
+msgstr "IP-regels"
+
+msgid "IP Source"
+msgstr "IP-bron"
+
+msgid "IP Source Found: %s"
+msgstr "IP-bron gevonden: %s"
+
+msgid "IP Status"
+msgstr "IP-status"
+
+msgid "IP Unavailable"
+msgstr "IP Niet Beschikbaar"
+
+msgid "IP Unblocked"
+msgstr "IP Gedeblokkeerd"
+
+msgid "IP Unblocked By Visitor"
+msgstr "IP Gedeblokkeerd Door Bezoeker"
+
+msgid "IP address '{{ip}}' manually added to block list."
+msgstr "IP-adres '{{ip}}' handmatig toegevoegd aan bloklijst."
+
+msgid "IP address '{{ip}}' manually added to bypass list."
+msgstr "IP-adres '{{ip}}' handmatig toegevoegd aan bypass lijst."
+
+msgid "IP address '{{ip}}' manually removed from the bypass list."
+msgstr "IP-adres '{{ip}}' handmatig verwijderd van de bypass lijst."
+
+msgid "IP address added successfully"
+msgstr "IP-adres succesvol toegevoegd"
+
+msgid "IP address added successfully."
+msgstr "IP-adres succesvol toegevoegd."
+
+msgid "IP address added to Bypass list."
+msgstr "IP-adres toegevoegd aan Bypass lijst."
+
+msgid "IP address blocked."
+msgstr "IP-adres geblokkeerd."
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "IP-adres kon op dit moment niet worden verwijderd van Bypass lijst."
+
+msgid "IP address couldn't be removed. (It may not be on this list)"
+msgstr "IP-adres kon niet worden verwijderd. (Het staat mogelijk niet op deze lijst)"
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "IP-adres kon op dit moment niet worden gedeblokkeerd."
+
+msgid "IP address exceeds offense limit and is blocked."
+msgstr "IP-adres overschrijdt overtredingslimiet en is geblokkeerd."
+
+msgid "IP address has a high reputation so connection allowed."
+msgstr "IP-adres heeft een hoge reputatie dus verbinding toegestaan."
+
+msgid "IP address removed from Bypass list."
+msgstr "IP-adres verwijderd van Bypass lijst."
+
+msgid "IP address removed successfully."
+msgstr "IP-adres succesvol verwijderd."
+
+msgid "IP address unblocked."
+msgstr "IP-adres gedeblokkeerd."
+
+msgid "IP addresses"
+msgstr "IP-adressen"
+
+msgid "IP blocking is turned-off because the offenses limit is set to 0."
+msgstr "IP blokkering is uitgeschakeld omdat de overtredingslimiet is ingesteld op 0."
+
+msgid "IP blocking options have been applied"
+msgstr "IP blokkeringsopties zijn toegepast"
+
+msgid "IP can't be blocked from this page as it's a known service IP: %s"
+msgstr "IP kan niet worden geblokkeerd vanaf deze pagina omdat het een bekend service-IP is: %s"
+
+msgid "IP isn't on the %s block list."
+msgstr "IP staat niet op de %s bloklijst."
+
+msgid "IP isn't on the auto block list."
+msgstr "IP staat niet op de auto-bloklijst."
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP staat niet op de automatische bloklijst."
+
+msgid "IP provided was invalid."
+msgstr "Opgegeven IP was ongeldig."
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "IP silentCAPTCHA score gereset."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Identify a bot when the user agent is not provided."
+msgstr "Een bot identificeren wanneer de user agent niet wordt opgegeven."
+
+msgid "Identify a request as a bot if the user agent is not provided."
+msgstr "Identificeer een verzoek als bot als de user agent niet wordt opgegeven."
+
+msgid "Identity"
+msgstr "Identiteit"
+
+msgid "Idle"
+msgstr "Inactief"
+
+msgid "Idle Interval"
+msgstr "Inactief Interval"
+
+msgid "If"
+msgstr "Als"
+
+msgid "If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user."
+msgstr "Als aan een gebruikersnaam geen Yubikey is toegewezen, is Yubikey Authenticatie UIT voor die gebruiker."
+
+msgid "If a path matches any core WordPress directories, it'll be removed automatically."
+msgstr "Als een pad overeenkomt met core WordPress directories, wordt het automatisch verwijderd."
+
+msgid "If a user has multiple roles assigned to it, all roles will be checked against this list."
+msgstr "Als een gebruiker meerdere rollen toegewezen heeft gekregen, worden alle rollen gecontroleerd tegen deze lijst."
+
+msgid "If you don't receive the email, check your spam and contact your site admin."
+msgstr "Als u de e-mail niet ontvangt, controleer dan uw spam en neem contact op met uw sitebeheerder."
+
+msgid "If you provide access to the WP Login URL in any areas of your site, you will expose your hidden login URL."
+msgstr "Als u toegang verleent tot de WP Login URL in delen van uw site, zult u uw verborgen login URL blootleggen."
+
+msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
+msgstr "Als u uw PIN bent vergeten, gebruik dan het bovenstaande menu om deze beperking uit te schakelen."
+
+msgid "Ignore"
+msgstr "Negeren"
+
+msgid "Ignore Success"
+msgstr "Negeren gelukt"
+
+msgid "Ignored"
+msgstr "Genegeerd"
+
+msgid "Import"
+msgstr "Importeren"
+
+msgid "Import / Export Settings"
+msgstr "Import / Export Instellingen"
+
+msgid "Import From File"
+msgstr "Importeren Vanaf Bestand"
+
+msgid "Import From Site"
+msgstr "Importeren Vanaf Site"
+
+msgid "Import Notify Sent"
+msgstr "Import Notificatie Verzonden"
+
+msgid "Import Options"
+msgstr "Importeeropties"
+
+msgid "Import file was empty"
+msgstr "Importbestand was leeg"
+
+msgid "Import/Export"
+msgstr "Importeren/Exporteren"
+
+msgid "Import/Export Secret Key"
+msgstr "Import/Export Geheime Sleutel"
+
+msgid "Important"
+msgstr "Belangrijk"
+
+msgid "Important: %s"
+msgstr "Belangrijk: %s"
+
+msgid "Important: If you've set Shield to automatically upgrade vulnerable plugins, it may have been upgraded by the time you view this."
+msgstr "Belangrijk: Als je Shield hebt ingesteld om kwetsbare plugins automatisch te upgraden, kan het zijn dat deze al is geüpgraded op het moment dat je dit bekijkt."
+
+msgid "Imported"
+msgstr "Geïmporteerd"
+
+msgid "In-Plugin Notices"
+msgstr "Meldingen In Plugin"
+
+msgid "Inactive"
+msgstr "Inactief"
+
+msgid "Inactive Plugins"
+msgstr "Inactieve Plugins"
+
+msgid "Inactive Plugins (%s)"
+msgstr "Inactieve Plugins (%s)"
+
+msgid "Inactive Themes"
+msgstr "Inactieve Thema's"
+
+msgid "Inactive User Accounts"
+msgstr "Inactieve Gebruikersaccounts"
+
+msgid "Includes protection for: "
+msgstr "Bevat bescherming voor:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "Info voor IP-adres %s"
+
+msgid "Install Shield"
+msgstr "Shield Installeren"
+
+msgid "Installation Directory"
+msgstr "Installatiemap"
+
+msgid "Installation ID"
+msgstr "Installatie-ID"
+
+msgid "Installed"
+msgstr "Geïnstalleerd"
+
+msgid "Integrations"
+msgstr "Integraties"
+
+msgid "Interval"
+msgstr "Interval"
+
+msgid "Invalid"
+msgstr "ongeldig"
+
+msgid "Invalid Login Username"
+msgstr "Ongeldige login gebruikersnaam"
+
+msgid "Invalid Logins"
+msgstr "Ongeldige Logins"
+
+msgid "Invalid Request ID"
+msgstr "Ongeldig verzoek-ID"
+
+msgid "Invalid Rule"
+msgstr "Ongeldige Regel"
+
+msgid "Invalid Slug"
+msgstr "Ongeldige slug"
+
+msgid "Invalid User Agent"
+msgstr "Ongeldige User Agent"
+
+msgid "Invalid User Email Registration"
+msgstr "Ongeldige gebruiker e-mail registratie"
+
+msgid "Invalid User-Agent"
+msgstr "Ongeldige User-Agent"
+
+msgid "Invalid Username Login"
+msgstr "Ongeldige gebruikersnaam login"
+
+msgid "Invalid action"
+msgstr "Ongeldige actie"
+
+msgid "Invalid download request."
+msgstr "Ongeldig downloadverzoek."
+
+msgid "Invalid file locker type download"
+msgstr "Ongeldig bestandsvergrendelingstype download"
+
+msgid "Invalid request - lockdown is already active."
+msgstr "Ongeldig verzoek - lockdown is al actief."
+
+msgid "Invalid request - lockdown is not active."
+msgstr "Ongeldig verzoek - lockdown is niet actief."
+
+msgid "Invalid request with no User ID"
+msgstr "Ongeldig verzoek zonder gebruikers-ID"
+
+msgid "Invalid session selected"
+msgstr "Ongeldige sessie geselecteerd"
+
+msgid "Invalid type."
+msgstr "Ongeldig type."
+
+msgid "Invalid user agent detected at '{{useragent}}'."
+msgstr "Ongeldige user agent gedetecteerd bij '{{useragent}}'."
+
+msgid "Invalid value scope for %s"
+msgstr "Ongeldig waardebereik voor %s"
+
+msgid "Invalid value type for %s"
+msgstr "Ongeldig waardetype voor %s"
+
+msgid "Is It You?"
+msgstr "Bent U Het?"
+
+msgid "Is Offense"
+msgstr "Is Overtreding"
+
+msgid "Is Request To The Login Page."
+msgstr "Is verzoek naar de loginpagina."
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Is Shield Verkeer Snelheidslimitering Ingeschakeld."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Is Shield's Site Lockdown actief."
+
+msgid "Is The Shield Option Value..."
+msgstr "Is De Shield Optiewaarde..."
+
+msgid "Is Visitor silentCAPTCHA Score ..."
+msgstr "Is Bezoeker silentCAPTCHA Score ..."
+
+msgid "Is WP Admin"
+msgstr "Is WP Admin"
+
+msgid "Is WP CRON"
+msgstr "Is WP CRON"
+
+msgid "Is WP Debug Active"
+msgstr "Is WP Debug actief"
+
+msgid "Is WP Permalinks Enabled"
+msgstr "Zijn WP Permalinks Ingeschakeld"
+
+msgid "Is WP Search"
+msgstr "Is WP zoeken"
+
+msgid "Is WP XML-RPC"
+msgstr "Is WP XML-RPC"
+
+msgid "Is WordPress Search Request."
+msgstr "Is WordPress zoekopdracht verzoek."
+
+msgid "Is a given 2FA provider enabled on the site."
+msgstr "Is een gegeven 2FA-provider ingeschakeld op de site."
+
+msgid "Is a given plugin installed & active."
+msgstr "Is een gegeven plugin geïnstalleerd & actief."
+
+msgid "Is a given plugin installed."
+msgstr "Is een gegeven plugin geïnstalleerd."
+
+msgid "Is a given theme installed & active."
+msgstr "Is een gegeven thema geïnstalleerd & actief."
+
+msgid "Is a given theme installed."
+msgstr "Is een gegeven thema geïnstalleerd."
+
+msgid "Is current user Security Admin."
+msgstr "Is huidige gebruiker Security Admin."
+
+msgid "Is current user password expired."
+msgstr "Is wachtwoord van huidige gebruiker verlopen."
+
+msgid "Is silentCAPTCHA score"
+msgstr "Is silentCAPTCHA score"
+
+msgid "Is the current IP address considered \"high reputation\"."
+msgstr "Wordt het huidige IP-adres beschouwd als \"hoge reputatie\"."
+
+msgid "Is the request HTTPS."
+msgstr "Is het verzoek HTTPS."
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "Is het verzoek-IP automatisch of handmatig geblokkeerd door Shield."
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "Staat het verzoek-IP op de blacklist van Shield."
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "Staat het verzoek-IP op Shield's CrowdSec bloklijst."
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "Staat het verzoek-IP op Shield's handmatige bloklijst."
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "Staat het verzoek-IP op Shield's auto-bloklijst."
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "Staat het verzoek-IP op Shield's handmatige bypass-lijst/whitelist."
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "Is het verzoek geblokkeerd door Shield's Site Lockdown functie."
+
+msgid "Is the request from a logged-in user."
+msgstr "Is het verzoek van een ingelogde gebruiker."
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "Is het verzoek van een gebruiker geauthenticeerd als Shield Security Admin."
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "Staat het verzoekpad op de whitelist van Shield."
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "Is het verzoek naar een pad binnen een momenteel geïnstalleerde WordPress plugin."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "Is het verzoek naar een pad binnen een momenteel geïnstalleerd WordPress thema."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "Is het verzoek naar een pad binnen een mogelijk geïnstalleerde WordPress plugin maar is ongeldig."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "Is het verzoek naar een pad binnen een mogelijk geïnstalleerde WordPress plugin."
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "Is het verzoek naar een pad binnen een mogelijk geïnstalleerd WordPress thema maar is ongeldig."
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "Is het verzoek naar een pad binnen een mogelijk geïnstalleerd WordPress thema."
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "Is het verzoek naar het WordPress XML-RPC eindpunt."
+
+msgid "Is the request to the WordPress admin area."
+msgstr "Is het verzoek naar de WordPress admin ruimte."
+
+msgid "Is the request to the WordPress cron."
+msgstr "Is het verzoek naar de WordPress cron."
+
+msgid "Is the request whitelisted?"
+msgstr "Staat het verzoek op de whitelist?"
+
+msgid "Is this a known IP address?"
+msgstr "Is dit een bekend IP-adres?"
+
+msgid "Is your WordPress site automatically detecting and blocking malicious requests?"
+msgstr "Detecteert en blokkeert jouw WordPress site automatisch kwaadaardige aanvragen?"
+
+msgid "Issues"
+msgstr "Problemen"
+
+msgid "Issues Found"
+msgstr "Problemen gevonden"
+
+msgid "It appears that any contact forms you're using are protected against Bot SPAM."
+msgstr "Het lijkt erop dat alle contactformulieren die u gebruikt beschermd zijn tegen Bot SPAM."
+
+msgid "It appears that certain contact forms aren't protected against Bot SPAM: %s"
+msgstr "Het lijkt erop dat bepaalde contactformulieren niet beschermd zijn tegen Bot SPAM: %s"
+
+msgid "It can be turned-off at any time within the plugin options."
+msgstr "Het kan op elk moment worden uitgeschakeld binnen de plugin opties."
+
+msgid "It will be displayed below when it's ready."
+msgstr "Het wordt hieronder weergegeven wanneer het klaar is."
+
+msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
+msgstr "Het bevindt zich in een WordPress plugin map, en wordt herkend als een geldig bestand voor die pluginversie."
+
+msgid "It's located in a WordPress theme directory, and is a recognised as a valid file for that theme version."
+msgstr "Het bevindt zich in een WordPress thema map, en wordt herkend als een geldig bestand voor die themaversie."
+
+msgid "It's possible to edit files from within the WordPress admin area."
+msgstr "Het is mogelijk om bestanden te bewerken vanuit de WordPress admin ruimte."
+
+msgid "Keep this Secret Key private as it will allow export of options from your site."
+msgstr "Houd deze Geheime Sleutel privé omdat deze de export van opties vanaf uw site mogelijk maakt."
+
+msgid "Keep this Secret Key private as it will allow the import and export of options."
+msgstr "Houd deze Geheime Sleutel privé omdat deze de import en export van opties mogelijk maakt."
+
+msgid "Key"
+msgstr "sleutel"
+
+msgid "Key set to expire: %s"
+msgstr "Sleutel ingesteld om te verlopen: %s"
+
+msgid "Knowledgebase"
+msgstr "Kennisbank"
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Label For This IP Rule"
+msgstr "Label Voor Deze IP Regel"
+
+msgid "Learn More"
+msgstr "lees verder"
+
+msgid "Learn More."
+msgstr "Lees verder."
+
+msgid "Level"
+msgstr "Niveau"
+
+msgid "License"
+msgstr "Licentie"
+
+msgid "License Check Success"
+msgstr "Licentiecontrole geslaagd"
+
+msgid "License Deactivated"
+msgstr "Licentie Gedeactiveerd"
+
+msgid "License Summary"
+msgstr "Licentiesamenvatting"
+
+msgid "License removed successfully."
+msgstr "Licentie succesvol verwijderd."
+
+msgid "Lifetime"
+msgstr "Levensduur"
+
+msgid "Light"
+msgstr "Licht"
+
+msgid "Limit Attempts"
+msgstr "Pogingen Beperken"
+
+msgid "Limit requests to your site based on the your rate-limiting settings."
+msgstr "Beperk verzoeken naar uw site op basis van uw snelheidslimitering-instellingen."
+
+msgid "Link Cheese"
+msgstr "Link Cheese"
+
+msgid "Link cheese access detected at '{{path}}'."
+msgstr "Link cheese toegang gedetecteerd op '{{path}}'."
+
+msgid "Link-Cheese"
+msgstr "Link-Cheese"
+
+msgid "Linked To Child Theme"
+msgstr "Gekoppeld aan subthema"
+
+msgid "Linked To Parent Theme"
+msgstr "Gekoppeld aan hoofdthema"
+
+msgid "List each site URL on a new line."
+msgstr "Vermeld elke site-URL op een nieuwe regel."
+
+msgid "Load"
+msgstr "Laden"
+
+msgid "Loaded"
+msgstr "Geladen"
+
+msgid "Loading"
+msgstr "Laden"
+
+msgid "Locale"
+msgstr "Taalregio"
+
+msgid "Location"
+msgstr "locatie"
+
+msgid "Lock Files Against Tampering And Changes"
+msgstr "Bestanden Vergrendelen Tegen Manipulatie En Wijzigingen"
+
+msgid "Lock Files Against Tampering and Changes"
+msgstr "Bestanden Vergrendelen Tegen Manipulatie en Wijzigingen"
+
+msgid "Lock User Sessions To "
+msgstr "Gebruikerssessies Vergrendelen Aan"
+
+msgid "Lock user sessions to IP address detected at login"
+msgstr "Gebruikerssessies vergrendelen aan IP-adres gedetecteerd bij login"
+
+msgid "Lock user sessions to browser detected at login"
+msgstr "Gebruikerssessies vergrendelen aan browser gedetecteerd bij login"
+
+msgid "Lockdown The Site"
+msgstr "Site in lockdown zetten"
+
+msgid "Lockdown activated by:"
+msgstr "Lockdown geactiveerd door:"
+
+msgid "Lockdown certain core WordPress system features."
+msgstr "Vergrendel bepaalde kern WordPress systeemfuncties."
+
+msgid "Locked"
+msgstr "Vergrendeld"
+
+msgid "Locked Files"
+msgstr "Vergrendelde bestanden"
+
+msgid "Log Requests To Your WordPress Site"
+msgstr "Verzoeken Naar Uw WordPress Site Loggen"
+
+msgid "Logged At"
+msgstr "Ingelogd Op"
+
+msgid "Logged In At"
+msgstr "Ingelogd Op"
+
+msgid "Logged-In"
+msgstr "Ingelogd"
+
+msgid "Logged-In At"
+msgstr "Ingelogd Op"
+
+msgid "Logging Level"
+msgstr "Logniveau"
+
+msgid "Logging isn't currently available on this site."
+msgstr "Logging is momenteel niet beschikbaar op deze site."
+
+msgid "Login"
+msgstr "login"
+
+msgid "Login Blocked"
+msgstr "Login Geblokkeerd"
+
+msgid "Login Blocks"
+msgstr "Login Blokken"
+
+msgid "Login Bot Protection"
+msgstr "Login bot-beveiliging"
+
+msgid "Login Cooldown"
+msgstr "Login Afkoelperiode"
+
+msgid "Login Cooldown Interval"
+msgstr "Login Cooldown Interval"
+
+msgid "Login Details"
+msgstr "Login Details"
+
+msgid "Login Expired"
+msgstr "Login Verlopen"
+
+msgid "Login Fail"
+msgstr "Login mislukt"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "Login-IP"
+
+msgid "Login Page"
+msgstr "Loginpagina"
+
+msgid "Login Protection"
+msgstr "Loginbeveiliging"
+
+msgid "Login Security"
+msgstr "Loginbeveiliging"
+
+msgid "Login Success"
+msgstr "Login geslaagd"
+
+msgid "Login backup codes have been removed from your profile"
+msgstr "Login back-upcodes zijn verwijderd van uw profiel"
+
+msgid "Login page loaded"
+msgstr "Loginpagina geladen"
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "Login, registratie & wachtwoord vergeten formulieren"
+
+msgid "Login/Register request triggered cooldown and was blocked."
+msgstr "Login/Registratieverzoek activeerde cooldown en werd geblokkeerd."
+
+msgid "Lost Password"
+msgstr "Wachtwoord Vergeten"
+
+msgid "Lost Password Blocked"
+msgstr "Wachtwoord vergeten geblokkeerd"
+
+msgid "Lost Password Bot Protection"
+msgstr "Wachtwoord Vergeten Botbeveiliging"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "Wachtwoord Vergeten SPAMing door bots wordt geblokkeerd door silentCAPTCHA."
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "Wachtwoord Vergeten SPAMing door bots wordt niet geblokkeerd door silentCAPTCHA."
+
+msgid "MainWP Integration"
+msgstr "MainWP Integratie"
+
+msgid "MainWP Option Not Enabled"
+msgstr "MainWP Optie Niet Ingeschakeld"
+
+msgid "Malware"
+msgstr "Malware"
+
+msgid "Malware Details"
+msgstr "Malwaredetails"
+
+msgid "Malware File Tracking"
+msgstr "Malware Bestand Tracking"
+
+msgid "Malware Scanner"
+msgstr "Malwarescanner"
+
+msgid "Malware status of this file is currently"
+msgstr "Malware status van dit bestand is momenteel"
+
+msgid "Malware status report from %s"
+msgstr "Malware statusrapport van %s"
+
+msgid "Manage"
+msgstr "Beheren"
+
+msgid "Manage IP Rules"
+msgstr "IP-regels beheren"
+
+msgid "Manage Rules"
+msgstr "Regels beheren"
+
+msgid "Manual Block"
+msgstr "Handmatig Blok"
+
+msgid "Manual Code"
+msgstr "Handmatige Code"
+
+msgid "Manually Suspended"
+msgstr "Handmatig Opgeschort"
+
+msgid "Master Import Site"
+msgstr "Master Import Site"
+
+msgid "Master Site Secret Key"
+msgstr "Master site geheime sleutel"
+
+msgid "Master Site URL"
+msgstr "Master site-URL"
+
+msgid "Master Site URL set: {{site}}"
+msgstr "Master site-URL ingesteld: {{site}}"
+
+msgid "Match Bot Type"
+msgstr "Bottype Matchen"
+
+msgid "Match Patterns"
+msgstr "Matchpatronen"
+
+msgid "Match Type"
+msgstr "Matchtype"
+
+msgid "Match User Email Address"
+msgstr "Match gebruiker e-mailadres"
+
+msgid "Match User ID"
+msgstr "Gebruikers-ID Matchen"
+
+msgid "Match Useragent"
+msgstr "Useragent Matchen"
+
+msgid "Match Username"
+msgstr "Gebruikersnaam Matchen"
+
+msgid "Match the username for currently logged-in user."
+msgstr "Komt overeen met de gebruikersnaam van de momenteel ingelogde gebruiker."
+
+msgid "Maximum Number Of Requests Allowed In Time Limit"
+msgstr "Maximum Aantal Toegestane Verzoeken In Tijdslimiet"
+
+msgid "Media"
+msgstr "Media"
+
+msgid "Medium"
+msgstr "Gemiddeld"
+
+msgid "Membership"
+msgstr "Lidmaatschap"
+
+msgid "Menu Icon"
+msgstr "Menu Icoon"
+
+msgid "Menu Icon URL"
+msgstr "Menu Icoon URL"
+
+msgid "Menu Title"
+msgstr "Menu Titel"
+
+msgid "Meta"
+msgstr "Meta"
+
+msgid "Meta Key"
+msgstr "Meta-sleutel"
+
+msgid "Meta Value"
+msgstr "Meta-waarde"
+
+msgid "Meta Value To Match"
+msgstr "Meta-waarde om te matchen"
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "Minimum Password Strength"
+msgstr "Minimale Wachtwoordsterkte"
+
+msgid "Minimum Strength"
+msgstr "Minimale Sterkte"
+
+msgid "Minimum Time Interval Between Comments"
+msgstr "Minimaal Tijdsinterval Tussen Reacties"
+
+msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
+msgstr "Minimale silentCAPTCHA score vereist om aan te geven dat bezoeker menselijk is"
+
+msgid "Minutes"
+msgstr "Minuten"
+
+msgid "Missing"
+msgstr "Ontbreekt"
+
+msgid "Mode"
+msgstr "Modus"
+
+msgid "Modified"
+msgstr "Gewijzigd"
+
+msgid "Modified File"
+msgstr "Gewijzigd Bestand"
+
+msgid "Monitor for malicious visitors and automatically block their IP addresses."
+msgstr "Monitor op kwaadwillende bezoekers en blokkeer automatisch hun IP-adressen."
+
+msgid "Monitor web requests sent to your WordPress site."
+msgstr "Monitor webverzoeken verzonden naar uw WordPress site."
+
+msgid "Monthly"
+msgstr "Maandelijks"
+
+msgid "More Info"
+msgstr "Meer info"
+
+msgid "Multisite"
+msgstr "Multisite"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "N.v.t."
+
+msgid "NO TITLE"
+msgstr "GEEN TITEL"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Name: <code>%s</code>"
+msgstr "Naam: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "Navigatie"
+
+msgid "Needs Update"
+msgstr "Update Nodig"
+
+msgid "Never"
+msgstr "Nooit"
+
+msgid "Never Recorded"
+msgstr "Nooit Geregistreerd"
+
+msgid "New"
+msgstr "Nieuw"
+
+msgid "New Admin(s)"
+msgstr "Nieuwe beheerder(s)"
+
+msgid "New Comment"
+msgstr "Nieuwe reactie"
+
+msgid "New Results"
+msgstr "Nieuwe Resultaten"
+
+msgid "New Scan Results"
+msgstr "Nieuwe Scanresultaten"
+
+msgid "New User Default Role"
+msgstr "Standaardrol Nieuwe Gebruiker"
+
+msgid "New WordPress user registered."
+msgstr "Nieuwe WordPress gebruiker geregistreerd."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "Nieuwe gebruikersnaam is '{{user_login}}' met e-mailadres '{{email}}'."
+
+msgid "No"
+msgstr "Nee"
+
+msgid "No 2FA login intent found - your login may have expired."
+msgstr "Geen 2FA login intentie gevonden - uw login is mogelijk verlopen."
+
+msgid "No 2FA login providers found."
+msgstr "Geen 2FA login providers gevonden."
+
+msgid "No Change"
+msgstr "Geen Wijziging"
+
+msgid "No IP blocks recorded yet."
+msgstr "Nog geen IP-blokkeringen geregistreerd."
+
+msgid "No Issues"
+msgstr "Geen problemen"
+
+msgid "No Name Yet"
+msgstr "Nog Geen Naam"
+
+msgid "No Title"
+msgstr "Geen Titel"
+
+msgid "No Update"
+msgstr "Geen Update"
+
+msgid "No active providers for user."
+msgstr "Geen actieve providers voor gebruiker."
+
+msgid "No activity logged for this IP address"
+msgstr "Geen activiteit gelogd voor dit IP-adres"
+
+msgid "No confirmation checkbox."
+msgstr "Geen bevestigingsvakje."
+
+msgid "No content yet"
+msgstr "Nog geen inhoud"
+
+msgid "No email address - No Notification."
+msgstr "Geen e-mailadres - Geen notificatie."
+
+msgid "No email provider for user."
+msgstr "Geen e-mailprovider voor gebruiker."
+
+msgid "No license to remove."
+msgstr "Geen licentie om te verwijderen."
+
+msgid "No meta available"
+msgstr "Geen meta beschikbaar"
+
+msgid "No modules specified in the plugin config."
+msgstr "Geen modules gespecificeerd in de plugin config."
+
+msgid "No new session activity recorded yet."
+msgstr "Nog geen nieuwe sessie-activiteit geregistreerd."
+
+msgid "No offenses recorded by IPs that haven't already been blocked."
+msgstr "Geen overtredingen geregistreerd door IP's die nog niet zijn geblokkeerd."
+
+msgid "No profile was applied"
+msgstr "Er is geen profiel toegepast"
+
+msgid "No reports have been generated yet."
+msgstr "Er zijn nog geen rapporten gegenereerd."
+
+msgid "No requests logged for this IP address"
+msgstr "Geen verzoeken gelogd voor dit IP-adres"
+
+msgid "No scan for plugins which may have been abandoned by their author."
+msgstr "Geen scan voor plugins die mogelijk door hun auteur zijn verlaten."
+
+msgid "No scans were selected"
+msgstr "Er zijn geen scans geselecteerd"
+
+msgid "No sessions recorded for this IP address"
+msgstr "Geen sessies geregistreerd voor dit IP-adres"
+
+msgid "No site activity recorded yet."
+msgstr "Nog geen site-activiteit geregistreerd."
+
+msgid "No such user"
+msgstr "Geen dergelijke gebruiker"
+
+msgid "No title provided"
+msgstr "Geen titel opgegeven"
+
+msgid "No value set."
+msgstr "Geen waarde ingesteld."
+
+msgid "Noise"
+msgstr "Ruis"
+
+msgid "None"
+msgstr "Geen"
+
+msgid "Not Installed"
+msgstr "Niet geïnstalleerd"
+
+msgid "Not Offense"
+msgstr "Geen Overtreding"
+
+msgid "Not Pro"
+msgstr "Niet Pro"
+
+msgid "Not Ready"
+msgstr "Niet gereed"
+
+msgid "Not Recorded"
+msgstr "Niet Vastgelegd"
+
+msgid "Not a WordPress Core file"
+msgstr "Geen WordPress Core bestand"
+
+msgid "Not a plugin or theme file path."
+msgstr "Geen plugin of thema bestandspad."
+
+msgid "Not a valid IP range"
+msgstr "Geen geldig IP-bereik"
+
+msgid "Not a valid option key."
+msgstr "Geen geldige optiesleutel."
+
+msgid "Not a valid value for this parameter"
+msgstr "Geen geldige waarde voor deze parameter"
+
+msgid "Not currently logged-in as security admin."
+msgstr "Momenteel niet ingelogd als security admin."
+
+msgid "Not currently logged-in."
+msgstr "Momenteel niet ingelogd."
+
+msgid "Not yet recorded"
+msgstr "Nog niet geregistreerd"
+
+msgid "Note"
+msgstr "Opmerking"
+
+msgid "Notice"
+msgstr "bericht"
+
+msgid "Notice: %s"
+msgstr "Bericht: %s"
+
+msgid "Notification Of Scan Detection Sent"
+msgstr "Melding Van Scandetectie Verzonden"
+
+msgid "Notify Sites On The Whitelist To Update Options From Master"
+msgstr "Sites Op De Whitelist Notificeren Om Opties Bij Te Werken Vanaf Master"
+
+msgid "Notify Whitelist"
+msgstr "Whitelist Notificeren"
+
+msgid "Now"
+msgstr "Nu"
+
+msgid "Number Of Times To Run All Scans Each Day"
+msgstr "Aantal Keren Om Alle Scans Elke Dag Uit Te Voeren"
+
+msgid "Number of offenses"
+msgstr "Aantal overtredingen"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Obscurity"
+msgstr "Obscuriteit"
+
+msgid "Obsolete WP core file"
+msgstr "Verouderd WP core bestand"
+
+msgid "Off"
+msgstr "Uit"
+
+msgid "Offense"
+msgstr "Overtreding"
+
+msgid "Offense Limit"
+msgstr "Overtreding Beperken"
+
+msgid "Offense Triggered"
+msgstr "Overtreding Geactiveerd"
+
+msgid "Offense: %s"
+msgstr "Overtreding: %s"
+
+msgid "Offenses"
+msgstr "Overtredingen"
+
+msgid "Offenses Limit"
+msgstr "Overtredingslimiet"
+
+msgid "Offenses couldn't be reset at this time."
+msgstr "Overtredingen konden op dit moment niet worden gereset."
+
+msgid "On"
+msgstr "Aan"
+
+msgid "One-Time Password was sent to your phone."
+msgstr "Eenmalig wachtwoord is naar uw telefoon verzonden."
+
+msgid "One-Time Passwords"
+msgstr "Eenmalige wachtwoorden"
+
+msgid "Options"
+msgstr "Opties"
+
+msgid "Options Exported"
+msgstr "Opties geëxporteerd"
+
+msgid "Options Imported"
+msgstr "Opties Geïmporteerd"
+
+msgid "Options exported to site: {{site}}"
+msgstr "Opties geëxporteerd naar site: {{site}}"
+
+msgid "Options imported from site: {{site}}"
+msgstr "Opties geïmporteerd vanaf site: {{site}}"
+
+msgid "Options imported successfully"
+msgstr "Opties succesvol geïmporteerd"
+
+msgid "Options will be automatically exported from the Master site each day."
+msgstr "Opties worden automatisch elke dag geëxporteerd vanaf de Master site."
+
+msgid "Options will be automatically imported from the Master site each night"
+msgstr "Opties worden automatisch elke nacht geïmporteerd vanaf de Master site"
+
+msgid "Overview"
+msgstr "Overzicht"
+
+msgid "Owner"
+msgstr "Eigenaar"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP & MySQL"
+
+msgid "PHP Code"
+msgstr "PHP-code"
+
+msgid "PHP Code Includes"
+msgstr "PHP-code includes"
+
+msgid "PHP Malware"
+msgstr "PHP Malware"
+
+msgid "PHP Malware Scanner"
+msgstr "PHP Malwarescanner"
+
+msgid "PHP Version"
+msgstr "PHP Versie"
+
+msgid "PHP files aren't scanned for malware."
+msgstr "PHP bestanden worden niet gescand op malware."
+
+msgid "PHP malware scanner isn't enabled."
+msgstr "PHP malware scanner is niet ingeschakeld."
+
+msgid "PIN Required"
+msgstr "PIN Vereist"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "pagina"
+
+msgid "Pages"
+msgstr "pagina's"
+
+msgid "Parameter Name"
+msgstr "Parameternaam"
+
+msgid "Parameter Value"
+msgstr "Parameterwaarde"
+
+msgid "Parent"
+msgstr "hoofd"
+
+msgid "Passkey registration details were missing in the request."
+msgstr "Passkey registratiegegevens ontbraken in het verzoek."
+
+msgid "Passkey removed from your profile"
+msgstr "Passkey verwijderd van uw profiel"
+
+msgid "Passkey was successfully registered on your profile."
+msgstr "Passkey is succesvol geregistreerd op uw profiel."
+
+msgid "Passkeys"
+msgstr "Passkeys"
+
+msgid "Passkeys aren't available for this user."
+msgstr "Passkeys zijn niet beschikbaar voor deze gebruiker."
+
+msgid "Password Change Blocked"
+msgstr "Wachtwoordwijziging Geblokkeerd"
+
+msgid "Password Expiration"
+msgstr "Wachtwoord Vervaldatum"
+
+msgid "Password Expired"
+msgstr "Wachtwoord verlopen"
+
+msgid "Password Reset"
+msgstr "Wachtwoord reset"
+
+msgid "Password Updated"
+msgstr "Wachtwoord geüpdatet"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "Wachtwoord geüpdatet voor gebruiker '{{user_login}}'."
+
+msgid "Path"
+msgstr "Pad"
+
+msgid "Path To Check"
+msgstr "Pad om te Controleren"
+
+msgid "Path To Match"
+msgstr "Pad om te Matchen"
+
+msgid "Permalinks"
+msgstr "Permalinks"
+
+msgid "Permalinks Updated"
+msgstr "Permalinks Geüpdatet"
+
+msgid "Permanently Deleted"
+msgstr "Permanent Verwijderd"
+
+msgid "Please check your email for the unblocking link."
+msgstr "Controleer alstublieft uw e-mail voor de deblokkeerlink."
+
+msgid "Please check your license on-site: %s"
+msgstr "Controleer alstublieft uw licentie op de site: %s"
+
+msgid "Please click the link provided below to do so."
+msgstr "Klik op de onderstaande link om dit te doen."
+
+msgid "Please confirm the 6-digit code sent to your phone."
+msgstr "Bevestig de 6-cijferige code die naar uw telefoon is verzonden."
+
+msgid "Please contact site admin to request access if required."
+msgstr "Neem contact op met de sitebeheerder om toegang aan te vragen indien nodig."
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "Neem contact op met de sitebeheerder om te verzoeken dat uw IP-adres wordt gedeblokkeerd."
+
+msgid "Please now save your profile settings."
+msgstr "Sla nu uw profielinstellingen op."
+
+msgid "Please provide a label to identify the device."
+msgstr "Geef een label op om het apparaat te identificeren."
+
+msgid "Please reset your password to regain access."
+msgstr "Reset uw wachtwoord om weer toegang te krijgen."
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "Selecteer alstublieft een van de IP Regel Types - Blok of Omzeilen"
+
+msgid "Please select one of the options available"
+msgstr "Selecteer alstublieft een van de beschikbare opties"
+
+msgid "Please turn on this feature in the options."
+msgstr "Schakel deze functie in de opties in."
+
+msgid "Please turn on this scan in the options."
+msgstr "Schakel deze scan in de opties in."
+
+msgid "Please upgrade to support scanning of all plugin files for tampering."
+msgstr "Upgrade alstublieft om het scannen van alle pluginbestanden op manipulatie te ondersteunen."
+
+msgid "Please upgrade your ShieldPRO plan to make use of this feature."
+msgstr "Upgrade alstublieft uw ShieldPRO plan om gebruik te maken van deze functie."
+
+msgid "Please upgrade your plan if you need to notify multiple email addresses."
+msgstr "Upgrade alstublieft uw plan als u meerdere e-mailadressen wilt notificeren."
+
+msgid "Please upgrade your plan if you need to run the MainWP integration."
+msgstr "Upgrade alstublieft uw plan als u de MainWP integratie wilt gebruiken."
+
+msgid "Please use one of %s."
+msgstr "Gebruik alstublieft een van %s."
+
+msgid "Please use the `--source=` argument to provide the source site URL or path to file."
+msgstr "Gebruik alstublieft het `--source=` argument om de bron site URL of pad naar bestand op te geven."
+
+msgid "Plugin"
+msgstr "plugin"
+
+msgid "Plugin & Theme Files"
+msgstr "Plugin & Thema Bestanden"
+
+msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
+msgstr "Plugin '{{plugin}}' geüpgraded van versie {{from}} naar versie {{to}}."
+
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
+msgstr "Plugin '{{plugin}}' is geactiveerd (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
+msgstr "Plugin '{{plugin}}' werd gedeactiveerd (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "Plugin '{{plugin}}' is geïnstalleerd (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was uninstalled (v{{version}})."
+msgstr "Plugin '{{plugin}}' werd gedeïnstalleerd (v{{version}})."
+
+msgid "Plugin Activated"
+msgstr "Plugin geactiveerd"
+
+msgid "Plugin Badge Logo"
+msgstr "Plugin badge logo"
+
+msgid "Plugin Badge Logo URL"
+msgstr "Plugin badge logo URL"
+
+msgid "Plugin Deactivated"
+msgstr "Plugin Gedeactiveerd"
+
+msgid "Plugin Defaults"
+msgstr "Plugin Standaardinstellingen"
+
+msgid "Plugin Files"
+msgstr "Pluginbestanden"
+
+msgid "Plugin Home Page URL"
+msgstr "Plugin homepagina URL"
+
+msgid "Plugin Installed"
+msgstr "Plugin Geïnstalleerd"
+
+msgid "Plugin Name"
+msgstr "Pluginnaam"
+
+msgid "Plugin Option Changed"
+msgstr "Plugin Optie Gewijzigd"
+
+msgid "Plugin Security Badge"
+msgstr "Plugin beveiligingsbadge"
+
+msgid "Plugin Uninstalled"
+msgstr "Plugin Verwijderd"
+
+msgid "Plugin Upgraded"
+msgstr "Plugin Geüpgraded"
+
+msgid "Plugin and Theme File Guard"
+msgstr "Plugin en thema bestandsbeveiliging"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "Plugin en thema kwetsbaarhedenscanner"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "Plugin optie '{{name}}' ({{key}}) is bijgewerkt naar '{{value}}'."
+
+msgid "Plugin re-installed. Reloading..."
+msgstr "Plugin opnieuw geïnstalleerd. Herladen..."
+
+msgid "Plugin reset to defaults."
+msgstr "Plugin gereset naar standaardinstellingen."
+
+msgid "Plugin settings imported successfully."
+msgstr "Plugin-instellingen succesvol geïmporteerd."
+
+msgid "Plugin/Theme Guard"
+msgstr "Plugin/thema beveiliging"
+
+msgid "Plugins"
+msgstr "plugins"
+
+msgid "Plugins With Updates"
+msgstr "Plugins met updates"
+
+msgid "Plugins and Themes are scanned for known vulnerabilities."
+msgstr "Plugins en Thema's worden gescand op bekende kwetsbaarheden."
+
+msgid "Plugins and Themes aren't scanned for known vulnerabilities."
+msgstr "Plugins en Thema's worden niet gescand op bekende kwetsbaarheden."
+
+msgid "Plugins with known vulnerabilities are automatically updated to protect your site."
+msgstr "Plugins met bekende kwetsbaarheden worden automatisch bijgewerkt om uw site te beschermen."
+
+msgid "Plugins with known vulnerabilities aren't automatically updated to protect your site."
+msgstr "Plugins met bekende kwetsbaarheden worden niet automatisch bijgewerkt om uw site te beschermen."
+
+msgid "Plugins, Themes, WordPress Core"
+msgstr "Plugins, thema's, WordPress core"
+
+msgid "Post Content Updated"
+msgstr "Berichtinhoud geüpdatet"
+
+msgid "Post Created"
+msgstr "Bericht Aangemaakt"
+
+msgid "Post Deleted"
+msgstr "Bericht verwijderd"
+
+msgid "Post Published"
+msgstr "Bericht Gepubliceerd"
+
+msgid "Post Slug Updated"
+msgstr "Bericht-slug geüpdatet"
+
+msgid "Post Title Updated"
+msgstr "Berichttitel Geüpdatet"
+
+msgid "Post Trashed"
+msgstr "Bericht naar Prullenbak"
+
+msgid "Post Type: {{type}}"
+msgstr "Berichttype: {{type}}"
+
+msgid "Post Unpublished"
+msgstr "Bericht Niet Gepubliceerd"
+
+msgid "Post Updated"
+msgstr "Bericht geüpdatet"
+
+msgid "Posts"
+msgstr "berichten"
+
+msgid "Predicted"
+msgstr "Voorspeld"
+
+msgid "Previous scans detected 1 or more files suspected of being malware."
+msgstr "Eerdere scans detecteerden 1 of meer bestanden verdacht van malware."
+
+msgid "Previous scans detected 1 or more modified, missing, unrecognised or unidentified files in the WordPress core directories."
+msgstr "Eerdere scans detecteerden 1 of meer gewijzigde, ontbrekende, onherkende of ongeïdentificeerde bestanden in de WordPress core directories."
+
+msgid "Previous scans didn't detect any files suspected of being malware."
+msgstr "Eerdere scans detecteerden geen bestanden verdacht van malware."
+
+msgid "Previous scans didn't detect any modified, missing, unrecognised or unidentified files in the WordPress core directories."
+msgstr "Eerdere scans detecteerden geen gewijzigde, ontbrekende, onherkende of ongeïdentificeerde bestanden in de WordPress core directories."
+
+msgid "Previously created One-Time Passwords are invalid."
+msgstr "Eerder aangemaakte eenmalige wachtwoorden zijn ongeldig."
+
+msgid "Print"
+msgstr "Afdrukken"
+
+msgid "Priority"
+msgstr "Prioriteit"
+
+msgid "Profile"
+msgstr "Profiel"
+
+msgid "Profile '%s' was applied."
+msgstr "Profiel '%s' is toegepast."
+
+msgid "Protect WP Login From Automated Login Attempts By Bots"
+msgstr "Bescherm WP Login Tegen Geautomatiseerde Loginpogingen Door Bots"
+
+msgid "Protect Your Shield Plugin From Tampering"
+msgstr "Bescherm Uw Shield Plugin Tegen Manipulatie"
+
+msgid "Protect key WP core files that can't normally be protected."
+msgstr "Bescherm belangrijke WP core-bestanden die normaal niet kunnen worden beschermd."
+
+msgid "Protect password reset forms against bots"
+msgstr "Bescherm wachtwoord reset formulieren tegen bots"
+
+msgid "Protect user login forms against bots"
+msgstr "Bescherm gebruiker login formulieren tegen bots"
+
+msgid "Protect user registration forms against bots"
+msgstr "Bescherm gebruikersregistratie formulieren tegen bots"
+
+msgid "Protect your %s files"
+msgstr "Bescherm uw %s bestanden"
+
+msgid "Protected Forms"
+msgstr "Beveiligde formulieren"
+
+msgid "Protecting against the #1 source of <strong>Comment SPAM</strong>."
+msgstr "Bescherming tegen de #1 bron van <strong>Reactie SPAM</strong>."
+
+msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
+msgstr "Beschermt uw <strong>belangrijke gebruikersformulieren</strong> zoals Login, Registratie en Wachtwoord Vergeten."
+
+msgid "Protection for user accounts."
+msgstr "Beveiliging voor gebruikersaccounts."
+
+msgid "Provide The Security Admin PIN."
+msgstr "Geef De Security Admin PIN Op."
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "Geef een eenmalig wachtwoord van uw Yubikey op."
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "Geef een geheime PIN op om admin toegang tot uw beveiligingsinstellingen te beperken"
+
+msgid "Provide a valid IP address or range"
+msgstr "Geef een geldig IP-adres of bereik op"
+
+msgid "Provide a valid whole number"
+msgstr "Geef een geldig geheel getal op"
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "Geef het eenmalige wachtwoord van uw 2FA login apparaat"
+
+msgid "Provide your custom set of CSP rules."
+msgstr "Geef uw aangepaste set CSP regels op."
+
+msgid "Provide/Update Security Admin PIN"
+msgstr "Security Admin PIN Opgeven/Bijwerken"
+
+msgid "Provided by %s"
+msgstr "Geleverd door %s"
+
+msgid "Provided by Shield"
+msgstr "Geleverd door Shield"
+
+msgid "Published"
+msgstr "Gepubliceerd"
+
+msgid "Purpose"
+msgstr "Doel"
+
+msgid "Pwned passwords are blocked from being set by any user."
+msgstr "Pwned wachtwoorden worden geblokkeerd en kunnen niet worden ingesteld door gebruikers."
+
+msgid "Query"
+msgstr "Query"
+
+msgid "Rate Limit Abusive Requests"
+msgstr "Snelheidslimitering Voor Misbruikende Verzoeken"
+
+msgid "Rate Limiting"
+msgstr "Snelheidslimitering"
+
+msgid "Re-Install"
+msgstr "Opnieuw installeren"
+
+msgid "Re-Install It"
+msgstr "Opnieuw Installeren"
+
+msgid "Re-enable Protection."
+msgstr "Beveiliging opnieuw inschakelen."
+
+msgid "Ready"
+msgstr "Gereed"
+
+msgid "Reason"
+msgstr "Reden"
+
+msgid "Reason: %s"
+msgstr "Reden: %s"
+
+msgid "Recommendation"
+msgstr "Aanbeveling"
+
+msgid "Recommendations"
+msgstr "Aanbevelingen"
+
+msgid "Redirect Location"
+msgstr "Doorverwijslocatie"
+
+msgid "Redirect Status"
+msgstr "Doorverwijsstatus"
+
+msgid "Refresh"
+msgstr "verversen"
+
+msgid "Register New Passkey"
+msgstr "Nieuwe Passkey Registreren"
+
+msgid "Registered"
+msgstr "Geregistreerd"
+
+msgid "Registered Passkeys"
+msgstr "Geregistreerde Passkeys"
+
+msgid "Registered Site"
+msgstr "Geregistreerde site"
+
+msgid "Registration"
+msgstr "Registratie"
+
+msgid "Registration Blocked"
+msgstr "Registratie geblokkeerd"
+
+msgid "Regularly scan WordPress plugins and themes for known security vulnerabilities."
+msgstr "Scan regelmatig WordPress plugins en thema's op bekende beveiligingskwetsbaarheden."
+
+msgid "Regularly scan your WordPress plugins and themes for known security vulnerabilities."
+msgstr "Scan regelmatig uw WordPress plugins en thema's op bekende beveiligingskwetsbaarheden."
+
+msgid "Reloading"
+msgstr "Herladen"
+
+msgid "Reloading page"
+msgstr "Pagina herladen"
+
+msgid "Remove %s"
+msgstr "%s Verwijderen"
+
+msgid "Remove All MFA Providers"
+msgstr "Alle MFA Providers Verwijderen"
+
+msgid "Remove All MFA Providers From This User Profile"
+msgstr "Alle MFA Providers Van Dit Gebruikersprofiel Verwijderen"
+
+msgid "Remove IP Bypass"
+msgstr "IP Bypass Verwijderen"
+
+msgid "Remove License"
+msgstr "Licentie Verwijderen"
+
+msgid "Repair"
+msgstr "Repareren"
+
+msgid "Repair Success"
+msgstr "Reparatie Geslaagd"
+
+msgid "Repair/Delete Success"
+msgstr "Herstel/Verwijderen Geslaagd"
+
+msgid "Repaired"
+msgstr "Hersteld"
+
+msgid "Report Email"
+msgstr "Rapport E-mail"
+
+msgid "Report Generated"
+msgstr "Rapport Gegenereerd"
+
+msgid "Report Generated."
+msgstr "Rapport Gegenereerd."
+
+msgid "Report Options"
+msgstr "Rapportopties"
+
+msgid "Report Sent"
+msgstr "Rapport Verzonden"
+
+msgid "Report Title"
+msgstr "Rapporttitel"
+
+msgid "Report Type"
+msgstr "Rapporttype"
+
+msgid "Report deleted."
+msgstr "Rapport verwijderd."
+
+msgid "Reporting"
+msgstr "Rapportage"
+
+msgid "Reports"
+msgstr "rapporten"
+
+msgid "Request Blocked"
+msgstr "Verzoek geblokkeerd"
+
+msgid "Request Blocked by Firewall"
+msgstr "Verzoek Geblokkeerd Door Firewall"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "Verzoek Geblokkeerd Door Site Lockdown."
+
+msgid "Request Details"
+msgstr "Verzoekdetails"
+
+msgid "Request Firewall"
+msgstr "Verzoek-firewall"
+
+msgid "Request Firewall Options"
+msgstr "Verzoek firewall-opties"
+
+msgid "Request ID"
+msgstr "Verzoek-ID"
+
+msgid "Request Limit Interval"
+msgstr "Verzoeklimiet Interval"
+
+msgid "Request Limit Time Interval"
+msgstr "Verzoeklimiet Tijdsinterval"
+
+msgid "Request Log"
+msgstr "Verzoeklog"
+
+msgid "Request Logging"
+msgstr "Verzoeklogboek"
+
+msgid "Request Method"
+msgstr "Aanvraagmethode"
+
+msgid "Request Parameter"
+msgstr "Verzoekparameter"
+
+msgid "Request Parameter Value"
+msgstr "Verzoekparameterwaarde"
+
+msgid "Request Path"
+msgstr "Verzoekpad"
+
+msgid "Request Path Whitelist"
+msgstr "Verzoekpad whitelist"
+
+msgid "Request Path Whitelist."
+msgstr "Verzoekpad whitelist."
+
+msgid "Request Status"
+msgstr "Aanvraagstatus"
+
+msgid "Request Type"
+msgstr "Verzoektype"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "Verzoek geblokkeerd door firewallregel: {{name}}."
+
+msgid "Request logging is required when you have activated Traffic Rate Limiting."
+msgstr "Verzoeklogboeken zijn vereist wanneer u Verkeer Snelheidslimitering hebt geactiveerd."
+
+msgid "Requested At"
+msgstr "Aangevraagd Op"
+
+msgid "Requests"
+msgstr "aanvragen"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "Verzoeken vanaf dit IP-adres zullen worden geblokkeerd."
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "Verzoeken vanaf dit IP-adres zullen alle beveiligingsregels omzeilen."
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "Verzoeken naar het XML-RPC eindpunt zijn toegestaan op uw site."
+
+msgid "Requires password expiration policy to be set."
+msgstr "Vereist dat wachtwoordverloopbeleid is ingesteld."
+
+msgid "Reset"
+msgstr "reset"
+
+msgid "Reset For This IP"
+msgstr "Resetten voor dit IP"
+
+msgid "Response"
+msgstr "reactie"
+
+msgid "Response Code"
+msgstr "Reactiecode"
+
+msgid "Restrict Access To Certain WordPress Admin Options"
+msgstr "Toegang Tot Bepaalde WordPress Admin Opties Beperken"
+
+msgid "Restrict Access To Create/Delete/Modify Other Admin Users"
+msgstr "Toegang Beperken Tot Aanmaken/Verwijderen/Wijzigen Van Andere Admin Gebruikers"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "Toegang Tot Belangrijke WordPress Plugin Acties Beperken"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "Toegang Tot Belangrijke WordPress Berichten En Pagina Acties Beperken"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "Toegang Tot WordPress Thema Acties Beperken"
+
+msgid "Restrict WP File Editing"
+msgstr "WP-bestandsbewerking beperken"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "Bestandsbewerking binnen WP admin dashboard beperken"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "Beperk de mogelijkheid om bestanden te bewerken vanuit de WordPress admin ruimte."
+
+msgid "Restricted"
+msgstr "Beperkt"
+
+msgid "Restriction Details"
+msgstr "Beperkingsdetails"
+
+msgid "Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system."
+msgstr "Beperkt toegang tot belangrijke WordPress gebieden voor alle gebruikers die niet zijn geauthenticeerd met het Security Admin Access systeem."
+
+msgid "Results"
+msgstr "Resultaten"
+
+msgid "Results & Manual Scans"
+msgstr "Resultaten & Handmatige Scans"
+
+msgid "Results Display Options"
+msgstr "Resultaten Weergaveopties"
+
+msgid "Root Web.config"
+msgstr "Root Web.config"
+
+msgid "Root index.php"
+msgstr "Root index.php"
+
+msgid "Root index.php file isn't protected against tampering."
+msgstr "Root index.php bestand is niet beschermd tegen manipulatie."
+
+msgid "Rule Activated"
+msgstr "Regel Geactiveerd"
+
+msgid "Rule Deactivated"
+msgstr "Regel Gedeactiveerd"
+
+msgid "Rule Reset"
+msgstr "Regel resetten"
+
+msgid "Rule Slug"
+msgstr "Regel-slug"
+
+msgid "Rule Type"
+msgstr "Regeltype"
+
+msgid "Rule deleted"
+msgstr "Regel verwijderd"
+
+msgid "Rules"
+msgstr "Regels"
+
+msgid "Run"
+msgstr "tegenkomt"
+
+msgid "Run A File Scan"
+msgstr "Bestandsscan Uitvoeren"
+
+msgid "Run Database Repair"
+msgstr "Databasereparatie Uitvoeren"
+
+msgid "Run In MU Mode"
+msgstr "Uitvoeren in MU-modus"
+
+msgid "Run Manual Scan"
+msgstr "Handmatige Scan Uitvoeren"
+
+msgid "Run Plugin In Must-Use (MU) Mode"
+msgstr "Voer Plugin Uit In Must-Use (MU) Modus"
+
+msgid "Run Scan"
+msgstr "Scan Uitvoeren"
+
+msgid "Run Scans Now"
+msgstr "Scans Nu Uitvoeren"
+
+msgid "Runs a scan of all your assets against a database of known WordPress vulnerabilities."
+msgstr "Voert een scan uit van al uw assets tegen een database van bekende WordPress kwetsbaarheden."
+
+msgid "Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities."
+msgstr "Voert een scan uit van al uw plugins tegen een database van bekende WordPress plugin kwetsbaarheden."
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Registration Removed"
+msgstr "SMS Registratie Verwijderd"
+
+msgid "SPAM"
+msgstr "SPAM"
+
+msgid "SPAM Action"
+msgstr "SPAM Actie"
+
+msgid "SPAM Blocked"
+msgstr "SPAM Geblokkeerd"
+
+msgid "SPAM Bot detected."
+msgstr "SPAM-bot gedetecteerd."
+
+msgid "SPAM Check Fail"
+msgstr "SPAM-controle mislukt"
+
+msgid "SPAM Detection"
+msgstr "SPAM-detectie"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "SPAM en bulk gebruikersregistratie door bots worden geblokkeerd door silentCAPTCHA."
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM en bulk gebruikersregistratie door bots worden niet geblokkeerd door silentCAPTCHA."
+
+msgid "SPAM blocking"
+msgstr "SPAM blokkeren"
+
+msgid "Save Options"
+msgstr "Opties Opslaan"
+
+msgid "Save Settings"
+msgstr "Instellingen Opslaan"
+
+msgid "Scan For Vulnerabilities In Plugins & Themes"
+msgstr "Scannen Op Kwetsbaarheden In Plugins & Thema's"
+
+msgid "Scan Options"
+msgstr "Scan Opties"
+
+msgid "Scan Results"
+msgstr "Scan Resultaten"
+
+msgid "Scan all your WordPress assets for known security vulnerabilities."
+msgstr "Scan al uw WordPress assets op bekende beveiligingskwetsbaarheden."
+
+msgid "Scan your site for file changes, malware and vulnerabilities."
+msgstr "Scan uw site op bestandswijzigingen, malware en kwetsbaarheden."
+
+msgid "Scanning for PHP Malware is only available with ShieldPRO."
+msgstr "Scannen op PHP Malware is alleen beschikbaar met ShieldPRO."
+
+msgid "Scans"
+msgstr "Scans"
+
+msgid "Scans Plugins For Known Vulnerabilities"
+msgstr "Scant Plugins Op Bekende Kwetsbaarheden"
+
+msgid "Scans all PHP files for malware patterns."
+msgstr "Scant alle PHP bestanden op malware patronen."
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "Scant alle WP bestanden voor uw huidige WordPress versie."
+
+msgid "Scans detected 1 or more modified or unrecognised files in the theme directory."
+msgstr "Scans detecteerden 1 of meer gewijzigde of onbekende bestanden in de thema directory."
+
+msgid "Scans detected modified or unrecognised files in the plugin directory."
+msgstr "Scans hebben gewijzigde of onbekende bestanden in de pluginmap gedetecteerd."
+
+msgid "Scans detected modified/unrecognised files"
+msgstr "Scans detecteerden gewijzigde/onbekende bestanden"
+
+msgid "Scans didn't detect any modified or unrecognised files"
+msgstr "Scans detecteerden geen gewijzigde of onbekende bestanden"
+
+msgid "Scans didn't detect any modified or unrecognised files in the Theme directories."
+msgstr "Scans detecteerden geen gewijzigde of onbekende bestanden in de thema directories."
+
+msgid "Scans didn't detect any modified or unrecognised files in the plugin directory."
+msgstr "Scans detecteerden geen gewijzigde of onbekende bestanden in de pluginmap."
+
+msgid "Scans for file tampering within plugin directories."
+msgstr "Scant op bestandsmanipulatie binnen plugin mappen."
+
+msgid "Scans for file tampering within the active theme."
+msgstr "Scant op bestandsmanipulatie binnen het actieve thema."
+
+msgid "Score"
+msgstr "Score"
+
+msgid "Search %s"
+msgstr "Zoek %s"
+
+msgid "Search Engine"
+msgstr "zoekmachine"
+
+msgid "Seconds"
+msgstr "Seconden"
+
+msgid "Secret Key"
+msgstr "geheime sleutel"
+
+msgid "Security"
+msgstr "Beveiliging"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "Security Admin toegangspincode"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin ingeschakeld"
+
+msgid "Security Admin Login"
+msgstr "Security Admin login"
+
+msgid "Security Admin PIN"
+msgstr "Security Admin PIN"
+
+msgid "Security Admin Protection"
+msgstr "Security Admin beveiliging"
+
+msgid "Security Admin Restriction Settings"
+msgstr "Security Admin Beperkingsinstellingen"
+
+msgid "Security Admin Restriction Zones"
+msgstr "Security Admin Beperkingszones"
+
+msgid "Security Admin Settings"
+msgstr "Security Admin instellingen"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin is nu actief"
+
+msgid "Security Admins"
+msgstr "Beveiligingsbeheerders"
+
+msgid "Security Analysis"
+msgstr "Beveiligingsanalyse"
+
+msgid "Security At A Glance"
+msgstr "Beveiliging In Één Oogopslag"
+
+msgid "Security Dashboard"
+msgstr "Beveiligingsdashboard"
+
+msgid "Security Overview"
+msgstr "Beveiligingsoverzicht"
+
+msgid "Security PIN Currently Set"
+msgstr "Beveiligingspincode momenteel ingesteld"
+
+msgid "Security PIN Fail"
+msgstr "Security PIN mislukt"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "Beveiligingspincode momenteel NIET ingesteld"
+
+msgid "Security Plugin Protection"
+msgstr "Beveiligingsplugin beveiliging"
+
+msgid "Security Profile"
+msgstr "Beveiligingsprofiel"
+
+msgid "Security Report"
+msgstr "Beveiligingsrapport"
+
+msgid "Security Reports"
+msgstr "Beveiligingsrapporten"
+
+msgid "Security Reports."
+msgstr "Beveiligingsrapporten."
+
+msgid "Security Rules"
+msgstr "Beveiligingsregels"
+
+msgid "Security Stats"
+msgstr "Beveiligingsstatistieken"
+
+msgid "Security Tools"
+msgstr "Beveiligingsgereedschap"
+
+msgid "Security Zones"
+msgstr "Beveiligingszones"
+
+msgid "Security Zones Config"
+msgstr "Beveiligingszonesconfiguratie"
+
+msgid "Security admin pin removed."
+msgstr "Security admin pincode verwijderd."
+
+msgid "Security admin pin set to: `%s`"
+msgstr "Security admin pincode ingesteld op: `%s`"
+
+msgid "Security admin required for action: %s"
+msgstr "Security admin vereist voor actie: %s"
+
+msgid "Select"
+msgstr "selecteren"
+
+msgid "Select Scans To Run"
+msgstr "Scans selecteren om uit te voeren"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM"
+msgstr "Selecteer De Formulierproviders Die Gecontroleerd Moeten Worden Op SPAM"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM."
+msgstr "Selecteer De Formulierproviders Die Gecontroleerd Moeten Worden Op SPAM."
+
+msgid "Select The Form Providers That You Use"
+msgstr "Selecteer De Formulierproviders Die U Gebruikt"
+
+msgid "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
+msgstr "Selecteer De Gebruikersformulierproviders Die Gecontroleerd Moeten Worden Op SPAM Registraties en Logins"
+
+msgid "Select The User Forms Provider That You Use"
+msgstr "Selecteer De Gebruikersformulierprovider Die U Gebruikt"
+
+msgid "Select Which Areas Should Be Scanned"
+msgstr "Selecteer Welke Ruimtes Moeten Worden Gescand"
+
+msgid "Select Which Types Of Requests To Exclude"
+msgstr "Selecteer Welke Types Verzoeken Uit Te Sluiten"
+
+msgid "Select file to import options from"
+msgstr "Selecteer bestand om opties vanaf te importeren"
+
+msgid "Select which user forms should be protected against brute-force attacks."
+msgstr "Selecteer welke gebruikersformulieren beschermd moeten worden tegen brute-force aanvallen."
+
+msgid "Selected Sessions Deleted."
+msgstr "Geselecteerde Sessies Verwijderd."
+
+msgid "Sent notifications to whitelisted sites for required options import."
+msgstr "Notificaties verzonden naar goedgekeurde sites voor vereiste opties import."
+
+msgid "Service IPs"
+msgstr "Service IP's"
+
+msgid "Session Duration"
+msgstr "Sessieduur"
+
+msgid "Session Expired"
+msgstr "Sessie Verlopen"
+
+msgid "Session Idle"
+msgstr "Sessie Inactief"
+
+msgid "Session Lock"
+msgstr "Sessievergrendeling"
+
+msgid "Session Locked"
+msgstr "Sessie Vergrendeld"
+
+msgid "Session Not Found"
+msgstr "Sessie Niet Gevonden"
+
+msgid "Session Parameter"
+msgstr "Sessieparameter"
+
+msgid "Session lock"
+msgstr "Sessievergrendeling"
+
+msgid "Sessions"
+msgstr "Sessies"
+
+msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
+msgstr "Stel een limiet in voor toegestane overtredingen voordat bezoeker IP automatisch wordt geblokkeerd."
+
+msgid "Set the entire plugin's enabled/disabled status."
+msgstr "Stel de ingeschakeld/uitgeschakeld status van de gehele plugin in."
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "Stel dit in op \"0\" om de %s functie uit te schakelen."
+
+msgid "Set to %s to turn off this option."
+msgstr "Stel in op %s om deze optie uit te schakelen."
+
+msgid "Settings that apply to all comment SPAM scanning."
+msgstr "Instellingen die van toepassing zijn op alle reactie SPAM scanning."
+
+msgid "Setup Your Security Zones"
+msgstr "Stel Uw Beveiligingszones In"
+
+msgid "Severity"
+msgstr "Ernst"
+
+msgid "Shield 2FA Provider Enabled"
+msgstr "Shield 2FA-provider Geactiveerd"
+
+msgid "Shield Deactivated"
+msgstr "Shield Gedeactiveerd"
+
+msgid "Shield Events & Stats"
+msgstr "Shield Gebeurtenissen & Statistieken"
+
+msgid "Shield Info"
+msgstr "Shield-info"
+
+msgid "Shield Option Key"
+msgstr "Shield-optiesleutel"
+
+msgid "Shield Security Home Page"
+msgstr "Shield Security homepagina"
+
+msgid "Shield Security plugin is installed but not activated."
+msgstr "Shield Security plugin is geïnstalleerd maar niet geactiveerd."
+
+msgid "Shield User 2FA Provider Activated"
+msgstr "Shield Gebruiker 2FA-provider geactiveerd"
+
+msgid "Shield User 2FA: Has Any Active"
+msgstr "Shield Gebruiker 2FA: Heeft Actieve"
+
+msgid "Shield White Label"
+msgstr "Shield White Label"
+
+msgid "Shield doesn't normally scan comments from logged-in or registered users."
+msgstr "Shield scant normaal gesproken geen reacties van ingelogde of geregistreerde gebruikers."
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield is niet geïnstalleerd op deze site."
+
+msgid "Shield plugin activated"
+msgstr "Shield plugin geactiveerd"
+
+msgid "Shield plugin couldn't be activated"
+msgstr "Shield plugin kon niet worden geactiveerd"
+
+msgid "Shield plugin couldn't be deactivated"
+msgstr "Shield plugin kon niet worden gedeactiveerd"
+
+msgid "Shield plugin couldn't be installed"
+msgstr "Shield plugin kon niet worden geïnstalleerd"
+
+msgid "Shield plugin couldn't be updated"
+msgstr "Shield plugin kon niet worden geüpdatet"
+
+msgid "Shield plugin deactivated"
+msgstr "Shield plugin gedeactiveerd"
+
+msgid "Shield plugin installed"
+msgstr "Shield plugin geïnstalleerd"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Shield plugin is geïnstalleerd, maar niet actief."
+
+msgid "Shield plugin updated"
+msgstr "Shield plugin geüpdatet"
+
+msgid "Shield's MainWP integration isn't enabled for this site."
+msgstr "Shield's MainWP integratie is niet ingeschakeld voor deze site."
+
+msgid "ShieldBACKUPS"
+msgstr "ShieldBACKUPS"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO Features"
+msgstr "ShieldPRO Functies"
+
+msgid "ShieldPRO isn't activated on this site."
+msgstr "ShieldPRO is niet geactiveerd op deze site."
+
+msgid "Should be uninstalled"
+msgstr "Moet worden verwijderd"
+
+msgid "Signal"
+msgstr "Signaal"
+
+msgid "Since"
+msgstr "Sinds"
+
+msgid "Since the offenses limit is set to 0, these options have no effect."
+msgstr "Omdat de overtredingslimiet is ingesteld op 0, hebben deze opties geen effect."
+
+msgid "Site"
+msgstr "site"
+
+msgid "Site Address (URL)"
+msgstr "Site-adres (URL)"
+
+msgid "Site Admin Email"
+msgstr "Site beheerder e-mail"
+
+msgid "Site In Lockdown"
+msgstr "Site in lockdown"
+
+msgid "Site Is In Lockdown"
+msgstr "Site is in lockdown"
+
+msgid "Site Is Under Lockdown"
+msgstr "Site is in lockdown"
+
+msgid "Site Lockdown"
+msgstr "Site lockdown"
+
+msgid "Site Lockdown and Firewall"
+msgstr "Site lockdown en firewall"
+
+msgid "Site Scanning"
+msgstr "Site Scannen"
+
+msgid "Site Security Summary"
+msgstr "Overzicht Sitebeveiliging"
+
+msgid "Site Snapshots"
+msgstr "Site-snapshots"
+
+msgid "Site Tagline"
+msgstr "Site slogan"
+
+msgid "Site Title"
+msgstr "Site Titel"
+
+msgid "Site URL"
+msgstr "Site-URL"
+
+msgid "Site URL Changed"
+msgstr "Site-URL Gewijzigd"
+
+msgid "Site added to export white list: {{site}}"
+msgstr "Site toegevoegd aan export white list: {{site}}"
+
+msgid "Site removed from export white list: {{site}}"
+msgstr "Site verwijderd van export white list: {{site}}"
+
+msgid "Sites"
+msgstr "sites"
+
+msgid "Size"
+msgstr "Grootte"
+
+msgid "Slug"
+msgstr "slug"
+
+msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
+msgstr "Slug voor bericht-ID {{post_id}} geüpdatet van '{{slug_old}}' naar '{{slug_new}}'."
+
+msgid "Snapshots"
+msgstr "Snapshots"
+
+msgid "Sorry, %s may not be added to another user's account."
+msgstr "Sorry, %s mag niet worden toegevoegd aan het account van een andere gebruiker."
+
+msgid "Sorry, please upgrade your plan to access this feature."
+msgstr "Sorry, upgrade alstublieft uw plan om toegang te krijgen tot deze functie."
+
+msgid "Sorry, there were no results for this search."
+msgstr "Sorry, er waren geen resultaten voor deze zoekopdracht."
+
+msgid "Sorry, this account is suspended because the password has expired."
+msgstr "Sorry, dit account is opgeschort omdat het wachtwoord is verlopen."
+
+msgid "Sorry, this account is suspended."
+msgstr "Sorry, dit account is opgeschort."
+
+msgid "Sorry, this plugin is protected against unauthorised attempts to disable it."
+msgstr "Sorry, deze plugin is beschermd tegen ongeautoriseerde pogingen om deze uit te schakelen."
+
+msgid "Sorry, this scan is not available."
+msgstr "Sorry, deze scan is niet beschikbaar."
+
+msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
+msgstr "Sorry, u moet uw Shield Security lidmaatschap upgraden om toegang te krijgen tot de MainWP integratie."
+
+msgid "Statistics"
+msgstr "Statistieken"
+
+msgid "Stats"
+msgstr "Statistieken"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Strong"
+msgstr "Sterk"
+
+msgid "Strong Passwords"
+msgstr "Sterke Wachtwoorden"
+
+msgid "Success"
+msgstr "Succes"
+
+msgid "Successfully sent Firewall Block email alert to: {{to}}"
+msgstr "Firewall blok e-mailwaarschuwing succesvol verzonden naar: {{to}}"
+
+msgid "Summary"
+msgstr "Samenvatting"
+
+msgid "Summary Generated"
+msgstr "Samenvatting Gegenereerd"
+
+msgid "Summary Security Reports."
+msgstr "Overzicht Beveiligingsrapporten."
+
+msgid "Suspended"
+msgstr "Opgeschort"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "Uitzetten Om Alle Beveiligingsbescherming Uit Te Schakelen"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "CrowdSec IP bloklijsten aan/uit zetten"
+
+msgid "Switch on/off SPAM protection for your favourite contact forms plugin"
+msgstr "SPAM-bescherming voor uw favoriete contactformulier plugin aan/uit zetten"
+
+msgid "Switch on/off ability of admins to manage other admin accounts"
+msgstr "Mogelijkheid van beheerders om andere beheerdersaccounts te beheren aan/uit zetten"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "Mogelijkheid om kritieke WP-instellingen te bewerken aan/uit zetten"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "Toegang tot het XML-RPC eindpunt in-/uitschakelen"
+
+msgid "Switch on/off automatic scanning for vulnerabilities"
+msgstr "Automatisch scannen op kwetsbaarheden aan/uit zetten"
+
+msgid "Switch on/off file editing within WP"
+msgstr "Bestandsbewerking binnen WP aan/uit zetten"
+
+msgid "Switch on/off username fishing detection"
+msgstr "Detectie van gebruikersnaam fishing aan/uit zetten"
+
+msgid "Switch-On MainWP Integration"
+msgstr "MainWP Integratie Inschakelen"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "Schakel logging van al het siteverkeer in."
+
+msgid "System Info"
+msgstr "Systeem Info"
+
+msgid "Tables appear to be valid and haven't been repaired."
+msgstr "Tabellen lijken geldig te zijn en zijn niet gerepareerd."
+
+msgid "Tagline"
+msgstr "slogan"
+
+msgid "Thanks!"
+msgstr "Bedankt!"
+
+msgid "Thanks! - Please check your email for confirmation."
+msgstr "Bedankt! - Controleer alstublieft uw e-mail voor bevestiging."
+
+msgid "Thanks."
+msgstr "Bedankt."
+
+msgid "The %s query parameter has been blocked to protect against username / author fishing."
+msgstr "De %s query parameter is geblokkeerd ter bescherming tegen gebruikersnaam / auteur fishing."
+
+msgid "The Description Of The Plugin"
+msgstr "De Beschrijving Van De Plugin"
+
+msgid "The IP may not be blocked yet."
+msgstr "Het IP is mogelijk nog niet geblokkeerd."
+
+msgid "The Name Of The Plugin"
+msgstr "De naam van de plugin"
+
+msgid "The Name Of The Plugin."
+msgstr "De naam van de plugin."
+
+msgid "The Security Admin system must be active for these settings to apply."
+msgstr "Het Security Admin systeem moet actief zijn om deze instellingen toe te passen."
+
+msgid "The Security Admin system protects WordPress and the %s plugin against tampering."
+msgstr "Het Security Admin systeem beschermt WordPress en de %s plugin tegen manipulatie."
+
+msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
+msgstr "Het Security Admin systeem beschermt de %s plugin tegen manipulatie of onbedoelde wijzigingen door andere WordPress admins."
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "De Beveiligingsbadge wordt aan uw bezoekers weergegeven"
+
+msgid "The Security Badge won't be displayed to your visitors"
+msgstr "De Beveiligingsbadge wordt niet aan uw bezoekers weergegeven"
+
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr "De Shield Security plugin op deze site moet worden geüpgraded."
+
+msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
+msgstr "De Shield database moet worden gerepareerd omdat bepaalde functies niet beschikbaar zijn zonder een geldige database."
+
+msgid "The Shield plugin has just been deactivated."
+msgstr "De Shield plugin is zojuist gedeactiveerd."
+
+msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
+msgstr "De Shield plugin op deze site heeft geen actieve ShieldPRO licentie."
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "De URL van het icoon dat in het menu wordt weergegeven."
+
+msgid "The URL of the icon to display in the menu."
+msgstr "De URL van het icoon dat in het menu wordt weergegeven."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "De URL van het logo dat in de plugin badge wordt weergegeven."
+
+msgid "The code provided was empty."
+msgstr "De opgegeven code was leeg."
+
+msgid "The country code was missing."
+msgstr "De landcode ontbrak."
+
+msgid "The current request has a valid Shield user session"
+msgstr "Het huidige verzoek heeft een geldige Shield gebruikerssessie"
+
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
+msgstr "De standaardrol voor nieuwe gebruikers is gewijzigd van '{{from}}' naar '{{to}}'."
+
+msgid "The description of the plugin displayed on the plugins page."
+msgstr "De beschrijving van de plugin die wordt weergegeven op de pluginpagina."
+
+msgid "The email address specified in %s's General settings will be used."
+msgstr "Het e-mailadres dat is opgegeven in de algemene instellingen van %s wordt gebruikt."
+
+msgid "The email has been sent to you at blog admin address: %s"
+msgstr "De e-mail is naar u verzonden op blog admin adres: %s"
+
+msgid "The file is empty."
+msgstr "Het bestand is leeg."
+
+msgid "The following options will be restricted:"
+msgstr "De volgende opties worden beperkt:"
+
+msgid "The following types of user forms are protected by silentCAPTCHA: %s."
+msgstr "De volgende typen gebruikersformulieren zijn beschermd door silentCAPTCHA: %s."
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "De home URL is gewijzigd van '{{from}}' naar '{{to}}'."
+
+msgid "The maximum number of requests that are allowed in the given time limit."
+msgstr "Het maximale aantal verzoeken dat is toegestaan binnen de opgegeven tijdslimiet."
+
+msgid "The maximum number of requests that are allowed within the given request time limit."
+msgstr "Het maximale aantal verzoeken dat is toegestaan binnen de opgegeven verzoektijdslimiet."
+
+msgid "The more scans you enable, the quicker you'll be alerted to potentially malicious file changes.."
+msgstr "Hoe meer scans u inschakelt, hoe sneller u gewaarschuwd wordt voor mogelijk kwaadaardige bestandswijzigingen."
+
+msgid "The name of the plugin that will be displayed to your site users."
+msgstr "De naam van de plugin die aan uw sitegebruikers wordt getoond."
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "De optie om iedereen toe te staan zich te registreren op de site is bijgewerkt van '{{from}}' naar '{{to}}'."
+
+msgid "The phone number was missing."
+msgstr "Het telefoonnummer ontbrak."
+
+msgid "The plugin defaults to the site administration email address, which is: %s"
+msgstr "De plugin gebruikt standaard het e-mailadres van de sitebeheerder, namelijk: %s"
+
+msgid "The purpose of this email is to confirm this action."
+msgstr "Het doel van deze e-mail is om deze actie te bevestigen."
+
+msgid "The secret key is found in: %s"
+msgstr "De geheime sleutel is te vinden in: %s"
+
+msgid "The security plugin is protected against tampering."
+msgstr "De beveiligingsplugin is beschermd tegen manipulatie."
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "De beveiligingsplugin is niet beschermd tegen manipulatie."
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "De silentCAPTCHA optie is uitgeschakeld, waardoor brute force bescherming voor login-, registratie- en wachtwoord vergeten formulieren wordt verwijderd."
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "De silentCAPTCHA optie is ingeschakeld."
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "De site URL is gewijzigd van '{{from}}' naar '{{to}}'."
+
+msgid "The system reports that this file path isn't writable."
+msgstr "Het systeem meldt dat dit bestandspad niet beschrijfbaar is."
+
+msgid "The user can never login while their account is suspended."
+msgstr "De gebruiker kan nooit inloggen zolang hun account is opgeschort."
+
+msgid "Theme"
+msgstr "thema"
+
+msgid "Theme '{{theme}}' was activated."
+msgstr "Thema '{{theme}}' werd geactiveerd."
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "Thema '{{theme}}' werd geïnstalleerd."
+
+msgid "Theme '{{theme}}' was uninstalled (v{{version}})."
+msgstr "Thema '{{theme}}' werd gedeïnstalleerd (v{{version}})."
+
+msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
+msgstr "Thema '{{theme}}' werd geüpgraded van versie {{from}} naar versie {{to}}."
+
+msgid "Theme Activated"
+msgstr "Thema Geactiveerd"
+
+msgid "Theme Files"
+msgstr "Themabestanden"
+
+msgid "Theme Installed"
+msgstr "Thema geïnstalleerd"
+
+msgid "Theme Uninstalled"
+msgstr "Thema Verwijderd"
+
+msgid "Theme Upgraded"
+msgstr "Thema Geüpgraded"
+
+msgid "Theme directory name to check"
+msgstr "Thema mapnaam om te controleren"
+
+msgid "Themes"
+msgstr "thema's"
+
+msgid "Themes With Updates"
+msgstr "Thema's met updates"
+
+msgid "Then"
+msgstr "Dan"
+
+msgid "Then Activate"
+msgstr "Daarna activeren"
+
+msgid "There appears to be at least %s abandoned plugin(s) installed on your site."
+msgstr "Er lijken minstens %s verlaten plugin(s) geïnstalleerd te zijn op uw site."
+
+msgid "There appears to be at least 1 PHP malware file on your site."
+msgstr "Er lijkt minstens 1 PHP malware bestand op uw site te staan."
+
+msgid "There appears to be at least 1 vulnerable plugin or theme installed on your site."
+msgstr "Er lijkt minstens 1 kwetsbare plugin of thema geïnstalleerd te zijn op uw site."
+
+msgid "There are currently no 2FA providers available on your account."
+msgstr "Er zijn momenteel geen 2FA providers beschikbaar op uw account."
+
+msgid "There are no 2FA options made available to help users protect their accounts."
+msgstr "Er zijn geen 2FA opties beschikbaar gesteld om gebruikers te helpen hun accounts te beschermen."
+
+msgid "There are no IPs available yet."
+msgstr "Er zijn nog geen IP's beschikbaar."
+
+msgid "There are no MFA providers active on this user account."
+msgstr "Er zijn geen MFA providers actief op dit gebruikersaccount."
+
+msgid "There are no active 2FA providers."
+msgstr "Er zijn geen actieve 2FA providers."
+
+msgid "There are no bot signals for this IP address."
+msgstr "Er zijn geen botsignalen voor dit IP-adres."
+
+msgid "There are no custom security rules"
+msgstr "Er zijn geen aangepaste beveiligingsregels"
+
+msgid "There are no important security notices at this time."
+msgstr "Er zijn momenteel geen belangrijke beveiligingsmeldingen."
+
+msgid "There are no registered Yubikey devices on this profile."
+msgstr "Er zijn geen geregistreerde Yubikey apparaten op dit profiel."
+
+msgid "There doesn't appear to be any PHP malware files on your site."
+msgstr "Er lijken geen PHP malware bestanden op uw site te staan."
+
+msgid "There doesn't appear to be any abandoned plugins on your site."
+msgstr "Er lijken geen verlaten plugins op uw site te staan."
+
+msgid "There doesn't appear to be any plugins or themes with known vulnerabilities."
+msgstr "Er lijken geen plugins of thema's te zijn met bekende kwetsbaarheden."
+
+msgid "There have been no changes to the selected file."
+msgstr "Er zijn geen wijzigingen in het geselecteerde bestand."
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "Er is geen bescherming tegen WP Reactie SPAM geplaatst door mensen."
+
+msgid "There is no user currently logged-in."
+msgstr "Er is momenteel geen gebruiker ingelogd."
+
+msgid "There's no limit to the number of requests that a single visitor may make against your site."
+msgstr "Er is geen limiet aan het aantal verzoeken dat een enkele bezoeker kan doen naar uw site."
+
+msgid "These notices can be hidden by switching off this option."
+msgstr "Deze meldingen kunnen worden verborgen door deze optie uit te schakelen."
+
+msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
+msgstr "Zie het als 'Limit Login Attempts' maar toegepast op alle functies van een WordPress site, niet alleen de loginpagina."
+
+msgid "This Is You"
+msgstr "Dit Bent U"
+
+msgid "This Page"
+msgstr "Deze pagina"
+
+msgid "This Site Is Protected By %s"
+msgstr "Deze Site Is Beschermd Door %s"
+
+msgid "This action is unavailable for your profile at this time."
+msgstr "Deze actie is op dit moment niet beschikbaar voor uw profiel."
+
+msgid "This doesn't appear to be a valid Yubikey OTP"
+msgstr "Dit lijkt geen geldige Yubikey OTP te zijn"
+
+msgid "This feature isn't currently enabled."
+msgstr "Deze functie is momenteel niet ingeschakeld."
+
+msgid "This file contains malicious code - it's malware!"
+msgstr "Dit bestand bevat kwaadaardige code - het is malware!"
+
+msgid "This file doesn't appear to be available on this site any longer."
+msgstr "Dit bestand lijkt niet langer beschikbaar te zijn op deze site."
+
+msgid "This file is located at the root of the WordPress installation directory."
+msgstr "Dit bestand bevindt zich in de hoofdmap van de WordPress installatiemap."
+
+msgid "This file is located in a core WordPress directory isn't a recognised core file for WordPress %s."
+msgstr "Dit bestand bevindt zich in een core WordPress map maar is geen erkend core bestand voor WordPress %s."
+
+msgid "This file isn't a known core file for WordPress %s."
+msgstr "Dit bestand is geen bekend core bestand voor WordPress %s."
+
+msgid "This includes the WordPress default %s username, if you've removed that account."
+msgstr "Dit omvat de WordPress standaard %s gebruikersnaam, als u dat account heeft verwijderd."
+
+msgid "This is a recognised core file for WordPress %s."
+msgstr "Dit is een erkend core bestand voor WordPress %s."
+
+msgid "This is to be used in conjunction with the Master Import Site feature."
+msgstr "Dit moet worden gebruikt in combinatie met de Master Import Site functie."
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "Dit is uw unieke Yubikey Apparaat-ID."
+
+msgid "This option ensures that visitors with a high reputation score won't be blocked by Shield automatically."
+msgstr "Deze optie zorgt ervoor dat bezoekers met een hoge reputatiescore niet automatisch door Shield worden geblokkeerd."
+
+msgid "This plugin is installed from WordPress.org so actions such as file repair and file diff are available."
+msgstr "Deze plugin is geïnstalleerd vanaf WordPress.org dus acties zoals bestandsherstel en file diff zijn beschikbaar."
+
+msgid "This plugin isn't active and should be uninstalled."
+msgstr "Deze plugin is niet actief en moet worden verwijderd."
+
+msgid "This plugin isn't installed from WordPress.org so actions such as file repair and file diff aren't available."
+msgstr "Deze plugin is niet geïnstalleerd vanaf WordPress.org dus acties zoals bestandsherstel en file diff zijn niet beschikbaar."
+
+msgid "This scan is not currently enabled."
+msgstr "Deze scan is momenteel niet ingeschakeld."
+
+msgid "This theme isn't active and should be uninstalled."
+msgstr "Dit thema is niet actief en moet worden gedeïnstalleerd."
+
+msgid "This will automatically expire your Security Admin Session."
+msgstr "Dit zal automatisch uw Security Admin Sessie laten verlopen."
+
+msgid "Time"
+msgstr "Tijd"
+
+msgid "Time Limit"
+msgstr "Tijdslimiet"
+
+msgid "Time Now"
+msgstr "Huidige tijd"
+
+msgid "Time Range"
+msgstr "Tijdsbereik"
+
+msgid "Time Sent: %s"
+msgstr "Tijd Verzonden: %s"
+
+msgid "Timestamp"
+msgstr "tijdstempel"
+
+msgid "Timezone"
+msgstr "Tijdzone"
+
+msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
+msgstr "Titel voor bericht-ID {{post_id}} geüpdatet van '{{title_old}}' naar '{{title_new}}'."
+
+msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
+msgstr "Om je wp-login.php pagina te verbergen voor brute force aanvallen en hackpogingen - als je loginpagina niet kan worden gevonden, kan niemand inloggen."
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "Om een nieuw Yubikey apparaat te registreren, voer een eenmalig wachtwoord van de Yubikey in."
+
+msgid "To remove a Yubikey device, enter the registered device ID and save."
+msgstr "Om een Yubikey apparaat te verwijderen, voer het geregistreerde apparaat-ID in en sla op."
+
+msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
+msgstr "Om Passkeys te gebruiken, moet uw PHP installatie 1 van de volgende extensies geladen hebben: %s"
+
+msgid "Tools"
+msgstr "gereedschap"
+
+msgid "Track and monitor activity on your site by users, visitors and bots."
+msgstr "Volg en monitor activiteit op uw site door gebruikers, bezoekers en bots."
+
+msgid "Traffic"
+msgstr "Verkeer"
+
+msgid "Traffic Logging"
+msgstr "Verkeerslogboek"
+
+msgid "Traffic Rate Limiting"
+msgstr "Verkeer snelheidslimitering"
+
+msgid "Trash"
+msgstr "prullenbak"
+
+msgid "Trashed"
+msgstr "Verwijderd"
+
+msgid "Turn Off"
+msgstr "Uitschakelen"
+
+msgid "Turn On"
+msgstr "Inschakelen"
+
+msgid "Turn On The Rate Limiting Feature"
+msgstr "Snelheidslimitering Functie Inschakelen"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "Schakel de optie in om toegang tot WordPress admin accounts te beperken."
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "Schakel de optie in om toegang tot kritieke WordPress instellingen te beperken."
+
+msgid "Turn your White Label settings on/off."
+msgstr "Schakel uw White Label instellingen aan/uit."
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Type below to search all plugin options"
+msgstr "Typ hieronder om alle plugin-opties te doorzoeken"
+
+msgid "Type: {{type}}; Interval: {{interval}};"
+msgstr "Type: {{type}}; Interval: {{interval}};"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - Home"
+
+msgid "URL - Site"
+msgstr "URL - Site"
+
+msgid "URL To Activate"
+msgstr "URL om te activeren"
+
+msgid "Unavailable"
+msgstr "Niet beschikbaar"
+
+msgid "Unblocked"
+msgstr "Gedeblokkeerd"
+
+msgid "Unblocked At"
+msgstr "Gedeblokkeerd Op"
+
+msgid "Unclassified"
+msgstr "Ongeclassificeerd"
+
+msgid "Unidentified"
+msgstr "Ongeïdentificeerd"
+
+msgid "Uninstalled"
+msgstr "Verwijderd"
+
+msgid "Unique ID"
+msgstr "Unieke ID"
+
+msgid "Unknown"
+msgstr "Onbekend"
+
+msgid "Unknown Name"
+msgstr "Onbekende Naam"
+
+msgid "Unlock"
+msgstr "Ontgrendelen"
+
+msgid "Unlock Now"
+msgstr "Nu Ontgrendelen"
+
+msgid "Unpublished"
+msgstr "Niet gepubliceerd"
+
+msgid "Unrecognised"
+msgstr "Onbekend"
+
+msgid "Unrecognised files stored in the WordPress WP Content directory are scanned."
+msgstr "Onherkende bestanden opgeslagen in de WordPress WP Content directory worden gescand."
+
+msgid "Unrecognised files stored in the WordPress WP Content directory aren't scanned."
+msgstr "Onherkende bestanden opgeslagen in de WordPress WP Content directory worden niet gescand."
+
+msgid "Unrecognised files stored in the site root are scanned."
+msgstr "Onherkende bestanden opgeslagen in de site root worden gescand."
+
+msgid "Unrecognised files stored in the site root aren't scanned."
+msgstr "Onherkende bestanden opgeslagen in de site root worden niet gescand."
+
+msgid "Unrecognised files will need to be manually deleted."
+msgstr "Onherkende bestanden moeten handmatig worden verwijderd."
+
+msgid "Until"
+msgstr "Tot"
+
+msgid "Update Available"
+msgstr "Update Beschikbaar"
+
+msgid "Update Display Options"
+msgstr "Weergaveopties Updaten"
+
+msgid "Update Now To Keep Your Security Current With The Latest Features."
+msgstr "Update Nu Om Uw Beveiliging Actueel Te Houden Met De Nieuwste Functies."
+
+msgid "Update Required"
+msgstr "Update Vereist"
+
+msgid "Update Shield"
+msgstr "Shield Updaten"
+
+msgid "Update This Rule"
+msgstr "Deze Regel Updaten"
+
+msgid "Update reporting email address"
+msgstr "Rapportage e-mailadres bijwerken"
+
+msgid "Updated"
+msgstr "geüpdatet"
+
+msgid "Updates"
+msgstr "updates"
+
+msgid "Updates and Changes"
+msgstr "Updates en Wijzigingen"
+
+msgid "Updates aren't automatically applied for vulnerable plugins."
+msgstr "Updates worden niet automatisch toegepast voor kwetsbare plugins."
+
+msgid "Upgrade Membership"
+msgstr "Lidmaatschap Upgraden"
+
+msgid "Upgrade Now"
+msgstr "Nu Upgraden"
+
+msgid "Upgrade Required"
+msgstr "Upgrade Vereist"
+
+msgid "Upgrade To Create Custom Reports"
+msgstr "Upgrade Om Aangepaste Rapporten Aan Te Maken"
+
+msgid "Upgrade Your ShieldPRO Membership"
+msgstr "Uw ShieldPRO Lidmaatschap Upgraden"
+
+msgid "Upgrade your plan to support scanning of theme files for tampering."
+msgstr "Upgrade uw plan om het scannen van themabestanden op manipulatie te ondersteunen."
+
+msgid "Upgrade your plan to support this scanning area."
+msgstr "Upgrade uw plan om deze scanruimte te ondersteunen."
+
+msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
+msgstr "Gebruik MainWP om de beveiliging van al uw WordPress sites te beheren en monitoren."
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Gebruik Shield's silentCAPTCHA Om Bots en Brute Force Aanvallen Te Blokkeren"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "Gebruik Shield's silentCAPTCHA Om SPAM Bots Te Detecteren en Blokkeren."
+
+msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Gebruik van silentCAPTCHA voor het beperken van inlogpogingen op gebruikersformulieren is niet ingeschakeld - u moet dit inschakelen binnen de Login Security Zone."
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "silentCAPTCHA Gebruiken Om Bot Reactie SPAM Te Blokkeren"
+
+msgid "Use the link above to create a new one."
+msgstr "Gebruik de bovenstaande link om een nieuwe aan te maken."
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "Gebruik deze optie om alle actieve Shield Bescherming volledig uit te schakelen."
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "Gebruik je Yubikey om een nieuwe code te genereren"
+
+msgid "Used"
+msgstr "Gebruikt"
+
+msgid "User"
+msgstr "Gebruiker"
+
+msgid "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found."
+msgstr "Gebruiker '{{user_login}}' probeerde '{{action}}' maar het Bot selectievakje werd niet gevonden."
+
+msgid "User '{{user_login}}' suspended by admin."
+msgstr "Gebruiker '{{user_login}}' geschorst door admin."
+
+msgid "User 2FA Setup"
+msgstr "Gebruiker 2FA-instelling"
+
+msgid "User 2FA Setup Page Locations"
+msgstr "Gebruiker 2FA Instellingspagina Locaties"
+
+msgid "User Access"
+msgstr "Gebruikerstoegang"
+
+msgid "User Accounts"
+msgstr "Gebruikersaccounts"
+
+msgid "User Agent"
+msgstr "User Agent"
+
+msgid "User Bot Check Fail"
+msgstr "Gebruiker botcontrole mislukt"
+
+msgid "User Controls"
+msgstr "Gebruikerscontroles"
+
+msgid "User Deleted"
+msgstr "Gebruiker verwijderd"
+
+msgid "User Deleted And Reassigned"
+msgstr "Gebruiker verwijderd en opnieuw toegewezen"
+
+msgid "User Email Updated"
+msgstr "Gebruiker e-mail geüpdatet"
+
+msgid "User Form Checking"
+msgstr "Gebruikersformuliercontrole"
+
+msgid "User Forms Bot Detection"
+msgstr "Gebruikersformulieren Botdetectie"
+
+msgid "User Has Any Active 2FA"
+msgstr "Gebruiker Heeft Actieve 2FA"
+
+msgid "User ID"
+msgstr "Gebruikers-ID"
+
+msgid "User Login"
+msgstr "Gebruikerslogin"
+
+msgid "User Login Notification Email"
+msgstr "Gebruiker login notificatie e-mail"
+
+msgid "User Manually Suspended"
+msgstr "Gebruiker Handmatig Opgeschort"
+
+msgid "User Meta"
+msgstr "Gebruikersmeta"
+
+msgid "User Password Updated"
+msgstr "Gebruikerswachtwoord geüpdatet"
+
+msgid "User Register Bot Protection"
+msgstr "Gebruikersregistratie botbeveiliging"
+
+msgid "User Registered"
+msgstr "Gebruiker geregistreerd"
+
+msgid "User Registration"
+msgstr "Gebruikersregistratie"
+
+msgid "User Registration Email Validation"
+msgstr "Gebruikersregistratie E-mail Validatie"
+
+msgid "User Registrations"
+msgstr "Gebruikersregistraties"
+
+msgid "User Role"
+msgstr "Gebruikersrol"
+
+msgid "User Session Lock"
+msgstr "Gebruikerssessie Vergrendeling"
+
+msgid "User Sessions"
+msgstr "Gebruikerssessies"
+
+msgid "User Status"
+msgstr "Gebruikersstatus"
+
+msgid "User forms"
+msgstr "Gebruikersformulieren"
+
+msgid "User login request blocked."
+msgstr "Gebruikersloginverzoek geblokkeerd."
+
+msgid "User lost password request blocked."
+msgstr "Gebruikerswachtwoord vergeten verzoek geblokkeerd."
+
+msgid "User must be logged-in."
+msgstr "Gebruiker moet ingelogd zijn."
+
+msgid "User registration request blocked."
+msgstr "Gebruikersregistratieverzoek geblokkeerd."
+
+msgid "User session deleted"
+msgstr "Gebruikerssessie verwijderd"
+
+msgid "User session has expired ({{user_login}})."
+msgstr "Gebruikerssessie is verlopen ({{user_login}})."
+
+msgid "User: <code>%s</code>"
+msgstr "Gebruiker: <code>%s</code>"
+
+msgid "Useragent"
+msgstr "Useragent"
+
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+msgid "Username Fishing"
+msgstr "Gebruikersnaam Fishing"
+
+msgid "Username Fishing Blocked"
+msgstr "Gebruikersnaam Fishing Geblokkeerd"
+
+msgid "Username fishing"
+msgstr "Gebruikersnaam fishing"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "Gebruikersnaam was '{{user_login}}' met e-mailadres '{{email}}'."
+
+msgid "Username/Author Fishing is disabled on this site."
+msgstr "Gebruikersnaam/Auteur Fishing is uitgeschakeld op deze site."
+
+msgid "Users"
+msgstr "Gebruikers"
+
+msgid "Users are allowed to re-use compromised passwords."
+msgstr "Gebruikers mogen gecompromitteerde wachtwoorden hergebruiken."
+
+msgid "Users are allowed to set weak passwords."
+msgstr "Gebruikers mogen zwakke wachtwoorden instellen."
+
+msgid "Users provided will be security admins automatically, without needing the security PIN."
+msgstr "Opgegeven gebruikers worden automatisch beveiligingsbeheerders, zonder de beveiligings-PIN nodig te hebben."
+
+msgid "Valid license couldn't be found."
+msgstr "Geldige licentie kon niet worden gevonden."
+
+msgid "Valid license found and installed."
+msgstr "Geldige licentie gevonden en geïnstalleerd."
+
+msgid "Valid license found."
+msgstr "Geldige licentie gevonden."
+
+msgid "Valid visitor IP address source discovered."
+msgstr "Geldige bezoeker IP-adres bron ontdekt."
+
+msgid "Value To Match"
+msgstr "Waarde om te Matchen"
+
+msgid "Verb"
+msgstr "werkwoord"
+
+msgid "Version"
+msgstr "Versie"
+
+msgid "View & Create"
+msgstr "Bekijken & Aanmaken"
+
+msgid "View All"
+msgstr "Alles weergeven"
+
+msgid "View As ShieldPRO"
+msgstr "Weergeven Als ShieldPRO"
+
+msgid "View Comment"
+msgstr "Reactie Bekijken"
+
+msgid "View Config"
+msgstr "Configuratie bekijken"
+
+msgid "View Debug Info"
+msgstr "Debug-info bekijken"
+
+msgid "View Details"
+msgstr "Details Weergeven"
+
+msgid "View File Contents"
+msgstr "Bestandsinhoud Bekijken"
+
+msgid "View File Details"
+msgstr "Bestandsdetails Bekijken"
+
+msgid "View IP Reputation Option"
+msgstr "IP Reputation optie bekijken"
+
+msgid "View IP Source Config"
+msgstr "IP-bron configuratie bekijken"
+
+msgid "View Report"
+msgstr "Rapport Bekijken"
+
+msgid "View Results"
+msgstr "Resultaten Weergeven"
+
+msgid "View Scan Results"
+msgstr "Scanresultaten Weergeven"
+
+msgid "View Scan Results In-Full"
+msgstr "Scanresultaten Volledig Weergeven"
+
+msgid "View Site Traffic"
+msgstr "Siteverkeer bekijken"
+
+msgid "View Traffic and Request Log"
+msgstr "Verkeer en verzoeklog bekijken"
+
+msgid "View User Activity Log"
+msgstr "Gebruikersactiviteitenlog bekijken"
+
+msgid "View User Sessions"
+msgstr "Gebruikerssessies Bekijken"
+
+msgid "View all active rules on your site at-a-glance"
+msgstr "Bekijk alle actieve regels op uw site in één oogopslag"
+
+msgid "View and create new security reports."
+msgstr "Bekijk en maak nieuwe beveiligingsrapporten."
+
+msgid "View and manage IP rules that block malicious visitors and bots."
+msgstr "Bekijk en beheer IP-regels die kwaadwillende bezoekers en bots blokkeren."
+
+msgid "View and manage all scan results."
+msgstr "Bekijk en beheer alle scanresultaten."
+
+msgid "View and manage details of current user sessions on the site."
+msgstr "Bekijk en beheer details van huidige gebruikerssessies op de site."
+
+msgid "View details of web requests sent to your WordPress site."
+msgstr "Bekijk details van webverzoeken verzonden naar uw WordPress site."
+
+msgid "View, edit and remove custom security rules"
+msgstr "Bekijk, bewerk en verwijder aangepaste beveiligingsregels"
+
+msgid "View/Create Reports"
+msgstr "Rapporten bekijken/aanmaken"
+
+msgid "Visitor IP"
+msgstr "Bezoeker-IP"
+
+msgid "Visitor IP Address"
+msgstr "Bezoeker IP-adres"
+
+msgid "Visitor IP Source"
+msgstr "Bezoeker-IP-bron"
+
+msgid "Visitor IP address is determine by CloudFlare."
+msgstr "Bezoeker IP-adres wordt bepaald door CloudFlare."
+
+msgid "Visitor IP address source set"
+msgstr "Bezoeker IP-adres bron ingesteld"
+
+msgid "Visitor found on the Block List and their connection was killed."
+msgstr "Bezoeker gevonden op de Bloklijst en hun verbinding werd verbroken."
+
+msgid "Visitor found on the CrowdSec Block List and their request was killed."
+msgstr "Bezoeker gevonden op de CrowdSec Bloklijst en hun verzoek werd geblokkeerd."
+
+msgid "Vulnerabilities"
+msgstr "Kwetsbaarheden"
+
+msgid "Vulnerabilities Detected"
+msgstr "Kwetsbaarheden Gedetecteerd"
+
+msgid "Vulnerabilities Scanner"
+msgstr "Kwetsbaarhedenscanner"
+
+msgid "Vulnerabilities have just been detected on your site."
+msgstr "Er zijn zojuist kwetsbaarheden gedetecteerd op uw site."
+
+msgid "Vulnerability Discovered"
+msgstr "Kwetsbaarheid Ontdekt"
+
+msgid "Vulnerability Scanner"
+msgstr "Kwetsbaarhedenscanner"
+
+msgid "Vulnerability Scanning"
+msgstr "Kwetsbaarheden Scannen"
+
+msgid "Vulnerability scanning must be active to enable this option."
+msgstr "Kwetsbaarheidsscanning moet actief zijn om deze optie in te schakelen."
+
+msgid "Vulnerable"
+msgstr "Kwetsbaar"
+
+msgid "Vulnerable Assets"
+msgstr "Kwetsbare Assets"
+
+msgid "Vulnerable Plugins"
+msgstr "Kwetsbare Plugins"
+
+msgid "Vulnerable Plugins & Themes"
+msgstr "Kwetsbare Plugins & Thema's"
+
+msgid "Vulnerable Themes"
+msgstr "Kwetsbare Thema's"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "WP Activiteit"
+
+msgid "WP Activity Log"
+msgstr "WP Activiteitenlog"
+
+msgid "WP Core File Scanner"
+msgstr "WP Core bestandsscanner"
+
+msgid "WP Core Updated"
+msgstr "WP Core bijgewerkt"
+
+msgid "WP Core update is available."
+msgstr "WP Core update is beschikbaar."
+
+msgid "WP Database password appears to be weak."
+msgstr "WP Database wachtwoord lijkt zwak te zijn."
+
+msgid "WP Default User Role"
+msgstr "WP Standaard Gebruikersrol"
+
+msgid "WP File Editing"
+msgstr "WP-bestandsbewerking"
+
+msgid "WP Login & Admin Redirect"
+msgstr "WP login & admin doorverwijzing"
+
+msgid "WP Site Admin Email"
+msgstr "WP site beheerder e-mail"
+
+msgid "WP Site Tagline"
+msgstr "WP site slogan"
+
+msgid "WP Site title"
+msgstr "WP site titel"
+
+msgid "WP User Registration"
+msgstr "WP gebruikersregistratie"
+
+msgid "WP core files"
+msgstr "WP core-bestanden"
+
+msgid "WP plugin update(s) available."
+msgstr "WP plugin update(s) beschikbaar."
+
+msgid "WP root"
+msgstr "WP root"
+
+msgid "WP root directory"
+msgstr "WP root directory"
+
+msgid "WP root directory isn't scanned."
+msgstr "WP root directory wordt niet gescand."
+
+msgid "WP theme update(s) available."
+msgstr "WP thema update(s) beschikbaar."
+
+msgid "Warning"
+msgstr "Waarschuwing"
+
+msgid "Weak"
+msgstr "Zwak"
+
+msgid "Weekly"
+msgstr "Wekelijks"
+
+msgid "Welcome"
+msgstr "Welkom"
+
+msgid "When"
+msgstr "Wanneer"
+
+msgid "When a file is modified, or malware is detected, Shield can try to repair files."
+msgstr "Wanneer een bestand wordt gewijzigd of malware wordt gedetecteerd, kan Shield proberen bestanden te herstellen."
+
+msgid "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
+msgstr "Wanneer ingeschakeld, zal handmatig opslaan van opties sites op de whitelist notificeren om opties te exporteren vanaf de Master site."
+
+msgid "When you can't access your 2FA codes."
+msgstr "Wanneer u geen toegang heeft tot uw 2FA-codes."
+
+msgid "Which Files Should Be Automatically Repaired?"
+msgstr "Welke Bestanden Moeten Automatisch Worden Gerepareerd?"
+
+msgid "Which Files Should Be Scanned"
+msgstr "Welke Bestanden Moeten Worden Gescand"
+
+msgid "Which WordPress Forms Should Be Protected From Bots"
+msgstr "Welke WordPress Formulieren Moeten Worden Beschermd Tegen Bots"
+
+msgid "White Label"
+msgstr "White Label"
+
+msgid "Whitelist Site Added"
+msgstr "Whitelist Site Toegevoegd"
+
+msgid "Whitelist Site Removed"
+msgstr "Whitelist Site Verwijderd"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "Whitelist voor site lockdown"
+
+msgid "Whitelisted Sites To Export Options From This Site"
+msgstr "Goedgekeurde Sites Om Opties Vanaf Deze Site Te Exporteren"
+
+msgid "Whitelisted Sites Which Do Not Need The Secret Key To Export Options"
+msgstr "Goedgekeurde Sites Die Geen Geheime Sleutel Nodig Hebben Om Opties Te Exporteren"
+
+msgid "Whitelisted sites may export options from this site without the key."
+msgstr "Goedgekeurde sites mogen opties vanaf deze site exporteren zonder de sleutel."
+
+msgid "With Issues"
+msgstr "Met problemen"
+
+msgid "Wizards"
+msgstr "Wizards"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Activity"
+msgstr "WordPress-activiteit"
+
+msgid "WordPress Activity Logging"
+msgstr "WordPress Activiteitslogboek"
+
+msgid "WordPress Address (URL)"
+msgstr "WordPress-adres (URL)"
+
+msgid "WordPress Admins Protection"
+msgstr "WordPress Beheerdersbescherming"
+
+msgid "WordPress Core Auto-Repair"
+msgstr "WordPress Core Auto-Herstel"
+
+msgid "WordPress Core File Scanner"
+msgstr "WordPress Core bestandsscanner"
+
+msgid "WordPress Core Files"
+msgstr "WordPress Core Bestanden"
+
+msgid "WordPress Core Options Protection"
+msgstr "WordPress Core Opties Bescherming"
+
+msgid "WordPress Core files are protected against tampering."
+msgstr "WordPress Core bestanden zijn beschermd tegen manipulatie."
+
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
+msgstr "WordPress Core is bijgewerkt van '{{from}}' naar '{{to}}'."
+
+msgid "WordPress File Editing Lockdown"
+msgstr "WordPress Bestandsbewerking Vergrendeling"
+
+msgid "WordPress File Scanner"
+msgstr "WordPress bestandsscanner"
+
+msgid "WordPress File Scanning"
+msgstr "WordPress Bestandsscanning"
+
+msgid "WordPress Files"
+msgstr "WordPress Bestanden"
+
+msgid "WordPress Info"
+msgstr "WordPress info"
+
+msgid "WordPress Installation Directory"
+msgstr "WordPress Installatiemap"
+
+msgid "WordPress Obscurity Options"
+msgstr "WordPress Obscurity Opties"
+
+msgid "WordPress Options"
+msgstr "WordPress opties"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "WordPress plugin bestandsscanner"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "WordPress site root bestandsscanner"
+
+msgid "WordPress Stats"
+msgstr "WordPress-statistieken"
+
+msgid "WordPress System Lockdown"
+msgstr "WordPress Systeem Vergrendeling"
+
+msgid "WordPress Theme File Scanner"
+msgstr "WordPress thema bestandsscanner"
+
+msgid "WordPress Updates"
+msgstr "WordPress updates"
+
+msgid "WordPress Upgraded"
+msgstr "WordPress Geüpgraded"
+
+msgid "WordPress Version"
+msgstr "WordPress-versie"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "WordPress WP Content Directory bestandsscanner"
+
+msgid "WordPress admin accounts are protected against tampering from other WordPress admins."
+msgstr "WordPress admin-accounts zijn beschermd tegen manipulatie door andere WordPress admins."
+
+msgid "WordPress admin accounts aren't protected against tampering from other WordPress admins."
+msgstr "WordPress admin-accounts zijn niet beschermd tegen manipulatie door andere WordPress admins."
+
+msgid "WordPress files aren't scanned for tampering."
+msgstr "WordPress bestanden worden niet gescand op manipulatie."
+
+msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
+msgstr "WordPress loginformulieren zijn niet beschermd tegen bots omdat u de bot minimumscore op 0 heeft ingesteld, wat het %s systeem regelt."
+
+msgid "WordPress must be at least version %s to activate this option."
+msgstr "WordPress moet minimaal versie %s zijn om deze optie te activeren."
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "WordPress pluginbestanden zijn beschermd tegen manipulatie."
+
+msgid "WordPress plugin files aren't scanned for tampering."
+msgstr "WordPress pluginbestanden worden niet gescand op manipulatie."
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress site admin e-mailadres is gewijzigd van '{{from}}' naar '{{to}}'."
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress site tagline is gewijzigd van '{{from}}' naar '{{to}}'."
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress site titel gewijzigd van '{{from}}' naar '{{to}}'."
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "WordPress themabestanden zijn beschermd tegen manipulatie."
+
+msgid "WordPress theme files aren't scanned for tampering."
+msgstr "WordPress themabestanden worden niet gescand op manipulatie."
+
+msgid "WordPress user deleted."
+msgstr "WordPress gebruiker verwijderd."
+
+msgid "WordPress version must be at least: %s"
+msgstr "WordPress versie moet minimaal zijn: %s"
+
+msgid "WordPress will now download and install the latest available version of this plugin."
+msgstr "WordPress zal nu de laatst beschikbare versie van deze plugin downloaden en installeren."
+
+msgid "WordPress.org Plugin Auto-Repair"
+msgstr "WordPress.org Plugin Automatisch Herstel"
+
+msgid "WordPress.org Theme Auto-Repair"
+msgstr "WordPress.org Thema Automatisch Herstel"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "XML-RPC Toegang"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC lockdown"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC verzoek geblokkeerd."
+
+msgid "YYYY-MM-DD"
+msgstr "JJJJ-MM-DD"
+
+msgid "Yearly"
+msgstr "Jaarlijks"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Yes: %s"
+msgstr "Ja: %s"
+
+msgid "You can monitor the Activity Log and when you're happy you won't block valid requests, you can switch to blocking."
+msgstr "U kunt het Activiteitenlogboek monitoren en wanneer u er zeker van bent dat u geen geldige verzoeken blokkeert, kunt u overschakelen naar blokkeren."
+
+msgid "You do not currently have a %s user session."
+msgstr "U heeft momenteel geen %s gebruikerssessie."
+
+msgid "You should upgrade to the latest version or remove it if no updates are available."
+msgstr "U moet upgraden naar de nieuwste versie of deze verwijderen als er geen updates beschikbaar zijn."
+
+msgid "You will need to upgrade your plan to use the Automatic Import/Export feature."
+msgstr "U moet uw plan upgraden om de Automatische Import/Export functie te gebruiken."
+
+msgid "You'll need to upgrade your plan to trigger offenses for these events."
+msgstr "U moet uw plan upgraden om overtredingen voor deze gebeurtenissen te activeren."
+
+msgid "You're already a Security Admin."
+msgstr "U bent al een Security Admin."
+
+msgid "You're already logged-in."
+msgstr "U bent al ingelogd."
+
+msgid "You've configured the %s plugin to protect your site to a high level."
+msgstr "U hebt de %s plugin geconfigureerd om uw site op een hoog niveau te beschermen."
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "Uw #1 beveiligingsdreiging komt van geautomatiseerde bots."
+
+msgid "Your Current IP"
+msgstr "Uw huidige IP"
+
+msgid "Your IP Address"
+msgstr "Uw IP-adres"
+
+msgid "Your IP address is currently on the Auto-Block list, but you're not being block because your IP address is considered a High Reputation IP."
+msgstr "Uw IP-adres staat momenteel op de Auto-Bloklijst, maar u wordt niet geblokkeerd omdat uw IP-adres wordt beschouwd als een Hoge Reputatie IP."
+
+msgid "Your WordPress login form is now protected"
+msgstr "Uw WordPress loginformulier is nu beschermd"
+
+msgid "Your WordPress login form is unprotected"
+msgstr "Uw WordPress loginformulier is onbeschermd"
+
+msgid "Your backup login code is: %s"
+msgstr "Uw back-up logincode is: %s"
+
+msgid "Your current IP Reputation score is %s."
+msgstr "Uw huidige IP Reputation score is %s."
+
+msgid "Your current login URL is: %s"
+msgstr "Uw huidige login-URL is: %s"
+
+msgid "Your current security posture"
+msgstr "Uw huidige beveiligingspositie"
+
+msgid "Your entire WordPress site security at a glance."
+msgstr "De volledige beveiliging van uw WordPress site in één oogopslag."
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "Uw geregistreerde machine-ID bij CrowdSec is: %s"
+
+msgid "Your reporting email address is: %s"
+msgstr "Uw rapportage e-mailadres is: %s"
+
+msgid "Your session has expired."
+msgstr "Uw sessie is verlopen."
+
+msgid "Your site is currently in lockdown."
+msgstr "Uw site is momenteel in lockdown."
+
+msgid "Your site is in lockdown."
+msgstr "Uw site is in lockdown."
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "Je site is beschermd tegen reactie SPAM door mensen."
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "Je site is beschermd tegen geautomatiseerde reactie SPAM door bots."
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "Je site is niet beschermd tegen reactie SPAM door mensen."
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "Je site is niet beschermd tegen geautomatiseerde reactie SPAM door bots."
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "Uw site is nog niet geregistreerd bij CrowdSec."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey Device"
+msgstr "Yubikey-apparaat"
+
+msgid "Yubikey ID"
+msgstr "Yubikey-ID"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "Zone"
+
+msgid "Zone Actions"
+msgstr "Zone Acties"
+
+msgid "Zones"
+msgstr "Zones"
+
+msgid "and"
+msgstr "en"
+
+msgid "case-insensitive"
+msgstr "hoofdletterongevoelig"
+
+msgid "currently %s"
+msgstr "momenteel %s"
+
+msgid "days"
+msgstr "dagen"
+
+msgid "empty username"
+msgstr "lege gebruikersnaam"
+
+msgid "estimated"
+msgstr "geschat"
+
+msgid "expires"
+msgstr "verloopt"
+
+msgid "file import"
+msgstr "bestand importeren"
+
+msgid "help"
+msgstr "help"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "icon"
+msgstr "icoon"
+
+msgid "import file"
+msgstr "bestand importeren"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "n.v.t."
+
+msgid "no label"
+msgstr "geen label"
+
+msgid "no name"
+msgstr "geen naam"
+
+msgid "not provided"
+msgstr "niet opgegeven"
+
+msgid "offense"
+msgstr "overtreding"
+
+msgid "options"
+msgstr "opties"
+
+msgid "or"
+msgstr "of"
+
+msgid "permanently"
+msgstr "permanent"
+
+msgid "rDNS"
+msgstr "rDNS"
+
+msgid "recommendation"
+msgstr "aanbeveling"
+
+msgid "seconds"
+msgstr "seconden"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA Botdetectie beschermt niet tegen brute-force aanvallen op uw WordPress login."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
+msgstr "silentCAPTCHA Bot Detectie beschermt uw WordPress wachtwoord vergeten formulier niet."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr "silentCAPTCHA Botdetectie beschermt uw WordPress registratie niet."
+
+msgid "silentCAPTCHA Bot Minimum Score"
+msgstr "silentCAPTCHA Bot Minimumscore"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "silentCAPTCHA Bot Score (Percentage)"
+
+msgid "silentCAPTCHA For Logins"
+msgstr "silentCAPTCHA Voor Logins"
+
+msgid "silentCAPTCHA Registration"
+msgstr "silentCAPTCHA registratie"
+
+msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "silentCAPTCHA detectie wordt niet toegepast omdat u geen formulieren heeft geselecteerd om te beschermen, zoals Login of Registreren."
+
+msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
+msgstr "silentCAPTCHA is uitgeschakeld omdat er geen minimum bot-score drempel is opgegeven."
+
+msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
+msgstr "silentCAPTCHA is uitgeschakeld wanneer ingesteld op een minimumscore van %s."
+
+msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
+msgstr "silentCAPTCHA is ingeschakeld met een minimum bot-score drempel."
+
+msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
+msgstr "silentCAPTCHA beschermt uw WP Reacties niet tegen bot SPAM."
+
+msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
+msgstr "silentCAPTCHA's botdetectie is niet actief omdat de minimumscore is ingesteld op 0."
+
+msgid "suggestion"
+msgstr "suggestie"
+
+msgid "tools"
+msgstr "gereedschap"
+
+msgid "unknown"
+msgstr "onbekend"
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "wp-config.php bestand is niet beschermd tegen manipulatie."
+
+msgid "{{ip}} removed from block list ({{type}})."
+msgstr "{{ip}} verwijderd van bloklijst ({{type}})."
+

@@ -1,0 +1,4779 @@
+# Japanese translation for shield
+# This file is distributed under the same license as shield.
+msgid ""
+msgstr ""
+"Project-Id-Version: shield\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-02 13:05+0000\n"
+"PO-Revision-Date: 2025-10-02 13:05+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=(0);\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s コメントスパム保護"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s ファイアウォールが WordPress サイトへのリクエストをブロックしました。"
+
+msgid "%s Home"
+msgstr "%s ホーム"
+
+msgid "%s Plugin Badge"
+msgstr "%s プラグインバッジ"
+
+msgid "%s and %s"
+msgstr "%s および %s"
+
+msgid "%s day"
+msgstr "%s 日"
+
+msgid "%s days"
+msgstr "%s 日"
+
+msgid "%s directory"
+msgstr "%s ディレクトリ"
+
+msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
+msgstr "%s は、現在インストールされている %s プラグインのバージョンに既知のセキュリティ脆弱性があることを検出しました。"
+
+msgid "%s is a child of another theme."
+msgstr "%s は別のテーマの子テーマです。"
+
+msgid "%s is not currently protecting your site."
+msgstr "%s は現在サイトを保護していません。"
+
+msgid "%s is not protecting your site"
+msgstr "%s はサイトを保護していません"
+
+msgid "%s is protected against tampering."
+msgstr "%s は改ざんから保護されています。"
+
+msgid "%s isn't protected against tampering."
+msgstr "%s は改ざんから保護されていません。"
+
+msgid "%s minute"
+msgstr "%s 分"
+
+msgid "%s minutes"
+msgstr "%s 分"
+
+msgid "%s not installed from WordPress.org."
+msgstr "%s は WordPress.org からインストールされていません。"
+
+msgid "%s offense"
+msgstr "%s 件の違反"
+
+msgid "%s offense until block"
+msgstr "ブロックまで %s 回の違反"
+
+msgid "%s offenses"
+msgstr "%s 件の違反"
+
+msgid "%s offenses until block"
+msgstr "ブロックまで %s 回の違反"
+
+msgid "%s options and modules"
+msgstr "%s 設定とモジュール"
+
+msgid "%s seconds"
+msgstr "%s 秒"
+
+msgid "%s time"
+msgstr "%s 回"
+
+msgid "%s was added to your profile."
+msgstr "%s がプロフィールに追加されました。"
+
+msgid "%s was removed from your profile."
+msgstr "%s がプロフィールから削除されました。"
+
+msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
+msgstr "(ロックダウンが無効化されると、IP アドレスは自動的にホワイトリストから削除されます)"
+
+msgid "/wp-content/ directory isn't scanned."
+msgstr "/wp-content/ ディレクトリはスキャンされていません。"
+
+msgid "1-minute"
+msgstr "1 分"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "15-minute"
+msgstr "15 分"
+
+msgid "2-Factor Authentication"
+msgstr "2 要素認証"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - メール"
+
+msgid "2FA At"
+msgstr "2FA 実施日時"
+
+msgid "2FA Login Success"
+msgstr "2FA ログイン成功"
+
+msgid "2FA One-Time Passwords"
+msgstr "2FA ワンタイムパスワード"
+
+msgid "2FA Provider"
+msgstr "2FA プロバイダー"
+
+msgid "2FA User Config Page"
+msgstr "2FA ユーザー設定ページ"
+
+msgid "2FA by Email"
+msgstr "メールによる 2FA"
+
+msgid "2FA by email has been disabled"
+msgstr "メールによる 2FA を無効化しました"
+
+msgid "32/64-bit"
+msgstr "32/64 ビット"
+
+msgid "5-minute"
+msgstr "5 分"
+
+msgid "7 Days"
+msgstr "7 日"
+
+msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
+msgstr "<strong>スキャン中</strong> コア WordPress ファイルとディレクトリの変更と新しいファイルを確認しています。"
+
+msgid "A User Can Bypass 2FA For The Set Number Of Days"
+msgstr "ユーザーは設定された日数の間 2FA をバイパス可能"
+
+msgid "A WordPress user (%s) has requested to remove the Security Admin restriction."
+msgstr "WordPress ユーザー (%s) が Security Admin 制限の解除をリクエストしました。"
+
+msgid "A change in the constituency of administrators has been detected."
+msgstr "管理者の構成に変更が検出されました。"
+
+msgid "A default will be used."
+msgstr "初期設定が使用されます。"
+
+msgid "A high-level overview of your WordPress updates status."
+msgstr "WordPress アップデートステータスの概要。"
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "新しいワンタイムパスワードがメールアドレスに送信されました。"
+
+msgid "A1B2C3"
+msgstr "A1B2C3"
+
+msgid "ABSPATH"
+msgstr "ABSPATH"
+
+msgid "Abandoned"
+msgstr "放置済み"
+
+msgid "Abandoned Plugin Scanner"
+msgstr "放置されたプラグインスキャナー"
+
+msgid "Abandoned Plugins"
+msgstr "放置されたプラグイン"
+
+msgid "Abandoned WordPress.org Plugins"
+msgstr "放置された WordPress.org プラグイン"
+
+msgid "Absolutely"
+msgstr "絶対に"
+
+msgid "Access Restricted"
+msgstr "アクセス制限"
+
+msgid "Access Restriction Zones"
+msgstr "アクセス制限ゾーン"
+
+msgid "Access from your IP address has been temporarily restricted."
+msgstr "IP アドレスからのアクセスが一時的に制限されています。"
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "「{{path}}」で XML-RPC へのアクセスが検出されました。"
+
+msgid "Access to XML-RPC is available."
+msgstr "XML-RPC へのアクセスが利用可能です。"
+
+msgid "Access to XML-RPC is disabled."
+msgstr "XML-RPC へのアクセスは無効です。"
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "%s Security プラグインへのアクセスは制限されています。"
+
+msgid "Actions"
+msgstr "アクション"
+
+msgid "Actions and Info"
+msgstr "アクションおよび情報"
+
+msgid "Activate"
+msgstr "有効化"
+
+msgid "Activate Rule"
+msgstr "ルールを有効化"
+
+msgid "Activate Shield"
+msgstr "Shield を有効化"
+
+msgid "Activate ShieldPRO License"
+msgstr "ShieldPRO ライセンスを有効化"
+
+msgid "Activate Your ShieldPRO License"
+msgstr "ShieldPRO ライセンスを有効化"
+
+msgid "Activate Your White Label Settings"
+msgstr "ホワイトラベル設定を有効化"
+
+msgid "Activated"
+msgstr "有効化した"
+
+msgid "Active"
+msgstr "有効"
+
+msgid "Active 2FA"
+msgstr "有効な 2FA"
+
+msgid "Active Plugins (%s)"
+msgstr "有効なプラグイン (%s)"
+
+msgid "Active Rules Summary"
+msgstr "有効なルール概要"
+
+msgid "Active Themes (%s)"
+msgstr "有効なテーマ (%s)"
+
+msgid "Activity"
+msgstr "アクティビティ"
+
+msgid "Activity Logging"
+msgstr "アクティビティログ記録"
+
+msgid "Admin Access Login"
+msgstr "管理者アクセスログイン"
+
+msgid "Admin Accounts"
+msgstr "管理者アカウント"
+
+msgid "Admin Changes Detected"
+msgstr "管理者変更を検出"
+
+msgid "Admin Login Notification Email"
+msgstr "管理者ログイン通知メール"
+
+msgid "Admin Users"
+msgstr "管理者ユーザー"
+
+msgid "Administration Email Address"
+msgstr "管理メールアドレス"
+
+msgid "Administrator Accounts Protection"
+msgstr "管理者アカウント保護"
+
+msgid "Admins"
+msgstr "管理者"
+
+msgid "Alert"
+msgstr "アラート"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "ID %s のユーザーからすべての MFA プロバイダーを削除しました。"
+
+msgid "All User Roles Available On This Site"
+msgstr "このサイトで利用可能なすべてのユーザー権限グループ"
+
+msgid "All WP Site Activity"
+msgstr "すべての WP サイトアクティビティ"
+
+msgid "All WordPress Core files appear to be clean and unmodified."
+msgstr "すべての WordPress コアファイルがクリーンで変更されていないようです。"
+
+msgid "All access to your site is blocked."
+msgstr "サイトへのすべてのアクセスがブロックされています。"
+
+msgid "All installed plugins appear to be active and in-use."
+msgstr "インストール済みのすべてのプラグインが有効で使用中です。"
+
+msgid "All installed themes appear to be active and in-use."
+msgstr "インストール済みのすべてのテーマが有効で使用中です。"
+
+msgid "All new passwords are required to be be of high strength."
+msgstr "すべての新しいパスワードは高強度であることが必須です。"
+
+msgid "All plugin & theme files appear to be valid."
+msgstr "すべてのプラグインとテーマファイルは有効です。"
+
+msgid "All rules have been deactivated"
+msgstr "すべてのルールが無効化されました"
+
+msgid "Allow Any User"
+msgstr "すべてのユーザーを許可"
+
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email"
+msgstr "すべてのユーザーにメールによる二要素認証の有効化を許可"
+
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email."
+msgstr "すべてのユーザーにメールによる二要素認証の有効化を許可。"
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "このサイトでのオプションの自動インポートとエクスポートを許可"
+
+msgid "Allow Email Override"
+msgstr "メールオーバーライドを許可"
+
+msgid "Allow Email Override Of Admin Access Restrictions"
+msgstr "管理者アクセス制限のメールオーバーライドを許可"
+
+msgid "Allow Export"
+msgstr "エクスポートを許可"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "このサイトへのオプションのインポートとエクスポートを許可"
+
+msgid "Allow Passkeys"
+msgstr "パスキーを許可"
+
+msgid "Allow Registration Of Passkeys"
+msgstr "パスキーの登録を許可"
+
+msgid "Allow Registration Of Passkeys."
+msgstr "パスキーの登録を許可します。"
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "ユーザーにバックアップコードの生成を許可"
+
+msgid "Allow Users To Register Passkeys"
+msgstr "ユーザーにパスキーの登録を許可"
+
+msgid "Allow Yubikey OTP"
+msgstr "Yubikey OTP を許可"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "ワンタイムパスワードの Yubikey 登録を許可"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "ユーザーにバックアップ 2FA ログインコードの生成を許可します。"
+
+msgid "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
+msgstr "MFA 要素が利用できない場合にログインに使用できるバックアップコードの生成をユーザーに許可します。"
+
+msgid "Altering certain options has been restricted by your WordPress security administrator."
+msgstr "特定のオプションの変更は、WordPress セキュリティ管理者によって制限されています。"
+
+msgid "Analysis"
+msgstr "分析"
+
+msgid "Any user can turn on two-factor authentication by email from their profile."
+msgstr "すべてのユーザーは自分のプロファイルからメールによる二要素認証を有効にできます。"
+
+msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
+msgstr "ユーザー登録とパスワード紛失にブルートフォース保護を適用"
+
+msgid "Apply Updates Automatically To Vulnerable Plugins"
+msgstr "脆弱なプラグインに自動的に更新を適用"
+
+msgid "Are Shield Security's Restrictions Enabled?"
+msgstr "Shield Security の制限は有効ですか?"
+
+msgid "Are WordPress permalinks enabled."
+msgstr "WordPress パーマリンクが有効かどうか。"
+
+msgid "At least 1 2FA option is available to protect user accounts."
+msgstr "ユーザーアカウントを保護するために少なくとも 1 つの 2FA オプションが利用可能です。"
+
+msgid "At least 1 WordPress Core file appears to be modified or unrecognised."
+msgstr "少なくとも 1 つの WordPress コアファイルが変更されているか、認識されないようです。"
+
+msgid "At least 1 of your plugins or themes appears to be modified."
+msgstr "少なくとも 1 つのプラグインまたはテーマが変更されているようです。"
+
+msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
+msgstr "少なくとも 1 つのオプションを指定する必要があり、デフォルトは WP 管理エリア内のユーザープロフィールページです。"
+
+msgid "Attempted login with invalid user '{{user_login}}'."
+msgstr "無効なユーザー '{{user_login}}' でのログイン試行。"
+
+msgid "Author"
+msgstr "作成者"
+
+msgid "Author Fishing"
+msgstr "作成者フィッシング"
+
+msgid "Auto Block"
+msgstr "自動ブロック"
+
+msgid "Auto Block Expiration"
+msgstr "自動ブロック有効期限"
+
+msgid "Auto Clean"
+msgstr "自動クリーン"
+
+msgid "Auto File Repair"
+msgstr "自動ファイル修復"
+
+msgid "Auto File Repair and File Diff are available"
+msgstr "自動ファイル修復とファイル差分が利用可能です"
+
+msgid "Auto File Repair and File Diff aren't available."
+msgstr "自動ファイル修復とファイル差分は利用できません。"
+
+msgid "Auto-Generated"
+msgstr "自動生成"
+
+msgid "Auto-Import URL"
+msgstr "自動インポート URL"
+
+msgid "Auto-Integrations"
+msgstr "自動統合"
+
+msgid "Auto-Repair will never automatically delete new or unrecognised files."
+msgstr "自動修復は新規または認識されないファイルを自動的に削除しません。"
+
+msgid "Auto-repair of files from WordPress.org plugins is enabled."
+msgstr "WordPress.org プラグインからのファイルの自動修復が有効化されています。"
+
+msgid "Auto-repair of files from WordPress.org plugins isn't enabled."
+msgstr "WordPress.org プラグインからのファイルの自動修復は有効化されていません。"
+
+msgid "Auto-repair of files from WordPress.org themes is enabled."
+msgstr "WordPress.org テーマからのファイルの自動修復が有効化されています。"
+
+msgid "Auto-repair of files from WordPress.org themes isn't enabled."
+msgstr "WordPress.org テーマからのファイルの自動修復は有効化されていません。"
+
+msgid "Auto-repair of modified WordPress core files is enabled."
+msgstr "変更された WordPress コアファイルの自動修復が有効化されています。"
+
+msgid "Auto-repair of modified WordPress core files isn't enabled."
+msgstr "変更された WordPress コアファイルの自動修復は有効化されていません。"
+
+msgid "Automatic Bot"
+msgstr "自動 Bot"
+
+msgid "Automatic Bot Comment SPAM Protection Filter"
+msgstr "自動 Bot コメントスパム保護フィルター"
+
+msgid "Automatic File Repair"
+msgstr "自動ファイル修復"
+
+msgid "Automatic Import/Export"
+msgstr "自動インポート/エクスポート"
+
+msgid "Automatic Redirect URL For Hidden Pages"
+msgstr "非表示ページの自動リダイレクト URL"
+
+msgid "Automatic Updates"
+msgstr "自動更新"
+
+msgid "Automatically Import Options From This Site"
+msgstr "このサイトからオプションを自動的にインポート"
+
+msgid "Automatically Import Options From This Site URL"
+msgstr "このサイト URL からオプションを自動的にインポート"
+
+msgid "Automatically Install Updates To Vulnerable Plugins"
+msgstr "脆弱なプラグインに更新を自動的にインストール"
+
+msgid "Automatically Repair Files That Have Changes Or Malware Infection"
+msgstr "変更またはマルウェア感染があるファイルを自動的に修復"
+
+msgid "Automatically Scans WordPress Core Files For Alterations"
+msgstr "WordPress コアファイルの変更を自動スキャン"
+
+msgid "Automatically delete WordPress files that aren't necessary."
+msgstr "不要な WordPress ファイルを自動削除します。"
+
+msgid "Automatically detect & repair vulnerable and suspicious files, plugins and themes."
+msgstr "脆弱性のあるファイル、プラグイン、テーマを自動的に検出して修復します。"
+
+msgid "Automatically redirect here for any requests made to hidden pages."
+msgstr "非表示ページへのリクエストをここに自動的にリダイレクトします。"
+
+msgid "Automatically redirect requests to this location for the hidden pages."
+msgstr "非表示ページへのリクエストをこの場所に自動的にリダイレクトします。"
+
+msgid "Available Roles"
+msgstr "利用可能な権限グループ"
+
+msgid "Backup Code"
+msgstr "バックアップコード"
+
+msgid "Backup Login Code"
+msgstr "バックアップログインコード"
+
+msgid "Badge"
+msgstr "バッジ"
+
+msgid "Be alerted to plugins and themes with known security vulnerabilities"
+msgstr "既知のセキュリティ脆弱性があるプラグインとテーマをアラート"
+
+msgid "Block %s"
+msgstr "%s をブロック"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "silentCAPTCHA で 100% ボットコメントスパムをブロック"
+
+msgid "Block Bot Comment SPAM"
+msgstr "ボットコメントスパムをブロック"
+
+msgid "Block Bot SPAM"
+msgstr "Bot スパムをブロック"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "人間によって投稿されたコメントスパムをブロック"
+
+msgid "Block Human Comment SPAM"
+msgstr "人間によるコメントスパムをブロック"
+
+msgid "Block Human SPAM"
+msgstr "人間によるスパムをブロック"
+
+msgid "Block IP"
+msgstr "IP をブロック"
+
+msgid "Block IP Address?"
+msgstr "IP アドレスをブロックしますか?"
+
+msgid "Block Login Attempted By Automated Bots"
+msgstr "自動 Bot によるログイン試行をブロック"
+
+msgid "Block Login Bots"
+msgstr "ログイン Bot をブロック"
+
+msgid "Block PHP Code Includes"
+msgstr "PHP コードインクルードをブロック"
+
+msgid "Block PHP code in requests"
+msgstr "リクエスト内の PHP コードをブロック"
+
+msgid "Block Page"
+msgstr "ブロックページ"
+
+msgid "Block SPAM User Registrations"
+msgstr "スパムユーザー登録をブロック"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "自動 Bot によってコンタクトフォームに投稿されたスパムをブロック。"
+
+msgid "Block Username Fishing"
+msgstr "ユーザー名フィッシングをブロック"
+
+msgid "Block WP comments posted by bots"
+msgstr "Bot が投稿した WP コメントをブロック"
+
+msgid "Block WP comments posted by humans that appear to be SPAM"
+msgstr "スパムと思われる人間が投稿した WP コメントをブロック"
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "WordPress コメントスパムおよびお問い合わせフォームスパムをブロック。"
+
+msgid "Block XML-RPC"
+msgstr "XML-RPC をブロック"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "バイパス/ホワイトリストの IP 以外からのサイトへのすべてのアクセスをブロックします。"
+
+msgid "Block duration"
+msgstr "ブロック期間"
+
+msgid "Blocked"
+msgstr "ブロック済み"
+
+msgid "Blocked & Bypass IPs"
+msgstr "ブロック済み & バイパス IP"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "ボットからのスパムコメントをブロックしました。"
+
+msgid "Blocks 100% of all automated bot-generated comment SPAM."
+msgstr "自動 Bot 生成コメントスパムを 100% ブロックします。"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Bot アクション"
+
+msgid "Bot Comment SPAM"
+msgstr "ボットコメントスパム"
+
+msgid "Bot Detection"
+msgstr "Bot 検出"
+
+msgid "Bot Protection"
+msgstr "Bot 保護"
+
+msgid "Bot SPAM"
+msgstr "Bot スパム"
+
+msgid "Bot Tracking"
+msgstr "Bot トラッキング"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "ボットコメントスパムはブロックされません"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "ボットコメントスパムをブロックするようになりました"
+
+msgid "Bots"
+msgstr "Bot"
+
+msgid "Bots & IP Rules"
+msgstr "Bot と IP ルール"
+
+msgid "Bots & IPs"
+msgstr "Bot と IP"
+
+msgid "Browser"
+msgstr "ブラウザー"
+
+msgid "Brute Force"
+msgstr "ブルートフォース"
+
+msgid "Brute Force Login Guard"
+msgstr "ブルートフォースログインガード"
+
+msgid "Brute Force Login Protection"
+msgstr "ブルートフォースログイン保護"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "silentCAPTCHA によるブルートフォースログイン保護"
+
+msgid "Brute Force Protection"
+msgstr "ブルートフォース保護"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "ブルートフォーストラフィックレート制限"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "WordPress ログインに対するブルートフォース Bot 攻撃は silentCAPTCHA によって検出およびブロックされます。"
+
+msgid "Brute force login attacks aren't blocked by the login cooldown system."
+msgstr "ブルートフォースログイン攻撃はログインクールダウンシステムによってブロックされていません。"
+
+msgid "Brute force login attacks by bots aren't being blocked."
+msgstr "Bot によるブルートフォースログイン攻撃はブロックされていません。"
+
+msgid "Bypass"
+msgstr "バイパス"
+
+msgid "Bypass IP"
+msgstr "バイパス IP"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA Fail"
+msgstr "CAPTCHA 失敗"
+
+msgid "Calculating"
+msgstr "計算中"
+
+msgid "Callback"
+msgstr "コールバック"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Cancel Login"
+msgstr "ログインをキャンセル"
+
+msgid "Capabilities"
+msgstr "機能"
+
+msgid "Careful"
+msgstr "注意"
+
+msgid "Careful: This will restrict the ability of WordPress administrators from changing key WordPress settings."
+msgstr "注意: これにより WordPress 管理者が重要な WordPress 設定を変更する機能が制限されます。"
+
+msgid "Certain user roles are set for email authentication enforcement that aren't currently available"
+msgstr "メール認証の強制が設定されている特定のユーザーロールが現在利用できません"
+
+msgid "Change Detected"
+msgstr "変更検出済み"
+
+msgid "Change-Tracking"
+msgstr "変更追跡"
+
+msgid "Changes"
+msgstr "変更"
+
+msgid "Changing 2FA Email options isn't currently available to you."
+msgstr "2FA メールオプションの変更は現在利用できません。"
+
+msgid "Changing Backup Code options isn't currently available to you."
+msgstr "バックアップコードオプションの変更は現在利用できません。"
+
+msgid "Check License"
+msgstr "ライセンスを確認"
+
+msgid "Check ShieldPRO License"
+msgstr "ShieldPRO ライセンスをチェック"
+
+msgid "Checked"
+msgstr "確認済み"
+
+msgid "Checking this option on will link this site to Master site."
+msgstr "このオプションをオンにすると、このサイトがマスターサイトにリンクされます。"
+
+msgid "Child"
+msgstr "子"
+
+msgid "Clean"
+msgstr "クリーン"
+
+msgid "Clean WP Files"
+msgstr "WP ファイルをクリーン"
+
+msgid "Click To Filter By Security Area or Status"
+msgstr "クリックしてセキュリティエリアまたはステータスでフィルタリング"
+
+msgid "Click To Register A Passkey."
+msgstr "クリックしてパスキーを登録。"
+
+msgid "Click here to automatically delete the file"
+msgstr "クリックしてファイルを自動削除"
+
+msgid "Click to access the login or register cheese"
+msgstr "クリックしてログインまたは登録チーズにアクセス"
+
+msgid "Click to generate a backup login code for your two-factor authentication."
+msgstr "クリックして二要素認証のバックアップログインコードを生成します。"
+
+msgid "Click to view your security summary in-full"
+msgstr "クリックしてセキュリティサマリーの全体を表示"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "コード"
+
+msgid "Code Generated"
+msgstr "コード生成済み"
+
+msgid "Comment"
+msgstr "コメントする"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "コメントおよびお問い合わせフォームのスパム保護"
+
+msgid "Comment Deleted"
+msgstr "コメント削除済み"
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) changed status from '{{status_old}}' to '{{status_new}}'."
+msgstr "コメント ID:{{comment_id}} (投稿 ID {{post_id}}) のステータスが「{{status_old}}」から「{{status_new}}」に変更されました。"
+
+msgid "Comment ID:{{comment_id}} (on Post ID {{post_id}}) with status '{{status}}' was permanently deleted."
+msgstr "コメント ID:{{comment_id}} (投稿 ID {{post_id}}) のステータス「{{status}}」が完全に削除されました。"
+
+msgid "Comment ID:{{comment_id}} with status '{{status}}' was newly created on Post ID {{post_id}}."
+msgstr "コメント ID:{{comment_id}} がステータス「{{status}}」で投稿 ID {{post_id}} に新規作成されました。"
+
+msgid "Comment SPAM"
+msgstr "コメントスパム"
+
+msgid "Comment SPAM Blocked."
+msgstr "コメントスパムをブロックしました。"
+
+msgid "Comment SPAM Protection"
+msgstr "コメントスパム保護"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "コメントスパム保護: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "コメントステータスを更新しました"
+
+msgid "Comments"
+msgstr "コメント"
+
+msgid "Comments Cooldown"
+msgstr "コメントクールダウン"
+
+msgid "Comments From Users With These Roles Will Never Be Scanned"
+msgstr "これらのロールを持つユーザーからのコメントはスキャンされません"
+
+msgid "Config"
+msgstr "設定"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "ユーザー 2FA 設定の設定ページ"
+
+msgid "Confirmation"
+msgstr "確認"
+
+msgid "Confirmation email will be sent to %s"
+msgstr "確認メールが %s に送信されます"
+
+msgid "Confirmation link"
+msgstr "確認リンク"
+
+msgid "Connected"
+msgstr "接続済み"
+
+msgid "Contact Form SPAM"
+msgstr "お問い合わせフォームスパム"
+
+msgid "Contact Form SPAM Checking"
+msgstr "お問い合わせフォームスパムチェック"
+
+msgid "Contains"
+msgstr "含む"
+
+msgid "Content Security Policy"
+msgstr "コンテンツセキュリティポリシー"
+
+msgid "Content Updated"
+msgstr "コンテンツ更新済み"
+
+msgid "Content for Post ID {{post_id}} updated."
+msgstr "投稿 ID {{post_id}} のコンテンツが更新されました。"
+
+msgid "Contents"
+msgstr "内容"
+
+msgid "Cooldown"
+msgstr "クールダウン"
+
+msgid "Cooldown Fail"
+msgstr "クールダウン失敗"
+
+msgid "Coordinates"
+msgstr "座標"
+
+msgid "Could not create MU directory: %s"
+msgstr "MU ディレクトリを作成できませんでした: %s"
+
+msgid "Could not create MU file: %s"
+msgstr "MU ファイルを作成できませんでした: %s"
+
+msgid "Could not delete the MU file: %s"
+msgstr "MU ファイルを削除できませんでした: %s"
+
+msgid "Couldn't create the directory: %s"
+msgstr "ディレクトリを作成できませんでした: %s"
+
+msgid "Couldn't create the export file."
+msgstr "エクスポートファイルを作成できませんでした。"
+
+msgid "Couldn't determine Shield plugin status."
+msgstr "Shield プラグインのステータスを判定できませんでした。"
+
+msgid "Couldn't load plugin for slug '%s'."
+msgstr "スラッグ '%s' のプラグインを読み込めませんでした。"
+
+msgid "Couldn't load theme for slug '%s'."
+msgstr "スラッグ '%s' のテーマを読み込めませんでした。"
+
+msgid "Country"
+msgstr "国"
+
+msgid "Country Code"
+msgstr "国コード"
+
+msgid "Create Backup 2FA Login Code"
+msgstr "バックアップ 2FA ログインコードを作成"
+
+msgid "Create Custom Rule"
+msgstr "カスタムルールを作成"
+
+msgid "Create New IP Rule"
+msgstr "新規 IP ルールを作成"
+
+msgid "Create New Rule"
+msgstr "新規ルールを作成"
+
+msgid "Create and view all your custom security rules."
+msgstr "すべてのカスタムセキュリティルールを作成および表示。"
+
+msgid "Created"
+msgstr "作成済み"
+
+msgid "Created with status %s"
+msgstr "状態 %s で作成"
+
+msgid "Critical File Protection"
+msgstr "重要なファイルの保護"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "重要な WordPress 設定の保護"
+
+msgid "Critical WordPress settings are protected against tampering from other WordPress admins."
+msgstr "重要な WordPress 設定は他の WordPress 管理者による改ざんから保護されています。"
+
+msgid "Critical WordPress settings aren't protected against tampering from other WordPress admins."
+msgstr "重要な WordPress 設定は他の WordPress 管理者による改ざんから保護されていません。"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "CrowdSec ホーム"
+
+msgid "Current"
+msgstr "現在"
+
+msgid "Current File Content"
+msgstr "現在のファイルコンテンツ"
+
+msgid "Current Session Terminated"
+msgstr "現在のセッション終了"
+
+msgid "Current Summary"
+msgstr "現在の概要"
+
+msgid "Current User Sessions"
+msgstr "現在のユーザーセッション"
+
+msgid "Current master site: {{master_site}}"
+msgstr "現在のマスターサイト: {{master_site}}"
+
+msgid "Current session terminated for user ({{user_login}}) with session ID {{session_id}}."
+msgstr "ユーザー ({{user_login}}) の現在のセッションがセッション ID {{session_id}} で終了しました。"
+
+msgid "Current value: %s"
+msgstr "現在の値: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "このプロファイルで現在アクティブな MFA プロバイダーは"
+
+msgid "Custom"
+msgstr "カスタム"
+
+msgid "Custom Debug"
+msgstr "カスタムデバッグ"
+
+msgid "Custom Rules"
+msgstr "カスタムルール"
+
+msgid "Custom Security Rules"
+msgstr "カスタムセキュリティルール"
+
+msgid "Daily"
+msgstr "毎日"
+
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "ダッシュボードおよび 2FA ログインロゴ URL"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "ダッシュボードおよび 2FA ロゴ"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "ダッシュボードおよび 2FA ロゴ URL"
+
+msgid "Database"
+msgstr "データベース"
+
+msgid "Databases"
+msgstr "データベース"
+
+msgid "Date"
+msgstr "日付"
+
+msgid "Date Added"
+msgstr "追加日"
+
+msgid "Date Generated"
+msgstr "生成日"
+
+msgid "Date Range"
+msgstr "日付範囲"
+
+msgid "Day"
+msgstr "日"
+
+msgid "Deactivated"
+msgstr "無効化した"
+
+msgid "Debug"
+msgstr "デバッグ"
+
+msgid "Debug Info"
+msgstr "デバッグ情報"
+
+msgid "Debug Is On"
+msgstr "デバッグが有効"
+
+msgid "Default"
+msgstr "初期設定"
+
+msgid "Default Admin User"
+msgstr "デフォルト管理者ユーザー"
+
+msgid "Default User Role"
+msgstr "デフォルトユーザー権限グループ"
+
+msgid "Defaults to the blog admin email address."
+msgstr "初期設定はブログ管理者メールアドレスです。"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Delete 'forceoff' File"
+msgstr "「forceoff」ファイルを削除"
+
+msgid "Delete IP"
+msgstr "IP を削除"
+
+msgid "Delete Login Backup Code"
+msgstr "ログインバックアップコードを削除"
+
+msgid "Delete Plugin Settings"
+msgstr "プラグイン設定を削除"
+
+msgid "Delete Rule"
+msgstr "ルールを削除"
+
+msgid "Delete Success"
+msgstr "削除成功"
+
+msgid "Deleted"
+msgstr "削除済み"
+
+msgid "Deleted Admin(s)"
+msgstr "削除済み管理者"
+
+msgid "Description"
+msgstr "説明"
+
+msgid "Details"
+msgstr "詳細"
+
+msgid "Details for the request are given below:"
+msgstr "リクエストの詳細は以下の通りです:"
+
+msgid "Details for this login are below:"
+msgstr "このログインの詳細は以下の通りです:"
+
+msgid "Details for this user are below:"
+msgstr "このユーザーの詳細は以下の通りです:"
+
+msgid "Detect Invalid Username Logins"
+msgstr "無効なユーザー名ログインを検出"
+
+msgid "Detected"
+msgstr "検出済み"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "無効なメールアドレス ({{email}}) でのユーザー登録を検出しました。"
+
+msgid "Detection of abandoned WordPress.org plugins is enabled."
+msgstr "放置された WordPress.org プラグインの検出が有効化されています。"
+
+msgid "Detection of abandoned WordPress.org plugins isn't enabled."
+msgstr "放置された WordPress.org プラグインの検出は有効化されていません。"
+
+msgid "Diff"
+msgstr "差分"
+
+msgid "Diff is unavailable for missing files."
+msgstr "欠落ファイルの差分は利用できません。"
+
+msgid "Directory doesn't exist."
+msgstr "ディレクトリが存在しません。"
+
+msgid "Disable %s"
+msgstr "%s を無効化"
+
+msgid "Disable 2FA by email"
+msgstr "メールによる 2FA を無効化"
+
+msgid "Disable Ability To Edit Files From Within WordPress"
+msgstr "WordPress 内からファイルを編集する機能を無効化"
+
+msgid "Disable All Rules"
+msgstr "すべてのルールを無効化"
+
+msgid "Disable File Editing"
+msgstr "ファイル編集を無効化"
+
+msgid "Disable Security Admin"
+msgstr "Security Admin を無効化"
+
+msgid "Disable Shield"
+msgstr "Shield を無効化"
+
+msgid "Disable Site Lockdown"
+msgstr "サイトロックダウンを無効化"
+
+msgid "Disable XML-RPC"
+msgstr "XML-RPC を無効化"
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "XML-RPC エンドポイントに送信されたリクエストの処理を無効化"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "XML-RPC エンドポイントを無効化し、すべてのリクエストをブロックします。"
+
+msgid "Disconnected"
+msgstr "切断済み"
+
+msgid "Discovered"
+msgstr "検出済み"
+
+msgid "Display Options Updated"
+msgstr "表示設定を更新"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "サイトにプラグインセキュリティバッジを表示"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "訪問者にプラグインセキュリティバッジを表示"
+
+msgid "Docs"
+msgstr "ドキュメント"
+
+msgid "Does a given file exist in a given directory."
+msgstr "指定されたディレクトリに指定されたファイルが存在するかどうか。"
+
+msgid "Does a given path (file or directory) exist."
+msgstr "指定されたパス(ファイルまたはディレクトリ)が存在するかどうか。"
+
+msgid "Does current user have the given WP role."
+msgstr "現在のユーザーが指定された WP 権限グループを持っているかどうか。"
+
+msgid "Does the current request originate from a given set of services/providers."
+msgstr "現在のリクエストが指定されたサービス/プロバイダーのセットから送信されているかどうか。"
+
+msgid "Does the current request originate match the given IP Address."
+msgstr "現在のリクエストの送信元が指定された IP アドレスと一致するかどうか。"
+
+msgid "Does the method of the request match the given specified method to match."
+msgstr "リクエストのメソッドが指定されたメソッドと一致するかどうか。"
+
+msgid "Does the request bypass any and all Shield restrictions."
+msgstr "リクエストがすべての Shield 制限をバイパスするかどうか。"
+
+msgid "Does the request have any POST or QUERY parameters."
+msgstr "リクエストに POST または QUERY パラメータがあるかどうか。"
+
+msgid "Does the request originate from a valid public IP address."
+msgstr "リクエストが有効なパブリック IP アドレスから送信されているかどうか。"
+
+msgid "Does the request path match the given path."
+msgstr "リクエストパスが指定されたパスと一致するかどうか。"
+
+msgid "Does the request script name match the given name."
+msgstr "リクエストスクリプト名が指定された名前と一致するかどうか。"
+
+msgid "Does the request useragent match the given useragent."
+msgstr "リクエスト User Agent が指定された User Agent と一致するかどうか。"
+
+msgid "Download"
+msgstr "ダウンロード"
+
+msgid "Download File"
+msgstr "ファイルをダウンロード"
+
+msgid "Download Modified"
+msgstr "変更済みをダウンロード"
+
+msgid "Download Options Export File"
+msgstr "オプションエクスポートファイルをダウンロード"
+
+msgid "Duration"
+msgstr "期間"
+
+msgid "Edit"
+msgstr "編集"
+
+msgid "Edit Rule"
+msgstr "ルールを編集"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "ルール #%s (%s) を編集"
+
+msgid "Edit Settings"
+msgstr "設定を編集"
+
+msgid "Edit Theme Options"
+msgstr "テーマ設定を編集"
+
+msgid "Edit automatic file scanning settings"
+msgstr "自動ファイルスキャン設定を編集"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "ボットスパムコメント設定を編集"
+
+msgid "Edit general plugin settings"
+msgstr "プラグイン全般の設定を編集"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "人間によるスパムコメント設定を編集"
+
+msgid "Edit logging settings"
+msgstr "ログ設定を編集"
+
+msgid "Edit rate limit settings for abusive visitors"
+msgstr "不正な訪問者のレート制限設定を編集"
+
+msgid "Edit reporting settings"
+msgstr "レポート設定を編集"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "スパムユーザー登録の設定を編集"
+
+msgid "Edit settings that apply protection to your login & user forms"
+msgstr "ログインとユーザーフォームに保護を適用する設定を編集"
+
+msgid "Edit which key files to protect"
+msgstr "保護する主要ファイルを編集"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "WordPress 管理エリア内からのファイル編集が許可されています。"
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "WordPress 管理エリア内からのファイル編集が無効化されています。"
+
+msgid "Editing this option is currently restricted."
+msgstr "このオプションの編集は現在制限されています。"
+
+msgid "Email"
+msgstr "メール"
+
+msgid "Email 2FA activated."
+msgstr "メール 2FA を有効化しました。"
+
+msgid "Email 2FA deactivated."
+msgstr "メール 2FA 無効化済み"
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "メール 2FA オプションは現在有効になっていません。"
+
+msgid "Email 2FA settings couldn't be changed."
+msgstr "メール 2FA 設定を変更できませんでした。"
+
+msgid "Email Authentication"
+msgstr "メール認証"
+
+msgid "Email Auto-Login"
+msgstr "メール自動ログイン"
+
+msgid "Email For All Reports and Plugin Notifications"
+msgstr "すべてのレポートとプラグイン通知用のメール"
+
+msgid "Email OTP"
+msgstr "メール OTP"
+
+msgid "Email Sent"
+msgstr "メール送信済み"
+
+msgid "Email Two-Factor Authentication"
+msgstr "メール 2 要素認証"
+
+msgid "Email Updated"
+msgstr "メール更新済み"
+
+msgid "Email notifications for new comments"
+msgstr "新しいコメントのメール通知"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "%s プラグイン v%s から %s に送信されたメール。"
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "ユーザー '{{user_login}}' のメールが更新されました。"
+
+msgid "Enable"
+msgstr "有効化"
+
+msgid "Enable %s"
+msgstr "%s を有効化"
+
+msgid "Enable %s Protection"
+msgstr "%s 保護を有効化"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "コメントスパム保護機能を有効化(または無効化)"
+
+msgid "Enable Auto-Integrations"
+msgstr "自動統合を有効化"
+
+msgid "Enable Content Security Policy"
+msgstr "コンテンツセキュリティポリシーを有効化"
+
+msgid "Enable Email Authentication"
+msgstr "メール認証を有効化"
+
+msgid "Enable MainWP"
+msgstr "MainWP を有効化"
+
+msgid "Enable Passkeys"
+msgstr "パスキーを有効化"
+
+msgid "Enable Rate Limiting"
+msgstr "レート制限を有効化"
+
+msgid "Enable Request Logging"
+msgstr "リクエストログを有効化"
+
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr "放置されたプラグインスキャナーを有効化"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "脆弱性スキャナーを有効化"
+
+msgid "Enable White Label"
+msgstr "ホワイトラベルを有効化"
+
+msgid "Enable this option to allow automatic import and export of options between WordPress sites."
+msgstr "このオプションを有効にすると、WordPress サイト間でのオプションの自動インポートとエクスポートが可能になります。"
+
+msgid "Enforce"
+msgstr "強制"
+
+msgid "Enforce - Email Authentication"
+msgstr "強制 - メール認証"
+
+msgid "Enforce Security Admin Access Restriction"
+msgstr "Security Admin アクセス制限を強制"
+
+msgid "Enforce strong passwords for all users."
+msgstr "すべてのユーザーに強力なパスワードを強制します。"
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Yubikey からワンタイムパスワードを入力"
+
+msgid "Enter admin username, email or ID."
+msgstr "管理者のユーザー名、メールアドレス、または ID を入力してください。"
+
+msgid "Enter code sent to your email"
+msgstr "メールに送信されたコードを入力"
+
+msgid "Environment"
+msgstr "環境"
+
+msgid "Equals"
+msgstr "等しい"
+
+msgid "Error"
+msgstr "エラー"
+
+msgid "Event"
+msgstr "イベント"
+
+msgid "Event %s does not exist."
+msgstr "イベント %s は存在しません。"
+
+msgid "Event Details"
+msgstr "イベント詳細"
+
+msgid "Event Slug"
+msgstr "イベントスラッグ"
+
+msgid "Events"
+msgstr "イベント"
+
+msgid "Example"
+msgstr "例"
+
+msgid "Expiration"
+msgstr "有効期限"
+
+msgid "Expires"
+msgstr "有効期限"
+
+msgid "Export"
+msgstr "エクスポート"
+
+msgid "Export To File"
+msgstr "ファイルへエクスポート"
+
+msgid "Export Whitelist"
+msgstr "ホワイトリストをエクスポート"
+
+msgid "Export file path"
+msgstr "エクスポートファイルパス"
+
+msgid "Extensions"
+msgstr "拡張機能"
+
+msgid "Extras"
+msgstr "追加"
+
+msgid "False"
+msgstr "False"
+
+msgid "File"
+msgstr "ファイル"
+
+msgid "File Deleted"
+msgstr "ファイル削除済み"
+
+msgid "File Details"
+msgstr "ファイル詳細"
+
+msgid "File Detected By Scans"
+msgstr "スキャンで検出されたファイル"
+
+msgid "File Download"
+msgstr "ファイルダウンロード"
+
+msgid "File Guard"
+msgstr "ファイルガード"
+
+msgid "File Info"
+msgstr "ファイル情報"
+
+msgid "File Modified"
+msgstr "ファイル変更済み"
+
+msgid "File Modified Timestamp"
+msgstr "ファイル変更タイムスタンプ"
+
+msgid "File Name"
+msgstr "ファイル名"
+
+msgid "File Repair Attempted"
+msgstr "ファイル修復を試行"
+
+msgid "File Repaired"
+msgstr "ファイル修復済み"
+
+msgid "File Scanning and Malware Protection"
+msgstr "ファイルスキャンとマルウェア保護"
+
+msgid "File Scans and Malware"
+msgstr "ファイルスキャンとマルウェア"
+
+msgid "File Size"
+msgstr "ファイルサイズ"
+
+msgid "File Status"
+msgstr "ファイル状態"
+
+msgid "File appears to be empty."
+msgstr "ファイルが空のようです。"
+
+msgid "File contents are empty."
+msgstr "ファイル内容が空です。"
+
+msgid "File detected as %s by %s scanner."
+msgstr "%s スキャナーによって %s として検出されたファイル。"
+
+msgid "File does not exist."
+msgstr "ファイルが存在しません。"
+
+msgid "File doesn't exist."
+msgstr "ファイルが存在しません。"
+
+msgid "File extensions are empty."
+msgstr "ファイル拡張子が空です。"
+
+msgid "File is empty or could not be read."
+msgstr "ファイルが空か読み取れませんでした。"
+
+msgid "FileLocker Changes"
+msgstr "FileLocker 変更"
+
+msgid "FileLocker Changes Detected"
+msgstr "FileLocker の変更を検出しました"
+
+msgid "FileLocker has detected changes to critical files."
+msgstr "FileLocker が重要なファイルへの変更を検出しました。"
+
+msgid "FileLocker must be active to enable this option."
+msgstr "このオプションを有効にするには FileLocker がアクティブである必要があります。"
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: wp-config.php 保護"
+
+msgid "Files Deleted"
+msgstr "ファイル削除済み"
+
+msgid "Filter Priority"
+msgstr "フィルター優先度"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "ファイアウォールブロック"
+
+msgid "Firewall Block Alert"
+msgstr "ファイアウォールブロックアラート"
+
+msgid "Firewall Block Email Fail"
+msgstr "ファイアウォールブロックメール送信失敗"
+
+msgid "Firewall Block Email Success"
+msgstr "ファイアウォールブロックメール送信成功"
+
+msgid "Firewall Rule"
+msgstr "Firewall ルール"
+
+msgid "Fix"
+msgstr "修正"
+
+msgid "For example, if you set WordPress to require visitors to login to post comments, this will expose your hidden URL."
+msgstr "たとえば、コメント投稿に訪問者のログインを要求するよう WordPress を設定すると、非表示の URL が公開されます。"
+
+msgid "For example, your browser user agent is"
+msgstr "たとえば、ブラウザのユーザーエージェントは次のとおりです"
+
+msgid "Force Check of Visitor IP Source"
+msgstr "訪問者 IP ソースの強制チェック"
+
+msgid "Form SPAM Checking"
+msgstr "フォームスパムチェック"
+
+msgid "Format"
+msgstr "形式"
+
+msgid "Full Path"
+msgstr "完全パス"
+
+msgid "Full Path To File"
+msgstr "ファイルへの完全パス"
+
+msgid "General"
+msgstr "全般"
+
+msgid "General Info"
+msgstr "全般 Info"
+
+msgid "General Settings"
+msgstr "全般設定"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "ワンタイムバックアップ 2FA ログインコードを生成"
+
+msgid "Go PRO!"
+msgstr "PRO にアップグレード!"
+
+msgid "Go Pro!"
+msgstr "PRO にアップグレード!"
+
+msgid "Go To %s"
+msgstr "%s へ移動"
+
+msgid "Go To Admin"
+msgstr "管理画面へ移動"
+
+msgid "Go To Option"
+msgstr "オプションへ移動"
+
+msgid "Go To Overview"
+msgstr "概要へ移動"
+
+msgid "Go To Security Dashboard"
+msgstr "セキュリティダッシュボードへ移動"
+
+msgid "Go To Shield Overview"
+msgstr "Shield 概要へ移動"
+
+msgid "Go here to manage settings and authenticate with the %s plugin."
+msgstr "%s プラグインで設定を管理し認証するにはこちらへ移動してください。"
+
+msgid "Go to WordPress Updates"
+msgstr "WordPress 更新へ移動"
+
+msgid "Good"
+msgstr "良好"
+
+msgid "Grade"
+msgstr "評価"
+
+msgid "Has Valid Shield User Sessions"
+msgstr "有効な Shield ユーザーセッションがあります"
+
+msgid "Help"
+msgstr "ヘルプ"
+
+msgid "Hidden Login URL Fail"
+msgstr "隠しログイン URL 失敗"
+
+msgid "Hide Login"
+msgstr "ログインを非表示"
+
+msgid "Hide Login Page"
+msgstr "ログインページを非表示"
+
+msgid "Hide The WP Login Page."
+msgstr "WP ログインページを隠す。"
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "WordPress ログインおよび管理エリアを隠す"
+
+msgid "Hide WP Login"
+msgstr "WP ログインを非表示"
+
+msgid "Hide WP Login & Admin"
+msgstr "WP ログインおよび管理画面を隠す"
+
+msgid "Hide WP Login Page"
+msgstr "WP ログインページを隠す"
+
+msgid "Hide WordPress Login Page"
+msgstr "WordPress ログインページを隠す"
+
+msgid "History"
+msgstr "履歴"
+
+msgid "Home URL"
+msgstr "ホーム URL"
+
+msgid "Home URL Changed"
+msgstr "ホーム URL 変更"
+
+msgid "Homepage"
+msgstr "ホームページ"
+
+msgid "Hostname"
+msgstr "ホスト名"
+
+msgid "Hostname To Match"
+msgstr "一致させるホスト名"
+
+msgid "Hourly"
+msgstr "毎時"
+
+msgid "How WordPress logins are protected from brute force attacks"
+msgstr "WordPress ログインがブルートフォース攻撃から保護される方法"
+
+msgid "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+msgstr "CrowdSec の悪意ある IP アドレスリストに見つかった IP アドレスからのリクエストを Shield がどのようにブロックするか。"
+
+msgid "How well core WordPress plugins and themes are protected"
+msgstr "コア WordPress プラグインとテーマがどれだけ保護されているか"
+
+msgid "How well you're protected against malicious bots and visitors"
+msgstr "悪意のある Bot や訪問者からどの程度保護されているか"
+
+msgid "Human"
+msgstr "人間"
+
+msgid "Human Comment SPAM"
+msgstr "人間によるコメントスパム"
+
+msgid "Human Comment SPAM Protection"
+msgstr "人間によるコメントスパム保護"
+
+msgid "Human SPAM"
+msgstr "人間によるスパム"
+
+msgid "Human SPAM Filter"
+msgstr "人間によるスパムフィルター"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IMPORTANT"
+msgstr "重要"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP アドレス"
+
+msgid "IP Address To Match"
+msgstr "一致させる IP アドレス"
+
+msgid "IP Address or IP Range"
+msgstr "IP アドレスまたは IP 範囲"
+
+msgid "IP Address or Range"
+msgstr "IP アドレスまたは範囲"
+
+msgid "IP Analysis"
+msgstr "IP 分析"
+
+msgid "IP Auto-Block Offense Limit"
+msgstr "IP 自動ブロック違反制限"
+
+msgid "IP Block Status"
+msgstr "IP ブロック状態"
+
+msgid "IP Blocked"
+msgstr "IP ブロック済み"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "IP バイパスリストから削除しました (手動)"
+
+msgid "IP Equals"
+msgstr "IP が等しい"
+
+msgid "IP ID To Match"
+msgstr "一致させる IP ID"
+
+msgid "IP Meta"
+msgstr "IP メタ情報"
+
+msgid "IP NotBot Score couldn't be reset at this time."
+msgstr "現時点では IP NotBot スコアをリセットできませんでした。"
+
+msgid "IP Offenses"
+msgstr "IP 違反"
+
+msgid "IP Range"
+msgstr "IP 範囲"
+
+msgid "IP Rule couldn't be deleted from the list"
+msgstr "IP ルールをリストから削除できませんでした"
+
+msgid "IP Rule deleted"
+msgstr "IP ルールを削除しました"
+
+msgid "IP Rules"
+msgstr "IP ルール"
+
+msgid "IP Source"
+msgstr "IP ソース"
+
+msgid "IP Status"
+msgstr "IP 状態"
+
+msgid "IP Unavailable"
+msgstr "IP 利用不可"
+
+msgid "IP Unblocked"
+msgstr "IP ブロック解除済み"
+
+msgid "IP Unblocked By Visitor"
+msgstr "訪問者により IP ブロック解除"
+
+msgid "IP address '{{ip}}' manually added to block list."
+msgstr "IP アドレス「{{ip}}」をブロックリストに手動で追加しました。"
+
+msgid "IP address '{{ip}}' manually added to bypass list."
+msgstr "IP アドレス「{{ip}}」をバイパスリストに手動で追加しました。"
+
+msgid "IP address '{{ip}}' manually removed from the bypass list."
+msgstr "IP アドレス '{{ip}}' をバイパスリストから手動で削除しました。"
+
+msgid "IP address added to Bypass list."
+msgstr "IP アドレスをバイパスリストに追加しました。"
+
+msgid "IP address blocked."
+msgstr "IP アドレスをブロックしました。"
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "現時点では IP アドレスをバイパスリストから削除できませんでした。"
+
+msgid "IP address couldn't be removed. (It may not be on this list)"
+msgstr "IP アドレスを削除できませんでした。(このリストに存在しない可能性があります)"
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "現時点では IP アドレスのブロックを解除できませんでした。"
+
+msgid "IP address exceeds offense limit and is blocked."
+msgstr "IP アドレスが違反制限を超えてブロックされました。"
+
+msgid "IP address removed from Bypass list."
+msgstr "IP アドレスをバイパスリストから削除しました。"
+
+msgid "IP address unblocked."
+msgstr "IP アドレスのブロックが解除されました。"
+
+msgid "IP does not match."
+msgstr "IP が一致しません。"
+
+msgid "IP isn't on the %s block list."
+msgstr "IP は %s ブロックリストにありません。"
+
+msgid "IP isn't on the auto block list."
+msgstr "IP は自動ブロックリストにありません。"
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP は自動ブロックリストにありません。"
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "IP silentCAPTCHA スコアをリセット。"
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Identity"
+msgstr "識別情報"
+
+msgid "Idle"
+msgstr "アイドル"
+
+msgid "Idle Interval"
+msgstr "アイドル間隔"
+
+msgid "If"
+msgstr "もし"
+
+msgid "If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user."
+msgstr "ユーザー名に Yubikey が割り当てられていない場合、そのユーザーの Yubikey 認証はオフになります。"
+
+msgid "If you provide access to the WP Login URL in any areas of your site, you will expose your hidden login URL."
+msgstr "サイトのどこかで WP ログイン URL へのアクセスを提供すると、非表示のログイン URL が公開されます。"
+
+msgid "Ignore"
+msgstr "無視"
+
+msgid "Ignore Success"
+msgstr "無視成功"
+
+msgid "Ignored"
+msgstr "無視済み"
+
+msgid "Import"
+msgstr "インポート"
+
+msgid "Import / Export Settings"
+msgstr "設定のインポート/エクスポート"
+
+msgid "Import From File"
+msgstr "ファイルからインポート"
+
+msgid "Import From Site"
+msgstr "サイトからインポート"
+
+msgid "Import Options"
+msgstr "設定をインポート"
+
+msgid "Import Settings From Another Site"
+msgstr "別のサイトから設定をインポート"
+
+msgid "Import file was empty"
+msgstr "インポートファイルが空でした"
+
+msgid "Import/Export"
+msgstr "インポート/エクスポート"
+
+msgid "Important"
+msgstr "重要"
+
+msgid "Important default settings used throughout the plugin."
+msgstr "プラグイン全体で使用される重要な初期設定。"
+
+msgid "Important: %s"
+msgstr "重要: %s"
+
+msgid "Imported"
+msgstr "インポート済み"
+
+msgid "Inactive"
+msgstr "無効"
+
+msgid "Inactive Plugins"
+msgstr "無効なプラグイン"
+
+msgid "Inactive Plugins (%s)"
+msgstr "無効なプラグイン (%s)"
+
+msgid "Inactive Themes"
+msgstr "無効なテーマ"
+
+msgid "Inactive User Accounts"
+msgstr "無効なユーザーアカウント"
+
+msgid "Includes protection for: "
+msgstr "次の保護が含まれます:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "IP アドレス %s の情報"
+
+msgid "Install Shield"
+msgstr "Shield をインストール"
+
+msgid "Installed"
+msgstr "インストール済み"
+
+msgid "Integrations"
+msgstr "統合"
+
+msgid "Interval"
+msgstr "間隔"
+
+msgid "Invalid"
+msgstr "無効"
+
+msgid "Invalid Login Username"
+msgstr "無効なログインユーザー名"
+
+msgid "Invalid Logins"
+msgstr "無効なログイン"
+
+msgid "Invalid Request ID"
+msgstr "無効なリクエスト ID"
+
+msgid "Invalid Rule"
+msgstr "無効なルール"
+
+msgid "Invalid Script Access"
+msgstr "無効なスクリプトアクセス"
+
+msgid "Invalid Script Load"
+msgstr "無効なスクリプト読み込み"
+
+msgid "Invalid Slug"
+msgstr "無効なスラッグ"
+
+msgid "Invalid User Agent"
+msgstr "無効な User Agent"
+
+msgid "Invalid User Email Registration"
+msgstr "無効なユーザーメール登録"
+
+msgid "Invalid User-Agent"
+msgstr "無効な User-Agent"
+
+msgid "Invalid Username Login"
+msgstr "無効なユーザー名ログイン"
+
+msgid "Invalid download request."
+msgstr "無効なダウンロードリクエスト。"
+
+msgid "Invalid request - lockdown is not active."
+msgstr "無効なリクエスト - ロックダウンは有効ではありません。"
+
+msgid "Invalid request with no User ID"
+msgstr "ユーザー ID がない無効なリクエスト"
+
+msgid "Invalid type."
+msgstr "無効なタイプです。"
+
+msgid "Invalid user agent detected at '{{useragent}}'."
+msgstr "「{{useragent}}」で無効な User Agent が検出されました。"
+
+msgid "Invalid value type for %s"
+msgstr "%s の値タイプが無効です"
+
+msgid "Is Offense"
+msgstr "違反である"
+
+msgid "Is Request To The Login Page."
+msgstr "ログインページへのリクエストかどうか。"
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Shield トラフィックレート制限が有効かどうか。"
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Shield のサイトロックダウンが有効です。"
+
+msgid "Is The Shield Option Value..."
+msgstr "Shield オプション値は..."
+
+msgid "Is Visitor silentCAPTCHA Score ..."
+msgstr "訪問者の silentCAPTCHA スコアが..."
+
+msgid "Is WP Admin"
+msgstr "WP 管理画面かどうか"
+
+msgid "Is WP Debug Active"
+msgstr "WP デバッグが有効かどうか"
+
+msgid "Is WP Permalinks Enabled"
+msgstr "WP パーマリンクが有効かどうか"
+
+msgid "Is WP XML-RPC"
+msgstr "WP XML-RPC かどうか"
+
+msgid "Is a given 2FA provider enabled on the site."
+msgstr "指定された 2FA プロバイダーがサイトで有効化されているかどうか。"
+
+msgid "Is a given plugin installed & active."
+msgstr "指定されたプラグインがインストールされ、有効になっているかどうか。"
+
+msgid "Is a given plugin installed."
+msgstr "指定されたプラグインがインストールされているかどうか。"
+
+msgid "Is a given theme installed & active."
+msgstr "指定されたテーマがインストールされ、有効になっているかどうか。"
+
+msgid "Is a given theme installed."
+msgstr "指定されたテーマがインストールされているかどうか。"
+
+msgid "Is current logged-in user a WordPress administrator."
+msgstr "現在ログイン中のユーザーが WordPress 管理者かどうか。"
+
+msgid "Is current user Security Admin."
+msgstr "現在のユーザーが Security Admin かどうか。"
+
+msgid "Is current user a logged-in WordPress administrator."
+msgstr "現在のユーザーがログイン中の WordPress 管理者かどうか。"
+
+msgid "Is silentCAPTCHA score"
+msgstr "silentCAPTCHA スコアかどうか"
+
+msgid "Is the Shield plugin in \"forceoff\" state."
+msgstr "Shield プラグインが「forceoff」状態かどうか。"
+
+msgid "Is the request HTTPS."
+msgstr "リクエストが HTTPS かどうか"
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "リクエスト IP が Shield により自動または手動でブロックされているかどうか。"
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "リクエスト IP が Shield によりブラックリストに登録されているかどうか。"
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "リクエスト IP が Shield の CrowdSec ブロックリストにあるかどうか。"
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "リクエスト IP が Shield の手動ブロックリストにあるかどうか。"
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "リクエスト IP が Shield の自動ブロックリストにあるかどうか。"
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "リクエスト IP が Shield の手動バイパスリスト / ホワイトリストにあるかどうか。"
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "Shield のサイトロックダウン機能によりリクエストがブロックされています。"
+
+msgid "Is the request from a logged-in user."
+msgstr "ログイン中のユーザーからのリクエストかどうか。"
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "Shield Security Admin として認証されたユーザーからのリクエストかどうか。"
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "リクエストパスが Shield によりホワイトリストに登録されているかどうか。"
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "現在インストールされている WordPress プラグイン内のパスへのリクエストかどうか。"
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "現在インストールされている WordPress テーマ内のパスへのリクエストかどうか。"
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "インストールされている可能性がある WordPress プラグイン内のパスへのリクエストだが無効かどうか。"
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "インストールされている可能性がある WordPress プラグイン内のパスへのリクエストかどうか。"
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "インストールされている可能性がある WordPress テーマ内のパスへのリクエストだが無効かどうか。"
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "インストールされている可能性がある WordPress テーマ内のパスへのリクエストかどうか。"
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "WordPress XML-RPC エンドポイントへのリクエストかどうか。"
+
+msgid "Is the request to the WordPress admin area."
+msgstr "WordPress 管理エリアへのリクエストかどうか。"
+
+msgid "Is the request whitelisted?"
+msgstr "リクエストはホワイトリストに登録されていますか?"
+
+msgid "Is this a known IP address?"
+msgstr "既知の IP アドレスですか?"
+
+msgid "Is visiting bot of the given type."
+msgstr "指定されたタイプの Bot による訪問かどうか。"
+
+msgid "Issues"
+msgstr "問題"
+
+msgid "It appears that certain contact forms aren't protected against Bot SPAM: %s"
+msgstr "特定のコンタクトフォームが Bot スパムから保護されていないようです: %s"
+
+msgid "Key"
+msgstr "キー"
+
+msgid "Key set to expire: %s"
+msgstr "キーの有効期限: %s"
+
+msgid "Knowledgebase"
+msgstr "ナレッジベース"
+
+msgid "Label"
+msgstr "ラベル"
+
+msgid "Label For This IP Rule"
+msgstr "この IP ルールのラベル"
+
+msgid "Last Access"
+msgstr "最終アクセス"
+
+msgid "Last Access At"
+msgstr "最終アクセス日時"
+
+msgid "Last Activity"
+msgstr "最終アクティビティ"
+
+msgid "Last Activity At"
+msgstr "最終アクティビティ日時"
+
+msgid "Last Known IP"
+msgstr "最終既知 IP"
+
+msgid "Last Login"
+msgstr "最終ログイン"
+
+msgid "Last Offense"
+msgstr "最後の違反"
+
+msgid "Last Sync"
+msgstr "前回の同期"
+
+msgid "Learn More"
+msgstr "さらに詳しく"
+
+msgid "Learn More."
+msgstr "さらに詳しく。"
+
+msgid "Level"
+msgstr "レベル"
+
+msgid "License"
+msgstr "ライセンス"
+
+msgid "License Check Success"
+msgstr "ライセンスチェック成功"
+
+msgid "License Deactivated"
+msgstr "ライセンス無効化済み"
+
+msgid "License Summary"
+msgstr "ライセンス概要"
+
+msgid "Lifetime"
+msgstr "有効期間"
+
+msgid "Light"
+msgstr "ライト"
+
+msgid "Limit requests to your site based on the your rate-limiting settings."
+msgstr "レート制限設定に基づいてサイトへのリクエストを制限します。"
+
+msgid "Link Cheese"
+msgstr "Link Cheese"
+
+msgid "Link cheese access detected at '{{path}}'."
+msgstr "「{{path}}」で Link Cheese アクセスが検出されました。"
+
+msgid "Link-Cheese"
+msgstr "Link-Cheese"
+
+msgid "Load"
+msgstr "読み込み"
+
+msgid "Loaded"
+msgstr "読み込み済み"
+
+msgid "Loading"
+msgstr "読み込み中"
+
+msgid "Locale"
+msgstr "ロケール"
+
+msgid "Location"
+msgstr "場所"
+
+msgid "Lock Files Against Tampering And Changes"
+msgstr "改ざんや変更からファイルをロック"
+
+msgid "Lock Files Against Tampering and Changes"
+msgstr "改ざんと変更からファイルをロック"
+
+msgid "Lock User Sessions To "
+msgstr "ユーザーセッションをロック"
+
+msgid "Lock user sessions to IP address detected at login"
+msgstr "ログイン時に検出された IP アドレスにユーザーセッションをロック"
+
+msgid "Lock user sessions to browser detected at login"
+msgstr "ログイン時に検出されたブラウザにユーザーセッションをロック"
+
+msgid "Lockdown The Site"
+msgstr "サイトをロックダウン"
+
+msgid "Lockdown activated by:"
+msgstr "ロックダウンを有効化したユーザー:"
+
+msgid "Lockdown started:"
+msgstr "ロックダウン開始:"
+
+msgid "Locked"
+msgstr "ロック済み"
+
+msgid "Locked Files"
+msgstr "ロック済みファイル"
+
+msgid "Logged At"
+msgstr "ログイン日時"
+
+msgid "Logged In At"
+msgstr "ログイン日時"
+
+msgid "Logged-In"
+msgstr "ログイン済み"
+
+msgid "Logged-In At"
+msgstr "ログイン中の日時"
+
+msgid "Logging Level"
+msgstr "ログレベル"
+
+msgid "Logging isn't currently available on this site."
+msgstr "このサイトでは現在ログ記録が利用できません。"
+
+msgid "Login"
+msgstr "ログイン"
+
+msgid "Login Blocked"
+msgstr "ログインブロック済み"
+
+msgid "Login Bot Protection"
+msgstr "ログインボット保護"
+
+msgid "Login Cooldown"
+msgstr "ログインクールダウン"
+
+msgid "Login Cooldown Interval"
+msgstr "ログインクールダウン間隔"
+
+msgid "Login Details"
+msgstr "ログイン詳細"
+
+msgid "Login Fail"
+msgstr "ログイン失敗"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "ログイン IP"
+
+msgid "Login Page"
+msgstr "ログインページ"
+
+msgid "Login Protection"
+msgstr "ログイン保護"
+
+msgid "Login Security"
+msgstr "ログインセキュリティ"
+
+msgid "Login Success"
+msgstr "ログイン成功"
+
+msgid "Login backup codes have been removed from your profile"
+msgstr "ログインバックアップコードがプロフィールから削除されました"
+
+msgid "Login page loaded"
+msgstr "ログインページ読み込み"
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "ログイン、登録、パスワード紛失フォーム"
+
+msgid "Lost Password"
+msgstr "パスワードを忘れた場合"
+
+msgid "Lost Password Blocked"
+msgstr "パスワード紛失をブロック"
+
+msgid "Lost Password Bot Protection"
+msgstr "パスワード紛失 Bot 保護"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "Bot によるパスワード紛失スパムは silentCAPTCHA によりブロックされています。"
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "Bot によるパスワード紛失スパムは silentCAPTCHA によりブロックされていません。"
+
+msgid "MainWP Option Not Enabled"
+msgstr "MainWP オプションが有効になっていません"
+
+msgid "Malware"
+msgstr "マルウェア"
+
+msgid "Malware Details"
+msgstr "マルウェア詳細"
+
+msgid "Malware File Tracking"
+msgstr "マルウェアファイルトラッキング"
+
+msgid "Malware Scanner"
+msgstr "マルウェアスキャナー"
+
+msgid "Malware status of this file is currently"
+msgstr "このファイルのマルウェアステータスは現在"
+
+msgid "Manage"
+msgstr "管理"
+
+msgid "Manage IP Rules"
+msgstr "IP ルールを管理"
+
+msgid "Manage Rules"
+msgstr "ルールを管理"
+
+msgid "Manual Block"
+msgstr "手動ブロック"
+
+msgid "Manual Code"
+msgstr "手動コード"
+
+msgid "Manually Suspended"
+msgstr "手動停止"
+
+msgid "Master Import Site"
+msgstr "マスターインポートサイト"
+
+msgid "Master Site URL"
+msgstr "マスターサイト URL"
+
+msgid "Master Site URL set: {{site}}"
+msgstr "マスターサイト URL を設定: {{site}}"
+
+msgid "Match Bot Type"
+msgstr "Bot タイプと一致"
+
+msgid "Match Patterns"
+msgstr "一致パターン"
+
+msgid "Match Type"
+msgstr "一致タイプ"
+
+msgid "Match User Email Address"
+msgstr "ユーザーメールアドレスと一致"
+
+msgid "Match User ID"
+msgstr "ユーザー ID と一致"
+
+msgid "Match Useragent"
+msgstr "ユーザーエージェント一致"
+
+msgid "Match Username"
+msgstr "ユーザー名と一致"
+
+msgid "Match the username for currently logged-in user."
+msgstr "現在ログインしているユーザーのユーザー名と一致させます。"
+
+msgid "Maximum Number Of Requests Allowed In Time Limit"
+msgstr "時間制限内で許可されるリクエストの最大数"
+
+msgid "Media"
+msgstr "メディア"
+
+msgid "Medium"
+msgstr "中"
+
+msgid "Membership"
+msgstr "メンバーシップ"
+
+msgid "Menu Icon"
+msgstr "メニューアイコン"
+
+msgid "Menu Icon URL"
+msgstr "メニューアイコン URL"
+
+msgid "Menu Title"
+msgstr "メニュータイトル"
+
+msgid "Meta"
+msgstr "メタ情報"
+
+msgid "Meta Key"
+msgstr "メタキー"
+
+msgid "Meta Value"
+msgstr "メタ値"
+
+msgid "Meta Value To Match"
+msgstr "一致させるメタ値"
+
+msgid "Method"
+msgstr "方法"
+
+msgid "Minutes"
+msgstr "分"
+
+msgid "Missing"
+msgstr "見つかりません"
+
+msgid "Mode"
+msgstr "モード"
+
+msgid "Modified"
+msgstr "変更済み"
+
+msgid "Modified File"
+msgstr "変更済みファイル"
+
+msgid "Monthly"
+msgstr "月次"
+
+msgid "More Info"
+msgstr "さらに詳しく"
+
+msgid "Multisite"
+msgstr "マルチサイト"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "NO TITLE"
+msgstr "タイトルなし"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Name: <code>%s</code>"
+msgstr "名前: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "ナビゲーション"
+
+msgid "Never"
+msgstr "なし"
+
+msgid "Never Recorded"
+msgstr "記録なし"
+
+msgid "New"
+msgstr "新規"
+
+msgid "New Admin(s)"
+msgstr "新規管理者"
+
+msgid "New Comment"
+msgstr "新規コメント"
+
+msgid "New Results"
+msgstr "新規結果"
+
+msgid "New User Default Role"
+msgstr "新規ユーザーのデフォルト権限グループ"
+
+msgid "New WordPress user registered."
+msgstr "新しい WordPress ユーザーが登録されました。"
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "新しいユーザー名は '{{user_login}}' でメールアドレスは '{{email}}' です。"
+
+msgid "No"
+msgstr "いいえ"
+
+msgid "No Change"
+msgstr "変更なし"
+
+msgid "No Issues"
+msgstr "問題なし"
+
+msgid "No Name Yet"
+msgstr "名前未設定"
+
+msgid "No Title"
+msgstr "タイトルなし"
+
+msgid "No active providers for user."
+msgstr "ユーザーの有効なプロバイダーがありません。"
+
+msgid "No activity logged for this IP address"
+msgstr "この IP アドレスのアクティビティはログに記録されていません"
+
+msgid "No content yet"
+msgstr "コンテンツがありません"
+
+msgid "No email address - No Notification."
+msgstr "メールアドレスなし - 通知なし。"
+
+msgid "No email provider for user."
+msgstr "ユーザーのメールプロバイダーがありません。"
+
+msgid "No license to remove."
+msgstr "削除するライセンスがありません。"
+
+msgid "No meta available"
+msgstr "利用可能なメタ情報がありません"
+
+msgid "No modules specified in the plugin config."
+msgstr "プラグイン設定でモジュールが指定されていません。"
+
+msgid "No new session activity recorded yet."
+msgstr "新しいセッションアクティビティはまだ記録されていません。"
+
+msgid "No reports have been generated yet."
+msgstr "レポートはまだ生成されていません。"
+
+msgid "No requests logged for this IP address"
+msgstr "この IP アドレスのリクエストはログに記録されていません"
+
+msgid "No sessions recorded for this IP address"
+msgstr "この IP アドレスのセッションは記録されていません"
+
+msgid "No site activity recorded yet."
+msgstr "サイトアクティビティはまだ記録されていません。"
+
+msgid "No such user"
+msgstr "該当ユーザーなし"
+
+msgid "No value set."
+msgstr "値が設定されていません。"
+
+msgid "Noise"
+msgstr "ノイズ"
+
+msgid "None"
+msgstr "なし"
+
+msgid "Not Installed"
+msgstr "未インストール"
+
+msgid "Not Offense"
+msgstr "違反ではない"
+
+msgid "Not Pro"
+msgstr "PRO ではありません"
+
+msgid "Not Ready"
+msgstr "準備未完了"
+
+msgid "Not Recorded"
+msgstr "記録なし"
+
+msgid "Not a WordPress Core file"
+msgstr "WordPress コアファイルではありません"
+
+msgid "Not a plugin or theme file path."
+msgstr "プラグインまたはテーマファイルのパスではありません。"
+
+msgid "Not a valid IP range"
+msgstr "有効な IP 範囲ではありません"
+
+msgid "Not a valid option key."
+msgstr "有効なオプションキーではありません。"
+
+msgid "Not currently logged-in as security admin."
+msgstr "現在セキュリティ管理者としてログインしていません。"
+
+msgid "Not currently logged-in."
+msgstr "現在ログインしていません。"
+
+msgid "Not yet recorded"
+msgstr "まだ記録されていません"
+
+msgid "Note"
+msgstr "注意"
+
+msgid "Notice"
+msgstr "通知"
+
+msgid "Notice: %s"
+msgstr "通知: %s"
+
+msgid "Now"
+msgstr "今すぐ"
+
+msgid "Number of offenses"
+msgstr "違反回数"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Obscurity"
+msgstr "難読化"
+
+msgid "Off"
+msgstr "オフ"
+
+msgid "Offense"
+msgstr "違反"
+
+msgid "Offense Limit"
+msgstr "違反制限"
+
+msgid "Offense: %s"
+msgstr "違反: %s"
+
+msgid "Offenses"
+msgstr "違反"
+
+msgid "Offenses Limit"
+msgstr "違反制限"
+
+msgid "Offenses couldn't be reset at this time."
+msgstr "現時点では違反をリセットできませんでした。"
+
+msgid "On"
+msgstr "オン"
+
+msgid "One-Time Passwords"
+msgstr "ワンタイムパスワード"
+
+msgid "Options"
+msgstr "設定"
+
+msgid "Options Imported"
+msgstr "設定インポート済み"
+
+msgid "Options imported from site: {{site}}"
+msgstr "サイトからオプションをインポートしました: {{site}}"
+
+msgid "Override Maximum Session Lifetime"
+msgstr "セッション最大有効期間の上書き"
+
+msgid "Overview"
+msgstr "概要"
+
+msgid "Owner"
+msgstr "所有者"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP と MySQL"
+
+msgid "PHP Code"
+msgstr "PHP コード"
+
+msgid "PHP Code Includes"
+msgstr "PHP コードインクルード"
+
+msgid "PHP Malware"
+msgstr "PHP マルウェア"
+
+msgid "PHP Malware Scanner"
+msgstr "PHP マルウェアスキャナー"
+
+msgid "PHP Version"
+msgstr "PHP バージョン"
+
+msgid "PHP files aren't scanned for malware."
+msgstr "PHP ファイルはマルウェアのスキャンが行われていません。"
+
+msgid "PHP malware scanner isn't enabled."
+msgstr "PHP マルウェアスキャナーは有効化されていません。"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "ページ"
+
+msgid "Pages"
+msgstr "ページ"
+
+msgid "Parent"
+msgstr "親"
+
+msgid "Passkey authentication isn't available for this user."
+msgstr "このユーザーはパスキー認証を利用できません。"
+
+msgid "Passkey removed from your profile"
+msgstr "パスキーがプロフィールから削除されました"
+
+msgid "Passkeys"
+msgstr "パスキー"
+
+msgid "Passkeys aren't available for this user."
+msgstr "このユーザーはパスキーを利用できません。"
+
+msgid "Password Change Blocked"
+msgstr "パスワード変更をブロック"
+
+msgid "Password Expiration"
+msgstr "パスワード有効期限"
+
+msgid "Password Reset"
+msgstr "パスワードリセット"
+
+msgid "Password Updated"
+msgstr "パスワードが更新されました"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "ユーザー '{{user_login}}' のパスワードが更新されました。"
+
+msgid "Path"
+msgstr "パス"
+
+msgid "Path To Check"
+msgstr "チェックするパス"
+
+msgid "Path To Match"
+msgstr "一致させるパス"
+
+msgid "Path to plugin config (%s) doesn't exist. Please reinstall the plugin."
+msgstr "プラグイン設定 (%s) へのパスが存在しません。プラグインを再インストールしてください。"
+
+msgid "Permalinks"
+msgstr "パーマリンク"
+
+msgid "Permalinks Updated"
+msgstr "パーマリンク更新済み"
+
+msgid "Permanently Deleted"
+msgstr "完全に削除しました"
+
+msgid "Please check your license on-site: %s"
+msgstr "サイトでライセンスを確認してください: %s"
+
+msgid "Please contact site admin to request access if required."
+msgstr "必要に応じてサイト管理者に連絡してアクセスをリクエストしてください。"
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "サイト管理者に連絡して、IP アドレスのブロック解除をリクエストしてください。"
+
+msgid "Please delete the \"%s\" file to reactivate %s protection"
+msgstr "%s 保護を再有効化するには \"%s\" ファイルを削除してください"
+
+msgid "Please reset your password to regain access."
+msgstr "アクセスを回復するにはパスワードをリセットしてください。"
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "IP ルールタイプ (ブロックまたはバイパス) のいずれかを選択してください"
+
+msgid "Please select one of the options available"
+msgstr "利用可能なオプションから 1 つ選択してください"
+
+msgid "Please turn on this feature in the options."
+msgstr "オプションでこの機能を有効にしてください。"
+
+msgid "Please turn on this scan in the options."
+msgstr "オプションでこのスキャンを有効にしてください。"
+
+msgid "Please use one of %s."
+msgstr "%s のいずれかを使用してください。"
+
+msgid "Plugin"
+msgstr "プラグイン"
+
+msgid "Plugin & Theme Files"
+msgstr "プラグインとテーマファイル"
+
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
+msgstr "プラグイン「{{plugin}}」が有効化されました (v{{version}})。"
+
+msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
+msgstr "プラグイン「{{plugin}}」が無効化されました (v{{version}})。"
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "プラグイン「{{plugin}}」がインストールされました (v{{version}})。"
+
+msgid "Plugin '{{plugin}}' was uninstalled (v{{version}})."
+msgstr "プラグイン「{{plugin}}」がアンインストールされました (v{{version}})。"
+
+msgid "Plugin Activated"
+msgstr "プラグインを有効化"
+
+msgid "Plugin Badge Logo"
+msgstr "プラグインバッジロゴ"
+
+msgid "Plugin Badge Logo URL"
+msgstr "プラグインバッジロゴ URL"
+
+msgid "Plugin Deactivated"
+msgstr "プラグイン無効化済み"
+
+msgid "Plugin Defaults"
+msgstr "プラグイン初期設定"
+
+msgid "Plugin Files"
+msgstr "プラグインファイル"
+
+msgid "Plugin Home Page URL"
+msgstr "プラグインホームページ URL"
+
+msgid "Plugin Installed"
+msgstr "プラグインがインストールされました"
+
+msgid "Plugin Name"
+msgstr "プラグイン名"
+
+msgid "Plugin Option Changed"
+msgstr "プラグインオプションを変更しました"
+
+msgid "Plugin Security Badge"
+msgstr "プラグインセキュリティバッジ"
+
+msgid "Plugin Uninstalled"
+msgstr "プラグインをアンインストールしました"
+
+msgid "Plugin and Theme File Guard"
+msgstr "プラグインおよびテーマファイルガード"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "プラグインおよびテーマ脆弱性スキャナー"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "プラグインオプション「{{name}}」({{key}}) が「{{value}}」に更新されました。"
+
+msgid "Plugin re-installed. Reloading..."
+msgstr "プラグインを再インストールしました。再読み込み中..."
+
+msgid "Plugin reset to defaults."
+msgstr "プラグインが初期設定にリセットされました。"
+
+msgid "Plugin/Theme Guard"
+msgstr "プラグイン/テーマガード"
+
+msgid "Plugins"
+msgstr "プラグイン"
+
+msgid "Plugins With Updates"
+msgstr "更新があるプラグイン"
+
+msgid "Plugins and Themes are scanned for known vulnerabilities."
+msgstr "プラグインとテーマの既知の脆弱性をスキャンします。"
+
+msgid "Plugins and Themes aren't scanned for known vulnerabilities."
+msgstr "プラグインとテーマの既知の脆弱性はスキャンされません。"
+
+msgid "Plugins with known vulnerabilities are automatically updated to protect your site."
+msgstr "既知の脆弱性を持つプラグインは、サイトを保護するために自動的に更新されます。"
+
+msgid "Plugins with known vulnerabilities aren't automatically updated to protect your site."
+msgstr "既知の脆弱性を持つプラグインは、サイトを保護するために自動的に更新されません。"
+
+msgid "Plugins, Themes, WordPress Core"
+msgstr "プラグイン、テーマ、WordPress コア"
+
+msgid "Post Content Updated"
+msgstr "投稿コンテンツ更新済み"
+
+msgid "Post Created"
+msgstr "投稿作成済み"
+
+msgid "Post Deleted"
+msgstr "投稿削除済み"
+
+msgid "Post Published"
+msgstr "投稿公開済み"
+
+msgid "Post Slug Updated"
+msgstr "投稿スラッグ更新済み"
+
+msgid "Post Title Updated"
+msgstr "投稿タイトルを更新しました"
+
+msgid "Post Trashed"
+msgstr "投稿がゴミ箱に移動されました"
+
+msgid "Post Type: {{type}}"
+msgstr "投稿タイプ: {{type}}"
+
+msgid "Post Unpublished"
+msgstr "投稿非公開"
+
+msgid "Post Updated"
+msgstr "投稿が更新されました"
+
+msgid "Posts"
+msgstr "投稿"
+
+msgid "Powerful Protection for WordPress, from Shield Security"
+msgstr "Shield Security による WordPress の強力な保護"
+
+msgid "Predicted"
+msgstr "予測済み"
+
+msgid "Previous scans detected 1 or more modified, missing, unrecognised or unidentified files in the WordPress core directories."
+msgstr "以前のスキャンで WordPress コアディレクトリ内に 1 つ以上の変更、欠落、認識されない、または未識別のファイルが検出されました。"
+
+msgid "Print"
+msgstr "印刷"
+
+msgid "Priority"
+msgstr "優先度"
+
+msgid "Profile"
+msgstr "プロフィール"
+
+msgid "Protect Your Shield Plugin From Tampering"
+msgstr "Shield プラグインを改ざんから保護"
+
+msgid "Protect key WP core files that can't normally be protected."
+msgstr "通常は保護できない主要な WP コアファイルを保護します。"
+
+msgid "Protect password reset forms against bots"
+msgstr "パスワードリセットフォームを Bot から保護"
+
+msgid "Protect user login forms against bots"
+msgstr "ユーザーログインフォームを Bot から保護"
+
+msgid "Protect user registration forms against bots"
+msgstr "ユーザー登録フォームを Bot から保護"
+
+msgid "Protect your %s files"
+msgstr "%s ファイルを保護"
+
+msgid "Protected Forms"
+msgstr "保護されたフォーム"
+
+msgid "Protecting against the #1 source of <strong>Comment SPAM</strong>."
+msgstr "<strong>コメントスパム</strong>の最大の原因から保護します。"
+
+msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
+msgstr "ログイン、登録、パスワード紛失などの<strong>重要なユーザーフォーム</strong>を保護します。"
+
+msgid "Protection for user accounts."
+msgstr "ユーザーアカウントの保護。"
+
+msgid "Published"
+msgstr "公開済み"
+
+msgid "Purpose"
+msgstr "目的"
+
+msgid "Pwned passwords are blocked from being set by any user."
+msgstr "侵害されたパスワードはすべてのユーザーによる設定がブロックされています。"
+
+msgid "Query"
+msgstr "クエリー"
+
+msgid "Rate Limit Abusive Requests"
+msgstr "不正なリクエストをレート制限"
+
+msgid "Rate Limiting"
+msgstr "レート制限"
+
+msgid "Re-Install"
+msgstr "再インストール"
+
+msgid "Re-enable Protection."
+msgstr "保護を再有効化"
+
+msgid "Ready"
+msgstr "準備完了"
+
+msgid "Reason"
+msgstr "理由"
+
+msgid "Reason: %s"
+msgstr "理由: %s"
+
+msgid "Recommendation"
+msgstr "推奨事項"
+
+msgid "Recommendations"
+msgstr "推奨事項"
+
+msgid "Redirect Location"
+msgstr "リダイレクト場所"
+
+msgid "Redirect Status"
+msgstr "リダイレクト状態"
+
+msgid "Refresh"
+msgstr "更新"
+
+msgid "Register New Passkey"
+msgstr "新規パスキーを登録"
+
+msgid "Registered"
+msgstr "登録済み"
+
+msgid "Registered Passkeys"
+msgstr "登録済みパスキー"
+
+msgid "Registered Site"
+msgstr "登録済みサイト"
+
+msgid "Registration"
+msgstr "登録"
+
+msgid "Registration Blocked"
+msgstr "登録をブロック"
+
+msgid "Reloading"
+msgstr "再読み込み中"
+
+msgid "Reloading page"
+msgstr "ページを再読み込み中"
+
+msgid "Remove %s"
+msgstr "%s を削除"
+
+msgid "Remove All MFA Providers"
+msgstr "すべての MFA プロバイダーを削除"
+
+msgid "Remove All MFA Providers From This User Profile"
+msgstr "このユーザープロファイルからすべての MFA プロバイダーを削除"
+
+msgid "Remove IP Bypass"
+msgstr "IP バイパスを削除"
+
+msgid "Remove License"
+msgstr "ライセンスを削除"
+
+msgid "Removed the forceoff file."
+msgstr "forceoff ファイルを削除しました。"
+
+msgid "Repair"
+msgstr "修復"
+
+msgid "Repair Success"
+msgstr "修復成功"
+
+msgid "Repair/Delete Success"
+msgstr "修復/削除成功"
+
+msgid "Repaired"
+msgstr "修復済み"
+
+msgid "Reporting"
+msgstr "レポート"
+
+msgid "Reports"
+msgstr "レポート"
+
+msgid "Request Blocked"
+msgstr "リクエストブロック済み"
+
+msgid "Request Blocked by Firewall"
+msgstr "ファイアウォールによりリクエストをブロックしました"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "サイトロックダウンによりリクエストをブロックしました。"
+
+msgid "Request Details"
+msgstr "リクエスト詳細"
+
+msgid "Request Firewall"
+msgstr "リクエストファイアウォール"
+
+msgid "Request Firewall Options"
+msgstr "リクエストファイアウォール設定"
+
+msgid "Request ID"
+msgstr "リクエスト ID"
+
+msgid "Request Limit Interval"
+msgstr "リクエスト制限間隔"
+
+msgid "Request Limit Time Interval"
+msgstr "リクエスト制限時間間隔"
+
+msgid "Request Logging"
+msgstr "リクエストログ記録"
+
+msgid "Request Method"
+msgstr "リクエスト方法"
+
+msgid "Request Path"
+msgstr "リクエストパス"
+
+msgid "Request Path Whitelist"
+msgstr "リクエストパスホワイトリスト"
+
+msgid "Request Path Whitelist."
+msgstr "リクエストパスホワイトリスト。"
+
+msgid "Request Status"
+msgstr "リクエスト状態"
+
+msgid "Request Type"
+msgstr "リクエストタイプ"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "ファイアウォールルールによりリクエストをブロックしました: {{name}}。"
+
+msgid "Request logging is required when you have activated Traffic Rate Limiting."
+msgstr "トラフィックレート制限を有効化した場合はリクエストログ記録が必要です。"
+
+msgid "Requested At"
+msgstr "リクエスト日時"
+
+msgid "Requests"
+msgstr "リクエスト"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "この IP アドレスからのリクエストはブロックされます。"
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "この IP アドレスからのリクエストはすべてのセキュリティルールをバイパスします。"
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "サイトで XML-RPC エンドポイントへのリクエストが許可されています。"
+
+msgid "Reset"
+msgstr "リセット"
+
+msgid "Reset For This IP"
+msgstr "この IP をリセット"
+
+msgid "Response"
+msgstr "応答"
+
+msgid "Response Code"
+msgstr "応答コード"
+
+msgid "Restrict Access To Certain WordPress Admin Options"
+msgstr "特定の WordPress 管理オプションへのアクセスを制限"
+
+msgid "Restrict Access To Create/Delete/Modify Other Admin Users"
+msgstr "他の管理者ユーザーの作成/削除/変更へのアクセスを制限"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "主要な WordPress プラグインアクションへのアクセスを制限"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "主要な WordPress 投稿と固定ページアクションへのアクセスを制限"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "WordPress テーマアクションへのアクセスを制限"
+
+msgid "Restrict WP File Editing"
+msgstr "WP ファイル編集を制限"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "WP 管理ダッシュボード内でのファイル編集を制限"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "WordPress 管理エリア内からファイルを編集する機能を制限します。"
+
+msgid "Restricted"
+msgstr "制限付き"
+
+msgid "Restriction Details"
+msgstr "制限詳細"
+
+msgid "Results"
+msgstr "結果"
+
+msgid "Results & Manual Scans"
+msgstr "結果 & 手動スキャン"
+
+msgid "Results Display Options"
+msgstr "結果表示設定"
+
+msgid "Root index.php"
+msgstr "ルート index.php"
+
+msgid "Root index.php file isn't protected against tampering."
+msgstr "ルート index.php ファイルは改ざんから保護されていません。"
+
+msgid "Rule Activated"
+msgstr "ルールを有効化した"
+
+msgid "Rule Deactivated"
+msgstr "ルール無効化済み"
+
+msgid "Rule Reset"
+msgstr "ルールリセット"
+
+msgid "Rule Slug"
+msgstr "ルールスラッグ"
+
+msgid "Rule Type"
+msgstr "ルールタイプ"
+
+msgid "Rule deleted"
+msgstr "ルール削除済み"
+
+msgid "Rules"
+msgstr "ルール"
+
+msgid "Run"
+msgstr "実行"
+
+msgid "Run Database Repair"
+msgstr "データベース修復を実行"
+
+msgid "Run Import From Another Site"
+msgstr "別のサイトからインポートを実行"
+
+msgid "Run In MU Mode"
+msgstr "MU モードで実行"
+
+msgid "Run Plugin In Must-Use (MU) Mode"
+msgstr "プラグインを Must-Use (MU) モードで実行"
+
+msgid "Run Scans Now"
+msgstr "今すぐスキャンを実行"
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Authentication"
+msgstr "SMS 認証"
+
+msgid "SMS Registration Removed"
+msgstr "SMS 登録を削除しました"
+
+msgid "SPAM"
+msgstr "スパム"
+
+msgid "SPAM Blocked"
+msgstr "スパムブロック済み"
+
+msgid "SPAM Bot detected."
+msgstr "スパム Bot を検出しました。"
+
+msgid "SPAM Check Fail"
+msgstr "スパムチェック失敗"
+
+msgid "SPAM Detection"
+msgstr "スパム検出"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "Bot によるスパムと大量ユーザー登録は silentCAPTCHA によりブロックされています。"
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "Bot によるスパムと大量ユーザー登録は silentCAPTCHA によりブロックされていません。"
+
+msgid "Scan your site for file changes, malware and vulnerabilities."
+msgstr "サイトをファイル変更、マルウェア、脆弱性についてスキャンします。"
+
+msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
+msgstr "プラグインとテーマファイルのスキャンは ShieldPRO でのみ利用可能です。"
+
+msgid "Scanning for PHP Malware is only available with ShieldPRO."
+msgstr "PHP マルウェアのスキャンは ShieldPRO でのみ利用可能です。"
+
+msgid "Scans"
+msgstr "スキャン"
+
+msgid "Scans Plugins For Known Vulnerabilities"
+msgstr "プラグインの既知の脆弱性をスキャン"
+
+msgid "Scans all PHP files for malware patterns."
+msgstr "すべての PHP ファイルをマルウェアパターンでスキャンします。"
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "現在の WordPress バージョンのすべての WP ファイルをスキャンします。"
+
+msgid "Scans detected 1 or more modified or unrecognised files in the theme directory."
+msgstr "スキャンでテーマディレクトリ内に 1 つ以上の変更または認識されないファイルが検出されました。"
+
+msgid "Scans detected modified or unrecognised files in the plugin directory."
+msgstr "スキャンでプラグインディレクトリ内に変更または認識されないファイルが検出されました。"
+
+msgid "Scans detected modified/unrecognised files"
+msgstr "スキャンで変更 / 認識されないファイルが検出されました"
+
+msgid "Scans didn't detect any modified or unrecognised files in the Theme directories."
+msgstr "スキャンでテーマディレクトリ内に変更または認識されないファイルは検出されませんでした。"
+
+msgid "Scans didn't detect any modified or unrecognised files in the plugin directory."
+msgstr "スキャンでプラグインディレクトリ内に変更または認識されないファイルは検出されませんでした。"
+
+msgid "Scans for file tampering within plugin directories."
+msgstr "プラグインディレクトリ内のファイル改ざんをスキャンします。"
+
+msgid "Scans for file tampering within the active theme."
+msgstr "有効なテーマ内のファイル改ざんをスキャンします。"
+
+msgid "Scans started."
+msgstr "スキャンが開始されました。"
+
+msgid "Score"
+msgstr "スコア"
+
+msgid "Script Name To Match"
+msgstr "一致させるスクリプト名"
+
+msgid "Seconds"
+msgstr "秒"
+
+msgid "Security"
+msgstr "セキュリティ"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin 有効化済み"
+
+msgid "Security Admin Login"
+msgstr "Security Admin ログイン"
+
+msgid "Security Admin Protection"
+msgstr "Security Admin 保護"
+
+msgid "Security Admin Restriction Settings"
+msgstr "Security Admin 制限設定"
+
+msgid "Security Admin Restriction Zones"
+msgstr "Security Admin 制限ゾーン"
+
+msgid "Security Admin Settings"
+msgstr "Security Admin 設定"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin が有効になりました"
+
+msgid "Security Admin restrictions have been removed"
+msgstr "Security Admin 制限が解除されました"
+
+msgid "Security Admins"
+msgstr "セキュリティ管理者"
+
+msgid "Security Analysis"
+msgstr "セキュリティ分析"
+
+msgid "Security At A Glance"
+msgstr "セキュリティ概要"
+
+msgid "Security Dashboard"
+msgstr "セキュリティダッシュボード"
+
+msgid "Security Overview"
+msgstr "セキュリティ概要"
+
+msgid "Security Plugin Protection"
+msgstr "セキュリティプラグイン保護"
+
+msgid "Security Profile"
+msgstr "セキュリティプロフィール"
+
+msgid "Security Reports"
+msgstr "セキュリティレポート"
+
+msgid "Security Reports."
+msgstr "セキュリティレポート。"
+
+msgid "Security Rules"
+msgstr "セキュリティルール"
+
+msgid "Security Stats"
+msgstr "セキュリティ統計"
+
+msgid "Security Tools"
+msgstr "セキュリティツール"
+
+msgid "Security Zones"
+msgstr "セキュリティゾーン"
+
+msgid "Security Zones Config"
+msgstr "セキュリティゾーン設定"
+
+msgid "Select"
+msgstr "選択"
+
+msgid "Select Scans To Run"
+msgstr "実行するスキャンを選択"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM"
+msgstr "スパムをチェックするフォームプロバイダーを選択"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM."
+msgstr "スパムをチェックするフォームプロバイダーを選択してください。"
+
+msgid "Select The Form Providers That You Use"
+msgstr "使用するフォームプロバイダーを選択"
+
+msgid "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
+msgstr "スパム登録とログインをチェックするユーザーフォームプロバイダーを選択"
+
+msgid "Select The User Forms Provider That You Use"
+msgstr "使用するユーザーフォームプロバイダーを選択"
+
+msgid "Select Which Areas Should Be Scanned"
+msgstr "スキャンするエリアを選択"
+
+msgid "Select file to import options from"
+msgstr "オプションをインポートするファイルを選択"
+
+msgid "Select which user forms should be protected against brute-force attacks."
+msgstr "ブルートフォース攻撃から保護するユーザーフォームを選択してください。"
+
+msgid "Sent notifications to whitelisted sites for required options import."
+msgstr "必要なオプションインポートのためにホワイトリストサイトに通知を送信しました。"
+
+msgid "Session Duration"
+msgstr "セッション期間"
+
+msgid "Session Idle"
+msgstr "セッションアイドル"
+
+msgid "Session Lifetime Override"
+msgstr "セッション有効期間の上書き"
+
+msgid "Session Lock"
+msgstr "セッションロック"
+
+msgid "Session Locked"
+msgstr "セッションロック済み"
+
+msgid "Session Started"
+msgstr "セッション開始"
+
+msgid "Session Terminated"
+msgstr "セッション終了"
+
+msgid "Session lock"
+msgstr "セッションロック"
+
+msgid "Session started for user ({{user_login}}) with session ID {{session_id}}."
+msgstr "ユーザー ({{user_login}}) のセッションがセッション ID {{session_id}} で開始されました。"
+
+msgid "Session terminated."
+msgstr "セッションが終了しました。"
+
+msgid "Sessions"
+msgstr "セッション"
+
+msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
+msgstr "訪問者の IP が自動的にブロックされるまでに許可される違反の制限を設定します。"
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "%s 機能を無効にするには「0」に設定してください。"
+
+msgid "Set to %s to turn off this option."
+msgstr "このオプションを無効にするには %s に設定してください。"
+
+msgid "Settings that apply to all comment SPAM scanning."
+msgstr "すべてのコメントスパムスキャンに適用される設定。"
+
+msgid "Setup Your Security Zones"
+msgstr "セキュリティゾーンを設定"
+
+msgid "Severity"
+msgstr "重要度"
+
+msgid "Shield 2FA Provider Enabled"
+msgstr "Shield 2FA プロバイダーを有効化しました"
+
+msgid "Shield Deactivated"
+msgstr "Shield 無効化済み"
+
+msgid "Shield Events & Stats"
+msgstr "Shield イベント & 統計"
+
+msgid "Shield Info"
+msgstr "Shield Info"
+
+msgid "Shield Option Key"
+msgstr "Shield オプションキー"
+
+msgid "Shield Security Home Page"
+msgstr "Shield Security ホームページ"
+
+msgid "Shield Security plugin is installed but not activated."
+msgstr "Shield Security プラグインはインストールされていますが、有効化されていません。"
+
+msgid "Shield Security plugin not detected in last sync."
+msgstr "前回の同期で Shield Security プラグインが検出されませんでした。"
+
+msgid "Shield User 2FA Provider Activated"
+msgstr "Shield ユーザー 2FA プロバイダーを有効化しました"
+
+msgid "Shield User 2FA: Has Any Active"
+msgstr "Shield ユーザー 2FA: アクティブなものがあります"
+
+msgid "Shield White Label"
+msgstr "Shield ホワイトラベル"
+
+msgid "Shield isn't installed on this site."
+msgstr "このサイトに Shield はインストールされていません。"
+
+msgid "Shield plugin activated"
+msgstr "Shield プラグインを有効化しました"
+
+msgid "Shield plugin couldn't be activated"
+msgstr "Shield プラグインを有効化できませんでした"
+
+msgid "Shield plugin couldn't be deactivated"
+msgstr "Shield プラグインを無効化できませんでした"
+
+msgid "Shield plugin couldn't be installed"
+msgstr "Shield プラグインをインストールできませんでした"
+
+msgid "Shield plugin couldn't be updated"
+msgstr "Shield プラグインを更新できませんでした"
+
+msgid "Shield plugin deactivated"
+msgstr "Shield プラグイン無効化済み"
+
+msgid "Shield plugin installed"
+msgstr "Shield プラグインインストール済み"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Shield プラグインはインストールされていますが、有効ではありません。"
+
+msgid "Shield plugin updated"
+msgstr "Shield プラグインを更新しました"
+
+msgid "ShieldBACKUPS"
+msgstr "ShieldBACKUPS"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO isn't activated on this site."
+msgstr "このサイトで ShieldPRO は有効化されていません。"
+
+msgid "Should be uninstalled"
+msgstr "アンインストールする必要があります"
+
+msgid "Signal"
+msgstr "シグナル"
+
+msgid "Since"
+msgstr "以降"
+
+msgid "Site"
+msgstr "サイト"
+
+msgid "Site Address (URL)"
+msgstr "サイトアドレス (URL)"
+
+msgid "Site Admin Email"
+msgstr "サイト管理者メールアドレス"
+
+msgid "Site In Lockdown"
+msgstr "サイトはロックダウン中"
+
+msgid "Site Is In Lockdown"
+msgstr "サイトはロックダウン中です"
+
+msgid "Site Is Under Lockdown"
+msgstr "サイトはロックダウン中です"
+
+msgid "Site Lockdown"
+msgstr "サイトロックダウン"
+
+msgid "Site Lockdown Started"
+msgstr "サイトロックダウン開始"
+
+msgid "Site Lockdown and Firewall"
+msgstr "サイトロックダウンおよびファイアウォール"
+
+msgid "Site Scanning"
+msgstr "サイトスキャン"
+
+msgid "Site Security Summary"
+msgstr "サイトセキュリティ概要"
+
+msgid "Site Snapshots"
+msgstr "サイトスナップショット"
+
+msgid "Site Tagline"
+msgstr "サイトのキャッチフレーズ"
+
+msgid "Site Title"
+msgstr "サイトタイトル"
+
+msgid "Site URL"
+msgstr "サイト URL"
+
+msgid "Site URL Changed"
+msgstr "サイト URL 変更"
+
+msgid "Site added to export white list: {{site}}"
+msgstr "サイトをエクスポートホワイトリストに追加しました: {{site}}"
+
+msgid "Site removed from export white list: {{site}}"
+msgstr "サイトをエクスポートホワイトリストから削除しました: {{site}}"
+
+msgid "Sites"
+msgstr "サイト"
+
+msgid "Size"
+msgstr "サイズ"
+
+msgid "Slug"
+msgstr "スラッグ"
+
+msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
+msgstr "投稿 ID {{post_id}} のスラッグが「{{slug_old}}」から「{{slug_new}}」に更新されました。"
+
+msgid "Snapshots"
+msgstr "スナップショット"
+
+msgid "Statistics"
+msgstr "統計情報"
+
+msgid "Stats"
+msgstr "統計"
+
+msgid "Status"
+msgstr "状態"
+
+msgid "Strong"
+msgstr "強"
+
+msgid "Strong Passwords"
+msgstr "強力なパスワード"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Summary"
+msgstr "概要"
+
+msgid "Summary Generated"
+msgstr "概要生成済み"
+
+msgid "Summary Security Reports."
+msgstr "サマリーセキュリティレポート。"
+
+msgid "Suspended"
+msgstr "停止中"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "すべてのセキュリティ保護を無効化するにはオフに切り替え"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "CrowdSec IP ブロックリストのオン / オフを切り替え"
+
+msgid "Switch on/off SPAM protection for your favourite contact forms plugin"
+msgstr "お気に入りのお問い合わせフォームプラグインのスパム保護のオン / オフを切り替え"
+
+msgid "Switch on/off ability of admins to manage other admin accounts"
+msgstr "管理者が他の管理者アカウントを管理する機能のオン / オフを切り替え"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "重要な WP 設定の編集機能のオン / オフを切り替え"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "XML-RPC エンドポイントへのアクセスのオン / オフを切り替え"
+
+msgid "Switch on/off automatic scanning for vulnerabilities"
+msgstr "脆弱性の自動スキャンのオン / オフを切り替え"
+
+msgid "Switch on/off file editing within WP"
+msgstr "WP 内でのファイル編集のオン / オフを切り替え"
+
+msgid "Switch on/off username fishing detection"
+msgstr "ユーザー名フィッシング検出のオン / オフを切り替え"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "すべてのサイトトラフィックのログ記録を有効にします。"
+
+msgid "Sync Required"
+msgstr "同期が必要"
+
+msgid "Sync Required."
+msgstr "同期が必要です。"
+
+msgid "Sync Shield"
+msgstr "Shield を同期"
+
+msgid "Tagline"
+msgstr "キャッチフレーズ"
+
+msgid "Thanks!"
+msgstr "ありがとう!"
+
+msgid "Thanks! - Please check your email for confirmation."
+msgstr "ありがとうございます! - 確認メールをご確認ください。"
+
+msgid "Thanks."
+msgstr "ありがとう。"
+
+msgid "The %s query parameter has been blocked to protect against username / author fishing."
+msgstr "%s クエリパラメータは、ユーザー名/著者の探索から保護するためにブロックされました。"
+
+msgid "The Description Of The Plugin"
+msgstr "プラグインの説明"
+
+msgid "The IP may not be blocked yet."
+msgstr "IP はまだブロックされていない可能性があります。"
+
+msgid "The Name Of The Plugin"
+msgstr "プラグインの名前"
+
+msgid "The Name Of The Plugin."
+msgstr "プラグインの名前。"
+
+msgid "The Security Administrator has restricted the use of the email override feature."
+msgstr "セキュリティ管理者がメールオーバーライド機能の使用を制限しています。"
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "セキュリティバッジが訪問者に表示されます"
+
+msgid "The Security Badge won't be displayed to your visitors"
+msgstr "セキュリティバッジは訪問者に表示されません"
+
+msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
+msgstr "このサイトの Shield プラグインには有効な ShieldPRO ライセンスがありません。"
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "メニューに表示されるアイコンの URL。"
+
+msgid "The URL of the icon to display in the menu."
+msgstr "メニューに表示するアイコンの URL。"
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "プラグインバッジに表示するロゴの URL。"
+
+msgid "The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page."
+msgstr "ダッシュボードおよび二要素認証ログインページに表示するロゴの URL。"
+
+msgid "The country code was missing."
+msgstr "国コードが見つかりませんでした。"
+
+msgid "The current request has a valid Shield user session"
+msgstr "現在のリクエストに有効な Shield ユーザーセッションがあります"
+
+msgid "The default 'admin' user is no longer available."
+msgstr "デフォルトの「admin」ユーザーは利用できなくなりました。"
+
+msgid "The default 'admin' user is still available."
+msgstr "デフォルトの「admin」ユーザーがまだ利用可能です。"
+
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
+msgstr "新規ユーザーのデフォルトロールが「{{from}}」から「{{to}}」に変更されました。"
+
+msgid "The description of the plugin displayed on the plugins page."
+msgstr "プラグインページに表示されるプラグインの説明。"
+
+msgid "The email address specified in %s's General settings will be used."
+msgstr "%s の一般設定で指定されたメールアドレスが使用されます。"
+
+msgid "The email has been sent to you at blog admin address: %s"
+msgstr "メールはブログ管理者アドレスに送信されました: %s"
+
+msgid "The file is empty."
+msgstr "ファイルが空です。"
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "ホーム URL が「{{from}}」から「{{to}}」に変更されました。"
+
+msgid "The maximum number of requests that are allowed in the given time limit."
+msgstr "指定された時間制限内で許可されるリクエストの最大数。"
+
+msgid "The maximum number of requests that are allowed within the given request time limit."
+msgstr "指定されたリクエスト時間制限内で許可されるリクエストの最大数です。"
+
+msgid "The name of the plugin that will be displayed to your site users."
+msgstr "サイトユーザーに表示されるプラグインの名前。"
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "サイトへの登録を誰でも可能にするオプションが「{{from}}」から「{{to}}」に更新されました。"
+
+msgid "The plugin defaults to the site administration email address, which is: %s"
+msgstr "プラグインの初期設定はサイト管理メールアドレスで、次の通りです: %s"
+
+msgid "The security plugin is protected against tampering."
+msgstr "セキュリティプラグインは改ざんから保護されています。"
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "セキュリティプラグインは改ざんから保護されていません。"
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "silentCAPTCHA オプションが無効になっているため、ログイン、登録、パスワード紛失フォームのブルートフォース保護が削除されます。"
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "silentCAPTCHA オプションが有効になっています。"
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "サイト URL が「{{from}}」から「{{to}}」に変更されました。"
+
+msgid "Theme"
+msgstr "テーマ"
+
+msgid "Theme '{{theme}}' was activated."
+msgstr "テーマ「{{theme}}」が有効化されました。"
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "テーマ「{{theme}}」がインストールされました。"
+
+msgid "Theme '{{theme}}' was uninstalled (v{{version}})."
+msgstr "テーマ「{{theme}}」がアンインストールされました (v{{version}})。"
+
+msgid "Theme Activated"
+msgstr "テーマを有効化"
+
+msgid "Theme Files"
+msgstr "テーマファイル"
+
+msgid "Theme Installed"
+msgstr "テーマがインストールされました"
+
+msgid "Theme Uninstalled"
+msgstr "テーマをアンインストールしました"
+
+msgid "Theme directory name to check"
+msgstr "確認するテーマディレクトリ名"
+
+msgid "Theme version doesn't appear to exist."
+msgstr "テーマバージョンが存在しないようです。"
+
+msgid "Themes"
+msgstr "テーマ"
+
+msgid "Themes With Updates"
+msgstr "更新があるテーマ"
+
+msgid "Then"
+msgstr "次に"
+
+msgid "Then Activate"
+msgstr "次に有効化"
+
+msgid "There appears to be at least %s abandoned plugin(s) installed on your site."
+msgstr "サイトに少なくとも %s 個の放置されたプラグインがインストールされているようです。"
+
+msgid "There appears to be at least 1 PHP malware file on your site."
+msgstr "サイトに少なくとも 1 つの PHP マルウェアファイルがあるようです。"
+
+msgid "There appears to be at least 1 vulnerable plugin or theme installed on your site."
+msgstr "サイトに少なくとも 1 つの脆弱なプラグインまたはテーマがインストールされているようです。"
+
+msgid "There are currently no 2FA providers available on your account."
+msgstr "現在、アカウントで利用可能な 2FA プロバイダーはありません。"
+
+msgid "There are no IPs available yet."
+msgstr "利用可能な IP はまだありません。"
+
+msgid "There are no MFA providers active on this user account."
+msgstr "このユーザーアカウントにはアクティブな MFA プロバイダーがありません。"
+
+msgid "There are no active 2FA providers."
+msgstr "有効な 2FA プロバイダーがありません。"
+
+msgid "There are no bot signals for this IP address."
+msgstr "この IP アドレスの Bot シグナルはありません。"
+
+msgid "There are no custom security rules"
+msgstr "カスタムセキュリティルールがありません"
+
+msgid "There are no important security notices at this time."
+msgstr "現時点で重要なセキュリティ通知はありません。"
+
+msgid "There are no registered Yubikey devices on this profile."
+msgstr "このプロフィールに登録された Yubikey デバイスはありません。"
+
+msgid "There doesn't appear to be any PHP malware files on your site."
+msgstr "サイトに PHP マルウェアファイルは見つかりませんでした。"
+
+msgid "There doesn't appear to be any abandoned plugins on your site."
+msgstr "サイトに放置されたプラグインは見つかりませんでした。"
+
+msgid "There doesn't appear to be any plugins or themes with known vulnerabilities."
+msgstr "既知の脆弱性を持つプラグインやテーマは見つかりませんでした。"
+
+msgid "There have been no changes to the selected file."
+msgstr "選択したファイルに変更はありません。"
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "人間が投稿する WP コメントスパムに対する保護がありません。"
+
+msgid "There is no user currently logged-in."
+msgstr "現在ログインしているユーザーはいません。"
+
+msgid "This Is You"
+msgstr "あなたです"
+
+msgid "This Page"
+msgstr "このページ"
+
+msgid "This Site Is Protected By %s"
+msgstr "このサイトは %s により保護されています"
+
+msgid "This action is unavailable for your profile at this time."
+msgstr "このアクションは現在プロフィールで利用できません。"
+
+msgid "This doesn't appear to be a valid Yubikey OTP"
+msgstr "これは有効な Yubikey OTP ではないようです"
+
+msgid "This feature isn't currently enabled."
+msgstr "この機能は現在有効化されていません。"
+
+msgid "This file doesn't appear to be available on this site any longer."
+msgstr "このファイルはこのサイトで利用できなくなったようです。"
+
+msgid "This file is located in a core WordPress directory isn't a recognised core file for WordPress %s."
+msgstr "このファイルはコア WordPress ディレクトリにありますが、WordPress %s の既知のコアファイルではありません。"
+
+msgid "This file isn't a known core file for WordPress %s."
+msgstr "このファイルは WordPress %s の既知のコアファイルではありません。"
+
+msgid "This is a recognised core file for WordPress %s."
+msgstr "これは WordPress %s の既知のコアファイルです。"
+
+msgid "This is to be used in conjunction with the Master Import Site feature."
+msgstr "これはマスターインポートサイト機能と併用します。"
+
+msgid "This plugin is installed from WordPress.org so actions such as file repair and file diff are available."
+msgstr "このプラグインは WordPress.org からインストールされているため、ファイル修復やファイル差分などのアクションが利用可能です。"
+
+msgid "This plugin isn't active and should be uninstalled."
+msgstr "このプラグインはアクティブではないため、アンインストールする必要があります。"
+
+msgid "This plugin isn't installed from WordPress.org so actions such as file repair and file diff aren't available."
+msgstr "このプラグインは WordPress.org からインストールされていないため、ファイル修復やファイル差分などのアクションは利用できません。"
+
+msgid "This theme isn't active and should be uninstalled."
+msgstr "このテーマはアクティブではないため、アンインストールする必要があります。"
+
+msgid "This will automatically expire your Security Admin Session."
+msgstr "これによりセキュリティ管理者セッションが自動的に期限切れになります。"
+
+msgid "This will restrict the ability of WordPress administrators from changing key WordPress settings."
+msgstr "これにより WordPress 管理者が重要な WordPress 設定を変更する機能が制限されます。"
+
+msgid "Time"
+msgstr "時刻"
+
+msgid "Time Limit"
+msgstr "時間制限"
+
+msgid "Time Now"
+msgstr "現在時刻"
+
+msgid "Time Range"
+msgstr "時間範囲"
+
+msgid "Time Sent: %s"
+msgstr "送信時刻: %s"
+
+msgid "Timestamp"
+msgstr "タイムスタンプ"
+
+msgid "Timezone"
+msgstr "タイムゾーン"
+
+msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
+msgstr "投稿 ID {{post_id}} のタイトルが「{{title_old}}」から「{{title_new}}」に更新されました。"
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "新しい Yubikey デバイスを登録するには、Yubikey からワンタイムパスワードを入力してください。"
+
+msgid "Toggle the option to enable/disable email-based login authentication."
+msgstr "メールベースのログイン認証を有効化/無効化するオプションを切り替えます。"
+
+msgid "Tools"
+msgstr "ツール"
+
+msgid "Track and monitor activity on your site by users, visitors and bots."
+msgstr "ユーザー、訪問者、Bot によるサイト上のアクティビティを追跡および監視します。"
+
+msgid "Traffic"
+msgstr "トラフィック"
+
+msgid "Traffic Logging"
+msgstr "トラフィックログ記録"
+
+msgid "Traffic Rate Limiting"
+msgstr "トラフィックレート制限"
+
+msgid "Trash"
+msgstr "ゴミ箱"
+
+msgid "Trashed"
+msgstr "ゴミ箱内の"
+
+msgid "Turn Off"
+msgstr "無効化"
+
+msgid "Turn On"
+msgstr "有効化"
+
+msgid "Turn On The Rate Limiting Feature"
+msgstr "レート制限機能を有効化"
+
+msgid "Turn on as many options here as you can."
+msgstr "ここでできるだけ多くのオプションを有効にしてください。"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "WordPress 管理アカウントへのアクセスを制限するオプションを有効にします。"
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "重要な WordPress 設定へのアクセスを制限するオプションを有効にします。"
+
+msgid "Turn your White Label settings on/off."
+msgstr "ホワイトラベル設定のオン / オフを切り替え。"
+
+msgid "Two-Factor Login Authentication By %s"
+msgstr "%s による二要素ログイン認証"
+
+msgid "Two-Factor Login Authentication By Email"
+msgstr "メールによる二要素ログイン認証"
+
+msgid "Type"
+msgstr "タイプ"
+
+msgid "Type: {{type}}; Interval: {{interval}};"
+msgstr "タイプ: {{type}}; 間隔: {{interval}};"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - ホーム"
+
+msgid "URL - Site"
+msgstr "URL - サイト"
+
+msgid "URL To Activate"
+msgstr "有効化する URL"
+
+msgid "Unavailable"
+msgstr "利用不可"
+
+msgid "Unblocked"
+msgstr "ブロック解除済み"
+
+msgid "Unblocked At"
+msgstr "ブロック解除日時"
+
+msgid "Unclassified"
+msgstr "未分類"
+
+msgid "Unidentified"
+msgstr "未識別"
+
+msgid "Uninstalled"
+msgstr "アンインストール済み"
+
+msgid "Unknown"
+msgstr "不明"
+
+msgid "Unknown Name"
+msgstr "名前不明"
+
+msgid "Unlock"
+msgstr "ロック解除"
+
+msgid "Unlock Now"
+msgstr "今すぐロック解除"
+
+msgid "Unpublished"
+msgstr "非公開"
+
+msgid "Unrecognised"
+msgstr "認識されない"
+
+msgid "Unrecognised files stored in the WordPress WP Content directory are scanned."
+msgstr "WordPress WP Content ディレクトリに保存されている認識されないファイルがスキャンされます。"
+
+msgid "Unrecognised files stored in the WordPress WP Content directory aren't scanned."
+msgstr "WordPress WP Content ディレクトリに保存されている認識されないファイルはスキャンされません。"
+
+msgid "Unrecognised files stored in the site root are scanned."
+msgstr "サイトルートに保存された認識されないファイルがスキャンされます。"
+
+msgid "Unrecognised files stored in the site root aren't scanned."
+msgstr "サイトルートに保存された認識されないファイルはスキャンされていません。"
+
+msgid "Unrecognised files will need to be manually deleted."
+msgstr "認識されないファイルは手動で削除する必要があります。"
+
+msgid "Until"
+msgstr "まで"
+
+msgid "Updated"
+msgstr "更新済み"
+
+msgid "Updates"
+msgstr "更新"
+
+msgid "Updates and Changes"
+msgstr "更新と変更"
+
+msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
+msgstr "MainWP を使用してすべての WordPress サイトのセキュリティを管理・監視します。"
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Shield の silentCAPTCHA を使用してボットとブルートフォース攻撃をブロック"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "Shield の silentCAPTCHA を使用してスパムボットを検出およびブロック。"
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "silentCAPTCHA を使用してボットコメントスパムをブロック"
+
+msgid "Use the link above to create a new one."
+msgstr "上記のリンクを使用して新しいものを作成してください。"
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "このオプションを使用してすべてのアクティブな Shield 保護を完全に無効化します。"
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "Yubikey を使用して新しいコードを生成"
+
+msgid "Used"
+msgstr "使用済み"
+
+msgid "User"
+msgstr "ユーザー"
+
+msgid "User '{{user_login}}' suspended by admin."
+msgstr "ユーザー「{{user_login}}」が管理者により停止されました。"
+
+msgid "User 2FA Setup"
+msgstr "ユーザー 2FA 設定"
+
+msgid "User Access"
+msgstr "ユーザーアクセス"
+
+msgid "User Accounts"
+msgstr "ユーザーアカウント"
+
+msgid "User Agent"
+msgstr "ユーザーエージェント"
+
+msgid "User Bot Check Fail"
+msgstr "ユーザーボットチェック失敗"
+
+msgid "User Deleted"
+msgstr "ユーザー削除済み"
+
+msgid "User Email Updated"
+msgstr "ユーザーメール更新済み"
+
+msgid "User Form Checking"
+msgstr "ユーザーフォームチェック"
+
+msgid "User Forms Bot Detection"
+msgstr "ユーザーフォーム Bot 検出"
+
+msgid "User Has Any Active 2FA"
+msgstr "ユーザーがアクティブな 2FA を持っています"
+
+msgid "User ID"
+msgstr "ユーザー ID"
+
+msgid "User Login"
+msgstr "ユーザーログイン"
+
+msgid "User Login Notification Email"
+msgstr "ユーザーログイン通知メール"
+
+msgid "User Manually Suspended"
+msgstr "ユーザー手動停止"
+
+msgid "User Meta"
+msgstr "ユーザーメタ情報"
+
+msgid "User Password Updated"
+msgstr "ユーザーパスワード更新済み"
+
+msgid "User Register Bot Protection"
+msgstr "ユーザー登録ボット保護"
+
+msgid "User Registered"
+msgstr "ユーザー登録済み"
+
+msgid "User Registration"
+msgstr "ユーザー登録"
+
+msgid "User Registration Email Validation"
+msgstr "ユーザー登録メール検証"
+
+msgid "User Registrations"
+msgstr "ユーザー登録"
+
+msgid "User Role"
+msgstr "ユーザー権限グループ"
+
+msgid "User Session Lock"
+msgstr "ユーザーセッションロック"
+
+msgid "User Sessions"
+msgstr "ユーザーセッション"
+
+msgid "User Status"
+msgstr "ユーザー状態"
+
+msgid "User doesn't exist with ID %s."
+msgstr "ID %s のユーザーは存在しません。"
+
+msgid "User forms"
+msgstr "ユーザーフォーム"
+
+msgid "User login request blocked."
+msgstr "ユーザーログインリクエストをブロックしました。"
+
+msgid "User lost password request blocked."
+msgstr "ユーザーのパスワード再設定リクエストをブロックしました。"
+
+msgid "User must be logged-in."
+msgstr "ユーザーはログイン済みである必要があります。"
+
+msgid "User registration request blocked."
+msgstr "ユーザー登録リクエストをブロックしました。"
+
+msgid "User session deleted"
+msgstr "ユーザーセッションを削除"
+
+msgid "User: <code>%s</code>"
+msgstr "ユーザー: <code>%s</code>"
+
+msgid "Useragent"
+msgstr "ユーザーエージェント"
+
+msgid "Username"
+msgstr "ユーザー名"
+
+msgid "Username Fishing"
+msgstr "ユーザー名フィッシング"
+
+msgid "Username Fishing Blocked"
+msgstr "ユーザー名フィッシングをブロックしました"
+
+msgid "Username fishing"
+msgstr "ユーザー名フィッシング"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "ユーザー名は '{{user_login}}' でメールアドレスは '{{email}}' でした。"
+
+msgid "Username/Author Fishing is disabled on this site."
+msgstr "このサイトではユーザー名/著者フィッシングが無効になっています。"
+
+msgid "Users"
+msgstr "ユーザー"
+
+msgid "Users are allowed to set weak passwords."
+msgstr "ユーザーは弱いパスワードを設定できます。"
+
+msgid "Users may be suspended by administrators to prevent login."
+msgstr "ユーザーは管理者によって停止され、ログインを防止できます。"
+
+msgid "Valid visitor IP address source discovered."
+msgstr "有効な訪問者 IP アドレスソースが検出されました。"
+
+msgid "Value To Match"
+msgstr "一致させる値"
+
+msgid "Verb"
+msgstr "動詞"
+
+msgid "Version"
+msgstr "バージョン"
+
+msgid "View & Create"
+msgstr "表示と作成"
+
+msgid "View All"
+msgstr "すべて表示"
+
+msgid "View As ShieldPRO"
+msgstr "ShieldPRO として表示"
+
+msgid "View Comment"
+msgstr "コメントを表示"
+
+msgid "View Config"
+msgstr "設定を表示"
+
+msgid "View Debug Info"
+msgstr "デバッグ情報を表示"
+
+msgid "View Details"
+msgstr "詳細を表示"
+
+msgid "View File Contents"
+msgstr "ファイル内容を表示"
+
+msgid "View File Details"
+msgstr "ファイル詳細を表示"
+
+msgid "View IP Source Config"
+msgstr "IP ソース設定を表示"
+
+msgid "View Results"
+msgstr "結果を表示"
+
+msgid "View Site Traffic"
+msgstr "サイトトラフィックを表示"
+
+msgid "View User Sessions"
+msgstr "ユーザーセッションを表示"
+
+msgid "View all active rules on your site at-a-glance"
+msgstr "サイト上のすべてのアクティブなルールを一目で表示"
+
+msgid "View and create new security reports."
+msgstr "新しいセキュリティレポートを表示および作成。"
+
+msgid "View and manage IP rules that block malicious visitors and bots."
+msgstr "悪意のある訪問者と Bot をブロックする IP ルールを表示および管理します。"
+
+msgid "View and manage details of current user sessions on the site."
+msgstr "サイト上の現在のユーザーセッションの詳細を表示および管理します。"
+
+msgid "View details of web requests sent to your WordPress site."
+msgstr "WordPress サイトに送信された Web リクエストの詳細を表示します。"
+
+msgid "View, edit and remove custom security rules"
+msgstr "カスタムセキュリティルールを表示、編集、削除"
+
+msgid "View/Create Reports"
+msgstr "レポートを表示/作成"
+
+msgid "Visitor IP"
+msgstr "訪問者 IP"
+
+msgid "Visitor IP Address"
+msgstr "訪問者 IP アドレス"
+
+msgid "Visitor IP Source"
+msgstr "訪問者 IP ソース"
+
+msgid "Visitor IP address is determine by CloudFlare."
+msgstr "訪問者の IP アドレスは CloudFlare により判定されます。"
+
+msgid "Visitor IP address source set"
+msgstr "訪問者 IP アドレスソースを設定しました"
+
+msgid "Vulnerabilities"
+msgstr "脆弱性"
+
+msgid "Vulnerabilities Detected"
+msgstr "脆弱性検出済み"
+
+msgid "Vulnerabilities Scanner"
+msgstr "脆弱性スキャナー"
+
+msgid "Vulnerability Discovered"
+msgstr "脆弱性検出済み"
+
+msgid "Vulnerability Scanner"
+msgstr "脆弱性スキャナー"
+
+msgid "Vulnerability Scanning"
+msgstr "脆弱性スキャン"
+
+msgid "Vulnerability scanning must be active to enable this option."
+msgstr "このオプションを有効にするには脆弱性スキャンがアクティブである必要があります。"
+
+msgid "Vulnerable"
+msgstr "脆弱"
+
+msgid "Vulnerable Plugins"
+msgstr "脆弱なプラグイン"
+
+msgid "Vulnerable Plugins & Themes"
+msgstr "脆弱なプラグインとテーマ"
+
+msgid "Vulnerable Themes"
+msgstr "脆弱なテーマ"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "WP アクティビティ"
+
+msgid "WP Core File Scanner"
+msgstr "WP コアファイルスキャナー"
+
+msgid "WP Core Updated"
+msgstr "WP コアが更新されました"
+
+msgid "WP Database password appears to be weak."
+msgstr "WP データベースパスワードが弱い可能性があります。"
+
+msgid "WP Default User Role"
+msgstr "WP デフォルトユーザー権限グループ"
+
+msgid "WP File Editing"
+msgstr "WP ファイル編集"
+
+msgid "WP Login & Admin Redirect"
+msgstr "WP ログインおよび管理画面リダイレクト"
+
+msgid "WP Site Admin Email"
+msgstr "WP サイト管理者メールアドレス"
+
+msgid "WP Site Tagline"
+msgstr "WP サイトのキャッチフレーズ"
+
+msgid "WP Site title"
+msgstr "WP サイトタイトル"
+
+msgid "WP User Registration"
+msgstr "WP ユーザー登録"
+
+msgid "WP core files"
+msgstr "WP コアファイル"
+
+msgid "WP root"
+msgstr "WP ルート"
+
+msgid "WP root directory"
+msgstr "WP ルートディレクトリ"
+
+msgid "WP root directory isn't scanned."
+msgstr "WP ルートディレクトリはスキャンされていません。"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Weak"
+msgstr "弱い"
+
+msgid "Weekly"
+msgstr "週次"
+
+msgid "Welcome"
+msgstr "ようこそ"
+
+msgid "When"
+msgstr "いつ"
+
+msgid "When a file is modified, or malware is detected, Shield can try to repair files."
+msgstr "ファイルが変更されたりマルウェアが検出されたりした場合、Shield はファイルの修復を試みます。"
+
+msgid "Which Files Should Be Automatically Repaired?"
+msgstr "自動修復するファイル"
+
+msgid "Which Files Should Be Scanned"
+msgstr "スキャンするファイル"
+
+msgid "Which WordPress Forms Should Be Protected From Bots"
+msgstr "ボットから保護する WordPress フォーム"
+
+msgid "White Label"
+msgstr "ホワイトラベル"
+
+msgid "Whitelist Site Added"
+msgstr "ホワイトリストサイトを追加しました"
+
+msgid "Whitelist Site Removed"
+msgstr "ホワイトリストサイトを削除しました"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "サイトロックダウンのホワイトリスト"
+
+msgid "Whitelisted Sites To Export Options From This Site"
+msgstr "このサイトからオプションをエクスポートするホワイトリストサイト"
+
+msgid "Whitelisted sites may export options from this site without the key."
+msgstr "ホワイトリストに登録されたサイトは、キーなしでこのサイトからオプションをエクスポートできます。"
+
+msgid "With Issues"
+msgstr "問題あり"
+
+msgid "Wizards"
+msgstr "ウィザード"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Activity"
+msgstr "WordPress アクティビティ"
+
+msgid "WordPress Activity Logging"
+msgstr "WordPress アクティビティログ"
+
+msgid "WordPress Address (URL)"
+msgstr "WordPress アドレス (URL)"
+
+msgid "WordPress Admins Protection"
+msgstr "WordPress 管理者保護"
+
+msgid "WordPress Core Auto-Repair"
+msgstr "WordPress コア自動修復"
+
+msgid "WordPress Core File Scanner"
+msgstr "WordPress コアファイルスキャナー"
+
+msgid "WordPress Core Files"
+msgstr "WordPress コアファイル"
+
+msgid "WordPress Core Options Protection"
+msgstr "WordPress コアオプション保護"
+
+msgid "WordPress Core files are protected against tampering."
+msgstr "WordPress コアファイルは改ざんから保護されています。"
+
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
+msgstr "WordPress コアが「{{from}}」から「{{to}}」に更新されました。"
+
+msgid "WordPress File Editing Lockdown"
+msgstr "WordPress ファイル編集ロックダウン"
+
+msgid "WordPress File Scanner"
+msgstr "WordPress ファイルスキャナー"
+
+msgid "WordPress File Scanning"
+msgstr "WordPress ファイルスキャン"
+
+msgid "WordPress Files"
+msgstr "WordPress ファイル"
+
+msgid "WordPress Info"
+msgstr "WordPress 情報"
+
+msgid "WordPress Obscurity Options"
+msgstr "WordPress 難読化オプション"
+
+msgid "WordPress Options"
+msgstr "WordPress 設定"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "WordPress プラグインファイルスキャナー"
+
+msgid "WordPress Post entitled '{{title}}' was permanently deleted from trash."
+msgstr "「{{title}}」というタイトルの WordPress 投稿がゴミ箱から完全に削除されました。"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "WordPress サイトルートファイルスキャナー"
+
+msgid "WordPress Stats"
+msgstr "WordPress 統計"
+
+msgid "WordPress Theme File Scanner"
+msgstr "WordPress テーマファイルスキャナー"
+
+msgid "WordPress Updates"
+msgstr "WordPress 更新"
+
+msgid "WordPress Version"
+msgstr "WordPress バージョン"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "WordPress WP Content ディレクトリファイルスキャナー"
+
+msgid "WordPress admin accounts are protected against tampering from other WordPress admins."
+msgstr "WordPress 管理者アカウントは他の WordPress 管理者による改ざんから保護されています。"
+
+msgid "WordPress admin accounts aren't protected against tampering from other WordPress admins."
+msgstr "WordPress 管理者アカウントは他の WordPress 管理者による改ざんから保護されていません。"
+
+msgid "WordPress files aren't scanned for tampering."
+msgstr "WordPress ファイルは改ざんのスキャンが行われていません。"
+
+msgid "WordPress must be at least version %s to activate this option."
+msgstr "このオプションを有効にするには、WordPress が少なくともバージョン %s である必要があります。"
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "WordPress プラグインファイルは改ざんから保護されています。"
+
+msgid "WordPress plugin files aren't scanned for tampering."
+msgstr "WordPress プラグインファイルは改ざんのスキャンが行われていません。"
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress サイト管理者メールアドレスが「{{from}}」から「{{to}}」に変更されました。"
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress サイトのキャッチフレーズが「{{from}}」から「{{to}}」に変更されました。"
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "WordPress サイトタイトルが「{{from}}」から「{{to}}」に変更されました。"
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "WordPress テーマファイルは改ざんから保護されています。"
+
+msgid "WordPress theme files aren't scanned for tampering."
+msgstr "WordPress テーマファイルは改ざんのスキャンが行われていません。"
+
+msgid "WordPress user deleted."
+msgstr "WordPress ユーザーを削除しました。"
+
+msgid "WordPress will now download and install the latest available version of this plugin."
+msgstr "WordPress はこのプラグインの最新バージョンをダウンロードしてインストールします。"
+
+msgid "WordPress.org Plugin Auto-Repair"
+msgstr "WordPress.org プラグインの自動修復"
+
+msgid "WordPress.org Theme Auto-Repair"
+msgstr "WordPress.org テーマの自動修復"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "XML-RPC アクセス"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC ロックダウン"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC リクエストをブロックしました。"
+
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+msgid "Yearly"
+msgstr "年次"
+
+msgid "Yes"
+msgstr "はい"
+
+msgid "Yes: %s"
+msgstr "はい: %s"
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "最大のセキュリティ脅威は自動 Bot からのものです。"
+
+msgid "Your Current IP"
+msgstr "現在の IP"
+
+msgid "Your IP Address"
+msgstr "あなたの IP アドレス"
+
+msgid "Your WordPress login form is now protected"
+msgstr "WordPress ログインフォームは保護されています"
+
+msgid "Your WordPress login form is unprotected"
+msgstr "WordPress ログインフォームは保護されていません"
+
+msgid "Your backup login code is: %s"
+msgstr "バックアップログインコードは %s です"
+
+msgid "Your current login URL is: %s"
+msgstr "現在のログイン URL は %s です"
+
+msgid "Your current security posture"
+msgstr "現在のセキュリティ状況"
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "CrowdSec に登録されたマシン ID は %s です"
+
+msgid "Your reporting email address is: %s"
+msgstr "レポート送信先メールアドレスは %s です"
+
+msgid "Your session was locked to another IP Address."
+msgstr "セッションが別の IP アドレスにロックされました。"
+
+msgid "Your session was terminated."
+msgstr "セッションが終了しました。"
+
+msgid "Your site is currently in lockdown."
+msgstr "サイトは現在ロックダウン中です。"
+
+msgid "Your site is in lockdown."
+msgstr "サイトはロックダウン中です。"
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "サイトは人間によるコメントスパムから保護されています。"
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "サイトは Bot による自動コメントスパムから保護されています。"
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "サイトは人間によるコメントスパムから保護されていません。"
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "サイトは Bot による自動コメントスパムから保護されていません。"
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "あなたのサイトはまだ CrowdSec に登録されていません。"
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey Authentication"
+msgstr "Yubikey 認証"
+
+msgid "Yubikey ID"
+msgstr "Yubikey ID"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "ゾーン"
+
+msgid "Zone Actions"
+msgstr "ゾーンアクション"
+
+msgid "Zones"
+msgstr "ゾーン"
+
+msgid "and"
+msgstr "および"
+
+msgid "case-insensitive"
+msgstr "大文字小文字を区別しない"
+
+msgid "currently %s"
+msgstr "現在 %s"
+
+msgid "days"
+msgstr "日"
+
+msgid "empty username"
+msgstr "空のユーザー名"
+
+msgid "estimated"
+msgstr "推定"
+
+msgid "expires"
+msgstr "有効期限"
+
+msgid "file import"
+msgstr "ファイルインポート"
+
+msgid "help"
+msgstr "ヘルプ"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "icon"
+msgstr "アイコン"
+
+msgid "import file"
+msgstr "インポートファイル"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "n/a"
+
+msgid "no label"
+msgstr "ラベルなし"
+
+msgid "no name"
+msgstr "名前なし"
+
+msgid "offense"
+msgstr "違反"
+
+msgid "options"
+msgstr "設定"
+
+msgid "or"
+msgstr "または"
+
+msgid "permanently"
+msgstr "完全に"
+
+msgid "rDNS"
+msgstr "rDNS"
+
+msgid "recommendation"
+msgstr "推奨事項"
+
+msgid "seconds"
+msgstr "秒"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA Bot 検出が WordPress ログインへのブルートフォース攻撃を保護していません。"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
+msgstr "silentCAPTCHA Bot 検出が WordPress パスワード紛失フォームを保護していません。"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr "silentCAPTCHA Bot 検出が WordPress 登録を保護していません。"
+
+msgid "silentCAPTCHA For Logins"
+msgstr "ログイン用 silentCAPTCHA"
+
+msgid "silentCAPTCHA Registration"
+msgstr "SilentCAPTCHA 登録"
+
+msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
+msgstr "silentCAPTCHA は最小スコアを %s に設定すると無効化されます。"
+
+msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
+msgstr "silentCAPTCHA が WP コメントに対する Bot スパムを保護していません。"
+
+msgid "suggestion"
+msgstr "提案"
+
+msgid "tools"
+msgstr "ツール"
+
+msgid "unknown"
+msgstr "不明"
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "wp-config.php ファイルは改ざんから保護されていません。"
+
+msgid "{{ip}} removed from block list ({{type}})."
+msgstr "{{ip}} をブロックリストから削除しました ({{type}})。"
+
