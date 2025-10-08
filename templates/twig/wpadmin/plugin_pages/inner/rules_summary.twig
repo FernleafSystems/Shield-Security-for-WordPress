@@ -36,7 +36,7 @@
 									   data-bs-parent="#RulesForHook-{{ hook }}">
 									  <div class="accordion-body">
 										  <p>{{ rule.description }}</p>
-										  <p>Rule Conditions</p>
+										  <p>{{ strings.rule_conditions }}</p>
 										  {{ macros_rules.render_conditions_parsed( rule.conditions_parsed, true ) }}
 {#										  <ul>#}
 {#											  {% for sub_cond in rule.sub_conditions %}#}

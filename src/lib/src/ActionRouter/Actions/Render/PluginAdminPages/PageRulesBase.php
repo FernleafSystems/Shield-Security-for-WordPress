@@ -19,9 +19,10 @@ class PageRulesBase extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'node-plus-fill' ),
 			],
 			'strings' => [
-				'inner_page_title'    => $this->getInnerPageTitle(),
-				'inner_page_subtitle' => $this->getInnerPageSubTitle(),
-				'cant_custom_rules'   => __( 'Please upgrade your Shield Security subscription to access the Custom Security Rules Builder.', 'wp-simple-firewall' ),
+				'inner_page_title'                      => $this->getInnerPageTitle(),
+				'inner_page_subtitle'                   => $this->getInnerPageSubTitle(),
+				'cant_custom_rules'                     => __( 'Please upgrade your Shield Security subscription to access the Custom Security Rules Builder.', 'wp-simple-firewall' ),
+				'what_is_custom_security_rules_feature' => __( 'What is the Custom Security Rules feature?', 'wp-simple-firewall' ),
 			],
 		];
 	}
