@@ -112,6 +112,10 @@ class PageScansResults extends PageScansBase {
 				'no_entries_to_display' => __( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
+				'results_tab_wordpress' => __( 'WordPress', 'wp-simple-firewall' ),
+				'results_tab_plugins'   => __( 'Plugins', 'wp-simple-firewall' ),
+				'results_tab_themes'    => __( 'Themes', 'wp-simple-firewall' ),
+				'results_tab_malware'   => __( 'Malware', 'wp-simple-firewall' ),
 			],
 			'vars'        => [
 				'sections' => [

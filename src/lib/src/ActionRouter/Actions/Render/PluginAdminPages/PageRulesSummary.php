@@ -69,9 +69,10 @@ class PageRulesSummary extends PageRulesBase {
 				'components' => $components,
 				'rules'      => $rules,
 			],
-			'strings' => [
-				'rule_conditions' => __( 'Rule Conditions', 'wp-simple-firewall' ),
-			],
+				'strings' => [
+					'wp_hook_label'   => __( 'WP Hook', 'wp-simple-firewall' ),
+					'rule_conditions' => __( 'Rule Conditions', 'wp-simple-firewall' ),
+				],
 		];
 	}
 

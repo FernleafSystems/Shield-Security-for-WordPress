@@ -324,6 +324,9 @@ abstract class BaseRender extends BaseAction {
 				__( 'IP addresses', 'wp-simple-firewall' ),
 				__( 'Help docs & resources', 'wp-simple-firewall' ),
 			],
+			'translated_colon'        => __( ':', 'wp-simple-firewall' ),
+			'translated_colon_space'  => __( ': ', 'wp-simple-firewall' ),
+			'translated_dash_space'   => __( '- ', 'wp-simple-firewall' ),
 		];
 	}
 

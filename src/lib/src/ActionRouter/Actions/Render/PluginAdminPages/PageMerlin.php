@@ -21,6 +21,9 @@ class PageMerlin extends BasePluginAdminPage {
 				'flags'   => [
 					'show_sidebar_nav' => 0
 				],
+				'strings' => [
+					'exit_wizard' => __( 'Exit Wizard', 'wp-simple-firewall' ),
+				],
 			];
 		}
 		catch ( \Exception $ae ) {

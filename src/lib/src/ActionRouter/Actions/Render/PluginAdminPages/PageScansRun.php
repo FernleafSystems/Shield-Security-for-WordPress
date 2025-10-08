@@ -54,6 +54,7 @@ class PageScansRun extends PageScansBase {
 				'run_scans_now'        => __( 'Run Scans Now', 'wp-simple-firewall' ),
 				'scan_progress'        => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self' => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
+				'scans_disabled_prefix' => __( 'Scans are currently disabled because:', 'wp-simple-firewall' ),
 			],
 			'scans'   => $this->buildScansVars(),
 			'vars'    => [

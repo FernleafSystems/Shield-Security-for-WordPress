@@ -91,9 +91,9 @@
 						{% if not flags.can_scan %}disabled="disabled"{% endif %}
 						type="submit" id="StartScansButton">{{ strings.run_scans_now }} &rarr;</button>
 			{% else %}
-				<p>Scans are currently disabled because:
+				<p>{{ strings.scans_disabled_prefix }}
 					{% for cannot_scan_reason in vars.cannot_scan_reasons %}
-						<br />-<span class="text-danger">{{ strings[cannot_scan_reason] }}</span>
+						<br />{{ strings.translated_dash_space }}<span class="text-danger">{{ strings[cannot_scan_reason] }}</span>
 					{% endfor %}
 				</p>
 			{% endif %}

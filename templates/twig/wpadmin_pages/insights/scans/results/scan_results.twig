@@ -5,7 +5,7 @@
 		   data-bs-toggle="tab"
 		   data-bs-target="#h-tabs-wordpress"
 		   role="tab" aria-controls="h-tabs-wordpress">
-			WordPress
+			{{ strings.results_tab_wordpress }}
 			{% if vars.sections.wordpress.count > 0 %}
 				<span class="badge bg-danger">{{ vars.sections.wordpress.count }}</span>
 			{% else %}
@@ -20,7 +20,7 @@
 		   data-bs-toggle="tab"
 		   data-bs-target="#h-tabs-plugins"
 		   role="tab" aria-controls="h-tabs-plugins">
-			Plugins
+			{{ strings.results_tab_plugins }}
 			{% if vars.sections.plugins.count > 0 %}
 				<span class="badge bg-danger ">{{ vars.sections.plugins.count }}</span>
 			{% else %}
@@ -35,7 +35,7 @@
 		   data-bs-target="#h-tabs-themes"
 		   role="tab"
 		   aria-controls="h-tabs-themes">
-			Themes
+			{{ strings.results_tab_themes }}
 			{% if vars.sections.themes.count > 0 %}
 				<span class="badge bg-danger">{{ vars.sections.themes.count }}</span>
 			{% else %}
@@ -47,7 +47,7 @@
 	<li class="nav-item">
 		<a class="nav-link" id="h-tabs-malware-tab" data-bs-toggle="tab" href="#h-tabs-malware"
 		   role="tab" aria-controls="h-tabs-malware">
-			Malware
+			{{ strings.results_tab_malware }}
 			{% if vars.sections.malware.count > 0 %}
 				<span class="badge bg-danger">{{ vars.sections.malware.count }}</span>
 			{% else %}
