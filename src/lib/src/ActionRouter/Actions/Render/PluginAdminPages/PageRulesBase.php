@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class PageRulesBase extends BasePluginAdminPage {
@@ -29,7 +30,7 @@ class PageRulesBase extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Custom Rules', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', CommonDisplayStrings::get( 'help_label' ), __( 'Custom Rules', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/category/777-custom-rules-manager',
 			'new_window' => true,
 		];

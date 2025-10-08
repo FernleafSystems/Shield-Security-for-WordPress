@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Diff;
@@ -53,7 +54,7 @@ class ScansFileLockerDiff extends BaseScans {
 					'no_changes'            => __( 'There have been no changes to the selected file.', 'wp-simple-firewall' ),
 					'butt_restore'          => __( 'Restore File', 'wp-simple-firewall' ),
 					'butt_accept'           => __( 'Accept Changes', 'wp-simple-firewall' ),
-					'file_name'             => __( 'Name', 'wp-simple-firewall' ),
+					'file_name'             => CommonDisplayStrings::get( 'name_label' ),
 					'file_size'             => __( 'File Size', 'wp-simple-firewall' ),
 					'reviewing_locked_file' => __( 'Reviewing Locked File', 'wp-simple-firewall' ),
 					'file_details'          => __( 'File Details', 'wp-simple-firewall' ),

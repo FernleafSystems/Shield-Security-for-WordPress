@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Ma
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetOpt;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
 	SiteActionActivate,
 	SiteActionDeactivate,
@@ -43,12 +44,12 @@ class BaseSubPage extends BaseMWP {
 			'strings' => [
 				'manage'              => __( 'Manage', 'wp-simple-firewall' ),
 				'site'                => __( 'Site', 'wp-simple-firewall' ),
-				'url'                 => __( 'URL', 'wp-simple-firewall' ),
+				'url'                 => CommonDisplayStrings::get( 'url_label' ),
 				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
 				'status'              => __( 'Status', 'wp-simple-firewall' ),
 				'last_sync'           => __( 'Last Sync', 'wp-simple-firewall' ),
 				'last_scan'           => __( 'Last Scan', 'wp-simple-firewall' ),
-				'version'             => __( 'Version', 'wp-simple-firewall' ),
+				'version'             => CommonDisplayStrings::get( 'version_label' ),
 				'connected'           => __( 'Connected', 'wp-simple-firewall' ),
 				'disconnected'        => __( 'Disconnected', 'wp-simple-firewall' ),
 				'with_issues'         => __( 'With Issues', 'wp-simple-firewall' ),

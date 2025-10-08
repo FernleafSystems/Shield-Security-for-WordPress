@@ -37,7 +37,7 @@ class Sessions extends Base {
 
 		return [
 			'strings' => [
-				'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
+				'title'            => CommonDisplayStrings::get( 'user_sessions_label' ),
 				'no_sessions'      => __( 'No sessions recorded for this IP address', 'wp-simple-firewall' ),
 				'username'         => CommonDisplayStrings::get( 'username' ),
 				'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),

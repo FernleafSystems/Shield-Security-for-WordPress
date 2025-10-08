@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Placeholders\PlaceholderMeter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
@@ -54,7 +55,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 					[
 						'title'     => __( 'WordPress Files', 'wp-simple-firewall' ),
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-						'href_text' => __( 'Scan Results', 'wp-simple-firewall' ),
+						'href_text' => CommonDisplayStrings::get( 'scan_results_label' ),
 						'content'   => $con->action_router->render( OverviewScans::class, [
 							'count' => $filesCount,
 						] ),
@@ -66,7 +67,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 					[
 						'title'     => __( 'Malware', 'wp-simple-firewall' ),
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-						'href_text' => __( 'Scan Results', 'wp-simple-firewall' ),
+						'href_text' => CommonDisplayStrings::get( 'scan_results_label' ),
 						'content'   => $con->action_router->render( OverviewScans::class, [
 							'count' => $scansCon->AFS()->isEnabledMalwareScanPHP() ? $counter->countMalware() : '-',
 						] ),
@@ -79,7 +80,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 					[
 						'title'     => __( 'Vulnerable Assets', 'wp-simple-firewall' ),
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-						'href_text' => __( 'Scan Results', 'wp-simple-firewall' ),
+						'href_text' => CommonDisplayStrings::get( 'scan_results_label' ),
 						'content'   => $con->action_router->render( OverviewScans::class, [
 							'count' => $scansCon->WPV()->isEnabled() ? $counter->countVulnerableAssets() : '-',
 						] ),
@@ -92,7 +93,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 					[
 						'title'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-						'href_text' => __( 'Scan Results', 'wp-simple-firewall' ),
+						'href_text' => CommonDisplayStrings::get( 'scan_results_label' ),
 						'content'   => $con->action_router->render( OverviewScans::class, [
 							'count' => $scansCon->APC()->isEnabled() ? $counter->countAbandoned() : '-',
 						] ),

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
@@ -78,8 +79,8 @@ class General extends Base {
 					'block_type'          => $ruleStatus->isBlocked() ? Handler::GetTypeName( $ruleStatus->getBlockType() ) : ''
 				],
 
-				'yes' => __( 'Yes', 'wp-simple-firewall' ),
-				'no'  => __( 'No', 'wp-simple-firewall' ),
+				'yes' => CommonDisplayStrings::get( 'yes_label' ),
+				'no'  => CommonDisplayStrings::get( 'no_label' ),
 
 				'identity' => [
 					'who_is_it'   => __( 'Is this a known IP address?', 'wp-simple-firewall' ),

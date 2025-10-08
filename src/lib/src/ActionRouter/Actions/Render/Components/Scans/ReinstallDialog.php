@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 
 class ReinstallDialog extends BaseScans {
@@ -20,7 +21,7 @@ class ReinstallDialog extends BaseScans {
 					__( 'Note', 'wp-simple-firewall' ),
 					__( 'In case of possible failure, it may be better to do this while the plugin is inactive.', 'wp-simple-firewall' )
 				),
-				'okay_reinstall'     => sprintf( '%s, %s', __( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
+				'okay_reinstall'     => sprintf( '%s, %s', CommonDisplayStrings::get( 'yes_label' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
 				'reinstall_first'    => __( 'Re-install first?', 'wp-simple-firewall' ),
 				'corrupted'          => __( "This ensures files for this plugin haven't been corrupted in any way.", 'wp-simple-firewall' ),
 				'choose'             => __( "You can choose to 'Activate Only' (not recommended), or close this message to cancel activation.", 'wp-simple-firewall' ),

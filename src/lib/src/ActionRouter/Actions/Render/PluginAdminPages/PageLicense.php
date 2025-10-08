@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -36,7 +37,7 @@ class PageLicense extends BasePluginAdminPage {
 
 		$lastReqAt = $lic->last_request_at;
 		if ( empty( $lastReqAt ) ) {
-			$checked = __( 'Never', 'wp-simple-firewall' );
+			$checked = CommonDisplayStrings::get( 'never_label' );
 		}
 		else {
 			$checked = sprintf( '%s<br/><small>%s</small>',

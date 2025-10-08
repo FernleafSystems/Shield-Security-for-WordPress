@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 abstract class PageTrafficLogBase extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
@@ -17,7 +18,7 @@ abstract class PageTrafficLogBase extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Request Log', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', CommonDisplayStrings::get( 'help_label' ), __( 'Request Log', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/264-review-your-site-traffic-with-the-traffic-log-viewer',
 			'new_window' => true,
 		];

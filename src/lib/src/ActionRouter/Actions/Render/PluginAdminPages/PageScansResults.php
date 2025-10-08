@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
@@ -101,11 +102,11 @@ class PageScansResults extends PageScansBase {
 				'inner_page_title'    => __( 'View Results', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage all scan results.', 'wp-simple-firewall' ),
 
-				'never'                 => __( 'Never', 'wp-simple-firewall' ),
+				'never'                 => CommonDisplayStrings::get( 'never_label' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
-				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
+				'select_view_results'   => CommonDisplayStrings::get( 'view_scan_results_label' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),

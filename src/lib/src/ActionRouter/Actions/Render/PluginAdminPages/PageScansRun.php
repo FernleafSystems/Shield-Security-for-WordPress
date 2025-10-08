@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 
@@ -13,7 +14,7 @@ class PageScansRun extends PageScansBase {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'title' => __( 'Scan Results', 'wp-simple-firewall' ),
+				'title' => CommonDisplayStrings::get( 'scan_results_label' ),
 				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 		];
@@ -42,13 +43,13 @@ class PageScansRun extends PageScansBase {
 				'inner_page_title'    => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),
 
-				'never'                => __( 'Never', 'wp-simple-firewall' ),
+				'never'                => CommonDisplayStrings::get( 'never_label' ),
 				'not_available'        => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'          => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'        => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
 				'scan_options'         => __( 'Scan Options', 'wp-simple-firewall' ),
 				'scanselect'           => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'select_view_results'  => __( 'View Scan Results', 'wp-simple-firewall' ),
+				'select_view_results'  => CommonDisplayStrings::get( 'view_scan_results_label' ),
 				'clear_ignore'         => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'     => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'        => __( 'Run Scans Now', 'wp-simple-firewall' ),
