@@ -75,8 +75,13 @@ class PageLicense extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'Seamlessly activate and manage your ShieldPRO license without any license keys.', 'wp-simple-firewall' ),
 				'pro_features'        => $this->getProFeatureStrings(),
 
+				'pro_available_blurb'        => __( 'Shield Security Pro is available from our online store.', 'wp-simple-firewall' ),
 				'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
 				'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
+				'license_step_purchase_prefix' => __( 'Just grab a new license from the', 'wp-simple-firewall' ),
+				'license_step_purchase_link'   => __( 'Shield Pro store', 'wp-simple-firewall' ),
+				'license_step_register'        => __( 'Register your site URL with our control panel.', 'wp-simple-firewall' ),
+				'license_step_activate'        => __( "Activate your license on your sites using the 'Check License' button.", 'wp-simple-firewall' ),
 				'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
 				'clear_license'            => __( 'Remove License', 'wp-simple-firewall' ),
 				'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
@@ -87,6 +92,8 @@ class PageLicense extends BasePluginAdminPage {
 				'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
 				'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
 				'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
+				'cta_upgrade'              => __( 'Upgrade To Shield Pro Now', 'wp-simple-firewall' ),
+				'cta_view_features'        => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'license_table'  => [

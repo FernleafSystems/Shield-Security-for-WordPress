@@ -23,10 +23,12 @@ class Changelog extends Actions\Render\BaseRender {
 			'changelog' => $changelog,
 			'strings'   => [
 				// the keys here must match the changelog item types
-				'version'      => __( 'Version', 'wp-simple-firewall' ),
-				'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
-				'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
-				'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
+				'version'                   => __( 'Version', 'wp-simple-firewall' ),
+				'release_date'              => __( 'Release Date', 'wp-simple-firewall' ),
+				'pro_only'                  => __( 'Pro Only', 'wp-simple-firewall' ),
+				'full_release'              => __( 'Full Release Announcement', 'wp-simple-firewall' ),
+				'upgrade_notice_sentence_1' => __( 'Major releases may contain new options, or change existing options.', 'wp-simple-firewall' ),
+				'upgrade_notice_sentence_2' => __( 'Please review the', 'wp-simple-firewall' ),
 			],
 			'vars'      => [
 				// the keys here must match the changelog item types

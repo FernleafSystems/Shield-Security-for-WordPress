@@ -14,7 +14,7 @@
 							   class="border-bottom">{{ breadcrumb.text }}</a>
 							<span class="mx-1 fs-6" style="line-height: inherit">&raquo;</span>
 						{% endfor %}
-						{{ strings.inner_page_title|default('No inner page title set') }}
+						{{ strings.inner_page_title|default(strings.no_inner_page_title) }}
 					</div>
 					{% block inner_page_title_after %}{% endblock %}
 				</h4>

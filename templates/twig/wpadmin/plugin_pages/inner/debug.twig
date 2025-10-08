@@ -4,7 +4,7 @@
 	{% if flags.display_tests %}
 		<div class="row">
 			<div class="col">
-				<h6>Debug Tests:</h6>
+				<h6>{{ strings.debug_tests_heading }}{{ strings.translated_colon }}</h6>
 				<ul>
 					{% for test in vars.available_tests %}
 						<li><code>{{ test|raw }}</code></li>

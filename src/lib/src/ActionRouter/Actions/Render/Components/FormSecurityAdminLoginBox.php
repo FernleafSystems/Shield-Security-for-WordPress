@@ -18,6 +18,7 @@ class FormSecurityAdminLoginBox extends \FernleafSystems\Wordpress\Plugin\Shield
 			],
 			'strings' => [
 				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
+				'access_submit_label' => __( 'Go!', 'wp-simple-firewall' ),
 			],
 		];
 	}

@@ -36,15 +36,7 @@ class EventsEnum extends Actions\Render\BaseRender {
 		}
 
 		return [
-			'strings' => [
-				// the keys here must match the changelog item types
-				'version'      => __( 'Version', 'wp-simple-firewall' ),
-				'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
-				'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
-				'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				// the keys here must match the changelog item types
+			'vars' => [
 				'event_defs' => $eventsSortedByLevel
 			],
 		];

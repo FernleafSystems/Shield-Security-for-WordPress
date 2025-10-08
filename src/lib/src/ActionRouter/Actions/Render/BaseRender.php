@@ -220,6 +220,7 @@ abstract class BaseRender extends BaseAction {
 			'btn_options'       => __( 'Options', 'wp-simple-firewall' ),
 			'btn_help'          => __( 'Help', 'wp-simple-firewall' ),
 			'go_to_settings'    => __( 'Edit Settings', 'wp-simple-firewall' ),
+			'no_inner_page_title' => __( 'No inner page title set', 'wp-simple-firewall' ),
 			'on'                => __( 'On', 'wp-simple-firewall' ),
 			'off'               => __( 'Off', 'wp-simple-firewall' ),
 			'yes'               => __( 'Yes', 'wp-simple-firewall' ),
@@ -327,6 +328,17 @@ abstract class BaseRender extends BaseAction {
 			'translated_colon'        => __( ':', 'wp-simple-firewall' ),
 			'translated_colon_space'  => __( ': ', 'wp-simple-firewall' ),
 			'translated_dash_space'   => __( '- ', 'wp-simple-firewall' ),
+			'more_info_label'         => __( 'More Info', 'wp-simple-firewall' ),
+			'important_label'         => __( 'Important', 'wp-simple-firewall' ),
+			'collapse_label'          => __( 'Collapse', 'wp-simple-firewall' ),
+			'upgrade_guide_label'     => __( 'Upgrade Guide', 'wp-simple-firewall' ),
+			'patch_label'             => __( 'Patch', 'wp-simple-firewall' ),
+			'slug_label'              => __( 'Slug', 'wp-simple-firewall' ),
+			'alert_label'             => __( 'Alert', 'wp-simple-firewall' ),
+			'warning_label'           => __( 'Warning', 'wp-simple-firewall' ),
+			'notice_label'            => __( 'Notice', 'wp-simple-firewall' ),
+			'info_label'              => __( 'Info', 'wp-simple-firewall' ),
+			'debug_label'             => __( 'Debug', 'wp-simple-firewall' ),
 		];
 	}
 
