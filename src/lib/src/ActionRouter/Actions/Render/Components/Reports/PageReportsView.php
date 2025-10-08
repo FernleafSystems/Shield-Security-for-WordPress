@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\FormReportCreate;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class PageReportsView extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -21,7 +22,7 @@ class PageReportsView extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 				'table_title'                => __( 'Security Reports', 'wp-simple-firewall' ),
 				'create_custom_report'       => __( 'Create Custom Report', 'wp-simple-firewall' ),
 				'custom_reports_unavailable' => __( 'Upgrade To Create Custom Reports', 'wp-simple-firewall' ),
-				'view_report'                => __( 'View Report', 'wp-simple-firewall' ),
+				'view_report'                => CommonDisplayStrings::get( 'view_report_label' ),
 			],
 			'vars'    => [
 				'offcanvas_render_slug' => FormReportCreate::SLUG,

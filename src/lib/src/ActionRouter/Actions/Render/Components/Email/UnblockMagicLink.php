@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkVerify;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockMagicLink extends EmailBase {
@@ -19,6 +20,13 @@ class UnblockMagicLink extends EmailBase {
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;
 		$ip = $this->action_data[ 'ip' ];
 		$homeURL = $this->action_data[ 'home_url' ];
+		$common = CommonDisplayStrings::pick( [
+			'important_label',
+			'details_label',
+			'url_label',
+			'username',
+			'ip_address'
+		] );
 
 		return [
 			'hrefs'   => [
@@ -33,13 +41,13 @@ class UnblockMagicLink extends EmailBase {
 			'strings' => [
 				'looks_like'       => __( "It looks like you've been blocked and have clicked to have your IP address removed from the blocklist.", 'wp-simple-firewall' ),
 				'please_click'     => __( 'Please click the link provided below to do so.', 'wp-simple-firewall' ),
-				'details'          => __( 'Details', 'wp-simple-firewall' ),
+				'details'          => $common[ 'details_label' ],
 				'unblock_my_ip'    => sprintf( '%s: %s', __( 'Unblock My IP', 'wp-simple-firewall' ), $ip ),
 				'or_copy'          => __( 'Or Copy-Paste', 'wp-simple-firewall' ),
-				'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), $homeURL ),
-				'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user ),
-				'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $ip ),
-				'important'        => __( 'Important', 'wp-simple-firewall' ),
+				'details_url'      => sprintf( '%s: %s', $common[ 'url_label' ], $homeURL ),
+				'details_username' => sprintf( '%s: %s', $common[ 'username' ], $user ),
+				'details_ip'       => sprintf( '%s: %s', $common[ 'ip_address' ], $ip ),
+				'important'        => $common[ 'important_label' ],
 				'imp_limit'        => __( "You'll need to wait for a further 60 minutes if your IP address gets blocked again.", 'wp-simple-firewall' ),
 				'imp_browser'      => __( "This link will ONLY work if it opens in the same web browser that you used to request this email.", 'wp-simple-firewall' ),
 			]

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\{
 	ModuleSecadmin,
 	ModuleUsers
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class PageUserSessions extends BasePluginAdminPage {
 
@@ -42,7 +43,7 @@ class PageUserSessions extends BasePluginAdminPage {
 				'users_title'         => __( 'User Sessions', 'wp-simple-firewall' ),
 				'users_subtitle'      => __( 'Review and manage current user sessions', 'wp-simple-firewall' ),
 				'users_maybe_expired' => __( "Some sessions may have expired but haven't been automatically cleaned from the database yet", 'wp-simple-firewall' ),
-				'username'            => __( 'Username', 'wp-simple-firewall' ),
+				'username'            => CommonDisplayStrings::get( 'username' ),
 				'inner_page_title'    => __( 'User Sessions', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage details of current user sessions on the site.', 'wp-simple-firewall' ),
 			],

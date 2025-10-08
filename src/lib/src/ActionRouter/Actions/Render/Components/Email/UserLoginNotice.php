@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+
 class UserLoginNotice extends EmailBase {
 
 	use Traits\UserEmail;
@@ -10,6 +12,13 @@ class UserLoginNotice extends EmailBase {
 	public const TEMPLATE = '/email/user_login_notice.twig';
 
 	protected function getBodyData() :array {
+		$common = CommonDisplayStrings::pick( [
+			'site_url_label',
+			'username',
+			'ip_address',
+			'time_label'
+		] );
+
 		return [
 			'hrefs'   => [
 				'home_url' => $this->action_data[ 'home_url' ],
@@ -19,10 +28,10 @@ class UserLoginNotice extends EmailBase {
 				'unexpected'      => __( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),
 				'details_heading' => __( 'Details for this login are below:', 'wp-simple-firewall' ),
 				'details'         => [
-					'details_url'      => sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $this->action_data[ 'home_url' ] ),
-					'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $this->action_data[ 'username' ] ),
-					'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] ),
-					'details_time'     => sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $this->action_data[ 'timestamp' ] ),
+					'details_url'      => sprintf( '%s: %s', $common[ 'site_url_label' ], $this->action_data[ 'home_url' ] ),
+					'details_username' => sprintf( '%s: %s', $common[ 'username' ], $this->action_data[ 'username' ] ),
+					'details_ip'       => sprintf( '%s: %s', $common[ 'ip_address' ], $this->action_data[ 'ip' ] ),
+					'details_time'     => sprintf( '%s: %s', $common[ 'time_label' ], $this->action_data[ 'timestamp' ] ),
 				]
 			]
 		];

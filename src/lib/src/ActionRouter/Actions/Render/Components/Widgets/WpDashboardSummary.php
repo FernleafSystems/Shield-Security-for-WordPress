@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Marketing\OurLatestBlogPos
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -26,9 +27,10 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 		$con = self::con();
 		$vars = $this->getVars( (bool)$this->action_data[ 'refresh' ] ?? true );
 		$vars[ 'generated_at' ] = Services::Request()
-										  ->carbon()
-										  ->setTimestamp( $vars[ 'generated_at' ] )
-										  ->diffForHumans();
+							  ->carbon()
+							  ->setTimestamp( $vars[ 'generated_at' ] )
+							  ->diffForHumans();
+		$common = CommonDisplayStrings::pick( [ 'time_label', 'user_label' ] );
 		return [
 			'hrefs'   => [
 				'overview'   => $con->plugin_urls->adminHome(),
@@ -61,8 +63,8 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'generated'         => __( 'Summary Generated', 'wp-simple-firewall' ),
 				'refresh'           => __( 'Refresh', 'wp-simple-firewall' ),
 				'events'            => __( 'Events', 'wp-simple-firewall' ),
-				'time'              => __( 'Time', 'wp-simple-firewall' ),
-				'user'              => __( 'User', 'wp-simple-firewall' ),
+				'time'              => $common[ 'time_label' ],
+				'user'              => $common[ 'user_label' ],
 				'session_started'   => __( 'Session Started', 'wp-simple-firewall' ),
 				'last_offense'      => __( 'Last Offense', 'wp-simple-firewall' ),
 				'blocked'           => __( 'Blocked', 'wp-simple-firewall' ),

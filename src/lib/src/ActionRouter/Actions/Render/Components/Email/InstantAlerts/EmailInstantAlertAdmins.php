@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 
@@ -27,12 +28,10 @@ class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 			$alertGroups[ $alertKey ] = [
 				'title' => sprintf( '%s: %s', __( 'Change Detected', 'wp-simple-firewall' ), $this->titleFor( $alertKey ) ),
 				'items' => \array_map(
-					function ( string $item ) {
-						return [
-							'text' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $item ),
-							'href' => '',
-						];
-					},
+					static fn( string $item ) => [
+						'text' => sprintf( '%s: %s', CommonDisplayStrings::get( 'username' ), $item ),
+						'href' => '',
+					],
 					$alertItems
 				)
 			];

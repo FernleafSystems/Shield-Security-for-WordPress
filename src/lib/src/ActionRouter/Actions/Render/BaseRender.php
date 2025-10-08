@@ -215,7 +215,11 @@ abstract class BaseRender extends BaseAction {
 
 	private function getDisplayStrings() :array {
 		$con = self::con();
-		return [
+		$commonStrings = CommonDisplayStrings::all();
+
+		return Services::DataManipulation()->mergeArraysRecursive(
+			$commonStrings,
+			[
 			'btn_save'          => __( 'Save Options', 'wp-simple-firewall' ),
 			'btn_options'       => __( 'Options', 'wp-simple-firewall' ),
 			'btn_help'          => __( 'Help', 'wp-simple-firewall' ),
@@ -234,7 +238,6 @@ abstract class BaseRender extends BaseAction {
 			'opt_info_blog'     => __( 'Blog article', 'wp-simple-firewall' ),
 			'opt_info_video'    => __( 'Watch the explainer video', 'wp-simple-firewall' ),
 			'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
-			'username'          => __( 'Username', 'wp-simple-firewall' ),
 			'blog'              => __( 'Blog', 'wp-simple-firewall' ),
 			'save_all_settings' => __( 'Save Settings', 'wp-simple-firewall' ),
 			'plugin_name'       => $con->labels->Name,
@@ -245,7 +248,6 @@ abstract class BaseRender extends BaseAction {
 			'help_title'        => __( 'Help', 'wp-simple-firewall' ),
 			'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
 			'installation_id'   => __( 'Installation ID', 'wp-simple-firewall' ),
-			'ip_address'        => __( 'IP Address', 'wp-simple-firewall' ),
 			'select'            => __( 'Select', 'wp-simple-firewall' ),
 			'filters_clear'     => __( 'Clear Filters', 'wp-simple-firewall' ),
 			'filters_apply'     => __( 'Apply Filters', 'wp-simple-firewall' ),
@@ -328,18 +330,7 @@ abstract class BaseRender extends BaseAction {
 			'translated_colon'        => __( ':', 'wp-simple-firewall' ),
 			'translated_colon_space'  => __( ': ', 'wp-simple-firewall' ),
 			'translated_dash_space'   => __( '- ', 'wp-simple-firewall' ),
-			'more_info_label'         => __( 'More Info', 'wp-simple-firewall' ),
-			'important_label'         => __( 'Important', 'wp-simple-firewall' ),
-			'collapse_label'          => __( 'Collapse', 'wp-simple-firewall' ),
-			'upgrade_guide_label'     => __( 'Upgrade Guide', 'wp-simple-firewall' ),
-			'patch_label'             => __( 'Patch', 'wp-simple-firewall' ),
-			'slug_label'              => __( 'Slug', 'wp-simple-firewall' ),
-			'alert_label'             => __( 'Alert', 'wp-simple-firewall' ),
-			'warning_label'           => __( 'Warning', 'wp-simple-firewall' ),
-			'notice_label'            => __( 'Notice', 'wp-simple-firewall' ),
-			'info_label'              => __( 'Info', 'wp-simple-firewall' ),
-			'debug_label'             => __( 'Debug', 'wp-simple-firewall' ),
-		];
+		] );
 	}
 
 	protected function getTwigEnvironmentVars() :array {

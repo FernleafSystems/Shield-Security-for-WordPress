@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Services\Services;
@@ -31,7 +32,7 @@ class Info extends Base {
 					'file_description' => $this->getFileDescriptionLines(),
 				],
 				'strings' => [
-					'info'                  => __( 'Info', 'wp-simple-firewall' ),
+					'info'                  => CommonDisplayStrings::get( 'info_label' ),
 					'heading_malai_status'  => sprintf( __( 'Malware status report from %s', 'wp-simple-firewall' ), 'MAL{ai} ' ),
 					'malware_status_of'     => __( 'Malware status of this file is currently', 'wp-simple-firewall' ),
 					'malai_status'          => $this->getMalaiStatus(),

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sessions extends Base {
@@ -38,7 +39,7 @@ class Sessions extends Base {
 			'strings' => [
 				'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
 				'no_sessions'      => __( 'No sessions recorded for this IP address', 'wp-simple-firewall' ),
-				'username'         => __( 'Username', 'wp-simple-firewall' ),
+				'username'         => CommonDisplayStrings::get( 'username' ),
 				'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
 				'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),
 				'last_activity_at' => __( 'Last Seen At', 'wp-simple-firewall' ),

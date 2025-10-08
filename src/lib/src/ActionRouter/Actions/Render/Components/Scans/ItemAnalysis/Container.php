@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class Container extends Base {
 
@@ -12,6 +13,12 @@ class Container extends Base {
 	protected function getRenderData() :array {
 		$con = self::con();
 		$item = $this->getScanItem();
+		$common = CommonDisplayStrings::pick( [
+			'info_label',
+			'history_label',
+			'diff_label',
+			'contents_label'
+		] );
 
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
@@ -46,10 +53,10 @@ class Container extends Base {
 			],
 			'strings' => [
 				'modal_title'      => sprintf( __( '%s: %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ), $item->path_fragment ),
-				'tab_filecontents' => __( 'Contents', 'wp-simple-firewall' ),
-				'tab_diff'         => __( 'Diff', 'wp-simple-firewall' ),
-				'tab_history'      => __( 'History', 'wp-simple-firewall' ),
-				'tab_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'tab_filecontents' => $common[ 'contents_label' ],
+				'tab_diff'         => $common[ 'diff_label' ],
+				'tab_history'      => $common[ 'history_label' ],
+				'tab_info'         => $common[ 'info_label' ],
 				'tab_malai'        => __( 'MAL{ai} Lookup', 'wp-simple-firewall' ),
 				'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
 			],

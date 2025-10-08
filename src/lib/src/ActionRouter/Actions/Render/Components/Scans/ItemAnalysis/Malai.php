@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 class Malai extends Base {
@@ -26,7 +27,7 @@ class Malai extends Base {
 		if ( $item->is_mal ) {
 			throw new ActionException( sprintf(
 				__( 'Please see the "%s" tab for more information as this file has already been classified as "potential malware" in the scan.', 'wp-simple-firewall' ),
-				__( 'Info', 'wp-simple-firewall' )
+				CommonDisplayStrings::get( 'info_label' )
 			) );
 		}
 
