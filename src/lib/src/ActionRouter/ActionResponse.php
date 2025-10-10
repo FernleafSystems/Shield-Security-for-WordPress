@@ -33,4 +33,25 @@ class ActionResponse extends Response {
 		}
 		return $value;
 	}
+
+	public function setPayload( array $payload ) :self {
+		$this->action_response_data = $payload;
+		return $this;
+	}
+
+	public function mergePayload( array $payload ) :self {
+		$existing = $this->action_response_data;
+		if ( !\is_array( $existing ) ) {
+			$existing = [];
+		}
+		$this->action_response_data = \array_merge( $existing, $payload );
+		return $this;
+	}
+
+	public function payload() :array {
+		if ( !\is_array( $this->action_response_data ) ) {
+			$this->action_response_data = [];
+		}
+		return $this->action_response_data;
+	}
 }

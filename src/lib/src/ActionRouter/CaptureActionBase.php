@@ -12,9 +12,9 @@ class CaptureActionBase {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var ?ActionResponse
+	 * @var ?RoutedResponse
 	 */
-	protected $actionResponse;
+	protected ?RoutedResponse $actionResponse = null;
 
 	protected function canRun() :bool {
 		$req = Services::Request();
