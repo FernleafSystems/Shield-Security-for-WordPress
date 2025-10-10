@@ -77,7 +77,6 @@ class Constants {
 		Actions\PluginImportFromFileUpload::class,
 		Actions\PluginImportFromSite::class,
 		Actions\PluginIpDetect::class,
-		Actions\PluginMarkTourFinished::class,
 		Actions\PluginReinstall::class,
 		Actions\Render\Components\OffCanvas\OffCanvasBase::class,
 		Actions\PluginSuperSearch::class,

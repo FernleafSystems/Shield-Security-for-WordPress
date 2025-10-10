@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Simple\DefinitionsRegistrar;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Simple\Dispatcher as SimpleDispatcher;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Simple\Registry as SimpleRegistry;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,6 +18,8 @@ class ActionRoutingController {
 	public const ACTION_AJAX = 1;
 	public const ACTION_SHIELD = 2;
 	public const ACTION_REST = 3;
+
+	private ?SimpleRegistry $simpleRegistry = null;
 
 	protected function run() {
 		( new CaptureRedirects() )->run();
@@ -93,5 +98,17 @@ class ActionRoutingController {
 		}
 
 		return $output;
+	}
+
+	public function simpleRegistry() :SimpleRegistry {
+		if ( !$this->simpleRegistry instanceof SimpleRegistry ) {
+			$this->simpleRegistry = new SimpleRegistry();
+			( new DefinitionsRegistrar() )->registerDefaults( $this->simpleRegistry );
+		}
+		return $this->simpleRegistry;
+	}
+
+	public function simpleDispatcher() :SimpleDispatcher {
+		return new SimpleDispatcher();
 	}
 }
