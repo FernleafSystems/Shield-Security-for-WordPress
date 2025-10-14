@@ -183,7 +183,7 @@ jobs:
     - name: Build plugin package
       run: |
         PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        ./bin/build-package.sh "$PACKAGE_DIR" "${{ github.workspace }}"
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build
         echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
       
     - name: Setup Docker environment

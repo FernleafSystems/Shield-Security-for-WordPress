@@ -113,7 +113,7 @@ fi
 echo "📦 Building plugin package..."
 # PACKAGE_DIR already set earlier to avoid Docker Compose warnings
 rm -rf "$PACKAGE_DIR"
-./bin/build-package.sh "$PACKAGE_DIR" "$PROJECT_ROOT"
+composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build
 
 # Prepare Docker environment directory
 echo "⚙️  Setting up Docker environment..."

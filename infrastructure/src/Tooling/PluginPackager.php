@@ -23,30 +23,42 @@ class PluginPackager {
 		};
 	}
 
-	public function package( ?string $outputDir = null ) :string {
+	/**
+	 * @param array<string,bool> $options
+	 */
+	public function package( ?string $outputDir = null, array $options = [] ) :string {
+		$options = $this->resolveOptions( $options );
 		$targetDir = $this->resolveOutputDirectory( $outputDir );
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
 		$composerCommand = $this->getComposerCommand();
-		$this->runCommand(
-			array_merge( $composerCommand, ['install', '--no-interaction', '--prefer-dist', '--optimize-autoloader'] ),
-			$this->projectRoot
-		);
+		if ( $options['composer_root'] ) {
+			$this->runCommand(
+				array_merge( $composerCommand, ['install', '--no-interaction', '--prefer-dist', '--optimize-autoloader'] ),
+				$this->projectRoot
+			);
+		}
 
-		$this->runCommand(
-			array_merge( $composerCommand, ['install', '--no-interaction', '--prefer-dist', '--optimize-autoloader'] ),
-			$this->projectRoot.'/src/lib'
-		);
+		if ( $options['composer_lib'] ) {
+			$this->runCommand(
+				array_merge( $composerCommand, ['install', '--no-interaction', '--prefer-dist', '--optimize-autoloader'] ),
+				$this->projectRoot.'/src/lib'
+			);
+		}
 
-		$this->runCommand(
-			['npm', 'ci', '--no-audit', '--no-fund'],
-			$this->projectRoot
-		);
+		if ( $options['npm_install'] ) {
+			$this->runCommand(
+				['npm', 'ci', '--no-audit', '--no-fund'],
+				$this->projectRoot
+			);
+		}
 
-		$this->runCommand(
-			['npm', 'run', 'build'],
-			$this->projectRoot
-		);
+		if ( $options['npm_build'] ) {
+			$this->runCommand(
+				['npm', 'run', 'build'],
+				$this->projectRoot
+			);
+		}
 
 		$this->runCommand(
 			['bash', $this->projectRoot.'/bin/build-package.sh', $targetDir, $this->projectRoot],
@@ -116,6 +128,20 @@ class PluginPackager {
 
 	private function log( string $message ) :void {
 		( $this->logger )( $message );
+	}
+
+	/**
+	 * @return array<string,bool>
+	 */
+	private function resolveOptions( array $options ) :array {
+		$defaults = [
+			'composer_root' => true,
+			'composer_lib' => true,
+			'npm_install' => true,
+			'npm_build' => true,
+		];
+
+		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
 	}
 
 	/**

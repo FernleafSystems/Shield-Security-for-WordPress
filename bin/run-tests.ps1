@@ -130,7 +130,8 @@ if ($Docker) {
         Write-Host "Package directory: $PackageDir" -ForegroundColor Gray
         Write-Host "Building package..." -ForegroundColor Gray
         
-        & ./bin/build-package.sh $PackageDir
+        $composerArgs = @('package-plugin', '--', "--output=$PackageDir")
+        & composer @composerArgs
         if ($LASTEXITCODE -ne 0) {
             Write-Host "❌ Package build failed" -ForegroundColor Red
             exit 1
