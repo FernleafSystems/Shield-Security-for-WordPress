@@ -51,8 +51,7 @@ class ChunkedExporter {
 		$tableDataExp = new TableDataExport( $this->table, $cfg );
 		$primaryOrderColumn = ( new TableHelper( $this->table ) )->getAppropriatePrimaryKeyForOrdering();
 		if ( empty( $primaryOrderColumn ) ) {
-			// when the query isn't optimised, offset queries are slower, we reduce the page size
-			// to reduce a likelihood that the export request exceeds the server request timeout.
+			// when no obvious PK is available, offset queries are slower; reduce page size to lower timeout risk
 			$orderBy = '';
 			$this->maxPageRows = (int)\max( 1, \round( 2*$this->maxPageRows/3 ) );
 		}
@@ -63,6 +62,8 @@ class ChunkedExporter {
 		$pageExportComplete = false;
 		$offset = $this->startingOffset;
 		$isFirstLoop = true;
+		$lastProcessedPrimaryKey = $this->startingOffset; // keep track of the last PK we touched so stalled requests can't reset progress to 0
+		$currentOffsetForResponse = $this->startingOffset;
 		$tableExportComplete = false;
 		do {
 			if ( $isFirstLoop ) {
@@ -73,12 +74,13 @@ class ChunkedExporter {
 				$isFirstLoop = false;
 			}
 
-			// Default behaviour is to just get the next chunk of data.`
+			// Default behaviour is to just get the next chunk of data.
 			if ( empty( $primaryOrderColumn ) ) {
 				$tableDataExp->buildDataRows( [], $orderBy, $this->chunkSize, $this->chunkSize*$offset++ );
+				$currentOffsetForResponse = $offset;
 			}
 			else {
-				// if we can order by primary key, then we don't need offset, we can use the final row of the previous results...
+				// if we can order by primary key, then we don't need offset; we reuse the last PK to avoid skipping/duplication
 				if ( !empty( $tableDataExp->getMostRecentRow() ) ) {
 					$offset = (int)\max(
 						$offset + 1,
@@ -93,6 +95,11 @@ class ChunkedExporter {
 					$orderBy,
 					$this->chunkSize
 				);
+
+				if ( !empty( $tableDataExp->getMostRecentRow() ) ) {
+					$lastProcessedPrimaryKey = (int)$tableDataExp->getMostRecentRow()[ $primaryOrderColumn ];
+				}
+				$currentOffsetForResponse = !empty( $tableDataExp->getMostRecentRow() ) ? $lastProcessedPrimaryKey : $offset;
 			}
 
 			if ( $tableDataExp->getPreviousDataRowsCount() === 0 || $tableDataExp->getTotalDataRowsCount() >= $this->maxPageRows ) {
@@ -111,7 +118,8 @@ class ChunkedExporter {
 
 		return [
 			'table_export_complete' => $tableExportComplete,
-			'current_offset'        => $offset,
+			// current_offset feeds the caller's map; keep it advancing even when PK-based paging is used
+			'current_offset'        => $currentOffsetForResponse,
 			'exported_rows'         => $tableDataExp->getTotalDataRowsCount(),
 		];
 	}
