@@ -1,0 +1,2991 @@
+# Malay translation for Shield Security for WordPress
+# This file is distributed under the same license as Shield Security for WordPress.
+msgid ""
+msgstr ""
+"Project-Id-Version: Shield Security for WordPress\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-08 15:34+0000\n"
+"PO-Revision-Date: 2025-12-08 15:34+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: ms_MY\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=(0);\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "Perlindungan SPAM Komen %s"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "Firewall %s telah menyekat permintaan ke tapak WordPress anda."
+
+msgid "%s Home"
+msgstr "Halaman Utama %s"
+
+msgid "%s Plugin Badge"
+msgstr "Lencana Pemalam %s"
+
+msgid "%s and %s"
+msgstr "%s dan %s"
+
+msgid "%s day"
+msgstr "%s hari"
+
+msgid "%s days"
+msgstr "%s hari"
+
+msgid "%s directory"
+msgstr "Direktori %s"
+
+msgid "%s is protected against tampering."
+msgstr "%s dilindungi daripada gangguan."
+
+msgid "%s isn't protected against tampering."
+msgstr "%s tidak dilindungi daripada gangguan."
+
+msgid "%s time"
+msgstr "%s kali"
+
+msgid "%s was added to your profile."
+msgstr "%s telah ditambah ke profil anda."
+
+msgid "%s was removed from your profile."
+msgstr "%s telah dikeluarkan daripada profil anda."
+
+msgid "%s was successfully added to your account."
+msgstr "%s berjaya ditambah ke akaun anda."
+
+msgid "(Currently this is set to %s days.)"
+msgstr "(Pada masa ini ditetapkan kepada %s hari.)"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - Emel"
+
+msgid "2FA At"
+msgstr "2FA Pada"
+
+msgid "2FA Login Success"
+msgstr "Kejayaan Log Masuk 2FA"
+
+msgid "2FA One-Time Passwords"
+msgstr "Kata Laluan Sekali Sahaja 2FA"
+
+msgid "2FA User Config Page"
+msgstr "Halaman Konfigurasi 2FA Pengguna"
+
+msgid "2FA by Email"
+msgstr "2FA melalui Emel"
+
+msgid "404 Detect"
+msgstr "Kesan 404"
+
+msgid "404 detected at '{{path}}'."
+msgstr "404 dikesan di '{{path}}'."
+
+msgid "7 Days"
+msgstr "7 Hari"
+
+msgid ":"
+msgstr ":"
+
+msgid "A WordPress user (%s) has requested to remove the Security Admin restriction."
+msgstr "Pengguna WordPress (%s) telah meminta untuk membuang sekatan Security Admin."
+
+msgid "A high-level overview of your WordPress updates status."
+msgstr "Gambaran keseluruhan peringkat tinggi status kemas kini WordPress anda."
+
+msgid "A light-touch security profile"
+msgstr "Profil keselamatan sentuhan ringan"
+
+msgid "A login to your WordPress account just occurred"
+msgstr "Log masuk ke akaun WordPress anda baru sahaja berlaku"
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "Kata Laluan Sekali Sahaja baharu telah dihantar ke alamat e-mel anda."
+
+msgid "A successful login to your WordPress account has just occurred."
+msgstr "Log masuk berjaya ke akaun WordPress anda baru sahaja berlaku."
+
+msgid "Access Restricted"
+msgstr "Capaian Terhad"
+
+msgid "Access Restriction Zones"
+msgstr "Zon Sekatan Capaian"
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "Capaian ke XML-RPC dikesan di '{{path}}'."
+
+msgid "Access to XML-RPC is available."
+msgstr "Capaian ke XML-RPC tersedia."
+
+msgid "Access to XML-RPC is disabled."
+msgstr "Capaian ke XML-RPC dilumpuhkan."
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "Capaian kepada pemalam Security %s adalah terhad."
+
+msgid "Actions"
+msgstr "Tindakan"
+
+msgid "Actions and Info"
+msgstr "Tindakan dan Maklumat"
+
+msgid "Activate"
+msgstr "aktifkan"
+
+msgid "Activate Only"
+msgstr "Aktifkan Sahaja"
+
+msgid "Activate Rule"
+msgstr "Aktifkan Peraturan"
+
+msgid "Activate Shield"
+msgstr "Aktifkan Shield"
+
+msgid "Activate ShieldPRO License"
+msgstr "Aktifkan Lesen ShieldPRO"
+
+msgid "Activate Your ShieldPRO License"
+msgstr "Aktifkan Lesen ShieldPRO Anda"
+
+msgid "Activated"
+msgstr "Diaktifkan"
+
+msgid "Active"
+msgstr "Aktif"
+
+msgid "Active 2FA"
+msgstr "2FA Aktif"
+
+msgid "Active Rules Summary"
+msgstr "Ringkasan Peraturan Aktif"
+
+msgid "Active Themes (%s)"
+msgstr "Tema Aktif (%s)"
+
+msgid "Add IP Bypass"
+msgstr "Tambah Pintasan IP"
+
+msgid "Add To Block List"
+msgstr "Tambah Ke Senarai Sekatan"
+
+msgid "Add To Bypass List"
+msgstr "Tambah Ke Senarai Pintasan"
+
+msgid "Add my IP address (%s) to the bypass/whitelist"
+msgstr "Tambah alamat IP saya (%s) ke senarai bypass/whitelist"
+
+msgid "Admin Access Login"
+msgstr "Log Masuk Capaian Admin"
+
+msgid "Admin Accounts"
+msgstr "Akaun Pentadbir"
+
+msgid "Admin Login Notification Email"
+msgstr "E-mel Pemberitahuan Log Masuk Admin"
+
+msgid "Admin Users"
+msgstr "Pengguna Admin"
+
+msgid "Administration Email Address"
+msgstr "Alamat Emel Pentadbiran"
+
+msgid "Alert"
+msgstr "Amaran"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "Semua penyedia MFA dikeluarkan daripada pengguna dengan ID %s."
+
+msgid "All User Roles Available On This Site"
+msgstr "Semua Peranan Pengguna Tersedia Di Tapak Ini"
+
+msgid "All access to your site is blocked."
+msgstr "Semua capaian ke tapak anda disekat."
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "Benarkan Pengguna Menjana Kod Sandaran"
+
+msgid "Allow Yubikey OTP"
+msgstr "Benarkan OTP Yubikey"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "Benarkan Pendaftaran Yubikey Untuk Kata Laluan Sekali Sahaja"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "Benarkan pengguna menjana kod sandaran log masuk 2FA."
+
+msgid "App Passwords Disabled"
+msgstr "Kata Laluan Aplikasi Dilumpuhkan"
+
+msgid "App Passwords Disabled For User"
+msgstr "Kata Laluan Aplikasi Dilumpuhkan Untuk Pengguna"
+
+msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
+msgstr "Kenakan Perlindungan Brute Force Pada Pendaftaran Pengguna Dan Kata Laluan Hilang"
+
+msgid "Authenticated With Site"
+msgstr "Disahkan Dengan Tapak"
+
+msgid "Author"
+msgstr "Pengarang"
+
+msgid "Auto Block"
+msgstr "Sekat Automatik"
+
+msgid "Auto Clean"
+msgstr "Bersih Automatik"
+
+msgid "Auto File Repair and File Diff are available"
+msgstr "Pembaikan Fail Auto dan File Diff tersedia"
+
+msgid "Auto-Import URL"
+msgstr "URL Auto-Import"
+
+msgid "Automatic Bot"
+msgstr "Bot Automatik"
+
+msgid "Automatic Bot Comment SPAM Protection Filter"
+msgstr "Penapis Perlindungan SPAM Komen Bot Automatik"
+
+msgid "Automatic Updates"
+msgstr "Kemas Kini Automatik"
+
+msgid "Backup Code"
+msgstr "Kod Sandaran"
+
+msgid "Backup Login Code"
+msgstr "Kod Sandaran Log Masuk"
+
+msgid "Backup Login Code Just Used"
+msgstr "Kod Sandaran Log Masuk Baru Digunakan"
+
+msgid "Badge"
+msgstr "Lencana"
+
+msgid "Block %s"
+msgstr "Sekat %s"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Sekat SPAM Komen Bot"
+
+msgid "Block Bot SPAM"
+msgstr "Sekat SPAM Bot"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "Sekat SPAM Komen Yang Dihantar Oleh Manusia"
+
+msgid "Block Human Comment SPAM"
+msgstr "Sekat SPAM Komen Manusia"
+
+msgid "Block Human SPAM"
+msgstr "Sekat SPAM Manusia"
+
+msgid "Block IP"
+msgstr "Sekat IP"
+
+msgid "Block Login Bots"
+msgstr "Sekat Bot Log Masuk"
+
+msgid "Block PHP Code Includes"
+msgstr "Sekat Penyertaan Kod PHP"
+
+msgid "Block PHP code in requests"
+msgstr "Sekat kod PHP dalam permintaan"
+
+msgid "Block Page"
+msgstr "Halaman Sekatan"
+
+msgid "Block SPAM User Registrations"
+msgstr "Sekat Pendaftaran Pengguna SPAM"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "Sekat SPAM yang dihantar ke Borang Hubungan oleh Bot automatik."
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "Sekat SPAM Komen WordPress dan SPAM Borang Hubungi."
+
+msgid "Block XML-RPC"
+msgstr "Sekat XML-RPC"
+
+msgid "Blocked"
+msgstr "Disekat"
+
+msgid "Blocked & Bypass IPs"
+msgstr "IP Disekat & Pintasan"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "Komen SPAM daripada Bot disekat."
+
+msgid "Blocks brute force hacking attacks against your login and registration pages."
+msgstr "Sekat serangan penggodaman brute force terhadap halaman log masuk dan pendaftaran anda."
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Tindakan Bot"
+
+msgid "Bot Comment SPAM"
+msgstr "SPAM Komen Bot"
+
+msgid "Bot Protection"
+msgstr "Perlindungan Bot"
+
+msgid "Bot SPAM"
+msgstr "SPAM Bot"
+
+msgid "Bots"
+msgstr "Bot"
+
+msgid "Bots & IP Rules"
+msgstr "Bot & Peraturan IP"
+
+msgid "Bots & IPs"
+msgstr "Bot & IP"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "Pengawal Log Masuk Brute Force"
+
+msgid "Brute Force Login Protection"
+msgstr "Perlindungan Log Masuk Brute Force"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "Perlindungan Log Masuk Brute Force dengan silentCAPTCHA"
+
+msgid "Brute Force Protection"
+msgstr "Perlindungan Brute Force"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Rate Limiting Trafik Brute Force"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "Serangan bot brute force terhadap log masuk WordPress anda dikesan & disekat oleh silentCAPTCHA."
+
+msgid "Build Custom Security Rules"
+msgstr "Bina Peraturan Keselamatan Tersuai"
+
+msgid "Bypass"
+msgstr "Lepas"
+
+msgid "Bypass IP"
+msgstr "Lepas IP"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CAPTCHA Fail"
+msgstr "CAPTCHA Gagal"
+
+msgid "CSP Rules"
+msgstr "Peraturan CSP"
+
+msgid "Callback"
+msgstr "Panggil Balik"
+
+msgid "Cancel"
+msgstr "batal"
+
+msgid "Cancel Login"
+msgstr "Batal Log Masuk"
+
+msgid "Child"
+msgstr "turunan"
+
+msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Pilih halaman Shield Tersuai jika terdapat konflik atau isu dengan halaman Log Masuk WP untuk 2FA."
+
+msgid "Clean"
+msgstr "bersih"
+
+msgid "Clean WP Files"
+msgstr "Fail WP Bersih"
+
+msgid "Click To Filter By Security Area or Status"
+msgstr "Klik Untuk Tapis Mengikut Kawasan Keselamatan atau Status"
+
+msgid "Click to access the login or register cheese"
+msgstr "Klik untuk capai cheese log masuk atau daftar"
+
+msgid "Click to view your security summary in-full"
+msgstr "Klik untuk lihat ringkasan keselamatan anda secara penuh"
+
+msgid "Close"
+msgstr "Tutup"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "Kod"
+
+msgid "Collapse"
+msgstr "runtuh"
+
+msgid "Comment"
+msgstr "Komen"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "Perlindungan SPAM Komen & Borang Hubungi"
+
+msgid "Comment Blocks"
+msgstr "Sekatan Komen"
+
+msgid "Comment SPAM"
+msgstr "SPAM Komen"
+
+msgid "Comment SPAM Blocked."
+msgstr "SPAM Komen Disekat."
+
+msgid "Comment SPAM Protection"
+msgstr "Perlindungan SPAM Komen"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "Perlindungan SPAM Komen: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "Status Komen Dikemas Kini"
+
+msgid "Config"
+msgstr "Konfigurasi"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "Halaman Konfigurasi Untuk Persediaan 2FA Pengguna"
+
+msgid "Contact Form SPAM"
+msgstr "SPAM Borang Hubungi"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Peraturan Content Security Policy (CSP)"
+
+msgid "Content Updated"
+msgstr "Kandungan Dikemas Kini"
+
+msgid "Couldn't create the directory: %s"
+msgstr "Tidak dapat mencipta direktori: %s"
+
+msgid "Couldn't load plugin for slug '%s'."
+msgstr "Tidak dapat memuatkan pemalam untuk slug '%s'."
+
+msgid "Couldn't load theme for slug '%s'."
+msgstr "Tidak dapat memuatkan tema untuk slug '%s'."
+
+msgid "Create Backup 2FA Login Code"
+msgstr "Cipta Kod Sandaran Log Masuk 2FA"
+
+msgid "Create Custom Rule"
+msgstr "Cipta Peraturan Tersuai"
+
+msgid "Create New IP Rule"
+msgstr "Cipta Peraturan IP Baharu"
+
+msgid "Create New Rule"
+msgstr "Cipta Peraturan Baharu"
+
+msgid "Create and view all your custom security rules."
+msgstr "Cipta dan lihat semua peraturan keselamatan tersuai anda."
+
+msgid "Create custom rules to meet all your security needs"
+msgstr "Cipta peraturan tersuai untuk memenuhi semua keperluan keselamatan anda"
+
+msgid "Critical File Protection"
+msgstr "Perlindungan Fail Kritikal"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "Perlindungan Tetapan Kritikal WordPress"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "Laman Utama CrowdSec"
+
+msgid "Current"
+msgstr "semasa"
+
+msgid "Current File Content"
+msgstr "Kandungan Fail Semasa"
+
+msgid "Current Summary"
+msgstr "Ringkasan Semasa"
+
+msgid "Current User Sessions"
+msgstr "Sesi Pengguna Semasa"
+
+msgid "Current master site: {{master_site}}"
+msgstr "Tapak induk semasa: {{master_site}}"
+
+msgid "Current value: %s"
+msgstr "Nilai semasa: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "Penyedia MFA yang aktif pada masa ini pada profil ini ialah"
+
+msgid "Custom"
+msgstr "Tersuai"
+
+msgid "Custom Debug"
+msgstr "Nyahpijat Tersuai"
+
+msgid "Custom Rules"
+msgstr "Peraturan Tersuai"
+
+msgid "Custom Security Rules"
+msgstr "Peraturan Keselamatan Tersuai"
+
+msgid "Daily"
+msgstr "Harian"
+
+msgid "Dashboard"
+msgstr "Papan pemuka"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "URL Logo Log Masuk Papan Pemuka dan 2FA"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "Logo Papan Pemuka dan 2FA"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "URL Logo Papan Pemuka dan 2FA"
+
+msgid "Database"
+msgstr "Pangkalan Data"
+
+msgid "Date"
+msgstr "Tarikh"
+
+msgid "Date Added"
+msgstr "Tarikh Ditambah"
+
+msgid "Date Range"
+msgstr "Julat Tarikh"
+
+msgid "Day"
+msgstr "Hari"
+
+msgid "Debug"
+msgstr "nyahpijat"
+
+msgid "Debug Info"
+msgstr "Info Nyahpijat"
+
+msgid "Debug Is On"
+msgstr "Nyahpijat Dihidupkan"
+
+msgid "Default"
+msgstr "lalai"
+
+msgid "Default Admin User"
+msgstr "Pengguna Admin Lalai"
+
+msgid "Default User Role"
+msgstr "Peranan Pengguna Lalai"
+
+msgid "Delete"
+msgstr "hapus"
+
+msgid "Delete IP"
+msgstr "Hapus IP"
+
+msgid "Delete Login Backup Code"
+msgstr "Padam Kod Sandaran Log Masuk"
+
+msgid "Delete Plugin Settings"
+msgstr "Padam Tetapan Pemalam"
+
+msgid "Delete Rule"
+msgstr "Hapus Peraturan"
+
+msgid "Delete Success"
+msgstr "Berjaya Dihapus"
+
+msgid "Description"
+msgstr "keterangan"
+
+msgid "Details"
+msgstr "perincian"
+
+msgid "Detect Invalid Username Logins"
+msgstr "Kesan Log Masuk Nama Pengguna Tidak Sah"
+
+msgid "Detected"
+msgstr "Dikesan"
+
+msgid "Diff"
+msgstr "Beza"
+
+msgid "Disable %s"
+msgstr "Nyahboleh %s"
+
+msgid "Disable 2FA by email"
+msgstr "Lumpuhkan 2FA melalui emel"
+
+msgid "Disable Ability To Edit Files From Within WordPress"
+msgstr "Lumpuhkan Keupayaan Untuk Edit Fail Dari Dalam WordPress"
+
+msgid "Disable All Rules"
+msgstr "Lumpuhkan Semua Peraturan"
+
+msgid "Disable File Editing"
+msgstr "Lumpuhkan Penyuntingan Fail"
+
+msgid "Disable Security Admin"
+msgstr "Lumpuhkan Security Admin"
+
+msgid "Disable Shield"
+msgstr "Nyahaktifkan Shield"
+
+msgid "Disable Site Lockdown"
+msgstr "Lumpuhkan Lockdown Tapak"
+
+msgid "Disable XML-RPC"
+msgstr "Lumpuhkan XML-RPC"
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "Lumpuhkan pemprosesan permintaan yang dihantar ke endpoint XML-RPC"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "Lumpuhkan endpoint XML-RPC dan sekat semua permintaan."
+
+msgid "Disconnected"
+msgstr "terputus"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "Paparkan Lencana Keselamatan Pemalam Kepada Pelawat Anda"
+
+msgid "Docs"
+msgstr "Dokumen"
+
+msgid "Edit"
+msgstr "sunting"
+
+msgid "Edit Rule"
+msgstr "Sunting Peraturan"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "Sunting Peraturan #%s (%s)"
+
+msgid "Edit Settings"
+msgstr "Edit Tetapan"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "Edit tetapan komen SPAM bot"
+
+msgid "Edit general plugin settings"
+msgstr "Edit tetapan umum pemalam"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "Edit tetapan komen SPAM manusia"
+
+msgid "Edit logging settings"
+msgstr "Edit tetapan pengelogan"
+
+msgid "Edit rate limit settings for abusive visitors"
+msgstr "Edit tetapan had kadar untuk pelawat yang menyalahgunakan"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "Edit tetapan untuk pendaftaran pengguna SPAM"
+
+msgid "Edit settings that apply protection to your login & user forms"
+msgstr "Edit tetapan yang mengenakan perlindungan pada log masuk & borang pengguna anda"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "Pengeditan fail dari dalam kawasan pentadbir WordPress dibenarkan."
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "Pengeditan fail dari dalam kawasan pentadbir WordPress dilumpuhkan."
+
+msgid "Editing this option is currently restricted."
+msgstr "Mengedit pilihan ini pada masa ini dihadkan."
+
+msgid "Email"
+msgstr "emel"
+
+msgid "Email 2FA activated."
+msgstr "2FA Emel diaktifkan."
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "Pilihan 2FA E-mel tidak didayakan pada masa ini."
+
+msgid "Email Auto-Login"
+msgstr "E-mel Auto-Log Masuk"
+
+msgid "Email OTP"
+msgstr "OTP Emel"
+
+msgid "Email Sent"
+msgstr "Emel Dihantar"
+
+msgid "Email Updated"
+msgstr "E-mel Dikemas Kini"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "E-mel dihantar daripada Pemalam %s v%s, pada %s."
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "E-mel dikemas kini untuk pengguna '{{user_login}}'."
+
+msgid "Enable"
+msgstr "Dayakan"
+
+msgid "Enable %s"
+msgstr "Dayakan %s"
+
+msgid "Enable %s Protection"
+msgstr "Aktifkan Perlindungan %s"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "Aktifkan (atau Nyahaktifkan) Ciri Perlindungan SPAM Komen"
+
+msgid "Enable Content Security Policy"
+msgstr "Dayakan Content Security Policy"
+
+msgid "Enable MainWP"
+msgstr "Dayakan MainWP"
+
+msgid "Enable Rate Limiting"
+msgstr "Aktifkan Rate Limiting"
+
+msgid "Enable Request Logging"
+msgstr "Dayakan Pengelogan Permintaan"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "Dayakan Pengimbas Kerentanan"
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Masukkan Kata Laluan Sekali Sahaja Daripada Yubikey"
+
+msgid "Enter admin username, email or ID."
+msgstr "Masukkan nama pengguna admin, e-mel atau ID."
+
+msgid "Environment"
+msgstr "sekitaran"
+
+msgid "Error"
+msgstr "ralat"
+
+msgid "Event"
+msgstr "Peristiwa"
+
+msgid "Event Details"
+msgstr "Perincian Peristiwa"
+
+msgid "Event Slug"
+msgstr "Slug Peristiwa"
+
+msgid "Events"
+msgstr "Peristiwa"
+
+msgid "Extras"
+msgstr "Tambahan"
+
+msgid "Failed Login"
+msgstr "Log Masuk Gagal"
+
+msgid "Failed Logins"
+msgstr "Log Masuk Gagal"
+
+msgid "Failed to register."
+msgstr "Gagal mendaftar."
+
+msgid "Failed to send Firewall Block email alert to: {{to}}"
+msgstr "Gagal menghantar amaran e-mel Sekatan Firewall kepada: {{to}}"
+
+msgid "Failed to store the rule in the database."
+msgstr "Gagal menyimpan peraturan dalam pangkalan data."
+
+msgid "Failed: %s"
+msgstr "Gagal: %s"
+
+msgid "False"
+msgstr "Palsu"
+
+msgid "File"
+msgstr "Fail"
+
+msgid "File Details"
+msgstr "Perincian Fail"
+
+msgid "File Detected By Scans"
+msgstr "Fail Dikesan Oleh Imbasan"
+
+msgid "File Guard"
+msgstr "Pengawal Fail"
+
+msgid "File Info"
+msgstr "Info Fail"
+
+msgid "File Name"
+msgstr "Nama Fail"
+
+msgid "File Scanning and Malware Protection"
+msgstr "Imbasan Fail dan Perlindungan Malware"
+
+msgid "File Scans and Malware"
+msgstr "Imbasan Fail dan Malware"
+
+msgid "File Size"
+msgstr "Saiz Fail"
+
+msgid "File Status"
+msgstr "Status Fail"
+
+msgid "File detected as %s by %s scanner."
+msgstr "Fail dikesan sebagai %s oleh pengimbas %s."
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: Perlindungan wp-config.php"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Sekatan Firewall"
+
+msgid "Firewall Block Alert"
+msgstr "Amaran Sekatan Firewall"
+
+msgid "Firewall Block Email Fail"
+msgstr "E-mel Amaran Sekatan Firewall Gagal"
+
+msgid "Firewall Block Email Success"
+msgstr "E-mel Amaran Sekatan Firewall Berjaya"
+
+msgid "Firewall Rule"
+msgstr "Peraturan Firewall"
+
+msgid "Fix"
+msgstr "Baiki"
+
+msgid "Full Path"
+msgstr "Laluan Penuh"
+
+msgid "Full Path To File"
+msgstr "Laluan Penuh Ke Fail"
+
+msgid "General"
+msgstr "am"
+
+msgid "General Info"
+msgstr "Info Am"
+
+msgid "General Settings"
+msgstr "Tetapan Am"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "Jana Kod Sandaran Log Masuk 2FA SEKALI Sahaja"
+
+msgid "Go PRO!"
+msgstr "Pergi PRO!"
+
+msgid "Go Pro!"
+msgstr "Pergi Pro!"
+
+msgid "Go To %s"
+msgstr "Pergi Ke %s"
+
+msgid "Go To Admin"
+msgstr "Pergi Ke Admin"
+
+msgid "Go To Option"
+msgstr "Pergi Ke Pilihan"
+
+msgid "Go To Overview"
+msgstr "Pergi Ke Gambaran Keseluruhan"
+
+msgid "Go To Security Dashboard"
+msgstr "Pergi Ke Papan Pemuka Keselamatan"
+
+msgid "Go To Shield Overview"
+msgstr "Pergi Ke Gambaran Keseluruhan Shield"
+
+msgid "Go to WordPress Updates"
+msgstr "Pergi ke Kemas Kini WordPress"
+
+msgid "Go!"
+msgstr "Pergi!"
+
+msgid "Good"
+msgstr "Baik"
+
+msgid "Grade"
+msgstr "Gred"
+
+msgid "Help"
+msgstr "Bantuan"
+
+msgid "Hide Login"
+msgstr "Sembunyikan Log Masuk"
+
+msgid "Hide Login Page"
+msgstr "Sembunyikan Halaman Log Masuk"
+
+msgid "Hide The WP Login Page."
+msgstr "Sembunyikan Halaman Log Masuk WP."
+
+msgid "Hide WP Login"
+msgstr "Sembunyikan Log Masuk WP"
+
+msgid "Hide WP Login & Admin"
+msgstr "Sembunyikan Log Masuk & Admin WP"
+
+msgid "Hide WP Login Page"
+msgstr "Sembunyikan Halaman Log Masuk WP"
+
+msgid "Hide WordPress Login Page"
+msgstr "Sembunyikan Halaman Log Masuk WordPress"
+
+msgid "Home URL"
+msgstr "URL Halaman Utama"
+
+msgid "Home URL Changed"
+msgstr "URL Halaman Utama Ditukar"
+
+msgid "Homepage"
+msgstr "laman hadapan"
+
+msgid "Hostname"
+msgstr "Nama Hos"
+
+msgid "Hostname To Match"
+msgstr "Nama Hos Untuk Dipadankan"
+
+msgid "Hourly"
+msgstr "Setiap Jam"
+
+msgid "How WordPress logins are protected from brute force attacks"
+msgstr "Bagaimana log masuk WordPress dilindungi daripada serangan brute force"
+
+msgid "How all types of WordPress SPAM are handled"
+msgstr "Bagaimana semua jenis SPAM WordPress dikendalikan"
+
+msgid "Human"
+msgstr "Manusia"
+
+msgid "Human Comment SPAM"
+msgstr "SPAM Komen Manusia"
+
+msgid "Human Comment SPAM Protection"
+msgstr "Perlindungan SPAM Komen Manusia"
+
+msgid "Human SPAM"
+msgstr "SPAM Manusia"
+
+msgid "Human SPAM Filter"
+msgstr "Penapis SPAM Manusia"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IMPORTANT"
+msgstr "PENTING"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address or IP Range"
+msgstr "Alamat IP atau Julat IP"
+
+msgid "IP Address or Range"
+msgstr "Alamat IP atau Julat"
+
+msgid "IP Block List Add (Auto)"
+msgstr "Tambah Senarai Sekatan IP (Auto)"
+
+msgid "IP Block List Add (Manual)"
+msgstr "Tambah Senarai Sekatan IP (Manual)"
+
+msgid "IP Block Status"
+msgstr "Status Sekatan IP"
+
+msgid "IP Blocked"
+msgstr "IP Disekat"
+
+msgid "IP Blocks"
+msgstr "Sekatan IP"
+
+msgid "IP Bypass List Add (Manual)"
+msgstr "Tambah Senarai Pintasan IP (Manual)"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "Senarai Pintasan IP Dikeluarkan (Manual)"
+
+msgid "IP ID To Match"
+msgstr "ID IP Untuk Dipadankan"
+
+msgid "IP Meta"
+msgstr "Meta IP"
+
+msgid "IP Range"
+msgstr "Julat IP"
+
+msgid "IP Rules"
+msgstr "Peraturan IP"
+
+msgid "IP Status"
+msgstr "Status IP"
+
+msgid "IP Unblocked"
+msgstr "IP Dinyahsekat"
+
+msgid "IP Unblocked By Visitor"
+msgstr "IP Dinyahsekat Oleh Pelawat"
+
+msgid "IP Whois"
+msgstr "Whois IP"
+
+msgid "IP address '{{ip}}' manually added to block list."
+msgstr "Alamat IP '{{ip}}' ditambah secara manual ke senarai sekat."
+
+msgid "IP address '{{ip}}' manually added to bypass list."
+msgstr "Alamat IP '{{ip}}' ditambah secara manual ke senarai bypass."
+
+msgid "IP address '{{ip}}' manually removed from the bypass list."
+msgstr "Alamat IP '{{ip}}' dikeluarkan secara manual daripada senarai bypass."
+
+msgid "IP address added successfully"
+msgstr "Alamat IP berjaya ditambah"
+
+msgid "IP address added successfully."
+msgstr "Alamat IP berjaya ditambah."
+
+msgid "IP address added to Bypass list."
+msgstr "Alamat IP ditambah ke senarai Bypass."
+
+msgid "IP address blocked."
+msgstr "Alamat IP disekat."
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "Alamat IP tidak dapat dikeluarkan daripada senarai Bypass pada masa ini."
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "Alamat IP tidak dapat dinyahsekat pada masa ini."
+
+msgid "IP address removed from Bypass list."
+msgstr "Alamat IP dikeluarkan daripada senarai Bypass."
+
+msgid "IP address removed successfully."
+msgstr "Alamat IP berjaya dikeluarkan."
+
+msgid "IP address unblocked."
+msgstr "Alamat IP dinyahsekat."
+
+msgid "IP does not match."
+msgstr "IP tidak sepadan."
+
+msgid "IP isn't on the auto block list."
+msgstr "IP tidak berada dalam senarai sekat automatik."
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP tidak berada dalam senarai sekat automatik."
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "Set Semula Skor silentCAPTCHA IP."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Idle"
+msgstr "Terbiar"
+
+msgid "If"
+msgstr "Jika"
+
+msgid "Ignore"
+msgstr "abai"
+
+msgid "Ignore Success"
+msgstr "Abai Kejayaan"
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Import From File"
+msgstr "Import Dari Fail"
+
+msgid "Import From Site"
+msgstr "Import Dari Tapak"
+
+msgid "Import file was empty"
+msgstr "Fail import kosong"
+
+msgid "Important"
+msgstr "Penting"
+
+msgid "Important default settings used throughout the plugin."
+msgstr "Tetapan lalai penting yang digunakan di seluruh pemalam."
+
+msgid "Important: %s"
+msgstr "Penting: %s"
+
+msgid "Includes protection for: "
+msgstr "Termasuk perlindungan untuk:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "Maklumat Untuk Alamat IP %s"
+
+msgid "Installed"
+msgstr "Dipasang"
+
+msgid "Invalid"
+msgstr "tidak sah"
+
+msgid "Invalid Login Username"
+msgstr "Nama Pengguna Log Masuk Tidak Sah"
+
+msgid "Invalid Logins"
+msgstr "Log Masuk Tidak Sah"
+
+msgid "Invalid Request ID"
+msgstr "ID Permintaan Tidak Sah"
+
+msgid "Invalid Rule"
+msgstr "Peraturan Tidak Sah"
+
+msgid "Invalid Script Access"
+msgstr "Capaian Skrip Tidak Sah"
+
+msgid "Invalid Script Load"
+msgstr "Pemuatan Skrip Tidak Sah"
+
+msgid "Invalid Slug"
+msgstr "Slug Tidak Sah"
+
+msgid "Invalid User Email Registration"
+msgstr "Pendaftaran E-mel Pengguna Tidak Sah"
+
+msgid "Invalid Username Login"
+msgstr "Log Masuk Nama Pengguna Tidak Sah"
+
+msgid "Invalid request - lockdown is not active."
+msgstr "Permintaan tidak sah - kunci tidak aktif."
+
+msgid "Invalid request with no User ID"
+msgstr "Permintaan tidak sah tanpa ID Pengguna"
+
+msgid "Invalid type."
+msgstr "Jenis tidak sah."
+
+msgid "Invalid value type for %s"
+msgstr "Jenis nilai tidak sah untuk %s"
+
+msgid "Is Request Status 404"
+msgstr "Adakah Status Permintaan 404"
+
+msgid "Is Request To The Login Page."
+msgstr "Adakah Permintaan Ke Halaman Log Masuk."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Adakah Site Lockdown Shield aktif."
+
+msgid "Is The Shield Option Value..."
+msgstr "Adakah Nilai Pilihan Shield..."
+
+msgid "Is Visitor silentCAPTCHA Score ..."
+msgstr "Adakah Skor silentCAPTCHA Pelawat ..."
+
+msgid "Is WP AJAX"
+msgstr "Adakah WP AJAX"
+
+msgid "Is WP Admin"
+msgstr "Adakah Admin WP"
+
+msgid "Is WP Debug Active"
+msgstr "Adakah WP Debug Aktif"
+
+msgid "Is WP Search"
+msgstr "Adakah Carian WP"
+
+msgid "Is WP XML-RPC"
+msgstr "Adakah WP XML-RPC"
+
+msgid "Is WordPress Search Request."
+msgstr "Adakah Permintaan Carian WordPress."
+
+msgid "Is current user Security Admin."
+msgstr "Adakah pengguna semasa Security Admin."
+
+msgid "Is silentCAPTCHA score"
+msgstr "Adakah skor silentCAPTCHA"
+
+msgid "Is the request HTTPS."
+msgstr "Adakah permintaan HTTPS."
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "Adakah IP permintaan disekat secara automatik atau manual oleh Shield."
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "Adakah IP permintaan dalam senarai hitam Shield."
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "Adakah IP permintaan dalam senarai sekat CrowdSec Shield."
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "Adakah IP permintaan dalam senarai pintasan/senarai putih manual Shield."
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "Adakah permintaan disekat oleh ciri Lockdown Tapak Shield."
+
+msgid "Is the request from a logged-in user."
+msgstr "Adakah permintaan daripada pengguna yang log masuk."
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "Adakah permintaan daripada pengguna yang disahkan sebagai Shield Security Admin."
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "Adakah laluan permintaan dalam senarai putih Shield."
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "Adakah permintaan ke laluan dalam pemalam WordPress yang dipasang pada masa ini."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "Adakah permintaan ke laluan dalam tema WordPress yang dipasang pada masa ini."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "Adakah permintaan ke laluan dalam pemalam WordPress yang berpotensi dipasang tetapi tidak sah."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "Adakah permintaan ke laluan dalam pemalam WordPress yang berpotensi dipasang."
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "Adakah permintaan ke laluan dalam tema WordPress yang berpotensi dipasang tetapi tidak sah."
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "Adakah permintaan ke laluan dalam tema WordPress yang berpotensi dipasang."
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "Adakah permintaan ke endpoint XML-RPC WordPress."
+
+msgid "Is the request to the standard WordPress AJAX endpoint."
+msgstr "Adakah permintaan ke endpoint AJAX piawai WordPress."
+
+msgid "Is the request whitelisted?"
+msgstr "Adakah permintaan dalam senarai putih?"
+
+msgid "Issues"
+msgstr "Isu"
+
+msgid "Key"
+msgstr "Kunci"
+
+msgid "Key registration failed."
+msgstr "Pendaftaran kunci gagal."
+
+msgid "Key registration was successful."
+msgstr "Pendaftaran kunci berjaya."
+
+msgid "Knowledgebase"
+msgstr "pangkalan pengetahuan"
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Label For This IP Rule"
+msgstr "Label Untuk Peraturan IP Ini"
+
+msgid "Launch Debug Info Page"
+msgstr "Lancarkan Halaman Info Nyahpijat"
+
+msgid "Level"
+msgstr "Paras"
+
+msgid "License"
+msgstr "Lesen"
+
+msgid "License Summary"
+msgstr "Ringkasan Lesen"
+
+msgid "License removed successfully."
+msgstr "Lesen berjaya dikeluarkan."
+
+msgid "Light"
+msgstr "Ringan"
+
+msgid "Limit requests to your site based on the your rate-limiting settings."
+msgstr "Hadkan permintaan ke tapak anda berdasarkan tetapan pengehadan kadar anda."
+
+msgid "Linked To Child Theme"
+msgstr "Dipautkan Ke Tema Turunan"
+
+msgid "Linked To Parent Theme"
+msgstr "Dipautkan Ke Tema Induk"
+
+msgid "List each site URL on a new line."
+msgstr "Senaraikan setiap URL tapak pada baris baharu."
+
+msgid "Load"
+msgstr "Muat"
+
+msgid "Locale"
+msgstr "penempatan"
+
+msgid "Lock user sessions to IP address detected at login"
+msgstr "Kunci sesi pengguna kepada alamat IP yang dikesan semasa log masuk"
+
+msgid "Lockdown The Site"
+msgstr "Kunci Tapak"
+
+msgid "Lockdown activated by:"
+msgstr "Lockdown diaktifkan oleh:"
+
+msgid "Locked"
+msgstr "Dikunci"
+
+msgid "Locked Files"
+msgstr "Fail Dikunci"
+
+msgid "Logged At"
+msgstr "Log Masuk Pada"
+
+msgid "Logged In At"
+msgstr "Log Masuk Pada"
+
+msgid "Logged-In"
+msgstr "Log Masuk"
+
+msgid "Logged-In At"
+msgstr "Log Masuk Pada"
+
+msgid "Logging Level"
+msgstr "Paras Pengelogan"
+
+msgid "Logging isn't currently available on this site."
+msgstr "Pengelogan tidak tersedia pada tapak ini pada masa ini."
+
+msgid "Login"
+msgstr "Log Masuk"
+
+msgid "Login Blocked"
+msgstr "Log Masuk Disekat"
+
+msgid "Login Blocks"
+msgstr "Sekatan Log Masuk"
+
+msgid "Login Bot Protection"
+msgstr "Perlindungan Bot Log Masuk"
+
+msgid "Login Details"
+msgstr "Perincian Log Masuk"
+
+msgid "Login Fail"
+msgstr "Log Masuk Gagal"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "IP Log Masuk"
+
+msgid "Login Page"
+msgstr "Halaman Log Masuk"
+
+msgid "Login Protection"
+msgstr "Perlindungan Log Masuk"
+
+msgid "Login Security"
+msgstr "Keselamatan Log Masuk"
+
+msgid "Login Success"
+msgstr "Log Masuk Berjaya"
+
+msgid "Login successful."
+msgstr "Log masuk berjaya."
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "Borang Log Masuk, Daftar & Kata Laluan Hilang"
+
+msgid "Lost Password"
+msgstr "Kata Laluan Hilang"
+
+msgid "Lost Password Blocked"
+msgstr "Kata Laluan Hilang Disekat"
+
+msgid "Lost Password Bot Protection"
+msgstr "Perlindungan Bot Kata Laluan Hilang"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "SPAM Kata Laluan Hilang oleh bot disekat oleh silentCAPTCHA."
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM Kata Laluan Hilang oleh bot tidak disekat oleh silentCAPTCHA."
+
+msgid "Malware"
+msgstr "Malware"
+
+msgid "Malware Details"
+msgstr "Perincian Malware"
+
+msgid "Malware Scanner"
+msgstr "Pengimbas Malware"
+
+msgid "Malware status of this file is currently"
+msgstr "Status malware fail ini pada masa ini"
+
+msgid "Manage"
+msgstr "Urus"
+
+msgid "Manage IP Rules"
+msgstr "Urus Peraturan IP"
+
+msgid "Manage Rules"
+msgstr "Urus Peraturan"
+
+msgid "Manual Block"
+msgstr "Sekatan Manual"
+
+msgid "Manual Code"
+msgstr "Kod Manual"
+
+msgid "Master Import Site"
+msgstr "Tapak Import Induk"
+
+msgid "Master Site Secret Key"
+msgstr "Kunci Rahsia Tapak Induk"
+
+msgid "Master Site URL"
+msgstr "URL Tapak Induk"
+
+msgid "Master Site URL set: {{site}}"
+msgstr "URL Tapak Induk ditetapkan: {{site}}"
+
+msgid "Match Bot Type"
+msgstr "Padankan Jenis Bot"
+
+msgid "Match Type"
+msgstr "Jenis Padanan"
+
+msgid "Match User ID"
+msgstr "Padankan ID Pengguna"
+
+msgid "Match Username"
+msgstr "Padankan Nama Pengguna"
+
+msgid "Match the username for currently logged-in user."
+msgstr "Padankan nama pengguna untuk pengguna yang log masuk pada masa ini."
+
+msgid "Media"
+msgstr "Media"
+
+msgid "Menu Icon"
+msgstr "Ikon Menu"
+
+msgid "Menu Icon URL"
+msgstr "URL Ikon Menu"
+
+msgid "Menu Title"
+msgstr "Tajuk Menu"
+
+msgid "Meta"
+msgstr "meta"
+
+msgid "Meta Key"
+msgstr "Kunci Meta"
+
+msgid "Meta Value"
+msgstr "Nilai Meta"
+
+msgid "Meta Value To Match"
+msgstr "Nilai Meta Untuk Dipadankan"
+
+msgid "Method"
+msgstr "kaedah"
+
+msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
+msgstr "Skor minimum silentCAPTCHA yang diperlukan untuk menunjukkan pelawat adalah manusia"
+
+msgid "Missing"
+msgstr "hilang"
+
+msgid "Mode"
+msgstr "Mod"
+
+msgid "Monitor web requests sent to your WordPress site."
+msgstr "Pantau permintaan web yang dihantar ke tapak WordPress anda."
+
+msgid "Multisite"
+msgstr "laman berbilang"
+
+msgid "My Login Security"
+msgstr "Keselamatan Log Masuk Saya"
+
+msgid "My Security Overview"
+msgstr "Gambaran Keseluruhan Keselamatan Saya"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "T/A"
+
+msgid "NO TITLE"
+msgstr "TIADA TAJUK"
+
+msgid "Name"
+msgstr "Nama"
+
+msgid "Name: <code>%s</code>"
+msgstr "Nama: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "Navigasi"
+
+msgid "Never"
+msgstr "tidak pernah"
+
+msgid "New"
+msgstr "Baharu"
+
+msgid "New Admin(s)"
+msgstr "Admin Baharu"
+
+msgid "New Comment"
+msgstr "Komen Baharu"
+
+msgid "New User Default Role"
+msgstr "Peranan Lalai Pengguna Baharu"
+
+msgid "New WordPress user registered."
+msgstr "Pengguna WordPress baharu didaftarkan."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "Nama pengguna baharu ialah '{{user_login}}' dengan alamat e-mel '{{email}}'."
+
+msgid "No"
+msgstr "Tidak"
+
+msgid "No Issues"
+msgstr "Tiada Isu"
+
+msgid "No Name Yet"
+msgstr "Belum Ada Nama"
+
+msgid "No Title"
+msgstr "Tiada Tajuk"
+
+msgid "No active providers for user."
+msgstr "Tiada penyedia aktif untuk pengguna."
+
+msgid "No activity logged for this IP address"
+msgstr "Tiada aktiviti dilog untuk alamat IP ini"
+
+msgid "No content yet"
+msgstr "Tiada kandungan lagi"
+
+msgid "No license to remove."
+msgstr "Tiada lesen untuk dialih keluar."
+
+msgid "No meta available"
+msgstr "Tiada meta tersedia"
+
+msgid "No record"
+msgstr "Tiada rekod"
+
+msgid "No requests logged for this IP address"
+msgstr "Tiada permintaan dilog untuk alamat IP ini"
+
+msgid "No sessions recorded for this IP address"
+msgstr "Tiada sesi direkodkan untuk alamat IP ini"
+
+msgid "No such record ID"
+msgstr "Tiada ID rekod sedemikian"
+
+msgid "No such user"
+msgstr "Pengguna tidak wujud"
+
+msgid "No value set."
+msgstr "Tiada nilai ditetapkan."
+
+msgid "Noise"
+msgstr "Gangguan"
+
+msgid "None"
+msgstr "Tiada"
+
+msgid "Not Installed"
+msgstr "Tidak Dipasang"
+
+msgid "Not Pro"
+msgstr "Bukan Pro"
+
+msgid "Not Ready"
+msgstr "Tidak Sedia"
+
+msgid "Not a WordPress Core file"
+msgstr "Bukan fail Teras WordPress"
+
+msgid "Not a plugin or theme file path."
+msgstr "Bukan laluan fail pemalam atau tema."
+
+msgid "Not currently logged-in as security admin."
+msgstr "Tidak log masuk sebagai pentadbir keselamatan pada masa ini."
+
+msgid "Not currently logged-in."
+msgstr "Tidak log masuk pada masa ini."
+
+msgid "Note"
+msgstr "Nota"
+
+msgid "Notice"
+msgstr "Notis"
+
+msgid "Notice: %s"
+msgstr "Notis: %s"
+
+msgid "Now"
+msgstr "Sekarang"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Off"
+msgstr "matikan"
+
+msgid "On"
+msgstr "hidupkan"
+
+msgid "One-Time Password was sent to your phone."
+msgstr "Kata Laluan Sekali Sahaja telah dihantar ke telefon anda."
+
+msgid "One-Time Passwords"
+msgstr "Kata Laluan Sekali Sahaja"
+
+msgid "Only core WordPress files are scans in the free version of Shield."
+msgstr "Hanya fail teras WordPress diimbas dalam versi percuma Shield."
+
+msgid "Overview"
+msgstr "gambaran keseluruhan"
+
+msgid "Owner"
+msgstr "Pemilik"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP & MySQL"
+
+msgid "PHP Code"
+msgstr "Kod PHP"
+
+msgid "PHP Code Includes"
+msgstr "Penyertaan Kod PHP"
+
+msgid "PHP Malware"
+msgstr "Malware PHP"
+
+msgid "PHP Malware Scanner"
+msgstr "Pengimbas Malware PHP"
+
+msgid "PHP Version"
+msgstr "Versi PHP"
+
+msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
+msgstr "PHP tidak memenuhi versi minimum. Versi anda: %s. Versi diperlukan: %s."
+
+msgid "PIN Required"
+msgstr "PIN Diperlukan"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "Halaman"
+
+msgid "Pages"
+msgstr "Halaman"
+
+msgid "Parent"
+msgstr "Induk"
+
+msgid "Password Reset"
+msgstr "Set Semula Kata Laluan"
+
+msgid "Password Updated"
+msgstr "Kata Laluan Dikemas Kini"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "Kata laluan dikemas kini untuk pengguna '{{user_login}}'."
+
+msgid "Patch"
+msgstr "Tampung"
+
+msgid "Path"
+msgstr "Laluan"
+
+msgid "Path To Match"
+msgstr "Laluan Untuk Dipadankan"
+
+msgid "Please contact site admin to request access if required."
+msgstr "Sila hubungi pentadbir tapak untuk meminta capaian jika diperlukan."
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "Sila hubungi pentadbir tapak untuk meminta alamat IP anda dinyahsekat."
+
+msgid "Please delete the \"%s\" file to reactivate %s protection"
+msgstr "Sila padam fail \"%s\" untuk mengaktifkan semula perlindungan %s"
+
+msgid "Please now save your profile settings."
+msgstr "Sila simpan tetapan profil anda sekarang."
+
+msgid "Please provide a label to identify the device."
+msgstr "Sila berikan label untuk mengenal pasti peranti."
+
+msgid "Please reset your password to regain access."
+msgstr "Sila tetapkan semula kata laluan anda untuk mendapatkan semula capaian."
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "Sila pilih salah satu Jenis Peraturan IP - Sekat atau Bypass"
+
+msgid "Please select one of the options available"
+msgstr "Sila pilih salah satu pilihan yang tersedia"
+
+msgid "Please turn on this feature in the options."
+msgstr "Sila hidupkan ciri ini dalam pilihan."
+
+msgid "Please use one of %s."
+msgstr "Sila gunakan salah satu daripada %s."
+
+msgid "Plugin"
+msgstr "Pemalam"
+
+msgid "Plugin & Theme Files"
+msgstr "Fail Pemalam & Tema"
+
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
+msgstr "Pemalam '{{plugin}}' telah diaktifkan (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "Pemalam '{{plugin}}' telah dipasang (v{{version}})."
+
+msgid "Plugin Activated"
+msgstr "Pemalam Diaktifkan"
+
+msgid "Plugin Badge Logo"
+msgstr "Logo Lencana Pemalam"
+
+msgid "Plugin Badge Logo URL"
+msgstr "URL Logo Lencana Pemalam"
+
+msgid "Plugin Defaults"
+msgstr "Lalai Pemalam"
+
+msgid "Plugin Files"
+msgstr "Fail Pemalam"
+
+msgid "Plugin Home Page URL"
+msgstr "URL Halaman Utama Pemalam"
+
+msgid "Plugin Installed"
+msgstr "Pemalam Dipasang"
+
+msgid "Plugin Name"
+msgstr "Nama Pemalam"
+
+msgid "Plugin Option Changed"
+msgstr "Pilihan Pemalam Ditukar"
+
+msgid "Plugin Security Badge"
+msgstr "Lencana Keselamatan Pemalam"
+
+msgid "Plugin and Theme File Guard"
+msgstr "Pengawal Fail Pemalam dan Tema"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "Pengimbas Kerentanan Pemalam dan Tema"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "Pilihan pemalam '{{name}}' ({{key}}) telah dikemas kini kepada '{{value}}'."
+
+msgid "Plugin reset to defaults."
+msgstr "Pemalam ditetapkan semula kepada lalai."
+
+msgid "Plugin/Theme Guard"
+msgstr "Pengawal Pemalam/Tema"
+
+msgid "Posts"
+msgstr "Kiriman"
+
+msgid "Print"
+msgstr "Cetak"
+
+msgid "Pro Only"
+msgstr "Pro Sahaja"
+
+msgid "Profile"
+msgstr "profil"
+
+msgid "Protected Forms"
+msgstr "Borang Dilindungi"
+
+msgid "Protection for user accounts."
+msgstr "Perlindungan untuk akaun pengguna."
+
+msgid "Provide The Security Admin PIN."
+msgstr "Berikan PIN Pentadbir Keselamatan."
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "Berikan Kata Laluan Sekali Sahaja daripada Yubikey anda."
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "Berikan PIN rahsia untuk hadkan capaian pentadbir ke tetapan keselamatan anda"
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "Berikan Kata Laluan Sekali Sahaja daripada peranti log masuk 2FA anda"
+
+msgid "Provide your custom set of CSP rules."
+msgstr "Berikan set peraturan CSP tersuai anda."
+
+msgid "Query"
+msgstr "Pertanyaan"
+
+msgid "Query IP Whois"
+msgstr "Pertanyaan Whois IP"
+
+msgid "Rate Limiting"
+msgstr "Rate limiting"
+
+msgid "Ready"
+msgstr "Sedia"
+
+msgid "Redirect Status"
+msgstr "Status Ubah Hala"
+
+msgid "Refresh"
+msgstr "segar semula"
+
+msgid "Registered"
+msgstr "didaftarkan"
+
+msgid "Registered Site"
+msgstr "Laman Didaftarkan"
+
+msgid "Registration"
+msgstr "Pendaftaran"
+
+msgid "Registration Blocked"
+msgstr "Pendaftaran Disekat"
+
+msgid "Remove %s"
+msgstr "Alih Keluar %s"
+
+msgid "Remove All MFA Providers From This User Profile"
+msgstr "Keluarkan Semua Penyedia MFA Daripada Profil Pengguna Ini"
+
+msgid "Remove IP Bypass"
+msgstr "Buang Pintasan IP"
+
+msgid "Remove License"
+msgstr "Buang Lesen"
+
+msgid "Request Blocked"
+msgstr "Permintaan Disekat"
+
+msgid "Request Blocked by Firewall"
+msgstr "Permintaan Disekat oleh Firewall"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "Permintaan Disekat oleh Lockdown Tapak."
+
+msgid "Request Details"
+msgstr "Perincian Permintaan"
+
+msgid "Request Failed."
+msgstr "Permintaan Gagal."
+
+msgid "Request Firewall"
+msgstr "Firewall Permintaan"
+
+msgid "Request ID"
+msgstr "ID Permintaan"
+
+msgid "Request Logging"
+msgstr "Pengelogan Permintaan"
+
+msgid "Request Method"
+msgstr "Kaedah Permintaan"
+
+msgid "Request Path"
+msgstr "Laluan Permintaan"
+
+msgid "Request Path Whitelist"
+msgstr "Senarai Putih Laluan Permintaan"
+
+msgid "Request Path Whitelist."
+msgstr "Senarai Putih Laluan Permintaan."
+
+msgid "Request Status"
+msgstr "Status Permintaan"
+
+msgid "Request Type"
+msgstr "Jenis Permintaan"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "Permintaan disekat oleh peraturan firewall: {{name}}."
+
+msgid "Requested At"
+msgstr "Diminta Pada"
+
+msgid "Requests"
+msgstr "Permintaan"
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "Permintaan daripada alamat IP ini akan memintas semua peraturan keselamatan."
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "Permintaan ke endpoint XML-RPC dibenarkan pada tapak anda."
+
+msgid "Reset"
+msgstr "set semula"
+
+msgid "Reset For This IP"
+msgstr "Set Semula Untuk IP Ini"
+
+msgid "Response"
+msgstr "respons"
+
+msgid "Response Code"
+msgstr "Kod Respons"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "Hadkan Capaian Ke Tindakan Pemalam WordPress Utama"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "Hadkan Capaian Ke Tindakan Siaran Dan Halaman WordPress Utama"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "Hadkan Capaian Ke Tindakan Tema WordPress"
+
+msgid "Restrict WP File Editing"
+msgstr "Hadkan Penyuntingan Fail WP"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "Hadkan penyuntingan fail dalam papan pemuka pentadbir WP"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "Hadkan keupayaan untuk edit fail dari dalam kawasan pentadbir WordPress."
+
+msgid "Restricted"
+msgstr "Terhad"
+
+msgid "Restriction Details"
+msgstr "Perincian Sekatan"
+
+msgid "Root Web.config"
+msgstr "Root Web.config"
+
+msgid "Root index.php"
+msgstr "index.php Akar"
+
+msgid "Root index.php file isn't protected against tampering."
+msgstr "Fail index.php akar tidak dilindungi daripada gangguan."
+
+msgid "Rule Activated"
+msgstr "Peraturan Diaktifkan"
+
+msgid "Rule Reset"
+msgstr "Set Semula Peraturan"
+
+msgid "Rule Slug"
+msgstr "Slug Peraturan"
+
+msgid "Rule Type"
+msgstr "Jenis Peraturan"
+
+msgid "Rules"
+msgstr "Peraturan"
+
+msgid "Run"
+msgstr "jalan"
+
+msgid "Run Scans Now"
+msgstr "Jalankan Imbasan Sekarang"
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Registration Removed"
+msgstr "Pendaftaran SMS Dikeluarkan"
+
+msgid "SPAM"
+msgstr "Spam"
+
+msgid "SPAM Blocked"
+msgstr "SPAM Disekat"
+
+msgid "SPAM Bot detected."
+msgstr "Bot SPAM dikesan."
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "SPAM dan pendaftaran pengguna pukal oleh bot disekat oleh silentCAPTCHA."
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM dan pendaftaran pengguna pukal oleh bot tidak disekat oleh silentCAPTCHA."
+
+msgid "Save Settings"
+msgstr "Simpan Tetapan"
+
+msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
+msgstr "Pengimbasan Fail Pemalam & Tema hanya tersedia dengan ShieldPRO."
+
+msgid "Scanning for PHP Malware is only available with ShieldPRO."
+msgstr "Pengimbasan untuk Malware PHP hanya tersedia dengan ShieldPRO."
+
+msgid "Scans"
+msgstr "Imbasan"
+
+msgid "Scans all PHP files for malware patterns."
+msgstr "Imbas semua fail PHP untuk corak malware."
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "Imbas semua fail WP untuk versi WordPress semasa anda."
+
+msgid "Scans for file tampering within the active theme."
+msgstr "Imbas untuk gangguan fail dalam tema aktif."
+
+msgid "Score"
+msgstr "Skor"
+
+msgid "Script Name To Match"
+msgstr "Nama Skrip Untuk Dipadankan"
+
+msgid "Search %s"
+msgstr "Cari %s"
+
+msgid "Secret Key"
+msgstr "Kunci Rahsia"
+
+msgid "Security"
+msgstr "Keselamatan"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "PIN Capaian Pentadbir Keselamatan"
+
+msgid "Security Admin Login"
+msgstr "Log Masuk Security Admin"
+
+msgid "Security Admin PIN"
+msgstr "PIN Pentadbir Keselamatan"
+
+msgid "Security Admin Protection"
+msgstr "Perlindungan Security Admin"
+
+msgid "Security Admin Restriction Settings"
+msgstr "Tetapan Sekatan Security Admin"
+
+msgid "Security Admin Restriction Zones"
+msgstr "Zon Sekatan Security Admin"
+
+msgid "Security Admin Settings"
+msgstr "Tetapan Security Admin"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin kini aktif"
+
+msgid "Security Dashboard"
+msgstr "Papan Pemuka Keselamatan"
+
+msgid "Security Overview"
+msgstr "Gambaran Keseluruhan Keselamatan"
+
+msgid "Security PIN Currently Set"
+msgstr "PIN Keselamatan Sedang Ditetapkan"
+
+msgid "Security PIN Fail"
+msgstr "PIN Keselamatan Gagal"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "PIN Keselamatan TIDAK Ditetapkan Pada Masa Ini"
+
+msgid "Security Plugin Protection"
+msgstr "Perlindungan Pemalam Keselamatan"
+
+msgid "Security Profile"
+msgstr "Profil Keselamatan"
+
+msgid "Security Rules"
+msgstr "Peraturan Keselamatan"
+
+msgid "Security Stats"
+msgstr "Statistik Keselamatan"
+
+msgid "Security Tools"
+msgstr "Alatan Keselamatan"
+
+msgid "Security Zones"
+msgstr "Zon Keselamatan"
+
+msgid "Security Zones Config"
+msgstr "Konfigurasi Zon Keselamatan"
+
+msgid "Security admin pin removed."
+msgstr "PIN pentadbir keselamatan dikeluarkan."
+
+msgid "Security admin pin set to: `%s`"
+msgstr "PIN pentadbir keselamatan ditetapkan kepada: `%s`"
+
+msgid "Select"
+msgstr "pilih"
+
+msgid "Select Scans To Run"
+msgstr "Pilih Imbasan Untuk Dijalankan"
+
+msgid "Select The Form Providers That You Use"
+msgstr "Pilih Penyedia Borang Yang Anda Gunakan"
+
+msgid "Select Which Types Of Requests To Exclude"
+msgstr "Pilih Jenis Permintaan Yang Hendak Dikecualikan"
+
+msgid "Send Email Notification To Each User Upon Successful Login"
+msgstr "Hantar Pemberitahuan E-mel Kepada Setiap Pengguna Selepas Log Masuk Berjaya"
+
+msgid "Send OTP Code"
+msgstr "Hantar Kod OTP"
+
+msgid "Sessions"
+msgstr "Sesi"
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "Tetapkan ini kepada \"0\" untuk mematikan ciri %s."
+
+msgid "Set to %s to turn off this option."
+msgstr "Tetapkan kepada %s untuk mematikan pilihan ini."
+
+msgid "Settings that apply to all comment SPAM scanning."
+msgstr "Tetapan yang dikenakan pada semua pengimbasan SPAM komen."
+
+msgid "Setup Your Security Zones"
+msgstr "Sediakan Zon Keselamatan Anda"
+
+msgid "Shield Events & Stats"
+msgstr "Peristiwa & Statistik Shield"
+
+msgid "Shield Info"
+msgstr "Info Shield"
+
+msgid "Shield Option Key"
+msgstr "Kunci Pilihan Shield"
+
+msgid "Shield Security Home Page"
+msgstr "Halaman Utama Shield Security"
+
+msgid "Shield Security plugin is installed but not activated."
+msgstr "Pemalam Shield Security dipasang tetapi tidak diaktifkan."
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield tidak dipasang pada tapak ini."
+
+msgid "Shield plugin activated"
+msgstr "Pemalam Shield diaktifkan"
+
+msgid "Shield plugin installed"
+msgstr "Pemalam Shield dipasang"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Pemalam Shield dipasang, tetapi tidak aktif."
+
+msgid "Shield plugin updated"
+msgstr "Pemalam Shield dikemas kini"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO isn't activated on this site."
+msgstr "ShieldPRO tidak diaktifkan pada tapak ini."
+
+msgid "Signal"
+msgstr "Isyarat"
+
+msgid "Since"
+msgstr "Sejak"
+
+msgid "Site"
+msgstr "Laman"
+
+msgid "Site Admin Email"
+msgstr "E-mel Admin Laman"
+
+msgid "Site In Lockdown"
+msgstr "Tapak Dalam Lockdown"
+
+msgid "Site Is In Lockdown"
+msgstr "Tapak Dalam Lockdown"
+
+msgid "Site Is Under Lockdown"
+msgstr "Tapak Berada Dalam Lockdown"
+
+msgid "Site Lockdown"
+msgstr "Lockdown Tapak"
+
+msgid "Site Lockdown and Firewall"
+msgstr "Lockdown Tapak dan Firewall"
+
+msgid "Site Scanning"
+msgstr "Pengimbasan Tapak"
+
+msgid "Site Security Summary"
+msgstr "Ringkasan Keselamatan Laman"
+
+msgid "Site Tagline"
+msgstr "Baris Slogan Laman"
+
+msgid "Site Title"
+msgstr "Tajuk Laman"
+
+msgid "Site URL"
+msgstr "URL Tapak"
+
+msgid "Site URL Changed"
+msgstr "URL Tapak Ditukar"
+
+msgid "Sites"
+msgstr "Laman"
+
+msgid "Size"
+msgstr "Saiz"
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Stats"
+msgstr "Statistik"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Success"
+msgstr "Berjaya"
+
+msgid "Successfully sent Firewall Block email alert to: {{to}}"
+msgstr "Berjaya menghantar amaran e-mel Sekatan Firewall kepada: {{to}}"
+
+msgid "Summary"
+msgstr "ringkasan"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "Matikan Untuk Lumpuhkan Semua Perlindungan Keselamatan"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "Hidupkan/matikan senarai sekat IP CrowdSec"
+
+msgid "Switch on/off SPAM protection for your favourite contact forms plugin"
+msgstr "Hidupkan/matikan perlindungan SPAM untuk pemalam borang hubungi kegemaran anda"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "Hidupkan/matikan keupayaan untuk edit tetapan kritikal WP"
+
+msgid "Switch on/off file editing within WP"
+msgstr "Hidupkan/matikan penyuntingan fail dalam WP"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "Hidupkan pengelogan semua trafik tapak."
+
+msgid "Tagline"
+msgstr "baris slogan"
+
+msgid "Take a new line for each user role."
+msgstr "Ambil baris baharu untuk setiap peranan pengguna."
+
+msgid "Take a new line for each whitelisted path."
+msgstr "Ambil baris baharu untuk setiap laluan yang disenarai putih."
+
+msgid "The Description Of The Plugin"
+msgstr "Penerangan Pemalam"
+
+msgid "The Name Of The Plugin"
+msgstr "Nama Pemalam"
+
+msgid "The Name Of The Plugin."
+msgstr "Nama Pemalam."
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "URL ikon yang dipaparkan dalam menu."
+
+msgid "The URL of the icon to display in the menu."
+msgstr "URL ikon untuk dipaparkan dalam menu."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "URL logo untuk dipaparkan dalam lencana pemalam."
+
+msgid "The default 'admin' user is no longer available."
+msgstr "Pengguna 'admin' lalai tidak lagi tersedia."
+
+msgid "The default 'admin' user is still available."
+msgstr "Pengguna 'admin' lalai masih tersedia."
+
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
+msgstr "Peranan lalai untuk pengguna baharu telah ditukar daripada '{{from}}' kepada '{{to}}'."
+
+msgid "The file is empty."
+msgstr "Fail ini kosong."
+
+msgid "The following types of user forms are protected by silentCAPTCHA: %s."
+msgstr "Jenis borang pengguna berikut dilindungi oleh silentCAPTCHA: %s."
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "URL halaman utama telah ditukar daripada '{{from}}' kepada '{{to}}'."
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "Pilihan untuk membenarkan sesiapa sahaja mendaftar di tapak telah dikemas kini daripada '{{from}}' kepada '{{to}}'."
+
+msgid "The plugin defaults to the site administration email address, which is: %s"
+msgstr "Pemalam lalai kepada alamat e-mel pentadbiran tapak, iaitu: %s"
+
+msgid "The security plugin is protected against tampering."
+msgstr "Pemalam keselamatan dilindungi daripada gangguan."
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "Pemalam keselamatan tidak dilindungi daripada gangguan."
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Pilihan silentCAPTCHA dilumpuhkan, menghapuskan perlindungan brute force untuk borang log masuk, daftar dan kata laluan hilang."
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "URL tapak telah ditukar daripada '{{from}}' kepada '{{to}}'."
+
+msgid "Theme"
+msgstr "Tema"
+
+msgid "Theme '{{theme}}' was activated."
+msgstr "Tema '{{theme}}' telah diaktifkan."
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "Tema '{{theme}}' telah dipasang."
+
+msgid "Theme Activated"
+msgstr "Tema Diaktifkan"
+
+msgid "Theme Files"
+msgstr "Fail Tema"
+
+msgid "Theme Installed"
+msgstr "Tema Dipasang"
+
+msgid "Themes"
+msgstr "Tema"
+
+msgid "Themes With Updates"
+msgstr "Tema Dengan Kemas Kini"
+
+msgid "Then"
+msgstr "Kemudian"
+
+msgid "Then Activate"
+msgstr "Kemudian Aktifkan"
+
+msgid "There are currently no 2FA providers available on your account."
+msgstr "Tiada penyedia 2FA tersedia pada akaun anda pada masa ini."
+
+msgid "There are no IPs available yet."
+msgstr "Tiada IP tersedia lagi."
+
+msgid "There are no MFA providers active on this user account."
+msgstr "Tiada penyedia MFA aktif pada akaun pengguna ini."
+
+msgid "There are no active 2FA providers."
+msgstr "Tiada penyedia 2FA aktif."
+
+msgid "There are no bot signals for this IP address."
+msgstr "Tiada isyarat bot untuk alamat IP ini."
+
+msgid "There are no custom security rules"
+msgstr "Tiada peraturan keselamatan tersuai"
+
+msgid "There are no important security notices at this time."
+msgstr "Tiada notis keselamatan penting pada masa ini."
+
+msgid "There are no registered Yubikey devices on this profile."
+msgstr "Tiada peranti Yubikey berdaftar pada profil ini."
+
+msgid "There are no whitelisted IPs for exclusion."
+msgstr "Tiada IP dalam senarai putih untuk pengecualian."
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "Tiada perlindungan terhadap SPAM Komen WP yang dihantar oleh manusia."
+
+msgid "There is no user currently logged-in."
+msgstr "Tiada pengguna yang log masuk pada masa ini."
+
+msgid "This Page"
+msgstr "Halaman Ini"
+
+msgid "This Site Is Protected By %s"
+msgstr "Tapak Ini Dilindungi Oleh %s"
+
+msgid "This is a Pro-only feature."
+msgstr "Ini adalah ciri Pro sahaja."
+
+msgid "This is a recognised core file for WordPress %s."
+msgstr "Ini ialah fail teras yang diiktiraf untuk WordPress %s."
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "Ini ialah ID Peranti Yubikey unik anda."
+
+msgid "Time"
+msgstr "Masa"
+
+msgid "Time Limit"
+msgstr "Had Masa"
+
+msgid "Time Now"
+msgstr "Masa Sekarang"
+
+msgid "Time Range"
+msgstr "Julat Masa"
+
+msgid "Time Sent: %s"
+msgstr "Masa Dihantar: %s"
+
+msgid "Timestamp"
+msgstr "cap masa"
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "Untuk mendaftarkan peranti Yubikey baharu, masukkan Kata Laluan Sekali Sahaja daripada Yubikey."
+
+msgid "To remove a Yubikey device, enter the registered device ID and save."
+msgstr "Untuk membuang peranti Yubikey, masukkan ID peranti yang didaftarkan dan simpan."
+
+msgid "Tools"
+msgstr "Alatan"
+
+msgid "Traffic"
+msgstr "Trafik"
+
+msgid "Traffic Logging"
+msgstr "Pengelogan Trafik"
+
+msgid "Traffic Rate Limiting"
+msgstr "Rate Limiting Trafik"
+
+msgid "Trash"
+msgstr "sampah"
+
+msgid "Turn Off"
+msgstr "Matikan"
+
+msgid "Turn On"
+msgstr "hidupkan"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "Hidupkan pilihan untuk hadkan capaian ke akaun pentadbir WordPress."
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "Hidupkan pilihan untuk hadkan capaian ke tetapan kritikal WordPress."
+
+msgid "Type"
+msgstr "Jenis"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - Halaman Utama"
+
+msgid "URL - Site"
+msgstr "URL - Tapak"
+
+msgid "URL To Activate"
+msgstr "URL Untuk Aktifkan"
+
+msgid "Unblocked"
+msgstr "Dinyahsekat"
+
+msgid "Unblocked At"
+msgstr "Dinyahsekat Pada"
+
+msgid "Until"
+msgstr "Sehingga"
+
+msgid "Updated"
+msgstr "Dikemas Kini"
+
+msgid "Updates"
+msgstr "Kemas Kini"
+
+msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
+msgstr "Gunakan MainWP untuk urus dan pantau keselamatan semua tapak WordPress anda."
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Gunakan silentCAPTCHA Shield Untuk Sekat Bot dan Serangan Brute Force"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "Gunakan silentCAPTCHA Shield Untuk Kesan dan Sekat Bot SPAM."
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "Gunakan silentCAPTCHA Untuk Sekat SPAM Komen Bot"
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "Gunakan pilihan ini untuk melumpuhkan sepenuhnya semua Perlindungan Shield yang aktif."
+
+msgid "Used"
+msgstr "Digunakan"
+
+msgid "User"
+msgstr "Pengguna"
+
+msgid "User 2FA Setup"
+msgstr "Persediaan 2FA Pengguna"
+
+msgid "User Access"
+msgstr "Capaian Pengguna"
+
+msgid "User Accounts"
+msgstr "Akaun Pengguna"
+
+msgid "User Email Updated"
+msgstr "E-mel Pengguna Dikemas Kini"
+
+msgid "User ID"
+msgstr "ID Pengguna"
+
+msgid "User Login"
+msgstr "Log Masuk Pengguna"
+
+msgid "User Login By App Password"
+msgstr "Log Masuk Pengguna Melalui Kata Laluan Aplikasi"
+
+msgid "User Login Notification Email"
+msgstr "E-mel Pemberitahuan Log Masuk Pengguna"
+
+msgid "User Meta"
+msgstr "Meta Pengguna"
+
+msgid "User Password Updated"
+msgstr "Kata Laluan Pengguna Dikemas Kini"
+
+msgid "User Register Bot Protection"
+msgstr "Perlindungan Bot Pendaftaran Pengguna"
+
+msgid "User Registered"
+msgstr "Pengguna Didaftarkan"
+
+msgid "User Registration"
+msgstr "Pendaftaran Pengguna"
+
+msgid "User Registration Email Validation"
+msgstr "Pengesahan E-mel Pendaftaran Pengguna"
+
+msgid "User Registrations"
+msgstr "Pendaftaran Pengguna"
+
+msgid "User Role"
+msgstr "Peranan Pengguna"
+
+msgid "User Sessions"
+msgstr "Sesi Pengguna"
+
+msgid "User Status"
+msgstr "Status Pengguna"
+
+msgid "User forms"
+msgstr "Borang pengguna"
+
+msgid "User login request blocked."
+msgstr "Permintaan log masuk pengguna disekat."
+
+msgid "User lost password request blocked."
+msgstr "Permintaan kata laluan hilang pengguna disekat."
+
+msgid "User registration request blocked."
+msgstr "Permintaan pendaftaran pengguna disekat."
+
+msgid "User: <code>%s</code>"
+msgstr "Pengguna: <code>%s</code>"
+
+msgid "Username"
+msgstr "Nama Pengguna"
+
+msgid "Username/Author Fishing is disabled on this site."
+msgstr "Memancing Nama Pengguna/Pengarang dilumpuhkan di tapak ini."
+
+msgid "Users"
+msgstr "Pengguna"
+
+msgid "Users are allowed to set weak passwords."
+msgstr "Pengguna dibenarkan menetapkan kata laluan yang lemah."
+
+msgid "Value To Match"
+msgstr "Nilai Untuk Dipadankan"
+
+msgid "Verb"
+msgstr "Kata Kerja"
+
+msgid "Version"
+msgstr "versi"
+
+msgid "View & Create"
+msgstr "Lihat & Cipta"
+
+msgid "View All"
+msgstr "Lihat Semua"
+
+msgid "View As ShieldPRO"
+msgstr "Lihat Sebagai ShieldPRO"
+
+msgid "View Comment"
+msgstr "Lihat Komen"
+
+msgid "View Config"
+msgstr "Lihat Konfigurasi"
+
+msgid "View Debug Info"
+msgstr "Lihat Info Nyahpijat"
+
+msgid "View Details"
+msgstr "Lihat Perincian"
+
+msgid "View File Details"
+msgstr "Lihat Perincian Fail"
+
+msgid "View Site Traffic"
+msgstr "Lihat Trafik Tapak"
+
+msgid "View User Sessions"
+msgstr "Lihat Sesi Pengguna"
+
+msgid "View all active rules on your site at-a-glance"
+msgstr "Lihat semua peraturan aktif di tapak anda sepintas lalu"
+
+msgid "View and manage IP rules that block malicious visitors and bots."
+msgstr "Lihat dan urus peraturan IP yang menyekat pelawat dan bot berniat jahat."
+
+msgid "View and manage details of current user sessions on the site."
+msgstr "Lihat dan urus butiran sesi pengguna semasa di tapak."
+
+msgid "View details of web requests sent to your WordPress site."
+msgstr "Lihat butiran permintaan web yang dihantar ke tapak WordPress anda."
+
+msgid "View, edit and remove custom security rules"
+msgstr "Lihat, sunting dan alih keluar peraturan keselamatan tersuai"
+
+msgid "Visitor IP"
+msgstr "IP Pelawat"
+
+msgid "Visitor IP Address"
+msgstr "Alamat IP Pelawat"
+
+msgid "Visitor IP address is determine by CloudFlare."
+msgstr "Alamat IP pelawat ditentukan oleh CloudFlare."
+
+msgid "Vulnerability Scanner"
+msgstr "Pengimbas Kerentanan"
+
+msgid "Vulnerability Scanning"
+msgstr "Pengimbasan Kerentanan"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Core File Scanner"
+msgstr "Pengimbas Fail Teras WP"
+
+msgid "WP Core Updated"
+msgstr "Teras WP Dikemas Kini"
+
+msgid "WP Default User Role"
+msgstr "Peranan Pengguna Lalai WP"
+
+msgid "WP File Editing"
+msgstr "Penyuntingan Fail WP"
+
+msgid "WP Login & Admin Redirect"
+msgstr "Ubah Hala Log Masuk & Admin WP"
+
+msgid "WP Site Admin Email"
+msgstr "E-mel Admin Laman WP"
+
+msgid "WP Site Tagline"
+msgstr "Baris Slogan Laman WP"
+
+msgid "WP Site title"
+msgstr "Tajuk laman WP"
+
+msgid "WP User Registration"
+msgstr "Pendaftaran Pengguna WP"
+
+msgid "WP core files"
+msgstr "Fail teras WP"
+
+msgid "WP root"
+msgstr "Root WP"
+
+msgid "WP root directory"
+msgstr "Direktori root WP"
+
+msgid "Warning"
+msgstr "Amaran"
+
+msgid "We provide this feature as-is: to allow you to add custom CSP rules to your site."
+msgstr "Kami menyediakan ciri ini seadanya: untuk membenarkan anda menambah peraturan CSP tersuai ke tapak anda."
+
+msgid "Weak"
+msgstr "Lemah"
+
+msgid "Weekly"
+msgstr "Mingguan"
+
+msgid "What Is My IP Address?"
+msgstr "Apakah Alamat IP Saya?"
+
+msgid "What is the Custom Security Rules feature?"
+msgstr "Apakah ciri Peraturan Keselamatan Tersuai?"
+
+msgid "What is this?"
+msgstr "Apakah ini?"
+
+msgid "When"
+msgstr "Bila"
+
+msgid "Whitelist Site Added"
+msgstr "Tapak Senarai Putih Ditambah"
+
+msgid "Whitelist Site Removed"
+msgstr "Tapak Senarai Putih Dikeluarkan"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "Senarai Putih untuk Lockdown Tapak"
+
+msgid "With Issues"
+msgstr "Dengan Isu"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Core File Scanner"
+msgstr "Pengimbas Fail Teras WordPress"
+
+msgid "WordPress Core Files"
+msgstr "Fail Teras WordPress"
+
+msgid "WordPress Core files are protected against tampering."
+msgstr "Fail teras WordPress dilindungi daripada gangguan."
+
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
+msgstr "WordPress Core telah dikemas kini daripada '{{from}}' kepada '{{to}}'."
+
+msgid "WordPress File Editing Lockdown"
+msgstr "Kunci Penyuntingan Fail WordPress"
+
+msgid "WordPress File Scanner"
+msgstr "Pengimbas Fail WordPress"
+
+msgid "WordPress File Scanning"
+msgstr "Pengimbasan Fail WordPress"
+
+msgid "WordPress Files"
+msgstr "Fail WordPress"
+
+msgid "WordPress Info"
+msgstr "Info WordPress"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "Pengimbas Fail Pemalam WordPress"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "Pengimbas Fail Root Tapak WordPress"
+
+msgid "WordPress Stats"
+msgstr "Statistik WordPress"
+
+msgid "WordPress Theme File Scanner"
+msgstr "Pengimbas Fail Tema WordPress"
+
+msgid "WordPress Updates"
+msgstr "Kemas Kini WordPress"
+
+msgid "WordPress Version"
+msgstr "Versi WordPress"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "Pengimbas Fail Direktori WP Content WordPress"
+
+msgid "WordPress does not meet minimum version. Required version: %s."
+msgstr "WordPress tidak memenuhi versi minimum. Versi diperlukan: %s."
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "Fail pemalam WordPress dilindungi daripada gangguan."
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "Alamat e-mel pentadbir tapak WordPress telah ditukar daripada '{{from}}' kepada '{{to}}'."
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "Tagline tapak WordPress ditukar daripada '{{from}}' kepada '{{to}}'."
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "Tajuk tapak WordPress ditukar daripada '{{from}}' kepada '{{to}}'."
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "Fail tema WordPress dilindungi daripada gangguan."
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "Capaian XML-RPC"
+
+msgid "XML-RPC Lockdown"
+msgstr "Lockdown XML-RPC"
+
+msgid "XML-RPC Request Blocked."
+msgstr "Permintaan XML-RPC Disekat."
+
+msgid "Yearly"
+msgstr "Tahunan"
+
+msgid "Yes"
+msgstr "Ya"
+
+msgid "Yes: %s"
+msgstr "Ya: %s"
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "Ancaman keselamatan #1 anda adalah daripada bot automatik."
+
+msgid "Your Current IP"
+msgstr "IP Semasa Anda"
+
+msgid "Your WordPress account had only 1 backup login code."
+msgstr "Akaun WordPress anda hanya mempunyai 1 kod sandaran log masuk."
+
+msgid "Your WordPress login form is now protected"
+msgstr "Borang log masuk WordPress anda kini dilindungi"
+
+msgid "Your backup login code is: %s"
+msgstr "Kod sandaran log masuk anda ialah: %s"
+
+msgid "Your current login URL is: %s"
+msgstr "URL log masuk semasa anda ialah: %s"
+
+msgid "Your current security posture"
+msgstr "Postur keselamatan semasa anda"
+
+msgid "Your site is currently in lockdown."
+msgstr "Tapak anda sedang dalam lockdown."
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "Tapak anda dilindungi daripada SPAM Komen oleh manusia."
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "Tapak anda dilindungi daripada SPAM Komen automatik oleh Bot."
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "Tapak anda tidak dilindungi daripada SPAM Komen oleh manusia."
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "Tapak anda tidak dilindungi daripada SPAM Komen automatik oleh Bot."
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "Tapak anda belum didaftarkan dengan CrowdSec lagi."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey App ID"
+msgstr "ID Aplikasi Yubikey"
+
+msgid "Yubikey Device"
+msgstr "Peranti Yubikey"
+
+msgid "Yubikey ID"
+msgstr "ID Yubikey"
+
+msgid "Yubikey OTP"
+msgstr "OTP Yubikey"
+
+msgid "Zone"
+msgstr "Zon"
+
+msgid "Zone Actions"
+msgstr "Tindakan Zon"
+
+msgid "Zones"
+msgstr "Zon"
+
+msgid "and"
+msgstr "dan"
+
+msgid "currently %s"
+msgstr "semasa %s"
+
+msgid "days"
+msgstr "hari"
+
+msgid "empty username"
+msgstr "nama pengguna kosong"
+
+msgid "file import"
+msgstr "import fail"
+
+msgid "help"
+msgstr "Bantuan"
+
+msgid "icon"
+msgstr "ikon"
+
+msgid "import file"
+msgstr "import fail"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "t/a"
+
+msgid "no label"
+msgstr "tiada label"
+
+msgid "no name"
+msgstr "tiada nama"
+
+msgid "or"
+msgstr "atau"
+
+msgid "rDNS"
+msgstr "rDNS"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Minimum Score"
+msgstr "Skor Minimum Bot silentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "Skor Bot silentCAPTCHA (Peratusan)"
+
+msgid "silentCAPTCHA For Logins"
+msgstr "silentCAPTCHA Untuk Log Masuk"
+
+msgid "silentCAPTCHA Registration"
+msgstr "Pendaftaran silentCAPTCHA"
+
+msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
+msgstr "silentCAPTCHA dilumpuhkan apabila ditetapkan kepada skor minimum %s."
+
+msgid "tools"
+msgstr "alatan"
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "Fail wp-config.php tidak dilindungi daripada gangguan."
+
+msgid "{{ip}} removed from block list ({{type}})."
+msgstr "{{ip}} dikeluarkan daripada senarai sekatan ({{type}})."
+

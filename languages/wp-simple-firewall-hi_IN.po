@@ -1,0 +1,2376 @@
+# Hindi translation for Shield Security for WordPress
+# This file is distributed under the same license as Shield Security for WordPress.
+msgid ""
+msgstr ""
+"Project-Id-Version: Shield Security for WordPress\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-08 15:33+0000\n"
+"PO-Revision-Date: 2025-12-08 15:33+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: hi_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n==0 || n==1 ? 0 : 1);\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s टिप्पणी SPAM सुरक्षा"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s Firewall ने आपकी वर्डप्रेस साइट के एक अनुरोध को ब्लॉक किया है।"
+
+msgid "%s Plugin Badge"
+msgstr "%s प्लगइन बैज"
+
+msgid "%s and %s"
+msgstr "%s और %s"
+
+msgid "%s day"
+msgstr "%s दिन"
+
+msgid "%s days"
+msgstr "%s दिन"
+
+msgid "%s is not currently protecting your site."
+msgstr "%s वर्तमान में आपकी साइट की सुरक्षा नहीं कर रहा है।"
+
+msgid "%s is not protecting your site"
+msgstr "%s आपकी साइट की सुरक्षा नहीं कर रहा है"
+
+msgid "%s is protected against tampering."
+msgstr "%s छेड़छाड़ से सुरक्षित है।"
+
+msgid "%s isn't protected against tampering."
+msgstr "%s छेड़छाड़ से सुरक्षित नहीं है।"
+
+msgid "%s offense"
+msgstr "%s अपराध"
+
+msgid "%s time"
+msgstr "%s बार"
+
+msgid "%s was added to your profile."
+msgstr "%s आपके विवरण में जोड़ा गया।"
+
+msgid "%s was removed from your profile."
+msgstr "%s आपके विवरण से हटाया गया।"
+
+msgid "(Currently this is set to %s days.)"
+msgstr "(वर्तमान में यह %s दिनों पर सेट है।)"
+
+msgid "2-Factor Auth"
+msgstr "2-फ़ैक्टर Auth"
+
+msgid "2-Factor Authentication"
+msgstr "2-फ़ैक्टर प्रमाणीकरण"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - ईमेल"
+
+msgid "2FA User Config Page"
+msgstr "2FA उपयोगकर्ता कॉन्फ़िग पेज"
+
+msgid "2FA by email has been disabled"
+msgstr "ईमेल द्वारा 2FA अक्षम कर दिया गया है"
+
+msgid "7 Days"
+msgstr "7 दिन"
+
+msgid ":"
+msgstr ":"
+
+msgid "A PIN needs to be set to enable the Security Admin."
+msgstr "Security Admin सक्षम करने के लिए एक PIN सेट करना आवश्यक है।"
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "आपके ईमेल पते पर एक नया One-Time Password भेजा गया।"
+
+msgid "API & XML-RPC"
+msgstr "API और XML-RPC"
+
+msgid "APP Password Auth - Invalid Email"
+msgstr "APP Password Auth - अमान्य ईमेल"
+
+msgid "APP Password Auth - Invalid Username"
+msgstr "APP Password Auth - अमान्य उपयोगकर्ता नाम"
+
+msgid "Access Restricted"
+msgstr "एक्सेस प्रतिबंधित"
+
+msgid "Access from your IP address has been temporarily restricted."
+msgstr "आपके IP पते से पहुँच अस्थायी रूप से प्रतिबंधित कर दी गई है।"
+
+msgid "Access to XML-RPC is available."
+msgstr "XML-RPC एक्सेस उपलब्ध है।"
+
+msgid "Access to XML-RPC is disabled."
+msgstr "XML-RPC एक्सेस अक्षम है।"
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "%s Security प्लगइन तक पहुँच प्रतिबंधित है।"
+
+msgid "Access to this site has been temporarily restricted."
+msgstr "इस साइट तक पहुँच अस्थायी रूप से प्रतिबंधित कर दी गई है।"
+
+msgid "Active"
+msgstr "सक्रिय"
+
+msgid "Active 2FA"
+msgstr "सक्रिय 2FA"
+
+msgid "Activity"
+msgstr "गतिविधि"
+
+msgid "Activity Log"
+msgstr "गतिविधि लॉग"
+
+msgid "Activity Log Only"
+msgstr "केवल गतिविधि लॉग"
+
+msgid "Activity Log Parameters"
+msgstr "गतिविधि लॉग पैरामीटर"
+
+msgid "Activity Logging"
+msgstr "गतिविधि लॉगिंग"
+
+msgid "Activity Logs"
+msgstr "गतिविधि लॉग"
+
+msgid "Add IP Bypass"
+msgstr "IP Bypass जोड़ें"
+
+msgid "Add To Block List"
+msgstr "ब्लॉक सूची में जोड़ें"
+
+msgid "Add To Bypass List"
+msgstr "Bypass सूची में जोड़ें"
+
+msgid "Admin Access Login"
+msgstr "Admin एक्सेस लॉगिन"
+
+msgid "Admin Accounts"
+msgstr "एडमिन खाते"
+
+msgid "Admin Users"
+msgstr "Admin उपयोगकर्ता"
+
+msgid "Administration Email Address"
+msgstr "प्रशासन ईमेल पता"
+
+msgid "Administrator Accounts Protection"
+msgstr "प्रशासक खाता सुरक्षा"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "ID %s वाले उपयोगकर्ता से सभी MFA प्रदाता हटा दिए गए।"
+
+msgid "All User Roles Available On This Site"
+msgstr "इस साइट पर उपलब्ध सभी उपयोगकर्ता भूमिकाएँ"
+
+msgid "All WP Site Activity"
+msgstr "सभी WP साइट गतिविधि"
+
+msgid "All access to your site is blocked."
+msgstr "आपकी साइट तक सभी पहुँच ब्लॉक है।"
+
+msgid "All password policies are disabled."
+msgstr "सभी पासवर्ड नीतियाँ अक्षम हैं।"
+
+msgid "All security protection offered by Shield is completely disabled."
+msgstr "Shield द्वारा प्रदान की जाने वाली सभी सुरक्षा संरक्षण पूरी तरह से अक्षम है।"
+
+msgid "Allow Any User"
+msgstr "किसी भी उपयोगकर्ता को अनुमति दें"
+
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email"
+msgstr "किसी भी उपयोगकर्ता को ईमेल द्वारा Two-Factor Authentication चालू करने की अनुमति दें"
+
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email."
+msgstr "किसी भी उपयोगकर्ता को ईमेल द्वारा Two-Factor Authentication चालू करने की अनुमति दें।"
+
+msgid "Allow Email Override"
+msgstr "ईमेल ओवरराइड की अनुमति दें"
+
+msgid "Allow Email Override Of Admin Access Restrictions"
+msgstr "Admin पहुँच प्रतिबंधों के ईमेल ओवरराइड की अनुमति दें"
+
+msgid "Allow Manual User Suspension"
+msgstr "मैन्युअल उपयोगकर्ता निलंबन की अनुमति दें"
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "उपयोगकर्ताओं को बैकअप कोड जनरेट करने की अनुमति दें"
+
+msgid "Allow Yubikey OTP"
+msgstr "Yubikey OTP की अनुमति दें"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "उपयोगकर्ताओं को बैकअप 2FA लॉगिन कोड जनरेट करने की अनुमति दें।"
+
+msgid "An upgrade is available for the Shield plugin."
+msgstr "Shield प्लगइन के लिए एक अपग्रेड उपलब्ध है।"
+
+msgid "Anonymous (unauthenticated) requests to the WP REST API is allowed."
+msgstr "WP REST API के लिए अनाम (अप्रमाणित) अनुरोध की अनुमति है।"
+
+msgid "Anonymous REST API"
+msgstr "अनाम REST API"
+
+msgid "Anonymous REST API Access"
+msgstr "अनाम REST API एक्सेस"
+
+msgid "Anonymous Rest API"
+msgstr "अनाम Rest API"
+
+msgid "Anonymous access to the WordPress REST API is disabled."
+msgstr "वर्डप्रेस रेस्ट (REST) API तक अनाम पहुँच अक्षम है।"
+
+msgid "Anonymous access to the WordPress REST API isn't blocked."
+msgstr "वर्डप्रेस रेस्ट (REST) API तक अनाम पहुँच ब्लॉक नहीं है।"
+
+msgid "Are Shield Security's Restrictions Enabled?"
+msgstr "Shield Security की प्रतिबंध सक्षम हैं?"
+
+msgid "Attempted login with invalid user '{{user_login}}'."
+msgstr "अमान्य उपयोगकर्ता '{{user_login}}' के साथ लॉगिन का प्रयास।"
+
+msgid "Authenticated With Site"
+msgstr "साइट के साथ प्रमाणित"
+
+msgid "Author"
+msgstr "लेखक"
+
+msgid "Author Fishing"
+msgstr "लेखक फ़िशिंग"
+
+msgid "Auto-Login Links"
+msgstr "स्वचालित-लॉगिन लिंक"
+
+msgid "Automatic And Manual User Suspension"
+msgstr "स्वचालित और मैन्युअल उपयोगकर्ता निलंबन"
+
+msgid "Automatic Bot Comment SPAM Protection Filter"
+msgstr "स्वचालित Bot टिप्पणी SPAM सुरक्षा फ़िल्टर"
+
+msgid "Available Roles"
+msgstr "उपलब्ध भूमिकाएँ"
+
+msgid "Backup Code"
+msgstr "बैकअप कोड"
+
+msgid "Backup Login Code"
+msgstr "बैकअप लॉगिन कोड"
+
+msgid "Backup Login Code Just Used"
+msgstr "बैकअप लॉगिन कोड अभी उपयोग किया गया"
+
+msgid "Badge"
+msgstr "बैज"
+
+msgid "Block %s"
+msgstr "%s ब्लॉक करें"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "silentCAPTCHA के साथ 100% Bot टिप्पणी SPAM ब्लॉक करें"
+
+msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
+msgstr "silentCAPTCHA का उपयोग करके सभी वर्डप्रेस टिप्पणी SPAM का 99.9%% ब्लॉक करें।"
+
+msgid "Block Anonymous REST API"
+msgstr "अनाम REST API ब्लॉक करें"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Bot टिप्पणी SPAM ब्लॉक करें"
+
+msgid "Block Bot SPAM"
+msgstr "Bot SPAM ब्लॉक करें"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "मनुष्यों द्वारा पोस्ट की गई टिप्पणी SPAM ब्लॉक करें"
+
+msgid "Block Human Comment SPAM"
+msgstr "Human टिप्पणी SPAM ब्लॉक करें"
+
+msgid "Block Human SPAM"
+msgstr "Human SPAM ब्लॉक करें"
+
+msgid "Block IP"
+msgstr "IP ब्लॉक करें"
+
+msgid "Block IP Address?"
+msgstr "IP पता ब्लॉक करें?"
+
+msgid "Block Login Attempted By Automated Bots"
+msgstr "स्वचालित Bot द्वारा लॉगिन प्रयास ब्लॉक करें"
+
+msgid "Block Login Bots"
+msgstr "लॉगिन Bot ब्लॉक करें"
+
+msgid "Block PHP code in requests"
+msgstr "अनुरोधों में PHP कोड ब्लॉक करें"
+
+msgid "Block Page"
+msgstr "पेज ब्लॉक करें"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "स्वचालित Bot द्वारा Contact फ़ॉर्म पर पोस्ट किए गए SPAM को ब्लॉक करें।"
+
+msgid "Block Username Fishing"
+msgstr "उपयोगकर्ता नाम फ़िशिंग ब्लॉक करें"
+
+msgid "Block XML-RPC"
+msgstr "XML-RPC ब्लॉक करें"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "Bypass/व्हाइट सूची में IP को छोड़कर साइट तक सभी पहुँच ब्लॉक करें।"
+
+msgid "Blocked"
+msgstr "ब्लॉक किया गया"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Comment SPAM"
+msgstr "Bot टिप्पणी SPAM"
+
+msgid "Bot Protection"
+msgstr "Bot सुरक्षा"
+
+msgid "Bot SPAM"
+msgstr "Bot SPAM"
+
+msgid "Bot SPAM Action"
+msgstr "Bot SPAM कार्रवाई"
+
+msgid "Bot Signals"
+msgstr "Bot संकेत"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "Bot टिप्पणी SPAM ब्लॉक नहीं किया जाएगा"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "Bot टिप्पणी SPAM अब ब्लॉक किया जाएगा"
+
+msgid "Bots"
+msgstr "Bot"
+
+msgid "Bots & IP Rules"
+msgstr "Bots और IP नियम"
+
+msgid "Bots & IPs"
+msgstr "Bots & IPs"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "Brute Force लॉगिन Guard"
+
+msgid "Brute Force Login Protection"
+msgstr "Brute Force लॉगिन सुरक्षा"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "silentCAPTCHA के साथ Brute Force लॉगिन सुरक्षा"
+
+msgid "Brute Force Protection"
+msgstr "Brute Force सुरक्षा"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Brute Force ट्रैफ़िक Rate Limiting"
+
+msgid "Brute force login attacks aren't blocked by the login cooldown system."
+msgstr "Brute force लॉगिन हमले लॉगिन कूलडाउन सिस्टम द्वारा ब्लॉक नहीं किए जाते हैं।"
+
+msgid "Brute force login attacks by bots aren't being blocked."
+msgstr "Bot द्वारा brute force लॉगिन हमले ब्लॉक नहीं किए जा रहे हैं।"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CSP Rules"
+msgstr "CSP नियम"
+
+msgid "Click to generate a backup login code for your two-factor authentication."
+msgstr "अपने two-factor authentication के लिए बैकअप लॉगिन कोड जनरेट करने के लिए क्लिक करें।"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "कोड"
+
+msgid "Comment"
+msgstr "टिप्पणी"
+
+msgid "Comment SPAM"
+msgstr "टिप्पणी SPAM"
+
+msgid "Comment SPAM Blocked."
+msgstr "टिप्पणी SPAM ब्लॉक किया गया।"
+
+msgid "Comment SPAM Protection"
+msgstr "टिप्पणी SPAM सुरक्षा"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "टिप्पणी SPAM सुरक्षा: %s %s"
+
+msgid "Comment Triggered Human SPAM Detection"
+msgstr "टिप्पणी ने Human SPAM पहचान को ट्रिगर किया"
+
+msgid "Company Name"
+msgstr "कंपनी का नाम"
+
+msgid "Config"
+msgstr "कॉन्फ़िग"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Content Security Policy (CSP) नियम"
+
+msgid "Content Updated"
+msgstr "सामग्री अपडेट की गई"
+
+msgid "Cooldown"
+msgstr "कूलडाउन"
+
+msgid "Cooldown Triggered"
+msgstr "कूलडाउन ट्रिगर हुआ"
+
+msgid "Could not create MU file: %s"
+msgstr "MU फ़ाइल नहीं बनाई जा सकी: %s"
+
+msgid "Could not load log record."
+msgstr "लॉग रिकॉर्ड लोड नहीं किया जा सका।"
+
+msgid "Create Backup 2FA Login Code"
+msgstr "बैकअप 2FA लॉगिन कोड बनाएँ"
+
+msgid "Create Custom Rule"
+msgstr "कस्टम नियम बनाएँ"
+
+msgid "Create New IP Rule"
+msgstr "नया IP नियम बनाएँ"
+
+msgid "Create New Rule"
+msgstr "नया नियम बनाएँ"
+
+msgid "Create and view all your custom security rules."
+msgstr "अपने सभी कस्टम सुरक्षा नियम बनाएँ और देखें।"
+
+msgid "Create custom rules to meet all your security needs"
+msgstr "अपनी सभी सुरक्षा आवश्यकताओं को पूरा करने के लिए कस्टम नियम बनाएँ"
+
+msgid "Critical File Protection"
+msgstr "महत्वपूर्ण फ़ाइल सुरक्षा"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "महत्वपूर्ण वर्डप्रेस सेटिंग्स सुरक्षा"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Signals"
+msgstr "CrowdSec संकेत"
+
+msgid "Current"
+msgstr "वर्तमान"
+
+msgid "Current File Content"
+msgstr "वर्तमान फ़ाइल सामग्री"
+
+msgid "Current master site: {{master_site}}"
+msgstr "वर्तमान मास्टर साइट: {{master_site}}"
+
+msgid "Current value: %s"
+msgstr "वर्तमान मान: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "इस प्रोफ़ाइल पर वर्तमान में सक्रिय MFA प्रदाता हैं"
+
+msgid "Custom"
+msgstr "कस्टम"
+
+msgid "Custom Rules"
+msgstr "कस्टम नियम"
+
+msgid "Custom Security Rules"
+msgstr "कस्टम सुरक्षा नियम"
+
+msgid "Dashboard"
+msgstr "डैशबोर्ड"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "डैशबोर्ड और 2FA लॉगिन लोगो यूआरएल"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "डैशबोर्ड और 2FA लोगो"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "डैशबोर्ड और 2FA लोगो यूआरएल"
+
+msgid "Day"
+msgstr "दिन"
+
+msgid "Defaults to the blog admin email address."
+msgstr "डिफ़ॉल्ट रूप से ब्लॉग admin ईमेल पता।"
+
+msgid "Define Name"
+msgstr "Define नाम"
+
+msgid "Define Value To Match"
+msgstr "मिलान करने के लिए मान परिभाषित करें"
+
+msgid "Disable %s"
+msgstr "%s अक्षम करें"
+
+msgid "Disable Ability To Edit Files From Within WordPress"
+msgstr "वर्डप्रेस के भीतर से फ़ाइलें सम्पादित करने की क्षमता अक्षम करें"
+
+msgid "Disable All Rules"
+msgstr "सभी नियम अक्षम करें"
+
+msgid "Disable File Editing"
+msgstr "फ़ाइल सम्पादन अक्षम करें"
+
+msgid "Disable Module"
+msgstr "मॉड्यूल अक्षम करें"
+
+msgid "Disable Security Admin"
+msgstr "Security Admin अक्षम करें"
+
+msgid "Disable Shield"
+msgstr "Shield अक्षम करें"
+
+msgid "Disable Site Lockdown"
+msgstr "साइट Lockdown अक्षम करें"
+
+msgid "Disable The %s System"
+msgstr "%s सिस्टम अक्षम करें"
+
+msgid "Disable The Anonymous Rest API"
+msgstr "अनाम Rest API अक्षम करें"
+
+msgid "Disable The XML-RPC System"
+msgstr "XML-RPC सिस्टम अक्षम करें"
+
+msgid "Disable XML-RPC"
+msgstr "XML-RPC अक्षम करें"
+
+msgid "Disable anonymous requests to REST API endpoint"
+msgstr "REST API endpoint के लिए अनाम अनुरोध अक्षम करें"
+
+msgid "Disable anonymous requests to the REST API."
+msgstr "REST API के लिए अनाम अनुरोध अक्षम करें।"
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "XML-RPC endpoint पर भेजे गए अनुरोधों की प्रक्रिया अक्षम करें"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "XML-RPC endpoint अक्षम करें और सभी अनुरोधों को ब्लॉक करें।"
+
+msgid "Display Options Updated"
+msgstr "प्रदर्शन विकल्प अपडेट किए गए"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "अपनी साइट पर प्लगइन सुरक्षा बैज प्रदर्शित करें"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "अपने आगंतुकों को प्लगइन सुरक्षा बैज प्रदर्शित करें"
+
+msgid "Docs"
+msgstr "दस्तावेज़"
+
+msgid "Does the request bypass any and all Shield restrictions."
+msgstr "क्या अनुरोध सभी Shield प्रतिबंधों को बायपास करता है।"
+
+msgid "Download"
+msgstr "डाउनलोड"
+
+msgid "Download File"
+msgstr "फ़ाइल डाउनलोड करें"
+
+msgid "Download Request Logs"
+msgstr "अनुरोध लॉग डाउनलोड करें"
+
+msgid "Edit"
+msgstr "सम्पादित"
+
+msgid "Edit Rule"
+msgstr "नियम सम्पादित करें"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "नियम #%s (%s) सम्पादित करें"
+
+msgid "Edit Settings"
+msgstr "सेटिंग्स सम्पादित करें"
+
+msgid "Edit Theme Options"
+msgstr "थीम विकल्प सम्पादित करें"
+
+msgid "Edit activity log settings"
+msgstr "गतिविधि लॉग सेटिंग्स सम्पादित करें"
+
+msgid "Edit automatic file scanning settings"
+msgstr "स्वचालित फ़ाइल स्कैनिंग सेटिंग्स सम्पादित करें"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "Bot-SPAM टिप्पणी सेटिंग्स सम्पादित करें"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "Human-SPAM टिप्पणी सेटिंग्स सम्पादित करें"
+
+msgid "Edit reporting settings"
+msgstr "रिपोर्टिंग सेटिंग्स सम्पादित करें"
+
+msgid "Edit settings on user auto-suspension"
+msgstr "उपयोगकर्ता स्वचालित-निलंबन पर सेटिंग्स सम्पादित करें"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "वर्डप्रेस एडमिन क्षेत्र के भीतर फ़ाइलें सम्पादित करने की अनुमति है।"
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "वर्डप्रेस एडमिन क्षेत्र के भीतर फ़ाइलें सम्पादित करना अक्षम है।"
+
+msgid "Editing this option is currently restricted."
+msgstr "इस विकल्प को सम्पादित करना वर्तमान में प्रतिबंधित है।"
+
+msgid "Email"
+msgstr "ईमेल"
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "ईमेल 2FA विकल्प वर्तमान में सक्षम नहीं है।"
+
+msgid "Email Authentication"
+msgstr "ईमेल प्रमाणीकरण"
+
+msgid "Email OTP"
+msgstr "ईमेल OTP"
+
+msgid "Email Sent"
+msgstr "ईमेल भेजा गया"
+
+msgid "Email Two-Factor Authentication"
+msgstr "ईमेल Two-Factor Authentication"
+
+msgid "Email Updated"
+msgstr "ईमेल अपडेट किया गया"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "%s प्लगइन v%s से %s पर ईमेल भेजा गया।"
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "उपयोगकर्ता '{{user_login}}' के लिए ईमेल अपडेट किया गया।"
+
+msgid "Enable"
+msgstr "सक्षम करें"
+
+msgid "Enable %s"
+msgstr "%s सक्षम करें"
+
+msgid "Enable %s Module"
+msgstr "%s मॉड्यूल सक्षम करें"
+
+msgid "Enable %s Protection"
+msgstr "%s सुरक्षा सक्षम करें"
+
+msgid "Enable (or Disable) The %s Module"
+msgstr "%s मॉड्यूल सक्षम (या अक्षम) करें"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "टिप्पणी SPAM सुरक्षा विशेषता सक्षम (या अक्षम) करें"
+
+msgid "Enable Content Security Policy"
+msgstr "Content Security Policy सक्षम करें"
+
+msgid "Enable Email Authentication"
+msgstr "ईमेल प्रमाणीकरण सक्षम करें"
+
+msgid "Enable Email Auto-Login Links"
+msgstr "ईमेल स्वचालित-लॉगिन लिंक सक्षम करें"
+
+msgid "Enable Live Logging Of All Traffic"
+msgstr "सभी ट्रैफ़िक की लाइव लॉगिंग सक्षम करें"
+
+msgid "Enable Module: %s"
+msgstr "मॉड्यूल सक्षम करें: %s"
+
+msgid "Enable Password Policies"
+msgstr "पासवर्ड नीतियाँ सक्षम करें"
+
+msgid "Enable Rate Limiting"
+msgstr "Rate Limiting सक्षम करें"
+
+msgid "Enable Traffic Log Auto Expiry"
+msgstr "ट्रैफ़िक लॉग स्वतः समाप्ति सक्षम करें"
+
+msgid "Enable White Label"
+msgstr "White Label सक्षम करें"
+
+msgid "Enable or disable access to the anonymous Rest API"
+msgstr "अनाम रेस्ट (REST) API तक पहुँच सक्षम या अक्षम करें"
+
+msgid "Enable or disable the rate limiting feature according to your rate limiting parameters."
+msgstr "अपने रेट लिमिटिंग पैरामीटर के अनुसार रेट लिमिटिंग विशेषता सक्षम या अक्षम करें।"
+
+msgid "Enter 6-digit Code from App"
+msgstr "ऐप से 6-अंकीय कोड दर्ज करें"
+
+msgid "Enter admin username, email or ID."
+msgstr "Admin उपयोगकर्ता नाम, ईमेल या ID दर्ज करें।"
+
+msgid "Enter code sent to your email"
+msgstr "अपने ईमेल पर भेजा गया कोड दर्ज करें"
+
+msgid "Enter your Security Admin PIN"
+msgstr "अपना Security Admin PIN दर्ज करें"
+
+msgid "Error"
+msgstr "त्रुटि"
+
+msgid "Event"
+msgstr "कार्यक्रम"
+
+msgid "File"
+msgstr "फ़ाइल"
+
+msgid "File Download"
+msgstr "फ़ाइल डाउनलोड"
+
+msgid "File Guard"
+msgstr "फ़ाइल Guard"
+
+msgid "File Info"
+msgstr "फ़ाइल Info"
+
+msgid "File Name"
+msgstr "फ़ाइल नाम"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Firewall ब्लॉक"
+
+msgid "Firewall Rule"
+msgstr "फ़ायरवॉल नियम"
+
+msgid "Firewall Triggered"
+msgstr "Firewall ट्रिगर हुआ"
+
+msgid "Fix"
+msgstr "ठीक करें"
+
+msgid "Format"
+msgstr "प्रारूप (फॉर्मेट)"
+
+msgid "Full Path"
+msgstr "पूर्ण पथ"
+
+msgid "Full Path To File"
+msgstr "फ़ाइल का पूर्ण पथ"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "एक-बार बैकअप 2FA लॉगिन कोड जनरेट करें"
+
+msgid "Go PRO!"
+msgstr "PRO लें!"
+
+msgid "Go Pro!"
+msgstr "Pro लें!"
+
+msgid "Go To %s"
+msgstr "%s पर जाएँ"
+
+msgid "Go To Admin"
+msgstr "Admin पर जाएँ"
+
+msgid "Go To Option"
+msgstr "विकल्प पर जाएँ"
+
+msgid "Go To Security Dashboard"
+msgstr "सुरक्षा डैशबोर्ड पर जाएँ"
+
+msgid "Go!"
+msgstr "जाएँ!"
+
+msgid "Good"
+msgstr "अच्छा"
+
+msgid "Help"
+msgstr "सहायता"
+
+msgid "Hide Login"
+msgstr "लॉगिन छुपाएँ"
+
+msgid "Hide Login Page"
+msgstr "लॉगिन पेज छुपाएँ"
+
+msgid "Hide The WP Login Page."
+msgstr "WP लॉगिन पेज छुपाएँ।"
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "वर्डप्रेस लॉगिन और Admin क्षेत्र छुपाएँ"
+
+msgid "Hide WP Login"
+msgstr "WP लॉगिन छुपाएँ"
+
+msgid "Hide WP Login & Admin"
+msgstr "WP लॉगिन और Admin छुपाएँ"
+
+msgid "Hide WP Login Page"
+msgstr "WP लॉगिन पेज छुपाएँ"
+
+msgid "Hide WordPress Login Page"
+msgstr "वर्डप्रेस लॉगिन पेज छुपाएँ"
+
+msgid "Human"
+msgstr "मानव"
+
+msgid "Human Comment SPAM"
+msgstr "Human टिप्पणी SPAM"
+
+msgid "Human Comment SPAM Protection"
+msgstr "Human टिप्पणी SPAM सुरक्षा"
+
+msgid "Human SPAM"
+msgstr "Human SPAM"
+
+msgid "Human SPAM Filter"
+msgstr "Human SPAM फ़िल्टर"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP पता"
+
+msgid "IP Address To Match"
+msgstr "मिलान करने के लिए IP पता"
+
+msgid "IP Auto-Block Offense Limit"
+msgstr "IP स्वचालित-ब्लॉक अपराध सीमा"
+
+msgid "IP Block List Add (Auto)"
+msgstr "IP ब्लॉक सूची जोड़ें (स्वचालित)"
+
+msgid "IP Block List Add (Manual)"
+msgstr "IP ब्लॉक सूची जोड़ें (मैन्युअल)"
+
+msgid "IP Blocked"
+msgstr "IP ब्लॉक किया गया"
+
+msgid "IP Bypass List Add (Manual)"
+msgstr "IP Bypass सूची जोड़ें (मैन्युअल)"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "IP Bypass सूची हटाई गई (मैन्युअल)"
+
+msgid "IP ID To Match"
+msgstr "मिलान करने के लिए IP ID"
+
+msgid "IP Rules"
+msgstr "IP नियम"
+
+msgid "IP address '{{ip}}' manually added to block list."
+msgstr "IP पता '{{ip}}' मैन्युअल रूप से ब्लॉक सूची में जोड़ा गया।"
+
+msgid "IP address added to Bypass list."
+msgstr "IP पता Bypass सूची में जोड़ा गया।"
+
+msgid "IP address blocked."
+msgstr "IP पता ब्लॉक किया गया।"
+
+msgid "IP address exceeds offense limit and is blocked."
+msgstr "IP पता अपराध सीमा पार कर गया है और ब्लॉक कर दिया गया है।"
+
+msgid "IP address removed from Bypass list."
+msgstr "IP पता Bypass सूची से हटाया गया।"
+
+msgid "IP does not match."
+msgstr "IP मेल नहीं खाता।"
+
+msgid "IP isn't on the %s block list."
+msgstr "IP %s ब्लॉक सूची में नहीं है।"
+
+msgid "IP isn't on the auto block list."
+msgstr "IP स्वचालित ब्लॉक सूची में नहीं है।"
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP स्वचालित ब्लॉक सूची में नहीं है।"
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Idle"
+msgstr "निष्क्रिय"
+
+msgid "If"
+msgstr "यदि"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "IP पता %s के लिए जानकारी"
+
+msgid "Installed"
+msgstr "स्थापित"
+
+msgid "Invalid Rule"
+msgstr "अमान्य नियम"
+
+msgid "Invalid User Email Registration"
+msgstr "अमान्य उपयोगकर्ता ईमेल पंजीकरण"
+
+msgid "Invalid request - lockdown is already active."
+msgstr "अमान्य अनुरोध - lockdown पहले से सक्रिय है।"
+
+msgid "Invalid request - lockdown is not active."
+msgstr "अमान्य अनुरोध - lockdown सक्रिय नहीं है।"
+
+msgid "Invalid request with no User ID"
+msgstr "उपयोगकर्ता ID के बिना अमान्य अनुरोध"
+
+msgid "Is Offense"
+msgstr "अपराध है"
+
+msgid "Is Request To The Login Page."
+msgstr "लॉगिन पेज के लिए अनुरोध है।"
+
+msgid "Is Shield Plugin Functionality Disabled."
+msgstr "Shield प्लगइन कार्यक्षमता अक्षम है।"
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Shield ट्रैफ़िक Rate Limiting सक्षम है।"
+
+msgid "Is Shield live logging enabled."
+msgstr "Shield लाइव लॉगिंग सक्षम है।"
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "क्या Shield का साइट Lockdown सक्रिय है।"
+
+msgid "Is The Shield Option Value..."
+msgstr "क्या Shield विकल्प मान है..."
+
+msgid "Is WP Admin"
+msgstr "क्या WP Admin है"
+
+msgid "Is WP XML-RPC"
+msgstr "क्या WP XML-RPC है"
+
+msgid "Is WP-CLI"
+msgstr "क्या WP-CLI है"
+
+msgid "Is current logged-in user a WordPress administrator."
+msgstr "क्या वर्तमान लॉग-इन उपयोगकर्ता वर्डप्रेस प्रशासक है।"
+
+msgid "Is current user Security Admin."
+msgstr "वर्तमान उपयोगकर्ता Security Admin है।"
+
+msgid "Is current user a logged-in WordPress administrator."
+msgstr "क्या वर्तमान उपयोगकर्ता लॉग-इन वर्डप्रेस प्रशासक है।"
+
+msgid "Is current user password expired."
+msgstr "वर्तमान उपयोगकर्ता का पासवर्ड समाप्त हो गया है।"
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "क्या अनुरोध IP Shield द्वारा ब्लैकलिस्ट किया गया है।"
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "अनुरोध IP Shield के CrowdSec ब्लॉक सूची में है।"
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "अनुरोध IP Shield की मैन्युअल ब्लॉक सूची में है।"
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "अनुरोध IP Shield की स्वचालित-ब्लॉक सूची में है।"
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "अनुरोध Shield की साइट Lockdown विशेषता द्वारा ब्लॉक किया गया है।"
+
+msgid "Is the request from a logged-in user."
+msgstr "क्या अनुरोध लॉग-इन उपयोगकर्ता से है।"
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "अनुरोध Shield Security Admin के रूप में प्रमाणित उपयोगकर्ता से है।"
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "क्या अनुरोध पथ Shield द्वारा व्हाइटलिस्ट किया गया है।"
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "वर्तमान में इंस्टॉल किए गए वर्डप्रेस प्लगइन के पथ का अनुरोध है।"
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "अनुरोध वर्तमान में स्थापित वर्डप्रेस थीम के भीतर किसी पथ का है।"
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "संभावित रूप से स्थापित वर्डप्रेस प्लगइन के भीतर किसी पथ का अनुरोध है लेकिन अमान्य है।"
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "संभावित रूप से स्थापित वर्डप्रेस प्लगइन के भीतर किसी पथ का अनुरोध है।"
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "संभावित रूप से स्थापित वर्डप्रेस थीम के भीतर किसी पथ का अनुरोध है लेकिन अमान्य है।"
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "संभावित रूप से स्थापित वर्डप्रेस थीम के भीतर किसी पथ का अनुरोध है।"
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "वर्डप्रेस XML-RPC endpoint का अनुरोध है।"
+
+msgid "Is the request to the WordPress admin area."
+msgstr "वर्डप्रेस एडमिन क्षेत्र का अनुरोध है।"
+
+msgid "Is the request to the WordPress cron."
+msgstr "वर्डप्रेस cron का अनुरोध है।"
+
+msgid "Is the request triggered by PHP CLI."
+msgstr "क्या अनुरोध PHP CLI द्वारा ट्रिगर किया गया है।"
+
+msgid "Is the request triggered by WP-CLI."
+msgstr "क्या अनुरोध WP-CLI द्वारा ट्रिगर किया गया है।"
+
+msgid "Is the request whitelisted?"
+msgstr "क्या अनुरोध व्हाइटलिस्ट किया गया है?"
+
+msgid "Key"
+msgstr "कुंजी"
+
+msgid "Label"
+msgstr "लेबल"
+
+msgid "Label For This IP Rule"
+msgstr "इस IP नियम के लिए लेबल"
+
+msgid "Limit requests to your site based on the your rate-limiting settings."
+msgstr "अपनी rate-limiting सेटिंग्स के आधार पर अपनी साइट के अनुरोध सीमित करें।"
+
+msgid "Live Logging"
+msgstr "लाइव लॉगिंग"
+
+msgid "Live Logs"
+msgstr "लाइव लॉग"
+
+msgid "Live Traffic"
+msgstr "लाइव ट्रैफ़िक"
+
+msgid "Load"
+msgstr "लोड करें"
+
+msgid "Lockdown The Site"
+msgstr "साइट को Lockdown करें"
+
+msgid "Log Requests To Your WordPress Site"
+msgstr "अपनी वर्डप्रेस साइट के अनुरोध लॉग करें"
+
+msgid "Log Retention"
+msgstr "लॉग प्रतिधारण"
+
+msgid "Logged-In"
+msgstr "लॉग-इन"
+
+msgid "Logging isn't currently available on this site."
+msgstr "इस साइट पर लॉगिंग वर्तमान में उपलब्ध नहीं है।"
+
+msgid "Login"
+msgstr "लॉगिन"
+
+msgid "Login Blocked"
+msgstr "लॉगिन ब्लॉक किया गया"
+
+msgid "Login Bot Protection"
+msgstr "लॉगिन Bot सुरक्षा"
+
+msgid "Login Cooldown"
+msgstr "लॉगिन कूलडाउन"
+
+msgid "Login Expired"
+msgstr "लॉगिन समाप्त"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "लॉगिन IP"
+
+msgid "Login Page"
+msgstr "लॉगिन पेज"
+
+msgid "Login Protection"
+msgstr "लॉगिन सुरक्षा"
+
+msgid "Login Security"
+msgstr "लॉगिन सुरक्षा"
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "लॉगिन, रजिस्टर & पासवर्ड खो गया फ़ॉर्म"
+
+msgid "Login/Register request triggered cooldown and was blocked."
+msgstr "लॉगिन/रजिस्टर अनुरोध ने कूलडाउन ट्रिगर किया और ब्लॉक कर दिया गया।"
+
+msgid "Lost Password"
+msgstr "पासवर्ड खो गया"
+
+msgid "Lost Password Blocked"
+msgstr "पासवर्ड खोना ब्लॉक किया गया"
+
+msgid "Lost Password Bot Protection"
+msgstr "पासवर्ड खोना Bot सुरक्षा"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "Bot द्वारा Lost Password SPAMing को silentCAPTCHA द्वारा ब्लॉक किया जाता है।"
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "Bot द्वारा Lost Password SPAMing को silentCAPTCHA द्वारा ब्लॉक नहीं किया जाता है।"
+
+msgid "Manually Suspended"
+msgstr "मैन्युअल रूप से निलंबित"
+
+msgid "Mark Comment Not SPAM (Manual)"
+msgstr "टिप्पणी को SPAM नहीं चिह्नित करें (मैन्युअल)"
+
+msgid "Mark Comment SPAM (Manual)"
+msgstr "टिप्पणी को SPAM चिह्नित करें (मैन्युअल)"
+
+msgid "Master Site Secret Key"
+msgstr "मास्टर साइट सीक्रेट की"
+
+msgid "Master Site URL"
+msgstr "मास्टर साइट यूआरएल"
+
+msgid "Master Site URL set: {{site}}"
+msgstr "मास्टर साइट यूआरएल सेट किया गया: {{site}}"
+
+msgid "Match User Email Address"
+msgstr "उपयोगकर्ता ईमेल पता मिलाएँ"
+
+msgid "Match User ID"
+msgstr "उपयोगकर्ता ID मिलाएँ"
+
+msgid "Match Username"
+msgstr "उपयोगकर्ता नाम मिलाएँ"
+
+msgid "Match the username for currently logged-in user."
+msgstr "वर्तमान में लॉग-इन उपयोगकर्ता के उपयोगकर्ता नाम से मिलान करें।"
+
+msgid "Media"
+msgstr "मीडिया"
+
+msgid "Menu Icon"
+msgstr "मेनू आइकन"
+
+msgid "Menu Icon URL"
+msgstr "मेनू आइकन यूआरएल"
+
+msgid "Menu Title"
+msgstr "मेनू शीर्षक"
+
+msgid "Mode"
+msgstr "मोड"
+
+msgid "Multisite"
+msgstr "Multisite"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "लागू नहीं"
+
+msgid "NO TITLE"
+msgstr "कोई शीर्षक नहीं"
+
+msgid "Name"
+msgstr "नाम"
+
+msgid "Name: <code>%s</code>"
+msgstr "नाम: <code>%s</code>"
+
+msgid "New"
+msgstr "नया"
+
+msgid "New Admin(s)"
+msgstr "नए व्यवस्थापक"
+
+msgid "New Comment"
+msgstr "नई टिप्पणी"
+
+msgid "New WordPress user registered."
+msgstr "नया वर्डप्रेस उपयोगकर्ता पंजीकृत हुआ।"
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "नया उपयोगकर्ता नाम '{{user_login}}' है और ईमेल पता '{{email}}' है।"
+
+msgid "No"
+msgstr "नहीं"
+
+msgid "No Name Yet"
+msgstr "अभी तक कोई नाम नहीं"
+
+msgid "No Title"
+msgstr "कोई शीर्षक नहीं"
+
+msgid "No active providers for user."
+msgstr "उपयोगकर्ता के लिए कोई सक्रिय प्रदाता नहीं।"
+
+msgid "No activity logged for this IP address"
+msgstr "इस IP पते के लिए कोई गतिविधि लॉग नहीं की गई"
+
+msgid "No content yet"
+msgstr "अभी तक कोई सामग्री नहीं"
+
+msgid "No record"
+msgstr "कोई रिकॉर्ड नहीं"
+
+msgid "No requests logged for this IP address"
+msgstr "इस IP पते के लिए कोई अनुरोध लॉग नहीं किया गया"
+
+msgid "No such record ID"
+msgstr "ऐसी कोई रिकॉर्ड ID नहीं"
+
+msgid "No such user"
+msgstr "ऐसा कोई उपयोगकर्ता नहीं"
+
+msgid "No value set."
+msgstr "कोई मान सेट नहीं है।"
+
+msgid "None"
+msgstr "कोई नहीं"
+
+msgid "Not Installed"
+msgstr "स्थापित नहीं"
+
+msgid "Not Offense"
+msgstr "अपराध नहीं"
+
+msgid "Not Pro"
+msgstr "Pro नहीं"
+
+msgid "Not a plugin or theme file path."
+msgstr "प्लगइन या थीम फ़ाइल पथ नहीं है।"
+
+msgid "Not currently logged-in as security admin."
+msgstr "वर्तमान में सुरक्षा प्रशासक के रूप में लॉग-इन नहीं है।"
+
+msgid "Not currently logged-in."
+msgstr "वर्तमान में लॉग-इन नहीं है।"
+
+msgid "Note"
+msgstr "नोट"
+
+msgid "Now"
+msgstr "अभी"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Off"
+msgstr "बंद"
+
+msgid "Offense"
+msgstr "अपराध"
+
+msgid "Offense Limit"
+msgstr "अपराध सीमा"
+
+msgid "Offense Triggered"
+msgstr "अपराध ट्रिगर हुआ"
+
+msgid "Offense: %s"
+msgstr "अपराध: %s"
+
+msgid "On"
+msgstr "चालू"
+
+msgid "Options"
+msgstr "विकल्प"
+
+msgid "Originating IP address of the request"
+msgstr "अनुरोध का मूल IP पता"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP & MySQL"
+
+msgid "PHP Code"
+msgstr "PHP कोड"
+
+msgid "PHP Define Name"
+msgstr "PHP Define नाम"
+
+msgid "PHP Define Value"
+msgstr "PHP Define मान"
+
+msgid "PHP Version"
+msgstr "PHP संस्करण"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "पेज"
+
+msgid "Parent"
+msgstr "पेरेंट (Parent)"
+
+msgid "Password Expired"
+msgstr "पासवर्ड समाप्त हो गया"
+
+msgid "Password Policies"
+msgstr "पासवर्ड नीतियाँ"
+
+msgid "Password Updated"
+msgstr "पासवर्ड अपडेट किया गया"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "उपयोगकर्ता '{{user_login}}' के लिए पासवर्ड अपडेट किया गया।"
+
+msgid "Path"
+msgstr "पथ"
+
+msgid "Path To Match"
+msgstr "मिलान करने के लिए पथ"
+
+msgid "Please provide an IP Address"
+msgstr "कृपया एक IP पता प्रदान करें"
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "कृपया IP नियम प्रकारों में से एक चुनें - ब्लॉक या Bypass"
+
+msgid "Please select one of the options available"
+msgstr "कृपया उपलब्ध विकल्पों में से एक चुनें"
+
+msgid "Please turn on this feature in the options."
+msgstr "कृपया विकल्पों में इस विशेषता को चालू करें।"
+
+msgid "Please upgrade to support scanning of all plugin files for tampering."
+msgstr "कृपया सभी प्लगइन फ़ाइलों की छेड़छाड़ के लिए स्कैनिंग का समर्थन करने के लिए अपग्रेड करें।"
+
+msgid "Please use one of %s."
+msgstr "कृपया %s में से एक का उपयोग करें।"
+
+msgid "Plugin"
+msgstr "प्लगइन"
+
+msgid "Plugin & Theme Files"
+msgstr "प्लगइन & थीम फ़ाइलें"
+
+msgid "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}."
+msgstr "प्लगइन '{{plugin}}' संस्करण {{from}} से संस्करण {{to}} में डाउनग्रेड किया गया।"
+
+msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
+msgstr "प्लगइन '{{plugin}}' संस्करण {{from}} से संस्करण {{to}} में अपग्रेड किया गया।"
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "प्लगइन '{{plugin}}' स्थापित की गई (v{{version}})।"
+
+msgid "Plugin Badge Logo"
+msgstr "प्लगइन बैज लोगो"
+
+msgid "Plugin Badge Logo URL"
+msgstr "प्लगइन बैज लोगो यूआरएल"
+
+msgid "Plugin Defaults"
+msgstr "प्लगइन डिफ़ॉल्ट"
+
+msgid "Plugin Downgraded"
+msgstr "प्लगइन डाउनग्रेड किया गया"
+
+msgid "Plugin Files"
+msgstr "प्लगइन फ़ाइलें"
+
+msgid "Plugin Installed"
+msgstr "प्लगइन इंस्टॉल किया गया"
+
+msgid "Plugin Name"
+msgstr "प्लगइन नाम"
+
+msgid "Plugin Option Changed"
+msgstr "प्लगइन विकल्प बदला गया"
+
+msgid "Plugin Security Badge"
+msgstr "प्लगइन सुरक्षा बैज"
+
+msgid "Plugin Upgraded"
+msgstr "प्लगइन अपग्रेड किया गया"
+
+msgid "Plugin and Theme File Guard"
+msgstr "प्लगइन और थीम फ़ाइल Guard"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "प्लगइन विकल्प '{{name}}' ({{key}}) को '{{value}}' में अपडेट किया गया।"
+
+msgid "Plugin/Theme Guard"
+msgstr "प्लगइन/थीम Guard"
+
+msgid "Privacy Policy"
+msgstr "गोपनीयता नीति"
+
+msgid "Pro Only"
+msgstr "केवल Pro"
+
+msgid "Profile"
+msgstr "विवरण"
+
+msgid "Protected Forms"
+msgstr "सुरक्षित फ़ॉर्म"
+
+msgid "Protection for user accounts."
+msgstr "उपयोगकर्ता खातों के लिए सुरक्षा।"
+
+msgid "Provide Auto-Login Links For Simple Email 2FA"
+msgstr "सरल ईमेल 2FA के लिए स्वचालित-लॉगिन लिंक प्रदान करें"
+
+msgid "Provide The Security Admin PIN."
+msgstr "Security Admin PIN प्रदान करें।"
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "अपने Yubikey से One Time Password प्रदान करें।"
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "अपनी सुरक्षा सेटिंग्स तक एडमिन पहुँच प्रतिबंधित करने के लिए एक गुप्त PIN प्रदान करें"
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "अपने 2FA लॉगिन डिवाइस से One-Time Password प्रदान करें"
+
+msgid "Provide the name of your company."
+msgstr "अपनी कंपनी का नाम प्रदान करें।"
+
+msgid "Provide your custom set of CSP rules."
+msgstr "अपने कस्टम CSP नियमों का सेट प्रदान करें।"
+
+msgid "Rate Limiting"
+msgstr "Rate limiting"
+
+msgid "Registered"
+msgstr "पंजीकृत"
+
+msgid "Registered Site"
+msgstr "पंजीकृत साइट"
+
+msgid "Registered Yubikey devices"
+msgstr "पंजीकृत Yubikey डिवाइस"
+
+msgid "Registration"
+msgstr "पंजीकरण"
+
+msgid "Registration Blocked"
+msgstr "पंजीकरण ब्लॉक किया गया"
+
+msgid "Reporting"
+msgstr "रिपोर्टिंग"
+
+msgid "Request Blocked"
+msgstr "अनुरोध ब्लॉक किया गया"
+
+msgid "Request Firewall"
+msgstr "अनुरोध फ़ायरवॉल"
+
+msgid "Request Firewall Options"
+msgstr "अनुरोध फ़ायरवॉल विकल्प"
+
+msgid "Request ID"
+msgstr "अनुरोध ID"
+
+msgid "Request Live Logging"
+msgstr "अनुरोध लाइव लॉगिंग"
+
+msgid "Request Log"
+msgstr "अनुरोध लॉग"
+
+msgid "Request Logs"
+msgstr "अनुरोध लॉग"
+
+msgid "Request Path"
+msgstr "अनुरोध पथ"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "फ़ायरवॉल नियम द्वारा अनुरोध ब्लॉक किया गया: {{name}}।"
+
+msgid "Requests"
+msgstr "अनुरोध"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "इस IP पते से आने वाले अनुरोध ब्लॉक किए जाएंगे।"
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "इस IP पते से आने वाले अनुरोध सभी सुरक्षा नियमों को बायपास करेंगे।"
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "आपकी साइट पर XML-RPC endpoint के अनुरोध की अनुमति है।"
+
+msgid "Rest API Error Code"
+msgstr "रेस्ट (REST) API त्रुटि कोड"
+
+msgid "Restrict WP File Editing"
+msgstr "WP फ़ाइल सम्पादन प्रतिबंधित करें"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "WP एडमिन डैशबोर्ड के भीतर फ़ाइल सम्पादन प्रतिबंधित करें"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "वर्डप्रेस एडमिन क्षेत्र के भीतर फ़ाइलें सम्पादित करने की क्षमता प्रतिबंधित करें।"
+
+msgid "Restricted"
+msgstr "प्रतिबंधित"
+
+msgid "Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system."
+msgstr "Security Admin Access सिस्टम के साथ प्रमाणित नहीं किए गए सभी उपयोगकर्ताओं के लिए प्रमुख वर्डप्रेस क्षेत्रों तक पहुँच प्रतिबंधित करता है।"
+
+msgid "Rules"
+msgstr "नियम"
+
+msgid "Run"
+msgstr "चलाएँ"
+
+msgid "Run In MU Mode"
+msgstr "MU मोड में चलाएँ"
+
+msgid "Run Plugin In Must-Use (MU) Mode"
+msgstr "प्लगइन को Must-Use (MU) मोड में चलाएँ"
+
+msgid "Run Scans Now"
+msgstr "स्कैन अभी चलाएँ"
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Authentication"
+msgstr "SMS प्रमाणीकरण"
+
+msgid "SMS Registration Removed"
+msgstr "SMS पंजीकरण हटाया गया"
+
+msgid "SPAM"
+msgstr "SPAM"
+
+msgid "SPAM Action"
+msgstr "SPAM कार्रवाई"
+
+msgid "SPAM Blocked"
+msgstr "SPAM ब्लॉक किया गया"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "SPAM और Bot द्वारा बल्क उपयोगकर्ता पंजीकरण silentCAPTCHA द्वारा ब्लॉक किए जाते हैं।"
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM और Bot द्वारा बल्क उपयोगकर्ता पंजीकरण silentCAPTCHA द्वारा ब्लॉक नहीं किए जाते हैं।"
+
+msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
+msgstr "प्लगइन और थीम फ़ाइलों को स्कैन करना केवल ShieldPRO के साथ उपलब्ध है।"
+
+msgid "Scans"
+msgstr "स्कैन"
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "आपके वर्तमान वर्डप्रेस संस्करण के लिए सभी WP फ़ाइलों को स्कैन करता है।"
+
+msgid "Scans are currently disabled because:"
+msgstr "स्कैन वर्तमान में अक्षम हैं क्योंकि:"
+
+msgid "Scans for file tampering within the active theme."
+msgstr "सक्रिय थीम के भीतर फ़ाइल छेड़छाड़ के लिए स्कैन करता है।"
+
+msgid "Secret Key"
+msgstr "गुप्त कुंजी"
+
+msgid "Security"
+msgstr "सुरक्षा"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "Security Admin एक्सेस PIN"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin सक्षम"
+
+msgid "Security Admin Login"
+msgstr "Security Admin लॉगिन"
+
+msgid "Security Admin PIN"
+msgstr "Security Admin PIN"
+
+msgid "Security Admin Protection"
+msgstr "Security Admin सुरक्षा"
+
+msgid "Security Admin Settings"
+msgstr "Security Admin सेटिंग्स"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin अब सक्रिय है"
+
+msgid "Security Dashboard"
+msgstr "सुरक्षा डैशबोर्ड"
+
+msgid "Security PIN Currently Set"
+msgstr "Security PIN वर्तमान में सेट है"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "Security PIN वर्तमान में सेट नहीं है"
+
+msgid "Security Plugin Protection"
+msgstr "सुरक्षा प्लगइन सुरक्षा"
+
+msgid "Security Profile"
+msgstr "सुरक्षा विवरण"
+
+msgid "Security Rules"
+msgstr "सुरक्षा नियम"
+
+msgid "Security admin pin removed."
+msgstr "Security admin pin हटाया गया।"
+
+msgid "Security admin pin set to: `%s`"
+msgstr "Security admin pin सेट किया गया: `%s`"
+
+msgid "Select"
+msgstr "चुनें"
+
+msgid "Select Scans To Run"
+msgstr "चलाने के लिए स्कैन चुनें"
+
+msgid "Select which user forms should be protected against brute-force attacks."
+msgstr "चुनें कि किन उपयोगकर्ता फ़ॉर्म को brute-force हमलों से सुरक्षित किया जाना चाहिए।"
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "%s सुविधा को बंद करने के लिए इसे \"0\" पर सेट करें।"
+
+msgid "Set to %s to turn off this option."
+msgstr "इस विकल्प को बंद करने के लिए %s पर सेट करें।"
+
+msgid "Shield Info"
+msgstr "Shield Info"
+
+msgid "Shield Option Key"
+msgstr "Shield विकल्प कुंजी"
+
+msgid "Shield User 2FA: Has Any Active"
+msgstr "Shield उपयोगकर्ता 2FA: कोई सक्रिय है"
+
+msgid "Shield White Label"
+msgstr "Shield White Label"
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield इस साइट पर स्थापित नहीं है।"
+
+msgid "Shield plugin installed"
+msgstr "Shield प्लगइन स्थापित"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Shield प्लगइन स्थापित है, लेकिन सक्रिय नहीं है।"
+
+msgid "Shield plugin updated"
+msgstr "Shield प्लगइन अपडेट किया गया"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO Features"
+msgstr "ShieldPRO सुविधाएँ"
+
+msgid "Site"
+msgstr "साइट"
+
+msgid "Site Address (URL)"
+msgstr "साइट पता (यूआरएल)"
+
+msgid "Site Admin Email"
+msgstr "साइट Admin ईमेल"
+
+msgid "Site In Lockdown"
+msgstr "साइट Lockdown में"
+
+msgid "Site Is In Lockdown"
+msgstr "साइट Lockdown में है"
+
+msgid "Site Lockdown"
+msgstr "साइट Lockdown"
+
+msgid "Site Lockdown and Firewall"
+msgstr "साइट Lockdown और Firewall"
+
+msgid "Site Scanning"
+msgstr "साइट स्कैनिंग"
+
+msgid "Site Tagline"
+msgstr "साइट टैगलाइन"
+
+msgid "Site Title"
+msgstr "साइट शीर्षक"
+
+msgid "Site URL"
+msgstr "साइट यूआरएल"
+
+msgid "Site URL Changed"
+msgstr "साइट यूआरएल बदला गया"
+
+msgid "Sorry, %s may not be added to another user's account."
+msgstr "क्षमा करें, %s को किसी अन्य उपयोगकर्ता के खाते में नहीं जोड़ा जा सकता है।"
+
+msgid "Sorry, %s may only be removed from another user's account by a Security Administrator."
+msgstr "क्षमा करें, %s को किसी अन्य उपयोगकर्ता के खाते से केवल एक सुरक्षा प्रशासक द्वारा हटाया जा सकता है।"
+
+msgid "Sorry, suspension for this account may only be managed by a security administrator."
+msgstr "क्षमा करें, इस खाते के लिए निलंबन केवल एक सुरक्षा प्रशासक द्वारा प्रबंधित किया जा सकता है।"
+
+msgid "Sorry, this account is suspended because the password has expired."
+msgstr "क्षमा करें, यह खाता निलंबित है क्योंकि पासवर्ड समाप्त हो गया है।"
+
+msgid "Sorry, this account is suspended."
+msgstr "क्षमा करें, यह खाता निलंबित है।"
+
+msgid "Suspended"
+msgstr "निलंबित"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "सभी सुरक्षा संरक्षण अक्षम करने के लिए बंद करें"
+
+msgid "Switch To Live Logs"
+msgstr "लाइव लॉग पर स्विच करें"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "CrowdSec IP ब्लॉक सूचियाँ चालू/बंद करें"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "महत्वपूर्ण WP सेटिंग्स सम्पादित करने की क्षमता चालू/बंद करें"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "XML-RPC endpoint तक पहुँच चालू/बंद करें"
+
+msgid "Switch on/off file editing within WP"
+msgstr "WP के भीतर फ़ाइल सम्पादन चालू/बंद करें"
+
+msgid "Switch on/off username fishing detection"
+msgstr "उपयोगकर्ता नाम फ़िशिंग पहचान चालू/बंद करें"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "सभी साइट ट्रैफ़िक की लॉगिंग सक्षम करें।"
+
+msgid "System Info"
+msgstr "सिस्टम Info"
+
+msgid "Tagline"
+msgstr "टैगलाइन"
+
+msgid "Temporarily Log All Traffic"
+msgstr "अस्थायी रूप से सभी ट्रैफ़िक लॉग करें"
+
+msgid "The IP may not be blocked yet."
+msgstr "IP अभी तक ब्लॉक नहीं किया गया हो सकता है।"
+
+msgid "The Main Menu Title Of The Plugin"
+msgstr "प्लगइन का मुख्य मेनू शीर्षक"
+
+msgid "The Name Of The Plugin"
+msgstr "प्लगइन का नाम"
+
+msgid "The Name Of The Plugin."
+msgstr "प्लगइन का नाम।"
+
+msgid "The Name Of Your Company"
+msgstr "आपकी कंपनी का नाम"
+
+msgid "The Security Admin system protects WordPress and the %s plugin against tampering."
+msgstr "Security Admin सिस्टम वर्डप्रेस और %s प्लगइन को छेड़छाड़ से सुरक्षित रखता है।"
+
+msgid "The Security Administrator has restricted the use of the email override feature."
+msgstr "Security Administrator ने ईमेल ओवरराइड सुविधा के उपयोग को प्रतिबंधित किया है।"
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "Security Badge आपके आगंतुकों को प्रदर्शित किया जाएगा"
+
+msgid "The Security Badge won't be displayed to your visitors"
+msgstr "Security Badge आपके आगंतुकों को प्रदर्शित नहीं किया जाएगा"
+
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr "इस साइट पर Shield Security प्लगइन को अपग्रेड करने की आवश्यकता है।"
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "मेनू में प्रदर्शित आइकन का यूआरएल।"
+
+msgid "The URL of the icon to display in the menu."
+msgstr "मेनू में प्रदर्शित करने के लिए आइकन का यूआरएल।"
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "प्लगइन बैज में प्रदर्शित करने के लिए लोगो का यूआरएल।"
+
+msgid "The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page."
+msgstr "डैशबोर्ड और Two-Factor Authentication लॉगिन पेज पर प्रदर्शित करने के लिए लोगो का यूआरएल।"
+
+msgid "The name of the plugin that will be displayed to your site users."
+msgstr "प्लगइन का नाम जो आपकी साइट उपयोगकर्ताओं को प्रदर्शित किया जाएगा।"
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "साइट पर किसी को भी रजिस्टर करने की अनुमति देने का विकल्प '{{from}}' से '{{to}}' में अपडेट किया गया।"
+
+msgid "The plugin defaults to the site administration email address, which is: %s"
+msgstr "प्लगइन डिफ़ॉल्ट रूप से साइट प्रशासन ईमेल पता उपयोग करता है, जो है: %s"
+
+msgid "The plugin is currently entirely disabled."
+msgstr "प्लगइन वर्तमान में पूरी तरह से अक्षम है।"
+
+msgid "The security plugin is protected against tampering."
+msgstr "सुरक्षा प्लगइन छेड़छाड़ से सुरक्षित है।"
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "सुरक्षा प्लगइन छेड़छाड़ से सुरक्षित नहीं है।"
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "silentCAPTCHA विकल्प अक्षम है, जिससे लॉगिन, रजिस्टर और lost password फ़ॉर्म के लिए brute force सुरक्षा हट गई है।"
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "silentCAPTCHA विकल्प सक्षम है।"
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "साइट यूआरएल '{{from}}' से '{{to}}' में बदला गया।"
+
+msgid "Theme"
+msgstr "थीम"
+
+msgid "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}."
+msgstr "थीम '{{theme}}' संस्करण {{from}} से संस्करण {{to}} में डाउनग्रेड की गई।"
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "थीम '{{theme}}' स्थापित की गई।"
+
+msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
+msgstr "थीम '{{theme}}' संस्करण {{from}} से संस्करण {{to}} में अपग्रेड की गई।"
+
+msgid "Theme Downgraded"
+msgstr "थीम डाउनग्रेड की गई"
+
+msgid "Theme Files"
+msgstr "थीम फ़ाइलें"
+
+msgid "Theme Installed"
+msgstr "थीम इंस्टॉल की गई"
+
+msgid "Theme Upgraded"
+msgstr "थीम अपग्रेड की गई"
+
+msgid "Then"
+msgstr "फिर"
+
+msgid "There are also options to limit and disable built-in WordPress features such as XML-RPC and anonymous access to the REST API."
+msgstr "XML-RPC और REST API तक अनाम पहुँच जैसी अंतर्निहित वर्डप्रेस सुविधाओं को सीमित और अक्षम करने के विकल्प भी हैं।"
+
+msgid "There are currently no 2FA providers available on your account."
+msgstr "आपके खाते पर वर्तमान में कोई 2FA प्रदाता उपलब्ध नहीं है।"
+
+msgid "There are no IPs available yet."
+msgstr "अभी तक कोई IP उपलब्ध नहीं है।"
+
+msgid "There are no MFA providers active on this user account."
+msgstr "इस उपयोगकर्ता खाते पर कोई MFA प्रदाता सक्रिय नहीं है।"
+
+msgid "There are no active 2FA providers."
+msgstr "कोई सक्रिय 2FA प्रदाता नहीं है।"
+
+msgid "There are no bot signals for this IP address."
+msgstr "इस IP पते के लिए कोई bot संकेत नहीं है।"
+
+msgid "There are no custom security rules"
+msgstr "कोई कस्टम सुरक्षा नियम नहीं है"
+
+msgid "There are no logs available yet."
+msgstr "अभी तक कोई लॉग उपलब्ध नहीं है।"
+
+msgid "There are no registered Yubikey devices on this profile."
+msgstr "इस प्रोफ़ाइल पर कोई पंजीकृत Yubikey डिवाइस नहीं है।"
+
+msgid "There are no whitelisted IPs for exclusion."
+msgstr "बहिष्करण के लिए कोई व्हाइटलिस्ट किए गए IP नहीं हैं।"
+
+msgid "There is an upgrade available for WordPress."
+msgstr "वर्डप्रेस के लिए एक अपग्रेड उपलब्ध है।"
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "मनुष्यों द्वारा पोस्ट की गई WP टिप्पणी SPAM के विरुद्ध कोई सुरक्षा नहीं है।"
+
+msgid "There is no user currently logged-in."
+msgstr "वर्तमान में कोई उपयोगकर्ता लॉग-इन नहीं है।"
+
+msgid "There was a problem sending the One-Time Password email."
+msgstr "One-Time Password ईमेल भेजने में समस्या आई।"
+
+msgid "This Page"
+msgstr "यह पेज"
+
+msgid "This Site Is Protected By %s"
+msgstr "यह साइट %s द्वारा सुरक्षित है"
+
+msgid "This feature isn't currently enabled."
+msgstr "यह विशेषता वर्तमान में सक्षम नहीं है।"
+
+msgid "This is a Pro-only feature."
+msgstr "यह केवल Pro विशेषता है।"
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "यह आपकी अद्वितीय Yubikey Device ID है।"
+
+msgid "Time"
+msgstr "समय"
+
+msgid "Time Limit"
+msgstr "समय सीमा"
+
+msgid "Time Now"
+msgstr "वर्तमान समय"
+
+msgid "Time Sent: %s"
+msgstr "भेजने का समय: %s"
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "नया Yubikey डिवाइस पंजीकृत करने के लिए, Yubikey से One Time Password दर्ज करें।"
+
+msgid "Toggle Live Traffic Logging"
+msgstr "लाइव ट्रैफ़िक लॉगिंग टॉगल करें"
+
+msgid "Toggle the option to enable/disable email-based login authentication."
+msgstr "ईमेल-आधारित लॉगिन प्रमाणीकरण सक्षम/अक्षम करने के लिए विकल्प टॉगल करें।"
+
+msgid "Traffic"
+msgstr "ट्रैफ़िक"
+
+msgid "Traffic Log Retention Policy (Days)"
+msgstr "ट्रैफ़िक लॉग प्रतिधारण नीति (दिन)"
+
+msgid "Traffic Rate Limiting"
+msgstr "ट्रैफ़िक Rate Limiting"
+
+msgid "Turn On The Rate Limiting Feature"
+msgstr "Rate Limiting विशेषता सक्षम करें"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "वर्डप्रेस एडमिन खातों तक पहुँच प्रतिबंधित करने के लिए विकल्प चालू करें।"
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "महत्वपूर्ण वर्डप्रेस सेटिंग्स तक पहुँच प्रतिबंधित करने के लिए विकल्प चालू करें।"
+
+msgid "Turn your White Label settings on/off."
+msgstr "अपनी White Label सेटिंग्स चालू/बंद करें।"
+
+msgid "Two-Factor Login Authentication By %s"
+msgstr "%s द्वारा Two-Factor लॉगिन Authentication"
+
+msgid "Two-Factor Login Authentication By Email"
+msgstr "ईमेल द्वारा Two-Factor लॉगिन Authentication"
+
+msgid "URL"
+msgstr "यूआरएल"
+
+msgid "URL - Site"
+msgstr "यूआरएल - साइट"
+
+msgid "Uncheck this option to disable all Shield features"
+msgstr "सभी Shield विशेषताओं को अक्षम करने के लिए इस विकल्प को अनचेक करें"
+
+msgid "Unique ID"
+msgstr "अद्वितीय ID"
+
+msgid "Updated"
+msgstr "अपडेट किया गया"
+
+msgid "Upgrade Now"
+msgstr "अभी अपग्रेड करें"
+
+msgid "Upgrade To"
+msgstr "अपग्रेड करें"
+
+msgid "Upgrade To Shield Pro Now"
+msgstr "अभी Shield Pro में अपग्रेड करें"
+
+msgid "Use Shield's Unique silentCAPTCHA Technology"
+msgstr "Shield की अद्वितीय silentCAPTCHA तकनीक का उपयोग करें"
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Bot और Brute Force हमलों को ब्लॉक करने के लिए Shield के silentCAPTCHA का उपयोग करें"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "SPAM Bot का पता लगाने और ब्लॉक करने के लिए Shield के silentCAPTCHA का उपयोग करें।"
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "Bot टिप्पणी SPAM ब्लॉक करने के लिए silentCAPTCHA का उपयोग करें"
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "सभी सक्रिय Shield सुरक्षा को पूरी तरह से अक्षम करने के लिए इस विकल्प का उपयोग करें।"
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "नया कोड जनरेट करने के लिए अपनी Yubikey का उपयोग करें"
+
+msgid "Used"
+msgstr "उपयोग किया गया"
+
+msgid "User"
+msgstr "उपयोगकर्ता"
+
+msgid "User '{{user_login}}' suspended by admin."
+msgstr "उपयोगकर्ता '{{user_login}}' को एडमिन द्वारा निलंबित किया गया।"
+
+msgid "User '{{user_login}}' unsuspended by admin."
+msgstr "उपयोगकर्ता '{{user_login}}' को एडमिन द्वारा निलंबन से मुक्त किया गया।"
+
+msgid "User 2FA Setup"
+msgstr "उपयोगकर्ता 2FA सेटअप"
+
+msgid "User 2FA Setup Page Locations"
+msgstr "उपयोगकर्ता 2FA सेटअप पेज स्थान"
+
+msgid "User Access"
+msgstr "उपयोगकर्ता एक्सेस"
+
+msgid "User Accounts"
+msgstr "उपयोगकर्ता खाते"
+
+msgid "User Email Updated"
+msgstr "उपयोगकर्ता ईमेल अपडेट किया गया"
+
+msgid "User Forms Bot Detection"
+msgstr "उपयोगकर्ता फ़ॉर्म Bot पहचान"
+
+msgid "User Has Any Active 2FA"
+msgstr "उपयोगकर्ता के पास कोई सक्रिय 2FA है"
+
+msgid "User ID"
+msgstr "उपयोगकर्ता ID"
+
+msgid "User Login"
+msgstr "उपयोगकर्ता लॉगिन"
+
+msgid "User Manually Suspended"
+msgstr "उपयोगकर्ता मैन्युअल रूप से निलंबित"
+
+msgid "User Manually Unsuspended"
+msgstr "उपयोगकर्ता मैन्युअल रूप से निलंबन से मुक्त"
+
+msgid "User Password Updated"
+msgstr "उपयोगकर्ता पासवर्ड अपडेट किया गया"
+
+msgid "User Register Bot Protection"
+msgstr "उपयोगकर्ता पंजीकरण Bot सुरक्षा"
+
+msgid "User Registered"
+msgstr "उपयोगकर्ता पंजीकृत हुआ"
+
+msgid "User Registration"
+msgstr "उपयोगकर्ता पंजीकरण"
+
+msgid "User Suspension"
+msgstr "उपयोगकर्ता निलंबन"
+
+msgid "User forms"
+msgstr "उपयोगकर्ता फ़ॉर्म"
+
+msgid "User login request blocked."
+msgstr "उपयोगकर्ता लॉगिन अनुरोध ब्लॉक किया गया।"
+
+msgid "User lost password request blocked."
+msgstr "उपयोगकर्ता पासवर्ड खोने का अनुरोध ब्लॉक किया गया।"
+
+msgid "User must be logged-in."
+msgstr "उपयोगकर्ता को लॉग-इन होना आवश्यक है।"
+
+msgid "User registration request blocked."
+msgstr "उपयोगकर्ता पंजीकरण अनुरोध ब्लॉक किया गया।"
+
+msgid "User: <code>%s</code>"
+msgstr "उपयोगकर्ता: <code>%s</code>"
+
+msgid "Username"
+msgstr "उपयोगकर्ता नाम"
+
+msgid "Username Fishing"
+msgstr "उपयोगकर्ता नाम फ़िशिंग"
+
+msgid "Username Fishing Blocked"
+msgstr "उपयोगकर्ता नाम फ़िशिंग ब्लॉक किया गया"
+
+msgid "Username fishing"
+msgstr "उपयोगकर्ता नाम फ़िशिंग"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "उपयोगकर्ता नाम '{{user_login}}' था और ईमेल पता '{{email}}' था।"
+
+msgid "Username/Author Fishing is disabled on this site."
+msgstr "इस साइट पर उपयोगकर्ता नाम/लेखक फ़िशिंग अक्षम है।"
+
+msgid "Users"
+msgstr "उपयोगकर्ता"
+
+msgid "Value To Match"
+msgstr "मिलान करने के लिए मान"
+
+msgid "Verb"
+msgstr "क्रिया"
+
+msgid "Version"
+msgstr "संस्करण"
+
+msgid "View & Create"
+msgstr "देखें और बनाएं"
+
+msgid "View Activity Logs"
+msgstr "गतिविधि लॉग देखें"
+
+msgid "View All"
+msgstr "सभी देखें"
+
+msgid "View As ShieldPRO"
+msgstr "ShieldPRO के रूप में देखें"
+
+msgid "View Comment"
+msgstr "टिप्पणी देखें"
+
+msgid "View Config"
+msgstr "कॉन्फ़िग देखें"
+
+msgid "View Logs"
+msgstr "लॉग देखें"
+
+msgid "View Site Traffic"
+msgstr "साइट ट्रैफ़िक देखें"
+
+msgid "View Traffic and Request Log"
+msgstr "ट्रैफ़िक और अनुरोध लॉग देखें"
+
+msgid "View User Activity Log"
+msgstr "उपयोगकर्ता गतिविधि लॉग देखें"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "WP गतिविधि"
+
+msgid "WP Activity Log"
+msgstr "WP गतिविधि लॉग"
+
+msgid "WP File Editing"
+msgstr "WP फ़ाइल सम्पादन"
+
+msgid "WP Login & Admin Redirect"
+msgstr "WP लॉगिन और Admin रीडायरेक्ट"
+
+msgid "WP Site Admin Email"
+msgstr "WP साइट Admin ईमेल"
+
+msgid "WP Site Tagline"
+msgstr "WP साइट टैगलाइन"
+
+msgid "WP Site title"
+msgstr "WP साइट शीर्षक"
+
+msgid "WP User Registration"
+msgstr "WP उपयोगकर्ता पंजीकरण"
+
+msgid "Weak"
+msgstr "कमज़ोर"
+
+msgid "When"
+msgstr "कब"
+
+msgid "White Label"
+msgstr "White Label"
+
+msgid "WordPress"
+msgstr "वर्डप्रेस"
+
+msgid "WordPress Activity"
+msgstr "वर्डप्रेस गतिविधि"
+
+msgid "WordPress Activity Logging"
+msgstr "वर्डप्रेस गतिविधि लॉगिंग"
+
+msgid "WordPress Address (URL)"
+msgstr "वर्डप्रेस पता (यूआरएल)"
+
+msgid "WordPress File Editing Lockdown"
+msgstr "वर्डप्रेस फ़ाइल सम्पादन Lockdown"
+
+msgid "WordPress File Scanning"
+msgstr "वर्डप्रेस फ़ाइल स्कैनिंग"
+
+msgid "WordPress Files"
+msgstr "वर्डप्रेस फ़ाइलें"
+
+msgid "WordPress Info"
+msgstr "वर्डप्रेस Info"
+
+msgid "WordPress Options"
+msgstr "वर्डप्रेस विकल्प"
+
+msgid "WordPress System Lockdown"
+msgstr "वर्डप्रेस सिस्टम Lockdown"
+
+msgid "WordPress Upgraded"
+msgstr "वर्डप्रेस अपग्रेड किया गया"
+
+msgid "WordPress Version"
+msgstr "वर्डप्रेस संस्करण"
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "वर्डप्रेस प्लगइन फ़ाइलें छेड़छाड़ से सुरक्षित हैं।"
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "वर्डप्रेस साइट टैगलाइन '{{from}}' से '{{to}}' में बदली गई।"
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "वर्डप्रेस साइट शीर्षक '{{from}}' से '{{to}}' में बदला गया।"
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "वर्डप्रेस थीम फ़ाइलें छेड़छाड़ से सुरक्षित हैं।"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "XML-RPC एक्सेस"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC Lockdown"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC अनुरोध ब्लॉक किया गया।"
+
+msgid "Yes"
+msgstr "हाँ"
+
+msgid "Yes: %s"
+msgstr "हाँ: %s"
+
+msgid "Your Current IP"
+msgstr "आपका वर्तमान IP"
+
+msgid "Your IP Address"
+msgstr "आपका IP पता"
+
+msgid "Your Unique Yubikey App API Key"
+msgstr "आपकी अद्वितीय Yubikey App API कुंजी"
+
+msgid "Your Unique Yubikey App ID"
+msgstr "आपकी अद्वितीय Yubikey App ID"
+
+msgid "Your WordPress login form is now protected"
+msgstr "आपका वर्डप्रेस लॉगिन फ़ॉर्म अब सुरक्षित है"
+
+msgid "Your backup login code is: %s"
+msgstr "आपका बैकअप लॉगिन कोड है: %s"
+
+msgid "Your current login URL is: %s"
+msgstr "आपका वर्तमान लॉगिन यूआरएल है: %s"
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "CrowdSec के साथ आपकी पंजीकृत मशीन ID है: %s"
+
+msgid "Your reporting email address is: %s"
+msgstr "आपका रिपोर्टिंग ईमेल पता है: %s"
+
+msgid "Your site is currently in lockdown."
+msgstr "आपकी साइट वर्तमान में Lockdown में है।"
+
+msgid "Your site is in lockdown."
+msgstr "आपकी साइट Lockdown में है।"
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "आपकी साइट मानवों द्वारा टिप्पणी SPAM से सुरक्षित है।"
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "आपकी साइट Bot द्वारा स्वचालित टिप्पणी SPAM से सुरक्षित है।"
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "आपकी साइट मानवों द्वारा टिप्पणी SPAM से सुरक्षित नहीं है।"
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "आपकी साइट Bot द्वारा स्वचालित टिप्पणी SPAM से सुरक्षित नहीं है।"
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "आपकी साइट अभी तक CrowdSec के साथ पंजीकृत नहीं है।"
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey API Key"
+msgstr "Yubikey API कुंजी"
+
+msgid "Yubikey App ID"
+msgstr "Yubikey App ID"
+
+msgid "Yubikey Authentication"
+msgstr "Yubikey प्रमाणीकरण"
+
+msgid "Yubikey Device"
+msgstr "Yubikey डिवाइस"
+
+msgid "Yubikey ID"
+msgstr "Yubikey ID"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "क्षेत्र"
+
+msgid "and"
+msgstr "और"
+
+msgid "currently %s"
+msgstr "वर्तमान में %s"
+
+msgid "days"
+msgstr "दिन"
+
+msgid "help"
+msgstr "सहायता"
+
+msgid "icon"
+msgstr "आइकन"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "लागू नहीं"
+
+msgid "no label"
+msgstr "कोई लेबल नहीं"
+
+msgid "no name"
+msgstr "कोई नाम नहीं"
+
+msgid "offense"
+msgstr "अपराध"
+
+msgid "options"
+msgstr "विकल्प"
+
+msgid "or"
+msgstr "या"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA Bot Detection आपके वर्डप्रेस लॉगिन पर brute-force हमलों से सुरक्षा नहीं कर रहा है।"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
+msgstr "silentCAPTCHA Bot Detection आपके वर्डप्रेस पासवर्ड खोने के फ़ॉर्म की सुरक्षा नहीं कर रहा है।"
+
+msgid "silentCAPTCHA Registration"
+msgstr "silentCAPTCHA पंजीकरण"
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "wp-config.php फ़ाइल छेड़छाड़ से सुरक्षित नहीं है।"
+

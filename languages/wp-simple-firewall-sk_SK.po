@@ -1,0 +1,2511 @@
+# Slovak translation for Shield Security for WordPress
+# This file is distributed under the same license as Shield Security for WordPress.
+msgid ""
+msgstr ""
+"Project-Id-Version: Shield Security for WordPress\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-08 15:34+0000\n"
+"PO-Revision-Date: 2025-12-08 15:34+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: sk_SK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n>=2 && n<=4 ? 1 : 2));\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s Ochrana pred komentárovým SPAMom"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s Firewall zablokoval požiadavku na vašu WordPress stránku."
+
+msgid "%s Home"
+msgstr "%s Domov"
+
+msgid "%s Plugin Badge"
+msgstr "Odznak pluginu %s"
+
+msgid "%s and %s"
+msgstr "%s a %s"
+
+msgid "%s day"
+msgstr "%s deň"
+
+msgid "%s days"
+msgstr "%s dní"
+
+msgid "%s is not currently protecting your site."
+msgstr "%s momentálne nechráni vašu stránku."
+
+msgid "%s is not protecting your site"
+msgstr "%s nechráni vašu stránku"
+
+msgid "%s is protected against tampering."
+msgstr "%s je chránený proti neoprávneným zmenám."
+
+msgid "%s isn't protected against tampering."
+msgstr "%s nie je chránený proti neoprávneným zmenám."
+
+msgid "%s time"
+msgstr "%s krát"
+
+msgid "%s was added to your profile."
+msgstr "%s bol pridaný do vášho profilu."
+
+msgid "%s was removed from your profile."
+msgstr "%s bol odstránený z vášho profilu."
+
+msgid "(Currently this is set to %s days.)"
+msgstr "(Momentálne je toto nastavené na %s dní.)"
+
+msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
+msgstr "(keď je uzamknutie vypnuté, IP adresa bude automaticky odstránená zo zoznamu povolených)"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "2-Factor Authentication"
+msgstr "Dvojfaktorová autentifikácia"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - E-mail"
+
+msgid "2FA At"
+msgstr "2FA o"
+
+msgid "2FA Login Success"
+msgstr "Úspešné 2FA prihlásenie"
+
+msgid "2FA User Config Page"
+msgstr "Stránka konfigurácie 2FA používateľa"
+
+msgid "2FA by Email"
+msgstr "2FA cez e-mail"
+
+msgid "2FA by email has been disabled"
+msgstr "2FA cez e-mail bolo deaktivované"
+
+msgid "7 Days"
+msgstr "7 dní"
+
+msgid ":"
+msgstr ":"
+
+msgid "A PIN needs to be set to enable the Security Admin."
+msgstr "Pre aktiváciu Security Admin je potrebné nastaviť PIN."
+
+msgid "A User Can Bypass 2FA For The Set Number Of Days"
+msgstr "Používateľ môže obísť 2FA na stanovený počet dní"
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "Nové jednorazové heslo bolo odoslané na vašu e-mailovú adresu."
+
+msgid "API & XML-RPC"
+msgstr "API & XML-RPC"
+
+msgid "Access Restricted"
+msgstr "Prístup obmedzený"
+
+msgid "Access from your IP address has been temporarily restricted."
+msgstr "Prístup z vašej IP adresy bol dočasne obmedzený."
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "Prístup k XML-RPC detekovaný na '{{path}}'."
+
+msgid "Access to XML-RPC is available."
+msgstr "Prístup k XML-RPC je dostupný."
+
+msgid "Access to XML-RPC is disabled."
+msgstr "Prístup k XML-RPC je zakázaný."
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "Prístup k bezpečnostnému pluginu %s je obmedzený."
+
+msgid "Access to this site has been temporarily restricted."
+msgstr "Prístup na túto stránku bol dočasne obmedzený."
+
+msgid "Actions"
+msgstr "Akcie"
+
+msgid "Actions and Info"
+msgstr "Akcie a Info"
+
+msgid "Activate"
+msgstr "Aktivovať"
+
+msgid "Activate Rule"
+msgstr "Aktivovať pravidlo"
+
+msgid "Activate Shield"
+msgstr "Aktivovať Shield"
+
+msgid "Active"
+msgstr "Aktívny"
+
+msgid "Active 2FA"
+msgstr "Aktívne 2FA"
+
+msgid "Activity"
+msgstr "Aktivita"
+
+msgid "Activity Log"
+msgstr "Záznam aktivity"
+
+msgid "Activity Log Parameters"
+msgstr "Parametre záznamu aktivít"
+
+msgid "Activity Logging"
+msgstr "Zaznamenávanie aktivity"
+
+msgid "Add IP Bypass"
+msgstr "Pridať obchádzanie IP"
+
+msgid "Add To Block List"
+msgstr "Pridať na zoznam blokovania"
+
+msgid "Add To Bypass List"
+msgstr "Pridať na zoznam obchádzania"
+
+msgid "Add my IP address (%s) to the bypass/whitelist"
+msgstr "Pridať moju IP adresu (%s) na zoznam obchádzania/whitelist"
+
+msgid "Add protections to your WordPress login forms and protect user accounts with 2-Factor Authentication."
+msgstr "Pridajte ochranu k vašim WordPress prihlasovaciemu formulárom a chráňte používateľské účty pomocou dvojfaktorovej autentifikácie."
+
+msgid "Admin Access Login"
+msgstr "Prihlásenie Admin prístupu"
+
+msgid "Admin Accounts"
+msgstr "Administrátorské účty"
+
+msgid "Admin Login Notification Email"
+msgstr "E-mailové upozornenie na prihlásenie správcu"
+
+msgid "Admin Users"
+msgstr "Admin používatelia"
+
+msgid "Administrator Accounts Protection"
+msgstr "Ochrana administrátorských účtov"
+
+msgid "All User Roles Available On This Site"
+msgstr "Všetky používateľské roly dostupné na tejto stránke"
+
+msgid "All User Roles Subject To Email Authentication"
+msgstr "Všetky používateľské roly podliehajúce e-mailovej autentifikácii"
+
+msgid "All WP Site Activity"
+msgstr "Všetka aktivita WP stránky"
+
+msgid "All access to your site is blocked."
+msgstr "Všetok prístup na vašu stránku je zablokovaný."
+
+msgid "All security protection offered by Shield is completely disabled."
+msgstr "Všetka bezpečnostná ochrana ponúkaná Shield je úplne vypnutá."
+
+msgid "Allow Any User"
+msgstr "Umožniť ktorémukoľvek používateľovi"
+
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email"
+msgstr "Umožniť ktorémukoľvek používateľovi zapnúť dvojfaktorovú autentifikáciu e-mailom"
+
+msgid "Allow Any User To Turn-On Two-Factor Authentication By Email."
+msgstr "Umožniť ktorémukoľvek používateľovi zapnúť dvojfaktorovú autentifikáciu e-mailom."
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "Povoliť automatický import a export možností na tejto stránke"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "Povoliť import možností na túto stránku a export možností z tejto stránky"
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "Umožniť používateľom vygenerovať záložný kód"
+
+msgid "Allow Yubikey OTP"
+msgstr "Povoliť Yubikey OTP"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "Povoliť registráciu Yubikey pre jednorazové heslá"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "Umožniť používateľom vygenerovať záložný 2FA prihlasovací kód."
+
+msgid "Altering certain options has been restricted by your WordPress security administrator."
+msgstr "Zmena určitých možností bola obmedzená vaším WordPress bezpečnostným administrátorom."
+
+msgid "An upgrade is available for the Shield plugin."
+msgstr "Pre Shield plugin je dostupná aktualizácia."
+
+msgid "Anonymous (unauthenticated) requests to the WP REST API is allowed."
+msgstr "Anonymné (neautentifikované) požiadavky na WP REST API sú povolené."
+
+msgid "Anonymous REST API"
+msgstr "Anonymné REST API"
+
+msgid "Anonymous REST API Access"
+msgstr "Anonymný prístup k REST API"
+
+msgid "Anonymous Rest API"
+msgstr "Anonymné Rest API"
+
+msgid "Anonymous access to the WordPress REST API has been restricted by %s."
+msgstr "Anonymný prístup k WordPress REST API bol obmedzený pluginom %s."
+
+msgid "Anonymous access to the WordPress REST API is disabled."
+msgstr "Anonymný prístup k WordPress REST API je zakázaný."
+
+msgid "Anonymous access to the WordPress REST API isn't blocked."
+msgstr "Anonymný prístup k WordPress REST API nie je blokovaný."
+
+msgid "Any user can turn on two-factor authentication by email from their profile."
+msgstr "Ktorýkoľvek používateľ môže zapnúť dvojfaktorovú autentifikáciu e-mailom zo svojho profilu."
+
+msgid "Anyone Can Register"
+msgstr "Ktokoľvek sa môže registrovať"
+
+msgid "Anyone can register"
+msgstr "Ktokoľvek sa môže registrovať"
+
+msgid "App Passwords Disabled For User"
+msgstr "Heslá aplikácií zakázané pre používateľa"
+
+msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
+msgstr "Aplikovať ochranu proti brute force útokom na registráciu používateľov a stratené heslá"
+
+msgid "At least 1 2FA option is available to protect user accounts."
+msgstr "Aspoň 1 možnosť 2FA je k dispozícii na ochranu používateľských účtov."
+
+msgid "Attempted login with invalid user '{{user_login}}'."
+msgstr "Pokus o prihlásenie s neplatným používateľom '{{user_login}}'."
+
+msgid "Authenticated With Site"
+msgstr "Autentifikované so stránkou"
+
+msgid "Auto Block"
+msgstr "Automatické blokovanie"
+
+msgid "Automatic Bot"
+msgstr "Automatický bot"
+
+msgid "Automatic Bot Comment SPAM Protection Filter"
+msgstr "Automatický filter ochrany proti botovému komentárovému SPAMu"
+
+msgid "Automatic Redirect URL For Hidden Pages"
+msgstr "Automatické presmerovanie URL pre skryté stránky"
+
+msgid "Automatic Updates"
+msgstr "Automatické aktualizácie"
+
+msgid "Automatically Import Options From This Site"
+msgstr "Automaticky importovať možnosti z tejto stránky"
+
+msgid "Automatically Import Options From This Site URL"
+msgstr "Automaticky importovať možnosti z tejto URL stránky"
+
+msgid "Automatically redirect requests to this location for the hidden pages."
+msgstr "Automaticky presmerovať požiadavky na toto umiestnenie pre skryté stránky."
+
+msgid "Available Roles"
+msgstr "Dostupné roly"
+
+msgid "BUG: No Title Provided Yet"
+msgstr "CHYBA: Zatiaľ nebol poskytnutý názov"
+
+msgid "Backup Code"
+msgstr "Záložný kód"
+
+msgid "Backup Login Code"
+msgstr "Záložný prihlasovací kód"
+
+msgid "Backup Login Code Just Used"
+msgstr "Práve použitý záložný prihlasovací kód"
+
+msgid "Badge"
+msgstr "Odznak"
+
+msgid "Block %s"
+msgstr "Blokovať %s"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "Blokovať 100% bot komentárový SPAM pomocou silentCAPTCHA"
+
+msgid "Block Anonymous REST API"
+msgstr "Blokovať anonymné REST API"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Blokovať Bot komentárový SPAM"
+
+msgid "Block Bot SPAM"
+msgstr "Blokovať Bot SPAM"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "Blokovať komentárový SPAM posielaný ľuďmi"
+
+msgid "Block IP"
+msgstr "Blokovať IP"
+
+msgid "Block IP Address?"
+msgstr "Zablokovať IP adresu?"
+
+msgid "Block Login Attempted By Automated Bots"
+msgstr "Blokovať pokusy o prihlásenie automatizovanými botmi"
+
+msgid "Block Login Bots"
+msgstr "Blokovať prihlasovacích botov"
+
+msgid "Block PHP Code Includes"
+msgstr "Blokovať PHP kódové vloženia"
+
+msgid "Block PHP code in requests"
+msgstr "Blokovať PHP kód v požiadavkách"
+
+msgid "Block Page"
+msgstr "Blokovacia stránka"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "Blokovať SPAM posielaný na kontaktné formuláre automatizovanými botmi."
+
+msgid "Block WP comments posted by bots"
+msgstr "Blokovať WP komentáre posielané botmi"
+
+msgid "Block WP comments posted by humans that appear to be SPAM"
+msgstr "Blokovať WP komentáre posielané ľuďmi, ktoré sa zdajú byť SPAM"
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "Blokovať WordPress komentárový SPAM a kontaktný formulárový SPAM."
+
+msgid "Block XML-RPC"
+msgstr "Blokovať XML-RPC"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "Zablokovať všetok prístup na stránku okrem IP adries na zozname obchádzania/bielej listine."
+
+msgid "Blocked"
+msgstr "Zablokované"
+
+msgid "Blocked & Bypass IPs"
+msgstr "Zablokované & obídené IP"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "Zablokovaný SPAM komentár od bota."
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Akcie botov"
+
+msgid "Bot Comment SPAM"
+msgstr "Bot komentárový SPAM"
+
+msgid "Bot Detection"
+msgstr "Detekcia botov"
+
+msgid "Bot Protection"
+msgstr "Ochrana proti botom"
+
+msgid "Bot SPAM"
+msgstr "Bot SPAM"
+
+msgid "Bot SPAM Action"
+msgstr "Akcia Bot SPAM"
+
+msgid "Bot Signals"
+msgstr "Signály botov"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "Bot komentárový SPAM nebude blokovaný"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "Bot komentárový SPAM bude teraz blokovaný"
+
+msgid "Bots"
+msgstr "Boty"
+
+msgid "Bots & IP Rules"
+msgstr "Boty a IP pravidlá"
+
+msgid "Bots & IPs"
+msgstr "Boty & IP"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "Brute Force Login Guard"
+
+msgid "Brute Force Login Protection"
+msgstr "Ochrana proti Brute Force prihláseniu"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "Ochrana proti Brute Force prihláseniu so silentCAPTCHA"
+
+msgid "Brute Force Protection"
+msgstr "Ochrana proti Brute Force"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Brute Force obmedzenie frekvencie prenosov"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "Brute force botové útoky proti vášmu WordPress prihláseniu sú detegované & blokované silentCAPTCHA."
+
+msgid "Bypass"
+msgstr "Obchádzanie"
+
+msgid "Bypass IP"
+msgstr "Obchádzanie IP"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "CSP Rules"
+msgstr "CSP pravidlá"
+
+msgid "Changing 2FA Email options isn't currently available to you."
+msgstr "Zmena možností Email 2FA nie je momentálne pre vás dostupná."
+
+msgid "Changing Backup Code options isn't currently available to you."
+msgstr "Zmena možností záložného kódu nie je momentálne pre vás dostupná."
+
+msgid "Checking this option will completely turn off the whole %s system."
+msgstr "Zaškrtnutím tejto možnosti úplne vypnete celý systém %s."
+
+msgid "Checking this option will completely turn off the whole Anonymous Rest API system."
+msgstr "Zaškrtnutím tejto možnosti úplne vypnete celý systém anonymného REST API."
+
+msgid "Checking this option will completely turn off the whole XML-RPC system."
+msgstr "Zaškrtnutím tejto možnosti úplne vypnete celý systém XML-RPC."
+
+msgid "Click To Filter By Security Area or Status"
+msgstr "Kliknite pre filtrovanie podľa bezpečnostnej oblasti alebo stavu"
+
+msgid "Click To Register A Passkey."
+msgstr "Kliknite pre registráciu Passkey."
+
+msgid "Click to access the login or register cheese"
+msgstr "Kliknite pre prístup k prihlasovaciemu alebo registračnému cheese"
+
+msgid "Click to generate a backup login code for your two-factor authentication."
+msgstr "Kliknite pre vygenerovanie záložného prihlasovacieho kódu pre vašu dvojfaktorovú autentifikáciu."
+
+msgid "Click to launch plugin search modal"
+msgstr "Kliknite pre spustenie modálneho okna vyhľadávania pluginov"
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "Kód"
+
+msgid "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication"
+msgstr "V kombinácii s vašim Yubikey API Key to bude tvoriť základ vašej Yubikey autentifikácie"
+
+msgid "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
+msgstr "V kombinácii s vašim Yubikey API Key to bude tvoriť základ vašej Yubikey autentifikácie."
+
+msgid "Combined with your Yubikey API details this will form the basis of your Yubikey Authentication"
+msgstr "V kombinácii s vašimi Yubikey API údajmi to bude tvoriť základ vašej Yubikey autentifikácie"
+
+msgid "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
+msgstr "V kombinácii s vašim Yubikey App ID to bude tvoriť základ vašej Yubikey autentifikácie."
+
+msgid "Comment"
+msgstr "Komentár"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "Ochrana pred komentárovým a kontaktným formulárovým SPAMom"
+
+msgid "Comment SPAM"
+msgstr "Komentárový SPAM"
+
+msgid "Comment SPAM Blocked."
+msgstr "Komentárový SPAM zablokovaný."
+
+msgid "Comment SPAM Protection"
+msgstr "Ochrana pred komentárovým SPAMom"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "Ochrana pred komentárovým SPAMom: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "Stav komentára aktualizovaný"
+
+msgid "Comments"
+msgstr "Komentáre"
+
+msgid "Company Name"
+msgstr "Názov spoločnosti"
+
+msgid "Config"
+msgstr "Konfigurácia"
+
+msgid "Config Pages For User 2FA Setup"
+msgstr "Konfiguračné stránky pre nastavenie 2FA používateľa"
+
+msgid "Contact Form SPAM"
+msgstr "Kontaktný formulárový SPAM"
+
+msgid "Contact Form SPAM Checking"
+msgstr "Kontrola kontaktného formulárového SPAMu"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Pravidlá Content Security Policy (CSP)"
+
+msgid "Content Updated"
+msgstr "Obsah aktualizovaný"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec API Status"
+msgstr "Stav CrowdSec API"
+
+msgid "CrowdSec Enroll ID"
+msgstr "CrowdSec Enroll ID"
+
+msgid "CrowdSec Enroll ID."
+msgstr "CrowdSec Enroll ID."
+
+msgid "CrowdSec Home"
+msgstr "CrowdSec domov"
+
+msgid "CrowdSec Signals"
+msgstr "CrowdSec signály"
+
+msgid "Current"
+msgstr "Aktuálny"
+
+msgid "Current File Content"
+msgstr "Aktuálny obsah súboru"
+
+msgid "Current Scan"
+msgstr "Aktuálne skenovanie"
+
+msgid "Current master site: {{master_site}}"
+msgstr "Aktuálna hlavná stránka: {{master_site}}"
+
+msgid "Current value: %s"
+msgstr "Aktuálna hodnota: %s"
+
+msgid "Custom"
+msgstr "Vlastné"
+
+msgid "Custom Debug"
+msgstr "Vlastný debug"
+
+msgid "Custom Rules"
+msgstr "Vlastné pravidlá"
+
+msgid "Custom Security Rules"
+msgstr "Vlastné bezpečnostné pravidlá"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "URL loga pre dashboard a 2FA prihlásenie"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "Logo pre dashboard a 2FA"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "URL loga pre dashboard a 2FA"
+
+msgid "Day"
+msgstr "Deň"
+
+msgid "Debug"
+msgstr "Debug"
+
+msgid "Debug Info"
+msgstr "Debug Info"
+
+msgid "Debug Is On"
+msgstr "Ladenie je zapnuté"
+
+msgid "Defaults to the blog admin email address."
+msgstr "Predvolená je e-mailová adresa správcu blogu."
+
+msgid "Define Name"
+msgstr "Názov definície"
+
+msgid "Define Value To Match"
+msgstr "Definovať hodnotu na zhodu"
+
+msgid "Detected"
+msgstr "Detekované"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "Detegovaná registrácia používateľa s neplatnou e-mailovou adresou ({{email}})."
+
+msgid "Disable %s"
+msgstr "Zakázať %s"
+
+msgid "Disable 2FA by email"
+msgstr "Deaktivovať 2FA cez e-mail"
+
+msgid "Disable All Rules"
+msgstr "Deaktivovať všetky pravidlá"
+
+msgid "Disable File Editing"
+msgstr "Zakázať úpravu súborov"
+
+msgid "Disable Security Admin"
+msgstr "Deaktivovať Security Admin"
+
+msgid "Disable Shield"
+msgstr "Deaktivovať Shield"
+
+msgid "Disable Site Lockdown"
+msgstr "Deaktivovať uzamknutie stránky"
+
+msgid "Disable The %s System"
+msgstr "Zakázať systém %s"
+
+msgid "Disable The Anonymous Rest API"
+msgstr "Zakázať anonymné REST API"
+
+msgid "Disable The XML-RPC System"
+msgstr "Zakázať systém XML-RPC"
+
+msgid "Disable XML-RPC"
+msgstr "Zakázať XML-RPC"
+
+msgid "Disable anonymous requests to REST API endpoint"
+msgstr "Zakázať anonymné požiadavky na REST API endpoint"
+
+msgid "Disable anonymous requests to the REST API."
+msgstr "Zakázať anonymné požiadavky na REST API."
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "Zakázať spracovanie požiadaviek odoslaných na XML-RPC endpoint"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "Deaktivovať XML-RPC endpoint a blokovať všetky požiadavky."
+
+msgid "Display Options Updated"
+msgstr "Možnosti zobrazenia aktualizované"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "Zobraziť bezpečnostný odznak pluginu na vašej stránke"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "Zobraziť bezpečnostný odznak pluginu vašim návštevníkom"
+
+msgid "Docs"
+msgstr "Dokumentácia"
+
+msgid "Edit"
+msgstr "Upraviť"
+
+msgid "Edit Rule"
+msgstr "Upraviť pravidlo"
+
+msgid "Edit Rule #%s (%s)"
+msgstr "Upraviť pravidlo #%s (%s)"
+
+msgid "Edit Theme Options"
+msgstr "Upraviť možnosti témy"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "Úprava súborov z WordPress administrátorskej oblasti je povolená."
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "Úprava súborov z WordPress administrátorskej oblasti je zakázaná."
+
+msgid "Editing this option is currently restricted."
+msgstr "Úprava tejto možnosti je momentálne obmedzená."
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "Možnosť Email 2FA nie je momentálne povolená."
+
+msgid "Email Authentication"
+msgstr "E-mailová autentifikácia"
+
+msgid "Email Auto-Login"
+msgstr "E-mailové automatické prihlásenie"
+
+msgid "Email OTP"
+msgstr "E-mailový OTP"
+
+msgid "Email Sent"
+msgstr "E-mail odoslaný"
+
+msgid "Email Two-Factor Authentication"
+msgstr "E-mailová dvojfaktorová autentifikácia"
+
+msgid "Email Updated"
+msgstr "E-mail aktualizovaný"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "E-mail odoslaný z pluginu %s v%s, dňa %s."
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "E-mail aktualizovaný pre používateľa '{{user_login}}'."
+
+msgid "Enable"
+msgstr "Povoliť"
+
+msgid "Enable %s"
+msgstr "Povoliť %s"
+
+msgid "Enable %s Protection"
+msgstr "Povoliť ochranu %s"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "Povoliť (alebo zakázať) funkciu ochrany pred komentárovým SPAMom"
+
+msgid "Enable Content Security Policy"
+msgstr "Povoliť Content Security Policy"
+
+msgid "Enable Email Authentication"
+msgstr "Povoliť e-mailovú autentifikáciu"
+
+msgid "Enable Live Logging Of All Traffic"
+msgstr "Povoliť živé zaznamenávanie celej návštevnosti"
+
+msgid "Enable Rate Limiting"
+msgstr "Povoliť Rate Limiting"
+
+msgid "Enable Request Logging"
+msgstr "Povoliť zaznamenávanie požiadaviek"
+
+msgid "Enable or disable access to the anonymous Rest API"
+msgstr "Povoliť alebo zakázať prístup k anonymnému Rest API"
+
+msgid "Enable or disable the rate limiting feature according to your rate limiting parameters."
+msgstr "Povoliť alebo zakázať funkciu obmedzenia frekvencie podľa vašich parametrov obmedzenia frekvencie."
+
+msgid "Enroll ID"
+msgstr "Enroll ID"
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Zadajte jednorazové heslo z Yubikey"
+
+msgid "Enter admin username, email or ID."
+msgstr "Zadajte admin používateľské meno, e-mail alebo ID."
+
+msgid "Enter code sent to your email"
+msgstr "Zadajte kód odoslaný na váš e-mail"
+
+msgid "Enter your Security Admin PIN"
+msgstr "Zadajte váš Security Admin PIN"
+
+msgid "File"
+msgstr "Súbor"
+
+msgid "File Detected By Scans"
+msgstr "Súbor detegovaný skenovaním"
+
+msgid "File Guard"
+msgstr "Ochrana súborov"
+
+msgid "File Info"
+msgstr "Info o súbore"
+
+msgid "File Name"
+msgstr "Názov súboru"
+
+msgid "File Scan Areas"
+msgstr "Oblasti skenovania súborov"
+
+msgid "File Scans and Malware"
+msgstr "Skenovanie súborov a malvér"
+
+msgid "File Status"
+msgstr "Stav súboru"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Firewall blokovanie"
+
+msgid "Firewall Block Email Success"
+msgstr "E-mail o úspešnom zablokovaní Firewallom"
+
+msgid "Firewall Rule"
+msgstr "Firewall pravidlo"
+
+msgid "Fix"
+msgstr "Opraviť"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "Vygenerovať JEDNOrázový záložný 2FA prihlasovací kód"
+
+msgid "Go PRO!"
+msgstr "Prejsť na PRO!"
+
+msgid "Go Pro!"
+msgstr "Prejsť na Pro!"
+
+msgid "Go To %s"
+msgstr "Prejsť na %s"
+
+msgid "Go To Admin"
+msgstr "Prejsť na Admin"
+
+msgid "Go To Option"
+msgstr "Prejsť na možnosť"
+
+msgid "Go To Security Dashboard"
+msgstr "Prejsť na Security Dashboard"
+
+msgid "Go to WordPress Updates"
+msgstr "Prejsť na WordPress aktualizácie"
+
+msgid "Go!"
+msgstr "Spustiť!"
+
+msgid "Good"
+msgstr "Dobré"
+
+msgid "Help"
+msgstr "Pomoc"
+
+msgid "Hide Login"
+msgstr "Skryť prihlásenie"
+
+msgid "Hide Login Page"
+msgstr "Skryť prihlasovaciu stránku"
+
+msgid "Hide The WP Login Page."
+msgstr "Skryť prihlasovaciu stránku WP."
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "Skryť prihlasovaciu a administrátorskú oblasť WordPress"
+
+msgid "Hide WP Login"
+msgstr "Skryť WP prihlásenie"
+
+msgid "Hide WP Login & Admin"
+msgstr "Skryť WP prihlásenie & admin"
+
+msgid "Hide WP Login Page"
+msgstr "Skryť prihlasovaciu stránku WP"
+
+msgid "Hide WordPress Login Page"
+msgstr "Skryť prihlasovaciu stránku WordPress"
+
+msgid "Home URL"
+msgstr "Domovské URL"
+
+msgid "Home URL Changed"
+msgstr "Domovské URL zmenené"
+
+msgid "Hostname"
+msgstr "Hostname"
+
+msgid "Hostname To Match"
+msgstr "Hostname na zhodu"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP adresa"
+
+msgid "IP Address To Match"
+msgstr "IP adresa na zhodu"
+
+msgid "IP Block List Add (Auto)"
+msgstr "Pridanie na zoznam blokovania IP (Auto)"
+
+msgid "IP Block List Add (Manual)"
+msgstr "Pridanie na zoznam blokovania IP (Manuálne)"
+
+msgid "IP Block Status"
+msgstr "Stav blokovania IP"
+
+msgid "IP Blocked"
+msgstr "IP zablokované"
+
+msgid "IP Bypass List Add (Manual)"
+msgstr "Pridanie na zoznam obchádzania IP (Manuálne)"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "Odstránenie zo zoznamu obchádzania IP (Manuálne)"
+
+msgid "IP ID To Match"
+msgstr "IP ID na zhodu"
+
+msgid "IP Rules"
+msgstr "IP pravidlá"
+
+msgid "IP Status"
+msgstr "Stav IP"
+
+msgid "IP Unblocked"
+msgstr "IP odblokované"
+
+msgid "IP address '{{ip}}' automatically added to block list as an offender."
+msgstr "IP adresa '{{ip}}' automaticky pridaná na zoznam blokovania ako útočník."
+
+msgid "IP address '{{ip}}' manually added to block list."
+msgstr "IP adresa '{{ip}}' manuálne pridaná na zoznam blokovania."
+
+msgid "IP address '{{ip}}' manually added to bypass list."
+msgstr "IP adresa '{{ip}}' manuálne pridaná na zoznam obchádzania."
+
+msgid "IP address '{{ip}}' manually removed from the bypass list."
+msgstr "IP adresa '{{ip}}' manuálne odstránená zo zoznamu obchádzania."
+
+msgid "IP address added to Bypass list."
+msgstr "IP adresa pridaná na zoznam obchádzania."
+
+msgid "IP address blocked."
+msgstr "IP adresa zablokovaná."
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "IP adresu sa v tejto chvíli nepodarilo odstrániť zo zoznamu obchádzania."
+
+msgid "IP address couldn't be removed. (It may not be on this list)"
+msgstr "IP adresu sa nepodarilo odstrániť. (Nemusí byť na tomto zozname)"
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "IP adresu sa v tejto chvíli nepodarilo odblokovať."
+
+msgid "IP address removed from Bypass list."
+msgstr "IP adresa odstránená zo zoznamu obchádzania."
+
+msgid "IP address unblocked."
+msgstr "IP adresa odblokovaná."
+
+msgid "IP isn't on the %s block list."
+msgstr "IP adresa nie je na zozname blokovania %s."
+
+msgid "IP isn't on the auto block list."
+msgstr "IP adresa nie je na zozname automatického blokovania."
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP adresa nie je na zozname automatického blokovania."
+
+msgid "IP provided was invalid."
+msgstr "Poskytnutá IP bola neplatná."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "If"
+msgstr "Ak"
+
+msgid "If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user."
+msgstr "Ak používateľské meno nemá priradenú Yubikey, Yubikey autentifikácia je pre tohto používateľa VYPNUTÁ."
+
+msgid "If you don't receive the email, check your spam and contact your site admin."
+msgstr "Ak e-mail nedostanete, skontrolujte spam a kontaktujte správcu vašej stránky."
+
+msgid "If you provide access to the WP Login URL in any areas of your site, you will expose your hidden login URL."
+msgstr "Ak poskytnete prístup k WP Login URL v akýchkoľvek oblastiach vašej stránky, odhalíte vašu skrytú prihlasovaciu URL."
+
+msgid "Includes protection for: "
+msgstr "Zahŕňa ochranu pre:"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "Info pre IP adresu %s"
+
+msgid "Installed"
+msgstr "Nainštalované"
+
+msgid "Invalid"
+msgstr "Neplatný"
+
+msgid "Invalid Login Username"
+msgstr "Neplatné prihlasovacie používateľské meno"
+
+msgid "Invalid Request ID"
+msgstr "Neplatné ID požiadavky"
+
+msgid "Invalid Rule"
+msgstr "Neplatné pravidlo"
+
+msgid "Invalid Script Access"
+msgstr "Neplatný prístup k skriptu"
+
+msgid "Invalid User Email Registration"
+msgstr "Neplatná e-mailová registrácia používateľa"
+
+msgid "Invalid Username Login"
+msgstr "Neplatné prihlásenie používateľským menom"
+
+msgid "Invalid action"
+msgstr "Neplatná akcia"
+
+msgid "Invalid request - lockdown is already active."
+msgstr "Neplatná požiadavka - uzamknutie je už aktívne."
+
+msgid "Invalid request - lockdown is not active."
+msgstr "Neplatná požiadavka - uzamknutie nie je aktívne."
+
+msgid "Invalid request with no User ID"
+msgstr "Neplatná požiadavka bez ID používateľa"
+
+msgid "Is Request To The Login Page."
+msgstr "Je požiadavka na prihlasovaciu stránku."
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Je Shield obmedzenie frekvencie prenosov povolené."
+
+msgid "Is Shield live logging enabled."
+msgstr "Je Shield živé zaznamenávanie povolené."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Je aktívny Site Lockdown pluginu Shield."
+
+msgid "Is The Shield Option Value..."
+msgstr "Je hodnota Shield možnosti..."
+
+msgid "Is WP AJAX"
+msgstr "Je WP AJAX"
+
+msgid "Is WP Admin"
+msgstr "Je WP admin"
+
+msgid "Is WP CRON"
+msgstr "Je WP CRON"
+
+msgid "Is WP Debug Active"
+msgstr "Je WP Debug aktívny"
+
+msgid "Is WP Search"
+msgstr "Je WP vyhľadávanie"
+
+msgid "Is WP XML-RPC"
+msgstr "Je WP XML-RPC"
+
+msgid "Is WordPress Search Request."
+msgstr "Je požiadavka na WordPress vyhľadávanie."
+
+msgid "Is current logged-in user a WordPress administrator."
+msgstr "Je aktuálne prihlásený používateľ WordPress administrátor."
+
+msgid "Is current user Security Admin."
+msgstr "Aktuálny používateľ je Security Admin."
+
+msgid "Is current user a logged-in WordPress administrator."
+msgstr "Je aktuálny používateľ prihlásený WordPress administrátor."
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "Je IP adresa požiadavky automaticky alebo manuálne zablokovaná pluginom Shield."
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "Je IP adresa požiadavky na čiernej listine Shield."
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "Je IP adresa požiadavky na zozname blokovania CrowdSec pluginu Shield."
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "Je IP adresa požiadavky na manuálnom zozname blokovania Shield."
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "Je IP adresa požiadavky na zozname automatického blokovania Shield."
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "Je IP adresa požiadavky na manuálnom zozname obchádzania/whitelist Shield."
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "Je požiadavka zablokovaná funkciou uzamknutia stránky Shield."
+
+msgid "Is the request from a logged-in user."
+msgstr "Je požiadavka od prihláseného používateľa."
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "Je požiadavka od používateľa autentifikovaného ako Shield Security Admin."
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "Je cesta požiadavky na bielej listine Shield."
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "Je požiadavka na cestu v rámci aktuálne nainštalovaného WordPress pluginu."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "Je požiadavka na cestu v rámci aktuálne nainštalovanej WordPress témy."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "Je požiadavka na cestu v rámci potenciálne nainštalovaného WordPress pluginu, ale je neplatná."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "Je požiadavka na cestu v rámci potenciálne nainštalovaného WordPress pluginu."
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "Je požiadavka na cestu v rámci potenciálne nainštalovanej WordPress témy, ale je neplatná."
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "Je požiadavka na cestu v rámci potenciálne nainštalovanej WordPress témy."
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "Je požiadavka na WordPress XML-RPC endpoint."
+
+msgid "Is the request to the WordPress admin area."
+msgstr "Je požiadavka na WordPress administrátorskú oblasť."
+
+msgid "Is the request to the WordPress cron."
+msgstr "Je požiadavka na WordPress cron."
+
+msgid "Is the request to the standard WordPress AJAX endpoint."
+msgstr "Je požiadavka na štandardný WordPress AJAX endpoint."
+
+msgid "Is the request whitelisted?"
+msgstr "Je požiadavka na bielej listine?"
+
+msgid "Key"
+msgstr "Kľúč"
+
+msgid "Launch Debug Info Page"
+msgstr "Spustiť stránku Debug Info"
+
+msgid "Live Logging"
+msgstr "Živé zaznamenávanie"
+
+msgid "Live Traffic"
+msgstr "Živé prenosy"
+
+msgid "Live logging will be automatically disabled: %s"
+msgstr "Živé logovanie bude automaticky vypnuté: %s"
+
+msgid "Loaded"
+msgstr "Načítané"
+
+msgid "Lockdown The Site"
+msgstr "Uzamknúť stránku"
+
+msgid "Log Requests To Your WordPress Site"
+msgstr "Zaznamenávať požiadavky na vašu WordPress stránku"
+
+msgid "Logged At"
+msgstr "Prihlásený o"
+
+msgid "Logged In At"
+msgstr "Prihlásený o"
+
+msgid "Logged-In"
+msgstr "Prihlásený"
+
+msgid "Logged-In At"
+msgstr "Prihlásený o"
+
+msgid "Logging isn't currently available on this site."
+msgstr "Zaznamenávanie nie je momentálne na tejto stránke dostupné."
+
+msgid "Login"
+msgstr "Prihlásenie"
+
+msgid "Login Blocked"
+msgstr "Prihlásenie zablokované"
+
+msgid "Login Bot Protection"
+msgstr "Ochrana proti botom pri prihlásení"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "IP prihlásenia"
+
+msgid "Login Page"
+msgstr "Prihlasovacia stránka"
+
+msgid "Login Page Visited"
+msgstr "Prihlasovacia stránka navštívená"
+
+msgid "Login Protection"
+msgstr "Ochrana prihlásenia"
+
+msgid "Login Security"
+msgstr "Zabezpečenie prihlásenia"
+
+msgid "Login Success"
+msgstr "Úspešné prihlásenie"
+
+msgid "Login page loaded"
+msgstr "Prihlasovacia stránka načítaná"
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "Formuláre pre prihlásenie, registráciu a stratené heslo"
+
+msgid "Lost Password"
+msgstr "Stratené heslo"
+
+msgid "Lost Password Blocked"
+msgstr "Stratené heslo zablokované"
+
+msgid "Lost Password Bot Protection"
+msgstr "Ochrana proti botom pre stratené heslo"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "SPAMovanie stratených hesiel botmi je blokované silentCAPTCHA."
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAMovanie stratených hesiel botmi nie je blokované silentCAPTCHA."
+
+msgid "Malware"
+msgstr "Malvér"
+
+msgid "Malware status of this file is currently"
+msgstr "Stav malvéru tohto súboru je momentálne"
+
+msgid "Manual Block"
+msgstr "Manuálne blokovanie"
+
+msgid "Manual Code"
+msgstr "Manuálny kód"
+
+msgid "Master Site URL"
+msgstr "URL hlavnej stránky"
+
+msgid "Master Site URL set: {{site}}"
+msgstr "URL hlavnej stránky nastavené: {{site}}"
+
+msgid "Match User Email Address"
+msgstr "Zhoda e-mailovej adresy používateľa"
+
+msgid "Match User ID"
+msgstr "Zhoda ID používateľa"
+
+msgid "Match Username"
+msgstr "Zhoda používateľského mena"
+
+msgid "Match the username for currently logged-in user."
+msgstr "Zhodovať používateľské meno aktuálne prihláseného používateľa."
+
+msgid "Menu Icon"
+msgstr "Ikona ponuky"
+
+msgid "Menu Icon URL"
+msgstr "URL ikony ponuky"
+
+msgid "Menu Title"
+msgstr "Názov ponuky"
+
+msgid "Mode"
+msgstr "Režim"
+
+msgid "Multisite"
+msgstr "Multisite"
+
+msgid "My Login Security"
+msgstr "Moje zabezpečenie prihlásenia"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "NO TITLE"
+msgstr "BEZ NÁZVU"
+
+msgid "Name"
+msgstr "Názov"
+
+msgid "Name: <code>%s</code>"
+msgstr "Názov: <code>%s</code>"
+
+msgid "New"
+msgstr "Nový"
+
+msgid "New Admin(s)"
+msgstr "Noví správcovia"
+
+msgid "New Comment"
+msgstr "Nový komentár"
+
+msgid "New WordPress user registered."
+msgstr "Zaregistroval sa nový používateľ WordPress."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "Nové používateľské meno je '{{user_login}}' s e-mailovou adresou '{{email}}'."
+
+msgid "No"
+msgstr "Nie"
+
+msgid "No Name Yet"
+msgstr "Zatiaľ bez názvu"
+
+msgid "No Subtitle Yet"
+msgstr "Zatiaľ bez podtitulu"
+
+msgid "No Title"
+msgstr "Bez názvu"
+
+msgid "No activity logged for this IP address"
+msgstr "Pre túto IP adresu nie je zaznamenaná žiadna aktivita"
+
+msgid "No content yet"
+msgstr "Zatiaľ bez obsahu"
+
+msgid "No email address - No Notification."
+msgstr "Žiadna e-mailová adresa - žiadne upozornenie."
+
+msgid "No record"
+msgstr "Žiadny záznam"
+
+msgid "No requests logged for this IP address"
+msgstr "Žiadne zaznamenané požiadavky pre túto IP adresu"
+
+msgid "No such record ID"
+msgstr "Takéto ID záznamu neexistuje"
+
+msgid "No such user"
+msgstr "Takýto používateľ neexistuje"
+
+msgid "No title provided"
+msgstr "Nebol poskytnutý názov"
+
+msgid "No value set."
+msgstr "Nie je nastavená žiadna hodnota."
+
+msgid "None"
+msgstr "Žiadne"
+
+msgid "Not Installed"
+msgstr "Nie je nainštalované"
+
+msgid "Not Pro"
+msgstr "Nie Pro"
+
+msgid "Not a plugin or theme file path."
+msgstr "Nie je cesta k súboru pluginu alebo témy."
+
+msgid "Not currently logged-in as security admin."
+msgstr "Momentálne nie ste prihlásený ako security admin."
+
+msgid "Not currently logged-in."
+msgstr "Momentálne nie ste prihlásený."
+
+msgid "Note"
+msgstr "Poznámka"
+
+msgid "Notification Of Scan Detection Sent"
+msgstr "Oznámenie o detekcii skenovaním odoslané"
+
+msgid "Now"
+msgstr "Teraz"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Off"
+msgstr "Vypnuté"
+
+msgid "On"
+msgstr "Zapnuté"
+
+msgid "One-Time Password was sent to your phone."
+msgstr "Jednorazové heslo bolo odoslané na váš telefón."
+
+msgid "Options"
+msgstr "Možnosti"
+
+msgid "Originating IP address of the request"
+msgstr "Pôvodná IP adresa požiadavky"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP & MySQL"
+
+msgid "PHP Code"
+msgstr "PHP kód"
+
+msgid "PHP Code Includes"
+msgstr "PHP kódové vloženia"
+
+msgid "PHP Define Name"
+msgstr "Názov PHP definície"
+
+msgid "PHP Define Value"
+msgstr "Hodnota PHP definície"
+
+msgid "PHP Malware"
+msgstr "PHP malvér"
+
+msgid "PIN Required"
+msgstr "Vyžaduje sa PIN"
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "Stránka"
+
+msgid "Pages"
+msgstr "Stránky"
+
+msgid "Passkey authentication isn't available for this user."
+msgstr "Autentifikácia Passkey nie je pre tohto používateľa dostupná."
+
+msgid "Passkey removed from your profile"
+msgstr "Passkey odstránený z vášho profilu"
+
+msgid "Password Updated"
+msgstr "Heslo aktualizované"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "Heslo aktualizované pre používateľa '{{user_login}}'."
+
+msgid "Path"
+msgstr "Cesta"
+
+msgid "Path To Check"
+msgstr "Cesta na kontrolu"
+
+msgid "Path To Match"
+msgstr "Cesta na zhodu"
+
+msgid "Please contact site admin to request access if required."
+msgstr "V prípade potreby kontaktujte správcu stránky a požiadajte o prístup."
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "Prosím, kontaktujte správcu stránky a požiadajte o odblokovanie vašej IP adresy."
+
+msgid "Please provide an IP Address"
+msgstr "Prosím, zadajte IP adresu"
+
+msgid "Please select one of the IP Rule Types - Block or Bypass"
+msgstr "Prosím, vyberte jeden z typov IP pravidiel - Block alebo Bypass"
+
+msgid "Please select one of the options available"
+msgstr "Prosím, vyberte jednu z dostupných možností"
+
+msgid "Please turn on this feature in the options."
+msgstr "Prosím, zapnite túto funkciu v možnostiach."
+
+msgid "Please turn on this scan in the options."
+msgstr "Prosím, zapnite toto skenovanie v možnostiach."
+
+msgid "Please use one of %s."
+msgstr "Prosím, použite jednu z možností %s."
+
+msgid "Plugin"
+msgstr "Plugin"
+
+msgid "Plugin Badge Logo"
+msgstr "Logo odznaku pluginu"
+
+msgid "Plugin Badge Logo URL"
+msgstr "URL loga odznaku pluginu"
+
+msgid "Plugin Defaults"
+msgstr "Predvolené nastavenia pluginu"
+
+msgid "Plugin Home Page URL"
+msgstr "URL domovskej stránky pluginu"
+
+msgid "Plugin Installed"
+msgstr "Plugin nainštalovaný"
+
+msgid "Plugin Name"
+msgstr "Názov pluginu"
+
+msgid "Plugin Option Changed"
+msgstr "Možnosť pluginu zmenená"
+
+msgid "Plugin Security Badge"
+msgstr "Bezpečnostný odznak pluginu"
+
+msgid "Plugin and Theme File Guard"
+msgstr "Ochrana súborov pluginov a tém"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "Možnosť pluginu '{{name}}' ({{key}}) byla aktualizovaná na '{{value}}'."
+
+msgid "Plugin/Theme Guard"
+msgstr "Ochrana pluginov/tém"
+
+msgid "Posts"
+msgstr "Príspevky"
+
+msgid "Powerful Protection for WordPress, from Shield Security"
+msgstr "Výkonná ochrana pre WordPress od Shield Security"
+
+msgid "Promoted To Admin"
+msgstr "Povýšený na správcu"
+
+msgid "Protect Your Shield Plugin From Tampering"
+msgstr "Chráňte váš Shield plugin pred neoprávnenými zmenami"
+
+msgid "Protect user login forms against bots"
+msgstr "Chrániť prihlásenie používateľov proti botom"
+
+msgid "Protect user registration forms against bots"
+msgstr "Chrániť registračné formuláre používateľov proti botom"
+
+msgid "Protected Forms"
+msgstr "Chránené formuláre"
+
+msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
+msgstr "Ochrana vašich <strong>dôležitých používateľských formulárov</strong>, ako sú prihlásenie, registrácia a stratené heslo."
+
+msgid "Protection for user accounts."
+msgstr "Ochrana pre používateľské účty."
+
+msgid "Provide The Security Admin PIN."
+msgstr "Zadajte Security Admin PIN."
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "Zadajte jednorazové heslo z vášho Yubikey."
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "Zadajte jednorazové heslo z vášho 2FA prihlasovacieho zariadenia"
+
+msgid "Provide the name of your company."
+msgstr "Uveďte názov vašej spoločnosti."
+
+msgid "Provide your custom set of CSP rules."
+msgstr "Uveďte vlastnú sadu CSP pravidiel."
+
+msgid "Provided by %s"
+msgstr "Poskytované %s"
+
+msgid "Provided by Shield"
+msgstr "Poskytované Shield"
+
+msgid "Rate Limiting"
+msgstr "Rate limiting"
+
+msgid "Redirect Status"
+msgstr "Stav presmerovania"
+
+msgid "Registered"
+msgstr "Zaregistrovaný"
+
+msgid "Registered Site"
+msgstr "Zaregistrovaná stránka"
+
+msgid "Registration"
+msgstr "Registrácia"
+
+msgid "Registration Blocked"
+msgstr "Registrácia zablokovaná"
+
+msgid "Request Blocked"
+msgstr "Požiadavka zablokovaná"
+
+msgid "Request Blocked by Firewall"
+msgstr "Požiadavka zablokovaná Firewallom"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "Požiadavka zablokovaná uzamknutím stránky."
+
+msgid "Request Firewall"
+msgstr "Firewall požiadaviek"
+
+msgid "Request Firewall Options"
+msgstr "Možnosti Firewall požiadaviek"
+
+msgid "Request ID"
+msgstr "ID požiadavky"
+
+msgid "Request Live Logging"
+msgstr "Živé zaznamenávanie požiadaviek"
+
+msgid "Request Log"
+msgstr "Záznam požiadaviek"
+
+msgid "Request Logging"
+msgstr "Zaznamenávanie požiadaviek"
+
+msgid "Request Path"
+msgstr "Cesta požiadavky"
+
+msgid "Request Path Whitelist"
+msgstr "Biela listina cesty požiadavky"
+
+msgid "Request Path Whitelist."
+msgstr "Biela listina cesty požiadavky."
+
+msgid "Request Status"
+msgstr "Stav požiadavky"
+
+msgid "Request blocked by firewall rule: {{name}}."
+msgstr "Požiadavka zablokovaná firewall pravidlom: {{name}}."
+
+msgid "Requests"
+msgstr "Požiadavky"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "Požiadavky z tejto IP adresy budú zablokované."
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "Požiadavky z tejto IP adresy obídu všetky bezpečnostné pravidlá."
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "Požiadavky na XML-RPC endpoint sú na vašej stránke povolené."
+
+msgid "Restrict Access To Certain WordPress Admin Options"
+msgstr "Obmedziť prístup k určitým možnostiam WordPress administrácie"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "Obmedziť prístup ke kľúčovým akciám WordPress pluginov"
+
+msgid "Restrict Access To Key WordPress Posts And Pages Actions"
+msgstr "Obmedziť prístup ku kľúčovým akciám WordPress príspevkov a stránok"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "Obmedziť prístup k akciám WordPress tém"
+
+msgid "Restrict WP File Editing"
+msgstr "Obmedziť úpravu súborov WP"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "Obmedziť úpravu súborov v rámci WP admin panela"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "Obmedziť možnosť úpravy súborov z WordPress administrátorskej oblasti."
+
+msgid "Restricted"
+msgstr "Obmedzené"
+
+msgid "Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system."
+msgstr "Obmedzuje prístup ku kľúčovým WordPress oblastiam pre všetkých používateľov, ktorí nie sú autentifikovaní systémom Security Admin Access."
+
+msgid "Rules"
+msgstr "Pravidlá"
+
+msgid "Run"
+msgstr "Spustiť"
+
+msgid "Run A File Scan"
+msgstr "Spustiť skenovanie súborov"
+
+msgid "Run Manual Scan"
+msgstr "Spustiť manuálne skenovanie"
+
+msgid "Run Scan"
+msgstr "Spustiť skenovanie"
+
+msgid "Run Scans Now"
+msgstr "Spustiť skenovanie teraz"
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Authentication"
+msgstr "SMS autentifikácia"
+
+msgid "SMS Registration Removed"
+msgstr "SMS registrácia odstránená"
+
+msgid "SPAM"
+msgstr "SPAM"
+
+msgid "SPAM Action"
+msgstr "SPAM akcia"
+
+msgid "SPAM Blocked"
+msgstr "SPAM zablokovaný"
+
+msgid "SPAM Bot detected."
+msgstr "Detekovaný SPAM bot."
+
+msgid "SPAM Detection"
+msgstr "Detekcia SPAM"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "SPAM a hromadná registrácia používateľov botmi sú blokované silentCAPTCHA."
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM a hromadná registrácia používateľov botmi nie sú blokované silentCAPTCHA."
+
+msgid "Scan Options"
+msgstr "Možnosti skenovania"
+
+msgid "Scans"
+msgstr "Skenovania"
+
+msgid "Scans for file tampering within plugin directories."
+msgstr "Skenuje neoprávnené zmeny súborov v adresároch pluginov."
+
+msgid "Scans for file tampering within the active theme."
+msgstr "Skenuje neoprávnené zmeny súborov v aktívnej téme."
+
+msgid "Script Name To Match"
+msgstr "Názov skriptu na zhodu"
+
+msgid "Search %s"
+msgstr "Hľadať %s"
+
+msgid "Security"
+msgstr "Zabezpečenie"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "PIN prístupu Security Admin"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin povolený"
+
+msgid "Security Admin Login"
+msgstr "Prihlásenie Security Admin"
+
+msgid "Security Admin PIN"
+msgstr "Security Admin PIN"
+
+msgid "Security Admin Protection"
+msgstr "Ochrana Security Admin"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin je teraz aktívny"
+
+msgid "Security Dashboard"
+msgstr "Security Dashboard"
+
+msgid "Security PIN Currently Set"
+msgstr "Security PIN je momentálne nastavený"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "Security PIN momentálne NIE JE nastavený"
+
+msgid "Security Plugin Protection"
+msgstr "Ochrana bezpečnostného pluginu"
+
+msgid "Security Rules"
+msgstr "Bezpečnostné pravidlá"
+
+msgid "Security Zones"
+msgstr "Bezpečnostné zóny"
+
+msgid "Security Zones Config"
+msgstr "Konfigurácia bezpečnostných zón"
+
+msgid "Security admin pin removed."
+msgstr "Security admin PIN odstránený."
+
+msgid "Security admin pin set to: `%s`"
+msgstr "Security admin pin nastavený na: `%s`"
+
+msgid "Security admin required for action: %s"
+msgstr "Security admin vyžadovaný pre akciu: %s"
+
+msgid "Select"
+msgstr "Vybrať"
+
+msgid "Select Scans To Run"
+msgstr "Vyberte skenovania na spustenie"
+
+msgid "Select file to import options from"
+msgstr "Vyberte súbor na import možností"
+
+msgid "Set the entire plugin's enabled/disabled status."
+msgstr "Nastavte stav zapnutý/vypnutý celého pluginu."
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "Nastavte toto na \"0\" pre vypnutie funkcie %s."
+
+msgid "Set to %s to turn off this option."
+msgstr "Nastavte na %s pre vypnutie tejto možnosti."
+
+msgid "Setup Your Security Zones"
+msgstr "Nastaviť vaše bezpečnostné zóny"
+
+msgid "Shield Info"
+msgstr "Shield Info"
+
+msgid "Shield Option Key"
+msgstr "Shield kľúč možnosti"
+
+msgid "Shield Security Home Page"
+msgstr "Domovská stránka Shield Security"
+
+msgid "Shield User 2FA: Has Any Active"
+msgstr "Shield používateľ 2FA: Má aktívne"
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield nie je nainštalovaný na tejto stránke."
+
+msgid "Shield plugin couldn't be deactivated"
+msgstr "Shield plugin sa nepodarilo deaktivovať"
+
+msgid "Shield plugin couldn't be installed"
+msgstr "Shield plugin sa nepodarilo nainštalovať"
+
+msgid "Shield plugin couldn't be updated"
+msgstr "Shield plugin sa nepodarilo aktualizovať"
+
+msgid "Shield plugin installed"
+msgstr "Shield plugin nainštalovaný"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Shield plugin je nainštalovaný, ale nie je aktívny."
+
+msgid "Shield plugin updated"
+msgstr "Shield plugin aktualizovaný"
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "Site"
+msgstr "Stránka"
+
+msgid "Site Address (URL)"
+msgstr "Adresa stránky (URL)"
+
+msgid "Site Admin Email"
+msgstr "E-mail správcu stránky"
+
+msgid "Site In Lockdown"
+msgstr "Stránka v režime uzamknutia"
+
+msgid "Site Is In Lockdown"
+msgstr "Stránka je v režime lockdown"
+
+msgid "Site Is Under Lockdown"
+msgstr "Stránka je v režime lockdown"
+
+msgid "Site Lockdown"
+msgstr "Uzamknutie stránky"
+
+msgid "Site Lockdown and Firewall"
+msgstr "Uzamknutie stránky a Firewall"
+
+msgid "Site Title"
+msgstr "Názov stránky"
+
+msgid "Site URL"
+msgstr "URL stránky"
+
+msgid "Site URL Changed"
+msgstr "URL stránky zmenené"
+
+msgid "Status"
+msgstr "Stav"
+
+msgid "Success"
+msgstr "Úspech"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "Vypnúť pre deaktiváciu všetkej bezpečnostnej ochrany"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "Zapnúť/vypnúť zoznamy blokovania IP adries CrowdSec"
+
+msgid "Switch on/off SPAM protection for your favourite contact forms plugin"
+msgstr "Zapnúť/vypnúť ochranu pred SPAMom pre váš obľúbený plugin kontaktných formulárov"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "Zapnúť/vypnúť prístup k XML-RPC endpointu"
+
+msgid "Switch on/off file editing within WP"
+msgstr "Zapnúť/vypnúť úpravu súborov v rámci WP"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "Zapnúť zaznamenávanie celej návštevnosti stránky."
+
+msgid "System Info"
+msgstr "Systémové info"
+
+msgid "Temporarily Log All Traffic"
+msgstr "Dočasne zaznamenávať celú návštevnosť"
+
+msgid "The IP may not be blocked yet."
+msgstr "IP adresa ešte nemusí byť zablokovaná."
+
+msgid "The Main Menu Title Of The Plugin"
+msgstr "Hlavný názov ponuky pluginu"
+
+msgid "The Main Menu Title Of The Plugin. If left empty, the \"%s\" will be used."
+msgstr "Hlavný názov ponuky pluginu. Ak zostane prázdny, použije sa \"%s\"."
+
+msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
+msgstr "Hlavný názov ponuky pluginu. Ak zostane prázdny, použije sa názov pluginu."
+
+msgid "The Name Of The Plugin"
+msgstr "Názov pluginu"
+
+msgid "The Name Of The Plugin."
+msgstr "Názov pluginu."
+
+msgid "The Name Of Your Company"
+msgstr "Názov vašej spoločnosti"
+
+msgid "The Security Admin system protects WordPress and the %s plugin against tampering."
+msgstr "Systém Security Admin chráni WordPress a %s plugin proti neoprávneným zmenám."
+
+msgid "The Security Administrator has restricted the use of the email override feature."
+msgstr "Security Admin obmedzil používanie funkcie prepísania e-mailu."
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "Bezpečnostný odznak bude zobrazený vašim návštevníkom"
+
+msgid "The Security Badge won't be displayed to your visitors"
+msgstr "Bezpečnostný odznak nebude zobrazený vašim návštevníkom"
+
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr "Shield Security plugin na tejto stránke je potrebné aktualizovať."
+
+msgid "The Shield plugin has just been deactivated."
+msgstr "Shield plugin bol práve deaktivovaný."
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "URL ikony zobrazenej v menu."
+
+msgid "The URL of the icon to display in the menu."
+msgstr "URL ikony, ktorá sa zobrazí v menu."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "URL loga, ktoré sa zobrazí v odznaku pluginu."
+
+msgid "The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page."
+msgstr "URL loga, ktoré sa zobrazí na dashboarde a na prihlasovacej stránke dvojfaktorovej autentifikácie."
+
+msgid "The code provided was empty."
+msgstr "Poskytnutý kód bol prázdny."
+
+msgid "The email has been sent to you at blog admin address: %s"
+msgstr "E-mail vám bol odoslaný na administrátorskú adresu blogu: %s"
+
+msgid "The following types of user forms are protected by silentCAPTCHA: %s."
+msgstr "Nasledujúce typy používateľských formulárov sú chránené silentCAPTCHA: %s."
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "Domovská URL bola zmenená z '{{from}}' na '{{to}}'."
+
+msgid "The name of the plugin that will be displayed to your site users."
+msgstr "Názov pluginu, ktorý bude zobrazený používateľom vašej stránky."
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "Možnosť povoliť komukoľvek registráciu na stránke bola aktualizovaná z '{{from}}' na '{{to}}'."
+
+msgid "The plugin is currently entirely disabled."
+msgstr "Plugin je momentálne úplne deaktivovaný."
+
+msgid "The security plugin is protected against tampering."
+msgstr "Bezpečnostný plugin je chránený proti neoprávneným zmenám."
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "Bezpečnostný plugin nie je chránený proti neoprávneným zmenám."
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Možnosť silentCAPTCHA je zakázaná, čím sa odstraňuje ochrana proti brute force útokom pre prihlásenie, registráciu a formuláre pre stratené heslo."
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "Možnosť silentCAPTCHA je povolená."
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "URL stránky bola zmenená z '{{from}}' na '{{to}}'."
+
+msgid "Theme"
+msgstr "Téma"
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "Téma '{{theme}}' bola nainštalovaná."
+
+msgid "Theme Installed"
+msgstr "Téma nainštalovaná"
+
+msgid "Then"
+msgstr "Potom"
+
+msgid "Then Activate"
+msgstr "Potom aktivovať"
+
+msgid "There are no 2FA options made available to help users protect their accounts."
+msgstr "Nie sú k dispozícii žiadne možnosti 2FA na pomoc používateľom chrániť ich účty."
+
+msgid "There are no IPs available yet."
+msgstr "Zatiaľ nie sú k dispozícii žiadne IP adresy."
+
+msgid "There are no bot signals for this IP address."
+msgstr "Pre túto IP adresu neexistujú žiadne signály botov."
+
+msgid "There are no custom security rules"
+msgstr "Neexistujú žiadne vlastné bezpečnostné pravidlá"
+
+msgid "There are no important security notices at this time."
+msgstr "V tejto chvíli neexistujú žiadne dôležité bezpečnostné upozornenia."
+
+msgid "There are no whitelisted IPs for exclusion."
+msgstr "Neexistujú žiadne IP adresy na bielej listine na vylúčenie."
+
+msgid "There is an upgrade available for WordPress."
+msgstr "Pre WordPress je dostupná aktualizácia."
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "Neexistuje žiadna ochrana proti WP komentárovému SPAMu posielanému ľuďmi."
+
+msgid "There is no user currently logged-in."
+msgstr "Momentálne nie je prihlásený žiadny používateľ."
+
+msgid "This Is You"
+msgstr "Toto ste vy"
+
+msgid "This Page"
+msgstr "Táto stránka"
+
+msgid "This Site Is Protected By %s"
+msgstr "Táto stránka je chránená pluginom %s"
+
+msgid "This feature isn't currently enabled."
+msgstr "Táto funkcia momentálne nie je povolená."
+
+msgid "This is to be used in conjunction with the Master Import Site feature."
+msgstr "Toto sa má používať v spojení s funkciou Master Import Site."
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "Toto je vaše jedinečné Yubikey Device ID."
+
+msgid "This scan is not currently enabled."
+msgstr "Toto skenovanie momentálne nie je povolené."
+
+msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
+msgstr "Toto spotrebuje vaše SMS kredity, ak sú dostupné, rovnako ako pri akejkoľvek štandardnej 2FA SMS."
+
+msgid "Time"
+msgstr "Čas"
+
+msgid "Time Now"
+msgstr "Aktuálny čas"
+
+msgid "Time Sent: %s"
+msgstr "Čas odoslania: %s"
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "Pre registráciu nového Yubikey zariadenia zadajte jednorazové heslo z Yubikey."
+
+msgid "Traffic"
+msgstr "Prenosy"
+
+msgid "Traffic Logging"
+msgstr "Zaznamenávanie prenosov"
+
+msgid "Traffic Rate Limiting"
+msgstr "Obmedzenie frekvencie prenosov"
+
+msgid "Turn Off"
+msgstr "Vypnúť"
+
+msgid "Turn On"
+msgstr "Zapnúť"
+
+msgid "Turn On The Rate Limiting Feature"
+msgstr "Zapnúť funkciu obmedzenia frekvencie"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "Zapnite možnosť na obmedzenie prístupu k WordPress administrátorským účtom."
+
+msgid "Two-Factor Login Authentication By %s"
+msgstr "Dvojfaktorová prihlasovacia autentifikácia od %s"
+
+msgid "Two-Factor Login Authentication By Email"
+msgstr "Dvojfaktorová prihlasovacia autentifikácia e-mailom"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - Domov"
+
+msgid "URL - Site"
+msgstr "URL - Stránka"
+
+msgid "URL To Activate"
+msgstr "URL na aktiváciu"
+
+msgid "Unblocked"
+msgstr "Odblokované"
+
+msgid "Unblocked At"
+msgstr "Odblokované o"
+
+msgid "Unique ID"
+msgstr "Jedinečné ID"
+
+msgid "Updated"
+msgstr "Aktualizované"
+
+msgid "Updates"
+msgstr "Aktualizácie"
+
+msgid "Upgrade Now"
+msgstr "Upgradovať teraz"
+
+msgid "Upgrade Required"
+msgstr "Vyžaduje sa upgrade"
+
+msgid "Upgrade To"
+msgstr "Upgradovať na"
+
+msgid "Upgrade To Shield Pro Now"
+msgstr "Upgradovať na Shield Pro teraz"
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Použiť Shield silentCAPTCHA na blokovanie botov a útokov hrubou silou"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "Použiť Shield silentCAPTCHA na detekciu a blokovanie SPAM botov."
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "Použiť silentCAPTCHA na blokovanie bot komentárového SPAMu"
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "Použite túto možnosť na úplné vypnutie všetkej aktívnej Shield ochrany."
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "Použite váš Yubikey na vygenerovanie nového kódu"
+
+msgid "Used"
+msgstr "Použité"
+
+msgid "User"
+msgstr "Používateľ"
+
+msgid "User 2FA Setup"
+msgstr "Nastavenie 2FA používateľa"
+
+msgid "User 2FA Setup Page Locations"
+msgstr "Umiestnenia stránky nastavenia 2FA používateľa"
+
+msgid "User Access"
+msgstr "Prístup používateľa"
+
+msgid "User Accounts"
+msgstr "Používateľské účty"
+
+msgid "User Email Updated"
+msgstr "E-mail používateľa aktualizovaný"
+
+msgid "User Forms Bot Detection"
+msgstr "Detekcia botov v používateľských formulároch"
+
+msgid "User Has Any Active 2FA"
+msgstr "Používateľ má aktívne 2FA"
+
+msgid "User ID"
+msgstr "ID používateľa"
+
+msgid "User Login"
+msgstr "Prihlásenie používateľa"
+
+msgid "User Login By App Password"
+msgstr "Prihlásenie používateľa pomocou hesla aplikácie"
+
+msgid "User Login Notification Email"
+msgstr "E-mailové upozornenie na prihlásenie používateľa"
+
+msgid "User Password Updated"
+msgstr "Heslo používateľa aktualizované"
+
+msgid "User Promoted"
+msgstr "Používateľ povýšený"
+
+msgid "User Register Bot Protection"
+msgstr "Ochrana proti botom pri registrácii používateľa"
+
+msgid "User Registered"
+msgstr "Používateľ zaregistrovaný"
+
+msgid "User Registration"
+msgstr "Registrácia používateľa"
+
+msgid "User Status"
+msgstr "Stav používateľa"
+
+msgid "User forms"
+msgstr "Používateľské formuláre"
+
+msgid "User login request blocked."
+msgstr "Požiadavka na prihlásenie používateľa zablokovaná."
+
+msgid "User lost password request blocked."
+msgstr "Požiadavka používateľa na stratené heslo zablokovaná."
+
+msgid "User registration request blocked."
+msgstr "Požiadavka na registráciu používateľa zablokovaná."
+
+msgid "User: <code>%s</code>"
+msgstr "Používateľ: <code>%s</code>"
+
+msgid "Username"
+msgstr "Používateľské meno"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "Používateľské meno bolo '{{user_login}}' s e-mailovou adresou '{{email}}'."
+
+msgid "Users"
+msgstr "Používatelia"
+
+msgid "Value To Match"
+msgstr "Hodnota na zhodu"
+
+msgid "Verb"
+msgstr "Sloveso"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Activity"
+msgstr "WP aktivita"
+
+msgid "WP Activity Log"
+msgstr "Záznam WP aktivity"
+
+msgid "WP File Editing"
+msgstr "Úprava súborov WP"
+
+msgid "WP Login & Admin Redirect"
+msgstr "Presmerovanie WP prihlásenia & admina"
+
+msgid "WP Site Admin Email"
+msgstr "E-mail správcu WP stránky"
+
+msgid "WP Site title"
+msgstr "Názov WP stránky"
+
+msgid "WP User Registration"
+msgstr "Registrácia WP používateľa"
+
+msgid "We provide this feature as-is: to allow you to add custom CSP rules to your site."
+msgstr "Poskytujeme túto funkciu tak, ako je: aby ste mohli pridať vlastné CSP pravidlá na vašu stránku."
+
+msgid "What Is My IP Address?"
+msgstr "Aká je moja IP adresa?"
+
+msgid "What is the Custom Security Rules feature?"
+msgstr "Čo je funkcia vlastných bezpečnostných pravidiel?"
+
+msgid "What is this?"
+msgstr "Čo je toto?"
+
+msgid "When"
+msgstr "Kedy"
+
+msgid "When you can't access your 2FA codes."
+msgstr "Keď nemáte prístup k vašim 2FA kódom."
+
+msgid "Whitelist Parameters"
+msgstr "Parametre bielej listiny"
+
+msgid "Whitelist Site Added"
+msgstr "Stránka pridaná na bielu listinu"
+
+msgid "Whitelist Site Removed"
+msgstr "Stránka odstránená z bielej listiny"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "Biela listina pre uzamknutie stránky"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Activity"
+msgstr "WordPress aktivita"
+
+msgid "WordPress Activity Logging"
+msgstr "Zaznamenávanie WordPress aktivít"
+
+msgid "WordPress Address (URL)"
+msgstr "Adresa WordPress (URL)"
+
+msgid "WordPress File Editing Lockdown"
+msgstr "Uzamknutie úpravy súborov WordPress"
+
+msgid "WordPress Info"
+msgstr "WordPress Info"
+
+msgid "WordPress Options"
+msgstr "WordPress možnosti"
+
+msgid "WordPress System Lockdown"
+msgstr "Uzamknutie systému WordPress"
+
+msgid "WordPress Updates"
+msgstr "WordPress aktualizácie"
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "Súbory WordPress pluginov sú chránené proti neoprávneným zmenám."
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "E-mailová adresa správcu WordPress stránky bola zmenená z '{{from}}' na '{{to}}'."
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "Slogan WordPress stránky bol zmenený z '{{from}}' na '{{to}}'."
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "Názov WordPress stránky zmenený z '{{from}}' na '{{to}}'."
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "Súbory WordPress tém sú chránené proti neoprávneným zmenám."
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "Prístup XML-RPC"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC uzamknutie"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC požiadavka zablokovaná."
+
+msgid "Yes"
+msgstr "Áno"
+
+msgid "Yes: %s"
+msgstr "Áno: %s"
+
+msgid "You can completely disable anonymous access to the REST API."
+msgstr "Môžete úplne zakázať anonymný prístup k REST API."
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "Vaša bezpečnostná hrozba číslo 1 pochádza od automatizovaných botov."
+
+msgid "Your Current IP"
+msgstr "Vaša aktuálna IP"
+
+msgid "Your IP Address"
+msgstr "Vaša IP adresa"
+
+msgid "Your Unique Yubikey App API Key"
+msgstr "Váš jedinečný Yubikey App API kľúč"
+
+msgid "Your Unique Yubikey App ID"
+msgstr "Vaše jedinečné Yubikey App ID"
+
+msgid "Your WordPress login form is now protected"
+msgstr "Váš WordPress prihlasovací formulár je teraz chránený"
+
+msgid "Your WordPress login form is unprotected"
+msgstr "Váš WordPress prihlasovací formulár je nechránený"
+
+msgid "Your backup login code is: %s"
+msgstr "Váš záložný prihlasovací kód je: %s"
+
+msgid "Your current login URL is: %s"
+msgstr "Vaša aktuálna prihlasovacia URL je: %s"
+
+msgid "Your current security posture"
+msgstr "Vaša aktuálna bezpečnostná pozícia"
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "Vaše registrované ID zariadenia v CrowdSec je: %s"
+
+msgid "Your site is currently in lockdown."
+msgstr "Vaša stránka je momentálne v režime lockdown."
+
+msgid "Your site is in lockdown."
+msgstr "Vaša stránka je v režime lockdown."
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "Vaša stránka je chránená proti komentárovému SPAMu od ľudí."
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "Vaša stránka je chránená proti automatizovanému komentárovému SPAMu od botov."
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "Vaša stránka nie je chránená proti komentárovému SPAMu od ľudí."
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "Vaša stránka nie je chránená proti automatizovanému komentárovému SPAMu od botov."
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "Vaša stránka ešte nie je zaregistrovaná v CrowdSec."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey API Key"
+msgstr "Yubikey API kľúč"
+
+msgid "Yubikey App ID"
+msgstr "Yubikey App ID"
+
+msgid "Yubikey Authentication"
+msgstr "Yubikey autentifikácia"
+
+msgid "Yubikey Device"
+msgstr "Yubikey zariadenie"
+
+msgid "Yubikey ID"
+msgstr "Yubikey ID"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "Zóna"
+
+msgid "Zone Actions"
+msgstr "Akcie zóny"
+
+msgid "Zones"
+msgstr "Zóny"
+
+msgid "and"
+msgstr "a"
+
+msgid "currently %s"
+msgstr "momentálne %s"
+
+msgid "days"
+msgstr "dní"
+
+msgid "help"
+msgstr "pomoc"
+
+msgid "icon"
+msgstr "ikona"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "n/a"
+
+msgid "no name"
+msgstr "bez názvu"
+
+msgid "no subtitle"
+msgstr "bez podtitulu"
+
+msgid "not provided"
+msgstr "neposkytnuté"
+
+msgid "options"
+msgstr "možnosti"
+
+msgid "or"
+msgstr "alebo"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA detekcia botov nechráni proti brute-force útokom na vaše WordPress prihlásenie."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
+msgstr "silentCAPTCHA detekcia botov nechráni váš WordPress formulár pre stratené heslo."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr "silentCAPTCHA detekcia botov nechráni vašu WordPress registráciu."
+
+msgid "silentCAPTCHA Registration"
+msgstr "Registrácia silentCAPTCHA"
+
+msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
+msgstr "silentCAPTCHA nechráni vaše WP komentáre proti botovému SPAMu."
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "wp-config.php súbor nie je chránený proti neoprávneným zmenám."
+

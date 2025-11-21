@@ -1,0 +1,3477 @@
+# Croatian translation for Shield Security for WordPress
+# This file is distributed under the same license as Shield Security for WordPress.
+msgid ""
+msgstr ""
+"Project-Id-Version: Shield Security for WordPress\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-08 15:34+0000\n"
+"PO-Revision-Date: 2025-12-08 15:34+0000\n"
+"Language-Team: Multi-Provider API\n"
+"Language: hr_HR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2));\n"
+
+msgid "%s Comment SPAM Protection"
+msgstr "%s zaštita od spam komentara"
+
+msgid "%s Firewall has blocked a request to your WordPress site."
+msgstr "%s Firewall blokirao je zahtjev prema vašoj WordPress stranici."
+
+msgid "%s Home"
+msgstr "%s Početna"
+
+msgid "%s Login Verification"
+msgstr "%s provjera prijave"
+
+msgid "%s Plugin Badge"
+msgstr "%s značka dodatka"
+
+msgid "%s and %s"
+msgstr "%s i %s"
+
+msgid "%s day"
+msgstr "%s dan"
+
+msgid "%s days"
+msgstr "%s dana"
+
+msgid "%s directory"
+msgstr "%s direktorij"
+
+msgid "%s is not currently protecting your site."
+msgstr "%s trenutno ne štiti vašu stranicu."
+
+msgid "%s is not protecting your site"
+msgstr "%s ne štiti vašu stranicu"
+
+msgid "%s is protected against tampering."
+msgstr "%s je zaštićen od neovlaštenih izmjena."
+
+msgid "%s isn't protected against tampering."
+msgstr "%s nije zaštićen od neovlaštenih izmjena."
+
+msgid "%s not installed from WordPress.org."
+msgstr "%s nije instaliran s WordPress.org."
+
+msgid "%s options and modules"
+msgstr "%s opcije i moduli"
+
+msgid "%s per day"
+msgstr "%s dnevno"
+
+msgid "%s time"
+msgstr "%s put"
+
+msgid "%s was removed from your profile."
+msgstr "%s je uklonjen s vašeg profila."
+
+msgid "(Currently this is set to %s days.)"
+msgstr "(Trenutno je postavljeno na %s dana.)"
+
+msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
+msgstr "(kada je zaključavanje onemogućeno, IP adresa će automatski biti uklonjena s bijele liste)"
+
+msgid "123456"
+msgstr "123456"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "2FA - Email"
+msgstr "2FA - e-pošta"
+
+msgid "2FA At"
+msgstr "2FA u"
+
+msgid "2FA One-Time Passwords"
+msgstr "2FA jednokratne lozinke"
+
+msgid "2FA Provider"
+msgstr "2FA pružatelj"
+
+msgid "2FA User Config Page"
+msgstr "Stranica za konfiguraciju 2FA korisnika"
+
+msgid "2FA Verification Page"
+msgstr "Stranica za 2FA provjeru"
+
+msgid "2FA by Email"
+msgstr "2FA putem e-pošte"
+
+msgid "2FA by email has been disabled"
+msgstr "2FA putem e-pošte je onemogućen"
+
+msgid "7 Days"
+msgstr "7 dana"
+
+msgid ":"
+msgstr ":"
+
+msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
+msgstr "<strong>Skeniranje</strong> vaših osnovnih WordPress datoteka i direktorija za promjene i nove datoteke."
+
+msgid "A PIN needs to be set to enable the Security Admin."
+msgstr "PIN mora biti postavljen za omogućavanje Security Admin."
+
+msgid "A WordPress user (%s) has requested to remove the Security Admin restriction."
+msgstr "WordPress korisnik (%s) zatražio je uklanjanje ograničenja Security Admin."
+
+msgid "A default will be used."
+msgstr "Koristit će se zadana vrijednost."
+
+msgid "A new One-Time Password was sent to your email address."
+msgstr "Nova jednokratna lozinka poslana je na vašu e-mail adresu."
+
+msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Izvršena je silentCAPTCHA provjera bota na posjetitelju, ali opcija blokiranja botova je onemogućena u postavkama."
+
+msgid "Abandoned"
+msgstr "Napušteno"
+
+msgid "Abandoned Plugin Scanner"
+msgstr "Skener napuštenih dodataka"
+
+msgid "Abandoned Plugins Found"
+msgstr "Pronađeni napušteni dodaci"
+
+msgid "Abandoned WordPress.org Plugins"
+msgstr "Napušteni WordPress.org dodaci"
+
+msgid "Access Restricted"
+msgstr "Pristup ograničen"
+
+msgid "Access from your IP address has been temporarily restricted."
+msgstr "Pristup s vaše IP adrese je privremeno ograničen."
+
+msgid "Access to XML-RPC detected at '{{path}}'."
+msgstr "Otkriven pristup XML-RPC na '{{path}}'."
+
+msgid "Access to XML-RPC is available."
+msgstr "Pristup XML-RPC je dostupan."
+
+msgid "Access to XML-RPC is disabled."
+msgstr "Pristup XML-RPC je onemogućen."
+
+msgid "Access to the %s Security plugin is restricted."
+msgstr "Pristup %s Security dodatku je ograničen."
+
+msgid "Access to this site has been temporarily restricted."
+msgstr "Pristup ovoj stranici je privremeno ograničen."
+
+msgid "Actions"
+msgstr "Radnje"
+
+msgid "Actions and Info"
+msgstr "Radnje i informacije"
+
+msgid "Activated"
+msgstr "Aktivirano"
+
+msgid "Active"
+msgstr "Aktivan"
+
+msgid "Active 2FA"
+msgstr "Aktivan 2FA"
+
+msgid "Active Plugins (%s)"
+msgstr "Aktivni dodaci (%s)"
+
+msgid "Active Themes (%s)"
+msgstr "Aktivne teme (%s)"
+
+msgid "Add IP Bypass"
+msgstr "Dodaj zaobilaženje IP-a"
+
+msgid "Add To Block List"
+msgstr "Dodaj na listu blokiranja"
+
+msgid "Add To Bypass List"
+msgstr "Dodaj na listu zaobilaženja"
+
+msgid "Add my IP address (%s) to the bypass/whitelist"
+msgstr "Dodaj moju IP adresu (%s) na listu zaobilaženja/bijelu listu"
+
+msgid "Additional IP block lists are available with an upgraded plan."
+msgstr "Dodatne liste blokiranja IP adresa dostupne su s nadograđenim planom."
+
+msgid "Admin Access Login"
+msgstr "Prijava za administratorski pristup"
+
+msgid "Admin Accounts"
+msgstr "Administratorski računi"
+
+msgid "Admin Changes Detected"
+msgstr "Otkrivene administratorske promjene"
+
+msgid "Admin Login Notification Email"
+msgstr "E-mail obavijest o prijavi administratora"
+
+msgid "Admin Users"
+msgstr "Administratorski korisnici"
+
+msgid "Administrator Accounts Protection"
+msgstr "Zaštita administratorskih računa"
+
+msgid "All MFA providers removed from user with ID %s."
+msgstr "Svi MFA davatelji uklonjeni s korisnika s ID-om %s."
+
+msgid "All User Roles Available On This Site"
+msgstr "Sve korisničke uloge dostupne na ovoj stranici"
+
+msgid "All WP Site Activity"
+msgstr "Sva aktivnost WP stranice"
+
+msgid "All access to your site is blocked."
+msgstr "Sav pristup vašoj stranici je blokiran."
+
+msgid "All installed plugins appear to be active and in-use."
+msgstr "Svi instalirani dodaci čine se aktivni i u upotrebi."
+
+msgid "All installed themes appear to be active and in-use."
+msgstr "Svi instalirani predlošci čine se aktivni i u upotrebi."
+
+msgid "All new passwords are required to be be of high strength."
+msgstr "Sve nove lozinke moraju biti visoke snage."
+
+msgid "All passwords that a user sets must meet this minimum strength."
+msgstr "Sve lozinke koje korisnik postavlja moraju zadovoljiti ovu minimalnu snagu."
+
+msgid "All plugin & theme files appear to be valid."
+msgstr "Sve datoteke dodataka i predložaka čine se valjanima."
+
+msgid "All rules have been deactivated"
+msgstr "Sva pravila su deaktivirana"
+
+msgid "All security protection offered by Shield is completely disabled."
+msgstr "Sva sigurnosna zaštita koju nudi Shield potpuno je onemogućena."
+
+msgid "Allow Any User"
+msgstr "Dopusti bilo kojeg korisnika"
+
+msgid "Allow Automated Import And Export Of Options On This Site"
+msgstr "Dopusti automatizirani uvoz i izvoz opcija na ovoj stranici"
+
+msgid "Allow Email Override"
+msgstr "Dopusti nadjačavanje e-poštom"
+
+msgid "Allow Export"
+msgstr "Dozvoli izvoz"
+
+msgid "Allow Import Of Options To, And Export Of Options From, This Site"
+msgstr "Dopusti uvoz opcija na ovu stranicu i izvoz opcija s ove stranice"
+
+msgid "Allow Manual User Suspension"
+msgstr "Dopusti ručnu suspenziju korisnika"
+
+msgid "Allow Users To Generate A Backup Code"
+msgstr "Dozvoli korisnicima generiranje sigurnosne kopije koda"
+
+msgid "Allow Yubikey OTP"
+msgstr "Dozvoli Yubikey OTP"
+
+msgid "Allow Yubikey Registration For One Time Passwords"
+msgstr "Dozvoli Yubikey registraciju za jednokratne lozinke"
+
+msgid "Allow users to generate a backup 2FA login code."
+msgstr "Dozvoli korisnicima generiranje sigurnosne kopije 2FA koda za prijavu."
+
+msgid "Altering certain options has been restricted by your WordPress security administrator."
+msgstr "Izmjenu određenih opcija ograničio je vaš WordPress sigurnosni administrator."
+
+msgid "An upgrade is available for the Shield plugin."
+msgstr "Dostupna je nadogradnja za Shield dodatak."
+
+msgid "Apply Automatic Suspension To Accounts With These Roles"
+msgstr "Primijeni automatsku suspenziju na račune s ovim ulogama"
+
+msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
+msgstr "Primijeni zaštitu od brute force napada na registraciju korisnika i izgubljene lozinke"
+
+msgid "Apply To Existing Users"
+msgstr "Primijeni na postojeće korisnike"
+
+msgid "At least 1 2FA option is available to protect user accounts."
+msgstr "Barem 1 2FA opcija je dostupna za zaštitu korisničkih računa."
+
+msgid "At least 1 WordPress Core file appears to be modified or unrecognised."
+msgstr "Čini se da je najmanje 1 WordPress Core datoteka izmijenjena ili neprepoznata."
+
+msgid "At least 1 of your plugins or themes appears to be modified."
+msgstr "Čini se da je najmanje 1 od vaših dodataka ili tema izmijenjen."
+
+msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
+msgstr "Barem 1 opcija mora biti omogućena i zadano je stranica korisničkog profila unutar WP administratorskog područja."
+
+msgid "Attempted login with invalid user '{{user_login}}'."
+msgstr "Pokušaj prijave s nevažećim korisnikom '{{user_login}}'."
+
+msgid "Authenticated With Site"
+msgstr "Autentificiran sa stranicom"
+
+msgid "Auto Block"
+msgstr "Automatsko blokiranje"
+
+msgid "Auto Blocking Rules"
+msgstr "Pravila automatskog blokiranja"
+
+msgid "Auto IP Blocking Rules"
+msgstr "Pravila automatskog blokiranja IP-a"
+
+msgid "Auto IP blocking is switched-off as there is no offense limit provided."
+msgstr "Automatsko blokiranje IP adresa je isključeno jer nije naveden limit prekršaja."
+
+msgid "Auto-Import URL"
+msgstr "URL automatskog uvoza"
+
+msgid "Auto-repair of files from WordPress.org plugins is enabled."
+msgstr "Automatski popravak datoteka iz WordPress.org dodataka je omogućen."
+
+msgid "Auto-repair of files from WordPress.org plugins isn't enabled."
+msgstr "Automatski popravak datoteka iz WordPress.org dodataka nije omogućen."
+
+msgid "Auto-repair of files from WordPress.org themes is enabled."
+msgstr "Automatski popravak datoteka iz WordPress.org tema je omogućen."
+
+msgid "Auto-repair of files from WordPress.org themes isn't enabled."
+msgstr "Automatski popravak datoteka iz WordPress.org tema nije omogućen."
+
+msgid "Auto-repair of modified WordPress core files is enabled."
+msgstr "Automatski popravak izmijenjenih WordPress core datoteka je omogućen."
+
+msgid "Auto-repair of modified WordPress core files isn't enabled."
+msgstr "Automatski popravak izmijenjenih WordPress core datoteka nije omogućen."
+
+msgid "Automatic And Manual User Suspension"
+msgstr "Automatska i ručna suspenzija korisnika"
+
+msgid "Automatic IP Blocking"
+msgstr "Automatsko blokiranje IP-a"
+
+msgid "Automatic Import/Export"
+msgstr "Automatski uvoz/izvoz"
+
+msgid "Automatically Import Options From This Site"
+msgstr "Automatski uvezi opcije s ove stranice"
+
+msgid "Automatically Import Options From This Site URL"
+msgstr "Automatski uvezi opcije s ovog URL-a stranice"
+
+msgid "Automatically Scan WordPress Files For Changes"
+msgstr "Automatski skeniraj WordPress datoteke za promjene"
+
+msgid "Backup Code"
+msgstr "Sigurnosni kod"
+
+msgid "Backup Login Code"
+msgstr "Sigurnosni kod za prijavu"
+
+msgid "Backup Login Code Just Used"
+msgstr "Upravo korištena sigurnosna kopija koda za prijavu"
+
+msgid "Badge"
+msgstr "Značka"
+
+msgid "Be alerted when the Shield plugin is deactivated"
+msgstr "Budite obaviješteni kada je Shield dodatak deaktiviran"
+
+msgid "Be alerted when the Shield plugin is deactivated."
+msgstr "Budite obaviješteni kada je Shield dodatak deaktiviran."
+
+msgid "Block %s"
+msgstr "Blokiraj %s"
+
+msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
+msgstr "Blokiraj 100% bot spam komentara sa silentCAPTCHA"
+
+msgid "Block Bot Comment SPAM"
+msgstr "Blokiraj bot spam komentare"
+
+msgid "Block Bot SPAM"
+msgstr "Blokiraj bot spam"
+
+msgid "Block Comment SPAM Posted By Humans"
+msgstr "Blokiraj spam komentare koje objavljuju ljudi"
+
+msgid "Block Human Comment SPAM"
+msgstr "Blokiraj spam komentare od ljudi"
+
+msgid "Block Human SPAM"
+msgstr "Blokiraj spam od ljudi"
+
+msgid "Block IP"
+msgstr "Blokiraj IP"
+
+msgid "Block IP Address?"
+msgstr "Blokiraj IP adresu?"
+
+msgid "Block Login Attempted By Automated Bots"
+msgstr "Blokiraj pokušaje prijave automatiziranih botova"
+
+msgid "Block Login Bots"
+msgstr "Blokiraj botove prijave"
+
+msgid "Block PHP code in requests"
+msgstr "Blokiraj PHP kod u zahtjevima"
+
+msgid "Block Page"
+msgstr "Stranica blokiranja"
+
+msgid "Block Pwned Passwords"
+msgstr "Blokiraj Pwned lozinke"
+
+msgid "Block SPAM User Registrations"
+msgstr "Blokiraj spam registracije korisnika"
+
+msgid "Block SPAM posted to Contact Forms by automated Bots."
+msgstr "Blokiraj SPAM poslan na kontakt forme od strane automatiziranih botova."
+
+msgid "Block WP comments posted by bots"
+msgstr "Blokiraj WP komentare koje objavljuju botovi"
+
+msgid "Block WP comments posted by humans that appear to be SPAM"
+msgstr "Blokiraj WP komentare koje objavljuju ljudi, a koji izgledaju kao spam"
+
+msgid "Block WordPress Comment SPAM and Contact Form SPAM."
+msgstr "Blokirajte WordPress spam komentare i spam kontaktnih obrazaca."
+
+msgid "Block XML-RPC"
+msgstr "Blokiraj XML-RPC"
+
+msgid "Block all access to the site except from IPs on the bypass/white list."
+msgstr "Blokiraj sav pristup stranici osim s IP adresa na listi zaobilaženja/bijeloj listi."
+
+msgid "Blocked"
+msgstr "Blokirano"
+
+msgid "Blocked & Bypass IPs"
+msgstr "Blokirani IP-ovi i zaobilaženje"
+
+msgid "Blocked SPAM comment from Bot."
+msgstr "Blokiran spam komentar od bota."
+
+msgid "Blocked comment that triggered the Comment Cooldown."
+msgstr "Blokiran komentar koji je pokrenuo cooldown za komentare."
+
+msgid "Blocked/High Reputation"
+msgstr "Blokirano/visoka reputacija"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Bot"
+msgstr "Bot"
+
+msgid "Bot Actions"
+msgstr "Radnje bota"
+
+msgid "Bot Blocking"
+msgstr "Blokiranje botova"
+
+msgid "Bot Comment SPAM"
+msgstr "Bot spam komentara"
+
+msgid "Bot Detection"
+msgstr "Detekcija botova"
+
+msgid "Bot Protection"
+msgstr "Zaštita od botova"
+
+msgid "Bot SPAM"
+msgstr "Bot spam"
+
+msgid "Bot Signals"
+msgstr "Signali botova"
+
+msgid "Bot comment SPAM will not be blocked"
+msgstr "Bot spam komentari neće biti blokirani"
+
+msgid "Bot comment SPAM will now be blocked"
+msgstr "Bot spam komentari će sada biti blokirani"
+
+msgid "Bot threshold"
+msgstr "Prag bota"
+
+msgid "Bots"
+msgstr "Botovi"
+
+msgid "Bots & IP Rules"
+msgstr "Botovi i IP pravila"
+
+msgid "Bots & IPs"
+msgstr "Botovi i IP adrese"
+
+msgid "Browser"
+msgstr "preglednik"
+
+msgid "Brute Force"
+msgstr "Brute force"
+
+msgid "Brute Force Login Guard"
+msgstr "Zaštita od brute force prijave"
+
+msgid "Brute Force Login Protection"
+msgstr "Brute force zaštita prijave"
+
+msgid "Brute Force Login Protection with silentCAPTCHA"
+msgstr "Brute force zaštita prijave sa silentCAPTCHA"
+
+msgid "Brute Force Protection"
+msgstr "Brute force zaštita"
+
+msgid "Brute Force Traffic Rate Limiting"
+msgstr "Brute force rate limiting prometa"
+
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
+msgstr "Brute force napadi botova na vašu WordPress prijavu otkrivaju se i blokiraju pomoću silentCAPTCHA."
+
+msgid "Brute force login attacks aren't blocked by the login cooldown system."
+msgstr "Brute force napadi na prijavu nisu blokirani sustavom login cooldown."
+
+msgid "Brute force login attacks by bots aren't being blocked."
+msgstr "Brute force napadi na prijavu od strane botova nisu blokirani."
+
+msgid "Bypass"
+msgstr "Zaobilaženje"
+
+msgid "Bypass IP"
+msgstr "Zaobilaženje IP-a"
+
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+msgid "Callback"
+msgstr "povratni poziv"
+
+msgid "Cancel"
+msgstr "odustani, otkaži"
+
+msgid "Cancel Login"
+msgstr "Otkaži prijavu"
+
+msgid "Careful"
+msgstr "Oprez"
+
+msgid "Careful: This will restrict the ability of WordPress administrators from changing key WordPress settings."
+msgstr "Oprez: Ovo će ograničiti mogućnost WordPress administratora da mijenjaju ključne WordPress postavke."
+
+msgid "Certain user roles are set for email authentication enforcement that aren't currently available"
+msgstr "Određene korisničke uloge postavljene su za nametanje provjere autentičnosti putem e-pošte koje trenutno nisu dostupne"
+
+msgid "Changes"
+msgstr "Promjene"
+
+msgid "Changing 2FA Email options isn't currently available to you."
+msgstr "Promjena 2FA e-mail opcija trenutno vam nije dostupna."
+
+msgid "Changing Backup Code options isn't currently available to you."
+msgstr "Promjena opcija sigurnosne kopije koda trenutno vam nije dostupna."
+
+msgid "Checked"
+msgstr "Provjereno"
+
+msgid "Child"
+msgstr "podređeno"
+
+msgid "Choose the page type for MFA verification"
+msgstr "Odaberi vrstu stranice za MFA provjeru"
+
+msgid "Choose the type of page provided to users for MFA verification."
+msgstr "Odaberite vrstu stranice koja se pruža korisnicima za MFA provjeru."
+
+msgid "CloudFlare"
+msgstr "Cloudflare"
+
+msgid "Code"
+msgstr "Kod"
+
+msgid "Collapse"
+msgstr "sažeti, smanji, skupi"
+
+msgid "Comment"
+msgstr "Komentar"
+
+msgid "Comment & Contact Form SPAM Protection"
+msgstr "Zaštita od spam komentara i kontaktnih obrazaca"
+
+msgid "Comment SPAM"
+msgstr "Spam komentara"
+
+msgid "Comment SPAM Blocked."
+msgstr "Spam komentar blokiran."
+
+msgid "Comment SPAM Protection"
+msgstr "Zaštita od spam komentara"
+
+msgid "Comment SPAM Protection: %s %s"
+msgstr "Zaštita od spam komentara: %s %s"
+
+msgid "Comment Status Updated"
+msgstr "Status komentara ažuriran"
+
+msgid "Comment Triggered Human SPAM Detection"
+msgstr "Komentar je pokrenuo otkrivanje ljudskog spama"
+
+msgid "Comments"
+msgstr "Komentari"
+
+msgid "Comments Cooldown Triggered"
+msgstr "Cooldown za komentare aktiviran"
+
+msgid "Comments From Users With These Roles Will Never Be Scanned"
+msgstr "Komentari korisnika s ovim ulogama nikada neće biti skenirani"
+
+msgid "Company Name"
+msgstr "Naziv tvrtke"
+
+msgid "Config"
+msgstr "Konfiguracija"
+
+msgid "Contact Form SPAM"
+msgstr "Spam kontaktnih obrazaca"
+
+msgid "Content Security Policy"
+msgstr "Content Security Policy"
+
+msgid "Content Security Policy (CSP) Rules"
+msgstr "Pravila Content Security Policy (CSP)"
+
+msgid "Content Updated"
+msgstr "Sadržaj ažuriran"
+
+msgid "Cooldown Triggered"
+msgstr "Cooldown aktiviran"
+
+msgid "Could not create MU directory: %s"
+msgstr "Nije moguće stvoriti MU direktorij: %s"
+
+msgid "Could not create MU file: %s"
+msgstr "Nije moguće stvoriti MU datoteku: %s"
+
+msgid "Could not delete the MU file: %s"
+msgstr "Nije moguće obrisati MU datoteku: %s"
+
+msgid "Could not determine scan type from the scan result ID %s."
+msgstr "Nije moguće odrediti vrstu skeniranja iz ID-a rezultata skeniranja %s."
+
+msgid "Could not write content to MU file: %s"
+msgstr "Nije moguće zapisati sadržaj u MU datoteku: %s"
+
+msgid "Couldn't create the directory: %s"
+msgstr "Nije moguće stvoriti direktorij: %s"
+
+msgid "Couldn't create the export file."
+msgstr "Nije moguće stvoriti datoteku izvoza."
+
+msgid "Couldn't determine Shield plugin status."
+msgstr "Nije moguće utvrditi status Shield dodatka."
+
+msgid "Couldn't load plugin for slug '%s'."
+msgstr "Nije moguće učitati dodatak za slug '%s'."
+
+msgid "Couldn't load theme for slug '%s'."
+msgstr "Nije moguće učitati temu za slug '%s'."
+
+msgid "Create Backup 2FA Login Code"
+msgstr "Kreiraj sigurnosnu kopiju 2FA koda za prijavu"
+
+msgid "Create and view all your custom security rules."
+msgstr "Stvorite i pregledajte sva vaša prilagođena sigurnosna pravila."
+
+msgid "Create custom rules to meet all your security needs"
+msgstr "Stvorite prilagođena pravila za zadovoljavanje svih vaših sigurnosnih potreba"
+
+msgid "Critical File Protection"
+msgstr "Zaštita kritičnih datoteka"
+
+msgid "Critical WordPress Settings Protection"
+msgstr "Zaštita kritičnih WordPress postavki"
+
+msgid "CrowdSec"
+msgstr "CrowdSec"
+
+msgid "CrowdSec Home"
+msgstr "CrowdSec početna"
+
+msgid "CrowdSec IP Blocking"
+msgstr "CrowdSec blokiranje IP-a"
+
+msgid "CrowdSec Signals"
+msgstr "CrowdSec signali"
+
+msgid "Current"
+msgstr "Trenutno"
+
+msgid "Current File Content"
+msgstr "Trenutni sadržaj datoteke"
+
+msgid "Current session terminated for user ({{user_login}}) with session ID {{session_id}}."
+msgstr "Trenutna sesija prekinuta za korisnika ({{user_login}}) s ID-om sesije {{session_id}}."
+
+msgid "Current value: %s"
+msgstr "Trenutna vrijednost: %s"
+
+msgid "Currently active MFA Providers on this profile are"
+msgstr "Trenutno aktivni MFA davatelji na ovom profilu su"
+
+msgid "Custom"
+msgstr "prilagođeno, korisnički definirano"
+
+msgid "Custom Debug"
+msgstr "Prilagođeno ispravljanje grešaka"
+
+msgid "Custom Rules"
+msgstr "Prilagođena pravila"
+
+msgid "Custom Security Rules"
+msgstr "Prilagođena sigurnosna pravila"
+
+msgid "Dashboard"
+msgstr "Nadzorna ploča"
+
+msgid "Dashboard and 2FA Login Logo URL"
+msgstr "URL logotipa za nadzornu ploču i 2FA prijavu"
+
+msgid "Dashboard and 2FA Logo"
+msgstr "Logotip za nadzornu ploču i 2FA"
+
+msgid "Dashboard and 2FA Logo URL"
+msgstr "URL logotipa za nadzornu ploču i 2FA"
+
+msgid "Database"
+msgstr "baza podataka"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Day"
+msgstr "Dan"
+
+msgid "Deactivated"
+msgstr "Deaktivirano"
+
+msgid "Debug"
+msgstr "ispravljanje grešaka"
+
+msgid "Debug Info"
+msgstr "Debug informacije"
+
+msgid "Debug Is On"
+msgstr "Ispravljanje grešaka je uključeno"
+
+msgid "Default"
+msgstr "zadano, izvorno"
+
+msgid "Default Admin User"
+msgstr "Zadani administrator"
+
+msgid "Default User Role"
+msgstr "Zadana korisnička uloga"
+
+msgid "Defaults to the blog admin email address."
+msgstr "Zadano je e-mail adresa administratora bloga."
+
+msgid "Delete"
+msgstr "obrisati"
+
+msgid "Delete All Bot Signals"
+msgstr "Obriši sve signale botova"
+
+msgid "Delete IP"
+msgstr "Obriši IP"
+
+msgid "Delete Login Backup Code"
+msgstr "Izbriši sigurnosnu kopiju koda za prijavu"
+
+msgid "Delete Plugin Settings"
+msgstr "Izbriši postavke dodatka"
+
+msgid "Demoted From Admin"
+msgstr "Degradiran iz administratora"
+
+msgid "Description"
+msgstr "Opis"
+
+msgid "Detected"
+msgstr "Otkriveno"
+
+msgid "Detected user registration with invalid email address ({{email}})."
+msgstr "Otkrivena registracija korisnika s nevažećom e-mail adresom ({{email}})."
+
+msgid "Detection of abandoned WordPress.org plugins is enabled."
+msgstr "Otkrivanje napuštenih WordPress.org dodataka je omogućeno."
+
+msgid "Detection of abandoned WordPress.org plugins isn't enabled."
+msgstr "Otkrivanje napuštenih WordPress.org dodataka nije omogućeno."
+
+msgid "Disable %s"
+msgstr "Onemogući %s"
+
+msgid "Disable 2FA by email"
+msgstr "Onemogući 2FA putem e-pošte"
+
+msgid "Disable Ability To Edit Files From Within WordPress"
+msgstr "Onemogući mogućnost uređivanja datoteka iz WordPressa"
+
+msgid "Disable All Rules"
+msgstr "Onemogući sva pravila"
+
+msgid "Disable File Editing"
+msgstr "Onemogući uređivanje datoteka"
+
+msgid "Disable Security Admin"
+msgstr "Onemogući Security Admin"
+
+msgid "Disable Shield"
+msgstr "Onemogući Shield"
+
+msgid "Disable Site Lockdown"
+msgstr "Onemogući zaključavanje stranice"
+
+msgid "Disable The %s System"
+msgstr "Onemogući %s sustav"
+
+msgid "Disable The XML-RPC System"
+msgstr "Onemogući XML-RPC sustav"
+
+msgid "Disable XML-RPC"
+msgstr "Onemogući XML-RPC"
+
+msgid "Disable processing of requests sent to XML-RPC endpoint"
+msgstr "Onemogući obradu zahtjeva poslanih na XML-RPC krajnju točku"
+
+msgid "Disable the XML-RPC endpoint and block all requests."
+msgstr "Onemogući XML-RPC krajnju točku i blokiraj sve zahtjeve."
+
+msgid "Display Options Updated"
+msgstr "Opcije zaslona ažurirane"
+
+msgid "Display Plugin Security Badge On Your Site"
+msgstr "Prikaži sigurnosnu značku dodatka na svojoj stranici"
+
+msgid "Display Plugin Security Badge To Your Visitors"
+msgstr "Prikaži sigurnosnu značku dodatka svojim posjetiteljima"
+
+msgid "Docs"
+msgstr "Dokumentacija"
+
+msgid "Document Root"
+msgstr "osnovni direktorij"
+
+msgid "Does current user have the given WP role."
+msgstr "Ima li trenutni korisnik zadanu WP ulogu."
+
+msgid "Doesn't scan within the %s directory."
+msgstr "Ne skenira unutar %s direktorija."
+
+msgid "Download"
+msgstr "preuzmi, preuzimanje"
+
+msgid "Download File"
+msgstr "Preuzmi datoteku"
+
+msgid "Download Modified"
+msgstr "Preuzmi izmijenjeno"
+
+msgid "Download Options Export File"
+msgstr "Preuzmi datoteku izvoza opcija"
+
+msgid "Edit"
+msgstr "Uredi"
+
+msgid "Edit Settings"
+msgstr "Uredi postavke"
+
+msgid "Edit Theme Options"
+msgstr "Uredi opcije teme"
+
+msgid "Edit automatic file scanning settings"
+msgstr "Uredi postavke automatskog skeniranja datoteka"
+
+msgid "Edit bot-SPAM comment settings"
+msgstr "Uredi postavke bot-spam komentara"
+
+msgid "Edit general plugin settings"
+msgstr "Uredi opće postavke dodatka"
+
+msgid "Edit human-SPAM comment settings"
+msgstr "Uredi postavke spam komentara od ljudi"
+
+msgid "Edit logging settings"
+msgstr "Uredi postavke zapisivanja"
+
+msgid "Edit reporting settings"
+msgstr "Uredi postavke izvještavanja"
+
+msgid "Edit settings for SPAM user registrations"
+msgstr "Uredi postavke za spam registracije korisnika"
+
+msgid "Edit settings on user auto-suspension"
+msgstr "Uredi postavke automatske suspenzije korisnika"
+
+msgid "Edit settings that apply protection to your login & user forms"
+msgstr "Uredi postavke koje primjenjuju zaštitu na vaše obrasce za prijavu i korisnike"
+
+msgid "Edit settings to apply minimum password strength"
+msgstr "Uredi postavke za primjenu minimalne snage lozinke"
+
+msgid "Edit settings to prevent use of 'pwned' passwords"
+msgstr "Uredi postavke za sprječavanje korištenja 'pwned' lozinki"
+
+msgid "Editing files from within the WordPress admin area is allowed."
+msgstr "Uređivanje datoteka iz WordPress administratorskog područja je dozvoljeno."
+
+msgid "Editing files from within the WordPress admin area is disabled."
+msgstr "Uređivanje datoteka iz WordPress administratorskog područja je onemogućeno."
+
+msgid "Editing this option is currently restricted."
+msgstr "Uređivanje ove opcije je trenutno ograničeno."
+
+msgid "Email"
+msgstr "e-pošta, elektronska pošta, poruke e-pošte"
+
+msgid "Email 2FA activated."
+msgstr "E-pošta 2FA aktivirana."
+
+msgid "Email 2FA deactivated."
+msgstr "2FA putem e-pošte deaktiviran."
+
+msgid "Email 2FA option is not currently enabled."
+msgstr "Opcija e-mail 2FA trenutno nije omogućena."
+
+msgid "Email 2FA settings couldn't be changed."
+msgstr "Postavke e-mail 2FA nisu se mogle promijeniti."
+
+msgid "Email Authentication"
+msgstr "Provjera autentičnosti putem e-pošte"
+
+msgid "Email Auto-Login"
+msgstr "E-pošta automatske prijave"
+
+msgid "Email OTP"
+msgstr "OTP e-pošta"
+
+msgid "Email Sent"
+msgstr "E-pošta poslana"
+
+msgid "Email Updated"
+msgstr "E-pošta ažurirana"
+
+msgid "Email sent from the %s Plugin v%s, on %s."
+msgstr "E-pošta poslana iz dodatka %s v%s, na %s."
+
+msgid "Email updated for user '{{user_login}}'."
+msgstr "E-pošta ažurirana za korisnika '{{user_login}}'."
+
+msgid "Enable"
+msgstr "omogući, aktiviraj, uključi"
+
+msgid "Enable %s"
+msgstr "Omogući %s"
+
+msgid "Enable %s Protection"
+msgstr "Omogući %s zaštitu"
+
+msgid "Enable (or Disable) The Comment SPAM Protection Feature"
+msgstr "Omogući (ili onemogući) značajku zaštite od spam komentara"
+
+msgid "Enable Content Security Policy"
+msgstr "Omogući Content Security Policy"
+
+msgid "Enable Email Authentication"
+msgstr "Omogući provjeru autentičnosti putem e-pošte"
+
+msgid "Enable Rate Limiting"
+msgstr "Omogući rate limiting"
+
+msgid "Enable Request Logging"
+msgstr "Omogući zapisivanje zahtjeva"
+
+msgid "Enable The Abandoned Plugin Scanner"
+msgstr "Omogući skener napuštenih dodataka"
+
+msgid "Enable The Vulnerability Scanner"
+msgstr "Omogući skener ranjivosti"
+
+msgid "Enable White Label"
+msgstr "Omogući White Label"
+
+msgid "Enable as many options as possible."
+msgstr "Omogući što više opcija."
+
+msgid "Enable this option to allow automatic import and export of options between WordPress sites."
+msgstr "Omogući ovu opciju za dopuštanje automatskog uvoza i izvoza opcija između WordPress stranica."
+
+msgid "Ensures that visitors with a high reputation are never blocked by Shield."
+msgstr "Osigurava da posjetitelji s visokom reputacijom nikada neće biti blokirani od strane Shielda."
+
+msgid "Enter One Time Password From Yubikey"
+msgstr "Unesite jednokratnu lozinku s Yubikey uređaja"
+
+msgid "Enter admin username, email or ID."
+msgstr "Unesite korisničko ime, e-mail ili ID administratora."
+
+msgid "Enter code sent to your email"
+msgstr "Unesite šifru poslanu na vašu e-mail adresu"
+
+msgid "Enter your Security Admin PIN"
+msgstr "Unesite svoj Security Admin PIN"
+
+msgid "Error"
+msgstr "greška"
+
+msgid "Export"
+msgstr "Izvoz"
+
+msgid "Export To File"
+msgstr "Izvoz u datoteku"
+
+msgid "Export Whitelist"
+msgstr "Bijela lista izvoza"
+
+msgid "Export file path"
+msgstr "Putanja datoteke izvoza"
+
+msgid "File"
+msgstr "Datoteka"
+
+msgid "File Detected By Scans"
+msgstr "Datoteka otkrivena skeniranjem"
+
+msgid "File Download"
+msgstr "Preuzimanje datoteke"
+
+msgid "File Guard"
+msgstr "Zaštita datoteka"
+
+msgid "File Info"
+msgstr "Informacije o datoteci"
+
+msgid "File Locker"
+msgstr "Zaključavanje datoteka"
+
+msgid "File Locker Changes Detected"
+msgstr "Otkrivene promjene zaključavanja datoteka"
+
+msgid "File Modified"
+msgstr "Datoteka izmijenjena"
+
+msgid "File Name"
+msgstr "Naziv datoteke"
+
+msgid "File Scanning and Malware Protection"
+msgstr "Skeniranje datoteka i zaštita od zlonamjernog softvera"
+
+msgid "File Scans and Malware"
+msgstr "Skeniranje datoteka i zlonamjerni softver"
+
+msgid "File detected as %s by %s scanner."
+msgstr "Datoteka otkrivena kao %s od strane %s skenera."
+
+msgid "FileLocker Changes"
+msgstr "FileLocker promjene"
+
+msgid "FileLocker Changes Detected"
+msgstr "Otkrivene FileLocker promjene"
+
+msgid "FileLocker has detected changes to critical files."
+msgstr "FileLocker je otkrio promjene na kritičnim datotekama."
+
+msgid "FileLocker must be active to enable this option."
+msgstr "FileLocker mora biti aktivan za omogućavanje ove opcije."
+
+msgid "FileLocker: wp-config.php Protection"
+msgstr "FileLocker: zaštita wp-config.php"
+
+msgid "Firewall"
+msgstr "Firewall"
+
+msgid "Firewall Block"
+msgstr "Blokiranje vatrozidom"
+
+msgid "Firewall Triggered"
+msgstr "Firewall aktiviran"
+
+msgid "Firstly, we must limit the login attempts of automated bots that brute force your login form."
+msgstr "Prvo moramo ograničiti pokušaje prijave automatiziranih botova koji izvode brute force napade na vaš obrazac za prijavu."
+
+msgid "Fix"
+msgstr "Popravi"
+
+msgid "Force Check of Visitor IP Source"
+msgstr "Prisilna provjera izvora IP adrese posjetitelja"
+
+msgid "Front Page"
+msgstr "početna stranica"
+
+msgid "Full Path"
+msgstr "Puni put"
+
+msgid "Full Path To File"
+msgstr "Puni put do datoteke"
+
+msgid "General"
+msgstr "opće, općenito"
+
+msgid "General Info"
+msgstr "Opće informacije"
+
+msgid "General Settings"
+msgstr "Opće postavke"
+
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr "Generiraj JEDNOKRATNU sigurnosnu kopiju 2FA koda za prijavu"
+
+msgid "Global Plugin Enable"
+msgstr "Globalno omogućavanje dodatka"
+
+msgid "Global Plugin Security Options"
+msgstr "Globalne sigurnosne opcije dodatka"
+
+msgid "Global Security Plugin Disable"
+msgstr "Globalno onemogućavanje sigurnosnog dodatka"
+
+msgid "Go PRO!"
+msgstr "Prijeđi na PRO!"
+
+msgid "Go Pro!"
+msgstr "Prijeđi na Pro!"
+
+msgid "Go To %s"
+msgstr "Idi na %s"
+
+msgid "Go To Admin"
+msgstr "Idi na Admin"
+
+msgid "Go To Option"
+msgstr "Idi na opciju"
+
+msgid "Go To Security Dashboard"
+msgstr "Idi na sigurnosnu nadzornu ploču"
+
+msgid "Go!"
+msgstr "Kreni!"
+
+msgid "Good"
+msgstr "Dobro"
+
+msgid "Help"
+msgstr "Pomoć"
+
+msgid "Hide Login"
+msgstr "Sakrij prijavu"
+
+msgid "Hide Login Page"
+msgstr "Sakrij stranicu za prijavu"
+
+msgid "Hide The WP Login Page."
+msgstr "Sakrij WP stranicu za prijavu."
+
+msgid "Hide The WordPress Login And Admin Areas"
+msgstr "Sakrij WordPress prijavu i administratorska područja"
+
+msgid "Hide WP Login"
+msgstr "Sakrij WP prijavu"
+
+msgid "Hide WP Login & Admin"
+msgstr "Sakrij WP prijavu i administraciju"
+
+msgid "Hide WP Login Page"
+msgstr "Sakrij WP stranicu za prijavu"
+
+msgid "Hide WordPress Login Page"
+msgstr "Sakrij WordPress stranicu za prijavu"
+
+msgid "High Reputation Bypass"
+msgstr "Zaobilaženje visoke reputacije"
+
+msgid "Home URL"
+msgstr "URL početne"
+
+msgid "Home URL Changed"
+msgstr "URL početne promijenjen"
+
+msgid "Homepage"
+msgstr "početna stranica, naslovna stranica"
+
+msgid "Human"
+msgstr "Ljudi"
+
+msgid "Human Comment SPAM"
+msgstr "Spam komentara od ljudi"
+
+msgid "Human Comment SPAM Protection"
+msgstr "Zaštita od spam komentara ljudi"
+
+msgid "Human SPAM"
+msgstr "Spam od ljudi"
+
+msgid "I have authority to block all traffic to this site."
+msgstr "Imam ovlast blokirati sav promet na ovu stranicu."
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP adresa"
+
+msgid "IP Address To Match"
+msgstr "IP adresa za usklađivanje"
+
+msgid "IP Block List Add (Auto)"
+msgstr "Dodavanje na listu blokiranja IP adresa (automatski)"
+
+msgid "IP Block List Add (Manual)"
+msgstr "Dodavanje na listu blokiranja IP adresa (ručno)"
+
+msgid "IP Blocked"
+msgstr "IP blokiran"
+
+msgid "IP Blocking Rules"
+msgstr "Pravila blokiranja IP-a"
+
+msgid "IP Bypass List Add (Manual)"
+msgstr "Dodavanje na listu zaobilaženja IP adresa (ručno)"
+
+msgid "IP Bypass List Removed (Manual)"
+msgstr "Uklanjanje s liste zaobilaženja IP adresa (ručno)"
+
+msgid "IP ID To Match"
+msgstr "IP ID za usklađivanje"
+
+msgid "IP NotBot Score couldn't be reset at this time."
+msgstr "IP NotBot ocjena nije mogla biti resetirana u ovom trenutku."
+
+msgid "IP Reputation Score"
+msgstr "Ocjena IP reputacije"
+
+msgid "IP Rules"
+msgstr "IP pravila"
+
+msgid "IP Source"
+msgstr "Izvor IP adrese"
+
+msgid "IP Source Found: %s"
+msgstr "Izvor IP-a pronađen: %s"
+
+msgid "IP Unblocked"
+msgstr "IP deblokiran"
+
+msgid "IP Unblocked By Visitor"
+msgstr "IP deblokiran od strane posjetitelja"
+
+msgid "IP address '{{ip}}' manually removed from the bypass list."
+msgstr "IP adresa '{{ip}}' ručno uklonjena s liste zaobilaženja."
+
+msgid "IP address blocked."
+msgstr "IP adresa blokirana."
+
+msgid "IP address couldn't be removed from Bypass list at this time."
+msgstr "IP adresa nije mogla biti uklonjena s Bypass liste u ovom trenutku."
+
+msgid "IP address couldn't be removed. (It may not be on this list)"
+msgstr "IP adresa nije mogla biti uklonjena. (Možda nije na ovoj listi)"
+
+msgid "IP address couldn't be unblocked at this time."
+msgstr "IP adresa nije mogla biti deblokirana u ovom trenutku."
+
+msgid "IP address removed from Bypass list."
+msgstr "IP adresa uklonjena s liste zaobilaženja."
+
+msgid "IP address unblocked."
+msgstr "IP adresa deblokirana."
+
+msgid "IP isn't on the %s block list."
+msgstr "IP adresa nije na %s listi blokiranja."
+
+msgid "IP isn't on the auto block list."
+msgstr "IP adresa nije na listi automatskog blokiranja."
+
+msgid "IP isn't on the automatic block list."
+msgstr "IP adresa nije na listi automatskog blokiranja."
+
+msgid "IP provided was invalid."
+msgstr "Navedeni IP nije valjan."
+
+msgid "IP silentCAPTCHA Score Reset."
+msgstr "Resetiranje IP silentCAPTCHA ocjene."
+
+msgid "IPs"
+msgstr "IPS"
+
+msgid "Identify A Bot When It Accesses XML-RPC"
+msgstr "Identificiraj bota kada pristupa XML-RPC"
+
+msgid "Identify a bot when the user agent is not provided."
+msgstr "Identificiraj bota kada korisnički agent nije naveden."
+
+msgid "Identify a request as a bot if the user agent is not provided."
+msgstr "Identificiraj zahtjev kao bot ako korisnički agent nije naveden."
+
+msgid "Idle"
+msgstr "Neaktivno"
+
+msgid "If"
+msgstr "Ako"
+
+msgid "If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user."
+msgstr "Ako korisničko ime nema dodijeljeni Yubikey, Yubikey provjera autentičnosti je isključena za tog korisnika."
+
+msgid "If a path matches any core WordPress directories, it'll be removed automatically."
+msgstr "Ako putanja odgovara bilo kojem osnovnom WordPress direktoriju, bit će automatski uklonjena."
+
+msgid "If a path you add matches your website root (/), it'll be removed automatically."
+msgstr "Ako putanja koju dodate odgovara korijenu vaše web stranice (/), bit će automatski uklonjena."
+
+msgid "If a user has multiple roles assigned to it, all roles will be checked against this list."
+msgstr "Ako korisnik ima dodijeljeno više uloga, sve uloge bit će provjerene prema ovoj listi."
+
+msgid "If you provide access to the WP Login URL in any areas of your site, you will expose your hidden login URL."
+msgstr "Ako omogućite pristup WP Login URL-u u bilo kojem dijelu vaše stranice, izložit ćete svoj skriveni URL za prijavu."
+
+msgid "Import"
+msgstr "Uvoz"
+
+msgid "Import / Export Settings"
+msgstr "Uvoz / izvoz postavki"
+
+msgid "Import From File"
+msgstr "Uvoz iz datoteke"
+
+msgid "Import From Site"
+msgstr "Uvoz sa stranice"
+
+msgid "Import Options"
+msgstr "Uvoz opcija"
+
+msgid "Import/Export"
+msgstr "Uvoz/Izvoz"
+
+msgid "Import/Export Secret Key"
+msgstr "Tajni ključ uvoza/izvoza"
+
+msgid "Important: If you've set Shield to automatically upgrade vulnerable plugins, it may have been upgraded by the time you view this."
+msgstr "Važno: Ako ste postavili Shield da automatski nadograđuje ranjive dodatke, možda je već nadograđen do trenutka kada ovo pregledate."
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info For IP Address %s"
+msgstr "Informacije za IP adresu %s"
+
+msgid "Installed"
+msgstr "Instalirano"
+
+msgid "Invalid"
+msgstr "nije valjano"
+
+msgid "Invalid Login Username"
+msgstr "Neispravno korisničko ime za prijavu"
+
+msgid "Invalid Request ID"
+msgstr "Nevažeći ID zahtjeva"
+
+msgid "Invalid Slug"
+msgstr "Nevažeći slug"
+
+msgid "Invalid User Email Registration"
+msgstr "Nevažeća e-mail adresa korisnika pri registraciji"
+
+msgid "Invalid Username Login"
+msgstr "Prijava s neispravnim korisničkim imenom"
+
+msgid "Invalid download request."
+msgstr "Nevažeći zahtjev za preuzimanje."
+
+msgid "Invalid file locker type download"
+msgstr "Nevažeća vrsta preuzimanja zaključavanja datoteka"
+
+msgid "Invalid request - lockdown is already active."
+msgstr "Nevažeći zahtjev - lockdown je već aktivan."
+
+msgid "Invalid request - lockdown is not active."
+msgstr "Nevažeći zahtjev - lockdown nije aktivan."
+
+msgid "Invalid request with no User ID"
+msgstr "Nevažeći zahtjev bez ID-a korisnika"
+
+msgid "Invalid type."
+msgstr "Nevažeća vrsta."
+
+msgid "Invalid value type for %s"
+msgstr "Nevažeća vrsta vrijednosti za %s"
+
+msgid "Is It You?"
+msgstr "Jeste li to vi?"
+
+msgid "Is Request To The Login Page."
+msgstr "Je zahtjev za stranicu za prijavu."
+
+msgid "Is Shield Traffic Rate Limiting Enabled."
+msgstr "Je Shield rate limiting prometa omogućen."
+
+msgid "Is Shield's Site Lockdown active."
+msgstr "Je Shield lockdown stranice aktivan."
+
+msgid "Is The Shield Option Value..."
+msgstr "Je li vrijednost Shield opcije..."
+
+msgid "Is Visitor silentCAPTCHA Score ..."
+msgstr "Je silentCAPTCHA ocjena posjetitelja ..."
+
+msgid "Is WP Admin"
+msgstr "Je WP Admin"
+
+msgid "Is WP CRON"
+msgstr "Je WP CRON"
+
+msgid "Is WP Debug Active"
+msgstr "Je WP Debug aktivan"
+
+msgid "Is WP XML-RPC"
+msgstr "Je WP XML-RPC"
+
+msgid "Is a given 2FA provider enabled on the site."
+msgstr "Je li određeni 2FA davatelj omogućen na stranici."
+
+msgid "Is a given plugin installed & active."
+msgstr "Je li dani dodatak instaliran i aktivan."
+
+msgid "Is a given plugin installed."
+msgstr "Je li dani dodatak instaliran."
+
+msgid "Is a given theme installed & active."
+msgstr "Je li dana tema instalirana i aktivna."
+
+msgid "Is a given theme installed."
+msgstr "Je li dana tema instalirana."
+
+msgid "Is current logged-in user a WordPress administrator."
+msgstr "Je trenutno prijavljeni korisnik WordPress administrator."
+
+msgid "Is current user Security Admin."
+msgstr "Je trenutni korisnik Security Admin."
+
+msgid "Is current user a logged-in WordPress administrator."
+msgstr "Je trenutni korisnik prijavljeni WordPress administrator."
+
+msgid "Is current user password expired."
+msgstr "Je lozinka trenutnog korisnika istekla."
+
+msgid "Is silentCAPTCHA score"
+msgstr "Je silentCAPTCHA ocjena"
+
+msgid "Is the current IP address considered \"high reputation\"."
+msgstr "Smatra li se trenutna IP adresa \"visokom reputacijom\"."
+
+msgid "Is the request IP auto or manually blocked by Shield."
+msgstr "Je li IP adresa zahtjeva automatski ili ručno blokirana od strane Shielda."
+
+msgid "Is the request IP blacklisted by Shield."
+msgstr "Je li IP adresa zahtjeva na crnoj listi Shielda."
+
+msgid "Is the request IP on Shield's CrowdSec block list."
+msgstr "Je li IP adresa zahtjeva na Shield CrowdSec listi blokiranja."
+
+msgid "Is the request IP on Shield's Manual block list."
+msgstr "Je li IP adresa zahtjeva na Shield listi ručnog blokiranja."
+
+msgid "Is the request IP on Shield's auto-block list ."
+msgstr "Je li IP adresa zahtjeva na Shield listi automatskog blokiranja."
+
+msgid "Is the request IP on Shield's manual bypass-list/whitelist."
+msgstr "Je li IP adresa zahtjeva na Shield listi ručnog zaobilaženja/bijeloj listi."
+
+msgid "Is the request blocked by Shield's Site Lockdown feature."
+msgstr "Je li zahtjev blokiran Shield značajkom Site Lockdown."
+
+msgid "Is the request from a logged-in user."
+msgstr "Je li zahtjev od prijavljenog korisnika."
+
+msgid "Is the request from a user authenticated as a Shield Security Admin."
+msgstr "Je li zahtjev od korisnika autentificiranog kao Shield Security Admin."
+
+msgid "Is the request path whitelisted by Shield."
+msgstr "Je li putanja zahtjeva na bijeloj listi Shielda."
+
+msgid "Is the request to a path within a currently installed WordPress plugin."
+msgstr "Je li zahtjev prema putanji unutar trenutno instaliranog WordPress dodatka."
+
+msgid "Is the request to a path within a currently installed WordPress theme."
+msgstr "Je li zahtjev prema putanji unutar trenutno instaliranog WordPress predloška."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin but is invalid."
+msgstr "Zahtjev je prema putanji unutar potencijalno instaliranog WordPress dodatka, ali je nevažeći."
+
+msgid "Is the request to a path within a potentially installed WordPress plugin."
+msgstr "Je li zahtjev prema putanji unutar potencijalno instaliranog WordPress dodatka."
+
+msgid "Is the request to a path within a potentially installed WordPress theme but is invalid."
+msgstr "Zahtjev je prema putanji unutar potencijalno instalirane WordPress teme, ali je nevažeći."
+
+msgid "Is the request to a path within a potentially installed WordPress theme."
+msgstr "Je li zahtjev prema putanji unutar potencijalno instalirane WordPress teme."
+
+msgid "Is the request to the WordPress XML-RPC endpoint."
+msgstr "Je li zahtjev prema WordPress XML-RPC krajnjoj točki."
+
+msgid "Is the request to the WordPress admin area."
+msgstr "Je li zahtjev prema WordPress administratorskom području."
+
+msgid "Is the request to the WordPress cron."
+msgstr "Je li zahtjev prema WordPress cron-u."
+
+msgid "Is the request triggered by WP-CLI."
+msgstr "Je li zahtjev pokrenut putem WP-CLI."
+
+msgid "Is the request whitelisted?"
+msgstr "Je li zahtjev na bijeloj listi?"
+
+msgid "Is visiting bot of the given type."
+msgstr "Je li posjetitelj bot navedene vrste."
+
+msgid "It appears that certain contact forms aren't protected against Bot SPAM: %s"
+msgstr "Čini se da određeni kontakt obrasci nisu zaštićeni od bot spam-a: %s"
+
+msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
+msgstr "Nalazi se u direktoriju WordPress dodatka i prepoznata je kao valjana datoteka za tu verziju dodatka."
+
+msgid "It's located in a WordPress theme directory, and is a recognised as a valid file for that theme version."
+msgstr "Nalazi se u direktoriju WordPress teme i prepoznata je kao valjana datoteka za tu verziju teme."
+
+msgid "It's possible to edit files from within the WordPress admin area."
+msgstr "Moguće je uređivati datoteke iz WordPress administratorskog područja."
+
+msgid "Just like WordPress comments, Contact Forms (or any type of form at all) is normally a victim of SPAM."
+msgstr "Baš kao WordPress komentari, kontaktni obrasci (ili bilo koja vrsta obrasca) obično su žrtve spama."
+
+msgid "Keep this Secret Key private as it will allow export of options from your site."
+msgstr "Čuvajte ovaj tajni ključ privatnim jer će omogućiti izvoz opcija s vaše stranice."
+
+msgid "Keep this Secret Key private as it will allow the import and export of options."
+msgstr "Čuvajte ovaj tajni ključ privatnim jer će omogućiti uvoz i izvoz opcija."
+
+msgid "Key"
+msgstr "Ključ"
+
+msgid "Label"
+msgstr "oznaka, natips"
+
+msgid "Launch Debug Info Page"
+msgstr "Pokreni stranicu s informacijama za ispravljanje grešaka"
+
+msgid "Limit Attempts"
+msgstr "Ograniči pokušaje"
+
+msgid "Limit requests to your site based on the your rate-limiting settings."
+msgstr "Ograniči zahtjeve prema vašoj stranici na temelju vaših postavki ograničavanja stope."
+
+msgid "Load"
+msgstr "Učitaj"
+
+msgid "Loading"
+msgstr "učitavanje"
+
+msgid "Locale"
+msgstr "jezik"
+
+msgid "Lockdown The Site"
+msgstr "Zaključaj stranicu"
+
+msgid "Lockdown activated by:"
+msgstr "Lockdown aktivirao:"
+
+msgid "Logged At"
+msgstr "Prijavljen u"
+
+msgid "Logged In At"
+msgstr "Prijavljen u"
+
+msgid "Logged-In"
+msgstr "Prijavljen"
+
+msgid "Logged-In At"
+msgstr "Prijavljen u"
+
+msgid "Logging isn't currently available on this site."
+msgstr "Zapisivanje trenutno nije dostupno na ovoj stranici."
+
+msgid "Login"
+msgstr "prijava"
+
+msgid "Login 2FA Verification"
+msgstr "Provjera 2FA prijave"
+
+msgid "Login Blocked"
+msgstr "Prijava blokirana"
+
+msgid "Login Bot Protection"
+msgstr "Zaštita od botova pri prijavi"
+
+msgid "Login Expired"
+msgstr "Prijava istekla"
+
+msgid "Login Guard"
+msgstr "Login Guard"
+
+msgid "Login IP"
+msgstr "IP prijave"
+
+msgid "Login Page"
+msgstr "Stranica za prijavu"
+
+msgid "Login Protection"
+msgstr "Zaštita prijave"
+
+msgid "Login Security"
+msgstr "Sigurnost prijave"
+
+msgid "Login backup codes have been removed from your profile"
+msgstr "Sigurnosne kopije kodova za prijavu uklonjene su s vašeg profila"
+
+msgid "Login, Register & Lost Password Forms"
+msgstr "Obrasci za prijavu, registraciju i izgubljenu lozinku"
+
+msgid "Login/Register request triggered cooldown and was blocked."
+msgstr "Zahtjev za prijavu/registraciju pokrenuo je cooldown i bio je blokiran."
+
+msgid "Lost Password"
+msgstr "Izgubljena lozinka"
+
+msgid "Lost Password Blocked"
+msgstr "Izgubljena lozinka blokirana"
+
+msgid "Lost Password Bot Protection"
+msgstr "Zaštita od botova za izgubljenu lozinku"
+
+msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
+msgstr "Spam izgubljene lozinke od strane botova blokiran je pomoću silentCAPTCHA."
+
+msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
+msgstr "Spam izgubljene lozinke od strane botova nije blokiran pomoću silentCAPTCHA."
+
+msgid "MFA Verification Page"
+msgstr "Stranica za MFA provjeru"
+
+msgid "Malware"
+msgstr "Zlonamjerni softver"
+
+msgid "Malware Scanner"
+msgstr "Skener zlonamjernog softvera"
+
+msgid "Malware status of this file is currently"
+msgstr "Status malwarea ove datoteke trenutno je"
+
+msgid "Manual Block"
+msgstr "Ručno blokiranje"
+
+msgid "Manual Code"
+msgstr "Ručni kod"
+
+msgid "Match Bot Type"
+msgstr "Uskladi vrstu bota"
+
+msgid "Match Patterns"
+msgstr "Obrasci podudaranja"
+
+msgid "Match Type"
+msgstr "Vrsta podudaranja"
+
+msgid "Match User Email Address"
+msgstr "Uskladi e-mail adresu korisnika"
+
+msgid "Match User ID"
+msgstr "Uskladi ID korisnika"
+
+msgid "Match Username"
+msgstr "Uskladi korisničko ime"
+
+msgid "Match the username for currently logged-in user."
+msgstr "Usporedi korisničko ime trenutno prijavljenog korisnika."
+
+msgid "Menu Icon"
+msgstr "Ikona izbornika"
+
+msgid "Menu Icon URL"
+msgstr "URL ikone izbornika"
+
+msgid "Menu Title"
+msgstr "Naslov izbornika"
+
+msgid "Minimum Password Strength"
+msgstr "Minimalna snaga lozinke"
+
+msgid "Minimum Strength"
+msgstr "Minimalna snaga"
+
+msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
+msgstr "Minimalna silentCAPTCHA ocjena potrebna za označavanje posjetitelja kao čovjeka"
+
+msgid "Mode"
+msgstr "Način rada"
+
+msgid "Modified"
+msgstr "Izmijenjeno"
+
+msgid "Modified File"
+msgstr "Izmijenjena datoteka"
+
+msgid "Multisite"
+msgstr "Multisite"
+
+msgid "My Login Security"
+msgstr "Moja sigurnost prijave"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "NO TITLE"
+msgstr "BEZ NASLOVA"
+
+msgid "Name"
+msgstr "Naziv"
+
+msgid "Name: <code>%s</code>"
+msgstr "Naziv: <code>%s</code>"
+
+msgid "Navigation"
+msgstr "navigacija"
+
+msgid "Never"
+msgstr "Nikada"
+
+msgid "New"
+msgstr "Novo"
+
+msgid "New Admin(s)"
+msgstr "Novi administrator(i)"
+
+msgid "New Comment"
+msgstr "Novi komentar"
+
+msgid "New User Default Role"
+msgstr "Zadana uloga novog korisnika"
+
+msgid "New WordPress user registered."
+msgstr "Registriran novi WordPress korisnik."
+
+msgid "New username is '{{user_login}}' with email address '{{email}}'."
+msgstr "Novo korisničko ime je '{{user_login}}' s e-mail adresom '{{email}}'."
+
+msgid "No"
+msgstr "Ne"
+
+msgid "No 2FA login intent found - your login may have expired."
+msgstr "Nije pronađena namjera 2FA prijave - vaša prijava je možda istekla."
+
+msgid "No 2FA login providers found."
+msgstr "Nisu pronađeni davatelji 2FA prijave."
+
+msgid "No Title"
+msgstr "Bez naslova"
+
+msgid "No active providers for user."
+msgstr "Nema aktivnih davatelja za korisnika."
+
+msgid "No activity logged for this IP address"
+msgstr "Nema zabilježene aktivnosti za ovu IP adresu"
+
+msgid "No email address - No Notification."
+msgstr "Nema e-mail adrese - Nema obavijesti."
+
+msgid "No email provider for user."
+msgstr "Nema davatelja e-pošte za korisnika."
+
+msgid "No modules specified in the plugin config."
+msgstr "Nema navedenih modula u konfiguraciji dodatka."
+
+msgid "No requests logged for this IP address"
+msgstr "Nema zabilježenih zahtjeva za ovu IP adresu"
+
+msgid "No title provided"
+msgstr "Nije naveden naslov"
+
+msgid "No value set."
+msgstr "Nije postavljena vrijednost."
+
+msgid "None"
+msgstr "Ništa"
+
+msgid "Not Installed"
+msgstr "Nije instalirano"
+
+msgid "Not Pro"
+msgstr "Nije Pro"
+
+msgid "Not a WordPress Core file"
+msgstr "Nije WordPress Core datoteka"
+
+msgid "Not a plugin or theme file path."
+msgstr "Nije putanja datoteke dodatka ili teme."
+
+msgid "Not a valid option key."
+msgstr "Nije valjan ključ opcije."
+
+msgid "Not currently logged-in as security admin."
+msgstr "Trenutno niste prijavljeni kao sigurnosni administrator."
+
+msgid "Not currently logged-in."
+msgstr "Trenutno niste prijavljeni."
+
+msgid "Note"
+msgstr "zabilješka, napomena, bilješka, obavijest"
+
+msgid "Notice"
+msgstr "obavijest"
+
+msgid "Notice: %s"
+msgstr "Obavijest: %s"
+
+msgid "Notification Of Scan Detection Sent"
+msgstr "Obavijest o otkrivanju skeniranja poslana"
+
+msgid "Now"
+msgstr "Sada"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Off"
+msgstr "Isključeno"
+
+msgid "Offenses Limit"
+msgstr "Ograničenje prekršaja"
+
+msgid "Offenses couldn't be reset at this time."
+msgstr "Prekršaji nisu mogli biti resetirani u ovom trenutku."
+
+msgid "On"
+msgstr "Uključeno"
+
+msgid "One-Time Password was sent to your phone."
+msgstr "Jednokratna lozinka poslana je na vaš telefon."
+
+msgid "One-Time Passwords"
+msgstr "Jednokratne lozinke"
+
+msgid "Only core WordPress files are scans in the free version of Shield."
+msgstr "Samo osnovne WordPress datoteke se skeniraju u besplatnoj verziji Shielda."
+
+msgid "Options"
+msgstr "opcije"
+
+msgid "Originating IP address of the request"
+msgstr "Izvorna IP adresa zahtjeva"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "PHP & MySQL"
+msgstr "PHP i MySQL"
+
+msgid "PHP Code"
+msgstr "PHP kod"
+
+msgid "PHP Malware"
+msgstr "PHP zlonamjerni softver"
+
+msgid "PHP Malware Scanner"
+msgstr "Skener PHP zlonamjernog softvera"
+
+msgid "PHP Version"
+msgstr "PHP verzija"
+
+msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
+msgstr "PHP ne zadovoljava minimalnu verziju. Vaša verzija: %s. Potrebna verzija: %s."
+
+msgid "PHP malware scanner isn't enabled."
+msgstr "Skener PHP zlonamjernog softvera nije omogućen."
+
+msgid "PRO"
+msgstr "PRO"
+
+msgid "Page"
+msgstr "Stranica"
+
+msgid "Parent"
+msgstr "matično"
+
+msgid "Password Expired"
+msgstr "Lozinka istekla"
+
+msgid "Password Reset"
+msgstr "vraćanje izvorne lozinke"
+
+msgid "Password Updated"
+msgstr "Lozinka ažurirana"
+
+msgid "Password updated for user '{{user_login}}'."
+msgstr "Lozinka ažurirana za korisnika '{{user_login}}'."
+
+msgid "Patch"
+msgstr "zakrpa, zakrpati"
+
+msgid "Path"
+msgstr "putanja"
+
+msgid "Path To Check"
+msgstr "Putanja za provjeru"
+
+msgid "Path To Match"
+msgstr "Putanja za usklađivanje"
+
+msgid "Please contact site admin to request access if required."
+msgstr "Molimo kontaktirajte administratora stranice za zahtjev pristupa ako je potrebno."
+
+msgid "Please contact site admin to request your IP address is unblocked."
+msgstr "Molimo kontaktirajte administratora stranice kako biste zatražili deblokiranje vaše IP adrese."
+
+msgid "Please now save your profile settings."
+msgstr "Molimo sada spremite postavke svog profila."
+
+msgid "Please provide a label to identify the device."
+msgstr "Molimo navedite oznaku za identifikaciju uređaja."
+
+msgid "Please provide a label to identify the new authenticator."
+msgstr "Molimo navedite oznaku za identifikaciju novog autentifikatora."
+
+msgid "Please provide an IP Address"
+msgstr "Molimo navedite IP adresu"
+
+msgid "Please reset your password to regain access."
+msgstr "Molimo resetirajte svoju lozinku kako biste ponovno dobili pristup."
+
+msgid "Please select one of the options available"
+msgstr "Molimo odaberite jednu od dostupnih opcija"
+
+msgid "Please turn on this feature in the options."
+msgstr "Molimo uključite ovu značajku u opcijama."
+
+msgid "Please turn on this scan in the options."
+msgstr "Molimo uključite ovo skeniranje u opcijama."
+
+msgid "Please upgrade to support scanning of all plugin files for tampering."
+msgstr "Molimo nadogradite kako biste podržali skeniranje svih datoteka dodatka za neovlaštene izmjene."
+
+msgid "Please upgrade your ShieldPRO plan to make use of this feature."
+msgstr "Molimo nadogradite svoj ShieldPRO plan kako biste koristili ovu značajku."
+
+msgid "Please use one of %s."
+msgstr "Molimo koristite jednu od %s."
+
+msgid "Please use the `--source=` argument to provide the source site URL or path to file."
+msgstr "Molimo koristite argument `--source=` za unos URL-a izvorne stranice ili putanje do datoteke."
+
+msgid "Plugin"
+msgstr "dodatak"
+
+msgid "Plugin & Theme Files"
+msgstr "Datoteke dodataka & tema"
+
+msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
+msgstr "Dodatak '{{plugin}}' nadograđen s verzije {{from}} na verziju {{to}}."
+
+msgid "Plugin '{{plugin}}' was activated (v{{version}})."
+msgstr "Dodatak '{{plugin}}' je aktiviran (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was deactivated (v{{version}})."
+msgstr "Dodatak '{{plugin}}' je deaktiviran (v{{version}})."
+
+msgid "Plugin '{{plugin}}' was installed (v{{version}})."
+msgstr "Dodatak '{{plugin}}' je instaliran (v{{version}})."
+
+msgid "Plugin Activated"
+msgstr "Dodatak aktiviran"
+
+msgid "Plugin Badge Logo"
+msgstr "Logotip značke dodatka"
+
+msgid "Plugin Badge Logo URL"
+msgstr "URL logotipa značke dodatka"
+
+msgid "Plugin Deactivated"
+msgstr "Dodatak deaktiviran"
+
+msgid "Plugin Defaults"
+msgstr "Zadane postavke dodatka"
+
+msgid "Plugin Files"
+msgstr "Datoteke dodatka"
+
+msgid "Plugin Home Page URL"
+msgstr "URL početne stranice dodatka"
+
+msgid "Plugin Installed"
+msgstr "Dodatak instaliran"
+
+msgid "Plugin Name"
+msgstr "Naziv dodatka"
+
+msgid "Plugin Option Changed"
+msgstr "Opcija dodatka promijenjena"
+
+msgid "Plugin Security Badge"
+msgstr "Sigurnosna značka dodatka"
+
+msgid "Plugin Upgraded"
+msgstr "Dodatak nadograđen"
+
+msgid "Plugin and Theme File Guard"
+msgstr "Zaštita datoteka dodataka i tema"
+
+msgid "Plugin and Theme Vulnerability Scanner"
+msgstr "Skener ranjivosti dodataka i tema"
+
+msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
+msgstr "Opcija dodatka '{{name}}' ({{key}}) ažurirana je na '{{value}}'."
+
+msgid "Plugin reset to defaults."
+msgstr "Dodatak vraćen na izvorne postavke."
+
+msgid "Plugin/Theme Guard"
+msgstr "Zaštita dodataka/tema"
+
+msgid "Plugins with known vulnerabilities are automatically updated to protect your site."
+msgstr "Dodaci s poznatim ranjivostima automatski se ažuriraju kako bi zaštitili vašu stranicu."
+
+msgid "Plugins with known vulnerabilities aren't automatically updated to protect your site."
+msgstr "Dodaci s poznatim ranjivostima ne ažuriraju se automatski kako bi zaštitili vašu stranicu."
+
+msgid "Plugins, Themes, WordPress Core"
+msgstr "Dodaci, teme, WordPress Core"
+
+msgid "Powerful Protection for WordPress, from Shield Security"
+msgstr "Snažna zaštita za WordPress, od Shield Security"
+
+msgid "Pro Only"
+msgstr "Samo Pro"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Promoted To Admin"
+msgstr "Unaprijeđen u administratora"
+
+msgid "Protect WP Login From Automated Login Attempts By Bots"
+msgstr "Zaštiti WP prijavu od automatiziranih pokušaja prijave botova"
+
+msgid "Protect Your Shield Plugin From Tampering"
+msgstr "Zaštitite svoj Shield dodatak od neovlaštenih izmjena"
+
+msgid "Protect key WP core files that can't normally be protected."
+msgstr "Zaštiti ključne WP core datoteke koje se inače ne mogu zaštititi."
+
+msgid "Protect password reset forms against bots"
+msgstr "Zaštitite obrasce za vraćanje lozinke od botova"
+
+msgid "Protect user login forms against bots"
+msgstr "Zaštitite obrasce za prijavu korisnika od botova"
+
+msgid "Protect user registration forms against bots"
+msgstr "Zaštitite obrasce za registraciju korisnika od botova"
+
+msgid "Protect your %s files"
+msgstr "Zaštitite svoje %s datoteke"
+
+msgid "Protected Forms"
+msgstr "Zaštićeni obrasci"
+
+msgid "Protecting against the #1 source of <strong>Comment SPAM</strong>."
+msgstr "Zaštita od izvora #1 <strong>spam komentara</strong>."
+
+msgid "Protection for user accounts."
+msgstr "Zaštita za korisničke račune."
+
+msgid "Provide The Security Admin PIN."
+msgstr "Unesite Security Admin PIN."
+
+msgid "Provide a One Time Password from your Yubikey."
+msgstr "Unesite jednokratnu lozinku sa svog Yubikey uređaja."
+
+msgid "Provide a secret PIN to restrict admin access to your security settings"
+msgstr "Unesite tajni PIN za ograničavanje administratorskog pristupa vašim sigurnosnim postavkama"
+
+msgid "Provide the One-Time Password from your 2FA login device"
+msgstr "Unesite jednokratnu lozinku sa svog 2FA uređaja za prijavu"
+
+msgid "Provide the name of your company."
+msgstr "Unesite naziv vaše tvrtke."
+
+msgid "Provide your custom set of CSP rules."
+msgstr "Unesite svoj prilagođeni skup CSP pravila."
+
+msgid "Provided by %s"
+msgstr "Omogućio %s"
+
+msgid "Provided by Shield"
+msgstr "Omogućio Shield"
+
+msgid "Pwned Passwords"
+msgstr "Pwned lozinke"
+
+msgid "Pwned passwords are blocked from being set by any user."
+msgstr "Pwned lozinke blokirane su od postavljanja od strane bilo kojeg korisnika."
+
+msgid "Query"
+msgstr "upit, izvršiti upit"
+
+msgid "Rate Limiting"
+msgstr "Rate limiting"
+
+msgid "Registered"
+msgstr "Registriran"
+
+msgid "Registered Site"
+msgstr "Registrirana web-stranica"
+
+msgid "Registered Yubikey devices"
+msgstr "Registrirani Yubikey uređaji"
+
+msgid "Registration"
+msgstr "Registracija"
+
+msgid "Registration Blocked"
+msgstr "Registracija blokirana"
+
+msgid "Remove All MFA Providers"
+msgstr "Ukloni sve MFA davatelje"
+
+msgid "Remove All MFA Providers From This User Profile"
+msgstr "Ukloni sve MFA davatelje s ovog korisničkog profila"
+
+msgid "Reporting"
+msgstr "Izvještavanje"
+
+msgid "Request Blocked"
+msgstr "Zahtjev blokiran"
+
+msgid "Request Blocked by Firewall"
+msgstr "Zahtjev blokiran Firewallom"
+
+msgid "Request Blocked by Site Lockdown."
+msgstr "Zahtjev blokiran Site Lockdownom."
+
+msgid "Request Firewall"
+msgstr "Vatrozid zahtjeva"
+
+msgid "Request Firewall Options"
+msgstr "Opcije vatrozida zahtjeva"
+
+msgid "Request ID"
+msgstr "ID zahtjeva"
+
+msgid "Request Logging"
+msgstr "Zapisivanje zahtjeva"
+
+msgid "Request Path"
+msgstr "Putanja zahtjeva"
+
+msgid "Request Path Whitelist"
+msgstr "Bijela lista putanje zahtjeva"
+
+msgid "Request Path Whitelist."
+msgstr "Bijela lista putanje zahtjeva."
+
+msgid "Request Type"
+msgstr "Vrsta zahtjeva"
+
+msgid "Request logging is required when you have activated Traffic Rate Limiting."
+msgstr "Zapisivanje zahtjeva je obavezno kada ste aktivirali rate limiting prometa."
+
+msgid "Requested At"
+msgstr "Zatraženo u"
+
+msgid "Requests"
+msgstr "Zahtjevi"
+
+msgid "Requests from this IP address will be blocked."
+msgstr "Zahtjevi s ove IP adrese bit će blokirani."
+
+msgid "Requests from this IP address will bypass all security rules."
+msgstr "Zahtjevi s ove IP adrese zaobići će sva sigurnosna pravila."
+
+msgid "Requests to the XML-RPC endpoint are allowed on your site."
+msgstr "Zahtjevi prema XML-RPC krajnjoj točki su dopušteni na vašoj stranici."
+
+msgid "Reset"
+msgstr "ponovo postavi, vratiti izvorno"
+
+msgid "Reset For This IP"
+msgstr "Resetiraj za ovu IP adresu"
+
+msgid "Restrict Access To Certain WordPress Admin Options"
+msgstr "Ograniči pristup određenim WordPress administratorskim opcijama"
+
+msgid "Restrict Access To Key WordPress Plugin Actions"
+msgstr "Ograniči pristup ključnim radnjama WordPress dodatka"
+
+msgid "Restrict Access To WordPress Theme Actions"
+msgstr "Ograniči pristup radnjama WordPress tema"
+
+msgid "Restrict WP File Editing"
+msgstr "Ograniči WP uređivanje datoteka"
+
+msgid "Restrict file editing within WP admin dashboard"
+msgstr "Ograniči uređivanje datoteka unutar WP administratorske nadzorne ploče"
+
+msgid "Restrict the ability to edit files from within the WordPress admin area."
+msgstr "Ograniči mogućnost uređivanja datoteka iz WordPress administratorskog područja."
+
+msgid "Restricted"
+msgstr "Ograničeno"
+
+msgid "Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system."
+msgstr "Ograničava pristup ključnim WordPress područjima za sve korisnike koji nisu ovjereni sustavom Security Admin Access."
+
+msgid "Root index.php file isn't protected against tampering."
+msgstr "Korijen index.php datoteka nije zaštićena od neovlaštenih izmjena."
+
+msgid "Rules"
+msgstr "Pravila"
+
+msgid "Run"
+msgstr "Pokreni"
+
+msgid "Run In MU Mode"
+msgstr "Pokreni u MU načinu rada"
+
+msgid "Run Plugin In Must-Use (MU) Mode"
+msgstr "Pokreni dodatak u Must-Use (MU) načinu rada"
+
+msgid "SMS"
+msgstr "SMS"
+
+msgid "SMS Authentication"
+msgstr "SMS provjera autentičnosti"
+
+msgid "SMS Registration Removed"
+msgstr "SMS registracija uklonjena"
+
+msgid "SPAM"
+msgstr "spam, neželjena e-pošta"
+
+msgid "SPAM Blocked"
+msgstr "Spam blokiran"
+
+msgid "SPAM Bot detected."
+msgstr "Otkriven spam bot."
+
+msgid "SPAM Detection"
+msgstr "Detekcija spam-a"
+
+msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
+msgstr "SPAM i masovna registracija korisnika od strane botova blokirani su pomoću silentCAPTCHA."
+
+msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
+msgstr "SPAM i masovna registracija korisnika od strane botova nisu blokirani pomoću silentCAPTCHA."
+
+msgid "SPAM blocking"
+msgstr "Blokiranje spam-a"
+
+msgid "Save Options"
+msgstr "Spremi opcije"
+
+msgid "Save Settings"
+msgstr "Spremi postavke"
+
+msgid "Scan For Plugins Abandoned By The Developer"
+msgstr "Skeniraj za dodatke napuštene od strane programera"
+
+msgid "Scan For Vulnerabilities In Plugins & Themes"
+msgstr "Skeniraj za ranjivosti u dodacima i temama"
+
+msgid "Scan your site for file changes, malware and vulnerabilities."
+msgstr "Skenirajte svoju stranicu za promjene datoteka, malware i ranjivosti."
+
+msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
+msgstr "Skeniranje datoteka dodataka & tema dostupno je samo sa ShieldPRO."
+
+msgid "Scanning for PHP Malware is only available with ShieldPRO."
+msgstr "Skeniranje za PHP malware dostupno je samo sa ShieldPRO."
+
+msgid "Scans all PHP files for malware patterns."
+msgstr "Skenira sve PHP datoteke za obrasce malwarea."
+
+msgid "Scans all WP files for your current WordPress version."
+msgstr "Skenira sve WP datoteke za vašu trenutnu WordPress verziju."
+
+msgid "Scans are run on your site at least twice per day."
+msgstr "Skeniranja se izvode na vašoj stranici najmanje dvaput dnevno."
+
+msgid "Scans are run on your site only once per day."
+msgstr "Skeniranja se izvode na vašoj stranici samo jednom dnevno."
+
+msgid "Scans detected modified or unrecognised files in the plugin directory."
+msgstr "Skeniranje je otkrilo izmijenjene ili neprepoznate datoteke u direktoriju dodatka."
+
+msgid "Scans for file tampering within plugin directories."
+msgstr "Skenira neovlaštene izmjene datoteka unutar direktorija dodataka."
+
+msgid "Scans for file tampering within the active theme."
+msgstr "Skenira neovlaštene izmjene datoteka unutar aktivnog predloška."
+
+msgid "Score"
+msgstr "Ocjena"
+
+msgid "Secret Key"
+msgstr "Tajni ključ"
+
+msgid "Security"
+msgstr "Sigurnost"
+
+msgid "Security Admin"
+msgstr "Security Admin"
+
+msgid "Security Admin Access PIN"
+msgstr "Security Admin pristupni PIN"
+
+msgid "Security Admin Enabled"
+msgstr "Security Admin omogućen"
+
+msgid "Security Admin Login"
+msgstr "Prijava Security Admin"
+
+msgid "Security Admin PIN"
+msgstr "Security Admin PIN"
+
+msgid "Security Admin Protection"
+msgstr "Zaštita Security Admin"
+
+msgid "Security Admin Restriction Settings"
+msgstr "Postavke ograničenja Security Admin"
+
+msgid "Security Admin Settings"
+msgstr "Postavke Security Admin"
+
+msgid "Security Admin is now active"
+msgstr "Security Admin je sada aktivan"
+
+msgid "Security At A Glance"
+msgstr "Sigurnost na prvi pogled"
+
+msgid "Security Dashboard"
+msgstr "Sigurnosna nadzorna ploča"
+
+msgid "Security PIN Currently Set"
+msgstr "Sigurnosni PIN trenutno postavljen"
+
+msgid "Security PIN NOT Currently Set"
+msgstr "Sigurnosni PIN trenutno NIJE postavljen"
+
+msgid "Security Plugin Protection"
+msgstr "Zaštita sigurnosnog dodatka"
+
+msgid "Security Profile"
+msgstr "Sigurnosni profil"
+
+msgid "Security Rules"
+msgstr "Sigurnosna pravila"
+
+msgid "Security admin pin removed."
+msgstr "Security admin PIN uklonjen."
+
+msgid "Security admin pin set to: `%s`"
+msgstr "Security admin PIN postavljen na: `%s`"
+
+msgid "Select"
+msgstr "odaberi"
+
+msgid "Select Scans To Run"
+msgstr "Odaberi skeniranja za pokretanje"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM"
+msgstr "Odaberite pružatelje obrazaca koji bi trebali biti provjereni za spam"
+
+msgid "Select The Form Providers That Should Be Checked For SPAM."
+msgstr "Odaberi pružatelje obrazaca koji bi trebali biti provjereni za spam."
+
+msgid "Select The Form Providers That You Use"
+msgstr "Odaberi pružatelje obrazaca koje koristiš"
+
+msgid "Select The User Forms Provider That You Use"
+msgstr "Odaberi pružatelja korisničkih obrazaca koji koristiš"
+
+msgid "Select file to import options from"
+msgstr "Odaberi datoteku za uvoz opcija"
+
+msgid "Sent notifications to whitelisted sites for required options import."
+msgstr "Poslane obavijesti stranicama na bijeloj listi za potreban uvoz opcija."
+
+msgid "Session Expired"
+msgstr "Sesija istekla"
+
+msgid "Session Idle"
+msgstr "Neaktivna sesija"
+
+msgid "Session Not Found"
+msgstr "Sesija nije pronađena"
+
+msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
+msgstr "Postavite limit prekršaja dopuštenih prije nego što se IP adresa posjetitelja automatski blokira."
+
+msgid "Set this to \"0\" to turn off the %s feature."
+msgstr "Postavi ovo na \"0\" za isključivanje %s značajke."
+
+msgid "Set to %s to turn off this option."
+msgstr "Postavi na %s za isključivanje ove opcije."
+
+msgid "Settings that apply to all comment SPAM scanning."
+msgstr "Postavke koje se primjenjuju na sve skeniranje spam komentara."
+
+msgid "Shield 2FA Provider Enabled"
+msgstr "Shield 2FA davatelj omogućen"
+
+msgid "Shield Deactivated"
+msgstr "Shield deaktiviran"
+
+msgid "Shield Info"
+msgstr "Shield Info"
+
+msgid "Shield Option Key"
+msgstr "Ključ Shield opcije"
+
+msgid "Shield Security Home Page"
+msgstr "Početna stranica Shield Security"
+
+msgid "Shield Security Plugin – minimum site requirements are not met"
+msgstr "Shield Security dodatak – minimalni zahtjevi stranice nisu zadovoljeni"
+
+msgid "Shield Security plugin is installed but not activated."
+msgstr "Shield Security dodatak je instaliran, ali nije aktiviran."
+
+msgid "Shield User 2FA Provider Activated"
+msgstr "Shield korisnik 2FA pružatelj aktiviran"
+
+msgid "Shield User 2FA: Has Any Active"
+msgstr "Shield korisnik 2FA: ima bilo koji aktivan"
+
+msgid "Shield White Label"
+msgstr "Shield White Label"
+
+msgid "Shield doesn't normally scan comments from logged-in or registered users."
+msgstr "Shield obično ne skenira komentare od prijavljenih ili registriranih korisnika."
+
+msgid "Shield isn't installed on this site."
+msgstr "Shield nije instaliran na ovoj stranici."
+
+msgid "Shield plugin activated"
+msgstr "Shield dodatak aktiviran"
+
+msgid "Shield plugin couldn't be activated"
+msgstr "Shield dodatak nije mogao biti aktiviran"
+
+msgid "Shield plugin couldn't be deactivated"
+msgstr "Shield dodatak nije mogao biti deaktiviran"
+
+msgid "Shield plugin couldn't be installed"
+msgstr "Shield dodatak nije mogao biti instaliran"
+
+msgid "Shield plugin couldn't be updated"
+msgstr "Shield dodatak nije se mogao ažurirati"
+
+msgid "Shield plugin deactivated"
+msgstr "Shield dodatak deaktiviran"
+
+msgid "Shield plugin installed"
+msgstr "Shield dodatak instaliran"
+
+msgid "Shield plugin is installed, but not active."
+msgstr "Shield dodatak je instaliran, ali nije aktivan."
+
+msgid "Shield plugin updated"
+msgstr "Shield dodatak ažuriran"
+
+msgid "Shield version on site doesn't match this server."
+msgstr "Shield verzija na stranici ne odgovara ovom poslužitelju."
+
+msgid "ShieldPRO"
+msgstr "ShieldPRO"
+
+msgid "ShieldPRO isn't activated on this site."
+msgstr "ShieldPRO nije aktiviran na ovoj stranici."
+
+msgid "Site"
+msgstr "web-stranica"
+
+msgid "Site Address (URL)"
+msgstr "Adresa web-stranice (URL)"
+
+msgid "Site Admin Email"
+msgstr "E-mail administratora stranice"
+
+msgid "Site In Lockdown"
+msgstr "Stranica u lockdown načinu"
+
+msgid "Site Is In Lockdown"
+msgstr "Stranica je u lockdown načinu"
+
+msgid "Site Is Under Lockdown"
+msgstr "Stranica je pod lockdown načinom"
+
+msgid "Site Lockdown"
+msgstr "Zaključavanje stranice"
+
+msgid "Site Lockdown and Firewall"
+msgstr "Zaključavanje stranice i vatrozid"
+
+msgid "Site Scanning"
+msgstr "Skeniranje stranice"
+
+msgid "Site Tagline"
+msgstr "Slogan web-stranice"
+
+msgid "Site Title"
+msgstr "Naslov stranice"
+
+msgid "Site URL"
+msgstr "URL web-stranice"
+
+msgid "Site URL Changed"
+msgstr "URL stranice promijenjen"
+
+msgid "Site removed from export white list: {{site}}"
+msgstr "Stranica uklonjena s bijele liste izvoza: {{site}}"
+
+msgid "Sites"
+msgstr "Stranice"
+
+msgid "Slug"
+msgstr "slug"
+
+msgid "Sorry, please upgrade your plan to access this feature."
+msgstr "Žao nam je, molimo nadogradite svoj plan za pristup ovoj značajci."
+
+msgid "Strong"
+msgstr "Jako"
+
+msgid "Strong Passwords"
+msgstr "Jake lozinke"
+
+msgid "Switch Off To Disable All Security Protection"
+msgstr "Isključi za onemogućavanje sve sigurnosne zaštite"
+
+msgid "Switch on/off CrowdSec IP block lists"
+msgstr "Uključi/isključi CrowdSec liste blokiranja IP adresa"
+
+msgid "Switch on/off SPAM protection for your favourite contact forms plugin"
+msgstr "Uključi/isključi spam zaštitu za vaš omiljeni dodatak za kontakt obrasce"
+
+msgid "Switch on/off ability to edit critical WP settings"
+msgstr "Uključi/isključi mogućnost uređivanja kritičnih WP postavki"
+
+msgid "Switch on/off access to the XML-RPC endpoint"
+msgstr "Uključi/isključi pristup XML-RPC krajnjoj točki"
+
+msgid "Switch on/off automatic scanning for vulnerabilities"
+msgstr "Uključi/isključi automatsko skeniranje za ranjivosti"
+
+msgid "Switch on/off file editing within WP"
+msgstr "Uključi/isključi uređivanje datoteka unutar WP-a"
+
+msgid "Switch-on logging of all site traffic."
+msgstr "Uključi zapisivanje cjelokupnog prometa na stranici."
+
+msgid "System Info"
+msgstr "Informacije o sustavu"
+
+msgid "Tagline"
+msgstr "slogan"
+
+msgid "The Description Of The Plugin"
+msgstr "Opis dodatka"
+
+msgid "The IP may not be blocked yet."
+msgstr "IP adresa možda još nije blokirana."
+
+msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
+msgstr "MainWP Security dodatak ne zadovoljava minimalne zahtjeve Shielda."
+
+msgid "The Name Of The Plugin"
+msgstr "Naziv dodatka"
+
+msgid "The Name Of The Plugin."
+msgstr "Naziv dodatka."
+
+msgid "The Name Of Your Company"
+msgstr "Naziv vaše tvrtke"
+
+msgid "The Security Admin system must be active for these settings to apply."
+msgstr "Sustav Security Admin mora biti aktivan da bi se ove postavke primjenile."
+
+msgid "The Security Admin system protects WordPress and the %s plugin against tampering."
+msgstr "Sustav Security Admin štiti WordPress i %s dodatak od neovlaštenih izmjena."
+
+msgid "The Security Administrator has restricted the use of the email override feature."
+msgstr "Security Administrator je ograničio korištenje značajke nadjačavanja e-pošte."
+
+msgid "The Security Badge will be displayed to your visitors"
+msgstr "Sigurnosna značka bit će prikazana vašim posjetiteljima"
+
+msgid "The Security Badge won't be displayed to your visitors"
+msgstr "Sigurnosna značka neće biti prikazana vašim posjetiteljima"
+
+msgid "The Shield Security plugin on this site needs to be upgraded."
+msgstr "Dodatak Shield Security na ovoj stranici treba nadograditi."
+
+msgid "The Shield plugin has just been deactivated."
+msgstr "Shield dodatak je upravo deaktiviran."
+
+msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
+msgstr "Shield dodatak na ovoj stranici nema aktivnu ShieldPRO licencu."
+
+msgid "The URL of the icon displayed in the menu."
+msgstr "URL ikone koja se prikazuje u izborniku."
+
+msgid "The URL of the icon to display in the menu."
+msgstr "URL ikone koja se prikazuje u izborniku."
+
+msgid "The URL of the logo to display in the plugin badge."
+msgstr "URL logotipa koji se prikazuje u znački dodatka."
+
+msgid "The current request has a valid Shield user session"
+msgstr "Trenutni zahtjev ima valjanu Shield korisničku sesiju"
+
+msgid "The default 'admin' user is no longer available."
+msgstr "Zadani korisnik 'admin' više nije dostupan."
+
+msgid "The default 'admin' user is still available."
+msgstr "Zadani korisnik 'admin' još uvijek je dostupan."
+
+msgid "The default role for new users was changed from '{{from}}' to '{{to}}'."
+msgstr "Zadana uloga za nove korisnike promijenjena je s '{{from}}' na '{{to}}'."
+
+msgid "The description of the plugin displayed on the plugins page."
+msgstr "Opis dodatka prikazan na stranici dodataka."
+
+msgid "The email address specified in %s's General settings will be used."
+msgstr "E-mail adresa navedena u %s općim postavkama bit će korištena."
+
+msgid "The email has been sent to you at blog admin address: %s"
+msgstr "E-pošta vam je poslana na administratorsku adresu bloga: %s"
+
+msgid "The file specified is an existing directory."
+msgstr "Navedena datoteka je postojeći direktorij."
+
+msgid "The home URL was changed from '{{from}}' to '{{to}}'."
+msgstr "Početni URL promijenjen je s '{{from}}' na '{{to}}'."
+
+msgid "The name of the plugin that will be displayed to your site users."
+msgstr "Naziv dodatka koji će biti prikazan korisnicima vaše stranice."
+
+msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
+msgstr "Opcija koja omogućava bilo kome da se registrira na stranicu ažurirana je s '{{from}}' na '{{to}}'."
+
+msgid "The plugin is currently entirely disabled."
+msgstr "Dodatak je trenutno potpuno onemogućen."
+
+msgid "The secret key is found in: %s"
+msgstr "Tajni ključ se nalazi u: %s"
+
+msgid "The security plugin is protected against tampering."
+msgstr "Sigurnosni dodatak je zaštićen od neovlaštenih izmjena."
+
+msgid "The security plugin isn't protected against tampering."
+msgstr "Sigurnosni dodatak nije zaštićen od neovlaštenih izmjena."
+
+msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Opcija silentCAPTCHA je onemogućena, čime se uklanja brute force zaštita za obrasce prijave, registracije i izgubljene lozinke."
+
+msgid "The silentCAPTCHA option is enabled."
+msgstr "Opcija silentCAPTCHA je omogućena."
+
+msgid "The site URL was changed from '{{from}}' to '{{to}}'."
+msgstr "URL stranice promijenjen je s '{{from}}' na '{{to}}'."
+
+msgid "Theme"
+msgstr "tema"
+
+msgid "Theme '{{theme}}' was activated."
+msgstr "Tema '{{theme}}' je aktivirana."
+
+msgid "Theme '{{theme}}' was installed."
+msgstr "Tema '{{theme}}' je instalirana."
+
+msgid "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}."
+msgstr "Tema '{{theme}}' nadograđena s verzije {{from}} na verziju {{to}}."
+
+msgid "Theme Activated"
+msgstr "Tema aktivirana"
+
+msgid "Theme Files"
+msgstr "Datoteke teme"
+
+msgid "Theme Installed"
+msgstr "Tema instalirana"
+
+msgid "Theme Upgraded"
+msgstr "Tema nadograđena"
+
+msgid "Theme directory name to check"
+msgstr "Naziv direktorija teme za provjeru"
+
+msgid "Then"
+msgstr "Zatim"
+
+msgid "There appears to be at least %s abandoned plugin(s) installed on your site."
+msgstr "Čini se da je na vašoj stranici instalirano najmanje %s napuštenih dodataka."
+
+msgid "There appears to be at least 1 PHP malware file on your site."
+msgstr "Čini se da je na vašoj stranici prisutna najmanje 1 PHP malware datoteka."
+
+msgid "There appears to be at least 1 vulnerable plugin or theme installed on your site."
+msgstr "Čini se da je na vašoj stranici instaliran najmanje 1 ranjiv dodatak ili tema."
+
+msgid "There are currently no 2FA providers available on your account."
+msgstr "Trenutno nema dostupnih 2FA davatelja na vašem računu."
+
+msgid "There are no IPs available yet."
+msgstr "Još nema dostupnih IP adresa."
+
+msgid "There are no MFA providers active on this user account."
+msgstr "Na ovom korisničkom računu nema aktivnih MFA davatelja."
+
+msgid "There are no active 2FA providers."
+msgstr "Nema aktivnih 2FA davatelja."
+
+msgid "There are no bot signals for this IP address."
+msgstr "Nema signala botova za ovu IP adresu."
+
+msgid "There are no custom security rules"
+msgstr "Nema prilagođenih sigurnosnih pravila"
+
+msgid "There are no registered Yubikey devices on this profile."
+msgstr "Nema registriranih Yubikey uređaja na ovom profilu."
+
+msgid "There are no whitelisted IPs for exclusion."
+msgstr "Nema IP adresa na bijeloj listi za isključivanje."
+
+msgid "There doesn't appear to be any PHP malware files on your site."
+msgstr "Čini se da na vašoj stranici nema PHP malware datoteka."
+
+msgid "There doesn't appear to be any abandoned plugins on your site."
+msgstr "Čini se da na vašoj stranici nema napuštenih dodataka."
+
+msgid "There doesn't appear to be any plugins or themes with known vulnerabilities."
+msgstr "Čini se da nema dodataka ili tema s poznatim ranjivostima."
+
+msgid "There have been no changes to the selected file."
+msgstr "Nije bilo promjena u odabranoj datoteci."
+
+msgid "There have been too many requests from your IP address."
+msgstr "Bilo je previše zahtjeva s vaše IP adrese."
+
+msgid "There is an upgrade available for WordPress."
+msgstr "Dostupna je nadogradnja za WordPress."
+
+msgid "There is no protection against WP Comment SPAM posted by humans."
+msgstr "Nema zaštite od WP spam komentara koje objavljuju ljudi."
+
+msgid "There is no requirement for strong user passwords."
+msgstr "Ne postoji zahtjev za jakim korisničkim lozinkama."
+
+msgid "There is no user currently logged-in."
+msgstr "Trenutno nema prijavljenog korisnika."
+
+msgid "This Is You"
+msgstr "To ste vi"
+
+msgid "This Page"
+msgstr "Ova stranica"
+
+msgid "This Site Is Protected By %s"
+msgstr "Ova stranica je zaštićena pomoću %s"
+
+msgid "This code will be displayed only once and you may use it to verify your login only once."
+msgstr "Ovaj kod bit će prikazan samo jednom i možete ga koristiti za provjeru prijave samo jednom."
+
+msgid "This doesn't appear to be a valid Yubikey OTP"
+msgstr "Čini se da ovo nije valjan Yubikey OTP"
+
+msgid "This feature isn't currently enabled."
+msgstr "Ova značajka trenutno nije omogućena."
+
+msgid "This file doesn't appear to be available on this site any longer."
+msgstr "Čini se da ova datoteka više nije dostupna na ovoj stranici."
+
+msgid "This is a Pro-only feature."
+msgstr "Ovo je mogućnost dostupna samo u Pro verziji."
+
+msgid "This is a quick notice to inform you that your Backup Login code was just used."
+msgstr "Ovo je kratka obavijest da vas informira da je vaš kod sigurnosne kopije za prijavu upravo korišten."
+
+msgid "This is a recognised core file for WordPress %s."
+msgstr "Ovo je prepoznata core datoteka za WordPress %s."
+
+msgid "This is an email notification to inform you that the Security Admin restriction has been removed."
+msgstr "Ovo je obavijest e-poštom koja vas obavještava da je ograničenje Security Admin uklonjeno."
+
+msgid "This is your unique Yubikey Device ID."
+msgstr "Ovo je vaš jedinstveni Yubikey ID uređaja."
+
+msgid "This option ensures that visitors with a high reputation score won't be blocked by Shield automatically."
+msgstr "Ova opcija osigurava da posjetitelji s visokom ocjenom reputacije neće biti automatski blokirani od strane Shielda."
+
+msgid "This scan area currently focuses on only %s files."
+msgstr "Ovo područje skeniranja trenutno se fokusira samo na %s datoteka."
+
+msgid "This scan is not currently enabled."
+msgstr "Ovo skeniranje trenutno nije omogućeno."
+
+msgid "This will automatically expire your Security Admin Session."
+msgstr "Ovo će automatski isteći vašu Security Admin sesiju."
+
+msgid "This will restrict the ability of WordPress administrators from changing key WordPress settings."
+msgstr "Ovo će ograničiti mogućnost WordPress administratora da mijenjaju ključne WordPress postavke."
+
+msgid "Time"
+msgstr "Vrijeme"
+
+msgid "Time Limit"
+msgstr "Vremensko ograničenje"
+
+msgid "Time Now"
+msgstr "Trenutno vrijeme"
+
+msgid "Time Sent: %s"
+msgstr "Vrijeme slanja: %s"
+
+msgid "To register a new Yubikey device, enter a One Time Password from the Yubikey."
+msgstr "Za registraciju novog Yubikey uređaja unesite jednokratnu lozinku s Yubikey uređaja."
+
+msgid "To remove a Yubikey device, enter the registered device ID and save."
+msgstr "Za uklanjanje Yubikey uređaja unesite registrirani ID uređaja i spremite."
+
+msgid "Traffic"
+msgstr "Promet"
+
+msgid "Traffic Logging"
+msgstr "Zapisivanje prometa"
+
+msgid "Traffic Rate Limiting"
+msgstr "Rate limiting prometa"
+
+msgid "Turn Off"
+msgstr "Isključi"
+
+msgid "Turn On"
+msgstr "Uključi"
+
+msgid "Turn On The Rate Limiting Feature"
+msgstr "Uključi značajku ograničavanja stope"
+
+msgid "Turn on the option to restrict access to WordPress admin accounts."
+msgstr "Uključi opciju za ograničavanje pristupa WordPress administratorskim računima."
+
+msgid "Turn on the option to restrict access to critical WordPress settings."
+msgstr "Uključi opciju za ograničavanje pristupa kritičnim WordPress postavkama."
+
+msgid "Turn your White Label settings on/off."
+msgstr "Uključi/isključi svoje White Label postavke."
+
+msgid "Type"
+msgstr "vrsta"
+
+msgid "Type Of 2FA Verification Page"
+msgstr "Vrsta stranice za 2FA provjeru"
+
+msgid "Type Of MFA Verification Page"
+msgstr "Vrsta stranice za MFA provjeru"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL - Home"
+msgstr "URL - Početna"
+
+msgid "URL - Site"
+msgstr "URL - web-stranica"
+
+msgid "Unblocked"
+msgstr "Deblokirano"
+
+msgid "Unblocked At"
+msgstr "Deblokirano u"
+
+msgid "Updated"
+msgstr "Ažurirano"
+
+msgid "Upgrade Now"
+msgstr "Nadogradite sada"
+
+msgid "Upgrade To"
+msgstr "Nadogradite na"
+
+msgid "Upgrade To Shield Pro Now"
+msgstr "Nadogradite na Shield Pro sada"
+
+msgid "Upgrade your plan to support scanning of theme files for tampering."
+msgstr "Nadogradite svoj plan kako biste podržali skeniranje datoteka tema za neovlaštene izmjene."
+
+msgid "Upgrade your plan to support this scanning area."
+msgstr "Nadogradite svoj plan kako biste podržali ovo područje skeniranja."
+
+msgid "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
+msgstr "Koristi Shield silentCAPTCHA za blokiranje botova i brute force napada"
+
+msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
+msgstr "Koristi Shield silentCAPTCHA za otkrivanje i blokiranje spam botova."
+
+msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Korištenje silentCAPTCHA za ograničavanje pokušaja prijave na korisničkim obrascima nije uključeno - morat ćete ga omogućiti unutar Login Security Zone."
+
+msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
+msgstr "Koristi silentCAPTCHA za blokiranje bot spam komentara"
+
+msgid "Use this option to completely disable all active Shield Protection."
+msgstr "Koristi ovu opciju za potpuno onemogućavanje sve aktivne Shield zaštite."
+
+msgid "Use your Yubikey to generate a new code"
+msgstr "Upotrijebite svoj Yubikey za generiranje nove šifre"
+
+msgid "Used"
+msgstr "Korišteno"
+
+msgid "User"
+msgstr "korisnik"
+
+msgid "User '{{user_login}}' demoted from administrator role."
+msgstr "Korisnik '{{user_login}}' degradiran iz administratorske uloge."
+
+msgid "User '{{user_login}}' promoted to administrator role."
+msgstr "Korisnik '{{user_login}}' unaprijeđen u administratorsku ulogu."
+
+msgid "User Access"
+msgstr "Korisnički pristup"
+
+msgid "User Accounts"
+msgstr "Korisnički računi"
+
+msgid "User Demoted"
+msgstr "Korisnik degradiran"
+
+msgid "User Email Updated"
+msgstr "E-pošta korisnika ažurirana"
+
+msgid "User Forms Bot Detection"
+msgstr "Detekcija botova na korisničkim obrascima"
+
+msgid "User Has Any Active 2FA"
+msgstr "Korisnik ima bilo koji aktivan 2FA"
+
+msgid "User ID"
+msgstr "ID korisnika"
+
+msgid "User Login"
+msgstr "Prijava korisnika"
+
+msgid "User Login Notification Email"
+msgstr "E-mail obavijest o prijavi korisnika"
+
+msgid "User Password Updated"
+msgstr "Korisnička lozinka ažurirana"
+
+msgid "User Promoted"
+msgstr "Korisnik unaprijeđen"
+
+msgid "User Register Bot Protection"
+msgstr "Zaštita od bot registracije korisnika"
+
+msgid "User Registered"
+msgstr "Korisnik registriran"
+
+msgid "User Registration"
+msgstr "Registracija korisnika"
+
+msgid "User Registrations"
+msgstr "Registracije korisnika"
+
+msgid "User Role"
+msgstr "Korisnička uloga"
+
+msgid "User Suspension"
+msgstr "Suspenzija korisnika"
+
+msgid "User forms"
+msgstr "Korisnički obrasci"
+
+msgid "User login request blocked."
+msgstr "Zahtjev za prijavu korisnika blokiran."
+
+msgid "User lost password request blocked."
+msgstr "Zahtjev korisnika za izgubljenu lozinku blokiran."
+
+msgid "User must be logged-in."
+msgstr "Korisnik mora biti prijavljen."
+
+msgid "User registration request blocked."
+msgstr "Zahtjev za registraciju korisnika blokiran."
+
+msgid "User session has expired ({{user_login}})."
+msgstr "Korisnička sesija je istekla ({{user_login}})."
+
+msgid "User: <code>%s</code>"
+msgstr "Korisnik: <code>%s</code>"
+
+msgid "Username"
+msgstr "korisničko ime"
+
+msgid "Username was '{{user_login}}' with email address '{{email}}'."
+msgstr "Korisničko ime je bilo '{{user_login}}' s e-mail adresom '{{email}}'."
+
+msgid "Users"
+msgstr "Korisnici"
+
+msgid "Users are allowed to set weak passwords."
+msgstr "Korisnicima je dopušteno postavljanje slabih lozinki."
+
+msgid "Valid user session could not be found ({{user_login}})."
+msgstr "Valjana korisnička sesija nije pronađena ({{user_login}})."
+
+msgid "Value To Match"
+msgstr "Vrijednost za usklađivanje"
+
+msgid "Verb"
+msgstr "Glagol"
+
+msgid "Verification Code"
+msgstr "Kod za provjeru"
+
+msgid "Verify My Login"
+msgstr "Potvrdi moju prijavu"
+
+msgid "Version"
+msgstr "Verzija"
+
+msgid "View & Create"
+msgstr "Prikaži i stvori"
+
+msgid "View All"
+msgstr "Prikaži sve"
+
+msgid "View As ShieldPRO"
+msgstr "Prikaži kao ShieldPRO"
+
+msgid "View Comment"
+msgstr "Prikaži komentar"
+
+msgid "View Config"
+msgstr "Prikaži konfiguraciju"
+
+msgid "View Debug Info"
+msgstr "Prikaži informacije za ispravljanje grešaka"
+
+msgid "View IP Reputation Option"
+msgstr "Prikaži opciju IP reputacije"
+
+msgid "View IP Source Config"
+msgstr "Prikaži konfiguraciju izvora IP adrese"
+
+msgid "View Site Traffic"
+msgstr "Prikaži promet stranice"
+
+msgid "View all active rules on your site at-a-glance"
+msgstr "Pregledajte sva aktivna pravila na vašoj stranici na prvi pogled"
+
+msgid "View, edit and remove custom security rules"
+msgstr "Pregledajte, uredite i uklonite prilagođena sigurnosna pravila"
+
+msgid "Visitor IP"
+msgstr "IP posjetitelja"
+
+msgid "Visitor IP Address"
+msgstr "IP adresa posjetitelja"
+
+msgid "Visitor IP Source"
+msgstr "Izvor IP adrese posjetitelja"
+
+msgid "Visitor IP address is determine by CloudFlare."
+msgstr "IP adresa posjetitelja određena je od strane CloudFlare."
+
+msgid "Visitor IP address source set"
+msgstr "Izvor IP adrese posjetitelja postavljen"
+
+msgid "Vulnerabilities"
+msgstr "Ranjivosti"
+
+msgid "Vulnerabilities Detected"
+msgstr "Otkrivene ranjivosti"
+
+msgid "Vulnerabilities Scanner"
+msgstr "Skener ranjivosti"
+
+msgid "Vulnerabilities have just been detected on your site."
+msgstr "Ranjivosti su upravo otkrivene na vašoj stranici."
+
+msgid "Vulnerability Scanner"
+msgstr "Skener ranjivosti"
+
+msgid "Vulnerability Scanning"
+msgstr "Skeniranje ranjivosti"
+
+msgid "Vulnerability scanning must be active to enable this option."
+msgstr "Skeniranje ranjivosti mora biti aktivno za omogućavanje ove opcije."
+
+msgid "Vulnerable"
+msgstr "Ranjivo"
+
+msgid "Vulnerable Plugins"
+msgstr "Ranjivi dodaci"
+
+msgid "Vulnerable Plugins & Themes"
+msgstr "Ranjivi dodaci i teme"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "WP Core File Scanner"
+msgstr "Skener WP Core datoteka"
+
+msgid "WP Core Updated"
+msgstr "WP jezgra ažurirana"
+
+msgid "WP Database password appears to be weak."
+msgstr "Čini se da je lozinka WP baze podataka slaba."
+
+msgid "WP Default User Role"
+msgstr "WP zadana korisnička uloga"
+
+msgid "WP File Editing"
+msgstr "WP uređivanje datoteka"
+
+msgid "WP Login & Admin Redirect"
+msgstr "Preusmjeravanje WP prijave i administracije"
+
+msgid "WP Site Admin Email"
+msgstr "E-mail WP administratora stranice"
+
+msgid "WP Site Tagline"
+msgstr "WP slogan stranice"
+
+msgid "WP Site title"
+msgstr "WP naslov stranice"
+
+msgid "WP User Registration"
+msgstr "WP registracija korisnika"
+
+msgid "WP core files"
+msgstr "WP core datoteke"
+
+msgid "WP root"
+msgstr "WP korijen"
+
+msgid "WP root directory"
+msgstr "WP korijenski direktorij"
+
+msgid "We provide this feature as-is: to allow you to add custom CSP rules to your site."
+msgstr "Pružamo ovu značajku kakva jest: kako bismo vam omogućili dodavanje prilagođenih CSP pravila na vašu stranicu."
+
+msgid "Weak"
+msgstr "Slabo"
+
+msgid "What Is My IP Address?"
+msgstr "Koja je moja IP adresa?"
+
+msgid "What is the Custom Security Rules feature?"
+msgstr "Što je značajka prilagođenih sigurnosnih pravila?"
+
+msgid "When"
+msgstr "Kada"
+
+msgid "White Label"
+msgstr "White Label"
+
+msgid "Whitelist Site Removed"
+msgstr "Stranica uklonjena s bijele liste"
+
+msgid "Whitelist for Site Lockdown"
+msgstr "Bijela lista za zaključavanje stranice"
+
+msgid "Whitelisted Sites To Export Options From This Site"
+msgstr "Stranice na bijeloj listi za izvoz opcija s ove stranice"
+
+msgid "Whitelisted sites may export options from this site without the key."
+msgstr "Stranice na bijeloj listi mogu izvoziti opcije s ove stranice bez ključa."
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "WordPress Activity"
+msgstr "WordPress aktivnost"
+
+msgid "WordPress Activity Logging"
+msgstr "Zapisivanje WordPress aktivnosti"
+
+msgid "WordPress Address (URL)"
+msgstr "WordPress adresa (URL)"
+
+msgid "WordPress Core File Scanner"
+msgstr "Skener datoteka WordPress jezgre"
+
+msgid "WordPress Core Files"
+msgstr "WordPress Core datoteke"
+
+msgid "WordPress Core Options Protection"
+msgstr "Zaštita WordPress osnovnih opcija"
+
+msgid "WordPress Core files are protected against tampering."
+msgstr "WordPress Core datoteke su zaštićene od neovlaštenih izmjena."
+
+msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
+msgstr "WordPress jezgra ažurirana je s '{{from}}' na '{{to}}'."
+
+msgid "WordPress File Editing Lockdown"
+msgstr "Zaključavanje uređivanja WordPress datoteka"
+
+msgid "WordPress File Scanner"
+msgstr "Skener WordPress datoteka"
+
+msgid "WordPress File Scanning"
+msgstr "Skeniranje WordPress datoteka"
+
+msgid "WordPress Files"
+msgstr "WordPress datoteke"
+
+msgid "WordPress Info"
+msgstr "WordPress Info"
+
+msgid "WordPress Options"
+msgstr "WordPress opcije"
+
+msgid "WordPress Plugin File Scanner"
+msgstr "Skener datoteka WordPress dodataka"
+
+msgid "WordPress Site Root File Scanner"
+msgstr "Skener datoteka korijenskog direktorija WordPress stranice"
+
+msgid "WordPress System Lockdown"
+msgstr "Zaključavanje WordPress sustava"
+
+msgid "WordPress Theme File Scanner"
+msgstr "Skener datoteka WordPress tema"
+
+msgid "WordPress Upgraded"
+msgstr "WordPress nadograđen"
+
+msgid "WordPress Version"
+msgstr "WordPress verzija"
+
+msgid "WordPress WP Content Directory File Scanner"
+msgstr "Skener datoteka WordPress WP Content direktorija"
+
+msgid "WordPress must be at least version %s to activate this option."
+msgstr "WordPress mora biti barem verzija %s za aktiviranje ove opcije."
+
+msgid "WordPress plugin files are protected against tampering."
+msgstr "WordPress datoteke dodataka su zaštićene od neovlaštenih izmjena."
+
+msgid "WordPress site admin email address was changed from '{{from}}' to '{{to}}'."
+msgstr "E-mail adresa administratora WordPress stranice promijenjena je s '{{from}}' na '{{to}}'."
+
+msgid "WordPress site tagline was changed from '{{from}}' to '{{to}}'."
+msgstr "Slogan WordPress stranice promijenjen je s '{{from}}' na '{{to}}'."
+
+msgid "WordPress site title changed from '{{from}}' to '{{to}}'."
+msgstr "Naslov WordPress stranice promijenjen s '{{from}}' na '{{to}}'."
+
+msgid "WordPress theme files are protected against tampering."
+msgstr "WordPress datoteke tema su zaštićene od neovlaštenih izmjena."
+
+msgid "WordPress version must be at least: %s"
+msgstr "WordPress verzija mora biti najmanje: %s"
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC Access"
+msgstr "XML-RPC pristup"
+
+msgid "XML-RPC Lockdown"
+msgstr "XML-RPC zaključavanje"
+
+msgid "XML-RPC Request Blocked."
+msgstr "XML-RPC zahtjev blokiran."
+
+msgid "Yes"
+msgstr "Da"
+
+msgid "Yes: %s"
+msgstr "Da: %s"
+
+msgid "You may add as many Yubikey devices to your profile as you need to."
+msgstr "Možete dodati onoliko Yubikey uređaja na svoj profil koliko vam je potrebno."
+
+msgid "You will need to upgrade your plan to use the Automatic Import/Export feature."
+msgstr "Morat ćete nadograditi svoj plan kako biste koristili značajku automatskog uvoza/izvoza."
+
+msgid "Your #1 security threat is from automated bots."
+msgstr "Vaša prijetnja sigurnosti broj 1 dolazi od automatiziranih botova."
+
+msgid "Your Current IP"
+msgstr "Vaša trenutna IP adresa"
+
+msgid "Your IP Address"
+msgstr "Vaša IP adresa"
+
+msgid "Your IP address is currently on the Auto-Block list, but you're not being block because your IP address is considered a High Reputation IP."
+msgstr "Vaša IP adresa trenutno je na listi automatskog blokiranja, ali niste blokirani jer se vaša IP adresa smatra IP adresom visoke reputacije."
+
+msgid "Your WordPress account had only 1 backup login code."
+msgstr "Vaš WordPress račun je imao samo 1 sigurnosnu kopiju koda za prijavu."
+
+msgid "Your WordPress login form is now protected"
+msgstr "Vaš WordPress obrazac za prijavu je sada zaštićen"
+
+msgid "Your backup login code is: %s"
+msgstr "Vaša sigurnosna kopija koda za prijavu je: %s"
+
+msgid "Your current IP Reputation score is %s."
+msgstr "Vaša trenutna ocjena IP reputacije je %s."
+
+msgid "Your current login URL is: %s"
+msgstr "Vaš trenutni URL za prijavu je: %s"
+
+msgid "Your password doesn't meet requirements set by your security administrator."
+msgstr "Vaša lozinka ne zadovoljava zahtjeve postavljene od strane vašeg sigurnosnog administratora."
+
+msgid "Your password has expired (after %s days)."
+msgstr "Vaša lozinka je istekla (nakon %s dana)."
+
+msgid "Your registered machine ID with CrowdSec is: %s"
+msgstr "Vaš registrirani ID uređaja s CrowdSec je: %s"
+
+msgid "Your reporting email address is: %s"
+msgstr "Vaša e-mail adresa za izvještavanje je: %s"
+
+msgid "Your session has expired."
+msgstr "Vaša sesija je istekla."
+
+msgid "Your site is currently in lockdown."
+msgstr "Vaša stranica je trenutno u lockdown načinu."
+
+msgid "Your site is in lockdown."
+msgstr "Vaša stranica je u lockdown načinu."
+
+msgid "Your site is protected against Comment SPAM by humans."
+msgstr "Vaša stranica je zaštićena od spam komentara koje objavljuju ljudi."
+
+msgid "Your site is protected against automated Comment SPAM by Bots."
+msgstr "Vaša stranica je zaštićena od automatiziranog spam komentara od strane botova."
+
+msgid "Your site isn't protected against Comment SPAM by humans."
+msgstr "Vaša stranica nije zaštićena od spam komentara koje objavljuju ljudi."
+
+msgid "Your site isn't protected against automated Comment SPAM by Bots."
+msgstr "Vaša stranica nije zaštićena od automatiziranog spam komentara od strane botova."
+
+msgid "Your site isn't registered with CrowdSec yet."
+msgstr "Vaša stranica još nije registrirana s CrowdSec."
+
+msgid "Yubikey"
+msgstr "Yubikey"
+
+msgid "Yubikey Authentication"
+msgstr "Yubikey provjera autentičnosti"
+
+msgid "Yubikey Device"
+msgstr "Yubikey uređaj"
+
+msgid "Yubikey ID"
+msgstr "Yubikey ID"
+
+msgid "Yubikey OTP"
+msgstr "Yubikey OTP"
+
+msgid "Zone"
+msgstr "Zona"
+
+msgid "Zone Actions"
+msgstr "Radnje zone"
+
+msgid "and"
+msgstr "i"
+
+msgid "currently %s"
+msgstr "trenutno %s"
+
+msgid "days"
+msgstr "dana"
+
+msgid "file import"
+msgstr "uvoz datoteke"
+
+msgid "help"
+msgstr "pomoć"
+
+msgid "icon"
+msgstr "ikona"
+
+msgid "import file"
+msgstr "uvoz datoteke"
+
+msgid "logo"
+msgstr "logo"
+
+msgid "n/a"
+msgstr "n/a"
+
+msgid "no label"
+msgstr "bez oznake"
+
+msgid "no name"
+msgstr "bez naziva"
+
+msgid "not provided"
+msgstr "nije navedeno"
+
+msgid "options"
+msgstr "opcije"
+
+msgid "or"
+msgstr "ili"
+
+msgid "silentCAPTCHA"
+msgstr "SilentCAPTCHA"
+
+msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "silentCAPTCHA detekcija botova ne štiti od brute-force napada na vašu WordPress prijavu."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
+msgstr "silentCAPTCHA detekcija botova ne štiti vaš WordPress obrazac za izgubljenu lozinku."
+
+msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
+msgstr "silentCAPTCHA detekcija botova ne štiti vašu WordPress registraciju."
+
+msgid "silentCAPTCHA Bot Minimum Score"
+msgstr "Minimalna ocjena silentCAPTCHA bota"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "Ocjena silentCAPTCHA bota (postotak)"
+
+msgid "silentCAPTCHA Registration"
+msgstr "silentCAPTCHA registracija"
+
+msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
+msgstr "silentCAPTCHA je onemogućen jer nije naveden minimalni prag ocjene bota."
+
+msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
+msgstr "silentCAPTCHA je onemogućen kada je postavljen na minimalnu ocjenu od %s."
+
+msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
+msgstr "silentCAPTCHA je omogućen s minimalnim pragom ocjene bota."
+
+msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
+msgstr "silentCAPTCHA ne štiti vaše WP komentare od bot spam-a."
+
+msgid "wp-config.php file isn't protected against tampering."
+msgstr "wp-config.php datoteka nije zaštićena od neovlaštenih izmjena."
+
+msgid "{{ip}} removed from block list ({{type}})."
+msgstr "{{ip}} uklonjen s liste blokiranja ({{type}})."
+
