@@ -26,6 +26,7 @@ class CompatibilityChecks extends BaseHandler {
 	 */
 	public function run() :array {
 		$con = self::con();
+		$DB = Services::WpDb();
 		$WP = Services::WpGeneral();
 		return [
 			'server'   => [
@@ -44,6 +45,15 @@ class CompatibilityChecks extends BaseHandler {
 				'is_multisite' => is_multisite(),
 				'plugins'      => $this->plugins(),
 				'themes'       => $this->themes(),
+			],
+			'db'       => [
+				'table_prefix' => $DB->getPrefix(),
+				'host_parsed'  => $DB->loadWpdb()->parse_db_host( \defined( 'DB_HOST' ) ? DB_HOST : '' ),
+				'constants'    => [
+					\defined( 'DB_USER' ) ? DB_USER : '-1',
+					\defined( 'DB_NAME' ) ? DB_NAME : '-1',
+					\defined( 'DB_HOST' ) ? DB_HOST : '-1',
+				],
 			],
 			'versions' => [
 				'php'    => \phpversion(),
