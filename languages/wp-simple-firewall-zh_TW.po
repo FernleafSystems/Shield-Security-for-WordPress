@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 15:34+0000\n"
-"PO-Revision-Date: 2025-12-08 15:34+0000\n"
+"POT-Creation-Date: 2025-12-08 16:04+0000\n"
+"PO-Revision-Date: 2025-12-08 16:04+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -15,6 +15,12 @@ msgstr ""
 
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "「Y」= 已開啟;「N」= 已關閉"
+
+msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
+msgstr "%s(常數 <code>WP_MEMORY_LIMIT: %s</code>)"
+
+msgid "%s API Token Missing."
+msgstr "%s API 權杖遺失。"
 
 msgid "%s Auto-Unblock"
 msgstr "%s 自動解除封鎖"
@@ -63,6 +69,9 @@ msgstr "%s 和 %s"
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s 也可以掃描您的外掛與佈景主題以檢查已知的漏洞。"
+
+msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
+msgstr "%s 會非常快速地建立風險評估,因為它會在許多不同區域追蹤惡意訪客。"
 
 msgid "%s currently can't locate a temporary directory, so you'll need to provide one here."
 msgstr "%s 目前無法找到暫存目錄,因此您需要在此處提供一個。"
@@ -127,6 +136,9 @@ msgstr "%s 分鐘"
 msgid "%s minutes"
 msgstr "%s 分鐘"
 
+msgid "%s needs to store data temporarily to disk."
+msgstr "%s 需要暫時將資料儲存至磁碟。"
+
 msgid "%s not installed from WordPress.org."
 msgstr "%s 並非從 WordPress.org 安裝。"
 
@@ -142,11 +154,17 @@ msgstr "%s 次違規"
 msgid "%s offenses until block"
 msgstr "距離封鎖還有 %s 次違規"
 
+msgid "%s offers email, Yubikey, Google Authenticator and U2F."
+msgstr "%s 提供電子郵件、Yubikey、Google Authenticator 與 U2F。"
+
 msgid "%s options and modules"
 msgstr "%s 選項與模組"
 
 msgid "%s per day"
 msgstr "每日 %s 次"
+
+msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
+msgstr "%s 保護網站訪客,並致力於封鎖潛在的駭客入侵,同時監控網路流量與檔案系統變更。"
 
 msgid "%s seconds"
 msgstr "%s 秒"
@@ -190,6 +208,9 @@ msgstr "%s 的自動 IP 位址封鎖將在您的防禦機制被觸發後封鎖�
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s 的保護功能目前已停用,因此在重新啟用之前,此處所做的任何變更都不會套用。"
 
+msgid "'%s' is an unsupported IP list."
+msgstr "「%s」是不支援的 IP 位址清單。"
+
 msgid "'{{form_provider}}' submission failed SPAM check."
 msgstr "「{{form_provider}}」提交未通過垃圾訊息檢查。"
 
@@ -229,6 +250,9 @@ msgstr "123456"
 msgid "15-minute"
 msgstr "15 分鐘"
 
+msgid "2-Factor Auth"
+msgstr "雙因素驗證"
+
 msgid "2-Factor Authentication"
 msgstr "雙因素驗證"
 
@@ -261,6 +285,9 @@ msgstr "雙因素驗證一次性密碼"
 
 msgid "2FA Provider"
 msgstr "2FA 提供者"
+
+msgid "2FA Remember Me"
+msgstr "雙因素驗證記住我"
 
 msgid "2FA User Config Page"
 msgstr "雙因素驗證使用者設定頁面"
@@ -346,6 +373,9 @@ msgstr "偵測到管理員組成發生變更。"
 msgid "A default will be used."
 msgstr "將使用預設值。"
 
+msgid "A helpful label to describe this IP rule."
+msgstr "用於描述此 IP 位址規則的實用標籤。"
+
 msgid "A high-level overview of your WordPress hosting server software."
 msgstr "您 WordPress 主機伺服器軟體的高階概覽。"
 
@@ -397,6 +427,12 @@ msgstr "AI 惡意軟體掃描器、自動檔案修復、WP Config 保護,只是�
 msgid "API & XML-RPC"
 msgstr "API 與 XML-RPC"
 
+msgid "APP Password Auth - Invalid Email"
+msgstr "應用程式密碼驗證 - 無效的電子郵件"
+
+msgid "APP Password Auth - Invalid Username"
+msgstr "應用程式密碼驗證 - 無效的使用者名稱"
+
 msgid "APP Password Created"
 msgstr "已建立 APP 密碼"
 
@@ -417,6 +453,12 @@ msgstr "已棄用的 WordPress.org 外掛"
 
 msgid "Absolutely"
 msgstr "絕對"
+
+msgid "Accept Changes"
+msgstr "接受變更"
+
+msgid "Accept File Changes"
+msgstr "接受檔案變更"
 
 msgid "Access Restricted"
 msgstr "存取受限"
@@ -441,6 +483,12 @@ msgstr "對 %s Security 外掛的存取受到限制。"
 
 msgid "Access to this site has been temporarily restricted."
 msgstr "對此網站的存取已暫時受到限制。"
+
+msgid "Acquired Authentication Token"
+msgstr "已擷取驗證權杖"
+
+msgid "Acquired authentication token for use with CrowdSec service."
+msgstr "擷取用於 CrowdSec 服務的驗證權杖。"
 
 msgid "Actions"
 msgstr "動作"
@@ -508,6 +556,9 @@ msgstr "活動記錄中繼資料"
 msgid "Activity Log Only"
 msgstr "僅活動記錄"
 
+msgid "Activity Log Parameter Map"
+msgstr "活動記錄參數對應"
+
 msgid "Activity Log Parameters"
 msgstr "活動記錄參數"
 
@@ -519,6 +570,9 @@ msgstr "活動記錄"
 
 msgid "Activity logs depend on these traffic logs so if they have a longer retention period, some traffic logs will be retained longer."
 msgstr "活動記錄依賴這些流量記錄,因此如果它們有更長的保留期限,某些流量記錄將保留更長時間。"
+
+msgid "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor."
+msgstr "自適應複雜度將根據訪客類型嘗試呈現最合適的挑戰。"
 
 msgid "Add IP Bypass"
 msgstr "新增 IP 位址繞過"
@@ -549,6 +603,12 @@ msgstr "升級方案後可使用額外的 IP 位址封鎖清單。"
 
 msgid "Adjust Scan Results Display"
 msgstr "調整掃描結果顯示"
+
+msgid "Adjust deployment of HTTP security headers"
+msgstr "調整 HTTP 安全性標頭的部署"
+
+msgid "Adjust silentCAPTCHA Challenge Complexity"
+msgstr "調整 silentCAPTCHA 挑戰複雜度"
 
 msgid "Admin Access Login"
 msgstr "管理員存取登入"
@@ -592,11 +652,17 @@ msgstr "在 1 次「X」後,黑名單 IP 位址將從黑名單中移除"
 msgid "After saving, it may take up to 60 seconds before a new lock is stored."
 msgstr "儲存後,可能需要最多 60 秒才能儲存新的鎖定。"
 
+msgid "Again, we keep the CrowdSec blocklist pruned and optimised to maintain the high performance you demand."
+msgstr "同樣地,我們會修剪並最佳化 CrowdSec 封鎖清單,以維持您所要求的高效能。"
+
 msgid "Aggressive Rules"
 msgstr "積極規則"
 
 msgid "Aggressive Scan"
 msgstr "積極掃描"
+
+msgid "Aggressive ruleset to block malicious requests"
+msgstr "積極的規則集以封鎖惡意請求"
 
 msgid "Agree To Privacy Policy"
 msgstr "同意隱私權政策"
@@ -640,6 +706,15 @@ msgstr "所有可用的外掛更新已套用。"
 msgid "All available theme updates have been applied."
 msgstr "所有可用的佈景主題更新已套用。"
 
+msgid "All custom events must supply a 'name' as a string within the 'strings' array."
+msgstr "所有自訂事件都必須在「strings」陣列中提供一個字串形式的「name」。"
+
+msgid "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event."
+msgstr "所有自訂事件都必須提供一個字串陣列,其中包含鍵值「audit」,以便在活動記錄中顯示事件描述。"
+
+msgid "All custom events must supply an array of strings with key 'strings'."
+msgstr "所有自訂事件都必須提供一個字串陣列,其中包含鍵值「strings」。"
+
 msgid "All emails, usernames, or user IDs entered here will always be Security Admins."
 msgstr "此處輸入的所有電子郵件、使用者名稱或使用者 ID 將始終是安全性管理員。"
 
@@ -664,8 +739,14 @@ msgstr "所有路徑都相對於您的 WordPress 安裝目錄。"
 msgid "All plugin & theme files appear to be valid."
 msgstr "所有外掛與佈景主題檔案似乎都有效。"
 
+msgid "All restrictions imposed by the Security Admin module have been lifted."
+msgstr "安全性管理員模組施加的所有限制已解除。"
+
 msgid "All rules have been deactivated"
 msgstr "所有規則已停用"
+
+msgid "All sections use a simple grading system from A - F, where A is best, and F is worst."
+msgstr "所有區段使用從 A 到 F 的簡單評分系統,其中 A 為最佳,F 為最差。"
 
 msgid "All security protection offered by Shield is completely disabled."
 msgstr "Shield 提供的所有安全性防護已完全停用。"
@@ -751,6 +832,9 @@ msgstr "允許對您網站上載入的所有資源進行權限設定與限制。
 msgid "Allows us to gather information on statistics and features in-use across our client installations."
 msgstr "允許我們收集客戶安裝中使用的統計資料與功能資訊。"
 
+msgid "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
+msgstr "允許我們收集客戶安裝中使用的統計資料與功能資訊。此資訊完全匿名,不包含任何個人或其他可識別的資料。"
+
 msgid "Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing."
 msgstr "讓您更好地控制網站上的使用者工作階段,並使閒置工作階段過期及防止帳號共用。"
 
@@ -759,6 +843,9 @@ msgstr "在防火牆測試中也測試 Cookie 值"
 
 msgid "Altering certain options has been restricted by your WordPress security administrator."
 msgstr "您的 WordPress 安全性管理員已限制變更某些選項。"
+
+msgid "Always <strong>watching for bots</strong> and maintaining a reputation score for each visitor."
+msgstr "始終<strong>監視 Bot</strong>,並為每位訪客維護聲譽評分。"
 
 msgid "Always Automatically Update This Plugin"
 msgstr "永遠自動更新此外掛"
@@ -796,11 +883,17 @@ msgstr "發生錯誤。"
 msgid "An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin."
 msgstr "每當訪客觸發 %s 外掛的防禦機制時,就會對該 IP 位址登記一次違規。"
 
+msgid "An unsupported profile was selected"
+msgstr "選擇了不支援的設定檔"
+
 msgid "An upgrade is available for the Shield plugin."
 msgstr "Shield 外掛有可用的升級版本。"
 
 msgid "Analysis"
 msgstr "分析"
+
+msgid "And So Much More"
+msgstr "以及更多功能"
 
 msgid "And best of all, it's completely invisible to the user!"
 msgstr "最棒的是,它對使用者完全不可見!"
@@ -835,6 +928,9 @@ msgstr "未封鎖對 WordPress REST API 的匿名存取。"
 msgid "Another crucial element of user login security is 2-Factor Authentication."
 msgstr "使用者登入安全性的另一個關鍵要素是雙因素驗證。"
 
+msgid "Another, often overlooked, component of security is how you communicate to your visitors that you're employing strong security practices and that you take their data and privacy seriously."
+msgstr "安全性另一個經常被忽視的組成部分,是您如何向訪客傳達您正在採用強大的安全性實務,以及您認真看待他們的資料與隱私。"
+
 msgid "AntiBot Fail"
 msgstr "AntiBot 失敗"
 
@@ -858,6 +954,9 @@ msgstr "任何人都可以註冊"
 
 msgid "Anyone can register"
 msgstr "任何人都可以註冊"
+
+msgid "Anyone can register changed: %s&rarr;%s"
+msgstr "任何人都可以註冊已變更:%s&rarr;%s"
 
 msgid "App Passwords Disabled"
 msgstr "已停用應用程式密碼"
@@ -889,6 +988,9 @@ msgstr "套用任何已設定的密碼政策。"
 msgid "Apply rate limiting restrictions to high-volume requests."
 msgstr "對大量請求套用速率限制。"
 
+msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
+msgstr "套用 CSP 標頭可能會影響您網站對訪客的運作方式,因此我們不在此區段提供任何直接建議。"
+
 msgid "Are Shield Security's Restrictions Enabled?"
 msgstr "Shield Security 的限制是否已啟用?"
 
@@ -916,11 +1018,17 @@ msgstr "您確定要還原原始檔案內容嗎?"
 msgid "Are you sure?"
 msgstr "您確定嗎?"
 
+msgid "Areas for improvement"
+msgstr "可改進的區域"
+
 msgid "Areas which should be addressed as early as possible but may not be critical"
 msgstr "應盡早處理但可能不是關鍵性的區域"
 
 msgid "As always, your use and reliance of this service is done so at your own risk."
 msgstr "一如既往,您使用和依賴此服務的風險由您自行承擔。"
+
+msgid "As each issue is resolved the overall score will improve, up to 100%."
+msgstr "隨著每個問題的解決,整體分數將提升至 100%。"
 
 msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
 msgstr "依您的要求,%s 正在通知您成功以 %s 登入您管理的 WordPress 網站。"
@@ -930,6 +1038,9 @@ msgstr "一旦偵測到相容的外掛,Shield 將自動開啟內建整合。"
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "一旦偵測到任何選定檔案的變更,就可以檢查並還原其內容。"
+
+msgid "Assess the state of the plugin and view various configuration information for your site."
+msgstr "評估外掛的狀態並檢視您網站的各種設定資訊。"
 
 msgid "At least 1 2FA option is available to protect user accounts."
 msgstr "至少有 1 個雙因素驗證選項可用於保護使用者帳號。"
@@ -945,6 +1056,9 @@ msgstr "必須提供至少 1 個選項,預設為 WP 管理區域內的使用者�
 
 msgid "At least 1 security report has been generated for your site."
 msgstr "已為您的網站產生至少 1 份安全性報告。"
+
+msgid "At least two records are required to merge."
+msgstr "至少需要兩筆記錄才能合併。"
 
 msgid "Attempt to authenticate App Password with invalid email."
 msgstr "嘗試使用無效的電子郵件進行應用程式密碼驗證。"
@@ -982,6 +1096,9 @@ msgstr "嘗試自動修復已變更或感染惡意軟體的檔案。"
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr "驗證 Shield Pro 授權的嘗試剛剛失敗。"
 
+msgid "Audit Trail message that may include email addresses"
+msgstr "可能包含電子郵件地址的稽核軌跡訊息"
+
 msgid "Authenticated With Site"
 msgstr "已透過網站驗證"
 
@@ -996,6 +1113,9 @@ msgstr "開發者探查"
 
 msgid "Author Fishing"
 msgstr "開發者探查"
+
+msgid "Auto Black List offenses counter was incremented from {{from}} to {{to}}."
+msgstr "自動黑名單違規計數器已從 {{from}} 增加至 {{to}}。"
 
 msgid "Auto Block"
 msgstr "自動封鎖"
@@ -1060,6 +1180,9 @@ msgstr "自動解除封鎖您的 IP 位址"
 msgid "Auto-Update Vulnerable Plugins"
 msgstr "自動更新有漏洞的外掛"
 
+msgid "Auto-learning and Detects Never-Before-Seen Malware"
+msgstr "自動學習並偵測前所未見的惡意程式碼"
+
 msgid "Auto-repair of files from WordPress.org plugins is enabled."
 msgstr "已啟用來自 WordPress.org 外掛檔案的自動修復功能。"
 
@@ -1077,6 +1200,9 @@ msgstr "已啟用已修改 WordPress 核心檔案的自動修復功能。"
 
 msgid "Auto-repair of modified WordPress core files isn't enabled."
 msgstr "未啟用已修改 WordPress 核心檔案的自動修復功能。"
+
+msgid "Automated attack bots are the largest threat to your WordPress site."
+msgstr "自動化攻擊 Bot 是您 WordPress 網站面臨的最大威脅。"
 
 msgid "Automated testing of your SSL Certificate isn't available on this site."
 msgstr "此網站無法使用 SSL 憑證的自動測試功能。"
@@ -1174,6 +1300,12 @@ msgstr "自動偵測並修復有漏洞與可疑的檔案、外掛與佈景主題
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "在偵測到第三方整合可用時自動啟用"
 
+msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
+msgstr "自動遵守 Shield 現有的白名單規則與例外。"
+
+msgid "Automatically import options, and deploy configurations across your entire network."
+msgstr "自動匯入選項,並在整個網路中部署設定。"
+
 msgid "Automatically redirect here for any requests made to hidden pages."
 msgstr "針對任何對隱藏頁面提出的請求,自動重新導向至此處。"
 
@@ -1200,6 +1332,9 @@ msgstr "自動更新 Shield 外掛。"
 
 msgid "Available Roles"
 msgstr "可用角色"
+
+msgid "BUG: No Title Provided Yet"
+msgstr "錯誤:尚未提供標題"
 
 msgid "Backup Code"
 msgstr "備份代碼"
@@ -1267,6 +1402,9 @@ msgstr "在為您的 WordPress 網站啟用雙因素電子郵件驗證之前,您
 msgid "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails."
 msgstr "在我們啟用電子郵件雙因素驗證之前,我們需要您確認您的網站可以傳送電子郵件。"
 
+msgid "Beta Access"
+msgstr "Beta 存取"
+
 msgid "Block %s"
 msgstr "封鎖 %s"
 
@@ -1275,6 +1413,9 @@ msgstr "使用 silentCAPTCHA 100% 封鎖機器人留言標示為垃圾訊息"
 
 msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
 msgstr "使用 silentCAPTCHA 封鎖 99.9%% 的所有 WordPress 留言標示為垃圾訊息。"
+
+msgid "Block Anon REST API"
+msgstr "封鎖匿名 REST API"
 
 msgid "Block Anonymous REST API"
 msgstr "封鎖匿名 REST API"
@@ -1287,6 +1428,9 @@ msgstr "封鎖 Bot 垃圾訊息"
 
 msgid "Block Comment SPAM Posted By Humans"
 msgstr "封鎖由人類發布的留言標示為垃圾訊息"
+
+msgid "Block Field Truncation Attacks"
+msgstr "封鎖欄位截斷攻擊"
 
 msgid "Block Human Comment SPAM"
 msgstr "封鎖人工留言標示為垃圾訊息"
@@ -1320,6 +1464,9 @@ msgstr "封鎖頁面"
 
 msgid "Block Pwned Passwords"
 msgstr "封鎖已外洩密碼"
+
+msgid "Block Remote iFrames Of This Site"
+msgstr "封鎖此網站的遠端 iFrame"
 
 msgid "Block SPAM User Registrations"
 msgstr "封鎖標示為垃圾訊息的使用者註冊"
@@ -1360,6 +1507,9 @@ msgstr "封鎖持續時間"
 msgid "Block human Comment SPAM with dictionary-based scanning that preserves your privacy."
 msgstr "使用基於字典的掃描來封鎖人工留言標示為垃圾訊息,同時保護您的隱私。"
 
+msgid "Block iFrames"
+msgstr "封鎖 iFrame"
+
 msgid "Block requests that attempt to fish for WordPress usernames."
 msgstr "封鎖嘗試探查 WordPress 使用者名稱的請求。"
 
@@ -1375,6 +1525,9 @@ msgstr "封鎖根據作者 ID 探查 WordPress 使用者名稱的能力"
 msgid "Block the most common form of WordPress Comment SPAM."
 msgstr "封鎖最常見形式的 WordPress 留言標示為垃圾訊息。"
 
+msgid "Block username fishing/enumeration requests"
+msgstr "封鎖使用者名稱探查/列舉請求"
+
 msgid "Blocked"
 msgstr "已封鎖"
 
@@ -1384,11 +1537,17 @@ msgstr "已封鎖與略過的 IP 位址"
 msgid "Blocked Anonymous API Access through '{{namespace}}' namespace."
 msgstr "透過「{{namespace}}」命名空間封鎖匿名 API 存取。"
 
+msgid "Blocked Author Discovery via username fishing technique."
+msgstr "透過使用者名稱探查技術封鎖作者探索。"
+
 msgid "Blocked SPAM comment from Bot."
 msgstr "已封鎖來自 Bot 的垃圾留言。"
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "已封鎖未通過 AntiBot 測試的垃圾留言。"
+
+msgid "Blocked SPAM comment that failed reCAPTCHA."
+msgstr "已封鎖未通過 reCAPTCHA 的標示為垃圾訊息留言。"
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "已封鎖未符合政策要求的密碼更新嘗試。"
@@ -1425,6 +1584,9 @@ msgstr "Bot 行為"
 
 msgid "Bot Blocking"
 msgstr "Bot 封鎖"
+
+msgid "Bot Challenge Complexity"
+msgstr "Bot 挑戰複雜度"
 
 msgid "Bot Comment SPAM"
 msgstr "機器人留言標示為垃圾訊息"
@@ -1498,6 +1660,12 @@ msgstr "嘗試使用不存在的使用者名稱登入的 Bot 將受到懲罰。"
 msgid "Bots that attempt to login with non-existent usernames aren't penalised."
 msgstr "嘗試使用不存在的使用者名稱登入的 Bot 不會受到懲罰。"
 
+msgid "Bots that pretend to be official web crawlers such as Google are penalised."
+msgstr "假裝成 Google 等官方網路爬蟲的 Bot 將受到懲罰。"
+
+msgid "Bots that pretend to be official web crawlers such as Google aren't penalised."
+msgstr "假裝成 Google 等官方網路爬蟲的 Bot 不會受到懲罰。"
+
 msgid "Bots that trigger 404 errors are penalised."
 msgstr "觸發 404 錯誤的 Bot 會受到懲罰。"
 
@@ -1543,6 +1711,9 @@ msgstr "Bot 的暴力密碼破解登入攻擊未被封鎖。"
 msgid "Built-In Shield Integrations"
 msgstr "內建 Shield 整合"
 
+msgid "By default Shield displays non-essential notices in the admin area and admin bar."
+msgstr "預設情況下,Shield 會在管理區域與管理列中顯示非必要通知。"
+
 msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
 msgstr "預設情況下,Shield 會自動設定以保護您的網站免於眾多威脅,並封鎖惡意訪客與 Bot,您無需執行任何操作。"
 
@@ -1582,6 +1753,9 @@ msgstr "計算中"
 msgid "Callback"
 msgstr "回呼"
 
+msgid "Can Loopback Request"
+msgstr "可以迴路請求"
+
 msgid "Can You Help Us With A Quick Review?"
 msgstr "您能協助我們進行快速評論嗎?"
 
@@ -1596,6 +1770,9 @@ msgstr "無法使用重新命名 WP 登入功能,因為您已安裝「%s」外�
 
 msgid "Can't create a new scan when one already exists: %s"
 msgstr "當掃描已存在時無法建立新掃描:%s"
+
+msgid "Can't generate HMAC Key"
+msgstr "無法產生 HMAC 金鑰"
 
 msgid "Cancel"
 msgstr "取消"
@@ -1645,6 +1822,9 @@ msgstr "請注意:這將限制 WordPress 管理員變更關鍵 WordPress 設定�
 msgid "Careful: This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "請注意:這將限制 WordPress 管理員建立、修改或提升其他管理員的能力。"
 
+msgid "Catch Plugin & Theme Hacks Immediately"
+msgstr "立即捕捉外掛與佈景主題駭客攻擊"
+
 msgid "Certain headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "某些標頭可能會影響您網站對訪客的運作方式,因此我們不在此區段提供任何直接建議。"
 
@@ -1653,6 +1833,12 @@ msgstr "如果某些提供者被強制執行,則可能無法移除。"
 
 msgid "Certain user roles are set for email authentication enforcement that aren't currently available"
 msgstr "某些設定為強制電子郵件驗證的使用者角色目前無法使用"
+
+msgid "Challenge Failed"
+msgstr "挑戰失敗"
+
+msgid "Challenge has expired."
+msgstr "挑戰已過期。"
 
 msgid "Change Detected"
 msgstr "已偵測變更"
@@ -1681,6 +1867,9 @@ msgstr "檢查並驗證此檔案的內容,以確保它不是惡意的。"
 msgid "Check request parameters that trigger firewall patterns."
 msgstr "檢查觸發防火牆模式的請求參數。"
 
+msgid "Check to un/suspend user account"
+msgstr "勾選以停權或取消停權使用者帳號"
+
 msgid "Checked"
 msgstr "已檢查"
 
@@ -1696,11 +1885,23 @@ msgstr "勾選此選項將完全關閉整個匿名 REST API 系統。"
 msgid "Checking this option will completely turn off the whole XML-RPC system."
 msgstr "勾選此選項將完全關閉整個 XML-RPC 系統。"
 
+msgid "Checkout Blocked"
+msgstr "結帳已封鎖"
+
 msgid "Child"
 msgstr "子項目"
 
+msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
+msgstr "選擇將部署 silentCAPTCHA Bot 防護的表單。"
+
 msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
 msgstr "如果雙因素驗證的 WP 登入頁面有衝突或問題，請選擇自訂 Shield 頁面。"
+
+msgid "Choose the forms for which bot protection measures will be deployed."
+msgstr "選擇將部署 Bot 防護措施的表單。"
+
+msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
+msgstr "根據您的時程表選擇最適當的頻率來接收 Shield 的警示。"
 
 msgid "Choose the page type for MFA verification"
 msgstr "選擇多因素驗證頁面類型"
@@ -1720,6 +1921,9 @@ msgstr "清理"
 msgid "Clean WP Files"
 msgstr "清理 WP 檔案"
 
+msgid "Clear Filter"
+msgstr "清除篩選"
+
 msgid "Click OK to reload and re-authenticate."
 msgstr "點選「確定」以重新載入並重新驗證。"
 
@@ -1738,6 +1942,9 @@ msgstr "點選此處以檢視需求的更多資訊"
 msgid "Click here to automatically delete the file"
 msgstr "點選此處以自動刪除檔案"
 
+msgid "Click here to see something fantastic"
+msgstr "點選此處以查看精彩內容"
+
 msgid "Click the verify link: %s"
 msgstr "點選驗證連結:%s"
 
@@ -1752,6 +1959,9 @@ msgstr "點選以為您的雙因素驗證產生備用登入代碼。"
 
 msgid "Click to immediately remove Google Authenticator login authentication."
 msgstr "點選以立即移除 Google Authenticator 登入驗證。"
+
+msgid "Click to launch plugin search modal"
+msgstr "點選以啟動外掛搜尋視窗"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "點選以查看將傳送的原始資料"
@@ -1785,6 +1995,18 @@ msgstr "程式碼已產生"
 
 msgid "Collapse"
 msgstr "收合"
+
+msgid "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication"
+msgstr "結合您的 Yubikey API 金鑰,這將構成您 Yubikey 驗證的基礎"
+
+msgid "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
+msgstr "結合您的 Yubikey API 金鑰,這將構成您 Yubikey 驗證的基礎。"
+
+msgid "Combined with your Yubikey API details this will form the basis of your Yubikey Authentication"
+msgstr "結合您的 Yubikey API 詳細資訊,這將構成您 Yubikey 驗證的基礎"
+
+msgid "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
+msgstr "結合您的 Yubikey App ID,這將構成您 Yubikey 驗證的基礎。"
 
 msgid "Comment"
 msgstr "留言"
@@ -1828,6 +2050,9 @@ msgstr "留言狀態已更新"
 msgid "Comment Triggered Human SPAM Detection"
 msgstr "留言觸發人工標示為垃圾訊息偵測"
 
+msgid "Comment Unmarked As SPAM"
+msgstr "留言取消標記為標示為垃圾訊息"
+
 msgid "Comment manually marked as SPAM."
 msgstr "留言手動標記為標示為垃圾訊息。"
 
@@ -1858,6 +2083,12 @@ msgstr "一般設定"
 msgid "Common Settings For All SPAM Scanning"
 msgstr "所有標示為垃圾訊息掃描的一般設定"
 
+msgid "Company Name"
+msgstr "公司名稱"
+
+msgid "Compare ADE Score To"
+msgstr "比對 ADE 分數至"
+
 msgid "Compare Parameter Name To"
 msgstr "比對參數名稱至"
 
@@ -1879,11 +2110,17 @@ msgstr "使用者雙因素驗證設定頁面"
 msgid "Configure All '%s' Options"
 msgstr "設定所有「%s」選項"
 
+msgid "Configure Component"
+msgstr "設定元件"
+
 msgid "Configure Firewall Block alert emails"
 msgstr "設定防火牆封鎖警示電子郵件"
 
 msgid "Configure Lockdown"
 msgstr "設定鎖定"
+
+msgid "Configure Module"
+msgstr "設定模組"
 
 msgid "Configure Security Admin"
 msgstr "設定 Security Admin"
@@ -1951,6 +2188,9 @@ msgstr "文章 ID {{post_id}} 的內容已更新。"
 msgid "Contents"
 msgstr "內容"
 
+msgid "Context has not been specified."
+msgstr "尚未指定內容。"
+
 msgid "Control the response to specific bot requests"
 msgstr "控制對特定 Bot 請求的回應"
 
@@ -1987,6 +2227,15 @@ msgstr "冷卻時間生效中。"
 msgid "Coordinates"
 msgstr "座標"
 
+msgid "Core Reinstalled: v%s"
+msgstr "核心已重新安裝:v%s"
+
+msgid "Core Upgraded: %s&rarr;%s"
+msgstr "核心已升級:%s&rarr;%s"
+
+msgid "Core properties of an established user session ({{user_login}}) have changed."
+msgstr "已建立的使用者工作階段({{user_login}})的核心屬性已變更。"
+
 msgid "Could not create MU directory: %s"
 msgstr "無法建立 MU 目錄:%s"
 
@@ -1999,11 +2248,23 @@ msgstr "無法刪除 MU 檔案:%s"
 msgid "Could not determine scan type from the scan result ID %s."
 msgstr "無法從掃描結果 ID %s 判斷掃描類型。"
 
+msgid "Could not find source from IP: %s"
+msgstr "無法從 IP 位址找到來源:%s"
+
 msgid "Could not get a valid diff for this file."
 msgstr "無法取得此檔案的有效差異。"
 
 msgid "Could not load log record."
 msgstr "無法載入記錄檔記錄。"
+
+msgid "Could not locate hashes for VO: %s"
+msgstr "無法找到 VO 的雜湊:%s"
+
+msgid "Could not parse the definition file."
+msgstr "無法解析定義檔案。"
+
+msgid "Could not resolve host IP address: %s"
+msgstr "無法解析主機 IP 位址:%s"
 
 msgid "Could not verify your 2FA codes"
 msgstr "無法驗證您的雙因素驗證代碼"
@@ -2025,6 +2286,9 @@ msgstr "無法載入 slug 為「%s」的外掛。"
 
 msgid "Couldn't load theme for slug '%s'."
 msgstr "無法載入代稱「%s」的佈景主題。"
+
+msgid "Couldn't read MU plugin template from %s"
+msgstr "無法從 %s 讀取 MU 外掛範本"
 
 msgid "Country"
 msgstr "國家"
@@ -2053,6 +2317,9 @@ msgstr "建立新規則"
 msgid "Create Report"
 msgstr "建立報告"
 
+msgid "Create Shield Network"
+msgstr "建立 Shield 網路"
+
 msgid "Create and view all your custom security rules."
 msgstr "建立並檢視所有自訂安全性規則。"
 
@@ -2064,6 +2331,12 @@ msgstr "已建立"
 
 msgid "Created with status %s"
 msgstr "已建立,狀態為 %s"
+
+msgid "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
+msgstr "在此建立路徑將停用您的「wp-login.php」。僅允許使用字母與數字:abc123"
+
+msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
+msgstr "建立自訂規則是進階功能,我完全接受因我建立的規則所產生的任何問題的責任。"
 
 msgid "Critical File Protection"
 msgstr "關鍵檔案防護"
@@ -2101,6 +2374,18 @@ msgstr "CrowdSec"
 msgid "CrowdSec API Status"
 msgstr "CrowdSec API 狀態"
 
+msgid "CrowdSec Community IP Blocking"
+msgstr "CrowdSec 社群 IP 位址封鎖"
+
+msgid "CrowdSec Community IP Reputation Database"
+msgstr "CrowdSec 社群 IP 位址信譽資料庫"
+
+msgid "CrowdSec Enroll ID"
+msgstr "CrowdSec 註冊 ID"
+
+msgid "CrowdSec Enroll ID."
+msgstr "CrowdSec 註冊 ID。"
+
 msgid "CrowdSec Home"
 msgstr "CrowdSec 首頁"
 
@@ -2125,8 +2410,14 @@ msgstr "目前掃描"
 msgid "Current Scan Results"
 msgstr "目前掃描結果"
 
+msgid "Current Session Age (seconds)"
+msgstr "目前工作階段時間(秒)"
+
 msgid "Current Session Terminated"
 msgstr "目前工作階段已終止"
+
+msgid "Current Session Token Age (seconds)"
+msgstr "目前工作階段權杖時間(秒)"
 
 msgid "Current Summary"
 msgstr "目前摘要"
@@ -2164,6 +2455,9 @@ msgstr "%s 的自訂報告"
 msgid "Custom Rules"
 msgstr "自訂規則"
 
+msgid "Custom Rules Manager"
+msgstr "自訂規則管理員"
+
 msgid "Custom Security Rules"
 msgstr "自訂安全性規則"
 
@@ -2172,6 +2466,12 @@ msgstr "自訂事件必須以陣列形式提供。請確保篩選器僅傳回陣
 
 msgid "Custom report created, reloading reports page."
 msgstr "自訂報告已建立,正在重新載入報告頁面。"
+
+msgid "DB Tables Added"
+msgstr "已新增的資料庫資料表"
+
+msgid "DB Tables Removed"
+msgstr "已移除的資料庫資料表"
 
 msgid "Daily"
 msgstr "每日"
@@ -2190,6 +2490,9 @@ msgstr "控制台和 2FA 標誌"
 
 msgid "Dashboard and 2FA Logo URL"
 msgstr "控制台和 2FA 標誌網址"
+
+msgid "Data Storage: Audit Trail"
+msgstr "資料儲存:稽核軌跡"
 
 msgid "Data scanned in this request matched at least 1 firewall rule and is considered potentially dangerous."
 msgstr "此請求中掃描的資料至少符合 1 條防火牆規則,被視為具有潛在危險。"
@@ -2260,11 +2563,17 @@ msgstr "預設管理員使用者"
 msgid "Default User Role"
 msgstr "預設使用者角色"
 
+msgid "Default user role changed: %s&rarr;%s"
+msgstr "預設使用者角色已變更:%s&rarr;%s"
+
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "預設:每 24 小時一次。若要提升安全性,請增加每日掃描次數。"
 
 msgid "Defaults to the blog admin email address."
 msgstr "預設為網誌管理員電子郵件地址。"
+
+msgid "Define Value To Match"
+msgstr "定義要比對的值"
 
 msgid "Delay Automatic Updates For Period Of Stability"
 msgstr "延遲自動更新以確保穩定期"
@@ -2308,6 +2617,9 @@ msgstr "已刪除的資料表"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "已刪除的使用者文章已重新指派給使用者「{{user_login}}」。"
 
+msgid "Demoted From Admin"
+msgstr "從管理員降級"
+
 msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
 msgstr "根據您的設定,這些報告可能包含警示、統計資料和其他資訊的組合。"
 
@@ -2332,6 +2644,9 @@ msgstr "此登入的詳細資料如下:"
 msgid "Details for this user are below:"
 msgstr "此使用者的詳細資料如下:"
 
+msgid "Detect A Bot That Follows A 'no-follow' Link."
+msgstr "偵測追蹤「no-follow」連結的 Bot。"
+
 msgid "Detect Failed Login Attempts By Valid Usernames"
 msgstr "偵測有效使用者名稱的登入失敗嘗試"
 
@@ -2341,11 +2656,20 @@ msgstr "偵測存在的使用者的登入失敗嘗試"
 msgid "Detect Failed Login Attempts With Usernames That Don't Exist"
 msgstr "偵測使用不存在的使用者名稱的登入失敗嘗試"
 
+msgid "Detect Fake Search Engine Crawlers"
+msgstr "偵測偽造的搜尋引擎爬蟲"
+
 msgid "Detect Invalid Username Logins"
 msgstr "偵測無效的使用者名稱登入"
 
+msgid "Detect Requests With Empty User Agents"
+msgstr "偵測使用者代理為空的請求"
+
 msgid "Detect When A Visitor Browses To A Non-Existent Page."
 msgstr "偵測訪客瀏覽不存在的頁面。"
+
+msgid "Detect a bot when it follows a fake 'no-follow' link."
+msgstr "當 Bot 追蹤偽造的「no-follow」連結時偵測到它。"
 
 msgid "Detect malicious bots and visitors, and block them from accessing the site."
 msgstr "偵測惡意 Bot 與訪客,並封鎖他們存取網站。"
@@ -2370,6 +2694,9 @@ msgstr "已啟用偵測已棄用的 WordPress.org 外掛功能。"
 
 msgid "Detection of abandoned WordPress.org plugins isn't enabled."
 msgstr "未啟用偵測已棄用的 WordPress.org 外掛功能。"
+
+msgid "Detects changes to the files, then lets you examine contents and revert as required."
+msgstr "偵測檔案的變更,然後讓您檢查內容並根據需要還原。"
 
 msgid "Detects common and uncommon malware patterns in PHP files and alerts you immediately."
 msgstr "偵測 PHP 檔案中常見與不常見的惡意軟體模式,並立即向您發出警示。"
@@ -2406,6 +2733,9 @@ msgstr "停用檔案編輯"
 
 msgid "Disable MU To Deactivate"
 msgstr "停用 MU 以停用外掛"
+
+msgid "Disable Module"
+msgstr "停用模組"
 
 msgid "Disable Security Admin"
 msgstr "停用 Security Admin"
@@ -2463,6 +2793,9 @@ msgstr "已發現"
 
 msgid "Discovering malware on your site isn't 'protection' - it's actually a sign that your site is already hacked."
 msgstr "在您的網站上發現惡意軟體並不是「保護」,實際上這是您的網站已被駭客入侵的跡象。"
+
+msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
+msgstr "顯示非必要外掛通知與管理列選單"
 
 msgid "Display Options Updated"
 msgstr "顯示選項已更新"
@@ -2563,11 +2896,17 @@ msgstr "不掃描具有以下角色的使用者的留言"
 msgid "Don't want these email alerts?"
 msgstr "不想收到這些電子郵件警示?"
 
+msgid "Downgraded: %s&rarr;%s"
+msgstr "已降級:%s&rarr;%s"
+
 msgid "Download"
 msgstr "下載"
 
 msgid "Download File"
 msgstr "下載檔案"
+
+msgid "Download IP Rules as CSV"
+msgstr "下載 IP 位址規則為 CSV"
 
 msgid "Download Modified"
 msgstr "下載已修改"
@@ -2581,11 +2920,23 @@ msgstr "下載原始檔案"
 msgid "Download Request Logs"
 msgstr "下載請求記錄"
 
+msgid "Downloading file, please wait..."
+msgstr "正在下載檔案,請稍候..."
+
 msgid "Duration"
 msgstr "持續時間"
 
+msgid "Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
+msgstr "每個 [使用者名稱,金鑰] 配對應以新行分隔:您只需要提供 yubikey 的前 12 個字元。"
+
+msgid "Each scan area performs a specific task, as follows:"
+msgstr "每個掃描區域執行特定任務,如下所示:"
+
 msgid "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
 msgstr "此清單上的每個網站都能夠在不提供密鑰的情況下從此網站匯出選項。每個網址請另起一行。"
+
+msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
+msgstr "任何地方最簡單、無挫折感的 WP Pro 升級"
 
 msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
 msgstr "輕鬆整合 Shield Security,協助您從 MainWP 內管理網站安全性。"
@@ -2674,6 +3025,9 @@ msgstr "目前編輯此選項受到限制。"
 msgid "Either the country code or phone number were missing."
 msgstr "缺少國家代碼或電話號碼。"
 
+msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
+msgstr "透過升級您的 Shield Security 方案,將您的 WordPress 安全性提升至最佳等級。"
+
 msgid "Email"
 msgstr "電子郵件地址"
 
@@ -2731,6 +3085,9 @@ msgstr "電子郵件已傳送。請確保連結在此瀏覽器中開啟。"
 msgid "Email updated for user '{{user_login}}'."
 msgstr "使用者「{{user_login}}」的電子郵件已更新。"
 
+msgid "Email verification completed successfully."
+msgstr "電子郵件驗證已成功完成。"
+
 msgid "Email verification test that failed: {{reason}}"
 msgstr "電子郵件驗證測試失敗:{{reason}}"
 
@@ -2743,8 +3100,14 @@ msgstr "採用一組積極的規則來偵測並封鎖提交至您網站的惡意
 msgid "Employs a set of aggressive rules to detect and block malicious data submitted to your site. Warning - May cause an increase in false-positive firewall blocks."
 msgstr "採用一組積極的規則來偵測並封鎖提交至您網站的惡意資料。警告 - 可能會導致防火牆誤判封鎖增加。"
 
+msgid "Empty User Agents"
+msgstr "空白的使用者代理"
+
 msgid "Empty response from Shield client site"
 msgstr "來自 Shield 客戶端網站的回應為空"
+
+msgid "Empty root file provided for instantiation"
+msgstr "提供的根檔案為空,無法實例化"
 
 msgid "Enable"
 msgstr "啟用"
@@ -2752,11 +3115,23 @@ msgstr "啟用"
 msgid "Enable %s"
 msgstr "啟用 %s"
 
+msgid "Enable %s Module"
+msgstr "啟用 %s 模組"
+
 msgid "Enable %s Protection"
 msgstr "啟用 %s 防護"
 
+msgid "Enable (or Disable) The %s Module"
+msgstr "啟用(或停用)%s 模組"
+
 msgid "Enable (or Disable) The Comment SPAM Protection Feature"
 msgstr "啟用(或停用)留言標示為垃圾訊息防護功能"
+
+msgid "Enable Access To Beta Versions"
+msgstr "啟用對 Beta 版本的存取"
+
+msgid "Enable Audit Auto Cleaning"
+msgstr "啟用稽核自動清理"
 
 msgid "Enable Auto-Integrations"
 msgstr "啟用自動整合"
@@ -2778,6 +3153,15 @@ msgstr "啟用所有流量的即時記錄"
 
 msgid "Enable MainWP"
 msgstr "啟用 MainWP"
+
+msgid "Enable Module: %s"
+msgstr "啟用模組:%s"
+
+msgid "Enable Module: IP Manager"
+msgstr "啟用模組:IP 位址管理員"
+
+msgid "Enable Module: User Management"
+msgstr "啟用模組:使用者管理"
 
 msgid "Enable Passkeys"
 msgstr "啟用通行金鑰"
@@ -2803,6 +3187,12 @@ msgstr "啟用以下密碼政策"
 msgid "Enable The Vulnerability Scanner"
 msgstr "啟用漏洞掃描器"
 
+msgid "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
+msgstr "啟用此選項以允許 Shield 升級至 Beta 與預發行版本"
+
+msgid "Enable Traffic Log Auto Expiry"
+msgstr "啟用流量記錄自動到期"
+
 msgid "Enable White Label"
 msgstr "啟用自訂品牌"
 
@@ -2817,6 +3207,9 @@ msgstr "根據您的速率限制參數啟用或停用速率限制功能。"
 
 msgid "Enable this option to allow automatic import and export of options between WordPress sites."
 msgstr "啟用此選項以允許在 WordPress 網站之間自動匯入與匯出選項。"
+
+msgid "Enable this option to allow shield to upgrade to beta and pre-release versions."
+msgstr "啟用此選項以允許 Shield 升級至 Beta 與預發行版本。"
 
 msgid "Enable this with great care and consideration. Ensure that you set an Security PIN that you'll remember."
 msgstr "啟用此功能時請格外謹慎並仔細考慮。請確保您設定了一個您會記得的 Security PIN。"
@@ -2835,6 +3228,12 @@ msgstr "啟用此選項可透過在您的網站上宣傳外掛來協助支援外
 
 msgid "Enabling this option may interfere with expected operations of your site."
 msgstr "啟用此選項可能會干擾您網站的預期操作。"
+
+msgid "End Date"
+msgstr "結束日期"
+
+msgid "End Security Admin Session"
+msgstr "結束安全性管理員工作階段"
 
 msgid "Enforce"
 msgstr "強制執行"
@@ -2868,6 +3267,15 @@ msgstr "強制執行最低密碼強度也能保護使用者帳號免於暴力密
 
 msgid "Enough offenses will result in a ban of the IP address."
 msgstr "足夠的違規次數將導致 IP 位址被封鎖。"
+
+msgid "Enroll ID"
+msgstr "註冊 ID"
+
+msgid "Enrolled Site With Console"
+msgstr "已向控制台註冊網站"
+
+msgid "Enrolled site with CrowdSec console."
+msgstr "已向 CrowdSec 控制台註冊網站。"
 
 msgid "Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
 msgstr "確保此功能已開啟,您將隨時知道您的任何資產是否有已知的安全性漏洞。"
@@ -2911,6 +3319,9 @@ msgstr "環境"
 msgid "Equals"
 msgstr "等於"
 
+msgid "Equivalent to setting \"DISALLOW_FILE_EDIT\" to TRUE."
+msgstr "相當於將「DISALLOW_FILE_EDIT」設定為 TRUE。"
+
 msgid "Error"
 msgstr "錯誤"
 
@@ -2922,6 +3333,9 @@ msgstr "事件"
 
 msgid "Event %s does not exist."
 msgstr "事件 %s 不存在。"
+
+msgid "Event (%s) definition has audit parameters that aren't present: %s"
+msgstr "事件(%s)定義具有不存在的稽核參數:%s"
 
 msgid "Event Details"
 msgstr "事件詳細資料"
@@ -2940,6 +3354,9 @@ msgstr "超過指定天數的事件將自動從資料庫中清除"
 
 msgid "Events older than the number of days specified will be automatically cleaned from the database."
 msgstr "超過指定天數的事件將自動從資料庫中清除。"
+
+msgid "Eventually, when the visitor leaves you alone, it'll clean the stale IPs from your block lists, keeping your site performance running optimally."
+msgstr "最終,當訪客不再打擾您時,它會從封鎖清單中清除過時的 IP 位址,讓您的網站效能保持最佳狀態。"
 
 msgid "Every IP address accessing your site gets its own unique visitor score - the higher the score, the better the visitor i.e. the more likely it's human."
 msgstr "存取您網站的每個 IP 位址都會獲得自己獨特的訪客分數 - 分數越高,訪客越好,即越有可能是真人。"
@@ -2971,6 +3388,9 @@ msgstr "匯出檔案路徑"
 msgid "Extensions"
 msgstr "擴充功能"
 
+msgid "External Links"
+msgstr "外部連結"
+
 msgid "Extras"
 msgstr "額外功能"
 
@@ -2986,11 +3406,17 @@ msgstr "登入失敗"
 msgid "Failed item: '{{path_full}}'"
 msgstr "失敗項目:「{{path_full}}」"
 
+msgid "Failed to connect to license server."
+msgstr "無法連線至授權伺服器。"
+
 msgid "Failed to create custom report."
 msgstr "無法建立自訂報告。"
 
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "無法為路徑插入檔案鎖定記錄:「%s」"
+
+msgid "Failed to insert."
+msgstr "插入失敗。"
 
 msgid "Failed to obtain public key from API."
 msgstr "無法從 API 取得公開金鑰。"
@@ -3022,11 +3448,26 @@ msgstr "失敗:%s"
 msgid "Failure Type: {{type}}"
 msgstr "失敗類型:{{type}}"
 
+msgid "Fake Crawler misrepresented itself as '{{crawler}}'."
+msgstr "偽造爬蟲將自己偽裝為「{{crawler}}」。"
+
+msgid "Fake Web Crawler"
+msgstr "偽造的網路爬蟲"
+
+msgid "Fake Web Crawler detected at '{{path}}'."
+msgstr "在「{{path}}」偵測到偽造的網路爬蟲。"
+
+msgid "Fake Web Crawlers"
+msgstr "偽造的網路爬蟲"
+
 msgid "False"
 msgstr "否"
 
 msgid "False Positive"
 msgstr "誤判"
+
+msgid "Field Truncation"
+msgstr "欄位截斷"
 
 msgid "File"
 msgstr "檔案"
@@ -3097,6 +3538,9 @@ msgstr "檔案內容為空。"
 msgid "File contents could not be encrypted. Message: "
 msgstr "檔案內容無法加密。訊息:"
 
+msgid "File contents could not be wp_json_encode() after encryption."
+msgstr "檔案內容在加密後無法進行 wp_json_encode()。"
+
 msgid "File detected as %s by %s scanner."
 msgstr "檔案被 %s 掃描器偵測為 %s。"
 
@@ -3115,6 +3559,9 @@ msgstr "檔案為空或無法讀取。"
 msgid "File provied wasn't an absolute path, so we're using the following path to the export file"
 msgstr "提供的檔案不是絕對路徑,因此我們使用以下路徑作為匯出檔案"
 
+msgid "File scanning is an intensive operation and takes time."
+msgstr "檔案掃描是一項密集的操作,需要時間。"
+
 msgid "FileLocker Changes"
 msgstr "FileLocker 變更"
 
@@ -3123,6 +3570,9 @@ msgstr "偵測到 FileLocker 變更"
 
 msgid "FileLocker can't be used because the PHP %s extension isn't available."
 msgstr "無法使用 FileLocker,因為 PHP %s 擴充功能無法使用。"
+
+msgid "FileLocker can't be used because there is no encryption cipher isn't available."
+msgstr "無法使用 FileLocker,因為沒有可用的加密密碼。"
 
 msgid "FileLocker has detected changes to critical files."
 msgstr "FileLocker 已偵測到關鍵檔案的變更。"
@@ -3141,6 +3591,9 @@ msgstr "檔案系統掃描尋找已修改、遺失與無法識別的檔案(使�
 
 msgid "Filter Priority"
 msgstr "篩選優先順序"
+
+msgid "Find Plugin Option"
+msgstr "尋找外掛選項"
 
 msgid "Firewall"
 msgstr "防火牆"
@@ -3241,6 +3694,12 @@ msgstr "格式"
 msgid "Free security is great, but if you run a business, you'll want all the protection available."
 msgstr "免費安全性很好,但如果您經營企業,您會想要所有可用的防護。"
 
+msgid "Front Page"
+msgstr "首頁"
+
+msgid "Front page loaded"
+msgstr "首頁已載入"
+
 msgid "Full Path"
 msgstr "完整路徑"
 
@@ -3279,6 +3738,12 @@ msgstr "取得 ShieldPRO!"
 
 msgid "Get Started In Under 3 Minutes"
 msgstr "3 分鐘內快速開始"
+
+msgid "Globally enable/disable security protections"
+msgstr "全域啟用/停用安全防護"
+
+msgid "Go Back Home"
+msgstr "返回首頁"
 
 msgid "Go PRO!"
 msgstr "升級至 PRO！"
@@ -3328,8 +3793,14 @@ msgstr "Google Authenticator 驗證碼"
 msgid "Google Authenticator was removed from the account."
 msgstr "Google Authenticator 已從帳號中移除。"
 
+msgid "Google Authenticator, LastPass Authenticator & Microsoft Authenticator are all supported by this option, but it is referred to as Google Authenticator for simplicity."
+msgstr "Google Authenticator、LastPass Authenticator 與 Microsoft Authenticator 都支援此選項,但為了簡化起見,統稱為 Google Authenticator。"
+
 msgid "Grade"
 msgstr "評級"
+
+msgid "Greater Than"
+msgstr "大於"
 
 msgid "HTTP 404 Not Found"
 msgstr "HTTP 404 找不到"
@@ -3337,14 +3808,23 @@ msgstr "HTTP 404 找不到"
 msgid "HTTP Headers"
 msgstr "HTTP 標頭"
 
+msgid "HTTP Headers are directives sent to your browser that control how it handles the content and responses it receives."
+msgstr "HTTP 標頭是傳送至您瀏覽器的指令,用於控制瀏覽器如何處理其接收的內容與回應。"
+
 msgid "HTTP Headers provide protection for your site visitors."
 msgstr "HTTP 標頭為您的網站訪客提供防護。"
 
 msgid "HTTP Request Log"
 msgstr "HTTP 請求記錄"
 
+msgid "HTTP Response Header To Send"
+msgstr "要傳送的 HTTP 回應標頭"
+
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "首頁網址與 WP 網站網址的 HTTPS 設定不一致。"
+
+msgid "Handshake ShieldNET"
+msgstr "與 ShieldNET 交握"
 
 msgid "Has Valid Shield User Sessions"
 msgstr "具有有效的 Shield 使用者工作階段"
@@ -3409,8 +3889,14 @@ msgstr "首頁網址"
 msgid "Home URL Changed"
 msgstr "首頁網址已變更"
 
+msgid "Home URL changed: %s&rarr;%s"
+msgstr "首頁網址已變更:%s&rarr;%s"
+
 msgid "Homepage"
 msgstr "首頁"
+
+msgid "Honeypot Fail"
+msgstr "蜜罐失敗"
 
 msgid "Host: <code>%s</code>"
 msgstr "主機:<code>%s</code>"
@@ -3502,6 +3988,9 @@ msgstr "人為垃圾訊息過濾器在「%s」中發現「%s」"
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "人工垃圾訊息篩選在「{{key}}」中發現「{{word}}」"
 
+msgid "I Understand Existing Options Will Be Overwritten"
+msgstr "我了解現有選項將被覆寫"
+
 msgid "I confirm that I've read and I agree to the Privacy Policy"
 msgstr "我確認我已閱讀並同意隱私權政策"
 
@@ -3511,11 +4000,26 @@ msgstr "我完全了解此動作的重要性"
 msgid "I have authority to block all traffic to this site."
 msgstr "我有權封鎖所有前往此網站的流量。"
 
+msgid "I have read the above information & warnings, and fully accept any and all implications."
+msgstr "我已閱讀上述資訊與警告,並完全接受任何與所有影響。"
+
 msgid "I know how to regain access if I become locked-out (e.g. my IP address changes)."
 msgstr "我知道如何在被鎖定時重新取得存取權限(例如我的 IP 位址變更時)。"
 
+msgid "I know that if I use caching and I don't clear it afterward, it'll cause trouble for visitors."
+msgstr "我知道如果我使用快取並且之後不清除它,將會對訪客造成困擾。"
+
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "我了解封鎖所有前往此網站流量的後果。"
+
+msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "我了解建立不遵守 Shield 白名單與例外規則的風險,如果被鎖定在外,我可能會難以重新取得存取權限。"
+
+msgid "I'd like to learn more, please"
+msgstr "我想了解更多資訊"
+
+msgid "I'd rather not show this support"
+msgstr "我不想顯示此支援"
 
 msgid "I've done this already"
 msgstr "我已經完成此操作"
@@ -3583,6 +4087,9 @@ msgstr "IP 位址等於"
 msgid "IP ID To Match"
 msgstr "要比對的 IP 位址 ID"
 
+msgid "IP Manager"
+msgstr "IP 位址管理員"
+
 msgid "IP Meta"
 msgstr "IP 位址中繼資料"
 
@@ -3625,6 +4132,9 @@ msgstr "IP 位址無法使用"
 msgid "IP Unblocked"
 msgstr "IP 位址已解除封鎖"
 
+msgid "IP Unblocked (Flag File)"
+msgstr "IP 位址已解除封鎖(標記檔案)"
+
 msgid "IP Unblocked By Visitor"
 msgstr "訪客已解除 IP 位址封鎖"
 
@@ -3639,6 +4149,9 @@ msgstr "IP 位址「{{ip}}」已手動新增至繞過清單。"
 
 msgid "IP address '{{ip}}' manually removed from the bypass list."
 msgstr "IP 位址「{{ip}}」已手動從繞過清單中移除。"
+
+msgid "IP address '{{ip}}' removed from blacklist using 'unblock' file flag."
+msgstr "IP 位址「{{ip}}」已使用「解除封鎖」檔案標記從黑名單中移除。"
 
 msgid "IP address added successfully"
 msgstr "IP 位址已成功新增"
@@ -3694,6 +4207,12 @@ msgstr "IP 位址無法從此頁面封鎖,因為它是已知的服務 IP 位址:
 msgid "IP does not match."
 msgstr "IP 位址不符。"
 
+msgid "IP has already been unblocked recently."
+msgstr "IP 位址最近已被解除封鎖。"
+
+msgid "IP has recently attempted an unblock."
+msgstr "IP 位址最近已嘗試解除封鎖。"
+
 msgid "IP isn't on the %s block list."
 msgstr "IP 位址不在 %s 封鎖清單中。"
 
@@ -3718,6 +4237,9 @@ msgstr "識別 Bot 以非標準方式載入 WordPress 的嘗試"
 msgid "Identify A Bot When It Accesses XML-RPC"
 msgstr "當 Bot 存取 XML-RPC 時識別它"
 
+msgid "Identify A Bot When It Hits A 404"
+msgstr "當 Bot 觸發 404 時識別它"
+
 msgid "Identify A Bot When It Tries To Login With A Non-Existent Username."
 msgstr "當 Bot 嘗試使用不存在的使用者名稱登入時識別它。"
 
@@ -3727,6 +4249,9 @@ msgstr "識別 Bot 以非標準方式載入 WordPress 的嘗試"
 msgid "Identify Common Bot Behaviours"
 msgstr "識別常見的 Bot 行為"
 
+msgid "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
+msgstr "當 Bot 呈現為官方網路爬蟲,但分析顯示其為偽造時,將其識別出來。"
+
 msgid "Identify a Bot when it tries to login with a non-existent username."
 msgstr "當 Bot 嘗試使用不存在的使用者名稱登入時識別它。"
 
@@ -3735,6 +4260,12 @@ msgstr "當未提供使用者代理時，識別為 Bot。"
 
 msgid "Identify a request as a bot if the user agent is not provided."
 msgstr "如果未提供使用者代理，將請求識別為 Bot。"
+
+msgid "Identify a visitor as a Bot when it presents as an official web crawler, but analysis shows it's fake."
+msgstr "當訪客呈現為官方網路爬蟲,但分析顯示其為偽造時,將其識別為 Bot。"
+
+msgid "Identifying Info"
+msgstr "識別資訊"
 
 msgid "Identity"
 msgstr "身分"
@@ -3796,6 +4327,9 @@ msgstr "如果重新整理此頁面後仍顯示此訊息,請重新安裝外掛�
 msgid "If this problem persists, please contact support: %s"
 msgstr "如果此問題持續發生,請聯絡支援團隊:%s"
 
+msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
+msgstr "如果您因任何原因認為您或您使用者的信箱已遭入侵,您應該停用此選項。"
+
 msgid "If you continue to exceed the rate limits, your IP address may be completely blocked from further access."
 msgstr "如果您繼續超過速率限制,您的 IP 位址可能會被完全封鎖而無法進一步存取。"
 
@@ -3810,6 +4344,9 @@ msgstr "如果您不使用 XML-RPC,為什麼會有人存取它?"
 
 msgid "If you experience any errors in your logs or strange scanning behaviour, disable this option."
 msgstr "如果您在記錄中遇到任何錯誤或奇怪的掃描行為,請停用此選項。"
+
+msgid "If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Activity Log."
+msgstr "如果您發現不相容或某些功能停止運作,請一次取消勾選 1 個選項,直到找到問題或檢查活動記錄。"
 
 msgid "If you forget this, you could potentially lock yourself out from using this plugin."
 msgstr "如果您忘記此項目,可能會將自己鎖定在外而無法使用此外掛。"
@@ -3925,6 +4462,9 @@ msgstr "與 CrowdSec 及其群眾外包 IP 位址信譽資料合作,您的 IP �
 msgid "In partnership with CrowdSec, we go a step further and provide crowd-sourced IP blocklists so we know ahead of time which IPs are malicious and block them immediately."
 msgstr "與 CrowdSec 合作,我們更進一步提供群眾外包 IP 位址封鎖清單,讓我們提前知道哪些 IP 位址是惡意的並立即封鎖它們。"
 
+msgid "In spite of our best efforts to secure our websites, breaches can still happen."
+msgstr "儘管我們盡最大努力保護網站,資料外洩仍可能發生。"
+
 msgid "In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files."
 msgstr "對於 WordPress,將從 WordPress.org 下載原始檔案以修復任何損壞的檔案。"
 
@@ -4012,11 +4552,17 @@ msgstr "即時警示"
 msgid "Instant alerts on critical events."
 msgstr "關鍵事件的即時警示。"
 
+msgid "Insufficient permissions to use crowd-sourced hashes for premium plugins/themes."
+msgstr "權限不足,無法使用群眾外包雜湊來處理進階外掛/佈景主題。"
+
 msgid "Integrations"
 msgstr "整合"
 
 msgid "Interval"
 msgstr "間隔"
+
+msgid "Interval is measured in seconds."
+msgstr "間隔以秒為單位測量。"
 
 msgid "Invalid"
 msgstr "無效"
@@ -4105,6 +4651,9 @@ msgstr "無效類型。"
 msgid "Invalid user agent detected at '{{useragent}}'."
 msgstr "在「{{useragent}}」偵測到無效的使用者代理程式。"
 
+msgid "Invalid value scope for %s"
+msgstr "%s 的值範圍無效"
+
 msgid "Invalid value type for %s"
 msgstr "%s 的值類型無效"
 
@@ -4119,6 +4668,9 @@ msgstr "請求狀態是否為 404"
 
 msgid "Is Request To The Login Page."
 msgstr "是否為登入頁面請求。"
+
+msgid "Is Shield Plugin Functionality Disabled."
+msgstr "Shield 外掛功能是否已停用。"
 
 msgid "Is Shield Traffic Rate Limiting Enabled."
 msgstr "Shield 流量速率限制是否已啟用。"
@@ -4165,6 +4717,9 @@ msgstr "是否為 WP-CLI"
 msgid "Is WordPress Search Request."
 msgstr "是否為 WordPress 搜尋請求。"
 
+msgid "Is WordPress set to debug mode via WP_DEBUG constant."
+msgstr "WordPress 是否透過 WP_DEBUG 常數設定為除錯模式。"
+
 msgid "Is a given 2FA provider enabled on the site."
 msgstr "網站上是否已啟用指定的雙因素驗證提供者。"
 
@@ -4201,6 +4756,12 @@ msgstr "Shield 外掛是否處於「forceoff」狀態。"
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "目前 IP 位址是否被視為「高信譽」。"
 
+msgid "Is the current user session age less than or greater than the provided value."
+msgstr "目前使用者工作階段的時間是否小於或大於提供的值。"
+
+msgid "Is the current user session token age less than or greater than the provided value."
+msgstr "目前使用者工作階段權杖的時間是否小於或大於提供的值。"
+
 msgid "Is the request HTTPS."
 msgstr "請求是否為 HTTPS。"
 
@@ -4224,6 +4785,9 @@ msgstr "請求 IP 位址是否在 Shield 的手動繞過清單/白名單中。"
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "請求是否為來自受信任服務提供者的 Bot。"
+
+msgid "Is the request a server loopback request."
+msgstr "請求是否為伺服器迴路請求。"
 
 msgid "Is the request an HTTP 404."
 msgstr "請求是否為 HTTP 404。"
@@ -4330,8 +4894,14 @@ msgstr "它完全取代了對任何使用者 CAPTCHA 的需求,並且可以與�
 msgid "It could involve restricting WordPress features such as XML-RPC, or scanning data inside HTTP requests for malicious parameters."
 msgstr "它可能涉及限制 WordPress 功能(例如 XML-RPC),或掃描 HTTP 請求中的資料以尋找惡意參數。"
 
+msgid "It is always learning based on new file and malware samples it receives and will continue to improve over time."
+msgstr "它會根據收到的新檔案與惡意軟體樣本持續學習,並將隨時間不斷改進。"
+
 msgid "It is important to not only block malicious request, but also protect your existing users and customers."
 msgstr "不僅要封鎖惡意請求,同時也要保護您現有的使用者與客戶,這一點非常重要。"
+
+msgid "It is important to understand that the result of this query is an estimation to help you assess the file, not a conclusion."
+msgstr "重要的是要了解此查詢的結果是一個估計,用於協助您評估檔案,而非結論。"
 
 msgid "It looks like you're using a WP forms plugin for which we have an integration: %s."
 msgstr "看起來您正在使用我們已整合的 WP 表單外掛:%s。"
@@ -4354,6 +4924,12 @@ msgstr "已傳送至「{{to}}」,主旨為「{{subject}}」。"
 msgid "It will be displayed below when it's ready."
 msgstr "準備就緒後將顯示於下方。"
 
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
+msgstr "它會自動尋找合適的位置,但如果失敗,您可能會在網站上看到 PHP 警告,且某些 Shield 功能將無法使用。"
+
+msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
+msgstr "這是一個複雜的領域,如果使用不當,很容易破壞您的前端使用者體驗。"
+
 msgid "It's best practice to protect user access with at least one 2FA method."
 msgstr "最佳做法是使用至少一種雙因素驗證方法來保護使用者存取權限。"
 
@@ -4371,6 +4947,9 @@ msgstr "限制工作階段生命週期是良好的做法,特別是在閒置時�
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "將工作階段鎖定至至少 1 個屬性是良好的做法,有助於防止工作階段被竊取。"
+
+msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
+msgstr "人工標示為垃圾訊息仍然造成最大的困擾,因為它們通常不會觸發我們的防禦機制。"
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "它位於 WordPress 外掛目錄中,並被識別為該外掛版本的有效檔案。"
@@ -4407,6 +4986,12 @@ msgstr "項目已修復:「{{path_full}}」"
 
 msgid "Items Found In Scan"
 msgstr "掃描中發現的項目"
+
+msgid "Join The Shield Security Newsletter"
+msgstr "訂閱 Shield Security 電子報"
+
+msgid "Jump To Module Settings"
+msgstr "跳至模組設定"
 
 msgid "Just grab a new license from the"
 msgstr "只需從以下位置取得新授權"
@@ -4477,6 +5062,12 @@ msgstr "上次違規"
 msgid "Last Scan"
 msgstr "上次掃描"
 
+msgid "Last Seen"
+msgstr "上次出現"
+
+msgid "Last Seen At"
+msgstr "上次出現時間"
+
 msgid "Last Sync"
 msgstr "上次同步"
 
@@ -4485,6 +5076,15 @@ msgstr "最後,我們想要防止 Bot(或人類)基於任何原因在網站上�
 
 msgid "Launch Debug Info Page"
 msgstr "啟動除錯資訊頁面"
+
+msgid "Learn More"
+msgstr "了解更多"
+
+msgid "Learn More."
+msgstr "了解更多。"
+
+msgid "Less Than"
+msgstr "小於"
 
 msgid "Level"
 msgstr "等級"
@@ -4528,6 +5128,9 @@ msgstr "授權每 %s 秒只能檢查一次"
 msgid "Lifetime"
 msgstr "有效期限"
 
+msgid "Lifetime Total"
+msgstr "有效期限總計"
+
 msgid "Light"
 msgstr "淺色"
 
@@ -4551,6 +5154,12 @@ msgstr "在「{{path}}」偵測到連結垃圾存取。"
 
 msgid "Link-Cheese"
 msgstr "連結垃圾"
+
+msgid "Linked To Child Theme"
+msgstr "連結至子佈景主題"
+
+msgid "Linked To Parent Theme"
+msgstr "連結至父佈景主題"
 
 msgid "Links may only be used once."
 msgstr "連結只能使用一次。"
@@ -4633,6 +5242,9 @@ msgstr "已鎖定"
 msgid "Locked Files"
 msgstr "已鎖定檔案"
 
+msgid "Locks A User Session To Prevent Theft"
+msgstr "鎖定使用者工作階段以防止竊取"
+
 msgid "Log Message"
 msgstr "記錄訊息"
 
@@ -4654,8 +5266,14 @@ msgstr "已登入"
 msgid "Logged-In At"
 msgstr "登入時間"
 
+msgid "Logged-in username (where applicable)"
+msgstr "已登入的使用者名稱(如適用)"
+
 msgid "Logging Level"
 msgstr "記錄等級"
+
+msgid "Logging Level For DB-Based Logs"
+msgstr "資料庫記錄的記錄等級"
 
 msgid "Logging isn't currently available on this site."
 msgstr "此網站目前無法使用記錄功能。"
@@ -4716,6 +5334,9 @@ msgstr "登入成功"
 
 msgid "Login backup codes have been removed from your profile"
 msgstr "登入備用代碼已從您的個人資料中移除"
+
+msgid "Login or Signup for your free CrowdSec console"
+msgstr "登入或註冊您的免費 CrowdSec 控制台"
 
 msgid "Login page loaded"
 msgstr "登入頁面已載入"
@@ -4812,6 +5433,9 @@ msgstr "許多第三方外掛提供自訂的使用者登入、註冊與遺失密
 
 msgid "Many WordPress caching plugins ignore HTTP Headers - if they're not showing up, disable page caching."
 msgstr "許多 WordPress 快取外掛會忽略 HTTP 標頭 - 如果它們沒有顯示,請停用頁面快取。"
+
+msgid "Many bots pretend to be a Google Bot, or any other branded crawler."
+msgstr "許多 Bot 假裝成 Google Bot 或任何其他品牌爬蟲。"
 
 msgid "Mark Comment Not SPAM (Manual)"
 msgstr "標記留言為非垃圾訊息(手動)"
@@ -4924,6 +5548,9 @@ msgstr "表示訪客為人類所需的最低 silentCAPTCHA 分數"
 msgid "Minutes"
 msgstr "分鐘"
 
+msgid "Misconfiguration can cause issues for your visitors, so we always recommend consulting experts in this area on how they might affect your site in particular."
+msgstr "設定錯誤可能會對您的訪客造成問題,因此我們始終建議諮詢此領域的專家,了解這些設定可能如何影響您的特定網站。"
+
 msgid "Missing"
 msgstr "遺失"
 
@@ -4954,6 +5581,9 @@ msgstr "每月"
 msgid "More Info"
 msgstr "更多資訊"
 
+msgid "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices."
+msgstr "挑戰的複雜度越高,對 Bot 的成本就越大,但可能會對使用較慢裝置的合法訪客造成負擔。"
+
 msgid "Most SPAM is automatic, by bots, but sometimes Humans also post comments to your site and these bypass Bot Detection rules."
 msgstr "大多數標示為垃圾訊息是由 Bot 自動產生的,但有時人類也會在您的網站上發表留言,這些留言會繞過 Bot 偵測規則。"
 
@@ -4974,6 +5604,9 @@ msgstr "我的安全性概觀"
 
 msgid "MySQL"
 msgstr "MySQL"
+
+msgid "MySQL DB Password"
+msgstr "MySQL 資料庫密碼"
 
 msgid "N/A"
 msgstr "不適用"
@@ -4998,6 +5631,9 @@ msgstr "從不"
 
 msgid "Never Recorded"
 msgstr "從未記錄"
+
+msgid "Never Seen"
+msgstr "從未出現"
 
 msgid "New"
 msgstr "新增"
@@ -5056,6 +5692,9 @@ msgstr "無問題"
 msgid "No Name Yet"
 msgstr "尚未命名"
 
+msgid "No Potential Malware Found"
+msgstr "未發現潛在惡意程式碼"
+
 msgid "No Title"
 msgstr "無標題"
 
@@ -5095,8 +5734,14 @@ msgstr "使用者沒有電子郵件提供者。"
 msgid "No extra extension plugins required"
 msgstr "無需額外的擴充外掛"
 
+msgid "No field data provided"
+msgstr "未提供欄位資料"
+
 msgid "No hashes exist for file: %s"
 msgstr "檔案不存在雜湊:%s"
+
+msgid "No inner page title set"
+msgstr "未設定內部頁面標題"
 
 msgid "No items selected."
 msgstr "未選取任何項目。"
@@ -5185,6 +5830,9 @@ msgstr "單次有效隨機碼失敗。"
 msgid "None"
 msgstr "無"
 
+msgid "Normally WordPress will trust after 1 comment."
+msgstr "通常 WordPress 會在 1 則留言後信任。"
+
 msgid "Not Installed"
 msgstr "未安裝"
 
@@ -5203,6 +5851,9 @@ msgstr "未記錄"
 msgid "Not a WordPress Core file"
 msgstr "不是 WordPress 核心檔案"
 
+msgid "Not a WordPress.org asset."
+msgstr "並非 WordPress.org 資產。"
+
 msgid "Not a plugin or theme file path."
 msgstr "不是外掛或佈景主題檔案路徑。"
 
@@ -5215,6 +5866,9 @@ msgstr "不是有效的 IP 位址範圍"
 msgid "Not a valid lock file record."
 msgstr "不是有效的鎖定檔案記錄。"
 
+msgid "Not a valid option key for module: %s"
+msgstr "不是模組的有效選項鍵:%s"
+
 msgid "Not a valid option key."
 msgstr "不是有效的選項鍵。"
 
@@ -5223,6 +5877,9 @@ msgstr "不是有效的掃描項目記錄"
 
 msgid "Not a valid value for this parameter"
 msgstr "此參數的值無效"
+
+msgid "Not available as your site cannot handshake with ShieldNET API."
+msgstr "無法使用,因為您的網站無法與 ShieldNET API 進行交握。"
 
 msgid "Not currently logged-in as security admin."
 msgstr "目前未以 Security Admin 身分登入。"
@@ -5236,6 +5893,9 @@ msgstr "不匯入無法刪除的檔案"
 msgid "Not yet recorded"
 msgstr "尚未記錄"
 
+msgid "NotBot Frontend JS Loading"
+msgstr "NotBot 前端 JS 載入"
+
 msgid "Note"
 msgstr "注意"
 
@@ -5244,6 +5904,9 @@ msgstr "注意:任何電子郵件延遲或傳送問題都是由網站主機和�
 
 msgid "Note: To prevent other admins from using this tool, consider switching on the Security Admin feature."
 msgstr "注意:若要防止其他管理員使用此工具,請考慮開啟安全性管理員功能。"
+
+msgid "Note: You may want to warn users prior to enabling this option."
+msgstr "注意:您可能希望在啟用此選項之前警告使用者。"
 
 msgid "Notice"
 msgstr "通知"
@@ -5287,11 +5950,20 @@ msgstr "隱藏某些 WordPress 設定,避免公開檢視。"
 msgid "Obscurity"
 msgstr "隱蔽性"
 
+msgid "Obscurity is not true security and so these settings are down to your personal tastes."
+msgstr "隱蔽性並非真正的安全性,因此這些設定取決於您的個人喜好。"
+
+msgid "Obsolete WP core file"
+msgstr "過時的 WP 核心檔案"
+
 msgid "Off"
 msgstr "關閉"
 
 msgid "Offense"
 msgstr "違規"
+
+msgid "Offense Count"
+msgstr "違規次數"
 
 msgid "Offense Limit"
 msgstr "違規限制"
@@ -5310,6 +5982,9 @@ msgstr "違規次數限制"
 
 msgid "Offenses couldn't be reset at this time."
 msgstr "違規記錄目前無法重設。"
+
+msgid "Offenses reset to zero."
+msgstr "違規次數已重設為零。"
 
 msgid "On"
 msgstr "開啟"
@@ -5335,8 +6010,14 @@ msgstr "僅啟用您需要的整合功能。"
 msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
 msgstr "只有您選擇的表單類型(登入、註冊、遺失密碼)會被監控。"
 
+msgid "Only letters and numbers are permitted: %s"
+msgstr "僅允許使用字母與數字:%s"
+
 msgid "Only traffic originating from whitelisted IP addresses and the hosting server itself will be permitted."
 msgstr "只有來自白名單 IP 位址與主機伺服器本身的流量才會被允許。"
+
+msgid "OpenSSL Extension"
+msgstr "OpenSSL 擴充功能"
 
 msgid "Option excluded from import/export"
 msgstr "選項已從匯入/匯出中排除"
@@ -5380,11 +6061,17 @@ msgstr "選項將每晚自動從主站匯入"
 msgid "Or Copy-Paste"
 msgstr "或複製貼上"
 
+msgid "Or choose a lower minimum score to perhaps allow through more bots (but reduce the chances of accidentally blocking legitimate visitors)."
+msgstr "或選擇較低的最低分數,可能會允許更多 Bot 通過(但降低意外封鎖合法訪客的機會)。"
+
 msgid "Original File Content"
 msgstr "原始檔案內容"
 
 msgid "Originating IP address of the request"
 msgstr "請求的來源 IP 位址"
+
+msgid "Our website uses specialist security software - %s."
+msgstr "我們的網站使用專業安全性軟體 - %s。"
 
 msgid "Override Maximum Session Lifetime"
 msgstr "覆寫最長工作階段有效期限"
@@ -5548,6 +6235,12 @@ msgstr "對使用有效使用者名稱但密碼錯誤嘗試登入的訪客進行
 msgid "Penalise a visitor who fails to login using a valid username."
 msgstr "對使用無效使用者名稱登入失敗的訪客進行懲罰。"
 
+msgid "Perform actions for this module"
+msgstr "執行此模組的動作"
+
+msgid "Performance of your block lists is optimised by automatically removing stale IP addresses, keeping the list small and fast."
+msgstr "透過自動移除過時的 IP 位址來最佳化封鎖清單的效能,保持清單精簡且快速。"
+
 msgid "Perhaps one of its most powerful features is how it will prevent other admins from tampering with other admin accounts."
 msgstr "它最強大的功能之一是如何防止其他管理員竄改其他管理員帳號。"
 
@@ -5559,6 +6252,12 @@ msgstr "永久連結"
 
 msgid "Permalinks Updated"
 msgstr "永久連結已更新"
+
+msgid "Permalinks changed: %s&rarr;%s"
+msgstr "永久連結已變更:%s&rarr;%s"
+
+msgid "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
+msgstr "永久且冗長的 IP 位址黑名單會損害效能。您應該允許黑名單上的 IP 位址隨著時間推移最終被移除。較短的 IP 位址黑名單更有效率,也是更明智地使用基於 IP 位址的封鎖系統。"
 
 msgid "Permanently Deleted"
 msgstr "已永久刪除"
@@ -5577,6 +6276,12 @@ msgstr "在嘗試任何管理員使用者修改之前,請先使用 Security Admi
 
 msgid "Please be sure that this is what you want."
 msgstr "請確認這是您想要的。"
+
+msgid "Please check all confirmation boxes."
+msgstr "請勾選所有確認方塊。"
+
+msgid "Please check back again shortly, or contact the site administrator for further details."
+msgstr "請稍後再次查看,或聯絡網站管理員以取得更多詳細資訊。"
 
 msgid "Please check the box to confirm this action"
 msgstr "請勾選方塊以確認此動作"
@@ -5641,6 +6346,9 @@ msgstr "請注意,許多 WordPress 頁面快取外掛完全忽略自訂 HTTP 標
 msgid "Please now save your profile settings."
 msgstr "請立即儲存您的個人資料設定。"
 
+msgid "Please only enable this on non-critical sites, and if you're comfortable with bugs arising."
+msgstr "請僅在非關鍵網站上啟用此功能,並且您能接受可能出現的錯誤。"
+
 msgid "Please provide a label to identify the device."
 msgstr "請提供標籤以識別裝置。"
 
@@ -5652,6 +6360,9 @@ msgstr "請提供有效的規則運算式。"
 
 msgid "Please provide an IP Address"
 msgstr "請提供 IP 位址"
+
+msgid "Please provide the builder form"
+msgstr "請提供建立器表單"
 
 msgid "Please re-save your settings to trigger another verification email."
 msgstr "請重新儲存您的設定以觸發另一封驗證電子郵件。"
@@ -5680,14 +6391,29 @@ msgstr "請查看資訊連結以了解如何取得您自己的 Yubikey App ID �
 msgid "Please review the info link on how to obtain your own Yubikey App ID and API Key."
 msgstr "請查看資訊連結以了解如何取得您自己的 Yubikey App ID 與 API 金鑰。"
 
+msgid "Please see the \"%s\" tab for more information as this file has already been classified as \"potential malware\" in the scan."
+msgstr "請參閱「%s」分頁以取得更多資訊,因為此檔案在掃描中已被分類為「潛在惡意軟體」。"
+
 msgid "Please select a file to review."
 msgstr "請選擇要檢閱的檔案。"
+
+msgid "Please select a file to upload"
+msgstr "請選擇要上傳的檔案"
+
+msgid "Please select an action to perform."
+msgstr "請選擇要執行的動作。"
 
 msgid "Please select one of the IP Rule Types - Block or Bypass"
 msgstr "請選擇其中一種 IP 位址規則類型 - 封鎖或略過"
 
 msgid "Please select one of the options available"
 msgstr "請選擇其中一個可用選項"
+
+msgid "Please supply a different password as this password has been pwned."
+msgstr "請提供不同的密碼,因為此密碼已被洩露。"
+
+msgid "Please supply at least 1 authentication code"
+msgstr "請至少提供 1 個驗證碼"
 
 msgid "Please take a moment to review the contents of the file as it may contain malicious code."
 msgstr "請花點時間檢閱檔案內容,因為它可能包含惡意程式碼。"
@@ -5718,6 +6444,9 @@ msgstr "請將您的 Shield 外掛更新至相同版本並重新同步。"
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "請升級以支援掃描所有外掛檔案的竄改情況。"
+
+msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
+msgstr "請升級您的 Shield Security 訂閱以存取自訂安全性規則建立器。"
 
 msgid "Please upgrade your ShieldPRO plan to make use of this feature."
 msgstr "請升級您的 ShieldPRO 方案以使用此功能。"
@@ -5761,11 +6490,17 @@ msgstr "請稍候"
 msgid "Please wait a short while before checking again."
 msgstr "請稍候片刻後再次檢查。"
 
+msgid "Please wait, as this will take a few moments."
+msgstr "請稍候,這需要一些時間。"
+
 msgid "Plugin"
 msgstr "外掛"
 
 msgid "Plugin & Theme Files"
 msgstr "外掛與佈景主題檔案"
+
+msgid "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}."
+msgstr "外掛「{{plugin}}」已從版本 {{from}} 降級至版本 {{to}}。"
 
 msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
 msgstr "外掛「{{plugin}}」已從版本 {{from}} 升級至版本 {{to}}。"
@@ -5800,6 +6535,9 @@ msgstr "外掛停用詳細資訊"
 msgid "Plugin Defaults"
 msgstr "外掛預設值"
 
+msgid "Plugin Downgraded"
+msgstr "外掛降級"
+
 msgid "Plugin Files"
 msgstr "外掛檔案"
 
@@ -5817,6 +6555,9 @@ msgstr "外掛選項已變更"
 
 msgid "Plugin Security Badge"
 msgstr "外掛安全性徽章"
+
+msgid "Plugin Tag Line"
+msgstr "外掛標語"
 
 msgid "Plugin Uninstalled"
 msgstr "外掛已解除安裝"
@@ -5838,6 +6579,9 @@ msgstr "外掛開發者不對正式版本使用 SVN 標籤。"
 
 msgid "Plugin does not meet minimum requirements"
 msgstr "外掛不符合最低需求"
+
+msgid "Plugin files aren't scanned for corruption."
+msgstr "外掛檔案未掃描損毀。"
 
 msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
 msgstr "外掛選項「{{name}}」({{key}})已更新為「{{value}}」。"
@@ -5935,6 +6679,12 @@ msgstr "標題為「{{title}}」的文章已更新。"
 msgid "Posts"
 msgstr "文章"
 
+msgid "Potential Malware"
+msgstr "潛在惡意程式碼"
+
+msgid "Potential Malware Found"
+msgstr "發現潛在惡意程式碼"
+
 msgid "Powered by %s"
 msgstr "本站採用 %s 建置"
 
@@ -5949,6 +6699,9 @@ msgstr "來自 Shield Security 的強大 WordPress 防護"
 
 msgid "Powerful User Password Policies"
 msgstr "強大的使用者密碼政策"
+
+msgid "Powerful, Auto-Learning Malware Scanner"
+msgstr "強大的自動學習惡意程式碼掃描器"
 
 msgid "Predicted"
 msgstr "預測"
@@ -6052,6 +6805,9 @@ msgstr "個人資料"
 msgid "Profile '%s' was applied."
 msgstr "設定檔「%s」已套用。"
 
+msgid "Promoted To Admin"
+msgstr "提升為管理員"
+
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "保護 WP 登入免於 Bot 的自動化登入嘗試"
 
@@ -6069,6 +6825,9 @@ msgstr "保護使用者登入表單免於 Bot 攻擊"
 
 msgid "Protect user registration forms against bots"
 msgstr "保護使用者註冊表單免於 Bot 攻擊"
+
+msgid "Protect user sessions against the threat of hijacking and theft."
+msgstr "保護使用者工作階段免受劫持與竊取的威脅。"
 
 msgid "Protect visitors to your site by implementing increased security response headers."
 msgstr "透過實作增強的安全性回應標頭來保護您網站的訪客。"
@@ -6088,6 +6847,12 @@ msgstr "保護您的<strong>重要使用者表單</strong>,例如登入、註冊
 msgid "Protection for user accounts."
 msgstr "使用者帳號的防護。"
 
+msgid "Protection for user logins alongside session hijacking prevention."
+msgstr "使用者登入防護以及工作階段劫持預防。"
+
+msgid "Protects against user compromise by preventing user session theft/hijacking."
+msgstr "透過防止使用者工作階段遭竊取或劫持來保護使用者免於帳號遭入侵。"
+
 msgid "Provide Auto-Login Links For Simple Email 2FA"
 msgstr "為簡易電子郵件雙因素驗證提供自動登入連結"
 
@@ -6096,6 +6861,9 @@ msgstr "提供自訂流量排除項目"
 
 msgid "Provide The Security Admin PIN."
 msgstr "提供 Security Admin PIN 碼。"
+
+msgid "Provide Username<->Yubikey Pairs that are usable for this site."
+msgstr "提供可用於此網站的使用者名稱<->Yubikey 配對。"
 
 msgid "Provide a One Time Password from your Yubikey."
 msgstr "請提供來自您 Yubikey 的一次性密碼。"
@@ -6117,6 +6885,12 @@ msgstr "請提供來自您雙因素驗證登入裝置的一次性密碼"
 
 msgid "Provide the current code generated by your Google Authenticator app."
 msgstr "提供您 Google Authenticator 應用程式產生的目前代碼。"
+
+msgid "Provide the name of your company."
+msgstr "提供您公司的名稱。"
+
+msgid "Provide tighter security for your WooCommerce customers and protect against Contact Form SPAM."
+msgstr "為您的 WooCommerce 客戶提供更嚴格的安全性,並防範聯絡表單標示為垃圾訊息。"
 
 msgid "Provide your custom set of CSP rules."
 msgstr "提供您的自訂 CSP 規則集。"
@@ -6172,6 +6946,9 @@ msgstr "已超過速率限制"
 msgid "Rate Limiting"
 msgstr "速率限制"
 
+msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
+msgstr "在 {{span}} 秒內有 {{requests}} 個請求,已超過速率限制({{count}})。"
+
 msgid "Re-Brand Shield Security as your own!"
 msgstr "將 Shield Security 重新品牌化為您自己的!"
 
@@ -6195,6 +6972,9 @@ msgstr "在啟用此選項之前請仔細閱讀。"
 
 msgid "Ready"
 msgstr "就緒"
+
+msgid "Really Re-Install Plugin"
+msgstr "確定要重新安裝外掛"
 
 msgid "Reason"
 msgstr "原因"
@@ -6241,6 +7021,12 @@ msgstr "最近流量"
 msgid "Recent Users"
 msgstr "最近使用者"
 
+msgid "Recently Blocked"
+msgstr "最近已封鎖"
+
+msgid "Recently Blocked IPs"
+msgstr "最近已封鎖的 IP 位址"
+
 msgid "Recommendation"
 msgstr "建議"
 
@@ -6258,6 +7044,12 @@ msgstr "重新導向狀態"
 
 msgid "Redirecting wp-login due to hidden login URL"
 msgstr "由於隱藏登入網址而重新導向 wp-login"
+
+msgid "Referrer Policy"
+msgstr "Referrer Policy"
+
+msgid "Referrer Policy Header"
+msgstr "Referrer Policy 標頭"
 
 msgid "Refresh"
 msgstr "重新整理"
@@ -6292,6 +7084,9 @@ msgstr "註冊已封鎖"
 msgid "Regular Expression"
 msgstr "規則運算式"
 
+msgid "Regular scanning help identify compromise and prevent exploitation of vulnerabilies."
+msgstr "定期掃描有助於識別入侵並防止漏洞遭到利用。"
+
 msgid "Regularly scan WordPress plugins and themes for known security vulnerabilities."
 msgstr "定期掃描 WordPress 外掛與佈景主題以檢查已知的安全性漏洞。"
 
@@ -6304,11 +7099,17 @@ msgstr "定期掃描您的 WordPress 外掛與佈景主題以檢查已知的安�
 msgid "Relative Path"
 msgstr "相對路徑"
 
+msgid "Release Date"
+msgstr "發布日期"
+
 msgid "Reloading"
 msgstr "重新載入中"
 
 msgid "Reloading page"
 msgstr "正在重新載入頁面"
+
+msgid "Remember me for %s"
+msgstr "記住我 %s"
 
 msgid "Remember to include %s or %s"
 msgstr "請記得包含 %s 或 %s"
@@ -6334,11 +7135,20 @@ msgstr "移除 IP 位址略過"
 msgid "Remove License"
 msgstr "移除授權"
 
+msgid "Remove WP Generator Meta Tag"
+msgstr "移除 WP 產生器中繼標籤"
+
+msgid "Remove a meta tag from your WordPress pages that publicly displays that your site is WordPress and its current version."
+msgstr "從您的 WordPress 頁面中移除公開顯示您的網站是 WordPress 及其目前版本的中繼標籤。"
+
 msgid "Removed the forceoff file."
 msgstr "已移除 forceoff 檔案。"
 
 msgid "Removes the option to directly edit any files from within the WordPress admin area."
 msgstr "移除從 WordPress 管理後台區域內直接編輯任何檔案的選項。"
+
+msgid "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."
+msgstr "移除從 WordPress 管理後台區域內直接編輯任何檔案的選項。相當於將「DISALLOW_FILE_EDIT」設定為 TRUE。"
 
 msgid "Rename and re-brand the %s plugin for your client site installations."
 msgstr "為您的客戶網站安裝重新命名並重新品牌化 %s 外掛。"
@@ -6382,6 +7192,9 @@ msgstr "報告選項"
 msgid "Report Sent"
 msgstr "報告已傳送"
 
+msgid "Report Sent (via {{medium}})."
+msgstr "報告已傳送(透過 {{medium}})。"
+
 msgid "Report Title"
 msgstr "報告標題"
 
@@ -6423,6 +7236,9 @@ msgstr "請求防火牆選項"
 
 msgid "Request ID"
 msgstr "請求 ID"
+
+msgid "Request Limit Count"
+msgstr "請求限制次數"
 
 msgid "Request Limit Interval"
 msgstr "請求限制間隔"
@@ -6483,6 +7299,9 @@ msgstr "請求通過 AntiBot 測試,訪客分數為「{{score}}」(最低分數:
 
 msgid "Requested At"
 msgstr "請求時間"
+
+msgid "Requested action completed successfully."
+msgstr "請求的動作已成功完成。"
 
 msgid "Requested action failed."
 msgstr "請求的動作失敗。"
@@ -6568,6 +7387,9 @@ msgstr "受限制"
 msgid "Restriction Details"
 msgstr "限制詳細資料"
 
+msgid "Restrictions Lifted"
+msgstr "限制已解除"
+
 msgid "Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system."
 msgstr "限制所有未使用安全性管理員存取系統驗證的使用者存取 WordPress 關鍵區域。"
 
@@ -6619,6 +7441,9 @@ msgstr "規則已停用"
 msgid "Rule Reset"
 msgstr "重設規則"
 
+msgid "Rule Saved"
+msgstr "規則已儲存"
+
 msgid "Rule Slug"
 msgstr "規則代稱"
 
@@ -6628,6 +7453,9 @@ msgstr "規則型別"
 msgid "Rule deleted"
 msgstr "規則已刪除"
 
+msgid "Rule reset to previous saved state"
+msgstr "規則已重設為先前儲存的狀態"
+
 msgid "Rule will be exported during sync"
 msgstr "規則將在同步期間匯出"
 
@@ -6636,6 +7464,9 @@ msgstr "規則不會在同步期間匯出"
 
 msgid "Rules"
 msgstr "規則"
+
+msgid "Rules Builder"
+msgstr "規則建立器"
 
 msgid "Run"
 msgstr "執行"
@@ -6724,14 +7555,23 @@ msgstr "SQL 查詢"
 msgid "SSL Certificate"
 msgstr "SSL 憑證"
 
+msgid "SSL Certificate remains valid for at least the next 2 weeks."
+msgstr "SSL 憑證在未來至少 2 週內仍然有效。"
+
 msgid "SSL certificate for this site has expired."
 msgstr "此網站的 SSL 憑證已過期。"
+
+msgid "SSL certificate will expire in less than 2 weeks."
+msgstr "SSL 憑證將在 2 週內過期。"
 
 msgid "Save Options"
 msgstr "儲存選項"
 
 msgid "Save Settings"
 msgstr "儲存設定"
+
+msgid "Scan Completed"
+msgstr "掃描已完成"
 
 msgid "Scan Exclusions"
 msgstr "掃描排除項目"
@@ -6768,6 +7608,9 @@ msgstr "掃描選項"
 
 msgid "Scan Result Items"
 msgstr "掃描結果項目"
+
+msgid "Scan Result Items Metadata"
+msgstr "掃描結果項目中繼資料"
 
 msgid "Scan Result Sets"
 msgstr "掃描結果集"
@@ -6828,6 +7671,9 @@ msgstr "您的網站每天只執行一次掃描。"
 
 msgid "Scans complete."
 msgstr "掃描完成。"
+
+msgid "Scans completed."
+msgstr "掃描已完成。"
 
 msgid "Scans detected 1 or more modified or unrecognised files in the theme directory."
 msgstr "掃描在佈景主題目錄中偵測到 1 個或多個已修改或無法辨識的檔案。"
@@ -7024,11 +7870,17 @@ msgstr "檢視所有 PRO 功能與額外項目"
 msgid "See Details"
 msgstr "檢視詳細資料"
 
+msgid "See What's Happening"
+msgstr "查看發生的情況"
+
 msgid "See details of every action that happens on your WordPress site."
 msgstr "查看 WordPress 網站上發生的每個動作的詳細資訊。"
 
 msgid "See the 'File Scan Areas' option to specify which files should be scanned."
 msgstr "請參閱「檔案掃描區域」選項以指定應掃描哪些檔案。"
+
+msgid "See what's happening with reports."
+msgstr "透過報告了解發生的情況。"
 
 msgid "Select"
 msgstr "選取"
@@ -7065,6 +7917,9 @@ msgstr "選擇要匯入選項的檔案"
 
 msgid "Select request types that you don't want to appear in the traffic viewer."
 msgstr "選擇您不希望在流量檢視器中顯示的請求類型。"
+
+msgid "Select the properties that should be tested during email address validation."
+msgstr "選擇在電子郵件地址驗證期間應測試的屬性。"
 
 msgid "Select which user forms should be protected against brute-force attacks."
 msgstr "選擇應受到保護以防範暴力密碼破解攻擊的使用者表單。"
@@ -7123,6 +7978,9 @@ msgstr "工作階段持續時間"
 msgid "Session Expired"
 msgstr "工作階段已過期"
 
+msgid "Session Hijacking Protection"
+msgstr "工作階段劫持保護"
+
 msgid "Session Idle"
 msgstr "工作階段閒置"
 
@@ -7150,6 +8008,9 @@ msgstr "工作階段已終止"
 msgid "Session Timeout"
 msgstr "工作階段逾時"
 
+msgid "Session Token Duration"
+msgstr "工作階段權杖持續時間"
+
 msgid "Session lock"
 msgstr "工作階段鎖定"
 
@@ -7164,6 +8025,9 @@ msgstr "工作階段"
 
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "設定訪客 IP 位址自動封鎖前允許的違規次數限制。"
+
+msgid "Set how frequently the Hack Guard scans will run."
+msgstr "設定 Hack Guard 掃描的執行頻率。"
 
 msgid "Set the entire plugin's enabled/disabled status."
 msgstr "設定整個外掛的啟用/停用狀態。"
@@ -7309,14 +8173,23 @@ msgstr "Shield 的 MainWP 整合功能未針對此網站啟用。"
 msgid "Shield's Rules Engine isn't running."
 msgstr "Shield 的規則引擎未執行。"
 
+msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
+msgstr "Shield 的 silentCAPTCHA 系統使用 ALTCHA,挑戰 Bot 執行複雜的工作。"
+
 msgid "ShieldBACKUPS"
 msgstr "ShieldBACKUPS"
+
+msgid "ShieldNET IP Reputation Score"
+msgstr "ShieldNET IP 位址信譽評分"
 
 msgid "ShieldPRO"
 msgstr "ShieldPRO"
 
 msgid "ShieldPRO Features"
 msgstr "ShieldPRO 功能"
+
+msgid "ShieldPRO License Management"
+msgstr "ShieldPRO 授權管理"
 
 msgid "ShieldPRO Premium Security"
 msgstr "ShieldPRO 進階安全性"
@@ -7345,11 +8218,17 @@ msgstr "顯示外掛的重新安裝連結"
 msgid "Show Your Visitors That You Take Security Seriously!"
 msgstr "向您的訪客展示您對安全性的重視!"
 
+msgid "Show help video for this section"
+msgstr "顯示此區段的說明影片"
+
 msgid "Show links to re-install plugins and offer re-install when activating plugins."
 msgstr "顯示重新安裝外掛的連結,並在啟用外掛時提供重新安裝選項。"
 
 msgid "Signal"
 msgstr "訊號"
+
+msgid "Signals Pushed"
+msgstr "訊號已推送"
 
 msgid "Simple Stats"
 msgstr "簡易統計"
@@ -7408,14 +8287,23 @@ msgstr "網站網址"
 msgid "Site URL Changed"
 msgstr "網站網址已變更"
 
+msgid "Site URL changed: %s&rarr;%s"
+msgstr "網站網址已變更:%s&rarr;%s"
+
 msgid "Site added to export white list: {{site}}"
 msgstr "網站已新增至匯出白名單:{{site}}"
+
+msgid "Site email changed: %s&rarr;%s"
+msgstr "網站電子郵件已變更:%s&rarr;%s"
 
 msgid "Site failed to sync"
 msgstr "網站同步失敗"
 
 msgid "Site has been locked down!"
 msgstr "網站已被鎖定!"
+
+msgid "Site lock down has been lifted!"
+msgstr "網站鎖定已解除!"
 
 msgid "Site removed from export white list: {{site}}"
 msgstr "網站已從匯出白名單中移除:{{site}}"
@@ -7435,11 +8323,17 @@ msgstr "大小"
 msgid "Slug"
 msgstr "代稱"
 
+msgid "Slug Updated: %s&rarr;%s"
+msgstr "代稱已更新:%s&rarr;%s"
+
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "文章 ID {{post_id}} 的代稱已從「{{slug_old}}」更新為「{{slug_new}}」。"
 
 msgid "Snapshot could not be loaded for %s"
 msgstr "無法載入 %s 的快照"
+
+msgid "Snapshot data could not be decoded."
+msgstr "無法解碼快照資料。"
 
 msgid "Snapshot store does not exist: '%s'"
 msgstr "快照儲存不存在:「%s」"
@@ -7455,6 +8349,9 @@ msgstr "一些基本統計資料,這是測試版,將隨時間發展。"
 
 msgid "Some common namespaces"
 msgstr "一些常見的命名空間"
+
+msgid "Some form developers provide CAPTCHAs to try and block SPAM, but these are often clunky and ineffective."
+msgstr "某些表單開發者提供 CAPTCHA 來嘗試封鎖標示為垃圾訊息,但這些通常笨拙且無效。"
 
 msgid "Some items may not have been processed."
 msgstr "某些項目可能尚未處理。"
@@ -7543,6 +8440,9 @@ msgstr "指定自上次登入以來將使用者視為閒置的天數。"
 msgid "Specify user roles here that shouldn't be scanned."
 msgstr "在此指定不應被掃描的使用者角色。"
 
+msgid "Start Date"
+msgstr "開始日期"
+
 msgid "Statistics"
 msgstr "統計資料"
 
@@ -7552,17 +8452,26 @@ msgstr "統計"
 msgid "Status"
 msgstr "狀態"
 
+msgid "Status changed: %s&rarr;%s"
+msgstr "狀態已變更:%s&rarr;%s"
+
 msgid "Store directory could not be created: %s"
 msgstr "無法建立儲存目錄:%s"
 
 msgid "Store directory path does not exist: %s"
 msgstr "儲存目錄路徑不存在:%s"
 
+msgid "Store it somewhere safe."
+msgstr "請將它儲存在安全的地方。"
+
 msgid "Strong"
 msgstr "強"
 
 msgid "Strong Passwords"
 msgstr "強密碼"
+
+msgid "Submit PIN"
+msgstr "提交 PIN 碼"
 
 msgid "Success"
 msgstr "成功"
@@ -7588,11 +8497,17 @@ msgstr "摘要已產生"
 msgid "Summary Security Reports."
 msgstr "摘要安全性報告。"
 
+msgid "Supply Backup Code"
+msgstr "提供備份代碼"
+
 msgid "Supplying a site URL here will make this site an 'Options Slave'."
 msgstr "在此提供網站網址將使此網站成為「選項從屬站」。"
 
 msgid "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
 msgstr "在此提供有效的網站網址將使此網站成為「選項從屬站」,並將每天自動匯入選項。"
+
+msgid "Support for WooCommerce, Contact Form 7, Elementor PRO, Ninja Form & more"
+msgstr "支援 WooCommerce、Contact Form 7、Elementor PRO、Ninja Form 等"
 
 msgid "SureSend Emails"
 msgstr "SureSend 電子郵件"
@@ -7684,6 +8599,9 @@ msgstr "資料表已刪除,現在將重新建立。"
 msgid "Tagline"
 msgstr "網站說明"
 
+msgid "Tagline changed: %s&rarr;%s"
+msgstr "網站標語已變更:%s&rarr;%s"
+
 msgid "Take a new line for each entry."
 msgstr "每個項目請另起一行。"
 
@@ -7696,14 +8614,23 @@ msgstr "每個白名單路徑請另起一行。"
 msgid "Take a new line per rule."
 msgstr "每個規則請另起一行。"
 
+msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
+msgstr "利用整個 Shield 網路收集的情報來更好地保護您的 WordPress 網站"
+
 msgid "Technical support for Shield is exclusive to Pro customers."
 msgstr "Shield 的技術支援僅限 Pro 客戶使用。"
 
 msgid "Temporarily Log All Traffic"
 msgstr "暫時記錄所有流量"
 
+msgid "Tempt A Bot With A Fake Link To Follow"
+msgstr "使用偽造連結誘使 Bot 追蹤"
+
 msgid "Test Cron Run"
 msgstr "測試 Cron 執行"
+
+msgid "Test WP Cron ran successfully."
+msgstr "測試 WP Cron 執行成功。"
 
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "測試失敗,我們無法自動判斷您的 SSL 憑證狀態。"
@@ -7726,8 +8653,17 @@ msgstr "%s 目錄就像荒野西部一樣,許多外掛與佈景主題都使用�
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s 外掛通常不會對未註冊的網站訪客使用 Cookie。"
 
+msgid "The %s plugin has an Audit Trail feature that will log the following information:"
+msgstr "%s 外掛具有稽核軌跡功能,將記錄以下資訊:"
+
+msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
+msgstr "%s 外掛絕不會在任何時候於任何 Cookie 中儲存任何敏感的個人識別資訊。"
+
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "%s 查詢參數已被封鎖,以防止使用者名稱/作者探查。"
+
+msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
+msgstr "「wp_mail」函式是從檔案「{{bt_file}}」的第 {{bt_line}} 行呼叫的。"
 
 msgid "The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of offenses."
 msgstr "自動 IP 位址黑名單系統會在指定的違規次數後封鎖不良訪客的 IP 位址。"
@@ -7735,8 +8671,23 @@ msgstr "自動 IP 位址黑名單系統會在指定的違規次數後封鎖不�
 msgid "The Description Of The Plugin"
 msgstr "外掛說明"
 
+msgid "The Easiest, Frustration-Free Pro-Upgrade Available Anywhere"
+msgstr "任何地方最簡單、無挫折感的 Pro 升級"
+
+msgid "The Email Address Properties That Will Be Tested"
+msgstr "將測試的電子郵件地址屬性"
+
 msgid "The Firewall doesn't stand alone, as it works together with other components such as the Bot & IP blocking system, to form a complete protection system."
 msgstr "防火牆並非獨立運作,它與其他元件(例如 Bot 與 IP 位址封鎖系統)協同運作,形成完整的防護系統。"
+
+msgid "The Firewall is made up of many different components, and forms the perimeter defense of your WordPress site."
+msgstr "防火牆由許多不同的元件組成,構成您 WordPress 網站的周邊防禦。"
+
+msgid "The Firewall represents the crucial perimeter defense of your WordPress site."
+msgstr "防火牆代表您 WordPress 網站的關鍵周邊防禦。"
+
+msgid "The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules."
+msgstr "IP 位址管理員允許您設定白名單、黑名單並設定自動黑名單規則。"
 
 msgid "The IP may not be blocked yet."
 msgstr "IP 位址可能尚未被封鎖。"
@@ -7761,6 +8712,15 @@ msgstr "外掛名稱"
 
 msgid "The Name Of The Plugin."
 msgstr "外掛名稱。"
+
+msgid "The Name Of Your Company"
+msgstr "您公司的名稱"
+
+msgid "The PHP OpenSSL Extension is required, along with the RC4 Cipher."
+msgstr "需要 PHP OpenSSL 擴充功能以及 RC4 加密演算法。"
+
+msgid "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
+msgstr "Referrer Policy 標頭允許您控制瀏覽器何時以及傳遞哪些引用資訊,當訪客點選您網站上的連結時。"
 
 msgid "The Security Admin system must be active for these settings to apply."
 msgstr "安全性管理員系統必須啟用才能套用這些設定。"
@@ -7797,6 +8757,12 @@ msgstr "客戶端網站上的 Shield 外掛版本比此伺服器新。"
 
 msgid "The Shield plugin version on the client site is older than this server and must be updated."
 msgstr "客戶端網站上的 Shield 外掛版本比此伺服器舊,必須更新。"
+
+msgid "The Tag Line Of The Plugin"
+msgstr "外掛的標語"
+
+msgid "The Tag Line Of The Plugin."
+msgstr "外掛的標語。"
 
 msgid "The Time Interval To Test For Excessive Requests"
 msgstr "測試過多請求的時間間隔"
@@ -7900,6 +8866,12 @@ msgstr "以下類型的使用者表單受到 silentCAPTCHA 保護:%s。"
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "首頁網址已從「{{from}}」變更為「{{to}}」。"
 
+msgid "The import encountered an error."
+msgstr "匯入時發生錯誤。"
+
+msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
+msgstr "封鎖前允許的最大違規次數是合理的:%s"
+
 msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
 msgstr "透過升級您的 ShieldPRO 方案,可以提高最大記錄保留限制 (%s)。"
 
@@ -7927,20 +8899,35 @@ msgstr "使用者在成功完成雙因素驗證後可以繞過雙因素驗證的
 msgid "The number of permitted offenses before an IP address will be blocked"
 msgstr "IP 位址被封鎖前允許的違規次數"
 
+msgid "The offending request parameter was '{{param}}' with a value of '{{value}}'."
+msgstr "違規的請求參數為「{{param}}」,其值為「{{value}}」。"
+
 msgid "The offense limit is quite high - you may want to consider decreasing it."
 msgstr "違規限制相當高 - 您可能需要考慮降低它。"
+
+msgid "The only WordPress security plugin to add monitoring of your %s files with automatic rollback and recovery."
+msgstr "唯一能夠新增 %s 檔案監控並具備自動回復與復原功能的 WordPress 安全性外掛。"
 
 msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
 msgstr "允許任何人在網站上註冊的選項已從「{{from}}」更新為「{{to}}」。"
 
+msgid "The paths are compared against only the request path, not the query portion."
+msgstr "路徑僅與請求路徑進行比較,不包含查詢部分。"
+
 msgid "The phone number was missing."
 msgstr "缺少電話號碼。"
+
+msgid "The plugin badge also lets visitors know your are taking your website security seriously."
+msgstr "外掛徽章也讓訪客知道您對網站安全性的重視。"
 
 msgid "The plugin defaults to the site administration email address, which is: %s"
 msgstr "外掛預設為網站管理電子郵件地址,即:%s"
 
 msgid "The plugin developer chose not to use SVN tags for this version, so actions such as file repair and file diff aren't available."
 msgstr "外掛開發者選擇不對此版本使用 SVN 標籤,因此無法使用檔案修復與檔案差異比對等動作。"
+
+msgid "The plugin is currently entirely disabled."
+msgstr "外掛目前已完全停用。"
 
 msgid "The plugin will normally automatically update after approximately 5 days, if left to decide."
 msgstr "如果由外掛自行決定,通常會在大約 5 天後自動更新。"
@@ -7960,6 +8947,9 @@ msgstr "防火牆的目的是鎖定網站以防範惡意請求、限制對某些
 msgid "The purpose of this email is to confirm this action."
 msgstr "此電子郵件的目的是確認此動作。"
 
+msgid "The records do not pertain to the same IP address."
+msgstr "記錄不屬於相同的 IP 位址。"
+
 msgid "The secret key is found in: %s"
 msgstr "密鑰位於:%s"
 
@@ -7969,6 +8959,12 @@ msgstr "安全性外掛已受到防竄改保護。"
 msgid "The security plugin isn't protected against tampering."
 msgstr "安全性外掛未受到防竄改保護。"
 
+msgid "The setting prevents any external website from embedding your site in an iFrame."
+msgstr "此設定可防止任何外部網站將您的網站嵌入 iFrame 中。"
+
+msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
+msgstr "此設定可防止任何外部網站將您的網站嵌入 iFrame 中。這對於防止所謂的 ClickJack 攻擊很有用。"
+
 msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
 msgstr "silentCAPTCHA 選項已停用,移除了登入、註冊與遺失密碼表單的暴力密碼破解防護。"
 
@@ -7977,6 +8973,12 @@ msgstr "silentCAPTCHA 選項已啟用。"
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "網站網址已從「{{from}}」變更為「{{to}}」。"
+
+msgid "The site security health check shows a high-level summary about your WordPress security configuration."
+msgstr "網站安全性健康檢查顯示有關您 WordPress 安全性設定的高階摘要。"
+
+msgid "The sooner you can find any malicious files or modifications, the sooner you can prevent any abuse."
+msgstr "您越早發現任何惡意檔案或修改,就能越早防止任何濫用。"
 
 msgid "The system reports that this file path isn't writable."
 msgstr "系統回報此檔案路徑無法寫入。"
@@ -8002,6 +9004,9 @@ msgstr "佈景主題"
 msgid "Theme '{{theme}}' was activated."
 msgstr "佈景主題「{{theme}}」已啟用。"
 
+msgid "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}."
+msgstr "佈景主題「{{theme}}」已從版本 {{from}} 降級至版本 {{to}}。"
+
 msgid "Theme '{{theme}}' was installed."
 msgstr "佈景主題「{{theme}}」已安裝。"
 
@@ -8013,6 +9018,9 @@ msgstr "佈景主題「{{theme}}」已從版本 {{from}} 升級至版本 {{to}}�
 
 msgid "Theme Activated"
 msgstr "佈景主題已啟用"
+
+msgid "Theme Downgraded"
+msgstr "佈景主題降級"
 
 msgid "Theme Files"
 msgstr "佈景主題檔案"
@@ -8028,6 +9036,12 @@ msgstr "佈景主題已升級"
 
 msgid "Theme directory name to check"
 msgstr "要檢查的佈景主題目錄名稱"
+
+msgid "Theme files aren't scanned for corruption."
+msgstr "佈景主題檔案未掃描損毀。"
+
+msgid "Theme functions.php"
+msgstr "佈景主題 functions.php"
 
 msgid "Theme version doesn't appear to exist."
 msgstr "佈景主題版本似乎不存在。"
@@ -8064,6 +9078,9 @@ msgstr "有 %s 個未使用的外掛應予以解除安裝。"
 
 msgid "There are %s unused themes that should be uninstalled."
 msgstr "有 %s 個未使用的佈景主題應予以解除安裝。"
+
+msgid "There are a few different ways to 'lockdown' a WordPress site."
+msgstr "有幾種不同的方式可以「鎖定」WordPress 網站。"
 
 msgid "There are also options to limit and disable built-in WordPress features such as XML-RPC and anonymous access to the REST API."
 msgstr "還有選項可以限制與停用內建的 WordPress 功能,例如 XML-RPC 與匿名存取 REST API。"
@@ -8103,6 +9120,9 @@ msgstr "目前沒有重要的安全性通知。"
 
 msgid "There are no logs available yet."
 msgstr "尚未有可用的記錄。"
+
+msgid "There are no recently repaired files."
+msgstr "尚未有最近修復的檔案。"
 
 msgid "There are no registered Yubikey devices on this profile."
 msgstr "此個人資料沒有已註冊的 Yubikey 裝置。"
@@ -8152,14 +9172,35 @@ msgstr "沒有強式使用者密碼的要求。"
 msgid "There is no user currently logged-in."
 msgstr "目前沒有使用者登入。"
 
+msgid "There is room for improvement in your %s plugin configuration."
+msgstr "您的 %s 外掛設定仍有改進空間。"
+
+msgid "There was a problem automatically subscribing you to the newsletter."
+msgstr "自動為您訂閱電子報時發生問題。"
+
 msgid "There was a problem decrypting the file contents."
 msgstr "解密檔案內容時發生問題。"
+
+msgid "There was a problem downloading the file."
+msgstr "下載檔案時發生問題。"
+
+msgid "There was a problem locating or reading the file on this site"
+msgstr "在此網站上定位或讀取檔案時發生問題"
+
+msgid "There was a problem preparing the Passkey Auth Challenge."
+msgstr "準備通行金鑰驗證挑戰時發生問題。"
+
+msgid "There was a problem preparing the Passkey Registration Challenge."
+msgstr "準備通行金鑰註冊挑戰時發生問題。"
 
 msgid "There was a problem removing this passkey"
 msgstr "移除此 Passkey 時發生問題"
 
 msgid "There was a problem sending the One-Time Password email."
 msgstr "傳送一次性密碼電子郵件時發生問題。"
+
+msgid "There was an attempt to send an email using the 'wp_mail' function."
+msgstr "有嘗試使用「wp_mail」函式傳送電子郵件。"
 
 msgid "There was an error trying to send your message. Please try again later"
 msgstr "嘗試傳送訊息時發生錯誤。請稍後再試"
@@ -8172,6 +9213,9 @@ msgstr "您的記錄中不需要有不必要的流量雜訊,因此我們會自�
 
 msgid "These REST API namespaces will be excluded from the Anonymous API restriction."
 msgstr "這些 REST API 命名空間將從匿名 API 限制中排除。"
+
+msgid "These aren't regular expression, but you can use asterisk (*) as a wildcard."
+msgstr "這些不是正規表示式,但您可以使用星號 (*) 作為萬用字元。"
 
 msgid "These changes may be normal and expected, but if anything looks strange, you should review your list of site admins immediately."
 msgstr "這些變更可能是正常且預期的,但如果有任何看起來奇怪的地方,您應該立即檢查您的網站管理員清單。"
@@ -8188,6 +9232,9 @@ msgstr "當使用者無法存取其正常的雙因素驗證方法時,可以使�
 msgid "These notices can be hidden by switching off this option."
 msgstr "關閉此選項即可隱藏這些通知。"
 
+msgid "These security options tie-in with your Login security measures."
+msgstr "這些安全性選項與您的登入安全性措施相互配合。"
+
 msgid "These settings are dependent on your requirements."
 msgstr "這些設定取決於您的需求。"
 
@@ -8199,6 +9246,9 @@ msgstr "將「違規」視為訪客執行不當行為次數的計數器。"
 
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "將其視為「限制登入嘗試」,但套用於 WordPress 網站上的所有功能,而不僅僅是登入頁面。"
+
+msgid "Think of this as an absolute maximum possible session length."
+msgstr "將此視為絕對最大可能的工作階段長度。"
 
 msgid "This Is You"
 msgstr "這是您"
@@ -8212,11 +9262,17 @@ msgstr "此伺服器"
 msgid "This Site Is Protected By %s"
 msgstr "此網站受到 %s 保護"
 
+msgid "This action can't be undone."
+msgstr "此動作無法復原。"
+
 msgid "This action is unavailable for your profile at this time."
 msgstr "此動作目前無法用於您的個人資料。"
 
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "此活動將記錄在您的 IP 位址下,如果重複類似活動,您可能會被完全封鎖而無法進一步存取網站。"
+
+msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
+msgstr "如果您正在執行 ShieldPRO,這也可作為聯盟連結,讓您可以為每次推薦賺取獎勵。"
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "這似乎是標示為垃圾訊息,因為它未通過 %s 個 AntiBot 保護檢查。"
@@ -8227,14 +9283,23 @@ msgstr "此方法有助於保留您的資料與隱私,因為它不會將留言�
 msgid "This assumes that your WordPress site has been properly configured to send email - many are not."
 msgstr "這假設您的 WordPress 網站已正確設定為傳送電子郵件 - 許多網站並未正確設定。"
 
+msgid "This cannot be less than %s."
+msgstr "此值不能小於 %s。"
+
 msgid "This code will be displayed only once and you may use it to verify your login only once."
 msgstr "此代碼僅會顯示一次,您只能使用一次來驗證您的登入。"
 
 msgid "This combines all the security configuration components below and provides you with an overall configuration score."
 msgstr "這結合了下方所有安全性設定元件,並為您提供整體設定分數。"
 
+msgid "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans."
+msgstr "這項複雜的工作需要大量運算,並對 Bot 造成處理成本。Bot 通常不會執行這項工作,這有助於區分 Bot 與真人。"
+
 msgid "This data will be retained and then automatically purged from the database after a fixed time period, as determined by the site administrator."
 msgstr "此資料將被保留,然後在網站管理員決定的固定時間後自動從資料庫中清除。"
+
+msgid "This depends on your usage and needs for certain WordPress functions and features."
+msgstr "這取決於您對某些 WordPress 功能與特性的使用與需求。"
 
 msgid "This doesn't appear to be a valid Yubikey OTP"
 msgstr "這似乎不是有效的 Yubikey OTP"
@@ -8290,6 +9355,12 @@ msgstr "此資訊會在登出或資料清理時清除。"
 msgid "This information is stored for security purposes by the site administrator."
 msgstr "此資訊由網站管理員儲存以用於安全性目的。"
 
+msgid "This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
+msgstr "此資訊完全匿名,不包含任何個人或其他可識別的資料。"
+
+msgid "This is YOUR responsibility - don't submit the file unless you're absolutely sure."
+msgstr "這是您的責任 - 除非您完全確定,否則不要提交檔案。"
+
 msgid "This is a Pro-only feature."
 msgstr "這是僅限 Pro 的功能。"
 
@@ -8308,6 +9379,9 @@ msgstr "這是一個進階選項,應謹慎使用。"
 msgid "This is an email notification to inform you that the Security Admin restriction has been removed."
 msgstr "這是一封電子郵件通知,告知您 Security Admin 限制已被移除。"
 
+msgid "This is especially true of Content Security Policies (CSP) and you should always include full testing in your deployments."
+msgstr "內容安全性原則(CSP)尤其如此,您應該始終在部署中進行完整測試。"
+
 msgid "This is for informational purposes only."
 msgstr "這僅供參考之用。"
 
@@ -8319,6 +9393,12 @@ msgstr "這是偵測網站上惡意活動最快速的方法之一。"
 
 msgid "This is to be used in conjunction with the Master Import Site feature."
 msgstr "這將與主站匯入網站功能搭配使用。"
+
+msgid "This is useful for preventing so-called \"ClickJack attacks\"."
+msgstr "這對於防止所謂的「ClickJack 攻擊」很有用。"
+
+msgid "This is where 'pwned' password scanning helps, by identifying the use of leaked passwords and prompting those users to update, or stopping the saving of those passwords."
+msgstr "這就是「pwned」密碼掃描的幫助所在,透過識別洩露密碼的使用並提示這些使用者更新,或停止儲存這些密碼。"
 
 msgid "This is your unique Yubikey Device ID."
 msgstr "這是您的專屬 Yubikey 裝置 ID。"
@@ -8349,6 +9429,9 @@ msgstr "此 Yubikey 方法已不再支援。請查看您的使用者個人資料
 
 msgid "This option ensures that visitors with a high reputation score won't be blocked by Shield automatically."
 msgstr "此選項可確保具有高信譽分數的訪客不會被 Shield 自動封鎖。"
+
+msgid "This option lets you choose how long blocked IP addresses should stay blocked."
+msgstr "此選項讓您選擇被封鎖的 IP 位址應保持封鎖狀態的時間長度。"
 
 msgid "This option will enable Shield's built-in MainWP extension for both server and client."
 msgstr "此選項將為伺服器與用戶端啟用 Shield 內建的 MainWP 擴充功能。"
@@ -8389,6 +9472,9 @@ msgstr "此設定將在 %s 後自動停用,並且在該期間記錄的所有通�
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "此功能應謹慎使用,您應該只提供必須排除的參數名稱"
 
+msgid "This site appears to be part of a Shield Network."
+msgstr "此網站似乎是 Shield 網路的一部分。"
+
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "此網站目前無法對自身發出 HTTP 請求。"
 
@@ -8427,6 +9513,12 @@ msgstr "這將封鎖應用程式參數中的目錄遍歷路徑(例如 %s 等)。
 
 msgid "This will block directory traversal paths in in application parameters."
 msgstr "這將封鎖應用程式參數中的目錄遍歷路徑。"
+
+msgid "This will block field truncation attacks in application parameters"
+msgstr "這將封鎖應用程式參數中的欄位截斷攻擊"
+
+msgid "This will block field truncation attacks in application parameters."
+msgstr "這將封鎖應用程式參數中的欄位截斷攻擊。"
 
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "這將封鎖應用程式參數中的 SQL(例如 %s 等)。"
@@ -8476,6 +9568,12 @@ msgstr "時間戳記"
 msgid "Timezone"
 msgstr "時區"
 
+msgid "Title Updated: %s&rarr;%s"
+msgstr "標題已更新:%s&rarr;%s"
+
+msgid "Title changed: %s&rarr;%s"
+msgstr "標題已變更:%s&rarr;%s"
+
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "文章 ID {{post_id}} 的標題已從「{{title_old}}」更新為「{{title_new}}」。"
 
@@ -8488,6 +9586,9 @@ msgstr "從暴力密碼破解攻擊與駭客入侵嘗試中隱藏您的 wp-login
 msgid "To improve security, increase the number of scans per day."
 msgstr "若要提升安全性,請增加每日掃描次數。"
 
+msgid "To learn more about %s,"
+msgstr "若要了解更多關於 %s 的資訊,"
+
 msgid "To provide the greatest flexibility for your visitors in the case of false positives, select the option to block but with the ability for visitors to automatically unblock themselves."
 msgstr "為了在誤判的情況下為您的訪客提供最大的彈性,請選擇封鎖但允許訪客自動解除封鎖的選項。"
 
@@ -8497,8 +9598,14 @@ msgstr "若要註冊新的 Yubikey 裝置,請輸入來自 Yubikey 的一次性�
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "若要移除 Yubikey 裝置，請輸入已註冊的裝置 ID 並儲存。"
 
+msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
+msgstr "保持健康涉及主動掃描檔案以檢查意外變更,並偵測不應存在的檔案。"
+
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "若要使用通行金鑰,您的 PHP 安裝必須載入以下其中 1 個擴充功能:%s"
+
+msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
+msgstr "為了驗證電子郵件,您的網站會向 ShieldNET API 傳送請求,可能會在使用者註冊請求期間造成小幅延遲。"
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "若要檢視來自此 IP 位址的所有記錄,請使用流量記錄工具,因為此處的記錄限制為 %s 個項目。"
@@ -8521,11 +9628,41 @@ msgstr "來自您 IP 位址的過多請求已觸發網站的自動防禦機制�
 msgid "Tools"
 msgstr "工具"
 
+msgid "Total Reputation Score"
+msgstr "總信譽評分"
+
+msgid "Total SPAM comments blocked."
+msgstr "已封鎖標示為垃圾訊息留言總數。"
+
+msgid "Total Score"
+msgstr "總分數"
+
+msgid "Total Signals"
+msgstr "總訊號數"
+
+msgid "Total connections blocked/killed after too many offenses."
+msgstr "違規次數過多後已封鎖/終止的連線總數。"
+
+msgid "Total login attempts blocked."
+msgstr "已封鎖登入嘗試總數。"
+
+msgid "Total offenses against the site."
+msgstr "針對網站的違規總數。"
+
+msgid "Total requests identified as bots."
+msgstr "識別為 Bot 的請求總數。"
+
 msgid "Track All Site Activity: Who, What, When and Where"
 msgstr "追蹤所有網站活動:誰、什麼、何時與何地"
 
 msgid "Track and monitor activity on your site by users, visitors and bots."
 msgstr "追蹤並監控您網站上使用者、訪客與 Bot 的活動。"
+
+msgid "Tracking changes with the Activity Log is disabled making it harder to monitor and investigate issues."
+msgstr "追蹤活動記錄的變更已停用,這使得監控與調查問題變得更加困難。"
+
+msgid "Tracking changes with the Activity Log makes it easier to monitor and investigate issues."
+msgstr "使用活動記錄追蹤變更可以更輕鬆地監控與調查問題。"
 
 msgid "Traffic"
 msgstr "流量"
@@ -8539,8 +9676,17 @@ msgstr "流量記錄"
 msgid "Traffic Rate Limiting"
 msgstr "流量速率限制"
 
+msgid "Traffic is never rate limited meaning abusive bots and crawlers may consume resources without limits and potentially overload your site."
+msgstr "流量永遠不會受到速率限制,這表示濫用的 Bot 與爬蟲可能會無限制地消耗資源,並可能使您的網站超載。"
+
 msgid "Traffic logs older than this maximum number of days will be automatically deleted."
 msgstr "超過此最大天數的流量記錄將自動刪除。"
+
+msgid "Traffic requests are being logged, making it easier to track issues."
+msgstr "流量請求正在記錄中,使追蹤問題變得更容易。"
+
+msgid "Traffic requests aren't being logged, making it harder to track issues."
+msgstr "流量請求未被記錄,使追蹤問題變得更困難。"
 
 msgid "Trash"
 msgstr "回收桶"
@@ -8619,6 +9765,9 @@ msgstr "網址 - 網站"
 
 msgid "URL To Activate"
 msgstr "要啟用的網址"
+
+msgid "Un-Checking this option will completely disable the %s module."
+msgstr "取消勾選此選項將完全停用 %s 模組。"
 
 msgid "Unauthorized Deactivation Attempt"
 msgstr "未經授權的停用嘗試"
@@ -8701,6 +9850,12 @@ msgstr "不會掃描儲存在網站根目錄中的無法辨識檔案。"
 msgid "Unrecognised files will need to be manually deleted."
 msgstr "無法識別的檔案需要手動刪除。"
 
+msgid "Unsupported Action."
+msgstr "不支援的動作。"
+
+msgid "Unsupported result type."
+msgstr "不支援的結果類型。"
+
 msgid "Until"
 msgstr "直到"
 
@@ -8767,8 +9922,17 @@ msgstr "升級您的方案以支援掃描佈景主題檔案的竄改情況。"
 msgid "Upgrade your plan to support this scanning area."
 msgstr "升級您的方案以支援此掃描區域。"
 
+msgid "Upgraded: %s&rarr;%s"
+msgstr "已升級:%s&rarr;%s"
+
+msgid "Uploading of file failed"
+msgstr "檔案上傳失敗"
+
 msgid "Use %s to test for excessive requests within a %s minutes interval."
 msgstr "使用 %s 測試 %s 分鐘間隔內的過多請求。"
+
+msgid "Use CloudFlare As Geo Data Source?"
+msgstr "使用 CloudFlare 作為地理資料來源?"
 
 msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
 msgstr "使用 MainWP 管理與監控您所有 WordPress 網站的安全性。"
@@ -8781,6 +9945,12 @@ msgstr "使用 Shield 的 silentCAPTCHA 封鎖 Bot 與暴力密碼破解攻擊"
 
 msgid "Use Shield's silentCAPTCHA To Detect and Block SPAM Bots."
 msgstr "使用 Shield 的 silentCAPTCHA 偵測並封鎖標示為垃圾訊息 Bot。"
+
+msgid "Use a larger maximum request limit to reduce the risk of blocking legitimate visitors."
+msgstr "使用較大的最大請求限制以降低封鎖合法訪客的風險。"
+
+msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
+msgstr "使用較短的間隔以降低封鎖合法訪客的風險。"
 
 msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
 msgstr "使用 silentCAPTCHA 限制使用者表單登入嘗試的功能未開啟 - 您需要在登入安全性區域中啟用它。"
@@ -8839,8 +10009,17 @@ msgstr "使用者"
 msgid "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found."
 msgstr "使用者「{{user_login}}」嘗試「{{action}}」但找不到 Bot 核取方塊。"
 
+msgid "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot."
+msgstr "使用者「{{user_login}}」嘗試 {{action}},但他們被蜜罐捕獲。"
+
+msgid "User '{{user_login}}' demoted from administrator role."
+msgstr "使用者「{{user_login}}」已從管理員角色降級。"
+
 msgid "User '{{user_login}}' failed to verify their identity using '{{method}}'."
 msgstr "使用者「{{user_login}}」使用「{{method}}」驗證身分失敗。"
+
+msgid "User '{{user_login}}' promoted to administrator role."
+msgstr "使用者「{{user_login}}」已提升為管理員角色。"
 
 msgid "User '{{user_login}}' suspended by admin."
 msgstr "使用者「{{user_login}}」已被管理員停權。"
@@ -8881,6 +10060,12 @@ msgstr "使用者控制"
 msgid "User Deleted"
 msgstr "使用者已刪除"
 
+msgid "User Deleted And Reassigned"
+msgstr "使用者已刪除並重新指派"
+
+msgid "User Demoted"
+msgstr "使用者降級"
+
 msgid "User Display Message"
 msgstr "使用者顯示訊息"
 
@@ -8908,6 +10093,12 @@ msgstr "使用者透過應用程式密碼登入"
 msgid "User Login Notification Email"
 msgstr "使用者登入通知電子郵件"
 
+msgid "User Management"
+msgstr "使用者管理"
+
+msgid "User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner."
+msgstr "使用者管理提供真實的使用者工作階段、對使用者工作階段逾時的更精細控制,並確保使用者以正確的方式登入。"
+
 msgid "User Manually Suspended"
 msgstr "使用者已被手動停權"
 
@@ -8919,6 +10110,9 @@ msgstr "使用者中繼資料"
 
 msgid "User Password Updated"
 msgstr "使用者密碼已更新"
+
+msgid "User Promoted"
+msgstr "使用者提升"
 
 msgid "User Register Bot Protection"
 msgstr "使用者註冊 Bot 防護"
@@ -8938,6 +10132,9 @@ msgstr "使用者角色"
 msgid "User Session Lock"
 msgstr "使用者工作階段鎖定"
 
+msgid "User Session Management"
+msgstr "使用者工作階段管理"
+
 msgid "User Sessions"
 msgstr "使用者工作階段"
 
@@ -8949,6 +10146,9 @@ msgstr "使用者停權"
 
 msgid "User accounts that become inactive may still be allowed access, even if the account is compromised."
 msgstr "閒置的使用者帳號仍可能被允許存取,即使該帳號已遭入侵。"
+
+msgid "User attempting checkout request blocked."
+msgstr "使用者嘗試結帳請求已封鎖。"
 
 msgid "User doesn't exist with ID %s."
 msgstr "ID 為 %s 的使用者不存在。"
@@ -9061,6 +10261,9 @@ msgstr "動詞"
 msgid "Verification Code"
 msgstr "驗證碼"
 
+msgid "Verification of import-origin failed."
+msgstr "匯入來源驗證失敗。"
+
 msgid "Verified users will be converted to usernames."
 msgstr "已驗證的使用者將轉換為使用者名稱。"
 
@@ -9084,6 +10287,12 @@ msgstr "驗證您的號碼將會傳送簡訊至您的手機,內含驗證碼。"
 
 msgid "Version"
 msgstr "版本"
+
+msgid "Very Strong"
+msgstr "非常強"
+
+msgid "Very Weak"
+msgstr "非常弱"
 
 msgid "View & Create"
 msgstr "檢視與建立"
@@ -9307,11 +10516,20 @@ msgstr "WP 核心更新可用。"
 msgid "WP Database password appears to be weak."
 msgstr "WP 資料庫密碼似乎過於脆弱。"
 
+msgid "WP Database password is very strong."
+msgstr "WP 資料庫密碼非常強。"
+
 msgid "WP Default User Role"
 msgstr "WP 預設使用者角色"
 
 msgid "WP File Editing"
 msgstr "WP 檔案編輯"
+
+msgid "WP Generator Tag"
+msgstr "WP 產生器標籤"
+
+msgid "WP Hashes Token"
+msgstr "WP Hashes 權杖"
 
 msgid "WP Login & Admin Redirect"
 msgstr "WP 登入與管理後台重新導向"
@@ -9355,6 +10573,9 @@ msgstr "我們也認為已被作者放棄的外掛代表您網站上的漏洞。
 msgid "We ask that you agree to our privacy policy."
 msgstr "我們要求您同意我們的隱私權政策。"
 
+msgid "We couldn't determine the version of your OpenSSL library."
+msgstr "我們無法判斷您的 OpenSSL 函式庫版本。"
+
 msgid "We don't provide support for creating CSP rules and whether they're correct for your site."
 msgstr "我們不提供建立 CSP 規則的支援,也不提供這些規則是否適合您網站的支援。"
 
@@ -9379,14 +10600,26 @@ msgstr "我們按原樣提供此功能:允許您將自訂 CSP 規則新增至您
 msgid "We recommend disabling it if you no longer need it running."
 msgstr "如果您不再需要執行它,我們建議停用它。"
 
+msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
+msgstr "我們建議在此領域尋求專業知識,並確保在部署中進行完整測試。"
+
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "我們建議僅保留官方 WordPress 核心檔案,以保持 WP 根目錄的乾淨。"
+
+msgid "We recommend to start with logging here, in-case you're unsure."
+msgstr "如果您不確定,我們建議從這裡開始記錄。"
 
 msgid "We recommend using the individual sections below to work through your site security items."
 msgstr "我們建議使用下方的各個區段來處理您的網站安全性項目。"
 
+msgid "We rely on the PHP server configuration, but some hosts aren't correctly setup to let us find it easily."
+msgstr "我們依賴 PHP 伺服器設定,但某些主機未正確設定,導致我們無法輕鬆找到它。"
+
 msgid "We will immediately know that a particular bot isn't here for anything good."
 msgstr "我們將立即知道特定 Bot 來這裡並非出於任何善意。"
+
+msgid "We'll automatically keep your IP block list pruned by removing stale IPs to keep performance highly optimised."
+msgstr "我們將透過移除過時的 IP 位址自動修剪您的 IP 位址封鎖清單,以保持高度最佳化的效能。"
 
 msgid "We're hoping to understand how %s is configured and used."
 msgstr "我們希望了解 %s 的設定與使用方式。"
@@ -9414,6 +10647,9 @@ msgstr "什麼是自訂安全性規則功能?"
 
 msgid "What is this?"
 msgstr "這是什麼?"
+
+msgid "What types of attacks your site defends against, and how your site responds to repeated attacks, determines your entire security posture."
+msgstr "您的網站防�禦哪些類型的攻擊,以及您的網站如何回應重複攻擊,決定了您的整體安全態勢。"
 
 msgid "When"
 msgstr "當"
@@ -9472,6 +10708,12 @@ msgstr "當偵測到足夠的不良行為時,它將完全封鎖該 IP 位址存�
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "開啟時,任何可用的第三方整合將在偵測到時立即啟用。"
 
+msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
+msgstr "當計數器達到以下限制(預設:%s)時,%s 將完全封鎖該 IP 位址。"
+
+msgid "When the current file contents were compared against the official release, changes were detected."
+msgstr "當目前檔案內容與官方發布版本進行比對時,偵測到變更。"
+
 msgid "When the file assessment is \"known\", then the file has been reviewed and confirmed to be either \"known malware\" or \"known clean\"."
 msgstr "當檔案評估為「已知」時,表示該檔案已經過審查並確認為「已知惡意軟體」或「已知乾淨」。"
 
@@ -9489,6 +10731,12 @@ msgstr "當您無法存取雙因素驗證代碼時。"
 
 msgid "When you click the link from your email, it must open up in this web browser."
 msgstr "當您點選電子郵件中的連結時,它必須在此網頁瀏覽器中開啟。"
+
+msgid "Where To Put Bot SPAM Comments"
+msgstr "Bot 標示為垃圾訊息留言的處理位置"
+
+msgid "Where the Firewall is your perimeter defense, automatic IP blocking is the core."
+msgstr "防火牆是您的周邊防禦,而自動 IP 位址封鎖則是核心。"
 
 msgid "Whether request is trusted"
 msgstr "請求是否受信任"
@@ -9517,11 +10765,17 @@ msgstr "哪些 WordPress 表單應受到保護以防範 Bot"
 msgid "Which types, and how quickly, existing vulnerabilities are discovered"
 msgstr "發現現有漏洞的類型與速度"
 
+msgid "While this is good to know, it's far more useful to prevent the hack in the first place (see the IP Blocking section above)."
+msgstr "雖然了解這一點很好,但更有用的是首先防止駭客入侵(請參閱上方的 IP 位址封鎖部分)。"
+
 msgid "White Label"
 msgstr "自訂品牌"
 
 msgid "Whitelabel, Manual/Auto User Suspension, Unlimited Logs, Site Sync Import/Export, are just some of what's available when you upgrade your plan."
 msgstr "白標籤、手動/自動使用者停權、無限記錄、網站同步匯入/匯出,只是升級方案後可用功能的一部分。"
+
+msgid "Whitelist Me"
+msgstr "將我加入白名單"
 
 msgid "Whitelist Parameters"
 msgstr "白名單參數"
@@ -9556,6 +10810,12 @@ msgstr "透過 %s 內建的 silentCAPTCHA 技術,現在阻止 Bot 實際上相�
 msgid "With Issues"
 msgstr "有問題"
 
+msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
+msgstr "透過 ShieldNET 群眾外包情報,Shield 會自動隱藏誤報,讓您可以專注於重要的風險,並忽略浪費時間的雜訊。"
+
+msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
+msgstr "透過它,您可以立即收到檔案變更的警示,清楚檢視精確的變更內容,以及如何繼續進行的簡單後續步驟。"
+
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "透過我們的標示為垃圾訊息字典,我們可以識別人工標示為垃圾訊息留言,而無需將任何資料傳送至您網站以外的第三方。"
 
@@ -9564,6 +10824,9 @@ msgstr "透過我們強大的 silentCAPTCHA,我們可以偵測到近 100% 的所
 
 msgid "Wizards"
 msgstr "精靈"
+
+msgid "WooCommerce Support"
+msgstr "WooCommerce 支援"
 
 msgid "WordPress"
 msgstr "WordPress"
@@ -9594,6 +10857,9 @@ msgstr "WordPress 核心選項保護"
 
 msgid "WordPress Core files are protected against tampering."
 msgstr "WordPress 核心檔案已受到防竄改保護。"
+
+msgid "WordPress Core v{{version}} was reinstalled."
+msgstr "WordPress 核心 v{{version}} 已重新安裝。"
 
 msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
 msgstr "WordPress 核心已從「{{from}}」更新至「{{to}}」。"
@@ -9634,6 +10900,9 @@ msgstr "WordPress 外掛檔案掃描器"
 msgid "WordPress Post entitled '{{title}}' was permanently deleted from trash."
 msgstr "標題為「{{title}}」的 WordPress 文章已從垃圾桶中永久刪除。"
 
+msgid "WordPress Reinstalled"
+msgstr "WordPress 已重新安裝"
+
 msgid "WordPress Site Root File Scanner"
 msgstr "WordPress 網站根目錄檔案掃描器"
 
@@ -9663,6 +10932,15 @@ msgstr "WordPress 管理員帳號已受到保護,不會遭到其他 WordPress �
 
 msgid "WordPress admin accounts aren't protected against tampering from other WordPress admins."
 msgstr "WordPress 管理員帳號未受到保護,可能遭到其他 WordPress 管理員竄改。"
+
+msgid "WordPress comment SPAM is primarily done via automated Bots."
+msgstr "WordPress 留言標示為垃圾訊息主要是透過自動化 Bot 完成的。"
+
+msgid "WordPress default is 2 days, or 14 days if you check the 'Remember Me' box."
+msgstr "WordPress 預設為 2 天,或如果您勾選「記住我」方塊則為 14 天。"
+
+msgid "WordPress default is 2 days, or 14 days when you check the \"Remember Me\" box."
+msgstr "WordPress 預設為 2 天,或當您勾選「記住我」方塊時為 14 天。"
 
 msgid "WordPress does not meet minimum version. Required version: %s."
 msgstr "WordPress 不符合最低版本要求。要求版本:%s。"
@@ -9757,6 +11035,9 @@ msgstr "每年"
 msgid "Yes"
 msgstr "是"
 
+msgid "Yes, I'd be happy share this info"
+msgstr "是的,我很樂意分享此資訊"
+
 msgid "Yes: %s"
 msgstr "是：%s"
 
@@ -9787,6 +11068,9 @@ msgstr "您可以透過提供您的註冊 ID,將此 WordPress 網站連結至您
 msgid "You can monitor the Activity Log and when you're happy you won't block valid requests, you can switch to blocking."
 msgstr "您可以監控活動記錄,當您確信不會封鎖有效請求時,就可以切換至封鎖模式。"
 
+msgid "You can now help spread the word about the %s plugin anywhere on your site"
+msgstr "您現在可以在網站的任何地方協助宣傳 %s 外掛"
+
 msgid "You could block legitimate visitors who load too many pages in quick succession on your site."
 msgstr "您可能會封鎖在您網站上快速連續載入過多頁面的合法訪客。"
 
@@ -9802,6 +11086,9 @@ msgstr "您目前沒有儲存設定的權限。"
 msgid "You don't need to install a separate extension for MainWP."
 msgstr "您不需要為 MainWP 安裝單獨的擴充功能。"
 
+msgid "You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library."
+msgstr "您的 PHP 函式庫與 Monolog 函式庫發生衝突。可能是另一個外掛正在使用不相容版本的函式庫。"
+
 msgid "You have exceeded the site's traffic rate limiting parameters."
 msgstr "您已超過網站的流量速率限制參數。"
 
@@ -9814,11 +11101,20 @@ msgstr "您可以使用 %s 安全性管理員系統進行驗證並返回此處�
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "您可以結合多個驗證因素以提高安全性。"
 
+msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
+msgstr "當 Akismet 與 Shield 的人工標示為垃圾訊息防護同時運作時,您可能會得到不可靠的結果。"
+
 msgid "You may need to reload this page to continue."
 msgstr "您可能需要重新載入此頁面才能繼續。"
 
+msgid "You may need to seek out an alternative caching plugin."
+msgstr "您可能需要尋找替代的快取外掛。"
+
 msgid "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the Activity Log to determine the cause."
 msgstr "您每 60 分鐘只能使用此連結一次。如果您反覆被封鎖,請要求您的網站管理員檢查活動記錄以確定原因。"
+
+msgid "You must be authorised as a Security Admin to perform this action."
+msgstr "您必須獲得安全性管理員授權才能執行此動作。"
 
 msgid "You must go to your profile and regenerate a new code if you want to use this method again."
 msgstr "如果您想再次使用此方法,必須前往您的個人資料並重新產生新代碼。"
@@ -9898,6 +11194,9 @@ msgstr "您的 WordPress 帳號只有 1 個備用登入代碼。"
 msgid "Your WordPress login form is now protected"
 msgstr "您的 WordPress 登入表單現已受到保護"
 
+msgid "Your WordPress login form is unprotected"
+msgstr "您的 WordPress 登入表單未受保護"
+
 msgid "Your Yubikey APP configuration may be invalid"
 msgstr "您的 Yubikey APP 設定可能無效"
 
@@ -9945,6 +11244,9 @@ msgstr "您在 CrowdSec 註冊的機器 ID 為:%s"
 
 msgid "Your reporting email address is: %s"
 msgstr "您的報告電子郵件地址為:%s"
+
+msgid "Your security administrator has imposed requirements for password quality."
+msgstr "您的安全性管理員已對密碼品質設定要求。"
 
 msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
 msgstr "您的安全性分析不考慮僅限 ShieldPRO 的功能 - 使用齒輪選單檢視您的分析,就像您可以存取這些額外安全性功能一樣。"
@@ -10090,6 +11392,9 @@ msgstr "標誌"
 msgid "missing data"
 msgstr "遺失資料"
 
+msgid "more frequent checks will be ignored"
+msgstr "更頻繁的檢查將被忽略"
+
 msgid "n/a"
 msgstr "不適用"
 
@@ -10113,6 +11418,9 @@ msgstr "或"
 
 msgid "permanently"
 msgstr "永久"
+
+msgid "please follow this link"
+msgstr "請點選此連結"
 
 msgid "rDNS"
 msgstr "rDNS"
@@ -10140,6 +11448,12 @@ msgstr "silentCAPTCHA Bot 偵測未保護您的 WordPress 註冊。"
 
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA Bot 最低分數"
+
+msgid "silentCAPTCHA Check Invalid (Module)"
+msgstr "silentCAPTCHA 檢查無效(模組)"
+
+msgid "silentCAPTCHA Complexity"
+msgstr "silentCAPTCHA 複雜度"
 
 msgid "silentCAPTCHA For Logins"
 msgstr "登入的 silentCAPTCHA"
@@ -10171,6 +11485,9 @@ msgstr "silentCAPTCHA 已啟用並設定最低 Bot 分數門檻。"
 msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
 msgstr "silentCAPTCHA 未保護您的 WP 留言免於 Bot 標示為垃圾訊息攻擊。"
 
+msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
+msgstr "silentCAPTCHA 的 Bot 挑戰複雜度過低 - 請考慮提高。"
+
 msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
 msgstr "silentCAPTCHA 的 Bot 偵測未執行,因為最低分數設定為 0。"
 
@@ -10197,4 +11514,7 @@ msgstr "wp-config.php 檔案未受到防竄改保護。"
 
 msgid "{{ip}} removed from block list ({{type}})."
 msgstr "{{ip}} 已從封鎖清單({{type}})中移除。"
+
+msgid "{{scan}}: scan completed and items were discovered."
+msgstr "{{scan}}:掃描已完成並發現項目。"
 

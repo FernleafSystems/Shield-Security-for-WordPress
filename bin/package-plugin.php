@@ -12,9 +12,14 @@ $options = getopt( '', [
     'skip-lib-composer',
     'skip-npm-install',
     'skip-npm-build',
+    'skip-directory-clean',
 ] );
 
 $outputDir = $options['output'] ?? null;
+// Trim quotes and whitespace from output directory path
+if ( is_string( $outputDir ) ) {
+	$outputDir = trim( $outputDir, " \t\n\r\0\x0B\"'" );
+}
 $packagerOptions = [];
 
 if ( isset( $options['skip-root-composer'] ) ) {
@@ -31,6 +36,10 @@ if ( isset( $options['skip-npm-install'] ) ) {
 
 if ( isset( $options['skip-npm-build'] ) ) {
     $packagerOptions['npm_build'] = false;
+}
+
+if ( isset( $options['skip-directory-clean'] ) ) {
+    $packagerOptions['directory_clean'] = false;
 }
 
 try {

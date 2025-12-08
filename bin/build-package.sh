@@ -17,6 +17,7 @@ fi
 echo "=== Shield Package Builder ==="
 echo "Package Directory: $PACKAGE_DIR"
 echo "Workspace Directory: $WORKSPACE_DIR"
+echo ""
 
 # Create package directory
 mkdir -p "$PACKAGE_DIR"
@@ -27,36 +28,46 @@ for file in icwp-wpsf.php plugin_init.php readme.txt plugin.json cl.json \
             plugin_autoload.php plugin_compatibility.php uninstall.php unsupported.php; do
   if [ -f "$file" ]; then
     cp "$file" "$PACKAGE_DIR/"
-    echo "Copied: $file"
+    echo "  ✓ Copied: $file"
   fi
 done
 
 # Copy directories
+echo ""
 echo "Copying directories..."
 for dir in src assets flags languages templates; do
   if [ -d "$dir" ]; then
+    echo "  → Copying directory: $dir"
     cp -R "$dir" "$PACKAGE_DIR/"
-    echo "Copied directory: $dir"
+    echo "    ✓ Completed: $dir"
   fi
 done
 
+echo ""
 echo "Package structure created successfully"
+echo ""
 
 # Install composer dependencies in the package (production only)
 echo "Installing composer dependencies in package..."
 cd "$PACKAGE_DIR/src/lib"
-composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+# Suppress composer's progress output to avoid formatting issues
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --quiet
+echo "  ✓ Composer dependencies installed"
+echo ""
 
 # Download and run Strauss v0.19.4 for package prefixing
 echo "Downloading Strauss v0.19.4..."
 curl -sL https://github.com/BrianHenryIE/strauss/releases/download/0.19.4/strauss.phar -o strauss.phar
-[ -f strauss.phar ] && echo "✓ strauss.phar downloaded" || { echo "✗ strauss.phar download FAILED"; exit 1; }
+[ -f strauss.phar ] && echo "  ✓ strauss.phar downloaded" || { echo "  ✗ strauss.phar download FAILED"; exit 1; }
+echo ""
 
 echo "Current directory: $(pwd)"
 echo "Checking for composer.json: $([ -f composer.json ] && echo 'YES' || echo 'NO')"
+echo ""
 
 echo "Running Strauss prefixing..."
 php strauss.phar || { echo "Strauss failed with exit code $?"; exit 1; }
+echo ""
 
 # Check if vendor_prefixed was created
 echo "=== After Strauss ==="
