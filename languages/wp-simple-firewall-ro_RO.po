@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 11:52+0000\n"
-"PO-Revision-Date: 2025-12-08 11:52+0000\n"
+"POT-Creation-Date: 2025-12-09 12:10+0000\n"
+"PO-Revision-Date: 2025-12-09 12:10+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: ro_RO\n"
 "MIME-Version: 1.0\n"
@@ -138,6 +138,12 @@ msgstr "%s este protejat împotriva manipulării."
 
 msgid "%s isn't protected against tampering."
 msgstr "%s nu este protejat împotriva manipulării."
+
+msgid "%s item processed"
+msgstr "%s element procesat"
+
+msgid "%s items processed"
+msgstr "%s elemente procesate"
 
 msgid "%s marked this comment as \"%s\"."
 msgstr "%s a marcat acest comentariu ca „%s\"."

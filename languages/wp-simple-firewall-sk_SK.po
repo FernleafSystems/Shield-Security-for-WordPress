@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-09 10:58+0000\n"
-"PO-Revision-Date: 2025-12-09 10:58+0000\n"
+"POT-Creation-Date: 2025-12-09 12:14+0000\n"
+"PO-Revision-Date: 2025-12-09 12:14+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: sk_SK\n"
 "MIME-Version: 1.0\n"
@@ -15,6 +15,21 @@ msgstr ""
 
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Zapnuté; \"N\" = Vypnuté"
+
+msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
+msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
+
+msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
+msgstr "%s (Konštanta <code>WP_MEMORY_LIMIT: %s</code>)"
+
+msgid "%s (JSON Encoded)"
+msgstr "%s (JSON kódované)"
+
+msgid "%s > %s > %s"
+msgstr "%s > %s > %s"
+
+msgid "%s API Token Missing."
+msgstr "%s API Token chýba."
 
 msgid "%s Auto-Unblock"
 msgstr "%s automatické odblokovanie"
@@ -34,11 +49,17 @@ msgstr "%s Firewall zablokoval požiadavku na vašu WordPress stránku."
 msgid "%s Home"
 msgstr "%s Domov"
 
+msgid "%s Intelligent IP Blocking"
+msgstr "%s Inteligentné blokovanie IP"
+
 msgid "%s Just Logged Into %s"
 msgstr "%s sa práve prihlásil do %s"
 
 msgid "%s Login Verification"
 msgstr "%s overenie prihlásenia"
+
+msgid "%s Lookup"
+msgstr "%s vyhľadávanie"
 
 msgid "%s Plugin Badge"
 msgstr "Odznak pluginu %s"
@@ -48,6 +69,9 @@ msgstr "Konfigurácia pluginu %s"
 
 msgid "%s Plugin options updated successfully."
 msgstr "Možnosti pluginu %s úspešne aktualizované."
+
+msgid "%s Security Insights"
+msgstr "%s bezpečnostné prehľady"
 
 msgid "%s Security Restrictions Applied"
 msgstr "%s bezpečnostných obmedzení aplikovaných"
@@ -63,6 +87,9 @@ msgstr "%s a %s"
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s môže tiež skenovať vaše pluginy & témy na známe zraniteľnosti."
+
+msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
+msgstr "%s vytvára hodnotenie rizika veľmi rýchlo, pretože sleduje škodlivých návštevníkov v mnohých samostatných oblastiach."
 
 msgid "%s currently can't locate a temporary directory, so you'll need to provide one here."
 msgstr "%s momentálne nemôže nájsť dočasný adresár, takže ho budete musieť poskytnúť tu."
@@ -127,6 +154,9 @@ msgstr "%s minúta"
 msgid "%s minutes"
 msgstr "%s minút"
 
+msgid "%s needs to store data temporarily to disk."
+msgstr "%s potrebuje dočasne uložiť dáta na disk."
+
 msgid "%s not installed from WordPress.org."
 msgstr "%s nie je nainštalovaný z WordPress.org."
 
@@ -142,11 +172,26 @@ msgstr "%s priestupkov"
 msgid "%s offenses until block"
 msgstr "%s priestupkov do zablokovania"
 
+msgid "%s offers email, Yubikey, Google Authenticator and U2F."
+msgstr "%s ponúka email, Yubikey, Google Authenticator a U2F."
+
 msgid "%s options and modules"
 msgstr "%s možnosti a moduly"
 
 msgid "%s per day"
 msgstr "%s denne"
+
+msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
+msgstr "%s chráni návštevníkov stránky a pracuje na blokovaní potenciálnych hackov pri monitorovaní webového prenosu a zmien v súborovom systéme."
+
+msgid "%s scan remaining."
+msgstr "Zostáva %s skenovanie."
+
+msgid "%s scans remaining."
+msgstr "Zostáva %s skenovaní."
+
+msgid "%s second"
+msgstr "%s sekunda"
 
 msgid "%s seconds"
 msgstr "%s sekúnd"
@@ -165,6 +210,9 @@ msgstr "%s použitých z %s (nepoužitých: %s)"
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s používa pravidelne aktualizovaný slovník bežne používaného SPAM obsahu na blokovanie tohto typu SPAM obsahu."
+
+msgid "%s v%s"
+msgstr "%s v%s"
 
 msgid "%s was added to your profile."
 msgstr "%s bol pridaný do vášho profilu."
@@ -190,6 +238,21 @@ msgstr "Automatické blokovanie IP %s zmierni ich útoky blokovaním ich IP adri
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "Ochrany %s sú momentálne deaktivované, takže akékoľvek zmeny vykonané tu sa nebudú uplatňovať, kým nebudú znovu povolené."
 
+msgid "%s: %s"
+msgstr "%s: %s"
+
+msgid "%s: %s."
+msgstr "%s: %s."
+
+msgid "&uarr; Go Pro &uarr;"
+msgstr "&uarr; Prejsť na Pro &uarr;"
+
+msgid "'%s' is an unsupported IP list."
+msgstr "'%s' je nepodporovaný IP zoznam."
+
+msgid "'Malware scanning' is often marketed as the most important aspect of security, but this thinking is backwards."
+msgstr "'Skenovanie malvéru' je často prezentované ako najdôležitejší aspekt bezpečnosti, ale toto myslenie je nesprávne."
+
 msgid "'{{form_provider}}' submission failed SPAM check."
 msgstr "Odoslanie '{{form_provider}}' zlyhalo pri SPAM kontrole."
 
@@ -208,11 +271,17 @@ msgstr "(Momentálne je toto nastavené na %s dní.)"
 msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
 msgstr "(keď je uzamknutie vypnuté, IP adresa bude automaticky odstránená zo zoznamu povolených)"
 
+msgid "- "
+msgstr "-"
+
 msgid "/wp-content/ directory isn't scanned."
 msgstr "Adresár /wp-content/ nie je skenovaný."
 
 msgid "1 Login attempt permitted per interval (seconds)"
 msgstr "1 pokus o prihlásenie povolený za interval (sekundy)"
+
+msgid "1 Month"
+msgstr "1 mesiac"
 
 msgid "1 WP comment post permitted per interval (seconds)"
 msgstr "1 WP komentár povolený za interval (sekundy)"
@@ -229,17 +298,26 @@ msgstr "123456"
 msgid "15-minute"
 msgstr "15 minút"
 
+msgid "2-Factor Auth"
+msgstr "Dvojfaktorová autentifikácia"
+
 msgid "2-Factor Authentication"
 msgstr "Dvojfaktorová autentifikácia"
 
 msgid "24 Hours"
 msgstr "24 hodín"
 
+msgid "255 characters max"
+msgstr "maximálne 255 znakov"
+
 msgid "2FA"
 msgstr "2FA"
 
 msgid "2FA - Email"
 msgstr "2FA - E-mail"
+
+msgid "2FA - Hardware"
+msgstr "2FA - Hardvér"
 
 msgid "2FA At"
 msgstr "2FA o"
@@ -286,6 +364,9 @@ msgstr "2FA cez e-mail"
 msgid "2FA by email has been disabled"
 msgstr "2FA cez e-mail bolo deaktivované"
 
+msgid "2FA with Passkeys (WebAuthn)"
+msgstr "2FA s Passkeys (WebAuthn)"
+
 msgid "32/64-bit"
 msgstr "32/64-bit"
 
@@ -316,10 +397,16 @@ msgstr "404 chyby generované pre nasledujúce typy súborov nespustia priestupo
 msgid "5-minute"
 msgstr "5 minút"
 
+msgid "7 %s"
+msgstr "7 %s"
+
 msgid "7 Days"
 msgstr "7 dní"
 
 msgid ":"
+msgstr ":"
+
+msgid ": "
 msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
@@ -349,11 +436,17 @@ msgstr "Bola zistená zmena v zložení administrátorov."
 msgid "A default will be used."
 msgstr "Použije sa predvolená hodnota."
 
+msgid "A helpful label to describe this IP rule."
+msgstr "Pomocné označenie na popis tohto IP pravidla."
+
 msgid "A high-level overview of your WordPress hosting server software."
 msgstr "Prehľad na vysokej úrovni o softvéri vášho WordPress hostingového servera."
 
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Prehľad na vysokej úrovni o stave vašich WordPress aktualizácií."
+
+msgid "A light-touch security profile"
+msgstr "Jemný bezpečnostný profil"
 
 msgid "A list of file/folder paths that will never be scanned."
 msgstr "Zoznam ciest súborov/priečinkov, ktoré nebudú nikdy skenované."
@@ -372,6 +465,12 @@ msgstr "Nové heslo aplikácie ({{app_pass_name}}) bolo vytvorené pre používa
 
 msgid "A notification is sent to each user when a successful login occurs for their account."
 msgstr "Notifikácia je odoslaná každému používateľovi, keď dôjde k úspešnému prihláseniu na ich účet."
+
+msgid "A powerful, defensive security posture"
+msgstr "Výkonná, defenzívna bezpečnostná pozícia"
+
+msgid "A robust security posture"
+msgstr "Robustná bezpečnostná pozícia"
 
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Skóre '100' by znamenalo, že je to takmer určite dobré, skóre '0' znamená, že je veľmi pravdepodobné, že ide o zlého bota."
@@ -400,6 +499,12 @@ msgstr "AI Malware Scanner, automatická oprava súborov, ochrana WP Config sú 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
 
+msgid "APP Password Auth - Invalid Email"
+msgstr "APP Password Auth - Neplatný e-mail"
+
+msgid "APP Password Auth - Invalid Username"
+msgstr "APP Password Auth - Neplatné používateľské meno"
+
 msgid "APP Password Created"
 msgstr "APP heslo vytvorené"
 
@@ -420,6 +525,12 @@ msgstr "Opustené WordPress.org pluginy"
 
 msgid "Absolutely"
 msgstr "Absolútne"
+
+msgid "Accept Changes"
+msgstr "Prijať zmeny"
+
+msgid "Accept File Changes"
+msgstr "Prijať zmeny súboru"
 
 msgid "Access Restricted"
 msgstr "Prístup obmedzený"
@@ -444,6 +555,12 @@ msgstr "Prístup k bezpečnostnému pluginu %s je obmedzený."
 
 msgid "Access to this site has been temporarily restricted."
 msgstr "Prístup na túto stránku bol dočasne obmedzený."
+
+msgid "Acquired Authentication Token"
+msgstr "Získaný autentifikačný token"
+
+msgid "Acquired authentication token for use with CrowdSec service."
+msgstr "Získaný autentifikačný token na použitie so službou CrowdSec."
 
 msgid "Actions"
 msgstr "Akcie"
@@ -511,6 +628,9 @@ msgstr "Meta dáta záznamu aktivity"
 msgid "Activity Log Only"
 msgstr "Len záznam aktivity"
 
+msgid "Activity Log Parameter Map"
+msgstr "Mapa parametrov záznamu aktivity"
+
 msgid "Activity Log Parameters"
 msgstr "Parametre záznamu aktivít"
 
@@ -522,6 +642,9 @@ msgstr "Logy aktivity"
 
 msgid "Activity logs depend on these traffic logs so if they have a longer retention period, some traffic logs will be retained longer."
 msgstr "Záznamy aktivity závisia od týchto záznamov návštevnosti, takže ak majú dlhšiu dobu uchovávania, niektoré záznamy návštevnosti budú uchovávané dlhšie."
+
+msgid "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor."
+msgstr "Adaptívna zložitosť sa pokúsi prezentovať najvhodnejšiu výzvu v závislosti od typu návštevníka."
 
 msgid "Add IP Bypass"
 msgstr "Pridať obchádzanie IP"
@@ -553,6 +676,12 @@ msgstr "Ďalšie zoznamy blokovania IP sú dostupné s upgradovaným plánom."
 msgid "Adjust Scan Results Display"
 msgstr "Upraviť zobrazenie výsledkov skenovania"
 
+msgid "Adjust deployment of HTTP security headers"
+msgstr "Upraviť nasadenie HTTP bezpečnostných hlavičiek"
+
+msgid "Adjust silentCAPTCHA Challenge Complexity"
+msgstr "Upraviť zložitosť výzvy silentCAPTCHA"
+
 msgid "Admin Access Login"
 msgstr "Prihlásenie Admin prístupu"
 
@@ -567,6 +696,9 @@ msgstr "E-mailové upozornenie na prihlásenie správcu"
 
 msgid "Admin Users"
 msgstr "Admin používatelia"
+
+msgid "Admin notice dismissed"
+msgstr "Administrátorské upozornenie zrušené"
 
 msgid "Administration Email Address"
 msgstr "E-mailová adresa správcu"
@@ -595,11 +727,23 @@ msgstr "Po 1 'X' bude IP adresa na čiernom zozname odstránená z čierneho zoz
 msgid "After saving, it may take up to 60 seconds before a new lock is stored."
 msgstr "Po uložení môže trvať až 60 sekúnd, kým sa uloží nový zámok."
 
+msgid "Again, we keep the CrowdSec blocklist pruned and optimised to maintain the high performance you demand."
+msgstr "Opäť, udržiavame CrowdSec zoznam blokovania upravený a optimalizovaný na zachovanie vysokého výkonu, ktorý požadujete."
+
 msgid "Aggressive Rules"
 msgstr "Agresívne pravidlá"
 
 msgid "Aggressive Scan"
 msgstr "Agresívne skenovanie"
+
+msgid "Aggressive ruleset to block malicious requests"
+msgstr "Agresívny súbor pravidiel na blokovanie škodlivých požiadaviek"
+
+msgid "Aggressively Block Data"
+msgstr "Agresívne blokovať dáta"
+
+msgid "Agree To Privacy Policy"
+msgstr "Súhlasiť so zásadami ochrany súkromia"
 
 msgid "Ahead Of Server"
 msgstr "Pred serverom"
@@ -607,8 +751,17 @@ msgstr "Pred serverom"
 msgid "Alert"
 msgstr "Upozornenie"
 
+msgid "Alert Reports Frequency"
+msgstr "Frekvencia upozorňujúcich správ"
+
 msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
 msgstr "Upozornenia na zraniteľnosti pluginov/tém. Shield potom môže automaticky aktualizovať, keď budú dostupné aktualizácie."
+
+msgid "Algorithm not supported"
+msgstr "Algoritmus nie je podporovaný"
+
+msgid "Align Shield"
+msgstr "Zarovnať Shield"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Všetci poskytovatelia MFA odstránení z používateľa s ID %s."
@@ -640,6 +793,21 @@ msgstr "Všetky dostupné aktualizácie pluginov boli aplikované."
 msgid "All available theme updates have been applied."
 msgstr "Všetky dostupné aktualizácie tém boli aplikované."
 
+msgid "All characters will be treated as case-insensitive."
+msgstr "Všetky znaky budú spracované ako nerozlišujúce veľkosť písmen."
+
+msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
+msgstr "Všetky vlastné kľúče udalostí musia byť reťazce, malé písmená, dĺžka 10-50, s predponou 'custom_' a obsahovať iba písmená a podčiarkovníky."
+
+msgid "All custom events must supply a 'name' as a string within the 'strings' array."
+msgstr "Všetky vlastné udalosti musia poskytovať 'name' ako reťazec v poli 'strings'."
+
+msgid "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event."
+msgstr "Všetky vlastné udalosti musia poskytovať pole reťazcov s kľúčom 'audit', ktoré sa zobrazí v Activity Log na popis udalosti."
+
+msgid "All custom events must supply an array of strings with key 'strings'."
+msgstr "Všetky vlastné udalosti musia poskytovať pole reťazcov s kľúčom 'strings'."
+
 msgid "All emails, usernames, or user IDs entered here will always be Security Admins."
 msgstr "Všetky e-maily, používateľské mená alebo používateľské ID zadané tu budú vždy Security Admin."
 
@@ -664,8 +832,14 @@ msgstr "Všetky cesty sú relatívne k vášmu inštalačnému adresáru WordPre
 msgid "All plugin & theme files appear to be valid."
 msgstr "Všetky súbory pluginov a tém sa zdajú byť platné."
 
+msgid "All restrictions imposed by the Security Admin module have been lifted."
+msgstr "Všetky obmedzenia uložené modulom Security Admin boli zrušené."
+
 msgid "All rules have been deactivated"
 msgstr "Všetky pravidlá boli deaktivované"
+
+msgid "All sections use a simple grading system from A - F, where A is best, and F is worst."
+msgstr "Všetky sekcie používajú jednoduchý systém hodnotenia od A - F, kde A je najlepšie a F je najhoršie."
 
 msgid "All security protection offered by Shield is completely disabled."
 msgstr "Všetka bezpečnostná ochrana ponúkaná Shield je úplne vypnutá."
@@ -763,6 +937,9 @@ msgstr "Testovať aj hodnoty Cookie vo Firewall testoch"
 msgid "Altering certain options has been restricted by your WordPress security administrator."
 msgstr "Zmena určitých možností bola obmedzená vaším WordPress bezpečnostným administrátorom."
 
+msgid "Always <strong>watching for bots</strong> and maintaining a reputation score for each visitor."
+msgstr "Vždy <strong>sledujeme botov</strong> a udržiavame skóre reputácie pre každého návštevníka."
+
 msgid "Always Automatically Update This Plugin"
 msgstr "Vždy automaticky aktualizovať tento plugin"
 
@@ -799,11 +976,20 @@ msgstr "Vyskytla sa chyba."
 msgid "An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin."
 msgstr "Priestupok je zaregistrovaný voči IP adrese zakaždým, keď návštevník spustí obranu pluginu %s."
 
+msgid "An unsupported profile was selected"
+msgstr "Bol vybraný nepodporovaný profil"
+
 msgid "An upgrade is available for the Shield plugin."
 msgstr "Pre Shield plugin je dostupná aktualizácia."
 
+msgid "Analyse & Fix"
+msgstr "Analyzovať a opraviť"
+
 msgid "Analysis"
 msgstr "Analýza"
+
+msgid "And So Much More"
+msgstr "A oveľa viac"
 
 msgid "And best of all, it's completely invisible to the user!"
 msgstr "A čo je najlepšie, je to pre používateľa úplne neviditeľné!"
@@ -838,6 +1024,9 @@ msgstr "Anonymný prístup k WordPress REST API nie je blokovaný."
 msgid "Another crucial element of user login security is 2-Factor Authentication."
 msgstr "Ďalším kľúčovým prvkom zabezpečenia prihlásenia používateľa je dvojfaktorová autentifikácia."
 
+msgid "Another, often overlooked, component of security is how you communicate to your visitors that you're employing strong security practices and that you take their data and privacy seriously."
+msgstr "Ďalší, často prehliadaný, komponent bezpečnosti je spôsob, akým komunikujete vašim návštevníkom, že používate silné bezpečnostné postupy a že ich dáta a súkromie beriete vážne."
+
 msgid "AntiBot Fail"
 msgstr "Zlyhanie AntiBot"
 
@@ -846,6 +1035,9 @@ msgstr "AntiBot formuláre"
 
 msgid "AntiBot Pass"
 msgstr "Úspešný AntiBot"
+
+msgid "Any Frontend Page Visited"
+msgstr "Akákoľvek frontendová stránka navštívená"
 
 msgid "Any namespaces provided here will be excluded from the Anonymous API restriction."
 msgstr "Všetky tu uvedené menné priestory budú vylúčené z obmedzenia anonymného API."
@@ -862,6 +1054,9 @@ msgstr "Ktokoľvek sa môže registrovať"
 msgid "Anyone can register"
 msgstr "Ktokoľvek sa môže registrovať"
 
+msgid "Anyone can register changed: %s&rarr;%s"
+msgstr "Ktokoľvek sa môže registrovať zmenené: %s&rarr;%s"
+
 msgid "App Passwords Disabled"
 msgstr "Heslá aplikácií zakázané"
 
@@ -873,6 +1068,9 @@ msgstr "Aplikovať automatické pozastavenie na účty s týmito rolami"
 
 msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
 msgstr "Aplikovať ochranu proti brute force útokom na registráciu používateľov a stratené heslá"
+
+msgid "Apply Filters"
+msgstr "Použiť filtre"
 
 msgid "Apply Password Policies To Existing Users and Their Passwords"
 msgstr "Aplikovať heslové politiky na existujúcich používateľov a ich heslá"
@@ -891,6 +1089,9 @@ msgstr "Aplikovať akékoľvek nakonfigurované heslové politiky."
 
 msgid "Apply rate limiting restrictions to high-volume requests."
 msgstr "Aplikovať obmedzenia frekvencie na požiadavky s vysokým objemom."
+
+msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
+msgstr "Aplikácia CSP hlavičiek môže ovplyvniť fungovanie vašej stránky pre návštevníkov, preto v tejto sekcii neponúkame žiadne priame odporúčania."
 
 msgid "Are Shield Security's Restrictions Enabled?"
 msgstr "Sú povolené obmedzenia Shield Security?"
@@ -918,6 +1119,9 @@ msgstr "Ste si istí, že chcete obnoviť pôvodný obsah súboru?"
 
 msgid "Are you sure?"
 msgstr "Ste si istí?"
+
+msgid "Areas for improvement"
+msgstr "Oblasti na zlepšenie"
 
 msgid "Areas which should be addressed as early as possible but may not be critical"
 msgstr "Oblasti, ktoré by mali byť riešené čo najskôr, ale nemusia byť kritické"
@@ -955,6 +1159,9 @@ msgstr "Musí byť poskytnutá aspoň 1 možnosť a predvolene sa použije strá
 msgid "At least 1 security report has been generated for your site."
 msgstr "Pre vašu stránku bol vygenerovaný aspoň 1 bezpečnostný report."
 
+msgid "At least two records are required to merge."
+msgstr "Na zlúčenie sú potrebné aspoň dva záznamy."
+
 msgid "Attempt to authenticate App Password with invalid email."
 msgstr "Pokus o autentifikáciu App Password s neplatným e-mailom."
 
@@ -985,11 +1192,17 @@ msgstr "Pokus o prihlásenie s neplatným používateľom '{{user_login}}'."
 msgid "Attempted user login by '{{user_login}}' was successful."
 msgstr "Pokus o prihlásenie používateľom '{{user_login}}' bol úspešný."
 
+msgid "Attempts remaining: %s."
+msgstr "Zostávajúce pokusy: %s."
+
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Pokúša sa automaticky opraviť súbory, ktoré boli zmenené alebo infikované malvérom."
 
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr "Pokus o overenie Shield Pro licencie práve zlyhal."
+
+msgid "Audit Trail message that may include email addresses"
+msgstr "Audit Trail správa, ktorá môže obsahovať e-mailové adresy"
 
 msgid "Authenticated With Site"
 msgstr "Autentifikované so stránkou"
@@ -1072,6 +1285,9 @@ msgstr "Automaticky odblokovať vašu IP"
 msgid "Auto-Update Vulnerable Plugins"
 msgstr "Automaticky aktualizovať zraniteľné pluginy"
 
+msgid "Auto-learning and Detects Never-Before-Seen Malware"
+msgstr "Samoučiaci sa a deteguje nikdy predtým nevidený malvér"
+
 msgid "Auto-repair of files from WordPress.org plugins is enabled."
 msgstr "Automatická oprava súborov z WordPress.org pluginov je povolená."
 
@@ -1089,6 +1305,15 @@ msgstr "Automatická oprava upravených súborov jadra WordPress je povolená."
 
 msgid "Auto-repair of modified WordPress core files isn't enabled."
 msgstr "Automatická oprava upravených súborov jadra WordPress nie je povolená."
+
+msgid "Autologin URL"
+msgstr "Autologin URL"
+
+msgid "Automated attack bots are the largest threat to your WordPress site."
+msgstr "Automatizované útočné boty sú najväčšou hrozbou pre vašu WordPress stránku."
+
+msgid "Automated testing of your SSL Certificate isn't available on this site."
+msgstr "Automatizované testovanie vášho SSL certifikátu nie je na tejto stránke dostupné."
 
 msgid "Automatic And Manual User Suspension"
 msgstr "Automatické a manuálne pozastavenie používateľa"
@@ -1183,6 +1408,12 @@ msgstr "Automaticky detekovať & opraviť zraniteľné a podozrivé súbory, plu
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Automaticky detekovať a povoliť integrácie tretích strán, keď budú dostupné"
 
+msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
+msgstr "Automaticky rešpektovať existujúce pravidlá whitelistingu a výnimky Shield."
+
+msgid "Automatically import options, and deploy configurations across your entire network."
+msgstr "Automaticky importujte možnosti a nasaďte konfigurácie naprieč celou vašou sieťou."
+
 msgid "Automatically redirect here for any requests made to hidden pages."
 msgstr "Automaticky presmerovať sem pre akékoľvek požiadavky na skryté stránky."
 
@@ -1228,11 +1459,20 @@ msgstr "Práve použitý záložný prihlasovací kód"
 msgid "Backup login codes are not available if you do not have any other two-factor authentication modes active."
 msgstr "Záložné prihlasovacie kódy nie sú dostupné, ak nemáte aktívne žiadne iné režimy dvojfaktorovej autentifikácie."
 
+msgid "Bad Bot Probability"
+msgstr "Pravdepodobnosť škodlivého bota"
+
 msgid "Bad-Bot Detection and IP Blocking"
 msgstr "Detekcia škodlivých botov a blokovanie IP"
 
 msgid "Badge"
 msgstr "Odznak"
+
+msgid "Badge Closed"
+msgstr "Odznak zatvorený"
+
+msgid "Badge Not Closed"
+msgstr "Odznak nezatvorený"
 
 msgid "Basic HTTP Headers"
 msgstr "Základné HTTP hlavičky"
@@ -1273,6 +1513,9 @@ msgstr "Byť upozornený, keď je Shield plugin deaktivovaný."
 msgid "Be careful to ensure you don't block legitimate XML-RPC traffic if your site needs it."
 msgstr "Dávajte pozor, aby ste neblokovali legitímnu XML-RPC prevádzku, ak ju vaša stránka potrebuje."
 
+msgid "Beat the bots by blocking the IP addresses of repeat offenders."
+msgstr "Porazte botov blokovaním IP adries opakovaných priestupcov."
+
 msgid "Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email."
 msgstr "Pred povolením dvojfaktorovej e-mailovej autentifikácie pre vašu WordPress stránku musíte overiť, že môžete prijať tento e-mail."
 
@@ -1291,6 +1534,9 @@ msgstr "Blokovať 100% bot komentárový SPAM pomocou silentCAPTCHA"
 msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
 msgstr "Blokovať 99.9%% všetkého WordPress komentárového SPAMu pomocou silentCAPTCHA."
 
+msgid "Block Anon REST API"
+msgstr "Blokovať anonymné REST API"
+
 msgid "Block Anonymous REST API"
 msgstr "Blokovať anonymné REST API"
 
@@ -1302,6 +1548,12 @@ msgstr "Blokovať Bot SPAM"
 
 msgid "Block Comment SPAM Posted By Humans"
 msgstr "Blokovať komentárový SPAM posielaný ľuďmi"
+
+msgid "Block Directory Traversals"
+msgstr "Blokovať prechádzanie adresárov"
+
+msgid "Block Field Truncation Attacks"
+msgstr "Blokovať útoky skrátenia poľa"
 
 msgid "Block Human Comment SPAM"
 msgstr "Blokovať ľudský komentárový SPAM"
@@ -1366,11 +1618,20 @@ msgstr "Blokovať XML-RPC"
 msgid "Block all access to the site except from IPs on the bypass/white list."
 msgstr "Zablokovať všetok prístup na stránku okrem IP adries na zozname obchádzania/bielej listine."
 
+msgid "Block comment SPAM while retaining your privacy"
+msgstr "Blokovať komentárový SPAM pri zachovaní vášho súkromia"
+
 msgid "Block directory traversal requests"
 msgstr "Blokovať požiadavky prechádzania adresárov"
 
 msgid "Block duration"
 msgstr "Trvanie blokovania"
+
+msgid "Block human Comment SPAM with dictionary-based scanning that preserves your privacy."
+msgstr "Blokovať ľudský komentárový SPAM pomocou slovníkového skenovania, ktoré zachováva vaše súkromie."
+
+msgid "Block iFrames"
+msgstr "Blokovať iFrames"
 
 msgid "Block requests that attempt to fish for WordPress usernames."
 msgstr "Blokovať požiadavky, ktoré sa pokúšajú vyhľadávať WordPress používateľské mená."
@@ -1387,6 +1648,9 @@ msgstr "Blokovať možnosť objaviť WordPress používateľské mená na zákla
 msgid "Block the most common form of WordPress Comment SPAM."
 msgstr "Blokovať najbežnejšiu formu WordPress komentárového SPAMu."
 
+msgid "Block username fishing/enumeration requests"
+msgstr "Blokovať požiadavky na zisťovanie používateľských mien"
+
 msgid "Blocked"
 msgstr "Zablokované"
 
@@ -1396,11 +1660,17 @@ msgstr "Zablokované & obídené IP"
 msgid "Blocked Anonymous API Access through '{{namespace}}' namespace."
 msgstr "Blokovaný anonymný prístup k API cez menný priestor '{{namespace}}'."
 
+msgid "Blocked Author Discovery via username fishing technique."
+msgstr "Zablokované zisťovanie autorov prostredníctvom techniky username fishing."
+
 msgid "Blocked SPAM comment from Bot."
 msgstr "Zablokovaný SPAM komentár od bota."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "Zablokovaný SPAM komentár, ktorý zlyhal v AntiBot testoch."
+
+msgid "Blocked SPAM comment that failed reCAPTCHA."
+msgstr "Zablokovaný SPAM komentár, ktorý zlyhal v reCAPTCHA."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Zablokovaný pokus o aktualizáciu hesla, ktorý nezodpovedal požiadavkám politiky."
@@ -1426,6 +1696,9 @@ msgstr "Blokuje brute force hackerské útoky proti vašim prihláseniam a regis
 msgid "Blog"
 msgstr "Blog"
 
+msgid "Blog article"
+msgstr "Blog článok"
+
 msgid "Bot"
 msgstr "Bot"
 
@@ -1437,6 +1710,9 @@ msgstr "Správanie botov"
 
 msgid "Bot Blocking"
 msgstr "Blokovanie botov"
+
+msgid "Bot Challenge Complexity"
+msgstr "Zložitosť výzvy pre botov"
 
 msgid "Bot Comment SPAM"
 msgstr "Bot komentárový SPAM"
@@ -1459,6 +1735,12 @@ msgstr "Akcia Bot SPAM"
 msgid "Bot Signals"
 msgstr "Signály botov"
 
+msgid "Bot Signals Tracking"
+msgstr "Sledovanie signálov botov"
+
+msgid "Bot Tracking"
+msgstr "Sledovanie botov"
+
 msgid "Bot comment SPAM will not be blocked"
 msgstr "Bot komentárový SPAM nebude blokovaný"
 
@@ -1467,6 +1749,9 @@ msgstr "Bot komentárový SPAM bude teraz blokovaný"
 
 msgid "Bot threshold"
 msgstr "Prah bota"
+
+msgid "BotBox Fail"
+msgstr "Zlyhanie BotBox"
 
 msgid "Bots"
 msgstr "Boty"
@@ -1552,8 +1837,20 @@ msgstr "Brute force prihlasovanie útoky nie sú blokované systémom cooldown p
 msgid "Brute force login attacks by bots aren't being blocked."
 msgstr "Brute force prihlasovanie útoky botmi nie sú blokované."
 
+msgid "Build Chart"
+msgstr "Vytvoriť graf"
+
+msgid "Build Custom Security Rules"
+msgstr "Vytvoriť vlastné bezpečnostné pravidlá"
+
+msgid "Building scan items for scan: %s"
+msgstr "Vytváranie položiek skenovania pre skenovanie: %s"
+
 msgid "Built-In Shield Integrations"
 msgstr "Vstavané Shield integrácie"
+
+msgid "By default Shield displays non-essential notices in the admin area and admin bar."
+msgstr "Predvolene Shield zobrazuje nepodstatné upozornenia v administrátorskej oblasti a administrátorskej lište."
 
 msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
 msgstr "Predvolene je Shield automaticky nakonfigurovaný na ochranu vašej stránky pred mnohými hrozbami a blokovanie zlých návštevníkov a botov bez toho, aby ste museli čokoľvek robiť."
@@ -1582,14 +1879,26 @@ msgstr "Test CAPTCHA zlyhal."
 msgid "CAPTCHA test successful."
 msgstr "Test CAPTCHA úspešný."
 
+msgid "CAPTCHAs are horrible."
+msgstr "CAPTCHA sú hrozné."
+
 msgid "CSP Rules"
 msgstr "CSP pravidlá"
 
 msgid "CSP Rules allow you to provide granular control over your site content and how assets are served."
 msgstr "CSP pravidlá vám umožňujú poskytnúť podrobnú kontrolu nad obsahom vašej stránky a spôsobom, akým sú assety poskytované."
 
+msgid "Calculating"
+msgstr "Vypočítava sa"
+
 msgid "Callback"
 msgstr "Callback"
+
+msgid "Callback Arguments"
+msgstr "Argumenty callback"
+
+msgid "Can Loopback Request"
+msgstr "Môže vykonať loopback požiadavku"
 
 msgid "Can You Help Us With A Quick Review?"
 msgstr "Môžete nám pomôcť s rýchlou recenziou?"
@@ -1606,17 +1915,29 @@ msgstr "Nemožno použiť funkciu Premenovať WP Login, pretože máte nainštal
 msgid "Can't create a new scan when one already exists: %s"
 msgstr "Nemožno vytvoriť nové skenovanie, keď už jedno existuje: %s"
 
+msgid "Can't generate HMAC Key"
+msgstr "Nie je možné vygenerovať HMAC kľúč"
+
 msgid "Cancel"
 msgstr "Zrušiť"
 
 msgid "Cancel Login"
 msgstr "Zrušiť prihlásenie"
 
+msgid "Cancelled - could not verify site loads successfully"
+msgstr "Zrušené - nepodarilo sa overiť, že sa stránka načíta úspešne"
+
 msgid "Cannot set log retention days to anything longer than max."
 msgstr "Nie je možné nastaviť dni uchovávania logov na dlhšie ako maximum."
 
 msgid "Cannot use original file."
 msgstr "Nemožno použiť pôvodný súbor."
+
+msgid "Capabilities"
+msgstr "Možnosti"
+
+msgid "Capability Key"
+msgstr "Kľúč oprávnenia"
 
 msgid "Captcha Verification Failed"
 msgstr "Overenie Captcha zlyhalo"
@@ -1651,14 +1972,29 @@ msgstr "Pozor: Toto obmedzí možnosť WordPress administrátorov meniť kľúč
 msgid "Careful: This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Pozor: Toto obmedzí možnosť WordPress administrátorov vytvárať, upravovať alebo povyšovať iných administrátorov."
 
+msgid "Catch Plugin & Theme Hacks Immediately"
+msgstr "Zachyťte hacky pluginov & tém okamžite"
+
+msgid "Certain headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
+msgstr "Určité hlavičky môžu ovplyvniť fungovanie vašej stránky pre návštevníkov, preto v tejto sekcii neponúkame žiadne priame odporúčania."
+
 msgid "Certain providers may not be removed if they're enforced."
 msgstr "Niektorí poskytovatelia nemôžu byť odstránení, ak sú vynútení."
 
 msgid "Certain user roles are set for email authentication enforcement that aren't currently available"
 msgstr "Určité používateľské roly sú nastavené na vynútenie e-mailovej autentifikácie, ktoré momentálne nie sú dostupné"
 
+msgid "Challenge Failed"
+msgstr "Výzva zlyhala"
+
+msgid "Challenge has expired."
+msgstr "Výzva vypršala."
+
 msgid "Change Detected"
 msgstr "Zmena detekovaná"
+
+msgid "Change-Tracking"
+msgstr "Sledovanie zmien"
 
 msgid "Changes"
 msgstr "Zmeny"
@@ -1681,6 +2017,9 @@ msgstr "Skontrolujte a overte obsah tohto súboru, aby ste sa uistili, že nie j
 msgid "Check request parameters that trigger firewall patterns."
 msgstr "Skontrolovať parametre požiadavky, ktoré spúšťajú vzory Firewall."
 
+msgid "Check to un/suspend user account"
+msgstr "Začiarknite pre pozastavenie/obnovenie používateľského účtu"
+
 msgid "Checked"
 msgstr "Skontrolované"
 
@@ -1696,11 +2035,23 @@ msgstr "Zaškrtnutím tejto možnosti úplne vypnete celý systém anonymného R
 msgid "Checking this option will completely turn off the whole XML-RPC system."
 msgstr "Zaškrtnutím tejto možnosti úplne vypnete celý systém XML-RPC."
 
+msgid "Checkout Blocked"
+msgstr "Pokladňa zablokovaná"
+
 msgid "Child"
 msgstr "Podradený"
 
+msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
+msgstr "Vyberte formuláre, na ktorých bude nasadená silentCAPTCHA ochrana pred botmi."
+
 msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
 msgstr "Vyberte vlastnú stránku Shield, ak existujú konflikty alebo problémy so stránkou WP Login pre 2FA."
+
+msgid "Choose the forms for which bot protection measures will be deployed."
+msgstr "Vyberte formuláre, pre ktoré budú nasadené opatrenia na ochranu pred botmi."
+
+msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
+msgstr "Vyberte najvhodnejšiu frekvenciu prijímania upozornení zo Shield podľa vášho harmonogramu."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Vyberte typ stránky pre MFA overenie"
@@ -1720,6 +2071,18 @@ msgstr "Vyčistiť"
 msgid "Clean WP Files"
 msgstr "Vyčistiť WP súbory"
 
+msgid "Clear All Filters"
+msgstr "Vymazať všetky filtre"
+
+msgid "Clear Filter"
+msgstr "Vymazať filter"
+
+msgid "Clear Filters"
+msgstr "Vymazať filtre"
+
+msgid "Clear Ignore Flags"
+msgstr "Vymazať príznaky ignorovania"
+
 msgid "Click OK to reload and re-authenticate."
 msgstr "Kliknite na OK pre opätovné načítanie a autentifikáciu."
 
@@ -1737,6 +2100,9 @@ msgstr "Kliknite sem pre viac informácií o požiadavkách"
 
 msgid "Click here to automatically delete the file"
 msgstr "Kliknite sem pre automatické odstránenie súboru"
+
+msgid "Click here to see something fantastic"
+msgstr "Kliknite sem pre zobrazenie niečoho fantastického"
 
 msgid "Click the verify link: %s"
 msgstr "Kliknite na overovací odkaz: %s"
@@ -1843,6 +2209,9 @@ msgstr "Stav komentára aktualizovaný"
 msgid "Comment Triggered Human SPAM Detection"
 msgstr "Komentár spustil detekciu ľudského SPAMu"
 
+msgid "Comment Unmarked As SPAM"
+msgstr "Komentár odznačený ako SPAM"
+
 msgid "Comment manually marked as SPAM."
 msgstr "Komentár manuálne označený ako SPAM."
 
@@ -1876,6 +2245,9 @@ msgstr "Spoločné nastavenia pre všetko skenovanie SPAM"
 msgid "Company Name"
 msgstr "Názov spoločnosti"
 
+msgid "Compare ADE Score To"
+msgstr "Porovnať ADE skóre s"
+
 msgid "Compare Parameter Name To"
 msgstr "Porovnať názov parametra s"
 
@@ -1884,6 +2256,9 @@ msgstr "Porovnať hodnotu parametra s"
 
 msgid "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
 msgstr "Porovnáva všetky súbory jadra WordPress na vašej stránke s oficiálnymi súbormi WordPress. Súbory jadra WordPress by nikdy nemali byť z akéhokoľvek dôvodu zmenené."
+
+msgid "Comparisons are case-insensitive."
+msgstr "Porovnania nerozlišujú veľkosť písmen."
 
 msgid "Complete Login"
 msgstr "Dokončiť prihlásenie"
@@ -1897,11 +2272,17 @@ msgstr "Konfiguračné stránky pre nastavenie 2FA používateľa"
 msgid "Configure All '%s' Options"
 msgstr "Konfigurovať všetky možnosti '%s'"
 
+msgid "Configure Component"
+msgstr "Konfigurovať komponent"
+
 msgid "Configure Firewall Block alert emails"
 msgstr "Konfigurovať upozorňovacie e-maily Firewall blokovania"
 
 msgid "Configure Lockdown"
 msgstr "Konfigurovať uzamknutie"
+
+msgid "Configure Module"
+msgstr "Konfigurovať modul"
 
 msgid "Configure Security Admin"
 msgstr "Konfigurovať Security Admin"
@@ -1914,6 +2295,9 @@ msgstr "Konfigurovať uzamknutie"
 
 msgid "Configure non-security related options of the plugin."
 msgstr "Nakonfigurovať možnosti pluginu, ktoré nesúvisia s bezpečnosťou."
+
+msgid "Configure security email recipient (%s)"
+msgstr "Konfigurovať príjemcu bezpečnostného e-mailu (%s)"
 
 msgid "Configure some basic HTTP Headers to protect your visitors and site content."
 msgstr "Nakonfigurujte niektoré základné HTTP hlavičky na ochranu vašich návštevníkov a obsahu stránky."
@@ -1969,6 +2353,9 @@ msgstr "Obsah pre príspevok ID {{post_id}} aktualizovaný."
 msgid "Contents"
 msgstr "Obsah"
 
+msgid "Context has not been specified."
+msgstr "Kontext nebol špecifikovaný."
+
 msgid "Control the response to specific bot requests"
 msgstr "Kontrolovať odpoveď na špecifické požiadavky botov"
 
@@ -2002,6 +2389,18 @@ msgstr "Spustený cooldown"
 msgid "Cooldown in effect."
 msgstr "Cooldown je aktívny."
 
+msgid "Coordinates"
+msgstr "Súradnice"
+
+msgid "Core Reinstalled: v%s"
+msgstr "Core preinštalovaný: v%s"
+
+msgid "Core Upgraded: %s&rarr;%s"
+msgstr "Core aktualizované: %s&rarr;%s"
+
+msgid "Core properties of an established user session ({{user_login}}) have changed."
+msgstr "Základné vlastnosti zavedenej používateľskej relácie ({{user_login}}) sa zmenili."
+
 msgid "Could not create MU directory: %s"
 msgstr "Nepodarilo sa vytvoriť MU adresár: %s"
 
@@ -2023,8 +2422,14 @@ msgstr "Nepodarilo sa získať platný diff pre tento súbor."
 msgid "Could not load log record."
 msgstr "Nepodarilo sa načítať záznam logu."
 
+msgid "Could not locate hashes for VO: %s"
+msgstr "Nepodarilo sa nájsť hashe pre VO: %s"
+
 msgid "Could not parse the definition file."
 msgstr "Nepodarilo sa analyzovať definiční súbor."
+
+msgid "Could not resolve host IP address: %s"
+msgstr "Nepodarilo sa rozlíšiť IP adresu hostiteľa: %s"
 
 msgid "Could not verify your 2FA codes"
 msgstr "Nepodarilo sa overiť vaše 2FA kódy"
@@ -2046,6 +2451,9 @@ msgstr "Nepodarilo sa načítať plugin pre slug '%s'."
 
 msgid "Couldn't load theme for slug '%s'."
 msgstr "Nepodarilo sa načítať tému pre slug '%s'."
+
+msgid "Couldn't read MU plugin template from %s"
+msgstr "Nepodarilo sa prečítať šablónu MU pluginu z %s"
 
 msgid "Country"
 msgstr "Krajina"
@@ -2074,6 +2482,9 @@ msgstr "Vytvoriť nové pravidlo"
 msgid "Create Report"
 msgstr "Vytvoriť správu"
 
+msgid "Create Shield Network"
+msgstr "Vytvoriť Shield Network"
+
 msgid "Create and view all your custom security rules."
 msgstr "Vytvoriť a zobraziť všetky vaše vlastné bezpečnostné pravidlá."
 
@@ -2085,6 +2496,9 @@ msgstr "Vytvorené"
 
 msgid "Created with status %s"
 msgstr "Vytvorené so stavom %s"
+
+msgid "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
+msgstr "Vytvorenie cesty tu vypne vašu 'wp-login.php'. Povolené sú len písmená a čísla: abc123"
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Vytváranie vlastných pravidiel je pokročilá funkcia a beriem na seba plnú zodpovednosť za akékoľvek problémy vyplývajúce z pravidiel, ktoré vytvorím."
@@ -2125,6 +2539,12 @@ msgstr "CrowdSec"
 msgid "CrowdSec API Status"
 msgstr "Stav CrowdSec API"
 
+msgid "CrowdSec Community IP Blocking"
+msgstr "CrowdSec komunitné blokovanie IP"
+
+msgid "CrowdSec Community IP Reputation Database"
+msgstr "CrowdSec komunitná databáza reputácie IP adries"
+
 msgid "CrowdSec Enroll ID"
 msgstr "CrowdSec Enroll ID"
 
@@ -2136,6 +2556,12 @@ msgstr "CrowdSec domov"
 
 msgid "CrowdSec IP Blocking"
 msgstr "Blokovanie IP CrowdSec"
+
+msgid "CrowdSec Instance Enroll ID"
+msgstr "CrowdSec Instance Enroll ID"
+
+msgid "CrowdSec Instance Enroll ID."
+msgstr "CrowdSec Instance Enroll ID."
 
 msgid "CrowdSec Signals"
 msgstr "CrowdSec signály"
@@ -2155,8 +2581,14 @@ msgstr "Aktuálne skenovanie"
 msgid "Current Scan Results"
 msgstr "Aktuálne výsledky skenovania"
 
+msgid "Current Session Age (seconds)"
+msgstr "Vek aktuálnej relácie (sekundy)"
+
 msgid "Current Session Terminated"
 msgstr "Aktuálna relácia ukončená"
+
+msgid "Current Session Token Age (seconds)"
+msgstr "Vek tokenu aktuálnej relácie (sekundy)"
 
 msgid "Current Summary"
 msgstr "Aktuálny súhrn"
@@ -2194,6 +2626,9 @@ msgstr "Vlastný report na %s"
 msgid "Custom Rules"
 msgstr "Vlastné pravidlá"
 
+msgid "Custom Rules Manager"
+msgstr "Správca vlastných pravidiel"
+
 msgid "Custom Security Rules"
 msgstr "Vlastné bezpečnostné pravidlá"
 
@@ -2202,6 +2637,9 @@ msgstr "Vlastné udalosti musia byť poskytnuté ako pole. Uistite sa, že filte
 
 msgid "Custom report created, reloading reports page."
 msgstr "Vlastný report vytvorený, znovu sa načítava stránka reportov."
+
+msgid "Customer And Visitor Protection"
+msgstr "Ochrana zákazníkov a návštevníkov"
 
 msgid "DB Tables Added"
 msgstr "Pridané DB tabuľky"
@@ -2215,6 +2653,9 @@ msgstr "Denne"
 msgid "Daily Cron - %s"
 msgstr "Denný Cron - %s"
 
+msgid "Daily Scan Frequency"
+msgstr "Frekvencia denného skenovania"
+
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -2227,11 +2668,23 @@ msgstr "Logo pre dashboard a 2FA"
 msgid "Dashboard and 2FA Logo URL"
 msgstr "URL loga pre dashboard a 2FA"
 
+msgid "Data Storage: Audit Trail"
+msgstr "Ukladanie dát: Audit Trail"
+
+msgid "Data Storage: User Sessions"
+msgstr "Úložisko dát: Používateľské relácie"
+
 msgid "Data scanned in this request matched at least 1 firewall rule and is considered potentially dangerous."
 msgstr "Dáta skenované v tejto požiadavke zodpovedali aspoň 1 pravidlu firewallu a sú považované za potenciálne nebezpečné."
 
 msgid "Database"
 msgstr "Databáza"
+
+msgid "Database table(s) added:"
+msgstr "Pridané databázové tabuľky:"
+
+msgid "Database table(s) removed:"
+msgstr "Odstránené databázové tabuľky:"
 
 msgid "Databases"
 msgstr "Databázy"
@@ -2244,6 +2697,9 @@ msgstr "Dátum pridania"
 
 msgid "Date Generated"
 msgstr "Dátum generovania"
+
+msgid "Date Range"
+msgstr "Dátumový rozsah"
 
 msgid "Day"
 msgstr "Deň"
@@ -2293,6 +2749,9 @@ msgstr "Predvolený Admin používateľ"
 msgid "Default User Role"
 msgstr "Predvolená používateľská rola"
 
+msgid "Default user role changed: %s&rarr;%s"
+msgstr "Predvolená používateľská rola zmenená: %s&rarr;%s"
+
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Predvolené: Raz za 24 hodín. Pre zlepšenie bezpečnosti zvýšte počet skenovaní za deň."
 
@@ -2310,6 +2769,9 @@ msgstr "Oneskoriť automatické aktualizácie na obdobie stability"
 
 msgid "Delete"
 msgstr "Odstrániť"
+
+msgid "Delete 'forceoff' File"
+msgstr "Odstrániť súbor 'forceoff'"
 
 msgid "Delete All Bot Signals"
 msgstr "Odstrániť všetky signály botov"
@@ -2344,6 +2806,12 @@ msgstr "Odstránené tabuľky"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Príspevky odstráneného používateľa boli preradené používateľovi '{{user_login}}'."
 
+msgid "Demo: Important UI changes with Shield v20"
+msgstr "Demo: Dôležité zmeny UI v Shield v20"
+
+msgid "Demoted From Admin"
+msgstr "Degradovaný z administrátora"
+
 msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
 msgstr "V závislosti od vašich nastavení môžu tieto správy obsahovať kombináciu upozornení, štatistík a ďalších informácií."
 
@@ -2368,6 +2836,9 @@ msgstr "Podrobnosti pre toto prihlásenie sú nižšie:"
 msgid "Details for this user are below:"
 msgstr "Podrobnosti pre tohto používateľa sú nižšie:"
 
+msgid "Detect A Bot That Follows A 'no-follow' Link."
+msgstr "Zistiť bota, ktorý nasleduje odkaz 'no-follow'."
+
 msgid "Detect Failed Login Attempts By Valid Usernames"
 msgstr "Detekovať neúspešné pokusy o prihlásenie pomocou platných používateľských mien"
 
@@ -2377,11 +2848,23 @@ msgstr "Detekovať neúspešné pokusy o prihlásenie pre používateľov, ktor�
 msgid "Detect Failed Login Attempts With Usernames That Don't Exist"
 msgstr "Detekovať neúspešné pokusy o prihlásenie s používateľskými menami, ktoré neexistujú"
 
+msgid "Detect Fake Search Engine Crawlers"
+msgstr "Detegovať falošné crawlery vyhľadávačov"
+
 msgid "Detect Invalid Username Logins"
 msgstr "Detegovať prihlásenia s neplatným používateľským menom"
 
+msgid "Detect Requests With Empty User Agents"
+msgstr "Detegovať požiadavky s prázdnymi User Agents"
+
 msgid "Detect When A Visitor Browses To A Non-Existent Page."
 msgstr "Zistiť, keď návštevník prechádza na neexistujúcu stránku."
+
+msgid "Detect a bot when it follows a fake 'no-follow' link."
+msgstr "Zistiť bota, keď nasleduje falošný odkaz 'no-follow'."
+
+msgid "Detect characteristics and behaviour commonly associated with illegitimate bots."
+msgstr "Detegovať charakteristiky a správanie bežne spojené s nelegitímnymi botmi."
 
 msgid "Detect malicious bots and visitors, and block them from accessing the site."
 msgstr "Detegovať škodlivých botov a návštevníkov a zablokovať im prístup na stránku."
@@ -2413,6 +2896,9 @@ msgstr "Deteguje zmeny v súboroch, potom vám umožní preskúmať obsah a vrá
 msgid "Detects common and uncommon malware patterns in PHP files and alerts you immediately."
 msgstr "Deteguje bežné a menej bežné vzory malvéru v PHP súboroch a okamžite vás upozorní."
 
+msgid "Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters."
+msgstr "Označenie zariadenia musí obsahovať písmená, čísla, podčiarkovník alebo pomlčku a nesmie mať viac ako 16 znakov."
+
 msgid "Device registration may not proceed without a unique label."
 msgstr "Registrácia zariadenia nemôže pokračovať bez jedinečného označenia."
 
@@ -2422,11 +2908,26 @@ msgstr "Rozdiel"
 msgid "Diff is unavailable for missing files."
 msgstr "Diff nie je dostupný pre chýbajúce súbory."
 
+msgid "Dir Separator"
+msgstr "Oddeľovač adresárov"
+
+msgid "Dir Traversal"
+msgstr "Prechádzanie adresárov"
+
+msgid "Directories should be provided with a trailing slash (/)."
+msgstr "Adresáre by mali byť poskytnuté s koncovým lomítkom (/)."
+
 msgid "Directory Traversal"
+msgstr "Prechádzanie adresárov"
+
+msgid "Directory Traversals"
 msgstr "Prechádzanie adresárov"
 
 msgid "Directory doesn't exist."
 msgstr "Adresár neexistuje."
+
+msgid "Directs compatible browsers to block what they detect as Reflective XSS attacks."
+msgstr "Nasmeruje kompatibilné prehliadače na blokovanie toho, co detekujú ako útoky Reflective XSS."
 
 msgid "Disable %s"
 msgstr "Zakázať %s"
@@ -2445,6 +2946,9 @@ msgstr "Zakázať úpravu súborov"
 
 msgid "Disable MU To Deactivate"
 msgstr "Zakázať MU pre deaktiváciu"
+
+msgid "Disable Module"
+msgstr "Zakázať modul"
 
 msgid "Disable Security Admin"
 msgstr "Deaktivovať Security Admin"
@@ -2488,6 +2992,9 @@ msgstr "Vypnite túto možnosť, aby ste skryli určité administrátorské upoz
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Zakázanie anonymného prístupu môže narušiť pluginy, ktoré používajú REST API pre návštevníkov vašej stránky."
 
+msgid "Disconnected"
+msgstr "Odpojené"
+
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Objavte pluginy, ktoré mohli byť opustené ich autormi"
 
@@ -2499,6 +3006,12 @@ msgstr "Objavené"
 
 msgid "Discovering malware on your site isn't 'protection' - it's actually a sign that your site is already hacked."
 msgstr "Objavenie malvéru na vašej stránke nie je 'ochrana' - je to v skutočnosti znak, že vaša stránka je už hacknutá."
+
+msgid "Disk Space"
+msgstr "Diskový priestor"
+
+msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
+msgstr "Zobraziť nepodstatné upozornenia pluginu a menu administrátorskej lišty"
 
 msgid "Display Options Updated"
 msgstr "Možnosti zobrazenia aktualizované"
@@ -2523,6 +3036,9 @@ msgstr "Zodpovedajú nejaké parametre v požiadavke danému súboru parametrov 
 
 msgid "Docs"
 msgstr "Dokumentácia"
+
+msgid "Document Root"
+msgstr "Koreň dokumentu"
 
 msgid "Does a given file exist in a given directory."
 msgstr "Existuje daný súbor v danom adresári."
@@ -2599,11 +3115,17 @@ msgstr "Neskenovať komentáre pre používateľov s nasledujúcimi rolami"
 msgid "Don't want these email alerts?"
 msgstr "Nechcete tieto e-mailové upozornenia?"
 
+msgid "Downgraded: %s&rarr;%s"
+msgstr "Degradované: %s&rarr;%s"
+
 msgid "Download"
 msgstr "Stiahnuť"
 
 msgid "Download File"
 msgstr "Stiahnuť súbor"
+
+msgid "Download IP Rules as CSV"
+msgstr "Stiahnuť IP pravidlá ako CSV"
 
 msgid "Download Modified"
 msgstr "Stiahnuť upravené"
@@ -2617,8 +3139,20 @@ msgstr "Stiahnuť originál"
 msgid "Download Request Logs"
 msgstr "Stiahnuť logy požiadaviek"
 
+msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
+msgstr "Stiahnuté reputačné rozhodnutia z CrowdSec pre rozsah: {{scope}}."
+
+msgid "Downloading file, please wait..."
+msgstr "Sťahovanie súboru, prosím počkajte..."
+
 msgid "Duration"
 msgstr "Trvanie"
+
+msgid "Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
+msgstr "Každý pár [Používateľské meno,Kľúč] by mal byť oddelený novým riadkom: stačí poskytnúť prvých 12 znakov yubikey."
+
+msgid "Each scan area performs a specific task, as follows:"
+msgstr "Každá oblasť skenovania vykonáva špecifickú úlohu, a to nasledovne:"
 
 msgid "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
 msgstr "Každá stránka na tomto zozname bude môcť exportovať možnosti z tejto stránky bez poskytnutia tajného kľúča. Použite nový riadok pre každú URL."
@@ -2643,6 +3177,9 @@ msgstr "Upraviť nastavenia"
 
 msgid "Edit Theme Options"
 msgstr "Upraviť možnosti témy"
+
+msgid "Edit WAF settings"
+msgstr "Upraviť nastavenia WAF"
 
 msgid "Edit activity log settings"
 msgstr "Upraviť nastavenia záznamu aktivity"
@@ -2713,6 +3250,9 @@ msgstr "Úprava tejto možnosti je momentálne obmedzená."
 msgid "Either the country code or phone number were missing."
 msgstr "Chýbal buď kód krajiny alebo telefónne číslo."
 
+msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
+msgstr "Pozdvihnite vaše WordPress zabezpečenie na najvyššiu úroveň upgradujte váš Shield Security plán."
+
 msgid "Email"
 msgstr "E-mail"
 
@@ -2755,6 +3295,9 @@ msgstr "E-mailová dvojfaktorová autentifikácia"
 msgid "Email Updated"
 msgstr "E-mail aktualizovaný"
 
+msgid "Email Validation Checks"
+msgstr "Kontroly validácie e-mailu"
+
 msgid "Email notifications for new comments"
 msgstr "E-mailové upozornenia na nové komentáre"
 
@@ -2770,11 +3313,17 @@ msgstr "E-mail odoslaný. Uistite sa, že sa odkaz otvorí v TOMTO prehliadači.
 msgid "Email updated for user '{{user_login}}'."
 msgstr "E-mail aktualizovaný pre používateľa '{{user_login}}'."
 
+msgid "Email verification completed successfully."
+msgstr "E-mailové overenie bolo úspešne dokončené."
+
 msgid "Email verification test that failed: {{reason}}"
 msgstr "E-mailový overovací test, ktorý zlyhal: {{reason}}"
 
 msgid "Email-based 2-Factor Authentication needs a reliable email delivery system on your WordPress site."
 msgstr "E-mailová dvojfaktorová autentifikácia potrebuje spoľahlivý systém doručovania e-mailov na vašej WordPress stránke."
+
+msgid "Employ Built-In Browser XSS Protection"
+msgstr "Použiť vstavaný XSS ochranu prehliadača"
 
 msgid "Employs a set of aggressive rules to detect and block malicious data submitted to your site."
 msgstr "Používa súbor agresívnych pravidiel na detekciu a blokovanie škodlivých dát odoslaných na vašu stránku."
@@ -2782,8 +3331,14 @@ msgstr "Používa súbor agresívnych pravidiel na detekciu a blokovanie škodli
 msgid "Employs a set of aggressive rules to detect and block malicious data submitted to your site. Warning - May cause an increase in false-positive firewall blocks."
 msgstr "Používa súbor agresívnych pravidiel na detekciu a blokovanie škodlivých dát odoslaných na vašu stránku. Upozornenie - Môže spôsobiť nárast falošne pozitívnych blokov firewall."
 
+msgid "Empty User Agents"
+msgstr "Prázdne User Agents"
+
 msgid "Empty response from Shield client site"
 msgstr "Prázdna odpoveď zo Shield klientskej stránky"
+
+msgid "Empty root file provided for instantiation"
+msgstr "Poskytnutý prázdny koreňový súbor pre inštanciáciu"
 
 msgid "Enable"
 msgstr "Povoliť"
@@ -2791,14 +3346,23 @@ msgstr "Povoliť"
 msgid "Enable %s"
 msgstr "Povoliť %s"
 
+msgid "Enable %s Module"
+msgstr "Povoliť modul %s"
+
 msgid "Enable %s Protection"
 msgstr "Povoliť ochranu %s"
+
+msgid "Enable (or Disable) The %s Module"
+msgstr "Povoliť (alebo zakázať) modul %s"
 
 msgid "Enable (or Disable) The Comment SPAM Protection Feature"
 msgstr "Povoliť (alebo zakázať) funkciu ochrany pred komentárovým SPAMom"
 
 msgid "Enable Access To Beta Versions"
 msgstr "Povoliť prístup k Beta verziám"
+
+msgid "Enable Audit Auto Cleaning"
+msgstr "Povoliť automatické čistenie auditu"
 
 msgid "Enable Auto-Integrations"
 msgstr "Povoliť automatické integrácie"
@@ -2815,11 +3379,23 @@ msgstr "Povoliť e-mailové odkazy na automatické prihlásenie"
 msgid "Enable Google Authenticator"
 msgstr "Povoliť Google Authenticator"
 
+msgid "Enable Information Gathering"
+msgstr "Povoliť zhromažďovanie informácií"
+
 msgid "Enable Live Logging Of All Traffic"
 msgstr "Povoliť živé zaznamenávanie celej návštevnosti"
 
 msgid "Enable MainWP"
 msgstr "Povoliť MainWP"
+
+msgid "Enable Module: %s"
+msgstr "Povoliť modul: %s"
+
+msgid "Enable Module: IP Manager"
+msgstr "Povoliť modul: IP Manager"
+
+msgid "Enable Module: User Management"
+msgstr "Povoliť modul: Správa používateľov"
 
 msgid "Enable Passkeys"
 msgstr "Povoliť Passkeys"
@@ -2845,6 +3421,12 @@ msgstr "Povoliť nižšie uvedené pravidlá pre heslá"
 msgid "Enable The Vulnerability Scanner"
 msgstr "Povoliť skener zraniteľností"
 
+msgid "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
+msgstr "Povoľte túto možnosť, aby mohol Shield upgradovať na beta a pre-release verzie"
+
+msgid "Enable Traffic Log Auto Expiry"
+msgstr "Povoliť automatické vypršanie záznamu návštevnosti"
+
 msgid "Enable White Label"
 msgstr "Povoliť bielu značku"
 
@@ -2859,6 +3441,9 @@ msgstr "Povoliť alebo zakázať funkciu obmedzenia frekvencie podľa vašich pa
 
 msgid "Enable this option to allow automatic import and export of options between WordPress sites."
 msgstr "Povoľte túto možnosť pre automatický import a export možností medzi WordPress stránkami."
+
+msgid "Enable this option to allow shield to upgrade to beta and pre-release versions."
+msgstr "Povoľte túto možnosť, aby mohol shield upgradovať na beta a pre-release verzie."
 
 msgid "Enable this with great care and consideration. Ensure that you set an Security PIN that you'll remember."
 msgstr "Povoľte toto s veľkou opatrnosťou a zvážením. Uistite sa, že nastavíte Security PIN, ktorý si zapamätáte."
@@ -2877,6 +3462,12 @@ msgstr "Povolenie tejto možnosti pomáha podporiť plugin šírením informáci
 
 msgid "Enabling this option may interfere with expected operations of your site."
 msgstr "Povolenie tejto možnosti môže zasahovať do očakávaných operácií vašej stránky."
+
+msgid "End Date"
+msgstr "Dátum ukončenia"
+
+msgid "End Security Admin Session"
+msgstr "Ukončiť Security Admin reláciu"
 
 msgid "Enforce"
 msgstr "Vynútiť"
@@ -2914,6 +3505,18 @@ msgstr "Dostatočný počet priestupkov bude mať za následok zákaz IP adresy.
 msgid "Enroll ID"
 msgstr "Enroll ID"
 
+msgid "Enrolled Site With Console"
+msgstr "Stránka zaregistrovaná v konzole"
+
+msgid "Enrolled site with CrowdSec console."
+msgstr "Stránka zaregistrovaná v CrowdSec konzole."
+
+msgid "Enrollment ID"
+msgstr "ID registrácie"
+
+msgid "Enrollment Name"
+msgstr "Názov registrácie"
+
 msgid "Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
 msgstr "Uistite sa, že je toto zapnuté a vždy budete vedieť, či niektorý z vašich assetov má známe bezpečnostné zraniteľnosti."
 
@@ -2950,8 +3553,14 @@ msgstr "Zadajte váš Security Admin PIN"
 msgid "Entire %s Configuration"
 msgstr "Celá konfigurácia %s"
 
+msgid "Environment"
+msgstr "Prostredie"
+
 msgid "Equals"
 msgstr "Rovná sa"
+
+msgid "Equivalent to setting \"DISALLOW_FILE_EDIT\" to TRUE."
+msgstr "Ekvivalent nastavenia \"DISALLOW_FILE_EDIT\" na TRUE."
 
 msgid "Error"
 msgstr "Chyba"
@@ -2964,6 +3573,9 @@ msgstr "Udalosť"
 
 msgid "Event %s does not exist."
 msgstr "Udalosť %s neexistuje."
+
+msgid "Event (%s) definition has audit parameters that aren't present: %s"
+msgstr "Definícia udalosti (%s) má auditné parametre, ktoré nie sú prítomné: %s"
 
 msgid "Event Details"
 msgstr "Podrobnosti udalosti"
@@ -2983,6 +3595,9 @@ msgstr "Udalosti staršie ako zadaný počet dní budú automaticky vyčistené 
 msgid "Events older than the number of days specified will be automatically cleaned from the database."
 msgstr "Udalosti staršie ako zadaný počet dní budú automaticky vyčistené z databázy."
 
+msgid "Eventually, when the visitor leaves you alone, it'll clean the stale IPs from your block lists, keeping your site performance running optimally."
+msgstr "Nakoniec, keď vás návštevník nechá na pokoji, vyčistí zastarané IP z vašich blokovacích zoznamov, čím udržiava výkon vašej stránky optimálne."
+
 msgid "Every IP address accessing your site gets its own unique visitor score - the higher the score, the better the visitor i.e. the more likely it's human."
 msgstr "Každá IP adresa pristupujúca na vašu stránku dostane svoje vlastné jedinečné skóre návštevníka - čím vyššie skóre, tým lepší návštevník, t.j. tým pravdepodobnejšie je to človek."
 
@@ -2991,6 +3606,15 @@ msgstr "Príklad"
 
 msgid "Excluded Parameters"
 msgstr "Vylúčené parametre"
+
+msgid "Exclusive Customer Support"
+msgstr "Exkluzívna zákaznícka podpora"
+
+msgid "Exec Order"
+msgstr "Poradie vykonania"
+
+msgid "Exit Wizard"
+msgstr "Ukončiť sprievodcu"
 
 msgid "Expiration"
 msgstr "Expirácia"
@@ -3013,6 +3637,9 @@ msgstr "Cesta k exportovanému súboru"
 msgid "Extensions"
 msgstr "Rozšírenia"
 
+msgid "External Links"
+msgstr "Externé odkazy"
+
 msgid "Extras"
 msgstr "Doplnky"
 
@@ -3028,8 +3655,17 @@ msgstr "Neúspešné prihlásenia"
 msgid "Failed item: '{{path_full}}'"
 msgstr "Neúspešná položka: '{{path_full}}'"
 
+msgid "Failed to connect to license server."
+msgstr "Nepodarilo sa pripojiť k licenčnému serveru."
+
 msgid "Failed to create custom report."
 msgstr "Nepodarilo sa vytvoriť vlastnú správu."
+
+msgid "Failed to insert file locker record for path: '%s'"
+msgstr "Nepodarilo sa vložiť záznam file locker pre cestu: '%s'"
+
+msgid "Failed to insert."
+msgstr "Nepodarilo sa vložiť."
 
 msgid "Failed to obtain public key from API."
 msgstr "Nepodarilo sa získať verejný kľúč z API."
@@ -3061,11 +3697,29 @@ msgstr "Zlyhalo: %s"
 msgid "Failure Type: {{type}}"
 msgstr "Typ zlyhania: {{type}}"
 
+msgid "Fake Crawler misrepresented itself as '{{crawler}}'."
+msgstr "Falošný crawler sa vydával za '{{crawler}}'."
+
+msgid "Fake Web Crawler"
+msgstr "Falošný webový crawler"
+
+msgid "Fake Web Crawler detected at '{{path}}'."
+msgstr "Falošný webový crawler detekovaný na '{{path}}'."
+
+msgid "Fake Web Crawlers"
+msgstr "Falošné webové crawlery"
+
 msgid "False"
 msgstr "Nepravda"
 
 msgid "False Positive"
 msgstr "Falošne pozitívny"
+
+msgid "False Positive Confidence"
+msgstr "Istota falošne pozitívneho výsledku"
+
+msgid "Field Truncation"
+msgstr "Skrátenie poľa"
 
 msgid "File"
 msgstr "Súbor"
@@ -3087,6 +3741,18 @@ msgstr "Ochrana súborov"
 
 msgid "File Info"
 msgstr "Info o súbore"
+
+msgid "File Integrity"
+msgstr "Integrita súborov"
+
+msgid "File Locker"
+msgstr "File Locker"
+
+msgid "File Locker Changes Detected"
+msgstr "Detegované zmeny File Locker"
+
+msgid "File Locker Data"
+msgstr "Dáta File Locker"
 
 msgid "File Modified"
 msgstr "Súbor upravený"
@@ -3127,6 +3793,9 @@ msgstr "Obsah súboru je prázdny."
 msgid "File contents could not be encrypted. Message: "
 msgstr "Obsah súboru sa nepodarilo zašifrovať. Správa:"
 
+msgid "File contents could not be wp_json_encode() after encryption."
+msgstr "Obsah súboru sa nepodarilo wp_json_encode() po zašifrovaní."
+
 msgid "File detected as %s by %s scanner."
 msgstr "Súbor detegovaný ako %s skenerom %s."
 
@@ -3145,6 +3814,9 @@ msgstr "Súbor je prázdny alebo sa nepodarilo prečítať."
 msgid "File provied wasn't an absolute path, so we're using the following path to the export file"
 msgstr "Poskytnutý súbor nebol absolútna cesta, takže používame nasledujúcu cestu k exportnému súboru"
 
+msgid "File scanning is an intensive operation and takes time."
+msgstr "Skenovanie súborov je náročná operácia a trvá čas."
+
 msgid "FileLocker Changes"
 msgstr "Zmeny FileLocker"
 
@@ -3153,6 +3825,9 @@ msgstr "Zistené zmeny FileLocker"
 
 msgid "FileLocker can't be used because the PHP %s extension isn't available."
 msgstr "FileLocker nemožno použiť, pretože PHP rozšírenie %s nie je dostupné."
+
+msgid "FileLocker can't be used because there is no encryption cipher isn't available."
+msgstr "FileLocker nemožno použiť, pretože nie je dostupná žiadna šifrovacia šifra."
 
 msgid "FileLocker has detected changes to critical files."
 msgstr "FileLocker zistil zmeny v kritických súboroch."
@@ -3171,6 +3846,9 @@ msgstr "Skenovanie súborového systému hľadajúce upravené, chýbajúce a ne
 
 msgid "Filter Priority"
 msgstr "Priorita filtra"
+
+msgid "Finally, we must prevent malicious actors gaining administrative WordPress access to your site by stealing your legitimate user sessions."
+msgstr "Nakoniec musíme zabrániť škodlivým aktérom získať administratívny prístup k WordPressu na vašej stránke odcudzením vašich legitímnych používateľských relácií."
 
 msgid "Find Plugin Option"
 msgstr "Nájsť možnosť pluginu"
@@ -3271,14 +3949,29 @@ msgstr "Kontrola formulárového SPAMu"
 msgid "Format"
 msgstr "Formát"
 
+msgid "Free Trial"
+msgstr "Bezplatná skúšobná verzia"
+
 msgid "Free security is great, but if you run a business, you'll want all the protection available."
 msgstr "Bezplatná bezpečnosť je skvelá, ale ak prevádzkujete podnikanie, budete chcieť všetku dostupnú ochranu."
+
+msgid "Front Page"
+msgstr "Úvodná stránka"
+
+msgid "Front page loaded"
+msgstr "Úvodná stránka načítaná"
 
 msgid "Full Path"
 msgstr "Úplná cesta"
 
 msgid "Full Path To File"
 msgstr "Úplná cesta k súboru"
+
+msgid "Full Release Announcement"
+msgstr "Úplné oznámenie o vydaní"
+
+msgid "Fuzzy Search"
+msgstr "Fuzzy vyhľadávanie"
 
 msgid "General"
 msgstr "Všeobecné"
@@ -3313,8 +4006,29 @@ msgstr "Získajte ShieldPRO!"
 msgid "Get Started In Under 3 Minutes"
 msgstr "Začnite za menej ako 3 minúty"
 
+msgid "Global Plugin Enable"
+msgstr "Globálne povolenie pluginu"
+
+msgid "Global Plugin Security Options"
+msgstr "Globálne možnosti bezpečnosti pluginu"
+
+msgid "Global Security Plugin Disable"
+msgstr "Globálne zakázanie bezpečnostného pluginu"
+
+msgid "Globally enable/disable security protections"
+msgstr "Globálne povoliť/zakázať bezpečnostné ochrany"
+
 msgid "Go Back Home"
 msgstr "Vrátiť sa domov"
+
+msgid "Go PRO For The Equivalent Of 1 Beer Per Month &#127866;"
+msgstr "Prejdite na PRO za ekvivalent 1 piva mesačne &#127866;"
+
+msgid "Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;"
+msgstr "Prejdite na PRO za ekvivalent 1 cappuccina mesačne ☕"
+
+msgid "Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;"
+msgstr "Prejdite na PRO za ekvivalent 1 pohára vína mesačne 🍷"
 
 msgid "Go PRO!"
 msgstr "Prejsť na PRO!"
@@ -3364,8 +4078,17 @@ msgstr "Google Authenticator kód"
 msgid "Google Authenticator was removed from the account."
 msgstr "Google Authenticator bol odstránený z účtu."
 
+msgid "Google Authenticator, LastPass Authenticator & Microsoft Authenticator are all supported by this option, but it is referred to as Google Authenticator for simplicity."
+msgstr "Google Authenticator, LastPass Authenticator & Microsoft Authenticator sú všetky podporované touto možnosťou, ale pre jednoduchosť sa označuje ako Google Authenticator."
+
 msgid "Grade"
 msgstr "Stupeň"
+
+msgid "Greater Than"
+msgstr "Väčšie ako"
+
+msgid "Guided Setup"
+msgstr "Riadené nastavenie"
 
 msgid "HTTP 404 Not Found"
 msgstr "HTTP 404 nenájdené"
@@ -3373,11 +4096,26 @@ msgstr "HTTP 404 nenájdené"
 msgid "HTTP Headers"
 msgstr "HTTP hlavičky"
 
+msgid "HTTP Headers are directives sent to your browser that control how it handles the content and responses it receives."
+msgstr "HTTP hlavičky sú direktívy odoslané vášmu prehliadaču, ktoré kontrolujú, ako spracováva obsah a odpovede, ktoré prijíma."
+
 msgid "HTTP Headers provide protection for your site visitors."
 msgstr "HTTP hlavičky poskytujú ochranu pre návštevníkov vašej stránky."
 
 msgid "HTTP Request Log"
 msgstr "Záznam HTTP požiadaviek"
+
+msgid "HTTP Response Header To Send"
+msgstr "HTTP hlavička odpovede na odoslanie"
+
+msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
+msgstr "HTTPS nastavenie pre Home URL a WP Site URL nie je konzistentné."
+
+msgid "Handshake ShieldNET"
+msgstr "Handshake ShieldNET"
+
+msgid "Hardware 2-Factor Authentication"
+msgstr "Hardvérová dvojfaktorová autentifikácia"
 
 msgid "Has Valid Shield User Sessions"
 msgstr "Má platné Shield používateľské relácie"
@@ -3391,11 +4129,23 @@ msgstr "Pomoc"
 msgid "Help docs & resources"
 msgstr "Dokumentácia & zdroje pomoci"
 
+msgid "HelpDesk article"
+msgstr "Článok HelpDesk"
+
+msgid "Helpdesk and Knowledge Base"
+msgstr "Helpdesk a Znalostná báza"
+
 msgid "Here are some of the ways Shield is already protecting your site:"
 msgstr "Tu je niekoľko spôsobov, akými Shield už chráni vašu stránku:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Tu si vyberiete, aký typ škodlivých dát sa má skenovať."
+
+msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
+msgstr "Tu sa však zameriavame na samotné používateľské účty, aby sme zabezpečili, že sú v bezpečnom stave."
+
+msgid "Hi !"
+msgstr "Ahoj !"
 
 msgid "Hidden Login URL Fail"
 msgstr "Zlyhanie skrytej prihlasovacej URL"
@@ -3439,8 +4189,29 @@ msgstr "Domovské URL"
 msgid "Home URL Changed"
 msgstr "Domovské URL zmenené"
 
+msgid "Home URL changed: %s&rarr;%s"
+msgstr "Domovské URL zmenené: %s&rarr;%s"
+
 msgid "Homepage"
 msgstr "Domovská stránka"
+
+msgid "Honeypot Fail"
+msgstr "Zlyhanie Honeypot"
+
+msgid "Hook Name"
+msgstr "Názov hook"
+
+msgid "Hook Priority"
+msgstr "Priorita hooku"
+
+msgid "Hook priority"
+msgstr "Priorita hooku"
+
+msgid "Hook to attach to"
+msgstr "Hook na pripojenie"
+
+msgid "Host OS"
+msgstr "Hostiteľský OS"
 
 msgid "Host: <code>%s</code>"
 msgstr "Hostiteľ: <code>%s</code>"
@@ -3532,6 +4303,12 @@ msgstr "Filter ľudského SPAM našiel '%s' v '%s'"
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Filter ľudského SPAM našiel '{{word}}' v '{{key}}'"
 
+msgid "I Understand Existing Options Will Be Overwritten"
+msgstr "Rozumiem, že existujúce možnosti budú prepísané"
+
+msgid "I confirm that I've read and I agree to the Privacy Policy"
+msgstr "Potvrdzujem, že som si prečítal a súhlasím so zásadami ochrany súkromia"
+
 msgid "I fully understand the significance of this action"
 msgstr "Plne rozumiem významu tejto akcie"
 
@@ -3550,11 +4327,23 @@ msgstr "Viem, že ak používam cachovanie a potom ho nevymažem, spôsobí to p
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Rozumiem dôsledkom zablokovania všetkej prevádzky na túto stránku."
 
+msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Rozumiem rizikám vytvorenia pravidla, ktoré nerešpektuje Shield whitelisty a výnimky, a môže byť pre mňa ťažké znovu získať prístup, ak budem zablokovaný."
+
+msgid "I'd like to learn more, please"
+msgstr "Chcel by som sa dozvedieť viac, prosím"
+
+msgid "I'd rather not show this support"
+msgstr "Radšej by som túto podporu nezobrazoval"
+
 msgid "I've done this already"
 msgstr "Už som to urobil"
 
 msgid "ID"
 msgstr "ID"
+
+msgid "IIS only"
+msgstr "Len IIS"
 
 msgid "IMPORTANT"
 msgstr "DÔLEŽITÉ"
@@ -3565,11 +4354,20 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "IP adresa"
 
+msgid "IP Address Lookup"
+msgstr "Vyhľadávanie IP adresy"
+
 msgid "IP Address To Match"
 msgstr "IP adresa na zhodu"
 
 msgid "IP Address blocked so cannot process action: %s"
 msgstr "IP adresa zablokovaná, preto nie je možné spracovať akciu: %s"
+
+msgid "IP Address or IP Range"
+msgstr "IP adresa alebo IP rozsah"
+
+msgid "IP Address or Range"
+msgstr "IP adresa alebo rozsah"
 
 msgid "IP Addresses"
 msgstr "IP adresy"
@@ -3604,11 +4402,17 @@ msgstr "Pridanie na zoznam obchádzania IP (Manuálne)"
 msgid "IP Bypass List Removed (Manual)"
 msgstr "Odstránenie zo zoznamu obchádzania IP (Manuálne)"
 
+msgid "IP Bypassed"
+msgstr "IP obídené"
+
 msgid "IP Equals"
 msgstr "IP rovná sa"
 
 msgid "IP ID To Match"
 msgstr "IP ID na zhodu"
+
+msgid "IP Manager"
+msgstr "IP Manager"
 
 msgid "IP Meta"
 msgstr "IP Meta"
@@ -3618,6 +4422,9 @@ msgstr "IP NotBot skóre sa v tejto chvíli nepodarilo resetovať."
 
 msgid "IP Offenses"
 msgstr "IP priestupky"
+
+msgid "IP Range"
+msgstr "IP rozsah"
 
 msgid "IP Reputation Score"
 msgstr "IP skóre reputácie"
@@ -3649,8 +4456,14 @@ msgstr "IP nedostupná"
 msgid "IP Unblocked"
 msgstr "IP odblokované"
 
+msgid "IP Unblocked (Flag File)"
+msgstr "IP odblokované (príznak súboru)"
+
 msgid "IP Unblocked By Visitor"
 msgstr "IP odblokované návštevníkom"
+
+msgid "IP Whois"
+msgstr "IP Whois"
 
 msgid "IP address '{{ip}}' automatically added to block list as an offender."
 msgstr "IP adresa '{{ip}}' automaticky pridaná na zoznam blokovania ako útočník."
@@ -3663,6 +4476,9 @@ msgstr "IP adresa '{{ip}}' manuálne pridaná na zoznam obchádzania."
 
 msgid "IP address '{{ip}}' manually removed from the bypass list."
 msgstr "IP adresa '{{ip}}' manuálne odstránená zo zoznamu obchádzania."
+
+msgid "IP address '{{ip}}' removed from blacklist using 'unblock' file flag."
+msgstr "IP adresa '{{ip}}' odstránená z blacklistu pomocou príznaku súboru 'unblock'."
 
 msgid "IP address added successfully"
 msgstr "IP adresa úspešne pridaná"
@@ -3718,6 +4534,12 @@ msgstr "IP nemožno zablokovať z tejto stránky, pretože ide o známu servisn�
 msgid "IP does not match."
 msgstr "IP sa nezhoduje."
 
+msgid "IP has already been unblocked recently."
+msgstr "IP bola nedávno odblokovaná."
+
+msgid "IP has recently attempted an unblock."
+msgstr "IP sa nedávno pokúsila o odblokovanie."
+
 msgid "IP isn't on the %s block list."
 msgstr "IP adresa nie je na zozname blokovania %s."
 
@@ -3735,6 +4557,9 @@ msgstr "IP silentCAPTCHA skóre obnovené."
 
 msgid "IPs"
 msgstr "IPS"
+
+msgid "IPv4 or IPv6; Single Address or CIDR Range"
+msgstr "IPv4 alebo IPv6; jednotlivá adresa alebo CIDR rozsah"
 
 msgid "Identify A Bot Attempts To Load WordPress In A Non-Standard Way"
 msgstr "Identifikovať pokus bota načítať WordPress neštandardným spôsobom"
@@ -3754,6 +4579,9 @@ msgstr "Identifikovať pokusy botov načítať WordPress neštandardným spôsob
 msgid "Identify Common Bot Behaviours"
 msgstr "Identifikovať bežné správanie botov"
 
+msgid "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
+msgstr "Identifikovať bota, keď sa prezentuje ako oficiálny web crawler, ale analýza ukazuje, že je falošný."
+
 msgid "Identify a Bot when it tries to login with a non-existent username."
 msgstr "Identifikovať bota, keď sa pokúsi prihlásiť s neexistujúcim používateľským menom."
 
@@ -3762,6 +4590,9 @@ msgstr "Identifikovať bota, keď nie je poskytnutý user agent."
 
 msgid "Identify a request as a bot if the user agent is not provided."
 msgstr "Identifikovať požiadavku ako bota, ak nie je poskytnutý user agent."
+
+msgid "Identify a visitor as a Bot when it presents as an official web crawler, but analysis shows it's fake."
+msgstr "Identifikovať návštevníka ako bota, keď sa prezentuje ako oficiálny web crawler, ale analýza ukazuje, že je falošný."
 
 msgid "Identifying Info"
 msgstr "Identifikačné Info"
@@ -3825,6 +4656,9 @@ msgstr "Ak sa táto správa stále zobrazuje po obnovení tejto stránky, prosí
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Ak tento problém pretrváva, prosím kontaktujte podporu: %s"
+
+msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
+msgstr "Ak veríte, z akéhokoľvek dôvodu, že vy alebo poštové schránky vašich používateľov sú kompromitované, mali by ste túto možnosť vypnúť."
 
 msgid "If you continue to exceed the rate limits, your IP address may be completely blocked from further access."
 msgstr "Ak budete naďalej prekračovať limity rýchlosti, vaša IP adresa môže byť úplne zablokovaná z ďalšieho prístupu."
@@ -3910,6 +4744,9 @@ msgstr "Importovať nastavenia z inej stránky"
 msgid "Import file was empty"
 msgstr "Importovaný súbor bol prázdny"
 
+msgid "Import, Whitelabel, Wizard"
+msgstr "Import, Whitelabel, Sprievodca"
+
 msgid "Import/Export"
 msgstr "Import/Export"
 
@@ -3957,6 +4794,9 @@ msgstr "V spolupráci s CrowdSec a ich dátami o reputácii IP adries zo zdrojov
 
 msgid "In partnership with CrowdSec, we go a step further and provide crowd-sourced IP blocklists so we know ahead of time which IPs are malicious and block them immediately."
 msgstr "V partnerstve s CrowdSec ideme o krok ďalej a poskytujeme zoznamy blokovaných IP adries zo zdrojov komunity, takže vopred vieme, ktoré IP adresy sú škodlivé, a okamžite ich zablokujeme."
+
+msgid "In spite of our best efforts to secure our websites, breaches can still happen."
+msgstr "Napriek našim najlepším snahám zabezpečiť naše webové stránky, narušenia sa stále môžu stať."
 
 msgid "In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files."
 msgstr "V prípade WordPress budú pôvodné súbory stiahnuté z WordPress.org na opravu akýchkoľvek poškodených súborov."
@@ -4018,11 +4858,17 @@ msgstr "Nekonzistencia: ID používateľa bolo odovzdané do \"profile_update\",
 msgid "Incorrect APP Password"
 msgstr "Nesprávne APP heslo"
 
+msgid "Increment Offenses By"
+msgstr "Zvýšiť priestupky o"
+
 msgid "Info"
 msgstr "Info"
 
 msgid "Info For IP Address %s"
 msgstr "Info pre IP adresu %s"
+
+msgid "Info Reports Frequency"
+msgstr "Frekvencia Info správ"
 
 msgid "Information and reports are typically statistics."
 msgstr "Informácie a správy sú typicky štatistiky."
@@ -4045,14 +4891,26 @@ msgstr "Okamžité upozornenia"
 msgid "Instant alerts on critical events."
 msgstr "Okamžité upozornenia na kritické udalosti."
 
+msgid "Insufficient permissions to use crowd-sourced hashes for premium plugins/themes."
+msgstr "Nedostatočné oprávnenia na použitie crowd-sourcovaných hashov pre prémiové pluginy/témy."
+
 msgid "Integrations"
 msgstr "Integrácie"
+
+msgid "Intelligence From The Collective"
+msgstr "Inteligencia z kolektívu"
 
 msgid "Interval"
 msgstr "Interval"
 
+msgid "Interval is measured in seconds."
+msgstr "Interval sa meria v sekundách."
+
 msgid "Invalid"
 msgstr "Neplatný"
+
+msgid "Invalid Action Nonce Exception."
+msgstr "Výnimka neplatného akčného nonce."
 
 msgid "Invalid Login Username"
 msgstr "Neplatné prihlasovacie používateľské meno"
@@ -4111,6 +4969,9 @@ msgstr "Neplatná požiadavka na stiahnutie."
 msgid "Invalid entry selected"
 msgstr "Vybraná neplatná položka"
 
+msgid "Invalid file locker type download"
+msgstr "Neplatné stiahnutie typu file locker"
+
 msgid "Invalid login nonce"
 msgstr "Neplatný prihlasovací nonce"
 
@@ -4129,11 +4990,17 @@ msgstr "Neplatná odpoveď zo Shield klientskej stránky"
 msgid "Invalid session selected"
 msgstr "Vybraná neplatná relácia"
 
+msgid "Invalid specification of modules"
+msgstr "Neplatná špecifikácia modulov"
+
 msgid "Invalid type."
 msgstr "Neplatný typ."
 
 msgid "Invalid user agent detected at '{{useragent}}'."
 msgstr "Neplatný user agent detekovaný na '{{useragent}}'."
+
+msgid "Invalid value scope for %s"
+msgstr "Neplatný rozsah hodnoty pre %s"
 
 msgid "Invalid value type for %s"
 msgstr "Neplatný typ hodnoty pre %s"
@@ -4168,6 +5035,9 @@ msgstr "Je hodnota Shield možnosti..."
 msgid "Is Valid Public IP Address"
 msgstr "Je platná verejná IP adresa"
 
+msgid "Is Viable"
+msgstr "Je životaschopný"
+
 msgid "Is Visitor silentCAPTCHA Score ..."
 msgstr "Je silentCAPTCHA skóre návštevníka ..."
 
@@ -4197,6 +5067,9 @@ msgstr "Je WP-CLI"
 
 msgid "Is WordPress Search Request."
 msgstr "Je požiadavka na WordPress vyhľadávanie."
+
+msgid "Is WordPress set to debug mode via WP_DEBUG constant."
+msgstr "Je WordPress nastavený do debug režimu cez WP_DEBUG konštantu."
 
 msgid "Is a given 2FA provider enabled on the site."
 msgstr "Je daný 2FA poskytovateľ povolený na stránke."
@@ -4228,8 +5101,20 @@ msgstr "Aktuálnemu používateľovi vypršalo heslo."
 msgid "Is silentCAPTCHA score"
 msgstr "Je silentCAPTCHA skóre"
 
+msgid "Is the Shield plugin in \"forceoff\" state."
+msgstr "Je Shield plugin v stave \"forceoff\"."
+
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Je aktuálna IP adresa považovaná za \"vysokú reputáciu\"."
+
+msgid "Is the current user session age less than or greater than the provided value."
+msgstr "Je vek aktuálnej používateľskej relácie menší alebo väčší ako poskytnutá hodnota."
+
+msgid "Is the current user session token age less than or greater than the provided value."
+msgstr "Je vek tokenu aktuálnej používateľskej relácie menší alebo väčší ako poskytnutá hodnota."
+
+msgid "Is the request HTTPS."
+msgstr "Je požiadavka HTTPS."
 
 msgid "Is the request IP auto or manually blocked by Shield."
 msgstr "Je IP adresa požiadavky automaticky alebo manuálne zablokovaná pluginom Shield."
@@ -4251,6 +5136,9 @@ msgstr "Je IP adresa požiadavky na manuálnom zozname obchádzania/whitelist Sh
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Je požiadavka bot, ktorý pochádza od dôveryhodného poskytovateľa služieb."
+
+msgid "Is the request a server loopback request."
+msgstr "Je požiadavka serverovou loopback požiadavkou."
 
 msgid "Is the request an HTTP 404."
 msgstr "Je požiadavka HTTP 404."
@@ -4357,6 +5245,9 @@ msgstr "Úplne nahrádza potrebu akýchkoľvek používateľských CAPTCHA a mô
 msgid "It could involve restricting WordPress features such as XML-RPC, or scanning data inside HTTP requests for malicious parameters."
 msgstr "Môže zahŕňať obmedzenie WordPress funkcií, ako je XML-RPC, alebo skenovanie dát v HTTP požiadavkách na škodlivé parametre."
 
+msgid "It is always learning based on new file and malware samples it receives and will continue to improve over time."
+msgstr "Neustále sa učí na základe nových vzoriek súborov a malvéru, ktoré dostáva, a bude sa naďalej zlepšovať v priebehu času."
+
 msgid "It is important to not only block malicious request, but also protect your existing users and customers."
 msgstr "Je dôležité nielen blokovať škodlivé požiadavky, ale aj chrániť vašich existujúcich používateľov a zákazníkov."
 
@@ -4387,6 +5278,9 @@ msgstr "Bude zobrazený nižšie, keď bude pripravený."
 msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
 msgstr "Automaticky nájde vhodné umiestnenie, ale ak to zlyhá, môžete vidieť PHP upozornenia na vašej stránke a určité funkcie Shield nebudú dostupné."
 
+msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
+msgstr "Je to komplexná oblasť a pri nesprávnom použití môže ľahko narušiť používateľskú skúsenosť na front-ende."
+
 msgid "It's best practice to protect user access with at least one 2FA method."
 msgstr "Je najlepšou praxou chrániť prístup používateľov aspoň jednou 2FA metódou."
 
@@ -4404,6 +5298,9 @@ msgstr "Je dobrou praxou obmedziť životnosť relácie, najmä keď je nečinn�
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Je dobrou praxou uzamknúť reláciu aspoň na 1 vlastnosť, aby sa pomohlo zabrániť krádeži relácie."
+
+msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
+msgstr "Je to ľudský SPAM, ktorý stále spôsobuje najviac frustrácie, pretože zvyčajne nespúšťa naše obranné mechanizmy."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Nachádza sa v adresári WordPress pluginu a je rozpoznaný ako platný súbor pre túto verziu pluginu."
@@ -4441,6 +5338,18 @@ msgstr "Položka opravená: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Položky nájdené pri skenovaní"
 
+msgid "Join The Shield Security Newsletter"
+msgstr "Prihláste sa do newslettera Shield Security"
+
+msgid "Join Us"
+msgstr "Pridajte sa k nám"
+
+msgid "Join Us!"
+msgstr "Pridajte sa k nám!"
+
+msgid "Jump To Module Settings"
+msgstr "Prejsť na nastavenia modulu"
+
 msgid "Just grab a new license from the"
 msgstr "Jednoducho získajte novú licenciu z"
 
@@ -4474,6 +5383,12 @@ msgstr "Registrácia kľúča bola úspešná."
 msgid "Key set to expire: %s"
 msgstr "Kľúč nastavený na expiráciu: %s"
 
+msgid "Keyless Activation"
+msgstr "Aktivácia bez kľúča"
+
+msgid "Knowledgebase"
+msgstr "Znalostná báza"
+
 msgid "Label"
 msgstr "Označenie"
 
@@ -4492,6 +5407,9 @@ msgstr "Posledná aktivita"
 msgid "Last Activity At"
 msgstr "Posledná aktivita o"
 
+msgid "Last Activity URI"
+msgstr "URI poslednej aktivity"
+
 msgid "Last Attempt: %s"
 msgstr "Posledný pokus: %s"
 
@@ -4507,6 +5425,12 @@ msgstr "Posledný priestupok"
 msgid "Last Scan"
 msgstr "Posledné skenovanie"
 
+msgid "Last Seen"
+msgstr "Naposledy videné"
+
+msgid "Last Seen At"
+msgstr "Naposledy videné o"
+
 msgid "Last Sync"
 msgstr "Posledná synchronizácia"
 
@@ -4515,6 +5439,21 @@ msgstr "Nakoniec chceme zabrániť schopnosti botov (alebo ľudí) registrovať 
 
 msgid "Launch Debug Info Page"
 msgstr "Spustiť stránku Debug Info"
+
+msgid "Learn More"
+msgstr "Dozvedieť sa viac"
+
+msgid "Learn More."
+msgstr "Dozvedieť sa viac."
+
+msgid "Leave A Review"
+msgstr "Zanechať recenziu"
+
+msgid "Leave this blank to serve a standard \"%s\" error page."
+msgstr "Nechajte toto prázdne pre zobrazenie štandardnej chybovej stránky \"%s\"."
+
+msgid "Less Than"
+msgstr "Menej ako"
 
 msgid "Level"
 msgstr "Úroveň"
@@ -4549,6 +5488,9 @@ msgstr "Kontrola licencie zlyhala. Odosielanie varovného e-mailu."
 msgid "License check request failed."
 msgstr "Požiadavka na kontrolu licencie zlyhala."
 
+msgid "License check succeeded."
+msgstr "Kontrola licencie úspešná."
+
 msgid "License removed successfully."
 msgstr "Licencia úspešne odstránená."
 
@@ -4557,6 +5499,9 @@ msgstr "Licencie možno skontrolovať raz za %s sekúnd"
 
 msgid "Lifetime"
 msgstr "Životnosť"
+
+msgid "Lifetime Total"
+msgstr "Celková životnosť"
 
 msgid "Light"
 msgstr "Svetlé"
@@ -4581,6 +5526,12 @@ msgstr "Prístup k linkovému cheese detekovaný na '{{path}}'."
 
 msgid "Link-Cheese"
 msgstr "Link-Cheese"
+
+msgid "Linked To Child Theme"
+msgstr "Prepojené s dcérskou témou"
+
+msgid "Linked To Parent Theme"
+msgstr "Prepojené s rodičovskou témou"
 
 msgid "Links may only be used once."
 msgstr "Odkazy možno použiť len raz."
@@ -4663,6 +5614,9 @@ msgstr "Uzamknuté"
 msgid "Locked Files"
 msgstr "Uzamknuté súbory"
 
+msgid "Locks A User Session To Prevent Theft"
+msgstr "Uzamkne reláciu používateľa na zabránenie krádeže"
+
 msgid "Log Message"
 msgstr "Správa záznamu"
 
@@ -4683,6 +5637,9 @@ msgstr "Prihlásený"
 
 msgid "Logged-In At"
 msgstr "Prihlásený o"
+
+msgid "Logged-in username (where applicable)"
+msgstr "Používateľské meno prihláseného používateľa (kde je to možné)"
 
 msgid "Logging Level"
 msgstr "Úroveň zaznamenávania"
@@ -4771,6 +5728,9 @@ msgstr "Formuláre pre prihlásenie, registráciu a stratené heslo"
 msgid "Login/Register request triggered cooldown and was blocked."
 msgstr "Požiadavka na prihlásenie/registráciu spustila cooldown a bola zablokovaná."
 
+msgid "Logs TODO"
+msgstr "Logy TODO"
+
 msgid "Lost Password"
 msgstr "Stratené heslo"
 
@@ -4786,11 +5746,20 @@ msgstr "SPAMovanie stratených hesiel botmi je blokované silentCAPTCHA."
 msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
 msgstr "SPAMovanie stratených hesiel botmi nie je blokované silentCAPTCHA."
 
+msgid "Love it? Rate This Plugin &#10025;"
+msgstr "Páči sa vám? Ohodnoťte tento plugin &#10025;"
+
+msgid "MAL{ai} Lookup"
+msgstr "MAL{ai} vyhľadávanie"
+
 msgid "MAL{ai} Malware Status"
 msgstr "MAL{ai} stav malvéru"
 
 msgid "MFA Verification Page"
 msgstr "Stránka MFA overovania"
+
+msgid "Magic Link"
+msgstr "Magic Link"
 
 msgid "MainWP Integration"
 msgstr "MainWP integrácia"
@@ -4809,6 +5778,9 @@ msgstr "Malvér"
 
 msgid "Malware Details"
 msgstr "Podrobnosti malvéru"
+
+msgid "Malware File Tracking"
+msgstr "Sledovanie malvérových súborov"
 
 msgid "Malware Scanner"
 msgstr "Skener malvéru"
@@ -4849,6 +5821,9 @@ msgstr "Mnohé pluginy tretích strán poskytujú vlastné formuláre na prihlá
 msgid "Many WordPress caching plugins ignore HTTP Headers - if they're not showing up, disable page caching."
 msgstr "Mnohé WordPress cachovacie pluginy ignorujú HTTP hlavičky - ak sa nezobrazujú, vypnite cachovanie stránok."
 
+msgid "Many bots pretend to be a Google Bot, or any other branded crawler."
+msgstr "Mnoho botov sa vydáva za Google Bot alebo iný značkový crawler."
+
 msgid "Mark Comment Not SPAM (Manual)"
 msgstr "Označiť komentár ako nie SPAM (manuálne)"
 
@@ -4879,6 +5854,9 @@ msgstr "Zhoda Namespace"
 msgid "Match Patterns"
 msgstr "Zhoda vzorov"
 
+msgid "Match Route"
+msgstr "Zhoda trasy"
+
 msgid "Match Type"
 msgstr "Typ zhody"
 
@@ -4900,6 +5878,9 @@ msgstr "Zhodovať používateľské meno aktuálne prihláseného používateľa
 msgid "Max Request Limit"
 msgstr "Maximálny limit požiadaviek"
 
+msgid "Maximise your WordPress protection from bad bots, hackers, spammers, and malware."
+msgstr "Maximalizujte ochranu vášho WordPressu pred zlými botmi, hackermi, spammermi a malvérom."
+
 msgid "Maximum Number Of Requests Allowed In Time Limit"
 msgstr "Maximálny počet požiadaviek povolených v časovom limite"
 
@@ -4914,6 +5895,9 @@ msgstr "Stredná"
 
 msgid "Membership"
 msgstr "Členstvo"
+
+msgid "Memory Limit"
+msgstr "Limit pamäte"
 
 msgid "Menu Icon"
 msgstr "Ikona ponuky"
@@ -4939,6 +5923,9 @@ msgstr "Meta hodnota na zhodu"
 msgid "Method"
 msgstr "Metóda"
 
+msgid "Minimum Comment Auto-Approval"
+msgstr "Minimálne automatické schválenie komentára"
+
 msgid "Minimum Number Of Approved Comments Before Commenter Is Trusted"
 msgstr "Minimálny počet schválených komentárov predtým, ako je komentátor dôveryhodný"
 
@@ -4959,6 +5946,9 @@ msgstr "Minimálne silentCAPTCHA skóre požadované na označenie návštevník
 
 msgid "Minutes"
 msgstr "Minúty"
+
+msgid "Misconfiguration can cause issues for your visitors, so we always recommend consulting experts in this area on how they might affect your site in particular."
+msgstr "Nesprávna konfigurácia môže spôsobiť problémy pre vašich návštevníkov, preto vždy odporúčame konzultovať s odborníkmi v tejto oblasti, ako môžu ovplyvniť vašu stránku konkrétne."
 
 msgid "Missing"
 msgstr "Chýba"
@@ -4990,11 +5980,17 @@ msgstr "Mesačne"
 msgid "More Info"
 msgstr "Viac Info"
 
+msgid "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices."
+msgstr "Väčšia zložitosť výzvy je väčšou cenou pre botov, ale môže predstavovať záťaž pre legitímnych návštevníkov, ktorí používajú pomalšie zariadenia."
+
 msgid "Most SPAM is automatic, by bots, but sometimes Humans also post comments to your site and these bypass Bot Detection rules."
 msgstr "Väčšina SPAMu je automatická, od botov, ale niekedy ľudia tiež pridávajú komentáre na vašu stránku a tieto obchádzajú pravidlá detekcie botov."
 
 msgid "Multi-Factor Authentication"
 msgstr "Viacfaktorová autentifikácia"
+
+msgid "Multiple email addresses may be supplied, separated by a comma."
+msgstr "Môže byť zadaných viacero e-mailových adries oddelených čiarkou."
 
 msgid "Multisite"
 msgstr "Multisite"
@@ -5038,6 +6034,9 @@ msgstr "Nikdy"
 msgid "Never Recorded"
 msgstr "Nikdy nezaznamenané"
 
+msgid "Never Seen"
+msgstr "Nikdy nevidené"
+
 msgid "New"
 msgstr "Nový"
 
@@ -5055,6 +6054,9 @@ msgstr "Nové výsledky skenovania"
 
 msgid "New User Default Role"
 msgstr "Predvolená rola nového používateľa"
+
+msgid "New Visitor Bonus"
+msgstr "Bonus nového návštevníka"
 
 msgid "New WordPress user registered."
 msgstr "Zaregistroval sa nový používateľ WordPress."
@@ -5095,6 +6097,9 @@ msgstr "Žiadne problémy"
 msgid "No Name Yet"
 msgstr "Zatiaľ bez názvu"
 
+msgid "No Potential Malware Found"
+msgstr "Nenájdený žiadny potenciálny malvér"
+
 msgid "No Subtitle Yet"
 msgstr "Zatiaľ bez podtitulu"
 
@@ -5113,6 +6118,12 @@ msgstr "Žiadni aktívni poskytovatelia pre používateľa."
 msgid "No activity logged for this IP address"
 msgstr "Pre túto IP adresu nie je zaznamenaná žiadna aktivita"
 
+msgid "No attempts remaining."
+msgstr "Nezostávajú žiadne pokusy."
+
+msgid "No canvas body"
+msgstr "Žiadne telo plátna"
+
 msgid "No confirmation checkbox."
 msgstr "Žiadne potvrdzujúce zaškrtávacie políčko."
 
@@ -5121,6 +6132,9 @@ msgstr "Zatiaľ bez obsahu"
 
 msgid "No crowd-sourced hashes available."
 msgstr "Žiadne crowd-sourcované hashe nie sú k dispozícii."
+
+msgid "No data. Please retry"
+msgstr "Žiadne dáta. Prosím, skúste to znova"
 
 msgid "No dependent request record found or created."
 msgstr "Nebol nájdený alebo vytvorený žiadny závislý záznam požiadavky."
@@ -5134,8 +6148,17 @@ msgstr "Žiadny poskytovateľ e-mailu pre používateľa."
 msgid "No extra extension plugins required"
 msgstr "Nie sú potrebné žiadne doplnkové rozširovacie pluginy"
 
+msgid "No field data provided"
+msgstr "Neboli poskytnuté údaje poľa"
+
 msgid "No hashes exist for file: %s"
 msgstr "Pre súbor neexistujú žiadne hashe: %s"
+
+msgid "No inner page title set"
+msgstr "Nie je nastavený názov vnútornej stránky"
+
+msgid "No items remaining in queue to select."
+msgstr "V rade na výber nezostali žiadne položky."
 
 msgid "No items selected."
 msgstr "Žiadne položky nie sú vybrané."
@@ -5167,6 +6190,9 @@ msgstr "Nebol aplikovaný žiadny profil"
 msgid "No record"
 msgstr "Žiadny záznam"
 
+msgid "No reporter defined"
+msgstr "Žiadny reporter nedefinovaný"
+
 msgid "No reports have been generated yet."
 msgstr "Zatiaľ neboli vygenerované žiadne správy."
 
@@ -5179,6 +6205,9 @@ msgstr "Žiadne skenovanie pluginov, ktoré mohli byť opustené ich autorom."
 msgid "No scan running."
 msgstr "Žiadne skenovanie neprebieha."
 
+msgid "No scans remaining."
+msgstr "Nezostávajú žiadne skenovania."
+
 msgid "No scans were selected"
 msgstr "Neboli vybrané žiadne skenovania"
 
@@ -5190,6 +6219,9 @@ msgstr "Pre túto IP adresu nie sú zaznamenané žiadne relácie"
 
 msgid "No site activity recorded yet."
 msgstr "Zatiaľ nebola zaznamenaná žiadna aktivita stránky."
+
+msgid "No snapper defined"
+msgstr "Žiadny snapper nedefinovaný"
 
 msgid "No snapshot required."
 msgstr "Nie je potrebný žiadny snapshot."
@@ -5224,6 +6256,9 @@ msgstr "Nonce zlyhal."
 msgid "None"
 msgstr "Žiadne"
 
+msgid "Normally WordPress will trust after 1 comment."
+msgstr "Normálne WordPress bude dôverovať po 1 komentári."
+
 msgid "Not Installed"
 msgstr "Nie je nainštalované"
 
@@ -5242,14 +6277,29 @@ msgstr "Nezaznamenané"
 msgid "Not a WordPress Core file"
 msgstr "Nie je súbor jadra WordPress"
 
+msgid "Not a WordPress.org asset."
+msgstr "Nie je aktívum WordPress.org."
+
 msgid "Not a plugin or theme file path."
 msgstr "Nie je cesta k súboru pluginu alebo témy."
+
+msgid "Not a supported Activity Log table sub_action: %s"
+msgstr "Nie je podporovaná sub_action tabuľky Activity Log: %s"
+
+msgid "Not a supported asset type."
+msgstr "Nie je podporovaný typ aktíva."
 
 msgid "Not a supported file lock action."
 msgstr "Nie je podporovaná akcia uzamknutia súboru."
 
+msgid "Not a valid IP range"
+msgstr "Neplatný IP rozsah"
+
 msgid "Not a valid lock file record."
 msgstr "Nie je platný záznam uzamknutého súboru."
+
+msgid "Not a valid option key for module: %s"
+msgstr "Nie je platný kľúč možnosti pre modul: %s"
 
 msgid "Not a valid option key."
 msgstr "Nie je platný kľúč možnosti."
@@ -5275,6 +6325,9 @@ msgstr "Neimportuje sa súbor, ktorý nemožno odstrániť"
 msgid "Not yet recorded"
 msgstr "Ešte nezaznamenané"
 
+msgid "NotBot Frontend JS Loading"
+msgstr "Načítavanie NotBot Frontend JS"
+
 msgid "Note"
 msgstr "Poznámka"
 
@@ -5283,6 +6336,9 @@ msgstr "Poznámka: Akékoľvek oneskorenia e-mailov alebo problémy s doručení
 
 msgid "Note: To prevent other admins from using this tool, consider switching on the Security Admin feature."
 msgstr "Poznámka: Aby ste zabránili iným administrátorom používať tento nástroj, zvážte zapnutie funkcie Security Admin."
+
+msgid "Note: You may want to warn users prior to enabling this option."
+msgstr "Poznámka: Možno budete chcieť varovať používateľov pred povolením tejto možnosti."
 
 msgid "Notice"
 msgstr "Upozornenie"
@@ -5308,6 +6364,9 @@ msgstr "Počet automatických skenovaní základných súborov za 24 hodín"
 msgid "Number Of Times To Run All Scans Each Day"
 msgstr "Počet spustení všetkých skenovaní každý deň"
 
+msgid "Number of Arguments"
+msgstr "Počet argumentov"
+
 msgid "Number of offenses"
 msgstr "Počet priestupkov"
 
@@ -5326,11 +6385,20 @@ msgstr "Skrýva určité WordPress nastavenia pred verejným zobrazením."
 msgid "Obscurity"
 msgstr "Nejasnosť"
 
+msgid "Obscurity is not true security and so these settings are down to your personal tastes."
+msgstr "Nejasnosť nie je skutočná bezpečnosť, a preto tieto nastavenia závisia od vašich osobných preferencií."
+
+msgid "Obsolete WP core file"
+msgstr "Zastaraný WP core súbor"
+
 msgid "Off"
 msgstr "Vypnuté"
 
 msgid "Offense"
 msgstr "Priestupok"
+
+msgid "Offense Count"
+msgstr "Počet priestupkov"
 
 msgid "Offense Limit"
 msgstr "Limit priestupkov"
@@ -5349,6 +6417,12 @@ msgstr "Limit priestupkov"
 
 msgid "Offenses couldn't be reset at this time."
 msgstr "Priestupky sa v tejto chvíli nepodarilo resetovať."
+
+msgid "Offenses reset to zero."
+msgstr "Priestupky obnovené na nulu."
+
+msgid "Oh so yummy."
+msgstr "Ó, aké lahodné."
 
 msgid "On"
 msgstr "Zapnuté"
@@ -5374,8 +6448,26 @@ msgstr "Povoľte iba integrácie, ktoré potrebujete."
 msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
 msgstr "Budú monitorované iba typy formulárov (prihlásenie, registrácia, stratené heslo), ktoré ste vybrali."
 
+msgid "Only letters and numbers are permitted: %s"
+msgstr "Povolené sú len písmená a čísla: %s"
+
+msgid "Only the first 30 items are shown."
+msgstr "Zobrazených je iba prvých 30 položiek."
+
 msgid "Only traffic originating from whitelisted IP addresses and the hosting server itself will be permitted."
 msgstr "Povolená bude len prevádzka pochádzajúca z IP adries na zozname povolených a zo samotného hostingového servera."
+
+msgid "OpenSSL Extension"
+msgstr "OpenSSL rozšírenie"
+
+msgid "Optimise File Scans"
+msgstr "Optimalizovať skenovanie súborov"
+
+msgid "Optimise file scans to run much faster."
+msgstr "Optimalizujte skenovanie súborov na oveľa rýchlejší beh."
+
+msgid "Optimise file scans wherever possible."
+msgstr "Optimalizovať skenovanie súborov všade, kde je to možné."
 
 msgid "Option excluded from import/export"
 msgstr "Možnosť vylúčená z importu/exportu"
@@ -5428,6 +6520,12 @@ msgstr "Pôvodný obsah súboru"
 msgid "Originating IP address of the request"
 msgstr "Pôvodná IP adresa požiadavky"
 
+msgid "Our website uses specialist security software - %s."
+msgstr "Naša webová stránka používa špecializovaný bezpečnostný softvér - %s."
+
+msgid "Overall Security Progress"
+msgstr "Celkový bezpečnostný pokrok"
+
 msgid "Override Maximum Session Lifetime"
 msgstr "Prepísať maximálnu životnosť relácie"
 
@@ -5476,6 +6574,9 @@ msgstr "Skener PHP malvéru nie je povolený."
 msgid "PHP version should ideally be at least %s."
 msgstr "Verzia PHP by ideálne mala byť aspoň %s."
 
+msgid "PHP, MySQL password, and your SSL Certificate all appear to be in good order."
+msgstr "PHP, MySQL heslo a váš SSL certifikát sa zdajú byť v dobrom stave."
+
 msgid "PIN Required"
 msgstr "Vyžaduje sa PIN"
 
@@ -5499,6 +6600,9 @@ msgstr "Hodnota parametra"
 
 msgid "Parent"
 msgstr "Nadradený"
+
+msgid "Participate in crowd-sourcing IP blocklists from CrowdSec"
+msgstr "Zúčastniť sa na crowd-sourcingu IP zoznamov blokovaných adries od CrowdSec"
 
 msgid "Passed tests"
 msgstr "Úspešné testy"
@@ -5557,6 +6661,9 @@ msgstr "Reset hesla"
 msgid "Password Updated"
 msgstr "Heslo aktualizované"
 
+msgid "Password polices aren't enabled which may lead to poor password hygiene."
+msgstr "Heslové politiky nie sú povolené, čo môže viesť k zlej heslovej hygiene."
+
 msgid "Password policies are enabled to help promote good password hygiene."
 msgstr "Heslové politiky sú povolené na podporu dobrej heslovej hygieny."
 
@@ -5574,6 +6681,9 @@ msgstr "Záplata"
 
 msgid "Path"
 msgstr "Cesta"
+
+msgid "Path Dir"
+msgstr "Adresár cesty"
 
 msgid "Path To Check"
 msgstr "Cesta na kontrolu"
@@ -5593,11 +6703,23 @@ msgstr "Penalizovať návštevníka, keď sa pokúsi prihlásiť pomocou platné
 msgid "Penalise a visitor who fails to login using a valid username."
 msgstr "Penalizovať návštevníka, ktorý sa neúspešne pokúsi prihlásiť pomocou platného používateľského mena."
 
+msgid "Pending Moderation"
+msgstr "Čaká na schválenie"
+
+msgid "Perform actions for this module"
+msgstr "Vykonať akcie pre tento modul"
+
+msgid "Performance of your block lists is optimised by automatically removing stale IP addresses, keeping the list small and fast."
+msgstr "Výkon vašich blokovacích zoznamov je optimalizovaný automatickým odstraňovaním zastaraných IP adries, čím zostáva zoznam malý a rýchly."
+
 msgid "Perhaps one of its most powerful features is how it will prevent other admins from tampering with other admin accounts."
 msgstr "Možno jednou z jej najsilnejších funkcií je, ako zabráni iným administrátorom neoprávnene meniť iné administrátorské účty."
 
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Možno zariadenie nie je podporované, alebo ste ho už zaregistrovali."
+
+msgid "Permalink structure"
+msgstr "Štruktúra permalinkov"
 
 msgid "Permalinks"
 msgstr "Permalinky"
@@ -5605,11 +6727,29 @@ msgstr "Permalinky"
 msgid "Permalinks Updated"
 msgstr "Permalinky aktualizované"
 
+msgid "Permalinks changed: %s&rarr;%s"
+msgstr "Permalinky zmenené: %s&rarr;%s"
+
+msgid "Permanent Redirect (301)"
+msgstr "Trvalé presmerovanie (301)"
+
+msgid "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
+msgstr "Trvalé a dlhé IP čierne zoznamy sú škodlivé pre výkon. Mali by ste umožniť, aby IP adresy na čiernom zozname boli časom nakoniec odstránené. Kratšie IP čierne zoznamy sú efektívnejšie a inteligentnejšie využitie systému blokovania založeného na IP."
+
 msgid "Permanently Deleted"
 msgstr "Natrvalo odstránené"
 
+msgid "Permit Anonymous Telemetry Reports"
+msgstr "Povoliť anonymné telemetrické správy"
+
+msgid "Persistent Security Admins"
+msgstr "Trvalí Security Admin"
+
 msgid "Phone verified and registered successfully for SMS Two-Factor Authentication."
 msgstr "Telefón bol úspešne overený a zaregistrovaný pre SMS dvojfaktorovú autentifikáciu."
+
+msgid "Ping License Server"
+msgstr "Ping licenčného servera"
 
 msgid "Please Confirm Security Admin Removal"
 msgstr "Prosím potvrďte odstránenie Security Admin"
@@ -5622,6 +6762,9 @@ msgstr "Prosím, autentifikujte sa so systémom Security Admin pred pokusom o ak
 
 msgid "Please be sure that this is what you want."
 msgstr "Prosím, uistite sa, že toto je to, čo chcete."
+
+msgid "Please check all confirmation boxes."
+msgstr "Prosím začiarknite všetky potvrdzujúce políčka."
 
 msgid "Please check back again shortly, or contact the site administrator for further details."
 msgstr "Prosím, skontrolujte to čoskoro znova alebo kontaktujte správcu stránky pre ďalšie podrobnosti."
@@ -5689,14 +6832,23 @@ msgstr "Upozorňujeme, že mnohé WordPress pluginy pre cachovanie stránok úpl
 msgid "Please now save your profile settings."
 msgstr "Teraz prosím uložte nastavenia vášho profilu."
 
+msgid "Please only enable this on non-critical sites, and if you're comfortable with bugs arising."
+msgstr "Prosím, povoľte toto iba na nekritických stránkach a ak ste pripravení na možné chyby."
+
 msgid "Please provide a label to identify the device."
 msgstr "Prosím zadajte označenie na identifikáciu zariadenia."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Prosím zadajte označenie na identifikáciu nového autentifikátora."
 
+msgid "Please provide a valid regular expression."
+msgstr "Prosím, zadajte platný regulárny výraz."
+
 msgid "Please provide an IP Address"
 msgstr "Prosím, zadajte IP adresu"
+
+msgid "Please provide the builder form"
+msgstr "Prosím zadajte formulár buildera"
 
 msgid "Please re-save your settings to trigger another verification email."
 msgstr "Prosím, znovu uložte vaše nastavenia, aby sa spustil ďalší overovací e-mail."
@@ -5710,6 +6862,9 @@ msgstr "Prosím obnovte stránku."
 msgid "Please reset your password to regain access."
 msgstr "Prosím resetujte vaše heslo, aby ste znovu získali prístup."
 
+msgid "Please retry again"
+msgstr "Prosím, skúste to znova"
+
 msgid "Please retry or refresh the page."
 msgstr "Prosím, skúste to znova alebo obnovte stránku."
 
@@ -5722,14 +6877,29 @@ msgstr "Prosím, prečítajte si info odkaz o tom, ako získať vlastné Yubikey
 msgid "Please review the info link on how to obtain your own Yubikey App ID and API Key."
 msgstr "Prosím, prečítajte si info odkaz o tom, ako získať vlastné Yubikey App ID a API kľúč."
 
+msgid "Please see the \"%s\" tab for more information as this file has already been classified as \"potential malware\" in the scan."
+msgstr "Prosím pozrite sa na kartu \"%s\" pre viac informácií, pretože tento súbor už bol klasifikovaný ako \"potenciálny malvér\" v skenovaní."
+
 msgid "Please select a file to review."
 msgstr "Prosím, vyberte súbor na kontrolu."
+
+msgid "Please select a file to upload"
+msgstr "Prosím vyberte súbor na nahratie"
+
+msgid "Please select an action to perform."
+msgstr "Prosím, vyberte akciu na vykonanie."
 
 msgid "Please select one of the IP Rule Types - Block or Bypass"
 msgstr "Prosím, vyberte jeden z typov IP pravidiel - Block alebo Bypass"
 
 msgid "Please select one of the options available"
 msgstr "Prosím, vyberte jednu z dostupných možností"
+
+msgid "Please supply a different password as this password has been pwned."
+msgstr "Prosím zadajte iné heslo, pretože toto heslo bolo kompromitované."
+
+msgid "Please supply at least 1 authentication code"
+msgstr "Prosím zadajte aspoň 1 autentifikačný kód"
 
 msgid "Please take a moment to review the contents of the file as it may contain malicious code."
 msgstr "Prosím venujte chvíľu na kontrolu obsahu súboru, pretože môže obsahovať škodlivý kód."
@@ -5760,6 +6930,9 @@ msgstr "Prosím, aktualizujte vaše Shield pluginy na rovnaké verzie a znovu sy
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Prosím aktualizujte na podporu skenovania všetkých súborov pluginov pre manipuláciu."
+
+msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
+msgstr "Prosím upgradujte vaše Shield Security predplatné na prístup k Custom Security Rules Builder."
 
 msgid "Please upgrade your ShieldPRO plan to make use of this feature."
 msgstr "Upgradujte váš ShieldPRO plán na využitie tejto funkcie."
@@ -5803,11 +6976,17 @@ msgstr "Prosím počkajte chvíľu"
 msgid "Please wait a short while before checking again."
 msgstr "Prosím počkajte chvíľu pred opätovnou kontrolou."
 
+msgid "Please wait, as this will take a few moments."
+msgstr "Prosím počkajte, pretože to potrvá niekoľko okamihov."
+
 msgid "Plugin"
 msgstr "Plugin"
 
 msgid "Plugin & Theme Files"
 msgstr "Súbory pluginov & tém"
+
+msgid "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}."
+msgstr "Plugin '{{plugin}}' degradovaný z verzie {{from}} na verziu {{to}}."
 
 msgid "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}."
 msgstr "Plugin '{{plugin}}' aktualizovaný z verzie {{from}} na verziu {{to}}."
@@ -5842,6 +7021,12 @@ msgstr "Podrobnosti o deaktivácii pluginu"
 msgid "Plugin Defaults"
 msgstr "Predvolené nastavenia pluginu"
 
+msgid "Plugin Downgraded"
+msgstr "Plugin degradovaný"
+
+msgid "Plugin File Edited"
+msgstr "Upravený súbor pluginu"
+
 msgid "Plugin Files"
 msgstr "Súbory pluginov"
 
@@ -5860,6 +7045,9 @@ msgstr "Možnosť pluginu zmenená"
 msgid "Plugin Security Badge"
 msgstr "Bezpečnostný odznak pluginu"
 
+msgid "Plugin Tag Line"
+msgstr "Slogan pluginu"
+
 msgid "Plugin Uninstalled"
 msgstr "Plugin odinštalovaný"
 
@@ -5872,6 +7060,9 @@ msgstr "Ochrana súborov pluginov a tém"
 msgid "Plugin and Theme Vulnerability Scanner"
 msgstr "Skener zraniteľností pluginov a tém"
 
+msgid "Plugin basename to check (e.g. \"dir/plugin.php\")"
+msgstr "Základný názov pluginu na kontrolu (napr. \"dir/plugin.php\")"
+
 msgid "Plugin configuration exported successfully."
 msgstr "Konfigurácia pluginu úspešne exportovaná."
 
@@ -5880,6 +7071,9 @@ msgstr "Vývojár pluginu nepoužíva SVN tagy pre oficiálne vydania."
 
 msgid "Plugin does not meet minimum requirements"
 msgstr "Plugin nespĺňa minimálne požiadavky"
+
+msgid "Plugin files aren't scanned for corruption."
+msgstr "Súbory pluginov nie sú skenované na poškodenie."
 
 msgid "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'."
 msgstr "Možnosť pluginu '{{name}}' ({{key}}) byla aktualizovaná na '{{value}}'."
@@ -5950,6 +7144,9 @@ msgstr "Príspevok presunutý do koša"
 msgid "Post Type: {{type}}"
 msgstr "Typ príspevku: {{type}}"
 
+msgid "Post Unpublished"
+msgstr "Príspevok zrušený z publikovania"
+
 msgid "Post Updated"
 msgstr "Príspevok aktualizovaný"
 
@@ -5965,11 +7162,20 @@ msgstr "Príspevok s názvom '{{title}}' bol obnovený z koša."
 msgid "Post entitled '{{title}}' was trashed."
 msgstr "Príspevok s názvom '{{title}}' bol presunutý do koša."
 
+msgid "Post entitled '{{title}}' was unpublished."
+msgstr "Príspevok s názvom '{{title}}' bol zrušený z publikovania."
+
 msgid "Post entitled '{{title}}' was updated."
 msgstr "Príspevok s názvom '{{title}}' bol aktualizovaný."
 
 msgid "Posts"
 msgstr "Príspevky"
+
+msgid "Potential Malware"
+msgstr "Potenciálny malvér"
+
+msgid "Potential Malware Found"
+msgstr "Nájdený potenciálny malvér"
 
 msgid "Powered by %s"
 msgstr "Poskytované %s"
@@ -5986,6 +7192,9 @@ msgstr "Výkonná ochrana pre WordPress od Shield Security"
 msgid "Powerful User Password Policies"
 msgstr "Výkonné pravidlá pre heslá používateľov"
 
+msgid "Powerful, Auto-Learning Malware Scanner"
+msgstr "Výkonný, samoučiaci sa skener malvéru"
+
 msgid "Predicted"
 msgstr "Predpovedané"
 
@@ -5995,6 +7204,15 @@ msgstr "Preferovaný dočasný adresár"
 msgid "Preferred temporary directory override."
 msgstr "Preferované prepísanie dočasného adresára."
 
+msgid "Prefix: <code>%s</code>"
+msgstr "Predpona: <code>%s</code>"
+
+msgid "Prefixed Monolog library could not be found."
+msgstr "Prefixovaná knižnica Monolog sa nepodarilo nájsť."
+
+msgid "Prefixed autoload missing"
+msgstr "Chýba prefixované automatické načítanie"
+
 msgid "Premium plugins are also supported on your plan."
 msgstr "Prémiové pluginy sú tiež podporované vo vašom pláne."
 
@@ -6003,6 +7221,9 @@ msgstr "Prémiové témy sú tiež podporované vo vašom pláne."
 
 msgid "Prevent Export"
 msgstr "Zabrániť exportu"
+
+msgid "Prevent Mime-Sniff"
+msgstr "Zabrániť Mime-Sniff"
 
 msgid "Prevent Pwned Passwords"
 msgstr "Zabrániť kompromitovaným heslám"
@@ -6073,8 +7294,14 @@ msgstr "Tlačiť"
 msgid "Priority"
 msgstr "Priorita"
 
+msgid "Privacy Policy"
+msgstr "Zásady ochrany súkromia"
+
 msgid "Pro Only"
 msgstr "Len Pro"
+
+msgid "Proceed With Extreme Caution"
+msgstr "Postupujte s maximálnou opatrnosťou"
 
 msgid "Proceed with caution. [%s]"
 msgstr "Postupujte opatrne. [%s]"
@@ -6127,6 +7354,12 @@ msgstr "Ochrana vašich <strong>dôležitých používateľských formulárov</s
 msgid "Protection for user accounts."
 msgstr "Ochrana pre používateľské účty."
 
+msgid "Protection for user logins alongside session hijacking prevention."
+msgstr "Ochrana pre používateľské prihlásenia spolu s prevenciou únosa relácie."
+
+msgid "Protection for user logins is achieved through several key strategies."
+msgstr "Ochrana používateľských prihlásení sa dosahuje prostredníctvom niekoľkých kľúčových stratégií."
+
 msgid "Protects against user compromise by preventing user session theft/hijacking."
 msgstr "Chráni pred kompromitáciou používateľa zabránením krádeže/únosa používateľskej relácie."
 
@@ -6139,8 +7372,17 @@ msgstr "Poskytnúť vlastné výnimky prevádzky"
 msgid "Provide The Security Admin PIN."
 msgstr "Zadajte Security Admin PIN."
 
+msgid "Provide Username<->Yubikey Pairs that are usable for this site."
+msgstr "Poskytnite páry Používateľské meno<->Yubikey, ktoré sú použiteľné pre túto stránku."
+
+msgid "Provide Your Full Mobile Telephone Number"
+msgstr "Zadajte vaše úplné mobilné telefónne číslo"
+
 msgid "Provide a One Time Password from your Yubikey."
 msgstr "Zadajte jednorazové heslo z vášho Yubikey."
+
+msgid "Provide a descriptive title"
+msgstr "Zadajte popisný názov"
 
 msgid "Provide a relative path (with a leading /), or a complete URL"
 msgstr "Poskytnite relatívnu cestu (s úvodným /), alebo úplnú URL"
@@ -6150,6 +7392,9 @@ msgstr "Poskytnite tajný PIN na obmedzenie administrátorského prístupu k va�
 
 msgid "Provide a valid IP address or range"
 msgstr "Zadajte platnú IP adresu alebo rozsah"
+
+msgid "Provide a valid callable function"
+msgstr "Zadajte platnú volateľnú funkciu"
 
 msgid "Provide a valid whole number"
 msgstr "Zadajte platné celé číslo"
@@ -6208,6 +7453,9 @@ msgstr "Kompromitované heslá sú povolené."
 msgid "Query"
 msgstr "Dotaz"
 
+msgid "Query IP Whois"
+msgstr "Dotaz IP Whois"
+
 msgid "Quickly setup your site by importing from another site or a backup."
 msgstr "Rýchlo nastavte vašu stránku importovaním z inej stránky alebo zo zálohy."
 
@@ -6219,6 +7467,9 @@ msgstr "Prekročený limit frekvencie"
 
 msgid "Rate Limiting"
 msgstr "Rate limiting"
+
+msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
+msgstr "Limit frekvencie ({{count}}) bol prekročený s {{requests}} požiadavkami v priebehu {{span}} sekúnd."
 
 msgid "Re-Brand Shield Security as your own!"
 msgstr "Rebrandujte Shield Security ako vlastný!"
@@ -6235,14 +7486,26 @@ msgstr "Rebrandujte Shield Security plugin."
 msgid "Re-enable Protection."
 msgstr "Znovu povoliť ochranu."
 
+msgid "Re-install First"
+msgstr "Najprv preinštalovať"
+
 msgid "Re-install failed."
 msgstr "Preinštalovanie zlyhalo."
+
+msgid "Re-install first?"
+msgstr "Najprv preinštalovať?"
+
+msgid "Read Customer Testimonials"
+msgstr "Prečítať si hodnotenia zákazníkov"
 
 msgid "Read this carefully before enabling this option."
 msgstr "Prečítajte si toto pozorne pred povolením tejto možnosti."
 
 msgid "Ready"
 msgstr "Pripravené"
+
+msgid "Really Re-Install Plugin"
+msgstr "Naozaj preinštalovať plugin"
 
 msgid "Reason"
 msgstr "Dôvod"
@@ -6255,6 +7518,9 @@ msgstr "Prijať upozornenie pri deaktivácii pluginu"
 
 msgid "Receive instant alerts from the plugin for important events."
 msgstr "Prijímajte okamžité upozornenia z pluginu pre dôležité udalosti."
+
+msgid "Receive regular reports from the plugin summarising important events."
+msgstr "Prijímajte pravidelné správy z pluginu sumarizujúce dôležité udalosti."
 
 msgid "Recent Activity"
 msgstr "Nedávna aktivita"
@@ -6286,6 +7552,18 @@ msgstr "Nedávne prenosy"
 msgid "Recent Users"
 msgstr "Nedávni používatelia"
 
+msgid "Recently Blocked"
+msgstr "Nedávno zablokované"
+
+msgid "Recently Blocked IPs"
+msgstr "Nedávno zablokované IP"
+
+msgid "Recommendation"
+msgstr "Odporúčanie"
+
+msgid "Recommendations"
+msgstr "Odporúčania"
+
 msgid "Recovered from trash"
 msgstr "Obnovené z koša"
 
@@ -6298,6 +7576,15 @@ msgstr "Stav presmerovania"
 msgid "Redirecting wp-login due to hidden login URL"
 msgstr "Presmerovanie wp-login kvôli skrytej prihlasovacej URL"
 
+msgid "Reduces visitor exposure to malicious user-uploaded content."
+msgstr "Znižuje vystavenie návštevníkov škodlivému obsahu nahranému používateľmi."
+
+msgid "Referrer Policy"
+msgstr "Referrer Policy"
+
+msgid "Referrer Policy Header"
+msgstr "Referrer Policy hlavička"
+
 msgid "Refresh"
 msgstr "Obnoviť"
 
@@ -6309,6 +7596,9 @@ msgstr "Zaregistrujte URL vašej stránky v našom kontrolnom paneli."
 
 msgid "Registered"
 msgstr "Zaregistrovaný"
+
+msgid "Registered Mobile Number"
+msgstr "Zaregistrované mobilné číslo"
 
 msgid "Registered Passkeys"
 msgstr "Zaregistrované Passkeys"
@@ -6328,6 +7618,12 @@ msgstr "Registrácia"
 msgid "Registration Blocked"
 msgstr "Registrácia zablokovaná"
 
+msgid "Regular Expression"
+msgstr "Regulárny výraz"
+
+msgid "Regular scanning help identify compromise and prevent exploitation of vulnerabilies."
+msgstr "Pravidelné skenovanie pomáha identifikovať kompromitáciu a zabrániť zneužitiu zraniteľností."
+
 msgid "Regularly scan WordPress plugins and themes for known security vulnerabilities."
 msgstr "Pravidelne skenovať WordPress pluginy a témy na známe bezpečnostné zraniteľnosti."
 
@@ -6340,11 +7636,17 @@ msgstr "Pravidelne skenovať vaše WordPress pluginy a témy na známe bezpečno
 msgid "Relative Path"
 msgstr "Relatívna cesta"
 
+msgid "Release Date"
+msgstr "Dátum vydania"
+
 msgid "Reloading"
 msgstr "Opätovné načítanie"
 
 msgid "Reloading page"
 msgstr "Opätovné načítanie stránky"
+
+msgid "Remaining Offenses Allowed"
+msgstr "Zostávajúce povolené priestupky"
 
 msgid "Remember me for %s"
 msgstr "Zapamätať si ma na %s"
@@ -6373,8 +7675,20 @@ msgstr "Odstrániť obchádzanie IP"
 msgid "Remove License"
 msgstr "Odstrániť licenciu"
 
+msgid "Remove WP Generator Meta Tag"
+msgstr "Odstrániť WP Generator Meta Tag"
+
+msgid "Remove a meta tag from your WordPress pages that publicly displays that your site is WordPress and its current version."
+msgstr "Odstrániť meta tag z vašich WordPress stránok, ktorý verejne zobrazuje, že vaša stránka je WordPress a jej aktuálnu verziu."
+
+msgid "Removed the forceoff file."
+msgstr "Súbor forceoff bol odstránený."
+
 msgid "Removes the option to directly edit any files from within the WordPress admin area."
 msgstr "Odstráni možnosť priamo upravovať akékoľvek súbory z WordPress administrátorskej oblasti."
+
+msgid "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."
+msgstr "Odstráni možnosť priamo upravovať akékoľvek súbory z WordPress administrátorskej oblasti. Ekvivalent nastavenia 'DISALLOW_FILE_EDIT' na TRUE."
 
 msgid "Rename and re-brand the %s plugin for your client site installations."
 msgstr "Premenujte a rebrandujte %s plugin pre inštalácie stránok vašich klientov."
@@ -6412,11 +7726,17 @@ msgstr "Report vygenerovaný"
 msgid "Report Generated."
 msgstr "Report vygenerovaný."
 
+msgid "Report Generation Date"
+msgstr "Dátum generovania správy"
+
 msgid "Report Options"
 msgstr "Možnosti správy"
 
 msgid "Report Sent"
 msgstr "Správa odoslaná"
+
+msgid "Report Sent (via {{medium}})."
+msgstr "Správa odoslaná (cez {{medium}})."
 
 msgid "Report Title"
 msgstr "Názov správy"
@@ -6435,6 +7755,9 @@ msgstr "Oznamovanie"
 
 msgid "Reports"
 msgstr "Správy"
+
+msgid "Reputation Decisions Acquired"
+msgstr "Získané reputačné rozhodnutia"
 
 msgid "Request Blocked"
 msgstr "Požiadavka zablokovaná"
@@ -6459,6 +7782,9 @@ msgstr "Možnosti Firewall požiadaviek"
 
 msgid "Request ID"
 msgstr "ID požiadavky"
+
+msgid "Request Limit Count"
+msgstr "Počet limitu požiadaviek"
 
 msgid "Request Limit Interval"
 msgstr "Interval limitu požiadaviek"
@@ -6520,6 +7846,9 @@ msgstr "Požiadavka prešla AntiBot testom so skóre návštevníka '{{score}}' 
 msgid "Requested At"
 msgstr "Požadované o"
 
+msgid "Requested action completed successfully."
+msgstr "Požadovaná akcia bola úspešne dokončená."
+
 msgid "Requested action failed."
 msgstr "Požadovaná akcia zlyhala."
 
@@ -6544,8 +7873,14 @@ msgstr "Vyžaduje nastavenie politiky expirácie hesla."
 msgid "Requires standard traffic logging to be switched-on and logs all requests to the site (nothing is excluded)."
 msgstr "Vyžaduje zapnutie štandardného logovania návštevnosti a zaznamenáva všetky požiadavky na stránku (nič nie je vylúčené)."
 
+msgid "Resend verification email"
+msgstr "Znovu odoslať overovací e-mail"
+
 msgid "Reset"
 msgstr "Resetovať"
+
+msgid "Reset CrowdSec Enrollment"
+msgstr "Resetovať registráciu CrowdSec"
 
 msgid "Reset For This IP"
 msgstr "Reset pre túto IP"
@@ -6640,6 +7975,12 @@ msgstr "Skontrolovať nastavenia stránky"
 msgid "Review your entire %s configuration at a glance to see what's working and what's not."
 msgstr "Skontrolujte celú vašu %s konfiguráciu na prvý pohľad a zistite, čo funguje a čo nie."
 
+msgid "Reviewing Locked File"
+msgstr "Kontrola uzamknutého súboru"
+
+msgid "Root .htaccess"
+msgstr "Koreňový .htaccess"
+
 msgid "Root Web.config"
 msgstr "Koreňový Web.config"
 
@@ -6649,14 +7990,23 @@ msgstr "Koreňový index.php"
 msgid "Root index.php file isn't protected against tampering."
 msgstr "Koreňový index.php súbor nie je chránený proti neoprávneným zmenám."
 
+msgid "Rows: %s"
+msgstr "Riadky: %s"
+
 msgid "Rule Activated"
 msgstr "Pravidlo aktivované"
+
+msgid "Rule Conditions"
+msgstr "Podmienky pravidla"
 
 msgid "Rule Deactivated"
 msgstr "Pravidlo deaktivované"
 
 msgid "Rule Reset"
 msgstr "Reset pravidla"
+
+msgid "Rule Saved"
+msgstr "Pravidlo uložené"
 
 msgid "Rule Slug"
 msgstr "Slug pravidla"
@@ -6667,6 +8017,12 @@ msgstr "Typ pravidla"
 msgid "Rule deleted"
 msgstr "Pravidlo odstránené"
 
+msgid "Rule pattern detected: '{{term}}'."
+msgstr "Detekovaný vzor pravidla: '{{term}}'."
+
+msgid "Rule reset to previous saved state"
+msgstr "Pravidlo obnovené na predchádzajúci uložený stav"
+
 msgid "Rule will be exported during sync"
 msgstr "Pravidlo bude exportované počas synchronizácie"
 
@@ -6676,6 +8032,9 @@ msgstr "Pravidlo nebude exportované počas synchronizácie"
 msgid "Rules"
 msgstr "Pravidlá"
 
+msgid "Rules Builder"
+msgstr "Rules Builder"
+
 msgid "Run"
 msgstr "Spustiť"
 
@@ -6684,6 +8043,9 @@ msgstr "Spustiť skenovanie súborov"
 
 msgid "Run Database Repair"
 msgstr "Spustiť opravu databázy"
+
+msgid "Run Guided Setup Wizard"
+msgstr "Spustiť sprievodcu riadeným nastavením"
 
 msgid "Run Import From Another Site"
 msgstr "Spustiť import z inej stránky"
@@ -6760,17 +8122,35 @@ msgstr "SPAM je páchané 2 hlavnými spôsobmi: botmi a ľuďmi."
 msgid "SQL Queries"
 msgstr "SQL dopyty"
 
+msgid "SSL Certificate"
+msgstr "SSL certifikát"
+
+msgid "SSL Certificate remains valid for at least the next 2 weeks."
+msgstr "SSL certifikát zostáva platný aspoň ďalšie 2 týždne."
+
+msgid "SSL certificate for this site has expired."
+msgstr "SSL certifikát pre túto stránku vypršal."
+
+msgid "SSL certificate will expire in less than 2 weeks."
+msgstr "SSL certifikát vyprší za menej ako 2 týždne."
+
 msgid "Save Options"
 msgstr "Uložiť možnosti"
 
 msgid "Save Settings"
 msgstr "Uložiť nastavenia"
 
+msgid "Scan Completed"
+msgstr "Skenovanie dokončené"
+
 msgid "Scan Exclusions"
 msgstr "Výnimky skenovania"
 
 msgid "Scan File And Folder Exclusions"
 msgstr "Výnimky skenovania súborov a priečinkov"
+
+msgid "Scan File Repairs"
+msgstr "Opravy skenovania súborov"
 
 msgid "Scan File and Folder Exclusions"
 msgstr "Výnimky skenovania súborov a priečinkov"
@@ -6783,6 +8163,9 @@ msgstr "Skenovať pluginy opustené vývojárom"
 
 msgid "Scan For Vulnerabilities In Plugins & Themes"
 msgstr "Skenovať zraniteľnosti v pluginoch a témach"
+
+msgid "Scan Frequency"
+msgstr "Frekvencia skenovania"
 
 msgid "Scan Item Delete Success"
 msgstr "Úspešné odstránenie položky skenovania"
@@ -6799,8 +8182,14 @@ msgstr "Položky skenovania"
 msgid "Scan Options"
 msgstr "Možnosti skenovania"
 
+msgid "Scan Progress"
+msgstr "Priebeh skenovania"
+
 msgid "Scan Result Items"
 msgstr "Položky výsledkov skenovania"
+
+msgid "Scan Result Items Metadata"
+msgstr "Metadáta položiek výsledkov skenovania"
 
 msgid "Scan Result Sets"
 msgstr "Sady výsledkov skenovania"
@@ -6814,6 +8203,9 @@ msgstr "Naskenujte tento QR kód"
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Skenovať všetky vaše WordPress assety na známe bezpečnostné zraniteľnosti."
 
+msgid "Scan exception: %s"
+msgstr "Výnimka skenovania: %s"
+
 msgid "Scan result with ID %s does not exist."
 msgstr "Výsledok skenovania s ID %s neexistuje."
 
@@ -6822,6 +8214,9 @@ msgstr "Skenovať vaše WordPress.org assety, či neboli opustené."
 
 msgid "Scan your site for file changes, malware and vulnerabilities."
 msgstr "Skenovať vašu stránku na zmeny súborov, malvér a zraniteľnosti."
+
+msgid "Scanning Frequency"
+msgstr "Frekvencia skenovania"
 
 msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
 msgstr "Skenovanie súborov pluginov & tém je dostupné len s ShieldPRO."
@@ -6862,6 +8257,9 @@ msgstr "Skenovania sa na vašej stránke vykonávajú iba raz denne."
 msgid "Scans complete."
 msgstr "Skenovania dokončené."
 
+msgid "Scans completed."
+msgstr "Skenovania dokončené."
+
 msgid "Scans detected 1 or more modified or unrecognised files in the theme directory."
 msgstr "Skenovania zistili 1 alebo viac upravených alebo nerozpoznaných súborov v adresári tém."
 
@@ -6886,6 +8284,9 @@ msgstr "Skenuje neoprávnené zmeny súborov v adresároch pluginov."
 msgid "Scans for file tampering within the active theme."
 msgstr "Skenuje neoprávnené zmeny súborov v aktívnej téme."
 
+msgid "Scans progress"
+msgstr "Priebeh skenovaní"
+
 msgid "Scans started."
 msgstr "Skenovania spustené."
 
@@ -6897,6 +8298,9 @@ msgstr "Naplánovaný automatický import po prijatí oznámenia, že bol potreb
 
 msgid "Score"
 msgstr "Skóre"
+
+msgid "Scores are an approximate weighting for each component."
+msgstr "Skóre sú približné váhy pre každú komponentu."
 
 msgid "Script Name To Match"
 msgstr "Názov skriptu na zhodu"
@@ -6910,8 +8314,17 @@ msgstr "Hľadať %s"
 msgid "Search Engine"
 msgstr "Vyhľadávač"
 
+msgid "Search engine visibility"
+msgstr "Viditeľnosť vo vyhľadávačoch"
+
 msgid "Search for anything"
 msgstr "Hľadať čokoľvek"
+
+msgid "Search using whole words of at least 3 characters."
+msgstr "Vyhľadávajte pomocou celých slov s aspoň 3 znakmi."
+
+msgid "Search using whole words of at least 3 characters..."
+msgstr "Vyhľadávajte pomocou celých slov s aspoň 3 znakmi..."
 
 msgid "Seconds"
 msgstr "Sekundy"
@@ -7057,11 +8470,17 @@ msgstr "Zobraziť všetky PRO funkcie a doplnky"
 msgid "See Details"
 msgstr "Zobraziť podrobnosti"
 
+msgid "See What's Happening"
+msgstr "Pozrite si, čo sa deje"
+
 msgid "See details of every action that happens on your WordPress site."
 msgstr "Zobraziť podrobnosti každej akcie, ktorá sa deje na vašej WordPress stránke."
 
 msgid "See the 'File Scan Areas' option to specify which files should be scanned."
 msgstr "Pozrite si možnosť 'Oblasti skenovania súborov' na určenie, ktoré súbory by mali byť skenované."
+
+msgid "See what's happening with reports."
+msgstr "Pozrite si, co sa deje so správami."
 
 msgid "Select"
 msgstr "Vybrať"
@@ -7099,6 +8518,9 @@ msgstr "Vyberte súbor na import možností"
 msgid "Select request types that you don't want to appear in the traffic viewer."
 msgstr "Vyberte typy požiadaviek, ktoré nechcete, aby sa zobrazovali v prehliadači návštevnosti."
 
+msgid "Select the properties that should be tested during email address validation."
+msgstr "Vyberte vlastnosti, ktoré by mali byť testované počas validácie e-mailovej adresy."
+
 msgid "Select which user forms should be protected against brute-force attacks."
 msgstr "Vyberte, ktoré používateľské formuláre by mali byť chránené proti brute-force útokom."
 
@@ -7110,6 +8532,9 @@ msgstr "Vybrané relácie odstránené."
 
 msgid "Selecting \"%s\" will also restrict all other options."
 msgstr "Výber \"%s\" obmedzí aj všetky ostatné možnosti."
+
+msgid "Self AutoUpdate"
+msgstr "Automatická aktualizácia"
 
 msgid "Send An Notification Email When Administrator Logs In"
 msgstr "Odoslať upozorňovaciu e-mailovú správu, keď sa prihlási administrátor"
@@ -7141,11 +8566,17 @@ msgstr "Serverové IP"
 msgid "Server Name"
 msgstr "Názov servera"
 
+msgid "Server Signature"
+msgstr "Podpis servera"
+
 msgid "Server Software"
 msgstr "Serverový softvér"
 
 msgid "Server Software Status"
 msgstr "Stav serverového softvéru"
+
+msgid "Server Time Difference"
+msgstr "Rozdiel času servera"
 
 msgid "Service IPs"
 msgstr "Servisné IP"
@@ -7186,6 +8617,9 @@ msgstr "Relácia ukončená"
 msgid "Session Timeout"
 msgstr "Časový limit relácie"
 
+msgid "Session Token Duration"
+msgstr "Trvanie tokenu relácie"
+
 msgid "Session lock"
 msgstr "Uzamknutie relácie"
 
@@ -7198,8 +8632,14 @@ msgstr "Relácia ukončená."
 msgid "Sessions"
 msgstr "Relácie"
 
+msgid "Sessions Table Filters"
+msgstr "Filtre tabuľky relácií"
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Nastavte limit povolených priestupkov pred automatickým zablokovaním IP návštevníka."
+
+msgid "Set how frequently the Hack Guard scans will run."
+msgstr "Nastavte, ako často sa budú spúšťať Hack Guard skenovania."
 
 msgid "Set the entire plugin's enabled/disabled status."
 msgstr "Nastavte stav zapnutý/vypnutý celého pluginu."
@@ -7212,6 +8652,12 @@ msgstr "Nastavte toto na \"0\" pre vypnutie funkcie %s."
 
 msgid "Set to %s to turn off this option."
 msgstr "Nastavte na %s pre vypnutie tejto možnosti."
+
+msgid "Set to Zero(0) to disable."
+msgstr "Nastavte na nulu(0) pre zakázanie."
+
+msgid "Set to zero (0) to disable."
+msgstr "Nastavte na nulu (0) pre zakázanie."
 
 msgid "Setting Security admin pin failed."
 msgstr "Nastavenie Security admin PIN zlyhalo."
@@ -7230,6 +8676,9 @@ msgstr "Závažnosť"
 
 msgid "Shield 2FA Provider Enabled"
 msgstr "Shield 2FA poskytovateľ povolený"
+
+msgid "Shield Anti-Spam"
+msgstr "Shield Anti-Spam"
 
 msgid "Shield Deactivated"
 msgstr "Shield deaktivovaný"
@@ -7345,6 +8794,12 @@ msgstr "MainWP integrácia Shield nie je pre túto stránku povolená."
 msgid "Shield's Rules Engine isn't running."
 msgstr "Rules Engine Shield nie je spustený."
 
+msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
+msgstr "Shield silentCAPTCHA systém používa ALTCHA, ktorý vyzýva botov na vykonanie komplexnej práce."
+
+msgid "ShieldBACKUPS"
+msgstr "ShieldBACKUPS"
+
 msgid "ShieldNET IP Reputation Score"
 msgstr "ShieldNET IP skóre reputácie"
 
@@ -7353,6 +8808,15 @@ msgstr "ShieldPRO"
 
 msgid "ShieldPRO Features"
 msgstr "ShieldPRO funkcie"
+
+msgid "ShieldPRO Free Trial"
+msgstr "ShieldPRO bezplatná skúšobná verzia"
+
+msgid "ShieldPRO License Cleared"
+msgstr "ShieldPRO licencia vymazaná"
+
+msgid "ShieldPRO License Management"
+msgstr "Správa ShieldPRO licencie"
 
 msgid "ShieldPRO Premium Security"
 msgstr "ShieldPRO prémiové zabezpečenie"
@@ -7381,6 +8845,9 @@ msgstr "Zobraziť odkazy na preinštalovanie pre pluginy"
 msgid "Show Your Visitors That You Take Security Seriously!"
 msgstr "Ukážte svojim návštevníkom, že bezpečnosť berieme vážne!"
 
+msgid "Show help video for this section"
+msgstr "Zobraziť pomocné video pre túto sekciu"
+
 msgid "Show links to re-install plugins and offer re-install when activating plugins."
 msgstr "Zobraziť odkazy na preinštalovanie pluginov a ponúknuť preinštalovanie pri aktivácii pluginov."
 
@@ -7390,11 +8857,17 @@ msgstr "Signál"
 msgid "Signals Pushed"
 msgstr "Signály odoslané"
 
+msgid "Signature Failed"
+msgstr "Podpis zlyhal"
+
 msgid "Simple Stats"
 msgstr "Jednoduché štatistiky"
 
 msgid "Since"
 msgstr "Od"
+
+msgid "Since it's normally messy, it's the perfect place to hide malicious files in plain sight."
+msgstr "Keďže je to normálne neusporiadané, je to ideálne miesto na skrytie škodlivých súborov na očiach."
 
 msgid "Since the offenses limit is set to 0, these options have no effect."
 msgstr "Keďže limit priestupkov je nastavený na 0, tieto možnosti nemajú žiadny účinok."
@@ -7429,6 +8902,9 @@ msgstr "Uzamknutie stránky a Firewall"
 msgid "Site Scanning"
 msgstr "Skenovanie stránky"
 
+msgid "Site Secured"
+msgstr "Stránka zabezpečená"
+
 msgid "Site Security Summary"
 msgstr "Súhrn zabezpečenia stránky"
 
@@ -7447,8 +8923,14 @@ msgstr "URL stránky"
 msgid "Site URL Changed"
 msgstr "URL stránky zmenené"
 
+msgid "Site URL changed: %s&rarr;%s"
+msgstr "URL stránky zmenené: %s&rarr;%s"
+
 msgid "Site added to export white list: {{site}}"
 msgstr "Stránka pridaná na bielu listinu exportu: {{site}}"
+
+msgid "Site email changed: %s&rarr;%s"
+msgstr "E-mail stránky zmenený: %s&rarr;%s"
 
 msgid "Site failed to sync"
 msgstr "Synchronizácia stránky zlyhala"
@@ -7462,6 +8944,9 @@ msgstr "Uzamknutie stránky bolo zrušené!"
 msgid "Site removed from export white list: {{site}}"
 msgstr "Stránka odstránená z bielej listiny exportu: {{site}}"
 
+msgid "Site synced successfully"
+msgstr "Stránka úspešne synchronizovaná"
+
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Stránka byla umiestnená do uzamknutia používateľom {{user_login}}."
 
@@ -7471,17 +8956,26 @@ msgstr "Stránka bola vyňatá z uzamknutia."
 msgid "Sites"
 msgstr "Stránky"
 
+msgid "Sites Listing"
+msgstr "Zoznam stránok"
+
 msgid "Size"
 msgstr "Veľkosť"
 
 msgid "Slug"
 msgstr "Slug"
 
+msgid "Slug Updated: %s&rarr;%s"
+msgstr "Slug aktualizovaný: %s&rarr;%s"
+
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Slug pre príspevok ID {{post_id}} aktualizovaný z '{{slug_old}}' na '{{slug_new}}'."
 
 msgid "Snapshot could not be loaded for %s"
 msgstr "Snapshot sa nepodarilo načítať pre %s"
+
+msgid "Snapshot data could not be decoded."
+msgstr "Dáta snapshotu sa nepodarilo dekódovať."
 
 msgid "Snapshot store does not exist: '%s'"
 msgstr "Úložisko snímok neexistuje: '%s'"
@@ -7497,6 +8991,9 @@ msgstr "Niektoré základné štatistiky - toto je v beta verzii a bude sa vyví
 
 msgid "Some common namespaces"
 msgstr "Niektoré bežné menné priestory"
+
+msgid "Some form developers provide CAPTCHAs to try and block SPAM, but these are often clunky and ineffective."
+msgstr "Niektorí vývojári formulárov poskytujú CAPTCHA na pokus zablokovať SPAM, ale tieto sú často neohrabané a neúčinné."
 
 msgid "Some items may not have been processed."
 msgstr "Niektoré položky nemohli byť spracované."
@@ -7585,6 +9082,15 @@ msgstr "Zadajte počet dní od posledného prihlásenia, aby bol používateľ p
 msgid "Specify user roles here that shouldn't be scanned."
 msgstr "Špecifikujte tu používateľské role, ktoré by sa nemali skenovať."
 
+msgid "Start Date"
+msgstr "Dátum začiatku"
+
+msgid "Starting scans…"
+msgstr "Spúšťanie skenovaní…"
+
+msgid "Stat: %s"
+msgstr "Štatistika: %s"
+
 msgid "Statistics"
 msgstr "Štatistiky"
 
@@ -7594,11 +9100,17 @@ msgstr "Štatistiky"
 msgid "Status"
 msgstr "Stav"
 
+msgid "Status changed: %s&rarr;%s"
+msgstr "Stav zmenený: %s&rarr;%s"
+
 msgid "Store directory could not be created: %s"
 msgstr "Adresár úložiska sa nepodarilo vytvoriť: %s"
 
 msgid "Store directory path does not exist: %s"
 msgstr "Cesta k adresáru úložiska neexistuje: %s"
+
+msgid "Store it somewhere safe."
+msgstr "Uložte ho niekam na bezpečné miesto."
 
 msgid "Strong"
 msgstr "Silné"
@@ -7633,11 +9145,20 @@ msgstr "Súhrn vygenerovaný"
 msgid "Summary Security Reports."
 msgstr "Súhrnné bezpečnostné reporty."
 
+msgid "Supercharged Security"
+msgstr "Vylepšené zabezpečenie"
+
+msgid "Supply Backup Code"
+msgstr "Zadajte záložný kód"
+
 msgid "Supplying a site URL here will make this site an 'Options Slave'."
 msgstr "Poskytnutie URL stránky tu urobí z tejto stránky 'Options Slave'."
 
 msgid "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
 msgstr "Poskytnutie platnej URL stránky tu urobí z tejto stránky 'Options Slave' a automaticky bude denne importovať možnosti."
+
+msgid "Support for WooCommerce, Contact Form 7, Elementor PRO, Ninja Form & more"
+msgstr "Podpora pre WooCommerce, Contact Form 7, Elementor PRO, Ninja Form & viac"
 
 msgid "SureSend Emails"
 msgstr "SureSend e-maily"
@@ -7720,6 +9241,9 @@ msgstr "Synchronizovať Shield"
 msgid "System Info"
 msgstr "Systémové info"
 
+msgid "TMP Dir"
+msgstr "TMP adresár"
+
 msgid "Tables appear to be valid and haven't been repaired."
 msgstr "Tabuľky sa zdajú byť platné a neboli opravené."
 
@@ -7728,6 +9252,9 @@ msgstr "Tabuľky odstránené a teraz budú znovu vytvorené."
 
 msgid "Tagline"
 msgstr "Slogan"
+
+msgid "Tagline changed: %s&rarr;%s"
+msgstr "Slogan zmenený: %s&rarr;%s"
 
 msgid "Take a new line for each entry."
 msgstr "Použite nový riadok pre každú položku."
@@ -7741,14 +9268,50 @@ msgstr "Použite nový riadok pre každú cestu na whitelist."
 msgid "Take a new line per rule."
 msgstr "Použite nový riadok pre každé pravidlo."
 
+msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
+msgstr "Využite inteligenciu zhromaždenú v celej sieti Shield na lepšiu ochranu vašich WordPress stránok"
+
 msgid "Technical support for Shield is exclusive to Pro customers."
 msgstr "Technická podpora pre Shield je exkluzívne pre Pro zákazníkov."
+
+msgid "Temp Dir"
+msgstr "Dočasný adresár"
 
 msgid "Temporarily Log All Traffic"
 msgstr "Dočasne zaznamenávať celú návštevnosť"
 
+msgid "Temporary Redirect (302)"
+msgstr "Dočasné presmerovanie (302)"
+
+msgid "Tempt A Bot With A Fake Link To Follow"
+msgstr "Nalákať bota falošným odkazom na nasledovanie"
+
 msgid "Test Cron Run"
 msgstr "Testovať spustenie Cron"
+
+msgid "Test WP Cron ran successfully."
+msgstr "Test WP Cron prebehol úspešne."
+
+msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
+msgstr "Testy zlyhali a nemohli sme automaticky určiť stav vášho SSL certifikátu."
+
+msgid "Thank You For Choosing Shield Security"
+msgstr "Ďakujeme, že ste si vybrali Shield Security"
+
+msgid "Thank You."
+msgstr "Ďakujeme."
+
+msgid "Thank you for choosing Shield Security (Free)."
+msgstr "Ďakujeme, že ste si vybrali Shield Security (Free)."
+
+msgid "Thank you for choosing Shield Security PRO."
+msgstr "Ďakujeme, že ste si vybrali Shield Security PRO."
+
+msgid "Thank you for taking the time to go through the Guided Setup Wizard."
+msgstr "Ďakujeme, že ste si našli čas prejsť sprievodcom riadeným nastavením."
+
+msgid "Thank you."
+msgstr "Ďakujeme."
 
 msgid "Thanks!"
 msgstr "Ďakujeme!"
@@ -7759,6 +9322,9 @@ msgstr "Ďakujeme! - Prosím skontrolujte svoj e-mail pre potvrdenie."
 msgid "Thanks."
 msgstr "Ďakujeme."
 
+msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
+msgstr "Ten príjemný pocit, ktorý prichádza s podporou budúceho vývoja"
+
 msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
 msgstr "Adresár %s je ako adresár %s a mnoho súborov, ktoré nie sú WordPress, je tam uložených."
 
@@ -7768,11 +9334,20 @@ msgstr "Adresár %s je divoký západ a mnoho pluginov a tém ho používa na uk
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "Plugin %s bežne nepoužíva cookies pre neregistrovaných návštevníkov stránky."
 
+msgid "The %s plugin has an Audit Trail feature that will log the following information:"
+msgstr "Plugin %s má funkciu Audit Trail, ktorá bude zaznamenávať nasledujúce informácie:"
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "Plugin %s nikdy neukladá žiadne citlivé, osobne identifikovateľné informácie v žiadnom cookie kedykoľvek."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "Parameter %s bol zablokovaný na ochranu proti zisťovaniu používateľských mien / autorov."
+
+msgid "The %s should measure %s."
+msgstr "%s by mal merať %s."
+
+msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
+msgstr "Funkcia 'wp_mail' bola volaná zo súboru '{{bt_file}}' na riadku {{bt_line}}."
 
 msgid "The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of offenses."
 msgstr "Systém automatického IP čierneho zoznamu zablokuje IP adresy neposlušných návštevníkov po stanovenom počte priestupkov."
@@ -7783,8 +9358,20 @@ msgstr "Popis pluginu"
 msgid "The Easiest, Frustration-Free Pro-Upgrade Available Anywhere"
 msgstr "Najjednoduchší, bezproblémový Pro-Upgrade dostupný kdekoľvek"
 
+msgid "The Email Address Properties That Will Be Tested"
+msgstr "Vlastnosti e-mailovej adresy, ktoré budú testované"
+
 msgid "The Firewall doesn't stand alone, as it works together with other components such as the Bot & IP blocking system, to form a complete protection system."
 msgstr "Firewall nestojí samostatne, pretože spolupracuje s inými komponentmi, ako je systém blokovania botov a IP adries, aby vytvoril kompletný ochranný systém."
+
+msgid "The Firewall is made up of many different components, and forms the perimeter defense of your WordPress site."
+msgstr "Firewall sa skladá z mnohých rôznych komponentov a tvorí obvodovú obranu vašej WordPress stránky."
+
+msgid "The Firewall represents the crucial perimeter defense of your WordPress site."
+msgstr "Firewall predstavuje kľúčovú obvodovú obranu vašej WordPress stránky."
+
+msgid "The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules."
+msgstr "IP Manager vám umožňuje vytvoriť whitelist, blacklist a konfigurovať pravidlá automatického blacklistu."
 
 msgid "The IP may not be blocked yet."
 msgstr "IP adresa ešte nemusí byť zablokovaná."
@@ -7812,6 +9399,12 @@ msgstr "Názov pluginu."
 
 msgid "The Name Of Your Company"
 msgstr "Názov vašej spoločnosti"
+
+msgid "The PHP OpenSSL Extension is required, along with the RC4 Cipher."
+msgstr "Vyžaduje sa PHP OpenSSL rozšírenie spolu s RC4 šifrou."
+
+msgid "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
+msgstr "Referrer Policy hlavička vám umožňuje kontrolovať, kedy a aké referenčné informácie môže prehliadač odovzdať spolu s odkazmi kliknutými na vašej stránke."
 
 msgid "The Security Admin system must be active for these settings to apply."
 msgstr "Security Admin systém musí byť aktívny, aby sa tieto nastavenia aplikovali."
@@ -7848,6 +9441,12 @@ msgstr "Verzia pluginu Shield na klientskej stránke je novšia ako tento server
 
 msgid "The Shield plugin version on the client site is older than this server and must be updated."
 msgstr "Verzia pluginu Shield na klientskej stránke je staršia ako tento server a musí byť aktualizovaná."
+
+msgid "The Tag Line Of The Plugin"
+msgstr "Slogan pluginu"
+
+msgid "The Tag Line Of The Plugin."
+msgstr "Slogan pluginu."
 
 msgid "The Time Interval To Test For Excessive Requests"
 msgstr "Časový interval na testovanie nadmerných požiadaviek"
@@ -7951,6 +9550,15 @@ msgstr "Nasledujúce typy používateľských formulárov sú chránené silentC
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "Domovská URL bola zmenená z '{{from}}' na '{{to}}'."
 
+msgid "The import encountered an error."
+msgstr "Pri importe sa vyskytla chyba."
+
+msgid "The label must be alphanumeric with no special characters"
+msgstr "Označenie musí byť alfanumerické bez špeciálnych znakov"
+
+msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
+msgstr "Maximálny povolený počet priestupkov pred blokovaním je primeraný: %s"
+
 msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
 msgstr "Maximálny limit uchovávania záznamov (%s) môže byť zvýšený upgradujte váš ShieldPRO plán."
 
@@ -7978,11 +9586,20 @@ msgstr "Počet dní, počas ktorých môže používateľ obísť 2FA po úspeš
 msgid "The number of permitted offenses before an IP address will be blocked"
 msgstr "Počet povolených priestupkov pred zablokovaním IP adresy"
 
+msgid "The offending request parameter was '{{param}}' with a value of '{{value}}'."
+msgstr "Problémový parameter požiadavky bol '{{param}}' s hodnotou '{{value}}'."
+
 msgid "The offense limit is quite high - you may want to consider decreasing it."
 msgstr "Limit priestupkov je pomerne vysoký - možno by ste mali zvážiť jeho zníženie."
 
+msgid "The only WordPress security plugin to add monitoring of your %s files with automatic rollback and recovery."
+msgstr "Jediný WordPress bezpečnostný plugin, ktorý pridáva monitorovanie vašich %s súborov s automatickým návratom a obnovou."
+
 msgid "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'."
 msgstr "Možnosť povoliť komukoľvek registráciu na stránke bola aktualizovaná z '{{from}}' na '{{to}}'."
+
+msgid "The paths are compared against only the request path, not the query portion."
+msgstr "Cesty sú porovnávané iba s cestou požiadavky, nie s časťou dotazu."
 
 msgid "The phone number was missing."
 msgstr "Telefónne číslo chýbalo."
@@ -8017,6 +9634,9 @@ msgstr "Účelom Firewall je uzamknúť stránku proti škodlivým požiadavkám
 msgid "The purpose of this email is to confirm this action."
 msgstr "Účelom tohto e-mailu je potvrdiť túto akciu."
 
+msgid "The records do not pertain to the same IP address."
+msgstr "Záznamy sa nevzťahujú na rovnakú IP adresu."
+
 msgid "The secret key is found in: %s"
 msgstr "Tajný kľúč sa nachádza v: %s"
 
@@ -8025,6 +9645,12 @@ msgstr "Bezpečnostný plugin je chránený proti neoprávneným zmenám."
 
 msgid "The security plugin isn't protected against tampering."
 msgstr "Bezpečnostný plugin nie je chránený proti neoprávneným zmenám."
+
+msgid "The setting prevents any external website from embedding your site in an iFrame."
+msgstr "Toto nastavenie zabraňuje akejkoľvek externej webovej stránke vložiť vašu stránku do iFrame."
+
+msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
+msgstr "Toto nastavenie zabraňuje akejkoľvek externej webovej stránke vložiť vašu stránku do iFrame. Toto je užitočné na prevenciu takzvaných ClickJack útokov."
 
 msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
 msgstr "Možnosť silentCAPTCHA je zakázaná, čím sa odstraňuje ochrana proti brute force útokom pre prihlásenie, registráciu a formuláre pre stratené heslo."
@@ -8065,6 +9691,9 @@ msgstr "Téma"
 msgid "Theme '{{theme}}' was activated."
 msgstr "Téma '{{theme}}' bola aktivovaná."
 
+msgid "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}."
+msgstr "Téma '{{theme}}' bola degradovaná z verzie {{from}} na verziu {{to}}."
+
 msgid "Theme '{{theme}}' was installed."
 msgstr "Téma '{{theme}}' bola nainštalovaná."
 
@@ -8076,6 +9705,12 @@ msgstr "Téma '{{theme}}' bola aktualizovaná z verzie {{from}} na verziu {{to}}
 
 msgid "Theme Activated"
 msgstr "Téma aktivovaná"
+
+msgid "Theme Downgraded"
+msgstr "Téma degradovaná"
+
+msgid "Theme File Edited"
+msgstr "Upravený súbor témy"
 
 msgid "Theme Files"
 msgstr "Súbory tém"
@@ -8091,6 +9726,12 @@ msgstr "Téma aktualizovaná"
 
 msgid "Theme directory name to check"
 msgstr "Názov adresára témy na kontrolu"
+
+msgid "Theme files aren't scanned for corruption."
+msgstr "Súbory tém nie sú skenované na poškodenie."
+
+msgid "Theme functions.php"
+msgstr "Téma functions.php"
 
 msgid "Theme version doesn't appear to exist."
 msgstr "Verzia témy sa nezdá existovať."
@@ -8127,6 +9768,9 @@ msgstr "Je %s nepoužívaných pluginov, ktoré by mali byť odinštalované."
 
 msgid "There are %s unused themes that should be uninstalled."
 msgstr "Je %s nepoužívaných tém, ktoré by mali byť odinštalované."
+
+msgid "There are a few different ways to 'lockdown' a WordPress site."
+msgstr "Existuje niekoľko rôznych spôsobov, ako 'uzamknúť' WordPress stránku."
 
 msgid "There are also options to limit and disable built-in WordPress features such as XML-RPC and anonymous access to the REST API."
 msgstr "K dispozícii sú aj možnosti na obmedzenie a zakázanie vstavaných WordPress funkcií, ako sú XML-RPC a anonymný prístup k REST API."
@@ -8166,6 +9810,9 @@ msgstr "V tejto chvíli neexistujú žiadne dôležité bezpečnostné upozornen
 
 msgid "There are no logs available yet."
 msgstr "Zatiaľ nie sú k dispozícii žiadne logy."
+
+msgid "There are no recently repaired files."
+msgstr "Nie sú k dispozícii žiadne nedávno opravené súbory."
 
 msgid "There are no registered Yubikey devices on this profile."
 msgstr "V tomto profile nie sú žiadne registrované Yubikey zariadenia."
@@ -8215,14 +9862,35 @@ msgstr "Neexistuje požiadavka na silné používateľské heslá."
 msgid "There is no user currently logged-in."
 msgstr "Momentálne nie je prihlásený žiadny používateľ."
 
+msgid "There is room for improvement in your %s plugin configuration."
+msgstr "Existuje priestor na zlepšenie vo vašej %s plugin konfigurácii."
+
+msgid "There was a problem automatically subscribing you to the newsletter."
+msgstr "Vyskytol sa problém pri automatickom prihlásení vás k odberu newslettera."
+
 msgid "There was a problem decrypting the file contents."
 msgstr "Vyskytol sa problém pri dešifrovaní obsahu súboru."
+
+msgid "There was a problem downloading the file."
+msgstr "Vyskytol sa problém pri sťahovaní súboru."
+
+msgid "There was a problem locating or reading the file on this site"
+msgstr "Vyskytol sa problém pri lokalizácii alebo čítaní súboru na tejto stránke"
+
+msgid "There was a problem preparing the Passkey Auth Challenge."
+msgstr "Vyskytol sa problém pri príprave Passkey Auth Challenge."
+
+msgid "There was a problem preparing the Passkey Registration Challenge."
+msgstr "Vyskytol sa problém pri príprave Passkey Registration Challenge."
 
 msgid "There was a problem removing this passkey"
 msgstr "Vyskytol sa problém pri odstraňovaní tohto passkey"
 
 msgid "There was a problem sending the One-Time Password email."
 msgstr "Vyskytol sa problém pri odosielaní e-mailu s jednorazovým heslom."
+
+msgid "There was an attempt to send an email using the 'wp_mail' function."
+msgstr "Bol zaznamenaný pokus o odoslanie e-mailu pomocou funkcie 'wp_mail'."
 
 msgid "There was an error trying to send your message. Please try again later"
 msgstr "Pri pokuse o odoslanie vašej správy došlo k chybe. Prosím skúste to neskôr znova"
@@ -8235,6 +9903,9 @@ msgstr "Nie je potrebné mať zbytočný hluk z prevádzky vo vašich logoch, pr
 
 msgid "These REST API namespaces will be excluded from the Anonymous API restriction."
 msgstr "Tieto menné priestory REST API budú vylúčené z obmedzenia anonymného API."
+
+msgid "These aren't regular expression, but you can use asterisk (*) as a wildcard."
+msgstr "Toto nie sú regulárne výrazy, ale môžete použiť hviezdičku (*) ako zástupný znak."
 
 msgid "These changes may be normal and expected, but if anything looks strange, you should review your list of site admins immediately."
 msgstr "Tieto zmeny môžu byť normálne a očakávané, ale ak niečo vyzerá zvláštne, mali by ste okamžite skontrolovať svoj zoznam administrátorov stránky."
@@ -8251,11 +9922,20 @@ msgstr "Tieto môže používateľ použiť, keď nemá prístup k svojim bežn�
 msgid "These notices can be hidden by switching off this option."
 msgstr "Tieto upozornenia môžu byť skryté vypnutím tejto možnosti."
 
+msgid "These security options tie-in with your Login security measures."
+msgstr "Tieto bezpečnostné možnosti sú prepojené s vašimi bezpečnostnými opatreniami pri prihlasovaní."
+
 msgid "These settings are dependent on your requirements."
 msgstr "Tieto nastavenia závisia od vašich požiadaviek."
 
 msgid "They aren't normally checked for Bots since they require a custom integration."
 msgstr "Zvyčajne nie sú kontrolované na boty, pretože vyžadujú vlastnú integráciu."
+
+msgid "They attack your sites, probe for information, and exploit vulnerabilities at scale, without any hindrance (normally)."
+msgstr "Útočia na vaše stránky, skúmajú informácie a zneužívajú zraniteľnosti vo veľkom rozsahu, bez akýchkoľvek prekážok (normálne)."
+
+msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
+msgstr "Ničia prihlasovací formulár porušením Javascriptu a zmenou používateľskej skúsenosti na nočnú moru."
 
 msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
 msgstr "Predstavte si 'priestupky' len ako počítadlo počtu prípadov, keď návštevník urobí niečo zlé."
@@ -8278,17 +9958,29 @@ msgstr "Tento server"
 msgid "This Site Is Protected By %s"
 msgstr "Táto stránka je chránená pluginom %s"
 
+msgid "This action can't be undone."
+msgstr "Túto akciu nie je možné vrátiť späť."
+
 msgid "This action is unavailable for your profile at this time."
 msgstr "Táto akcia nie je pre váš profil v tejto chvíli dostupná."
 
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Táto aktivita bude zaznamenaná voči vašej IP adrese a môžete byť úplne zablokovaní z ďalšieho prístupu na stránku, ak sa podobná aktivita zopakuje."
 
+msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
+msgstr "Toto funguje aj ako affiliate odkaz, ak používate ShieldPRO, takže môžete získavať odmeny za každé odporúčanie."
+
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Toto sa zdá byť spam, pretože zlyhalo %s AntiBot ochranných kontrol."
 
+msgid "This approach helps retain your data and privacy as it doesn't send comments offsite to be scanned."
+msgstr "Tento prístup pomáha zachovať vaše údaje a súkromie, pretože neodosiela komentáre mimo stránky na skenovanie."
+
 msgid "This assumes that your WordPress site has been properly configured to send email - many are not."
 msgstr "Toto predpokladá, že vaša WordPress stránka bola správne nakonfigurovaná na odosielanie e-mailov - mnohé nie sú."
+
+msgid "This cannot be less than %s."
+msgstr "Toto nemôže byť menej ako %s."
 
 msgid "This code will be displayed only once and you may use it to verify your login only once."
 msgstr "Tento kód bude zobrazený len raz a môžete ho použiť na overenie vášho prihlásenia len raz."
@@ -8296,8 +9988,14 @@ msgstr "Tento kód bude zobrazený len raz a môžete ho použiť na overenie v�
 msgid "This combines all the security configuration components below and provides you with an overall configuration score."
 msgstr "Toto kombinuje všetky komponenty bezpečnostnej konfigurácie nižšie a poskytuje vám celkové skóre konfigurácie."
 
+msgid "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans."
+msgstr "Táto komplexná práca je výpočtovo náročná a spôsobuje náklady na spracovanie botom. Boti zvyčajne túto prácu nevykonajú a to pomáha rozlíšiť medzi botmi a ľuďmi."
+
 msgid "This data will be retained and then automatically purged from the database after a fixed time period, as determined by the site administrator."
 msgstr "Tieto údaje budú uchovávané a potom automaticky vymazané z databázy po pevne stanovenej dobe, ako určí administrátor stránky."
+
+msgid "This depends on your usage and needs for certain WordPress functions and features."
+msgstr "Toto závisí od vášho používania a potrieb pre určité WordPress funkcie a vlastnosti."
 
 msgid "This doesn't appear to be a valid Yubikey OTP"
 msgstr "Toto sa nezdá byť platný Yubikey OTP"
@@ -8377,6 +10075,9 @@ msgstr "Toto je pokročilá možnosť a mala by sa používať s veľkou opatrno
 msgid "This is an email notification to inform you that the Security Admin restriction has been removed."
 msgstr "Toto je e-mailové upozornenie, ktoré vás informuje, že obmedzenie Security Admin bolo odstránené."
 
+msgid "This is especially true of Content Security Policies (CSP) and you should always include full testing in your deployments."
+msgstr "To platí najmä pre Content Security Policies (CSP) a vždy by ste mali zahrnúť úplné testovanie vo vašich nasadeniach."
+
 msgid "This is for informational purposes only."
 msgstr "Toto je len na informačné účely."
 
@@ -8389,8 +10090,14 @@ msgstr "Toto je jeden z najrýchlejších spôsobov detekcie škodlivej aktivity
 msgid "This is to be used in conjunction with the Master Import Site feature."
 msgstr "Toto sa má používať v spojení s funkciou Master Import Site."
 
+msgid "This is useful for preventing so-called \"ClickJack attacks\"."
+msgstr "Toto je užitočné na prevenciu takzvaných \"ClickJack útokov\"."
+
 msgid "This is where 'pwned' password scanning helps, by identifying the use of leaked passwords and prompting those users to update, or stopping the saving of those passwords."
 msgstr "Tu pomáha skenovanie 'pwned' hesiel identifikáciou použitia uniknutých hesiel a vyzvaním týchto používateľov na aktualizáciu alebo zastavením ukladania týchto hesiel."
+
+msgid "This is wonderful!"
+msgstr "Toto je úžasné!"
 
 msgid "This is your unique Yubikey Device ID."
 msgstr "Toto je vaše jedinečné Yubikey Device ID."
@@ -8464,6 +10171,9 @@ msgstr "Toto nastavenie bude automaticky vypnuté po %s a všetky požiadavky za
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Toto by malo byť používané opatrne a mali by ste poskytovať len názvy parametrov, ktoré musíte mať vylúčené"
 
+msgid "This site appears to be part of a Shield Network."
+msgstr "Táto stránka sa zdá byť súčasťou Shield Network."
+
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Táto stránka momentálne nemôže vykonávať HTTP požiadavky na seba samú."
 
@@ -8503,6 +10213,12 @@ msgstr "Toto zablokuje cesty prechádzania adresárov v parametroch aplikácie (
 msgid "This will block directory traversal paths in in application parameters."
 msgstr "Toto zablokuje cesty prechádzania adresárov v parametroch aplikácie."
 
+msgid "This will block field truncation attacks in application parameters"
+msgstr "Toto zablokuje útoky skrátenia poľa v parametroch aplikácie"
+
+msgid "This will block field truncation attacks in application parameters."
+msgstr "Toto zablokuje útoky skrátenia poľa v parametroch aplikácie."
+
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Toto zablokuje sql v parametroch aplikácie (napr. %s atď.)."
 
@@ -8527,6 +10243,9 @@ msgstr "Toto obmedzí možnosť WordPress administrátorov meniť kľúčové Wo
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Toto obmedzí možnosť WordPress administrátorov vytvárať, upravovať alebo povyšovať iných administrátorov."
 
+msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
+msgstr "Toto funguje, pretože legitímne webové crawlery rešpektujú direktívy 'robots.txt' a 'nofollow'."
+
 msgid "Time"
 msgstr "Čas"
 
@@ -8535,6 +10254,12 @@ msgstr "Časový limit"
 
 msgid "Time Now"
 msgstr "Aktuálny čas"
+
+msgid "Time Range"
+msgstr "Časový rozsah"
+
+msgid "Time Remaining"
+msgstr "Zostávajúci čas"
 
 msgid "Time Sent: %s"
 msgstr "Čas odoslania: %s"
@@ -8548,6 +10273,12 @@ msgstr "Časová pečiatka"
 msgid "Timezone"
 msgstr "Časové pásmo"
 
+msgid "Title Updated: %s&rarr;%s"
+msgstr "Názov aktualizovaný: %s&rarr;%s"
+
+msgid "Title changed: %s&rarr;%s"
+msgstr "Názov zmenený: %s&rarr;%s"
+
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Názov pre príspevok ID {{post_id}} aktualizovaný z '{{title_old}}' na '{{title_new}}'."
 
@@ -8560,6 +10291,9 @@ msgstr "Skryť vašu wp-login.php stránku pred brute force útokmi a pokusmi o 
 msgid "To improve security, increase the number of scans per day."
 msgstr "Pre zlepšenie bezpečnosti zvýšte počet skenovaní za deň."
 
+msgid "To learn more about %s,"
+msgstr "Ak sa chcete dozvedieť viac o %s,"
+
 msgid "To provide the greatest flexibility for your visitors in the case of false positives, select the option to block but with the ability for visitors to automatically unblock themselves."
 msgstr "Aby ste poskytli najväčšiu flexibilitu pre vašich návštevníkov v prípade falošne pozitívnych výsledkov, vyberte možnosť blokovať, ale s možnosťou pre návštevníkov automaticky sa odblokovať."
 
@@ -8568,6 +10302,9 @@ msgstr "Pre registráciu nového Yubikey zariadenia zadajte jednorazové heslo z
 
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Na odstránenie Yubikey zariadenia zadajte registrované ID zariadenia a uložte."
+
+msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
+msgstr "Zostať zdravý zahŕňa aktívne skenovanie súborov pre neočakávané zmeny a detekciu súborov, ktoré tam nepatria."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Na použitie Passkeys musí mať vaša PHP inštalácia načítané 1 z nasledujúcich rozšírení: %s"
@@ -8596,11 +10333,44 @@ msgstr "Príliš veľa požiadaviek z vašej IP adresy spustilo automatizovanú 
 msgid "Tools"
 msgstr "Nástroje"
 
+msgid "Total Reputation Score"
+msgstr "Celkové skóre reputácie"
+
+msgid "Total SPAM comments blocked."
+msgstr "Celkový počet zablokovaných SPAM komentárov."
+
+msgid "Total Score"
+msgstr "Celkové skóre"
+
+msgid "Total Signals"
+msgstr "Celkové signály"
+
+msgid "Total connections blocked/killed after too many offenses."
+msgstr "Celkový počet zablokovaných/ukončených pripojení po príliš veľa priestupkoch."
+
+msgid "Total login attempts blocked."
+msgstr "Celkový počet zablokovaných pokusov o prihlásenie."
+
+msgid "Total offenses against the site."
+msgstr "Celkový počet priestupkov proti stránke."
+
+msgid "Total requests identified as bots."
+msgstr "Celkový počet požiadaviek identifikovaných ako boty."
+
+msgid "Tour Finished"
+msgstr "Prehliadka dokončená"
+
 msgid "Track All Site Activity: Who, What, When and Where"
 msgstr "Sledovať všetku aktivitu stránky: Kto, Čo, Kedy a Kde"
 
 msgid "Track and monitor activity on your site by users, visitors and bots."
 msgstr "Sledujte a monitorujte aktivitu na vašej stránke používateľmi, návštevníkmi a botmi."
+
+msgid "Tracking changes with the Activity Log is disabled making it harder to monitor and investigate issues."
+msgstr "Sledovanie zmien pomocou Activity Log je vypnuté, čo sťažuje monitorovanie a vyšetrovanie problémov."
+
+msgid "Tracking changes with the Activity Log makes it easier to monitor and investigate issues."
+msgstr "Sledovanie zmien pomocou Activity Log uľahčuje monitorovanie a vyšetrovanie problémov."
 
 msgid "Traffic"
 msgstr "Prenosy"
@@ -8619,6 +10389,15 @@ msgstr "Prevádzka nie je nikdy obmedzená rýchlosťou, čo znamená, že zneu�
 
 msgid "Traffic logs older than this maximum number of days will be automatically deleted."
 msgstr "Záznamy o návštevnosti staršie ako tento maximálny počet dní budú automaticky odstránené."
+
+msgid "Traffic rate limiting reduces the likelihood that bots can overwhelm your site."
+msgstr "Obmedzenie frekvencie prevádzky znižuje pravdepodobnosť, že boti môžu zahltiť vašu stránku."
+
+msgid "Traffic requests are being logged, making it easier to track issues."
+msgstr "Požiadavky na návštevnosť sa zaznamenávajú, čo uľahčuje sledovanie problémov."
+
+msgid "Traffic requests aren't being logged, making it harder to track issues."
+msgstr "Požiadavky na návštevnosť sa nezaznamenávajú, čo sťažuje sledovanie problémov."
 
 msgid "Trash"
 msgstr "Kôš"
@@ -8659,6 +10438,9 @@ msgstr "Zapnite možnosť na obmedzenie prístupu ku kritickým WordPress nastav
 msgid "Turn your White Label settings on/off."
 msgstr "Zapnúť/vypnúť vaše White Label nastavenia."
 
+msgid "Turn-Off Browser Mime-Sniff"
+msgstr "Vypnúť Mime-Sniff prehliadača"
+
 msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
 msgstr "Zapnúť vstavanú rozšírenie Shield pre inštalácie MainWP servera a klienta"
 
@@ -8698,6 +10480,9 @@ msgstr "URL - Stránka"
 msgid "URL To Activate"
 msgstr "URL na aktiváciu"
 
+msgid "Un-Checking this option will completely disable the %s module."
+msgstr "Odčiarknutím tejto možnosti úplne vypnete modul %s."
+
 msgid "Unauthorized Deactivation Attempt"
 msgstr "Neoprávnený pokus o deaktiváciu"
 
@@ -8725,11 +10510,20 @@ msgstr "Odznačte toto políčko pre úplné zakázanie importu a exportu možno
 msgid "Uncheck this option to disable all Shield features"
 msgstr "Odznačte túto možnosť na vypnutie všetkých Shield funkcií"
 
+msgid "Unclassified"
+msgstr "Neklasifikované"
+
 msgid "Understand how to remove Google Authenticator"
 msgstr "Pochopte, ako odstrániť Google Authenticator"
 
+msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
+msgstr "Bohužiaľ, U2F bolo predvolene zakázané vo väčšine moderných prehliadačov, ale stále je tu poskytované pre spätnú kompatibilitu."
+
 msgid "Unidentified"
 msgstr "Neidentifikované"
+
+msgid "Uninstall Shield"
+msgstr "Odinštalovať Shield"
 
 msgid "Uninstalled"
 msgstr "Odinštalované"
@@ -8739,6 +10533,9 @@ msgstr "Jedinečné ID"
 
 msgid "Unknown"
 msgstr "Neznáme"
+
+msgid "Unknown - requires WP v5.4+"
+msgstr "Neznáme - vyžaduje WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Neznámy názov"
@@ -8754,6 +10551,9 @@ msgstr "Odomknúť"
 
 msgid "Unlock Now"
 msgstr "Odomknúť teraz"
+
+msgid "Unpublished"
+msgstr "Nepublikované"
 
 msgid "Unrecognised"
 msgstr "Nerozpoznaný"
@@ -8772,6 +10572,12 @@ msgstr "Nerozpoznané súbory uložené v koreňovom adresári stránky nie sú 
 
 msgid "Unrecognised files will need to be manually deleted."
 msgstr "Nerozpoznané súbory bude potrebné manuálne odstrániť."
+
+msgid "Unsupported Action."
+msgstr "Nepodporovaná akcia."
+
+msgid "Unsupported result type."
+msgstr "Nepodporovaný typ výsledku."
 
 msgid "Until"
 msgstr "Do"
@@ -8812,6 +10618,9 @@ msgstr "Aktualizácie a zmeny"
 msgid "Updates aren't automatically applied for vulnerable plugins."
 msgstr "Aktualizácie nie sú automaticky aplikované pre zraniteľné pluginy."
 
+msgid "Upgrade Guide"
+msgstr "Sprievodca upgradom"
+
 msgid "Upgrade Membership"
 msgstr "Upgradovať členstvo"
 
@@ -8839,8 +10648,20 @@ msgstr "Upgradujte váš plán na podporu skenovania súborov tém pre neoprávn
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Upgradujte váš plán na podporu tejto oblasti skenovania."
 
+msgid "Upgraded: %s&rarr;%s"
+msgstr "Aktualizované: %s&rarr;%s"
+
+msgid "Uploading of file failed"
+msgstr "Nahrávanie súboru zlyhalo"
+
+msgid "Uptime Monitoring"
+msgstr "Monitorovanie dostupnosti"
+
 msgid "Use %s to test for excessive requests within a %s minutes interval."
 msgstr "Použite %s na testovanie nadmerných požiadaviek v intervale %s minút."
+
+msgid "Use CloudFlare As Geo Data Source?"
+msgstr "Použiť CloudFlare ako zdroj Geo dát?"
 
 msgid "Use MainWP to manage and monitor the security of all your WordPress sites."
 msgstr "Použite MainWP na správu a monitorovanie bezpečnosti všetkých vašich WordPress stránok."
@@ -8917,6 +10738,12 @@ msgstr "Používateľ"
 msgid "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found."
 msgstr "Používateľ '{{user_login}}' sa pokúsil o '{{action}}', ale Bot checkbox nebol nájdený."
 
+msgid "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot."
+msgstr "Používateľ '{{user_login}}' sa pokúsil o {{action}}, ale bol chytený do pasce."
+
+msgid "User '{{user_login}}' demoted from administrator role."
+msgstr "Používateľ '{{user_login}}' degradovaný z roly administrátora."
+
 msgid "User '{{user_login}}' failed to verify their identity using '{{method}}'."
 msgstr "Používateľ '{{user_login}}' sa nepodarilo overiť svoju identitu pomocou '{{method}}'."
 
@@ -8925,6 +10752,9 @@ msgstr "Používateľ '{{user_login}}' povýšený na rolu administrátora."
 
 msgid "User '{{user_login}}' suspended by admin."
 msgstr "Používateľ '{{user_login}}' pozastavený administrátorom."
+
+msgid "User '{{user_login}}' unsuspended by admin."
+msgstr "Používateľ '{{user_login}}' obnovený administrátorom."
 
 msgid "User '{{user_login}}' verified their identity using '{{method}}'."
 msgstr "Používateľ '{{user_login}}' overil svoju identitu pomocou '{{method}}'."
@@ -8962,6 +10792,9 @@ msgstr "Používateľ odstránený"
 msgid "User Deleted And Reassigned"
 msgstr "Používateľ odstránený a preradený"
 
+msgid "User Demoted"
+msgstr "Používateľ degradovaný"
+
 msgid "User Display Message"
 msgstr "Správa zobrazenia používateľa"
 
@@ -8989,8 +10822,17 @@ msgstr "Prihlásenie používateľa pomocou hesla aplikácie"
 msgid "User Login Notification Email"
 msgstr "E-mailové upozornenie na prihlásenie používateľa"
 
+msgid "User Management"
+msgstr "Správa používateľov"
+
+msgid "User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner."
+msgstr "Správa používateľov ponúka skutočné používateľské relácie, jemnejšiu kontrolu nad časovým limitom relácie a zabezpečuje, že používatelia sa prihlásili správnym spôsobom."
+
 msgid "User Manually Suspended"
 msgstr "Používateľ manuálne pozastavený"
+
+msgid "User Manually Unsuspended"
+msgstr "Používateľ manuálne obnovený"
 
 msgid "User Meta"
 msgstr "Meta používateľa"
@@ -9010,6 +10852,9 @@ msgstr "Používateľ zaregistrovaný"
 msgid "User Registration"
 msgstr "Registrácia používateľa"
 
+msgid "User Registration Email Validation"
+msgstr "Validácia e-mailu pri registrácii používateľa"
+
 msgid "User Registrations"
 msgstr "Registrácie používateľov"
 
@@ -9018,6 +10863,9 @@ msgstr "Používateľská rola"
 
 msgid "User Session Lock"
 msgstr "Uzamknutie používateľskej relácie"
+
+msgid "User Session Management"
+msgstr "Správa používateľských relácií"
 
 msgid "User Sessions"
 msgstr "Používateľské relácie"
@@ -9030,6 +10878,9 @@ msgstr "Pozastavenie používateľa"
 
 msgid "User accounts that become inactive may still be allowed access, even if the account is compromised."
 msgstr "Používateľské účty, ktoré sa stanú neaktívnymi, môžu mať stále povolený prístup, aj keď je účet kompromitovaný."
+
+msgid "User attempting checkout request blocked."
+msgstr "Používateľ pokúšajúci sa o požiadavku na pokladňu zablokovaný."
 
 msgid "User doesn't exist with ID %s."
 msgstr "Používateľ s ID %s neexistuje."
@@ -9142,6 +10993,12 @@ msgstr "Sloveso"
 msgid "Verification Code"
 msgstr "Overovací kód"
 
+msgid "Verification email resent."
+msgstr "Overovací e-mail znovu odoslaný."
+
+msgid "Verification of import-origin failed."
+msgstr "Overenie pôvodu importu zlyhalo."
+
 msgid "Verified users will be converted to usernames."
 msgstr "Overení používatelia budú konvertovaní na používateľské mená."
 
@@ -9153,6 +11010,9 @@ msgstr "Overuje identitu používateľov, ktorí sa prihlasujú na vašu stránk
 
 msgid "Verifies the identity of users who log in to your site using email-based one-time-passwords."
 msgstr "Overuje identitu používateľov, ktorí sa prihlasujú na vašu stránku pomocou e-mailových jednorazových hesiel."
+
+msgid "Verifies user login with Passkeys/Authenticators via WebAuthn."
+msgstr "Overuje prihlásenie používateľa pomocou Passkeys/Authenticators cez WebAuthn."
 
 msgid "Verify My Login"
 msgstr "Overiť moje prihlásenie"
@@ -9166,6 +11026,15 @@ msgstr "Overenie vášho čísla odošle SMS na váš telefón s overovacím kó
 msgid "Version"
 msgstr "Verzia"
 
+msgid "Version Mismatch"
+msgstr "Nesúlad verzií"
+
+msgid "Very Strong"
+msgstr "Veľmi silné"
+
+msgid "Very Weak"
+msgstr "Veľmi slabé"
+
 msgid "View & Create"
 msgstr "Zobraziť & vytvoriť"
 
@@ -9174,6 +11043,12 @@ msgstr "Zobraziť logy aktivity"
 
 msgid "View All"
 msgstr "Zobraziť všetko"
+
+msgid "View All Security Grades"
+msgstr "Zobraziť všetky bezpečnostné hodnotenia"
+
+msgid "View As ShieldFREE"
+msgstr "Zobraziť ako ShieldFREE"
 
 msgid "View As ShieldPRO"
 msgstr "Zobraziť ako ShieldPRO"
@@ -9207,6 +11082,9 @@ msgstr "Zobraziť logy"
 
 msgid "View Original File Contents"
 msgstr "Zobraziť pôvodný obsah súboru"
+
+msgid "View Plans"
+msgstr "Zobraziť plány"
 
 msgid "View Report"
 msgstr "Zobraziť správu"
@@ -9313,6 +11191,12 @@ msgstr "Návštevník odblokoval svoju IP adresu '{{ip}}' pomocou metódy '{{met
 msgid "Visitors IP address can be spoofed because the IP source isn't set to 'REMOTE_ADDR'."
 msgstr "IP adresa návštevníka môže byť falšovaná, pretože zdroj IP nie je nastavený na 'REMOTE_ADDR'."
 
+msgid "Visitors aren't protected by a valid SSL Certificate."
+msgstr "Návštevníci nie sú chránení platným SSL certifikátom."
+
+msgid "Visitors aren't protected with a valid SSL Certificate."
+msgstr "Návštevníci nie sú chránení platným SSL certifikátom."
+
 msgid "Visitors that have accumulated a high IP reputation score should ideally never be blocked."
 msgstr "Návštevníci, ktorí nazhromaždili vysoké skóre reputácie IP, by ideálne nemali byť nikdy zablokovaní."
 
@@ -9355,6 +11239,12 @@ msgstr "Zraniteľné pluginy & témy"
 msgid "Vulnerable Themes"
 msgstr "Zraniteľné témy"
 
+msgid "WAF Rule"
+msgstr "WAF pravidlo"
+
+msgid "WARNING: Event (%s) receives params but none are defined."
+msgstr "UPOZORNENIE: Udalosť (%s) prijíma parametre, ale žiadne nie sú definované."
+
 msgid "WP"
 msgstr "WP"
 
@@ -9379,11 +11269,26 @@ msgstr "Je dostupná aktualizácia jadra WP."
 msgid "WP Database password appears to be weak."
 msgstr "Heslo WP databázy sa zdá byť slabé."
 
+msgid "WP Database password is very strong."
+msgstr "Heslo WP databázy je veľmi silné."
+
 msgid "WP Default User Role"
 msgstr "Predvolená WP používateľská rola"
 
 msgid "WP File Editing"
 msgstr "Úprava súborov WP"
+
+msgid "WP Generator Tag"
+msgstr "WP Generator Tag"
+
+msgid "WP Hashes Ping"
+msgstr "WP Hashes Ping"
+
+msgid "WP Hashes Token"
+msgstr "WP Hashes Token"
+
+msgid "WP Hook"
+msgstr "WP Hook"
 
 msgid "WP Login & Admin Redirect"
 msgstr "Presmerovanie WP prihlásenia & admina"
@@ -9421,8 +11326,20 @@ msgstr "Sú dostupné aktualizácie WP tém."
 msgid "Warning"
 msgstr "Varovanie"
 
+msgid "Watch the explainer video"
+msgstr "Pozrite si vysvetľujúce video"
+
 msgid "We also consider plugins that have been abandoned by their authors to represent a vulnerability on your site."
 msgstr "Tiež považujeme pluginy, ktoré boli opustené ich autormi, za zraniteľnosť na vašej stránke."
+
+msgid "We appreciate your patience."
+msgstr "Oceňujeme vašu trpezlivosť."
+
+msgid "We ask that you agree to our privacy policy."
+msgstr "Žiadame vás, aby ste súhlasili s našimi zásadami ochrany súkromia."
+
+msgid "We couldn't determine the version of your OpenSSL library."
+msgstr "Nemohli sme určiť verziu vašej OpenSSL knižnice."
 
 msgid "We don't provide support for creating CSP rules and whether they're correct for your site."
 msgstr "Neposkytujeme podporu pre vytváranie CSP pravidiel a to, či sú správne pre vašu stránku."
@@ -9448,8 +11365,14 @@ msgstr "Poskytujeme túto funkciu tak, ako je: aby ste mohli pridať vlastné CS
 msgid "We recommend disabling it if you no longer need it running."
 msgstr "Odporúčame ho zakázať, ak ho už nepotrebujete spustený."
 
+msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
+msgstr "Odporúčame vyhľadať odbornosť v tejto oblasti a zabezpečiť úplné testovanie vo vašich nasadeniach."
+
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Odporúčame, aby koreňový adresár WP zostal čistý ponechaním len oficiálnych WordPress core súborov."
+
+msgid "We recommend to start with logging here, in-case you're unsure."
+msgstr "Odporúčame začať so záznamom tu, pre prípad, že si nie ste istí."
 
 msgid "We recommend using the individual sections below to work through your site security items."
 msgstr "Odporúčame použiť jednotlivé sekcie nižšie na spracovanie položiek zabezpečenia vašej stránky."
@@ -9457,14 +11380,29 @@ msgstr "Odporúčame použiť jednotlivé sekcie nižšie na spracovanie položi
 msgid "We rely on the PHP server configuration, but some hosts aren't correctly setup to let us find it easily."
 msgstr "Spoliehame sa na konfiguráciu PHP servera, ale niektorí poskytovatelia hostingu nie sú správne nastavení, aby sme ju mohli ľahko nájsť."
 
+msgid "We treat your information under our strict, and GDPR-compliant, privacy policy."
+msgstr "S vašimi informáciami zaobchádzame podľa našich prísnych zásad ochrany súkromia v súlade s GDPR."
+
 msgid "We will immediately know that a particular bot isn't here for anything good."
 msgstr "Okamžite zistíme, že konkrétny bot tu nie je pre nič dobré."
+
+msgid "We'd like to understand how effective it is on a global scale."
+msgstr "Chceli by sme pochopiť, ako efektívne to funguje na globálnej úrovni."
+
+msgid "We'll automatically keep your IP block list pruned by removing stale IPs to keep performance highly optimised."
+msgstr "Automaticky udržiavame váš zoznam blokovania IP adries upravený odstraňovaním zastaraných IP adries, aby sme zachovali vysokú optimalizáciu výkonu."
 
 msgid "We're hoping to understand how %s is configured and used."
 msgstr "Snažíme sa pochopiť, ako je %s nakonfigurovaný a používaný."
 
 msgid "Weak"
 msgstr "Slabé"
+
+msgid "Web Application Firewall (WAF)"
+msgstr "Web Application Firewall (WAF)"
+
+msgid "Web.Config is only available for Windows/IIS."
+msgstr "Web.Config je dostupný len pre Windows/IIS."
 
 msgid "Website ID"
 msgstr "ID webovej stránky"
@@ -9486,6 +11424,9 @@ msgstr "Čo je funkcia vlastných bezpečnostných pravidiel?"
 
 msgid "What is this?"
 msgstr "Čo je toto?"
+
+msgid "What types of attacks your site defends against, and how your site responds to repeated attacks, determines your entire security posture."
+msgstr "Typy útokov, proti ktorým vaša stránka bráni, a spôsob, akým vaša stránka reaguje na opakované útoky, určujú vašu celkovú bezpečnostnú pozíciu."
 
 msgid "When"
 msgstr "Kedy"
@@ -9547,6 +11488,9 @@ msgstr "Keď je zapnuté, akékoľvek dostupné integrácie tretích strán sú 
 msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
 msgstr "Keď počítadlo dosiahne nižšie uvedený limit (predvolené: %s), %s úplne zablokuje túto IP."
 
+msgid "When the current file contents were compared against the official release, changes were detected."
+msgstr "Keď bol aktuálny obsah súboru porovnaný s oficiálnym vydaním, boli detegované zmeny."
+
 msgid "When the file assessment is \"known\", then the file has been reviewed and confirmed to be either \"known malware\" or \"known clean\"."
 msgstr "Keď je hodnotenie súboru \"známe\", potom bol súbor preskúmaný a potvrdený ako buď \"známy malvér\" alebo \"známy čistý\"."
 
@@ -9567,6 +11511,9 @@ msgstr "Keď kliknete na odkaz z vášho e-mailu, musí sa otvoriť v tomto webo
 
 msgid "Where To Put Bot SPAM Comments"
 msgstr "Kam umiestniť bot SPAM komentáre"
+
+msgid "Where the Firewall is your perimeter defense, automatic IP blocking is the core."
+msgstr "Kde Firewall je vaša obvodová obrana, automatické blokovanie IP je jadro."
 
 msgid "Whether request is trusted"
 msgstr "Či je požiadavka dôveryhodná"
@@ -9594,6 +11541,9 @@ msgstr "Ktoré WordPress formuláre by mali byť chránené pred botmi"
 
 msgid "Which types, and how quickly, existing vulnerabilities are discovered"
 msgstr "Ktoré typy a ako rýchlo sú objavené existujúce zraniteľnosti"
+
+msgid "While this is good to know, it's far more useful to prevent the hack in the first place (see the IP Blocking section above)."
+msgstr "Hoci je dobré to vedieť, je oveľa užitočnejšie zabrániť hacku na prvom mieste (pozrite si časť Blokovanie IP vyššie)."
 
 msgid "White Label"
 msgstr "Biela značka"
@@ -9637,6 +11587,12 @@ msgstr "S vstavanou technológiou silentCAPTCHA od %s je zastavenie botov teraz 
 msgid "With Issues"
 msgstr "S problémami"
 
+msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
+msgstr "S ShieldNET crowd-sourcing inteligenciou Shield automaticky skrýva falošné pozitíva, takže sa môžete sústrediť na riziká, ktoré majú význam, a môžete ignorovať hluk, ktorý vám plytvá časom."
+
+msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
+msgstr "S ním môžete byť okamžite upozornení na zmeny súboru s jasným pohľadom na presné zmeny a jednoduchými ďalšími krokmi, ako postupovať."
+
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "S naším SPAM slovníkom dokážeme identifikovať ľudské SPAM komentáre bez odosielania akýchkoľvek údajov z vašej stránky tretím stranám."
 
@@ -9679,6 +11635,9 @@ msgstr "Ochrana možností jadra WordPress"
 msgid "WordPress Core files are protected against tampering."
 msgstr "Súbory WordPress Core sú chránené proti neoprávneným zmenám."
 
+msgid "WordPress Core v{{version}} was reinstalled."
+msgstr "WordPress Core v{{version}} bol preinštalovaný."
+
 msgid "WordPress Core was updated from '{{from}}' to '{{to}}'."
 msgstr "WordPress Core bol aktualizovaný z '{{from}}' na '{{to}}'."
 
@@ -9718,6 +11677,9 @@ msgstr "Skener súborov pluginov WordPress"
 msgid "WordPress Post entitled '{{title}}' was permanently deleted from trash."
 msgstr "WordPress príspevok s názvom '{{title}}' bol natrvalo odstránený z koša."
 
+msgid "WordPress Reinstalled"
+msgstr "WordPress preinštalovaný"
+
 msgid "WordPress Site Root File Scanner"
 msgstr "Skener súborov koreňového adresára WordPress"
 
@@ -9747,6 +11709,9 @@ msgstr "WordPress administrátorské účty sú chránené proti neoprávneným 
 
 msgid "WordPress admin accounts aren't protected against tampering from other WordPress admins."
 msgstr "WordPress administrátorské účty nie sú chránené proti neoprávneným zmenám od iných WordPress administrátorov."
+
+msgid "WordPress comment SPAM is primarily done via automated Bots."
+msgstr "WordPress komentárový SPAM je primárne vykonávaný automatizovanými botmi."
 
 msgid "WordPress default is 2 days, or 14 days if you check the 'Remember Me' box."
 msgstr "Predvolené WordPress nastavenie je 2 dni alebo 14 dní, ak začiarknete políčko 'Zapamätať si ma'."
@@ -9826,6 +11791,9 @@ msgstr "Automatická oprava tém z WordPress.org"
 msgid "WordPress.org recommends running on at least PHP %s."
 msgstr "WordPress.org odporúča bežať aspoň na PHP %s."
 
+msgid "Write TMP/Cache DIR"
+msgstr "Zápis TMP/Cache adresára"
+
 msgid "XML-RPC"
 msgstr "XML-RPC"
 
@@ -9837,6 +11805,12 @@ msgstr "XML-RPC uzamknutie"
 
 msgid "XML-RPC Request Blocked."
 msgstr "XML-RPC požiadavka zablokovaná."
+
+msgid "XMLRPC Access"
+msgstr "XMLRPC prístup"
+
+msgid "XSS Protection"
+msgstr "XSS ochrana"
 
 msgid "YYYY-MM-DD"
 msgstr "RRRR-MM-DD"
@@ -9898,6 +11872,9 @@ msgstr "Momentálne nemáte oprávnenie na ukladanie nastavení."
 msgid "You don't need to install a separate extension for MainWP."
 msgstr "Nemusíte inštalovať samostatné rozšírenie pre MainWP."
 
+msgid "You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library."
+msgstr "Máte konflikt PHP knižnice s knižnicou Monolog. Pravdepodobne iný plugin používa nekompatibilnú verziu knižnice."
+
 msgid "You have exceeded the site's traffic rate limiting parameters."
 msgstr "Prekročili ste parametre obmedzenia frekvencie prenosov stránky."
 
@@ -9910,11 +11887,20 @@ msgstr "Môžete sa autentifikovať so systémom %s Security Admin a vrátiť sa
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Môžete kombinovať viacero autentifikačných faktorov pre zvýšenú bezpečnosť."
 
+msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
+msgstr "Môžete získať nespoľahlivé výsledky, kým Akismet funguje popri Shield ochrane pred ľudským SPAMom."
+
 msgid "You may need to reload this page to continue."
 msgstr "Možno budete musieť znovu načítať túto stránku, aby ste mohli pokračovať."
 
+msgid "You may need to seek out an alternative caching plugin."
+msgstr "Možno budete musieť vyhľadať alternatívny caching plugin."
+
 msgid "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the Activity Log to determine the cause."
 msgstr "Tento odkaz môžete použiť len raz za 60 minút. Ak ste opakovane blokovaní, požiadajte správcu stránky o kontrolu Activity Log na zistenie príčiny."
+
+msgid "You must be authorised as a Security Admin to perform this action."
+msgstr "Musíte byť autorizovaný ako Security Admin na vykonanie tejto akcie."
 
 msgid "You must go to your profile and regenerate a new code if you want to use this method again."
 msgstr "Musíte prejsť do svojho profilu a vygenerovať nový kód, ak chcete túto metódu znova použiť."
@@ -10048,6 +12034,9 @@ msgstr "Vaše registrované ID zariadenia v CrowdSec je: %s"
 msgid "Your reporting email address is: %s"
 msgstr "Vaša e-mailová adresa pre reportovanie je: %s"
 
+msgid "Your security administrator has imposed requirements for password quality."
+msgstr "Váš bezpečnostný administrátor stanovil požiadavky na kvalitu hesla."
+
 msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
 msgstr "Vaša bezpečnostná analýza nezohľadňuje funkcie dostupné len v ShieldPRO - použite menu Ozubené koliesko na zobrazenie vašej analýzy, ako keby ste mali prístup k týmto dodatočným bezpečnostným funkciám."
 
@@ -10120,6 +12109,9 @@ msgstr "Yubikey OTP"
 msgid "Yubikey Unique Keys"
 msgstr "Jedinečné Yubikey kľúče"
 
+msgid "Zero (0) turns this off."
+msgstr "Nula (0) toto vypne."
+
 msgid "Zone"
 msgstr "Zóna"
 
@@ -10128,6 +12120,9 @@ msgstr "Akcie zóny"
 
 msgid "Zones"
 msgstr "Zóny"
+
+msgid "[%s] [%s]"
+msgstr "[%s] [%s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Falošne pozitívny] znamená, že kód vyzerá ako malvér, ale v skutočnosti je čistý."
@@ -10147,6 +12142,9 @@ msgstr "all_opts_keys prvok formulára nebol poskytnutý."
 msgid "and"
 msgstr "a"
 
+msgid "case-insensitive"
+msgstr "nerozlišuje veľké a malé písmená"
+
 msgid "currently %s"
 msgstr "momentálne %s"
 
@@ -10162,6 +12160,9 @@ msgstr "položky: %s (predchádzajúce: %s)"
 msgid "estimated"
 msgstr "odhadované"
 
+msgid "excludes %s"
+msgstr "vylučuje %s"
+
 msgid "expires"
 msgstr "platnosť vyprší"
 
@@ -10173,6 +12174,9 @@ msgstr "ďalšia pomoc"
 
 msgid "help"
 msgstr "pomoc"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
 
 msgid "icon"
 msgstr "ikona"
@@ -10201,6 +12205,9 @@ msgstr "bez názvu"
 msgid "no subtitle"
 msgstr "bez podtitulu"
 
+msgid "not defined"
+msgstr "nedefinované"
+
 msgid "not provided"
 msgstr "neposkytnuté"
 
@@ -10216,8 +12223,14 @@ msgstr "alebo"
 msgid "permanently"
 msgstr "natrvalo"
 
+msgid "please follow this link"
+msgstr "prosím nasledujte tento odkaz"
+
 msgid "rDNS"
 msgstr "rDNS"
+
+msgid "recommendation"
+msgstr "odporúčanie"
 
 msgid "seconds"
 msgstr "sekundy"
@@ -10239,6 +12252,15 @@ msgstr "silentCAPTCHA detekcia botov nechráni vašu WordPress registráciu."
 
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA minimálne skóre bota"
+
+msgid "silentCAPTCHA Bot Score (Percentage)"
+msgstr "silentCAPTCHA skóre bota (percentá)"
+
+msgid "silentCAPTCHA Check Invalid (Module)"
+msgstr "silentCAPTCHA kontrola neplatná (modul)"
+
+msgid "silentCAPTCHA Complexity"
+msgstr "Zložitosť silentCAPTCHA"
 
 msgid "silentCAPTCHA For Logins"
 msgstr "SilentCAPTCHA pre prihlásenia"
@@ -10270,6 +12292,9 @@ msgstr "silentCAPTCHA je povolená s minimálnym prahom bot-skóre."
 msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
 msgstr "silentCAPTCHA nechráni vaše WP komentáre proti botovému SPAMu."
 
+msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
+msgstr "Zložitosť výzvy pre botov v silentCAPTCHA je príliš nízka - zvážte jej zvýšenie."
+
 msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
 msgstr "Detekcia botov silentCAPTCHA nie je spustená, pretože minimálne skóre je nastavené na 0."
 
@@ -10278,6 +12303,12 @@ msgstr "Detekcia botov silentCAPTCHA nie je spustená, pretože boti momentálne
 
 msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
 msgstr "Minimálne skóre bota pre silentCAPTCHA je pomerne nízke (%s)."
+
+msgid "silentCAPTCHAv1 Registration"
+msgstr "silentCAPTCHAv1 registrácia"
+
+msgid "silentCAPTCHAv2 Registration"
+msgstr "Registrácia silentCAPTCHAv2"
 
 msgid "suggestion"
 msgstr "návrh"
@@ -10288,6 +12319,9 @@ msgstr "dnes a toto sú len niektoré z pridaných výhod, ktoré získate:"
 msgid "tools"
 msgstr "nástroje"
 
+msgid "undefined menu title"
+msgstr "nedefinovaný názov ponuky"
+
 msgid "unknown"
 msgstr "neznáme"
 
@@ -10296,4 +12330,7 @@ msgstr "wp-config.php súbor nie je chránený proti neoprávneným zmenám."
 
 msgid "{{ip}} removed from block list ({{type}})."
 msgstr "{{ip}} odstránená zo zoznamu blokovania ({{type}})."
+
+msgid "{{scan}}: scan completed and items were discovered."
+msgstr "{{scan}}: skenovanie dokončené a boli objavené položky."
 

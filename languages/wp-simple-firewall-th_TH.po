@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 13:43+0000\n"
-"PO-Revision-Date: 2025-12-08 13:43+0000\n"
+"POT-Creation-Date: 2025-12-09 12:09+0000\n"
+"PO-Revision-Date: 2025-12-09 12:09+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: th_TH\n"
 "MIME-Version: 1.0\n"
@@ -21,6 +21,9 @@ msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
 msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
 msgstr "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
+
+msgid "%s (JSON Encoded)"
+msgstr "%s (JSON Encoded)"
 
 msgid "%s > %s > %s"
 msgstr "%s > %s > %s"
@@ -66,6 +69,9 @@ msgstr "การกำหนดค่าปลั๊กอิน %s"
 
 msgid "%s Plugin options updated successfully."
 msgstr "อัปเดตตัวเลือกปลั๊กอิน %s สำเร็จแล้ว"
+
+msgid "%s Security Insights"
+msgstr "ข้อมูลเชิงลึก Security ของ %s"
 
 msgid "%s Security Restrictions Applied"
 msgstr "ใช้ข้อจำกัดความปลอดภัย %s แล้ว"
@@ -309,6 +315,9 @@ msgstr "2FA"
 
 msgid "2FA - Email"
 msgstr "2FA - อีเมล"
+
+msgid "2FA - Hardware"
+msgstr "2FA - ฮาร์ดแวร์"
 
 msgid "2FA At"
 msgstr "2FA เมื่อ"
@@ -751,6 +760,9 @@ msgstr "แจ้งเตือนช่องโหว่ของปลั๊
 msgid "Algorithm not supported"
 msgstr "อัลกอริทึมไม่รองรับ"
 
+msgid "Align Shield"
+msgstr "จัดตำแหน่ง Shield"
+
 msgid "All MFA providers removed from user with ID %s."
 msgstr "ลบผู้ให้บริการ MFA ทั้งหมดออกจากผู้ใช้ที่มี ID %s แล้ว"
 
@@ -969,6 +981,9 @@ msgstr "เลือกโปรไฟล์ที่ไม่รองรับ
 
 msgid "An upgrade is available for the Shield plugin."
 msgstr "มีการอัปเกรดสำหรับปลั๊กอิน Shield"
+
+msgid "Analyse & Fix"
+msgstr "วิเคราะห์ & แก้ไข"
 
 msgid "Analysis"
 msgstr "การวิเคราะห์"
@@ -1290,6 +1305,9 @@ msgstr "เปิดใช้งานการซ่อมแซมไฟล์
 
 msgid "Auto-repair of modified WordPress core files isn't enabled."
 msgstr "ไม่ได้เปิดใช้งานการซ่อมแซมไฟล์ WordPress core ที่ถูกแก้ไขโดยอัตโนมัติ"
+
+msgid "Autologin URL"
+msgstr "URL เข้าสู่ระบบอัตโนมัติ"
 
 msgid "Automated attack bots are the largest threat to your WordPress site."
 msgstr "บอทโจมตีอัตโนมัติเป็นภัยคุกคามที่ใหญ่ที่สุดต่อไซต์ WordPress ของคุณ"
@@ -1678,6 +1696,9 @@ msgstr "ปิดกั้นการโจมตีแบบ brute force ต�
 msgid "Blog"
 msgstr "บล็อก"
 
+msgid "Blog article"
+msgstr "บทความบล็อก"
+
 msgid "Bot"
 msgstr "Bot"
 
@@ -1914,6 +1935,9 @@ msgstr "ไม่สามารถใช้ไฟล์ต้นฉบับไ
 
 msgid "Capabilities"
 msgstr "ความสามารถ"
+
+msgid "Capability Key"
+msgstr "คีย์ความสามารถ"
 
 msgid "Captcha Verification Failed"
 msgstr "การยืนยัน Captcha ล้มเหลว"
@@ -2884,11 +2908,20 @@ msgstr "ความแตกต่าง"
 msgid "Diff is unavailable for missing files."
 msgstr "Diff ไม่สามารถใช้งานได้สำหรับไฟล์ที่หายไป"
 
+msgid "Dir Separator"
+msgstr "ตัวคั่นไดเรกทอรี"
+
+msgid "Dir Traversal"
+msgstr "Dir Traversal"
+
 msgid "Directories should be provided with a trailing slash (/)."
 msgstr "ไดเรกทอรีควรระบุด้วยเครื่องหมายทับต่อท้าย (/)"
 
 msgid "Directory Traversal"
 msgstr "Directory Traversal"
+
+msgid "Directory Traversals"
+msgstr "Directory Traversals"
 
 msgid "Directory doesn't exist."
 msgstr "ไดเรกทอรีไม่มีอยู่"
@@ -3003,6 +3036,9 @@ msgstr "พารามิเตอร์ใดๆ ในคำขอตรง�
 
 msgid "Docs"
 msgstr "เอกสาร"
+
+msgid "Document Root"
+msgstr "Document Root"
 
 msgid "Does a given file exist in a given directory."
 msgstr "ตรวจสอบว่าไฟล์ที่กำหนดมีอยู่ในไดเรกทอรีที่กำหนดหรือไม่"
@@ -3577,6 +3613,9 @@ msgstr "การสนับสนุนลูกค้าพิเศษ"
 msgid "Exec Order"
 msgstr "ลำดับการดำเนินการ"
 
+msgid "Exit Wizard"
+msgstr "ออกจากตัวช่วยสร้าง"
+
 msgid "Expiration"
 msgstr "วันหมดอายุ"
 
@@ -3702,6 +3741,9 @@ msgstr "File Guard"
 
 msgid "File Info"
 msgstr "ข้อมูลไฟล์"
+
+msgid "File Integrity"
+msgstr "ความสมบูรณ์ของไฟล์"
 
 msgid "File Locker"
 msgstr "File Locker"
@@ -3927,6 +3969,9 @@ msgstr "เส้นทางแบบเต็มไปยังไฟล์"
 
 msgid "Full Release Announcement"
 msgstr "ประกาศการเผยแพร่แบบเต็ม"
+
+msgid "Fuzzy Search"
+msgstr "Fuzzy Search"
 
 msgid "General"
 msgstr "ทั่วไป"
@@ -4155,6 +4200,15 @@ msgstr "Honeypot ล้มเหลว"
 
 msgid "Hook Name"
 msgstr "ชื่อ Hook"
+
+msgid "Hook Priority"
+msgstr "ลำดับความสำคัญ Hook"
+
+msgid "Hook priority"
+msgstr "ลำดับความสำคัญ Hook"
+
+msgid "Hook to attach to"
+msgstr "Hook ที่จะแนบเข้ากับ"
 
 msgid "Host OS"
 msgstr "ระบบปฏิบัติการโฮสต์"
@@ -5329,6 +5383,9 @@ msgstr "ลงทะเบียนคีย์สำเร็จ"
 msgid "Key set to expire: %s"
 msgstr "คีย์ตั้งค่าให้หมดอายุ: %s"
 
+msgid "Keyless Activation"
+msgstr "การเปิดใช้งานแบบไม่ใช้คีย์"
+
 msgid "Knowledgebase"
 msgstr "ฐานความรู้"
 
@@ -5388,6 +5445,9 @@ msgstr "เรียนรู้เพิ่มเติม"
 
 msgid "Learn More."
 msgstr "เรียนรู้เพิ่มเติม"
+
+msgid "Leave A Review"
+msgstr "แสดงความคิดเห็น"
 
 msgid "Leave this blank to serve a standard \"%s\" error page."
 msgstr "เว้นว่างไว้เพื่อแสดงหน้าข้อผิดพลาด \"%s\" มาตรฐาน"
@@ -6658,6 +6718,9 @@ msgstr "บางทีหนึ่งในฟีเจอร์ที่ทร
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "อาจเป็นไปได้ว่าอุปกรณ์ไม่รองรับ หรือคุณได้ลงทะเบียนแล้ว"
 
+msgid "Permalink structure"
+msgstr "โครงสร้าง Permalink"
+
 msgid "Permalinks"
 msgstr "ลิงก์ถาวร"
 
@@ -7158,6 +7221,9 @@ msgstr "ธีมพรีเมียมได้รับการสนับ
 
 msgid "Prevent Export"
 msgstr "ป้องกันการส่งออก"
+
+msgid "Prevent Mime-Sniff"
+msgstr "ป้องกัน Mime-Sniff"
 
 msgid "Prevent Pwned Passwords"
 msgstr "ป้องกันรหัสผ่าน Pwned"
@@ -7912,6 +7978,9 @@ msgstr "ตรวจสอบการกำหนดค่า %s ทั้ง�
 msgid "Reviewing Locked File"
 msgstr "กำลังตรวจสอบไฟล์ที่ถูกล็อก"
 
+msgid "Root .htaccess"
+msgstr ".htaccess หลัก"
+
 msgid "Root Web.config"
 msgstr "Web.config หลัก"
 
@@ -7926,6 +7995,9 @@ msgstr "แถว: %s"
 
 msgid "Rule Activated"
 msgstr "เปิดใช้งานกฎแล้ว"
+
+msgid "Rule Conditions"
+msgstr "เงื่อนไขกฎ"
 
 msgid "Rule Deactivated"
 msgstr "ปิดใช้งานกฎแล้ว"
@@ -8110,6 +8182,9 @@ msgstr "รายการสแกน"
 msgid "Scan Options"
 msgstr "ตัวเลือกการสแกน"
 
+msgid "Scan Progress"
+msgstr "ความคืบหน้าการสแกน"
+
 msgid "Scan Result Items"
 msgstr "รายการผลการสแกน"
 
@@ -8208,6 +8283,9 @@ msgstr "สแกนหาการปลอมแปลงไฟล์ภาย
 
 msgid "Scans for file tampering within the active theme."
 msgstr "สแกนหาการปลอมแปลงไฟล์ภายในธีมที่เปิดใช้งาน"
+
+msgid "Scans progress"
+msgstr "ความคืบหน้าการสแกน"
 
 msgid "Scans started."
 msgstr "เริ่มการสแกนแล้ว"
@@ -8487,6 +8565,9 @@ msgstr "IP เซิร์ฟเวอร์"
 
 msgid "Server Name"
 msgstr "ชื่อเซิร์ฟเวอร์"
+
+msgid "Server Signature"
+msgstr "ลายเซ็นเซิร์ฟเวอร์"
 
 msgid "Server Software"
 msgstr "ซอฟต์แวร์เซิร์ฟเวอร์"
@@ -8776,6 +8857,9 @@ msgstr "สัญญาณ"
 msgid "Signals Pushed"
 msgstr "ส่งสัญญาณแล้ว"
 
+msgid "Signature Failed"
+msgstr "ลายเซ็นล้มเหลว"
+
 msgid "Simple Stats"
 msgstr "สถิติแบบง่าย"
 
@@ -8817,6 +8901,9 @@ msgstr "ล็อกไซต์และไฟร์วอลล์"
 
 msgid "Site Scanning"
 msgstr "การสแกนไซต์"
+
+msgid "Site Secured"
+msgstr "ไซต์ได้รับการปกป้อง"
 
 msgid "Site Security Summary"
 msgstr "สรุปความปลอดภัยของเว็บไซต์"
@@ -8868,6 +8955,9 @@ msgstr "ยกเลิกโหมด lockdown ของไซต์แล้�
 
 msgid "Sites"
 msgstr "เว็บ"
+
+msgid "Sites Listing"
+msgstr "รายการไซต์"
 
 msgid "Size"
 msgstr "ขนาด"
@@ -8995,6 +9085,9 @@ msgstr "ระบุบทบาทผู้ใช้ที่นี่ที่
 msgid "Start Date"
 msgstr "วันที่เริ่มต้น"
 
+msgid "Starting scans…"
+msgstr "กำลังเริ่มการสแกน…"
+
 msgid "Stat: %s"
 msgstr "สถิติ: %s"
 
@@ -9051,6 +9144,9 @@ msgstr "สร้างสรุปแล้ว"
 
 msgid "Summary Security Reports."
 msgstr "รายงานความปลอดภัยสรุป"
+
+msgid "Supercharged Security"
+msgstr "Security ที่เพิ่มประสิทธิภาพ"
 
 msgid "Supply Backup Code"
 msgstr "ระบุรหัสสำรอง"
@@ -9145,6 +9241,9 @@ msgstr "ซิงค์ Shield"
 msgid "System Info"
 msgstr "ข้อมูลระบบ"
 
+msgid "TMP Dir"
+msgstr "ไดเรกทอรี TMP"
+
 msgid "Tables appear to be valid and haven't been repaired."
 msgstr "ตารางดูเหมือนจะถูกต้องและยังไม่ได้รับการซ่อมแซม"
 
@@ -9174,6 +9273,9 @@ msgstr "ใช้ประโยชน์จากข้อมูลข่าว
 
 msgid "Technical support for Shield is exclusive to Pro customers."
 msgstr "การสนับสนุนทางเทคนิคสำหรับ Shield เป็นสิทธิพิเศษสำหรับลูกค้า Pro เท่านั้น"
+
+msgid "Temp Dir"
+msgstr "ไดเรกทอรีชั่วคราว"
 
 msgid "Temporarily Log All Traffic"
 msgstr "บันทึกทราฟฟิกทั้งหมดชั่วคราว"
@@ -10420,6 +10522,9 @@ msgstr "น่าเสียดายที่ U2F ถูกปิดใช้�
 msgid "Unidentified"
 msgstr "ไม่สามารถระบุได้"
 
+msgid "Uninstall Shield"
+msgstr "ถอนการติดตั้ง Shield"
+
 msgid "Uninstalled"
 msgstr "ถอนการติดตั้งแล้ว"
 
@@ -10513,6 +10618,9 @@ msgstr "การอัปเดตและการเปลี่ยนแป
 msgid "Updates aren't automatically applied for vulnerable plugins."
 msgstr "การอัปเดตไม่ได้ถูกใช้โดยอัตโนมัติสำหรับปลั๊กอินที่มีช่องโหว่"
 
+msgid "Upgrade Guide"
+msgstr "คู่มืออัปเกรด"
+
 msgid "Upgrade Membership"
 msgstr "อัปเกรดสมาชิกภาพ"
 
@@ -10545,6 +10653,9 @@ msgstr "อัปเกรด: %s→%s"
 
 msgid "Uploading of file failed"
 msgstr "การอัปโหลดไฟล์ล้มเหลว"
+
+msgid "Uptime Monitoring"
+msgstr "การตรวจสอบ Uptime"
 
 msgid "Use %s to test for excessive requests within a %s minutes interval."
 msgstr "ใช้ %s เพื่อทดสอบคำขอที่มากเกินไปภายในช่วงเวลา %s นาที"
@@ -10914,6 +11025,9 @@ msgstr "การยืนยันหมายเลขของคุณจะ
 
 msgid "Version"
 msgstr "รุ่น"
+
+msgid "Version Mismatch"
+msgstr "รุ่นไม่ตรงกัน"
 
 msgid "Very Strong"
 msgstr "แข็งแกร่งมาก"
@@ -11677,6 +11791,9 @@ msgstr "การซ่อมแซมธีม WordPress.org โดยอัต
 msgid "WordPress.org recommends running on at least PHP %s."
 msgstr "WordPress.org แนะนำให้ทำงานบน PHP %s เป็นอย่างน้อย"
 
+msgid "Write TMP/Cache DIR"
+msgstr "เขียน TMP/Cache DIR"
+
 msgid "XML-RPC"
 msgstr "XML-RPC"
 
@@ -11688,6 +11805,9 @@ msgstr "ล็อก XML-RPC"
 
 msgid "XML-RPC Request Blocked."
 msgstr "ปิดกั้นคำขอ XML-RPC แล้ว"
+
+msgid "XMLRPC Access"
+msgstr "การเข้าถึง XMLRPC"
 
 msgid "XSS Protection"
 msgstr "การป้องกัน XSS"
