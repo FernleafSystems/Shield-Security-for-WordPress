@@ -20,7 +20,7 @@ class PluginPackager {
 			throw new RuntimeException( 'Unable to determine project root.' );
 		}
 		$this->projectRoot = $root;
-		$this->logger = $logger ?? static function( string $message ) :void {
+		$this->logger = $logger ?? static function ( string $message ) :void {
 			echo $message.PHP_EOL;
 		};
 	}
@@ -34,36 +34,46 @@ class PluginPackager {
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
 		// Clean target directory if it exists (unless skipped)
-		if ( $options['directory_clean'] && is_dir( $targetDir ) ) {
+		if ( $options[ 'directory_clean' ] && is_dir( $targetDir ) ) {
 			$this->log( sprintf( 'Cleaning existing package directory: %s', $targetDir ) );
 			$this->removeDirectorySafely( $targetDir );
 		}
 
 		$composerCommand = $this->getComposerCommand();
-		if ( $options['composer_root'] ) {
+		if ( $options[ 'composer_root' ] ) {
 			$this->runCommand(
-				array_merge( $composerCommand, ['install', '--no-interaction', '--prefer-dist', '--optimize-autoloader'] ),
+				array_merge( $composerCommand, [
+					'install',
+					'--no-interaction',
+					'--prefer-dist',
+					'--optimize-autoloader'
+				] ),
 				$this->projectRoot
 			);
 		}
 
-		if ( $options['composer_lib'] ) {
+		if ( $options[ 'composer_lib' ] ) {
 			$this->runCommand(
-				array_merge( $composerCommand, ['install', '--no-interaction', '--prefer-dist', '--optimize-autoloader'] ),
+				array_merge( $composerCommand, [
+					'install',
+					'--no-interaction',
+					'--prefer-dist',
+					'--optimize-autoloader'
+				] ),
 				$this->projectRoot.'/src/lib'
 			);
 		}
 
-		if ( $options['npm_install'] ) {
+		if ( $options[ 'npm_install' ] ) {
 			$this->runCommand(
-				['npm', 'ci', '--no-audit', '--no-fund'],
+				[ 'npm', 'ci', '--no-audit', '--no-fund' ],
 				$this->projectRoot
 			);
 		}
 
-		if ( $options['npm_build'] ) {
+		if ( $options[ 'npm_build' ] ) {
 			$this->runCommand(
-				['npm', 'run', 'build'],
+				[ 'npm', 'run', 'build' ],
 				$this->projectRoot
 			);
 		}
@@ -74,6 +84,7 @@ class PluginPackager {
 		$this->downloadStraussPhar( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
 		$this->cleanupPackageFiles( $targetDir );
+		$this->cleanPoFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
 		$this->verifyPackage( $targetDir );
 
@@ -94,10 +105,10 @@ class PluginPackager {
 				'Packages must be built outside the project directory (e.g., SVN repository or external build directory).'
 			);
 		}
-		
+
 		// Trim quotes and whitespace that might come from command-line parsing
 		$path = trim( $path, " \t\n\r\0\x0B\"'" );
-		
+
 		// Check for empty after trimming
 		if ( $path === '' ) {
 			throw new RuntimeException(
@@ -105,7 +116,7 @@ class PluginPackager {
 				'Packages must be built outside the project directory (e.g., SVN repository or external build directory).'
 			);
 		}
-		
+
 		// Use Symfony Filesystem Path to normalize and check if absolute
 		// Path::isAbsolute() handles Windows, Unix, and UNC paths correctly
 		if ( !Path::isAbsolute( $path ) ) {
@@ -115,7 +126,7 @@ class PluginPackager {
 
 		// Normalize the path using Symfony Filesystem (handles all edge cases)
 		$resolved = Path::normalize( $path );
-		
+
 		// Try to resolve symlinks and get canonical path
 		$realPath = realpath( $resolved );
 		if ( $realPath !== false ) {
@@ -125,7 +136,7 @@ class PluginPackager {
 			// Directory doesn't exist yet, try to resolve parent directory
 			// Use dirname() which works correctly with Path::normalize()
 			$parentDir = dirname( $resolved );
-			
+
 			// Check if parent directory exists and can be resolved
 			// Handle edge case where dirname() returns the same path (e.g., drive root)
 			if ( $parentDir !== '' && $parentDir !== $resolved ) {
@@ -144,11 +155,11 @@ class PluginPackager {
 		// Use Symfony Filesystem Path::isAbsolute() which handles all platforms correctly
 		// Path should already be trimmed by caller, but trim again for safety
 		$path = trim( $path, " \t\n\r\0\x0B\"'" );
-		
+
 		if ( $path === '' ) {
 			return false;
 		}
-		
+
 		return Path::isAbsolute( $path );
 	}
 
@@ -159,11 +170,11 @@ class PluginPackager {
 	 */
 	private function convertPathForBash( string $path ) :string {
 		$normalized = Path::normalize( $path );
-		
+
 		// Only convert if it's a Windows drive-letter path (D:/...) and we're on Windows
 		// Unix paths (/path/to/file) are left unchanged for Linux/Docker/GitHub Actions
 		if ( PHP_OS_FAMILY === 'Windows' && preg_match( '#^([A-Za-z]):/#', $normalized, $matches ) ) {
-			$drive = strtolower( $matches[1] );
+			$drive = strtolower( $matches[ 1 ] );
 			$rest = substr( $normalized, 3 ); // Remove "D:/"
 			// Handle edge case where rest might be empty (unlikely but possible)
 			if ( $rest === '' ) {
@@ -171,7 +182,7 @@ class PluginPackager {
 			}
 			return '/mnt/'.$drive.'/'.$rest; // Add slash after drive letter
 		}
-		
+
 		// Return as-is for Unix paths (Linux, Docker, GitHub Actions, WSL)
 		return $normalized;
 	}
@@ -182,13 +193,13 @@ class PluginPackager {
 		// But full paths (especially with spaces) do need quotes
 		// Arguments always get quoted to handle spaces and special characters
 		$command = array_shift( $parts );
-		
+
 		// Check if command is a full path (contains directory separators)
 		// If so, quote it to handle spaces; otherwise leave unquoted for PATH resolution
-		$needsQuoting = strpos( $command, DIRECTORY_SEPARATOR ) !== false 
-			|| strpos( $command, '/' ) !== false  // Handle Unix paths on Windows
-			|| strpos( $command, '\\' ) !== false; // Handle Windows paths
-		
+		$needsQuoting = strpos( $command, DIRECTORY_SEPARATOR ) !== false
+						|| strpos( $command, '/' ) !== false  // Handle Unix paths on Windows
+						|| strpos( $command, '\\' ) !== false; // Handle Windows paths
+
 		$commandPart = $needsQuoting ? escapeshellarg( $command ) : $command;
 		$args = array_map( static function ( string $part ) :string {
 			return escapeshellarg( $part );
@@ -231,10 +242,10 @@ class PluginPackager {
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
-			'composer_root' => true,
-			'composer_lib' => true,
-			'npm_install' => true,
-			'npm_build' => true,
+			'composer_root'   => true,
+			'composer_lib'    => true,
+			'npm_install'     => true,
+			'npm_build'       => true,
 			'directory_clean' => true,
 		];
 
@@ -253,10 +264,10 @@ class PluginPackager {
 		$resolved = $this->resolveBinaryPath( $binary );
 		if ( $this->endsWithPhar( $resolved ) ) {
 			$php = PHP_BINARY ?: 'php';
-			return [$php, $resolved];
+			return [ $php, $resolved ];
 		}
 
-		return [$resolved];
+		return [ $resolved ];
 	}
 
 	private function resolveBinaryPath( string $binary ) :string {
@@ -293,14 +304,14 @@ class PluginPackager {
 	 */
 	private function copyPluginFiles( string $targetDir ) :void {
 		$this->log( 'Copying plugin files...' );
-		
+
 		$fs = new Filesystem();
-		
+
 		// Ensure target directory exists
 		if ( !is_dir( $targetDir ) ) {
 			$fs->mkdir( $targetDir );
 		}
-		
+
 		// Root files to copy
 		$rootFiles = [
 			'icwp-wpsf.php',
@@ -313,11 +324,11 @@ class PluginPackager {
 			'uninstall.php',
 			'unsupported.php',
 		];
-		
+
 		foreach ( $rootFiles as $file ) {
 			$sourcePath = Path::join( $this->projectRoot, $file );
 			$targetPath = Path::join( $targetDir, $file );
-			
+
 			if ( file_exists( $sourcePath ) ) {
 				try {
 					$fs->copy( $sourcePath, $targetPath, true );
@@ -337,10 +348,10 @@ class PluginPackager {
 				}
 			}
 		}
-		
+
 		$this->log( '' );
 		$this->log( 'Copying directories...' );
-		
+
 		// Directories to copy
 		$directories = [
 			'src',
@@ -349,11 +360,11 @@ class PluginPackager {
 			'languages',
 			'templates',
 		];
-		
+
 		foreach ( $directories as $dir ) {
 			$sourcePath = Path::join( $this->projectRoot, $dir );
 			$targetPath = Path::join( $targetDir, $dir );
-			
+
 			if ( is_dir( $sourcePath ) ) {
 				$this->log( sprintf( '  → Copying directory: %s', $dir ) );
 				try {
@@ -374,7 +385,7 @@ class PluginPackager {
 				}
 			}
 		}
-		
+
 		$this->log( '' );
 		$this->log( 'Package structure created successfully' );
 		$this->log( '' );
@@ -386,9 +397,9 @@ class PluginPackager {
 	 */
 	private function installComposerDependencies( string $targetDir ) :void {
 		$this->log( 'Installing composer dependencies in package...' );
-		
+
 		$libDir = Path::join( $targetDir, 'src/lib' );
-		
+
 		if ( !is_dir( $libDir ) ) {
 			throw new RuntimeException(
 				sprintf(
@@ -399,7 +410,7 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		$composerCommand = $this->getComposerCommand();
 		$this->runCommand(
 			array_merge( $composerCommand, [
@@ -412,7 +423,7 @@ class PluginPackager {
 			] ),
 			$libDir
 		);
-		
+
 		$this->log( '  ✓ Composer dependencies installed' );
 		$this->log( '' );
 	}
@@ -426,10 +437,10 @@ class PluginPackager {
 	 */
 	private function downloadStraussPhar( string $targetDir ) :void {
 		$this->log( sprintf( 'Downloading Strauss v%s...', self::STRAUSS_VERSION ) );
-		
+
 		$libDir = Path::join( $targetDir, 'src/lib' );
 		$targetPath = Path::join( $libDir, 'strauss.phar' );
-		
+
 		// Check if allow_url_fopen is enabled
 		if ( !ini_get( 'allow_url_fopen' ) ) {
 			throw new RuntimeException(
@@ -442,31 +453,31 @@ class PluginPackager {
 				'and place it in the package src/lib directory.'
 			);
 		}
-		
+
 		// Create HTTP context for the download
 		$context = stream_context_create( [
 			'http' => [
-				'method' => 'GET',
-				'timeout' => 30,
-				'user_agent' => 'Shield-Plugin-Packager/1.0',
+				'method'          => 'GET',
+				'timeout'         => 30,
+				'user_agent'      => 'Shield-Plugin-Packager/1.0',
 				'follow_location' => true,
 			],
-			'ssl' => [
-				'verify_peer' => true,
+			'ssl'  => [
+				'verify_peer'      => true,
 				'verify_peer_name' => true,
 			],
 		] );
-		
+
 		// Clear any previous errors
 		error_clear_last();
-		
+
 		// Attempt to download the file
 		$content = @file_get_contents( self::STRAUSS_DOWNLOAD_URL, false, $context );
-		
+
 		if ( $content === false ) {
 			$lastError = error_get_last();
-			$errorMessage = $lastError !== null ? $lastError['message'] : 'Unknown error';
-			
+			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
+
 			throw new RuntimeException(
 				sprintf(
 					'Strauss download failed: Unable to download strauss.phar from GitHub. '.
@@ -482,7 +493,7 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		if ( $content === '' ) {
 			throw new RuntimeException(
 				sprintf(
@@ -497,17 +508,17 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		// Clear any previous errors before writing
 		error_clear_last();
-		
+
 		// Write the downloaded content to file
 		$bytesWritten = @file_put_contents( $targetPath, $content );
-		
+
 		if ( $bytesWritten === false ) {
 			$lastError = error_get_last();
-			$errorMessage = $lastError !== null ? $lastError['message'] : 'Unknown error';
-			
+			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
+
 			throw new RuntimeException(
 				sprintf(
 					'Strauss download failed: Could not write strauss.phar to disk. '.
@@ -522,7 +533,7 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		// Verify the file was written correctly
 		if ( !file_exists( $targetPath ) ) {
 			throw new RuntimeException(
@@ -537,7 +548,7 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		$fileSize = filesize( $targetPath );
 		if ( $fileSize === 0 ) {
 			throw new RuntimeException(
@@ -553,7 +564,7 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		$this->log( '  ✓ strauss.phar downloaded' );
 		$this->log( '' );
 	}
@@ -566,7 +577,7 @@ class PluginPackager {
 		$libDir = Path::join( $targetDir, 'src/lib' );
 		$straussPath = Path::join( $libDir, 'strauss.phar' );
 		$vendorPrefixedDir = Path::join( $libDir, 'vendor_prefixed' );
-		
+
 		// Verify strauss.phar exists
 		if ( !file_exists( $straussPath ) ) {
 			throw new RuntimeException(
@@ -580,19 +591,19 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		$this->log( sprintf( 'Current directory: %s', $libDir ) );
 		$this->log( sprintf( 'Checking for composer.json: %s', file_exists( Path::join( $libDir, 'composer.json' ) ) ? 'YES' : 'NO' ) );
 		$this->log( '' );
-		
+
 		$this->log( 'Running Strauss prefixing...' );
-		
+
 		// Run strauss.phar using PHP
 		$php = PHP_BINARY ?: 'php';
-		$this->runCommand( [$php, 'strauss.phar'], $libDir );
-		
+		$this->runCommand( [ $php, 'strauss.phar' ], $libDir );
+
 		$this->log( '' );
-		
+
 		// Verify vendor_prefixed directory was created
 		$this->log( '=== After Strauss ===' );
 		if ( is_dir( $vendorPrefixedDir ) ) {
@@ -621,7 +632,7 @@ class PluginPackager {
 	private function cleanupPackageFiles( string $targetDir ) :void {
 		$fs = new Filesystem();
 		$libDir = Path::join( $targetDir, 'src/lib' );
-		
+
 		// Directories to remove (duplicates after Strauss prefixing)
 		$this->log( 'Removing duplicate libraries from main vendor...' );
 		$directoriesToRemove = [
@@ -629,7 +640,7 @@ class PluginPackager {
 			Path::join( $libDir, 'vendor/monolog' ),
 			Path::join( $libDir, 'vendor/bin' ),
 		];
-		
+
 		foreach ( $directoriesToRemove as $dir ) {
 			if ( is_dir( $dir ) ) {
 				try {
@@ -641,14 +652,14 @@ class PluginPackager {
 				}
 			}
 		}
-		
+
 		// Files to remove (development and temporary files)
 		$this->log( 'Removing development-only files...' );
 		$filesToRemove = [
 			Path::join( $libDir, 'vendor_prefixed/autoload-files.php' ),
 			Path::join( $libDir, 'strauss.phar' ),
 		];
-		
+
 		foreach ( $filesToRemove as $file ) {
 			if ( file_exists( $file ) ) {
 				try {
@@ -666,44 +677,62 @@ class PluginPackager {
 	 * Clean autoload files to remove twig references
 	 * Preserves original line endings (CRLF/LF)
 	 */
+	private function cleanPoFiles( string $targetDir ) :void {
+		$fs = new Filesystem();
+		try {
+			foreach ( new \FilesystemIterator( Path::join( $targetDir, 'languages' ) ) as $fsItem ) {
+				/** @var \SplFileInfo $fsItem */
+				if ( $fsItem->isFile() && $fsItem->getExtension() === 'po' ) {
+					$fs->remove( $fsItem->getPathname() );
+				}
+			}
+		}
+		catch ( \Exception $e ) {
+		}
+	}
+
+	/**
+	 * Clean autoload files to remove twig references
+	 * Preserves original line endings (CRLF/LF)
+	 */
 	private function cleanAutoloadFiles( string $targetDir ) :void {
 		$this->log( 'Cleaning autoload files...' );
-		
+
 		$composerDir = Path::join( $targetDir, 'src/lib/vendor/composer' );
-		
+
 		if ( !is_dir( $composerDir ) ) {
 			$this->log( '  Warning: Composer directory not found, skipping autoload cleanup' );
 			return;
 		}
-		
+
 		// Files to clean
 		$filesToClean = [
 			'autoload_files.php',
 			'autoload_static.php',
 			'autoload_psr4.php',
 		];
-		
+
 		foreach ( $filesToClean as $filename ) {
 			$filePath = Path::join( $composerDir, $filename );
-			
+
 			if ( !file_exists( $filePath ) ) {
 				continue;
 			}
-			
+
 			$this->log( sprintf( 'Cleaning %s...', $filename ) );
-			
+
 			$content = file_get_contents( $filePath );
 			if ( $content === false ) {
 				$this->log( sprintf( '  Warning: Could not read %s', $filename ) );
 				continue;
 			}
-			
+
 			// Detect line ending style (CRLF or LF)
 			$lineEnding = strpos( $content, "\r\n" ) !== false ? "\r\n" : "\n";
-			
+
 			// Split into lines, preserving the line ending detection
 			$lines = explode( $lineEnding, $content );
-			
+
 			// Count twig references before cleaning
 			$twigCountBefore = 0;
 			foreach ( $lines as $line ) {
@@ -712,22 +741,22 @@ class PluginPackager {
 				}
 			}
 			$this->log( sprintf( '  - Found %d twig references', $twigCountBefore ) );
-			
+
 			// Filter out lines containing /twig/twig/
 			$filteredLines = array_filter( $lines, static function ( string $line ) :bool {
 				return strpos( $line, '/twig/twig/' ) === false;
 			} );
-			
+
 			// Re-index array and join back with original line ending
 			$newContent = implode( $lineEnding, array_values( $filteredLines ) );
-			
+
 			// Write back to file
 			$bytesWritten = file_put_contents( $filePath, $newContent );
 			if ( $bytesWritten === false ) {
 				$this->log( sprintf( '  Warning: Could not write %s', $filename ) );
 				continue;
 			}
-			
+
 			// Count twig references after cleaning
 			$twigCountAfter = 0;
 			foreach ( $filteredLines as $line ) {
@@ -745,16 +774,16 @@ class PluginPackager {
 	 */
 	private function verifyPackage( string $targetDir ) :void {
 		$this->log( '=== Package Verification ===' );
-		
+
 		$errors = [];
-		
+
 		// Required files
 		$requiredFiles = [
-			'icwp-wpsf.php' => Path::join( $targetDir, 'icwp-wpsf.php' ),
-			'src/lib/vendor/autoload.php' => Path::join( $targetDir, 'src/lib/vendor/autoload.php' ),
+			'icwp-wpsf.php'                                 => Path::join( $targetDir, 'icwp-wpsf.php' ),
+			'src/lib/vendor/autoload.php'                   => Path::join( $targetDir, 'src/lib/vendor/autoload.php' ),
 			'src/lib/vendor_prefixed/autoload-classmap.php' => Path::join( $targetDir, 'src/lib/vendor_prefixed/autoload-classmap.php' ),
 		];
-		
+
 		foreach ( $requiredFiles as $name => $path ) {
 			if ( file_exists( $path ) ) {
 				$this->log( sprintf( '✓ %s exists', $name ) );
@@ -764,13 +793,13 @@ class PluginPackager {
 				$errors[] = $name;
 			}
 		}
-		
+
 		// Required directories
 		$requiredDirs = [
 			'src/lib/vendor_prefixed' => Path::join( $targetDir, 'src/lib/vendor_prefixed' ),
-			'assets/dist' => Path::join( $targetDir, 'assets/dist' ),
+			'assets/dist'             => Path::join( $targetDir, 'assets/dist' ),
 		];
-		
+
 		foreach ( $requiredDirs as $name => $path ) {
 			if ( is_dir( $path ) ) {
 				$this->log( sprintf( '✓ %s directory exists', $name ) );
@@ -780,7 +809,7 @@ class PluginPackager {
 				$errors[] = $name.' directory';
 			}
 		}
-		
+
 		if ( !empty( $errors ) ) {
 			throw new RuntimeException(
 				sprintf(
@@ -793,7 +822,7 @@ class PluginPackager {
 				)
 			);
 		}
-		
+
 		$this->log( sprintf( '✅ Package built successfully: %s', $targetDir ) );
 	}
 
@@ -870,9 +899,9 @@ class PluginPackager {
 		foreach ( $dangerousPaths as $dangerousPath ) {
 			$normalizedDangerous = rtrim( str_replace( '\\', '/', strtolower( $dangerousPath ) ), '/' );
 			$normalizedDirLower = strtolower( $normalizedDir );
-			
+
 			// Exact match or directory is the dangerous path itself
-			if ( $normalizedDirLower === $normalizedDangerous || 
+			if ( $normalizedDirLower === $normalizedDangerous ||
 				 $normalizedDirLower === $normalizedDangerous.'/' ) {
 				throw new RuntimeException(
 					sprintf(
@@ -930,7 +959,6 @@ class PluginPackager {
 		}
 	}
 
-
 	/**
 	 * Recursively remove a directory and all its contents
 	 * @throws RuntimeException if deletion fails
@@ -948,11 +976,11 @@ class PluginPackager {
 			);
 		}
 
-		$files = array_diff( $files, ['.', '..'] );
-		
+		$files = array_diff( $files, [ '.', '..' ] );
+
 		foreach ( $files as $file ) {
 			$path = $dir.DIRECTORY_SEPARATOR.$file;
-			
+
 			// Check if it's a symlink before processing
 			if ( is_link( $path ) ) {
 				// For symlinks, only delete the link itself, not the target
