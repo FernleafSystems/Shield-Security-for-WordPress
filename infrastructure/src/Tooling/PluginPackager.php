@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace FernleafSystems\ShieldPlatform\Tooling;
 
 use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 class PluginPackager {
@@ -67,16 +68,14 @@ class PluginPackager {
 			);
 		}
 
-		// Use relative path for script since runCommand() changes directory to project root before executing
-		// Convert Windows paths to Git Bash format (/mnt/d/...) for arguments passed to bash
-		// This works on Windows (Git Bash), Linux, Docker, and GitHub Actions
-		$bashTargetDir = $this->convertPathForBash( $targetDir );
-		$bashProjectRoot = $this->convertPathForBash( $this->projectRoot );
-		
-		$this->runCommand(
-			['bash', 'bin/build-package.sh', $bashTargetDir, $bashProjectRoot],
-			$this->projectRoot
-		);
+		// Build the package using PHP (cross-platform, preserves line endings)
+		$this->copyPluginFiles( $targetDir );
+		$this->installComposerDependencies( $targetDir );
+		$this->downloadStraussPhar( $targetDir );
+		$this->runStraussPrefixing( $targetDir );
+		$this->cleanupPackageFiles( $targetDir );
+		$this->cleanAutoloadFiles( $targetDir );
+		$this->verifyPackage( $targetDir );
 
 		$this->log( sprintf( 'Package created at: %s', $targetDir ) );
 
@@ -285,6 +284,517 @@ class PluginPackager {
 
 	private function endsWithPhar( string $path ) :bool {
 		return substr( $path, -5 ) === '.phar';
+	}
+
+	/**
+	 * Copy plugin files and directories to the target package directory
+	 * Uses Symfony Filesystem for cross-platform compatibility and line ending preservation
+	 * @throws RuntimeException if copy operations fail
+	 */
+	private function copyPluginFiles( string $targetDir ) :void {
+		$this->log( 'Copying plugin files...' );
+		
+		$fs = new Filesystem();
+		
+		// Ensure target directory exists
+		if ( !is_dir( $targetDir ) ) {
+			$fs->mkdir( $targetDir );
+		}
+		
+		// Root files to copy
+		$rootFiles = [
+			'icwp-wpsf.php',
+			'plugin_init.php',
+			'readme.txt',
+			'plugin.json',
+			'cl.json',
+			'plugin_autoload.php',
+			'plugin_compatibility.php',
+			'uninstall.php',
+			'unsupported.php',
+		];
+		
+		foreach ( $rootFiles as $file ) {
+			$sourcePath = Path::join( $this->projectRoot, $file );
+			$targetPath = Path::join( $targetDir, $file );
+			
+			if ( file_exists( $sourcePath ) ) {
+				try {
+					$fs->copy( $sourcePath, $targetPath, true );
+					$this->log( sprintf( '  ✓ Copied: %s', $file ) );
+				}
+				catch ( \Exception $e ) {
+					throw new RuntimeException(
+						sprintf(
+							'Failed to copy file "%s" to package directory. '.
+							'Source: %s. Target: %s. Error: %s',
+							$file,
+							$sourcePath,
+							$targetPath,
+							$e->getMessage()
+						)
+					);
+				}
+			}
+		}
+		
+		$this->log( '' );
+		$this->log( 'Copying directories...' );
+		
+		// Directories to copy
+		$directories = [
+			'src',
+			'assets',
+			'flags',
+			'languages',
+			'templates',
+		];
+		
+		foreach ( $directories as $dir ) {
+			$sourcePath = Path::join( $this->projectRoot, $dir );
+			$targetPath = Path::join( $targetDir, $dir );
+			
+			if ( is_dir( $sourcePath ) ) {
+				$this->log( sprintf( '  → Copying directory: %s', $dir ) );
+				try {
+					$fs->mirror( $sourcePath, $targetPath );
+					$this->log( sprintf( '    ✓ Completed: %s', $dir ) );
+				}
+				catch ( \Exception $e ) {
+					throw new RuntimeException(
+						sprintf(
+							'Failed to copy directory "%s" to package directory. '.
+							'Source: %s. Target: %s. Error: %s',
+							$dir,
+							$sourcePath,
+							$targetPath,
+							$e->getMessage()
+						)
+					);
+				}
+			}
+		}
+		
+		$this->log( '' );
+		$this->log( 'Package structure created successfully' );
+		$this->log( '' );
+	}
+
+	/**
+	 * Install composer dependencies in the package directory (production only)
+	 * @throws RuntimeException if composer install fails
+	 */
+	private function installComposerDependencies( string $targetDir ) :void {
+		$this->log( 'Installing composer dependencies in package...' );
+		
+		$libDir = Path::join( $targetDir, 'src/lib' );
+		
+		if ( !is_dir( $libDir ) ) {
+			throw new RuntimeException(
+				sprintf(
+					'Composer install failed: Package library directory does not exist. '.
+					'Expected directory: %s. '.
+					'This usually means the file copy step did not complete successfully.',
+					$libDir
+				)
+			);
+		}
+		
+		$composerCommand = $this->getComposerCommand();
+		$this->runCommand(
+			array_merge( $composerCommand, [
+				'install',
+				'--no-dev',
+				'--no-interaction',
+				'--prefer-dist',
+				'--optimize-autoloader',
+				'--quiet'
+			] ),
+			$libDir
+		);
+		
+		$this->log( '  ✓ Composer dependencies installed' );
+		$this->log( '' );
+	}
+
+	private const STRAUSS_VERSION = '0.19.4';
+	private const STRAUSS_DOWNLOAD_URL = 'https://github.com/BrianHenryIE/strauss/releases/download/0.19.4/strauss.phar';
+
+	/**
+	 * Download Strauss phar file for namespace prefixing
+	 * @throws RuntimeException if download fails with detailed error message
+	 */
+	private function downloadStraussPhar( string $targetDir ) :void {
+		$this->log( sprintf( 'Downloading Strauss v%s...', self::STRAUSS_VERSION ) );
+		
+		$libDir = Path::join( $targetDir, 'src/lib' );
+		$targetPath = Path::join( $libDir, 'strauss.phar' );
+		
+		// Check if allow_url_fopen is enabled
+		if ( !ini_get( 'allow_url_fopen' ) ) {
+			throw new RuntimeException(
+				'Strauss download failed: allow_url_fopen is disabled in PHP configuration. '.
+				'WHAT FAILED: Unable to download strauss.phar from GitHub. '.
+				'WHY: The PHP setting "allow_url_fopen" is disabled, which prevents PHP from downloading files from URLs. '.
+				'HOW TO FIX: Enable allow_url_fopen in your php.ini file by setting "allow_url_fopen = On", '.
+				'or contact your system administrator to enable this setting. '.
+				'Alternatively, you can manually download strauss.phar from '.self::STRAUSS_DOWNLOAD_URL.' '.
+				'and place it in the package src/lib directory.'
+			);
+		}
+		
+		// Create HTTP context for the download
+		$context = stream_context_create( [
+			'http' => [
+				'method' => 'GET',
+				'timeout' => 30,
+				'user_agent' => 'Shield-Plugin-Packager/1.0',
+				'follow_location' => true,
+			],
+			'ssl' => [
+				'verify_peer' => true,
+				'verify_peer_name' => true,
+			],
+		] );
+		
+		// Clear any previous errors
+		error_clear_last();
+		
+		// Attempt to download the file
+		$content = @file_get_contents( self::STRAUSS_DOWNLOAD_URL, false, $context );
+		
+		if ( $content === false ) {
+			$lastError = error_get_last();
+			$errorMessage = $lastError !== null ? $lastError['message'] : 'Unknown error';
+			
+			throw new RuntimeException(
+				sprintf(
+					'Strauss download failed: Unable to download strauss.phar from GitHub. '.
+					'WHAT FAILED: Could not retrieve file from %s. '.
+					'WHY: %s. '.
+					'This may be due to: (1) Network connectivity issues, (2) GitHub server unavailability, '.
+					'(3) Firewall or proxy blocking the connection, (4) SSL certificate verification failure. '.
+					'HOW TO FIX: Check your internet connection and try again. If the problem persists, '.
+					'you can manually download strauss.phar from the URL above and place it at: %s',
+					self::STRAUSS_DOWNLOAD_URL,
+					$errorMessage,
+					$targetPath
+				)
+			);
+		}
+		
+		if ( $content === '' ) {
+			throw new RuntimeException(
+				sprintf(
+					'Strauss download failed: Downloaded file is empty. '.
+					'WHAT FAILED: The file downloaded from %s has zero bytes. '.
+					'WHY: This usually indicates a server-side issue or the release file was not found. '.
+					'HOW TO FIX: Verify that Strauss version %s exists at the download URL. '.
+					'You can manually download strauss.phar and place it at: %s',
+					self::STRAUSS_DOWNLOAD_URL,
+					self::STRAUSS_VERSION,
+					$targetPath
+				)
+			);
+		}
+		
+		// Clear any previous errors before writing
+		error_clear_last();
+		
+		// Write the downloaded content to file
+		$bytesWritten = @file_put_contents( $targetPath, $content );
+		
+		if ( $bytesWritten === false ) {
+			$lastError = error_get_last();
+			$errorMessage = $lastError !== null ? $lastError['message'] : 'Unknown error';
+			
+			throw new RuntimeException(
+				sprintf(
+					'Strauss download failed: Could not write strauss.phar to disk. '.
+					'WHAT FAILED: Unable to save downloaded file to %s. '.
+					'WHY: %s. '.
+					'This may be due to: (1) Insufficient disk space, (2) Directory does not exist, '.
+					'(3) Insufficient file permissions, (4) Disk write protection. '.
+					'HOW TO FIX: Ensure the target directory exists and is writable: %s',
+					$targetPath,
+					$errorMessage,
+					$libDir
+				)
+			);
+		}
+		
+		// Verify the file was written correctly
+		if ( !file_exists( $targetPath ) ) {
+			throw new RuntimeException(
+				sprintf(
+					'Strauss download failed: File was not created after write operation. '.
+					'WHAT FAILED: strauss.phar does not exist at expected location after download. '.
+					'Expected location: %s. '.
+					'WHY: The file write operation reported success but the file is not present. '.
+					'This is unusual and may indicate a filesystem issue. '.
+					'HOW TO FIX: Check disk space and filesystem health. Try running the packaging again.',
+					$targetPath
+				)
+			);
+		}
+		
+		$fileSize = filesize( $targetPath );
+		if ( $fileSize === 0 ) {
+			throw new RuntimeException(
+				sprintf(
+					'Strauss download failed: Downloaded file has zero size. '.
+					'WHAT FAILED: strauss.phar exists but contains no data. '.
+					'File location: %s. '.
+					'WHY: The file was created but the content was not written correctly. '.
+					'HOW TO FIX: Delete the empty file and try running the packaging again. '.
+					'If the problem persists, manually download from: %s',
+					$targetPath,
+					self::STRAUSS_DOWNLOAD_URL
+				)
+			);
+		}
+		
+		$this->log( '  ✓ strauss.phar downloaded' );
+		$this->log( '' );
+	}
+
+	/**
+	 * Run Strauss to prefix vendor namespaces
+	 * @throws RuntimeException if Strauss execution fails
+	 */
+	private function runStraussPrefixing( string $targetDir ) :void {
+		$libDir = Path::join( $targetDir, 'src/lib' );
+		$straussPath = Path::join( $libDir, 'strauss.phar' );
+		$vendorPrefixedDir = Path::join( $libDir, 'vendor_prefixed' );
+		
+		// Verify strauss.phar exists
+		if ( !file_exists( $straussPath ) ) {
+			throw new RuntimeException(
+				sprintf(
+					'Strauss execution failed: strauss.phar not found. '.
+					'WHAT FAILED: Cannot run Strauss namespace prefixing. '.
+					'Expected location: %s. '.
+					'WHY: The Strauss download step may have failed or the file was removed. '.
+					'HOW TO FIX: Run the packaging process again to re-download strauss.phar.',
+					$straussPath
+				)
+			);
+		}
+		
+		$this->log( sprintf( 'Current directory: %s', $libDir ) );
+		$this->log( sprintf( 'Checking for composer.json: %s', file_exists( Path::join( $libDir, 'composer.json' ) ) ? 'YES' : 'NO' ) );
+		$this->log( '' );
+		
+		$this->log( 'Running Strauss prefixing...' );
+		
+		// Run strauss.phar using PHP
+		$php = PHP_BINARY ?: 'php';
+		$this->runCommand( [$php, 'strauss.phar'], $libDir );
+		
+		$this->log( '' );
+		
+		// Verify vendor_prefixed directory was created
+		$this->log( '=== After Strauss ===' );
+		if ( is_dir( $vendorPrefixedDir ) ) {
+			$this->log( '✓ vendor_prefixed directory created' );
+		}
+		else {
+			$this->log( '✗ vendor_prefixed NOT created' );
+			throw new RuntimeException(
+				sprintf(
+					'Strauss execution failed: vendor_prefixed directory was not created. '.
+					'WHAT FAILED: Strauss completed without error but did not create the expected output directory. '.
+					'Expected directory: %s. '.
+					'WHY: This may indicate a Strauss configuration issue in composer.json or no packages matched for prefixing. '.
+					'HOW TO FIX: Check the "extra.strauss" configuration in %s/composer.json.',
+					$vendorPrefixedDir,
+					$libDir
+				)
+			);
+		}
+	}
+
+	/**
+	 * Clean up duplicate and development files from the package
+	 * Removes files that are no longer needed after Strauss prefixing
+	 */
+	private function cleanupPackageFiles( string $targetDir ) :void {
+		$fs = new Filesystem();
+		$libDir = Path::join( $targetDir, 'src/lib' );
+		
+		// Directories to remove (duplicates after Strauss prefixing)
+		$this->log( 'Removing duplicate libraries from main vendor...' );
+		$directoriesToRemove = [
+			Path::join( $libDir, 'vendor/twig' ),
+			Path::join( $libDir, 'vendor/monolog' ),
+			Path::join( $libDir, 'vendor/bin' ),
+		];
+		
+		foreach ( $directoriesToRemove as $dir ) {
+			if ( is_dir( $dir ) ) {
+				try {
+					$fs->remove( $dir );
+				}
+				catch ( \Exception $e ) {
+					// Log but don't fail - these are cleanup operations
+					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
+				}
+			}
+		}
+		
+		// Files to remove (development and temporary files)
+		$this->log( 'Removing development-only files...' );
+		$filesToRemove = [
+			Path::join( $libDir, 'vendor_prefixed/autoload-files.php' ),
+			Path::join( $libDir, 'strauss.phar' ),
+		];
+		
+		foreach ( $filesToRemove as $file ) {
+			if ( file_exists( $file ) ) {
+				try {
+					$fs->remove( $file );
+				}
+				catch ( \Exception $e ) {
+					// Log but don't fail - these are cleanup operations
+					$this->log( sprintf( '  Warning: Could not remove file: %s (%s)', $file, $e->getMessage() ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Clean autoload files to remove twig references
+	 * Preserves original line endings (CRLF/LF)
+	 */
+	private function cleanAutoloadFiles( string $targetDir ) :void {
+		$this->log( 'Cleaning autoload files...' );
+		
+		$composerDir = Path::join( $targetDir, 'src/lib/vendor/composer' );
+		
+		if ( !is_dir( $composerDir ) ) {
+			$this->log( '  Warning: Composer directory not found, skipping autoload cleanup' );
+			return;
+		}
+		
+		// Files to clean
+		$filesToClean = [
+			'autoload_files.php',
+			'autoload_static.php',
+			'autoload_psr4.php',
+		];
+		
+		foreach ( $filesToClean as $filename ) {
+			$filePath = Path::join( $composerDir, $filename );
+			
+			if ( !file_exists( $filePath ) ) {
+				continue;
+			}
+			
+			$this->log( sprintf( 'Cleaning %s...', $filename ) );
+			
+			$content = file_get_contents( $filePath );
+			if ( $content === false ) {
+				$this->log( sprintf( '  Warning: Could not read %s', $filename ) );
+				continue;
+			}
+			
+			// Detect line ending style (CRLF or LF)
+			$lineEnding = strpos( $content, "\r\n" ) !== false ? "\r\n" : "\n";
+			
+			// Split into lines, preserving the line ending detection
+			$lines = explode( $lineEnding, $content );
+			
+			// Count twig references before cleaning
+			$twigCountBefore = 0;
+			foreach ( $lines as $line ) {
+				if ( strpos( $line, '/twig/twig/' ) !== false ) {
+					$twigCountBefore++;
+				}
+			}
+			$this->log( sprintf( '  - Found %d twig references', $twigCountBefore ) );
+			
+			// Filter out lines containing /twig/twig/
+			$filteredLines = array_filter( $lines, static function ( string $line ) :bool {
+				return strpos( $line, '/twig/twig/' ) === false;
+			} );
+			
+			// Re-index array and join back with original line ending
+			$newContent = implode( $lineEnding, array_values( $filteredLines ) );
+			
+			// Write back to file
+			$bytesWritten = file_put_contents( $filePath, $newContent );
+			if ( $bytesWritten === false ) {
+				$this->log( sprintf( '  Warning: Could not write %s', $filename ) );
+				continue;
+			}
+			
+			// Count twig references after cleaning
+			$twigCountAfter = 0;
+			foreach ( $filteredLines as $line ) {
+				if ( strpos( $line, '/twig/twig/' ) !== false ) {
+					$twigCountAfter++;
+				}
+			}
+			$this->log( sprintf( '  - After cleaning: %d twig references', $twigCountAfter ) );
+		}
+	}
+
+	/**
+	 * Verify the package was built correctly by checking required files and directories
+	 * @throws RuntimeException if critical package files are missing
+	 */
+	private function verifyPackage( string $targetDir ) :void {
+		$this->log( '=== Package Verification ===' );
+		
+		$errors = [];
+		
+		// Required files
+		$requiredFiles = [
+			'icwp-wpsf.php' => Path::join( $targetDir, 'icwp-wpsf.php' ),
+			'src/lib/vendor/autoload.php' => Path::join( $targetDir, 'src/lib/vendor/autoload.php' ),
+			'src/lib/vendor_prefixed/autoload-classmap.php' => Path::join( $targetDir, 'src/lib/vendor_prefixed/autoload-classmap.php' ),
+		];
+		
+		foreach ( $requiredFiles as $name => $path ) {
+			if ( file_exists( $path ) ) {
+				$this->log( sprintf( '✓ %s exists', $name ) );
+			}
+			else {
+				$this->log( sprintf( '✗ %s MISSING', $name ) );
+				$errors[] = $name;
+			}
+		}
+		
+		// Required directories
+		$requiredDirs = [
+			'src/lib/vendor_prefixed' => Path::join( $targetDir, 'src/lib/vendor_prefixed' ),
+			'assets/dist' => Path::join( $targetDir, 'assets/dist' ),
+		];
+		
+		foreach ( $requiredDirs as $name => $path ) {
+			if ( is_dir( $path ) ) {
+				$this->log( sprintf( '✓ %s directory exists', $name ) );
+			}
+			else {
+				$this->log( sprintf( '✗ %s directory MISSING', $name ) );
+				$errors[] = $name.' directory';
+			}
+		}
+		
+		if ( !empty( $errors ) ) {
+			throw new RuntimeException(
+				sprintf(
+					'Package verification failed: Missing critical files/directories. '.
+					'WHAT FAILED: The following required items are missing: %s. '.
+					'WHY: The packaging process may have encountered errors during file copy, '.
+					'composer install, or Strauss prefixing. '.
+					'HOW TO FIX: Check the log output above for errors and run the packaging process again.',
+					implode( ', ', $errors )
+				)
+			);
+		}
+		
+		$this->log( sprintf( '✅ Package built successfully: %s', $targetDir ) );
 	}
 
 	/**

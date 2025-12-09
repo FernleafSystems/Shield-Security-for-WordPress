@@ -1,6 +1,36 @@
 #!/bin/bash
-# Shield Plugin Package Builder
+###############################################################################
+# DEPRECATED: This bash script is deprecated and will be removed in a future release.
+#
+# The packaging functionality has been replaced by a PHP implementation in:
+#   infrastructure/src/Tooling/PluginPackager.php
+#
+# Use the new PHP-based packager via Composer instead:
+#   composer package-plugin -- --output="/path/to/package"
+#
+# The PHP implementation provides:
+#   - Cross-platform compatibility (Windows, Linux, macOS)
+#   - Proper line ending preservation (fixes CRLF/LF issues)
+#   - Better error handling with detailed messages
+#   - Symfony Filesystem for reliable file operations
+#
+# This script is kept for reference only. For new builds, use:
+#   composer package-plugin -- --output="/path/to/package"
+#
+# Optional flags for CI environments where dependencies are pre-installed:
+#   --skip-root-composer    Skip root composer install
+#   --skip-lib-composer     Skip src/lib composer install  
+#   --skip-npm-install      Skip npm ci
+#   --skip-npm-build        Skip npm run build
+#   --skip-directory-clean  Skip cleaning existing output directory
+###############################################################################
+
+# Shield Plugin Package Builder (DEPRECATED)
 # Creates a production package with Strauss prefixing and cleanup
+
+echo "⚠️  WARNING: This bash script is deprecated."
+echo "⚠️  Please use 'composer package-plugin -- --output=/path/to/package' instead."
+echo ""
 
 set -e
 

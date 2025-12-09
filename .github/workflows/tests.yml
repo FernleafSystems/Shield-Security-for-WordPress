@@ -68,8 +68,7 @@ jobs:
     - name: Build plugin package
       run: |
         PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        chmod +x ./bin/build-package.sh
-        ./bin/build-package.sh "$PACKAGE_DIR" "${{ github.workspace }}"
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
         echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
         
     - name: Install WordPress Test Suite
