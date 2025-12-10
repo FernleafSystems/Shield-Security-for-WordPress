@@ -16,20 +16,16 @@ class LoadTextDomain {
 		 * system is full of friction, though that's where we'd like to end-up eventually.
 		 */
 		add_filter( 'load_textdomain_mofile', function ( $moFile, $domain ) {
-			if ( $domain == self::con()->getTextDomain() ) {
-				$moFile = $this->overrideTranslations( (string)$moFile );
-			}
-			return $moFile;
+			return $domain === self::con()->getTextDomain() ? $this->overrideTranslations( $moFile ) : $moFile;
 		}, 100, 2 );
-
 		/**
 		 * No longer needed, apparently:
 		 * https://make.wordpress.org/core/2024/10/21/i18n-improvements-6-7/
-		load_plugin_textdomain(
-			self::con()->getTextDomain(),
-			false,
-			plugin_basename( self::con()->getPath_Languages() )
-		);
+		 * load_plugin_textdomain(
+		 * self::con()->getTextDomain(),
+		 * false,
+		 * plugin_basename( self::con()->getPath_Languages() )
+		 * );
 		 */
 	}
 
@@ -38,32 +34,35 @@ class LoadTextDomain {
 	 * wp-content/languages/plugins/wp-simple-firewall-de_DE.mo
 	 */
 	private function overrideTranslations( string $moFilePath ) :string {
-		$con = self::con();
+		$finalMoPath = null;
 
 		// use determine_locale() as it also considers the user's profile preference
-		$locale = \function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();
-		$filteredLocale = apply_filters( 'plugin_locale', $locale, $con->getTextDomain() );
+		$targetLoc = \function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();
+		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() );
 		if ( !empty( $filteredLocale ) ) {
-			$locale = $filteredLocale;
+			$targetLoc = $filteredLocale;
 		}
 
-		/**
-		 * Cater for duplicate language translations that don't exist (yet)
-		 * E.g. where Spanish-Spain is present
-		 * This isn't ideal, and in-time we'll like full localizations, but we aren't there.
-		 */
-		$country = \substr( (string)$locale, 0, 2 );
-		$duplicateMappings = [
-			'en' => 'en_GB',
-			'es' => 'es_ES',
-			'fr' => 'fr_FR',
-			'pt' => 'pt_PT',
-		];
-		if ( \array_key_exists( $country, $duplicateMappings ) ) {
-			$locale = $duplicateMappings[ $country ];
+		$availableLocales = ( new GetAllAvailableLocales() )->run();
+		// First look for exact .mo files.
+		foreach ( $availableLocales as $loc => $moPath ) {
+			if ( $targetLoc === $loc && Services::WpFs()->exists( $moPath ) ) {
+				$finalMoPath = $moPath;
+				break;
+			}
 		}
-
-		$maybeMo = path_join( $con->getPath_Languages(), $con->getTextDomain().'-'.$locale.'.mo' );
-		return Services::WpFs()->exists( $maybeMo ) ? $maybeMo : $moFilePath;
+		if ( empty( $finalMoPath ) ) {
+			// Then look for mo for that language.
+			$targetLang = \substr( (string)$targetLoc, 0, 2 );
+			if ( !empty( $targetLang ) ) {
+				foreach ( $availableLocales as $loc => $moPath ) {
+					if ( $targetLang === \substr( $loc, 0, 2 ) && Services::WpFs()->exists( $moPath ) ) {
+						$finalMoPath = $moPath;
+						break;
+					}
+				}
+			}
+		}
+		return empty( $finalMoPath ) ? $moFilePath : $finalMoPath;
 	}
 }

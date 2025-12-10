@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d468361b2d9289dbf7e6bbbad895f1f7",
+    "content-hash": "0ce7822a98782f03703eecec76f93b76",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -574,16 +574,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.12.5",
+            "version": "3.13.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "41b736a41239abc0e5d93951d1da6da8f1f9eff2"
+                "reference": "d408b4c8873f4ebfe94d1273090c20a3f8e81b5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=41b736a41239abc0e5d93951d1da6da8f1f9eff2",
-                "reference": "41b736a41239abc0e5d93951d1da6da8f1f9eff2",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=d408b4c8873f4ebfe94d1273090c20a3f8e81b5b",
+                "reference": "d408b4c8873f4ebfe94d1273090c20a3f8e81b5b",
                 "shasum": ""
             },
             "require": {
@@ -618,9 +618,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.12.5"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.13.0"
             },
-            "time": "2025-06-02T13:13:43+00:00"
+            "time": "2025-08-26T12:15:01+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
@@ -920,16 +920,16 @@
         },
         {
             "name": "mlocati/ip-lib",
-            "version": "1.20.0",
+            "version": "1.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mlocati/ip-lib.git",
-                "reference": "fd45fc3bf08ed6c7e665e2e70562082ac954afd4"
+                "reference": "4e40ffd3bf9989db19403d89c4d8be44b87b8a91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mlocati/ip-lib/zipball/fd45fc3bf08ed6c7e665e2e70562082ac954afd4",
-                "reference": "fd45fc3bf08ed6c7e665e2e70562082ac954afd4",
+                "url": "https://api.github.com/repos/mlocati/ip-lib/zipball/4e40ffd3bf9989db19403d89c4d8be44b87b8a91",
+                "reference": "4e40ffd3bf9989db19403d89c4d8be44b87b8a91",
                 "shasum": ""
             },
             "require": {
@@ -975,7 +975,7 @@
             ],
             "support": {
                 "issues": "https://github.com/mlocati/ip-lib/issues",
-                "source": "https://github.com/mlocati/ip-lib/tree/1.20.0"
+                "source": "https://github.com/mlocati/ip-lib/tree/1.22.0"
             },
             "funding": [
                 {
@@ -987,7 +987,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2025-02-04T17:30:58+00:00"
+            "time": "2025-10-15T12:35:09+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -1441,16 +1441,16 @@
         },
         {
             "name": "pimple/pimple",
-            "version": "v3.5.0",
+            "version": "v3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silexphp/Pimple.git",
-                "reference": "a94b3a4db7fb774b3d78dad2315ddc07629e1bed"
+                "reference": "a70f552d338f9266eec6606c1f0b324da5514c96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Pimple/zipball/a94b3a4db7fb774b3d78dad2315ddc07629e1bed",
-                "reference": "a94b3a4db7fb774b3d78dad2315ddc07629e1bed",
+                "url": "https://api.github.com/repos/silexphp/Pimple/zipball/a70f552d338f9266eec6606c1f0b324da5514c96",
+                "reference": "a70f552d338f9266eec6606c1f0b324da5514c96",
                 "shasum": ""
             },
             "require": {
@@ -1458,7 +1458,7 @@
                 "psr/container": "^1.1 || ^2.0"
             },
             "require-dev": {
-                "symfony/phpunit-bridge": "^5.4@dev"
+                "phpunit/phpunit": "*"
             },
             "type": "library",
             "extra": {
@@ -1488,9 +1488,9 @@
                 "dependency injection"
             ],
             "support": {
-                "source": "https://github.com/silexphp/Pimple/tree/v3.5.0"
+                "source": "https://github.com/silexphp/Pimple/tree/v3.6.0"
             },
-            "time": "2021-10-28T11:13:42+00:00"
+            "time": "2025-11-12T12:31:38+00:00"
         },
         {
             "name": "psr/cache",
@@ -2455,7 +2455,7 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.32.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
@@ -2514,7 +2514,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -2526,6 +2526,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -2534,7 +2538,7 @@
         },
         {
             "name": "symfony/polyfill-iconv",
-            "version": "v1.32.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-iconv.git",
@@ -2594,7 +2598,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-iconv/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-iconv/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -2606,6 +2610,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -2614,7 +2622,7 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.32.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -2675,7 +2683,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -2687,6 +2695,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -2695,7 +2707,7 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.32.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
@@ -2755,7 +2767,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -2767,6 +2779,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -2775,7 +2791,7 @@
         },
         {
             "name": "symfony/polyfill-php81",
-            "version": "v1.32.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php81.git",
@@ -2831,7 +2847,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php81/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-php81/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -2843,6 +2859,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -2851,7 +2871,7 @@
         },
         {
             "name": "symfony/polyfill-uuid",
-            "version": "v1.32.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-uuid.git",
@@ -2910,7 +2930,7 @@
                 "uuid"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-uuid/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-uuid/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -2919,6 +2939,10 @@
                 },
                 {
                     "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
                     "type": "github"
                 },
                 {
