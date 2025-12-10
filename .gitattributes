@@ -15,7 +15,7 @@
 *.cmd text eol=crlf
 
 # PHP files should use LF line endings
-*.php text eol=lf
+*.php text eol=crlf
 
 # Configuration files should use LF line endings
 *.yml text eol=lf

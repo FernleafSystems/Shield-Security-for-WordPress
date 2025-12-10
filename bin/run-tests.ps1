@@ -110,13 +110,6 @@ if ($Docker) {
     if ($Package) {
         Write-Host "Building plugin package..." -ForegroundColor Yellow
         
-        # Validate build script exists
-        if (-not (Test-Path "bin/build-package.sh")) {
-            Write-Host "❌ Build script not found: bin/build-package.sh" -ForegroundColor Red
-            Write-Host "Please ensure you're running from the repository root" -ForegroundColor Yellow
-            exit 1
-        }
-        
         # Use Windows temp directory that Docker Desktop can mount
         $PackageDir = Join-Path $env:TEMP "shield-test-package-$(Get-Date -Format 'yyyyMMddHHmmss')"
         

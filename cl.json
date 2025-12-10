@@ -1,4 +1,82 @@
 {
+  "21.1": {
+    "version":     "21.1",
+    "released_at": 1765370000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease211",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide211"
+    },
+    "title":       "Multi-Lingual Shield!",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Updated Multi-Lingual Support",
+        "description": [
+          "We've used AI to generate full plugin translations for 35+ languages."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Add SilentCAPTCHA support for Paid Memberships Pro plugin checkout requests.",
+        "description": [
+          "We've improved how Shield works to detect bots on your WooCommerce checkout."
+        ]
+      },
+      {
+        "type":        "enhancement",
+        "title":       "Attempt to improve ability to correctly identify Facebook bots with rDNS that doesn't resolve for IPv6 IP addresses.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Various small bugfixes",
+        "description": [
+        ]
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "7",
+        "released_at": 1755083000,
+        "items":       [
+          {
+            "title":    "Improvements and fixes to ShieldBACKUPS.",
+            "category": "enhancement",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Adjust the compatibility checks for ShieldBACKUPS to be more lenient and configurable in real-time.",
+            "category": "enhancement",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
+        "version":     "6",
+        "released_at": 1748870002,
+        "items":       [
+          {
+            "title":    "Add support for testing disk space capacity (up to 100MB) for ShieldBACKUPS compatibility pre-checks.",
+            "category": "enhancement",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
+        "version":     "3",
+        "released_at": 1747655000,
+        "items":       [
+          {
+            "title":    "Remove debug code.",
+            "category": "bug",
+            "type":     "fixed"
+          }
+        ]
+      }
+    ]
+  },
   "21.0": {
     "version":     "21.0",
     "released_at": 1747300000,

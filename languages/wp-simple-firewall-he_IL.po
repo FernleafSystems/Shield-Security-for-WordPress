@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-21 19:22+0000\n"
-"PO-Revision-Date: 2025-11-21 19:22+0000\n"
+"POT-Creation-Date: 2025-12-04 11:37+0000\n"
+"PO-Revision-Date: 2025-12-04 11:37+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: he_IL\n"
 "MIME-Version: 1.0\n"
@@ -577,6 +577,9 @@ msgstr "הפעלה בלבד"
 msgid "Activate Rule"
 msgstr "הפעל כלל"
 
+msgid "Activate Shield"
+msgstr "הפעלת Shield"
+
 msgid "Activate ShieldPRO License"
 msgstr "הפעלת רישיון ShieldPRO"
 
@@ -678,6 +681,9 @@ msgstr "התאמת פריסה של כותרות אבטחת HTTP"
 
 msgid "Adjust silentCAPTCHA Challenge Complexity"
 msgstr "התאמת מורכבות אתגר silentCAPTCHA"
+
+msgid "Admin Access Login"
+msgstr "התחברות גישת מנהל"
 
 msgid "Admin Accounts"
 msgstr "חשבונות ניהול"
@@ -891,6 +897,9 @@ msgstr "אפשרו למשתמשים להשתמש ב-Google Authenticator"
 
 msgid "Allow Visitors To Unblock Their IP"
 msgstr "אפשרו למבקרים לבטל את חסימת ה-IP שלהם"
+
+msgid "Allow Yubikey OTP"
+msgstr "אפשר Yubikey OTP"
 
 msgid "Allow Yubikey Registration For One Time Passwords"
 msgstr "אפשרות רישום Yubikey לסיסמאות חד-פעמיות"
@@ -1441,6 +1450,9 @@ msgstr "קוד גיבוי"
 msgid "Backup Codes"
 msgstr "קודי גיבוי"
 
+msgid "Backup Login Code"
+msgstr "קוד גיבוי להתחברות"
+
 msgid "Backup Login Code Just Used"
 msgstr "קוד גיבוי להתחברות זה עתה נוצל"
 
@@ -1551,6 +1563,9 @@ msgstr "חסימת ספאם אנושי"
 
 msgid "Block IP"
 msgstr "חסימת IP"
+
+msgid "Block IP Address?"
+msgstr "לחסום כתובת IP?"
 
 msgid "Block IPs that persistently trigger offenses against your site."
 msgstr "חסימת כתובות IP שמפעילות באופן מתמיד עבירות כנגד האתר שלכם."
@@ -2307,6 +2322,9 @@ msgstr "חיבור לא נחסם"
 
 msgid "Consider activating at another 2FA provider, as there is only 1 available for users to choose from."
 msgstr "שקלו להפעיל ספק 2FA נוסף, מכיוון שיש רק אחד זמין למשתמשים לבחירה."
+
+msgid "Contact Form SPAM"
+msgstr "ספאם בטפסי יצירת קשר"
 
 msgid "Contact Form SPAM Checking"
 msgstr "בדיקת ספאם בטפסי יצירת קשר"
@@ -3409,6 +3427,9 @@ msgstr "הפעילו אפשרות זו כדי לאפשר ל-Shield לשדרג ל
 msgid "Enable Traffic Log Auto Expiry"
 msgstr "הפעלת תפוגה אוטומטית ליומן תעבורה"
 
+msgid "Enable White Label"
+msgstr "הפעלת White Label"
+
 msgid "Enable as many options as possible."
 msgstr "הפעילו כמה שיותר אפשרויות."
 
@@ -3795,6 +3816,9 @@ msgstr "הקובץ שסופק לא היה נתיב מוחלט, כך שאנו מ�
 
 msgid "File scanning is an intensive operation and takes time."
 msgstr "סריקת קבצים היא פעולה אינטנסיבית ולוקחת זמן."
+
+msgid "FileLocker Changes"
+msgstr "שינויים ב-FileLocker"
 
 msgid "FileLocker Changes Detected"
 msgstr "זוהו שינויים ב-FileLocker"
@@ -4699,6 +4723,12 @@ msgstr "ייבוא"
 msgid "Import / Export Settings"
 msgstr "ייבוא / ייצוא הגדרות"
 
+msgid "Import From File"
+msgstr "ייבוא מקובץ"
+
+msgid "Import From Site"
+msgstr "ייבוא מאתר"
+
 msgid "Import Notify Received"
 msgstr "הודעת ייבוא התקבלה"
 
@@ -4888,6 +4918,9 @@ msgstr "שם משתמש לא תקין להתחברות"
 msgid "Invalid Logins"
 msgstr "התחברויות לא תקינות"
 
+msgid "Invalid Request ID"
+msgstr "מזהה בקשה לא תקין"
+
 msgid "Invalid Rule"
 msgstr "כלל לא תקין"
 
@@ -4909,8 +4942,14 @@ msgstr "מזהה כתובת לא תקין"
 msgid "Invalid Step Slug"
 msgstr "מזהה כתובת שלב לא תקין"
 
+msgid "Invalid User Agent"
+msgstr "User Agent לא תקין"
+
 msgid "Invalid User Email Registration"
 msgstr "רישום אימייל משתמש לא תקין"
+
+msgid "Invalid User-Agent"
+msgstr "User-Agent לא תקין"
 
 msgid "Invalid Username Login"
 msgstr "התחברות עם שם משתמש לא תקין"
@@ -5556,6 +5595,9 @@ msgstr "נעילת הפעלות משתמש לכתובת IP שזוהתה בעת �
 
 msgid "Lock user sessions to browser detected at login"
 msgstr "נעילת הפעלות משתמש לדפדפן שזוהה בעת ההתחברות"
+
+msgid "Lockdown The Site"
+msgstr "נעילת האתר"
 
 msgid "Lockdown activated by:"
 msgstr "נעילה הופעלה על ידי:"
@@ -6501,6 +6543,9 @@ msgstr "PHP ו־MySQL"
 
 msgid "PHP Code"
 msgstr "קוד PHP"
+
+msgid "PHP Code Includes"
+msgstr "הכללות קוד PHP"
 
 msgid "PHP Define Name"
 msgstr "שם הגדרת PHP"
@@ -7624,6 +7669,12 @@ msgstr "הסרת כל ספקי MFA מפרופיל משתמש זה"
 msgid "Remove Google Authenticator"
 msgstr "הסרת Google Authenticator"
 
+msgid "Remove IP Bypass"
+msgstr "הסרת מעקף IP"
+
+msgid "Remove License"
+msgstr "הסרת רישיון"
+
 msgid "Remove WP Generator Meta Tag"
 msgstr "הסרת תג מטא WP Generator"
 
@@ -7708,14 +7759,23 @@ msgstr "דוחות"
 msgid "Reputation Decisions Acquired"
 msgstr "נרכשו החלטות מוניטין"
 
+msgid "Request Blocked"
+msgstr "בקשה נחסמה"
+
 msgid "Request Blocked by Firewall"
 msgstr "בקשה נחסמה על ידי חומת אש"
 
 msgid "Request Blocked by Site Lockdown."
 msgstr "בקשה נחסמה על ידי נעילת אתר."
 
+msgid "Request Details"
+msgstr "פרטי בקשה"
+
 msgid "Request Failed."
 msgstr "הבקשה נכשלה."
+
+msgid "Request Firewall"
+msgstr "חומת אש לבקשות"
 
 msgid "Request Firewall Options"
 msgstr "אפשרויות חומת אש לבקשות"
@@ -7746,6 +7806,9 @@ msgstr "רישום בקשות"
 
 msgid "Request Logs"
 msgstr "יומני בקשות"
+
+msgid "Request Method"
+msgstr "שיטת בקשה"
 
 msgid "Request Parameter"
 msgstr "פרמטר בקשה"
@@ -7818,6 +7881,9 @@ msgstr "איפוס"
 
 msgid "Reset CrowdSec Enrollment"
 msgstr "איפוס הרשמה ל-CrowdSec"
+
+msgid "Reset For This IP"
+msgstr "איפוס עבור IP זה"
 
 msgid "Response"
 msgstr "תגובה"
@@ -8281,6 +8347,9 @@ msgstr "Security Admin מופעל"
 msgid "Security Admin Login"
 msgstr "התחברות מנהל אבטחה"
 
+msgid "Security Admin PIN"
+msgstr "קוד PIN מנהל אבטחה"
+
 msgid "Security Admin PIN Accepted."
 msgstr "קוד PIN של מנהל אבטחה התקבל."
 
@@ -8329,8 +8398,14 @@ msgstr "לוח בקרה אבטחה"
 msgid "Security Headers"
 msgstr "כותרות אבטחה"
 
+msgid "Security Overview"
+msgstr "סקירת אבטחה"
+
 msgid "Security PIN Currently Set"
 msgstr "קוד PIN אבטחה מוגדר כעת"
+
+msgid "Security PIN Fail"
+msgstr "כשל בקוד PIN אבטחה"
 
 msgid "Security PIN NOT Currently Set"
 msgstr "קוד PIN אבטחה לא מוגדר כעת"
@@ -8650,6 +8725,9 @@ msgstr "ספק 2FA של Shield למשתמש הופעל"
 msgid "Shield User 2FA: Has Any Active"
 msgstr "Shield משתמש 2FA: יש פעיל כלשהו"
 
+msgid "Shield White Label"
+msgstr "Shield White Label"
+
 msgid "Shield can automatically integrate with 3rd party plugins."
 msgstr "Shield יכול להשתלב אוטומטית עם תוספים של צד שלישי."
 
@@ -8797,8 +8875,14 @@ msgstr "מכיוון שמגבלת העבירות מוגדרת ל-0, לאפשרו
 msgid "Site"
 msgstr "אתר"
 
+msgid "Site Address (URL)"
+msgstr "כתובת אתר (URL)"
+
 msgid "Site Admin Email"
 msgstr "כתובת דוא״ל מנהל האתר"
+
+msgid "Site In Lockdown"
+msgstr "אתר בנעילה"
 
 msgid "Site Is In Lockdown"
 msgstr "האתר בנעילה"
@@ -10393,6 +10477,9 @@ msgstr "URL - דף הבית"
 msgid "URL - Site"
 msgstr "כתובת URL - אתר"
 
+msgid "URL To Activate"
+msgstr "כתובת URL להפעלה"
+
 msgid "Un-Checking this option will completely disable the %s module."
 msgstr "ביטול סימון אפשרות זו ישבית לחלוטין את מודול %s."
 
@@ -10762,8 +10849,14 @@ msgstr "הגנה מפני בוטים ברישום משתמשים"
 msgid "User Registered"
 msgstr "משתמש נרשם"
 
+msgid "User Registration"
+msgstr "רישום משתמש"
+
 msgid "User Registration Email Validation"
 msgstr "אימות אימייל רישום משתמש"
+
+msgid "User Registrations"
+msgstr "רישומי משתמשים"
 
 msgid "User Role"
 msgstr "תפקיד משתמש"
@@ -10966,11 +11059,17 @@ msgstr "הצגת תגובה"
 msgid "View Config"
 msgstr "הצגת הגדרות"
 
+msgid "View Debug Info"
+msgstr "צפייה במידע ניפוי שגיאות"
+
 msgid "View Details"
 msgstr "הצגת פרטים"
 
 msgid "View File Contents"
 msgstr "הצגת תוכן קובץ"
+
+msgid "View File Details"
+msgstr "צפייה בפרטי קובץ"
 
 msgid "View IP Reputation Option"
 msgstr "הצגת אפשרות מוניטין IP"
@@ -10999,11 +11098,17 @@ msgstr "הצג תוצאות סריקה"
 msgid "View Scan Results In-Full"
 msgstr "הצגת תוצאות סריקה במלואן"
 
+msgid "View Site Traffic"
+msgstr "צפייה בתנועת אתר"
+
 msgid "View Traffic and Request Log"
 msgstr "צפייה ביומן תעבורה ובקשות"
 
 msgid "View User Activity Log"
 msgstr "צפייה ביומן פעילות משתמש"
+
+msgid "View User Sessions"
+msgstr "צפייה בהפעלות משתמשים"
 
 msgid "View all active rules on your site at-a-glance"
 msgstr "צפייה בכל הכללים הפעילים באתר שלכם במבט חטוף"
@@ -11049,6 +11154,9 @@ msgstr "ביטול חסימה אוטומטי של מבקר"
 
 msgid "Visitor IP"
 msgstr "IP מבקר"
+
+msgid "Visitor IP Address"
+msgstr "כתובת IP של מבקר"
 
 msgid "Visitor IP Source"
 msgstr "מקור IP מבקר"
@@ -11152,6 +11260,9 @@ msgstr "קובץ הגדרות WP"
 msgid "WP Core File Scanner"
 msgstr "סורק קבצי ליבת WP"
 
+msgid "WP Core Updated"
+msgstr "ליבת WP עודכנה"
+
 msgid "WP Core update is available."
 msgstr "עדכון ליבת WP זמין."
 
@@ -11163,6 +11274,9 @@ msgstr "סיסמת מסד הנתונים של וורדפרס חזקה מאוד."
 
 msgid "WP Default User Role"
 msgstr "תפקיד משתמש ברירת מחדל של WP"
+
+msgid "WP File Editing"
+msgstr "עריכת קבצי WP"
 
 msgid "WP Generator Tag"
 msgstr "תג WP Generator"
@@ -11199,6 +11313,9 @@ msgstr "עדכוני תוסף WP זמינים."
 
 msgid "WP root"
 msgstr "שורש WP"
+
+msgid "WP root directory"
+msgstr "תיקיית שורש WP"
 
 msgid "WP root directory isn't scanned."
 msgstr "תיקיית שורש WP אינה נסרקת."
@@ -11832,6 +11949,9 @@ msgstr "איום האבטחה מספר 1 שלכם הוא מבוטים אוטומ
 
 msgid "Your Current IP"
 msgstr "כתובת ה-IP הנוכחית שלך"
+
+msgid "Your IP Address"
+msgstr "כתובת ה-IP שלך"
 
 msgid "Your IP address is currently on the Auto-Block list, but you're not being block because your IP address is considered a High Reputation IP."
 msgstr "כתובת ה-IP שלכם נמצאת כרגע ברשימת החסימה האוטומטית, אך אינכם נחסמים מכיוון שכתובת ה-IP שלכם נחשבת כתובת IP בעלת מוניטין גבוה."

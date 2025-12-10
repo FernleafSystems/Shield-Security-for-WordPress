@@ -9,13 +9,23 @@ class GetAllAvailableLocales {
 	use PluginControllerConsumer;
 
 	public function run() :array {
-		$locales = [ 'en_US' ];
-		foreach ( new \DirectoryIterator( self::con()->getPath_Languages() ) as $file ) {
-			if ( $file->isFile() && $file->getExtension() === 'mo' ) {
-				$locales[] = \str_replace( self::con()->getTextDomain().'-', '', $file->getBasename( '.mo' ) );
+		return $this->enumFromFS();
+	}
+
+	protected function enumFromFS() :array {
+		$locales = [];
+		try {
+			$regex = sprintf( '#^%s\-(.+)\.mo$#', self::con()->getTextDomain() );
+			foreach ( new \FilesystemIterator( self::con()->getPath_Languages() ) as $fsItem ) {
+				/** @var \SplFileInfo $fsItem */
+				if ( $fsItem->isFile() && \preg_match( $regex, $fsItem->getBasename(), $matches ) ) {
+					$locales[ $matches[ 1 ] ] = $fsItem->getPathname();
+				}
 			}
 		}
-		\asort( $locales );
-		return \array_unique( $locales );
+		catch ( \Exception $e ) {
+		}
+		\ksort( $locales );
+		return $locales;
 	}
 }

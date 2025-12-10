@@ -90,8 +90,8 @@ COMPOSER_LIB_END=$(date +%s)
 COMPOSER_LIB_TIME=$((COMPOSER_LIB_END - COMPOSER_LIB_START))
 echo "   composer install (src/lib): $(format_duration $COMPOSER_LIB_TIME)"
 
-# Test 5: build-package.sh with detailed breakdown
-echo "📦 Testing build-package.sh..."
+# Test 5: Package build process (via composer package-plugin) with detailed breakdown
+echo "📦 Testing package build process (composer package-plugin)..."
 PACKAGE_DIR="/tmp/shield-package-analysis-$$"
 rm -rf "$PACKAGE_DIR"
 
@@ -154,7 +154,7 @@ rm -rf "$PACKAGE_DIR"
 PACKAGE_END=$(date +%s)
 PACKAGE_TOTAL_TIME=$((PACKAGE_END - PACKAGE_START))
 
-echo "   build-package.sh breakdown:"
+echo "   Package build breakdown (composer package-plugin):"
 echo "     - File copying: $(format_duration $COPY_TIME)"
 echo "     - Composer install: $(format_duration $PACKAGE_COMPOSER_TIME)"
 echo "     - Strauss download: $(format_duration $STRAUSS_DOWNLOAD_TIME)"

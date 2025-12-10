@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-21 21:16+0000\n"
-"PO-Revision-Date: 2025-11-21 21:16+0000\n"
+"POT-Creation-Date: 2025-12-04 12:37+0000\n"
+"PO-Revision-Date: 2025-12-04 12:37+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: ja_JP\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,17 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = オン; \"N\" = オフ"
 
+msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
+msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
+
 msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
 msgstr "%s（定数 <code>WP_MEMORY_LIMIT: %s</code>）"
+
+msgid "%s (JSON Encoded)"
+msgstr "%s (JSON エンコード済み)"
+
+msgid "%s > %s > %s"
+msgstr "%s > %s > %s"
 
 msgid "%s API Token Missing."
 msgstr "%s API トークンが不足しています。"
@@ -60,6 +69,9 @@ msgstr "%s プラグイン設定"
 
 msgid "%s Plugin options updated successfully."
 msgstr "%s プラグイン設定が正常に更新されました。"
+
+msgid "%s Security Insights"
+msgstr "%s セキュリティインサイト"
 
 msgid "%s Security Restrictions Applied"
 msgstr "%s セキュリティ制限が適用されました"
@@ -178,6 +190,9 @@ msgstr "残り %s スキャン。"
 msgid "%s scans remaining."
 msgstr "残り %s スキャン。"
 
+msgid "%s second"
+msgstr "%s 秒"
+
 msgid "%s seconds"
 msgstr "%s秒"
 
@@ -195,6 +210,9 @@ msgstr "%s 使用中 / %s (未使用: %s)"
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s は、定期的に更新される一般的に使用されるスパムコンテンツの辞書を使用して、このタイプのスパムコンテンツをブロックします。"
+
+msgid "%s v%s"
+msgstr "%s v%s"
 
 msgid "%s was added to your profile."
 msgstr "%s がプロフィールに追加されました。"
@@ -219,6 +237,12 @@ msgstr "%s の自動 IP ブロック機能は、防御がトリガーされた�
 
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s の保護は現在無効化されているため、再度有効化されるまでここで行った変更は適用されません。"
+
+msgid "%s: %s"
+msgstr "%s: %s"
+
+msgid "%s: %s."
+msgstr "%s: %s。"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ Pro にする ↑"
@@ -246,6 +270,9 @@ msgstr "(現在これは %s 日に設定されています。)"
 
 msgid "(when lockdown is disabled, the IP address will automatically be removed from the whitelist)"
 msgstr "(ロックダウンが無効化されると、IP アドレスは自動的にホワイトリストから削除されます)"
+
+msgid "- "
+msgstr "-"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/ ディレクトリがスキャンされていません。"
@@ -288,6 +315,9 @@ msgstr "2FA"
 
 msgid "2FA - Email"
 msgstr "2FA - メール"
+
+msgid "2FA - Hardware"
+msgstr "2FA - ハードウェア"
 
 msgid "2FA At"
 msgstr "2FA 日時"
@@ -367,10 +397,16 @@ msgstr "以下のファイルタイプに対して生成された404エラーは
 msgid "5-minute"
 msgstr "5分"
 
+msgid "7 %s"
+msgstr "7 %s"
+
 msgid "7 Days"
 msgstr "7日"
 
 msgid ":"
+msgstr ":"
+
+msgid ": "
 msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
@@ -724,6 +760,9 @@ msgstr "プラグイン/テーマの脆弱性に関するアラート。Shield �
 msgid "Algorithm not supported"
 msgstr "サポートされていないアルゴリズム"
 
+msgid "Align Shield"
+msgstr "Shield を整合"
+
 msgid "All MFA providers removed from user with ID %s."
 msgstr "ID %s のユーザーからすべての MFA プロバイダーを削除しました。"
 
@@ -942,6 +981,9 @@ msgstr "サポートされていないプロファイルが選択されました
 
 msgid "An upgrade is available for the Shield plugin."
 msgstr "Shield プラグインのアップグレードが利用可能です。"
+
+msgid "Analyse & Fix"
+msgstr "分析 & 修正"
 
 msgid "Analysis"
 msgstr "分析"
@@ -1263,6 +1305,9 @@ msgstr "変更された WordPress コアファイルの自動修復が有効化�
 
 msgid "Auto-repair of modified WordPress core files isn't enabled."
 msgstr "変更された WordPress コアファイルの自動修復は有効化されていません。"
+
+msgid "Autologin URL"
+msgstr "自動ログイン URL"
 
 msgid "Automated attack bots are the largest threat to your WordPress site."
 msgstr "自動攻撃ボットは WordPress サイトに対する最大の脅威です。"
@@ -1651,6 +1696,9 @@ msgstr "ログインおよび登録ページに対するブルートフォース
 msgid "Blog"
 msgstr "Blog"
 
+msgid "Blog article"
+msgstr "ブログ記事"
+
 msgid "Bot"
 msgstr "Bot"
 
@@ -1701,6 +1749,9 @@ msgstr "ボットコメントスパムがブロックされるようになりま
 
 msgid "Bot threshold"
 msgstr "Bot 閾値"
+
+msgid "BotBox Fail"
+msgstr "BotBox 失敗"
 
 msgid "Bots"
 msgstr "Bot"
@@ -1884,6 +1935,9 @@ msgstr "元のファイルを使用できません。"
 
 msgid "Capabilities"
 msgstr "権限"
+
+msgid "Capability Key"
+msgstr "権限キー"
 
 msgid "Captcha Verification Failed"
 msgstr "CAPTCHA 認証に失敗しました"
@@ -2854,10 +2908,19 @@ msgstr "差分"
 msgid "Diff is unavailable for missing files."
 msgstr "欠落しているファイルの差分は利用できません。"
 
+msgid "Dir Separator"
+msgstr "ディレクトリセパレーター"
+
+msgid "Dir Traversal"
+msgstr "ディレクトリトラバーサル"
+
 msgid "Directories should be provided with a trailing slash (/)."
 msgstr "ディレクトリは末尾にスラッシュ (/) を付けて指定する必要があります。"
 
 msgid "Directory Traversal"
+msgstr "ディレクトリトラバーサル"
+
+msgid "Directory Traversals"
 msgstr "ディレクトリトラバーサル"
 
 msgid "Directory doesn't exist."
@@ -2973,6 +3036,9 @@ msgstr "リクエスト内のいずれかのパラメータが指定されたテ
 
 msgid "Docs"
 msgstr "ドキュメント"
+
+msgid "Document Root"
+msgstr "ドキュメントルート"
 
 msgid "Does a given file exist in a given directory."
 msgstr "指定されたディレクトリ内に指定されたファイルが存在するかどうか。"
@@ -3445,6 +3511,12 @@ msgstr "コンソールにサイトを登録しました"
 msgid "Enrolled site with CrowdSec console."
 msgstr "CrowdSec コンソールにサイトを登録しました。"
 
+msgid "Enrollment ID"
+msgstr "登録ID"
+
+msgid "Enrollment Name"
+msgstr "登録名"
+
 msgid "Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
 msgstr "これを有効にしておくと、アセットのいずれかに既知のセキュリティ脆弱性がある場合に常に把握できます。"
 
@@ -3540,6 +3612,9 @@ msgstr "専用カスタマーサポート"
 
 msgid "Exec Order"
 msgstr "実行順序"
+
+msgid "Exit Wizard"
+msgstr "ウィザードを終了"
 
 msgid "Expiration"
 msgstr "有効期限"
@@ -3666,6 +3741,9 @@ msgstr "ファイルガード"
 
 msgid "File Info"
 msgstr "ファイル情報"
+
+msgid "File Integrity"
+msgstr "ファイル整合性"
 
 msgid "File Locker"
 msgstr "ファイルロッカー"
@@ -3892,6 +3970,9 @@ msgstr "ファイルへのフルパス"
 msgid "Full Release Announcement"
 msgstr "完全なリリース発表"
 
+msgid "Fuzzy Search"
+msgstr "あいまい検索"
+
 msgid "General"
 msgstr "全般"
 
@@ -4048,6 +4129,12 @@ msgstr "ヘルプ"
 msgid "Help docs & resources"
 msgstr "ヘルプドキュメント & リソース"
 
+msgid "HelpDesk article"
+msgstr "ヘルプデスク記事"
+
+msgid "Helpdesk and Knowledge Base"
+msgstr "ヘルプデスクとナレッジベース"
+
 msgid "Here are some of the ways Shield is already protecting your site:"
 msgstr "Shield がすでにサイトを保護している方法の一部を以下に示します:"
 
@@ -4056,6 +4143,9 @@ msgstr "ここで、スキャンする悪意のあるデータの種類を選択
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "ただし、ここではユーザーアカウント自体に焦点を当て、安全な状態にあることを確認します。"
+
+msgid "Hi !"
+msgstr "こんにちは!"
 
 msgid "Hidden Login URL Fail"
 msgstr "非表示ログイン URL 失敗"
@@ -4110,6 +4200,15 @@ msgstr "ハニーポット失敗"
 
 msgid "Hook Name"
 msgstr "フック名"
+
+msgid "Hook Priority"
+msgstr "フック優先度"
+
+msgid "Hook priority"
+msgstr "フック優先度"
+
+msgid "Hook to attach to"
+msgstr "アタッチ先のフック"
 
 msgid "Host OS"
 msgstr "ホスト OS"
@@ -5284,6 +5383,9 @@ msgstr "キー登録に成功しました。"
 msgid "Key set to expire: %s"
 msgstr "キーの有効期限設定: %s"
 
+msgid "Keyless Activation"
+msgstr "キーレス有効化"
+
 msgid "Knowledgebase"
 msgstr "ナレッジベース"
 
@@ -5343,6 +5445,9 @@ msgstr "さらに詳しく"
 
 msgid "Learn More."
 msgstr "さらに詳しく。"
+
+msgid "Leave A Review"
+msgstr "レビューを残す"
 
 msgid "Leave this blank to serve a standard \"%s\" error page."
 msgstr "標準の \"%s\" エラーページを表示する場合は、これを空白のままにしてください。"
@@ -5749,6 +5854,9 @@ msgstr "名前空間を一致"
 msgid "Match Patterns"
 msgstr "一致パターン"
 
+msgid "Match Route"
+msgstr "一致ルート"
+
 msgid "Match Type"
 msgstr "一致タイプ"
 
@@ -6012,6 +6120,9 @@ msgstr "この IP アドレスのアクティビティはログに記録され�
 
 msgid "No attempts remaining."
 msgstr "残りの試行はありません。"
+
+msgid "No canvas body"
+msgstr "キャンバス本体なし"
 
 msgid "No confirmation checkbox."
 msgstr "確認チェックボックスがありません。"
@@ -6310,6 +6421,9 @@ msgstr "現時点では違反をリセットできませんでした。"
 msgid "Offenses reset to zero."
 msgstr "違反がゼロにリセットされました。"
 
+msgid "Oh so yummy."
+msgstr "とても素晴らしい。"
+
 msgid "On"
 msgstr "オン"
 
@@ -6589,6 +6703,9 @@ msgstr "有効なユーザー名を使用してログインを試行したが、
 msgid "Penalise a visitor who fails to login using a valid username."
 msgstr "有効なユーザー名を使用してログインに失敗した訪問者にペナルティを課します。"
 
+msgid "Pending Moderation"
+msgstr "承認待ち"
+
 msgid "Perform actions for this module"
 msgstr "このモジュールのアクションを実行"
 
@@ -6600,6 +6717,9 @@ msgstr "最も強力な機能の 1 つは、他の管理者が他の管理者ア
 
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "デバイスがサポートされていないか、すでに登録されている可能性があります。"
+
+msgid "Permalink structure"
+msgstr "パーマリンク構造"
 
 msgid "Permalinks"
 msgstr "パーマリンク"
@@ -6618,6 +6738,9 @@ msgstr "永続的で長い IP ブラックリストはパフォーマンスに�
 
 msgid "Permanently Deleted"
 msgstr "完全に削除済み"
+
+msgid "Permit Anonymous Telemetry Reports"
+msgstr "匿名テレメトリレポートを許可"
 
 msgid "Persistent Security Admins"
 msgstr "永続的な Security Admin"
@@ -7081,6 +7204,9 @@ msgstr "優先一時ディレクトリ"
 msgid "Preferred temporary directory override."
 msgstr "優先一時ディレクトリの上書き。"
 
+msgid "Prefix: <code>%s</code>"
+msgstr "プレフィックス: <code>%s</code>"
+
 msgid "Prefixed Monolog library could not be found."
 msgstr "プレフィックス付き Monolog ライブラリが見つかりませんでした。"
 
@@ -7095,6 +7221,9 @@ msgstr "プレミアムテーマもプランでサポートされています。
 
 msgid "Prevent Export"
 msgstr "エクスポートを防止"
+
+msgid "Prevent Mime-Sniff"
+msgstr "MIME スニッフィングを防止"
 
 msgid "Prevent Pwned Passwords"
 msgstr "Pwned パスワードを防止"
@@ -7849,6 +7978,9 @@ msgstr "%s 設定全体を一目で確認し、何が機能していて何が機
 msgid "Reviewing Locked File"
 msgstr "ロック済みファイルをレビュー中"
 
+msgid "Root .htaccess"
+msgstr "ルート .htaccess"
+
 msgid "Root Web.config"
 msgstr "ルート Web.config"
 
@@ -7858,8 +7990,14 @@ msgstr "ルート index.php"
 msgid "Root index.php file isn't protected against tampering."
 msgstr "ルート index.php ファイルは改ざんから保護されていません。"
 
+msgid "Rows: %s"
+msgstr "行数: %s"
+
 msgid "Rule Activated"
 msgstr "ルールを有効化した"
+
+msgid "Rule Conditions"
+msgstr "ルール条件"
 
 msgid "Rule Deactivated"
 msgstr "ルールを無効化した"
@@ -8044,6 +8182,9 @@ msgstr "スキャン項目"
 msgid "Scan Options"
 msgstr "スキャン設定"
 
+msgid "Scan Progress"
+msgstr "スキャン進行状況"
+
 msgid "Scan Result Items"
 msgstr "スキャン結果項目"
 
@@ -8142,6 +8283,9 @@ msgstr "プラグインディレクトリ内のファイル改ざんをスキャ
 
 msgid "Scans for file tampering within the active theme."
 msgstr "有効なテーマ内のファイル改ざんをスキャンします。"
+
+msgid "Scans progress"
+msgstr "スキャン進行状況"
 
 msgid "Scans started."
 msgstr "スキャンが開始されました。"
@@ -8389,6 +8533,9 @@ msgstr "選択されたセッションが削除されました。"
 msgid "Selecting \"%s\" will also restrict all other options."
 msgstr "「%s」を選択すると、他のすべてのオプションも制限されます。"
 
+msgid "Self AutoUpdate"
+msgstr "自動更新"
+
 msgid "Send An Notification Email When Administrator Logs In"
 msgstr "管理者がログインしたときに通知メールを送信"
 
@@ -8418,6 +8565,9 @@ msgstr "サーバーIP"
 
 msgid "Server Name"
 msgstr "サーバー名"
+
+msgid "Server Signature"
+msgstr "サーバー署名"
 
 msgid "Server Software"
 msgstr "サーバーソフトウェア"
@@ -8707,6 +8857,9 @@ msgstr "シグナル"
 msgid "Signals Pushed"
 msgstr "シグナルがプッシュされました"
 
+msgid "Signature Failed"
+msgstr "署名失敗"
+
 msgid "Simple Stats"
 msgstr "シンプル統計"
 
@@ -8748,6 +8901,9 @@ msgstr "サイトロックダウンとファイアウォール"
 
 msgid "Site Scanning"
 msgstr "サイトスキャン"
+
+msgid "Site Secured"
+msgstr "サイト保護済み"
 
 msgid "Site Security Summary"
 msgstr "サイトセキュリティサマリー"
@@ -8799,6 +8955,9 @@ msgstr "サイトのロックダウンが解除されました。"
 
 msgid "Sites"
 msgstr "サイト"
+
+msgid "Sites Listing"
+msgstr "サイト一覧"
 
 msgid "Size"
 msgstr "サイズ"
@@ -8926,6 +9085,12 @@ msgstr "スキャンすべきでないユーザーロールをここで指定し
 msgid "Start Date"
 msgstr "開始日"
 
+msgid "Starting scans…"
+msgstr "スキャンを開始中…"
+
+msgid "Stat: %s"
+msgstr "統計: %s"
+
 msgid "Statistics"
 msgstr "統計情報"
 
@@ -8979,6 +9144,9 @@ msgstr "サマリー生成済み"
 
 msgid "Summary Security Reports."
 msgstr "サマリーセキュリティレポート。"
+
+msgid "Supercharged Security"
+msgstr "強化されたセキュリティ"
 
 msgid "Supply Backup Code"
 msgstr "バックアップコードを入力"
@@ -9073,6 +9241,9 @@ msgstr "Shield を同期"
 msgid "System Info"
 msgstr "システム情報"
 
+msgid "TMP Dir"
+msgstr "TMP ディレクトリ"
+
 msgid "Tables appear to be valid and haven't been repaired."
 msgstr "テーブルは有効なようで、修復されていません。"
 
@@ -9102,6 +9273,9 @@ msgstr "Shield ネットワーク全体で収集されたインテリジェン�
 
 msgid "Technical support for Shield is exclusive to Pro customers."
 msgstr "Shield のテクニカルサポートは Pro 顧客専用です。"
+
+msgid "Temp Dir"
+msgstr "一時ディレクトリ"
 
 msgid "Temporarily Log All Traffic"
 msgstr "すべてのトラフィックを一時的にログ記録"
@@ -9147,6 +9321,9 @@ msgstr "ありがとうございます! - 確認メールをご確認くださ�
 
 msgid "Thanks."
 msgstr "ありがとうございます。"
+
+msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
+msgstr "将来の開発をサポートすることで得られる温かく心地よい気持ち"
 
 msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
 msgstr "%s ディレクトリは %s ディレクトリに似ており、多くの非 WordPress ファイルがそこに保存されています。"
@@ -10180,6 +10357,9 @@ msgstr "サイトに対する違反の合計。"
 msgid "Total requests identified as bots."
 msgstr "ボットとして識別されたリクエストの合計。"
 
+msgid "Tour Finished"
+msgstr "ツアー完了"
+
 msgid "Track All Site Activity: Who, What, When and Where"
 msgstr "すべてのサイトアクティビティを追跡: 誰が、何を、いつ、どこで"
 
@@ -10342,6 +10522,9 @@ msgstr "残念ながら U2F はほとんどの最新ブラウザーで初期設�
 msgid "Unidentified"
 msgstr "未識別"
 
+msgid "Uninstall Shield"
+msgstr "Shield をアンインストール"
+
 msgid "Uninstalled"
 msgstr "アンインストール済み"
 
@@ -10435,6 +10618,9 @@ msgstr "更新と変更"
 msgid "Updates aren't automatically applied for vulnerable plugins."
 msgstr "脆弱なプラグインに対して更新が自動的に適用されません。"
 
+msgid "Upgrade Guide"
+msgstr "アップグレードガイド"
+
 msgid "Upgrade Membership"
 msgstr "メンバーシップをアップグレード"
 
@@ -10467,6 +10653,9 @@ msgstr "アップグレード済み: %s&rarr;%s"
 
 msgid "Uploading of file failed"
 msgstr "ファイルのアップロードに失敗しました"
+
+msgid "Uptime Monitoring"
+msgstr "稼働監視"
 
 msgid "Use %s to test for excessive requests within a %s minutes interval."
 msgstr "%s 分間隔内の過剰なリクエストをテストするには %s を使用します。"
@@ -10837,6 +11026,9 @@ msgstr "番号を確認すると、確認コードを含む SMS が電話に送�
 msgid "Version"
 msgstr "バージョン"
 
+msgid "Version Mismatch"
+msgstr "バージョン不一致"
+
 msgid "Very Strong"
 msgstr "非常に強力"
 
@@ -11134,8 +11326,14 @@ msgstr "WP テーマのアップデートが利用可能です。"
 msgid "Warning"
 msgstr "警告"
 
+msgid "Watch the explainer video"
+msgstr "解説動画を見る"
+
 msgid "We also consider plugins that have been abandoned by their authors to represent a vulnerability on your site."
 msgstr "作成者によって放棄されたプラグインも、サイトの脆弱性を表すと考えています。"
+
+msgid "We appreciate your patience."
+msgstr "ご理解いただきありがとうございます。"
 
 msgid "We ask that you agree to our privacy policy."
 msgstr "プライバシーポリシーに同意していただくようお願いします。"
@@ -11593,6 +11791,9 @@ msgstr "WordPress.org テーマ自動修復"
 msgid "WordPress.org recommends running on at least PHP %s."
 msgstr "WordPress.org は少なくとも PHP %s での実行を推奨しています。"
 
+msgid "Write TMP/Cache DIR"
+msgstr "TMP/キャッシュディレクトリへの書き込み"
+
 msgid "XML-RPC"
 msgstr "XML-RPC"
 
@@ -11604,6 +11805,9 @@ msgstr "XML-RPC ロックダウン"
 
 msgid "XML-RPC Request Blocked."
 msgstr "XML-RPC リクエストがブロックされました。"
+
+msgid "XMLRPC Access"
+msgstr "XMLRPC アクセス"
 
 msgid "XSS Protection"
 msgstr "XSS 保護"
@@ -11917,6 +12121,9 @@ msgstr "ゾーンアクション"
 msgid "Zones"
 msgstr "ゾーン"
 
+msgid "[%s] [%s]"
+msgstr "[%s] [%s]"
+
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[誤検出] は、コードがマルウェアのように見えますが、実際にはクリーンであることを意味します。"
 
@@ -11952,6 +12159,9 @@ msgstr "エントリ: %s (前回: %s)"
 
 msgid "estimated"
 msgstr "推定"
+
+msgid "excludes %s"
+msgstr "%s を除外"
 
 msgid "expires"
 msgstr "期限"
@@ -12093,6 +12303,12 @@ msgstr "silentCAPTCHA のボット検出は、ボットが現在チャレンジ�
 
 msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
 msgstr "silentCAPTCHA のボット最小スコアがかなり低くなっています(%s)。"
+
+msgid "silentCAPTCHAv1 Registration"
+msgstr "silentCAPTCHAv1 登録"
+
+msgid "silentCAPTCHAv2 Registration"
+msgstr "silentCAPTCHAv2 登録"
 
 msgid "suggestion"
 msgstr "提案"

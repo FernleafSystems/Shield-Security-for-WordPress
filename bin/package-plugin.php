@@ -7,35 +7,43 @@ use FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
 $options = getopt( '', [
-    'output::',
-    'skip-root-composer',
-    'skip-lib-composer',
-    'skip-npm-install',
-    'skip-npm-build',
+	'output::',
+	'skip-root-composer',
+	'skip-lib-composer',
+	'skip-npm-install',
+	'skip-npm-build',
+	'skip-directory-clean',
 ] );
 
-$outputDir = $options['output'] ?? null;
+$outputDir = $options[ 'output' ] ?? null;
+// Trim quotes and whitespace from output directory path
+if ( is_string( $outputDir ) ) {
+	$outputDir = trim( $outputDir, " \t\n\r\0\x0B\"'" );
+}
 $packagerOptions = [];
 
-if ( isset( $options['skip-root-composer'] ) ) {
-    $packagerOptions['composer_root'] = false;
+if ( isset( $options[ 'skip-root-composer' ] ) ) {
+	$packagerOptions[ 'composer_root' ] = false;
 }
 
 if ( isset( $options['skip-lib-composer'] ) ) {
-    $packagerOptions['composer_lib'] = false;
+	$packagerOptions['composer_lib'] = false;
 }
 
-if ( isset( $options['skip-npm-install'] ) ) {
-    $packagerOptions['npm_install'] = false;
+if ( isset( $options[ 'skip-npm-install' ] ) ) {
+	$packagerOptions[ 'npm_install' ] = false;
 }
 
-if ( isset( $options['skip-npm-build'] ) ) {
-    $packagerOptions['npm_build'] = false;
+if ( isset( $options[ 'skip-npm-build' ] ) ) {
+	$packagerOptions[ 'npm_build' ] = false;
+}
+
+if ( isset( $options[ 'skip-directory-clean' ] ) ) {
+	$packagerOptions[ 'directory_clean' ] = false;
 }
 
 try {
-    $packager = new PluginPackager();
-    $path = $packager->package( is_string( $outputDir ) ? $outputDir : null, $packagerOptions );
+	$path = ( new PluginPackager() )->package( is_string( $outputDir ) ? $outputDir : null, $packagerOptions );
 	echo '✅ Shield plugin package created at: '.$path.PHP_EOL;
 	exit( 0 );
 }

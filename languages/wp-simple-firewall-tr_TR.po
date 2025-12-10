@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-21 19:13+0000\n"
-"PO-Revision-Date: 2025-11-21 19:13+0000\n"
+"POT-Creation-Date: 2025-12-09 13:12+0000\n"
+"PO-Revision-Date: 2025-12-09 13:12+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: tr_TR\n"
 "MIME-Version: 1.0\n"
@@ -106,6 +106,9 @@ msgstr "%s dizini"
 msgid "%s extension is unavailable."
 msgstr "%s uzantısı kullanılamıyor."
 
+msgid "%s has already taken the necessary action of blocking the request."
+msgstr "%s isteği engelleme konusunda gerekli eylemi zaten gerçekleştirdi."
+
 msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
 msgstr "%s, kullandığınız 3. taraf eklentinin formlarını korumak için bir entegrasyona sahip: %s"
 
@@ -171,6 +174,9 @@ msgstr "Engellemeye kadar %s ihlal"
 
 msgid "%s offers email, Yubikey, Google Authenticator and U2F."
 msgstr "%s e-posta, Yubikey, Google Authenticator ve U2F sunar."
+
+msgid "%s options and modules"
+msgstr "%s seçenekleri ve modülleri"
 
 msgid "%s per day"
 msgstr "Günde %s"
@@ -664,6 +670,9 @@ msgstr "WordPress giriş formlarınıza koruma ekleyin ve kullanıcı hesapları
 msgid "Added Tables"
 msgstr "Eklenen Tablolar"
 
+msgid "Additional IP block lists are available with an upgraded plan."
+msgstr "Yükseltilmiş bir planda ek IP engelleme listeleri kullanılabilir."
+
 msgid "Adjust Scan Results Display"
 msgstr "Tarama Sonuçları Görünümünü Ayarla"
 
@@ -999,6 +1008,9 @@ msgstr "Anonim REST API İstisnaları"
 
 msgid "Anonymous Rest API"
 msgstr "Anonim Rest API"
+
+msgid "Anonymous Usage Statistics"
+msgstr "Anonim Kullanım İstatistikleri"
 
 msgid "Anonymous access to the WordPress REST API has been restricted by %s."
 msgstr "WordPress REST API'ye anonim erişim %s tarafından kısıtlandı."
@@ -1386,6 +1398,9 @@ msgstr "Kötü amaçlı HTTP isteklerini ve sitenize gönderilen verileri otomat
 
 msgid "Automatically delete WordPress files like wp-config-sample.php."
 msgstr "wp-config-sample.php gibi WordPress dosyalarını otomatik olarak silin."
+
+msgid "Automatically delete WordPress files that aren't necessary."
+msgstr "Gerekli olmayan WordPress dosyalarını otomatik olarak silin."
 
 msgid "Automatically detect & repair vulnerable and suspicious files, plugins and themes."
 msgstr "Güvenlik açığı bulunan ve şüpheli dosyaları, eklentileri ve temaları otomatik olarak tespit edin ve onarın."
@@ -1840,6 +1855,9 @@ msgstr "Varsayılan olarak Shield, yönetim alanında ve yönetici araç çubuğ
 msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
 msgstr "Varsayılan olarak Shield, hiçbir şey yapmanıza gerek kalmadan sitenizi çok sayıda tehdide karşı korumak ve kötü ziyaretçileri ve botları engellemek için otomatik olarak yapılandırılmıştır."
 
+msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
+msgstr "Güvenlik Duvarından gelen sinyalleri diğer tüm güvenlik bileşenlerinden gelen sinyallerle birleştirerek %s, zaman içinde kimin insan, kimin bot olduğunu ve kimin iyi ya da kötü amaçla burada olduğunu belirlemek için bir ziyaretçi profili oluşturur."
+
 msgid "Bypass"
 msgstr "Atla"
 
@@ -2112,6 +2130,9 @@ msgstr "Gönderilecek tam verileri görmek için tıklayın."
 
 msgid "Click to view your security summary in-full"
 msgstr "Güvenlik özetinizi tam olarak görüntülemek için tıklayın"
+
+msgid "Clicking the button will send you an email letting you unblock your IP address."
+msgstr "Düğmeye tıklamak, IP adresinizin engellemesini kaldırmanıza olanak tanıyan bir e-posta gönderecektir."
 
 msgid "Client site action failed."
 msgstr "İstemci site eylemi başarısız oldu."
@@ -2388,6 +2409,9 @@ msgstr "MU dosyası oluşturulamadı: %s"
 
 msgid "Could not delete the MU file: %s"
 msgstr "MU dosyası silinemedi: %s"
+
+msgid "Could not determine scan type from the scan result ID %s."
+msgstr "%s tarama sonucu kimliğinden tarama türü belirlenemedi."
 
 msgid "Could not find source from IP: %s"
 msgstr "IP kaynağı bulunamadı: %s"
@@ -2704,6 +2728,9 @@ msgstr "Debug Açık"
 msgid "Debug Tests"
 msgstr "Hata Ayıklama Testleri"
 
+msgid "Debug and Info logging should only be enabled when investigating specific problems."
+msgstr "Hata ayıklama ve bilgi günlüğü yalnızca belirli sorunları araştırırken etkinleştirilmelidir."
+
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Bir bot belirli eylemleri gerçekleştirdiğinde %s'nin nasıl yanıt vermesi gerektiğine karar verin."
 
@@ -2748,6 +2775,9 @@ msgstr "'forceoff' Dosyasını Sil"
 
 msgid "Delete All Bot Signals"
 msgstr "Tüm Bot Sinyallerini Sil"
+
+msgid "Delete All Plugin Settings Upon Plugin Deactivation"
+msgstr "Eklenti Devre Dışı Bırakıldığında Tüm Eklenti Ayarlarını Sil"
 
 msgid "Delete IP"
 msgstr "IP'yi Sil"
@@ -2991,6 +3021,9 @@ msgstr "Sitenizde Eklenti Güvenlik Rozetini Görüntüleyin"
 
 msgid "Display Plugin Security Badge To Your Visitors"
 msgstr "Ziyaretçilerinize Eklenti Güvenlik Rozetini Görüntüleyin"
+
+msgid "Display Plugin Specific Notices"
+msgstr "Eklentiye Özgü Bildirimleri Görüntüle"
 
 msgid "Do any files uploaded in the request match the given set of filenames."
 msgstr "İstekte yüklenen herhangi bir dosya verilen dosya adları kümesiyle eşleşiyor mu?"
@@ -4588,6 +4621,9 @@ msgstr "Bir yol herhangi bir çekirdek WordPress diziniyle eşleşirse, otomatik
 msgid "If a path you add matches your website root (/), it'll be removed automatically."
 msgstr "Eklediğiniz bir yol web sitenizin kök diziniyle (/) eşleşirse, otomatik olarak kaldırılacaktır."
 
+msgid "If a request matches any exclusion rule, it wont show in the traffic logs."
+msgstr "Bir istek herhangi bir hariç tutma kuralıyla eşleşirse trafik günlüklerinde görünmez."
+
 msgid "If a user has multiple roles assigned to it, all roles will be checked against this list."
 msgstr "Bir kullanıcıya birden fazla rol atanmışsa, tüm roller bu listeye göre kontrol edilecektir."
 
@@ -5247,6 +5283,9 @@ msgstr "Karmaşık bir alandır ve yanlış kullanılırsa ön uç kullanıcı d
 
 msgid "It's best practice to protect user access with at least one 2FA method."
 msgstr "Kullanıcı erişimini en az bir 2FA yöntemiyle korumak en iyi uygulamadır."
+
+msgid "It's critical that users don't re-use passwords, particularly if they've been exposed through a data breach on another site or service."
+msgstr "Kullanıcıların parolaları yeniden kullanmaması kritik önem taşır, özellikle de başka bir site veya hizmetteki veri ihlali yoluyla açığa çıkmışlarsa."
 
 msgid "It's critical to regularly scan WordPress files for signs of intrusion."
 msgstr "WordPress dosyalarını düzenli olarak izinsiz giriş belirtileri için taramak kritik öneme sahiptir."
@@ -6136,6 +6175,9 @@ msgstr "Kullanılabilir meta yok"
 msgid "No modules specified in the plugin config."
 msgstr "Eklenti yapılandırmasında belirtilen modül yok."
 
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
+msgstr "Artık hatırlamanız/kopyalayıp yapıştırmanız gereken lisans anahtarları yok! Site adresinizi ShieldPRO kontrol panelinizde etkinleştirin ve Pro özelliklerinin sitenizde otomatik olarak etkinleştirilmesini sağlayın."
+
 msgid "No new session activity recorded yet."
 msgstr "Henüz yeni oturum etkinliği kaydedilmedi."
 
@@ -6622,6 +6664,9 @@ msgstr "Parola Güncellendi"
 msgid "Password polices aren't enabled which may lead to poor password hygiene."
 msgstr "Parola politikaları etkin değil, bu da zayıf parola hijyenine yol açabilir."
 
+msgid "Password policies are enabled to help promote good password hygiene."
+msgstr "İyi parola hijyenini teşvik etmeye yardımcı olmak için parola politikaları etkinleştirildi."
+
 msgid "Password updated for user '{{user_login}}'."
 msgstr "'{{user_login}}' kullanıcısı için parola güncellendi."
 
@@ -6759,6 +6804,9 @@ msgstr "Lütfen IP adresinizin engelinin kaldırılmasını talep etmek için si
 
 msgid "Please contact support if this message persists for over 24hrs."
 msgstr "Bu mesaj 24 saatten fazla devam ederse lütfen destek ekibiyle iletişime geçin."
+
+msgid "Please contact the developer of a plugin to ask them for their REST API namespace if you need it."
+msgstr "Gerekiyorsa REST API ad alanını sormak için lütfen eklenti geliştiricisiyle iletişime geçin."
 
 msgid "Please contact the site administrator if you need further guidance."
 msgstr "Daha fazla rehberliğe ihtiyacınız varsa lütfen site yöneticisiyle iletişime geçin."
@@ -6966,6 +7014,9 @@ msgstr "Eklenti Rozet Logosu Adresi"
 
 msgid "Plugin Deactivated"
 msgstr "Eklenti Etkisizleştirildi"
+
+msgid "Plugin Deactivation Details"
+msgstr "Eklenti Devre Dışı Bırakma Ayrıntıları"
 
 msgid "Plugin Defaults"
 msgstr "Eklenti Varsayılanları"
@@ -7408,6 +7459,9 @@ msgstr "IP Whois Sorgula"
 msgid "Quickly setup your site by importing from another site or a backup."
 msgstr "Başka bir siteden veya yedekten içe aktararak sitenizi hızlıca kurun."
 
+msgid "Rate Limit Abusive Requests"
+msgstr "Kötüye Kullanım İsteklerini Hız Sınırla"
+
 msgid "Rate Limit Exceeded"
 msgstr "Hız Sınırı Aşıldı"
 
@@ -7458,6 +7512,9 @@ msgstr "Neden"
 
 msgid "Reason: %s"
 msgstr "Neden: %s"
+
+msgid "Receive an alert upon plugin deactivation"
+msgstr "Eklenti devre dışı bırakıldığında uyarı alın"
 
 msgid "Receive instant alerts from the plugin for important events."
 msgstr "Önemli olaylar için eklentiden anlık uyarılar alın."
@@ -7656,6 +7713,9 @@ msgstr "Tekrarlanan İnsan İstenmeyen"
 
 msgid "Repeated failed attempts to authenticate will probably lock you out of this site."
 msgstr "Kimlik doğrulama için tekrarlanan başarısız girişimler muhtemelen sizi bu siteden kilitleyecektir."
+
+msgid "Repeated login attempts that fail will result in a complete ban of your IP Address."
+msgstr "Başarısız olan tekrarlanan giriş denemeleri IP adresinizin tamamen yasaklanmasına neden olur."
 
 msgid "Report Email"
 msgstr "Rapor E-postası"
@@ -8125,8 +8185,14 @@ msgstr "Tarama Seçenekleri"
 msgid "Scan Progress"
 msgstr "Tarama İlerlemesi"
 
+msgid "Scan Result Items"
+msgstr "Tarama Sonucu Ögeleri"
+
 msgid "Scan Result Items Metadata"
 msgstr "Tarama Sonucu Öğeleri Meta Verileri"
+
+msgid "Scan Result Sets"
+msgstr "Tarama Sonucu Kümeleri"
 
 msgid "Scan Results"
 msgstr "Tarama Sonuçları"
@@ -8224,6 +8290,9 @@ msgstr "Tarama ilerlemesi"
 msgid "Scans started."
 msgstr "Taramalar başlatıldı."
 
+msgid "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
+msgstr "WordPress yorumlarının içeriğini istenmeyen içeriğe işaret eden anahtar kelimeler açısından tarar ve yorumu aşağıdaki tercih ettiğiniz ayara göre işaretler."
+
 msgid "Scheduled an automatic import after receiving notice that an options import was required from the master site."
 msgstr "Ana siteden seçeneklerin içe aktarılması gerektiği bildirimi alındıktan sonra otomatik içe aktarma zamanlandı."
 
@@ -8310,6 +8379,9 @@ msgstr "Security Admin kısıtlamaları kaldırıldı"
 
 msgid "Security Admin session has nearly timed-out."
 msgstr "Security Admin oturumu neredeyse zaman aşımına uğradı."
+
+msgid "Security Admin session has timed-out."
+msgstr "Security Admin oturumu zaman aşımına uğradı."
 
 msgid "Security Admins"
 msgstr "Güvenlik Yöneticileri"
@@ -8761,11 +8833,23 @@ msgstr "ShieldPRO lisans kontrolü başarılı oldu."
 msgid "Should be uninstalled"
 msgstr "Kaldırılmalı"
 
+msgid "Show Plugin Badge"
+msgstr "Eklenti Rozetini Göster"
+
+msgid "Show Re-Install Links"
+msgstr "Yeniden Yükleme Bağlantılarını Göster"
+
+msgid "Show Re-Install Links For Plugins"
+msgstr "Eklentiler İçin Yeniden Yükleme Bağlantılarını Göster"
+
 msgid "Show Your Visitors That You Take Security Seriously!"
 msgstr "Ziyaretçilerinize Güvenliği Ciddiye Aldığınızı Gösterin!"
 
 msgid "Show help video for this section"
 msgstr "Bu bölüm için yardım videosunu göster"
+
+msgid "Show links to re-install plugins and offer re-install when activating plugins."
+msgstr "Eklentileri yeniden yüklemek için bağlantılar gösterin ve eklentileri etkinleştirirken yeniden yükleme seçeneği sunun."
 
 msgid "Signal"
 msgstr "Sinyal"
@@ -8970,6 +9054,9 @@ msgstr "Üzgünüz, MainWP entegrasyonuna erişmek için Shield Security üyeli�
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "İhlallerden bahsetmişken, ihlallerin gerçekleşmesine izin veren eklentiler ve temalar içindeki güvenlik açıkları saldırılar için birincil hedef olduğundan bunları erken tespit etmeliyiz."
+
+msgid "Specific file scan areas."
+msgstr "Belirli dosya tarama alanları."
 
 msgid "Specify An Automatic Timeout Interval For Security Admin Access"
 msgstr "Güvenlik Yöneticisi Erişimi İçin Otomatik Zaman Aşımı Aralığı Belirleyin"
@@ -9502,6 +9589,9 @@ msgstr "Bir IP adresinin engellenmesinden önce izin verilen ihlal sayısı"
 msgid "The offending request parameter was '{{param}}' with a value of '{{value}}'."
 msgstr "İhlal eden istek parametresi '{{value}}' değerine sahip '{{param}}' idi."
 
+msgid "The offense limit is quite high - you may want to consider decreasing it."
+msgstr "İhlal sınırı oldukça yüksek - azaltmayı düşünebilirsiniz."
+
 msgid "The only WordPress security plugin to add monitoring of your %s files with automatic rollback and recovery."
 msgstr "%s dosyalarınızın otomatik geri alma ve kurtarma ile izlenmesini ekleyen tek WordPress güvenlik eklentisi."
 
@@ -9519,6 +9609,9 @@ msgstr "Eklenti rozeti ayrıca ziyaretçilere web sitesi güvenliğinizi ciddiye
 
 msgid "The plugin defaults to the site administration email address, which is: %s"
 msgstr "Eklenti varsayılan olarak site yönetimi e-posta adresini kullanır: %s"
+
+msgid "The plugin developer chose not to use SVN tags for this version, so actions such as file repair and file diff aren't available."
+msgstr "Eklenti geliştiricisi bu sürüm için SVN etiketlerini kullanmamayı seçti, bu nedenle dosya onarımı ve dosya farkı gibi eylemler kullanılamıyor."
 
 msgid "The plugin is currently entirely disabled."
 msgstr "Eklenti şu anda tamamen devre dışı."
@@ -9832,6 +9925,9 @@ msgstr "Bu bildirimler bu seçenek kapatılarak gizlenebilir."
 msgid "These security options tie-in with your Login security measures."
 msgstr "Bu güvenlik seçenekleri Giriş güvenlik önlemlerinizle bağlantılıdır."
 
+msgid "These settings are dependent on your requirements."
+msgstr "Bu ayarlar gereksinimlerinize bağlıdır."
+
 msgid "They aren't normally checked for Bots since they require a custom integration."
 msgstr "Özel bir entegrasyon gerektirdikleri için normalde Botlar için kontrol edilmezler."
 
@@ -9889,6 +9985,9 @@ msgstr "Bu %s değerinden az olamaz."
 msgid "This code will be displayed only once and you may use it to verify your login only once."
 msgstr "Bu kod yalnızca bir kez görüntülenecek ve girişinizi doğrulamak için yalnızca bir kez kullanabilirsiniz."
 
+msgid "This combines all the security configuration components below and provides you with an overall configuration score."
+msgstr "Bu, aşağıdaki tüm güvenlik yapılandırma bileşenlerini birleştirir ve size genel bir yapılandırma puanı sağlar."
+
 msgid "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans."
 msgstr "Bu karmaşık iş yoğun hesaplama gerektirir ve botlara bir işleme maliyeti yükler. Botlar genellikle bu işi yapmaz ve bu, botlarla insanları ayırt etmeye yardımcı olur."
 
@@ -9945,6 +10044,9 @@ msgstr "Bu, veri ihlallerinin oluşmamasını ve web sitemizin ve verilerimizin 
 
 msgid "This includes the WordPress default %s username, if you've removed that account."
 msgstr "Bu hesabı kaldırdıysanız, WordPress varsayılan %s kullanıcı adı da buna dahildir."
+
+msgid "This information is purged upon logout or data cleanup."
+msgstr "Bu bilgiler oturum kapatma veya veri temizleme işleminde silinir."
 
 msgid "This information is stored for security purposes by the site administrator."
 msgstr "Bu bilgiler site yöneticisi tarafından güvenlik amaçlı saklanmaktadır."
@@ -10017,6 +10119,9 @@ msgstr "Bu bağlantı YALNIZCA bu e-postayı talep etmek için kullandığınız
 
 msgid "This log entry doesn't mean it was sent or received successfully, but only that an attempt was made."
 msgstr "Bu günlük kaydı başarıyla gönderildiği veya alındığı anlamına gelmez, yalnızca bir deneme yapıldığı anlamına gelir."
+
+msgid "This means: choose a higher minimum score to be more strict and capture more bots (but potentially block someone that appears to be a bot, but isn't)."
+msgstr "Bu şu anlama gelir: daha katı olmak ve daha fazla botu yakalamak için daha yüksek bir minimum puan seçin (ancak bot gibi görünen ama olmayan birini potansiyel olarak engelleyebilirsiniz)."
 
 msgid "This method for Yubikeys is no longer supported. Please see your user profile"
 msgstr "Yubikey'ler için bu yöntem artık desteklenmiyor. Lütfen kullanıcı profilinize bakın"
@@ -10377,6 +10482,9 @@ msgstr "Etkinleştirme Adresi"
 
 msgid "Un-Checking this option will completely disable the %s module."
 msgstr "Bu seçeneğin işaretini kaldırmak %s modülünü tamamen devre dışı bırakacaktır."
+
+msgid "Unauthorized Deactivation Attempt"
+msgstr "Yetkisiz Devre Dışı Bırakma Girişimi"
 
 msgid "Unavailable"
 msgstr "Kullanılamıyor"
@@ -10891,6 +10999,9 @@ msgstr "Doğrulama e-postası yeniden gönderildi."
 msgid "Verification of import-origin failed."
 msgstr "İçe aktarma kaynağının doğrulaması başarısız oldu."
 
+msgid "Verified users will be converted to usernames."
+msgstr "Doğrulanmış kullanıcılar kullanıcı adlarına dönüştürülecektir."
+
 msgid "Verifies the identity of users who log in to your site - i.e. they are who they say they are."
 msgstr "Sitenize giriş yapan kullanıcıların kimliğini doğrular - yani söyledikleri kişi olduklarını teyit eder."
 
@@ -11085,6 +11196,9 @@ msgstr "Ziyaretçiler geçerli bir SSL Sertifikası ile korunmuyor."
 
 msgid "Visitors aren't protected with a valid SSL Certificate."
 msgstr "Ziyaretçiler geçerli bir SSL Sertifikası ile korunmuyor."
+
+msgid "Visitors that have accumulated a high IP reputation score should ideally never be blocked."
+msgstr "Yüksek IP itibar puanı biriktirmiş ziyaretçiler ideal olarak asla engellenmemelidir."
 
 msgid "Vulnerabilities"
 msgstr "Güvenlik Açıkları"
@@ -11794,6 +11908,9 @@ msgstr "Bu yöntemi tekrar kullanmak istiyorsanız profilinize gidip yeni bir ko
 msgid "You should also carefully review the automatic black list settings."
 msgstr "Otomatik kara liste ayarlarını da dikkatlice gözden geçirmelisiniz."
 
+msgid "You should fully understand the implications of this, including the inability to deactivate the plugin from the WordPress dashboard while this setting is active."
+msgstr "Bu ayar etkinken WordPress kontrol panelinden eklentiyi devre dışı bırakamama dahil olmak üzere bunun sonuçlarını tam olarak anlamalısınız."
+
 msgid "You should keep all plugins and themes up-to-date, and remove anything you aren't using."
 msgstr "Tüm eklentileri ve temaları güncel tutmalı ve kullanmadığınız her şeyi kaldırmalısınız."
 
@@ -11901,6 +12018,9 @@ msgstr "Giriş adresiniz değişmedi çünkü mevcut barındırma/PHP yapıland�
 
 msgid "Your maximum offense limit before blocking an IP seems high: %s"
 msgstr "Bir IP'yi engellemeden önceki maksimum ihlal sınırınız yüksek görünüyor: %s"
+
+msgid "Your overall grade incorporates all other security scores as well as some components not directly related to the plugin."
+msgstr "Genel notunuz, diğer tüm güvenlik puanlarının yanı sıra eklentiyle doğrudan ilgili olmayan bazı bileşenleri de içerir."
 
 msgid "Your password doesn't meet requirements set by your security administrator."
 msgstr "Parolanız güvenlik yöneticiniz tarafından belirlenen gereksinimleri karşılamıyor."

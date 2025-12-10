@@ -248,7 +248,7 @@ Shield Security Testing
 ├── bin/
 │   ├── run-tests.ps1           # Unified test runner (PowerShell)
 │   ├── run-docker-tests.sh     # Simple CI-equivalent script
-│   ├── build-package.sh        # Package builder
+│   ├── package-plugin.php      # Package builder (via composer package-plugin)
 │   └── install-wp-tests.sh     # WordPress test framework installer
 ├── tests/
 │   ├── Unit/                   # Fast unit tests (Brain Monkey)
@@ -882,12 +882,12 @@ Shield Security uses a sophisticated 5-level fallback system:
 **Package Testing (Production Validation)**
 - **Purpose**: Test production-ready built package
 - **Environment**: Uses `vendor_prefixed` dependencies, cleaned autoload files
-- **Process**: Automatically builds package using `bin/build-package.sh`
+- **Process**: Automatically builds package using `composer package-plugin` (supersedes deprecated `bin/build-package.sh`)
 - **Validation**: Ensures package structure and production readiness
 - **Command**: `.\bin\run-tests.ps1 all -Docker -Package`
 
 #### Package Testing Process
-1. **Build Phase**: Runs `bin/build-package.sh` to create production package
+1. **Build Phase**: Runs `composer package-plugin` (via `bin/package-plugin.php`) to create production package
 2. **Prefix Phase**: Dependencies moved to `vendor_prefixed` with Strauss
 3. **Clean Phase**: Development files excluded, autoload references cleaned
 4. **Test Phase**: Docker container tests the built package

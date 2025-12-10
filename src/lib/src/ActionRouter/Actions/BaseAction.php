@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
 	IpBlockedException,
@@ -26,6 +27,8 @@ abstract class BaseAction extends DynPropertiesClass {
 	public const SLUG = '';
 
 	private ActionResponse $response;
+
+	private RoutedResponse $routedResponse;
 
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
@@ -106,8 +109,9 @@ abstract class BaseAction extends DynPropertiesClass {
 		return $this->response;
 	}
 
-	public function setResponse( ActionResponse $response ) {
-		$this->response = $response;
+	public function setResponse( RoutedResponse $response ) {
+		$this->routedResponse = $response;
+		$this->response = $this->routedResponse->actionResponse();
 	}
 
 	protected function getDefaults() :array {
