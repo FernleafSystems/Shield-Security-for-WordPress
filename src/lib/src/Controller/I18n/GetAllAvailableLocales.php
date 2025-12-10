@@ -15,7 +15,7 @@ class GetAllAvailableLocales {
 	protected function enumFromFS() :array {
 		$locales = [];
 		try {
-			$regex = sprintf( '^%s\-(.+)\.mo$', self::con()->getTextDomain() );
+			$regex = sprintf( '#^%s\-(.+)\.mo$#', self::con()->getTextDomain() );
 			foreach ( new \FilesystemIterator( self::con()->getPath_Languages() ) as $fsItem ) {
 				/** @var \SplFileInfo $fsItem */
 				if ( $fsItem->isFile() && \preg_match( $regex, $fsItem->getBasename(), $matches ) ) {
