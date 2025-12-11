@@ -56,6 +56,11 @@
             "title":    "Attempt to improve ability to correctly identify Facebook bots with rDNS that doesn't resolve for IPv6 IP addresses.",
             "category": "enhancement",
             "type":     "fixed"
+          },
+          {
+            "title":    "Fix issue with CrowdSec Signals push where some payloads were not of the expected format.",
+            "category": "bug",
+            "type":     "fixed"
           }
         ]
       },

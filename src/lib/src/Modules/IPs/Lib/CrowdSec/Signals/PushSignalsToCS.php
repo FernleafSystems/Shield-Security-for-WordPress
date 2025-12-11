@@ -53,7 +53,7 @@ class PushSignalsToCS {
 
 			if ( !empty( $toPush ) ) {
 				try {
-					$watcher->pushSignals( $toPush );
+					$watcher->pushSignals( \array_values( $toPush ) );
 					$pushCount += \count( $toPush );
 				}
 				catch ( ClientException $e ) {
