@@ -65,10 +65,15 @@ class TableDataExport {
 			empty( $limit ) ? '' : sprintf( ' LIMIT %s OFFSET %s', $limit, $offset )
 		) );
 
-		$this->previousDataRows = \is_array( $rows ) ? \count( $rows ) : null;
-		if ( $this->previousDataRows !== null ) {
-			$this->totalDataRows += $this->previousDataRows;
+		// CRITICAL: Detect query failures early to prevent infinite loops
+		if ( !\is_array( $rows ) ) {
+			throw new \Exception( sprintf( 'Database query failed for table: %s', $this->table ) );
 		}
+
+		$this->previousDataRows = \count( $rows );
+		// Use null coalescing to avoid PHP 8.1+ deprecation warning for null arithmetic
+		$this->totalDataRows = ( $this->totalDataRows ?? 0 ) + $this->previousDataRows;
+
 		if ( empty( $rows ) ) {
 			$this->mostRecentRow = null;
 			return;
