@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class MfaEmailDisable extends MfaUserConfigBase {
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
+
+class MfaEmailDisable extends BaseAction {
+
+	use SecurityAdminRequired;
 
 	public const SLUG = 'mfa_email_disable';
 

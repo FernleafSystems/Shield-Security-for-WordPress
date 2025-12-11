@@ -346,7 +346,7 @@ class AssetsCustomizer {
 				'data'    => fn() => [
 					'ajax' => [
 						'resend_verification_email'        => ActionData::Build( Actions\MfaEmailSendVerification::class ),
-						'profile_email2fa_disable'         => ActionData::Build( Actions\MfaEmailDisable::class ),
+						Actions\MfaEmailDisable::SLUG         => ActionData::Build( Actions\MfaEmailDisable::class ),
 						Actions\DismissAdminNotice::SLUG   => ActionData::Build( Actions\DismissAdminNotice::class ),
 						Actions\PluginSetTracking::SLUG    => ActionData::Build( Actions\PluginSetTracking::class ),
 						Actions\PluginAutoDbRepair::SLUG   => ActionData::Build( Actions\PluginAutoDbRepair::class ),
