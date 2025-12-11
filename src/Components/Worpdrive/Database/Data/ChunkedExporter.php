@@ -65,7 +65,20 @@ class ChunkedExporter {
 		$lastProcessedPrimaryKey = $this->startingOffset; // keep track of the last PK we touched so stalled requests can't reset progress to 0
 		$currentOffsetForResponse = $this->startingOffset;
 		$tableExportComplete = false;
+
+		// Guard against infinite loops: calculate maximum reasonable iterations
+		// +10 buffer: generous margin for edge cases (uneven chunks, off-by-one).
+		// Intentionally large because false positives are worse than a few extra iterations.
+		$maxIterations = (int)\ceil( $this->maxPageRows / $this->chunkSize ) + 10;
+		$iterations = 0;
+
 		do {
+			if ( ++$iterations > $maxIterations ) {
+				throw new \Exception( sprintf(
+					'Export exceeded maximum iterations (%d) for table - possible infinite loop detected',
+					$maxIterations
+				) );
+			}
 			if ( $isFirstLoop ) {
 				$exporter->buildHeader()
 						 ->buildPreDataExport()
@@ -114,13 +127,23 @@ class ChunkedExporter {
 			else {
 				$this->writeDump( $tableDataExp->getContent( true ) );
 			}
-		} while ( !$pageExportComplete && $exporter->getTotalDataRowsCount() < $this->maxPageRows );
+		} while ( !$pageExportComplete && $tableDataExp->getTotalDataRowsCount() < $this->maxPageRows );
+
+		// CRITICAL: If export is not complete, offset MUST have advanced
+		// Otherwise we'll get infinite loops at the server level
+		if ( !$tableExportComplete && $currentOffsetForResponse <= $this->startingOffset ) {
+			throw new \Exception( sprintf(
+				'Export failed to make progress for table %s - offset did not advance from %d',
+				$this->table,
+				$this->startingOffset
+			) );
+		}
 
 		return [
 			'table_export_complete' => $tableExportComplete,
 			// current_offset feeds the caller's map; keep it advancing even when PK-based paging is used
 			'current_offset'        => $currentOffsetForResponse,
-			'exported_rows'         => $tableDataExp->getTotalDataRowsCount(),
+			'exported_rows'         => $tableDataExp->getTotalDataRowsCount() ?? 0,
 		];
 	}
 
