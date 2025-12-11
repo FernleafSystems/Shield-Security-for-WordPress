@@ -7,8 +7,8 @@ Tags: firewall, bots, activity log, 2fa, security
 Requires at least: 5.7
 Requires PHP: 7.4
 Recommended PHP: 7.4
-Tested up to: 6.8
-Stable tag: 21.0.7
+Tested up to: 6.9
+Stable tag: 21.0.8
 
 Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield stops them.
 

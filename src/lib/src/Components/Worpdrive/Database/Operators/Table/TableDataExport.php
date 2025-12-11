@@ -62,7 +62,7 @@ class TableDataExport {
 			$this->table,
 			empty( $where ) ? '' : sprintf( ' WHERE %s', \implode( ' AND ', $where ) ),
 			$orderBy,
-			empty( $limit ) ? '' : sprintf( ' LIMIT %s OFFSET %s;', $limit, $offset )
+			empty( $limit ) ? '' : sprintf( ' LIMIT %s OFFSET %s', $limit, $offset )
 		) );
 
 		$this->previousDataRows = \is_array( $rows ) ? \count( $rows ) : null;

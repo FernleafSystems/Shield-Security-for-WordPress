@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "21.0.7",
-    "release_timestamp":       1755083000,
-    "build":                   "202508.1301",
+    "version":                 "21.0.8",
+    "release_timestamp":       1765482000,
+    "build":                   "202512.1101",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -3027,6 +3027,11 @@
           {
             "value_key": "memberpress",
             "text":      "MemberPress",
+            "cap":       "thirdparty_scan_users"
+          },
+          {
+            "value_key": "paidmembershipspro",
+            "text":      "Paid Memberships Pro",
             "cap":       "thirdparty_scan_users"
           },
           {
