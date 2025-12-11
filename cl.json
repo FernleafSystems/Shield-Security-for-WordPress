@@ -36,6 +36,30 @@
     ],
     "patches":     [
       {
+        "version":     "8",
+        "released_at": 1765482000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "[Minor Security Vulnerability] Authenticated session (subscriber+) could potentially disable 2FA by email for all users.",
+            "description": [
+              "This vulnerability is extremely low risk, and highly unlikely to ever be targeted successfully.",
+              "The attacker would need to hijack/steal a current user session as well as trigger a XSS attack to gain certain information."
+            ]
+          },
+          {
+            "title":    "Add SilentCAPTCHA support for Paid Memberships Pro plugin checkout requests.",
+            "category": "enhancement",
+            "type":     "new"
+          },
+          {
+            "title":    "Attempt to improve ability to correctly identify Facebook bots with rDNS that doesn't resolve for IPv6 IP addresses.",
+            "category": "enhancement",
+            "type":     "fixed"
+          }
+        ]
+      },
+      {
         "version":     "7",
         "released_at": 1755083000,
         "items":       [
