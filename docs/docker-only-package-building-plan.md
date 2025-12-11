@@ -4,22 +4,22 @@ overview: ""
 todos:
   - id: docker-check
     content: Add Docker availability check (insert after line 5, before line 7)
-    status: pending
+    status: completed
   - id: package-dir
     content: Update PACKAGE_DIR + add PACKAGE_DIR_RELATIVE for Docker
-    status: pending
+    status: completed
   - id: npm-docker
     content: Replace npm with Docker node:18, preserve cache, move cache file to tmp/
-    status: pending
+    status: completed
   - id: composer-docker
     content: Replace composer with Docker composer:2, use relative path + --skip-directory-clean
-    status: pending
+    status: completed
   - id: test-windows
     content: Test script in Git Bash on Windows without local PHP
-    status: pending
+    status: completed
   - id: test-full
     content: Verify package builds correctly and tests pass
-    status: pending
+    status: completed
 ---
 
 # Docker-Only Package Building for Local Test Runner
