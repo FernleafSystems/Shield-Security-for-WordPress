@@ -78,8 +78,13 @@ class PluginPackager {
 			);
 		}
 
-		// Build the package using PHP (cross-platform, preserves line endings)
-		$this->copyPluginFiles( $targetDir );
+		// Build the package - either copy files or assume they're already in place
+		if ( !$options[ 'skip_copy' ] ) {
+			$this->copyPluginFiles( $targetDir );
+		}
+		else {
+			$this->log( 'Skipping file copy (--skip-copy enabled, files assumed to be in place)' );
+		}
 		$this->installComposerDependencies( $targetDir );
 		$this->downloadStraussPhar( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
@@ -247,6 +252,7 @@ class PluginPackager {
 			'npm_install'     => true,
 			'npm_build'       => true,
 			'directory_clean' => true,
+			'skip_copy'       => false, // Skip file copying (use when files already in place via git archive)
 		];
 
 		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
@@ -468,27 +474,43 @@ class PluginPackager {
 			],
 		] );
 
-		// Clear any previous errors
-		error_clear_last();
+		// Attempt download with retries for transient network failures (e.g., GitHub 503)
+		$maxRetries = 3;
+		$retryDelay = 5; // seconds
+		$content = false;
+		$lastErrorMessage = 'Unknown error';
 
-		// Attempt to download the file
-		$content = @file_get_contents( self::STRAUSS_DOWNLOAD_URL, false, $context );
+		for ( $attempt = 1; $attempt <= $maxRetries; $attempt++ ) {
+			error_clear_last();
+			$content = @file_get_contents( self::STRAUSS_DOWNLOAD_URL, false, $context );
+
+			if ( $content !== false ) {
+				break; // Success
+			}
+
+			$lastError = error_get_last();
+			$lastErrorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
+
+			if ( $attempt < $maxRetries ) {
+				$this->log( sprintf( '  ⚠️  Download attempt %d/%d failed: %s', $attempt, $maxRetries, $lastErrorMessage ) );
+				$this->log( sprintf( '  Retrying in %d seconds...', $retryDelay ) );
+				sleep( $retryDelay );
+			}
+		}
 
 		if ( $content === false ) {
-			$lastError = error_get_last();
-			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
-
 			throw new RuntimeException(
 				sprintf(
-					'Strauss download failed: Unable to download strauss.phar from GitHub. '.
+					'Strauss download failed: Unable to download strauss.phar from GitHub after %d attempts. '.
 					'WHAT FAILED: Could not retrieve file from %s. '.
 					'WHY: %s. '.
 					'This may be due to: (1) Network connectivity issues, (2) GitHub server unavailability, '.
 					'(3) Firewall or proxy blocking the connection, (4) SSL certificate verification failure. '.
 					'HOW TO FIX: Check your internet connection and try again. If the problem persists, '.
 					'you can manually download strauss.phar from the URL above and place it at: %s',
+					$maxRetries,
 					self::STRAUSS_DOWNLOAD_URL,
-					$errorMessage,
+					$lastErrorMessage,
 					$targetPath
 				)
 			);

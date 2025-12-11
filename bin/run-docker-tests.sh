@@ -199,8 +199,8 @@ fi
 
 echo "   ✅ Dependencies installed successfully"
 
-# Build plugin package using Docker (no local PHP required)
-echo "📦 Building plugin package using Docker..."
+# Build plugin package using git archive (FAST) + Docker for Strauss
+echo "📦 Building plugin package..."
 
 # Clean package directory on HOST (before Docker runs)
 if [ -d "$PACKAGE_DIR" ]; then
@@ -216,20 +216,59 @@ mkdir -p "$PACKAGE_DIR" || {
     exit 1
 }
 
-# Run composer package-plugin inside Docker
-# CRITICAL: Use RELATIVE path ($PACKAGE_DIR_RELATIVE) not absolute path ($PACKAGE_DIR)
-# Inside Docker, project is mounted at /app, not the host path
-# The PluginPackager resolves relative paths against its project root (/app)
-# Using --skip-directory-clean because:
-#   1. We already cleaned the directory manually above
-#   2. PluginPackager blocks cleaning directories within project root for safety
-# COMPOSER_PROCESS_TIMEOUT=900 extends the 300s default for Strauss prefixing (can take 5-10 min)
+# Export tracked files using git archive (MUCH faster than PHP file-by-file copy)
+# This single operation replaces the slow Symfony Filesystem mirror() calls
+echo "   Exporting tracked files with git archive..."
+git archive HEAD -- \
+    icwp-wpsf.php \
+    plugin_init.php \
+    readme.txt \
+    plugin.json \
+    cl.json \
+    plugin_autoload.php \
+    plugin_compatibility.php \
+    uninstall.php \
+    unsupported.php \
+    src \
+    assets \
+    flags \
+    languages \
+    templates \
+    | tar -x -C "$PACKAGE_DIR" || {
+    echo "❌ git archive failed"
+    echo "   Make sure all files are committed to git"
+    exit 1
+}
+echo "   ✅ Tracked files exported (git archive)"
+
+# Copy built assets (gitignored but required for package)
+# assets/dist/ is created by npm build but excluded from git tracking
+if [ -d "$PROJECT_ROOT/assets/dist" ]; then
+    echo "   Copying built assets (assets/dist/)..."
+    cp -r "$PROJECT_ROOT/assets/dist" "$PACKAGE_DIR/assets/dist" || {
+        echo "❌ Failed to copy assets/dist"
+        exit 1
+    }
+    echo "   ✅ Built assets copied"
+else
+    echo "   ⚠️  Warning: assets/dist/ not found"
+    echo "      This may cause package verification to fail"
+    echo "      Ensure npm build ran successfully"
+fi
+
+echo "   ✅ Package structure created"
+
+# Run composer package-plugin inside Docker for Strauss prefixing
+# --skip-copy: Files already in place via git archive above
+# --skip-directory-clean: Directory already clean
+# COMPOSER_PROCESS_TIMEOUT=900: Strauss can take 5-10 minutes
+echo "   Running Strauss namespace prefixing via Docker..."
 docker run --rm \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
     -e COMPOSER_PROCESS_TIMEOUT=900 \
     composer:2 \
-    composer package-plugin -- --output="$PACKAGE_DIR_RELATIVE" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean || {
+    composer package-plugin -- --output="$PACKAGE_DIR_RELATIVE" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean --skip-copy || {
     echo "❌ Package build failed"
     echo "   Please check the error messages above"
     exit 1
