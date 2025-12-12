@@ -13,6 +13,7 @@ $options = getopt( '', [
 	'skip-npm-install',
 	'skip-npm-build',
 	'skip-directory-clean',
+	'skip-copy',
 ] );
 
 $outputDir = $options[ 'output' ] ?? null;
@@ -40,6 +41,10 @@ if ( isset( $options[ 'skip-npm-build' ] ) ) {
 
 if ( isset( $options[ 'skip-directory-clean' ] ) ) {
 	$packagerOptions[ 'directory_clean' ] = false;
+}
+
+if ( isset( $options[ 'skip-copy' ] ) ) {
+	$packagerOptions[ 'skip_copy' ] = true;
 }
 
 try {

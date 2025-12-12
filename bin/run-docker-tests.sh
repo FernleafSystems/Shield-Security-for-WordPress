@@ -4,6 +4,29 @@
 
 set -e
 
+# Verify Docker is available (required for all operations)
+if ! command -v docker >/dev/null 2>&1; then
+    echo "❌ Error: Docker is required but not found"
+    echo ""
+    echo "   This script uses Docker for all build and test operations."
+    echo "   Please install Docker Desktop from https://www.docker.com/products/docker-desktop"
+    echo ""
+    exit 1
+fi
+
+# Verify Docker daemon is running
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Error: Docker is installed but not running"
+    echo ""
+    echo "   Please start Docker Desktop and try again."
+    echo ""
+    exit 1
+fi
+
+# Disable MSYS/Git Bash path conversion on Windows
+# Prevents /app from being converted to C:/Program Files/Git/app
+export MSYS_NO_PATHCONV=1
+
 echo "🚀 Starting Local Docker Tests (matching CI configuration)"
 echo "=================================================="
 
@@ -27,10 +50,17 @@ echo "   Latest WordPress: $LATEST_VERSION"
 echo "   Previous WordPress: $PREVIOUS_VERSION"
 
 # Set environment variables early to avoid Docker Compose warnings
-PACKAGE_DIR="/tmp/shield-package-local"
+# Use directory inside project so Docker can mount it on all platforms
+# Note: tmp/ directory exists and is already in .gitignore
+PACKAGE_DIR="$PROJECT_ROOT/tmp/shield-package-local"
 export SHIELD_PACKAGE_PATH="$PACKAGE_DIR"
-# PLUGIN_SOURCE needs to be the actual path, not just "package"
 export PLUGIN_SOURCE="$PACKAGE_DIR"
+
+# Relative path for use inside Docker container
+# Docker mounts: -v "$PROJECT_ROOT:/app" 
+# So inside container: /app/tmp/shield-package-local = $PROJECT_ROOT/tmp/shield-package-local on host
+# We pass relative path to avoid absolute path issues across host/container
+PACKAGE_DIR_RELATIVE="tmp/shield-package-local"
 
 # Start MySQL containers early in background for parallel initialization
 # Based on testing, MySQL takes ~38 seconds to fully initialize
@@ -42,78 +72,144 @@ MYSQL_START_PID=$!
 echo "   MySQL containers starting in background (PID: $MYSQL_START_PID)"
 echo "   Containers will initialize while we build assets (~38 seconds typical)"
 
-# Build assets (like CI does) - with caching for Task 4.6 optimization
+# Build assets using Docker (no local Node.js required) - with caching
 echo "🔨 Building assets..."
-if command -v npm >/dev/null 2>&1; then
-    # Task 4.6: Check if webpack build cache is valid using checksums (more reliable than timestamps)
-    WEBPACK_CACHE_VALID=false
-    DIST_DIR="$PROJECT_ROOT/assets/dist"
-    SRC_DIR="$PROJECT_ROOT/assets/js"
-    CACHE_FILE="/tmp/shield-webpack-cache-checksum"
+DIST_DIR="$PROJECT_ROOT/assets/dist"
+SRC_DIR="$PROJECT_ROOT/assets/js"
+CACHE_FILE="$PROJECT_ROOT/tmp/.shield-webpack-cache-checksum"
+
+# Ensure tmp directory exists
+mkdir -p "$PROJECT_ROOT/tmp"
+
+# Check if webpack build cache is valid
+WEBPACK_CACHE_VALID=false
+COMBINED_CHECKSUM=""
+
+if [ -d "$DIST_DIR" ] && [ "$(ls -A $DIST_DIR 2>/dev/null)" ]; then
+    echo "   Checking webpack build cache..."
     
-    # Check if dist directory exists and has files
-    if [ -d "$DIST_DIR" ] && [ "$(ls -A $DIST_DIR 2>/dev/null)" ]; then
-        echo "   Checking webpack build cache validity..."
-        
-        # Calculate checksum of all source files, package.json, and webpack.config.js
-        CURRENT_CHECKSUM=$(find "$SRC_DIR" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec md5sum {} \; 2>/dev/null | sort | md5sum | cut -d' ' -f1)
-        PACKAGE_CHECKSUM=$(md5sum "$PROJECT_ROOT/package.json" 2>/dev/null | cut -d' ' -f1)
-        WEBPACK_CHECKSUM=$(md5sum "$PROJECT_ROOT/webpack.config.js" 2>/dev/null | cut -d' ' -f1)
+    CURRENT_CHECKSUM=$(find "$SRC_DIR" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec md5sum {} \; 2>/dev/null | sort | md5sum | cut -d' ' -f1)
+    PACKAGE_CHECKSUM=$(md5sum "$PROJECT_ROOT/package.json" 2>/dev/null | cut -d' ' -f1)
+    WEBPACK_CHECKSUM=$(md5sum "$PROJECT_ROOT/webpack.config.js" 2>/dev/null | cut -d' ' -f1)
+    
+    if [ -n "$CURRENT_CHECKSUM" ] && [ -n "$PACKAGE_CHECKSUM" ] && [ -n "$WEBPACK_CHECKSUM" ]; then
         COMBINED_CHECKSUM="${CURRENT_CHECKSUM}-${PACKAGE_CHECKSUM}-${WEBPACK_CHECKSUM}"
         
-        # Check if we have a stored checksum and if it matches
         if [ -f "$CACHE_FILE" ]; then
-            STORED_CHECKSUM=$(cat "$CACHE_FILE")
+            STORED_CHECKSUM=$(cat "$CACHE_FILE" 2>/dev/null)
             if [ "$COMBINED_CHECKSUM" = "$STORED_CHECKSUM" ]; then
-                # Also verify dist files actually exist
                 if [ -f "$DIST_DIR/shield-main.bundle.js" ] && [ -f "$DIST_DIR/shield-main.bundle.css" ]; then
                     WEBPACK_CACHE_VALID=true
-                    echo "   ✅ Webpack build cache is valid - skipping rebuild (saves ~1m 40s)"
-                else
-                    echo "   Dist files missing - rebuild needed"
+                    echo "   ✅ Cache valid - skipping rebuild"
                 fi
-            else
-                echo "   Source files changed - rebuild needed"
             fi
-        else
-            echo "   No cache checksum found - first run"
         fi
     fi
+fi
+
+if [ "$WEBPACK_CACHE_VALID" = false ]; then
+    echo "   Building assets via Docker..."
+    docker run --rm \
+        -v "$PROJECT_ROOT:/app" \
+        -w /app \
+        node:18 \
+        sh -c "npm ci --no-audit --no-fund && npm run build" || {
+        echo "❌ Asset build failed"
+        exit 1
+    }
     
-    if [ "$WEBPACK_CACHE_VALID" = false ]; then
-        echo "   Cache invalid or missing - running full build..."
-        npm ci --no-audit --no-fund
-        npm run build
-        
-        # Save the checksum for next run
+    # Save checksum
+    if [ -n "$COMBINED_CHECKSUM" ]; then
         echo "$COMBINED_CHECKSUM" > "$CACHE_FILE"
-        echo "   Build complete - cache checksum saved for next run"
-    else
-        echo "   Using cached webpack build from previous run"
-        # Still need to ensure node_modules exist
-        if [ ! -d "node_modules" ]; then
-            echo "   Installing npm dependencies (node_modules missing)..."
-            npm ci --no-audit --no-fund
-        fi
     fi
-else
-    echo "   ⚠️  npm not found, skipping asset build"
+    echo "   ✅ Build complete"
 fi
 
-# Install dependencies (like CI does)
+# Install dependencies using Docker (no local PHP/Composer required)
 echo "📦 Installing dependencies..."
-composer install --no-interaction --prefer-dist --optimize-autoloader
-if [ -d "src/lib" ]; then
-    cd src/lib
-    composer install --no-interaction --prefer-dist --optimize-autoloader
-    cd ../..
+
+docker run --rm \
+    -v "$PROJECT_ROOT:/app" \
+    -w /app \
+    composer:2 \
+    composer install --no-interaction --prefer-dist --optimize-autoloader || {
+    echo "❌ Root composer install failed"
+    exit 1
+}
+
+if [ -d "$PROJECT_ROOT/src/lib" ]; then
+    docker run --rm \
+        -v "$PROJECT_ROOT:/app" \
+        -w /app/src/lib \
+        composer:2 \
+        composer install --no-interaction --prefer-dist --optimize-autoloader || {
+        echo "❌ src/lib composer install failed"
+        exit 1
+    }
 fi
 
-# Build plugin package (like CI does)
+echo "   ✅ Dependencies installed"
+
+# Build plugin package
 echo "📦 Building plugin package..."
-# PACKAGE_DIR already set earlier to avoid Docker Compose warnings
+
+# Clean and create package directory
 rm -rf "$PACKAGE_DIR"
-composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build
+mkdir -p "$PACKAGE_DIR"
+
+# Export tracked files using git archive (respects .gitattributes export-ignore)
+# This is MUCH faster than PHP file-by-file copying
+echo "   Exporting files via git archive..."
+git archive HEAD | tar -x -C "$PACKAGE_DIR" || {
+    echo "❌ git archive failed"
+    exit 1
+}
+
+# Verify archive extraction produced expected files
+if [ ! -f "$PACKAGE_DIR/icwp-wpsf.php" ]; then
+    echo "❌ git archive extraction failed - main plugin file not found"
+    exit 1
+fi
+echo "   ✅ Files exported (verified)"
+
+# Copy built assets (gitignored but needed)
+if [ -d "$PROJECT_ROOT/assets/dist" ]; then
+    echo "   Copying built assets..."
+    cp -r "$PROJECT_ROOT/assets/dist" "$PACKAGE_DIR/assets/dist" || {
+        echo "❌ Failed to copy assets/dist"
+        exit 1
+    }
+    # Verify expected bundle files exist
+    if [ ! -f "$PACKAGE_DIR/assets/dist/shield-main.bundle.js" ] || \
+       [ ! -f "$PACKAGE_DIR/assets/dist/shield-main.bundle.css" ]; then
+        echo "⚠️  Warning: assets/dist copied but expected bundle files not found"
+        echo "   Run 'npm run build' first to generate assets"
+    fi
+    echo "   ✅ Assets copied"
+fi
+
+# Validate PACKAGE_DIR_RELATIVE is set (defined in section 3.3.2)
+if [ -z "$PACKAGE_DIR_RELATIVE" ]; then
+    echo "❌ Error: PACKAGE_DIR_RELATIVE not set"
+    exit 1
+fi
+
+# Run Strauss and post-processing via Docker
+echo "   Running Strauss prefixing..."
+docker run --rm \
+    -v "$PROJECT_ROOT:/app" \
+    -w /app \
+    -e COMPOSER_PROCESS_TIMEOUT=900 \
+    composer:2 \
+    composer package-plugin -- --output="$PACKAGE_DIR_RELATIVE" \
+        --skip-root-composer --skip-lib-composer \
+        --skip-npm-install --skip-npm-build \
+        --skip-directory-clean --skip-copy || {
+    echo "❌ Package build failed"
+    exit 1
+}
+
+echo "   ✅ Package built at $PACKAGE_DIR"
 
 # Prepare Docker environment directory
 echo "⚙️  Setting up Docker environment..."
