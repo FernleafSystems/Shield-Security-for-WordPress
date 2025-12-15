@@ -37,13 +37,57 @@ cd "$PROJECT_ROOT"
 
 # Detect WordPress versions (exactly like CI does)
 echo "📱 Detecting WordPress versions..."
-if ! VERSIONS_OUTPUT=$(./.github/scripts/detect-wp-versions.sh 2>/dev/null); then
-    echo "❌ WordPress version detection failed, using fallback versions"
-    LATEST_VERSION="6.8.2"
-    PREVIOUS_VERSION="6.7.1"
+
+# Run detection script with timeout to prevent hangs
+# Using if/else pattern because script has set -e (line 5)
+# The if/else ensures non-zero exit codes don't terminate the script
+VERSIONS_OUTPUT=""
+DETECTION_ERROR=""
+
+if command -v timeout >/dev/null 2>&1; then
+    # Linux/Git Bash: use timeout command (60 seconds should be plenty)
+    if VERSIONS_OUTPUT=$(timeout 60 ./.github/scripts/detect-wp-versions.sh 2>&1); then
+        DETECTION_ERROR=""
+    else
+        DETECTION_ERROR=$?
+        # timeout returns 124 when command times out
+        if [[ "$DETECTION_ERROR" == "124" ]]; then
+            echo "   ⚠️  Detection script timed out after 60 seconds"
+        fi
+    fi
 else
-    LATEST_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "LATEST_VERSION=" | cut -d'=' -f2)
-    PREVIOUS_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "PREVIOUS_VERSION=" | cut -d'=' -f2)
+    # Systems without timeout command (rare - most Git Bash has it)
+    if VERSIONS_OUTPUT=$(./.github/scripts/detect-wp-versions.sh 2>&1); then
+        DETECTION_ERROR=""
+    else
+        DETECTION_ERROR=$?
+    fi
+fi
+
+# Parse the output (head -1 for defensive parsing in case of duplicate lines)
+LATEST_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "^LATEST_VERSION=" | head -1 | cut -d'=' -f2 | tr -d '[:space:]')
+PREVIOUS_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "^PREVIOUS_VERSION=" | head -1 | cut -d'=' -f2 | tr -d '[:space:]')
+
+# Validate we got versions; use fallback if not
+if [[ -z "$LATEST_VERSION" ]] || [[ -z "$PREVIOUS_VERSION" ]]; then
+    echo "   ⚠️  Could not detect versions, using fallback"
+    # Provide context about what went wrong
+    if [[ -n "$DETECTION_ERROR" ]]; then
+        echo "   Detection script failed (exit code $DETECTION_ERROR):"
+    elif [[ -z "$VERSIONS_OUTPUT" ]]; then
+        echo "   Detection script produced no output"
+    else
+        echo "   Could not parse versions from output:"
+    fi
+    echo "$VERSIONS_OUTPUT" | head -20 | sed 's/^/      /'
+    
+    # Fallback versions - UPDATE THESE when WordPress releases new versions
+    # Latest: Current major version from https://wordpress.org/download/
+    # Previous: Latest patch of previous major from https://wordpress.org/download/releases/
+    LATEST_VERSION="6.9"
+    PREVIOUS_VERSION="6.8.3"
+else
+    echo "   ✅ Detected from WordPress API"
 fi
 
 echo "   Latest WordPress: $LATEST_VERSION"

@@ -42,7 +42,7 @@ services:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION_LATEST:-6.8.2}
+        WP_VERSION: ${WP_VERSION_LATEST:-6.9}
     depends_on:
       - mysql-latest
     volumes:
@@ -50,10 +50,10 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.8.2}
+      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.9}
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.8.2}
+    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.9}
 
   # Test runner for WordPress previous
   test-runner-previous:
@@ -61,7 +61,7 @@ services:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.7.3}
+        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
     depends_on:
       - mysql-previous
     volumes:
@@ -69,10 +69,10 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.7.3}
+      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.7.3}
+    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
 
   # Legacy test runner (for backward compatibility)
   test-runner:
@@ -80,7 +80,7 @@ services:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION:-6.4}
+        WP_VERSION: ${WP_VERSION:-6.8.3}
     depends_on:
       - mysql
     volumes:
@@ -88,10 +88,10 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION:-6.4}
+      TEST_WP_VERSION: ${WP_VERSION:-6.8.3}
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test root testpass mysql ${WP_VERSION:-6.4}
+    command: bin/run-tests-docker.sh wordpress_test root testpass mysql ${WP_VERSION:-6.8.3}
 
 volumes:
   mysql_data:

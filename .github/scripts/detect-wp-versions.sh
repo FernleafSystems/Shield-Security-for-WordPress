@@ -34,9 +34,11 @@ readonly MAX_BACKOFF=30     # Maximum backoff in seconds
 readonly PRIMARY_API="https://api.wordpress.org/core/version-check/1.7/"
 readonly SECONDARY_API="https://api.wordpress.org/core/stable-check/1.0/"
 
-# Emergency hardcoded fallback versions (updated as of script creation)
-readonly EMERGENCY_LATEST="6.8.2"
-readonly EMERGENCY_PREVIOUS="6.7.1"
+# Emergency fallback versions - MUST be full version numbers (major.minor.patch)
+# Update these when WordPress releases new major versions
+# Check current versions at: https://wordpress.org/download/releases/
+readonly EMERGENCY_LATEST="6.9"
+readonly EMERGENCY_PREVIOUS="6.8.3"
 
 # PHP compatibility matrix (supported versions)
 readonly PHP_SUPPORTED_VERSIONS=("7.4" "8.0" "8.1" "8.2" "8.3" "8.4")
