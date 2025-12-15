@@ -834,9 +834,8 @@ Shield Security provides **enterprise-grade matrix testing** with advanced Docke
 - **Validation Status**: Production tested with GitHub Actions Run ID 17036484124
 - **Success Rate**: 100% - All matrix combinations passing consistently
 
-**Current Matrix Configuration (Optimized)**:
-- **Active**: PHP 7.4, 8.0 + latest/previous WordPress (4 combinations)
-- **Available**: Full 6 PHP × 2 WordPress = 12 combinations ready to enable
+**Current Matrix Configuration (Full)**:
+- **Active**: PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 + latest/previous WordPress (12 combinations)
 - **Triggers**: Automatic on pushes to `develop`, `main`, `master` branches
 - **Dynamic Versions**: WordPress versions auto-detected using API with 5-level fallback
 
@@ -1412,15 +1411,13 @@ bash ./bin/test-mysql-monitoring.sh
 2. **Verify Matrix Configuration** in `.github/workflows/docker-tests.yml`:
    ```yaml
    matrix:
-     php: ['7.4', '8.0']  # Current active versions
-     # To enable full matrix: php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+     php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']  # Full PHP matrix
      wordpress: ${{ fromJSON(...) }}  # Uses detected versions
    ```
 
-3. **Enable Full Matrix** (if desired):
-   - Edit workflow file to include all PHP versions
-   - Consider performance impact (12 jobs vs 4 jobs)
-   - Current 4-job configuration balances coverage and speed
+3. **Matrix Coverage**:
+   - Full matrix: 6 PHP versions × 2 WordPress versions = 12 parallel jobs
+   - All jobs run simultaneously in GitHub Actions
 
 #### WordPress Version Detection Failures
 **Problem**: WordPress API detection timeout or invalid versions

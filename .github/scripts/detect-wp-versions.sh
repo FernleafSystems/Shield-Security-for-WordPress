@@ -40,8 +40,17 @@ readonly SECONDARY_API="https://api.wordpress.org/core/stable-check/1.0/"
 readonly EMERGENCY_LATEST="6.9"
 readonly EMERGENCY_PREVIOUS="6.8.3"
 
-# PHP compatibility matrix (supported versions)
-readonly PHP_SUPPORTED_VERSIONS=("7.4" "8.0" "8.1" "8.2" "8.3" "8.4")
+# Source PHP versions from matrix config (single source of truth)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MATRIX_CONFIG="$SCRIPT_DIR/../config/matrix.conf"
+if [[ -f "$MATRIX_CONFIG" ]]; then
+    source "$MATRIX_CONFIG"
+    read -ra PHP_SUPPORTED_VERSIONS <<< "$PHP_VERSIONS"
+else
+    # Fallback if config not found
+    PHP_SUPPORTED_VERSIONS=("7.4" "8.0" "8.1" "8.2" "8.3" "8.4")
+fi
+readonly PHP_SUPPORTED_VERSIONS
 
 # WordPress minimum requirements by version
 declare -A WP_MIN_PHP_VERSIONS=(

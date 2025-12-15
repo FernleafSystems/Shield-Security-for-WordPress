@@ -3,6 +3,7 @@
 # Part of Docker Matrix Testing Optimization (Phase 3, Task 3.1)
 
 # Build arguments for matrix customization
+# Note: PHP_VERSION default should match DEFAULT_PHP in .github/config/matrix.conf
 ARG PHP_VERSION=8.2
 ARG WP_VERSION=latest
 

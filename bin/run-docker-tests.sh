@@ -35,9 +35,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# Source matrix configuration (single source of truth)
+if [ -f "$PROJECT_ROOT/.github/config/matrix.conf" ]; then
+    source "$PROJECT_ROOT/.github/config/matrix.conf"
+else
+    echo "⚠️  Warning: Matrix config not found, using defaults"
+    DEFAULT_PHP="8.2"
+fi
+
 # PHP version to test (can be overridden via environment variable)
-# Supports any PHP version: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, etc.
-PHP_VERSION=${PHP_VERSION:-"7.4"}
+PHP_VERSION=${PHP_VERSION:-"$DEFAULT_PHP"}
 echo "🐘 PHP Version: $PHP_VERSION"
 
 # Detect WordPress versions (exactly like CI does)

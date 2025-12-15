@@ -1,6 +1,9 @@
 # Docker Compose for Shield Security testing
 # Based on Easy Digital Downloads docker-compose-phpunit.yml pattern
 # Updated for Phase 2: Parallel WordPress testing with database isolation
+#
+# Note: PHP_VERSION fallback defaults (8.2) should match DEFAULT_PHP in .github/config/matrix.conf
+# The calling script should always set PHP_VERSION, so these fallbacks are rarely used.
 services:
   # MySQL service for WordPress latest testing
   mysql-latest:
