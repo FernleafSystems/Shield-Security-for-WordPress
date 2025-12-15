@@ -79,11 +79,14 @@ FROM php-runtime AS test-framework
 ARG PHP_VERSION
 
 # Install PHPUnit based on PHP version compatibility
-RUN if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ]; then \
+# PHPUnit 9.x: PHP 7.3 - 8.0
+# PHPUnit 10.x: PHP 8.1+
+# PHPUnit 11.x: PHP 8.2+
+RUN if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ] || [ "${PHP_VERSION}" = "8.0" ]; then \
         composer global require --no-interaction --no-cache \
             phpunit/phpunit:^9.6 \
             yoast/phpunit-polyfills:^1.1; \
-    elif [ "${PHP_VERSION}" = "8.0" ] || [ "${PHP_VERSION}" = "8.1" ]; then \
+    elif [ "${PHP_VERSION}" = "8.1" ]; then \
         composer global require --no-interaction --no-cache \
             phpunit/phpunit:^10.5 \
             yoast/phpunit-polyfills:^2.0; \

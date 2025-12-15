@@ -146,9 +146,9 @@ WP_TESTS_DB_PASSWORD=root
 # ✅ Detects WordPress versions (latest + previous)
 # ✅ Builds assets and dependencies
 # ✅ Builds production package ONCE (Phase 1 optimization)
-# ✅ Creates version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
+# ✅ Creates version-specific Docker images (shield-test-runner:php{VERSION}-wp{VERSION})
 # ✅ Creates isolated MySQL containers (mysql-latest, mysql-previous)
-# ✅ Tests PHP 7.4 + WordPress 6.8.2 AND 6.7.3 SIMULTANEOUSLY (Phase 2)
+# ✅ Tests PHP 7.4/8.0 + WordPress latest/previous SIMULTANEOUSLY
 # ✅ Runs both unit and integration tests in parallel streams
 # ✅ Handles all setup and cleanup with proper error aggregation
 ```
@@ -466,7 +466,7 @@ This section documents the key differences between local and CI testing configur
 | Aspect | Local Testing Environment | CI Testing Environment (GitHub Actions) |
 |--------|---------------------------|------------------------------------------|
 | **Compose Files** | `docker-compose.yml` + `docker-compose.package.yml` (2 files) | `docker-compose.yml` + `docker-compose.ci.yml` + `docker-compose.package.yml` (3 files) |
-| **Images Built** | Version-specific (e.g., `shield-test-runner:wp-6.8.2`, `shield-test-runner:wp-6.7.3`) | `shield-test-runner:latest` (single image for all WordPress versions) |
+| **Images Built** | Version-specific (e.g., `shield-test-runner:php7.4-wp6.9`) | Version-specific via matrix (e.g., `shield-test-runner:php7.4-wp6.9`) |
 | **MySQL Containers** | `mysql-latest` (port 3309), `mysql-previous` (port 3310) with health checks | `mysql-latest`, `mysql-previous` (workflow-managed) |
 | **MySQL Readiness** | Health check monitoring (~38s typical startup) | Health check monitoring |
 | **Execution** | Parallel with isolated databases | Matrix-based with GitHub Actions orchestration |
@@ -479,11 +479,11 @@ The following environment variables can be used to override Docker image default
 
 | Variable | Purpose | Local Behavior | CI Behavior |
 |----------|---------|----------------|-------------|
-| `SHIELD_TEST_IMAGE` | Override CI test runner image | Not used (uses version-specific images) | Defaults to `shield-test-runner:latest` |
-| `SHIELD_TEST_IMAGE_LATEST` | Override latest WordPress test image | Uses built `shield-test-runner:wp-6.8.2` | Not typically set |
-| `SHIELD_TEST_IMAGE_PREVIOUS` | Override previous WordPress test image | Uses built `shield-test-runner:wp-6.7.3` | Not typically set |
+| `SHIELD_TEST_IMAGE` | Test runner image name | Uses built `shield-test-runner:php{PHP}-wp{WP}` | Set to built image tag |
+| `SHIELD_TEST_IMAGE_LATEST` | Latest WordPress test image | Uses built `shield-test-runner:php{PHP}-wp{WP}` | Set to built image tag |
+| `SHIELD_TEST_IMAGE_PREVIOUS` | Previous WordPress test image | Uses built `shield-test-runner:php{PHP}-wp{WP}` | Set to built image tag |
 
-**Note**: Local testing uses version-specific images and doesn't require these environment variables. CI uses defaults and doesn't typically set these variables either - they exist for advanced override scenarios.
+**Note**: Both local and CI testing use version-specific images with the format `shield-test-runner:php{PHP_VERSION}-wp{WP_VERSION}`.
 
 ### Key Benefits of Separated Configurations
 
@@ -577,7 +577,7 @@ bash ./bin/run-docker-tests.sh
 # 1. Detects current WordPress versions (latest: 6.8.2, previous: 6.7.3)
 # 2. Builds all assets and dependencies
 # 3. Creates production package with vendor_prefixed (ONCE - Phase 1 optimization)
-# 4. Builds version-specific Docker images (shield-test-runner:wp-6.8.2, wp-6.7.3)
+# 4. Builds version-specific Docker images (shield-test-runner:php{VERSION}-wp{VERSION})
 # 5. Creates isolated MySQL containers (mysql-latest, mysql-previous)
 # 6. Monitors MySQL health checks until ready (~38s)
 # 7. Runs PHP 7.4 + WordPress 6.8.2 AND 6.7.3 SIMULTANEOUSLY (Phase 2)
@@ -835,7 +835,7 @@ Shield Security provides **enterprise-grade matrix testing** with advanced Docke
 - **Success Rate**: 100% - All matrix combinations passing consistently
 
 **Current Matrix Configuration (Optimized)**:
-- **Active**: PHP 7.4 + latest/previous WordPress (2 combinations)
+- **Active**: PHP 7.4, 8.0 + latest/previous WordPress (4 combinations)
 - **Available**: Full 6 PHP × 2 WordPress = 12 combinations ready to enable
 - **Triggers**: Automatic on pushes to `develop`, `main`, `master` branches
 - **Dynamic Versions**: WordPress versions auto-detected using API with 5-level fallback
@@ -1028,14 +1028,14 @@ services:
       timeout: 3s
       retries: 10
     
-  test-runner-latest:  # WordPress latest (6.8.2) test runner
-    image: shield-test-runner:wp-6.8.2
+  test-runner-latest:  # WordPress latest test runner
+    image: shield-test-runner:php${PHP_VERSION}-wp${WP_LATEST}
     container_name: test-runner-latest
     depends_on:
       - mysql-latest
     
-  test-runner-previous: # WordPress previous (6.7.3) test runner
-    image: shield-test-runner:wp-6.7.3
+  test-runner-previous: # WordPress previous test runner
+    image: shield-test-runner:php${PHP_VERSION}-wp${WP_PREVIOUS}
     container_name: test-runner-previous
     depends_on:
       - mysql-previous
@@ -1043,7 +1043,7 @@ services:
 
 **Container Components:**
 - **MySQL Containers**: Isolated databases for each WordPress version
-- **Test Runners**: Version-specific containers with pre-installed WordPress test framework
+- **Test Runners**: PHP/WordPress version-specific containers (e.g., `shield-test-runner:php7.4-wp6.9`)
 - **Log Files**: `/tmp/shield-test-latest.log`, `/tmp/shield-test-previous.log`
 - **Package Location**: `/tmp/shield-package-local` (shared across both test streams)
 
@@ -1412,15 +1412,15 @@ bash ./bin/test-mysql-monitoring.sh
 2. **Verify Matrix Configuration** in `.github/workflows/docker-tests.yml`:
    ```yaml
    matrix:
-     php: ['7.4']  # Currently optimized to single version
+     php: ['7.4', '8.0']  # Current active versions
      # To enable full matrix: php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
      wordpress: ${{ fromJSON(...) }}  # Uses detected versions
    ```
 
 3. **Enable Full Matrix** (if desired):
    - Edit workflow file to include all PHP versions
-   - Consider performance impact (12 jobs vs 2 jobs)
-   - Current 2-job configuration provides 81% faster execution
+   - Consider performance impact (12 jobs vs 4 jobs)
+   - Current 4-job configuration balances coverage and speed
 
 #### WordPress Version Detection Failures
 **Problem**: WordPress API detection timeout or invalid versions

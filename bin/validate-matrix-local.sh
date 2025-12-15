@@ -120,11 +120,11 @@ validate_matrix_configuration() {
         return 1
     fi
     
-    # Check for PHP version limitation (should be 7.4 only for now)
-    if grep -q "php: \['7.4'\]" "$workflow_file"; then
-        log_pass "PHP version limitation (7.4 only)"
+    # Check for PHP version matrix (7.4 and 8.0)
+    if grep -q "php: \['7.4', '8.0'\]" "$workflow_file"; then
+        log_pass "PHP version matrix (7.4, 8.0)"
     else
-        add_warning "PHP version may not be limited to 7.4 only"
+        add_warning "PHP version matrix may not match expected ['7.4', '8.0']"
     fi
     
     # Check for WordPress version matrix logic
@@ -202,40 +202,42 @@ simulate_matrix_jobs() {
     fi
     
     log_info "Simulating matrix with detected versions:"
-    log_info "  PHP: 7.4"
+    log_info "  PHP: 7.4, 8.0"
     log_info "  WordPress: $DETECTED_LATEST, $DETECTED_PREVIOUS"
     
-    # Simulate automatic trigger (push event) - 2 jobs
-    log_test "Simulating automatic trigger (2 jobs)"
+    # Simulate automatic trigger (push event) - 4 jobs (2 PHP × 2 WordPress)
+    log_test "Simulating automatic trigger (4 jobs)"
     
-    local php_version="7.4"
     local job_count=0
     
-    for wp_version in "$DETECTED_LATEST" "$DETECTED_PREVIOUS"; do
-        ((job_count++))
-        log_info "Matrix Job $job_count: PHP $php_version / WordPress $wp_version"
-        
-        if simulate_docker_environment_setup "$php_version" "$wp_version"; then
-            log_pass "Matrix job $job_count environment setup"
-        else
-            log_fail "Matrix job $job_count environment setup"
-            return 1
-        fi
+    for php_version in "7.4" "8.0"; do
+        for wp_version in "$DETECTED_LATEST" "$DETECTED_PREVIOUS"; do
+            ((job_count++))
+            log_info "Matrix Job $job_count: PHP $php_version / WordPress $wp_version"
+            
+            if simulate_docker_environment_setup "$php_version" "$wp_version"; then
+                log_pass "Matrix job $job_count environment setup"
+            else
+                log_fail "Matrix job $job_count environment setup"
+                return 1
+            fi
+        done
     done
     
-    if [[ $job_count -eq 2 ]]; then
-        log_pass "Automatic trigger matrix simulation (2 jobs)"
+    if [[ $job_count -eq 4 ]]; then
+        log_pass "Automatic trigger matrix simulation (4 jobs)"
     else
-        log_fail "Automatic trigger matrix simulation (expected 2 jobs, got $job_count)"
+        log_fail "Automatic trigger matrix simulation (expected 4 jobs, got $job_count)"
         return 1
     fi
     
-    # Simulate manual trigger (workflow_dispatch) - 1 job with latest
+    # Simulate manual trigger (workflow_dispatch) - 1 job with specified version
     log_test "Simulating manual trigger (1 job)"
     
-    log_info "Manual trigger job: PHP $php_version / WordPress $DETECTED_LATEST"
+    local manual_php_version="8.2"  # Default for manual triggers
+    log_info "Manual trigger job: PHP $manual_php_version / WordPress $DETECTED_LATEST"
     
-    if simulate_docker_environment_setup "$php_version" "$DETECTED_LATEST"; then
+    if simulate_docker_environment_setup "$manual_php_version" "$DETECTED_LATEST"; then
         log_pass "Manual trigger matrix simulation (1 job)"
     else
         log_fail "Manual trigger matrix simulation (1 job)"
@@ -458,8 +460,8 @@ generate_validation_report() {
         echo -e "${GREEN}✓ Matrix configuration is valid and ready for GitHub Actions execution${NC}"
         echo
         echo "EXPECTED MATRIX BEHAVIOR:"
-        echo "  • Push events (automatic): 2 jobs (PHP 7.4 × WordPress latest/previous)"
-        echo "  • Manual dispatch: 1 job (PHP 7.4 × specified WordPress version)"
+        echo "  • Push events (automatic): 4 jobs (PHP 7.4/8.0 × WordPress latest/previous)"
+        echo "  • Manual dispatch: 1 job (specified PHP × specified WordPress version)"
         echo "  • Environment variables properly configured for Docker"
         echo "  • WordPress version detection working correctly"
         return 0

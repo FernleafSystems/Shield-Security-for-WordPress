@@ -35,6 +35,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# PHP version to test (can be overridden via environment variable)
+# Supports any PHP version: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, etc.
+PHP_VERSION=${PHP_VERSION:-"7.4"}
+echo "🐘 PHP Version: $PHP_VERSION"
+
 # Detect WordPress versions (exactly like CI does)
 echo "📱 Detecting WordPress versions..."
 
@@ -264,11 +269,11 @@ build_docker_image_for_wp_version() {
     local WP_VERSION=$1
     local VERSION_NAME=$2
     
-    echo "🐳 Building Docker image for PHP 7.4 + WordPress $WP_VERSION ($VERSION_NAME)..."
+    echo "🐳 Building Docker image for PHP $PHP_VERSION + WordPress $WP_VERSION ($VERSION_NAME)..."
     docker build tests/docker/ \
-        --build-arg PHP_VERSION=7.4 \
+        --build-arg PHP_VERSION=$PHP_VERSION \
         --build-arg WP_VERSION=$WP_VERSION \
-        --tag shield-test-runner:wp-$WP_VERSION
+        --tag shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
 }
 
 # Health check function for MySQL containers
@@ -312,14 +317,14 @@ run_parallel_tests() {
     
     # Set up environment variables for both WordPress versions
     cat > tests/docker/.env << EOF
-PHP_VERSION=7.4
+PHP_VERSION=$PHP_VERSION
 WP_VERSION_LATEST=$LATEST_VERSION
 WP_VERSION_PREVIOUS=$PREVIOUS_VERSION
-TEST_PHP_VERSION=7.4
+TEST_PHP_VERSION=$PHP_VERSION
 PLUGIN_SOURCE=$PACKAGE_DIR
 SHIELD_PACKAGE_PATH=$PACKAGE_DIR
-SHIELD_TEST_IMAGE_LATEST=shield-test-runner:wp-$LATEST_VERSION
-SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:wp-$PREVIOUS_VERSION
+SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php$PHP_VERSION-wp$LATEST_VERSION
+SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php$PHP_VERSION-wp$PREVIOUS_VERSION
 EOF
     
     # Ensure MySQL containers are running (they were started early)
@@ -542,20 +547,20 @@ run_tests_for_wp_version() {
     local WP_VERSION=$1
     local VERSION_NAME=$2
     
-    echo "🧪 Running tests with PHP 7.4 + WordPress $WP_VERSION ($VERSION_NAME)..."
+    echo "🧪 Running tests with PHP $PHP_VERSION + WordPress $WP_VERSION ($VERSION_NAME)..."
     
     # Update environment for this WordPress version (matching GitHub Actions exactly)
     cat > tests/docker/.env << EOF
-PHP_VERSION=7.4
+PHP_VERSION=$PHP_VERSION
 WP_VERSION=$WP_VERSION
-TEST_PHP_VERSION=7.4
+TEST_PHP_VERSION=$PHP_VERSION
 TEST_WP_VERSION=$WP_VERSION
 PLUGIN_SOURCE=$PACKAGE_DIR
 SHIELD_PACKAGE_PATH=$PACKAGE_DIR
 EOF
     
     # Update docker-compose to use the correct image for this WordPress version
-    export SHIELD_TEST_IMAGE=shield-test-runner:wp-$WP_VERSION
+    export SHIELD_TEST_IMAGE=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
     
     # Run tests using the version-specific image
     docker compose -f tests/docker/docker-compose.yml \
@@ -624,8 +629,8 @@ if [ "$PARALLEL_TESTING" = "true" ]; then
     echo "   - Output logs: /tmp/shield-test-*.log"
 else
     echo "   Tests ran with the same configuration as CI (sequential):"
-    echo "   - PHP 7.4 + WordPress $LATEST_VERSION"
-    echo "   - PHP 7.4 + WordPress $PREVIOUS_VERSION"
+    echo "   - PHP $PHP_VERSION + WordPress $LATEST_VERSION"
+    echo "   - PHP $PHP_VERSION + WordPress $PREVIOUS_VERSION"
 fi
 echo "   - Package testing mode (production validation)"
 
