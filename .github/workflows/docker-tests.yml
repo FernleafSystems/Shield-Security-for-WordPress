@@ -230,6 +230,14 @@ jobs:
           PHP_VERSION=${{ matrix.php }}
           WP_VERSION=${{ matrix.wordpress }}
     
+    - name: Set execute permissions on test scripts
+      run: |
+        echo "Setting execute permissions on shell scripts..."
+        chmod +x bin/run-tests-docker.sh
+        chmod +x bin/install-wp-tests.sh
+        ls -la bin/*.sh
+        echo "Execute permissions set successfully"
+    
     - name: Run Docker tests
       run: |
         echo "Running tests in Docker"
