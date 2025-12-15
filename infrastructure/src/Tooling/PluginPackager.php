@@ -470,6 +470,13 @@ class PluginPackager {
 		// If a symlink points outside the project, Path::makeRelative() may return
 		// unexpected results. This is acceptable as symlinks in the source tree are rare.
 		$projectRoot = $this->projectRoot;
+		
+		// Check if target directory is inside project root to prevent infinite recursion (required for CI)
+		$isTargetInsideRoot = Path::isBasePath( $projectRoot, $targetDir );
+		if ( $isTargetInsideRoot ) {
+			$this->log( sprintf( '  Excluding target directory from copy: %s', Path::makeRelative( $targetDir, $projectRoot ) ) );
+		}
+		
 		$dirIterator = new \RecursiveDirectoryIterator(
 			$this->projectRoot,
 			\RecursiveDirectoryIterator::SKIP_DOTS
@@ -478,8 +485,13 @@ class PluginPackager {
 		// Filter out excluded directories BEFORE descending into them
 		$filterIterator = new \RecursiveCallbackFilterIterator(
 			$dirIterator,
-			function ( \SplFileInfo $current, string $key, \RecursiveDirectoryIterator $iterator ) use ( $projectRoot, $excludePatterns ) :bool {
+			function ( \SplFileInfo $current, string $key, \RecursiveDirectoryIterator $iterator ) use ( $projectRoot, $excludePatterns, $targetDir, $isTargetInsideRoot ) :bool {
 				$relativePath = Path::makeRelative( $current->getPathname(), $projectRoot );
+
+				// Skip the target directory itself to prevent infinite recursion
+				if ( $isTargetInsideRoot && Path::isBasePath( $targetDir, $current->getPathname() ) ) {
+					return false;
+				}
 
 				// Skip export-ignore paths
 				if ( $this->shouldExcludePath( $relativePath, $excludePatterns ) ) {
