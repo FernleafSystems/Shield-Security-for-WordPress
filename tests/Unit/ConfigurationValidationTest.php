@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 
 /**
  * Unit tests for plugin configuration validation
+ * 
+ * These tests validate cross-file consistency and configuration integrity,
+ * catching issues that schema validation alone cannot detect.
  */
 class ConfigurationValidationTest extends TestCase {
 
@@ -54,6 +57,9 @@ class ConfigurationValidationTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Cross-validates version between plugin.json and main plugin file header
+	 */
 	public function testPluginVersionIsValid() :void {
 		$configData = $this->getPluginConfigData();
 		
@@ -76,6 +82,9 @@ class ConfigurationValidationTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Cross-validates text domain between plugin.json and main plugin file header
+	 */
 	public function testTextDomainIsValid() :void {
 		$configData = $this->getPluginConfigData();
 		
@@ -147,6 +156,9 @@ class ConfigurationValidationTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Guards against accidental truncation or corruption of config file
+	 */
 	public function testConfigurationSizeIsReasonable() :void {
 		$configSize = filesize( $this->configPath );
 		
@@ -160,3 +172,4 @@ class ConfigurationValidationTest extends TestCase {
 		return $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration file' );
 	}
 }
+

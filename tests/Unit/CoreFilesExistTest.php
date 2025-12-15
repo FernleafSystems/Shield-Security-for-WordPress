@@ -99,3 +99,4 @@ class CoreFilesExistTest extends TestCase {
 		// The packaging process removes the main vendor version to prevent conflicts
 	}
 }
+

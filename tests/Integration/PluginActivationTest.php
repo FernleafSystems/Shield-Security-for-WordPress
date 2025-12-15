@@ -76,6 +76,4 @@ class PluginActivationTest extends ShieldWordPressTestCase {
 			'Plugin should register plugins_loaded hook'
 		);
 	}
-
-
 }
