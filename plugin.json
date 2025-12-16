@@ -1282,7 +1282,7 @@
           "web_application_firewall",
           "module_firewall"
         ],
-        "default":         "[]",
+        "default":         [],
         "type":            "array",
         "link_info":       "https://clk.shldscrty.com/2a",
         "link_blog":       "",

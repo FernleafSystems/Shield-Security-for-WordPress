@@ -60,12 +60,12 @@ class PerformConditionMatchTest extends TestCase {
 				false
 			],
 			'or 1=1 bypass' => [
-				"#'\\s*or\\s*'?\\d+\\s*=\\s*'?\\d+#i",
+				"#'\\s*or\\s*'?\\d+'?\\s*=\\s*'?\\d+#i",
 				"admin' OR '1'='1",
 				true
 			],
 			'or 1=1 numeric' => [
-				"#'\\s*or\\s*'?\\d+\\s*=\\s*'?\\d+#i",
+				"#'\\s*or\\s*'?\\d+'?\\s*=\\s*'?\\d+#i",
 				"admin' OR 1=1--",
 				true
 			],

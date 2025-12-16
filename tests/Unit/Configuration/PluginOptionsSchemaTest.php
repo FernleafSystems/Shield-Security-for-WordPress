@@ -21,7 +21,18 @@ class PluginOptionsSchemaTest extends TestCase {
 	protected function set_up() :void {
 		parent::set_up();
 		$config = $this->loadConfig();
-		$this->options = $config['config_spec']['options'] ?? [];
+		
+		// Convert options array to keyed format for easier lookup
+		// plugin.json stores options as: [ { "key": "option_name", ... }, ... ]
+		// We convert to: [ "option_name" => { "key": "option_name", ... }, ... ]
+		$rawOptions = $config['config_spec']['options'] ?? [];
+		$this->options = [];
+		foreach ( $rawOptions as $option ) {
+			if ( isset( $option['key'] ) ) {
+				$this->options[$option['key']] = $option;
+			}
+		}
+		
 		$this->sections = $config['config_spec']['sections'] ?? [];
 	}
 
@@ -206,10 +217,12 @@ class PluginOptionsSchemaTest extends TestCase {
 	}
 
 	public function testSecurityOptionsDefaultToEnabled() :void {
+		// Note: block_php_code is intentionally excluded - it defaults to 'N' because
+		// it can interfere with legitimate WordPress functionality (Plugin/Theme editors)
 		$securityOptions = [
 			'block_dir_traversal',
 			'block_sql_queries',
-			'block_php_code',
+			'block_field_truncation',
 		];
 
 		foreach ( $securityOptions as $optKey ) {

@@ -80,16 +80,17 @@ FROM php-runtime AS test-framework
 ARG PHP_VERSION
 
 # Install PHPUnit based on PHP version compatibility
-# PHPUnit 9.x: PHP 7.3 - 8.0
-# PHPUnit 10.x: PHP 8.1+ (supports 8.1, 8.2, 8.3, 8.4)
-# yoast/phpunit-polyfills 4.x: Supports PHPUnit 7.5 - 12.x and PHP 7.1+
-RUN if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ] || [ "${PHP_VERSION}" = "8.0" ]; then \
+# PHPUnit 9.6: PHP >=7.3 (works with 7.4, 8.0, 8.1)
+# PHPUnit 11.x: PHP >=8.2 (works with 8.2, 8.3, 8.4)
+# Note: PHPUnit 10.x is NOT supported by yoast/phpunit-polyfills 4.x
+# yoast/phpunit-polyfills 4.x: Supports PHPUnit ^7.5|^8.0|^9.0|^11.0|^12.0
+RUN if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ] || [ "${PHP_VERSION}" = "8.0" ] || [ "${PHP_VERSION}" = "8.1" ]; then \
         composer global require --no-interaction --no-cache \
             phpunit/phpunit:^9.6 \
             yoast/phpunit-polyfills:^4.0; \
     else \
         composer global require --no-interaction --no-cache \
-            phpunit/phpunit:^10.5 \
+            phpunit/phpunit:^11.5 \
             yoast/phpunit-polyfills:^4.0; \
     fi
 
