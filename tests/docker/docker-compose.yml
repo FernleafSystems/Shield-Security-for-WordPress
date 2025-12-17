@@ -7,6 +7,7 @@
 services:
   # MySQL service for WordPress latest testing
   mysql-latest:
+    container_name: shield-db-latest
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: testpass
@@ -19,6 +20,7 @@ services:
 
   # MySQL service for WordPress previous testing
   mysql-previous:
+    container_name: shield-db-previous
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: testpass
@@ -31,6 +33,7 @@ services:
 
   # Legacy MySQL service (for backward compatibility)
   mysql:
+    container_name: shield-db
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: testpass
@@ -41,6 +44,7 @@ services:
 
   # Test runner for WordPress latest
   test-runner-latest:
+    container_name: shield-test-latest
     build:
       context: .
       args:
@@ -60,6 +64,7 @@ services:
 
   # Test runner for WordPress previous
   test-runner-previous:
+    container_name: shield-test-previous
     build:
       context: .
       args:
@@ -79,6 +84,7 @@ services:
 
   # Legacy test runner (for backward compatibility)
   test-runner:
+    container_name: shield-test
     build:
       context: .
       args:
