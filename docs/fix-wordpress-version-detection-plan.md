@@ -219,14 +219,7 @@ TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
 command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
 ```
 
-**Lines 83, 91, 94 (legacy test-runner - for backward compatibility)**:
-```yaml
-WP_VERSION: ${WP_VERSION:-6.8.3}
-TEST_WP_VERSION: ${WP_VERSION:-6.8.3}
-command: bin/run-tests-docker.sh wordpress_test root testpass mysql ${WP_VERSION:-6.8.3}
-```
-
-**Note**: The legacy `test-runner` service currently defaults to `6.4`, which is very outdated. Updating it to `6.8.3` maintains backward compatibility while using a supported version.
+**Note**: Legacy `test-runner` and `mysql` services have been removed. Only `test-runner-latest`, `test-runner-previous`, `mysql-latest`, and `mysql-previous` services are used. Containers are named `shield-test-latest`, `shield-test-previous`, `shield-db-latest`, and `shield-db-previous` for easier identification in Docker Desktop.
 
 ### 3.4 Update Repository Fallback File (Optional)
 

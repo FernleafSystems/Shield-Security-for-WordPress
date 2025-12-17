@@ -165,7 +165,7 @@ fi
 
 if [ "$WEBPACK_CACHE_VALID" = false ]; then
     echo "   Building assets via Docker..."
-    docker run --rm \
+    docker run --rm --name shield-node-build \
         -v "$PROJECT_ROOT:/app" \
         -w /app \
         node:18 \
@@ -184,7 +184,7 @@ fi
 # Install dependencies using Docker (no local PHP/Composer required)
 echo "📦 Installing dependencies..."
 
-docker run --rm \
+docker run --rm --name shield-composer-root \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
     composer:2 \
@@ -194,7 +194,7 @@ docker run --rm \
 }
 
 if [ -d "$PROJECT_ROOT/src/lib" ]; then
-    docker run --rm \
+    docker run --rm --name shield-composer-lib \
         -v "$PROJECT_ROOT:/app" \
         -w /app/src/lib \
         composer:2 \
@@ -252,7 +252,7 @@ fi
 
 # Run Strauss and post-processing via Docker
 echo "   Running Strauss prefixing..."
-docker run --rm \
+docker run --rm --name shield-composer-package \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
     -e COMPOSER_PROCESS_TIMEOUT=900 \
@@ -337,7 +337,8 @@ EOF
     # Ensure MySQL containers are running (they were started early)
     echo "🗄️ Ensuring MySQL databases are running..."
     # Check if containers are already running from early start
-    if ! docker ps | grep -q mysql-latest; then
+    # Container names are shield-db-latest/shield-db-previous (set via container_name in docker-compose.yml)
+    if ! docker ps | grep -q shield-db-latest; then
         echo "   MySQL containers not found, starting them now..."
         docker compose -f tests/docker/docker-compose.yml \
             -f tests/docker/docker-compose.package.yml \
@@ -354,19 +355,19 @@ EOF
     
     # Wait for both MySQL containers to be ready using health checks
     echo "⏳ Ensuring MySQL databases are ready for testing..."
-    # Docker Compose appends suffixes to container names, find the actual names
-    MYSQL_LATEST_CONTAINER=$(docker ps --filter "name=mysql-latest" --format "{{.Names}}" | head -1)
-    MYSQL_PREVIOUS_CONTAINER=$(docker ps --filter "name=mysql-previous" --format "{{.Names}}" | head -1)
+    # Container names are shield-db-latest/shield-db-previous (set via container_name in docker-compose.yml)
+    MYSQL_LATEST_CONTAINER=$(docker ps --filter "name=shield-db-latest" --format "{{.Names}}" | head -1)
+    MYSQL_PREVIOUS_CONTAINER=$(docker ps --filter "name=shield-db-previous" --format "{{.Names}}" | head -1)
     
     if [ -z "$MYSQL_LATEST_CONTAINER" ]; then
-        echo "❌ Cannot find mysql-latest container"
-        docker ps -a | grep mysql
+        echo "❌ Cannot find shield-db-latest container"
+        docker ps -a | grep shield-db
         exit 1
     fi
     
     if [ -z "$MYSQL_PREVIOUS_CONTAINER" ]; then
-        echo "❌ Cannot find mysql-previous container"
-        docker ps -a | grep mysql
+        echo "❌ Cannot find shield-db-previous container"
+        docker ps -a | grep shield-db
         exit 1
     fi
     
@@ -378,8 +379,8 @@ EOF
     
     # Layer 1 Verification: Verify containers are ready
     echo "🔍 Layer 1 Verification: Checking database containers..."
-    # Container names per Phase 2.5 - generic names for CI compatibility
-    docker ps --filter "name=mysql-latest" --filter "name=mysql-previous" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    # Container names are shield-db-latest/shield-db-previous (set via container_name in docker-compose.yml)
+    docker ps --filter "name=shield-db-latest" --filter "name=shield-db-previous" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
     
     # Record start time for performance measurement
     PARALLEL_START_TIME=$(date +%s)
@@ -435,8 +436,8 @@ EOF
         
         if [ "$i" = "5" ]; then
             echo "   Docker containers during execution:"
-            docker ps --filter "name=test-runner" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "     No test-runner containers found yet"
-            docker ps --filter "name=mysql" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || echo "     No mysql containers found"
+            docker ps --filter "name=shield-test" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "     No test containers found yet"
+            docker ps --filter "name=shield-db" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || echo "     No database containers found"
         fi
         
         # Break early if both processes have finished
@@ -549,39 +550,10 @@ EOF
     return $OVERALL_EXIT_CODE
 }
 
-# Function to run tests with specific WordPress version (legacy support)
-run_tests_for_wp_version() {
-    local WP_VERSION=$1
-    local VERSION_NAME=$2
-    
-    echo "🧪 Running tests with PHP $PHP_VERSION + WordPress $WP_VERSION ($VERSION_NAME)..."
-    
-    # Update environment for this WordPress version (matching GitHub Actions exactly)
-    cat > tests/docker/.env << EOF
-PHP_VERSION=$PHP_VERSION
-WP_VERSION=$WP_VERSION
-TEST_PHP_VERSION=$PHP_VERSION
-TEST_WP_VERSION=$WP_VERSION
-PLUGIN_SOURCE=$PACKAGE_DIR
-SHIELD_PACKAGE_PATH=$PACKAGE_DIR
-EOF
-    
-    # Update docker-compose to use the correct image for this WordPress version
-    export SHIELD_TEST_IMAGE=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
-    
-    # Run tests using the version-specific image
-    docker compose -f tests/docker/docker-compose.yml \
-        -f tests/docker/docker-compose.package.yml \
-        run --rm -T test-runner
-}
-
 # Build Docker images for both WordPress versions
 echo "🏗️ Building Docker images for all WordPress versions..."
 build_docker_image_for_wp_version "$LATEST_VERSION" "latest"
 build_docker_image_for_wp_version "$PREVIOUS_VERSION" "previous"
-
-# Check if parallel testing is supported (default: yes)
-PARALLEL_TESTING=${PARALLEL_TESTING:-"true"}
 
 # Enable debug mode for detailed monitoring
 DEBUG_MODE=${DEBUG_MODE:-"false"}
@@ -594,24 +566,11 @@ fi
 # Initialize overall exit code for the entire script
 OVERALL_SCRIPT_EXIT=0
 
-if [ "$PARALLEL_TESTING" = "true" ]; then
-    # Run tests in parallel with database isolation
-    echo "🚀 Starting parallel execution mode..."
-    if ! run_parallel_tests; then
-        OVERALL_SCRIPT_EXIT=1
-        echo "❌ Parallel testing failed - check logs above for details"
-    fi
-else
-    # Fallback to sequential execution for compatibility
-    echo "📌 Running tests sequentially (PARALLEL_TESTING=false)"
-    if ! run_tests_for_wp_version "$LATEST_VERSION" "latest"; then
-        OVERALL_SCRIPT_EXIT=1
-        echo "❌ WordPress $LATEST_VERSION tests failed"
-    fi
-    if ! run_tests_for_wp_version "$PREVIOUS_VERSION" "previous"; then
-        OVERALL_SCRIPT_EXIT=1
-        echo "❌ WordPress $PREVIOUS_VERSION tests failed"
-    fi
+# Run tests in parallel with database isolation
+echo "🚀 Starting parallel execution mode..."
+if ! run_parallel_tests; then
+    OVERALL_SCRIPT_EXIT=1
+    echo "❌ Parallel testing failed - check logs above for details"
 fi
 
 # Cleanup
@@ -628,17 +587,11 @@ else
     echo "❌ Local Docker tests completed with failures!"
 fi
 
-if [ "$PARALLEL_TESTING" = "true" ]; then
-    echo "   Tests ran in PARALLEL mode with isolated databases:"
-    echo "   - WordPress $LATEST_VERSION (mysql-latest:3309, database: wordpress_test_latest)"
-    echo "   - WordPress $PREVIOUS_VERSION (mysql-previous:3310, database: wordpress_test_previous)"
-    echo "   - Execution mode: Parallel (faster)"
-    echo "   - Output logs: /tmp/shield-test-*.log"
-else
-    echo "   Tests ran with the same configuration as CI (sequential):"
-    echo "   - PHP $PHP_VERSION + WordPress $LATEST_VERSION"
-    echo "   - PHP $PHP_VERSION + WordPress $PREVIOUS_VERSION"
-fi
+echo "   Tests ran in PARALLEL mode with isolated databases:"
+echo "   - WordPress $LATEST_VERSION (shield-db-latest:3309, database: wordpress_test_latest)"
+echo "   - WordPress $PREVIOUS_VERSION (shield-db-previous:3310, database: wordpress_test_previous)"
+echo "   - Execution mode: Parallel"
+echo "   - Output logs: /tmp/shield-test-*.log"
 echo "   - Package testing mode (production validation)"
 
 # Exit with the appropriate code for CI compatibility

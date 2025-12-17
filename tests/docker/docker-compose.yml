@@ -31,17 +31,6 @@ services:
     ports:
       - "3310:3306"  # Exposed on different port to avoid conflicts
 
-  # Legacy MySQL service (for backward compatibility)
-  mysql:
-    container_name: shield-db
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: testpass
-      MYSQL_DATABASE: wordpress_test
-    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
-    volumes:
-      - mysql_data:/var/lib/mysql
-
   # Test runner for WordPress latest
   test-runner-latest:
     container_name: shield-test-latest
@@ -82,27 +71,6 @@ services:
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
     command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
 
-  # Legacy test runner (for backward compatibility)
-  test-runner:
-    container_name: shield-test
-    build:
-      context: .
-      args:
-        PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION:-6.8.3}
-    depends_on:
-      - mysql
-    volumes:
-      - ../../:/app
-    working_dir: /app
-    environment:
-      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION:-6.8.3}
-      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
-      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test root testpass mysql ${WP_VERSION:-6.8.3}
-
 volumes:
-  mysql_data:
   mysql_latest_data:
   mysql_previous_data:

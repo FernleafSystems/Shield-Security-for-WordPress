@@ -343,11 +343,11 @@ validate_docker_configuration() {
             return 1
         fi
         
-        # Check for test-runner service
-        if grep -q "test-runner:" "$compose_file"; then
-            log_pass "Docker Compose test-runner service"
+        # Check for test-runner-latest service
+        if grep -q "test-runner-latest:" "$compose_file"; then
+            log_pass "Docker Compose test-runner-latest service"
         else
-            log_fail "Docker Compose test-runner service"
+            log_fail "Docker Compose test-runner-latest service"
             return 1
         fi
     else
