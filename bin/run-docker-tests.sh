@@ -181,13 +181,29 @@ if [ "$WEBPACK_CACHE_VALID" = false ]; then
     echo "   ✅ Build complete"
 fi
 
+# Build base PHP image for Composer operations (before installing dependencies)
+# Uses WP_VERSION=latest to skip WordPress download - we only need PHP + extensions + Composer
+# This image is reused for all Composer operations and shares layers with test-runner images
+echo "🐳 Building PHP base image for Composer operations..."
+COMPOSER_IMAGE="shield-composer-runner:php${PHP_VERSION}"
+docker build tests/docker/ \
+    --build-arg PHP_VERSION=$PHP_VERSION \
+    --build-arg WP_VERSION=latest \
+    --tag $COMPOSER_IMAGE || {
+    echo "❌ Failed to build Composer runner image"
+    exit 1
+}
+echo "   ✅ Composer runner image built: $COMPOSER_IMAGE"
+
 # Install dependencies using Docker (no local PHP/Composer required)
+# Uses the test-runner based image with all PHP extensions pre-installed
 echo "📦 Installing dependencies..."
+echo "   Using PHP ${PHP_VERSION} with full extension support"
 
 docker run --rm --name shield-composer-root \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
-    composer:2 \
+    $COMPOSER_IMAGE \
     composer install --no-interaction --prefer-dist --optimize-autoloader || {
     echo "❌ Root composer install failed"
     exit 1
@@ -197,7 +213,7 @@ if [ -d "$PROJECT_ROOT/src/lib" ]; then
     docker run --rm --name shield-composer-lib \
         -v "$PROJECT_ROOT:/app" \
         -w /app/src/lib \
-        composer:2 \
+        $COMPOSER_IMAGE \
         composer install --no-interaction --prefer-dist --optimize-autoloader || {
         echo "❌ src/lib composer install failed"
         exit 1
@@ -251,12 +267,13 @@ if [ -z "$PACKAGE_DIR_RELATIVE" ]; then
 fi
 
 # Run Strauss and post-processing via Docker
+# Uses the same PHP image built earlier with all extensions
 echo "   Running Strauss prefixing..."
 docker run --rm --name shield-composer-package \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
     -e COMPOSER_PROCESS_TIMEOUT=900 \
-    composer:2 \
+    $COMPOSER_IMAGE \
     composer package-plugin -- --output="$PACKAGE_DIR_RELATIVE" \
         --skip-root-composer --skip-lib-composer \
         --skip-npm-install --skip-npm-build \

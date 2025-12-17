@@ -61,6 +61,7 @@ RUN apt-get install -y \
     php${PHP_VERSION}-intl \
     php${PHP_VERSION}-bcmath \
     php${PHP_VERSION}-soap \
+    php${PHP_VERSION}-sqlite3 \
     php${PHP_VERSION}-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -137,6 +138,11 @@ RUN if [ "${WP_VERSION}" != "latest" ]; then \
 # Clean, optimized image for test execution
 #
 FROM wordpress-tests AS shield-test-runner
+
+# Re-declare ARGs needed in this stage (ARGs don't persist across stages)
+ARG PHP_VERSION
+ARG WP_VERSION
+ARG BUILD_DATE=""
 
 # Set working directory
 WORKDIR /app
