@@ -6,7 +6,6 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\ScoreLogic;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -45,7 +44,7 @@ class BotSignalsController {
 			$this->isBots[ $IP ] = false;
 
 			if ( !$con->comps->opts_lookup->enabledAntiBotEngine() ) {
-				$con->fireEvent( 'ade_check_option_disabled' );
+				$con->comps->events->fireEvent( 'ade_check_option_disabled' );
 			}
 			else {
 				$botScoreMinimum = $con->comps->opts_lookup->getAntiBotMinScore();
@@ -58,7 +57,7 @@ class BotSignalsController {
 					$this->isBots[ $IP ] = $score < $botScoreMinimum;
 
 					if ( $allowEventFire ) {
-						$con->fireEvent(
+						$con->comps->events->fireEvent(
 							'antibot_'.( $this->isBots[ $IP ] ? 'fail' : 'pass' ),
 							[
 								'audit_params' => [
@@ -87,9 +86,7 @@ class BotSignalsController {
 		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_paths_404s' ] ?? [];
 		return \array_unique( \array_filter(
 			apply_filters( 'shield/bot_signals_allowable_paths_404s', $def ),
-			function ( $ext ) {
-				return !empty( $ext ) && \is_string( $ext );
-			}
+			fn( $ext ) => !empty( $ext ) && \is_string( $ext )
 		) );
 	}
 
@@ -97,9 +94,7 @@ class BotSignalsController {
 		$def = self::con()->cfg->configuration->def( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
 		return \array_unique( \array_filter(
 			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
-			function ( $script ) {
-				return !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' );
-			}
+			fn( $script ) => !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' )
 		) );
 	}
 

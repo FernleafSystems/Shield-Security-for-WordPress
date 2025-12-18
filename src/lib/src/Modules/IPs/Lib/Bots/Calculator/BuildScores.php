@@ -18,9 +18,7 @@ class BuildScores extends BaseBuildScores {
 		foreach ( $this->getAllFields() as $field ) {
 			$scores[ $field ] = $this->calcFieldScore( $field );
 		}
-
 		$scores[ 'known' ] = $this->score_known();
-
 		return $scores;
 	}
 
