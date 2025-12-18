@@ -44,12 +44,7 @@ class ScoreLogic {
 	 */
 	protected function buildFallback() :array {
 		return \array_map(
-			function ( $score ) {
-				return $score + [
-						0  => 0,
-						-1 => 0,
-					];
-			},
+			fn( $score ) => $score + [ 0 => 0, -1 => 0, ],
 			\array_merge( $this->getPositiveSignals(), $this->getNegativeSignals() )
 		);
 	}
