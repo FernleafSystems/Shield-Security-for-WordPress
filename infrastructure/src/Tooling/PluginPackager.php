@@ -359,44 +359,6 @@ class PluginPackager {
 		return false;
 	}
 
-	/**
-	 * Check if a path is commonly gitignored and should NOT be copied
-	 * These paths exist on disk but should not be in the package because they are either:
-	 * - Development tools (node_modules/, vendor/, .idea/, .git/)
-	 * - Created DURING packaging (src/lib/vendor/, src/lib/vendor_prefixed/)
-	 *
-	 * NOTE: assets/dist/ is gitignored but SHOULD be copied (it's the built output)
-	 * So it is intentionally NOT in this list.
-	 *
-	 * @param string $relativePath Path relative to project root
-	 * @return bool True if path should be skipped (not copied)
-	 */
-	private function isCommonGitIgnoredPath( string $relativePath ) :bool {
-		$gitIgnoredPrefixes = [
-			'vendor/',                  // Root dev dependencies (composer install at root)
-			'node_modules/',            // npm dependencies (build tools)
-			'.idea/',                   // IDE settings
-			'.git/',                    // Version control
-			'src/lib/vendor/',          // Created by composer install during packaging
-			'src/lib/vendor_prefixed/', // Created by Strauss during packaging
-			// NOTE: assets/dist/ is NOT here because it SHOULD be copied
-			// It's built by npm BEFORE packaging and needs to be in the package
-		];
-
-		$normalized = str_replace( '\\', '/', $relativePath );
-
-		foreach ( $gitIgnoredPrefixes as $prefix ) {
-			if ( strpos( $normalized, $prefix ) === 0 ) {
-				return true;
-			}
-			// Also check if path IS the directory itself (without trailing slash)
-			if ( $normalized === rtrim( $prefix, '/' ) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	/**
 	 * @return string[]
@@ -495,11 +457,6 @@ class PluginPackager {
 
 				// Skip export-ignore paths
 				if ( $this->shouldExcludePath( $relativePath, $excludePatterns ) ) {
-					return false;
-				}
-
-				// Skip gitignored directories (prevents descending into vendor/, node_modules/)
-				if ( $this->isCommonGitIgnoredPath( $relativePath ) ) {
 					return false;
 				}
 
