@@ -147,12 +147,11 @@ class CacheDirHandler {
 		$cacheBasename = (string)( self::con()->cfg->paths[ 'cache' ] ?? '' );
 		if ( \preg_match( '#^[a-z]+$#i', $cacheBasename ) ) {
 			$candidates = \array_filter(
-				\array_map( function ( string $baseDir ) use ( $cacheBasename ) {
-					return untrailingslashit( wp_normalize_path( path_join( $baseDir, $cacheBasename ) ) );
-				}, $baseDirCandidates ),
-				function ( string $dir ) use ( $cacheBasename ) {
-					return !empty( $dir ) && \str_ends_with( $dir, $cacheBasename );
-				}
+				\array_map(
+					fn( string $baseDir ) => untrailingslashit( wp_normalize_path( path_join( $baseDir, $cacheBasename ) ) ),
+					$baseDirCandidates
+				),
+				fn( string $dir ) => !empty( $dir ) && \str_ends_with( $dir, $cacheBasename )
 			);
 		}
 		return $candidates;
@@ -161,9 +160,7 @@ class CacheDirHandler {
 	private function getBaseDirCandidates() :array {
 		return \array_filter(
 			\array_unique( \array_map(
-				function ( $path ) {
-					return untrailingslashit( wp_normalize_path( $path ) );
-				},
+				fn( $path ) => untrailingslashit( wp_normalize_path( $path ) ),
 				\array_filter( [
 					$this->preferredDir,
 					$this->lastKnownBaseDir,
@@ -175,9 +172,7 @@ class CacheDirHandler {
 					get_temp_dir(),
 				] )
 			) ),
-			function ( $path ) {
-				return Services::WpFs()->isAccessibleDir( $path ) && wp_is_writable( $path );
-			}
+			fn( $path ) => Services::WpFs()->isAccessibleDir( $path ) && wp_is_writable( $path )
 		);
 	}
 }

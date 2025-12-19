@@ -42,15 +42,11 @@ abstract class BuildScanAction {
 				'version' => Services::WpGeneral()->getVersion(),
 			],
 			'plugins' => \array_filter( \array_map(
-				function ( $plugin ) {
-					return $plugin->active ? $plugin->Version : null;
-				},
+				fn( $plugin ) => $plugin->active ? $plugin->Version : null,
 				Services::WpPlugins()->getPluginsAsVo()
 			) ),
 			'themes'  => \array_filter( \array_map(
-				function ( $theme ) {
-					return $theme->active ? $theme->Version : null;
-				},
+				fn( $theme ) => $theme->active ? $theme->Version : null,
 				Services::WpThemes()->getThemesAsVo()
 			) ),
 		];

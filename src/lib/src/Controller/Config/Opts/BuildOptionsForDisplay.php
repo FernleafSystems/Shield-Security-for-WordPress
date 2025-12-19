@@ -72,9 +72,7 @@ class BuildOptionsForDisplay {
 			$this->buildAvailableSections()
 		) );
 
-		$hasFocus = \count( \array_filter( $sections, function ( array $section ) {
-				return $section[ 'is_focus' ];
-			} ) ) > 0;
+		$hasFocus = \count( \array_filter( $sections, fn( array $section ) => $section[ 'is_focus' ] ) ) > 0;
 		if ( !$hasFocus ) {
 			$sections[ \key( $sections ) ][ 'is_focus' ] = true;
 		}
@@ -106,9 +104,7 @@ class BuildOptionsForDisplay {
 			},
 			\array_filter(
 				self::con()->cfg->configuration->sections,
-				function ( array $section ) {
-					return empty( $this->sections ) || \in_array( $section[ 'slug' ], $this->sections );
-				}
+				fn( array $section ) => empty( $this->sections ) || \in_array( $section[ 'slug' ], $this->sections )
 			)
 		) );
 	}

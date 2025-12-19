@@ -74,9 +74,7 @@ class AuditLogger extends EventsListener {
 		if ( self::con()->caps->canActivityLogsSendToIntegrations() ) {
 			$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
 			\array_map(
-				function ( $handler ) {
-					$this->getLogger()->pushHandler( $handler );
-				},
+				fn( $handler ) => $this->getLogger()->pushHandler( $handler ),
 				\is_array( $custom ) ? $custom : []
 			);
 		}

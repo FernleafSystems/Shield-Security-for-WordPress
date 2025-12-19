@@ -25,9 +25,7 @@ class BuildSearchPanesData {
 	private function buildForUsers() :array {
 		return ( new BuildDataForUsers() )->build(
 			\array_map(
-				function ( $result ) {
-					return (int)$result[ 'uid' ] ?? null;
-				},
+				fn( $result ) => (int)$result[ 'uid' ] ?? null,
 				$this->runQuery( '`req`.`uid` as `uid`' )
 			)
 		);

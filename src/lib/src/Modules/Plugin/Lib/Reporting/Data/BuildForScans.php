@@ -41,9 +41,7 @@ class BuildForScans extends BuildBase {
 				$logSelect = self::con()->db_con->activity_logs->getQuerySelector();
 				/** @var LogsDB\Record[] $logs */
 				$logIDs = \array_map(
-					function ( $log ) {
-						return $log->id;
-					},
+					fn( $log ) => $log->id,
 					$logSelect->filterByEvent( $event )
 							  ->filterByBoundary( $this->report->start_at, $this->report->end_at )
 							  ->setLimit( $eventTotal )
@@ -57,10 +55,7 @@ class BuildForScans extends BuildBase {
 					'name'    => self::con()->comps->events->getEventName( $event ),
 					'count'   => $eventTotal,
 					'repairs' => \array_unique( \array_map(
-						function ( $meta ) {
-							/** @var MetaDB\Record $meta */
-							return \str_replace( ABSPATH, '', $meta->meta_value );
-						},
+						fn( $meta ) => /** @var MetaDB\Record $meta */ \str_replace( ABSPATH, '', $meta->meta_value ),
 						$metaSelect->filterByLogRefs( $logIDs )
 								   ->filterByMetaKey( 'path_full' )
 								   ->queryWithResult()

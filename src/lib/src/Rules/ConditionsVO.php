@@ -27,9 +27,7 @@ class ConditionsVO extends DynPropertiesClass {
 				break;
 			case 'conditions':
 				if ( \is_array( $value ) ) {
-					$value = \array_map( function ( array $sub ) {
-						return ( new ConditionsVO() )->applyFromArray( $sub );
-					}, $value );
+					$value = \array_map( fn( array $sub ) => ( new ConditionsVO() )->applyFromArray( $sub ), $value );
 				}
 				break;
 			case 'type':

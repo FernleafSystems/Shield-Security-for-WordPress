@@ -45,15 +45,13 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 				[
 					'logic'      => Enum\EnumLogic::LOGIC_OR,
 					'conditions' => \array_map(
-						function ( $agent ) {
-							return [
-								'conditions' => Conditions\MatchRequestUseragent::class,
-								'params'     => [
-									'match_type'      => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
-									'match_useragent' => $agent,
-								],
-							];
-						},
+						fn( $agent ) => [
+							'conditions' => Conditions\MatchRequestUseragent::class,
+							'params'     => [
+								'match_type'      => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+								'match_useragent' => $agent,
+							],
+						],
 						Services::ServiceProviders()->getAllCrawlerUseragents()
 					),
 				]
