@@ -29,9 +29,7 @@ class PluginBadge {
 			);
 
 			if ( $display ) {
-				add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
-					return \array_merge( $assets, [ 'badge' ] );
-				} );
+				add_filter( 'shield/custom_enqueue_assets', fn( array $assets ) => \array_merge( $assets, [ 'badge' ] ) );
 				add_action( 'wp_footer', [ $this, 'printPluginBadge' ], 100 );
 				add_action( 'login_footer', [ $this, 'printPluginBadge' ], 100 );
 			}

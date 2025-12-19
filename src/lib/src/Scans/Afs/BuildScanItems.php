@@ -82,9 +82,7 @@ class BuildScanItems {
 			$paths = \array_merge( $con->opts->optGet( 'scan_path_exclusions' ), $paths );
 		}
 		$action->paths_whitelisted = \array_map(
-			function ( $value ) {
-				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
-			},
+			fn( $value ) => ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL ),
 			$paths
 		);
 		$action->max_file_size = apply_filters( 'shield/file_scan_size_max', 16*1024*1024 );
@@ -98,19 +96,12 @@ class BuildScanItems {
 				$this->buildFilesFromDisk(),
 				$this->buildFilesFromWpHashes()
 			) ),
-			function ( $path ) {
-				return !$this->isWhitelistedPath( $path );
-			}
+			fn( $path ) => !$this->isWhitelistedPath( $path ),
 		);
 
 		\natsort( $files );
 
-		return \array_map(
-			function ( $path ) {
-				return \base64_encode( $path );
-			},
-			\array_values( $files )
-		);
+		return \array_map( '\base64_encode', \array_values( $files ) );
 	}
 
 	private function buildFilesFromWpHashes() :array {

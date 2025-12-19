@@ -8,9 +8,7 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 		$action->results = \array_filter( \array_map(
-			function ( $file ) {
-				return $this->getItemScanner()->scan( $file );
-			},
+			fn( $file ) => $this->getItemScanner()->scan( $file ),
 			$action->items
 		) );
 	}

@@ -9,21 +9,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Themes extends Base {
 
-	/**
-	 * @var array
-	 */
-	private $themeVersions;
+	private array $themeVersions;
 
-	private $slugs;
+	private array $slugs;
 
 	public function canSnapRealtime() :bool {
 		return true;
 	}
 
 	protected function initAuditHooks() :void {
-		$this->themeVersions = \array_map( function ( $theme ) {
-			return $theme->get( 'Version' );
-		}, Services::WpThemes()->getThemes() );
+		$this->themeVersions = \array_map(
+			fn( $theme ) => $theme->get( 'Version' ),
+			Services::WpThemes()->getThemes()
+		);
 		$this->slugs = Services::WpThemes()->getInstalledStylesheets();
 
 		add_action( 'upgrader_process_complete', [ $this, 'auditInstall' ], 10, 0 );

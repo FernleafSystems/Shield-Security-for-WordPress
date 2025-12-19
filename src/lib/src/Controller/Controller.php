@@ -437,9 +437,11 @@ class Controller extends DynPropertiesClass {
 		/**
 		 * Support for WP-CLI and it marks the cli as plugin admin
 		 */
-		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $byPass ) {
-			return $byPass || ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() );
-		}, \PHP_INT_MAX );
+		add_filter(
+			$this->prefix( 'bypass_is_plugin_admin' ),
+			fn( $byPass ) => $byPass || ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() ),
+			\PHP_INT_MAX
+		);
 	}
 
 	public function onWpAfterSetupTheme() {

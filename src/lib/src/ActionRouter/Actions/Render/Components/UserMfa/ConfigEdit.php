@@ -18,9 +18,7 @@ class ConfigEdit extends UserMfaBase {
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
 		$providers = \array_map(
-			function ( $provider ) {
-				return $provider->getProviderName();
-			},
+			fn( $provider ) => $provider->getProviderName(),
 			self::con()->comps->mfa->getProvidersActiveForUser( $user )
 		);
 

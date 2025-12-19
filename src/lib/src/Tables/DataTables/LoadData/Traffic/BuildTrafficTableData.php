@@ -135,9 +135,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
-			function ( $column ) {
-				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
-			},
+			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
 			( new ForTraffic() )->buildRaw()[ 'columns' ]
 		) );
 	}
