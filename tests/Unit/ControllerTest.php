@@ -5,11 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use Brain\Monkey;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Fixtures\TestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 
 /**
  * Unit tests for the main Controller class
  */
 class ControllerTest extends TestCase {
+
+	use PluginPathsTrait;
 
 	protected function setUpTestEnvironment() :void {
 		parent::setUpTestEnvironment();
@@ -39,8 +42,10 @@ class ControllerTest extends TestCase {
 		Monkey\Functions\when( 'plugin_dir_path' )->justReturn( dirname( $pluginFile ) . '/' );
 		Monkey\Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.com/wp-content/plugins/wp-plugin-shield/' );
 		
-		// Mock version checking
-		Monkey\Functions\when( 'get_file_data' )->justReturn( [ '21.0.7' ] );
+		// Mock version checking - use actual version from plugin.json instead of hardcoding
+		$pluginConfig = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$version = $pluginConfig['properties']['version'] ?? '0.0.0';
+		Monkey\Functions\when( 'get_file_data' )->justReturn( [ $version ] );
 
 		try {
 			$controller = Controller::GetInstance( $pluginFile );
@@ -59,7 +64,11 @@ class ControllerTest extends TestCase {
 		Monkey\Functions\when( 'plugin_basename' )->justReturn( 'wp-plugin-shield/icwp-wpsf.php' );
 		Monkey\Functions\when( 'plugin_dir_path' )->justReturn( dirname( $pluginFile ) . '/' );
 		Monkey\Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.com/wp-content/plugins/wp-plugin-shield/' );
-		Monkey\Functions\when( 'get_file_data' )->justReturn( [ '21.0.7' ] );
+		
+		// Mock version checking - use actual version from plugin.json instead of hardcoding
+		$pluginConfig = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$version = $pluginConfig['properties']['version'] ?? '0.0.0';
+		Monkey\Functions\when( 'get_file_data' )->justReturn( [ $version ] );
 
 		try {
 			$controller1 = Controller::GetInstance( $pluginFile );

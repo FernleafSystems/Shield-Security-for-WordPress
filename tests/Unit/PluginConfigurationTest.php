@@ -23,7 +23,16 @@ class PluginConfigurationTest extends TestCase {
 		$this->assertArrayHasKey( 'properties', $config );
 		$properties = $config['properties'];
 
-		$this->assertEquals( '21.0.7', $properties['version'] );
+		// Test version exists and follows semantic versioning - don't hardcode specific version
+		$this->assertArrayHasKey( 'version', $properties, 'Version property should exist' );
+		$version = $properties['version'];
+		$this->assertNotEmpty( $version, 'Version should not be empty' );
+		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', $version, 'Version should follow semantic versioning format (X.Y.Z)' );
+		
+		// Verify version in config matches version in main plugin file
+		$pluginContent = $this->getPluginFileContents( 'icwp-wpsf.php', 'Main plugin file' );
+		$this->assertStringContainsString( "Version: {$version}", $pluginContent, 'Version in config should match version in main plugin file' );
+		
 		$this->assertEquals( 'wp-simple-firewall', $properties['text_domain'] );
 		$this->assertEquals( 'wpsf', $properties['slug_plugin'] );
 		$this->assertEquals( 'icwp', $properties['slug_parent'] );

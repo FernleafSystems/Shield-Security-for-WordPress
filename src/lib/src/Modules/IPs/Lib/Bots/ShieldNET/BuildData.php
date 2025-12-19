@@ -87,9 +87,7 @@ class BuildData {
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
 							self::con()->db_con->bot_signals->getTable(),
 							Services::Request()->ts(),
-							\implode( ',', \array_map( function ( $record ) {
-								return $record->id;
-							}, $records ) )
+							\implode( ',', \array_map( fn( $record ) => $record->id, $records ) )
 						)
 					);
 		}
@@ -101,9 +99,7 @@ class BuildData {
 	 */
 	private function getRecords() :array {
 		$serverIPs = \array_map(
-			function ( $ip ) {
-				return sprintf( "INET6_ATON('%s')", $ip );
-			},
+			fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ),
 			\is_array( Services::IP()->getServerPublicIPs() ) ? Services::IP()->getServerPublicIPs() : []
 		);
 
@@ -122,9 +118,7 @@ class BuildData {
 		);
 
 		return \array_map(
-			function ( $record ) {
-				return ( new BotSignalRecord() )->applyFromArray( $record );
-			},
+			fn( $record ) => ( new BotSignalRecord() )->applyFromArray( $record ),
 			\is_array( $records ) ? $records : []
 		);
 	}

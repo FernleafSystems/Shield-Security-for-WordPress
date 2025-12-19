@@ -50,9 +50,9 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 					'params'     => [
 						'match_type'        => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 						'match_script_name' => sprintf( '#(%s)#i',
-							implode( '|', \array_map( function ( $script ) {
-								return \preg_quote( $script, '#' );
-							}, self::con()->comps->bot_signals->getAllowableScripts() ) )
+							implode( '|',
+								\array_map( fn( $script ) => \preg_quote( $script, '#' ), self::con()->comps->bot_signals->getAllowableScripts() )
+							)
 						),
 					],
 				],

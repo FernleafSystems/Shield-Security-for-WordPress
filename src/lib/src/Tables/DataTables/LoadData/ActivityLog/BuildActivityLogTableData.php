@@ -103,9 +103,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
-			function ( $column ) {
-				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
-			},
+			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
 			( new ForActivityLog() )->buildRaw()[ 'columns' ]
 		) );
 	}
@@ -120,12 +118,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->getOrderBy();
-		return \array_filter(
-			$loader->run(),
-			function ( $logRecord ) {
-				return self::con()->comps->events->eventExists( $logRecord->event_slug );
-			}
-		);
+		return \array_filter( $loader->run(), fn( $r ) => self::con()->comps->events->eventExists( $r->event_slug ) );
 	}
 
 	protected function getRecordsLoader() :LoadLogs {

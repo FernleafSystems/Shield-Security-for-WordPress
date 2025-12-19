@@ -84,6 +84,94 @@ else
     exit 1
 fi
 
+# Create symlink for plugin in WordPress plugins directory
+# This ensures plugins_url() returns correct URLs for our plugin
+# WordPress calculates plugin URLs relative to WP_PLUGIN_DIR, so the plugin must be there
+echo "Setting up plugin symlink for WordPress..."
+WP_CORE_DIR=${WP_CORE_DIR:-/tmp/wordpress}
+WP_PLUGINS_DIR="$WP_CORE_DIR/wp-content/plugins"
+PLUGIN_SLUG="wp-simple-firewall"
+
+# Determine the actual plugin source directory
+if [ -n "$SHIELD_PACKAGE_PATH" ]; then
+    PLUGIN_SOURCE_DIR="$SHIELD_PACKAGE_PATH"
+else
+    PLUGIN_SOURCE_DIR="/app"
+fi
+
+# Verify source directory exists before attempting symlink
+if [ ! -d "$PLUGIN_SOURCE_DIR" ]; then
+    echo ""
+    echo "❌ FATAL: Plugin source directory does not exist"
+    echo "   Expected: $PLUGIN_SOURCE_DIR"
+    echo "   SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH:-not set}"
+    echo ""
+    echo "   This usually means:"
+    echo "   - The Docker volume mount failed"
+    echo "   - SHIELD_PACKAGE_PATH points to a non-existent directory"
+    echo ""
+    exit 1
+fi
+
+# Verify main plugin file exists in source
+if [ ! -f "$PLUGIN_SOURCE_DIR/icwp-wpsf.php" ]; then
+    echo ""
+    echo "❌ FATAL: Main plugin file not found in source directory"
+    echo "   Expected: $PLUGIN_SOURCE_DIR/icwp-wpsf.php"
+    echo "   Directory contents:"
+    ls -la "$PLUGIN_SOURCE_DIR" 2>/dev/null || echo "   (could not list directory)"
+    echo ""
+    exit 1
+fi
+
+# Create plugins directory if it doesn't exist
+if ! mkdir -p "$WP_PLUGINS_DIR"; then
+    echo ""
+    echo "❌ FATAL: Could not create WordPress plugins directory"
+    echo "   Target: $WP_PLUGINS_DIR"
+    echo "   Check filesystem permissions"
+    echo ""
+    exit 1
+fi
+
+# Remove existing symlink/directory if present
+if [ -L "$WP_PLUGINS_DIR/$PLUGIN_SLUG" ] || [ -d "$WP_PLUGINS_DIR/$PLUGIN_SLUG" ]; then
+    rm -rf "$WP_PLUGINS_DIR/$PLUGIN_SLUG"
+fi
+
+# Create symlink from WordPress plugins dir to our plugin
+echo "Creating symlink: $WP_PLUGINS_DIR/$PLUGIN_SLUG -> $PLUGIN_SOURCE_DIR"
+if ! ln -s "$PLUGIN_SOURCE_DIR" "$WP_PLUGINS_DIR/$PLUGIN_SLUG"; then
+    echo ""
+    echo "❌ FATAL: Could not create symlink"
+    echo "   Source: $PLUGIN_SOURCE_DIR"
+    echo "   Target: $WP_PLUGINS_DIR/$PLUGIN_SLUG"
+    echo ""
+    echo "   Diagnostic information:"
+    echo "   - Source exists: $([ -d "$PLUGIN_SOURCE_DIR" ] && echo "yes" || echo "no")"
+    echo "   - Target parent exists: $([ -d "$WP_PLUGINS_DIR" ] && echo "yes" || echo "no")"
+    echo "   - Target parent writable: $([ -w "$WP_PLUGINS_DIR" ] && echo "yes" || echo "no")"
+    echo "   - Current user: $(whoami)"
+    echo "   - Filesystem type: $(df -T "$WP_PLUGINS_DIR" 2>/dev/null | tail -1 | awk '{print $2}' || echo "unknown")"
+    echo ""
+    exit 1
+fi
+echo "✓ Plugin symlinked successfully"
+
+# Verify the symlink works (can access plugin file through it)
+if [ ! -f "$WP_PLUGINS_DIR/$PLUGIN_SLUG/icwp-wpsf.php" ]; then
+    echo ""
+    echo "❌ FATAL: Symlink created but plugin file not accessible through it"
+    echo "   Symlink: $WP_PLUGINS_DIR/$PLUGIN_SLUG"
+    echo "   Points to: $(readlink "$WP_PLUGINS_DIR/$PLUGIN_SLUG")"
+    echo "   Expected file: $WP_PLUGINS_DIR/$PLUGIN_SLUG/icwp-wpsf.php"
+    echo ""
+    echo "   This indicates a broken symlink or permission issue"
+    echo ""
+    exit 1
+fi
+echo "✓ Plugin file accessible via symlink"
+
 # Handle dependency installation based on testing mode
 if [ -n "$SHIELD_PACKAGE_PATH" ]; then
     echo "Package Testing Mode: Skipping dependency installation (package should be pre-built)"

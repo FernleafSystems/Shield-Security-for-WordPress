@@ -7,6 +7,12 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
+/**
+ * Test that JSON files in the config directory are valid.
+ * 
+ * Note: This complements the Integration FilesHaveJsonFormatTest which tests
+ * root-level JSON files. This Unit test focuses on config directory JSON files.
+ */
 class FilesHaveJsonFormatTest extends TestCase {
 
 	use PluginPathsTrait;
@@ -67,3 +73,4 @@ class FilesHaveJsonFormatTest extends TestCase {
 		return $files;
 	}
 }
+

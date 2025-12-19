@@ -1,12 +1,6 @@
 # Docker Compose override for CI/CD environments
 # Uses pre-built image instead of building from Dockerfile
 services:
-  test-runner:
-    # Use pre-built image - the same image works for all WordPress versions
-    image: ${SHIELD_TEST_IMAGE:-shield-test-runner:latest}
-    # Remove build configuration since we're using pre-built image
-    build: !reset
-
   test-runner-latest:
     # Use the same pre-built image for WordPress 6.8.2
     image: ${SHIELD_TEST_IMAGE_LATEST:-shield-test-runner:latest}

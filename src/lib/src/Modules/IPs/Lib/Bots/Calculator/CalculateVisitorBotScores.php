@@ -12,7 +12,7 @@ class CalculateVisitorBotScores {
 	use IpAddressConsumer;
 	use PluginControllerConsumer;
 
-	private $scores = [];
+	private array $scores = [];
 
 	public function scores() :array {
 		$this->scores = ( new BuildScores() )

@@ -89,7 +89,6 @@ class PluginPackager {
 		$this->downloadStraussPhar( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
 		$this->cleanupPackageFiles( $targetDir );
-		$this->cleanPoFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
 		$this->verifyPackage( $targetDir );
 
@@ -259,6 +258,148 @@ class PluginPackager {
 	}
 
 	/**
+	 * Parse .gitattributes and return list of export-ignore patterns
+	 * This makes .gitattributes the single source of truth for package contents
+	 * @return string[] Array of patterns that should be excluded from packages
+	 */
+	private function getExportIgnorePatterns() :array {
+		$gitattributesPath = Path::join( $this->projectRoot, '.gitattributes' );
+
+		if ( !file_exists( $gitattributesPath ) ) {
+			$this->log( 'Warning: .gitattributes not found, no export-ignore patterns loaded' );
+			return [];
+		}
+
+		$patterns = [];
+		$lines = file( $gitattributesPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+
+		if ( $lines === false ) {
+			$this->log( 'Warning: Could not read .gitattributes' );
+			return [];
+		}
+
+		foreach ( $lines as $line ) {
+			$line = trim( $line );
+
+			// Skip comments and empty lines
+			if ( $line === '' || strpos( $line, '#' ) === 0 ) {
+				continue;
+			}
+
+			// Match lines with export-ignore attribute
+			// Formats supported:
+			//   /path export-ignore
+			//   /path/to/dir export-ignore
+			//   /languages/*.po export-ignore
+			if ( preg_match( '/^(\S+)\s+.*\bexport-ignore\b/', $line, $matches ) ) {
+				$pattern = $matches[ 1 ];
+				// Normalize: remove leading slash for internal consistency
+				$patterns[] = ltrim( $pattern, '/' );
+			}
+		}
+
+		return $patterns;
+	}
+
+	/**
+	 * Check if a path should be excluded based on export-ignore patterns
+	 * Supports:
+	 *   - Exact file matches: "README.md"
+	 *   - Directory matches: "tests" matches "tests/Unit/Test.php"
+	 *   - Glob patterns: "languages/*.po" matches "languages/en_US.po"
+	 *
+	 * NOTE: Matching is case-sensitive (consistent with git's behavior).
+	 * Git tracks paths exactly as committed, so case mismatches are rare.
+	 *
+	 * @param string $relativePath Path relative to project root (forward slashes)
+	 * @param string[] $patterns Export-ignore patterns from .gitattributes
+	 * @return bool True if path should be excluded
+	 */
+	private function shouldExcludePath( string $relativePath, array $patterns ) :bool {
+		// Normalize to forward slashes (simpler than Path::normalize() for this use case)
+		// We only need to handle backslash->forward slash conversion, not ../ resolution
+		$normalizedPath = str_replace( '\\', '/', $relativePath );
+
+		foreach ( $patterns as $pattern ) {
+			// Normalize pattern
+			$normalizedPattern = str_replace( '\\', '/', $pattern );
+
+			// Case 1: Exact match
+			if ( $normalizedPath === $normalizedPattern ) {
+				return true;
+			}
+
+			// Case 2: Directory match - pattern is a directory prefix
+			// Pattern "tests" should match "tests/Unit/Test.php"
+			$patternAsDir = rtrim( $normalizedPattern, '/' ).'/';
+			if ( strpos( $normalizedPath, $patternAsDir ) === 0 ) {
+				return true;
+			}
+
+			// Case 3: Pattern ends with directory name, path is exactly that directory
+			if ( $normalizedPath === rtrim( $normalizedPattern, '/' ) ) {
+				return true;
+			}
+
+			// Case 4: Glob pattern with asterisk (e.g., "languages/*.po")
+			if ( strpos( $normalizedPattern, '*' ) !== false ) {
+				// Convert glob pattern to regex
+				// Escape regex special chars except *
+				$regexPattern = preg_quote( $normalizedPattern, '#' );
+				// Replace escaped \* with regex .*
+				$regexPattern = str_replace( '\\*', '[^/]*', $regexPattern );
+				// Anchor the pattern
+				$regexPattern = '#^'.$regexPattern.'$#';
+
+				if ( preg_match( $regexPattern, $normalizedPath ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if a path is commonly gitignored and should NOT be copied
+	 * These paths exist on disk but should not be in the package because they are either:
+	 * - Development tools (node_modules/, vendor/, .idea/, .git/)
+	 * - Created DURING packaging (src/lib/vendor/, src/lib/vendor_prefixed/)
+	 *
+	 * NOTE: assets/dist/ is gitignored but SHOULD be copied (it's the built output)
+	 * So it is intentionally NOT in this list.
+	 *
+	 * @param string $relativePath Path relative to project root
+	 * @return bool True if path should be skipped (not copied)
+	 */
+	private function isCommonGitIgnoredPath( string $relativePath ) :bool {
+		$gitIgnoredPrefixes = [
+			'vendor/',                  // Root dev dependencies (composer install at root)
+			'node_modules/',            // npm dependencies (build tools)
+			'.idea/',                   // IDE settings
+			'.git/',                    // Version control
+			'src/lib/vendor/',          // Created by composer install during packaging
+			'src/lib/vendor_prefixed/', // Created by Strauss during packaging
+			// NOTE: assets/dist/ is NOT here because it SHOULD be copied
+			// It's built by npm BEFORE packaging and needs to be in the package
+		];
+
+		$normalized = str_replace( '\\', '/', $relativePath );
+
+		foreach ( $gitIgnoredPrefixes as $prefix ) {
+			if ( strpos( $normalized, $prefix ) === 0 ) {
+				return true;
+			}
+			// Also check if path IS the directory itself (without trailing slash)
+			if ( $normalized === rtrim( $prefix, '/' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @return string[]
 	 */
 	private function getComposerCommand() :array {
@@ -304,94 +445,104 @@ class PluginPackager {
 	}
 
 	/**
-	 * Copy plugin files and directories to the target package directory
-	 * Uses Symfony Filesystem for cross-platform compatibility and line ending preservation
+	 * Copy plugin files to the target package directory
+	 * Uses .gitattributes export-ignore patterns as single source of truth
 	 * @throws RuntimeException if copy operations fail
 	 */
 	private function copyPluginFiles( string $targetDir ) :void {
 		$this->log( 'Copying plugin files...' );
+		$this->log( '(Using .gitattributes export-ignore as source of truth)' );
 
 		$fs = new Filesystem();
+		$excludePatterns = $this->getExportIgnorePatterns();
+
+		$this->log( sprintf( '  Loaded %d export-ignore patterns from .gitattributes', count( $excludePatterns ) ) );
 
 		// Ensure target directory exists
 		if ( !is_dir( $targetDir ) ) {
 			$fs->mkdir( $targetDir );
 		}
 
-		// Root files to copy
-		$rootFiles = [
-			'icwp-wpsf.php',
-			'plugin_init.php',
-			'readme.txt',
-			'plugin.json',
-			'cl.json',
-			'plugin_autoload.php',
-			'plugin_compatibility.php',
-			'uninstall.php',
-			'unsupported.php',
-		];
+		// Use filter iterator to avoid descending into excluded directories
+		// This is much faster than iterating all files then skipping
+		// Note: Since PHP 5.4, closures auto-bind $this when defined in class methods
+		//
+		// Symlink behavior: RecursiveDirectoryIterator follows symlinks by default.
+		// If a symlink points outside the project, Path::makeRelative() may return
+		// unexpected results. This is acceptable as symlinks in the source tree are rare.
+		$projectRoot = $this->projectRoot;
 
-		foreach ( $rootFiles as $file ) {
-			$sourcePath = Path::join( $this->projectRoot, $file );
-			$targetPath = Path::join( $targetDir, $file );
+		// Check if target directory is inside project root to prevent infinite recursion (required for CI)
+		$isTargetInsideRoot = Path::isBasePath( $projectRoot, $targetDir );
+		if ( $isTargetInsideRoot ) {
+			$this->log( sprintf( '  Excluding target directory from copy: %s', Path::makeRelative( $targetDir, $projectRoot ) ) );
+		}
 
-			if ( file_exists( $sourcePath ) ) {
+		$dirIterator = new \RecursiveDirectoryIterator(
+			$this->projectRoot,
+			\RecursiveDirectoryIterator::SKIP_DOTS
+		);
+
+		// Filter out excluded directories BEFORE descending into them
+		$filterIterator = new \RecursiveCallbackFilterIterator(
+			$dirIterator,
+			function ( \SplFileInfo $current, string $key, \RecursiveDirectoryIterator $iterator ) use ( $projectRoot, $excludePatterns, $targetDir, $isTargetInsideRoot ) :bool {
+				$relativePath = Path::makeRelative( $current->getPathname(), $projectRoot );
+
+				// Skip the target directory itself to prevent infinite recursion
+				if ( $isTargetInsideRoot && Path::isBasePath( $targetDir, $current->getPathname() ) ) {
+					return false;
+				}
+
+				// Skip export-ignore paths
+				if ( $this->shouldExcludePath( $relativePath, $excludePatterns ) ) {
+					return false;
+				}
+
+				// Skip gitignored directories (prevents descending into vendor/, node_modules/)
+				if ( $this->isCommonGitIgnoredPath( $relativePath ) ) {
+					return false;
+				}
+
+				return true;
+			}
+		);
+
+		$iterator = new \RecursiveIteratorIterator(
+			$filterIterator,
+			\RecursiveIteratorIterator::SELF_FIRST
+		);
+
+		$stats = [ 'files' => 0, 'dirs' => 0 ];
+
+		foreach ( $iterator as $item ) {
+			/** @var \SplFileInfo $item */
+			$fullPath = $item->getPathname();
+			$relativePath = Path::makeRelative( $fullPath, $this->projectRoot );
+
+			$targetPath = Path::join( $targetDir, $relativePath );
+
+			if ( $item->isDir() ) {
+				if ( !is_dir( $targetPath ) ) {
+					$fs->mkdir( $targetPath );
+					$stats[ 'dirs' ]++;
+				}
+			}
+			else {
 				try {
-					$fs->copy( $sourcePath, $targetPath, true );
-					$this->log( sprintf( '  ✓ Copied: %s', $file ) );
+					$fs->copy( $fullPath, $targetPath, true );
+					$stats[ 'files' ]++;
 				}
 				catch ( \Exception $e ) {
 					throw new RuntimeException(
-						sprintf(
-							'Failed to copy file "%s" to package directory. '.
-							'Source: %s. Target: %s. Error: %s',
-							$file,
-							$sourcePath,
-							$targetPath,
-							$e->getMessage()
-						)
+						sprintf( 'Failed to copy file "%s": %s', $relativePath, $e->getMessage() )
 					);
 				}
 			}
 		}
 
-		$this->log( '' );
-		$this->log( 'Copying directories...' );
-
-		// Directories to copy
-		$directories = [
-			'src',
-			'assets',
-			'flags',
-			'languages',
-			'templates',
-		];
-
-		foreach ( $directories as $dir ) {
-			$sourcePath = Path::join( $this->projectRoot, $dir );
-			$targetPath = Path::join( $targetDir, $dir );
-
-			if ( is_dir( $sourcePath ) ) {
-				$this->log( sprintf( '  → Copying directory: %s', $dir ) );
-				try {
-					$fs->mirror( $sourcePath, $targetPath );
-					$this->log( sprintf( '    ✓ Completed: %s', $dir ) );
-				}
-				catch ( \Exception $e ) {
-					throw new RuntimeException(
-						sprintf(
-							'Failed to copy directory "%s" to package directory. '.
-							'Source: %s. Target: %s. Error: %s',
-							$dir,
-							$sourcePath,
-							$targetPath,
-							$e->getMessage()
-						)
-					);
-				}
-			}
-		}
-
+		$this->log( sprintf( '  ✓ Copied %d files in %d directories', $stats[ 'files' ], $stats[ 'dirs' ] ) );
+		$this->log( '  (Excluded paths filtered via .gitattributes export-ignore)' );
 		$this->log( '' );
 		$this->log( 'Package structure created successfully' );
 		$this->log( '' );
@@ -692,24 +843,6 @@ class PluginPackager {
 					$this->log( sprintf( '  Warning: Could not remove file: %s (%s)', $file, $e->getMessage() ) );
 				}
 			}
-		}
-	}
-
-	/**
-	 * Clean autoload files to remove twig references
-	 * Preserves original line endings (CRLF/LF)
-	 */
-	private function cleanPoFiles( string $targetDir ) :void {
-		$fs = new Filesystem();
-		try {
-			foreach ( new \FilesystemIterator( Path::join( $targetDir, 'languages' ) ) as $fsItem ) {
-				/** @var \SplFileInfo $fsItem */
-				if ( $fsItem->isFile() && $fsItem->getExtension() === 'po' ) {
-					$fs->remove( $fsItem->getPathname() );
-				}
-			}
-		}
-		catch ( \Exception $e ) {
 		}
 	}
 

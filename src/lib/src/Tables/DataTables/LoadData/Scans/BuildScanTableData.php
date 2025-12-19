@@ -60,9 +60,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
-			function ( $column ) {
-				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
-			},
+			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
 			( new BaseForScan() )->buildRaw()[ 'columns' ]
 		) );
 	}

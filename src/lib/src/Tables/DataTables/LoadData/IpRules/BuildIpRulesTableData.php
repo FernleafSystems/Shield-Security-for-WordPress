@@ -75,10 +75,10 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 						$wheres[] = sprintf( "`ir`.`id` IN (%s)", \implode( ',', \array_map( '\intval', $selected ) ) );
 						break;
 					case 'type':
-						$selected = \array_filter( $selected, function ( $type ) {
-							return IpRulesDB\Handler::IsValidType( (string)$type );
-						} );
-						$wheres[] = sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $selected ) );
+						$wheres[] = sprintf(
+							"`ir`.`type` IN ('%s')",
+							\implode( "','", \array_filter( $selected, fn( $t ) => IpRulesDB\Handler::IsValidType( (string)$t ) ) )
+						);
 						break;
 					case 'is_blocked':
 						if ( \count( $selected ) === 1 ) {
@@ -113,9 +113,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
-			function ( $column ) {
-				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
-			},
+			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
 			( new ForIpRules() )->buildRaw()[ 'columns' ]
 		) );
 	}

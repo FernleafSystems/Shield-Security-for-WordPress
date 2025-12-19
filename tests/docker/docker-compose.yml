@@ -1,9 +1,13 @@
 # Docker Compose for Shield Security testing
 # Based on Easy Digital Downloads docker-compose-phpunit.yml pattern
 # Updated for Phase 2: Parallel WordPress testing with database isolation
+#
+# Note: PHP_VERSION fallback defaults (8.2) should match DEFAULT_PHP in .github/config/matrix.conf
+# The calling script should always set PHP_VERSION, so these fallbacks are rarely used.
 services:
   # MySQL service for WordPress latest testing
   mysql-latest:
+    container_name: shield-db-latest
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: testpass
@@ -16,6 +20,7 @@ services:
 
   # MySQL service for WordPress previous testing
   mysql-previous:
+    container_name: shield-db-previous
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: testpass
@@ -26,23 +31,14 @@ services:
     ports:
       - "3310:3306"  # Exposed on different port to avoid conflicts
 
-  # Legacy MySQL service (for backward compatibility)
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: testpass
-      MYSQL_DATABASE: wordpress_test
-    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
-    volumes:
-      - mysql_data:/var/lib/mysql
-
   # Test runner for WordPress latest
   test-runner-latest:
+    container_name: shield-test-latest
     build:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION_LATEST:-6.8.2}
+        WP_VERSION: ${WP_VERSION_LATEST:-6.9}
     depends_on:
       - mysql-latest
     volumes:
@@ -50,18 +46,19 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.8.2}
+      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.9}
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.8.2}
+    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.9}
 
   # Test runner for WordPress previous
   test-runner-previous:
+    container_name: shield-test-previous
     build:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.7.3}
+        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
     depends_on:
       - mysql-previous
     volumes:
@@ -69,31 +66,11 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.7.3}
+      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.7.3}
-
-  # Legacy test runner (for backward compatibility)
-  test-runner:
-    build:
-      context: .
-      args:
-        PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION:-6.4}
-    depends_on:
-      - mysql
-    volumes:
-      - ../../:/app
-    working_dir: /app
-    environment:
-      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION:-6.4}
-      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
-      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
-    command: bin/run-tests-docker.sh wordpress_test root testpass mysql ${WP_VERSION:-6.4}
+    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
 
 volumes:
-  mysql_data:
   mysql_latest_data:
   mysql_previous_data:

@@ -51,19 +51,46 @@ if ( $shield_package_path !== false && !empty( $shield_package_path ) ) {
 		define( 'WP_PLUGIN_DIR', $wp_plugin_dir );
 	}
 	echo "✓ WP_PLUGIN_DIR set to: " . $wp_plugin_dir . PHP_EOL;
-} elseif ( is_dir( '/var/www/html/wp-content/plugins/wp-simple-firewall' ) ) {
-	// Docker testing mode - plugin is mounted at WordPress plugin directory
-	$plugin_dir = '/var/www/html/wp-content/plugins/wp-simple-firewall';
-	echo "🐳 Docker testing mode detected" . PHP_EOL;
-	echo "Docker plugin directory: " . $plugin_dir . PHP_EOL;
+} elseif ( is_dir( '/tmp/wordpress/wp-content/plugins/wp-simple-firewall' ) ) {
+	// Docker testing mode - plugin is symlinked into WordPress plugins directory
+	// The symlink is created by bin/run-tests-docker.sh to ensure plugins_url() works correctly
+	$plugin_dir = '/tmp/wordpress/wp-content/plugins/wp-simple-firewall';
+	echo "🐳 Docker testing mode detected (via symlink)" . PHP_EOL;
+	echo "Plugin directory (symlinked): " . $plugin_dir . PHP_EOL;
+	
+	// Show the symlink target for debugging
+	if ( is_link( $plugin_dir ) ) {
+		echo "Symlink target: " . readlink( $plugin_dir ) . PHP_EOL;
+	}
 	
 	// Verify plugin structure exists
 	$main_plugin_file = $plugin_dir . '/icwp-wpsf.php';
 	if ( ! file_exists( $main_plugin_file ) ) {
-		echo "❌ ERROR: Main plugin file not found at: " . $main_plugin_file . PHP_EOL;
+		echo "" . PHP_EOL;
+		echo "❌ FATAL: Main plugin file not found at: " . $main_plugin_file . PHP_EOL;
+		echo "" . PHP_EOL;
+		echo "   The symlink exists but the plugin file is not accessible." . PHP_EOL;
+		echo "   This indicates a broken symlink." . PHP_EOL;
+		echo "" . PHP_EOL;
+		echo "   Symlink target: " . ( is_link( $plugin_dir ) ? readlink( $plugin_dir ) : 'NOT A SYMLINK' ) . PHP_EOL;
+		echo "   Check that bin/run-tests-docker.sh completed successfully." . PHP_EOL;
+		echo "" . PHP_EOL;
 		exit( 1 );
 	}
 	echo "✓ Main plugin file verified: " . $main_plugin_file . PHP_EOL;
+} elseif ( getenv( 'SHIELD_TEST_MODE' ) === 'docker' || is_dir( '/tmp/wordpress' ) ) {
+	// We're in Docker but the symlink wasn't created - this is an error
+	echo "" . PHP_EOL;
+	echo "❌ FATAL: Docker environment detected but plugin symlink is missing" . PHP_EOL;
+	echo "" . PHP_EOL;
+	echo "   Expected symlink at: /tmp/wordpress/wp-content/plugins/wp-simple-firewall" . PHP_EOL;
+	echo "   WordPress directory exists: " . ( is_dir( '/tmp/wordpress' ) ? 'yes' : 'no' ) . PHP_EOL;
+	echo "   Plugins directory exists: " . ( is_dir( '/tmp/wordpress/wp-content/plugins' ) ? 'yes' : 'no' ) . PHP_EOL;
+	echo "" . PHP_EOL;
+	echo "   This means bin/run-tests-docker.sh did not create the symlink." . PHP_EOL;
+	echo "   Check the Docker test runner logs for errors." . PHP_EOL;
+	echo "" . PHP_EOL;
+	exit( 1 );
 } else {
 	// Source testing mode - use the current repository
 	$plugin_dir = dirname( dirname( __DIR__ ) );
@@ -204,21 +231,13 @@ echo "✓ Shield plugin loading registered on plugins_loaded hook (priority 0 - 
 // Task 2.1.6: Add WordPress Environment Configuration
 echo "Configuring WordPress test environment..." . PHP_EOL;
 
-// Add plugin URL rewriting for test environment (preserve existing logic)
-tests_add_filter( 
-	'plugins_url',
-	function ( $url, $path, $plugin ) use ( $plugin_dir ) {
-		// Only rewrite URLs for our plugin
-		if ( strpos( $plugin, basename( $plugin_dir ) ) !== false ) {
-			// Adjust URL for test environment
-			$url = str_replace( dirname( $plugin_dir ), '', $url );
-			echo "🔗 Plugin URL rewritten for test environment: " . $url . PHP_EOL;
-		}
-		return $url;
-	},
-	10,
-	3
-);
+// Plugin URL handling - No filter needed
+// 
+// plugins_url() now works correctly because:
+// 1. bin/run-tests-docker.sh creates a symlink from WordPress's plugins directory to our plugin
+// 2. WordPress sees the plugin at /tmp/wordpress/wp-content/plugins/wp-simple-firewall
+// 3. plugins_url() correctly calculates URLs relative to WP_PLUGIN_DIR
+// 4. This is the standard WordPress pattern used by core and major plugins
 
 // Set Shield-specific constants for test mode
 tests_add_filter( 'shield_security_development_mode', '__return_false' );

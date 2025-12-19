@@ -15,8 +15,6 @@ class Builder {
 
 		( new AssignMinimumHooks( $rules ) )->run();
 
-		return \array_filter( $rules, function ( RuleVO $rule ) {
-			return $rule->is_valid;
-		} );
+		return \array_filter( $rules, fn( RuleVO $rule ) => $rule->is_valid );
 	}
 }

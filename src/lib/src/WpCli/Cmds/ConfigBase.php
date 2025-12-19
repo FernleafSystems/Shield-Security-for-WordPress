@@ -11,9 +11,7 @@ abstract class ConfigBase extends BaseCmd {
 		$config = self::con()->cfg->configuration;
 		return \array_filter(
 			\array_keys( empty( $module ) ? $config->options : $config->optsForModule( $module ) ),
-			function ( $key ) {
-				return self::con()->opts->optDef( $key )[ 'section' ] !== 'section_hidden';
-			}
+			fn( $key ) => self::con()->opts->optDef( $key )[ 'section' ] !== 'section_hidden'
 		);
 	}
 }

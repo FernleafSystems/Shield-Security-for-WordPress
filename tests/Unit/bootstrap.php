@@ -3,18 +3,14 @@
 // Load composer autoloader for test dependencies
 require_once dirname( dirname( __DIR__ ) ) . '/vendor/autoload.php';
 
-// Environment detection: Package testing, Docker, or Local
+// Environment detection: Package testing or Source testing
 $shield_package_path = getenv( 'SHIELD_PACKAGE_PATH' );
 if ( $shield_package_path !== false && !empty( $shield_package_path ) ) {
-	// Use the package path from environment
+	// Use the package path from environment (Docker package testing or CI)
 	$plugin_dir = $shield_package_path;
 	echo "[UNIT TEST BOOTSTRAP] Using SHIELD_PACKAGE_PATH: $plugin_dir\n";
-} elseif ( is_dir( '/var/www/html/wp-content/plugins/wp-simple-firewall' ) ) {
-	// Docker environment: plugin is mounted at WordPress plugin directory
-	$plugin_dir = '/var/www/html/wp-content/plugins/wp-simple-firewall';
-	echo "[UNIT TEST BOOTSTRAP] Using Docker plugin directory: $plugin_dir\n";
 } else {
-	// Local testing: use the current repository
+	// Source testing: use the current repository (Docker source testing or local)
 	$plugin_dir = dirname( dirname( __DIR__ ) );
 	echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
 }

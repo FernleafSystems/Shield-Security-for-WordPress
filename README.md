@@ -18,11 +18,9 @@
 
 ### Testing
 
-**Docker (Recommended)**: `.\bin\run-tests.ps1 all -Docker` - Zero setup required, runs in isolated containers
+**Docker (Recommended)**: `./bin/run-docker-tests.sh` - Zero setup required, runs full matrix in isolated containers
 
-**Native**: `.\bin\run-tests.ps1 all` or `composer test` - Uses your local PHP/MySQL setup
-
-**Package Testing**: `.\bin\run-tests.ps1 all -Docker -Package` - Tests built production package
+**Native**: `composer test` - Uses your local PHP/MySQL setup
 
 See [TESTING.md](TESTING.md) for complete testing documentation.
 
@@ -30,20 +28,12 @@ See [TESTING.md](TESTING.md) for complete testing documentation.
 
 Shield Security includes **production-ready matrix testing** with comprehensive Docker CI/CD following evidence-based patterns:
 
-**Matrix Testing Implementation** ✅:
+**Matrix Testing Implementation**:
 - **Automatic Triggers**: Pushes to main branches (develop, main, master)
 - **Matrix Coverage**: 6 PHP versions (7.4-8.4) × 2 WordPress versions (latest + previous) = 12 test combinations
 - **Dynamic WordPress Detection**: Automatically detects current WordPress versions (e.g., 6.8.2 latest, 6.7.2 previous)
 - **Manual Triggers**: Custom PHP/WordPress combinations via workflow dispatch
 - **Comprehensive Validation**: All combinations tested in parallel for complete coverage
-
-**Production Validation Results** ✅:
-- **GitHub Actions Run ID 16694657226**: Complete success with all tests passing
-- **Unit Tests**: 71 tests, 2483 assertions - PASSED
-- **Integration Tests**: 33 tests, 231 assertions - PASSED
-- **Package Validation**: All 7 tests - PASSED
-- **Total Runtime**: ~3 minutes for complete matrix test suite
-- **Local Testing**: Validated with PHP 7.4 and 8.3 builds
 
 **Evidence-Based Architecture**:
 - **Build Pipeline**: Node.js setup, npm dependencies, and asset building fully integrated
@@ -54,22 +44,19 @@ Shield Security includes **production-ready matrix testing** with comprehensive 
 **Usage**:
 - **Automatic**: Matrix tests run automatically on main branch pushes (12 combinations)
 - **Manual**: Actions tab → "Docker Tests" → configure specific PHP/WordPress versions
-- **Local Testing**: `.inun-tests.ps1 all -Docker` with version options
+- **Local Testing**: `./bin/run-docker-tests.sh` - runs full matrix with package validation
 - **Package Validation**: Built-in production package testing
 
 **Production Status**: Matrix testing infrastructure is fully operational and validated for enterprise-grade CI/CD workflows.
 
 ### Quick Start Testing
 
-```powershell
+```bash
 # Docker testing (recommended - no setup required)
-.\bin\run-tests.ps1 all -Docker
+./bin/run-docker-tests.sh
 
 # Native testing (requires local PHP/MySQL)
-.\bin\run-tests.ps1 all
-
-# Package testing (tests production build)
-.\bin\run-tests.ps1 all -Docker -Package
+composer test
 ```
 
 See readme.txt for full details and changelog

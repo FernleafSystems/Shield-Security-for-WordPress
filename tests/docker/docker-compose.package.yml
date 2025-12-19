@@ -1,15 +1,6 @@
 # Docker Compose override for package testing
 # This file extends docker-compose.yml to add package volume mounting
 services:
-  test-runner:
-    volumes:
-      - ../../:/app
-      # Mount the built package directory to /package inside container
-      - ${PLUGIN_SOURCE}:/package
-    environment:
-      # Signal that we're running in package mode
-      SHIELD_PACKAGE_PATH: /package
-
   test-runner-latest:
     volumes:
       - ../../:/app

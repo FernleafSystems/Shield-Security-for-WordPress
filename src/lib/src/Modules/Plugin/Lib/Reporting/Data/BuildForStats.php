@@ -16,9 +16,8 @@ class BuildForStats extends BuildBase {
 		$rawStats = \array_map(
 			function ( array $data ) {
 				$data[ 'stats_count' ] = \count( $data[ 'stats' ] );
-				$data[ 'has_non_zero_stat' ] = \count( \array_filter( $data[ 'stats' ], function ( array $stat ) {
-						return !$stat[ 'is_zero_stat' ];
-					} ) ) > 0;
+				$data[ 'has_non_zero_stat' ] =
+					\count( \array_filter( $data[ 'stats' ], fn( array $stat ) => !$stat[ 'is_zero_stat' ] ) ) > 0;
 				return $data;
 			},
 			[

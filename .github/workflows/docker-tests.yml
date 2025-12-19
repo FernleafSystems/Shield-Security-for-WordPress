@@ -45,6 +45,7 @@ on:
         required: false
         default: '8.2'
         type: choice
+        # Note: These options should match PHP_VERSIONS in .github/config/matrix.conf
         options:
           - '7.4'
           - '8.0'
@@ -69,6 +70,8 @@ jobs:
       matrix_ready: ${{ steps.detect.outputs.matrix_ready }}
       detection_method: ${{ steps.detect.outputs.detection_method }}
       cache_used: ${{ steps.detect.outputs.cache_used }}
+      php_versions: ${{ steps.matrix-config.outputs.php_versions }}
+      default_php: ${{ steps.matrix-config.outputs.default_php }}
     
     steps:
     - name: Checkout code
@@ -86,6 +89,17 @@ jobs:
     
     - name: Make version detection script executable
       run: chmod +x .github/scripts/detect-wp-versions.sh
+    
+    - name: Read matrix configuration
+      id: matrix-config
+      run: |
+        source .github/config/matrix.conf
+        # Convert space-separated to JSON array for GitHub Actions matrix
+        JSON_ARRAY=$(echo $PHP_VERSIONS | sed 's/ /", "/g' | sed 's/^/["/' | sed 's/$/"]/')
+        echo "php_versions=$JSON_ARRAY" >> $GITHUB_OUTPUT
+        echo "default_php=$DEFAULT_PHP" >> $GITHUB_OUTPUT
+        echo "PHP versions for matrix: $JSON_ARRAY"
+        echo "Default PHP: $DEFAULT_PHP"
     
     - name: Detect WordPress versions with comprehensive fallback system
       id: detect
@@ -109,11 +123,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # WordPress matrix testing: PHP 7.4 + latest/previous WordPress versions
-        php: ['7.4']
+        # PHP versions from .github/config/matrix.conf (single source of truth)
+        php: ${{ fromJSON(needs.detect-wp-versions.outputs.php_versions) }}
         wordpress: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', github.event.inputs.wp_version || needs.detect-wp-versions.outputs.latest)) || fromJSON(format('["{0}", "{1}"]', needs.detect-wp-versions.outputs.latest, needs.detect-wp-versions.outputs.previous)) }}
-        # Full PHP matrix for later:
-        # php: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', github.event.inputs.php_version || '8.2')) || fromJSON('["7.4", "8.0", "8.1", "8.2", "8.3", "8.4"]') }}
     
     steps:
     - name: Checkout code
@@ -194,7 +206,7 @@ jobs:
         # Create Docker environment file
         # Use matrix values when running automatically, or manual inputs when triggered manually
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          PHP_VERSION="${{ github.event.inputs.php_version || '8.2' }}"
+          PHP_VERSION="${{ github.event.inputs.php_version || needs.detect-wp-versions.outputs.default_php }}"
           WP_VERSION="${{ github.event.inputs.wp_version || needs.detect-wp-versions.outputs.latest }}"
         else
           PHP_VERSION="${{ matrix.php }}"
@@ -210,6 +222,9 @@ jobs:
         WP_VERSION_PREVIOUS=${{ needs.detect-wp-versions.outputs.previous }}
         PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}
         SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}
+        SHIELD_TEST_IMAGE=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
+        SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
+        SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
         EOF
         
         echo "Docker environment configured:"
@@ -222,13 +237,21 @@ jobs:
       with:
         context: tests/docker
         file: tests/docker/Dockerfile
-        tags: shield-test-runner:latest
+        tags: shield-test-runner:php${{ matrix.php }}-wp${{ matrix.wordpress }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
         load: true
         build-args: |
           PHP_VERSION=${{ matrix.php }}
           WP_VERSION=${{ matrix.wordpress }}
+    
+    - name: Set execute permissions on test scripts
+      run: |
+        echo "Setting execute permissions on shell scripts..."
+        chmod +x bin/run-tests-docker.sh
+        chmod +x bin/install-wp-tests.sh
+        ls -la bin/*.sh
+        echo "Execute permissions set successfully"
     
     - name: Run Docker tests
       run: |

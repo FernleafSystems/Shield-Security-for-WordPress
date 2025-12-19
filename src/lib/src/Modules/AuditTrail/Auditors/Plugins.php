@@ -16,23 +16,21 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class Plugins extends Base {
 
-	/**
-	 * @var array
-	 */
-	private $pluginVersions;
+	private array $pluginVersions;
 
-	private $slugs;
+	private array $slugs;
 
-	private $deactivatedPlugins = [];
+	private array $deactivatedPlugins = [];
 
 	public function canSnapRealtime() :bool {
 		return true;
 	}
 
 	protected function initAuditHooks() :void {
-		$this->pluginVersions = \array_map( function ( $plugin ) {
-			return $plugin[ 'Version' ];
-		}, Services::WpPlugins()->getPlugins() );
+		$this->pluginVersions = \array_map(
+			fn( $plugin ) => $plugin[ 'Version' ],
+			Services::WpPlugins()->getPlugins()
+		);
 		$this->slugs = \array_keys( $this->pluginVersions );
 
 		add_action( 'activated_plugin', [ $this, 'auditActivatedPlugin' ] );

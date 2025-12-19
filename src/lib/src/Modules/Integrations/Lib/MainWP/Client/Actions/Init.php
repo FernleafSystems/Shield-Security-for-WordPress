@@ -18,9 +18,7 @@ class Init {
 		if ( Controller::isMainWPChildVersionSupported() ) {
 
 			// Skip 2FA login if we can verify MainWP Authentication
-			add_filter( 'icwp_shield_2fa_skip', function ( $canSkip ) {
-				return $canSkip || ReproduceClientAuthByKey::Auth();
-			}, 20 );
+			add_filter( 'icwp_shield_2fa_skip', fn( $canSkip ) => $canSkip || ReproduceClientAuthByKey::Auth(), 20 );
 
 			// Whitelist the MainWP Server IP
 			add_action( 'mainwp_child_site_stats', function () {

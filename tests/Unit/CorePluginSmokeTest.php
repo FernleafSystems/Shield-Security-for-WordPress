@@ -89,7 +89,16 @@ class CorePluginSmokeTest extends TestCase {
 
 		// Verify plugin header is present
 		$this->assertStringContainsString( 'Plugin Name: Shield Security', $phpCode );
-		$this->assertStringContainsString( 'Version: 21.0.7', $phpCode );
+		
+		// Verify version exists and matches format - don't hardcode specific version
+		$this->assertMatchesRegularExpression( '/Version:\s*\d+\.\d+\.\d+/', $phpCode, 'Plugin header should contain a valid semantic version' );
+		
+		// Verify version in plugin header matches version in plugin.json
+		$pluginConfig = $this->loadPluginConfiguration();
+		$configVersion = $pluginConfig['properties']['version'] ?? '';
+		$this->assertNotEmpty( $configVersion, 'Version should exist in plugin.json' );
+		$this->assertStringContainsString( "Version: {$configVersion}", $phpCode, 'Version in plugin header should match version in plugin.json' );
+		
 		$this->assertStringContainsString( 'Text Domain: wp-simple-firewall', $phpCode );
 	}
 

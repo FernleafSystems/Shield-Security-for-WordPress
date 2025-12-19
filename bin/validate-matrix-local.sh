@@ -16,6 +16,17 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly DOCKER_DIR="$PROJECT_ROOT/tests/docker"
+readonly MATRIX_CONFIG="$PROJECT_ROOT/.github/config/matrix.conf"
+
+# Source matrix configuration (single source of truth)
+if [[ -f "$MATRIX_CONFIG" ]]; then
+    source "$MATRIX_CONFIG"
+    # Convert space-separated string to array
+    read -ra PHP_VERSIONS_ARRAY <<< "$PHP_VERSIONS"
+else
+    echo "Error: Matrix config not found at $MATRIX_CONFIG" >&2
+    exit 1
+fi
 
 # Color codes for output
 readonly RED='\033[0;31m'
@@ -120,11 +131,11 @@ validate_matrix_configuration() {
         return 1
     fi
     
-    # Check for PHP version limitation (should be 7.4 only for now)
-    if grep -q "php: \['7.4'\]" "$workflow_file"; then
-        log_pass "PHP version limitation (7.4 only)"
+    # Check that workflow uses matrix config (single source of truth)
+    if grep -q "fromJSON(needs.detect-wp-versions.outputs.php_versions)" "$workflow_file"; then
+        log_pass "PHP version matrix uses config file"
     else
-        add_warning "PHP version may not be limited to 7.4 only"
+        add_warning "PHP version matrix should use fromJSON(needs.detect-wp-versions.outputs.php_versions)"
     fi
     
     # Check for WordPress version matrix logic
@@ -201,41 +212,45 @@ simulate_matrix_jobs() {
         return 1
     fi
     
+    local php_count=${#PHP_VERSIONS_ARRAY[@]}
+    local expected_jobs=$((php_count * 2))
+    
     log_info "Simulating matrix with detected versions:"
-    log_info "  PHP: 7.4"
+    log_info "  PHP: $PHP_VERSIONS (from matrix.conf)"
     log_info "  WordPress: $DETECTED_LATEST, $DETECTED_PREVIOUS"
     
-    # Simulate automatic trigger (push event) - 2 jobs
-    log_test "Simulating automatic trigger (2 jobs)"
+    # Simulate automatic trigger (push event)
+    log_test "Simulating automatic trigger ($expected_jobs jobs)"
     
-    local php_version="7.4"
     local job_count=0
     
-    for wp_version in "$DETECTED_LATEST" "$DETECTED_PREVIOUS"; do
-        ((job_count++))
-        log_info "Matrix Job $job_count: PHP $php_version / WordPress $wp_version"
-        
-        if simulate_docker_environment_setup "$php_version" "$wp_version"; then
-            log_pass "Matrix job $job_count environment setup"
-        else
-            log_fail "Matrix job $job_count environment setup"
-            return 1
-        fi
+    for php_version in "${PHP_VERSIONS_ARRAY[@]}"; do
+        for wp_version in "$DETECTED_LATEST" "$DETECTED_PREVIOUS"; do
+            ((job_count++))
+            log_info "Matrix Job $job_count: PHP $php_version / WordPress $wp_version"
+            
+            if simulate_docker_environment_setup "$php_version" "$wp_version"; then
+                log_pass "Matrix job $job_count environment setup"
+            else
+                log_fail "Matrix job $job_count environment setup"
+                return 1
+            fi
+        done
     done
     
-    if [[ $job_count -eq 2 ]]; then
-        log_pass "Automatic trigger matrix simulation (2 jobs)"
+    if [[ $job_count -eq $expected_jobs ]]; then
+        log_pass "Automatic trigger matrix simulation ($expected_jobs jobs)"
     else
-        log_fail "Automatic trigger matrix simulation (expected 2 jobs, got $job_count)"
+        log_fail "Automatic trigger matrix simulation (expected $expected_jobs jobs, got $job_count)"
         return 1
     fi
     
-    # Simulate manual trigger (workflow_dispatch) - 1 job with latest
+    # Simulate manual trigger (workflow_dispatch) - 1 job with specified version
     log_test "Simulating manual trigger (1 job)"
     
-    log_info "Manual trigger job: PHP $php_version / WordPress $DETECTED_LATEST"
+    log_info "Manual trigger job: PHP $DEFAULT_PHP / WordPress $DETECTED_LATEST"
     
-    if simulate_docker_environment_setup "$php_version" "$DETECTED_LATEST"; then
+    if simulate_docker_environment_setup "$DEFAULT_PHP" "$DETECTED_LATEST"; then
         log_pass "Manual trigger matrix simulation (1 job)"
     else
         log_fail "Manual trigger matrix simulation (1 job)"
@@ -328,11 +343,11 @@ validate_docker_configuration() {
             return 1
         fi
         
-        # Check for test-runner service
-        if grep -q "test-runner:" "$compose_file"; then
-            log_pass "Docker Compose test-runner service"
+        # Check for test-runner-latest service
+        if grep -q "test-runner-latest:" "$compose_file"; then
+            log_pass "Docker Compose test-runner-latest service"
         else
-            log_fail "Docker Compose test-runner service"
+            log_fail "Docker Compose test-runner-latest service"
             return 1
         fi
     else
@@ -457,11 +472,14 @@ generate_validation_report() {
     if [[ ${#FAILED_TESTS[@]} -eq 0 ]]; then
         echo -e "${GREEN}✓ Matrix configuration is valid and ready for GitHub Actions execution${NC}"
         echo
+        local php_count=${#PHP_VERSIONS_ARRAY[@]}
+        local expected_jobs=$((php_count * 2))
         echo "EXPECTED MATRIX BEHAVIOR:"
-        echo "  • Push events (automatic): 2 jobs (PHP 7.4 × WordPress latest/previous)"
-        echo "  • Manual dispatch: 1 job (PHP 7.4 × specified WordPress version)"
+        echo "  • Config file: .github/config/matrix.conf"
+        echo "  • PHP versions: $PHP_VERSIONS"
+        echo "  • Push events (automatic): $expected_jobs jobs ($php_count PHP × 2 WordPress)"
+        echo "  • Manual dispatch: 1 job (default PHP $DEFAULT_PHP × specified WordPress)"
         echo "  • Environment variables properly configured for Docker"
-        echo "  • WordPress version detection working correctly"
         return 0
     else
         echo -e "${RED}✗ Matrix configuration has issues that need to be resolved${NC}"
