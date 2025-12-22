@@ -80,10 +80,9 @@ class MUHandler {
 	}
 
 	protected function testLoopback() :bool {
-		$status = Services::Rest()->callInternal( [
-			'route' => '/wp-site-health/v1/tests/loopback-requests'
-		] )->get_data()[ 'status' ] ?? '';
-		return $status === 'good';
+		return ( Services::Rest()->callInternal( [
+				'route' => '/wp-site-health/v1/tests/loopback-requests'
+			] )->get_data()[ 'status' ] ?? '' ) === 'good';
 	}
 
 	private function getMuFilePath() :string {
@@ -100,9 +99,8 @@ class MUHandler {
 	 */
 	private function buildContent() :string {
 		$con = self::con();
-		$FS = Services::WpFs();
 		$templateFile = path_join( __DIR__, '.mu-template.txt' );
-		$template = $FS->getFileContent( $templateFile );
+		$template = Services::WpFs()->getFileContent( $templateFile );
 		if ( empty( $template ) ) {
 			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
 		}
