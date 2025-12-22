@@ -213,19 +213,19 @@ jobs:
           WP_VERSION="${{ matrix.wordpress }}"
         fi
         
-        cat > tests/docker/.env << EOF
-        PHP_VERSION=$PHP_VERSION
-        WP_VERSION=$WP_VERSION
-        TEST_PHP_VERSION=$PHP_VERSION
-        TEST_WP_VERSION=$WP_VERSION
-        WP_VERSION_LATEST=${{ needs.detect-wp-versions.outputs.latest }}
-        WP_VERSION_PREVIOUS=${{ needs.detect-wp-versions.outputs.previous }}
-        PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}
-        SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}
-        SHIELD_TEST_IMAGE=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
-        SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
-        SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
-        EOF
+        {
+          echo "PHP_VERSION=$PHP_VERSION"
+          echo "WP_VERSION=$WP_VERSION"
+          echo "TEST_PHP_VERSION=$PHP_VERSION"
+          echo "TEST_WP_VERSION=$WP_VERSION"
+          echo "WP_VERSION_LATEST=${{ needs.detect-wp-versions.outputs.latest }}"
+          echo "WP_VERSION_PREVIOUS=${{ needs.detect-wp-versions.outputs.previous }}"
+          echo "PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}"
+          echo "SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}"
+          echo "SHIELD_TEST_IMAGE=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"
+          echo "SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"
+          echo "SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"
+        } > tests/docker/.env
         
         echo "Docker environment configured:"
         echo "PHP Version: $PHP_VERSION"

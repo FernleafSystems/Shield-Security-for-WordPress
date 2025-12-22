@@ -188,6 +188,11 @@ else
         composer install --no-interaction --no-cache --no-dev
         cd ../..
     fi
+
+    # Generate plugin.json from modular spec files (source testing only)
+    # In package mode, PluginPackager already generates plugin.json in the package
+    echo "Generating plugin.json from plugin-spec/ files..."
+    php bin/build-config.php
 fi
 
 # Run tests with environment variable support

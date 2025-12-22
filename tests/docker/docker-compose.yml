@@ -63,8 +63,6 @@ services:
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
       TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.9}
-      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
-      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
     command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.9}
 
   # Test runner for WordPress previous
@@ -84,6 +82,4 @@ services:
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
       TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
-      SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
-      PLUGIN_SOURCE: ${PLUGIN_SOURCE}
     command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
