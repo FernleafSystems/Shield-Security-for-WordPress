@@ -123,8 +123,8 @@ class PluginPackagerTest extends TestCase {
 	}
 
 	// =========================================================================
-	// isCommonGitIgnoredPath() - Critical path handling
-	// Only test the critical case that could break packages
+	// .gitattributes export-ignore - Critical path handling
+	// Verify export-ignore patterns correctly include/exclude critical paths
 	// =========================================================================
 
 	/**
@@ -133,13 +133,14 @@ class PluginPackagerTest extends TestCase {
 	 */
 	public function testBuiltAssetsNotIgnored() :void {
 		$packager = $this->createPackager();
+		$patterns = $this->invokePrivateMethod( $packager, 'getExportIgnorePatterns', [] );
 
 		$this->assertFalse(
-			$this->invokePrivateMethod( $packager, 'isCommonGitIgnoredPath', [ 'assets/dist/bundle.js' ] ),
+			$this->invokePrivateMethod( $packager, 'shouldExcludePath', [ 'assets/dist/bundle.js', $patterns ] ),
 			'assets/dist/ contains built JS/CSS - must be in package'
 		);
 		$this->assertFalse(
-			$this->invokePrivateMethod( $packager, 'isCommonGitIgnoredPath', [ 'assets/dist' ] )
+			$this->invokePrivateMethod( $packager, 'shouldExcludePath', [ 'assets/dist', $patterns ] )
 		);
 	}
 
@@ -148,15 +149,16 @@ class PluginPackagerTest extends TestCase {
 	 */
 	public function testVendorDirectoriesIgnored() :void {
 		$packager = $this->createPackager();
+		$patterns = $this->invokePrivateMethod( $packager, 'getExportIgnorePatterns', [] );
 
 		// Root vendor/ contains dev dependencies
 		$this->assertTrue(
-			$this->invokePrivateMethod( $packager, 'isCommonGitIgnoredPath', [ 'vendor/phpunit/phpunit.php' ] )
+			$this->invokePrivateMethod( $packager, 'shouldExcludePath', [ 'vendor/phpunit/phpunit.php', $patterns ] )
 		);
 
 		// But vendor_custom/ (if it existed) should not match
 		$this->assertFalse(
-			$this->invokePrivateMethod( $packager, 'isCommonGitIgnoredPath', [ 'vendor_custom/file.php' ] ),
+			$this->invokePrivateMethod( $packager, 'shouldExcludePath', [ 'vendor_custom/file.php', $patterns ] ),
 			'Prefix match must not catch similar directory names'
 		);
 	}
