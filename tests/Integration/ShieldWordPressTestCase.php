@@ -34,9 +34,10 @@ abstract class ShieldWordPressTestCase extends \WP_UnitTestCase {
 		echo "✓ Shield Controller class loaded" . PHP_EOL;
 		
 		// Verify package path handling if testing package
-		if ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ) {
-			echo "✓ Package testing mode - SHIELD_PACKAGE_PATH: " . getenv( 'SHIELD_PACKAGE_PATH' ) . PHP_EOL;
-			$this->assertDirectoryExists( getenv( 'SHIELD_PACKAGE_PATH' ), 'Package directory should exist' );
+		$packagePath = getenv( 'SHIELD_PACKAGE_PATH' );
+		if ( $packagePath !== false && !empty( $packagePath ) ) {
+			echo "✓ Package testing mode - SHIELD_PACKAGE_PATH: " . $packagePath . PHP_EOL;
+			$this->assertDirectoryExists( $packagePath, 'Package directory should exist' );
 		} else {
 			echo "✓ Source testing mode" . PHP_EOL;
 		}

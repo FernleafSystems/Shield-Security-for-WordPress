@@ -1,7 +1,9 @@
 <?php declare( strict_types=1 );
 
 echo "=== SHIELD INTEGRATION TEST BOOTSTRAP (WordPress Core Pattern) ===" . PHP_EOL;
-echo "Environment: " . ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ? 'Package Testing' : 'Source Testing' ) . PHP_EOL;
+$_package_path_env = getenv( 'SHIELD_PACKAGE_PATH' );
+$_is_package_testing = $_package_path_env !== false && !empty( $_package_path_env );
+echo "Environment: " . ( $_is_package_testing ? 'Package Testing' : 'Source Testing' ) . PHP_EOL;
 echo "PHP Version: " . PHP_VERSION . PHP_EOL;
 echo "Working Directory: " . getcwd() . PHP_EOL;
 
@@ -9,7 +11,7 @@ echo "Working Directory: " . getcwd() . PHP_EOL;
 echo "Loading composer dependencies..." . PHP_EOL;
 
 // Conditional autoloader loading to prevent conflicts
-if ( getenv( 'SHIELD_PACKAGE_PATH' ) !== false ) {
+if ( $_is_package_testing ) {
 	// Package testing mode: Plugin will handle its own autoloader
 	// Only load test framework dependencies, avoid plugin dependencies
 	$test_autoload = dirname( dirname( __DIR__ ) ) . '/vendor/autoload.php';

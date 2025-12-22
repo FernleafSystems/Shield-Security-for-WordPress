@@ -62,7 +62,8 @@ trait PluginPathsTrait {
 	 * @return bool
 	 */
 	protected function isTestingPackage() :bool {
-		return getenv( 'SHIELD_PACKAGE_PATH' ) !== false;
+		$envPath = getenv( 'SHIELD_PACKAGE_PATH' );
+		return $envPath !== false && !empty( $envPath );
 	}
 	
 	/**
