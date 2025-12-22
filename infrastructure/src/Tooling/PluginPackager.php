@@ -84,6 +84,10 @@ class PluginPackager {
 		} else {
 			$this->log( 'Skipping file copy (--skip-copy enabled)' );
 		}
+
+		// Generate plugin.json AFTER copy/skip-copy, ALWAYS runs
+		$this->buildPluginJson( $targetDir );
+
 		$this->installComposerDependencies( $targetDir );
 		$this->downloadStraussPhar( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
@@ -505,6 +509,19 @@ class PluginPackager {
 	}
 
 	/**
+	 * Generate plugin.json from spec files into the target package directory.
+	 * Runs regardless of --skip-copy since plugin.json is gitignored and must be generated.
+	 */
+	private function buildPluginJson( string $targetDir ) :void {
+		$specDir = Path::join( $this->projectRoot, 'plugin-spec' );
+		$outputPath = Path::join( $targetDir, 'plugin.json' );
+
+		$this->log( 'Generating plugin.json from plugin-spec/...' );
+		( new ConfigMerger() )->mergeToFile( $specDir, $outputPath );
+		$this->log( '  ✓ plugin.json generated' );
+	}
+
+	/**
 	 * Install composer dependencies in the package directory (production only)
 	 * @throws RuntimeException if composer install fails
 	 */
@@ -874,6 +891,7 @@ class PluginPackager {
 
 		// Required files
 		$requiredFiles = [
+			'plugin.json'                                   => Path::join( $targetDir, 'plugin.json' ),
 			'icwp-wpsf.php'                                 => Path::join( $targetDir, 'icwp-wpsf.php' ),
 			'src/lib/vendor/autoload.php'                   => Path::join( $targetDir, 'src/lib/vendor/autoload.php' ),
 			'src/lib/vendor_prefixed/autoload-classmap.php' => Path::join( $targetDir, 'src/lib/vendor_prefixed/autoload-classmap.php' ),

@@ -1,0 +1,11 @@
+{
+    "config": "config",
+    "source": "src",
+    "autoload": "lib/vendor/autoload.php",
+    "assets": "assets",
+    "languages": "languages",
+    "templates": "templates",
+    "custom_templates": "shield_templates",
+    "flags": "flags",
+    "cache": "shield"
+}

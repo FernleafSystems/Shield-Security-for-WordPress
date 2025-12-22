@@ -47,12 +47,20 @@
     }
   },
   "scripts":      {
+    "build:config":            "@php bin/build-config.php",
     "test":                    [
+      "@build:config",
       "@test:unit",
       "@test:integration"
     ],
-    "test:unit":               "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml",
-    "test:integration":        "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml",
+    "test:unit":               [
+      "@build:config",
+      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"
+    ],
+    "test:integration":        [
+      "@build:config",
+      "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml"
+    ],
     "phpcs":                   "phpcs",
     "phpcs:fix":               "phpcbf",
     "package-plugin":          "@php bin/package-plugin.php"

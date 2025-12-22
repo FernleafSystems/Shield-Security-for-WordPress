@@ -1,0 +1,20 @@
+{
+    "remove": null,
+    "add": [
+        {
+            "name": "Security Dashboard",
+            "title": "Go To Security Dashboard",
+            "href": "getPluginUrl_DashboardHome",
+            "target": "_top",
+            "show": "always"
+        },
+        {
+            "name": "&uarr; Go Pro &uarr;",
+            "title": "Get All PRO Security Features",
+            "href": "https://clk.shldscrty.com/d8",
+            "target": "_blank",
+            "highlight": true,
+            "show": "free"
+        }
+    ]
+}

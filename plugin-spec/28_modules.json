@@ -1,0 +1,104 @@
+{
+    "admin_access_restriction": {
+        "slug": "admin_access_restriction",
+        "name": "Security Admin",
+        "tagline": "Security admin allows you to restrict access to the security plugin itself.",
+        "show_central": true,
+        "wpcli": {
+            "cmd_base": "secadmin"
+        }
+    },
+    "audit_trail": {
+        "slug": "audit_trail",
+        "name": "Logging",
+        "tagline": "Track All Site Activity: Who, What, When and Where",
+        "show_central": true,
+        "reqs": {
+            "dbs": [
+                "at_logs",
+                "at_meta",
+                "ips",
+                "req_logs"
+            ]
+        }
+    },
+    "comments_filter": {
+        "slug": "comments_filter",
+        "storage_key": "commentsfilter",
+        "name": "SPAM",
+        "tagline": "Block comment SPAM while retaining your privacy",
+        "show_central": true,
+        "reqs": {
+            "dbs": [
+                "botsignal"
+            ]
+        }
+    },
+    "firewall": {
+        "slug": "firewall",
+        "name": "Firewall",
+        "tagline": "Automatically block malicious HTTP requests and data sent to your site",
+        "show_central": true
+    },
+    "hack_protect": {
+        "slug": "hack_protect",
+        "name": "Scanners",
+        "tagline": "Automatically detect & repair vulnerable and suspicious files, plugins and themes.",
+        "show_central": true,
+        "reqs": {
+            "dbs": [
+                "scans",
+                "scanitems",
+                "resultitems",
+                "resultitem_meta",
+                "scanresults"
+            ]
+        }
+    },
+    "integrations": {
+        "slug": "integrations",
+        "name": "Integrations",
+        "show_central": true,
+        "reqs": {
+            "dbs": [
+                "botsignal",
+                "ips"
+            ]
+        }
+    },
+    "ips": {
+        "slug": "ips",
+        "name": "Bot/IP Blocking",
+        "tagline": "Detect malicious bots and visitors, and block them from accessing the site.",
+        "show_central": true,
+        "reqs": {
+            "dbs": [
+                "ips"
+            ]
+        }
+    },
+    "login_protect": {
+        "slug": "login_protect",
+        "storage_key": "loginprotect",
+        "name": "Login Protection",
+        "tagline": "Add protections to your WordPress login forms and protect user accounts with 2-Factor Authentication.",
+        "show_central": true,
+        "reqs": {
+            "dbs": [
+                "botsignal"
+            ]
+        }
+    },
+    "plugin": {
+        "slug": "plugin",
+        "name": "General",
+        "tagline": "General plugin settings that apply across the entire plugin operation.",
+        "show_central": true
+    },
+    "user_management": {
+        "slug": "user_management",
+        "name": "Users",
+        "tagline": "Control user sessions, duration, timeouts and account sharing.",
+        "show_central": true
+    }
+}

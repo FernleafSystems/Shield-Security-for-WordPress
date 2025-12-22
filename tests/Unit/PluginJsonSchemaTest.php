@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -12,6 +13,8 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  * are valid.
  */
 class PluginJsonSchemaTest extends TestCase {
+
+	use PluginPathsTrait;
 
 	/**
 	 * @var array The parsed plugin.json configuration
@@ -28,7 +31,7 @@ class PluginJsonSchemaTest extends TestCase {
 	 */
 	protected function set_up() :void {
 		parent::set_up();
-		$this->configPath = dirname( dirname( __DIR__ ) ).'/plugin.json';
+		$this->configPath = $this->getPluginJsonPath();
 		$this->assertFileExists( $this->configPath, 'plugin.json file must exist' );
 
 		$jsonContent = file_get_contents( $this->configPath );

@@ -102,6 +102,9 @@ PACKAGE_START=$(date +%s)
 COPY_START=$(date +%s)
 mkdir -p "$PACKAGE_DIR"
 
+# Generate plugin.json from plugin-spec before copying
+php bin/build-config.php
+
 # Copy individual files
 for file in icwp-wpsf.php plugin_init.php readme.txt plugin.json cl.json \
             plugin_autoload.php plugin_compatibility.php uninstall.php unsupported.php; do

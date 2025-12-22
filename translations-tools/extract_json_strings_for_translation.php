@@ -60,7 +60,10 @@ class JsonStringExtractor {
 
 	private function validatePluginJsonExists(): void {
 		if ( !file_exists( $this->pluginJsonPath ) ) {
-			throw new RuntimeException( "plugin.json not found at: {$this->pluginJsonPath}" );
+			throw new RuntimeException(
+				"plugin.json not found at: {$this->pluginJsonPath}\n" .
+				"Run 'composer build:config' or 'php bin/build-config.php' to generate it from plugin-spec/ files."
+			);
 		}
 	}
 

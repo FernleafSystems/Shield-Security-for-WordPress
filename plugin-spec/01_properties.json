@@ -1,0 +1,16 @@
+{
+    "version": "21.0.101",
+    "release_timestamp": 1765370000,
+    "build": "202512.1001",
+    "slug_parent": "icwp",
+    "slug_plugin": "wpsf",
+    "text_domain": "wp-simple-firewall",
+    "base_permissions": "manage_options",
+    "wpms_network_admin_only": true,
+    "logging_enabled": true,
+    "show_dashboard_widget": true,
+    "show_admin_bar_menu": true,
+    "autoupdate": "confidence",
+    "autoupdate_days": 5,
+    "enable_premium": true
+}
