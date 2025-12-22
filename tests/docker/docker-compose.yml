@@ -4,6 +4,9 @@
 #
 # Note: PHP_VERSION fallback defaults (8.2) should match DEFAULT_PHP in .github/config/matrix.conf
 # The calling script should always set PHP_VERSION, so these fallbacks are rarely used.
+#
+# MySQL uses tmpfs (in-memory) storage for test isolation and to prevent corruption
+# from unclean shutdowns when using --abort-on-container-exit
 services:
   # MySQL service for WordPress latest testing
   mysql-latest:
@@ -13,10 +16,16 @@ services:
       MYSQL_ROOT_PASSWORD: testpass
       MYSQL_DATABASE: wordpress_test_latest
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
-    volumes:
-      - mysql_latest_data:/var/lib/mysql
+    tmpfs:
+      - /var/lib/mysql:size=512M
     ports:
       - "3309:3306"  # Exposed on different port to avoid conflicts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
 
   # MySQL service for WordPress previous testing
   mysql-previous:
@@ -26,10 +35,16 @@ services:
       MYSQL_ROOT_PASSWORD: testpass
       MYSQL_DATABASE: wordpress_test_previous
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
-    volumes:
-      - mysql_previous_data:/var/lib/mysql
+    tmpfs:
+      - /var/lib/mysql:size=512M
     ports:
       - "3310:3306"  # Exposed on different port to avoid conflicts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
 
   # Test runner for WordPress latest
   test-runner-latest:
@@ -40,7 +55,8 @@ services:
         PHP_VERSION: ${PHP_VERSION:-8.2}
         WP_VERSION: ${WP_VERSION_LATEST:-6.9}
     depends_on:
-      - mysql-latest
+      mysql-latest:
+        condition: service_healthy
     volumes:
       - ../../:/app
     working_dir: /app
@@ -60,7 +76,8 @@ services:
         PHP_VERSION: ${PHP_VERSION:-8.2}
         WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
     depends_on:
-      - mysql-previous
+      mysql-previous:
+        condition: service_healthy
     volumes:
       - ../../:/app
     working_dir: /app
@@ -70,7 +87,3 @@ services:
       SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH}
       PLUGIN_SOURCE: ${PLUGIN_SOURCE}
     command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
-
-volumes:
-  mysql_latest_data:
-  mysql_previous_data:
