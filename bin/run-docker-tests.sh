@@ -35,12 +35,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# Set a predictable Compose project name to avoid generic "docker" container names
+export COMPOSE_PROJECT_NAME="shield-tests"
+
 # Source matrix configuration (single source of truth)
 if [ -f "$PROJECT_ROOT/.github/config/matrix.conf" ]; then
     source "$PROJECT_ROOT/.github/config/matrix.conf"
 else
     echo "⚠️  Warning: Matrix config not found, using defaults"
     DEFAULT_PHP="8.2"
+fi
+
+# Source packager config for Strauss version
+if [ -f "$PROJECT_ROOT/.github/scripts/read-packager-config.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$PROJECT_ROOT/.github/scripts/read-packager-config.sh"
+else
+    echo "⚠️  Warning: Packager config loader not found, STRAUSS_VERSION not set"
 fi
 
 # PHP version to test (can be overridden via environment variable)
@@ -117,6 +128,13 @@ export PLUGIN_SOURCE="$PACKAGE_DIR"
 # So inside container: /app/tmp/shield-package-local = $PROJECT_ROOT/tmp/shield-package-local on host
 # We pass relative path to avoid absolute path issues across host/container
 PACKAGE_DIR_RELATIVE="tmp/shield-package-local"
+
+# Ensure clean environment now that env vars are set
+echo "🧹 Cleaning up any existing test containers/volumes..."
+docker compose -f tests/docker/docker-compose.yml \
+    -f tests/docker/docker-compose.package.yml \
+    down -v --remove-orphans || true
+echo "   ✅ Clean start ensured"
 
 # Start MySQL containers early in background for parallel initialization
 # Based on testing, MySQL takes ~38 seconds to fully initialize
@@ -273,6 +291,7 @@ docker run --rm --name shield-composer-package \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
     -e COMPOSER_PROCESS_TIMEOUT=900 \
+    -e SHIELD_STRAUSS_VERSION="$SHIELD_STRAUSS_VERSION" \
     $COMPOSER_IMAGE \
     composer package-plugin -- --output="$PACKAGE_DIR_RELATIVE" \
         --skip-root-composer --skip-lib-composer \
@@ -338,6 +357,7 @@ run_parallel_tests() {
     
     # Prepare output directories
     mkdir -p /tmp
+    rm -f /tmp/shield-test-latest.log /tmp/shield-test-previous.log /tmp/shield-test-latest.exit /tmp/shield-test-previous.exit
     
     # Set up environment variables for both WordPress versions
     cat > tests/docker/.env << EOF
@@ -347,6 +367,7 @@ WP_VERSION_PREVIOUS=$PREVIOUS_VERSION
 TEST_PHP_VERSION=$PHP_VERSION
 PLUGIN_SOURCE=$PACKAGE_DIR
 SHIELD_PACKAGE_PATH=$PACKAGE_DIR
+SHIELD_STRAUSS_VERSION=$SHIELD_STRAUSS_VERSION
 SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php$PHP_VERSION-wp$LATEST_VERSION
 SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php$PHP_VERSION-wp$PREVIOUS_VERSION
 EOF

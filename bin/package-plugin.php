@@ -8,6 +8,7 @@ require dirname( __DIR__ ).'/vendor/autoload.php';
 
 $options = getopt( '', [
 	'output::',
+	'strauss-version::',
 	'skip-root-composer',
 	'skip-lib-composer',
 	'skip-npm-install',
@@ -21,6 +22,16 @@ $outputDir = $options[ 'output' ] ?? null;
 if ( is_string( $outputDir ) ) {
 	$outputDir = trim( $outputDir, " \t\n\r\0\x0B\"'" );
 }
+
+$straussVersion = $options[ 'strauss-version' ] ?? null;
+if ( is_string( $straussVersion ) ) {
+	$straussVersion = trim( $straussVersion );
+}
+$envStrauss = getenv( 'SHIELD_STRAUSS_VERSION' );
+$resolvedStrauss = $straussVersion !== null && $straussVersion !== ''
+	? $straussVersion
+	: ( is_string( $envStrauss ) ? $envStrauss : null );
+
 $packagerOptions = [];
 
 if ( isset( $options[ 'skip-root-composer' ] ) ) {
@@ -45,6 +56,10 @@ if ( isset( $options[ 'skip-directory-clean' ] ) ) {
 
 if ( isset( $options[ 'skip-copy' ] ) ) {
 	$packagerOptions[ 'skip_copy' ] = true;
+}
+
+if ( is_string( $resolvedStrauss ) && $resolvedStrauss !== '' ) {
+	$packagerOptions[ 'strauss_version' ] = $resolvedStrauss;
 }
 
 try {

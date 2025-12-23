@@ -10,6 +10,7 @@ use Symfony\Component\Filesystem\Path;
 class PluginPackager {
 
 	private string $projectRoot;
+	private string $straussVersion = '';
 
 	/** @var callable */
 	private $logger;
@@ -30,6 +31,7 @@ class PluginPackager {
 	 */
 	public function package( ?string $outputDir = null, array $options = [] ) :string {
 		$options = $this->resolveOptions( $options );
+		$this->straussVersion = $this->resolveStraussVersion( $options );
 		$targetDir = $this->resolveOutputDirectory( $outputDir );
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
@@ -46,7 +48,7 @@ class PluginPackager {
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
-					'--optimize-autoloader'
+//					'--optimize-autoloader'
 				] ),
 				$this->projectRoot
 			);
@@ -58,7 +60,7 @@ class PluginPackager {
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
-					'--optimize-autoloader'
+//					'--optimize-autoloader'
 				] ),
 				$this->projectRoot.'/src/lib'
 			);
@@ -245,7 +247,7 @@ class PluginPackager {
 	}
 
 	/**
-	 * @return array<string,bool>
+	 * @return array<string,mixed>
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
@@ -255,9 +257,24 @@ class PluginPackager {
 			'npm_build'       => true,
 			'directory_clean' => true,
 			'skip_copy'       => false,
+			'strauss_version' => null,
 		];
 
 		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
+	}
+
+	private function resolveStraussVersion( array $options ) :string {
+		$fromOptions = $options[ 'strauss_version' ] ?? null;
+		if ( is_string( $fromOptions ) && $fromOptions !== '' ) {
+			return ltrim( $fromOptions, "v \t\n\r\0\x0B" );
+		}
+
+		$env = getenv( 'SHIELD_STRAUSS_VERSION' );
+		if ( is_string( $env ) && $env !== '' ) {
+			return ltrim( $env, "v \t\n\r\0\x0B" );
+		}
+
+		return self::FALLBACK_STRAUSS_VERSION;
 	}
 
 	/**
@@ -548,7 +565,7 @@ class PluginPackager {
 				'--no-dev',
 				'--no-interaction',
 				'--prefer-dist',
-				'--optimize-autoloader',
+//				'--optimize-autoloader',
 				'--quiet'
 			] ),
 			$libDir
@@ -558,18 +575,21 @@ class PluginPackager {
 		$this->log( '' );
 	}
 
-	private const STRAUSS_VERSION = '0.19.4';
-	private const STRAUSS_DOWNLOAD_URL = 'https://github.com/BrianHenryIE/strauss/releases/download/0.19.4/strauss.phar';
+	private const FALLBACK_STRAUSS_VERSION = '0.19.4';
 
 	/**
 	 * Download Strauss phar file for namespace prefixing
 	 * @throws RuntimeException if download fails with detailed error message
 	 */
 	private function downloadStraussPhar( string $targetDir ) :void {
-		$this->log( sprintf( 'Downloading Strauss v%s...', self::STRAUSS_VERSION ) );
+		$this->log( sprintf( 'Downloading Strauss v%s...', $this->straussVersion ) );
 
 		$libDir = Path::join( $targetDir, 'src/lib' );
 		$targetPath = Path::join( $libDir, 'strauss.phar' );
+		$downloadUrl = sprintf(
+			'https://github.com/BrianHenryIE/strauss/releases/download/%s/strauss.phar',
+			$this->straussVersion
+		);
 
 		// Check if allow_url_fopen is enabled
 		if ( !ini_get( 'allow_url_fopen' ) ) {
@@ -579,7 +599,7 @@ class PluginPackager {
 				'WHY: The PHP setting "allow_url_fopen" is disabled, which prevents PHP from downloading files from URLs. '.
 				'HOW TO FIX: Enable allow_url_fopen in your php.ini file by setting "allow_url_fopen = On", '.
 				'or contact your system administrator to enable this setting. '.
-				'Alternatively, you can manually download strauss.phar from '.self::STRAUSS_DOWNLOAD_URL.' '.
+				'Alternatively, you can manually download strauss.phar from '.$downloadUrl.' '.
 				'and place it in the package src/lib directory.'
 			);
 		}
@@ -602,7 +622,7 @@ class PluginPackager {
 		error_clear_last();
 
 		// Attempt to download the file
-		$content = @file_get_contents( self::STRAUSS_DOWNLOAD_URL, false, $context );
+		$content = @file_get_contents( $downloadUrl, false, $context );
 
 		if ( $content === false ) {
 			$lastError = error_get_last();
@@ -617,7 +637,7 @@ class PluginPackager {
 					'(3) Firewall or proxy blocking the connection, (4) SSL certificate verification failure. '.
 					'HOW TO FIX: Check your internet connection and try again. If the problem persists, '.
 					'you can manually download strauss.phar from the URL above and place it at: %s',
-					self::STRAUSS_DOWNLOAD_URL,
+					$downloadUrl,
 					$errorMessage,
 					$targetPath
 				)
@@ -632,8 +652,8 @@ class PluginPackager {
 					'WHY: This usually indicates a server-side issue or the release file was not found. '.
 					'HOW TO FIX: Verify that Strauss version %s exists at the download URL. '.
 					'You can manually download strauss.phar and place it at: %s',
-					self::STRAUSS_DOWNLOAD_URL,
-					self::STRAUSS_VERSION,
+					$downloadUrl,
+					$this->straussVersion,
 					$targetPath
 				)
 			);
@@ -690,7 +710,7 @@ class PluginPackager {
 					'HOW TO FIX: Delete the empty file and try running the packaging again. '.
 					'If the problem persists, manually download from: %s',
 					$targetPath,
-					self::STRAUSS_DOWNLOAD_URL
+					$downloadUrl
 				)
 			);
 		}

@@ -7,6 +7,7 @@ services:
       - ${PLUGIN_SOURCE}:/package
     environment:
       SHIELD_PACKAGE_PATH: /package
+      SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION}
 
   test-runner-previous:
     volumes:
@@ -14,3 +15,4 @@ services:
       - ${PLUGIN_SOURCE}:/package
     environment:
       SHIELD_PACKAGE_PATH: /package
+      SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION}

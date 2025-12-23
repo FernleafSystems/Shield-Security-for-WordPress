@@ -65,6 +65,12 @@ jobs:
     - name: Build assets
       run: npm run build
       
+    - name: Load Strauss version
+      run: |
+        source .github/scripts/read-packager-config.sh
+        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        
     - name: Build plugin package
       run: |
         PACKAGE_DIR="${{ github.workspace }}/shield-package"
