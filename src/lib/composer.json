@@ -91,7 +91,7 @@
       },
       "namespace_replacement_patterns": {
       },
-      "delete_vendor_packages":         false,
+      "delete_vendor_packages":         true,
       "delete_vendor_files":            false,
       "include_modified_date":          false,
       "include_author":                 false

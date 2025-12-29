@@ -3,6 +3,7 @@
 declare( strict_types=1 );
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
@@ -23,14 +24,14 @@ if ( is_string( $outputDir ) ) {
 	$outputDir = trim( $outputDir, " \t\n\r\0\x0B\"'" );
 }
 
+// Resolve Strauss version: CLI arg > env var/config file (via PackagerConfig) > null (fallback in PluginPackager)
 $straussVersion = $options[ 'strauss-version' ] ?? null;
-if ( is_string( $straussVersion ) ) {
-	$straussVersion = trim( $straussVersion );
+$resolvedStrauss = null;
+if ( is_string( $straussVersion ) && $straussVersion !== '' ) {
+	$resolvedStrauss = trim( $straussVersion );
+} else {
+	$resolvedStrauss = PackagerConfig::getStraussVersion();
 }
-$envStrauss = getenv( 'SHIELD_STRAUSS_VERSION' );
-$resolvedStrauss = $straussVersion !== null && $straussVersion !== ''
-	? $straussVersion
-	: ( is_string( $envStrauss ) ? $envStrauss : null );
 
 $packagerOptions = [];
 
