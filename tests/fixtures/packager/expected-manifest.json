@@ -1,0 +1,24 @@
+{
+    "files": {
+        "src/lib/vendor_prefixed/autoload.php": {
+            "sha256": "bc444fecc07d5c37cc063a21805496906811c9e3060e8c32ae542af5802c87b1",
+            "size": 648
+        },
+        "src/lib/vendor_prefixed/autoload-classmap.php": {
+            "sha256": "29f8158056f5564bdfd598a2f63c2f43994436966212ae92c31e3b09562b6aae",
+            "size": 55856
+        },
+        "src/lib/vendor/composer/autoload_files.php": {
+            "sha256": "d762cdd721bfffedc29a81623496bf27366ebebd1ae4b97ac3246d432b7608af",
+            "size": 10303
+        },
+        "src/lib/vendor/composer/autoload_psr4.php": {
+            "sha256": "285865acf0bc22dd4b4eb3f7dcc11947cf9bff4d88a5b06c01ebc869c677266d",
+            "size": 3925
+        },
+        "src/lib/vendor/composer/autoload_static.php": {
+            "sha256": "fb9d660a9c82464fe21109177b66cf6e62a2b00445b043cd9a0c8e5cb1801a37",
+            "size": 22078
+        }
+    }
+}

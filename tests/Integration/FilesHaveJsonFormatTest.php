@@ -36,11 +36,13 @@ class FilesHaveJsonFormatTest extends PolyfillTestCase {
 	 * Test that development JSON files in root directory are valid.
 	 * These files (composer.json, package.json, etc.) are excluded from packages
 	 * via .gitattributes export-ignore rules, so this test only runs in source mode.
+	 * 
+	 * @group source-only
 	 */
 	public function testDevelopmentJsonFilesAreValid() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped(
-				'Development JSON files are excluded from packages via .gitattributes export-ignore.'
+				'Test skipped: Running in package mode. Development JSON files (composer.json, package.json, package-lock.json, patchwork.json) are excluded from packages via .gitattributes export-ignore rules. This test only runs when testing source code directly.'
 			);
 			return;
 		}
