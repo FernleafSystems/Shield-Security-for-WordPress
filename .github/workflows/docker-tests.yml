@@ -197,6 +197,7 @@ jobs:
         source .github/scripts/read-packager-config.sh
         echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
         echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
         
     - name: Build plugin package
       run: |
@@ -229,6 +230,7 @@ jobs:
           echo "PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}"
           echo "SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}"
           echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}"
+          echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}"
           echo "SHIELD_TEST_IMAGE=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"
           echo "SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"
           echo "SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"

@@ -4,10 +4,6 @@
             "sha256": "bc444fecc07d5c37cc063a21805496906811c9e3060e8c32ae542af5802c87b1",
             "size": 648
         },
-        "src/lib/vendor_prefixed/autoload-classmap.php": {
-            "sha256": "29f8158056f5564bdfd598a2f63c2f43994436966212ae92c31e3b09562b6aae",
-            "size": 55856
-        },
         "src/lib/vendor/composer/autoload_files.php": {
             "sha256": "d762cdd721bfffedc29a81623496bf27366ebebd1ae4b97ac3246d432b7608af",
             "size": 10303

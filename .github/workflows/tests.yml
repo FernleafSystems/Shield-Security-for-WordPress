@@ -70,6 +70,7 @@ jobs:
         source .github/scripts/read-packager-config.sh
         echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
         echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
         
     - name: Build plugin package
       run: |

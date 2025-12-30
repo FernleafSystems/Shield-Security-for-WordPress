@@ -11,6 +11,7 @@ class PluginPackager {
 
 	private string $projectRoot;
 	private string $straussVersion = '';
+	private ?string $straussForkRepo = null;
 
 	/** @var callable */
 	private $logger;
@@ -32,6 +33,7 @@ class PluginPackager {
 	public function package( ?string $outputDir = null, array $options = [] ) :string {
 		$options = $this->resolveOptions( $options );
 		$this->straussVersion = $this->resolveStraussVersion( $options );
+		$this->straussForkRepo = $options[ 'strauss_fork_repo' ] ?? null;
 		$targetDir = $this->resolveOutputDirectory( $outputDir );
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
@@ -62,7 +64,7 @@ class PluginPackager {
 					'--prefer-dist',
 //					'--optimize-autoloader'
 				] ),
-				$this->projectRoot.'/src/lib'
+				Path::join( $this->projectRoot, 'src', 'lib' )
 			);
 		}
 
@@ -91,7 +93,6 @@ class PluginPackager {
 		$this->buildPluginJson( $targetDir );
 
 		$this->installComposerDependencies( $targetDir );
-		$this->downloadStraussPhar( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
 		$this->cleanupPackageFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
@@ -251,13 +252,14 @@ class PluginPackager {
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
-			'composer_root'   => true,
-			'composer_lib'    => true,
-			'npm_install'     => true,
-			'npm_build'       => true,
-			'directory_clean' => true,
-			'skip_copy'       => false,
-			'strauss_version' => null,
+			'composer_root'     => true,
+			'composer_lib'      => true,
+			'npm_install'       => true,
+			'npm_build'         => true,
+			'directory_clean'   => true,
+			'skip_copy'         => false,
+			'strauss_version'   => null,
+			'strauss_fork_repo' => null,
 		];
 
 		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
@@ -405,7 +407,7 @@ class PluginPackager {
 		}
 
 		if ( strpos( $binary, '/' ) !== false || strpos( $binary, '\\' ) !== false ) {
-			$fromRoot = $this->projectRoot.DIRECTORY_SEPARATOR.$binary;
+			$fromRoot = Path::join( $this->projectRoot, $binary );
 			if ( file_exists( $fromRoot ) ) {
 				return $fromRoot;
 			}
@@ -413,7 +415,7 @@ class PluginPackager {
 
 		$runtimeDir = getenv( 'COMPOSER_RUNTIME_BIN_DIR' );
 		if ( is_string( $runtimeDir ) && $runtimeDir !== '' ) {
-			$candidate = rtrim( $runtimeDir, '/\\' ).DIRECTORY_SEPARATOR.$binary;
+			$candidate = Path::join( rtrim( $runtimeDir, '/\\' ), $binary );
 			if ( file_exists( $candidate ) ) {
 				return $candidate;
 			}
@@ -545,7 +547,7 @@ class PluginPackager {
 	private function installComposerDependencies( string $targetDir ) :void {
 		$this->log( 'Installing composer dependencies in package...' );
 
-		$libDir = Path::join( $targetDir, 'src/lib' );
+		$libDir = Path::join( $targetDir, 'src', 'lib' );
 
 		if ( !is_dir( $libDir ) ) {
 			throw new RuntimeException(
@@ -578,13 +580,125 @@ class PluginPackager {
 	private const FALLBACK_STRAUSS_VERSION = '0.19.4';
 
 	/**
+	 * Provide Strauss binary - either from fork clone or downloaded PHAR.
+	 * Returns the path to the strauss executable.
+	 * @throws RuntimeException if neither method succeeds
+	 */
+	private function provideStraussBinary( string $targetDir ) :string {
+		$libDir = Path::join( $targetDir, 'src', 'lib' );
+
+		if ( $this->straussForkRepo !== null ) {
+			return $this->cloneAndPrepareStraussFork( $targetDir );
+		}
+
+		// Default: download official PHAR
+		$this->downloadStraussPhar( $targetDir );
+		return Path::join( $libDir, 'strauss.phar' );
+	}
+
+	/**
+	 * Clone Strauss fork and prepare it for use.
+	 * Returns path to bin/strauss executable.
+	 * @throws RuntimeException if clone or setup fails
+	 */
+	private function cloneAndPrepareStraussFork( string $targetDir ) :string {
+		// Clone to a temp directory WITHIN the target directory to ensure same drive on Windows.
+		// This avoids cross-drive path resolution issues where Strauss (on C:) can't properly
+		// calculate relative paths for a project on D:.
+		$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
+		$forkDir = Path::join( $targetDir, '.strauss-fork-'.$forkHash );
+		$binPath = Path::join( $forkDir, 'bin', 'strauss' );
+
+		// Skip clone if already exists and has bin/strauss
+		if ( is_dir( $forkDir ) && file_exists( $binPath ) ) {
+			$this->log( sprintf( 'Using cached Strauss fork: %s', $forkDir ) );
+			return $binPath;
+		}
+
+		// Clone fresh
+		$this->log( sprintf( 'Cloning Strauss fork: %s', $this->straussForkRepo ) );
+
+		if ( is_dir( $forkDir ) ) {
+			$this->removeDirectorySafelyForTemp( $forkDir, $targetDir );
+		}
+
+		// Clone to parent directory since git clone creates the target
+		$parentDir = dirname( $forkDir );
+		if ( !is_dir( $parentDir ) ) {
+			( new Filesystem() )->mkdir( $parentDir );
+		}
+
+		$this->runCommand( [ 'git', 'clone', $this->straussForkRepo, $forkDir ], $parentDir );
+		$this->runCommand( [ 'git', 'checkout', 'develop' ], $forkDir );
+
+		// Install dependencies (--no-scripts skips phive/dev tool hooks we don't need)
+		$this->log( 'Installing Strauss fork dependencies...' );
+		$composerCommand = $this->getComposerCommand();
+		$this->runCommand(
+			array_merge( $composerCommand, [ 'install', '--no-interaction', '--no-dev', '--no-scripts', '--prefer-dist' ] ),
+			$forkDir
+		);
+
+		// Verify bin/strauss exists
+		if ( !file_exists( $binPath ) ) {
+			throw new RuntimeException(
+				sprintf(
+					'Strauss fork clone failed: bin/strauss not found at %s. '.
+					'HOW TO FIX: Verify the fork repository URL is correct: %s',
+					$binPath,
+					$this->straussForkRepo
+				)
+			);
+		}
+
+		$this->log( '  ✓ Strauss fork ready' );
+		$this->log( '' );
+		return $binPath;
+	}
+
+	/**
+	 * Remove a temporary directory safely (less strict than removeDirectorySafely)
+	 * @param string $dir Directory to remove
+	 * @param string|null $allowedBasePath Additional allowed base path (besides system temp)
+	 */
+	private function removeDirectorySafelyForTemp( string $dir, ?string $allowedBasePath = null ) :void {
+		$realDir = realpath( $dir );
+		if ( $realDir === false ) {
+			return;
+		}
+
+		$normalizedDir = Path::normalize( $realDir );
+
+		// Check if inside system temp directory
+		$tempDir = Path::normalize( sys_get_temp_dir() );
+		$isInTemp = Path::isBasePath( $tempDir, $normalizedDir );
+
+		// Check if inside allowed base path (e.g., target directory for Strauss fork)
+		$isInAllowed = false;
+		if ( $allowedBasePath !== null ) {
+			$realAllowed = realpath( $allowedBasePath );
+			if ( $realAllowed !== false ) {
+				$isInAllowed = Path::isBasePath( Path::normalize( $realAllowed ), $normalizedDir );
+			}
+		}
+
+		if ( !$isInTemp && !$isInAllowed ) {
+			throw new RuntimeException(
+				sprintf( 'Refusing to delete directory outside allowed paths: %s', $dir )
+			);
+		}
+
+		$this->removeDirectoryRecursive( $realDir );
+	}
+
+	/**
 	 * Download Strauss phar file for namespace prefixing
 	 * @throws RuntimeException if download fails with detailed error message
 	 */
 	private function downloadStraussPhar( string $targetDir ) :void {
 		$this->log( sprintf( 'Downloading Strauss v%s...', $this->straussVersion ) );
 
-		$libDir = Path::join( $targetDir, 'src/lib' );
+		$libDir = Path::join( $targetDir, 'src', 'lib' );
 		$targetPath = Path::join( $libDir, 'strauss.phar' );
 		$downloadUrl = sprintf(
 			'https://github.com/BrianHenryIE/strauss/releases/download/%s/strauss.phar',
@@ -724,33 +838,22 @@ class PluginPackager {
 	 * @throws RuntimeException if Strauss execution fails
 	 */
 	private function runStraussPrefixing( string $targetDir ) :void {
-		$libDir = Path::join( $targetDir, 'src/lib' );
-		$straussPath = Path::join( $libDir, 'strauss.phar' );
+		$libDir = Path::join( $targetDir, 'src', 'lib' );
 		$vendorPrefixedDir = Path::join( $libDir, 'vendor_prefixed' );
 
-		// Verify strauss.phar exists
-		if ( !file_exists( $straussPath ) ) {
-			throw new RuntimeException(
-				sprintf(
-					'Strauss execution failed: strauss.phar not found. '.
-					'WHAT FAILED: Cannot run Strauss namespace prefixing. '.
-					'Expected location: %s. '.
-					'WHY: The Strauss download step may have failed or the file was removed. '.
-					'HOW TO FIX: Run the packaging process again to re-download strauss.phar.',
-					$straussPath
-				)
-			);
-		}
+		// Get path to strauss binary (either fork's bin/strauss or downloaded PHAR)
+		$straussBinary = $this->provideStraussBinary( $targetDir );
 
 		$this->log( sprintf( 'Current directory: %s', $libDir ) );
+		$this->log( sprintf( 'Using Strauss: %s', $straussBinary ) );
 		$this->log( sprintf( 'Checking for composer.json: %s', file_exists( Path::join( $libDir, 'composer.json' ) ) ? 'YES' : 'NO' ) );
 		$this->log( '' );
 
 		$this->log( 'Running Strauss prefixing...' );
 
-		// Run strauss.phar using PHP
+		// Run strauss using PHP
 		$php = PHP_BINARY ?: 'php';
-		$this->runCommand( [ $php, 'strauss.phar' ], $libDir );
+		$this->runCommand( [ $php, $straussBinary ], $libDir );
 
 		$this->log( '' );
 
@@ -781,14 +884,29 @@ class PluginPackager {
 	 */
 	private function cleanupPackageFiles( string $targetDir ) :void {
 		$fs = new Filesystem();
-		$libDir = Path::join( $targetDir, 'src/lib' );
+		$libDir = Path::join( $targetDir, 'src', 'lib' );
+
+		// Remove Strauss fork directory if it exists (cloned for same-drive path resolution)
+		if ( $this->straussForkRepo !== null ) {
+			$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
+			$forkDir = Path::join( $targetDir, '.strauss-fork-'.$forkHash );
+			if ( is_dir( $forkDir ) ) {
+				$this->log( 'Removing Strauss fork directory...' );
+				try {
+					$fs->remove( $forkDir );
+				}
+				catch ( \Exception $e ) {
+					$this->log( sprintf( '  Warning: Could not remove Strauss fork directory: %s (%s)', $forkDir, $e->getMessage() ) );
+				}
+			}
+		}
 
 		// Directories to remove (duplicates after Strauss prefixing)
 		$this->log( 'Removing duplicate libraries from main vendor...' );
 		$directoriesToRemove = [
-			Path::join( $libDir, 'vendor/twig' ),
-			Path::join( $libDir, 'vendor/monolog' ),
-			Path::join( $libDir, 'vendor/bin' ),
+			Path::join( $libDir, 'vendor', 'twig' ),
+			Path::join( $libDir, 'vendor', 'monolog' ),
+			Path::join( $libDir, 'vendor', 'bin' ),
 		];
 
 		foreach ( $directoriesToRemove as $dir ) {
@@ -806,7 +924,7 @@ class PluginPackager {
 		// Files to remove (development and temporary files)
 		$this->log( 'Removing development-only files...' );
 		$filesToRemove = [
-			Path::join( $libDir, 'vendor_prefixed/autoload-files.php' ),
+			Path::join( $libDir, 'vendor_prefixed', 'autoload-files.php' ),
 			Path::join( $libDir, 'strauss.phar' ),
 		];
 
@@ -830,7 +948,7 @@ class PluginPackager {
 	private function cleanAutoloadFiles( string $targetDir ) :void {
 		$this->log( 'Cleaning autoload files...' );
 
-		$composerDir = Path::join( $targetDir, 'src/lib/vendor/composer' );
+		$composerDir = Path::join( $targetDir, 'src', 'lib', 'vendor', 'composer' );
 
 		if ( !is_dir( $composerDir ) ) {
 			$this->log( '  Warning: Composer directory not found, skipping autoload cleanup' );
@@ -913,8 +1031,7 @@ class PluginPackager {
 		$requiredFiles = [
 			'plugin.json'                                   => Path::join( $targetDir, 'plugin.json' ),
 			'icwp-wpsf.php'                                 => Path::join( $targetDir, 'icwp-wpsf.php' ),
-			'src/lib/vendor/autoload.php'                   => Path::join( $targetDir, 'src/lib/vendor/autoload.php' ),
-			'src/lib/vendor_prefixed/autoload-classmap.php' => Path::join( $targetDir, 'src/lib/vendor_prefixed/autoload-classmap.php' ),
+			'src/lib/vendor/autoload.php'                   => Path::join( $targetDir, 'src', 'lib', 'vendor', 'autoload.php' ),
 		];
 
 		foreach ( $requiredFiles as $name => $path ) {
@@ -929,8 +1046,8 @@ class PluginPackager {
 
 		// Required directories
 		$requiredDirs = [
-			'src/lib/vendor_prefixed' => Path::join( $targetDir, 'src/lib/vendor_prefixed' ),
-			'assets/dist'             => Path::join( $targetDir, 'assets/dist' ),
+			'src/lib/vendor_prefixed' => Path::join( $targetDir, 'src', 'lib', 'vendor_prefixed' ),
+			'assets/dist'             => Path::join( $targetDir, 'assets', 'dist' ),
 		];
 
 		foreach ( $requiredDirs as $name => $path ) {
@@ -1112,7 +1229,7 @@ class PluginPackager {
 		$files = array_diff( $files, [ '.', '..' ] );
 
 		foreach ( $files as $file ) {
-			$path = $dir.DIRECTORY_SEPARATOR.$file;
+			$path = Path::join( $dir, $file );
 
 			// Check if it's a symlink before processing
 			if ( is_link( $path ) ) {
@@ -1130,7 +1247,8 @@ class PluginPackager {
 				$this->removeDirectoryRecursive( $path );
 			}
 			else {
-				// Delete files
+				// Delete files - clear read-only attribute first (needed for .git files on Windows)
+				@chmod( $path, 0666 );
 				if ( !@unlink( $path ) ) {
 					// Check if file still exists (might have been deleted by another process)
 					if ( file_exists( $path ) ) {
@@ -1142,7 +1260,8 @@ class PluginPackager {
 			}
 		}
 
-		// Remove the directory itself
+		// Remove the directory itself - clear read-only attribute first
+		@chmod( $dir, 0777 );
 		if ( !@rmdir( $dir ) ) {
 			// Check if directory still exists
 			if ( is_dir( $dir ) ) {

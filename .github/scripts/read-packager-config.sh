@@ -27,5 +27,11 @@ STRAUSS_VERSION="${STRAUSS_VERSION#v}"
 export STRAUSS_VERSION
 export SHIELD_STRAUSS_VERSION="${SHIELD_STRAUSS_VERSION:-${STRAUSS_VERSION}}"
 
-echo "Using STRAUSS_VERSION=${STRAUSS_VERSION}"
-
+# Show which Strauss source will be used (fork takes precedence)
+if [ -n "${STRAUSS_FORK_REPO:-}" ]; then
+  export STRAUSS_FORK_REPO
+  export SHIELD_STRAUSS_FORK_REPO="${SHIELD_STRAUSS_FORK_REPO:-${STRAUSS_FORK_REPO}}"
+  echo "Using Strauss fork: ${STRAUSS_FORK_REPO}"
+else
+  echo "Using Strauss v${STRAUSS_VERSION}"
+fi

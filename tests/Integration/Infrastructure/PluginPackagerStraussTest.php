@@ -32,7 +32,6 @@ class PluginPackagerStraussTest extends TestCase {
 		$prefixed = $this->packagePath.'/src/lib/vendor_prefixed';
 		$this->assertDirectoryExists( $prefixed, 'vendor_prefixed directory missing' );
 		$this->assertFileExists( $prefixed.'/autoload.php' );
-		$this->assertFileExists( $prefixed.'/autoload-classmap.php' );
 	}
 
 	public function testPackagePathParity() :void {
@@ -130,7 +129,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedClassmapContainsKeyNamespaces() :void {
-		$classmapPath = $this->packagePath.'/src/lib/vendor_prefixed/autoload-classmap.php';
+		$classmapPath = $this->packagePath.'/src/lib/vendor_prefixed/composer/autoload_classmap.php';
 		$this->assertFileExists( $classmapPath );
 
 		$content = file_get_contents( $classmapPath );
@@ -162,7 +161,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$env = new \AptowebDeps\Twig\Environment( $loader );
 		$this->assertInstanceOf( \AptowebDeps\Twig\Environment::class, $env );
 
-		$crowdSecClass = 'AptowebDeps\\CrowdSec\\Client\\Client';
+		$crowdSecClass = 'AptowebDeps\\CrowdSec\\CapiClient\\Watcher';
 		if ( !class_exists( $crowdSecClass ) ) {
 			$psr4Path = $this->packagePath.'/src/lib/vendor_prefixed/composer/autoload_psr4.php';
 			$namespaces = [];
@@ -170,13 +169,13 @@ class PluginPackagerStraussTest extends TestCase {
 				$psr4 = require $psr4Path;
 				if ( is_array( $psr4 ) ) {
 					foreach ( array_keys( $psr4 ) as $ns ) {
-						if ( strpos( $ns, 'AptowebDeps\\CrowdSec\\' ) === 0 ) {
+						if ( strpos( $ns, 'AptowebDeps\\CrowdSec\\CapiClient\\' ) === 0 ) {
 							$namespaces[] = rtrim( $ns, '\\' );
 						}
 					}
 				}
 			}
-			$hint = $namespaces !== [] ? 'Available CrowdSec namespaces: '.implode( ', ', array_unique( $namespaces ) ) : 'No CrowdSec namespaces found in prefixed autoload_psr4.';
+			$hint = $namespaces !== [] ? 'Available CrowdSec namespaces: '.implode( ', ', array_unique( $namespaces ) ) : 'No CrowdSec\\CapiClient namespaces found in prefixed autoload_psr4.';
 			$this->fail( "CrowdSec prefixed class missing: {$crowdSecClass}. {$hint}" );
 		}
 

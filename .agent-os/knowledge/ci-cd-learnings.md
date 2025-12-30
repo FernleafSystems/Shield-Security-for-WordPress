@@ -383,7 +383,7 @@ cd src/lib && composer install --no-interaction --prefer-dist
 # Tests validate exact production structure
 # Must include:
 - assets/dist/
-- vendor_prefixed/autoload-classmap.php
+- vendor_prefixed/autoload.php
 
 # Must exclude:
 - vendor/bin/

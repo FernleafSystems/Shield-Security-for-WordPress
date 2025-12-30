@@ -8,6 +8,7 @@ services:
     environment:
       SHIELD_PACKAGE_PATH: /package
       SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION}
+      SHIELD_STRAUSS_FORK_REPO: ${SHIELD_STRAUSS_FORK_REPO:-}
 
   test-runner-previous:
     volumes:
@@ -16,3 +17,4 @@ services:
     environment:
       SHIELD_PACKAGE_PATH: /package
       SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION}
+      SHIELD_STRAUSS_FORK_REPO: ${SHIELD_STRAUSS_FORK_REPO:-}

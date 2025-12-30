@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
+use Symfony\Component\Filesystem\Path;
+
 class PackagerConfig {
 
 	/**
@@ -11,17 +13,60 @@ class PackagerConfig {
 	public static function getStraussVersion() :?string {
 		$env = getenv( 'SHIELD_STRAUSS_VERSION' );
 		if ( is_string( $env ) && $env !== '' ) {
-			return ltrim( $env, "v \t\n\r\0\x0B" );
+			return ltrim( trim( $env ), 'v' );
 		}
 
+		$value = self::getConfigValue( 'STRAUSS_VERSION' );
+		return $value !== null ? ltrim( $value, 'v' ) : null;
+	}
+
+	/**
+	 * Resolve custom Strauss fork repo URL.
+	 * Priority: env SHIELD_STRAUSS_FORK_REPO > config file > null.
+	 */
+	public static function getStraussForkRepo() :?string {
+		$env = getenv( 'SHIELD_STRAUSS_FORK_REPO' );
+		if ( is_string( $env ) && $env !== '' ) {
+			return trim( $env );
+		}
+
+		$value = self::getConfigValue( 'STRAUSS_FORK_REPO' );
+		return $value !== null ? trim( $value ) : null;
+	}
+
+	/**
+	 * Extract a value from packager.conf.
+	 * Simple approach: find line starting with KEY=, get everything after =, trim quotes.
+	 */
+	private static function getConfigValue( string $key ) :?string {
 		$root = self::getPluginRoot();
-		$config = $root === '' ? null : $root.'/.github/config/packager.conf';
-		if ( is_string( $config ) && file_exists( $config ) ) {
-			$content = file_get_contents( $config );
-			if ( is_string( $content ) ) {
-				if ( preg_match( '/STRAUSS_VERSION\s*=\s*"?([^\s"]+)"?/i', $content, $m ) ) {
-					return ltrim( $m[1], "v \t\n\r\0\x0B" );
-				}
+		if ( $root === '' ) {
+			return null;
+		}
+
+		$configPath = Path::normalize( Path::join( $root, '.github', 'config', 'packager.conf' ) );
+		if ( !file_exists( $configPath ) ) {
+			return null;
+		}
+
+		$lines = file( $configPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+		if ( $lines === false ) {
+			return null;
+		}
+
+		foreach ( $lines as $line ) {
+			$line = trim( $line );
+
+			// Skip comments
+			if ( $line === '' || $line[0] === '#' ) {
+				continue;
+			}
+
+			// Look for KEY= at the start of the line
+			if ( strpos( $line, $key.'=' ) === 0 ) {
+				$value = substr( $line, strlen( $key ) + 1 );
+				// Trim quotes and whitespace
+				return trim( $value, " \t\n\r\0\x0B\"'" );
 			}
 		}
 
@@ -31,16 +76,15 @@ class PackagerConfig {
 	private static function getPluginRoot() :string {
 		$envPath = getenv( 'SHIELD_PACKAGE_PATH' );
 		if ( is_string( $envPath ) && $envPath !== '' ) {
-			return $envPath;
+			return Path::normalize( $envPath );
 		}
 
 		$fromTraitPerspective = realpath( __DIR__.'/../..' );
 		if ( is_string( $fromTraitPerspective ) ) {
-			return $fromTraitPerspective;
+			return Path::normalize( $fromTraitPerspective );
 		}
 
 		$cwd = getcwd();
-		return is_string( $cwd ) ? $cwd : '';
+		return is_string( $cwd ) ? Path::normalize( $cwd ) : '';
 	}
 }
-

@@ -126,7 +126,6 @@ class PluginPackageValidationTest extends TestCase {
 		
 		// Check that autoload files exist
 		$this->assertFileExists( $vendorPrefixedPath . '/autoload.php' );
-		$this->assertFileExists( $vendorPrefixedPath . '/autoload-classmap.php' );
 	}
 
 	/**

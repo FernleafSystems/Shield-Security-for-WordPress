@@ -29,7 +29,6 @@ if ( !is_string( $output ) || $output === '' ) {
 
 $files = [
 	'src/lib/vendor_prefixed/autoload.php',
-	'src/lib/vendor_prefixed/autoload-classmap.php',
 	'src/lib/vendor/composer/autoload_files.php',
 	'src/lib/vendor/composer/autoload_psr4.php',
 	'src/lib/vendor/composer/autoload_static.php',
