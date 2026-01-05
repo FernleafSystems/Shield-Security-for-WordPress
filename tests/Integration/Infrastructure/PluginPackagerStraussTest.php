@@ -135,7 +135,9 @@ class PluginPackagerStraussTest extends TestCase {
 		$content = file_get_contents( $classmapPath );
 		$this->assertNotFalse( $content );
 
-		foreach ( [ 'AptowebDeps\\Monolog\\', 'AptowebDeps\\Twig\\', 'AptowebDeps\\CrowdSec\\' ] as $namespace ) {
+		// Note: We search for double-backslashes because the classmap file contains
+		// PHP source code where backslashes are escaped (e.g., 'AptowebDeps\\Monolog\\')
+		foreach ( [ 'AptowebDeps\\\\Monolog\\\\', 'AptowebDeps\\\\Twig\\\\', 'AptowebDeps\\\\CrowdSec\\\\' ] as $namespace ) {
 			$this->assertStringContainsString(
 				$namespace,
 				(string)$content,
