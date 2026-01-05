@@ -606,7 +606,7 @@ class PluginPackager {
 		// This avoids cross-drive path resolution issues where Strauss (on C:) can't properly
 		// calculate relative paths for a project on D:.
 		$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
-		$forkDir = Path::join( $targetDir, '.strauss-fork-'.$forkHash );
+		$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
 		$binPath = Path::join( $forkDir, 'bin', 'strauss' );
 
 		// Skip clone if already exists and has bin/strauss
@@ -886,17 +886,21 @@ class PluginPackager {
 		$fs = new Filesystem();
 		$libDir = Path::join( $targetDir, 'src', 'lib' );
 
-		// Remove Strauss fork directory if it exists (cloned for same-drive path resolution)
+		// Remove Strauss fork directory if it exists
+		// NOTE: We use removeDirectoryRecursive() instead of Symfony's $fs->remove() because
+		// Symfony renames directories to .!xxx temp names before deletion, and if deletion fails,
+		// these temp directories are left behind causing issues on subsequent runs.
 		if ( $this->straussForkRepo !== null ) {
 			$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
-			$forkDir = Path::join( $targetDir, '.strauss-fork-'.$forkHash );
+			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
 			if ( is_dir( $forkDir ) ) {
 				$this->log( 'Removing Strauss fork directory...' );
 				try {
-					$fs->remove( $forkDir );
+					$this->removeSubdirectoryOf( $forkDir, $targetDir );
 				}
 				catch ( \Exception $e ) {
-					$this->log( sprintf( '  Warning: Could not remove Strauss fork directory: %s (%s)', $forkDir, $e->getMessage() ) );
+					// Non-critical cleanup - just warn
+					$this->log( sprintf( '  Warning: %s', $e->getMessage() ) );
 				}
 			}
 		}
@@ -912,7 +916,7 @@ class PluginPackager {
 		foreach ( $directoriesToRemove as $dir ) {
 			if ( is_dir( $dir ) ) {
 				try {
-					$fs->remove( $dir );
+					$this->removeSubdirectoryOf( $dir, $targetDir );
 				}
 				catch ( \Exception $e ) {
 					// Log but don't fail - these are cleanup operations
@@ -1091,7 +1095,7 @@ class PluginPackager {
 		// Safety check: Ensure we're not deleting the project root or critical directories
 		$this->validateDirectoryIsSafeToDelete( $realDir );
 
-		// Perform the actual deletion
+		// Perform the deletion using PHP
 		$this->removeDirectoryRecursive( $realDir );
 	}
 
@@ -1210,6 +1214,50 @@ class PluginPackager {
 	}
 
 	/**
+	 * Safely remove a directory that must be inside a specified parent directory
+	 * @throws RuntimeException if directory is not inside parent or deletion fails
+	 */
+	private function removeSubdirectoryOf( string $dir, string $mustBeInsideDir ) :void {
+		$realDir = realpath( $dir );
+		$realParent = realpath( $mustBeInsideDir );
+
+		if ( $realDir === false ) {
+			return; // Directory doesn't exist, nothing to delete
+		}
+
+		if ( $realParent === false ) {
+			throw new RuntimeException(
+				sprintf( 'Parent directory does not exist: %s', $mustBeInsideDir )
+			);
+		}
+
+		// Normalize paths for comparison
+		$normalizedDir = rtrim( str_replace( '\\', '/', $realDir ), '/' );
+		$normalizedParent = rtrim( str_replace( '\\', '/', $realParent ), '/' );
+
+		// Verify the directory is actually inside the parent
+		if ( strpos( $normalizedDir, $normalizedParent.'/' ) !== 0 ) {
+			throw new RuntimeException(
+				sprintf(
+					'SAFETY CHECK FAILED: Refusing to delete directory that is not inside expected parent. '.
+					'Directory: %s | Expected parent: %s',
+					$realDir,
+					$realParent
+				)
+			);
+		}
+
+		// Also verify it's not the parent itself
+		if ( $normalizedDir === $normalizedParent ) {
+			throw new RuntimeException(
+				sprintf( 'SAFETY CHECK FAILED: Cannot delete the parent directory itself: %s', $realDir )
+			);
+		}
+
+		$this->removeDirectoryRecursive( $realDir );
+	}
+
+	/**
 	 * Recursively remove a directory and all its contents
 	 * @throws RuntimeException if deletion fails
 	 */
@@ -1265,6 +1313,13 @@ class PluginPackager {
 		if ( !@rmdir( $dir ) ) {
 			// Check if directory still exists
 			if ( is_dir( $dir ) ) {
+				// Check if it's empty now (only . and ..)
+				$finalCheck = @scandir( $dir );
+				if ( $finalCheck !== false && count( $finalCheck ) <= 2 ) {
+					// Directory is actually empty, ignore the error
+					return;
+				}
+				
 				throw new RuntimeException(
 					sprintf( 'Failed to delete directory: %s', $dir )
 				);
