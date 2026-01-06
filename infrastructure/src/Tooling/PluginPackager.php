@@ -597,16 +597,40 @@ class PluginPackager {
 	}
 
 	/**
+	 * Detect if running inside a Docker container.
+	 * Used to optimize file operations (e.g., use /tmp for ephemeral data).
+	 */
+	private function isRunningInDocker() :bool {
+		// Check for Docker environment file (standard Docker indicator)
+		if ( file_exists( '/.dockerenv' ) ) {
+			return true;
+		}
+		// Check for SHIELD_TEST_MODE environment variable (set in our Dockerfile)
+		if ( getenv( 'SHIELD_TEST_MODE' ) === 'docker' ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Clone Strauss fork and prepare it for use.
 	 * Returns path to bin/strauss executable.
 	 * @throws RuntimeException if clone or setup fails
 	 */
 	private function cloneAndPrepareStraussFork( string $targetDir ) :string {
-		// Clone to a temp directory WITHIN the target directory to ensure same drive on Windows.
-		// This avoids cross-drive path resolution issues where Strauss (on C:) can't properly
-		// calculate relative paths for a project on D:.
 		$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
-		$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
+
+		// In Docker/Linux: use /tmp (no cross-drive issues, ephemeral so no cleanup needed)
+		// On Windows: use target directory to avoid cross-drive path resolution issues
+		if ( $this->isRunningInDocker() ) {
+			$forkDir = '/tmp/_strauss-fork-'.$forkHash;
+		}
+		else {
+			// Clone to a temp directory WITHIN the target directory to ensure same drive on Windows.
+			// This avoids cross-drive path resolution issues where Strauss (on C:) can't properly
+			// calculate relative paths for a project on D:.
+			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
+		}
 		$binPath = Path::join( $forkDir, 'bin', 'strauss' );
 
 		// Skip clone if already exists and has bin/strauss
@@ -619,7 +643,9 @@ class PluginPackager {
 		$this->log( sprintf( 'Cloning Strauss fork: %s', $this->straussForkRepo ) );
 
 		if ( is_dir( $forkDir ) ) {
-			$this->removeDirectorySafelyForTemp( $forkDir, $targetDir );
+			// Pass appropriate base path for safety check
+			$allowedBase = $this->isRunningInDocker() ? '/tmp' : $targetDir;
+			$this->removeDirectorySafelyForTemp( $forkDir, $allowedBase );
 		}
 
 		// Clone to parent directory since git clone creates the target
@@ -886,11 +912,12 @@ class PluginPackager {
 		$fs = new Filesystem();
 		$libDir = Path::join( $targetDir, 'src', 'lib' );
 
-		// Remove Strauss fork directory if it exists
+		// Remove Strauss fork directory if it exists (only when not in Docker)
+		// In Docker, we use /tmp which is ephemeral - no cleanup needed
 		// NOTE: We use removeDirectoryRecursive() instead of Symfony's $fs->remove() because
 		// Symfony renames directories to .!xxx temp names before deletion, and if deletion fails,
 		// these temp directories are left behind causing issues on subsequent runs.
-		if ( $this->straussForkRepo !== null ) {
+		if ( $this->straussForkRepo !== null && !$this->isRunningInDocker() ) {
 			$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
 			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
 			if ( is_dir( $forkDir ) ) {
@@ -903,6 +930,9 @@ class PluginPackager {
 					$this->log( sprintf( '  Warning: %s', $e->getMessage() ) );
 				}
 			}
+		}
+		elseif ( $this->straussForkRepo !== null && $this->isRunningInDocker() ) {
+			$this->log( 'Skipping Strauss fork cleanup (Docker /tmp is ephemeral)' );
 		}
 
 		// Directories to remove (duplicates after Strauss prefixing)

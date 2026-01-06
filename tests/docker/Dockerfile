@@ -1,6 +1,12 @@
+# syntax=docker/dockerfile:1
 # Shield Security - Multi-Stage Test Runner
 # Optimized for matrix testing with multi-PHP support and caching
 # Part of Docker Matrix Testing Optimization (Phase 3, Task 3.1)
+#
+# BuildKit Cache Optimization:
+# This Dockerfile uses BuildKit cache mounts to speed up repeated builds.
+# Cache is automatic - created if missing, reused if present.
+# Requires: DOCKER_BUILDKIT=1 (set in run-docker-tests.sh)
 
 # Build arguments for matrix customization
 # Note: PHP_VERSION default should match DEFAULT_PHP in .github/config/matrix.conf
@@ -17,16 +23,19 @@ FROM ubuntu:22.04 AS base-deps
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies with apt cache mount for faster rebuilds
+# Only cache /var/cache/apt (downloaded .deb files), NOT /var/lib/apt/lists (package indexes)
+# This ensures apt-get update always fetches fresh package indexes to avoid staleness
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && apt-get install -y \
     curl \
     git \
     unzip \
     subversion \
     default-mysql-client \
     software-properties-common \
-    gpg-agent \
-    && rm -rf /var/lib/apt/lists/*
+    gpg-agent
 
 # Install Composer globally (cached layer)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -45,11 +54,13 @@ ARG PHP_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-# Add PHP repository
-RUN add-apt-repository ppa:ondrej/php && apt-get update
+# Add PHP repository with cache mount (only cache downloaded packages, not indexes)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    add-apt-repository ppa:ondrej/php && apt-get update
 
-# Install PHP and required extensions
-RUN apt-get install -y \
+# Install PHP and required extensions with cache mount
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get install -y \
     php${PHP_VERSION} \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-mysql \
@@ -62,8 +73,7 @@ RUN apt-get install -y \
     php${PHP_VERSION}-bcmath \
     php${PHP_VERSION}-soap \
     php${PHP_VERSION}-sqlite3 \
-    php${PHP_VERSION}-dev \
-    && rm -rf /var/lib/apt/lists/*
+    php${PHP_VERSION}-dev
 
 # Create symlinks for php commands
 RUN update-alternatives --install /usr/bin/php php /usr/bin/php${PHP_VERSION} 100
@@ -80,17 +90,18 @@ RUN echo "memory_limit=512M" > /etc/php/${PHP_VERSION}/cli/conf.d/99-testing.ini
 FROM php-runtime AS test-framework
 ARG PHP_VERSION
 
-# Install PHPUnit based on PHP version compatibility
+# Install PHPUnit based on PHP version compatibility with composer cache mount
 # PHPUnit 9.6: PHP >=7.3 (works with 7.4, 8.0, 8.1)
 # PHPUnit 11.x: PHP >=8.2 (works with 8.2, 8.3, 8.4)
 # Note: PHPUnit 10.x is NOT supported by yoast/phpunit-polyfills 4.x
 # yoast/phpunit-polyfills 4.x: Supports PHPUnit ^7.5|^8.0|^9.0|^11.0|^12.0
-RUN if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ] || [ "${PHP_VERSION}" = "8.0" ] || [ "${PHP_VERSION}" = "8.1" ]; then \
-        composer global require --no-interaction --no-cache \
+RUN --mount=type=cache,target=/root/.composer/cache \
+    if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ] || [ "${PHP_VERSION}" = "8.0" ] || [ "${PHP_VERSION}" = "8.1" ]; then \
+        composer global require --no-interaction \
             phpunit/phpunit:^9.6 \
             yoast/phpunit-polyfills:^4.0; \
     else \
-        composer global require --no-interaction --no-cache \
+        composer global require --no-interaction \
             phpunit/phpunit:^11.5 \
             yoast/phpunit-polyfills:^4.0; \
     fi

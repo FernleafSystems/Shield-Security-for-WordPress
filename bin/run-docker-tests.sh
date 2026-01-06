@@ -27,6 +27,11 @@ fi
 # Prevents /app from being converted to C:/Program Files/Git/app
 export MSYS_NO_PATHCONV=1
 
+# Enable Docker BuildKit for cache mount support
+# BuildKit provides automatic caching of apt packages and composer dependencies
+# Cache is created automatically if missing, reused on subsequent builds
+export DOCKER_BUILDKIT=1
+
 echo "🚀 Starting Local Docker Tests (matching CI configuration)"
 echo "=================================================="
 
