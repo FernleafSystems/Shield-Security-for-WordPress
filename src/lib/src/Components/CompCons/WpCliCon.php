@@ -25,7 +25,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	SecurityAdminAdd,
 	SecurityAdminPin,
 	SecurityAdminRemove,
-	Testing
+	Testing,
+	Translations
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -76,6 +77,7 @@ class WpCliCon {
 			SecurityAdminPin::class,
 			DebugMode::class,
 			Testing::class,
+			Translations::class,
 		];
 	}
 }

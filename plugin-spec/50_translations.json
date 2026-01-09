@@ -1,0 +1,6 @@
+{
+  "translations": {
+    "list_cache_hours":       72,
+    "download_cooldown_days": 7
+  }
+}

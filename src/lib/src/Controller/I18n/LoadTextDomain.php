@@ -34,8 +34,6 @@ class LoadTextDomain {
 	 * wp-content/languages/plugins/wp-simple-firewall-de_DE.mo
 	 */
 	private function overrideTranslations( string $moFilePath ) :string {
-		$finalMoPath = null;
-
 		// use determine_locale() as it also considers the user's profile preference
 		$targetLoc = \function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();
 		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() );
@@ -43,26 +41,74 @@ class LoadTextDomain {
 			$targetLoc = $filteredLocale;
 		}
 
+		$targetLoc = (string)$targetLoc;
+		$finalMoPath = $this->findPluginIntegratedMo( $targetLoc );
+		if ( empty( $finalMoPath ) ) {
+			$finalMoPath = $this->findDynamicMo( $targetLoc );
+		}
+
+		return empty( $finalMoPath ) ? $moFilePath : $finalMoPath;
+	}
+
+	private function findPluginIntegratedMo( string $targetLocale ) :?string {
+		$foundMoPath = null;
+		$targetLang = $this->localeToLang( $targetLocale );
 		$availableLocales = ( new GetAllAvailableLocales() )->run();
+
 		// First look for exact .mo files.
 		foreach ( $availableLocales as $loc => $moPath ) {
-			if ( $targetLoc === $loc && Services::WpFs()->exists( $moPath ) ) {
-				$finalMoPath = $moPath;
+			if ( $targetLocale === $loc && Services::WpFs()->exists( $moPath ) ) {
+				$foundMoPath = $moPath;
 				break;
 			}
 		}
-		if ( empty( $finalMoPath ) ) {
-			// Then look for mo for that language.
-			$targetLang = \substr( (string)$targetLoc, 0, 2 );
-			if ( !empty( $targetLang ) ) {
-				foreach ( $availableLocales as $loc => $moPath ) {
-					if ( $targetLang === \substr( $loc, 0, 2 ) && Services::WpFs()->exists( $moPath ) ) {
-						$finalMoPath = $moPath;
+
+		// Then look for mo for that language.
+		if ( empty( $foundMoPath ) && !empty( $targetLang ) ) {
+			foreach ( $availableLocales as $loc => $moPath ) {
+				if ( $targetLang === $this->localeToLang( $loc ) && Services::WpFs()->exists( $moPath ) ) {
+					$foundMoPath = $moPath;
+					break;
+				}
+			}
+		}
+
+		return $foundMoPath;
+	}
+
+	private function findDynamicMo( string $targetLocale ) :?string {
+		$foundMoPath = null;
+		$transDownloaderCon = self::con()->comps->translation_downloads;
+
+		// Check for exact locale match in cache
+		$cachedPath = $transDownloaderCon->getLocaleMoFilePath( $targetLocale );
+		if ( !empty( $cachedPath ) ) {
+			$foundMoPath = $cachedPath;
+		}
+
+		// Try language-only match in cache (e.g., 'de' from 'de_DE')
+		$targetLang = $this->localeToLang( $targetLocale );
+		if ( empty( $foundMoPath ) && !empty( $targetLang ) ) {
+			foreach ( \array_keys( $transDownloaderCon->getAvailableLocales() ) as $maybeLocale ) {
+				if ( $targetLang === $this->localeToLang( $maybeLocale ) ) {
+					$cachedPath = $transDownloaderCon->getLocaleMoFilePath( $maybeLocale );
+					if ( !empty( $cachedPath ) ) {
+						$foundMoPath = $cachedPath;
 						break;
 					}
 				}
 			}
 		}
-		return empty( $finalMoPath ) ? $moFilePath : $finalMoPath;
+
+		// 3. Queue for async download if not found and locale is available
+		if ( empty( $foundMoPath ) && $transDownloaderCon->isLocaleAvailable( $targetLocale ) ) {
+			$transDownloaderCon->enqueueLocaleForDownload( $targetLocale );
+		}
+
+		return $foundMoPath;
+	}
+
+	private function localeToLang( string $locale ) :string {
+		return \substr( $locale, 0, 2 );
 	}
 }
