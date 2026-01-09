@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
 	LoadLogs,
 	LogRecord
@@ -19,12 +20,16 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 */
 	private $log;
 
+	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+		return new BuildSearchPanesData();
+	}
+
 	protected function loadRecordsWithDirectQuery() :array {
 		return $this->loadRecordsWithSearch();
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )->build();
+		return $this->getSearchPanesDataBuilder()->build();
 	}
 
 	/**
@@ -55,6 +60,20 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		) );
 	}
 
+	protected function validateSearchPanes( array $searchPanes ) :array {
+		foreach ( $searchPanes as $column => &$values ) {
+			switch ( $column ) {
+				case 'event':
+					$values = \array_filter( $values, fn( $event ) => !empty( $event ) && self::con()->comps->events->eventExists( $event ) );
+					break;
+				default:
+					$values = $this->validateCommonColumn( $column, $values );
+					break;
+			}
+		}
+		return \array_filter( $searchPanes );
+	}
+
 	/**
 	 * The `Where`s need to align with the structure of the Query called from getRecords()
 	 */
@@ -77,11 +96,11 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 					case 'ip':
 						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;
-					case 'user':
-						if ( \count( $selected ) > 0 ) {
-							$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( ',', \array_values( $selected ) ) );
-						}
-						break;
+				case 'user':
+					if ( \count( $selected ) > 0 ) {
+						$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( ',', $selected ) );
+					}
+					break;
 					default:
 						break;
 				}

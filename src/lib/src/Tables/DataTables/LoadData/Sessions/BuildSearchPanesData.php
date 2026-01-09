@@ -2,12 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildSearchPanesData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildSearchPanesData {
-
-	use PluginControllerConsumer;
+class BuildSearchPanesData extends BaseBuildSearchPanesData {
 
 	public function build() :array {
 		return [

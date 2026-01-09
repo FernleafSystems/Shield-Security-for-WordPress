@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
 
-class BuildSearchPanesData {
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildSearchPanesData;
 
-	public function build() :array {
-		return [];
-	}
+class BuildSearchPanesData extends BaseBuildSearchPanesData {
+
 }

@@ -21,6 +21,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	abstract protected function buildTableRowsFromRawRecords( array $records ) :array;
 
+	abstract protected function getSearchPanesDataBuilder() :BaseBuildSearchPanesData;
+
 	public function build() :array {
 		return [
 			'data'            => $this->loadForRecords(),
@@ -44,6 +46,10 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function loadRecordsWithDirectQuery() :array {
+		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
+			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
+		}
+
 		return $this->buildTableRowsFromRawRecords(
 			$this->getRecords(
 				$this->buildWheresFromSearchParams(),
@@ -57,6 +63,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
 		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
+
+		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
+			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
+		}
+
 		$wheres = $this->buildWheresFromSearchParams();
 
 		$searchableColumns = \array_flip( $this->getSearchableColumns() );
@@ -108,6 +119,42 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		}
 
 		return \array_values( $results );
+	}
+
+	/**
+	 * Security: validate searchPanes data before building any SQL queries.
+	 * Handles common columns (day, ip for IP addresses, user) that are validated the same across all table builders.
+	 * Child classes should override and handle their specific columns, calling validateCommonColumn() in default case.
+	 */
+	protected function validateSearchPanes( array $searchPanes ) :array {
+		foreach ( $searchPanes as $column => &$values ) {
+			$values = $this->validateCommonColumn( $column, $values );
+		}
+		return \array_filter( $searchPanes );
+	}
+
+	/**
+	 * Helper method to validate a single common column. Used by child classes in their default case.
+	 */
+	protected function validateCommonColumn( string $column, array $values ) :array {
+		switch ( $column ) {
+			case 'day':
+				$values = \array_filter( $values,
+					fn( $day ) => $day === BuildDataForDays::ZERO_DATE_FORMAT || \preg_match( '#^\d+-\d+-\d+$#', $day )
+				);
+				break;
+			case 'ip':
+				// Note: This validates IP addresses. For IP rule IDs, child class should handle 'ip' column in its switch.
+				$values = \array_filter( $values, fn( $ip ) => !empty( $ip ) && Services::IP()->isValidIp( $ip ) );
+				break;
+			case 'user':
+			case 'uid':
+				$values =  \array_filter( \array_map( '\intval', $values ), fn( $uid ) => $uid > 0 );
+				break;
+			default:
+				break;
+		}
+		return $values;
 	}
 
 	protected function buildWheresFromSearchParams() :array {

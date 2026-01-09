@@ -2,20 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildSearchPanesData;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	Ops as ReqLogsDB
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForUsers;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildSearchPanesData {
+class BuildSearchPanesData extends BaseBuildSearchPanesData {
 
-	use PluginControllerConsumer;
-
-	private $distinctQueryResult = null;
+	private ?array $distinctQueryResult = null;
 
 	public function build() :array {
 		return [
@@ -47,25 +45,15 @@ class BuildSearchPanesData {
 	}
 
 	protected function getDistinctQueryResult() :array {
-		if ( \is_null( $this->distinctQueryResult ) ) {
-			$this->distinctQueryResult = \array_map( function ( $raw ) {
-				return \explode( ',', $raw );
-			}, $this->compositeDistinctQuery( [ 'type', 'code', 'uid' ] ) );
-		}
-		return $this->distinctQueryResult;
+		return $this->distinctQueryResult ??= \array_map(
+			fn( $raw ) => \explode( ',', $raw ),
+			$this->compositeDistinctQuery( [ 'type', 'code', 'uid' ] )
+		);
 	}
 
 	private function buildForCodes() :array {
 		return \array_values( \array_filter( \array_map(
-			function ( $code ) {
-				if ( empty( $code ) ) {
-					return null;
-				}
-				return [
-					'label' => $code,
-					'value' => $code,
-				];
-			},
+			fn( $code ) => empty( $code ) ? null : [ 'label' => $code, 'value' => $code, ],
 			$this->getDistinctQueryResult()[ 'code' ] ?? []
 		) ) );
 	}
@@ -85,27 +73,14 @@ class BuildSearchPanesData {
 
 	private function buildForType() :array {
 		return \array_values( \array_filter( \array_map(
-			function ( $type ) {
-				if ( empty( $type ) ) {
-					return null;
-				}
-				return [
-					'label' => ReqLogsDB\Handler::GetTypeName( $type ),
-					'value' => $type,
-				];
-			},
+			fn( $t ) => empty( $t ) ? null : [ 'label' => ReqLogsDB\Handler::GetTypeName( $t ), 'value' => $t, ],
 			$this->getDistinctQueryResult()[ 'type' ] ?? []
 		) ) );
 	}
 
 	private function buildForIPs() :array {
 		return \array_map(
-			function ( $ip ) {
-				return [
-					'label' => $ip,
-					'value' => $ip,
-				];
-			},
+			fn( $ip ) => [ 'label' => $ip, 'value' => $ip, ],
 			( new LoadRequestLogs() )->getDistinctIPs()
 		);
 	}
