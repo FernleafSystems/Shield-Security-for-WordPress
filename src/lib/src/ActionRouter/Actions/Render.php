@@ -21,13 +21,7 @@ class Render extends BaseAction {
 		$this->setResponse(
 			self::con()->action_router->action(
 				$this->action_data[ 'render_action_slug' ],
-				Services::DataManipulation()->mergeArraysRecursive(
-					Services::Request()->query,
-					Services::Request()->post,
-					\array_filter( $this->action_data[ 'render_action_data' ] ?? [], function ( $item ) {
-						return !\is_null( $item );
-					} )
-				)
+				\array_filter( $this->action_data[ 'render_action_data' ] ?? [], fn( $item ) => !\is_null( $item ) )
 			)
 		);
 	}
