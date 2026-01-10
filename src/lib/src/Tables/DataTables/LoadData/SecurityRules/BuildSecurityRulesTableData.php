@@ -12,12 +12,16 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
+	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+		return new BuildSearchPanesData();
+	}
+
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )->build();
+		return $this->getSearchPanesDataBuilder()->build();
 	}
 
 	/**

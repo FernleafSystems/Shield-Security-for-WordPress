@@ -48,4 +48,11 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 		}
 		return $type;
 	}
+
+	public static function AllTypes() :array {
+		return \array_filter(
+			( new \ReflectionClass( __CLASS__ ) )->getConstants(),
+			fn( $name ) => \str_starts_with( $name, 'TYPE_' ), \ARRAY_FILTER_USE_KEY
+		);
+	}
 }

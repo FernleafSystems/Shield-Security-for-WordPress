@@ -13,6 +13,10 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
+	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+		return new BuildSearchPanesData();
+	}
+
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
 	}

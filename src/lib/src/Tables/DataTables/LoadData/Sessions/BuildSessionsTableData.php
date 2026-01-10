@@ -6,12 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\L
 
 class BuildSessionsTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
+	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+		return new BuildSearchPanesData();
+	}
+
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )->build();
+		return $this->getSearchPanesDataBuilder()->build();
 	}
 
 	/**
