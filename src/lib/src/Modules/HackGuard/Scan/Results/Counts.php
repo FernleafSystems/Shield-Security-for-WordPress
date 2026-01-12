@@ -9,28 +9,23 @@ class Counts {
 
 	use PluginControllerConsumer;
 
-	private $counts = [];
+	private array $counts = [];
 
-	private $context;
+	private int $context;
 
 	public function __construct( int $context = RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ) {
 		$this->context = $context;
 	}
 
 	public function all() :array {
-		\array_map(
-			function ( string $type ) {
-				$this->getCount( $type );
-			},
-			[
-				'malware_files',
-				'abandoned',
-				'plugin_files',
-				'theme_files',
-				'assets_vulnerable',
-				'wp_files',
-			]
-		);
+		\array_map( fn( string $type ) => $this->getCount( $type ), [
+			'malware_files',
+			'abandoned',
+			'plugin_files',
+			'theme_files',
+			'assets_vulnerable',
+			'wp_files',
+		] );
 		return $this->counts;
 	}
 

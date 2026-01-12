@@ -25,46 +25,26 @@ class ConfigurationVO extends DynPropertiesClass {
 	}
 
 	public function optsForSection( string $section ) :array {
-		return \array_filter(
-			$this->options,
-			function ( array $opt ) use ( $section ) {
-				return $opt[ 'section' ] === $section;
-			}
-		);
+		return \array_filter( $this->options, fn( array $opt ) => $opt[ 'section' ] === $section );
 	}
 
 	public function optsForModule( string $module ) :array {
-		$sections = \array_keys( $this->sectionsForModule( $module ) );
 		return \array_filter(
 			$this->options,
-			function ( array $opt ) use ( $sections ) {
-				return \in_array( $opt[ 'section' ], $sections );
-			}
+			fn( array $opt ) => \in_array( $opt[ 'section' ], \array_keys( $this->sectionsForModule( $module ) ) )
 		);
 	}
 
 	public function sectionsForModule( string $module ) :array {
-		return \array_filter(
-			$this->sections,
-			function ( array $sec ) use ( $module ) {
-				return !empty( $sec[ 'module' ] ) && $sec[ 'module' ] === $module;
-			}
-		);
+		return \array_filter( $this->sections, fn( array $opt ) => !empty( $sec[ 'module' ] ) && $sec[ 'module' ] === $module );
 	}
 
 	public function transferableOptions() :array {
-		return \array_filter(
-			$this->options,
-			function ( array $option ) {
-				return $option[ 'transferable' ] ?? true;
-			}
-		);
+		return \array_filter( $this->options, fn( array $opt ) => $opt[ 'transferable' ] ?? true );
 	}
 
 	public function __get( string $key ) {
-
 		$value = parent::__get( $key );
-
 		switch ( $key ) {
 			case 'admin_notices':
 			case 'modules':
@@ -78,7 +58,6 @@ class ConfigurationVO extends DynPropertiesClass {
 			default:
 				break;
 		}
-
 		return $value;
 	}
 }

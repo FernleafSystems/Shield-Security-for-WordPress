@@ -104,13 +104,14 @@ class BotSignalsRecord {
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
 			$userMetaSelect = self::con()->db_con->user_meta->getQuerySelector();
-			/** @var UserMetaDB\Record $lastUserMetaLogin */
+			/** @var ?\stdClass $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
 												->setOrderBy( 'last_login_at' )
+												->setResultsAsVo( false )
 												->first();
-			if ( !empty( $lastUserMetaLogin ) ) {
-				$r->auth_at = $lastUserMetaLogin->last_login_at;
+			if ( \is_object( $lastUserMetaLogin ) && !empty( $lastUserMetaLogin->last_login_at ) ) {
+				$r->auth_at = \intval( $lastUserMetaLogin->last_login_at );
 			}
 		}
 

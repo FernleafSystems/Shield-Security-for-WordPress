@@ -59,7 +59,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	protected function getLoginIntentExpiresAt() :int {
 		$mfaCon = self::con()->comps->mfa;
 
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
+		$user = Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] );
 
 		$intentAt = $mfaCon->getActiveLoginIntents( $user )
 					[ $mfaCon->findHashedNonce( $user, $this->action_data[ 'plain_login_nonce' ] ) ][ 'start' ] ?? 0;

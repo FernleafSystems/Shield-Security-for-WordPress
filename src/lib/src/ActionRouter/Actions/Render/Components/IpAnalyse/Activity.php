@@ -12,7 +12,7 @@ class Activity extends Base {
 	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_audittrail.twig';
 
 	protected function getRenderData() :array {
-		$logLoader = ( new LoadLogs() )->setIP( $this->action_data[ 'ip' ] );
+		$logLoader = ( new LoadLogs() )->setIP( $this->getAnalyseIP() );
 		$logLoader->limit = 100;
 
 		$logs = [];

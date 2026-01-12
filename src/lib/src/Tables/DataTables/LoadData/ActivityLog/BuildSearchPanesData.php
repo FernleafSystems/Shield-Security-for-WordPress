@@ -5,9 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Act
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForUsers;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildSearchPanesData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildSearchPanesData {
+class BuildSearchPanesData extends BaseBuildSearchPanesData {
 
 	use PluginControllerConsumer;
 
@@ -25,9 +26,7 @@ class BuildSearchPanesData {
 	private function buildForUsers() :array {
 		return ( new BuildDataForUsers() )->build(
 			\array_map(
-				function ( $result ) {
-					return (int)$result[ 'uid' ] ?? null;
-				},
+				fn( $result ) => (int)$result[ 'uid' ] ?? null,
 				$this->runQuery( '`req`.`uid` as `uid`' )
 			)
 		);

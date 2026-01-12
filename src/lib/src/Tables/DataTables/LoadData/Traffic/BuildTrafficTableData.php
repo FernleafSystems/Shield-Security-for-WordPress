@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	LogRecord,
@@ -20,16 +21,20 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	 */
 	private $log;
 
-	private $users = [];
+	private array $users = [];
 
-	private $ipInfo = [];
+	private array $ipInfo = [];
 
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )->build();
+		return $this->getSearchPanesDataBuilder()->build();
+	}
+
+	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+		return new BuildSearchPanesData();
 	}
 
 	/**
@@ -95,6 +100,29 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		return $loader->countAll();
 	}
 
+	protected function validateSearchPanes( array $searchPanes ) :array {
+		foreach ( $searchPanes as $column => &$values ) {
+			switch ( $column ) {
+				case 'offense':
+					$values = \array_filter(
+						\array_map( '\intval', $values ),
+						fn( $offense ) => \in_array( $offense, [ 0, 1 ], true )
+					);
+					break;
+				case 'type':
+					$values = \array_intersect( $values, RegLogsDB\Handler::AllTypes() );
+					break;
+				case 'code':
+					$values = \array_filter( \array_map( '\intval', $values ), fn( $c ) => $c === 0 || ( $c >= 100 && $c <= 999 ) );
+					break;
+				default:
+					$values = $this->validateCommonColumn( $column, $values );
+					break;
+			}
+		}
+		return \array_filter( $searchPanes );
+	}
+
 	/**
 	 * The Wheres need to align with the structure of the Query called from getRecords()
 	 */
@@ -109,13 +137,15 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 					case 'ip':
 						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;
-					case 'offense':
 					case 'type':
+						$wheres[] = sprintf( "`req`.`%s` IN ('%s')", $column, \implode( "','", $selected ) );
+						break;
 					case 'code':
-						$wheres[] = sprintf( "`req`.%s IN ('%s')", $column, \implode( "','", $selected ) );
+					case 'offense':
+						$wheres[] = sprintf( "`req`.`%s` IN (%s)", $column, \implode( ",", $selected ) );
 						break;
 					case 'user':
-						$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( "','", $selected ) );
+						$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( ",", $selected ) );
 						break;
 					default:
 						break;
@@ -135,9 +165,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
-			function ( $column ) {
-				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
-			},
+			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
 			( new ForTraffic() )->buildRaw()[ 'columns' ]
 		) );
 	}

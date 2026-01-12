@@ -12,10 +12,7 @@ class ApiTokenManager {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	/**
-	 * @var bool
-	 */
-	private $canRequestOverride = false;
+	private bool $canRequestOverride = false;
 
 	protected function run() {
 		add_action( 'shield/event', function ( $eventTag ) {

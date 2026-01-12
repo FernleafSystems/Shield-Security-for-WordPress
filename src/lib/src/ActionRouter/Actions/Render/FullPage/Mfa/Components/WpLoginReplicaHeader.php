@@ -34,7 +34,7 @@ class WpLoginReplicaHeader extends Base {
 		$login_title = get_bloginfo( 'name', 'display' );
 
 		/* translators: Login screen title. 1: Login screen name, 2: Network or site name. */
-		$login_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; WordPress' ), $this->action_data[ 'title' ], $login_title );
+		$login_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; WordPress' ), esc_html( $this->action_data[ 'title' ] ?? '' ), $login_title );
 
 		/**
 		 * Filters the title tag content for login page.
@@ -44,7 +44,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 4.9.0
 		 *
 		 */
-		$login_title = apply_filters( 'login_title', $login_title, $this->action_data[ 'title' ] );
+		$login_title = apply_filters( 'login_title', $login_title, esc_html( $this->action_data[ 'title' ] ?? '' ) );
 
 		wp_enqueue_style( 'login' );
 
@@ -93,7 +93,7 @@ class WpLoginReplicaHeader extends Base {
 		 */
 		$login_header_text = apply_filters( 'login_headertext', $login_header_text );
 
-		$classes = [ 'login-action-'.( $this->action_data[ 'action' ] ?? 'login' ), 'wp-core-ui' ];
+		$classes = [ 'login-action-'.sanitize_html_class( $this->action_data[ 'action' ] ?? 'login' ), 'wp-core-ui' ];
 
 		if ( is_rtl() ) {
 			$classes[] = 'rtl';
@@ -136,6 +136,8 @@ class WpLoginReplicaHeader extends Base {
 		 *
 		 */
 		$message = apply_filters( 'login_message', $this->action_data[ 'message' ] ?? '' );
+		// Sanitize output to prevent XSS from URL input or malicious filter callbacks
+		$message = esc_html( $message );
 		if ( !empty( $message ) ) {
 			echo $message."\n";
 		}
@@ -181,7 +183,7 @@ class WpLoginReplicaHeader extends Base {
 			}
 		}
 
-		$interimMessage = $this->action_data[ 'interim_message' ] ?? '';
+		$interimMessage = esc_html( $this->action_data[ 'interim_message' ] ?? '' );
 
 		return [
 			'content' => [

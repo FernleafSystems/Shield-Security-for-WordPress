@@ -20,7 +20,7 @@ class General extends Base {
 	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_general.twig';
 
 	protected function getRenderData() :array {
-		$ip = $this->action_data[ 'ip' ];
+		$ip = $this->getAnalyseIP();
 
 		$countryCode = ( new LookupMeta() )
 			->setIP( $ip )

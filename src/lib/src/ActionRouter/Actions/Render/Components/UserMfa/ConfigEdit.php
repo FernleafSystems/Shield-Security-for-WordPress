@@ -15,12 +15,10 @@ class ConfigEdit extends UserMfaBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
+		$user = Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] );
 
 		$providers = \array_map(
-			function ( $provider ) {
-				return $provider->getProviderName();
-			},
+			fn( $provider ) => $provider->getProviderName(),
 			self::con()->comps->mfa->getProvidersActiveForUser( $user )
 		);
 

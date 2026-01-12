@@ -139,6 +139,33 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	/**
+	 * Set action override programmatically (for trusted integrations like MainWP)
+	 *
+	 * This method allows trusted integrations to set action overrides AFTER action creation,
+	 * ensuring security controls never come from user input paths.
+	 *
+	 * SECURITY NOTE: This method should ONLY be called in trusted contexts where:
+	 * - The caller has verified authentication (e.g., MainWP authenticated requests)
+	 * - The override is set programmatically, not from user input
+	 * - The action object has already been created via ActionProcessor::getAction()
+	 *
+	 * @param string $overrideKey Override key constant (e.g., Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED)
+	 * @param mixed  $value       Override value (typically boolean for is_nonce_verify_required)
+	 * @return self For method chaining
+	 */
+	public function setActionOverride( string $overrideKey, $value ) :self {
+		// Initialize action_overrides array if it doesn't exist
+		if ( !isset( $this->action_data[ 'action_overrides' ] ) ) {
+			$this->action_data[ 'action_overrides' ] = [];
+		}
+
+		// Set the override value
+		$this->action_data[ 'action_overrides' ][ $overrideKey ] = $value;
+
+		return $this;
+	}
+
+	/**
 	 * @throws ActionException
 	 */
 	protected function checkAvailableData() {

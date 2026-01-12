@@ -27,11 +27,8 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 
 	protected function scanSlice() {
 		$action = $this->getScanActionVO();
-
 		$action->results = \array_map(
-			function ( $item ) {
-				return $item->getRawData();
-			},
+			fn( $item ) => $item->getRawData(),
 			// run the scan and get results:
 			( new ScanFromFileMap() )
 				->setScanActionVO( $action )

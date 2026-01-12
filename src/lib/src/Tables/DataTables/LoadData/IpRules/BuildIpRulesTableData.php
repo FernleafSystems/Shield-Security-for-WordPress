@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
@@ -15,12 +16,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
+	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+		return new BuildSearchPanesData();
+	}
+
 	protected function loadRecordsWithSearch() :array {
 		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )->build();
+		return $this->getSearchPanesDataBuilder()->build();
 	}
 
 	/**
@@ -60,6 +65,30 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		return $loader->countAll();
 	}
 
+	protected function validateSearchPanes( array $searchPanes ) :array {
+		foreach ( $searchPanes as $column => &$values ) {
+			switch ( $column ) {
+				case 'ip':
+					// Note: In BuildIpRulesTableData, 'ip' column contains rule IDs, not IP addresses
+					$values = \array_filter( \array_map( '\intval', $values ), fn( $id ) => $id >= 0 );
+					break;
+				case 'type':
+					$values = \array_filter( $values, fn( $t ) => IpRulesDB\Handler::IsValidType( (string)$t ) );
+					break;
+				case 'is_blocked':
+					$values = \array_filter(
+						\array_map( '\intval', $values ),
+						fn( $blocked ) => \in_array( $blocked, [ 0, 1 ], true )
+					);
+					break;
+				default:
+					$values = $this->validateCommonColumn( $column, $values );
+					break;
+			}
+		}
+		return \array_filter( $searchPanes );
+	}
+
 	/**
 	 * The WHEREs need to align with the structure of the Query called from getRecords()
 	 */
@@ -74,17 +103,14 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 					case 'ip':
 						$wheres[] = sprintf( "`ir`.`id` IN (%s)", \implode( ',', \array_map( '\intval', $selected ) ) );
 						break;
-					case 'type':
-						$selected = \array_filter( $selected, function ( $type ) {
-							return IpRulesDB\Handler::IsValidType( (string)$type );
-						} );
-						$wheres[] = sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $selected ) );
-						break;
-					case 'is_blocked':
-						if ( \count( $selected ) === 1 ) {
-							$wheres[] = sprintf( "`ir`.`blocked_at`%s'0'", \current( $selected ) ? '>' : '=' );
-						}
-						break;
+				case 'type':
+					$wheres[] = sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $selected ) );
+					break;
+				case 'is_blocked':
+					if ( \count( $selected ) === 1 ) {
+						$wheres[] = sprintf( "`ir`.`blocked_at`%s'0'", \current( $selected ) ? '>' : '=' );
+					}
+					break;
 					default:
 						break;
 				}
@@ -113,9 +139,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
-			function ( $column ) {
-				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
-			},
+			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
 			( new ForIpRules() )->buildRaw()[ 'columns' ]
 		) );
 	}

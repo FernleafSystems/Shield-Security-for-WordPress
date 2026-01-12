@@ -21,7 +21,7 @@ class MfaLoginCode extends EmailBase {
 			],
 			'hrefs'   => [
 				'login_link' => 'https://clk.shldscrty.com/96',
-				'auto_login' => $this->action_data[ 'url_auto_login' ],
+				'auto_login' => esc_url( $this->action_data[ 'url_auto_login' ] ), // Internally generated via noncedPluginAction(); template uses |raw
 			],
 			'strings' => [
 				'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
@@ -29,7 +29,7 @@ class MfaLoginCode extends EmailBase {
 				'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
 				'auto_login'       => __( 'Autologin URL', 'wp-simple-firewall' ),
 				'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-				'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), $this->action_data[ 'home_url' ] ),
+				'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), $this->action_data[ 'home_url' ] ), // Internally generated via getHomeUrl()
 				'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ),
 					Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login ),
 				'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] ),

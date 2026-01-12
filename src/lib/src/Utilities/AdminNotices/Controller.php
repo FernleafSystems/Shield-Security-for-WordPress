@@ -144,9 +144,7 @@ class Controller {
 				},
 				$this->getAdminNotices()
 			),
-			function ( NoticeVO $notice ) {
-				return $notice->display;
-			}
+			fn( NoticeVO $notice ) => $notice->display,
 		);
 
 		$notices[] = $this->getFlashNotice();
@@ -159,21 +157,21 @@ class Controller {
 	 */
 	public function getAdminNotices() :array {
 		return \array_map(
-			function ( $noticeDef ) {
-				$noticeDef = Services::DataManipulation()->mergeArraysRecursive( [
-					'schedule'         => 'conditions',
-					'type'             => 'promo',
-					'plugin_page_only' => true,
-					'valid_admin'      => true,
-					'plugin_admin'     => 'yes',
-					'can_dismiss'      => true,
-					'per_user'         => false,
-					'display'          => false,
-					'min_install_days' => 0,
-					'twig'             => true,
-				], $noticeDef );
-				return ( new NoticeVO() )->applyFromArray( $noticeDef );
-			},
+			fn( $noticeDef ) => ( new NoticeVO() )
+				->applyFromArray(
+					Services::DataManipulation()->mergeArraysRecursive( [
+						'schedule'         => 'conditions',
+						'type'             => 'promo',
+						'plugin_page_only' => true,
+						'valid_admin'      => true,
+						'plugin_admin'     => 'yes',
+						'can_dismiss'      => true,
+						'per_user'         => false,
+						'display'          => false,
+						'min_install_days' => 0,
+						'twig'             => true,
+					], $noticeDef )
+				),
 			self::con()->cfg->configuration->admin_notices
 		);
 	}

@@ -111,23 +111,21 @@ class AssetsCustomizer {
 							'render_summary_chart' => ActionData::Build( Actions\ReportingChartSummary::class ),
 						],
 						'charts' => \array_map(
-							function ( string $event ) {
-								return [
-									'event_id'      => $event,
-									'init_render'   => true,
-									'show_title'    => false,
-									'req_params'    => [
-										'interval'       => 'daily',
-										'events'         => [ $event ],
-										'combine_events' => true
-									],
-									'chart_options' => [
-										'axisX' => [
-											'showLabel' => false,
-										]
-									],
-								];
-							},
+							fn( string $event ) => [
+								'event_id'      => $event,
+								'init_render'   => true,
+								'show_title'    => false,
+								'req_params'    => [
+									'interval'       => 'daily',
+									'events'         => [ $event ],
+									'combine_events' => true
+								],
+								'chart_options' => [
+									'axisX' => [
+										'showLabel' => false,
+									]
+								],
+							],
 							[
 								'login_block',
 								'bot_blocks',
@@ -346,7 +344,7 @@ class AssetsCustomizer {
 				'data'    => fn() => [
 					'ajax' => [
 						'resend_verification_email'        => ActionData::Build( Actions\MfaEmailSendVerification::class ),
-						Actions\MfaEmailDisable::SLUG         => ActionData::Build( Actions\MfaEmailDisable::class ),
+						Actions\MfaEmailDisable::SLUG      => ActionData::Build( Actions\MfaEmailDisable::class ),
 						Actions\DismissAdminNotice::SLUG   => ActionData::Build( Actions\DismissAdminNotice::class ),
 						Actions\PluginSetTracking::SLUG    => ActionData::Build( Actions\PluginSetTracking::class ),
 						Actions\PluginAutoDbRepair::SLUG   => ActionData::Build( Actions\PluginAutoDbRepair::class ),

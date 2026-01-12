@@ -6,12 +6,7 @@ class BuildDataForUsers {
 
 	public function build( array $userIDs, bool $includeNoUserEntry = true ) :array {
 		$users = \array_values( \array_map(
-			function ( $result ) {
-				return [
-					'label' => $result->user_login,
-					'value' => (int)$result->ID,
-				];
-			},
+			fn( $result ) => [ 'label' => $result->user_login, 'value' => (int)$result->ID, ],
 			( new \WP_User_Query( [
 				'fields'  => [ 'ID', 'user_login' ],
 				'include' => \array_filter( $userIDs )
