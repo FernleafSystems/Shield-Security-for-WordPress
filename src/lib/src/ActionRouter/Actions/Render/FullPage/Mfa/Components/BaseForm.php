@@ -96,8 +96,8 @@ abstract class BaseForm extends Base {
 
 		$fields = \array_filter( [
 			'interim-login' => ( $interim_login || ( $this->action_data[ 'interim_login' ] ?? '0' ) ) ? '1' : false,
-			'login_nonce'   => $this->action_data[ 'plain_login_nonce' ],
-			'rememberme'    => esc_attr( $this->action_data[ 'rememberme' ] ),
+			'login_nonce'   => esc_attr( $this->action_data[ 'plain_login_nonce' ] ?? '' ),
+			'rememberme'    => esc_attr( $this->action_data[ 'rememberme' ] ?? '' ),
 			'redirect_to'   => esc_attr( esc_url_raw( $redirectTo ) ),
 			'cancel_href'   => esc_attr( esc_url_raw( $cancelHref ) ),
 			/**
