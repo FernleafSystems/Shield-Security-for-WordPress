@@ -218,7 +218,7 @@ class SectionNotices {
 					if ( !empty( $installedButNotEnabledProviders ) ) {
 						$warnings[] = sprintf(
 							/* translators: %1$s: plugin name, %2$s: provider name */
-							__( "%1$s has an integration available to protect the forms of a 3rd party plugin you're using: %2$s", 'wp-simple-firewall' ),
+							__( '%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s', 'wp-simple-firewall' ),
 							$con->labels->Name,
 							\implode( ', ', \array_map(
 								function ( $provider ) {

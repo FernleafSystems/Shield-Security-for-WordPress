@@ -28,15 +28,15 @@ class SystemPhpVersion extends Base {
 	public function descProtected() :string {
 		return sprintf(
 			/* translators: %1$s: current PHP version, %2$s: minimum required version */
-			__( "WordPress is running on a recent version (%1$s) of PHP (at least %2$s).", 'wp-simple-firewall' ),
+			__( 'WordPress is running on a recent version (%1$s) of PHP (at least %2$s).', 'wp-simple-firewall' ),
 			Services::Data()->getPhpVersionCleaned(), '7.4' );
 	}
 
 	public function descUnprotected() :string {
 		return \implode( ' ', [
-			sprintf( __( "WordPress is running an old version (%s) of PHP.", 'wp-simple-firewall' ),
+			sprintf( __( 'WordPress is running an old version (%s) of PHP.', 'wp-simple-firewall' ),
 				Services::Data()->getPhpVersionCleaned() ),
-			sprintf( __( "WordPress.org recommends running on at least PHP %s.", 'wp-simple-firewall' ), '7.4' )
+			sprintf( __( 'WordPress.org recommends running on at least PHP %s.', 'wp-simple-firewall' ), '7.4' )
 		] );
 	}
 }

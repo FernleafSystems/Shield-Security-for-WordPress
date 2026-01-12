@@ -312,7 +312,7 @@ class StringsOptions {
 					\implode( ' ', [
 						sprintf(
 							/* translators: %1$s: WP root directory name, %2$s: wp-content directory path */
-							__( "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
+							__( 'The %1$s directory is like the %2$s directory and many non-WordPress files are kept there.', 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
 						__( "Since it's normally messy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
 						__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
 						$additional,
@@ -764,7 +764,7 @@ class StringsOptions {
 						__( 'Important', 'wp-simple-firewall' ),
 						sprintf(
 							/* translators: %1$s: wp-admin path, %2$s: wp-login.php path */
-							__( "This will cause %1$s and %2$s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
+							__( "This will cause %1\$s and %2\$s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
 							'<code>/wp-admin/</code>',
 							'<code>/wp-login.php</code>'
 						)
@@ -999,7 +999,7 @@ class StringsOptions {
 						),
 						sprintf(
 							/* translators: %1$s: server variable name, %2$s: server variable name */
-							__( "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address.", 'wp-simple-firewall' ),
+							__( 'If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address.', 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ), sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
 				];
@@ -1064,7 +1064,7 @@ class StringsOptions {
 						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
 						sprintf(
 							/* translators: %1$s: plugin name, %2$s: directory path */
-							__( "%1$s has successfully chosen the following location to create its temporary directory: %2$s", 'wp-simple-firewall' ), $pluginName,
+							__( '%1$s has successfully chosen the following location to create its temporary directory: %2$s', 'wp-simple-firewall' ), $pluginName,
 							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];

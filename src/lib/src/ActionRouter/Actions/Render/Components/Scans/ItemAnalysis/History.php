@@ -32,7 +32,7 @@ class History extends Base {
 					if ( $column === 'created_at' ) {
 					$this->history[ $ts ][] = sprintf(
 						/* translators: %1$s: detection type, %2$s: scanner name */
-						__( "File detected as %1$s by %2$s scanner.", 'wp-simple-firewall' ),
+						__( 'File detected as %1$s by %2$s scanner.', 'wp-simple-firewall' ),
 							sprintf( '<strong>%s</strong>', \implode( ', ', $item->getStatusForHuman() ) ),
 							sprintf( '<strong>%s</strong>',
 								self::con()->comps->scans->getScanCon( $item->VO->scan )->getScanName() )

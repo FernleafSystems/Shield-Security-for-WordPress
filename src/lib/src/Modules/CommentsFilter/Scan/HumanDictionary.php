@@ -43,7 +43,7 @@ class HumanDictionary {
 				'human',
 				sprintf(
 					/* translators: %1$s: word found, %2$s: field name */
-					__( "Human SPAM filter found '%1$s' in '%2$s'", 'wp-simple-firewall' ), $word, $key ),
+					__( 'Human SPAM filter found "%1$s" in "%2$s"', 'wp-simple-firewall' ), $word, $key ),
 				[
 					'word' => $word,
 					'key'  => $key
