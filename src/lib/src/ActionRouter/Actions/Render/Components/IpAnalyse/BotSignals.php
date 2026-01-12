@@ -15,11 +15,11 @@ class BotSignals extends Base {
 	protected function getRenderData() :array {
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )
-			->setIP( $this->action_data[ 'ip' ] )
+			->setIP( $this->getAnalyseIP() )
 			->scores();
 		try {
 			$record = ( new BotSignalsRecord() )
-				->setIP( $this->action_data[ 'ip' ] )
+				->setIP( $this->getAnalyseIP() )
 				->retrieve();
 		}
 		catch ( \Exception $e ) {

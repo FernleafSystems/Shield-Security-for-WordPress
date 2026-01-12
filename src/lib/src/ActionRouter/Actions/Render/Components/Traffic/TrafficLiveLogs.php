@@ -12,7 +12,7 @@ class TrafficLiveLogs extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 
 	protected function getRenderData() :array {
 		$logLoader = new LoadRequestLogs();
-		$logLoader->limit = $this->action_data[ 'limit' ] ?? 200;
+		$logLoader->limit = (int)$this->action_data[ 'limit' ] ?? 200;
 		$logLoader->offset = 0;
 		$logLoader->order_by = 'id';
 		$logLoader->order_dir = 'DESC';

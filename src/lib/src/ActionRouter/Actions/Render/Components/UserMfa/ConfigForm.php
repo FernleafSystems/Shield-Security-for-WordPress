@@ -22,7 +22,7 @@ class ConfigForm extends UserMfaBase {
 
 	protected function getRenderData() :array {
 		$WPU = Services::WpUsers();
-		$user = $WPU->getUserById( $this->action_data[ 'user_id' ] ?? $WPU->getCurrentWpUserId() );
+		$user = $WPU->getUserById( (int)$this->action_data[ 'user_id' ] ?? $WPU->getCurrentWpUserId() );
 
 		$providerRenders = \array_map(
 			fn( $provider ) => $provider->renderUserProfileConfigFormField(),

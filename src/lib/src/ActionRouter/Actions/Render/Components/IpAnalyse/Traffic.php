@@ -17,7 +17,7 @@ class Traffic extends Base {
 		$WP = Services::WpGeneral();
 		$logLimit = (int)\max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
 		try {
-			$ip = ( new IPRecords() )->loadIP( $this->action_data[ 'ip' ], false );
+			$ip = ( new IPRecords() )->loadIP( $this->getAnalyseIP(), false );
 			/** @var ReqLogsDB\Select $selector */
 			$selector = self::con()->db_con->req_logs->getQuerySelector();
 			/** @var ReqLogsDB\Record[] $logs */

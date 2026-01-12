@@ -10,10 +10,7 @@ class Container extends Base {
 	public const TEMPLATE = '/wpadmin/components/ip_analyse/container.twig';
 
 	protected function getRenderData() :array {
-		$ip = $this->action_data[ 'ip' ];
-		if ( !Services::IP()->isValidIp( $ip ) ) {
-			throw new \Exception( "A valid IP address wasn't provided." );
-		}
+		$ip = $this->getAnalyseIP();
 		$actionRouter = self::con()->action_router;
 		return [
 			'content' => [

@@ -19,8 +19,9 @@ class MfaEmailAutoLogin extends BaseAction {
 	protected function exec() {
 		$con = self::con();
 		$mfaCon = $con->comps->mfa;
+		$userID = (int)$this->action_data[ 'user_id' ];
 
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
+		$user = Services::WpUsers()->getUserById( $userID );
 		if ( empty( $user ) ) {
 			throw new ActionException( 'No such user' );
 		}
@@ -43,19 +44,19 @@ class MfaEmailAutoLogin extends BaseAction {
 			if ( $emailProvider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $this->action_data[ 'login_nonce' ] ) ) ) {
 				$success = true;
 				$emailProvider->postSuccessActions();
-				wp_set_auth_cookie( $this->action_data[ 'user_id' ], true );
-				$con->fireEvent( '2fa_success' );
+				wp_set_auth_cookie( $userID, true );
+				$con->comps->events->fireEvent( '2fa_success' );
 			}
 		}
 		catch ( \Exception $e ) {
 			error_log( 'failed auto login:'.$e->getMessage() );
 		}
 		finally {
-			$con->fireEvent(
+			$con->comps->events->fireEvent(
 				$success ? '2fa_verify_success' : '2fa_verify_fail',
 				[
 					'audit_params' => [
-						'user_login' => $this->action_data[ 'user_id' ],
+						'user_login' => $userID,
 						'method'     => $emailProvider->getProviderName(),
 					]
 				]
