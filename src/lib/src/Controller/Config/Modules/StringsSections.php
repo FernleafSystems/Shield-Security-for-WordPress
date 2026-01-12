@@ -123,7 +123,8 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) ) ),
 					__( "Think of 'offenses' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
 					.' '.sprintf(
-						__( 'When the counter reaches the limit below (default: %s), %s will block that IP completely.', 'wp-simple-firewall' ),
+						/* translators: %1$s: default limit value, %2$s: plugin name */
+						__( 'When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely.', 'wp-simple-firewall' ),
 						$con->opts->optDefault( 'transgression_limit' ),
 						$name
 					)

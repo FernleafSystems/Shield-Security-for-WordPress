@@ -322,7 +322,8 @@ class Controller {
 			'strings'           => [
 				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
 				'message' => sprintf(
-					__( 'Please delete the "%s" file to reactivate %s protection', 'wp-simple-firewall' ),
+					/* translators: %1$s: filename, %2$s: plugin name */
+					__( 'Please delete the "%1$s" file to reactivate %2$s protection', 'wp-simple-firewall' ),
 					'forceOff',
 					$name
 				),

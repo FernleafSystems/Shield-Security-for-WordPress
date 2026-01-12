@@ -310,7 +310,9 @@ class StringsOptions {
 				}
 				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory', 'wp-simple-firewall' ),
 					\implode( ' ', [
-						sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
+						sprintf(
+							/* translators: %1$s: WP root directory name, %2$s: wp-content directory path */
+							__( "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
 						__( "Since it's normally messy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
 						__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
 						$additional,
@@ -760,7 +762,9 @@ class StringsOptions {
 				$desc = [
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
+						sprintf(
+							/* translators: %1$s: wp-admin path, %2$s: wp-login.php path */
+							__( "This will cause %1$s and %2$s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
 							'<code>/wp-admin/</code>',
 							'<code>/wp-login.php</code>'
 						)
@@ -780,7 +784,9 @@ class StringsOptions {
 					),
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( 'Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s).', 'wp-simple-firewall' ),
+						sprintf(
+							/* translators: %1$s: example path, %2$s: example URL */
+							__( 'Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s).', 'wp-simple-firewall' ),
 							'<code>/</code>',
 							sprintf( '<code>%s</code>', Services::WpGeneral()->getHomeUrl() )
 						)
@@ -991,7 +997,9 @@ class StringsOptions {
 							'https://clk.shldscrty.com/shieldwhatismyip',
 							__( 'What Is My IP Address?', 'wp-simple-firewall' )
 						),
-						sprintf( __( "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address.", 'wp-simple-firewall' ),
+						sprintf(
+							/* translators: %1$s: server variable name, %2$s: server variable name */
+							__( "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ), sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
 				];
@@ -1054,7 +1062,9 @@ class StringsOptions {
 					$desc = [
 						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $pluginName )
 						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
-						sprintf( __( "%s has successfully chosen the following location to create its temporary directory: %s", 'wp-simple-firewall' ), $pluginName,
+						sprintf(
+							/* translators: %1$s: plugin name, %2$s: directory path */
+							__( "%1$s has successfully chosen the following location to create its temporary directory: %2$s", 'wp-simple-firewall' ), $pluginName,
 							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];
@@ -1270,7 +1280,8 @@ class StringsOptions {
 						sprintf(
 							__( 'Selecting "%s" will also restrict all other options.', 'wp-simple-firewall' ),
 							sprintf(
-								__( '%s and %s', 'wp-simple-firewall' ),
+								/* translators: %1$s: first option, %2$s: second option */
+								__( '%1$s and %2$s', 'wp-simple-firewall' ),
 								__( 'Activate', 'wp-simple-firewall' ),
 								__( 'Edit Theme Options', 'wp-simple-firewall' )
 							)
@@ -1313,7 +1324,9 @@ class StringsOptions {
 				$summary = __( 'Menu Icon URL', 'wp-simple-firewall' );
 				$desc = [
 					__( 'The URL of the icon to display in the menu.', 'wp-simple-firewall' ),
-					sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'icon', 'wp-simple-firewall' ), '16px x 16px' )
+					sprintf(
+						/* translators: %1$s: item type (icon), %2$s: dimensions */
+						__( 'The %1$s should measure %2$s.', 'wp-simple-firewall' ), __( 'icon', 'wp-simple-firewall' ), '16px x 16px' )
 				];
 				break;
 			case 'wl_dashboardlogourl':
@@ -1321,7 +1334,9 @@ class StringsOptions {
 				$summary = __( 'Plugin Badge Logo URL', 'wp-simple-firewall' );
 				$desc = [
 					__( 'The URL of the logo to display in the plugin badge.', 'wp-simple-firewall' ),
-					sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'logo', 'wp-simple-firewall' ), '128px x 128px' )
+					sprintf(
+						/* translators: %1$s: item type (logo), %2$s: dimensions */
+						__( 'The %1$s should measure %2$s.', 'wp-simple-firewall' ), __( 'logo', 'wp-simple-firewall' ), '128px x 128px' )
 				];
 				break;
 			case 'wl_login2fa_logourl':
@@ -1423,9 +1438,13 @@ class StringsOptions {
 					__( 'The time period within which to monitor for multiple requests that exceed the max request limit.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Interval is measured in seconds.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
-						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>300</code>', 5 ) ),
+						sprintf(
+							/* translators: %1$s: request count, %2$s: minutes */
+							__( 'Use %1$s to test for excessive requests within a %2$s minutes interval.', 'wp-simple-firewall' ), '<code>300</code>', 5 ) ),
 					sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
-						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) ),
+						sprintf(
+							/* translators: %1$s: request count, %2$s: minutes */
+							__( 'Use %1$s to test for excessive requests within a %2$s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) ),
 					__( 'Use a smaller interval to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' )
 				];
 				break;

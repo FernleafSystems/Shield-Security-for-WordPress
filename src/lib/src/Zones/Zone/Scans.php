@@ -45,7 +45,8 @@ class Scans extends Base {
 				__( 'We also consider plugins that have been abandoned by their authors to represent a vulnerability on your site.', 'wp-simple-firewall' ),
 			] ),
 			\implode( ' ', [
-				sprintf( __( "%s is %s's exclusive service that protects your wp-config.php file.", 'wp-simple-firewall' ), 'FileLocker', 'ShieldPRO' ),
+				/* translators: %1$s: service name, %2$s: product name */
+				sprintf( __( "%1$s is %2$s's exclusive service that protects your wp-config.php file.", 'wp-simple-firewall' ), 'FileLocker', 'ShieldPRO' ),
 				__( 'With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed.', 'wp-simple-firewall' ),
 			] ),
 		];

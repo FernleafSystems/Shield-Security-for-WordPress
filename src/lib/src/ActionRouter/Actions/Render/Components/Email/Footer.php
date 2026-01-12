@@ -56,7 +56,8 @@ class Footer extends Base {
 				'thanks_free'         => __( 'Thank you for choosing Shield Security (Free).', 'wp-simple-firewall' ),
 				'upgrade_heading_prefix' => __( 'Upgrade To', 'wp-simple-firewall' ),
 				'upgrade_heading_suffix' => __( "today and these are just some of the added benefits you'll get:", 'wp-simple-firewall' ),
-				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
+				/* translators: %1$s: plugin name, %2$s: version number, %3$s: site name */
+				'sent_from'           => sprintf( __( 'Email sent from the %1$s Plugin v%2$s, on %3$s.', 'wp-simple-firewall' ),
 					$con->labels->Name,
 					$con->cfg->version(),
 					$WP->getHomeUrl()

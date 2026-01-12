@@ -9,7 +9,8 @@ class ZoneReportWordpress extends BaseZoneReport {
 	protected function buildSummaryForLog( LogRecord $log ) :string {
 		switch ( $log->event_slug ) {
 			case 'core_updated':
-				$text = sprintf( __( 'Core Upgraded: %s&rarr;%s', 'wp-simple-firewall' ),
+				/* translators: %1$s: old version, %2$s: new version */
+				$text = sprintf( __( 'Core Upgraded: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					$log->meta_data[ 'from' ], $log->meta_data[ 'to' ] );
 				break;
 			case 'core_reinstalled':

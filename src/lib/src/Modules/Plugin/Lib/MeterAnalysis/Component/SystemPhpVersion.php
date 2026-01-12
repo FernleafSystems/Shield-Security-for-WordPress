@@ -26,7 +26,9 @@ class SystemPhpVersion extends Base {
 	}
 
 	public function descProtected() :string {
-		return sprintf( __( "WordPress is running on a recent version (%s) of PHP (at least %s).", 'wp-simple-firewall' ),
+		return sprintf(
+			/* translators: %1$s: current PHP version, %2$s: minimum required version */
+			__( "WordPress is running on a recent version (%1$s) of PHP (at least %2$s).", 'wp-simple-firewall' ),
 			Services::Data()->getPhpVersionCleaned(), '7.4' );
 	}
 
