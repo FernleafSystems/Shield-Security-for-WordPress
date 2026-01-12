@@ -1,5 +1,7 @@
 <?php declare( strict_types=1 );
 
+if ( !\defined( 'ABSPATH' ) ) exit();
+
 new class() {
 
 	private ?string $incompatible = null;
