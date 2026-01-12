@@ -1,11 +1,9 @@
 <?php declare( strict_types=1 );
 
-if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	die;
-}
+if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) { exit(); }
 
 // Ensure Shield isn't active elsewhere.
-if ( !@class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ) ) {
+if ( !@\class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ) ) {
 	return;
 	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 	try {

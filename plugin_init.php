@@ -3,14 +3,11 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Wordpress\Services\Services;
 
+if ( !\defined( 'ABSPATH' ) ) { exit(); }
+
 /** @var string $rootFile */
 global $oICWP_Wpsf;
-if ( isset( $oICWP_Wpsf ) ) {
-	error_log( 'Attempting to load the Shield Plugin twice?' );
-	return;
-}
-if ( empty( $rootFile ) ) {
-	error_log( 'Attempt to directly access plugin init file.' );
+if ( isset( $oICWP_Wpsf ) || empty( $rootFile ) ) {
 	return;
 }
 
