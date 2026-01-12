@@ -52,7 +52,8 @@ class Container extends Base {
 				],
 			],
 			'strings' => [
-				'modal_title'      => sprintf( __( '%s: %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ), $item->path_fragment ),
+				/* translators: %1$s: File text, %2$s: file path fragment */
+				'modal_title'      => sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ), $item->path_fragment ),
 				'tab_filecontents' => $common[ 'contents_label' ],
 				'tab_diff'         => $common[ 'diff_label' ],
 				'tab_history'      => $common[ 'history_label' ],

@@ -86,7 +86,7 @@ class Collate {
 			__( 'Server Signature', 'wp-simple-firewall' )       => empty( $sig ) ? '-' : $sig,
 			__( 'Server Software', 'wp-simple-firewall' )        => empty( $soft ) ? '-' : $soft,
 			__( 'Disk Space', 'wp-simple-firewall' )             => sprintf(
-				__( '%s used out of %s (unused: %s)', 'wp-simple-firewall' ),
+				__( '%1$s used out of %2$s (unused: %$3s)', 'wp-simple-firewall' ),
 				( \is_numeric( $totalDisk ) && \is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
 				\is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
 				\is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'
@@ -111,9 +111,10 @@ class Collate {
 			__( 'PHP', 'wp-simple-firewall' )                     => $phpV,
 			__( 'MySQL', 'wp-simple-firewall' )                   => Services::WpDb()->getMysqlServerInfo(),
 			__( 'Memory Limit', 'wp-simple-firewall' )            => sprintf(
-				__( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', 'wp-simple-firewall' ),
+				/* translators: %1$s: ini memory limit, %2$s: WP memory limit */
+				__( '%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)', 'wp-simple-firewall' ),
 				\ini_get( 'memory_limit' ),
-				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : __( 'not defined', 'wp-simple-firewall' )
+				\defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : __( 'not defined', 'wp-simple-firewall' )
 			),
 			__( '32/64-bit', 'wp-simple-firewall' )               => ( \PHP_INT_SIZE === 4 ) ? 32 : 64,
 			__( 'Time Limit', 'wp-simple-firewall' )              => \ini_get( 'max_execution_time' ),
@@ -197,7 +198,8 @@ class Collate {
 				if ( $auditor->getSnapper() ) {
 					$snapshot = $auditCon->getSnapshot( $auditor::Slug() );
 					$data[ $auditor::Slug() ] = sprintf(
-						__( 'entries: %s (previous: %s)', 'wp-simple-firewall' ),
+						/* translators: %1$s: entries count, %2$s: time difference */
+						__( 'entries: %1$s (previous: %2$s)', 'wp-simple-firewall' ),
 						\count( $snapshot->data ),
 						Services::Request()->carbon( true )->setTimestamp( $snapshot->created_at )->diffForHumans()
 					);

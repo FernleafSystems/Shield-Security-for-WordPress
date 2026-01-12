@@ -81,7 +81,8 @@ class PageImportExport extends BasePluginAdminPage {
 				'master_site_key'  => __( 'Master Site Secret Key', 'wp-simple-firewall' ),
 				'create_network'   => __( 'Create Shield Network', 'wp-simple-firewall' ),
 				'key_found_under'  => sprintf( __( 'The secret key is found in: %s', 'wp-simple-firewall' ),
-					ucwords( sprintf( __( '%s > %s > %s', 'wp-simple-firewall' ), __( 'General Settings', 'wp-simple-firewall' ), __( 'Import/Export', 'wp-simple-firewall' ), __( 'Secret Key', 'wp-simple-firewall' ) ) )
+					/* translators: %1$s: top-level, %2$s: 2nd-level; %3$s: 3rd level */
+					\ucwords( sprintf( __( '%1$s > %2$s > %3$s', 'wp-simple-firewall' ), __( 'General Settings', 'wp-simple-firewall' ), __( 'Import/Export', 'wp-simple-firewall' ), __( 'Secret Key', 'wp-simple-firewall' ) ) )
 				),
 				'turn_on'          => __( 'Turn On', 'wp-simple-firewall' ),
 				'turn_off'         => __( 'Turn Off', 'wp-simple-firewall' ),

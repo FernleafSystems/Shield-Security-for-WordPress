@@ -48,7 +48,8 @@ class EventsService {
 
 			$missingParams = \array_diff( $def, $metaParams );
 			if ( !empty( $missingParams ) ) {
-				throw new \Exception( sprintf( __( "Event (%s) definition has audit parameters that aren't present: %s", 'wp-simple-firewall' ), $event, \implode( ', ', $missingParams ) ) );
+				/* translators: %1$s: event, %2$s: missing parameters */
+				throw new \Exception( sprintf( __( 'Event (%1$s) definition has audit parameters that are not present: %2$s', 'wp-simple-firewall' ), $event, \implode( ', ', $missingParams ) ) );
 			}
 
 			$extraMetaParams = \array_diff(

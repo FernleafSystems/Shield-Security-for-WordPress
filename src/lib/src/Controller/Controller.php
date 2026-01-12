@@ -282,7 +282,8 @@ class Controller extends DynPropertiesClass {
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
 			if ( !empty( $minPHP ) && \version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
-				$reqsMsg[] = sprintf( __( 'PHP does not meet minimum version. Your version: %s. Required version: %s.', 'wp-simple-firewall' ), \PHP_VERSION, $minPHP );
+				/* translators: %1$s: current version, %2$s: required version */
+				$reqsMsg[] = sprintf( __( 'PHP does not meet minimum version. Your version: %1$s. Required version: %2$s.', 'wp-simple-firewall' ), \PHP_VERSION, $minPHP );
 			}
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
@@ -292,7 +293,8 @@ class Controller extends DynPropertiesClass {
 
 			$mysql = $this->cfg->requirements[ 'mysql' ];
 			if ( !empty( $mysql ) && !( new Checks\Requirements() )->isMysqlVersionSupported( $mysql ) ) {
-				$reqsMsg[] = sprintf( __( "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;", 'wp-simple-firewall' ),
+				/* translators: %1$s: current version, %2$s: required version */
+				$reqsMsg[] = sprintf( __( 'Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;', 'wp-simple-firewall' ),
 					Services::WpDb()->getMysqlServerInfo(), $mysql );
 			}
 

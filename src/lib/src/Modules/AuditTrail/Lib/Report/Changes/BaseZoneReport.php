@@ -110,7 +110,8 @@ abstract class BaseZoneReport {
 		else {
 			$user = Services::WpUsers()->getUserById( $log->meta_data[ 'uid' ] ?? 0 );
 			$username = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) : $user->user_login;
-			$who = sprintf( __( '[%s] [%s]', 'wp-simple-firewall' ), $log->ip, \strtolower( $username ) );
+			/* translators: %1$s: IP address, %2$s: username */
+			$who = sprintf( __( '[%1$s] [%2$s]', 'wp-simple-firewall' ), $log->ip, \strtolower( $username ) );
 		}
 		return sprintf( '%s<div class="detailed d-none"><small class="">[%s] %s</small></div>',
 			$rowBody,

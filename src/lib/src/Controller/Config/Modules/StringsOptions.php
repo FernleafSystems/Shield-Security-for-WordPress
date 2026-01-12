@@ -503,7 +503,8 @@ class StringsOptions {
 					__( "This option ensures that visitors with a high reputation score won't be blocked by Shield automatically.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( 'Your current IP Reputation score is %s.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>',
+						sprintf( __( 'Your current IP Reputation score is %s.', 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>',
 							( new CalculateVisitorBotScores() )
 								->setIP( $con->this_req->ip )
 								->total()
