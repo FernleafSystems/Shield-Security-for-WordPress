@@ -18,7 +18,7 @@ class SelectSearchData {
 	use PluginControllerConsumer;
 
 	public function build( string $terms ) :array {
-		$terms = \strtolower( \trim( $terms ) );
+		$terms = \strtolower( \trim( sanitize_text_field( $terms ) ) );
 		return $this->postProcessResults( \array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
 	}
 

@@ -26,7 +26,7 @@ abstract class BaseForm extends Base {
 				'login_fields' => \array_filter( \array_map(
 					fn( $p ) => $p->renderLoginIntentFormField( self::con()->opts->optGet( 'mfa_verify_page' ) ),
 					$mfaCon->getProvidersActiveForUser(
-						Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )
+						Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] )
 					)
 				) ),
 			],
@@ -106,12 +106,8 @@ abstract class BaseForm extends Base {
 			 */
 			'wp-submit'     => __( 'Complete Login', 'wp-simple-firewall' ),
 		] );
-		$fields[ 'wp_user_id' ] = $this->action_data[ 'user_id' ];
+		$fields[ 'wp_user_id' ] = (int)$this->action_data[ 'user_id' ];
 		return $fields;
-	}
-
-	protected function getWpUser() :\WP_User {
-		return Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 	}
 
 	protected function getRequiredDataKeys() :array {

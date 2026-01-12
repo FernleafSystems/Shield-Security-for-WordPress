@@ -18,7 +18,7 @@ class ReportsTable extends BaseRender {
 	protected function getRenderData() :array {
 		/** @var ReportDB\Select $selector */
 		$selector = self::con()->db_con->reports->getQuerySelector();
-		$limit = $this->action_data[ 'reports_limit' ] ?? 0;
+		$limit = (int)$this->action_data[ 'reports_limit' ] ?? 0;
 		if ( $limit > 0 ) {
 			$selector->setLimit( $limit );
 		}

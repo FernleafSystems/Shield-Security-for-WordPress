@@ -19,7 +19,7 @@ class UnblockMagicLink extends EmailBase {
 		$con = self::con();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;
 		$ip = $this->action_data[ 'ip' ];
-		$homeURL = $this->action_data[ 'home_url' ];
+		$homeURL = $this->action_data[ 'home_url' ]; // Internally generated via getHomeUrl()
 		$common = CommonDisplayStrings::pick( [
 			'important_label',
 			'details_label',
@@ -30,6 +30,7 @@ class UnblockMagicLink extends EmailBase {
 
 		return [
 			'hrefs'   => [
+				// Internally generated - don't escape here as template auto-escapes
 				'unblock' => $con->plugin_urls->noncedPluginAction(
 					IpAutoUnblockShieldUserLinkVerify::class,
 					$homeURL,

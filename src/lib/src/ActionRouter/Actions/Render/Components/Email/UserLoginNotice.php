@@ -11,6 +11,7 @@ class UserLoginNotice extends EmailBase {
 	public const SLUG = 'email_user_login_notice';
 	public const TEMPLATE = '/email/user_login_notice.twig';
 
+	// URLs are internally generated via getHomeUrl() - don't escape here as template auto-escapes
 	protected function getBodyData() :array {
 		$common = CommonDisplayStrings::pick( [
 			'site_url_label',
