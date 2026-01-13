@@ -154,14 +154,10 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @return self For method chaining
 	 */
 	public function setActionOverride( string $overrideKey, $value ) :self {
-		// Initialize action_overrides array if it doesn't exist
-		if ( !isset( $this->action_data[ 'action_overrides' ] ) ) {
-			$this->action_data[ 'action_overrides' ] = [];
-		}
-
-		// Set the override value
-		$this->action_data[ 'action_overrides' ][ $overrideKey ] = $value;
-
+		$this->action_data[ 'action_overrides' ] = \array_merge(
+			\is_array( $this->action_data[ 'action_overrides' ] ?? null ) ? $this->action_data[ 'action_overrides' ] : [],
+			[ $overrideKey => $value ]
+		);
 		return $this;
 	}
 

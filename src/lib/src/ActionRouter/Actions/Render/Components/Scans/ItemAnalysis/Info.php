@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalware
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
 
-class Info extends Base {
+class Info extends BaseComponent {
 
 	public const SLUG = 'scanitemanalysis_info';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_info.twig';

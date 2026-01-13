@@ -106,7 +106,6 @@ class Constants {
 		Actions\PluginSetOpt::class,
 		Actions\ToolPurgeProviderIPs::class,
 		Actions\TrafficLogTableAction::class,
-		Actions\UserSessionDelete::class,
 
 		Actions\Debug\SimplePluginTests::class,
 		Actions\FullPageDisplay\DisplayBlockPage::class,

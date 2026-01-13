@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
-class Malai extends Base {
+class Malai extends BaseComponent {
 
 	public const SLUG = 'scanitemanalysis_malai';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_malai.twig';

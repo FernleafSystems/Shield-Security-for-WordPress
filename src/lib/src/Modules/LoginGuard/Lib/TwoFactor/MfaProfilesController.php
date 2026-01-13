@@ -65,7 +65,7 @@ class MfaProfilesController {
 		add_action( 'edit_user_profile', function ( $user ) {
 			if ( $user instanceof \WP_User ) {
 				$this->rendered = true;
-				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigEdit::SLUG, [
+				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigEdit::class, [
 					'user_id' => $user->ID
 				] );
 			}
