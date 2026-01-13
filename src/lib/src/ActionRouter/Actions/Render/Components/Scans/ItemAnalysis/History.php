@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Services\Services;
 
-class History extends Base {
+class History extends BaseComponent {
 
 	public const SLUG = 'scanitemanalysis_history';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_history.twig';

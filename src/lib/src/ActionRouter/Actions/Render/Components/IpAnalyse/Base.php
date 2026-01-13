@@ -9,9 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Base extends Render\BaseRender {
 
 	protected function getRequiredDataKeys() :array {
-		return [
-			'ip'
-		];
+		return [ 'ip' ];
 	}
 
 	protected function getTimeAgo( int $ts ) :string {
