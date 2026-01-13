@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 
-class Content extends Base {
+class Content extends BaseComponent {
 
 	public const SLUG = 'scanitemanalysis_content';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_content.twig';

@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Util\Diff as DiffUtil;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-class Diff extends Base {
+class Diff extends BaseComponent {
 
 	public const SLUG = 'scanitemanalysis_diff';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_diff.twig';

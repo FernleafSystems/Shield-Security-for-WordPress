@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigEdit extends UserMfaBase {
@@ -15,7 +16,15 @@ class ConfigEdit extends UserMfaBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$user = Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] );
+
+		$WPU = Services::WpUsers();
+		$currentUser = $WPU->getCurrentWpUser();
+		$requestedUserID = (int)( $this->action_data[ 'user_id' ] ?? 0 );
+		if ( $requestedUserID > 0 && $currentUser->ID !== $requestedUserID && !$WPU->isUserAdmin( $currentUser ) ) {
+			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) );
+		}
+
+		$user = $requestedUserID > 0 ? $WPU->getUserById( $requestedUserID ) : $currentUser;
 
 		$providers = \array_map(
 			fn( $provider ) => $provider->getProviderName(),

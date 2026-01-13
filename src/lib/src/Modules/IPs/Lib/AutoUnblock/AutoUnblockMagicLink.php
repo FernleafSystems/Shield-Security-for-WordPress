@@ -35,7 +35,7 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 			EmailVO::Factory(
 				$user->user_email,
 				__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
-				$con->action_router->render( UnblockMagicLink::SLUG, [
+				$con->action_router->render( UnblockMagicLink::class, [
 					'home_url' => Services::WpGeneral()->getHomeUrl(),
 					'ip'       => $con->this_req->ip,
 					'user_id'  => $user->ID,

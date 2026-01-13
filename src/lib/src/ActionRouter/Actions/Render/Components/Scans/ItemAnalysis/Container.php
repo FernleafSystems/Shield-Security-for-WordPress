@@ -2,17 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
-class Container extends Base {
+class Container extends BaseScans {
 
 	public const SLUG = 'scanitemanalysis_container';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/modal_content.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$item = $this->getScanItem();
+		try {
+			/** @var ResultItem $item */
+			$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] );
+		}
+		catch ( \Exception $e ) {
+			throw new ActionException( 'Not a valid scan item record' );
+		}
+		$fragment = $item->path_fragment;
+		if ( empty( $fragment ) ) {
+			throw new ActionException( 'Non-file scan items are not supported yet.' );
+		}
+
 		$common = CommonDisplayStrings::pick( [
 			'info_label',
 			'history_label',
@@ -61,6 +76,12 @@ class Container extends Base {
 				'tab_malai'        => __( 'MAL{ai} Lookup', 'wp-simple-firewall' ),
 				'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
 			],
+		];
+	}
+
+	protected function getRequiredDataKeys() :array {
+		return [
+			'rid'
 		];
 	}
 }

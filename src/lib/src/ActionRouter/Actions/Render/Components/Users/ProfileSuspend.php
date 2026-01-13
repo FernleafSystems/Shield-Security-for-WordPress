@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -16,9 +17,17 @@ class ProfileSuspend extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 	public const TEMPLATE = '/admin/user/profile/suspend.twig';
 
 	protected function getRenderData() :array {
+		$con = self::con();
+
 		$WPU = Services::WpUsers();
-		$editUser = $WPU->getUserById( $this->action_data[ 'user_id' ] );
-		$meta = self::con()->user_metas->for( $editUser );
+		$currentUser = $WPU->getCurrentWpUser();
+		$requestedUserID = (int)( $this->action_data[ 'user_id' ] ?? 0 );
+		if ( $requestedUserID > 0 && $currentUser->ID !== $requestedUserID && !$WPU->isUserAdmin( $currentUser ) ) {
+			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) );
+		}
+
+		$editUser = $requestedUserID > 0 ? $WPU->getUserById( $requestedUserID ) : $currentUser;
+		$meta = $con->user_metas->for( $editUser );
 		return [
 			'strings' => [
 				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
@@ -29,7 +38,7 @@ class ProfileSuspend extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
 			],
 			'flags'   => [
-				'can_suspend'  => self::con()->comps->user_suspend->canManuallySuspend()
+				'can_suspend'  => $con->comps->user_suspend->canManuallySuspend()
 								  || ( !$WPU->isUserAdmin( $editUser ) && $WPU->isUserAdmin() ),
 				'is_suspended' => $meta->record->hard_suspended_at > 0
 			],
@@ -40,8 +49,6 @@ class ProfileSuspend extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 	}
 
 	protected function getRequiredDataKeys() :array {
-		return [
-			'user_id'
-		];
+		return [ 'user_id' ];
 	}
 }

@@ -28,14 +28,12 @@ class ExtensionSettingsPage {
 				'handles' => [
 					'mainwp_server',
 				],
-				'data'    => function () {
-					return [
-						'ajax' => [
-							'site_action' => ActionData::Build( MainWP\ServerActions\MainwpServerClientActionHandler::class ),
-							'ext_table'   => ActionData::Build( MainWP\MainwpExtensionTableSites::class ),
-						],
-					];
-				},
+				'data'    => fn() => [
+					'ajax' => [
+						'site_action' => ActionData::Build( MainWP\ServerActions\MainwpServerClientActionHandler::class ),
+						'ext_table'   => ActionData::Build( MainWP\MainwpExtensionTableSites::class ),
+					],
+				],
 			];
 			return $components;
 		} );
