@@ -114,18 +114,18 @@
     ],
     "patches":     [
       {
-        "version":     "9",
-        "released_at": 1768227000,
+        "version":     "10",
+        "released_at": 1768311000,
         "items":       [
           {
             "type":        "fixed",
-            "title":       "[Security Vulnerabilities] Addresses 2x Security Vulnerabilities.",
+            "title":       "[Security Vulnerabilities] Addresses 3x Security Vulnerabilities.",
             "description": [
               "Details of vulnerabilities will be published in due-course."
             ]
           },
           {
-            "title":    "Data Handling Hardening - in light of the 2 vulnerabilities discovered, hardened data handling in various areas of the plugin.",
+            "title":    "Data Handling Hardening - in light of the vulnerabilities discovered, hardened data handling in various areas of the plugin.",
             "category": "enhancement",
             "type":     "fixed"
           }
