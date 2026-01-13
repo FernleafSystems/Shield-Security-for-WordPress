@@ -8,14 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Pro
 /**
  * Not currently used
  */
-class MfaPasskeyAuthenticationVerify extends MfaUserConfigBase {
+class MfaPasskeyAuthenticationVerify extends MfaLoginFlowBase {
 
 	use AuthNotRequired;
 
 	public const SLUG = 'mfa_passkey_auth_verify';
 
 	protected function exec() {
-		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getLoginWPUser() );
 		/** @var Passkey $provider */
 		$provider = $available[ Passkey::ProviderSlug() ];
 

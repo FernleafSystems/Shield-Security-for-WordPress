@@ -16,7 +16,9 @@ abstract class BaseLoginIntentPage extends Actions\Render\FullPage\BaseFullPageR
 	use Actions\Traits\AuthNotRequired;
 
 	public function getLoginIntentJavascript() :array {
-		$userID = (int)$this->action_data[ 'user_id' ];
+		$userID = (int)$this->action_data[ 'user_id' ] ?? 0;
+		$loginNonce = (string)$this->action_data[ 'plain_login_nonce' ] ?? '';
+
 		$prov = self::con()->comps->mfa->getProvidersActiveForUser(
 			Services::WpUsers()->getUserById( $userID )
 		);
@@ -24,11 +26,12 @@ abstract class BaseLoginIntentPage extends Actions\Render\FullPage\BaseFullPageR
 		return [
 			'ajax'  => [
 				'passkey_auth_start' => ActionData::Build( MfaPasskeyAuthenticationStart::class, true, [
-					'active_wp_user' => $userID,
+					'login_wp_user' => $userID,
+					'login_nonce'   => $loginNonce,
 				] ),
 				'email_code_send'    => ActionData::Build( MfaEmailSendIntent::class, true, [
 					'wp_user_id'  => $userID,
-					'login_nonce' => $this->action_data[ 'plain_login_nonce' ],
+					'login_nonce' => $loginNonce,
 					'redirect_to' => esc_url_raw( $this->action_data[ 'redirect_to' ] ?? '' ),
 				] ),
 			],
