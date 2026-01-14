@@ -9,7 +9,7 @@ class IsIpBlockedAuto extends Base {
 	public const SLUG = 'is_ip_blocked_auto';
 
 	public function getDescription() :string {
-		return __( "Is the request IP on Shield's auto-block list .", 'wp-simple-firewall' );
+		return sprintf( __( "Is the request IP on %s's auto-block list .", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

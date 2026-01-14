@@ -20,7 +20,7 @@ class FreeTrial extends Base {
 				'free_trial' => self::con()->svgs->raw( 'shield-fill-plus.svg' ),
 			],
 			'strings' => [
-				'step_title' => 'Try ShieldPRO For Free',
+				'step_title' => sprintf( __( 'Try Pro For Free', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 		];
 	}

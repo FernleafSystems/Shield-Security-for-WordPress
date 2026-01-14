@@ -22,14 +22,14 @@ class ShieldPro extends Base {
 	}
 
 	public function title() :string {
-		return __( 'ShieldPRO Premium Security', 'wp-simple-firewall' );
+		return sprintf( __( '%s Premium Security', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function descProtected() :string {
-		return __( 'Your site benefits from additional security protection provided by ShieldPRO.', 'wp-simple-firewall' );
+		return sprintf( __( 'Your site benefits from additional security protection provided by %s.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function descUnprotected() :string {
-		return __( "Your site doesn't benefit from the additional security protection provided by ShieldPRO.", 'wp-simple-firewall' );
+		return sprintf( __( "Your site doesn't benefit from the additional security protection provided by %s.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 }

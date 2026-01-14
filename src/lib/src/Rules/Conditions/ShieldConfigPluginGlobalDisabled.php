@@ -9,7 +9,7 @@ class ShieldConfigPluginGlobalDisabled extends Base {
 	public const SLUG = 'is_shield_plugin_disabled';
 
 	public function getDescription() :string {
-		return __( 'Is Shield Plugin Functionality Disabled.', 'wp-simple-firewall' );
+		return sprintf( __( 'Is %s Plugin Functionality Disabled.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

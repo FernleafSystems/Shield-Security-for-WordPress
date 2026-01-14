@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 class ShieldHasValidCurrentSession extends Base {
 
 	public function getName() :string {
-		return __( 'Has Valid Shield User Sessions', 'wp-simple-firewall' );
+		return sprintf( __( 'Has Valid %s User Sessions', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function getDescription() :string {
-		return __( 'The current request has a valid Shield user session', 'wp-simple-firewall' );
+		return sprintf( __( 'The current request has a valid %s user session', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

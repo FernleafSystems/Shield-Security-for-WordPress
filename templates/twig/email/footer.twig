@@ -12,7 +12,7 @@
 {% else %}
 	<div style="background-color: #f9f9f9; padding: 1px 14px 4px;display: inline-block;border: 1px solid #ddd;">
 		<p>{{ strings.thanks_free }}</p>
-		<h5>{{ strings.upgrade_heading_prefix }} <strong>Shield</strong>PRO {{ strings.upgrade_heading_suffix }}</h5>
+		<h5>{{ strings.upgrade_heading_prefix }} <strong>{{ strings.plugin_name }}</strong> {{ strings.upgrade_heading_suffix }}</h5>
 		<ul>
 			{% for benefit in strings.benefits %}
 				<li>{{ benefit }}</li>

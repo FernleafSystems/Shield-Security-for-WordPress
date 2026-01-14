@@ -55,7 +55,7 @@ class PageToolLockdown extends BasePluginAdminPage {
 				'confirm_consequences'       => __( 'I understand the consequences of blocking all traffic to this site.', 'wp-simple-firewall' ),
 				'confirm_authority'          => __( 'I have authority to block all traffic to this site.', 'wp-simple-firewall' ),
 				'button_lockdown'            => __( 'Lockdown The Site', 'wp-simple-firewall' ),
-				'button_upgrade'             => __( 'Upgrade Your ShieldPRO Membership', 'wp-simple-firewall' ),
+				'button_upgrade'             => sprintf( __( 'Upgrade Your %s Membership', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 			'flags'   => [
 				'blockdown_active'       => $cfg->isLockdownActive(),

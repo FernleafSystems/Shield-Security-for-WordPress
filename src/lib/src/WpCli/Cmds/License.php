@@ -19,7 +19,7 @@ class License extends BaseCmd {
 	}
 
 	protected function cmdShortDescription() :string {
-		return 'Manage the ShieldPRO license.';
+		return sprintf( 'Manage the %s license.', self::con()->labels->Name );
 	}
 
 	protected function cmdSynopsis() :array {
@@ -34,7 +34,7 @@ class License extends BaseCmd {
 				],
 				'default'     => 'status',
 				'optional'    => false,
-				'description' => 'Action to perform on the ShieldPRO license.',
+				'description' => sprintf( 'Action to perform on the %s license.', self::con()->labels->Name ),
 			],
 			[
 				'type'        => 'flag',
@@ -63,7 +63,7 @@ class License extends BaseCmd {
 	private function runRemove( $confirm ) {
 		if ( self::con()->isPremiumActive() ) {
 			if ( !$confirm ) {
-				WP_CLI::confirm( __( 'Are you sure you want to remove the ShieldPRO license?', 'wp-simple-firewall' ) );
+				WP_CLI::confirm( sprintf( __( 'Are you sure you want to remove the %s license?', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 			self::con()->comps->license->clearLicense();
 			WP_CLI::success( __( 'License removed successfully.', 'wp-simple-firewall' ) );

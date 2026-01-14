@@ -10,7 +10,7 @@ class GravityForms extends Base {
 		add_filter( 'gform_entry_is_spam', function ( $wasSpam, $form ) {
 			$isSpam = $wasSpam || $this->isBotBlockRequired();
 			if ( $isSpam && !$wasSpam && \method_exists( 'GFCommon', 'set_spam_filter' ) ) {
-				GFCommon::set_spam_filter( $form[ 'id' ], 'Shield Security', $this->getCommonSpamMessage() );
+				GFCommon::set_spam_filter( $form[ 'id' ], self::con()->labels->Name, $this->getCommonSpamMessage() );
 			}
 			return $isSpam;
 		}, 1000, 2 );

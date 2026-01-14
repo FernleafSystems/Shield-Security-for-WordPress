@@ -51,8 +51,9 @@ class StringsOptions {
 				];
 				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
 					$desc[] = sprintf(
-						__( 'The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
-						$con->caps->getMaxLogRetentionDays()
+						__( 'The maximum log retention limit (%s) may be increased by upgrading your %s plan.', 'wp-simple-firewall' ),
+						$con->caps->getMaxLogRetentionDays(),
+						$pluginName
 					);
 				}
 				break;
@@ -99,7 +100,7 @@ class StringsOptions {
 				$name = __( 'Trusted User Roles', 'wp-simple-firewall' );
 				$summary = __( "Comments From Users With These Roles Will Never Be Scanned", 'wp-simple-firewall' );
 				$desc = [
-					__( "Shield doesn't normally scan comments from logged-in or registered users.", 'wp-simple-firewall' ),
+					sprintf( __( "%s doesn't normally scan comments from logged-in or registered users.", 'wp-simple-firewall' ), $pluginName ),
 					__( "Specify user roles here that shouldn't be scanned.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
@@ -229,8 +230,8 @@ class StringsOptions {
 				];
 				$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
 					$con->isPremiumActive() ?
-						sprintf( __( "See the 'File Scan Areas' option to specify which files should be scanned.", 'wp-simple-firewall' ), 'ShieldPRO' )
-						: __( 'Only core WordPress files are scans in the free version of Shield.', 'wp-simple-firewall' )
+						__( "See the 'File Scan Areas' option to specify which files should be scanned.", 'wp-simple-firewall' )
+						: sprintf( __( 'Only core WordPress files are scanned in the free version of %s.', 'wp-simple-firewall' ), $pluginName )
 				);
 				break;
 			case 'file_scan_areas':
@@ -310,9 +311,8 @@ class StringsOptions {
 				}
 				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory', 'wp-simple-firewall' ),
 					\implode( ' ', [
-						sprintf(
-							/* translators: %1$s: WP root directory name, %2$s: wp-content directory path */
-							__( 'The %1$s directory is like the %2$s directory and many non-WordPress files are kept there.', 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
+						/* translators: %1$s: WP root directory name, %2$s: wp-content directory path */
+						sprintf( __( 'The %1$s directory is like the %2$s directory and many non-WordPress files are kept there.', 'wp-simple-firewall' ), __( 'WP root', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
 						__( "Since it's normally messy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
 						__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
 						$additional,
@@ -328,8 +328,8 @@ class StringsOptions {
 					__( 'Attempts to automatically repair files that have been changed, or infected with malware.', 'wp-simple-firewall' ),
 					'- '.__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),
 					'- '.__( 'In the case of plugins & themes, only those installed from WordPress.org can be repaired.', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Auto-Repair will never automatically delete new or unrecognised files.", 'wp-simple-firewall' ) )
-					.' '.__( "Unrecognised files will need to be manually deleted.", 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'Auto-Repair will never automatically delete new or unrecognised files.', 'wp-simple-firewall' ) )
+					.' '.__( 'Unrecognised files will need to be manually deleted.', 'wp-simple-firewall' ),
 				];
 				break;
 			case 'file_locker':
@@ -340,7 +340,7 @@ class StringsOptions {
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Web.Config is only available for Windows/IIS.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'After saving, it may take up to 60 seconds before a new lock is stored.', 'wp-simple-firewall' ) )
 					.' '.__( "It will be displayed below when it's ready.", 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "The PHP OpenSSL Extension is required, along with the RC4 Cipher.", 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'The PHP OpenSSL Extension is required, along with the RC4 Cipher.', 'wp-simple-firewall' ) ),
 				];
 
 				$locks = self::con()->comps->file_locker->getLocks();
@@ -354,7 +354,7 @@ class StringsOptions {
 			case 'ptg_reinstall_links':
 				$name = __( 'Show Re-Install Links', 'wp-simple-firewall' );
 				$summary = __( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' );
-				$desc = [ __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' ) ];
+				$desc = [ __( 'Show links to re-install plugins and offer re-install when activating plugins.', 'wp-simple-firewall' ) ];
 				break;
 			case 'optimise_scan_speed':
 				$name = __( 'Optimise File Scans', 'wp-simple-firewall' );
@@ -477,7 +477,7 @@ class StringsOptions {
 				$name = __( 'silentCAPTCHA Complexity', 'wp-simple-firewall' );
 				$summary = __( 'Adjust silentCAPTCHA Challenge Complexity', 'wp-simple-firewall' );
 				$desc = [
-					__( "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work.", 'wp-simple-firewall' ),
+					sprintf( __( "%s's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work.", 'wp-simple-firewall' ), $pluginName ),
 					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans.", 'wp-simple-firewall' ),
 					__( "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices.", 'wp-simple-firewall' ),
 					__( "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor.", 'wp-simple-firewall' ),
@@ -505,10 +505,10 @@ class StringsOptions {
 						__( 'Note', 'wp-simple-firewall' ),
 						sprintf( __( 'Your current IP Reputation score is %s.', 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>',
-							( new CalculateVisitorBotScores() )
-								->setIP( $con->this_req->ip )
-								->total()
-						) )
+								( new CalculateVisitorBotScores() )
+									->setIP( $con->this_req->ip )
+									->total()
+							) )
 					),
 				];
 				break;
@@ -626,16 +626,16 @@ class StringsOptions {
 				$name = __( 'Auto-Integrations', 'wp-simple-firewall' );
 				$summary = __( "Automatically Switch-On Built-in Integrations As They're Detected", 'wp-simple-firewall' );
 				$desc = [
-					__( 'Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available.', 'wp-simple-firewall' ),
-					__( "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration.", 'wp-simple-firewall' ),
+					sprintf( __( '%s will automatically scan your 3rd party plugins to check whether a built-in integration is available.', 'wp-simple-firewall' ), $pluginName ),
+					sprintf( __( "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration.", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
 
 			case 'enable_mainwp':
 				$name = __( 'MainWP Integration', 'wp-simple-firewall' );
-				$summary = __( "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations", 'wp-simple-firewall' );
+				$summary = sprintf( __( "Turn-On %s's Built-In Extension For MainWP Server And Client Installations", 'wp-simple-firewall' ), $pluginName );
 				$desc = [
-					__( 'Easily integrate Shield Security to help you manage your site security from within MainWP.', 'wp-simple-firewall' ),
+					sprintf( __( 'Easily integrate %s to help you manage your site security from within MainWP.', 'wp-simple-firewall' ), $pluginName ),
 					__( "You don't need to install a separate extension for MainWP.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list.", 'wp-simple-firewall' ) )
@@ -653,7 +653,7 @@ class StringsOptions {
 					.' '.__( "They aren't normally checked for Bots since they require a custom integration.", 'wp-simple-firewall' ),
 					__( "Select your 3rd party providers to have Shield automatically detect Bot requests to these forms.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Only form types (login, registration, lost password), that you've selected will be monitored.", 'wp-simple-firewall' ) ),
+						__( 'Only selected form types (login, registration, lost password) will be monitored.', 'wp-simple-firewall' ) ),
 				];
 				if ( !$con->caps->canThirdPartyScanUsers() ) {
 					$desc[] = __( 'Please upgrade your plan if you need to protect and integrate with 3rd party user login forms.', 'wp-simple-firewall' );
@@ -673,12 +673,14 @@ class StringsOptions {
 				}
 				break;
 			case 'suresend_emails':
-				$name = __( 'SureSend Emails', 'wp-simple-firewall' );
-				$summary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
+				$name = sprintf( __( '%s Emails', 'wp-simple-firewall' ), 'SureSend' );
+				/* translators: %1$s: security plugin name, %2$s: SureSend brand name */
+				$summary = sprintf( __( 'Select Which %1$s Emails Should Be Sent Using %2$s', 'wp-simple-firewall' ), $pluginName, 'SureSend' );
 				$desc = [
-					__( 'SureSend is a dedicated email delivery service from Shield Security.', 'wp-simple-firewall' ),
-					__( 'The purpose is the improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
-					__( "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
+					/* translators: %1$s: SureSend brand name, %2$s: security plugin name */
+					sprintf( __( '%1$s is a dedicated email delivery service from %2$s.', 'wp-simple-firewall' ), 'SureSend', $pluginName ),
+					__( 'The purpose is to improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
+					sprintf( __( "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails.", 'wp-simple-firewall' ), 'SureSend' ),
 					__( "This isn't a replacement for a dedicated email service.", 'wp-simple-firewall' ),
 					__( "Please read the information and blog links below to fully understand this service and its limitations.", 'wp-simple-firewall' ),
 				];
@@ -764,7 +766,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
 						sprintf(
-							/* translators: %1$s: wp-admin path, %2$s: wp-login.php path */
+						/* translators: %1$s: wp-admin path, %2$s: wp-login.php path */
 							__( "This will cause %1\$s and %2\$s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
 							'<code>/wp-admin/</code>',
 							'<code>/wp-login.php</code>'
@@ -786,7 +788,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
 						sprintf(
-							/* translators: %1$s: example path, %2$s: example URL */
+						/* translators: %1$s: example path, %2$s: example URL */
 							__( 'Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s).', 'wp-simple-firewall' ),
 							'<code>/</code>',
 							sprintf( '<code>%s</code>', Services::WpGeneral()->getHomeUrl() )
@@ -806,7 +808,8 @@ class StringsOptions {
 				$desc = [
 					__( 'Choose the type of page provided to users for MFA verification.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
-						__( 'Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA.', 'wp-simple-firewall' ) ),
+						sprintf( __( 'Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA.', 'wp-simple-firewall' ), $pluginName )
+					),
 				];
 				break;
 			case 'mfa_user_setup_pages':
@@ -952,7 +955,7 @@ class StringsOptions {
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $pluginName ),
-						sprintf( '<a href="%s">%s</a>',
+					sprintf( '<a href="%s">%s</a>',
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
 						__( 'Launch Debug Info Page', 'wp-simple-firewall' )
 					)
@@ -999,7 +1002,7 @@ class StringsOptions {
 							__( 'What Is My IP Address?', 'wp-simple-firewall' )
 						),
 						sprintf(
-							/* translators: %1$s: server variable name, %2$s: server variable name */
+						/* translators: %1$s: server variable name, %2$s: server variable name */
 							__( 'If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address.', 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ), sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
@@ -1023,7 +1026,7 @@ class StringsOptions {
 				$name = __( 'In-Plugin Notices', 'wp-simple-firewall' );
 				$summary = __( 'Display Non-Essential Plugin Notices And Admin Bar Menu', 'wp-simple-firewall' );
 				$desc = [
-					__( 'By default Shield displays non-essential notices in the admin area and admin bar.', 'wp-simple-firewall' ),
+					sprintf( __( 'By default %s displays non-essential notices in the admin area and admin bar.', 'wp-simple-firewall' ), $pluginName ),
 					__( 'These notices can be hidden by switching off this option.', 'wp-simple-firewall' ),
 				];
 				break;
@@ -1034,7 +1037,7 @@ class StringsOptions {
 				$desc = [
 					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
-					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral.", 'wp-simple-firewall' ),
+					sprintf( __( "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral.", 'wp-simple-firewall' ), $pluginName ),
 					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://clk.shldscrty.com/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
 				];
 				break;
@@ -1053,7 +1056,7 @@ class StringsOptions {
 						sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ),
 							sprintf( __( "%s currently can't locate a temporary directory, so you'll need to provide one here.", 'wp-simple-firewall' ), $pluginName ) ),
 						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $pluginName )
-						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
+						.' '.sprintf( __( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available.", 'wp-simple-firewall' ), $pluginName ),
 						sprintf( __( "If you use the %s directive, this automatic process may fail and you'll need to use this option to specify a directory that WordPress can write to.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'open_basedir' ) ),
 						sprintf( '<code>%s</code>: <code>%s</code>', __( 'ABSPATH', 'wp-simple-firewall' ), ABSPATH ),
@@ -1062,9 +1065,9 @@ class StringsOptions {
 				else {
 					$desc = [
 						sprintf( __( '%s needs to store data temporarily to disk.', 'wp-simple-firewall' ), $pluginName )
-						.' '.__( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available.", 'wp-simple-firewall' ),
+						.' '.sprintf( __( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available.", 'wp-simple-firewall' ), $pluginName ),
 						sprintf(
-							/* translators: %1$s: plugin name, %2$s: directory path */
+						/* translators: %1$s: plugin name, %2$s: directory path */
 							__( '%1$s has successfully chosen the following location to create its temporary directory: %2$s', 'wp-simple-firewall' ), $pluginName,
 							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
@@ -1117,10 +1120,11 @@ class StringsOptions {
 					sprintf( '%s: %s %s',
 						__( 'Note', 'wp-simple-firewall' ),
 						__( 'This key is automatically regenerated every 24hrs.', 'wp-simple-firewall' ),
-						sprintf( __( 'Key set to expire: %s', 'wp-simple-firewall' ), Services::Request()
-																  ->carbon()
-																  ->timestamp( $con->opts->optGet( 'importexport_secretkey_expires_at' ) )
-																  ->diffForHumans() )
+						sprintf( __( 'Key set to expire: %s', 'wp-simple-firewall' ),
+							Services::Request()
+									->carbon()
+									->timestamp( $con->opts->optGet( 'importexport_secretkey_expires_at' ) )
+									->diffForHumans() )
 					)
 				];
 				break;
@@ -1148,16 +1152,16 @@ class StringsOptions {
 				$summary = __( 'Be alerted to important changes on any admin account', 'wp-simple-firewall' );
 				$desc = [
 					__( "Be alerted to any important change on any admin account.", 'wp-simple-firewall' ),
-					__( "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!", 'wp-simple-firewall' ),
+					sprintf( __( "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
 
 			case 'instant_alert_shield_deactivated':
-				$name = __( 'Shield Deactivated', 'wp-simple-firewall' );
+				$name = sprintf( __( '%s Deactivated', 'wp-simple-firewall' ), $pluginName );
 				$summary = __( 'Receive an alert upon plugin deactivation', 'wp-simple-firewall' );
 				$desc = [
 					__( "Be alerted to any important change on any admin account.", 'wp-simple-firewall' ),
-					__( "Be alerted when the Shield plugin is deactivated", 'wp-simple-firewall' ),
+					sprintf( __( "Be alerted when the %s plugin is deactivated", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
 			case 'instant_alert_vulnerabilities':
@@ -1281,7 +1285,7 @@ class StringsOptions {
 						sprintf(
 							__( 'Selecting "%s" will also restrict all other options.', 'wp-simple-firewall' ),
 							sprintf(
-								/* translators: %1$s: first option, %2$s: second option */
+							/* translators: %1$s: first option, %2$s: second option */
 								__( '%1$s and %2$s', 'wp-simple-firewall' ),
 								__( 'Activate', 'wp-simple-firewall' ),
 								__( 'Edit Theme Options', 'wp-simple-firewall' )
@@ -1326,7 +1330,7 @@ class StringsOptions {
 				$desc = [
 					__( 'The URL of the icon to display in the menu.', 'wp-simple-firewall' ),
 					sprintf(
-						/* translators: %1$s: item type (icon), %2$s: dimensions */
+					/* translators: %1$s: item type (icon), %2$s: dimensions */
 						__( 'The %1$s should measure %2$s.', 'wp-simple-firewall' ), __( 'icon', 'wp-simple-firewall' ), '16px x 16px' )
 				];
 				break;
@@ -1336,7 +1340,7 @@ class StringsOptions {
 				$desc = [
 					__( 'The URL of the logo to display in the plugin badge.', 'wp-simple-firewall' ),
 					sprintf(
-						/* translators: %1$s: item type (logo), %2$s: dimensions */
+					/* translators: %1$s: item type (logo), %2$s: dimensions */
 						__( 'The %1$s should measure %2$s.', 'wp-simple-firewall' ), __( 'logo', 'wp-simple-firewall' ), '128px x 128px' )
 				];
 				break;
@@ -1409,8 +1413,9 @@ class StringsOptions {
 				];
 				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
 					$desc[] = sprintf(
-						__( 'The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
-						$con->caps->getMaxLogRetentionDays()
+						__( 'The maximum log retention limit (%s) may be increased by upgrading your %s plan.', 'wp-simple-firewall' ),
+						$con->caps->getMaxLogRetentionDays(),
+						$pluginName
 					);
 				}
 				break;
@@ -1440,11 +1445,11 @@ class StringsOptions {
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Interval is measured in seconds.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
 						sprintf(
-							/* translators: %1$s: request count, %2$s: minutes */
+						/* translators: %1$s: request count, %2$s: minutes */
 							__( 'Use %1$s to test for excessive requests within a %2$s minutes interval.', 'wp-simple-firewall' ), '<code>300</code>', 5 ) ),
 					sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
 						sprintf(
-							/* translators: %1$s: request count, %2$s: minutes */
+						/* translators: %1$s: request count, %2$s: minutes */
 							__( 'Use %1$s to test for excessive requests within a %2$s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) ),
 					__( 'Use a smaller interval to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' )
 				];

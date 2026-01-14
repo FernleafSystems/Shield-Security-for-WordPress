@@ -1,10 +1,8 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>Security Admin provides an extra authentication layer that ensures only vetted admins may adjust your security,
-	   while at the same time protecting critical WP settings.</p>
-	<p>This feature is activated by a secret PIN (<span class="fw-bold">that you create below</span>),
-	   which you will use to verify your identity with the Shield plugin each time you need to use it.</p>
+	<p>{{ strings.security_admin_text_1 }} {{ strings.security_admin_text_2 }}</p>
+	<p>{{ strings.security_admin_text_3 }}</p>
 {% endblock %}
 
 {% block slide_body_action_area %}
@@ -12,20 +10,17 @@
 
 	<form class="form-horizontal merlin-form ajax-form">
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-
 		<div class="row mb-2">
 			<div class="col">
 				<h6 class="pb-1 border-bottom d-inline-block">Choose Your Security Admin PIN</h6>
 			</div>
 		</div>
-
 		<div class="row">
 			<div class="col">
 				{{ icwp_macros.formInput_Password( 'SecAdminPIN', '', 'PIN', 'Create a new secret PIN', "Don't forget this PIN" ) }}
 				{{ icwp_macros.formInput_Password( 'SecAdminPINConfirm', '', 'Confirm PIN', 'Confirm PIN','','','my-2' ) }}
-				{{ icwp_macros.formInput_Submit2( 'Turn On Security Admin', null, 'secondary', false, 'mt-2' ) }}
+				{{ icwp_macros.formInput_Submit2( strings.security_admin_text_button, null, 'secondary', false, 'mt-2' ) }}
 			</div>
 		</div>
-
 	</form>
 {% endblock %}

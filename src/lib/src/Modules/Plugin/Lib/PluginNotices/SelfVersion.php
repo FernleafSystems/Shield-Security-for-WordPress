@@ -40,7 +40,7 @@ class SelfVersion extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
-							__( "An upgrade is available for the Shield plugin.", 'wp-simple-firewall' ),
+							sprintf( __( "An upgrade is available for the %s plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
 								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
 								__( 'Upgrade Now', 'wp-simple-firewall' )

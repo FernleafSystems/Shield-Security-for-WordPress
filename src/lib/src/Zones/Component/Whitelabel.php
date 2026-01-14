@@ -11,7 +11,7 @@ class Whitelabel extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Re-brand the Shield Security plugin.', 'wp-simple-firewall' );
+		return sprintf( __( 'Re-brand the %s plugin.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function enabledStatus() :string {

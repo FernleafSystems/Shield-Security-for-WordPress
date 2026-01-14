@@ -24,7 +24,7 @@ class Collate {
 		$pluginsInactive = $this->getPlugins( false );
 		$themes = $this->getThemes( true );
 		return [
-			__( 'Shield Info', 'wp-simple-firewall' )    => [
+			sprintf( __( '%s Info', 'wp-simple-firewall' ), self::con()->labels->Name )    => [
 				__( 'Summary', 'wp-simple-firewall' )      => $this->getShieldSummary(),
 				__( 'Databases', 'wp-simple-firewall' )    => $this->getShieldDatabases(),
 				__( 'Snapshots', 'wp-simple-firewall' )    => $this->snapshots(),
@@ -226,7 +226,7 @@ class Collate {
 		$data = [
 			__( 'Can Loopback Request', 'wp-simple-firewall' )       => $loopback,
 			__( 'NotBot Frontend JS Loading', 'wp-simple-firewall' ) => $this->yesNo( ( new TestNotBotLoading() )->test() ),
-			__( 'Handshake ShieldNET', 'wp-simple-firewall' )        => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
+			sprintf( __( 'Handshake %s', 'wp-simple-firewall' ), 'ShieldNET' )        => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
 			__( 'WP Hashes Ping', 'wp-simple-firewall' )             => $this->yesNo( ( new ApiPing() )->ping() ),
 		];
 

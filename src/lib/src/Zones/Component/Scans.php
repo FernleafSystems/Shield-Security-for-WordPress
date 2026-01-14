@@ -11,7 +11,7 @@ class Scans extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( 'Shield Scanners.', 'wp-simple-firewall' );
+		return sprintf( __( '%s Scanners.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function enabledStatus() :string {

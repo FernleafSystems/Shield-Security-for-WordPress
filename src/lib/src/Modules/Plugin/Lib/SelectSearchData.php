@@ -192,7 +192,7 @@ class SelectSearchData {
 					],
 					[
 						'id'          => 'external_getshieldhome',
-						'text'        => __( 'Shield Security Home Page', 'wp-simple-firewall' ),
+						'text'        => sprintf( __( '%s Home Page', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
 							'href' => 'https://getshieldsecurity.com',
 						],
@@ -202,7 +202,7 @@ class SelectSearchData {
 					],
 					[
 						'id'          => 'external_gopro',
-						'text'        => __( 'Get ShieldPRO!', 'wp-simple-firewall' ),
+						'text'        => sprintf( __( 'Get %s!', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
 							'href' => 'https://getshieldsecurity.com/pricing/',
 						],
@@ -212,7 +212,7 @@ class SelectSearchData {
 					],
 					[
 						'id'          => 'external_trial',
-						'text'        => __( 'ShieldPRO Free Trial', 'wp-simple-firewall' ),
+						'text'        => sprintf( __( '%s Free Trial', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
 							'href' => 'https://getshieldsecurity.com/free-trial/',
 						],
@@ -318,7 +318,7 @@ class SelectSearchData {
 					],
 					[
 						'id'     => 'tool_license',
-						'text'   => __( 'Activate ShieldPRO License', 'wp-simple-firewall' ),
+						'text'   => sprintf( __( 'Activate %s License', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'   => [
 							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_LICENSE ),
 						],

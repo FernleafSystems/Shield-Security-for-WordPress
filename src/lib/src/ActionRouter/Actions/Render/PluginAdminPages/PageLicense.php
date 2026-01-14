@@ -72,15 +72,15 @@ class PageLicense extends BasePluginAdminPage {
 				]
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'ShieldPRO License Management', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Seamlessly activate and manage your ShieldPRO license without any license keys.', 'wp-simple-firewall' ),
+				'inner_page_title'    => sprintf( __( '%s License Management', 'wp-simple-firewall' ), $con->labels->Name ),
+				'inner_page_subtitle' => sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), $con->labels->Name ),
 				'pro_features'        => $this->getProFeatureStrings(),
 
-				'pro_available_blurb'        => __( 'Shield Security Pro is available from our online store.', 'wp-simple-firewall' ),
+				'pro_available_blurb'        => sprintf( __( '%s Pro is available from our online store.', 'wp-simple-firewall' ), $con->labels->Name ),
 				'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
 				'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
 				'license_step_purchase_prefix' => __( 'Just grab a new license from the', 'wp-simple-firewall' ),
-				'license_step_purchase_link'   => __( 'Shield Pro store', 'wp-simple-firewall' ),
+				'license_step_purchase_link'   => sprintf( __( '%s Pro store', 'wp-simple-firewall' ), $con->labels->Name ),
 				'license_step_register'        => __( 'Register your site URL with our control panel.', 'wp-simple-firewall' ),
 				'license_step_activate'        => __( "Activate your license on your sites using the 'Check License' button.", 'wp-simple-firewall' ),
 				'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
@@ -93,7 +93,7 @@ class PageLicense extends BasePluginAdminPage {
 				'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
 				'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
 				'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
-				'cta_upgrade'              => __( 'Upgrade To Shield Pro Now', 'wp-simple-firewall' ),
+				'cta_upgrade'              => sprintf( __( 'Upgrade To %s Pro Now', 'wp-simple-firewall' ), $con->labels->Name ),
 				'cta_view_features'        => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
@@ -112,6 +112,7 @@ class PageLicense extends BasePluginAdminPage {
 	}
 
 	private function getProFeatureStrings() :array {
+		$con = self::con();
 		return [
 			[
 				'title' => sprintf( __( 'Protect your %s files', 'wp-simple-firewall' ), '<code>wp-config.php, .htaccess</code>' ),
@@ -131,14 +132,14 @@ class PageLicense extends BasePluginAdminPage {
 				'title' => sprintf( '%s: %s', __( 'Malware Scanner', 'wp-simple-firewall' ), __( 'Auto-learning and Detects Never-Before-Seen Malware', 'wp-simple-firewall' ) ),
 				'lines' => [
 					__( 'Detects common and uncommon malware patterns in PHP files and alerts you immediately.', 'wp-simple-firewall' ),
-					__( 'With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time.', 'wp-simple-firewall' ),
+					sprintf( __( 'With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kj'
 			],
 			[
 				'title' => __( 'Plugin and Theme Vulnerability Scanner', 'wp-simple-firewall' ),
 				'lines' => [
-					__( 'Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available.', 'wp-simple-firewall' ),
+					sprintf( __( 'Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kk'
 			],
@@ -159,14 +160,14 @@ class PageLicense extends BasePluginAdminPage {
 			[
 				'title' => sprintf( '%s: %s', __( 'Intelligence From The Collective', 'wp-simple-firewall' ), 'ShieldNET' ),
 				'lines' => [
-					__( 'Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites', 'wp-simple-firewall' ),
+					sprintf( __( 'Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kn'
 			],
 			[
 				'title' => __( 'Easiest, Frustration-Free WP Pro-Upgrade Anywhere', 'wp-simple-firewall' ),
 				'lines' => [
-					__( 'No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically.', 'wp-simple-firewall' ),
+					sprintf( __( 'No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/ko'
 			],
@@ -187,14 +188,14 @@ class PageLicense extends BasePluginAdminPage {
 			[
 				'title' => __( 'White Label', 'wp-simple-firewall' ),
 				'lines' => [
-					__( 'Re-Brand Shield Security as your own!', 'wp-simple-firewall' ),
+					sprintf( __( 'Re-Brand %s as your own!', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kr'
 			],
 			[
 				'title' => __( 'Exclusive Customer Support', 'wp-simple-firewall' ),
 				'lines' => [
-					__( 'Technical support for Shield is exclusive to Pro customers.', 'wp-simple-firewall' ),
+					sprintf( __( 'Technical support for %s is exclusive to Pro customers.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 			],
 			[

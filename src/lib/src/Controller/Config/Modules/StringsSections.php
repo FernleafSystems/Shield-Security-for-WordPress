@@ -153,10 +153,10 @@ class StringsSections {
 
 			case 'section_integrations':
 				$short = __( 'Integrations', 'wp-simple-firewall' );
-				$title = __( 'Built-In Shield Integrations', 'wp-simple-firewall' );
+				$title = sprintf( __( 'Built-In %s Integrations', 'wp-simple-firewall' ), $name );
 				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Shield can automatically integrate with 3rd party plugins.", 'wp-simple-firewall' ) ),
+						sprintf( __( "%s can automatically integrate with 3rd party plugins.", 'wp-simple-firewall' ), $name ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Only enable the integrations you require.", 'wp-simple-firewall' ) ),
 				];
@@ -173,7 +173,7 @@ class StringsSections {
 				$title = __( '3rd Party User Forms Bot Checking', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Shield can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ),
+						sprintf( __( "%s can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ), $name ),
 						__( "It uses our exclusive silentCAPTCHA Engine to reliably identify bots.", 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s (%s)', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -257,7 +257,7 @@ class StringsSections {
 				$title = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
 				$short = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $name );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Use this option to completely disable all active Shield Protection.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Use this option to completely disable all active %s Protection.', 'wp-simple-firewall' ), $name ) ),
 				];
 				break;
 			case 'section_defaults' :
@@ -286,7 +286,7 @@ class StringsSections {
 						self::con()->plugin_urls->cfgForZoneComponent( Reporting::Slug() ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Choose the most appropriate frequency to receive alerts from %s according to your schedule.', 'wp-simple-firewall' ), $name ) ),
 				];
 				break;
 			case 'section_importexport' :
@@ -376,8 +376,8 @@ class StringsSections {
 				];
 				break;
 			case 'section_backups' :
-				$short = __( 'ShieldBACKUPS', 'wp-simple-firewall' );
-				$title = __( 'ShieldBACKUPS', 'wp-simple-firewall' );
+				$short = 'ShieldBACKUPS';
+				$title = 'ShieldBACKUPS';
 				$summary = [];
 				break;
 			case 'section_suspend' :

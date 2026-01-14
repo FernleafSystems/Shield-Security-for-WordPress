@@ -136,7 +136,7 @@ class ScansController {
 			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
-			error_log( __( 'Shield scans cannot execute.', 'wp-simple-firewall' ) );
+			error_log( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 	}
 

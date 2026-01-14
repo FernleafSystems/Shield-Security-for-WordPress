@@ -11,7 +11,7 @@ class IsRequestSecurityAdmin extends Base {
 	public const SLUG = 'is_request_security_admin';
 
 	public function getDescription() :string {
-		return __( 'Is the request from a user authenticated as a Shield Security Admin.', 'wp-simple-firewall' );
+		return sprintf( __( 'Is the request from a user authenticated as a %s Admin.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getPreviousResult() :?bool {

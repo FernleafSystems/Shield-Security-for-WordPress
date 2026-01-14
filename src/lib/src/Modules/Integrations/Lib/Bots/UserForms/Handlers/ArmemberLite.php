@@ -12,7 +12,7 @@ class ArmemberLite extends Base {
 		if ( $validate && $this->setAuditAction( 'armember_lite_form' )->isBotBlockRequired() ) {
 			global $arm_global_settings;
 			if ( !empty( $arm_global_settings->common_message ) && \is_array( $arm_global_settings->common_message ) ) {
-				$arm_global_settings->common_message[ 'arm_spam_msg' ] = "Failed Shield's silentCAPTCHA Bot Check";
+				$arm_global_settings->common_message[ 'arm_spam_msg' ] = sprintf( "Failed %s's silentCAPTCHA Bot Check", self::con()->labels->Name );
 			}
 			$validate = false;
 		}

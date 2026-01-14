@@ -52,7 +52,7 @@ class Init {
 			// We double-check to ensure that our extension has been successfully registered by this stage.
 			// Prevents a fatal error that can be caused if we can't get our extension data when the extension reg has failed.
 			if ( self::con()->comps->mainwp->isServerExtensionLoaded() ) {
-				$columns[ 'shield' ] = 'Shield';
+				$columns[ 'shield' ] = self::con()->labels->Name;
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
 					$item[ 'shield' ] = self::con()->action_router->render( SitesListTableColumn::SLUG, [
 						'raw_mainwp_site_data' => $item
@@ -85,7 +85,7 @@ class Init {
 				foreach ( $value as $key => $ext ) {
 					if ( ( $ext[ 'plugin' ] ?? '' ) === self::con()->getRootFile() ) {
 						$value[ $key ][ 'description' ] = \implode( ' ', [
-							'Shield Security for MainWP builds upon the already powerful security platform,',
+							sprintf( '%s for MainWP builds upon the already powerful security platform,', self::con()->labels->Name ),
 							'helping you extend security management across your entire portfolio with ease.'
 						] );
 						$value[ $key ][ 'DocumentationURI' ] = self::con()->labels->url_helpdesk;
@@ -102,7 +102,7 @@ class Init {
 					'page'     => 'Extensions-Wp-Simple-Firewall',
 					'slug'     => self::con()->base_file,
 					'slug_pro' => self::con()->base_file,
-					'name'     => 'Shield Security',
+					'name'     => self::con()->labels->Name,
 				];
 				return $plugins;
 			} );
@@ -110,7 +110,7 @@ class Init {
 				if ( \class_exists( '\MainWP\Dashboard\MainWP_Extensions_Groups' ) ) {
 					MainWP_Extensions_Groups::add_extension_menu( [
 						'type'                 => 'extension',
-						'title'                => esc_html__( 'Shield Security', 'wp-simple-fiewall' ),
+						'title'                => esc_html( self::con()->labels->Name ),
 						'slug'                 => self::con()->base_file,
 						'parent_key'           => 'Extensions-Mainwp-Security',
 						'ext_page'             => 'admin.php?page=Extensions-Wp-Simple-Firewall',

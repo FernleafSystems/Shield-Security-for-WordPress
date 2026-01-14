@@ -13,7 +13,8 @@ class IntroVideoModal extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 				'release_guide' => 'https://clk.shldscrty.com/ob',
 			],
 			'strings' => [
-				'modal_title' => __( 'Demo: Important UI changes with Shield v20', 'wp-simple-firewall' ),
+				'modal_title' => sprintf( __( 'Demo: Important UI changes with %s v20', 'wp-simple-firewall' ), self::con()->labels->Name ),
+				'video_title' => sprintf( __( '%s for WordPress v20 Introduction', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 		];
 	}

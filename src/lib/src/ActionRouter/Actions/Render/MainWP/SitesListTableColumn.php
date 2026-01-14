@@ -53,13 +53,13 @@ class SitesListTableColumn extends BaseRender {
 											->getUrl_AdminPage( self::con()->mwpVO->official_extension_data[ 'page' ] ),
 			],
 			'strings' => [
-				'tooltip_inactive'         => __( "Shield plugin is installed, but not active.", 'wp-simple-firewall' ),
-				'tooltip_notpro'           => __( "The Shield plugin on this site doesn't have an active ShieldPRO license.", 'wp-simple-firewall' ),
-				'tooltip_mwpnoton'         => __( "Shield's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ),
-				'tooltip_not_installed'    => __( "Shield isn't installed on this site.", 'wp-simple-firewall' ),
+				'tooltip_inactive'         => sprintf( __( "%s plugin is installed, but not active.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				'tooltip_notpro'           => sprintf( __( "The %s plugin on this site doesn't have an active %s license.", 'wp-simple-firewall' ), self::con()->labels->Name, self::con()->labels->Name ),
+				'tooltip_mwpnoton'         => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				'tooltip_not_installed'    => sprintf( __( "%s isn't installed on this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_sync_required'    => __( "Sync Required.", 'wp-simple-firewall' ),
-				'tooltip_version_mismatch' => __( "Shield version on site doesn't match this server.", 'wp-simple-firewall' ),
-				'tooltip_please_update'    => __( "Please update your Shield plugins to the same versions and re-sync.", 'wp-simple-firewall' ),
+				'tooltip_version_mismatch' => sprintf( __( "%s version on site doesn't match this server.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				'tooltip_please_update'    => sprintf( __( "Please update your %s plugins to the same versions and re-sync.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_issues_found'     => __( "Issues Found", 'wp-simple-firewall' ),
 			]
 		];

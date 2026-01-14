@@ -25,13 +25,13 @@ class LicenseEmails {
 				$con->comps->opts_lookup->getReportEmail(),
 				'Pro License Check Has Failed',
 				[
-					__( 'Attempts to verify Shield Pro license has just failed.', 'wp-simple-firewall' ),
+					sprintf( __( 'Attempts to verify %s Pro license has just failed.', 'wp-simple-firewall' ), $con->labels->Name ),
 					sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ),
-						self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ) ),
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ) ),
 					sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 				]
 			);
-			self::con()->fireEvent( 'lic_fail_email' );
+			$con->fireEvent( 'lic_fail_email' );
 		}
 	}
 
@@ -50,7 +50,7 @@ class LicenseEmails {
 				$con->comps->opts_lookup->getReportEmail(),
 				'[Action May Be Required] Pro License Has Been Deactivated',
 				[
-					__( 'All attempts to verify Shield Pro license have failed.', 'wp-simple-firewall' ),
+					sprintf( __( 'All attempts to verify %s Pro license have failed.', 'wp-simple-firewall' ), $con->labels->Name ),
 					sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ) ),
 					sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 				]

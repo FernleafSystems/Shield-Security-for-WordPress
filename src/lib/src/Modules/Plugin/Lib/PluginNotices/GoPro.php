@@ -17,9 +17,9 @@ class GoPro extends Base {
 					\implode( ' ', [
 						sprintf( '%s %s',
 							\current( Arrays::RandomPluck( [
-								__( "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan.", 'wp-simple-firewall' ),
+								sprintf( __( "Elevate your WordPress security to best-in-class, by upgrading your %s plan.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 								__( "Maximise your WordPress protection from bad bots, hackers, spammers, and malware.", 'wp-simple-firewall' ),
-								__( "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan.", 'wp-simple-firewall' ),
+								sprintf( __( "Discover the most comprehensive WordPress security when you upgrade your %s plan.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 								__( "Free security is great, but if you run a business, you'll want all the protection available.", 'wp-simple-firewall' ),
 								__( "AI Malware Scanner, Auto-File Repair, WP Config protection, are just some of what's available when you upgrade your plan.", 'wp-simple-firewall' ),
 								__( "Whitelabel, Manual/Auto User Suspension, Unlimited Logs, Site Sync Import/Export, are just some of what's available when you upgrade your plan.", 'wp-simple-firewall' ),

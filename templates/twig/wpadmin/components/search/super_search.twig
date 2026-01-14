@@ -3,9 +3,9 @@
 		   id="SuperSearchLaunchButton"
 		   class="tour-navigation_v1"
 		   {% if not flags.is_security_admin %}disabled="disabled" class="disabled"{% endif %}
-		   data-introtitle="Shield Super Search"
+		   data-introtitle="Super Search"
 		   data-introposition="right"
-		   data-intro="Use the Super Search box to find absolutely anything within the Shield plugin, including options, IP address, tools, help, etc."
+		   data-intro="{{ strings.search_shield_intro }} "
 		   value="{{ strings.search_shield }}"
 	/>
 	<label class="visually-hidden-focusable" for="SuperSearchLaunchButton">{{ strings.search_shield_label }}</label>

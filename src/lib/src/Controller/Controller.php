@@ -319,9 +319,9 @@ class Controller extends DynPropertiesClass {
 				->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				->setData( [
 					'strings' => [
-						'not_met'          => __( 'Shield Security Plugin – minimum site requirements are not met', 'wp-simple-firewall' ),
+						'not_met'          => sprintf( __( '%s Plugin – minimum site requirements are not met', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'requirements'     => $this->reqs_not_met,
-						'summary_title'    => __( "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.", 'wp-simple-firewall' ),
+						'summary_title'    => sprintf( __( "Your web hosting doesn't meet the minimum requirements for the %s Plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'recommend'        => __( "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.", 'wp-simple-firewall' ),
 						'more_information' => __( 'Click here for more information on requirements', 'wp-simple-firewall' )
 					],
@@ -703,7 +703,19 @@ class Controller extends DynPropertiesClass {
 		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;
 
-		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+		// Apply filter for whitelabel and other modifications
+		$labels = $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+
+		// Apply PRO suffix AFTER whitelabel (if premium active AND whitelabel disabled)
+		// This centralizes the logic in the labels system itself
+		if ( $this->isPremiumActive() && !$labels->is_whitelabelled ) {
+			$labels->Name = $labels->Name.'PRO';
+			$labels->Title = $labels->Title.'PRO';
+			$labels->MenuTitle = $labels->MenuTitle.'PRO';
+			$labels->url_img_logo_small = $this->urls->forImage( 'plugin_logo_prem.svg' );
+		}
+
+		return $labels;
 	}
 
 	/**

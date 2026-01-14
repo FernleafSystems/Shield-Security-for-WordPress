@@ -14,19 +14,9 @@ class LicenseHandler {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
-	/**
-	 * @var ShieldLicense
-	 */
-	private $license;
-
-	/**
-	 * @var Capabilities
-	 */
-	private $caps;
+	private ?ShieldLicense $license = null;
 
 	protected function run() {
-
-		( new PluginNameSuffix() )->execute();
 
 		add_action( self::con()->prefix( 'adhoc_cron_license_check' ), fn() => $this->runAdhocLicenseCheck() );
 
@@ -120,15 +110,12 @@ class LicenseHandler {
 			if ( $sendEmail ) {
 				( new LicenseEmails() )->sendLicenseDeactivatedEmail();
 			}
-			self::con()->fireEvent( 'lic_fail_deactivate' );
+			self::con()->comps->events->fireEvent( 'lic_fail_deactivate' );
 		}
 	}
 
 	public function getLicense() :ShieldLicense {
-		if ( !isset( $this->license ) ) {
-			$this->license = ( new ShieldLicense() )->applyFromArray( self::con()->opts->optGet( 'license_data' ) );
-		}
-		return $this->license;
+		return $this->license ??= ( new ShieldLicense() )->applyFromArray( self::con()->opts->optGet( 'license_data' ) );
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {

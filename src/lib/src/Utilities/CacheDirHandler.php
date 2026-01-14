@@ -137,7 +137,7 @@ class CacheDirHandler {
 		}
 
 		$FS->putFileContent( path_join( $cacheDir, 'README.txt' ),
-			"This is a temporary caching folder used by the Shield Security plugin. You can safely delete it, but it'll be recreated if required.\n" );
+			sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name ) );
 
 		return true;
 	}

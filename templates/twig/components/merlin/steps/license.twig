@@ -1,7 +1,7 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>If you already have a ShieldPRO license assigned to this site,
+	<p>{{ strings.license_check_text }}
 	   you can check below for your license automatically.</p>
 	<p>If this doesn't apply to you, <a href="javascript:{}" class="skip-step">skip to the next step</a>.</p>
 {% endblock %}
@@ -15,7 +15,7 @@
 		<div class="row">
 			<div class="col">
 				<button type="submit" class="btn btn-primary py-2 px-4">
-					Check For ShieldPRO License
+					{{ strings.check_license_button }}
 				</button>
 			</div>
 		</div>

@@ -258,7 +258,7 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'license-features',
 					'href'   => 'https://clk.shldscrty.com/gp',
-					'title'  => __( 'ShieldPRO Features', 'wp-simple-firewall' ),
+					'title'  => sprintf( __( '%s Features', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'target' => '_blank',
 				],
 			];
@@ -266,7 +266,7 @@ class NavMenuBuilder {
 
 		return [
 			'slug'      => PluginNavs::NAV_LICENSE,
-			'title'     => $con->isPremiumActive() ? __( 'ShieldPRO', 'wp-simple-firewall' ) : __( 'Go PRO!', 'wp-simple-firewall' ),
+			'title'     => $con->isPremiumActive() ? self::con()->labels->Name : __( 'Go PRO!', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'award' ),
 			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),

@@ -9,7 +9,7 @@ class IsIpBlacklisted extends Base {
 	public const SLUG = 'is_ip_blacklisted';
 
 	public function getDescription() :string {
-		return __( 'Is the request IP blacklisted by Shield.', 'wp-simple-firewall' );
+		return sprintf( __( 'Is the request IP blacklisted by %s.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

@@ -17,7 +17,7 @@ class BlockdownFormSubmit extends BaseAction {
 		$form = $this->action_data[ 'form_data' ];
 		try {
 			if ( !$con->caps->canSiteBlockdown() ) {
-				throw new \Exception( __( 'Please upgrade your ShieldPRO plan to make use of this feature.', 'wp-simple-firewall' ) );
+				throw new \Exception( sprintf( __( 'Please upgrade your %s plan to make use of this feature.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 
 			if ( empty( $form ) || !\is_array( $form ) ) {

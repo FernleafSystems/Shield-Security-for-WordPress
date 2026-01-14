@@ -139,10 +139,6 @@ class BuildScanItems {
 				}
 			}
 			catch ( \Exception $e ) {
-				error_log(
-					sprintf( 'Shield file scanner (%s) attempted to read directory (%s) but there was error: "%s".',
-						$action->scan, $scanDir, $e->getMessage() )
-				);
 			}
 		}
 		return $files;

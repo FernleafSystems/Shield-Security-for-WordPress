@@ -18,7 +18,7 @@ class Controller {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $count = 0;
+	private int $count = 0;
 
 	protected function run() {
 		if ( self::con()->getIsPage_PluginAdmin() ) {
@@ -383,6 +383,7 @@ class Controller {
 			'strings'           => [
 				'title'   => __( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
 				'dismiss' => __( "I'd rather not show this support", 'wp-simple-firewall' ).' / '.__( "I've done this already", 'wp-simple-firewall' ).' :D',
+				'rate_text' => sprintf( __( 'A lot of work goes into %s, and we need your help to spread the word about it. :)', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 			'hrefs'             => [
 				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',

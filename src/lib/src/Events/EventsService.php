@@ -74,7 +74,7 @@ class EventsService {
 				$this->buildEvents( self::con()->cfg->configuration->events )
 			);
 			if ( empty( $this->events ) ) {
-				error_log( __( 'Shield event definitions are empty or not in the correct format.', 'wp-simple-firewall' ) );
+				error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 		}
 

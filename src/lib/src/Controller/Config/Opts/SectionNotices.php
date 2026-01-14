@@ -244,7 +244,7 @@ class SectionNotices {
 				}
 				elseif ( !( new TestNotBotLoading() )->test() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
+						sprintf( __( "%s couldn't determine whether the silentCAPTCHA JS was loading correctly on your site.", 'wp-simple-firewall' ), $con->labels->Name ) );
 				}
 				break;
 
@@ -265,7 +265,7 @@ class SectionNotices {
 				if ( $con->isPremiumActive() ) {
 					$canHandshake = $con->comps->shieldnet->canHandshake();
 					if ( !$canHandshake ) {
-						$warnings[] = __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' );
+						$warnings[] = sprintf( __( 'Not available as your site cannot handshake with %s.', 'wp-simple-firewall' ), 'ShieldNET API' );
 					}
 				}
 

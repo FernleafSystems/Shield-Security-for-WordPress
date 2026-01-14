@@ -16,7 +16,7 @@ class FileLocker extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\A
 		return [
 			'flags'   => [
 				'is_enabled'    => $con->comps->file_locker->isEnabled(),
-				'is_restricted' => !self::con()->isPremiumActive(),
+				'is_restricted' => !$con->isPremiumActive(),
 			],
 			'hrefs'   => [
 				'please_enable' => $con->plugin_urls->zone( Scans::Slug() ),

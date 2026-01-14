@@ -13,7 +13,7 @@ class RequestIsSiteBlockdownBlocked extends Base {
 	}
 
 	public function getDescription() :string {
-		return __( "Is the request blocked by Shield's Site Lockdown feature.", 'wp-simple-firewall' );
+		return sprintf( __( "Is the request blocked by %s's Site Lockdown feature.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getSubConditions() :array {
