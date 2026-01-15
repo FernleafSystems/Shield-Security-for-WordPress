@@ -682,7 +682,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function labels() :Config\Labels {
-		$labels = \array_map( '\stripslashes', $this->cfg->labels );
+		$rawLabels = $this->cfg->labels;
+		$brandNames = $rawLabels[ 'brand_names' ] ?? [];
+		unset( $rawLabels[ 'brand_names' ] );
+
+		$labels = \array_map( '\stripslashes', $rawLabels );
 
 		foreach (
 			[
@@ -699,6 +703,7 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$labels = ( new Config\Labels() )->applyFromArray( $labels );
+		$labels->setBrandNames( $brandNames );
 		$labels->url_secadmin_forgotten_key = 'https://clk.shldscrty.com/gc';
 		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;

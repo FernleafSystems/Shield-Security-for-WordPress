@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+
 class BotSignalNames {
+
+	use PluginControllerConsumer;
 
 	public function getBotSignalName( $field ) :string {
 		return $this->getBotSignalNames()[ \str_replace( '_at', '', $field ) ] ?? 'Unknown';
@@ -12,11 +16,12 @@ class BotSignalNames {
 	 * @return string[]
 	 */
 	public function getBotSignalNames() :array {
+		$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
 		return [
 			'created'         => __( 'New Visitor Bonus', 'wp-simple-firewall' ),
 			'known'           => __( 'A Known Service Provider/Bot', 'wp-simple-firewall' ),
-			'notbot'          => __( 'silentCAPTCHAv1 Registration', 'wp-simple-firewall' ),
-			'altcha'          => __( 'silentCAPTCHAv2 Registration', 'wp-simple-firewall' ),
+			'notbot'          => sprintf( __( '%sv1 Registration', 'wp-simple-firewall' ), $silentCaptcha ),
+			'altcha'          => sprintf( __( '%sv2 Registration', 'wp-simple-firewall' ), $silentCaptcha ),
 			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
 			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),

@@ -75,7 +75,7 @@ class General extends Base {
 					'is_blocked'          => __( 'IP Blocked', 'wp-simple-firewall' ),
 					'is_bypass'           => __( 'Bypass IP', 'wp-simple-firewall' ),
 					'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
-					'snapi_ip_reputation' => __( 'ShieldNET IP Reputation Score', 'wp-simple-firewall' ),
+					'snapi_ip_reputation' => sprintf( __( '%s IP Reputation Score', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'shieldnet' ) ),
 					'block_type'          => $ruleStatus->isBlocked() ? Handler::GetTypeName( $ruleStatus->getBlockType() ) : ''
 				],
 

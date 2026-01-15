@@ -13,6 +13,9 @@ class EventStrings {
 	}
 
 	private function theStrings() :array {
+		$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
+		$sureSend = self::con()->labels->getBrandName( 'suresend' );
+
 		return [
 			'reg_email_invalid'            => [
 				'name'  => __( 'Invalid User Email Registration', 'wp-simple-firewall' ),
@@ -392,21 +395,21 @@ class EventStrings {
 				],
 			],
 			'suresend_fail'                => [
-				'name'  => __( 'SureSend Fail', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Fail', 'wp-simple-firewall' ), $sureSend ),
 				'audit' => [
-					__( "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend.", 'wp-simple-firewall' ),
+					sprintf( __( "Failed to send email (type: {{slug}}) to '{{email}}' using %s.", 'wp-simple-firewall' ), $sureSend ),
 				],
 			],
 			'suresend_success'             => [
-				'name'  => __( 'SureSend Success', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Success', 'wp-simple-firewall' ), $sureSend ),
 				'audit' => [
-					__( "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend.", 'wp-simple-firewall' ),
+					sprintf( __( "Successfully sent email (type: {{slug}}) to '{{email}}' using %s.", 'wp-simple-firewall' ), $sureSend ),
 				],
 			],
 			'ade_check_option_disabled'    => [
-				'name'  => __( 'silentCAPTCHA Check Invalid (Module)', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Check Invalid (Module)', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
-					__( 'A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ),
+					sprintf( __( 'A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ), $silentCaptcha ),
 					__( "The visitor was allowed to pass the checks since they couldn't be applied.", 'wp-simple-firewall' ),
 				],
 			],
@@ -484,9 +487,9 @@ class EventStrings {
 				],
 			],
 			'bottrack_notbot'              => [
-				'name'  => __( 'silentCAPTCHA Registration', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Registration', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
-					__( 'Visitor registered using silentCAPTCHA.', 'wp-simple-firewall' ),
+					sprintf( __( 'Visitor registered using %s.', 'wp-simple-firewall' ), $silentCaptcha ),
 				],
 			],
 			'bottrack_404'                 => [
@@ -655,10 +658,7 @@ class EventStrings {
 				],
 			],
 			'spam_block_antibot'           => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'silentCAPTCHA', 'wp-simple-firewall' )
-				),
+				'name'  => sprintf( '%s: %s', __( 'SPAM Blocked', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
 					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
 				],

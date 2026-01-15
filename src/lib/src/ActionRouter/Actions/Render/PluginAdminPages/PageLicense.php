@@ -158,7 +158,7 @@ class PageLicense extends BasePluginAdminPage {
 				'href'  => 'https://clk.shldscrty.com/km'
 			],
 			[
-				'title' => sprintf( '%s: %s', __( 'Intelligence From The Collective', 'wp-simple-firewall' ), 'ShieldNET' ),
+				'title' => sprintf( '%s: %s', __( 'Intelligence From The Collective', 'wp-simple-firewall' ), $con->labels->getBrandName( 'shieldnet' ) ),
 				'lines' => [
 					sprintf( __( 'Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites', 'wp-simple-firewall' ), $con->labels->Name ),
 				],

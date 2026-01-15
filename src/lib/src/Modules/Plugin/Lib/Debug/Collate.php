@@ -226,7 +226,7 @@ class Collate {
 		$data = [
 			__( 'Can Loopback Request', 'wp-simple-firewall' )       => $loopback,
 			__( 'NotBot Frontend JS Loading', 'wp-simple-firewall' ) => $this->yesNo( ( new TestNotBotLoading() )->test() ),
-			sprintf( __( 'Handshake %s', 'wp-simple-firewall' ), 'ShieldNET' )        => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
+			sprintf( __( 'Handshake %s', 'wp-simple-firewall' ), $con->labels->getBrandName( 'shieldnet' ) ) => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
 			__( 'WP Hashes Ping', 'wp-simple-firewall' )             => $this->yesNo( ( new ApiPing() )->ping() ),
 		];
 

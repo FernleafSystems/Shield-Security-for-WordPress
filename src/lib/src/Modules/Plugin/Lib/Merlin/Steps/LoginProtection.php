@@ -15,7 +15,7 @@ class LoginProtection extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( 'Brute Force Login Protection with silentCAPTCHA', 'wp-simple-firewall' ),
+				'step_title' => sprintf( __( 'Brute Force Login Protection with %s', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) ),
 			],
 			'vars'    => [
 				'video_id' => '269191603'

@@ -17,13 +17,14 @@ class MeterSpam extends MeterBase {
 	}
 
 	public function description() :array {
+		$con = self::con();
 		$desc = [
-			__( "WordPress comment SPAM is primarily done via automated Bots.", 'wp-simple-firewall' ),
-			__( "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM.", 'wp-simple-firewall' ),
-			__( "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties.", 'wp-simple-firewall' ),
+			__( 'WordPress comment SPAM is primarily done via automated Bots.', 'wp-simple-firewall' ),
+			sprintf( __( 'With our powerful %s we can detect nearly 100%% of all bot SPAM.', 'wp-simple-firewall' ), $con->labels->getBrandName( 'silentcaptcha' ) ),
+			__( 'With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties.', 'wp-simple-firewall' ),
 		];
-		if ( !self::con()->comps->whitelabel->isEnabled() ) {
-			$desc[] = sprintf( __( "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots.", 'wp-simple-firewall' ), self::con()->labels->Name );
+		if ( !$con->comps->whitelabel->isEnabled() ) {
+			$desc[] = sprintf( __( "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots.", 'wp-simple-firewall' ), $con->labels->Name );
 		}
 		return $desc;
 	}

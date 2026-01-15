@@ -33,16 +33,17 @@ class LoginProtectionForms extends Base {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
-			$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login.", 'wp-simple-firewall' );
+			$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
+			$status[ 'exp' ][] = sprintf( __( "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login.", 'wp-simple-firewall' ), $silentCaptcha );
 			if ( \in_array( 'register', $forms ) ) {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::BAD;
-				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting your WordPress registration.", 'wp-simple-firewall' );
+				$status[ 'exp' ][] = sprintf( __( "%s Bot Detection isn't protecting your WordPress registration.", 'wp-simple-firewall' ), $silentCaptcha );
 			}
 			if ( !\in_array( 'password', $forms ) ) {
-				$status[ 'exp' ][] = __( "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form.", 'wp-simple-firewall' );
+				$status[ 'exp' ][] = sprintf( __( "%s Bot Detection isn't protecting your WordPress lost password form.", 'wp-simple-firewall' ), $silentCaptcha );
 			}
 		}
 

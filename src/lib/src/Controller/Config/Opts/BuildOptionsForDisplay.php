@@ -252,6 +252,13 @@ class BuildOptionsForDisplay {
 				$option[ 'value' ] = self::con()->comps->import_export->getImportExportSecretKey();
 				break;
 
+			case 'user_auto_recover':
+				$option[ 'value_options' ][ 'gasp' ][ 'name' ] = sprintf(
+					__( 'Protected By %s', 'wp-simple-firewall' ),
+					self::con()->labels->getBrandName( 'silentcaptcha' )
+				);
+				break;
+
 			case 'file_scan_areas':
 				$option[ 'value_options' ][ 'wp' ][ 'name' ] = sprintf( '%s (%s)', esc_html( __( 'WP core files', 'wp-simple-firewall' ) ),
 					sprintf( __( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );

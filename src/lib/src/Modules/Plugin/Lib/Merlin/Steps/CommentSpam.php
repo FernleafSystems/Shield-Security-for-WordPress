@@ -15,7 +15,7 @@ class CommentSpam extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( "Block 100% Bots Comment SPAM With silentCAPTCHA", 'wp-simple-firewall' ),
+				'step_title' => sprintf( __( 'Block 100%% Bots Comment SPAM With %s', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) ),
 			],
 			'vars'    => [
 				'video_id' => '269193270'

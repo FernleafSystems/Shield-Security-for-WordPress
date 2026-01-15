@@ -101,7 +101,7 @@ class IpAnalyseAction extends BaseAction {
 					$success = ( new BotSignalsRecord() )
 						->setIP( $ip )
 						->delete();
-					$msg = $success ? __( 'IP silentCAPTCHA Score Reset.', 'wp-simple-firewall' )
+					$msg = $success ? sprintf( __( 'IP %s Score Reset.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) )
 						: __( "IP NotBot Score couldn't be reset at this time.", 'wp-simple-firewall' );
 					break;
 

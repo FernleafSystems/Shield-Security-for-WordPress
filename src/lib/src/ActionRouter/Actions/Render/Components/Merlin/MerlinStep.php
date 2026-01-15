@@ -25,6 +25,7 @@ class MerlinStep extends BaseRender {
 
 	protected function getRenderData() :array {
 		$pluginName = self::con()->labels->Name;
+		$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
 		$stepSlug = $this->action_data[ 'vars' ][ 'step_slug' ] ?? '';
 		$strings = [];
 
@@ -83,8 +84,13 @@ class MerlinStep extends BaseRender {
 		}
 
 		if ( $stepSlug === 'comment_spam' ) {
-			/* translators: %1$s: Shield Security name, %2$s: silentCAPTCHA */
-			$strings[ 'comment_spam_text' ] = sprintf( __( '%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology.', 'wp-simple-firewall' ), $pluginName, 'silentCAPTCHA' );
+			/* translators: %1$s: Shield Security name, %2$s: bot detection technology name */
+			$strings[ 'comment_spam_text' ] = sprintf( __( '%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology.', 'wp-simple-firewall' ), $pluginName, $silentCaptcha );
+			$strings[ 'silentcaptcha_detect_bots' ] = sprintf( __( '%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors.', 'wp-simple-firewall' ), $silentCaptcha );
+		}
+
+		if ( $stepSlug === 'login_protection' ) {
+			$strings[ 'silentcaptcha_detect_login_bots' ] = sprintf( __( '%s will detect bots that attempt to login to your site, without challenging your legitimate users.', 'wp-simple-firewall' ), $silentCaptcha );
 		}
 
 		$videoId = $this->action_data[ 'vars' ][ 'video_id' ] ?? '';

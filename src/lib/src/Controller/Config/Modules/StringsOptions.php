@@ -21,6 +21,7 @@ class StringsOptions {
 		$caps = $con->caps;
 		$opts = $con->comps->opts_lookup;
 		$pluginName = $con->labels->Name;
+		$silentCaptcha = $con->labels->getBrandName( 'silentcaptcha' );
 		$modStrings = new StringsModules();
 
 		switch ( $key ) {
@@ -109,10 +110,10 @@ class StringsOptions {
 				break;
 			case 'enable_antibot_comments':
 				$name = __( 'Block Bot SPAM', 'wp-simple-firewall' );
-				$summary = __( 'Use silentCAPTCHA To Block Bot Comment SPAM', 'wp-simple-firewall' );
+				$summary = sprintf( __( 'Use %s To Block Bot Comment SPAM', 'wp-simple-firewall' ), $silentCaptcha );
 				$desc = [
-					sprintf( __( 'Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA.', 'wp-simple-firewall' ), $pluginName ),
-					sprintf( __( "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges.", 'wp-simple-firewall' ), $pluginName ),
+					sprintf( __( 'Block 99.9%% of all WordPress comment SPAM using %s.', 'wp-simple-firewall' ), $silentCaptcha ),
+					sprintf( __( "%s is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges.", 'wp-simple-firewall' ), $silentCaptcha, $pluginName ),
 				];
 				break;
 			case 'enable_comments_human_spam_filter':
@@ -474,23 +475,23 @@ class StringsOptions {
 
 				break;
 			case 'silentcaptcha_complexity':
-				$name = __( 'silentCAPTCHA Complexity', 'wp-simple-firewall' );
-				$summary = __( 'Adjust silentCAPTCHA Challenge Complexity', 'wp-simple-firewall' );
+				$name = sprintf( __( '%s Complexity', 'wp-simple-firewall' ), $silentCaptcha );
+				$summary = sprintf( __( 'Adjust %s Challenge Complexity', 'wp-simple-firewall' ), $silentCaptcha );
 				$desc = [
-					sprintf( __( "%s's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work.", 'wp-simple-firewall' ), $pluginName ),
+					sprintf( __( "%s's %s system uses ALTCHA, that challenges bots to perform complex work.", 'wp-simple-firewall' ), $pluginName, $silentCaptcha ),
 					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans.", 'wp-simple-firewall' ),
 					__( "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices.", 'wp-simple-firewall' ),
 					__( "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor.", 'wp-simple-firewall' ),
 				];
 				break;
 			case 'antibot_minimum':
-				$name = __( 'silentCAPTCHA Bot Minimum Score', 'wp-simple-firewall' );
-				$summary = __( 'silentCAPTCHA Bot Score (Percentage)', 'wp-simple-firewall' );
+				$name = sprintf( __( '%s Bot Minimum Score', 'wp-simple-firewall' ), $silentCaptcha );
+				$summary = sprintf( __( '%s Bot Score (Percentage)', 'wp-simple-firewall' ), $silentCaptcha );
 				$desc = [
 					__( "Every IP address accessing your site gets its own unique visitor score - the higher the score, the better the visitor i.e. the more likely it's human.", 'wp-simple-firewall' ),
 					__( "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot.", 'wp-simple-firewall' ),
 					__( 'When a bot tries to login, or post a comment, we test its visitor score.', 'wp-simple-firewall' )
-					.' '.__( 'If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it.', 'wp-simple-firewall' ),
+					.' '.sprintf( __( 'If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it.', 'wp-simple-firewall' ), $silentCaptcha ),
 					__( "This means: choose a higher minimum score to be more strict and capture more bots (but potentially block someone that appears to be a bot, but isn't).", 'wp-simple-firewall' )
 					.' '.__( "Or choose a lower minimum score to perhaps allow through more bots (but reduce the chances of accidentally blocking legitimate visitors).", 'wp-simple-firewall' ),
 				];
@@ -673,14 +674,15 @@ class StringsOptions {
 				}
 				break;
 			case 'suresend_emails':
-				$name = sprintf( __( '%s Emails', 'wp-simple-firewall' ), 'SureSend' );
-				/* translators: %1$s: security plugin name, %2$s: SureSend brand name */
-				$summary = sprintf( __( 'Select Which %1$s Emails Should Be Sent Using %2$s', 'wp-simple-firewall' ), $pluginName, 'SureSend' );
+				$sureSend = $con->labels->getBrandName( 'suresend' );
+				$name = sprintf( __( '%s Emails', 'wp-simple-firewall' ), $sureSend );
+				/* translators: %1$s: security plugin name, %2$s: email service brand name */
+				$summary = sprintf( __( 'Select Which %1$s Emails Should Be Sent Using %2$s', 'wp-simple-firewall' ), $pluginName, $sureSend );
 				$desc = [
-					/* translators: %1$s: SureSend brand name, %2$s: security plugin name */
-					sprintf( __( '%1$s is a dedicated email delivery service from %2$s.', 'wp-simple-firewall' ), 'SureSend', $pluginName ),
+					/* translators: %1$s: email service brand name, %2$s: security plugin name */
+					sprintf( __( '%1$s is a dedicated email delivery service from %2$s.', 'wp-simple-firewall' ), $sureSend, $pluginName ),
 					__( 'The purpose is to improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
-					sprintf( __( "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails.", 'wp-simple-firewall' ), 'SureSend' ),
+					sprintf( __( "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails.", 'wp-simple-firewall' ), $sureSend ),
 					__( "This isn't a replacement for a dedicated email service.", 'wp-simple-firewall' ),
 					__( "Please read the information and blog links below to fully understand this service and its limitations.", 'wp-simple-firewall' ),
 				];
@@ -1503,11 +1505,12 @@ class StringsOptions {
 				];
 				break;
 			case 'reg_email_validate':
+				$shieldNet = $con->labels->getBrandName( 'shieldnet' );
 				$name = __( 'Validate Email Addresses', 'wp-simple-firewall' );
 				$summary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' ),
-					__( 'To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
+					sprintf( __( 'To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ), $shieldNet ),
 				];
 				break;
 			case 'email_checks':

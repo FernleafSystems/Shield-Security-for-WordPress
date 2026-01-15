@@ -67,7 +67,8 @@ class SectionNotices {
 				if ( !empty( $locations ) ) {
 					$notices[] = sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( "The following types of user forms are protected by silentCAPTCHA: %s.", 'wp-simple-firewall' ),
+						sprintf( __( "The following types of user forms are protected by %s: %s.", 'wp-simple-firewall' ),
+							$con->labels->getBrandName( 'silentcaptcha' ),
 							'<br />'.\implode( ', ',
 								\array_intersect_key(
 									\array_merge(
@@ -95,6 +96,7 @@ class SectionNotices {
 	public function warnings( string $section ) :array {
 		$con = self::con();
 		$optsLookup = $con->comps->opts_lookup;
+		$silentCaptcha = $con->labels->getBrandName( 'silentcaptcha' );
 
 		$warnings = [];
 
@@ -169,12 +171,12 @@ class SectionNotices {
 
 			case 'section_brute_force_login_protection':
 				if ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
-					$warnings[] = __( "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
+					$warnings[] = sprintf( __( "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' ), $silentCaptcha );
 				}
 				elseif ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), $silentCaptcha )
 					);
 				}
 				break;
@@ -183,13 +185,13 @@ class SectionNotices {
 				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), $silentCaptcha )
 					);
 				}
 				elseif ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
 					$warnings[] = sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
-						__( "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone.", 'wp-simple-firewall' )
+						sprintf( __( "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone.", 'wp-simple-firewall' ), $silentCaptcha )
 					);
 				}
 				break;
@@ -198,7 +200,7 @@ class SectionNotices {
 				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), 'silentCAPTCHA' )
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), $silentCaptcha )
 					);
 				}
 				else {
@@ -240,11 +242,11 @@ class SectionNotices {
 			case 'section_silentcaptcha':
 				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "silentCAPTCHA is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
+						sprintf( __( "%s is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), $silentCaptcha, '0' ) );
 				}
 				elseif ( !( new TestNotBotLoading() )->test() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "%s couldn't determine whether the silentCAPTCHA JS was loading correctly on your site.", 'wp-simple-firewall' ), $con->labels->Name ) );
+						sprintf( __( "%s couldn't determine whether the %s JS was loading correctly on your site.", 'wp-simple-firewall' ), $con->labels->Name, $silentCaptcha ) );
 				}
 				break;
 
@@ -265,7 +267,8 @@ class SectionNotices {
 				if ( $con->isPremiumActive() ) {
 					$canHandshake = $con->comps->shieldnet->canHandshake();
 					if ( !$canHandshake ) {
-						$warnings[] = sprintf( __( 'Not available as your site cannot handshake with %s.', 'wp-simple-firewall' ), 'ShieldNET API' );
+						$shieldNet = $con->labels->getBrandName( 'shieldnet' );
+						$warnings[] = sprintf( __( 'Not available as your site cannot handshake with %s.', 'wp-simple-firewall' ), $shieldNet.' API' );
 					}
 				}
 

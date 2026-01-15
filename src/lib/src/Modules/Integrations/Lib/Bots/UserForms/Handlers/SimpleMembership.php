@@ -35,7 +35,9 @@ class SimpleMembership extends Base {
 	}
 
 	private function check( string $msg, string $type ) :string {
+		$labels = self::con()->labels;
 		return ( empty( $msg ) && $this->setAuditAction( $type )->isBotBlockRequired() ) ?
-			sprintf( '%s silentCAPTCHA Check Failed', self::con()->labels->Name ) : '';
+			/* translators: %1$s: security plugin name, %2$s: silentCAPTCHA */
+			sprintf( '%1$s %2$s Check Failed', $labels->Name, $labels->getBrandName( 'silentcaptcha' ) ) : '';
 	}
 }
