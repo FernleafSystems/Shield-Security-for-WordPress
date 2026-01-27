@@ -38,6 +38,7 @@ class ConfigMerger {
 		'40_admin_notices.json'  => [ 'target' => 'config_spec.admin_notices', 'type' => 'object' ],
 		'43_databases.json'      => [ 'target' => 'config_spec.databases', 'type' => 'object' ],
 		'46_events.json'         => [ 'target' => 'config_spec.events', 'type' => 'object' ],
+		'50_translations.json'   => [ 'target' => 'translations', 'type' => 'object' ],
 	];
 
 	/**

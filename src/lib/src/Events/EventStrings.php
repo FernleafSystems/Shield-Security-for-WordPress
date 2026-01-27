@@ -345,6 +345,19 @@ class EventStrings {
 					__( 'XML-RPC Request Blocked.', 'wp-simple-firewall' ),
 				],
 			],
+			'lic_activation_success'       => [
+				'name'  => __( 'License Activation Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License activated successfully.', 'wp-simple-firewall' ),
+				],
+			],
+			'lic_activation_fail'          => [
+				'name'  => __( 'License Activation Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License activation failed.', 'wp-simple-firewall' ),
+					__( 'Error: {{error}}', 'wp-simple-firewall' ),
+				],
+			],
 			'lic_check_success'            => [
 				'name'  => __( 'License Check Success', 'wp-simple-firewall' ),
 				'audit' => [
