@@ -430,6 +430,17 @@
         "level": "debug",
         "recent": true
     },
+    "lic_activation_fail": {
+        "level": "warning",
+        "stat": false,
+        "audit_params": [
+            "error"
+        ]
+    },
+    "lic_activation_success": {
+        "level": "notice",
+        "stat": false
+    },
     "lic_check_fail": {
         "level": "warning",
         "stat": false,
@@ -831,6 +842,21 @@
             "name"
         ],
         "level": "notice"
+    },
+    "translation_downloaded": {
+        "audit_params": [
+            "locale"
+        ],
+        "level": "info",
+        "stat": true
+    },
+    "translation_download_failed": {
+        "audit_params": [
+            "locale",
+            "reason"
+        ],
+        "level": "warning",
+        "stat": true
     },
     "theme_downgraded": {
         "audit_params": [

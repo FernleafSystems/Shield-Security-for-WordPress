@@ -31,6 +31,7 @@ class License extends BaseCmd {
 					'status',
 					'verify',
 					'remove',
+					'activate',
 				],
 				'default'     => 'status',
 				'optional'    => false,
@@ -42,6 +43,12 @@ class License extends BaseCmd {
 				'optional'    => true,
 				'description' => 'Bypass confirmation prompt.',
 			],
+			[
+				'type'        => 'assoc',
+				'name'        => 'api-key',
+				'optional'    => true,
+				'description' => 'API key for license activation (required for activate action).',
+			],
 		];
 	}
 
@@ -52,6 +59,9 @@ class License extends BaseCmd {
 				break;
 			case 'remove':
 				$this->runRemove( $this->isForceFlag() );
+				break;
+			case 'activate':
+				$this->runActivate();
 				break;
 			case 'status':
 			default:
@@ -87,6 +97,35 @@ class License extends BaseCmd {
 			$success = self::con()->comps->license->verify( true )->hasValidWorkingLicense();
 			$msg = $success ? __( 'Valid license found and installed.', 'wp-simple-firewall' )
 				: __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+		}
+		catch ( \Exception $e ) {
+			$success = false;
+			$msg = $e->getMessage();
+		}
+
+		$success ? WP_CLI::success( $msg ) : WP_CLI::error( $msg );
+	}
+
+	private function runActivate() :void {
+		$apiKey = $this->execCmdArgs[ 'api-key' ] ?? '';
+
+		if ( empty( $apiKey ) ) {
+			WP_CLI::error( __( 'API key is required for activation. Use --api-key=YOUR_KEY', 'wp-simple-firewall' ) );
+		}
+
+		if ( self::con()->isPremiumActive() && !$this->isForceFlag() ) {
+			WP_CLI::error( __( 'A license is already active. Use --force to reactivate.', 'wp-simple-firewall' ) );
+		}
+
+		try {
+			// Step 1: Activate (register URL with API key) - throws on failure
+			( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Activate() )->run( $apiKey );
+
+			// Step 2: Verify to fetch full license data
+			$success = self::con()->comps->license->verify( true )->hasValidWorkingLicense();
+			$msg = $success
+				? __( 'License activated and verified successfully.', 'wp-simple-firewall' )
+				: __( 'License activated but verification failed.', 'wp-simple-firewall' );
 		}
 		catch ( \Exception $e ) {
 			$success = false;
