@@ -104,6 +104,20 @@ abstract class ShieldWordPressTestCase extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Get the Shield plugin controller instance.
+	 * Static method to match the pattern used in production code.
+	 */
+	protected static function con() {
+		if ( \function_exists( 'shield_security_get_plugin' ) ) {
+			$plugin = shield_security_get_plugin();
+			if ( $plugin && \method_exists( $plugin, 'getController' ) ) {
+				return $plugin->getController();
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Output debug information about the test environment
 	 */
 	protected function debugTestEnvironment() {

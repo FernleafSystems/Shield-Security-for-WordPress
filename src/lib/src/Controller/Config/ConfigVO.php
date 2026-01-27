@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\Configurat
  *     }                      $config_spec
  * @property array            $requirements
  * @property array            $paths
+ * @property array            $translations
  * @property array            $includes
  * @property array            $menu
  * @property array            $labels

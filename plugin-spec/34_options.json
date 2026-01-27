@@ -1112,6 +1112,12 @@
         "default": []
     },
     {
+        "key": "translation_config",
+        "section": "section_hidden",
+        "type": "array",
+        "default": []
+    },
+    {
         "key": "enable_auto_integrations",
         "section": "section_integrations",
         "zone_comp_slugs": [

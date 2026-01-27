@@ -31,6 +31,7 @@ class Processor {
 		$this->removePluginConflicts();
 
 		$components->license->execute();
+		$components->translation_downloads->execute();
 
 		if ( $components->opts_lookup->isPluginEnabled() ) {
 

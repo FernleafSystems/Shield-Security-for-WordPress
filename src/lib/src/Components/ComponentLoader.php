@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\{
 	Zones
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\TranslationDownloadController;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\CommentSpamCon;
@@ -74,6 +75,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property SessionController                $session
  * @property Scan\ScansController             $scans
  * @property Scan\Queue\Controller            $scans_queue
+ * @property TranslationDownloadController    $translation_downloads
  * @property Zones\SecurityZonesCon           $zones
  * @property Profiles\SecurityProfilesCon     $security_profiles
  * @property ShieldNetApiController           $shieldnet
@@ -102,48 +104,49 @@ class ComponentLoader extends DynPropertiesClass {
 
 	private function getConsMap() :array {
 		return [
-			'activity_log'      => AuditCon::class,
-			'altcha'            => AltChaHandler::class,
-			'assets_customizer' => AssetsCustomizer::class,
-			'autoupdates'       => CompCons\AutoUpdatesCon::class,
-			'api_token'         => ApiTokenManager::class,
-			'backups'           => CompCons\BackupsCon::class,
-			'badge'             => PluginBadge::class,
-			'bot_signals'       => BotSignalsController::class,
-			'comment_spam'      => CommentSpamCon::class,
-			'cool_down'         => CompCons\AntiBot\CoolDownHandler::class,
-			'crowdsec'          => CrowdSecController::class,
-			'events'            => EventsService::class,
-			'file_locker'       => FileLockerController::class,
-			'forms_spam'        => SpamController::class,
-			'forms_users'       => UserFormsController::class,
-			'http_headers'      => CompCons\HttpHeadersCon::class,
-			'import_export'     => ImportExportController::class,
-			'instant_alerts'    => CompCons\InstantAlertsCon::class,
-			'integrations'      => CompCons\IntegrationsCon::class,
-			'ips_con'           => CompCons\IPsCon::class,
-			'license'           => LicenseHandler::class,
-			'mainwp'            => MainwpCon::class,
-			'mu'                => CompCons\MU\MUHandler::class,
-			'mfa'               => MfaController::class,
-			'not_bot'           => NotBotHandler::class,
-			'offense_tracker'   => OffenseTracker::class,
-			'opts_lookup'       => OptsLookup::class,
-			'render'            => RenderService::class,
-			'reports'           => ReportingController::class,
-			'requests_log'      => RequestLogger::class,
-			'rest'              => CompCons\RestHandler::class,
-			'sec_admin'         => SecurityAdminController::class,
-			'session'           => SessionController::class,
-			'shieldnet'         => ShieldNetApiController::class,
-			'scans'             => Scan\ScansController::class,
-			'scans_queue'       => Scan\Queue\Controller::class,
-			'security_profiles' => Profiles\SecurityProfilesCon::class,
-			'user_suspend'      => UserSuspendController::class,
-			'whitelabel'        => CompCons\WhitelabelCon::class,
-			'wizards'           => MerlinController::class,
-			'wpcli'             => CompCons\WpCliCon::class,
-			'zones'             => Zones\SecurityZonesCon::class,
+			'activity_log'          => AuditCon::class,
+			'altcha'                => AltChaHandler::class,
+			'assets_customizer'     => AssetsCustomizer::class,
+			'autoupdates'           => CompCons\AutoUpdatesCon::class,
+			'api_token'             => ApiTokenManager::class,
+			'backups'               => CompCons\BackupsCon::class,
+			'badge'                 => PluginBadge::class,
+			'bot_signals'           => BotSignalsController::class,
+			'comment_spam'          => CommentSpamCon::class,
+			'cool_down'             => CompCons\AntiBot\CoolDownHandler::class,
+			'crowdsec'              => CrowdSecController::class,
+			'events'                => EventsService::class,
+			'file_locker'           => FileLockerController::class,
+			'forms_spam'            => SpamController::class,
+			'forms_users'           => UserFormsController::class,
+			'http_headers'          => CompCons\HttpHeadersCon::class,
+			'import_export'         => ImportExportController::class,
+			'instant_alerts'        => CompCons\InstantAlertsCon::class,
+			'integrations'          => CompCons\IntegrationsCon::class,
+			'ips_con'               => CompCons\IPsCon::class,
+			'license'               => LicenseHandler::class,
+			'mainwp'                => MainwpCon::class,
+			'mu'                    => CompCons\MU\MUHandler::class,
+			'mfa'                   => MfaController::class,
+			'not_bot'               => NotBotHandler::class,
+			'offense_tracker'       => OffenseTracker::class,
+			'opts_lookup'           => OptsLookup::class,
+			'render'                => RenderService::class,
+			'reports'               => ReportingController::class,
+			'requests_log'          => RequestLogger::class,
+			'rest'                  => CompCons\RestHandler::class,
+			'sec_admin'             => SecurityAdminController::class,
+			'session'               => SessionController::class,
+			'shieldnet'             => ShieldNetApiController::class,
+			'scans'                 => Scan\ScansController::class,
+			'translation_downloads' => TranslationDownloadController::class,
+			'scans_queue'           => Scan\Queue\Controller::class,
+			'security_profiles'     => Profiles\SecurityProfilesCon::class,
+			'user_suspend'          => UserSuspendController::class,
+			'whitelabel'            => CompCons\WhitelabelCon::class,
+			'wizards'               => MerlinController::class,
+			'wpcli'                 => CompCons\WpCliCon::class,
+			'zones'                 => Zones\SecurityZonesCon::class,
 		];
 	}
 }
