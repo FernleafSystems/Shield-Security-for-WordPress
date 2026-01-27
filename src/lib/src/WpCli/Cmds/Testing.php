@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
+/**
+ * Internal testing command - not included in public WP-CLI documentation.
+ * This command is for development/testing purposes only.
+ */
 class Testing extends BaseCmd {
 
 	protected function cmdParts() :array {

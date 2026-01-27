@@ -11,6 +11,7 @@
 /vendor
 /.agent-os/instructions
 /.agent-os/standards
+/docs
 
 # Testing artifacts
 /coverage/

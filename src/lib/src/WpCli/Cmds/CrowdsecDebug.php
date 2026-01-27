@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions;
 
+/**
+ * Internal debug command - not included in public WP-CLI documentation.
+ * This command is for development/debugging purposes only.
+ */
 class CrowdsecDebug extends CrowdsecBase {
 
 	protected function cmdParts() :array {
