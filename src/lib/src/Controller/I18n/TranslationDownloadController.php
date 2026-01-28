@@ -67,7 +67,7 @@ class TranslationDownloadController {
 				}
 			}
 
-			$this->saveQueue( \array_values( \array_diff( $this->getQueue(), $processed ) ) );
+			$this->saveQueue( \array_diff( $this->getQueue(), $processed ) );
 		}
 	}
 
@@ -160,7 +160,7 @@ class TranslationDownloadController {
 	}
 
 	private function saveQueue( array $queue ) :void {
-		$this->addCfg( 'queue', \array_values( \array_unique( $queue ) ) );
+		$this->addCfg( 'queue', \array_filter( \array_values( \array_unique( $queue ) ) ) );
 	}
 
 	public function getAvailableLocales() :array {

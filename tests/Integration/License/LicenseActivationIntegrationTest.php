@@ -40,7 +40,7 @@ class LicenseActivationIntegrationTest extends ShieldWordPressTestCase {
 		$con = self::con();
 		$this->assertNotNull( $con, 'Shield controller should be available' );
 
-		$events = $con->cfg->events ?? [];
+		$events = $con->cfg->configuration->events ?? [];
 		$this->assertIsArray( $events );
 
 		$this->assertArrayHasKey(
