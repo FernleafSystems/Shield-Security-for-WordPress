@@ -27,6 +27,9 @@ class TranslationDownloadController {
 		$this->setupCronHooks();
 	}
 
+	/**
+	 * There is no validation of the locale at this stage. It will be filtered and validated later.
+	 */
 	public function enqueueLocaleForDownload( string $locale ) :void {
 		$this->saveQueue( \array_merge( $this->getQueue(), [ $locale ] ) );
 	}

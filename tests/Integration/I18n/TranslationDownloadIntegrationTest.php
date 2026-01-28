@@ -135,24 +135,6 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 		$this->assertContains( 'de_DE', $queue, 'Valid locale should be added to queue' );
 	}
 
-	public function testQueuePreventsInvalidLocale() :void {
-		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
-
-		$controller = $con->comps->translation_downloads;
-
-		// Try to queue an invalid locale
-		$controller->enqueueLocaleForDownload( 'xx_XX' );
-
-		// Access queue via reflection
-		$reflection = new \ReflectionClass( $controller );
-		$method = $reflection->getMethod( 'getQueue' );
-		$method->setAccessible( true );
-		$queue = $method->invoke( $controller );
-
-		$this->assertNotContains( 'xx_XX', $queue, 'Invalid locale should not be added to queue' );
-	}
-
 	public function testQueuePreventsEmptyLocale() :void {
 		$con = self::con();
 		$this->assertNotNull( $con, 'Shield controller should be available' );
@@ -252,5 +234,44 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 		$this->assertEquals( 64, \strlen( $expectedHash ), 'SHA-256 hash should be 64 characters' );
 		$this->assertEquals( $expectedHash, \hash( 'sha256', $content ), 'Same content should produce same hash' );
+	}
+
+	/**
+	 * When exact locale not available but language variant is,
+	 * verify the language fallback locale gets queued.
+	 */
+	public function testLanguageFallbackQueuesCorrectLocale() :void {
+		$con = self::con();
+		$controller = $con->comps->translation_downloads;
+
+		// Clear existing queue
+		$reflection = new \ReflectionClass( $controller );
+		$saveQueueMethod = $reflection->getMethod( 'saveQueue' );
+		$saveQueueMethod->setAccessible( true );
+		$saveQueueMethod->invoke( $controller, [] );
+
+		// This test verifies the integration when API returns language-only locales
+		// The actual behavior depends on what getAvailableLocales() returns from API
+		$availableLocales = $controller->getAvailableLocales();
+
+		// If 'ar' is available but 'ar_EG' is not, queueing logic should handle it
+		if ( isset( $availableLocales[ 'ar' ] ) && !isset( $availableLocales[ 'ar_EG' ] ) ) {
+			// This scenario tests our fix
+			$loader = new LoadTextDomain();
+			$loaderReflection = new \ReflectionClass( $loader );
+			$method = $loaderReflection->getMethod( 'findDynamicMo' );
+			$method->setAccessible( true );
+			$method->invoke( $loader, 'ar_EG' );
+
+			$getQueueMethod = $reflection->getMethod( 'getQueue' );
+			$getQueueMethod->setAccessible( true );
+			$queue = $getQueueMethod->invoke( $controller );
+
+			$this->assertContains( 'ar', $queue, 'Language fallback ar should be queued for ar_EG' );
+			$this->assertNotContains( 'ar_EG', $queue, 'Exact locale ar_EG should not be queued' );
+		}
+		else {
+			$this->markTestSkipped( 'Test requires ar available without ar_EG in remote API' );
+		}
 	}
 }

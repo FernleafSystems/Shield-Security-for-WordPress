@@ -100,9 +100,25 @@ class LoadTextDomain {
 			}
 		}
 
-		// 3. Queue for async download if not found and locale is available
-		if ( empty( $foundMoPath ) && $transDownloaderCon->isLocaleAvailable( $targetLocale ) ) {
-			$transDownloaderCon->enqueueLocaleForDownload( $targetLocale );
+		// 3. Queue for async download if not found
+		if ( empty( $foundMoPath ) ) {
+			$localeToQueue = null;
+
+			if ( $transDownloaderCon->isLocaleAvailable( $targetLocale ) ) {
+				$localeToQueue = $targetLocale;
+			}
+			elseif ( !empty( $targetLang ) ) {
+				foreach ( \array_keys( $transDownloaderCon->getAvailableLocales() ) as $maybeLocale ) {
+					if ( $targetLang === $this->localeToLang( $maybeLocale ) ) {
+						$localeToQueue = $maybeLocale;
+						break;
+					}
+				}
+			}
+
+			if ( !empty( $localeToQueue ) ) {
+				$transDownloaderCon->enqueueLocaleForDownload( $localeToQueue );
+			}
 		}
 
 		return $foundMoPath;
