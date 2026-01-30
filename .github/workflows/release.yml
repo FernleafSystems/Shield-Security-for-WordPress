@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Display Environment Info
+      run: |
+        echo "PHP Version: $(php -v)"
+        echo "Composer Version: $(composer --version)"
+        echo "Node.js Version: $(node --version)"
+        echo "NPM Version: $(npm --version)"
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd src/lib && composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd ../..
+        npm ci --no-audit --no-fund
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Load Strauss version
+      run: |
+        source .github/scripts/read-packager-config.sh
+        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
+
+    - name: Build plugin package
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
+        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
+
+    - name: Create distribution zip
+      run: |
+        VERSION="${GITHUB_REF#refs/tags/}"
+        cd "${{ github.workspace }}"
+        mv shield-package wp-simple-firewall
+        zip -r "wp-simple-firewall-${VERSION}.zip" wp-simple-firewall
+        echo "ZIP_NAME=wp-simple-firewall-${VERSION}.zip" >> $GITHUB_ENV
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ${{ github.workspace }}/${{ env.ZIP_NAME }}
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
