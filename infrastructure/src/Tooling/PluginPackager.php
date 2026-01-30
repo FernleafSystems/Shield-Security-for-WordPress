@@ -3,14 +3,16 @@ declare( strict_types=1 );
 
 namespace FernleafSystems\ShieldPlatform\Tooling;
 
-use RuntimeException;
+use Symfony\Component\Filesystem\Exception\InvalidArgumentException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 class PluginPackager {
 
 	private string $projectRoot;
+
 	private string $straussVersion = '';
+
 	private ?string $straussForkRepo = null;
 
 	/** @var callable */
@@ -19,7 +21,7 @@ class PluginPackager {
 	public function __construct( ?string $projectRoot = null, ?callable $logger = null ) {
 		$root = $projectRoot ?? $this->detectProjectRoot();
 		if ( $root === '' ) {
-			throw new RuntimeException( 'Unable to determine project root.' );
+			throw new \RuntimeException( 'Unable to determine project root.' );
 		}
 		$this->projectRoot = $root;
 		$this->logger = $logger ?? static function ( string $message ) :void {
@@ -29,6 +31,7 @@ class PluginPackager {
 
 	/**
 	 * @param array<string,bool> $options
+	 * @throws InvalidArgumentException
 	 */
 	public function package( ?string $outputDir = null, array $options = [] ) :string {
 		$options = $this->resolveOptions( $options );
@@ -50,7 +53,7 @@ class PluginPackager {
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
-//					'--optimize-autoloader'
+					//					'--optimize-autoloader'
 				] ),
 				$this->projectRoot
 			);
@@ -62,7 +65,7 @@ class PluginPackager {
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
-//					'--optimize-autoloader'
+					//					'--optimize-autoloader'
 				] ),
 				Path::join( $this->projectRoot, 'src', 'lib' )
 			);
@@ -85,7 +88,8 @@ class PluginPackager {
 		// Copy files (skip if already in place via git archive)
 		if ( !$options[ 'skip_copy' ] ) {
 			$this->copyPluginFiles( $targetDir );
-		} else {
+		}
+		else {
 			$this->log( 'Skipping file copy (--skip-copy enabled)' );
 		}
 
@@ -93,6 +97,7 @@ class PluginPackager {
 		$this->buildPluginJson( $targetDir );
 
 		$this->installComposerDependencies( $targetDir );
+		$this->cleanupVendorDevelopmentFiles( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
 		$this->cleanupPackageFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
@@ -110,7 +115,7 @@ class PluginPackager {
 
 	private function resolveOutputDirectory( ?string $path ) :string {
 		if ( $path === null || $path === '' ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				'Output directory is required. Please specify --output=<directory> when packaging. '.
 				'Packages must be built outside the project directory (e.g., SVN repository or external build directory).'
 			);
@@ -121,7 +126,7 @@ class PluginPackager {
 
 		// Check for empty after trimming
 		if ( $path === '' ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				'Output directory is required. Please specify --output=<directory> when packaging. '.
 				'Packages must be built outside the project directory (e.g., SVN repository or external build directory).'
 			);
@@ -221,10 +226,10 @@ class PluginPackager {
 		$revert = false;
 		if ( $workingDir !== null && $workingDir !== '' && $previousCwd !== $workingDir ) {
 			if ( !is_dir( $workingDir ) ) {
-				throw new RuntimeException( sprintf( 'Working directory does not exist: %s', $workingDir ) );
+				throw new \RuntimeException( sprintf( 'Working directory does not exist: %s', $workingDir ) );
 			}
 			if ( !@chdir( $workingDir ) ) {
-				throw new RuntimeException( sprintf( 'Unable to change directory to: %s', $workingDir ) );
+				throw new \RuntimeException( sprintf( 'Unable to change directory to: %s', $workingDir ) );
 			}
 			$revert = true;
 		}
@@ -239,7 +244,7 @@ class PluginPackager {
 		}
 
 		if ( $exitCode !== 0 ) {
-			throw new RuntimeException( sprintf( 'Command failed with exit code %d: %s', $exitCode, $commandString ) );
+			throw new \RuntimeException( sprintf( 'Command failed with exit code %d: %s', $exitCode, $commandString ) );
 		}
 	}
 
@@ -333,8 +338,8 @@ class PluginPackager {
 	 * NOTE: Matching is case-sensitive (consistent with git's behavior).
 	 * Git tracks paths exactly as committed, so case mismatches are rare.
 	 *
-	 * @param string $relativePath Path relative to project root (forward slashes)
-	 * @param string[] $patterns Export-ignore patterns from .gitattributes
+	 * @param string   $relativePath Path relative to project root (forward slashes)
+	 * @param string[] $patterns     Export-ignore patterns from .gitattributes
 	 * @return bool True if path should be excluded
 	 */
 	private function shouldExcludePath( string $relativePath, array $patterns ) :bool {
@@ -381,7 +386,6 @@ class PluginPackager {
 
 		return false;
 	}
-
 
 	/**
 	 * @return string[]
@@ -431,7 +435,8 @@ class PluginPackager {
 	/**
 	 * Copy plugin files to the target package directory
 	 * Uses .gitattributes export-ignore patterns as single source of truth
-	 * @throws RuntimeException if copy operations fail
+	 * @throws \RuntimeException|\Symfony\Component\Filesystem\Exception\InvalidArgumentException if copy operations
+	 *                                                                                            fail
 	 */
 	private function copyPluginFiles( string $targetDir ) :void {
 		$this->log( 'Copying plugin files...' );
@@ -455,16 +460,16 @@ class PluginPackager {
 		// If a symlink points outside the project, Path::makeRelative() may return
 		// unexpected results. This is acceptable as symlinks in the source tree are rare.
 		$projectRoot = $this->projectRoot;
-		
+
 		// Check if target directory is inside project root to prevent infinite recursion (required for CI)
 		$isTargetInsideRoot = Path::isBasePath( $projectRoot, $targetDir );
 		if ( $isTargetInsideRoot ) {
 			$this->log( sprintf( '  Excluding target directory from copy: %s', Path::makeRelative( $targetDir, $projectRoot ) ) );
 		}
-		
+
 		$dirIterator = new \RecursiveDirectoryIterator(
 			$this->projectRoot,
-			\RecursiveDirectoryIterator::SKIP_DOTS
+			\FilesystemIterator::SKIP_DOTS
 		);
 
 		// Filter out excluded directories BEFORE descending into them
@@ -513,7 +518,7 @@ class PluginPackager {
 					$stats[ 'files' ]++;
 				}
 				catch ( \Exception $e ) {
-					throw new RuntimeException(
+					throw new \RuntimeException(
 						sprintf( 'Failed to copy file "%s": %s', $relativePath, $e->getMessage() )
 					);
 				}
@@ -542,7 +547,7 @@ class PluginPackager {
 
 	/**
 	 * Install composer dependencies in the package directory (production only)
-	 * @throws RuntimeException if composer install fails
+	 * @throws \RuntimeException if composer install fails
 	 */
 	private function installComposerDependencies( string $targetDir ) :void {
 		$this->log( 'Installing composer dependencies in package...' );
@@ -550,7 +555,7 @@ class PluginPackager {
 		$libDir = Path::join( $targetDir, 'src', 'lib' );
 
 		if ( !is_dir( $libDir ) ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Composer install failed: Package library directory does not exist. '.
 					'Expected directory: %s. '.
@@ -567,7 +572,7 @@ class PluginPackager {
 				'--no-dev',
 				'--no-interaction',
 				'--prefer-dist',
-//				'--optimize-autoloader',
+				//				'--optimize-autoloader',
 				'--quiet'
 			] ),
 			$libDir
@@ -578,11 +583,61 @@ class PluginPackager {
 	}
 
 	private const FALLBACK_STRAUSS_VERSION = '0.19.4';
+	/**
+	 * Patterns for cleaning development files from vendor directories.
+	 * Only applied to DIRECT CHILDREN of each package directory.
+	 */
+	private const VENDOR_CLEANUP_PATTERNS = [
+		// Directories to remove entirely (lowercase - matched case-insensitively)
+		'directories' => [
+			'tests',
+			'test',
+			'.github',
+			'doc',
+			'docs',
+			'example',
+			'examples',
+			'bin',
+		],
+		// Files to remove (glob patterns, lowercase - matched case-insensitively)
+		'files'       => [
+			'readme*',
+			'changelog*',
+			'changes*',
+			'upgrade*',
+			'contributing*',
+			'code_of_conduct*',
+			'security*',
+			'license*',
+			'.gitignore',
+			'.gitattributes',
+			'.editorconfig',
+			'.php-cs-fixer*',
+			'.php_cs*',
+			'phpunit.xml*',
+			'phpstan.neon*',
+			'psalm.xml*',
+			'.travis.yml',
+			'.gitlab-ci.yml',
+			'codecov.yml',
+			'makefile',
+			'*.sh',
+			'*.bat',
+			'composer.json',
+			'composer.lock',
+			'.styleci.yml',
+			'phpbench.json',
+			'infection.json*',
+			'phpcs.xml*',
+			'humbug.json*',
+			'box.json*',
+		],
+	];
 
 	/**
 	 * Provide Strauss binary - either from fork clone or downloaded PHAR.
 	 * Returns the path to the strauss executable.
-	 * @throws RuntimeException if neither method succeeds
+	 * @throws \RuntimeException if neither method succeeds
 	 */
 	private function provideStraussBinary( string $targetDir ) :string {
 		$libDir = Path::join( $targetDir, 'src', 'lib' );
@@ -615,7 +670,7 @@ class PluginPackager {
 	/**
 	 * Clone Strauss fork and prepare it for use.
 	 * Returns path to bin/strauss executable.
-	 * @throws RuntimeException if clone or setup fails
+	 * @throws \RuntimeException if clone or setup fails
 	 */
 	private function cloneAndPrepareStraussFork( string $targetDir ) :string {
 		$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
@@ -661,13 +716,19 @@ class PluginPackager {
 		$this->log( 'Installing Strauss fork dependencies...' );
 		$composerCommand = $this->getComposerCommand();
 		$this->runCommand(
-			array_merge( $composerCommand, [ 'install', '--no-interaction', '--no-dev', '--no-scripts', '--prefer-dist' ] ),
+			array_merge( $composerCommand, [
+				'install',
+				'--no-interaction',
+				'--no-dev',
+				'--no-scripts',
+				'--prefer-dist'
+			] ),
 			$forkDir
 		);
 
 		// Verify bin/strauss exists
 		if ( !file_exists( $binPath ) ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss fork clone failed: bin/strauss not found at %s. '.
 					'HOW TO FIX: Verify the fork repository URL is correct: %s',
@@ -684,7 +745,7 @@ class PluginPackager {
 
 	/**
 	 * Remove a temporary directory safely (less strict than removeDirectorySafely)
-	 * @param string $dir Directory to remove
+	 * @param string      $dir             Directory to remove
 	 * @param string|null $allowedBasePath Additional allowed base path (besides system temp)
 	 */
 	private function removeDirectorySafelyForTemp( string $dir, ?string $allowedBasePath = null ) :void {
@@ -709,7 +770,7 @@ class PluginPackager {
 		}
 
 		if ( !$isInTemp && !$isInAllowed ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf( 'Refusing to delete directory outside allowed paths: %s', $dir )
 			);
 		}
@@ -719,7 +780,7 @@ class PluginPackager {
 
 	/**
 	 * Download Strauss phar file for namespace prefixing
-	 * @throws RuntimeException if download fails with detailed error message
+	 * @throws \RuntimeException if download fails with detailed error message
 	 */
 	private function downloadStraussPhar( string $targetDir ) :void {
 		$this->log( sprintf( 'Downloading Strauss v%s...', $this->straussVersion ) );
@@ -733,7 +794,7 @@ class PluginPackager {
 
 		// Check if allow_url_fopen is enabled
 		if ( !ini_get( 'allow_url_fopen' ) ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				'Strauss download failed: allow_url_fopen is disabled in PHP configuration. '.
 				'WHAT FAILED: Unable to download strauss.phar from GitHub. '.
 				'WHY: The PHP setting "allow_url_fopen" is disabled, which prevents PHP from downloading files from URLs. '.
@@ -768,7 +829,7 @@ class PluginPackager {
 			$lastError = error_get_last();
 			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
 
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss download failed: Unable to download strauss.phar from GitHub. '.
 					'WHAT FAILED: Could not retrieve file from %s. '.
@@ -785,7 +846,7 @@ class PluginPackager {
 		}
 
 		if ( $content === '' ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss download failed: Downloaded file is empty. '.
 					'WHAT FAILED: The file downloaded from %s has zero bytes. '.
@@ -809,7 +870,7 @@ class PluginPackager {
 			$lastError = error_get_last();
 			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
 
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss download failed: Could not write strauss.phar to disk. '.
 					'WHAT FAILED: Unable to save downloaded file to %s. '.
@@ -826,7 +887,7 @@ class PluginPackager {
 
 		// Verify the file was written correctly
 		if ( !file_exists( $targetPath ) ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss download failed: File was not created after write operation. '.
 					'WHAT FAILED: strauss.phar does not exist at expected location after download. '.
@@ -841,7 +902,7 @@ class PluginPackager {
 
 		$fileSize = filesize( $targetPath );
 		if ( $fileSize === 0 ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss download failed: Downloaded file has zero size. '.
 					'WHAT FAILED: strauss.phar exists but contains no data. '.
@@ -861,7 +922,7 @@ class PluginPackager {
 
 	/**
 	 * Run Strauss to prefix vendor namespaces
-	 * @throws RuntimeException if Strauss execution fails
+	 * @throws \RuntimeException if Strauss execution fails
 	 */
 	private function runStraussPrefixing( string $targetDir ) :void {
 		$libDir = Path::join( $targetDir, 'src', 'lib' );
@@ -890,7 +951,7 @@ class PluginPackager {
 		}
 		else {
 			$this->log( '✗ vendor_prefixed NOT created' );
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Strauss execution failed: vendor_prefixed directory was not created. '.
 					'WHAT FAILED: Strauss completed without error but did not create the expected output directory. '.
@@ -976,6 +1037,139 @@ class PluginPackager {
 	}
 
 	/**
+	 * Clean development files from vendor directories.
+	 * Removes test directories, documentation, CI configs, etc. from DIRECT CHILDREN
+	 * of each package directory. Applies to both vendor and vendor_prefixed directories.
+	 */
+	private function cleanupVendorDevelopmentFiles( string $targetDir ) :void {
+		$this->log( 'Cleaning vendor development files...' );
+
+		$libDir = Path::join( $targetDir, 'src', 'lib' );
+		$vendorDirs = [
+			Path::join( $libDir, 'vendor' ),
+			Path::join( $libDir, 'vendor_prefixed' ),
+		];
+
+		$stats = [ 'dirs' => 0, 'files' => 0 ];
+
+		foreach ( $vendorDirs as $vendorDir ) {
+			if ( !is_dir( $vendorDir ) ) {
+				continue;
+			}
+
+			$this->log( sprintf( '  Processing: %s', basename( $vendorDir ) ) );
+			$this->cleanupVendorPackages( $vendorDir, $stats );
+		}
+
+		$this->log( sprintf( '  Removed %d directories and %d files', $stats[ 'dirs' ], $stats[ 'files' ] ) );
+	}
+
+	/**
+	 * Clean development files from a single vendor directory (vendor or vendor_prefixed).
+	 * Only removes files/directories that are DIRECT CHILDREN of each package directory.
+	 * Structure: vendor/{vendor-name}/{package-name}/{target-to-remove}
+	 *
+	 * @param array<string,int> $stats Reference to stats array for counting
+	 */
+	private function cleanupVendorPackages( string $vendorDir, array &$stats ) :void {
+		$fs = new Filesystem();
+		$dirPatterns = self::VENDOR_CLEANUP_PATTERNS[ 'directories' ];
+		$filePatterns = self::VENDOR_CLEANUP_PATTERNS[ 'files' ];
+
+		// Iterate vendor/{vendor-name} directories
+		$vendorNameDirs = @scandir( $vendorDir );
+		if ( $vendorNameDirs === false ) {
+			return;
+		}
+
+		foreach ( $vendorNameDirs as $vendorName ) {
+			if ( $vendorName === '.' || $vendorName === '..' ) {
+				continue;
+			}
+
+			$vendorNamePath = Path::join( $vendorDir, $vendorName );
+			if ( !is_dir( $vendorNamePath ) ) {
+				continue;
+			}
+
+			// Iterate vendor/{vendor-name}/{package-name} directories
+			$packageDirs = @scandir( $vendorNamePath );
+			if ( $packageDirs === false ) {
+				continue;
+			}
+
+			foreach ( $packageDirs as $packageName ) {
+				if ( $packageName === '.' || $packageName === '..' ) {
+					continue;
+				}
+
+				$packagePath = Path::join( $vendorNamePath, $packageName );
+				if ( !is_dir( $packagePath ) ) {
+					continue;
+				}
+
+				// Now clean DIRECT CHILDREN of this package directory
+				$this->cleanupPackageDirectChildren( $packagePath, $dirPatterns, $filePatterns, $stats, $fs );
+			}
+		}
+	}
+
+	/**
+	 * Clean direct children of a single package directory.
+	 * @param string[]          $dirPatterns  Directory names to remove
+	 * @param string[]          $filePatterns File glob patterns to remove
+	 * @param array<string,int> $stats        Reference to stats array
+	 */
+	private function cleanupPackageDirectChildren(
+		string $packagePath,
+		array $dirPatterns,
+		array $filePatterns,
+		array &$stats,
+		Filesystem $fs
+	) :void {
+		$children = @scandir( $packagePath );
+		if ( $children === false ) {
+			return;
+		}
+
+		foreach ( $children as $child ) {
+			if ( $child === '.' || $child === '..' ) {
+				continue;
+			}
+
+			$childPath = Path::join( $packagePath, $child );
+
+			// Check if it's a directory to remove (case-insensitive)
+			if ( is_dir( $childPath ) && \in_array( \strtolower( $child ), $dirPatterns, true ) ) {
+				try {
+					$this->removeDirectoryRecursive( $childPath );
+					$stats[ 'dirs' ]++;
+				}
+				catch ( \Exception $e ) {
+					// Log but don't fail
+				}
+				continue;
+			}
+
+			// Check if it's a file to remove
+			if ( is_file( $childPath ) ) {
+				foreach ( $filePatterns as $pattern ) {
+					if ( fnmatch( $pattern, \strtolower( $child ) ) ) {
+						try {
+							$fs->remove( $childPath );
+							$stats[ 'files' ]++;
+						}
+						catch ( \Exception $e ) {
+							// Ignore
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Clean autoload files to remove twig references
 	 * Preserves original line endings (CRLF/LF)
 	 */
@@ -1054,7 +1248,7 @@ class PluginPackager {
 
 	/**
 	 * Verify the package was built correctly by checking required files and directories
-	 * @throws RuntimeException if critical package files are missing
+	 * @throws \RuntimeException if critical package files are missing
 	 */
 	private function verifyPackage( string $targetDir ) :void {
 		$this->log( '=== Package Verification ===' );
@@ -1063,9 +1257,9 @@ class PluginPackager {
 
 		// Required files
 		$requiredFiles = [
-			'plugin.json'                                   => Path::join( $targetDir, 'plugin.json' ),
-			'icwp-wpsf.php'                                 => Path::join( $targetDir, 'icwp-wpsf.php' ),
-			'src/lib/vendor/autoload.php'                   => Path::join( $targetDir, 'src', 'lib', 'vendor', 'autoload.php' ),
+			'plugin.json'                 => Path::join( $targetDir, 'plugin.json' ),
+			'icwp-wpsf.php'               => Path::join( $targetDir, 'icwp-wpsf.php' ),
+			'src/lib/vendor/autoload.php' => Path::join( $targetDir, 'src', 'lib', 'vendor', 'autoload.php' ),
 		];
 
 		foreach ( $requiredFiles as $name => $path ) {
@@ -1095,7 +1289,7 @@ class PluginPackager {
 		}
 
 		if ( !empty( $errors ) ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'Package verification failed: Missing critical files/directories. '.
 					'WHAT FAILED: The following required items are missing: %s. '.
@@ -1112,7 +1306,7 @@ class PluginPackager {
 
 	/**
 	 * Safely remove a directory with comprehensive safety checks
-	 * @throws RuntimeException if directory cannot be safely deleted
+	 * @throws \RuntimeException if directory cannot be safely deleted
 	 */
 	private function removeDirectorySafely( string $dir ) :void {
 		// Normalize and resolve the directory path
@@ -1131,7 +1325,7 @@ class PluginPackager {
 
 	/**
 	 * Validate that a directory is safe to delete
-	 * @throws RuntimeException if directory is unsafe to delete
+	 * @throws \RuntimeException if directory is unsafe to delete
 	 */
 	private function validateDirectoryIsSafeToDelete( string $dir ) :void {
 		$normalizedDir = rtrim( str_replace( '\\', '/', $dir ), '/' );
@@ -1141,7 +1335,7 @@ class PluginPackager {
 		// Safety rule: Never allow cleaning within the project directory
 		// Packages should only be built in external directories (e.g., SVN repos)
 		if ( $isWithinProject ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'ERROR: Cannot build package within project directory. '.
 					'Packages must be built in external directories (e.g., SVN repository or separate build directory). '.
@@ -1162,7 +1356,7 @@ class PluginPackager {
 	/**
 	 * Validate directories outside the project root with basic safety checks
 	 * Allows external directories (like SVN repos) but prevents dangerous system deletions
-	 * @throws RuntimeException if directory is unsafe to delete
+	 * @throws \RuntimeException if directory is unsafe to delete
 	 */
 	private function validateDirectoryOutsideProject( string $normalizedDir ) :void {
 		// Prevent deletion of system root directories
@@ -1187,7 +1381,7 @@ class PluginPackager {
 			// Exact match or directory is the dangerous path itself
 			if ( $normalizedDirLower === $normalizedDangerous ||
 				 $normalizedDirLower === $normalizedDangerous.'/' ) {
-				throw new RuntimeException(
+				throw new \RuntimeException(
 					sprintf(
 						'ERROR: Cannot build package in system root or critical system directory. '.
 						'Reason: Deleting system directories would cause severe system damage. '.
@@ -1205,7 +1399,7 @@ class PluginPackager {
 		// Paths shorter than 3 characters are suspicious
 		$pathLength = strlen( $normalizedDir );
 		if ( $pathLength < 3 ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'ERROR: Cannot build package in suspiciously short path (likely system root). '.
 					'Reason: Path is too short (%d characters) and may be a system root directory. '.
@@ -1228,7 +1422,7 @@ class PluginPackager {
 		foreach ( $windowsSystemDirs as $sysDir ) {
 			$normalizedSysDir = strtolower( $sysDir );
 			if ( strpos( strtolower( $normalizedDir ), $normalizedSysDir ) === 0 ) {
-				throw new RuntimeException(
+				throw new \RuntimeException(
 					sprintf(
 						'ERROR: Cannot build package in Windows system directory. '.
 						'Reason: Deleting Windows system directories would cause severe system damage. '.
@@ -1245,7 +1439,7 @@ class PluginPackager {
 
 	/**
 	 * Safely remove a directory that must be inside a specified parent directory
-	 * @throws RuntimeException if directory is not inside parent or deletion fails
+	 * @throws \RuntimeException if directory is not inside parent or deletion fails
 	 */
 	private function removeSubdirectoryOf( string $dir, string $mustBeInsideDir ) :void {
 		$realDir = realpath( $dir );
@@ -1256,7 +1450,7 @@ class PluginPackager {
 		}
 
 		if ( $realParent === false ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf( 'Parent directory does not exist: %s', $mustBeInsideDir )
 			);
 		}
@@ -1267,7 +1461,7 @@ class PluginPackager {
 
 		// Verify the directory is actually inside the parent
 		if ( strpos( $normalizedDir, $normalizedParent.'/' ) !== 0 ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf(
 					'SAFETY CHECK FAILED: Refusing to delete directory that is not inside expected parent. '.
 					'Directory: %s | Expected parent: %s',
@@ -1279,7 +1473,7 @@ class PluginPackager {
 
 		// Also verify it's not the parent itself
 		if ( $normalizedDir === $normalizedParent ) {
-			throw new RuntimeException(
+			throw new \RuntimeException(
 				sprintf( 'SAFETY CHECK FAILED: Cannot delete the parent directory itself: %s', $realDir )
 			);
 		}
@@ -1289,7 +1483,7 @@ class PluginPackager {
 
 	/**
 	 * Recursively remove a directory and all its contents
-	 * @throws RuntimeException if deletion fails
+	 * @throws \RuntimeException if deletion fails
 	 */
 	private function removeDirectoryRecursive( string $dir ) :void {
 		if ( !is_dir( $dir ) ) {
@@ -1299,9 +1493,7 @@ class PluginPackager {
 		// Read directory contents
 		$files = @scandir( $dir );
 		if ( $files === false ) {
-			throw new RuntimeException(
-				sprintf( 'Failed to read directory contents: %s', $dir )
-			);
+			throw new \RuntimeException( sprintf( 'Failed to read directory contents: %s', $dir ) );
 		}
 
 		$files = array_diff( $files, [ '.', '..' ] );
@@ -1313,7 +1505,7 @@ class PluginPackager {
 			if ( is_link( $path ) ) {
 				// For symlinks, only delete the link itself, not the target
 				if ( !@unlink( $path ) ) {
-					throw new RuntimeException(
+					throw new \RuntimeException(
 						sprintf( 'Failed to delete symlink: %s', $path )
 					);
 				}
@@ -1330,9 +1522,7 @@ class PluginPackager {
 				if ( !@unlink( $path ) ) {
 					// Check if file still exists (might have been deleted by another process)
 					if ( file_exists( $path ) ) {
-						throw new RuntimeException(
-							sprintf( 'Failed to delete file: %s', $path )
-						);
+						throw new \RuntimeException( sprintf( 'Failed to delete file: %s', $path ) );
 					}
 				}
 			}
@@ -1349,10 +1539,8 @@ class PluginPackager {
 					// Directory is actually empty, ignore the error
 					return;
 				}
-				
-				throw new RuntimeException(
-					sprintf( 'Failed to delete directory: %s', $dir )
-				);
+
+				throw new \RuntimeException( sprintf( 'Failed to delete directory: %s', $dir ) );
 			}
 		}
 	}
