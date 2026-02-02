@@ -2,7 +2,7 @@
 <?php
 declare( strict_types=1 );
 
-use FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginPackager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 use Symfony\Component\Filesystem\Path;
 

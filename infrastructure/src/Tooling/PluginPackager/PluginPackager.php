@@ -1,8 +1,9 @@
 <?php
 declare( strict_types=1 );
 
-namespace FernleafSystems\ShieldPlatform\Tooling;
+namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
+use FernleafSystems\ShieldPlatform\Tooling\ConfigMerger;
 use Symfony\Component\Filesystem\Exception\InvalidArgumentException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -97,7 +98,7 @@ class PluginPackager {
 		$this->buildPluginJson( $targetDir );
 
 		$this->installComposerDependencies( $targetDir );
-		$this->cleanupVendorDevelopmentFiles( $targetDir );
+		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
 		$this->runStraussPrefixing( $targetDir );
 		$this->cleanupPackageFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
@@ -109,7 +110,7 @@ class PluginPackager {
 	}
 
 	private function detectProjectRoot() :string {
-		$root = realpath( __DIR__.'/../../..' );
+		$root = realpath( __DIR__.'/../../../..' );
 		return $root === false ? '' : $root;
 	}
 
@@ -583,56 +584,6 @@ class PluginPackager {
 	}
 
 	private const FALLBACK_STRAUSS_VERSION = '0.19.4';
-	/**
-	 * Patterns for cleaning development files from vendor directories.
-	 * Only applied to DIRECT CHILDREN of each package directory.
-	 */
-	private const VENDOR_CLEANUP_PATTERNS = [
-		// Directories to remove entirely (lowercase - matched case-insensitively)
-		'directories' => [
-			'tests',
-			'test',
-			'.github',
-			'doc',
-			'docs',
-			'example',
-			'examples',
-			'bin',
-		],
-		// Files to remove (glob patterns, lowercase - matched case-insensitively)
-		'files'       => [
-			'readme*',
-			'changelog*',
-			'changes*',
-			'upgrade*',
-			'contributing*',
-			'code_of_conduct*',
-			'security*',
-			'license*',
-			'.gitignore',
-			'.gitattributes',
-			'.editorconfig',
-			'.php-cs-fixer*',
-			'.php_cs*',
-			'phpunit.xml*',
-			'phpstan.neon*',
-			'psalm.xml*',
-			'.travis.yml',
-			'.gitlab-ci.yml',
-			'codecov.yml',
-			'makefile',
-			'*.sh',
-			'*.bat',
-			'composer.json',
-			'composer.lock',
-			'.styleci.yml',
-			'phpbench.json',
-			'infection.json*',
-			'phpcs.xml*',
-			'humbug.json*',
-			'box.json*',
-		],
-	];
 
 	/**
 	 * Provide Strauss binary - either from fork clone or downloaded PHAR.
@@ -775,7 +726,7 @@ class PluginPackager {
 			);
 		}
 
-		$this->removeDirectoryRecursive( $realDir );
+		FileSystemUtils::removeDirectoryRecursive( $realDir );
 	}
 
 	/**
@@ -1037,139 +988,6 @@ class PluginPackager {
 	}
 
 	/**
-	 * Clean development files from vendor directories.
-	 * Removes test directories, documentation, CI configs, etc. from DIRECT CHILDREN
-	 * of each package directory. Applies to both vendor and vendor_prefixed directories.
-	 */
-	private function cleanupVendorDevelopmentFiles( string $targetDir ) :void {
-		$this->log( 'Cleaning vendor development files...' );
-
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-		$vendorDirs = [
-			Path::join( $libDir, 'vendor' ),
-			Path::join( $libDir, 'vendor_prefixed' ),
-		];
-
-		$stats = [ 'dirs' => 0, 'files' => 0 ];
-
-		foreach ( $vendorDirs as $vendorDir ) {
-			if ( !is_dir( $vendorDir ) ) {
-				continue;
-			}
-
-			$this->log( sprintf( '  Processing: %s', basename( $vendorDir ) ) );
-			$this->cleanupVendorPackages( $vendorDir, $stats );
-		}
-
-		$this->log( sprintf( '  Removed %d directories and %d files', $stats[ 'dirs' ], $stats[ 'files' ] ) );
-	}
-
-	/**
-	 * Clean development files from a single vendor directory (vendor or vendor_prefixed).
-	 * Only removes files/directories that are DIRECT CHILDREN of each package directory.
-	 * Structure: vendor/{vendor-name}/{package-name}/{target-to-remove}
-	 *
-	 * @param array<string,int> $stats Reference to stats array for counting
-	 */
-	private function cleanupVendorPackages( string $vendorDir, array &$stats ) :void {
-		$fs = new Filesystem();
-		$dirPatterns = self::VENDOR_CLEANUP_PATTERNS[ 'directories' ];
-		$filePatterns = self::VENDOR_CLEANUP_PATTERNS[ 'files' ];
-
-		// Iterate vendor/{vendor-name} directories
-		$vendorNameDirs = @scandir( $vendorDir );
-		if ( $vendorNameDirs === false ) {
-			return;
-		}
-
-		foreach ( $vendorNameDirs as $vendorName ) {
-			if ( $vendorName === '.' || $vendorName === '..' ) {
-				continue;
-			}
-
-			$vendorNamePath = Path::join( $vendorDir, $vendorName );
-			if ( !is_dir( $vendorNamePath ) ) {
-				continue;
-			}
-
-			// Iterate vendor/{vendor-name}/{package-name} directories
-			$packageDirs = @scandir( $vendorNamePath );
-			if ( $packageDirs === false ) {
-				continue;
-			}
-
-			foreach ( $packageDirs as $packageName ) {
-				if ( $packageName === '.' || $packageName === '..' ) {
-					continue;
-				}
-
-				$packagePath = Path::join( $vendorNamePath, $packageName );
-				if ( !is_dir( $packagePath ) ) {
-					continue;
-				}
-
-				// Now clean DIRECT CHILDREN of this package directory
-				$this->cleanupPackageDirectChildren( $packagePath, $dirPatterns, $filePatterns, $stats, $fs );
-			}
-		}
-	}
-
-	/**
-	 * Clean direct children of a single package directory.
-	 * @param string[]          $dirPatterns  Directory names to remove
-	 * @param string[]          $filePatterns File glob patterns to remove
-	 * @param array<string,int> $stats        Reference to stats array
-	 */
-	private function cleanupPackageDirectChildren(
-		string $packagePath,
-		array $dirPatterns,
-		array $filePatterns,
-		array &$stats,
-		Filesystem $fs
-	) :void {
-		$children = @scandir( $packagePath );
-		if ( $children === false ) {
-			return;
-		}
-
-		foreach ( $children as $child ) {
-			if ( $child === '.' || $child === '..' ) {
-				continue;
-			}
-
-			$childPath = Path::join( $packagePath, $child );
-
-			// Check if it's a directory to remove (case-insensitive)
-			if ( is_dir( $childPath ) && \in_array( \strtolower( $child ), $dirPatterns, true ) ) {
-				try {
-					$this->removeDirectoryRecursive( $childPath );
-					$stats[ 'dirs' ]++;
-				}
-				catch ( \Exception $e ) {
-					// Log but don't fail
-				}
-				continue;
-			}
-
-			// Check if it's a file to remove
-			if ( is_file( $childPath ) ) {
-				foreach ( $filePatterns as $pattern ) {
-					if ( fnmatch( $pattern, \strtolower( $child ) ) ) {
-						try {
-							$fs->remove( $childPath );
-							$stats[ 'files' ]++;
-						}
-						catch ( \Exception $e ) {
-							// Ignore
-						}
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Clean autoload files to remove twig references
 	 * Preserves original line endings (CRLF/LF)
 	 */
@@ -1320,7 +1138,7 @@ class PluginPackager {
 		$this->validateDirectoryIsSafeToDelete( $realDir );
 
 		// Perform the deletion using PHP
-		$this->removeDirectoryRecursive( $realDir );
+		FileSystemUtils::removeDirectoryRecursive( $realDir );
 	}
 
 	/**
@@ -1478,70 +1296,6 @@ class PluginPackager {
 			);
 		}
 
-		$this->removeDirectoryRecursive( $realDir );
-	}
-
-	/**
-	 * Recursively remove a directory and all its contents
-	 * @throws \RuntimeException if deletion fails
-	 */
-	private function removeDirectoryRecursive( string $dir ) :void {
-		if ( !is_dir( $dir ) ) {
-			return;
-		}
-
-		// Read directory contents
-		$files = @scandir( $dir );
-		if ( $files === false ) {
-			throw new \RuntimeException( sprintf( 'Failed to read directory contents: %s', $dir ) );
-		}
-
-		$files = array_diff( $files, [ '.', '..' ] );
-
-		foreach ( $files as $file ) {
-			$path = Path::join( $dir, $file );
-
-			// Check if it's a symlink before processing
-			if ( is_link( $path ) ) {
-				// For symlinks, only delete the link itself, not the target
-				if ( !@unlink( $path ) ) {
-					throw new \RuntimeException(
-						sprintf( 'Failed to delete symlink: %s', $path )
-					);
-				}
-				continue;
-			}
-
-			if ( is_dir( $path ) ) {
-				// Recursively delete subdirectories
-				$this->removeDirectoryRecursive( $path );
-			}
-			else {
-				// Delete files - clear read-only attribute first (needed for .git files on Windows)
-				@chmod( $path, 0666 );
-				if ( !@unlink( $path ) ) {
-					// Check if file still exists (might have been deleted by another process)
-					if ( file_exists( $path ) ) {
-						throw new \RuntimeException( sprintf( 'Failed to delete file: %s', $path ) );
-					}
-				}
-			}
-		}
-
-		// Remove the directory itself - clear read-only attribute first
-		@chmod( $dir, 0777 );
-		if ( !@rmdir( $dir ) ) {
-			// Check if directory still exists
-			if ( is_dir( $dir ) ) {
-				// Check if it's empty now (only . and ..)
-				$finalCheck = @scandir( $dir );
-				if ( $finalCheck !== false && count( $finalCheck ) <= 2 ) {
-					// Directory is actually empty, ignore the error
-					return;
-				}
-
-				throw new \RuntimeException( sprintf( 'Failed to delete directory: %s', $dir ) );
-			}
-		}
+		FileSystemUtils::removeDirectoryRecursive( $realDir );
 	}
 }

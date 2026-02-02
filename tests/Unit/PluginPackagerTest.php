@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginPackager;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
