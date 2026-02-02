@@ -83,6 +83,15 @@ class VendorCleaner {
 			'crowdsec/capi-client',
 			'crowdsec/common',
 		],
+		'data' => [
+			'fernleafsystems/zxcvbn-php',
+		],
+		'data-scripts' => [
+			'fernleafsystems/zxcvbn-php',
+		],
+		'other' => [
+			'paragonie/random_compat',
+		],
 	];
 
 	/** @var callable */

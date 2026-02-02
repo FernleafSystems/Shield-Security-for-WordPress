@@ -3,6 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\File;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FindLockRecordForFile;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\RetrievePublicKey;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -12,7 +16,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	PublicKeyRetrievalFailure
 };
 
-class CreateFileLocks extends BaseOps {
+class CreateFileLocks {
+
+	use PluginControllerConsumer;
+
+	/**
+	 * @var File
+	 */
+	protected $file;
+
+	public function __construct( File $file ) {
+		$this->file = $file;
+	}
 
 	/**
 	 * @throws FileContentsEncodingFailure
@@ -29,7 +44,7 @@ class CreateFileLocks extends BaseOps {
 		}
 
 		foreach ( $existingPaths as $path ) {
-			if ( empty( $this->findLockRecordForFile() ) ) {
+			if ( empty( ( new FindLockRecordForFile() )->find( $this->file ) ) ) {
 				$this->createLockForPath( $path );
 			}
 		}
@@ -55,7 +70,7 @@ class CreateFileLocks extends BaseOps {
 			throw new NoCipherAvailableException();
 		}
 
-		$publicKey = $this->getPublicKey();
+		$publicKey = ( new RetrievePublicKey() )->retrieve();
 		$record->public_key_id = \key( $publicKey );
 		$record->content = ( new BuildEncryptedFilePayload() )->fromPath( $path, \reset( $publicKey ), $record->cipher );
 

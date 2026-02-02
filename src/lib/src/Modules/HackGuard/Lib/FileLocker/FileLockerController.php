@@ -193,8 +193,7 @@ class FileLockerController {
 						throw new NoCipherAvailableException();
 					}
 
-					( new Ops\CreateFileLocks() )
-						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $type ) )
+					( new Ops\CreateFileLocks( ( new Ops\BuildFileFromFileKey() )->build( $type ) ) )
 						->create();
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';

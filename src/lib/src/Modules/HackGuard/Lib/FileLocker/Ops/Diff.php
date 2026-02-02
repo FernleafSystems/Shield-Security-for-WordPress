@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 
-class Diff extends BaseOps {
+class Diff {
 
 	/**
 	 * @throws \Exception
@@ -47,11 +46,7 @@ class Diff extends BaseOps {
 		);
 	}
 
-	/**
-	 * @param string $original
-	 * @param string $current
-	 */
-	private function useWpDiff( $original, $current ) :string {
+	private function useWpDiff( string $original, string $current ) :string {
 		return wp_text_diff( $original, $current );
 	}
 }

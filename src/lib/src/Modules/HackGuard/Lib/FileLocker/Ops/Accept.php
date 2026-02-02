@@ -4,9 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\NoCipherAvailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\RetrievePublicKey;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Accept extends BaseOps {
+class Accept {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -25,7 +29,7 @@ class Accept extends BaseOps {
 			throw new NoCipherAvailableException();
 		}
 
-		$publicKey = $this->getPublicKey();
+		$publicKey = ( new RetrievePublicKey() )->retrieve();
 
 		$raw = ( new BuildEncryptedFilePayload() )->fromPath( $lock->path, \reset( $publicKey ), $state[ 'cipher' ] );
 

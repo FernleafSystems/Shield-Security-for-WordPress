@@ -3,17 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
-class AssessLocks extends BaseOps {
+class AssessLocks {
+
+	use PluginControllerConsumer;
 
 	public function run() {
-		// @deprecated 19.2 - required for upgrade from 19.0
-		if ( \is_null( self::con()->comps ) || \is_null( self::con()->comps->file_locker ) ) {
-			return;
-		}
-
 		$this->removeDuplicates();
 
 		$locksChanged = false;
@@ -51,13 +49,8 @@ class AssessLocks extends BaseOps {
 		}
 	}
 
-	/**
-	 * Required for upgrades from 19.0
-	 * @return FileLockerDB\Update
-	 */
-	private function getUpdater() {
-		$dbCon = self::con()->db_con;
-		return ( $dbCon->file_locker !== null ? $dbCon->file_locker : $dbCon->dbhFileLocker() )->getQueryUpdater();
+	private function getUpdater() :FileLockerDB\Update {
+		return self::con()->db_con->file_locker->getQueryUpdater();
 	}
 
 	private function removeDuplicates() {

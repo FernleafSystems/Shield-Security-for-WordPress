@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
-class ReadOriginalFileContent extends BaseOps {
+class ReadOriginalFileContent {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
