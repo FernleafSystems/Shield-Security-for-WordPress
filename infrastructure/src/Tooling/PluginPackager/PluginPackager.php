@@ -1,5 +1,4 @@
-<?php
-declare( strict_types=1 );
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
@@ -8,6 +7,9 @@ use Symfony\Component\Filesystem\Exception\InvalidArgumentException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
+/**
+ * Orchestrates plugin packaging by coordinating specialized components.
+ */
 class PluginPackager {
 
 	private string $projectRoot;
@@ -19,6 +21,12 @@ class PluginPackager {
 	/** @var callable */
 	private $logger;
 
+	private CommandRunner $commandRunner;
+
+	private SafeDirectoryRemover $directoryRemover;
+
+	private PluginFileCopier $fileCopier;
+
 	public function __construct( ?string $projectRoot = null, ?callable $logger = null ) {
 		$root = $projectRoot ?? $this->detectProjectRoot();
 		if ( $root === '' ) {
@@ -28,6 +36,11 @@ class PluginPackager {
 		$this->logger = $logger ?? static function ( string $message ) :void {
 			echo $message.PHP_EOL;
 		};
+
+		// Initialize extracted dependencies
+		$this->commandRunner = new CommandRunner( $this->projectRoot, $this->logger );
+		$this->directoryRemover = new SafeDirectoryRemover( $this->projectRoot );
+		$this->fileCopier = new PluginFileCopier( $this->projectRoot, $this->logger );
 	}
 
 	/**
@@ -44,12 +57,12 @@ class PluginPackager {
 		// Clean target directory if it exists (unless skipped)
 		if ( $options[ 'directory_clean' ] && is_dir( $targetDir ) ) {
 			$this->log( sprintf( 'Cleaning existing package directory: %s', $targetDir ) );
-			$this->removeDirectorySafely( $targetDir );
+			$this->directoryRemover->removeSafely( $targetDir );
 		}
 
-		$composerCommand = $this->getComposerCommand();
+		$composerCommand = $this->commandRunner->getComposerCommand();
 		if ( $options[ 'composer_root' ] ) {
-			$this->runCommand(
+			$this->commandRunner->run(
 				array_merge( $composerCommand, [
 					'install',
 					'--no-interaction',
@@ -61,7 +74,7 @@ class PluginPackager {
 		}
 
 		if ( $options[ 'composer_lib' ] ) {
-			$this->runCommand(
+			$this->commandRunner->run(
 				array_merge( $composerCommand, [
 					'install',
 					'--no-interaction',
@@ -73,14 +86,14 @@ class PluginPackager {
 		}
 
 		if ( $options[ 'npm_install' ] ) {
-			$this->runCommand(
+			$this->commandRunner->run(
 				[ 'npm', 'ci', '--no-audit', '--no-fund' ],
 				$this->projectRoot
 			);
 		}
 
 		if ( $options[ 'npm_build' ] ) {
-			$this->runCommand(
+			$this->commandRunner->run(
 				[ 'npm', 'run', 'build' ],
 				$this->projectRoot
 			);
@@ -88,7 +101,7 @@ class PluginPackager {
 
 		// Copy files (skip if already in place via git archive)
 		if ( !$options[ 'skip_copy' ] ) {
-			$this->copyPluginFiles( $targetDir );
+			$this->fileCopier->copy( $targetDir );
 		}
 		else {
 			$this->log( 'Skipping file copy (--skip-copy enabled)' );
@@ -99,7 +112,17 @@ class PluginPackager {
 
 		$this->installComposerDependencies( $targetDir );
 		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
-		$this->runStraussPrefixing( $targetDir );
+
+		// Run Strauss prefixing
+		$straussProvider = new StraussBinaryProvider(
+			$this->straussVersion,
+			$this->straussForkRepo,
+			$this->commandRunner,
+			$this->directoryRemover,
+			$this->logger
+		);
+		$straussProvider->runPrefixing( $targetDir );
+
 		$this->cleanupPackageFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
 		$this->verifyPackage( $targetDir );
@@ -167,29 +190,17 @@ class PluginPackager {
 		return $resolved;
 	}
 
-	private function isAbsolutePath( string $path ) :bool {
-		// Use Symfony Filesystem Path::isAbsolute() which handles all platforms correctly
-		// Path should already be trimmed by caller, but trim again for safety
-		$path = trim( $path, " \t\n\r\0\x0B\"'" );
-
-		if ( $path === '' ) {
-			return false;
-		}
-
-		return Path::isAbsolute( $path );
-	}
-
 	/**
-	 * Convert Windows paths to Git Bash compatible format for bash execution
-	 * Only converts Windows drive-letter paths (D:/...) to Git Bash format (/mnt/d/...)
-	 * Leaves Unix paths unchanged (works on Linux, Docker, GitHub Actions, WSL)
+	 * Convert Windows paths to Git Bash compatible format for bash execution.
+	 * Only converts Windows drive-letter paths (D:/...) to Git Bash format (/mnt/d/...).
+	 * Leaves Unix paths unchanged (works on Linux, Docker, GitHub Actions, WSL).
 	 */
 	private function convertPathForBash( string $path ) :string {
 		$normalized = Path::normalize( $path );
 
 		// Only convert if it's a Windows drive-letter path (D:/...) and we're on Windows
 		// Unix paths (/path/to/file) are left unchanged for Linux/Docker/GitHub Actions
-		if ( PHP_OS_FAMILY === 'Windows' && preg_match( '#^([A-Za-z]):/#', $normalized, $matches ) ) {
+		if ( \PHP_OS_FAMILY === 'Windows' && \preg_match( '#^([A-Za-z]):/#', $normalized, $matches ) ) {
 			$drive = strtolower( $matches[ 1 ] );
 			$rest = substr( $normalized, 3 ); // Remove "D:/"
 			// Handle edge case where rest might be empty (unlikely but possible)
@@ -201,52 +212,6 @@ class PluginPackager {
 
 		// Return as-is for Unix paths (Linux, Docker, GitHub Actions, WSL)
 		return $normalized;
-	}
-
-	private function runCommand( array $parts, ?string $workingDir = null ) :void {
-		// Build command string with proper escaping for cross-platform compatibility
-		// Command names from PATH (like 'npm', 'composer') don't need quotes
-		// But full paths (especially with spaces) do need quotes
-		// Arguments always get quoted to handle spaces and special characters
-		$command = array_shift( $parts );
-
-		// Check if command is a full path (contains directory separators)
-		// If so, quote it to handle spaces; otherwise leave unquoted for PATH resolution
-		$needsQuoting = strpos( $command, DIRECTORY_SEPARATOR ) !== false
-						|| strpos( $command, '/' ) !== false  // Handle Unix paths on Windows
-						|| strpos( $command, '\\' ) !== false; // Handle Windows paths
-
-		$commandPart = $needsQuoting ? escapeshellarg( $command ) : $command;
-		$args = array_map( static function ( string $part ) :string {
-			return escapeshellarg( $part );
-		}, $parts );
-		$commandString = $commandPart.( empty( $args ) ? '' : ' '.implode( ' ', $args ) );
-		$this->log( '> '.$commandString );
-
-		$previousCwd = getcwd();
-		$revert = false;
-		if ( $workingDir !== null && $workingDir !== '' && $previousCwd !== $workingDir ) {
-			if ( !is_dir( $workingDir ) ) {
-				throw new \RuntimeException( sprintf( 'Working directory does not exist: %s', $workingDir ) );
-			}
-			if ( !@chdir( $workingDir ) ) {
-				throw new \RuntimeException( sprintf( 'Unable to change directory to: %s', $workingDir ) );
-			}
-			$revert = true;
-		}
-
-		try {
-			passthru( $commandString, $exitCode );
-		}
-		finally {
-			if ( $revert && is_string( $previousCwd ) && $previousCwd !== '' ) {
-				@chdir( $previousCwd );
-			}
-		}
-
-		if ( $exitCode !== 0 ) {
-			throw new \RuntimeException( sprintf( 'Command failed with exit code %d: %s', $exitCode, $commandString ) );
-		}
 	}
 
 	private function log( string $message ) :void {
@@ -282,255 +247,7 @@ class PluginPackager {
 			return ltrim( $env, "v \t\n\r\0\x0B" );
 		}
 
-		return self::FALLBACK_STRAUSS_VERSION;
-	}
-
-	/**
-	 * Parse .gitattributes and return list of export-ignore patterns
-	 * This makes .gitattributes the single source of truth for package contents
-	 * @return string[] Array of patterns that should be excluded from packages
-	 */
-	private function getExportIgnorePatterns() :array {
-		$gitattributesPath = Path::join( $this->projectRoot, '.gitattributes' );
-
-		if ( !file_exists( $gitattributesPath ) ) {
-			$this->log( 'Warning: .gitattributes not found, no export-ignore patterns loaded' );
-			return [];
-		}
-
-		$patterns = [];
-		$lines = file( $gitattributesPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
-
-		if ( $lines === false ) {
-			$this->log( 'Warning: Could not read .gitattributes' );
-			return [];
-		}
-
-		foreach ( $lines as $line ) {
-			$line = trim( $line );
-
-			// Skip comments and empty lines
-			if ( $line === '' || strpos( $line, '#' ) === 0 ) {
-				continue;
-			}
-
-			// Match lines with export-ignore attribute
-			// Formats supported:
-			//   /path export-ignore
-			//   /path/to/dir export-ignore
-			//   /languages/*.po export-ignore
-			if ( preg_match( '/^(\S+)\s+.*\bexport-ignore\b/', $line, $matches ) ) {
-				$pattern = $matches[ 1 ];
-				// Normalize: remove leading slash for internal consistency
-				$patterns[] = ltrim( $pattern, '/' );
-			}
-		}
-
-		return $patterns;
-	}
-
-	/**
-	 * Check if a path should be excluded based on export-ignore patterns
-	 * Supports:
-	 *   - Exact file matches: "README.md"
-	 *   - Directory matches: "tests" matches "tests/Unit/Test.php"
-	 *   - Glob patterns: "languages/*.po" matches "languages/en_US.po"
-	 *
-	 * NOTE: Matching is case-sensitive (consistent with git's behavior).
-	 * Git tracks paths exactly as committed, so case mismatches are rare.
-	 *
-	 * @param string   $relativePath Path relative to project root (forward slashes)
-	 * @param string[] $patterns     Export-ignore patterns from .gitattributes
-	 * @return bool True if path should be excluded
-	 */
-	private function shouldExcludePath( string $relativePath, array $patterns ) :bool {
-		// Normalize to forward slashes (simpler than Path::normalize() for this use case)
-		// We only need to handle backslash->forward slash conversion, not ../ resolution
-		$normalizedPath = str_replace( '\\', '/', $relativePath );
-
-		foreach ( $patterns as $pattern ) {
-			// Normalize pattern
-			$normalizedPattern = str_replace( '\\', '/', $pattern );
-
-			// Case 1: Exact match
-			if ( $normalizedPath === $normalizedPattern ) {
-				return true;
-			}
-
-			// Case 2: Directory match - pattern is a directory prefix
-			// Pattern "tests" should match "tests/Unit/Test.php"
-			$patternAsDir = rtrim( $normalizedPattern, '/' ).'/';
-			if ( strpos( $normalizedPath, $patternAsDir ) === 0 ) {
-				return true;
-			}
-
-			// Case 3: Pattern ends with directory name, path is exactly that directory
-			if ( $normalizedPath === rtrim( $normalizedPattern, '/' ) ) {
-				return true;
-			}
-
-			// Case 4: Glob pattern with asterisk (e.g., "languages/*.po")
-			if ( strpos( $normalizedPattern, '*' ) !== false ) {
-				// Convert glob pattern to regex
-				// Escape regex special chars except *
-				$regexPattern = preg_quote( $normalizedPattern, '#' );
-				// Replace escaped \* with regex .*
-				$regexPattern = str_replace( '\\*', '[^/]*', $regexPattern );
-				// Anchor the pattern
-				$regexPattern = '#^'.$regexPattern.'$#';
-
-				if ( preg_match( $regexPattern, $normalizedPath ) ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function getComposerCommand() :array {
-		$binary = getenv( 'COMPOSER_BINARY' );
-		if ( !is_string( $binary ) || $binary === '' ) {
-			$binary = 'composer';
-		}
-
-		$resolved = $this->resolveBinaryPath( $binary );
-		if ( $this->endsWithPhar( $resolved ) ) {
-			$php = PHP_BINARY ?: 'php';
-			return [ $php, $resolved ];
-		}
-
-		return [ $resolved ];
-	}
-
-	private function resolveBinaryPath( string $binary ) :string {
-		if ( $this->isAbsolutePath( $binary ) && file_exists( $binary ) ) {
-			return $binary;
-		}
-
-		if ( strpos( $binary, '/' ) !== false || strpos( $binary, '\\' ) !== false ) {
-			$fromRoot = Path::join( $this->projectRoot, $binary );
-			if ( file_exists( $fromRoot ) ) {
-				return $fromRoot;
-			}
-		}
-
-		$runtimeDir = getenv( 'COMPOSER_RUNTIME_BIN_DIR' );
-		if ( is_string( $runtimeDir ) && $runtimeDir !== '' ) {
-			$candidate = Path::join( rtrim( $runtimeDir, '/\\' ), $binary );
-			if ( file_exists( $candidate ) ) {
-				return $candidate;
-			}
-		}
-
-		return $binary;
-	}
-
-	private function endsWithPhar( string $path ) :bool {
-		return substr( $path, -5 ) === '.phar';
-	}
-
-	/**
-	 * Copy plugin files to the target package directory
-	 * Uses .gitattributes export-ignore patterns as single source of truth
-	 * @throws \RuntimeException|\Symfony\Component\Filesystem\Exception\InvalidArgumentException if copy operations
-	 *                                                                                            fail
-	 */
-	private function copyPluginFiles( string $targetDir ) :void {
-		$this->log( 'Copying plugin files...' );
-		$this->log( '(Using .gitattributes export-ignore as source of truth)' );
-
-		$fs = new Filesystem();
-		$excludePatterns = $this->getExportIgnorePatterns();
-
-		$this->log( sprintf( '  Loaded %d export-ignore patterns from .gitattributes', count( $excludePatterns ) ) );
-
-		// Ensure target directory exists
-		if ( !is_dir( $targetDir ) ) {
-			$fs->mkdir( $targetDir );
-		}
-
-		// Use filter iterator to avoid descending into excluded directories
-		// This is much faster than iterating all files then skipping
-		// Note: Since PHP 5.4, closures auto-bind $this when defined in class methods
-		//
-		// Symlink behavior: RecursiveDirectoryIterator follows symlinks by default.
-		// If a symlink points outside the project, Path::makeRelative() may return
-		// unexpected results. This is acceptable as symlinks in the source tree are rare.
-		$projectRoot = $this->projectRoot;
-
-		// Check if target directory is inside project root to prevent infinite recursion (required for CI)
-		$isTargetInsideRoot = Path::isBasePath( $projectRoot, $targetDir );
-		if ( $isTargetInsideRoot ) {
-			$this->log( sprintf( '  Excluding target directory from copy: %s', Path::makeRelative( $targetDir, $projectRoot ) ) );
-		}
-
-		$dirIterator = new \RecursiveDirectoryIterator(
-			$this->projectRoot,
-			\FilesystemIterator::SKIP_DOTS
-		);
-
-		// Filter out excluded directories BEFORE descending into them
-		$filterIterator = new \RecursiveCallbackFilterIterator(
-			$dirIterator,
-			function ( \SplFileInfo $current, string $key, \RecursiveDirectoryIterator $iterator ) use ( $projectRoot, $excludePatterns, $targetDir, $isTargetInsideRoot ) :bool {
-				$relativePath = Path::makeRelative( $current->getPathname(), $projectRoot );
-
-				// Skip the target directory itself to prevent infinite recursion
-				if ( $isTargetInsideRoot && Path::isBasePath( $targetDir, $current->getPathname() ) ) {
-					return false;
-				}
-
-				// Skip export-ignore paths
-				if ( $this->shouldExcludePath( $relativePath, $excludePatterns ) ) {
-					return false;
-				}
-
-				return true;
-			}
-		);
-
-		$iterator = new \RecursiveIteratorIterator(
-			$filterIterator,
-			\RecursiveIteratorIterator::SELF_FIRST
-		);
-
-		$stats = [ 'files' => 0, 'dirs' => 0 ];
-
-		foreach ( $iterator as $item ) {
-			/** @var \SplFileInfo $item */
-			$fullPath = $item->getPathname();
-			$relativePath = Path::makeRelative( $fullPath, $this->projectRoot );
-
-			$targetPath = Path::join( $targetDir, $relativePath );
-
-			if ( $item->isDir() ) {
-				if ( !is_dir( $targetPath ) ) {
-					$fs->mkdir( $targetPath );
-					$stats[ 'dirs' ]++;
-				}
-			}
-			else {
-				try {
-					$fs->copy( $fullPath, $targetPath, true );
-					$stats[ 'files' ]++;
-				}
-				catch ( \Exception $e ) {
-					throw new \RuntimeException(
-						sprintf( 'Failed to copy file "%s": %s', $relativePath, $e->getMessage() )
-					);
-				}
-			}
-		}
-
-		$this->log( sprintf( '  ✓ Copied %d files in %d directories', $stats[ 'files' ], $stats[ 'dirs' ] ) );
-		$this->log( '  (Excluded paths filtered via .gitattributes export-ignore)' );
-		$this->log( '' );
-		$this->log( 'Package structure created successfully' );
-		$this->log( '' );
+		return StraussBinaryProvider::getFallbackVersion();
 	}
 
 	/**
@@ -547,7 +264,8 @@ class PluginPackager {
 	}
 
 	/**
-	 * Install composer dependencies in the package directory (production only)
+	 * Install composer dependencies in the package directory (production only).
+	 *
 	 * @throws \RuntimeException if composer install fails
 	 */
 	private function installComposerDependencies( string $targetDir ) :void {
@@ -566,8 +284,8 @@ class PluginPackager {
 			);
 		}
 
-		$composerCommand = $this->getComposerCommand();
-		$this->runCommand(
+		$composerCommand = $this->commandRunner->getComposerCommand();
+		$this->commandRunner->run(
 			array_merge( $composerCommand, [
 				'install',
 				'--no-dev',
@@ -583,342 +301,9 @@ class PluginPackager {
 		$this->log( '' );
 	}
 
-	private const FALLBACK_STRAUSS_VERSION = '0.19.4';
-
 	/**
-	 * Provide Strauss binary - either from fork clone or downloaded PHAR.
-	 * Returns the path to the strauss executable.
-	 * @throws \RuntimeException if neither method succeeds
-	 */
-	private function provideStraussBinary( string $targetDir ) :string {
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-
-		if ( $this->straussForkRepo !== null ) {
-			return $this->cloneAndPrepareStraussFork( $targetDir );
-		}
-
-		// Default: download official PHAR
-		$this->downloadStraussPhar( $targetDir );
-		return Path::join( $libDir, 'strauss.phar' );
-	}
-
-	/**
-	 * Detect if running inside a Docker container.
-	 * Used to optimize file operations (e.g., use /tmp for ephemeral data).
-	 */
-	private function isRunningInDocker() :bool {
-		// Check for Docker environment file (standard Docker indicator)
-		if ( file_exists( '/.dockerenv' ) ) {
-			return true;
-		}
-		// Check for SHIELD_TEST_MODE environment variable (set in our Dockerfile)
-		if ( getenv( 'SHIELD_TEST_MODE' ) === 'docker' ) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Clone Strauss fork and prepare it for use.
-	 * Returns path to bin/strauss executable.
-	 * @throws \RuntimeException if clone or setup fails
-	 */
-	private function cloneAndPrepareStraussFork( string $targetDir ) :string {
-		$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
-
-		// In Docker/Linux: use /tmp (no cross-drive issues, ephemeral so no cleanup needed)
-		// On Windows: use target directory to avoid cross-drive path resolution issues
-		if ( $this->isRunningInDocker() ) {
-			$forkDir = '/tmp/_strauss-fork-'.$forkHash;
-		}
-		else {
-			// Clone to a temp directory WITHIN the target directory to ensure same drive on Windows.
-			// This avoids cross-drive path resolution issues where Strauss (on C:) can't properly
-			// calculate relative paths for a project on D:.
-			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
-		}
-		$binPath = Path::join( $forkDir, 'bin', 'strauss' );
-
-		// Skip clone if already exists and has bin/strauss
-		if ( is_dir( $forkDir ) && file_exists( $binPath ) ) {
-			$this->log( sprintf( 'Using cached Strauss fork: %s', $forkDir ) );
-			return $binPath;
-		}
-
-		// Clone fresh
-		$this->log( sprintf( 'Cloning Strauss fork: %s', $this->straussForkRepo ) );
-
-		if ( is_dir( $forkDir ) ) {
-			// Pass appropriate base path for safety check
-			$allowedBase = $this->isRunningInDocker() ? '/tmp' : $targetDir;
-			$this->removeDirectorySafelyForTemp( $forkDir, $allowedBase );
-		}
-
-		// Clone to parent directory since git clone creates the target
-		$parentDir = dirname( $forkDir );
-		if ( !is_dir( $parentDir ) ) {
-			( new Filesystem() )->mkdir( $parentDir );
-		}
-
-		$this->runCommand( [ 'git', 'clone', $this->straussForkRepo, $forkDir ], $parentDir );
-		$this->runCommand( [ 'git', 'checkout', 'develop' ], $forkDir );
-
-		// Install dependencies (--no-scripts skips phive/dev tool hooks we don't need)
-		$this->log( 'Installing Strauss fork dependencies...' );
-		$composerCommand = $this->getComposerCommand();
-		$this->runCommand(
-			array_merge( $composerCommand, [
-				'install',
-				'--no-interaction',
-				'--no-dev',
-				'--no-scripts',
-				'--prefer-dist'
-			] ),
-			$forkDir
-		);
-
-		// Verify bin/strauss exists
-		if ( !file_exists( $binPath ) ) {
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss fork clone failed: bin/strauss not found at %s. '.
-					'HOW TO FIX: Verify the fork repository URL is correct: %s',
-					$binPath,
-					$this->straussForkRepo
-				)
-			);
-		}
-
-		$this->log( '  ✓ Strauss fork ready' );
-		$this->log( '' );
-		return $binPath;
-	}
-
-	/**
-	 * Remove a temporary directory safely (less strict than removeDirectorySafely)
-	 * @param string      $dir             Directory to remove
-	 * @param string|null $allowedBasePath Additional allowed base path (besides system temp)
-	 */
-	private function removeDirectorySafelyForTemp( string $dir, ?string $allowedBasePath = null ) :void {
-		$realDir = realpath( $dir );
-		if ( $realDir === false ) {
-			return;
-		}
-
-		$normalizedDir = Path::normalize( $realDir );
-
-		// Check if inside system temp directory
-		$tempDir = Path::normalize( sys_get_temp_dir() );
-		$isInTemp = Path::isBasePath( $tempDir, $normalizedDir );
-
-		// Check if inside allowed base path (e.g., target directory for Strauss fork)
-		$isInAllowed = false;
-		if ( $allowedBasePath !== null ) {
-			$realAllowed = realpath( $allowedBasePath );
-			if ( $realAllowed !== false ) {
-				$isInAllowed = Path::isBasePath( Path::normalize( $realAllowed ), $normalizedDir );
-			}
-		}
-
-		if ( !$isInTemp && !$isInAllowed ) {
-			throw new \RuntimeException(
-				sprintf( 'Refusing to delete directory outside allowed paths: %s', $dir )
-			);
-		}
-
-		FileSystemUtils::removeDirectoryRecursive( $realDir );
-	}
-
-	/**
-	 * Download Strauss phar file for namespace prefixing
-	 * @throws \RuntimeException if download fails with detailed error message
-	 */
-	private function downloadStraussPhar( string $targetDir ) :void {
-		$this->log( sprintf( 'Downloading Strauss v%s...', $this->straussVersion ) );
-
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-		$targetPath = Path::join( $libDir, 'strauss.phar' );
-		$downloadUrl = sprintf(
-			'https://github.com/BrianHenryIE/strauss/releases/download/%s/strauss.phar',
-			$this->straussVersion
-		);
-
-		// Check if allow_url_fopen is enabled
-		if ( !ini_get( 'allow_url_fopen' ) ) {
-			throw new \RuntimeException(
-				'Strauss download failed: allow_url_fopen is disabled in PHP configuration. '.
-				'WHAT FAILED: Unable to download strauss.phar from GitHub. '.
-				'WHY: The PHP setting "allow_url_fopen" is disabled, which prevents PHP from downloading files from URLs. '.
-				'HOW TO FIX: Enable allow_url_fopen in your php.ini file by setting "allow_url_fopen = On", '.
-				'or contact your system administrator to enable this setting. '.
-				'Alternatively, you can manually download strauss.phar from '.$downloadUrl.' '.
-				'and place it in the package src/lib directory.'
-			);
-		}
-
-		// Create HTTP context for the download
-		$context = stream_context_create( [
-			'http' => [
-				'method'          => 'GET',
-				'timeout'         => 30,
-				'user_agent'      => 'Shield-Plugin-Packager/1.0',
-				'follow_location' => true,
-			],
-			'ssl'  => [
-				'verify_peer'      => true,
-				'verify_peer_name' => true,
-			],
-		] );
-
-		// Clear any previous errors
-		error_clear_last();
-
-		// Attempt to download the file
-		$content = @file_get_contents( $downloadUrl, false, $context );
-
-		if ( $content === false ) {
-			$lastError = error_get_last();
-			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
-
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss download failed: Unable to download strauss.phar from GitHub. '.
-					'WHAT FAILED: Could not retrieve file from %s. '.
-					'WHY: %s. '.
-					'This may be due to: (1) Network connectivity issues, (2) GitHub server unavailability, '.
-					'(3) Firewall or proxy blocking the connection, (4) SSL certificate verification failure. '.
-					'HOW TO FIX: Check your internet connection and try again. If the problem persists, '.
-					'you can manually download strauss.phar from the URL above and place it at: %s',
-					$downloadUrl,
-					$errorMessage,
-					$targetPath
-				)
-			);
-		}
-
-		if ( $content === '' ) {
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss download failed: Downloaded file is empty. '.
-					'WHAT FAILED: The file downloaded from %s has zero bytes. '.
-					'WHY: This usually indicates a server-side issue or the release file was not found. '.
-					'HOW TO FIX: Verify that Strauss version %s exists at the download URL. '.
-					'You can manually download strauss.phar and place it at: %s',
-					$downloadUrl,
-					$this->straussVersion,
-					$targetPath
-				)
-			);
-		}
-
-		// Clear any previous errors before writing
-		error_clear_last();
-
-		// Write the downloaded content to file
-		$bytesWritten = @file_put_contents( $targetPath, $content );
-
-		if ( $bytesWritten === false ) {
-			$lastError = error_get_last();
-			$errorMessage = $lastError !== null ? $lastError[ 'message' ] : 'Unknown error';
-
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss download failed: Could not write strauss.phar to disk. '.
-					'WHAT FAILED: Unable to save downloaded file to %s. '.
-					'WHY: %s. '.
-					'This may be due to: (1) Insufficient disk space, (2) Directory does not exist, '.
-					'(3) Insufficient file permissions, (4) Disk write protection. '.
-					'HOW TO FIX: Ensure the target directory exists and is writable: %s',
-					$targetPath,
-					$errorMessage,
-					$libDir
-				)
-			);
-		}
-
-		// Verify the file was written correctly
-		if ( !file_exists( $targetPath ) ) {
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss download failed: File was not created after write operation. '.
-					'WHAT FAILED: strauss.phar does not exist at expected location after download. '.
-					'Expected location: %s. '.
-					'WHY: The file write operation reported success but the file is not present. '.
-					'This is unusual and may indicate a filesystem issue. '.
-					'HOW TO FIX: Check disk space and filesystem health. Try running the packaging again.',
-					$targetPath
-				)
-			);
-		}
-
-		$fileSize = filesize( $targetPath );
-		if ( $fileSize === 0 ) {
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss download failed: Downloaded file has zero size. '.
-					'WHAT FAILED: strauss.phar exists but contains no data. '.
-					'File location: %s. '.
-					'WHY: The file was created but the content was not written correctly. '.
-					'HOW TO FIX: Delete the empty file and try running the packaging again. '.
-					'If the problem persists, manually download from: %s',
-					$targetPath,
-					$downloadUrl
-				)
-			);
-		}
-
-		$this->log( '  ✓ strauss.phar downloaded' );
-		$this->log( '' );
-	}
-
-	/**
-	 * Run Strauss to prefix vendor namespaces
-	 * @throws \RuntimeException if Strauss execution fails
-	 */
-	private function runStraussPrefixing( string $targetDir ) :void {
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-		$vendorPrefixedDir = Path::join( $libDir, 'vendor_prefixed' );
-
-		// Get path to strauss binary (either fork's bin/strauss or downloaded PHAR)
-		$straussBinary = $this->provideStraussBinary( $targetDir );
-
-		$this->log( sprintf( 'Current directory: %s', $libDir ) );
-		$this->log( sprintf( 'Using Strauss: %s', $straussBinary ) );
-		$this->log( sprintf( 'Checking for composer.json: %s', file_exists( Path::join( $libDir, 'composer.json' ) ) ? 'YES' : 'NO' ) );
-		$this->log( '' );
-
-		$this->log( 'Running Strauss prefixing...' );
-
-		// Run strauss using PHP
-		$php = PHP_BINARY ?: 'php';
-		$this->runCommand( [ $php, $straussBinary ], $libDir );
-
-		$this->log( '' );
-
-		// Verify vendor_prefixed directory was created
-		$this->log( '=== After Strauss ===' );
-		if ( is_dir( $vendorPrefixedDir ) ) {
-			$this->log( '✓ vendor_prefixed directory created' );
-		}
-		else {
-			$this->log( '✗ vendor_prefixed NOT created' );
-			throw new \RuntimeException(
-				sprintf(
-					'Strauss execution failed: vendor_prefixed directory was not created. '.
-					'WHAT FAILED: Strauss completed without error but did not create the expected output directory. '.
-					'Expected directory: %s. '.
-					'WHY: This may indicate a Strauss configuration issue in composer.json or no packages matched for prefixing. '.
-					'HOW TO FIX: Check the "extra.strauss" configuration in %s/composer.json.',
-					$vendorPrefixedDir,
-					$libDir
-				)
-			);
-		}
-	}
-
-	/**
-	 * Clean up duplicate and development files from the package
-	 * Removes files that are no longer needed after Strauss prefixing
+	 * Clean up duplicate and development files from the package.
+	 * Removes files that are no longer needed after Strauss prefixing.
 	 */
 	private function cleanupPackageFiles( string $targetDir ) :void {
 		$fs = new Filesystem();
@@ -929,13 +314,13 @@ class PluginPackager {
 		// NOTE: We use removeDirectoryRecursive() instead of Symfony's $fs->remove() because
 		// Symfony renames directories to .!xxx temp names before deletion, and if deletion fails,
 		// these temp directories are left behind causing issues on subsequent runs.
-		if ( $this->straussForkRepo !== null && !$this->isRunningInDocker() ) {
+		if ( $this->straussForkRepo !== null && !StraussBinaryProvider::isRunningInDocker() ) {
 			$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
 			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
 			if ( is_dir( $forkDir ) ) {
 				$this->log( 'Removing Strauss fork directory...' );
 				try {
-					$this->removeSubdirectoryOf( $forkDir, $targetDir );
+					$this->directoryRemover->removeSubdirectoryOf( $forkDir, $targetDir );
 				}
 				catch ( \Exception $e ) {
 					// Non-critical cleanup - just warn
@@ -943,7 +328,7 @@ class PluginPackager {
 				}
 			}
 		}
-		elseif ( $this->straussForkRepo !== null && $this->isRunningInDocker() ) {
+		elseif ( $this->straussForkRepo !== null && StraussBinaryProvider::isRunningInDocker() ) {
 			$this->log( 'Skipping Strauss fork cleanup (Docker /tmp is ephemeral)' );
 		}
 
@@ -958,7 +343,7 @@ class PluginPackager {
 		foreach ( $directoriesToRemove as $dir ) {
 			if ( is_dir( $dir ) ) {
 				try {
-					$this->removeSubdirectoryOf( $dir, $targetDir );
+					$this->directoryRemover->removeSubdirectoryOf( $dir, $targetDir );
 				}
 				catch ( \Exception $e ) {
 					// Log but don't fail - these are cleanup operations
@@ -988,8 +373,8 @@ class PluginPackager {
 	}
 
 	/**
-	 * Clean autoload files to remove twig references
-	 * Preserves original line endings (CRLF/LF)
+	 * Clean autoload files to remove twig references.
+	 * Preserves original line endings (CRLF/LF).
 	 */
 	private function cleanAutoloadFiles( string $targetDir ) :void {
 		$this->log( 'Cleaning autoload files...' );
@@ -1065,7 +450,8 @@ class PluginPackager {
 	}
 
 	/**
-	 * Verify the package was built correctly by checking required files and directories
+	 * Verify the package was built correctly by checking required files and directories.
+	 *
 	 * @throws \RuntimeException if critical package files are missing
 	 */
 	private function verifyPackage( string $targetDir ) :void {
@@ -1120,182 +506,5 @@ class PluginPackager {
 		}
 
 		$this->log( sprintf( '✅ Package built successfully: %s', $targetDir ) );
-	}
-
-	/**
-	 * Safely remove a directory with comprehensive safety checks
-	 * @throws \RuntimeException if directory cannot be safely deleted
-	 */
-	private function removeDirectorySafely( string $dir ) :void {
-		// Normalize and resolve the directory path
-		$realDir = realpath( $dir );
-		if ( $realDir === false ) {
-			// Directory doesn't exist or is inaccessible - nothing to delete
-			return;
-		}
-
-		// Safety check: Ensure we're not deleting the project root or critical directories
-		$this->validateDirectoryIsSafeToDelete( $realDir );
-
-		// Perform the deletion using PHP
-		FileSystemUtils::removeDirectoryRecursive( $realDir );
-	}
-
-	/**
-	 * Validate that a directory is safe to delete
-	 * @throws \RuntimeException if directory is unsafe to delete
-	 */
-	private function validateDirectoryIsSafeToDelete( string $dir ) :void {
-		$normalizedDir = rtrim( str_replace( '\\', '/', $dir ), '/' );
-		$normalizedRoot = rtrim( str_replace( '\\', '/', $this->projectRoot ), '/' );
-		$isWithinProject = strpos( $normalizedDir, $normalizedRoot ) === 0;
-
-		// Safety rule: Never allow cleaning within the project directory
-		// Packages should only be built in external directories (e.g., SVN repos)
-		if ( $isWithinProject ) {
-			throw new \RuntimeException(
-				sprintf(
-					'ERROR: Cannot build package within project directory. '.
-					'Packages must be built in external directories (e.g., SVN repository or separate build directory). '.
-					'Reason: Directory cleaning is disabled within the project root for safety. '.
-					'Target directory: %s '.
-					'Project root: %s '.
-					'Solution: Specify an external directory with --output=<external-path>',
-					$dir,
-					$this->projectRoot
-				)
-			);
-		}
-
-		// Validate external directories with basic safety checks
-		$this->validateDirectoryOutsideProject( $normalizedDir );
-	}
-
-	/**
-	 * Validate directories outside the project root with basic safety checks
-	 * Allows external directories (like SVN repos) but prevents dangerous system deletions
-	 * @throws \RuntimeException if directory is unsafe to delete
-	 */
-	private function validateDirectoryOutsideProject( string $normalizedDir ) :void {
-		// Prevent deletion of system root directories
-		$dangerousPaths = [
-			'/',           // Unix root
-			'/bin',
-			'/etc',
-			'/usr',
-			'/var',
-			'/sys',
-			'/proc',
-			'/dev',
-			'c:',          // Windows root (drive letter only)
-			'c:/',
-			'c:\\',
-		];
-
-		foreach ( $dangerousPaths as $dangerousPath ) {
-			$normalizedDangerous = rtrim( str_replace( '\\', '/', strtolower( $dangerousPath ) ), '/' );
-			$normalizedDirLower = strtolower( $normalizedDir );
-
-			// Exact match or directory is the dangerous path itself
-			if ( $normalizedDirLower === $normalizedDangerous ||
-				 $normalizedDirLower === $normalizedDangerous.'/' ) {
-				throw new \RuntimeException(
-					sprintf(
-						'ERROR: Cannot build package in system root or critical system directory. '.
-						'Reason: Deleting system directories would cause severe system damage. '.
-						'Target directory: %s '.
-						'Blocked path pattern: %s '.
-						'Solution: Use a safe build directory outside system roots (e.g., /tmp/shield-package or C:\\Builds\\shield-package)',
-						$normalizedDir,
-						$dangerousPath
-					)
-				);
-			}
-		}
-
-		// Prevent deletion of very short paths (likely system roots)
-		// Paths shorter than 3 characters are suspicious
-		$pathLength = strlen( $normalizedDir );
-		if ( $pathLength < 3 ) {
-			throw new \RuntimeException(
-				sprintf(
-					'ERROR: Cannot build package in suspiciously short path (likely system root). '.
-					'Reason: Path is too short (%d characters) and may be a system root directory. '.
-					'Target directory: %s '.
-					'Solution: Use a full path to a safe build directory (minimum 3 characters)',
-					$pathLength,
-					$normalizedDir
-				)
-			);
-		}
-
-		// Prevent deletion of Windows system directories
-		$windowsSystemDirs = [
-			'c:/windows',
-			'c:/windows/system32',
-			'c:/program files',
-			'c:/program files (x86)',
-		];
-
-		foreach ( $windowsSystemDirs as $sysDir ) {
-			$normalizedSysDir = strtolower( $sysDir );
-			if ( strpos( strtolower( $normalizedDir ), $normalizedSysDir ) === 0 ) {
-				throw new \RuntimeException(
-					sprintf(
-						'ERROR: Cannot build package in Windows system directory. '.
-						'Reason: Deleting Windows system directories would cause severe system damage. '.
-						'Target directory: %s '.
-						'Blocked system directory pattern: %s '.
-						'Solution: Use a safe build directory outside Windows system paths (e.g., C:\\Builds\\shield-package or C:\\Temp\\shield-package)',
-						$normalizedDir,
-						$sysDir
-					)
-				);
-			}
-		}
-	}
-
-	/**
-	 * Safely remove a directory that must be inside a specified parent directory
-	 * @throws \RuntimeException if directory is not inside parent or deletion fails
-	 */
-	private function removeSubdirectoryOf( string $dir, string $mustBeInsideDir ) :void {
-		$realDir = realpath( $dir );
-		$realParent = realpath( $mustBeInsideDir );
-
-		if ( $realDir === false ) {
-			return; // Directory doesn't exist, nothing to delete
-		}
-
-		if ( $realParent === false ) {
-			throw new \RuntimeException(
-				sprintf( 'Parent directory does not exist: %s', $mustBeInsideDir )
-			);
-		}
-
-		// Normalize paths for comparison
-		$normalizedDir = rtrim( str_replace( '\\', '/', $realDir ), '/' );
-		$normalizedParent = rtrim( str_replace( '\\', '/', $realParent ), '/' );
-
-		// Verify the directory is actually inside the parent
-		if ( strpos( $normalizedDir, $normalizedParent.'/' ) !== 0 ) {
-			throw new \RuntimeException(
-				sprintf(
-					'SAFETY CHECK FAILED: Refusing to delete directory that is not inside expected parent. '.
-					'Directory: %s | Expected parent: %s',
-					$realDir,
-					$realParent
-				)
-			);
-		}
-
-		// Also verify it's not the parent itself
-		if ( $normalizedDir === $normalizedParent ) {
-			throw new \RuntimeException(
-				sprintf( 'SAFETY CHECK FAILED: Cannot delete the parent directory itself: %s', $realDir )
-			);
-		}
-
-		FileSystemUtils::removeDirectoryRecursive( $realDir );
 	}
 }
