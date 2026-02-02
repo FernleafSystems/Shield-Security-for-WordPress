@@ -29,6 +29,7 @@ phpunit-*-package.xml
 /tests/package/
 
 # Local build packages (created by local build scripts)
+/builds/
 /shield-package
 /shield-package-local
 /shield-test-package

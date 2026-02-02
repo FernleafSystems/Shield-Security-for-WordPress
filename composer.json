@@ -63,6 +63,7 @@
     ],
     "phpcs":                   "phpcs",
     "phpcs:fix":               "phpcbf",
-    "package-plugin":          "@php bin/package-plugin.php"
+    "package-plugin":          "@php bin/package-plugin.php",
+    "build-zip":               "@php bin/build-zip.php"
   }
 }
