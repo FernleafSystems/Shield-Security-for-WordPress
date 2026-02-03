@@ -24,7 +24,7 @@ class CapturePluginAction extends CaptureActionBase {
 	}
 
 	protected function postRun() {
-		if ( !empty( $this->actionResponse ) && !empty( $this->actionResponse->next_step ) ) {
+		if ( !empty( $this->actionResponse ) && isset( $this->actionResponse->next_step[ 'type' ] ) ) {
 			switch ( $this->actionResponse->next_step[ 'type' ] ) {
 				case 'redirect':
 					$url = $this->actionResponse->next_step[ 'url' ];

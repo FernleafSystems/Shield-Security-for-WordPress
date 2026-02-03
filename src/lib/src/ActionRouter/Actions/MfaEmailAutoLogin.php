@@ -69,9 +69,6 @@ class MfaEmailAutoLogin extends BaseAction {
 		];
 
 		$redirectTo = $this->action_data[ 'redirect_to' ] ?? '';
-		if ( !empty( $redirectTo ) ) {
-			$redirectTo = \base64_decode( $redirectTo );
-		}
 		$this->response()->next_step = [
 			'type' => 'redirect',
 			'url'  => empty( $redirectTo ) ? Services::WpGeneral()->getHomeUrl() : $redirectTo,

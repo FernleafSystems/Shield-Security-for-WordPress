@@ -146,7 +146,7 @@ class Email extends AbstractShieldProviderMfaDB {
 								   'login_nonce'                        => $plainNonce,
 								   'user_id'                            => $user->ID,
 								   // breaks without encoding.
-								   'redirect_to'                        => \base64_encode( $autoRedirect ),
+								   'redirect_to'                        => \esc_js( $autoRedirect ),
 							   ]
 						   ),
 					   ] )
