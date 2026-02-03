@@ -19,6 +19,8 @@ class TranslationDownloadController {
 
 	private const OPT_KEY = 'translation_config';
 
+	private static bool $fetching = false;
+
 	protected function canRun() :bool {
 		return true;
 	}
@@ -80,7 +82,15 @@ class TranslationDownloadController {
 	}
 
 	public function isLocaleAvailable( string $locale ) :bool {
-		return !empty( $this->getAvailableLocales()[ $locale ] );
+		return !empty( $this->getCachedLocales()[ $locale ] );
+	}
+
+	/**
+	 * Returns cached locales without triggering API calls.
+	 * Safe to call in any context, including during textdomain loading.
+	 */
+	public function getCachedLocales() :array {
+		return $this->cfg()[ 'available' ][ 'locales' ] ?? [];
 	}
 
 	private function acquireMo( string $locale, string $expectedHash, string $hashAlgo ) :bool {
@@ -174,17 +184,28 @@ class TranslationDownloadController {
 					 || empty( $available[ 'fetched_at' ] )
 					 || ( Services::Request()->ts() - $available[ 'fetched_at' ] ) >= $cacheTTL;
 
-		if ( $isInvalid ) {
-			$api = ( new ListAvailable() )->retrieve();
-			$locales = ( \is_array( $api ) && \is_array( $api[ 'locales' ] ?? null ) ) ? $api[ 'locales' ] : [];
-			$available = [
-				'locales'    => $locales,
-				// Always update fetched_at to prevent API hammering on failure
-				'fetched_at' => Services::Request()->ts(),
-			];
-			$this->addCfg( 'available', $available );
+		if ( $isInvalid && !self::$fetching ) {
+			self::$fetching = true;
+			try {
+				$this->fetchLocalesFromApi();
+				$available = $this->cfg()[ 'available' ];
+			}
+			finally {
+				self::$fetching = false;
+			}
 		}
 
 		return $available[ 'locales' ] ?? [];
+	}
+
+	private function fetchLocalesFromApi() :void {
+		$api = ( new ListAvailable() )->retrieve();
+		$locales = ( \is_array( $api ) && \is_array( $api[ 'locales' ] ?? null ) ) ? $api[ 'locales' ] : [];
+		$available = [
+			'locales'    => $locales,
+			// Always update fetched_at to prevent API hammering on failure
+			'fetched_at' => Services::Request()->ts(),
+		];
+		$this->addCfg( 'available', $available );
 	}
 }

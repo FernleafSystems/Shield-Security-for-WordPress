@@ -89,7 +89,7 @@ class LoadTextDomain {
 		// Try language-only match in cache (e.g., 'de' from 'de_DE')
 		$targetLang = $this->localeToLang( $targetLocale );
 		if ( empty( $foundMoPath ) && !empty( $targetLang ) ) {
-			foreach ( \array_keys( $transDownloaderCon->getAvailableLocales() ) as $maybeLocale ) {
+			foreach ( \array_keys( $transDownloaderCon->getCachedLocales() ) as $maybeLocale ) {
 				if ( $targetLang === $this->localeToLang( $maybeLocale ) ) {
 					$cachedPath = $transDownloaderCon->getLocaleMoFilePath( $maybeLocale );
 					if ( !empty( $cachedPath ) ) {
@@ -108,7 +108,7 @@ class LoadTextDomain {
 				$localeToQueue = $targetLocale;
 			}
 			elseif ( !empty( $targetLang ) ) {
-				foreach ( \array_keys( $transDownloaderCon->getAvailableLocales() ) as $maybeLocale ) {
+				foreach ( \array_keys( $transDownloaderCon->getCachedLocales() ) as $maybeLocale ) {
 					if ( $targetLang === $this->localeToLang( $maybeLocale ) ) {
 						$localeToQueue = $maybeLocale;
 						break;
