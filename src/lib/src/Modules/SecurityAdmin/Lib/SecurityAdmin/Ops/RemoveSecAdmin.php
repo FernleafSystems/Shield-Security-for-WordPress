@@ -23,6 +23,9 @@ class RemoveSecAdmin {
 
 			( new ToggleSecAdminStatus() )->turnOff();
 
+			// After removing Security Admin entirely, ensure flag remains true since protection is now disabled
+			self::con()->this_req->is_security_admin = true;
+
 			if ( !$quietly ) {
 				$this->sendNotificationEmail();
 			}
