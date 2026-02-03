@@ -48,8 +48,9 @@ class SecurityAdminLogin extends SecurityAdminBase {
 		}
 
 		$resp->action_response_data = [
-			'html'        => '',
-			'page_reload' => true,
+			'html'         => '',
+			'page_reload'  => true,
+			'redirect_url' => self::con()->plugin_urls->adminHome(),
 		];
 	}
 }
