@@ -16,7 +16,7 @@ class SecurityAdminAuthClear extends SecurityAdminBase {
 		];
 		$this->response()->next_step = [
 			'type' => 'redirect',
-			'url'  => self::con()->plugin_urls->adminHome(),
+			'url'  => self::con()->plugin_urls->adminRefererOrHome(),
 		];
 	}
 }

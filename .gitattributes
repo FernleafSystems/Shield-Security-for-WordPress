@@ -143,6 +143,7 @@ yarn.lock text eol=lf
 /bin export-ignore
 /scripts export-ignore
 /infrastructure export-ignore
+/build export-ignore
 /plugin-spec export-ignore
 
 # Documentation (readme.txt is kept for WordPress.org)
