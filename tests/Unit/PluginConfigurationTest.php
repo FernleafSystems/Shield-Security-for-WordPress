@@ -92,7 +92,7 @@ class PluginConfigurationTest extends TestCase {
 		$pluginAutoloadPath = $this->getPluginFilePath( 'plugin_autoload.php' );
 		$this->assertFileExists( $pluginAutoloadPath, 'Plugin autoload file should exist' );
 		
-		$mainVendorAutoload = $this->getPluginFilePath( 'src/lib/vendor/autoload.php' );
+		$mainVendorAutoload = $this->getPluginFilePath( 'vendor/autoload.php' );
 		$this->assertFileExists( $mainVendorAutoload, 'Main vendor autoload file should exist' );
 	}
 
@@ -102,7 +102,7 @@ class PluginConfigurationTest extends TestCase {
 	public function testPluginDirectoryStructure() :void {
 		// Critical directories that should exist
 		$criticalDirs = [
-			'src/lib/src',
+			'src',
 			'assets',
 			'languages',
 			'templates'

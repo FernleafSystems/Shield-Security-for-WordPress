@@ -36,8 +36,8 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 */
 	public function testAutoloaderFilesExist() :void {
 		$autoloaders = [
-			'src/lib/vendor/autoload.php'          => 'Main vendor autoloader',
-			'src/lib/vendor_prefixed/autoload.php' => 'Prefixed vendor autoloader',
+			'vendor/autoload.php'          => 'Main vendor autoloader',
+			'vendor_prefixed/autoload.php' => 'Prefixed vendor autoloader',
 		];
 
 		foreach ( $autoloaders as $file => $description ) {
@@ -55,7 +55,7 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 */
 	public function testCriticalDirectoriesExist() :void {
 		$directories = [
-			'src/lib/src'  => 'Main source code directory',
+			'src'          => 'Main source code directory',
 			'assets/dist'  => 'Compiled assets directory',
 			'templates'    => 'Template files directory',
 			'languages'    => 'Translations directory',
@@ -91,7 +91,7 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 			'UserManagement',
 		];
 
-		$modulesPath = $this->getPluginFilePath( 'src/lib/src/Modules' );
+		$modulesPath = $this->getPluginFilePath( 'src/Modules' );
 		
 		// First verify the modules directory exists
 		$this->assertDirectoryExists( $modulesPath, 'Modules directory should exist' );
@@ -217,8 +217,8 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 */
 	public function testVendorDirectoriesNotEmpty() :void {
 		$vendorDirs = [
-			'src/lib/vendor'          => 'Main vendor directory',
-			'src/lib/vendor_prefixed' => 'Prefixed vendor directory',
+			'vendor'          => 'Main vendor directory',
+			'vendor_prefixed' => 'Prefixed vendor directory',
 		];
 
 		foreach ( $vendorDirs as $dir => $description ) {

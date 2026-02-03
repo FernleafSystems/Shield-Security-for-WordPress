@@ -159,9 +159,8 @@ yarn.lock text eol=lf
 /package-lock.json export-ignore
 /webpack.config.js export-ignore
 /vendor export-ignore
+/vendor_prefixed export-ignore
 /node_modules export-ignore
-/src/lib/vendor export-ignore
-/src/lib/vendor_prefixed/ export-ignore
 
 # Testing
 /tests export-ignore

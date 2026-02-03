@@ -64,27 +64,14 @@ class PluginPackager {
 		}
 
 		$composerCommand = $this->commandRunner->getComposerCommand();
-		if ( $options[ 'composer_root' ] ) {
+		if ( $options[ 'composer_install' ] ) {
 			$this->commandRunner->run(
 				array_merge( $composerCommand, [
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
-					//					'--optimize-autoloader'
 				] ),
 				$this->projectRoot
-			);
-		}
-
-		if ( $options[ 'composer_lib' ] ) {
-			$this->commandRunner->run(
-				array_merge( $composerCommand, [
-					'install',
-					'--no-interaction',
-					'--prefer-dist',
-					//					'--optimize-autoloader'
-				] ),
-				Path::join( $this->projectRoot, 'src', 'lib' )
 			);
 		}
 
@@ -131,6 +118,10 @@ class PluginPackager {
 
 		$this->cleanupPackageFiles( $targetDir );
 		$this->cleanAutoloadFiles( $targetDir );
+
+		// Create legacy path duplicates for upgrade compatibility
+		$this->createLegacyDuplicates( $targetDir );
+
 		$this->verifyPackage( $targetDir );
 
 		$this->log( sprintf( 'Package created at: %s', $targetDir ) );
@@ -196,30 +187,6 @@ class PluginPackager {
 		return $resolved;
 	}
 
-	/**
-	 * Convert Windows paths to Git Bash compatible format for bash execution.
-	 * Only converts Windows drive-letter paths (D:/...) to Git Bash format (/mnt/d/...).
-	 * Leaves Unix paths unchanged (works on Linux, Docker, GitHub Actions, WSL).
-	 */
-	private function convertPathForBash( string $path ) :string {
-		$normalized = Path::normalize( $path );
-
-		// Only convert if it's a Windows drive-letter path (D:/...) and we're on Windows
-		// Unix paths (/path/to/file) are left unchanged for Linux/Docker/GitHub Actions
-		if ( \PHP_OS_FAMILY === 'Windows' && \preg_match( '#^([A-Za-z]):/#', $normalized, $matches ) ) {
-			$drive = strtolower( $matches[ 1 ] );
-			$rest = substr( $normalized, 3 ); // Remove "D:/"
-			// Handle edge case where rest might be empty (unlikely but possible)
-			if ( $rest === '' ) {
-				return '/mnt/'.$drive.'/';
-			}
-			return '/mnt/'.$drive.'/'.$rest; // Add slash after drive letter
-		}
-
-		// Return as-is for Unix paths (Linux, Docker, GitHub Actions, WSL)
-		return $normalized;
-	}
-
 	private function log( string $message ) :void {
 		( $this->logger )( $message );
 	}
@@ -229,8 +196,7 @@ class PluginPackager {
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
-			'composer_root'     => true,
-			'composer_lib'      => true,
+			'composer_install'  => true,
 			'npm_install'       => true,
 			'npm_build'         => true,
 			'directory_clean'   => true,
@@ -315,15 +281,13 @@ class PluginPackager {
 	private function installComposerDependencies( string $targetDir ) :void {
 		$this->log( 'Installing composer dependencies in package...' );
 
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-
-		if ( !is_dir( $libDir ) ) {
+		if ( !file_exists( Path::join( $targetDir, 'composer.json' ) ) ) {
 			throw new \RuntimeException(
 				sprintf(
-					'Composer install failed: Package library directory does not exist. '.
-					'Expected directory: %s. '.
+					'Composer install failed: composer.json does not exist in package directory. '.
+					'Expected file: %s. '.
 					'This usually means the file copy step did not complete successfully.',
-					$libDir
+					Path::join( $targetDir, 'composer.json' )
 				)
 			);
 		}
@@ -335,10 +299,9 @@ class PluginPackager {
 				'--no-dev',
 				'--no-interaction',
 				'--prefer-dist',
-				//				'--optimize-autoloader',
 				'--quiet'
 			] ),
-			$libDir
+			$targetDir
 		);
 
 		$this->log( '  ✓ Composer dependencies installed' );
@@ -351,13 +314,9 @@ class PluginPackager {
 	 */
 	private function cleanupPackageFiles( string $targetDir ) :void {
 		$fs = new Filesystem();
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
 
 		// Remove Strauss fork directory if it exists (only when not in Docker)
 		// In Docker, we use /tmp which is ephemeral - no cleanup needed
-		// NOTE: We use removeDirectoryRecursive() instead of Symfony's $fs->remove() because
-		// Symfony renames directories to .!xxx temp names before deletion, and if deletion fails,
-		// these temp directories are left behind causing issues on subsequent runs.
 		if ( $this->straussForkRepo !== null && !StraussBinaryProvider::isRunningInDocker() ) {
 			$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
 			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
@@ -379,9 +338,9 @@ class PluginPackager {
 		// Directories to remove (duplicates after Strauss prefixing)
 		$this->log( 'Removing duplicate libraries from main vendor...' );
 		$directoriesToRemove = [
-			Path::join( $libDir, 'vendor', 'twig' ),
-			Path::join( $libDir, 'vendor', 'monolog' ),
-			Path::join( $libDir, 'vendor', 'bin' ),
+			Path::join( $targetDir, 'vendor', 'twig' ),
+			Path::join( $targetDir, 'vendor', 'monolog' ),
+			Path::join( $targetDir, 'vendor', 'bin' ),
 		];
 
 		foreach ( $directoriesToRemove as $dir ) {
@@ -399,8 +358,8 @@ class PluginPackager {
 		// Files to remove (development and temporary files)
 		$this->log( 'Removing development-only files...' );
 		$filesToRemove = [
-			Path::join( $libDir, 'vendor_prefixed', 'autoload-files.php' ),
-			Path::join( $libDir, 'strauss.phar' ),
+			Path::join( $targetDir, 'vendor_prefixed', 'autoload-files.php' ),
+			Path::join( $targetDir, 'strauss.phar' ),
 		];
 
 		foreach ( $filesToRemove as $file ) {
@@ -423,7 +382,7 @@ class PluginPackager {
 	private function cleanAutoloadFiles( string $targetDir ) :void {
 		$this->log( 'Cleaning autoload files...' );
 
-		$composerDir = Path::join( $targetDir, 'src', 'lib', 'vendor', 'composer' );
+		$composerDir = Path::join( $targetDir, 'vendor', 'composer' );
 
 		if ( !is_dir( $composerDir ) ) {
 			$this->log( '  Warning: Composer directory not found, skipping autoload cleanup' );
@@ -494,6 +453,116 @@ class PluginPackager {
 	}
 
 	/**
+	 * Create legacy path duplicates for upgrade compatibility.
+	 *
+	 * During WordPress plugin upgrades, the old autoloader is still loaded in memory
+	 * with the old PSR-4 paths. When shutdown hooks fire, PHP tries to autoload classes
+	 * from the OLD paths but the NEW files are on disk. This method duplicates the classes
+	 * that are autoloaded during shutdown to their legacy paths.
+	 *
+	 * @see Plan documentation for complete shutdown code trace
+	 */
+	private function createLegacyDuplicates( string $targetDir ) :void {
+		$this->log( 'Creating legacy path duplicates for upgrade compatibility...' );
+
+		$fs = new Filesystem();
+		$srcDir = Path::join( $targetDir, 'src' );
+		$legacySrcDir = Path::join( $targetDir, 'src', 'lib', 'src' );
+		$vendorPrefixedDir = Path::join( $targetDir, 'vendor_prefixed' );
+		$legacyVendorPrefixedDir = Path::join( $targetDir, 'src', 'lib', 'vendor_prefixed' );
+
+		// Create legacy directory structure
+		$fs->mkdir( $legacySrcDir, 0755 );
+		$fs->mkdir( $legacyVendorPrefixedDir, 0755 );
+
+		// ========================================
+		// Source directories to mirror (full copy)
+		// ========================================
+		$srcDirectoriesToMirror = [
+			[ 'Controller', 'Config' ],              // OptsHandler::store() at shutdown
+			[ 'DBs' ],                               // All DB classes for logging/IP ops
+			[ 'Logging' ],                           // All log processors
+			[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
+		];
+
+		\array_map(
+			fn( array $path ) => $fs->mirror(
+				Path::join( $srcDir, ...$path ),
+				Path::join( $legacySrcDir, ...$path )
+			),
+			$srcDirectoriesToMirror
+		);
+
+		// ========================================
+		// Individual source files to copy
+		// ========================================
+		$srcFilesToCopy = [
+			// Controller/Dependencies/Monolog.php - Assessed when creating loggers
+			[ 'Controller', 'Dependencies', 'Monolog.php' ],
+			// Modules/AuditTrail/Lib/ - Audit logging
+			[ 'Modules', 'AuditTrail', 'Lib', 'ActivityLogMessageBuilder.php' ],
+			[ 'Modules', 'AuditTrail', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
+			// Modules/HackGuard/Lib/Snapshots/ - Snapshot checking
+			[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'FindAssetsToSnap.php' ],
+			[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'StoreAction', 'Load.php' ],
+			// Modules/IPs/Components/ProcessOffense.php - Offense processing
+			[ 'Modules', 'IPs', 'Components', 'ProcessOffense.php' ],
+			// Modules/IPs/Lib/Bots/BotSignalsRecord.php - Bot signal recording
+			[ 'Modules', 'IPs', 'Lib', 'Bots', 'BotSignalsRecord.php' ],
+			// Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php - Traffic DB writing
+			[ 'Modules', 'Traffic', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
+		];
+
+		\array_map(
+			function ( array $path ) use ( $fs, $srcDir, $legacySrcDir ) :void {
+				$destPath = Path::join( $legacySrcDir, ...$path );
+				$fs->mkdir( \dirname( $destPath ), 0755 );
+				$fs->copy(
+					Path::join( $srcDir, ...$path ),
+					$destPath
+				);
+			},
+			$srcFilesToCopy
+		);
+
+		// ========================================
+		// Vendor prefixed directories to mirror
+		// ========================================
+		$vendorDirectoriesToMirror = [
+			[ 'monolog' ],   // Monolog used at shutdown for logging
+			[ 'composer' ],  // Autoloader metadata
+		];
+
+		\array_map(
+			fn( array $path ) => $fs->mirror(
+				Path::join( $vendorPrefixedDir, ...$path ),
+				Path::join( $legacyVendorPrefixedDir, ...$path )
+			),
+			$vendorDirectoriesToMirror
+		);
+
+		// ========================================
+		// Vendor prefixed files to copy
+		// ========================================
+		$vendorFilesToCopy = [
+			'autoload.php',
+			'autoload-classmap.php',
+		];
+
+		\array_map(
+			function ( string $file ) use ( $fs, $vendorPrefixedDir, $legacyVendorPrefixedDir ) :void {
+				$src = Path::join( $vendorPrefixedDir, $file );
+				if ( \file_exists( $src ) ) {
+					$fs->copy( $src, Path::join( $legacyVendorPrefixedDir, $file ) );
+				}
+			},
+			$vendorFilesToCopy
+		);
+
+		$this->log( '  ✓ Created legacy path duplicates for upgrade compatibility' );
+	}
+
+	/**
 	 * Verify the package was built correctly by checking required files and directories.
 	 *
 	 * @throws \RuntimeException if critical package files are missing
@@ -505,9 +574,9 @@ class PluginPackager {
 
 		// Required files
 		$requiredFiles = [
-			'plugin.json'                 => Path::join( $targetDir, 'plugin.json' ),
-			'icwp-wpsf.php'               => Path::join( $targetDir, 'icwp-wpsf.php' ),
-			'src/lib/vendor/autoload.php' => Path::join( $targetDir, 'src', 'lib', 'vendor', 'autoload.php' ),
+			'plugin.json'         => Path::join( $targetDir, 'plugin.json' ),
+			'icwp-wpsf.php'       => Path::join( $targetDir, 'icwp-wpsf.php' ),
+			'vendor/autoload.php' => Path::join( $targetDir, 'vendor', 'autoload.php' ),
 		];
 
 		foreach ( $requiredFiles as $name => $path ) {
@@ -522,8 +591,9 @@ class PluginPackager {
 
 		// Required directories
 		$requiredDirs = [
-			'src/lib/vendor_prefixed' => Path::join( $targetDir, 'src', 'lib', 'vendor_prefixed' ),
-			'assets/dist'             => Path::join( $targetDir, 'assets', 'dist' ),
+			'vendor_prefixed'             => Path::join( $targetDir, 'vendor_prefixed' ),
+			'assets/dist'                 => Path::join( $targetDir, 'assets', 'dist' ),
+			'src/lib/src (legacy compat)' => Path::join( $targetDir, 'src', 'lib', 'src' ),
 		];
 
 		foreach ( $requiredDirs as $name => $path ) {

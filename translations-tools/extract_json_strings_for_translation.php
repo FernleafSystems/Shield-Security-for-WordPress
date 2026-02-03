@@ -38,7 +38,7 @@ class JsonStringExtractor {
 
 	public function __construct() {
 		$this->pluginJsonPath = dirname( __DIR__ ) . '/plugin.json';
-		$this->outputPath = dirname( __DIR__ ) . '/src/lib/src/translations-strings-auto.php';
+		$this->outputPath = dirname( __DIR__ ) . '/src/translations-strings-auto.php';
 	}
 
 	public function run(): void {
