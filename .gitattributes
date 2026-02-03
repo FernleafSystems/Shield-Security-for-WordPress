@@ -181,7 +181,8 @@ yarn.lock text eol=lf
 # Temporary files
 /tmp export-ignore
 
-# Translation source files (only compiled .mo files needed at runtime)
-# .po files are source files for translators
-# .mo files are compiled binaries (KEPT - these are what WordPress uses)
+# Translation files
+# .pot template file is KEPT for translators
+# .po and .mo files excluded - translations downloaded at runtime from ShieldNET
 /languages/*.po export-ignore
+/languages/*.mo export-ignore
