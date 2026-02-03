@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { Forms } from "../../util/Forms";
+import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 
@@ -104,11 +105,10 @@ export class SecurityAdmin extends BaseComponent {
 		.send( this._base_data.ajax.sec_admin_login, false )
 		.then( ( resp ) => {
 			if ( resp.success ) {
-				location.reload();
+				Navigation.RedirectOrReload( resp, null );
 			}
-			if ( resp.data ) {
+			else if ( resp.data && resp.data.html ) {
 				input.innerHTML = resp.data.html;
-				location.reload();
 			}
 			else {
 				input.innerHTML = 'There was an unknown error';
