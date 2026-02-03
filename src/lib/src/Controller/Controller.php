@@ -714,9 +714,9 @@ class Controller extends DynPropertiesClass {
 		// Apply PRO suffix AFTER whitelabel (if premium active AND whitelabel disabled)
 		// This centralizes the logic in the labels system itself
 		if ( $this->isPremiumActive() && !$labels->is_whitelabelled ) {
-			$labels->Name = $labels->Name.'PRO';
-			$labels->Title = $labels->Title.'PRO';
-			$labels->MenuTitle = $labels->MenuTitle.'PRO';
+			$labels->Name = $labels->Name.' PRO';
+			$labels->Title = $labels->Title.' PRO';
+			$labels->MenuTitle = $labels->MenuTitle.' PRO';
 			$labels->url_img_logo_small = $this->urls->forImage( 'plugin_logo_prem.svg' );
 		}
 
