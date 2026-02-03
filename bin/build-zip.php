@@ -18,6 +18,9 @@ $options = getopt( '', [
 	'skip-npm-install',
 	'skip-npm-build',
 	'keep-package',
+	'version::',
+	'release-timestamp::',
+	'build::',
 ] );
 
 // Resolve Strauss version: CLI arg > env var/config file (via PackagerConfig) > null (fallback in PluginPackager)
@@ -60,6 +63,19 @@ if ( !\is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
 
 if ( $straussForkRepo !== null ) {
 	$packagerOptions[ 'strauss_fork_repo' ] = \trim( $straussForkRepo );
+}
+
+// Version metadata options
+if ( isset( $options[ 'version' ] ) && \is_string( $options[ 'version' ] ) ) {
+	$packagerOptions[ 'version' ] = \trim( $options[ 'version' ] );
+}
+
+if ( isset( $options[ 'release-timestamp' ] ) ) {
+	$packagerOptions[ 'release_timestamp' ] = (int)$options[ 'release-timestamp' ];
+}
+
+if ( isset( $options[ 'build' ] ) && \is_string( $options[ 'build' ] ) ) {
+	$packagerOptions[ 'build' ] = \trim( $options[ 'build' ] );
 }
 
 // Resolve zip root folder name (the folder name inside the zip archive)

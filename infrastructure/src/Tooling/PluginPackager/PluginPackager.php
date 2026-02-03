@@ -27,6 +27,8 @@ class PluginPackager {
 
 	private PluginFileCopier $fileCopier;
 
+	private VersionUpdater $versionUpdater;
+
 	public function __construct( ?string $projectRoot = null, ?callable $logger = null ) {
 		$root = $projectRoot ?? $this->detectProjectRoot();
 		if ( $root === '' ) {
@@ -41,6 +43,7 @@ class PluginPackager {
 		$this->commandRunner = new CommandRunner( $this->projectRoot, $this->logger );
 		$this->directoryRemover = new SafeDirectoryRemover( $this->projectRoot );
 		$this->fileCopier = new PluginFileCopier( $this->projectRoot, $this->logger );
+		$this->versionUpdater = new VersionUpdater( $this->projectRoot, $this->logger );
 	}
 
 	/**
@@ -109,6 +112,9 @@ class PluginPackager {
 
 		// Generate plugin.json AFTER copy/skip-copy, ALWAYS runs
 		$this->buildPluginJson( $targetDir );
+
+		// Update version metadata in target files (if options provided)
+		$this->updateVersionMetadata( $targetDir, $options );
 
 		$this->installComposerDependencies( $targetDir );
 		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
@@ -231,6 +237,9 @@ class PluginPackager {
 			'skip_copy'         => false,
 			'strauss_version'   => null,
 			'strauss_fork_repo' => null,
+			'version'           => null,
+			'release_timestamp' => null,
+			'build'             => null,
 		];
 
 		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
@@ -261,6 +270,41 @@ class PluginPackager {
 		$this->log( 'Generating plugin.json from plugin-spec/...' );
 		( new ConfigMerger() )->mergeToFile( $specDir, $outputPath );
 		$this->log( '  ✓ plugin.json generated' );
+	}
+
+	/**
+	 * Update version metadata in target package files.
+	 *
+	 * @param array<string, mixed> $options Package options including version, release_timestamp, build
+	 */
+	private function updateVersionMetadata( string $targetDir, array $options ) :void {
+		$versionOptions = [];
+
+		if ( $options[ 'version' ] !== null ) {
+			$versionOptions[ 'version' ] = $options[ 'version' ];
+
+			// Auto-generate timestamp if version provided but timestamp not
+			if ( $options[ 'release_timestamp' ] === null ) {
+				$versionOptions[ 'release_timestamp' ] = \time();
+			}
+		}
+
+		if ( $options[ 'release_timestamp' ] !== null ) {
+			$versionOptions[ 'release_timestamp' ] = $options[ 'release_timestamp' ];
+		}
+
+		if ( $options[ 'build' ] !== null ) {
+			if ( $options[ 'build' ] === 'auto' ) {
+				$versionOptions[ 'build' ] = $this->versionUpdater->generateBuild();
+			}
+			else {
+				$versionOptions[ 'build' ] = $options[ 'build' ];
+			}
+		}
+
+		if ( !empty( $versionOptions ) ) {
+			$this->versionUpdater->update( $targetDir, $versionOptions );
+		}
 	}
 
 	/**

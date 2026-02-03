@@ -18,6 +18,9 @@ $options = getopt( '', [
 	'skip-npm-build',
 	'skip-directory-clean',
 	'skip-copy',
+	'version::',
+	'release-timestamp::',
+	'build::',
 ] );
 
 $outputDir = $options[ 'output' ] ?? null;
@@ -73,6 +76,19 @@ if ( !is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
 
 if ( $straussForkRepo !== null ) {
 	$packagerOptions[ 'strauss_fork_repo' ] = trim( $straussForkRepo );
+}
+
+// Version metadata options
+if ( isset( $options[ 'version' ] ) && is_string( $options[ 'version' ] ) ) {
+	$packagerOptions[ 'version' ] = trim( $options[ 'version' ] );
+}
+
+if ( isset( $options[ 'release-timestamp' ] ) ) {
+	$packagerOptions[ 'release_timestamp' ] = (int)$options[ 'release-timestamp' ];
+}
+
+if ( isset( $options[ 'build' ] ) && is_string( $options[ 'build' ] ) ) {
+	$packagerOptions[ 'build' ] = trim( $options[ 'build' ] );
 }
 
 try {
