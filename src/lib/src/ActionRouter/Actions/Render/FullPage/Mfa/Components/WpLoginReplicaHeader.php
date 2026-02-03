@@ -34,7 +34,7 @@ class WpLoginReplicaHeader extends Base {
 		$login_title = get_bloginfo( 'name', 'display' );
 
 		/* translators: Login screen title. 1: Login screen name, 2: Network or site name. */
-		$login_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; WordPress' ), esc_html( $this->action_data[ 'title' ] ?? '' ), $login_title );
+		$login_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; WordPress', 'wp-simple-firewall' ), esc_html( $this->action_data[ 'title' ] ?? '' ), $login_title );
 
 		/**
 		 * Filters the title tag content for login page.
@@ -69,7 +69,7 @@ class WpLoginReplicaHeader extends Base {
 		/**
 		 * Weird behaviour when clicking the icon. We avoid that in the interim iframe.
 		 */
-		$login_header_url = $isInterimLogin ? '#' : __( 'https://wordpress.org/' );
+		$login_header_url = $isInterimLogin ? '#' : __( 'https://wordpress.org/', 'wp-simple-firewall' );
 
 		/**
 		 * Filters link URL of the header logo above login form.
@@ -82,7 +82,7 @@ class WpLoginReplicaHeader extends Base {
 
 		$login_header_title = '';
 
-		$login_header_text = empty( $login_header_title ) ? __( 'Powered by WordPress' ) : $login_header_title;
+		$login_header_text = empty( $login_header_title ) ? __( 'Powered by WordPress', 'wp-simple-firewall' ) : $login_header_title;
 
 		/**
 		 * Filters the link text of the header logo above the login form.

@@ -10,11 +10,11 @@ class OptionTransferIncludeToggle extends BaseAction {
 		$excluded = self::con()->comps->opts_lookup->getXferExcluded();
 		if ( $this->action_data[ 'status' ] === 'exclude' ) {
 			$excluded[] = $this->action_data[ 'key' ];
-			$msg = __( 'Option excluded from import/export' );
+			$msg = __( 'Option excluded from import/export', 'wp-simple-firewall' );
 		}
 		else {
 			$excluded = \array_diff( $excluded, [ $this->action_data[ 'key' ] ] );
-			$msg = __( 'Option included in import/export' );
+			$msg = __( 'Option included in import/export', 'wp-simple-firewall' );
 		}
 
 		self::con()->opts->optSet( 'xfer_excluded', \array_unique( $excluded ) );

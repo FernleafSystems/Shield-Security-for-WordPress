@@ -150,21 +150,23 @@ class Scanner {
 					break;
 
 				case 'trash':
-					$humanStatus = __( 'Trash' );
+					$humanStatus = __( 'Trash', 'wp-simple-firewall' );
 					break;
 
 				case 'hold':
 				case '0':
 				default:
-					$humanStatus = __( 'Pending Moderation' );
+					$humanStatus = __( 'Pending Moderation', 'wp-simple-firewall' );
 					break;
 			}
 
 			$additional = (string)apply_filters(
 				'shield/comment_spam_explanation',
-				sprintf(
-					"## Comment SPAM Protection: %s %s ##\n",
-					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
+				/* translators: %1$s: spam notice, %2$s: reason */
+				sprintf( '## '.__( 'Comment SPAM Protection: %1$s %2$s', 'wp-simple-firewall' )."##\n",
+					sprintf(
+						/* translators: %1$s: plugin name, %2$s: status */
+						__( '%1$s marked this comment as "%2$s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
 				$this->spamStatus,

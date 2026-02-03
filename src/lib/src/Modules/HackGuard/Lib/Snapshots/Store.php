@@ -138,7 +138,7 @@ class Store {
 		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
-			throw new \Exception( sprintf( 'Snapshot store does not exist: "%s"', $this->getSnapStorePath() ) );
+			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
@@ -150,7 +150,7 @@ class Store {
 			}
 		}
 		if ( empty( $snap ) ) {
-			throw new \Exception( 'Snapshot data could not be decoded' );
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
 		}
 
 		return $snap;
@@ -163,7 +163,7 @@ class Store {
 		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
-			throw new \Exception( sprintf( 'Snapshot store does not exist: "%s"', $this->getSnapStorePath() ) );
+			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );
@@ -171,7 +171,7 @@ class Store {
 			$data = \json_decode( $encoded, true );
 		}
 		if ( empty( $data ) || !\is_array( $data ) ) {
-			throw new \Exception( 'Snapshot data could not be decoded' );
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
 		}
 
 		return $data;
@@ -217,13 +217,13 @@ class Store {
 		$dir = \dirname( $this->getSnapStorePath() );
 
 		if ( \strlen( $this->getContext() ) < 1 ) {
-			throw new \Exception( 'Context has not been specified' );
+			throw new \Exception( __( 'Context has not been specified.', 'wp-simple-firewall' ) );
 		}
 		if ( !$FS->mkdir( $dir ) ) {
-			throw new \Exception( sprintf( 'Store directory could not be created: %s', $dir ) );
+			throw new \Exception( sprintf( __( 'Store directory could not be created: %s', 'wp-simple-firewall' ), $dir ) );
 		}
 		if ( !$FS->exists( $dir ) ) {
-			throw new \Exception( sprintf( 'Store directory path does not exist: %s', $dir ) );
+			throw new \Exception( sprintf( __( 'Store directory path does not exist: %s', 'wp-simple-firewall' ), $dir ) );
 		}
 		return true;
 	}

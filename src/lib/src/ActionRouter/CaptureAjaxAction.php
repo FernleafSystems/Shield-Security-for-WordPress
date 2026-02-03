@@ -36,13 +36,18 @@ class CaptureAjaxAction extends CaptureActionBase {
 
 		$req = Services::Request();
 		try {
-			$router = $con->action_router;
 			\ob_start();
-			$response = $this->normaliseAjaxResponse(
-				$router
-					->action( $this->extractActionSlug(), $req->post, $router::ACTION_AJAX )
-					->action_response_data
+			$routedResponse = $con->action_router->executor()->execute(
+				$this->extractActionSlug(),
+				$req->post,
+				ActionRoutingController::ACTION_AJAX
 			);
+			$payload = $routedResponse->payload();
+			if ( empty( $payload ) ) {
+				$payload = $routedResponse->actionResponse()->payload(); // @todo Remove fallback once all adapters supply transport payloads directly.
+			}
+			$response = $this->normaliseAjaxResponse( $payload );
+			$statusCode = $routedResponse->statusCode();
 		}
 		catch ( InvalidActionNonceException $e ) {
 			$statusCode = 401;
@@ -78,7 +83,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		}
 
 		if ( !empty( $response ) ) {
-			( new Response() )->issue( [
+			$issuePayload = [
 				'success'     => $response[ 'success' ] ?? false,
 				'data'        => \array_diff_key( $response, \array_flip( [
 					'action_data',
@@ -86,7 +91,8 @@ class CaptureAjaxAction extends CaptureActionBase {
 				] ) ),
 				'noise'       => $noise,
 				'status_code' => $statusCode ?? 200
-			] );
+			];
+			( new Response() )->issue( $issuePayload );
 		}
 	}
 
@@ -101,7 +107,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 				[
 					'success'     => false,
 					'page_reload' => false,
-					'message'     => 'No AJAX Message provided',
+				'message'     => __( 'No AJAX message provided', 'wp-simple-firewall' ),
 					'html'        => '',
 				],
 				$ajaxResponse

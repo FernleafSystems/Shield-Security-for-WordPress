@@ -192,6 +192,6 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	public static function ProviderName() :string {
-		return __( 'SMS' );
+		return __( 'SMS', 'wp-simple-firewall' );
 	}
 }

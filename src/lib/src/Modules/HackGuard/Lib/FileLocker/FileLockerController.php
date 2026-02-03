@@ -114,11 +114,11 @@ class FileLockerController {
 			$content = ( new Ops\ReadOriginalFileContent() )->run( $lock );
 		}
 		else {
-			throw new \Exception( 'Invalid file locker type download' );
+			throw new \Exception( __( 'Invalid file locker type download', 'wp-simple-firewall' ) );
 		}
 
 		if ( empty( $content ) ) {
-			throw new \Exception( 'File contents are empty.' );
+			throw new \Exception( __( 'File contents are empty.', 'wp-simple-firewall' ) );
 		}
 
 		return [
@@ -137,7 +137,7 @@ class FileLockerController {
 	public function getFileLock( int $ID ) :FileLockerDB\Record {
 		$lock = $this->getLocks()[ $ID ] ?? null;
 		if ( empty( $lock ) ) {
-			throw new \Exception( 'Not a valid Lock File record' );
+			throw new \Exception( __( 'Not a valid lock file record.', 'wp-simple-firewall' ) );
 		}
 		return $lock;
 	}
@@ -193,8 +193,7 @@ class FileLockerController {
 						throw new NoCipherAvailableException();
 					}
 
-					( new Ops\CreateFileLocks() )
-						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $type ) )
+					( new Ops\CreateFileLocks( ( new Ops\BuildFileFromFileKey() )->build( $type ) ) )
 						->create();
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';

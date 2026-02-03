@@ -28,7 +28,7 @@ class QueueItems {
 			)
 		);
 		if ( empty( $result ) ) {
-			throw new NoQueueItems( 'No items remaining in queue to select.' );
+			throw new NoQueueItems( __( 'No items remaining in queue to select.', 'wp-simple-firewall' ) );
 		}
 		foreach ( [ 'items', 'meta' ] as $key ) {
 			$result[ $key ] = \json_decode( \base64_decode( $result[ $key ] ), true );

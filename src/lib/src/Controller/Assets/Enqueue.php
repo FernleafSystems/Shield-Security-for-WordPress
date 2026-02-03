@@ -163,7 +163,7 @@ class Enqueue {
 					$this->register(
 						sprintf( 'shield/tp/%s', $tpKey ),
 						$url,
-						$this->normaliseHandles( $dist[ 'deps' ] ?? [] )
+						$this->normaliseHandles( $includes[ 'deps' ] ?? [] )
 					);
 				}
 			}

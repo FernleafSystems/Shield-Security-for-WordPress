@@ -23,7 +23,7 @@ class ZoneReportPlugins extends BaseZoneReportPluginsThemes {
 	protected function getLinkForLog( LogRecord $log ) :array {
 		return [
 			'href' => Services::WpGeneral()->getAdminUrl_Plugins(),
-			'text' => __( 'Plugins' ),
+			'text' => __( 'Plugins', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -37,6 +37,6 @@ class ZoneReportPlugins extends BaseZoneReportPluginsThemes {
 	}
 
 	public function getZoneName() :string {
-		return __( 'Plugins' );
+		return __( 'Plugins', 'wp-simple-firewall' );
 	}
 }

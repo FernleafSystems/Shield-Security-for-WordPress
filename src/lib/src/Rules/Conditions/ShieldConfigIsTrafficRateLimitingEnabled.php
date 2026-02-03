@@ -12,7 +12,7 @@ class ShieldConfigIsTrafficRateLimitingEnabled extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
-		return __( 'Is Shield Traffic Rate Limiting Enabled.', 'wp-simple-firewall' );
+		return sprintf( __( 'Is %s Traffic Rate Limiting Enabled.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getSubConditions() :array {

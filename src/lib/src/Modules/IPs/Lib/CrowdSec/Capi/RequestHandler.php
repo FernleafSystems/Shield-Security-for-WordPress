@@ -53,6 +53,7 @@ class RequestHandler implements CapiHandlerInterface {
 
 	private function getApiUserAgent() :string {
 		$con = self::con();
-		return sprintf( '%s/v%s', $con->isPremiumActive() ? 'ShieldSecurityPro' : 'ShieldSecurity', $con->cfg->version() );
+		$name = \str_replace( ' ', '', $con->labels->Name );
+		return sprintf( '%s%s/v%s', $name, $con->isPremiumActive() ? 'Pro' : '', $con->cfg->version() );
 	}
 }

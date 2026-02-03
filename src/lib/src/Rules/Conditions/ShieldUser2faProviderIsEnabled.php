@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 class ShieldUser2faProviderIsEnabled extends ShieldUser2faBase {
 
 	public function getName() :string {
-		return __( 'Shield 2FA Provider Enabled', 'wp-simple-firewall' );
+		return sprintf( __( '%s 2FA Provider Enabled', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function getDescription() :string {

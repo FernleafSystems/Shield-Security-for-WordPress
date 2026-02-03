@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+         bootstrap="tests/Integration/bootstrap.php"
+         colors="true"
+         testdox="true"
+         verbose="true"
+         displayDetailsOnSkippedTests="true"
+         beStrictAboutOutputDuringTests="false"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         convertDeprecationsToExceptions="true"
+         stopOnError="false"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="WordPress Integration Tests">
+            <directory suffix="Test.php">tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src/lib/src</directory>
+        </include>
+        <exclude>
+            <directory>src/lib/vendor</directory>
+            <directory>src/lib/vendor_prefixed</directory>
+        </exclude>
+    </coverage>
+</phpunit>

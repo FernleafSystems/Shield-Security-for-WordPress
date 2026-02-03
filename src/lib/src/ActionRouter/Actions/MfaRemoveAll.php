@@ -21,7 +21,7 @@ class MfaRemoveAll extends MfaUserConfigBase {
 		elseif ( empty( $userID ) ) {
 			$response = [
 				'success' => false,
-				'message' => 'Invalid request with no User ID',
+				'message' => __( 'Invalid request with no User ID', 'wp-simple-firewall' ),
 			];
 		}
 		else {

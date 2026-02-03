@@ -29,7 +29,7 @@ class ForActivityLog extends Base {
 		return [
 			'rid'        => [
 				'data'           => 'rid',
-				'title'          => __( 'Request ID' ),
+				'title'          => __( 'Request ID', 'wp-simple-firewall' ),
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -41,7 +41,7 @@ class ForActivityLog extends Base {
 			],
 			'event'      => [
 				'data'           => 'event',
-				'title'          => __( 'Event' ),
+				'title'          => __( 'Event', 'wp-simple-firewall' ),
 				'className'      => 'event',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -53,7 +53,7 @@ class ForActivityLog extends Base {
 			],
 			'event_slug' => [
 				'data'        => 'event',
-				'title'       => __( 'Event Slug' ),
+				'title'       => __( 'Event Slug', 'wp-simple-firewall' ),
 				'className'   => 'event',
 				'orderable'   => false,
 				'searchable'  => false,
@@ -75,7 +75,7 @@ class ForActivityLog extends Base {
 			],
 			'level'      => [
 				'data'               => 'level',
-				'title'              => __( 'Level' ),
+				'title'              => __( 'Level', 'wp-simple-firewall' ),
 				'className'          => 'level',
 				'orderable'          => false,
 				'searchable'         => true,
@@ -84,11 +84,11 @@ class ForActivityLog extends Base {
 				'searchPanes'        => [
 					'show' => false
 				],
-				'searchBuilderTitle' => __( 'Severity' )
+				'searchBuilderTitle' => __( 'Severity', 'wp-simple-firewall' )
 			],
 			'ip'         => [
 				'data'           => 'ip',
-				'title'          => __( 'IP Address' ),
+				'title'          => __( 'IP Address', 'wp-simple-firewall' ),
 				'className'      => 'ip',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -100,7 +100,7 @@ class ForActivityLog extends Base {
 			],
 			'identity'   => [
 				'data'           => 'identity',
-				'title'          => __( 'Identity' ),
+				'title'          => __( 'Identity', 'wp-simple-firewall' ),
 				'className'      => 'identity',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -112,7 +112,7 @@ class ForActivityLog extends Base {
 			],
 			'uid'        => [
 				'data'           => 'uid',
-				'title'          => __( 'User ID' ),
+				'title'          => __( 'User ID', 'wp-simple-firewall' ),
 				'className'      => 'uid',
 				'orderable'      => false,
 				'searchable'     => false,
@@ -124,7 +124,7 @@ class ForActivityLog extends Base {
 			],
 			'user'       => [
 				'data'           => 'user',
-				'title'          => __( 'User' ),
+				'title'          => __( 'User', 'wp-simple-firewall' ),
 				'className'      => 'user',
 				'orderable'      => false,
 				'searchable'     => true,
@@ -136,7 +136,7 @@ class ForActivityLog extends Base {
 			],
 			'message'    => [
 				'data'        => 'message',
-				'title'       => __( 'Log Message' ),
+				'title'       => __( 'Log Message', 'wp-simple-firewall' ),
 				'className'   => 'message',
 				'orderable'   => false,
 				'searchable'  => true,
@@ -147,7 +147,7 @@ class ForActivityLog extends Base {
 			],
 			'day'        => [
 				'data'          => 'day',
-				'title'         => __( 'Day' ),
+				'title'         => __( 'Day', 'wp-simple-firewall' ),
 				'className'     => 'day',
 				'orderable'     => false,
 				'orderSequence' => [ 'desc' ],
@@ -162,7 +162,7 @@ class ForActivityLog extends Base {
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'         => __( 'Date' ),
+				'title'         => __( 'Date', 'wp-simple-firewall' ),
 				'className'     => 'date',
 				'orderable'     => true,
 				'orderSequence' => [ 'desc', 'asc' ],
@@ -174,7 +174,7 @@ class ForActivityLog extends Base {
 			],
 			'meta'       => [
 				'data'        => 'meta',
-				'title'       => __( 'Meta' ),
+				'title'       => __( 'Meta', 'wp-simple-firewall' ),
 				'className'   => 'meta',
 				'orderable'   => false,
 				'searchable'  => false,

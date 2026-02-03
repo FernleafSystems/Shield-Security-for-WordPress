@@ -19,15 +19,16 @@ class Spam extends Base {
 	}
 
 	public function description() :array {
+		$con = self::con();
 		return [
-			__( 'SPAM is perpetrated in 2 main ways: by bots and humans.', 'wp-simple-firewall' ),
-			sprintf( __( "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+			__( 'SPAM is perpetrated by 2 types of visitors: automated bots and humans.', 'wp-simple-firewall' ),
+			sprintf( __( 'With %s technology, stopping bots is quite easy to do now.', 'wp-simple-firewall' ), $con->labels->getBrandName( 'silentcaptcha' ) ),
 			\implode( ' ', [
-				__( "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses.", 'wp-simple-firewall' ),
-				sprintf( __( "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				__( 'Human SPAM still causes most frustration as it often bypasses SPAM defenses.', 'wp-simple-firewall' ),
+				sprintf( __( '%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content.', 'wp-simple-firewall' ), $con->labels->Name ),
 				__( "This approach helps retain your data and privacy as it doesn't send comments offsite to be scanned.", 'wp-simple-firewall' ),
 			] ),
-			__( "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team.", 'wp-simple-firewall' ),
+			__( 'Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team.', 'wp-simple-firewall' ),
 		];
 	}
 

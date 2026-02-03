@@ -33,7 +33,7 @@ class MfaRecordsForDisplay {
 					'label'   => $record->label,
 					'used_at' => sprintf(
 						'%s: %s', __( 'Used', 'wp-simple-firewall' ),
-						$record->used_at === 0 ? __( 'Never' ) :
+						$record->used_at === 0 ? __( 'Never', 'wp-simple-firewall' ) :
 							Services::Request()
 									->carbon( true )
 									->setTimestamp( $record->used_at )
@@ -41,7 +41,7 @@ class MfaRecordsForDisplay {
 					),
 					'reg_at'  => sprintf(
 						'%s: %s', __( 'Registered', 'wp-simple-firewall' ),
-						$record->created_at === 0 ? __( 'Unknown' ) :
+						$record->created_at === 0 ? __( 'Unknown', 'wp-simple-firewall' ) :
 							Services::Request()
 									->carbon( true )
 									->setTimestamp( $record->created_at )

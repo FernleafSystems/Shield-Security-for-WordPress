@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 class Malai extends BaseComponent {
@@ -16,7 +17,7 @@ class Malai extends BaseComponent {
 		$pathFull = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 
 		if ( !Services::WpFs()->isAccessibleFile( $pathFull ) ) {
-			throw new ActionException( "This file doesn't appear to be available on this site any longer." );
+			throw new ActionException( __( "This file doesn't appear to be available on this site any longer.", 'wp-simple-firewall' ) );
 		}
 		if ( !\in_array( \strtolower( Paths::Ext( $pathFull ) ), [ 'php', 'php7', 'phtml', 'phtm', 'ico' ] ) ) {
 			throw new ActionException(
@@ -26,7 +27,7 @@ class Malai extends BaseComponent {
 		if ( $item->is_mal ) {
 			throw new ActionException( sprintf(
 				__( 'Please see the "%s" tab for more information as this file has already been classified as "potential malware" in the scan.', 'wp-simple-firewall' ),
-				__( 'Info', 'wp-simple-firewall' )
+				CommonDisplayStrings::get( 'info_label' )
 			) );
 		}
 

@@ -25,6 +25,8 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class Labels extends DynPropertiesClass {
 
+	private array $brandNames = [];
+
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
@@ -37,5 +39,14 @@ class Labels extends DynPropertiesClass {
 		}
 
 		return $value;
+	}
+
+	public function getBrandName( string $key ) :string {
+		return $this->brandNames[ \strtolower( $key ) ] ?? $key;
+	}
+
+	public function setBrandNames( array $names ) :self {
+		$this->brandNames = \array_change_key_case( $names, \CASE_LOWER );
+		return $this;
 	}
 }

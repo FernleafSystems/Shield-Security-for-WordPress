@@ -176,7 +176,7 @@
 					/>
 					<label class="form-check-label"
 						   for="Opt-{{ option.key }}_{{ option_value }}"
-						   {% if not option_value_settings.is_available %}title="Available with ShieldPRO"{% endif %}
+						   {% if not option_value_settings.is_available %}title="Available with {{ strings.plugin_name }}"{% endif %}
 					>
 							{% if option_value in option.value %}
 								<strong>{{ option_value_settings.name|raw }}</strong>

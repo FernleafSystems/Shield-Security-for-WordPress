@@ -8,7 +8,7 @@ class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Inser
 	 * @inheritDoc
 	 */
 	public function setInsertData( array $data ) {
-		$data[ 'title' ] = $data[ 'title' ] ? \trim( \preg_replace( '#[^\w\s,._:-]#i', '', $data[ 'title' ] ) ) : 'No Title Provided';
+		$data[ 'title' ] = $data[ 'title' ] ? \trim( \preg_replace( '#[^\w\s,._:-]#i', '', $data[ 'title' ] ) ) : __( 'No title provided', 'wp-simple-firewall' );
 		return parent::setInsertData( $data );
 	}
 }

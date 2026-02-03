@@ -19,18 +19,19 @@
 			{% if not flags.is_premium %}
 				<div class="row">
 					<div class="col">
-						<p>Shield Security Pro is available from our online store.</p>
+						<p>{{ strings.pro_available_blurb }}</p>
 						<ol>
-							<li>Just grab a new license from the
-								<a href="https://clk.shldscrty.com/buyshieldpro" target="_blank">Shield Pro store</a>.</li>
-							<li>Register your site URL with our control panel.</li>
-							<li>Activate your license on your sites using the 'Check License' button.</li>
+							<li>{{ strings.license_step_purchase_prefix }}
+								<a href="https://clk.shldscrty.com/buyshieldpro" target="_blank">{{ strings.license_step_purchase_link }}</a>.
+							</li>
+							<li>{{ strings.license_step_register }}</li>
+							<li>{{ strings.license_step_activate }}</li>
 						</ol>
 
 						<p class="text-center">
 							<a href="https://clk.shldscrty.com/buyshieldpro" target="_blank" id="ButtonBuyNow"
 							   class="btn btn-large btn-outline-success">
-								Upgrade To Shield Pro Now</a>
+								{{ strings.cta_upgrade }}</a>
 						</p>
 					</div>
 				</div>
@@ -111,7 +112,7 @@
 					  <a href="https://clk.shldscrty.com/gp"
 						 target="_blank"
 						 class="btn {{ flags.is_pro ? 'btn-outline-success' : 'btn-success' }}">
-						  See All PRO Features and Extras</a>
+						  {{ strings.cta_view_features }}</a>
 				  </div>
 
 				  <div class="accordion" id="AccordionProFeatures">
@@ -138,7 +139,7 @@
 									  {% endfor %}
 									  {% if feature.href|default('') is not empty %}
 										  <br /><a href="{{ feature.href }}" target="_blank"
-												   class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info }}</a>
+												   class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info_label }}</a>
 									  {% endif %}
 								  </div>
 							  </div>

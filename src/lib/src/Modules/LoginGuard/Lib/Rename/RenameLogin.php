@@ -88,7 +88,7 @@ class RenameLogin {
 			$isConflicted = true;
 		}
 		elseif ( !$WP->isPermalinksEnabled() ) {
-			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
+			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks', 'wp-simple-firewall' ) );
 			$isConflicted = true;
 		}
 		elseif ( $WP->isPermalinksEnabled() && ( $WP->getDoesWpSlugExist( $path ) || \in_array( $path, $WP->getAutoRedirectLocations() ) ) ) {

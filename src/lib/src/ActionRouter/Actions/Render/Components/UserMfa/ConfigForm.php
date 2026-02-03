@@ -17,7 +17,7 @@ class ConfigForm extends UserMfaBase {
 		return [
 			'user_id'  => Services::WpUsers()->getCurrentWpUserId(),
 			'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-			'subtitle' => __( 'Provided by Shield', 'wp-simple-firewall' ),
+			'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 		];
 	}
 

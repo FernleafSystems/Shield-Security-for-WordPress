@@ -34,7 +34,7 @@ class Base {
 	 * @throws \Exception
 	 */
 	public function getReporter() {
-		throw new \Exception( 'No Reporter defined' );
+		throw new \Exception( __( 'No reporter defined', 'wp-simple-firewall' ) );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Base {
 	 * @throws \Exception
 	 */
 	public function getSnapper() {
-		throw new \Exception( 'No Snapper defined' );
+		throw new \Exception( __( 'No snapper defined', 'wp-simple-firewall' ) );
 	}
 
 	protected function fireAuditEvent( string $event, array $params ) {

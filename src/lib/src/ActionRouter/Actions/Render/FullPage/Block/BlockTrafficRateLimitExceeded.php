@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIpBlock;
 
 class BlockTrafficRateLimitExceeded extends BaseBlock {
@@ -15,8 +16,8 @@ class BlockTrafficRateLimitExceeded extends BaseBlock {
 
 		return [
 			'strings' => [
-				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), self::con()->labels->Name ),
-				'title'         => __( 'Access Restricted', 'wp-simple-firewall' ),
+				'page_title'    => sprintf( '%s | %s', CommonDisplayStrings::get( 'access_restricted_label' ), self::con()->labels->Name ),
+				'title'         => CommonDisplayStrings::get( 'access_restricted_label' ),
 				'subtitle'      => __( 'There have been too many requests from your IP address.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact the site administrator if you need further guidance.', 'wp-simple-firewall' ),
 			],

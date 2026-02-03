@@ -15,6 +15,7 @@ class ToastPlaceholder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRo
 		return [
 			'strings' => [
 				'title' => self::con()->labels->Name,
+				'close_label' => __( 'Close', 'wp-simple-firewall' ),
 			],
 		];
 	}

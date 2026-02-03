@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\RetrievePublicKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
@@ -14,7 +15,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
  * If the update fails for whatever reason, we just delete the lock record entirely and leave the
  * normal lock (re)creation process to assess as required.
  */
-class UpgradeLocks extends BaseOps {
+class UpgradeLocks {
 
 	use PluginControllerConsumer;
 
@@ -58,8 +59,7 @@ class UpgradeLocks extends BaseOps {
 		$flCon = self::con()->comps->file_locker;
 		try {
 			$cipher = $flCon->getState()[ 'cipher' ];
-			$publicKey = $this->getPublicKey();
-
+			$publicKey = ( new RetrievePublicKey() )->retrieve();
 			self::con()
 				->db_con
 				->file_locker

@@ -68,7 +68,7 @@ class BuildSessionsTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Ta
 			$this->getUserHref( $session[ 'shield' ][ 'user_id' ] ),
 			$this->getIpAnalysisLink( $session[ 'ip' ] ),
 			empty( $ua ) ? '' : sprintf( '<br/><code style="font-size: small">%s</code>', $ua ),
-			sprintf( '%s: %s', __( 'Expires' ), $this->getColumnContent_Date( $session[ 'expiration' ], false ) )
+			sprintf( '%s: %s', __( 'Expires', 'wp-simple-firewall' ), $this->getColumnContent_Date( $session[ 'expiration' ], false ) )
 		);
 	}
 }

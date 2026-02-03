@@ -20,7 +20,7 @@ class ActivityLogTableAction extends BaseAction {
 					$response = $this->getRequestMeta();
 					break;
 				default:
-					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
+					throw new \Exception( sprintf( __( 'Not a supported Activity Log table sub_action: %s', 'wp-simple-firewall' ), $action ) );
 			}
 		}
 		catch ( \Exception $e ) {

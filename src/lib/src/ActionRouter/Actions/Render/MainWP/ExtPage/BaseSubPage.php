@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Ma
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetOpt;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
 	SiteActionActivate,
 	SiteActionDeactivate,
@@ -32,6 +33,7 @@ class BaseSubPage extends BaseMWP {
 	}
 
 	protected function getCommonSubPageData() :array {
+		$name = self::con()->labels->Name;
 		return [
 			'vars'    => [
 				'menu_topnav'  => $this->getMenuTopNavItems(),
@@ -43,41 +45,41 @@ class BaseSubPage extends BaseMWP {
 			'strings' => [
 				'manage'              => __( 'Manage', 'wp-simple-firewall' ),
 				'site'                => __( 'Site', 'wp-simple-firewall' ),
-				'url'                 => __( 'URL', 'wp-simple-firewall' ),
+				'url'                 => CommonDisplayStrings::get( 'url_label' ),
 				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
 				'status'              => __( 'Status', 'wp-simple-firewall' ),
 				'last_sync'           => __( 'Last Sync', 'wp-simple-firewall' ),
 				'last_scan'           => __( 'Last Scan', 'wp-simple-firewall' ),
-				'version'             => __( 'Version', 'wp-simple-firewall' ),
+				'version'             => CommonDisplayStrings::get( 'version_label' ),
 				'connected'           => __( 'Connected', 'wp-simple-firewall' ),
 				'disconnected'        => __( 'Disconnected', 'wp-simple-firewall' ),
 				'with_issues'         => __( 'With Issues', 'wp-simple-firewall' ),
 				'needs_update'        => __( 'Needs Update', 'wp-simple-firewall' ),
-				'st_inactive'         => __( 'Shield Security plugin is installed but not activated.', 'wp-simple-firewall' ),
-				'st_notinstalled'     => __( "Shield Security plugin not detected in last sync.", 'wp-simple-firewall' ),
-				'st_notpro'           => __( "ShieldPRO isn't activated on this site.", 'wp-simple-firewall' ),
-				'st_mwpnoton'         => __( "Shield's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ),
+				'st_inactive'         => sprintf( __( '%s plugin is installed but not activated.', 'wp-simple-firewall' ), $name ),
+				'st_notinstalled'     => sprintf( __( "%s plugin not detected in last sync.", 'wp-simple-firewall' ), $name ),
+				'st_notpro'           => sprintf( __( "%s isn't activated on this site.", 'wp-simple-firewall' ), $name ),
+				'st_mwpnoton'         => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), $name ),
 				'st_client_older'     => sprintf( '%s: %s',
 					__( "Version Mismatch", 'wp-simple-firewall' ),
-					__( "The Shield plugin version on the client site is older than this server and must be updated.", 'wp-simple-firewall' )
+					sprintf( __( "The %s plugin version on the client site is older than this server and must be updated.", 'wp-simple-firewall' ), $name )
 				),
 				'st_client_newer'     => sprintf( '%s: %s',
 					__( "Version Mismatch", 'wp-simple-firewall' ),
-					__( "The Shield plugin version on the client site is newer than this server.", 'wp-simple-firewall' )
+					sprintf( __( "The %s plugin version on the client site is newer than this server.", 'wp-simple-firewall' ), $name )
 				),
-				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
-				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
-				'st_unknown'          => __( "Couldn't determine Shield plugin status.", 'wp-simple-firewall' ),
+				'st_sync_rqd'         => sprintf( __( '%s plugin needs to sync.', 'wp-simple-firewall' ), $name ),
+				'st_version_mismatch' => sprintf( __( '%s plugin versions are out of sync.', 'wp-simple-firewall' ), $name ),
+				'st_unknown'          => sprintf( __( "Couldn't determine %s plugin status.", 'wp-simple-firewall' ), $name ),
 				'overall_grade'       => __( 'Grade', 'wp-simple-firewall' ),
 				'actions'             => [
-					'sync'       => __( 'Sync Shield', 'wp-simple-firewall' ),
-					'activate'   => __( 'Activate Shield', 'wp-simple-firewall' ),
-					'align'      => __( 'Align Shield', 'wp-simple-firewall' ),
-					'deactivate' => __( 'Deactivate Shield', 'wp-simple-firewall' ),
-					'install'    => __( 'Install Shield', 'wp-simple-firewall' ),
-					'update'     => __( 'Update Shield', 'wp-simple-firewall' ),
-					'uninstall'  => __( 'Uninstall Shield', 'wp-simple-firewall' ),
-					'license'    => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
+					'sync'       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
+					'activate'   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
+					'align'      => sprintf( __( 'Align %s', 'wp-simple-firewall' ), $name ),
+					'deactivate' => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
+					'install'    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
+					'update'     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),
+					'uninstall'  => sprintf( __( 'Uninstall %s', 'wp-simple-firewall' ), $name ),
+					'license'    => sprintf( __( 'Check %s License', 'wp-simple-firewall' ), $name ),
 					'mwp_on'     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
 				],
 			]

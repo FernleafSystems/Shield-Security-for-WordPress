@@ -17,10 +17,10 @@ class SiteActionSync extends BaseSiteMwpAction {
 	}
 
 	protected function getMainwpActionFailureMessage() :string {
-		return "Site failed to sync";
+		return __( 'Site failed to sync', 'wp-simple-firewall' );
 	}
 
 	protected function getMainwpActionSuccessMessage() :string {
-		return 'Site synced successfully';
+		return __( 'Site synced successfully', 'wp-simple-firewall' );
 	}
 }

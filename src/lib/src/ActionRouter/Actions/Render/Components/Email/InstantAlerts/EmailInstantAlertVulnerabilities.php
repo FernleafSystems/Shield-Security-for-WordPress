@@ -37,7 +37,8 @@ class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 				if ( $alertKey === 'plugins' ) {
 					$VO = $WPP->getPluginAsVo( $alertItem );
 					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
-						'text' => sprintf( '%s v%s', $VO->Name, $VO->Version ),
+						/* translators: %1$s: item name, %2$s: item version */
+						'text' => sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ),
 						'href' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
 							'type'    => 'plugin',
 							'slug'    => $VO->slug,
@@ -48,7 +49,8 @@ class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 				elseif ( $alertKey === 'themes' ) {
 					$VO = $WPT->getThemeAsVo( $alertItem );
 					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
-						'text' => sprintf( '%s v%s', $VO->Name, $VO->Version ),
+						/* translators: %1$s: item name, %2$s: item version */
+						'text' => sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ),
 						'href' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
 							'type'    => 'plugin',
 							'slug'    => $VO->slug,

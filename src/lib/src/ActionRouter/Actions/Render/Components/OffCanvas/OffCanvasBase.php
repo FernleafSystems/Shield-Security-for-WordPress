@@ -22,6 +22,6 @@ abstract class OffCanvasBase extends BaseRender {
 	}
 
 	protected function buildCanvasBody() :string {
-		return 'No canvas body';
+		return __( 'No canvas body', 'wp-simple-firewall' );
 	}
 }

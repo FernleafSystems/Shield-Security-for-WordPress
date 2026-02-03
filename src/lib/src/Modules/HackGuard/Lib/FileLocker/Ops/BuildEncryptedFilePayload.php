@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildEncryptedFilePayload extends BaseOps {
+class BuildEncryptedFilePayload {
 
 	/**
 	 * @throws FileContentsEncodingFailure
@@ -19,10 +19,7 @@ class BuildEncryptedFilePayload extends BaseOps {
 	public function fromPath( string $path, string $publicKey, string $cipher ) :string {
 		// Ensure the contents are never empty,
 		$contents = Services::WpFs()->getFileContent( $path );
-		if ( empty( $contents ) ) {
-			$contents = ' ';
-		}
-		return $this->fromContent( $contents, $publicKey, $cipher );
+		return $this->fromContent( empty( $contents ) ? ' ' : $contents, $publicKey, $cipher );
 	}
 
 	/**
@@ -39,12 +36,12 @@ class BuildEncryptedFilePayload extends BaseOps {
 
 		$payload = $srvEnc->sealData( $contents, $publicKey, $cipher );
 		if ( !$payload->success ) {
-			throw new FileContentsEncryptionFailure( 'File contents could not be encrypted with message: '.$payload->message );
+			throw new FileContentsEncryptionFailure( __( 'File contents could not be encrypted. Message: ', 'wp-simple-firewall' ).$payload->message );
 		}
 
 		$encoded = wp_json_encode( $payload->getRawData() );
 		if ( empty( $encoded ) || !\is_string( $encoded ) ) {
-			throw new FileContentsEncodingFailure( 'File contents could not be wp_json_encode() after encryption.' );
+			throw new FileContentsEncodingFailure( __( 'File contents could not be wp_json_encode() after encryption.', 'wp-simple-firewall' ) );
 		}
 
 		return $encoded;

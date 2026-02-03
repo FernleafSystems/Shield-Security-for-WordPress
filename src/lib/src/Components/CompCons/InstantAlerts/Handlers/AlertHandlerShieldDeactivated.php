@@ -12,7 +12,7 @@ class AlertHandlerShieldDeactivated extends AlertHandlerBase {
 	}
 
 	public function alertTitle() :string {
-		return __( 'Shield Deactivated', 'wp-simple-firewall' );
+		return sprintf( __( '%s Deactivated', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function alertDataKeys() :array {

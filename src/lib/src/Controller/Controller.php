@@ -86,7 +86,7 @@ class Controller extends DynPropertiesClass {
 	public static function GetInstance( ?string $rootFile = null ) :Controller {
 		if ( !isset( static::$oInstance ) ) {
 			if ( empty( $rootFile ) ) {
-				throw new \Exception( 'Empty root file provided for instantiation' );
+				throw new \Exception( __( 'Empty root file provided for instantiation', 'wp-simple-firewall' ) );
 			}
 			static::$oInstance = new static( $rootFile );
 		}
@@ -282,17 +282,19 @@ class Controller extends DynPropertiesClass {
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
 			if ( !empty( $minPHP ) && \version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
-				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', \PHP_VERSION, $minPHP );
+				/* translators: %1$s: current version, %2$s: required version */
+				$reqsMsg[] = sprintf( __( 'PHP does not meet minimum version. Your version: %1$s. Required version: %2$s.', 'wp-simple-firewall' ), \PHP_VERSION, $minPHP );
 			}
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
 			if ( !empty( $wp ) && \version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
-				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
+				$reqsMsg[] = sprintf( __( 'WordPress does not meet minimum version. Required version: %s.', 'wp-simple-firewall' ), $wp );
 			}
 
 			$mysql = $this->cfg->requirements[ 'mysql' ];
 			if ( !empty( $mysql ) && !( new Checks\Requirements() )->isMysqlVersionSupported( $mysql ) ) {
-				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
+				/* translators: %1$s: current version, %2$s: required version */
+				$reqsMsg[] = sprintf( __( 'Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;', 'wp-simple-firewall' ),
 					Services::WpDb()->getMysqlServerInfo(), $mysql );
 			}
 
@@ -300,7 +302,7 @@ class Controller extends DynPropertiesClass {
 				$this->reqs_not_met = $reqsMsg;
 				add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
 				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
-				throw new \Exception( 'Plugin does not meet minimum requirements' );
+				throw new \Exception( __( 'Plugin does not meet minimum requirements', 'wp-simple-firewall' ) );
 			}
 
 			if ( !$FS->isDir( $this->paths->forFlag() ) ) {
@@ -317,11 +319,11 @@ class Controller extends DynPropertiesClass {
 				->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				->setData( [
 					'strings' => [
-						'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
+						'not_met'          => sprintf( __( '%s Plugin – minimum site requirements are not met', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'requirements'     => $this->reqs_not_met,
-						'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
-						'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
-						'more_information' => 'Click here for more information on requirements'
+						'summary_title'    => sprintf( __( "Your web hosting doesn't meet the minimum requirements for the %s Plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+						'recommend'        => __( "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.", 'wp-simple-firewall' ),
+						'more_information' => __( 'Click here for more information on requirements', 'wp-simple-firewall' )
 					],
 					'hrefs'   => [
 						'more_information' => 'https://clk.shldscrty.com/shieldsystemrequirements'
@@ -625,7 +627,7 @@ class Controller extends DynPropertiesClass {
 	public function includePrefixedVendor() :void {
 		$auto = path_join( $this->getRootDir(), 'src/lib/vendor_prefixed/autoload.php' );
 		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
-			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( 'Prefixed Autoload Missing' );
+			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) );
 		}
 		require_once( $auto );
 	}
@@ -680,7 +682,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function labels() :Config\Labels {
-		$labels = \array_map( '\stripslashes', $this->cfg->labels );
+		$rawLabels = $this->cfg->labels;
+		$brandNames = $rawLabels[ 'brand_names' ] ?? [];
+		unset( $rawLabels[ 'brand_names' ] );
+
+		$labels = \array_map( '\stripslashes', $rawLabels );
 
 		foreach (
 			[
@@ -697,11 +703,24 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$labels = ( new Config\Labels() )->applyFromArray( $labels );
+		$labels->setBrandNames( $brandNames );
 		$labels->url_secadmin_forgotten_key = 'https://clk.shldscrty.com/gc';
 		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;
 
-		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+		// Apply filter for whitelabel and other modifications
+		$labels = $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+
+		// Apply PRO suffix AFTER whitelabel (if premium active AND whitelabel disabled)
+		// This centralizes the logic in the labels system itself
+		if ( $this->isPremiumActive() && !$labels->is_whitelabelled ) {
+			$labels->Name = $labels->Name.' PRO';
+			$labels->Title = $labels->Title.' PRO';
+			$labels->MenuTitle = $labels->MenuTitle.' PRO';
+			$labels->url_img_logo_small = $this->urls->forImage( 'plugin_logo_prem.svg' );
+		}
+
+		return $labels;
 	}
 
 	/**

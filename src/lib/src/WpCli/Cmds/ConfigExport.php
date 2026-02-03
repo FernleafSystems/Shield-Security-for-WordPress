@@ -39,7 +39,7 @@ class ConfigExport extends BaseCmd {
 		$isForce = $this->isForceFlag();
 		if ( !path_is_absolute( $file ) ) {
 			$file = path_join( ABSPATH, $file );
-			\WP_CLI::log( __( "File provied wasn't an absolute path, so we're using the following path to the export file" ) );
+			\WP_CLI::log( __( "File provied wasn't an absolute path, so we're using the following path to the export file", 'wp-simple-firewall' ) );
 		}
 		\WP_CLI::log( sprintf( '%s: %s', __( 'Export file path', 'wp-simple-firewall' ), $file ) );
 

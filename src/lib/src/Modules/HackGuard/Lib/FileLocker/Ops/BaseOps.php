@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
 
+/**
+ * @depecated 21.1
+ */
 class BaseOps {
 
 	use PluginControllerConsumer;
@@ -17,43 +20,25 @@ class BaseOps {
 	 */
 	protected $file;
 
+	/**
+	 * @depecated 21.1
+	 */
 	protected function findLockRecordForFile() :?FileLockerDB\Record {
-		$theLock = null;
-		foreach ( $this->file->getPossiblePaths() as $path ) {
-			foreach ( ( new LoadFileLocks() )->ofType( $this->file->type ) as $maybeLock ) {
-				if ( $maybeLock->path === $path ) {
-					$theLock = $maybeLock;
-					break;
-				}
-			}
-		}
-		return $theLock;
+		return ( new FileLocker\Utility\FindLockRecordForFile() )->find( $this->file );
 	}
 
 	/**
 	 * @throws PublicKeyRetrievalFailure
+	 * @depecated 21.1
 	 */
 	protected function getPublicKey() :array {
-		$getter = new GetPublicKey();
-		$getter->last_error = self::con()->comps->file_locker->getState()[ 'last_error' ] ?? '';
-
-		$key = $getter->retrieve();
-		if ( empty( $key ) || !\is_array( $key ) ) {
-			throw new PublicKeyRetrievalFailure( 'Failed to obtain public key from API.' );
-		}
-
-		$thePublicKey = \reset( $key );
-		if ( empty( $thePublicKey ) || !\is_string( $thePublicKey ) ) {
-			throw new PublicKeyRetrievalFailure( 'Public key was empty' );
-		}
-
-		return $key;
+		return ( new FileLocker\Utility\RetrievePublicKey() )->retrieve();
 	}
 
 	/**
-	 * @return $this
+	 * @depecated 21.1
 	 */
-	public function setWorkingFile( FileLocker\File $file ) {
+	public function setWorkingFile( FileLocker\File $file ) :self {
 		$this->file = $file;
 		return $this;
 	}

@@ -195,6 +195,6 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	}
 
 	public static function ProviderName() :string {
-		return __( 'Google Authenticator' );
+		return __( 'Google Authenticator', 'wp-simple-firewall' );
 	}
 }

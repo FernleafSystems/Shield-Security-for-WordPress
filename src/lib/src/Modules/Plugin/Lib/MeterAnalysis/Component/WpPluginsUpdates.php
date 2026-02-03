@@ -34,7 +34,7 @@ class WpPluginsUpdates extends Base {
 			__( 'There is 1 plugin update waiting to be applied.', 'wp-simple-firewall' ),
 			sprintf( __( 'There are %s plugin updates waiting to be applied.', 'wp-simple-firewall' ), $count ),
 			$count
-		);
+		, 'wp-simple-firewall' );
 	}
 
 	private function countUpdates() :int {

@@ -150,9 +150,13 @@ class UserSessionHandler {
 			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
 				$con->email_con->sendEmailWithWrap(
 					$to,
-					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $roleName, $homeURL ) ),
+					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf(
+						/* translators: %1$s: user role, %2$s: site URL */
+						__( '%1$s Just Logged Into %2$s', 'wp-simple-firewall' ), $roleName, $homeURL ) ),
 					[
-						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ), $con->labels->Name, $roleName ),
+						sprintf(
+							/* translators: %1$s: plugin name, %2$s: user role */
+							__( 'As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage.', 'wp-simple-firewall' ), $con->labels->Name, $roleName ),
 						'',
 						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
 						'',

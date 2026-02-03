@@ -73,8 +73,9 @@ class PageDebug extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'patch-question' ),
 			],
 			'strings' => [
-				'inner_page_title'    => sprintf( __( '%s Debug Information' ), $con->labels->Name ),
+				'inner_page_title'    => sprintf( __( '%s Debug Information', 'wp-simple-firewall' ), $con->labels->Name ),
 				'inner_page_subtitle' => __( 'Assess the state of the plugin and view various configuration information for your site.', 'wp-simple-firewall' ),
+				'debug_tests_heading' => __( 'Debug Tests', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'debug_data'      => ( new Collate() )->run(),

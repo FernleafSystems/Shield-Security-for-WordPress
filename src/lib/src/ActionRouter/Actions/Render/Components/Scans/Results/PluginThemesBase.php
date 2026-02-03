@@ -23,7 +23,7 @@ abstract class PluginThemesBase extends Base {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
 				'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'ptg_not_available' => __( 'Scanning Plugin & Theme Files is only available with ShieldPRO.', 'wp-simple-firewall' ),
+				'ptg_not_available' => sprintf( __( 'Scanning Plugin & Theme Files is available only with the Pro version of %s.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 			'flags'   => [
 				'ptg_is_restricted' => !self::con()->isPremiumActive(),

@@ -28,7 +28,7 @@ class ScansCheck extends ScansBase {
 					'current_scan'    => $currentScan,
 					'remaining_scans' => $running === 0 ?
 						__( 'No scans remaining.', 'wp-simple-firewall' )
-						: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running ), $running ),
+						: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running, 'wp-simple-firewall' ), $running ),
 					'progress'        => 100*$con->comps->scans_queue->getScanJobProgress(),
 				] ),
 			]

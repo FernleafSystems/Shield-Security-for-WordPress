@@ -9,11 +9,11 @@ class SiteActionDeactivate extends BaseSiteMwpAction {
 	public const SLUG = 'mwp_server_site_action_deactivate';
 
 	protected function getMainwpActionFailureMessage() :string {
-		return "Shield plugin couldn't be deactivated";
+		return sprintf( __( "%s plugin couldn't be deactivated", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getMainwpActionSuccessMessage() :string {
-		return 'Shield plugin deactivated';
+		return sprintf( __( '%s plugin deactivated', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getMainwpActionParams() :array {

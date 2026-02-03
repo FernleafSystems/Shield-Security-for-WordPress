@@ -11,7 +11,7 @@ abstract class ReportingChartBase extends BaseAction {
 			$chartData = ( new Charts\CustomChartData() )
 				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $data ) )
 				->build();
-			$msg = 'No message';
+			$msg = __( 'No message', 'wp-simple-firewall' );
 			$success = true;
 		}
 		catch ( \Exception $e ) {

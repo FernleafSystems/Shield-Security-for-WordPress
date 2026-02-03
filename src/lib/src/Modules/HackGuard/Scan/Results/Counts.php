@@ -87,7 +87,7 @@ class Counts {
 					break;
 
 				default:
-					die( 'unsupported result type' );
+					die( __( 'Unsupported result type.', 'wp-simple-firewall' ) );
 			}
 			$this->counts[ $resultType ] = $resultsCount->count( $this->context );
 		}

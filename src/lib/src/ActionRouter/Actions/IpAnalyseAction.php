@@ -37,7 +37,7 @@ class IpAnalyseAction extends BaseAction {
 					try {
 						$autoBlockIP = $ruleStatus->getRuleForAutoBlock();
 						if ( empty( $autoBlockIP ) ) {
-							throw new \Exception( "IP isn't on the auto block list." );
+							throw new \Exception( __( "IP isn't on the auto block list.", 'wp-simple-firewall' ) );
 						}
 						$success = ( new IpRules\DeleteRule() )->byRecord( $autoBlockIP );
 						$msg = $success ? __( 'Offenses reset to zero.', 'wp-simple-firewall' )
@@ -51,7 +51,7 @@ class IpAnalyseAction extends BaseAction {
 				case 'block':
 					try {
 						if ( !\in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
-							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
+							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s", 'wp-simple-firewall' ), $ipName ) );
 						}
 						( new IpRules\AddRule() )
 							->setIP( $ip )
@@ -101,7 +101,7 @@ class IpAnalyseAction extends BaseAction {
 					$success = ( new BotSignalsRecord() )
 						->setIP( $ip )
 						->delete();
-					$msg = $success ? __( 'IP silentCAPTCHA Score Reset.', 'wp-simple-firewall' )
+					$msg = $success ? sprintf( __( 'IP %s Score Reset.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) )
 						: __( "IP NotBot Score couldn't be reset at this time.", 'wp-simple-firewall' );
 					break;
 

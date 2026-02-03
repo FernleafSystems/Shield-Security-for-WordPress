@@ -12,7 +12,7 @@ class FormidableForms extends Base {
 						$errors = [];
 					}
 					// string taken from Formidable forms FrmEntryValidate.php
-					$errors[ 'spam' ] = __( 'Your entry appears to be spam!', 'formidable' );
+					$errors[ 'spam' ] = __( 'Your entry appears to be spam!', 'wp-simple-firewall' );
 				}
 			}
 			return $errors;

@@ -216,14 +216,14 @@ class SecurityProfilesCon {
 				],
 			],
 			'silentcaptcha' => [
-				'title' => 'silentCAPTCHA',
+				'title' => self::con()->labels->getBrandName( 'silentcaptcha' ),
 				'opts'  => [
 					[
 						'item_key' => 'antibot_minimum',
 						'opt_key'  => 'antibot_minimum',
 						'value'    => 0,
 						'title'    => __( 'Bot threshold', 'wp-simple-firewall' ),
-						'tooltip'  => __( 'Minimum silentCAPTCHA score required to indicate visitor is human', 'wp-simple-firewall' ),
+						'tooltip'  => sprintf( __( 'Minimum %s score required to indicate visitor is human', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) ),
 					]
 				],
 			],

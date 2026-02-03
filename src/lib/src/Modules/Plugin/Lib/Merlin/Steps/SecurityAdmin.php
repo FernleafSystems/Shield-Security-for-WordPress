@@ -43,7 +43,7 @@ class SecurityAdmin extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( "Protect Your Shield Plugin From Tampering", 'wp-simple-firewall' ),
+				'step_title' => sprintf( __( 'Protect Your %s Plugin From Tampering', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 		];
 	}

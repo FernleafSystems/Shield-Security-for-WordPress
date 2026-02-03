@@ -12,7 +12,7 @@ class LicenseClear extends LicenseBase {
 		$licHandler->clearLicense();
 		$this->response()->action_response_data = [
 			'success'     => true,
-			'message'     => __( 'ShieldPRO License Cleared', 'wp-simple-firewall' ),
+			'message'     => sprintf( __( '%s License Cleared', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			'page_reload' => true,
 		];
 	}

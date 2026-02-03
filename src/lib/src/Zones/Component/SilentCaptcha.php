@@ -7,16 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 class SilentCaptcha extends Base {
 
 	public function title() :string {
-		return __( 'silentCAPTCHA', 'wp-simple-firewall' );
+		return self::con()->labels->getBrandName( 'silentcaptcha' );
 	}
 
 	public function subtitle() :string {
-		return sprintf( __( "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology.", 'wp-simple-firewall' ),
-			self::con()->labels->Name );
+		return sprintf( __( '%s is our WordPress Bad Bot Detection technology.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
 	protected function tooltip() :string {
-		return __( 'Edit settings that control how silentCAPTCHA detects bots', 'wp-simple-firewall' );
+		return sprintf( __( 'Edit settings that control how %s detects bots', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
 	/**
@@ -24,6 +23,7 @@ class SilentCaptcha extends Base {
 	 */
 	protected function status() :array {
 		$con = self::con();
+		$silentCaptcha = $con->labels->getBrandName( 'silentcaptcha' );
 		$complexity = $con->comps->altcha->complexityLevel();
 		$minimum = $con->opts->optGet( 'antibot_minimum' );
 
@@ -32,19 +32,19 @@ class SilentCaptcha extends Base {
 		];
 		if ( $complexity === 'none' ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = sprintf( __( "%s bot detection isn't running, as bots aren't currently being challenged.", 'wp-simple-firewall' ), $silentCaptcha );
 		}
 		elseif ( \in_array( $complexity, [ 'legacy', 'low' ] ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = sprintf( __( "%s Bot challenge complexity is too low - consider increasing it.", 'wp-simple-firewall' ), $silentCaptcha );
 		}
 
 		if ( $minimum === 0 ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = sprintf( __( "%s bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' ), $silentCaptcha );
 		}
 		elseif ( $minimum < 30 ) {
-			$status[ 'exp' ][] = sprintf( __( "silentCAPTCHA's bot minimum score is quite low (%s).", 'wp-simple-firewall' ), '< 30' );
+			$status[ 'exp' ][] = sprintf( __( "%s bot minimum score is quite low (%s).", 'wp-simple-firewall' ), $silentCaptcha, '< 30' );
 			if ( empty( $status[ 'level' ] ) ) {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			}

@@ -19,6 +19,8 @@ abstract class BaseBlock extends BaseFullPageRender {
 				'strings' => [
 					'restriction_details'       => __( 'Restriction Details', 'wp-simple-firewall' ),
 					'restriction_details_blurb' => $this->getRestrictionDetailsBlurb(),
+					'about_title'               => sprintf( __( 'About %s for WordPress', 'wp-simple-firewall' ), self::con()->labels->Name ),
+					'about_description'         => sprintf( __( '%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				],
 				'vars'    => [
 					'restriction_details_points' => $this->getRestrictionDetailsPoints(),

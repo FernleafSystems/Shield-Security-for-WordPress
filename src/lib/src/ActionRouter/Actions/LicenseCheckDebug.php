@@ -15,13 +15,13 @@ class LicenseCheckDebug extends LicenseBase {
 		$host = wp_parse_url( Keyless\Base::DEFAULT_URL_STUB, PHP_URL_HOST );
 
 		if ( $success ) {
-			$msg = 'Successfully connected to license server.';
+			$msg = __( 'Successfully connected to license server.', 'wp-simple-firewall' );
 		}
 		elseif ( !Services::IP()->isValidIp( gethostbyname( $host ) ) ) {
-			$msg = sprintf( 'Could not resolve host IP address: %s', $host );
+			$msg = sprintf( __( 'Could not resolve host IP address: %s', 'wp-simple-firewall' ), $host );
 		}
 		else {
-			$msg = 'Failed to connect to license server.';
+			$msg = __( 'Failed to connect to license server.', 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [

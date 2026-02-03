@@ -34,7 +34,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		}
 
 		if ( $key === 'label' && empty( $value ) ) {
-			$value = '-no label-';
+			$value = '-'.__( 'no label', 'wp-simple-firewall' ).'-';
 		}
 
 		return $value;

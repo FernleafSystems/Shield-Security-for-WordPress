@@ -23,19 +23,19 @@ class MfaEmailAutoLogin extends BaseAction {
 
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( empty( $user ) ) {
-			throw new ActionException( 'No such user' );
+			throw new ActionException( __( 'No such user', 'wp-simple-firewall' ) );
 		}
 		if ( !$mfaCon->verifyLoginNonce( $user, $this->action_data[ 'login_nonce' ] ) ) {
 			// TODO: trigger offense?
-			throw new ActionException( 'invalid login nonce' );
+			throw new ActionException( __( 'Invalid login nonce', 'wp-simple-firewall' ) );
 		}
 		$providers = $mfaCon->getProvidersActiveForUser( $user );
 		if ( empty( $providers ) ) {
-			throw new ActionException( 'no active providers for user.' );
+			throw new ActionException( __( 'No active providers for user.', 'wp-simple-firewall' ) );
 		}
 		$emailProvider = $providers[ Email::ProviderSlug() ] ?? null;
 		if ( empty( $emailProvider ) ) {
-			throw new ActionException( 'no email provider for user.' );
+			throw new ActionException( __( 'No email provider for user.', 'wp-simple-firewall' ) );
 		}
 
 		$success = false;
@@ -69,9 +69,6 @@ class MfaEmailAutoLogin extends BaseAction {
 		];
 
 		$redirectTo = $this->action_data[ 'redirect_to' ] ?? '';
-		if ( !empty( $redirectTo ) ) {
-			$redirectTo = \base64_decode( $redirectTo );
-		}
 		$this->response()->next_step = [
 			'type' => 'redirect',
 			'url'  => empty( $redirectTo ) ? Services::WpGeneral()->getHomeUrl() : $redirectTo,

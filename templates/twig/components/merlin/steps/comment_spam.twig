@@ -2,8 +2,7 @@
 
 {% block slide_body_video_section_blurb %}
 	<p>Nearly 100% of comments SPAM is by automated BOTS.
-	   Shield will block all of this bot SPAM, using our exclusive <strong>silentCAPTCHA</strong> technology
-		that's GDPR-compliant, and completely invisible to your visitors.
+	   {{ strings.comment_spam_text }}
 	</p>
 {% endblock %}
 
@@ -22,8 +21,7 @@
 		{{ icwp_macros.formInput_Checkbox(
 			'CommentsFilterOption', 'Y', 'Comment SPAM',
 			'Protect WordPress Comments from bot SPAM',
-			"silentCAPTCHA will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
-			~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
+			strings.silentcaptcha_detect_bots~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
 			null, true, 'me-0'
 		) }}
 

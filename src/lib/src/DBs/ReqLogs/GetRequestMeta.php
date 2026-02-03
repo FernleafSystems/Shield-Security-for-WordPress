@@ -64,7 +64,7 @@ class GetRequestMeta {
 				}
 			}
 
-			$content = empty( $lines ) ? 'No Meta Available' : sprintf( '<ul>%s</ul>', \implode( '', $lines ) );
+			$content = empty( $lines ) ? __( 'No meta available', 'wp-simple-firewall' ) : sprintf( '<ul>%s</ul>', \implode( '', $lines ) );
 		}
 
 		return $content;

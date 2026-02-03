@@ -108,7 +108,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			PluginNavs::NAV_REPORTS   => __( 'Reports', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {
-			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );
+			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', self::con()->labels->Name );
 		}
 
 		$currentNav = $this->action_data[ Constants::NAV_ID ] ?? '';

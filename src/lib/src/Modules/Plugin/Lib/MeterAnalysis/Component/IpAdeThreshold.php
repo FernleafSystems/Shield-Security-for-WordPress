@@ -15,14 +15,14 @@ class IpAdeThreshold extends IpBase {
 	}
 
 	public function title() :string {
-		return __( 'silentCAPTCHA', 'wp-simple-firewall' );
+		return self::con()->labels->getBrandName( 'silentcaptcha' );
 	}
 
 	public function descProtected() :string {
-		return __( 'silentCAPTCHA is enabled with a minimum bot-score threshold.', 'wp-simple-firewall' );
+		return sprintf( __( '%s is enabled with a minimum bot-score threshold.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
 	public function descUnprotected() :string {
-		return __( "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided.", 'wp-simple-firewall' );
+		return sprintf( __( "%s is disabled as there is no minimum bot-score threshold provided.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 }

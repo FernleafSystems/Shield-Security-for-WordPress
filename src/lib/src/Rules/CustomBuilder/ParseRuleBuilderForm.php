@@ -76,7 +76,7 @@ class ParseRuleBuilderForm {
 			'checkbox_auto_include_bypass' => [
 				'name'  => 'checkbox_auto_include_bypass',
 				'value' => $autoInclude,
-				'label' => __( "Automatically honour Shield's existing whitelisting rules and exceptions.", 'wp-simple-firewall' ),
+				'label' => sprintf( __( "Automatically honour %s's existing whitelisting rules and exceptions.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 		];
 
@@ -84,7 +84,7 @@ class ParseRuleBuilderForm {
 			$checks[ 'checkbox_has_bypass_all_inverted' ] = [
 				'name'  => 'checkbox_has_bypass_all_inverted',
 				'value' => $this->form[ 'checkbox_has_bypass_all_inverted' ] ?? 'N',
-				'label' => __( "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out.", 'wp-simple-firewall' ),
+				'label' => sprintf( __( "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 			];
 		}
 

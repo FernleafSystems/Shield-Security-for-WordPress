@@ -38,7 +38,8 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 				$text = __( 'Recovered from trash', 'wp-simple-firewall' );
 				break;
 			case 'post_updated_title':
-				$text = sprintf( __( 'Title Updated: %s&rarr;%s', 'wp-simple-firewall' ),
+				/* translators: %1$s: old title, %2$s: new title */
+				$text = sprintf( __( 'Title Updated: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'title_old' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'title_new' ] )
 				);
@@ -47,7 +48,8 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 				$text = __( 'Content Updated', 'wp-simple-firewall' );
 				break;
 			case 'post_updated_slug':
-				$text = sprintf( __( 'Slug Updated: %s&rarr;%s', 'wp-simple-firewall' ),
+				/* translators: %1$s: old slug, %2$s: new slug */
+				$text = sprintf( __( 'Slug Updated: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'slug_old' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'slug_new' ] )
 				);

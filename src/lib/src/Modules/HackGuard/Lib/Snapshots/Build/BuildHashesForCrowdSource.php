@@ -22,7 +22,7 @@ class BuildHashesForCrowdSource {
 		$dir = wp_normalize_path( $asset->getInstallDir() );
 		try {
 			if ( empty( $exts ) ) {
-				throw new \Exception( 'File extensions are empty' );
+				throw new \Exception( __( 'File extensions are empty.', 'wp-simple-firewall' ) );
 			}
 			foreach ( StandardDirectoryIterator::create( $dir ) as $file ) {
 				/** @var \SplFileInfo $file */

@@ -14,7 +14,7 @@ class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 		( new RemoveSecAdmin() )->sendConfirmationEmail();
 		$this->response()->action_response_data = [
 			'success' => true,
-			'message' => __( 'Email sent. Ensure the link opens in THIS browser.' ),
+			'message' => __( 'Email sent. Ensure the link opens in THIS browser.', 'wp-simple-firewall' ),
 		];
 	}
 }

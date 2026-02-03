@@ -12,18 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionV
  */
 class UserSessionRotateAuthCookies extends Base {
 
-	/**
-	 * @var int
-	 */
-	private $expirationDelta;
-
 	public function execResponse() :void {
-		did_action( 'init' ) ?
-			$this->runRotate()
-			:
-			add_action( 'init', function () {
-				$this->runRotate();
-			} );
+		did_action( 'init' ) ? $this->runRotate() : add_action( 'init', fn() => $this->runRotate() );
 	}
 
 	private function runRotate() :void {
@@ -59,16 +49,16 @@ class UserSessionRotateAuthCookies extends Base {
 					$newToken = $sessionTokensManager->create( $current->shield[ 'expires_at' ] );
 
 					// send new session cookies
-					add_filter( 'auth_cookie_expiration', [ $this, 'adjustExpiration' ], \PHP_INT_MAX, 0 );
-					$this->expirationDelta = $current->shield[ 'expires_at' ] - $this->req->carbon->timestamp;
+					$expirationDelta = $current->shield[ 'expires_at' ] - $this->req->carbon->timestamp;
+					add_filter( 'auth_cookie_expiration', $cl = fn() => $expirationDelta, \PHP_INT_MAX, 0 );
 					wp_set_auth_cookie( $userID, false, '', $newToken );
-					remove_filter( 'auth_cookie_expiration', [ $this, 'adjustExpiration' ], \PHP_INT_MAX );
+					remove_filter( 'auth_cookie_expiration', $cl, \PHP_INT_MAX );
 
 					try { // copy-over some Shield session parameters
 						$newSession = $sessionCon->buildSession( $userID, $newToken );
 						foreach ( [ 'session_started_at', 'secadmin_at' ] as $key ) {
 							if ( $current->shield[ $key ] ?? false ) {
-								$sessionCon->updateSessionParameter( $newSession, 'secadmin_at', $current->shield[ 'secadmin_at' ] );
+								$sessionCon->updateSessionParameter( $newSession, $key, $current->shield[ $key ] );
 							}
 						}
 						$this->req->session = $newSession;
@@ -78,12 +68,5 @@ class UserSessionRotateAuthCookies extends Base {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Ensure the session expiration time is retained during rotation.
-	 */
-	public function adjustExpiration() :int {
-		return $this->expirationDelta;
 	}
 }

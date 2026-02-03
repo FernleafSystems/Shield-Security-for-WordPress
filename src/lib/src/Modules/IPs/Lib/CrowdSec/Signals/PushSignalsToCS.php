@@ -84,7 +84,7 @@ class PushSignalsToCS {
 			[
 				'scenario'         => 'shield/'.$record->scenario,
 				'scenario_version' => '0.1',
-				'message'          => 'Shield reporting scenario '.$record->scenario,
+				'message'          => sprintf( '%s reporting scenario %s', self::con()->labels->Name, $record->scenario ),
 				'created_at'       => $carbon,
 				'start_at'         => $carbon,
 				'stop_at'          => $carbon,

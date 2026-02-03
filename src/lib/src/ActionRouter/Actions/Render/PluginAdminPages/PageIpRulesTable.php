@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpRulesTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 
 class PageIpRulesTable extends BasePluginAdminPage {
@@ -29,7 +30,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', CommonDisplayStrings::get( 'help_label' ), __( 'IP Rules', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/212-ip-rules-section-how-to-use-ip-management-and-analysis-tool',
 			'new_window' => true,
 		];

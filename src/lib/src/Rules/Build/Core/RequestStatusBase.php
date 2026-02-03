@@ -5,6 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 abstract class RequestStatusBase extends BuildRuleCoreShieldBase {
 
 	protected function getDescription() :string {
-		return sprintf( '%s - %s', __( 'Request Status' ), $this->getName() );
+		return sprintf( '%s - %s', __( 'Request Status', 'wp-simple-firewall' ), $this->getName() );
 	}
 }

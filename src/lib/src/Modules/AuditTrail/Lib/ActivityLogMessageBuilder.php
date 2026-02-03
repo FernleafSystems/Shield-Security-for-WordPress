@@ -21,7 +21,7 @@ class ActivityLogMessageBuilder {
 			$stringSubs[ sprintf( '{{%s}}', $subKey ) ] = $subValue;
 		}
 
-		$log = \preg_replace( '#{{[a-z_]+}}#i', 'missing data', \strtr( $raw, $stringSubs ) );
+		$log = \preg_replace( '#{{[a-z_]+}}#i', __( 'missing data', 'wp-simple-firewall' ), \strtr( $raw, $stringSubs ) );
 
 		$auditCount = (int)( $metaData[ 'audit_count' ] ?? 1 );
 		$eventDef = self::con()->comps->events->getEventDef( $event );

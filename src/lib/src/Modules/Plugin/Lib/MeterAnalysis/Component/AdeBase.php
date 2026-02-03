@@ -11,14 +11,14 @@ abstract class AdeBase extends Base {
 	}
 
 	public function title() :string {
-		return __( 'silentCAPTCHA For Logins', 'wp-simple-firewall' );
+		return sprintf( __( '%s For Logins', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
 	public function descProtected() :string {
-		return __( 'The silentCAPTCHA option is enabled.', 'wp-simple-firewall' );
+		return sprintf( __( 'The %s option is enabled.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
 	public function descUnprotected() :string {
-		return __( "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms.", 'wp-simple-firewall' );
+		return sprintf( __( "The %s option is disabled, removing brute force protection for login, register and lost password forms.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 }

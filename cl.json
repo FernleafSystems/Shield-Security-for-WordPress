@@ -1,4 +1,70 @@
 {
+  "21.1": {
+    "version":     "21.1",
+    "released_at": 1770130000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease211",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide211"
+    },
+    "title":       "Multilingual Shield!",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Translation into nearly 40 languages",
+        "description": [
+          "We've completed translation for the Shield Security plugin into nearly 40 languages.",
+          "We've also hugely improved translation coverage so that practically all text in the plugin can be translated.",
+          "Our translations were built using our own in-house AI Translations system - so there may be some errors here and there."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Remote Language Translation Downloads",
+        "description": [
+          "Shield now downloads translations on-demand rather than shipping them with the plugin, significantly reducing plugin size."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Add SilentCAPTCHA support for Paid Memberships Pro plugin checkout requests.",
+        "description": [
+          "Bot detection is now available for Paid Memberships Pro checkout forms."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Enhanced plugin page redirect handling",
+        "description": [
+          "Shield now attempts to locate the originating plugin page and redirect appropriately wherever possible."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Better AJAX redirect URL parameter handling",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Email 2FA Auto Login Redirection",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Security Admin session handling when disabling",
+        "description": [
+          "Ensures the current response is correctly set as sec admin when disabling Security Admin."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Security Admin login works after manual session end",
+        "description": []
+      }
+    ],
+    "patches":     []
+  },
   "21.0": {
     "version":     "21.0",
     "released_at": 1747300000,

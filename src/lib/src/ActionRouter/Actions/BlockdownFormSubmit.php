@@ -17,21 +17,21 @@ class BlockdownFormSubmit extends BaseAction {
 		$form = $this->action_data[ 'form_data' ];
 		try {
 			if ( !$con->caps->canSiteBlockdown() ) {
-				throw new \Exception( 'Please upgrade your ShieldPRO plan to make use of this feature.' );
+				throw new \Exception( sprintf( __( 'Please upgrade your %s plan to make use of this feature.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 
 			if ( empty( $form ) || !\is_array( $form ) ) {
-				throw new \Exception( 'Please complete the form.' );
+				throw new \Exception( __( 'Please complete the form.', 'wp-simple-firewall' ) );
 			}
 
 			$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 			if ( $cfg->isLockdownActive() ) {
-				throw new \Exception( 'Invalid request - lockdown is already active.' );
+				throw new \Exception( __( 'Invalid request - lockdown is already active.', 'wp-simple-firewall' ) );
 			}
 
 			$confirm = $form[ 'confirm' ] ?? [];
 			if ( !empty( \array_diff( [ 'consequences', 'authority', 'access', 'cache' ], $confirm ) ) ) {
-				throw new \Exception( 'Please check all confirmation boxes.' );
+				throw new \Exception( __( 'Please check all confirmation boxes.', 'wp-simple-firewall' ) );
 			}
 
 			$whitelistMe = ( $form[ 'whitelist_me' ] ?? 'N' ) === 'Y';
@@ -39,7 +39,7 @@ class BlockdownFormSubmit extends BaseAction {
 			if ( $whitelistMe && !$alreadyWhitelisted ) {
 				( new IpRules\AddRule() )
 					->setIP( $con->this_req->ip )
-					->toManualWhitelist( 'Whitelist for Site Lockdown' );
+					->toManualWhitelist( __( 'Whitelist for Site Lockdown', 'wp-simple-firewall' ) );
 			}
 
 			$ruleLoader = new LoadIpRules();
@@ -47,7 +47,7 @@ class BlockdownFormSubmit extends BaseAction {
 				sprintf( "`ir`.`type`='%s'", $con->db_con->ip_rules::T_MANUAL_BYPASS )
 			];
 			if ( $ruleLoader->countAll() === 0 ) {
-				throw new \Exception( 'There are no whitelisted IPs for exclusion.' );
+				throw new \Exception( __( 'There are no whitelisted IPs for exclusion.', 'wp-simple-firewall' ) );
 			}
 
 			$cfg->activated_at = Services::Request()->ts();

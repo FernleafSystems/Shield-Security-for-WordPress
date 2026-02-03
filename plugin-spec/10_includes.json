@@ -1,0 +1,132 @@
+{
+    "tp": {
+        "bootstrap": {
+            "css": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css",
+            "js": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        },
+        "vimeo_player": {
+            "js": "https://player.vimeo.com/api/player.js"
+        }
+    },
+    "dist": [
+        {
+            "handle": "main",
+            "zones": [
+                "plugin_admin"
+            ],
+            "deps": [
+                "wp-jquery"
+            ],
+            "types": [
+                "js",
+                "css"
+            ],
+            "flags": {
+                "admin_only": true
+            }
+        },
+        {
+            "handle": "wpadmin",
+            "zones": [
+                "wp_admin"
+            ],
+            "deps": [
+                "wp-jquery"
+            ],
+            "types": [
+                "js",
+                "css"
+            ],
+            "flags": {
+                "admin_only": true
+            }
+        },
+        {
+            "handle": "badge",
+            "zones": [
+                "front"
+            ],
+            "types": [
+                "js"
+            ],
+            "flags": {
+                "admin_only": false
+            }
+        },
+        {
+            "handle": "blockpage",
+            "zones": [
+                "page_shield_block"
+            ],
+            "types": [
+                "js",
+                "css"
+            ],
+            "flags": {
+                "admin_only": false
+            }
+        },
+        {
+            "handle": "login_2fa",
+            "zones": [
+                "login_2fa",
+                "page_login"
+            ],
+            "deps": [
+                "wp-jquery"
+            ],
+            "types": [
+                "js",
+                "css"
+            ],
+            "flags": {
+                "admin_only": false
+            }
+        },
+        {
+            "handle": "notbot",
+            "types": [
+                "js"
+            ],
+            "flags": {
+                "admin_only": false
+            }
+        },
+        {
+            "handle": "reports",
+            "types": [
+                "js"
+            ],
+            "flags": {
+                "admin_only": true
+            }
+        },
+        {
+            "handle": "userprofile",
+            "zones": [
+                "page_user_profile",
+                "page_shield_login_security"
+            ],
+            "types": [
+                "js",
+                "css"
+            ],
+            "deps": [
+                "wp-jquery"
+            ],
+            "flags": {
+                "admin_only": false
+            }
+        },
+        {
+            "handle": "mainwp_server",
+            "types": [
+                "js",
+                "css"
+            ],
+            "flags": {
+                "admin_only": true
+            }
+        }
+    ]
+}

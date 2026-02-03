@@ -1,22 +1,21 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>Thank you for taking the time to go through the Guided Setup Wizard.</p>
-	<p>By default, Shield is automatically configured to protect your site from numerous threats
-	   and block bad visitors and bots without you having to do anything.</p>
+	<p>{{ strings.blurb_intro }}</p>
+	<p>{{ strings.blurb_configured }}</p>
 
-	<p class="mt-3">Here are some of the ways Shield is already protecting your site:</p>
+	<p class="mt-3">{{ strings.protecting_intro }}</p>
 	<ul class="list-group list-group-flush">
-		<li class="list-group-item">Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic.</li>
-		<li class="list-group-item">Always <strong>watching for bots</strong> and maintaining a reputation score for each visitor.</li>
-		<li class="list-group-item"><strong>Scanning</strong> your core WordPress files and directories for changes and new files.</li>
-		<li class="list-group-item">Automatically <strong>blocking</strong> malicious visitors by IP (so you don't have to maintain an IP list yourself).</li>
-		<li class="list-group-item">Protecting against the #1 source of <strong>Comment SPAM</strong>.</li>
-		<li class="list-group-item">Keeping a log of <em>everything</em> significant in your <strong>Activity Log</strong>.</li>
-		<li class="list-group-item">Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password.</li>
+		<li class="list-group-item">{{ strings.list_firewall|raw }}</li>
+		<li class="list-group-item">{{ strings.list_bots|raw }}</li>
+		<li class="list-group-item">{{ strings.list_scanning|raw }}</li>
+		<li class="list-group-item">{{ strings.list_blocking|raw }}</li>
+		<li class="list-group-item">{{ strings.list_comments|raw }}</li>
+		<li class="list-group-item">{{ strings.list_activity_log|raw }}</li>
+		<li class="list-group-item">{{ strings.list_forms|raw }}</li>
 	</ul>
 
 	<a href="{{ hrefs.dashboard }}" class="btn btn-secondary mt-3 py-2 px-4">
-		{{ strings.next_button|default('Go To Shield Overview') }} &rarr;
+		{{ strings.next_button }} &rarr;
 	</a>
 {% endblock %}

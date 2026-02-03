@@ -17,7 +17,7 @@ class Build {
 	 */
 	public function run( string $slug ) :SnapshotVO {
 		if ( !is_main_network() || !is_main_site() ) {
-			throw new \Exception( 'Snapshots currently only run for the main site.' );
+			throw new \Exception( __( 'Snapshots currently only run for the main site.', 'wp-simple-firewall' ) );
 		}
 		$snapper = self::con()->comps->activity_log->getAuditors()[ $slug ]->getSnapper();
 		$snapshot = new SnapshotVO();

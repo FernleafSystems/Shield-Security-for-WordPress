@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\{
 	ModuleSecadmin,
 	ModuleUsers
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class PageUserSessions extends BasePluginAdminPage {
 
@@ -26,7 +27,7 @@ class PageUserSessions extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'User Sessions', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', CommonDisplayStrings::get( 'help_label' ), CommonDisplayStrings::get( 'user_sessions_label' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/article/434-user-sessions-management-tool',
 			'new_window' => true,
 		];
@@ -39,11 +40,11 @@ class PageUserSessions extends BasePluginAdminPage {
 			],
 			'strings' => [
 				'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),
-				'users_title'         => __( 'User Sessions', 'wp-simple-firewall' ),
+				'users_title'         => CommonDisplayStrings::get( 'user_sessions_label' ),
 				'users_subtitle'      => __( 'Review and manage current user sessions', 'wp-simple-firewall' ),
 				'users_maybe_expired' => __( "Some sessions may have expired but haven't been automatically cleaned from the database yet", 'wp-simple-firewall' ),
-				'username'            => __( 'Username', 'wp-simple-firewall' ),
-				'inner_page_title'    => __( 'User Sessions', 'wp-simple-firewall' ),
+				'username'            => CommonDisplayStrings::get( 'username' ),
+				'inner_page_title'    => CommonDisplayStrings::get( 'user_sessions_label' ),
 				'inner_page_subtitle' => __( 'View and manage details of current user sessions on the site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

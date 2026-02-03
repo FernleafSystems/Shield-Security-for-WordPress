@@ -9,56 +9,65 @@ class ZoneReportWordpress extends BaseZoneReport {
 	protected function buildSummaryForLog( LogRecord $log ) :string {
 		switch ( $log->event_slug ) {
 			case 'core_updated':
-				$text = sprintf( __( 'Core Upgraded: %s&rarr;%s', 'wp-simple-firewall' ),
+				/* translators: %1$s: old version, %2$s: new version */
+				$text = sprintf( __( 'Core Upgraded: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					$log->meta_data[ 'from' ], $log->meta_data[ 'to' ] );
 				break;
 			case 'core_reinstalled':
 				$text = sprintf( __( 'Core Reinstalled: v%s', 'wp-simple-firewall' ), $log->meta_data[ 'version' ] );
 				break;
 			case 'permalinks_structure':
-				$text = sprintf( 'Permalinks Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Permalinks changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_admin_email':
-				$text = sprintf( 'Site Email Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Site email changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_blogname':
-				$text = sprintf( 'Title Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Title changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_blogdescription':
-				$text = sprintf( 'Tagline Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Tagline changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_home':
-				$text = sprintf( 'Home URL Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Home URL changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_siteurl':
-				$text = sprintf( 'Site URL Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Site URL changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_default_role':
-				$text = sprintf( 'Default User Role Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Default user role changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
 			case 'wp_option_users_can_register':
-				$text = sprintf( 'Can Users Register Changed: %s&rarr;%s',
+				/* translators: %1$s: from, %2$s: to */
+				$text = sprintf( __( 'Anyone can register changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
@@ -71,7 +80,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 	}
 
 	public function getZoneName() :string {
-		return __( 'WordPress' );
+		return __( 'WordPress', 'wp-simple-firewall' );
 	}
 
 	protected function getLoadLogsWheres() :array {

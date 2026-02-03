@@ -29,7 +29,7 @@ class Integrations extends Base {
 		$level = \strtolower( $form[ 'security_profile' ] ?? '' );
 		if ( empty( $level ) ) {
 			$resp->success = true;
-			$resp->message = __( 'No profile was applied' );
+			$resp->message = __( 'No profile was applied', 'wp-simple-firewall' );
 		}
 		else {
 			try {
@@ -40,7 +40,7 @@ class Integrations extends Base {
 			catch ( \Exception $e ) {
 				error_log( $e->getMessage() );
 				$resp->success = false;
-				$resp->message = $resp->error = __( 'An unsupported profile was selected' );
+				$resp->message = $resp->error = __( 'An unsupported profile was selected', 'wp-simple-firewall' );
 			}
 		}
 		return $resp;

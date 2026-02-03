@@ -1,6 +1,7 @@
 .idea/
 /assets/dist
 /config/deprecated/
+/plugin.json
 /src/lib/strauss.phar
 /src/lib/vendor*
 /node_modules
@@ -8,9 +9,9 @@
 /_gsdata_
 /forceoff
 /vendor
-/docs
 /.agent-os/instructions
 /.agent-os/standards
+/docs
 
 # Testing artifacts
 /coverage/
@@ -28,6 +29,7 @@ phpunit-*-package.xml
 /tests/package/
 
 # Local build packages (created by local build scripts)
+/builds/
 /shield-package
 /shield-package-local
 /shield-test-package
@@ -62,6 +64,7 @@ translations-tools/*.db
 # Claude Code local settings
 /.mcp.json
 .claude/settings.local.json
+/.cursor/*
 
 # Claude planning and tracking files
 .claude/*.md

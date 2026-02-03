@@ -34,7 +34,7 @@ class WpPluginsInactive extends Base {
 			__( 'There is 1 unused plugin that should be uninstalled.', 'wp-simple-firewall' ),
 			sprintf( __( 'There are %s unused plugins that should be uninstalled.', 'wp-simple-firewall' ), $count ),
 			$count
-		);
+		, 'wp-simple-firewall' );
 	}
 
 	private function countInactive() :int {

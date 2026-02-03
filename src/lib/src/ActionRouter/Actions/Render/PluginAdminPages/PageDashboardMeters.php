@@ -30,10 +30,10 @@ class PageDashboardMeters extends BasePluginAdminPage {
 		if ( !$con->isPremiumActive() ) { // Free
 			$showViewAs = true;
 			$viewAsMsg = $currentViewAs === 'free' ?
-				__( "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features.", 'wp-simple-firewall' )
-				: __( "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features.", 'wp-simple-firewall' );
+				sprintf( __( "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features.", 'wp-simple-firewall' ), self::con()->labels->Name )
+				: sprintf( __( "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features.", 'wp-simple-firewall' ), self::con()->labels->Name );
 			$viewAsHref = [
-				'title' => $currentViewAs === 'free' ? __( 'View As ShieldPRO', 'wp-simple-firewall' ) : __( 'View As ShieldFREE', 'wp-simple-firewall' ),
+				'title' => $currentViewAs === 'free' ? sprintf( __( 'View As %s', 'wp-simple-firewall' ), self::con()->labels->Name ) : __( 'View As Free Version', 'wp-simple-firewall' ),
 				'href'  => $URLs->noncedPluginAction(
 					SecurityOverviewViewAs::class,
 					$URLs->adminHome(),
@@ -79,7 +79,7 @@ class PageDashboardMeters extends BasePluginAdminPage {
 				'clear_filter'       => __( 'Clear Filter', 'wp-simple-firewall' ),
 				'go_to_options'      => sprintf(
 					__( 'Go To %s', 'wp-simple-firewall' ),
-					__( 'Options' )
+					__( 'Options', 'wp-simple-firewall' )
 				),
 				'view_as_message'    => $viewAsState[ 'view_as_msg' ],
 			],

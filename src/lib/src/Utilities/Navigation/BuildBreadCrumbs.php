@@ -47,7 +47,7 @@ class BuildBreadCrumbs {
 
 		$crumbs[] = [
 			'text'  => $navStruct[ 'name' ],
-			'title' => sprintf( '%s: %s', __( 'Navigation' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
+			'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
 			'href'  => $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) ),
 		];
 
@@ -56,7 +56,7 @@ class BuildBreadCrumbs {
 				$name = $hierarchy[ $parentNav ][ 'name' ];
 				\array_unshift( $crumbs, [
 					'text'  => $name,
-					'title' => sprintf( '%s: %s', __( 'Navigation' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $name ) ),
+					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $name ) ),
 					'href'  => $urls->adminTopNav( $parentNav, \key( $hierarchy[ $parentNav ][ 'sub_navs' ] ) ),
 				] );
 			}

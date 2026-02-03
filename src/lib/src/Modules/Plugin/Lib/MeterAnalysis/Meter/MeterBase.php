@@ -19,7 +19,7 @@ abstract class MeterBase {
 		$warning = [];
 		if ( !self::con()->comps->opts_lookup->isPluginEnabled() ) {
 			$warning = [
-				'text' => __( 'The plugin is currently entirely disabled.' ),
+				'text' => __( 'The plugin is currently entirely disabled.', 'wp-simple-firewall' ),
 				'href' => self::con()->plugin_urls->cfgForZoneComponent( ModulePlugin::Slug() ),
 			];
 		}

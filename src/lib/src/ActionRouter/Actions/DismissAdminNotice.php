@@ -16,7 +16,7 @@ class DismissAdminNotice extends BaseAction {
 					self::con()->admin_notices->setNoticeDismissed( $notice );
 					$this->response()->action_response_data = [
 						'success'   => true,
-						'message'   => 'Admin notice dismissed', //not currently rendered
+						'message'   => __( 'Admin notice dismissed', 'wp-simple-firewall' ), //not currently rendered
 						'notice_id' => $notice->id,
 					];
 					break;

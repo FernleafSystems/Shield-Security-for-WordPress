@@ -11,7 +11,7 @@ class PluginReset extends BaseCmd {
 	}
 
 	protected function cmdShortDescription() :string {
-		return 'Reset the Shield plugin to default settings.';
+		return sprintf( 'Reset the %s plugin to default settings.', self::con()->labels->Name );
 	}
 
 	protected function cmdSynopsis() :array {
@@ -27,7 +27,7 @@ class PluginReset extends BaseCmd {
 
 	protected function runCmd() :void {
 		if ( !$this->isForceFlag() ) {
-			\WP_CLI::confirm( __( 'Are you sure you want to reset the Shield plugin to defaults?', 'wp-simple-firewall' ) );
+			\WP_CLI::confirm( sprintf( __( 'Are you sure you want to reset the %s plugin to defaults?', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 		( new ResetPlugin() )->run();
 		\WP_CLI::success( __( 'Plugin reset to defaults.', 'wp-simple-firewall' ) );

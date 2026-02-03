@@ -30,7 +30,7 @@ class SiteHealthController {
 				/** Position our 'Security' tab immediately after 'Status' tab */
 				$anchorPos = \array_search( '', $slugs, true ) + 1;
 				$tabs = \array_slice( $tabs, 0, $anchorPos, true )
-						+ [ self::TAB_SLUG => __( 'Security' ) ]
+						+ [ self::TAB_SLUG => __( 'Security', 'wp-simple-firewall' ) ]
 						+ \array_slice( $tabs, $anchorPos, \count( $tabs ) - $anchorPos, true );
 			}
 			return $tabs;

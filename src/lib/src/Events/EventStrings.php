@@ -8,23 +8,20 @@ class EventStrings {
 
 	use PluginControllerConsumer;
 
-	private $strings = null;
-
 	public function for( string $event ) :array {
-		return $this->all()[ $event ] ?? [];
-	}
-
-	public function all() :array {
-		return $this->strings ?? $this->strings = $this->theStrings();
+		return $this->theStrings()[ $event ] ?? [];
 	}
 
 	private function theStrings() :array {
+		$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
+		$sureSend = self::con()->labels->getBrandName( 'suresend' );
+
 		return [
 			'reg_email_invalid'            => [
 				'name'  => __( 'Invalid User Email Registration', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Detected user registration with invalid email address ({{email}}).', 'wp-simple-firewall' ),
-					__( 'Email verification test that failed: {{reason}}' ),
+					__( 'Email verification test that failed: {{reason}}', 'wp-simple-firewall' ),
 				],
 			],
 			'password_expired'             => [
@@ -76,13 +73,13 @@ class EventStrings {
 			'user_hard_suspended'          => [
 				'name'  => __( 'User Manually Suspended', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" suspended by admin.', 'wp-simple-firewall' ),
+					__( "User '{{user_login}}' suspended by admin.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_hard_unsuspended'        => [
 				'name'  => __( 'User Manually Unsuspended', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" unsuspended by admin.', 'wp-simple-firewall' ),
+					__( "User '{{user_login}}' unsuspended by admin.", 'wp-simple-firewall' ),
 				],
 			],
 			'request_limit_exceeded'       => [
@@ -118,7 +115,7 @@ class EventStrings {
 			'plugin_option_changed'        => [
 				'name'  => __( 'Plugin Option Changed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin option "{{name}}" ({{key}}) was updated to "{{value}}".', 'wp-simple-firewall' ),
+					__( "Plugin option '{{name}}' ({{key}}) was updated to '{{value}}'.", 'wp-simple-firewall' ),
 				]
 			],
 			'site_blockdown_started'       => [
@@ -211,13 +208,13 @@ class EventStrings {
 			'antibot_pass'                 => [
 				'name'  => __( 'AntiBot Pass', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Request passed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
+					__( "Request passed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}}).", 'wp-simple-firewall' ),
 				],
 			],
 			'antibot_fail'                 => [
 				'name'  => __( 'AntiBot Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Request failed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
+					__( "Request failed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}}).", 'wp-simple-firewall' ),
 				],
 			],
 			'report_generated'             => [
@@ -260,7 +257,7 @@ class EventStrings {
 			'botbox_fail'                  => [
 				'name'  => __( 'BotBox Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" attempted "{{action}}" but Bot checkbox was not found.', 'wp-simple-firewall' ),
+					__( "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found.", 'wp-simple-firewall' ),
 				],
 			],
 			'cooldown_fail'                => [
@@ -272,7 +269,7 @@ class EventStrings {
 			'honeypot_fail'                => [
 				'name'  => __( 'Honeypot Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" attempted {{action}} but they were caught by the honeypot.', 'wp-simple-firewall' )
+					__( "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot.", 'wp-simple-firewall' )
 				],
 			],
 			'2fa_success'                  => [
@@ -284,19 +281,19 @@ class EventStrings {
 			'2fa_verify_success'           => [
 				'name'  => __( '2FA Verify Success', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" verified their identity using "{{method}}".', 'wp-simple-firewall' )
+					__( "User '{{user_login}}' verified their identity using '{{method}}'.", 'wp-simple-firewall' )
 				],
 			],
 			'2fa_verify_fail'              => [
 				'name'  => __( '2FA Verify Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" failed to verify their identity using "{{method}}".', 'wp-simple-firewall' )
+					__( "User '{{user_login}}' failed to verify their identity using '{{method}}'.", 'wp-simple-firewall' )
 				],
 			],
 			'2fa_nonce_verify_fail'        => [
 				'name'  => __( '2FA Nonce Verify Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'An attempt was made to verify a 2FA login "{{user_login}}" using an invalid nonce.', 'wp-simple-firewall' )
+					__( "An attempt was made to verify a 2FA login '{{user_login}}' using an invalid nonce.", 'wp-simple-firewall' )
 				],
 			],
 			// todo rename to block_login
@@ -331,21 +328,34 @@ class EventStrings {
 				],
 			],
 			'block_anonymous_restapi'      => [
-				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Anonymous REST API' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Anonymous REST API', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Blocked Anonymous API Access through "{{namespace}}" namespace.', 'wp-simple-firewall' ),
+					__( "Blocked Anonymous API Access through '{{namespace}}' namespace.", 'wp-simple-firewall' ),
 				],
 			],
 			'block_author_fishing'         => [
-				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Author Fishing' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Author Fishing', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Blocked Author Discovery via username fishing technique.', 'wp-simple-firewall' ),
 				],
 			],
 			'block_xml'                    => [
-				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'XML-RPC' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'XML-RPC', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'XML-RPC Request Blocked.', 'wp-simple-firewall' ),
+				],
+			],
+			'lic_activation_success'       => [
+				'name'  => __( 'License Activation Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License activated successfully.', 'wp-simple-firewall' ),
+				],
+			],
+			'lic_activation_fail'          => [
+				'name'  => __( 'License Activation Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License activation failed.', 'wp-simple-firewall' ),
+					__( 'Error: {{error}}', 'wp-simple-firewall' ),
 				],
 			],
 			'lic_check_success'            => [
@@ -376,43 +386,43 @@ class EventStrings {
 			'spam_form_pass'               => [
 				'name'  => __( 'SPAM Check Pass', 'wp-simple-firewall' ),
 				'audit' => [
-					__( '"{{form_provider}}" submission passed SPAM check.', 'wp-simple-firewall' ),
+					__( "'{{form_provider}}' submission passed SPAM check.", 'wp-simple-firewall' ),
 				],
 			],
 			'spam_form_fail'               => [
 				'name'  => __( 'SPAM Check Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( '"{{form_provider}}" submission failed SPAM check.', 'wp-simple-firewall' ),
+					__( "'{{form_provider}}' submission failed SPAM check.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_form_bot_pass'           => [
 				'name'  => __( 'User Bot Check Pass', 'wp-simple-firewall' ),
 				'audit' => [
-					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" passed Bot check.', 'wp-simple-firewall' ),
+					__( "'{{form_provider}}' submission for form '{{action}}' with username '{{username}}' passed Bot check.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_form_bot_fail'           => [
 				'name'  => __( 'User Bot Check Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" failed Bot check.', 'wp-simple-firewall' ),
+					__( "'{{form_provider}}' submission for form '{{action}}' with username '{{username}}' failed Bot check.", 'wp-simple-firewall' ),
 				],
 			],
 			'suresend_fail'                => [
-				'name'  => __( 'SureSend Fail', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Fail', 'wp-simple-firewall' ), $sureSend ),
 				'audit' => [
-					__( 'Failed to send email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
+					sprintf( __( "Failed to send email (type: {{slug}}) to '{{email}}' using %s.", 'wp-simple-firewall' ), $sureSend ),
 				],
 			],
 			'suresend_success'             => [
-				'name'  => __( 'SureSend Success', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Success', 'wp-simple-firewall' ), $sureSend ),
 				'audit' => [
-					__( 'Successfully sent email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
+					sprintf( __( "Successfully sent email (type: {{slug}}) to '{{email}}' using %s.", 'wp-simple-firewall' ), $sureSend ),
 				],
 			],
 			'ade_check_option_disabled'    => [
-				'name'  => __( 'silentCAPTCHA Check Invalid (Module)', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Check Invalid (Module)', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
-					__( 'A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ),
+					sprintf( __( 'A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ), $silentCaptcha ),
 					__( "The visitor was allowed to pass the checks since they couldn't be applied.", 'wp-simple-firewall' ),
 				],
 			],
@@ -490,44 +500,44 @@ class EventStrings {
 				],
 			],
 			'bottrack_notbot'              => [
-				'name'  => __( 'silentCAPTCHA Registration', 'wp-simple-firewall' ),
+				'name'  => sprintf( __( '%s Registration', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
-					__( 'Visitor registered using silentCAPTCHA.', 'wp-simple-firewall' ),
+					sprintf( __( 'Visitor registered using %s.', 'wp-simple-firewall' ), $silentCaptcha ),
 				],
 			],
 			'bottrack_404'                 => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ), '404' ),
 				'audit' => [
-					__( '404 detected at "{{path}}".', 'wp-simple-firewall' ),
+					__( "404 detected at '{{path}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_fakewebcrawler'      => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Fake Web Crawler', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Fake Web Crawler detected at "{{path}}".', 'wp-simple-firewall' ),
-					__( 'Fake Crawler misrepresented itself as "{{crawler}}".', 'wp-simple-firewall' ),
+					__( "Fake Web Crawler detected at '{{path}}'.", 'wp-simple-firewall' ),
+					__( "Fake Crawler misrepresented itself as '{{crawler}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_linkcheese'          => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Link Cheese', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Link cheese access detected at "{{path}}".', 'wp-simple-firewall' ),
+					__( "Link cheese access detected at '{{path}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_loginfailed'         => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Failed Login', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Attempted login failed by user "{{user_login}}".', 'wp-simple-firewall' ),
+					__( "Attempted login failed by user '{{user_login}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_logininvalid'        => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Invalid Username Login', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Attempted login with invalid user "{{user_login}}".', 'wp-simple-firewall' ),
+					__( "Attempted login with invalid user '{{user_login}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_useragent'           => [
@@ -535,21 +545,21 @@ class EventStrings {
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Invalid User-Agent', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Invalid user agent detected at "{{useragent}}".', 'wp-simple-firewall' ),
+					__( "Invalid user agent detected at '{{useragent}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_xmlrpc'              => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'XML-RPC', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Access to XML-RPC detected at "{{path}}".', 'wp-simple-firewall' ),
+					__( "Access to XML-RPC detected at '{{path}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_invalidscript'       => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Invalid Scripts', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Tried to load an invalid WordPress PHP script "{{script}}".', 'wp-simple-firewall' ),
+					__( "Tried to load an invalid WordPress PHP script '{{script}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'comment_markspam'             => [
@@ -613,21 +623,21 @@ class EventStrings {
 				'name'  => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Item found in the scan was deleted.', 'wp-simple-firewall' ),
-					__( 'Item deleted: "{{path_full}}"', 'wp-simple-firewall' ),
+					__( "Item deleted: '{{path_full}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'scan_item_repair_success'     => [
 				'name'  => __( 'Scan Item Repair Success', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
-					__( 'Item repaired: "{{path_full}}"', 'wp-simple-firewall' ),
+					__( "Item repaired: '{{path_full}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'scan_item_repair_fail'        => [
 				'name'  => __( 'Scan Item Repair Failure', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
-					__( 'Failed item: "{{path_full}}"', 'wp-simple-firewall' ),
+					__( "Failed item: '{{path_full}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'scan_items_found'             => [
@@ -644,8 +654,8 @@ class EventStrings {
 				'name'  => __( 'Firewall Block', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Request blocked by firewall rule: {{name}}.', 'wp-simple-firewall' ),
-					__( 'Rule pattern detected: "{{term}}".', 'wp-simple-firewall' ),
-					__( 'The offending request parameter was "{{param}}" with a value of "{{value}}".', 'wp-simple-firewall' ),
+					__( "Rule pattern detected: '{{term}}'.", 'wp-simple-firewall' ),
+					__( "The offending request parameter was '{{param}}' with a value of '{{value}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'fw_email_success'             => [
@@ -661,10 +671,7 @@ class EventStrings {
 				],
 			],
 			'spam_block_antibot'           => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'silentCAPTCHA', 'wp-simple-firewall' )
-				),
+				'name'  => sprintf( '%s: %s', __( 'SPAM Blocked', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
 					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
 				],
@@ -676,7 +683,7 @@ class EventStrings {
 				),
 				'audit' => [
 					__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
-					__( 'Human SPAM filter found "{{word}}" in "{{key}}"', 'wp-simple-firewall' ),
+					__( "Human SPAM filter found '{{word}}' in '{{key}}'", 'wp-simple-firewall' ),
 				],
 			],
 			'spam_block_humanrepeated'     => [
@@ -738,85 +745,85 @@ class EventStrings {
 			'plugin_activated'             => [
 				'name'  => __( 'Plugin Activated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was activated (v{{version}}).', 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' was activated (v{{version}}).", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_installed'             => [
 				'name'  => __( 'Plugin Installed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was installed (v{{version}}).', 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' was installed (v{{version}}).", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_uninstalled'           => [
 				'name'  => __( 'Plugin Uninstalled', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was uninstalled (v{{version}}).', 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' was uninstalled (v{{version}}).", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_deactivated'           => [
 				'name'  => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was deactivated (v{{version}}).', 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' was deactivated (v{{version}}).", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_upgraded'              => [
 				'name'  => __( 'Plugin Upgraded', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" upgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' upgraded from version {{from}} to version {{to}}.", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_downgraded'            => [
 				'name'  => __( 'Plugin Downgraded', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" downgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' downgraded from version {{from}} to version {{to}}.", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_file_edited'           => [
 				'name'  => __( 'Plugin File Edited', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'An attempt was made to edit the plugin file "{{file}}" directly through the WordPress editor.', 'wp-simple-firewall' )
+					__( "An attempt was made to edit the plugin file '{{file}}' directly through the WordPress editor.", 'wp-simple-firewall' )
 				],
 			],
 			'theme_activated'              => [
 				'name'  => __( 'Theme Activated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Theme "{{theme}}" was activated.', 'wp-simple-firewall' ),
+					__( "Theme '{{theme}}' was activated.", 'wp-simple-firewall' ),
 				],
 			],
 			'theme_installed'              => [
 				'name'  => __( 'Theme Installed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Theme "{{theme}}" was installed.', 'wp-simple-firewall' )
+					__( "Theme '{{theme}}' was installed.", 'wp-simple-firewall' )
 				],
 			],
 			'theme_uninstalled'            => [
 				'name'  => __( 'Theme Uninstalled', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Theme "{{theme}}" was uninstalled (v{{version}}).', 'wp-simple-firewall' )
+					__( "Theme '{{theme}}' was uninstalled (v{{version}}).", 'wp-simple-firewall' )
 				],
 			],
 			'theme_file_edited'            => [
 				'name'  => __( 'Theme File Edited', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'An attempt was made to edit the theme file "{{file}}" directly through the WordPress editor.', 'wp-simple-firewall' ),
+					__( "An attempt was made to edit the theme file '{{file}}' directly through the WordPress editor.", 'wp-simple-firewall' ),
 				],
 			],
 			'theme_upgraded'               => [
 				'name'  => __( 'Theme Upgraded', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Theme "{{theme}}" was upgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' ),
+					__( "Theme '{{theme}}' was upgraded from version {{from}} to version {{to}}.", 'wp-simple-firewall' ),
 				],
 			],
 			'theme_downgraded'             => [
 				'name'  => __( 'Theme Downgraded', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Theme "{{theme}}" was downgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' ),
+					__( "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}.", 'wp-simple-firewall' ),
 				],
 			],
 			'core_updated'                 => [
 				'name'  => __( 'WP Core Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'WordPress Core was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "WordPress Core was updated from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'core_reinstalled'             => [
@@ -828,184 +835,184 @@ class EventStrings {
 			'permalinks_structure'         => [
 				'name'  => __( 'Permalinks Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'WordPress Permalinks Structure was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "WordPress Permalinks Structure was updated from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_admin_email'        => [
 				'name'  => __( 'WP Site Admin Email', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'WordPress site admin email address was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "WordPress site admin email address was changed from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_blogdescription'    => [
 				'name'  => __( 'WP Site Tagline', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'WordPress site tagline was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "WordPress site tagline was changed from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_blogname'           => [
 				'name'  => __( 'WP Site title', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'WordPress site title changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "WordPress site title changed from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_default_role'       => [
 				'name'  => __( 'WP Default User Role', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'The default role for new users was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "The default role for new users was changed from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_home'               => [
 				'name'  => __( 'Home URL Changed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'The home URL was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "The home URL was changed from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_siteurl'            => [
 				'name'  => __( 'Site URL Changed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'The site URL was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "The site URL was changed from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_users_can_register' => [
 				'name'  => __( 'WP User Registration', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'The option to allow anyone to register on the site was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+					__( "The option to allow anyone to register on the site was updated from '{{from}}' to '{{to}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'post_deleted'                 => [
 				'name'  => __( 'Post Deleted', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'WordPress Post entitled "{{title}}" was permanently deleted from trash.', 'wp-simple-firewall' )
+					__( "WordPress Post entitled '{{title}}' was permanently deleted from trash.", 'wp-simple-firewall' )
 				],
 			],
 			'post_trashed'                 => [
 				'name'  => __( 'Post Trashed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Post entitled "{{title}}" was trashed.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Post entitled '{{title}}' was trashed.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_recovered'               => [
 				'name'  => __( 'Post Recovered', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Post entitled "{{title}}" was recovered from trash.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Post entitled '{{title}}' was recovered from trash.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated'                 => [
 				'name'  => __( 'Post Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Post entitled "{{title}}" was updated.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Post entitled '{{title}}' was updated.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_created'                 => [
 				'name'  => __( 'Post Created', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Post entitled "{{title}}" was created.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Post entitled '{{title}}' was created.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_published'               => [
 				'name'  => __( 'Post Published', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Post entitled "{{title}}" was published.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Post entitled '{{title}}' was published.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_unpublished'             => [
 				'name'  => __( 'Post Unpublished', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Post entitled "{{title}}" was unpublished.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Post entitled '{{title}}' was unpublished.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated_content'         => [
 				'name'  => __( 'Post Content Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Content for Post ID {{post_id}} updated.', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated_title'           => [
 				'name'  => __( 'Post Title Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Title for Post ID {{post_id}} updated from "{{title_old}}" to "{{title_new}}".', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'post_updated_slug'            => [
 				'name'  => __( 'Post Slug Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Slug for Post ID {{post_id}} updated from "{{slug_old}}" to "{{slug_new}}".', 'wp-simple-firewall' ),
-					__( 'Post Type: {{type}}' ),
+					__( "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'.", 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}', 'wp-simple-firewall' ),
 				],
 			],
 			'user_login'                   => [
 				'name'  => __( 'User Login', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Attempted user login by "{{user_login}}" was successful.', 'wp-simple-firewall' ),
+					__( "Attempted user login by '{{user_login}}' was successful.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_registered'              => [
 				'name'  => __( 'User Registered', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'New WordPress user registered.', 'wp-simple-firewall' ),
-					__( 'New username is "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+					__( "New username is '{{user_login}}' with email address '{{email}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_deleted'                 => [
 				'name'  => __( 'User Deleted', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'WordPress user deleted.', 'wp-simple-firewall' ),
-					__( 'Username was "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+					__( "Username was '{{user_login}}' with email address '{{email}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_promoted'                => [
 				'name'  => __( 'User Promoted', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" promoted to administrator role.', 'wp-simple-firewall' ),
+					__( "User '{{user_login}}' promoted to administrator role.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_demoted'                 => [
 				'name'  => __( 'User Demoted', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" demoted from administrator role.', 'wp-simple-firewall' ),
+					__( "User '{{user_login}}' demoted from administrator role.", 'wp-simple-firewall' ),
 				],
 			],
 			'user_email_updated'           => [
 				'name'  => __( 'User Email Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Email updated for user "{{user_login}}".', 'wp-simple-firewall' )
+					__( "Email updated for user '{{user_login}}'.", 'wp-simple-firewall' )
 				],
 			],
 			'user_password_updated'        => [
 				'name'  => __( 'User Password Updated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Password updated for user "{{user_login}}".', 'wp-simple-firewall' )
+					__( "Password updated for user '{{user_login}}'.", 'wp-simple-firewall' )
 				],
 			],
 			'user_deleted_reassigned'      => [
 				'name'  => __( 'User Deleted And Reassigned', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Deleted user posts were reassigned to user "{{user_login}}".', 'wp-simple-firewall' )
+					__( "Deleted user posts were reassigned to user '{{user_login}}'.", 'wp-simple-firewall' )
 				],
 			],
 			'email_attempt_send'           => [
 				'name'  => __( 'Email Sent', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'There was an attempt to send an email using the "wp_mail" function.', 'wp-simple-firewall' ),
+					__( "There was an attempt to send an email using the 'wp_mail' function.", 'wp-simple-firewall' ),
 					__( "This log entry doesn't mean it was sent or received successfully, but only that an attempt was made.", 'wp-simple-firewall' ),
-					__( 'It was sent to "{{to}}" with the subject "{{subject}}".', 'wp-simple-firewall' ),
+					__( "It was sent to '{{to}}' with the subject '{{subject}}'.", 'wp-simple-firewall' ),
 					"CC/BCC Recipients: {{cc}} / {{bcc}}",
-					__( 'The "wp_mail" function was called from the file "{{bt_file}}" on line {{bt_line}}.', 'wp-simple-firewall' )
+					__( "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}.", 'wp-simple-firewall' )
 				],
 			],
 			'user_login_app'               => [
 				'name'  => __( 'User Login By App Password', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Attempted login by "{{user_login}}" using application password was successful.', 'wp-simple-firewall' ),
+					__( "Attempted login by '{{user_login}}' using application password was successful.", 'wp-simple-firewall' ),
 				],
 			],
 			'app_pass_created'             => [

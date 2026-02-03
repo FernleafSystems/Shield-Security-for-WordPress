@@ -18,16 +18,16 @@ class FileDownloadHandler {
 		$item = ( new RetrieveItems() )->byID( $resultID );
 
 		if ( empty( $item ) || $item->VO->item_type !== Handler::ITEM_TYPE_FILE || empty( $item->VO->item_id ) ) {
-			throw new \Exception( "Invalid download item data." );
+			throw new \Exception( __( 'Invalid download item data.', 'wp-simple-firewall' ) );
 		}
 
 		$path = path_join( ABSPATH, $item->VO->item_id );
 		$FS = Services::WpFs();
 		if ( !$FS->isAccessibleFile( $path ) ) {
-			throw new \Exception( "File doesn't exist." );
+			throw new \Exception( __( "File doesn't exist.", 'wp-simple-firewall' ) );
 		}
 		if ( $FS->getFileSize( $path ) === 0 ) {
-			throw new \Exception( "File appears to be empty." );
+			throw new \Exception( __( 'File appears to be empty.', 'wp-simple-firewall' ) );
 		}
 
 		return [

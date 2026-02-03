@@ -20,7 +20,7 @@ final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
 
 	public function __construct() {
 		parent::__construct();
-		$this->_nicename = esc_html__( 'Shield Anti-Spam', 'ninja-forms' );
+		$this->_nicename = esc_html( sprintf( __( '%s Anti-Spam', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 	}
 
 	public function setHandler( NinjaForms $handler ) :self {
@@ -30,7 +30,7 @@ final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
 
 	public function process( $action_settings, $form_id, $data ) {
 		if ( $this->shieldNinjaFormsHandler->isBotBlockRequired() ) {
-			$data[ 'errors' ][ 'form' ][ 'spam' ] = esc_html__( 'There was an error trying to send your message. Please try again later', 'ninja-forms' );
+			$data[ 'errors' ][ 'form' ][ 'spam' ] = esc_html( __( 'There was an error trying to send your message. Please try again later', 'wp-simple-firewall' ) );
 		}
 		return $data;
 	}

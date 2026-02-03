@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Services\Services;
@@ -31,14 +32,14 @@ class Info extends BaseComponent {
 					'file_description' => $this->getFileDescriptionLines(),
 				],
 				'strings' => [
-					'info'                  => __( 'Info' ),
-					'heading_malai_status'  => sprintf( __( 'Malware status report from %s' ), 'MAL{ai} ' ),
+					'info'                  => CommonDisplayStrings::get( 'info_label' ),
+					'heading_malai_status'  => sprintf( __( 'Malware status report from %s', 'wp-simple-firewall' ), 'MAL{ai} ' ),
 					'malware_status_of'     => __( 'Malware status of this file is currently', 'wp-simple-firewall' ),
 					'malai_status'          => $this->getMalaiStatus(),
 					'malai_status_notes'    => [
-						__( "[Known] means that the code has been reviewed and is known and confirmed to be either clean or malware." ),
-						__( "[False Positive] means the code looks like malware, but it's actually clean." ),
-						__( "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet)." ),
+						__( "[Known] means that the code has been reviewed and is known and confirmed to be either clean or malware.", 'wp-simple-firewall' ),
+						__( "[False Positive] means the code looks like malware, but it's actually clean.", 'wp-simple-firewall' ),
+						__( "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet).", 'wp-simple-firewall' ),
 					],
 					'file_status'           => sprintf( '%s: %s',
 						__( 'File Status', 'wp-simple-firewall' ),

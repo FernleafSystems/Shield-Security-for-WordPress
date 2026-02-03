@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 
@@ -27,12 +28,10 @@ class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 			$alertGroups[ $alertKey ] = [
 				'title' => sprintf( '%s: %s', __( 'Change Detected', 'wp-simple-firewall' ), $this->titleFor( $alertKey ) ),
 				'items' => \array_map(
-					function ( string $item ) {
-						return [
-							'text' => sprintf( '%s: %s', __( 'Username' ), $item ),
-							'href' => '',
-						];
-					},
+					static fn( string $item ) => [
+						'text' => sprintf( '%s: %s', CommonDisplayStrings::get( 'username' ), $item ),
+						'href' => '',
+					],
 					$alertItems
 				)
 			];
@@ -42,12 +41,12 @@ class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 
 	private function titleFor( string $key ) :string {
 		return [
-				   'added'      => 'New Admin(s)',
-				   'removed'    => 'Deleted Admin(s)',
-				   'user_pass'  => 'Password Updated',
-				   'user_email' => 'Email Updated',
-				   'promoted'   => 'Promoted To Admin',
-				   'demoted'    => 'Demoted From Admin',
+				   'added'      => __( 'New Admin(s)', 'wp-simple-firewall' ),
+				   'removed'    => __( 'Deleted Admin(s)', 'wp-simple-firewall' ),
+				   'user_pass'  => __( 'Password Updated', 'wp-simple-firewall' ),
+				   'user_email' => __( 'Email Updated', 'wp-simple-firewall' ),
+				   'promoted'   => __( 'Promoted To Admin', 'wp-simple-firewall' ),
+				   'demoted'    => __( 'Demoted From Admin', 'wp-simple-firewall' ),
 			   ][ $key ];
 	}
 }

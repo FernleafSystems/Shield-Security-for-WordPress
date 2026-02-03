@@ -28,18 +28,18 @@ class ShieldSessionParameterValueMatches extends Base {
 	}
 
 	public function getDescription() :string {
-		return __( 'Does the value of the given Shield Session parameter match the given pattern.', 'wp-simple-firewall' );
+		return sprintf( __( 'Does the value of the given %s Session parameter match the given pattern.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function getParamsDef() :array {
 		$parameters = [
-			'ip'               => __( 'IP Address' ),
-			'user_id'          => __( 'User ID' ),
-			'hostname'         => __( 'Hostname' ),
-			'useragent'        => __( 'Useragent' ),
-			'idle_interval'    => sprintf( '%s (%s)', __( 'Idle Interval', 'wp-simple-firewall' ), __( 'seconds' ) ),
-			'session_duration' => sprintf( '%s (%s)', __( 'Session Duration', 'wp-simple-firewall' ), __( 'seconds' ) ),
-			'token_duration'   => sprintf( '%s (%s)', __( 'Session Token Duration', 'wp-simple-firewall' ), __( 'seconds' ) ),
+			'ip'               => __( 'IP Address', 'wp-simple-firewall' ),
+			'user_id'          => __( 'User ID', 'wp-simple-firewall' ),
+			'hostname'         => __( 'Hostname', 'wp-simple-firewall' ),
+			'useragent'        => __( 'Useragent', 'wp-simple-firewall' ),
+			'idle_interval'    => sprintf( '%s (%s)', __( 'Idle Interval', 'wp-simple-firewall' ), __( 'seconds', 'wp-simple-firewall' ) ),
+			'session_duration' => sprintf( '%s (%s)', __( 'Session Duration', 'wp-simple-firewall' ), __( 'seconds', 'wp-simple-firewall' ) ),
+			'token_duration'   => sprintf( '%s (%s)', __( 'Session Token Duration', 'wp-simple-firewall' ), __( 'seconds', 'wp-simple-firewall' ) ),
 		];
 		return [
 			'param_name'    => [

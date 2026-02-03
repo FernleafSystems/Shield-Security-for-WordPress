@@ -12,7 +12,7 @@ class ShieldConfigurationOption extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
-		return __( 'Is The Shield Option Value...', 'wp-simple-firewall' );
+		return sprintf( __( 'Is The %s Option Value...', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {
@@ -29,7 +29,7 @@ class ShieldConfigurationOption extends Base {
 		return [
 			'name'        => [
 				'type'         => Enum\EnumParameters::TYPE_STRING,
-				'label'        => __( 'Shield Option Key', 'wp-simple-firewall' ),
+				'label'        => sprintf( __( '%s Option Key', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'verify_regex' => '/^[a-zA-Z0-9_]+$/'
 			],
 			'match_type'  => [

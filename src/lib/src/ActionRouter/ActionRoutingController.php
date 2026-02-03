@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ActionRoutingController {
 
@@ -15,6 +14,8 @@ class ActionRoutingController {
 	public const ACTION_AJAX = 1;
 	public const ACTION_SHIELD = 2;
 	public const ACTION_REST = 3;
+
+	private ?ActionExecutor $executor = null;
 
 	protected function run() {
 		( new CaptureRedirects() )->run();
@@ -30,40 +31,15 @@ class ActionRoutingController {
 	 * @throws Exceptions\SecurityAdminRequiredException
 	 * @throws Exceptions\InvalidActionNonceException
 	 */
-	public function action( string $classOrSlug, array $data = [], int $type = self::ACTION_SHIELD ) :ActionResponse {
+	public function action( string $classOrSlug, array $data = [], int $type = self::ACTION_SHIELD ) :RoutedResponse {
+		return $this->getExecutor()->execute( $classOrSlug, $data, $type );
+	}
 
-		switch ( $type ) {
-			case self::ACTION_AJAX:
-				$adapter = new ResponseAdapter\AjaxResponseAdapter();
-				break;
-			case self::ACTION_SHIELD:
-				$adapter = new ResponseAdapter\ShieldActionResponseAdapter();
-				break;
-			case self::ACTION_REST:
-				$adapter = new ResponseAdapter\RestApiActionResponseAdapter();
-				break;
-			default:
-				throw new Exceptions\ActionTypeDoesNotExistException( $type );
-		}
-
-		try {
-			$response = ( new ActionProcessor() )->processAction( $classOrSlug, $data );
-		}
-		catch ( Exceptions\SecurityAdminRequiredException $sare ) {
-			if ( Services::WpGeneral()->isAjax() ) {
-				throw $sare;
-			}
-			$response = $this->action( Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class, $data );
-		}
-		catch ( Exceptions\InvalidActionNonceException $iane ) {
-			if ( Services::WpGeneral()->isAjax() ) {
-				throw $iane;
-			}
-			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $classOrSlug, var_export( $data, true ) ) );
-		}
-
-		$adapter->adapt( $response );
-		return $response;
+	/**
+	 * @internal Transition helper so capture classes can avoid routing recursion.
+	 */
+	public function executor() :ActionExecutor {
+		return $this->getExecutor();
 	}
 
 	/**
@@ -71,13 +47,14 @@ class ActionRoutingController {
 	 */
 	public function render( string $classOrSlug, array $data = [] ) :string {
 		try {
-			$output = $this->action(
+			$payload = $this->action(
 				Actions\Render::class,
 				[
 					'render_action_slug' => $classOrSlug,
 					'render_action_data' => $data,
 				]
-			)->action_response_data[ 'render_output' ];
+			)->payload();
+			$output = $payload[ 'render_output' ] ?? '';
 		}
 		catch ( Exceptions\SecurityAdminRequiredException $e ) {
 //			error_log( 'render::SecurityAdminRequiredException: '.$classOrSlug );
@@ -93,5 +70,9 @@ class ActionRoutingController {
 		}
 
 		return $output;
+	}
+
+	private function getExecutor() :ActionExecutor {
+		return $this->executor ??= new ActionExecutor();
 	}
 }

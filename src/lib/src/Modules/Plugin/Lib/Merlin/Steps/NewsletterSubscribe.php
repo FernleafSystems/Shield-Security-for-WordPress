@@ -20,7 +20,7 @@ class NewsletterSubscribe extends Base {
 				'email' => 'https://clk.shldscrty.com/pluginshieldsecuritynewsletter',
 			],
 			'strings' => [
-				'step_title' => __( 'Join The Shield Security Newsletter', 'wp-simple-firewall' ),
+				'step_title' => sprintf( __( 'Join The %s Newsletter', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 			'vars'    => [
 				'email'      => $user->user_email,

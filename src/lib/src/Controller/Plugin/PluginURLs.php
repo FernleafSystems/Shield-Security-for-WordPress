@@ -37,6 +37,33 @@ class PluginURLs {
 		] );
 	}
 
+	/**
+	 * Build a clean redirect URL from HTTP referer, preserving only nav parameters.
+	 * Falls back to adminHome() if referer is invalid or not a Shield page.
+	 */
+	public function adminRefererOrHome() :string {
+		$url = $this->adminHome();
+		$referer = Services::Request()->server( 'HTTP_REFERER', '' );
+		if ( !empty( $referer ) ) {
+
+			$refererQuery = '';
+			if ( \str_contains( $referer, '?' ) ) {
+				[ , $refererQuery ] = \explode( '?', $referer, 2 );
+			}
+			if ( !empty( $refererQuery ) ) {
+				\parse_str( $refererQuery, $queryParams );
+				if ( ( $queryParams[ 'page' ] ?? '' ) === $this->rootAdminPageSlug() ) {
+					$nav = sanitize_key( $queryParams[ Constants::NAV_ID ] ?? '' );
+					$subNav = sanitize_key( $queryParams[ Constants::NAV_SUB_ID ] ?? '' );
+					if ( PluginNavs::NavExists( $nav, $subNav ) ) {
+						$url = $this->adminTopNav( $nav, $subNav );
+					}
+				}
+			}
+		}
+		return $url;
+	}
+
 	public function wizard( string $wizardKey ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_WIZARD, $wizardKey );
 	}

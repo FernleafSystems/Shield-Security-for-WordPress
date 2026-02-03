@@ -18,7 +18,7 @@ class Diff extends BaseComponent {
 		$pathFull = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 
 		if ( $item->is_missing || !Services::WpFs()->isAccessibleFile( $pathFull ) ) {
-			throw new ActionException( 'Diff is unavailable for missing files.' );
+			throw new ActionException( __( 'Diff is unavailable for missing files.', 'wp-simple-firewall' ) );
 		}
 
 		$coreHashes = Services::CoreFileHashes();
@@ -39,7 +39,7 @@ class Diff extends BaseComponent {
 		}
 
 		if ( empty( $originalFileDownload ) || !Services::WpFs()->isAccessibleFile( $originalFileDownload ) ) {
-			throw new ActionException( "A File Diff can't be created as there is no official file available for us to compare with." );
+			throw new ActionException( __( "A File Diff can't be created as there is no official file available for us to compare with.", 'wp-simple-firewall' ) );
 		}
 
 		$conv = new ConvertLineEndings();
@@ -49,7 +49,7 @@ class Diff extends BaseComponent {
 		);
 
 		if ( !\is_array( $res ) || empty( $res[ 'html' ] ) ) {
-			throw new ActionException( 'Could not get a valid diff for this file.' );
+			throw new ActionException( __( 'Could not get a valid diff for this file.', 'wp-simple-firewall' ) );
 		}
 
 		return [

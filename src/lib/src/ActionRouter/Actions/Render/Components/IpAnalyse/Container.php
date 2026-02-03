@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Container extends Base {
@@ -34,7 +35,7 @@ class Container extends Base {
 				'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
 				'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
 				'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
-				'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
+				'nav_sessions' => CommonDisplayStrings::get( 'user_sessions_label' ),
 				'nav_audit'    => __( 'Activity Log', 'wp-simple-firewall' ),
 				'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
 			],

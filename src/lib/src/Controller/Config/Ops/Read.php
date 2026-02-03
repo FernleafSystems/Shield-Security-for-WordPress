@@ -36,7 +36,7 @@ class Read {
 			$spec = \json_decode( $def, true );
 		}
 		if ( empty( $spec ) || !\is_array( $spec ) ) {
-			throw new \Exception( 'Could not parse the definition file.' );
+			throw new \Exception( __( 'Could not parse the definition file.', 'wp-simple-firewall' ) );
 		}
 
 		return $spec;

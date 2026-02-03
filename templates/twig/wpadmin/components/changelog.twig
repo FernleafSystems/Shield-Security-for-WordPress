@@ -9,7 +9,7 @@
 							<h5 class="m-0">
 								{{ strings.version }}: {{ release.version }}
 								<a class="float-end btn btn-sm btn-outline-dark"
-								   title="Collapse"
+								   title="{{ strings.collapse_label }}"
 								   data-bs-toggle="collapse" href="#Release-{{ release.released_at }}"
 								>&#9660;</a>
 							</h5>
@@ -21,7 +21,7 @@
 							{% endif %}
 
 							<p class="card-text">
-								<strong>{{ strings.release_date }}</strong>:
+								<strong>{{ strings.release_date }}</strong>{{ strings.translated_colon_space }}
 								{{ release.released_at|date("Y-m-d") }}
 							</p>
 
@@ -30,10 +30,10 @@
 							{% endfor %}
 
 							{% if release.hrefs.upgrade|default('') is not empty %}
-								<p><strong>Important</strong>:
-									<span>Major releases may contain new options, or change
-									existing options. Please review the
-										  <a href="{{ release.hrefs.upgrade }}" target="_blank">Upgrade Guide</a>.</span>
+								<p><strong>{{ strings.important_label }}</strong>{{ strings.translated_colon_space }}
+									<span>{{ strings.upgrade_notice_sentence_1 }}
+									{{ strings.upgrade_notice_sentence_2 }}
+										  <a href="{{ release.hrefs.upgrade }}" target="_blank">{{ strings.upgrade_guide_label }}</a>.</span>
 								</p>
 							{% endif %}
 
@@ -48,7 +48,7 @@
 												{% endif %}
 												{% if item.patch|default('') is not empty %}
 													<span class="badge bg-dark">
-														Patch: {{ item.patch }}
+														{{ strings.patch_label }}{{ strings.translated_colon_space }}{{ item.patch }}
 													</span>
 												{% endif %}
 												<span>{{ item.title }}</span>
@@ -60,7 +60,7 @@
 													{% endfor %}
 													{% if item.href|default('') is not empty %}
 														<p class="text-start">
-															<a href="{{ item.href }}" target="_blank">More Info</a>
+															<a href="{{ item.href }}" target="_blank">{{ strings.more_info_label }}</a>
 														</p>
 													{% endif %}
 												</dd>

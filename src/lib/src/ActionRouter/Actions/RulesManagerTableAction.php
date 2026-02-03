@@ -74,7 +74,7 @@ class RulesManagerTableAction extends BaseAction {
 						}
 					}
 					else {
-						$response[ 'message' ] = __( 'Invalid Rule' );
+						$response[ 'message' ] = __( 'Invalid Rule', 'wp-simple-firewall' );
 					}
 			}
 

@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
 	IpBlockedException,
@@ -26,6 +27,8 @@ abstract class BaseAction extends DynPropertiesClass {
 	public const SLUG = '';
 
 	private ActionResponse $response;
+
+	private RoutedResponse $routedResponse;
 
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
@@ -71,21 +74,21 @@ abstract class BaseAction extends DynPropertiesClass {
 		$con = self::con();
 		$thisReq = $con->this_req;
 		if ( !$thisReq->request_bypasses_all_restrictions && $thisReq->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
-			throw new IpBlockedException( sprintf( 'IP Address blocked so cannot process action: %s', static::SLUG ) );
+			throw new IpBlockedException( sprintf( __( 'IP Address blocked so cannot process action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 
 		$WPU = Services::WpUsers();
 		if ( $this->isUserAuthRequired()
 			 && ( !$WPU->isUserLoggedIn() || !user_can( $WPU->getCurrentWpUser(), $this->getMinimumUserAuthCapability() ) ) ) {
-			throw new UserAuthRequiredException( sprintf( 'Must be logged-in to execute this action: %s', static::SLUG ) );
+			throw new UserAuthRequiredException( sprintf( __( 'Must be logged-in to execute this action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 
 		if ( !$thisReq->is_security_admin && $this->isSecurityAdminRequired() ) {
-			throw new SecurityAdminRequiredException( sprintf( 'Security admin required for action: %s', static::SLUG ) );
+			throw new SecurityAdminRequiredException( sprintf( __( 'Security admin required for action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 
 		if ( $this->isNonceVerifyRequired() && !ActionNonce::VerifyFromRequest() ) {
-			throw new InvalidActionNonceException( 'Invalid Action Nonce Exception.' );
+			throw new InvalidActionNonceException( __( 'Invalid Action Nonce Exception.', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -106,8 +109,9 @@ abstract class BaseAction extends DynPropertiesClass {
 		return $this->response;
 	}
 
-	public function setResponse( ActionResponse $response ) {
-		$this->response = $response;
+	public function setResponse( RoutedResponse $response ) {
+		$this->routedResponse = $response;
+		$this->response = $this->routedResponse->actionResponse();
 	}
 
 	protected function getDefaults() :array {

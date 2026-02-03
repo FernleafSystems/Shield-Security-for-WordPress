@@ -41,11 +41,12 @@ class Scans extends Base {
 			] ),
 			\implode( ' ', [
 				__( 'Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early.', 'wp-simple-firewall' ),
-				sprintf( __( '%s can also scan your plugins & themes for known vulnerabilities.', 'wp-simple-firewall' ), 'ShieldPRO' ),
+				sprintf( __( '%s can also scan your plugins & themes for known vulnerabilities.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				__( 'We also consider plugins that have been abandoned by their authors to represent a vulnerability on your site.', 'wp-simple-firewall' ),
 			] ),
 			\implode( ' ', [
-				sprintf( __( "%s is %s's exclusive service that protects your wp-config.php file.", 'wp-simple-firewall' ), 'FileLocker', 'ShieldPRO' ),
+				/* translators: %1$s: service name, %2$s: product name */
+				sprintf( __( '%1$s is a %2$s exclusive service that protects your wp-config.php file.', 'wp-simple-firewall' ), 'FileLocker', self::con()->labels->Name ),
 				__( 'With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed.', 'wp-simple-firewall' ),
 			] ),
 		];

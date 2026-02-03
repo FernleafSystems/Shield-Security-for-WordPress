@@ -39,7 +39,8 @@ class Ips extends Base {
 				__( 'In partnership with CrowdSec, we go a step further and provide crowd-sourced IP blocklists so we know ahead of time which IPs are malicious and block them immediately.', 'wp-simple-firewall' ),
 				__( 'Again, we keep the CrowdSec blocklist pruned and optimised to maintain the high performance you demand.', 'wp-simple-firewall' ),
 			] ),
-			sprintf( __( "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs.", 'wp-simple-firewall' ), $con->labels->Name ),
+			/* translators: %1$s: silentCAPTCHA brand name, %2$s: security plugin name */
+			sprintf( __( '%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs.', 'wp-simple-firewall' ), $con->labels->getBrandName( 'silentcaptcha' ), $con->labels->Name ),
 		];
 	}
 

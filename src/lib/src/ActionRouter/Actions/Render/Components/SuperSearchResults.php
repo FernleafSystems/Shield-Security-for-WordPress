@@ -19,7 +19,7 @@ class SuperSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'has_results' => !empty( $results ),
 			],
 			'strings' => [
-				'no_results' => __( 'Sorry, there were no results for this search.' ),
+				'no_results' => __( 'Sorry, there were no results for this search.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'results' => $results,

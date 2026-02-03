@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
@@ -74,12 +75,12 @@ class General extends Base {
 					'is_blocked'          => __( 'IP Blocked', 'wp-simple-firewall' ),
 					'is_bypass'           => __( 'Bypass IP', 'wp-simple-firewall' ),
 					'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
-					'snapi_ip_reputation' => __( 'ShieldNET IP Reputation Score', 'wp-simple-firewall' ),
+					'snapi_ip_reputation' => sprintf( __( '%s IP Reputation Score', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'shieldnet' ) ),
 					'block_type'          => $ruleStatus->isBlocked() ? Handler::GetTypeName( $ruleStatus->getBlockType() ) : ''
 				],
 
-				'yes' => __( 'Yes', 'wp-simple-firewall' ),
-				'no'  => __( 'No', 'wp-simple-firewall' ),
+				'yes' => CommonDisplayStrings::get( 'yes_label' ),
+				'no'  => CommonDisplayStrings::get( 'no_label' ),
 
 				'identity' => [
 					'who_is_it'   => __( 'Is this a known IP address?', 'wp-simple-firewall' ),

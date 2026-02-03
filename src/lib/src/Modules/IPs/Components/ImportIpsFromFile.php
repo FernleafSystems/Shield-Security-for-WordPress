@@ -34,8 +34,8 @@ class ImportIpsFromFile {
 					$adder = ( new AddRule() )->setIP( $ip );
 					try {
 						\in_array( $type, [ 'white', 'bypass' ] ) ?
-							$adder->toManualWhitelist( 'file import' )
-							: $adder->toManualBlacklist( 'file import' );
+							$adder->toManualWhitelist( __( 'file import', 'wp-simple-firewall' ) )
+							: $adder->toManualBlacklist( __( 'file import', 'wp-simple-firewall' ) );
 					}
 					catch ( \Exception $e ) {
 					}

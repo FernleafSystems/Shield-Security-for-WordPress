@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class Activity extends Base {
 
@@ -35,7 +36,7 @@ class Activity extends Base {
 			'strings' => [
 				'title'      => __( 'Recent Activity Logs', 'wp-simple-firewall' ),
 				'no_logs'    => __( 'No activity logged for this IP address', 'wp-simple-firewall' ),
-				'username'   => __( 'Username', 'wp-simple-firewall' ),
+				'username'   => CommonDisplayStrings::get( 'username' ),
 				'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),
 				'event'      => __( 'Event', 'wp-simple-firewall' ),
 				'created_at' => __( 'Logged At', 'wp-simple-firewall' ),

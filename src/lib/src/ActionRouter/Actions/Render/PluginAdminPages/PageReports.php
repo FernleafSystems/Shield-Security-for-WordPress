@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class PageReports extends BasePluginAdminPage {
@@ -24,7 +25,7 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
-			'title'      => sprintf( '%s: %s', __( 'Help', 'wp-simple-firewall' ), __( 'Reports', 'wp-simple-firewall' ) ),
+			'title'      => sprintf( '%s: %s', CommonDisplayStrings::get( 'help_label' ), __( 'Reports', 'wp-simple-firewall' ) ),
 			'href'       => 'https://help.getshieldsecurity.com/collection/77-reporting',
 			'new_window' => true,
 		];
@@ -49,7 +50,7 @@ class PageReports extends BasePluginAdminPage {
 				$title = __( 'View & Create', 'wp-simple-firewall' );
 				break;
 			default:
-				$title = __( 'Security Reports', 'wp-simple-firewall' );
+				$title = CommonDisplayStrings::get( 'security_reports_label' );
 				break;
 		}
 		return $title;

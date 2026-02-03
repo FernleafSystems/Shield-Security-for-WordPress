@@ -81,9 +81,9 @@ class TrackLinkCheese extends Base {
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
 			'icwpWpsfLinkCheese',
 			$this->buildTrapHref(),
-			'Click here to see something fantastic',
+			__( 'Click here to see something fantastic', 'wp-simple-firewall' ),
 			'icwpWpsfLinkCheese',
-			'Click to access the login or register cheese'
+			__( 'Click to access the login or register cheese', 'wp-simple-firewall' )
 		);
 	}
 

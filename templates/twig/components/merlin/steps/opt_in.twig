@@ -3,17 +3,13 @@
 {% block slide_body_video_section %}
 	<div class="row">
 		<div class="col-8">
-			<p>Jump into our Shield Security Facebook group where you can ask questions
-			   from our active Shield community and keep up-to-date on our latest news.</p>
+			<p>{{ strings.opt_in_text }}</p>
 		</div>
 		<div class="col-4">
 			<a href="{{ hrefs.facebook }}"
 			   class="button d-block w-100 text-center p-3"
 			   target="_blank"
-			>
-				{{ imgs.svgs.facebook|raw }}
-				Join FB Group!
-			</a>
+			>{{ imgs.svgs.facebook|raw }} Join FB Group!</a>
 		</div>
 	</div>
 

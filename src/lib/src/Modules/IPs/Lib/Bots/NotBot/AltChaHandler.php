@@ -30,7 +30,7 @@ class AltChaHandler {
 	private function hmacKey() :string {
 		$key = wp_salt( 'shield-altcha' );
 		if ( empty( $key ) ) {
-			throw new \Exception( "Can't generate HMAC Key" );
+			throw new \Exception( __( "Can't generate HMAC Key", 'wp-simple-firewall' ) );
 		}
 		return $key;
 	}
@@ -52,18 +52,18 @@ class AltChaHandler {
 	 */
 	public function verifySolution( string $algo, string $salt, string $challenge, string $signature, string $number, int $expires ) :bool {
 		if ( $algo !== 'SHA-256' ) {
-			throw new \Exception( 'Algorithm not supported' );
+			throw new \Exception( __( 'Algorithm not supported', 'wp-simple-firewall' ) );
 		}
 		if ( $expires < Services::Request()->ts() ) {
-			throw new \Exception( 'Challenge has expired.' );
+			throw new \Exception( __( 'Challenge has expired.', 'wp-simple-firewall' ) );
 		}
 		// challenge_ok = equals(data.challenge, sha2_hex(concat(data.salt, data.number)))
 		if ( !\hash_equals( \hash( 'sha256', $salt.$number ), $challenge ) ) {
-			throw new \Exception( 'Challenge Failed' );
+			throw new \Exception( __( 'Challenge Failed', 'wp-simple-firewall' ) );
 		}
 		// signature_ok = equals(data.signature, hmac_sha2_hex(data.challenge, hmac_key))
 		if ( !\hash_equals( \hash_hmac( 'sha256', $challenge, $this->hmacKey() ), $signature ) ) {
-			throw new \Exception( 'Signature Failed' );
+			throw new \Exception( __( 'Signature Failed', 'wp-simple-firewall' ) );
 		}
 		return true;
 	}

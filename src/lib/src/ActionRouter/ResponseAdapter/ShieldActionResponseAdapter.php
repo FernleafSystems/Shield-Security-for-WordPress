@@ -3,22 +3,25 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse;
 
 class ShieldActionResponseAdapter extends BaseAdapter {
 
-	public function adapt( ActionResponse $response ) {
+	public function adapt( ActionResponse $response ) :RoutedResponse {
 		switch ( $response->action_data[ 'notification_type' ] ?? '' ) {
 			case 'wp_admin_notice':
-				if ( \is_string( $response->action_response_data[ 'message' ] ?? null ) ) {
+				$payload = $response->payload();
+				if ( \is_string( $payload[ 'message' ] ?? null ) ) {
 					self::con()->admin_notices->addFlash(
-						$response->action_response_data[ 'message' ],
+						$payload[ 'message' ],
 						null,
-						!( $response->action_response_data[ 'success' ] ?? true )
+						!( $payload[ 'success' ] ?? true )
 					);
 				}
 				break;
 			default:
 				break;
 		}
+		return new RoutedResponse( $response, $response->payload() );
 	}
 }

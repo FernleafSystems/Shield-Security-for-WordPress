@@ -23,7 +23,7 @@ class PageStats extends BasePluginAdminPage {
 				'inner_page_title'    => __( 'Simple Stats', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Some basic stats - this is in beta and will be developed over time.', 'wp-simple-firewall' ),
 
-				'no_stats' => __( 'No stats yet. It wont take long though, so check back here soon.' )
+				'no_stats' => __( 'No stats yet. It wont take long though, so check back here soon.', 'wp-simple-firewall' )
 			],
 			'vars'    => $statsVars,
 		];
@@ -33,10 +33,10 @@ class PageStats extends BasePluginAdminPage {
 		return [
 			'stats'          => $this->buildStats(),
 			'stat_intervals' => [
-				'days_1'   => '24 Hours',
-				'days_7'   => '7 Days',
-				'months_1' => '1 Month',
-				'lifetime' => 'Lifetime',
+				'days_1'   => __( '24 Hours', 'wp-simple-firewall' ),
+				'days_7'   => __( '7 Days', 'wp-simple-firewall' ),
+				'months_1' => __( '1 Month', 'wp-simple-firewall' ),
+				'lifetime' => __( 'Lifetime', 'wp-simple-firewall' ),
 			]
 		];
 	}
@@ -90,7 +90,7 @@ class PageStats extends BasePluginAdminPage {
 	private function getAllEvents() :array {
 		return [
 			[
-				'title'  => __( 'IP Offenses' ),
+				'title'  => __( 'IP Offenses', 'wp-simple-firewall' ),
 				'events' => [
 					'ip_offense',
 					'conn_kill',
@@ -113,7 +113,7 @@ class PageStats extends BasePluginAdminPage {
 				]
 			],
 			[
-				'title'  => __( 'Comment SPAM' ),
+				'title'  => __( 'Comment SPAM', 'wp-simple-firewall' ),
 				'events' => [
 					'spam_block_antibot',
 					'spam_block_bot',
@@ -121,7 +121,7 @@ class PageStats extends BasePluginAdminPage {
 				]
 			],
 			[
-				'title'  => __( 'Login Guard' ),
+				'title'  => __( 'Login Guard', 'wp-simple-firewall' ),
 				'events' => [
 					'cooldown_fail',
 					'honeypot_fail',

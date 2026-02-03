@@ -23,7 +23,7 @@ class AssetResultsPanel extends PluginThemesBase {
 			'strings' => [
 				'no_files'         => __( "Scans didn't detect any modified or unrecognised files", 'wp-simple-firewall' ),
 				'files_found'      => __( "Scans detected modified/unrecognised files", 'wp-simple-firewall' ),
-				'not_active'       => __( 'Inactive' ),
+				'not_active'       => __( 'Inactive', 'wp-simple-firewall' ),
 				'should_uninstall' => __( "Should be uninstalled", 'wp-simple-firewall' ),
 				'wporg_ok'         => __( "Auto File Repair and File Diff are available", 'wp-simple-firewall' ),
 				'not_wporg'        => __( "Auto File Repair and File Diff aren't available.", 'wp-simple-firewall' ),
@@ -52,7 +52,7 @@ class AssetResultsPanel extends PluginThemesBase {
 	protected function getRenderTemplate() :string {
 		$type = $this->action_data[ 'asset_type' ];
 		if ( !\in_array( $type, [ 'plugin', 'theme' ] ) ) {
-			throw new ActionException( 'Invalid type.' );
+			throw new ActionException( __( 'Invalid type.', 'wp-simple-firewall' ) );
 		}
 		return sprintf( self::TEMPLATE, $this->action_data[ 'asset_type' ] );
 	}

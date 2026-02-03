@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\Configurat
  *     }                      $config_spec
  * @property array            $requirements
  * @property array            $paths
+ * @property array            $translations
  * @property array            $includes
  * @property array            $menu
  * @property array            $labels
@@ -54,7 +55,7 @@ class ConfigVO extends DynPropertiesClass {
 						'top_level'      => true,
 						'do_submenu_fix' => true,
 						'has_submenu'    => true,
-						'title'          => 'undefined menu title',
+						'title'          => __( 'undefined menu title', 'wp-simple-firewall' ),
 						'callback'       => 'undefinedMenuCallback',
 					],
 					\is_array( $val ) ? $val : []

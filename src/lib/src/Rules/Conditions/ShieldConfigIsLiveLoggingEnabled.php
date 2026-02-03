@@ -7,7 +7,7 @@ class ShieldConfigIsLiveLoggingEnabled extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
-		return __( 'Is Shield live logging enabled.', 'wp-simple-firewall' );
+		return sprintf( __( 'Is %s live logging enabled.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

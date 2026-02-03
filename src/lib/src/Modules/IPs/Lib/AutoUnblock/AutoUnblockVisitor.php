@@ -19,16 +19,16 @@ class AutoUnblockVisitor extends BaseAutoUnblockShield {
 
 		$req = Services::Request();
 		if ( $req->post( '_confirm' ) !== 'Y' ) {
-			throw new \Exception( 'No confirmation checkbox.' );
+			throw new \Exception( __( 'No confirmation checkbox.', 'wp-simple-firewall' ) );
 		}
 		if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
-			throw new \Exception( 'Oh so yummy.' );
+			throw new \Exception( __( 'Oh so yummy.', 'wp-simple-firewall' ) );
 		}
 
 		return true;
 	}
 
 	protected function getUnblockMethodName() :string {
-		return 'Visitor Auto-Unblock';
+		return __( 'Visitor Auto-Unblock', 'wp-simple-firewall' );
 	}
 }

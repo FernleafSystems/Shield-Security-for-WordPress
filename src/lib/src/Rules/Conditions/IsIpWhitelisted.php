@@ -11,7 +11,7 @@ class IsIpWhitelisted extends Base {
 	public const SLUG = 'is_ip_whitelisted';
 
 	public function getDescription() :string {
-		return __( "Is the request IP on Shield's manual bypass-list/whitelist.", 'wp-simple-firewall' );
+		return sprintf( __( "Is the request IP on %s's manual bypass-list/whitelist.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

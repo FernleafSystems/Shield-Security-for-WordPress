@@ -1,0 +1,123 @@
+name: Tests
+
+on:
+  push:
+    branches: [ develop, main, master, docker-matrix-testing-research ]
+  workflow_dispatch:
+    inputs:
+      run_phpcs:
+        type: boolean
+        default: false
+        description: 'Enable PHPCS code standards check'
+
+jobs:
+  test:
+    name: 'Test (PHP ${{ matrix.php }})'
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4']
+        # Full PHP matrix defined in .github/config/matrix.conf (used by docker-tests.yml)
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        coverage: none
+        tools: composer:v2
+        
+    - name: Display Environment Info
+      run: |
+        echo "PHP Version: $(php -v)"
+        echo "Composer Version: $(composer --version)"
+        echo "Node.js Version: $(node --version)"
+        echo "NPM Version: $(npm --version)"
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd src/lib && composer install --no-interaction --prefer-dist --optimize-autoloader
+        cd ../..
+        npm ci --no-audit --no-fund
+        
+    - name: Build assets
+      run: npm run build
+      
+    - name: Load Strauss version
+      run: |
+        source .github/scripts/read-packager-config.sh
+        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
+        
+    - name: Build plugin package
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
+        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
+        
+    - name: Install WordPress Test Suite
+      run: |
+        sudo apt-get update && sudo apt-get install -y subversion
+        chmod +x ./bin/install-wp-tests.sh
+        ./bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+        
+    - name: Run tests
+      run: |
+        # Run unit tests against package
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage || {
+          echo "Unit tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
+          exit 1
+        }
+        
+        # Run integration tests against package
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage || {
+          echo "Integration tests failed - Running again with debug enabled"
+          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
+          exit 1
+        }
+
+  phpcs:
+    name: 'Code Standards'
+    if: github.event.inputs.run_phpcs == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+        
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+    - name: Run PHPCS
+      run: composer phpcs

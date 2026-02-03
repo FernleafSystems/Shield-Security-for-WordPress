@@ -9,11 +9,11 @@ class SiteActionUpdate extends BaseSiteMwpAction {
 	public const SLUG = 'mwp_server_site_action_update';
 
 	protected function getMainwpActionFailureMessage() :string {
-		return "Shield plugin couldn't be updated";
+		return sprintf( __( "%s plugin couldn't be updated", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getMainwpActionSuccessMessage() :string {
-		return 'Shield plugin updated';
+		return sprintf( __( '%s plugin updated', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function checkResponse() :bool {

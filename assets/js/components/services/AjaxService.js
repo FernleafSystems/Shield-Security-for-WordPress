@@ -1,5 +1,6 @@
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { AjaxParseResponseService } from "./AjaxParseResponseService";
+import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
 import qs from "qs";
 import { Random } from "../../util/Random";
@@ -32,7 +33,7 @@ export class AjaxService {
 		} )
 		.then( respJSON => {
 			if ( respJSON.data.page_reload ) {
-				setTimeout( () => location.reload(), 2000 );
+				setTimeout( () => Navigation.RedirectOrReload( respJSON, null ), 2000 );
 			}
 			else if ( showOverlay ) {
 				ShieldOverlay.Hide();

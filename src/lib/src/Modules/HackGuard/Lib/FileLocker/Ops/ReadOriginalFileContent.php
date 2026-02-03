@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
-class ReadOriginalFileContent extends BaseOps {
+class ReadOriginalFileContent {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -30,7 +33,7 @@ class ReadOriginalFileContent extends BaseOps {
 		if ( empty( $lock->detected_at ) && empty( $lock->hash_current ) && $FS->exists( $lock->path ) ) {
 			return (string)$FS->getFileContent( $lock->path );
 		}
-		throw new \Exception( 'Cannot use original file' );
+		throw new \Exception( __( 'Cannot use original file.', 'wp-simple-firewall' ) );
 	}
 
 	/**
@@ -44,7 +47,7 @@ class ReadOriginalFileContent extends BaseOps {
 			$VO = ( new OpenSslEncryptVo() )->applyFromArray( \is_array( $decoded ) ? $decoded : [] );
 			$content = ( new DecryptFile() )->retrieve( $VO, (int)$lock->public_key_id );
 			if ( $content === null ) {
-				throw new \Exception( 'There was a problem decrypting the file contents.' );
+				throw new \Exception( __( 'There was a problem decrypting the file contents.', 'wp-simple-firewall' ) );
 			}
 			wp_cache_set( $cacheKey, $content, self::con()->prefix( 'filelocker' ), 5 );
 		}

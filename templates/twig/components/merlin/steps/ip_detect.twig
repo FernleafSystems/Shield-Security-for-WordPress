@@ -2,19 +2,16 @@
 
 {% block slide_body_video_section_blurb %}
 	{% import '/common/macros.twig' as icwp_macros %}
-	<p>Being able to detect the correct visitor IP address is critical for any security system.</p>
-	<p>This step in the wizard might be your most important as it will help ensure Shield can always find the Visitor IP.</p>
-	<p>Shield tries to do this automatically, of course, and though it works 99% of the time, sometimes a funky webhost
-	   might mix things up a little.</p>
-	<p>To solve this, you can tell Shield what your IP address is right now,
-	   and this will help us configure the best visitor IP source going forward.</p>
+	<p>{{ strings.ip_detect_able }}</p>
+	<p>{{ strings.ip_detect_text }}</p>
+	<p><{{ strings.ip_detect_auto }}/p>
+	<p>T{{ strings.ip_detect_resolve }}</p>
 
 	{% if flags.has_none %}
-		<div class="alert alert-warning">Shield couldn't detect any IP addresses. This represents a critical webhosting configuration problem.</div>
+		<div class="alert alert-warning">{{ strings.ip_detect_auto }}</div>
 
 	{% elseif flags.has_only_1 %}
-		<div class="alert alert-info">Configuration isn't required as Shield could only detect 1 distinct IP address:
-		<code>{{ vars.the_ip }}</code></div>
+		<div class="alert alert-info">{{ strings.ip_detect_not_required }}: <code>{{ vars.the_ip }}</code></div>
 
 	{% elseif flags.has_multiple %}
 		<form class="form-horizontal merlin-form ajax-form mt-4">

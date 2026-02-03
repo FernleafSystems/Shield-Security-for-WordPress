@@ -40,7 +40,7 @@ class FileDownloadAsStream extends BaseAction {
 				$gen = $this->downloadTrafficLogs();
 				break;
 			default:
-				throw new \Exception( 'Invalid download request.' );
+				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
 		}
 		return $gen;
 	}

@@ -30,8 +30,9 @@ class History extends BaseComponent {
 					$this->prepTimestamp( $ts );
 
 					if ( $column === 'created_at' ) {
-						$this->history[ $ts ][] = sprintf(
-							__( "File detected as %s by %s scanner.", 'wp-simple-firewall' ),
+					$this->history[ $ts ][] = sprintf(
+						/* translators: %1$s: detection type, %2$s: scanner name */
+						__( 'File detected as %1$s by %2$s scanner.', 'wp-simple-firewall' ),
 							sprintf( '<strong>%s</strong>', \implode( ', ', $item->getStatusForHuman() ) ),
 							sprintf( '<strong>%s</strong>',
 								self::con()->comps->scans->getScanCon( $item->VO->scan )->getScanName() )
@@ -66,12 +67,12 @@ class History extends BaseComponent {
 
 	private function columnMap() :array {
 		return [
-			'created_at'        => __( 'File Detected By Scans' ),
-			'attempt_repair_at' => __( 'File Repair Attempted' ),
-			'item_repaired_at'  => __( 'File Repaired' ),
-			'item_deleted_at'   => __( 'File Deleted' ),
-			'ignored_at'        => __( 'Item Marked As Ignored' ),
-			'notified_at'       => __( 'Notification Of Scan Detection Sent' ),
+			'created_at'        => __( 'File Detected By Scans', 'wp-simple-firewall' ),
+			'attempt_repair_at' => __( 'File Repair Attempted', 'wp-simple-firewall' ),
+			'item_repaired_at'  => __( 'File Repaired', 'wp-simple-firewall' ),
+			'item_deleted_at'   => __( 'File Deleted', 'wp-simple-firewall' ),
+			'ignored_at'        => __( 'Item Marked As Ignored', 'wp-simple-firewall' ),
+			'notified_at'       => __( 'Notification Of Scan Detection Sent', 'wp-simple-firewall' ),
 		];
 	}
 

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 class ZoneReportDatabase extends BaseZoneReport {
 
 	public function getZoneName() :string {
-		return __( 'Database' );
+		return __( 'Database', 'wp-simple-firewall' );
 	}
 
 	protected function getLoadLogsWheres() :array {

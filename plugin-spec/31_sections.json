@@ -1,0 +1,300 @@
+[
+    {
+        "slug": "section_hidden",
+        "module": "plugin",
+        "hidden": true
+    },
+    {
+        "slug": "section_security_admin_settings",
+        "module": "admin_access_restriction",
+        "primary": true,
+        "title": "Security Admin Restriction Settings",
+        "title_short": "Security Admin Settings",
+        "beacon_id": 215
+    },
+    {
+        "slug": "section_admin_access_restriction_areas",
+        "module": "admin_access_restriction",
+        "title": "Security Admin Restriction Zones",
+        "title_short": "Access Restriction Zones",
+        "beacon_id": 214
+    },
+    {
+        "slug": "section_log_wordpress_activity",
+        "primary": true,
+        "module": "audit_trail",
+        "title": "WordPress Activity",
+        "title_short": "WP Activity",
+        "beacon_id": 241
+    },
+    {
+        "slug": "section_log_requests",
+        "module": "audit_trail",
+        "title": "Request Logging",
+        "title_short": "Request Logging",
+        "beacon_id": 153
+    },
+    {
+        "primary": true,
+        "slug": "section_bot_comment_spam_protection_filter",
+        "module": "comments_filter",
+        "title": "Automatic Bot Comment SPAM Protection Filter",
+        "title_short": "Bot SPAM",
+        "beacon_id": 260
+    },
+    {
+        "slug": "section_human_spam_filter",
+        "module": "comments_filter",
+        "title": "Human Comment SPAM Protection",
+        "title_short": "Human SPAM",
+        "beacon_id": 262
+    },
+    {
+        "slug": "section_bot_comment_spam_common",
+        "module": "comments_filter",
+        "title": "Common Settings For All SPAM Scanning",
+        "title_short": "Common Settings",
+        "beacon_id": 152
+    },
+    {
+        "primary": true,
+        "slug": "section_firewall_blocking_options",
+        "module": "firewall",
+        "title": "Request Firewall Options",
+        "title_short": "Request Firewall",
+        "beacon_id": 333
+    },
+    {
+        "slug": "section_apixml",
+        "module": "firewall",
+        "title": "WordPress System Lockdown",
+        "title_short": "System",
+        "beacon_id": 413
+    },
+    {
+        "slug": "section_traffic_limiter",
+        "module": "firewall",
+        "title": "Rate Limiting",
+        "title_short": "Rate Limiting",
+        "beacon_id": 420
+    },
+    {
+        "slug": "section_wordpress_obscurity_options",
+        "module": "firewall",
+        "title": "WordPress Obscurity Options",
+        "title_short": "Obscurity",
+        "beacon_id": 418
+    },
+    {
+        "primary": true,
+        "slug": "section_file_guard",
+        "module": "hack_protect",
+        "title": "File Guard",
+        "title_short": "File Guard",
+        "beacon_id": 217
+    },
+    {
+        "slug": "section_scan_wpv",
+        "module": "hack_protect",
+        "title": "Vulnerability Scanner",
+        "title_short": "Vulnerability Scanner",
+        "beacon_id": 217
+    },
+    {
+        "slug": "section_scan_options",
+        "module": "hack_protect",
+        "title": "Scan Options",
+        "title_short": "Scan Options",
+        "beacon_id": 217
+    },
+    {
+        "primary": true,
+        "slug": "section_auto_black_list",
+        "module": "ips",
+        "title": "Automatic IP Black List",
+        "title_short": "Auto IP Blocking Rules",
+        "beacon_id": 208
+    },
+    {
+        "slug": "section_silentcaptcha",
+        "module": "ips",
+        "title": "silentCAPTCHA",
+        "title_short": "silentCAPTCHA"
+    },
+    {
+        "slug": "section_crowdsec",
+        "module": "ips",
+        "title": "CrowdSec",
+        "title_short": "CrowdSec"
+    },
+    {
+        "slug": "section_bot_behaviours",
+        "module": "ips",
+        "title": "Identify Common Bot Behaviours",
+        "title_short": "Bot Behaviours",
+        "beacon_id": 124
+    },
+    {
+        "slug": "section_enable_plugin_feature_ips",
+        "module": "ips",
+        "title": "Enable Module: IP Manager",
+        "title_short": "Disable Module",
+        "beacon_id": 208
+    },
+    {
+        "primary": true,
+        "slug": "section_brute_force_login_protection",
+        "module": "login_protect",
+        "title": "Brute Force Login Guard",
+        "title_short": "Brute Force",
+        "beacon_id": 325
+    },
+    {
+        "primary": true,
+        "slug": "section_user_session_management",
+        "module": "login_protect",
+        "title": "User Session Management",
+        "title_short": "Sessions",
+        "beacon_id": 397
+    },
+    {
+        "slug": "section_twofactor_auth",
+        "module": "login_protect",
+        "title": "Multi-Factor Authentication",
+        "title_short": "2-Factor Auth",
+        "beacon_id": 326
+    },
+    {
+        "slug": "section_2fa_email",
+        "module": "login_protect",
+        "title": "Email Two-Factor Authentication",
+        "title_short": "2FA - Email",
+        "beacon_id": 246
+    },
+    {
+        "slug": "section_2fa_otp",
+        "module": "login_protect",
+        "title": "One-Time Passwords",
+        "title_short": "OTP",
+        "beacon_id": 244
+    },
+    {
+        "slug": "section_2fa_passkeys",
+        "module": "login_protect",
+        "title": "Hardware 2-Factor Authentication",
+        "title_short": "2FA - Hardware",
+        "beacon_id": 249
+    },
+    {
+        "slug": "section_rename_wplogin",
+        "module": "login_protect",
+        "title": "Hide WP Login Page",
+        "title_short": "Hide Login Page",
+        "beacon_id": 316
+    },
+    {
+        "slug": "section_deprecated",
+        "module": "login_protect",
+        "title": "Deprecated",
+        "title_short": "Deprecated"
+    },
+    {
+        "slug": "section_defaults",
+        "primary": true,
+        "module": "plugin",
+        "title": "Plugin Defaults",
+        "title_short": "Plugin Defaults",
+        "beacon_id": 389
+    },
+    {
+        "slug": "section_reporting",
+        "module": "plugin",
+        "title": "Reporting",
+        "title_short": "Reporting",
+        "beacon_id": 136
+    },
+    {
+        "slug": "section_alerts",
+        "module": "plugin",
+        "title": "Instant Alerts",
+        "title_short": "Instant Alerts",
+        "beacon_id": 788
+    },
+    {
+        "slug": "section_security_headers",
+        "module": "plugin",
+        "title": "Advanced Security Headers",
+        "title_short": "Security Headers",
+        "beacon_id": 267
+    },
+    {
+        "slug": "section_importexport",
+        "module": "plugin",
+        "title": "Import / Export",
+        "title_short": "Import / Export",
+        "beacon_id": 129
+    },
+    {
+        "slug": "section_whitelabel",
+        "module": "plugin",
+        "title": "Shield White Label",
+        "title_short": "White Label",
+        "beacon_id": 131
+    },
+    {
+        "slug": "section_global_security_options",
+        "module": "plugin",
+        "title": "Global Plugin Security Options",
+        "title_short": "Disable Shield"
+    },
+    {
+        "slug": "section_passwords",
+        "module": "user_management",
+        "title": "Password Policies",
+        "title_short": "Password Policies",
+        "beacon_id": 256
+    },
+    {
+        "slug": "section_user_reg",
+        "module": "user_management",
+        "title": "User Registration",
+        "title_short": "User Registration",
+        "beacon_id": 145
+    },
+    {
+        "slug": "section_suspend",
+        "module": "user_management",
+        "title": "Automatic And Manual User Suspension",
+        "title_short": "User Suspension",
+        "beacon_id": 273
+    },
+    {
+        "slug": "section_enable_plugin_feature_user_accounts_management",
+        "module": "user_management",
+        "title": "Enable Module: User Management",
+        "title_short": "Disable Module",
+        "beacon_id": 273
+    },
+    {
+        "primary": true,
+        "slug": "section_integrations",
+        "module": "integrations",
+        "title": "Integrations",
+        "title_short": "Integrations",
+        "beacon_id": 404
+    },
+    {
+        "slug": "section_spam",
+        "module": "integrations",
+        "title": "SPAM Detection",
+        "title_short": "SPAM Detection",
+        "beacon_id": 138
+    },
+    {
+        "slug": "section_user_forms",
+        "module": "integrations",
+        "title": "User Forms Bot Detection",
+        "title_short": "User Forms Bot Detection",
+        "beacon_id": 239
+    }
+]

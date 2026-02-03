@@ -290,7 +290,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	private function getPasskeyServer() :Server {
 		return new Server(
 			new PublicKeyCredentialRpEntity(
-				sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
+				sprintf( '%s on %s', self::con()->labels->Name, Services::WpGeneral()->getSiteName() ), //Name
 				\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
 				null //Icon
 			),

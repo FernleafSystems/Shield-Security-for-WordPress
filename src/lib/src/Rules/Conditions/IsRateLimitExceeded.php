@@ -47,7 +47,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 			],
 			'limit_time_span' => [
 				'type'  => Enum\EnumParameters::TYPE_INT,
-				'label' => sprintf( '%s (%s)', __( 'Request Limit Interval', 'wp-simple-firewall' ), __( 'seconds' ) ),
+				'label' => sprintf( '%s (%s)', __( 'Request Limit Interval', 'wp-simple-firewall' ), __( 'seconds', 'wp-simple-firewall' ) ),
 			],
 		];
 	}

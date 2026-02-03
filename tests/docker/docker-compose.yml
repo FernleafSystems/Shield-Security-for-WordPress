@@ -1,0 +1,85 @@
+# Docker Compose for Shield Security testing
+# Based on Easy Digital Downloads docker-compose-phpunit.yml pattern
+# Updated for Phase 2: Parallel WordPress testing with database isolation
+#
+# Note: PHP_VERSION fallback defaults (8.2) should match DEFAULT_PHP in .github/config/matrix.conf
+# The calling script should always set PHP_VERSION, so these fallbacks are rarely used.
+#
+# MySQL uses tmpfs (in-memory) storage for test isolation and to prevent corruption
+# from unclean shutdowns when using --abort-on-container-exit
+services:
+  # MySQL service for WordPress latest testing
+  mysql-latest:
+    container_name: shield-db-latest
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: wordpress_test_latest
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    tmpfs:
+      - /var/lib/mysql:size=512M
+    ports:
+      - "3309:3306"  # Exposed on different port to avoid conflicts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  # MySQL service for WordPress previous testing
+  mysql-previous:
+    container_name: shield-db-previous
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: wordpress_test_previous
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    tmpfs:
+      - /var/lib/mysql:size=512M
+    ports:
+      - "3310:3306"  # Exposed on different port to avoid conflicts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  # Test runner for WordPress latest
+  test-runner-latest:
+    container_name: shield-test-latest
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION_LATEST:-6.9}
+    depends_on:
+      mysql-latest:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    working_dir: /app
+    environment:
+      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
+      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.9}
+    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.9}
+
+  # Test runner for WordPress previous
+  test-runner-previous:
+    container_name: shield-test-previous
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
+    depends_on:
+      mysql-previous:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    working_dir: /app
+    environment:
+      TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
+      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
+    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}

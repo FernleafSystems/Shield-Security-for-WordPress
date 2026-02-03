@@ -4,6 +4,8 @@
         backupGlobals="true"
         backupStaticAttributes="false"
         colors="true"
+        verbose="true"
+        displayDetailsOnSkippedTests="true"
         bootstrap="tests/bootstrap.php">
 
     <testsuites>

@@ -26,8 +26,8 @@ class EventsEnum extends Actions\Render\BaseRender {
 			$eventsSortedByLevel[ $level ][ $event[ 'key' ] ] = [
 				'name' => $srvEvents->getEventName( $event[ 'key' ] ),
 				'attr' => [
-					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
-					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
+					'stat'    => sprintf( __( 'Stat: %s', 'wp-simple-firewall' ), empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
+					'offense' => sprintf( __( 'Offense: %s', 'wp-simple-firewall' ), empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
 				]
 			];
 		}
@@ -36,15 +36,7 @@ class EventsEnum extends Actions\Render\BaseRender {
 		}
 
 		return [
-			'strings' => [
-				// the keys here must match the changelog item types
-				'version'      => __( 'Version', 'wp-simple-firewall' ),
-				'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
-				'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
-				'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				// the keys here must match the changelog item types
+			'vars' => [
 				'event_defs' => $eventsSortedByLevel
 			],
 		];

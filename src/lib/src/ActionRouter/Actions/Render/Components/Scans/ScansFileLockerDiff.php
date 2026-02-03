@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Diff;
@@ -50,33 +51,33 @@ class ScansFileLockerDiff extends BaseScans {
 					'rid' => $RID,
 				],
 				'strings' => [
-					'no_changes'            => __( 'There have been no changes to the selected file.' ),
-					'butt_restore'          => __( 'Restore File' ),
-					'butt_accept'           => __( 'Accept Changes' ),
-					'file_name'             => __( 'Name' ),
-					'file_size'             => __( 'File Size' ),
-					'reviewing_locked_file' => __( 'Reviewing Locked File' ),
-					'file_details'          => __( 'File Details' ),
-					'modified_file'         => __( 'Modified File' ),
-					'locked'                => __( 'Locked' ),
-					'modified_timestamp'    => __( 'File Modified Timestamp' ),
-					'file_modified'         => __( 'File Modified' ),
-					'relative_path'         => __( 'Relative Path' ),
-					'full_path'             => __( 'Full Path' ),
-					'modified'              => __( 'Modified' ),
-					'download'              => __( 'Download' ),
-					'change_detected_at'    => __( 'Change Detected' ),
-					'file_content_original' => __( 'Original File Content' ),
-					'file_content_current'  => __( 'Current File Content' ),
-					'download_original'     => __( 'Download Original' ),
-					'download_modified'     => __( 'Download Modified' ),
-					'file_download'         => __( 'File Download' ),
-					'file_info'             => __( 'File Info' ),
-					'file_accept'           => __( 'Accept File Changes' ),
-					'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?' ),
-					'file_restore'          => __( 'Restore Original File' ),
-					'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?' ),
-					'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?' ),
+					'no_changes'            => __( 'There have been no changes to the selected file.', 'wp-simple-firewall' ),
+					'butt_restore'          => __( 'Restore File', 'wp-simple-firewall' ),
+					'butt_accept'           => __( 'Accept Changes', 'wp-simple-firewall' ),
+					'file_name'             => CommonDisplayStrings::get( 'name_label' ),
+					'file_size'             => __( 'File Size', 'wp-simple-firewall' ),
+					'reviewing_locked_file' => __( 'Reviewing Locked File', 'wp-simple-firewall' ),
+					'file_details'          => __( 'File Details', 'wp-simple-firewall' ),
+					'modified_file'         => __( 'Modified File', 'wp-simple-firewall' ),
+					'locked'                => __( 'Locked', 'wp-simple-firewall' ),
+					'modified_timestamp'    => __( 'File Modified Timestamp', 'wp-simple-firewall' ),
+					'file_modified'         => __( 'File Modified', 'wp-simple-firewall' ),
+					'relative_path'         => __( 'Relative Path', 'wp-simple-firewall' ),
+					'full_path'             => __( 'Full Path', 'wp-simple-firewall' ),
+					'modified'              => __( 'Modified', 'wp-simple-firewall' ),
+					'download'              => __( 'Download', 'wp-simple-firewall' ),
+					'change_detected_at'    => __( 'Change Detected', 'wp-simple-firewall' ),
+					'file_content_original' => __( 'Original File Content', 'wp-simple-firewall' ),
+					'file_content_current'  => __( 'Current File Content', 'wp-simple-firewall' ),
+					'download_original'     => __( 'Download Original', 'wp-simple-firewall' ),
+					'download_modified'     => __( 'Download Modified', 'wp-simple-firewall' ),
+					'file_download'         => __( 'File Download', 'wp-simple-firewall' ),
+					'file_info'             => __( 'File Info', 'wp-simple-firewall' ),
+					'file_accept'           => __( 'Accept File Changes', 'wp-simple-firewall' ),
+					'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?', 'wp-simple-firewall' ),
+					'file_restore'          => __( 'Restore Original File', 'wp-simple-firewall' ),
+					'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
+					'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
 				]
 			];
 

@@ -16,10 +16,10 @@ class LoadModuleConfigs {
 		$cfgSpec = self::con()->cfg->config_spec ?? null;
 
 		if ( !\is_array( $cfgSpec ) ) {
-			throw new PluginConfigInvalidException( 'invalid specification of modules' );
+			throw new PluginConfigInvalidException( __( 'Invalid specification of modules', 'wp-simple-firewall' ) );
 		}
 		if ( empty( $cfgSpec[ 'modules' ] ) ) {
-			throw new PluginConfigInvalidException( 'No modules specified in the plugin config.' );
+			throw new PluginConfigInvalidException( __( 'No modules specified in the plugin config.', 'wp-simple-firewall' ) );
 		}
 
 		// clean out strings from the config spec to reduce size (these Strings are necessary for Central, only).

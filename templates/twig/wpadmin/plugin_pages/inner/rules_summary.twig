@@ -11,7 +11,7 @@
 				<h5 class="accordion-header">
 					<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#hook-{{ hook }}"
 					        aria-expanded="true" aria-controls="hook-{{ hook }}">
-		        WP Hook: <code>{{ hook }}</code>
+		        {{ strings.wp_hook_label }}{{ strings.translated_colon_space }}<code>{{ hook }}</code>
 		      </button>
 				</h5>
 
@@ -36,7 +36,7 @@
 									   data-bs-parent="#RulesForHook-{{ hook }}">
 									  <div class="accordion-body">
 										  <p>{{ rule.description }}</p>
-										  <p>Rule Conditions</p>
+										  <p>{{ strings.rule_conditions }}</p>
 										  {{ macros_rules.render_conditions_parsed( rule.conditions_parsed, true ) }}
 {#										  <ul>#}
 {#											  {% for sub_cond in rule.sub_conditions %}#}

@@ -24,24 +24,24 @@ class Collate {
 		$pluginsInactive = $this->getPlugins( false );
 		$themes = $this->getThemes( true );
 		return [
-			'Shield Info'    => [
-				'Summary'      => $this->getShieldSummary(),
-				'Databases'    => $this->getShieldDatabases(),
-				'Snapshots'    => $this->snapshots(),
-				'Capabilities' => $this->getShieldCapabilities(),
+			sprintf( __( '%s Info', 'wp-simple-firewall' ), self::con()->labels->Name )    => [
+				__( 'Summary', 'wp-simple-firewall' )      => $this->getShieldSummary(),
+				__( 'Databases', 'wp-simple-firewall' )    => $this->getShieldDatabases(),
+				__( 'Snapshots', 'wp-simple-firewall' )    => $this->snapshots(),
+				__( 'Capabilities', 'wp-simple-firewall' ) => $this->getShieldCapabilities(),
 			],
-			'System Info'    => [
-				'PHP & MySQL' => $this->getPHP(),
-				'Environment' => $this->getEnv(),
+			__( 'System Info', 'wp-simple-firewall' )    => [
+				__( 'PHP & MySQL', 'wp-simple-firewall' ) => $this->getPHP(),
+				__( 'Environment', 'wp-simple-firewall' ) => $this->getEnv(),
 			],
-			'WordPress Info' => [
-				'Summary'                                                      => $this->getWordPressSummary(),
-				sprintf( 'Active Plugins (%s)', \count( $pluginsActive ) )     => $pluginsActive,
-				sprintf( 'Inactive Plugins (%s)', \count( $pluginsInactive ) ) => $pluginsInactive,
-				sprintf( 'Active Themes (%s)', \count( $themes ) )             => $themes,
+			__( 'WordPress Info', 'wp-simple-firewall' ) => [
+				__( 'Summary', 'wp-simple-firewall' )                                            => $this->getWordPressSummary(),
+				sprintf( __( 'Active Plugins (%s)', 'wp-simple-firewall' ), \count( $pluginsActive ) )     => $pluginsActive,
+				sprintf( __( 'Inactive Plugins (%s)', 'wp-simple-firewall' ), \count( $pluginsInactive ) ) => $pluginsInactive,
+				sprintf( __( 'Active Themes (%s)', 'wp-simple-firewall' ), \count( $themes ) )             => $themes,
 			],
-			'Service IPs'    => [
-				'Summary' => $this->getServiceIPs(),
+			__( 'Service IPs', 'wp-simple-firewall' )    => [
+				__( 'Summary', 'wp-simple-firewall' ) => $this->getServiceIPs(),
 			],
 		];
 	}
@@ -70,20 +70,23 @@ class Collate {
 			$diff = ( new WorldTimeApi() )->diffServerWithReal();
 		}
 		catch ( \Exception $e ) {
-			$diff = 'failed: '.$e->getMessage();
+			$diff = sprintf( __( 'Failed: %s', 'wp-simple-firewall' ), $e->getMessage() );
 		}
 
 		return [
-			'Host OS'                => \PHP_OS,
-			'Server Hostname'        => \gethostname(),
-			'Server Time Difference' => $diff,
-			'Server IPs'             => \implode( ', ', $IPs ),
-			'CloudFlare'             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
-			'rDNS'                   => empty( $rDNS ) ? '-' : $rDNS,
-			'Server Name'            => $req->server( 'SERVER_NAME' ),
-			'Server Signature'       => empty( $sig ) ? '-' : $sig,
-			'Server Software'        => empty( $soft ) ? '-' : $soft,
-			'Disk Space'             => sprintf( '%s used out of %s (unused: %s)',
+			__( 'Host OS', 'wp-simple-firewall' )                => \PHP_OS,
+			__( 'Server Hostname', 'wp-simple-firewall' )        => \gethostname(),
+			__( 'Server Time Difference', 'wp-simple-firewall' ) => $diff,
+			__( 'Server IPs', 'wp-simple-firewall' )             => \implode( ', ', $IPs ),
+			__( 'CloudFlare', 'wp-simple-firewall' )             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) )
+				? __( 'No', 'wp-simple-firewall' )
+				: __( 'Yes', 'wp-simple-firewall' ),
+			__( 'rDNS', 'wp-simple-firewall' )                   => empty( $rDNS ) ? '-' : $rDNS,
+			__( 'Server Name', 'wp-simple-firewall' )            => $req->server( 'SERVER_NAME' ),
+			__( 'Server Signature', 'wp-simple-firewall' )       => empty( $sig ) ? '-' : $sig,
+			__( 'Server Software', 'wp-simple-firewall' )        => empty( $soft ) ? '-' : $soft,
+			__( 'Disk Space', 'wp-simple-firewall' )             => sprintf(
+				__( '%1$s used out of %2$s (unused: %$3s)', 'wp-simple-firewall' ),
 				( \is_numeric( $totalDisk ) && \is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
 				\is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
 				\is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'
@@ -105,15 +108,19 @@ class Collate {
 
 		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
-			'PHP'           => $phpV,
-			'MySQL'         => Services::WpDb()->getMysqlServerInfo(),
-			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', \ini_get( 'memory_limit' ),
-				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
-			'32/64-bit'     => ( \PHP_INT_SIZE === 4 ) ? 32 : 64,
-			'Time Limit'    => \ini_get( 'max_execution_time' ),
-			'Dir Separator' => \DIRECTORY_SEPARATOR,
-			'Document Root' => empty( $root ) ? '-' : $root,
-			'Extensions'    => \implode( ', ', $ext ),
+			__( 'PHP', 'wp-simple-firewall' )                     => $phpV,
+			__( 'MySQL', 'wp-simple-firewall' )                   => Services::WpDb()->getMysqlServerInfo(),
+			__( 'Memory Limit', 'wp-simple-firewall' )            => sprintf(
+				/* translators: %1$s: ini memory limit, %2$s: WP memory limit */
+				__( '%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)', 'wp-simple-firewall' ),
+				\ini_get( 'memory_limit' ),
+				\defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : __( 'not defined', 'wp-simple-firewall' )
+			),
+			__( '32/64-bit', 'wp-simple-firewall' )               => ( \PHP_INT_SIZE === 4 ) ? 32 : 64,
+			__( 'Time Limit', 'wp-simple-firewall' )              => \ini_get( 'max_execution_time' ),
+			__( 'Dir Separator', 'wp-simple-firewall' )          => \DIRECTORY_SEPARATOR,
+			__( 'Document Root', 'wp-simple-firewall' )           => empty( $root ) ? '-' : $root,
+			__( 'Extensions', 'wp-simple-firewall' )              => \implode( ', ', $ext ),
 		];
 	}
 
@@ -124,9 +131,11 @@ class Collate {
 
 		foreach ( $oWpPlugins->getPluginsAsVo() as $VO ) {
 			if ( $filterByActive === $VO->active ) {
-				$data[ $VO->Name ] = sprintf( '%s / %s / %s',
-					$VO->Version, $VO->active ? 'Active' : 'Deactivated',
-					$VO->hasUpdate() ? 'Update Available' : 'No Update'
+				$data[ $VO->Name ] = sprintf(
+					'%s / %s / %s',
+					$VO->Version,
+					$VO->active ? __( 'Active', 'wp-simple-firewall' ) : __( 'Deactivated', 'wp-simple-firewall' ),
+					$VO->hasUpdate() ? __( 'Update Available', 'wp-simple-firewall' ) : __( 'No Update', 'wp-simple-firewall' )
 				);
 			}
 		}
@@ -145,13 +154,15 @@ class Collate {
 					   ( $WPT->isActiveThemeAChild() && ( $T->is_child || $T->is_parent ) );
 
 			if ( $filterByActive == $tActive ) {
-				$line = sprintf( '%s / %s / %s',
-					$T->Version, $T->active ? 'Active' : 'Deactivated',
-					$T->hasUpdate() ? 'Update Available' : 'No Update'
+				$line = sprintf(
+					'%s / %s / %s',
+					$T->Version,
+					$T->active ? __( 'Active', 'wp-simple-firewall' ) : __( 'Deactivated', 'wp-simple-firewall' ),
+					$T->hasUpdate() ? __( 'Update Available', 'wp-simple-firewall' ) : __( 'No Update', 'wp-simple-firewall' )
 				);
 
 				if ( $WPT->isActiveThemeAChild() && ( $T->is_child || $T->is_parent ) ) {
-					$line .= ' / '.( $T->is_parent ? 'Parent' : 'Child' );
+					$line .= ' / '.( $T->is_parent ? __( 'Parent', 'wp-simple-firewall' ) : __( 'Child', 'wp-simple-firewall' ) );
 				}
 				$data[ $T->Name ] = $line;
 			}
@@ -168,8 +179,8 @@ class Collate {
 			$dbh = $dbhDef[ 'handler' ];
 			$DBs[ $dbhDef[ 'def' ][ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
 				$dbh->getTableSchema()->table,
-				$dbh->isReady() ? 'Ready' : 'Not Ready',
-				sprintf( 'Rows: %s', $dbh->isReady() ? $dbh->getQuerySelector()->count() : '-' ),
+				$dbh->isReady() ? __( 'Ready', 'wp-simple-firewall' ) : __( 'Not Ready', 'wp-simple-firewall' ),
+				sprintf( __( 'Rows: %s', 'wp-simple-firewall' ), $dbh->isReady() ? $dbh->getQuerySelector()->count() : '-' ),
 				self::con()->action_router->render( DbDescribeTable::class, [
 					'show_table' => $WPDB->selectCustom( sprintf( 'DESCRIBE %s', $dbh->getTableSchema()->table ) )
 				] )
@@ -186,14 +197,16 @@ class Collate {
 			try {
 				if ( $auditor->getSnapper() ) {
 					$snapshot = $auditCon->getSnapshot( $auditor::Slug() );
-					$data[ $auditor::Slug() ] = sprintf( 'entries: %s (previous: %s)',
+					$data[ $auditor::Slug() ] = sprintf(
+						/* translators: %1$s: entries count, %2$s: time difference */
+						__( 'entries: %1$s (previous: %2$s)', 'wp-simple-firewall' ),
 						\count( $snapshot->data ),
 						Services::Request()->carbon( true )->setTimestamp( $snapshot->created_at )->diffForHumans()
 					);
 				}
 			}
 			catch ( \Exception $e ) {
-				$data[ $auditor::Slug() ] = 'No snapshot required.';
+				$data[ $auditor::Slug() ] = __( 'No snapshot required.', 'wp-simple-firewall' );
 			}
 		}
 
@@ -204,22 +217,25 @@ class Collate {
 		$con = self::con();
 
 		try {
-			$loopback = $con->plugin->canSiteLoopback() ? 'Yes' : 'No';
+			$loopback = $this->yesNo( $con->plugin->canSiteLoopback() );
 		}
 		catch ( \Exception $e ) {
-			$loopback = 'Unknown - requires WP v5.4+';
+			$loopback = __( 'Unknown - requires WP v5.4+', 'wp-simple-firewall' );
 		}
 
 		$data = [
-			'Can Loopback Request'       => $loopback,
-			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )->test() ? 'Yes' : 'No',
-			'Handshake ShieldNET'        => $con->comps->shieldnet->canHandshake() ? 'Yes' : 'No',
-			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
+			__( 'Can Loopback Request', 'wp-simple-firewall' )       => $loopback,
+			__( 'NotBot Frontend JS Loading', 'wp-simple-firewall' ) => $this->yesNo( ( new TestNotBotLoading() )->test() ),
+			sprintf( __( 'Handshake %s', 'wp-simple-firewall' ), $con->labels->getBrandName( 'shieldnet' ) ) => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
+			__( 'WP Hashes Ping', 'wp-simple-firewall' )             => $this->yesNo( ( new ApiPing() )->ping() ),
 		];
 
-		$data[ 'Ping License Server' ] = ( new Licenses\Keyless\Ping() )->ping() ? 'Yes' : 'No';
+		$data[ __( 'Ping License Server', 'wp-simple-firewall' ) ] =
+			$this->yesNo( ( new Licenses\Keyless\Ping() )->ping() );
 
-		$data[ 'Write TMP/Cache DIR' ] = $con->cache_dir_handler->exists() ? 'Yes: '.$con->cache_dir_handler->dir() : 'No';
+		$data[ __( 'Write TMP/Cache DIR', 'wp-simple-firewall' ) ] = $con->cache_dir_handler->exists() ?
+			sprintf( __( 'Yes: %s', 'wp-simple-firewall' ), $con->cache_dir_handler->dir() ) :
+			__( 'No', 'wp-simple-firewall' );
 
 		return $data;
 	}
@@ -230,25 +246,25 @@ class Collate {
 
 		$nPrevAttempt = $wpHashes->getPreviousAttemptAt();
 		if ( empty( $nPrevAttempt ) ) {
-			$sPrev = 'Never';
+			$sPrev = __( 'Never', 'wp-simple-firewall' );
 		}
 		else {
-			$sPrev = 'Last Attempt: '.Services::Request()
+			$sPrev = sprintf( __( 'Last Attempt: %s', 'wp-simple-firewall' ), Services::Request()
 											  ->carbon()
 											  ->setTimestamp( $nPrevAttempt )
-											  ->diffForHumans();
+											  ->diffForHumans() );
 		}
 
 		$data = [
-			'Version'                => $con->cfg->version(),
-			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
-			'WP Hashes Token'        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
-			'Security Admin Enabled' => $con->comps->sec_admin->isEnabledSecAdmin() ? 'Yes' : 'No',
-			'CrowdSec API Status'    => 'TODO', // $con->comps->crowdsec->getApi()->getAuthStatus(),
-			'TMP Dir'                => $con->cache_dir_handler->dir(),
+			__( 'Version', 'wp-simple-firewall' )                => $con->cfg->version(),
+			__( 'PRO', 'wp-simple-firewall' )                    => $this->yesNo( $con->isPremiumActive() ),
+			__( 'WP Hashes Token', 'wp-simple-firewall' )        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
+			__( 'Security Admin Enabled', 'wp-simple-firewall' ) => $this->yesNo( $con->comps->sec_admin->isEnabledSecAdmin() ),
+			__( 'CrowdSec API Status', 'wp-simple-firewall' )    => 'TODO', // $con->comps->crowdsec->getApi()->getAuthStatus(),
+			__( 'TMP Dir', 'wp-simple-firewall' )                => $con->cache_dir_handler->dir(),
 		];
 
-		$source = 'unknown';
+		$source = __( 'unknown', 'wp-simple-firewall' );
 		foreach ( $con->opts->optDef( 'visitor_address_source' )[ 'value_options' ] as $optionValue ) {
 			if ( $optionValue[ 'value_key' ] == $con->opts->optGet( 'visitor_address_source' ) ) {
 				$source = $optionValue[ 'text' ];
@@ -257,7 +273,8 @@ class Collate {
 		}
 
 		$ip = Services::Request()->ip();
-		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
+		$data[ __( 'Visitor IP Source', 'wp-simple-firewall' ) ] =
+			$source.': '.( empty( $ip ) ? __( 'n/a', 'wp-simple-firewall' ) : $ip );
 
 		return $data;
 	}
@@ -271,25 +288,29 @@ class Collate {
 	private function getWordPressSummary() :array {
 		$WP = Services::WpGeneral();
 		$data = [
-			'URL - Home' => $WP->getHomeUrl(),
-			'URL - Site' => $WP->getWpUrl(),
-			'WP'         => $WP->getVersion( true ),
+			__( 'URL - Home', 'wp-simple-firewall' ) => $WP->getHomeUrl(),
+			__( 'URL - Site', 'wp-simple-firewall' ) => $WP->getWpUrl(),
+			__( 'WP', 'wp-simple-firewall' )         => $WP->getVersion( true ),
 		];
 
 		return \array_merge( $data, [
-			'URL - Home'  => $WP->getHomeUrl(),
-			'URL - Site'  => $WP->getWpUrl(),
-			'WP'          => $WP->getVersion( true ),
-			'Locale'      => $WP->getLocale(),
-			'Multisite'   => $WP->isMultisite() ? 'Yes' : 'No',
-			'ABSPATH'     => ABSPATH,
-			'Debug Is On' => $WP->isDebug() ? 'Yes' : 'No',
-			'Database'    => [
-				sprintf( 'Host: <code>%s</code>', DB_HOST ),
-				sprintf( 'Name: <code>%s</code>', DB_NAME ),
-				sprintf( 'User: <code>%s</code>', DB_USER ),
-				sprintf( 'Prefix: <code>%s</code>', Services::WpDb()->getPrefix() ),
+			__( 'URL - Home', 'wp-simple-firewall' )  => $WP->getHomeUrl(),
+			__( 'URL - Site', 'wp-simple-firewall' )  => $WP->getWpUrl(),
+			__( 'WP', 'wp-simple-firewall' )          => $WP->getVersion( true ),
+			__( 'Locale', 'wp-simple-firewall' )      => $WP->getLocale(),
+			__( 'Multisite', 'wp-simple-firewall' )   => $this->yesNo( $WP->isMultisite() ),
+			__( 'ABSPATH', 'wp-simple-firewall' )     => ABSPATH,
+			__( 'Debug Is On', 'wp-simple-firewall' ) => $this->yesNo( $WP->isDebug() ),
+			__( 'Database', 'wp-simple-firewall' )    => [
+				sprintf( __( 'Host: <code>%s</code>', 'wp-simple-firewall' ), DB_HOST ),
+				sprintf( __( 'Name: <code>%s</code>', 'wp-simple-firewall' ), DB_NAME ),
+				sprintf( __( 'User: <code>%s</code>', 'wp-simple-firewall' ), DB_USER ),
+				sprintf( __( 'Prefix: <code>%s</code>', 'wp-simple-firewall' ), Services::WpDb()->getPrefix() ),
 			],
 		] );
+	}
+
+	private function yesNo( bool $value ) :string {
+		return $value ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' );
 	}
 }

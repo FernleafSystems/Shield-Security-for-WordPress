@@ -182,7 +182,7 @@ class AuditCon {
 	 */
 	public function getSnapshot( string $slug ) :Record {
 		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
-			throw new \Exception( 'Snapshot could not be loaded for '.$slug );
+			throw new \Exception( sprintf( __( 'Snapshot could not be loaded for %s', 'wp-simple-firewall' ), $slug ) );
 		}
 		return $this->latestSnapshots[ $slug ];
 	}

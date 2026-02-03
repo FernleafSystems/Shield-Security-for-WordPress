@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class MfaLoginCode extends EmailBase {
 
@@ -12,6 +13,12 @@ class MfaLoginCode extends EmailBase {
 	public const TEMPLATE = '/email/lp_2fa_email_code.twig';
 
 	protected function getBodyData() :array {
+		$common = CommonDisplayStrings::pick( [
+			'url_label',
+			'username',
+			'ip_address'
+		] );
+
 		return [
 			'flags'   => [
 				'can_auto_login' => self::con()->opts->optIs( 'enable_email_auto_login', 'Y' ),
@@ -29,10 +36,10 @@ class MfaLoginCode extends EmailBase {
 				'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
 				'auto_login'       => __( 'Autologin URL', 'wp-simple-firewall' ),
 				'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-				'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), $this->action_data[ 'home_url' ] ), // Internally generated via getHomeUrl()
-				'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ),
+				'details_url'      => sprintf( '%s: %s', $common[ 'url_label' ], $this->action_data[ 'home_url' ] ),  // Internally generated via getHomeUrl()
+				'details_username' => sprintf( '%s: %s', $common[ 'username' ],
 					Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login ),
-				'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] ),
+				'details_ip'       => sprintf( '%s: %s', $common[ 'ip_address' ], $this->action_data[ 'ip' ] ),
 			]
 		];
 	}

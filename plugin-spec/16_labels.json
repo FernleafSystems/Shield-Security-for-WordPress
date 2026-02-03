@@ -1,0 +1,22 @@
+{
+    "Name": "Shield Security",
+    "MenuTitle": "Shield Security",
+    "Description": "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
+    "Title": "Shield Security",
+    "Author": "Shield Security",
+    "AuthorName": "Shield Security",
+    "PluginURI": "https://clk.shldscrty.com/2f",
+    "AuthorURI": "https://clk.shldscrty.com/bv",
+    "url_img_pagebanner": "pluginlogo_banner-1544x500.png",
+    "url_img_logo_small": "pluginlogo_banner-170x40.png",
+    "icon_url_16x16": "pluginlogo_16x16.png",
+    "icon_url_16x16_grey": "pluginlogo_16x16_grey.png",
+    "icon_url_32x32": "pluginlogo_32x32.png",
+    "icon_url_128x128": "pluginlogo_128x128.png",
+    "brand_names": {
+        "silentcaptcha": "silentCAPTCHA",
+        "shieldnet": "ShieldNET",
+        "shieldbackups": "ShieldBACKUPS",
+        "suresend": "SureSend"
+    }
+}

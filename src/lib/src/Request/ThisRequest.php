@@ -38,10 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionV
  */
 class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisRequest {
 
-	/**
-	 * @var IpRuleStatus
-	 */
-	private $ipStatus;
+	private IpRuleStatus $ipStatus;
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
@@ -93,7 +90,7 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	}
 
 	public function getIpStatus() :IpRuleStatus {
-		return $this->ipStatus ?? $this->ipStatus = new IpRuleStatus( $this->ip );
+		return $this->ipStatus ??= new IpRuleStatus( $this->ip );
 	}
 
 	public function getHostname() :string {

@@ -5,6 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Excepti
 class ScanExistsException extends ScanException {
 
 	public function __construct( string $scan ) {
-		parent::__construct( $scan, sprintf( "Can't create new scan where one already exists: %s", $scan ) );
+		parent::__construct( $scan, sprintf( __( "Can't create a new scan when one already exists: %s", 'wp-simple-firewall' ), $scan ) );
 	}
 }

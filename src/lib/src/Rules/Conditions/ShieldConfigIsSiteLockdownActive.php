@@ -9,7 +9,7 @@ class ShieldConfigIsSiteLockdownActive extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
-		return __( "Is Shield's Site Lockdown active.", 'wp-simple-firewall' );
+		return sprintf( __( "Is %s's Site Lockdown active.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function execConditionCheck() :bool {

@@ -87,14 +87,14 @@ class ClientPluginStatus {
 
 	public function getStatusText() :array {
 		return [
-			self::ACTIVE                    => __( 'Active' ),
-			self::NOT_PRO                   => __( 'Not Pro' ),
-			self::MWP_NOT_ON                => __( 'MainWP Option Not Enabled' ),
-			self::NEED_SYNC                 => __( 'Sync Required' ),
-			self::INACTIVE                  => __( 'Installed' ),
-			self::NOT_INSTALLED             => __( 'Not Installed' ),
-			self::VERSION_OLDER_THAN_SERVER => __( 'Update Required' ),
-			self::VERSION_NEWER_THAN_SERVER => __( 'Ahead Of Server' ),
+			self::ACTIVE                    => __( 'Active', 'wp-simple-firewall' ),
+			self::NOT_PRO                   => __( 'Not Pro', 'wp-simple-firewall' ),
+			self::MWP_NOT_ON                => __( 'MainWP Option Not Enabled', 'wp-simple-firewall' ),
+			self::NEED_SYNC                 => __( 'Sync Required', 'wp-simple-firewall' ),
+			self::INACTIVE                  => __( 'Installed', 'wp-simple-firewall' ),
+			self::NOT_INSTALLED             => __( 'Not Installed', 'wp-simple-firewall' ),
+			self::VERSION_OLDER_THAN_SERVER => __( 'Update Required', 'wp-simple-firewall' ),
+			self::VERSION_NEWER_THAN_SERVER => __( 'Ahead Of Server', 'wp-simple-firewall' ),
 		];
 	}
 }

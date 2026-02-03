@@ -33,12 +33,12 @@ class SiteCustomAction extends BaseSiteMwpAction {
 		$response = $this->clientActionResponse;
 		$key = self::con()->prefix( 'mwp-action-response' );
 		if ( empty( $response ) || !\is_array( $response ) || !isset( $response[ $key ] ) ) {
-			throw new ActionException( 'Empty response from Shield client site' );
+			throw new ActionException( sprintf( __( 'Empty response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
 		$result = \json_decode( $response[ $key ], true );
 		if ( empty( $result ) || !\is_array( $result ) ) {
-			throw new ActionException( 'Invalid response from Shield client site' );
+			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
 		return true;
@@ -47,7 +47,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	protected function getMainwpActionFailureMessage() :string {
 		switch ( $this->action_data[ 'sub_action_slug' ] ) {
 			case LicenseLookup::SLUG:
-				$msg = __( 'ShieldPRO license check failed.', 'wp-simple-firewall' );
+				$msg = sprintf( __( '%s license check failed.', 'wp-simple-firewall' ), self::con()->labels->Name );
 				break;
 			default:
 				$msg = parent::getMainwpActionFailureMessage();
@@ -59,7 +59,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	protected function getMainwpActionSuccessMessage() :string {
 		switch ( $this->action_data[ 'sub_action_slug' ] ) {
 			case LicenseLookup::SLUG:
-				$msg = __( 'ShieldPRO license check was successful.', 'wp-simple-firewall' );
+				$msg = sprintf( __( '%s license check was successful.', 'wp-simple-firewall' ), self::con()->labels->Name );
 				break;
 			default:
 				$msg = parent::getMainwpActionSuccessMessage();

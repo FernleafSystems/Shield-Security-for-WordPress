@@ -125,20 +125,20 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				->id
 		);
 		if ( empty( $requestRecord ) ) {
-			throw new \Exception( 'No dependent Request Record found/created' );
+			throw new \Exception( __( 'No dependent request record found or created.', 'wp-simple-firewall' ) );
 		}
 
 		$record->req_ref = $requestRecord->id;
 
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
-			throw new \Exception( 'Failed to insert' );
+			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) );
 		}
 
 		/** @var LogsDB\Record $log */
 		$log = $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 		if ( empty( $log ) ) {
-			throw new \Exception( 'Could not load log record' );
+			throw new \Exception( __( 'Could not load log record.', 'wp-simple-firewall' ) );
 		}
 		return $log;
 	}

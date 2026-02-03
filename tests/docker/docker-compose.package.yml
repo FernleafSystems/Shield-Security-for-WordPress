@@ -1,0 +1,20 @@
+# Docker Compose override for package testing
+# This file extends docker-compose.yml to add package volume mounting
+services:
+  test-runner-latest:
+    volumes:
+      - ../../:/app
+      - ${PLUGIN_SOURCE}:/package
+    environment:
+      SHIELD_PACKAGE_PATH: /package
+      SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION}
+      SHIELD_STRAUSS_FORK_REPO: ${SHIELD_STRAUSS_FORK_REPO:-}
+
+  test-runner-previous:
+    volumes:
+      - ../../:/app
+      - ${PLUGIN_SOURCE}:/package
+    environment:
+      SHIELD_PACKAGE_PATH: /package
+      SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION}
+      SHIELD_STRAUSS_FORK_REPO: ${SHIELD_STRAUSS_FORK_REPO:-}

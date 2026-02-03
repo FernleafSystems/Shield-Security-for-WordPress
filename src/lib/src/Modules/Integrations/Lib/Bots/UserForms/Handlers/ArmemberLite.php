@@ -10,9 +10,11 @@ class ArmemberLite extends Base {
 
 	public function checkArmemberForm( $validate ) {
 		if ( $validate && $this->setAuditAction( 'armember_lite_form' )->isBotBlockRequired() ) {
+			$labels = self::con()->labels;
 			global $arm_global_settings;
 			if ( !empty( $arm_global_settings->common_message ) && \is_array( $arm_global_settings->common_message ) ) {
-				$arm_global_settings->common_message[ 'arm_spam_msg' ] = "Failed Shield's silentCAPTCHA Bot Check";
+				/* translators: %1$s: security plugin name, %2$s: silentCAPTCHA */
+				$arm_global_settings->common_message[ 'arm_spam_msg' ] = sprintf( 'Failed %1$s %2$s Bot Check', $labels->Name, $labels->getBrandName( 'silentcaptcha' ) );
 			}
 			$validate = false;
 		}

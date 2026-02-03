@@ -29,7 +29,7 @@ class CommentSpamBlockBot extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "silentCAPTCHA isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = sprintf( __( "%s isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 		}
 
 		return $status;

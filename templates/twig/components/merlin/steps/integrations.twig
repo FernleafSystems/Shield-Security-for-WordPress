@@ -3,7 +3,7 @@
 {% block slide_body_video_section_blurb %}
 	{% import '/common/macros.twig' as icwp_macros %}
 
-	<p>Shield Security provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots.</p>
+	<p>{{ strings.integrations_text }}</p>
 	<p>Each integration is custom-built and implements our {{ icwp_macros.silentcaptcha() }} anti-bot technology.</p>
 	<p>The types of forms that can be protected include:</p>
 	<ul style="list-style: square">
@@ -12,8 +12,7 @@
 		<li>Registration Forms</li>
 		<li>Password Reset Forms</li>
 	</ul>
-	<p>Protection for WordPress forms is included as-standard, and you'll
-	   have access to some, or all, 3rd party integrations, depending on your Shield plan.</p>
+	<p>{{ strings.integrations_text2 }}</p>
 
 {% endblock slide_body_video_section_blurb %}
 

@@ -3,19 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans {
 
 	protected function getRenderData() :array {
+		$common = CommonDisplayStrings::pick( [ 'author_label', 'version_label', 'name_label', 'warning_label' ] );
 		return [
 			'strings' => [
-				'author'            => __( 'Author' ),
-				'version'           => __( 'Version' ),
-				'name'              => __( 'Name' ),
+				'author'            => $common[ 'author_label' ],
+				'version'           => $common[ 'version_label' ],
+				'name'              => $common[ 'name_label' ],
 				'install_dir'       => __( 'Installation Directory', 'wp-simple-firewall' ),
 				'file_integrity'    => __( 'File Integrity', 'wp-simple-firewall' ),
 				'status_good'       => __( 'Good', 'wp-simple-firewall' ),
-				'status_warning'    => __( 'Warning', 'wp-simple-firewall' ),
+				'status_warning'    => $common[ 'warning_label' ],
 				'abandoned'         => __( 'Abandoned', 'wp-simple-firewall' ),
 				'vulnerable'        => __( 'Vulnerable', 'wp-simple-firewall' ),
 				'vulnerable_known'  => __( 'Vulnerability Discovered', 'wp-simple-firewall' ),

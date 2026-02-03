@@ -20,8 +20,7 @@
 		{{ icwp_macros.formInput_Checkbox(
 			'LoginProtectOption', 'Y', 'Protect Login',
 			'Protect WordPress login from bot attacks',
-			"silentCAPTCHA will detect bots that attempt to login to your site, without challenging your legitimate users."
-			~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
+			strings.silentcaptcha_detect_login_bots~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]',
 			null, true, 'me-0'
 		) }}
 		{{ icwp_macros.formInput_Submit2( 'Set Login Protection', null, 'secondary', false ) }}

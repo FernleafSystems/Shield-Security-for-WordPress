@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class Container extends BaseScans {
 
@@ -22,11 +23,17 @@ class Container extends BaseScans {
 		catch ( \Exception $e ) {
 			throw new ActionException( 'Not a valid scan item record' );
 		}
-
 		$fragment = $item->path_fragment;
 		if ( empty( $fragment ) ) {
 			throw new ActionException( 'Non-file scan items are not supported yet.' );
 		}
+
+		$common = CommonDisplayStrings::pick( [
+			'info_label',
+			'history_label',
+			'diff_label',
+			'contents_label'
+		] );
 
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
@@ -60,12 +67,13 @@ class Container extends BaseScans {
 				],
 			],
 			'strings' => [
-				'modal_title'      => sprintf( '%s: %s', 'File', $item->path_fragment ),
-				'tab_filecontents' => 'Contents',
-				'tab_diff'         => 'Diff',
-				'tab_history'      => 'History',
-				'tab_info'         => 'Info',
-				'tab_malai'        => 'MAL{ai} Lookup',
+				/* translators: %1$s: File text, %2$s: file path fragment */
+				'modal_title'      => sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ), $item->path_fragment ),
+				'tab_filecontents' => $common[ 'contents_label' ],
+				'tab_diff'         => $common[ 'diff_label' ],
+				'tab_history'      => $common[ 'history_label' ],
+				'tab_info'         => $common[ 'info_label' ],
+				'tab_malai'        => __( 'MAL{ai} Lookup', 'wp-simple-firewall' ),
 				'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
 			],
 		];

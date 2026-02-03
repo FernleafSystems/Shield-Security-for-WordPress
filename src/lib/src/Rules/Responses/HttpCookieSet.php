@@ -27,7 +27,7 @@ class HttpCookieSet extends Base {
 			'duration' => [
 				'type'    => EnumParameters::TYPE_INT,
 				'default' => 3600,
-				'label'   => sprintf( '%s (%s)', __( 'Duration', 'wp-simple-firewall' ), __( 'seconds' ) ),
+				'label'   => sprintf( '%s (%s)', __( 'Duration', 'wp-simple-firewall' ), __( 'seconds', 'wp-simple-firewall' ) ),
 			],
 		];
 	}
