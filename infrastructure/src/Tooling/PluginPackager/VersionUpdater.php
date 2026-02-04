@@ -8,6 +8,7 @@ use Symfony\Component\Filesystem\Path;
  * Updates version metadata in plugin files during packaging.
  *
  * Updates version, release_timestamp, and build values in:
+ * - plugin-spec/01_properties.json (source spec file, updated BEFORE build)
  * - plugin.json (properties.version, properties.release_timestamp, properties.build)
  * - readme.txt (Stable tag:)
  * - icwp-wpsf.php (Version: header)
@@ -41,23 +42,8 @@ class VersionUpdater {
 
 		$this->log( 'Updating version metadata...' );
 
-		$applied = [];
-
 		// Validate all values first
-		if ( isset( $options[ 'version' ] ) ) {
-			$this->validateVersion( $options[ 'version' ] );
-			$applied[ 'version' ] = $options[ 'version' ];
-		}
-
-		if ( isset( $options[ 'release_timestamp' ] ) ) {
-			$this->validateTimestamp( $options[ 'release_timestamp' ] );
-			$applied[ 'release_timestamp' ] = $options[ 'release_timestamp' ];
-		}
-
-		if ( isset( $options[ 'build' ] ) ) {
-			$this->validateBuild( $options[ 'build' ] );
-			$applied[ 'build' ] = $options[ 'build' ];
-		}
+		$applied = $this->validateAndFilterOptions( $options );
 
 		// Update files
 		$this->updatePluginJson( $targetDir, $applied );
@@ -166,6 +152,34 @@ class VersionUpdater {
 	}
 
 	/**
+	 * Validate and filter options array, returning only valid fields.
+	 *
+	 * @param array<string, mixed> $options Options to validate
+	 * @return array<string, mixed> Validated options (version, release_timestamp, build)
+	 * @throws \InvalidArgumentException if any value fails validation
+	 */
+	private function validateAndFilterOptions( array $options ) :array {
+		$validated = [];
+
+		if ( isset( $options[ 'version' ] ) ) {
+			$this->validateVersion( $options[ 'version' ] );
+			$validated[ 'version' ] = $options[ 'version' ];
+		}
+
+		if ( isset( $options[ 'release_timestamp' ] ) ) {
+			$this->validateTimestamp( $options[ 'release_timestamp' ] );
+			$validated[ 'release_timestamp' ] = $options[ 'release_timestamp' ];
+		}
+
+		if ( isset( $options[ 'build' ] ) ) {
+			$this->validateBuild( $options[ 'build' ] );
+			$validated[ 'build' ] = $options[ 'build' ];
+		}
+
+		return $validated;
+	}
+
+	/**
 	 * Update plugin.json with version metadata.
 	 *
 	 * @param array<string, mixed> $values Values to update
@@ -232,7 +246,7 @@ class VersionUpdater {
 	/**
 	 * Update readme.txt Stable tag.
 	 */
-	private function updateReadmeTxt( string $targetDir, string $version ) :void {
+	public function updateReadmeTxt( string $targetDir, string $version ) :void {
 		$path = Path::join( $targetDir, 'readme.txt' );
 
 		if ( !\file_exists( $path ) ) {
@@ -271,7 +285,7 @@ class VersionUpdater {
 	/**
 	 * Update plugin header Version.
 	 */
-	private function updatePluginHeader( string $targetDir, string $version ) :void {
+	public function updatePluginHeader( string $targetDir, string $version ) :void {
 		$path = Path::join( $targetDir, 'icwp-wpsf.php' );
 
 		if ( !\file_exists( $path ) ) {
@@ -325,6 +339,74 @@ class VersionUpdater {
 		}
 
 		return $data[ 'build' ] ?? null;
+	}
+
+	/**
+	 * Update source plugin-spec/01_properties.json with version metadata.
+	 * Must be called BEFORE buildPluginJson() so merged config has correct values.
+	 *
+	 * @param array<string, mixed> $values Values to update: version, release_timestamp, build
+	 * @throws \InvalidArgumentException if validation fails
+	 */
+	public function updateSourceProperties( array $values ) :void {
+		if ( empty( $values ) ) {
+			return;
+		}
+
+		// Validate all values first (same validation as update())
+		$validated = $this->validateAndFilterOptions( $values );
+
+		$path = Path::join( $this->projectRoot, 'plugin-spec', '01_properties.json' );
+
+		if ( !\file_exists( $path ) ) {
+			throw new \RuntimeException(
+				\sprintf( 'Source properties file not found: %s', $path )
+			);
+		}
+
+		$content = \file_get_contents( $path );
+		if ( $content === false ) {
+			throw new \RuntimeException(
+				\sprintf( 'Failed to read source properties: %s', $path )
+			);
+		}
+
+		$data = \json_decode( $content, true );
+		if ( !\is_array( $data ) ) {
+			throw new \RuntimeException(
+				\sprintf( 'Failed to parse source properties: %s', \json_last_error_msg() )
+			);
+		}
+
+		// Update values
+		if ( isset( $validated[ 'version' ] ) ) {
+			$data[ 'version' ] = $validated[ 'version' ];
+			$this->log( \sprintf( '  - plugin-spec/01_properties.json: version = %s', $validated[ 'version' ] ) );
+		}
+
+		if ( isset( $validated[ 'release_timestamp' ] ) ) {
+			$data[ 'release_timestamp' ] = $validated[ 'release_timestamp' ];
+			$this->log( \sprintf( '  - plugin-spec/01_properties.json: release_timestamp = %d', $validated[ 'release_timestamp' ] ) );
+		}
+
+		if ( isset( $validated[ 'build' ] ) ) {
+			$data[ 'build' ] = $validated[ 'build' ];
+			$this->log( \sprintf( '  - plugin-spec/01_properties.json: build = %s', $validated[ 'build' ] ) );
+		}
+
+		$json = \json_encode( $data, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE );
+		if ( $json === false ) {
+			throw new \RuntimeException(
+				\sprintf( 'Failed to encode source properties: %s', \json_last_error_msg() )
+			);
+		}
+
+		$bytesWritten = \file_put_contents( $path, $json."\n" );
+		if ( $bytesWritten === false ) {
+			throw new \RuntimeException(
+				\sprintf( 'Failed to write source properties: %s', $path )
+			);
+		}
 	}
 
 	private function log( string $message ) :void {

@@ -477,16 +477,45 @@ Tests run against the packaged plugin structure:
 
 ## Version Management
 
+### Automated Version Updates
+
+The PluginPackager automatically updates version metadata when the `--version` flag is provided:
+
+```bash
+# Package with version update
+composer build-zip -- --version=21.1.1 --output=dist/wp-simple-firewall
+
+# With auto-generated build number
+composer build-zip -- --version=21.1.1 --build=auto --output=dist/wp-simple-firewall
+```
+
+**Version Update Flow:**
+
+1. **Source Spec Update** (FIRST): Updates `plugin-spec/01_properties.json` with new version, release_timestamp, and build
+2. **File Copy**: Copies plugin files to target directory
+3. **Build plugin.json**: Merges spec files → creates `plugin.json` with correct version (from updated source)
+4. **Package Files Update**: Updates `readme.txt` (Stable tag) and `icwp-wpsf.php` (Version header) in package
+
+This flow ensures the source spec file is updated BEFORE `plugin.json` is generated, so version numbers are consistent across all files.
+
+**Files Updated:**
+- `plugin-spec/01_properties.json` (source) - version, release_timestamp, build
+- `plugin.json` (package) - generated from updated spec
+- `readme.txt` (package) - Stable tag
+- `icwp-wpsf.php` (package) - Version header
+
 ### Version Tagging Process
 
-1. **Update Version Numbers**:
-   - `icwp-wpsf.php` header
-   - `plugin.json` version field
-   - `readme.txt` stable tag
-
-2. **Create Distribution Package**:
+1. **Create Distribution Package with Version**:
    ```bash
-   ./bin/build-package.sh ./dist/wp-simple-firewall-21.0.7
+   composer build-zip -- --version=21.0.7 --build=auto --output=dist/wp-simple-firewall-21.0.7
+   ```
+   This automatically updates all version numbers in both source and package.
+
+2. **Commit Source Changes** (if version was updated):
+   ```bash
+   git add plugin-spec/01_properties.json
+   git commit -m "Bump version to 21.0.7"
    ```
 
 3. **Create Release Archive**:

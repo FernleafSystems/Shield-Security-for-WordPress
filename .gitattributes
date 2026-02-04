@@ -112,6 +112,9 @@ yarn.lock text eol=lf
 # - vendor_prefixed/autoload-files.php (created by Strauss, then removed)
 # These are handled by PluginPackager cleanup methods, not export-ignore.
 
+# Generated files (always regenerate, never copy from source)
+/plugin.json export-ignore
+
 # AI/Agent documentation
 /.agent-os export-ignore
 /AGENTS.md export-ignore
