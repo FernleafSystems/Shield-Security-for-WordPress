@@ -63,7 +63,29 @@
         "description": []
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1770393600,
+        "items":       [
+          {
+            "title":    "Upgraded dashboard charts for improved performance and visuals.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Reduced CSS bundle size for faster page loads.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Internal code restructuring and cleanup for improved reliability.",
+            "category": "enhancement",
+            "type":     "improved"
+          }
+        ]
+      }
+    ]
   },
   "21.0": {
     "version":     "21.0",
