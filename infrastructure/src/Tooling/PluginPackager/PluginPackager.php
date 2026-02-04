@@ -75,7 +75,7 @@ class PluginPackager {
 		$composerCommand = $this->commandRunner->getComposerCommand();
 		if ( $options[ 'composer_install' ] ) {
 			$this->commandRunner->run(
-				array_merge( $composerCommand, [
+				\array_merge( $composerCommand, [
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
@@ -177,7 +177,7 @@ class PluginPackager {
 		$resolved = Path::normalize( $path );
 
 		// Try to resolve symlinks and get canonical path
-		$realPath = realpath( $resolved );
+		$realPath = \realpath( $resolved );
 		if ( $realPath !== false ) {
 			$resolved = Path::normalize( $realPath );
 		}
@@ -191,7 +191,7 @@ class PluginPackager {
 			if ( $parentDir !== '' && $parentDir !== $resolved ) {
 				$realParent = realpath( $parentDir );
 				if ( $realParent !== false ) {
-					$basename = basename( $resolved );
+					$basename = \basename( $resolved );
 					$resolved = Path::join( Path::normalize( $realParent ), $basename );
 				}
 			}
@@ -220,19 +220,18 @@ class PluginPackager {
 			'release_timestamp' => null,
 			'build'             => null,
 		];
-
-		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
+		return \array_replace( $defaults, \array_intersect_key( $options, $defaults ) );
 	}
 
 	private function resolveStraussVersion( array $options ) :string {
 		$fromOptions = $options[ 'strauss_version' ] ?? null;
-		if ( is_string( $fromOptions ) && $fromOptions !== '' ) {
-			return ltrim( $fromOptions, "v \t\n\r\0\x0B" );
+		if ( \is_string( $fromOptions ) && $fromOptions !== '' ) {
+			return \ltrim( $fromOptions, "v \t\n\r\0\x0B" );
 		}
 
-		$env = getenv( 'SHIELD_STRAUSS_VERSION' );
-		if ( is_string( $env ) && $env !== '' ) {
-			return ltrim( $env, "v \t\n\r\0\x0B" );
+		$env = \getenv( 'SHIELD_STRAUSS_VERSION' );
+		if ( \is_string( $env ) && $env !== '' ) {
+			return \ltrim( $env, "v \t\n\r\0\x0B" );
 		}
 
 		return StraussBinaryProvider::getFallbackVersion();
@@ -313,7 +312,7 @@ class PluginPackager {
 	private function installComposerDependencies( string $targetDir ) :void {
 		$this->log( 'Installing composer dependencies in package...' );
 
-		if ( !file_exists( Path::join( $targetDir, 'composer.json' ) ) ) {
+		if ( !\file_exists( Path::join( $targetDir, 'composer.json' ) ) ) {
 			throw new \RuntimeException(
 				sprintf(
 					'Composer install failed: composer.json does not exist in package directory. '.

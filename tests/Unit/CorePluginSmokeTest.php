@@ -276,10 +276,10 @@ class CorePluginSmokeTest extends TestCase {
 				$this->assertFileExistsWithDebug( $vendorAutoload, 'Vendor autoload should exist' );
 				
 				// Verify it's a valid PHP file
-				$content = file_get_contents( $vendorAutoload );
+				$content = \file_get_contents( $vendorAutoload );
 				$this->assertStringContainsString( '<?php', $content, 'Vendor autoload should be valid PHP' );
 			} else {
-				$this->markTestSkipped( 'Vendor autoload not found - run composer install in src/lib' );
+				$this->markTestSkipped( 'Vendor autoload not found - run composer install' );
 			}
 		}
 	}

@@ -101,33 +101,32 @@ Examples of available responses:
 ## Directory Structure
 
 ```
-src/lib/
-├── src/
-│   ├── ActionRouter/     # Request routing and action handling
-│   ├── Components/       # Lazy-loaded feature components
-│   ├── Controller/       # Main plugin controller
-│   ├── Crons/            # Scheduled task definitions
-│   ├── DBs/              # Database table handlers
-│   ├── Enum/             # Enumeration classes
-│   ├── Events/           # Event definitions and handlers
-│   ├── Extensions/       # Third-party extension support
-│   ├── License/          # License management
-│   ├── Logging/          # Log handling
-│   ├── Modules/          # Security module implementations
-│   ├── Profiles/         # Security profile configurations
-│   ├── Render/           # UI rendering utilities
-│   ├── Request/          # Request parsing and handling
-│   ├── Rest/             # REST API v1 implementation
-│   ├── Rules/            # Rules engine (conditions & responses)
-│   ├── Scans/            # File and security scanners
-│   ├── ShieldNetApi/     # Cloud API integration
-│   ├── Tables/           # Admin table renderers
-│   ├── Users/            # User management utilities
-│   ├── Utilities/        # Helper classes
-│   ├── WpCli/            # WP-CLI command integration
-│   └── Zones/            # Security zone definitions
-├── functions/            # Global helper functions
-└── vendor_prefixed/      # Prefixed third-party dependencies
+src/
+├── ActionRouter/     # Request routing and action handling
+├── Components/       # Lazy-loaded feature components
+├── Controller/       # Main plugin controller
+├── Crons/            # Scheduled task definitions
+├── DBs/              # Database table handlers
+├── Enum/             # Enumeration classes
+├── Events/           # Event definitions and handlers
+├── Extensions/       # Third-party extension support
+├── License/          # License management
+├── Logging/          # Log handling
+├── Modules/          # Security module implementations
+├── Profiles/         # Security profile configurations
+├── Render/           # UI rendering utilities
+├── Request/          # Request parsing and handling
+├── Rest/             # REST API v1 implementation
+├── Rules/            # Rules engine (conditions & responses)
+├── Scans/            # File and security scanners
+├── ShieldNetApi/     # Cloud API integration
+├── Tables/           # Admin table renderers
+├── Users/            # User management utilities
+├── Utilities/        # Helper classes
+├── WpCli/            # WP-CLI command integration
+└── Zones/            # Security zone definitions
+
+vendor_prefixed/      # Prefixed third-party dependencies (in built packages)
 ```
 
 ## Namespace

@@ -166,6 +166,7 @@ yarn.lock text eol=lf
 /node_modules export-ignore
 
 # Legacy vendor directories (should not be copied from source)
+# This should NOT be removed unless legacy plugin packager handling has been removed.
 /src/lib/vendor export-ignore
 /src/lib/vendor_prefixed export-ignore
 /src/lib/strauss.phar export-ignore
