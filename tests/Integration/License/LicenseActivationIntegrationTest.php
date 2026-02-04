@@ -23,10 +23,11 @@ class LicenseActivationIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testLicenseHandlerHasActivationUrlMethod() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
-		$licenseHandler = $con->comps->license ?? null;
-		$this->assertNotNull( $licenseHandler, 'License handler should exist' );
+		$licenseHandler = $con->comps->license;
+		$this->assertNotNull( $licenseHandler, 'License handler must be available' );
+
 		$this->assertTrue(
 			\method_exists( $licenseHandler, 'activationURL' ),
 			'License handler should have activationURL method'
@@ -38,9 +39,11 @@ class LicenseActivationIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testActivationEventsAreDefined() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
+		$this->assertNotNull( $con->cfg, 'Shield config must be loaded' );
 
-		$events = $con->cfg->configuration->events ?? [];
+		$events = $con->cfg->configuration->events ?? null;
+		$this->assertNotNull( $events, 'Events configuration must be available' );
 		$this->assertIsArray( $events );
 
 		$this->assertArrayHasKey(
