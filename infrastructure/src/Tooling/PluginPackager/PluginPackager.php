@@ -89,6 +89,10 @@ class PluginPackager {
 			);
 		}
 
+		// Update SOURCE spec file FIRST (if version options provided)
+		// This ensures buildPluginJson() reads the correct version
+		$this->updateSourceSpec( $options );
+
 		// Copy files (skip if already in place via git archive)
 		if ( !$options[ 'skip_copy' ] ) {
 			$this->fileCopier->copy( $targetDir );
@@ -97,11 +101,11 @@ class PluginPackager {
 			$this->log( 'Skipping file copy (--skip-copy enabled)' );
 		}
 
-		// Generate plugin.json AFTER copy/skip-copy, ALWAYS runs
+		// Generate plugin.json from updated spec files
 		$this->buildPluginJson( $targetDir );
 
-		// Update version metadata in target files (if options provided)
-		$this->updateVersionMetadata( $targetDir, $options );
+		// Update package-specific files (readme.txt, icwp-wpsf.php)
+		$this->updatePackageFiles( $targetDir, $options );
 
 		$this->installComposerDependencies( $targetDir );
 		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
@@ -239,11 +243,12 @@ class PluginPackager {
 	}
 
 	/**
-	 * Update version metadata in target package files.
+	 * Update source plugin-spec/01_properties.json with version metadata.
+	 * Must be called BEFORE buildPluginJson() so merged config has correct values.
 	 *
 	 * @param array<string, mixed> $options Package options including version, release_timestamp, build
 	 */
-	private function updateVersionMetadata( string $targetDir, array $options ) :void {
+	private function updateSourceSpec( array $options ) :void {
 		$versionOptions = [];
 
 		if ( $options[ 'version' ] !== null ) {
@@ -269,7 +274,24 @@ class PluginPackager {
 		}
 
 		if ( !empty( $versionOptions ) ) {
-			$this->versionUpdater->update( $targetDir, $versionOptions );
+			$this->log( 'Updating source spec files...' );
+			$this->versionUpdater->updateSourceProperties( $versionOptions );
+			$this->log( '  ✓ Source spec updated' );
+		}
+	}
+
+	/**
+	 * Update package-specific files (readme.txt, icwp-wpsf.php) with version.
+	 * Note: plugin.json already has correct version from buildPluginJson().
+	 *
+	 * @param array<string, mixed> $options Package options including version
+	 */
+	private function updatePackageFiles( string $targetDir, array $options ) :void {
+		if ( $options[ 'version' ] !== null ) {
+			$this->log( 'Updating package files...' );
+			$this->versionUpdater->updateReadmeTxt( $targetDir, $options[ 'version' ] );
+			$this->versionUpdater->updatePluginHeader( $targetDir, $options[ 'version' ] );
+			$this->log( '  ✓ Package files updated' );
 		}
 	}
 
