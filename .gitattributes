@@ -156,7 +156,7 @@ yarn.lock text eol=lf
 /changelog.md export-ignore
 
 # Dependency management (runtime deps installed separately in package)
-/composer.json export-ignore
+# NOTE: composer.json is INCLUDED - it's needed for production dependency installation
 /composer.lock export-ignore
 /package.json export-ignore
 /package-lock.json export-ignore
