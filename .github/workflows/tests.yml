@@ -84,14 +84,14 @@ jobs:
         
     - name: Run tests
       run: |
-        # Run unit tests against package
-        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage || {
+        # Run unit tests (uses SHIELD_PACKAGE_PATH from environment, set in Build step)
+        php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage || {
           echo "Unit tests failed - Running again with debug enabled"
-          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
+          SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
           exit 1
         }
-        
-        # Run integration tests against package
+
+        # Run integration tests against package (tests the built plugin in WordPress)
         SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage || {
           echo "Integration tests failed - Running again with debug enabled"
           SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage

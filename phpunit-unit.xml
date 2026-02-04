@@ -4,7 +4,6 @@
          bootstrap="tests/Unit/bootstrap.php"
          colors="true"
          verbose="true"
-         displayDetailsOnSkippedTests="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          convertErrorsToExceptions="true"

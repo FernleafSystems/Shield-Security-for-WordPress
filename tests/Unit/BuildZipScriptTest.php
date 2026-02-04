@@ -20,6 +20,9 @@ class BuildZipScriptTest extends BaseUnitTest {
 	 * Catches syntax errors before they reach CI/production.
 	 */
 	public function testBuildZipScriptHasValidSyntax() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
 		$scriptPath = $this->getPluginFilePath( 'bin/build-zip.php' );
 		$output = [];
 		$returnCode = 0;

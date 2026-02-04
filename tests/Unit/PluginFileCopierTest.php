@@ -196,7 +196,7 @@ class PluginFileCopierTest extends TestCase {
 		$mustInclude = [
 			'src/Controller/Controller.php',
 			'icwp-wpsf.php',
-			'plugin.json',
+			// Note: plugin.json is export-ignored because it's regenerated during build
 		];
 
 		foreach ( $mustInclude as $path ) {
