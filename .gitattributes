@@ -165,6 +165,11 @@ yarn.lock text eol=lf
 /vendor_prefixed export-ignore
 /node_modules export-ignore
 
+# Legacy vendor directories (should not be copied from source)
+/src/lib/vendor export-ignore
+/src/lib/vendor_prefixed export-ignore
+/src/lib/strauss.phar export-ignore
+
 # Testing
 /tests export-ignore
 /patchwork.json export-ignore

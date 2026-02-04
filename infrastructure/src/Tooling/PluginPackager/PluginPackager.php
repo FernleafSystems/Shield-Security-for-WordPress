@@ -492,10 +492,13 @@ class PluginPackager {
 		$legacySrcDir = Path::join( $targetDir, 'src', 'lib', 'src' );
 		$vendorPrefixedDir = Path::join( $targetDir, 'vendor_prefixed' );
 		$legacyVendorPrefixedDir = Path::join( $targetDir, 'src', 'lib', 'vendor_prefixed' );
+		$vendorDir = Path::join( $targetDir, 'vendor' );
+		$legacyVendorDir = Path::join( $targetDir, 'src', 'lib', 'vendor' );
 
 		// Create legacy directory structure
 		$fs->mkdir( $legacySrcDir, 0755 );
 		$fs->mkdir( $legacyVendorPrefixedDir, 0755 );
+		$fs->mkdir( $legacyVendorDir, 0755 );
 
 		// ========================================
 		// Source directories to mirror (full copy)
@@ -581,6 +584,39 @@ class PluginPackager {
 			$vendorFilesToCopy
 		);
 
+		// ========================================
+		// Standard vendor directories to mirror (for shutdown compatibility)
+		// ========================================
+		$stdVendorDirectoriesToMirror = [
+			[ 'mlocati', 'ip-lib' ],  // IPLib used by AddRule at shutdown
+			[ 'composer' ],            // Autoloader metadata
+		];
+
+		\array_map(
+			fn( array $path ) => $fs->mirror(
+				Path::join( $vendorDir, ...$path ),
+				Path::join( $legacyVendorDir, ...$path )
+			),
+			$stdVendorDirectoriesToMirror
+		);
+
+		// ========================================
+		// Standard vendor files to copy
+		// ========================================
+		$stdVendorFilesToCopy = [
+			'autoload.php',
+		];
+
+		\array_map(
+			function ( string $file ) use ( $fs, $vendorDir, $legacyVendorDir ) :void {
+				$src = Path::join( $vendorDir, $file );
+				if ( \file_exists( $src ) ) {
+					$fs->copy( $src, Path::join( $legacyVendorDir, $file ) );
+				}
+			},
+			$stdVendorFilesToCopy
+		);
+
 		$this->log( '  ✓ Created legacy path duplicates for upgrade compatibility' );
 	}
 
@@ -613,9 +649,10 @@ class PluginPackager {
 
 		// Required directories
 		$requiredDirs = [
-			'vendor_prefixed'             => Path::join( $targetDir, 'vendor_prefixed' ),
-			'assets/dist'                 => Path::join( $targetDir, 'assets', 'dist' ),
-			'src/lib/src (legacy compat)' => Path::join( $targetDir, 'src', 'lib', 'src' ),
+			'vendor_prefixed'                => Path::join( $targetDir, 'vendor_prefixed' ),
+			'assets/dist'                    => Path::join( $targetDir, 'assets', 'dist' ),
+			'src/lib/src (legacy compat)'    => Path::join( $targetDir, 'src', 'lib', 'src' ),
+			'src/lib/vendor (legacy compat)' => Path::join( $targetDir, 'src', 'lib', 'vendor' ),
 		];
 
 		foreach ( $requiredDirs as $name => $path ) {
