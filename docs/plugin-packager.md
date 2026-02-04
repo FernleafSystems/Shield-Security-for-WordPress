@@ -25,6 +25,9 @@ composer build-zip -- --version=21.0.102
 
 # Build to a directory (for SVN deployment)
 composer package-plugin -- --output=/path/to/svn/trunk
+
+# Update source files for a release (without building)
+php bin/prepare-release.php --version=21.0.102 --build=auto
 ```
 
 ---
@@ -145,6 +148,59 @@ composer package-plugin -- --output=./dist --skip-root-composer --skip-lib-compo
 
 ---
 
+### prepare-release
+
+Updates version metadata in **source files** without building a package. Use this to prepare source files before committing a release.
+
+**Location:** `bin/prepare-release.php`
+
+**Synopsis:**
+```bash
+php bin/prepare-release.php [--version=<version>] [--build=<build>] [--release-timestamp=<timestamp>] [--help]
+```
+
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--version` | string | - | Version number (e.g., `21.0.102`) |
+| `--release-timestamp` | integer | auto-generated | Unix timestamp (auto-set when `--version` provided) |
+| `--build` | string | - | Build identifier (`YYYYMM.DDBB` format or `auto`) |
+| `--help` | flag | - | Show usage information |
+
+**Files Updated:**
+
+| File | Field/Pattern |
+|------|---------------|
+| `plugin-spec/01_properties.json` | `version`, `release_timestamp`, `build` |
+| `readme.txt` | `Stable tag: X.X.X` |
+| `icwp-wpsf.php` | `* Version: X.X.X` |
+
+**Examples:**
+
+```bash
+# Prepare a new release version with auto-generated build number
+php bin/prepare-release.php --version=21.0.102 --build=auto
+
+# Update only the build number (e.g., for nightly builds)
+php bin/prepare-release.php --build=auto
+
+# Set explicit version and build
+php bin/prepare-release.php --version=21.0.102 --build=202602.0401
+
+# Then commit the changes
+git add plugin-spec/01_properties.json readme.txt icwp-wpsf.php
+git commit -m "Bump version to 21.0.102"
+```
+
+**Difference from build-zip/package-plugin:**
+- `prepare-release` updates **source files** in your working directory
+- `build-zip`/`package-plugin` update files in the **target package** only
+
+Use `prepare-release` when you want to commit version changes to source control before building.
+
+---
+
 ## Version Metadata
 
 The packager can update version information across multiple files during the build process. This is particularly useful for CI/CD pipelines where version numbers are determined at build time.
@@ -214,12 +270,16 @@ Source: 202601.1599 → Generated: 202602.0301 (new month, reset)
 ### Standard Release Build
 
 ```bash
-# 1. Update version in source files (optional - packager can do this)
-# 2. Build the release
+# Option A: Update source files first, then build
+php bin/prepare-release.php --version=21.0.102 --build=auto
+git add plugin-spec/01_properties.json readme.txt icwp-wpsf.php
+git commit -m "Bump version to 21.0.102"
+composer build-zip
+
+# Option B: Build with version (updates package only, not source)
 composer build-zip -- --version=21.0.102 --build=auto
 
-# Output: builds/wp-simple-firewall-20260203-143052.zip
-# Contains: wp-simple-firewall/ folder with all plugin files
+# Output: builds/wp-simple-firewall-{timestamp}.zip
 ```
 
 ### WordPress.org SVN Deployment
@@ -428,6 +488,7 @@ composer build-zip -- --keep-package
 bin/
 ├── build-zip.php           # Zip build script
 ├── package-plugin.php      # Directory package script
+├── prepare-release.php     # Source version updater
 └── run-docker-tests.sh     # Docker test runner
 
 infrastructure/src/Tooling/
