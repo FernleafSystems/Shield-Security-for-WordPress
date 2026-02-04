@@ -15,7 +15,7 @@ class FileSystemUtils {
 	 * @throws \RuntimeException if deletion fails
 	 */
 	public static function removeDirectoryRecursive( string $dir ) :void {
-		if ( !is_dir( $dir ) ) {
+		if ( !\is_dir( $dir ) ) {
 			return;
 		}
 

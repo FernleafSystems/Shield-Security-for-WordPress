@@ -15,11 +15,9 @@ class PluginFileCopier {
 	/** @var callable */
 	private $logger;
 
-	public function __construct( string $projectRoot, ?callable $logger = null ) {
+	public function __construct( string $projectRoot, callable $logger ) {
 		$this->projectRoot = $projectRoot;
-		$this->logger = $logger ?? static function ( string $message ) :void {
-			echo $message.PHP_EOL;
-		};
+		$this->logger = $logger;
 	}
 
 	/**
