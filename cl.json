@@ -66,7 +66,7 @@
     "patches":     [
       {
         "version":     "1",
-        "released_at": 1770393600,
+        "released_at": 1770220000,
         "items":       [
           {
             "title":    "Upgraded dashboard charts for improved performance and visuals.",
