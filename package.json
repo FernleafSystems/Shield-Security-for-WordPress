@@ -4,6 +4,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
+    "@fullhuman/postcss-purgecss": "^8.0.0",
     "@simplewebauthn/browser": "^8.3.7",
     "altcha-lib": "^1.4.1",
     "autoprefixer": "^10.4.24",
