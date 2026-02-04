@@ -132,4 +132,30 @@ class CommandRunnerTest extends TestCase {
 
 		$this->assertEquals( $originalCwd, getcwd(), 'Working directory should be restored after command execution' );
 	}
+
+	/**
+	 * Test that run() includes stderr output in exception message when command fails
+	 */
+	public function testRunIncludesStderrInException() :void {
+		$runner = $this->createRunner();
+
+		try {
+			// Use PHP to write to stderr and exit with error - works on all platforms
+			$runner->run( [
+				PHP_BINARY,
+				'-r',
+				'fwrite(STDERR, "test stderr message"); exit(1);'
+			], $this->projectRoot );
+
+			$this->fail( 'Expected RuntimeException was not thrown' );
+		}
+		catch ( \RuntimeException $e ) {
+			$message = $e->getMessage();
+
+			// Verify exception contains expected parts
+			$this->assertStringContainsString( 'Command failed with exit code', $message );
+			$this->assertStringContainsString( 'test stderr message', $message );
+			$this->assertStringContainsString( 'Error output:', $message );
+		}
+	}
 }
