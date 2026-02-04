@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Translations\{
 	DownloadTranslation,
@@ -15,9 +14,9 @@ class TranslationDownloadController {
 
 	use ExecOnce;
 	use PluginControllerConsumer;
-	use PluginCronsConsumer;
 
 	private const OPT_KEY = 'translation_config';
+	private const DOWNLOAD_COOLDOWN = 600;
 
 	private static bool $fetching = false;
 
@@ -26,7 +25,28 @@ class TranslationDownloadController {
 	}
 
 	protected function run() {
-		$this->setupCronHooks();
+		$this->scheduleCrons();
+	}
+
+	private function scheduleCrons() :void {
+		$con = self::con();
+		$now = Services::Request()->ts();
+		$localesLookup = $con->prefix( 'adhoc_locales_check' );
+		if ( empty( $this->getCachedLocales() ) ) {
+			add_action( $localesLookup, fn() => $this->getAvailableLocales() );
+			if ( !Services::WpGeneral()->isCron() && !wp_next_scheduled( $localesLookup ) ) {
+				wp_schedule_single_event( $now + \MINUTE_IN_SECONDS, $localesLookup );
+			}
+		}
+		$localesDownload = $con->prefix( 'adhoc_locales_download' );
+		if ( !empty( $this->getQueue() ) ) {
+			add_action( $localesDownload, fn() => $this->processQueue() );
+			if ( !Services::WpGeneral()->isCron() && !wp_next_scheduled( $localesDownload ) ) {
+				// schedule the next download to align with the end of the cooldown window.
+				$timeTilNextDownload = \max( 0, self::DOWNLOAD_COOLDOWN - ( $now - ( $this->cfg()[ 'last_download_at' ] ?? 0 ) ) );
+				wp_schedule_single_event( $now + $timeTilNextDownload + 10, $localesDownload );
+			}
+		}
 	}
 
 	/**
@@ -36,17 +56,10 @@ class TranslationDownloadController {
 		$this->saveQueue( \array_merge( $this->getQueue(), [ $locale ] ) );
 	}
 
-	/**
-	 * Daily cron: process queued locales.
-	 */
-	public function runHourlyCron() :void {
-		$this->processQueue();
-	}
-
 	public function processQueue() :void {
 		if ( !empty( $this->getQueue() ) && $this->canAttemptDownload() ) {
 
-			$this->addCfg( 'last_attempt_at', Services::Request()->ts() );
+			$this->addCfg( 'last_download_at', Services::Request()->ts() );
 
 			$processed = [];
 			$available = $this->getAvailableLocales();
@@ -90,7 +103,7 @@ class TranslationDownloadController {
 	 * Safe to call in any context, including during textdomain loading.
 	 */
 	public function getCachedLocales() :array {
-		return $this->cfg()[ 'available' ][ 'locales' ] ?? [];
+		return \is_array( $this->cfg()[ 'locales' ] ?? null ) ? $this->cfg()[ 'locales' ] : [];
 	}
 
 	private function acquireMo( string $locale, string $expectedHash, string $hashAlgo ) :bool {
@@ -153,59 +166,55 @@ class TranslationDownloadController {
 	}
 
 	private function canAttemptDownload() :bool {
-		$lastAttempt = $this->cfg()[ 'last_attempt_at' ] ?? 0;
-		return ( Services::Request()->ts() - $lastAttempt )
-			   >= self::con()->cfg->translations[ 'download_cooldown_days' ]*\DAY_IN_SECONDS;
+		return ( Services::Request()->ts() - ( $this->cfg()[ 'last_download_at' ] ?? 0 ) ) >= self::DOWNLOAD_COOLDOWN;
 	}
 
-	private function cfg() :array {
+	public function cfg() :array {
 		return self::con()->opts->optGet( self::OPT_KEY ) ?: [];
 	}
 
 	private function addCfg( string $key, $value ) :void {
 		$cfg = $this->cfg();
 		$cfg[ $key ] = $value;
-		self::con()->opts->optSet( self::OPT_KEY, $cfg )->store();
+		self::con()->opts->optSet(
+			self::OPT_KEY,
+			\array_intersect_key( $cfg, \array_flip( [ 'queue', 'locales', 'last_fetch_at', 'last_download_at' ] ) )
+		)->store();
 	}
 
-	private function getQueue() :array {
+	public function getQueue() :array {
 		return $this->cfg()[ 'queue' ] ?? [];
 	}
 
 	private function saveQueue( array $queue ) :void {
-		$this->addCfg( 'queue', \array_filter( \array_values( \array_unique( $queue ) ) ) );
+		$this->addCfg( 'queue',
+			\array_values( \array_filter( \array_unique( $queue ), fn( $loc ) => !empty( $loc ) && $this->isLocaleAvailable( $loc ) ) )
+		);
 	}
 
-	public function getAvailableLocales() :array {
-		$available = $this->cfg()[ 'available' ] ?? null;
+	/**
+	 * Be sure to only ever call this on a cron or non-synchronous request.
+	 */
+	private function getAvailableLocales( bool $forceCheck = false ) :array {
+		$locales = $this->getCachedLocales();
 		$cacheTTL = ( self::con()->cfg->translations[ 'list_cache_hours' ] ?? 24 )*\HOUR_IN_SECONDS;
 
-		$isInvalid = !\is_array( $available )
-					 || empty( $available[ 'fetched_at' ] )
-					 || ( Services::Request()->ts() - $available[ 'fetched_at' ] ) >= $cacheTTL;
+		$isInvalid = empty( $locales )
+					 || ( Services::Request()->ts() - ( $this->cfg()[ 'last_fetch_at' ] ?? 0 ) ) >= $cacheTTL;
 
-		if ( $isInvalid && !self::$fetching ) {
+		if ( $forceCheck || ( $isInvalid && !self::$fetching ) ) {
 			self::$fetching = true;
 			try {
-				$this->fetchLocalesFromApi();
-				$available = $this->cfg()[ 'available' ];
+				$this->addCfg( 'last_fetch_at', Services::Request()->ts() );
+				$apiLocales = ( new ListAvailable() )->retrieve();
+				$this->addCfg( 'locales', ( !empty( $apiLocales ) && \is_array( $apiLocales ) ) ? $apiLocales : [] );
+				$locales = $this->cfg()[ 'locales' ];
 			}
 			finally {
 				self::$fetching = false;
 			}
 		}
 
-		return $available[ 'locales' ] ?? [];
-	}
-
-	private function fetchLocalesFromApi() :void {
-		$api = ( new ListAvailable() )->retrieve();
-		$locales = ( \is_array( $api ) && \is_array( $api[ 'locales' ] ?? null ) ) ? $api[ 'locales' ] : [];
-		$available = [
-			'locales'    => $locales,
-			// Always update fetched_at to prevent API hammering on failure
-			'fetched_at' => Services::Request()->ts(),
-		];
-		$this->addCfg( 'available', $available );
+		return $locales;
 	}
 }

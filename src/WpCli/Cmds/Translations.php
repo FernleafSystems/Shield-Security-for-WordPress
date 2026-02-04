@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Translations\{
 	DownloadTranslation,
 	ListAvailable
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 class Translations extends BaseCmd {
 
@@ -156,43 +157,29 @@ class Translations extends BaseCmd {
 	}
 
 	private function runStatus() :void {
-		$controller = self::con()->comps->translation_downloads;
 		$con = self::con();
-
-		// Get queue via reflection
-		$reflection = new \ReflectionClass( $controller );
-		$queueMethod = $reflection->getMethod( 'getQueue' );
-		$queueMethod->setAccessible( true );
-		$queue = $queueMethod->invoke( $controller );
-
-		// Get config via reflection
-		$cfgMethod = $reflection->getMethod( 'cfg' );
-		$cfgMethod->setAccessible( true );
-		$cfg = $cfgMethod->invoke( $controller );
-
-		// Build cache directory info
-		$cacheDir = $con->cache_dir_handler->buildSubDir( 'languages' );
+		$tranCon = $con->comps->translation_downloads;
 
 		\WP_CLI::log( '=== Translation Download Status ===' );
 		\WP_CLI::log( '' );
 
-		\WP_CLI::log( \sprintf( 'Cache Directory: %s', $cacheDir ?: 'Not configured' ) );
-		\WP_CLI::log( \sprintf( 'Queued Locales: %d', \count( $queue ) ) );
+		\WP_CLI::log( \sprintf( 'Cache Directory: %s', $con->cache_dir_handler->buildSubDir( 'languages' ) ?: 'Not configured' ) );
+		\WP_CLI::log( \sprintf( 'Queued Locales: %d', \count( $tranCon->getQueue() ) ) );
 
 		// Show last attempt time
-		$lastAttempt = $cfg[ 'last_attempt_at' ] ?? 0;
+		$lastAttempt = $tranCon->cfg()[ 'last_download_at' ] ?? 0;
 		\WP_CLI::log( \sprintf( 'Last Download Attempt: %s',
-			$lastAttempt > 0 ? \date( 'Y-m-d H:i:s', $lastAttempt ) : 'Never'
+			$lastAttempt > 0 ? Services::WpGeneral()->getTimeStampForDisplay( $lastAttempt ) : 'Never'
 		) );
 		\WP_CLI::log( '' );
 
 		// Show available locales from cache
-		$available = $controller->getAvailableLocales();
+		$available = $tranCon->getCachedLocales();
 		if ( !empty( $available ) ) {
 			\WP_CLI::log( '--- Cached Locale Files ---' );
 			$items = [];
 			foreach ( \array_keys( $available ) as $locale ) {
-				$path = $controller->getLocaleMoFilePath( $locale );
+				$path = $tranCon->getLocaleMoFilePath( $locale );
 				if ( !empty( $path ) ) {
 					$items[] = [
 						'locale'      => $locale,

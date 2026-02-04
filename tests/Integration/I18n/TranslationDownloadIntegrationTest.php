@@ -31,21 +31,7 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 		$this->assertNotNull( $translations, 'Translations config must exist in plugin.json' );
 
 		$this->assertIsArray( $translations, 'Translations config should exist' );
-		$this->assertArrayHasKey( 'download_cooldown_days', $translations );
 		$this->assertArrayHasKey( 'list_cache_hours', $translations );
-	}
-
-	public function testCooldownDaysIsInteger() :void {
-		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
-		$this->assertNotNull( $con->cfg, 'Shield config must be loaded' );
-
-		$translations = $con->cfg->translations ?? null;
-		$this->assertNotNull( $translations, 'Translations config must exist' );
-
-		$cooldownDays = $translations[ 'download_cooldown_days' ] ?? null;
-		$this->assertIsInt( $cooldownDays );
-		$this->assertGreaterThan( 0, $cooldownDays );
 	}
 
 	public function testListCacheHoursIsInteger() :void {
@@ -115,20 +101,17 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 		$controller = $con->comps->translation_downloads;
 		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
-		// Execute the controller to register cron hooks
+		// Execute the controller to register ad-hoc cron events
 		$controller->execute();
 
-		// Check that the hourly cron hook exists
-		// The controller uses PluginCronsConsumer which sets up 'runHourlyCron'
+		// Verify the controller uses ExecOnce and has processQueue for cron handling
 		$this->assertTrue(
-			\method_exists( $controller, 'runHourlyCron' ),
-			'Controller should have runHourlyCron method'
+			\method_exists( $controller, 'execute' ),
+			'Controller should have execute method from ExecOnce trait'
 		);
-
-		// Verify the setupCronHooks method was called (from PluginCronsConsumer trait)
 		$this->assertTrue(
-			\method_exists( $controller, 'setupCronHooks' ),
-			'Controller should have setupCronHooks method from trait'
+			\method_exists( $controller, 'processQueue' ),
+			'Controller should have processQueue method for cron-based downloads'
 		);
 	}
 
@@ -235,10 +218,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 		$reflection = new \ReflectionClass( $controller );
 
-		// Set last_attempt_at to now via addCfg
+		// Set last_download_at to now via addCfg
 		$addCfgMethod = $reflection->getMethod( 'addCfg' );
 		$addCfgMethod->setAccessible( true );
-		$addCfgMethod->invoke( $controller, 'last_attempt_at', \time() );
+		$addCfgMethod->invoke( $controller, 'last_download_at', \time() );
 
 		// Check if can attempt (should be false due to cooldown)
 		$canAttemptMethod = $reflection->getMethod( 'canAttemptDownload' );
@@ -276,7 +259,9 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 		// This test verifies the integration when API returns language-only locales
 		// The actual behavior depends on what getAvailableLocales() returns from API
-		$availableLocales = $controller->getAvailableLocales();
+		$getAvailableMethod = $reflection->getMethod( 'getAvailableLocales' );
+		$getAvailableMethod->setAccessible( true );
+		$availableLocales = $getAvailableMethod->invoke( $controller );
 
 		// If 'ar' is available but 'ar_EG' is not, queueing logic should handle it
 		if ( isset( $availableLocales[ 'ar' ] ) && !isset( $availableLocales[ 'ar_EG' ] ) ) {

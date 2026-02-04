@@ -31,7 +31,6 @@ class Processor {
 		$this->removePluginConflicts();
 
 		$components->license->execute();
-		$components->translation_downloads->execute();
 
 		if ( $components->opts_lookup->isPluginEnabled() ) {
 
@@ -51,6 +50,7 @@ class Processor {
 				$components->comment_spam->execute();
 				$components->whitelabel->execute();
 				$components->integrations->execute();
+				$components->translation_downloads->execute();
 
 				new Events\StatsWriter();
 				( new Lib\AllowBetaUpgrades() )->execute();

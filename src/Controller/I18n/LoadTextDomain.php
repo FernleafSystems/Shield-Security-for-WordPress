@@ -9,6 +9,8 @@ class LoadTextDomain {
 
 	use PluginControllerConsumer;
 
+	private static $processing = false;
+
 	public function run() {
 		/**
 		 * Translations override - we want to use our in-plugin translations, not those
@@ -16,7 +18,16 @@ class LoadTextDomain {
 		 * system is full of friction, though that's where we'd like to end-up eventually.
 		 */
 		add_filter( 'load_textdomain_mofile', function ( $moFile, $domain ) {
-			return $domain === self::con()->getTextDomain() ? $this->overrideTranslations( $moFile ) : $moFile;
+			if ( !self::$processing && $domain === self::con()->getTextDomain() ) {
+				self::$processing = true;
+				try {
+					$moFile = $this->overrideTranslations( $moFile );
+				}
+				finally {
+					self::$processing = false;
+				}
+			}
+			return $moFile;
 		}, 100, 2 );
 		/**
 		 * No longer needed, apparently:
@@ -115,7 +126,6 @@ class LoadTextDomain {
 					}
 				}
 			}
-
 			if ( !empty( $localeToQueue ) ) {
 				$transDownloaderCon->enqueueLocaleForDownload( $localeToQueue );
 			}

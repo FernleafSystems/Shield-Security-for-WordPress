@@ -36,7 +36,7 @@ class FireEventsForChangedOpts {
 					}
 				}
 				try {
-					self::con()->fireEvent( 'plugin_option_changed', [
+					self::con()->comps->events->fireEvent( 'plugin_option_changed', [
 						'audit_params' => [
 							'name'  => $strings->getFor( $opt )[ 'name' ],
 							'key'   => $opt,
