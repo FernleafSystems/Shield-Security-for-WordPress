@@ -36,6 +36,9 @@ class LegacyPathDuplicator {
 		[ 'Modules', 'AuditTrail', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
 		// Modules/HackGuard/Lib/Snapshots/ - Snapshot checking
 		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'FindAssetsToSnap.php' ],
+		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'HashesStorageDir.php' ],
+		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'Store.php' ],
+		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'StoreAction', 'BaseAction.php' ],
 		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'StoreAction', 'Load.php' ],
 		// Modules/IPs/Components/ProcessOffense.php - Offense processing
 		[ 'Modules', 'IPs', 'Components', 'ProcessOffense.php' ],
