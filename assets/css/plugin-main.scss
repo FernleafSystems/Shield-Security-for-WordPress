@@ -1261,11 +1261,11 @@ td.status_file_size {
 .shield-chart {
   position: relative;
   width: 100%;
-  min-height: 100px;
+  min-height: 140px;
 }
 
-.summary-chart canvas {
-  max-height: 120px;
+.stat.card .shield-chart {
+  min-height: 120px;
 }
 
 .inner-page-header .inner-page-config button.dropdown-toggle {

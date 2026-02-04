@@ -62,8 +62,9 @@ export class Chart extends BaseComponent {
 							data: series,
 							borderColor: CHART_COLORS[ i % CHART_COLORS.length ],
 							borderWidth: 2,
-							pointRadius: 3,
-							tension: 0,
+							pointRadius: 4,
+							pointHoverRadius: 6,
+							tension: 0.1,
 							fill: false
 						} ) )
 					},
@@ -75,7 +76,17 @@ export class Chart extends BaseComponent {
 							tooltip: { enabled: true }
 						},
 						scales: {
-							x: { display: true },
+							x: {
+								display: true,
+								ticks: {
+									display: true,
+									maxRotation: 0,
+									callback: function( val, index, ticks ) {
+										return ( index === 0 || index === ticks.length - 1 ) ? this.getLabelForValue( val ) : '';
+									}
+								},
+								grid: { display: false }
+							},
 							y: {
 								display: true,
 								beginAtZero: true,
@@ -86,7 +97,7 @@ export class Chart extends BaseComponent {
 							}
 						},
 						layout: {
-							padding: { top: 10, right: 10, bottom: 10, left: 10 }
+							padding: { top: 5, right: 15, bottom: 5, left: 5 }
 						}
 					}
 				} );

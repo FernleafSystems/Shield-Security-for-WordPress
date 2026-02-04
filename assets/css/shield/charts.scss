@@ -2,13 +2,9 @@
 .shield-chart {
   position: relative;
   width: 100%;
-  min-height: 100px;
-}
-
-.summary-chart canvas {
-  max-height: 120px;
+  min-height: 140px;
 }
 
 .stat.card .shield-chart {
-  min-height: 80px;
+  min-height: 120px;
 }
