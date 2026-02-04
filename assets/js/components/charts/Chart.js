@@ -1,12 +1,22 @@
 import $ from 'jquery';
-import 'chartist/dist/index.scss';
+import {
+	Chart as ChartJS,
+	LineController,
+	LineElement,
+	PointElement,
+	LinearScale,
+	CategoryScale,
+	Tooltip
+} from 'chart.js';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { LineChart } from 'chartist';
 import { ObjectOps } from "../../util/ObjectOps";
 
+ChartJS.register( LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip );
+
+const CHART_COLORS = [ '#d70206', '#f4c63d', '#f05b4f', '#d17905', '#453d3f' ];
+
 export class Chart extends BaseComponent {
-	chartTitleContainer;
 	$chartContainer;
 
 	constructor( initData, chart, containerSelector ) {
@@ -30,7 +40,6 @@ export class Chart extends BaseComponent {
 
 		this.reqRunning = true;
 		this.$chartContainer.html( 'Loading...' );
-		// this.chartTitleContainer.html( '' );
 
 		( new AjaxService() )
 		.bg( ObjectOps.Merge( this._base_data.ajax.render_summary_chart, this.chart.req_params ) )
@@ -40,52 +49,67 @@ export class Chart extends BaseComponent {
 				alert( resp.data.message );
 			}
 			else {
-				if ( this.chart.show_title && typeof resp.data.chart.title !== typeof undefined ) {
-					// this.chartTitleContainer.html( resp.data.chart.title );
-				}
-
 				this.$chartContainer.html( '' );
 
-				new LineChart(
-					this.container.querySelector( '.icwpAjaxContainerChart' ),
-					resp.data.chart.data,
-					$.extend( {
-						fullWidth: true,
-						showArea: false,
-						chartPadding: {
-							top: 10,
-							right: 10,
-							bottom: 10,
-							left: 10
+				const canvas = document.createElement( 'canvas' );
+				this.container.querySelector( '.icwpAjaxContainerChart' ).appendChild( canvas );
+
+				new ChartJS( canvas, {
+					type: 'line',
+					data: {
+						labels: resp.data.chart.data.labels || [],
+						datasets: ( resp.data.chart.data.series || [] ).map( ( series, i ) => ( {
+							data: series,
+							borderColor: CHART_COLORS[ i % CHART_COLORS.length ],
+							borderWidth: 2,
+							pointRadius: 4,
+							pointHoverRadius: 6,
+							tension: 0.1,
+							fill: false
+						} ) )
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: { display: false },
+							tooltip: { enabled: true }
 						},
-						axisX: {
-							showLabel: true,
-							showGrid: true,
-						},
-						axisY: {
-							onlyInteger: true,
-							showLabel: true,
-							labelInterpolationFnc: function ( value ) {
-								return value;
+						scales: {
+							x: {
+								display: true,
+								ticks: {
+									display: true,
+									maxRotation: 0,
+									callback: function( val, index, ticks ) {
+										return ( index === 0 || index === ticks.length - 1 ) ? this.getLabelForValue( val ) : '';
+									}
+								},
+								grid: { display: false }
+							},
+							y: {
+								display: true,
+								beginAtZero: true,
+								ticks: {
+									stepSize: 1,
+									callback: ( v ) => Math.floor( v ) === v ? v : null
+								}
 							}
+						},
+						layout: {
+							padding: { top: 5, right: 15, bottom: 5, left: 5 }
 						}
-						/* plugins: [
-						// 	Chartist.plugins.legend( {
-						// 		legendNames: resp.data.chart.legend
-						// 	} )
-						 ]*/
-					}, this.chart.chart_options )
-				);
+					}
+				} );
 			}
 		} )
 		.finally( () => this.reqRunning = false );
 	};
 
 	#createChartContainer() {
-		// this.chartTitleContainer = $( '#CustomChartTitle' );
 		this.$chartContainer = $( '<div />' ).appendTo( $( this.container ) );
 		this.$chartContainer
 			.addClass( 'icwpAjaxContainerChart' )
-			.addClass( 'ct-chart' );
+			.addClass( 'shield-chart' );
 	}
 }

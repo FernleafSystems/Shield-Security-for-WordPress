@@ -654,7 +654,7 @@ class PluginJsonSchemaTest extends TestCase {
 	public function testNoUnexpectedTopLevelKeys() :void {
 		$expectedKeys = [
 			'properties',
-			'requirements', 
+			'requirements',
 			'paths',
 			'includes',
 			'menu',
@@ -662,7 +662,8 @@ class PluginJsonSchemaTest extends TestCase {
 			'meta',
 			'plugin_meta',
 			'action_links',
-			'config_spec'
+			'config_spec',
+			'translations',
 		];
 		
 		$actualKeys = array_keys( $this->config );

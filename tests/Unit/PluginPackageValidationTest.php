@@ -42,8 +42,8 @@ class PluginPackageValidationTest extends TestCase {
 			'readme.txt',
 			'plugin_init.php',
 			'plugin_autoload.php',
-			'src/lib/vendor/autoload.php',
-			'src/lib/vendor_prefixed/autoload.php',
+			'vendor/autoload.php',
+			'vendor_prefixed/autoload.php',
 		];
 
 		foreach ( $requiredFiles as $file ) {
@@ -61,9 +61,9 @@ class PluginPackageValidationTest extends TestCase {
 		$requiredDirs = [
 			'assets/dist',
 			'assets/images',
-			'src/lib/src',
-			'src/lib/vendor',
-			'src/lib/vendor_prefixed',
+			'src',
+			'vendor',
+			'vendor_prefixed',
 			'templates',
 		];
 
@@ -84,12 +84,12 @@ class PluginPackageValidationTest extends TestCase {
 			'tests',
 			'bin/install-wp-tests.sh',
 			'phpunit.xml',
-			'composer.json',
-			'composer.lock',
-			'src/lib/vendor/bin',
-			'src/lib/vendor/monolog',
-			'src/lib/vendor/twig',
-			'src/lib/vendor_prefixed/autoload-files.php',
+			// Note: composer.json is intentionally kept for production autoloading
+			// Note: composer.lock is kept - required by Strauss during packaging
+			'vendor/bin',
+			'vendor/monolog',
+			'vendor/twig',
+			'vendor_prefixed/autoload-files.php',
 		];
 
 		foreach ( $excludedItems as $item ) {
@@ -106,7 +106,7 @@ class PluginPackageValidationTest extends TestCase {
 	 */
 	public function testStraussPrefixingApplied() :void {
 		// Check that vendor_prefixed directory has content
-		$vendorPrefixedPath = $this->packagePath . '/src/lib/vendor_prefixed';
+		$vendorPrefixedPath = $this->packagePath . '/vendor_prefixed';
 		$this->assertDirectoryExists( $vendorPrefixedPath );
 		
 		// Check for specific prefixed directories
@@ -148,7 +148,7 @@ class PluginPackageValidationTest extends TestCase {
 	 * Test that autoload files don't contain references to pruned dependencies
 	 */
 	public function testAutoloadFilesPruned() :void {
-		$composerDir = $this->packagePath . '/src/lib/vendor/composer';
+		$composerDir = $this->packagePath . '/vendor/composer';
 		
 		if ( !is_dir( $composerDir ) ) {
 			$this->markTestSkipped( 'Composer directory not found' );

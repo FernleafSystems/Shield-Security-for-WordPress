@@ -1,15 +1,15 @@
 {
-  "name":         "fernleafsystems/wp-plugin-shield",
-  "description":  "Shield Security for WordPress - Enterprise-grade security plugin",
-  "type":         "wordpress-plugin",
-  "license":      "GPL-2.0-or-later",
-  "authors":      [
+  "name":              "fernleafsystems/wp-plugin-shield",
+  "description":       "Shield Security for WordPress - Enterprise-grade security plugin",
+  "type":              "wordpress-plugin",
+  "license":           "GPL-2.0-or-later",
+  "authors":           [
     {
       "name":  "FernleafSystems",
       "email": "support@getshieldsecurity.com"
     }
   ],
-  "config":       {
+  "config":            {
     "platform":      {
       "php": "7.4"
     },
@@ -17,10 +17,28 @@
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
   },
-  "require":      {
-    "php": ">=7.4"
+  "minimum-stability": "stable",
+  "prefer-stable":     true,
+  "require":           {
+    "php":                                   ">=7.4",
+    "crowdsec/capi-client":                  "v3.5",
+    "dolondro/google-authenticator":         "^2.2",
+    "fernleafsystems/wordpress-plugin-core": "^2.4",
+    "fernleafsystems/zxcvbn-php":            "^1.1",
+    "monolog/monolog":                       "^2.10",
+    "nyholm/psr7":                           "^1.8",
+    "nyholm/psr7-server":                    "^1.1",
+    "symfony/polyfill-iconv":                "^1.29",
+    "twig/twig":                             "^3.11",
+    "web-auth/webauthn-lib":                 "^3.3",
+    "ext-json":                              "*",
+    "ext-openssl":                           "*",
+    "ext-zlib":                              "*",
+    "ext-curl":                              "*",
+    "ext-sqlite3":                           "*",
+    "ext-zip":                               "*"
   },
-  "require-dev":  {
+  "require-dev":       {
     "phpunit/phpunit":                      "^9.6",
     "yoast/phpunit-polyfills":              "^4.0",
     "brain/monkey":                         "^2.6",
@@ -29,15 +47,20 @@
     "squizlabs/php_codesniffer":            "^3.8",
     "wp-coding-standards/wpcs":             "^3.0",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "symfony/filesystem":                   "^5.4|^6.0|^7.0"
+    "symfony/filesystem":                   "^5.4|^6.0|^7.0",
+    "symfony/process":                      "^5.4|^6.0|^7.0"
   },
-  "autoload":     {
+  "autoload":          {
     "psr-4": {
-      "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src/lib/src/",
+      "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src/",
       "FernleafSystems\\ShieldPlatform\\":            "infrastructure/src/"
-    }
+    },
+    "files": [
+      "src/global_functions/functions.php",
+      "src/Functions/functions.php"
+    ]
   },
-  "autoload-dev": {
+  "autoload-dev":      {
     "psr-4": {
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Unit\\":        "tests/Unit/",
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Integration\\": "tests/Integration/",
@@ -46,24 +69,62 @@
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Fixtures\\":    "tests/fixtures/"
     }
   },
-  "scripts":      {
-    "build:config":            "@php bin/build-config.php",
-    "test":                    [
+  "scripts":           {
+    "build:config":     "@php bin/build-config.php",
+    "test":             [
       "@build:config",
       "@test:unit",
       "@test:integration"
     ],
-    "test:unit":               [
+    "test:unit":        [
       "@build:config",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"
     ],
-    "test:integration":        [
+    "test:integration": [
       "@build:config",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml"
     ],
-    "phpcs":                   "phpcs",
-    "phpcs:fix":               "phpcbf",
-    "package-plugin":          "@php bin/package-plugin.php",
-    "build-zip":               "@php bin/build-zip.php"
+    "phpcs":            "phpcs",
+    "phpcs:fix":        "phpcbf",
+    "package-plugin":   "@php bin/package-plugin.php",
+    "build-zip":        "@php bin/build-zip.php"
+  },
+  "extra":             {
+    "strauss": {
+      "target_directory":               "vendor_prefixed",
+      "namespace_prefix":               "AptowebDeps\\",
+      "classmap_prefix":                "AptowebDeps_Pfx_",
+      "constant_prefix":                "APTOWEB_PFX_",
+      "packages":                       [
+        "monolog/monolog",
+        "twig/twig",
+        "crowdsec/capi-client"
+      ],
+      "update_call_sites":              false,
+      "override_autoload":              {},
+      "exclude_from_copy":              {
+        "packages":      [
+          "psr/log",
+          "symfony/deprecation-contracts",
+          "symfony/polyfill-ctype",
+          "symfony/polyfill-mbstring",
+          "symfony/polyfill-php81",
+          "symfony/polyfill-php80",
+          "symfony/polyfill-uuid"
+        ],
+        "namespaces":    [],
+        "file_patterns": []
+      },
+      "exclude_from_prefix":            {
+        "packages":      [],
+        "namespaces":    [],
+        "file_patterns": []
+      },
+      "namespace_replacement_patterns": {},
+      "delete_vendor_packages":         true,
+      "delete_vendor_files":            false,
+      "include_modified_date":          false,
+      "include_author":                 false
+    }
   }
 }

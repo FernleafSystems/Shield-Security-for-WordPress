@@ -1,0 +1,10 @@
+// Chart.js styles for Shield Security
+.shield-chart {
+  position: relative;
+  width: 100%;
+  min-height: 140px;
+}
+
+.stat.card .shield-chart {
+  min-height: 120px;
+}

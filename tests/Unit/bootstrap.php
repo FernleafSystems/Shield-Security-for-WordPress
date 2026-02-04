@@ -1,51 +1,14 @@
 <?php declare( strict_types=1 );
 
-// Load composer autoloader for test dependencies
-require_once dirname( dirname( __DIR__ ) ) . '/vendor/autoload.php';
+// Unit tests always use the source autoloader.
+// Package testing is handled by integration tests which run in a full WordPress environment.
+$plugin_dir = dirname( dirname( __DIR__ ) );
+echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
 
-// Environment detection: Package testing or Source testing
-$shield_package_path = getenv( 'SHIELD_PACKAGE_PATH' );
-if ( $shield_package_path !== false && !empty( $shield_package_path ) ) {
-	// Use the package path from environment (Docker package testing or CI)
-	$plugin_dir = $shield_package_path;
-	echo "[UNIT TEST BOOTSTRAP] Using SHIELD_PACKAGE_PATH: $plugin_dir\n";
-} else {
-	// Source testing: use the current repository (Docker source testing or local)
-	$plugin_dir = dirname( dirname( __DIR__ ) );
-	echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
-}
-
-// Debug: Show what we're trying to load
-$autoload_path = $plugin_dir . '/plugin_autoload.php';
-echo "[UNIT TEST BOOTSTRAP] Looking for autoloader at: $autoload_path\n";
-echo "[UNIT TEST BOOTSTRAP] File exists: " . (file_exists($autoload_path) ? 'YES' : 'NO') . "\n";
-
-if ( !file_exists($autoload_path) ) {
-	echo "[UNIT TEST BOOTSTRAP] ERROR: Plugin autoloader not found!\n";
-	echo "[UNIT TEST BOOTSTRAP] Plugin directory contents:\n";
-	if ( is_dir($plugin_dir) ) {
-		$files = scandir($plugin_dir);
-		foreach ( $files as $file ) {
-			if ( $file !== '.' && $file !== '..' ) {
-				echo "[UNIT TEST BOOTSTRAP]   - $file\n";
-			}
-		}
-	} else {
-		echo "[UNIT TEST BOOTSTRAP] ERROR: Plugin directory does not exist: $plugin_dir\n";
-	}
-	die("Bootstrap failed: Cannot find plugin_autoload.php\n");
-}
-
-// Load Shield's plugin autoloader which loads main vendor dependencies
-require_once $autoload_path;
-
-// DO NOT load the prefixed vendor autoloader here!
-// It contains duplicate libraries (Twig, Monolog) that cause fatal errors
-// In production, these duplicates are removed during packaging
-// For unit tests, we rely on the main vendor autoloader only
+require_once $plugin_dir . '/vendor/autoload.php';
 
 // Load Brain Monkey
-require_once dirname( dirname( __DIR__ ) ) . '/vendor/brain/monkey/inc/patchwork-loader.php';
+require_once $plugin_dir . '/vendor/brain/monkey/inc/patchwork-loader.php';
 
 // Load our custom BrainMonkey bootstrap (replaces wp-test-utils)
 require_once dirname( __DIR__ ) . '/bootstrap/brain-monkey.php';

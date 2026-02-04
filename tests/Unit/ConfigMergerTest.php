@@ -7,8 +7,8 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Tests for the ConfigMerger class.
- * 
- * Validates that the merger correctly combines the 16 spec files
+ *
+ * Validates that the merger correctly combines the 17 spec files
  * into a valid plugin.json configuration.
  */
 class ConfigMergerTest extends TestCase {
@@ -44,11 +44,11 @@ class ConfigMergerTest extends TestCase {
 	}
 
 	/**
-	 * Test that all 16 required spec files exist.
+	 * Test that all 17 required spec files exist.
 	 */
 	public function testAllSpecFilesExist() :void {
 		$manifest = ConfigMerger::getFileManifest();
-		$this->assertCount( 16, $manifest, 'Should have exactly 16 spec files defined' );
+		$this->assertCount( 17, $manifest, 'Should have exactly 17 spec files defined' );
 
 		foreach ( $manifest as $filename => $meta ) {
 			$filePath = $this->specDir . '/' . $filename;
@@ -234,7 +234,7 @@ class ConfigMergerTest extends TestCase {
 		$manifest = ConfigMerger::getFileManifest();
 
 		$this->assertIsArray( $manifest, 'Manifest must be an array' );
-		$this->assertCount( 16, $manifest, 'Manifest must have 16 entries' );
+		$this->assertCount( 17, $manifest, 'Manifest must have 17 entries' );
 
 		foreach ( $manifest as $filename => $meta ) {
 			$this->assertIsString( $filename, 'Filename must be a string' );

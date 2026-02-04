@@ -232,17 +232,6 @@ docker run --rm --name shield-composer-root \
     exit 1
 }
 
-if [ -d "$PROJECT_ROOT/src/lib" ]; then
-    docker run --rm --name shield-composer-lib \
-        -v "$PROJECT_ROOT:/app" \
-        -w /app/src/lib \
-        $COMPOSER_IMAGE \
-        composer install --no-interaction --prefer-dist --optimize-autoloader || {
-        echo "❌ src/lib composer install failed"
-        exit 1
-    }
-fi
-
 echo "   ✅ Dependencies installed"
 
 # Build plugin package

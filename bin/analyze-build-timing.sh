@@ -9,7 +9,7 @@
 #
 # Output: Detailed timing breakdown of:
 #   - NPM install and build phases
-#   - Composer install for both root and src/lib
+#   - Composer install
 #   - Package build process with sub-component timing
 #   - Bottleneck identification and optimization suggestions
 
@@ -72,25 +72,15 @@ else
     NPM_BUILD_TIME=0
 fi
 
-# Test 3: Composer install (root)
-echo "📦 Testing composer install (root)..."
+# Test 3: Composer install
+echo "📦 Testing composer install..."
 COMPOSER_ROOT_START=$(date +%s)
 composer install --no-interaction --prefer-dist --optimize-autoloader >/dev/null 2>&1
 COMPOSER_ROOT_END=$(date +%s)
 COMPOSER_ROOT_TIME=$((COMPOSER_ROOT_END - COMPOSER_ROOT_START))
-echo "   composer install (root): $(format_duration $COMPOSER_ROOT_TIME)"
+echo "   composer install: $(format_duration $COMPOSER_ROOT_TIME)"
 
-# Test 4: Composer install (src/lib)
-echo "📦 Testing composer install (src/lib)..."
-COMPOSER_LIB_START=$(date +%s)
-cd src/lib
-composer install --no-interaction --prefer-dist --optimize-autoloader >/dev/null 2>&1
-cd ../..
-COMPOSER_LIB_END=$(date +%s)
-COMPOSER_LIB_TIME=$((COMPOSER_LIB_END - COMPOSER_LIB_START))
-echo "   composer install (src/lib): $(format_duration $COMPOSER_LIB_TIME)"
-
-# Test 5: Package build process (via composer package-plugin) with detailed breakdown
+# Test 4: Package build process (via composer package-plugin) with detailed breakdown
 echo "📦 Testing package build process (composer package-plugin)..."
 PACKAGE_DIR="/tmp/shield-package-analysis-$$"
 rm -rf "$PACKAGE_DIR"
@@ -124,7 +114,7 @@ COPY_TIME=$((COPY_END - COPY_START))
 
 # Time composer install in package directory
 PACKAGE_COMPOSER_START=$(date +%s)
-cd "$PACKAGE_DIR/src/lib"
+cd "$PACKAGE_DIR"
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader >/dev/null 2>&1
 PACKAGE_COMPOSER_END=$(date +%s)
 PACKAGE_COMPOSER_TIME=$((PACKAGE_COMPOSER_END - PACKAGE_COMPOSER_START))
@@ -172,8 +162,7 @@ echo ""
 echo "=== Build Process Timing Summary ==="
 echo "NPM Install:          $(format_duration $NPM_INSTALL_TIME)"
 echo "NPM Build:            $(format_duration $NPM_BUILD_TIME)"
-echo "Composer (root):      $(format_duration $COMPOSER_ROOT_TIME)"
-echo "Composer (src/lib):   $(format_duration $COMPOSER_LIB_TIME)"
+echo "Composer:             $(format_duration $COMPOSER_ROOT_TIME)"
 echo "Package Build:        $(format_duration $PACKAGE_TOTAL_TIME)"
 echo "─────────────────────────────────"
 echo "TOTAL BUILD TIME:     $(format_duration $TOTAL_TIME)"
@@ -186,8 +175,7 @@ echo "=== Bottleneck Analysis ==="
 declare -A times
 times["NPM Install"]=$NPM_INSTALL_TIME
 times["NPM Build"]=$NPM_BUILD_TIME
-times["Composer Root"]=$COMPOSER_ROOT_TIME
-times["Composer Lib"]=$COMPOSER_LIB_TIME
+times["Composer"]=$COMPOSER_ROOT_TIME
 times["Package Build"]=$PACKAGE_TOTAL_TIME
 
 max_time=0
@@ -225,8 +213,8 @@ if [ $NPM_BUILD_TIME -gt 20 ]; then
     echo "  - Using production mode optimizations"
 fi
 
-if [ $COMPOSER_ROOT_TIME -gt 15 ] || [ $COMPOSER_LIB_TIME -gt 15 ]; then
-    echo "• Composer installs are slow (>15s) - consider:"
+if [ $COMPOSER_ROOT_TIME -gt 15 ]; then
+    echo "• Composer install is slow (>15s) - consider:"
     echo "  - Ensuring --prefer-dist flag is used"
     echo "  - Implementing Composer cache in CI/CD"
     echo "  - Using prestissimo plugin for parallel downloads"

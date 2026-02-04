@@ -3,7 +3,7 @@
     <description>WordPress Coding Standards for Shield Security Plugin</description>
 
     <!-- Files to check -->
-    <file>src/lib/src</file>
+    <file>src</file>
     <file>icwp-wpsf.php</file>
     <file>plugin_init.php</file>
     

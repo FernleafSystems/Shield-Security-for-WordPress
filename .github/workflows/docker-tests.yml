@@ -176,9 +176,7 @@ jobs:
       run: |
         echo "Installing composer dependencies"
         composer install --no-interaction --prefer-dist --optimize-autoloader
-        cd src/lib && composer install --no-interaction --prefer-dist --optimize-autoloader
-        cd ../..
-        
+
         echo "Installing npm dependencies"
         npm ci --no-audit --no-fund
         

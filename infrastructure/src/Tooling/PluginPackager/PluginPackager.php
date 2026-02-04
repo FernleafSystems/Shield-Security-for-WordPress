@@ -4,7 +4,6 @@ namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
 use FernleafSystems\ShieldPlatform\Tooling\ConfigMerger;
 use Symfony\Component\Filesystem\Exception\InvalidArgumentException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -29,6 +28,12 @@ class PluginPackager {
 
 	private VersionUpdater $versionUpdater;
 
+	private PostStraussCleanup $postStraussCleanup;
+
+	private LegacyPathDuplicator $legacyPathDuplicator;
+
+	private PackageVerifier $packageVerifier;
+
 	public function __construct( ?string $projectRoot = null, ?callable $logger = null ) {
 		$root = $projectRoot ?? $this->detectProjectRoot();
 		if ( $root === '' ) {
@@ -44,11 +49,15 @@ class PluginPackager {
 		$this->directoryRemover = new SafeDirectoryRemover( $this->projectRoot );
 		$this->fileCopier = new PluginFileCopier( $this->projectRoot, $this->logger );
 		$this->versionUpdater = new VersionUpdater( $this->projectRoot, $this->logger );
+		$this->postStraussCleanup = new PostStraussCleanup( $this->directoryRemover, $this->logger );
+		$this->legacyPathDuplicator = new LegacyPathDuplicator( $this->logger );
+		$this->packageVerifier = new PackageVerifier( $this->logger );
 	}
 
 	/**
 	 * @param array<string,bool> $options
 	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function package( ?string $outputDir = null, array $options = [] ) :string {
 		$options = $this->resolveOptions( $options );
@@ -57,34 +66,21 @@ class PluginPackager {
 		$targetDir = $this->resolveOutputDirectory( $outputDir );
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
-		// Clean target directory if it exists (unless skipped)
+		// Clean the target directory if it exists (unless skipped)
 		if ( $options[ 'directory_clean' ] && is_dir( $targetDir ) ) {
 			$this->log( sprintf( 'Cleaning existing package directory: %s', $targetDir ) );
 			$this->directoryRemover->removeSafely( $targetDir );
 		}
 
 		$composerCommand = $this->commandRunner->getComposerCommand();
-		if ( $options[ 'composer_root' ] ) {
+		if ( $options[ 'composer_install' ] ) {
 			$this->commandRunner->run(
-				array_merge( $composerCommand, [
+				\array_merge( $composerCommand, [
 					'install',
 					'--no-interaction',
 					'--prefer-dist',
-					//					'--optimize-autoloader'
 				] ),
 				$this->projectRoot
-			);
-		}
-
-		if ( $options[ 'composer_lib' ] ) {
-			$this->commandRunner->run(
-				array_merge( $composerCommand, [
-					'install',
-					'--no-interaction',
-					'--prefer-dist',
-					//					'--optimize-autoloader'
-				] ),
-				Path::join( $this->projectRoot, 'src', 'lib' )
 			);
 		}
 
@@ -102,6 +98,10 @@ class PluginPackager {
 			);
 		}
 
+		// Update SOURCE spec file FIRST (if version options provided)
+		// This ensures buildPluginJson() reads the correct version
+		$this->updateSourceSpec( $options );
+
 		// Copy files (skip if already in place via git archive)
 		if ( !$options[ 'skip_copy' ] ) {
 			$this->fileCopier->copy( $targetDir );
@@ -110,11 +110,11 @@ class PluginPackager {
 			$this->log( 'Skipping file copy (--skip-copy enabled)' );
 		}
 
-		// Generate plugin.json AFTER copy/skip-copy, ALWAYS runs
+		// Generate plugin.json from updated spec files
 		$this->buildPluginJson( $targetDir );
 
-		// Update version metadata in target files (if options provided)
-		$this->updateVersionMetadata( $targetDir, $options );
+		// Update package-specific files (readme.txt, icwp-wpsf.php)
+		$this->updatePackageFiles( $targetDir, $options );
 
 		$this->installComposerDependencies( $targetDir );
 		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
@@ -129,9 +129,13 @@ class PluginPackager {
 		);
 		$straussProvider->runPrefixing( $targetDir );
 
-		$this->cleanupPackageFiles( $targetDir );
-		$this->cleanAutoloadFiles( $targetDir );
-		$this->verifyPackage( $targetDir );
+		$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
+		$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
+
+		// Create legacy path duplicates for upgrade compatibility
+		$this->legacyPathDuplicator->createDuplicates( $targetDir );
+
+		$this->packageVerifier->verify( $targetDir );
 
 		$this->log( sprintf( 'Package created at: %s', $targetDir ) );
 
@@ -173,7 +177,7 @@ class PluginPackager {
 		$resolved = Path::normalize( $path );
 
 		// Try to resolve symlinks and get canonical path
-		$realPath = realpath( $resolved );
+		$realPath = \realpath( $resolved );
 		if ( $realPath !== false ) {
 			$resolved = Path::normalize( $realPath );
 		}
@@ -187,37 +191,13 @@ class PluginPackager {
 			if ( $parentDir !== '' && $parentDir !== $resolved ) {
 				$realParent = realpath( $parentDir );
 				if ( $realParent !== false ) {
-					$basename = basename( $resolved );
+					$basename = \basename( $resolved );
 					$resolved = Path::join( Path::normalize( $realParent ), $basename );
 				}
 			}
 		}
 
 		return $resolved;
-	}
-
-	/**
-	 * Convert Windows paths to Git Bash compatible format for bash execution.
-	 * Only converts Windows drive-letter paths (D:/...) to Git Bash format (/mnt/d/...).
-	 * Leaves Unix paths unchanged (works on Linux, Docker, GitHub Actions, WSL).
-	 */
-	private function convertPathForBash( string $path ) :string {
-		$normalized = Path::normalize( $path );
-
-		// Only convert if it's a Windows drive-letter path (D:/...) and we're on Windows
-		// Unix paths (/path/to/file) are left unchanged for Linux/Docker/GitHub Actions
-		if ( \PHP_OS_FAMILY === 'Windows' && \preg_match( '#^([A-Za-z]):/#', $normalized, $matches ) ) {
-			$drive = strtolower( $matches[ 1 ] );
-			$rest = substr( $normalized, 3 ); // Remove "D:/"
-			// Handle edge case where rest might be empty (unlikely but possible)
-			if ( $rest === '' ) {
-				return '/mnt/'.$drive.'/';
-			}
-			return '/mnt/'.$drive.'/'.$rest; // Add slash after drive letter
-		}
-
-		// Return as-is for Unix paths (Linux, Docker, GitHub Actions, WSL)
-		return $normalized;
 	}
 
 	private function log( string $message ) :void {
@@ -229,8 +209,7 @@ class PluginPackager {
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
-			'composer_root'     => true,
-			'composer_lib'      => true,
+			'composer_install'  => true,
 			'npm_install'       => true,
 			'npm_build'         => true,
 			'directory_clean'   => true,
@@ -241,19 +220,18 @@ class PluginPackager {
 			'release_timestamp' => null,
 			'build'             => null,
 		];
-
-		return array_replace( $defaults, array_intersect_key( $options, $defaults ) );
+		return \array_replace( $defaults, \array_intersect_key( $options, $defaults ) );
 	}
 
 	private function resolveStraussVersion( array $options ) :string {
 		$fromOptions = $options[ 'strauss_version' ] ?? null;
-		if ( is_string( $fromOptions ) && $fromOptions !== '' ) {
-			return ltrim( $fromOptions, "v \t\n\r\0\x0B" );
+		if ( \is_string( $fromOptions ) && $fromOptions !== '' ) {
+			return \ltrim( $fromOptions, "v \t\n\r\0\x0B" );
 		}
 
-		$env = getenv( 'SHIELD_STRAUSS_VERSION' );
-		if ( is_string( $env ) && $env !== '' ) {
-			return ltrim( $env, "v \t\n\r\0\x0B" );
+		$env = \getenv( 'SHIELD_STRAUSS_VERSION' );
+		if ( \is_string( $env ) && $env !== '' ) {
+			return \ltrim( $env, "v \t\n\r\0\x0B" );
 		}
 
 		return StraussBinaryProvider::getFallbackVersion();
@@ -273,11 +251,13 @@ class PluginPackager {
 	}
 
 	/**
-	 * Update version metadata in target package files.
+	 * Update source plugin-spec/01_properties.json with version metadata.
+	 * Must be called BEFORE buildPluginJson() so merged config has correct values.
 	 *
 	 * @param array<string, mixed> $options Package options including version, release_timestamp, build
+	 * @throws \InvalidArgumentException
 	 */
-	private function updateVersionMetadata( string $targetDir, array $options ) :void {
+	private function updateSourceSpec( array $options ) :void {
 		$versionOptions = [];
 
 		if ( $options[ 'version' ] !== null ) {
@@ -303,7 +283,24 @@ class PluginPackager {
 		}
 
 		if ( !empty( $versionOptions ) ) {
-			$this->versionUpdater->update( $targetDir, $versionOptions );
+			$this->log( 'Updating source spec files...' );
+			$this->versionUpdater->updateSourceProperties( $versionOptions );
+			$this->log( '  ✓ Source spec updated' );
+		}
+	}
+
+	/**
+	 * Update package-specific files (readme.txt, icwp-wpsf.php) with version.
+	 * Note: plugin.json already has correct version from buildPluginJson().
+	 *
+	 * @param array<string, mixed> $options Package options including version
+	 */
+	private function updatePackageFiles( string $targetDir, array $options ) :void {
+		if ( $options[ 'version' ] !== null ) {
+			$this->log( 'Updating package files...' );
+			$this->versionUpdater->updateReadmeTxt( $targetDir, $options[ 'version' ] );
+			$this->versionUpdater->updatePluginHeader( $targetDir, $options[ 'version' ] );
+			$this->log( '  ✓ Package files updated' );
 		}
 	}
 
@@ -315,240 +312,30 @@ class PluginPackager {
 	private function installComposerDependencies( string $targetDir ) :void {
 		$this->log( 'Installing composer dependencies in package...' );
 
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-
-		if ( !is_dir( $libDir ) ) {
+		if ( !\file_exists( Path::join( $targetDir, 'composer.json' ) ) ) {
 			throw new \RuntimeException(
 				sprintf(
-					'Composer install failed: Package library directory does not exist. '.
-					'Expected directory: %s. '.
+					'Composer install failed: composer.json does not exist in package directory. '.
+					'Expected file: %s. '.
 					'This usually means the file copy step did not complete successfully.',
-					$libDir
+					Path::join( $targetDir, 'composer.json' )
 				)
 			);
 		}
 
 		$composerCommand = $this->commandRunner->getComposerCommand();
 		$this->commandRunner->run(
-			array_merge( $composerCommand, [
+			\array_merge( $composerCommand, [
 				'install',
 				'--no-dev',
 				'--no-interaction',
 				'--prefer-dist',
-				//				'--optimize-autoloader',
 				'--quiet'
 			] ),
-			$libDir
+			$targetDir
 		);
 
 		$this->log( '  ✓ Composer dependencies installed' );
 		$this->log( '' );
-	}
-
-	/**
-	 * Clean up duplicate and development files from the package.
-	 * Removes files that are no longer needed after Strauss prefixing.
-	 */
-	private function cleanupPackageFiles( string $targetDir ) :void {
-		$fs = new Filesystem();
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-
-		// Remove Strauss fork directory if it exists (only when not in Docker)
-		// In Docker, we use /tmp which is ephemeral - no cleanup needed
-		// NOTE: We use removeDirectoryRecursive() instead of Symfony's $fs->remove() because
-		// Symfony renames directories to .!xxx temp names before deletion, and if deletion fails,
-		// these temp directories are left behind causing issues on subsequent runs.
-		if ( $this->straussForkRepo !== null && !StraussBinaryProvider::isRunningInDocker() ) {
-			$forkHash = substr( md5( $this->straussForkRepo ), 0, 12 );
-			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
-			if ( is_dir( $forkDir ) ) {
-				$this->log( 'Removing Strauss fork directory...' );
-				try {
-					$this->directoryRemover->removeSubdirectoryOf( $forkDir, $targetDir );
-				}
-				catch ( \Exception $e ) {
-					// Non-critical cleanup - just warn
-					$this->log( sprintf( '  Warning: %s', $e->getMessage() ) );
-				}
-			}
-		}
-		elseif ( $this->straussForkRepo !== null && StraussBinaryProvider::isRunningInDocker() ) {
-			$this->log( 'Skipping Strauss fork cleanup (Docker /tmp is ephemeral)' );
-		}
-
-		// Directories to remove (duplicates after Strauss prefixing)
-		$this->log( 'Removing duplicate libraries from main vendor...' );
-		$directoriesToRemove = [
-			Path::join( $libDir, 'vendor', 'twig' ),
-			Path::join( $libDir, 'vendor', 'monolog' ),
-			Path::join( $libDir, 'vendor', 'bin' ),
-		];
-
-		foreach ( $directoriesToRemove as $dir ) {
-			if ( is_dir( $dir ) ) {
-				try {
-					$this->directoryRemover->removeSubdirectoryOf( $dir, $targetDir );
-				}
-				catch ( \Exception $e ) {
-					// Log but don't fail - these are cleanup operations
-					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
-				}
-			}
-		}
-
-		// Files to remove (development and temporary files)
-		$this->log( 'Removing development-only files...' );
-		$filesToRemove = [
-			Path::join( $libDir, 'vendor_prefixed', 'autoload-files.php' ),
-			Path::join( $libDir, 'strauss.phar' ),
-		];
-
-		foreach ( $filesToRemove as $file ) {
-			if ( file_exists( $file ) ) {
-				try {
-					$fs->remove( $file );
-				}
-				catch ( \Exception $e ) {
-					// Log but don't fail - these are cleanup operations
-					$this->log( sprintf( '  Warning: Could not remove file: %s (%s)', $file, $e->getMessage() ) );
-				}
-			}
-		}
-	}
-
-	/**
-	 * Clean autoload files to remove twig references.
-	 * Preserves original line endings (CRLF/LF).
-	 */
-	private function cleanAutoloadFiles( string $targetDir ) :void {
-		$this->log( 'Cleaning autoload files...' );
-
-		$composerDir = Path::join( $targetDir, 'src', 'lib', 'vendor', 'composer' );
-
-		if ( !is_dir( $composerDir ) ) {
-			$this->log( '  Warning: Composer directory not found, skipping autoload cleanup' );
-			return;
-		}
-
-		// Files to clean
-		$filesToClean = [
-			'autoload_files.php',
-			'autoload_static.php',
-			'autoload_psr4.php',
-		];
-
-		foreach ( $filesToClean as $filename ) {
-			$filePath = Path::join( $composerDir, $filename );
-
-			if ( !file_exists( $filePath ) ) {
-				continue;
-			}
-
-			$this->log( sprintf( 'Cleaning %s...', $filename ) );
-
-			$content = file_get_contents( $filePath );
-			if ( $content === false ) {
-				$this->log( sprintf( '  Warning: Could not read %s', $filename ) );
-				continue;
-			}
-
-			// Detect line ending style (CRLF or LF)
-			$lineEnding = strpos( $content, "\r\n" ) !== false ? "\r\n" : "\n";
-
-			// Split into lines, preserving the line ending detection
-			$lines = explode( $lineEnding, $content );
-
-			// Count twig references before cleaning
-			$twigCountBefore = 0;
-			foreach ( $lines as $line ) {
-				if ( strpos( $line, '/twig/twig/' ) !== false ) {
-					$twigCountBefore++;
-				}
-			}
-			$this->log( sprintf( '  - Found %d twig references', $twigCountBefore ) );
-
-			// Filter out lines containing /twig/twig/
-			$filteredLines = array_filter( $lines, static function ( string $line ) :bool {
-				return strpos( $line, '/twig/twig/' ) === false;
-			} );
-
-			// Re-index array and join back with original line ending
-			$newContent = implode( $lineEnding, array_values( $filteredLines ) );
-
-			// Write back to file
-			$bytesWritten = file_put_contents( $filePath, $newContent );
-			if ( $bytesWritten === false ) {
-				$this->log( sprintf( '  Warning: Could not write %s', $filename ) );
-				continue;
-			}
-
-			// Count twig references after cleaning
-			$twigCountAfter = 0;
-			foreach ( $filteredLines as $line ) {
-				if ( strpos( $line, '/twig/twig/' ) !== false ) {
-					$twigCountAfter++;
-				}
-			}
-			$this->log( sprintf( '  - After cleaning: %d twig references', $twigCountAfter ) );
-		}
-	}
-
-	/**
-	 * Verify the package was built correctly by checking required files and directories.
-	 *
-	 * @throws \RuntimeException if critical package files are missing
-	 */
-	private function verifyPackage( string $targetDir ) :void {
-		$this->log( '=== Package Verification ===' );
-
-		$errors = [];
-
-		// Required files
-		$requiredFiles = [
-			'plugin.json'                 => Path::join( $targetDir, 'plugin.json' ),
-			'icwp-wpsf.php'               => Path::join( $targetDir, 'icwp-wpsf.php' ),
-			'src/lib/vendor/autoload.php' => Path::join( $targetDir, 'src', 'lib', 'vendor', 'autoload.php' ),
-		];
-
-		foreach ( $requiredFiles as $name => $path ) {
-			if ( file_exists( $path ) ) {
-				$this->log( sprintf( '✓ %s exists', $name ) );
-			}
-			else {
-				$this->log( sprintf( '✗ %s MISSING', $name ) );
-				$errors[] = $name;
-			}
-		}
-
-		// Required directories
-		$requiredDirs = [
-			'src/lib/vendor_prefixed' => Path::join( $targetDir, 'src', 'lib', 'vendor_prefixed' ),
-			'assets/dist'             => Path::join( $targetDir, 'assets', 'dist' ),
-		];
-
-		foreach ( $requiredDirs as $name => $path ) {
-			if ( is_dir( $path ) ) {
-				$this->log( sprintf( '✓ %s directory exists', $name ) );
-			}
-			else {
-				$this->log( sprintf( '✗ %s directory MISSING', $name ) );
-				$errors[] = $name.' directory';
-			}
-		}
-
-		if ( !empty( $errors ) ) {
-			throw new \RuntimeException(
-				sprintf(
-					'Package verification failed: Missing critical files/directories. '.
-					'WHAT FAILED: The following required items are missing: %s. '.
-					'WHY: The packaging process may have encountered errors during file copy, '.
-					'composer install, or Strauss prefixing. '.
-					'HOW TO FIX: Check the log output above for errors and run the packaging process again.',
-					implode( ', ', $errors )
-				)
-			);
-		}
-
-		$this->log( sprintf( '✅ Package built successfully: %s', $targetDir ) );
 	}
 }

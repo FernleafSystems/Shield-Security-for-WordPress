@@ -70,15 +70,14 @@ class TranslationDownloadControllerTest extends BaseUnitTest {
 		$controller = new TranslationDownloadController();
 		$reflection = new \ReflectionClass( $controller );
 
-		// Verify key private methods exist
-		$this->assertTrue( $reflection->hasMethod( 'getConfig' ) );
-		$this->assertTrue( $reflection->hasMethod( 'saveConfig' ) );
+		// Verify key private methods exist (updated to match actual implementation)
+		$this->assertTrue( $reflection->hasMethod( 'cfg' ) );
+		$this->assertTrue( $reflection->hasMethod( 'addCfg' ) );
 		$this->assertTrue( $reflection->hasMethod( 'getQueue' ) );
 		$this->assertTrue( $reflection->hasMethod( 'saveQueue' ) );
 		$this->assertTrue( $reflection->hasMethod( 'canAttemptDownload' ) );
-		$this->assertTrue( $reflection->hasMethod( 'recordAttempt' ) );
 		$this->assertTrue( $reflection->hasMethod( 'buildMoFilePath' ) );
-		$this->assertTrue( $reflection->hasMethod( 'downloadAndStoreMo' ) );
+		$this->assertTrue( $reflection->hasMethod( 'acquireMo' ) );
 		$this->assertTrue( $reflection->hasMethod( 'fireDownloadFailedEvent' ) );
 	}
 

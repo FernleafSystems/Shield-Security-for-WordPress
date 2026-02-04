@@ -103,7 +103,7 @@ trait PluginPathsTrait {
 	 * @param string $message
 	 */
 	protected function assertFileExistsWithDebug( string $path, string $message = '' ) :void {
-		if ( !file_exists( $path ) ) {
+		if ( !file_exists( $path ) && getenv( 'SHIELD_DEBUG_PATHS' ) ) {
 			echo "\n[PATH DEBUG] === File Not Found Debug Info ===\n";
 			echo "[PATH DEBUG] Looking for: $path\n";
 			echo "[PATH DEBUG] File exists check: " . ( file_exists( $path ) ? 'YES' : 'NO' ) . "\n";

@@ -2,8 +2,6 @@
 /assets/dist
 /config/deprecated/
 /plugin.json
-/src/lib/strauss.phar
-/src/lib/vendor*
 /node_modules
 /package-lock.json
 /_gsdata_

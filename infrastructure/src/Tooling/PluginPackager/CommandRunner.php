@@ -3,9 +3,10 @@
 namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 /**
- * Handles shell command execution with proper escaping and working directory management.
+ * Handles shell command execution using Symfony Process for cross-platform compatibility.
  */
 class CommandRunner {
 
@@ -14,63 +15,62 @@ class CommandRunner {
 	/** @var callable */
 	private $logger;
 
-	public function __construct( string $projectRoot, ?callable $logger = null ) {
+	public function __construct( string $projectRoot, callable $logger ) {
 		$this->projectRoot = $projectRoot;
-		$this->logger = $logger ?? static function ( string $message ) :void {
-			echo $message.PHP_EOL;
-		};
+		$this->logger = $logger;
 	}
 
 	/**
-	 * Execute a shell command with proper escaping and working directory management.
+	 * Execute a shell command with proper cross-platform handling.
+	 *
+	 * Uses Symfony Process which automatically handles:
+	 * - Argument escaping on all platforms (Windows, Linux, macOS)
+	 * - Working directory management
+	 * - Real-time output streaming
+	 * - Proper exit code handling
 	 *
 	 * @param string[]    $parts      Command parts (first element is command, rest are arguments)
 	 * @param string|null $workingDir Directory to run the command in
 	 * @throws \RuntimeException if command fails or working directory is invalid
 	 */
 	public function run( array $parts, ?string $workingDir = null ) :void {
-		// Build command string with proper escaping for cross-platform compatibility
-		// Command names from PATH (like 'npm', 'composer') don't need quotes
-		// But full paths (especially with spaces) do need quotes
-		// Arguments always get quoted to handle spaces and special characters
-		$command = \array_shift( $parts );
+		$cwd = $workingDir ?? $this->projectRoot;
 
-		// Check if command is a full path (contains directory separators)
-		// If so, quote it to handle spaces; otherwise leave unquoted for PATH resolution
-		$needsQuoting = \strpos( $command, DIRECTORY_SEPARATOR ) !== false
-						|| \strpos( $command, '/' ) !== false  // Handle Unix paths on Windows
-						|| \strpos( $command, '\\' ) !== false; // Handle Windows paths
-
-		$commandPart = $needsQuoting ? escapeshellarg( $command ) : $command;
-		$args = \array_map( static function ( string $part ) :string {
-			return \escapeshellarg( $part );
-		}, $parts );
-		$commandString = $commandPart.( empty( $args ) ? '' : ' '.implode( ' ', $args ) );
-		$this->log( '> '.$commandString );
-
-		$previousCwd = \getcwd();
-		$revert = false;
-		if ( $workingDir !== null && $workingDir !== '' && $previousCwd !== $workingDir ) {
-			if ( !\is_dir( $workingDir ) ) {
-				throw new \RuntimeException( sprintf( 'Working directory does not exist: %s', $workingDir ) );
-			}
-			if ( !@chdir( $workingDir ) ) {
-				throw new \RuntimeException( sprintf( 'Unable to change directory to: %s', $workingDir ) );
-			}
-			$revert = true;
+		// Pre-validate working directory with consistent error message
+		if ( !\is_dir( $cwd ) ) {
+			throw new \RuntimeException( \sprintf(
+				'Working directory does not exist: %s',
+				$cwd
+			) );
 		}
 
-		try {
-			\passthru( $commandString, $exitCode );
-		}
-		finally {
-			if ( $revert && \is_string( $previousCwd ) && $previousCwd !== '' ) {
-				@\chdir( $previousCwd );
-			}
-		}
+		$this->log( '> '.\implode( ' ', $parts ) );
+
+		$process = new Process(
+			$parts,
+			$cwd,
+			null,  // env - inherit from parent
+			null,  // input
+			null   // timeout - no limit
+		);
+
+		// Run with real-time output streaming to console
+		$exitCode = $process->run( function ( string $type, string $buffer ) :void {
+			// Stream output directly (both stdout and stderr)
+			echo $buffer;
+		} );
 
 		if ( $exitCode !== 0 ) {
-			throw new \RuntimeException( sprintf( 'Command failed with exit code %d: %s', $exitCode, $commandString ) );
+			$errorOutput = \trim( $process->getErrorOutput() );
+			$message = \sprintf(
+				'Command failed with exit code %d: %s',
+				$exitCode,
+				\implode( ' ', $parts )
+			);
+			if ( $errorOutput !== '' ) {
+				$message .= "\nError output: ".$errorOutput;
+			}
+			throw new \RuntimeException( $message );
 		}
 	}
 
@@ -98,21 +98,21 @@ class CommandRunner {
 	 * Resolve a binary path, checking various locations.
 	 */
 	private function resolveBinaryPath( string $binary ) :string {
-		if ( $this->isAbsolutePath( $binary ) && file_exists( $binary ) ) {
+		if ( $this->isAbsolutePath( $binary ) && \file_exists( $binary ) ) {
 			return $binary;
 		}
 
 		if ( \strpos( $binary, '/' ) !== false || \strpos( $binary, '\\' ) !== false ) {
 			$fromRoot = Path::join( $this->projectRoot, $binary );
-			if ( file_exists( $fromRoot ) ) {
+			if ( \file_exists( $fromRoot ) ) {
 				return $fromRoot;
 			}
 		}
 
-		$runtimeDir = getenv( 'COMPOSER_RUNTIME_BIN_DIR' );
-		if ( is_string( $runtimeDir ) && $runtimeDir !== '' ) {
-			$candidate = Path::join( rtrim( $runtimeDir, '/\\' ), $binary );
-			if ( file_exists( $candidate ) ) {
+		$runtimeDir = \getenv( 'COMPOSER_RUNTIME_BIN_DIR' );
+		if ( \is_string( $runtimeDir ) && $runtimeDir !== '' ) {
+			$candidate = Path::join( \rtrim( $runtimeDir, '/\\' ), $binary );
+			if ( \file_exists( $candidate ) ) {
 				return $candidate;
 			}
 		}
@@ -131,8 +131,6 @@ class CommandRunner {
 	 * Check if a path is absolute (handles all platforms).
 	 */
 	private function isAbsolutePath( string $path ) :bool {
-		// Use Symfony Filesystem Path::isAbsolute() which handles all platforms correctly
-		// Path should already be trimmed by caller, but trim again for safety
 		$path = \trim( $path, " \t\n\r\0\x0B\"'" );
 		return $path !== '' && Path::isAbsolute( $path );
 	}

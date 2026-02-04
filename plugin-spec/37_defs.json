@@ -190,7 +190,7 @@
         "*/rosell-dk/image-mime-type-guesser/tests/images/*",
         "*/rosell-dk/image-mime-type-sniffer/tests/images/*",
         "wp-content/cache/*",
-        "*/src/lib/src/Rules/rules.json",
+        "*/src/Rules/rules.json",
         "*/error_log",
         "*/php_error_log",
         "*/mail.log",

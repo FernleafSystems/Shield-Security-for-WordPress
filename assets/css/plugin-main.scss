@@ -1258,14 +1258,14 @@ td.status_file_size {
   border: 1px solid transparent;
 }
 
-.ct-line {
-  /* Control the thickness of your lines */
-  stroke-width: 2px !important;
+.shield-chart {
+  position: relative;
+  width: 100%;
+  min-height: 140px;
 }
 
-.ct-point {
-  /* Size of your points */
-  stroke-width: 6px !important;
+.stat.card .shield-chart {
+  min-height: 120px;
 }
 
 .inner-page-header .inner-page-config button.dropdown-toggle {

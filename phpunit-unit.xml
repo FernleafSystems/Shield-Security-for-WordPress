@@ -4,7 +4,6 @@
          bootstrap="tests/Unit/bootstrap.php"
          colors="true"
          verbose="true"
-         displayDetailsOnSkippedTests="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          convertErrorsToExceptions="true"
@@ -17,11 +16,12 @@
     </testsuites>
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src/lib/src</directory>
+            <directory suffix=".php">src</directory>
         </include>
         <exclude>
-            <directory>src/lib/vendor</directory>
-            <directory>src/lib/vendor_prefixed</directory>
+            <directory>src/lib</directory>
+            <directory>vendor</directory>
+            <directory>vendor_prefixed</directory>
         </exclude>
     </coverage>
 </phpunit>

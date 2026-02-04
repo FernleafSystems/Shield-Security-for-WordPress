@@ -412,7 +412,6 @@ sudo mysql -e "FLUSH PRIVILEGES;"
 ```bash
 # Install dependencies
 composer install
-cd src/lib && composer install
 
 # Setup WordPress test framework (one-time)
 # Windows PowerShell:
