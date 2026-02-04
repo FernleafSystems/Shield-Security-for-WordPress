@@ -29,14 +29,14 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testVendorPrefixedExists() :void {
-		$prefixed = $this->packagePath.'/src/lib/vendor_prefixed';
+		$prefixed = $this->packagePath.'/vendor_prefixed';
 		$this->assertDirectoryExists( $prefixed, 'vendor_prefixed directory missing' );
 		$this->assertFileExists( $prefixed.'/autoload.php' );
 	}
 
 	public function testPackagePathParity() :void {
-		$vendorPackages = $this->collectPackagePaths( $this->packagePath.'/src/lib/vendor' );
-		$prefixedPackages = $this->collectPackagePaths( $this->packagePath.'/src/lib/vendor_prefixed' );
+		$vendorPackages = $this->collectPackagePaths( $this->packagePath.'/vendor' );
+		$prefixedPackages = $this->collectPackagePaths( $this->packagePath.'/vendor_prefixed' );
 
 		$overlap = array_values( array_intersect( $vendorPackages, $prefixedPackages ) );
 		$this->assertSame( [], $overlap, 'Packages duplicated between vendor and vendor_prefixed: '.implode( ', ', $overlap ) );
@@ -62,7 +62,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedLibrariesPresent() :void {
-		$prefixed = $this->packagePath.'/src/lib/vendor_prefixed';
+		$prefixed = $this->packagePath.'/vendor_prefixed';
 		foreach ( [ 'monolog', 'twig', 'crowdsec' ] as $dir ) {
 			$this->assertDirectoryExists(
 				$prefixed.'/'.$dir,
@@ -72,7 +72,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testUnprefixedRemoved() :void {
-		$vendor = $this->packagePath.'/src/lib/vendor';
+		$vendor = $this->packagePath.'/vendor';
 		foreach ( [ 'monolog', 'twig', 'bin' ] as $dir ) {
 			$this->assertDirectoryDoesNotExist(
 				$vendor.'/'.$dir,
@@ -82,11 +82,11 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testStraussPharRemoved() :void {
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/strauss.phar' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/strauss.phar' );
 	}
 
 	public function testAutoloadsPruned() :void {
-		$composerDir = $this->packagePath.'/src/lib/vendor/composer';
+		$composerDir = $this->packagePath.'/vendor/composer';
 		$files = [
 			'autoload_files.php',
 			'autoload_psr4.php',
@@ -109,7 +109,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedAutoloadsHaveNoVendorLeaks() :void {
-		$autoloadFiles = glob( $this->packagePath.'/src/lib/vendor_prefixed/autoload*.php' ) ?: [];
+		$autoloadFiles = glob( $this->packagePath.'/vendor_prefixed/autoload*.php' ) ?: [];
 		$this->assertNotSame( [], $autoloadFiles, 'No prefixed autoload files found to inspect.' );
 
 		$leaks = [];
@@ -129,7 +129,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedClassmapContainsKeyNamespaces() :void {
-		$classmapPath = $this->packagePath.'/src/lib/vendor_prefixed/composer/autoload_classmap.php';
+		$classmapPath = $this->packagePath.'/vendor_prefixed/composer/autoload_classmap.php';
 		$this->assertFileExists( $classmapPath );
 
 		$content = file_get_contents( $classmapPath );
@@ -147,8 +147,8 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedAutoloadSmoke() :void {
-		$prefixedAutoload = $this->packagePath.'/src/lib/vendor_prefixed/autoload.php';
-		$vendorAutoload = $this->packagePath.'/src/lib/vendor/autoload.php';
+		$prefixedAutoload = $this->packagePath.'/vendor_prefixed/autoload.php';
+		$vendorAutoload = $this->packagePath.'/vendor/autoload.php';
 
 		$this->assertFileExists( $prefixedAutoload );
 		$this->assertFileExists( $vendorAutoload );
@@ -165,7 +165,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$crowdSecClass = 'AptowebDeps\\CrowdSec\\CapiClient\\Watcher';
 		if ( !class_exists( $crowdSecClass ) ) {
-			$psr4Path = $this->packagePath.'/src/lib/vendor_prefixed/composer/autoload_psr4.php';
+			$psr4Path = $this->packagePath.'/vendor_prefixed/composer/autoload_psr4.php';
 			$namespaces = [];
 			if ( file_exists( $psr4Path ) ) {
 				$psr4 = require $psr4Path;

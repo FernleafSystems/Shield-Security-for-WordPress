@@ -24,9 +24,12 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testPluginJsonContainsTranslationsConfig() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
+		$this->assertNotNull( $con->cfg, 'Shield config must be loaded' );
 
 		$translations = $con->cfg->translations ?? null;
+		$this->assertNotNull( $translations, 'Translations config must exist in plugin.json' );
+
 		$this->assertIsArray( $translations, 'Translations config should exist' );
 		$this->assertArrayHasKey( 'download_cooldown_days', $translations );
 		$this->assertArrayHasKey( 'list_cache_hours', $translations );
@@ -34,33 +37,41 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testCooldownDaysIsInteger() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
+		$this->assertNotNull( $con->cfg, 'Shield config must be loaded' );
 
-		$cooldownDays = $con->cfg->translations[ 'download_cooldown_days' ] ?? null;
+		$translations = $con->cfg->translations ?? null;
+		$this->assertNotNull( $translations, 'Translations config must exist' );
+
+		$cooldownDays = $translations[ 'download_cooldown_days' ] ?? null;
 		$this->assertIsInt( $cooldownDays );
 		$this->assertGreaterThan( 0, $cooldownDays );
 	}
 
 	public function testListCacheHoursIsInteger() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
+		$this->assertNotNull( $con->cfg, 'Shield config must be loaded' );
 
-		$cacheHours = $con->cfg->translations[ 'list_cache_hours' ] ?? null;
+		$translations = $con->cfg->translations ?? null;
+		$this->assertNotNull( $translations, 'Translations config must exist' );
+
+		$cacheHours = $translations[ 'list_cache_hours' ] ?? null;
 		$this->assertIsInt( $cacheHours );
 		$this->assertGreaterThan( 0, $cacheHours );
 	}
 
 	public function testTranslationDownloadControllerComponentExists() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
-		$controller = $con->comps->translation_downloads ?? null;
+		$controller = $con->comps->translation_downloads;
 		$this->assertNotNull( $controller, 'Translation downloads component should exist' );
 	}
 
 	public function testCacheDirectoryCanBeCreated() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$cacheDir = $con->cache_dir_handler->buildSubDir( 'languages' );
 
@@ -71,9 +82,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testIsLocaleAvailableReturnsBoolean() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Test with a locale that should be in fallback list
 		$result = $controller->isLocaleAvailable( 'de_DE' );
@@ -86,9 +98,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testGetCachedFilePathReturnsNullOrString() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// For a locale that doesn't have a cached file
 		$result = $controller->getLocaleMoFilePath( 'de_DE' );
@@ -97,10 +110,12 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testCronHooksAreRegistered() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
+
+		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Execute the controller to register cron hooks
-		$controller = $con->comps->translation_downloads;
 		$controller->execute();
 
 		// Check that the hourly cron hook exists
@@ -119,9 +134,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testQueueLocaleForDownloadAcceptsValidLocale() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Queue a locale that should be in fallback list
 		$controller->enqueueLocaleForDownload( 'de_DE' );
@@ -137,9 +153,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testQueuePreventsEmptyLocale() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Get initial queue size
 		$reflection = new \ReflectionClass( $controller );
@@ -160,9 +177,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testQueuePreventsDuplicates() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Queue the same locale twice
 		$controller->enqueueLocaleForDownload( 'fr_FR' );
@@ -181,9 +199,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testBuildCachePathReturnsValidStructure() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Access buildCachePath via reflection
 		$reflection = new \ReflectionClass( $controller );
@@ -209,9 +228,11 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 
 	public function testCanAttemptDownloadRespectsCooldown() :void {
 		$con = self::con();
-		$this->assertNotNull( $con, 'Shield controller should be available' );
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
 
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
+
 		$reflection = new \ReflectionClass( $controller );
 
 		// Set last_attempt_at to now via addCfg
@@ -242,7 +263,10 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 	 */
 	public function testLanguageFallbackQueuesCorrectLocale() :void {
 		$con = self::con();
+		$this->assertNotNull( $con, 'Shield controller must be available for integration tests' );
+
 		$controller = $con->comps->translation_downloads;
+		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
 		// Clear existing queue
 		$reflection = new \ReflectionClass( $controller );
@@ -271,6 +295,7 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 			$this->assertNotContains( 'ar_EG', $queue, 'Exact locale ar_EG should not be queued' );
 		}
 		else {
+			// This is a legitimate skip - depends on external API data
 			$this->markTestSkipped( 'Test requires ar available without ar_EG in remote API' );
 		}
 	}

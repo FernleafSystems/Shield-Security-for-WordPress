@@ -217,7 +217,7 @@ class CorePluginSmokeTest extends TestCase {
 			
 			// Verify module directory exists if not testing a package
 			if ( !$this->isTestingPackage() ) {
-				$moduleDir = $this->getPluginFilePath( 'src/lib/src/Modules/' . ucfirst( $module['slug'] ) );
+				$moduleDir = $this->getPluginFilePath( 'src/Modules/' . ucfirst( $module['slug'] ) );
 				if ( is_dir( $moduleDir ) ) {
 					$this->assertDirectoryExists( $moduleDir, "Module directory for '{$moduleKey}' should exist" );
 					
@@ -271,7 +271,7 @@ class CorePluginSmokeTest extends TestCase {
 			$this->assertTrue( true, 'Package testing mode - vendor autoload handled by package build' );
 		} else {
 			// Check if vendor autoload exists (for source installations)
-			$vendorAutoload = $this->getPluginFilePath( 'src/lib/vendor/autoload.php' );
+			$vendorAutoload = $this->getPluginFilePath( 'vendor/autoload.php' );
 			if ( file_exists( $vendorAutoload ) ) {
 				$this->assertFileExistsWithDebug( $vendorAutoload, 'Vendor autoload should exist' );
 				

@@ -36,7 +36,7 @@ if ( defined( 'ABSPATH' ) ) {
 		$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 		include_once( dirname( __FILE__ ).'/unsupported.php' );
 	}
-	elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
+	elseif ( @is_file( dirname( __FILE__ ).'/vendor/autoload.php' ) ) {
 
 		try {
 			require_once( dirname( __FILE__ ).'/plugin_compatibility.php' );

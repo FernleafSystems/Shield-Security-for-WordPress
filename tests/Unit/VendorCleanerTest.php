@@ -123,35 +123,35 @@ class VendorCleanerTest extends TestCase {
 
 	public function testGlobalPatternsRemoveTestDirectories() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/some-vendor/some-package/src/Class.php',
-			'src/lib/vendor/some-vendor/some-package/tests/TestClass.php',
-			'src/lib/vendor/some-vendor/some-package/test/AnotherTest.php',
+			'vendor/some-vendor/some-package/src/Class.php',
+			'vendor/some-vendor/some-package/tests/TestClass.php',
+			'vendor/some-vendor/some-package/test/AnotherTest.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$stats = $cleaner->clean( $this->testDir );
 
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/tests' ) );
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/test' ) );
-		$this->assertTrue( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/src/Class.php' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/some-vendor/some-package/tests' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/some-vendor/some-package/test' ) );
+		$this->assertTrue( $this->pathExists( 'vendor/some-vendor/some-package/src/Class.php' ) );
 		$this->assertEquals( 2, $stats[ 'dirs' ] );
 	}
 
 	public function testGlobalPatternsRemoveDocFiles() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/some-vendor/some-package/src/Class.php',
-			'src/lib/vendor/some-vendor/some-package/README.md',
-			'src/lib/vendor/some-vendor/some-package/CHANGELOG.md',
-			'src/lib/vendor/some-vendor/some-package/LICENSE',
+			'vendor/some-vendor/some-package/src/Class.php',
+			'vendor/some-vendor/some-package/README.md',
+			'vendor/some-vendor/some-package/CHANGELOG.md',
+			'vendor/some-vendor/some-package/LICENSE',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$stats = $cleaner->clean( $this->testDir );
 
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/README.md' ) );
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/CHANGELOG.md' ) );
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/LICENSE' ) );
-		$this->assertTrue( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/src/Class.php' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/some-vendor/some-package/README.md' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/some-vendor/some-package/CHANGELOG.md' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/some-vendor/some-package/LICENSE' ) );
+		$this->assertTrue( $this->pathExists( 'vendor/some-vendor/some-package/src/Class.php' ) );
 		$this->assertEquals( 3, $stats[ 'files' ] );
 	}
 
@@ -161,29 +161,29 @@ class VendorCleanerTest extends TestCase {
 
 	public function testPackageSpecificPatternRemovesToolsFromCrowdsecCommon() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/crowdsec/common/src/Client.php',
-			'src/lib/vendor/crowdsec/common/tools/script.php',
-			'src/lib/vendor/crowdsec/common/tools/helper.php',
+			'vendor/crowdsec/common/src/Client.php',
+			'vendor/crowdsec/common/tools/script.php',
+			'vendor/crowdsec/common/tools/helper.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$stats = $cleaner->clean( $this->testDir );
 
 		$this->assertFalse(
-			$this->pathExists( 'src/lib/vendor/crowdsec/common/tools' ),
+			$this->pathExists( 'vendor/crowdsec/common/tools' ),
 			'tools/ directory should be removed from crowdsec/common'
 		);
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor/crowdsec/common/src/Client.php' ),
+			$this->pathExists( 'vendor/crowdsec/common/src/Client.php' ),
 			'src/ directory should remain in crowdsec/common'
 		);
 	}
 
 	public function testPackageSpecificPatternDoesNotAffectOtherPackages() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/crowdsec/common/tools/script.php',
-			'src/lib/vendor/other-vendor/other-package/tools/useful-tool.php',
-			'src/lib/vendor/another/package/tools/needed.php',
+			'vendor/crowdsec/common/tools/script.php',
+			'vendor/other-vendor/other-package/tools/useful-tool.php',
+			'vendor/another/package/tools/needed.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
@@ -191,25 +191,25 @@ class VendorCleanerTest extends TestCase {
 
 		// crowdsec/common tools should be removed
 		$this->assertFalse(
-			$this->pathExists( 'src/lib/vendor/crowdsec/common/tools' ),
+			$this->pathExists( 'vendor/crowdsec/common/tools' ),
 			'tools/ should be removed from crowdsec/common'
 		);
 
 		// Other packages' tools should remain
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor/other-vendor/other-package/tools/useful-tool.php' ),
+			$this->pathExists( 'vendor/other-vendor/other-package/tools/useful-tool.php' ),
 			'tools/ should NOT be removed from other-vendor/other-package'
 		);
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor/another/package/tools/needed.php' ),
+			$this->pathExists( 'vendor/another/package/tools/needed.php' ),
 			'tools/ should NOT be removed from another/package'
 		);
 	}
 
 	public function testPackageSpecificPatternIsCaseInsensitive() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/CrowdSec/Common/src/Client.php',
-			'src/lib/vendor/CrowdSec/Common/Tools/script.php',
+			'vendor/CrowdSec/Common/src/Client.php',
+			'vendor/CrowdSec/Common/Tools/script.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
@@ -217,31 +217,31 @@ class VendorCleanerTest extends TestCase {
 
 		// Should match even with different casing
 		$this->assertFalse(
-			$this->pathExists( 'src/lib/vendor/CrowdSec/Common/Tools' ),
+			$this->pathExists( 'vendor/CrowdSec/Common/Tools' ),
 			'Package matching should be case-insensitive'
 		);
 	}
 
 	public function testPackageSpecificPatternMergesWithGlobalPatterns() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/crowdsec/common/src/Client.php',
-			'src/lib/vendor/crowdsec/common/tools/script.php',
-			'src/lib/vendor/crowdsec/common/tests/ClientTest.php',
-			'src/lib/vendor/crowdsec/common/README.md',
+			'vendor/crowdsec/common/src/Client.php',
+			'vendor/crowdsec/common/tools/script.php',
+			'vendor/crowdsec/common/tests/ClientTest.php',
+			'vendor/crowdsec/common/README.md',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$stats = $cleaner->clean( $this->testDir );
 
 		// Package-specific pattern (tools)
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/crowdsec/common/tools' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/crowdsec/common/tools' ) );
 
 		// Global patterns (tests, README.md)
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/crowdsec/common/tests' ) );
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/crowdsec/common/README.md' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/crowdsec/common/tests' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/crowdsec/common/README.md' ) );
 
 		// Source should remain
-		$this->assertTrue( $this->pathExists( 'src/lib/vendor/crowdsec/common/src/Client.php' ) );
+		$this->assertTrue( $this->pathExists( 'vendor/crowdsec/common/src/Client.php' ) );
 
 		// Should have removed 2 dirs (tools, tests) and 1 file (README.md)
 		$this->assertEquals( 2, $stats[ 'dirs' ] );
@@ -256,9 +256,9 @@ class VendorCleanerTest extends TestCase {
 		// This test verifies the subdirectory feature works.
 		// We'll test with a mock structure - the actual PACKAGE_PATTERNS may not have subdirs.
 		$this->createVendorStructure( [
-			'src/lib/vendor/crowdsec/common/src/Client.php',
-			'src/lib/vendor/crowdsec/common/tools/script.php',
-			'src/lib/vendor/crowdsec/common/tools/tests/ToolTest.php',
+			'vendor/crowdsec/common/src/Client.php',
+			'vendor/crowdsec/common/tools/script.php',
+			'vendor/crowdsec/common/tools/tests/ToolTest.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
@@ -266,29 +266,29 @@ class VendorCleanerTest extends TestCase {
 
 		// 'tools' is in PACKAGE_PATTERNS for crowdsec/common, so entire tools/ should be removed
 		$this->assertFalse(
-			$this->pathExists( 'src/lib/vendor/crowdsec/common/tools' ),
+			$this->pathExists( 'vendor/crowdsec/common/tools' ),
 			'tools/ directory should be removed including subdirectories'
 		);
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor/crowdsec/common/src/Client.php' )
+			$this->pathExists( 'vendor/crowdsec/common/src/Client.php' )
 		);
 	}
 
 	public function testSubdirectoryPatternOnlyAffectsSpecifiedPackages() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/crowdsec/common/tools/file.php',
-			'src/lib/vendor/other/package/tools/file.php',
+			'vendor/crowdsec/common/tools/file.php',
+			'vendor/other/package/tools/file.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$cleaner->clean( $this->testDir );
 
 		// crowdsec/common tools should be removed (it's in PACKAGE_PATTERNS)
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/crowdsec/common/tools' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/crowdsec/common/tools' ) );
 
 		// other/package tools should remain (not in PACKAGE_PATTERNS)
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor/other/package/tools/file.php' ),
+			$this->pathExists( 'vendor/other/package/tools/file.php' ),
 			'tools/ in unlisted packages should NOT be removed'
 		);
 	}
@@ -299,33 +299,33 @@ class VendorCleanerTest extends TestCase {
 
 	public function testCleansBothVendorAndVendorPrefixed() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/vendor-a/package-a/tests/Test.php',
-			'src/lib/vendor_prefixed/vendor-b/package-b/tests/Test.php',
+			'vendor/vendor-a/package-a/tests/Test.php',
+			'vendor_prefixed/vendor-b/package-b/tests/Test.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$stats = $cleaner->clean( $this->testDir );
 
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/vendor-a/package-a/tests' ) );
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor_prefixed/vendor-b/package-b/tests' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/vendor-a/package-a/tests' ) );
+		$this->assertFalse( $this->pathExists( 'vendor_prefixed/vendor-b/package-b/tests' ) );
 		$this->assertEquals( 2, $stats[ 'dirs' ] );
 	}
 
 	public function testPackageSpecificPatternsApplyToVendorPrefixed() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor_prefixed/crowdsec/common/tools/script.php',
-			'src/lib/vendor_prefixed/crowdsec/common/src/Client.php',
+			'vendor_prefixed/crowdsec/common/tools/script.php',
+			'vendor_prefixed/crowdsec/common/src/Client.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$cleaner->clean( $this->testDir );
 
 		$this->assertFalse(
-			$this->pathExists( 'src/lib/vendor_prefixed/crowdsec/common/tools' ),
+			$this->pathExists( 'vendor_prefixed/crowdsec/common/tools' ),
 			'Package-specific patterns should apply to vendor_prefixed too'
 		);
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor_prefixed/crowdsec/common/src/Client.php' )
+			$this->pathExists( 'vendor_prefixed/crowdsec/common/src/Client.php' )
 		);
 	}
 
@@ -344,19 +344,19 @@ class VendorCleanerTest extends TestCase {
 
 	public function testOnlyAffectsDirectChildrenOfPackage() :void {
 		$this->createVendorStructure( [
-			'src/lib/vendor/some-vendor/some-package/src/Controller/tests/helper.php',
-			'src/lib/vendor/some-vendor/some-package/tests/RealTest.php',
+			'vendor/some-vendor/some-package/src/Controller/tests/helper.php',
+			'vendor/some-vendor/some-package/tests/RealTest.php',
 		] );
 
 		$cleaner = new VendorCleaner( function() {} );
 		$cleaner->clean( $this->testDir );
 
 		// Direct child 'tests' should be removed
-		$this->assertFalse( $this->pathExists( 'src/lib/vendor/some-vendor/some-package/tests' ) );
+		$this->assertFalse( $this->pathExists( 'vendor/some-vendor/some-package/tests' ) );
 
 		// Nested 'tests' within src should remain
 		$this->assertTrue(
-			$this->pathExists( 'src/lib/vendor/some-vendor/some-package/src/Controller/tests/helper.php' ),
+			$this->pathExists( 'vendor/some-vendor/some-package/src/Controller/tests/helper.php' ),
 			'Nested directories matching patterns should NOT be removed'
 		);
 	}

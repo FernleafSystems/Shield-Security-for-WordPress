@@ -402,6 +402,160 @@ PHP;
 	}
 
 	// -------------------------------------------------------------------------
+	// updateSourceProperties() Tests
+	// -------------------------------------------------------------------------
+
+	public function testUpdateSourcePropertiesUpdatesAllFields() :void {
+		// Use tempDir as projectRoot so we can create plugin-spec there
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$this->createMinimalSourceProperties();
+
+		$updater->updateSourceProperties( [
+			'version'           => '21.0.999',
+			'release_timestamp' => 1765370999,
+			'build'             => '202602.0399',
+		] );
+
+		$path = $this->tempDir.'/plugin-spec/01_properties.json';
+		$content = \file_get_contents( $path );
+		$data = \json_decode( $content, true );
+
+		$this->assertSame( '21.0.999', $data[ 'version' ] );
+		$this->assertSame( 1765370999, $data[ 'release_timestamp' ] );
+		$this->assertSame( '202602.0399', $data[ 'build' ] );
+	}
+
+	public function testUpdateSourcePropertiesPreservesOtherFields() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		// Create properties with extra fields
+		$specDir = $this->tempDir.'/plugin-spec';
+		\mkdir( $specDir, 0755, true );
+		$initialData = [
+			'version'           => '1.0.0',
+			'release_timestamp' => 1000000000,
+			'build'             => '202001.0101',
+			'slug_plugin'       => 'test-plugin',
+			'text_domain'       => 'test-domain',
+		];
+		\file_put_contents(
+			$specDir.'/01_properties.json',
+			\json_encode( $initialData, \JSON_PRETTY_PRINT )
+		);
+
+		$updater->updateSourceProperties( [ 'version' => '2.0.0' ] );
+
+		$content = \file_get_contents( $specDir.'/01_properties.json' );
+		$data = \json_decode( $content, true );
+
+		// Updated field
+		$this->assertSame( '2.0.0', $data[ 'version' ] );
+
+		// Preserved fields
+		$this->assertSame( 'test-plugin', $data[ 'slug_plugin' ] );
+		$this->assertSame( 'test-domain', $data[ 'text_domain' ] );
+	}
+
+	public function testUpdateSourcePropertiesMissingFileThrowsException() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Source properties file not found' );
+
+		$updater->updateSourceProperties( [ 'version' => '1.0.0' ] );
+	}
+
+	public function testUpdateSourcePropertiesMalformedJsonThrowsException() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$specDir = $this->tempDir.'/plugin-spec';
+		\mkdir( $specDir, 0755, true );
+		\file_put_contents( $specDir.'/01_properties.json', '{ invalid json' );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Failed to parse source properties' );
+
+		$updater->updateSourceProperties( [ 'version' => '1.0.0' ] );
+	}
+
+	public function testUpdateSourcePropertiesDoesNothingWithEmptyOptions() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$this->createMinimalSourceProperties();
+		$originalContent = \file_get_contents( $this->tempDir.'/plugin-spec/01_properties.json' );
+
+		$updater->updateSourceProperties( [] );
+
+		$newContent = \file_get_contents( $this->tempDir.'/plugin-spec/01_properties.json' );
+		$this->assertSame( $originalContent, $newContent );
+	}
+
+	public function testUpdateSourcePropertiesValidatesVersion() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$this->createMinimalSourceProperties();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'version' );
+
+		$updater->updateSourceProperties( [ 'version' => 'invalid' ] );
+	}
+
+	public function testUpdateSourcePropertiesValidatesTimestamp() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$this->createMinimalSourceProperties();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'timestamp' );
+
+		$updater->updateSourceProperties( [ 'release_timestamp' => -1 ] );
+	}
+
+	public function testUpdateSourcePropertiesValidatesBuild() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$this->createMinimalSourceProperties();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'build' );
+
+		$updater->updateSourceProperties( [ 'build' => 'invalid' ] );
+	}
+
+	public function testUpdateSourcePropertiesJsonOutputUsesCorrectFormatting() :void {
+		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
+
+		$specDir = $this->tempDir.'/plugin-spec';
+		\mkdir( $specDir, 0755, true );
+		$initialData = [
+			'version' => '1.0.0',
+			'urls'    => [
+				'homepage' => 'https://example.com/path',
+			],
+		];
+		\file_put_contents(
+			$specDir.'/01_properties.json',
+			\json_encode( $initialData )
+		);
+
+		$updater->updateSourceProperties( [ 'version' => '2.0.0' ] );
+
+		$content = \file_get_contents( $specDir.'/01_properties.json' );
+
+		// Should be pretty-printed
+		$this->assertStringContainsString( "\n", $content );
+
+		// Should have unescaped slashes
+		$this->assertStringContainsString( 'https://example.com/path', $content );
+		$this->assertStringNotContainsString( 'https:\\/\\/', $content );
+
+		// Should end with newline
+		$this->assertStringEndsWith( "\n", $content );
+	}
+
+	// -------------------------------------------------------------------------
 	// Helper Methods
 	// -------------------------------------------------------------------------
 
@@ -416,6 +570,22 @@ PHP;
 		\file_put_contents(
 			$this->tempDir.'/plugin.json',
 			\json_encode( $config, \JSON_PRETTY_PRINT )
+		);
+	}
+
+	private function createMinimalSourceProperties() :void {
+		$specDir = $this->tempDir.'/plugin-spec';
+		if ( !\is_dir( $specDir ) ) {
+			\mkdir( $specDir, 0755, true );
+		}
+		$data = [
+			'version'           => '1.0.0',
+			'release_timestamp' => 1000000000,
+			'build'             => '202001.0101',
+		];
+		\file_put_contents(
+			$specDir.'/01_properties.json',
+			\json_encode( $data, \JSON_PRETTY_PRINT )
 		);
 	}
 }

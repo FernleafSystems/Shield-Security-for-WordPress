@@ -33,10 +33,10 @@ class BasicFunctionalityTest extends BaseUnitTest {
 	}
 
 	public function testMainClassFilesExist(): void {
-		$controllerFile = $this->getPluginFilePath( 'src/lib/src/Controller/Controller.php' );
+		$controllerFile = $this->getPluginFilePath( 'src/Controller/Controller.php' );
 		$this->assertFileExists( $controllerFile, 'Controller file should exist' );
 
-		$actionRouterFile = $this->getPluginFilePath( 'src/lib/src/ActionRouter/ActionRoutingController.php' );
+		$actionRouterFile = $this->getPluginFilePath( 'src/ActionRouter/ActionRoutingController.php' );
 		$this->assertFileExists( $actionRouterFile, 'ActionRouter file should exist' );
 	}
 

@@ -625,7 +625,7 @@ class Controller extends DynPropertiesClass {
 	 * @throws Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException
 	 */
 	public function includePrefixedVendor() :void {
-		$auto = path_join( $this->getRootDir(), 'src/lib/vendor_prefixed/autoload.php' );
+		$auto = path_join( $this->getRootDir(), 'vendor_prefixed/autoload.php' );
 		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
 			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) );
 		}

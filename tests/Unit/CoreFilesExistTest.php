@@ -36,15 +36,19 @@ class CoreFilesExistTest extends TestCase {
 	 * Test that the main vendor autoloader exists
 	 */
 	public function testMainVendorAutoloaderExists() {
-		$autoloader = $this->getPluginFilePath( 'src/lib/vendor/autoload.php' );
-		$this->assertFileExistsWithDebug( $autoloader, 'Main vendor autoloader is missing - run: cd src/lib && composer install' );
+		$autoloader = $this->getPluginFilePath( 'vendor/autoload.php' );
+		$this->assertFileExistsWithDebug( $autoloader, 'Main vendor autoloader is missing - run: composer install' );
 	}
 
 	/**
 	 * Test that the prefixed vendor autoloader exists
+	 * Note: vendor_prefixed/ only exists after Strauss runs during packaging
 	 */
 	public function testPrefixedVendorAutoloaderExists() {
-		$autoloader = $this->getPluginFilePath( 'src/lib/vendor_prefixed/autoload.php' );
+		if ( !$this->isTestingPackage() ) {
+			$this->markTestSkipped( 'vendor_prefixed/ only exists in built packages, not in source' );
+		}
+		$autoloader = $this->getPluginFilePath( 'vendor_prefixed/autoload.php' );
 		$this->assertFileExistsWithDebug( $autoloader, 'Prefixed vendor autoloader is missing - run build process to generate prefixed dependencies' );
 	}
 
@@ -79,21 +83,23 @@ class CoreFilesExistTest extends TestCase {
 	 * Test that we understand the dual vendor setup
 	 * Note: We cannot test loading prefixed classes in unit tests because
 	 * they conflict with the unprefixed versions. This is resolved during packaging.
+	 * vendor_prefixed/ only exists after Strauss runs during packaging.
 	 */
 	public function testDualVendorSetupIsUnderstood() {
-		$mainTwig = $this->getPluginFilePath( 'src/lib/vendor/twig/twig/src/Environment.php' );
-		$prefixedTwig = $this->getPluginFilePath( 'src/lib/vendor_prefixed/twig/twig/src/Environment.php' );
-		
+		$mainTwig = $this->getPluginFilePath( 'vendor/twig/twig/src/Environment.php' );
+		$prefixedTwig = $this->getPluginFilePath( 'vendor_prefixed/twig/twig/src/Environment.php' );
+
 		if ( $this->isTestingPackage() ) {
 			// In package, Twig should NOT exist in main vendor (removed during packaging)
 			$this->assertFileDoesNotExist( $mainTwig, 'Twig should be removed from main vendor in package' );
+			// Verify that the prefixed Twig exists (will be the only one after packaging)
+			$this->assertFileExistsWithDebug( $prefixedTwig, 'Prefixed Twig should exist in vendor_prefixed' );
 		} else {
 			// In development, Twig exists in main vendor
 			$this->assertFileExistsWithDebug( $mainTwig, 'Twig should exist in main vendor during development' );
+			// In development, vendor_prefixed/ doesn't exist yet (created during packaging)
+			$this->assertFileDoesNotExist( $prefixedTwig, 'Prefixed Twig should not exist in source - only created during packaging' );
 		}
-
-		// Verify that the prefixed Twig also exists (will be the only one after packaging)
-		$this->assertFileExistsWithDebug( $prefixedTwig, 'Prefixed Twig should exist in vendor_prefixed' );
 
 		// This dual existence is why we CANNOT load both autoloaders in tests
 		// The packaging process removes the main vendor version to prevent conflicts

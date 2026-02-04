@@ -45,7 +45,6 @@ class FilesHaveJsonFormatTest extends TestCase {
 	private function resolveConfigDirectory() :?string {
 		$candidates = [
 			$this->getPluginRoot().'/src/config',
-			$this->getPluginRoot().'/src/lib/src/config',
 		];
 
 		foreach ( $candidates as $candidate ) {

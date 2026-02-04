@@ -116,10 +116,9 @@ class VendorCleaner {
 	public function clean( string $targetDir ) :array {
 		$this->log( 'Cleaning vendor development files...' );
 
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
 		$vendorDirs = [
-			Path::join( $libDir, 'vendor' ),
-			Path::join( $libDir, 'vendor_prefixed' ),
+			Path::join( $targetDir, 'vendor' ),
+			Path::join( $targetDir, 'vendor_prefixed' ),
 		];
 
 		$stats = [ 'dirs' => 0, 'files' => 0 ];

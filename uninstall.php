@@ -5,7 +5,7 @@ if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) { exit(); }
 // Ensure Shield isn't active elsewhere.
 if ( !@\class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ) ) {
 	return;
-	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
+	require_once( dirname( __FILE__ ).'/vendor/autoload.php' );
 	try {
 		\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance(
 			path_join( __DIR__, 'icwp-wpsf.php' )

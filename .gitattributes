@@ -112,6 +112,9 @@ yarn.lock text eol=lf
 # - vendor_prefixed/autoload-files.php (created by Strauss, then removed)
 # These are handled by PluginPackager cleanup methods, not export-ignore.
 
+# Generated files (always regenerate, never copy from source)
+/plugin.json export-ignore
+
 # AI/Agent documentation
 /.agent-os export-ignore
 /AGENTS.md export-ignore
@@ -153,15 +156,19 @@ yarn.lock text eol=lf
 /changelog.md export-ignore
 
 # Dependency management (runtime deps installed separately in package)
-/composer.json export-ignore
+# NOTE: composer.json is INCLUDED - it's needed for production dependency installation
 /composer.lock export-ignore
 /package.json export-ignore
 /package-lock.json export-ignore
 /webpack.config.js export-ignore
 /vendor export-ignore
+/vendor_prefixed export-ignore
 /node_modules export-ignore
+
+# Legacy vendor directories (should not be copied from source)
 /src/lib/vendor export-ignore
-/src/lib/vendor_prefixed/ export-ignore
+/src/lib/vendor_prefixed export-ignore
+/src/lib/strauss.phar export-ignore
 
 # Testing
 /tests export-ignore

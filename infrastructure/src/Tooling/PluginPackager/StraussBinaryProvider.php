@@ -46,15 +46,13 @@ class StraussBinaryProvider {
 	 * @throws \RuntimeException if neither method succeeds
 	 */
 	public function provide( string $targetDir ) :string {
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-
 		if ( $this->forkRepo !== null ) {
 			return $this->cloneAndPrepareStraussFork( $targetDir );
 		}
 
 		// Default: download official PHAR
 		$this->downloadStraussPhar( $targetDir );
-		return Path::join( $libDir, 'strauss.phar' );
+		return Path::join( $targetDir, 'strauss.phar' );
 	}
 
 	/**
@@ -63,22 +61,21 @@ class StraussBinaryProvider {
 	 * @throws \RuntimeException if Strauss execution fails
 	 */
 	public function runPrefixing( string $targetDir ) :void {
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-		$vendorPrefixedDir = Path::join( $libDir, 'vendor_prefixed' );
+		$vendorPrefixedDir = Path::join( $targetDir, 'vendor_prefixed' );
 
 		// Get path to strauss binary (either fork's bin/strauss or downloaded PHAR)
 		$straussBinary = $this->provide( $targetDir );
 
-		$this->log( sprintf( 'Current directory: %s', $libDir ) );
+		$this->log( sprintf( 'Current directory: %s', $targetDir ) );
 		$this->log( sprintf( 'Using Strauss: %s', $straussBinary ) );
-		$this->log( sprintf( 'Checking for composer.json: %s', file_exists( Path::join( $libDir, 'composer.json' ) ) ? 'YES' : 'NO' ) );
+		$this->log( sprintf( 'Checking for composer.json: %s', file_exists( Path::join( $targetDir, 'composer.json' ) ) ? 'YES' : 'NO' ) );
 		$this->log( '' );
 
 		$this->log( 'Running Strauss prefixing...' );
 
 		// Run strauss using PHP
 		$php = PHP_BINARY ?: 'php';
-		$this->commandRunner->run( [ $php, $straussBinary ], $libDir );
+		$this->commandRunner->run( [ $php, $straussBinary ], $targetDir );
 
 		$this->log( '' );
 
@@ -97,7 +94,7 @@ class StraussBinaryProvider {
 					'WHY: This may indicate a Strauss configuration issue in composer.json or no packages matched for prefixing. '.
 					'HOW TO FIX: Check the "extra.strauss" configuration in %s/composer.json.',
 					$vendorPrefixedDir,
-					$libDir
+					$targetDir
 				)
 			);
 		}
@@ -203,8 +200,7 @@ class StraussBinaryProvider {
 	private function downloadStraussPhar( string $targetDir ) :void {
 		$this->log( sprintf( 'Downloading Strauss v%s...', $this->version ) );
 
-		$libDir = Path::join( $targetDir, 'src', 'lib' );
-		$targetPath = Path::join( $libDir, 'strauss.phar' );
+		$targetPath = Path::join( $targetDir, 'strauss.phar' );
 		$downloadUrl = sprintf(
 			'https://github.com/BrianHenryIE/strauss/releases/download/%s/strauss.phar',
 			$this->version
@@ -219,7 +215,7 @@ class StraussBinaryProvider {
 				'HOW TO FIX: Enable allow_url_fopen in your php.ini file by setting "allow_url_fopen = On", '.
 				'or contact your system administrator to enable this setting. '.
 				'Alternatively, you can manually download strauss.phar from '.$downloadUrl.' '.
-				'and place it in the package src/lib directory.'
+				'and place it in the package directory.'
 			);
 		}
 
@@ -298,7 +294,7 @@ class StraussBinaryProvider {
 					'HOW TO FIX: Ensure the target directory exists and is writable: %s',
 					$targetPath,
 					$errorMessage,
-					$libDir
+					$targetDir
 				)
 			);
 		}
