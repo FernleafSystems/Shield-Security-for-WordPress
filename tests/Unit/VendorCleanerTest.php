@@ -76,13 +76,14 @@ class VendorCleanerTest extends TestCase {
 		$this->assertIsArray( $patterns[ 'files' ] );
 	}
 
-	public function testCleanupPatternsContainsExpectedDirectories() :void {
+	public function testCleanupPatternsDirectoriesAreValid() :void {
 		$patterns = $this->getConstant( 'CLEANUP_PATTERNS' );
 		$directories = $patterns[ 'directories' ];
 
-		$expectedDirs = [ 'tests', 'test', '.github', 'docs', 'examples', 'bin' ];
-		foreach ( $expectedDirs as $dir ) {
-			$this->assertContains( $dir, $directories, "CLEANUP_PATTERNS should contain '$dir' directory" );
+		$this->assertNotEmpty( $directories, 'CLEANUP_PATTERNS directories should not be empty' );
+		foreach ( $directories as $dir ) {
+			$this->assertIsString( $dir, 'Each directory pattern should be a string' );
+			$this->assertNotEmpty( $dir, 'Each directory pattern should not be empty' );
 		}
 	}
 

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathDuplicator;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -34,56 +35,49 @@ class LegacyPathDuplicatorTest extends TestCase {
 		return new LegacyPathDuplicator( $logger ?? function () {} );
 	}
 
+	private function getConstant( string $name ) {
+		$reflection = new ReflectionClass( LegacyPathDuplicator::class );
+		return $reflection->getConstant( $name );
+	}
+
 	private function setupMinimalPackageStructure() :void {
-		// Create minimal directory structure that the duplicator expects
-		// Source directories
-		$this->fs->mkdir( $this->tempDir.'/src/Controller/Config' );
-		$this->fs->mkdir( $this->tempDir.'/src/DBs' );
-		$this->fs->mkdir( $this->tempDir.'/src/Logging' );
-		$this->fs->mkdir( $this->tempDir.'/src/Modules/IPs/Lib/IpRules' );
+		// Source directories to mirror — create dir + dummy file so mirror has content
+		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
+			$dirPath = $this->tempDir.'/src/'.\implode( '/', $pathParts );
+			$this->fs->mkdir( $dirPath );
+			$this->fs->dumpFile( $dirPath.'/'.\end( $pathParts ).'Test.php', '<?php' );
+		}
 
-		// Source files directories
-		$this->fs->mkdir( $this->tempDir.'/src/Controller/Dependencies' );
-		$this->fs->mkdir( $this->tempDir.'/src/Modules/AuditTrail/Lib/LogHandlers' );
-		$this->fs->mkdir( $this->tempDir.'/src/Modules/HackGuard/Lib/Snapshots/StoreAction' );
-		$this->fs->mkdir( $this->tempDir.'/src/Modules/IPs/Components' );
-		$this->fs->mkdir( $this->tempDir.'/src/Modules/IPs/Lib/Bots' );
-		$this->fs->mkdir( $this->tempDir.'/src/Modules/Traffic/Lib/LogHandlers' );
+		// Individual source files to copy
+		foreach ( $this->getConstant( 'SRC_FILES_TO_COPY' ) as $pathParts ) {
+			$filePath = $this->tempDir.'/src/'.\implode( '/', $pathParts );
+			$this->fs->mkdir( \dirname( $filePath ) );
+			$this->fs->dumpFile( $filePath, '<?php' );
+		}
 
-		// Vendor prefixed
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/monolog' );
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/composer' );
+		// Vendor prefixed directories to mirror — create dir + dummy file
+		foreach ( $this->getConstant( 'VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
+			$dirPath = $this->tempDir.'/vendor_prefixed/'.\implode( '/', $pathParts );
+			$this->fs->mkdir( $dirPath );
+			$this->fs->dumpFile( $dirPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php', '<?php' );
+		}
 
-		// Standard vendor
-		$this->fs->mkdir( $this->tempDir.'/vendor/mlocati/ip-lib' );
-		$this->fs->mkdir( $this->tempDir.'/vendor/composer' );
+		// Vendor prefixed files to copy
+		foreach ( $this->getConstant( 'VENDOR_PREFIXED_FILES_TO_COPY' ) as $file ) {
+			$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/'.$file, '<?php' );
+		}
 
-		// Create sample files
-		$this->fs->dumpFile( $this->tempDir.'/src/Controller/Config/ConfigTest.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/DBs/DbTest.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Logging/LogTest.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/IPs/Lib/IpRules/IpRuleTest.php', '<?php' );
+		// Standard vendor directories to mirror — create dir + dummy file
+		foreach ( $this->getConstant( 'STD_VENDOR_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
+			$dirPath = $this->tempDir.'/vendor/'.\implode( '/', $pathParts );
+			$this->fs->mkdir( $dirPath );
+			$this->fs->dumpFile( $dirPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php', '<?php' );
+		}
 
-		// Individual source files
-		$this->fs->dumpFile( $this->tempDir.'/src/Controller/Dependencies/Monolog.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/AuditTrail/Lib/LogHandlers/LocalDbWriter.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/HackGuard/Lib/Snapshots/StoreAction/Load.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/IPs/Components/ProcessOffense.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/src/Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php', '<?php' );
-
-		// Vendor prefixed files
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/autoload.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/autoload-classmap.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/monolog/Logger.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/composer/autoload_classmap.php', '<?php' );
-
-		// Standard vendor files
-		$this->fs->dumpFile( $this->tempDir.'/vendor/autoload.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor/mlocati/ip-lib/IpLib.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor/composer/autoload_real.php', '<?php' );
+		// Standard vendor files to copy
+		foreach ( $this->getConstant( 'STD_VENDOR_FILES_TO_COPY' ) as $file ) {
+			$this->fs->dumpFile( $this->tempDir.'/vendor/'.$file, '<?php' );
+		}
 	}
 
 	// =========================================================================
@@ -108,15 +102,11 @@ class LegacyPathDuplicatorTest extends TestCase {
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		// Check mirrored directories exist
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/src/Controller/Config' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/src/DBs' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/src/Logging' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/src/Modules/IPs/Lib/IpRules' );
-
-		// Check files were copied
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Controller/Config/ConfigTest.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/DBs/DbTest.php' );
+		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
+			$legacyPath = $this->tempDir.'/src/lib/src/'.\implode( '/', $pathParts );
+			$this->assertDirectoryExists( $legacyPath );
+			$this->assertFileExists( $legacyPath.'/'.\end( $pathParts ).'Test.php' );
+		}
 	}
 
 	public function testCreateDuplicatesCopiesIndividualSourceFiles() :void {
@@ -125,11 +115,11 @@ class LegacyPathDuplicatorTest extends TestCase {
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		// Check individual files were copied
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Controller/Dependencies/Monolog.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/IPs/Components/ProcessOffense.php' );
+		foreach ( $this->getConstant( 'SRC_FILES_TO_COPY' ) as $pathParts ) {
+			$this->assertFileExists(
+				$this->tempDir.'/src/lib/src/'.\implode( '/', $pathParts )
+			);
+		}
 	}
 
 	public function testCreateDuplicatesMirrorsVendorPrefixedDirectories() :void {
@@ -138,10 +128,11 @@ class LegacyPathDuplicatorTest extends TestCase {
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		// Check vendor_prefixed directories were mirrored
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/vendor_prefixed/monolog' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/vendor_prefixed/composer' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/vendor_prefixed/monolog/Logger.php' );
+		foreach ( $this->getConstant( 'VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
+			$legacyPath = $this->tempDir.'/src/lib/vendor_prefixed/'.\implode( '/', $pathParts );
+			$this->assertDirectoryExists( $legacyPath );
+			$this->assertFileExists( $legacyPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php' );
+		}
 	}
 
 	public function testCreateDuplicatesCopiesVendorPrefixedFiles() :void {
@@ -150,9 +141,9 @@ class LegacyPathDuplicatorTest extends TestCase {
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		// Check vendor_prefixed files were copied
-		$this->assertFileExists( $this->tempDir.'/src/lib/vendor_prefixed/autoload.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/vendor_prefixed/autoload-classmap.php' );
+		foreach ( $this->getConstant( 'VENDOR_PREFIXED_FILES_TO_COPY' ) as $file ) {
+			$this->assertFileExists( $this->tempDir.'/src/lib/vendor_prefixed/'.$file );
+		}
 	}
 
 	public function testCreateDuplicatesMirrorsStandardVendorDirectories() :void {
@@ -161,10 +152,11 @@ class LegacyPathDuplicatorTest extends TestCase {
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		// Check standard vendor directories were mirrored
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/vendor/mlocati/ip-lib' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/vendor/composer' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/vendor/mlocati/ip-lib/IpLib.php' );
+		foreach ( $this->getConstant( 'STD_VENDOR_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
+			$legacyPath = $this->tempDir.'/src/lib/vendor/'.\implode( '/', $pathParts );
+			$this->assertDirectoryExists( $legacyPath );
+			$this->assertFileExists( $legacyPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php' );
+		}
 	}
 
 	public function testCreateDuplicatesCopiesStandardVendorFiles() :void {
@@ -173,8 +165,9 @@ class LegacyPathDuplicatorTest extends TestCase {
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		// Check standard vendor autoload was copied
-		$this->assertFileExists( $this->tempDir.'/src/lib/vendor/autoload.php' );
+		foreach ( $this->getConstant( 'STD_VENDOR_FILES_TO_COPY' ) as $file ) {
+			$this->assertFileExists( $this->tempDir.'/src/lib/vendor/'.$file );
+		}
 	}
 
 	public function testCreateDuplicatesLogsProgress() :void {

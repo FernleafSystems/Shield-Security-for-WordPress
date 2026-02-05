@@ -122,11 +122,16 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 		$controller = $con->comps->translation_downloads;
 		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
-		// Queue a locale that should be in fallback list
+		// Seed cached locales so saveQueue() considers 'de_DE' available
+		$reflection = new \ReflectionClass( $controller );
+		$addCfgMethod = $reflection->getMethod( 'addCfg' );
+		$addCfgMethod->setAccessible( true );
+		$addCfgMethod->invoke( $controller, 'locales', [ 'de_DE' => [ 'hash' => 'test', 'hash_type' => 'sha256' ] ] );
+
+		// Queue a locale that is now in the cached list
 		$controller->enqueueLocaleForDownload( 'de_DE' );
 
 		// Access queue via reflection
-		$reflection = new \ReflectionClass( $controller );
 		$method = $reflection->getMethod( 'getQueue' );
 		$method->setAccessible( true );
 		$queue = $method->invoke( $controller );
@@ -165,12 +170,17 @@ class TranslationDownloadIntegrationTest extends ShieldWordPressTestCase {
 		$controller = $con->comps->translation_downloads;
 		$this->assertNotNull( $controller, 'Translation downloads component must be available' );
 
+		// Seed cached locales so saveQueue() considers 'fr_FR' available
+		$reflection = new \ReflectionClass( $controller );
+		$addCfgMethod = $reflection->getMethod( 'addCfg' );
+		$addCfgMethod->setAccessible( true );
+		$addCfgMethod->invoke( $controller, 'locales', [ 'fr_FR' => [ 'hash' => 'test', 'hash_type' => 'sha256' ] ] );
+
 		// Queue the same locale twice
 		$controller->enqueueLocaleForDownload( 'fr_FR' );
 		$controller->enqueueLocaleForDownload( 'fr_FR' );
 
 		// Access queue via reflection
-		$reflection = new \ReflectionClass( $controller );
 		$method = $reflection->getMethod( 'getQueue' );
 		$method->setAccessible( true );
 		$queue = $method->invoke( $controller );
