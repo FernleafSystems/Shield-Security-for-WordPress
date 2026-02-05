@@ -15,6 +15,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
+	private const TOTAL_COUNT_CACHE_TTL = 10;
+
 	private array $ipIdCache = [];
 
 	private array $userCache = [];
@@ -28,12 +30,42 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	abstract protected function getSearchPanesDataBuilder() :BaseBuildSearchPanesData;
 
 	public function build() :array {
+		// loadForRecords() MUST run first — validateSearchPanes() sanitises
+		// table_data['searchPanes'] in-place before any WHERE building.
+		$data = $this->loadForRecords();
+		$totalCount = $this->getOrCacheTotalCount();
 		return [
-			'data'            => $this->loadForRecords(),
-			'recordsTotal'    => $this->countTotalRecords(),
-			'recordsFiltered' => $this->countTotalRecordsFiltered(),
+			'data'            => $data,
+			'recordsTotal'    => $totalCount,
+			'recordsFiltered' => empty( $this->buildWheresFromSearchParams() )
+				? $totalCount
+				: $this->countTotalRecordsFiltered(),
 			'searchPanes'     => $this->getSearchPanesData(),
 		];
+	}
+
+	/**
+	 * Transient key for caching the unfiltered total count.
+	 * Return empty string to disable caching (e.g. when the "total"
+	 * varies by per-request constructor parameters).
+	 */
+	protected function getTotalCountCacheKey() :string {
+		return 'shield_dt_total_'.\md5( static::class );
+	}
+
+	private function getOrCacheTotalCount() :int {
+		$key = $this->getTotalCountCacheKey();
+		if ( empty( $key ) ) {
+			$count = $this->countTotalRecords();
+		}
+		else {
+			$count = get_transient( $key );
+			if ( $count === false ) {
+				$count = $this->countTotalRecords();
+				set_transient( $key, $count, self::TOTAL_COUNT_CACHE_TTL );
+			}
+		}
+		return $count;
 	}
 
 	protected function getSearchPanesData() :array {
@@ -153,7 +185,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				break;
 			case 'user':
 			case 'uid':
-				$values =  \array_filter( \array_map( '\intval', $values ), fn( $uid ) => $uid > 0 );
+				$values = \array_filter( \array_map( '\intval', $values ), fn( $uid ) => $uid > 0 );
 				break;
 			default:
 				break;

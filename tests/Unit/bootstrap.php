@@ -8,6 +8,10 @@ echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
 require_once $plugin_dir . '/vendor/autoload.php';
 
 // Load Brain Monkey
+// WARNING: Patchwork + the echo above make @runInSeparateProcess INCOMPATIBLE with this
+// test suite. PHPUnit subprocesses communicate via stdout serialization—the echo corrupts
+// that stream, and Patchwork's state is non-serializable. If you need per-test isolation,
+// solve it by removing static/cached state, NOT by adding @runInSeparateProcess.
 require_once $plugin_dir . '/vendor/brain/monkey/inc/patchwork-loader.php';
 
 // Load our custom BrainMonkey bootstrap (replaces wp-test-utils)

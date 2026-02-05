@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\L
 
 class BuildSessionsTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
+	protected function getTotalCountCacheKey() :string {
+		return '';
+	}
+
 	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
 		return new BuildSearchPanesData();
 	}

@@ -13,6 +13,10 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
+	protected function getTotalCountCacheKey() :string {
+		return '';
+	}
+
 	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
 		return new BuildSearchPanesData();
 	}
