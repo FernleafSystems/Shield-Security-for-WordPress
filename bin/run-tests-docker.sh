@@ -190,6 +190,14 @@ fi
 # Run tests with environment variable support
 echo "Running PHPUnit tests..."
 
+# Build PHPUnit extra flags
+# Default: debug enabled (set PHPUNIT_DEBUG=0 to disable)
+PHPUNIT_EXTRA_FLAGS=""
+if [ "${PHPUNIT_DEBUG:-1}" = "1" ] || [ "${PHPUNIT_DEBUG:-}" = "true" ]; then
+    PHPUNIT_EXTRA_FLAGS="--debug"
+    echo "PHPUnit debug mode enabled"
+fi
+
 # Prepare environment variables for PHPUnit
 PHPUNIT_ENV=""
 if [ -n "$SHIELD_PACKAGE_PATH" ]; then
@@ -200,17 +208,17 @@ fi
 # Run Unit Tests
 echo "Running Unit Tests..."
 if [ -n "$PHPUNIT_ENV" ]; then
-    env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-unit.xml --no-coverage
+    env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
 else
-    vendor/bin/phpunit -c phpunit-unit.xml --no-coverage
+    vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
 fi
 
 # Run Integration Tests
 echo "Running Integration Tests..."
 if [ -n "$PHPUNIT_ENV" ]; then
-    env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-integration.xml --no-coverage
+    env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-integration.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
 else
-    vendor/bin/phpunit -c phpunit-integration.xml --no-coverage
+    vendor/bin/phpunit -c phpunit-integration.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
 fi
 
 echo "=== All tests completed successfully! ==="
