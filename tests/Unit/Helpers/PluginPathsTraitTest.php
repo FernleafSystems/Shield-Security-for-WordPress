@@ -27,9 +27,6 @@ class PluginPathsTraitTest extends TestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testGetPluginRootDefaultsToSourceDirectory() :void {
 		// This test explicitly needs source-mode (no package path)
 		$this->clearPackageEnv();
@@ -38,9 +35,6 @@ class PluginPathsTraitTest extends TestCase {
 		$this->assertSame( $expectedRoot, $this->getPluginRoot(), 'Default plugin root should match project source directory' );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testGetPluginRootHonoursPackagePath() :void {
 		$tempDir = sys_get_temp_dir().'/shield-package-'.uniqid( '', true );
 		$this->assertTrue( mkdir( $tempDir ), 'Failed to create temporary package directory' );
