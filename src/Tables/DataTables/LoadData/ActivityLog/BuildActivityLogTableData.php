@@ -118,7 +118,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 	protected function countTotalRecordsFiltered() :int {
 		$loader = $this->getRecordsLoader();
-		$loader->wheres = $this->buildWheresFromSearchParams();
+		$loader->wheres = \array_merge( $loader->wheres ?? [], $this->buildWheresFromSearchParams() );
 		return $loader->countAll();
 	}
 
@@ -135,16 +135,27 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		$loader = $this->getRecordsLoader();
-		$loader->wheres = $wheres;
+		$loader->wheres = \array_merge( $loader->wheres ?? [], $wheres );
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->getOrderBy();
-		return \array_filter( $loader->run(), fn( $r ) => self::con()->comps->events->eventExists( $r->event_slug ) );
+		return $loader->run();
+	}
+
+	protected function getValidEventSlugs() :array {
+		return \array_keys( self::con()->comps->events->getEvents() );
 	}
 
 	protected function getRecordsLoader() :LoadLogs {
-		return new LoadLogs();
+		$loader = new LoadLogs();
+		$slugs = $this->getValidEventSlugs();
+		if ( !empty( $slugs ) ) {
+			$loader->wheres = [
+				\sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", $slugs ) )
+			];
+		}
+		return $loader;
 	}
 
 	private function getColumnContent_UserID() :string {

@@ -97,7 +97,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 			 */
 			public function testExtractUserIDs() :array {
 				return \array_map(
-					fn( $result ) => (int)$result[ 'uid' ] ?? null,
+					fn( $result ) => (int)( $result[ 'uid' ] ?? 0 ),
 					$this->runDistinctUsersQuery()
 				);
 			}
@@ -105,7 +105,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_events_transforms_slugs_to_label_value_pairs() :void {
-		$builder = $this->createBuilder( events: [
+		$builder = $this->createBuilder( [
 			[ 'event' => 'login_success' ],
 			[ 'event' => 'firewall_block' ],
 		] );
@@ -122,12 +122,12 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_events_empty_result_returns_empty_array() :void {
-		$builder = $this->createBuilder( events: [] );
+		$builder = $this->createBuilder();
 		$this->assertSame( [], $builder->testBuildForEvents() );
 	}
 
 	public function test_events_filters_null_and_empty_slugs() :void {
-		$builder = $this->createBuilder( events: [
+		$builder = $this->createBuilder( [
 			[ 'event' => 'login_success' ],
 			[ 'event' => null ],
 			[ 'event' => '' ],
@@ -140,7 +140,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_events_single_event() :void {
-		$builder = $this->createBuilder( events: [
+		$builder = $this->createBuilder( [
 			[ 'event' => 'ip_blocked' ],
 		] );
 		$builder->setEventNames( [ 'ip_blocked' => 'IP Blocked' ] );
@@ -151,7 +151,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_ips_transforms_to_label_value_pairs() :void {
-		$builder = $this->createBuilder( ips: [
+		$builder = $this->createBuilder( [], [], [
 			[ 'ip' => '192.168.1.1' ],
 			[ 'ip' => '10.0.0.1' ],
 		] );
@@ -164,12 +164,12 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_ips_empty_result_returns_empty_array() :void {
-		$builder = $this->createBuilder( ips: [] );
+		$builder = $this->createBuilder( [], [], [] );
 		$this->assertSame( [], $builder->testBuildForIPs() );
 	}
 
 	public function test_ips_filters_null_and_empty_values() :void {
-		$builder = $this->createBuilder( ips: [
+		$builder = $this->createBuilder( [], [], [
 			[ 'ip' => '192.168.1.1' ],
 			[ 'ip' => null ],
 			[ 'ip' => '' ],
@@ -183,7 +183,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_ips_single_ip() :void {
-		$builder = $this->createBuilder( ips: [
+		$builder = $this->createBuilder( [], [], [
 			[ 'ip' => '8.8.8.8' ],
 		] );
 
@@ -194,7 +194,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_users_extracts_integer_uids() :void {
-		$builder = $this->createBuilder( users: [
+		$builder = $this->createBuilder( [], [
 			[ 'uid' => '1' ],
 			[ 'uid' => '42' ],
 			[ 'uid' => '0' ],
@@ -204,7 +204,7 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	}
 
 	public function test_users_empty_result_returns_empty_array() :void {
-		$builder = $this->createBuilder( users: [] );
+		$builder = $this->createBuilder( [], [] );
 		$this->assertSame( [], $builder->testExtractUserIDs() );
 	}
 
