@@ -65,7 +65,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				set_transient( $key, $count, self::TOTAL_COUNT_CACHE_TTL );
 			}
 		}
-		return $count;
+		return (int)$count;
 	}
 
 	protected function getSearchPanesData() :array {

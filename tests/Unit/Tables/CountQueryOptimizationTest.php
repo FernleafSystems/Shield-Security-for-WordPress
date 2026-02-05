@@ -119,7 +119,7 @@ class CountQueryOptimizationTest extends BaseUnitTest {
 		Functions\when( 'get_transient' )->justReturn( false );
 		Functions\expect( 'set_transient' )
 				->once()
-				->with( 'shield_dt_total_test', 77, 60 )
+				->with( 'shield_dt_total_test', 77, 10 )
 				->andReturn( true );
 
 		$builder = $this->createBuilder( [
