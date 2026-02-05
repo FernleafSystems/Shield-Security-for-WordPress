@@ -361,7 +361,7 @@ class PluginJsonSchemaTest extends TestCase {
 	 * Data provider for security modules test — built dynamically from plugin.json
 	 */
 	public function securityModulesProvider() :array {
-		$configPath = \dirname( __DIR__, 2 ).'/plugin.json';
+		$configPath = $this->getPluginJsonPath();
 		$config = \json_decode( \file_get_contents( $configPath ), true );
 		$modules = $config['config_spec']['modules'] ?? [];
 
