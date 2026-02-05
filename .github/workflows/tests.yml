@@ -83,20 +83,13 @@ jobs:
         ./bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
         
     - name: Run tests
+      env:
+        SHIELD_DEBUG_PATHS: '1'
       run: |
-        # Run unit tests (uses SHIELD_PACKAGE_PATH from environment, set in Build step)
-        php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage || {
-          echo "Unit tests failed - Running again with debug enabled"
-          SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
-          exit 1
-        }
+        php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
 
-        # Run integration tests against package (tests the built plugin in WordPress)
-        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage || {
-          echo "Integration tests failed - Running again with debug enabled"
-          SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" SHIELD_DEBUG_PATHS=1 php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
-          exit 1
-        }
+        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" \
+          php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
 
   phpcs:
     name: 'Code Standards'
