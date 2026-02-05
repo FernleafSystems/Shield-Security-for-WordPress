@@ -19,14 +19,10 @@ class LoadLogs extends DynPropertiesClass {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
-	private $includeMeta = true;
-
 	/**
 	 * @return LogRecord[]
 	 */
 	public function run( bool $includeMeta = true ) :array {
-		$this->includeMeta = $includeMeta;
-
 		$stdKeys = \array_flip( \array_unique( \array_merge(
 			self::con()
 				->db_con
@@ -44,21 +40,12 @@ class LoadLogs extends DynPropertiesClass {
 		) ) );
 
 		$results = [];
-
 		foreach ( $this->selectRaw() as $raw ) {
-			if ( empty( $results[ $raw[ 'id' ] ] ) ) {
-				$record = new LogRecord( \array_intersect_key( $raw, $stdKeys ) );
-				$results[ $raw[ 'id' ] ] = $record;
-			}
-			else {
-				$record = $results[ $raw[ 'id' ] ];
-			}
+			$results[ $raw[ 'id' ] ] = new LogRecord( \array_intersect_key( $raw, $stdKeys ) );
+		}
 
-			if ( !empty( $raw[ 'meta_key' ] ) ) {
-				$meta = $record->meta_data ?? [];
-				$meta[ $raw[ 'meta_key' ] ] = $raw[ 'meta_value' ];
-				$record->meta_data = $meta;
-			}
+		if ( $includeMeta && !empty( $results ) ) {
+			$this->attachMetaToRecords( $results );
 		}
 
 		return $results;
@@ -82,21 +69,14 @@ class LoadLogs extends DynPropertiesClass {
 			'ips.ip',
 			'req.req_id as rid',
 		];
-		if ( $this->includeMeta ) {
-			$selectFields = \array_merge( $selectFields, [
-				'meta.meta_key',
-				'meta.meta_value',
-			] );
-		}
 
 		return Services::WpDb()->selectCustom(
-			\sprintf( $this->getRawQuery( $this->includeMeta ),
+			\sprintf( $this->getRawQuery(),
 				\implode( ', ', $selectFields ),
 				$con->db_con->activity_logs->getTableSchema()->table,
 				$con->db_con->req_logs->getTableSchema()->table,
 				$con->db_con->ips->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
-				$this->includeMeta ? $con->db_con->activity_logs_meta->getTable() : '',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				$this->buildOrderBy(),
 				isset( $this->limit ) ? \sprintf( 'LIMIT %s', $this->limit ) : '',
@@ -112,13 +92,12 @@ class LoadLogs extends DynPropertiesClass {
 	public function countAll() :int {
 		$con = self::con();
 		return (int)Services::WpDb()->getVar(
-			\sprintf( $this->getRawQuery( false ),
+			\sprintf( $this->getRawQuery(),
 				'COUNT(*)',
 				$con->db_con->activity_logs->getTable(),
 				$con->db_con->req_logs->getTable(),
 				$con->db_con->ips->getTable(),
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
-				'',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				'',
 				'',
@@ -127,21 +106,42 @@ class LoadLogs extends DynPropertiesClass {
 		);
 	}
 
-	private function getRawQuery( bool $includeMeta = true ) :string {
-		return \sprintf( 'SELECT %%s
-					FROM `%%s` as log
-					INNER JOIN `%%s` as `req`
+	private function getRawQuery() :string {
+		return 'SELECT %s
+					FROM `%s` as log
+					INNER JOIN `%s` as `req`
 						ON log.req_ref = `req`.id
-					INNER JOIN `%%s` as `ips`
-						ON `ips`.id = `req`.ip_ref 
-						%%s
+					INNER JOIN `%s` as `ips`
+						ON `ips`.id = `req`.ip_ref
+						%s
 					%s
-					%%s
-					%%s
-					%%s
-					%%s
-				',
-			$includeMeta ? 'LEFT JOIN `%s` as `meta` ON log.id = `meta`.log_ref' : '%s'
-		);
+					%s
+					%s
+					%s
+				';
+	}
+
+	private function attachMetaToRecords( array $records ) :void {
+		$metaRecords = self::con()
+			->db_con
+			->activity_logs_meta
+			->getQuerySelector()
+			->filterByLogRefs( \array_keys( $records ) )
+			->all();
+
+		if ( !empty( $metaRecords ) ) {
+			static::applyMetaToRecords( $records, $metaRecords );
+		}
+	}
+
+	protected static function applyMetaToRecords( array $records, array $metaRecords ) :void {
+		foreach ( $metaRecords as $metaRecord ) {
+			if ( isset( $records[ $metaRecord->log_ref ] ) ) {
+				$record = $records[ $metaRecord->log_ref ];
+				$meta = $record->meta_data ?? [];
+				$meta[ $metaRecord->meta_key ] = $metaRecord->meta_value;
+				$record->meta_data = $meta;
+			}
+		}
 	}
 }
