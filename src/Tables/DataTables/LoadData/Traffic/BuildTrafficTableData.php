@@ -203,12 +203,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			$content = 'WP-CLI';
 		}
 		else {
-			try {
-				$identity = ( new IpID( $this->log->ip ) )->run();
-			}
-			catch ( \Exception $e ) {
-				$identity = IpID::UNKNOWN;
-			}
+			$identity = $this->resolveIpIdentity( $this->log->ip ) ?? [ IpID::UNKNOWN, 'Unknown' ];
 
 			$components = [
 				sprintf( '<div class="text-nowrap">%s: %s%s</div>',

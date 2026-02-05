@@ -15,6 +15,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
+	private array $ipIdCache = [];
+
 	abstract protected function countTotalRecords() :int;
 
 	abstract protected function countTotalRecordsFiltered() :int;
@@ -197,10 +199,27 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		);
 	}
 
+	protected function resolveIpIdentity( string $ip ) :?array {
+		if ( !isset( $this->ipIdCache[ $ip ] ) ) {
+			try {
+				$this->ipIdCache[ $ip ] = $this->createIpIdentifier( $ip )->run();
+			}
+			catch ( \Exception $e ) {
+				$this->ipIdCache[ $ip ] = false;
+			}
+		}
+		$result = $this->ipIdCache[ $ip ];
+		return $result === false ? null : $result;
+	}
+
+	protected function createIpIdentifier( string $ip ) :IpID {
+		return new IpID( $ip );
+	}
+
 	protected function getColumnContent_LinkedIP( string $ip, int $recordDeleteID = -1 ) :string {
 		if ( !empty( $ip ) ) {
-			try {
-				$ipID = ( new IpID( $ip ) )->run();
+			$ipID = $this->resolveIpIdentity( $ip );
+			if ( $ipID !== null ) {
 				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
 					$id = __( 'This Server', 'wp-simple-firewall' );
 				}
@@ -211,7 +230,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					$id = $ipID[ 1 ];
 				}
 			}
-			catch ( \Exception $e ) {
+			else {
 				$id = '';
 			}
 

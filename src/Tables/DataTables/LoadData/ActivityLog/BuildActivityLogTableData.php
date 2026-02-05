@@ -151,8 +151,8 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	protected function getColumnContent_Identity() :string {
 		$ip = (string)$this->log->ip;
 		if ( !empty( $ip ) ) {
-			try {
-				$ipID = ( new IpID( $ip ) )->run();
+			$ipID = $this->resolveIpIdentity( $ip );
+			if ( $ipID !== null ) {
 				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
 					$id = __( 'This Server', 'wp-simple-firewall' );
 				}
@@ -166,7 +166,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 					$id = sprintf( '<code>%s</code>', $ipID[ 1 ] );
 				}
 			}
-			catch ( \Exception $e ) {
+			else {
 				$id = '';
 			}
 
