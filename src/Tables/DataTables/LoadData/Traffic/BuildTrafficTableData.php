@@ -21,8 +21,6 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	 */
 	private $log;
 
-	private array $users = [];
-
 	private array $ipInfo = [];
 
 	protected function loadRecordsWithSearch() :array {
@@ -41,11 +39,10 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	 * @param LogRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
-		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
+		$this->primeUserCache( \array_map( fn( $log ) => $log->uid, $records ) );
 
 		return \array_values( \array_filter( \array_map(
 			function ( $log ) {
-				$WPU = Services::WpUsers();
 
 				$log->meta = \array_merge(
 					[
@@ -69,15 +66,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 					->setIP( $this->log->ip )
 					->countryCode();
 
-				$userID = $this->log->uid;
-				if ( $userID > 0 && !isset( $users[ $userID ] ) ) {
-					$user = $WPU->getUserById( $userID );
-					$this->users[ $userID ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
-						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-							$WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
-				}
-
-				$data[ 'user' ] = $this->users[ $userID ];
+				$data[ 'user' ] = $this->getTrafficUserDisplay( $this->log->uid );
 				$data[ 'page' ] = $this->getColumnContent_Page();
 				$data[ 'details' ] = $this->getColumnContent_Details();
 				$data[ 'response' ] = $this->getColumnContent_Response();
@@ -217,7 +206,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			if ( !empty( $info ) ) {
 				$components[] = sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $info );
 			}
-			$components[] = sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->uid ] );
+			$components[] = sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->getTrafficUserDisplay( $this->log->uid ) );
 			if ( !empty( $country ) ) {
 				$components[] = sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country );
 			}
@@ -266,6 +255,19 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				sprintf( '<code>:> %s %s</code>', $path, $query )
 				: sprintf( '%s: <code>%s%s</code>', \strtoupper( $this->log->verb ), $path, empty( $query ) ? '' : '?<br/>'.\ltrim( $query, '?' ) )
 			);
+	}
+
+	private function getTrafficUserDisplay( int $uid ) :string {
+		if ( $uid <= 0 ) {
+			$display = __( 'No', 'wp-simple-firewall' );
+		}
+		else {
+			$user = $this->resolveUser( $uid );
+			$display = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+				sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
+					Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+		}
+		return $display;
 	}
 
 	private function getIpInfo( string $ip ) {

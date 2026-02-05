@@ -17,6 +17,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	private array $ipIdCache = [];
 
+	private array $userCache = [];
+
 	abstract protected function countTotalRecords() :int;
 
 	abstract protected function countTotalRecordsFiltered() :int;
@@ -216,6 +218,18 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return new IpID( $ip );
 	}
 
+	protected function resolveUser( int $uid ) {
+		$this->userCache[ $uid ] ??= Services::WpUsers()->getUserById( $uid ) ?? false;
+		return $this->userCache[ $uid ] === false ? null : $this->userCache[ $uid ];
+	}
+
+	protected function primeUserCache( array $uids ) :void {
+		$uids = \array_unique( \array_filter( \array_map( '\intval', $uids ), fn( $uid ) => $uid > 0 ) );
+		if ( !empty( $uids ) && \function_exists( 'cache_users' ) ) {
+			cache_users( $uids );
+		}
+	}
+
 	protected function getColumnContent_LinkedIP( string $ip, int $recordDeleteID = -1 ) :string {
 		if ( !empty( $ip ) ) {
 			$ipID = $this->resolveIpIdentity( $ip );
@@ -255,10 +269,10 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function getUserHref( int $uid ) :string {
-		$WPP = Services::WpUsers();
-		$user = $WPP->getUserById( $uid );
+		$user = $this->resolveUser( $uid );
 		return empty( $user ) ? sprintf( 'Unavailable (ID:%s)', $uid ) :
-			sprintf( '<a href="%s" target="_blank">%s</a>', $WPP->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+			sprintf( '<a href="%s" target="_blank">%s</a>',
+				Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 	}
 
 	protected function getIpAnalysisLink( string $ip ) :string {

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
 	LoadLogs,
 	LogRecord
@@ -36,6 +35,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 * @param LogRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
+		$this->primeUserCache(
+			\array_filter( \array_map( fn( $log ) => $log->meta_data[ 'uid' ] ?? '', $records ), '\is_numeric' )
+		);
+
 		return \array_values( \array_map(
 			function ( $log ) {
 				$this->log = $log;
@@ -193,11 +196,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$uid = $this->log->meta_data[ 'uid' ] ?? '';
 		if ( !empty( $uid ) ) {
 			if ( \is_numeric( $uid ) ) {
-				$WPU = Services::WpUsers();
-				$user = $WPU->getUserById( $uid );
-				$content = empty( $user ) ?
-					sprintf( 'Unavailable (ID:%s)', $uid ) :
-					sprintf( '<a href="%s" target="_blank">%s</a>', $WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+				$content = $this->getUserHref( (int)$uid );
 			}
 			else {
 				$content = $uid === 'cron' ? 'WP Cron' : 'WP-CLI';
