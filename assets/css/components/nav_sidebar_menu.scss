@@ -130,3 +130,79 @@
   transform: rotate(45deg);
   transition: transform 0.3s;
 }
+
+@include media-breakpoint-down(lg) {
+
+  // === COLLAPSED STATE ===
+
+  // Hide text labels, subtitles, badges (!important needed to override Bootstrap d-flex)
+  #NavSideBar .nav-item .top-title {
+    display: none !important;
+  }
+  #NavSideBar .nav-item .nav-link .badge {
+    display: none !important;
+  }
+  // Hide config gear buttons (!important needed to override Bootstrap d-flex)
+  .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+    display: none !important;
+  }
+
+  // Center icons in collapsed state
+  #NavSideBar .nav-item > .nav-link {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  #NavSideBar .nav-item > .nav-link > a {
+    justify-content: center !important;
+  }
+  #NavSideBar .nav-item .nav-icon {
+    margin-right: 0 !important;
+  }
+
+  // Hide all submenus
+  #NavSideBar .subnav-menu {
+    display: none !important;
+  }
+
+  // Ensure active border still visible
+  #NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
+    margin-right: 0;
+  }
+
+  // Defensive: ensure items without icons still have height
+  #NavSideBar .top-level-nav > li.nav-item {
+    min-height: 40px;
+  }
+
+  // === HOVER-EXPANDED STATE ===
+
+  #PageMainSide-Apto:hover #NavSideBar .nav-item .top-title {
+    display: flex !important;
+  }
+  #PageMainSide-Apto:hover #NavSideBar .nav-item .nav-link .badge {
+    display: inline-block !important;
+  }
+  #PageMainSide-Apto:hover .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+    display: flex !important;
+  }
+  #PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link {
+    justify-content: start !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.25rem !important;
+  }
+  #PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link > a {
+    justify-content: start !important;
+  }
+  #PageMainSide-Apto:hover #NavSideBar .nav-item .nav-icon {
+    margin-right: 0.5rem !important;
+  }
+  // Show submenus that are expanded or animating (.collapsing is Bootstrap's mid-animation class)
+  #PageMainSide-Apto:hover #NavSideBar .subnav-menu.show,
+  #PageMainSide-Apto:hover #NavSideBar .subnav-menu.collapsing {
+    display: block !important;
+  }
+  #PageMainSide-Apto:hover #NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
+    margin-right: -2px;
+  }
+}

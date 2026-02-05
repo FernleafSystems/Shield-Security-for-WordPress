@@ -14,13 +14,14 @@
 			<div class="d-flex flex-row justify-content-start" id="PageMain-Shield">
 				{% if flags.show_sidebar_nav|default(true) %}
 					<div id="PageMainSide-Apto" class="d-flex flex-column">
+						<div class="sidebar-inner d-flex flex-column flex-fill">
+							{% include '/wpadmin/components/page/logo_sidebar.twig' %}
+							{% include '/wpadmin/components/search/super_search.twig' %}
 
-						{% include '/wpadmin/components/page/logo_sidebar.twig' %}
-						{% include '/wpadmin/components/search/super_search.twig' %}
-
-						{% block page_main_side %}
-							{% include '/wpadmin/components/page/nav_sidebar.twig' %}
-						{% endblock %}
+							{% block page_main_side %}
+								{% include '/wpadmin/components/page/nav_sidebar.twig' %}
+							{% endblock %}
+						</div>
 					</div>
 				{% endif %}
 
