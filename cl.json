@@ -65,8 +65,8 @@
     ],
     "patches":     [
       {
-        "version":     "1",
-        "released_at": 1770220000,
+        "version":     "2",
+        "released_at": 1770383000,
         "items":       [
           {
             "title":    "Upgraded dashboard charts for improved performance and visuals.",
@@ -82,6 +82,26 @@
             "title":    "Internal code restructuring and cleanup for improved reliability.",
             "category": "enhancement",
             "type":     "improved"
+          },
+          {
+            "title":    "Responsive sidebar navigation for better usability on smaller screens.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Faster Activity Log and Traffic Log table loading through optimised database queries.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Fixed issues with automatic translation downloads.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Fixed potential errors when upgrading from previous versions.",
+            "category": "bug",
+            "type":     "fixed"
           }
         ]
       }
