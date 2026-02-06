@@ -6,7 +6,7 @@ const path = require( 'path' );
 const autoprefixer = require( 'autoprefixer' )
 
 // change these variables to fit your project
-const pathResources = './assets';
+const pathResources = './assets/js';
 // const jsPath = pathResources + '/js';
 // const cssPath = pathResources + '/css';
 const outputPath = './assets/dist';
