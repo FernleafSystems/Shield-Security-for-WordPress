@@ -1,6 +1,6 @@
-import "./css/plugin-login2fa.scss";
-import { Login2faHandler } from "./js/components/login2fa/Login2faHandler";
-import { ShieldEventsHandler } from "./js/services/ShieldEventsHandler";
+import "../css/plugin-login2fa.scss";
+import { Login2faHandler } from "./components/login2fa/Login2faHandler";
+import { ShieldEventsHandler } from "./services/ShieldEventsHandler";
 
 window.addEventListener( 'load', () => {
 

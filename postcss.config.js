@@ -9,7 +9,6 @@ module.exports = {
 				'./templates/**/*.php',
 				'./src/**/*.php',
 				'./assets/js/**/*.js',
-				'./assets/*.js',
 				'./assets/**/*.scss',
 				'./*.php'
 			],

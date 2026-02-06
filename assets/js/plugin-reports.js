@@ -1,5 +1,5 @@
-import { ReportsHandler } from "./js/components/reporting/ReportsHandler";
-import { ShieldEventsHandler } from "./js/services/ShieldEventsHandler";
+import { ReportsHandler } from "./components/reporting/ReportsHandler";
+import { ShieldEventsHandler } from "./services/ShieldEventsHandler";
 
 window.addEventListener( 'load', () => {
 	global.shieldEventsHandler_Reports = new ShieldEventsHandler( {

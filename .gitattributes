@@ -184,7 +184,9 @@ yarn.lock text eol=lf
 # Development tools
 /translations-tools export-ignore
 
-# Development documentation inside included directories
+# Frontend source files (compiled bundles are in assets/dist/)
+/assets/css export-ignore
+/assets/js export-ignore
 /assets/SASS_MODERNIZATION.md export-ignore
 
 # Temporary files
