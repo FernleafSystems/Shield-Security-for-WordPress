@@ -8,7 +8,8 @@ module.exports = {
 				'./templates/**/*.twig',
 				'./templates/**/*.php',
 				'./src/**/*.php',
-				'./assets/**/*.js',
+				'./assets/js/**/*.js',
+				'./assets/*.js',
 				'./assets/**/*.scss',
 				'./*.php'
 			],
@@ -138,6 +139,16 @@ module.exports = {
 					// Modal sizes
 					/^modal-(sm|lg|xl|fullscreen)/,
 
+					// Bootstrap color variants (dynamically constructed in Twig/PHP)
+					// Used via: btn-{{ var }}, bg-{{ var }}, text-bg-{{ var }},
+					//   border-{{ var }}, alert-{{ var }}, list-group-item-{{ var }}
+					/^btn-(primary|secondary|success|danger|warning|info|light|dark)/,
+					/^bg-(primary|secondary|success|danger|warning|info|light|dark)/,
+					/^text-bg-(primary|secondary|success|danger|warning|info|light|dark)/,
+					/^border-(primary|secondary|success|danger|warning|info|light|dark)/,
+					/^alert-(primary|secondary|success|danger|warning|info|light|dark)/,
+					/^list-group-item-(primary|secondary|success|danger|warning|info|light|dark)/,
+
 					// ===================
 					// DATATABLES PATTERNS
 					// ===================
@@ -146,7 +157,7 @@ module.exports = {
 					// Sorting indicators
 					/^sorting/,
 					// Pagination
-					/^paginate/,
+					/^paginat/,
 					/^page-/,
 					// Buttons extension
 					/^buttons-/,
