@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
 	LoadLogs,
 	LogRecord
@@ -36,6 +35,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 * @param LogRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
+		$this->primeUserCache(
+			\array_filter( \array_map( fn( $log ) => $log->meta_data[ 'uid' ] ?? '', $records ), '\is_numeric' )
+		);
+
 		return \array_values( \array_map(
 			function ( $log ) {
 				$this->log = $log;
@@ -115,7 +118,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 	protected function countTotalRecordsFiltered() :int {
 		$loader = $this->getRecordsLoader();
-		$loader->wheres = $this->buildWheresFromSearchParams();
+		$loader->wheres = \array_merge( $loader->wheres ?? [], $this->buildWheresFromSearchParams() );
 		return $loader->countAll();
 	}
 
@@ -132,16 +135,27 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		$loader = $this->getRecordsLoader();
-		$loader->wheres = $wheres;
+		$loader->wheres = \array_merge( $loader->wheres ?? [], $wheres );
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->getOrderBy();
-		return \array_filter( $loader->run(), fn( $r ) => self::con()->comps->events->eventExists( $r->event_slug ) );
+		return $loader->run();
+	}
+
+	protected function getValidEventSlugs() :array {
+		return \array_keys( self::con()->comps->events->getEvents() );
 	}
 
 	protected function getRecordsLoader() :LoadLogs {
-		return new LoadLogs();
+		$loader = new LoadLogs();
+		$slugs = $this->getValidEventSlugs();
+		if ( !empty( $slugs ) ) {
+			$loader->wheres = [
+				\sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", $slugs ) )
+			];
+		}
+		return $loader;
 	}
 
 	private function getColumnContent_UserID() :string {
@@ -151,8 +165,8 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	protected function getColumnContent_Identity() :string {
 		$ip = (string)$this->log->ip;
 		if ( !empty( $ip ) ) {
-			try {
-				$ipID = ( new IpID( $ip ) )->run();
+			$ipID = $this->resolveIpIdentity( $ip );
+			if ( $ipID !== null ) {
 				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
 					$id = __( 'This Server', 'wp-simple-firewall' );
 				}
@@ -166,7 +180,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 					$id = sprintf( '<code>%s</code>', $ipID[ 1 ] );
 				}
 			}
-			catch ( \Exception $e ) {
+			else {
 				$id = '';
 			}
 
@@ -193,11 +207,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$uid = $this->log->meta_data[ 'uid' ] ?? '';
 		if ( !empty( $uid ) ) {
 			if ( \is_numeric( $uid ) ) {
-				$WPU = Services::WpUsers();
-				$user = $WPU->getUserById( $uid );
-				$content = empty( $user ) ?
-					sprintf( 'Unavailable (ID:%s)', $uid ) :
-					sprintf( '<a href="%s" target="_blank">%s</a>', $WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+				$content = $this->getUserHref( (int)$uid );
 			}
 			else {
 				$content = $uid === 'cron' ? 'WP Cron' : 'WP-CLI';

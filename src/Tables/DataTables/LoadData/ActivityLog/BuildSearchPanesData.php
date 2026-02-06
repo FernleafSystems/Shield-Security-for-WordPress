@@ -27,7 +27,7 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 		return ( new BuildDataForUsers() )->build(
 			\array_map(
 				fn( $result ) => (int)$result[ 'uid' ] ?? null,
-				$this->runQuery( '`req`.`uid` as `uid`' )
+				$this->runDistinctUsersQuery()
 			)
 		);
 	}
@@ -56,7 +56,7 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 				}
 				return $ip;
 			},
-			$this->runQuery( 'INET6_NTOA(`ips`.`ip`) as `ip`' )
+			$this->runDistinctIPsQuery()
 		) ) );
 	}
 
@@ -72,21 +72,43 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 				}
 				return $evt;
 			},
-			$this->runQuery( '`log`.`event_slug` as event' )
+			$this->runDistinctEventsQuery()
 		) ) );
 	}
 
-	private function runQuery( string $select ) :array {
+	protected function runDistinctEventsQuery() :array {
 		$dbCon = self::con()->db_con;
 		$results = Services::WpDb()->selectCustom(
-			sprintf( 'SELECT DISTINCT %s
+			\sprintf( 'SELECT DISTINCT `event_slug` as `event` FROM `%s`',
+				$dbCon->activity_logs->getTableSchema()->table
+			)
+		);
+		return \is_array( $results ) ? $results : [];
+	}
+
+	protected function runDistinctUsersQuery() :array {
+		$dbCon = self::con()->db_con;
+		$results = Services::WpDb()->selectCustom(
+			\sprintf( 'SELECT DISTINCT `req`.`uid` as `uid`
+						FROM `%s` as `log`
+						INNER JOIN `%s` as `req`
+							ON `log`.`req_ref` = `req`.`id`',
+				$dbCon->activity_logs->getTableSchema()->table,
+				$dbCon->req_logs->getTableSchema()->table
+			)
+		);
+		return \is_array( $results ) ? $results : [];
+	}
+
+	protected function runDistinctIPsQuery() :array {
+		$dbCon = self::con()->db_con;
+		$results = Services::WpDb()->selectCustom(
+			\sprintf( 'SELECT DISTINCT INET6_NTOA(`ips`.`ip`) as `ip`
 						FROM `%s` as `log`
 						INNER JOIN `%s` as `req`
 							ON `log`.`req_ref` = `req`.`id`
 						INNER JOIN `%s` as `ips`
-							ON `ips`.`id` = `req`.`ip_ref` 
-				',
-				$select,
+							ON `ips`.`id` = `req`.`ip_ref`',
 				$dbCon->activity_logs->getTableSchema()->table,
 				$dbCon->req_logs->getTableSchema()->table,
 				$dbCon->ips->getTableSchema()->table

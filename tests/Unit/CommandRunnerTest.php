@@ -83,6 +83,7 @@ class CommandRunnerTest extends TestCase {
 	 * Test that run() executes successfully with valid command
 	 */
 	public function testRunExecutesValidCommand() :void {
+		$this->expectOutputRegex( '/test/' );
 		$runner = $this->createRunner();
 
 		// Use a simple command that works on all platforms
@@ -92,8 +93,6 @@ class CommandRunnerTest extends TestCase {
 		else {
 			$runner->run( [ 'echo', 'test' ], $this->projectRoot );
 		}
-
-		$this->assertTrue( true ); // If we got here, command succeeded
 	}
 
 	/**
@@ -118,6 +117,7 @@ class CommandRunnerTest extends TestCase {
 	 * Test that run() preserves current working directory after execution
 	 */
 	public function testRunPreservesWorkingDirectory() :void {
+		$this->expectOutputRegex( '/test/' );
 		$runner = $this->createRunner();
 		$originalCwd = getcwd();
 
@@ -137,6 +137,7 @@ class CommandRunnerTest extends TestCase {
 	 * Test that run() includes stderr output in exception message when command fails
 	 */
 	public function testRunIncludesStderrInException() :void {
+		$this->expectOutputRegex( '/test stderr message/' );
 		$runner = $this->createRunner();
 
 		try {

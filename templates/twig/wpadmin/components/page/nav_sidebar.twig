@@ -31,7 +31,8 @@
 
 						{% if mitem.img|default('') is not empty %}
 							<span class="nav-icon me-2 d-flex flex-column justify-content-center"
-								  style="vertical-align: text-bottom;">
+								  style="vertical-align: text-bottom;"
+								  title="{{ mitem.title }}">
 								{{ mitem.img|raw }}
 							</span>
 						{% endif %}

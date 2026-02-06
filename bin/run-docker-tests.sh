@@ -188,15 +188,20 @@ fi
 
 if [ "$WEBPACK_CACHE_VALID" = false ]; then
     echo "   Building assets via Docker..."
+    # Anonymous volume (-v /app/node_modules) keeps Linux-native node_modules
+    # inside the container only, preventing it from overwriting the host's
+    # Windows node_modules directory. Build output (assets/dist) still writes
+    # to the host via the main volume mount.
     docker run --rm --name shield-node-build \
         -v "$PROJECT_ROOT:/app" \
+        -v /app/node_modules \
         -w /app \
         node:18 \
         sh -c "npm ci --no-audit --no-fund && npm run build" || {
         echo "❌ Asset build failed"
         exit 1
     }
-    
+
     # Save checksum
     if [ -n "$COMBINED_CHECKSUM" ]; then
         echo "$COMBINED_CHECKSUM" > "$CACHE_FILE"
@@ -366,6 +371,7 @@ SHIELD_STRAUSS_VERSION=$SHIELD_STRAUSS_VERSION
 SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}
 SHIELD_TEST_IMAGE_LATEST=shield-test-runner:php$PHP_VERSION-wp$LATEST_VERSION
 SHIELD_TEST_IMAGE_PREVIOUS=shield-test-runner:php$PHP_VERSION-wp$PREVIOUS_VERSION
+PHPUNIT_DEBUG=${PHPUNIT_DEBUG:-}
 EOF
     
     # Ensure MySQL containers are running (they were started early)

@@ -87,7 +87,9 @@
     "phpcs":            "phpcs",
     "phpcs:fix":        "phpcbf",
     "package-plugin":   "@php bin/package-plugin.php",
-    "build-zip":        "@php bin/build-zip.php"
+    "build-zip":        "@php bin/build-zip.php",
+    "strauss:dev":      "@php bin/run-strauss-dev.php",
+    "strauss:clean":    "@php bin/run-strauss-dev.php --clean"
   },
   "extra":             {
     "strauss": {

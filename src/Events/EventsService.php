@@ -11,7 +11,7 @@ class EventsService {
 	/**
 	 * @var array[]
 	 */
-	private $events;
+	private array $events;
 
 	public function eventExists( string $eventKey ) :bool {
 		return !empty( $this->getEventDef( $eventKey ) );
@@ -68,14 +68,12 @@ class EventsService {
 	 * @return array[]
 	 */
 	public function getEvents() :array {
+		$this->events ??= (array)apply_filters(
+			'shield/events/definitions',
+			$this->buildEvents( self::con()->cfg->configuration->events )
+		);
 		if ( empty( $this->events ) ) {
-			$this->events = (array)apply_filters(
-				'shield/events/definitions',
-				$this->buildEvents( self::con()->cfg->configuration->events )
-			);
-			if ( empty( $this->events ) ) {
-				error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
-			}
+			error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
 		try {
@@ -151,12 +149,7 @@ class EventsService {
 	 * @return string[]
 	 */
 	public function getEventNames() :array {
-		return \array_map(
-			function ( $event ) {
-				return $this->getEventName( $event[ 'key' ] );
-			},
-			$this->getEvents()
-		);
+		return \array_map( fn( $evt ) => $this->getEventName( $evt[ 'key' ] ), $this->getEvents() );
 	}
 
 	private function buildEvents( array $events ) :array {

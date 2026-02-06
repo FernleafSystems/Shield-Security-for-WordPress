@@ -20,19 +20,6 @@ class ModuleLifecycleTest extends ShieldWordPressTestCase {
 	public function testAllSecurityModulesAreRegistered() :void {
 		$this->assertShieldIsLoaded();
 
-		$expectedModules = [
-			'admin_access_restriction',
-			'audit_trail',
-			'comments_filter',
-			'firewall',
-			'hack_protect',
-			'integrations',
-			'ips',
-			'login_protect',
-			'plugin',
-			'user_management',
-		];
-
 		$plugin = $this->getShieldPlugin();
 		$this->assertNotNull( $plugin, 'Shield plugin should be available' );
 

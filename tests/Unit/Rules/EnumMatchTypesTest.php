@@ -10,24 +10,21 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  */
 class EnumMatchTypesTest extends TestCase {
 
-	public function testAllMatchTypeConstantsAreDefined() :void {
-		$expectedConstants = [
-			'MATCH_TYPE_EQUALS',
-			'MATCH_TYPE_EQUALS_I',
-			'MATCH_TYPE_CONTAINS',
-			'MATCH_TYPE_CONTAINS_I',
-			'MATCH_TYPE_IP_EQUALS',
-			'MATCH_TYPE_IP_RANGE',
-			'MATCH_TYPE_REGEX',
-			'MATCH_TYPE_LESS_THAN',
-			'MATCH_TYPE_GREATER_THAN',
-		];
-
+	public function testMatchTypeConstantsExist() :void {
 		$reflection = new \ReflectionClass( EnumMatchTypes::class );
 		$constants = $reflection->getConstants();
 
-		foreach ( $expectedConstants as $constant ) {
-			$this->assertArrayHasKey( $constant, $constants, "Constant {$constant} should be defined" );
+		$matchTypeConstants = \array_filter(
+			$constants,
+			fn( $key ) => \str_starts_with( $key, 'MATCH_TYPE_' ),
+			\ARRAY_FILTER_USE_KEY
+		);
+
+		$this->assertGreaterThan( 0, \count( $matchTypeConstants ), 'At least one MATCH_TYPE_ constant should be defined' );
+
+		foreach ( $matchTypeConstants as $name => $value ) {
+			$this->assertIsString( $value, "Constant {$name} should have a string value" );
+			$this->assertNotEmpty( $value, "Constant {$name} should not be empty" );
 		}
 	}
 

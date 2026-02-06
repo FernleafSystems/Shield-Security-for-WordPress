@@ -7,6 +7,9 @@
 /_gsdata_
 /forceoff
 /vendor
+/vendor_prefixed/
+/_strauss-fork-*/
+/strauss.phar
 /.agent-os/instructions
 /.agent-os/standards
 /docs

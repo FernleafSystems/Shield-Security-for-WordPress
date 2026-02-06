@@ -61,7 +61,7 @@ class TranslationDownloadControllerTest extends BaseUnitTest {
 		$controller = new TranslationDownloadController();
 
 		$this->assertTrue( \method_exists( $controller, 'enqueueLocaleForDownload' ) );
-		$this->assertTrue( \method_exists( $controller, 'runHourlyCron' ) );
+		$this->assertTrue( \method_exists( $controller, 'processQueue' ) );
 		$this->assertTrue( \method_exists( $controller, 'getLocaleMoFilePath' ) );
 		$this->assertTrue( \method_exists( $controller, 'isLocaleAvailable' ) );
 	}
@@ -93,9 +93,9 @@ class TranslationDownloadControllerTest extends BaseUnitTest {
 		$this->assertTrue( \method_exists( $controller, 'execute' ) );
 	}
 
-	public function testUsesCronConsumerTrait() :void {
+	public function testUsesExecOnceForScheduling() :void {
 		$controller = new TranslationDownloadController();
-		$this->assertTrue( \method_exists( $controller, 'setupCronHooks' ) );
+		$this->assertTrue( \method_exists( $controller, 'execute' ) );
 	}
 
 	/**
@@ -116,21 +116,20 @@ class TranslationDownloadControllerTest extends BaseUnitTest {
 
 	/**
 	 * Test that cooldown calculation logic works correctly.
-	 * This tests the pattern used in canAttemptDownload without needing full plugin context.
+	 * Cooldown is now a hardcoded 15 minutes (60*15 = 900 seconds).
 	 */
 	public function testCooldownCalculationLogic() :void {
-		$lastAttempt = \time() - ( 3 * \DAY_IN_SECONDS ); // 3 days ago
-		$cooldownDays = 7;
-		$cooldownSeconds = $cooldownDays * \DAY_IN_SECONDS;
+		$cooldownSeconds = 60*15; // 900 seconds
 
-		// Should still be in cooldown (3 days < 7 days)
-		$canAttempt = ( \time() - $lastAttempt ) >= $cooldownSeconds;
-		$this->assertFalse( $canAttempt, 'Should not allow attempt within cooldown period' );
+		// 5 minutes ago — should still be in cooldown
+		$recentAttempt = \time() - 300;
+		$canAttempt = ( \time() - $recentAttempt ) >= $cooldownSeconds;
+		$this->assertFalse( $canAttempt, 'Should not allow attempt within 15-minute cooldown' );
 
-		// Test expired cooldown
-		$oldAttempt = \time() - ( 10 * \DAY_IN_SECONDS ); // 10 days ago
+		// 20 minutes ago — cooldown expired
+		$oldAttempt = \time() - 1200;
 		$canAttemptOld = ( \time() - $oldAttempt ) >= $cooldownSeconds;
-		$this->assertTrue( $canAttemptOld, 'Should allow attempt after cooldown expires' );
+		$this->assertTrue( $canAttemptOld, 'Should allow attempt after 15-minute cooldown expires' );
 	}
 
 	/**

@@ -16,9 +16,6 @@ class OverviewActivity extends OverviewBase {
 
 	protected function getRenderData() :array {
 		$logLoader = new LoadLogs();
-		/*
-		 * limit must be sufficiently large to encompass audit trail meta, and then we cut it down to size later.
-		 */
 		$logLoader->limit = 50;
 		$logLoader->order_by = 'created_at';
 		$logLoader->order_dir = 'DESC';

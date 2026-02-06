@@ -12,38 +12,38 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 trait PluginPathsTrait {
 
 	/**
-	 * Get the root path of the plugin being tested
+	 * Get the root path of the plugin being tested.
+	 *
+	 * Computed fresh on every call—no caching. The work is trivial (dirname + getenv)
+	 * and caching caused stale-state bugs when tests manipulate SHIELD_PACKAGE_PATH.
+	 *
 	 * @return string
 	 */
 	protected function getPluginRoot() :string {
-		static $pluginRoot = null;
-		
-		if ( $pluginRoot === null ) {
-			// Check if we're testing a package
-			$envPath = getenv( 'SHIELD_PACKAGE_PATH' );
-			if ( $envPath !== false && !empty($envPath) ) {
-				$pluginRoot = $envPath;
-				$this->debugPath( 'Using SHIELD_PACKAGE_PATH', $pluginRoot );
-			} else {
-				// Default to source directory (2 levels up from this file)
-				$pluginRoot = dirname( dirname( __DIR__ ) );
-				$this->debugPath( 'Using source directory', $pluginRoot );
-				
-				// Fix for Docker: If empty or root, use fallback methods
-				if ( empty($pluginRoot) || $pluginRoot === '/' ) {
-					$pluginRoot = getcwd();
-					$this->debugPath( 'Fallback to getcwd()', $pluginRoot );
-				}
-				
-				// Final fallback: check for known plugin file in /app
-				if ( !file_exists($pluginRoot . '/icwp-wpsf.php') && file_exists('/app/icwp-wpsf.php') ) {
-					$pluginRoot = '/app';
-					$this->debugPath( 'Fallback to /app (Docker detected)', $pluginRoot );
-				}
-			}
+		// Check if we're testing a package
+		$envPath = getenv( 'SHIELD_PACKAGE_PATH' );
+		if ( $envPath !== false && !empty( $envPath ) ) {
+			$this->debugPath( 'Using SHIELD_PACKAGE_PATH', $envPath );
+			return $envPath;
 		}
-		
-		return $pluginRoot;
+
+		// Default to source directory (2 levels up from this file)
+		$root = \dirname( \dirname( __DIR__ ) );
+		$this->debugPath( 'Using source directory', $root );
+
+		// Fix for Docker: If empty or root, use fallback methods
+		if ( empty( $root ) || $root === '/' ) {
+			$root = \getcwd();
+			$this->debugPath( 'Fallback to getcwd()', $root );
+		}
+
+		// Final fallback: check for known plugin file in /app
+		if ( !\file_exists( $root.'/icwp-wpsf.php' ) && \file_exists( '/app/icwp-wpsf.php' ) ) {
+			$root = '/app';
+			$this->debugPath( 'Fallback to /app (Docker detected)', $root );
+		}
+
+		return $root;
 	}
 	
 	/**
@@ -67,13 +67,20 @@ trait PluginPathsTrait {
 	}
 	
 	/**
+	 * Write debug output to stderr so it never triggers PHPUnit's output detection.
+	 */
+	private function debugWrite( string $message ) :void {
+		\fwrite( \STDERR, $message );
+	}
+
+	/**
 	 * Debug path information (only outputs if SHIELD_DEBUG_PATHS is set)
 	 * @param string $label
 	 * @param string $path
 	 */
 	private function debugPath( string $label, string $path ) :void {
 		if ( getenv( 'SHIELD_DEBUG_PATHS' ) ) {
-			echo "[PATH DEBUG] $label: $path\n";
+			$this->debugWrite( "[PATH DEBUG] $label: $path\n" );
 		}
 	}
 
@@ -103,29 +110,30 @@ trait PluginPathsTrait {
 	 * @param string $message
 	 */
 	protected function assertFileExistsWithDebug( string $path, string $message = '' ) :void {
-		if ( !file_exists( $path ) && getenv( 'SHIELD_DEBUG_PATHS' ) ) {
-			echo "\n[PATH DEBUG] === File Not Found Debug Info ===\n";
-			echo "[PATH DEBUG] Looking for: $path\n";
-			echo "[PATH DEBUG] File exists check: " . ( file_exists( $path ) ? 'YES' : 'NO' ) . "\n";
-			echo "[PATH DEBUG] Is readable: " . ( is_readable( $path ) ? 'YES' : 'NO' ) . "\n";
-			echo "[PATH DEBUG] Current working directory: " . getcwd() . "\n";
-			echo "[PATH DEBUG] Plugin root: " . $this->getPluginRoot() . "\n";
-			echo "[PATH DEBUG] SHIELD_PACKAGE_PATH env: " . ( getenv( 'SHIELD_PACKAGE_PATH' ) ?: 'NOT SET' ) . "\n";
-			
+		if ( !\file_exists( $path ) && getenv( 'SHIELD_DEBUG_PATHS' ) ) {
+			$this->debugWrite( "\n[PATH DEBUG] === File Not Found Debug Info ===\n" );
+			$this->debugWrite( "[PATH DEBUG] Looking for: $path\n" );
+			$this->debugWrite( "[PATH DEBUG] File exists check: ".( \file_exists( $path ) ? 'YES' : 'NO' )."\n" );
+			$this->debugWrite( "[PATH DEBUG] Is readable: ".( \is_readable( $path ) ? 'YES' : 'NO' )."\n" );
+			$this->debugWrite( "[PATH DEBUG] Current working directory: ".\getcwd()."\n" );
+			$this->debugWrite( "[PATH DEBUG] Plugin root: ".$this->getPluginRoot()."\n" );
+			$this->debugWrite( "[PATH DEBUG] SHIELD_PACKAGE_PATH env: ".( getenv( 'SHIELD_PACKAGE_PATH' ) ?: 'NOT SET' )."\n" );
+
 			// Try to show parent directory contents
-			$dir = dirname( $path );
-			if ( is_dir( $dir ) ) {
-				echo "[PATH DEBUG] Parent directory ($dir) contents:\n";
-				$files = scandir( $dir );
+			$dir = \dirname( $path );
+			if ( \is_dir( $dir ) ) {
+				$this->debugWrite( "[PATH DEBUG] Parent directory ($dir) contents:\n" );
+				$files = \scandir( $dir );
 				foreach ( $files as $file ) {
 					if ( $file !== '.' && $file !== '..' ) {
-						echo "[PATH DEBUG]   - $file\n";
+						$this->debugWrite( "[PATH DEBUG]   - $file\n" );
 					}
 				}
-			} else {
-				echo "[PATH DEBUG] Parent directory does not exist: $dir\n";
 			}
-			echo "[PATH DEBUG] ===================================\n\n";
+			else {
+				$this->debugWrite( "[PATH DEBUG] Parent directory does not exist: $dir\n" );
+			}
+			$this->debugWrite( "[PATH DEBUG] ===================================\n\n" );
 		}
 		$this->assertFileExists( $path, $message );
 	}

@@ -868,13 +868,50 @@ body.folded #FooterBannerGoPro {
   background-color: #f1f1f1;
 }
 
+$sidebar-width-expanded: 230px;
+$sidebar-width-collapsed: 56px;
+$sidebar-transition-speed: 0.25s;
+
 #PageMainSide-Apto {
   background-color: transparent;
   border: 0 none;
-  min-width: 200px;
-  width: 200px;
+  min-width: $sidebar-width-expanded;
+  width: $sidebar-width-expanded;
+
+  .sidebar-inner {
+    width: $sidebar-width-expanded;
+    min-height: 100%;
+  }
+
+  @include media-breakpoint-down(lg) {
+    min-width: $sidebar-width-collapsed;
+    width: $sidebar-width-collapsed;
+    position: relative;
+    overflow: visible;
+
+    .sidebar-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: $sidebar-width-collapsed;
+      overflow: hidden;
+      transition: width $sidebar-transition-speed ease,
+                  background-color $sidebar-transition-speed ease,
+                  box-shadow $sidebar-transition-speed ease;
+      z-index: 10;
+    }
+
+    &:hover .sidebar-inner {
+      width: $sidebar-width-expanded;
+      background-color: #f1f1f1;
+      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.15);
+      overflow: visible;
+    }
+  }
 }
 
+#PageMainSide-Apto > .sidebar-inner > .logo-container,
 #PageMainSide-Apto > .logo-container {
   padding: 5px 20px 8px;
 }
@@ -882,6 +919,47 @@ body.folded #FooterBannerGoPro {
 #PageMainSide-Apto .nav-link.disabled {
   opacity: 0.4 !important;
   color: #b7b7b7 !important;
+}
+
+@include media-breakpoint-down(lg) {
+
+  // --- Logo Section ---
+  #PageMainSide-Apto .logo-container {
+    padding: 8px 4px !important;
+    .navbar-brand {
+      max-width: 32px;
+      display: block;
+      margin: 0 auto;
+    }
+  }
+  #PageMainSide-Apto .logo-container + .row {
+    display: none;
+  }
+  #PageMainSide-Apto:hover .logo-container {
+    padding: 5px 20px 8px !important;
+    .navbar-brand {
+      max-width: none;
+    }
+  }
+  #PageMainSide-Apto:hover .logo-container + .row {
+    display: flex !important;
+  }
+
+  // --- Super Search (hide entirely when collapsed, restore on hover) ---
+  #SuperSearchLaunch {
+    display: none !important;
+  }
+  #PageMainSide-Apto:hover #SuperSearchLaunch {
+    display: flex !important;
+  }
+
+  // --- Version Footer ---
+  #PageMainSide-Apto > .sidebar-inner > .mt-2.text-center {
+    display: none;
+  }
+  #PageMainSide-Apto:hover > .sidebar-inner > .mt-2.text-center {
+    display: block;
+  }
 }
 
 #PageMainBody_Inner-Apto {

@@ -15,6 +15,12 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
+	private const TOTAL_COUNT_CACHE_TTL = 10;
+
+	private array $ipIdCache = [];
+
+	private array $userCache = [];
+
 	abstract protected function countTotalRecords() :int;
 
 	abstract protected function countTotalRecordsFiltered() :int;
@@ -24,12 +30,42 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	abstract protected function getSearchPanesDataBuilder() :BaseBuildSearchPanesData;
 
 	public function build() :array {
+		// loadForRecords() MUST run first — validateSearchPanes() sanitises
+		// table_data['searchPanes'] in-place before any WHERE building.
+		$data = $this->loadForRecords();
+		$totalCount = $this->getOrCacheTotalCount();
 		return [
-			'data'            => $this->loadForRecords(),
-			'recordsTotal'    => $this->countTotalRecords(),
-			'recordsFiltered' => $this->countTotalRecordsFiltered(),
+			'data'            => $data,
+			'recordsTotal'    => $totalCount,
+			'recordsFiltered' => empty( $this->buildWheresFromSearchParams() )
+				? $totalCount
+				: $this->countTotalRecordsFiltered(),
 			'searchPanes'     => $this->getSearchPanesData(),
 		];
+	}
+
+	/**
+	 * Transient key for caching the unfiltered total count.
+	 * Return empty string to disable caching (e.g. when the "total"
+	 * varies by per-request constructor parameters).
+	 */
+	protected function getTotalCountCacheKey() :string {
+		return 'shield_dt_total_'.\md5( static::class );
+	}
+
+	private function getOrCacheTotalCount() :int {
+		$key = $this->getTotalCountCacheKey();
+		if ( empty( $key ) ) {
+			$count = $this->countTotalRecords();
+		}
+		else {
+			$count = get_transient( $key );
+			if ( $count === false ) {
+				$count = $this->countTotalRecords();
+				set_transient( $key, $count, self::TOTAL_COUNT_CACHE_TTL );
+			}
+		}
+		return (int)$count;
 	}
 
 	protected function getSearchPanesData() :array {
@@ -149,7 +185,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				break;
 			case 'user':
 			case 'uid':
-				$values =  \array_filter( \array_map( '\intval', $values ), fn( $uid ) => $uid > 0 );
+				$values = \array_filter( \array_map( '\intval', $values ), fn( $uid ) => $uid > 0 );
 				break;
 			default:
 				break;
@@ -197,10 +233,39 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		);
 	}
 
+	protected function resolveIpIdentity( string $ip ) :?array {
+		if ( !isset( $this->ipIdCache[ $ip ] ) ) {
+			try {
+				$this->ipIdCache[ $ip ] = $this->createIpIdentifier( $ip )->run();
+			}
+			catch ( \Exception $e ) {
+				$this->ipIdCache[ $ip ] = false;
+			}
+		}
+		$result = $this->ipIdCache[ $ip ];
+		return $result === false ? null : $result;
+	}
+
+	protected function createIpIdentifier( string $ip ) :IpID {
+		return new IpID( $ip );
+	}
+
+	protected function resolveUser( int $uid ) {
+		$this->userCache[ $uid ] ??= Services::WpUsers()->getUserById( $uid ) ?? false;
+		return $this->userCache[ $uid ] === false ? null : $this->userCache[ $uid ];
+	}
+
+	protected function primeUserCache( array $uids ) :void {
+		$uids = \array_unique( \array_filter( \array_map( '\intval', $uids ), fn( $uid ) => $uid > 0 ) );
+		if ( !empty( $uids ) && \function_exists( 'cache_users' ) ) {
+			cache_users( $uids );
+		}
+	}
+
 	protected function getColumnContent_LinkedIP( string $ip, int $recordDeleteID = -1 ) :string {
 		if ( !empty( $ip ) ) {
-			try {
-				$ipID = ( new IpID( $ip ) )->run();
+			$ipID = $this->resolveIpIdentity( $ip );
+			if ( $ipID !== null ) {
 				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
 					$id = __( 'This Server', 'wp-simple-firewall' );
 				}
@@ -211,7 +276,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					$id = $ipID[ 1 ];
 				}
 			}
-			catch ( \Exception $e ) {
+			else {
 				$id = '';
 			}
 
@@ -236,10 +301,10 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function getUserHref( int $uid ) :string {
-		$WPP = Services::WpUsers();
-		$user = $WPP->getUserById( $uid );
+		$user = $this->resolveUser( $uid );
 		return empty( $user ) ? sprintf( 'Unavailable (ID:%s)', $uid ) :
-			sprintf( '<a href="%s" target="_blank">%s</a>', $WPP->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+			sprintf( '<a href="%s" target="_blank">%s</a>',
+				Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 	}
 
 	protected function getIpAnalysisLink( string $ip ) :string {
