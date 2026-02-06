@@ -1,8 +1,8 @@
-import { BlockPageAutoRecover } from "./js/components/block/BlockPageAutoRecover";
-import { BlockPageMagicLink } from "./js/components/block/BlockPageMagicLink";
-import { ShieldServicesWpAdmin } from "./js/services/ShieldServicesWpAdmin";
+import { BlockPageAutoRecover } from "./components/block/BlockPageAutoRecover";
+import { BlockPageMagicLink } from "./components/block/BlockPageMagicLink";
+import { ShieldServicesWpAdmin } from "./services/ShieldServicesWpAdmin";
 
-import "./css/plugin-blockpage.scss";
+import "../css/plugin-blockpage.scss";
 
 window.addEventListener( 'load', () => {
 	global.shieldServices = ShieldServicesWpAdmin.Instance();

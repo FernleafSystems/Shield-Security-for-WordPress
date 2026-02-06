@@ -156,7 +156,8 @@ yarn.lock text eol=lf
 /changelog.md export-ignore
 
 # Dependency management (runtime deps installed separately in package)
-# NOTE: composer.json is INCLUDED - it's needed for production dependency installation
+# NOTE: composer.json is INCLUDED during copy (needed for composer install in packaging)
+# but removed from the final package by PluginPackager after all build steps complete.
 /composer.lock export-ignore
 /package.json export-ignore
 /package-lock.json export-ignore
@@ -164,6 +165,7 @@ yarn.lock text eol=lf
 /vendor export-ignore
 /vendor_prefixed export-ignore
 /node_modules export-ignore
+/postcss.config.js export-ignore
 
 # Legacy vendor directories (should not be copied from source)
 # This should NOT be removed unless legacy plugin packager handling has been removed.
@@ -184,7 +186,9 @@ yarn.lock text eol=lf
 # Development tools
 /translations-tools export-ignore
 
-# Development documentation inside included directories
+# Frontend source files (compiled bundles are in assets/dist/)
+/assets/css export-ignore
+/assets/js export-ignore
 /assets/SASS_MODERNIZATION.md export-ignore
 
 # Temporary files

@@ -16,11 +16,31 @@ use Symfony\Component\Filesystem\Path;
 class LegacyPathDuplicator {
 
 	/**
-	 * Source directories to mirror (full copy)
+	 * Source directories to mirror (full copy).
+	 *
+	 * Only the DB entity directories actually autoloaded during shutdown are included:
+	 * - ActivityLogs/Meta: AuditLogger -> LocalDbWriter inserts log + meta records
+	 * - BotSignal: BotSignalsController tracks page loads; EventsToSignals checks notbot
+	 * - Common: BaseLoadRecordsForIPJoins base class used by LoadIpRules
+	 * - CrowdSecSignals: EventsToSignals inserts signal records at shutdown
+	 * - Event: StatsWriter commits event counts
+	 * - IpRules: ProcessOffense -> AddRule -> IpRuleStatus loads/updates rules
+	 * - IPs: IPRecords used by audit, traffic, bot signals, offense processing
+	 * - ReqLogs: RequestRecords used by audit and traffic log writers
+	 * - UserMeta: BotSignalsRecord reads last_login_at
 	 */
 	private const SRC_DIRECTORIES_TO_MIRROR = [
 		[ 'Controller', 'Config' ],              // OptsHandler::store() at shutdown
-		[ 'DBs' ],                               // All DB classes for logging/IP ops
+		[ 'DBs', 'ActivityLogs' ],               // AuditLogger -> LocalDbWriter
+		[ 'DBs', 'ActivityLogsMeta' ],           // AuditLogger -> LocalDbWriter metadata
+		[ 'DBs', 'BotSignal' ],                  // BotSignalsController, EventsToSignals
+		[ 'DBs', 'Common' ],                     // BaseLoadRecordsForIPJoins
+		[ 'DBs', 'CrowdSecSignals' ],            // EventsToSignals signal records
+		[ 'DBs', 'Event' ],                      // StatsWriter event counts
+		[ 'DBs', 'IpRules' ],                    // ProcessOffense -> AddRule -> IpRuleStatus
+		[ 'DBs', 'IPs' ],                        // IPRecords (audit, traffic, bot signals)
+		[ 'DBs', 'ReqLogs' ],                    // RequestRecords (audit, traffic writers)
+		[ 'DBs', 'UserMeta' ],                   // BotSignalsRecord reads last_login_at
 		[ 'Logging' ],                           // All log processors
 		[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
 	];
@@ -68,6 +88,7 @@ class LegacyPathDuplicator {
 	 * Standard vendor directories to mirror (for shutdown compatibility)
 	 */
 	private const STD_VENDOR_DIRECTORIES_TO_MIRROR = [
+		[ 'fernleafsystems', 'wordpress-services', 'src' ], // Used for beta upgrades handling
 		[ 'mlocati', 'ip-lib' ],  // IPLib used by AddRule at shutdown
 		[ 'composer' ],            // Autoloader metadata
 	];

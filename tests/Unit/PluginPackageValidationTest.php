@@ -84,8 +84,8 @@ class PluginPackageValidationTest extends TestCase {
 			'tests',
 			'bin/install-wp-tests.sh',
 			'phpunit.xml',
-			// Note: composer.json is intentionally kept for production autoloading
-			// Note: composer.lock is kept - required by Strauss during packaging
+			'composer.json',
+			'composer.lock',
 			'vendor/bin',
 			'vendor/monolog',
 			'vendor/twig',
