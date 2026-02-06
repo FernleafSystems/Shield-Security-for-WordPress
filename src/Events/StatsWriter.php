@@ -7,7 +7,7 @@ class StatsWriter extends EventsListener {
 	/**
 	 * @var int[] - key: event; value: count
 	 */
-	private $stats = [];
+	private array $stats = [];
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 		if ( !empty( $def[ 'stat' ] ) ) {

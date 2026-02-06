@@ -189,6 +189,6 @@ class SecurityAdminController {
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo self::con()->action_router->render( FormSecurityAdminLoginBox::SLUG );
+		echo self::con()->action_router->render( FormSecurityAdminLoginBox::class );
 	}
 }
