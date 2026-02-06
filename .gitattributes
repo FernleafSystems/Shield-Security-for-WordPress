@@ -164,6 +164,7 @@ yarn.lock text eol=lf
 /vendor export-ignore
 /vendor_prefixed export-ignore
 /node_modules export-ignore
+/postcss.config.js export-ignore
 
 # Legacy vendor directories (should not be copied from source)
 # This should NOT be removed unless legacy plugin packager handling has been removed.
