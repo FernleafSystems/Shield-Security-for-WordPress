@@ -132,6 +132,8 @@ class PluginPackager {
 		$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
 		$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
 
+		$this->removeComposerFiles( $targetDir );
+
 		// Create legacy path duplicates for upgrade compatibility
 		$this->legacyPathDuplicator->createDuplicates( $targetDir );
 
@@ -337,5 +339,21 @@ class PluginPackager {
 
 		$this->log( '  ✓ Composer dependencies installed' );
 		$this->log( '' );
+	}
+
+	/**
+	 * Remove composer files from the package directory.
+	 * Called after all composer/Strauss operations are complete.
+	 * These files are needed during packaging but not at runtime.
+	 */
+	private function removeComposerFiles( string $targetDir ) :void {
+		$files = [ 'composer.json', 'composer.lock' ];
+		foreach ( $files as $file ) {
+			$path = Path::join( $targetDir, $file );
+			if ( \file_exists( $path ) ) {
+				\unlink( $path );
+				$this->log( \sprintf( '  Removed %s from package', $file ) );
+			}
+		}
 	}
 }
