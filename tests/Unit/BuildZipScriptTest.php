@@ -35,6 +35,9 @@ class BuildZipScriptTest extends BaseUnitTest {
 	 * This is the user-facing entry point - if this breaks, the feature is broken.
 	 */
 	public function testComposerScriptExists() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
 		$composerJson = $this->decodePluginJsonFile( 'composer.json', 'composer.json' );
 
 		$this->assertArrayHasKey( 'scripts', $composerJson, 'composer.json should have scripts section' );

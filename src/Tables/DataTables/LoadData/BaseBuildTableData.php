@@ -21,7 +21,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	private array $userCache = [];
 
-	private ?array $parsedSearch = null;
+	private array $parsedSearch;
 
 	abstract protected function countTotalRecords() :int;
 
@@ -160,12 +160,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function parseSearchText() :array {
-		if ( $this->parsedSearch === null ) {
-			$this->parsedSearch = SearchTextParser::Parse(
-				(string)( $this->table_data[ 'search' ][ 'value' ] ?? '' )
-			);
-		}
-		return $this->parsedSearch;
+		return $this->parsedSearch ??= SearchTextParser::Parse( (string)( $this->table_data[ 'search' ][ 'value' ] ?? '' ) );
 	}
 
 	protected function buildSqlWhereForIpColumn( string $ipTerm ) :string {
