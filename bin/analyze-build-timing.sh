@@ -75,7 +75,7 @@ fi
 # Test 3: Composer install
 echo "📦 Testing composer install..."
 COMPOSER_ROOT_START=$(date +%s)
-composer install --no-interaction --prefer-dist --optimize-autoloader >/dev/null 2>&1
+composer install --no-interaction --prefer-dist >/dev/null 2>&1
 COMPOSER_ROOT_END=$(date +%s)
 COMPOSER_ROOT_TIME=$((COMPOSER_ROOT_END - COMPOSER_ROOT_START))
 echo "   composer install: $(format_duration $COMPOSER_ROOT_TIME)"
@@ -115,7 +115,7 @@ COPY_TIME=$((COPY_END - COPY_START))
 # Time composer install in package directory
 PACKAGE_COMPOSER_START=$(date +%s)
 cd "$PACKAGE_DIR"
-composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader >/dev/null 2>&1
+composer install --no-dev --no-interaction --prefer-dist >/dev/null 2>&1
 PACKAGE_COMPOSER_END=$(date +%s)
 PACKAGE_COMPOSER_TIME=$((PACKAGE_COMPOSER_END - PACKAGE_COMPOSER_START))
 
