@@ -90,7 +90,7 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'code'     => [
@@ -154,7 +154,7 @@ class ForTraffic extends Base {
 				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'day'      => [

@@ -6,6 +6,7 @@ import 'datatables.net-select-bs5';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
+import { OffCanvasService } from "../ui/OffCanvasService";
 
 export class ShieldTableBase extends BaseComponent {
 
@@ -134,7 +135,7 @@ export class ShieldTableBase extends BaseComponent {
 	}
 
 	getButtons() {
-		return [ {
+		let buttons = [ {
 			text: 'Reload Table',
 			name: 'table-reload',
 			className: 'action table-refresh btn-outline-secondary mb-2',
@@ -142,6 +143,19 @@ export class ShieldTableBase extends BaseComponent {
 				this.tableReload();
 			}
 		} ];
+
+		if ( this._base_data.ajax && this._base_data.ajax.render_offcanvas ) {
+			buttons.push( {
+				text: 'Search Help',
+				name: 'search-help',
+				className: 'action search-help btn-outline-info mb-2',
+				action: ( e, dt, node, config ) => {
+					OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas );
+				}
+			} );
+		}
+
+		return buttons;
 	}
 
 	rowSelectionChanged() {

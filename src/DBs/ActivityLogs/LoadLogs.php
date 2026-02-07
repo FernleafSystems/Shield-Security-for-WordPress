@@ -127,7 +127,7 @@ class LoadLogs extends DynPropertiesClass {
 			->activity_logs_meta
 			->getQuerySelector()
 			->filterByLogRefs( \array_keys( $records ) )
-			->all();
+			->queryWithResult();
 
 		if ( !empty( $metaRecords ) ) {
 			static::applyMetaToRecords( $records, $metaRecords );

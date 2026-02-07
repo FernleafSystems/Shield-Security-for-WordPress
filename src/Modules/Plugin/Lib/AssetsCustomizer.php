@@ -515,7 +515,8 @@ class AssetsCustomizer {
 					if ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ) ) {
 						$data[ 'activity' ] = [
 							'ajax' => [
-								'table_action' => ActionData::Build( Actions\ActivityLogTableAction::class ),
+								'table_action'     => ActionData::Build( Actions\ActivityLogTableAction::class ),
+								'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForActivityLog() )->buildRaw(),
@@ -536,7 +537,8 @@ class AssetsCustomizer {
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ) ) {
 						$data[ 'traffic' ] = [
 							'ajax' => [
-								'table_action' => ActionData::Build( Actions\TrafficLogTableAction::class ),
+								'table_action'     => ActionData::Build( Actions\TrafficLogTableAction::class ),
+								'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForTraffic() )->buildRaw(),

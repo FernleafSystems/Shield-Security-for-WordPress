@@ -38,7 +38,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
+        composer install --no-interaction --prefer-dist
         npm ci --no-audit --no-fund
 
     - name: Build assets

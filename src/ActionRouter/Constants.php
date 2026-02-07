@@ -161,6 +161,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
 		Actions\Render\Components\OffCanvas\MeterAnalysis::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,
+		Actions\Render\Components\OffCanvas\SearchHelp::class,
 		Actions\Render\Components\Options\OptionsFormFor::class,
 		Actions\Render\Components\Placeholders\PlaceholderMeter::class,
 		Actions\Render\Components\Reports\ReportsTable::class,
