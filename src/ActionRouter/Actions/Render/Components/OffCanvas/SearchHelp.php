@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SearchTextParser;
+
 class SearchHelp extends OffCanvasBase {
 
 	public const SLUG = 'offcanvas_search_help';
@@ -31,12 +33,14 @@ class SearchHelp extends OffCanvasBase {
 	}
 
 	private function getSearchPrefixes() :array {
-		return [
-			[
-				'prefix'      => 'ip:',
-				'description' => __( 'Filter results by IP address (full or partial match)', 'wp-simple-firewall' ),
-				'example'     => 'ip:192.168.1.1',
+		return \array_map(
+			fn( string $prefix, array $def ) => [
+				'prefix'      => $prefix.':',
+				'description' => __( $def[ 'description' ], 'wp-simple-firewall' ),
+				'example'     => $def[ 'example' ],
 			],
-		];
+			\array_keys( SearchTextParser::GetFilterDefinitions() ),
+			\array_values( SearchTextParser::GetFilterDefinitions() )
+		);
 	}
 }

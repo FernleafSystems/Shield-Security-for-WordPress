@@ -113,6 +113,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		if ( !empty( $ipWhere ) ) {
 			$wheres[] = $ipWhere;
 		}
+		$userIdWhere = $this->buildSqlWhereForUserIdSearch();
+		if ( !empty( $userIdWhere ) ) {
+			$wheres[] = $userIdWhere;
+		}
 		return $wheres;
 	}
 

@@ -145,6 +145,10 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		if ( !empty( $ipWhere ) ) {
 			$wheres[] = $ipWhere;
 		}
+		$userIdWhere = $this->buildSqlWhereForUserIdSearch();
+		if ( !empty( $userIdWhere ) ) {
+			$wheres[] = $userIdWhere;
+		}
 		$remaining = $this->parseSearchText()[ 'remaining' ];
 		if ( !empty( $remaining ) ) {
 			$wheres[] = \sprintf( "`req`.`path` LIKE '%%%s%%'", esc_sql( $remaining ) );

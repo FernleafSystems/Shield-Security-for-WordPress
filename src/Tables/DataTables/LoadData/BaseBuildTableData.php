@@ -161,20 +161,9 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function parseSearchText() :array {
 		if ( $this->parsedSearch === null ) {
-			$rawSearch = (string)( $this->table_data[ 'search' ][ 'value' ] ?? '' );
-			$ip = '';
-			$remaining = $rawSearch;
-			if ( \preg_match( '#\bip:\s*(\S+)#i', $rawSearch, $matches ) ) {
-				$candidate = \preg_replace( '#[^0-9a-f:.]#i', '', $matches[ 1 ] );
-				if ( !empty( $candidate ) ) {
-					$ip = $candidate;
-					$remaining = \trim( \preg_replace( '#\bip:\s*\S+#i', '', $rawSearch ) );
-				}
-			}
-			$this->parsedSearch = [
-				'ip'        => $ip,
-				'remaining' => $remaining,
-			];
+			$this->parsedSearch = SearchTextParser::Parse(
+				(string)( $this->table_data[ 'search' ][ 'value' ] ?? '' )
+			);
 		}
 		return $this->parsedSearch;
 	}
@@ -186,6 +175,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	protected function buildSqlWhereForIpSearch() :string {
 		$parsed = $this->parseSearchText();
 		return empty( $parsed[ 'ip' ] ) ? '' : $this->buildSqlWhereForIpColumn( $parsed[ 'ip' ] );
+	}
+
+	protected function buildSqlWhereForUserIdSearch() :string {
+		$parsed = $this->parseSearchText();
+		return empty( $parsed[ 'user_id' ] ) ? '' : \sprintf( "`req`.`uid`=%d", (int)$parsed[ 'user_id' ] );
 	}
 
 	/**

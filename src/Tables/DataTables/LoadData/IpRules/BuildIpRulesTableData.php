@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SearchTextParser;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
@@ -118,7 +119,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		}
 
 		if ( !empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
-			$ip = \preg_replace( '#[^0-9a-f:.]#i', '', $this->table_data[ 'search' ][ 'value' ] );
+			$ip = SearchTextParser::SanitiseForFilter( 'ip', $this->table_data[ 'search' ][ 'value' ] );
 			if ( !empty( $ip ) ) {
 				$wheres[] = $this->buildSqlWhereForIpColumn( $ip );
 			}
