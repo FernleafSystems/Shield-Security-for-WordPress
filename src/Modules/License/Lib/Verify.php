@@ -37,7 +37,7 @@ class Verify {
 			else {
 				// License lookup failed but request was successful - so use what we get
 				if ( $license->isReady() ) {
-					self::con()->fireEvent( 'lic_check_fail', [
+					self::con()->comps->events->fireEvent( 'lic_check_fail', [
 						'audit_params' => [
 							'type' => 'verification'
 						]
@@ -53,14 +53,14 @@ class Verify {
 			$licHandler->updateLicenseData( $existing->getRawData() );
 
 			if ( $licenseLookupSuccess ) {
-				self::con()->fireEvent( 'lic_check_success' );
+				self::con()->comps->events->fireEvent( 'lic_check_success' );
 			}
 
 			self::con()->opts->store();
 		}
 		catch ( Exceptions\FailedLicenseRequestHttpException $e ) {
 
-			self::con()->fireEvent( 'lic_check_fail', [
+			self::con()->comps->events->fireEvent( 'lic_check_fail', [
 				'audit_params' => [
 					'type' => 'HTTP'
 				]

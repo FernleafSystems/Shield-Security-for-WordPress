@@ -102,7 +102,7 @@ abstract class BaseAutoUnblock {
 	}
 
 	protected function fireEvent() {
-		self::con()->fireEvent( 'ip_unblock_auto', [
+		self::con()->comps->events->fireEvent( 'ip_unblock_auto', [
 			'audit_params' => [
 				'ip'     => self::con()->this_req->ip,
 				'method' => $this->getUnblockMethodName()

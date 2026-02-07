@@ -94,10 +94,11 @@ class Import {
 	 * @throws \Exception
 	 */
 	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
-		$optsCon = self::con()->opts;
+		$con = self::con();
+		$optsCon = $con->opts;
 
 		if ( empty( $masterURL ) ) {
-			$masterURL = self::con()->comps->import_export->getImportExportMasterImportUrl();
+			$masterURL = $con->comps->import_export->getImportExportMasterImportUrl();
 			if ( empty( $masterURL ) ) {
 				throw new \Exception( "No Master Site URL provided.", 4 );
 			}
@@ -154,7 +155,7 @@ class Import {
 		$data[ 'uniq' ] = wp_generate_password( 4, false );
 
 		{ // Send the export request
-			$targetExportURL = self::con()->plugin_urls->noncedPluginAction(
+			$targetExportURL = $con->plugin_urls->noncedPluginAction(
 				PluginImportExport_Export::class,
 				$masterURL,
 				$data
@@ -188,7 +189,7 @@ class Import {
 		// Only do so if we're not turning it off. i.e on or no-change
 		if ( $enableNetwork === true ) {
 			$optsCon->optSet( 'importexport_masterurl', $masterURL );
-			self::con()->fireEvent(
+			$con->comps->events->fireEvent(
 				'master_url_set',
 				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
@@ -214,7 +215,7 @@ class Import {
 		}
 
 		if ( $opts->hasChanges() ) {
-			self::con()->fireEvent(
+			$con->comps->events->fireEvent(
 				'options_imported',
 				[ 'audit_params' => [ 'site' => $source ] ]
 			);
@@ -223,7 +224,7 @@ class Import {
 		$opts->store();
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
-			$dbh = self::con()->db_con->ip_rules;
+			$dbh = $con->db_con->ip_rules;
 			$now = Services::Request()->ts();
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {

@@ -57,7 +57,7 @@ class BlockdownFormSubmit extends BaseAction {
 
 			$con->opts->optSet( 'blockdown_cfg', $cfg->getRawData() );
 
-			self::con()->fireEvent( 'site_blockdown_started', [
+			self::con()->comps->events->fireEvent( 'site_blockdown_started', [
 				'audit_params' => [ 'user_login' => Services::WpUsers()->getCurrentWpUsername() ]
 			] );
 

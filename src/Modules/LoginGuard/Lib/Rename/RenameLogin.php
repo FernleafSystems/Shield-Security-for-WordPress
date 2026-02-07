@@ -224,7 +224,7 @@ class RenameLogin {
 	 */
 	protected function doWpLoginFailedRedirect404() {
 
-		self::con()->fireEvent( 'hide_login_url' );
+		self::con()->comps->events->fireEvent( 'hide_login_url' );
 
 		$redirectPath = self::con()->opts->optGet( 'rename_wplogin_redirect' );
 		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );

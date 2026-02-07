@@ -38,7 +38,7 @@ class FirewallBlock extends Base {
 		$con = self::con();
 		if ( $con->opts->optIs( 'block_send_email', 'Y' ) ) {
 			do_action( 'shield/firewall_pre_block' );
-			$con->fireEvent(
+			$con->comps->events->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
 				[ 'audit_params' => [ 'to' => $con->comps->opts_lookup->getReportEmail() ] ]
 			);

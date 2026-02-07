@@ -49,7 +49,7 @@ class MfaProfilesController {
 			'read',
 			'shield-login-security',
 			function () {
-				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::SLUG );
+				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::class );
 			},
 			4
 		) );

@@ -114,7 +114,7 @@ class ReportGenerator {
 
 		$con->db_con->reports->getQueryInserter()->insert( $record );
 
-		$con->fireEvent( 'report_generated', [
+		$con->comps->events->fireEvent( 'report_generated', [
 			'audit_params' => [
 				'type'     => $con->comps->reports->getReportTypeName( $record->type ),
 				'interval' => $record->interval_length,
@@ -170,7 +170,7 @@ class ReportGenerator {
 
 			$con->email_con->sendVO( $email );
 
-			$con->fireEvent( 'report_sent', [
+			$con->comps->events->fireEvent( 'report_sent', [
 				'audit_params' => [
 					'medium' => 'email',
 				]

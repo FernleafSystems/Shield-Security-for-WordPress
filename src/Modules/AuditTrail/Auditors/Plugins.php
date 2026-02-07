@@ -128,7 +128,7 @@ class Plugins extends Base {
 			 && current_user_can( 'edit_plugins' )
 			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-plugin_'.$req->post( 'file' ) )
 		) {
-			self::con()->fireEvent(
+			self::con()->comps->events->fireEvent(
 				'plugin_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
 			);

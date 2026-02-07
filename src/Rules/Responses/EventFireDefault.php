@@ -9,7 +9,7 @@ class EventFireDefault extends Base {
 	public const SLUG = 'event_fire_default';
 
 	public function execResponse() :void {
-		self::con()->fireEvent( 'shield/rules/response/'.$this->p->rule_slug );
+		self::con()->comps->events->fireEvent( 'shield/rules/response/'.$this->p->rule_slug );
 	}
 
 	public function getParamsDef() :array {

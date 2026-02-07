@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\WpvAddPluginRows;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Wpv extends BaseForAssets {
 
@@ -83,15 +82,5 @@ class Wpv extends BaseForAssets {
 			->setScanActionVO( $this->getScanActionVO() )
 			->build()
 			->getScanActionVO();
-	}
-
-	/**
-	 * @param bool|mixed       $doAutoUpdate
-	 * @param \stdClass|string $mItem
-	 * @deprecated 20.1
-	 */
-	public function autoupdateVulnerablePlugins( $doAutoUpdate, $mItem ) :bool {
-		$itemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
-		return $doAutoUpdate || $this->hasVulnerabilities( $itemFile );
 	}
 }

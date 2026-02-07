@@ -46,7 +46,7 @@ class SendSms extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Comm
 		$raw = $this->sendReq();
 		$success = \is_array( $raw ) && empty( $raw[ 'error' ] );
 
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
 				'audit_params' => [

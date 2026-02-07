@@ -29,13 +29,11 @@ class WhitelistNotifyQueue extends BackgroundProcess {
 	}
 
 	/**
-	 * Complete.
-	 *
 	 * Override if applicable, but ensure that the below actions are
 	 * performed, or, call parent::complete().
 	 */
 	protected function complete() {
 		parent::complete();
-		self::con()->fireEvent( 'import_notify_sent' );
+		self::con()->comps->events->fireEvent( 'import_notify_sent' );
 	}
 }

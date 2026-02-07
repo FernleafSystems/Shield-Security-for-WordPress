@@ -34,7 +34,7 @@ class DeleteRule {
 				case $dbh::T_AUTO_BLOCK:
 				case $dbh::T_MANUAL_BLOCK:
 				case $dbh::T_CROWDSEC:
-					self::con()->fireEvent( 'ip_unblock', [
+					self::con()->comps->events->fireEvent( 'ip_unblock', [
 						'audit_params' => [
 							'ip'   => $record->ipAsSubnetRange(),
 							'type' => $dbh::GetTypeName( $record->type ),
@@ -43,7 +43,7 @@ class DeleteRule {
 					break;
 
 				case $dbh::T_MANUAL_BYPASS:
-					self::con()->fireEvent( 'ip_bypass_remove', [
+					self::con()->comps->events->fireEvent( 'ip_bypass_remove', [
 						'audit_params' => [
 							'ip' => $record->ipAsSubnetRange()
 						]

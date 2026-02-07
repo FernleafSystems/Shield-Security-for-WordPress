@@ -108,7 +108,7 @@ class ImportExportController {
 		$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( !wp_next_scheduled( $cronHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + \rand( 30, 180 ), $cronHook );
-			$con->fireEvent( 'import_notify_received', [
+			$con->comps->events->fireEvent( 'import_notify_received', [
 				'audit_params' => [
 					'master_site' => $con->opts->optGet( 'importexport_masterurl' )
 				]

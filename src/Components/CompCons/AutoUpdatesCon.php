@@ -206,8 +206,7 @@ class AutoUpdatesCon {
 	 * @return array|mixed
 	 */
 	public function autoupdate_email_override( $emailParams ) {
-		// @deprecated 19.2 - isset() required for upgrade from 19.0
-		if ( \is_array( $emailParams ) && !\is_null( self::con()->comps ) && !\is_null( self::con()->comps->opts_lookup ) ) {
+		if ( \is_array( $emailParams ) ) {
 			$emailParams[ 'to' ] = self::con()->comps->opts_lookup->getReportEmail();
 		}
 		return $emailParams;
@@ -225,12 +224,5 @@ class AutoUpdatesCon {
 		);
 
 		return $opts->optGet( 'delay_tracking' );
-	}
-
-	/**
-	 * @deprecated 20.1
-	 */
-	public function isDelayUpdates() :bool {
-		return self::con()->opts->optGet( 'update_delay' ) > 0;
 	}
 }

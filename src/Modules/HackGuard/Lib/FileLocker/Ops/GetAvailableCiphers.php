@@ -22,18 +22,4 @@ class GetAvailableCiphers {
 		$first = \current( $this->full() );
 		return \is_string( $first ) ? $first : null;
 	}
-
-	/**
-	 * @deprecated 20.1
-	 */
-	public function local() :array {
-		return self::$local ??= ( new CipherTests() )->findAvailableCiphers();
-	}
-
-	/**
-	 * @deprecated 20.1
-	 */
-	public function snapi() :array {
-		return self::$snapi ??= ( new AvailableCiphers() )->retrieve();
-	}
 }

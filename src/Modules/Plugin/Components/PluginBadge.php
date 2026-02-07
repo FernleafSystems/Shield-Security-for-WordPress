@@ -15,9 +15,7 @@ class PluginBadge {
 	protected function run() {
 		$this->floatingBadge();
 		add_action( 'widgets_init', [ $this, 'addPluginBadgeWidget' ] );
-		add_shortcode( 'SHIELD_BADGE', function () {
-			$this->render();
-		} );
+		add_shortcode( 'SHIELD_BADGE', fn() => $this->render() );
 	}
 
 	private function floatingBadge() {
@@ -54,16 +52,12 @@ class PluginBadge {
 	}
 
 	public function render( bool $isFloating = false ) :string {
-		return self::con()->action_router->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
+		return self::con()->action_router->render( Actions\Render\Components\RenderPluginBadge::class, [
 			'is_floating' => $isFloating,
 		] );
 	}
 
 	public function setBadgeStateClosed() :bool {
-		return (bool)Services::Response()->cookieSet(
-			$this->getCookieIdBadgeState(),
-			'closed',
-			DAY_IN_SECONDS
-		);
+		return (bool)Services::Response()->cookieSet( $this->getCookieIdBadgeState(), 'closed', DAY_IN_SECONDS );
 	}
 }

@@ -32,7 +32,7 @@ class UnblockIpByFlag {
 							$removed = ( new DeleteRule() )->byRecord( $record );
 							if ( $removed ) {
 								$IPs[] = $ip;
-								self::con()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+								self::con()->comps->events->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
 							}
 						}
 					}

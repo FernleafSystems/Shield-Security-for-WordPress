@@ -61,7 +61,7 @@ class EmailValidate {
 
 			if ( !empty( $invalidBecause ) ) {
 				$opt = $con->opts->optGet( 'reg_email_validate' );
-				$con->fireEvent(
+				$con->comps->events->fireEvent(
 					'reg_email_invalid',
 					[
 						'audit_params'  => [
