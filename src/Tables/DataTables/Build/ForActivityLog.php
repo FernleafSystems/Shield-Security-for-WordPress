@@ -95,7 +95,7 @@ class ForActivityLog extends Base {
 				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'identity'   => [

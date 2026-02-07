@@ -21,6 +21,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	private array $userCache = [];
 
+	private ?array $parsedSearch = null;
+
 	abstract protected function countTotalRecords() :int;
 
 	abstract protected function countTotalRecordsFiltered() :int;
@@ -73,7 +75,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	public function loadForRecords() :array {
-		if ( empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
+		if ( empty( $this->parseSearchText()[ 'remaining' ] ) ) {
 			return $this->loadRecordsWithDirectQuery();
 		}
 		else {
@@ -98,7 +100,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	protected function loadRecordsWithSearch() :array {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
-		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
+		$search = $this->parseSearchText()[ 'remaining' ];
 
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
@@ -155,6 +157,35 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		}
 
 		return \array_values( $results );
+	}
+
+	protected function parseSearchText() :array {
+		if ( $this->parsedSearch === null ) {
+			$rawSearch = (string)( $this->table_data[ 'search' ][ 'value' ] ?? '' );
+			$ip = '';
+			$remaining = $rawSearch;
+			if ( \preg_match( '#\bip:\s*(\S+)#i', $rawSearch, $matches ) ) {
+				$candidate = \preg_replace( '#[^0-9a-f:.]#i', '', $matches[ 1 ] );
+				if ( !empty( $candidate ) ) {
+					$ip = $candidate;
+					$remaining = \trim( \preg_replace( '#\bip:\s*\S+#i', '', $rawSearch ) );
+				}
+			}
+			$this->parsedSearch = [
+				'ip'        => $ip,
+				'remaining' => $remaining,
+			];
+		}
+		return $this->parsedSearch;
+	}
+
+	protected function buildSqlWhereForIpColumn( string $ipTerm ) :string {
+		return \sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ipTerm );
+	}
+
+	protected function buildSqlWhereForIpSearch() :string {
+		$parsed = $this->parseSearchText();
+		return empty( $parsed[ 'ip' ] ) ? '' : $this->buildSqlWhereForIpColumn( $parsed[ 'ip' ] );
 	}
 
 	/**

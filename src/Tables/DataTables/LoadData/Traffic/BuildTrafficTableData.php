@@ -141,8 +141,13 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				}
 			}
 		}
-		if ( !empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
-			$wheres[] = sprintf( "`req`.`path` LIKE '%%%s%%'", esc_sql( $this->table_data[ 'search' ][ 'value' ] ) );
+		$ipWhere = $this->buildSqlWhereForIpSearch();
+		if ( !empty( $ipWhere ) ) {
+			$wheres[] = $ipWhere;
+		}
+		$remaining = $this->parseSearchText()[ 'remaining' ];
+		if ( !empty( $remaining ) ) {
+			$wheres[] = \sprintf( "`req`.`path` LIKE '%%%s%%'", esc_sql( $remaining ) );
 		}
 		return $wheres;
 	}

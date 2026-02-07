@@ -19,7 +19,6 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 		return [
 			'options' => \array_map( '\array_values', [
 				'day'     => $this->buildForDay(),
-				'ip'      => $this->buildForIPs(),
 				'type'    => $this->buildForType(),
 				'offense' => $this->buildForOffense(),
 				'code'    => $this->buildForCodes(),
