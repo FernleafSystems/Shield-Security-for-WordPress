@@ -30,7 +30,7 @@ class Retrieve {
 			->setNoOrderBy();
 
 		$toDelete = [];
-		foreach ( $selector->all() as $record ) {
+		foreach ( $selector->queryWithResult() as $record ) {
 			/** @var SnapshotsDB\Record $record */
 			if ( isset( $snaps[ $record->slug ] ) && $snaps[ $record->slug ]->created_at > $record->created_at ) {
 				$toDelete[] = $record->id;

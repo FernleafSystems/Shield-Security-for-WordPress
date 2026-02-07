@@ -20,7 +20,7 @@ class LoadFileLocks {
 				->file_locker
 				->getQuerySelector()
 				->setNoOrderBy()
-				->all();
+				->queryWithResult();
 			foreach ( \is_array( $all ) ? $all : [] as $lock ) {
 				$records[ $lock->id ] = $lock;
 			}
