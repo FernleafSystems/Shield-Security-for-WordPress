@@ -260,7 +260,7 @@ class MfaController {
 	public function verifyLoginNonce( \WP_User $user, string $plainNonce ) :bool {
 		$valid = !empty( $this->findHashedNonce( $user, $plainNonce ) );
 		if ( !$valid ) {
-			self::con()->fireEvent( '2fa_nonce_verify_fail', [
+			self::con()->comps->events->fireEvent( '2fa_nonce_verify_fail', [
 				'audit_params' => [
 					'user_login' => $user->user_login,
 				]

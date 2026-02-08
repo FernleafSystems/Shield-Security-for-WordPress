@@ -1,12 +1,13 @@
 {% if unique_render_id|default('') is empty %}
 	{% set unique_render_id= random() %}
 {% endif %}
+{% set dismiss_enabled = can_dismiss is defined and can_dismiss is not null ? can_dismiss : true %}
 
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
 		 data-notice_id="{{ notice_id|default('') }}"
-		 class="{{ notice_classes|default('info') }} notice is-dismissible shield-notice-container">
+		 class="{{ notice_classes|default('info') }} notice {{ dismiss_enabled ? 'is-dismissible' : '' }} shield-notice-container">
 
 		<div class="notice-body" style="display: flex; flex-direction: row; ">
 
@@ -35,11 +36,13 @@
 		</div>
 
 		{% block dismiss_link %}
+			{% if dismiss_enabled %}
 			<div class="dismiss-p">
 				<a class="shield-notice-dismiss"
 				   href="#"
 				>{{ strings.dismiss|default('Dismiss') }}</a>
 			</div>
+			{% endif %}
 		{% endblock %}
 
 	</div>

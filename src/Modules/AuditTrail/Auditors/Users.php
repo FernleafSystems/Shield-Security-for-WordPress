@@ -49,7 +49,7 @@ class Users extends Base {
 
 	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {
 		if ( \is_numeric( $userID ) && !empty( $appPassItem ) && !empty( $appPassItem[ 'name' ] ) ) {
-			self::con()->fireEvent(
+			self::con()->comps->events->fireEvent(
 				'app_pass_created',
 				[
 					'audit_params' => [
@@ -66,7 +66,7 @@ class Users extends Base {
 	}
 
 	public function auditUserLoginSuccess( \WP_User $user ) {
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			Services::WpUsers()->isAppPasswordAuth() ? 'user_login_app' : 'user_login',
 			[
 				'audit_params' => [
@@ -106,7 +106,7 @@ class Users extends Base {
 
 		$reassigned = empty( $reassignedID ) ? null : Services::WpUsers()->getUserById( $reassignedID );
 		if ( $reassigned instanceof \WP_User ) {
-			self::con()->fireEvent(
+			self::con()->comps->events->fireEvent(
 				'user_deleted_reassigned',
 				[
 					'audit_params' => [
@@ -118,7 +118,7 @@ class Users extends Base {
 	}
 
 	private function auditSuccessAppPassword( \WP_User $user ) {
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			'user_login_app',
 			[
 				'audit_params' => [
@@ -140,7 +140,7 @@ class Users extends Base {
 
 		foreach ( $error->get_error_codes() as $code ) {
 			if ( isset( $wpErrorToEventMap[ $code ] ) ) {
-				self::con()->fireEvent( $wpErrorToEventMap[ $code ] );
+				self::con()->comps->events->fireEvent( $wpErrorToEventMap[ $code ] );
 			}
 		}
 	}

@@ -263,18 +263,9 @@ class DbCon extends DynPropertiesClass {
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
-
 		if ( isset( self::MAP[ $key ] ) ) {
 			$value = $this->load( $key );
 		}
-
 		return $value;
-	}
-
-	/**
-	 * @deprecated 19.2 - required for upgrade from 19.0
-	 */
-	public function dbhFileLocker() :FileLocker\Ops\Handler {
-		return $this->loadDbH( 'file_locker' );
 	}
 }

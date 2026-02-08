@@ -14,7 +14,8 @@ class SetScanCompleted {
 	use PluginControllerConsumer;
 
 	public function run( string $scan ) {
-		$dbCon = self::con()->db_con;
+		$con = self::con();
+		$dbCon = $con->db_con;
 		$count = (int)Services::WpDb()->getVar(
 			sprintf( "SELECT count(*)
 						FROM `%s` as `scans`
@@ -43,8 +44,8 @@ class SetScanCompleted {
 				] )
 				->query();
 
-			$scanCon = self::con()->comps->scans->getScanCon( $scan );
-			self::con()->fireEvent( 'scan_run', [
+			$scanCon = $con->comps->scans->getScanCon( $scan );
+			$con->comps->events->fireEvent( 'scan_run', [
 				'audit_params' => [
 					'scan' => $scanCon->getScanName()
 				]
@@ -72,7 +73,7 @@ class SetScanCompleted {
 
 			$items .= ' "'.\implode( '", "', $itemDescriptions ).'"';
 
-			self::con()->fireEvent( 'scan_items_found', [
+			self::con()->comps->events->fireEvent( 'scan_items_found', [
 				'audit_params' => [
 					'scan'  => $scanCon->getScanName(),
 					'items' => $items

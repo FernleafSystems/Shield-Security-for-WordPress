@@ -70,6 +70,7 @@ class Constants {
 		Actions\PluginAutoDbRepair::class,
 		Actions\PluginBadgeClose::class,
 		Actions\PluginDeleteForceOff::class,
+		Actions\TranslationsForceDownload::class,
 		Actions\PluginDumpTelemetry::class,
 		Actions\PluginImportExport_UpdateNotified::class,
 		Actions\PluginImportExport_Export::class,

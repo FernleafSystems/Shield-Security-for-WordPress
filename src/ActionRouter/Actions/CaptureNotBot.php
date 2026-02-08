@@ -14,7 +14,7 @@ class CaptureNotBot extends BaseAction {
 	protected function exec() {
 		$con = self::con();
 		try {
-			$con->fireEvent( 'bottrack_multiple', [
+			$con->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
 					'events' => [
 						'bottrack_notbot',

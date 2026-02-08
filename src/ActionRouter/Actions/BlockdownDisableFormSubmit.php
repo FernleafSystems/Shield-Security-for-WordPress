@@ -35,7 +35,7 @@ class BlockdownDisableFormSubmit extends BaseAction {
 			}
 			$cfg->whitelist_me = '';
 			$con->opts->optSet( 'blockdown_cfg', $cfg->getRawData() );
-			$con->fireEvent( 'site_blockdown_ended', [
+			$con->comps->events->fireEvent( 'site_blockdown_ended', [
 				'audit_params' => [ 'user_login' => Services::WpUsers()->getCurrentWpUsername() ]
 			] );
 

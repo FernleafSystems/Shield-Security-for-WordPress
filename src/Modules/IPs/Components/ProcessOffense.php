@@ -74,7 +74,7 @@ class ProcessOffense {
 			$updater->setBlocked( $IP );
 
 			if ( $fireEvents ) {
-				$con->fireEvent( 'ip_offense',
+				$con->comps->events->fireEvent( 'ip_offense',
 					[
 						'suppress_audit' => true,
 						'audit_params'   => [

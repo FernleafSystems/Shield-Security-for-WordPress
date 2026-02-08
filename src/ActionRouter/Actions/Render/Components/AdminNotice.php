@@ -31,6 +31,7 @@ class AdminNotice extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 
 		$data[ 'unique_render_id' ] = $notice->id.wp_generate_password( 12, false );
 		$data[ 'notice_id' ] = $notice->id;
+		$data[ 'can_dismiss' ] = $notice->can_dismiss ?? true;
 
 		$data[ 'imgs' ] = [
 			'icon_shield' => $con->svgs->raw( 'shield-shaded.svg' ),

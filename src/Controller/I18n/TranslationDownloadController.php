@@ -56,8 +56,8 @@ class TranslationDownloadController {
 		$this->saveQueue( \array_merge( $this->getQueue(), [ $locale ] ) );
 	}
 
-	public function processQueue() :void {
-		if ( !empty( $this->getQueue() ) && $this->canAttemptDownload() ) {
+	public function processQueue( bool $force = false ) :void {
+		if ( !empty( $this->getQueue() ) && ( $force || $this->canAttemptDownload() ) ) {
 
 			$this->addCfg( 'last_download_at', Services::Request()->ts() );
 
@@ -180,6 +180,18 @@ class TranslationDownloadController {
 			self::OPT_KEY,
 			\array_intersect_key( $cfg, \array_flip( [ 'queue', 'locales', 'last_fetch_at', 'last_download_at' ] ) )
 		)->store();
+	}
+
+	public function isQueueRelevantToLocale( string $locale ) :bool {
+		$isRelevant = false;
+		$lang = \substr( $locale, 0, 2 );
+		foreach ( $this->getQueue() as $queuedLocale ) {
+			if ( $locale === $queuedLocale || $lang === \substr( $queuedLocale, 0, 2 ) ) {
+				$isRelevant = true;
+				break;
+			}
+		}
+		return $isRelevant;
 	}
 
 	public function getQueue() :array {

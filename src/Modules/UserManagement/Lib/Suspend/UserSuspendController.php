@@ -213,7 +213,7 @@ class UserSuspendController {
 
 		if ( $add && !$isSuspended ) {
 			$meta->record->hard_suspended_at = Services::Request()->ts();
-			$con->fireEvent( 'user_hard_suspended', [
+			$con->comps->events->fireEvent( 'user_hard_suspended', [
 				'audit_params' => [
 					'user_login' => $user->user_login,
 					'admin'      => Services::WpUsers()->getCurrentWpUsername(),
@@ -222,7 +222,7 @@ class UserSuspendController {
 		}
 		elseif ( !$add && $isSuspended ) {
 			$meta->record->hard_suspended_at = 0;
-			$con->fireEvent( 'user_hard_unsuspended', [
+			$con->comps->events->fireEvent( 'user_hard_unsuspended', [
 				'audit_params' => [
 					'user_login' => $user->user_login,
 					'admin'      => Services::WpUsers()->getCurrentWpUsername(),

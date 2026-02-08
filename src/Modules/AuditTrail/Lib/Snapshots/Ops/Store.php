@@ -10,11 +10,10 @@ class Store {
 	use PluginControllerConsumer;
 
 	public function store( SnapshotVO $snapshot ) :bool {
-		$dbh = self::con()->db_con->activity_snapshots;
-		/** @deprecated 19.2 - to be retained for upgrades from 19.0. */
-		if ( empty( $dbh ) ) {
-			$dbh = self::con()->db_con->loadDbH( 'snapshots' );
-		}
-		return $dbh->getQueryInserter()->insert( Convert::SnapToRecord( $snapshot ) );
+		return self::con()
+			->db_con
+			->activity_snapshots
+			->getQueryInserter()
+			->insert( Convert::SnapToRecord( $snapshot ) );
 	}
 }

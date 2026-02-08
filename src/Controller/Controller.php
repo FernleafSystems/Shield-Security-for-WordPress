@@ -73,7 +73,7 @@ class Controller extends DynPropertiesClass {
 	public ?Plugin\ModCon $plugin = null;
 
 	/**
-	 * @deprecated 19.2
+	 * @deprecated 21.1
 	 */
 	public function fireEvent( string $event, array $meta = [] ) :self {
 		$this->comps->events->fireEvent( $event, $meta );
@@ -721,14 +721,5 @@ class Controller extends DynPropertiesClass {
 		}
 
 		return $labels;
-	}
-
-	/**
-	 * Default is to take the 'Name' from the labels section but can override with "human_name" from property section.
-	 * @return string
-	 * @deprecated 20.1
-	 */
-	public function getHumanName() {
-		return $this->labels->Name;
 	}
 }

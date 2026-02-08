@@ -119,7 +119,7 @@ class LoginIntentRequestCapture {
 				( new MfaSkip() )->addMfaSkip( $this->user );
 			}
 
-			$con->fireEvent( '2fa_success' );
+			$con->comps->events->fireEvent( '2fa_success' );
 
 			global $interim_login;
 			$interim_login = (bool)$req->request( 'interim-login' );

@@ -18,7 +18,7 @@ abstract class Base {
 	}
 
 	protected function doTransgression() {
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			'bot'.static::OPT_KEY,
 			[
 				'audit_params'  => $this->getAuditData(),
