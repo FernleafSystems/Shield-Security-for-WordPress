@@ -182,6 +182,18 @@ class TranslationDownloadController {
 		)->store();
 	}
 
+	public function isQueueRelevantToLocale( string $locale ) :bool {
+		$isRelevant = false;
+		$lang = \substr( $locale, 0, 2 );
+		foreach ( $this->getQueue() as $queuedLocale ) {
+			if ( $locale === $queuedLocale || $lang === \substr( $queuedLocale, 0, 2 ) ) {
+				$isRelevant = true;
+				break;
+			}
+		}
+		return $isRelevant;
+	}
+
 	public function getQueue() :array {
 		return $this->cfg()[ 'queue' ] ?? [];
 	}

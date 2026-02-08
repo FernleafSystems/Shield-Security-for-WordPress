@@ -530,7 +530,9 @@ class Controller {
 						  && \in_array( Services::WpPost()->getCurrentPage(), $restricted );
 				break;
 			case 'translations-queued':
-				$needed = !empty( $con->comps->translation_downloads->getQueue() );
+				$needed = $con->comps->translation_downloads->isQueueRelevantToLocale(
+					\function_exists( 'determine_locale' ) ? determine_locale() : get_locale()
+				);
 				break;
 			default:
 				$needed = false;
