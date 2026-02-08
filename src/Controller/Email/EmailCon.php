@@ -19,7 +19,7 @@ class EmailCon {
 
 	protected function getEmailFooter() :array {
 		return apply_filters( 'icwp_shield_email_footer', [
-			self::con()->action_router->render( Footer::SLUG )
+			self::con()->action_router->render( Footer::class )
 		] );
 	}
 

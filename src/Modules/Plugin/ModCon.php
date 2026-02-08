@@ -170,7 +170,7 @@ class ModCon {
 
 		add_action( 'admin_footer', function () {
 			if ( self::con()->isPluginAdminPageRequest() ) {
-				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
+				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::class );
 			}
 		}, 100, 0 );
 	}

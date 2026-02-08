@@ -41,7 +41,7 @@ class PtgAddReinstallLinks {
 			global $hook_suffix;
 			if ( \in_array( 'plugins.php', [ $hook_suffix_arg, $hook_suffix ] ) ) {
 				if ( self::con()->this_req->is_security_admin ) {
-					echo self::con()->action_router->render( ReinstallDialog::SLUG );
+					echo self::con()->action_router->render( ReinstallDialog::class );
 				}
 			}
 		} );

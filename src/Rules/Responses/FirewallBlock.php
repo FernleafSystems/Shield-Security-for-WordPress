@@ -55,7 +55,7 @@ class FirewallBlock extends Base {
 			EmailVO::Factory(
 				$con->comps->opts_lookup->getReportEmail(),
 				__( 'Firewall Block Alert', 'wp-simple-firewall' ),
-				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
+				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::class, [
 					'ip'         => $this->req->ip,
 					'block_meta' => $blockMeta
 				] )
