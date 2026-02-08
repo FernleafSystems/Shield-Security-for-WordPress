@@ -99,25 +99,17 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 					case 'ip':
 						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;
-				case 'user':
-					if ( \count( $selected ) > 0 ) {
-						$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( ',', $selected ) );
-					}
-					break;
+					case 'user':
+						if ( \count( $selected ) > 0 ) {
+							$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( ',', $selected ) );
+						}
+						break;
 					default:
 						break;
 				}
 			}
 		}
-		$ipWhere = $this->buildSqlWhereForIpSearch();
-		if ( !empty( $ipWhere ) ) {
-			$wheres[] = $ipWhere;
-		}
-		$userIdWhere = $this->buildSqlWhereForUserIdSearch();
-		if ( !empty( $userIdWhere ) ) {
-			$wheres[] = $userIdWhere;
-		}
-		return $wheres;
+		return \array_merge( $wheres, $this->buildWheresFromCommonSearchParams() );
 	}
 
 	protected function countTotalRecords() :int {

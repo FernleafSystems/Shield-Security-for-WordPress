@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	LogRecord,
@@ -141,14 +140,9 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				}
 			}
 		}
-		$ipWhere = $this->buildSqlWhereForIpSearch();
-		if ( !empty( $ipWhere ) ) {
-			$wheres[] = $ipWhere;
-		}
-		$userIdWhere = $this->buildSqlWhereForUserIdSearch();
-		if ( !empty( $userIdWhere ) ) {
-			$wheres[] = $userIdWhere;
-		}
+
+		$wheres = \array_merge( $wheres, $this->buildWheresFromCommonSearchParams() );
+
 		$remaining = $this->parseSearchText()[ 'remaining' ];
 		if ( !empty( $remaining ) ) {
 			$wheres[] = \sprintf( "`req`.`path` LIKE '%%%s%%'", esc_sql( $remaining ) );
