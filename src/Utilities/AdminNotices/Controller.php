@@ -310,6 +310,9 @@ class Controller {
 			case 'certain-options-restricted':
 				$this->buildNotice_CertainOptionsRestricted( $notice );
 				break;
+			case 'translations-queued':
+				$this->buildNotice_TranslationsQueued( $notice );
+				break;
 			default:
 				throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
 		}
@@ -455,6 +458,51 @@ class Controller {
 		];
 	}
 
+	private function buildNotice_TranslationsQueued( NoticeVO $notice ) {
+		$con = self::con();
+		$queue = $con->comps->translation_downloads->getQueue();
+		$count = \count( $queue );
+
+		$translationsQueued = \sprintf(
+			_n(
+				'%d translation is queued for download',
+				'%d translations are queued for download',
+				$count,
+				'wp-simple-firewall'
+			),
+			$count
+		);
+
+		$nextScheduled = wp_next_scheduled( $con->prefix( 'adhoc_locales_download' ) );
+		if ( !empty( $nextScheduled ) ) {
+			$minsRemaining = \max( 1, (int)\ceil( ( $nextScheduled - Services::Request()->ts() ) / 60 ) );
+			$message = $translationsQueued.' '.\sprintf(
+				_n(
+					'and will be processed automatically in approximately %d minute.',
+					'and will be processed automatically in approximately %d minutes.',
+					$minsRemaining,
+					'wp-simple-firewall'
+				),
+				$minsRemaining
+			);
+		}
+		else {
+			$message = $translationsQueued.' '.__( 'and will be processed shortly.', 'wp-simple-firewall' );
+		}
+
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'        => \sprintf( '%s: %s',
+					$con->labels->Name,
+					__( 'Translations Queued', 'wp-simple-firewall' )
+				),
+				'message'      => $message,
+				'download_now' => __( 'Download Now', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$con = self::con();
 		switch ( $notice->id ) {
@@ -480,6 +528,9 @@ class Controller {
 				$restricted = $def[ ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages' ] ?? [];
 				$needed = empty( Services::Request()->query( 'page' ) )
 						  && \in_array( Services::WpPost()->getCurrentPage(), $restricted );
+				break;
+			case 'translations-queued':
+				$needed = !empty( $con->comps->translation_downloads->getQueue() );
 				break;
 			default:
 				$needed = false;

@@ -56,8 +56,8 @@ class TranslationDownloadController {
 		$this->saveQueue( \array_merge( $this->getQueue(), [ $locale ] ) );
 	}
 
-	public function processQueue() :void {
-		if ( !empty( $this->getQueue() ) && $this->canAttemptDownload() ) {
+	public function processQueue( bool $force = false ) :void {
+		if ( !empty( $this->getQueue() ) && ( $force || $this->canAttemptDownload() ) ) {
 
 			$this->addCfg( 'last_download_at', Services::Request()->ts() );
 
