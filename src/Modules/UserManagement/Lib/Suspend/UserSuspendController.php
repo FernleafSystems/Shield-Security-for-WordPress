@@ -187,7 +187,7 @@ class UserSuspendController {
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
-		echo self::con()->action_router->render( ProfileSuspend::SLUG, [
+		echo self::con()->action_router->render( ProfileSuspend::class, [
 			'user_id' => $user->ID,
 		] );
 	}

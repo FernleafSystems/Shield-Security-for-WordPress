@@ -21,7 +21,7 @@ class MwpExtensionLoader {
 		add_filter( 'mainwp_header_title', fn() => self::con()->labels->Name, 100, 0 );
 
 		// Render the main extension page content
-		echo self::con()->action_router->render( ExtensionPageContainer::SLUG, [
+		echo self::con()->action_router->render( ExtensionPageContainer::class, [
 			'current_tab' => empty( $req->query( 'tab' ) ) ? TabSitesListing::TAB : $req->query( 'tab' )
 		] );
 	}

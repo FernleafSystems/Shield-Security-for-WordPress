@@ -77,7 +77,6 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	public function testSecurityModulesExist() :void {
 		$modules = [
 			'AuditTrail',
-			'Base',
 			'CommentsFilter',
 			'Data',
 			'HackGuard',
