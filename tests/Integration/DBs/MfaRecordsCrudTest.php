@@ -35,7 +35,7 @@ class MfaRecordsCrudTest extends ShieldIntegrationTestCase {
 		$dbh = $this->requireController()->db_con->mfa;
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops\Select $select */
 		$select = $dbh->getQuerySelector();
-		$records = $select->filterByUserID( $userId )->query();
+		$records = $select->filterByUserID( $userId )->queryWithResult();
 
 		$this->assertCount( 2, $records );
 	}
@@ -55,7 +55,7 @@ class MfaRecordsCrudTest extends ShieldIntegrationTestCase {
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops\Select $select */
 		$select = $dbh->getQuerySelector();
-		$remaining = $select->filterByUserID( $userId )->query();
+		$remaining = $select->filterByUserID( $userId )->queryWithResult();
 
 		$this->assertEmpty( $remaining );
 	}

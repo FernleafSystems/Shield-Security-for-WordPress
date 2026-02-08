@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\CrossSystem;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\ConditionsVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\{
 	ProcessConditions,
 	ResponseProcessor
@@ -17,8 +16,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
  */
 class RuleToEventToAuditFlowTest extends ShieldIntegrationTestCase {
 
+	private function registerTestEvent( string $eventKey ) :void {
+		add_filter( 'shield/events/definitions', function ( array $events ) use ( $eventKey ) {
+			$events[ $eventKey ] = [
+				'level'        => 'notice',
+				'stat'         => false,
+				'audit'        => false,
+				'offense'      => false,
+				'audit_params' => [],
+				'key'          => $eventKey,
+			];
+			return $events;
+		} );
+		\Closure::bind( function () {
+			unset( $this->events );
+		}, self::con()->comps->events, \get_class( self::con()->comps->events ) )();
+	}
+
 	public function test_matched_rule_fires_event_via_response_processor() {
 		$this->requireController();
+		$this->registerTestEvent( 'shield/rules/response/test_rule_to_event_flow' );
 		$this->captureShieldEvents();
 
 		// Create a rule that always matches (callable returns true)

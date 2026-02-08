@@ -12,6 +12,24 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
  */
 class ResponseProcessorTest extends ShieldIntegrationTestCase {
 
+	private function registerTestEvent( string $eventKey ) :void {
+		add_filter( 'shield/events/definitions', function ( array $events ) use ( $eventKey ) {
+			$events[ $eventKey ] = [
+				'level'        => 'notice',
+				'stat'         => false,
+				'audit'        => false,
+				'offense'      => false,
+				'audit_params' => [],
+				'key'          => $eventKey,
+			];
+			return $events;
+		} );
+		// Reset cached events so the filter re-applies on next getEvents() call
+		\Closure::bind( function () {
+			unset( $this->events );
+		}, self::con()->comps->events, \get_class( self::con()->comps->events ) )();
+	}
+
 	private function makeRuleVO( array $overrides = [] ) :RuleVO {
 		$defaults = [
 			'slug'                    => 'test_rule',
@@ -25,6 +43,7 @@ class ResponseProcessorTest extends ShieldIntegrationTestCase {
 
 	public function test_default_event_fires_for_rule() {
 		$this->requireController();
+		$this->registerTestEvent( 'shield/rules/response/test_response_rule' );
 		$this->captureShieldEvents();
 
 		$rule = $this->makeRuleVO( [ 'slug' => 'test_response_rule' ] );
@@ -43,6 +62,7 @@ class ResponseProcessorTest extends ShieldIntegrationTestCase {
 
 	public function test_nonexistent_response_class_still_fires_default_event() {
 		$this->requireController();
+		$this->registerTestEvent( 'shield/rules/response/test_bad_response_rule' );
 		$this->captureShieldEvents();
 
 		$rule = $this->makeRuleVO( [
@@ -68,6 +88,7 @@ class ResponseProcessorTest extends ShieldIntegrationTestCase {
 
 	public function test_empty_response_definition_still_fires_default_event() {
 		$this->requireController();
+		$this->registerTestEvent( 'shield/rules/response/test_empty_response_rule' );
 		$this->captureShieldEvents();
 
 		$rule = $this->makeRuleVO( [

@@ -33,7 +33,7 @@ class RuleBuilderTest extends ShieldIntegrationTestCase {
 			if ( empty( $rule->slug ) ) {
 				$broken[] = 'Rule missing slug';
 			}
-			if ( empty( $rule->conditions ) ) {
+			if ( empty( $rule->getRawData()['conditions'] ?? [] ) ) {
 				$broken[] = $rule->slug.' has empty conditions';
 			}
 		}

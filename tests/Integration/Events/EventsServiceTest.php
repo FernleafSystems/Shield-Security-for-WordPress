@@ -41,14 +41,14 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 
 		$this->events()->fireEvent( 'ip_blocked', [
 			'audit_params' => [
-				'ip'   => '192.0.2.99',
-				'type' => 'Manual Block',
+				'from' => '192.0.2.99',
+				'to'   => 'manual',
 			],
 		] );
 
 		$captured = $this->getCapturedEventsByKey( 'ip_blocked' );
 		$this->assertNotEmpty( $captured, 'fireEvent should trigger shield/event action' );
-		$this->assertSame( '192.0.2.99', $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'ip' ] ?? '' );
+		$this->assertSame( '192.0.2.99', $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'from' ] ?? '' );
 	}
 
 	public function test_fire_nonexistent_event_silently_fails() {
@@ -66,8 +66,8 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 
 		$this->events()->fireEvent( 'ip_blocked', [
 			'audit_params' => [
-				'ip'              => '192.0.2.98',
-				'type'            => 'Auto Block',
+				'from'            => '192.0.2.98',
+				'to'              => 'auto',
 				'extra_not_valid' => 'should be stripped',
 			],
 		] );

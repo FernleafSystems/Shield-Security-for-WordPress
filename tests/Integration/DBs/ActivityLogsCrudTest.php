@@ -43,7 +43,7 @@ class ActivityLogsCrudTest extends ShieldIntegrationTestCase {
 		$dbh = $this->requireController()->db_con->activity_logs;
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Select $select */
 		$select = $dbh->getQuerySelector();
-		$results = $select->filterByEvent( 'ip_blocked' )->query();
+		$results = $select->filterByEvent( 'ip_blocked' )->queryWithResult();
 
 		$this->assertCount( 2, $results );
 
