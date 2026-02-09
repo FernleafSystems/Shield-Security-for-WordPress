@@ -23,12 +23,12 @@ class CaptureMyUpgrade {
 	}
 
 	public function captureMyUpgrade( $upgradeHandler, $data ) {
-		if ( ( $data[ 'action' ] ?? null === 'update' )
-			 && ( $data[ 'type' ] ?? null === 'plugin' )
+		if ( ( ( $data[ 'action' ] ?? null ) === 'update' )
+			 && ( ( $data[ 'type' ] ?? null ) === 'plugin' )
 			 && \is_array( $data[ 'plugins' ] ?? null )
 		) {
 			foreach ( $data[ 'plugins' ] as $item ) {
-				if ( $item === self::con()->root_file ) {
+				if ( $item === self::con()->base_file ) {
 					self::con()->is_my_upgrade = true;
 					break;
 				}

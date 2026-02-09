@@ -131,21 +131,23 @@ class BotSignalsController {
 	}
 
 	private function registerFrontPageLoad() {
-		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			$req = Services::Request();
-			if ( $req->isGet() && did_action( 'wp' ) && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
-				try {
-					$record = ( new BotSignalsRecord() )
-						->setIP( self::con()->this_req->ip )
-						->retrieve();
-					if ( $req->ts() - $record->frontpage_at > MINUTE_IN_SECONDS*30 ) {
-						$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
+		add_action( 'wp_footer', function () {
+			if ( !self::con()->is_my_upgrade ) {
+				$req = Services::Request();
+				if ( $req->isGet() && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+					try {
+						$record = ( new BotSignalsRecord() )
+							->setIP( self::con()->this_req->ip )
+							->retrieve();
+						if ( $req->ts() - $record->frontpage_at > MINUTE_IN_SECONDS*30 ) {
+							$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
+						}
+					}
+					catch ( \Exception $e ) {
 					}
 				}
-				catch ( \Exception $e ) {
-				}
 			}
-		} );
+		}, \PHP_INT_MAX );
 	}
 
 	private function registerLoginPageLoad() {

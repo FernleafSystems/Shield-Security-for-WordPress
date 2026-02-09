@@ -26,6 +26,7 @@ class AuditLogger extends EventsListener {
 	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
 	 */
 	protected function onShutdown() {
+		// TODO: consider self::con()->is_my_upgrade - potential to skip logging on our own upgrades.
 		if ( !self::con()->plugin_deleting && $this->isMonologLibrarySupported() ) {
 			$this->initLogger();
 			foreach ( \array_reverse( $this->auditLogs ) as $auditLog ) {

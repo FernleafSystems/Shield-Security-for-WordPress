@@ -18,7 +18,7 @@ class ProcessOffenses {
 	protected function run() {
 		self::con()->comps->offense_tracker->setIfCommit( true );
 		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
-			if ( !self::con()->plugin_deleting
+			if ( !self::con()->plugin_deleting && !self::con()->is_my_upgrade
 				 && self::con()->comps->offense_tracker->hasVisitorOffended()
 				 && self::con()->comps->offense_tracker->isCommit() ) {
 				( new ProcessOffense() )

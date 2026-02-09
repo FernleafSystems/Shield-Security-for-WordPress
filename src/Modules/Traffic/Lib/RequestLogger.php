@@ -18,9 +18,9 @@ class RequestLogger {
 	 */
 	private $logger;
 
-	private $hasLogged = false;
+	private bool $hasLogged = false;
 
-	private $isDependentLog = false;
+	private bool $isDependentLog = false;
 
 	protected function canRun() :bool {
 		$con = self::con();
@@ -43,8 +43,13 @@ class RequestLogger {
 		}, 1000 ); // high enough to come after audit trail
 	}
 
+	/**
+	 * There is a card in here against logging when it is your own upgrade, but this will log anyway if the Audit Log
+	 * is triggered.
+	 */
 	public function isLogged() :bool {
-		return !self::con()->plugin_deleting && apply_filters( 'shield/is_log_traffic', false );
+		$con = self::con();
+		return !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false );
 	}
 
 	public function createDependentLog() :void {

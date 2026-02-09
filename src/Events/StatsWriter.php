@@ -22,8 +22,11 @@ class StatsWriter extends EventsListener {
 		}
 	}
 
+	/**
+	 * TODO: consider self::con()->is_my_upgrade - potential to skip events during our own upgrades.
+	 */
 	public function isCommit() :bool {
 		$con = self::con();
-		return !empty( $this->stats ) && !$con->plugin_deleting && $con->db_con->events->isReady();
+		return !empty( $this->stats ) && !$con->is_my_upgrade && $con->db_con->events->isReady();
 	}
 }
