@@ -311,22 +311,18 @@ foreach ( $status_details as $detail ) {
 	echo "   " . $detail . PHP_EOL;
 }
 
-// Fix: Force-create all Shield DB tables as permanent (non-temporary) tables.
+// Force-create all Shield DB tables during bootstrap.
 //
-// The WordPress test framework adds a `_create_temporary_tables` query filter that converts
-// all `CREATE TABLE` to `CREATE TEMPORARY TABLE`. This breaks Shield tables because:
-//   1. TEMPORARY tables don't support FOREIGN KEY constraints (MySQL error 1215)
-//   2. TEMPORARY tables aren't listed by `SHOW TABLES`, so tableExists() returns false
+// Shield tables are lazy-loaded via DbCon::__get() / loadDbH(). Tables not loaded during
+// the initial install.php bootstrap (separate process) may be first loaded during tests.
 //
-// Tables created during install.php (separate process, no filter) work fine as permanent tables.
-// But tables lazy-loaded later during tests get the filter applied and fail.
-//
-// The fix: temporarily remove the filter, force-create all tables, then re-add the filter.
+// In modern WordPress (6.x+), the _create_temporary_tables / _drop_temporary_tables filters
+// are instance methods on WP_UnitTestCase_Base, registered per-test in start_transaction().
+// They are NOT global functions, so no filter manipulation is needed at bootstrap time —
+// the filters simply aren't registered yet at this point. We just need to ensure all tables
+// are created before any tests run.
 if ( $shield_loaded ) {
-	echo "Ensuring all Shield DB tables exist as permanent tables..." . PHP_EOL;
-
-	remove_filter( 'query', '_create_temporary_tables' );
-	remove_filter( 'query', '_drop_temporary_tables' );
+	echo "Ensuring all Shield DB tables exist..." . PHP_EOL;
 
 	try {
 		$_shield_con = null;
@@ -340,7 +336,7 @@ if ( $shield_loaded ) {
 		if ( $_shield_con !== null && isset( $_shield_con->db_con ) ) {
 			$_shield_con->db_con->reset();
 			$_shield_con->db_con->loadAll();
-			echo "✓ All Shield DB tables created as permanent tables" . PHP_EOL;
+			echo "✓ All Shield DB tables created" . PHP_EOL;
 		}
 		else {
 			echo "⚠ Shield Controller or db_con not available for table creation" . PHP_EOL;
@@ -349,9 +345,6 @@ if ( $shield_loaded ) {
 	catch ( \Throwable $e ) {
 		echo "⚠ Error creating Shield tables: " . $e->getMessage() . PHP_EOL;
 	}
-
-	add_filter( 'query', '_create_temporary_tables' );
-	add_filter( 'query', '_drop_temporary_tables' );
 }
 
 // Load test helpers if they exist
