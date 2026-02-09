@@ -176,18 +176,43 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 			$remaining = $this->parseSearchText()[ 'remaining' ];
 			if ( !empty( $remaining ) ) {
-				$matchingSlugs = ( new EventSlugSearch() )->findMatchingSlugs( $remaining );
-				if ( empty( $matchingSlugs ) ) {
-					throw new ImpossibleQueryException( 'No events match the search text.' );
-				}
-				$matchingSlugs = \array_intersect( $matchingSlugs, $this->getValidEventSlugs() );
-				if ( empty( $matchingSlugs ) ) {
-					throw new ImpossibleQueryException( 'No valid events match the search text.' );
-				}
-				$this->eventTextSearchWhere = \sprintf(
-					"`log`.`event_slug` IN ('%s')",
-					\implode( "','", $matchingSlugs )
+				$slugSearch = new EventSlugSearch();
+				$clauses = [];
+
+				$matchingSlugs = \array_intersect(
+					$slugSearch->findMatchingSlugs( $remaining ),
+					$this->getValidEventSlugs()
 				);
+				if ( !empty( $matchingSlugs ) ) {
+					$clauses[] = \sprintf(
+						"`log`.`event_slug` IN ('%s')",
+						\implode( "','", $matchingSlugs )
+					);
+				}
+
+				$tokens = $slugSearch->tokenize( $remaining );
+				if ( !empty( $tokens ) ) {
+					$likeClauses = \array_map(
+						fn( string $token ) => \sprintf(
+							"`meta`.`meta_value` LIKE '%%%s%%'",
+							esc_sql( $token )
+						),
+						$tokens
+					);
+					$clauses[] = \sprintf(
+						"EXISTS (SELECT 1 FROM `%s` as `meta` WHERE `meta`.`log_ref` = `log`.`id` AND `meta`.`meta_key` NOT IN ('uid','audit_count') AND (%s))",
+						self::con()->db_con->activity_logs_meta->getTable(),
+						\implode( ' OR ', $likeClauses )
+					);
+				}
+
+				if ( empty( $clauses ) ) {
+					throw new ImpossibleQueryException( 'No events or meta values match the search text.' );
+				}
+
+				$this->eventTextSearchWhere = \count( $clauses ) === 1
+					? $clauses[ 0 ]
+					: \sprintf( '(%s)', \implode( ' OR ', $clauses ) );
 			}
 		}
 

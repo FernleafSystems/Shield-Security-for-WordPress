@@ -42,7 +42,7 @@ class EventSlugSearch {
 		return $matchingSlugs;
 	}
 
-	private function tokenize( string $searchText ) :array {
+	public function tokenize( string $searchText ) :array {
 		$words = [];
 		$searchText = \trim( $searchText );
 		if ( !empty( $searchText ) ) {
