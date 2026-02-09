@@ -25,7 +25,7 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$status = $this->makeStatus( '192.0.2.100' );
+		$status = $this->makeStatus( '10.0.0.100' );
 		$this->assertFalse( $status->hasRules() );
 		$this->assertFalse( $status->isBlocked() );
 		$this->assertSame( 0, $status->getOffenses() );
@@ -38,9 +38,9 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		TestDataFactory::insertManualBlock( '192.0.2.101' );
+		TestDataFactory::insertManualBlock( '10.0.0.101' );
 
-		$status = $this->makeStatus( '192.0.2.101' );
+		$status = $this->makeStatus( '10.0.0.101' );
 		$this->assertTrue( $status->isBlocked() );
 		$this->assertTrue( $status->hasManualBlock() );
 		$this->assertTrue( $status->isBlockedByShield() );
@@ -54,13 +54,13 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$now = Services::Request()->ts();
-		TestDataFactory::insertAutoBlock( '192.0.2.102', [
+		TestDataFactory::insertAutoBlock( '10.0.0.102', [
 			'blocked_at'     => $now,
 			'unblocked_at'   => 0,
 			'last_access_at' => $now,
 		] );
 
-		$status = $this->makeStatus( '192.0.2.102' );
+		$status = $this->makeStatus( '10.0.0.102' );
 		$this->assertTrue( $status->hasAutoBlock() );
 		$this->assertTrue( $status->isBlockedByShield() );
 		$this->assertTrue( $status->isBlocked() );
@@ -73,13 +73,13 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$now = Services::Request()->ts();
-		TestDataFactory::insertAutoBlock( '192.0.2.103', [
+		TestDataFactory::insertAutoBlock( '10.0.0.103', [
 			'blocked_at'     => $now - 3600,
 			'unblocked_at'   => $now,
 			'last_access_at' => $now,
 		] );
 
-		$status = $this->makeStatus( '192.0.2.103' );
+		$status = $this->makeStatus( '10.0.0.103' );
 		$this->assertFalse( $status->hasAutoBlock(), 'Auto-block should not be active when unblocked_at > blocked_at' );
 		$this->assertTrue( $status->isUnBlocked() );
 		$this->assertFalse( $status->isBlocked() );
@@ -91,10 +91,10 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		TestDataFactory::insertManualBlock( '192.0.2.104' );
-		TestDataFactory::insertBypass( '192.0.2.104' );
+		TestDataFactory::insertManualBlock( '10.0.0.104' );
+		TestDataFactory::insertBypass( '10.0.0.104' );
 
-		$status = $this->makeStatus( '192.0.2.104' );
+		$status = $this->makeStatus( '10.0.0.104' );
 		$this->assertTrue( $status->isBypass() );
 		$this->assertFalse( $status->isBlocked(), 'Bypass should override block' );
 		$this->assertFalse( $status->isBlockedByShield() );
@@ -107,12 +107,12 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$now = Services::Request()->ts();
-		TestDataFactory::insertCrowdsecBlock( '192.0.2.105', [
+		TestDataFactory::insertCrowdsecBlock( '10.0.0.105', [
 			'blocked_at'   => $now,
 			'unblocked_at' => 0,
 		] );
 
-		$status = $this->makeStatus( '192.0.2.105' );
+		$status = $this->makeStatus( '10.0.0.105' );
 		$this->assertTrue( $status->hasCrowdsecBlock() );
 		$this->assertTrue( $status->isBlockedByCrowdsec() );
 		$this->assertTrue( $status->isBlocked() );
@@ -125,13 +125,13 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$now = Services::Request()->ts();
-		TestDataFactory::insertCrowdsecBlock( '192.0.2.106', [
+		TestDataFactory::insertCrowdsecBlock( '10.0.0.106', [
 			'blocked_at'   => $now,
 			'unblocked_at' => 0,
 		] );
-		TestDataFactory::insertBypass( '192.0.2.106' );
+		TestDataFactory::insertBypass( '10.0.0.106' );
 
-		$status = $this->makeStatus( '192.0.2.106' );
+		$status = $this->makeStatus( '10.0.0.106' );
 		$this->assertTrue( $status->isBypass() );
 		$this->assertFalse( $status->isBlockedByCrowdsec() );
 		$this->assertFalse( $status->isBlocked() );
@@ -143,12 +143,12 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		TestDataFactory::insertAutoBlock( '192.0.2.107', [
+		TestDataFactory::insertAutoBlock( '10.0.0.107', [
 			'offenses'       => 5,
 			'last_access_at' => Services::Request()->ts(),
 		] );
 
-		$status = $this->makeStatus( '192.0.2.107' );
+		$status = $this->makeStatus( '10.0.0.107' );
 		$this->assertSame( 5, $status->getOffenses() );
 	}
 
@@ -156,9 +156,9 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		TestDataFactory::insertManualBlock( '192.0.2.108' );
+		TestDataFactory::insertManualBlock( '10.0.0.108' );
 
-		$status = $this->makeStatus( '192.0.2.108' );
+		$status = $this->makeStatus( '10.0.0.108' );
 		$this->assertSame( 0, $status->getOffenses() );
 	}
 
@@ -168,7 +168,7 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$ip = '192.0.2.109';
+		$ip = '10.0.0.109';
 
 		$status = $this->makeStatus( $ip );
 		$this->assertFalse( $status->isBlocked() );
@@ -176,7 +176,7 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertManualBlock( $ip );
 
 		// Without clearing, the cached result would still say "not blocked"
-		IpRuleStatus::ClearStatusForIP( $ip );
+		$this->resetIpCaches();
 
 		$status2 = new IpRuleStatus( $ip );
 		$this->assertTrue( $status2->isBlocked(), 'After ClearStatusForIP, a fresh DB lookup should detect the new block.' );
@@ -189,14 +189,14 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$now = Services::Request()->ts();
-		TestDataFactory::insertAutoBlock( '192.0.2.110', [
+		TestDataFactory::insertAutoBlock( '10.0.0.110', [
 			'blocked_at'     => 0,
 			'unblocked_at'   => 0,
 			'offenses'       => 2,
 			'last_access_at' => $now,
 		] );
 
-		$status = $this->makeStatus( '192.0.2.110' );
+		$status = $this->makeStatus( '10.0.0.110' );
 		$this->assertTrue( $status->isAutoBlacklisted() );
 		$this->assertFalse( $status->hasAutoBlock(), 'blocked_at=0 means not actively blocked' );
 		$this->assertFalse( $status->isBlocked() );
