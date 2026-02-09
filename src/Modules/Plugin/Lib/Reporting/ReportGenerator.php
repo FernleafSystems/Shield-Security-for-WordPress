@@ -24,6 +24,15 @@ class ReportGenerator {
 			$alert->record = $this->buildAndStore( $alert );
 			$this->sendNotificationEmail( $alert );
 			$this->markAlertsAsNotified();
+
+			// Mark info as generated so it doesn't fire redundantly next cycle
+			try {
+				$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
+				$this->buildAndStore( $info );
+			}
+			catch ( Exceptions\ReportBuildException $e ) {
+			}
+
 			return;
 		}
 		catch ( Exceptions\ReportBuildException $e ) {
