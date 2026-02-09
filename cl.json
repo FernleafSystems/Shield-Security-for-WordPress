@@ -65,9 +65,24 @@
     ],
     "patches":     [
       {
-        "version":     "2",
-        "released_at": 1770383000,
+        "version":     "4",
+        "released_at": 1770647000,
         "items":       [
+          {
+            "title":    "Powerful new search capabilities for Activity Log and Traffic Log tables including free-text search, and search by IP address, username, and email.",
+            "category": "feature",
+            "type":     "new"
+          },
+          {
+            "title":    "Search syntax help panel to guide users through available search options.",
+            "category": "feature",
+            "type":     "new"
+          },
+          {
+            "title":    "In-plugin notification for available translation downloads.",
+            "category": "feature",
+            "type":     "new"
+          },
           {
             "title":    "Upgraded dashboard charts for improved performance and visuals.",
             "category": "enhancement",
@@ -75,11 +90,6 @@
           },
           {
             "title":    "Reduced CSS bundle size for faster page loads.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Internal code restructuring and cleanup for improved reliability.",
             "category": "enhancement",
             "type":     "improved"
           },
@@ -94,12 +104,32 @@
             "type":     "improved"
           },
           {
+            "title":    "Enhanced report emails now include full statistics and scan data directly in the email.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Automatic cleanup of orphaned malware scan records when files no longer exist on disk.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Reduced plugin overhead during self-upgrades to prevent potential errors.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
             "title":    "Fixed issues with automatic translation downloads.",
             "category": "bug",
             "type":     "fixed"
           },
           {
             "title":    "Fixed potential errors when upgrading from previous versions.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "Fixed performance issue when loading Activity Log and Traffic Log metadata.",
             "category": "bug",
             "type":     "fixed"
           }
