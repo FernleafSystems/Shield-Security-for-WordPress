@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Handler as MalwareHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -132,11 +133,16 @@ class TestDataFactory {
 		$con = self::con();
 		$dbh = $con->db_con->activity_logs;
 
+		// Create IP + request log records to satisfy FK constraint: ips → req_logs → at_logs
+		$ipRecord = self::createIpRecord( $ip );
+		$reqRecord = ( new RequestRecords() )->loadReq( \wp_generate_uuid4(), $ipRecord->id );
+
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record $record */
 		$record = $dbh->getRecord();
 		$record->event_slug = $eventSlug;
 		$record->ip = $ip;
 		$record->site_id = $overrides[ 'site_id' ] ?? \get_current_blog_id();
+		$record->req_ref = $reqRecord->id;
 
 		$dbh->getQueryInserter()->insert( $record );
 

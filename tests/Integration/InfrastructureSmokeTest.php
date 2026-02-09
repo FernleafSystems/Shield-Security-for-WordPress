@@ -151,6 +151,8 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 				}
 			}
 		}
+
+		$this->assertTrue( true, 'No stale string callbacks found.' );
 	}
 
 	/**

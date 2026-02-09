@@ -9,6 +9,8 @@ class ActivityLogsCrudTest extends ShieldIntegrationTestCase {
 
 	public function test_insert_and_retrieve_log_entry() {
 		$this->requireDb( 'activity_logs' );
+		$this->requireDb( 'req_logs' );
+		$this->requireDb( 'ips' );
 
 		$id = TestDataFactory::insertActivityLog( 'test_event', '10.10.10.10' );
 		$this->assertGreaterThan( 0, $id );
@@ -22,6 +24,8 @@ class ActivityLogsCrudTest extends ShieldIntegrationTestCase {
 
 	public function test_delete_log_entry() {
 		$this->requireDb( 'activity_logs' );
+		$this->requireDb( 'req_logs' );
+		$this->requireDb( 'ips' );
 
 		$id = TestDataFactory::insertActivityLog( 'deletable_event' );
 		$dbh = $this->requireController()->db_con->activity_logs;
@@ -35,6 +39,8 @@ class ActivityLogsCrudTest extends ShieldIntegrationTestCase {
 
 	public function test_select_by_event_slug() {
 		$this->requireDb( 'activity_logs' );
+		$this->requireDb( 'req_logs' );
+		$this->requireDb( 'ips' );
 
 		TestDataFactory::insertActivityLog( 'ip_blocked', '10.10.10.11' );
 		TestDataFactory::insertActivityLog( 'ip_blocked', '10.10.10.12' );

@@ -54,10 +54,19 @@ class SecurityAdminControllerTest extends ShieldIntegrationTestCase {
 		$values['sec_admin_users'] = [ 'secadmin_testuser' ];
 		$ref->setValue( $con->opts, $values );
 
+		// Temporarily remove the 'premium' flag from the option definition so optGet()
+		// doesn't reset the value when there's no active license (CI environment).
+		$optionsDef = $con->cfg->configuration->options;
+		$originalPremium = $optionsDef['sec_admin_users']['premium'] ?? false;
+		$optionsDef['sec_admin_users']['premium'] = false;
+		$con->cfg->configuration->options = $optionsDef;
+
 		$this->assertTrue( $this->secAdmin()->isRegisteredSecAdminUser( $user ),
 			'User in sec_admin_users should be a registered sec admin' );
 
 		// Cleanup
+		$optionsDef['sec_admin_users']['premium'] = $originalPremium;
+		$con->cfg->configuration->options = $optionsDef;
 		$values['sec_admin_users'] = [];
 		$ref->setValue( $con->opts, $values );
 	}

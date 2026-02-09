@@ -32,7 +32,10 @@ class OffenseToBlockFlowTest extends ShieldIntegrationTestCase {
 			$this->markTestSkipped( 'No event with offense=true found in event definitions' );
 		}
 
-		$tracker = $con->comps->offense_tracker;
+		// Create a fresh OffenseTracker to ensure the shield/event action is registered
+		// in this test's scope. WP_UnitTestCase_Base restores $wp_filter between tests,
+		// which can remove hooks registered by the cached ComponentLoader instance.
+		$tracker = new OffenseTracker();
 		$this->assertInstanceOf( OffenseTracker::class, $tracker );
 
 		$initialCount = $tracker->getOffenseCount();
