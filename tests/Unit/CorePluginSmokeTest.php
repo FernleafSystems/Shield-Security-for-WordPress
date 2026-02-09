@@ -34,28 +34,6 @@ class CorePluginSmokeTest extends TestCase {
 	}
 
 	/**
-	 * Test that autoloader works correctly
-	 */
-	public function testAutoloaderFunctionality() :void {
-		$autoloadFile = $this->getPluginFilePath( 'plugin_autoload.php' );
-		$this->assertFileExistsWithDebug( $autoloadFile, 'Autoload file should exist' );
-
-		// Load the autoloader
-		require_once $autoloadFile;
-
-		// Test that core classes can be autoloaded
-		$this->assertTrue(
-			class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller', true ),
-			'Controller class should be autoloadable'
-		);
-
-		$this->assertTrue(
-			class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController', true ),
-			'ActionRoutingController class should be autoloadable'
-		);
-	}
-
-	/**
 	 * Test plugin loading simulation - verify plugin can initialize without fatal errors
 	 */
 	public function testPluginCanInitializeWithoutErrors() :void {

@@ -82,14 +82,17 @@ jobs:
         chmod +x ./bin/install-wp-tests.sh
         ./bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
         
-    - name: Run tests
+    - name: Run unit tests
       env:
         SHIELD_DEBUG_PATHS: '1'
-      run: |
-        php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
+        SHIELD_PACKAGE_PATH: ''
+      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
 
-        SHIELD_PACKAGE_PATH="${{ env.SHIELD_PACKAGE_PATH }}" \
-          php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
+    - name: Run integration tests
+      env:
+        SHIELD_DEBUG_PATHS: '1'
+        SHIELD_PACKAGE_PATH: ${{ env.SHIELD_PACKAGE_PATH }}
+      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
 
   phpcs:
     name: 'Code Standards'
