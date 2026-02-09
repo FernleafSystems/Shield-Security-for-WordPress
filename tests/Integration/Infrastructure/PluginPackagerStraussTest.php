@@ -85,6 +85,19 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->packagePath.'/strauss.phar' );
 	}
 
+	public function testAutoloaderSuffixApplied() :void {
+		$autoloadReal = $this->packagePath.'/vendor/composer/autoload_real.php';
+		$this->assertFileExists( $autoloadReal );
+
+		$content = file_get_contents( $autoloadReal );
+		$this->assertNotFalse( $content );
+		$this->assertStringContainsString(
+			'ComposerAutoloaderInitShieldPackage',
+			(string)$content,
+			'Package autoloader must use unique suffix to prevent class name conflicts with source autoloader'
+		);
+	}
+
 	public function testAutoloadsPruned() :void {
 		$composerDir = $this->packagePath.'/vendor/composer';
 		$files = [

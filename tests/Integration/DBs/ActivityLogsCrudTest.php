@@ -19,7 +19,8 @@ class ActivityLogsCrudTest extends ShieldIntegrationTestCase {
 		$record = $dbh->getQuerySelector()->byId( $id );
 		$this->assertNotEmpty( $record );
 		$this->assertSame( 'test_event', $record->event_slug );
-		$this->assertSame( '10.10.10.10', $record->ip );
+		$this->assertGreaterThan( 0, $record->req_ref,
+			'Activity log should be linked to a request log record' );
 	}
 
 	public function test_delete_log_entry() {
@@ -53,8 +54,9 @@ class ActivityLogsCrudTest extends ShieldIntegrationTestCase {
 
 		$this->assertCount( 2, $results );
 
-		$ips = \array_map( fn( $r ) => $r->ip, $results );
-		$this->assertContains( '10.10.10.11', $ips, 'Filter should return the first ip_blocked record' );
-		$this->assertContains( '10.10.10.12', $ips, 'Filter should return the second ip_blocked record' );
+		foreach ( $results as $r ) {
+			$this->assertSame( 'ip_blocked', $r->event_slug,
+				'All filtered results should have the ip_blocked event slug' );
+		}
 	}
 }

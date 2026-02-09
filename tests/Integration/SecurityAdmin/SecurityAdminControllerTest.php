@@ -47,28 +47,28 @@ class SecurityAdminControllerTest extends ShieldIntegrationTestCase {
 		] );
 		$user = \get_user_by( 'id', $userId );
 
-		// Write directly into OptsHandler::$values to bypass premium guard in optGet()
-		$ref = new \ReflectionProperty( \get_class( $con->opts ), 'values' );
-		$ref->setAccessible( true );
-		$values = $ref->getValue( $con->opts );
-		$values['sec_admin_users'] = [ 'secadmin_testuser' ];
-		$ref->setValue( $con->opts, $values );
-
-		// Temporarily remove the 'premium' flag from the option definition so optGet()
-		// doesn't reset the value when there's no active license (CI environment).
-		$optionsDef = $con->cfg->configuration->options;
+		// Get ConfigurationVO, remove premium flag, then persist back via __set → getRawData().
+		// (cfg->configuration creates a NEW object each access — direct property assignment is lost)
+		$configuration = $con->cfg->configuration;
+		$optionsDef = $configuration->options;
 		$originalPremium = $optionsDef['sec_admin_users']['premium'] ?? false;
 		$optionsDef['sec_admin_users']['premium'] = false;
-		$con->cfg->configuration->options = $optionsDef;
+		$configuration->options = $optionsDef;
+		$con->cfg->configuration = $configuration;
+
+		// Set via the proper API — optSet() writes directly without a premium check.
+		$con->opts->optSet( 'sec_admin_users', [ 'secadmin_testuser' ] );
 
 		$this->assertTrue( $this->secAdmin()->isRegisteredSecAdminUser( $user ),
 			'User in sec_admin_users should be a registered sec admin' );
 
-		// Cleanup
+		// Cleanup: restore premium flag and clear the value
+		$configuration = $con->cfg->configuration;
+		$optionsDef = $configuration->options;
 		$optionsDef['sec_admin_users']['premium'] = $originalPremium;
-		$con->cfg->configuration->options = $optionsDef;
-		$values['sec_admin_users'] = [];
-		$ref->setValue( $con->opts, $values );
+		$configuration->options = $optionsDef;
+		$con->cfg->configuration = $configuration;
+		$con->opts->optSet( 'sec_admin_users', [] );
 	}
 
 	public function test_non_registered_user_is_not_sec_admin() {

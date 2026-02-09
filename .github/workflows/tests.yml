@@ -62,7 +62,10 @@ jobs:
         
     - name: Build assets
       run: npm run build
-      
+
+    - name: Build plugin config
+      run: composer build:config
+
     - name: Load Strauss version
       run: |
         source .github/scripts/read-packager-config.sh

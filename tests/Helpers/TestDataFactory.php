@@ -135,12 +135,11 @@ class TestDataFactory {
 
 		// Create IP + request log records to satisfy FK constraint: ips → req_logs → at_logs
 		$ipRecord = self::createIpRecord( $ip );
-		$reqRecord = ( new RequestRecords() )->loadReq( \wp_generate_uuid4(), $ipRecord->id );
+		$reqRecord = ( new RequestRecords() )->loadReq( \substr( \wp_generate_uuid4(), 0, 10 ), $ipRecord->id );
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record $record */
 		$record = $dbh->getRecord();
 		$record->event_slug = $eventSlug;
-		$record->ip = $ip;
 		$record->site_id = $overrides[ 'site_id' ] ?? \get_current_blog_id();
 		$record->req_ref = $reqRecord->id;
 

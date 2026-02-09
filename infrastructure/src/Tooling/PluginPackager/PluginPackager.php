@@ -326,6 +326,15 @@ class PluginPackager {
 		}
 
 		$composerCommand = $this->commandRunner->getComposerCommand();
+
+		// Set unique autoloader suffix to prevent class name conflicts when both
+		// source and package vendor autoloaders exist in the same PHP process
+		// (e.g., Docker package testing where /app and /package are both mounted).
+		$this->commandRunner->run(
+			\array_merge( $composerCommand, [ 'config', 'autoloader-suffix', 'ShieldPackage' ] ),
+			$targetDir
+		);
+
 		$this->commandRunner->run(
 			\array_merge( $composerCommand, [
 				'install',
