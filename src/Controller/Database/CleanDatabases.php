@@ -22,6 +22,7 @@ class CleanDatabases {
 		$this->cleanOldEmail2FA();
 		$this->cleanStaleReports();
 		( new CleanScansDB() )->run();
+		( new CleanMalwareDB() )->run();
 		$this->cleanRequestLogs();
 		$this->purgeUnreferencedIPs();
 		$this->purgeNotRequiredDBs();

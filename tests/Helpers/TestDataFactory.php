@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Handler as MalwareHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -137,6 +139,30 @@ class TestDataFactory {
 		$record->site_id = $overrides[ 'site_id' ] ?? \get_current_blog_id();
 
 		$dbh->getQueryInserter()->insert( $record );
+
+		global $wpdb;
+		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+	}
+
+	// ── Malware Records ───────────────────────────────────────────
+
+	/**
+	 * Insert a malware record using raw insert data (matching CreateLocalMalwareRecords pattern).
+	 *
+	 * @param string $filePath  Relative path fragment (relative to ABSPATH).
+	 */
+	public static function insertMalwareRecord( string $filePath, string $content = 'test-content', array $overrides = [] ) :int {
+		$dbh = self::con()->db_con->malware;
+		$dbh->getQueryInserter()->setInsertData( \array_merge( [
+			'hash_sha256'  => \hash( 'sha256', $content, true ),
+			'file_path'    => $filePath,
+			'code_type'    => MalwareHandler::CODE_TYPE_PHP,
+			'sig'          => \base64_encode( 'test_sig' ),
+			'is_valid_file' => 0,
+			'malai_status' => MalwareStatus::STATUS_UNKNOWN,
+			'file_content' => \base64_encode( $content ),
+			'last_seen_at' => Services::Request()->ts(),
+		], $overrides ) )->query();
 
 		global $wpdb;
 		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
