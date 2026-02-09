@@ -1,21 +1,90 @@
 {% extends '/email/base_email.twig' %}
 
 {% block email_body %}
-	<p>
+	<p style="margin: 0 0 10px; font-size: 14px; color: #333;">
 		{{ body.strings.please_find }}
-		<br />{{ body.strings.depending }}
 	</p>
-
-	<p>
-		&ndash; {{ body.strings.site_url }}: {{ body.vars.site_url }}
+	<p style="margin: 0 0 15px; font-size: 13px; color: #555;">
+		{{ body.strings.site_url }}: <strong>{{ body.vars.site_url }}</strong>
 	</p>
 
 	{% for report in body.vars.reports %}
-		<p style="font-weight: bold">{{ body.strings.report_type }}: {{ report.type }}</p>
-		<ul>
-			<li>{{ body.strings.generated }}: {{ report.generated }}</li>
-			<li><a href="{{ report.href }}">{{ body.strings.view_report }} &rarr;</a></li>
-		</ul>
-	{% endfor %}
+		{# Report Header #}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 5px;">
+			<tr>
+				<td style="background-color: #f0f0f0; padding: 10px 14px; border-left: 4px solid #008000; border-radius: 0 4px 4px 0;">
+					<strong style="font-size: 15px; color: #333;">{{ report.type }}</strong>
+					<br>
+					<span style="font-size: 12px; color: #777;">
+						{{ body.strings.period }}: {{ report.date_start }} &ndash; {{ report.date_end }}
+					</span>
+				</td>
+			</tr>
+		</table>
 
+		{# Statistics area (INFO reports) #}
+		{% if report.areas_data.statistics is defined %}
+			{% include '/email/reports/areas/stats.twig' with {
+				stats: report.areas_data.statistics,
+				strings: body.strings,
+				detail_level: body.vars.detail_level
+			} only %}
+		{% endif %}
+
+		{# Changes area (INFO reports) #}
+		{% if report.areas_data.changes is defined %}
+			{% include '/email/reports/areas/changes.twig' with {
+				changes: report.areas_data.changes,
+				strings: body.strings,
+				detail_level: body.vars.detail_level
+			} only %}
+		{% endif %}
+
+		{# Scans area (both ALERT and INFO reports) #}
+		{% if report.areas_data.scans is defined %}
+			<h3 style="margin: 20px 0 5px; font-size: 16px; color: #333; border-bottom: 2px solid #008000; padding-bottom: 6px;">
+				{{ body.strings.section_scans }}
+			</h3>
+
+			{% if report.areas_data.scans.scan_results_new is defined and report.areas_data.scans.scan_results_new|length > 0 %}
+				{% include '/email/reports/areas/scans_results.twig' with {
+					scan_counts: report.areas_data.scans.scan_results_new,
+					section_title: body.strings.section_scans_new,
+					strings: body.strings
+				} only %}
+			{% endif %}
+
+			{% if report.areas_data.scans.scan_results_current is defined and report.areas_data.scans.scan_results_current|length > 0 %}
+				{% include '/email/reports/areas/scans_results.twig' with {
+					scan_counts: report.areas_data.scans.scan_results_current,
+					section_title: body.strings.section_scans_current,
+					strings: body.strings
+				} only %}
+			{% endif %}
+
+			{% if report.areas_data.scans.scan_repairs is defined %}
+				{% include '/email/reports/areas/scans_repairs.twig' with {
+					scan_repairs: report.areas_data.scans.scan_repairs,
+					strings: body.strings
+				} only %}
+			{% endif %}
+		{% endif %}
+
+		{# View Full Report Button #}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 25px;">
+			<tr>
+				<td align="center">
+					<a href="{{ report.href }}"
+					   target="_blank"
+					   style="display: inline-block; padding: 10px 24px; background-color: #008000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+						{{ body.strings.view_full_report }} &rarr;
+					</a>
+				</td>
+			</tr>
+		</table>
+
+		{% if not loop.last %}
+			<hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0 20px;">
+		{% endif %}
+	{% endfor %}
 {% endblock %}

@@ -156,8 +156,9 @@ class ReportGenerator {
 				$con->action_router->render(
 					ReportsActions\Contexts\EmailReport::SLUG,
 					[
-						'home_url' => Services::WpGeneral()->getHomeUrl(),
-						'reports'  => $reports,
+						'home_url'     => Services::WpGeneral()->getHomeUrl(),
+						'reports'      => $reports,
+						'detail_level' => 'detailed',
 					]
 				)
 			);
