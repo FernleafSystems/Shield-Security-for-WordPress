@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImpossibleQueryException;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -19,12 +20,16 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 */
 	private $log;
 
+	private bool $eventTextSearchComputed = false;
+
+	private ?string $eventTextSearchWhere = null;
+
 	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
 		return new BuildSearchPanesData();
 	}
 
-	protected function loadRecordsWithDirectQuery() :array {
-		return $this->loadRecordsWithSearch();
+	protected function loadRecordsWithSearch() :array {
+		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
@@ -109,7 +114,14 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				}
 			}
 		}
-		return \array_merge( $wheres, $this->buildWheresFromCommonSearchParams() );
+		$wheres = \array_merge( $wheres, $this->buildWheresFromCommonSearchParams() );
+
+		$eventSlugWhere = $this->buildSqlWhereForEventTextSearch();
+		if ( !empty( $eventSlugWhere ) ) {
+			$wheres[] = $eventSlugWhere;
+		}
+
+		return $wheres;
 	}
 
 	protected function countTotalRecords() :int {
@@ -156,6 +168,55 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 			];
 		}
 		return $loader;
+	}
+
+	private function buildSqlWhereForEventTextSearch() :string {
+		if ( !$this->eventTextSearchComputed ) {
+			$this->eventTextSearchComputed = true;
+
+			$remaining = $this->parseSearchText()[ 'remaining' ];
+			if ( !empty( $remaining ) ) {
+				$slugSearch = new EventSlugSearch();
+				$clauses = [];
+
+				$matchingSlugs = \array_intersect(
+					$slugSearch->findMatchingSlugs( $remaining ),
+					$this->getValidEventSlugs()
+				);
+				if ( !empty( $matchingSlugs ) ) {
+					$clauses[] = \sprintf(
+						"`log`.`event_slug` IN ('%s')",
+						\implode( "','", $matchingSlugs )
+					);
+				}
+
+				$tokens = $slugSearch->tokenize( $remaining );
+				if ( !empty( $tokens ) ) {
+					$likeClauses = \array_map(
+						fn( string $token ) => \sprintf(
+							"`meta`.`meta_value` LIKE '%%%s%%'",
+							esc_sql( $token )
+						),
+						$tokens
+					);
+					$clauses[] = \sprintf(
+						"EXISTS (SELECT 1 FROM `%s` as `meta` WHERE `meta`.`log_ref` = `log`.`id` AND `meta`.`meta_key` NOT IN ('uid','audit_count') AND (%s))",
+						self::con()->db_con->activity_logs_meta->getTable(),
+						\implode( ' OR ', $likeClauses )
+					);
+				}
+
+				if ( empty( $clauses ) ) {
+					throw new ImpossibleQueryException( 'No events or meta values match the search text.' );
+				}
+
+				$this->eventTextSearchWhere = \count( $clauses ) === 1
+					? $clauses[ 0 ]
+					: \sprintf( '(%s)', \implode( ' OR ', $clauses ) );
+			}
+		}
+
+		return $this->eventTextSearchWhere ?? '';
 	}
 
 	private function getColumnContent_UserID() :string {

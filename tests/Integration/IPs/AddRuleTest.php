@@ -23,14 +23,14 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$rule = $this->addRule();
-		$rule->setIP( '192.0.2.50' );
+		$rule->setIP( '10.0.0.50' );
 		$record = $rule->toManualBlacklist( 'test block' );
 
 		$this->assertNotEmpty( $record );
 		$this->assertSame( 'test block', $record->label );
 
 		$this->resetIpCaches();
-		$status = new IpRuleStatus( '192.0.2.50' );
+		$status = new IpRuleStatus( '10.0.0.50' );
 		$this->assertTrue( $status->hasManualBlock() );
 	}
 
@@ -39,13 +39,13 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$rule = $this->addRule();
-		$rule->setIP( '192.0.2.51' );
+		$rule->setIP( '10.0.0.51' );
 		$record = $rule->toManualWhitelist( 'test bypass' );
 
 		$this->assertNotEmpty( $record );
 
 		$this->resetIpCaches();
-		$status = new IpRuleStatus( '192.0.2.51' );
+		$status = new IpRuleStatus( '10.0.0.51' );
 		$this->assertTrue( $status->isBypass() );
 	}
 
@@ -54,13 +54,13 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$rule = $this->addRule();
-		$rule->setIP( '192.0.2.52' );
+		$rule->setIP( '10.0.0.52' );
 		$record = $rule->toAutoBlacklist();
 
 		$this->assertNotEmpty( $record );
 
 		$this->resetIpCaches();
-		$status = new IpRuleStatus( '192.0.2.52' );
+		$status = new IpRuleStatus( '10.0.0.52' );
 		$this->assertTrue( $status->isAutoBlacklisted() );
 	}
 
@@ -70,7 +70,7 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$ip = '192.0.2.53';
+		$ip = '10.0.0.53';
 
 		// First block
 		$rule = $this->addRule();
@@ -96,7 +96,7 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$ip = '192.0.2.54';
+		$ip = '10.0.0.54';
 
 		$rule = $this->addRule();
 		$rule->setIP( $ip );
@@ -114,7 +114,7 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$ip = '192.0.2.55';
+		$ip = '10.0.0.55';
 
 		$rule = $this->addRule();
 		$rule->setIP( $ip );
@@ -143,7 +143,7 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$ip = '192.0.2.56';
+		$ip = '10.0.0.56';
 
 		$rule = $this->addRule();
 		$rule->setIP( $ip );

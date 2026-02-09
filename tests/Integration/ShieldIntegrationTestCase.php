@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 /**
@@ -98,6 +99,9 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 				$p->setValue( null, null );
 			}
 		}
+
+		// IpRulesCache (WP option-backed)
+		IpRulesCache::ResetAll();
 	}
 
 	// ── Event capture ──────────────────────────────────────────────

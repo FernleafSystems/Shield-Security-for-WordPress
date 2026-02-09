@@ -47,14 +47,19 @@ class SecurityAdminControllerTest extends ShieldIntegrationTestCase {
 		] );
 		$user = \get_user_by( 'id', $userId );
 
-		// Add the user to sec_admin_users
-		$con->opts->optSet( 'sec_admin_users', [ 'secadmin_testuser' ] );
+		// Write directly into OptsHandler::$values to bypass premium guard in optGet()
+		$ref = new \ReflectionProperty( \get_class( $con->opts ), 'values' );
+		$ref->setAccessible( true );
+		$values = $ref->getValue( $con->opts );
+		$values['sec_admin_users'] = [ 'secadmin_testuser' ];
+		$ref->setValue( $con->opts, $values );
 
 		$this->assertTrue( $this->secAdmin()->isRegisteredSecAdminUser( $user ),
 			'User in sec_admin_users should be a registered sec admin' );
 
 		// Cleanup
-		$con->opts->optSet( 'sec_admin_users', [] );
+		$values['sec_admin_users'] = [];
+		$ref->setValue( $con->opts, $values );
 	}
 
 	public function test_non_registered_user_is_not_sec_admin() {

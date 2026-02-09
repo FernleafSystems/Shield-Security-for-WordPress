@@ -22,7 +22,7 @@ class OffenseToBlockFlowTest extends ShieldIntegrationTestCase {
 		$events = $con->comps->events->getEvents();
 		$offenseEvent = null;
 		foreach ( $events as $key => $def ) {
-			if ( !empty( $def[ 'offense' ] ) ) {
+			if ( !empty( $def[ 'offense' ] ) && empty( $def[ 'audit_params' ] ) ) {
 				$offenseEvent = $key;
 				break;
 			}
@@ -73,7 +73,7 @@ class OffenseToBlockFlowTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 
-		$ip = '192.0.2.251';
+		$ip = '10.0.0.251';
 
 		// Create bypass first
 		TestDataFactory::insertBypass( $ip );
