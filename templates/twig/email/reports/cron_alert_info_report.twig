@@ -42,22 +42,10 @@
 
 		{# Scans area (both ALERT and INFO reports) #}
 		{% if report.areas_data.scans is defined %}
-			<h3 style="margin: 20px 0 5px; font-size: 16px; color: #333; border-bottom: 2px solid #008000; padding-bottom: 6px;">
-				{{ body.strings.section_scans }}
-			</h3>
-
-			{% if report.areas_data.scans.scan_results_new is defined and report.areas_data.scans.scan_results_new|length > 0 %}
+			{% if report.areas_data.scans.scan_results is defined and report.areas_data.scans.scan_results|length > 0 %}
 				{% include '/email/reports/areas/scans_results.twig' with {
-					scan_counts: report.areas_data.scans.scan_results_new,
-					section_title: body.strings.section_scans_new,
-					strings: body.strings
-				} only %}
-			{% endif %}
-
-			{% if report.areas_data.scans.scan_results_current is defined and report.areas_data.scans.scan_results_current|length > 0 %}
-				{% include '/email/reports/areas/scans_results.twig' with {
-					scan_counts: report.areas_data.scans.scan_results_current,
-					section_title: body.strings.section_scans_current,
+					scan_counts: report.areas_data.scans.scan_results,
+					section_title: body.strings.section_scans,
 					strings: body.strings
 				} only %}
 			{% endif %}

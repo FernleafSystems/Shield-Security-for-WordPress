@@ -1,29 +1,73 @@
 {# Scan results area for email reports #}
-{# Receives: scan_counts (numerically indexed array), section_title, strings #}
+{# Receives: scan_counts (array of scan type results), section_title, strings #}
 
-{% if scan_counts|length > 0 %}
+{% set has_results = false %}
+{% for item in scan_counts %}
+	{% if item.count > 0 %}
+		{% set has_results = true %}
+	{% endif %}
+{% endfor %}
+
+{% if has_results %}
 	<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
 		{{ section_title }}
 	</h4>
+
+	{% for item in scan_counts %}
+		{% if item.count > 0 %}
+			{# Scan type header row #}
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 2px;">
+				<tr>
+					<td style="padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
+						{{ item.name }}
+						{% if item.new_count is defined and item.new_count > 0 %}
+							<span style="display: inline-block; padding: 1px 6px; font-size: 10px; font-weight: bold; color: #fff; background-color: #cc7a00; border-radius: 3px; margin-left: 6px; vertical-align: middle;">
+								{{ strings.new_badge }}
+							</span>
+						{% endif %}
+					</td>
+					<td style="padding: 6px 10px; font-size: 13px; font-weight: bold; background-color: #f5f5f5; border-bottom: 1px solid #ddd; text-align: center; width: 80px; color: #cc7a00;">
+						{{ item.count }}
+					</td>
+				</tr>
+			</table>
+
+			{# Individual items #}
+			{% if item.items is defined and item.items|length > 0 %}
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 8px;">
+					{% for entry in item.items %}
+						<tr>
+							<td style="padding: 3px 10px 3px 20px; font-family: monospace; font-size: 12px; color: #555; border-bottom: 1px solid #eee;
+								{% if entry.is_new %} border-left: 3px solid #cc7a00; background-color: #fff8f0;{% endif %}">
+								{{ entry.label }}
+							</td>
+						</tr>
+					{% endfor %}
+					{% if item.items_total is defined and item.items_total > item.items|length %}
+						<tr>
+							<td style="padding: 3px 10px 3px 20px; font-size: 11px; color: #999; font-style: italic;">
+								{{ strings.and_x_more|format(item.items_total - item.items|length) }}
+							</td>
+						</tr>
+					{% endif %}
+				</table>
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+
+	{# Zero-count scan types summary #}
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 10px;">
-		<tr>
-			<td style="background-color: #f5f5f5; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #ddd;">
-				{{ strings.scan_type }}
-			</td>
-			<td style="background-color: #f5f5f5; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #ddd; text-align: center; width: 80px;">
-				{{ strings.count }}
-			</td>
-		</tr>
 		{% for item in scan_counts %}
-			{% set count_color = item.count > 0 ? '#cc7a00' : '#008000' %}
-			<tr>
-				<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee;">
-					{{ item.name }}
-				</td>
-				<td style="padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #eee; text-align: center; font-weight: bold; color: {{ count_color }};">
-					{{ item.count }}
-				</td>
-			</tr>
+			{% if item.count == 0 %}
+				<tr>
+					<td style="padding: 4px 10px; font-size: 12px; color: #888; border-bottom: 1px solid #eee;">
+						{{ item.name }}
+					</td>
+					<td style="padding: 4px 10px; font-size: 12px; border-bottom: 1px solid #eee; text-align: center; width: 80px; color: #008000; font-weight: bold;">
+						0
+					</td>
+				</tr>
+			{% endif %}
 		{% endfor %}
 	</table>
 {% endif %}

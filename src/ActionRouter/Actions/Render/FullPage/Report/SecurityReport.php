@@ -29,23 +29,13 @@ class SecurityReport extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 
 		$areas = [];
 		if ( !empty( $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
-			if ( \in_array( 'scan_results_new', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
-				$areas[ 'scan_results_new' ] = [
-					'slug'    => 'scan_results_new',
-					'title'   => __( 'New Scan Results', 'wp-simple-firewall' ),
+			if ( \in_array( 'scan_results', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
+				$areas[ 'scan_results' ] = [
+					'slug'    => 'scan_results',
+					'title'   => __( 'Latest Scan Results', 'wp-simple-firewall' ),
 					'content' => $con->action_router->render( ReportAreaScansResults::class, [
 						'report'       => $this->action_data[ 'report' ],
-						'results_type' => 'scan_results_new'
-					] ),
-				];
-			}
-			if ( \in_array( 'scan_results_current', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
-				$areas[ 'scan_results_current' ] = [
-					'slug'    => 'scan_results_current',
-					'title'   => __( 'Current Scan Results', 'wp-simple-firewall' ),
-					'content' => $con->action_router->render( ReportAreaScansResults::class, [
-						'report'       => $this->action_data[ 'report' ],
-						'results_type' => 'scan_results_current'
+						'results_type' => 'scan_results'
 					] ),
 				];
 			}

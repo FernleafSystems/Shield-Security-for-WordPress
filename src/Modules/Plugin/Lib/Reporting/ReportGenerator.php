@@ -134,7 +134,7 @@ class ReportGenerator {
 		$data = $report->areas_data;
 		$inspector = new ReportDataInspector( $data );
 		if ( $report->type === Constants::REPORT_TYPE_ALERT && $inspector->countScanResultsNew() === 0 ) {
-			unset( $data[ Constants::REPORT_AREA_SCANS ] );
+			$data = [];
 		}
 		elseif ( $report->type === Constants::REPORT_TYPE_INFO && $inspector->countAll() === 0 ) {
 			// if there's nothing to report, don't create a report.

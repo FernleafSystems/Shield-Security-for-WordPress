@@ -8,7 +8,7 @@ class ReportDataInspector {
 
 	use PluginControllerConsumer;
 
-	private $data;
+	private array $data;
 
 	public function __construct( array $data ) {
 		$this->data = $data;
@@ -20,11 +20,11 @@ class ReportDataInspector {
 	}
 
 	public function countScanResultsCurrent() :int {
-		return $this->countScanResults( 'scan_results_current' );
+		return $this->countScanResults( 'count' );
 	}
 
 	public function countScanResultsNew() :int {
-		return $this->countScanResults( 'scan_results_new' );
+		return $this->countScanResults( 'new_count' );
 	}
 
 	public function countStatZonesWithNonZeroStats() :int {
@@ -47,10 +47,10 @@ class ReportDataInspector {
 		return $total;
 	}
 
-	private function countScanResults( string $type ) :int {
+	private function countScanResults( string $field ) :int {
 		$total = 0;
-		foreach ( $this->data[ Constants::REPORT_AREA_SCANS ][ $type ] ?? [] as $scanResultData ) {
-			$total += $scanResultData[ 'count' ];
+		foreach ( $this->data[ Constants::REPORT_AREA_SCANS ][ 'scan_results' ] ?? [] as $scanResultData ) {
+			$total += $scanResultData[ $field ] ?? 0;
 		}
 		return $total;
 	}

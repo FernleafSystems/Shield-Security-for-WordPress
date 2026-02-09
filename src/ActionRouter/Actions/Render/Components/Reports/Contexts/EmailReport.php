@@ -19,7 +19,6 @@ class EmailReport extends EmailBase {
 			'report_type_label',
 			'view_report_label',
 			'site_url_label',
-			'scan_results_label',
 		] );
 		return [
 			'vars'    => [
@@ -52,9 +51,7 @@ class EmailReport extends EmailBase {
 				'use_links'             => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
 				'section_stats'         => __( 'Statistics', 'wp-simple-firewall' ),
 				'section_changes'       => __( 'Changes', 'wp-simple-firewall' ),
-				'section_scans'         => $common[ 'scan_results_label' ],
-				'section_scans_new'     => __( 'New Scan Results', 'wp-simple-firewall' ),
-				'section_scans_current' => __( 'Current Scan Results', 'wp-simple-firewall' ),
+				'section_scans'         => __( 'Latest Scan Results', 'wp-simple-firewall' ),
 				'section_scans_repairs' => __( 'Scan File Repairs', 'wp-simple-firewall' ),
 				'view_full_report'      => __( 'View Full Report', 'wp-simple-firewall' ),
 				'event'                 => __( 'Event', 'wp-simple-firewall' ),
@@ -64,6 +61,8 @@ class EmailReport extends EmailBase {
 				'period'                => __( 'Period', 'wp-simple-firewall' ),
 				'scan_type'             => __( 'Scan Type', 'wp-simple-firewall' ),
 				'count'                 => __( 'Count', 'wp-simple-firewall' ),
+				'new_badge'             => __( 'NEW', 'wp-simple-firewall' ),
+				'and_x_more'            => __( '... and %s more', 'wp-simple-firewall' ),
 			]
 		];
 	}
