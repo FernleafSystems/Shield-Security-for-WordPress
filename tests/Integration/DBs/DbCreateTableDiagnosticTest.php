@@ -65,7 +65,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 
 		$output = "\n\n=== DB TABLE CREATION DIAGNOSTICS ===\n";
 		$output .= "Total handlers: ".\count( $diagnostics )."\n";
-		$output .= "Ready: ".\count( $diagnostics ) - \count( $failures )."\n";
+		$output .= "Ready: ".( \count( $diagnostics ) - \count( $failures ) )."\n";
 		$output .= "Failed: ".\count( $failures )."\n\n";
 
 		foreach ( $failures as $key => $diag ) {

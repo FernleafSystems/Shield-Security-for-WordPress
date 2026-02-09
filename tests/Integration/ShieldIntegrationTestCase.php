@@ -143,6 +143,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 	/**
 	 * Truncate all Shield custom tables so every test starts clean.
+	 * Disables FK checks to allow truncation of tables referenced by foreign keys.
 	 */
 	protected function truncateShieldTables() :void {
 		$con = static::con();
@@ -153,9 +154,11 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		global $wpdb;
 		$prefix = $con->getPluginPrefix( '_' );
 
+		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' );
 		foreach ( DbCon::MAP as $dbKey => $spec ) {
 			$tableName = $wpdb->prefix.$prefix.'_'.$spec[ 'slug' ];
 			$wpdb->query( "TRUNCATE TABLE `{$tableName}`" );
 		}
+		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
 	}
 }

@@ -311,6 +311,49 @@ foreach ( $status_details as $detail ) {
 	echo "   " . $detail . PHP_EOL;
 }
 
+// Fix: Force-create all Shield DB tables as permanent (non-temporary) tables.
+//
+// The WordPress test framework adds a `_create_temporary_tables` query filter that converts
+// all `CREATE TABLE` to `CREATE TEMPORARY TABLE`. This breaks Shield tables because:
+//   1. TEMPORARY tables don't support FOREIGN KEY constraints (MySQL error 1215)
+//   2. TEMPORARY tables aren't listed by `SHOW TABLES`, so tableExists() returns false
+//
+// Tables created during install.php (separate process, no filter) work fine as permanent tables.
+// But tables lazy-loaded later during tests get the filter applied and fail.
+//
+// The fix: temporarily remove the filter, force-create all tables, then re-add the filter.
+if ( $shield_loaded ) {
+	echo "Ensuring all Shield DB tables exist as permanent tables..." . PHP_EOL;
+
+	remove_filter( 'query', '_create_temporary_tables' );
+	remove_filter( 'query', '_drop_temporary_tables' );
+
+	try {
+		$_shield_con = null;
+		if ( \function_exists( 'shield_security_get_plugin' ) ) {
+			$_shield_plugin = shield_security_get_plugin();
+			if ( $_shield_plugin && \method_exists( $_shield_plugin, 'getController' ) ) {
+				$_shield_con = $_shield_plugin->getController();
+			}
+		}
+
+		if ( $_shield_con !== null && isset( $_shield_con->db_con ) ) {
+			$_shield_con->db_con->reset();
+			$_shield_con->db_con->loadAll();
+			echo "✓ All Shield DB tables created as permanent tables" . PHP_EOL;
+		}
+		else {
+			echo "⚠ Shield Controller or db_con not available for table creation" . PHP_EOL;
+		}
+	}
+	catch ( \Throwable $e ) {
+		echo "⚠ Error creating Shield tables: " . $e->getMessage() . PHP_EOL;
+	}
+
+	add_filter( 'query', '_create_temporary_tables' );
+	add_filter( 'query', '_drop_temporary_tables' );
+}
+
 // Load test helpers if they exist
 $helpers_dir = dirname( __DIR__ ) . '/Helpers';
 if ( is_dir( $helpers_dir ) ) {
