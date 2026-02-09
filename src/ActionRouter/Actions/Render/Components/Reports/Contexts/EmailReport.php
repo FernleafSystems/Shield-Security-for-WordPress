@@ -13,36 +13,57 @@ class EmailReport extends EmailBase {
 	public const TEMPLATE = '/email/reports/cron_alert_info_report.twig';
 
 	protected function getBodyData() :array {
+		$con = self::con();
+		$WP = Services::WpGeneral();
 		$common = CommonDisplayStrings::pick( [
 			'report_type_label',
 			'view_report_label',
-			'site_url_label'
+			'site_url_label',
+			'scan_results_label',
 		] );
 		return [
 			'vars'    => [
-				'reports'     => \array_map(
-					function ( ReportVO $rep ) {
-						$reportCon = self::con()->comps->reports;
+				'reports'      => \array_map(
+					function ( ReportVO $rep ) use ( $con, $WP ) {
+						$reportCon = $con->comps->reports;
 						return [
-							'type'      => $reportCon->getReportTypeName( $rep->type ),
-							'generated' => Services::WpGeneral()->getTimeStringForDisplay( $rep->record->created_at ),
-							'href'      => $reportCon->getReportURL( $rep->record->unique_id ),
+							'type'       => $reportCon->getReportTypeName( $rep->type ),
+							'generated'  => $WP->getTimeStringForDisplay( $rep->record->created_at ),
+							'href'       => $reportCon->getReportURL( $rep->record->unique_id ),
+							'date_start' => $WP->getTimeStringForDisplay( $rep->start_at, false ),
+							'date_end'   => $WP->getTimeStringForDisplay( $rep->end_at, false ),
+							'areas_data' => $rep->areas_data,
 						];
 					},
 					$this->action_data[ 'reports' ]
 				),
-				'site_url'    => $this->action_data[ 'home_url' ],
-				'report_date' => Services::WpGeneral()->getTimeStampForDisplay(),
+				'site_url'     => $this->action_data[ 'home_url' ],
+				'report_date'  => $WP->getTimeStampForDisplay(),
+				'detail_level' => $this->action_data[ 'detail_level' ] ?? 'detailed',
 			],
 			'strings' => [
-				'generated'   => __( 'Date Generated', 'wp-simple-firewall' ),
-				'report_type' => $common[ 'report_type_label' ],
-				'view_report' => $common[ 'view_report_label' ],
-				'please_find' => __( 'At least 1 security report has been generated for your site.', 'wp-simple-firewall' ),
-				'depending'   => __( 'Depending on your settings, these reports may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
-				'site_url'    => $common[ 'site_url_label' ],
-				'report_date' => __( 'Report Generation Date', 'wp-simple-firewall' ),
-				'use_links'   => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
+				'generated'             => __( 'Date Generated', 'wp-simple-firewall' ),
+				'report_type'           => $common[ 'report_type_label' ],
+				'view_report'           => $common[ 'view_report_label' ],
+				'please_find'           => __( 'At least 1 security report has been generated for your site.', 'wp-simple-firewall' ),
+				'depending'             => __( 'Depending on your settings, these reports may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
+				'site_url'              => $common[ 'site_url_label' ],
+				'report_date'           => __( 'Report Generation Date', 'wp-simple-firewall' ),
+				'use_links'             => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
+				'section_stats'         => __( 'Statistics', 'wp-simple-firewall' ),
+				'section_changes'       => __( 'Changes', 'wp-simple-firewall' ),
+				'section_scans'         => $common[ 'scan_results_label' ],
+				'section_scans_new'     => __( 'New Scan Results', 'wp-simple-firewall' ),
+				'section_scans_current' => __( 'Current Scan Results', 'wp-simple-firewall' ),
+				'section_scans_repairs' => __( 'Scan File Repairs', 'wp-simple-firewall' ),
+				'view_full_report'      => __( 'View Full Report', 'wp-simple-firewall' ),
+				'event'                 => __( 'Event', 'wp-simple-firewall' ),
+				'current_period'        => __( 'Current', 'wp-simple-firewall' ),
+				'previous_period'       => __( 'Previous', 'wp-simple-firewall' ),
+				'trend'                 => __( 'Trend', 'wp-simple-firewall' ),
+				'period'                => __( 'Period', 'wp-simple-firewall' ),
+				'scan_type'             => __( 'Scan Type', 'wp-simple-firewall' ),
+				'count'                 => __( 'Count', 'wp-simple-firewall' ),
 			]
 		];
 	}

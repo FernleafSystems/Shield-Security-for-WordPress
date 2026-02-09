@@ -1,0 +1,48 @@
+{# Changes area for email reports #}
+{# Receives: changes (associative array of zones), strings, detail_level #}
+
+{% set has_changes = false %}
+{% for zone_key, zone in changes %}
+	{% if zone.total|default(0) > 0 %}
+		{% set has_changes = true %}
+	{% endif %}
+{% endfor %}
+
+{% if has_changes %}
+	<h3 style="margin: 20px 0 10px; font-size: 16px; color: #333; border-bottom: 2px solid #008000; padding-bottom: 6px;">
+		{{ strings.section_changes }}
+	</h3>
+
+	{% for zone_key, zone in changes %}
+		{% if zone.total|default(0) > 0 %}
+			<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+				{{ zone.title }}
+				<span style="font-weight: normal; font-size: 12px; color: #777;"> ({{ zone.total }})</span>
+			</h4>
+
+			{% if detail_level == 'detailed' and zone.detailed is defined %}
+				{% for item in zone.detailed %}
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 6px;">
+						<tr>
+							<td style="padding: 6px 10px; font-size: 13px; color: #333; background-color: #f9f9f9; border-bottom: 1px solid #eee;">
+								{{ item.name|raw }}
+								{% if item.link is defined and item.link.href is defined %}
+									&nbsp;<a href="{{ item.link.href }}" target="_blank" style="color: #008000; font-size: 12px; text-decoration: underline;">{{ item.link.text|default('View') }}</a>
+								{% endif %}
+							</td>
+						</tr>
+						{% if item.rows is defined %}
+							{% for row in item.rows %}
+								<tr>
+									<td style="padding: 4px 10px 4px 20px; font-size: 12px; color: #555; border-bottom: 1px solid #eee;">
+										{{ row|raw }}
+									</td>
+								</tr>
+							{% endfor %}
+						{% endif %}
+					</table>
+				{% endfor %}
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
