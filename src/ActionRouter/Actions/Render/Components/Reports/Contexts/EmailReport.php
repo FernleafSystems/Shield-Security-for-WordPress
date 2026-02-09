@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,6 +21,11 @@ class EmailReport extends EmailBase {
 			'view_report_label',
 			'site_url_label',
 		] );
+
+		$reports = $this->action_data[ 'reports' ];
+		$firstReport = \reset( $reports );
+		$isAlert = $firstReport instanceof ReportVO && $firstReport->type === Constants::REPORT_TYPE_ALERT;
+
 		return [
 			'vars'    => [
 				'reports'      => \array_map(
@@ -34,7 +40,7 @@ class EmailReport extends EmailBase {
 							'areas_data' => $rep->areas_data,
 						];
 					},
-					$this->action_data[ 'reports' ]
+					$reports
 				),
 				'site_url'     => $this->action_data[ 'home_url' ],
 				'report_date'  => $WP->getTimeStampForDisplay(),
@@ -44,8 +50,9 @@ class EmailReport extends EmailBase {
 				'generated'             => __( 'Date Generated', 'wp-simple-firewall' ),
 				'report_type'           => $common[ 'report_type_label' ],
 				'view_report'           => $common[ 'view_report_label' ],
-				'please_find'           => __( 'At least 1 security report has been generated for your site.', 'wp-simple-firewall' ),
-				'depending'             => __( 'Depending on your settings, these reports may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
+				'please_find'           => $isAlert
+					? __( 'A security alert has been generated for your site. New issues have been detected that may require your attention.', 'wp-simple-firewall' )
+					: __( 'A periodic security report has been generated for your site.', 'wp-simple-firewall' ),
 				'site_url'              => $common[ 'site_url_label' ],
 				'report_date'           => __( 'Report Generation Date', 'wp-simple-firewall' ),
 				'use_links'             => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),

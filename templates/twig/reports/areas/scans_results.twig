@@ -9,7 +9,12 @@
 			<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ data.colour }}">
 				<div class="card card-raised border-{{ data.colour }}">
 					<div class="card-body ps-3 pe-1 py-1">
-						<div class="overline text-muted mb-1">{{ data.name }}</div>
+						<div class="overline text-muted mb-1">
+							{{ data.name }}
+							{% if data.new_count is defined and data.new_count > 0 %}
+								<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65em; vertical-align: middle;">{{ strings.new_badge }}</span>
+							{% endif %}
+						</div>
 						<div class="d-flex align-items-center justify-content-between">
 							<div class="display-6 fw-normal">{{ data.count }}</div>
 						</div>
@@ -18,6 +23,37 @@
 			</div>
 		{% endfor %}
 	</div>
+
+	{% for slug,data in vars.scan_counts %}
+		{% if data.count > 0 and data.items is defined and data.items|length > 0 %}
+			<div class="row mt-3">
+				<div class="col">
+					<h6 class="mb-2">
+						{{ data.name }}
+						{% if data.new_count is defined and data.new_count > 0 %}
+							<span class="badge bg-warning text-dark ms-1" style="font-size: 0.7em;">{{ data.new_count }} {{ strings.new_badge }}</span>
+						{% endif %}
+					</h6>
+					<ul class="list-group list-group-flush">
+						{% for entry in data.items %}
+							<li class="list-group-item py-1 px-2 {% if entry.is_new %}border-start border-3 border-warning bg-warning bg-opacity-10{% endif %}"
+								style="font-family: monospace; font-size: 0.85em;">
+								{{ entry.label }}
+								{% if entry.is_new %}
+									<span class="badge bg-warning text-dark ms-1" style="font-size: 0.75em;">{{ strings.new_badge }}</span>
+								{% endif %}
+							</li>
+						{% endfor %}
+						{% if data.items_total is defined and data.items_total > data.items|length %}
+							<li class="list-group-item py-1 px-2 text-muted fst-italic" style="font-size: 0.85em;">
+								{{ strings.and_x_more|format(data.items_total - data.items|length) }}
+							</li>
+						{% endif %}
+					</ul>
+				</div>
+			</div>
+		{% endif %}
+	{% endfor %}
 {% else %}
 	<p>There are no results to show at this time.</p>
 {% endif %}

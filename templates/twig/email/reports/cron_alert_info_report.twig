@@ -22,24 +22,6 @@
 			</tr>
 		</table>
 
-		{# Statistics area (INFO reports) #}
-		{% if report.areas_data.statistics is defined %}
-			{% include '/email/reports/areas/stats.twig' with {
-				stats: report.areas_data.statistics,
-				strings: body.strings,
-				detail_level: body.vars.detail_level
-			} only %}
-		{% endif %}
-
-		{# Changes area (INFO reports) #}
-		{% if report.areas_data.changes is defined %}
-			{% include '/email/reports/areas/changes.twig' with {
-				changes: report.areas_data.changes,
-				strings: body.strings,
-				detail_level: body.vars.detail_level
-			} only %}
-		{% endif %}
-
 		{# Scans area (both ALERT and INFO reports) #}
 		{% if report.areas_data.scans is defined %}
 			{% if report.areas_data.scans.scan_results is defined and report.areas_data.scans.scan_results|length > 0 %}
@@ -56,6 +38,24 @@
 					strings: body.strings
 				} only %}
 			{% endif %}
+		{% endif %}
+
+		{# Changes area (INFO reports) #}
+		{% if report.areas_data.changes is defined %}
+			{% include '/email/reports/areas/changes.twig' with {
+				changes: report.areas_data.changes,
+				strings: body.strings,
+				detail_level: body.vars.detail_level
+			} only %}
+		{% endif %}
+
+		{# Statistics area (INFO reports) #}
+		{% if report.areas_data.statistics is defined %}
+			{% include '/email/reports/areas/stats.twig' with {
+				stats: report.areas_data.statistics,
+				strings: body.strings,
+				detail_level: body.vars.detail_level
+			} only %}
 		{% endif %}
 
 		{# View Full Report Button #}
