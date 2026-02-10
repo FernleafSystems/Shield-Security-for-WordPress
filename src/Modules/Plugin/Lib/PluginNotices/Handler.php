@@ -15,6 +15,7 @@ class Handler {
 				ConflictMonolog::class,
 				DbPrechecks::class,
 				ForceOff::class,
+				TranslationsQueued::class,
 				SiteInLockdown::class,
 				GloballyDisabled::class,
 				HighReputation::class,

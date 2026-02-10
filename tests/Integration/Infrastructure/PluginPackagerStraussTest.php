@@ -261,4 +261,3 @@ class PluginPackagerStraussTest extends TestCase {
 		return array_values( array_unique( $packages ) );
 	}
 }
-

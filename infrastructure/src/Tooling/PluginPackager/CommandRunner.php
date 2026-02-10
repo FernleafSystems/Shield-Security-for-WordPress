@@ -31,7 +31,7 @@ class CommandRunner {
 	 *
 	 * @param string[]    $parts      Command parts (first element is command, rest are arguments)
 	 * @param string|null $workingDir Directory to run the command in
-	 * @throws \RuntimeException if command fails or working directory is invalid
+	 * @throws \RuntimeException|\Symfony\Component\Process\Exception\LogicException if command fails or working directory is invalid
 	 */
 	public function run( array $parts, ?string $workingDir = null ) :void {
 		$cwd = $workingDir ?? $this->projectRoot;

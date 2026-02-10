@@ -20,17 +20,14 @@ class AuditCon {
 	/**
 	 * @var Auditors\Base[]
 	 */
-	private $auditors = null;
+	private ?array $auditors = null;
 
 	/**
 	 * @var Record[]
 	 */
-	private $latestSnapshots;
+	private ?array $latestSnapshots = null;
 
-	/**
-	 * @var Snapshots\Queues\SnapshotDiscovery
-	 */
-	private $snapshotDiscoveryQueue;
+	private Snapshots\Queues\SnapshotDiscovery $snapshotDiscoveryQueue;
 
 	protected function canRun() :bool {
 		return self::con()->db_con->activity_logs->isReady();
@@ -115,11 +112,9 @@ class AuditCon {
 	public function getAuditors() :array {
 		if ( empty( $this->auditors ) ) {
 			$this->auditors = [];
-			$auditClasses = \array_merge( Constants::AUDITORS,
-				self::con()->caps->canThirdPartyActivityLog() ? Constants::THIRDPARTY_AUDITORS : [] );
-			foreach ( $auditClasses as $auditorClass ) {
-				/** @var Auditors\Base $auditor */
-				$this->auditors[ $auditorClass::Slug() ] = new $auditorClass();
+			foreach ( \array_merge( Constants::AUDITORS, self::con()->caps->canThirdPartyActivityLog() ? Constants::THIRDPARTY_AUDITORS : [] ) as $auditor ) {
+				/** @var class-string<Auditors\Base> $auditor */
+				$this->auditors[ $auditor::Slug() ] = new $auditor();
 			}
 		}
 		return $this->auditors;
@@ -188,7 +183,7 @@ class AuditCon {
 	}
 
 	public function getSnapshots() :array {
-		return $this->latestSnapshots ?? $this->latestSnapshots = ( new Ops\Retrieve() )->all();
+		return $this->latestSnapshots ??= ( new Ops\Retrieve() )->all();
 	}
 
 	/**
@@ -278,7 +273,7 @@ class AuditCon {
 	}
 
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
-		return $this->snapshotDiscoveryQueue ?? $this->snapshotDiscoveryQueue = new Snapshots\Queues\SnapshotDiscovery(
+		return $this->snapshotDiscoveryQueue ??= new Snapshots\Queues\SnapshotDiscovery(
 			'snapshot_discovery', self::con()->prefix() );
 	}
 }

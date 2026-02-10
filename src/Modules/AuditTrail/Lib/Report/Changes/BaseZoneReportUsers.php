@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseZoneReportUsers extends BaseZoneReport {
 
-	private $admins = [];
+	private array $admins = [];
 
 	protected function buildSummaryForLog( LogRecord $log ) :string {
 		switch ( $log->event_slug ) {

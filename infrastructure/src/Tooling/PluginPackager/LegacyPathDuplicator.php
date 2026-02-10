@@ -43,20 +43,22 @@ class LegacyPathDuplicator {
 		[ 'DBs', 'UserMeta' ],                   // BotSignalsRecord reads last_login_at
 		[ 'Logging' ],                           // All log processors
 		[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
+		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots', 'Ops' ],
 	];
-
 	/**
 	 * Individual source files to copy
 	 */
 	private const SRC_FILES_TO_COPY = [
 		// Controller/Dependencies/Monolog.php - Assessed when creating loggers
 		[ 'Controller', 'Dependencies', 'Monolog.php' ],
-		[ 'ActionRouter', 'Actions', 'Render', 'Components', 'FormSecurityAdminLoginBox.php' ], // TODO: throw action exception to prevent render in legacy.
+		[ 'ActionRouter', 'Actions', 'Render', 'Components', 'FormSecurityAdminLoginBox.php' ],
+		// TODO: throw action exception to prevent render in legacy.
 		[ 'ActionRouter', 'Actions', 'Traits', 'SecurityAdminNotRequired.php' ],
 		[ 'Events', 'EventStrings.php' ],
 		// Modules/AuditTrail/Lib/ - Audit logging
 		[ 'Modules', 'AuditTrail', 'Lib', 'ActivityLogMessageBuilder.php' ],
 		[ 'Modules', 'AuditTrail', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
+		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots', 'SnapshotVO.php' ],
 		// Modules/HackGuard/Lib/Snapshots/ - Snapshot checking
 		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'FindAssetsToSnap.php' ],
 		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'HashesStorageDir.php' ],
@@ -70,7 +72,6 @@ class LegacyPathDuplicator {
 		// Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php - Traffic DB writing
 		[ 'Modules', 'Traffic', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
 	];
-
 	/**
 	 * Vendor prefixed directories to mirror
 	 */
@@ -78,7 +79,6 @@ class LegacyPathDuplicator {
 		[ 'monolog' ],   // Monolog used at shutdown for logging
 		[ 'composer' ],  // Autoloader metadata
 	];
-
 	/**
 	 * Vendor prefixed files to copy
 	 */
@@ -86,7 +86,6 @@ class LegacyPathDuplicator {
 		'autoload.php',
 		'autoload-classmap.php',
 	];
-
 	/**
 	 * Standard vendor directories to mirror (for shutdown compatibility)
 	 */
@@ -95,7 +94,6 @@ class LegacyPathDuplicator {
 		[ 'mlocati', 'ip-lib' ],  // IPLib used by AddRule at shutdown
 		[ 'composer' ],            // Autoloader metadata
 	];
-
 	/**
 	 * Standard vendor files to copy
 	 */

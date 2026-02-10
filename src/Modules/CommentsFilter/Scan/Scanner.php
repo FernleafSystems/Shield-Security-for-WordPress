@@ -23,15 +23,9 @@ class Scanner {
 	 */
 	private $spamStatus = null;
 
-	/**
-	 * @var string
-	 */
-	private $spamReason;
+	private string $spamReason = '';
 
-	/**
-	 * @var array
-	 */
-	private $spamCodes;
+	private array $spamCodes = [];
 
 	protected function canRun() :bool {
 		return Services::WpComments()->isCommentSubmission();
@@ -42,8 +36,8 @@ class Scanner {
 	}
 
 	/**
-	 * @param mixed $approval
-	 * @param array $comm
+	 * @param mixed       $approval
+	 * @param mixed|array $comm
 	 * @return array
 	 */
 	public function checkComment( $approval, $comm ) {
@@ -137,10 +131,9 @@ class Scanner {
 	}
 
 	/**
-	 * @param int $commentID
+	 * @param int|mixed $commentID
 	 */
 	public function insertExplanation( $commentID ) {
-
 		$comment = get_comment( $commentID );
 		if ( $comment instanceof \WP_Comment ) {
 
@@ -165,7 +158,7 @@ class Scanner {
 				/* translators: %1$s: spam notice, %2$s: reason */
 				sprintf( '## '.__( 'Comment SPAM Protection: %1$s %2$s', 'wp-simple-firewall' )."##\n",
 					sprintf(
-						/* translators: %1$s: plugin name, %2$s: status */
+					/* translators: %1$s: plugin name, %2$s: status */
 						__( '%1$s marked this comment as "%2$s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
@@ -178,10 +171,8 @@ class Scanner {
 				'comment_content' => $additional.$comment->comment_content,
 			] );
 
-			if ( !empty( $this->spamCodes ) ) {
-				foreach ( $this->spamCodes as $spamCode ) {
-					add_comment_meta( $commentID, self::con()->prefix( 'spam_'.$spamCode ), '1' );
-				}
+			foreach ( $this->spamCodes as $spamCode ) {
+				add_comment_meta( $commentID, self::con()->prefix( 'spam_'.$spamCode ), '1' );
 			}
 		}
 	}

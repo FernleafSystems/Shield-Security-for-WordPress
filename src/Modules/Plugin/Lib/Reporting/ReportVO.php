@@ -30,8 +30,8 @@ class ReportVO extends DynPropertiesClass {
 			case 'content':
 				$value = \trim( \is_string( $value ) ? $value : '' );
 				break;
-			case 'interval_start_at':
-			case 'interval_end_at':
+			case 'start_at':
+			case 'end_at':
 				$value = (int)$value;
 				break;
 			case 'areas_data':

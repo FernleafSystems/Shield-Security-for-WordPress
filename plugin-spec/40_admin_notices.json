@@ -40,12 +40,6 @@
         "type": "warning",
         "per_user": true
     },
-    "translations-queued": {
-        "id": "translations-queued",
-        "schedule": "conditions",
-        "type": "info",
-        "can_dismiss": false
-    },
     "email-verification-sent": {
         "id": "email-verification-sent",
         "schedule": "conditions",

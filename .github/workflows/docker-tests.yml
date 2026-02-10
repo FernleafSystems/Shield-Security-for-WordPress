@@ -79,7 +79,7 @@ jobs:
     
     # Cache WordPress version detection results
     - name: Cache WordPress version data
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.wp-api-cache
         key: wp-versions-${{ runner.os }}-${{ hashFiles('.github/scripts/detect-wp-versions.sh') }}-${{ github.run_id }}
@@ -101,21 +101,80 @@ jobs:
         echo "PHP versions for matrix: $JSON_ARRAY"
         echo "Default PHP: $DEFAULT_PHP"
     
-    - name: Detect WordPress versions with comprehensive fallback system
+    - name: Detect WordPress versions with fallback system
       id: detect
       run: |
-        echo "Starting WordPress version detection with 5-level fallback system..."
+        echo "Starting WordPress version detection with 3-level fallback system..."
         echo "Script: .github/scripts/detect-wp-versions.sh"
         
-        # Run the comprehensive version detection script
+        # Run the version detection script
         ./.github/scripts/detect-wp-versions.sh --debug
         
         echo "WordPress version detection completed successfully"
 
+  build-package:
+    name: "Build Plugin Package"
+    needs: detect-wp-versions
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install build dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        npm ci --no-audit --no-fund
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Load Strauss version
+      run: |
+        source .github/scripts/read-packager-config.sh
+        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
+
+    - name: Build plugin package
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        rm -rf "$PACKAGE_DIR" || true
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
+
+    - name: Validate package artifact
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        test -d "$PACKAGE_DIR"
+        test -f "$PACKAGE_DIR/icwp-wpsf.php"
+        test -f "$PACKAGE_DIR/vendor/autoload.php"
+        test -d "$PACKAGE_DIR/assets/dist"
+        echo "Package artifact validation passed"
+
+    - name: Upload package artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: shield-package
+        path: ${{ github.workspace }}/shield-package/**
+        if-no-files-found: error
+
   # Matrix Docker test job
   docker-test:
     name: "Test PHP ${{ matrix.php }} / WP ${{ matrix.wordpress }}"
-    needs: detect-wp-versions
+    needs: [detect-wp-versions, build-package]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     
@@ -130,35 +189,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
-    # Cache Composer dependencies
-    - name: Get Composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-    
-    - name: Cache Composer dependencies
-      uses: actions/cache@v3
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-    
-    # Cache built assets
-    - name: Cache built assets
-      uses: actions/cache@v3
-      with:
-        path: |
-          assets/js/dist
-          assets/css/dist
-        key: ${{ runner.os }}-assets-${{ hashFiles('package-lock.json', 'webpack.config.js', 'assets/js/**/*.js', 'assets/css/**/*.scss') }}
-        restore-keys: |
-          ${{ runner.os }}-assets-
-    
-    # Setup Docker Buildx for advanced caching
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
+
     - name: Setup PHP for dependencies
       uses: shivammathur/setup-php@v2
       with:
@@ -166,29 +197,25 @@ jobs:
         coverage: none
         tools: composer:v2
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    # Cache Composer dependencies
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    
+    - name: Cache Composer dependencies
+      uses: actions/cache@v4
       with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: |
-        echo "Installing composer dependencies"
-        composer install --no-interaction --prefer-dist --optimize-autoloader
-
-        echo "Installing npm dependencies"
-        npm ci --no-audit --no-fund
-        
-    - name: Build assets
-      run: |
-        # Check if assets are already built (from cache)
-        if [ -d "assets/js/dist" ] && [ -d "assets/css/dist" ] && [ -n "$(ls -A assets/js/dist)" ] && [ -n "$(ls -A assets/css/dist)" ]; then
-          echo "✓ Assets already built (from cache)"
-        else
-          echo "Building JavaScript and CSS assets"
-          npm run build
-        fi
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+    
+    # Setup Docker Buildx for advanced caching
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Install PHP dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
         
     - name: Load Strauss version
       run: |
@@ -197,14 +224,20 @@ jobs:
         echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
         echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
         
-    - name: Build plugin package
+    - name: Download package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: shield-package
+        path: ${{ github.workspace }}/shield-package
+
+    - name: Validate downloaded package
       run: |
         PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        # Clean workspace directory manually if it exists (CI workspace is ephemeral)
-        rm -rf "$PACKAGE_DIR" || true
-        # Skip directory clean in packager since we manually cleaned and workspace is ephemeral
-        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
-        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
+        test -d "$PACKAGE_DIR"
+        test -f "$PACKAGE_DIR/icwp-wpsf.php"
+        test -f "$PACKAGE_DIR/vendor/autoload.php"
+        test -d "$PACKAGE_DIR/assets/dist"
+        echo "Downloaded package validation passed"
       
     - name: Setup Docker environment
       run: |
@@ -225,8 +258,8 @@ jobs:
           echo "TEST_WP_VERSION=$WP_VERSION"
           echo "WP_VERSION_LATEST=${{ needs.detect-wp-versions.outputs.latest }}"
           echo "WP_VERSION_PREVIOUS=${{ needs.detect-wp-versions.outputs.previous }}"
-          echo "PLUGIN_SOURCE=${{ env.SHIELD_PACKAGE_PATH }}"
-          echo "SHIELD_PACKAGE_PATH=${{ env.SHIELD_PACKAGE_PATH }}"
+          echo "PLUGIN_SOURCE=${{ github.workspace }}/shield-package"
+          echo "SHIELD_PACKAGE_PATH=${{ github.workspace }}/shield-package"
           echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}"
           echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}"
           echo "SHIELD_TEST_IMAGE=shield-test-runner:php${PHP_VERSION}-wp${WP_VERSION}"

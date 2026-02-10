@@ -37,8 +37,8 @@ class CommentSpamCon {
 	/**
 	 * When you set a new comment as anything but 'spam' a notification email is sent to the post author.
 	 * We suppress this for when we mark as trash by emptying the email notifications list.
-	 * @param array $emails
-	 * @return array
+	 * @param mixed $emails
+	 * @return mixed
 	 */
 	public function clearCommentNotificationEmail( $emails ) {
 		$status = apply_filters( self::con()->prefix( 'cf_status' ), '' );
