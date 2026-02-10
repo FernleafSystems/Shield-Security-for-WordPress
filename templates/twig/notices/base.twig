@@ -9,15 +9,15 @@
 		 data-notice_id="{{ notice_id|default('') }}"
 		 class="{{ notice_classes|default('info') }} notice {{ dismiss_enabled ? 'is-dismissible' : '' }} shield-notice-container">
 
-		<div class="notice-body" style="display: flex; flex-direction: row; ">
-
-			<div class="notice-icon">
+		<div class="shield-notice-content-wrap">
+			{% if imgs.icon_shield|default('') is not empty %}
+			<div class="shield-notice-icon" aria-hidden="true">
 				{{ imgs.icon_shield|raw }}
 			</div>
-
-			<div class="notice-content">
+			{% endif %}
+			<div class="shield-notice-content">
 				{% if strings.title|default('') is not empty %}
-					<h3 class="notice-title">{{ strings.title }}</h3>
+					<p class="shield-notice-title"><strong>{{ strings.title }}</strong></p>
 				{% endif %}
 				<div>
 					{% block notice_body %}
@@ -32,18 +32,8 @@
 					{% endblock %}
 				</div>
 			</div>
-
 		</div>
-
-		{% block dismiss_link %}
-			{% if dismiss_enabled %}
-			<div class="dismiss-p">
-				<a class="shield-notice-dismiss"
-				   href="#"
-				>{{ strings.dismiss|default('Dismiss') }}</a>
-			</div>
-			{% endif %}
-		{% endblock %}
+		{% block dismiss_link %}{% endblock %}
 
 	</div>
 {% endblock %}
