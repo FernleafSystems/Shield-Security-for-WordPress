@@ -77,6 +77,7 @@ class SecurityReport extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'intro'               => __( 'This report outlines the most significant events and statistics on your WordPress site for given reporting period.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
+				'interval'      => $report->interval ?? '',
 				'dates'         => [
 					'generation_date'        => $WP->getTimeStringForDisplay( null, false ),
 					'generation_time'        => $WP->getTimeStringForDisplay(),

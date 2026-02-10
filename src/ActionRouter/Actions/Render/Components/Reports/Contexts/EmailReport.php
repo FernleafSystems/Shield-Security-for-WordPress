@@ -44,12 +44,13 @@ class EmailReport extends EmailBase {
 							}
 						}
 
+						$isHourly = ( $rep->interval ?? '' ) === 'hourly';
 						return [
 							'type'       => $reportCon->getReportTypeName( $rep->type ),
 							'generated'  => $WP->getTimeStringForDisplay( $rep->record->created_at ),
 							'href'       => $reportCon->getReportURL( $rep->record->unique_id ),
-							'date_start' => $WP->getTimeStringForDisplay( $rep->start_at, false ),
-							'date_end'   => $WP->getTimeStringForDisplay( $rep->end_at, false ),
+							'date_start' => $WP->getTimeStringForDisplay( $rep->start_at, $isHourly ),
+							'date_end'   => $WP->getTimeStringForDisplay( $rep->end_at, $isHourly ),
 							'areas_data' => $areasData,
 						];
 					},

@@ -74,7 +74,11 @@
 		<div class="row">
 			<div class="col text-center my-3">
 				<span class="d-inline-block border rounded-pill px-3 py-1" style="font-size: 0.9rem; color: #333;">
-					{{ vars.dates.report_date_start }} &ndash; {{ vars.dates.report_date_end }}
+					{% if vars.interval == 'hourly' %}
+						{{ vars.dates.report_date_full_start }} &ndash; {{ vars.dates.report_date_full_end }}
+					{% else %}
+						{{ vars.dates.report_date_start }} &ndash; {{ vars.dates.report_date_end }}
+					{% endif %}
 				</span>
 			</div>
 		</div>
