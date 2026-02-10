@@ -3,9 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetTracking;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -287,15 +284,6 @@ class Controller {
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $notice );
 				break;
-			case 'allow-tracking':
-				$this->buildNotice_AllowTracking( $notice );
-				break;
-			case 'rate-plugin':
-				$this->buildNotice_RatePlugin( $notice );
-				break;
-			case 'email-verification-sent':
-				$this->buildNotice_EmailVerificationSent( $notice );
-				break;
 			case 'admin-users-restricted':
 				$this->buildNotice_AdminUsersRestricted( $notice );
 				break;
@@ -335,68 +323,6 @@ class Controller {
 			],
 			'hrefs'             => [
 				'configure' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN )
-			],
-		];
-	}
-
-	private function buildNotice_AllowTracking( NoticeVO $notice ) {
-		$name = self::con()->labels->Name;
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $name ),
-				'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $name ),
-				'what_we_collect' => __( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' ),
-				'data_anon'       => __( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
-				'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
-				'click_to_see'    => __( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' ),
-				'learn_more'      => __( 'Learn More.', 'wp-simple-firewall' ),
-				'site_url'        => 'translate.fernleafsystems.com',
-				'yes'             => __( 'Absolutely', 'wp-simple-firewall' ),
-				'yes_i_share'     => __( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
-				'hmm_learn_more'  => __( "I'd like to learn more, please", 'wp-simple-firewall' ),
-				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
-			],
-			'ajax'              => [
-				'set_plugin_tracking' => ActionData::BuildJson( PluginSetTracking::class ),
-			],
-			'hrefs'             => [
-				'learn_more'       => 'https://translate.fernleafsystems.com',
-				'link_to_see'      => self::con()->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
-				'link_to_moreinfo' => 'https://clk.shldscrty.com/shieldtrackinginfo',
-			]
-		];
-	}
-
-	private function buildNotice_RatePlugin( NoticeVO $notice ) {
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'     => __( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
-				'dismiss'   => __( "I'd rather not show this support", 'wp-simple-firewall' ).' / '.__( "I've done this already", 'wp-simple-firewall' ).' :D',
-				'rate_text' => sprintf( __( 'A lot of work goes into %s, and we need your help to spread the word about it. :)', 'wp-simple-firewall' ), self::con()->labels->Name ),
-			],
-			'hrefs'             => [
-				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
-			]
-		];
-	}
-
-	private function buildNotice_EmailVerificationSent( NoticeVO $notice ) {
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'             => self::con()->labels->Name
-									   .': '.__( 'Please verify email has been received', 'wp-simple-firewall' ),
-				'need_you_confirm'  => __( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
-				'please_click_link' => __( "Please click the link in the email you received.", 'wp-simple-firewall' ),
-				'email_sent_to'     => sprintf(
-					__( "The email has been sent to you at blog admin address: %s", 'wp-simple-firewall' ),
-					get_bloginfo( 'admin_email' )
-				),
-				'how_resend_email'  => __( "Resend verification email", 'wp-simple-firewall' ),
-				'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -453,15 +379,8 @@ class Controller {
 			case 'override-forceoff':
 				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
-			case 'allow-tracking':
-				$needed = $con->opts->optGet( 'tracking_permission_set_at' ) === 0;
-				break;
 			case 'blockdown-active':
 				$needed = $con->this_req->is_site_lockdown_active && !$con->isPluginAdminPageRequest();
-				break;
-			case 'email-verification-sent':
-				$needed = $con->opts->optIs( 'enable_email_authentication', 'Y' )
-						  && $con->opts->optGet( 'email_can_send_verified_at' ) < 1;
 				break;
 			case 'admin-users-restricted':
 				$needed = \in_array( Services::WpPost()

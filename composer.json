@@ -103,6 +103,7 @@
         "crowdsec/capi-client"
       ],
       "update_call_sites":              false,
+      "optimize_autoloader":            false,
       "override_autoload":              {},
       "exclude_from_copy":              {
         "packages":      [

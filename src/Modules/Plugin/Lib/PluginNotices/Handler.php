@@ -16,6 +16,7 @@ class Handler {
 				DbPrechecks::class,
 				ForceOff::class,
 				TranslationsQueued::class,
+				LegacyDashboardNotices::class,
 				SiteInLockdown::class,
 				GloballyDisabled::class,
 				HighReputation::class,
@@ -41,6 +42,7 @@ class Handler {
 					'text'      => 'no text provided',
 					'locations' => [],
 					'flags'     => [],
+					'can_dismiss' => false,
 				], $issue );
 			}
 		}
