@@ -15,7 +15,7 @@ class Users extends Base {
 
 	use WpLoginCapture;
 
-	private $passwordResetUserIDs = [];
+	private array $passwordResetUserIDs = [];
 
 	protected function initAuditHooks() :void {
 		$this->setupLoginCaptureHooks();

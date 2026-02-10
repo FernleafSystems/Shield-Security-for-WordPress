@@ -12,7 +12,7 @@ class Base {
 	use PluginControllerConsumer;
 	use ExecOnce;
 
-	protected $isRunningSnapshotDiscovery = false;
+	protected bool $isRunningSnapshotDiscovery = false;
 
 	protected function run() {
 		$this->initAuditHooks();
