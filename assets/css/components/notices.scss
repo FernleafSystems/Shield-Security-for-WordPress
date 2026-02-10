@@ -1,38 +1,48 @@
-.notice-icon {
-  align-self: center;
-  justify-content: center;
-  height: 48px;
-  width: 48px;
+div.notice.shield-notice-container {
+  padding: 12px;
 }
 
-.notice-title {
+.shield-notice-content-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.shield-notice-icon {
+  flex: 0 0 24px;
+  line-height: 0;
+  margin-top: 2px;
+}
+
+.shield-notice-icon svg {
+  width: 24px;
+  height: 24px;
+  color: #2271b1;
+}
+
+.shield-notice-content {
+  min-width: 0;
+}
+
+.shield-notice-title {
+  margin: 0 0 4px 0;
   padding: 0;
 }
 
-.notice-content {
-  padding: 10px;
+.shield-notice-content p {
+  margin: 0 0 8px 0;
 }
 
-.notice-content p {
-  margin-left: 0;
+.shield-notice-content p:last-child {
+  margin-bottom: 0;
 }
 
-.notice-content p a {
-  text-shadow: none;
-  font-weight: bold;
-}
+@media screen and (max-width: 782px) {
+  .shield-notice-content-wrap {
+    display: block;
+  }
 
-div.notice.shield-notice-container {
-  padding: 10px 20px;
-}
-
-.shield-notice-container > .notice-body > .notice-icon svg {
-  color: green;
-  width: 48px;
-  height: 48px;
-}
-
-.shield-notice-container .dismiss-p {
-  margin-top: 15px;
-  margin-bottom: 5px;
+  .shield-notice-icon {
+    margin: 0 0 8px 0;
+  }
 }

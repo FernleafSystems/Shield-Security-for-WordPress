@@ -11,9 +11,61 @@ on:
         description: 'Enable PHPCS code standards check'
 
 jobs:
+  build-package:
+    name: 'Build Package'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install build dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        npm ci --no-audit --no-fund
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Build plugin package
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        rm -rf "$PACKAGE_DIR" || true
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
+
+    - name: Validate package artifact
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/shield-package"
+        test -d "$PACKAGE_DIR"
+        test -f "$PACKAGE_DIR/icwp-wpsf.php"
+        test -f "$PACKAGE_DIR/vendor/autoload.php"
+        test -d "$PACKAGE_DIR/assets/dist"
+        echo "Package artifact validation passed"
+
+    - name: Upload package artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: shield-package
+        path: ${{ github.workspace }}/shield-package/**
+        if-no-files-found: error
+
   test:
     name: 'Test (PHP ${{ matrix.php }})'
     runs-on: ubuntu-latest
+    needs: build-package
     
     strategy:
       fail-fast: false
@@ -46,22 +98,10 @@ jobs:
       run: |
         echo "PHP Version: $(php -v)"
         echo "Composer Version: $(composer --version)"
-        echo "Node.js Version: $(node --version)"
-        echo "NPM Version: $(npm --version)"
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
         
     - name: Install dependencies
       run: |
         composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
-        
-    - name: Build assets
-      run: npm run build
 
     - name: Build plugin config
       run: composer build:config
@@ -73,11 +113,20 @@ jobs:
         echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
         echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
         
-    - name: Build plugin package
+    - name: Download package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: shield-package
+        path: ${{ github.workspace }}/shield-package
+
+    - name: Validate downloaded package
       run: |
         PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
-        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
+        test -d "$PACKAGE_DIR"
+        test -f "$PACKAGE_DIR/icwp-wpsf.php"
+        test -f "$PACKAGE_DIR/vendor/autoload.php"
+        test -d "$PACKAGE_DIR/assets/dist"
+        echo "Downloaded package validation passed"
         
     - name: Install WordPress Test Suite
       run: |
@@ -94,7 +143,7 @@ jobs:
     - name: Run integration tests
       env:
         SHIELD_DEBUG_PATHS: '1'
-        SHIELD_PACKAGE_PATH: ${{ env.SHIELD_PACKAGE_PATH }}
+        SHIELD_PACKAGE_PATH: ${{ github.workspace }}/shield-package
       run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
 
   phpcs:

@@ -14,7 +14,7 @@ export class NoticeHandler extends BaseComponent {
 			.finally();
 		} );
 
-		shieldEventsHandler_Main.add_Click( '.shield-notice-container .shield-notice-dismiss', ( targetEl ) => this.sendDismiss( targetEl ) );
+		shieldEventsHandler_Main.add_Click( '.shield-notice-container .shield-topwarning-dismiss', ( targetEl ) => this.sendDismiss( targetEl ) );
 		shieldEventsHandler_Main.add_Click( '.shield-notice-container .notice-dismiss', ( targetEl ) => this.sendDismiss( targetEl ) );
 	}
 

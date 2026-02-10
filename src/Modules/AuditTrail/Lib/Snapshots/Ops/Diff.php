@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\{
 
 class Diff {
 
-	private $old;
+	private SnapshotVO $old;
 
-	private $new;
+	private SnapshotVO $new;
 
 	public function __construct( SnapshotVO $old, SnapshotVO $new ) {
 		$this->old = $old;

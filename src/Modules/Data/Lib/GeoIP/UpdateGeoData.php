@@ -16,7 +16,7 @@ class UpdateGeoData {
 	use PluginControllerConsumer;
 	use ThisRequestConsumer;
 
-	private $seedCloudflare;
+	private bool $seedCloudflare;
 
 	public function __construct( bool $seedWithCloudflare = false ) {
 		$this->seedCloudflare = $seedWithCloudflare;

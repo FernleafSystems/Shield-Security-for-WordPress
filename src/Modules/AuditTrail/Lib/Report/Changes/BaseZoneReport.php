@@ -14,13 +14,13 @@ abstract class BaseZoneReport {
 
 	use PluginControllerConsumer;
 
-	protected $from;
+	protected int $from;
 
-	protected $until;
+	protected int $until;
 
-	protected $logs = null;
+	protected ?array $logs = null;
 
-	protected $isSummary = true;
+	protected bool $isSummary = true;
 
 	public function __construct( int $from = 0, int $until = \PHP_INT_MAX ) {
 		$this->from = $from;

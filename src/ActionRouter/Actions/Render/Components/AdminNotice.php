@@ -23,9 +23,7 @@ class AdminNotice extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 			$data[ 'notice_classes' ] = [];
 		}
 		$data[ 'notice_classes' ][] = $notice->type;
-		if ( !\in_array( 'error', $data[ 'notice_classes' ] ) ) {
-			$data[ 'notice_classes' ][] = 'updated';
-		}
+		$data[ 'notice_classes' ][] = $this->getWpNoticeClass( (string)$notice->type );
 		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
 		$data[ 'notice_classes' ] = \implode( ' ', \array_unique( $data[ 'notice_classes' ] ) );
 
@@ -38,6 +36,25 @@ class AdminNotice extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 		];
 
 		return $data;
+	}
+
+	private function getWpNoticeClass( string $type ) :string {
+		switch ( $type ) {
+			case 'error':
+				$wpNoticeClass = 'notice-error';
+				break;
+			case 'warning':
+				$wpNoticeClass = 'notice-warning';
+				break;
+			case 'updated':
+			case 'success':
+				$wpNoticeClass = 'notice-success';
+				break;
+			default:
+				$wpNoticeClass = 'notice-info';
+				break;
+		}
+		return $wpNoticeClass;
 	}
 
 	protected function getRenderTemplate() :string {

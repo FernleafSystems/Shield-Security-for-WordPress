@@ -40,18 +40,20 @@ class LegacyPathDuplicator {
 		[ 'DBs', 'IpRules' ],                    // ProcessOffense -> AddRule -> IpRuleStatus
 		[ 'DBs', 'IPs' ],                        // IPRecords (audit, traffic, bot signals)
 		[ 'DBs', 'ReqLogs' ],                    // RequestRecords (audit, traffic writers)
+		[ 'DBs', 'Snapshots' ],                  // Snapshots delete and create
 		[ 'DBs', 'UserMeta' ],                   // BotSignalsRecord reads last_login_at
 		[ 'Logging' ],                           // All log processors
 		[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
+		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots' ],
 	];
-
 	/**
 	 * Individual source files to copy
 	 */
 	private const SRC_FILES_TO_COPY = [
 		// Controller/Dependencies/Monolog.php - Assessed when creating loggers
 		[ 'Controller', 'Dependencies', 'Monolog.php' ],
-		[ 'ActionRouter', 'Actions', 'Render', 'Components', 'FormSecurityAdminLoginBox.php' ], // TODO: throw action exception to prevent render in legacy.
+		[ 'ActionRouter', 'Actions', 'Render', 'Components', 'FormSecurityAdminLoginBox.php' ],
+		// TODO: throw action exception to prevent render in legacy.
 		[ 'ActionRouter', 'Actions', 'Traits', 'SecurityAdminNotRequired.php' ],
 		[ 'Events', 'EventStrings.php' ],
 		// Modules/AuditTrail/Lib/ - Audit logging
@@ -70,7 +72,6 @@ class LegacyPathDuplicator {
 		// Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php - Traffic DB writing
 		[ 'Modules', 'Traffic', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
 	];
-
 	/**
 	 * Vendor prefixed directories to mirror
 	 */
@@ -78,7 +79,6 @@ class LegacyPathDuplicator {
 		[ 'monolog' ],   // Monolog used at shutdown for logging
 		[ 'composer' ],  // Autoloader metadata
 	];
-
 	/**
 	 * Vendor prefixed files to copy
 	 */
@@ -86,7 +86,6 @@ class LegacyPathDuplicator {
 		'autoload.php',
 		'autoload-classmap.php',
 	];
-
 	/**
 	 * Standard vendor directories to mirror (for shutdown compatibility)
 	 */
@@ -95,7 +94,6 @@ class LegacyPathDuplicator {
 		[ 'mlocati', 'ip-lib' ],  // IPLib used by AddRule at shutdown
 		[ 'composer' ],            // Autoloader metadata
 	];
-
 	/**
 	 * Standard vendor files to copy
 	 */
