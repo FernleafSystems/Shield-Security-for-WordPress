@@ -54,7 +54,7 @@ class Init {
 			if ( self::con()->comps->mainwp->isServerExtensionLoaded() ) {
 				$columns[ 'shield' ] = self::con()->labels->Name;
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
-					$item[ 'shield' ] = self::con()->action_router->render( SitesListTableColumn::SLUG, [
+					$item[ 'shield' ] = self::con()->action_router->render( SitesListTableColumn::class, [
 						'raw_mainwp_site_data' => $item
 					] );
 					return $item;

@@ -13,6 +13,7 @@ $code-color: $secondary;
 @import "~intro.js/introjs.css";
 @import '~smartwizard/dist/css/smart_wizard_all.css';
 @import '~select2/dist/css/select2.css';
+@import '~highlight.js/styles/github.css';
 @import "./plugin-wpadmin.scss";
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
@@ -1216,6 +1217,10 @@ td.status_file_size {
 
 #AptoOffcanvas.offcanvas_form_report_create {
   width: 800px;
+}
+
+#AptoOffcanvas.offcanvas_search_help {
+  width: 600px;
 }
 
 .row.option_form_row.focus_option {

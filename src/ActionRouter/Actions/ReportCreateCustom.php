@@ -16,10 +16,21 @@ class ReportCreateCustom extends BaseAction {
 	protected function exec() {
 		$form = FormParams::Retrieve();
 		try {
+			$title = \trim( $form[ 'title' ] ?? '' );
+			if ( empty( $title ) ) {
+				throw new \Exception( __( 'Please provide a title for the report.', 'wp-simple-firewall' ) );
+			}
+
+			$startDate = $this->carbonFromFormDate( (string)( $form[ 'start_date' ] ?? '' ) )->startOfDay();
+			$endDate = $this->carbonFromFormDate( (string)( $form[ 'end_date' ] ?? '' ) )->endOfDay();
+			if ( $endDate->lessThan( $startDate ) ) {
+				throw new \Exception( __( 'Please ensure the end date is on or after the start date.', 'wp-simple-firewall' ) );
+			}
+
 			( new ReportGenerator() )->custom(
-				$form[ 'title' ] ?? sprintf( __( 'Custom Report on %s', 'wp-simple-firewall' ), Services::WpGeneral()->getTimeStringForDisplay() ),
-				$this->carbonFromFormDate( $form[ 'start_date' ] )->startOfDay()->timestamp,
-				$this->carbonFromFormDate( $form[ 'end_date' ] )->endOfDay()->timestamp,
+				$title,
+				$startDate->timestamp,
+				$endDate->timestamp,
 				[
 					'areas' => [
 						Constants::REPORT_AREA_CHANGES => $form[ 'changes_zones' ] ?? [],
@@ -35,6 +46,10 @@ class ReportCreateCustom extends BaseAction {
 			$success = false;
 			$msg = __( 'Failed to create custom report.', 'wp-simple-firewall' );
 		}
+		catch ( \Exception $e ) {
+			$success = false;
+			$msg = $e->getMessage();
+		}
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
@@ -44,7 +59,14 @@ class ReportCreateCustom extends BaseAction {
 	}
 
 	private function carbonFromFormDate( string $date ) :Carbon {
-		$date = \explode( '-', $date );
+		if ( !\preg_match( '#^\d{4}-\d{2}-\d{2}$#', $date ) ) {
+			throw new \Exception( __( 'Please provide a valid date using YYYY-MM-DD format.', 'wp-simple-firewall' ) );
+		}
+		$date = \array_map( 'intval', \explode( '-', $date ) );
+		if ( !\checkdate( $date[ 1 ], $date[ 2 ], $date[ 0 ] ) ) {
+			throw new \Exception( __( 'Please provide a valid date.', 'wp-simple-firewall' ) );
+		}
+
 		return Services::Request()
 					   ->carbon( true )
 					   ->setDate( $date[ 0 ], $date[ 1 ], $date[ 2 ] );

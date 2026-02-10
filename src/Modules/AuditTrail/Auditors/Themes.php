@@ -96,7 +96,7 @@ class Themes extends Base {
 			 && current_user_can( 'edit_themes' )
 			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-theme_'.$theme.'_'.$req->post( 'file' ) )
 		) {
-			self::con()->fireEvent(
+			self::con()->comps->events->fireEvent(
 				'theme_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
 			);

@@ -17,10 +17,14 @@ class ReportAreaStats extends ReportAreaBase {
 		}
 
 		return [
-			'flags' => [
+			'flags'   => [
 				'has_stats' => $hasAnyStats,
 			],
-			'vars'  => [
+			'strings' => [
+				'this_period'     => __( 'This Period', 'wp-simple-firewall' ),
+				'previous_period' => __( 'Previous Period', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
 				'stats' => $stats,
 			],
 		];

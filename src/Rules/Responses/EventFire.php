@@ -31,7 +31,7 @@ class EventFire extends Base {
 				}
 			}
 
-			self::con()->fireEvent(
+			self::con()->comps->events->fireEvent(
 				$event,
 				( new FillEventAuditParamsFromRequest() )->setThisRequest( $this->req )->run( $event, $params )
 			);

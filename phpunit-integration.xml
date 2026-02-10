@@ -15,8 +15,12 @@
          stopOnError="false"
          stopOnFailure="false">
     <testsuites>
+        <testsuite name="Infrastructure Smoke Tests">
+            <file>tests/Integration/InfrastructureSmokeTest.php</file>
+        </testsuite>
         <testsuite name="WordPress Integration Tests">
             <directory suffix="Test.php">tests/Integration</directory>
+            <exclude>tests/Integration/InfrastructureSmokeTest.php</exclude>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">

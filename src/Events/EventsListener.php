@@ -8,19 +8,14 @@ abstract class EventsListener {
 
 	use PluginControllerConsumer;
 
-	/**
-	 * @var bool
-	 */
-	private $commit = false;
+	private bool $commit = false;
 
 	public function __construct() {
 		add_action( 'shield/event', function ( $event, $meta = [], $def = [] ) {
 			$this->captureEvent( (string)$event, \is_array( $meta ) ? $meta : [], \is_array( $def ) ? $def : [] );
 		}, 10, 3 );
 
-		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
-			$this->onShutdown();
-		}, 100 );
+		add_action( self::con()->prefix( 'plugin_shutdown' ), fn() => $this->onShutdown(), 100 );
 
 		$this->init();
 	}
@@ -33,6 +28,9 @@ abstract class EventsListener {
 	protected function onShutdown() {
 	}
 
+	/**
+	 * TODO: consider self::con()->is_my_upgrade - potential to skip events during our own upgrades.
+	 */
 	public function isCommit() :bool {
 		return !self::con()->plugin_deleting && $this->commit;
 	}

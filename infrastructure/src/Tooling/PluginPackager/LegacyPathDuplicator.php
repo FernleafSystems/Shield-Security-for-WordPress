@@ -51,6 +51,9 @@ class LegacyPathDuplicator {
 	private const SRC_FILES_TO_COPY = [
 		// Controller/Dependencies/Monolog.php - Assessed when creating loggers
 		[ 'Controller', 'Dependencies', 'Monolog.php' ],
+		[ 'ActionRouter', 'Actions', 'Render', 'Components', 'FormSecurityAdminLoginBox.php' ], // TODO: throw action exception to prevent render in legacy.
+		[ 'ActionRouter', 'Actions', 'Traits', 'SecurityAdminNotRequired.php' ],
+		[ 'Events', 'EventStrings.php' ],
 		// Modules/AuditTrail/Lib/ - Audit logging
 		[ 'Modules', 'AuditTrail', 'Lib', 'ActivityLogMessageBuilder.php' ],
 		[ 'Modules', 'AuditTrail', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],

@@ -11,10 +11,22 @@ abstract class EmailBase extends Base {
 			'header' => $this->getHeaderData(),
 			'body'   => $this->getBodyData(),
 			'footer' => $this->getFooterData(),
+			'imgs'   => [
+				'email_logo' => $this->getEmailLogoUrl(),
+			],
 			'vars'   => [
 				'lang' => Services::WpGeneral()->getLocale( '-' )
 			]
 		];
+	}
+
+	protected function getEmailLogoUrl() :string {
+		$con = self::con();
+		if ( $con->comps->whitelabel->isEnabled() ) {
+			$wlLogoUrl = $con->opts->optGet( 'wl_login2fa_logourl' );
+			return !empty( $wlLogoUrl ) ? $con->labels->url_img_logo_small : '';
+		}
+		return $con->urls->forImage( 'pluginlogo_banner-170x40.png' );
 	}
 
 	protected function getFooterData() :array {

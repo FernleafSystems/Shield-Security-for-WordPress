@@ -311,6 +311,42 @@ foreach ( $status_details as $detail ) {
 	echo "   " . $detail . PHP_EOL;
 }
 
+// Force-create all Shield DB tables during bootstrap.
+//
+// Shield tables are lazy-loaded via DbCon::__get() / loadDbH(). Tables not loaded during
+// the initial install.php bootstrap (separate process) may be first loaded during tests.
+//
+// In modern WordPress (6.x+), the _create_temporary_tables / _drop_temporary_tables filters
+// are instance methods on WP_UnitTestCase_Base, registered per-test in start_transaction().
+// They are NOT global functions, so no filter manipulation is needed at bootstrap time —
+// the filters simply aren't registered yet at this point. We just need to ensure all tables
+// are created before any tests run.
+if ( $shield_loaded ) {
+	echo "Ensuring all Shield DB tables exist..." . PHP_EOL;
+
+	try {
+		$_shield_con = null;
+		if ( \function_exists( 'shield_security_get_plugin' ) ) {
+			$_shield_plugin = shield_security_get_plugin();
+			if ( $_shield_plugin && \method_exists( $_shield_plugin, 'getController' ) ) {
+				$_shield_con = $_shield_plugin->getController();
+			}
+		}
+
+		if ( $_shield_con !== null && isset( $_shield_con->db_con ) ) {
+			$_shield_con->db_con->reset();
+			$_shield_con->db_con->loadAll();
+			echo "✓ All Shield DB tables created" . PHP_EOL;
+		}
+		else {
+			echo "⚠ Shield Controller or db_con not available for table creation" . PHP_EOL;
+		}
+	}
+	catch ( \Throwable $e ) {
+		echo "⚠ Error creating Shield tables: " . $e->getMessage() . PHP_EOL;
+	}
+}
+
 // Load test helpers if they exist
 $helpers_dir = dirname( __DIR__ ) . '/Helpers';
 if ( is_dir( $helpers_dir ) ) {

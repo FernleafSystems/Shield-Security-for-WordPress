@@ -54,7 +54,7 @@ function get_ip_state( string $ip = '' ) :string {
 }
 
 function fire_event( string $event ) {
-	get_plugin()->getController()->fireEvent( $event );
+	get_plugin()->getController()->comps->events->fireEvent( $event );
 }
 
 function start_scans( array $scans ) {

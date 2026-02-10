@@ -76,10 +76,6 @@ class RulesController {
 					}, $rule->wp_hook_priority );
 				}
 			}
-
-			add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
-//				error_log( var_export( $this->getRulesResultsSummary(), true ) );
-			} );
 		}
 	}
 

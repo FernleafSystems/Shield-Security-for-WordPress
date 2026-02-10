@@ -25,17 +25,15 @@ class Controller {
 			remove_all_filters( 'admin_notices' );
 			remove_all_filters( 'network_admin_notices' );
 		}
-		add_action( 'admin_notices', [ $this, 'onWpAdminNotices' ] );
-		add_action( 'network_admin_notices', [ $this, 'onWpNetworkAdminNotices' ] );
-		add_filter( 'login_message', [ $this, 'onLoginMessage' ] );
+		add_action( 'admin_notices', fn() => $this->onWpAdminNotices() );
+		add_action( 'network_admin_notices', fn() => $this->onWpNetworkAdminNotices() );
+		add_filter( 'login_message', fn( $message ) => $this->onLoginMessage( (string)$message ) );
 	}
 
 	/**
 	 * TODO doesn't handle error message highlighting
-	 * @param string $loginMsg
-	 * @return string
 	 */
-	public function onLoginMessage( $loginMsg ) {
+	private function onLoginMessage( string $loginMsg ) :string {
 		$msg = $this->retrieveFlashMessage();
 		if ( \is_array( $msg ) && isset( $msg[ 'show_login' ] ) && $msg[ 'show_login' ] ) {
 			$loginMsg .= \sprintf( '<p class="message">%s</p>', sanitize_text_field( $msg[ 'message' ] ) );
@@ -44,13 +42,7 @@ class Controller {
 		return $loginMsg;
 	}
 
-	/**
-	 * @param \WP_User|null $user
-	 * @param bool          $isError
-	 * @param bool          $bShowOnLoginPage
-	 * @return $this
-	 */
-	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
+	public function addFlash( string $msg, ?\WP_User $user = null, bool $isError = false, bool $showOnLoginPage = false ) :self {
 		$con = self::con();
 		$meta = $user instanceof \WP_User ? $con->user_metas->for( $user ) : $con->user_metas->current();
 
@@ -60,23 +52,23 @@ class Controller {
 				'message'    => sprintf( '[%s] %s', $con->labels->Name, $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
 				'error'      => $isError,
-				'show_login' => $bShowOnLoginPage,
+				'show_login' => $showOnLoginPage,
 			];
 		}
 		return $this;
 	}
 
-	public function onWpAdminNotices() {
+	private function onWpAdminNotices() {
 		$this->displayNotices();
 	}
 
-	public function onWpNetworkAdminNotices() {
+	private function onWpNetworkAdminNotices() {
 		$this->displayNotices();
 	}
 
 	protected function displayNotices() {
 		foreach ( $this->buildNotices() as $notice ) {
-			echo self::con()->action_router->render( AdminNotice::SLUG, [
+			echo self::con()->action_router->render( AdminNotice::class, [
 				'raw_notice_data' => $notice->getRawData()
 			] );
 		}
@@ -106,8 +98,8 @@ class Controller {
 		$msg = null;
 		$meta = self::con()->user_metas->current();
 		if ( !empty( $meta ) && \is_array( $meta->flash_msg ) ) {
-			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()
-																	  ->ts() < $meta->flash_msg[ 'expires_at' ] ) {
+			if ( empty( $meta->flash_msg[ 'expires_at' ] )
+				 || Services::Request()->ts() < $meta->flash_msg[ 'expires_at' ] ) {
 				$msg = $meta->flash_msg;
 			}
 			else {
@@ -310,6 +302,9 @@ class Controller {
 			case 'certain-options-restricted':
 				$this->buildNotice_CertainOptionsRestricted( $notice );
 				break;
+			case 'translations-queued':
+				$this->buildNotice_TranslationsQueued( $notice );
+				break;
 			default:
 				throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
 		}
@@ -322,7 +317,7 @@ class Controller {
 			'strings'           => [
 				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
 				'message' => sprintf(
-					/* translators: %1$s: filename, %2$s: plugin name */
+				/* translators: %1$s: filename, %2$s: plugin name */
 					__( 'Please delete the "%1$s" file to reactivate %2$s protection', 'wp-simple-firewall' ),
 					'forceOff',
 					$name
@@ -381,8 +376,8 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'   => __( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
-				'dismiss' => __( "I'd rather not show this support", 'wp-simple-firewall' ).' / '.__( "I've done this already", 'wp-simple-firewall' ).' :D',
+				'title'     => __( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
+				'dismiss'   => __( "I'd rather not show this support", 'wp-simple-firewall' ).' / '.__( "I've done this already", 'wp-simple-firewall' ).' :D',
 				'rate_text' => sprintf( __( 'A lot of work goes into %s, and we need your help to spread the word about it. :)', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 			'hrefs'             => [
@@ -455,6 +450,51 @@ class Controller {
 		];
 	}
 
+	private function buildNotice_TranslationsQueued( NoticeVO $notice ) {
+		$con = self::con();
+		$queue = $con->comps->translation_downloads->getQueue();
+		$count = \count( $queue );
+
+		$translationsQueued = \sprintf(
+			_n(
+				'%d translation is queued for download',
+				'%d translations are queued for download',
+				$count,
+				'wp-simple-firewall'
+			),
+			$count
+		);
+
+		$nextScheduled = wp_next_scheduled( $con->prefix( 'adhoc_locales_download' ) );
+		if ( !empty( $nextScheduled ) ) {
+			$minsRemaining = \max( 1, (int)\ceil( ( $nextScheduled - Services::Request()->ts() )/60 ) );
+			$message = $translationsQueued.' '.\sprintf(
+					_n(
+						'and will be processed automatically in approximately %d minute.',
+						'and will be processed automatically in approximately %d minutes.',
+						$minsRemaining,
+						'wp-simple-firewall'
+					),
+					$minsRemaining
+				);
+		}
+		else {
+			$message = $translationsQueued.' '.__( 'and will be processed shortly.', 'wp-simple-firewall' );
+		}
+
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'        => \sprintf( '%s: %s',
+					$con->labels->Name,
+					__( 'Translations Queued', 'wp-simple-firewall' )
+				),
+				'message'      => $message,
+				'download_now' => __( 'Download Now', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$con = self::con();
 		switch ( $notice->id ) {
@@ -480,6 +520,11 @@ class Controller {
 				$restricted = $def[ ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages' ] ?? [];
 				$needed = empty( Services::Request()->query( 'page' ) )
 						  && \in_array( Services::WpPost()->getCurrentPage(), $restricted );
+				break;
+			case 'translations-queued':
+				$needed = $con->comps->translation_downloads->isQueueRelevantToLocale(
+					\function_exists( 'determine_locale' ) ? determine_locale() : get_locale()
+				);
 				break;
 			default:
 				$needed = false;

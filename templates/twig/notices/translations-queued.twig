@@ -1,0 +1,9 @@
+{% extends "/notices/base-info.twig" %}
+
+{% block notice_body %}
+	<p>{{ strings.message }}</p>
+	<p>
+		<a href="#" class="shield_admin_notice_action"
+		   data-notice_action="translations_force_download">{{ strings.download_now }}</a>
+	</p>
+{% endblock %}

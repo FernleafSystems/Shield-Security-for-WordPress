@@ -204,10 +204,4 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			],
 		];
 	}
-
-	/**
-	 * @deprecated 20.1
-	 */
-	private function triggerSignalsCron() :void {
-	}
 }

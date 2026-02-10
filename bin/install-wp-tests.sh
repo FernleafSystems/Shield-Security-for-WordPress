@@ -194,8 +194,20 @@ install_test_suite() {
 		ls -la "$WP_TESTS_DIR/includes" 2>/dev/null || echo "Directory does not exist"
 	fi
 
-	if [ ! -f wp-tests-config.php ]; then
-		download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
+	if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+		local GH_CONFIG_REF=""
+		if [[ "$WP_TESTS_TAG" == tags/* ]]; then
+			GH_CONFIG_REF="${WP_TESTS_TAG#tags/}"
+		elif [[ "$WP_TESTS_TAG" == branches/* ]]; then
+			GH_CONFIG_REF="${WP_TESTS_TAG#branches/}"
+		else
+			GH_CONFIG_REF="$WP_TESTS_TAG"
+		fi
+
+		if ! curl -fsSL --retry 3 --retry-delay 10 "https://raw.githubusercontent.com/WordPress/wordpress-develop/${GH_CONFIG_REF}/wp-tests-config-sample.php" -o "$WP_TESTS_DIR"/wp-tests-config.php; then
+			echo "=== SHIELD WARN: GitHub config download failed, falling back to SVN ==="
+			download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
+		fi
 		# remove all forward slashes in the end
 		WP_CORE_DIR=$(echo $WP_CORE_DIR | sed "s:/\+$::")
 		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php

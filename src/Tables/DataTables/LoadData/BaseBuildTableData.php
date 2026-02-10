@@ -21,6 +21,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	private array $userCache = [];
 
+	private array $parsedSearch;
+
 	abstract protected function countTotalRecords() :int;
 
 	abstract protected function countTotalRecordsFiltered() :int;
@@ -30,18 +32,28 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	abstract protected function getSearchPanesDataBuilder() :BaseBuildSearchPanesData;
 
 	public function build() :array {
-		// loadForRecords() MUST run first — validateSearchPanes() sanitises
-		// table_data['searchPanes'] in-place before any WHERE building.
-		$data = $this->loadForRecords();
-		$totalCount = $this->getOrCacheTotalCount();
-		return [
-			'data'            => $data,
-			'recordsTotal'    => $totalCount,
-			'recordsFiltered' => empty( $this->buildWheresFromSearchParams() )
-				? $totalCount
-				: $this->countTotalRecordsFiltered(),
-			'searchPanes'     => $this->getSearchPanesData(),
-		];
+		try {
+			// loadForRecords() MUST run first — validateSearchPanes() sanitises
+			// table_data['searchPanes'] in-place before any WHERE building.
+			$data = $this->loadForRecords();
+			$totalCount = $this->getOrCacheTotalCount();
+			return [
+				'data'            => $data,
+				'recordsTotal'    => $totalCount,
+				'recordsFiltered' => empty( $this->buildWheresFromSearchParams() )
+					? $totalCount
+					: $this->countTotalRecordsFiltered(),
+				'searchPanes'     => $this->getSearchPanesData(),
+			];
+		}
+		catch ( ImpossibleQueryException $e ) {
+			return [
+				'data'            => [],
+				'recordsTotal'    => $this->getOrCacheTotalCount(),
+				'recordsFiltered' => 0,
+				'searchPanes'     => $this->getSearchPanesData(),
+			];
+		}
 	}
 
 	/**
@@ -73,7 +85,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	public function loadForRecords() :array {
-		if ( empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
+		if ( empty( $this->parseSearchText()[ 'remaining' ] ) ) {
 			return $this->loadRecordsWithDirectQuery();
 		}
 		else {
@@ -98,7 +110,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	protected function loadRecordsWithSearch() :array {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
-		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
+		$search = $this->parseSearchText()[ 'remaining' ];
 
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
@@ -155,6 +167,56 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		}
 
 		return \array_values( $results );
+	}
+
+	protected function parseSearchText() :array {
+		return $this->parsedSearch ??= SearchTextParser::Parse( (string)( $this->table_data[ 'search' ][ 'value' ] ?? '' ) );
+	}
+
+	protected function buildSqlWhereForIpColumn( string $ipTerm ) :string {
+		return \sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ipTerm );
+	}
+
+	protected function buildWheresFromCommonSearchParams() :array {
+		$wheres = [];
+		$ipWhere = $this->buildSqlWhereForIpSearch();
+		if ( !empty( $ipWhere ) ) {
+			$wheres[] = $ipWhere;
+		}
+		foreach ( [ SearchTextParser::USER_ID, SearchTextParser::USER_NAME, SearchTextParser::USER_EMAIL ] as $param ) {
+			$userWhere = $this->buildSqlWhereForUserSearch( $param );
+			if ( !empty( $userWhere ) ) {
+				$wheres[] = $userWhere;
+			}
+		}
+		return $wheres;
+	}
+
+	protected function buildSqlWhereForIpSearch() :string {
+		$parsed = $this->parseSearchText();
+		return empty( $parsed[ 'ip' ] ) ? '' : $this->buildSqlWhereForIpColumn( $parsed[ 'ip' ] );
+	}
+
+	protected function buildSqlWhereForUserSearch( string $searchParam ) :string {
+		$where = '';
+		$parsed = $this->parseSearchText();
+		if ( \in_array( $searchParam, [ SearchTextParser::USER_NAME, SearchTextParser::USER_NAME, SearchTextParser::USER_ID ] )
+			 && !empty( $parsed[ $searchParam ] ) ) {
+			if ( $searchParam == SearchTextParser::USER_NAME ) {
+				$user = Services::WpUsers()->getUserByUsername( $parsed[ $searchParam ] );
+			}
+			elseif ( $searchParam == SearchTextParser::USER_EMAIL ) {
+				$user = Services::WpUsers()->getUserByEmail( $parsed[ $searchParam ] );
+			}
+			elseif ( $searchParam == SearchTextParser::USER_ID ) {
+				$user = Services::WpUsers()->getUserById( $parsed[ $searchParam ] );
+			}
+			if ( empty( $user ) ) {
+				throw new ImpossibleQueryException( $searchParam );
+			}
+			$where = \sprintf( "`req`.`uid`=%d", $user->ID );
+		}
+		return $where;
 	}
 
 	/**

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
+use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 class Content extends BaseComponent {
 
@@ -24,9 +25,41 @@ class Content extends BaseComponent {
 		}
 
 		return [
+			'code_language' => $this->getCodeLanguage( $path ),
 			'lines' => \explode( "\n",
 				\str_replace( "\t", "    ", ( new ConvertLineEndings() )->fileDosToLinux( $path ) )
 			),
 		];
+	}
+
+	private function getCodeLanguage( string $path ) :string {
+		$ext = \strtolower( Paths::Ext( $path ) );
+
+		switch ( $ext ) {
+			case 'php5':
+			case 'php7':
+			case 'phtml':
+			case 'phtm':
+				$language = 'php';
+				break;
+			case 'js':
+			case 'mjs':
+			case 'cjs':
+				$language = 'javascript';
+				break;
+			case 'html':
+			case 'htm':
+			case 'svg':
+				$language = 'xml';
+				break;
+			case 'sh':
+				$language = 'bash';
+				break;
+			default:
+				$language = $ext;
+				break;
+		}
+
+		return $language;
 	}
 }

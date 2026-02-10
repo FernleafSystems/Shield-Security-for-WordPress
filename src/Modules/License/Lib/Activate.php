@@ -28,19 +28,19 @@ class Activate {
 
 			// API uses error_code: 0 for success (consistent with other ShieldNet APIs)
 			if ( ( $result[ 'error_code' ] ?? 1 ) === 0 ) {
-				self::con()->fireEvent( 'lic_activation_success' );
+				self::con()->comps->events->fireEvent( 'lic_activation_success' );
 				return; // Success - activation completed
 			}
 
 			// API returned error
 			$errorMessage = $result[ 'message' ] ?? __( 'Unknown activation error.', 'wp-simple-firewall' );
-			self::con()->fireEvent( 'lic_activation_fail', [
+			self::con()->comps->events->fireEvent( 'lic_activation_fail', [
 				'audit_params' => [ 'error' => $errorMessage ]
 			] );
 			throw new \Exception( $errorMessage );
 		}
 		catch ( Exceptions\FailedLicenseRequestHttpException $e ) {
-			self::con()->fireEvent( 'lic_activation_fail', [
+			self::con()->comps->events->fireEvent( 'lic_activation_fail', [
 				'audit_params' => [ 'error' => 'HTTP Request Failed' ]
 			] );
 			throw new \Exception( __( 'License activation request failed.', 'wp-simple-firewall' ) );

@@ -19,28 +19,31 @@ class ReportGenerator {
 	use PluginControllerConsumer;
 
 	public function auto() {
-		$reports = [];
+		try {
+			$alert = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_ALERT );
+			$alert->record = $this->buildAndStore( $alert );
+			$this->sendNotificationEmail( $alert );
+			$this->markAlertsAsNotified();
+
+			// Mark info as generated so it doesn't fire redundantly next cycle
+			try {
+				$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
+				$this->buildAndStore( $info );
+			}
+			catch ( Exceptions\ReportBuildException $e ) {
+			}
+
+			return;
+		}
+		catch ( Exceptions\ReportBuildException $e ) {
+		}
 
 		try {
 			$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
 			$info->record = $this->buildAndStore( $info );
-			$reports[] = $info;
+			$this->sendNotificationEmail( $info );
 		}
 		catch ( Exceptions\ReportBuildException $e ) {
-		}
-
-		try {
-			$alert = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_ALERT );
-			$alert->record = $this->buildAndStore( $alert );
-			\array_unshift( $reports, $alert );
-			$this->markAlertsAsNotified();
-		}
-		catch ( Exceptions\ReportBuildException $e ) {
-//			error_log( $e->getMessage() );
-		}
-
-		if ( !empty( $reports ) ) {
-			$this->sendNotificationEmail( $reports );
 		}
 	}
 
@@ -114,7 +117,7 @@ class ReportGenerator {
 
 		$con->db_con->reports->getQueryInserter()->insert( $record );
 
-		$con->fireEvent( 'report_generated', [
+		$con->comps->events->fireEvent( 'report_generated', [
 			'audit_params' => [
 				'type'     => $con->comps->reports->getReportTypeName( $record->type ),
 				'interval' => $record->interval_length,
@@ -134,7 +137,7 @@ class ReportGenerator {
 		$data = $report->areas_data;
 		$inspector = new ReportDataInspector( $data );
 		if ( $report->type === Constants::REPORT_TYPE_ALERT && $inspector->countScanResultsNew() === 0 ) {
-			unset( $data[ Constants::REPORT_AREA_SCANS ] );
+			$data = [];
 		}
 		elseif ( $report->type === Constants::REPORT_TYPE_INFO && $inspector->countAll() === 0 ) {
 			// if there's nothing to report, don't create a report.
@@ -143,34 +146,32 @@ class ReportGenerator {
 		$report->areas_data = $data;
 	}
 
-	/**
-	 * @param ReportVO[] $reports
-	 */
-	private function sendNotificationEmail( array $reports ) {
+	private function sendNotificationEmail( ReportVO $report ) {
 		$con = self::con();
+
+		$isAlert = $report->type === Constants::REPORT_TYPE_ALERT;
+		$subjectLabel = $isAlert
+			? __( 'Security Alert', 'wp-simple-firewall' )
+			: __( 'Security Report', 'wp-simple-firewall' );
 
 		try {
 			$email = EmailVO::Factory(
 				$con->comps->opts_lookup->getReportEmail(),
-				__( 'Security Report', 'wp-simple-firewall' ).' - '.$con->labels->Name,
+				$subjectLabel.' - '.$con->labels->Name,
 				$con->action_router->render(
-					ReportsActions\Contexts\EmailReport::SLUG,
+					ReportsActions\Contexts\EmailReport::class,
 					[
-						'home_url' => Services::WpGeneral()->getHomeUrl(),
-						'reports'  => $reports,
+						'home_url'     => Services::WpGeneral()->getHomeUrl(),
+						'reports'      => [ $report ],
+						'detail_level' => 'detailed',
 					]
 				)
 			);
-			foreach ( $reports as $report ) {
-				if ( $report->type === Constants::REPORT_TYPE_ALERT ) {
-					$email->is_alert = true;
-					break;
-				}
-			}
+			$email->is_alert = $isAlert;
 
 			$con->email_con->sendVO( $email );
 
-			$con->fireEvent( 'report_sent', [
+			$con->comps->events->fireEvent( 'report_sent', [
 				'audit_params' => [
 					'medium' => 'email',
 				]

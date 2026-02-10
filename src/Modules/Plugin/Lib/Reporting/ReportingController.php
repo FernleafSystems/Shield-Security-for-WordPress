@@ -92,9 +92,8 @@ class ReportingController {
 				'user_access'   => __( 'User Access', 'wp-simple-firewall' ),
 			],
 			Constants::REPORT_AREA_SCANS   => [
-				'scan_results_new'     => __( 'New Results', 'wp-simple-firewall' ),
-				'scan_results_current' => __( 'Current Summary', 'wp-simple-firewall' ),
-				'scan_repairs'         => __( 'Scan File Repairs', 'wp-simple-firewall' ),
+				'scan_results' => __( 'Latest Scan Results', 'wp-simple-firewall' ),
+				'scan_repairs' => __( 'Scan File Repairs', 'wp-simple-firewall' ),
 			],
 		];
 
@@ -124,6 +123,13 @@ class ReportingController {
 			],
 			'flags' => [
 				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
+			],
+			'strings' => [
+				/* translators: %s: comma-separated list of missing required field labels */
+				'required_fields' => __( 'Please complete required fields: %s', 'wp-simple-firewall' ),
+				'start_date'      => __( 'Start Date', 'wp-simple-firewall' ),
+				'end_date'        => __( 'End Date', 'wp-simple-firewall' ),
+				'title'           => __( 'Report Title', 'wp-simple-firewall' ),
 			],
 			'vars'  => [
 				'earliest_date' => empty( $firstAudit ) ? $req->ts() :

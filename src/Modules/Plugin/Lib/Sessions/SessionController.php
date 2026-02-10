@@ -30,7 +30,7 @@ class SessionController {
 	protected function captureLogin( \WP_User $user ) {
 		if ( !empty( $this->getLoggedInCookie() ) ) {
 			$this->current();
-			self::con()->fireEvent( 'login_success' );
+			self::con()->comps->events->fireEvent( 'login_success' );
 		}
 	}
 
@@ -180,7 +180,7 @@ class SessionController {
 			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
 			if ( !empty( $userID ) ) {
 				\WP_Session_Tokens::get_instance( $userID )->destroy( $current->token );
-				self::con()->fireEvent( 'session_terminate_current', [
+				self::con()->comps->events->fireEvent( 'session_terminate_current', [
 					'audit_params' => [
 						'user_login' => $user->user_login,
 						'session_id' => $current->token,

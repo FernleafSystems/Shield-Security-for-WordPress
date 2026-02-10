@@ -24,40 +24,76 @@ export class ReportingHandler extends BaseAutoExecComponent {
 			if ( this.requestRunning ) {
 				return false;
 			}
-			this.requestRunning = true;
-
 			const buttonSubmit = form.querySelector( 'button[type=submit]' );
-			buttonSubmit.setAttribute( 'disabled', 'disabled' );
+			const missing = this.getMissingRequiredFields( form );
 
-			if ( form.querySelector( 'input[name=start_date]' ).value.length === 0 ) {
-				alert( 'Please provide a start date' );
+			if ( missing.length > 0 ) {
+				this.showValidationError( missing );
+				return false;
 			}
-			if ( form.querySelector( 'input[name=end_date]' ).value.length === 0 ) {
-				alert( 'Please provide an end date' );
+
+			this.requestRunning = true;
+			if ( buttonSubmit ) {
+				buttonSubmit.setAttribute( 'disabled', 'disabled' );
 			}
-			if ( form.querySelector( 'input[name=title]' ).value.length === 0 ) {
-				alert( 'Please provide a title for the report' );
-			}
-			else {
-				( new AjaxService() )
-				.send(
-					ObjectOps.Merge( this._base_data.ajax.create_report, { form_params: Forms.Serialize( form ) } )
-				)
-				.catch( () => {
+			let willReload = false;
+
+			( new AjaxService() )
+			.send(
+				ObjectOps.Merge( this._base_data.ajax.create_report, { form_params: Forms.Serialize( form ) } )
+			)
+			.then( ( resp ) => {
+				willReload = !!( resp && resp.data && resp.data.page_reload );
+			} )
+			.finally( () => {
+				this.requestRunning = false;
+				if ( buttonSubmit && !willReload ) {
 					buttonSubmit.removeAttribute( 'disabled' );
-				} )
-				.finally( () => this.requestRunning = false );
-			}
+				}
+			} );
+			return false;
 		} );
 	}
 
 	postRender() {
 		let form = OffCanvasService.offCanvasEl.querySelector( 'form.form_create_report' );
+		if ( !form ) {
+			return;
+		}
 		new DateRangePicker( form.querySelector( '.input-daterange' ), {
 			format: 'yyyy-mm-dd',
 			minDate: new Date( this._base_data.vars.earliest_date ),
 			maxDate: new Date( this._base_data.vars.latest_date ),
 			weekStart: 1,
 		} );
+	}
+
+	getMissingRequiredFields( form ) {
+		const fields = [];
+		const startDate = form.querySelector( 'input[name=start_date]' );
+		const endDate = form.querySelector( 'input[name=end_date]' );
+		const title = form.querySelector( 'input[name=title]' );
+
+		if ( startDate && startDate.value.trim().length === 0 ) {
+			fields.push( this._base_data.strings.start_date );
+		}
+		if ( endDate && endDate.value.trim().length === 0 ) {
+			fields.push( this._base_data.strings.end_date );
+		}
+		if ( title && title.value.trim().length === 0 ) {
+			fields.push( this._base_data.strings.title );
+		}
+
+		return fields;
+	}
+
+	showValidationError( missingFields ) {
+		const msg = this._base_data.strings.required_fields.replace( '%s', missingFields.join( ', ' ) );
+		if ( typeof shieldServices === 'undefined' ) {
+			alert( msg );
+		}
+		else {
+			shieldServices.notification().showMessage( msg, false );
+		}
 	}
 }

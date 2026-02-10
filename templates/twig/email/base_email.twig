@@ -1,25 +1,97 @@
-{% block email_open %}
-<html lang="{{ vars.lang|default('en-us') }}">
-{% endblock %}
+<!DOCTYPE html>
+<html lang="{{ vars.lang|default('en-us') }}" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{ strings.plugin_name|default('Shield Security') }}</title>
+	<!--[if mso]>
+	<noscript>
+		<xml>
+			<o:OfficeDocumentSettings>
+				<o:PixelsPerInch>96</o:PixelsPerInch>
+			</o:OfficeDocumentSettings>
+		</xml>
+	</noscript>
+	<![endif]-->
+	<style>
+		table { border-spacing: 0; }
+		td { padding: 0; }
+		img { -ms-interpolation-mode: bicubic; }
+	</style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f5f5;">
+		<tr>
+			<td align="center" style="padding: 20px 10px;">
+				<!--[if mso]>
+				<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" align="center"><tr><td>
+				<![endif]-->
+				<table role="presentation" cellpadding="0" cellspacing="0" border="0"
+					   style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #008000; border-radius: 4px;">
 
-{% block email_header %}
-	{% for section in header %}
-		<div>{{ section|raw }}</div>
-	{% endfor %}
-{% endblock %}
+					{# Logo / Branding Row #}
+					<tr>
+						<td style="padding: 16px 24px 12px; border-radius: 4px 4px 0 0;">
+							{% if imgs.email_logo|default('') is not empty %}
+								<img src="{{ imgs.email_logo }}"
+									 alt="{{ strings.plugin_name|default('Shield Security') }}"
+									 width="170"
+									 style="display: block; max-width: 170px; height: auto; border: 0;"
+								>
+							{% else %}
+								<span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; color: #333333;">
+									{{ strings.plugin_name|default('Shield Security') }}
+								</span>
+							{% endif %}
+						</td>
+					</tr>
 
-{% block email_body %}
-	{% for section in body %}
-		<div>{{ section|raw }}</div>
-	{% endfor %}
-{% endblock %}
+					{# Green Accent Line #}
+					<tr>
+						<td style="padding: 0 24px;">
+							<div style="border-top: 3px solid #008000; font-size: 0; line-height: 0;">&nbsp;</div>
+						</td>
+					</tr>
 
-{% block email_footer %}
-	{% for section in footer %}
-		<div>{{ section|raw }}</div>
-	{% endfor %}
-{% endblock %}
+					{# Header Content #}
+					<tr>
+						<td style="padding: 20px 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #333333;">
+							{% block email_header %}
+								{% for section in header %}
+									<div>{{ section|raw }}</div>
+								{% endfor %}
+							{% endblock %}
+						</td>
+					</tr>
 
-{% block email_close %}
+					{# Body Content #}
+					<tr>
+						<td style="padding: 10px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #333333;">
+							{% block email_body %}
+								{% for section in body %}
+									<div>{{ section|raw }}</div>
+								{% endfor %}
+							{% endblock %}
+						</td>
+					</tr>
+
+					{# Footer Content #}
+					<tr>
+						<td style="padding: 10px 24px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #777777; border-top: 1px solid #eeeeee;">
+							{% block email_footer %}
+								{% for section in footer %}
+									<div>{{ section|raw }}</div>
+								{% endfor %}
+							{% endblock %}
+						</td>
+					</tr>
+
+				</table>
+				<!--[if mso]>
+				</td></tr></table>
+				<![endif]-->
+			</td>
+		</tr>
+	</table>
+</body>
 </html>
-{% endblock %}

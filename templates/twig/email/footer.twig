@@ -1,33 +1,35 @@
-<p>--</p>
+<p style="margin: 10px 0 4px; font-size: 12px; color: #999;">--</p>
 {% if flags.email_flags.is_admin_email %}
-	<p>
-		&rarr; <a href="{{ hrefs.configure_recipient }}" target="_blank">{{ strings.configure_recipient }}</a>
+	<p style="margin: 4px 0; font-size: 12px;">
+		&rarr; <a href="{{ hrefs.configure_recipient }}" target="_blank" style="color: #008000; text-decoration: underline;">{{ strings.configure_recipient }}</a>
 	</p>
 {% endif %}
 
 {% if flags.is_pro %}
 	{% if not flags.is_whitelabelled %}
-		<p>{{ strings.thanks_pro }}</p>
+		<p style="margin: 8px 0 4px; font-size: 12px; color: #555;">{{ strings.thanks_pro }}</p>
 	{% endif %}
 {% else %}
-	<div style="background-color: #f9f9f9; padding: 1px 14px 4px;display: inline-block;border: 1px solid #ddd;">
-		<p>{{ strings.thanks_free }}</p>
-		<h5>{{ strings.upgrade_heading_prefix }} <strong>{{ strings.plugin_name }}</strong> {{ strings.upgrade_heading_suffix }}</h5>
-		<ul>
+	<div style="background-color: #f9f9f9; padding: 1px 14px 4px; display: inline-block; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px;">
+		<p style="font-size: 12px; color: #555;">{{ strings.thanks_free }}</p>
+		<h5 style="font-size: 13px; margin: 8px 0 4px; color: #333;">{{ strings.upgrade_heading_prefix }} <strong>{{ strings.plugin_name }}</strong> {{ strings.upgrade_heading_suffix }}</h5>
+		<ul style="padding-left: 20px; margin: 4px 0 8px;">
 			{% for benefit in strings.benefits %}
-				<li>{{ benefit }}</li>
+				<li style="font-size: 12px; color: #555; margin-bottom: 2px;">{{ benefit }}</li>
 			{% endfor %}
 		</ul>
-		<p>&hellip; <a href="{{ hrefs.much_more }}" target="_blank">{{ strings.much_more }}</a>&#33;</p>
-		<p><a href="{{ hrefs.upgrade }}"
-		      target="_blank"
-		      style="border: 1px solid #070;display: inline-block;padding: 10px 20px;border-radius: 10px;color: #070;text-decoration: none;margin-left: 20px;font-weight: bolder;"
-			>{{ strings.upgrade|raw }}</a></p>
+		<p style="font-size: 12px;">&hellip; <a href="{{ hrefs.much_more }}" target="_blank" style="color: #008000; text-decoration: underline;">{{ strings.much_more }}</a>&#33;</p>
+		<p style="margin-bottom: 10px;">
+			<a href="{{ hrefs.upgrade }}"
+			   target="_blank"
+			   style="border: 1px solid #008000; display: inline-block; padding: 8px 18px; border-radius: 6px; color: #008000; text-decoration: none; font-weight: bold; font-size: 13px;"
+			>{{ strings.upgrade|raw }}</a>
+		</p>
 	</div>
 {% endif %}
 
-<p>
+<p style="margin: 12px 0 0; font-size: 11px; color: #999; line-height: 1.6;">
 	{{ strings.sent_from }}
-	<br />{{ strings.delays }}
-	<br />{{ strings.time_sent }}
+	<br>{{ strings.delays }}
+	<br>{{ strings.time_sent }}
 </p>

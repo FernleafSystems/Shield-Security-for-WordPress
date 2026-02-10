@@ -52,7 +52,7 @@ class Footer extends Base {
 				'benefits'            => $benefits,
 				'much_more'           => __( 'And So Much More', 'wp-simple-firewall' ),
 				'upgrade'             => $goPro[ \array_rand( $goPro ) ],
-				'thanks_pro'          => sprintf( __( 'Thank you for choosing %s PRO.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+				'thanks_pro'          => sprintf( __( 'Thank you for choosing %s.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'thanks_free'         => sprintf( __( 'Thank you for choosing %s (Free).', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'upgrade_heading_prefix' => __( 'Upgrade To', 'wp-simple-firewall' ),
 				'upgrade_heading_suffix' => __( "today and these are just some of the added benefits you'll get:", 'wp-simple-firewall' ),

@@ -23,7 +23,7 @@ class ScheduleBuildAll extends BaseExec {
 
 		if ( wp_next_scheduled( $hook ) === false ) {
 			add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () use ( $hook ) {
-				if ( \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+				if ( !self::con()->is_my_upgrade && \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
 					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
 				}
 			} );

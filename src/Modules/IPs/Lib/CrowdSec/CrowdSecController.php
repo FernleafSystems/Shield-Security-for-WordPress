@@ -94,11 +94,4 @@ class CrowdSecController {
 	private function cronSignalsPushKey() :string {
 		return self::con()->prefix( 'adhoc_cron_crowdsec_signals' );
 	}
-
-	/**
-	 * @deprecated 20.1
-	 */
-	public function getApi() :CrowdSecApi {
-		return new CrowdSecApi();
-	}
 }

@@ -81,7 +81,7 @@ class LoginIntentRequestValidate {
 	}
 
 	protected function auditLoginIntent( bool $success, string $providerName ) {
-		self::con()->fireEvent(
+		self::con()->comps->events->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
 				'audit_params' => [

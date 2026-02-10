@@ -108,7 +108,7 @@ class Processor {
 	}
 
 	public function runDailyCron() {
-		self::con()->fireEvent( 'test_cron_run' );
+		self::con()->comps->events->fireEvent( 'test_cron_run' );
 		self::con()->comps->mu->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
 		( new Events\ConsolidateAllEvents() )->run();

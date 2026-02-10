@@ -21,6 +21,6 @@ export class ReportsHandler extends BaseComponent {
 					elem.classList.add( 'd-none' )
 				}
 			} );
-		} );
+		}, false );
 	}
 }

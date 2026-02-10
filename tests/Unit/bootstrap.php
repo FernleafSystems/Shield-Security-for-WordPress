@@ -1,5 +1,9 @@
 <?php declare( strict_types=1 );
 
+// IMPORTANT: plugin.json is gitignored and must be generated before running tests.
+// Run: composer build:config (or use composer test:unit which does it automatically).
+// CI workflows that call phpunit directly MUST include this step.
+
 // Unit tests always use the source autoloader.
 // Package testing is handled by integration tests which run in a full WordPress environment.
 $plugin_dir = dirname( dirname( __DIR__ ) );

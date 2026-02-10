@@ -6,8 +6,8 @@
 #
 # This script implements a comprehensive WordPress version detection system with:
 # - WordPress.org API integration (primary and secondary endpoints)
-# - Multi-layer caching system with GitHub Actions cache support
-# - 5-level fallback hierarchy for maximum reliability
+# - Local API response caching for resilience
+# - 3-level fallback hierarchy for reliability with low complexity
 # - PHP compatibility matrix filtering (PHP 7.4-8.4)
 # - Retry logic with exponential backoff
 # - Comprehensive error handling and edge case management
@@ -15,8 +15,7 @@
 # Design based on completed Task 2.1 specifications:
 # - Primary API: https://api.wordpress.org/core/version-check/1.7/
 # - Secondary API: https://api.wordpress.org/core/stable-check/1.0/
-# - Multi-layer caching: GitHub Actions cache (6h TTL) + in-memory + fallbacks
-# - 5-level fallback: retry → secondary API → cache → repository → hardcoded
+# - 3-level fallback: api(primary->secondary) -> git tags -> repository fallback file
 #
 
 set -euo pipefail
@@ -33,12 +32,6 @@ readonly MAX_BACKOFF=30     # Maximum backoff in seconds
 # WordPress.org API endpoints
 readonly PRIMARY_API="https://api.wordpress.org/core/version-check/1.7/"
 readonly SECONDARY_API="https://api.wordpress.org/core/stable-check/1.0/"
-
-# Emergency fallback versions - MUST be full version numbers (major.minor.patch)
-# Update these when WordPress releases new major versions
-# Check current versions at: https://wordpress.org/download/releases/
-readonly EMERGENCY_LATEST="6.9"
-readonly EMERGENCY_PREVIOUS="6.8.3"
 
 # Source PHP versions from matrix config (single source of truth)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -340,12 +333,12 @@ detect_versions_primary_api() {
     
     if [[ -z "$previous_version" ]]; then
         log_warn "Could not determine previous version from primary API"
-        previous_version="$EMERGENCY_PREVIOUS"
+        return 1
     fi
     
     if ! validate_version_format "$previous_version"; then
-        log_warn "Invalid previous version format: $previous_version"
-        previous_version="$EMERGENCY_PREVIOUS"
+        log_warn "Invalid previous version format from primary API: $previous_version"
+        return 1
     fi
     
     log_success "Primary API detection successful"
@@ -411,8 +404,8 @@ detect_versions_secondary_api() {
     fi
     
     if ! validate_version_format "$previous_version"; then
-        log_warn "Invalid previous version format: $previous_version"
-        previous_version="$EMERGENCY_PREVIOUS"
+        log_warn "Invalid previous version format from secondary API: $previous_version"
+        return 1
     fi
     
     log_success "Secondary API detection successful"
@@ -423,22 +416,88 @@ detect_versions_secondary_api() {
     return 0
 }
 
-detect_versions_github_cache() {
-    log_info "Attempting GitHub Actions cache fallback..."
-    
-    # Check if we're in GitHub Actions environment
-    if [[ "${GITHUB_ACTIONS:-false}" == "true" ]] && [[ -n "${RUNNER_TOOL_CACHE:-}" ]]; then
-        local cache_key="wp-versions-$(date +%Y-%m-%d-%H)"
-        local cache_path="${RUNNER_TOOL_CACHE}/wp-versions/${cache_key}"
-        
-        if [[ -f "$cache_path/versions.txt" ]]; then
-            log_info "Found GitHub Actions cached versions"
-            cat "$cache_path/versions.txt"
-            return 0
+detect_versions_git_tags() {
+    log_info "Attempting Git tag fallback (wordpress-develop)..."
+
+    local remote_repo="https://github.com/WordPress/wordpress-develop.git"
+    local tag_output=""
+
+    # First try local git.
+    if command -v git >/dev/null 2>&1; then
+        if tag_output=$(git ls-remote --tags --refs "$remote_repo" 2>/dev/null); then
+            log_debug "Fetched wordpress-develop tags via local git"
+        else
+            tag_output=""
+            log_debug "Local git ls-remote failed"
         fi
     fi
-    
-    log_warn "No GitHub Actions cache available"
+
+    # Fallback for environments with host TLS issues (common on Windows runners):
+    # use dockerized git if Docker is available.
+    if [[ -z "$tag_output" ]] && command -v docker >/dev/null 2>&1; then
+        if tag_output=$(docker run --rm alpine/git ls-remote --tags --refs "$remote_repo" 2>/dev/null); then
+            log_debug "Fetched wordpress-develop tags via dockerized git"
+        else
+            tag_output=""
+            log_debug "Dockerized git ls-remote failed"
+        fi
+    fi
+
+    if [[ -z "$tag_output" ]]; then
+        log_warn "Git tag fallback unavailable"
+        return 1
+    fi
+
+    local versions
+    versions=$(echo "$tag_output" | sed -nE 's#.*refs/tags/([0-9]+\.[0-9]+(\.[0-9]+)?)$#\1#p' | sort -V | uniq)
+
+    if [[ -z "$versions" ]]; then
+        log_warn "No version tags could be parsed from wordpress-develop tags"
+        return 1
+    fi
+
+    local latest_version latest_series previous_series previous_version
+    latest_version=$(echo "$versions" | tail -n1)
+    latest_series=$(extract_major_minor "$latest_version")
+
+    previous_series=$(echo "$versions" | sed -E 's/^([0-9]+\.[0-9]+).*/\1/' | uniq | grep -v "^${latest_series}$" | tail -n1 || true)
+
+    if [[ -n "$previous_series" ]]; then
+        previous_version=$(echo "$versions" | grep -E "^${previous_series}(\\.[0-9]+)?$" | tail -n1 || true)
+    fi
+
+    if [[ -z "${previous_version:-}" ]]; then
+        previous_version=$(echo "$versions" | grep -v "^${latest_version}$" | tail -n1 || true)
+    fi
+
+    if [[ -z "$latest_version" ]] || [[ -z "$previous_version" ]]; then
+        log_warn "Unable to determine latest/previous versions from parsed git tags"
+        return 1
+    fi
+
+    if ! validate_version_format "$latest_version" || ! validate_version_format "$previous_version"; then
+        log_warn "Git tag fallback produced invalid version format"
+        return 1
+    fi
+
+    log_success "Git tag fallback detection successful"
+    log_info "Latest: $latest_version"
+    log_info "Previous: $previous_version"
+
+    echo "$latest_version|$previous_version"
+    return 0
+}
+
+detect_versions_api_level() {
+    local versions
+    if versions=$(detect_versions_primary_api); then
+        echo "$versions"
+        return 0
+    fi
+    if versions=$(detect_versions_secondary_api); then
+        echo "$versions"
+        return 0
+    fi
     return 1
 }
 
@@ -449,67 +508,56 @@ detect_versions_repository_fallback() {
     local repo_fallback_file=".github/data/wp-versions-fallback.txt"
     
     if [[ -f "$repo_fallback_file" ]]; then
-        log_info "Using repository fallback versions"
-        cat "$repo_fallback_file"
-        return 0
+        local repo_versions
+        repo_versions=$(tr -d '[:space:]' < "$repo_fallback_file")
+
+        if [[ "$repo_versions" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?\|[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            log_info "Using repository fallback versions"
+            echo "$repo_versions"
+            return 0
+        fi
+
+        log_warn "Repository fallback file exists but format is invalid: $repo_fallback_file"
+        return 1
     fi
     
     log_warn "No repository fallback available"
     return 1
 }
 
-detect_versions_emergency_fallback() {
-    log_warn "Using emergency hardcoded fallback versions"
-    log_info "Latest: $EMERGENCY_LATEST"
-    log_info "Previous: $EMERGENCY_PREVIOUS"
-    
-    echo "${EMERGENCY_LATEST}|${EMERGENCY_PREVIOUS}"
-    return 0
-}
-
 #
-# Main version detection with 5-level fallback hierarchy
+# Main version detection with 3-level fallback hierarchy
 #
 detect_wordpress_versions() {
-    log_info "Starting WordPress version detection with 5-level fallback system"
+    log_info "Starting WordPress version detection with 3-level fallback system"
     
     create_cache_dir
     
     local versions=""
     
-    # Level 1: Primary API (version-check/1.7/)
-    if versions=$(detect_versions_primary_api); then
-        log_success "Level 1: Primary API successful"
+    # Level 1: API (primary endpoint, then secondary endpoint)
+    if versions=$(detect_versions_api_level); then
+        log_success "Level 1: API level successful"
         echo "$versions"
         return 0
     fi
     
-    # Level 2: Secondary API (stable-check/1.0/)
-    if versions=$(detect_versions_secondary_api); then
-        log_success "Level 2: Secondary API successful"
+    # Level 2: Git tags from wordpress-develop repository
+    if versions=$(detect_versions_git_tags); then
+        log_success "Level 2: Git tag fallback successful"
         echo "$versions"
         return 0
     fi
-    
-    # Level 3: GitHub Actions cache
-    if versions=$(detect_versions_github_cache); then
-        log_success "Level 3: GitHub Actions cache successful"
-        echo "$versions"
-        return 0
-    fi
-    
-    # Level 4: Repository fallback
+
+    # Level 3: Repository fallback
     if versions=$(detect_versions_repository_fallback); then
-        log_success "Level 4: Repository fallback successful"
+        log_success "Level 3: Repository fallback successful"
         echo "$versions"
         return 0
     fi
-    
-    # Level 5: Emergency hardcoded fallback
-    versions=$(detect_versions_emergency_fallback)
-    log_success "Level 5: Emergency fallback used"
-    echo "$versions"
-    return 0
+
+    log_error "All fallback levels failed"
+    return 1
 }
 
 #
@@ -572,32 +620,13 @@ set_github_outputs() {
             echo "previous=$previous"
             echo "lts=$previous"  # For compatibility
             echo "matrix_ready=true"
-            echo "detection_method=api"
-            echo "cache_used=true"
+            echo "detection_method=api_git_repo"
+            echo "cache_used=false"
         } >> "$GITHUB_OUTPUT"
         
         log_success "GitHub Actions outputs set successfully"
     else
         log_info "Not in GitHub Actions environment, skipping output setting"
-    fi
-}
-
-#
-# Cache management for GitHub Actions
-#
-setup_github_actions_cache() {
-    if [[ "${GITHUB_ACTIONS:-false}" == "true" ]] && [[ -n "${RUNNER_TOOL_CACHE:-}" ]]; then
-        local cache_key="wp-versions-$(date +%Y-%m-%d-%H)"
-        local cache_path="${RUNNER_TOOL_CACHE}/wp-versions/${cache_key}"
-        
-        mkdir -p "$cache_path"
-        
-        # Cache the versions for this hour
-        local versions
-        if versions=$(detect_wordpress_versions); then
-            echo "$versions" > "$cache_path/versions.txt"
-            log_debug "Cached versions to GitHub Actions cache: $cache_path"
-        fi
     fi
 }
 
@@ -637,7 +666,7 @@ main() {
 WordPress Version Detection Script
 
 This script detects the latest and previous major WordPress versions using
-a comprehensive 5-level fallback system for maximum reliability.
+a 3-level fallback system for reliability with low complexity.
 
 Usage: $SCRIPT_NAME [OPTIONS]
 
@@ -647,11 +676,9 @@ OPTIONS:
     -v, --version   Show script version
 
 FALLBACK LEVELS:
-    1. Primary API (version-check/1.7/)
-    2. Secondary API (stable-check/1.0/)  
-    3. GitHub Actions cache
-    4. Repository fallback file
-    5. Emergency hardcoded versions
+    1. API level (primary version-check/1.7/, then secondary stable-check/1.0/)
+    2. Git tags from wordpress-develop
+    3. Repository fallback file (.github/data/wp-versions-fallback.txt)
 
 OUTPUTS:
     When run in GitHub Actions, sets these outputs:
@@ -688,10 +715,10 @@ EOF
         log_debug "Supported PHP versions: ${PHP_SUPPORTED_VERSIONS[*]}"
     fi
     
-    # Detect WordPress versions using 5-level fallback
+    # Detect WordPress versions using 3-level fallback
     local versions
     if ! versions=$(detect_wordpress_versions); then
-        log_error "All fallback levels failed - this should not happen!"
+        log_error "All fallback levels failed"
         exit 1
     fi
     
@@ -716,9 +743,6 @@ EOF
         log_error "Previous: $previous"
         exit 3
     fi
-    
-    # Set up GitHub Actions cache for next run
-    setup_github_actions_cache
     
     # Set GitHub Actions outputs if applicable
     set_github_outputs "$latest" "$previous"

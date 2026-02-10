@@ -104,10 +104,4 @@ class UserMetas {
 			$meta->record = $metaRecord;
 		}
 	}
-
-	/**
-	 * @deprecated 21.0
-	 */
-	private function setup( ShieldUserMeta $meta ) :void {
-	}
 }

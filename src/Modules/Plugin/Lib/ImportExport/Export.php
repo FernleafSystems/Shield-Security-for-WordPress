@@ -30,6 +30,7 @@ class Export {
 
 	public function toJson() :void {
 		$ieCon = self::con()->comps->import_export;
+		$evt = self::con()->comps->events;
 		$req = Services::Request();
 
 		$success = false;
@@ -46,7 +47,7 @@ class Export {
 			$data = $this->getExportData();
 			$msg = 'Options Exported Successfully';
 
-			self::con()->fireEvent(
+			$evt->fireEvent(
 				'options_exported',
 				[ 'audit_params' => [ 'site' => $url ] ]
 			);
@@ -56,14 +57,14 @@ class Export {
 
 			if ( $networkOpt === 'Y' ) {
 				$ieCon->addUrlToImportExportWhitelistUrls( $url );
-				self::con()->fireEvent(
+				$evt->fireEvent(
 					'whitelist_site_added',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
 			}
 			elseif ( !empty( $networkOpt ) ) {
 				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
-				self::con()->fireEvent(
+				$evt->fireEvent(
 					'whitelist_site_removed',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);

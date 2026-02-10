@@ -65,9 +65,29 @@
     ],
     "patches":     [
       {
-        "version":     "2",
-        "released_at": 1770383000,
+        "version":     "4",
+        "released_at": 1770730000,
         "items":       [
+          {
+            "title":    "Powerful new search capabilities for Activity Log and Traffic Log tables, including free-text search, plus filters by IP address, username, email, user ID, event description, and metadata values.",
+            "category": "feature",
+            "type":     "new"
+          },
+          {
+            "title":    "Search syntax help panel to guide users through available search options (for example ip: and user_id:).",
+            "category": "feature",
+            "type":     "new"
+          },
+          {
+            "title":    "In-plugin notification for available translation downloads.",
+            "category": "feature",
+            "type":     "new"
+          },
+          {
+            "title":    "Improved admin notification behaviour so mandatory notices remain visible until action is taken.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
           {
             "title":    "Upgraded dashboard charts for improved performance and visuals.",
             "category": "enhancement",
@@ -75,11 +95,6 @@
           },
           {
             "title":    "Reduced CSS bundle size for faster page loads.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Internal code restructuring and cleanup for improved reliability.",
             "category": "enhancement",
             "type":     "improved"
           },
@@ -94,12 +109,42 @@
             "type":     "improved"
           },
           {
-            "title":    "Fixed issues with automatic translation downloads.",
-            "category": "bug",
-            "type":     "fixed"
+            "title":    "Security report emails and layouts have been redesigned for improved clarity and a more professional presentation.",
+            "category": "enhancement",
+            "type":     "improved"
           },
           {
-            "title":    "Fixed potential errors when upgrading from previous versions.",
+            "title":    "Enhanced report emails now include richer inline statistics and more detailed scan data (including up to 20 relevant results in key sections).",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Improved report creation flow with better form validation and cleaner date-picker styling.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Improved report email logic to avoid sending redundant informational emails when an alert email is already being sent.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Syntax highlighting is now available when viewing file content from scan results.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Automatic cleanup of orphaned malware scan records when files no longer exist on disk.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Reduced plugin overhead during self-upgrades to prevent potential errors.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Fixed issues with automatic translation downloads.",
             "category": "bug",
             "type":     "fixed"
           }

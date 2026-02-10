@@ -10,10 +10,7 @@ class CreateReportVO {
 
 	use PluginControllerConsumer;
 
-	/**
-	 * @var ReportVO
-	 */
-	private $rep;
+	private ReportVO $rep;
 
 	/**
 	 * @throws Exceptions\DuplicateReportException
@@ -38,21 +35,7 @@ class CreateReportVO {
 	}
 
 	private function setReportAreas() :self {
-		switch ( $this->rep->type ) {
-			case Constants::REPORT_TYPE_ALERT:
-				$this->rep->areas = [
-					Constants::REPORT_AREA_SCANS => [
-						'scan_results_new',
-						'scan_results_current',
-						'scan_repairs',
-					],
-				];
-				break;
-			case Constants::REPORT_TYPE_INFO:
-			default:
-				$this->rep->areas = self::con()->comps->reports->getReportAreas( true );
-				break;
-		}
+		$this->rep->areas = self::con()->comps->reports->getReportAreas( true );
 		return $this;
 	}
 

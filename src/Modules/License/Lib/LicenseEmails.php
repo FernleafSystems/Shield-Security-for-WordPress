@@ -31,7 +31,7 @@ class LicenseEmails {
 					sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 				]
 			);
-			$con->fireEvent( 'lic_fail_email' );
+			$con->comps->events->fireEvent( 'lic_fail_email' );
 		}
 	}
 

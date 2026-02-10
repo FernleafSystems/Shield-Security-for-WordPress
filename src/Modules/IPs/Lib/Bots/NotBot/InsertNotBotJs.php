@@ -55,7 +55,7 @@ class InsertNotBotJs {
 
 	/**
 	 * Skip NotBot if the current visitor is a known, identifiable entity.
-	 * @deprecated 20.0.8
+	 * @deprecated 21.1
 	 */
 	private function isSkip() :bool {
 		return false;
@@ -63,7 +63,6 @@ class InsertNotBotJs {
 
 	private function isFreshSignalRequired() :bool {
 		$req = Services::Request();
-		return $req->query( 'force_notbot' ) == 1 ||
-			   ( !$this->isSkip() && !empty( self::con()->comps->not_bot->getRequiredSignals() ) );
+		return $req->query( 'force_notbot' ) == 1 || !empty( self::con()->comps->not_bot->getRequiredSignals() );
 	}
 }
