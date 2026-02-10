@@ -80,7 +80,9 @@ module.exports = {
 					// ===================
 					'datepicker',
 					'days',
+					'days-of-week',
 					'weeks',
+					'week-numbers',
 					'months',
 					'dow',
 					'week',

@@ -124,6 +124,12 @@ class ReportingController {
 			'flags' => [
 				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
 			],
+			'strings' => [
+				'required_fields' => __( 'Please complete required fields: %s', 'wp-simple-firewall' ),
+				'start_date'      => __( 'Start Date', 'wp-simple-firewall' ),
+				'end_date'        => __( 'End Date', 'wp-simple-firewall' ),
+				'title'           => __( 'Report Title', 'wp-simple-firewall' ),
+			],
 			'vars'  => [
 				'earliest_date' => empty( $firstAudit ) ? $req->ts() :
 					$req->carbon( true )->setTimestamp( $firstAudit->created_at )->toIso8601String(),
