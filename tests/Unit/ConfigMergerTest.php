@@ -117,6 +117,18 @@ class ConfigMergerTest extends TestCase {
 	}
 
 	/**
+	 * Test that the legacy translations queued admin notice is no longer in config spec.
+	 */
+	public function testLegacyTranslationsQueuedNoticeRemoved() :void {
+		$merger = new ConfigMerger();
+		$config = $merger->merge( $this->specDir );
+
+		$adminNotices = $config['config_spec']['admin_notices'] ?? [];
+		$this->assertIsArray( $adminNotices, 'admin_notices must be an array' );
+		$this->assertArrayNotHasKey( 'translations-queued', $adminNotices, 'Legacy translations-queued notice should not exist in admin_notices config' );
+	}
+
+	/**
 	 * Test that mergeToFile() creates a valid JSON file.
 	 */
 	public function testMergeToFileCreatesValidJson() :void {
@@ -245,4 +257,3 @@ class ConfigMergerTest extends TestCase {
 		}
 	}
 }
-

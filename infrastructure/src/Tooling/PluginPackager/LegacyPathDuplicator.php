@@ -43,7 +43,7 @@ class LegacyPathDuplicator {
 		[ 'DBs', 'UserMeta' ],                   // BotSignalsRecord reads last_login_at
 		[ 'Logging' ],                           // All log processors
 		[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
-		[ 'Modules', 'IPs', 'Lib', 'Snapshots', 'Ops' ],
+		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots', 'Ops' ],
 	];
 	/**
 	 * Individual source files to copy
