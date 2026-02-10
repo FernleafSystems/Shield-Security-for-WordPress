@@ -124,20 +124,28 @@ ARG WP_VERSION=latest
 RUN mkdir -p /tmp/wordpress-tests-lib
 
 # Download WordPress test framework if specific version provided
+# Uses GitHub archive CDN instead of SVN to reduce flaky network failures
 # Skip download for 'latest' - will be handled at runtime by test script
 RUN if [ "${WP_VERSION}" != "latest" ]; then \
         echo "=== DOCKER BUILD: Downloading WordPress test framework for version: ${WP_VERSION} ===" && \
-        cd /tmp && \
-        echo "=== DOCKER BUILD: Checking out includes from: https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/ ===" && \
-        svn co https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/ /tmp/wordpress-tests-lib/includes && \
-        echo "=== DOCKER BUILD: Checking out data from: https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ ===" && \
-        svn co https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/data/ /tmp/wordpress-tests-lib/data && \
+        echo "=== DOCKER BUILD: Downloading wordpress-develop archive from GitHub ===" && \
+        curl -fsSL --retry 3 --retry-delay 10 \
+            "https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.tar.gz" \
+            -o /tmp/wp-develop.tar.gz && \
+        echo "=== DOCKER BUILD: Extracting test framework files ===" && \
+        tar -xzf /tmp/wp-develop.tar.gz -C /tmp && \
+        cp -r "/tmp/wordpress-develop-${WP_VERSION}/tests/phpunit/includes" /tmp/wordpress-tests-lib/includes && \
+        cp -r "/tmp/wordpress-develop-${WP_VERSION}/tests/phpunit/data" /tmp/wordpress-tests-lib/data && \
+        rm -rf /tmp/wp-develop.tar.gz "/tmp/wordpress-develop-${WP_VERSION}" && \
         echo "=== DOCKER BUILD: Verifying functions.php exists ===" && \
         ls -la /tmp/wordpress-tests-lib/includes/functions.php && \
         echo "=== DOCKER BUILD: Downloading WordPress core files for version: ${WP_VERSION} ===" && \
         mkdir -p /tmp/wordpress && \
-        curl -L https://wordpress.org/wordpress-${WP_VERSION}.tar.gz -o /tmp/wordpress.tar.gz && \
+        curl -fsSL --retry 3 --retry-delay 10 \
+            "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" \
+            -o /tmp/wordpress.tar.gz && \
         tar --strip-components=1 -zxf /tmp/wordpress.tar.gz -C /tmp/wordpress && \
+        rm -f /tmp/wordpress.tar.gz && \
         echo "=== DOCKER BUILD: Verifying WordPress core files ===" && \
         ls -la /tmp/wordpress/wp-load.php; \
     else \
