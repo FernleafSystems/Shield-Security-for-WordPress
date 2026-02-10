@@ -125,6 +125,7 @@ class ReportingController {
 				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
 			],
 			'strings' => [
+				/* translators: %s: comma-separated list of missing required field labels */
 				'required_fields' => __( 'Please complete required fields: %s', 'wp-simple-firewall' ),
 				'start_date'      => __( 'Start Date', 'wp-simple-firewall' ),
 				'end_date'        => __( 'End Date', 'wp-simple-firewall' ),

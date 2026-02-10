@@ -1,1 +1,1 @@
-<pre class="icwp-code-render">{% for line in lines %}<code>{{ line }}</code>{% endfor %}</pre>
+<pre class="icwp-code-render">{% for line in lines %}<code{% if code_language is not empty %} class="language-{{ code_language }}"{% endif %}>{{ line }}</code>{% endfor %}</pre>
