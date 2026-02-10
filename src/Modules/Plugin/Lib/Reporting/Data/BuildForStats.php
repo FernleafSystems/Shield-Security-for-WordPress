@@ -83,10 +83,18 @@ class BuildForStats extends BuildBase {
 				'diff_symbol_svg'        => $con->svgs->raw( $diff > 0 ? 'arrow-up-right' : ( $diff < 0 ? 'arrow-down-right' : 'arrow-right' ) ),
 				'diff_symbol_plus_minus' => $diff > 0 ? '+' : ( $diff < 0 ? '-' : '' ),
 				'diff_colour'            => $diff > 0 ? 'warning' : ( $diff < 0 ? 'success' : 'info' ),
+				'diff_percentage'        => self::calcDiffPercentage( $sumCurrent, $sumPrevious ),
 			];
 		}
 
 		return $data;
+	}
+
+	public static function calcDiffPercentage( int $sumCurrent, int $sumPrevious ) :int {
+		$diff = $sumCurrent - $sumPrevious;
+		return $sumPrevious > 0
+			? (int)\round( ( $diff / $sumPrevious ) * 100 )
+			: ( $sumCurrent > 0 ? 100 : 0 );
 	}
 
 	private function getDefaultEventsToStat() :array {

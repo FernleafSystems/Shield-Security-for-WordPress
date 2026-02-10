@@ -19,24 +19,45 @@
 			color: white;
 			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 		}
+		.overline {
+			text-transform: uppercase;
+			font-size: 0.75rem;
+			letter-spacing: 0.05em;
+		}
 		.stat-diff-symbol > svg {
-			width: 24px;
-			height: 24px;
+			width: 16px;
+			height: 16px;
 		}
 		.col-stat > .card {
-			border-width: 0 0 0 10px;
+			border-width: 0 0 0 4px;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+		}
+		.col-stat.col-stat-success > .card {
+			border-color: #008000;
 		}
 		.col-stat.col-stat-success > .card svg {
 			color: #008000;
 		}
+		.col-stat.col-stat-warning > .card {
+			border-color: #edb41d;
+		}
 		.col-stat.col-stat-warning > .card svg {
 			color: rgb(255, 193, 7);
+		}
+		.col-stat.col-stat-info > .card {
+			border-color: #6c757d;
 		}
 		.col-stat.col-stat-secondary > .card svg {
 			color: #444444;
 		}
+		.stat-card-footer {
+			border-top: 1px solid rgba(0,0,0,0.08);
+			padding-top: 6px;
+			margin-top: 8px;
+			font-size: 0.8rem;
+		}
 		.area-title {
-			background-color: rgba(0, 128, 0, 0.1);
+			background-color: rgba(0, 128, 0, 0.05);
 		}
 	</style>
 {% endblock %}
@@ -44,15 +65,17 @@
 {% block body_header %}
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col d-flex justify-content-center align-items-center" id="PageHeaderTitle">
+			<div class="col d-flex flex-column justify-content-center align-items-center" id="PageHeaderTitle">
 				<h1>{{ strings.report_header_title }}</h1>
+				<span style="color: white; opacity: 0.85; font-size: 1.1rem;">{{ vars.site_url_host }}</span>
 			</div>
 		</div>
 
 		<div class="row">
-			<div class="col text-center">
-				<h2 class="my-3" style="color: #008000"><code class="text-success">{{ vars.site_url_host }}</code></h2>
-				<span>{{ vars.dates.report_date_start }} - {{ vars.dates.report_date_end }}</span>
+			<div class="col text-center my-3">
+				<span class="d-inline-block border rounded-pill px-3 py-1" style="font-size: 0.9rem; color: #333;">
+					{{ vars.dates.report_date_start }} &ndash; {{ vars.dates.report_date_end }}
+				</span>
 			</div>
 		</div>
 	</div>
@@ -61,7 +84,7 @@
 {% block body_content_header %}
 	<div class="px-4">
 		<div class="row mt-4">
-			<div class="col-6 offset-3">
+			<div class="col-8 offset-2">
 				<p>{{ strings.intro }}</p>
 			</div>
 		</div>

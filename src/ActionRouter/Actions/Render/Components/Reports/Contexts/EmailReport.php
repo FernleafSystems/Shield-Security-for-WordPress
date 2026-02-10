@@ -78,6 +78,7 @@ class EmailReport extends EmailBase {
 				'current_period'        => __( 'Current', 'wp-simple-firewall' ),
 				'previous_period'       => __( 'Previous', 'wp-simple-firewall' ),
 				'trend'                 => __( 'Trend', 'wp-simple-firewall' ),
+				'change'                => __( 'Change', 'wp-simple-firewall' ),
 				'period'                => __( 'Period', 'wp-simple-firewall' ),
 				'scan_type'             => __( 'Scan Type', 'wp-simple-firewall' ),
 				'count'                 => __( 'Count', 'wp-simple-firewall' ),

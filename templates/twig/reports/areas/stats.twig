@@ -12,20 +12,19 @@
 				{% for stat in stat_type.stats %}
 					{% if not stat.is_zero_stat %}
 						<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
-							<div class="card card-raised border-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
-								<div class="card-body ps-3 pe-1 py-1">
+							<div class="card">
+								<div class="card-body ps-3 pe-2 py-2">
 									<div class="overline text-muted mb-1">{{ stat.name }}</div>
-									<div class="d-flex align-items-center justify-content-between">
-										<div class="display-6 fw-normal">{{ stat.count_current_period }}</div>
-										<div class="stat-diff-symbol">
-											{{ stat.diff_symbol_svg|raw }}
-										</div>
-										<div class="">
-											<div class="display-6">{{ stat.count_previous_period }}</div>
-										</div>
+									<div style="font-size: 2rem; font-weight: 700; line-height: 1.1;">
+										{{ stat.count_current_period }}
 									</div>
-									<div class="text-xs text-muted mb-1 ">Diff:
-										<span class="text-sm">{{ stat.diff_symbol_plus_minus }}</span>{{ stat.count_diff_abs }}
+									<div class="text-muted" style="font-size: 0.75rem;">{{ strings.this_period }}</div>
+									<div class="stat-card-footer text-muted d-flex align-items-center justify-content-between">
+										<span>{{ strings.previous_period }}: {{ stat.count_previous_period }}</span>
+										<span style="color: {% if stat.diff_colour == 'warning' %}#cc7a00{% elseif stat.diff_colour == 'success' %}#008000{% else %}#6c757d{% endif %};">
+											<span class="stat-diff-symbol d-inline-block align-middle">{{ stat.diff_symbol_svg|raw }}</span>
+											{{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
+										</span>
 									</div>
 								</div>
 							</div>

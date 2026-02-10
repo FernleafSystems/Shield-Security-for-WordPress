@@ -7,17 +7,15 @@
 	<div class="row mt-2">
 		{% for slug,data in vars.scan_counts %}
 			<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ data.colour }}">
-				<div class="card card-raised border-{{ data.colour }}">
-					<div class="card-body ps-3 pe-1 py-1">
-						<div class="overline text-muted mb-1">
-							{{ data.name }}
-							{% if data.new_count is defined and data.new_count > 0 %}
-								<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65em; vertical-align: middle;">{{ strings.new_badge }}</span>
-							{% endif %}
-						</div>
-						<div class="d-flex align-items-center justify-content-between">
-							<div class="display-6 fw-normal">{{ data.count }}</div>
-						</div>
+				<div class="card">
+					<div class="card-body ps-3 pe-2 py-2">
+						<div class="overline text-muted mb-1">{{ data.name }}</div>
+						<div style="font-size: 2rem; font-weight: 700; line-height: 1.1;">{{ data.count }}</div>
+						{% if data.count == 0 %}
+							<small style="color: #008000;">All clear</small>
+						{% elseif data.new_count is defined and data.new_count > 0 %}
+							<small style="color: #cc7a00;">{{ data.new_count }} new</small>
+						{% endif %}
 					</div>
 				</div>
 			</div>
