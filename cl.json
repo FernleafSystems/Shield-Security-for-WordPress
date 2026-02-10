@@ -65,8 +65,8 @@
     ],
     "patches":     [
       {
-        "version":     "7",
-        "released_at": 1770740000,
+        "version":     "8",
+        "released_at": 1770760000,
         "items":       [
           {
             "title":    "Powerful new search capabilities for Activity Log and Traffic Log tables, including free-text search, plus filters by IP address, username, email, user ID, event description, and metadata values.",

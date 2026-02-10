@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Infrastructu
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Path;
 
 class PluginPackagerStraussTest extends TestCase {
 
@@ -141,20 +142,45 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
-	public function testPrefixedClassmapContainsKeyNamespaces() :void {
-		$classmapPath = $this->packagePath.'/vendor_prefixed/composer/autoload_classmap.php';
-		$this->assertFileExists( $classmapPath );
+	public function testPrefixedAutoloadContainsKeyNamespaces() :void {
+		$composerDir = Path::join( $this->packagePath, 'vendor_prefixed', 'composer' );
+		$autoloadFiles = [
+			'autoload_classmap.php',
+			'autoload_psr4.php',
+			'autoload_static.php',
+		];
 
-		$content = file_get_contents( $classmapPath );
-		$this->assertNotFalse( $content );
+		$autoloadContents = [];
+		foreach ( $autoloadFiles as $file ) {
+			$path = Path::join( $composerDir, $file );
+			if ( !file_exists( $path ) ) {
+				continue;
+			}
+			$content = file_get_contents( $path );
+			$this->assertNotFalse( $content, "Failed reading {$path}" );
+			$autoloadContents[ $file ] = (string)$content;
+		}
 
-		// Note: We search for double-backslashes because the classmap file contains
-		// PHP source code where backslashes are escaped (e.g., 'AptowebDeps\\Monolog\\')
+		$this->assertNotSame( [], $autoloadContents, 'No prefixed composer autoload files found to inspect.' );
+
+		// Note: We search for double-backslashes because the autoload files are PHP source
+		// where namespace backslashes are escaped (e.g., 'AptowebDeps\\Monolog\\').
 		foreach ( [ 'AptowebDeps\\\\Monolog\\\\', 'AptowebDeps\\\\Twig\\\\', 'AptowebDeps\\\\CrowdSec\\\\' ] as $namespace ) {
-			$this->assertStringContainsString(
-				$namespace,
-				(string)$content,
-				"Prefixed classmap missing namespace: {$namespace}"
+			$found = false;
+			foreach ( $autoloadContents as $content ) {
+				if ( strpos( $content, $namespace ) !== false ) {
+					$found = true;
+					break;
+				}
+			}
+
+			$this->assertTrue(
+				$found,
+				sprintf(
+					'Prefixed namespace missing from composer autoload files: %s (checked: %s)',
+					$namespace,
+					implode( ', ', array_keys( $autoloadContents ) )
+				)
 			);
 		}
 	}
