@@ -51,19 +51,12 @@ jobs:
         echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
         echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
 
-    - name: Build plugin package
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
-        echo "SHIELD_PACKAGE_PATH=$PACKAGE_DIR" >> $GITHUB_ENV
-
-    - name: Create distribution zip
+    - name: Build release zip
       run: |
         VERSION="${GITHUB_REF#refs/tags/}"
-        cd "${{ github.workspace }}"
-        mv shield-package wp-simple-firewall
-        zip -r "wp-simple-firewall-${VERSION}.zip" wp-simple-firewall
-        echo "ZIP_NAME=wp-simple-firewall-${VERSION}.zip" >> $GITHUB_ENV
+        ZIP_NAME="wp-simple-firewall-${VERSION}.zip"
+        composer build-zip -- --output="${{ github.workspace }}/${ZIP_NAME}" --zip-root-folder=wp-simple-firewall --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build
+        echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
