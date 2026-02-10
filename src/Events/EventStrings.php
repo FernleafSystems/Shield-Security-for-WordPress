@@ -13,8 +13,9 @@ class EventStrings {
 	}
 
 	private function theStrings() :array {
-		$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
-		$sureSend = self::con()->labels->getBrandName( 'suresend' );
+		$labels = self::con()->labels;
+		$silentCaptcha = \method_exists( $labels, 'getBrandName' ) ? $labels->getBrandName( 'silentcaptcha' ) : 'silentcaptcha';
+		$sureSend = \method_exists( $labels, 'getBrandName' ) ? $labels->getBrandName( 'silentcaptcha' ) : 'suresend';
 
 		return [
 			'reg_email_invalid'            => [
@@ -103,7 +104,7 @@ class EventStrings {
 			'attempt_deactivation'         => [
 				'name'  => __( 'Unauthorized Deactivation Attempt', 'wp-simple-firewall' ),
 				'audit' => [
-					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ), $labels->Name ),
 				],
 			],
 			'debug_log'                    => [

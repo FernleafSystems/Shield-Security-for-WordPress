@@ -65,8 +65,8 @@
     ],
     "patches":     [
       {
-        "version":     "4",
-        "released_at": 1770730000,
+        "version":     "7",
+        "released_at": 1770740000,
         "items":       [
           {
             "title":    "Powerful new search capabilities for Activity Log and Traffic Log tables, including free-text search, plus filters by IP address, username, email, user ID, event description, and metadata values.",
@@ -145,6 +145,16 @@
           },
           {
             "title":    "Fixed issues with automatic translation downloads.",
+            "category": "bug",
+            "type":     "fixed"
+          },
+          {
+            "title":    "WP Admin dashboard notices now use native WordPress notice styling for a clearer and more consistent dashboard experience.",
+            "category": "enhancement",
+            "type":     "improved"
+          },
+          {
+            "title":    "Improved upgrade reliability from older plugin versions to reduce update errors.",
             "category": "bug",
             "type":     "fixed"
           }

@@ -40,10 +40,11 @@ class LegacyPathDuplicator {
 		[ 'DBs', 'IpRules' ],                    // ProcessOffense -> AddRule -> IpRuleStatus
 		[ 'DBs', 'IPs' ],                        // IPRecords (audit, traffic, bot signals)
 		[ 'DBs', 'ReqLogs' ],                    // RequestRecords (audit, traffic writers)
+		[ 'DBs', 'Snapshots' ],                  // Snapshots delete and create
 		[ 'DBs', 'UserMeta' ],                   // BotSignalsRecord reads last_login_at
 		[ 'Logging' ],                           // All log processors
 		[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
-		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots', 'Ops' ],
+		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots' ],
 	];
 	/**
 	 * Individual source files to copy
@@ -58,7 +59,6 @@ class LegacyPathDuplicator {
 		// Modules/AuditTrail/Lib/ - Audit logging
 		[ 'Modules', 'AuditTrail', 'Lib', 'ActivityLogMessageBuilder.php' ],
 		[ 'Modules', 'AuditTrail', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
-		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots', 'SnapshotVO.php' ],
 		// Modules/HackGuard/Lib/Snapshots/ - Snapshot checking
 		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'FindAssetsToSnap.php' ],
 		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'HashesStorageDir.php' ],
