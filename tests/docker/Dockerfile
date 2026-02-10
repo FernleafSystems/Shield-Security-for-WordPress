@@ -128,26 +128,48 @@ RUN mkdir -p /tmp/wordpress-tests-lib
 # Skip download for 'latest' - will be handled at runtime by test script
 RUN if [ "${WP_VERSION}" != "latest" ]; then \
         echo "=== DOCKER BUILD: Downloading WordPress test framework for version: ${WP_VERSION} ===" && \
-        echo "=== DOCKER BUILD: Downloading wordpress-develop archive from GitHub ===" && \
-        curl -fsSL --retry 3 --retry-delay 10 \
-            "https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.tar.gz" \
-            -o /tmp/wp-develop.tar.gz && \
-        echo "=== DOCKER BUILD: Extracting test framework files ===" && \
-        tar -xzf /tmp/wp-develop.tar.gz -C /tmp && \
-        cp -r "/tmp/wordpress-develop-${WP_VERSION}/tests/phpunit/includes" /tmp/wordpress-tests-lib/includes && \
-        cp -r "/tmp/wordpress-develop-${WP_VERSION}/tests/phpunit/data" /tmp/wordpress-tests-lib/data && \
-        rm -rf /tmp/wp-develop.tar.gz "/tmp/wordpress-develop-${WP_VERSION}" && \
-        echo "=== DOCKER BUILD: Verifying functions.php exists ===" && \
-        ls -la /tmp/wordpress-tests-lib/includes/functions.php && \
+        WP_REF_CANDIDATES="tags/${WP_VERSION} heads/${WP_VERSION}" && \
+        if echo "${WP_VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0]$'; then \
+            WP_REF_CANDIDATES="${WP_REF_CANDIDATES} tags/${WP_VERSION%??} heads/${WP_VERSION%??}"; \
+        fi && \
+        if echo "${WP_VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then \
+            WP_REF_CANDIDATES="${WP_REF_CANDIDATES} tags/$(echo "${WP_VERSION}" | sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+$/\1/') heads/$(echo "${WP_VERSION}" | sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+$/\1/')"; \
+        fi && \
+        WP_DEVELOP_REF="" && \
+        for ref in ${WP_REF_CANDIDATES}; do \
+            echo "=== DOCKER BUILD: Trying wordpress-develop ref ${ref} ===" && \
+            if curl -fsSL --retry 3 --retry-delay 10 \
+                "https://github.com/WordPress/wordpress-develop/archive/refs/${ref}.tar.gz" \
+                -o /tmp/wp-develop.tar.gz; then \
+                WP_DEVELOP_REF="${ref}" && \
+                echo "=== DOCKER BUILD: Using wordpress-develop ref ${ref} ===" && \
+                break; \
+            fi; \
+        done && \
+        if [ -n "${WP_DEVELOP_REF}" ]; then \
+            echo "=== DOCKER BUILD: Extracting test framework files ===" && \
+            tar -xzf /tmp/wp-develop.tar.gz -C /tmp && \
+            WP_DEVELOP_DIR=$(tar -tzf /tmp/wp-develop.tar.gz | head -1 | cut -d/ -f1) && \
+            cp -r "/tmp/${WP_DEVELOP_DIR}/tests/phpunit/includes" /tmp/wordpress-tests-lib/includes && \
+            cp -r "/tmp/${WP_DEVELOP_DIR}/tests/phpunit/data" /tmp/wordpress-tests-lib/data && \
+            rm -rf /tmp/wp-develop.tar.gz "/tmp/${WP_DEVELOP_DIR}" && \
+            echo "=== DOCKER BUILD: Verifying functions.php exists ===" && \
+            ls -la /tmp/wordpress-tests-lib/includes/functions.php; \
+        else \
+            echo "=== DOCKER BUILD: WARN: Could not resolve wordpress-develop ref for ${WP_VERSION}; test framework will be installed at runtime ==="; \
+        fi && \
         echo "=== DOCKER BUILD: Downloading WordPress core files for version: ${WP_VERSION} ===" && \
         mkdir -p /tmp/wordpress && \
-        curl -fsSL --retry 3 --retry-delay 10 \
+        if curl -fsSL --retry 3 --retry-delay 10 \
             "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" \
-            -o /tmp/wordpress.tar.gz && \
-        tar --strip-components=1 -zxf /tmp/wordpress.tar.gz -C /tmp/wordpress && \
-        rm -f /tmp/wordpress.tar.gz && \
-        echo "=== DOCKER BUILD: Verifying WordPress core files ===" && \
-        ls -la /tmp/wordpress/wp-load.php; \
+            -o /tmp/wordpress.tar.gz; then \
+            tar --strip-components=1 -zxf /tmp/wordpress.tar.gz -C /tmp/wordpress && \
+            rm -f /tmp/wordpress.tar.gz && \
+            echo "=== DOCKER BUILD: Verifying WordPress core files ===" && \
+            ls -la /tmp/wordpress/wp-load.php; \
+        else \
+            echo "=== DOCKER BUILD: WARN: Could not pre-download wordpress-${WP_VERSION}.tar.gz; core will be installed at runtime ==="; \
+        fi; \
     else \
         echo "WordPress test framework will be downloaded at runtime for version: ${WP_VERSION}"; \
     fi
