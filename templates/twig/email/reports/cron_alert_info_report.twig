@@ -50,7 +50,7 @@
 		{% endif %}
 
 		{# Statistics area (INFO reports) #}
-		{% if report.areas_data.statistics is defined %}
+		{% if report.areas_data.statistics is defined and report.areas_data.statistics|length > 0 %}
 			{% include '/email/reports/areas/stats.twig' with {
 				stats: report.areas_data.statistics,
 				strings: body.strings,

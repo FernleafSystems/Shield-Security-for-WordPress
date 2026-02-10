@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportDataInspector;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,26 +26,38 @@ class EmailReport extends EmailBase {
 		$reports = $this->action_data[ 'reports' ];
 		$firstReport = \reset( $reports );
 		$isAlert = $firstReport instanceof ReportVO && $firstReport->type === Constants::REPORT_TYPE_ALERT;
+		$detailLevel = $this->action_data[ 'detail_level' ] ?? 'detailed';
 
 		return [
 			'vars'    => [
 				'reports'      => \array_map(
-					function ( ReportVO $rep ) use ( $con, $WP ) {
+					function ( ReportVO $rep ) use ( $con, $WP, $detailLevel ) {
 						$reportCon = $con->comps->reports;
+						$areasData = $rep->areas_data;
+						if ( isset( $areasData[ Constants::REPORT_AREA_STATS ] ) ) {
+							$stats = ( new ReportDataInspector( $areasData ) )->getStatsForEmailDisplay( $detailLevel );
+							if ( empty( $stats ) ) {
+								unset( $areasData[ Constants::REPORT_AREA_STATS ] );
+							}
+							else {
+								$areasData[ Constants::REPORT_AREA_STATS ] = $stats;
+							}
+						}
+
 						return [
 							'type'       => $reportCon->getReportTypeName( $rep->type ),
 							'generated'  => $WP->getTimeStringForDisplay( $rep->record->created_at ),
 							'href'       => $reportCon->getReportURL( $rep->record->unique_id ),
 							'date_start' => $WP->getTimeStringForDisplay( $rep->start_at, false ),
 							'date_end'   => $WP->getTimeStringForDisplay( $rep->end_at, false ),
-							'areas_data' => $rep->areas_data,
+							'areas_data' => $areasData,
 						];
 					},
 					$reports
 				),
 				'site_url'     => $this->action_data[ 'home_url' ],
 				'report_date'  => $WP->getTimeStampForDisplay(),
-				'detail_level' => $this->action_data[ 'detail_level' ] ?? 'detailed',
+				'detail_level' => $detailLevel,
 			],
 			'strings' => [
 				'generated'             => __( 'Date Generated', 'wp-simple-firewall' ),

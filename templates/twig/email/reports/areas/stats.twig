@@ -1,20 +1,13 @@
 {# Statistics area for email reports #}
-{# Receives: stats (associative array of stat groups), strings, detail_level #}
+{# Receives: stats (associative array of pre-filtered stat groups), strings #}
 
-{% set has_any_stats = false %}
-{% for group_key, group in stats %}
-	{% if group.has_non_zero_stat|default(false) %}
-		{% set has_any_stats = true %}
-	{% endif %}
-{% endfor %}
-
-{% if has_any_stats %}
+{% if stats|length > 0 %}
 	<h3 style="margin: 20px 0 10px; font-size: 16px; color: #333; border-bottom: 2px solid #008000; padding-bottom: 6px;">
 		{{ strings.section_stats }}
 	</h3>
 
 	{% for group_key, group in stats %}
-		{% if group.has_non_zero_stat|default(false) %}
+		{% if group.stats is defined and group.stats|length > 0 %}
 			<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
 				{{ group.title }}
 			</h4>
@@ -34,30 +27,26 @@
 					</td>
 				</tr>
 				{% for event_key, stat in group.stats %}
-					{% if not stat.is_zero_stat|default(true) %}
-						{% if detail_level == 'detailed' or stat.count_diff_abs|default(0) > 0 %}
-							{% set row_color = '#333' %}
-							{% if stat.diff_colour|default('') == 'warning' %}
-								{% set row_color = '#cc7a00' %}
-							{% elseif stat.diff_colour|default('') == 'success' %}
-								{% set row_color = '#008000' %}
-							{% endif %}
-							<tr>
-								<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee;">
-									{{ stat.name }}
-								</td>
-								<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; text-align: center;">
-									{{ stat.count_current_period }}
-								</td>
-								<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; text-align: center;">
-									{{ stat.count_previous_period }}
-								</td>
-								<td style="padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #eee; text-align: center; color: {{ row_color }};">
-									{{ stat.diff_symbol_email }}
-								</td>
-							</tr>
-						{% endif %}
+					{% set row_color = '#333' %}
+					{% if stat.diff_colour|default('') == 'warning' %}
+						{% set row_color = '#cc7a00' %}
+					{% elseif stat.diff_colour|default('') == 'success' %}
+						{% set row_color = '#008000' %}
 					{% endif %}
+					<tr>
+						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee;">
+							{{ stat.name }}
+						</td>
+						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; text-align: center;">
+							{{ stat.count_current_period }}
+						</td>
+						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; text-align: center;">
+							{{ stat.count_previous_period }}
+						</td>
+						<td style="padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #eee; text-align: center; color: {{ row_color }};">
+							{{ stat.diff_symbol_email }}
+						</td>
+					</tr>
 				{% endfor %}
 			</table>
 		{% endif %}
