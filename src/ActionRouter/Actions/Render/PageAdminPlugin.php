@@ -64,6 +64,7 @@ class PageAdminPlugin extends BaseRender {
 			],
 			'strings' => [
 				'top_page_warnings' => $this->buildTopPageWarnings(),
+				'dismiss_notice'    => __( 'Dismiss', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'active_module_settings' => $subNav,

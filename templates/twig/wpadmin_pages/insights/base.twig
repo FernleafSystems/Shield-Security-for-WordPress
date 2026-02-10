@@ -7,8 +7,12 @@
 	{% if strings.top_page_warnings|default([]) is not empty %}
 		<div id="ShieldTopPageWarnings" class="row row-cols-1">
 			{% for warning in strings.top_page_warnings %}
-				<div class="col apto-top_page_warning bg-{{ warning.type }} py-1 border-bottom">
+				<div class="col apto-top_page_warning bg-{{ warning.type }} py-1 border-bottom shield-notice-container"
+					 data-notice_id="{{ warning.id|default('') }}">
 					{% for each_line in warning.text %}<p class="my-1 text-center">{{ each_line|raw }}</p>{% endfor %}
+					{% if warning.can_dismiss|default(false) %}
+						<p class="my-1 text-center"><a href="#" class="shield-topwarning-dismiss text-reset">{{ strings.dismiss_notice }}</a></p>
+					{% endif %}
 				</div>
 			{% endfor %}
 		</div>
