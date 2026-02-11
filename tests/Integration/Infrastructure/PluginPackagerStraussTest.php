@@ -297,16 +297,22 @@ class PluginPackagerStraussTest extends TestCase {
 		$runtimeProcessOffensePath = $this->packagePath.'/src/Modules/IPs/Components/ProcessOffense.php';
 		$legacyBotSignalsPath = $this->packagePath.'/src/lib/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php';
 		$runtimeBotSignalsPath = $this->packagePath.'/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php';
+		$legacyDbBotSignalRecordPath = $this->packagePath.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php';
+		$runtimeDbBotSignalRecordPath = $this->packagePath.'/src/DBs/BotSignal/BotSignalRecord.php';
 
 		$this->assertFileExists( $legacyProcessOffensePath );
 		$this->assertFileExists( $runtimeProcessOffensePath );
 		$this->assertFileExists( $legacyBotSignalsPath );
 		$this->assertFileExists( $runtimeBotSignalsPath );
+		$this->assertFileExists( $legacyDbBotSignalRecordPath );
+		$this->assertFileExists( $runtimeDbBotSignalRecordPath );
 
 		$legacyProcessOffense = (string)\file_get_contents( $legacyProcessOffensePath );
 		$runtimeProcessOffense = (string)\file_get_contents( $runtimeProcessOffensePath );
 		$legacyBotSignals = (string)\file_get_contents( $legacyBotSignalsPath );
 		$runtimeBotSignals = (string)\file_get_contents( $runtimeBotSignalsPath );
+		$legacyDbBotSignalRecord = (string)\file_get_contents( $legacyDbBotSignalRecordPath );
+		$runtimeDbBotSignalRecord = (string)\file_get_contents( $runtimeDbBotSignalRecordPath );
 
 		$this->assertStringContainsString( 'public function incrementOffenses', $legacyProcessOffense );
 		$this->assertStringNotContainsString( 'new AddRule()', $legacyProcessOffense );
@@ -322,6 +328,12 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertStringContainsString( 'IpRuleStatus', $runtimeBotSignals );
 		$this->assertStringContainsString( 'IPRecords', $runtimeBotSignals );
 		$this->assertStringContainsString( 'UserMeta', $runtimeBotSignals );
+
+		$this->assertStringContainsString( 'class BotSignalRecord', $legacyDbBotSignalRecord );
+		$this->assertStringContainsString( 'public function applyFromArray', $legacyDbBotSignalRecord );
+		$this->assertStringNotContainsString( 'extends Ops\Record', $legacyDbBotSignalRecord );
+		$this->assertStringContainsString( 'extends Ops\Record', $runtimeDbBotSignalRecord );
+		$this->assertStringNotContainsString( 'public function applyFromArray', $runtimeDbBotSignalRecord );
 	}
 
 	public function testLegacyEventAndCrowdSecDbHandlersAreGuardedWhileRuntimeSourceRemainsActive() :void {
@@ -395,6 +407,12 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Handler.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Record.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Insert.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Handler.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Record.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Insert.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Delete.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Select.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' );
@@ -402,6 +420,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' );
 		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
 		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
+		$this->assertFileExists( $this->packagePath.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php' );
 	}
 
 	public function testManifestSnapshotIfPresent() :void {

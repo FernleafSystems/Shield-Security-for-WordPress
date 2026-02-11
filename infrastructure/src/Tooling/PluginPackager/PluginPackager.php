@@ -55,7 +55,7 @@ class PluginPackager {
 	}
 
 	/**
-	 * @param array<string,bool> $options
+	 * @param array<string,mixed> $options
 	 * @throws InvalidArgumentException
 	 * @throws \InvalidArgumentException
 	 */
@@ -116,21 +116,26 @@ class PluginPackager {
 		// Update package-specific files (readme.txt, icwp-wpsf.php)
 		$this->updatePackageFiles( $targetDir, $options );
 
-		$this->installComposerDependencies( $targetDir );
-		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
+		if ( $options[ 'package_dependency_build' ] ) {
+			$this->installComposerDependencies( $targetDir );
+			( new VendorCleaner( $this->logger ) )->clean( $targetDir );
 
-		// Run Strauss prefixing
-		$straussProvider = new StraussBinaryProvider(
-			$this->straussVersion,
-			$this->straussForkRepo,
-			$this->commandRunner,
-			$this->directoryRemover,
-			$this->logger
-		);
-		$straussProvider->runPrefixing( $targetDir );
+			// Run Strauss prefixing
+			$straussProvider = new StraussBinaryProvider(
+				$this->straussVersion,
+				$this->straussForkRepo,
+				$this->commandRunner,
+				$this->directoryRemover,
+				$this->logger
+			);
+			$straussProvider->runPrefixing( $targetDir );
 
-		$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
-		$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
+			$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
+			$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
+		}
+		else {
+			$this->log( 'Skipping package dependency build (--skip-package-dependency-build enabled)' );
+		}
 
 		$this->removeComposerFiles( $targetDir );
 
@@ -211,16 +216,17 @@ class PluginPackager {
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
-			'composer_install'  => true,
-			'npm_install'       => true,
-			'npm_build'         => true,
-			'directory_clean'   => true,
-			'skip_copy'         => false,
-			'strauss_version'   => null,
-			'strauss_fork_repo' => null,
-			'version'           => null,
-			'release_timestamp' => null,
-			'build'             => null,
+			'composer_install'         => true,
+			'package_dependency_build' => true,
+			'npm_install'              => true,
+			'npm_build'                => true,
+			'directory_clean'          => true,
+			'skip_copy'                => false,
+			'strauss_version'          => null,
+			'strauss_fork_repo'        => null,
+			'version'                  => null,
+			'release_timestamp'        => null,
+			'build'                    => null,
 		];
 		return \array_replace( $defaults, \array_intersect_key( $options, $defaults ) );
 	}

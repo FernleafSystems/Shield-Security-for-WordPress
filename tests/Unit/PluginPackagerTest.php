@@ -52,4 +52,39 @@ class PluginPackagerTest extends TestCase {
 			'quotes only'  => [ '""' ],
 		];
 	}
+
+	// =========================================================================
+	// resolveOptions() - Option defaults and overrides
+	// =========================================================================
+
+	public function testResolveOptionsIncludesPackageDependencyBuildByDefault() :void {
+		$packager = $this->createPackager();
+		$options = $this->invokePrivateMethod( $packager, 'resolveOptions', [ [] ] );
+
+		$this->assertArrayHasKey( 'package_dependency_build', $options );
+		$this->assertTrue( $options[ 'package_dependency_build' ] );
+	}
+
+	public function testResolveOptionsAllowsDisablingPackageDependencyBuild() :void {
+		$packager = $this->createPackager();
+		$options = $this->invokePrivateMethod( $packager, 'resolveOptions', [
+			[ 'package_dependency_build' => false ],
+		] );
+
+		$this->assertFalse( $options[ 'package_dependency_build' ] );
+	}
+
+	public function testResolveOptionsIgnoresLegacyComposerOptionKeys() :void {
+		$packager = $this->createPackager();
+		$options = $this->invokePrivateMethod( $packager, 'resolveOptions', [
+			[
+				'composer_root' => false,
+				'composer_lib'  => false,
+			],
+		] );
+
+		$this->assertTrue( $options[ 'composer_install' ] );
+		$this->assertArrayNotHasKey( 'composer_root', $options );
+		$this->assertArrayNotHasKey( 'composer_lib', $options );
+	}
 }
