@@ -129,6 +129,32 @@ export PLUGIN_SOURCE="$PACKAGE_DIR"
 # We pass relative path to avoid absolute path issues across host/container
 PACKAGE_DIR_RELATIVE="tmp/shield-package-local"
 
+# Local cache paths (all under tmp/ to keep cache lifecycle local to workspace)
+WEBPACK_CACHE_FILE="$PROJECT_ROOT/tmp/.shield-webpack-cache-checksum"
+COMPOSER_ROOT_CACHE_FILE="$PROJECT_ROOT/tmp/.shield-composer-root-cache-checksum"
+PACKAGE_DEPS_CACHE_ROOT="$PROJECT_ROOT/tmp/.shield-cache/package-deps"
+
+hash_file_or_missing() {
+    local file_path=$1
+    if [ -f "$file_path" ]; then
+        md5sum "$file_path" | cut -d' ' -f1
+    else
+        echo "missing"
+    fi
+}
+
+hash_find_tree() {
+    local root_path=$1
+    shift
+
+    if [ ! -d "$root_path" ]; then
+        echo "missing"
+        return 0
+    fi
+
+    find "$root_path" -type f \( "$@" \) -exec md5sum {} \; 2>/dev/null | sort | md5sum | cut -d' ' -f1
+}
+
 # Ensure clean environment now that env vars are set
 echo "🧹 Cleaning up any existing test containers/volumes..."
 docker compose -f tests/docker/docker-compose.yml \
@@ -149,33 +175,30 @@ echo "   Containers will initialize while we build assets (~38 seconds typical)"
 # Build assets using Docker (no local Node.js required) - with caching
 echo "🔨 Building assets..."
 DIST_DIR="$PROJECT_ROOT/assets/dist"
-SRC_DIR="$PROJECT_ROOT/assets/js"
-CACHE_FILE="$PROJECT_ROOT/tmp/.shield-webpack-cache-checksum"
+JS_SRC_DIR="$PROJECT_ROOT/assets/js"
+CSS_SRC_DIR="$PROJECT_ROOT/assets/css"
 
 # Ensure tmp directory exists
 mkdir -p "$PROJECT_ROOT/tmp"
 
 # Check if webpack build cache is valid
 WEBPACK_CACHE_VALID=false
-COMBINED_CHECKSUM=""
+JS_CHECKSUM=$(hash_find_tree "$JS_SRC_DIR" -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx")
+CSS_CHECKSUM=$(hash_find_tree "$CSS_SRC_DIR" -name "*.css" -o -name "*.scss" -o -name "*.sass")
+PACKAGE_JSON_CHECKSUM=$(hash_file_or_missing "$PROJECT_ROOT/package.json")
+PACKAGE_LOCK_CHECKSUM=$(hash_file_or_missing "$PROJECT_ROOT/package-lock.json")
+WEBPACK_CHECKSUM=$(hash_file_or_missing "$PROJECT_ROOT/webpack.config.js")
+POSTCSS_CHECKSUM=$(hash_file_or_missing "$PROJECT_ROOT/postcss.config.js")
+WEBPACK_COMBINED_CHECKSUM="${JS_CHECKSUM}-${CSS_CHECKSUM}-${PACKAGE_JSON_CHECKSUM}-${PACKAGE_LOCK_CHECKSUM}-${WEBPACK_CHECKSUM}-${POSTCSS_CHECKSUM}"
 
-if [ -d "$DIST_DIR" ] && [ "$(ls -A $DIST_DIR 2>/dev/null)" ]; then
+if [ -d "$DIST_DIR" ] && [ "$(ls -A "$DIST_DIR" 2>/dev/null)" ]; then
     echo "   Checking webpack build cache..."
-    
-    CURRENT_CHECKSUM=$(find "$SRC_DIR" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec md5sum {} \; 2>/dev/null | sort | md5sum | cut -d' ' -f1)
-    PACKAGE_CHECKSUM=$(md5sum "$PROJECT_ROOT/package.json" 2>/dev/null | cut -d' ' -f1)
-    WEBPACK_CHECKSUM=$(md5sum "$PROJECT_ROOT/webpack.config.js" 2>/dev/null | cut -d' ' -f1)
-    
-    if [ -n "$CURRENT_CHECKSUM" ] && [ -n "$PACKAGE_CHECKSUM" ] && [ -n "$WEBPACK_CHECKSUM" ]; then
-        COMBINED_CHECKSUM="${CURRENT_CHECKSUM}-${PACKAGE_CHECKSUM}-${WEBPACK_CHECKSUM}"
-        
-        if [ -f "$CACHE_FILE" ]; then
-            STORED_CHECKSUM=$(cat "$CACHE_FILE" 2>/dev/null)
-            if [ "$COMBINED_CHECKSUM" = "$STORED_CHECKSUM" ]; then
-                if [ -f "$DIST_DIR/shield-main.bundle.js" ] && [ -f "$DIST_DIR/shield-main.bundle.css" ]; then
-                    WEBPACK_CACHE_VALID=true
-                    echo "   ✅ Cache valid - skipping rebuild"
-                fi
+    if [ -f "$WEBPACK_CACHE_FILE" ]; then
+        STORED_CHECKSUM=$(cat "$WEBPACK_CACHE_FILE" 2>/dev/null)
+        if [ "$WEBPACK_COMBINED_CHECKSUM" = "$STORED_CHECKSUM" ]; then
+            if [ -f "$DIST_DIR/shield-main.bundle.js" ] && [ -f "$DIST_DIR/shield-main.bundle.css" ]; then
+                WEBPACK_CACHE_VALID=true
+                echo "   Cache valid - skipping rebuild"
             fi
         fi
     fi
@@ -196,11 +219,8 @@ if [ "$WEBPACK_CACHE_VALID" = false ]; then
         echo "❌ Asset build failed"
         exit 1
     }
-
     # Save checksum
-    if [ -n "$COMBINED_CHECKSUM" ]; then
-        echo "$COMBINED_CHECKSUM" > "$CACHE_FILE"
-    fi
+    echo "$WEBPACK_COMBINED_CHECKSUM" > "$WEBPACK_CACHE_FILE"
     echo "   ✅ Build complete"
 fi
 
@@ -223,54 +243,76 @@ echo "   ✅ Composer runner image built: $COMPOSER_IMAGE"
 echo "📦 Installing dependencies..."
 echo "   Using PHP ${PHP_VERSION} with full extension support"
 
-docker run --rm --name shield-composer-root \
-    -v "$PROJECT_ROOT:/app" \
-    -w /app \
-    $COMPOSER_IMAGE \
-    composer install --no-interaction --prefer-dist --optimize-autoloader || {
-    echo "❌ Root composer install failed"
-    exit 1
-}
+COMPOSER_ROOT_CHECKSUM=$( (
+    hash_file_or_missing "$PROJECT_ROOT/composer.json"
+    hash_file_or_missing "$PROJECT_ROOT/composer.lock"
+    echo "php:${PHP_VERSION}"
+) | md5sum | cut -d' ' -f1 )
 
-echo "   ✅ Dependencies installed"
-
-# Build plugin package
-echo "📦 Building plugin package..."
-
-# Clean and create package directory
-rm -rf "$PACKAGE_DIR"
-mkdir -p "$PACKAGE_DIR"
-
-# Export tracked files using git archive (respects .gitattributes export-ignore)
-# This is MUCH faster than PHP file-by-file copying
-echo "   Exporting files via git archive..."
-git archive HEAD | tar -x -C "$PACKAGE_DIR" || {
-    echo "❌ git archive failed"
-    exit 1
-}
-
-# Verify archive extraction produced expected files
-if [ ! -f "$PACKAGE_DIR/icwp-wpsf.php" ]; then
-    echo "❌ git archive extraction failed - main plugin file not found"
-    exit 1
+COMPOSER_CACHE_VALID=false
+if [ -f "$COMPOSER_ROOT_CACHE_FILE" ] && [ -f "$PROJECT_ROOT/vendor/autoload.php" ]; then
+    CACHED_COMPOSER_ROOT_CHECKSUM=$(cat "$COMPOSER_ROOT_CACHE_FILE" 2>/dev/null)
+    if [ "$COMPOSER_ROOT_CHECKSUM" = "$CACHED_COMPOSER_ROOT_CHECKSUM" ]; then
+        COMPOSER_CACHE_VALID=true
+        echo "   Cache valid - skipping root composer install"
+    fi
 fi
-echo "   ✅ Files exported (verified)"
 
-# Copy built assets (gitignored but needed)
-if [ -d "$PROJECT_ROOT/assets/dist" ]; then
-    echo "   Copying built assets..."
-    cp -r "$PROJECT_ROOT/assets/dist" "$PACKAGE_DIR/assets/dist" || {
-        echo "❌ Failed to copy assets/dist"
+if [ "$COMPOSER_CACHE_VALID" = false ]; then
+    docker run --rm --name shield-composer-root \
+        -v "$PROJECT_ROOT:/app" \
+        -w /app \
+        $COMPOSER_IMAGE \
+        composer install --no-interaction --prefer-dist --optimize-autoloader || {
+        echo "Root composer install failed"
         exit 1
     }
-    # Verify expected bundle files exist
-    if [ ! -f "$PACKAGE_DIR/assets/dist/shield-main.bundle.js" ] || \
-       [ ! -f "$PACKAGE_DIR/assets/dist/shield-main.bundle.css" ]; then
-        echo "⚠️  Warning: assets/dist copied but expected bundle files not found"
-        echo "   Run 'npm run build' first to generate assets"
-    fi
-    echo "   ✅ Assets copied"
+    echo "$COMPOSER_ROOT_CHECKSUM" > "$COMPOSER_ROOT_CACHE_FILE"
 fi
+
+echo "   Dependencies ready"
+
+# Build plugin package
+echo "Building plugin package..."
+
+prepare_package_dir() {
+    # Clean and create package directory
+    rm -rf "$PACKAGE_DIR"
+    mkdir -p "$PACKAGE_DIR"
+
+    # Export tracked files using git archive (respects .gitattributes export-ignore)
+    # This is MUCH faster than PHP file-by-file copying
+    echo "   Exporting files via git archive..."
+    git archive HEAD | tar -x -C "$PACKAGE_DIR" || {
+        echo "Error: git archive failed"
+        return 1
+    }
+
+    # Verify archive extraction produced expected files
+    if [ ! -f "$PACKAGE_DIR/icwp-wpsf.php" ]; then
+        echo "Error: git archive extraction failed - main plugin file not found"
+        return 1
+    fi
+    echo "   Files exported (verified)"
+
+    # Copy built assets (gitignored but needed)
+    if [ -d "$PROJECT_ROOT/assets/dist" ]; then
+        echo "   Copying built assets..."
+        cp -r "$PROJECT_ROOT/assets/dist" "$PACKAGE_DIR/assets/dist" || {
+            echo "Error: failed to copy assets/dist"
+            return 1
+        }
+        # Verify expected bundle files exist
+        if [ ! -f "$PACKAGE_DIR/assets/dist/shield-main.bundle.js" ] || \
+           [ ! -f "$PACKAGE_DIR/assets/dist/shield-main.bundle.css" ]; then
+            echo "Warning: assets/dist copied but expected bundle files not found"
+            echo "   Run 'npm run build' first to generate assets"
+        fi
+        echo "   Assets copied"
+    fi
+}
+
+prepare_package_dir || exit 1
 
 # Validate PACKAGE_DIR_RELATIVE is set (defined in section 3.3.2)
 if [ -z "$PACKAGE_DIR_RELATIVE" ]; then
@@ -280,39 +322,79 @@ fi
 
 # Run Strauss and post-processing via Docker
 # Uses the same PHP image built earlier with all extensions
-echo "   Running Strauss prefixing..."
-docker run --rm --name shield-composer-package \
-    -v "$PROJECT_ROOT:/app" \
-    -w /app \
-    -e COMPOSER_PROCESS_TIMEOUT=900 \
-    -e SHIELD_STRAUSS_VERSION="$SHIELD_STRAUSS_VERSION" \
-    -e SHIELD_STRAUSS_FORK_REPO="${SHIELD_STRAUSS_FORK_REPO:-}" \
-    $COMPOSER_IMAGE \
-    composer package-plugin -- --output="$PACKAGE_DIR_RELATIVE" \
-        --skip-root-composer --skip-lib-composer \
-        --skip-npm-install --skip-npm-build \
-        --skip-directory-clean --skip-copy || {
-    echo "❌ Package build failed"
-    exit 1
+PACKAGE_DEPS_KEY=$( (
+    hash_file_or_missing "$PROJECT_ROOT/composer.json"
+    hash_file_or_missing "$PROJECT_ROOT/composer.lock"
+    hash_file_or_missing "$PROJECT_ROOT/.github/config/packager.conf"
+    echo "php:${PHP_VERSION}"
+) | md5sum | cut -d' ' -f1 )
+PACKAGE_DEPS_CACHE_DIR="$PACKAGE_DEPS_CACHE_ROOT/$PACKAGE_DEPS_KEY"
+mkdir -p "$PACKAGE_DEPS_CACHE_ROOT"
+PACKAGE_DEPS_CACHE_HIT=false
+
+if [ -f "$PACKAGE_DEPS_CACHE_DIR/vendor/autoload.php" ] && [ -f "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed/autoload.php" ]; then
+    echo "   Restoring cached package dependencies..."
+    rm -rf "$PACKAGE_DIR/vendor" "$PACKAGE_DIR/vendor_prefixed"
+    cp -a "$PACKAGE_DEPS_CACHE_DIR/vendor" "$PACKAGE_DIR/vendor"
+    cp -a "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed" "$PACKAGE_DIR/vendor_prefixed"
+    PACKAGE_DEPS_CACHE_HIT=true
+fi
+
+run_package_build() {
+    local skip_dependency_build=$1
+    local -a package_args=(
+        "--output=$PACKAGE_DIR_RELATIVE"
+        "--skip-root-composer"
+        "--skip-lib-composer"
+        "--skip-npm-install"
+        "--skip-npm-build"
+        "--skip-directory-clean"
+        "--skip-copy"
+    )
+
+    if [ "$skip_dependency_build" = true ]; then
+        package_args+=( "--skip-package-dependency-build" )
+    fi
+
+    docker run --rm --name shield-composer-package \
+        -v "$PROJECT_ROOT:/app" \
+        -w /app \
+        -e COMPOSER_PROCESS_TIMEOUT=900 \
+        -e SHIELD_STRAUSS_VERSION="$SHIELD_STRAUSS_VERSION" \
+        -e SHIELD_STRAUSS_FORK_REPO="${SHIELD_STRAUSS_FORK_REPO:-}" \
+        $COMPOSER_IMAGE \
+        composer package-plugin -- "${package_args[@]}"
 }
 
-echo "   ✅ Package built at $PACKAGE_DIR"
+echo "   Running Strauss prefixing..."
+if [ "$PACKAGE_DEPS_CACHE_HIT" = true ]; then
+    if ! run_package_build true; then
+        echo "   Cached package dependencies failed validation; retrying with full dependency build..."
+        prepare_package_dir || exit 1
+        run_package_build false || {
+            echo "Package build failed"
+            exit 1
+        }
+    fi
+else
+    run_package_build false || {
+        echo "Package build failed"
+        exit 1
+    }
+fi
+
+if [ -f "$PACKAGE_DIR/vendor/autoload.php" ] && [ -f "$PACKAGE_DIR/vendor_prefixed/autoload.php" ]; then
+    mkdir -p "$PACKAGE_DEPS_CACHE_DIR"
+    rm -rf "$PACKAGE_DEPS_CACHE_DIR/vendor" "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed"
+    cp -a "$PACKAGE_DIR/vendor" "$PACKAGE_DEPS_CACHE_DIR/vendor"
+    cp -a "$PACKAGE_DIR/vendor_prefixed" "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed"
+fi
+
+echo "   Package built at $PACKAGE_DIR"
 
 # Prepare Docker environment directory
 echo "⚙️  Setting up Docker environment..."
 mkdir -p tests/docker
-
-# Build Docker images for each WordPress version (matching GitHub Actions approach)
-build_docker_image_for_wp_version() {
-    local WP_VERSION=$1
-    local VERSION_NAME=$2
-    
-    echo "🐳 Building Docker image for PHP $PHP_VERSION + WordPress $WP_VERSION ($VERSION_NAME)..."
-    docker build tests/docker/ \
-        --build-arg PHP_VERSION=$PHP_VERSION \
-        --build-arg WP_VERSION=$WP_VERSION \
-        --tag shield-test-runner:php$PHP_VERSION-wp$WP_VERSION
-}
 
 # Health check function for MySQL containers
 # Based on Task 4.2 testing, MySQL takes ~38 seconds to initialize
@@ -584,11 +666,6 @@ EOF
     # Return overall exit code for CI compatibility
     return $OVERALL_EXIT_CODE
 }
-
-# Build Docker images for both WordPress versions
-echo "🏗️ Building Docker images for all WordPress versions..."
-build_docker_image_for_wp_version "$LATEST_VERSION" "latest"
-build_docker_image_for_wp_version "$PREVIOUS_VERSION" "previous"
 
 # Enable debug mode for detailed monitoring
 DEBUG_MODE=${DEBUG_MODE:-"false"}
