@@ -18,65 +18,39 @@ class LegacyPathDuplicator {
 	/**
 	 * Source directories to mirror (full copy).
 	 *
-	 * Only the DB entity directories actually autoloaded during shutdown are included:
-	 * - ActivityLogs/Meta: AuditLogger -> LocalDbWriter inserts log + meta records
-	 * - BotSignal: BotSignalsController tracks page loads; EventsToSignals checks notbot
-	 * - Common: BaseLoadRecordsForIPJoins base class used by LoadIpRules
-	 * - CrowdSecSignals: EventsToSignals inserts signal records at shutdown
-	 * - Event: StatsWriter commits event counts
-	 * - IpRules: ProcessOffense -> AddRule -> IpRuleStatus loads/updates rules
-	 * - IPs: IPRecords used by audit, traffic, bot signals, offense processing
-	 * - ReqLogs: RequestRecords used by audit and traffic log writers
-	 * - UserMeta: BotSignalsRecord reads last_login_at
+	 * Only directories still required for late autoload/shutdown compatibility are included.
 	 */
 	private const SRC_DIRECTORIES_TO_MIRROR = [
 		[ 'Controller', 'Config' ],              // OptsHandler::store() at shutdown
-		[ 'DBs', 'ActivityLogs' ],               // AuditLogger -> LocalDbWriter
-		[ 'DBs', 'ActivityLogsMeta' ],           // AuditLogger -> LocalDbWriter metadata
-		[ 'DBs', 'BotSignal' ],                  // BotSignalsController, EventsToSignals
-		[ 'DBs', 'Common' ],                     // BaseLoadRecordsForIPJoins
-		[ 'DBs', 'CrowdSecSignals' ],            // EventsToSignals signal records
-		[ 'DBs', 'Event' ],                      // StatsWriter event counts
-		[ 'DBs', 'IpRules' ],                    // ProcessOffense -> AddRule -> IpRuleStatus
-		[ 'DBs', 'IPs' ],                        // IPRecords (audit, traffic, bot signals)
-		[ 'DBs', 'ReqLogs' ],                    // RequestRecords (audit, traffic writers)
-		[ 'DBs', 'Snapshots' ],                  // Snapshots delete and create
-		[ 'DBs', 'UserMeta' ],                   // BotSignalsRecord reads last_login_at
-		[ 'Logging' ],                           // All log processors
-		[ 'Modules', 'IPs', 'Lib', 'IpRules' ],  // IP rule classes
-		[ 'Modules', 'AuditTrail', 'Lib', 'Snapshots' ],
 	];
 	/**
 	 * Individual source files to copy
 	 */
 	private const SRC_FILES_TO_COPY = [
-		// Controller/Dependencies/Monolog.php - Assessed when creating loggers
-		[ 'Controller', 'Dependencies', 'Monolog.php' ],
-		[ 'ActionRouter', 'Actions', 'Render', 'Components', 'FormSecurityAdminLoginBox.php' ],
-		// TODO: throw action exception to prevent render in legacy.
+		[ 'ActionRouter', 'Exceptions', 'ActionException.php' ],
 		[ 'ActionRouter', 'Actions', 'Traits', 'SecurityAdminNotRequired.php' ],
-		[ 'Events', 'EventStrings.php' ],
-		// Modules/AuditTrail/Lib/ - Audit logging
-		[ 'Modules', 'AuditTrail', 'Lib', 'ActivityLogMessageBuilder.php' ],
-		[ 'Modules', 'AuditTrail', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
-		// Modules/HackGuard/Lib/Snapshots/ - Snapshot checking
-		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'FindAssetsToSnap.php' ],
-		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'HashesStorageDir.php' ],
-		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'Store.php' ],
-		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'StoreAction', 'BaseAction.php' ],
-		[ 'Modules', 'HackGuard', 'Lib', 'Snapshots', 'StoreAction', 'Load.php' ],
-		// Modules/IPs/Components/ProcessOffense.php - Offense processing
-		[ 'Modules', 'IPs', 'Components', 'ProcessOffense.php' ],
-		// Modules/IPs/Lib/Bots/BotSignalsRecord.php - Bot signal recording
-		[ 'Modules', 'IPs', 'Lib', 'Bots', 'BotSignalsRecord.php' ],
-		// Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php - Traffic DB writing
-		[ 'Modules', 'Traffic', 'Lib', 'LogHandlers', 'LocalDbWriter.php' ],
+	];
+	/**
+	 * Explicit legacy override source -> destination mappings.
+	 *
+	 * @var array<string,string>
+	 */
+	private const LEGACY_OVERRIDE_FILE_MAP = [
+		'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' => 'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php',
+		'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' => 'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php',
+		'ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' => 'ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php',
+		'Controller/Dependencies/Monolog.php' => 'Controller/Dependencies/Monolog.php',
+		'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php' => 'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php',
+		'Modules/IPs/Components/ProcessOffense.php' => 'Modules/IPs/Components/ProcessOffense.php',
+		'Modules/IPs/Lib/Bots/BotSignalsRecord.php' => 'Modules/IPs/Lib/Bots/BotSignalsRecord.php',
+		'DBs/BotSignal/BotSignalRecord.php' => 'DBs/BotSignal/BotSignalRecord.php',
+		'DBs/Event/Ops/Handler.php' => 'DBs/Event/Ops/Handler.php',
+		'DBs/CrowdSecSignals/Ops/Handler.php' => 'DBs/CrowdSecSignals/Ops/Handler.php',
 	];
 	/**
 	 * Vendor prefixed directories to mirror
 	 */
 	private const VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR = [
-		[ 'monolog' ],   // Monolog used at shutdown for logging
 		[ 'composer' ],  // Autoloader metadata
 	];
 	/**
@@ -91,7 +65,6 @@ class LegacyPathDuplicator {
 	 */
 	private const STD_VENDOR_DIRECTORIES_TO_MIRROR = [
 		[ 'fernleafsystems', 'wordpress-services', 'src' ], // Used for beta upgrades handling
-		[ 'mlocati', 'ip-lib' ],  // IPLib used by AddRule at shutdown
 		[ 'composer' ],            // Autoloader metadata
 	];
 	/**
@@ -149,6 +122,9 @@ class LegacyPathDuplicator {
 			self::SRC_FILES_TO_COPY
 		);
 
+		// Apply known legacy shutdown overrides without affecting runtime source files.
+		$this->applyLegacyOverrides( $legacySrcDir );
+
 		// Mirror vendor prefixed directories
 		\array_map(
 			fn( array $path ) => $fs->mirror(
@@ -190,6 +166,26 @@ class LegacyPathDuplicator {
 		);
 
 		$this->log( '  ✓ Created legacy path duplicates for upgrade compatibility' );
+	}
+
+	private function applyLegacyOverrides( string $legacySrcDir ) :void {
+		$fs = new Filesystem();
+		$overridesRoot = $this->getLegacyOverridesRootDir();
+
+		foreach ( self::LEGACY_OVERRIDE_FILE_MAP as $sourceRelativePath => $legacyRelativePath ) {
+			$sourcePath = Path::join( $overridesRoot, ...\explode( '/', $sourceRelativePath ) );
+			if ( !\file_exists( $sourcePath ) ) {
+				throw new \RuntimeException( \sprintf( 'Required legacy override missing: %s', $sourcePath ) );
+			}
+
+			$destPath = Path::join( $legacySrcDir, ...\explode( '/', $legacyRelativePath ) );
+			$fs->mkdir( \dirname( $destPath ), 0755 );
+			$fs->copy( $sourcePath, $destPath, true );
+		}
+	}
+
+	protected function getLegacyOverridesRootDir() :string {
+		return __DIR__.'/LegacyOverrides/src';
 	}
 
 	private function log( string $message ) :void {

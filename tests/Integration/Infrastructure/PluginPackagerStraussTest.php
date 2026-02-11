@@ -223,6 +223,187 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertTrue( class_exists( $crowdSecClass ) );
 	}
 
+	public function testLegacySnapshotOpsAreGuardedWhileRuntimeSourceRemainsActive() :void {
+		$legacyDeletePath = $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php';
+		$legacyStorePath = $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php';
+		$runtimeDeletePath = $this->packagePath.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php';
+		$runtimeStorePath = $this->packagePath.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php';
+
+		$this->assertFileExists( $legacyDeletePath );
+		$this->assertFileExists( $legacyStorePath );
+		$this->assertFileExists( $runtimeDeletePath );
+		$this->assertFileExists( $runtimeStorePath );
+
+		$legacyDelete = (string)\file_get_contents( $legacyDeletePath );
+		$legacyStore = (string)\file_get_contents( $legacyStorePath );
+		$runtimeDelete = (string)\file_get_contents( $runtimeDeletePath );
+		$runtimeStore = (string)\file_get_contents( $runtimeStorePath );
+
+		$this->assertStringContainsString( 'return false;', $legacyDelete );
+		$this->assertStringContainsString( 'return false;', $legacyStore );
+		$this->assertStringNotContainsString( 'return false;', $runtimeDelete );
+		$this->assertStringNotContainsString( 'return false;', $runtimeStore );
+		$this->assertStringContainsString( 'filterBySlug( $slug )->query()', $runtimeDelete );
+		$this->assertStringContainsString( '->insert( Convert::SnapToRecord( $snapshot ) )', $runtimeStore );
+	}
+
+	public function testLegacySecurityAdminLoginBoxIsGuardedWhileRuntimeSourceRenders() :void {
+		$legacyLoginPath = $this->packagePath.'/src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
+		$runtimeLoginPath = $this->packagePath.'/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
+		$legacyActionExceptionPath = $this->packagePath.'/src/lib/src/ActionRouter/Exceptions/ActionException.php';
+
+		$this->assertFileExists( $legacyLoginPath );
+		$this->assertFileExists( $runtimeLoginPath );
+		$this->assertFileExists( $legacyActionExceptionPath );
+
+		$legacyLogin = (string)\file_get_contents( $legacyLoginPath );
+		$runtimeLogin = (string)\file_get_contents( $runtimeLoginPath );
+
+		$this->assertStringContainsString(
+			'use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;',
+			$legacyLogin
+		);
+		$this->assertStringContainsString( "throw new ActionException( '' );", $legacyLogin );
+		$this->assertStringNotContainsString( "throw new ActionException( '' );", $runtimeLogin );
+	}
+
+	public function testLegacyMonologAndSnapshotFinderAreGuardedWhileRuntimeSourceRemainsActive() :void {
+		$legacyMonologPath = $this->packagePath.'/src/lib/src/Controller/Dependencies/Monolog.php';
+		$runtimeMonologPath = $this->packagePath.'/src/Controller/Dependencies/Monolog.php';
+		$legacyFindAssetsPath = $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php';
+		$runtimeFindAssetsPath = $this->packagePath.'/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php';
+
+		$this->assertFileExists( $legacyMonologPath );
+		$this->assertFileExists( $runtimeMonologPath );
+		$this->assertFileExists( $legacyFindAssetsPath );
+		$this->assertFileExists( $runtimeFindAssetsPath );
+
+		$legacyMonolog = (string)\file_get_contents( $legacyMonologPath );
+		$runtimeMonolog = (string)\file_get_contents( $runtimeMonologPath );
+		$legacyFindAssets = (string)\file_get_contents( $legacyFindAssetsPath );
+		$runtimeFindAssets = (string)\file_get_contents( $runtimeFindAssetsPath );
+
+		$this->assertStringContainsString( "throw new \\Exception( 'Legacy shutdown guard: monolog disabled.' );", $legacyMonolog );
+		$this->assertStringNotContainsString( 'includePrefixedVendor()', $legacyMonolog );
+		$this->assertStringContainsString( 'includePrefixedVendor()', $runtimeMonolog );
+
+		$this->assertStringContainsString( 'return [];', $legacyFindAssets );
+		$this->assertStringNotContainsString( 'Services::WpPlugins()->getPluginsAsVo()', $legacyFindAssets );
+		$this->assertStringContainsString( 'Services::WpPlugins()->getPluginsAsVo()', $runtimeFindAssets );
+	}
+
+	public function testLegacyIpOffenseAndBotSignalGuardsAreAppliedWhileRuntimeSourceRemainsActive() :void {
+		$legacyProcessOffensePath = $this->packagePath.'/src/lib/src/Modules/IPs/Components/ProcessOffense.php';
+		$runtimeProcessOffensePath = $this->packagePath.'/src/Modules/IPs/Components/ProcessOffense.php';
+		$legacyBotSignalsPath = $this->packagePath.'/src/lib/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php';
+		$runtimeBotSignalsPath = $this->packagePath.'/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php';
+
+		$this->assertFileExists( $legacyProcessOffensePath );
+		$this->assertFileExists( $runtimeProcessOffensePath );
+		$this->assertFileExists( $legacyBotSignalsPath );
+		$this->assertFileExists( $runtimeBotSignalsPath );
+
+		$legacyProcessOffense = (string)\file_get_contents( $legacyProcessOffensePath );
+		$runtimeProcessOffense = (string)\file_get_contents( $runtimeProcessOffensePath );
+		$legacyBotSignals = (string)\file_get_contents( $legacyBotSignalsPath );
+		$runtimeBotSignals = (string)\file_get_contents( $runtimeBotSignalsPath );
+
+		$this->assertStringContainsString( 'public function incrementOffenses', $legacyProcessOffense );
+		$this->assertStringNotContainsString( 'new AddRule()', $legacyProcessOffense );
+		$this->assertStringNotContainsString( 'IpRulesCache::Delete', $legacyProcessOffense );
+		$this->assertStringContainsString( 'new AddRule()', $runtimeProcessOffense );
+		$this->assertStringContainsString( 'IpRulesCache::Delete', $runtimeProcessOffense );
+
+		$this->assertStringContainsString( 'public function retrieve() :BotSignalRecord', $legacyBotSignals );
+		$this->assertStringContainsString( "'notbot_at'", $legacyBotSignals );
+		$this->assertStringNotContainsString( 'IpRuleStatus', $legacyBotSignals );
+		$this->assertStringNotContainsString( 'IPRecords', $legacyBotSignals );
+		$this->assertStringNotContainsString( 'UserMeta', $legacyBotSignals );
+		$this->assertStringContainsString( 'IpRuleStatus', $runtimeBotSignals );
+		$this->assertStringContainsString( 'IPRecords', $runtimeBotSignals );
+		$this->assertStringContainsString( 'UserMeta', $runtimeBotSignals );
+	}
+
+	public function testLegacyEventAndCrowdSecDbHandlersAreGuardedWhileRuntimeSourceRemainsActive() :void {
+		$legacyEventHandlerPath = $this->packagePath.'/src/lib/src/DBs/Event/Ops/Handler.php';
+		$runtimeEventHandlerPath = $this->packagePath.'/src/DBs/Event/Ops/Handler.php';
+		$legacyCrowdSecHandlerPath = $this->packagePath.'/src/lib/src/DBs/CrowdSecSignals/Ops/Handler.php';
+		$runtimeCrowdSecHandlerPath = $this->packagePath.'/src/DBs/CrowdSecSignals/Ops/Handler.php';
+
+		$this->assertFileExists( $legacyEventHandlerPath );
+		$this->assertFileExists( $runtimeEventHandlerPath );
+		$this->assertFileExists( $legacyCrowdSecHandlerPath );
+		$this->assertFileExists( $runtimeCrowdSecHandlerPath );
+
+		$legacyEventHandler = (string)\file_get_contents( $legacyEventHandlerPath );
+		$runtimeEventHandler = (string)\file_get_contents( $runtimeEventHandlerPath );
+		$legacyCrowdSecHandler = (string)\file_get_contents( $legacyCrowdSecHandlerPath );
+		$runtimeCrowdSecHandler = (string)\file_get_contents( $runtimeCrowdSecHandlerPath );
+
+		$this->assertStringContainsString( 'public function isReady() :bool', $legacyEventHandler );
+		$this->assertStringContainsString( 'public function commitEvents', $legacyEventHandler );
+		$this->assertStringContainsString( 'return false;', $legacyEventHandler );
+		$this->assertStringNotContainsString(
+			'extends \\FernleafSystems\\Wordpress\\Plugin\\Core\\Databases\\Base\\Handler',
+			$legacyEventHandler
+		);
+		$this->assertStringContainsString(
+			'extends \\FernleafSystems\\Wordpress\\Plugin\\Core\\Databases\\Base\\Handler',
+			$runtimeEventHandler
+		);
+		$this->assertStringContainsString( 'commitEvents', $runtimeEventHandler );
+
+		$this->assertStringContainsString( 'public function getRecord() :LegacyRecordStub', $legacyCrowdSecHandler );
+		$this->assertStringContainsString( 'public function getQueryInserter() :LegacyInserterStub', $legacyCrowdSecHandler );
+		$this->assertStringContainsString( 'class LegacyRecordStub', $legacyCrowdSecHandler );
+		$this->assertStringNotContainsString(
+			'extends \\FernleafSystems\\Wordpress\\Plugin\\Core\\Databases\\Base\\Handler',
+			$legacyCrowdSecHandler
+		);
+		$this->assertStringContainsString(
+			'extends \\FernleafSystems\\Wordpress\\Plugin\\Core\\Databases\\Base\\Handler',
+			$runtimeCrowdSecHandler
+		);
+	}
+
+	public function testLegacyPrunedShutdownPathsAreNotDuplicated() :void {
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/ActivityLogs' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/ActivityLogsMeta' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/ReqLogs' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/Logging' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/vendor_prefixed/monolog' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/IpRules' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/Modules/IPs/Lib/IpRules' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/UserMeta' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/IPs' );
+		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/vendor/mlocati/ip-lib' );
+
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Events/EventStrings.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/LogHandlers/LocalDbWriter.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/HashesStorageDir.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/BaseAction.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/Load.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Event/Ops/Insert.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Event/Ops/Record.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/CrowdSecSignals/Ops/Insert.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/CrowdSecSignals/Ops/Record.php' );
+
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Common/BaseLoadRecordsForIPJoins.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Handler.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Record.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Insert.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' );
+		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
+		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
+	}
+
 	public function testManifestSnapshotIfPresent() :void {
 		$fixturePath = $this->packagePath.'/tests/fixtures/packager/expected-manifest.json';
 		if ( !file_exists( $fixturePath ) ) {
