@@ -241,6 +241,10 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$this->assertStringContainsString( 'return false;', $legacyDelete );
 		$this->assertStringContainsString( 'return false;', $legacyStore );
+		$this->assertStringNotContainsString( 'PluginControllerConsumer', $legacyDelete );
+		$this->assertStringContainsString( 'public function store( $snapshot ) :bool', $legacyStore );
+		$this->assertStringNotContainsString( 'SnapshotVO', $legacyStore );
+		$this->assertStringNotContainsString( 'PluginControllerConsumer', $legacyStore );
 		$this->assertStringNotContainsString( 'return false;', $runtimeDelete );
 		$this->assertStringNotContainsString( 'return false;', $runtimeStore );
 		$this->assertStringContainsString( 'filterBySlug( $slug )->query()', $runtimeDelete );
@@ -251,20 +255,24 @@ class PluginPackagerStraussTest extends TestCase {
 		$legacyLoginPath = $this->packagePath.'/src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
 		$runtimeLoginPath = $this->packagePath.'/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
 		$legacyActionExceptionPath = $this->packagePath.'/src/lib/src/ActionRouter/Exceptions/ActionException.php';
+		$legacySecurityAdminNotRequiredPath = $this->packagePath.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php';
 
 		$this->assertFileExists( $legacyLoginPath );
 		$this->assertFileExists( $runtimeLoginPath );
-		$this->assertFileExists( $legacyActionExceptionPath );
+		$this->assertFileDoesNotExist( $legacyActionExceptionPath );
+		$this->assertFileDoesNotExist( $legacySecurityAdminNotRequiredPath );
 
 		$legacyLogin = (string)\file_get_contents( $legacyLoginPath );
 		$runtimeLogin = (string)\file_get_contents( $runtimeLoginPath );
 
-		$this->assertStringContainsString(
-			'use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;',
-			$legacyLogin
-		);
-		$this->assertStringContainsString( "throw new ActionException( '' );", $legacyLogin );
-		$this->assertStringNotContainsString( "throw new ActionException( '' );", $runtimeLogin );
+		$this->assertStringContainsString( 'extends BaseAction', $legacyLogin );
+		$this->assertStringContainsString( 'protected function checkAccess()', $legacyLogin );
+		$this->assertStringContainsString( "'render_output' => ''", $legacyLogin );
+		$this->assertStringContainsString( "'html'          => ''", $legacyLogin );
+		$this->assertStringNotContainsString( 'extends BaseRender', $legacyLogin );
+		$this->assertStringNotContainsString( 'SecurityAdminNotRequired', $legacyLogin );
+		$this->assertStringNotContainsString( 'ActionException', $legacyLogin );
+		$this->assertStringContainsString( 'extends \\FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\BaseRender', $runtimeLogin );
 	}
 
 	public function testLegacyMonologAndSnapshotFinderAreGuardedWhileRuntimeSourceRemainsActive() :void {
@@ -413,6 +421,8 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Insert.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Delete.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Select.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/ActionRouter/Exceptions/ActionException.php' );
+		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' );
 		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' );

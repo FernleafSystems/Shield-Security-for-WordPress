@@ -55,39 +55,6 @@ $assertClassLoadsFromLegacy = static function ( string $className ) use ( $norma
 	}
 	return $filePath;
 };
-$ensurePluginControllerConsumerTrait = static function () :void {
-	$traitName = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\PluginControllerConsumer';
-	if ( !\trait_exists( $traitName, false ) ) {
-		eval( <<<'PHP'
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-trait PluginControllerConsumer {
-}
-PHP
-		);
-	}
-};
-$ensureSnapshotVoClass = static function () :void {
-	$className = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\SnapshotVO';
-	if ( !\class_exists( $className, false ) ) {
-		eval( <<<'PHP'
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots;
-
-class SnapshotVO {
-
-	public string $slug = '';
-
-	/**
-	 * @var array<string,mixed>
-	 */
-	public array $data = [];
-
-	public int $snapshot_at = 0;
-}
-PHP
-		);
-	}
-};
 
 if ( $scenario === 'precheck' ) {
 	$classesToRemainMissing = [
@@ -304,9 +271,7 @@ $checks = [
 			'count'    => $count,
 		];
 	},
-	'snapshot_delete_guard' => static function () use ( $assertClassLoadsFromLegacy, $ensurePluginControllerConsumerTrait ) :array {
-		$ensurePluginControllerConsumerTrait();
-
+	'snapshot_delete_guard' => static function () use ( $assertClassLoadsFromLegacy ) :array {
 		$className = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Delete';
 		$filePath = $assertClassLoadsFromLegacy( $className );
 		$instance = new $className();
@@ -321,16 +286,11 @@ $checks = [
 			'deleted' => $deleted,
 		];
 	},
-	'snapshot_store_guard' => static function () use ( $assertClassLoadsFromLegacy, $ensurePluginControllerConsumerTrait, $ensureSnapshotVoClass ) :array {
-		$ensurePluginControllerConsumerTrait();
-		$ensureSnapshotVoClass();
-
+	'snapshot_store_guard' => static function () use ( $assertClassLoadsFromLegacy ) :array {
 		$className = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Store';
 		$filePath = $assertClassLoadsFromLegacy( $className );
 		$instance = new $className();
-		$snapshotClass = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\SnapshotVO';
-		/** @var object $snapshot */
-		$snapshot = new $snapshotClass();
+		$snapshot = new \stdClass();
 		$snapshot->slug = 'legacy-probe';
 		$snapshot->data = [ 'source' => 'legacy_probe' ];
 		$snapshot->snapshot_at = 1234567890;

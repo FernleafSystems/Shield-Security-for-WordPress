@@ -40,6 +40,11 @@ class LegacyPathDuplicatorTest extends TestCase {
 		return $reflection->getConstant( $name );
 	}
 
+	private function getSrcFilesToCopy() :array {
+		$filesToCopy = $this->getConstant( 'SRC_FILES_TO_COPY' );
+		return \is_array( $filesToCopy ) ? $filesToCopy : [];
+	}
+
 	private function setupMinimalPackageStructure() :void {
 		// Source directories to mirror - create dir + dummy file so mirror has content
 		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
@@ -49,7 +54,7 @@ class LegacyPathDuplicatorTest extends TestCase {
 		}
 
 		// Individual source files to copy
-		foreach ( $this->getConstant( 'SRC_FILES_TO_COPY' ) as $pathParts ) {
+		foreach ( $this->getSrcFilesToCopy() as $pathParts ) {
 			$filePath = $this->tempDir.'/src/'.\implode( '/', $pathParts );
 			$this->fs->mkdir( \dirname( $filePath ) );
 			$this->fs->dumpFile( $filePath, '<?php' );
@@ -266,7 +271,10 @@ PHP
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		foreach ( $this->getConstant( 'SRC_FILES_TO_COPY' ) as $pathParts ) {
+		$filesToCopy = $this->getSrcFilesToCopy();
+		$this->assertIsArray( $filesToCopy );
+
+		foreach ( $filesToCopy as $pathParts ) {
 			$this->assertFileExists(
 				$this->tempDir.'/src/lib/src/'.\implode( '/', $pathParts )
 			);
@@ -332,12 +340,16 @@ PHP
 		);
 		$this->assertStringContainsString( 'return false;', $legacyDelete );
 		$this->assertStringNotContainsString( 'filterBySlug( $slug )->query()', $legacyDelete );
+		$this->assertStringNotContainsString( 'PluginControllerConsumer', $legacyDelete );
 
 		$legacyStore = (string)\file_get_contents(
 			$this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php'
 		);
 		$this->assertStringContainsString( 'return false;', $legacyStore );
 		$this->assertStringNotContainsString( '->insert( Convert::SnapToRecord( $snapshot ) )', $legacyStore );
+		$this->assertStringContainsString( 'public function store( $snapshot ) :bool', $legacyStore );
+		$this->assertStringNotContainsString( 'SnapshotVO', $legacyStore );
+		$this->assertStringNotContainsString( 'PluginControllerConsumer', $legacyStore );
 
 		$runtimeDelete = (string)\file_get_contents(
 			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php'
@@ -354,15 +366,13 @@ PHP
 		$legacyLoginBox = (string)\file_get_contents(
 			$this->tempDir.'/src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php'
 		);
-		$this->assertStringContainsString(
-			'use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;',
-			$legacyLoginBox
-		);
-		$this->assertStringContainsString( "throw new ActionException( '' );", $legacyLoginBox );
-
-		$this->assertFileExists(
-			$this->tempDir.'/src/lib/src/ActionRouter/Exceptions/ActionException.php'
-		);
+		$this->assertStringContainsString( 'extends BaseAction', $legacyLoginBox );
+		$this->assertStringContainsString( 'protected function checkAccess()', $legacyLoginBox );
+		$this->assertStringContainsString( "'render_output' => ''", $legacyLoginBox );
+		$this->assertStringContainsString( "'html'          => ''", $legacyLoginBox );
+		$this->assertStringNotContainsString( 'extends BaseRender', $legacyLoginBox );
+		$this->assertStringNotContainsString( 'SecurityAdminNotRequired', $legacyLoginBox );
+		$this->assertStringNotContainsString( 'ActionException', $legacyLoginBox );
 
 		$legacyMonolog = (string)\file_get_contents(
 			$this->tempDir.'/src/lib/src/Controller/Dependencies/Monolog.php'
@@ -479,6 +489,8 @@ PHP
 		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' );
 		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' );
 		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops' );
+		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Exceptions/ActionException.php' );
+		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
 		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
 		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
 		$this->assertFileExists( $this->tempDir.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php' );

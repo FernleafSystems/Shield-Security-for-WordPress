@@ -24,28 +24,21 @@ class LegacyPathDuplicator {
 		[ 'Controller', 'Config' ],              // OptsHandler::store() at shutdown
 	];
 	/**
-	 * Individual source files to copy
-	 */
-	private const SRC_FILES_TO_COPY = [
-		[ 'ActionRouter', 'Exceptions', 'ActionException.php' ],
-		[ 'ActionRouter', 'Actions', 'Traits', 'SecurityAdminNotRequired.php' ],
-	];
-	/**
 	 * Explicit legacy override source -> destination mappings.
 	 *
 	 * @var array<string,string>
 	 */
 	private const LEGACY_OVERRIDE_FILE_MAP = [
-		'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' => 'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php',
-		'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' => 'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php',
+		'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php'                      => 'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php',
+		'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php'                       => 'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php',
 		'ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' => 'ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php',
-		'Controller/Dependencies/Monolog.php' => 'Controller/Dependencies/Monolog.php',
-		'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php' => 'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php',
-		'Modules/IPs/Components/ProcessOffense.php' => 'Modules/IPs/Components/ProcessOffense.php',
-		'Modules/IPs/Lib/Bots/BotSignalsRecord.php' => 'Modules/IPs/Lib/Bots/BotSignalsRecord.php',
-		'DBs/BotSignal/BotSignalRecord.php' => 'DBs/BotSignal/BotSignalRecord.php',
-		'DBs/Event/Ops/Handler.php' => 'DBs/Event/Ops/Handler.php',
-		'DBs/CrowdSecSignals/Ops/Handler.php' => 'DBs/CrowdSecSignals/Ops/Handler.php',
+		'Controller/Dependencies/Monolog.php'                                  => 'Controller/Dependencies/Monolog.php',
+		'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php'                 => 'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php',
+		'Modules/IPs/Components/ProcessOffense.php'                            => 'Modules/IPs/Components/ProcessOffense.php',
+		'Modules/IPs/Lib/Bots/BotSignalsRecord.php'                            => 'Modules/IPs/Lib/Bots/BotSignalsRecord.php',
+		'DBs/BotSignal/BotSignalRecord.php'                                    => 'DBs/BotSignal/BotSignalRecord.php',
+		'DBs/Event/Ops/Handler.php'                                            => 'DBs/Event/Ops/Handler.php',
+		'DBs/CrowdSecSignals/Ops/Handler.php'                                  => 'DBs/CrowdSecSignals/Ops/Handler.php',
 	];
 	/**
 	 * Vendor prefixed directories to mirror
@@ -71,7 +64,6 @@ class LegacyPathDuplicator {
 	 * Standard vendor files to copy
 	 */
 	private const STD_VENDOR_FILES_TO_COPY = [
-		'autoload.php',
 	];
 
 	/** @var callable */
@@ -107,19 +99,6 @@ class LegacyPathDuplicator {
 				Path::join( $legacySrcDir, ...$path )
 			),
 			self::SRC_DIRECTORIES_TO_MIRROR
-		);
-
-		// Copy individual source files
-		\array_map(
-			function ( array $path ) use ( $fs, $srcDir, $legacySrcDir ) :void {
-				$destPath = Path::join( $legacySrcDir, ...$path );
-				$fs->mkdir( \dirname( $destPath ), 0755 );
-				$fs->copy(
-					Path::join( $srcDir, ...$path ),
-					$destPath
-				);
-			},
-			self::SRC_FILES_TO_COPY
 		);
 
 		// Apply known legacy shutdown overrides without affecting runtime source files.
@@ -185,7 +164,7 @@ class LegacyPathDuplicator {
 	}
 
 	protected function getLegacyOverridesRootDir() :string {
-		return __DIR__.'/LegacyOverrides/src';
+		return Path::join( __DIR__, 'LegacyOverrides/src' );
 	}
 
 	private function log( string $message ) :void {

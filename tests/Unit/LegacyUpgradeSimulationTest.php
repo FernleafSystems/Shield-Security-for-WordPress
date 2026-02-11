@@ -112,6 +112,8 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Insert.php' );
 		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Delete.php' );
 		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Select.php' );
+		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Exceptions/ActionException.php' );
+		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
 	}
 
 	public function testBuiltPackageCanPassLegacyProbeWhenPackagePathProvided() :void {
@@ -142,27 +144,12 @@ class LegacyUpgradeSimulationTest extends TestCase {
 			}
 		}
 
-		foreach ( $this->getConstant( 'SRC_FILES_TO_COPY' ) as $pathParts ) {
+		foreach ( $this->getSrcFilesToCopy() as $pathParts ) {
 			$relativePath = \implode( '/', $pathParts );
 			$sourcePath = $sourceSrcRoot.'/'.$relativePath;
 			$targetPath = $srcRoot.'/'.$relativePath;
 			$this->fs->mkdir( \dirname( $targetPath ) );
 
-			if ( \file_exists( $sourcePath ) ) {
-				$this->fs->copy( $sourcePath, $targetPath );
-			}
-			else {
-				$this->fs->dumpFile( $targetPath, '<?php' );
-			}
-		}
-
-		foreach ( [
-			'Modules/PluginControllerConsumer.php',
-			'Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php',
-		] as $relativePath ) {
-			$sourcePath = $sourceSrcRoot.'/'.$relativePath;
-			$targetPath = $srcRoot.'/'.$relativePath;
-			$this->fs->mkdir( \dirname( $targetPath ) );
 			if ( \file_exists( $sourcePath ) ) {
 				$this->fs->copy( $sourcePath, $targetPath );
 			}
@@ -225,6 +212,11 @@ class LegacyUpgradeSimulationTest extends TestCase {
 	private function getConstant( string $name ) {
 		$reflection = new ReflectionClass( LegacyPathDuplicator::class );
 		return $reflection->getConstant( $name );
+	}
+
+	private function getSrcFilesToCopy() :array {
+		$filesToCopy = $this->getConstant( 'SRC_FILES_TO_COPY' );
+		return \is_array( $filesToCopy ) ? $filesToCopy : [];
 	}
 
 	private function normalisePath( string $path ) :string {

@@ -2,14 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\SnapshotVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-
 class Store {
 
-	use PluginControllerConsumer;
-
-	public function store( SnapshotVO $snapshot ) :bool {
+	public function store( $snapshot ) :bool {
 		return false;
 	}
 }
