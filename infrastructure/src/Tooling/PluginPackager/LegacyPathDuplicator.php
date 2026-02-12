@@ -39,6 +39,7 @@ class LegacyPathDuplicator {
 		'DBs/BotSignal/BotSignalRecord.php'                                    => 'DBs/BotSignal/BotSignalRecord.php',
 		'DBs/Event/Ops/Handler.php'                                            => 'DBs/Event/Ops/Handler.php',
 		'DBs/CrowdSecSignals/Ops/Handler.php'                                  => 'DBs/CrowdSecSignals/Ops/Handler.php',
+		'Rules/Build/Builder.php'                                              => 'Rules/Build/Builder.php',
 	];
 	/**
 	 * Vendor prefixed directories to mirror

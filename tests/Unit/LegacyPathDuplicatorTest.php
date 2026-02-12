@@ -167,6 +167,24 @@ class FormSecurityAdminLoginBox extends \FernleafSystems\Wordpress\Plugin\Shield
 }
 PHP
 		);
+
+		$rulesBuilderPath = $this->tempDir.'/src/Rules/Build/Builder.php';
+		$this->fs->mkdir( \dirname( $rulesBuilderPath ) );
+		$this->fs->dumpFile( $rulesBuilderPath, <<<'PHP'
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
+
+class Builder {
+
+	public function run() :array {
+		$rules = ( new RuleBuilderEnumerator() )->run();
+		( new AssignMinimumHooks( [] ) )->run();
+		return $rules;
+	}
+}
+PHP
+		);
 	}
 
 	private function seedPrunedRuntimeOnlySources() :void {
@@ -388,6 +406,22 @@ PHP
 		);
 		$this->assertStringContainsString( 'return [];', $legacyFindAssets );
 		$this->assertStringNotContainsString( 'Services::WpPlugins()->getPluginsAsVo()', $legacyFindAssets );
+
+		$legacyRulesBuilder = (string)\file_get_contents(
+			$this->tempDir.'/src/lib/src/Rules/Build/Builder.php'
+		);
+		$this->assertStringContainsString( 'class Builder', $legacyRulesBuilder );
+		$this->assertStringContainsString( 'public function run() :array', $legacyRulesBuilder );
+		$this->assertStringContainsString( 'return [];', $legacyRulesBuilder );
+		$this->assertStringNotContainsString( 'RuleBuilderEnumerator', $legacyRulesBuilder );
+		$this->assertStringNotContainsString( 'AssignMinimumHooks', $legacyRulesBuilder );
+
+		$runtimeRulesBuilder = (string)\file_get_contents(
+			$this->tempDir.'/src/Rules/Build/Builder.php'
+		);
+		$this->assertStringContainsString( 'RuleBuilderEnumerator', $runtimeRulesBuilder );
+		$this->assertStringContainsString( 'AssignMinimumHooks', $runtimeRulesBuilder );
+		$this->assertStringNotContainsString( 'return [];', $runtimeRulesBuilder );
 
 		$legacyProcessOffense = (string)\file_get_contents(
 			$this->tempDir.'/src/lib/src/Modules/IPs/Components/ProcessOffense.php'
