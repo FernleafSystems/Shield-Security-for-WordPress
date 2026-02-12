@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\GenericLines;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,18 +35,25 @@ class MfaEmailSendVerification extends BaseAction {
 
 	private function sendEmailVerifyCanSend() {
 		$con = self::con();
-		$con->email_con->sendEmailWithWrap(
-			Services::WpGeneral()->getSiteAdminEmail(), //TODO: $this->getPluginReportEmail()?
-			__( 'Email Sending Verification', 'wp-simple-firewall' ),
-			[
-				__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.', 'wp-simple-firewall' ),
-				__( 'This verifies your website can send email and that your account can receive emails sent from your site.', 'wp-simple-firewall' ),
-				'',
-				sprintf(
-					__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-					$con->plugin_urls->noncedPluginAction( MfaCanEmailSendVerify::class, $con->plugin_urls->adminHome() )
+		$con->email_con->sendVO(
+			EmailVO::Factory(
+				Services::WpGeneral()->getSiteAdminEmail(), //TODO: $this->getPluginReportEmail()?
+				__( 'Email Sending Verification', 'wp-simple-firewall' ),
+				$con->action_router->render(
+					GenericLines::class,
+					[
+						'lines' => [
+							__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.', 'wp-simple-firewall' ),
+							__( 'This verifies your website can send email and that your account can receive emails sent from your site.', 'wp-simple-firewall' ),
+							'',
+							sprintf(
+								__( 'Click the verify link: %s', 'wp-simple-firewall' ),
+								$con->plugin_urls->noncedPluginAction( MfaCanEmailSendVerify::class, $con->plugin_urls->adminHome() )
+							)
+						],
+					]
 				)
-			]
+			)
 		);
 	}
 }

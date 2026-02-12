@@ -28,6 +28,7 @@ class EmailCon {
 	 * @param string $to
 	 * @param string $subject
 	 * @param array  $message
+	 * @deprecated 21.2.0 Use sendVO()
 	 */
 	public function sendEmailWithWrap( $to = '', $subject = '', $message = [] ) :bool {
 		return $this->sendVO(
@@ -113,6 +114,7 @@ class EmailCon {
 	 * Will send email to the default recipient setup in the object.
 	 * @param string $subject
 	 * @param array  $message
+	 * @deprecated 21.2.0 Use sendVO()
 	 */
 	public function sendEmail( $subject, $message ) :bool {
 		return $this->sendEmailWithWrap( null, $subject, $message );

@@ -3,10 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\BackupCodeUsed;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaBackupCodeAdd,
 	MfaBackupCodeDelete
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BackupCodes extends AbstractShieldProviderMfaDB {
@@ -131,21 +133,16 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 
 	private function sendBackupCodeUsedEmail() {
 		$user = $this->getUser();
-		self::con()->email_con->sendEmailWithWrap(
-			$user->user_email,
-			sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Backup Login Code Just Used", 'wp-simple-firewall' ) ),
-			[
-				__( 'This is a quick notice to inform you that your Backup Login code was just used.', 'wp-simple-firewall' ),
-				__( "Your WordPress account had only 1 backup login code.", 'wp-simple-firewall' )
-				.' '.__( "You must go to your profile and regenerate a new code if you want to use this method again.", 'wp-simple-firewall' ),
-				'',
-				sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
-				sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-				sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-				sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), self::con()->this_req->ip ),
-				'',
-				__( 'Thank You.', 'wp-simple-firewall' ),
-			]
+		self::con()->email_con->sendVO(
+			EmailVO::Factory(
+				$user->user_email,
+				sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Backup Login Code Just Used", 'wp-simple-firewall' ) ),
+				self::con()->action_router->render( BackupCodeUsed::class, [
+					'home_url' => Services::WpGeneral()->getHomeUrl(),
+					'username' => $user->user_login,
+					'ip'       => self::con()->this_req->ip,
+				] )
+			)
 		);
 	}
 }
