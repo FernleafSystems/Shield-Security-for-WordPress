@@ -319,9 +319,9 @@ class Controller extends DynPropertiesClass {
 				->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				->setData( [
 					'strings' => [
-						'not_met'          => sprintf( __( '%s Plugin – minimum site requirements are not met', 'wp-simple-firewall' ), self::con()->labels->Name ),
+						'not_met'          => sprintf( __( '%s Plugin – minimum site requirements are not met', 'wp-simple-firewall' ), $this->labels->Name ),
 						'requirements'     => $this->reqs_not_met,
-						'summary_title'    => sprintf( __( "Your web hosting doesn't meet the minimum requirements for the %s Plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+						'summary_title'    => sprintf( __( "Your web hosting doesn't meet the minimum requirements for the %s Plugin.", 'wp-simple-firewall' ), $this->labels->Name ),
 						'recommend'        => __( "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.", 'wp-simple-firewall' ),
 						'more_information' => __( 'Click here for more information on requirements', 'wp-simple-firewall' )
 					],
@@ -724,7 +724,7 @@ class Controller extends DynPropertiesClass {
 			$labels->Name = $labels->Name.' PRO';
 			$labels->Title = $labels->Title.' PRO';
 			$labels->MenuTitle = $labels->MenuTitle.' PRO';
-			$labels->url_img_logo_small = $this->urls->forImage( 'plugin_logo_prem.svg' );
+			$labels->url_img_logo_small = $this->urls->forImage( 'plugin_logo_prem.png' );
 		}
 
 		return $labels;

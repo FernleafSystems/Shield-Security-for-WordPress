@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserA
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	BuildMeter,
 	Handler,
 	Meter\MeterSummary
 };
@@ -30,6 +31,9 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 							  ->carbon()
 							  ->setTimestamp( $vars[ 'generated_at' ] )
 							  ->diffForHumans();
+		$vars[ 'traffic' ] = BuildMeter::trafficFromPercentage(
+			(int)( $vars[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 )
+		);
 		$common = CommonDisplayStrings::pick( [ 'time_label', 'user_label' ] );
 		return [
 			'hrefs'   => [

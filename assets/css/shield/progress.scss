@@ -1,12 +1,5 @@
 /** Security Analysis Progress Meters **/
 
-$shield-green: #008000;
-$shield-green-light: #e6f5e6;
-$shield-orange: #d48a00;
-$shield-orange-light: #fef6e6;
-$shield-red: #c62f3e;
-$shield-red-light: #fdeaec;
-
 /* ========== HERO GAUGE CARD ========== */
 .meter-hero-card {
 	border: none;
@@ -25,21 +18,21 @@ $shield-red-light: #fdeaec;
 	}
 
 	&.status-good {
-		background: linear-gradient(135deg, #f3faf3 0%, $shield-green-light 50%, #eef8ee 100%);
-		&::before { background: $shield-green; }
-		.gauge-icon { color: $shield-green; }
+		background: linear-gradient(135deg, #f3faf3 0%, $status-bg-good-light 50%, #eef8ee 100%);
+		&::before { background: $status-color-good; }
+		.gauge-icon { color: $status-color-good; }
 	}
 
 	&.status-warning {
-		background: linear-gradient(135deg, #fffdf5 0%, $shield-orange-light 50%, #fefaf0 100%);
-		&::before { background: $shield-orange; }
-		.gauge-icon { color: $shield-orange; }
+		background: linear-gradient(135deg, #fffdf5 0%, $status-bg-warning-light 50%, #fefaf0 100%);
+		&::before { background: $status-color-warning; }
+		.gauge-icon { color: $status-color-warning; }
 	}
 
 	&.status-critical {
-		background: linear-gradient(135deg, #fef6f5 0%, $shield-red-light 50%, #fef4f2 100%);
-		&::before { background: $shield-red; }
-		.gauge-icon { color: $shield-red; }
+		background: linear-gradient(135deg, #fef6f5 0%, $status-bg-critical-light 50%, #fef4f2 100%);
+		&::before { background: $status-color-critical; }
+		.gauge-icon { color: $status-color-critical; }
 	}
 }
 
@@ -150,9 +143,9 @@ $shield-red-light: #fdeaec;
 		height: 1.1rem;
 	}
 
-	&.stat-icon-good { color: $shield-green; }
-	&.stat-icon-warning { color: $shield-orange; }
-	&.stat-icon-critical { color: $shield-red; }
+	&.stat-icon-good { color: $status-color-good; }
+	&.stat-icon-warning { color: $status-color-warning; }
+	&.stat-icon-critical { color: $status-color-critical; }
 }
 
 .stat-label {
@@ -171,25 +164,25 @@ $shield-red-light: #fdeaec;
 /* ========== SECONDARY METER CARDS ========== */
 .meter-card {
 	border: none;
-	border-radius: 10px;
-	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
 	overflow: hidden;
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 	background: white;
 
 	&:hover {
 		transform: translateY(-3px);
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+		box-shadow: $card-box-shadow-hover;
 	}
 }
 
 .meter-card-accent {
-	height: 4px;
+	height: $card-accent-height;
 	width: 100%;
 
-	&.status-good { background: $shield-green; }
-	&.status-warning { background: $shield-orange; }
-	&.status-critical { background: $shield-red; }
+	&.status-good { background: $status-color-good; }
+	&.status-warning { background: $status-color-warning; }
+	&.status-critical { background: $status-color-critical; }
 }
 
 .meter-card-header {
@@ -232,18 +225,18 @@ $shield-red-light: #fdeaec;
 	}
 
 	&.status-good {
-		background-color: $shield-green-light;
-		color: $shield-green;
+		background-color: $status-bg-good-light;
+		color: $status-color-good;
 	}
 
 	&.status-warning {
-		background-color: $shield-orange-light;
-		color: $shield-orange;
+		background-color: $status-bg-warning-light;
+		color: $status-color-warning;
 	}
 
 	&.status-critical {
-		background-color: $shield-red-light;
-		color: $shield-red;
+		background-color: $status-bg-critical-light;
+		color: $status-color-critical;
 	}
 }
 
@@ -270,9 +263,9 @@ $shield-red-light: #fdeaec;
 	transition: width 0.6s ease;
 }
 
-.progress-bar.status-good { background-color: $shield-green; }
-.progress-bar.status-warning { background-color: $shield-orange; }
-.progress-bar.status-critical { background-color: $shield-red; }
+.progress-bar.status-good { background-color: $status-color-good; }
+.progress-bar.status-warning { background-color: $status-color-warning; }
+.progress-bar.status-critical { background-color: $status-color-critical; }
 
 .meter-card-desc {
 	font-size: 0.82rem;
@@ -280,9 +273,9 @@ $shield-red-light: #fdeaec;
 	line-height: 1.5;
 }
 
-.meter-card-critical {
-	background-color: #fef9f9;
-}
+.meter-card-good { background-color: $card-bg-good; }
+.meter-card-warning { background-color: $card-bg-warning; }
+.meter-card-critical { background-color: $card-bg-critical; }
 
 .score-text {
 	font-size: 0.78rem;

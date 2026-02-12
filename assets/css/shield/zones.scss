@@ -3,36 +3,32 @@
   height: auto;
 }
 
-/* Zone Component Card - Prototype B */
+/* Zone Component Card */
 .zone-component-card {
-  border: 1px solid #e2e2e2;
-  border-top: 3px solid #ccc;
-  border-radius: 0 0 6px 6px;
+  border: none;
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
   padding: 0;
   margin-bottom: 1rem;
   background: #fff;
-  transition: box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+    box-shadow: $card-box-shadow-hover;
   }
+}
 
-  &.status-good {
-    border-top-color: #198754;
-  }
-  &.status-okay {
-    border-top-color: $warning;
-  }
-  &.status-bad {
-    border-top-color: #dc3545;
-  }
-  &.status-neutral {
-    border-top-color: $info;
-  }
-  &.status-neutral_enabled {
-    border-top-color: $info;
-  }
+.zone-card-accent {
+  height: $card-accent-height;
+  width: 100%;
+
+  &.status-good             { background: $status-color-good; }
+  &.status-okay             { background: $status-color-warning; }
+  &.status-bad              { background: $status-color-critical; }
+  &.status-neutral,
+  &.status-neutral_enabled  { background: $status-color-info; }
 }
 
 .card-header-row {
@@ -90,20 +86,20 @@
   }
 
   &.badge-good {
-    background: #d1e7dd;
-    color: #0a5c36;
+    background: $badge-good-bg;
+    color: $badge-good-color;
   }
   &.badge-okay {
-    background: #fff3cd;
-    color: #856404;
+    background: $badge-warning-bg;
+    color: $badge-warning-color;
   }
   &.badge-bad {
-    background: #f8d7da;
-    color: #842029;
+    background: $badge-critical-bg;
+    color: $badge-critical-color;
   }
   &.badge-neutral {
-    background: #e7f1ff;
-    color: #0a58ca;
+    background: $badge-info-bg;
+    color: $badge-info-color;
   }
 }
 
@@ -120,7 +116,6 @@
   border: 1px solid transparent;
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
-  color: #646970;
 
   .configure-gear {
     display: inline-flex;
@@ -140,45 +135,61 @@
 }
 
 .zone-component-card.status-good .configure-link {
-  color: #198754;
+  color: $status-color-good;
   &:hover {
-    background: rgba(25, 135, 84, 0.06);
-    color: #146c43;
+    background: rgba($status-color-good, 0.06);
+    color: #005200;
   }
 }
 .zone-component-card.status-okay .configure-link {
-  color: #856404;
+  color: $badge-warning-color;
   &:hover {
-    background: rgba($warning, 0.1);
+    background: rgba($status-color-warning, 0.1);
     color: #6d5204;
   }
 }
 .zone-component-card.status-bad .configure-link {
-  color: #dc3545;
+  color: $status-color-critical;
   &:hover {
-    background: rgba(220, 53, 69, 0.06);
-    color: #b02a37;
+    background: rgba($status-color-critical, 0.06);
+    color: #a02530;
   }
 }
 .zone-component-card.status-neutral .configure-link,
 .zone-component-card.status-neutral_enabled .configure-link {
-  color: $info;
+  color: $status-color-info;
   &:hover {
-    background: rgba($info, 0.06);
+    background: rgba($status-color-info, 0.06);
     color: #0b8da6;
   }
 }
 
 /* Explanations Block */
-.explanations-block {
+.zone-component-card .explanations-block {
   padding: 0.75rem 1.5rem;
-  background: #fef9f9;
   border-top: 1px solid #f0f0f1;
   font-size: 0.8125rem;
-  color: #50575e;
 }
 
-.explanation-item {
+.zone-component-card.status-good .explanations-block {
+  background: #f1f8f3;
+  color: #146c43;
+}
+.zone-component-card.status-okay .explanations-block {
+  background: #fefaf0;
+  color: #6d5204;
+}
+.zone-component-card.status-bad .explanations-block {
+  background: #fef3f4;
+  color: $badge-critical-color;
+}
+.zone-component-card.status-neutral .explanations-block,
+.zone-component-card.status-neutral_enabled .explanations-block {
+  background: #f1f8fb;
+  color: $badge-info-color;
+}
+
+.zone-component-card .explanation-item {
   padding: 0.25rem 0;
   display: flex;
   align-items: baseline;
@@ -192,7 +203,7 @@
     > svg {
       width: 14px;
       height: 14px;
-      color: #dc3545;
+      color: $status-color-critical;
       display: block;
       position: relative;
       top: 1px;
