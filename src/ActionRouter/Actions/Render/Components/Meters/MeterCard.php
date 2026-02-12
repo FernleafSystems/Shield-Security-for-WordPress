@@ -15,13 +15,23 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 			$data = ( new Handler() )->getMeter( $this->action_data[ 'meter_slug' ] );
 		}
 
+		$percentage = (int)( $data[ 'totals' ][ 'percentage' ] ?? 0 );
+		$iconName = $percentage > 85 ? 'shield-fill-check'
+			: ( $percentage > 55 ? 'exclamation-triangle' : 'shield-fill-x' );
+
 		return [
 			'strings' => [
-				'analysis' => __( 'Analyse & Fix', 'wp-simple-firewall' ),
+				'analysis'     => __( 'Analyse & Fix', 'wp-simple-firewall' ),
+				'view_details' => __( 'View Details', 'wp-simple-firewall' ),
+				'more'         => __( 'more...', 'wp-simple-firewall' ),
+				'good'         => __( 'Good', 'wp-simple-firewall' ),
+				'needs_work'   => __( 'Needs Work', 'wp-simple-firewall' ),
+				'critical'     => __( 'Critical', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
 				'svgs' => [
-					'analysis' => self::con()->svgs->raw( 'zoom-in' ),
+					'analysis'    => self::con()->svgs->raw( 'zoom-in' ),
+					'status_icon' => self::con()->svgs->raw( $iconName ),
 				],
 			],
 			'vars'    => [
@@ -29,6 +39,13 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 				'meter'      => $data,
 			],
 		];
+	}
+
+	protected function getRenderTemplate() :string {
+		if ( !empty( $this->action_data[ 'is_hero' ] ?? false ) ) {
+			return '/wpadmin/components/progress_meter/meter_hero.twig';
+		}
+		return static::TEMPLATE;
 	}
 
 	protected function getRequiredDataKeys() :array {

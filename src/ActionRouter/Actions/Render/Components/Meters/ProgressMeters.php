@@ -15,8 +15,21 @@ class ProgressMeters extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/progress_meter/progress_meters.twig';
 
 	protected function getRenderData() :array {
+		$con = self::con();
 		return [
-			'vars' => [
+			'strings' => [
+				'good'       => __( 'Good', 'wp-simple-firewall' ),
+				'needs_work' => __( 'Needs Work', 'wp-simple-firewall' ),
+				'critical'   => __( 'Critical', 'wp-simple-firewall' ),
+			],
+			'imgs'    => [
+				'svgs' => [
+					'icon_good'     => $con->svgs->raw( 'shield-fill-check' ),
+					'icon_warning'  => $con->svgs->raw( 'exclamation-triangle' ),
+					'icon_critical' => $con->svgs->raw( 'shield-fill-x' ),
+				],
+			],
+			'vars'    => [
 				'meter_slugs'        => \array_diff( \array_keys( Handler::METERS ), [
 					MeterSummary::SLUG,
 					MeterOverallConfig::SLUG
