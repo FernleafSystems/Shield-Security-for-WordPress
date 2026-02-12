@@ -13,7 +13,7 @@ assets/css/
   plugin-main-modern.scss     Future @use/@forward version (not active)
 
   shield/
-    _status-colors.scss       Shared status color variables and card tokens
+    _status-colors.scss       Shared status, neutral surface, and accent color tokens
     progress.scss             Security analysis meter cards and progress bars
     zones.scss                Security zone component cards
     merlin.scss               Merlin setup wizard
@@ -118,6 +118,24 @@ Use for card-style components (meter cards, zone cards):
 | `$card-box-shadow-hover` | 0 4px 16px rgba(0,0,0,0.12) | Card hover shadow |
 | `$card-accent-height` | 4px | Top accent bar height |
 
+### Neutral Surface + Salt Green Accent
+
+For modern plugin UI chrome (for example options and off-canvas), use a neutral near-gray base and a very subtle green accent.
+
+| Variable | Value | Use for |
+|----------|-------|---------|
+| `$surface-color-neutral-base` | #f5f6f5 | Main neutral backgrounds (canvas/body areas) |
+| `$surface-color-neutral-raised` | #f8f9f8 | Raised neutral surfaces (headers/rails/panels) |
+| `$border-color-neutral-subtle` | #d9dfd9 | Default neutral borders |
+| `$border-color-neutral-strong` | #ccd3cc | Stronger borders for controls/inputs |
+| `$accent-color-salt-green` | #d2ddd2 | Subtle component accents (panel/rail accent bars) |
+| `$accent-color-salt-green-soft` | #d4ddd4 | Softer separators and top strips |
+
+Rule of thumb:
+1. Keep the overall surface neutral (almost gray/white)
+2. Reserve salt-green accents for component chrome, not full-surface fills
+3. Keep accent intensity low so readability stays high
+
 ## Card Component Pattern
 
 Both meter cards (`progress.scss`) and zone cards (`zones.scss`) follow the same visual pattern:
@@ -169,6 +187,7 @@ Use **2 spaces** for SCSS indentation. This is distinct from the PHP convention 
 ### Colours
 
 - Never hardcode hex colours for status indicators -- use `$status-color-*` or `$badge-*-color`
+- For neutral plugin chrome, use `$surface-color-neutral-*`, `$border-color-neutral-*`, and `$accent-color-salt-green*`
 - Hover background colours: use `rgba($status-color-*, 0.06)` for subtle hover tints
 - Dark hover text colours: use explicit hex values (no `darken()` / `lighten()` functions)
 - Other non-status colours (grays, borders, text) can remain as hex literals
@@ -192,6 +211,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 |------|------|
 | `progress.scss` | `.meter-hero-card`, `.meter-card`, `.meter-card-accent`, `.status-badge` (meter context), `.progress-bar` |
 | `zones.scss` | `.zone-component-card`, `.zone-card-accent`, `.status-badge` (zone context), `.configure-link`, `.explanations-block` |
+| `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-row` |
 | `merlin.scss` | `.merlin-*` wizard components |
 | `security-admin.scss` | Security admin modal and PIN form |
 

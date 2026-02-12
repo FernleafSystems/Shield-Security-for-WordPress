@@ -1,8 +1,8 @@
 {% import '/common/macros.twig' as icwp_macros %}
 
-<div class="row option_form_row {{ option.is_focus ? 'focus_option':'nonfocus_option' }}">
+<div class="row option_form_row shield-option-row {{ option.is_focus ? 'focus_option':'nonfocus_option' }}">
 
-	<div class="col-4" style="min-width: 140px">
+	<div class="col-12 col-lg-5 shield-option-label-col">
 		<label for="Opt-{{ option.key }}"
 			   id="Label-{{ option.key }}"
 			   class="col-form-label pb-0">
@@ -88,7 +88,7 @@
 		</div>
 	</div>
 
-	<div class="col-8">
+	<div class="col-12 col-lg-7 shield-option-control-col">
 
 		{% if option.type is same as('checkbox') %}
 			<div class="form-check">
@@ -228,8 +228,9 @@
 			{# checkboxes display slightly differently #}
 			<div class="options-summary my-2">{{ option.summary }}</div>
 		{% endif %}
+	</div>
 
-
+	<div class="col-12 shield-option-description-col">
 		<div id="Description-{{ option.key }}"
 			 class="pt-2 option-description option-description-{{ option.key }} {{ option.is_focus ? '':'hidden' }}">
 			{% for desc in option.description %}
@@ -259,7 +260,6 @@
 				{% endif %}
 			{% endif %}
 		</div>
-
 	</div>
 </div>
 

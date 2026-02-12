@@ -31,3 +31,11 @@ $card-border-radius: 10px;
 $card-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
 $card-box-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
 $card-accent-height: 4px;
+
+// Neutral UI surfaces + subtle brand accent (salt green)
+$surface-color-neutral-base: #f5f6f5;    // primary app/offcanvas neutral background
+$surface-color-neutral-raised: #f8f9f8;  // raised containers, headers, and rails
+$border-color-neutral-subtle: #d9dfd9;   // default neutral border
+$border-color-neutral-strong: #ccd3cc;   // stronger border for inputs/controls
+$accent-color-salt-green: #d2ddd2;       // subtle brand accent for component chrome
+$accent-color-salt-green-soft: #d4ddd4;  // softer accent for separators/top strips
