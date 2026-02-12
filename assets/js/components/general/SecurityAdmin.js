@@ -22,10 +22,17 @@ export class SecurityAdmin extends BaseComponent {
 			}
 
 			shieldEventsHandler_Main.add_Submit( 'form#SecurityAdminForm', ( form ) => {
+				const btn = form.querySelector( 'button[type="submit"]' );
+				btn.disabled = true;
 				( new AjaxService() )
 				.send(
 					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { form_params: Forms.Serialize( form ) } )
 				)
+				.then( ( resp ) => {
+					if ( !resp?.data?.page_reload ) {
+						btn.disabled = false;
+					}
+				} )
 				.finally();
 			} );
 
