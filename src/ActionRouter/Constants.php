@@ -115,6 +115,7 @@ class Constants {
 		Actions\FullPageDisplay\DisplayReport::class,
 
 		Actions\AjaxRender::class,
+		Actions\AjaxBatchRequests::class,
 
 		Actions\DynamicLoad\ConfigForZoneComponents::class,
 		Actions\DynamicLoad\Zone::class,

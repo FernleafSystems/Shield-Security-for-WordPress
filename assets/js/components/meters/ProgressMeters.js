@@ -7,6 +7,7 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { AjaxService } from "../services/AjaxService";
+import { AjaxBatchService } from "../services/AjaxBatchService";
 
 ChartJS.register( DoughnutController, ArcElement );
 
@@ -20,6 +21,10 @@ export class ProgressMeters extends BaseAutoExecComponent {
 	}
 
 	renderMeters( meterElements ) {
+		if ( this._base_data?.ajax?.batch_requests ) {
+			return this.renderMetersBatch( meterElements );
+		}
+
 		const promises = [];
 		meterElements.forEach( ( elem ) => {
 			if ( elem.dataset.meter_slug ) {
@@ -27,6 +32,27 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			}
 		} );
 		return Promise.all( promises );
+	}
+
+	renderMetersBatch( meterElements ) {
+		const batch = new AjaxBatchService( this._base_data.ajax.batch_requests );
+
+		meterElements.forEach( ( container ) => {
+			const slug = container.dataset.meter_slug || '';
+			if ( slug.length < 1 ) {
+				return;
+			}
+
+			const isHero = container.classList.contains( 'progress-metercard-hero' );
+			batch.add( {
+				id: this.buildMeterBatchID( slug, isHero ),
+				request: this.buildMeterRenderRequest( slug, isHero ),
+				onSuccess: ( result ) => this.handleMeterBatchSuccess( container, isHero, result ),
+				onError: ( result ) => this.handleMeterBatchFailure( container, result ),
+			} );
+		} );
+
+		return batch.flush();
 	}
 
 	renderMetersAll() {
@@ -54,6 +80,47 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			console.log( error );
 		} )
 		.finally();
+	}
+
+	buildMeterBatchID( slug, isHero ) {
+		return `meter-${slug}${isHero ? '-hero' : ''}`;
+	}
+
+	buildMeterRenderRequest( slug, isHero ) {
+		return ObjectOps.Merge( this._base_data.ajax.render_metercard, {
+			meter_slug: slug,
+			is_hero: isHero ? 1 : 0
+		} );
+	}
+
+	handleMeterBatchSuccess( container, isHero, result ) {
+		const html = result?.data?.html || '';
+		if ( html.length > 0 ) {
+			container.innerHTML = html;
+			if ( isHero ) {
+				this.renderHeroGauge( container );
+			}
+		}
+		else {
+			this.handleMeterBatchFailure( container, result );
+		}
+	}
+
+	handleMeterBatchFailure( container, result ) {
+		container.innerHTML = this.getBatchFailureHtml( result?.data?.message || 'Unable to load this security meter.' );
+	}
+
+	getBatchFailureHtml( message ) {
+		return `<div class="card h-100"><div class="card-body text-muted small">${this.escapeHtml( message )}</div></div>`;
+	}
+
+	escapeHtml( str = '' ) {
+		return String( str )
+		.replace( /&/g, '&amp;' )
+		.replace( /</g, '&lt;' )
+		.replace( />/g, '&gt;' )
+		.replace( /"/g, '&quot;' )
+		.replace( /'/g, '&#39;' );
 	}
 
 	renderHeroGauge( container ) {

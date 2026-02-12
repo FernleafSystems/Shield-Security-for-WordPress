@@ -110,6 +110,7 @@ class AssetsCustomizer {
 					'summary_charts' => [
 						'ajax'   => [
 							'render_summary_chart' => ActionData::Build( Actions\ReportingChartSummary::class ),
+							'batch_requests'       => ActionData::Build( Actions\AjaxBatchRequests::class ),
 						],
 						'charts' => \array_map(
 							fn( string $event ) => [
@@ -398,6 +399,7 @@ class AssetsCustomizer {
 				'data'     => fn() => [
 					'ajax'       => [
 						'render_metercard' => ActionData::BuildAjaxRender( Components\Meters\MeterCard::class ),
+						'batch_requests'   => ActionData::Build( Actions\AjaxBatchRequests::class ),
 						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\MeterAnalysis::class ),
 					],
 					'thresholds' => [
