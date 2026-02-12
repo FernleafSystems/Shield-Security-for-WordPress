@@ -30,6 +30,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->raw( 'person-badge' ),
+				'icon_shield'           => $con->svgs->raw( 'shield-fill' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),

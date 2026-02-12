@@ -145,18 +145,6 @@ class EventStrings {
 					__( 'Login page loaded', 'wp-simple-firewall' ),
 				],
 			],
-			'recaptcha_success'            => [
-				'name'  => __( 'CAPTCHA Pass', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'CAPTCHA test successful.', 'wp-simple-firewall' ),
-				],
-			],
-			'recaptcha_fail'               => [
-				'name'  => __( 'CAPTCHA Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'CAPTCHA test failed.', 'wp-simple-firewall' ),
-				],
-			],
 			'test_cron_run'                => [
 				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
 				'audit' => [
@@ -500,6 +488,13 @@ class EventStrings {
 					__( "IP address '{{ip}}' manually removed from the bypass list.", 'wp-simple-firewall' ),
 				],
 			],
+			'bottrack_multiple'            => [
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
+					__( 'Multiple Signals', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Multiple bot signals detected for this visitor.', 'wp-simple-firewall' ),
+				],
+			],
 			'bottrack_notbot'              => [
 				'name'  => sprintf( __( '%s Registration', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
@@ -539,14 +534,6 @@ class EventStrings {
 					__( 'Invalid Username Login', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( "Attempted login with invalid user '{{user_login}}'.", 'wp-simple-firewall' ),
-				],
-			],
-			'bottrack_useragent'           => [
-				/** TODO **/
-				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
-					__( 'Invalid User-Agent', 'wp-simple-firewall' ) ),
-				'audit' => [
-					__( "Invalid user agent detected at '{{useragent}}'.", 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_xmlrpc'              => [
@@ -714,15 +701,6 @@ class EventStrings {
 					__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' ),
 				],
 			],
-			'spam_block_recaptcha'         => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'CAPTCHA', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' ),
-				],
-			],
 			'comment_spam_block'           => [
 				'name'  => __( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
 				'audit' => [
@@ -819,6 +797,19 @@ class EventStrings {
 				'name'  => __( 'Theme Downgraded', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}.", 'wp-simple-firewall' ),
+				],
+			],
+			'translation_downloaded'        => [
+				'name'  => __( 'Translation Downloaded', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Translation file downloaded for locale: {{locale}}.', 'wp-simple-firewall' ),
+				],
+			],
+			'translation_download_failed'  => [
+				'name'  => __( 'Translation Download Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Failed to download translation file for locale: {{locale}}.', 'wp-simple-firewall' ),
+					__( 'Reason: {{reason}}', 'wp-simple-firewall' ),
 				],
 			],
 			'core_updated'                 => [

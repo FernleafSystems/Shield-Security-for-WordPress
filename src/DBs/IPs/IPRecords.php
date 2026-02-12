@@ -9,7 +9,7 @@ class IPRecords {
 
 	use PluginControllerConsumer;
 
-	private static $ips = [];
+	private static array $ips = [];
 
 	/**
 	 * @throws \Exception

@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Activate as LicenseActivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Exceptions\LicenseAlreadyActivatedException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Verify as LicenseVerify;
 use WP_CLI;
 
 class License extends BaseCmd {
@@ -108,6 +111,7 @@ class License extends BaseCmd {
 
 	private function runActivate() :void {
 		$apiKey = $this->execCmdArgs[ 'api-key' ] ?? '';
+		$alreadyActivated = false;
 
 		if ( empty( $apiKey ) ) {
 			WP_CLI::error( __( 'API key is required for activation. Use --api-key=YOUR_KEY', 'wp-simple-firewall' ) );
@@ -118,14 +122,31 @@ class License extends BaseCmd {
 		}
 
 		try {
-			// Step 1: Activate (register URL with API key) - throws on failure
-			( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Activate() )->run( $apiKey );
+			( new LicenseActivate() )->run( $apiKey );
+		}
+		catch ( LicenseAlreadyActivatedException $e ) {
+			$alreadyActivated = true;
+			WP_CLI::log( __( 'This site is already activated. Re-checking and syncing local license state...', 'wp-simple-firewall' ) );
+		}
+		catch ( \Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
 
-			// Step 2: Verify to fetch full license data
-			$success = self::con()->comps->license->verify( true )->hasValidWorkingLicense();
+		try {
+			// Run verification directly to avoid activation cooldown checks.
+			( new LicenseVerify() )->run();
+			$success = self::con()->comps->license->hasValidWorkingLicense();
 			$msg = $success
-				? __( 'License activated and verified successfully.', 'wp-simple-firewall' )
-				: __( 'License activated but verification failed.', 'wp-simple-firewall' );
+				? (
+				$alreadyActivated
+					? __( 'Site was already activated and license verified successfully.', 'wp-simple-firewall' )
+					: __( 'License activated and verified successfully.', 'wp-simple-firewall' )
+				)
+				: (
+				$alreadyActivated
+					? __( 'Site is already activated but license verification failed.', 'wp-simple-firewall' )
+					: __( 'License activated but verification failed.', 'wp-simple-firewall' )
+				);
 		}
 		catch ( \Exception $e ) {
 			$success = false;

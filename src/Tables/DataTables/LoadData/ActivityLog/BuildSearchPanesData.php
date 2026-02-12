@@ -64,8 +64,9 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 			function ( $result ) {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
-					$evt = [
-						'label' => self::con()->comps->events->getEventName( $evt ),
+					$label = self::con()->comps->events->getEventName( $evt );
+					$evt = empty( $label ) ? null : [
+						'label' => $label,
 						'value' => $evt,
 					];
 				}

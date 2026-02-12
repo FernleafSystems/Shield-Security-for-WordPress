@@ -459,15 +459,18 @@ Manage the ShieldPRO license.
 
 **Synopsis:**
 ```bash
-wp shield pro-license --action=<action> [--force]
+wp shield pro-license --action=<action> [--api-key=<api_key>] [--force]
 ```
 
 **Options:**
 
 | Option | Type | Required | Default | Description |
 |--------|------|----------|---------|-------------|
-| `--action` | string | Yes | `status` | Action to perform on the ShieldPRO license: `status`, `verify`, or `remove` |
-| `--force` | flag | No | - | Bypass confirmation prompt (for remove action) |
+| `--action` | string | Yes | `status` | Action to perform on the ShieldPRO license: `status`, `verify`, `remove`, or `activate` |
+| `--api-key` | string | No* | - | API key used for `activate` action |
+| `--force` | flag | No | - | Bypass confirmation prompt (for remove action) or force reactivation |
+
+*Required for `--action=activate`.
 
 **Examples:**
 ```bash
@@ -482,6 +485,12 @@ wp shield pro-license --action=remove
 
 # Remove the license without confirmation
 wp shield pro-license --action=remove --force
+
+# Activate this site with an API key and verify
+wp shield pro-license --action=activate --api-key=YOUR_API_KEY
+
+# Force activation flow even if a license is already active
+wp shield pro-license --action=activate --api-key=YOUR_API_KEY --force
 ```
 
 ---

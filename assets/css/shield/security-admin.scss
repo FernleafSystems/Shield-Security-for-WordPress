@@ -1,0 +1,15 @@
+/** Security Admin PIN Entry Card **/
+
+#IcwpWpsfSecurityAdmin {
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	}
+}
+
+.shield-pin-icon svg {
+	width: 36px;
+	height: 36px;
+}

@@ -1,4 +1,10 @@
 <div class="col-xl-{{ widget.width|default(6) }} mt-4 dashboard_overview_widget">
+	{% if widget.no_card|default(false) %}
+		{{ widget.content|raw }}
+		<h6 class="mb-0 mt-3 text-end">
+			<a href="{{ widget.href }}" class="fw-normal">{{ widget.href_text }} &rarr;</a>
+		</h6>
+	{% else %}
 	<div class="card {{ widget.classes.card|default([])|join( ' ' ) }}">
 		<div class="card-body">
 			{% if widget.title|default(false) %}
@@ -10,4 +16,5 @@
 			</h6>
 		</div>
 	</div>
+	{% endif %}
 </div>

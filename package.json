@@ -21,7 +21,6 @@
     "jquery-ui": "^1.13.3",
     "jquery.qrcode": "^1.0.3",
     "js-base64": "^3.7.8",
-    "js-circle-progress": "^1.0.0-beta.0",
     "js-loading-overlay": "^1.2.0",
     "matches-selector-polyfill": "^1.0.0",
     "micromodal": "^0.6.1",

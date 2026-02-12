@@ -47,8 +47,10 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'href_text' => __( 'View All Security Grades', 'wp-simple-firewall' ),
 						'content'   => $con->action_router->render( PlaceholderMeter::class, [
 							'meter_slug' => MeterSummary::SLUG,
+							'is_hero'    => true,
 						] ),
-						'width'     => 12,
+						'width'   => 12,
+						'no_card' => true,
 					],
 				],
 				'widget_scans'   => [
