@@ -708,12 +708,19 @@ class Controller extends DynPropertiesClass {
 		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;
 
+		$isPremium = $this->isPremiumActive();
+
+		// Ensure the whitelabel labels filter is registered before labels are filtered.
+		if ( $isPremium && $this->modules_loaded ) {
+			$this->comps->whitelabel->execute();
+		}
+
 		// Apply filter for whitelabel and other modifications
-		$labels = $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+		$labels = $isPremium ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 
 		// Apply PRO suffix AFTER whitelabel (if premium active AND whitelabel disabled)
 		// This centralizes the logic in the labels system itself
-		if ( $this->isPremiumActive() && !$labels->is_whitelabelled ) {
+		if ( $isPremium && !$labels->is_whitelabelled ) {
 			$labels->Name = $labels->Name.' PRO';
 			$labels->Title = $labels->Title.' PRO';
 			$labels->MenuTitle = $labels->MenuTitle.' PRO';

@@ -178,9 +178,10 @@ class ModCon {
 	public function getTracking() :Lib\TrackingVO {
 		if ( !isset( $this->tracking ) ) {
 			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
-			add_action( self::con()->prefix( 'pre_options_store' ), function () {
-				self::con()->opts->optSet( 'transient_tracking', $this->tracking->getRawData() );
-			} );
+			add_action(
+				self::con()->prefix( 'pre_options_store' ),
+				fn ()=> self::con()->opts->optSet( 'transient_tracking', $this->tracking->getRawData() )
+			);
 		}
 		return $this->tracking;
 	}

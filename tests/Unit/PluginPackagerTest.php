@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\FileSystemUtils;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginPackager;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -13,10 +14,18 @@ use ReflectionClass;
 class PluginPackagerTest extends TestCase {
 
 	private string $projectRoot;
+	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->projectRoot = dirname( dirname( __DIR__ ) );
+	}
+
+	protected function tearDown() :void {
+		foreach ( $this->tempDirs as $tempDir ) {
+			FileSystemUtils::removeDirectoryRecursive( $tempDir );
+		}
+		parent::tearDown();
 	}
 
 	private function invokePrivateMethod( object $object, string $methodName, array $args = [] ) {
@@ -28,6 +37,13 @@ class PluginPackagerTest extends TestCase {
 
 	private function createPackager() :PluginPackager {
 		return new PluginPackager( $this->projectRoot, function ( string $message ) {} );
+	}
+
+	private function createTempDirectory() :string {
+		$tempDir = sys_get_temp_dir().'/shield-packager-test-'.uniqid();
+		mkdir( $tempDir, 0755, true );
+		$this->tempDirs[] = $tempDir;
+		return $tempDir;
 	}
 
 	// =========================================================================
@@ -86,5 +102,45 @@ class PluginPackagerTest extends TestCase {
 		$this->assertTrue( $options[ 'composer_install' ] );
 		$this->assertArrayNotHasKey( 'composer_root', $options );
 		$this->assertArrayNotHasKey( 'composer_lib', $options );
+	}
+
+	public function testUpdatePackageFilesSyncsReadmeAndHeaderFromPluginJson() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTempDirectory();
+
+		file_put_contents(
+			$tempDir.'/plugin.json',
+			json_encode( [ 'properties' => [ 'version' => '9.8.7' ] ], JSON_PRETTY_PRINT )
+		);
+		file_put_contents( $tempDir.'/readme.txt', "Stable tag: 1.0.0\n" );
+		file_put_contents(
+			$tempDir.'/icwp-wpsf.php',
+			"<?php\n/*\n * Plugin Name: Test\n * Version: 1.0.0\n */\n"
+		);
+
+		$this->invokePrivateMethod( $packager, 'updatePackageFiles', [ $tempDir ] );
+
+		$readme = (string)file_get_contents( $tempDir.'/readme.txt' );
+		$pluginHeader = (string)file_get_contents( $tempDir.'/icwp-wpsf.php' );
+
+		$this->assertStringContainsString( 'Stable tag: 9.8.7', $readme );
+		$this->assertStringContainsString( '* Version: 9.8.7', $pluginHeader );
+	}
+
+	public function testUpdatePackageFilesFailsWhenPluginJsonVersionMissing() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTempDirectory();
+
+		file_put_contents( $tempDir.'/plugin.json', json_encode( [ 'properties' => [] ], JSON_PRETTY_PRINT ) );
+		file_put_contents( $tempDir.'/readme.txt', "Stable tag: 1.0.0\n" );
+		file_put_contents(
+			$tempDir.'/icwp-wpsf.php',
+			"<?php\n/*\n * Plugin Name: Test\n * Version: 1.0.0\n */\n"
+		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'properties.version missing' );
+
+		$this->invokePrivateMethod( $packager, 'updatePackageFiles', [ $tempDir ] );
 	}
 }

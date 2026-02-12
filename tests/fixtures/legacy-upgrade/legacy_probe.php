@@ -66,6 +66,7 @@ if ( $scenario === 'precheck' ) {
 		'FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\CrowdSecSignals\\Ops\\Handler',
 		'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Delete',
 		'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Store',
+		'FernleafSystems\\Wordpress\\Plugin\\Shield\\Rules\\Build\\Builder',
 	];
 
 	foreach ( $classesToRemainMissing as $className ) {
@@ -131,6 +132,21 @@ $checks = [
 		return [
 			'class' => $className,
 			'file'  => $filePath,
+		];
+	},
+	'rules_builder_guard' => static function () use ( $assertClassLoadsFromLegacy ) :array {
+		$className = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Rules\\Build\\Builder';
+		$filePath = $assertClassLoadsFromLegacy( $className );
+		$instance = new $className();
+		$rules = $instance->run();
+		if ( $rules !== [] ) {
+			throw new \RuntimeException( 'Legacy rules builder shim must return an empty rules array.' );
+		}
+
+		return [
+			'class' => $className,
+			'file'  => $filePath,
+			'rules' => $rules,
 		];
 	},
 	'process_offense_guard' => static function () use ( $assertClassLoadsFromLegacy ) :array {

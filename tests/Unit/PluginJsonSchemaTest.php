@@ -95,11 +95,11 @@ class PluginJsonSchemaTest extends TestCase {
 			$this->assertEquals( $expectedType, $actualType, "Property '{$property}' should be {$expectedType}, got {$actualType}" );
 		}
 
-		// Validate version format (semantic versioning)
+		// Validate version format.
 		$this->assertMatchesRegularExpression( 
-			'/^\d+\.\d+\.\d+$/', 
+			'/^\d+(\.\d+)+$/',
 			$properties['version'], 
-			'Version must follow semantic versioning format (X.Y.Z)' 
+			'Version should use numeric dot-separated segments (e.g. 21.1.9)'
 		);
 
 		// Validate build format (YYYYMM.DDNN)

@@ -46,6 +46,7 @@ class LegacyUpgradeSimulationTest extends TestCase {
 			'FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\CrowdSecSignals\\Ops\\Handler',
 			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Delete',
 			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Store',
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Rules\\Build\\Builder',
 		];
 
 		foreach ( $classes as $className ) {
@@ -63,6 +64,7 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		$this->assertTrue( $result[ 'ok' ] ?? false, \json_encode( $result ) );
 		$this->assertTrue( $result[ 'checks' ][ 'monolog_guard' ][ 'ok' ] ?? false );
 		$this->assertTrue( $result[ 'checks' ][ 'find_assets_guard' ][ 'ok' ] ?? false );
+		$this->assertTrue( $result[ 'checks' ][ 'rules_builder_guard' ][ 'ok' ] ?? false );
 		$this->assertTrue( $result[ 'checks' ][ 'process_offense_guard' ][ 'ok' ] ?? false );
 		$this->assertTrue( $result[ 'checks' ][ 'bot_signals_guard' ][ 'ok' ] ?? false );
 		$this->assertTrue( $result[ 'checks' ][ 'event_db_handler_guard' ][ 'ok' ] ?? false );
@@ -77,6 +79,10 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		$this->assertSame(
 			0,
 			$result[ 'checks' ][ 'bot_signals_guard' ][ 'details' ][ 'notbot_at' ] ?? -1
+		);
+		$this->assertSame(
+			[],
+			$result[ 'checks' ][ 'rules_builder_guard' ][ 'details' ][ 'rules' ] ?? null
 		);
 		$this->assertFalse(
 			(bool)( $result[ 'checks' ][ 'event_db_handler_guard' ][ 'details' ][ 'isReady' ] ?? true )
@@ -97,6 +103,7 @@ class LegacyUpgradeSimulationTest extends TestCase {
 
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'monolog_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'find_assets_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
+		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'rules_builder_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'process_offense_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'bot_signals_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'bot_signals_guard' ][ 'details' ][ 'recordFile' ] ?? '' ) ) );

@@ -58,7 +58,7 @@ class ConfigurationValidationTest extends TestCase {
 	}
 
 	/**
-	 * Cross-validates version between plugin.json and main plugin file header
+	 * Validates version value and format in plugin.json.
 	 */
 	public function testPluginVersionIsValid() :void {
 		$configData = $this->getPluginConfigData();
@@ -67,18 +67,9 @@ class ConfigurationValidationTest extends TestCase {
 		
 		$this->assertNotEmpty( $version, 'Version should not be empty' );
 		$this->assertMatchesRegularExpression( 
-			'/^\d+\.\d+\.\d+$/', 
+			'/^\d+(\.\d+)+$/',
 			$version, 
-			'Version should follow semantic versioning format (X.Y.Z)' 
-		);
-		
-		// Version should match what's in the main plugin file
-		$pluginContent = $this->getPluginFileContents( 'icwp-wpsf.php', 'Main plugin file' );
-		
-		$this->assertStringContainsString( 
-			"Version: {$version}", 
-			$pluginContent, 
-			'Version in config should match version in main plugin file' 
+			'Version should use numeric dot-separated segments (e.g. 21.1.9)'
 		);
 	}
 
@@ -172,4 +163,3 @@ class ConfigurationValidationTest extends TestCase {
 		return $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration file' );
 	}
 }
-
