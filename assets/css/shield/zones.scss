@@ -1,26 +1,201 @@
-﻿.component-enabled-state > svg {
-  width: 48px;
-  height: 48px;
-}
 .title-image-container > svg {
   width: 100%;
   height: auto;
 }
 
-.security_zone_component .zone_component_action {
+/* Zone Component Card - Prototype B */
+.zone-component-card {
+  border: 1px solid #e2e2e2;
+  border-top: 3px solid #ccc;
+  border-radius: 0 0 6px 6px;
+  padding: 0;
+  margin-bottom: 1rem;
+  background: #fff;
+  transition: box-shadow 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &.status-good {
+    border-top-color: #198754;
+  }
+  &.status-okay {
+    border-top-color: $warning;
+  }
+  &.status-bad {
+    border-top-color: #dc3545;
+  }
+  &.status-neutral {
+    border-top-color: $info;
+  }
+  &.status-neutral_enabled {
+    border-top-color: $info;
+  }
+}
+
+.card-header-row {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f1;
+  gap: 1rem;
+}
+
+.zone-component-card .component-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1d2327;
+  flex-shrink: 0;
+}
+
+.card-body-area {
+  padding: 0.875rem 1.5rem;
+}
+
+.zone-component-card .component-subtitle {
+  font-size: 0.875rem;
+  color: #646970;
+  margin: 0;
+}
+
+/* Status Badge - scoped to zone cards to avoid conflict with progress.scss */
+.zone-component-card .status-badge {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.625rem;
+  border-radius: 50px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+
+  .badge-icon {
+    display: inline-flex;
+    align-items: center;
+
+    > svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+    }
+  }
+
+  &.badge-good {
+    background: #d1e7dd;
+    color: #0a5c36;
+  }
+  &.badge-okay {
+    background: #fff3cd;
+    color: #856404;
+  }
+  &.badge-bad {
+    background: #f8d7da;
+    color: #842029;
+  }
+  &.badge-neutral {
+    background: #e7f1ff;
+    color: #0a58ca;
+  }
+}
+
+/* Configure Link - color matches card status */
+.zone-component-card .configure-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+  color: #646970;
+
+  .configure-gear {
+    display: inline-flex;
+    align-items: center;
+
+    > svg {
+      width: 16px;
+      height: 16px;
+      transform: rotate(0deg);
+      transition: transform 0.3s;
+    }
+  }
+
+  &:hover .configure-gear > svg {
+    transform: rotate(45deg);
+  }
 }
-.security_zone_component:hover .zone_component_action {
-  background-color: rgba(0, 128, 0, 0.1);
+
+.zone-component-card.status-good .configure-link {
+  color: #198754;
+  &:hover {
+    background: rgba(25, 135, 84, 0.06);
+    color: #146c43;
+  }
 }
-.security_zone_component .zone_component_action > svg {
-  height: 24px;
-  width: 24px;
-  transform: rotate(0deg);
-  transition: transform 0.5s;
+.zone-component-card.status-okay .configure-link {
+  color: #856404;
+  &:hover {
+    background: rgba($warning, 0.1);
+    color: #6d5204;
+  }
 }
-.security_zone_component:hover .zone_component_action > svg {
-  transform: rotate(45deg);
-  transition: transform 0.3s;
+.zone-component-card.status-bad .configure-link {
+  color: #dc3545;
+  &:hover {
+    background: rgba(220, 53, 69, 0.06);
+    color: #b02a37;
+  }
+}
+.zone-component-card.status-neutral .configure-link,
+.zone-component-card.status-neutral_enabled .configure-link {
+  color: $info;
+  &:hover {
+    background: rgba($info, 0.06);
+    color: #0b8da6;
+  }
+}
+
+/* Explanations Block */
+.explanations-block {
+  padding: 0.75rem 1.5rem;
+  background: #fef9f9;
+  border-top: 1px solid #f0f0f1;
+  font-size: 0.8125rem;
+  color: #50575e;
+}
+
+.explanation-item {
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  .explanation-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-self: center;
+
+    > svg {
+      width: 14px;
+      height: 14px;
+      color: #dc3545;
+      display: block;
+      position: relative;
+      top: 1px;
+    }
+  }
 }

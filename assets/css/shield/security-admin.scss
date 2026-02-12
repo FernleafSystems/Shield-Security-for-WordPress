@@ -1,15 +1,20 @@
-/** Security Admin PIN Entry Card **/
+/** Security Admin PIN Modal Overlay **/
+
+.security-admin-dialog {
+	max-width: 420px;
+}
 
 #IcwpWpsfSecurityAdmin {
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-	&:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-	}
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
 }
 
 .shield-pin-icon svg {
 	width: 36px;
 	height: 36px;
+}
+
+.icon-external-link svg {
+	width: 12px;
+	height: 12px;
+	vertical-align: baseline;
 }

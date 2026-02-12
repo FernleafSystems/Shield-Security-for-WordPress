@@ -1,51 +1,63 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="row justify-content-center">
-		<div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4 mt-4" style="transition: width 0.3s">
-			<div id="IcwpWpsfSecurityAdmin"
-				 class="p-4 p-md-5 bg-white rounded-3"
-				 style="box-shadow: 0 1px 6px rgba(0,0,0,0.07);">
+	<div id="SecurityAdminOverlay" class="modal show d-block"
+		 role="dialog" tabindex="-1"
+		 aria-labelledby="SecurityAdminLabel"
+		 data-bs-backdrop="static"
+		 data-bs-keyboard="false">
+		<div class="modal-dialog modal-dialog-centered security-admin-dialog">
+			<div id="IcwpWpsfSecurityAdmin" class="modal-content rounded-3">
+				<div class="modal-body p-4 p-md-5">
 
-				<form method="post" class="form-horizontal" id="SecurityAdminForm">
+					<form method="post" class="form-horizontal" id="SecurityAdminForm">
 
-					<div class="text-center mb-4">
-						<div class="shield-pin-icon text-secondary mb-2">
-							{{ imgs.icon_shield|raw }}
+						<div class="text-center mb-4">
+							<div class="shield-pin-icon text-secondary mb-2">
+								{{ imgs.icon_shield|raw }}
+							</div>
+							<h5 id="SecurityAdminLabel" class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
+							<p class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
 						</div>
-						<h5 class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
-						<p class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
-					</div>
 
-					<div class="mb-3">
-						<input type="password" name="sec_admin_key"
-							   class="form-control form-control-lg text-center rounded-3"
-							   id="sec_admin_key"
-							   placeholder="{{ strings.aar_enter_access_key }}"
-							   value="" autocomplete="off" autofocus />
-					</div>
+						<div class="mb-3">
+							<input type="password" name="sec_admin_key"
+								   class="form-control form-control-lg text-center rounded-3"
+								   id="sec_admin_key"
+								   placeholder="{{ strings.aar_enter_access_key }}"
+								   value="" autocomplete="off" autofocus />
+						</div>
 
-					<div class="d-grid mb-3">
-						<button type="submit" class="btn btn-primary btn-lg" name="submit">
-							{{ strings.aar_submit_access_key }}</button>
-					</div>
+						<div class="d-grid mb-3">
+							<button type="submit" class="btn btn-primary btn-lg" name="submit">
+								{{ strings.aar_submit_access_key }}</button>
+						</div>
 
-					<div class="text-center">
-						<a class="text-muted small"
-						   href="{{ hrefs.aar_forget_key }}" target="_blank">
-							{{ strings.aar_forget_key }}?</a>
-					</div>
+						<div class="text-center">
+							<a class="text-muted small"
+							   href="{{ hrefs.aar_forget_key }}" target="_blank" rel="noopener noreferrer">
+								{{ strings.aar_forget_key }}?
+								<span class="icon-external-link">{{ imgs.icon_external_link|raw }}</span>
+							</a>
+						</div>
 
-				</form>
+					</form>
 
-				<div class="mt-4 text-center">
 					{% if flags.allow_email_override %}
-						<p class="mb-0 text-muted small">
-							{{ strings.force_remove_email }} {{ strings.send_to_email }}
-						</p>
+						<hr class="my-3">
+						<div class="text-center">
+							<a href="#" id="SecAdminRemoveConfirmEmail" class="small fw-semibold">
+								{{ strings.disable_security_admin }}
+							</a>
+							<p class="text-muted small mt-1 mb-0">
+								{{ strings.send_to_email }}
+							</p>
+						</div>
 					{% endif %}
+
 				</div>
 			</div>
 		</div>
 	</div>
+	<div class="modal-backdrop show"></div>
 {% endblock %}
