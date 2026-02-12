@@ -500,6 +500,13 @@ class EventStrings {
 					__( "IP address '{{ip}}' manually removed from the bypass list.", 'wp-simple-firewall' ),
 				],
 			],
+			'bottrack_multiple'            => [
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
+					__( 'Multiple Signals', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Multiple bot signals detected for this visitor.', 'wp-simple-firewall' ),
+				],
+			],
 			'bottrack_notbot'              => [
 				'name'  => sprintf( __( '%s Registration', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
@@ -819,6 +826,19 @@ class EventStrings {
 				'name'  => __( 'Theme Downgraded', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "Theme '{{theme}}' was downgraded from version {{from}} to version {{to}}.", 'wp-simple-firewall' ),
+				],
+			],
+			'translation_downloaded'        => [
+				'name'  => __( 'Translation Downloaded', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Translation file downloaded for locale: {{locale}}.', 'wp-simple-firewall' ),
+				],
+			],
+			'translation_download_failed'  => [
+				'name'  => __( 'Translation Download Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Failed to download translation file for locale: {{locale}}.', 'wp-simple-firewall' ),
+					__( 'Reason: {{reason}}', 'wp-simple-firewall' ),
 				],
 			],
 			'core_updated'                 => [
