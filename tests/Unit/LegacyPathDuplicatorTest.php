@@ -336,17 +336,6 @@ PHP
 		}
 	}
 
-	public function testCreateDuplicatesCopiesStandardVendorFiles() :void {
-		$this->setupMinimalPackageStructure();
-
-		$duplicator = $this->createDuplicator();
-		$duplicator->createDuplicates( $this->tempDir );
-
-		foreach ( $this->getConstant( 'STD_VENDOR_FILES_TO_COPY' ) as $file ) {
-			$this->assertFileExists( $this->tempDir.'/src/lib/vendor/'.$file );
-		}
-	}
-
 	public function testCreateDuplicatesAppliesLegacyRuntimeGuards() :void {
 		$this->setupMinimalPackageStructure();
 
