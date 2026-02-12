@@ -145,18 +145,6 @@ class EventStrings {
 					__( 'Login page loaded', 'wp-simple-firewall' ),
 				],
 			],
-			'recaptcha_success'            => [
-				'name'  => __( 'CAPTCHA Pass', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'CAPTCHA test successful.', 'wp-simple-firewall' ),
-				],
-			],
-			'recaptcha_fail'               => [
-				'name'  => __( 'CAPTCHA Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'CAPTCHA test failed.', 'wp-simple-firewall' ),
-				],
-			],
 			'test_cron_run'                => [
 				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
 				'audit' => [
@@ -548,14 +536,6 @@ class EventStrings {
 					__( "Attempted login with invalid user '{{user_login}}'.", 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_useragent'           => [
-				/** TODO **/
-				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
-					__( 'Invalid User-Agent', 'wp-simple-firewall' ) ),
-				'audit' => [
-					__( "Invalid user agent detected at '{{useragent}}'.", 'wp-simple-firewall' ),
-				],
-			],
 			'bottrack_xmlrpc'              => [
 				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'XML-RPC', 'wp-simple-firewall' ) ),
@@ -719,15 +699,6 @@ class EventStrings {
 				),
 				'audit' => [
 					__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' ),
-				],
-			],
-			'spam_block_recaptcha'         => [
-				'name'  => sprintf( '%s: %s',
-					__( 'SPAM Blocked', 'wp-simple-firewall' ),
-					__( 'CAPTCHA', 'wp-simple-firewall' )
-				),
-				'audit' => [
-					__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' ),
 				],
 			],
 			'comment_spam_block'           => [

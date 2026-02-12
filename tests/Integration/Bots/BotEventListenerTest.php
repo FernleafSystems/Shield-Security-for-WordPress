@@ -28,7 +28,6 @@ class BotEventListenerTest extends ShieldIntegrationTestCase {
 			'fake web crawler'    => [ 'bottrack_fakewebcrawler', 'btfake_at' ],
 			'link cheese'         => [ 'bottrack_linkcheese', 'btcheese_at' ],
 			'login failed'        => [ 'bottrack_loginfailed', 'btloginfail_at' ],
-			'user agent'          => [ 'bottrack_useragent', 'btua_at' ],
 			'xmlrpc'              => [ 'bottrack_xmlrpc', 'btxml_at' ],
 			'login invalid'       => [ 'bottrack_logininvalid', 'btlogininvalid_at' ],
 			'invalid script'      => [ 'bottrack_invalidscript', 'btinvalidscript_at' ],

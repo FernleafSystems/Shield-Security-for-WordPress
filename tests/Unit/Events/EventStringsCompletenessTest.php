@@ -70,7 +70,10 @@ class EventStringsCompletenessTest extends TestCase {
 	}
 
 	public static function provideSpecEventKeys() :array {
-		$specPath = static::resolvePluginRoot().'/plugin-spec/46_events.json';
+		$specPath = static::resolveExistingFilePath( 'plugin-spec/46_events.json' );
+		if ( $specPath === null ) {
+			return [];
+		}
 		$events = \json_decode( (string)\file_get_contents( $specPath ), true );
 		return \array_map( fn( $key ) => [ $key ], \array_keys( $events ?? [] ) );
 	}
@@ -81,7 +84,14 @@ class EventStringsCompletenessTest extends TestCase {
 	}
 
 	private function getSpecEventKeys() :array {
-		$events = $this->decodePluginJsonFile( 'plugin-spec/46_events.json', 'Events spec' );
+		$specPath = static::resolveExistingFilePath( 'plugin-spec/46_events.json' );
+		if ( $specPath === null ) {
+			$this->markTestSkipped( 'Events completeness checks require plugin-spec/46_events.json, which is not available in this environment.' );
+		}
+
+		$events = \json_decode( (string)\file_get_contents( $specPath ), true );
+		$this->assertSame( \JSON_ERROR_NONE, \json_last_error(), 'Events spec should contain valid JSON: '.\json_last_error_msg() );
+		$this->assertIsArray( $events, 'Events spec should decode to an array structure' );
 		return \array_keys( $events );
 	}
 
@@ -93,7 +103,11 @@ class EventStringsCompletenessTest extends TestCase {
 	 * Parse EventStrings source to extract each event entry's structure (name/audit keys).
 	 */
 	private function getEventStringEntries() :array {
-		$source = $this->getPluginFileContents( 'src/Events/EventStrings.php', 'EventStrings source' );
+		$sourcePath = static::resolveExistingFilePath( 'src/Events/EventStrings.php' );
+		if ( $sourcePath === null ) {
+			$this->markTestSkipped( 'Events completeness checks require src/Events/EventStrings.php, which is not available in this environment.' );
+		}
+		$source = (string)\file_get_contents( $sourcePath );
 
 		// Extract the body of theStrings() return array
 		$startPos = \strpos( $source, 'return [' );
@@ -150,17 +164,51 @@ class EventStringsCompletenessTest extends TestCase {
 	 * Extract top-level array keys from EventStrings::theStrings() by parsing source.
 	 */
 	private static function parseEventStringKeysFromSource() :array {
-		$path = static::resolvePluginRoot().'/src/Events/EventStrings.php';
+		$path = static::resolveExistingFilePath( 'src/Events/EventStrings.php' );
+		if ( $path === null ) {
+			return [];
+		}
 		$source = (string)\file_get_contents( $path );
 		\preg_match_all( "/^\t{3}'([a-z0-9_]+)'\s*=>/m", $source, $matches );
 		return $matches[1] ?? [];
 	}
 
-	private static function resolvePluginRoot() :string {
+	private static function resolveExistingFilePath( string $relativePath ) :?string {
+		$relativePath = \ltrim( $relativePath, '/' );
+		foreach ( static::getCandidateRoots() as $root ) {
+			$path = $root.'/'.$relativePath;
+			if ( \file_exists( $path ) ) {
+				return $path;
+			}
+		}
+		return null;
+	}
+
+	private static function getCandidateRoots() :array {
+		$roots = [];
+
 		$envPath = \getenv( 'SHIELD_PACKAGE_PATH' );
 		if ( $envPath !== false && !empty( $envPath ) ) {
-			return $envPath;
+			$roots[] = \rtrim( $envPath, '/\\' );
 		}
-		return \dirname( \dirname( \dirname( __DIR__ ) ) );
+
+		$roots[] = \dirname( \dirname( \dirname( __DIR__ ) ) );
+
+		$cwd = \getcwd();
+		if ( \is_string( $cwd ) && $cwd !== '' ) {
+			$roots[] = \rtrim( $cwd, '/\\' );
+		}
+
+		// Remove duplicates while preserving order.
+		$roots = \array_values( \array_unique( $roots ) );
+
+		// Keep only existing directories to avoid useless file checks.
+		return \array_values(
+			\array_filter(
+				$roots,
+				static fn( string $root ) :bool => \is_dir( $root )
+			)
+		);
 	}
+
 }
