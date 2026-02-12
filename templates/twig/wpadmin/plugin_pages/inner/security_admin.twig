@@ -2,44 +2,45 @@
 
 {% block inner_page_body %}
 	<div class="row justify-content-center">
-		<div class="col-sm-12 col-md-10 col-lg-8 col-xl-8 col-xxl-6 mt-4" style="transition: width 0.3s">
+		<div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4 mt-4" style="transition: width 0.3s">
 			<div id="IcwpWpsfSecurityAdmin"
-				 class="p-4 border bg-white"
-				 style="box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
+				 class="p-4 p-md-5 bg-white rounded-3"
+				 style="box-shadow: 0 1px 6px rgba(0,0,0,0.07);">
 
 				<form method="post" class="form-horizontal" id="SecurityAdminForm">
 
-					<div class="row">
-						<label class="col-6 col-form-label" for="sec_admin_key">
-							<span class="optname">{{ strings.aar_enter_access_key }}</span>
-						</label>
-
-						<div class="col-6 col-xs-offset-1">
-							<input type="password" name="sec_admin_key"
-								   class="form-control"
-								   id="sec_admin_key"
-								   value="" autocomplete="off" autofocus />
-							<p class="form-text">{{ strings.aar_to_manage_must_enter_key }}</p>
+					<div class="text-center mb-4">
+						<div class="shield-pin-icon text-secondary mb-2">
+							{{ imgs.icon_shield|raw }}
 						</div>
+						<h5 class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
+						<p class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
 					</div>
 
-					<div class="row no-gutters">
-						<div class="col-6 order-2 text-end">
-							<button type="submit" class="btn btn-primary" name="submit">
-								{{ strings.aar_submit_access_key }}</button>
-						</div>
-						<div class="col-6 order-1 text-start">
-							<a class="btn btn-link "
-							   href="{{ hrefs.aar_forget_key }}" target="_blank">
-								{{ strings.aar_forget_key }}?</a>
-						</div>
+					<div class="mb-3">
+						<input type="password" name="sec_admin_key"
+							   class="form-control form-control-lg text-center rounded-3"
+							   id="sec_admin_key"
+							   placeholder="{{ strings.aar_enter_access_key }}"
+							   value="" autocomplete="off" autofocus />
+					</div>
+
+					<div class="d-grid mb-3">
+						<button type="submit" class="btn btn-primary btn-lg" name="submit">
+							{{ strings.aar_submit_access_key }}</button>
+					</div>
+
+					<div class="text-center">
+						<a class="text-muted small"
+						   href="{{ hrefs.aar_forget_key }}" target="_blank">
+							{{ strings.aar_forget_key }}?</a>
 					</div>
 
 				</form>
 
-				<div class="mb-0 mt-5 text-center">
+				<div class="mt-4 text-center">
 					{% if flags.allow_email_override %}
-						<p class="mb-0">
+						<p class="mb-0 text-muted small">
 							{{ strings.force_remove_email }} {{ strings.send_to_email }}
 						</p>
 					{% endif %}
