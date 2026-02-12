@@ -141,6 +141,8 @@ class Constants {
 		Actions\Render\Components\Email\Footer::class,
 		Actions\Render\Components\Email\UnblockMagicLink::class,
 		Actions\Render\Components\Email\MfaLoginCode::class,
+		Actions\Render\Components\Email\SecAdminRemoveConfirm::class,
+		Actions\Render\Components\Email\SecAdminRemoveNotice::class,
 		Actions\Render\Components\Email\FirewallBlockAlert::class,
 		Actions\Render\Components\Email\UserLoginNotice::class,
 		Actions\Render\Components\Reports\Contexts\EmailReport::class,

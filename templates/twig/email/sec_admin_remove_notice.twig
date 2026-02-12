@@ -1,0 +1,13 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>{{ body.strings.notification }}</p>
+
+	<p>{{ body.strings.method }}</p>
+
+	<p>{{ body.strings.restrictions }}</p>
+
+	<p>{{ body.strings.reinstate_notice }}</p>
+
+	<p>{{ body.strings.thank_you }}</p>
+{% endblock %}

@@ -724,7 +724,7 @@ class Controller extends DynPropertiesClass {
 			$labels->Name = $labels->Name.' PRO';
 			$labels->Title = $labels->Title.' PRO';
 			$labels->MenuTitle = $labels->MenuTitle.' PRO';
-			$labels->url_img_logo_small = $this->urls->forImage( 'plugin_logo_prem.svg' );
+			$labels->url_img_logo_small = $this->urls->forImage( 'pluginlogo_banner-170x40.png' );
 		}
 
 		return $labels;
