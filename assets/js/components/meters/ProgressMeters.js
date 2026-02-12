@@ -77,8 +77,9 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			bgColor = 'rgba(' + rgbParts[ 0 ] + ',' + rgbParts[ 1 ] + ',' + rgbParts[ 2 ] + ',0.12)';
 		}
 		else {
-			mainColor = percentage > 85 ? '#008000' : ( percentage > 55 ? '#d48a00' : '#c62f3e' );
-			bgColor = percentage > 85 ? 'rgba(0,128,0,0.12)' : ( percentage > 55 ? 'rgba(212,138,0,0.12)' : 'rgba(198,47,62,0.12)' );
+			const t = this._base_data.thresholds || { good: 70, warning: 40 };
+			mainColor = percentage > t.good ? '#008000' : ( percentage > t.warning ? '#edb41d' : '#c62f3e' );
+			bgColor = percentage > t.good ? 'rgba(0,128,0,0.12)' : ( percentage > t.warning ? 'rgba(237,180,29,0.12)' : 'rgba(198,47,62,0.12)' );
 		}
 
 		this.heroChart = new ChartJS( canvas, {
@@ -121,12 +122,10 @@ export class ProgressMeters extends BaseAutoExecComponent {
 		document.querySelectorAll( '.progress-metercard:not(.progress-metercard-hero)' ).forEach( ( card ) => {
 			const progressBar = card.querySelector( '.progress-bar' );
 			if ( progressBar ) {
-				const widthStr = progressBar.style.width;
-				const pct = parseInt( widthStr, 10 ) || 0;
-				if ( pct > 85 ) {
+				if ( progressBar.classList.contains( 'status-good' ) ) {
 					good++;
 				}
-				else if ( pct > 55 ) {
+				else if ( progressBar.classList.contains( 'status-warning' ) ) {
 					warning++;
 				}
 				else {

@@ -5,8 +5,16 @@
 
 /* Zone Component Card - Prototype B */
 .zone-component-card {
+  --zone-accent-border: #0ea8c7;
+  --zone-accent-text: #0a58ca;
+  --zone-accent-text-hover: #0b8da6;
+  --zone-accent-bg-subtle: #e7f1ff;
+  --zone-accent-bg-hover: rgba(14, 168, 199, 0.06);
+  --zone-explanation-bg: #f1f8fb;
+  --zone-explanation-text: #0a58ca;
+
   border: 1px solid #e2e2e2;
-  border-top: 3px solid #ccc;
+  border-top: 3px solid var(--zone-accent-border);
   border-radius: 0 0 6px 6px;
   padding: 0;
   margin-bottom: 1rem;
@@ -19,19 +27,49 @@
   }
 
   &.status-good {
-    border-top-color: #198754;
+    --zone-accent-border: #198754;
+    --zone-accent-text: #198754;
+    --zone-accent-text-hover: #146c43;
+    --zone-accent-bg-subtle: #d1e7dd;
+    --zone-accent-bg-hover: rgba(25, 135, 84, 0.06);
+    --zone-explanation-bg: #f1f8f3;
+    --zone-explanation-text: #146c43;
   }
   &.status-okay {
-    border-top-color: $warning;
+    --zone-accent-border: #edb41d;
+    --zone-accent-text: #856404;
+    --zone-accent-text-hover: #6d5204;
+    --zone-accent-bg-subtle: #fff3cd;
+    --zone-accent-bg-hover: rgba(237, 180, 29, 0.1);
+    --zone-explanation-bg: #fefaf0;
+    --zone-explanation-text: #6d5204;
   }
   &.status-bad {
-    border-top-color: #dc3545;
+    --zone-accent-border: #dc3545;
+    --zone-accent-text: #842029;
+    --zone-accent-text-hover: #b02a37;
+    --zone-accent-bg-subtle: #f8d7da;
+    --zone-accent-bg-hover: rgba(220, 53, 69, 0.06);
+    --zone-explanation-bg: #fef3f4;
+    --zone-explanation-text: #842029;
   }
   &.status-neutral {
-    border-top-color: $info;
+    --zone-accent-border: #0ea8c7;
+    --zone-accent-text: #0a58ca;
+    --zone-accent-text-hover: #0b8da6;
+    --zone-accent-bg-subtle: #e7f1ff;
+    --zone-accent-bg-hover: rgba(14, 168, 199, 0.06);
+    --zone-explanation-bg: #f1f8fb;
+    --zone-explanation-text: #0a58ca;
   }
   &.status-neutral_enabled {
-    border-top-color: $info;
+    --zone-accent-border: #0ea8c7;
+    --zone-accent-text: #0a58ca;
+    --zone-accent-text-hover: #0b8da6;
+    --zone-accent-bg-subtle: #e7f1ff;
+    --zone-accent-bg-hover: rgba(14, 168, 199, 0.06);
+    --zone-explanation-bg: #f1f8fb;
+    --zone-explanation-text: #0a58ca;
   }
 }
 
@@ -88,23 +126,8 @@
       display: block;
     }
   }
-
-  &.badge-good {
-    background: #d1e7dd;
-    color: #0a5c36;
-  }
-  &.badge-okay {
-    background: #fff3cd;
-    color: #856404;
-  }
-  &.badge-bad {
-    background: #f8d7da;
-    color: #842029;
-  }
-  &.badge-neutral {
-    background: #e7f1ff;
-    color: #0a58ca;
-  }
+  background: var(--zone-accent-bg-subtle);
+  color: var(--zone-accent-text);
 }
 
 /* Configure Link - color matches card status */
@@ -120,7 +143,7 @@
   border: 1px solid transparent;
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
-  color: #646970;
+  color: var(--zone-accent-text);
 
   .configure-gear {
     display: inline-flex;
@@ -139,46 +162,21 @@
   }
 }
 
-.zone-component-card.status-good .configure-link {
-  color: #198754;
-  &:hover {
-    background: rgba(25, 135, 84, 0.06);
-    color: #146c43;
-  }
-}
-.zone-component-card.status-okay .configure-link {
-  color: #856404;
-  &:hover {
-    background: rgba($warning, 0.1);
-    color: #6d5204;
-  }
-}
-.zone-component-card.status-bad .configure-link {
-  color: #dc3545;
-  &:hover {
-    background: rgba(220, 53, 69, 0.06);
-    color: #b02a37;
-  }
-}
-.zone-component-card.status-neutral .configure-link,
-.zone-component-card.status-neutral_enabled .configure-link {
-  color: $info;
-  &:hover {
-    background: rgba($info, 0.06);
-    color: #0b8da6;
-  }
+.zone-component-card .configure-link:hover {
+  background: var(--zone-accent-bg-hover);
+  color: var(--zone-accent-text-hover);
 }
 
 /* Explanations Block */
-.explanations-block {
+.zone-component-card .explanations-block {
   padding: 0.75rem 1.5rem;
-  background: #fef9f9;
+  background: var(--zone-explanation-bg);
   border-top: 1px solid #f0f0f1;
   font-size: 0.8125rem;
-  color: #50575e;
+  color: var(--zone-explanation-text);
 }
 
-.explanation-item {
+.zone-component-card .explanation-item {
   padding: 0.25rem 0;
   display: flex;
   align-items: baseline;
@@ -192,7 +190,7 @@
     > svg {
       width: 14px;
       height: 14px;
-      color: #dc3545;
+      color: var(--zone-explanation-text);
       display: block;
       position: relative;
       top: 1px;

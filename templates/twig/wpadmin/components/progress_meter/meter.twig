@@ -2,14 +2,7 @@
 
 	{% set meter = vars.meter %}
 	{% set meter_slug = vars.meter_slug %}
-
-	{% if meter.totals.percentage > 85 %}
-		{% set traffic = 'good' %}
-	{% elseif meter.totals.percentage > 55 %}
-		{% set traffic = 'warning' %}
-	{% else %}
-		{% set traffic = 'critical' %}
-	{% endif %}
+	{% set traffic = vars.traffic %}
 
 	<div class="card meter-card h-100 {{ traffic == 'critical' ? 'meter-card-critical' : '' }}">
 		<div class="meter-card-accent status-{{ traffic }}"></div>

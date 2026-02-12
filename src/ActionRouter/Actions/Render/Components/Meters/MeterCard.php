@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	BuildMeter,
+	Handler
+};
 
 class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -16,8 +19,9 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 		}
 
 		$percentage = (int)( $data[ 'totals' ][ 'percentage' ] ?? 0 );
-		$iconName = $percentage > 85 ? 'shield-fill-check'
-			: ( $percentage > 55 ? 'exclamation-triangle' : 'shield-fill-x' );
+		$traffic = BuildMeter::trafficFromPercentage( $percentage );
+		$iconName = $traffic === 'good' ? 'shield-fill-check'
+			: ( $traffic === 'critical' ? 'shield-fill-x' : 'exclamation-triangle' );
 
 		return [
 			'strings' => [
@@ -37,6 +41,7 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 			'vars'    => [
 				'meter_slug' => $this->action_data[ 'meter_slug' ],
 				'meter'      => $data,
+				'traffic'    => $traffic,
 			],
 		];
 	}

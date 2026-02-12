@@ -1,11 +1,8 @@
 /** Security Analysis Progress Meters **/
 
-$shield-green: #008000;
-$shield-green-light: #e6f5e6;
-$shield-orange: #d48a00;
-$shield-orange-light: #fef6e6;
-$shield-red: #c62f3e;
-$shield-red-light: #fdeaec;
+$meter-green-light: #e6f5e6;
+$meter-orange-light: #fef6e6;
+$meter-red-light: #fdeaec;
 
 /* ========== HERO GAUGE CARD ========== */
 .meter-hero-card {
@@ -25,21 +22,21 @@ $shield-red-light: #fdeaec;
 	}
 
 	&.status-good {
-		background: linear-gradient(135deg, #f3faf3 0%, $shield-green-light 50%, #eef8ee 100%);
-		&::before { background: $shield-green; }
-		.gauge-icon { color: $shield-green; }
+		background: linear-gradient(135deg, #f3faf3 0%, $meter-green-light 50%, #eef8ee 100%);
+		&::before { background: $primary; }
+		.gauge-icon { color: $primary; }
 	}
 
 	&.status-warning {
-		background: linear-gradient(135deg, #fffdf5 0%, $shield-orange-light 50%, #fefaf0 100%);
-		&::before { background: $shield-orange; }
-		.gauge-icon { color: $shield-orange; }
+		background: linear-gradient(135deg, #fffdf5 0%, $meter-orange-light 50%, #fefaf0 100%);
+		&::before { background: $warning; }
+		.gauge-icon { color: $warning; }
 	}
 
 	&.status-critical {
-		background: linear-gradient(135deg, #fef6f5 0%, $shield-red-light 50%, #fef4f2 100%);
-		&::before { background: $shield-red; }
-		.gauge-icon { color: $shield-red; }
+		background: linear-gradient(135deg, #fef6f5 0%, $meter-red-light 50%, #fef4f2 100%);
+		&::before { background: $danger; }
+		.gauge-icon { color: $danger; }
 	}
 }
 
@@ -150,9 +147,9 @@ $shield-red-light: #fdeaec;
 		height: 1.1rem;
 	}
 
-	&.stat-icon-good { color: $shield-green; }
-	&.stat-icon-warning { color: $shield-orange; }
-	&.stat-icon-critical { color: $shield-red; }
+	&.stat-icon-good { color: $primary; }
+	&.stat-icon-warning { color: $warning; }
+	&.stat-icon-critical { color: $danger; }
 }
 
 .stat-label {
@@ -187,9 +184,9 @@ $shield-red-light: #fdeaec;
 	height: 4px;
 	width: 100%;
 
-	&.status-good { background: $shield-green; }
-	&.status-warning { background: $shield-orange; }
-	&.status-critical { background: $shield-red; }
+	&.status-good { background: $primary; }
+	&.status-warning { background: $warning; }
+	&.status-critical { background: $danger; }
 }
 
 .meter-card-header {
@@ -232,18 +229,18 @@ $shield-red-light: #fdeaec;
 	}
 
 	&.status-good {
-		background-color: $shield-green-light;
-		color: $shield-green;
+		background-color: $meter-green-light;
+		color: $primary;
 	}
 
 	&.status-warning {
-		background-color: $shield-orange-light;
-		color: $shield-orange;
+		background-color: $meter-orange-light;
+		color: $warning;
 	}
 
 	&.status-critical {
-		background-color: $shield-red-light;
-		color: $shield-red;
+		background-color: $meter-red-light;
+		color: $danger;
 	}
 }
 
@@ -270,9 +267,9 @@ $shield-red-light: #fdeaec;
 	transition: width 0.6s ease;
 }
 
-.progress-bar.status-good { background-color: $shield-green; }
-.progress-bar.status-warning { background-color: $shield-orange; }
-.progress-bar.status-critical { background-color: $shield-red; }
+.progress-bar.status-good { background-color: $primary; }
+.progress-bar.status-warning { background-color: $warning; }
+.progress-bar.status-critical { background-color: $danger; }
 
 .meter-card-desc {
 	font-size: 0.82rem;

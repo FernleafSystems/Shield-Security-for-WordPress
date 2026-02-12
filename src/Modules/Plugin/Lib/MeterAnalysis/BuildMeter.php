@@ -8,6 +8,9 @@ class BuildMeter {
 
 	use PluginControllerConsumer;
 
+	public const THRESHOLD_GOOD = 80;
+	public const THRESHOLD_WARNING = 40;
+
 	public const STATUS_XHIGH = 'x';
 	public const STATUS_HIGH = 'h';
 	public const STATUS_MEDIUM = 'm';
@@ -88,10 +91,17 @@ class BuildMeter {
 		);
 	}
 
+	public static function trafficFromPercentage( int $percentage ) :string {
+		if ( $percentage > self::THRESHOLD_GOOD ) {
+			return 'good';
+		}
+		return $percentage > self::THRESHOLD_WARNING ? 'warning' : 'critical';
+	}
+
 	protected function getStatus( int $score ) :string {
 		return ( $score > 85 ? self::STATUS_XHIGH :
-			( $score > 70 ? self::STATUS_HIGH :
-				( $score > 40 ? self::STATUS_MEDIUM : self::STATUS_LOW )
+			( $score > self::THRESHOLD_GOOD ? self::STATUS_HIGH :
+				( $score > self::THRESHOLD_WARNING ? self::STATUS_MEDIUM : self::STATUS_LOW )
 			)
 		);
 	}
