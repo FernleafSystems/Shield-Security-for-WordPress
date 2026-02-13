@@ -226,6 +226,12 @@ module.exports = {
 					/data-bs-/,
 					// Micromodal data attributes
 					/data-micromodal/,
+				],
+
+				// CSS custom properties to preserve
+				variables: [
+					// SmartWizard theme variables (overridden in merlin.scss)
+					/^--sw-/,
 				]
 			},
 
