@@ -119,6 +119,7 @@ class AssetsCustomizer {
 								'show_title'    => false,
 								'req_params'    => [
 									'interval'       => 'daily',
+									'ticks'          => 30,
 									'events'         => [ $event ],
 									'combine_events' => true
 								],

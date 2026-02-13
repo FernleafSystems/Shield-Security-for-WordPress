@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops as IpRulesDB;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ChartsSummary extends Base {
 
@@ -15,27 +15,43 @@ class ChartsSummary extends Base {
 		/** @var EventsDB\Select $eventSelector */
 		$eventSelector = $con->db_con->events->getQuerySelector();
 
-		/** @var IpRulesDB\Select $ipRuleSelect */
-		$ipRuleSelect = $con->db_con->ip_rules->getQuerySelector();
+		$windowDays = 30;
+		$rangeEnd = Services::Request()
+							->carbon()
+							->endOfDay()
+							->timestamp;
+		$rangeStart = Services::Request()
+							  ->carbon()
+							  ->subDays( $windowDays - 1 )
+							  ->startOfDay()
+							  ->timestamp;
+		/* translators: %1$s: number of days, %2$s: units */
+		$periodLabel = sprintf( __( '%1$s %2$s', 'wp-simple-firewall' ), $windowDays, __( 'days', 'wp-simple-firewall' ) );
 
-		$loginCount = $eventSelector->clearWheres()->sumEvent( 'login_block' );
-		$botCount = $eventSelector->clearWheres()->sumEventsLike( 'bottrack_' );
-		$offenseCount = $eventSelector->clearWheres()->sumEvent( 'ip_offense' );
-		$killCount = $eventSelector->clearWheres()->sumEvent( 'conn_kill' );
-		$ipBlockedCount = $ipRuleSelect->filterByTypes( [
-			IpRulesDB\Handler::T_AUTO_BLOCK,
-			IpRulesDB\Handler::T_MANUAL_BLOCK
-		] )->count();
-		$commentCount = $eventSelector->clearWheres()->sumEvents( [
-			'spam_block_bot',
-			'spam_block_human',
-		] );
+		$loginCount = $eventSelector->clearWheres()
+									->filterByBoundary( $rangeStart, $rangeEnd )
+									->sumEvent( 'login_block' );
+		$botCount = $eventSelector->clearWheres()
+								  ->filterByBoundary( $rangeStart, $rangeEnd )
+								  ->sumEventsLike( 'bottrack_' );
+		$offenseCount = $eventSelector->clearWheres()
+									  ->filterByBoundary( $rangeStart, $rangeEnd )
+									  ->sumEvent( 'ip_offense' );
+		$killCount = $eventSelector->clearWheres()
+								   ->filterByBoundary( $rangeStart, $rangeEnd )
+								   ->sumEvent( 'conn_kill' );
+		$ipBlockedCount = $eventSelector->clearWheres()
+										->filterByBoundary( $rangeStart, $rangeEnd )
+										->sumEvent( 'ip_blocked' );
+		$commentCount = $eventSelector->clearWheres()
+									  ->filterByBoundary( $rangeStart, $rangeEnd )
+									  ->sumEventsLike( 'spam_block_' );
 
 		$statsData = [
 			'login'          => [
 				'id'           => 'login_block',
 				'title'        => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
 					\number_format( $loginCount ) ),
 				'val_number'   => \number_format( $loginCount ),
 				'status_class' => 'good',
@@ -44,7 +60,7 @@ class ChartsSummary extends Base {
 			'bot_blocks'     => [
 				'id'           => 'bot_blocks',
 				'title'        => __( 'Bot Detection', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
 					\number_format( $botCount ) ),
 				'val_number'   => \number_format( $botCount ),
 				'status_class' => 'good',
@@ -53,7 +69,7 @@ class ChartsSummary extends Base {
 			'transgressions' => [
 				'id'           => 'ip_offense',
 				'title'        => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
 					\number_format( $offenseCount ) ),
 				'val_number'   => \number_format( $offenseCount ),
 				'status_class' => 'warning',
@@ -62,7 +78,7 @@ class ChartsSummary extends Base {
 			'conn_kills'     => [
 				'id'           => 'conn_kill',
 				'title'        => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
 					\number_format( $killCount ) ),
 				'val_number'   => \number_format( $killCount ),
 				'status_class' => 'critical',
@@ -71,7 +87,7 @@ class ChartsSummary extends Base {
 			'ip_blocked'     => [
 				'id'           => 'ip_blocked',
 				'title'        => __( 'IP Blocked', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', __( 'Now', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
 					\number_format( $ipBlockedCount ) ),
 				'val_number'   => \number_format( $ipBlockedCount ),
 				'status_class' => 'warning',
@@ -80,7 +96,7 @@ class ChartsSummary extends Base {
 			'comments'       => [
 				'id'           => 'comment_block',
 				'title'        => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', __( 'Lifetime Total', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
 					\number_format( $commentCount ) ),
 				'val_number'   => \number_format( $commentCount ),
 				'status_class' => 'info',
@@ -89,7 +105,7 @@ class ChartsSummary extends Base {
 		];
 
 		foreach ( $statsData as $key => $statData ) {
-			$subtitle = sprintf( __( '7 %s', 'wp-simple-firewall' ), __( 'days', 'wp-simple-firewall' ) );
+			$subtitle = $periodLabel;
 			$statsData[ $key ][ 'title_sub' ] = $subtitle;
 			/* translators: %1$s: title, %2$s: subtitle */
 			$statsData[ $key ][ 'tooltip_chart' ] = sprintf( __( '%1$s: %2$s.', 'wp-simple-firewall' ), __( 'Stats', 'wp-simple-firewall' ), $subtitle );
