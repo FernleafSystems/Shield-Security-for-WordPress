@@ -115,13 +115,12 @@ class AjaxBatchRequests extends BaseAction {
 			);
 			$action->setActionOverride( Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED, false );
 			$action->process();
-
-			$routedResponse = ( new AjaxResponseAdapter() )->adapt( $action->response() );
-			$payload = $this->normaliseAjaxPayload( $routedResponse->payload() );
+			$adapted = $this->adaptSubrequestResponse( $action->response() );
+			$payload = $this->normaliseAjaxPayload( $adapted[ 'payload' ] );
 
 			return [
 				'success'     => (bool)( $payload[ 'success' ] ?? false ),
-				'status_code' => $routedResponse->statusCode(),
+				'status_code' => $adapted[ 'status_code' ],
 				'data'        => $payload,
 			];
 		}
@@ -146,6 +145,26 @@ class AjaxBatchRequests extends BaseAction {
 		catch ( \Throwable $e ) {
 			return $this->buildFailureResult( __( 'There was a problem processing the batched request.', 'wp-simple-firewall' ), 500 );
 		}
+	}
+
+	private function adaptSubrequestResponse( \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse $response ) :array {
+		$statusCode = 200;
+		$payload = $response->payload();
+
+		// Batch item execution should not fail solely because transport adaptation fails.
+		try {
+			$routedResponse = ( new AjaxResponseAdapter() )->adapt( $response );
+			$statusCode = $routedResponse->statusCode();
+			$payload = $routedResponse->payload();
+		}
+		catch ( \Throwable $e ) {
+			// Fallback to raw action payload to preserve independent batch item execution.
+		}
+
+		return [
+			'status_code' => $statusCode,
+			'payload'     => \is_array( $payload ) ? $payload : [],
+		];
 	}
 
 	private function normaliseAjaxPayload( array $payload ) :array {

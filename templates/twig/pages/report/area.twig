@@ -1,20 +1,10 @@
-<div class="row mt-3 pt-3">
-	<div class="col">
-		<h3 class="border-bottom rounded-1 area-title d-inline-block py-1 px-2" style="border-left: 4px solid #008000;">
-			<button class="accordion-button fs-3"
-					type="button"
-					data-bs-toggle="collapse"
-					data-bs-target="#collapse-{{ area.slug }}">
-			{{ area.title }}
-			</button>
-		</h3>
+{% set accent_style = area.slug in ['scan_results', 'scan_repairs'] ? 'background: var(--status-good);' : 'background: var(--status-info);' %}
+<div class="report-section">
+	<div class="report-section-header">
+		<div class="report-section-accent" style="{{ accent_style }}"></div>
+		<h3 class="report-section-title">{{ area.title }}</h3>
 	</div>
-</div>
-
-<div class="row">
-	<div class="col-10 offset-1 pt-2">
-		<div id="collapse-{{ area.slug }}" class="accordion-collapse collapse show">
-			{{ area.content|raw }}
-		</div>
+	<div class="report-section-body">
+		{{ area.content|raw }}
 	</div>
 </div>

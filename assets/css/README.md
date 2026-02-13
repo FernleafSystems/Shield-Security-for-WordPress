@@ -21,6 +21,7 @@ assets/css/
     security-admin.scss       Security admin PIN modal
     options.scss              Module options pages
     ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
+    reports.scss              Security report styles (reference only — actual CSS is inline in Twig)
     charts.scss               Chart styling
     dashboard-widget.scss     WP dashboard widget
     datatables.css            DataTables customisations
@@ -214,8 +215,17 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `zones.scss` | `.zone-component-card`, `.zone-card-accent`, `.status-badge` (zone context), `.configure-link`, `.explanations-block` |
 | `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-row` |
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
+| `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `.merlin-*` wizard components |
 | `security-admin.scss` | Security admin modal and PIN form |
+
+## Inline CSS Pattern (Reports)
+
+Security reports use inline `<style>` tags rather than external CSS bundles because
+the full HTML is stored in the database. `shield/reports.scss` is a reference-only
+file that documents the design token usage — it is NOT compiled by webpack. When
+updating report styles, edit the `<style>` block in
+`templates/twig/pages/report/security.twig` and keep `reports.scss` in sync.
 
 ## Related Documentation
 

@@ -2,27 +2,27 @@
 {# Receives: stats (associative array of pre-filtered stat groups), strings #}
 
 {% if stats|length > 0 %}
-	<h3 style="margin: 20px 0 10px; font-size: 16px; color: #333; border-bottom: 2px solid #008000; padding-bottom: 6px;">
+	<h3 style="margin: 20px 0 10px; font-size: 16px; color: #333; border-bottom: 2px solid #d2ddd2; padding-bottom: 6px;">
 		{{ strings.section_stats }}
 	</h3>
 
 	{% for group_key, group in stats %}
 		{% if group.stats is defined and group.stats|length > 0 %}
-			<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+			<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #d9dfd9; padding-bottom: 4px;">
 				{{ group.title }}
 			</h4>
 			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 10px;">
 				<tr>
-					<td style="background-color: #f5f5f5; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #ddd;">
+					<td style="background-color: #f8f9f8; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #d9dfd9;">
 						{{ strings.event }}
 					</td>
-					<td style="background-color: #f5f5f5; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #ddd; text-align: center; width: 70px;">
+					<td style="background-color: #f8f9f8; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #d9dfd9; text-align: center; width: 70px;">
 						{{ strings.current_period }}
 					</td>
-					<td style="background-color: #f5f5f5; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #ddd; text-align: center; width: 70px;">
+					<td style="background-color: #f8f9f8; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #d9dfd9; text-align: center; width: 70px;">
 						{{ strings.previous_period }}
 					</td>
-					<td style="background-color: #f5f5f5; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #ddd; text-align: center; width: 120px;">
+					<td style="background-color: #f8f9f8; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #555; border-bottom: 1px solid #d9dfd9; text-align: center; width: 120px;">
 						{{ strings.change }}
 					</td>
 				</tr>
@@ -35,21 +35,21 @@
 					{% endif %}
 					{% set current_bg = '' %}
 					{% if stat.diff_colour|default('') == 'warning' %}
-						{% set current_bg = 'background-color: #fff8e1;' %}
+						{% set current_bg = 'background-color: #fdfcf8;' %}
 					{% elseif stat.diff_colour|default('') == 'success' %}
-						{% set current_bg = 'background-color: #e8f5e9;' %}
+						{% set current_bg = 'background-color: #f9fdf9;' %}
 					{% endif %}
 					<tr>
-						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee;">
+						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #d9dfd9;">
 							{{ stat.name }}
 						</td>
-						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; text-align: center; font-weight: bold; {{ current_bg }}">
+						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #d9dfd9; text-align: center; font-weight: bold; {{ current_bg }}">
 							{{ stat.count_current_period }}
 						</td>
-						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; text-align: center;">
+						<td style="padding: 6px 10px; font-size: 13px; color: #333; border-bottom: 1px solid #d9dfd9; text-align: center;">
 							{{ stat.count_previous_period }}
 						</td>
-						<td style="padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #eee; text-align: center; color: {{ row_color }};">
+						<td style="padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #d9dfd9; text-align: center; color: {{ row_color }};">
 							{{ stat.diff_symbol_email }} {{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
 						</td>
 					</tr>

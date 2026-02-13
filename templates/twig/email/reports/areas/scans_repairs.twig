@@ -9,20 +9,20 @@
 {% endfor %}
 
 {% if has_repairs %}
-	<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+	<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 2px solid #d2ddd2; padding-bottom: 4px;">
 		{{ strings.section_scans_repairs }}
 	</h4>
 	{% for event_key, data in scan_repairs %}
 		{% if data.count|default(0) > 0 %}
-			<p style="margin: 8px 0 4px; font-size: 13px; color: #333;">
+			<p style="margin: 8px 0 4px; font-size: 13px; color: #333; border-left: 4px solid #008000; padding-left: 8px;">
 				<strong>{{ data.name }}</strong> ({{ data.count }})
 			</p>
 			{% if data.repairs|length > 0 %}
 				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 8px;">
 					{% for path in data.repairs %}
 						<tr>
-							<td style="padding: 3px 10px; font-family: monospace; font-size: 12px; color: #555; border-bottom: 1px solid #eee;">
-								{{ path }}
+							<td style="padding: 3px 10px; font-family: monospace; font-size: 12px; color: #555; border-bottom: 1px solid #d9dfd9; border-left: 3px solid #008000;">
+								&#10003; {{ path }}
 							</td>
 						</tr>
 					{% endfor %}

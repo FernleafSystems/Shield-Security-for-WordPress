@@ -14,14 +14,14 @@
 {% endfor %}
 
 {% if has_results %}
-	<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+	<h4 style="margin: 15px 0 5px; font-size: 14px; color: #333; border-bottom: 2px solid #d2ddd2; padding-bottom: 4px;">
 		{{ section_title }}
 	</h4>
 
 	{# Total issues summary #}
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 10px;">
 		<tr>
-			<td style="padding: 8px 10px; font-size: 13px; font-weight: bold; color: {% if total_count == 0 %}#008000{% else %}#cc7a00{% endif %}; background-color: {% if total_count == 0 %}#e8f5e9{% else %}#fff8e1{% endif %}; border-radius: 3px;">
+			<td style="padding: 8px 10px; font-size: 13px; font-weight: bold; color: {% if total_count == 0 %}#0a5c36{% else %}#856404{% endif %}; background-color: {% if total_count == 0 %}#d1e7dd{% else %}#fff3cd{% endif %}; border-radius: 8px;">
 				Total Issues: {{ total_count }}
 			</td>
 		</tr>
@@ -32,15 +32,15 @@
 			{# Scan type header row #}
 			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 2px;">
 				<tr>
-					<td style="padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
+					<td style="padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; background-color: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #cc7a00;">
 						{{ item.name }}
 						{% if item.new_count is defined and item.new_count > 0 %}
-							<span style="display: inline-block; padding: 1px 6px; font-size: 10px; font-weight: bold; color: #fff; background-color: #cc7a00; border-radius: 3px; margin-left: 6px; vertical-align: middle;">
+							<span style="display: inline-block; padding: 2px 8px; font-size: 10px; font-weight: 600; color: #856404; background-color: #fff3cd; border-radius: 50px; margin-left: 6px; vertical-align: middle;">
 								{{ strings.new_badge }}
 							</span>
 						{% endif %}
 					</td>
-					<td style="padding: 6px 10px; font-size: 13px; font-weight: bold; background-color: #f5f5f5; border-bottom: 1px solid #ddd; text-align: center; width: 80px; color: #cc7a00;">
+					<td style="padding: 6px 10px; font-size: 13px; font-weight: bold; background-color: #f8f9f8; border-bottom: 1px solid #d9dfd9; text-align: center; width: 80px; color: #cc7a00;">
 						{{ item.count }}
 					</td>
 				</tr>
@@ -51,8 +51,8 @@
 				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 8px;">
 					{% for entry in item.items %}
 						<tr>
-							<td style="padding: 3px 10px 3px 20px; font-family: monospace; font-size: 12px; color: #555; border-bottom: 1px solid #eee;
-								{% if entry.is_new %} border-left: 3px solid #cc7a00; background-color: #fff8f0;{% endif %}">
+							<td style="padding: 3px 10px 3px 20px; font-family: monospace; font-size: 12px; color: #555; border-bottom: 1px solid #d9dfd9;
+								{% if entry.is_new %} border-left: 3px solid #edb41d; background-color: #fdfcf8;{% endif %}">
 								{{ entry.label }}
 							</td>
 						</tr>
@@ -73,7 +73,7 @@
 	{% if zero_names|length > 0 %}
 		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 10px;">
 			<tr>
-				<td style="padding: 6px 10px; font-size: 12px; color: #008000; background-color: #e8f5e9; border-radius: 3px;">
+				<td style="padding: 6px 10px; font-size: 12px; color: #0a5c36; background-color: #d1e7dd; border-radius: 8px;">
 					&#10003; All Clear: {{ zero_names|join(', ') }}
 				</td>
 			</tr>

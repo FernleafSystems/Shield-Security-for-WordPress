@@ -1,21 +1,17 @@
-<div id="ChangeTrackingReport">
 {% if flags.has_diffs %}
-	<div class="row">
-		<div class="col text-center">
-			<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-				<input type="radio" class="btn-check" name="change_report_type" id="TypeSummary" autocomplete="off"
-					   checked value="summary">
-				<label class="btn btn-outline-secondary" for="TypeSummary">Summary</label>
+	<div class="text-center mb-3">
+		<div class="btn-group report-changes-toggle" role="group">
+			<input type="radio" class="btn-check" name="change_report_type" id="TypeSummary" autocomplete="off"
+				   checked value="summary">
+			<label class="btn btn-outline-secondary" for="TypeSummary">Summary</label>
 
-				<input type="radio" class="btn-check" name="change_report_type" id="TypeDetailed" autocomplete="off"
-					   value="detailed">
-				<label class="btn btn-outline-secondary" for="TypeDetailed">Detailed</label>
-			</div>
+			<input type="radio" class="btn-check" name="change_report_type" id="TypeDetailed" autocomplete="off"
+				   value="detailed">
+			<label class="btn btn-outline-secondary" for="TypeDetailed">Detailed</label>
 		</div>
 	</div>
 
-	<div class="accordion accordion-flush my-3" id="accordionChanges">
-		{% set loopCount = 0 %}
+	<div class="accordion accordion-flush" id="accordionChanges">
 		{% for zone_slug,zone_data in vars.changes %}
 			{% set zone_changes = zone_data['detailed'] %}
 			{% set zone_title = zone_data.title %}
@@ -25,25 +21,19 @@
 							type="button"
 							data-bs-toggle="collapse"
 							data-bs-target="#collapse-zone-{{ zone_slug }}"
-							aria-expanded="false" aria-controls="collapse-zone-{{ zone_slug }}">
+							aria-expanded="true" aria-controls="collapse-zone-{{ zone_slug }}">
 						{{ zone_data.title }}
 					</button>
 				</h2>
 				<div id="collapse-zone-{{ zone_slug }}" class="accordion-collapse collapse show">
 					<div class="accordion-body">
-						<div class="row">
-							<div class="col">
-								{% include '/reports/areas/changes/zone_diff.twig' %}
-							</div>
-						</div>
+						{% include '/reports/areas/changes/zone_diff.twig' %}
 					</div>
 				</div>
 			</div>
-			{% set loopCount = loopCount + 1 %}
 		{% endfor %}
 	</div>
 
 {% else %}
-	<p>There were no changes detected for the given reporting criteria.</p>
+	<p class="report-empty">There were no changes detected for the given reporting criteria.</p>
 {% endif %}
-</div>
