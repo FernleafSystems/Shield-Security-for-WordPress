@@ -42,6 +42,13 @@
       },
       {
         "type":        "new",
+        "title":       "Major plugin UI refresh",
+        "description": [
+          "We've begun rolling out a UI refresh. Not all elements have been updated; more components will be completed with subsequent releases."
+        ]
+      },
+      {
+        "type":        "new",
         "title":       "Paid Memberships Pro checkout bot protection",
         "description": [
           "SilentCAPTCHA now protects Paid Memberships Pro checkout requests."

@@ -186,6 +186,7 @@ yarn.lock text eol=lf
 /.phpunit.cache export-ignore
 
 # Development tools
+/prototypes export-ignore
 /translations-tools export-ignore
 
 # Frontend source files (compiled bundles are in assets/dist/)

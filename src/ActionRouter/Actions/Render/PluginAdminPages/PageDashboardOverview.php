@@ -64,7 +64,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'count_display' => (string)$filesCount,
 						'status_class'  => $filesCount > 0 ? 'critical' : 'good',
 						'badge_text'    => $filesCount > 0
-							? sprintf( '%d %s', $filesCount, __( 'Issues', 'wp-simple-firewall' ) )
+							? sprintf( _n( '%s Issue', '%s Issues', $filesCount, 'wp-simple-firewall' ), $filesCount )
 							: __( 'All Clear', 'wp-simple-firewall' ),
 					],
 					[
@@ -74,7 +74,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'badge_text'    => !$malwareEnabled
 							? __( 'Disabled', 'wp-simple-firewall' )
 							: ( $malwareCount > 0
-								? sprintf( '%d %s', $malwareCount, __( 'Issues', 'wp-simple-firewall' ) )
+								? sprintf( _n( '%s Issue', '%s Issues', $malwareCount, 'wp-simple-firewall' ), $malwareCount )
 								: __( 'All Clear', 'wp-simple-firewall' ) ),
 					],
 					[
@@ -84,7 +84,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'badge_text'    => !$vulnEnabled
 							? __( 'Disabled', 'wp-simple-firewall' )
 							: ( $vulnCount > 0
-								? sprintf( '%d %s', $vulnCount, __( 'Issues', 'wp-simple-firewall' ) )
+								? sprintf( _n( '%s Issue', '%s Issues', $vulnCount, 'wp-simple-firewall' ), $vulnCount )
 								: __( 'All Clear', 'wp-simple-firewall' ) ),
 					],
 					[
@@ -94,7 +94,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'badge_text'    => !$abandonedEnabled
 							? __( 'Disabled', 'wp-simple-firewall' )
 							: ( $abandonedCount > 0
-								? sprintf( '%d %s', $abandonedCount, __( 'Issues', 'wp-simple-firewall' ) )
+								? sprintf( _n( '%s Issue', '%s Issues', $abandonedCount, 'wp-simple-firewall' ), $abandonedCount )
 								: __( 'All Clear', 'wp-simple-firewall' ) ),
 					],
 				],
