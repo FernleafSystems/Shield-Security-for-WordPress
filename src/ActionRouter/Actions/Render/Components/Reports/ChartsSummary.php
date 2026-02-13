@@ -75,15 +75,6 @@ class ChartsSummary extends Base {
 				'status_class' => 'warning',
 				'tooltip_p'    => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
 			],
-			'conn_kills'     => [
-				'id'           => 'conn_kill',
-				'title'        => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'          => sprintf( '%s: %s', $periodLabel,
-					\number_format( $killCount ) ),
-				'val_number'   => \number_format( $killCount ),
-				'status_class' => 'critical',
-				'tooltip_p'    => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
-			],
 			'ip_blocked'     => [
 				'id'           => 'ip_blocked',
 				'title'        => __( 'IP Blocked', 'wp-simple-firewall' ),
@@ -92,6 +83,15 @@ class ChartsSummary extends Base {
 				'val_number'   => \number_format( $ipBlockedCount ),
 				'status_class' => 'warning',
 				'tooltip_p'    => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
+			],
+			'conn_kills'     => [
+				'id'           => 'conn_kill',
+				'title'        => __( 'Connection Killed', 'wp-simple-firewall' ),
+				'val'          => sprintf( '%s: %s', $periodLabel,
+					\number_format( $killCount ) ),
+				'val_number'   => \number_format( $killCount ),
+				'status_class' => 'critical',
+				'tooltip_p'    => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
 			],
 			'comments'       => [
 				'id'           => 'comment_block',
