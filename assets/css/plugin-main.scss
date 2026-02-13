@@ -25,6 +25,7 @@ $code-color: $secondary;
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
 @import './shield/zones';
+@import './shield/dashboard';
 @import './shield/security-admin';
 
 @import './components/notices';
@@ -197,21 +198,8 @@ label input[type=checkbox] {
   margin-bottom: 1px;
 }
 
-#SectionStats {
-  overflow: auto;
-}
-
 .btn-outline-warning {
   color: $secondary;
-}
-
-.stat.card .card-header {
-  font-size: smaller;
-}
-
-.stat.card .card-body {
-  font-size: x-large;
-  padding: 0.5rem;
 }
 
 #PageMain-Shield .card.config {
@@ -1249,12 +1237,6 @@ td.status_file_size {
   background: #f9f9f9;
 }
 
-.dashboard_overview_widget .card.text-bg-secondary a,
-.dashboard_overview_widget .card.text-bg-danger a,
-.dashboard_overview_widget .card.text-bg-success a {
-  color: white;
-}
-
 .live_logs .output {
   background-color: transparent;
   border: 1px solid transparent;
@@ -1273,10 +1255,6 @@ td.status_file_size {
   position: relative;
   width: 100%;
   min-height: 140px;
-}
-
-.stat.card .shield-chart {
-  min-height: 120px;
 }
 
 .inner-page-header .inner-page-config button.dropdown-toggle {

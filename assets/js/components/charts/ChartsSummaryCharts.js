@@ -1,3 +1,4 @@
+import { Chart as ChartJS } from 'chart.js';
 import { BaseComponent } from "../BaseComponent";
 import { Chart } from "./Chart";
 import { AjaxBatchService } from "../services/AjaxBatchService";
@@ -35,5 +36,35 @@ export class ChartsSummaryCharts extends BaseComponent {
 				}
 			} );
 		}
+
+		this.bindFlipResize( charts );
+	}
+
+	/**
+	 * Charts render while on the hidden backface, so Chart.js may get wrong
+	 * dimensions. On first mouseenter of each stat-cell, trigger a resize so
+	 * the chart fills its container correctly.
+	 */
+	bindFlipResize( charts ) {
+		charts.forEach( ( chart ) => {
+			if ( !chart.container ) {
+				return;
+			}
+			const cell = chart.container.closest( '.stat-cell' );
+			if ( !cell ) {
+				return;
+			}
+			const handler = () => {
+				const canvas = chart.container.querySelector( 'canvas' );
+				if ( canvas ) {
+					const chartInstance = ChartJS.getChart( canvas );
+					if ( chartInstance ) {
+						chartInstance.resize();
+					}
+				}
+				cell.removeEventListener( 'mouseenter', handler );
+			};
+			cell.addEventListener( 'mouseenter', handler );
+		} );
 	}
 }

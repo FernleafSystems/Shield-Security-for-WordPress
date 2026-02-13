@@ -1,16 +1,24 @@
-<div class="row" id="SectionStats">
+<div class="stats-strip" id="SectionStats">
 	{% for stat in vars.stats %}
-		<div class="col-xl-2 col-md-4 mt-4">
-			<div class="stat card text-center" id="statcard-{{ stat.id }}"
-				 {% if stat.tooltip is defined %}title="{{ stat.tooltip }}"{% endif %}
-			>
-				<div class="card-body">
-					<div class="stat-chart summary-chart summary-chart-{{ stat.id }}"
-						 {% if stat.tooltip_chart is defined %}title="{{ stat.tooltip_chart }}"{% endif %}>
+		<div class="stat-cell stat-{{ stat.status_class }}">
+			<div class="stat-flipper">
+				<div class="stat-front">
+					<div class="stat-sparkline">
+						<div class="bar"></div>
+						<div class="bar"></div>
+						<div class="bar"></div>
+						<div class="bar"></div>
+						<div class="bar"></div>
+						<div class="bar"></div>
+						<div class="bar"></div>
 					</div>
-					<h6 style="font-size: small">{{ stat.title }}
-						<br/><span style="font-size: smaller">({{ stat.title_sub }})</span>
-					</h6>
+					<div class="stat-value" title="{{ stat.val }}">{{ stat.val_number }}</div>
+					<div class="stat-title">{{ stat.title }}</div>
+					<div class="stat-subtitle">({{ stat.title_sub }})</div>
+				</div>
+				<div class="stat-back">
+					<div class="summary-chart summary-chart-{{ stat.id }}"
+						 title="{{ stat.tooltip_chart|default('') }}"></div>
 				</div>
 			</div>
 		</div>

@@ -1,12 +1,10 @@
 {% if vars.ips|length > 0 %}
-	<ul class="list-group list-group-flush">
+	<ul class="shield-list">
 		{% for ip in vars.ips %}
-			<li class="list-group-item">
-				<p class="m-0 text-break">
-					<a href="{{ ip.ip_href }}"
-					   title="IP Analysis" class="offcanvas_ip_analysis" data-ip="{{ ip.ip }}">{{ ip.ip }}</a>
-					(<small class="fw-bold">{{ ip.ago }}</small>)
-				</p>
+			<li>
+				<a href="{{ ip.ip_href }}"
+				   title="IP Analysis" class="offcanvas_ip_analysis ip-address" data-ip="{{ ip.ip }}">{{ ip.ip }}</a>
+				<span class="timestamp">({{ ip.ago }})</span>
 			</li>
 		{% endfor %}
 	</ul>

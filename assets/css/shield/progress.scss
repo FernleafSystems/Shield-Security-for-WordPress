@@ -7,6 +7,7 @@
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 	overflow: hidden;
 	position: relative;
+	transition: background 0.2s ease;
 
 	&::before {
 		content: '';
@@ -18,21 +19,24 @@
 	}
 
 	&.status-good {
-		background: linear-gradient(135deg, #f3faf3 0%, $status-bg-good-light 50%, #eef8ee 100%);
+		background: $card-bg-good;
 		&::before { background: $status-color-good; }
 		.gauge-icon { color: $status-color-good; }
+		&:hover { background: $status-bg-good-light; }
 	}
 
 	&.status-warning {
-		background: linear-gradient(135deg, #fffdf5 0%, $status-bg-warning-light 50%, #fefaf0 100%);
+		background: $card-bg-warning;
 		&::before { background: $status-color-warning; }
 		.gauge-icon { color: $status-color-warning; }
+		&:hover { background: $status-bg-warning-light; }
 	}
 
 	&.status-critical {
-		background: linear-gradient(135deg, #fef6f5 0%, $status-bg-critical-light 50%, #fef4f2 100%);
+		background: $card-bg-critical;
 		&::before { background: $status-color-critical; }
 		.gauge-icon { color: $status-color-critical; }
+		&:hover { background: $status-bg-critical-light; }
 	}
 }
 

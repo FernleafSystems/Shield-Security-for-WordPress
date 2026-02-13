@@ -1,11 +1,11 @@
 {% if flags.has_logs %}
-	<ul class="list-group list-group-flush">
+	<ul class="shield-list">
 		{% for log in vars.logs %}
-			<li class="list-group-item">
-				<p class="m-0 text-break">
-					{{ log.message }}
-					<br/><small class="fw-bold">{{ log.ip }} | {{ log.ago }}</small>
-				</p>
+			<li>
+				{{ log.message }}
+				<br/><a href="{{ log.ip_href }}"
+				   title="IP Analysis" class="offcanvas_ip_analysis ip-address" data-ip="{{ log.ip }}">{{ log.ip }}</a>
+				<span class="timestamp">{{ log.ago }}</span>
 			</li>
 		{% endfor %}
 	</ul>
