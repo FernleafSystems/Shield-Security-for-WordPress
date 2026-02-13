@@ -105,18 +105,20 @@ class AjaxBatchRequests extends BaseAction {
 				throw new ActionException( __( 'Missing action slug or nonce in batched request.', 'wp-simple-firewall' ) );
 			}
 
-			if ( !ActionNonce::Verify( $actionSlug, $actionNonce ) ) {
+			$subrequestPayload = $this->stripTransportFields( $actionRequestData );
+			$action = ( new ActionProcessor() )->getAction( $actionSlug, $subrequestPayload );
+			if ( $action::SLUG === self::SLUG ) {
+				throw new ActionException( __( 'Nested batch requests are not allowed.', 'wp-simple-firewall' ), 400 );
+			}
+
+			if ( !ActionNonce::Verify( $action::SLUG, $actionNonce ) ) {
 				throw new InvalidActionNonceException( __( 'Nonce Failed.', 'wp-simple-firewall' ) );
 			}
 
-			$action = ( new ActionProcessor() )->getAction(
-				$actionSlug,
-				$this->stripTransportFields( $actionRequestData )
-			);
 			$action->setActionOverride( Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED, false );
 			$action->process();
 			$adapted = $this->adaptSubrequestResponse( $action->response() );
-			$payload = $this->normaliseAjaxPayload( $adapted[ 'payload' ] );
+			$payload = $this->normaliseAjaxPayload( $this->sanitizeSubrequestPayload( $adapted[ 'payload' ] ) );
 
 			return [
 				'success'     => (bool)( $payload[ 'success' ] ?? false ),
@@ -175,6 +177,12 @@ class AjaxBatchRequests extends BaseAction {
 			'error'       => '',
 			'html'        => '',
 		], $payload );
+	}
+
+	private function sanitizeSubrequestPayload( array $payload ) :array {
+		return \array_diff_key( $payload, \array_flip( [
+			'action_data',
+		] ) );
 	}
 
 	private function buildFailureResult( string $message, int $statusCode ) :array {

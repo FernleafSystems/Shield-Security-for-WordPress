@@ -79,8 +79,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_batch_processes_mixed_subrequests_independently() {
-		$valid = ActionData::Build( AjaxBatchRequests::class );
-		$valid[ 'requests' ] = [];
+		$valid = ActionData::Build( PluginBadgeClose::class );
 		$invalid = ActionData::Build( PluginBadgeClose::class );
 		$invalid[ 'exnonce' ] = 'invalid_nonce';
 
@@ -159,5 +158,73 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertCount( 2, $payload[ 'results' ] );
 		$this->assertSame( [ 'middle', 'dup' ], \array_keys( $payload[ 'results' ] ) );
+	}
+
+	public function test_batch_rejects_nested_batch_subrequest() {
+		$nested = ActionData::Build( AjaxBatchRequests::class );
+		$nested[ 'requests' ] = [];
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'nested',
+					'request' => $nested,
+				],
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertArrayHasKey( 'nested', $payload[ 'results' ] );
+		$this->assertFalse( $payload[ 'results' ][ 'nested' ][ 'success' ] );
+		$this->assertEquals( 400, $payload[ 'results' ][ 'nested' ][ 'status_code' ] );
+		$this->assertStringContainsString(
+			'Nested batch requests',
+			$payload[ 'results' ][ 'nested' ][ 'data' ][ 'error' ] ?? ''
+		);
+	}
+
+	public function test_batch_subresponse_does_not_expose_internal_action_data() {
+		$valid = ActionData::Build( PluginBadgeClose::class );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'badge',
+					'request' => $valid,
+				],
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertArrayHasKey( 'badge', $payload[ 'results' ] );
+		$this->assertIsArray( $payload[ 'results' ][ 'badge' ][ 'data' ] );
+		$this->assertArrayNotHasKey( 'action_data', $payload[ 'results' ][ 'badge' ][ 'data' ] );
+	}
+
+	public function test_batch_invalid_subrequest_slug_returns_client_error() {
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'invalid_slug',
+					'request' => [
+						'ex'      => 'definitely_not_real_action_slug',
+						'exnonce' => 'invalid_nonce',
+					],
+				],
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertArrayHasKey( 'invalid_slug', $payload[ 'results' ] );
+		$this->assertFalse( $payload[ 'results' ][ 'invalid_slug' ][ 'success' ] );
+		$this->assertEquals( 400, $payload[ 'results' ][ 'invalid_slug' ][ 'status_code' ] );
+		$this->assertNotEquals( 500, $payload[ 'results' ][ 'invalid_slug' ][ 'status_code' ] );
+		$this->assertStringContainsString(
+			'no action handler',
+			\strtolower( $payload[ 'results' ][ 'invalid_slug' ][ 'data' ][ 'error' ] ?? '' )
+		);
 	}
 }
