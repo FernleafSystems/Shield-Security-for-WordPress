@@ -79,6 +79,34 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 			'Extra audit params should be silently stripped' );
 	}
 
+	public function test_report_sent_requires_all_audit_params() {
+		$this->captureShieldEvents();
+
+		$this->events()->fireEvent( 'report_sent', [
+			'audit_params' => [
+				'medium' => 'email',
+			],
+		] );
+
+		$captured = $this->getCapturedEventsByKey( 'report_sent' );
+		$this->assertEmpty( $captured, 'report_sent should not fire if required audit params are missing' );
+	}
+
+	public function test_report_sent_fires_when_required_audit_params_provided() {
+		$this->captureShieldEvents();
+
+		$this->events()->fireEvent( 'report_sent', [
+			'audit_params' => [
+				'type'   => 'Alert',
+				'medium' => 'email',
+			],
+		] );
+
+		$captured = $this->getCapturedEventsByKey( 'report_sent' );
+		$this->assertNotEmpty( $captured, 'report_sent should fire when all required audit params are supplied' );
+		$this->assertSame( 'Alert', $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'type' ] ?? '' );
+	}
+
 	// ── buildEvents defaults ───────────────────────────────────────
 
 	public function test_build_events_applies_correct_defaults() {

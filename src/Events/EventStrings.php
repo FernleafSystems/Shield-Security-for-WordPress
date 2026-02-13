@@ -216,7 +216,7 @@ class EventStrings {
 			'report_sent'                  => [
 				'name'  => __( 'Report Sent', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Report Sent (via {{medium}}).', 'wp-simple-firewall' ),
+					__( 'Report Sent ({{type}} via {{medium}}).', 'wp-simple-firewall' ),
 				],
 			],
 			'session_start'                => [

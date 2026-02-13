@@ -691,6 +691,7 @@
     },
     "report_sent": {
         "audit_params": [
+            "type",
             "medium"
         ],
         "level": "notice"
