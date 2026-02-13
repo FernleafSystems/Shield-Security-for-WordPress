@@ -1,0 +1,158 @@
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse {
+  color: #1d2327;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse.options_form_for--modern .shield-options-layout {
+  grid-template-columns: minmax(185px, 225px) minmax(0, 1fr);
+  gap: 0.85rem;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail {
+  top: 0;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-content {
+  min-width: 0;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .shield-options-panel {
+  margin: 0;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .shield-options-panel-body {
+  overflow-x: auto;
+  padding: 0.95rem 1rem 1.05rem;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content h5 {
+  color: #25313b;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content dl {
+  margin-bottom: 0.6rem;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content dt {
+  color: #51606f;
+  font-size: 0.79rem;
+  font-weight: 600;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content dd p {
+  margin-bottom: 0.75rem;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .badge {
+  font-weight: 600;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .badge.bg-success {
+  background-color: $badge-good-bg !important;
+  color: $badge-good-color;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .badge.bg-warning {
+  background-color: $badge-warning-bg !important;
+  color: $badge-warning-color;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .badge.bg-danger {
+  background-color: $badge-critical-bg !important;
+  color: $badge-critical-color;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .badge.bg-info {
+  background-color: $badge-info-bg !important;
+  color: $badge-info-color;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .badge.bg-secondary {
+  background-color: $surface-color-neutral-raised !important;
+  color: #556170;
+  border: 1px solid $border-color-neutral-subtle;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .ip_analyse_action {
+  color: $primary;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .ip_analyse_action:hover {
+  text-decoration: underline;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .ip_analyse_action:focus-visible {
+  outline: 2px solid $border-color-neutral-strong;
+  outline-offset: 2px;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .alert {
+  border-color: $border-color-neutral-subtle;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .table {
+  margin-bottom: 0;
+  border-color: $border-color-neutral-subtle;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .table thead th {
+  background: $surface-color-neutral-raised;
+  border-bottom: 1px solid $border-color-neutral-subtle;
+  color: #4a5763;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .table td {
+  color: #2b3640;
+  font-size: 0.82rem;
+  border-color: #e2e7e2;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .table > tbody > tr:hover > * {
+  background-color: #fafcfa;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content .timestamp-small {
+  color: #6a7682;
+}
+
+#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-ipanalyse-content code {
+  background: $surface-color-neutral-raised;
+  border: 1px solid $border-color-neutral-subtle;
+  border-radius: 4px;
+  color: #30424d;
+  font-size: 0.78rem;
+  padding: 0.05rem 0.3rem;
+}
+
+@media (max-width: 780px) {
+  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse.options_form_for--modern .shield-options-layout {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail {
+    position: static;
+  }
+
+  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.35rem;
+    padding-bottom: 0.25rem;
+  }
+
+  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail-nav .nav-item {
+    margin: 0;
+    min-width: 130px;
+  }
+}

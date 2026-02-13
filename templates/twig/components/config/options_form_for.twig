@@ -9,23 +9,23 @@
 	<div class="shield-options-layout {{ vars.all_options|length > 1 ? 'has-rail' : 'no-rail' }}">
 
 		{% if vars.all_options|length > 1 %}
+			{% set rail_nav_items = [] %}
+			{% for opt_sect_key,opt_section in vars.all_options %}
+				{% set rail_nav_items = rail_nav_items|merge( [ {
+					target: '#tab-'~unique_render_id~'-'~opt_section.slug,
+					id: 'tab-navlink-'~unique_render_id~'-'~opt_section.slug,
+					controls: 'tab-'~unique_render_id~'-'~opt_section.slug,
+					label: opt_section.title_short,
+					is_focus: opt_section.is_focus
+				} ] ) %}
+			{% endfor %}
+
 			<aside class="shield-options-rail">
 				<div class="shield-options-rail-accent"></div>
-				<div id="ModuleOptionsNav" class="shield-options-nav" aria-orientation="vertical">
-					<ul class="nav flex-column shield-options-rail-nav" role="tablist">
-						{% for opt_sect_key,opt_section in vars.all_options %}
-							<li class="nav-item">
-								<a data-bs-target="#tab-{{ unique_render_id }}-{{ opt_section.slug }}"
-								   class="force-cursor-pointer nav-link {{ opt_section.is_focus ? 'active' : '' }}"
-								   {% if opt_section.is_focus %}aria-selected="true"{% endif %}
-								   id="tab-navlink-{{ unique_render_id }}-{{ opt_section.slug }}"
-								   data-bs-toggle="tab" role="tab" aria-controls="tab-{{ unique_render_id }}-{{ opt_section.slug }}">
-									<span>{{ opt_section.title_short }}</span>
-								</a>
-							</li>
-						{% endfor %}
-					</ul>
-				</div>
+				{% include '/components/config/options_rail_tabs.twig' with {
+					nav_id: 'ModuleOptionsNav',
+					nav_items: rail_nav_items
+				} only %}
 				<div class="shield-options-rail-save">
 					<button type="submit"
 							class="btn btn-primary icwp-form-button"

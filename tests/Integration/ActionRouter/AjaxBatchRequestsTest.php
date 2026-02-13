@@ -7,11 +7,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\AjaxBatchRequests,
 	Actions\PluginBadgeClose,
-	Exceptions\ActionException
+	Exceptions\ActionException,
+	Exceptions\UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
+
+	public function set_up() {
+		parent::set_up();
+
+		$userId = self::factory()->user->create( [
+			'role' => 'administrator',
+		] );
+		\wp_set_current_user( $userId );
+	}
 
 	private function processor() :ActionProcessor {
 		return new ActionProcessor();
@@ -22,6 +32,15 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 			'ex'      => PluginBadgeClose::SLUG,
 			'exnonce' => 'invalid_nonce',
 		];
+	}
+
+	public function test_batch_requires_authenticated_user() {
+		\wp_set_current_user( 0 );
+
+		$this->expectException( UserAuthRequiredException::class );
+		$this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [],
+		] );
 	}
 
 	public function test_batch_rejects_request_count_above_limit() {
@@ -60,7 +79,8 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_batch_processes_mixed_subrequests_independently() {
-		$valid = ActionData::Build( PluginBadgeClose::class );
+		$valid = ActionData::Build( AjaxBatchRequests::class );
+		$valid[ 'requests' ] = [];
 		$invalid = ActionData::Build( PluginBadgeClose::class );
 		$invalid[ 'exnonce' ] = 'invalid_nonce';
 

@@ -20,6 +20,7 @@ $code-color: $secondary;
 @import './shield/merlin.scss';
 @import './shield/meters.scss';
 @import './shield/options.scss';
+@import './shield/ip_analyse.scss';
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
@@ -1146,7 +1147,7 @@ td.status_file_size {
 }
 
 #AptoOffcanvas.offcanvas_ipanalysis {
-  width: 800px;
+  width: 920px;
 }
 
 #AptoOffcanvas.offcanvas_form_report_create {

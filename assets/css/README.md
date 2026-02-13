@@ -20,6 +20,7 @@ assets/css/
     meters.scss               Meter gauge styling
     security-admin.scss       Security admin PIN modal
     options.scss              Module options pages
+    ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
     charts.scss               Chart styling
     dashboard-widget.scss     WP dashboard widget
     datatables.css            DataTables customisations
@@ -212,6 +213,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `progress.scss` | `.meter-hero-card`, `.meter-card`, `.meter-card-accent`, `.status-badge` (meter context), `.progress-bar` |
 | `zones.scss` | `.zone-component-card`, `.zone-card-accent`, `.status-badge` (zone context), `.configure-link`, `.explanations-block` |
 | `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-row` |
+| `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `merlin.scss` | `.merlin-*` wizard components |
 | `security-admin.scss` | Security admin modal and PIN form |
 
