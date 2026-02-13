@@ -1,4 +1,4 @@
-<div class="progress-metercard progress-metercard-summary {{ vars.is_hero|default(false) ? 'progress-metercard-hero' : '' }}" data-meter_slug="{{ vars.meter_slug }}">
+<div class="progress-metercard progress-metercard-summary h-100 w-100 {{ vars.is_hero|default(false) ? 'progress-metercard-hero' : '' }}" data-meter_slug="{{ vars.meter_slug }}">
 	{% if vars.is_hero|default(false) %}
 		{% include '/components/html/loading_placeholders/progress_meter_hero.twig' %}
 	{% else %}

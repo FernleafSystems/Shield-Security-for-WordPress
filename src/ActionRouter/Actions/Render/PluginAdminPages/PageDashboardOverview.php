@@ -98,6 +98,10 @@ class PageDashboardOverview extends BasePluginAdminPage {
 								: __( 'All Clear', 'wp-simple-firewall' ) ),
 					],
 				],
+				'scans_link'     => [
+					'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+					'href_text' => __( 'View Scan Results', 'wp-simple-firewall' ),
+				],
 				'widget_general' => [
 					[
 						'title'        => __( 'IP Offenses', 'wp-simple-firewall' ),
