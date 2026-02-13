@@ -11,7 +11,7 @@ class HashesStorageDir {
 
 	public const SUFFIX_LENGTH = 16;
 
-	private static $dir = null;
+	private static ?string $dir = null;
 
 	public function getTempDir() :string {
 		if ( \is_null( self::$dir ) ) {

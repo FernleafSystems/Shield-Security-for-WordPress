@@ -13,15 +13,7 @@ class WpvAddPluginRows {
 	use PluginControllerConsumer;
 	use ExecOnce;
 
-	/**
-	 * @var int
-	 */
-	private $colsCount;
-
-	/**
-	 * @var int
-	 */
-	private $vulnCount;
+	private int $colsCount = 0;
 
 	protected function run() {
 		$this->addPluginVulnerabilityRows();
@@ -79,10 +71,7 @@ class WpvAddPluginRows {
 		$views[ 'vulnerable' ] = sprintf( "<a href='%s' %s>%s</a>",
 			add_query_arg( 'plugin_status', 'vulnerable', 'plugins.php' ),
 			( 'vulnerable' === $status ) ? ' class="current"' : '',
-			sprintf( '%s <span class="count">(%s)</span>',
-				__( 'Vulnerable', 'wp-simple-firewall' ),
-				number_format_i18n( $this->countVulnerablePlugins() )
-			)
+			sprintf( '%s <span class="count">(%s)</span>', __( 'Vulnerable', 'wp-simple-firewall' ), number_format_i18n( $this->countVulnerablePlugins() ) )
 		);
 		return $views;
 	}
@@ -98,20 +87,17 @@ class WpvAddPluginRows {
 			$vulnerableRes = self::con()->comps->scans->WPV()->getResultsForDisplay();
 			global $status;
 			$status = 'vulnerable';
-			$plugins = \array_intersect_key(
-				$plugins,
-				\array_flip( $vulnerableRes->getUniqueSlugs() )
-			);
+			$plugins = \array_intersect_key( $plugins, \array_flip( $vulnerableRes->getUniqueSlugs() ) );
 		}
 		return $plugins;
 	}
 
 	/**
-	 * @param array $cols
+	 * @param array|mixed $cols
 	 * @return array
 	 */
 	public function fCountColumns( $cols ) {
-		if ( !isset( $this->colsCount ) ) {
+		if ( \is_array( $cols ) && empty( $this->colsCount ) ) {
 			$this->colsCount = \count( $cols );
 		}
 		return $cols;
