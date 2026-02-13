@@ -1,59 +1,162 @@
 {% extends '/email/base_email.twig' %}
 
-{% block email_body %}
-	<p style="margin: 0 0 10px; font-size: 14px; color: #333;">
-		{{ body.strings.please_find }}
-	</p>
-	<p style="margin: 0 0 15px; font-size: 13px; color: #555;">
-		{{ body.strings.site_url }}: <strong>{{ body.vars.site_url }}</strong>
-	</p>
+{% block email_branding %}
+	{# Gradient accent strip #}
+	<tr>
+		<td style="height: 4px; background-color: #008000; background: linear-gradient(90deg, #008000, #d2ddd2); font-size: 0; line-height: 0;">&nbsp;</td>
+	</tr>
 
+	{# Header row: logo/title + site URL + date range #}
+	<tr>
+		<td style="padding: 24px 28px 18px; border-bottom: 1px solid #d9dfd9;">
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					{% if imgs.email_logo|default('') is not empty %}
+						<td style="vertical-align: middle;">
+							<img src="{{ imgs.email_logo }}"
+								 alt="{{ strings.plugin_name|default('Shield Security') }}"
+								 width="170"
+								 style="display: block; max-width: 170px; height: auto; border: 0;">
+						</td>
+					{% else %}
+						<td style="vertical-align: middle;">
+							<div style="font-size: 20px; font-weight: 700; color: #222222; line-height: 1.2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								{{ body.strings.security_report }}
+							</div>
+							<div style="font-size: 13px; color: #888888; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								{{ body.vars.site_url }}
+							</div>
+						</td>
+					{% endif %}
+					{% if body.vars.reports|length > 0 %}
+						{% set first_report = body.vars.reports|first %}
+						<td style="text-align: right; vertical-align: middle;">
+							<span style="display: inline-block; background: #f5f6f5; border: 1px solid #d9dfd9; border-radius: 8px; padding: 5px 12px; font-size: 12px; color: #555555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								{{ first_report.date_start }} &ndash; {{ first_report.date_end }}
+							</span>
+						</td>
+					{% endif %}
+				</tr>
+			</table>
+		</td>
+	</tr>
+{% endblock %}
+
+{% block email_header %}
+	{# Intro text bar #}
+	<p style="margin: 0; padding: 12px 16px; font-size: 13px; color: #666666; line-height: 1.5; background: #f5f6f5; border-bottom: 1px solid #d9dfd9; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+		{{ body.strings.intro_text }}
+	</p>
+{% endblock %}
+
+{% block email_body %}
 	{% for report in body.vars.reports %}
-		{# Report Header #}
-		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 5px;">
+
+		{# ===== OVERVIEW SUMMARY STRIP ===== #}
+		{% set ov = report.overview %}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom: 1px solid #d9dfd9; margin-bottom: 10px;">
 			<tr>
-				<td style="height: 4px; background-color: #008000; font-size: 0; line-height: 0;">&nbsp;</td>
-			</tr>
-			<tr>
-				<td style="background-color: #f8f9f8; padding: 10px 14px; border-left: 4px solid #008000; border-radius: 0 4px 4px 0;">
-					<strong style="font-size: 15px; color: #333;">{{ report.type }}</strong>
-					<br>
-					<span style="font-size: 12px; color: #777;">
-						{{ body.strings.period }}: {{ report.date_start }} &ndash; {{ report.date_end }}
-					</span>
+				{# Scan Issues #}
+				<td width="25%" style="padding: 14px 8px; text-align: center; border-right: 1px solid #d9dfd9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+					<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #999999; margin-bottom: 3px;">{{ body.strings.scan_issues }}</div>
+					{% if ov.scan_issues.total > 0 %}
+						<div style="font-size: 22px; font-weight: 700; color: #cc7a00; line-height: 1.1;">{{ ov.scan_issues.total }}</div>
+						{% if ov.scan_issues.new > 0 %}
+							<div style="font-size: 10px; font-weight: 600; color: #cc7a00;">{{ ov.scan_issues.new }} new</div>
+						{% endif %}
+					{% else %}
+						<div style="font-size: 22px; font-weight: 700; color: #008000; line-height: 1.1;">0</div>
+						<div style="font-size: 10px; font-weight: 600; color: #008000;">&#10003; {{ body.strings.all_clear }}</div>
+					{% endif %}
+				</td>
+
+				{# Repairs #}
+				<td width="25%" style="padding: 14px 8px; text-align: center; border-right: 1px solid #d9dfd9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+					<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #999999; margin-bottom: 3px;">{{ body.strings.repairs }}</div>
+					{% if ov.repairs.total > 0 %}
+						<div style="font-size: 22px; font-weight: 700; color: #008000; line-height: 1.1;">{{ ov.repairs.total }}</div>
+						<div style="font-size: 10px; font-weight: 600; color: #008000;">&#10003; {{ body.strings.auto_fixed }}</div>
+					{% else %}
+						<div style="font-size: 22px; font-weight: 700; color: #6c757d; line-height: 1.1;">0</div>
+					{% endif %}
+				</td>
+
+				{# IP Offenses #}
+				<td width="25%" style="padding: 14px 8px; text-align: center; border-right: 1px solid #d9dfd9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+					<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #999999; margin-bottom: 3px;">{{ body.strings.ip_offenses }}</div>
+					{% if ov.ip_offenses is not null %}
+						{% set ip_color = ov.ip_offenses.diff_colour == 'warning' ? '#cc7a00' : (ov.ip_offenses.diff_colour == 'success' ? '#008000' : '#6c757d') %}
+						<div style="font-size: 22px; font-weight: 700; color: {{ ip_color }}; line-height: 1.1;">{{ ov.ip_offenses.current }}</div>
+						{% if ov.ip_offenses.diff_pct is defined and ov.ip_offenses.diff_pct != 0 %}
+							<div style="font-size: 10px; font-weight: 600; color: {{ ip_color }};">{{ ov.ip_offenses.diff_symbol }} {{ ov.ip_offenses.diff_pct > 0 ? '+' : '' }}{{ ov.ip_offenses.diff_pct }}%</div>
+						{% endif %}
+					{% else %}
+						<div style="font-size: 22px; font-weight: 700; color: #6c757d; line-height: 1.1;">&mdash;</div>
+					{% endif %}
+				</td>
+
+				{# Changes #}
+				<td width="25%" style="padding: 14px 8px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+					<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #999999; margin-bottom: 3px;">{{ body.strings.section_changes }}</div>
+					{% if ov.changes.total > 0 %}
+						<div style="font-size: 22px; font-weight: 700; color: #0ea8c7; line-height: 1.1;">{{ ov.changes.total }}</div>
+						<div style="font-size: 10px; font-weight: 600; color: #888888;">{{ ov.changes.zones }} zones</div>
+					{% else %}
+						<div style="font-size: 22px; font-weight: 700; color: #6c757d; line-height: 1.1;">0</div>
+					{% endif %}
 				</td>
 			</tr>
 		</table>
 
-		{# Scans area (both ALERT and INFO reports) #}
+		{# ===== SCAN RESULTS SECTION ===== #}
 		{% if report.areas_data.scans is defined %}
 			{% if report.areas_data.scans.scan_results is defined and report.areas_data.scans.scan_results|length > 0 %}
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+					<tr>
+						<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #008000;">
+							<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_scans }}</strong>
+						</td>
+					</tr>
+				</table>
 				{% include '/email/reports/areas/scans_results.twig' with {
 					scan_counts: report.areas_data.scans.scan_results,
-					section_title: body.strings.section_scans,
 					strings: body.strings
 				} only %}
 			{% endif %}
 
+			{# ===== SCAN REPAIRS SECTION ===== #}
 			{% if report.areas_data.scans.scan_repairs is defined %}
-				{% include '/email/reports/areas/scans_repairs.twig' with {
-					scan_repairs: report.areas_data.scans.scan_repairs,
-					strings: body.strings
-				} only %}
+				{% set has_repairs = false %}
+				{% for event_key, data in report.areas_data.scans.scan_repairs %}
+					{% if data.count|default(0) > 0 %}
+						{% set has_repairs = true %}
+					{% endif %}
+				{% endfor %}
+				{% if has_repairs %}
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+						<tr>
+							<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #008000;">
+								<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_scans_repairs }}</strong>
+							</td>
+						</tr>
+					</table>
+					{% include '/email/reports/areas/scans_repairs.twig' with {
+						scan_repairs: report.areas_data.scans.scan_repairs,
+						strings: body.strings
+					} only %}
+				{% endif %}
 			{% endif %}
 		{% endif %}
 
-		{# Changes area (INFO reports) #}
-		{% if report.areas_data.changes is defined %}
-			{% include '/email/reports/areas/changes.twig' with {
-				changes: report.areas_data.changes,
-				strings: body.strings,
-				detail_level: body.vars.detail_level
-			} only %}
-		{% endif %}
-
-		{# Statistics area (INFO reports) #}
+		{# ===== STATISTICS SECTION ===== #}
 		{% if report.areas_data.statistics is defined and report.areas_data.statistics|length > 0 %}
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #0ea8c7;">
+						<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_stats }}</strong>
+					</td>
+				</tr>
+			</table>
 			{% include '/email/reports/areas/stats.twig' with {
 				stats: report.areas_data.statistics,
 				strings: body.strings,
@@ -61,15 +164,45 @@
 			} only %}
 		{% endif %}
 
-		{# View Full Report Button #}
-		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 25px;">
+		{# ===== CHANGES SECTION ===== #}
+		{% if report.areas_data.changes is defined %}
+			{% set has_changes = false %}
+			{% for zone_key, zone in report.areas_data.changes %}
+				{% if zone.total|default(0) > 0 %}
+					{% set has_changes = true %}
+				{% endif %}
+			{% endfor %}
+			{% if has_changes %}
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+					<tr>
+						<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #0ea8c7;">
+							<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_changes }}</strong>
+						</td>
+					</tr>
+				</table>
+				{% include '/email/reports/areas/changes.twig' with {
+					changes: report.areas_data.changes,
+					strings: body.strings,
+					detail_level: body.vars.detail_level
+				} only %}
+			{% endif %}
+		{% endif %}
+
+		{# ===== CTA BUTTON ===== #}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 10px;">
 			<tr>
 				<td align="center">
-					<a href="{{ report.href }}"
-					   target="_blank"
-					   style="display: inline-block; padding: 10px 24px; background-color: #008000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-						{{ body.strings.view_full_report }} &rarr;
-					</a>
+					<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+						<tr>
+							<td style="border-radius: 8px; background-color: #008000; background: linear-gradient(135deg, #006d00, #008000);">
+								<a href="{{ report.href }}"
+								   target="_blank"
+								   style="display: inline-block; padding: 12px 32px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+									{{ body.strings.view_full_report }} &rarr;
+								</a>
+							</td>
+						</tr>
+					</table>
 				</td>
 			</tr>
 		</table>
@@ -78,4 +211,13 @@
 			<hr style="border: none; border-top: 1px solid #d9dfd9; margin: 10px 0 20px;">
 		{% endif %}
 	{% endfor %}
+{% endblock %}
+
+{% block email_footer %}
+	<div style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: #999999; line-height: 1.5;">
+		<div style="margin-bottom: 6px;">Generated by {{ strings.plugin_name|default('Shield Security') }}</div>
+		{% for section in footer %}
+			<div>{{ section|raw }}</div>
+		{% endfor %}
+	</div>
 {% endblock %}
