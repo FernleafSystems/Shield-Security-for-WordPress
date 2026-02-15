@@ -32,7 +32,9 @@ class ReportIntervalCoverageTest extends TestCase {
 	 * @return string[]
 	 */
 	private function getConfiguredAutoReportIntervals() :array {
-		$opts = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Options spec' );
+		$config = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$opts = (array)( $config['config_spec']['options'] ?? [] );
+		$this->assertNotEmpty( $opts, 'Plugin configuration is missing config_spec.options' );
 
 		$intervals = [];
 		foreach ( $opts as $opt ) {

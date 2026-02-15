@@ -100,6 +100,30 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 			}
 		}
 
+		// FirewallPatternFoundInRequest static request-param cache
+		$fpClass = \FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\FirewallPatternFoundInRequest::class;
+		if ( \class_exists( $fpClass ) ) {
+			$ref4 = new \ReflectionClass( $fpClass );
+			if ( $ref4->hasProperty( 'ParamsToAssess' ) ) {
+				$p = $ref4->getProperty( 'ParamsToAssess' );
+				$p->setAccessible( true );
+				$p->setValue( null, null );
+			}
+		}
+
+		// ExtractSubConditions static dependency caches
+		$escClass = \FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions::class;
+		if ( \class_exists( $escClass ) ) {
+			$ref5 = new \ReflectionClass( $escClass );
+			foreach ( [ 'ConditionDeps', 'AllConditions' ] as $prop ) {
+				if ( $ref5->hasProperty( $prop ) ) {
+					$p = $ref5->getProperty( $prop );
+					$p->setAccessible( true );
+					$p->setValue( null, [] );
+				}
+			}
+		}
+
 		// IpRulesCache (WP option-backed)
 		IpRulesCache::ResetAll();
 	}
