@@ -109,6 +109,34 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 
 	// ── buildEvents defaults ───────────────────────────────────────
 
+	public function test_report_generated_alert_requires_all_audit_params() {
+		$this->captureShieldEvents();
+
+		$this->events()->fireEvent( 'report_generated_alert', [
+			'audit_params' => [
+				'type' => 'Alert',
+			],
+		] );
+
+		$captured = $this->getCapturedEventsByKey( 'report_generated_alert' );
+		$this->assertEmpty( $captured, 'report_generated_alert should not fire if required audit params are missing' );
+	}
+
+	public function test_report_generated_alert_fires_when_required_audit_params_provided() {
+		$this->captureShieldEvents();
+
+		$this->events()->fireEvent( 'report_generated_alert', [
+			'audit_params' => [
+				'type'     => 'Alert',
+				'interval' => 'hourly',
+			],
+		] );
+
+		$captured = $this->getCapturedEventsByKey( 'report_generated_alert' );
+		$this->assertNotEmpty( $captured, 'report_generated_alert should fire when all required audit params are supplied' );
+		$this->assertSame( 'hourly', $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'interval' ] ?? '' );
+	}
+
 	public function test_build_events_applies_correct_defaults() {
 		$events = $this->events()->getEvents();
 

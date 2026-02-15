@@ -127,9 +127,13 @@ class ReportGenerator {
 		if ( $suppressGeneratedAudit ) {
 			$eventMeta[ 'suppress_audit' ] = true;
 		}
-		$con->comps->events->fireEvent( 'report_generated', $eventMeta );
+		$con->comps->events->fireEvent( $this->getGeneratedReportEventKey( $report->type ), $eventMeta );
 
 		return $record;
+	}
+
+	private function getGeneratedReportEventKey( string $reportType ) :string {
+		return $reportType === Constants::REPORT_TYPE_ALERT ? 'report_generated_alert' : 'report_generated';
 	}
 
 	/**

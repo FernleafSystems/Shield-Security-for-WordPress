@@ -213,6 +213,13 @@ class EventStrings {
 					__( 'Type: {{type}}; Interval: {{interval}};', 'wp-simple-firewall' ),
 				],
 			],
+			'report_generated_alert'       => [
+				'name'  => __( 'Alert Report Generated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Alert Report Generated.', 'wp-simple-firewall' ),
+					__( 'Type: {{type}}; Interval: {{interval}};', 'wp-simple-firewall' ),
+				],
+			],
 			'report_sent'                  => [
 				'name'  => __( 'Report Sent', 'wp-simple-firewall' ),
 				'audit' => [

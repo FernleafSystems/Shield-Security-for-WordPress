@@ -83,4 +83,31 @@ class AuditLoggerCaptureTest extends BaseUnitTest {
 
 		$this->assertSame( 'Alert', $this->getAuditLogs( $logger )[ 'report_generated' ][ 'audit_params' ][ 'type' ] ?? '' );
 	}
+
+	public function test_non_multiple_events_with_distinct_slugs_are_independently_captured() :void {
+		$this->setupApplyFiltersPassthrough();
+		$logger = $this->makeLogger();
+		$eventDef = [
+			'audit'          => true,
+			'audit_multiple' => false,
+			'level'          => 'info',
+		];
+
+		$this->captureEvent( $logger, 'report_generated_alert', [
+			'audit_params' => [
+				'type'     => 'Alert',
+				'interval' => 'hourly',
+			],
+		], $eventDef );
+		$this->captureEvent( $logger, 'report_generated', [
+			'audit_params' => [
+				'type'     => 'Info',
+				'interval' => 'daily',
+			],
+		], $eventDef );
+
+		$logs = $this->getAuditLogs( $logger );
+		$this->assertSame( 'Alert', $logs[ 'report_generated_alert' ][ 'audit_params' ][ 'type' ] ?? '' );
+		$this->assertSame( 'Info', $logs[ 'report_generated' ][ 'audit_params' ][ 'type' ] ?? '' );
+	}
 }

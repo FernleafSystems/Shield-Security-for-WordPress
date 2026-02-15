@@ -92,6 +92,12 @@ class CreateReportVO {
 				$start = $intervalToReport->startOfWeek()->timestamp;
 				$end = $intervalToReport->endOfWeek()->timestamp;
 				break;
+			case 'biweekly':
+				$currentIntervalStart->startOfWeek();
+				$intervalToReport->subWeeks( 2 )->startOfWeek();
+				$start = $intervalToReport->timestamp;
+				$end = ( clone $intervalToReport )->addWeek()->endOfWeek()->timestamp;
+				break;
 			case 'monthly':
 				$currentIntervalStart->startOfMonth();
 				$intervalToReport->day( 15 )->subMonth();

@@ -689,6 +689,13 @@
         ],
         "level": "info"
     },
+    "report_generated_alert": {
+        "audit_params": [
+            "type",
+            "interval"
+        ],
+        "level": "notice"
+    },
     "report_sent": {
         "audit_params": [
             "type",
