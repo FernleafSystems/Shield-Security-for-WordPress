@@ -12127,7 +12127,7 @@ msgstr ""
 
 #: src/Modules/Plugin/Lib/Debug/Collate.php:89
 #, php-format
-msgid "%1$s used out of %2$s (unused: %$3s)"
+msgid "%1$s used out of %2$s (unused: %3$s)"
 msgstr ""
 
 #: src/Modules/Plugin/Lib/Debug/Collate.php:111
