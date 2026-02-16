@@ -27,7 +27,7 @@
     "mini-css-extract-plugin": "^2.9.4",
     "postcss-loader": "^8.2.0",
     "qrcode": "^1.5.4",
-    "qs": "^6.14.1",
+    "qs": "^6.14.2",
     "sass": "^1.97.1",
     "sass-loader": "^16.0.6",
     "smartwizard": "^6.0.6",
