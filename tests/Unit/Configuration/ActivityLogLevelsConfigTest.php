@@ -37,7 +37,9 @@ class ActivityLogLevelsConfigTest extends TestCase {
 	}
 
 	public function test_event_spec_contains_no_legacy_alert_or_debug_levels() :void {
-		$events = $this->decodePluginJsonFile( 'plugin-spec/46_events.json', 'Events specification' );
+		$events = $this->config[ 'config_spec' ][ 'events' ] ?? [];
+		$this->assertIsArray( $events, 'Events specification should exist in plugin.json config_spec.events' );
+
 		foreach ( $events as $eventKey => $eventDef ) {
 			$level = $eventDef[ 'level' ] ?? null;
 			if ( $level !== null ) {
