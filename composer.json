@@ -76,6 +76,11 @@
       "@test:unit",
       "@test:integration"
     ],
+    "test:fast":        [
+      "@build:config",
+      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Rules",
+      "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml tests/Integration/Rules tests/Integration/CrossSystem/RuleToEventToAuditFlowTest.php tests/Integration/Bots/BotEventListenerTest.php"
+    ],
     "test:unit":        [
       "@build:config",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"

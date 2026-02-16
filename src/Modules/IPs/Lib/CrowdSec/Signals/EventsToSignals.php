@@ -169,9 +169,6 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 			'bottrack_invalidscript'  => [
 				'scenario' => 'btinvalidscript',
 			],
-			'bottrack_useragent'      => [
-				'scenario' => 'btua',
-			],
 			'bottrack_xmlrpc'         => [
 				'scenario' => 'btxml',
 			],

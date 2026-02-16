@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-10 13:17+0000\n"
-"PO-Revision-Date: 2025-12-10 13:17+0000\n"
+"POT-Creation-Date: 2026-02-16 11:48+0000\n"
+"PO-Revision-Date: 2026-02-16 11:48+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: bs_BA\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Uključeno; \"N\" = Isključeno"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Konstanta <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Konstanta <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s se upravo prijavio na %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s i %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s blokira sav automatizovani bot SPAM koristeći naš %2$s, našu ekskluzivnu, nevidljivu, GDPR-usklađenu tehnologiju za detekciju botova."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "%1$s minimalni rezultat bota je prilično nizak (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s nije uspio utvrditi da li se %2$s JS pravilno učitava na vašem sajtu."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s ima dostupnu integraciju za zaštitu formi plugina treće strane koji koristite: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s je otkrio da trenutno instalirana verzija %2$s plugina ima poznate sigurnosne ranjivosti."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s je uspješno odabrao sljedeću lokaciju za kreiranje svog privremenog foldera: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s je %2$s ekskluzivna usluga koja štiti vaš wp-config.php fajl."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s je namjenski servis za dostavu emaila od %2$s."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s je ekskluzivna tehnologija za detekciju botova od %2$s koja je nevidljiva posjetiocima, i uklanja potrebu za korisničkom interakcijom sa login CAPTCHA-ma."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s je onemogućen kada je postavljen na minimalni rezultat od %2$s."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s je naša tehnologija za detekciju botova ekskluzivna za %2$s koja uklanja potrebu za vidljivim CAPTCHA-ma i sličnim izazovima za posjetioce."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s je označio ovaj komentar kao \"%2$s\"."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s iskorišteno od %2$s (neiskorišteno: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d lokalizacija dostupno."
+
+msgid "%d locale(s) in queue."
+msgstr "%d lokalizacija u redu."
+
+msgid "%d translation is queued for download"
+msgstr "%d prijevod je u redu za preuzimanje"
+
+msgid "%d translations are queued for download"
+msgstr "%d prijevoda je u redu za preuzimanje"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON kodirano)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA provajder omogućen"
 
 msgid "%s API Token Missing."
 msgstr "%s API Token nedostaje."
+
+msgid "%s Anti-Spam"
+msgstr "%s Anti-SPAM"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot tehnologija"
 
 msgid "%s Auto-Unblock"
 msgstr "%s Automatsko deblokiranje"
@@ -37,29 +115,92 @@ msgstr "%s Automatsko deblokiranje"
 msgid "%s Bot Check Failed."
 msgstr "%s Bot provjera nije uspjela."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "%s detekcija botova ne štiti od napada grubom silom na vašu WordPress prijavu."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "%s detekcija botova ne štiti vašu WordPress formu za izgubljenu lozinku."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "%s detekcija botova ne štiti vašu WordPress registraciju."
+
+msgid "%s Bot Minimum Score"
+msgstr "%s minimalni rezultat bota"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s rezultat bota (procenat)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "%s složenost bot izazova je preniska - razmislite o povećanju."
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s provjera nevažeća (Modul)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%s zaštita od komentarskog SPAM-a"
+
+msgid "%s Complexity"
+msgstr "%s složenost"
+
+msgid "%s Deactivated"
+msgstr "%s deaktivirano"
 
 msgid "%s Debug Information"
 msgstr "%s Debug informacije"
 
+msgid "%s Emails"
+msgstr "%s emailovi"
+
+msgid "%s Fail"
+msgstr "%s neuspjeh"
+
+msgid "%s Features"
+msgstr "%s mogućnosti"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s Firewall je blokirao zahtjev prema vašem WordPress sajtu."
+
+msgid "%s For Logins"
+msgstr "%s za prijave"
+
+msgid "%s Free Trial"
+msgstr "%s besplatna probna verzija"
 
 msgid "%s Home"
 msgstr "%s Početna"
 
+msgid "%s Home Page"
+msgstr "%s početna stranica"
+
+msgid "%s IP Reputation Score"
+msgstr "%s skor IP reputacije"
+
+msgid "%s Info"
+msgstr "%s Info"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s inteligentno IP blokiranje"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s se upravo prijavio na %s"
+msgid "%s Issue"
+msgstr "%s problem"
+
+msgid "%s Issues"
+msgstr "%s problemi"
+
+msgid "%s License Cleared"
+msgstr "%s licenca obrisana"
+
+msgid "%s License Management"
+msgstr "%s upravljanje licencom"
 
 msgid "%s Login Verification"
 msgstr "%s verifikacija prijave"
 
 msgid "%s Lookup"
 msgstr "%s pretraga"
+
+msgid "%s Option Key"
+msgstr "%s ključ opcije"
 
 msgid "%s Plugin Badge"
 msgstr "%s bedž plugina"
@@ -70,6 +211,24 @@ msgstr "%s konfiguracija plugina"
 msgid "%s Plugin options updated successfully."
 msgstr "%s opcije plugina uspješno ažurirane."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s Plugin – minimalni zahtjevi sajta nisu ispunjeni"
+
+msgid "%s Premium Security"
+msgstr "%s Premium sigurnost"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro je dostupan u našoj online prodavnici."
+
+msgid "%s Pro store"
+msgstr "%s Pro prodavnica"
+
+msgid "%s Registration"
+msgstr "%s registracija"
+
+msgid "%s Scanners."
+msgstr "%s skeneri."
+
 msgid "%s Security Insights"
 msgstr "%s sigurnosni uvidi"
 
@@ -79,14 +238,35 @@ msgstr "%s sigurnosna ograničenja primijenjena"
 msgid "%s Status Report"
 msgstr "%s statusni izvještaj"
 
+msgid "%s Success"
+msgstr "%s uspjeh"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s korisnički 2FA provajder aktiviran"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s korisnički 2FA: Ima bilo koji aktivan"
+
 msgid "%s Website Security Report"
 msgstr "%s Sigurnosni izvještaj web sajta"
 
-msgid "%s and %s"
-msgstr "%s i %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "%s detekcija botova ne radi jer je minimalni rezultat postavljen na 0."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "%s detekcija botova ne radi, jer botovi trenutno nisu izazvani."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s također može skenirati vaše plugine i teme za poznate ranjivosti."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s može automatski integrirati sa pluginima treće strane."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s može automatski zaštititi forme za prijavu i registraciju treće strane protiv botova."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s nije mogao detektovati nijednu IP adresu. Ovo predstavlja kritičan problem konfiguracije web hostinga."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s kreira procjenu rizika vrlo brzo jer prati loše posjetitelje u mnogim odvojenim oblastima."
@@ -100,29 +280,41 @@ msgstr "%s dan"
 msgid "%s days"
 msgstr "%s dana"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "%s detekcija se ne primjenjuje jer niste odabrali nijednu formu za zaštitu, kao što su Login ili Register."
+
 msgid "%s directory"
 msgstr "%s folder"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s radi mnogo toga, tako da može biti teško znati odakle početi."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s normalno ne skenira komentare od prijavljenih ili registrovanih korisnika."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "%s definicije događaja su prazne ili nisu u ispravnom formatu."
 
 msgid "%s extension is unavailable."
 msgstr "%s ekstenzija nije dostupna."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "%s za WordPress v20 uvod"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s je već preduzeo potrebnu akciju blokiranja zahtjeva."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s ima dostupnu integraciju za zaštitu formi plugina treće strane koji koristite: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s je otkrio da trenutno instalirana verzija %s plugina ima poznate sigurnosne ranjivosti."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s je uspješno odabrao sljedeću lokaciju za kreiranje svog privremenog foldera: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s je %s ekskluzivni servis koji štiti vaš wp-config.php fajl."
-
 msgid "%s is a child of another theme."
 msgstr "%s je child druge teme."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s je moćan WordPress sigurnosni servis raspoređen na preko 40,000+ WordPress sajtova."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s je onemogućen jer nije naveden minimalni prag rezultata bota."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s je omogućen sa minimalnim pragom rezultata bota."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s trenutno ne štiti vaš sajt."
@@ -130,14 +322,26 @@ msgstr "%s trenutno ne štiti vaš sajt."
 msgid "%s is not protecting your site"
 msgstr "%s ne štiti vaš sajt"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s je naša WordPress tehnologija za detekciju loših botova."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s je naš ekskluzivni AI-pokretan engine za skeniranje i detekciju malwarea."
 
 msgid "%s is protected against tampering."
 msgstr "%s je zaštićen od neovlaštenih izmjena."
 
+msgid "%s isn't activated on this site."
+msgstr "%s nije aktiviran na ovom sajtu."
+
+msgid "%s isn't installed on this site."
+msgstr "%s nije instaliran na ovom sajtu."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s nije zaštićen od neovlaštenih izmjena."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s ne štiti vaše WP komentare od bot SPAM-a."
 
 msgid "%s item processed"
 msgstr "%s stavka obrađena"
@@ -145,8 +349,11 @@ msgstr "%s stavka obrađena"
 msgid "%s items processed"
 msgstr "%s stavki obrađeno"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s je označio ovaj komentar kao \"%s\"."
+msgid "%s license check failed."
+msgstr "%s provjera licence nije uspjela."
+
+msgid "%s license check was successful."
+msgstr "%s provjera licence je bila uspješna."
 
 msgid "%s minute"
 msgstr "%s minuta"
@@ -172,8 +379,8 @@ msgstr "%s prekršaja"
 msgid "%s offenses until block"
 msgstr "%s prekršaja do blokiranja"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s nudi email, Yubikey, Google Authenticator i U2F."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s nudi email, Yubikey, Google Authenticator i Passkeys."
 
 msgid "%s options and modules"
 msgstr "%s opcije i moduli"
@@ -181,11 +388,56 @@ msgstr "%s opcije i moduli"
 msgid "%s per day"
 msgstr "%s dnevno"
 
+msgid "%s plugin activated"
+msgstr "%s plugin aktiviran"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s plugin nije mogao biti aktiviran"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s plugin nije mogao biti deaktiviran"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s plugin nije mogao biti instaliran"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s plugin nije mogao biti ažuriran"
+
+msgid "%s plugin deactivated"
+msgstr "%s plugin deaktiviran"
+
+msgid "%s plugin installed"
+msgstr "%s plugin instaliran"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s plugin je instaliran ali nije aktiviran."
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s plugin je instaliran, ali nije aktivan."
+
+msgid "%s plugin needs to sync."
+msgstr "%s plugin treba sinhronizaciju."
+
+msgid "%s plugin not detected in last sync."
+msgstr "%s plugin nije detektovan u posljednjoj sinhronizaciji."
+
+msgid "%s plugin updated"
+msgstr "%s plugin ažuriran"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s verzije plugina nisu sinhronizovane."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s štiti posjetioce sajta i radi na blokiranju potencijalnih napada dok prati web promet i promjene u sistemu fajlova."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s pruža ugrađene integracije za zaštitu formi plugina treće strane protiv SPAM botova."
+
 msgid "%s scan remaining."
 msgstr "%s skeniranje preostalo."
+
+msgid "%s scans cannot execute."
+msgstr "%s skeniranja se ne mogu izvršiti."
 
 msgid "%s scans remaining."
 msgstr "%s skeniranja preostalo."
@@ -205,14 +457,14 @@ msgstr "%s puta"
 msgid "%s tools and features"
 msgstr "%s alati i mogućnosti"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s iskorišteno od %s (neiskorišteno: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s pokušava uraditi ovo automatski i dok radi 99% vremena, ponekad čudna konfiguracija web hosta malo zakomplicira stvari."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s koristi redovno ažurirani rječnik često korištenog SPAM sadržaja za blokiranje ove vrste SPAM sadržaja."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "%s verzija na sajtu se ne poklapa sa ovim serverom."
 
 msgid "%s was added to your profile."
 msgstr "%s je dodan na vaš profil."
@@ -223,11 +475,26 @@ msgstr "%s je uklonjen sa vašeg profila."
 msgid "%s was successfully added to your account."
 msgstr "%s je uspješno dodan na vaš račun."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s će automatski skenirati vaše plugine treće strane kako bi provjerio da li je dostupna ugrađena integracija."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s će odgoditi nadogradnje dok nova nadogradnja ne bude dostupna postavljeni broj dana."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s će detektovati botove koji pokušavaju da se prijave na vaš sajt, bez izazivanja vaših legitimnih korisnika."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s će detektovati botove koji pokušavaju objaviti komentar SPAM na vašem sajtu, bez izazivanja vaših legitimnih posjetilaca."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s će zaštititi WordPress forme od botova ograničavanjem pokušaja protiv njih koristeći našu silentCAPTCH tehnologiju."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "%s's MainWP integracija nije omogućena za ovaj sajt."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "%s Rules Engine nije pokrenut."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "%s Security Admin sistem pruža dodatni sigurnosni sloj normalnom WordPress admin-u."
@@ -238,11 +505,14 @@ msgstr "%s automatsko IP blokiranje će ublažiti njihove napade blokiranjem nji
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s zaštite su trenutno onemogućene tako da bilo koje promjene napravljene ovdje neće biti primijenjene dok ne budu ponovo omogućene."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s, uvod osnivača"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "%sv1 registracija"
+
+msgid "%sv2 Registration"
+msgstr "%sv2 registracija"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "&uarr; Pređi na Pro &uarr;"
@@ -273,6 +543,9 @@ msgstr "(kada je lockdown onemogućen, IP adresa će automatski biti uklonjena s
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... i još %s"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/ folder nije skeniran."
@@ -397,9 +670,6 @@ msgstr "404 greške generirane za sljedeće tipove fajlova neće aktivirati prek
 msgid "5-minute"
 msgstr "5-minuta"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 dana"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Skeniranje</strong> vaših osnovnih WordPress fajlova i direktorija za promjene i nove fajlove."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "%s Bot Check je izvršen na posjetiocu ali opcija za blokiranje botova je onemogućena u postavkama."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "File Diff ne može biti kreiran jer ne postoji zvanični fajl dostupan za poređenje."
@@ -445,6 +718,9 @@ msgstr "Pregled visokog nivoa vašeg WordPress hosting server softvera."
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Pregled visokog nivoa vašeg WordPress statusa nadogradnji."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Licenca je već aktivna. Koristite --force za ponovnu aktivaciju."
+
 msgid "A light-touch security profile"
 msgstr "Lagani sigurnosni profil"
 
@@ -456,6 +732,9 @@ msgstr "Lista putanja zahtjeva koji nikada neće pokrenuti prekršaj."
 
 msgid "A login to your WordPress account just occurred"
 msgstr "Upravo se dogodila prijava na vaš WordPress račun"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "Puno rada je uloženo u %s, i trebamo vašu pomoć da širimo informacije o tome. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "Nova jednokratna lozinka je poslana na vašu email adresu."
@@ -475,8 +754,8 @@ msgstr "Robusna sigurnosna pozicija"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Ocjena '100' bi značila da je gotovo sigurno dobar, ocjena '0' znači da je vrlo vjerovatno loš bot."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "silentCAPTCHA Bot provjera je izvršena na posjetitelju, ali opcija za blokiranje botova je onemogućena u postavkama."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Sigurnosno upozorenje je generisano. Pregledajte probleme ispod i preduzmite akciju gdje je potrebno."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "Upravo se dogodila uspješna prijava na vaš WordPress račun."
@@ -498,6 +777,12 @@ msgstr "AI Malware skener, automatska popravka fajlova, WP Config zaštita, su s
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API ključ ne može biti prazan."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "API ključ je potreban za aktivaciju. Koristite --api-key=VAŠ_KLJUČ"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "APP Password autentifikacija - Nevažeći email"
@@ -523,8 +808,8 @@ msgstr "Pronađeni napušteni plugini"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Napušteni WordPress.org plugini"
 
-msgid "Absolutely"
-msgstr "Apsolutno"
+msgid "About %s for WordPress"
+msgstr "O %s za WordPress"
 
 msgid "Accept Changes"
 msgstr "Prihvati promjene"
@@ -571,20 +856,23 @@ msgstr "Akcije i Info"
 msgid "Activate"
 msgstr "Aktiviraj"
 
+msgid "Activate %s"
+msgstr "Aktiviraj %s"
+
+msgid "Activate %s License"
+msgstr "Aktiviraj %s licencu"
+
 msgid "Activate Only"
 msgstr "Samo aktiviraj"
+
+msgid "Activate Pro License"
+msgstr "Aktiviraj Pro licencu"
 
 msgid "Activate Rule"
 msgstr "Aktiviraj pravilo"
 
-msgid "Activate Shield"
-msgstr "Aktiviraj Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "Aktiviraj ShieldPRO licencu"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "Aktivirajte vašu ShieldPRO licencu"
+msgid "Activate Your %s License"
+msgstr "Aktivirajte vašu %s licencu"
 
 msgid "Activate Your White Label Settings"
 msgstr "Aktivirajte vaše White Label postavke"
@@ -673,14 +961,14 @@ msgstr "Dodane tabele"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Dodatne IP liste za blokiranje su dostupne sa nadograđenim planom."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "Prilagodite %s složenost izazova"
+
 msgid "Adjust Scan Results Display"
 msgstr "Prilagodi prikaz rezultata skeniranja"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "Prilagodi postavljanje HTTP sigurnosnih zaglavlja"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "Prilagodi složenost silentCAPTCHA izazova"
 
 msgid "Admin Access Login"
 msgstr "Prijava za admin pristup"
@@ -751,17 +1039,26 @@ msgstr "Ispred servera"
 msgid "Alert"
 msgstr "Upozorenje"
 
+msgid "Alert Report Generated"
+msgstr "Izvještaj upozorenja generisan"
+
+msgid "Alert Report Generated."
+msgstr "Izvještaj upozorenja generisan."
+
 msgid "Alert Reports Frequency"
 msgstr "Frekvencija izvještaja upozorenja"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Upozorenja o ranjivostima plugina/tema. Shield zatim može automatski nadograditi kako ažuriranja postanu dostupna."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Upozorenja o ranjivostima plugina/tema. %s može automatski primijeniti nadogradnju kada postanu dostupne."
 
 msgid "Algorithm not supported"
 msgstr "Algoritam nije podržan"
 
-msgid "Align Shield"
-msgstr "Uskladi Shield"
+msgid "Align %s"
+msgstr "Poravnaj %s"
+
+msgid "All Clear"
+msgstr "Sve čisto"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Svi MFA provajderi uklonjeni sa korisnika sa ID-om %s."
@@ -784,8 +1081,8 @@ msgstr "Sav pristup ovom sajtu je stoga ograničen."
 msgid "All access to your site is blocked."
 msgstr "Sav pristup vašem sajtu je blokiran."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Svi pokušaji verifikacije Shield Pro licence nisu uspjeli."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "Svi pokušaji verifikacije %s Pro licence nisu uspjeli."
 
 msgid "All available plugin updates have been applied."
 msgstr "Sva dostupna ažuriranja plugina su primijenjena."
@@ -795,6 +1092,9 @@ msgstr "Sva dostupna ažuriranja tema su primijenjena."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Svi znakovi će biti tretirani kao ne razlikuju velika i mala slova."
+
+msgid "All clear"
+msgstr "Sve čisto"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Svi prilagođeni ključevi eventa moraju biti stringovi, mala slova, dužine 10-50, sa prefiksom 'custom_', i sadržavati samo slova i donje crte."
@@ -979,8 +1279,8 @@ msgstr "Prekršaj se registruje protiv IP adrese svaki put kada posjetitelj akti
 msgid "An unsupported profile was selected"
 msgstr "Odabran je nepodržani profil"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Dostupna je nadogradnja za Shield plugin."
+msgid "An upgrade is available for the %s plugin."
+msgstr "Dostupna je nadogradnja za %s plugin."
 
 msgid "Analyse & Fix"
 msgstr "Analiziraj & popravi"
@@ -1054,8 +1354,8 @@ msgstr "Bilo ko se može registrovati"
 msgid "Anyone can register"
 msgstr "Bilo ko se može registrovati"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Bilo ko se može registrovati promijenjeno: %s→%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Bilo ko se može registrovati promijenjeno: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "Lozinke aplikacija onemogućene"
@@ -1093,8 +1393,8 @@ msgstr "Primijenite ograničenja ograničenja brzine na zahtjeve velikog obima."
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "Primjena CSP zaglavlja može uticati na to kako vaš sajt funkcioniše za posjetioce, tako da ne nudimo direktne preporuke u ovoj sekciji."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Jesu li Shield Security ograničenja omogućena?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "Da li su %s ograničenja omogućena?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "Da li su WordPress permalinkovi omogućeni."
@@ -1108,11 +1408,11 @@ msgstr "Jeste li sigurni da želite obrisati ovo IP pravilo?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Jeste li sigurni da želite zadržati promjene fajla?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "Jeste li sigurni da želite ukloniti ShieldPRO licencu?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "Jeste li sigurni da želite ukloniti %s licencu?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Jeste li sigurni da želite resetovati Shield plugin na početne postavke?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "Jeste li sigurni da želite resetovati %s plugin na početne postavke?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Jeste li sigurni da želite vratiti originalni sadržaj fajla?"
@@ -1132,11 +1432,11 @@ msgstr "Kao i uvijek, vaša upotreba i oslanjanje na ovu uslugu se vrši na vaš
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Kako se svaki problem rješava, ukupni rezultat će se poboljšavati, do 100%."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Kao što je zatraženo, %s vas obavještava o uspješnoj %s prijavi na WordPress sajt kojim upravljate."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Kao što je zatraženo, %1$s vas obavještava o uspješnoj %2$s prijavi na WordPress sajt kojim upravljate."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Čim se detektuje kompatibilan plugin, Shield će automatski uključiti ugrađenu integraciju."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Čim je kompatibilan plugin detektovan, %s će automatski uključiti ugrađenu integraciju."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Čim se detektuju promjene na bilo kojim odabranim fajlovima, sadržaj može biti pregledan i vraćen."
@@ -1155,9 +1455,6 @@ msgstr "Čini se da je najmanje 1 od vaših plugina ili tema modificiran."
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Najmanje 1 opcija mora biti omogućena i početno je stranica korisničkog profila u WP admin području."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Najmanje 1 sigurnosni izvještaj je generisan za vaš sajt."
 
 msgid "At least two records are required to merge."
 msgstr "Potrebna su najmanje dva zapisa za spajanje."
@@ -1198,8 +1495,8 @@ msgstr "Preostali pokušaji: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Pokušava automatski popraviti fajlove koji su promijenjeni ili zaraženi malware-om."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Pokušaj verifikacije Shield Pro licence upravo nije uspio."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "Pokušaji verifikacije %s Pro licence upravo nisu uspjeli."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Audit Trail poruka koja može sadržavati email adrese"
@@ -1408,8 +1705,8 @@ msgstr "Automatski detektujte i popravite ranjive i sumnjive fajlove, plugine i 
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Automatski detektuj i omogući integracije treće strane kako postanu dostupne"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Automatski poštuj Shield postojeća pravila bijele liste i izuzetke."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Automatski poštujte postojeća %s pravila bijele liste i izuzetke."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Automatski uvezite opcije i implementirajte konfiguracije kroz cijelu vašu mrežu."
@@ -1504,6 +1801,9 @@ msgstr "Budite obaviješteni o važnim promjenama na bilo kojem admin računu"
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Budite obaviješteni o pluginima i temama sa poznatim sigurnosnim ranjivostima"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Budite obaviješteni kada je %s plugin deaktiviran"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Budite obaviješteni kada je Shield plugin deaktiviran"
 
@@ -1528,11 +1828,11 @@ msgstr "Beta pristup"
 msgid "Block %s"
 msgstr "Blokiraj %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "Blokiraj 100% bot komentar SPAM sa silentCAPTCHA"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "Blokirajte 100%% bot komentarskog SPAM-a sa %s"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Blokirajte 99.9%% svih WordPress komentar SPAM-ova koristeći silentCAPTCHA."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Blokirajte 99.9%% svih WordPress komentar SPAM-ova koristeći %s."
 
 msgid "Block Anon REST API"
 msgstr "Blokiraj anon REST API"
@@ -1668,9 +1968,6 @@ msgstr "Blokiran SPAM komentar od bota."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "Blokiran SPAM komentar koji nije prošao AntiBot testove."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "Blokiran SPAM komentar koji nije prošao reCAPTCHA."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Blokiran pokušaj ažuriranja lozinke koji nije ispunio zahtjeve politike."
@@ -1819,8 +2116,8 @@ msgstr "Zaštita od napada grubom silom"
 msgid "Brute Force Login Protection"
 msgstr "Zaštita od napada grubom silom pri prijavi"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Zaštita od napada grubom silom pri prijavi sa silentCAPTCHA"
+msgid "Brute Force Login Protection with %s"
+msgstr "Zaštita od napada grubom silom pri prijavi sa %s"
 
 msgid "Brute Force Protection"
 msgstr "Zaštita od napada grubom silom"
@@ -1828,8 +2125,8 @@ msgstr "Zaštita od napada grubom silom"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Ograničenje brzine saobraćaja napada grubom silom"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "Napadi botova grubom silom na vašu WordPress prijavu se detektuju i blokiraju pomoću silentCAPTCHA."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "Napadi grubom silom botova protiv vaše WordPress prijave su detektovani & blokirani od strane %s."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Napadi grubom silom na prijavu nisu blokirani sistemom hlađenja prijave."
@@ -1846,14 +2143,14 @@ msgstr "Kreirajte prilagođena sigurnosna pravila"
 msgid "Building scan items for scan: %s"
 msgstr "Kreiranje stavki skeniranja za skeniranje: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Ugrađene Shield integracije"
+msgid "Built-In %s Integrations"
+msgstr "Ugrađene %s integracije"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Početno Shield prikazuje nebitna obavještenja u admin području i admin traci."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Početno %s prikazuje nebitna obavještenja u admin oblasti i admin traci."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Početno, Shield je automatski konfigurisan da zaštiti vaš sajt od brojnih prijetnji i blokira loše posjetioce i botove bez da morate bilo šta raditi."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Prema početnim postavkama, %s je automatski konfigurisan da zaštiti vaš sajt od brojnih prijetnji i blokira loše posjetioce i botove bez da morate bilo šta raditi."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Povezujući signale iz Firewall-a sa signalima iz svih drugih sigurnosnih komponenti, %s gradi profil posjetioca tokom vremena da utvrdi ko je čovjek, ko je bot, i ko je tu u dobre ili loše svrhe."
@@ -1863,21 +2160,6 @@ msgstr "Bypass"
 
 msgid "Bypass IP"
 msgstr "Bypass IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA neuspjeh"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA uspjeh"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA test nije uspio."
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA test uspješan."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA-e su užasne."
@@ -1990,6 +2272,9 @@ msgstr "Izazov neuspješan"
 msgid "Challenge has expired."
 msgstr "Izazov je istekao."
 
+msgid "Change"
+msgstr "Promjena"
+
 msgid "Change Detected"
 msgstr "Promjena detektovana"
 
@@ -2005,11 +2290,14 @@ msgstr "Promjena 2FA Email opcija trenutno vam nije dostupna."
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Promjena opcija rezervnog koda trenutno vam nije dostupna."
 
+msgid "Check %s License"
+msgstr "Provjeri %s licencu"
+
+msgid "Check For %s License"
+msgstr "Provjeri za %s licencu"
+
 msgid "Check License"
 msgstr "Provjeri licencu"
-
-msgid "Check ShieldPRO License"
-msgstr "Provjeri ShieldPRO licencu"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Provjerite i verifikujte sadržaj ovog fajla kako biste osigurali da nije zlonamjeran."
@@ -2044,14 +2332,14 @@ msgstr "Child"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Odaberite forme na kojima će biti primijenjena silentCAPTCHA zaštita od botova."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Odaberite Custom Shield stranicu ako postoje konflikti ili problemi sa WP Login stranicom za 2FA."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Odaberite Custom %s stranicu ako postoje konflikti ili problemi sa WP Login stranicom za 2FA."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Odaberite forme za koje će biti primijenjene mjere zaštite od botova."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Odaberite najprikladniju frekvenciju za primanje upozorenja od Shield-a prema vašem rasporedu."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Odaberite najprikladniju frekvenciju za primanje upozorenja iz %s prema vašem rasporedu."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Odaberite tip stranice za MFA verifikaciju"
@@ -2121,6 +2409,9 @@ msgstr "Kliknite da odmah uklonite Google Authenticator autentifikaciju za prija
 
 msgid "Click to launch plugin search modal"
 msgstr "Kliknite da pokrenete modal za pretragu plugina"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Kliknite da ostavite recenziju na WordPress.org ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Kliknite da vidite RAW podatke koji bi bili poslani"
@@ -2200,8 +2491,8 @@ msgstr "Komentar SPAM blokiran."
 msgid "Comment SPAM Protection"
 msgstr "Zaštita od komentarskog SPAM-a"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Zaštita od komentarskog SPAM-a: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Zaštita od komentarskog SPAM-a: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Status komentara ažuriran"
@@ -2269,6 +2560,12 @@ msgstr "Konfiguracija"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Stranice konfiguracije za korisničku 2FA postavku"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Konfiguracija nije potrebna jer je detektovana samo 1 različita IP adresa."
+
+msgid "Configure"
+msgstr "Konfiguriši"
+
 msgid "Configure All '%s' Options"
 msgstr "Konfiguriši sve '%s' opcije"
 
@@ -2308,9 +2605,6 @@ msgstr "Potvrda"
 msgid "Confirmation email will be sent to %s"
 msgstr "Email potvrda će biti poslana na %s"
 
-msgid "Confirmation link"
-msgstr "Link za potvrdu"
-
 msgid "Connected"
 msgstr "Povezano"
 
@@ -2329,8 +2623,8 @@ msgstr "Kontakt forma SPAM"
 msgid "Contact Form SPAM Checking"
 msgstr "Provjera SPAM-a kontakt forme"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "SPAM u kontakt formama može biti blokiran samo sa prilagođenom integracijom za svakog provajdera formi - ako vaša forma nije podržana, molimo kontaktirajte naš tim za podršku."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "Contact Form SPAM se može blokirati samo sa prilagođenom integracijom za svakog provajdera formi - ako vaša forma nije podržana, molimo kontaktirajte naš tim za podršku."
 
 msgid "Contact Forms Integration"
 msgstr "Integracija kontakt formi"
@@ -2395,8 +2689,8 @@ msgstr "Koordinate"
 msgid "Core Reinstalled: v%s"
 msgstr "Core ponovo instaliran: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Core nadograđen: %s→%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Core nadograđen: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Osnovna svojstva uspostavljene korisničke sesije ({{user_login}}) su se promijenila."
@@ -2443,8 +2737,8 @@ msgstr "Nije bilo moguće kreirati folder: %s"
 msgid "Couldn't create the export file."
 msgstr "Nije bilo moguće kreirati fajl za izvoz."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Nije moguće odrediti status Shield plugina."
+msgid "Couldn't determine %s plugin status."
+msgstr "Nije moguće utvrditi status %s plugina."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "Nije moguće učitati plugin za slug '%s'."
@@ -2455,11 +2749,17 @@ msgstr "Nije moguće učitati temu za slug '%s'."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "Nije moguće pročitati MU plugin šablon iz %s"
 
+msgid "Count"
+msgstr "Broj"
+
 msgid "Country"
 msgstr "Država"
 
 msgid "Country Code"
 msgstr "Pozivni broj države"
+
+msgid "Create %s Network"
+msgstr "Kreiraj %s mrežu"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Kreirajte rezervni 2FA kod za prijavu"
@@ -2482,9 +2782,6 @@ msgstr "Kreiraj novo pravilo"
 msgid "Create Report"
 msgstr "Kreiraj izvještaj"
 
-msgid "Create Shield Network"
-msgstr "Kreiraj Shield mrežu"
-
 msgid "Create and view all your custom security rules."
 msgstr "Kreirajte i pregledajte sva vaša prilagođena sigurnosna pravila."
 
@@ -2502,6 +2799,9 @@ msgstr "Kreiranje putanje ovdje će onemogućiti vaš 'wp-login.php'. Samo slova
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Kreiranje prilagođenih pravila je napredna mogućnost i prihvatam punu odgovornost za sve probleme koji proizađu iz pravila koja kreiram."
+
+msgid "Critical"
+msgstr "Kritično"
 
 msgid "Critical File Protection"
 msgstr "Zaštita kritičnih fajlova"
@@ -2578,9 +2878,6 @@ msgstr "Trenutni sadržaj fajla"
 msgid "Current Scan"
 msgstr "Trenutno skeniranje"
 
-msgid "Current Scan Results"
-msgstr "Trenutni rezultati skeniranja"
-
 msgid "Current Session Age (seconds)"
 msgstr "Starost trenutne sesije (sekunde)"
 
@@ -2589,9 +2886,6 @@ msgstr "Trenutna sesija prekinuta"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Starost tokena trenutne sesije (sekunde)"
-
-msgid "Current Summary"
-msgstr "Trenutni sažetak"
 
 msgid "Current User Sessions"
 msgstr "Sesije trenutnog korisnika"
@@ -2619,9 +2913,6 @@ msgstr "Prilagođeni debug"
 
 msgid "Custom Exclusions"
 msgstr "Prilagođeni izuzeci"
-
-msgid "Custom Report on %s"
-msgstr "Prilagođeni izvještaj za %s"
 
 msgid "Custom Rules"
 msgstr "Prilagođena pravila"
@@ -2704,14 +2995,14 @@ msgstr "Raspon datuma"
 msgid "Day"
 msgstr "Dan"
 
+msgid "Deactivate %s"
+msgstr "Deaktiviraj %s"
+
 msgid "Deactivate Akismet"
 msgstr "Deaktiviraj Akismet"
 
 msgid "Deactivate Rule"
 msgstr "Deaktiviraj pravilo"
-
-msgid "Deactivate Shield"
-msgstr "Deaktiviraj Shield"
 
 msgid "Deactivated"
 msgstr "Deaktivirano"
@@ -2727,9 +3018,6 @@ msgstr "Debug je uključen"
 
 msgid "Debug Tests"
 msgstr "Debug testovi"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "Debug i Info logovanje bi trebalo biti omogućeno samo kada istražujete specifične probleme."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Odlučite kako bi %s trebao odgovoriti kada bot izvrši određene akcije."
@@ -2749,8 +3037,8 @@ msgstr "Početni admin korisnik"
 msgid "Default User Role"
 msgstr "Početna korisnička uloga"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Početna korisnička uloga promijenjena: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Početna korisnička uloga promijenjena: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Početno: Jednom svakih 24 sata. Za poboljšanje sigurnosti, povećajte broj skeniranja dnevno."
@@ -2806,14 +3094,11 @@ msgstr "Obrisane tabele"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Obrisani članci korisnika su preraspoređeni korisniku '{{user_login}}'."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Važne promjene u UI sa Shield v20"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: Važne UI promjene sa %s v20"
 
 msgid "Demoted From Admin"
 msgstr "Degradiran iz admina"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "Zavisno od vaših postavki, ovi izvještaji mogu sadržavati kombinaciju upozorenja, statistika i drugih informacija."
 
 msgid "Description"
 msgstr "Opis"
@@ -2880,6 +3165,9 @@ msgstr "Detektovano"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Otkrivena registracija korisnika sa nevažećom email adresom ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Detekcija ispravne IP adrese posjetioca je kritična za razlikovanje svakog posjetioca sajta od sljedećeg."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Njihova rana detekcija i blokiranje je vaš najveći izvor zaštite."
@@ -2953,6 +3241,9 @@ msgstr "Onemogući modul"
 msgid "Disable Security Admin"
 msgstr "Onemogući Security Admin"
 
+msgid "Disable Security Admin via Email"
+msgstr "Onemogući Security Admin putem emaila"
+
 msgid "Disable Shield"
 msgstr "Onemogući Shield"
 
@@ -2989,6 +3280,9 @@ msgstr "Onemogućite XML-RPC krajnju tačku i blokirajte sve zahtjeve."
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Onemogućite ovu opciju da sakrijete određena obavještenja plugin admina o dostupnim ažuriranjima i obavještenjima nakon ažuriranja."
 
+msgid "Disabled"
+msgstr "Onemogućeno"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Onemogućavanje anonimnog pristupa može pokvariti plugine koji koriste REST API za vaše posjetitelje sajta."
 
@@ -2998,8 +3292,8 @@ msgstr "Odspojen"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Otkrijte plugine koje su njihovi autori možda napustili"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Otkrijte najsveobuhvatniju WordPress sigurnost kada nadogradite vaš Shield Security plan."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Otkrijte najsveobuhvatniju WordPress sigurnost kada nadogradite vaš %s plan."
 
 msgid "Discovered"
 msgstr "Otkriveno"
@@ -3009,6 +3303,9 @@ msgstr "Otkrivanje malware-a na vašem sajtu nije 'zaštita' - to je zapravo zna
 
 msgid "Disk Space"
 msgstr "Prostor na disku"
+
+msgid "Dismiss"
+msgstr "Odbaci"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Prikaži nebitna obavještenja plugina i meni admin trake"
@@ -3064,8 +3361,8 @@ msgstr "Da li se hostname IP adrese zahtjeva podudara sa datim hostname-om."
 msgid "Does the method of the request match the given specified method to match."
 msgstr "Da li se metoda zahtjeva podudara sa datom navedenom metodom za podudaranje."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "Da li zahtjev zaobilazi sva Shield ograničenja."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "Da li zahtjev zaobilazi bilo koja i sva %s ograničenja."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "Da li zahtjev sadrži parametar sa navedenim nazivom."
@@ -3097,8 +3394,8 @@ msgstr "Da li naziv skripta zahtjeva odgovara datom nazivu."
 msgid "Does the request useragent match the given useragent."
 msgstr "Da li useragent zahtjeva odgovara datom useragent."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "Da li se vrijednost datog Shield Session parametra podudara sa datim obrascem."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "Da li se vrijednost datog %s Session parametra podudara sa datim obrascem."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "Da li se vrijednost datog parametra zahtjeva podudara sa datim obrascem."
@@ -3115,8 +3412,8 @@ msgstr "Ne skeniraj komentare za korisnike sa sljedećim ulogama"
 msgid "Don't want these email alerts?"
 msgstr "Ne želite ova upozorenja putem emaila?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Vraćeno na stariju verziju: %s→%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Vraćeno na stariju verziju: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "Preuzmi"
@@ -3130,6 +3427,9 @@ msgstr "Preuzmi IP pravila kao CSV"
 msgid "Download Modified"
 msgstr "Preuzmi modificirano"
 
+msgid "Download Now"
+msgstr "Preuzmi sada"
+
 msgid "Download Options Export File"
 msgstr "Preuzmi fajl izvoza opcija"
 
@@ -3139,11 +3439,17 @@ msgstr "Preuzmi originalno"
 msgid "Download Request Logs"
 msgstr "Preuzmi logove zahtjeva"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "Preuzimanje nije uspjelo. Provjerite da li je ShieldNet API dostupan i da lokalizacija postoji."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Preuzete reputacijske odluke sa CrowdSec za opseg: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Preuzimanje fajla, molimo sačekajte..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Preuzimanje prijevoda za lokalizaciju: %s"
 
 msgid "Duration"
 msgstr "Trajanje"
@@ -3160,8 +3466,8 @@ msgstr "Svaki sajt na ovoj listi moći će izvoziti opcije sa ovog sajta bez pru
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Najlakša WP Pro-nadogradnja bez frustracija bilo gdje"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Lako integrirajte Shield Security da vam pomogne u upravljanju sigurnošću sajta iz MainWP-a."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Lako integrirajte %s kako biste upravljali sigurnošću vašeg sajta iz MainWP."
 
 msgid "Edit"
 msgstr "Uredi"
@@ -3169,8 +3475,8 @@ msgstr "Uredi"
 msgid "Edit Rule"
 msgstr "Uredi pravilo"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "Uredi pravilo #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Uredi pravilo #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Uredi postavke"
@@ -3220,8 +3526,8 @@ msgstr "Uredite postavke koje primjenjuju zaštitu na vaše forme za prijavu & k
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Uredi postavke koje kontrolišu automatsko IP blokiranje"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Uredite postavke koje kontrolišu kako silentCAPTCHA detektuje botove"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Uredite postavke koje kontrolišu kako %s detektuje botove"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Uredite postavke za primjenu minimalne jačine lozinke"
@@ -3250,8 +3556,8 @@ msgstr "Uređivanje ove opcije je trenutno ograničeno."
 msgid "Either the country code or phone number were missing."
 msgstr "Ili pozivni broj ili broj telefona su nedostajali."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Podignite vašu WordPress sigurnost na najbolji nivo, nadogradnjom vašeg Shield Security plana."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Podignite vašu WordPress sigurnost na najbolji nivo, nadogradnjom vašeg %s plana."
 
 msgid "Email"
 msgstr "Email"
@@ -3304,8 +3610,8 @@ msgstr "Email obavještenja za nove komentare"
 msgid "Email sending has already been verified."
 msgstr "Slanje emaila je već verifikovano."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "Email poslan iz %s plugina v%s, na %s."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "Email poslan od strane %1$s plugina v%2$s, na %3$s."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "Email poslan. Osigurajte da se link otvara u OVOM browseru."
@@ -3334,8 +3640,8 @@ msgstr "Koristi skup agresivnih pravila za detekciju i blokiranje zlonamjernih p
 msgid "Empty User Agents"
 msgstr "Prazni User Agent-i"
 
-msgid "Empty response from Shield client site"
-msgstr "Prazan odgovor od Shield klijentskog sajta"
+msgid "Empty response from %s client site"
+msgstr "Prazan odgovor od %s klijentskog sajta"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Prazan root fajl pružen za instanciranje"
@@ -3568,14 +3874,20 @@ msgstr "Greška"
 msgid "Error Log Message"
 msgstr "Poruka loga greške"
 
+msgid "Error: {{error}}"
+msgstr "Greška: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Čak i samo jednolinijna recenzija koja kaže da ste zadovoljni, pomoći će nam ogromno."
+
 msgid "Event"
 msgstr "Događaj"
 
 msgid "Event %s does not exist."
 msgstr "Događaj %s ne postoji."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Definicija događaja (%s) ima revizijske parametre koji nisu prisutni: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Definicija događaja (%1$s) ima parametre revizije koji nisu prisutni: %2$s"
 
 msgid "Event Details"
 msgstr "Detalji događaja"
@@ -3661,6 +3973,9 @@ msgstr "Neuspješno povezivanje sa serverom licence."
 msgid "Failed to create custom report."
 msgstr "Kreiranje prilagođenog izvještaja nije uspjelo."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Neuspješno preuzimanje fajla prijevoda za lokalizaciju: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Neuspješno umetanje file locker zapisa za putanju: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Popravka stavke skeniranja nije uspjela."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Neuspješno slanje Firewall Block email upozorenja na: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Neuspješno slanje emaila (tip: {{slug}}) na '{{email}}' koristeći SureSend."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Neuspješno slanje emaila (tip: {{slug}}) na '{{email}}' koristeći %s."
 
 msgid "Failed to store the rule in the database."
 msgstr "Nije uspjelo pohranjivanje pravila u bazu podataka."
@@ -3796,8 +4111,8 @@ msgstr "Sadržaj fajla nije mogao biti enkriptovan. Poruka:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "Sadržaj fajla nije mogao biti wp_json_encode() nakon enkripcije."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Fajl detektovan kao %s od strane %s skenera."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Fajl detektovan kao %1$s od strane %2$s skenera."
 
 msgid "File does not exist."
 msgstr "Fajl ne postoji."
@@ -3997,14 +4312,17 @@ msgstr "Generisano"
 msgid "Generating a new code will replace your existing code."
 msgstr "Generisanje novog koda će zamijeniti vaš postojeći kod."
 
+msgid "Get %s!"
+msgstr "Nabavite %s!"
+
 msgid "Get All PRO Security Features"
 msgstr "Nabavite sve PRO sigurnosne mogućnosti"
 
-msgid "Get ShieldPRO!"
-msgstr "Nabavite ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Započnite za manje od 3 minute"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Nabavite besplatnu probnu verziju %s bez rizika i obaveza danas."
 
 msgid "Global Plugin Enable"
 msgstr "Globalno omogućavanje plugina"
@@ -4039,6 +4357,9 @@ msgstr "Pređi na Pro!"
 msgid "Go To %s"
 msgstr "Idi na %s"
 
+msgid "Go To %s Overview"
+msgstr "Idi na %s pregled"
+
 msgid "Go To Admin"
 msgstr "Idi na admin"
 
@@ -4050,9 +4371,6 @@ msgstr "Idi na pregled"
 
 msgid "Go To Security Dashboard"
 msgstr "Idi na kontrolnu tablu sigurnosti"
-
-msgid "Go To Shield Overview"
-msgstr "Idi na Shield pregled"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Idite ovdje da upravljate podešavanjima i autentifikujete se sa %s pluginom."
@@ -4111,14 +4429,14 @@ msgstr "HTTP zaglavlje odgovora za slanje"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "HTTPS postavke za početni URL i WP Site URL nisu konzistentne."
 
-msgid "Handshake ShieldNET"
-msgstr "Uspostavi vezu sa ShieldNET"
+msgid "Handshake %s"
+msgstr "Rukovanje %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Hardverska dvofaktorska autentifikacija"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Ima validne Shield korisničke sesije"
+msgid "Has Valid %s User Sessions"
+msgstr "Ima važeće %s korisničke sesije"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Imajte punu kontrolu nad lozinkama koje koriste korisnici na sajtu."
@@ -4135,11 +4453,14 @@ msgstr "Članak centra za pomoć"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Helpdesk i baza znanja"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Evo nekih načina na koje Shield već štiti vaš sajt:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Evo nekih od načina na koje %s već štiti vaš sajt:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Ovdje birate koju vrstu zlonamjernih podataka skenirati."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Evo vašeg sigurnosnog pregleda za period izvještavanja. Pregledajte sve probleme ispod i preduzmite akciju gdje je potrebno."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Ovdje se, međutim, fokusiramo na same korisničke račune kako bismo osigurali da su u sigurnom stanju."
@@ -4189,8 +4510,8 @@ msgstr "Početni URL"
 msgid "Home URL Changed"
 msgstr "Početni URL promijenjen"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "Početni URL promijenjen: %s→%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "Početni URL promijenjen: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "Početna stranica"
@@ -4297,11 +4618,14 @@ msgstr "Filter ljudskog SPAM-a"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "Filter ljudskog SPAM-a detektovao ponovljene pokušaje SPAM komentara."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "Ljudski SPAM filter pronašao '%s' u '%s'"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "Filter ljudskog SPAM-a pronašao \"%1$s\" u \"%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Filter ljudskog SPAM-a pronašao '{{word}}' u '{{key}}'"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "Ljudski SPAM i dalje uzrokuje najviše frustracije jer često zaobilazi SPAM odbranu."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Razumijem da će postojeće opcije biti prepisane"
@@ -4327,17 +4651,11 @@ msgstr "Znam da ako koristim keširanje i ne očistim ga nakon toga, to će prou
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Razumijem posljedice blokiranja svih pristupa ovom sajtu."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Razumijem rizike kreiranja pravila koje ne poštuje Shield bijele liste i izuzetke, i možda će mi biti teško povratiti pristup ako budem zaključan."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Razumijem rizike kreiranja pravila koje ne poštuje %s bijele liste i izuzetke, i možda će mi biti teško povratiti pristup ako budem zaključan."
 
 msgid "I'd like to learn more, please"
 msgstr "Želio/la bih saznati više, molim"
-
-msgid "I'd rather not show this support"
-msgstr "Radije ne bih pokazao ovu podršku"
-
-msgid "I've done this already"
-msgstr "Ovo sam već uradio"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "VAŽNO"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s rezultat resetovan."
 
 msgid "IP Address"
 msgstr "IP adresa"
@@ -4552,9 +4873,6 @@ msgstr "IP nije na listi za automatsko blokiranje."
 msgid "IP provided was invalid."
 msgstr "Navedeni IP je nevažeći."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA rezultat resetovan."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Ako korisnik ima više dodijeljenih uloga, sve uloge će biti provjerene
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Ako se detektuju zlonamjerni podaci, zahtjev će biti odmah prekinut."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Ako ispravna postavka nije %s, preporučujemo da kontaktirate vašeg hosting provajdera da zatraži da konfigurišu vaš hosting tako da %s pruža stvarnu IP adresu posjetitelja."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Ako ispravna postavka nije %1$s, preporučujemo da kontaktirate vašeg hosting provajdera da zatraži da konfigurišu vaš hosting tako da %2$s pruža stvarnu IP adresu posjetioca."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Ako provajder koji želite nije na listi, kontaktirajte naš tim za podršku i vidjet ćemo da li se integracija može izgraditi."
@@ -4642,8 +4960,8 @@ msgstr "Ako je korisnik neaktivan navedeni broj sati, bit će prisilno odjavljen
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Ako je korisnik neaktivan navedeni broj sati, bit će prisilno odjavljen sljedeći put kada se vrati. Postavite ovo na '0' da isključite ovu opciju."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Ako rezultat posjetitelja ne ispunjava vaš minimalni silentCAPTCHA rezultat, možemo spriječiti zahtjev (kao što je prijava, WP komentar itd.). Ako je viši, dozvoljavamo ga."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Ako rezultat posjetitelja ne ispunjava vaš minimalni %s rezultat, možemo spriječiti zahtjev (kao što je prijava, WP komentar itd.). Ako je viši, dozvoljavamo ga."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Ako je ovo MainWP klijentski sajt, trebali biste dodati IP adresu vašeg MainWP Admin servera na vašu listu za zaobilaženje IP-a."
@@ -4656,6 +4974,9 @@ msgstr "Ako se ova poruka i dalje pojavljuje nakon osvježavanja ove stranice, m
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Ako ovaj problem potraje, molimo kontaktirajte podršku: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Ako već imate %s licencu dodijeljenu ovom sajtu,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Ako vjerujete, iz bilo kojeg razloga, da su vaši ili poštanski sandučići vaših korisnika kompromitovani, trebali biste onemogućiti ovu opciju."
@@ -4702,11 +5023,8 @@ msgstr "Ako želite biti obaviješteni svaki put kada se administrator prijavi n
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Ako želite biti obaviješteni svaki put kada se administrator prijavi na ovaj WordPress sajt, unesite email adresu za obavještenja. Bez email adrese - bez obavještenja."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Ako ne koristite namjenski servis za slanje emailova za WordPress emailove, trebali biste omogućiti SureSend za ove važne emailove."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Ako ste zaboravili svoj PIN, koristite meni iznad da onemogućite ovo ograničenje."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Ako ne koristite namjenski servis za slanje emaila za slanje WordPress emailova, trebali biste omogućiti %s za ove važne emailove."
 
 msgid "Ignore"
 msgstr "Ignoriši"
@@ -4737,9 +5055,6 @@ msgstr "Obavještenje o uvozu poslano"
 
 msgid "Import Options"
 msgstr "Opcije uvoza"
-
-msgid "Import Settings From Another Site"
-msgstr "Uvezite postavke sa drugog sajta"
 
 msgid "Import file was empty"
 msgstr "Fajl za uvoz je bio prazan"
@@ -4870,11 +5185,14 @@ msgstr "Informacije za IP adresu %s"
 msgid "Info Reports Frequency"
 msgstr "Frekvencija Info izvještaja"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Info logovanje bi trebalo biti omogućeno samo prilikom istraživanja specifičnih problema."
+
 msgid "Information and reports are typically statistics."
 msgstr "Informacije i izvještaji su obično statistike."
 
-msgid "Install Shield"
-msgstr "Instaliraj Shield"
+msgid "Install %s"
+msgstr "Instaliraj %s"
 
 msgid "Installation Directory"
 msgstr "Instalacijski folder"
@@ -4909,6 +5227,9 @@ msgstr "Interval se mjeri u sekundama."
 msgid "Invalid"
 msgstr "Nevažeće"
 
+msgid "Invalid %s extension configuration"
+msgstr "Nevažeća %s konfiguracija ekstenzije"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Izuzetak nevažećeg Action Nonce."
 
@@ -4933,9 +5254,6 @@ msgstr "Nevažeće učitavanje skripta"
 msgid "Invalid Scripts"
 msgstr "Nevažeće skripte"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Nevažeća Shield konfiguracija ekstenzije"
-
 msgid "Invalid Slug"
 msgstr "Nevažeći slug"
 
@@ -4948,9 +5266,6 @@ msgstr "Nevažeći korisnički agent"
 msgid "Invalid User Email Registration"
 msgstr "Nevažeća email registracija korisnika"
 
-msgid "Invalid User-Agent"
-msgstr "Nevažeći User-Agent"
-
 msgid "Invalid Username Login"
 msgstr "Nevažeća prijava korisničkog imena"
 
@@ -4959,6 +5274,12 @@ msgstr "Nevažeća korisnička imena"
 
 msgid "Invalid action"
 msgstr "Nevažeća akcija"
+
+msgid "Invalid batch request format."
+msgstr "Nevažeći format batch zahtjeva."
+
+msgid "Invalid batch request item."
+msgstr "Nevažeća stavka batch zahtjeva."
 
 msgid "Invalid download item data."
 msgstr "Nevažeći podaci stavke za preuzimanje."
@@ -4975,6 +5296,15 @@ msgstr "Nevažeće preuzimanje tipa file locker"
 msgid "Invalid login nonce"
 msgstr "Nevažeći nonce za prijavu"
 
+msgid "Invalid login session."
+msgstr "Nevažeća sesija prijave."
+
+msgid "Invalid or expired login session."
+msgstr "Nevažeća ili istekla sesija prijave."
+
+msgid "Invalid profile request."
+msgstr "Nevažeći zahtjev za profil."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Nevažeći zahtjev - zaključavanje je već aktivno."
 
@@ -4984,11 +5314,8 @@ msgstr "Nevažeći zahtjev - zaključavanje nije aktivno."
 msgid "Invalid request with no User ID"
 msgstr "Nevažeći zahtjev bez ID-a korisnika"
 
-msgid "Invalid response from Shield client site"
-msgstr "Nevažeći odgovor od Shield klijentskog sajta"
-
-msgid "Invalid session selected"
-msgstr "Odabrana nevažeća sesija"
+msgid "Invalid response from %s client site"
+msgstr "Nevažeći odgovor od %s klijentskog sajta"
 
 msgid "Invalid specification of modules"
 msgstr "Nevažeća specifikacija modula"
@@ -4996,14 +5323,26 @@ msgstr "Nevažeća specifikacija modula"
 msgid "Invalid type."
 msgstr "Nevažeći tip."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "Nevažeći korisnički agent detektovan na '{{useragent}}'."
-
 msgid "Invalid value scope for %s"
 msgstr "Nevažeći opseg vrijednosti za %s"
 
 msgid "Invalid value type for %s"
 msgstr "Nevažeći tip vrijednosti za %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "Da li je %s funkcionalnost plugina onemogućena."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "Da li je %s ograničenje brzine saobraćaja omogućeno."
+
+msgid "Is %s live logging enabled."
+msgstr "Da li je %s logovanje uživo omogućeno."
+
+msgid "Is %s score"
+msgstr "Je %s rezultat"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "Da li je %s zaključavanje sajta aktivno."
 
 msgid "Is It You?"
 msgstr "Jeste li to vi?"
@@ -5017,20 +5356,8 @@ msgstr "Je status zahtjeva 404"
 msgid "Is Request To The Login Page."
 msgstr "Je zahtjev za stranicu prijave."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Je funkcionalnost Shield plugina onemogućena."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Je Shield ograničenje brzine saobraćaja omogućeno."
-
-msgid "Is Shield live logging enabled."
-msgstr "Je Shield logovanje uživo omogućeno."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Je Shield zaključavanje sajta aktivno."
-
-msgid "Is The Shield Option Value..."
-msgstr "Je li vrijednost Shield opcije..."
+msgid "Is The %s Option Value..."
+msgstr "Da li je vrijednost %s opcije..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Je validna javna IP adresa"
@@ -5038,8 +5365,8 @@ msgstr "Je validna javna IP adresa"
 msgid "Is Viable"
 msgstr "Je izvodljivo"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Da li je rezultat posjetitelja silentCAPTCHA ..."
+msgid "Is Visitor %s Score ..."
+msgstr "Da li je rezultat posjetioca %s ..."
 
 msgid "Is WP AJAX"
 msgstr "Je WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "Je li trenutni korisnik prijavljeni WordPress administrator."
 msgid "Is current user password expired."
 msgstr "Je li lozinka trenutnog korisnika istekla."
 
-msgid "Is silentCAPTCHA score"
-msgstr "Da li je silentCAPTCHA rezultat"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Da li je Shield plugin u \"forceoff\" stanju."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "Da li je %s plugin u \"forceoff\" stanju."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Da li se trenutna IP adresa smatra \"visokom reputacijom\"."
@@ -5116,23 +5440,23 @@ msgstr "Da li je starost tokena trenutne korisničke sesije manja ili veća od n
 msgid "Is the request HTTPS."
 msgstr "Je zahtjev HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "Je IP zahtjeva automatski ili ručno blokiran od strane Shield-a."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "Da li je zahtjev IP automatski ili ručno blokiran od strane %s."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "Je IP zahtjeva na Shield crnoj listi."
+msgid "Is the request IP blacklisted by %s."
+msgstr "Je zahtjev IP na crnoj listi od strane %s."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "Je IP zahtjeva na Shield CrowdSec listi za blokiranje."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "Da li je IP zahtjeva na %s CrowdSec listi za blokiranje."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "Je IP zahtjeva na Shield listi za ručno blokiranje."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "Da li je IP zahtjeva na %s listi za ručno blokiranje."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "Je IP zahtjeva na Shield listi za automatsko blokiranje."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "Da li je IP zahtjeva na %s listi za automatsko blokiranje."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "Je IP zahtjeva na Shield listi za ručno zaobilaženje/bijeloj listi."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "Da li je zahtjev IP na %s's ručnoj listi za zaobilaženje/bijeloj listi."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Da li je zahtjev bot koji potiče od pouzdanog provajdera usluga."
@@ -5143,17 +5467,17 @@ msgstr "Je zahtjev server loopback zahtjev."
 msgid "Is the request an HTTP 404."
 msgstr "Je zahtjev HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Je zahtjev blokiran Shield mogućnošću zaključavanja sajta."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "Da li je zahtjev blokiran od strane %s's mogućnosti zaključavanja sajta."
 
 msgid "Is the request from a logged-in user."
 msgstr "Da li je zahtjev od prijavljenog korisnika."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Je li zahtjev od korisnika autentificiranog kao Shield Security Admin."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "Da li je zahtjev od korisnika autentifikovanog kao %s Admin."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "Je putanja zahtjeva na Shield bijeloj listi."
+msgid "Is the request path whitelisted by %s."
+msgstr "Da li je putanja zahtjeva na bijeloj listi od strane %s."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "Da li je zahtjev upućen putanji unutar trenutno instaliranog WordPress plugina."
@@ -5212,6 +5536,9 @@ msgstr "Pronađeni problemi"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Problemi navedeni ispod trebaju biti riješeni što je brže moguće"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Također pomaže u zaključavanju kritičnih WordPress postavki."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "Također traži fajlove koji ne bi trebali biti u core WP folderima (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Izgleda da je vaša IP adresa (%s) trenutno blokirana."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Međutim, može koristiti cookie da registruje zatvaranje %s sigurnosne značke kako bi spriječio ponovljeni prikaz."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Koristi naš ekskluzivni silentCAPTCHA engine za pouzdanu identifikaciju botova."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Koristi naš ekskluzivni %s Engine za pouzdanu identifikaciju botova."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "Poslan je na '{{to}}' sa predmetom '{{subject}}'."
@@ -5275,8 +5602,8 @@ msgstr "Poslan je na '{{to}}' sa predmetom '{{subject}}'."
 msgid "It will be displayed below when it's ready."
 msgstr "Bit će prikazan ispod kada bude spreman."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Pronaći će odgovarajuću lokaciju automatski, ali ako to ne uspije, možete vidjeti PHP upozorenja na vašem sajtu i određene Shield funkcionalnosti neće biti dostupne."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Pronaći će odgovarajuću lokaciju automatski, ali ako ovo ne uspije, možete vidjeti PHP upozorenja na vašem sajtu i određene %s funkcionalnosti neće biti dostupne."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "To je složena oblast i ako se koristi neispravno, može lako pokvariti korisničko iskustvo na front-endu."
@@ -5298,9 +5625,6 @@ msgstr "Dobra je praksa ograničiti životni vijek sesije, posebno kada je neakt
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Dobra je praksa zaključati sesiju na najmanje 1 svojstvo kako bi se pomoglo u sprječavanju krađe sesije."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Ljudski SPAM je taj koji i dalje uzrokuje najviše frustracije, jer obično ne aktivira našu odbranu."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Nalazi se u folderu WordPress plugina i prepoznat je kao validan fajl za tu verziju plugina."
@@ -5338,8 +5662,8 @@ msgstr "Stavka popravljena: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Stavke pronađene u skeniranju"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Pridružite se Shield Security newsletteru"
+msgid "Join The %s Newsletter"
+msgstr "Pridružite se %s newsletteru"
 
 msgid "Join Us"
 msgstr "Pridružite nam se"
@@ -5347,8 +5671,14 @@ msgstr "Pridružite nam se"
 msgid "Join Us!"
 msgstr "Pridružite nam se!"
 
+msgid "Join our %s Newsletter"
+msgstr "Pridružite se našem %s newsletteru"
+
 msgid "Jump To Module Settings"
 msgstr "Pređi na postavke modula"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Pridružite se našoj %s Facebook grupi gdje možete postavljati pitanja našoj aktivnoj zajednici i biti u toku sa našim najnovijim vijestima"
 
 msgid "Just grab a new license from the"
 msgstr "Samo preuzmite novu licencu sa"
@@ -5437,6 +5767,9 @@ msgstr "Posljednja sinhronizacija"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Na kraju, želimo spriječiti mogućnost botova (ili ljudi) da registruju SPAM račune na sajtu, iz bilo kojeg razloga."
 
+msgid "Latest Scan Results"
+msgstr "Najnoviji rezultati skeniranja"
+
 msgid "Launch Debug Info Page"
 msgstr "Pokreni Debug Info stranicu"
 
@@ -5464,6 +5797,12 @@ msgstr "Licenca"
 msgid "License Activation"
 msgstr "Aktivacija licence"
 
+msgid "License Activation Failed"
+msgstr "Aktivacija licence nije uspjela"
+
+msgid "License Activation Success"
+msgstr "Uspješna aktivacija licence"
+
 msgid "License Check Failed"
 msgstr "Provjera licence nije uspjela"
 
@@ -5482,6 +5821,30 @@ msgstr "Email o grešci licence poslan"
 msgid "License Summary"
 msgstr "Sažetak licence"
 
+msgid "License activated and verified successfully."
+msgstr "Licenca aktivirana i uspješno verificirana."
+
+msgid "License activated but verification failed."
+msgstr "Licenca aktivirana ali verifikacija nije uspjela."
+
+msgid "License activated successfully."
+msgstr "Licenca uspješno aktivirana."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "Aktivacija licence nije uspjela jer na ovom računu nema dostupnih licenci."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "Aktivacija licence nije uspjela jer je API ključ nevažeći."
+
+msgid "License activation failed."
+msgstr "Aktivacija licence nije uspjela."
+
+msgid "License activation request failed."
+msgstr "Zahtjev za aktivaciju licence nije uspio."
+
+msgid "License activation was denied for this site."
+msgstr "Aktivacija licence je odbijena za ovaj sajt."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Provjera licence nije uspjela. Šaljem email upozorenja."
 
@@ -5499,9 +5862,6 @@ msgstr "Licence se mogu provjeravati jednom svakih %s sekundi"
 
 msgid "Lifetime"
 msgstr "Životni vijek"
-
-msgid "Lifetime Total"
-msgstr "Ukupan životni vijek"
 
 msgid "Light"
 msgstr "Svijetlo"
@@ -5577,6 +5937,12 @@ msgstr "Lokalni PHP malware skener je omogućen, ali AI Malware skeniranje je do
 
 msgid "Locale"
 msgstr "Lokalizacija"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "Lokalizacija \"%1$s\" je već keširana na: %2$s. Koristite --force za ponovno preuzimanje."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "Lokalizacija \"%s\" nije dostupna za preuzimanje."
 
 msgid "Location"
 msgstr "Lokacija"
@@ -5740,11 +6106,11 @@ msgstr "Izgubljena lozinka blokirana"
 msgid "Lost Password Bot Protection"
 msgstr "Zaštita od botova za izgubljenu lozinku"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "Lost Password SPAMing od strane botova je blokiran pomoću silentCAPTCHA."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "SPAM izgubljene lozinke od strane botova je blokiran od strane %s."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "Lost Password SPAMing od strane botova nije blokiran pomoću silentCAPTCHA."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "SPAM izgubljene lozinke od strane botova nije blokiran od strane %s."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Sviđa vam se? Ocijenite ovaj plugin ✩"
@@ -5923,6 +6289,9 @@ msgstr "Meta vrijednost za podudaranje"
 msgid "Method"
 msgstr "Metoda"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Minimalni %s rezultat potreban da se označi posjetilac kao čovjek"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Minimalno automatsko odobravanje komentara"
 
@@ -5941,9 +6310,6 @@ msgstr "Minimalni vremenski interval između komentara"
 msgid "Minimum required MainWP server version"
 msgstr "Minimalna potrebna verzija MainWP servera"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Minimalni silentCAPTCHA rezultat potreban da se označi da je posjetitelj čovjek"
-
 msgid "Minutes"
 msgstr "Minuta"
 
@@ -5952,6 +6318,12 @@ msgstr "Pogrešna konfiguracija može izazvati probleme za vaše posjetioce, tak
 
 msgid "Missing"
 msgstr "Nedostaje"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Nedostaje action slug ili nonce u grupnom zahtjevu."
+
+msgid "Missing request payload for batch request item."
+msgstr "Nedostaje payload zahtjeva za batch stavku."
 
 msgid "Mode"
 msgstr "Način"
@@ -5989,6 +6361,12 @@ msgstr "Većina SPAM-a je automatska, od strane botova, ali ponekad ljudi takođ
 msgid "Multi-Factor Authentication"
 msgstr "Višefaktorska autentifikacija"
 
+msgid "Multiple Signals"
+msgstr "Višestruki signali"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Detektovano više bot signala za ovog posjetioca."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Može se unijeti više email adresa, odvojenih zarezom."
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL DB lozinka"
 msgid "N/A"
 msgstr "N/A"
 
+msgid "NEW"
+msgstr "NOVO"
+
 msgid "NO TITLE"
 msgstr "BEZ NASLOVA"
 
@@ -6027,6 +6408,12 @@ msgstr "Navigacija"
 
 msgid "Needs Update"
 msgstr "Potrebno ažuriranje"
+
+msgid "Needs Work"
+msgstr "Potreban rad"
+
+msgid "Nested batch requests are not allowed."
+msgstr "Ugniježđeni batch zahtjevi nisu dozvoljeni."
 
 msgid "Never"
 msgstr "Nikada"
@@ -6045,12 +6432,6 @@ msgstr "Novi admin(i)"
 
 msgid "New Comment"
 msgstr "Novi komentar"
-
-msgid "New Results"
-msgstr "Novi rezultati"
-
-msgid "New Scan Results"
-msgstr "Novi rezultati skeniranja"
 
 msgid "New User Default Role"
 msgstr "Početna uloga novog korisnika"
@@ -6166,6 +6547,9 @@ msgstr "Nijedna stavka nije odabrana."
 msgid "No license to remove."
 msgstr "Nema licence za uklanjanje."
 
+msgid "No locales available from API."
+msgstr "Nema dostupnih lokalizacija iz API."
+
 msgid "No message"
 msgstr "Nema poruke"
 
@@ -6175,8 +6559,8 @@ msgstr "Nema dostupnih meta podataka"
 msgid "No modules specified in the plugin config."
 msgstr "Nijedan modul nije naveden u konfiguraciji plugina."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Nema više ključeva licence za pamćenje/kopiranje-lijepljenje! Jednostavno aktivirajte URL vašeg sajta u vašoj ShieldPRO kontrolnoj tabli i dobijte Pro mogućnosti omogućene na vašem sajtu automatski."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Nema više ključeva licence za pamćenje/kopiranje-lijepljenje! Jednostavno aktivirajte URL vašeg sajta u vašoj %s kontrolnoj tabli i dobijte Pro mogućnosti omogućene na vašem sajtu automatski."
 
 msgid "No new session activity recorded yet."
 msgstr "Još nije zabilježena nova aktivnost sesije."
@@ -6192,6 +6576,9 @@ msgstr "Nema zapisa"
 
 msgid "No reporter defined"
 msgstr "Nije definisan izvjestitelj"
+
+msgid "No reports generated yet."
+msgstr "Još nisu generisani izvještaji."
 
 msgid "No reports have been generated yet."
 msgstr "Još nisu generisani izvještaji."
@@ -6247,9 +6634,6 @@ msgstr "Ne, ne želim pomoći"
 msgid "Noise"
 msgstr "Buka"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Stavke koje nisu skeniranje fajlova još nisu podržane."
-
 msgid "Nonce Failed."
 msgstr "Nonce neuspjeh."
 
@@ -6304,14 +6688,11 @@ msgstr "Nije validan ključ opcije za modul: %s"
 msgid "Not a valid option key."
 msgstr "Nije validan ključ opcije."
 
-msgid "Not a valid scan item record"
-msgstr "Nije validan zapis stavke skeniranja"
-
 msgid "Not a valid value for this parameter"
 msgstr "Nije validna vrijednost za ovaj parametar"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Nije dostupno jer vaš sajt ne može uspostaviti vezu sa ShieldNET API."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Nije dostupno jer vaš sajt ne može uspostaviti vezu sa %s."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Trenutno niste prijavljeni kao sigurnosni administrator."
@@ -6354,9 +6735,6 @@ msgstr "Obavijesti sajtove na bijeloj listi da ažuriraju opcije sa glavnog sajt
 
 msgid "Notify Whitelist"
 msgstr "Obavijesti bijelu listu"
-
-msgid "Now"
-msgstr "Sada"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "Broj puta za automatsko skeniranje Core fajlova u 24 sata"
@@ -6418,6 +6796,9 @@ msgstr "Ograničenje prekršaja"
 msgid "Offenses couldn't be reset at this time."
 msgstr "Prekršaji nisu mogli biti resetovani u ovom trenutku."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "Prekršaji su jednostavno brojač za broj puta kada posjetilac uradi nešto loše."
+
 msgid "Offenses reset to zero."
 msgstr "Prekršaji vraćeni na nulu."
 
@@ -6439,17 +6820,17 @@ msgstr "Jednokratne lozinke"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Samo %s Security Admini mogu mijenjati MFA postavke drugog admin računa."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Samo WordPress Core fajlovi se skeniraju u besplatnoj verziji Shield-a."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Samo osnovni WordPress fajlovi se skeniraju u besplatnoj verziji %s."
 
 msgid "Only enable the integrations you require."
 msgstr "Omogućite samo integracije koje su vam potrebne."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Samo tipovi formi (prijava, registracija, izgubljena lozinka) koje ste odabrali će biti praćeni."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Samo slova i brojevi su dozvoljeni: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Samo odabrani tipovi formi (prijava, registracija, izgubljena lozinka) će biti praćeni."
 
 msgid "Only the first 30 items are shown."
 msgstr "Prikazano je samo prvih 30 stavki."
@@ -6562,8 +6943,8 @@ msgstr "PHP Malware Skener"
 msgid "PHP Version"
 msgstr "PHP verzija"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP ne ispunjava minimalnu verziju. Vaša verzija: %s. Potrebna verzija: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP ne ispunjava minimalnu verziju. Vaša verzija: %1$s. Potrebna verzija: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "PHP fajlovi se ne skeniraju za malware."
@@ -6718,6 +7099,9 @@ msgstr "Možda jedna od njegovih najmoćnijih mogućnosti je kako će spriječit
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Možda uređaj nije podržan ili ste ga već registrovali."
 
+msgid "Period"
+msgstr "Period"
+
 msgid "Permalink structure"
 msgstr "Struktura permalink-a"
 
@@ -6727,8 +7111,8 @@ msgstr "Permalinkovi"
 msgid "Permalinks Updated"
 msgstr "Permalinkovi ažurirani"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Permalinkovi promijenjeni: %s→%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Permalinkovi promijenjeni: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Trajno preusmjeravanje (301)"
@@ -6790,6 +7174,9 @@ msgstr "Molimo kliknite na link u emailu koji ste primili."
 msgid "Please click the link provided below to do so."
 msgstr "Molimo kliknite na link ispod da to učinite."
 
+msgid "Please complete required fields: %s"
+msgstr "Molimo popunite obavezna polja: %s"
+
 msgid "Please complete the form."
 msgstr "Molimo popunite formu."
 
@@ -6814,14 +7201,14 @@ msgstr "Molimo kontaktirajte administratora sajta ako vam je potrebno dodatno up
 msgid "Please contact your website administrator."
 msgstr "Molimo kontaktirajte administratora vašeg web sajta."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Molimo obrišite \"%s\" fajl da ponovo aktivirate %s zaštitu"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Molimo obrišite \"%1$s\" fajl da ponovo aktivirate %2$s zaštitu"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Molimo osigurajte da je krajnji datum na ili nakon početnog datuma."
 
 msgid "Please login again."
 msgstr "Molimo prijavite se ponovo."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Molimo odjavite se ako želite obrisati vlastitu sesiju."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Molimo imajte na umu da WP Page Caching plugini obično ignorišu HTTP zaglavlja i ako ih ne vidite prikazane u vašim testovima, trebali biste onemogućiti vaš caching plugin."
@@ -6840,6 +7227,15 @@ msgstr "Molimo unesite oznaku za identifikaciju uređaja."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Molimo unesite oznaku za identifikaciju novog autentifikatora."
+
+msgid "Please provide a title for the report."
+msgstr "Molimo unesite naslov za izvještaj."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Molimo unesite validan datum koristeći GGGG-MM-DD format."
+
+msgid "Please provide a valid date."
+msgstr "Molimo unesite važeći datum."
 
 msgid "Please provide a valid regular expression."
 msgstr "Molimo unesite validan regularni izraz."
@@ -6895,6 +7291,9 @@ msgstr "Molimo odaberite jedan od tipova IP pravila - Blokiraj ili Zaobiđi"
 msgid "Please select one of the options available"
 msgstr "Molimo odaberite jednu od dostupnih opcija"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Molimo navedite kod lokalizacije (npr., --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Molimo navedite drugu lozinku jer je ova lozinka pwned."
 
@@ -6925,17 +7324,17 @@ msgstr "Molimo uključite ovo skeniranje u opcijama."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Molimo razumijte da za vraćanje mogućnosti Security Admin, morat ćete pružiti novi Security Admin PIN."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Molimo ažurirajte vaše Shield plugine na iste verzije i ponovo sinhronizujte."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Molimo ažurirajte vaše %s plugine na iste verzije i ponovo sinhronizujte."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Molimo nadogradite za podršku skeniranja svih fajlova dodataka za neovlaštene izmjene."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Molimo nadogradite vašu Shield Security pretplatu za pristup Custom Security Rules Builder-u."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Molimo nadogradite vaš %s plan za korištenje ove mogućnosti."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Molimo nadogradite vaš ShieldPRO plan za korištenje ove mogućnosti."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Molimo nadogradite vašu %s pretplatu za pristup Custom Security Rules Builder-u."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Molimo nadogradite vaš plan ako trebate obavještavati više email adresa."
@@ -7186,14 +7585,17 @@ msgstr "Pokreće WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "Moćan <strong>Firewall</strong> presreće i blokira zlonamjerni saobraćaj."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Moćna zaštita za WordPress, od Shield Security"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Moćna zaštita za WordPress, od %s"
 
 msgid "Powerful User Password Policies"
 msgstr "Moćne politike korisničkih lozinki"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Moćan, automatski učeći malware skener"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Moćan, lak za korištenje #1 ocijenjeni WordPress sigurnosni sistem"
 
 msgid "Predicted"
 msgstr "Predviđeno"
@@ -7203,6 +7605,9 @@ msgstr "Preferirani privremeni folder"
 
 msgid "Preferred temporary directory override."
 msgstr "Prepisivanje preferiranog privremenog foldera."
+
+msgid "Prefix"
+msgstr "Prefiks"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Prefiks: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Sprječava korisnike da koriste bilo koje lozinke pronađene na javno do
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Sprječava korisnike da koriste bilo koje lozinke pronađene na javno dostupnoj listi kompromitovanih lozinki."
 
+msgid "Previous"
+msgstr "Prethodno"
+
+msgid "Previous Period"
+msgstr "Prethodni period"
+
 msgid "Previous Step"
 msgstr "Prethodni korak"
 
@@ -7318,8 +7729,8 @@ msgstr "Unaprijeđen u admina"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "Zaštiti WP prijavu od automatizovanih pokušaja prijave od botova"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Zaštitite vaš Shield plugin od neovlaštenih izmjena"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Zaštitite vaš %s plugin od neovlaštenih izmjena"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Zaštitite ključne WP core fajlove koji inače ne mogu biti zaštićeni."
@@ -7342,6 +7753,9 @@ msgstr "Zaštitite posjetioce vašeg sajta implementacijom pojačanih sigurnosni
 msgid "Protect your %s files"
 msgstr "Zaštitite vaše %s fajlove"
 
+msgid "Protected By %s"
+msgstr "Zaštićeno sa %s"
+
 msgid "Protected Forms"
 msgstr "Zaštićene forme"
 
@@ -7350,6 +7764,9 @@ msgstr "Zaštita protiv izvora #1 <strong>komentar SPAM-a</strong>."
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Zaštita vaših <strong>važnih korisničkih formi</strong> kao što su prijava, registracija i izgubljena lozinka."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "Zaštita za WordPress forme je uključena kao standard, i imat ćete pristup nekim, ili svim, integracijama treće strane, ovisno o vašem %s planu."
 
 msgid "Protection for user accounts."
 msgstr "Zaštita korisničkih računa."
@@ -7420,9 +7837,6 @@ msgstr "Unesite/Ažurirajte Security Admin PIN"
 msgid "Provided by %s"
 msgstr "Dostavljeno od %s"
 
-msgid "Provided by Shield"
-msgstr "Dostavljeno od Shield"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Pruža finiju kontrolu nad sistemom logovanja zahtjeva."
 
@@ -7471,8 +7885,8 @@ msgstr "Ograničenje brzine"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "Ograničenje brzine ({{count}}) je prekoračeno sa {{requests}} zahtjeva u roku od {{span}} sekundi."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Rebrendujte Shield Security kao svoj vlastiti!"
+msgid "Re-Brand %s as your own!"
+msgstr "Rebrendujte %s kao vaš vlastiti!"
 
 msgid "Re-Install"
 msgstr "Ponovo instaliraj"
@@ -7480,8 +7894,8 @@ msgstr "Ponovo instaliraj"
 msgid "Re-Install It"
 msgstr "Ponovo instaliraj"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Rebrendujte Shield Security plugin."
+msgid "Re-brand the %s plugin."
+msgstr "Rebrenduj %s plugin."
 
 msgid "Re-enable Protection."
 msgstr "Ponovo omogući zaštitu."
@@ -7512,6 +7926,9 @@ msgstr "Razlog"
 
 msgid "Reason: %s"
 msgstr "Razlog: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Razlog: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Primi upozorenje prilikom deaktivacije plugina"
@@ -7651,8 +8068,8 @@ msgstr "Preostali dozvoljeni prekršaji"
 msgid "Remember me for %s"
 msgstr "Zapamti me za %s"
 
-msgid "Remember to include %s or %s"
-msgstr "Ne zaboravite uključiti %s ili %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Ne zaboravite uključiti %1$s ili %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "Uklanjanje MFA faktora za korisnika mora izvršiti Security Admin"
@@ -7708,6 +8125,9 @@ msgstr "Popravljeno"
 msgid "Repaired item found in the scan."
 msgstr "Popravljena stavka pronađena u skeniranju."
 
+msgid "Repairs"
+msgstr "Popravke"
+
 msgid "Repeated Human SPAM"
 msgstr "Ponovljeni ljudski SPAM"
 
@@ -7735,8 +8155,8 @@ msgstr "Opcije izvještaja"
 msgid "Report Sent"
 msgstr "Izvještaj poslan"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Izvještaj poslan (putem {{medium}})."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Izvještaj poslan ({{type}} putem {{medium}})."
 
 msgid "Report Title"
 msgstr "Naslov izvještaja"
@@ -8107,17 +8527,17 @@ msgstr "SPAM provjera uspjela"
 msgid "SPAM Detection"
 msgstr "Detekcija SPAM-a"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "SPAM i masovne registracije korisnika od strane botova se blokiraju pomoću silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "SPAM i masovna registracija korisnika od strane botova su blokirani od strane %s."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM i masovne registracije korisnika od strane botova nisu blokirane pomoću silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "SPAM i masovna registracija korisnika od strane botova nisu blokirani od strane %s."
 
 msgid "SPAM blocking"
 msgstr "SPAM blokiranje"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "SPAM se izvodi na 2 glavna načina: od strane botova i ljudi."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "SPAM vrše 2 tipa posjetilaca: automatizovani botovi i ljudi."
 
 msgid "SQL Queries"
 msgstr "SQL Upiti"
@@ -8167,6 +8587,9 @@ msgstr "Skenirajte za ranjivosti u pluginima & temama"
 msgid "Scan Frequency"
 msgstr "Frekvencija skeniranja"
 
+msgid "Scan Issues"
+msgstr "Problemi skeniranja"
+
 msgid "Scan Item Delete Success"
 msgstr "Uspješno brisanje stavke skeniranja"
 
@@ -8200,6 +8623,9 @@ msgstr "Rezultati skeniranja"
 msgid "Scan This QR Code"
 msgstr "Skenirajte ovaj QR kod"
 
+msgid "Scan Type"
+msgstr "Tip skeniranja"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Skenirajte sve vaše WordPress resurse za poznate sigurnosne ranjivosti."
 
@@ -8218,11 +8644,11 @@ msgstr "Skenirajte svoj sajt za promjene fajlova, malware i ranjivosti."
 msgid "Scanning Frequency"
 msgstr "Frekvencija skeniranja"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "Skeniranje fajlova plugina & tema dostupno je samo sa ShieldPRO."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Skeniranje fajlova plugina & tema je dostupno samo sa Pro verzijom %s."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "Skeniranje za PHP Malware dostupno je samo sa ShieldPRO."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "Skeniranje za PHP Malware je dostupno samo sa Pro verzijom %s."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "Skeniranje koristi lokalne snimke. Nadogradite vaš plan za korištenje crowd-sourced snimaka i dodajte podršku za premium plugine."
@@ -8305,14 +8731,17 @@ msgstr "Rezultati su približna ponderacija za svaku komponentu."
 msgid "Script Name To Match"
 msgstr "Naziv skripta za podudaranje"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Besprijekorno aktivirajte i upravljajte vašom ShieldPRO licencom bez ikakvih ključeva licence."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Besprijekorno aktivirajte i upravljajte vašom %s licencom bez ikakvih licencnih ključeva."
 
 msgid "Search %s"
 msgstr "Pretraži %s"
 
 msgid "Search Engine"
 msgstr "Pretraživač"
+
+msgid "Search Help"
+msgstr "Pretraži pomoć"
 
 msgid "Search engine visibility"
 msgstr "Vidljivost pretraživača"
@@ -8374,6 +8803,9 @@ msgstr "Istek Security Admin pristupa"
 msgid "Security Admin is now active"
 msgstr "Security Admin je sada aktivan"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Security Admin pruža dodatni sloj autentifikacije koji osigurava da samo provjereni administratori mogu napraviti promjene na sigurnosti vašeg sajta."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Security Admin ograničenja su uklonjena"
 
@@ -8385,6 +8817,9 @@ msgstr "Security Admin sesija je istekla."
 
 msgid "Security Admins"
 msgstr "Security Admin"
+
+msgid "Security Alert"
+msgstr "Sigurnosno upozorenje"
 
 msgid "Security Analysis"
 msgstr "Sigurnosna analiza"
@@ -8503,11 +8938,11 @@ msgstr "Odaberite provajdere korisničkih formi koji bi trebali biti provjereni 
 msgid "Select The User Forms Provider That You Use"
 msgstr "Odaberite provajdera korisničkih formi koje koristite"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Odaberite koji %1$s emailovi treba biti poslani koristeći %2$s"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Odaberite koje oblasti treba skenirati"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Odaberite koji Shield emailovi treba biti poslani koristeći SureSend"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Odaberite koje tipove zahtjeva isključiti"
@@ -8635,6 +9070,9 @@ msgstr "Sesije"
 msgid "Sessions Table Filters"
 msgstr "Filteri tabele sesija"
 
+msgid "Set Security Badge."
+msgstr "Postavi sigurnosni bedž."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Postavite ograničenje prekršaja dozvoljenih prije nego što je IP posjetitelja automatski blokiran."
 
@@ -8674,161 +9112,23 @@ msgstr "Podesite plugin da radi kao MU-plugin kako biste spriječili slučajnu d
 msgid "Severity"
 msgstr "Ozbiljnost"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA provajder omogućen"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield Anti-SPAM"
-
 msgid "Shield Deactivated"
 msgstr "Shield deaktiviran"
 
 msgid "Shield Events & Stats"
 msgstr "Shield događaji & statistike"
 
-msgid "Shield Info"
-msgstr "Shield Info"
-
-msgid "Shield Option Key"
-msgstr "Shield ključ opcije"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro prodavnica"
-
-msgid "Shield Scanners."
-msgstr "Shield Skeneri."
-
-msgid "Shield Security Home Page"
-msgstr "Početna stranica Shield Security"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security Plugin – minimalni zahtjevi sajta nisu ispunjeni"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro je dostupan u našoj online prodavnici."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Shield Security plugin je instaliran ali nije aktiviran."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Shield Security plugin treba da se sinhronizuje."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Shield Security plugin nije detektovan u posljednjoj sinhronizaciji."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Verzije Shield Security plugina nisu sinhronizovane."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield korisnički 2FA provajder aktiviran"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield korisnički 2FA: Ima bilo koji aktivan"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield White Label"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield se može automatski integrisati sa pluginima treće strane."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield može automatski zaštititi forme za prijavu i registraciju treće strane protiv botova."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield nije mogao utvrditi da li se silentCAPTCHA JS učitava ispravno na vašem sajtu."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield normalno ne skenira komentare od prijavljenih ili registrovanih korisnika."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield normalno ne skenira komentare od prijavljenih ili registrovanih korisnika. Ovdje navedite korisničke uloge koje ne bi trebalo skenirati."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Shield definicije eventa su prazne ili nisu u ispravnom formatu."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield nije instaliran na ovom sajtu."
-
-msgid "Shield plugin activated"
-msgstr "Shield plugin aktiviran"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Shield plugin nije mogao biti aktiviran"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Shield plugin nije mogao biti deaktiviran"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Shield plugin nije mogao biti instaliran"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Shield plugin nije mogao biti ažuriran"
-
-msgid "Shield plugin deactivated"
-msgstr "Shield plugin deaktiviran"
-
-msgid "Shield plugin installed"
-msgstr "Shield plugin instaliran"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Shield plugin je instaliran, ali nije aktivan."
-
-msgid "Shield plugin updated"
-msgstr "Shield plugin ažuriran"
-
-msgid "Shield scans cannot execute."
-msgstr "Shield skeniranja se ne mogu izvršiti."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "Shield verzija na sajtu se ne podudara sa ovim serverom."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield će automatski skenirati vaše plugine treće strane da provjeri da li je dostupna ugrađena integracija."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield će odgoditi nadogradnje dok nova nadogradnja ne bude dostupna postavljeni broj dana."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Shield MainWP integracija nije omogućena za ovaj sajt."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Shield Rules Engine nije pokrenut."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Shield silentCAPTCHA sistem koristi ALTCHA, koji izaziva botove da izvrše kompleksan rad."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP skor reputacije"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO mogućnosti"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO besplatna probna verzija"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO licenca obrisana"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO upravljanje licencom"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO Premium sigurnost"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO nije aktiviran na ovom sajtu."
-
-msgid "ShieldPRO license check failed."
-msgstr "ShieldPRO provjera licence nije uspjela."
-
-msgid "ShieldPRO license check was successful."
-msgstr "ShieldPRO provjera licence je bila uspješna."
 
 msgid "Should be uninstalled"
 msgstr "Treba biti deinstaliran"
@@ -8923,20 +9223,23 @@ msgstr "URL sajta"
 msgid "Site URL Changed"
 msgstr "URL sajta promijenjen"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "URL sajta promijenjen: %s→%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "URL sajta promijenjen: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Sajt dodan na bijelu listu za izvoz: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Email sajta promijenjen: %s→%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Email sajta promijenjen: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Sinhronizacija sajta nije uspjela"
 
 msgid "Site has been locked down!"
 msgstr "Sajt je zaključan!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "Sajt je već aktiviran ali verifikacija licence nije uspjela."
 
 msgid "Site lock down has been lifted!"
 msgstr "Zaključavanje sajta je ukinuto!"
@@ -8946,6 +9249,9 @@ msgstr "Sajt uklonjen sa bijele liste za izvoz: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Stranica uspješno sinhronizovana"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "Sajt je već bio aktiviran i licenca uspješno verificirana."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Sajt je stavljen u lockdown od strane {{user_login}}."
@@ -8965,8 +9271,8 @@ msgstr "Veličina"
 msgid "Slug"
 msgstr "Slug"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug ažuriran: %s→%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Slug ažuriran: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Slug za članak ID {{post_id}} ažuriran sa '{{slug_old}}' na '{{slug_new}}'."
@@ -9049,8 +9355,8 @@ msgstr "Žao nam je, ovo skeniranje nije dostupno."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Žao nam je, nemate pristup za pokretanje MAL{ai} upita, molimo nadogradite vaš plan."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Žao nam je, morat ćete nadograditi vašu Shield Security članarinu da pristupite MainWP integraciji."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Žao nam je, morat ćete nadograditi vaše %s članstvo za pristup MainWP integraciji."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "Govoreći o probojima, ranjivosti unutar plugina i tema koje omogućavaju da se proboji dogode, su primarna meta za napade pa ih moramo rano identificirati."
@@ -9100,8 +9406,11 @@ msgstr "Statistike"
 msgid "Status"
 msgstr "Status"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Status promijenjen: %s→%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Status promijenjen: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Provjera statusa završena."
 
 msgid "Store directory could not be created: %s"
 msgstr "Folder skladišta nije mogao biti kreiran: %s"
@@ -9133,8 +9442,8 @@ msgstr "Uspješno povezivanje sa serverom licence."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Uspješno poslano Firewall upozorenje o blokadi na: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Uspješno poslan email (tip: {{slug}}) na '{{email}}' koristeći SureSend."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Uspješno poslat email (tip: {{slug}}) na '{{email}}' koristeći %s."
 
 msgid "Summary"
 msgstr "Sažetak"
@@ -9165,15 +9474,6 @@ msgstr "SureSend emailovi"
 
 msgid "SureSend Emails."
 msgstr "SureSend emailovi."
-
-msgid "SureSend Fail"
-msgstr "SureSend neuspjeh"
-
-msgid "SureSend Success"
-msgstr "SureSend uspjeh"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend je namjenski servis za dostavu emailova od Shield Security."
 
 msgid "Suspend Account"
 msgstr "Suspendiraj nalog"
@@ -9229,14 +9529,14 @@ msgstr "Uključite CrowdSec mogućnost za blokiranje poznatih (crowd-sourced) zl
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Uključivanje ove mogućnosti će blokirati sav promet prema vašem sajtu. Apsolutno sve će biti blokirano (uključujući Google botove)."
 
+msgid "Sync %s"
+msgstr "Sinhronizuj %s"
+
 msgid "Sync Required"
 msgstr "Sinhronizacija obavezna"
 
 msgid "Sync Required."
 msgstr "Sinhronizacija obavezna."
-
-msgid "Sync Shield"
-msgstr "Sinhronizuj Shield"
 
 msgid "System Info"
 msgstr "Info o sistemu"
@@ -9253,8 +9553,8 @@ msgstr "Tabele obrisane i sada će biti ponovo kreirane."
 msgid "Tagline"
 msgstr "Tagline"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Tagline promijenjen: %s→%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Slogan promijenjen: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Uzmite novu liniju za svaki unos."
@@ -9268,11 +9568,11 @@ msgstr "Uzmite novu liniju za svaku putanju na bijeloj listi."
 msgid "Take a new line per rule."
 msgstr "Uzmite novu liniju po pravilu."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Iskoristite inteligenciju prikupljenu kroz cijelu Shield mrežu kako biste bolje zaštitili vaše WordPress sajtove"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Iskoristite inteligenciju prikupljenu kroz cijelu %s mrežu da bolje zaštitite vaše WordPress sajtove"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Tehnička podrška za Shield je ekskluzivna za Pro korisnike."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "Tehnička podrška za %s je ekskluzivna za Pro korisnike."
 
 msgid "Temp Dir"
 msgstr "Privremeni folder"
@@ -9295,17 +9595,17 @@ msgstr "Test WP Cron uspješno pokrenut."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Testovi nisu uspjeli i nismo mogli automatski utvrditi stanje vašeg SSL certifikata."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Hvala vam što ste odabrali Shield Security"
+msgid "Thank You For Choosing %s"
+msgstr "Hvala vam što ste odabrali %s"
 
 msgid "Thank You."
 msgstr "Hvala vam."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Hvala vam što ste odabrali Shield Security (besplatno)."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Hvala vam što ste odabrali %s (besplatno)."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Hvala vam što ste odabrali Shield Security PRO."
+msgid "Thank you for choosing %s."
+msgstr "Hvala vam što ste odabrali %s."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Hvala vam što ste odvojili vrijeme da prođete kroz Guided Setup Wizard."
@@ -9325,11 +9625,23 @@ msgstr "Hvala."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Onaj topao i prijatan osjećaj koji dolazi od podrške budućem razvoju"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "%s folder je kao %s folder i mnogi ne-WordPress fajlovi se tamo čuvaju."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "%1$s folder je kao %2$s folder i mnogi ne-WordPress fajlovi se tamo čuvaju."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s bi trebao mjeriti %2$s."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "%s značka demonstrira vašim kupcima da ozbiljno shvatate sigurnost."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "%s folder je divlji zapad i mnogi plugini i teme ga koriste za čuvanje radnih fajlova."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Opcija %s je onemogućena, uklanjajući zaštitu od napada grubom silom za forme prijave, registracije i izgubljene lozinke."
+
+msgid "The %s option is enabled."
+msgstr "%s opcija je omogućena."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s plugin normalno ne koristi kolačiće za neregistrovane posjetioce sajta."
@@ -9337,14 +9649,29 @@ msgstr "%s plugin normalno ne koristi kolačiće za neregistrovane posjetioce sa
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "%s plugin ima mogućnost Audit Trail koja će logovati sljedeće informacije:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "%s plugin je upravo deaktiviran."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "%s plugin nikada ne pohranjuje nikakve osjetljive, lično identificirajuće informacije u bilo kojem cookie-u u bilo kojem trenutku."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "%s plugin na ovom sajtu treba biti nadograđen."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "%s plugin na ovom sajtu zahtijeva aktivnu PRO licencu."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "Verzija %s plugina na klijentskom sajtu je novija od ovog servera."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "Verzija %s plugina na klijentskom sajtu je starija od ovog servera i mora biti ažurirana."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "%s query parametar je blokiran radi zaštite od username / author fishing-a."
 
-msgid "The %s should measure %s."
-msgstr "%s bi trebao mjeriti %s."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "%s sistem koristi ALTCHA koji izaziva botove da obave složen posao."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "'wp_mail' funkcija je pozvana iz fajla '{{bt_file}}' na liniji {{bt_line}}."
@@ -9388,8 +9715,8 @@ msgstr "Glavni naslov menija plugina. Ako je ostavljeno prazno, koristit će se 
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "Glavni naslov menija plugina. Ako je ostavljeno prazno, koristit će se naziv plugina."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "MainWP Security plugin ne ispunjava Shield minimalne zahtjeve."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "MainWP Security plugin ne ispunjava minimalne zahtjeve %s."
 
 msgid "The Name Of The Plugin"
 msgstr "Naziv plugina"
@@ -9415,32 +9742,14 @@ msgstr "Security Admin sistem štiti WordPress i %s plugin od neovlaštenih izmj
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Security Admin sistem štiti %s plugin od neovlaštenih izmjena ili slučajnih promjena od strane drugih WordPress admina."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Sigurnosni administrator je ograničio korištenje mogućnosti zaobilaženja emaila."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "Sigurnosni bedž će biti prikazan vašim posjetiteljima"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "Sigurnosni bedž neće biti prikazan vašim posjetiteljima"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "Shield Security plugin na ovom sajtu treba biti nadograđen."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Shield baza podataka treba biti popravljena jer određene mogućnosti neće biti dostupne bez validne baze podataka."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Shield plugin je upravo deaktiviran."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "Shield plugin na ovom sajtu nema aktivnu ShieldPRO licencu."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "Verzija Shield plugina na klijentskom sajtu je novija od ovog servera."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "Verzija Shield plugina na klijentskom sajtu je starija od ovog servera i mora biti ažurirana."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "Slogan plugina"
@@ -9487,8 +9796,8 @@ msgstr "Pozivni broj države je nedostajao."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "Kumulativna ocjena za vašu cjelokupnu %s konfiguraciju"
 
-msgid "The current request has a valid Shield user session"
-msgstr "Trenutni zahtjev ima validnu Shield korisničku sesiju"
+msgid "The current request has a valid %s user session"
+msgstr "Trenutni zahtjev ima važeću %s korisničku sesiju"
 
 msgid "The data provided was inconsistent."
 msgstr "Navedeni podaci su bili nedosljedni."
@@ -9544,8 +9853,8 @@ msgstr "Sljedeće stavke su otkrivene."
 msgid "The following options will be restricted:"
 msgstr "Sljedeće opcije će biti ograničene:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Sljedeće vrste korisničkih formi su zaštićene pomoću silentCAPTCHA: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Sljedeće vrste korisničkih formi su zaštićene od strane %1$s: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "Početni URL je promijenjen sa '{{from}}' na '{{to}}'."
@@ -9559,8 +9868,8 @@ msgstr "Oznaka mora biti alfanumerička bez specijalnih karaktera"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "Maksimalno dozvoljeno ograničenje prekršaja prije blokiranja je razumno: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "Maksimalno ograničenje zadržavanja logova (%s) može biti povećano nadogradnjom vašeg ShieldPRO plana."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "Maksimalno ograničenje zadržavanja logova (%1$s) može biti povećano nadogradnjom vašeg %2$s plana."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "Maksimalan broj zahtjeva koji su dozvoljeni u datom vremenskom ograničenju."
@@ -9625,7 +9934,7 @@ msgstr "Preferirani izvor je %s jer se ovo ne može falsifikovati."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Prethodno skeniranje ili nije detektovalo stavke koje zahtijevaju vašu pažnju ili su već popravljene."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
 msgstr "Svrha je poboljšanje pouzdanosti WordPress emaila za kritične emailove."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
@@ -9651,12 +9960,6 @@ msgstr "Postavka sprječava bilo koji eksterni sajt da ugradi vaš sajt u iFrame
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "Postavka sprječava bilo koji eksterni sajt da ugradi vaš sajt u iFrame. Ovo je korisno za prevenciju takozvanog ClickJack napada."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "Opcija silentCAPTCHA je onemogućena, uklanjajući zaštitu od napada grubom silom za forme prijave, registracije i izgubljene lozinke."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "silentCAPTCHA opcija je omogućena."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL sajta je promijenjen sa '{{from}}' na '{{to}}'."
@@ -9883,6 +10186,9 @@ msgstr "Došlo je do problema sa pripremom Passkey Auth izazova."
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Došlo je do problema sa pripremom Passkey Registration izazova."
 
+msgid "There was a problem processing the batched request."
+msgstr "Došlo je do problema sa obradom grupnog zahtjeva."
+
 msgid "There was a problem removing this passkey"
 msgstr "Došlo je do problema sa uklanjanjem ovog passkey-a"
 
@@ -9937,9 +10243,6 @@ msgstr "Oni napadaju vaše sajtove, ispituju informacije i iskorištavaju ranjiv
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Oni prave haos na formama za prijavu lomljenjm Javascript-a i pretvaranjem korisničkog iskustva u noćnu moru."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Razmislite o 'prekršajima' kao o brojaču za broj puta kada posjetilac uradi nešto loše."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Razmislite o tome kao o 'Ograničenju pokušaja prijave' ali primijenjenom na sve mogućnosti na WordPress sajtu, ne samo na stranicu za prijavu."
 
@@ -9951,6 +10254,9 @@ msgstr "Ovo ste vi"
 
 msgid "This Page"
 msgstr "Ova stranica"
+
+msgid "This Period"
+msgstr "Ovaj period"
 
 msgid "This Server"
 msgstr "Ovaj server"
@@ -9967,8 +10273,8 @@ msgstr "Ova akcija nije dostupna za vaš profil u ovom trenutku."
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Ova aktivnost će biti zabilježena protiv vaše IP adrese i možete biti potpuno blokirani od daljnjeg pristupa sajtu ako se slična aktivnost ponovi."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Ovo također djeluje kao affiliate link ako koristite ShieldPRO tako da možete zaraditi nagrade za svaku preporuku."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Ovo također djeluje kao affiliate link ako koristite %s tako da možete zaraditi nagrade za svaku preporuku."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Ovo izgleda kao spam jer nije prošlo %s AntiBot zaštitne provjere."
@@ -10011,6 +10317,9 @@ msgstr "Ova mogućnost je dostupna samo dok je Traffic Logger aktivan."
 
 msgid "This feature isn't currently enabled."
 msgstr "Ova mogućnost trenutno nije omogućena."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Ova mogućnost se oslanja na tajni PIN (koji kreirate ispod), koji ćete koristiti za verifikaciju vašeg identiteta sa %s pluginom."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Ovaj fajl sadrži zlonamjeran kod - to je malware!"
@@ -10171,11 +10480,20 @@ msgstr "Ova postavka će biti automatski onemogućena nakon %s i svi zahtjevi lo
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Ovo bi trebalo koristiti sa oprezom i trebali biste pružiti samo nazive parametara koje morate isključiti"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Izgleda da je ovaj sajt dio Shield mreže."
+msgid "This site appears to be part of a %s Network."
+msgstr "Izgleda da je ovaj sajt dio %s mreže."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Ovaj sajt trenutno ne može slati HTTP zahtjeve samom sebi."
+
+msgid "This site is already activated for this account."
+msgstr "Ovaj sajt je već aktiviran za ovaj nalog."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Ovaj sajt je već aktiviran. Ponovna provjera i sinhronizacija lokalnog stanja licence..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Ovaj korak može biti najvažniji jer pomaže osigurati da %s uvijek može pronaći ispravnu IP adresu posjetitelja."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Ova tema nije aktivna i treba biti deinstalirana."
@@ -10222,8 +10540,8 @@ msgstr "Ovo će blokirati napade skraćivanja polja u parametrima aplikacije."
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Ovo će blokirati sql u parametrima aplikacije (npr. %s, itd)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Ovo će uzrokovati da %s i %s URL-ovi vraćaju HTTP 404 greške dok niste prijavljeni."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Ovo će uzrokovati da %1$s i %2$s URL-ovi vrate HTTP 404 greške kada niste prijavljeni."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Ovo će potrošiti vaše SMS kredite, ako su dostupni, kao i sa bilo kojim standardnim 2FA SMS-om."
@@ -10242,6 +10560,9 @@ msgstr "Ovo će ograničiti mogućnost WordPress administratora da mijenjaju klj
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Ovo će ograničiti mogućnost WordPress administratora da kreiraju, mijenjaju ili promoviraju druge administratore."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Ovaj čarobnjak će vas provesti kroz neke od %s ključnih mogućnosti, da vas pokrene za manje od 3 minute."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Ovo funkcioniše jer legitimni web crawleri poštuju 'robots.txt' i 'nofollow' direktive."
@@ -10273,17 +10594,17 @@ msgstr "Vremenska oznaka"
 msgid "Timezone"
 msgstr "Vremenska zona"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Naslov ažuriran: %s→%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Naslov ažuriran: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Naslov promijenjen: %s→%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Naslov promijenjen: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Naslov za članak ID {{post_id}} ažuriran sa '{{title_old}}' na '{{title_new}}'."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Da bismo riješili ovo, kreirali smo naš vlastiti sistem nazvan silentCAPTCHA."
+msgid "To address this we created our own system called %s."
+msgstr "Da bismo riješili ovo, kreirali smo naš vlastiti sistem nazvan %s."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Da sakrijete vašu wp-login.php stranicu od napada grubom silom i pokušaja hakovanja - ako vaša stranica za prijavu ne može biti pronađena, niko se ne može prijaviti."
@@ -10303,14 +10624,17 @@ msgstr "Da registrujete novi Yubikey uređaj, unesite jednokratnu lozinku sa Yub
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Da uklonite Yubikey uređaj, unesite registrovani ID uređaja i sačuvajte."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Da riješite ovo, možete obavijestiti %s koja je vaša IP adresa upravo sada, i ovo omogućava konfiguraciju optimalnog izvora IP-a."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Održavanje zdravlja uključuje aktivno skeniranje fajlova za neočekivane promjene i detekciju fajlova koji ne pripadaju."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Da koristite Passkeys, vaša PHP instalacija mora imati učitanu 1 od sljedećih ekstenzija: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Da bi validirao email, vaš sajt šalje zahtjev ShieldNET API-ju i može uzrokovati malo kašnjenje tokom zahtjeva za registraciju korisnika."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Za validaciju emaila vaš sajt šalje zahtjev %s API-ju i može uzrokovati malo kašnjenje tokom zahtjeva za registraciju korisnika."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Za pregled svih logova sa ove IP adrese koristite Traffic Log alat, jer su logovi ovdje ograničeni na %s unosa."
@@ -10326,6 +10650,9 @@ msgstr "Uključite ili isključite da li je ova postavka uključena u operacije 
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Previše pokušaja 2FA verifikacije - molimo prijavite se ponovo."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Previše grupnih zahtjeva. Maksimalno dozvoljeno je %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Previše zahtjeva sa vaše IP adrese je pokrenulo automatsku odbranu sajta."
@@ -10399,11 +10726,35 @@ msgstr "Zahtjevi saobraćaja se logiraju, što olakšava praćenje problema."
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Zahtjevi saobraćaja se ne logiraju, što otežava praćenje problema."
 
+msgid "Translation Download Failed"
+msgstr "Preuzimanje prijevoda nije uspjelo"
+
+msgid "Translation Downloaded"
+msgstr "Prijevod preuzet"
+
+msgid "Translation download queue is empty."
+msgstr "Red za preuzimanje prijevoda je prazan."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Prijevod uspješno preuzet: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Fajl prijevoda preuzet za lokalizaciju: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Prijevodi u redu"
+
+msgid "Translations have been downloaded."
+msgstr "Prijevodi su preuzeti."
+
 msgid "Trash"
 msgstr "Koš"
 
 msgid "Trashed"
 msgstr "Premješteno u koš"
+
+msgid "Trend"
+msgstr "Trend"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Pokušao učitati nevažeći WordPress PHP skript '{{script}}'."
@@ -10417,11 +10768,17 @@ msgstr "Pouzdane korisničke uloge"
 msgid "Trusted Users"
 msgstr "Pouzdani korisnici"
 
+msgid "Try Pro For Free"
+msgstr "Isprobajte Pro besplatno"
+
 msgid "Turn Off"
 msgstr "Isključi"
 
 msgid "Turn On"
 msgstr "Uključi"
+
+msgid "Turn On Security Admin"
+msgstr "Uključi Security Admin"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Uključite mogućnost ograničenja brzine"
@@ -10441,8 +10798,11 @@ msgstr "Uključite/isključite vaše White Label postavke."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Isključi Browser Mime-Sniff"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Uključi Shield ugrađenu ekstenziju za MainWP server i klijent instalacije"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "Uključite %s ugrađenu ekstenziju za MainWP server i klijentske instalacije"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Uključivanje ovoga dodaje prozirnu značku u podnožje vašeg sajta."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Dvofaktorska autentifikacija za prijavu putem %s"
@@ -10516,14 +10876,11 @@ msgstr "Neklasificirano"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Razumijte kako ukloniti Google Authenticator"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Nažalost, U2F je onemogućen po defaultu na većini modernih browsera, ali je i dalje dostupan ovdje radi kompatibilnosti unazad."
-
 msgid "Unidentified"
 msgstr "Neidentifikovano"
 
-msgid "Uninstall Shield"
-msgstr "Deinstaliraj Shield"
+msgid "Uninstall %s"
+msgstr "Deinstaliraj %s"
 
 msgid "Uninstalled"
 msgstr "Deinstalirano"
@@ -10539,6 +10896,9 @@ msgstr "Nepoznato - zahtijeva WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Nepoznat naziv"
+
+msgid "Unknown activation error."
+msgstr "Nepoznata greška aktivacije."
 
 msgid "Unknown item"
 msgstr "Nepoznata stavka"
@@ -10582,6 +10942,9 @@ msgstr "Nepodržan tip rezultata."
 msgid "Until"
 msgstr "Do"
 
+msgid "Update %s"
+msgstr "Ažuriraj %s"
+
 msgid "Update Available"
 msgstr "Ažuriranje dostupno"
 
@@ -10596,9 +10959,6 @@ msgstr "Ažurirajte sada da održite vašu sigurnost aktuelnom sa najnovijim mog
 
 msgid "Update Required"
 msgstr "Ažuriranje obavezno"
-
-msgid "Update Shield"
-msgstr "Ažuriraj Shield"
 
 msgid "Update This Rule"
 msgstr "Ažuriraj ovo pravilo"
@@ -10633,14 +10993,14 @@ msgstr "Nadogradnja obavezna"
 msgid "Upgrade To"
 msgstr "Nadogradite na"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Nadogradite na %s Pro sada"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Nadogradite za kreiranje prilagođenih izvještaja"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Nadogradite na Shield Pro sada"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Nadogradite vašu ShieldPRO članarinu"
+msgid "Upgrade Your %s Membership"
+msgstr "Nadogradite vašu %s članarinu"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Nadogradite vaš plan za podršku skeniranja fajlova tema za neovlaštene izmjene."
@@ -10648,8 +11008,8 @@ msgstr "Nadogradite vaš plan za podršku skeniranja fajlova tema za neovlašten
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Nadogradite vaš plan za podršku ovog područja skeniranja."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Nadograđeno: %s→%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Nadograđeno: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Upload fajla nije uspio"
@@ -10657,8 +11017,11 @@ msgstr "Upload fajla nije uspio"
 msgid "Uptime Monitoring"
 msgstr "Praćenje dostupnosti"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Koristite %s za testiranje prekomjernih zahtjeva unutar intervala od %s minuta."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "Koristite %1$s za testiranje prekomjernih zahtjeva unutar intervala od %2$s minuta."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Koristite %s za blokiranje bot komentar SPAM-a"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "Koristiti CloudFlare kao izvor geo podataka?"
@@ -10681,8 +11044,8 @@ msgstr "Koristite veće maksimalno ograničenje zahtjeva kako biste smanjili riz
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Koristite manji interval kako biste smanjili rizik od blokiranja legitimnih posjetilaca."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "Upotreba silentCAPTCHA za ograničavanje pokušaja prijave na korisničkim formama nije uključena - morat ćete je omogućiti unutar Login Security Zone."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Korištenje %s za ograničavanje pokušaja prijave na korisničkim formama nije uključeno - morat ćete ga omogućiti unutar Login Security Zone."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Korištenje ove mogućnosti je visoko preporučeno."
@@ -10690,11 +11053,11 @@ msgstr "Korištenje ove mogućnosti je visoko preporučeno."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Korištenje ove mogućnosti će prepisati postojeće opcije i zamijeniti ih sa onima sa glavnog sajta za uvoz."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Koristite relativne putanje od vašeg URL-a početne stranice npr. %s preusmjerava na vašu početnu stranicu (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Koristite relativne putanje od URL-a vaše početne stranice npr. %1$s preusmjerava na vašu početnu stranicu (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Koristite silentCAPTCHA za blokiranje bot komentar SPAM-a"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Koristite Super Search polje da pronađete apsolutno bilo šta unutar %s plugina, uključujući opcije, IP adrese, alate, pomoć, itd."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Koristite opciju izuzetaka da omogućite anonimni pristup specifičnim API krajnjim tačkama."
@@ -10702,14 +11065,17 @@ msgstr "Koristite opciju izuzetaka da omogućite anonimni pristup specifičnim A
 msgid "Use the link above to create a new one."
 msgstr "Koristite link iznad da kreirate novi."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Koristite ove prefikse u polju za pretragu da filtrirate rezultate."
+
 msgid "Use this feature with care."
 msgstr "Koristite ovu mogućnost sa oprezom."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Koristite ovaj fajl da kopirate opcije sa ovog sajta na drugi sajt"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Koristite ovu opciju za potpuno onemogućavanje sve aktivne Shield zaštite."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Koristite ovu opciju za potpuno onemogućavanje sve aktivne %s zaštite."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Koristite ovu opciju da uključite/isključite primjenu vaših prilagođenih CSP pravila."
@@ -10897,11 +11263,11 @@ msgstr "Zahtjev korisnika za izgubljenu lozinku blokiran."
 msgid "User must be logged-in."
 msgstr "Korisnik mora biti prijavljen."
 
+msgid "User not found."
+msgstr "Korisnik nije pronađen."
+
 msgid "User registration request blocked."
 msgstr "Zahtjev za registraciju korisnika blokiran."
-
-msgid "User session deleted"
-msgstr "Korisnička sesija obrisana"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "Korisnička sesija je istekla ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Korisnici će biti prisiljeni da resetuju svoje lozinke nakon navedenog 
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Koristi rječnik SPAM-a treće strane za detekciju SPAM komentara od ljudi."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Koristeći Shield ekskluzivnu Snapshot tehnologiju, promjene administratora koje su napravljene direktno na WP bazi podataka će također biti detektovane!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "Koristeći %s ekskluzivnu Snapshot tehnologiju, promjene na administratorima koje su napravljene direktno na WP bazi podataka će također biti detektovane!"
 
 msgid "Valid license couldn't be found."
 msgstr "Validna licenca nije mogla biti pronađena."
@@ -11047,11 +11413,11 @@ msgstr "Prikaži sve"
 msgid "View All Security Grades"
 msgstr "Prikaži sve sigurnosne ocjene"
 
-msgid "View As ShieldFREE"
-msgstr "Prikaži kao ShieldFREE"
+msgid "View As %s"
+msgstr "Prikaži kao %s"
 
-msgid "View As ShieldPRO"
-msgstr "Prikaži kao ShieldPRO"
+msgid "View As Free Version"
+msgstr "Prikaži kao besplatnu verziju"
 
 msgid "View Comment"
 msgstr "Prikaži komentar"
@@ -11071,6 +11437,9 @@ msgstr "Prikaži sadržaj fajla"
 msgid "View File Details"
 msgstr "Prikaži detalje fajla"
 
+msgid "View Full Report"
+msgstr "Prikaži potpuni izvještaj"
+
 msgid "View IP Reputation Option"
 msgstr "Prikaži opciju IP reputacije"
 
@@ -11088,6 +11457,9 @@ msgstr "Prikaži planove"
 
 msgid "View Report"
 msgstr "Prikaži izvještaj"
+
+msgid "View Reports"
+msgstr "Prikaži izvještaje"
 
 msgid "View Results"
 msgstr "Prikaži rezultate"
@@ -11146,9 +11518,6 @@ msgstr "Pregledajte sigurnost vašeg cijelog WordPress sajta na prvi pogled i ot
 msgid "View, edit and remove custom security rules"
 msgstr "Pregledajte, uredite i uklonite prilagođena sigurnosna pravila"
 
-msgid "View/Create Reports"
-msgstr "Prikaži/Kreiraj izvještaje"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Automatsko deblokiranje posjetioca"
 
@@ -11182,8 +11551,8 @@ msgstr "Posjetitelj pronađen na listi za blokiranje i njihova konekcija je prek
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Posjetitelj pronađen na CrowdSec listi za blokiranje i njihov zahtjev je prekinut."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Posjetitelj registrovan koristeći silentCAPTCHA."
+msgid "Visitor registered using %s."
+msgstr "Posjetitelj se registrovao koristeći %s."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "Posjetitelj je deblokirao svoju IP adresu '{{ip}}' koristeći '{{method}}' metodu."
@@ -11226,9 +11595,6 @@ msgstr "Skeniranje ranjivosti mora biti aktivno da bi se omogućila ova opcija."
 
 msgid "Vulnerable"
 msgstr "Ranjivo"
-
-msgid "Vulnerable Assets"
-msgstr "Ranjivi resursi"
 
 msgid "Vulnerable Plugins"
 msgstr "Ranjivi plugini"
@@ -11277,6 +11643,9 @@ msgstr "WP početna korisnička uloga"
 
 msgid "WP File Editing"
 msgstr "WP uređivanje fajlova"
+
+msgid "WP Files"
+msgstr "WP fajlovi"
 
 msgid "WP Generator Tag"
 msgstr "WP Generator Tag"
@@ -11367,6 +11736,9 @@ msgstr "Preporučujemo da ga onemogućite ako vam više nije potreban."
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Preporučujemo da potražite stručnost u ovoj oblasti i osigurate potpuno testiranje u vašim implementacijama."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "Preporučujemo negdje između 5 i 10. Što je manji limit, to će %s biti stroži."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Preporučujemo da WP root folder ostane čist držeći samo zvanične WordPress core fajlove tamo."
@@ -11485,8 +11857,8 @@ msgstr "Kada se detektuje dovoljno loših ponašanja, blokirat će IP od pristup
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Kada je uključeno, sve dostupne integracije treće strane se omogućavaju čim budu otkrivene."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Kada brojač dostigne ograničenje ispod (početno: %s), %s će potpuno blokirati tu IP adresu."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Kada brojač dostigne limit ispod (početno: %1$s), %2$s će blokirati taj IP potpuno."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Kada je trenutni sadržaj fajla upoređen sa zvaničnim izdanjem, detektovane su promjene."
@@ -11578,17 +11950,17 @@ msgstr "Sajti na bijeloj listi mogu izvoziti opcije sa ovog sajta bez ključa."
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Vjerovatno će blokirati snimanje unutar Plugin/Theme editora fajlova."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "Sa %s crowd-sourcing inteligencijom, bučni lažno-pozitivni rezultati koji vam gube vrijeme automatski su skriveni tako da se možete fokusirati na rizike koji su važni."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "Sa %s tehnologijom, zaustavljanje botova je sada prilično lako."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "Sa %s možemo se direktno integrisati sa svim glavnim pluginima kontakt formi kako bismo blokirali kontakt forma SPAM od automatskih botova."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "Sa %s ugrađenom silentCAPTCHA tehnologijom, zaustavljanje botova je zapravo sada prilično lako."
-
 msgid "With Issues"
 msgstr "Sa problemima"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "Sa ShieldNET crowd-sourcing inteligencijom, Shield automatski sakriva lažne pozitive tako da se možete fokusirati na rizike koji su važni, i možete ignorisati buku koja vam gubi vrijeme."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Sa njim možete biti odmah obaviješteni o promjenama fajla sa jasnim pregledom preciznih promjena i lakim sljedećim koracima o tome kako nastaviti."
@@ -11596,8 +11968,8 @@ msgstr "Sa njim možete biti odmah obaviješteni o promjenama fajla sa jasnim pr
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "Sa našim SPAM rječnikom, možemo identifikovati ljudske SPAM komentare bez slanja bilo kakvih podataka sa vašeg sajta trećim stranama."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Sa našim moćnim silentCAPTCHA možemo detektovati skoro 100% svih bot SPAM-ova."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Sa našim moćnim %s možemo detektovati gotovo 100%% svih bot SPAM-ova."
 
 msgid "Wizards"
 msgstr "Čarobnjaci"
@@ -11737,8 +12109,8 @@ msgstr "WordPress se normalno učitava na ograničen broj načina i kada se uči
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress koristi staru verziju (%s) PHP-a."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress radi na novijoj verziji (%s) PHP-a (najmanje %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress radi na novijoj verziji (%1$s) PHP-a (najmanje %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "WordPress forme za prijavu nisu zaštićene protiv botova jer ste postavili minimalni rezultat bota na 0, što kontroliše %s sistem."
@@ -11839,8 +12211,8 @@ msgstr "Možete odabrati 'Samo aktiviraj' (ne preporučuje se), ili zatvoriti ov
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Možete potpuno onemogućiti anonimni pristup REST API-ju."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Možete dobiti ovu sigurnosnu mogućnost, i mnoge druge, nadogradnjom vašeg ShieldPRO plana."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Možete dobiti ovu sigurnosnu mogućnost, i mnoge druge, nadogradnjom vašeg %s plana."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Možete nam pomoći da detektujemo najbolju IP adresu za vaš server korištenjem linka ispod koji će vam reći vašu trenutnu IP adresu i zatim odaberite opciju sa liste koja je sadrži."
@@ -11887,8 +12259,8 @@ msgstr "Možete se autentificirati sa %s Security Admin sistemom i vratiti se ov
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Možete kombinovati više faktora autentifikacije za povećanu sigurnost."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Možete dobiti nepouzdane rezultate dok Akismet radi uporedo sa Shield zaštitom od ljudskog SPAM-a."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Možete dobiti nepouzdane rezultate dok Akismet radi uporedo sa %s zaštitom od ljudskog SPAM-a."
 
 msgid "You may need to reload this page to continue."
 msgstr "Možda ćete trebati ponovo učitati ovu stranicu da nastavite."
@@ -11962,8 +12334,8 @@ msgstr "Vaša IP adresa nije na bijeloj listi, tako da ćete biti zaključani ak
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "Vaša IP adresa je na bijeloj listi! Ova postavka se ne primjenjuje na VAS, tako da uvijek morate koristiti normalnu stranicu za prijavu: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "Vaš MySQL server baze podataka ne podržava IPv6 adrese. Vaša verzija: %s; potrebna MySQL verzija: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "Vaš MySQL server baze podataka ne podržava IPv6 adrese. Vaša verzija: %1$s; potrebna MySQL verzija: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Vaš jedinstveni Yubikey App API ključ"
@@ -12037,11 +12409,11 @@ msgstr "Vaša email adresa za izvještavanje je: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Vaš sigurnosni administrator je nametnuo zahtjeve za kvalitet lozinke."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Vaša sigurnosna analiza ne uzima u obzir mogućnosti samo za ShieldPRO - koristite Cog meni da pregledate vašu analizu kao da imate pristup ovim dodatnim sigurnosnim mogućnostima."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Vaša sigurnosna analiza ne uzima u obzir %s-only mogućnosti - koristite Cog meni da vidite vašu analizu kao da imate pristup ovim dodatnim sigurnosnim mogućnostima."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Vaša sigurnosna analiza uključuje mogućnosti samo za ShieldPRO - koristite Cog meni da pregledate vašu analizu za vaše dostupne sigurnosne mogućnosti."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Vaša sigurnosna analiza uključuje %s-only mogućnosti - koristite Cog meni da vidite vašu analizu za vaše dostupne sigurnosne mogućnosti."
 
 msgid "Your session has expired."
 msgstr "Vaša sesija je istekla."
@@ -12055,11 +12427,11 @@ msgstr "Vaša sesija je bila zaključana na drugu IP adresu."
 msgid "Your session was terminated."
 msgstr "Vaša sesija je prekinuta."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Vaš sajt koristi dodatnu sigurnosnu zaštitu koju pruža ShieldPRO."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Vaš sajt ima koristi od dodatne sigurnosne zaštite koju pruža %s."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Vaš sajt ne koristi dodatnu sigurnosnu zaštitu koju pruža ShieldPRO."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Vaš sajt nema koristi od dodatne sigurnosne zaštite koju pruža %s."
 
 msgid "Your site is currently in lockdown."
 msgstr "Vaš sajt je trenutno zaključan."
@@ -12082,8 +12454,8 @@ msgstr "Vaš sajt nije zaštićen od automatizovanog komentar SPAM-a od botova."
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Vaš sajt još nije registrovan sa CrowdSec."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Vaš web hosting ne ispunjava minimalne zahtjeve za Shield Security Plugin."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Vaš web hosting ne ispunjava minimalne zahtjeve za %s plugin."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Akcije zone"
 msgid "Zones"
 msgstr "Zone"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Lažno pozitivan] znači da kod izgleda kao malware, ali je zapravo čist."
@@ -12142,6 +12514,18 @@ msgstr "all_opts_keys form element nije naveden."
 msgid "and"
 msgstr "i"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "i biće automatski obrađen za približno %d minutu."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "i biće automatski obrađen za približno %d minuta."
+
+msgid "and will be processed shortly."
+msgstr "i biće obrađeno uskoro."
+
+msgid "auto-fixed"
+msgstr "automatski-popravljeno"
+
 msgid "case-insensitive"
 msgstr "ne razlikuje velika i mala slova"
 
@@ -12154,8 +12538,8 @@ msgstr "dana"
 msgid "empty username"
 msgstr "prazno korisničko ime"
 
-msgid "entries: %s (previous: %s)"
-msgstr "unosi: %s (prethodno: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "unosa: %1$s (prethodno: %2$s)"
 
 msgid "estimated"
 msgstr "procijenjeno"
@@ -12175,6 +12559,12 @@ msgstr "dodatna pomoć"
 msgid "help"
 msgstr "pomoć"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "nedostajući podaci"
 
 msgid "more frequent checks will be ignored"
 msgstr "češće provjere će biti ignorirane"
+
+msgid "more..."
+msgstr "više..."
 
 msgid "n/a"
 msgstr "n/a"
@@ -12235,80 +12628,8 @@ msgstr "preporuka"
 msgid "seconds"
 msgstr "sekundi"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot tehnologija"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "silentCAPTCHA detekcija botova ne štiti od napada grubom silom na vašu WordPress prijavu."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "silentCAPTCHA detekcija botova ne štiti vašu WordPress formu za izgubljenu lozinku."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "silentCAPTCHA detekcija botova ne štiti vašu WordPress registraciju."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA minimalni rezultat bota"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA rezultat bota (procenat)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA provjera nevažeća (modul)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA složenost"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA za prijave"
-
-msgid "silentCAPTCHA Registration"
-msgstr "silentCAPTCHA registracija"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "silentCAPTCHA detekcija se ne primjenjuje jer niste odabrali nijednu formu za zaštitu, kao što su Login ili Register."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA je %s's ekskluzivna WordPress tehnologija za detekciju loših botova."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA je %s ekskluzivna tehnologija detekcije botova koja uklanja potrebu za vidljivim CAPTCHA-ma i sličnim izazovima za posjetioce."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA je %s ekskluzivna tehnologija detekcije botova koja je nevidljiva vašim posjetiocima i uklanja potrebu za korisničkom interakcijom sa login CAPTCHA-ma."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA je onemogućen jer nije naveden minimalni prag bot-rezultata."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA je onemogućen kada je postavljen na minimalni rezultat od %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA je omogućen sa minimalnim pragom bot-rezultata."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA ne štiti vaše WP komentare od bot SPAM-a."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "silentCAPTCHA složenost Bot izazova je preniska - razmislite o povećanju."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "silentCAPTCHA detekcija botova ne radi jer je minimalni rezultat postavljen na 0."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "silentCAPTCHA detekcija botova ne radi, jer botovi trenutno nisu izazvani."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "silentCAPTCHA minimalni rezultat bota je prilično nizak (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "silentCAPTCHAv1 registracija"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "silentCAPTCHAv2 registracija"
 
 msgid "suggestion"
 msgstr "prijedlog"

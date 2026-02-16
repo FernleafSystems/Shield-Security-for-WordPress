@@ -1,18 +1,56 @@
-{# https://github.com/tomik23/circular-progress-bar #}
 <div class="row row-cols-1 justify-content-center">
-	<div class="col mt-4 mb-5">
-		<div class="progress-metercard progress-metercard-{{ vars.primary_meter_slug }}"
-			 data-meter_slug="{{ vars.primary_meter_slug }}">
-				{% include '/components/html/loading_placeholders/progress_meter.twig' %}
+	<div class="col mt-4 mb-4">
+		<div class="row justify-content-center">
+			<div class="col-lg-10 col-xl-8">
+				<div class="progress-metercard progress-metercard-hero progress-metercard-{{ vars.primary_meter_slug }}"
+					 data-meter_slug="{{ vars.primary_meter_slug }}">
+					{% include '/components/html/loading_placeholders/progress_meter_hero.twig' %}
+				</div>
+			</div>
 		</div>
-  </div>
+	</div>
 </div>
 
-<div class="row">
+<div class="row justify-content-center mb-4">
+	<div class="col-lg-10 col-xl-8">
+		<div class="meter-stats-bar" style="display:none">
+			<div class="row text-center">
+				<div class="col-4">
+					<div class="stat-item">
+						<span class="stat-icon stat-icon-good">
+							<span class="svg-container">{{ imgs.svgs.icon_good|raw }}</span>
+						</span>
+						<span class="stat-count stat-count-good">0</span>
+					</div>
+					<div class="stat-label">{{ strings.good }}</div>
+				</div>
+				<div class="col-4">
+					<div class="stat-item">
+						<span class="stat-icon stat-icon-warning">
+							<span class="svg-container">{{ imgs.svgs.icon_warning|raw }}</span>
+						</span>
+						<span class="stat-count stat-count-warning">0</span>
+					</div>
+					<div class="stat-label">{{ strings.needs_work }}</div>
+				</div>
+				<div class="col-4">
+					<div class="stat-item">
+						<span class="stat-icon stat-icon-critical">
+							<span class="svg-container">{{ imgs.svgs.icon_critical|raw }}</span>
+						</span>
+						<span class="stat-count stat-count-critical">0</span>
+					</div>
+					<div class="stat-label">{{ strings.critical }}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
 	{% for meter_slug in vars.meter_slugs %}
-		<div class="col-lg-12 col-xl-6 mb-4 pb-4">
+		<div class="col">
 			<div class="progress-metercard progress-metercard-{{ meter_slug }}"
-				 style="height: 100%"
 				 data-meter_slug="{{ meter_slug }}">
 				{% include '/components/html/loading_placeholders/progress_meter.twig' %}
 			</div>

@@ -1,13 +1,21 @@
-<div class="col-xl-{{ widget.width|default(6) }} mt-4 dashboard_overview_widget">
-	<div class="card {{ widget.classes.card|default([])|join( ' ' ) }}">
-		<div class="card-body">
-			{% if widget.title|default(false) %}
-				<div class="card-title fw-bold">{{ widget.title }}</div>
-			{% endif %}
-			{{ widget.content|raw }}
-			<h6 class="card-title mb-0 mt-3 text-end">
-				<a href="{{ widget.href }}" class="fw-normal">{{ widget.href_text }} &rarr;</a>
-			</h6>
+<div class="col-xl-{{ widget.width|default(6) }} dashboard_overview_widget">
+	{% if widget.no_card|default(false) %}
+		{{ widget.content|raw }}
+		<h6 class="mb-0 mt-3 text-end">
+			<a href="{{ widget.href }}" class="widget-footer-link">{{ widget.href_text }} &rarr;</a>
+		</h6>
+	{% else %}
+		<div class="card shield-card widget-card h-100 d-flex flex-column">
+			<div class="shield-card-accent status-{{ widget.accent_class|default('neutral') }}"></div>
+			<div class="card-body d-flex flex-column">
+				{% if widget.title|default(false) %}
+					<div class="widget-title">{{ widget.title }}</div>
+				{% endif %}
+				<div class="flex-grow-1 widget-content-scroll">{{ widget.content|raw }}</div>
+				<div class="widget-footer mt-auto pt-2">
+					<a href="{{ widget.href }}">{{ widget.href_text }} &rarr;</a>
+				</div>
+			</div>
 		</div>
-	</div>
+	{% endif %}
 </div>

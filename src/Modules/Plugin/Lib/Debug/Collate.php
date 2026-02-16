@@ -86,7 +86,7 @@ class Collate {
 			__( 'Server Signature', 'wp-simple-firewall' )       => empty( $sig ) ? '-' : $sig,
 			__( 'Server Software', 'wp-simple-firewall' )        => empty( $soft ) ? '-' : $soft,
 			__( 'Disk Space', 'wp-simple-firewall' )             => sprintf(
-				__( '%1$s used out of %2$s (unused: %$3s)', 'wp-simple-firewall' ),
+				__( '%1$s used out of %2$s (unused: %3$s)', 'wp-simple-firewall' ),
 				( \is_numeric( $totalDisk ) && \is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
 				\is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
 				\is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'

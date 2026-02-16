@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesForAsset;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesFromApi;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Build extends BaseAction {
@@ -13,14 +14,14 @@ class Build extends BaseAction {
 	public function run() {
 		$asset = $this->getAsset();
 		try {
-			$hashes = ( new Snapshots\Build\BuildHashesFromApi() )->build( $asset );
+			$hashes = ( new BuildHashesFromApi() )->build( $asset );
 		}
 		catch ( \Exception $e ) {
 		}
 
 		$meta = $this->generateMeta();
 		if ( empty( $hashes ) ) {
-			$hashes = ( new Snapshots\Build\BuildHashesForAsset() )
+			$hashes = ( new BuildHashesForAsset() )
 				->setHashAlgo( $meta[ 'algo' ] )
 				->build( $asset );
 			$meta[ 'live_hashes' ] = false;

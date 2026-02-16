@@ -1,6 +1,349 @@
-﻿.toggle-importexport-container {
-  cursor: pointer;
+$options-surface-0: $surface-color-neutral-raised;
+$options-surface-1: #ffffff;
+$options-border-subtle: $border-color-neutral-subtle;
+$options-border-strong: $border-color-neutral-strong;
+$options-text-strong: #1d2327;
+$options-text-muted: #5f6974;
+
+$options-rail-width-min: 210px;
+$options-rail-width-max: 260px;
+
+.options_form_for.options_form_for--modern {
+  font-size: 0.875rem;
+  padding-top: 0;
 }
-.toggle-importexport-container:hover {
-  background-color: rgba(0,0,0,0.1);
+
+.options_form_for--modern .shield-options-layout {
+  display: grid;
+  grid-template-columns: minmax($options-rail-width-min, $options-rail-width-max) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.options_form_for--modern .shield-options-layout.no-rail {
+  grid-template-columns: 1fr;
+}
+
+.options_form_for--modern .shield-options-rail {
+  border: none;
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+  background: #fcfdfc;
+  position: sticky;
+  top: 0;
+}
+
+.options_form_for--modern .shield-options-rail-accent {
+  height: $card-accent-height;
+  width: 100%;
+  background: $accent-color-salt-green;
+}
+
+.options_form_for--modern #ModuleOptionsNav.shield-options-nav {
+  margin: 0;
+}
+
+.options_form_for--modern .shield-options-rail-nav {
+  padding: 0.5rem;
+}
+
+.options_form_for--modern .shield-options-rail-save {
+  padding: 0 0.75rem 0.75rem;
+}
+
+.options_form_for--modern .shield-options-rail-save .btn.icwp-form-button {
+  width: 100%;
+  margin: 0;
+}
+
+.options_form_for--modern .shield-options-rail-nav .nav-link {
+  color: #2f3d4d;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.5rem 0.7rem;
+  margin-bottom: 0.25rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.options_form_for--modern .shield-options-rail-nav .nav-link:hover {
+  background: #f7f9f7;
+  border-color: $options-border-subtle;
+}
+
+.options_form_for--modern .shield-options-rail-nav .nav-link.active,
+.options_form_for--modern .shield-options-rail-nav .nav-link.active:hover {
+  color: $primary;
+  background: #f2f9f2;
+  border-color: #c7dfc7;
+  box-shadow: inset 2px 0 0 #9ac99a;
+}
+
+.options_form_for--modern .shield-options-content {
+  min-width: 0;
+}
+
+.options_form_for--modern .tab-content {
+  border-top: 0 none;
+  padding-top: 0;
+}
+
+.options_form_for--modern .shield-options-panel {
+  border: none;
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+  background: $options-surface-1;
+}
+
+.options_form_for--modern .shield-options-panel-accent {
+  height: $card-accent-height;
+  width: 100%;
+  background: $accent-color-salt-green;
+}
+
+.options_form_for--modern .shield-options-panel-header {
+  padding: 0.875rem 1.125rem;
+  border-bottom: 1px solid $options-border-subtle;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: $options-surface-0;
+}
+
+.options_form_for--modern .shield-options-panel-title {
+  color: $options-text-strong;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.options_form_for--modern .shield-options-panel-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.options_form_for--modern .shield-options-summary-collapse {
+  padding: 0.75rem 1.125rem 0;
+}
+
+.options_form_for--modern .shield-options-summary-collapse .card {
+  border: 1px solid $options-border-subtle;
+  border-radius: 8px;
+  box-shadow: none;
+  background: #fcfdfc;
+}
+
+.options_form_for--modern .shield-options-summary-collapse .card-text:last-child {
+  margin-bottom: 0;
+}
+
+.options_form_for--modern .shield-options-panel-body {
+  padding: 0.95rem 1.125rem 1.1rem;
+}
+
+.options_form_for--modern .shield-options-panel-body > .alert {
+  margin-bottom: 0.65rem;
+  font-size: 0.85rem;
+}
+
+.options_form_for--modern .shield-options-option-list {
+  margin-top: 0.5rem;
+}
+
+.options_form_for--modern .option_form_row.shield-option-row {
+  margin: 0;
+  padding: 0.9rem 0.35rem;
+  border-bottom: 1px solid $options-border-subtle;
+}
+
+.options_form_for--modern .shield-options-option-list .shield-option-row:last-child {
+  border-bottom: 0;
+}
+
+.options_form_for--modern .option_form_row.shield-option-row.focus_option {
+  border-radius: 8px;
+  border: 1px solid #c9ddc9;
+  background: #f4faf4;
+  box-shadow: none;
+  margin-bottom: 0.5rem;
+}
+
+.options_form_for--modern .shield-option-label-col,
+.options_form_for--modern .shield-option-control-col {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.options_form_for--modern .shield-option-description-col {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.options_form_for--modern .option_label_name {
+  position: relative;
+  color: $options-text-strong;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.options_form_for--modern .option-help-container {
+  opacity: 1;
+  transition: none;
+}
+
+.options_form_for--modern .option-help-container .svg-container {
+  color: #55615a;
+  border: 1px solid #d8e0d8;
+  border-radius: 999px;
+  background: $surface-color-neutral-raised;
+  padding: 0.18rem 0.35rem;
+  line-height: 1;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.options_form_for--modern .option-help-container .svg-container:hover {
+  color: $primary;
+  border-color: #c1d9c1;
+  background: #f2faf2;
+}
+
+.options_form_for--modern .option-help-container .svg-container > svg {
+  width: 15px;
+  height: 15px;
+  vertical-align: middle;
+}
+
+.options_form_for--modern .option_label_name .beacon-article > sup svg {
+  width: 14px;
+}
+
+.options_form_for--modern .option_link_info > .dashicons {
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.options_form_for--modern .shield-option-control-col .form-control,
+.options_form_for--modern .shield-option-control-col .form-select,
+.options_form_for--modern .shield-option-control-col textarea,
+.options_form_for--modern .shield-option-control-col input[type='text'],
+.options_form_for--modern .shield-option-control-col input[type='password'] {
+  border: 1px solid $options-border-strong;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  padding: 0.45rem 0.55rem;
+}
+
+.options_form_for--modern .shield-option-control-col .form-check-label {
+  color: $options-text-strong;
+  font-size: 0.84rem;
+}
+
+.options_form_for--modern .options-summary {
+  margin-top: 0.6rem;
+  margin-bottom: 0;
+  color: $options-text-muted;
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.options_form_for--modern .shield-option-description-col .option-description {
+  margin-top: 0.45rem;
+  margin-bottom: 0.3rem;
+  padding: 0.75rem 0.9rem 0.45rem;
+  border: 1px solid #e1e6e1;
+  border-left: 3px solid $accent-color-salt-green;
+  background: $surface-color-neutral-raised;
+  border-radius: 8px;
+}
+
+.options_form_for--modern .shield-option-description-col .option-description p {
+  margin-bottom: 0.45rem;
+  color: #556170;
+  font-size: 0.8rem;
+}
+
+.options_form_for--modern .shield-option-description-col .toggle-importexport-container {
+  display: block;
+  margin: 0.55rem 0 0 !important;
+  padding: 0.55rem 0 0 !important;
+  border: 0 none !important;
+  border-top: 1px solid #dce4dc !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.options_form_for--modern .shield-option-description-col .toggle-importexport-container:hover {
+  background: transparent !important;
+}
+
+.options_form_for--modern .shield-option-description-col .toggle-importexport-container .toggle-importexport-inclusion {
+  font-size: 0.78rem;
+  color: #5f6a63;
+}
+
+.options_form_for--modern .toggle-importexport-container {
+  cursor: pointer;
+  border-color: $border-color-neutral-subtle !important;
+  background: $surface-color-neutral-raised;
+  margin-bottom: 0.2rem !important;
+}
+
+.options_form_for--modern .toggle-importexport-container:hover {
+  background-color: #f3f6f3;
+}
+
+.options_form_for--modern .shield-options-save-row {
+  margin-top: 0.85rem;
+}
+
+.options_form_for--modern .shield-options-save-row .btn.icwp-form-button {
+  margin: 0;
+}
+
+.options_form_for--modern .shield-options-save-row-inline {
+  padding-left: 0.1rem;
+}
+
+.options_form_for--modern a.section_title_info .dashicons {
+  color: #5b665f;
+  transition: color 0.2s ease;
+}
+
+.options_form_for--modern a.section_title_info:hover .dashicons {
+  color: $primary;
+}
+
+@media (max-width: 960px) {
+  .options_form_for--modern .shield-options-layout {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .options_form_for--modern .shield-options-rail {
+    position: static;
+  }
+
+  .options_form_for--modern .shield-options-rail-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .options_form_for--modern .shield-options-rail-nav .nav-item {
+    margin: 0;
+  }
+
+  .options_form_for--modern .shield-options-rail-nav .nav-link {
+    margin: 0;
+  }
+
+  .options_form_for--modern .shield-options-rail-save {
+    padding-top: 0.5rem;
+    border-top: 1px solid $options-border-subtle;
+  }
 }

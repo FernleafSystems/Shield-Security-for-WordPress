@@ -1,0 +1,54 @@
+{% block meter_hero %}
+
+	{% set meter = vars.meter %}
+	{% set meter_slug = vars.meter_slug %}
+	{% set traffic = vars.traffic %}
+
+	<div class="card meter-hero-card h-100 status-{{ traffic }}">
+		<div class="card-body text-center py-4">
+			<div class="gauge-container">
+				<canvas class="hero-gauge-chart"
+						data-percentage="{{ meter.totals.percentage }}"
+						data-rgbs="{{ meter.rgbs|join(',') }}"></canvas>
+				<div class="gauge-label">
+					<div class="gauge-icon">
+						<span class="svg-container">{{ imgs.svgs.status_icon|raw }}</span>
+					</div>
+					<div class="percentage">{{ meter.totals.percentage }} / 100</div>
+				</div>
+			</div>
+			<div class="gauge-scale">
+				<span>{{ strings.critical }}</span>
+				<span>{{ strings.needs_work }}</span>
+				<span>{{ strings.good }}</span>
+			</div>
+
+			<div class="mt-3">
+				<div class="hero-title">{{ meter.title }}</div>
+				<div class="hero-subtitle mt-1">{{ meter.subtitle }}</div>
+			</div>
+
+			{% if meter.description|default([])|length > 0 %}
+				<p class="text-muted small mt-2 mb-3 px-lg-5">{{ meter.description|first }}</p>
+			{% endif %}
+
+			{% if meter.warning|default([]) is not empty %}
+				<div class="alert alert-danger d-inline-block mt-2">{{ meter.warning.text }}
+					<a href="{{ meter.warning.href }}"
+					   class="alert-link"
+					   target="_blank">{{ strings.view_details }}</a>
+				</div>
+			{% endif %}
+
+			<div class="mt-2">
+				<a class="offcanvas_meter_analysis btn btn-{{ traffic == 'good' ? 'success' : ( traffic == 'warning' ? 'warning' : 'danger' ) }} btn-analyse"
+				   data-meter="{{ meter_slug }}"
+				   href="javascript:{}"
+				   aria-controls="ShieldProgressMeterOffcanvas">
+					<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+					{{ strings.analysis }}
+				</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

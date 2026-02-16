@@ -11,6 +11,7 @@ class PlaceholderMeter extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRo
 		return [
 			'vars' => [
 				'meter_slug' => $this->action_data[ 'meter_slug' ],
+				'is_hero'    => !empty( $this->action_data[ 'is_hero' ] ?? false ),
 			]
 		];
 	}

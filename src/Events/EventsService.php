@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class EventsService {
@@ -68,9 +69,11 @@ class EventsService {
 	 * @return array[]
 	 */
 	public function getEvents() :array {
-		$this->events ??= (array)apply_filters(
-			'shield/events/definitions',
-			$this->buildEvents( self::con()->cfg->configuration->events )
+		$this->events ??= $this->normaliseEventLevels(
+			(array)apply_filters(
+				'shield/events/definitions',
+				$this->buildEvents( self::con()->cfg->configuration->events )
+			)
 		);
 		if ( empty( $this->events ) ) {
 			error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
@@ -168,7 +171,17 @@ class EventsService {
 		];
 		foreach ( $events as $eventKey => $evt ) {
 			$events[ $eventKey ] = \array_merge( $defaults, $evt );
+			$events[ $eventKey ][ 'level' ] = NormaliseLogLevel::forEvent( (string)( $events[ $eventKey ][ 'level' ] ?? '' ) );
 			$events[ $eventKey ][ 'key' ] = $eventKey;
+		}
+		return $events;
+	}
+
+	private function normaliseEventLevels( array $events ) :array {
+		foreach ( $events as $eventKey => $event ) {
+			if ( \is_array( $event ) ) {
+				$events[ $eventKey ][ 'level' ] = NormaliseLogLevel::forEvent( (string)( $event[ 'level' ] ?? '' ) );
+			}
 		}
 		return $events;
 	}

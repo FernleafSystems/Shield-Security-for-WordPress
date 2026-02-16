@@ -1,0 +1,12 @@
+<div class="scan-strip h-100 w-100">
+	<div class="shield-card-accent status-good"></div>
+	<div class="scan-strip-body">
+		{% for scan in vars.scans %}
+			<div class="scan-section section-{{ scan.status_class }}">
+				<div class="scan-label">{{ scan.title }}</div>
+				<div class="scan-count count-{{ scan.status_class }}">{{ scan.count_display }}</div>
+				<span class="shield-badge badge-{{ scan.status_class }}">{{ scan.badge_text }}</span>
+			</div>
+		{% endfor %}
+	</div>
+</div>

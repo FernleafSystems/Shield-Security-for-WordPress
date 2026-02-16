@@ -1,11 +1,5 @@
 <div style="display: flex; align-items: center;">
-	<div class="shield-progress-bar
-		{% if vars.security_progress.totals.percentage < 45 %}
-			red
-		{% elseif vars.security_progress.totals.percentage < 70 %}
-			orange
-		{% endif %}
-		">
+	<div class="shield-progress-bar {{ vars.traffic == 'critical' ? 'red' : ( vars.traffic == 'warning' ? 'orange' : '' ) }}">
 	  <a class="thebar" style="width: {{ vars.security_progress.totals.percentage }}%"
 		 href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
 			<div class="thepercent">{{ strings.security_level }}: {{ vars.security_progress.totals.letter_score }}</div>

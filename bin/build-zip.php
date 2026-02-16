@@ -36,11 +36,11 @@ else {
 $packagerOptions = [];
 
 if ( isset( $options[ 'skip-root-composer' ] ) ) {
-	$packagerOptions[ 'composer_root' ] = false;
+	$packagerOptions[ 'composer_install' ] = false;
 }
 
 if ( isset( $options[ 'skip-lib-composer' ] ) ) {
-	$packagerOptions[ 'composer_lib' ] = false;
+	// Legacy flag retained for backwards compatibility with existing scripts.
 }
 
 if ( isset( $options[ 'skip-npm-install' ] ) ) {

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 12:10+0000\n"
-"PO-Revision-Date: 2025-12-08 12:10+0000\n"
+"POT-Creation-Date: 2026-02-16 11:53+0000\n"
+"PO-Revision-Date: 2026-02-16 11:53+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: vi_VN\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Đã Bật; \"N\" = Đã Tắt"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Hằng số <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Hằng số <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s Vừa Đăng nhập Vào %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s và %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s chặn tất cả SPAM bot tự động bằng cách sử dụng %2$s, công nghệ phát hiện bot độc quyền, vô hình và tuân thủ GDPR của chúng tôi."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "Điểm tối thiểu bot %1$s khá thấp (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s không thể xác định liệu %2$s JS có đang tải chính xác trên trang web của bạn hay không."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s có tích hợp khả dụng để bảo vệ biểu mẫu của plugin bên thứ ba bạn đang sử dụng: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s đã phát hiện rằng phiên bản hiện đang cài đặt của plugin %2$s có các lỗ hổng bảo mật đã biết."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s đã chọn thành công vị trí sau để tạo thư mục tạm thời của nó: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s là dịch vụ độc quyền %2$s bảo vệ tệp wp-config.php của bạn."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s là dịch vụ gửi email chuyên dụng từ %2$s."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s là công nghệ phát hiện bot độc quyền từ %2$s vô hình với khách truy cập và loại bỏ nhu cầu tương tác của người dùng với CAPTCHA đăng nhập."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s bị vô hiệu hóa khi đặt điểm tối thiểu là %2$s."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s là công nghệ phát hiện bot độc quyền của chúng tôi dành riêng cho %2$s, loại bỏ nhu cầu về CAPTCHA hiển thị và các thử thách khách truy cập tương tự."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s đã đánh dấu bình luận này là \"%2$s\"."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s đã sử dụng trong tổng số %2$s (chưa sử dụng: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d locale có sẵn."
+
+msgid "%d locale(s) in queue."
+msgstr "%d locale trong hàng đợi."
+
+msgid "%d translation is queued for download"
+msgstr "%d bản dịch đang trong hàng đợi để tải xuống"
+
+msgid "%d translations are queued for download"
+msgstr "%d bản dịch đang trong hàng đợi để tải về"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON Encoded)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "Nhà cung cấp 2FA %s Đã Bật"
 
 msgid "%s API Token Missing."
 msgstr "Thiếu %s API Token."
+
+msgid "%s Anti-Spam"
+msgstr "Chống %s SPAM"
+
+msgid "%s AntiBot Technology"
+msgstr "Công nghệ AntiBot %s"
 
 msgid "%s Auto-Unblock"
 msgstr "%s Tự động Bỏ chặn"
@@ -37,29 +115,92 @@ msgstr "%s Tự động Bỏ chặn"
 msgid "%s Bot Check Failed."
 msgstr "Kiểm tra Bot %s Thất bại."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "Phát hiện Bot %s không bảo vệ chống lại các cuộc tấn công brute-force vào đăng nhập WordPress của bạn."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "Phát hiện Bot %s không bảo vệ biểu mẫu quên mật khẩu WordPress của bạn."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "Phát hiện Bot %s không bảo vệ đăng ký WordPress của bạn."
+
+msgid "%s Bot Minimum Score"
+msgstr "Điểm Tối thiểu Bot %s"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "Điểm Bot %s (Phần trăm)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "Độ phức tạp thử thách bot %s quá thấp - hãy xem xét tăng nó lên."
+
+msgid "%s Check Invalid (Module)"
+msgstr "Kiểm tra %s Không hợp lệ (Module)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "Bảo vệ SPAM Bình luận %s"
+
+msgid "%s Complexity"
+msgstr "Độ Phức Tạp %s"
+
+msgid "%s Deactivated"
+msgstr "Đã tắt %s"
 
 msgid "%s Debug Information"
 msgstr "Thông tin Debug %s"
 
+msgid "%s Emails"
+msgstr "%s Email"
+
+msgid "%s Fail"
+msgstr "%s Thất bại"
+
+msgid "%s Features"
+msgstr "%s Tính năng"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s Firewall đã chặn một yêu cầu đến trang web WordPress của bạn."
+
+msgid "%s For Logins"
+msgstr "%s Cho Đăng nhập"
+
+msgid "%s Free Trial"
+msgstr "Dùng thử Miễn phí %s"
 
 msgid "%s Home"
 msgstr "Trang chủ %s"
 
+msgid "%s Home Page"
+msgstr "Trang chủ %s"
+
+msgid "%s IP Reputation Score"
+msgstr "Điểm Uy tín IP %s"
+
+msgid "%s Info"
+msgstr "%s Info"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s Chặn IP Thông minh"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s Vừa Đăng nhập Vào %s"
+msgid "%s Issue"
+msgstr "%s Vấn đề"
+
+msgid "%s Issues"
+msgstr "%s Vấn đề"
+
+msgid "%s License Cleared"
+msgstr "Giấy phép %s Đã xóa"
+
+msgid "%s License Management"
+msgstr "Quản lý Giấy phép %s"
 
 msgid "%s Login Verification"
 msgstr "Xác minh Đăng nhập %s"
 
 msgid "%s Lookup"
 msgstr "Tra cứu %s"
+
+msgid "%s Option Key"
+msgstr "Khóa Tùy chọn %s"
 
 msgid "%s Plugin Badge"
 msgstr "Huy hiệu Plugin %s"
@@ -70,6 +211,24 @@ msgstr "Cấu hình Plugin %s"
 msgid "%s Plugin options updated successfully."
 msgstr "Tùy chọn plugin %s đã được cập nhật thành công."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "Plugin %s – yêu cầu tối thiểu của trang web không được đáp ứng"
+
+msgid "%s Premium Security"
+msgstr "Bảo mật Premium %s"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro có sẵn từ cửa hàng trực tuyến của chúng tôi."
+
+msgid "%s Pro store"
+msgstr "Cửa hàng %s Pro"
+
+msgid "%s Registration"
+msgstr "Đăng ký %s"
+
+msgid "%s Scanners."
+msgstr "%s Trình Quét."
+
 msgid "%s Security Insights"
 msgstr "Thông tin Bảo mật %s"
 
@@ -79,14 +238,35 @@ msgstr "Đã Áp dụng Hạn chế Bảo mật %s"
 msgid "%s Status Report"
 msgstr "Báo cáo Trạng thái %s"
 
+msgid "%s Success"
+msgstr "%s Thành công"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "Nhà cung cấp 2FA Người dùng %s Đã Kích hoạt"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "2FA Người dùng %s: Có Bất kỳ Đang hoạt động"
+
 msgid "%s Website Security Report"
 msgstr "Báo cáo Bảo mật Trang web %s"
 
-msgid "%s and %s"
-msgstr "%s và %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "Phát hiện bot %s không chạy vì điểm tối thiểu được đặt là 0."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "Phát hiện bot %s không chạy, vì bot hiện không được thử thách."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s cũng có thể quét plugin & theme của bạn tìm lỗ hổng bảo mật đã biết."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s có thể tự động tích hợp với plugin bên thứ ba."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s có thể tự động bảo vệ biểu mẫu đăng nhập và đăng ký bên thứ ba chống lại Bot."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s không thể phát hiện bất kỳ địa chỉ IP nào. Điều này đại diện cho vấn đề cấu hình web hosting nghiêm trọng."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s tạo đánh giá rủi ro rất nhanh vì nó theo dõi khách truy cập xấu trong nhiều khu vực riêng biệt."
@@ -100,29 +280,41 @@ msgstr "%s ngày"
 msgid "%s days"
 msgstr "%s ngày"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "Phát hiện %s không được áp dụng vì bạn chưa chọn bất kỳ biểu mẫu nào để bảo vệ, chẳng hạn như Đăng nhập hoặc Đăng ký."
+
 msgid "%s directory"
 msgstr "Thư mục %s"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s làm được nhiều điều, vì vậy có thể khó biết nên bắt đầu từ đâu."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s thường không quét bình luận từ người dùng đã đăng nhập hoặc đã đăng ký."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "Định nghĩa sự kiện %s trống hoặc không đúng định dạng."
 
 msgid "%s extension is unavailable."
 msgstr "Tiện ích mở rộng %s không có sẵn."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "Giới thiệu %s cho WordPress v20"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s đã thực hiện hành động cần thiết là chặn yêu cầu."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s có tích hợp có sẵn để bảo vệ biểu mẫu của plugin bên thứ ba bạn đang sử dụng: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s đã phát hiện rằng phiên bản hiện đang cài đặt của plugin %s có lỗ hổng bảo mật đã biết."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s đã chọn thành công vị trí sau để tạo thư mục tạm thời của nó: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s là dịch vụ độc quyền của %s bảo vệ tệp wp-config.php của bạn."
-
 msgid "%s is a child of another theme."
 msgstr "%s là giao diện con của giao diện khác."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s là dịch vụ Bảo mật WordPress mạnh mẽ được triển khai trên hơn 40.000+ trang web WordPress."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s bị vô hiệu hóa vì không có ngưỡng điểm bot tối thiểu được cung cấp."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s được bật với ngưỡng điểm bot tối thiểu."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s hiện không bảo vệ trang web của bạn."
@@ -130,14 +322,26 @@ msgstr "%s hiện không bảo vệ trang web của bạn."
 msgid "%s is not protecting your site"
 msgstr "%s không bảo vệ trang web của bạn"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s là công nghệ Phát hiện Bad Bot WordPress của chúng tôi."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s là công cụ Quét và Phát hiện Malware được hỗ trợ bởi AI độc quyền của chúng tôi."
 
 msgid "%s is protected against tampering."
 msgstr "%s được bảo vệ chống lại giả mạo."
 
+msgid "%s isn't activated on this site."
+msgstr "%s chưa được kích hoạt trên trang web này."
+
+msgid "%s isn't installed on this site."
+msgstr "%s chưa được cài đặt trên trang web này."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s không được bảo vệ chống lại giả mạo."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s không bảo vệ WP Comments của bạn chống lại SPAM bot."
 
 msgid "%s item processed"
 msgstr "%s mục đã xử lý"
@@ -145,8 +349,11 @@ msgstr "%s mục đã xử lý"
 msgid "%s items processed"
 msgstr "%s mục đã xử lý"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s đã đánh dấu bình luận này là \"%s\"."
+msgid "%s license check failed."
+msgstr "Kiểm tra giấy phép %s thất bại."
+
+msgid "%s license check was successful."
+msgstr "Kiểm tra giấy phép %s thành công."
 
 msgid "%s minute"
 msgstr "%s phút"
@@ -172,8 +379,8 @@ msgstr "%s vi phạm"
 msgid "%s offenses until block"
 msgstr "%s vi phạm cho đến khi chặn"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s cung cấp email, Yubikey, Google Authenticator và U2F."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s cung cấp email, Yubikey, Google Authenticator và Passkeys."
 
 msgid "%s options and modules"
 msgstr "Tùy chọn và module %s"
@@ -181,11 +388,56 @@ msgstr "Tùy chọn và module %s"
 msgid "%s per day"
 msgstr "%s mỗi ngày"
 
+msgid "%s plugin activated"
+msgstr "Plugin %s đã được kích hoạt"
+
+msgid "%s plugin couldn't be activated"
+msgstr "Không thể kích hoạt plugin %s"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "Plugin %s không thể bị tắt"
+
+msgid "%s plugin couldn't be installed"
+msgstr "Không thể cài đặt plugin %s"
+
+msgid "%s plugin couldn't be updated"
+msgstr "Không thể cập nhật plugin %s"
+
+msgid "%s plugin deactivated"
+msgstr "Plugin %s đã bị tắt"
+
+msgid "%s plugin installed"
+msgstr "Plugin %s đã được cài đặt"
+
+msgid "%s plugin is installed but not activated."
+msgstr "Plugin %s đã được cài đặt nhưng chưa được kích hoạt."
+
+msgid "%s plugin is installed, but not active."
+msgstr "Plugin %s đã được cài đặt, nhưng chưa kích hoạt."
+
+msgid "%s plugin needs to sync."
+msgstr "Plugin %s cần đồng bộ."
+
+msgid "%s plugin not detected in last sync."
+msgstr "Plugin %s không được phát hiện trong lần đồng bộ cuối cùng."
+
+msgid "%s plugin updated"
+msgstr "Plugin %s đã được cập nhật"
+
+msgid "%s plugin versions are out of sync."
+msgstr "Các phiên bản plugin %s không đồng bộ."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s bảo vệ khách truy cập trang web và hoạt động để chặn các cuộc tấn công tiềm ẩn trong khi giám sát lưu lượng web và thay đổi hệ thống tệp."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s cung cấp tích hợp tích hợp sẵn để bảo vệ biểu mẫu của plugin bên thứ ba chống lại Bot SPAM."
+
 msgid "%s scan remaining."
 msgstr "%s lần quét còn lại."
+
+msgid "%s scans cannot execute."
+msgstr "Không thể thực thi quét %s."
 
 msgid "%s scans remaining."
 msgstr "%s lần quét còn lại."
@@ -205,14 +457,14 @@ msgstr "%s lần"
 msgid "%s tools and features"
 msgstr "%s công cụ và tính năng"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s đã sử dụng trong tổng số %s (chưa sử dụng: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s cố gắng thực hiện điều này tự động và mặc dù nó hoạt động 99% thời gian, đôi khi cấu hình webhost kỳ lạ có thể làm nó hơi rối một chút.."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s sử dụng từ điển được cập nhật thường xuyên về nội dung SPAM thường gặp để chặn loại nội dung SPAM này."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "Phiên bản %s trên trang web không khớp với máy chủ này."
 
 msgid "%s was added to your profile."
 msgstr "%s đã được thêm vào hồ sơ của bạn."
@@ -223,11 +475,26 @@ msgstr "%s đã được xóa khỏi hồ sơ của bạn."
 msgid "%s was successfully added to your account."
 msgstr "%s đã được thêm thành công vào tài khoản của bạn."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s sẽ tự động quét các plugin bên thứ ba của bạn để kiểm tra xem tích hợp tích hợp sẵn có khả dụng hay không."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s sẽ trì hoãn nâng cấp cho đến khi bản cập nhật mới đã khả dụng trong số ngày đã đặt."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s sẽ phát hiện bot cố gắng đăng nhập vào trang web của bạn, mà không thách thức người dùng hợp pháp của bạn."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s sẽ phát hiện bot cố gắng đăng SPAM bình luận lên trang web của bạn, mà không thách thức khách truy cập hợp pháp của bạn."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s sẽ bảo vệ biểu mẫu WordPress khỏi bot bằng cách giới hạn các nỗ lực chống lại chúng bằng công nghệ silentCAPTCHA của chúng tôi."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "Tích hợp MainWP của %s không được bật cho trang web này."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "Rules Engine của %s không đang chạy."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "Hệ thống Security Admin của %s cung cấp lớp bảo mật bổ sung cho quản trị WordPress thông thường."
@@ -238,11 +505,14 @@ msgstr "Chặn IP tự động của %s' sẽ giảm thiểu các cuộc tấn c
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "Các biện pháp bảo vệ của %s hiện đang bị vô hiệu hóa nên bất kỳ thay đổi nào được thực hiện ở đây sẽ không áp dụng cho đến khi nó được kích hoạt lại."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "Giới thiệu từ Người sáng lập %s"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "Đăng ký %sv1"
+
+msgid "%sv2 Registration"
+msgstr "Đăng ký %sv2"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "&uarr; Nâng cấp Pro &uarr;"
@@ -273,6 +543,9 @@ msgstr "(khi lockdown bị vô hiệu hóa, địa chỉ IP sẽ tự động đ
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... và %s nữa"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "Thư mục /wp-content/ không được quét."
@@ -397,9 +670,6 @@ msgstr "Lỗi 404 được tạo cho các loại tệp sau sẽ không kích ho�
 msgid "5-minute"
 msgstr "5 phút"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 Ngày"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Đang quét</strong> các tệp và thư mục WordPress core của bạn để phát hiện thay đổi và tệp mới."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Kiểm tra Bot %s đã được thực hiện trên khách truy cập nhưng tùy chọn chặn Bot bị vô hiệu hóa trong cài đặt."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "Không thể tạo File Diff vì không có tệp chính thức có sẵn để chúng tôi so sánh."
@@ -445,6 +718,9 @@ msgstr "Tổng quan cấp cao về phần mềm máy chủ lưu trữ WordPress 
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Tổng quan cấp cao về trạng thái cập nhật WordPress của bạn."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Giấy phép đã hoạt động. Sử dụng --force để kích hoạt lại."
+
 msgid "A light-touch security profile"
 msgstr "Hồ sơ bảo mật nhẹ nhàng"
 
@@ -456,6 +732,9 @@ msgstr "Danh sách các đường dẫn yêu cầu sẽ không bao giờ kích h
 
 msgid "A login to your WordPress account just occurred"
 msgstr "Một lần đăng nhập vào tài khoản WordPress của bạn vừa xảy ra"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "Rất nhiều công sức được đầu tư vào %s và chúng tôi cần sự giúp đỡ của bạn để truyền bá thông tin về nó. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "Mật khẩu Một lần mới đã được gửi đến địa chỉ email của bạn."
@@ -475,8 +754,8 @@ msgstr "Tình trạng bảo mật vững chắc"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Điểm '100' có nghĩa là gần như chắc chắn là tốt, điểm '0' có nghĩa là rất có khả năng là bot xấu."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "Kiểm tra Bot silentCAPTCHA đã được thực hiện trên khách truy cập nhưng tùy chọn chặn Bot bị vô hiệu hóa trong cài đặt."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Một cảnh báo bảo mật đã được tạo. Xem xét các vấn đề bên dưới và thực hiện hành động khi cần thiết."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "Một lần đăng nhập thành công vào tài khoản WordPress của bạn vừa xảy ra."
@@ -498,6 +777,12 @@ msgstr "AI Malware Scanner, Tự Động Sửa Chữa File, bảo vệ WP Config
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API key không thể trống."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "Khóa API là bắt buộc để kích hoạt. Sử dụng --api-key=YOUR_KEY"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "Xác thực APP Password - Email Không hợp lệ"
@@ -523,8 +808,8 @@ msgstr "Đã Tìm thấy Plugin Bị bỏ rơi"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Plugin WordPress.org Bị bỏ rơi"
 
-msgid "Absolutely"
-msgstr "Hoàn toàn"
+msgid "About %s for WordPress"
+msgstr "Về %s cho WordPress"
 
 msgid "Accept Changes"
 msgstr "Chấp nhận Thay đổi"
@@ -571,20 +856,23 @@ msgstr "Hành động và Thông tin"
 msgid "Activate"
 msgstr "Kích hoạt"
 
+msgid "Activate %s"
+msgstr "Kích hoạt %s"
+
+msgid "Activate %s License"
+msgstr "Kích hoạt Giấy phép %s"
+
 msgid "Activate Only"
 msgstr "Chỉ Kích hoạt"
+
+msgid "Activate Pro License"
+msgstr "Kích hoạt Giấy phép Pro"
 
 msgid "Activate Rule"
 msgstr "Kích hoạt Quy tắc"
 
-msgid "Activate Shield"
-msgstr "Kích hoạt Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "Kích hoạt Giấy phép ShieldPRO"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "Kích hoạt Giấy phép ShieldPRO của Bạn"
+msgid "Activate Your %s License"
+msgstr "Kích hoạt Giấy phép %s của Bạn"
 
 msgid "Activate Your White Label Settings"
 msgstr "Kích hoạt Cài đặt White Label của Bạn"
@@ -673,14 +961,14 @@ msgstr "Bảng Đã Thêm"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Các danh sách chặn IP bổ sung có sẵn với gói nâng cấp."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "Điều chỉnh Độ Phức tạp Thử thách %s"
+
 msgid "Adjust Scan Results Display"
 msgstr "Điều chỉnh Hiển thị Kết quả Quét"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "Điều chỉnh triển khai các tiêu đề bảo mật HTTP"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "Điều Chỉnh Độ Phức Tạp Thử Thách silentCAPTCHA"
 
 msgid "Admin Access Login"
 msgstr "Đăng nhập Truy cập Quản trị"
@@ -751,17 +1039,26 @@ msgstr "Trước Máy chủ"
 msgid "Alert"
 msgstr "Cảnh báo"
 
+msgid "Alert Report Generated"
+msgstr "Đã Tạo Báo cáo Cảnh báo"
+
+msgid "Alert Report Generated."
+msgstr "Đã Tạo Báo cáo Cảnh báo."
+
 msgid "Alert Reports Frequency"
 msgstr "Tần suất Báo cáo Cảnh báo"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Cảnh báo về lỗ hổng bảo mật plugin/theme. Shield sau đó có thể tự động nâng cấp khi có bản cập nhật."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Cảnh báo về lỗ hổng bảo mật plugin/theme. %s có thể tự động triển khai nâng cấp khi chúng khả dụng."
 
 msgid "Algorithm not supported"
 msgstr "Thuật toán không được hỗ trợ"
 
-msgid "Align Shield"
-msgstr "Căn chỉnh Shield"
+msgid "Align %s"
+msgstr "Căn chỉnh %s"
+
+msgid "All Clear"
+msgstr "Tất cả Đã Xóa"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Tất cả nhà cung cấp MFA đã được xóa khỏi người dùng có ID %s."
@@ -784,8 +1081,8 @@ msgstr "Do đó, tất cả quyền truy cập vào trang web này đều bị h
 msgid "All access to your site is blocked."
 msgstr "Tất cả quyền truy cập vào trang web của bạn đều bị chặn."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Tất cả các nỗ lực xác minh giấy phép Shield Pro đã thất bại."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "Tất cả nỗ lực xác minh giấy phép %s Pro đã thất bại."
 
 msgid "All available plugin updates have been applied."
 msgstr "Tất cả các bản cập nhật plugin có sẵn đã được áp dụng."
@@ -795,6 +1092,9 @@ msgstr "Tất cả các bản cập nhật theme có sẵn đã được áp d�
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Tất cả ký tự sẽ được xử lý không phân biệt chữ hoa chữ thường."
+
+msgid "All clear"
+msgstr "Tất cả đã xóa"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Tất cả khóa sự kiện tùy chỉnh phải là chuỗi, chữ thường, độ dài 10-50, có tiền tố 'custom_', và chỉ chứa chữ cái và dấu gạch dưới."
@@ -979,8 +1279,8 @@ msgstr "Một vi phạm được ghi nhận đối với địa chỉ IP mỗi k
 msgid "An unsupported profile was selected"
 msgstr "Một hồ sơ không được hỗ trợ đã được chọn"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Có bản nâng cấp có sẵn cho plugin Shield."
+msgid "An upgrade is available for the %s plugin."
+msgstr "Có bản nâng cấp có sẵn cho plugin %s."
 
 msgid "Analyse & Fix"
 msgstr "Phân tích & Sửa"
@@ -1054,8 +1354,8 @@ msgstr "Bất kỳ ai Có thể Đăng ký"
 msgid "Anyone can register"
 msgstr "Bất kỳ ai có thể đăng ký"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Bất kỳ ai có thể đăng ký đã thay đổi: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Bất kỳ ai có thể đăng ký đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "App Password Đã Tắt"
@@ -1093,8 +1393,8 @@ msgstr "Áp dụng các hạn chế giới hạn tốc độ cho các yêu cầu
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "Việc áp dụng header CSP có thể ảnh hưởng đến cách trang web của bạn hoạt động đối với khách truy cập, vì vậy chúng tôi không đưa ra bất kỳ khuyến nghị trực tiếp nào trong phần này."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Các Hạn chế Của Shield Security Có Được Bật Không?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "Các Hạn chế của %s Có Được Bật?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "WordPress permalinks có được bật."
@@ -1108,11 +1408,11 @@ msgstr "Bạn có chắc chắn muốn xóa Quy tắc IP này không?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Bạn có chắc chắn muốn giữ các thay đổi tệp không?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "Bạn có chắc chắn muốn gỡ bỏ giấy phép ShieldPRO không?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "Bạn có chắc chắn muốn xóa giấy phép %s không?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Bạn có chắc chắn muốn đặt lại plugin Shield về mặc định không?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "Bạn có chắc chắn muốn đặt lại plugin %s về mặc định không?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Bạn có chắc chắn muốn khôi phục nội dung tệp gốc không?"
@@ -1132,11 +1432,11 @@ msgstr "Như mọi khi, việc sử dụng và phụ thuộc vào dịch vụ n�
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Khi mỗi vấn đề được giải quyết, điểm tổng thể sẽ cải thiện, lên đến 100%."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Theo yêu cầu, %s đang thông báo cho bạn về đăng nhập %s thành công vào trang web WordPress mà bạn quản lý."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Theo yêu cầu, %1$s đang thông báo cho bạn về đăng nhập %2$s thành công vào trang web WordPress mà bạn quản lý."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Ngay khi phát hiện plugin tương thích, Shield sẽ tự động bật tích hợp tích hợp sẵn."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Ngay khi plugin tương thích được phát hiện, %s sẽ tự động bật tích hợp tích hợp sẵn."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Ngay khi phát hiện thay đổi đối với bất kỳ tệp nào được chọn, nội dung có thể được kiểm tra và hoàn nguyên."
@@ -1155,9 +1455,6 @@ msgstr "Ít nhất 1 plugin hoặc theme của bạn có vẻ đã bị sửa đ
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Ít nhất 1 tùy chọn phải được cung cấp và mặc định là trang hồ sơ người dùng trong khu vực quản trị WP."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Ít nhất 1 báo cáo bảo mật đã được tạo cho trang web của bạn."
 
 msgid "At least two records are required to merge."
 msgstr "Cần ít nhất hai bản ghi để hợp nhất."
@@ -1198,8 +1495,8 @@ msgstr "Lần thử còn lại: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Cố gắng tự động sửa chữa các tệp đã bị thay đổi hoặc nhiễm malware."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Nỗ lực xác minh giấy phép Shield Pro vừa thất bại."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "Nỗ lực xác minh giấy phép %s Pro vừa thất bại."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Thông báo Audit Trail có thể bao gồm địa chỉ email"
@@ -1408,8 +1705,8 @@ msgstr "Tự động phát hiện & sửa chữa các tệp, plugin và theme d�
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Tự động phát hiện và bật tích hợp bên thứ ba khi chúng có sẵn"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Tự động tôn trọng các quy tắc whitelist và ngoại lệ hiện có của Shield."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Tự động tuân thủ các quy tắc danh sách trắng và ngoại lệ hiện có của %s."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Tự động nhập tùy chọn và triển khai cấu hình trên toàn bộ mạng của bạn."
@@ -1504,6 +1801,9 @@ msgstr "Được cảnh báo về những thay đổi quan trọng trên bất k
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Được cảnh báo về plugin và theme có lỗ hổng bảo mật đã biết"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Nhận cảnh báo khi plugin %s bị tắt"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Nhận cảnh báo khi plugin Shield bị vô hiệu hóa"
 
@@ -1528,11 +1828,11 @@ msgstr "Quyền truy cập Beta"
 msgid "Block %s"
 msgstr "Chặn %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "Chặn 100% SPAM Bình luận Bot Với silentCAPTCHA"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "Chặn 100%% SPAM Bình luận từ Bot với %s"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Chặn 99.9%% tất cả SPAM bình luận WordPress bằng silentCAPTCHA."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Chặn 99.9%% tất cả SPAM bình luận WordPress bằng %s."
 
 msgid "Block Anon REST API"
 msgstr "Chặn REST API Ẩn danh"
@@ -1668,9 +1968,6 @@ msgstr "Đã chặn bình luận SPAM từ Bot."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "Đã chặn bình luận SPAM không vượt qua kiểm tra AntiBot."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "Đã chặn bình luận SPAM không vượt qua reCAPTCHA."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Đã chặn nỗ lực cập nhật mật khẩu không đáp ứng yêu cầu chính sách."
@@ -1819,8 +2116,8 @@ msgstr "Bảo vệ Đăng nhập Brute Force"
 msgid "Brute Force Login Protection"
 msgstr "Bảo vệ Đăng nhập Brute Force"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Bảo vệ Đăng nhập Brute Force với silentCAPTCHA"
+msgid "Brute Force Login Protection with %s"
+msgstr "Bảo vệ Đăng nhập Brute Force với %s"
 
 msgid "Brute Force Protection"
 msgstr "Bảo vệ Brute Force"
@@ -1828,8 +2125,8 @@ msgstr "Bảo vệ Brute Force"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Rate Limiting Lưu lượng Brute Force"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "Các cuộc tấn công bot brute force vào đăng nhập WordPress của bạn được phát hiện & chặn bởi silentCAPTCHA."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "Các cuộc tấn công bot brute force vào đăng nhập WordPress của bạn được phát hiện & chặn bởi %s."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Các cuộc tấn công đăng nhập brute force không bị chặn bởi hệ thống thời gian chờ đăng nhập."
@@ -1846,14 +2143,14 @@ msgstr "Xây dựng Quy tắc Bảo mật Tùy chỉnh"
 msgid "Building scan items for scan: %s"
 msgstr "Đang xây dựng mục quét cho quét: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Tích hợp Shield Tích hợp Sẵn"
+msgid "Built-In %s Integrations"
+msgstr "Tích hợp %s Tích hợp Sẵn"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Theo mặc định, Shield hiển thị các thông báo không thiết yếu trong khu vực quản trị và thanh quản trị."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Theo mặc định %s hiển thị thông báo không thiết yếu trong khu vực quản trị và thanh quản trị."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Theo mặc định, Shield được tự động cấu hình để bảo vệ trang web của bạn khỏi nhiều mối đe dọa và chặn khách truy cập và bot xấu mà bạn không cần phải làm gì."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Theo mặc định, %s được tự động cấu hình để bảo vệ trang web của bạn khỏi nhiều mối đe dọa và chặn khách truy cập xấu cũng như bot mà bạn không cần phải làm gì."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Bằng cách liên kết các tín hiệu từ Tường lửa với tín hiệu từ tất cả các thành phần bảo mật khác, %s xây dựng hồ sơ khách truy cập theo thời gian để xác định ai là con người, ai là bot và ai ở đây vì mục đích tốt hay xấu."
@@ -1863,21 +2160,6 @@ msgstr "Bỏ qua"
 
 msgid "Bypass IP"
 msgstr "Bỏ qua IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA Thất bại"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA Thành công"
-
-msgid "CAPTCHA test failed."
-msgstr "Kiểm tra CAPTCHA thất bại."
-
-msgid "CAPTCHA test successful."
-msgstr "Kiểm tra CAPTCHA thành công."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA thật khủng khiếp."
@@ -1990,6 +2272,9 @@ msgstr "Thử Thách Thất Bại"
 msgid "Challenge has expired."
 msgstr "Thử thách đã hết hạn."
 
+msgid "Change"
+msgstr "Thay đổi"
+
 msgid "Change Detected"
 msgstr "Đã Phát hiện Thay đổi"
 
@@ -2005,11 +2290,14 @@ msgstr "Thay đổi tùy chọn Email 2FA hiện không có sẵn cho bạn."
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Thay đổi tùy chọn Mã Sao lưu hiện không có sẵn cho bạn."
 
+msgid "Check %s License"
+msgstr "Kiểm tra Giấy phép %s"
+
+msgid "Check For %s License"
+msgstr "Kiểm tra Giấy phép %s"
+
 msgid "Check License"
 msgstr "Kiểm tra Giấy phép"
-
-msgid "Check ShieldPRO License"
-msgstr "Kiểm tra Giấy phép ShieldPRO"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Kiểm tra và xác minh nội dung của tệp này để đảm bảo nó không độc hại."
@@ -2044,14 +2332,14 @@ msgstr "Con"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Chọn các biểu mẫu mà silentCAPTCHA Bot Protection sẽ được triển khai."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Chọn trang Shield Tùy chỉnh nếu có xung đột hoặc vấn đề với trang Đăng nhập WP cho 2FA."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Chọn trang %s Tùy chỉnh nếu có xung đột hoặc vấn đề với trang Đăng nhập WP cho 2FA."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Chọn các biểu mẫu mà các biện pháp bảo vệ bot sẽ được triển khai."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Chọn tần suất phù hợp nhất để nhận cảnh báo từ Shield theo lịch trình của bạn."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Chọn tần suất phù hợp nhất để nhận cảnh báo từ %s theo lịch trình của bạn."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Chọn loại trang cho xác minh MFA"
@@ -2121,6 +2409,9 @@ msgstr "Nhấp để xóa ngay xác thực đăng nhập Google Authenticator."
 
 msgid "Click to launch plugin search modal"
 msgstr "Nhấp để mở hộp thoại tìm kiếm plugin"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Nhấp để để lại đánh giá trên WordPress.org ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Nhấp để xem dữ liệu RAW sẽ được gửi"
@@ -2200,8 +2491,8 @@ msgstr "Đã chặn SPAM Bình luận."
 msgid "Comment SPAM Protection"
 msgstr "Bảo vệ SPAM Bình luận"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Bảo vệ SPAM Bình luận: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Bảo vệ SPAM Bình luận: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Trạng thái Bình luận Đã Cập nhật"
@@ -2269,6 +2560,12 @@ msgstr "Cấu hình"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Trang Cấu hình Cho Thiết lập 2FA Người dùng"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Không cần cấu hình vì chỉ phát hiện 1 địa chỉ IP riêng biệt."
+
+msgid "Configure"
+msgstr "Cấu hình"
+
 msgid "Configure All '%s' Options"
 msgstr "Cấu hình Tất cả Tùy chọn '%s'"
 
@@ -2308,9 +2605,6 @@ msgstr "Xác nhận"
 msgid "Confirmation email will be sent to %s"
 msgstr "Email xác nhận sẽ được gửi đến %s"
 
-msgid "Confirmation link"
-msgstr "Liên kết xác nhận"
-
 msgid "Connected"
 msgstr "Đã kết nối"
 
@@ -2329,8 +2623,8 @@ msgstr "SPAM Biểu mẫu Liên hệ"
 msgid "Contact Form SPAM Checking"
 msgstr "Kiểm tra SPAM Biểu mẫu Liên hệ"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "SPAM Biểu mẫu Liên hệ chỉ có thể bị chặn với tích hợp tùy chỉnh được xây dựng cho từng nhà cung cấp biểu mẫu - nếu biểu mẫu của bạn không được hỗ trợ, vui lòng liên hệ đội hỗ trợ của chúng tôi."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "SPAM Biểu mẫu Liên hệ chỉ có thể bị chặn bằng tích hợp tùy chỉnh được xây dựng cho từng nhà cung cấp biểu mẫu - nếu biểu mẫu của bạn không được hỗ trợ, vui lòng liên hệ đội hỗ trợ của chúng tôi."
 
 msgid "Contact Forms Integration"
 msgstr "Tích hợp Biểu mẫu Liên hệ"
@@ -2395,8 +2689,8 @@ msgstr "Tọa độ"
 msgid "Core Reinstalled: v%s"
 msgstr "Core Đã cài lại: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Core Đã nâng cấp: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Core Đã nâng cấp: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Các thuộc tính cốt lõi của phiên người dùng đã thiết lập ({{user_login}}) đã thay đổi."
@@ -2443,8 +2737,8 @@ msgstr "Không thể tạo thư mục: %s"
 msgid "Couldn't create the export file."
 msgstr "Không thể tạo file xuất."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Không thể xác định trạng thái plugin Shield."
+msgid "Couldn't determine %s plugin status."
+msgstr "Không thể xác định trạng thái plugin %s."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "Không thể tải plugin cho slug '%s'."
@@ -2455,11 +2749,17 @@ msgstr "Không thể tải theme cho slug '%s'."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "Không thể đọc mẫu plugin MU từ %s"
 
+msgid "Count"
+msgstr "Số Lần"
+
 msgid "Country"
 msgstr "Quốc gia"
 
 msgid "Country Code"
 msgstr "Mã Quốc gia"
+
+msgid "Create %s Network"
+msgstr "Tạo Mạng %s"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Tạo Mã Đăng nhập 2FA Sao lưu"
@@ -2482,9 +2782,6 @@ msgstr "Tạo Quy tắc Mới"
 msgid "Create Report"
 msgstr "Tạo Báo cáo"
 
-msgid "Create Shield Network"
-msgstr "Tạo Shield Network"
-
 msgid "Create and view all your custom security rules."
 msgstr "Tạo và xem tất cả các quy tắc bảo mật tùy chỉnh của bạn."
 
@@ -2502,6 +2799,9 @@ msgstr "Tạo đường dẫn ở đây sẽ tắt 'wp-login.php' của bạn. C
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Tạo quy tắc tùy chỉnh là tính năng nâng cao và tôi chấp nhận hoàn toàn trách nhiệm cho bất kỳ vấn đề nào phát sinh từ các quy tắc tôi tạo."
+
+msgid "Critical"
+msgstr "Quan trọng"
 
 msgid "Critical File Protection"
 msgstr "Bảo vệ Tệp Quan trọng"
@@ -2578,9 +2878,6 @@ msgstr "Nội dung File Hiện tại"
 msgid "Current Scan"
 msgstr "Quét Hiện tại"
 
-msgid "Current Scan Results"
-msgstr "Kết quả Quét Hiện tại"
-
 msgid "Current Session Age (seconds)"
 msgstr "Tuổi Phiên Hiện tại (giây)"
 
@@ -2589,9 +2886,6 @@ msgstr "Phiên Hiện tại Đã Kết thúc"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Tuổi Token Phiên Hiện tại (giây)"
-
-msgid "Current Summary"
-msgstr "Tóm tắt Hiện tại"
 
 msgid "Current User Sessions"
 msgstr "Phiên Người dùng Hiện tại"
@@ -2619,9 +2913,6 @@ msgstr "Debug Tùy chỉnh"
 
 msgid "Custom Exclusions"
 msgstr "Ngoại lệ Tùy chỉnh"
-
-msgid "Custom Report on %s"
-msgstr "Báo cáo Tùy chỉnh vào %s"
 
 msgid "Custom Rules"
 msgstr "Quy tắc Tùy chỉnh"
@@ -2704,14 +2995,14 @@ msgstr "Phạm vi Ngày"
 msgid "Day"
 msgstr "Ngày"
 
+msgid "Deactivate %s"
+msgstr "tắt %s"
+
 msgid "Deactivate Akismet"
 msgstr "Hủy kích hoạt Akismet"
 
 msgid "Deactivate Rule"
 msgstr "Tắt Quy tắc"
-
-msgid "Deactivate Shield"
-msgstr "Hủy kích hoạt Shield"
 
 msgid "Deactivated"
 msgstr "Đã Tắt"
@@ -2727,9 +3018,6 @@ msgstr "Debug Đang Bật"
 
 msgid "Debug Tests"
 msgstr "Kiểm tra Debug"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "Ghi nhật ký Debug và Info chỉ nên được bật khi điều tra các vấn đề cụ thể."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Quyết định cách %s nên phản ứng khi bot thực hiện các hành động nhất định."
@@ -2749,8 +3037,8 @@ msgstr "Người dùng Admin Mặc định"
 msgid "Default User Role"
 msgstr "Vai trò Người dùng Mặc định"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Vai trò người dùng mặc định đã thay đổi: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Vai trò người dùng mặc định đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Mặc định: Một lần mỗi 24 giờ. Để cải thiện bảo mật, hãy tăng số lần quét mỗi ngày."
@@ -2806,14 +3094,11 @@ msgstr "Bảng Đã Xóa"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Các bài viết của người dùng đã xóa đã được chỉ định lại cho người dùng '{{user_login}}'."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Thay đổi UI quan trọng với Shield v20"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: Thay đổi giao diện quan trọng với %s v20"
 
 msgid "Demoted From Admin"
 msgstr "Bị Hạ cấp khỏi Admin"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "Tùy thuộc vào cài đặt của bạn, các báo cáo này có thể chứa sự kết hợp của cảnh báo, thống kê và thông tin khác."
 
 msgid "Description"
 msgstr "Mô tả"
@@ -2880,6 +3165,9 @@ msgstr "Đã phát hiện"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Phát hiện đăng ký người dùng với địa chỉ email không hợp lệ ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Phát hiện địa chỉ IP khách truy cập chính xác là rất quan trọng để phân biệt từng khách truy cập trang web với khách tiếp theo."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Phát hiện chúng sớm và chặn chúng là nguồn bảo vệ lớn nhất của bạn."
@@ -2953,6 +3241,9 @@ msgstr "Tắt Module"
 msgid "Disable Security Admin"
 msgstr "Tắt Security Admin"
 
+msgid "Disable Security Admin via Email"
+msgstr "Tắt Security Admin qua Email"
+
 msgid "Disable Shield"
 msgstr "Tắt Shield"
 
@@ -2989,6 +3280,9 @@ msgstr "Vô hiệu hóa điểm cuối XML-RPC và chặn tất cả yêu cầu.
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Vô hiệu hóa tùy chọn này để ẩn một số thông báo quản trị plugin nhất định về các bản cập nhật có sẵn và thông báo sau cập nhật."
 
+msgid "Disabled"
+msgstr "Đã tắt"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Vô hiệu hóa quyền truy cập ẩn danh có thể làm hỏng các plugin sử dụng REST API cho khách truy cập trang web của bạn."
 
@@ -2998,8 +3292,8 @@ msgstr "Đã ngắt kết nối"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Khám phá các plugin có thể đã bị tác giả bỏ rơi"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Khám phá bảo mật WordPress toàn diện nhất khi bạn nâng cấp gói Shield Security của mình."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Khám phá bảo mật WordPress toàn diện nhất khi bạn nâng cấp gói %s của mình."
 
 msgid "Discovered"
 msgstr "Đã Phát hiện"
@@ -3009,6 +3303,9 @@ msgstr "Phát hiện malware trên trang web của bạn không phải là 'bả
 
 msgid "Disk Space"
 msgstr "Dung lượng Đĩa"
+
+msgid "Dismiss"
+msgstr "Bỏ qua"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Hiển thị Thông báo Plugin Không Thiết yếu và Menu Thanh Quản trị"
@@ -3064,8 +3361,8 @@ msgstr "Tên máy chủ của IP yêu cầu có khớp với tên máy chủ đ�
 msgid "Does the method of the request match the given specified method to match."
 msgstr "Phương thức của yêu cầu có khớp với phương thức được chỉ định để khớp."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "Yêu cầu có bỏ qua bất kỳ và tất cả các hạn chế của Shield."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "Yêu cầu có bỏ qua bất kỳ và tất cả các hạn chế %s."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "Yêu cầu có chứa tham số với tên được cung cấp."
@@ -3097,8 +3394,8 @@ msgstr "Tên script của yêu cầu có khớp với tên đã cho."
 msgid "Does the request useragent match the given useragent."
 msgstr "Useragent của yêu cầu có khớp với useragent đã cho."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "Giá trị của tham số Shield Session đã cho có khớp với mẫu đã cho."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "Giá trị của tham số %s Session đã cho có khớp với mẫu đã cho."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "Giá trị của tham số yêu cầu đã cho có khớp với mẫu đã cho."
@@ -3115,8 +3412,8 @@ msgstr "Không Quét Bình luận Cho Người dùng Với Các Vai trò Sau"
 msgid "Don't want these email alerts?"
 msgstr "Không muốn nhận các cảnh báo email này?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Đã hạ cấp: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Đã hạ cấp: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "tải về"
@@ -3130,6 +3427,9 @@ msgstr "Tải xuống Quy tắc IP dưới dạng CSV"
 msgid "Download Modified"
 msgstr "Tải về File Đã Sửa Đổi"
 
+msgid "Download Now"
+msgstr "tải về Ngay"
+
 msgid "Download Options Export File"
 msgstr "Tải về File Xuất Tùy chọn"
 
@@ -3139,11 +3439,17 @@ msgstr "Tải về Bản gốc"
 msgid "Download Request Logs"
 msgstr "Tải xuống Nhật ký Yêu cầu"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "Tải xuống thất bại. Kiểm tra xem API ShieldNet có khả dụng và ngôn ngữ có tồn tại không."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Đã tải về các quyết định uy tín từ CrowdSec cho phạm vi: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Đang tải xuống tệp, vui lòng đợi..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Đang tải xuống bản dịch cho ngôn ngữ: %s"
 
 msgid "Duration"
 msgstr "Thời lượng"
@@ -3160,8 +3466,8 @@ msgstr "Mỗi trang web trong danh sách này sẽ có thể xuất tùy chọn 
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Nâng cấp WP Pro Dễ dàng Nhất, Không Gây Khó chịu Ở Bất kỳ Đâu"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Dễ dàng tích hợp Shield Security để giúp bạn quản lý bảo mật trang web của mình từ trong MainWP."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Dễ dàng tích hợp %s để giúp bạn quản lý bảo mật trang web của mình từ trong MainWP."
 
 msgid "Edit"
 msgstr "sửa"
@@ -3169,8 +3475,8 @@ msgstr "sửa"
 msgid "Edit Rule"
 msgstr "Sửa Quy tắc"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "Sửa Quy tắc #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Sửa Quy tắc #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Chỉnh sửa Cài đặt"
@@ -3220,8 +3526,8 @@ msgstr "Chỉnh sửa cài đặt áp dụng bảo vệ cho biểu mẫu đăng 
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Chỉnh sửa cài đặt kiểm soát chặn IP tự động"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Chỉnh sửa cài đặt kiểm soát cách silentCAPTCHA phát hiện bot"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Chỉnh sửa cài đặt kiểm soát cách %s phát hiện bot"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Chỉnh sửa cài đặt để áp dụng độ mạnh mật khẩu tối thiểu"
@@ -3250,8 +3556,8 @@ msgstr "Chỉnh sửa tùy chọn này hiện đang bị hạn chế."
 msgid "Either the country code or phone number were missing."
 msgstr "Mã quốc gia hoặc số điện thoại bị thiếu."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Nâng cao bảo mật WordPress của bạn lên hàng đầu, bằng cách nâng cấp gói Shield Security của bạn."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Nâng cao bảo mật WordPress của bạn lên hàng đầu, bằng cách nâng cấp gói %s của bạn."
 
 msgid "Email"
 msgstr "email"
@@ -3304,8 +3610,8 @@ msgstr "Thông báo email cho bình luận mới"
 msgid "Email sending has already been verified."
 msgstr "Việc gửi email đã được xác minh."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "Email được gửi từ Plugin %s v%s, vào %s."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "Email được gửi từ Plugin %1$s v%2$s, trên %3$s."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "Email đã gửi. Đảm bảo liên kết mở trong trình duyệt NÀY."
@@ -3334,8 +3640,8 @@ msgstr "Sử dụng một bộ quy tắc mạnh mẽ để phát hiện và ch�
 msgid "Empty User Agents"
 msgstr "User Agent Trống"
 
-msgid "Empty response from Shield client site"
-msgstr "Phản hồi trống từ trang web client Shield"
+msgid "Empty response from %s client site"
+msgstr "Phản hồi trống từ trang web client %s"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Tệp gốc trống được cung cấp để khởi tạo"
@@ -3568,14 +3874,20 @@ msgstr "Lỗi"
 msgid "Error Log Message"
 msgstr "Tin nhắn Nhật ký Lỗi"
 
+msgid "Error: {{error}}"
+msgstr "Lỗi: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Ngay cả một đánh giá ngắn gọn nói rằng bạn hài lòng với nó, cũng sẽ giúp chúng tôi rất nhiều."
+
 msgid "Event"
 msgstr "Sự kiện"
 
 msgid "Event %s does not exist."
 msgstr "Sự kiện %s không tồn tại."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Sự kiện (%s) có các tham số kiểm toán không có mặt: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Định nghĩa sự kiện (%1$s) có các tham số audit không có mặt: %2$s"
 
 msgid "Event Details"
 msgstr "Chi tiết Sự kiện"
@@ -3661,6 +3973,9 @@ msgstr "Không thể kết nối với máy chủ giấy phép."
 msgid "Failed to create custom report."
 msgstr "Không thể tạo báo cáo tùy chỉnh."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Không thể tải xuống tệp dịch cho ngôn ngữ: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Không thể chèn bản ghi khóa tệp cho đường dẫn: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Sửa chữa mục quét thất bại."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Không gửi được email cảnh báo Chặn Tường lửa đến: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Không gửi được email (loại: {{slug}}) đến '{{email}}' bằng SureSend."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Không gửi được email (loại: {{slug}}) đến '{{email}}' bằng %s."
 
 msgid "Failed to store the rule in the database."
 msgstr "Không thể lưu quy tắc vào cơ sở dữ liệu."
@@ -3796,8 +4111,8 @@ msgstr "Nội dung tệp không thể được mã hóa. Thông báo:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "Nội dung tệp không thể wp_json_encode() sau khi mã hóa."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Tệp được phát hiện là %s bởi trình quét %s."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Tệp được phát hiện là %1$s bởi trình quét %2$s."
 
 msgid "File does not exist."
 msgstr "Tệp không tồn tại."
@@ -3997,14 +4312,17 @@ msgstr "Đã tạo"
 msgid "Generating a new code will replace your existing code."
 msgstr "Tạo mã mới sẽ thay thế mã hiện có của bạn."
 
+msgid "Get %s!"
+msgstr "Nhận %s!"
+
 msgid "Get All PRO Security Features"
 msgstr "Nhận Tất Cả Tính Năng Bảo Mật PRO"
 
-msgid "Get ShieldPRO!"
-msgstr "Nhận ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Bắt Đầu Trong Vòng Chưa Đầy 3 Phút"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Nhận bản dùng thử miễn phí không rủi ro, không ràng buộc của %s ngay hôm nay."
 
 msgid "Global Plugin Enable"
 msgstr "Bật Plugin Toàn cục"
@@ -4039,6 +4357,9 @@ msgstr "Nâng cấp Pro!"
 msgid "Go To %s"
 msgstr "Đi đến %s"
 
+msgid "Go To %s Overview"
+msgstr "Đi đến Tổng quan %s"
+
 msgid "Go To Admin"
 msgstr "Đi đến Admin"
 
@@ -4050,9 +4371,6 @@ msgstr "Đi đến Tổng quan"
 
 msgid "Go To Security Dashboard"
 msgstr "Đi đến Bảng điều khiển Bảo mật"
-
-msgid "Go To Shield Overview"
-msgstr "Đi đến Tổng quan Shield"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Truy cập đây để quản lý cài đặt và xác thực với plugin %s."
@@ -4111,14 +4429,14 @@ msgstr "HTTP Response Header Để Gửi"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "Cài đặt HTTPS cho Home URL và WP Site URL không nhất quán."
 
-msgid "Handshake ShieldNET"
-msgstr "Bắt tay ShieldNET"
+msgid "Handshake %s"
+msgstr "Bắt tay %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Xác thực Hai Yếu tố Phần cứng"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Có Phiên Người Dùng Shield Hợp Lệ"
+msgid "Has Valid %s User Sessions"
+msgstr "Có Phiên Người dùng %s Hợp lệ"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Có toàn quyền kiểm soát mật khẩu được người dùng sử dụng trên trang web."
@@ -4135,11 +4453,14 @@ msgstr "Bài viết HelpDesk"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Helpdesk và Cơ sở Kiến thức"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Dưới đây là một số cách Shield đang bảo vệ trang web của bạn:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Dưới đây là một số cách %s đang bảo vệ trang web của bạn:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Ở đây bạn chọn loại dữ liệu độc hại để quét."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Đây là tổng quan bảo mật của bạn cho khoảng thời gian báo cáo. Xem xét bất kỳ vấn đề nào bên dưới và thực hiện hành động khi cần thiết."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Tuy nhiên, ở đây chúng tôi tập trung vào chính các tài khoản người dùng để đảm bảo chúng ở trạng thái bảo mật."
@@ -4189,8 +4510,8 @@ msgstr "URL Trang chủ"
 msgid "Home URL Changed"
 msgstr "URL Trang chủ đã thay đổi"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "URL Trang chủ đã thay đổi: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "URL trang chủ đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "Trang chủ"
@@ -4297,11 +4618,14 @@ msgstr "Bộ Lọc SPAM Người thật"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "Bộ lọc SPAM Người thật phát hiện các nỗ lực SPAM bình luận lặp lại."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "Bộ lọc SPAM Người thật tìm thấy '%s' trong '%s'"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "Bộ lọc SPAM Người thật tìm thấy \"%1$s\" trong \"%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Bộ lọc SPAM Người thật tìm thấy '{{word}}' trong '{{key}}'"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "SPAM của con người vẫn gây ra nhiều khó chịu nhất vì nó thường vượt qua các biện pháp phòng thủ SPAM."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Tôi Hiểu Các Tùy chọn Hiện có Sẽ Bị Ghi đè"
@@ -4327,17 +4651,11 @@ msgstr "Tôi biết rằng nếu tôi sử dụng bộ nhớ đệm và tôi kh�
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Tôi hiểu hậu quả của việc chặn tất cả lưu lượng truy cập đến trang web này."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Tôi hiểu rủi ro khi tạo quy tắc không tôn trọng whitelist và ngoại lệ của Shield, và tôi có thể gặp khó khăn trong việc lấy lại quyền truy cập nếu bị khóa."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Tôi hiểu rủi ro khi tạo quy tắc không tuân thủ danh sách trắng và ngoại lệ của %s, và tôi có thể gặp khó khăn trong việc lấy lại quyền truy cập nếu bị khóa."
 
 msgid "I'd like to learn more, please"
 msgstr "Tôi muốn tìm hiểu thêm"
-
-msgid "I'd rather not show this support"
-msgstr "Tôi không muốn hiển thị hỗ trợ này"
-
-msgid "I've done this already"
-msgstr "Tôi đã làm điều này rồi"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "QUAN TRỌNG"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "Điểm IP %s Đã Được Đặt lại."
 
 msgid "IP Address"
 msgstr "Địa chỉ IP"
@@ -4552,9 +4873,6 @@ msgstr "IP không nằm trong danh sách chặn tự động."
 msgid "IP provided was invalid."
 msgstr "IP được cung cấp không hợp lệ."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "Đặt lại Điểm silentCAPTCHA IP."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Nếu người dùng có nhiều vai trò được gán cho nó, tất c
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Nếu phát hiện dữ liệu độc hại, yêu cầu sẽ bị chấm dứt ngay lập tức."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Nếu cài đặt chính xác không phải là %s, chúng tôi khuyến nghị liên hệ với nhà cung cấp dịch vụ lưu trữ của bạn để yêu cầu họ cấu hình dịch vụ lưu trữ của bạn sao cho %s cung cấp địa chỉ IP thực tế của khách truy cập."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Nếu cài đặt chính xác không phải là %1$s, chúng tôi khuyến nghị liên hệ nhà cung cấp hosting của bạn để yêu cầu họ cấu hình hosting sao cho %2$s cung cấp địa chỉ IP khách truy cập thực tế."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Nếu nhà cung cấp bạn muốn không có trong danh sách, hãy liên hệ đội hỗ trợ của chúng tôi và chúng tôi sẽ xem xét liệu có thể xây dựng tích hợp hay không."
@@ -4642,8 +4960,8 @@ msgstr "Nếu người dùng không hoạt động trong số giờ được ch�
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Nếu người dùng không hoạt động trong số giờ được chỉ định, họ sẽ bị đăng xuất cưỡng bức vào lần quay lại tiếp theo. Đặt giá trị này thành '0' để tắt tùy chọn này."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Nếu điểm số khách truy cập không đạt Điểm silentCAPTCHA Tối thiểu của bạn, chúng tôi có thể ngăn yêu cầu (chẳng hạn như đăng nhập, bình luận WP, v.v.). Nếu cao hơn, chúng tôi cho phép."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Nếu điểm số khách truy cập không đạt Điểm %s Tối thiểu của bạn, chúng tôi có thể ngăn chặn yêu cầu (chẳng hạn như đăng nhập, bình luận WP, v.v.). Nếu cao hơn, chúng tôi sẽ cho phép."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Nếu đây là trang web client MainWP, bạn nên thêm địa chỉ IP của MainWP Admin Server vào danh sách bỏ qua IP của mình."
@@ -4656,6 +4974,9 @@ msgstr "Nếu thông báo này vẫn xuất hiện sau khi làm mới trang này
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Nếu vấn đề này vẫn tiếp diễn, vui lòng liên hệ hỗ trợ: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Nếu bạn đã có giấy phép %s được gán cho trang web này,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Nếu bạn tin rằng, vì bất kỳ lý do gì, hộp thư của bạn hoặc người dùng của bạn bị xâm phạm, bạn nên tắt tùy chọn này."
@@ -4702,11 +5023,8 @@ msgstr "Nếu bạn muốn được thông báo mỗi khi người dùng quản 
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Nếu bạn muốn được thông báo mỗi khi người dùng quản trị viên đăng nhập vào trang web WordPress này, hãy nhập địa chỉ email thông báo. Không có địa chỉ email - Không có Thông báo."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Nếu bạn không sử dụng nhà cung cấp dịch vụ email chuyên dụng để gửi email WordPress, bạn nên bật SureSend cho những email quan trọng này."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Nếu bạn quên PIN của mình, hãy sử dụng menu ở trên để vô hiệu hóa hạn chế này."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Nếu bạn không sử dụng nhà cung cấp dịch vụ email chuyên dụng để gửi email WordPress, bạn nên kích hoạt %s cho những email quan trọng này."
 
 msgid "Ignore"
 msgstr "Bỏ qua"
@@ -4737,9 +5055,6 @@ msgstr "Đã Gửi Thông báo Nhập"
 
 msgid "Import Options"
 msgstr "Nhập Tùy chọn"
-
-msgid "Import Settings From Another Site"
-msgstr "Nhập Cài đặt Từ Trang Web Khác"
 
 msgid "Import file was empty"
 msgstr "Tệp nhập trống"
@@ -4870,11 +5185,14 @@ msgstr "Thông tin Cho Địa chỉ IP %s"
 msgid "Info Reports Frequency"
 msgstr "Tần suất Báo cáo Thông tin"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Ghi nhật ký thông tin chỉ nên được bật khi điều tra các vấn đề cụ thể."
+
 msgid "Information and reports are typically statistics."
 msgstr "Thông tin và báo cáo thường là thống kê."
 
-msgid "Install Shield"
-msgstr "Cài đặt Shield"
+msgid "Install %s"
+msgstr "Cài đặt %s"
 
 msgid "Installation Directory"
 msgstr "Thư mục Cài đặt"
@@ -4909,6 +5227,9 @@ msgstr "Khoảng thời gian được đo bằng giây."
 msgid "Invalid"
 msgstr "Không hợp lệ"
 
+msgid "Invalid %s extension configuration"
+msgstr "Cấu hình tiện ích mở rộng %s không hợp lệ"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Ngoại lệ Nonce Hành động Không hợp lệ."
 
@@ -4933,9 +5254,6 @@ msgstr "Tải Script Không Hợp Lệ"
 msgid "Invalid Scripts"
 msgstr "Script Không hợp lệ"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Cấu hình tiện ích mở rộng Shield không hợp lệ"
-
 msgid "Invalid Slug"
 msgstr "Slug Không hợp lệ"
 
@@ -4948,9 +5266,6 @@ msgstr "User Agent Không hợp lệ"
 msgid "Invalid User Email Registration"
 msgstr "Đăng ký Email Người dùng Không hợp lệ"
 
-msgid "Invalid User-Agent"
-msgstr "User-Agent Không hợp lệ"
-
 msgid "Invalid Username Login"
 msgstr "Đăng nhập Tên người dùng Không hợp lệ"
 
@@ -4959,6 +5274,12 @@ msgstr "Tên người dùng Không hợp lệ"
 
 msgid "Invalid action"
 msgstr "hành động không hợp lệ"
+
+msgid "Invalid batch request format."
+msgstr "Định dạng yêu cầu hàng loạt không hợp lệ."
+
+msgid "Invalid batch request item."
+msgstr "Mục yêu cầu hàng loạt không hợp lệ."
 
 msgid "Invalid download item data."
 msgstr "Dữ liệu mục tải về không hợp lệ."
@@ -4975,6 +5296,15 @@ msgstr "Tải xuống loại file locker không hợp lệ"
 msgid "Invalid login nonce"
 msgstr "Nonce đăng nhập không hợp lệ"
 
+msgid "Invalid login session."
+msgstr "Phiên đăng nhập không hợp lệ."
+
+msgid "Invalid or expired login session."
+msgstr "Phiên đăng nhập không hợp lệ hoặc đã hết hạn."
+
+msgid "Invalid profile request."
+msgstr "Yêu cầu hồ sơ không hợp lệ."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Yêu cầu không hợp lệ - chế độ khóa đã hoạt động."
 
@@ -4984,11 +5314,8 @@ msgstr "Yêu cầu không hợp lệ - chế độ khóa không hoạt động."
 msgid "Invalid request with no User ID"
 msgstr "Yêu cầu không hợp lệ không có ID Người dùng"
 
-msgid "Invalid response from Shield client site"
-msgstr "Phản hồi không hợp lệ từ trang web client Shield"
-
-msgid "Invalid session selected"
-msgstr "Phiên đã chọn không hợp lệ"
+msgid "Invalid response from %s client site"
+msgstr "Phản hồi không hợp lệ từ trang web client %s"
 
 msgid "Invalid specification of modules"
 msgstr "Đặc tả module không hợp lệ"
@@ -4996,14 +5323,26 @@ msgstr "Đặc tả module không hợp lệ"
 msgid "Invalid type."
 msgstr "Loại không hợp lệ."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "Phát hiện user agent không hợp lệ tại '{{useragent}}'."
-
 msgid "Invalid value scope for %s"
 msgstr "Phạm vi giá trị không hợp lệ cho %s"
 
 msgid "Invalid value type for %s"
 msgstr "Loại giá trị không hợp lệ cho %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "Chức năng Plugin %s có bị Vô hiệu hóa không."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "Rate Limiting Lưu lượng %s có được Bật không."
+
+msgid "Is %s live logging enabled."
+msgstr "Ghi nhật ký trực tiếp %s có được bật."
+
+msgid "Is %s score"
+msgstr "Là điểm %s"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "Site Lockdown của %s có đang hoạt động."
 
 msgid "Is It You?"
 msgstr "Có Phải Là Bạn?"
@@ -5017,20 +5356,8 @@ msgstr "Trạng thái Yêu cầu Có phải 404"
 msgid "Is Request To The Login Page."
 msgstr "Là Yêu cầu Đến Trang Đăng nhập."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Chức năng Plugin Shield Có Bị Vô hiệu hóa."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Rate Limiting Lưu lượng Shield có được Bật."
-
-msgid "Is Shield live logging enabled."
-msgstr "Có bật ghi nhật ký trực tiếp Shield."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Chế độ Khóa Trang web của Shield có đang hoạt động."
-
-msgid "Is The Shield Option Value..."
-msgstr "Là Giá trị Tùy chọn Shield..."
+msgid "Is The %s Option Value..."
+msgstr "Giá trị Tùy chọn %s Có..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Là Địa chỉ IP Công khai Hợp lệ"
@@ -5038,8 +5365,8 @@ msgstr "Là Địa chỉ IP Công khai Hợp lệ"
 msgid "Is Viable"
 msgstr "Khả thi"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Điểm silentCAPTCHA Khách truy cập Là ..."
+msgid "Is Visitor %s Score ..."
+msgstr "Điểm %s của Khách truy cập là ..."
 
 msgid "Is WP AJAX"
 msgstr "Là WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "Người dùng hiện tại có phải là quản trị viên WordPress 
 msgid "Is current user password expired."
 msgstr "Mật khẩu người dùng hiện tại đã hết hạn."
 
-msgid "Is silentCAPTCHA score"
-msgstr "Là điểm silentCAPTCHA"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Plugin Shield có đang ở trạng thái \"forceoff\"."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "Plugin %s có đang ở trạng thái \"forceoff\" không."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Địa chỉ IP hiện tại có được coi là \"uy tín cao\" hay không."
@@ -5116,23 +5440,23 @@ msgstr "Tuổi token phiên người dùng hiện tại nhỏ hơn hay lớn hơ
 msgid "Is the request HTTPS."
 msgstr "Yêu cầu có phải là HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "IP yêu cầu có bị chặn tự động hoặc thủ công bởi Shield."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "IP yêu cầu có bị chặn tự động hoặc thủ công bởi %s."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "IP yêu cầu có nằm trong danh sách đen của Shield."
+msgid "Is the request IP blacklisted by %s."
+msgstr "IP yêu cầu có bị đưa vào danh sách đen bởi %s."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "IP yêu cầu có nằm trong danh sách chặn CrowdSec của Shield."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "IP yêu cầu có nằm trong danh sách chặn CrowdSec của %s không."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "IP yêu cầu có nằm trong danh sách chặn thủ công của Shield."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "IP yêu cầu có nằm trong danh sách chặn Thủ công của %s không."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "IP yêu cầu có nằm trong danh sách tự động chặn của Shield."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "IP yêu cầu có nằm trong danh sách tự động chặn của %s không."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "IP yêu cầu có nằm trong danh sách bỏ qua/whitelist thủ công của Shield."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "IP yêu cầu có nằm trong danh sách bỏ qua/danh sách trắng thủ công của %s."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Yêu cầu có phải là bot xuất phát từ nhà cung cấp dịch vụ đáng tin cậy."
@@ -5143,17 +5467,17 @@ msgstr "Yêu cầu có phải là yêu cầu loopback của máy chủ."
 msgid "Is the request an HTTP 404."
 msgstr "Yêu cầu có phải là HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Yêu cầu có bị chặn bởi tính năng Khóa Trang web của Shield."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "Yêu cầu có bị chặn bởi tính năng Site Lockdown của %s."
 
 msgid "Is the request from a logged-in user."
 msgstr "Yêu cầu có từ người dùng đã đăng nhập."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Yêu cầu có từ người dùng được xác thực là Shield Security Admin."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "Yêu cầu có từ người dùng được xác thực là %s Admin."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "Đường dẫn yêu cầu có nằm trong danh sách trắng của Shield."
+msgid "Is the request path whitelisted by %s."
+msgstr "Đường dẫn yêu cầu có nằm trong danh sách trắng của %s không."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "Yêu cầu có đến đường dẫn trong plugin WordPress hiện đang được cài đặt."
@@ -5212,6 +5536,9 @@ msgstr "Vấn đề Được Tìm thấy"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Các vấn đề được liệt kê bên dưới nên được giải quyết càng nhanh càng tốt"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Nó cũng giúp khóa các cài đặt WordPress quan trọng."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "Nó cũng tìm kiếm các tệp không nên có trong thư mục WP core (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Có vẻ như IP của bạn (%s) hiện đang bị chặn."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Tuy nhiên, nó có thể sử dụng cookie để đăng ký việc đóng huy hiệu bảo mật %s để ngăn hiển thị lặp lại."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Nó sử dụng Công cụ silentCAPTCHA độc quyền của chúng tôi để xác định bot một cách đáng tin cậy."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Nó sử dụng công cụ %s độc quyền của chúng tôi để xác định bot một cách đáng tin cậy."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "Nó đã được gửi đến '{{to}}' với chủ đề '{{subject}}'."
@@ -5275,8 +5602,8 @@ msgstr "Nó đã được gửi đến '{{to}}' với chủ đề '{{subject}}'.
 msgid "It will be displayed below when it's ready."
 msgstr "Nó sẽ được hiển thị bên dưới khi sẵn sàng."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Nó sẽ tự động tìm vị trí phù hợp, nhưng nếu điều này thất bại, bạn có thể thấy cảnh báo PHP trên trang web của mình và một số chức năng Shield nhất định sẽ không có sẵn."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Nó sẽ tự động tìm vị trí phù hợp, nhưng nếu điều này thất bại, bạn có thể thấy cảnh báo PHP trên trang web của mình và một số chức năng %s sẽ không khả dụng."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Đây là một lĩnh vực phức tạp và nếu sử dụng không đúng cách, có thể dễ dàng làm hỏng trải nghiệm người dùng front-end của bạn."
@@ -5298,9 +5625,6 @@ msgstr "Thực hành tốt là giới hạn thời gian phiên, đặc biệt kh
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Thực hành tốt là khóa phiên ít nhất 1 thuộc tính để giúp ngăn chặn việc đánh cắp phiên."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Đó là SPAM từ người thật vẫn gây ra nhiều khó chịu nhất, vì chúng thường không kích hoạt các biện pháp phòng thủ của chúng tôi."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Nó nằm trong thư mục plugin WordPress và được công nhận là tệp hợp lệ cho phiên bản plugin đó."
@@ -5338,8 +5662,8 @@ msgstr "Mục đã sửa chữa: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Mục Tìm thấy Trong Quét"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Tham gia Bản tin Shield Security"
+msgid "Join The %s Newsletter"
+msgstr "Tham gia Bản tin %s"
 
 msgid "Join Us"
 msgstr "Tham Gia Với Chúng Tôi"
@@ -5347,8 +5671,14 @@ msgstr "Tham Gia Với Chúng Tôi"
 msgid "Join Us!"
 msgstr "Tham Gia Với Chúng Tôi!"
 
+msgid "Join our %s Newsletter"
+msgstr "Tham gia Bản tin %s của chúng tôi"
+
 msgid "Jump To Module Settings"
 msgstr "Chuyển Đến Cài đặt Module"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Tham gia nhóm Facebook %s của chúng tôi, nơi bạn có thể đặt câu hỏi từ cộng đồng hoạt động của chúng tôi và cập nhật tin tức mới nhất của chúng tôi"
 
 msgid "Just grab a new license from the"
 msgstr "Chỉ cần lấy giấy phép mới từ"
@@ -5437,6 +5767,9 @@ msgstr "Lần Đồng bộ Cuối"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Cuối cùng, chúng tôi muốn ngăn chặn khả năng bot (hoặc con người) đăng ký tài khoản SPAM trên trang web, vì bất kỳ lý do gì."
 
+msgid "Latest Scan Results"
+msgstr "Kết quả Quét Mới nhất"
+
 msgid "Launch Debug Info Page"
 msgstr "Khởi chạy Trang Thông tin Debug"
 
@@ -5464,6 +5797,12 @@ msgstr "giấy phép"
 msgid "License Activation"
 msgstr "Kích hoạt Giấy phép"
 
+msgid "License Activation Failed"
+msgstr "Kích hoạt Giấy phép Thất bại"
+
+msgid "License Activation Success"
+msgstr "Kích hoạt Giấy phép Thành công"
+
 msgid "License Check Failed"
 msgstr "Kiểm tra Giấy phép Thất bại"
 
@@ -5482,6 +5821,30 @@ msgstr "Đã Gửi Email Lỗi Giấy phép"
 msgid "License Summary"
 msgstr "Tóm tắt giấy phép"
 
+msgid "License activated and verified successfully."
+msgstr "Giấy phép đã được kích hoạt và xác minh thành công."
+
+msgid "License activated but verification failed."
+msgstr "Giấy phép đã được kích hoạt nhưng xác minh thất bại."
+
+msgid "License activated successfully."
+msgstr "Giấy phép đã được kích hoạt thành công."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "Kích hoạt giấy phép thất bại vì không có giấy phép nào khả dụng trên tài khoản này."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "Kích hoạt giấy phép thất bại vì khóa API không hợp lệ."
+
+msgid "License activation failed."
+msgstr "Kích hoạt giấy phép thất bại."
+
+msgid "License activation request failed."
+msgstr "Yêu cầu kích hoạt giấy phép thất bại."
+
+msgid "License activation was denied for this site."
+msgstr "Kích hoạt giấy phép bị từ chối cho trang web này."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Kiểm tra giấy phép thất bại. Đang gửi Email Cảnh báo."
 
@@ -5499,9 +5862,6 @@ msgstr "Giấy phép chỉ có thể được kiểm tra một lần mỗi %s gi
 
 msgid "Lifetime"
 msgstr "Thời gian tồn tại"
-
-msgid "Lifetime Total"
-msgstr "Tổng Thời gian tồn tại"
 
 msgid "Light"
 msgstr "Nhẹ"
@@ -5577,6 +5937,12 @@ msgstr "Trình quét malware PHP cục bộ được bật nhưng quét Malware 
 
 msgid "Locale"
 msgstr "locale"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "Ngôn ngữ \"%1$s\" đã được lưu trong bộ nhớ cache tại: %2$s. Sử dụng --force để tải xuống lại."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "Ngôn ngữ \"%s\" không có sẵn để tải xuống."
 
 msgid "Location"
 msgstr "Vị trí"
@@ -5740,11 +6106,11 @@ msgstr "Quên Mật khẩu Bị chặn"
 msgid "Lost Password Bot Protection"
 msgstr "Bảo vệ Bot Quên Mật khẩu"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "SPAM Quên Mật khẩu bởi bot được chặn bởi silentCAPTCHA."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "SPAM Quên Mật khẩu bởi bot được chặn bởi %s."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM Quên Mật khẩu bởi bot không được chặn bởi silentCAPTCHA."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "SPAM Quên Mật khẩu bởi bot không được chặn bởi %s."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Thích nó? Đánh giá Plugin Này &#10025;"
@@ -5923,6 +6289,9 @@ msgstr "Giá trị Meta Cần Khớp"
 msgid "Method"
 msgstr "Phương thức"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Điểm %s tối thiểu cần thiết để chỉ ra khách truy cập là con người"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Tự động Phê duyệt Bình luận Tối thiểu"
 
@@ -5941,9 +6310,6 @@ msgstr "Khoảng Thời gian Tối thiểu Giữa Các Bình luận"
 msgid "Minimum required MainWP server version"
 msgstr "Phiên bản máy chủ MainWP tối thiểu yêu cầu"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Điểm silentCAPTCHA tối thiểu cần thiết để xác định khách truy cập là con người"
-
 msgid "Minutes"
 msgstr "Phút"
 
@@ -5952,6 +6318,12 @@ msgstr "Cấu hình sai có thể gây ra sự cố cho khách truy cập của 
 
 msgid "Missing"
 msgstr "Thiếu"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Thiếu slug hành động hoặc nonce trong yêu cầu hàng loạt."
+
+msgid "Missing request payload for batch request item."
+msgstr "Thiếu payload yêu cầu cho mục yêu cầu hàng loạt."
 
 msgid "Mode"
 msgstr "Chế độ"
@@ -5989,6 +6361,12 @@ msgstr "Hầu hết SPAM là tự động, bởi bot, nhưng đôi khi Con ngư�
 msgid "Multi-Factor Authentication"
 msgstr "Xác thực Đa Yếu tố"
 
+msgid "Multiple Signals"
+msgstr "Nhiều Tín hiệu"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Phát hiện nhiều tín hiệu bot cho khách truy cập này."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Có thể cung cấp nhiều địa chỉ email, phân tách bằng dấu phẩy."
 
@@ -6013,6 +6391,9 @@ msgstr "Mật khẩu DB MySQL"
 msgid "N/A"
 msgstr "N/A"
 
+msgid "NEW"
+msgstr "MỚI"
+
 msgid "NO TITLE"
 msgstr "KHÔNG CÓ TIÊU ĐỀ"
 
@@ -6027,6 +6408,12 @@ msgstr "menu"
 
 msgid "Needs Update"
 msgstr "Cần Cập nhật"
+
+msgid "Needs Work"
+msgstr "Cần Làm Việc"
+
+msgid "Nested batch requests are not allowed."
+msgstr "Yêu cầu hàng loạt lồng nhau không được phép."
 
 msgid "Never"
 msgstr "Không bao giờ"
@@ -6045,12 +6432,6 @@ msgstr "Admin Mới"
 
 msgid "New Comment"
 msgstr "Bình luận Mới"
-
-msgid "New Results"
-msgstr "Kết quả Mới"
-
-msgid "New Scan Results"
-msgstr "Kết quả Quét Mới"
 
 msgid "New User Default Role"
 msgstr "Vai trò Mặc định Người dùng Mới"
@@ -6166,6 +6547,9 @@ msgstr "Không có mục nào được chọn."
 msgid "No license to remove."
 msgstr "Không có giấy phép để xóa."
 
+msgid "No locales available from API."
+msgstr "Không có ngôn ngữ nào có sẵn từ API."
+
 msgid "No message"
 msgstr "Không có tin nhắn"
 
@@ -6175,8 +6559,8 @@ msgstr "Không có meta có sẵn"
 msgid "No modules specified in the plugin config."
 msgstr "Không có module nào được chỉ định trong cấu hình plugin."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Không còn phải nhớ/sao chép-dán khóa giấy phép! Chỉ cần kích hoạt URL trang web của bạn trong bảng điều khiển ShieldPRO và các tính năng Pro sẽ được bật tự động trên trang web của bạn."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Không còn phải nhớ/sao chép-dán khóa giấy phép nữa! Chỉ cần kích hoạt URL trang web của bạn trong bảng điều khiển %s của bạn và các tính năng Pro sẽ được kích hoạt tự động trên trang web của bạn."
 
 msgid "No new session activity recorded yet."
 msgstr "Chưa ghi nhận hoạt động phiên mới."
@@ -6192,6 +6576,9 @@ msgstr "Không có bản ghi"
 
 msgid "No reporter defined"
 msgstr "Không có reporter được định nghĩa"
+
+msgid "No reports generated yet."
+msgstr "Chưa có báo cáo nào được tạo."
 
 msgid "No reports have been generated yet."
 msgstr "Chưa có báo cáo nào được tạo."
@@ -6247,9 +6634,6 @@ msgstr "Không, tôi không muốn giúp đỡ"
 msgid "Noise"
 msgstr "Nhiễu"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Mục quét không phải tệp chưa được hỗ trợ."
-
 msgid "Nonce Failed."
 msgstr "Nonce Thất bại."
 
@@ -6304,14 +6688,11 @@ msgstr "Không phải khóa tùy chọn hợp lệ cho module: %s"
 msgid "Not a valid option key."
 msgstr "Không phải khóa tùy chọn hợp lệ."
 
-msgid "Not a valid scan item record"
-msgstr "Không phải bản ghi mục quét hợp lệ"
-
 msgid "Not a valid value for this parameter"
 msgstr "Không phải giá trị hợp lệ cho tham số này"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Không có sẵn vì trang web của bạn không thể bắt tay với ShieldNET API."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Không khả dụng vì trang web của bạn không thể bắt tay với %s."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Hiện chưa đăng nhập với tư cách security admin."
@@ -6354,9 +6735,6 @@ msgstr "Thông báo Các Trang Web Trong Danh sách Trắng Cập nhật Tùy ch
 
 msgid "Notify Whitelist"
 msgstr "Thông báo Danh sách Trắng"
-
-msgid "Now"
-msgstr "Bây giờ"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "Số Lần Tự Động Quét Tệp Core Trong 24 Giờ"
@@ -6418,6 +6796,9 @@ msgstr "Giới hạn Vi phạm"
 msgid "Offenses couldn't be reset at this time."
 msgstr "Vi phạm không thể được đặt lại vào lúc này."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "Offenses chỉ đơn giản là bộ đếm cho số lần khách truy cập làm điều gì đó xấu."
+
 msgid "Offenses reset to zero."
 msgstr "Vi phạm đã đặt lại về không."
 
@@ -6439,17 +6820,17 @@ msgstr "Mật khẩu Một lần"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Chỉ %s Security Admins mới có thể sửa đổi cài đặt MFA của tài khoản quản trị viên khác."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Chỉ các tệp WordPress core được quét trong phiên bản miễn phí của Shield."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Chỉ các tệp WordPress cốt lõi được quét trong phiên bản miễn phí của %s."
 
 msgid "Only enable the integrations you require."
 msgstr "Chỉ bật các tích hợp bạn yêu cầu."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Chỉ các loại biểu mẫu (đăng nhập, đăng ký, quên mật khẩu) mà bạn đã chọn sẽ được giám sát."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Chỉ cho phép chữ cái và số: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Chỉ các loại biểu mẫu đã chọn (đăng nhập, đăng ký, quên mật khẩu) sẽ được giám sát."
 
 msgid "Only the first 30 items are shown."
 msgstr "Chỉ 30 mục đầu tiên được hiển thị."
@@ -6562,8 +6943,8 @@ msgstr "Trình Quét Malware PHP"
 msgid "PHP Version"
 msgstr "Phiên bản PHP"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP không đáp ứng phiên bản tối thiểu. Phiên bản của bạn: %s. Phiên bản yêu cầu: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP không đáp ứng phiên bản tối thiểu. Phiên bản của bạn: %1$s. Phiên bản yêu cầu: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "Các file PHP không được quét tìm malware."
@@ -6718,6 +7099,9 @@ msgstr "Có lẽ một trong những tính năng mạnh mẽ nhất của nó l�
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Có lẽ thiết bị không được hỗ trợ, hoặc bạn đã đăng ký nó."
 
+msgid "Period"
+msgstr "Giai đoạn"
+
 msgid "Permalink structure"
 msgstr "Cấu trúc đường dẫn"
 
@@ -6727,8 +7111,8 @@ msgstr "Permalink"
 msgid "Permalinks Updated"
 msgstr "Permalink Đã cập nhật"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Permalinks đã thay đổi: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Permalinks đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Chuyển hướng Vĩnh viễn (301)"
@@ -6790,6 +7174,9 @@ msgstr "Vui lòng nhấp vào liên kết trong email bạn đã nhận."
 msgid "Please click the link provided below to do so."
 msgstr "Vui lòng nhấp vào liên kết được cung cấp bên dưới để thực hiện."
 
+msgid "Please complete required fields: %s"
+msgstr "Vui lòng hoàn thành các trường bắt buộc: %s"
+
 msgid "Please complete the form."
 msgstr "Vui lòng hoàn thành biểu mẫu."
 
@@ -6814,14 +7201,14 @@ msgstr "Vui lòng liên hệ quản trị viên trang web nếu bạn cần hư�
 msgid "Please contact your website administrator."
 msgstr "Vui lòng liên hệ quản trị viên trang web của bạn."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Vui lòng xoá tệp \"%s\" để kích hoạt lại bảo vệ %s"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Vui lòng xóa tệp \"%1$s\" để kích hoạt lại bảo vệ %2$s"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Vui lòng đảm bảo ngày kết thúc là vào hoặc sau ngày bắt đầu."
 
 msgid "Please login again."
 msgstr "Vui lòng đăng nhập lại."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Vui lòng đăng xuất nếu bạn muốn xóa phiên của chính mình."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Xin lưu ý rằng các plugin WP Page Caching thường bỏ qua HTTP Headers và nếu bạn không thấy chúng được phản ánh trong các bài kiểm tra của mình, bạn nên vô hiệu hóa plugin caching của mình."
@@ -6840,6 +7227,15 @@ msgstr "Vui lòng cung cấp nhãn để xác định thiết bị."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Vui lòng cung cấp nhãn để xác định trình xác thực mới."
+
+msgid "Please provide a title for the report."
+msgstr "Vui lòng cung cấp tiêu đề cho báo cáo."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Vui lòng cung cấp ngày hợp lệ sử dụng định dạng YYYY-MM-DD."
+
+msgid "Please provide a valid date."
+msgstr "Vui lòng cung cấp ngày hợp lệ."
 
 msgid "Please provide a valid regular expression."
 msgstr "Vui lòng cung cấp biểu thức chính quy hợp lệ."
@@ -6895,6 +7291,9 @@ msgstr "Vui lòng chọn một trong các Loại Quy tắc IP - Block hoặc Byp
 msgid "Please select one of the options available"
 msgstr "Vui lòng chọn một trong các tùy chọn có sẵn"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Vui lòng chỉ định mã ngôn ngữ (ví dụ: --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Vui lòng cung cấp mật khẩu khác vì mật khẩu này đã bị pwned."
 
@@ -6925,17 +7324,17 @@ msgstr "Vui lòng bật quét này trong các tùy chọn."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Vui lòng hiểu rằng để khôi phục các tính năng Security Admin, bạn sẽ cần cung cấp PIN Security Admin mới."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Vui lòng cập nhật plugin Shield của bạn lên cùng phiên bản và đồng bộ lại."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Vui lòng cập nhật plugin %s của bạn lên cùng phiên bản và đồng bộ lại."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Vui lòng nâng cấp để hỗ trợ quét tất cả tệp plugin để phát hiện giả mạo."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Vui lòng nâng cấp gói đăng ký Shield Security của bạn để truy cập Custom Security Rules Builder."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Vui lòng nâng cấp gói %s của bạn để sử dụng tính năng này."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Vui lòng nâng cấp gói ShieldPRO của bạn để sử dụng tính năng này."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Vui lòng nâng cấp gói đăng ký %s của bạn để truy cập Trình Tạo Quy tắc Bảo mật Tùy chỉnh."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Vui lòng nâng cấp gói của bạn nếu bạn cần thông báo đến nhiều địa chỉ email."
@@ -7186,14 +7585,17 @@ msgstr "Được cung cấp bởi WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "<strong>Firewall</strong> mạnh mẽ đang chặn và ngăn chặn lưu lượng độc hại."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Bảo vệ Mạnh mẽ cho WordPress, từ Shield Security"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Bảo vệ Mạnh mẽ cho WordPress, từ %s"
 
 msgid "Powerful User Password Policies"
 msgstr "Chính sách Mật khẩu Người dùng Mạnh mẽ"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Trình Quét Malware Mạnh mẽ, Tự Học"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Hệ thống Bảo mật WordPress Mạnh mẽ, Dễ sử dụng, Được Đánh giá #1"
 
 msgid "Predicted"
 msgstr "Dự đoán"
@@ -7203,6 +7605,9 @@ msgstr "Thư mục Tạm thời Ưu tiên"
 
 msgid "Preferred temporary directory override."
 msgstr "Ghi đè thư mục tạm thời ưu tiên."
+
+msgid "Prefix"
+msgstr "Tiền tố"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Tiền tố: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Ngăn người dùng sử dụng bất kỳ mật khẩu nào được t
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Ngăn người dùng sử dụng bất kỳ mật khẩu nào được tìm thấy trong danh sách mật khẩu bị xâm phạm công khai."
 
+msgid "Previous"
+msgstr "Trước đó"
+
+msgid "Previous Period"
+msgstr "Giai đoạn Trước"
+
 msgid "Previous Step"
 msgstr "Bước Trước"
 
@@ -7318,8 +7729,8 @@ msgstr "Được Thăng cấp lên Admin"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "Bảo vệ Đăng nhập WP Khỏi Các Nỗ lực Đăng nhập Tự động Bởi Bot"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Bảo vệ Plugin Shield Của Bạn Khỏi Bị Giả mạo"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Bảo vệ Plugin %s của Bạn Khỏi Bị Giả mạo"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Bảo vệ các tệp WP core chính không thể được bảo vệ bình thường."
@@ -7342,6 +7753,9 @@ msgstr "Bảo vệ khách truy cập trang web của bạn bằng cách triển 
 msgid "Protect your %s files"
 msgstr "Bảo vệ tệp %s của bạn"
 
+msgid "Protected By %s"
+msgstr "Được Bảo vệ Bởi %s"
+
 msgid "Protected Forms"
 msgstr "Biểu mẫu Được Bảo vệ"
 
@@ -7350,6 +7764,9 @@ msgstr "Bảo vệ chống lại nguồn #1 của <strong>SPAM Bình luận</str
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Bảo vệ các <strong>biểu mẫu người dùng quan trọng</strong> của bạn như Đăng nhập, Đăng ký và Quên Mật khẩu."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "Bảo vệ cho các biểu mẫu WordPress được bao gồm theo tiêu chuẩn và bạn sẽ có quyền truy cập vào một số hoặc tất cả các tích hợp bên thứ ba, tùy thuộc vào gói %s của bạn."
 
 msgid "Protection for user accounts."
 msgstr "Bảo vệ cho tài khoản người dùng."
@@ -7420,9 +7837,6 @@ msgstr "Cung cấp/Cập nhật PIN Security Admin"
 msgid "Provided by %s"
 msgstr "Được cung cấp bởi %s"
 
-msgid "Provided by Shield"
-msgstr "Được cung cấp bởi Shield"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Cung cấp quyền kiểm soát chi tiết hơn đối với hệ thống Ghi nhật ký Yêu cầu."
 
@@ -7471,8 +7885,8 @@ msgstr "Rate limiting"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "Giới hạn tốc độ ({{count}}) đã bị vượt quá với {{requests}} yêu cầu trong {{span}} giây."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Đổi Thương Hiệu Shield Security Thành Của Riêng Bạn!"
+msgid "Re-Brand %s as your own!"
+msgstr "Đổi thương hiệu %s thành của riêng bạn!"
 
 msgid "Re-Install"
 msgstr "Cài Lại"
@@ -7480,8 +7894,8 @@ msgstr "Cài Lại"
 msgid "Re-Install It"
 msgstr "Cài Lại"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Đổi thương hiệu plugin Shield Security."
+msgid "Re-brand the %s plugin."
+msgstr "Đổi thương hiệu plugin %s."
 
 msgid "Re-enable Protection."
 msgstr "Bật lại Bảo vệ."
@@ -7512,6 +7926,9 @@ msgstr "Lý do"
 
 msgid "Reason: %s"
 msgstr "Lý do: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Lý do: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Nhận cảnh báo khi plugin bị vô hiệu hóa"
@@ -7651,8 +8068,8 @@ msgstr "Vi phạm Còn lại Được phép"
 msgid "Remember me for %s"
 msgstr "Ghi nhớ tôi trong %s"
 
-msgid "Remember to include %s or %s"
-msgstr "Nhớ bao gồm %s hoặc %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Nhớ bao gồm %1$s hoặc %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "Việc xóa các yếu tố MFA cho người dùng phải được thực hiện bởi Security Admin"
@@ -7708,6 +8125,9 @@ msgstr "Đã Sửa chữa"
 msgid "Repaired item found in the scan."
 msgstr "Mục đã sửa chữa được tìm thấy trong quét."
 
+msgid "Repairs"
+msgstr "Sửa chữa"
+
 msgid "Repeated Human SPAM"
 msgstr "SPAM Người thật Lặp lại"
 
@@ -7735,8 +8155,8 @@ msgstr "Tùy chọn Báo cáo"
 msgid "Report Sent"
 msgstr "Đã Gửi Báo cáo"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Đã Gửi Báo Cáo (qua {{medium}})."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Đã Gửi Báo cáo ({{type}} qua {{medium}})."
 
 msgid "Report Title"
 msgstr "Tiêu đề Báo cáo"
@@ -8107,17 +8527,17 @@ msgstr "Kiểm tra SPAM Thành công"
 msgid "SPAM Detection"
 msgstr "Phát hiện SPAM"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "SPAM và đăng ký người dùng hàng loạt bởi bot được chặn bởi silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "SPAM và đăng ký người dùng hàng loạt bởi bot được chặn bởi %s."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM và đăng ký người dùng hàng loạt bởi bot không được chặn bởi silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "SPAM và đăng ký người dùng hàng loạt bởi bot không được chặn bởi %s."
 
 msgid "SPAM blocking"
 msgstr "Chặn SPAM"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "SPAM được thực hiện theo 2 cách chính: bởi bot và con người."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "SPAM được thực hiện bởi 2 loại khách truy cập: bot tự động và con người."
 
 msgid "SQL Queries"
 msgstr "Truy vấn SQL"
@@ -8167,6 +8587,9 @@ msgstr "Quét Lỗ hổng Bảo mật Trong Plugin & Theme"
 msgid "Scan Frequency"
 msgstr "Tần suất Quét"
 
+msgid "Scan Issues"
+msgstr "Vấn đề Quét"
+
 msgid "Scan Item Delete Success"
 msgstr "xoá Mục Quét Thành công"
 
@@ -8200,6 +8623,9 @@ msgstr "Kết quả Quét"
 msgid "Scan This QR Code"
 msgstr "Quét Mã QR này"
 
+msgid "Scan Type"
+msgstr "Loại Quét"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Quét tất cả tài nguyên WordPress của bạn tìm lỗ hổng bảo mật đã biết."
 
@@ -8218,11 +8644,11 @@ msgstr "Quét trang web của bạn để phát hiện thay đổi tệp, malwar
 msgid "Scanning Frequency"
 msgstr "Tần suất Quét"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "Quét Tệp Plugin & Theme chỉ khả dụng với ShieldPRO."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Quét Tệp Plugin & Theme chỉ khả dụng với phiên bản Pro của %s."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "Quét Malware PHP chỉ khả dụng với ShieldPRO."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "Quét Malware PHP chỉ khả dụng với phiên bản Pro của %s."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "Quét sử dụng snapshot cục bộ. Nâng cấp gói của bạn để sử dụng snapshot từ cộng đồng và thêm hỗ trợ cho plugin cao cấp."
@@ -8305,14 +8731,17 @@ msgstr "Điểm số là trọng số gần đúng cho từng thành phần."
 msgid "Script Name To Match"
 msgstr "Tên Script Cần Khớp"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Kích hoạt và quản lý giấy phép ShieldPRO của bạn một cách liền mạch mà không cần bất kỳ khóa giấy phép nào."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Kích hoạt và quản lý giấy phép %s của bạn một cách liền mạch mà không cần bất kỳ khóa giấy phép nào."
 
 msgid "Search %s"
 msgstr "Tìm kiếm %s"
 
 msgid "Search Engine"
 msgstr "Công cụ Tìm kiếm"
+
+msgid "Search Help"
+msgstr "Tìm kiếm Trợ giúp"
 
 msgid "Search engine visibility"
 msgstr "Khả năng hiển thị công cụ tìm kiếm"
@@ -8374,6 +8803,9 @@ msgstr "Hết hạn Security Admin"
 msgid "Security Admin is now active"
 msgstr "Security Admin hiện đang hoạt động"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Security Admin cung cấp lớp xác thực bổ sung đảm bảo chỉ những quản trị viên được kiểm tra mới có thể thực hiện thay đổi đối với bảo mật trang web của bạn."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Các hạn chế Security Admin đã được gỡ bỏ"
 
@@ -8385,6 +8817,9 @@ msgstr "Phiên Security Admin đã hết thời gian chờ."
 
 msgid "Security Admins"
 msgstr "Quản trị viên Bảo mật"
+
+msgid "Security Alert"
+msgstr "Cảnh báo Bảo mật"
 
 msgid "Security Analysis"
 msgstr "Phân tích Bảo mật"
@@ -8503,11 +8938,11 @@ msgstr "Chọn Nhà Cung Cấp Biểu Mẫu Người Dùng Nên Được Kiểm 
 msgid "Select The User Forms Provider That You Use"
 msgstr "Chọn Nhà Cung cấp Biểu mẫu Người dùng Mà Bạn Sử dụng"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Chọn Email %1$s Nào Nên Được Gửi Bằng %2$s"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Chọn Khu vực Nào Nên Được Quét"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Chọn Email Shield Nào Nên Được Gửi Bằng SureSend"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Chọn Loại Yêu cầu Cần Loại trừ"
@@ -8635,6 +9070,9 @@ msgstr "Phiên"
 msgid "Sessions Table Filters"
 msgstr "Bộ lọc Bảng Phiên"
 
+msgid "Set Security Badge."
+msgstr "Đặt Huy hiệu Bảo mật."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Đặt giới hạn vi phạm được phép trước khi IP khách truy cập tự động bị chặn."
 
@@ -8674,161 +9112,23 @@ msgstr "Thiết lập plugin chạy như MU-plugin để ngăn chặn vô hiệu
 msgid "Severity"
 msgstr "Mức độ nghiêm trọng"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Nhà cung cấp 2FA Shield Đã Bật"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield Anti-Spam"
-
 msgid "Shield Deactivated"
 msgstr "Shield Đã Tắt"
 
 msgid "Shield Events & Stats"
 msgstr "Sự kiện & Thống kê Shield"
 
-msgid "Shield Info"
-msgstr "Thông tin Shield"
-
-msgid "Shield Option Key"
-msgstr "Khóa Tuỳ chọn Shield"
-
-msgid "Shield Pro store"
-msgstr "Cửa hàng Shield Pro"
-
-msgid "Shield Scanners."
-msgstr "Trình Quét Shield."
-
-msgid "Shield Security Home Page"
-msgstr "Trang chủ Shield Security"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Plugin Shield Security – yêu cầu tối thiểu của trang web không được đáp ứng"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro có sẵn từ cửa hàng trực tuyến của chúng tôi."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Plugin Shield Security đã được cài đặt nhưng chưa kích hoạt."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Plugin Shield Security cần đồng bộ."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Plugin Shield Security không được phát hiện trong lần đồng bộ cuối cùng."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Các phiên bản plugin Shield Security không đồng bộ."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Nhà cung cấp 2FA Người dùng Shield Đã Kích hoạt"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield User 2FA: Có Bất kỳ Đang hoạt động"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield White Label"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield có thể tự động tích hợp với plugin bên thứ ba."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield có thể tự động bảo vệ biểu mẫu đăng nhập và đăng ký bên thứ ba chống lại Bot."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield không thể xác định liệu silentCAPTCHA JS có tải chính xác trên trang web của bạn hay không."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield thường không quét bình luận từ người dùng đã đăng nhập hoặc đã đăng ký."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield thường không quét bình luận từ người dùng đã đăng nhập hoặc đã đăng ký. Chỉ định vai trò người dùng ở đây không nên được quét."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Định nghĩa sự kiện Shield trống hoặc không đúng định dạng."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield chưa được cài đặt trên trang web này."
-
-msgid "Shield plugin activated"
-msgstr "Plugin Shield đã kích hoạt"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Plugin Shield không thể được kích hoạt"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Plugin Shield không thể được vô hiệu hóa"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Plugin Shield không thể được cài đặt"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Plugin Shield không thể được cập nhật"
-
-msgid "Shield plugin deactivated"
-msgstr "Plugin Shield đã vô hiệu hóa"
-
-msgid "Shield plugin installed"
-msgstr "Plugin Shield đã cài đặt"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Plugin Shield đã được cài đặt nhưng chưa kích hoạt."
-
-msgid "Shield plugin updated"
-msgstr "Plugin Shield đã cập nhật"
-
-msgid "Shield scans cannot execute."
-msgstr "Quét Shield không thể thực thi."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "Phiên bản Shield trên trang web không khớp với máy chủ này."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield sẽ tự động quét plugin bên thứ ba của bạn để kiểm tra xem tích hợp tích hợp sẵn có sẵn hay không."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield sẽ trì hoãn nâng cấp cho đến khi bản cập nhật mới đã khả dụng trong số ngày đã đặt."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Tích hợp MainWP của Shield chưa được bật cho trang web này."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Rules Engine của Shield không chạy."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Hệ thống silentCAPTCHA của Shield sử dụng ALTCHA, thách thức bot thực hiện công việc phức tạp."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "Điểm Uy tín IP ShieldNET"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "Tính năng ShieldPRO"
-
-msgid "ShieldPRO Free Trial"
-msgstr "Dùng thử Miễn phí ShieldPRO"
-
-msgid "ShieldPRO License Cleared"
-msgstr "Đã Xóa Giấy phép ShieldPRO"
-
-msgid "ShieldPRO License Management"
-msgstr "Quản Lý Giấy Phép ShieldPRO"
-
-msgid "ShieldPRO Premium Security"
-msgstr "Bảo mật Cao cấp ShieldPRO"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO chưa được kích hoạt trên trang web này."
-
-msgid "ShieldPRO license check failed."
-msgstr "Kiểm tra giấy phép ShieldPRO thất bại."
-
-msgid "ShieldPRO license check was successful."
-msgstr "Kiểm tra giấy phép ShieldPRO thành công."
 
 msgid "Should be uninstalled"
 msgstr "Nên được gỡ cài đặt"
@@ -8923,20 +9223,23 @@ msgstr "URL Trang web"
 msgid "Site URL Changed"
 msgstr "URL Trang web đã thay đổi"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "URL Trang web đã thay đổi: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "URL trang web đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Trang web đã được thêm vào danh sách trắng xuất: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Email trang web đã thay đổi: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Email trang web đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Đồng bộ trang web thất bại"
 
 msgid "Site has been locked down!"
 msgstr "Trang web đã bị khoá!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "Trang web đã được kích hoạt nhưng xác minh giấy phép thất bại."
 
 msgid "Site lock down has been lifted!"
 msgstr "Khóa trang web đã được gỡ bỏ!"
@@ -8946,6 +9249,9 @@ msgstr "Trang web đã được xóa khỏi danh sách trắng xuất: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Đồng bộ trang web thành công"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "Trang web đã được kích hoạt và giấy phép được xác minh thành công."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Trang web đã được đặt vào chế độ khóa bởi {{user_login}}."
@@ -8965,8 +9271,8 @@ msgstr "Kích thước"
 msgid "Slug"
 msgstr "slug"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug Đã cập nhật: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Slug Đã Cập Nhật: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Slug cho Post ID {{post_id}} đã được cập nhật từ '{{slug_old}}' thành '{{slug_new}}'."
@@ -9049,8 +9355,8 @@ msgstr "Xin lỗi, quét này không có sẵn."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Xin lỗi, bạn không có quyền truy cập để chạy truy vấn MAL{ai}, vui lòng nâng cấp gói của bạn."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Xin lỗi, bạn sẽ cần nâng cấp gói thành viên Shield Security của mình để truy cập tích hợp MainWP."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Xin lỗi, bạn sẽ cần nâng cấp gói thành viên %s của mình để truy cập tích hợp MainWP."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "Nói về vi phạm, các lỗ hổng bảo mật trong plugin và theme cho phép vi phạm xảy ra, là mục tiêu chính cho các cuộc tấn công nên chúng ta phải xác định chúng sớm."
@@ -9100,8 +9406,11 @@ msgstr "Thống kê"
 msgid "Status"
 msgstr "trạng thái"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Trạng thái đã thay đổi: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Trạng thái đã thay đổi: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Kiểm tra trạng thái hoàn tất."
 
 msgid "Store directory could not be created: %s"
 msgstr "Không thể tạo thư mục kho: %s"
@@ -9133,8 +9442,8 @@ msgstr "Đã kết nối thành công với máy chủ giấy phép."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Đã gửi thành công email cảnh báo Chặn Tường lửa đến: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Đã gửi thành công email (loại: {{slug}}) đến '{{email}}' bằng SureSend."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Đã gửi thành công email (loại: {{slug}}) đến '{{email}}' bằng %s."
 
 msgid "Summary"
 msgstr "Tóm tắt"
@@ -9165,15 +9474,6 @@ msgstr "Email SureSend"
 
 msgid "SureSend Emails."
 msgstr "Email SureSend."
-
-msgid "SureSend Fail"
-msgstr "SureSend Thất bại"
-
-msgid "SureSend Success"
-msgstr "SureSend Thành công"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend là dịch vụ gửi email chuyên dụng từ Shield Security."
 
 msgid "Suspend Account"
 msgstr "Tạm ngưng Tài khoản"
@@ -9229,14 +9529,14 @@ msgstr "Bật tính năng CrowdSec để chặn các IP độc hại đã biết
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Bật tính năng này sẽ chặn tất cả lưu lượng truy cập đến trang web của bạn. Hoàn toàn mọi thứ sẽ bị chặn (bao gồm cả Google Bots)."
 
+msgid "Sync %s"
+msgstr "Đồng bộ %s"
+
 msgid "Sync Required"
 msgstr "Yêu cầu Đồng bộ"
 
 msgid "Sync Required."
 msgstr "Yêu cầu Đồng bộ."
-
-msgid "Sync Shield"
-msgstr "Đồng bộ Shield"
 
 msgid "System Info"
 msgstr "Thông tin Hệ thống"
@@ -9253,8 +9553,8 @@ msgstr "Các bảng đã được xóa và bây giờ chúng sẽ được tạo
 msgid "Tagline"
 msgstr "tagline"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Tagline đã thay đổi: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Tagline đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Sử dụng một dòng mới cho mỗi mục."
@@ -9268,11 +9568,11 @@ msgstr "Sử dụng một dòng mới cho mỗi đường dẫn trong danh sách
 msgid "Take a new line per rule."
 msgstr "Sử dụng một dòng mới cho mỗi quy tắc."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Tận dụng thông tin tình báo thu thập được từ toàn bộ mạng lưới Shield để bảo vệ tốt hơn các trang web WordPress của bạn"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Tận dụng thông tin thu thập được trong toàn bộ mạng %s để bảo vệ tốt hơn các trang web WordPress của bạn"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Hỗ trợ kỹ thuật cho Shield chỉ dành riêng cho khách hàng Pro."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "Hỗ trợ kỹ thuật cho %s dành riêng cho khách hàng Pro."
 
 msgid "Temp Dir"
 msgstr "Thư mục Temp"
@@ -9295,17 +9595,17 @@ msgstr "Chạy kiểm tra WP Cron thành công."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Kiểm tra thất bại và chúng tôi không thể tự động xác định trạng thái Chứng chỉ SSL của bạn."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Cảm ơn bạn đã chọn Shield Security"
+msgid "Thank You For Choosing %s"
+msgstr "Cảm Ơn Bạn Đã Chọn %s"
 
 msgid "Thank You."
 msgstr "Cảm Ơn Bạn."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Cảm ơn bạn đã chọn Shield Security (Miễn phí)."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Cảm ơn bạn đã chọn %s (Miễn phí)."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Cảm ơn bạn đã chọn Shield Security PRO."
+msgid "Thank you for choosing %s."
+msgstr "Cảm ơn bạn đã chọn %s."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Cảm ơn bạn đã dành thời gian thực hiện Trình hướng dẫn Thiết lập."
@@ -9325,11 +9625,23 @@ msgstr "Cảm ơn."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Cảm giác Ấm áp và Dễ chịu Đến từ Việc Hỗ trợ Phát triển Tương lai"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "Thư mục %s giống như thư mục %s và nhiều tệp không phải WordPress được lưu trữ ở đó."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "Thư mục %1$s giống như thư mục %2$s và nhiều tệp không phải WordPress được lưu trữ ở đó."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s nên đo %2$s."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "Huy hiệu %s chứng minh với khách hàng của bạn rằng bạn coi trọng bảo mật."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "Thư mục %s là vùng hoang dã và nhiều plugin và theme sử dụng nó để lưu trữ các tệp làm việc."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Tùy chọn %s bị vô hiệu hóa, loại bỏ bảo vệ brute force cho biểu mẫu đăng nhập, đăng ký và quên mật khẩu."
+
+msgid "The %s option is enabled."
+msgstr "Tùy chọn %s được bật."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "Plugin %s thường không sử dụng Cookie cho khách truy cập trang web chưa đăng ký."
@@ -9337,14 +9649,29 @@ msgstr "Plugin %s thường không sử dụng Cookie cho khách truy cập tran
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "Plugin %s có tính năng Audit Trail sẽ ghi lại thông tin sau:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "Plugin %s vừa bị tắt."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "Plugin %s không bao giờ lưu trữ bất kỳ thông tin nhạy cảm, có thể nhận dạng cá nhân nào trong bất kỳ cookie nào vào bất kỳ thời điểm nào."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "Plugin %s trên trang web này cần được nâng cấp."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "Plugin %s trên trang web này yêu cầu giấy phép PRO đang hoạt động."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "Phiên bản plugin %s trên trang web khách mới hơn máy chủ này."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "Phiên bản plugin %s trên trang web client cũ hơn server này và phải được cập nhật."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "Tham số truy vấn %s đã bị chặn để bảo vệ chống lại việc khai thác tên người dùng / tác giả."
 
-msgid "The %s should measure %s."
-msgstr "%s nên đo %s."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "Hệ thống %s sử dụng ALTCHA để thử thách bot thực hiện công việc phức tạp."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "Hàm 'wp_mail' được gọi từ tệp '{{bt_file}}' tại dòng {{bt_line}}."
@@ -9388,8 +9715,8 @@ msgstr "Tiêu đề Menu Chính Của Plugin. Nếu để trống, \"%s\" sẽ �
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "Tiêu đề Menu Chính Của Plugin. Nếu để trống, Tên Plugin sẽ được sử dụng."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "Plugin MainWP Security không đáp ứng yêu cầu tối thiểu của Shield."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "Plugin MainWP Security không đáp ứng yêu cầu tối thiểu của %s."
 
 msgid "The Name Of The Plugin"
 msgstr "Tên Plugin"
@@ -9415,32 +9742,14 @@ msgstr "Hệ thống Security Admin bảo vệ WordPress và plugin %s chống l
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Hệ thống Security Admin bảo vệ plugin %s chống lại giả mạo hoặc thay đổi vô tình bởi các quản trị viên WordPress khác."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Quản trị viên Bảo mật đã hạn chế việc sử dụng tính năng ghi đè email."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "Huy hiệu Bảo mật sẽ được hiển thị cho khách truy cập của bạn"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "Huy hiệu Bảo mật sẽ không được hiển thị cho khách truy cập của bạn"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "Plugin Shield Security trên trang web này cần được nâng cấp."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Cơ sở dữ liệu Shield cần được sửa chữa vì một số tính năng nhất định sẽ không khả dụng nếu không có cơ sở dữ liệu hợp lệ."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Plugin Shield vừa bị vô hiệu hóa."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "Plugin Shield trên trang web này không có giấy phép ShieldPRO đang hoạt động."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "Phiên bản plugin Shield trên trang web client mới hơn máy chủ này."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "Phiên bản plugin Shield trên trang web client cũ hơn máy chủ này và phải được cập nhật."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "Khẩu hiệu của Plugin"
@@ -9487,8 +9796,8 @@ msgstr "Mã quốc gia bị thiếu."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "Điểm tích lũy cho toàn bộ cấu hình %s của bạn"
 
-msgid "The current request has a valid Shield user session"
-msgstr "Yêu cầu hiện tại có phiên người dùng Shield hợp lệ"
+msgid "The current request has a valid %s user session"
+msgstr "Yêu cầu hiện tại có phiên người dùng %s hợp lệ"
 
 msgid "The data provided was inconsistent."
 msgstr "Dữ liệu được cung cấp không nhất quán."
@@ -9544,8 +9853,8 @@ msgstr "Các mục sau đã được phát hiện."
 msgid "The following options will be restricted:"
 msgstr "Các tùy chọn sau sẽ bị hạn chế:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Các loại biểu mẫu người dùng sau được bảo vệ bởi silentCAPTCHA: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Các loại biểu mẫu người dùng sau được bảo vệ bởi %1$s: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL trang chủ đã thay đổi từ '{{from}}' thành '{{to}}'."
@@ -9559,8 +9868,8 @@ msgstr "Nhãn phải là chữ và số không có ký tự đặc biệt"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "Số vi phạm tối đa được phép trước khi chặn là hợp lý: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "Giới hạn lưu giữ nhật ký tối đa (%s) có thể được tăng lên bằng cách nâng cấp gói ShieldPRO của bạn."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "Giới hạn lưu giữ nhật ký tối đa (%1$s) có thể được tăng lên bằng cách nâng cấp gói %2$s của bạn."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "Số lượng yêu cầu tối đa được phép trong giới hạn thời gian đã cho."
@@ -9625,7 +9934,7 @@ msgstr "Nguồn ưu tiên là %s vì nguồn này không thể bị giả mạo.
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Lần quét trước đó không phát hiện bất kỳ mục nào cần sự chú ý của bạn hoặc chúng đã được sửa chữa."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
 msgstr "Mục đích là cải thiện độ tin cậy email WordPress cho các email quan trọng."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
@@ -9651,12 +9960,6 @@ msgstr "Cài đặt này ngăn bất kỳ trang web bên ngoài nào nhúng tran
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "Cài đặt này ngăn bất kỳ trang web bên ngoài nào nhúng trang web của bạn vào iFrame. Điều này hữu ích để ngăn chặn các cuộc tấn công ClickJack."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "Tùy chọn silentCAPTCHA bị vô hiệu hóa, loại bỏ bảo vệ brute force cho biểu mẫu đăng nhập, đăng ký và quên mật khẩu."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "Tùy chọn silentCAPTCHA đã được bật."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL trang web đã thay đổi từ '{{from}}' thành '{{to}}'."
@@ -9883,6 +10186,9 @@ msgstr "Đã xảy ra sự cố khi chuẩn bị Thử Thách Xác Thực Passke
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Đã xảy ra sự cố khi chuẩn bị Thử Thách Đăng Ký Passkey."
 
+msgid "There was a problem processing the batched request."
+msgstr "Đã xảy ra sự cố khi xử lý yêu cầu hàng loạt."
+
 msgid "There was a problem removing this passkey"
 msgstr "Đã xảy ra sự cố khi xóa passkey này"
 
@@ -9937,9 +10243,6 @@ msgstr "Chúng tấn công trang web của bạn, thăm dò thông tin và khai 
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Chúng phá hoại biểu mẫu đăng nhập bằng cách phá vỡ Javascript và biến trải nghiệm người dùng thành cơn ác mộng."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Hãy nghĩ về 'vi phạm' như một bộ đếm số lần khách truy cập thực hiện điều gì đó xấu."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Hãy nghĩ về nó như 'Giới hạn Số lần Thử Đăng nhập' nhưng được áp dụng trên tất cả các tính năng trên trang web WordPress, không chỉ trang đăng nhập."
 
@@ -9951,6 +10254,9 @@ msgstr "Đây Là Bạn"
 
 msgid "This Page"
 msgstr "Trang này"
+
+msgid "This Period"
+msgstr "Giai đoạn Này"
 
 msgid "This Server"
 msgstr "Máy chủ Này"
@@ -9967,8 +10273,8 @@ msgstr "Hành động này không khả dụng cho hồ sơ của bạn vào lú
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Hoạt động này sẽ được ghi lại với địa chỉ IP của bạn và bạn có thể bị chặn hoàn toàn khỏi quyền truy cập trang web tiếp theo nếu hoạt động tương tự được lặp lại."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Điều này cũng hoạt động như một liên kết liên kết nếu bạn đang chạy ShieldPRO để bạn có thể kiếm phần thưởng cho mỗi giới thiệu."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Điều này cũng hoạt động như một liên kết liên kết nếu bạn đang chạy %s để bạn có thể kiếm phần thưởng cho mỗi giới thiệu."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Đây có vẻ là spam vì nó đã thất bại %s kiểm tra bảo vệ AntiBot."
@@ -10011,6 +10317,9 @@ msgstr "Tính năng này chỉ khả dụng khi Traffic Logger đang hoạt đ�
 
 msgid "This feature isn't currently enabled."
 msgstr "Tính năng này hiện chưa được bật."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Tính năng này dựa vào mã PIN bí mật (mà bạn tạo bên dưới), bạn sẽ sử dụng để xác minh danh tính của mình với plugin %s."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Tệp này chứa mã độc hại - đó là malware!"
@@ -10171,11 +10480,20 @@ msgstr "Cài đặt này sẽ tự động bị vô hiệu hóa sau %s và tất
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Điều này nên được sử dụng cẩn thận và bạn chỉ nên cung cấp tên tham số mà bạn phải loại trừ"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Trang web này có vẻ là một phần của Shield Network."
+msgid "This site appears to be part of a %s Network."
+msgstr "Trang web này có vẻ là một phần của Mạng %s."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Trang web này hiện không thể thực hiện yêu cầu HTTP đến chính nó."
+
+msgid "This site is already activated for this account."
+msgstr "Trang web này đã được kích hoạt cho tài khoản này."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Trang web này đã được kích hoạt. Đang kiểm tra lại và đồng bộ hóa trạng thái giấy phép cục bộ..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Bước này có thể là quan trọng nhất vì nó giúp đảm bảo %s luôn có thể tìm thấy IP Khách truy cập chính xác."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Theme này không hoạt động và nên được gỡ cài đặt."
@@ -10222,8 +10540,8 @@ msgstr "Điều này sẽ chặn các cuộc tấn công cắt ngắn trường 
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Điều này sẽ chặn sql trong các tham số ứng dụng (ví dụ: %s, v.v.)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Điều này sẽ khiến các URL %s và %s trả về lỗi HTTP 404 khi bạn chưa đăng nhập."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Điều này sẽ khiến các URL %1$s và %2$s trả về lỗi HTTP 404 khi chưa đăng nhập."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Điều này sẽ tiêu tốn tín dụng SMS của bạn, nếu có, giống như với bất kỳ SMS 2FA tiêu chuẩn nào."
@@ -10242,6 +10560,9 @@ msgstr "Điều này sẽ hạn chế khả năng của quản trị viên WordP
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Điều này sẽ hạn chế khả năng của quản trị viên WordPress tạo, sửa đổi hoặc thăng cấp quản trị viên khác."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Trình hướng dẫn này sẽ hướng dẫn bạn qua một số tính năng chính của %s, để giúp bạn bắt đầu trong vòng chưa đầy 3 phút."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Điều này hoạt động vì các trình thu thập web hợp pháp tôn trọng các chỉ thị 'robots.txt' và 'nofollow'."
@@ -10273,17 +10594,17 @@ msgstr "Dấu thời gian"
 msgid "Timezone"
 msgstr "Múi giờ"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Tiêu đề Đã cập nhật: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Tiêu đề Đã cập nhật: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Tiêu đề đã thay đổi: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Tiêu đề đã thay đổi: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Tiêu đề cho Post ID {{post_id}} đã được cập nhật từ '{{title_old}}' thành '{{title_new}}'."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Để giải quyết vấn đề này, chúng tôi đã tạo hệ thống riêng của mình có tên là silentCAPTCHA."
+msgid "To address this we created our own system called %s."
+msgstr "Để giải quyết vấn đề này, chúng tôi đã tạo hệ thống riêng có tên %s."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Để ẩn trang wp-login.php của bạn khỏi các cuộc tấn công brute force và nỗ lực hack - nếu trang đăng nhập của bạn không thể được tìm thấy, không ai có thể đăng nhập."
@@ -10303,14 +10624,17 @@ msgstr "Để đăng ký thiết bị Yubikey mới, nhập Mật khẩu Một l
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Để xóa thiết bị Yubikey, nhập ID thiết bị đã đăng ký và lưu."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Để giải quyết vấn đề này, bạn có thể thông báo cho %s địa chỉ IP của bạn ngay bây giờ và điều này cho phép nó cấu hình nguồn IP tối ưu."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Để giữ sức khỏe cần quét tích cực các tệp để phát hiện thay đổi bất ngờ và phát hiện các tệp không thuộc về."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Để sử dụng Passkey, cài đặt PHP của bạn phải có 1 trong các extension sau được tải: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Để xác thực email, trang web của bạn gửi yêu cầu đến ShieldNET API và có thể gây ra độ trễ nhỏ trong quá trình yêu cầu đăng ký người dùng."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Để xác thực email, trang web của bạn gửi yêu cầu đến API %s và có thể gây ra độ trễ nhỏ trong quá trình yêu cầu đăng ký người dùng."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Để xem tất cả nhật ký từ địa chỉ IP này, hãy sử dụng công cụ Traffic Log, vì nhật ký ở đây bị giới hạn ở %s mục."
@@ -10326,6 +10650,9 @@ msgstr "Chuyển đổi việc cài đặt này có được bao gồm trong cá
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Quá nhiều lần thử xác minh 2FA - vui lòng đăng nhập lại."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Quá nhiều yêu cầu hàng loạt. Số lượng tối đa cho phép là %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Quá nhiều yêu cầu từ địa chỉ IP của bạn đã kích hoạt hệ thống phòng thủ tự động của trang web."
@@ -10399,11 +10726,35 @@ msgstr "Yêu cầu lưu lượng đang được ghi lại, giúp theo dõi vấn
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Yêu cầu lưu lượng không được ghi lại, khiến việc theo dõi vấn đề khó khăn hơn."
 
+msgid "Translation Download Failed"
+msgstr "Tải Xuống Bản Dịch Thất Bại"
+
+msgid "Translation Downloaded"
+msgstr "Đã Tải Xuống Bản Dịch"
+
+msgid "Translation download queue is empty."
+msgstr "Hàng đợi tải xuống bản dịch trống."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Đã tải xuống bản dịch thành công: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Tệp bản dịch đã được tải xuống cho ngôn ngữ: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Bản dịch Đang chờ xử lý"
+
+msgid "Translations have been downloaded."
+msgstr "Các bản dịch đã được tải xuống."
+
 msgid "Trash"
 msgstr "Thùng rác"
 
 msgid "Trashed"
 msgstr "Đã xóa"
+
+msgid "Trend"
+msgstr "Xu hướng"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Đã cố gắng tải script PHP WordPress không hợp lệ '{{script}}'."
@@ -10417,11 +10768,17 @@ msgstr "Vai trò Người dùng Đáng tin cậy"
 msgid "Trusted Users"
 msgstr "Người dùng Đáng tin cậy"
 
+msgid "Try Pro For Free"
+msgstr "Dùng thử Pro Miễn phí"
+
 msgid "Turn Off"
 msgstr "Tắt"
 
 msgid "Turn On"
 msgstr "Bật"
+
+msgid "Turn On Security Admin"
+msgstr "Bật Security Admin"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Bật Tính năng Rate Limiting"
@@ -10441,8 +10798,11 @@ msgstr "Bật/tắt cài đặt White Label của bạn."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Tắt Browser Mime-Sniff"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Bật Extension Tích hợp Sẵn Của Shield Cho Cài đặt MainWP Server Và Client"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "Bật Tiện Ích Tích Hợp Sẵn Của %s Cho Cài Đặt MainWP Server Và Client"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Bật tùy chọn này sẽ thêm huy hiệu trong suốt vào chân trang của trang web của bạn."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Xác thực Đăng nhập Hai yếu tố Bằng %s"
@@ -10516,14 +10876,11 @@ msgstr "Chưa phân loại"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Tìm hiểu cách xóa Google Authenticator"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Thật không may, U2F đã bị vô hiệu hóa theo mặc định trên hầu hết trình duyệt hiện đại, nhưng nó vẫn được cung cấp ở đây để tương thích ngược."
-
 msgid "Unidentified"
 msgstr "Không xác định"
 
-msgid "Uninstall Shield"
-msgstr "Gỡ cài Shield"
+msgid "Uninstall %s"
+msgstr "Gỡ cài đặt %s"
 
 msgid "Uninstalled"
 msgstr "Đã gỡ cài đặt"
@@ -10539,6 +10896,9 @@ msgstr "Không xác định - yêu cầu WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Tên Không xác định"
+
+msgid "Unknown activation error."
+msgstr "Lỗi kích hoạt không xác định."
 
 msgid "Unknown item"
 msgstr "Mục không xác định"
@@ -10582,6 +10942,9 @@ msgstr "Loại kết quả không được hỗ trợ."
 msgid "Until"
 msgstr "Đến"
 
+msgid "Update %s"
+msgstr "Cập nhật %s"
+
 msgid "Update Available"
 msgstr "Có Bản cập nhật"
 
@@ -10596,9 +10959,6 @@ msgstr "Cập Nhật Ngay Để Giữ Bảo Mật Của Bạn Cập Nhật Với
 
 msgid "Update Required"
 msgstr "Yêu cầu Cập nhật"
-
-msgid "Update Shield"
-msgstr "Cập nhật Shield"
 
 msgid "Update This Rule"
 msgstr "Cập nhật Quy tắc Này"
@@ -10633,14 +10993,14 @@ msgstr "Yêu cầu Nâng cấp"
 msgid "Upgrade To"
 msgstr "Nâng cấp Lên"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Nâng cấp Lên %s Pro Ngay"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Nâng cấp Để Tạo Báo cáo Tùy chỉnh"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Nâng cấp Lên Shield Pro Ngay"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Nâng cấp Gói thành viên ShieldPRO của Bạn"
+msgid "Upgrade Your %s Membership"
+msgstr "Nâng cấp Gói thành viên %s của Bạn"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Nâng cấp gói của bạn để hỗ trợ quét tệp theme để phát hiện giả mạo."
@@ -10648,8 +11008,8 @@ msgstr "Nâng cấp gói của bạn để hỗ trợ quét tệp theme để ph
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Nâng cấp gói của bạn để hỗ trợ khu vực quét này."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Đã nâng cấp: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Đã nâng cấp: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Tải lên tệp thất bại"
@@ -10657,8 +11017,11 @@ msgstr "Tải lên tệp thất bại"
 msgid "Uptime Monitoring"
 msgstr "Giám sát Uptime"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Sử dụng %s để kiểm tra các yêu cầu quá mức trong khoảng thời gian %s phút."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "Sử dụng %1$s để kiểm tra yêu cầu quá mức trong khoảng thời gian %2$s phút."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Sử dụng %s Để Chặn SPAM Bình luận Bot"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "Sử dụng CloudFlare Làm Nguồn Dữ liệu Địa lý?"
@@ -10681,8 +11044,8 @@ msgstr "Sử dụng giới hạn yêu cầu tối đa lớn hơn để giảm ng
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Sử dụng khoảng thời gian nhỏ hơn để giảm nguy cơ chặn khách truy cập hợp pháp."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "Việc sử dụng silentCAPTCHA để giới hạn số lần thử đăng nhập trên biểu mẫu người dùng không được bật - bạn sẽ cần bật nó trong Khu vực Bảo mật Đăng nhập."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Việc sử dụng %s để giới hạn số lần đăng nhập trên biểu mẫu người dùng chưa được bật - bạn sẽ cần kích hoạt nó trong Vùng Bảo mật Đăng nhập."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Việc sử dụng tính năng này được khuyến nghị cao."
@@ -10690,11 +11053,11 @@ msgstr "Việc sử dụng tính năng này được khuyến nghị cao."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Việc sử dụng tính năng này sẽ ghi đè các tùy chọn hiện có và thay thế chúng bằng các tùy chọn từ Master Import Site."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Sử dụng đường dẫn tương đối từ URL trang chủ của bạn, ví dụ: %s chuyển hướng đến trang chủ của bạn (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Sử dụng đường dẫn tương đối từ URL trang chủ của bạn, ví dụ: %1$s chuyển hướng đến trang chủ của bạn (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Sử dụng silentCAPTCHA Để Chặn SPAM Bình luận Bot"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Sử dụng hộp Super Search để tìm bất cứ thứ gì trong plugin %s, bao gồm tùy chọn, địa chỉ IP, công cụ, trợ giúp, v.v."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Sử dụng tùy chọn loại trừ để cho phép truy cập ẩn danh vào các endpoint API cụ thể."
@@ -10702,14 +11065,17 @@ msgstr "Sử dụng tùy chọn loại trừ để cho phép truy cập ẩn dan
 msgid "Use the link above to create a new one."
 msgstr "Sử dụng liên kết ở trên để tạo một cái mới."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Sử dụng các tiền tố này trong hộp tìm kiếm để lọc kết quả."
+
 msgid "Use this feature with care."
 msgstr "Sử dụng tính năng này một cách cẩn thận."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Sử dụng tệp này để sao chép tùy chọn từ trang web này sang trang web khác"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Sử dụng tùy chọn này để hoàn toàn vô hiệu hóa tất cả Bảo vệ Shield đang hoạt động."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Sử dụng tùy chọn này để vô hiệu hóa hoàn toàn tất cả Bảo vệ %s đang hoạt động."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Sử dụng tùy chọn này để bật/tắt việc áp dụng Quy tắc CSP tùy chỉnh của bạn."
@@ -10897,11 +11263,11 @@ msgstr "Yêu cầu quên mật khẩu người dùng đã bị chặn."
 msgid "User must be logged-in."
 msgstr "Người dùng phải đăng nhập."
 
+msgid "User not found."
+msgstr "Không tìm thấy người dùng."
+
 msgid "User registration request blocked."
 msgstr "Yêu cầu đăng ký người dùng đã bị chặn."
-
-msgid "User session deleted"
-msgstr "Phiên người dùng đã xoá"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "Phiên người dùng đã hết hạn ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Người dùng sẽ buộc phải đặt lại mật khẩu sau số ng�
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Sử dụng từ điển SPAM bên thứ ba để phát hiện SPAM bình luận từ người thật."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Sử dụng công nghệ Snapshot độc quyền của Shield, các thay đổi đối với quản trị viên được thực hiện trực tiếp trên cơ sở dữ liệu WP cũng sẽ được phát hiện!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "Sử dụng công nghệ Snapshot độc quyền của %s, các thay đổi đối với quản trị viên được thực hiện trực tiếp trên cơ sở dữ liệu WP cũng sẽ được phát hiện!"
 
 msgid "Valid license couldn't be found."
 msgstr "Không thể tìm thấy giấy phép hợp lệ."
@@ -11047,11 +11413,11 @@ msgstr "Xem Tất cả"
 msgid "View All Security Grades"
 msgstr "Xem Tất cả Điểm Bảo mật"
 
-msgid "View As ShieldFREE"
-msgstr "Xem Dưới dạng ShieldFREE"
+msgid "View As %s"
+msgstr "Xem Dưới dạng %s"
 
-msgid "View As ShieldPRO"
-msgstr "Xem Dưới dạng ShieldPRO"
+msgid "View As Free Version"
+msgstr "Xem Dưới dạng Phiên bản Miễn phí"
 
 msgid "View Comment"
 msgstr "Xem Bình luận"
@@ -11071,6 +11437,9 @@ msgstr "Xem Nội dung Tệp"
 msgid "View File Details"
 msgstr "Xem Chi tiết Tệp"
 
+msgid "View Full Report"
+msgstr "Xem Báo cáo Đầy đủ"
+
 msgid "View IP Reputation Option"
 msgstr "Xem Tùy chọn Uy tín IP"
 
@@ -11087,6 +11456,9 @@ msgid "View Plans"
 msgstr "Xem Gói"
 
 msgid "View Report"
+msgstr "Xem Báo cáo"
+
+msgid "View Reports"
 msgstr "Xem Báo cáo"
 
 msgid "View Results"
@@ -11146,9 +11518,6 @@ msgstr "Xem toàn bộ bảo mật trang web WordPress của bạn một cách t
 msgid "View, edit and remove custom security rules"
 msgstr "Xem, chỉnh sửa và xóa quy tắc bảo mật tùy chỉnh"
 
-msgid "View/Create Reports"
-msgstr "Xem/Tạo Báo cáo"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Tự động Bỏ chặn Khách truy cập"
 
@@ -11182,8 +11551,8 @@ msgstr "Khách truy cập được tìm thấy trong Danh sách Chặn và kết
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Khách truy cập được tìm thấy trong Danh sách Chặn CrowdSec và yêu cầu của họ đã bị chặn."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Khách truy cập đã đăng ký bằng silentCAPTCHA."
+msgid "Visitor registered using %s."
+msgstr "Khách truy cập đã đăng ký bằng %s."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "Khách truy cập đã bỏ chặn địa chỉ IP '{{ip}}' của họ bằng phương thức '{{method}}'."
@@ -11226,9 +11595,6 @@ msgstr "Quét lỗ hổng bảo mật phải được kích hoạt để bật t
 
 msgid "Vulnerable"
 msgstr "Dễ bị tấn công"
-
-msgid "Vulnerable Assets"
-msgstr "Tài nguyên Dễ Bị Tấn Công"
 
 msgid "Vulnerable Plugins"
 msgstr "Plugin Dễ Bị Tấn Công"
@@ -11277,6 +11643,9 @@ msgstr "Vai trò Người dùng Mặc định WP"
 
 msgid "WP File Editing"
 msgstr "Chỉnh sửa Tệp WP"
+
+msgid "WP Files"
+msgstr "Tệp WP"
 
 msgid "WP Generator Tag"
 msgstr "Thẻ WP Generator"
@@ -11367,6 +11736,9 @@ msgstr "Chúng tôi khuyên bạn nên vô hiệu hóa nó nếu bạn không c�
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Chúng tôi khuyên bạn nên tìm kiếm chuyên môn trong lĩnh vực này và đảm bảo bạn có kiểm tra đầy đủ trong các triển khai của mình."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "Chúng tôi khuyến nghị khoảng từ 5 đến 10. Giới hạn càng nhỏ, %s sẽ càng nghiêm ngặt."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Chúng tôi khuyến nghị thư mục gốc WP nên được giữ sạch bằng cách chỉ giữ các tệp WordPress core chính thức ở đó."
@@ -11485,8 +11857,8 @@ msgstr "Khi phát hiện đủ hành vi xấu, nó sẽ chặn IP truy cập tra
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Khi được bật, bất kỳ tích hợp bên thứ ba nào khả dụng sẽ được kích hoạt ngay khi chúng được phát hiện."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Khi bộ đếm đạt đến giới hạn bên dưới (mặc định: %s), %s sẽ chặn IP đó hoàn toàn."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Khi bộ đếm đạt đến giới hạn bên dưới (mặc định: %1$s), %2$s sẽ chặn IP đó hoàn toàn."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Khi nội dung tệp hiện tại được so sánh với bản phát hành chính thức, các thay đổi đã được phát hiện."
@@ -11578,17 +11950,17 @@ msgstr "Các trang web trong danh sách trắng có thể xuất tùy chọn t�
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Có thể sẽ chặn việc lưu trong trình chỉnh sửa tệp Plugin/Giao diện."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "Với trí thông minh cộng đồng %s, các kết quả dương tính giả gây nhiễu lãng phí thời gian của bạn sẽ tự động bị ẩn để bạn có thể tập trung vào các rủi ro quan trọng."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "Với công nghệ %s, việc ngăn chặn bot giờ đây khá dễ dàng."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "Với %s, chúng ta có thể tích hợp trực tiếp với tất cả các plugin Biểu mẫu Liên hệ chính để chặn SPAM Biểu mẫu Liên hệ từ Bot tự động."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "Với công nghệ silentCAPTCHA tích hợp của %s, việc ngăn chặn bot thực sự khá dễ dàng bây giờ."
-
 msgid "With Issues"
 msgstr "Có Vấn đề"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "Với trí tuệ cộng đồng ShieldNET, Shield tự động ẩn các kết quả dương tính giả để bạn có thể tập trung vào các rủi ro quan trọng và có thể bỏ qua nhiễu gây lãng phí thời gian của bạn."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Với nó, bạn có thể được cảnh báo ngay lập tức về các thay đổi đối với tệp với cái nhìn rõ ràng về các thay đổi chính xác và các bước tiếp theo dễ dàng về cách tiến hành."
@@ -11596,8 +11968,8 @@ msgstr "Với nó, bạn có thể được cảnh báo ngay lập tức về c�
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "Với từ điển SPAM của chúng tôi, chúng tôi có thể xác định bình luận SPAM từ người thật mà không gửi bất kỳ dữ liệu nào ra khỏi trang web của bạn đến bên thứ ba."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Với silentCAPTCHA mạnh mẽ của chúng tôi, chúng ta có thể phát hiện gần 100% tất cả SPAM bot."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Với %s mạnh mẽ của chúng tôi, chúng tôi có thể phát hiện gần 100%% tất cả SPAM bot."
 
 msgid "Wizards"
 msgstr "Các bước"
@@ -11737,8 +12109,8 @@ msgstr "WordPress thường được tải theo một số cách giới hạn v�
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress đang chạy trên phiên bản PHP cũ (%s)."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress đang chạy trên phiên bản PHP gần đây (%s) (ít nhất %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress đang chạy trên phiên bản PHP gần đây (%1$s) (ít nhất %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "Biểu mẫu đăng nhập WordPress không được bảo vệ chống lại bot vì bạn đã đặt điểm tối thiểu của bot là 0, điều này kiểm soát hệ thống %s."
@@ -11839,8 +12211,8 @@ msgstr "Bạn có thể chọn 'Chỉ Kích hoạt' (không khuyến nghị), ho
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Bạn có thể hoàn toàn vô hiệu hóa quyền truy cập ẩn danh vào REST API."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Bạn có thể nhận được tính năng bảo mật này và nhiều tính năng khác bằng cách nâng cấp gói ShieldPRO của mình."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Bạn có thể nhận tính năng bảo mật này, và nhiều tính năng khác, bằng cách nâng cấp gói %s của bạn."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Bạn có thể giúp chúng tôi phát hiện địa chỉ IP tốt nhất cho máy chủ của bạn bằng cách sử dụng liên kết bên dưới để cho bạn biết địa chỉ IP hiện tại của bạn và sau đó chọn tùy chọn từ danh sách có chứa nó."
@@ -11887,8 +12259,8 @@ msgstr "Bạn có thể xác thực với hệ thống Security Admin %s và qua
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Bạn có thể kết hợp nhiều yếu tố xác thực để tăng cường bảo mật."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Bạn có thể nhận được kết quả không đáng tin cậy trong khi Akismet hoạt động cùng với bảo vệ SPAM Người thật của Shield."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Bạn có thể nhận được kết quả không đáng tin cậy khi Akismet hoạt động cùng với bảo vệ SPAM Người thật của %s."
 
 msgid "You may need to reload this page to continue."
 msgstr "Bạn có thể cần tải lại trang này để tiếp tục."
@@ -11962,8 +12334,8 @@ msgstr "Địa chỉ IP của bạn không nằm trong danh sách trắng, vì v
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "Địa chỉ IP của bạn nằm trong danh sách trắng! Cài đặt này không áp dụng cho BẠN, vì vậy bạn phải luôn sử dụng trang đăng nhập thông thường: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "Máy chủ cơ sở dữ liệu MySQL của bạn không hỗ trợ địa chỉ IPv6. Phiên bản của bạn: %s; phiên bản MySQL yêu cầu: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "Máy chủ cơ sở dữ liệu MySQL của bạn không hỗ trợ địa chỉ IPv6. Phiên bản của bạn: %1$s; phiên bản MySQL yêu cầu: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "API Key Ứng dụng Yubikey Duy nhất Của Bạn"
@@ -12037,11 +12409,11 @@ msgstr "Địa chỉ email báo cáo của bạn là: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Quản trị viên bảo mật của bạn đã áp đặt yêu cầu về chất lượng mật khẩu."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Phân tích bảo mật của bạn không xem xét các tính năng chỉ dành cho ShieldPRO - sử dụng menu Cog để xem phân tích của bạn như thể bạn có quyền truy cập vào các tính năng bảo mật bổ sung này."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Phân tích bảo mật của bạn không xem xét các tính năng chỉ dành cho %s - sử dụng menu Cog để xem phân tích của bạn như thể bạn có quyền truy cập vào các tính năng bảo mật bổ sung này."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Phân tích bảo mật của bạn bao gồm các tính năng chỉ dành cho ShieldPRO - sử dụng menu Cog để xem phân tích của bạn cho các tính năng bảo mật có sẵn."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Phân tích bảo mật của bạn bao gồm các tính năng chỉ dành cho %s - sử dụng menu Cog để xem phân tích của bạn cho các tính năng bảo mật có sẵn của bạn."
 
 msgid "Your session has expired."
 msgstr "Phiên của bạn đã hết hạn."
@@ -12055,11 +12427,11 @@ msgstr "Phiên của bạn đã bị khóa với một Địa chỉ IP khác."
 msgid "Your session was terminated."
 msgstr "Phiên của bạn đã bị kết thúc."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Trang web của bạn được hưởng lợi từ bảo vệ bảo mật bổ sung do ShieldPRO cung cấp."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Trang web của bạn được hưởng lợi từ bảo vệ bảo mật bổ sung do %s cung cấp."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Trang web của bạn không được hưởng lợi từ bảo vệ bảo mật bổ sung do ShieldPRO cung cấp."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Trang web của bạn không được hưởng lợi từ bảo vệ bảo mật bổ sung do %s cung cấp."
 
 msgid "Your site is currently in lockdown."
 msgstr "Trang web của bạn hiện đang bị khóa."
@@ -12082,8 +12454,8 @@ msgstr "Trang web của bạn không được bảo vệ chống lại SPAM Bìn
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Trang web của bạn chưa được đăng ký với CrowdSec."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Web hosting của bạn không đáp ứng yêu cầu tối thiểu cho Plugin Shield Security."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Web hosting của bạn không đáp ứng yêu cầu tối thiểu cho Plugin %s."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Hành động Vùng"
 msgid "Zones"
 msgstr "Vùng"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[False Positive] có nghĩa là mã trông giống malware, nhưng thực ra nó sạch."
@@ -12142,6 +12514,18 @@ msgstr "Phần tử biểu mẫu all_opts_keys không được cung cấp."
 msgid "and"
 msgstr "và"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "và sẽ được xử lý tự động trong khoảng %d phút."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "và sẽ được xử lý tự động trong khoảng %d phút."
+
+msgid "and will be processed shortly."
+msgstr "và sẽ được xử lý sớm."
+
+msgid "auto-fixed"
+msgstr "tự động sửa"
+
 msgid "case-insensitive"
 msgstr "không phân biệt chữ hoa chữ thường"
 
@@ -12154,8 +12538,8 @@ msgstr "ngày"
 msgid "empty username"
 msgstr "tên người dùng trống"
 
-msgid "entries: %s (previous: %s)"
-msgstr "mục: %s (trước đó: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "mục: %1$s (trước đó: %2$s)"
 
 msgid "estimated"
 msgstr "ước tính"
@@ -12175,6 +12559,12 @@ msgstr "trợ giúp thêm"
 msgid "help"
 msgstr "trợ giúp"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "thiếu dữ liệu"
 
 msgid "more frequent checks will be ignored"
 msgstr "các kiểm tra thường xuyên hơn sẽ bị bỏ qua"
+
+msgid "more..."
+msgstr "thêm..."
 
 msgid "n/a"
 msgstr "n/a"
@@ -12235,80 +12628,8 @@ msgstr "khuyến nghị"
 msgid "seconds"
 msgstr "giây"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "Công nghệ AntiBot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "Phát hiện Bot silentCAPTCHA không bảo vệ chống lại các cuộc tấn công brute-force vào đăng nhập WordPress của bạn."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "Phát hiện Bot silentCAPTCHA không bảo vệ biểu mẫu quên mật khẩu WordPress của bạn."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "Phát hiện Bot silentCAPTCHA không bảo vệ đăng ký WordPress của bạn."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "Điểm Tối thiểu Bot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "Điểm Bot silentCAPTCHA (Phần trăm)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "Kiểm tra silentCAPTCHA Không hợp lệ (Module)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "Độ Phức Tạp silentCAPTCHA"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA Cho Đăng nhập"
-
-msgid "silentCAPTCHA Registration"
-msgstr "Đăng ký silentCAPTCHA"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "Phát hiện silentCAPTCHA không được áp dụng vì bạn chưa chọn bất kỳ biểu mẫu nào để bảo vệ, chẳng hạn như Đăng nhập hoặc Đăng ký."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA là công nghệ Phát hiện Bad Bot WordPress độc quyền của %s."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA là công nghệ phát hiện bot độc quyền của %s, loại bỏ nhu cầu về CAPTCHA hiển thị và các thử thách khách truy cập tương tự."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA là công nghệ phát hiện bot độc quyền của %s, không hiển thị với khách truy cập của bạn và loại bỏ nhu cầu tương tác của người dùng với CAPTCHA đăng nhập."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA bị vô hiệu hóa vì không có ngưỡng điểm bot tối thiểu được cung cấp."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA bị vô hiệu hóa khi đặt điểm tối thiểu là %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA được bật với ngưỡng điểm bot tối thiểu."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA không bảo vệ Bình luận WP của bạn chống lại bot SPAM."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "Độ phức tạp thử thách Bot của silentCAPTCHA quá thấp - hãy xem xét tăng nó lên."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "Phát hiện bot của silentCAPTCHA không hoạt động vì điểm tối thiểu được đặt là 0."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "Phát hiện bot của silentCAPTCHA không hoạt động vì bot hiện không được thách thức."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "Điểm bot tối thiểu của silentCAPTCHA khá thấp (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "Đăng ký silentCAPTCHAv1"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "Đăng ký silentCAPTCHAv2"
 
 msgid "suggestion"
 msgstr "đề xuất"

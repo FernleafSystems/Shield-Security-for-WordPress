@@ -2,71 +2,66 @@
 
 	{% set meter = vars.meter %}
 	{% set meter_slug = vars.meter_slug %}
+	{% set traffic = vars.traffic %}
 
-	<div class="
-		{% if meter.has_critical|default(false) %}
-			meter-critical
-		{% elseif meter.totals.percentage > 50 %}
-			meter-success
-		{% else %}
-			meter-warning
-		{% endif %}
-		mb-0 mb-md-4 mb-lg-2
-	">
-	{# https://github.com/tomik23/circular-progress-bar #}
-		<div class="row">
+	<div class="card meter-card h-100 meter-card-{{ traffic }}">
+		<div class="meter-card-accent status-{{ traffic }}"></div>
+		<div class="card-body d-flex flex-column">
 
-			<div class="col-auto mb-3 mb-sm-0 d-flex flex-column justify-content-start align-items-center px-3">
-
-				<div class="mb-2">
-					<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
-						 data-value="{{ meter.totals.percentage }}"
-						 data-grade="{{ meter.totals.letter_score }}"
-						 data-rgbs="{{ meter.rgbs|join(',') }}"
-					></div>
-				</div>
-
+			<div class="meter-card-header">
 				<div>
-					<a class="mt-2 offcanvas_meter_analysis btn btn-sm
-						btn-outline-{% if meter.status == 'l' %}danger
-						{% elseif meter.status == 'm' %}warning
-						{% elseif meter.status == 'h' %}success
-						{% else %}primary
-						{% endif %}"
-					   data-meter="{{ meter_slug }}"
-					   href="javascript:{}"
-					   aria-controls="ShieldProgressMeterOffcanvas">
-						<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
-						{{ strings.analysis }}
-						</a>
+					<h6 class="meter-card-title">{{ meter.title }}</h6>
+					<p class="meter-card-subtitle">{{ meter.subtitle }}</p>
+				</div>
+				<div class="status-badge status-{{ traffic }}">
+					<span class="svg-container">{{ imgs.svgs.status_icon|raw }}</span>
 				</div>
 			</div>
 
-			<div class="col description pb-1 px-2">
-				<h6>{{ meter.title }}<br /><small class="text-muted">{{ meter.subtitle }}</small></h6>
+			<div class="meter-progress-row mb-3">
+				<div class="progress">
+					<div class="progress-bar status-{{ traffic }}"
+						 role="progressbar"
+						 style="width: {{ meter.totals.percentage }}%;"
+						 aria-valuenow="{{ meter.totals.percentage }}"
+						 aria-valuemin="0"
+						 aria-valuemax="100"></div>
+				</div>
+				<span class="score-text">{{ meter.totals.percentage }} / 100</span>
+			</div>
 
-				{% if meter.warning|default([]) is not empty %}
-					<div class="alert alert-danger">{{ meter.warning.text }}
-						<a href="{{ meter.warning.href }}"
-						   class="alert-link"
-						   target="_blank">{{ strings.view_details }}</a>
-					</div>
-				{% endif %}
+			{% if meter.warning|default([]) is not empty %}
+				<div class="alert alert-danger mb-2">{{ meter.warning.text }}
+					<a href="{{ meter.warning.href }}"
+					   class="alert-link"
+					   target="_blank">{{ strings.view_details }}</a>
+				</div>
+			{% endif %}
 
-				<div class="">
+			<div class="description">
+				<div>
 					<div class="{% if meter.description|length > 1 %}toggleable-text{% endif %}">
-						<p class="mb-2">{{ meter.description|first }}</p>
+						<p class="meter-card-desc mb-2">{{ meter.description|first }}</p>
 					</div>
 					<div class="hidden {% if meter.description|length > 1 %}toggleable-text{% endif %}">
 						{% for desc in meter.description %}
-							<p class="mb-2">{{ desc }}</p>
+							<p class="meter-card-desc mb-2">{{ desc }}</p>
 						{% endfor %}
 					</div>
 					<div class="mt-2 {% if meter.description|length > 1 %}toggleable-text{% else %}hidden{% endif %}">
-						<a href="javascript:{}" class="d-block fst-italic">more...</a>
+						<a href="javascript:{}" class="d-block fst-italic small">{{ strings.more }}</a>
 					</div>
 				</div>
+			</div>
 
+			<div class="mt-auto pt-3">
+				<a class="offcanvas_meter_analysis btn btn-sm btn-outline-{{ traffic == 'good' ? 'success' : ( traffic == 'critical' ? 'danger' : 'warning' ) }} btn-analyse"
+				   data-meter="{{ meter_slug }}"
+				   href="javascript:{}"
+				   aria-controls="ShieldProgressMeterOffcanvas">
+					<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+					{{ strings.analysis }}
+				</a>
 			</div>
 
 		</div>

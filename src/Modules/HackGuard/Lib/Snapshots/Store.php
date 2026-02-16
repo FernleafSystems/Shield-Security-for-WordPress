@@ -32,10 +32,7 @@ class Store {
 	 */
 	protected $workingDir;
 
-	/**
-	 * @var bool
-	 */
-	private $includeVersion;
+	private bool $includeVersion;
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $asset

@@ -44,7 +44,7 @@ class SilentCaptcha extends Base {
 			$status[ 'exp' ][] = sprintf( __( "%s bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' ), $silentCaptcha );
 		}
 		elseif ( $minimum < 30 ) {
-			$status[ 'exp' ][] = sprintf( __( "%s bot minimum score is quite low (%s).", 'wp-simple-firewall' ), $silentCaptcha, '< 30' );
+			$status[ 'exp' ][] = sprintf( __( '%1$s bot minimum score is quite low (%2$s).', 'wp-simple-firewall' ), $silentCaptcha, '< 30' );
 			if ( empty( $status[ 'level' ] ) ) {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			}

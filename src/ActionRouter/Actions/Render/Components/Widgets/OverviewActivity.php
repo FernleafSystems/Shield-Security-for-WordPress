@@ -23,6 +23,7 @@ class OverviewActivity extends OverviewBase {
 			fn( LogRecord $log ) => [
 				'message' => $this->truncate( ActivityLogMessageBuilder::Build( $log->event_slug, $log->meta_data ?? [], ' ' ) ),
 				'ip'      => $log->ip,
+				'ip_href' => self::con()->plugin_urls->ipAnalysis( $log->ip ),
 				'ago'     => Services::Request()
 									 ->carbon( true )
 									 ->setTimestamp( $log->created_at )

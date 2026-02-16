@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	Lib,
+	Lib\Hashes,
+	Lib\Hashes\Exceptions,
+	Lib\Snapshots\StoreAction,
 	Scan
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -21,7 +23,7 @@ class Afs extends Base {
 		parent::run();
 		$this->setupCronHooks();
 		( new Scan\Utilities\PtgAddReinstallLinks() )->execute();
-		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->execute();
+		( new StoreAction\ScheduleBuildAll() )->execute();
 	}
 
 	/**
@@ -108,8 +110,8 @@ class Afs extends Base {
 	}
 
 	public function runHourlyCron() {
-		( new Lib\Snapshots\StoreAction\CleanStale() )->execute();
-		( new Lib\Snapshots\StoreAction\TouchAll() )->execute();
+		( new StoreAction\CleanStale() )->execute();
+		( new StoreAction\TouchAll() )->execute();
 	}
 
 	public function actionPluginReinstall( string $file ) :bool {
@@ -118,7 +120,7 @@ class Afs extends Base {
 		$plugin = $WPP->getPluginAsVo( $file );
 		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
 			try {
-				( new Lib\Snapshots\StoreAction\Delete() )
+				( new StoreAction\Delete() )
 					->setAsset( $plugin )
 					->run();
 				$success = true;
@@ -161,7 +163,7 @@ class Afs extends Base {
 		$updater = $dbhResultItems->getQueryUpdater();
 
 		$changed = false;
-		if ( ( $item->is_unrecognised || $item->is_mal )
+		if ( ( $item->is_unrecognised || $item->is_mal || $item->is_unidentified )
 			 && $item->VO->item_deleted_at === 0
 			 && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
 			$changed = $updater->setItemDeleted( $item->VO->resultitem_id );
@@ -177,19 +179,19 @@ class Afs extends Base {
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
-				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
+				$verifiedHash = ( new Hashes\Query() )->verifyHash( $item->path_full );
 				if ( $item->VO->item_repaired_at === 0 && $item->is_checksumfail && $verifiedHash ) {
 					$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 				}
 			}
-			catch ( Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
+			catch ( Exceptions\AssetHashesNotFound $e ) {
 				// hashes are unavailable, so we do nothing
 			}
-			catch ( Lib\Hashes\Exceptions\NonAssetFileException $e ) {
+			catch ( Exceptions\NonAssetFileException $e ) {
 				// asset has probably been since removed
 				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
-			catch ( Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
+			catch ( Exceptions\UnrecognisedAssetFile $e ) {
 				// unrecognised file
 			}
 			catch ( \Exception $e ) {
@@ -268,7 +270,7 @@ class Afs extends Base {
 	 */
 	public function purge() {
 		parent::purge();
-		( new Lib\Snapshots\StoreAction\DeleteAll() )->execute();
+		( new StoreAction\DeleteAll() )->execute();
 	}
 
 	public function getFileScanAreas() :array {

@@ -107,7 +107,6 @@ class PageStats extends BasePluginAdminPage {
 					'bottrack_linkcheese',
 					'bottrack_loginfailed',
 					'bottrack_logininvalid',
-					'bottrack_useragent',
 					'bottrack_xmlrpc',
 					'bottrack_invalidscript',
 				]

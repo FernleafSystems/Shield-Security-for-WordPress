@@ -1,0 +1,14 @@
+{% if flags.has_reports %}
+	<ul class="shield-list">
+		{% for report in vars.reports %}
+			<li>
+				<a href="{{ report.href }}" target="_blank" rel="noopener noreferrer">{{ report.title }}</a>
+				<br/>
+				<span class="shield-badge badge-{{ report.type_badge }}">{{ report.type_name }}</span>
+				<span class="timestamp">{{ report.created_at }}</span>
+			</li>
+		{% endfor %}
+	</ul>
+{% else %}
+	<p class="m-0">{{ strings.no_reports }}</p>
+{% endif %}

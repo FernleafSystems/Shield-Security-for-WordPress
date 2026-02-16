@@ -62,7 +62,6 @@ class BotEventListener {
 				'bottrack_fakewebcrawler' => 'btfake',
 				'bottrack_linkcheese'     => 'btcheese',
 				'bottrack_loginfailed'    => 'btloginfail',
-				'bottrack_useragent'      => 'btua',
 				'bottrack_xmlrpc'         => 'btxml',
 				'bottrack_logininvalid'   => 'btlogininvalid',
 				'bottrack_invalidscript'  => 'btinvalidscript',

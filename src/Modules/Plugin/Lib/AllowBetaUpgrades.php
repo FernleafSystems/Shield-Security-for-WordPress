@@ -22,14 +22,17 @@ class AllowBetaUpgrades {
 	private $beta;
 
 	protected function canRun() :bool {
-		return self::con()->isPremiumActive()
-			   && apply_filters( 'shield/enable_beta', self::con()->opts->optIs( 'enable_beta', 'Y' ) );
+		return self::con()->isPremiumActive();
 	}
 
 	protected function run() {
+		add_filter( 'site_transient_update_plugins', fn( $updates ) => $this->removeStaleSelfUpdateNotice( $updates ) );
 		add_filter( 'pre_set_site_transient_update_plugins', function ( $updates ) {
+			$updates = $this->removeStaleSelfUpdateNotice( $updates );
+
 			// only offer "betas" when there is no "normal" upgrade already available
-			if ( \is_object( $updates )
+			if ( $this->isBetaEnabled()
+				 && \is_object( $updates )
 				 && isset( $updates->response )
 				 && \is_array( $updates->response )
 				 && empty( $updates->response[ self::con()->base_file ] ) ) {
@@ -40,6 +43,49 @@ class AllowBetaUpgrades {
 			}
 			return $updates;
 		} );
+	}
+
+	/**
+	 * Some update checks leave stale entries in "response" for the current plugin version.
+	 * Since update availability checks often only test response-entry existence, strip stale self-updates here.
+	 *
+	 * @param \stdClass|mixed $updates
+	 * @return \stdClass|mixed
+	 */
+	private function removeStaleSelfUpdateNotice( $updates ) {
+		return $this->removeStaleSelfUpdateNoticeCore(
+			$updates,
+			self::con()->base_file,
+			self::con()->cfg->version()
+		);
+	}
+
+	/**
+	 * @param \stdClass|mixed $updates
+	 * @return \stdClass|mixed
+	 */
+	private function removeStaleSelfUpdateNoticeCore( $updates, string $baseFile, string $currentVersion ) {
+		if ( \is_object( $updates )
+			 && !empty( $baseFile )
+			 && !empty( $currentVersion )
+			 && isset( $updates->response )
+			 && \is_array( $updates->response )
+			 && !empty( $updates->response[ $baseFile ] ) ) {
+
+			$ourUpdate = $updates->response[ $baseFile ];
+			$ourUpdate = \is_array( $ourUpdate ) ? (object)$ourUpdate : $ourUpdate;
+
+			$newVersion = \is_object( $ourUpdate ) ? (string)( $ourUpdate->new_version ?? '' ) : '';
+			if ( !empty( $newVersion ) && \version_compare( $newVersion, $currentVersion, '<=' ) ) {
+				unset( $updates->response[ $baseFile ] );
+			}
+		}
+
+		return $updates;
+	}
+
+	private function isBetaEnabled() :bool {
+		return apply_filters( 'shield/enable_beta', self::con()->opts->optIs( 'enable_beta', 'Y' ) );
 	}
 
 	private function getBeta() {

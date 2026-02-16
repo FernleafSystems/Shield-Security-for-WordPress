@@ -28,8 +28,6 @@ abstract class Base {
 
 	protected $latestResults;
 
-	private static $resultsCounts = [];
-
 	public function __construct() {
 	}
 
@@ -132,7 +130,7 @@ abstract class Base {
 	 * @return Scans\Afs\ScanActionVO|Scans\Apc\ScanActionVO|BaseScanActionVO|Scans\Wpv\ScanActionVO|null
 	 */
 	public function getScanActionVO() {
-		return $this->scanActionVO ?? $this->scanActionVO = ScanActionFromSlug::GetAction( $this->getSlug() );
+		return $this->scanActionVO ??= ScanActionFromSlug::GetAction( $this->getSlug() );
 	}
 
 	public function getScanName() :string {

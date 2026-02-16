@@ -4,24 +4,32 @@
 
 	{{ content.summary_charts|raw }}
 
-	<div class="row">
-		<div class="col-xl-6">
-			<div class="row">
-				{% for widget in vars.widget_grade %}
-					{% include '/wpadmin/plugin_pages/inner/dashboard_overview_widget.twig' %}
-				{% endfor %}
+	<div class="row g-3 mt-3">
+		{% for widget in vars.widget_grade %}
+			<div class="col-xl-6 dashboard_overview_widget">
+				<div class="d-flex flex-column h-100">
+					<div class="flex-grow-1 d-flex w-100">
+						{{ widget.content|raw }}
+					</div>
+					<h6 class="mb-0 mt-2 text-start ps-2">
+						<a href="{{ widget.href }}" class="widget-footer-link">{{ widget.href_text }} &rarr;</a>
+					</h6>
+				</div>
 			</div>
-		</div>
-		<div class="col-xl-6">
-			<div class="row">
-				{% for widget in vars.widget_scans %}
-					{% include '/wpadmin/plugin_pages/inner/dashboard_overview_widget.twig' %}
-				{% endfor %}
+		{% endfor %}
+		<div class="col-xl-6 dashboard_overview_widget">
+			<div class="d-flex flex-column h-100">
+				<div class="flex-grow-1 d-flex w-100">
+					{% include '/wpadmin/components/dashboard/scan_strip.twig' %}
+				</div>
+				<h6 class="mb-0 mt-2 text-start ps-2">
+					<a href="{{ vars.scans_link.href|default('#') }}" class="widget-footer-link">{{ vars.scans_link.href_text|default('View Scan Results') }} &rarr;</a>
+				</h6>
 			</div>
 		</div>
 	</div>
 
-	<div class="row">
+	<div class="row g-3 mt-2">
 		{% for widget in vars.widget_general %}
 			{% include '/wpadmin/plugin_pages/inner/dashboard_overview_widget.twig' %}
 		{% endfor %}

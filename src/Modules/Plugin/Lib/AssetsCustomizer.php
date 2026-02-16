@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\BuildMeter;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
 	ForIpRules,
@@ -109,6 +110,7 @@ class AssetsCustomizer {
 					'summary_charts' => [
 						'ajax'   => [
 							'render_summary_chart' => ActionData::Build( Actions\ReportingChartSummary::class ),
+							'batch_requests'       => ActionData::Build( Actions\AjaxBatchRequests::class ),
 						],
 						'charts' => \array_map(
 							fn( string $event ) => [
@@ -117,6 +119,7 @@ class AssetsCustomizer {
 								'show_title'    => false,
 								'req_params'    => [
 									'interval'       => 'daily',
+									'ticks'          => 30,
 									'events'         => [ $event ],
 									'combine_events' => true
 								],
@@ -395,10 +398,15 @@ class AssetsCustomizer {
 					'main',
 				],
 				'data'     => fn() => [
-					'ajax' => [
+					'ajax'       => [
 						'render_metercard' => ActionData::BuildAjaxRender( Components\Meters\MeterCard::class ),
+						'batch_requests'   => ActionData::Build( Actions\AjaxBatchRequests::class ),
 						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\MeterAnalysis::class ),
-					]
+					],
+					'thresholds' => [
+						'good'    => BuildMeter::THRESHOLD_GOOD,
+						'warning' => BuildMeter::THRESHOLD_WARNING,
+					],
 				],
 			],
 			'reports'          => [

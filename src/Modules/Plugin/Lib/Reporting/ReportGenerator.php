@@ -25,10 +25,11 @@ class ReportGenerator {
 			$this->sendNotificationEmail( $alert );
 			$this->markAlertsAsNotified();
 
-			// Mark info as generated so it doesn't fire redundantly next cycle
+			// Mark info as generated so it doesn't fire redundantly next cycle.
+			// This is internal bookkeeping and shouldn't replace the alert audit entry.
 			try {
 				$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
-				$this->buildAndStore( $info );
+				$this->buildAndStore( $info, true );
 			}
 			catch ( Exceptions\ReportBuildException $e ) {
 			}
@@ -63,7 +64,7 @@ class ReportGenerator {
 	/**
 	 * @throws Exceptions\ReportDataEmptyException
 	 */
-	private function buildAndStore( ReportVO $report ) :ReportsDB\Record {
+	private function buildAndStore( ReportVO $report, bool $suppressGeneratedAudit = false ) :ReportsDB\Record {
 		$con = self::con();
 
 		$areasData = [];
@@ -117,14 +118,22 @@ class ReportGenerator {
 
 		$con->db_con->reports->getQueryInserter()->insert( $record );
 
-		$con->comps->events->fireEvent( 'report_generated', [
+		$eventMeta = [
 			'audit_params' => [
 				'type'     => $con->comps->reports->getReportTypeName( $record->type ),
 				'interval' => $record->interval_length,
 			]
-		] );
+		];
+		if ( $suppressGeneratedAudit ) {
+			$eventMeta[ 'suppress_audit' ] = true;
+		}
+		$con->comps->events->fireEvent( $this->getGeneratedReportEventKey( $report->type ), $eventMeta );
 
 		return $record;
+	}
+
+	private function getGeneratedReportEventKey( string $reportType ) :string {
+		return $reportType === Constants::REPORT_TYPE_ALERT ? 'report_generated_alert' : 'report_generated';
 	}
 
 	/**
@@ -173,6 +182,7 @@ class ReportGenerator {
 
 			$con->comps->events->fireEvent( 'report_sent', [
 				'audit_params' => [
+					'type'   => $con->comps->reports->getReportTypeName( $report->type ),
 					'medium' => 'email',
 				]
 			] );

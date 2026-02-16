@@ -52,6 +52,7 @@ class EmailReport extends EmailBase {
 							'date_start' => $WP->getTimeStringForDisplay( $rep->start_at, $isHourly ),
 							'date_end'   => $WP->getTimeStringForDisplay( $rep->end_at, $isHourly ),
 							'areas_data' => $areasData,
+							'overview'   => $this->buildOverviewSummary( $rep->areas_data ),
 						];
 					},
 					$reports
@@ -64,9 +65,9 @@ class EmailReport extends EmailBase {
 				'generated'             => __( 'Date Generated', 'wp-simple-firewall' ),
 				'report_type'           => $common[ 'report_type_label' ],
 				'view_report'           => $common[ 'view_report_label' ],
-				'please_find'           => $isAlert
-					? __( 'A security alert has been generated for your site. New issues have been detected that may require your attention.', 'wp-simple-firewall' )
-					: __( 'A periodic security report has been generated for your site.', 'wp-simple-firewall' ),
+				'intro_text'            => $isAlert
+					? __( 'A security alert has been generated. Review issues below and take action where needed.', 'wp-simple-firewall' )
+					: __( "Here's your security overview for the reporting period. Review any issues below and take action where needed.", 'wp-simple-firewall' ),
 				'site_url'              => $common[ 'site_url_label' ],
 				'report_date'           => __( 'Report Generation Date', 'wp-simple-firewall' ),
 				'use_links'             => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
@@ -85,7 +86,49 @@ class EmailReport extends EmailBase {
 				'count'                 => __( 'Count', 'wp-simple-firewall' ),
 				'new_badge'             => __( 'NEW', 'wp-simple-firewall' ),
 				'and_x_more'            => __( '... and %s more', 'wp-simple-firewall' ),
+				'scan_issues'           => __( 'Scan Issues', 'wp-simple-firewall' ),
+				'repairs'               => __( 'Repairs', 'wp-simple-firewall' ),
+				'ip_offenses'           => __( 'IP Offenses', 'wp-simple-firewall' ),
+				'all_clear'             => __( 'All clear', 'wp-simple-firewall' ),
+				'auto_fixed'            => __( 'auto-fixed', 'wp-simple-firewall' ),
+				'security_report'       => __( 'Security Report', 'wp-simple-firewall' ),
 			]
+		];
+	}
+
+	private function buildOverviewSummary( array $areasData ) :array {
+		$inspector = new ReportDataInspector( $areasData );
+
+		$scanTotal = $inspector->countScanResultsCurrent();
+		$scanNew = $inspector->countScanResultsNew();
+
+		$repairTotal = 0;
+		foreach ( ( $areasData[ Constants::REPORT_AREA_SCANS ][ 'scan_repairs' ] ?? [] ) as $data ) {
+			$repairTotal += $data[ 'count' ] ?? 0;
+		}
+
+		$ipStat = $areasData[ Constants::REPORT_AREA_STATS ][ 'security' ][ 'stats' ][ 'ip_offense' ] ?? null;
+
+		$changesTotalCount = 0;
+		$changesZoneCount = 0;
+		foreach ( ( $areasData[ Constants::REPORT_AREA_CHANGES ] ?? [] ) as $zone ) {
+			$t = $zone[ 'total' ] ?? 0;
+			$changesTotalCount += $t;
+			if ( $t > 0 ) {
+				$changesZoneCount++;
+			}
+		}
+
+		return [
+			'scan_issues' => [ 'total' => $scanTotal, 'new' => $scanNew ],
+			'repairs'     => [ 'total' => $repairTotal ],
+			'ip_offenses' => $ipStat !== null && !( $ipStat[ 'is_zero_stat' ] ?? true ) ? [
+				'current'     => $ipStat[ 'count_current_period' ],
+				'diff_colour' => $ipStat[ 'diff_colour' ],
+				'diff_symbol' => $ipStat[ 'diff_symbol_email' ],
+				'diff_pct'    => $ipStat[ 'diff_percentage' ],
+			] : null,
+			'changes'     => [ 'total' => $changesTotalCount, 'zones' => $changesZoneCount ],
 		];
 	}
 

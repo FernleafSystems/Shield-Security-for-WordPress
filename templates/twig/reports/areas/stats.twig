@@ -2,30 +2,44 @@
 	{% for stat_type in vars.stats %}
 		{% if stat_type.has_non_zero_stat %}
 
-			<div class="row mt-4">
-				<div class="col">
-					<h6 class="">{{ stat_type.title }}</h6>
-				</div>
+			<div class="category-header">
+				<h6>{{ stat_type.title }}</h6>
 			</div>
 
-			<div class="row mt-2">
+			<div class="row g-3">
 				{% for stat in stat_type.stats %}
 					{% if not stat.is_zero_stat %}
-						<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
-							<div class="card">
-								<div class="card-body ps-3 pe-2 py-2">
-									<div class="overline text-muted mb-1">{{ stat.name }}</div>
-									<div style="font-size: 2rem; font-weight: 700; line-height: 1.1;">
-										{{ stat.count_current_period }}
-									</div>
-									<div class="text-muted" style="font-size: 0.75rem;">{{ strings.this_period }}</div>
-									<div class="stat-card-footer text-muted d-flex align-items-center justify-content-between">
-										<span>{{ strings.previous_period }}: {{ stat.count_previous_period }}</span>
-										<span style="color: {% if stat.diff_colour == 'warning' %}#cc7a00{% elseif stat.diff_colour == 'success' %}#008000{% else %}#6c757d{% endif %};">
-											<span class="stat-diff-symbol d-inline-block align-middle">{{ stat.diff_symbol_svg|raw }}</span>
-											{{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
-										</span>
-									</div>
+						{% if stat_type.neutral %}
+							{% set tint_class = 'bg-tint-info' %}
+							{% set accent_class = 'status-info' %}
+							{% set trend_class = 'trend-neutral' %}
+						{% elseif stat.diff_colour == 'success' %}
+							{% set tint_class = 'bg-tint-good' %}
+							{% set accent_class = 'status-good' %}
+							{% set trend_class = 'trend-good' %}
+						{% elseif stat.diff_colour == 'warning' %}
+							{% set tint_class = 'bg-tint-warning' %}
+							{% set accent_class = 'status-warning' %}
+							{% set trend_class = 'trend-warning' %}
+						{% else %}
+							{% set tint_class = 'bg-tint-info' %}
+							{% set accent_class = 'status-info' %}
+							{% set trend_class = 'trend-neutral' %}
+						{% endif %}
+						<div class="col-lg-3 col-md-4 col-6">
+							<div class="stat-card {{ tint_class }}">
+								<div class="stat-card-accent {{ accent_class }}"></div>
+								<div class="stat-card-body">
+									<div class="overline">{{ stat.name }}</div>
+									<div class="stat-value">{{ stat.count_current_period }}</div>
+									<div class="stat-prev-label">{{ strings.this_period }}</div>
+								</div>
+								<div class="stat-card-footer">
+									<span>{{ strings.previous_period }}: {{ stat.count_previous_period }}</span>
+									<span class="stat-trend {{ trend_class }}">
+										{{ stat.diff_symbol_svg|raw }}
+										{{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
+									</span>
 								</div>
 							</div>
 						</div>
@@ -36,5 +50,5 @@
 		{% endif %}
 	{% endfor %}
 {% else %}
-	<p>There were no stats generated for the given reporting criteria.</p>
+	<p class="report-empty">There were no stats generated for the given reporting criteria.</p>
 {% endif %}

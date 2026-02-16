@@ -55,7 +55,7 @@ class PluginPackager {
 	}
 
 	/**
-	 * @param array<string,bool> $options
+	 * @param array<string,mixed> $options
 	 * @throws InvalidArgumentException
 	 * @throws \InvalidArgumentException
 	 */
@@ -113,24 +113,29 @@ class PluginPackager {
 		// Generate plugin.json from updated spec files
 		$this->buildPluginJson( $targetDir );
 
-		// Update package-specific files (readme.txt, icwp-wpsf.php)
-		$this->updatePackageFiles( $targetDir, $options );
+		// Synchronize package-specific files (readme.txt, icwp-wpsf.php) from generated plugin.json.
+		$this->updatePackageFiles( $targetDir );
 
-		$this->installComposerDependencies( $targetDir );
-		( new VendorCleaner( $this->logger ) )->clean( $targetDir );
+		if ( $options[ 'package_dependency_build' ] ) {
+			$this->installComposerDependencies( $targetDir );
+			( new VendorCleaner( $this->logger ) )->clean( $targetDir );
 
-		// Run Strauss prefixing
-		$straussProvider = new StraussBinaryProvider(
-			$this->straussVersion,
-			$this->straussForkRepo,
-			$this->commandRunner,
-			$this->directoryRemover,
-			$this->logger
-		);
-		$straussProvider->runPrefixing( $targetDir );
+			// Run Strauss prefixing
+			$straussProvider = new StraussBinaryProvider(
+				$this->straussVersion,
+				$this->straussForkRepo,
+				$this->commandRunner,
+				$this->directoryRemover,
+				$this->logger
+			);
+			$straussProvider->runPrefixing( $targetDir );
 
-		$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
-		$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
+			$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
+			$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
+		}
+		else {
+			$this->log( 'Skipping package dependency build (--skip-package-dependency-build enabled)' );
+		}
 
 		$this->removeComposerFiles( $targetDir );
 
@@ -211,16 +216,17 @@ class PluginPackager {
 	 */
 	private function resolveOptions( array $options ) :array {
 		$defaults = [
-			'composer_install'  => true,
-			'npm_install'       => true,
-			'npm_build'         => true,
-			'directory_clean'   => true,
-			'skip_copy'         => false,
-			'strauss_version'   => null,
-			'strauss_fork_repo' => null,
-			'version'           => null,
-			'release_timestamp' => null,
-			'build'             => null,
+			'composer_install'         => true,
+			'package_dependency_build' => true,
+			'npm_install'              => true,
+			'npm_build'                => true,
+			'directory_clean'          => true,
+			'skip_copy'                => false,
+			'strauss_version'          => null,
+			'strauss_fork_repo'        => null,
+			'version'                  => null,
+			'release_timestamp'        => null,
+			'build'                    => null,
 		];
 		return \array_replace( $defaults, \array_intersect_key( $options, $defaults ) );
 	}
@@ -292,18 +298,48 @@ class PluginPackager {
 	}
 
 	/**
-	 * Update package-specific files (readme.txt, icwp-wpsf.php) with version.
-	 * Note: plugin.json already has correct version from buildPluginJson().
-	 *
-	 * @param array<string, mixed> $options Package options including version
+	 * Synchronize package-specific files (readme.txt, icwp-wpsf.php) from generated plugin.json.
 	 */
-	private function updatePackageFiles( string $targetDir, array $options ) :void {
-		if ( $options[ 'version' ] !== null ) {
-			$this->log( 'Updating package files...' );
-			$this->versionUpdater->updateReadmeTxt( $targetDir, $options[ 'version' ] );
-			$this->versionUpdater->updatePluginHeader( $targetDir, $options[ 'version' ] );
-			$this->log( '  ✓ Package files updated' );
+	private function updatePackageFiles( string $targetDir ) :void {
+		$derivedVersion = $this->readGeneratedPackageVersion( $targetDir );
+
+		$this->log( sprintf( 'Synchronizing package files to plugin.json version: %s', $derivedVersion ) );
+		$this->versionUpdater->updateReadmeTxt( $targetDir, $derivedVersion );
+		$this->versionUpdater->updatePluginHeader( $targetDir, $derivedVersion );
+		$this->log( '  Package files synchronized' );
+	}
+
+	private function readGeneratedPackageVersion( string $targetDir ) :string {
+		$pluginJsonPath = Path::join( $targetDir, 'plugin.json' );
+
+		if ( !\file_exists( $pluginJsonPath ) ) {
+			throw new \RuntimeException(
+				sprintf( 'Cannot synchronize package files: plugin.json missing at %s', $pluginJsonPath )
+			);
 		}
+
+		$content = \file_get_contents( $pluginJsonPath );
+		if ( $content === false ) {
+			throw new \RuntimeException(
+				sprintf( 'Cannot synchronize package files: failed to read plugin.json at %s', $pluginJsonPath )
+			);
+		}
+
+		$config = \json_decode( $content, true );
+		if ( !\is_array( $config ) ) {
+			throw new \RuntimeException(
+				sprintf( 'Cannot synchronize package files: invalid plugin.json (%s)', \json_last_error_msg() )
+			);
+		}
+
+		$version = $config[ 'properties' ][ 'version' ] ?? '';
+		if ( !\is_string( $version ) || $version === '' ) {
+			throw new \RuntimeException(
+				sprintf( 'Cannot synchronize package files: plugin.json properties.version missing at %s', $pluginJsonPath )
+			);
+		}
+
+		return $version;
 	}
 
 	/**

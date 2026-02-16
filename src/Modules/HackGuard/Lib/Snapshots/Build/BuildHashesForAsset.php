@@ -6,10 +6,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
 
 class BuildHashesForAsset {
 
-	/**
-	 * @var string
-	 */
-	private $hashAlgo = 'md5';
+	private string $hashAlgo = 'md5';
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
@@ -28,9 +25,6 @@ class BuildHashesForAsset {
 		return empty( $this->hashAlgo ) ? 'md5' : $this->hashAlgo;
 	}
 
-	/**
-	 * @return static
-	 */
 	public function setHashAlgo( string $hashAlgo ) :self {
 		$this->hashAlgo = $hashAlgo;
 		return $this;

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 14:13+0000\n"
-"PO-Revision-Date: 2025-12-08 14:13+0000\n"
+"POT-Creation-Date: 2026-02-16 11:48+0000\n"
+"PO-Revision-Date: 2026-02-16 11:48+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: hu_HU\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Bekapcsolva; \"N\" = Kikapcsolva"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Konstans <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Konstans <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s most bejelentkezett a(z) %2$s webhelyre"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s és %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "A(z) %1$s blokkolja az összes automatizált bot SPAM-et a(z) %2$s segítségével, amely kizárólagos, láthatatlan, GDPR-kompatibilis bot-észlelési technológiánk."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "A(z) %1$s bot minimális pontszáma meglehetősen alacsony (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "A(z) %1$s nem tudta megállapítani, hogy a(z) %2$s JS megfelelően töltődik-e be a webhelyén."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "A(z) %1$s rendelkezik elérhető integrációval az Ön által használt harmadik féltől származó plugin űrlapjainak védelméhez: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "A(z) %1$s felfedezte, hogy a(z) %2$s plugin jelenleg telepített verziója ismert biztonsági sebezhetőségekkel rendelkezik."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "A(z) %1$s sikeresen kiválasztotta a következő helyet az ideiglenes könyvtár létrehozásához: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "A(z) %1$s egy %2$s exkluzív szolgáltatás, amely védi a wp-config.php fájlt."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "A(z) %1$s egy dedikált e-mail kézbesítési szolgáltatás a(z) %2$s-tól."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "A(z) %1$s egy kizárólagos bot-észlelési technológia a(z) %2$s-től, amely láthatatlan a látogatók számára, és megszünteti a felhasználói interakció szükségességét a bejelentkezési CAPTCHA-kkal."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "A(z) %1$s le van tiltva, ha a minimális pontszám %2$s-ra van állítva."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "A(z) %1$s a mi bot-észlelési technológiánk, amely kizárólag a(z) %2$s számára érhető el, és megszünteti a látható CAPTCHA-k és hasonló látogatói kihívások szükségességét."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s ezt a hozzászólást \"%2$s\" jelöléssel látta el."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s felhasználva %2$s-ból (nem használt: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d területi beállítás elérhető."
+
+msgid "%d locale(s) in queue."
+msgstr "%d területi beállítás a sorban."
+
+msgid "%d translation is queued for download"
+msgstr "%d fordítás várakozik letöltésre"
+
+msgid "%d translations are queued for download"
+msgstr "%d fordítás várakozik letöltésre"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON kódolva)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA szolgáltató engedélyezve"
 
 msgid "%s API Token Missing."
 msgstr "%s API Token hiányzik."
+
+msgid "%s Anti-Spam"
+msgstr "%s Anti-SPAM"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot technológia"
 
 msgid "%s Auto-Unblock"
 msgstr "%s automatikus feloldás"
@@ -37,29 +115,92 @@ msgstr "%s automatikus feloldás"
 msgid "%s Bot Check Failed."
 msgstr "%s bot ellenőrzés sikertelen."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "A(z) %s Bot észlelés nem véd a WordPress bejelentkezés elleni brute-force támadások ellen."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "A(z) %s Bot észlelés nem védi a WordPress elfelejtett jelszó űrlapot."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "A(z) %s Bot észlelés nem védi a WordPress regisztrációt."
+
+msgid "%s Bot Minimum Score"
+msgstr "%s bot minimális pontszám"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s bot pontszám (százalék)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "A(z) %s bot kihívás komplexitása túl alacsony - fontolja meg a növelését."
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s ellenőrzés érvénytelen (modul)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%s komment SPAM védelem"
+
+msgid "%s Complexity"
+msgstr "%s komplexitás"
+
+msgid "%s Deactivated"
+msgstr "%s deaktiválva"
 
 msgid "%s Debug Information"
 msgstr "%s hibakeresési információk"
 
+msgid "%s Emails"
+msgstr "%s e-mailek"
+
+msgid "%s Fail"
+msgstr "%s sikertelen"
+
+msgid "%s Features"
+msgstr "%s funkciók"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "A %s Firewall blokkolt egy kérést a WordPress webhelyéhez."
+
+msgid "%s For Logins"
+msgstr "%s bejelentkezésekhez"
+
+msgid "%s Free Trial"
+msgstr "%s ingyenes próbaverzió"
 
 msgid "%s Home"
 msgstr "%s honlap"
 
+msgid "%s Home Page"
+msgstr "%s honlap"
+
+msgid "%s IP Reputation Score"
+msgstr "%s IP reputációs pontszám"
+
+msgid "%s Info"
+msgstr "%s Info"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s Intelligens IP blokkolás"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s most bejelentkezett ide: %s"
+msgid "%s Issue"
+msgstr "%s probléma"
+
+msgid "%s Issues"
+msgstr "%s probléma"
+
+msgid "%s License Cleared"
+msgstr "%s licenc törölve"
+
+msgid "%s License Management"
+msgstr "%s licenckezelés"
 
 msgid "%s Login Verification"
 msgstr "%s bejelentkezési ellenőrzés"
 
 msgid "%s Lookup"
 msgstr "%s keresés"
+
+msgid "%s Option Key"
+msgstr "%s beállítási kulcs"
 
 msgid "%s Plugin Badge"
 msgstr "%s plugin jelvény"
@@ -70,6 +211,24 @@ msgstr "%s plugin konfiguráció"
 msgid "%s Plugin options updated successfully."
 msgstr "%s Plugin beállítások sikeresen frissítve."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s plugin – a minimális webhely követelmények nem teljesülnek"
+
+msgid "%s Premium Security"
+msgstr "%s prémium biztonság"
+
+msgid "%s Pro is available from our online store."
+msgstr "A(z) %s Pro elérhető online áruházunkban."
+
+msgid "%s Pro store"
+msgstr "%s Pro áruház"
+
+msgid "%s Registration"
+msgstr "%s regisztráció"
+
+msgid "%s Scanners."
+msgstr "%s szkennerek."
+
 msgid "%s Security Insights"
 msgstr "%s biztonsági betekintések"
 
@@ -79,14 +238,35 @@ msgstr "%s biztonsági korlátozások alkalmazva"
 msgid "%s Status Report"
 msgstr "%s állapotjelentés"
 
+msgid "%s Success"
+msgstr "%s sikeres"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s felhasználói 2FA szolgáltató aktiválva"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s felhasználói 2FA: rendelkezik aktívval"
+
 msgid "%s Website Security Report"
 msgstr "%s webhely biztonsági jelentés"
 
-msgid "%s and %s"
-msgstr "%s és %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "A(z) %s bot észlelés nem fut, mert a minimális pontszám 0-ra van állítva."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "A(z) %s bot észlelés nem fut, mivel a botok jelenleg nincsenek kihívás elé állítva."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "A %s képes vizsgálni a pluginjait és témáit ismert sebezhetőségek szempontjából."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "A(z) %s automatikusan integrálódhat harmadik féltől származó pluginokkal."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "A(z) %s automatikusan képes védeni a harmadik féltől származó bejelentkezési és regisztrációs űrlapokat a botok ellen."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "A(z) %s nem tudott IP címeket észlelni. Ez kritikus webtárhely konfigurációs problémát jelent."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "A %s nagyon gyorsan készít kockázatértékelést, mivel számos különálló területen követi nyomon a rossz látogatókat."
@@ -100,29 +280,41 @@ msgstr "%s nap"
 msgid "%s days"
 msgstr "%s nap"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "A(z) %s észlelés nincs alkalmazva, mert nem választott ki egyetlen űrlapot sem a védelemhez, például bejelentkezési vagy regisztrációs űrlapot."
+
 msgid "%s directory"
 msgstr "%s könyvtár"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "A(z) %s sok mindent csinál, így nehéz lehet tudni, hol kezdjük."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "A(z) %s általában nem vizsgálja a bejelentkezett vagy regisztrált felhasználók hozzászólásait."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "A(z) %s eseménydefiníciók üresek vagy nem megfelelő formátumúak."
 
 msgid "%s extension is unavailable."
 msgstr "%s kiterjesztés nem érhető el."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "%s WordPress-hez v20 bemutató"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "A %s már megtette a szükséges lépést a kérés blokkolására."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s rendelkezik elérhető integrációval az Ön által használt harmadik féltől származó plugin űrlapjainak védelméhez: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "A %s felfedezte, hogy a %s plugin jelenleg telepített verziója ismert biztonsági sebezhetőségekkel rendelkezik."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "A(z) %s sikeresen kiválasztotta a következő helyet az ideiglenes könyvtár létrehozásához: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "A %s a %s exkluzív szolgáltatása, amely védi a wp-config.php fájlt."
-
 msgid "%s is a child of another theme."
 msgstr "A %s egy másik téma gyermeke."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "A(z) %s egy hatékony WordPress biztonsági szolgáltatás, amelyet több mint 40 000+ WordPress webhelyen telepítettek."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "A(z) %s le van tiltva, mivel nincs megadva minimális bot-pontszám küszöbérték."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "A(z) %s engedélyezve van minimális bot-pontszám küszöbértékkel."
 
 msgid "%s is not currently protecting your site."
 msgstr "A %s jelenleg nem védi a webhelyet."
@@ -130,14 +322,26 @@ msgstr "A %s jelenleg nem védi a webhelyet."
 msgid "%s is not protecting your site"
 msgstr "A %s nem védi a webhelyet"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "A(z) %s a WordPress rossz bot észlelési technológiánk."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s a mi exkluzív AI-alapú malware vizsgáló és észlelő motorunk."
 
 msgid "%s is protected against tampering."
 msgstr "%s védve van a módosítás ellen."
 
+msgid "%s isn't activated on this site."
+msgstr "%s nincs aktiválva ezen a webhelyen."
+
+msgid "%s isn't installed on this site."
+msgstr "%s nincs telepítve ezen a webhelyen."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s nincs védve a módosítás ellen."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "A(z) %s nem védi a WP hozzászólásokat a bot SPAM ellen."
 
 msgid "%s item processed"
 msgstr "%s elem feldolgozva"
@@ -145,8 +349,11 @@ msgstr "%s elem feldolgozva"
 msgid "%s items processed"
 msgstr "%s elem feldolgozva"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s megjelölte ezt a hozzászólást mint \"%s\"."
+msgid "%s license check failed."
+msgstr "%s licencellenőrzés sikertelen."
+
+msgid "%s license check was successful."
+msgstr "%s licencellenőrzés sikeres volt."
 
 msgid "%s minute"
 msgstr "%s perces"
@@ -172,8 +379,8 @@ msgstr "%s szabálysértés"
 msgid "%s offenses until block"
 msgstr "%s szabálysértés a blokkolásig"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s e-mail, Yubikey, Google Authenticator és U2F lehetőségeket kínál."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "A(z) %s e-mail, Yubikey, Google Authenticator és Passkeys lehetőségeket kínál."
 
 msgid "%s options and modules"
 msgstr "%s beállítások és modulok"
@@ -181,11 +388,56 @@ msgstr "%s beállítások és modulok"
 msgid "%s per day"
 msgstr "%s naponta"
 
+msgid "%s plugin activated"
+msgstr "%s plugin aktiválva"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s plugin nem aktiválható"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s plugin nem volt deaktiválható"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s plugin nem telepíthető"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s plugin nem frissíthető"
+
+msgid "%s plugin deactivated"
+msgstr "%s plugin deaktiválva"
+
+msgid "%s plugin installed"
+msgstr "%s plugin telepítve"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s plugin telepítve van, de nincs aktiválva."
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s plugin telepítve van, de nem aktív."
+
+msgid "%s plugin needs to sync."
+msgstr "%s plugint szinkronizálni kell."
+
+msgid "%s plugin not detected in last sync."
+msgstr "%s plugin nem észlelhető az utolsó szinkronizálásban."
+
+msgid "%s plugin updated"
+msgstr "%s plugin frissítve"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s plugin verziók nincsenek szinkronban."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "A %s védi a webhely látogatóit és blokkolja a potenciális támadásokat, miközben figyeli a webes forgalmat és a fájlrendszer változásait."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "A(z) %s beépített integrációkat biztosít a harmadik féltől származó pluginok űrlapjainak védelméhez a SPAM botok ellen."
+
 msgid "%s scan remaining."
 msgstr "%s vizsgálat van hátra."
+
+msgid "%s scans cannot execute."
+msgstr "%s vizsgálatok nem futtathatók."
 
 msgid "%s scans remaining."
 msgstr "%s vizsgálat van hátra."
@@ -205,14 +457,14 @@ msgstr "%s alkalom"
 msgid "%s tools and features"
 msgstr "%s eszközök és funkciók"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s felhasználva %s-ból (fel nem használt: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "A(z) %s megpróbálja ezt automatikusan elvégezni, és bár az esetek 99%-ában működik, néha egy furcsa webhost konfiguráció kissé összezavarhatja."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "A %s rendszeresen frissített, gyakran használt SPAM tartalmakat tartalmazó szótárat használ az ilyen típusú SPAM tartalom blokkolására."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "%s verzió a webhelyen nem egyezik ezzel a szerverrel."
 
 msgid "%s was added to your profile."
 msgstr "%s hozzáadva a profiljához."
@@ -223,11 +475,26 @@ msgstr "%s eltávolítva a profiljából."
 msgid "%s was successfully added to your account."
 msgstr "%s sikeresen hozzáadva a fiókjához."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "A(z) %s automatikusan megvizsgálja a harmadik féltől származó pluginjait, hogy ellenőrizze, elérhető-e beépített integráció."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "A %s késlelteti a frissítéseket, amíg az új frissítés elérhető nem lesz a beállított napok számára."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "A(z) %s észlelni fogja a botokat, amelyek megpróbálnak bejelentkezni a webhelyére, anélkül hogy kihívást jelentene a jogos felhasználók számára."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "A(z) %s észlelni fogja a botokat, amelyek megpróbálnak hozzászólás SPAM-et küldeni a webhelyére, anélkül hogy kihívást jelentene a jogos látogatók számára."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "A %s megvédi a WordPress űrlapokat a botoktól azáltal, hogy korlátozza az ellenük irányuló kísérleteket silentCAPTCHA technológiánk segítségével."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "A(z) %s MainWP integrációja nincs engedélyezve ezen a webhelyen."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "A(z) %s szabálymotor nem fut."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "A %s Security Admin rendszere további biztonsági réteget biztosít a normál WordPress adminisztrációhoz."
@@ -238,11 +505,14 @@ msgstr "%s automatikus IP blokkolása enyhíti a támadásaikat azáltal, hogy b
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s védelme jelenleg le van tiltva, így az itt végrehajtott módosítások nem lépnek érvénybe, amíg újra nem engedélyezi."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s, alapító bemutatkozása"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "%sv1 regisztráció"
+
+msgid "%sv2 Registration"
+msgstr "%sv2 regisztráció"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ PRO verzió ↑"
@@ -273,6 +543,9 @@ msgstr "(amikor a lezárás le van tiltva, az IP cím automatikusan eltávolít�
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... és még %s"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "A /wp-content/ könyvtár nincs vizsgálva."
@@ -397,9 +670,6 @@ msgstr "A következő fájltípusokhoz generált 404 hibák nem váltanak ki sza
 msgid "5-minute"
 msgstr "5 perces"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 nap"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Vizsgálja</strong> a WordPress Core fájljait és könyvtárait változások és új fájlok szempontjából."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Egy %s bot ellenőrzés történt egy látogatón, de a bot-blokkolási opció le van tiltva a beállításokban."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "Fájl különbség nem hozható létre, mivel nincs elérhető hivatalos fájl az összehasonlításhoz."
@@ -445,6 +718,9 @@ msgstr "Magas szintű áttekintés a WordPress tárhelyszerver szoftveréről."
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Magas szintű áttekintés a WordPress frissítések állapotáról."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Egy licenc már aktív. Használja a --force kapcsolót az újraaktiváláshoz."
+
 msgid "A light-touch security profile"
 msgstr "Könnyű biztonsági profil"
 
@@ -456,6 +732,9 @@ msgstr "Azon kérési útvonalak listája, amelyek soha nem váltanak ki jogsér
 
 msgid "A login to your WordPress account just occurred"
 msgstr "Bejelentkezés történt a WordPress fiókjába"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "Sok munka folyik a(z) %s fejlesztésében, és szükségünk van az Ön segítségére, hogy terjesszük róla a hírt. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "Új egyszeri jelszó elküldve az e-mail címére."
@@ -475,8 +754,8 @@ msgstr "Robusztus biztonsági helyzet"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "A '100'-as pontszám azt jelentené, hogy szinte biztosan jó, a '0'-s pontszám azt jelenti, hogy nagy valószínűséggel rossz bot."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "A silentCAPTCHA Bot ellenőrzés végrehajtásra került egy látogatón, de a Bot-blokkolási opció le van tiltva a beállításokban."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Biztonsági riasztás került generálásra. Tekintse át az alábbi problémákat, és tegyen lépéseket, ahol szükséges."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "Sikeres bejelentkezés történt a WordPress fiókjába."
@@ -498,6 +777,12 @@ msgstr "AI rosszindulatú program szkenner, automatikus fájljavítás, WP Confi
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "Az API kulcs nem lehet üres."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "API kulcs szükséges az aktiváláshoz. Használja: --api-key=AZ_ÖN_KULCSA"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "APP Password hitelesítés - Érvénytelen e-mail"
@@ -523,8 +808,8 @@ msgstr "Elhagyott pluginok találhatók"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Elhagyott WordPress.org pluginok"
 
-msgid "Absolutely"
-msgstr "Teljesen"
+msgid "About %s for WordPress"
+msgstr "%s a WordPress-hez"
 
 msgid "Accept Changes"
 msgstr "Változások elfogadása"
@@ -571,20 +856,23 @@ msgstr "Műveletek és info"
 msgid "Activate"
 msgstr "Aktiválás"
 
+msgid "Activate %s"
+msgstr "%s aktiválása"
+
+msgid "Activate %s License"
+msgstr "%s licenc aktiválása"
+
 msgid "Activate Only"
 msgstr "Csak aktiválás"
+
+msgid "Activate Pro License"
+msgstr "Pro licenc aktiválása"
 
 msgid "Activate Rule"
 msgstr "Szabály aktiválása"
 
-msgid "Activate Shield"
-msgstr "Shield aktiválása"
-
-msgid "Activate ShieldPRO License"
-msgstr "ShieldPRO licenc aktiválása"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "ShieldPRO licenc aktiválása"
+msgid "Activate Your %s License"
+msgstr "%s licenc aktiválása"
 
 msgid "Activate Your White Label Settings"
 msgstr "White Label beállítások aktiválása"
@@ -673,14 +961,14 @@ msgstr "Hozzáadott táblák"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "További IP blokkolási listák érhetők el frissített csomaggal."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "%s kihívás komplexitásának beállítása"
+
 msgid "Adjust Scan Results Display"
 msgstr "Vizsgálati eredmények megjelenítésének módosítása"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "HTTP biztonsági fejlécek telepítésének beállítása"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "silentCAPTCHA kihívás komplexitásának beállítása"
 
 msgid "Admin Access Login"
 msgstr "Admin hozzáférés bejelentkezés"
@@ -751,17 +1039,26 @@ msgstr "A szerver előtt jár"
 msgid "Alert"
 msgstr "Riasztás"
 
+msgid "Alert Report Generated"
+msgstr "Riasztási jelentés generálva"
+
+msgid "Alert Report Generated."
+msgstr "Riasztási jelentés létrehozva."
+
 msgid "Alert Reports Frequency"
 msgstr "Riasztási jelentések gyakorisága"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Riasztások plugin/téma sebezhetőségekről. A Shield ezután automatikusan frissíthet, amint frissítések elérhetővé válnak."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Értesítések a plugin/téma sebezhetőségekről. A(z) %s automatikusan telepítheti a frissítést, amint elérhetővé válik."
 
 msgid "Algorithm not supported"
 msgstr "Az algoritmus nem támogatott"
 
-msgid "Align Shield"
-msgstr "Shield igazítása"
+msgid "Align %s"
+msgstr "%s igazítása"
+
+msgid "All Clear"
+msgstr "Minden rendben"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Minden MFA szolgáltató eltávolítva a(z) %s azonosítójú felhasználótól."
@@ -784,8 +1081,8 @@ msgstr "Ezért a webhelyhez való minden hozzáférés korlátozott."
 msgid "All access to your site is blocked."
 msgstr "A webhelyhez való minden hozzáférés blokkolva van."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "A Shield Pro licenc ellenőrzésére tett összes kísérlet sikertelen volt."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "A(z) %s Pro licenc ellenőrzésének minden kísérlete sikertelen volt."
 
 msgid "All available plugin updates have been applied."
 msgstr "Minden elérhető plugin frissítés alkalmazva."
@@ -795,6 +1092,9 @@ msgstr "Minden elérhető téma frissítés alkalmazva."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Minden karakter kis- és nagybetű érzéketlenként lesz kezelve."
+
+msgid "All clear"
+msgstr "Minden rendben"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Minden egyéni eseménykulcsnak karakterláncnak kell lennie, kisbetűsnek, 10-50 karakter hosszúnak, 'custom_' előtaggal kell rendelkeznie, és csak betűket és aláhúzásjeleket tartalmazhat."
@@ -979,8 +1279,8 @@ msgstr "Jogsértés kerül rögzítésre egy IP cím ellen minden alkalommal, am
 msgid "An unsupported profile was selected"
 msgstr "Nem támogatott profil került kiválasztásra"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Frissítés érhető el a Shield pluginhoz."
+msgid "An upgrade is available for the %s plugin."
+msgstr "Frissítés érhető el a %s pluginhoz."
 
 msgid "Analyse & Fix"
 msgstr "Elemzés & javítás"
@@ -1054,8 +1354,8 @@ msgstr "Bárki regisztrálhat"
 msgid "Anyone can register"
 msgstr "Bárki regisztrálhat"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Bárki regisztrálhat beállítás megváltozott: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Bárki regisztrálhat beállítás megváltozott: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "App jelszavak letiltva"
@@ -1093,8 +1393,8 @@ msgstr "Forgalomkorlátozási megszorítások alkalmazása nagy volumenű kéré
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "A CSP fejlécek alkalmazása befolyásolhatja a webhely működését a látogatók számára, ezért ebben a szakaszban nem adunk közvetlen ajánlásokat."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "A Shield Security korlátozásai engedélyezve vannak?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "A(z) %s korlátozásai engedélyezve vannak?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "A WordPress permalink-ek engedélyezve vannak."
@@ -1108,11 +1408,11 @@ msgstr "Biztosan törölni szeretné ezt az IP szabályt?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Biztosan meg szeretné tartani a fájl módosításokat?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "Biztosan el szeretné távolítani a ShieldPRO licencet?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "Biztosan el szeretné távolítani a %s licencet?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Biztosan visszaállítja a Shield plugint az alapértelmezett beállításokra?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "Biztosan alaphelyzetbe szeretné állítani a(z) %s plugint?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Biztosan vissza szeretné állítani az eredeti fájl tartalmát?"
@@ -1132,11 +1432,11 @@ msgstr "Mint mindig, ennek a szolgáltatásnak a használata és az arra való t
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Ahogy minden probléma megoldásra kerül, az általános pontszám javulni fog, egészen 100%-ig."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Kérésének megfelelően a %s értesíti Önt egy sikeres %s bejelentkezésről egy általa kezelt WordPress webhelyre."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Kérésének megfelelően a(z) %1$s értesíti Önt egy sikeres %2$s bejelentkezésről egy általa kezelt WordPress webhelyre."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Amint egy kompatibilis plugin észlelésre kerül, a Shield automatikusan bekapcsolja a beépített integrációt."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Amint egy kompatibilis plugin észlelésre kerül, a(z) %s automatikusan bekapcsolja a beépített integrációt."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Amint változásokat észlelünk bármely kiválasztott fájlban, a tartalom megvizsgálható és visszaállítható."
@@ -1155,9 +1455,6 @@ msgstr "Úgy tűnik, legalább 1 bővítmény vagy téma módosítva lett."
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Legalább 1 opciót meg kell adni, és alapértelmezés szerint a felhasználói profil oldal a WP adminisztrációs területen belül."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Legalább 1 biztonsági jelentés készült a webhelyéről."
 
 msgid "At least two records are required to merge."
 msgstr "Legalább két rekord szükséges az egyesítéshez."
@@ -1198,8 +1495,8 @@ msgstr "Hátralévő próbálkozások: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Megkísérli automatikusan javítani a megváltozott vagy malware-rel fertőzött fájlokat."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "A Shield Pro licenc ellenőrzésére tett kísérlet éppen sikertelen volt."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "A(z) %s Pro licenc ellenőrzésének kísérlete éppen most sikertelen volt."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Audit Trail üzenet, amely tartalmazhat e-mail címeket"
@@ -1408,8 +1705,8 @@ msgstr "Sebezhető és gyanús fájlok, pluginok és témák automatikus észlel
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Harmadik féltől származó integrációk automatikus észlelése és engedélyezése, amint elérhetővé válnak"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "A Shield meglévő fehérlistázási szabályainak és kivételeinek automatikus tiszteletben tartása."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Automatikusan tiszteletben tartja a(z) %s meglévő fehérlista szabályait és kivételeit."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Beállítások automatikus importálása és konfigurációk telepítése a teljes hálózaton."
@@ -1504,6 +1801,9 @@ msgstr "Értesítést kap bármely admin fiók fontos változásairól"
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Értesítést kap az ismert biztonsági sebezhetőségekkel rendelkező pluginokról és témákról"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Értesítés, amikor a %s plugin deaktiválásra kerül"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Értesítés, amikor a Shield plugin deaktiválásra kerül"
 
@@ -1528,11 +1828,11 @@ msgstr "Béta hozzáférés"
 msgid "Block %s"
 msgstr "%s blokkolása"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "100%-os bot komment SPAM blokkolása silentCAPTCHA-val"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "100%%-os Bot komment SPAM blokkolás %s használatával"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Az összes WordPress hozzászólás SPAM 99.9%%-ának blokkolása silentCAPTCHA használatával."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Blokkolja a WordPress hozzászólás SPAM 99,9%%-át a(z) %s használatával."
 
 msgid "Block Anon REST API"
 msgstr "Névtelen REST API blokkolása"
@@ -1668,9 +1968,6 @@ msgstr "SPAM komment blokkolva Bottól."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "SPAM hozzászólás blokkolva, amely elbukott az AntiBot teszteken."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "SPAM hozzászólás blokkolva, amely elbukott a reCAPTCHA teszten."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Blokkolva lett a jelszófrissítési kísérlet, amely nem felelt meg a szabályzat követelményeinek."
@@ -1819,8 +2116,8 @@ msgstr "Brute force Login Guard"
 msgid "Brute Force Login Protection"
 msgstr "Brute force bejelentkezési védelem"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Brute force bejelentkezési védelem silentCAPTCHA-val"
+msgid "Brute Force Login Protection with %s"
+msgstr "Brute force bejelentkezési védelem %s használatával"
 
 msgid "Brute Force Protection"
 msgstr "Brute force védelem"
@@ -1828,8 +2125,8 @@ msgstr "Brute force védelem"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Brute force forgalomkorlátozás"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "A WordPress bejelentkezés elleni brute force bot támadásokat a silentCAPTCHA észleli és blokkolja."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "A WordPress bejelentkezés elleni brute force bot támadásokat a(z) %s észleli és blokkolja."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "A brute force bejelentkezési támadásokat nem blokkolja a bejelentkezési várakozási rendszer."
@@ -1846,14 +2143,14 @@ msgstr "Egyéni biztonsági szabályok létrehozása"
 msgid "Building scan items for scan: %s"
 msgstr "Vizsgálati elemek létrehozása a következő vizsgálathoz: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Beépített Shield integrációk"
+msgid "Built-In %s Integrations"
+msgstr "Beépített %s integrációk"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Alapértelmezés szerint a Shield nem lényeges értesítéseket jelenít meg az admin területen és az admin sávban."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Alapértelmezés szerint a(z) %s nem lényeges értesítéseket jelenít meg az admin területen és az admin sávban."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Alapértelmezés szerint a Shield automatikusan be van állítva, hogy megvédje webhelyét számos fenyegetéstől és blokkolja a rossz látogatókat és botokat anélkül, hogy bármit is tennie kellene."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Alapértelmezés szerint a(z) %s automatikusan konfigurálva van, hogy megvédje webhelyét számos fenyegetéstől és blokkolja a rossz látogatókat és botokat anélkül, hogy bármit is tennie kellene."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "A Firewall jelzéseinek összekapcsolásával az összes többi biztonsági komponens jelzéseivel, a %s idővel látogatói profilt épít fel annak meghatározására, hogy ki ember, ki bot, és ki jó vagy rossz szándékkal van itt."
@@ -1863,21 +2160,6 @@ msgstr "Megkerülés"
 
 msgid "Bypass IP"
 msgstr "IP megkerülése"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "Sikertelen CAPTCHA"
-
-msgid "CAPTCHA Pass"
-msgstr "Sikeres CAPTCHA"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA teszt sikertelen."
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA teszt sikeres."
 
 msgid "CAPTCHAs are horrible."
 msgstr "A CAPTCHA-k borzalmasak."
@@ -1990,6 +2272,9 @@ msgstr "Kihívás sikertelen"
 msgid "Challenge has expired."
 msgstr "A kihívás lejárt."
 
+msgid "Change"
+msgstr "Változás"
+
 msgid "Change Detected"
 msgstr "Változás észlelve"
 
@@ -2005,11 +2290,14 @@ msgstr "A 2FA e-mail opciók módosítása jelenleg nem érhető el az Ön szám
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "A tartalék kód opciók módosítása jelenleg nem érhető el az Ön számára."
 
+msgid "Check %s License"
+msgstr "%s licenc ellenőrzése"
+
+msgid "Check For %s License"
+msgstr "%s licenc ellenőrzése"
+
 msgid "Check License"
 msgstr "Licenc ellenőrzése"
-
-msgid "Check ShieldPRO License"
-msgstr "ShieldPRO licenc ellenőrzése"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Ellenőrizze és hitelesítse ennek a fájlnak a tartalmát, hogy megbizonyosodjon arról, hogy nem rosszindulatú."
@@ -2044,14 +2332,14 @@ msgstr "Gyermek"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Válassza ki, mely űrlapokon kerül alkalmazásra a silentCAPTCHA bot védelem."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Válassza az egyéni Shield oldalt, ha ütközések vagy problémák vannak a WP bejelentkezési oldallal a 2FA esetében."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Válassza az egyéni %s oldalt, ha konfliktusok vagy problémák vannak a WP bejelentkezési oldallal a 2FA esetében."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Válassza ki azokat az űrlapokat, amelyekhez bot védelmi intézkedések kerülnek alkalmazásra."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Válassza ki a legmegfelelőbb gyakoriságot a Shield értesítéseinek fogadásához az Ön ütemezése szerint."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Válassza ki a legmegfelelőbb gyakoriságot a(z) %s értesítéseinek fogadásához az Ön ütemezése szerint."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Válassza ki az MFA ellenőrzési oldal típusát"
@@ -2121,6 +2409,9 @@ msgstr "Kattintson a Google Authenticator bejelentkezési hitelesítés azonnali
 
 msgid "Click to launch plugin search modal"
 msgstr "Kattintson a plugin keresési ablak megnyitásához"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Kattintson ide, hogy értékelést hagyjon a WordPress.org-on ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Kattintson a küldendő RAW adat megtekintéséhez"
@@ -2200,8 +2491,8 @@ msgstr "Komment SPAM blokkolva."
 msgid "Comment SPAM Protection"
 msgstr "Komment SPAM védelem"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Komment SPAM védelem: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Komment SPAM védelem: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Komment állapota frissítve"
@@ -2269,6 +2560,12 @@ msgstr "Konfiguráció"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Beállítási oldalak a felhasználói 2FA beállításához"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Konfiguráció nem szükséges, mivel csak 1 különálló IP cím lett észlelve."
+
+msgid "Configure"
+msgstr "Konfigurálás"
+
 msgid "Configure All '%s' Options"
 msgstr "Összes '%s' beállítás konfigurálása"
 
@@ -2308,9 +2605,6 @@ msgstr "Megerősítés"
 msgid "Confirmation email will be sent to %s"
 msgstr "Megerősítő e-mail kerül elküldésre a következő címre: %s"
 
-msgid "Confirmation link"
-msgstr "Megerősítő link"
-
 msgid "Connected"
 msgstr "Csatlakoztatva"
 
@@ -2329,7 +2623,7 @@ msgstr "Kapcsolatfelvételi űrlap SPAM"
 msgid "Contact Form SPAM Checking"
 msgstr "Kapcsolatfelvételi űrlap SPAM ellenőrzés"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
 msgstr "A kapcsolatfelvételi űrlap SPAM csak egyedi integrációval blokkolható minden űrlap szolgáltatóhoz - ha az Ön űrlapja nem támogatott, kérjük, lépjen kapcsolatba ügyfélszolgálatunkkal."
 
 msgid "Contact Forms Integration"
@@ -2395,8 +2689,8 @@ msgstr "Koordináták"
 msgid "Core Reinstalled: v%s"
 msgstr "Core újratelepítve: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Core frissítve: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Mag frissítve: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Egy létrehozott felhasználói munkamenet ({{user_login}}) alapvető tulajdonságai megváltoztak."
@@ -2443,8 +2737,8 @@ msgstr "Nem sikerült létrehozni a könyvtárat: %s"
 msgid "Couldn't create the export file."
 msgstr "Nem sikerült létrehozni az export fájlt."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Nem sikerült meghatározni a Shield bővítmény állapotát."
+msgid "Couldn't determine %s plugin status."
+msgstr "Nem sikerült meghatározni a %s plugin állapotát."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "Nem sikerült betölteni a plugint a(z) '%s' slug-hoz."
@@ -2455,11 +2749,17 @@ msgstr "Nem sikerült betölteni a témát a(z) '%s' slug-hoz."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "Nem sikerült beolvasni az MU plugin sablont innen: %s"
 
+msgid "Count"
+msgstr "Szám"
+
 msgid "Country"
 msgstr "Ország"
 
 msgid "Country Code"
 msgstr "Országkód"
+
+msgid "Create %s Network"
+msgstr "%s hálózat létrehozása"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Tartalék 2FA bejelentkezési kód létrehozása"
@@ -2482,9 +2782,6 @@ msgstr "Új szabály létrehozása"
 msgid "Create Report"
 msgstr "Jelentés létrehozása"
 
-msgid "Create Shield Network"
-msgstr "Shield hálózat létrehozása"
-
 msgid "Create and view all your custom security rules."
 msgstr "Hozza létre és tekintse meg az összes egyéni biztonsági szabályát."
 
@@ -2502,6 +2799,9 @@ msgstr "Egy útvonal létrehozása itt letiltja a 'wp-login.php' fájlt. Csak be
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Az egyéni szabályok létrehozása haladó funkció, és teljes felelősséget vállalok az általam létrehozott szabályokból eredő problémákért."
+
+msgid "Critical"
+msgstr "Kritikus"
 
 msgid "Critical File Protection"
 msgstr "Kritikus fájlvédelem"
@@ -2578,9 +2878,6 @@ msgstr "Jelenlegi fájltartalom"
 msgid "Current Scan"
 msgstr "Jelenlegi vizsgálat"
 
-msgid "Current Scan Results"
-msgstr "Jelenlegi vizsgálati eredmények"
-
 msgid "Current Session Age (seconds)"
 msgstr "Jelenlegi munkamenet kora (másodperc)"
 
@@ -2589,9 +2886,6 @@ msgstr "Jelenlegi munkamenet megszakítva"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Jelenlegi munkamenet token kora (másodperc)"
-
-msgid "Current Summary"
-msgstr "Jelenlegi összefoglaló"
 
 msgid "Current User Sessions"
 msgstr "Jelenlegi felhasználói munkamenetek"
@@ -2619,9 +2913,6 @@ msgstr "Egyéni hibakeresés"
 
 msgid "Custom Exclusions"
 msgstr "Egyéni kivételek"
-
-msgid "Custom Report on %s"
-msgstr "Egyéni jelentés %s dátummal"
 
 msgid "Custom Rules"
 msgstr "Egyéni szabályok"
@@ -2704,14 +2995,14 @@ msgstr "Dátumtartomány"
 msgid "Day"
 msgstr "Nap"
 
+msgid "Deactivate %s"
+msgstr "%s deaktiválása"
+
 msgid "Deactivate Akismet"
 msgstr "Akismet deaktiválása"
 
 msgid "Deactivate Rule"
 msgstr "Szabály deaktiválása"
-
-msgid "Deactivate Shield"
-msgstr "Shield deaktiválása"
 
 msgid "Deactivated"
 msgstr "Deaktiválva"
@@ -2727,9 +3018,6 @@ msgstr "Hibakeresés bekapcsolva"
 
 msgid "Debug Tests"
 msgstr "Hibakeresési tesztek"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "A Debug és Info naplózást csak konkrét problémák vizsgálatakor szabad engedélyezni."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Döntse el, hogyan reagáljon %s, amikor egy bot bizonyos műveleteket hajt végre."
@@ -2749,8 +3037,8 @@ msgstr "Alapértelmezett admin felhasználó"
 msgid "Default User Role"
 msgstr "Alapértelmezett felhasználói szerepkör"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Alapértelmezett felhasználói szerepkör megváltozott: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Alapértelmezett felhasználói szerepkör megváltozott: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Alapértelmezett: 24 óránként egyszer. A biztonság javítása érdekében növelje a naponta futtatott vizsgálatok számát."
@@ -2806,14 +3094,11 @@ msgstr "Törölt táblák"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "A törölt felhasználó bejegyzései újra hozzá lettek rendelve a(z) '{{user_login}}' felhasználóhoz."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demó: Fontos UI változások a Shield v20-ban"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demó: Fontos UI változások a %s v20-ban"
 
 msgid "Demoted From Admin"
 msgstr "Adminisztrátorból visszaminősítve"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "A beállításoktól függően ezek a jelentések riasztások, statisztikák és egyéb információk kombinációját tartalmazhatják."
 
 msgid "Description"
 msgstr "Leírás"
@@ -2880,6 +3165,9 @@ msgstr "Észlelve"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Felhasználói regisztráció észlelve érvénytelen e-mail címmel ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "A helyes látogatói IP cím észlelése kritikus fontosságú az egyes webhelylátogatók megkülönböztetéséhez."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "A korai észlelésük és blokkolásuk a legnagyobb védelmi forrás."
@@ -2953,6 +3241,9 @@ msgstr "Modul letiltása"
 msgid "Disable Security Admin"
 msgstr "Security Admin letiltása"
 
+msgid "Disable Security Admin via Email"
+msgstr "Security Admin letiltása e-mailben"
+
 msgid "Disable Shield"
 msgstr "Shield letiltása"
 
@@ -2989,6 +3280,9 @@ msgstr "Az XML-RPC végpont letiltása és az összes kérés blokkolása."
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Tiltsa le ezt az opciót bizonyos plugin admin értesítések elrejtéséhez az elérhető frissítésekről és a frissítés utáni értesítésekről."
 
+msgid "Disabled"
+msgstr "Letiltva"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "A névtelen hozzáférés letiltása megszakíthatja azokat a pluginokat, amelyek a REST API-t használják a webhely látogatói számára."
 
@@ -2998,8 +3292,8 @@ msgstr "Leválasztva"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Fedezze fel azokat a pluginokat, amelyeket a szerzőik esetleg elhagytak"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Fedezze fel a legátfogóbb WordPress biztonságot, amikor frissíti Shield Security csomagját."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Fedezze fel a legátfogóbb WordPress biztonságot, amikor frissíti a(z) %s csomagját."
 
 msgid "Discovered"
 msgstr "Felfedezett"
@@ -3009,6 +3303,9 @@ msgstr "A rosszindulatú programok felfedezése a webhelyén nem 'védelem' - va
 
 msgid "Disk Space"
 msgstr "Lemezterület"
+
+msgid "Dismiss"
+msgstr "Elvetés"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Nem lényeges plugin értesítések és admin sáv menü megjelenítése"
@@ -3064,8 +3361,8 @@ msgstr "A kérést küldő IP címhez tartozó hostnév megegyezik-e a megadott 
 msgid "Does the method of the request match the given specified method to match."
 msgstr "A kérés metódusa megegyezik-e a megadott egyeztetendő metódussal."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "A kérés megkerüli-e a Shield összes korlátozását."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "A kérés megkerül-e minden %s korlátozást."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "A kérés tartalmaz-e paramétert a megadott névvel."
@@ -3097,8 +3394,8 @@ msgstr "A kérés szkript neve megegyezik-e a megadott névvel."
 msgid "Does the request useragent match the given useragent."
 msgstr "A kérés useragent értéke megegyezik-e a megadott useragent értékkel."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "A megadott Shield munkamenet paraméter értéke megegyezik-e a megadott mintával."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "A megadott %s munkamenet paraméter értéke megegyezik-e a megadott mintával."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "A megadott kérés paraméter értéke megegyezik-e a megadott mintával."
@@ -3115,8 +3412,8 @@ msgstr "Ne vizsgálja a hozzászólásokat a következő szerepkörökkel rendel
 msgid "Don't want these email alerts?"
 msgstr "Nem szeretné ezeket az e-mail értesítéseket?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Visszaminősítve: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Visszaminősítve: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "Letöltés"
@@ -3130,6 +3427,9 @@ msgstr "IP szabályok letöltése CSV formátumban"
 msgid "Download Modified"
 msgstr "Módosított letöltése"
 
+msgid "Download Now"
+msgstr "Letöltés most"
+
 msgid "Download Options Export File"
 msgstr "Beállítások export fájl letöltése"
 
@@ -3139,11 +3439,17 @@ msgstr "Eredeti letöltése"
 msgid "Download Request Logs"
 msgstr "Kérésnaplók letöltése"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "A letöltés sikertelen volt. Ellenőrizze, hogy a ShieldNet API elérhető-e, és a területi beállítás létezik-e."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Reputációs döntések letöltve a CrowdSec-től a következő hatókörre: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Fájl letöltése folyamatban, kérjük várjon..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Fordítás letöltése a következő területi beállításhoz: %s"
 
 msgid "Duration"
 msgstr "Időtartam"
@@ -3160,8 +3466,8 @@ msgstr "A listán szereplő minden webhely képes lesz beállításokat exportá
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Legegyszerűbb, frusztráció-mentes WP Pro-frissítés bárhol"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Könnyen integrálja a Shield Security-t, hogy segítsen a webhely biztonságának kezelésében a MainWP-n belül."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Könnyen integrálhatja a(z) %s-t, hogy segítsen a webhely biztonságának kezelésében a MainWP-n belül."
 
 msgid "Edit"
 msgstr "Szerkesztés"
@@ -3169,8 +3475,8 @@ msgstr "Szerkesztés"
 msgid "Edit Rule"
 msgstr "Szabály szerkesztése"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "%s. szabály szerkesztése (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "%1$s. szabály szerkesztése (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Beállítások szerkesztése"
@@ -3220,8 +3526,8 @@ msgstr "Szerkessze a bejelentkezési és felhasználói űrlapok védelmére von
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Az automatikus IP blokkolást vezérlő beállítások szerkesztése"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Szerkessze a beállításokat, amelyek szabályozzák, hogyan észleli a silentCAPTCHA a botokat"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Szerkessze a beállításokat, amelyek szabályozzák, hogyan észleli a %s a botokat"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Szerkessze a beállításokat a minimális jelszóerősség alkalmazásához"
@@ -3250,8 +3556,8 @@ msgstr "Ennek az opciónak a szerkesztése jelenleg korlátozott."
 msgid "Either the country code or phone number were missing."
 msgstr "Vagy az országkód, vagy a telefonszám hiányzott."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Emelje a WordPress biztonságát a legjobb szintre a Shield Security csomag frissítésével."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Emelje a WordPress biztonságát a legjobb szintre a(z) %s csomagjának frissítésével."
 
 msgid "Email"
 msgstr "E-mail"
@@ -3304,8 +3610,8 @@ msgstr "E-mail értesítések új hozzászólásokról"
 msgid "Email sending has already been verified."
 msgstr "Az e-mail küldés már ellenőrizve lett."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "E-mail elküldve a %s bővítményből, v%s verzió, %s időpontban."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "E-mail elküldve a %1$s Plugin v%2$s-ból, %3$s-n."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "E-mail elküldve. Győződjön meg róla, hogy a link EBBEN a böngészőben nyílik meg."
@@ -3334,8 +3640,8 @@ msgstr "Agresszív szabálykészletet alkalmaz a webhelyére küldött rosszindu
 msgid "Empty User Agents"
 msgstr "Üres User Agent-ek"
 
-msgid "Empty response from Shield client site"
-msgstr "Üres válasz a Shield kliens webhelyről"
+msgid "Empty response from %s client site"
+msgstr "Üres válasz a %s kliens webhelyről"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Üres gyökérfájl lett megadva az inicializáláshoz"
@@ -3568,14 +3874,20 @@ msgstr "Hiba"
 msgid "Error Log Message"
 msgstr "Hibanapló üzenet"
 
+msgid "Error: {{error}}"
+msgstr "Hiba: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Még egy egysoros értékelés is, amely azt mondja, hogy elégedett vele, hatalmas segítség lesz számunkra."
+
 msgid "Event"
 msgstr "Esemény"
 
 msgid "Event %s does not exist."
 msgstr "A(z) %s esemény nem létezik."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Az esemény (%s) definíciója olyan audit paramétereket tartalmaz, amelyek nincsenek jelen: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Az esemény (%1$s) definíciója olyan audit paramétereket tartalmaz, amelyek nincsenek jelen: %2$s"
 
 msgid "Event Details"
 msgstr "Esemény részletei"
@@ -3661,6 +3973,9 @@ msgstr "Nem sikerült csatlakozni a licencszerverhez."
 msgid "Failed to create custom report."
 msgstr "Egyéni jelentés létrehozása sikertelen."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Nem sikerült letölteni a fordítási fájlt a következő területi beállításhoz: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Nem sikerült fájlzár rekordot beszúrni az elérési úthoz: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Vizsgálati elem javítása sikertelen."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Nem sikerült Firewall blokkolási e-mail értesítést küldeni a következőnek: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Nem sikerült e-mailt küldeni (típus: {{slug}}) a következőnek: '{{email}}' SureSend használatával."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Nem sikerült e-mailt küldeni (típus: {{slug}}) a következőnek: '{{email}}' a(z) %s használatával."
 
 msgid "Failed to store the rule in the database."
 msgstr "Nem sikerült a szabályt az adatbázisban tárolni."
@@ -3796,8 +4111,8 @@ msgstr "A fájl tartalma nem titkosítható. Üzenet:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "A fájl tartalma nem wp_json_encode() kódolható titkosítás után."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Fájl észlelve %s-ként a %s szkenner által."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Fájl %1$s-ként észlelve a %2$s szkenner által."
 
 msgid "File does not exist."
 msgstr "A fájl nem létezik."
@@ -3997,14 +4312,17 @@ msgstr "Generált"
 msgid "Generating a new code will replace your existing code."
 msgstr "Új kód generálása lecseréli a meglévő kódját."
 
+msgid "Get %s!"
+msgstr "Szerezze meg %s-t!"
+
 msgid "Get All PRO Security Features"
 msgstr "Szerezze meg az összes PRO biztonsági funkciót"
 
-msgid "Get ShieldPRO!"
-msgstr "Szerezze be a ShieldPRO-t!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Kezdje el 3 percen belül"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Szerezze be a(z) %s kockázatmentes, kötelezettség nélküli ingyenes próbaverzióját még ma."
 
 msgid "Global Plugin Enable"
 msgstr "Globális plugin engedélyezés"
@@ -4039,6 +4357,9 @@ msgstr "PRO verzió!"
 msgid "Go To %s"
 msgstr "Ugrás ide: %s"
 
+msgid "Go To %s Overview"
+msgstr "Ugrás a %s áttekintéshez"
+
 msgid "Go To Admin"
 msgstr "Ugrás az adminisztrációhoz"
 
@@ -4050,9 +4371,6 @@ msgstr "Ugrás az áttekintéshez"
 
 msgid "Go To Security Dashboard"
 msgstr "Ugrás a biztonsági vezérlőpultra"
-
-msgid "Go To Shield Overview"
-msgstr "Ugrás a Shield áttekintéshez"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Ide kattintva kezelheti a beállításokat és hitelesítheti magát a %s pluginnal."
@@ -4111,14 +4429,14 @@ msgstr "Küldendő HTTP válaszfejléc"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "A Home URL és WP Site URL HTTPS beállításai nem konzisztensek."
 
-msgid "Handshake ShieldNET"
-msgstr "ShieldNET kapcsolat létesítése"
+msgid "Handshake %s"
+msgstr "Kézfogás %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Hardveres kétfaktoros hitelesítés"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Érvényes Shield felhasználói munkamenetekkel rendelkezik"
+msgid "Has Valid %s User Sessions"
+msgstr "Érvényes %s felhasználói munkamenetekkel rendelkezik"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Teljes ellenőrzés a webhelyen használt felhasználói jelszavak felett."
@@ -4135,11 +4453,14 @@ msgstr "Ügyfélszolgálati cikk"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Ügyfélszolgálat és tudásbázis"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Íme néhány módszer, ahogyan a Shield már most is védi a webhelyét:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Íme néhány módszer, ahogyan a(z) %s már most is védi webhelyét:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Itt választhatja ki, milyen típusú rosszindulatú adatokat vizsgáljon a rendszer."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Itt van a biztonsági áttekintése a jelentési időszakra. Tekintse át az alábbi problémákat, és tegyen lépéseket, ahol szükséges."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Itt azonban a felhasználói fiókokra összpontosítunk, hogy biztosítsuk azok biztonságos állapotát."
@@ -4189,8 +4510,8 @@ msgstr "Honlap URL"
 msgid "Home URL Changed"
 msgstr "Honlap URL megváltozott"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "Honlap URL megváltozott: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "Kezdőlap URL megváltozott: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "Kezdőlap"
@@ -4297,11 +4618,14 @@ msgstr "Emberi SPAM szűrő"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "Az emberi SPAM szűrő ismétlődő hozzászólás SPAM kísérleteket észlelt."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "Az emberi SPAM szűrő megtalálta a(z) '%s' kifejezést itt: '%s'"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "Az emberi SPAM szűrő megtalálta a(z) \"%1$s\" kifejezést itt: \"%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Az emberi SPAM szűrő megtalálta a(z) '{{word}}' kifejezést itt: '{{key}}'"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "Az emberi SPAM még mindig a legtöbb frusztrációt okozza, mivel gyakran megkerüli a SPAM védelmet."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Megértettem, hogy a meglévő beállítások felülírásra kerülnek"
@@ -4327,17 +4651,11 @@ msgstr "Tudom, hogy ha gyorsítótárazást használok és utána nem törlöm, 
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Megértem a webhelyhez irányuló összes forgalom blokkolásának következményeit."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Megértem annak kockázatát, hogy olyan szabályt hozok létre, amely nem tiszteletben tartja a Shield fehérlistáit és kivételeit, és nehézségekbe ütközhetem a hozzáférés visszaszerzésében, ha kizárásra kerülök."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Megértem annak kockázatait, hogy olyan szabályt hozok létre, amely nem veszi figyelembe a(z) %s fehérlistáit és kivételeit, és nehéz lehet visszaszereznem a hozzáférést, ha kizárásra kerülök."
 
 msgid "I'd like to learn more, please"
 msgstr "Szeretnék többet megtudni, kérem"
-
-msgid "I'd rather not show this support"
-msgstr "Inkább nem mutatom ezt a támogatást"
-
-msgid "I've done this already"
-msgstr "Ezt már megtettem"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "FONTOS"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s pontszám visszaállítva."
 
 msgid "IP Address"
 msgstr "IP cím"
@@ -4552,9 +4873,6 @@ msgstr "Az IP cím nincs az automatikus blokkolási listán."
 msgid "IP provided was invalid."
 msgstr "A megadott IP érvénytelen volt."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA pontszám visszaállítva."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Ha egy felhasználóhoz több szerepkör van hozzárendelve, minden szer
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Ha rosszindulatú adatot észlel a rendszer, a kérés azonnal megszakításra kerül."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Ha a helyes beállítás nem %s, javasoljuk, hogy lépjen kapcsolatba a tárhelyszolgáltatójával, és kérje, hogy úgy konfigurálják a tárhely beállításait, hogy a %s biztosítsa a tényleges látogató IP címét."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Ha a helyes beállítás nem %1$s, javasoljuk, hogy lépjen kapcsolatba a tárhelyszolgáltatójával, és kérje meg őket, hogy úgy konfigurálják a tárhely szolgáltatást, hogy a(z) %2$s biztosítsa a tényleges látogatói IP címet."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Ha a kívánt szolgáltató nincs a listán, lépjen kapcsolatba ügyfélszolgálatunkkal és megnézzük, hogy lehet-e integrációt készíteni."
@@ -4642,8 +4960,8 @@ msgstr "Ha a felhasználó inaktív a megadott órák számában, akkor kénysze
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Ha a felhasználó inaktív a megadott órák számában, akkor kényszerítetten ki lesz jelentkeztetve a következő visszatéréskor. Állítsa ezt '0' értékre a beállítás kikapcsolásához."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Ha a látogató pontszáma nem éri el a minimális silentCAPTCHA pontszámot, megakadályozhatjuk a kérést (például bejelentkezés, WP hozzászólás stb.). Ha magasabb, engedélyezzük."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Ha a látogatói pontszám nem éri el a minimális %s pontszámot, megakadályozhatjuk a kérést (például bejelentkezés, WP hozzászólás stb.). Ha magasabb, engedélyezzük."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Ha ez egy MainWP kliens webhely, akkor hozzá kell adnia MainWP Admin szervere IP címét az IP megkerülési listához."
@@ -4656,6 +4974,9 @@ msgstr "Ha ez az üzenet az oldal frissítése után is megjelenik, kérjük, te
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Ha a probléma továbbra is fennáll, kérjük, lépjen kapcsolatba az ügyfélszolgálattal: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Ha már rendelkezik ehhez a webhelyhez rendelt %s licenccel,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Ha bármilyen okból úgy véli, hogy az Ön vagy felhasználói postafiókjai veszélybe kerültek, tiltsa le ezt az opciót."
@@ -4702,11 +5023,8 @@ msgstr "Ha értesítést szeretne kapni minden alkalommal, amikor egy adminisztr
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Ha értesítést szeretne kapni minden alkalommal, amikor egy adminisztrátor felhasználó bejelentkezik erre a WordPress webhelyre, adjon meg egy értesítési e-mail címet. Nincs e-mail cím - nincs értesítés."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Ha nem használ dedikált e-mail szolgáltatót a WordPress e-mailek küldéséhez, engedélyeznie kell a SureSend-et ezekhez a fontos e-mailekhez."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Ha elfelejtette a PIN-kódját, használja a fenti menüt a korlátozás letiltásához."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Ha nem használ dedikált e-mail szolgáltatót a WordPress e-mailek küldéséhez, engedélyeznie kell a(z) %s-t ezekhez a fontos e-mailekhez."
 
 msgid "Ignore"
 msgstr "Figyelmen kívül hagyás"
@@ -4737,9 +5055,6 @@ msgstr "Importálási értesítés elküldve"
 
 msgid "Import Options"
 msgstr "Beállítások importálása"
-
-msgid "Import Settings From Another Site"
-msgstr "Beállítások importálása másik webhelyről"
 
 msgid "Import file was empty"
 msgstr "Az importfájl üres volt"
@@ -4870,11 +5185,14 @@ msgstr "Info a(z) %s IP címhez"
 msgid "Info Reports Frequency"
 msgstr "Info jelentések gyakorisága"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Az Info naplózást csak akkor szabad engedélyezni, amikor konkrét problémákat vizsgál."
+
 msgid "Information and reports are typically statistics."
 msgstr "Az információk és jelentések jellemzően statisztikák."
 
-msgid "Install Shield"
-msgstr "Shield telepítése"
+msgid "Install %s"
+msgstr "%s telepítése"
 
 msgid "Installation Directory"
 msgstr "Telepítési könyvtár"
@@ -4909,6 +5227,9 @@ msgstr "Az intervallum másodpercben mérve."
 msgid "Invalid"
 msgstr "Érvénytelen"
 
+msgid "Invalid %s extension configuration"
+msgstr "Érvénytelen %s bővítmény konfiguráció"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Érvénytelen művelet nonce kivétel."
 
@@ -4933,9 +5254,6 @@ msgstr "Érvénytelen szkript betöltés"
 msgid "Invalid Scripts"
 msgstr "Érvénytelen szkriptek"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Érvénytelen Shield bővítmény konfiguráció"
-
 msgid "Invalid Slug"
 msgstr "Érvénytelen slug"
 
@@ -4948,9 +5266,6 @@ msgstr "Érvénytelen felhasználói ügynök"
 msgid "Invalid User Email Registration"
 msgstr "Érvénytelen felhasználói e-mail regisztráció"
 
-msgid "Invalid User-Agent"
-msgstr "Érvénytelen felhasználói ügynök"
-
 msgid "Invalid Username Login"
 msgstr "Érvénytelen felhasználónévvel történő bejelentkezés"
 
@@ -4959,6 +5274,12 @@ msgstr "Érvénytelen felhasználónevek"
 
 msgid "Invalid action"
 msgstr "Érvénytelen művelet"
+
+msgid "Invalid batch request format."
+msgstr "Érvénytelen kötegelt kérési formátum."
+
+msgid "Invalid batch request item."
+msgstr "Érvénytelen kötegelt kérési elem."
 
 msgid "Invalid download item data."
 msgstr "Érvénytelen letöltési elem adat."
@@ -4975,6 +5296,15 @@ msgstr "Érvénytelen fájlzár típusú letöltés"
 msgid "Invalid login nonce"
 msgstr "Érvénytelen bejelentkezési nonce"
 
+msgid "Invalid login session."
+msgstr "Érvénytelen bejelentkezési munkamenet."
+
+msgid "Invalid or expired login session."
+msgstr "Érvénytelen vagy lejárt bejelentkezési munkamenet."
+
+msgid "Invalid profile request."
+msgstr "Érvénytelen profilkérés."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Érvénytelen kérés - a lezárás már aktív."
 
@@ -4984,11 +5314,8 @@ msgstr "Érvénytelen kérés - a lezárás nem aktív."
 msgid "Invalid request with no User ID"
 msgstr "Érvénytelen kérés felhasználói ID nélkül"
 
-msgid "Invalid response from Shield client site"
-msgstr "Érvénytelen válasz a Shield kliens webhelyről"
-
-msgid "Invalid session selected"
-msgstr "Érvénytelen munkamenet kiválasztva"
+msgid "Invalid response from %s client site"
+msgstr "Érvénytelen válasz a %s kliens webhelyről"
 
 msgid "Invalid specification of modules"
 msgstr "A modulok érvénytelen specifikációja"
@@ -4996,14 +5323,26 @@ msgstr "A modulok érvénytelen specifikációja"
 msgid "Invalid type."
 msgstr "Érvénytelen típus."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "Érvénytelen felhasználói ügynök észlelve a következő helyen: '{{useragent}}'."
-
 msgid "Invalid value scope for %s"
 msgstr "Érvénytelen értéktartomány a következőhöz: %s"
 
 msgid "Invalid value type for %s"
 msgstr "Érvénytelen értéktípus a következőhöz: %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "A(z) %s plugin funkció le van tiltva."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "%s forgalomkorlátozás engedélyezve van."
+
+msgid "Is %s live logging enabled."
+msgstr "A(z) %s élő naplózás engedélyezve van."
+
+msgid "Is %s score"
+msgstr "%s pontszám"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "A(z) %s webhely lezárása aktív."
 
 msgid "Is It You?"
 msgstr "Ön az?"
@@ -5017,20 +5356,8 @@ msgstr "A kérés állapota 404"
 msgid "Is Request To The Login Page."
 msgstr "Kérés a bejelentkezési oldalra."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "A Shield plugin funkciók le vannak tiltva."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "A Shield forgalomkorlátozás engedélyezve van."
-
-msgid "Is Shield live logging enabled."
-msgstr "A Shield élő naplózás engedélyezve van."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "A Shield webhely lezárás aktív."
-
-msgid "Is The Shield Option Value..."
-msgstr "A Shield beállítás értéke..."
+msgid "Is The %s Option Value..."
+msgstr "A(z) %s opció értéke..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Érvényes nyilvános IP cím"
@@ -5038,8 +5365,8 @@ msgstr "Érvényes nyilvános IP cím"
 msgid "Is Viable"
 msgstr "Életképes"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Látogató silentCAPTCHA pontszáma ..."
+msgid "Is Visitor %s Score ..."
+msgstr "Látogató %s pontszáma ..."
 
 msgid "Is WP AJAX"
 msgstr "WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "A jelenlegi felhasználó bejelentkezett WordPress adminisztrátor."
 msgid "Is current user password expired."
 msgstr "A jelenlegi felhasználó jelszava lejárt."
 
-msgid "Is silentCAPTCHA score"
-msgstr "silentCAPTCHA pontszám"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "A Shield plugin \"forceoff\" állapotban van-e."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "A %s plugin \"forceoff\" állapotban van."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "A jelenlegi IP cím \"magas reputációjúnak\" tekinthető."
@@ -5116,23 +5440,23 @@ msgstr "A jelenlegi felhasználói munkamenet token kora kevesebb vagy több, mi
 msgid "Is the request HTTPS."
 msgstr "A kérés HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "A kérés IP címe automatikusan vagy manuálisan blokkolva van a Shield által."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "A kérés IP címe automatikusan vagy manuálisan blokkolva van-e a(z) %s által."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "A kérés IP címe tiltólistán van a Shield által."
+msgid "Is the request IP blacklisted by %s."
+msgstr "A kérés IP címe feketelistán van-e a(z) %s által."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "A kérés IP címe a Shield CrowdSec blokkolási listáján szerepel."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "A kérés IP címe %s CrowdSec blokkolási listáján van."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "A kérés IP címe a Shield manuális blokkolási listáján szerepel."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "A kérés IP címe %s manuális blokkolási listáján van."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "A kérés IP címe a Shield automatikus blokkolási listáján szerepel."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "A kérés IP címe %s automatikus blokkolási listáján van."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "A kérés IP címe a Shield manuális engedélyezési/fehér listáján szerepel."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "A kérés IP címe szerepel-e a(z) %s manuális megkerülési listáján/engedélyezési listáján."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "A kérés egy megbízható szolgáltatótól származó bot."
@@ -5143,17 +5467,17 @@ msgstr "A kérés szerver visszacsatolási kérés."
 msgid "Is the request an HTTP 404."
 msgstr "A kérés HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "A kérés blokkolva van a Shield webhely lezárás funkciója által."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "A kérést blokkolja-e a(z) %s webhely lezárás funkciója."
 
 msgid "Is the request from a logged-in user."
 msgstr "A kérés bejelentkezett felhasználótól érkezik."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "A kérés Shield Security Admin jogosultsággal hitelesített felhasználótól érkezik."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "A kérés %s Admin-ként hitelesített felhasználótól érkezik-e."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "A kérés útvonala engedélyezési listán van a Shield által."
+msgid "Is the request path whitelisted by %s."
+msgstr "A kérés elérési útja engedélyezési listán van %s által."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "A kérés egy jelenleg telepített WordPress plugin elérési útjához irányul."
@@ -5212,6 +5536,9 @@ msgstr "Talált problémák"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Az alább felsorolt problémákat a lehető leggyorsabban kezelni kell"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Segít a kritikus WordPress beállítások lezárásában is."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "Olyan fájlokat is keres, amelyeknek nem kellene a WP mag könyvtárakban lenniük (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Úgy tűnik, az Ön IP címe (%s) jelenleg blokkolva van."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Azonban használhat cookie-t a %s biztonsági jelvény bezárásának regisztrálására az ismételt megjelenítés megelőzésére."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Exkluzív silentCAPTCHA motorunkat használja a botok megbízható azonosításához."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "A mi exkluzív %s motorunkat használja a botok megbízható azonosításához."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "A következő címre lett küldve: '{{to}}', a tárgy: '{{subject}}'."
@@ -5275,8 +5602,8 @@ msgstr "A következő címre lett küldve: '{{to}}', a tárgy: '{{subject}}'."
 msgid "It will be displayed below when it's ready."
 msgstr "Alább jelenik meg, amikor elkészül."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Automatikusan megtalálja a megfelelő helyet, de ha ez sikertelen, PHP figyelmeztetéseket láthat a webhelyén, és bizonyos Shield funkciók nem lesznek elérhetők."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Automatikusan megtalálja a megfelelő helyet, de ha ez sikertelen, PHP figyelmeztetéseket láthat a webhelyén, és bizonyos %s funkciók nem lesznek elérhetők."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Ez egy összetett terület, és ha helytelenül használja, könnyen tönkreteheti a felhasználói élményt."
@@ -5298,9 +5625,6 @@ msgstr "Bevált gyakorlat a munkamenet élettartamának korlátozása, különö
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Bevált gyakorlat a munkamenet legalább 1 tulajdonsághoz való rögzítése a munkamenet lopásának megelőzése érdekében."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Ez az emberi SPAM, amely még mindig a legtöbb frusztrációt okozza, mivel általában nem váltják ki védelmi rendszereinket."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Egy WordPress plugin könyvtárban található, és érvényes fájlként van felismerve az adott plugin verzióhoz."
@@ -5338,8 +5662,8 @@ msgstr "Elem javítva: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Vizsgálat során talált elemek"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Csatlakozzon a Shield Security hírleveléhez"
+msgid "Join The %s Newsletter"
+msgstr "Csatlakozzon a %s hírleveléhez"
 
 msgid "Join Us"
 msgstr "Csatlakozzon hozzánk"
@@ -5347,8 +5671,14 @@ msgstr "Csatlakozzon hozzánk"
 msgid "Join Us!"
 msgstr "Csatlakozzon hozzánk!"
 
+msgid "Join our %s Newsletter"
+msgstr "Csatlakozzon %s hírlevelünkhöz"
+
 msgid "Jump To Module Settings"
 msgstr "Ugrás a modul beállításaihoz"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Csatlakozzon a(z) %s Facebook csoportunkhoz, ahol kérdéseket tehet fel aktív közösségünknek és naprakész maradhat legfrissebb híreinkkel kapcsolatban"
 
 msgid "Just grab a new license from the"
 msgstr "Csak szerezzen be egy új licencet a"
@@ -5437,6 +5767,9 @@ msgstr "Utolsó szinkronizálás"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Végül meg akarjuk akadályozni, hogy botok (vagy emberek) SPAM fiókokat regisztráljanak a webhelyen, bármilyen okból."
 
+msgid "Latest Scan Results"
+msgstr "Legutóbbi vizsgálati eredmények"
+
 msgid "Launch Debug Info Page"
 msgstr "Debug Info oldal megnyitása"
 
@@ -5464,6 +5797,12 @@ msgstr "Licenc"
 msgid "License Activation"
 msgstr "Licenc aktiválás"
 
+msgid "License Activation Failed"
+msgstr "Licenc aktiválás sikertelen"
+
+msgid "License Activation Success"
+msgstr "Licenc aktiválás sikeres"
+
 msgid "License Check Failed"
 msgstr "Licencellenőrzés sikertelen"
 
@@ -5482,6 +5821,30 @@ msgstr "Licenc hiba e-mail elküldve"
 msgid "License Summary"
 msgstr "Licenc összefoglaló"
 
+msgid "License activated and verified successfully."
+msgstr "Licenc sikeresen aktiválva és ellenőrizve."
+
+msgid "License activated but verification failed."
+msgstr "Licenc aktiválva, de az ellenőrzés sikertelen."
+
+msgid "License activated successfully."
+msgstr "Licenc sikeresen aktiválva."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "A licenc aktiválása sikertelen, mert nincsenek elérhető licencek ezen a fiókon."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "A licenc aktiválása sikertelen volt, mert az API kulcs érvénytelen."
+
+msgid "License activation failed."
+msgstr "Licenc aktiválás sikertelen."
+
+msgid "License activation request failed."
+msgstr "Licenc aktiválási kérés sikertelen."
+
+msgid "License activation was denied for this site."
+msgstr "A licenc aktiválása megtagadva ezen a webhelyen."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Licencellenőrzés sikertelen. Figyelmeztető e-mail küldése."
 
@@ -5499,9 +5862,6 @@ msgstr "A licencek %s másodpercenként egyszer ellenőrizhetők"
 
 msgid "Lifetime"
 msgstr "Élettartam"
-
-msgid "Lifetime Total"
-msgstr "Teljes élettartam"
 
 msgid "Light"
 msgstr "Világos"
@@ -5577,6 +5937,12 @@ msgstr "A helyi PHP malware szkenner engedélyezve van, de az AI malware vizsgá
 
 msgid "Locale"
 msgstr "Területi beállítás"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "A(z) \"%1$s\" területi beállítás már gyorsítótárazva van itt: %2$s. Használja a --force kapcsolót az újraletöltéshez."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "\"%s\" területi beállítás nem érhető el letöltésre."
 
 msgid "Location"
 msgstr "Hely"
@@ -5740,11 +6106,11 @@ msgstr "Elfelejtett jelszó blokkolva"
 msgid "Lost Password Bot Protection"
 msgstr "Elfelejtett jelszó bot védelem"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "Az elveszett jelszó SPAM-elés botok által blokkolva van a silentCAPTCHA által."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "Az elfelejtett jelszó SPAM-elés botok által blokkolva van a(z) %s által."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "Az elveszett jelszó SPAM-elés botok által nincs blokkolva a silentCAPTCHA által."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "Az elfelejtett jelszó SPAM-elés botok által nincs blokkolva a(z) %s által."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Tetszik? Értékelje ezt a plugint ✩"
@@ -5923,6 +6289,9 @@ msgstr "Egyeztetendő meta érték"
 msgid "Method"
 msgstr "Módszer"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Minimális %s pontszám szükséges annak jelzésére, hogy a látogató ember"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Minimális hozzászólás automatikus jóváhagyás"
 
@@ -5941,9 +6310,6 @@ msgstr "Minimális időintervallum a hozzászólások között"
 msgid "Minimum required MainWP server version"
 msgstr "Minimálisan szükséges MainWP szerver verzió"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Minimális silentCAPTCHA pontszám, amely szükséges annak jelzéséhez, hogy a látogató ember"
-
 msgid "Minutes"
 msgstr "Perc"
 
@@ -5952,6 +6318,12 @@ msgstr "A helytelen konfiguráció problémákat okozhat a látogatók számára
 
 msgid "Missing"
 msgstr "Hiányzik"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Hiányzó művelet slug vagy nonce a kötegelt kérésben."
+
+msgid "Missing request payload for batch request item."
+msgstr "Hiányzó kérési adat a kötegelt kérési elemhez."
 
 msgid "Mode"
 msgstr "Mód"
@@ -5989,6 +6361,12 @@ msgstr "A legtöbb SPAM automatikus, botok által generált, de néha emberek is
 msgid "Multi-Factor Authentication"
 msgstr "Többfaktoros hitelesítés"
 
+msgid "Multiple Signals"
+msgstr "Több jelzés"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Több bot jelzés észlelve ehhez a látogatóhoz."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Több e-mail cím is megadható, vesszővel elválasztva."
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL adatbázis jelszó"
 msgid "N/A"
 msgstr "N/A"
 
+msgid "NEW"
+msgstr "ÚJ"
+
 msgid "NO TITLE"
 msgstr "NINCS CÍM"
 
@@ -6027,6 +6408,12 @@ msgstr "Navigáció"
 
 msgid "Needs Update"
 msgstr "Frissítés szükséges"
+
+msgid "Needs Work"
+msgstr "Munkát igényel"
+
+msgid "Nested batch requests are not allowed."
+msgstr "A beágyazott kötegelt kérések nem engedélyezettek."
 
 msgid "Never"
 msgstr "Soha"
@@ -6045,12 +6432,6 @@ msgstr "Új adminisztrátor(ok)"
 
 msgid "New Comment"
 msgstr "Új hozzászólás"
-
-msgid "New Results"
-msgstr "Új eredmények"
-
-msgid "New Scan Results"
-msgstr "Új vizsgálati eredmények"
 
 msgid "New User Default Role"
 msgstr "Új felhasználó alapértelmezett szerepköre"
@@ -6166,6 +6547,9 @@ msgstr "Nincsenek kiválasztott elemek."
 msgid "No license to remove."
 msgstr "Nincs eltávolítható licenc."
 
+msgid "No locales available from API."
+msgstr "Nincsenek elérhető területi beállítások az API-ból."
+
 msgid "No message"
 msgstr "Nincs üzenet"
 
@@ -6175,8 +6559,8 @@ msgstr "Nincs elérhető metaadat"
 msgid "No modules specified in the plugin config."
 msgstr "Nincsenek modulok megadva a plugin konfigurációban."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Nincs több megjegyzendő/másolandó licenckulcs! Egyszerűen aktiválja webhely URL-jét a ShieldPRO vezérlőpultján, és a Pro funkciók automatikusan engedélyezve lesznek webhelyén."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Nincs több megjegyzendő/másolandó licenckulcs! Egyszerűen aktiválja a webhely URL-jét a(z) %s vezérlőpultján, és a Pro funkciók automatikusan engedélyezésre kerülnek a webhelyén."
 
 msgid "No new session activity recorded yet."
 msgstr "Még nincs rögzített új munkamenet-tevékenység."
@@ -6192,6 +6576,9 @@ msgstr "Nincs rekord"
 
 msgid "No reporter defined"
 msgstr "Nincs reporter definiálva"
+
+msgid "No reports generated yet."
+msgstr "Még nincsenek generált jelentések."
 
 msgid "No reports have been generated yet."
 msgstr "Még nincsenek generált jelentések."
@@ -6247,9 +6634,6 @@ msgstr "Nem, nem szeretnék segíteni"
 msgid "Noise"
 msgstr "Zaj"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "A nem fájl vizsgálati elemek még nem támogatottak."
-
 msgid "Nonce Failed."
 msgstr "Nonce sikertelen."
 
@@ -6304,14 +6688,11 @@ msgstr "Nem érvényes beállítási kulcs a modulhoz: %s"
 msgid "Not a valid option key."
 msgstr "Nem érvényes beállítási kulcs."
 
-msgid "Not a valid scan item record"
-msgstr "Nem érvényes vizsgálati elem rekord"
-
 msgid "Not a valid value for this parameter"
 msgstr "Nem érvényes érték ehhez a paraméterhez"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Nem érhető el, mivel a webhely nem tud kapcsolatot létesíteni a ShieldNET API-val."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Nem érhető el, mivel webhelye nem tud kézfogást végrehajtani a(z) %s szolgáltatással."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Jelenleg nincs bejelentkezve Security Admin-ként."
@@ -6354,9 +6735,6 @@ msgstr "Engedélyezési listán szereplő webhelyek értesítése a beállítás
 
 msgid "Notify Whitelist"
 msgstr "Fehérlista értesítése"
-
-msgid "Now"
-msgstr "Most"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "A Core fájlok automatikus vizsgálatának száma 24 órán belül"
@@ -6418,6 +6796,9 @@ msgstr "Szabálysértési határ"
 msgid "Offenses couldn't be reset at this time."
 msgstr "A jogsértések jelenleg nem állíthatók vissza."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "A jogsértések egyszerűen egy számláló arra vonatkozóan, hogy hányszor tesz valami rosszat egy látogató."
+
 msgid "Offenses reset to zero."
 msgstr "Jogsértések nullára állítva."
 
@@ -6439,17 +6820,17 @@ msgstr "Egyszeri jelszavak"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Csak %s Security Admin módosíthatja egy másik admin fiók MFA beállításait."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "A Shield ingyenes verziójában csak a WordPress Core fájlok kerülnek vizsgálatra."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Csak az alapvető WordPress fájlok kerülnek vizsgálatra a %s ingyenes verziójában."
 
 msgid "Only enable the integrations you require."
 msgstr "Csak a szükséges integrációkat engedélyezze."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Csak az Ön által kiválasztott űrlaptípusok (bejelentkezés, regisztráció, elfelejtett jelszó) lesznek figyelve."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Csak betűk és számok engedélyezettek: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Csak a kiválasztott űrlaptípusok (bejelentkezés, regisztráció, elfelejtett jelszó) lesznek monitorozva."
 
 msgid "Only the first 30 items are shown."
 msgstr "Csak az első 30 elem kerül megjelenítésre."
@@ -6562,8 +6943,8 @@ msgstr "PHP malware szkenner"
 msgid "PHP Version"
 msgstr "PHP verzió"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "A PHP nem felel meg a minimális verziókövetelménynek. Az Ön verziója: %s. Szükséges verzió: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "A PHP nem felel meg a minimális verziókövetelménynek. Az Ön verziója: %1$s. Szükséges verzió: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "A PHP fájlok nincsenek vizsgálva rosszindulatú programok szempontjából."
@@ -6718,6 +7099,9 @@ msgstr "Talán az egyik legerősebb funkciója, hogy megakadályozza, hogy más 
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Lehet, hogy az eszköz nem támogatott, vagy már regisztrálta."
 
+msgid "Period"
+msgstr "Időszak"
+
 msgid "Permalink structure"
 msgstr "Permalink struktúra"
 
@@ -6727,8 +7111,8 @@ msgstr "Állandó hivatkozások"
 msgid "Permalinks Updated"
 msgstr "Állandó hivatkozások frissítve"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Permalink megváltozott: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Permalink megváltozott: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Állandó átirányítás (301)"
@@ -6790,6 +7174,9 @@ msgstr "Kérjük, kattintson a kapott e-mailben található linkre."
 msgid "Please click the link provided below to do so."
 msgstr "Kérjük, kattintson az alábbi linkre ennek elvégzéséhez."
 
+msgid "Please complete required fields: %s"
+msgstr "Kérjük, töltse ki a kötelező mezőket: %s"
+
 msgid "Please complete the form."
 msgstr "Kérjük, töltse ki az űrlapot."
 
@@ -6814,14 +7201,14 @@ msgstr "Kérjük, lépjen kapcsolatba a webhely adminisztrátorával, ha tovább
 msgid "Please contact your website administrator."
 msgstr "Kérjük, lépjen kapcsolatba a webhely adminisztrátorával."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Kérjük, törölje a \"%s\" fájlt a %s védelem újraaktiválásához"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Kérjük, törölje a(z) \"%1$s\" fájlt a(z) %2$s védelem újraaktiválásához"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Kérjük, győződjön meg arról, hogy a befejezési dátum a kezdési dátumon vagy azt követően van."
 
 msgid "Please login again."
 msgstr "Kérjük, jelentkezzen be újra."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Kérjük, jelentkezzen ki, ha törölni szeretné a saját munkamenetét."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Kérjük, vegye figyelembe, hogy a WP oldal gyorsítótárazási pluginok általában figyelmen kívül hagyják a HTTP fejléceket, és ha nem látja őket tükrözve a tesztjeiben, le kell tiltania a gyorsítótárazási plugint."
@@ -6840,6 +7227,15 @@ msgstr "Kérjük, adjon meg egy címkét az eszköz azonosításához."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Kérjük, adjon meg egy címkét az új hitelesítő azonosításához."
+
+msgid "Please provide a title for the report."
+msgstr "Kérjük, adjon meg egy címet a jelentéshez."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Kérjük, adjon meg egy érvényes dátumot ÉÉÉÉ-HH-NN formátumban."
+
+msgid "Please provide a valid date."
+msgstr "Kérjük, adjon meg egy érvényes dátumot."
 
 msgid "Please provide a valid regular expression."
 msgstr "Kérjük, adjon meg egy érvényes reguláris kifejezést."
@@ -6895,6 +7291,9 @@ msgstr "Kérjük, válasszon egyet az IP szabály típusok közül - Blokkolás 
 msgid "Please select one of the options available"
 msgstr "Kérjük, válasszon az elérhető lehetőségek közül"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Kérjük, adjon meg egy területi beállítás kódot (pl. --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Kérjük, adjon meg egy másik jelszót, mivel ez a jelszó kompromittálódott."
 
@@ -6925,17 +7324,17 @@ msgstr "Kérjük, kapcsolja be ezt a szkennelést a beállításokban."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Kérjük, értse meg, hogy a Security Admin funkciók visszaállításához új Security Admin PIN-t kell megadnia."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Kérjük, frissítse a Shield pluginjait ugyanazokra a verziókra és szinkronizálja újra."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Kérjük, frissítse %s pluginjait ugyanazokra a verziókra, és szinkronizálja újra."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Kérjük, frissítsen az összes plugin fájl módosítás elleni vizsgálatának támogatásához."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Kérjük, frissítse Shield Security előfizetését az egyéni biztonsági szabályok építő eléréséhez."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Kérjük, frissítse %s csomagját ennek a funkciónak a használatához."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Kérjük, frissítse ShieldPRO csomagját ennek a funkciónak a használatához."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Kérjük, frissítse a(z) %s előfizetését az egyéni biztonsági szabályépítő eléréséhez."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Kérjük, frissítse a csomagját, ha több e-mail címre szeretne értesítést küldeni."
@@ -7186,14 +7585,17 @@ msgstr "Powered by WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "Az erőteljes <strong>Firewall</strong> elfogja és blokkolja a rosszindulatú forgalmat."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Erőteljes védelem WordPresshez, a Shield Security-től"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Hatékony védelem WordPress számára, a %s-tól"
 
 msgid "Powerful User Password Policies"
 msgstr "Erőteljes felhasználói jelszóházirendek"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Hatékony, automatikusan tanuló Malware szkenner"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Hatékony, könnyen használható, #1 értékelésű WordPress biztonsági rendszer"
 
 msgid "Predicted"
 msgstr "Előrejelzett"
@@ -7203,6 +7605,9 @@ msgstr "Előnyben részesített ideiglenes könyvtár"
 
 msgid "Preferred temporary directory override."
 msgstr "Előnyben részesített ideiglenes könyvtár felülbírálása."
+
+msgid "Prefix"
+msgstr "Előtag"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Előtag: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Megakadályozza, hogy a felhasználók bármilyen jelszót használjanak
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Megakadályozza, hogy a felhasználók bármilyen jelszót használjanak, amely a nyilvánosan elérhető feltört jelszavak listáján található."
 
+msgid "Previous"
+msgstr "Előző"
+
+msgid "Previous Period"
+msgstr "Előző időszak"
+
 msgid "Previous Step"
 msgstr "Előző lépés"
 
@@ -7318,8 +7729,8 @@ msgstr "Adminisztrátorrá előléptetve"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "A WP bejelentkezés védelme a botok által végzett automatizált bejelentkezési kísérletekkel szemben"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Védje meg a Shield plugint a módosítás ellen"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Védje meg %s pluginját a manipulációtól"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Kulcsfontosságú WP mag fájlok védelme, amelyek általában nem védhetők."
@@ -7342,6 +7753,9 @@ msgstr "Védje webhelye látogatóit fokozott biztonsági válaszfejlécek bevez
 msgid "Protect your %s files"
 msgstr "Védje meg a(z) %s fájljait"
 
+msgid "Protected By %s"
+msgstr "%s által védett"
+
 msgid "Protected Forms"
 msgstr "Védett űrlapok"
 
@@ -7350,6 +7764,9 @@ msgstr "Védelem a <strong>komment SPAM</strong> első számú forrása ellen."
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Védje <strong>fontos felhasználói űrlapjait</strong>, mint például a bejelentkezés, regisztráció és elfelejtett jelszó."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "A WordPress űrlapok védelme alapértelmezetten benne van, és hozzáférése lesz néhány vagy az összes harmadik féltől származó integrációhoz, a(z) %s csomagjától függően."
 
 msgid "Protection for user accounts."
 msgstr "Védelem a felhasználói fiókokhoz."
@@ -7420,9 +7837,6 @@ msgstr "Security Admin PIN megadása/frissítése"
 msgid "Provided by %s"
 msgstr "Szolgáltató: %s"
 
-msgid "Provided by Shield"
-msgstr "Shield által biztosítva"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Finomabb vezérlést biztosít a kérések naplózási rendszere felett."
 
@@ -7471,8 +7885,8 @@ msgstr "Rate limiting"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "A sebességkorlát ({{count}}) túllépésre került {{requests}} kéréssel {{span}} másodpercen belül."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Márkázza újra a Shield Security-t saját nevére!"
+msgid "Re-Brand %s as your own!"
+msgstr "Márkázza újra %s-t sajátjaként!"
 
 msgid "Re-Install"
 msgstr "Újratelepítés"
@@ -7480,8 +7894,8 @@ msgstr "Újratelepítés"
 msgid "Re-Install It"
 msgstr "Újratelepítés"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "A Shield Security plugin újramárkázása."
+msgid "Re-brand the %s plugin."
+msgstr "%s plugin újramárkázása."
 
 msgid "Re-enable Protection."
 msgstr "Védelem újraengedélyezése."
@@ -7512,6 +7926,9 @@ msgstr "Indok"
 
 msgid "Reason: %s"
 msgstr "Indok: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Indok: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Értesítés fogadása plugin deaktiválásakor"
@@ -7651,8 +8068,8 @@ msgstr "Hátralévő engedélyezett jogsértések"
 msgid "Remember me for %s"
 msgstr "Emlékezz rám %s ideig"
 
-msgid "Remember to include %s or %s"
-msgstr "Ne felejtse el %s vagy %s használatát"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Ne felejtse el %1$s vagy %2$s használatát"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "A felhasználó MFA tényezőinek eltávolítását a Security Admin-nak kell elvégeznie"
@@ -7708,6 +8125,9 @@ msgstr "Javítva"
 msgid "Repaired item found in the scan."
 msgstr "A vizsgálat során talált elem javítva."
 
+msgid "Repairs"
+msgstr "Javítások"
+
 msgid "Repeated Human SPAM"
 msgstr "Ismétlődő emberi SPAM"
 
@@ -7735,8 +8155,8 @@ msgstr "Jelentés beállítások"
 msgid "Report Sent"
 msgstr "Jelentés elküldve"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Jelentés elküldve ({{medium}} útján)."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Jelentés elküldve ({{type}} {{medium}} útján)."
 
 msgid "Report Title"
 msgstr "Jelentés címe"
@@ -8107,17 +8527,17 @@ msgstr "Sikeres SPAM ellenőrzés"
 msgid "SPAM Detection"
 msgstr "SPAM észlelés"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "A SPAM és a botok általi tömeges felhasználói regisztráció blokkolva van a silentCAPTCHA által."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "A SPAM és a botok által végrehajtott tömeges felhasználói regisztráció blokkolva van a(z) %s által."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "A SPAM és a botok általi tömeges felhasználói regisztráció nincs blokkolva a silentCAPTCHA által."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "A SPAM és a botok által végrehajtott tömeges felhasználói regisztráció nincs blokkolva a(z) %s által."
 
 msgid "SPAM blocking"
 msgstr "SPAM blokkolás"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "A SPAM 2 fő módon történik: botok és emberek által."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "A SPAM-et kétféle látogató követi el: automatizált botok és emberek."
 
 msgid "SQL Queries"
 msgstr "SQL lekérdezések"
@@ -8167,6 +8587,9 @@ msgstr "Sebezhetőségek vizsgálata a bővítményekben és témákban"
 msgid "Scan Frequency"
 msgstr "Vizsgálat gyakorisága"
 
+msgid "Scan Issues"
+msgstr "Vizsgálati problémák"
+
 msgid "Scan Item Delete Success"
 msgstr "Vizsgálati elem törlése sikeres"
 
@@ -8200,6 +8623,9 @@ msgstr "Vizsgálati eredmények"
 msgid "Scan This QR Code"
 msgstr "QR kód beolvasása"
 
+msgid "Scan Type"
+msgstr "Vizsgálat típusa"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Vizsgálja meg az összes WordPress eszközét ismert biztonsági sebezhetőségek szempontjából."
 
@@ -8218,11 +8644,11 @@ msgstr "Vizsgálja meg webhelyét fájlváltozások, rosszindulatú programok é
 msgid "Scanning Frequency"
 msgstr "Vizsgálat gyakorisága"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "A plugin és téma fájlok vizsgálata csak ShieldPRO esetén érhető el."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Plugin és téma fájlok vizsgálata csak a(z) %s Pro verziójával érhető el."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "A PHP rosszindulatú programok vizsgálata csak ShieldPRO esetén érhető el."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "PHP rosszindulatú programok vizsgálata csak a(z) %s Pro verziójával érhető el."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "A vizsgálat helyi pillanatfelvételeket használ. Frissítse csomagját a közösségi pillanatfelvételek használatához és a prémium pluginok támogatásának hozzáadásához."
@@ -8305,14 +8731,17 @@ msgstr "A pontszámok hozzávetőleges súlyozást jelentenek minden komponens e
 msgid "Script Name To Match"
 msgstr "Egyeztetendő szkript név"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Aktiválja és kezelje zökkenőmentesen ShieldPRO licencét licenckulcsok nélkül."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Aktiválja és kezelje zökkenőmentesen a(z) %s licencét licenckulcsok nélkül."
 
 msgid "Search %s"
 msgstr "%s keresése"
 
 msgid "Search Engine"
 msgstr "Keresőmotor"
+
+msgid "Search Help"
+msgstr "Súgó keresése"
 
 msgid "Search engine visibility"
 msgstr "Keresőmotor láthatóság"
@@ -8374,6 +8803,9 @@ msgstr "Security Admin időtúllépés"
 msgid "Security Admin is now active"
 msgstr "Security Admin mostantól aktív"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "A Security Admin további hitelesítési réteget biztosít, amely biztosítja, hogy csak ellenőrzött adminisztrátorok módosíthatják a webhely biztonságát."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "A Security Admin korlátozások eltávolításra kerültek"
 
@@ -8385,6 +8817,9 @@ msgstr "A Security Admin munkamenet lejárt."
 
 msgid "Security Admins"
 msgstr "Security Admin felhasználók"
+
+msgid "Security Alert"
+msgstr "Biztonsági riasztás"
 
 msgid "Security Analysis"
 msgstr "Biztonsági elemzés"
@@ -8503,11 +8938,11 @@ msgstr "Válassza ki azokat a felhasználói űrlap szolgáltatókat, amelyeket 
 msgid "Select The User Forms Provider That You Use"
 msgstr "Válassza ki az Ön által használt felhasználói űrlap szolgáltatót"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Válassza ki, mely %1$s e-maileket kell elküldeni %2$s használatával"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Válassza ki a vizsgálandó területeket"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Válassza ki, mely Shield e-maileket kell SureSend használatával küldeni"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Válassza ki, mely kéréstípusokat kívánja kizárni"
@@ -8635,6 +9070,9 @@ msgstr "Munkamenetek"
 msgid "Sessions Table Filters"
 msgstr "Munkamenetek tábla szűrők"
 
+msgid "Set Security Badge."
+msgstr "Biztonsági jelvény beállítása."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Állítson be határt az engedélyezett jogsértésekhez, mielőtt a látogató IP automatikusan blokkolásra kerül."
 
@@ -8674,161 +9112,23 @@ msgstr "A plugin beállítása MU-pluginként való futtatásra a véletlen deak
 msgid "Severity"
 msgstr "Súlyosság"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA szolgáltató engedélyezve"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield Anti-Spam"
-
 msgid "Shield Deactivated"
 msgstr "Shield deaktiválva"
 
 msgid "Shield Events & Stats"
 msgstr "Shield események & statisztikák"
 
-msgid "Shield Info"
-msgstr "Shield Info"
-
-msgid "Shield Option Key"
-msgstr "Shield beállítási kulcs"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro áruház"
-
-msgid "Shield Scanners."
-msgstr "Shield vizsgálók."
-
-msgid "Shield Security Home Page"
-msgstr "Shield Security honlap"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security Plugin – a webhely minimális követelményei nem teljesülnek"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "A Shield Security Pro online áruházunkban érhető el."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "A Shield Security plugin telepítve van, de nincs aktiválva."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "A Shield Security plugint szinkronizálni kell."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Shield Security plugin nem észlelhető az utolsó szinkronizálásban."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "A Shield Security plugin verziói nincsenek szinkronban."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield felhasználói 2FA szolgáltató aktiválva"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield felhasználói 2FA: Rendelkezik aktívval"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield White Label"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "A Shield automatikusan integrálható harmadik féltől származó pluginokkal."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "A Shield automatikusan képes védeni a harmadik féltől származó bejelentkezési és regisztrációs űrlapokat a botok ellen."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "A Shield nem tudta megállapítani, hogy a silentCAPTCHA JS megfelelően töltődik-e be a webhelyén."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "A Shield általában nem vizsgálja a bejelentkezett vagy regisztrált felhasználók hozzászólásait."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "A Shield általában nem vizsgálja a bejelentkezett vagy regisztrált felhasználók hozzászólásait. Itt adja meg azokat a felhasználói szerepköröket, amelyeket nem kell vizsgálni."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "A Shield eseménydefiníciók üresek vagy nem megfelelő formátumúak."
-
-msgid "Shield isn't installed on this site."
-msgstr "A Shield nincs telepítve ezen a webhelyen."
-
-msgid "Shield plugin activated"
-msgstr "Shield plugin aktiválva"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "A Shield plugin nem aktiválható"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "A Shield plugin nem deaktiválható"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "A Shield plugin nem telepíthető"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "A Shield plugin nem frissíthető"
-
-msgid "Shield plugin deactivated"
-msgstr "Shield plugin deaktiválva"
-
-msgid "Shield plugin installed"
-msgstr "Shield plugin telepítve"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "A Shield plugin telepítve van, de nem aktív."
-
-msgid "Shield plugin updated"
-msgstr "Shield plugin frissítve"
-
-msgid "Shield scans cannot execute."
-msgstr "A Shield vizsgálatok nem futtathatók."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "A webhelyen lévő Shield verzió nem egyezik ezzel a szerverrel."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "A Shield automatikusan megvizsgálja a harmadik féltől származó pluginjait, hogy ellenőrizze, elérhető-e beépített integráció."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "A Shield késlelteti a frissítéseket, amíg az új frissítés elérhető nem lesz a beállított napok számára."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "A Shield MainWP integrációja nincs engedélyezve ezen a webhelyen."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "A Shield szabálymotor nem fut."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "A Shield silentCAPTCHA rendszere az ALTCHA-t használja, amely komplex munkavégzésre kényszeríti a botokat."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBIZTONSÁGI MENTÉSEK"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP reputációs pontszám"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO funkciók"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO ingyenes próbaverzió"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO licenc törölve"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO licenckezelés"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO prémium biztonság"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "A ShieldPRO nincs aktiválva ezen a webhelyen."
-
-msgid "ShieldPRO license check failed."
-msgstr "A ShieldPRO licenc ellenőrzése sikertelen volt."
-
-msgid "ShieldPRO license check was successful."
-msgstr "A ShieldPRO licenc ellenőrzése sikeres volt."
 
 msgid "Should be uninstalled"
 msgstr "El kell távolítani"
@@ -8923,20 +9223,23 @@ msgstr "Webhely URL"
 msgid "Site URL Changed"
 msgstr "Webhely URL megváltozott"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "Webhely URL megváltozott: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "Webhely URL megváltozott: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Webhely hozzáadva az exportálási fehér listához: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Webhely e-mail megváltozott: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Webhely e-mail cím megváltozott: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Webhely szinkronizálása sikertelen"
 
 msgid "Site has been locked down!"
 msgstr "A webhely le lett zárva!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "A webhely már aktiválva van, de a licenc ellenőrzése sikertelen volt."
 
 msgid "Site lock down has been lifted!"
 msgstr "A webhely lezárása feloldva!"
@@ -8946,6 +9249,9 @@ msgstr "Webhely eltávolítva az exportálási fehér listáról: {{site}"
 
 msgid "Site synced successfully"
 msgstr "Webhely sikeresen szinkronizálva"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "A webhely már aktiválva volt, és a licenc sikeresen ellenőrizve lett."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "A webhelyet {{user_login}} zárolta le."
@@ -8965,8 +9271,8 @@ msgstr "Méret"
 msgid "Slug"
 msgstr "Slug"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug frissítve: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Slug frissítve: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "A {{post_id}} bejegyzés azonosítójú slug frissítve '{{slug_old}}' értékről '{{slug_new}}' értékre."
@@ -9049,8 +9355,8 @@ msgstr "Sajnáljuk, ez a vizsgálat nem érhető el."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Sajnáljuk, nincs hozzáférése MAL{ai} lekérdezések futtatásához, kérjük, frissítse a csomagját."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Sajnáljuk, frissítenie kell Shield Security tagságát a MainWP integráció eléréséhez."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Sajnáljuk, frissítenie kell a(z) %s tagságát a MainWP integráció eléréséhez."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "A jogsértésekről szólva, a pluginokon és témákon belüli sebezhetőségek, amelyek lehetővé teszik a jogsértések bekövetkezését, elsődleges célpontjai a támadásoknak, ezért korán kell azonosítanunk őket."
@@ -9100,8 +9406,11 @@ msgstr "Statisztikák"
 msgid "Status"
 msgstr "Állapot"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Állapot megváltozott: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Állapot megváltozott: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Állapotellenőrzés befejezve."
 
 msgid "Store directory could not be created: %s"
 msgstr "A tároló könyvtár nem hozható létre: %s"
@@ -9133,8 +9442,8 @@ msgstr "Sikeresen csatlakozva a licencszerverhez."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Firewall blokkolási e-mail értesítés sikeresen elküldve a következőnek: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "E-mail (típus: {{slug}}) sikeresen elküldve a következőnek: '{{email}}' SureSend használatával."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "E-mail (típus: {{slug}}) sikeresen elküldve a következőnek: '{{email}}' a(z) %s használatával."
 
 msgid "Summary"
 msgstr "Összefoglaló"
@@ -9165,15 +9474,6 @@ msgstr "SureSend e-mailek"
 
 msgid "SureSend Emails."
 msgstr "SureSend e-mailek."
-
-msgid "SureSend Fail"
-msgstr "Sikertelen SureSend"
-
-msgid "SureSend Success"
-msgstr "SureSend sikeres"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "A SureSend egy dedikált e-mail kézbesítési szolgáltatás a Shield Security-től."
 
 msgid "Suspend Account"
 msgstr "Fiók felfüggesztése"
@@ -9229,14 +9529,14 @@ msgstr "Kapcsolja be a CrowdSec funkciót az ismert (közösségi forrásból sz
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Ennek a funkciónak a bekapcsolása blokkolni fogja a webhelyhez irányuló összes forgalmat. Teljesen minden blokkolva lesz (beleértve a Google botokat is)."
 
+msgid "Sync %s"
+msgstr "%s szinkronizálása"
+
 msgid "Sync Required"
 msgstr "Szinkronizálás szükséges"
 
 msgid "Sync Required."
 msgstr "Szinkronizálás szükséges."
-
-msgid "Sync Shield"
-msgstr "Shield szinkronizálása"
 
 msgid "System Info"
 msgstr "Rendszer Info"
@@ -9253,8 +9553,8 @@ msgstr "A táblák törölve lettek és most újra létrejönnek."
 msgid "Tagline"
 msgstr "Szlogen"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Alcím megváltozott: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Alcím megváltozott: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Minden bejegyzéshez új sort kezdjen."
@@ -9268,11 +9568,11 @@ msgstr "Minden engedélyezett útvonalhoz új sort kezdjen."
 msgid "Take a new line per rule."
 msgstr "Minden szabályhoz új sort kezdjen."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Használja ki a teljes Shield hálózatban összegyűjtött intelligenciát WordPress webhelyei jobb védelme érdekében"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Használja ki a teljes %s hálózatban összegyűjtött intelligenciát WordPress webhelyei jobb védelme érdekében"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "A Shield technikai támogatása kizárólag Pro ügyfelek számára érhető el."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "A(z) %s technikai támogatása kizárólag Pro ügyfelek számára érhető el."
 
 msgid "Temp Dir"
 msgstr "Ideiglenes könyvtár"
@@ -9295,17 +9595,17 @@ msgstr "Teszt WP Cron sikeresen lefutott."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "A tesztek sikertelenek voltak, és nem tudtuk automatikusan meghatározni az SSL tanúsítvány állapotát."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Köszönjük, hogy a Shield Security-t választotta"
+msgid "Thank You For Choosing %s"
+msgstr "Köszönjük, hogy a(z) %s mellett döntött"
 
 msgid "Thank You."
 msgstr "Köszönjük."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Köszönjük, hogy a Shield Security (ingyenes) verziót választotta."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Köszönjük, hogy a(z) %s (Ingyenes) mellett döntött."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Köszönjük, hogy a Shield Security PRO-t választotta."
+msgid "Thank you for choosing %s."
+msgstr "Köszönjük, hogy a(z) %s mellett döntött."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Köszönjük, hogy időt szánt az irányított telepítési varázsló végigjárására."
@@ -9325,11 +9625,23 @@ msgstr "Köszönjük."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Az a meleg és kellemes érzés, amely a jövőbeli fejlesztés támogatásából fakad"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "A %s könyvtár hasonló a %s könyvtárhoz, és sok nem WordPress fájl van ott tárolva."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "A(z) %1$s könyvtár olyan, mint a(z) %2$s könyvtár, és sok nem WordPress fájl van ott tárolva."
+
+msgid "The %1$s should measure %2$s."
+msgstr "A %1$s mérete %2$s kell legyen."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "A(z) %s jelvény demonstrálja ügyfeleinek, hogy komolyan veszi a biztonságot."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "A %s könyvtár a vadnyugat, és sok plugin és téma használja munkafájlok tárolására."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "A(z) %s opció le van tiltva, eltávolítva a brute force védelmet a bejelentkezési, regisztrációs és elfelejtett jelszó űrlapoktól."
+
+msgid "The %s option is enabled."
+msgstr "A(z) %s opció engedélyezve van."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "A %s plugin általában nem használ Cookie-kat a nem regisztrált webhely látogatók számára."
@@ -9337,14 +9649,29 @@ msgstr "A %s plugin általában nem használ Cookie-kat a nem regisztrált webhe
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "A %s plugin rendelkezik Audit Trail funkcióval, amely a következő információkat naplózza:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "A %s plugin éppen deaktiválásra került."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "A %s plugin soha nem tárol semmilyen érzékeny, személyazonosításra alkalmas információt semmilyen cookie-ban semmilyen időpontban."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "A(z) %s plugin ezen a webhelyen frissítésre szorul."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "A(z) %s plugin ezen a webhelyen aktív PRO licencet igényel."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "A(z) %s plugin verziója a kliens webhelyen újabb, mint ezen a szerveren."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "A(z) %s plugin verziója a kliens webhelyen régebbi, mint ezen a szerveren, és frissíteni kell."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "A %s lekérdezési paraméter blokkolva lett a felhasználónév / szerző halászat elleni védelem érdekében."
 
-msgid "The %s should measure %s."
-msgstr "A %s mérése %s kell legyen."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "A(z) %s rendszer ALTCHA-t használ, amely arra kényszeríti a botokat, hogy összetett munkát végezzenek."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "A 'wp_mail' függvény meghívásra került a(z) '{{bt_file}}' fájlból a {{bt_line}}. sorban."
@@ -9388,8 +9715,8 @@ msgstr "A plugin főmenü címe. Ha üresen hagyja, a \"%s\" kerül felhasznál�
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "A plugin főmenü címe. Ha üresen hagyja, a plugin neve lesz használva."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "A MainWP Security plugin nem felel meg a Shield minimális követelményeinek."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "A MainWP Security plugin nem felel meg a(z) %s minimális követelményeinek."
 
 msgid "The Name Of The Plugin"
 msgstr "A plugin neve"
@@ -9415,32 +9742,14 @@ msgstr "A Security Admin rendszer védi a WordPresst és a %s plugint a módosí
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "A Security Admin rendszer védi a %s plugint a módosítás vagy véletlen változtatások ellen más WordPress adminisztrátorok részéről."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "A Security Admin korlátozta az e-mail felülírási funkció használatát."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "A biztonsági jelvény megjelenik a látogatóknak"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "A biztonsági jelvény nem jelenik meg a látogatóknak"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "A Shield Security plugint ezen a webhelyen frissíteni kell."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "A Shield adatbázist javítani kell, mivel bizonyos funkciók nem lesznek elérhetők érvényes adatbázis nélkül."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "A Shield plugin éppen deaktiválásra került."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "A Shield plugin ezen a webhelyen nem rendelkezik aktív ShieldPRO licenccel."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "A kliens webhelyen lévő Shield plugin verzió újabb, mint ezen a szerveren."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "A kliens webhelyen lévő Shield plugin verzió régebbi, mint ezen a szerveren, és frissíteni kell."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "A plugin szlogenje"
@@ -9487,8 +9796,8 @@ msgstr "Az országkód hiányzott."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "A teljes %s konfiguráció kumulatív pontszáma"
 
-msgid "The current request has a valid Shield user session"
-msgstr "A jelenlegi kérés érvényes Shield felhasználói munkamenettel rendelkezik"
+msgid "The current request has a valid %s user session"
+msgstr "A jelenlegi kéréshez érvényes %s felhasználói munkamenet tartozik"
 
 msgid "The data provided was inconsistent."
 msgstr "A megadott adatok következetlenek voltak."
@@ -9544,8 +9853,8 @@ msgstr "A következő elemek kerültek felfedezésre."
 msgid "The following options will be restricted:"
 msgstr "A következő beállítások korlátozva lesznek:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "A következő típusú felhasználói űrlapokat védi a silentCAPTCHA: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "A következő típusú felhasználói űrlapokat védi a(z) %1$s: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "A kezdőlap URL megváltozott '{{from}}' címről '{{to}}' címre."
@@ -9559,8 +9868,8 @@ msgstr "A címkének alfanumerikusnak kell lennie, speciális karakterek nélkü
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "A blokkolás előtt engedélyezett jogsértések maximális száma ésszerű: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "A maximális napló megőrzési határ (%s) növelhető a ShieldPRO csomag frissítésével."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "A maximális naplómegőrzési korlát (%1$s) növelhető a(z) %2$s csomag frissítésével."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "A kérések maximális száma, amely az adott időkorláton belül engedélyezett."
@@ -9625,7 +9934,7 @@ msgstr "Az előnyben részesített forrás a %s, mivel ez nem hamisítható."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Az előző vizsgálat vagy nem észlelt olyan elemeket, amelyek figyelmet igényelnek, vagy már javításra kerültek."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
 msgstr "A cél a WordPress e-mail megbízhatóságának javítása a kritikus e-mailek esetében."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
@@ -9651,12 +9960,6 @@ msgstr "A beállítás megakadályozza, hogy bármely külső webhely beágyazza
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "A beállítás megakadályozza, hogy bármely külső webhely beágyazza a webhelyét egy iFrame-be. Ez hasznos az úgynevezett ClickJack támadások megelőzésére."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "A silentCAPTCHA opció le van tiltva, ezzel eltávolítva a brute force védelmet a bejelentkezési, regisztrációs és elfelejtett jelszó űrlapokról."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "A silentCAPTCHA opció engedélyezve van."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "A webhely URL megváltozott '{{from}}' címről '{{to}}' címre."
@@ -9883,6 +10186,9 @@ msgstr "Probléma merült fel a Passkey hitelesítési kihívás előkészítés
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Probléma merült fel a Passkey regisztrációs kihívás előkészítése során."
 
+msgid "There was a problem processing the batched request."
+msgstr "Probléma merült fel a kötegelt kérés feldolgozása során."
+
 msgid "There was a problem removing this passkey"
 msgstr "Probléma merült fel a passkey eltávolítása során"
 
@@ -9937,9 +10243,6 @@ msgstr "Megtámadják webhelyeit, információkat gyűjtenek, és nagy léptékb
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Pusztítást végeznek a bejelentkezési űrlapokon a Javascript törésével és a felhasználói élmény rémálommá változtatásával."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Gondoljon a 'jogsértésekre' úgy, mint egy számlálóra, amely azt számolja, hányszor tesz valami rosszat egy látogató."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Gondoljon rá úgy, mint a 'Bejelentkezési kísérletek korlátozása', de a WordPress webhely összes funkciójára alkalmazva, nem csak a bejelentkezési oldalra."
 
@@ -9951,6 +10254,9 @@ msgstr "Ez Ön"
 
 msgid "This Page"
 msgstr "Ez az oldal"
+
+msgid "This Period"
+msgstr "Ez az időszak"
 
 msgid "This Server"
 msgstr "Ez a szerver"
@@ -9967,8 +10273,8 @@ msgstr "Ez a művelet jelenleg nem érhető el az Ön profilja számára."
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Ez a tevékenység rögzítésre került az Ön IP címével szemben, és teljesen blokkolhatja a webhelyhez való további hozzáférését, ha hasonló tevékenység megismétlődik."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Ez egyben affiliate linkként is működik, ha ShieldPRO-t futtat, így jutalmat szerezhet minden ajánlásért."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Ez egyben affiliate linkként is működik, ha a(z) %s-t futtatja, így jutalmat szerezhet minden ajánlásért."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Ez spam-nek tűnik, mivel nem felelt meg %s AntiBot védelmi ellenőrzéseknek."
@@ -10011,6 +10317,9 @@ msgstr "Ez a funkció csak akkor érhető el, ha a Traffic Logger aktív."
 
 msgid "This feature isn't currently enabled."
 msgstr "Ez a funkció jelenleg nincs engedélyezve."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Ez a funkció egy titkos PIN-kódra támaszkodik (amelyet alább hoz létre), amelyet személyazonossága igazolására fog használni a(z) %s pluginnal."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Ez a fájl rosszindulatú kódot tartalmaz - malware!"
@@ -10171,11 +10480,20 @@ msgstr "Ez a beállítás automatikusan letiltásra kerül %s után, és az adot
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Ezt óvatosan kell használni, és csak olyan paraméterneveket adjon meg, amelyeket feltétlenül ki kell zárni"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Ez a webhely úgy tűnik, hogy egy Shield hálózat része."
+msgid "This site appears to be part of a %s Network."
+msgstr "Úgy tűnik, ez a webhely egy %s hálózat része."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Ez a webhely jelenleg nem tud HTTP kéréseket küldeni önmagának."
+
+msgid "This site is already activated for this account."
+msgstr "Ez a webhely már aktiválva van ehhez a fiókhoz."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Ez a webhely már aktiválva van. Újraellenőrzés és a helyi licenc állapot szinkronizálása..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Ez a lépés lehet a legfontosabb, mivel segít biztosítani, hogy a(z) %s mindig megtalálja a helyes látogató IP címet."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Ez a téma nem aktív és el kell távolítani."
@@ -10222,8 +10540,8 @@ msgstr "Ez blokkolni fogja a mező csonkolási támadásokat az alkalmazás para
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Ez blokkolni fogja az SQL-t az alkalmazás paramétereiben (pl. %s, stb.)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Ez azt eredményezi, hogy a %s és %s URL-ek HTTP 404 hibát adnak vissza, amíg nincs bejelentkezve."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Ez azt eredményezi, hogy a(z) %1$s és %2$s URL-ek HTTP 404 hibát adnak vissza, ha nincs bejelentkezve."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Ez felhasználja az SMS kreditjeit, ha rendelkezésre állnak, ugyanúgy, mint bármely szabványos 2FA SMS esetében."
@@ -10242,6 +10560,9 @@ msgstr "Ez korlátozza a WordPress adminisztrátorok azon képességét, hogy ku
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Ez korlátozza a WordPress adminisztrátorok azon képességét, hogy más adminisztrátorokat hozzanak létre, módosítsanak vagy léptessenek elő."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Ez a varázsló végigvezeti Önt a(z) %s néhány kulcsfontosságú funkcióján, hogy 3 percen belül elindulhasson."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Ez azért működik, mert a legitim webes keresőrobotok tiszteletben tartják a 'robots.txt' és 'nofollow' direktívákat."
@@ -10273,17 +10594,17 @@ msgstr "Időbélyeg"
 msgid "Timezone"
 msgstr "Időzóna"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Cím frissítve: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Cím frissítve: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Cím megváltozott: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Cím megváltozott: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "A {{post_id}} bejegyzés azonosítójú cím frissítve '{{title_old}}' címről '{{title_new}}' címre."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Ennek kezelésére létrehoztuk a saját rendszerünket, amelyet silentCAPTCHA-nak nevezünk."
+msgid "To address this we created our own system called %s."
+msgstr "Ennek kezelésére létrehoztuk saját rendszerünket, a(z) %s-t."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "A wp-login.php oldal elrejtése a brute force támadások és hackelési kísérletek elől - ha a bejelentkezési oldal nem található, senki sem tud bejelentkezni."
@@ -10303,14 +10624,17 @@ msgstr "Új Yubikey eszköz regisztrálásához adjon meg egy egyszeri jelszót 
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Yubikey eszköz eltávolításához adja meg a regisztrált eszközazonosítót és mentse el."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Ennek megoldásához közölheti a(z) %s szolgáltatással, hogy mi az Ön IP címe most, és ez lehetővé teszi az optimális IP forrás konfigurálását."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Az egészséges állapot fenntartása magában foglalja a fájlok aktív vizsgálatát váratlan változások és nem odavaló fájlok észlelése érdekében."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "A Passkeys használatához a PHP telepítésének rendelkeznie kell a következő bővítmények egyikével: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Az e-mail érvényesítéséhez a webhely kérést küld a ShieldNET API-hoz, ami kis késleltetést okozhat a felhasználói regisztrációs kérés során."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Egy e-mail érvényesítéséhez a webhely kérést küld a(z) %s API-hoz, és ez kis késleltetést okozhat a felhasználói regisztrációs kérés során."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Az erről az IP címről származó összes napló megtekintéséhez használja a Traffic Log eszközt, mivel az itt található naplók %s bejegyzésre korlátozottak."
@@ -10326,6 +10650,9 @@ msgstr "Állítsa be, hogy ez a beállítás szerepeljen-e az importálási és 
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Túl sok 2FA ellenőrzési kísérlet - kérjük, jelentkezzen be újra."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Túl sok kötegelt kérés. A maximálisan engedélyezett: %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Az Ön IP címéről érkező túl sok kérés aktiválta a webhely automatikus védelmét."
@@ -10399,11 +10726,35 @@ msgstr "A forgalmi kérések naplózásra kerülnek, megkönnyítve a problémá
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "A forgalmi kérések nem kerülnek naplózásra, megnehezítve a problémák nyomon követését."
 
+msgid "Translation Download Failed"
+msgstr "Fordítás letöltése sikertelen"
+
+msgid "Translation Downloaded"
+msgstr "Fordítás letöltve"
+
+msgid "Translation download queue is empty."
+msgstr "A fordítás letöltési sor üres."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Fordítás sikeresen letöltve: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Fordítási fájl letöltve a következő területi beállításhoz: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Fordítások várakoznak"
+
+msgid "Translations have been downloaded."
+msgstr "A fordítások letöltésre kerültek."
+
 msgid "Trash"
 msgstr "Kuka"
 
 msgid "Trashed"
 msgstr "Kukába helyezve"
+
+msgid "Trend"
+msgstr "Trend"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Kísérlet érvénytelen WordPress PHP szkript betöltésére: '{{script}}'."
@@ -10417,11 +10768,17 @@ msgstr "Megbízható felhasználói szerepkörök"
 msgid "Trusted Users"
 msgstr "Megbízható felhasználók"
 
+msgid "Try Pro For Free"
+msgstr "Próbálja ki a Pro verziót ingyen"
+
 msgid "Turn Off"
 msgstr "Kikapcsolás"
 
 msgid "Turn On"
 msgstr "Bekapcsolás"
+
+msgid "Turn On Security Admin"
+msgstr "Security Admin bekapcsolása"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Forgalomkorlátozás funkció bekapcsolása"
@@ -10441,8 +10798,11 @@ msgstr "White Label beállítások be- és kikapcsolása."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Böngésző Mime-Sniff kikapcsolása"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Kapcsolja be a Shield beépített bővítményét MainWP szerver és kliens telepítésekhez"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "A(z) %s beépített bővítményének bekapcsolása MainWP szerver és kliens telepítésekhez"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Ennek bekapcsolása egy áttetsző jelvényt ad a webhely láblécéhez."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Kétfaktoros bejelentkezési hitelesítés %s által"
@@ -10516,14 +10876,11 @@ msgstr "Osztályozatlan"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Ismerje meg, hogyan távolíthatja el a Google Authenticatort"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Sajnos az U2F alapértelmezés szerint le lett tiltva a legtöbb modern böngészőben, de itt továbbra is elérhető a visszafelé kompatibilitás érdekében."
-
 msgid "Unidentified"
 msgstr "Azonosítatlan"
 
-msgid "Uninstall Shield"
-msgstr "Shield eltávolítása"
+msgid "Uninstall %s"
+msgstr "%s eltávolítása"
 
 msgid "Uninstalled"
 msgstr "Eltávolítva"
@@ -10539,6 +10896,9 @@ msgstr "Ismeretlen - WP v5.4+ szükséges"
 
 msgid "Unknown Name"
 msgstr "Ismeretlen név"
+
+msgid "Unknown activation error."
+msgstr "Ismeretlen aktiválási hiba."
 
 msgid "Unknown item"
 msgstr "Ismeretlen elem"
@@ -10582,6 +10942,9 @@ msgstr "Nem támogatott eredménytípus."
 msgid "Until"
 msgstr "Eddig"
 
+msgid "Update %s"
+msgstr "%s frissítése"
+
 msgid "Update Available"
 msgstr "Frissítés elérhető"
 
@@ -10596,9 +10959,6 @@ msgstr "Frissítsen most, hogy biztonsága naprakész maradjon a legújabb funkc
 
 msgid "Update Required"
 msgstr "Frissítés szükséges"
-
-msgid "Update Shield"
-msgstr "Shield frissítése"
 
 msgid "Update This Rule"
 msgstr "Szabály frissítése"
@@ -10633,14 +10993,14 @@ msgstr "Frissítés szükséges"
 msgid "Upgrade To"
 msgstr "Frissítsen"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Frissítsen %s Pro verzióra most"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Frissítsen egyéni jelentések létrehozásához"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Frissítsen Shield Pro-ra most"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Frissítse ShieldPRO tagságát"
+msgid "Upgrade Your %s Membership"
+msgstr "%s tagság frissítése"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Frissítse csomagját a témafájlok módosítás elleni vizsgálatának támogatásához."
@@ -10648,8 +11008,8 @@ msgstr "Frissítse csomagját a témafájlok módosítás elleni vizsgálatának
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Frissítse csomagját ennek a vizsgálati területnek a támogatásához."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Frissítve: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Frissítve: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "A fájl feltöltése sikertelen"
@@ -10657,8 +11017,11 @@ msgstr "A fájl feltöltése sikertelen"
 msgid "Uptime Monitoring"
 msgstr "Üzemidő monitorozás"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Használja a %s-t a túlzott kérések tesztelésére %s perces intervallumon belül."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "A(z) %1$s használata a túlzott kérések tesztelésére %2$s perces intervallumon belül."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "%s használata bot komment SPAM blokkolásához"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "CloudFlare használata földrajzi adatforrásként?"
@@ -10681,8 +11044,8 @@ msgstr "Használjon nagyobb maximális kéréskorlátot a jogos látogatók blok
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Használjon kisebb intervallumot a jogos látogatók blokkolásának kockázatának csökkentése érdekében."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "A silentCAPTCHA használata a bejelentkezési kísérletek korlátozására a felhasználói űrlapokon nincs bekapcsolva - engedélyeznie kell a Bejelentkezési Biztonsági Zónában."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "A(z) %s használata a bejelentkezési kísérletek korlátozására a felhasználói űrlapokon nincs bekapcsolva - engedélyeznie kell azt a bejelentkezési biztonsági zónában."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Ennek a funkciónak a használata erősen ajánlott."
@@ -10690,11 +11053,11 @@ msgstr "Ennek a funkciónak a használata erősen ajánlott."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Ennek a funkciónak a használata felülírja a meglévő beállításokat, és lecseréli azokat a Master Import Site beállításaira."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Használjon relatív útvonalakat a kezdőlap URL-jéhez képest, pl. %s átirányít a kezdőlapra (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Használjon relatív elérési utakat a kezdőlap URL-jétől, pl. %1$s átirányít a kezdőlapra (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Használja a silentCAPTCHA-t a bot komment SPAM blokkolásához"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Használja a szuper keresőmezőt, hogy bármit megtaláljon a(z) %s pluginban, beleértve a beállításokat, IP címeket, eszközöket, súgót stb."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Használja a kizárások opciót, hogy engedélyezze a névtelen hozzáférést bizonyos API végpontokhoz."
@@ -10702,14 +11065,17 @@ msgstr "Használja a kizárások opciót, hogy engedélyezze a névtelen hozzáf
 msgid "Use the link above to create a new one."
 msgstr "Használja a fenti linket egy új létrehozásához."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Használja ezeket az előtagokat a keresőmezőben az eredmények szűréséhez."
+
 msgid "Use this feature with care."
 msgstr "Használja ezt a funkciót körültekintően."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Használja ezt a fájlt a beállítások másolásához erről a webhelyről egy másik webhelyre"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Használja ezt az opciót az összes aktív Shield védelem teljes letiltásához."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Használja ezt az opciót az összes aktív %s védelem teljes letiltásához."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Használja ezt az opciót annak be-/kikapcsolására, hogy egyéni CSP szabályai alkalmazásra kerüljenek-e."
@@ -10897,11 +11263,11 @@ msgstr "Felhasználói elfelejtett jelszó kérés blokkolva."
 msgid "User must be logged-in."
 msgstr "A felhasználónak be kell jelentkeznie."
 
+msgid "User not found."
+msgstr "Felhasználó nem található."
+
 msgid "User registration request blocked."
 msgstr "Felhasználói regisztrációs kérés blokkolva."
-
-msgid "User session deleted"
-msgstr "Felhasználói munkamenet törölve"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "A felhasználói munkamenet lejárt ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "A felhasználók kénytelenek lesznek visszaállítani jelszavaikat a me
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Harmadik féltől származó SPAM szótárt használ az emberi alapú hozzászólás SPAM észlelésére."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "A Shield exkluzív Snapshot technológiájának használatával a közvetlenül a WP adatbázison végrehajtott adminisztrátori módosítások is észlelhetők!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "A(z) %s kizárólagos Snapshot technológiájának használatával a közvetlenül a WP adatbázison végrehajtott adminisztrátor módosítások is észlelésre kerülnek!"
 
 msgid "Valid license couldn't be found."
 msgstr "Érvényes licenc nem található."
@@ -11047,11 +11413,11 @@ msgstr "Összes megtekintése"
 msgid "View All Security Grades"
 msgstr "Összes biztonsági osztályzat megtekintése"
 
-msgid "View As ShieldFREE"
-msgstr "Megtekintés ShieldFREE-ként"
+msgid "View As %s"
+msgstr "Megtekintés mint %s"
 
-msgid "View As ShieldPRO"
-msgstr "Megtekintés ShieldPRO-ként"
+msgid "View As Free Version"
+msgstr "Megtekintés ingyenes verzióként"
 
 msgid "View Comment"
 msgstr "Hozzászólás megtekintése"
@@ -11071,6 +11437,9 @@ msgstr "Fájl tartalmának megtekintése"
 msgid "View File Details"
 msgstr "Fájl részleteinek megtekintése"
 
+msgid "View Full Report"
+msgstr "Teljes jelentés megtekintése"
+
 msgid "View IP Reputation Option"
 msgstr "IP reputációs beállítás megtekintése"
 
@@ -11088,6 +11457,9 @@ msgstr "Csomagok megtekintése"
 
 msgid "View Report"
 msgstr "Jelentés megtekintése"
+
+msgid "View Reports"
+msgstr "Jelentések megtekintése"
 
 msgid "View Results"
 msgstr "Eredmények megtekintése"
@@ -11146,9 +11518,6 @@ msgstr "Tekintse meg a teljes WordPress webhely biztonságát egy pillantásra, 
 msgid "View, edit and remove custom security rules"
 msgstr "Egyéni biztonsági szabályok megtekintése, szerkesztése és eltávolítása"
 
-msgid "View/Create Reports"
-msgstr "Jelentések megtekintése/létrehozása"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Látogató automatikus feloldása"
 
@@ -11182,8 +11551,8 @@ msgstr "Látogató található a blokkolási listán, és a kapcsolata megszakí
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Látogató található a CrowdSec blokkolási listán, és a kérése megszakítva."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Látogató silentCAPTCHA használatával regisztrált."
+msgid "Visitor registered using %s."
+msgstr "A látogató %s használatával regisztrált."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "A látogató feloldotta IP címének ('{{ip}}') blokkolását a(z) '{{method}}' módszerrel."
@@ -11226,9 +11595,6 @@ msgstr "A sebezhetőség vizsgálatnak aktívnak kell lennie a beállítás enge
 
 msgid "Vulnerable"
 msgstr "Sebezhető"
-
-msgid "Vulnerable Assets"
-msgstr "Sebezhető elemek"
 
 msgid "Vulnerable Plugins"
 msgstr "Sebezhető pluginok"
@@ -11277,6 +11643,9 @@ msgstr "WP alapértelmezett felhasználói szerepkör"
 
 msgid "WP File Editing"
 msgstr "WP fájlszerkesztés"
+
+msgid "WP Files"
+msgstr "WP fájlok"
 
 msgid "WP Generator Tag"
 msgstr "WP Generator címke"
@@ -11367,6 +11736,9 @@ msgstr "Javasoljuk a letiltását, ha már nincs szüksége a futtatására."
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Javasoljuk, hogy keressen szakértelmet ezen a területen, és győződjön meg róla, hogy teljes tesztelést végez a telepítések során."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "5 és 10 közötti értéket ajánlunk. Minél kisebb a korlát, annál szigorúbb lesz a(z) %s."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Javasoljuk, hogy a WP gyökérkönyvtár tiszta maradjon azáltal, hogy csak hivatalos WordPress Core fájlokat tart ott."
@@ -11485,8 +11857,8 @@ msgstr "Amikor elegendő rossz viselkedést észlel, teljesen blokkolja az IP-t 
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Bekapcsolt állapotban minden elérhető harmadik féltől származó integráció azonnal engedélyezésre kerül, amint észlelésre kerül."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Amikor a számláló eléri az alábbi határt (alapértelmezett: %s), a %s teljesen blokkolja azt az IP címet."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Amikor a számláló eléri az alábbi határt (alapértelmezett: %1$s), a(z) %2$s teljesen blokkolja azt az IP-t."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Amikor az aktuális fájl tartalmát összehasonlították a hivatalos kiadással, változásokat észleltek."
@@ -11578,17 +11950,17 @@ msgstr "Az engedélyezett webhelyek kulcs nélkül exportálhatnak beállításo
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Valószínűleg blokkolja a mentést a Plugin/Téma fájlszerkesztőkben."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "A(z) %s közösségi intelligenciával a zajos téves riasztások, amelyek az idejét pazarolják, automatikusan elrejtésre kerülnek, így a fontos kockázatokra összpontosíthat."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "A(z) %s technológiával a botok megállítása most már meglehetősen egyszerű."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "A %s segítségével közvetlenül integrálhatunk az összes főbb kapcsolatfelvételi űrlap pluginnal, hogy blokkoljuk az automatizált botoktól érkező kapcsolatfelvételi űrlap SPAM-et."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "A %s beépített silentCAPTCHA technológiájával a botok megállítása valójában most már meglehetősen egyszerű."
-
 msgid "With Issues"
 msgstr "Problémákkal"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "A ShieldNET közösségi intelligenciával a Shield automatikusan elrejti a hamis pozitívokat, így a fontos kockázatokra összpontosíthat, és figyelmen kívül hagyhatja az időt pazarló zajt."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Ezzel azonnal értesítést kaphat a fájl változásairól, világos képet kapva a pontos változásokról és egyszerű következő lépésekről a folytatáshoz."
@@ -11596,8 +11968,8 @@ msgstr "Ezzel azonnal értesítést kaphat a fájl változásairól, világos k�
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "SPAM szótárunkkal azonosíthatjuk az emberi SPAM hozzászólásokat anélkül, hogy bármilyen adatot küldenénk a webhelyéről harmadik feleknek."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Erőteljes silentCAPTCHA rendszerünkkel az összes bot SPAM közel 100%-át észlelhetjük."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Hatékony %s segítségével az összes bot SPAM közel 100%%-át észlelhetjük."
 
 msgid "Wizards"
 msgstr "Varázslók"
@@ -11737,8 +12109,8 @@ msgstr "A WordPress általában korlátozott számú módon töltődik be, és a
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "A WordPress a PHP egy régi verzióját (%s) futtatja."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "A WordPress a PHP egy friss verzióján (%s) fut (legalább %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "A WordPress a PHP egy friss verzióján (%1$s) fut (legalább %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "A WordPress bejelentkezési űrlapok nincsenek védve a botok ellen, mert a bot minimális pontszámot 0-ra állította, amely a %s rendszert vezérli."
@@ -11839,8 +12211,8 @@ msgstr "Választhatja a 'Csak aktiválás' lehetőséget (nem ajánlott), vagy b
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Teljesen letilthatja a REST API névtelen hozzáférését."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Ezt a biztonsági funkciót és még sok mást megkaphat, ha frissíti ShieldPRO csomagját."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Ezt a biztonsági funkciót és sok mást is megkaphat, ha frissíti a(z) %s csomagját."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Segíthet nekünk a szervere legjobb IP címének észlelésében az alábbi link használatával, amely megmutatja az aktuális IP címét, majd válassza ki a listából azt az opciót, amely tartalmazza."
@@ -11887,8 +12259,8 @@ msgstr "Hitelesítheti magát a %s Security Admin rendszerrel és visszatérhet 
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Kombinálhat több hitelesítési tényezőt a fokozott biztonság érdekében."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Megbízhatatlan eredményeket kaphat, amíg az Akismet a Shield emberi SPAM védelme mellett működik."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Megbízhatatlan eredményeket kaphat, amíg az Akismet a(z) %s emberi SPAM védelme mellett működik."
 
 msgid "You may need to reload this page to continue."
 msgstr "Lehet, hogy újra kell töltenie ezt az oldalt a folytatáshoz."
@@ -11962,8 +12334,8 @@ msgstr "Az Ön IP címe nincs fehérlistán, így ki lesz zárva, ha engedélyez
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "Az Ön IP címe fehérlistán van! Ez a beállítás nem vonatkozik ÖNre, ezért mindig a normál bejelentkezési oldalt kell használnia: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "A MySQL adatbázis szerver nem támogatja az IPv6 címeket. Az Ön verziója: %s; szükséges MySQL verzió: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "A MySQL adatbázis szerver nem támogatja az IPv6 címeket. Az Ön verziója: %1$s; szükséges MySQL verzió: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Az Ön egyedi Yubikey App API kulcsa"
@@ -12037,11 +12409,11 @@ msgstr "Az Ön jelentési e-mail címe: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "A biztonsági adminisztrátor követelményeket írt elő a jelszó minőségére vonatkozóan."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "A biztonsági elemzése nem veszi figyelembe a ShieldPRO-exkluzív funkciókat - használja a fogaskerék menüt az elemzés megtekintéséhez úgy, mintha hozzáférése lenne ezekhez az extra biztonsági funkciókhoz."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "A biztonsági elemzés nem veszi figyelembe a(z) %s-exkluzív funkciókat - használja a fogaskerék menüt az elemzés megtekintéséhez úgy, mintha hozzáférése lenne ezekhez az extra biztonsági funkciókhoz."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "A biztonsági elemzése ShieldPRO-exkluzív funkciókat tartalmaz - használja a fogaskerék menüt az elérhető biztonsági funkciók elemzésének megtekintéséhez."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "A biztonsági elemzés tartalmazza a(z) %s-exkluzív funkciókat - használja a fogaskerék menüt az elemzés megtekintéséhez az elérhető biztonsági funkciókhoz."
 
 msgid "Your session has expired."
 msgstr "A munkamenete lejárt."
@@ -12055,11 +12427,11 @@ msgstr "A munkamenete egy másik IP címhez lett zárolva."
 msgid "Your session was terminated."
 msgstr "A munkamenete megszakításra került."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Webhelye további biztonsági védelmet élvez a ShieldPRO által biztosítva."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Webhelye részesül a(z) %s által nyújtott további biztonsági védelemből."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "A webhelye nem részesül a ShieldPRO által nyújtott további biztonsági védelemből."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Webhelye nem részesül a(z) %s által nyújtott további biztonsági védelemből."
 
 msgid "Your site is currently in lockdown."
 msgstr "A webhely jelenleg lezárva."
@@ -12082,8 +12454,8 @@ msgstr "Webhelye nincs védve a botok által generált automatizált hozzászól
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Webhelye még nincs regisztrálva a CrowdSec szolgáltatásban."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "A webtárhelye nem felel meg a Shield Security Plugin minimális követelményeinek."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Webtárhelye nem felel meg a(z) %s plugin minimális követelményeinek."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Zóna műveletek"
 msgid "Zones"
 msgstr "Zónák"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Téves pozitív] azt jelenti, hogy a kód malware-nek tűnik, de valójában tiszta."
@@ -12142,6 +12514,18 @@ msgstr "all_opts_keys űrlapelem nincs megadva."
 msgid "and"
 msgstr "és"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "és automatikusan feldolgozásra kerül körülbelül %d perc múlva."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "és automatikusan feldolgozásra kerül körülbelül %d perc múlva."
+
+msgid "and will be processed shortly."
+msgstr "és hamarosan feldolgozásra kerül."
+
+msgid "auto-fixed"
+msgstr "automatikusan javítva"
+
 msgid "case-insensitive"
 msgstr "kis- és nagybetű érzéketlen"
 
@@ -12154,8 +12538,8 @@ msgstr "nap"
 msgid "empty username"
 msgstr "üres felhasználónév"
 
-msgid "entries: %s (previous: %s)"
-msgstr "bejegyzések: %s (korábbi: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "bejegyzések: %1$s (előző: %2$s)"
 
 msgid "estimated"
 msgstr "becsült"
@@ -12175,6 +12559,12 @@ msgstr "további súgó"
 msgid "help"
 msgstr "súgó"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "hiányzó adatok"
 
 msgid "more frequent checks will be ignored"
 msgstr "gyakoribb ellenőrzések figyelmen kívül lesznek hagyva"
+
+msgid "more..."
+msgstr "tovább..."
 
 msgid "n/a"
 msgstr "n/a"
@@ -12235,80 +12628,8 @@ msgstr "ajánlás"
 msgid "seconds"
 msgstr "másodperc"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot technológia"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "A silentCAPTCHA bot észlelés nem védi a WordPress bejelentkezést a brute-force támadások ellen."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "A silentCAPTCHA bot észlelés nem védi a WordPress elfelejtett jelszó űrlapot."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "A silentCAPTCHA bot észlelés nem védi a WordPress regisztrációt."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA bot minimális pontszám"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA bot pontszám (százalék)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA ellenőrzés érvénytelen (modul)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA komplexitás"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA bejelentkezésekhez"
-
-msgid "silentCAPTCHA Registration"
-msgstr "silentCAPTCHA regisztráció"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "A silentCAPTCHA észlelés nincs alkalmazva, mert nem választott ki egyetlen védendő űrlapot sem, például bejelentkezést vagy regisztrációt."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "A silentCAPTCHA a %s exkluzív WordPress rossz bot észlelési technológiája."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "A silentCAPTCHA a %s exkluzív bot-észlelési technológiája, amely megszünteti a látható CAPTCHA-k és hasonló látogatói kihívások szükségességét."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "A silentCAPTCHA a %s exkluzív bot-észlelési technológiája, amely láthatatlan a látogatók számára, és megszünteti a felhasználói interakció szükségességét a bejelentkezési CAPTCHA-kkal."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "A silentCAPTCHA le van tiltva, mivel nincs megadva minimális bot-pontszám küszöbérték."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "A silentCAPTCHA le van tiltva, ha a minimális pontszám %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "A silentCAPTCHA engedélyezve van minimális bot-pontszám küszöbértékkel."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "A silentCAPTCHA nem védi a WP hozzászólásokat a bot SPAM ellen."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "A silentCAPTCHA bot kihívás komplexitása túl alacsony - fontolja meg a növelését."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "A silentCAPTCHA bot észlelése nem fut, mert a minimális pontszám 0-ra van állítva."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "A silentCAPTCHA bot észlelése nem fut, mivel a botok jelenleg nincsenek kihívás elé állítva."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "A silentCAPTCHA bot minimális pontszáma meglehetősen alacsony (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "SilentCAPTCHA v1 regisztráció"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "SilentCAPTCHA v2 regisztráció"
 
 msgid "suggestion"
 msgstr "javaslat"

@@ -14,15 +14,19 @@ $code-color: $secondary;
 @import '~smartwizard/dist/css/smart_wizard_all.css';
 @import '~select2/dist/css/select2.css';
 @import '~highlight.js/styles/github.css';
+@import './shield/status-colors';
 @import "./plugin-wpadmin.scss";
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
 @import './shield/meters.scss';
 @import './shield/options.scss';
+@import './shield/ip_analyse.scss';
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
 @import './shield/zones';
+@import './shield/dashboard';
+@import './shield/security-admin';
 
 @import './components/notices';
 @import './components/tables';
@@ -194,21 +198,8 @@ label input[type=checkbox] {
   margin-bottom: 1px;
 }
 
-#SectionStats {
-  overflow: auto;
-}
-
 .btn-outline-warning {
   color: $secondary;
-}
-
-.stat.card .card-header {
-  font-size: smaller;
-}
-
-.stat.card .card-body {
-  font-size: x-large;
-  padding: 0.5rem;
 }
 
 #PageMain-Shield .card.config {
@@ -409,105 +400,6 @@ table.odp-table.scan-table td.column-path code {
 .form-check.form-switch .form-check-input:checked {
   /** @since BS 5.3.0 must set this as it conflicts with WP's own background: #fff CSS */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e")
-}
-
-/** copied from bootstrap to override WP admin styles */
-.options_form_for {
-  font-size: 14px;
-  padding-top: 10px;
-}
-
-#ModuleOptionsNav.list-group {
-  border: 0 none;
-  margin: 0;
-}
-
-#ModuleOptionsNav.list-group a {
-  /*display: inline-block;*/
-  padding: 0.5rem 1rem;
-  font-size: 14px;
-  /*border: 1px solid transparent;*/
-  /*border-radius: 2px;*/
-}
-
-#ModuleOptionsNav.list-group a.active {
-  background-color: rgba(0, 128, 0, 0.75);
-  border-color: transparent;
-}
-
-#ModuleOptionsNav.nav-tabs a.nav-link > span {
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
-}
-
-#ModuleOptionsNav.nav-tabs a.nav-link.active,
-#ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
-  background-color: rgba(255, 255, 255, 0.6);
-  border-color: rgba(190, 190, 190, 0.4);
-  color: rgba(0, 128, 0, 1);
-}
-
-#ModuleOptionsNav.nav-tabs a.nav-link.active > span {
-  border-bottom: 0 none;
-}
-
-#ModuleOptionsNav.nav-tabs a.nav-link:hover {
-  background-color: rgba(238, 238, 238, 0.76);
-  border-color: transparent;
-}
-
-.options-summary {
-  margin-top: 10px;
-  font-style: italic;
-  font-size: 12px;
-}
-
-.options_form_for .tab-content {
-  border-top: 0 none;
-  padding-top: 14px;
-}
-
-.options_form_for .option_form_row.row {
-  margin-bottom: 10px;
-  padding: 10px 0;
-}
-
-.options_form_for .option_form_row.row .option-help-container {
-  opacity: 0.3;
-  transition: opacity 0.5s;
-}
-.options_form_for .option_form_row.row .option-help-container a {
-  color: $dark;
-  transition: color 0.5s;
-}
-
-.options_form_for .option_form_row.row:hover .option-help-container {
-  opacity: 1.0;
-}
-.options_form_for .option_form_row.row:hover .option-help-container a {
-  color: $primary !important;
-}
-
-.option-help-container .svg-container > svg {
-  width: 18px;
-  height: 18px;
-}
-
-.options_form_for .option-description p {
-  margin-bottom: 5px;
-}
-
-.options_form_for .option_label_name {
-  position: relative;
-  /*display: block;*/
-}
-
-.option_label_name .beacon-article > sup svg {
-  width: 14px;
-}
-
-.options_form_for .option_link_info > .dashicons {
-  font-size: 16px;
-  text-decoration: none;
 }
 
 .introjs-helperLayer {
@@ -1193,17 +1085,48 @@ td.status_file_size {
 }
 
 #AptoOffcanvas .offcanvas-header {
-  background-color: white;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+  background: $surface-color-neutral-raised;
+  border-bottom: 1px solid $border-color-neutral-subtle;
+  box-shadow: none;
+  position: relative;
+}
+
+#AptoOffcanvas .offcanvas-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: $accent-color-salt-green-soft;
+}
+
+#AptoOffcanvas .offcanvas-title {
+  margin-top: 2px;
+}
+
+#AptoOffcanvas .offcanvas-header .btn-close {
+  border: 1px solid $border-color-neutral-subtle;
+  border-radius: 8px;
+  background-color: #ffffff;
+  opacity: 0.8;
+}
+
+#AptoOffcanvas .offcanvas-header .btn-close:hover {
+  opacity: 1;
 }
 
 #AptoOffcanvas .offcanvas-body {
-  background-color: #f1f1f1;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+  background: $surface-color-neutral-base;
+  box-shadow: none;
+  padding: 15px 15px 18px;
 }
 
 #AptoOffcanvas.offcanvas {
   min-width: 600px;
+  background: $surface-color-neutral-base;
+  border-left: 1px solid $border-color-neutral-subtle;
+  box-shadow: -8px 0 20px rgba(15, 23, 42, 0.09);
 }
 
 #AptoOffcanvas.offcanvas_modconfig,
@@ -1212,7 +1135,7 @@ td.status_file_size {
 }
 
 #AptoOffcanvas.offcanvas_ipanalysis {
-  width: 800px;
+  width: 920px;
 }
 
 #AptoOffcanvas.offcanvas_form_report_create {
@@ -1221,13 +1144,6 @@ td.status_file_size {
 
 #AptoOffcanvas.offcanvas_search_help {
   width: 600px;
-}
-
-.row.option_form_row.focus_option {
-  background-color: #e1ffdebb;
-  border: 1px solid #00800044;
-  border-radius: 5px;
-  box-shadow: 2px 2px 2px rgb(0 0 0 / 10%);
 }
 
 .inner-page-header .dropstart button {
@@ -1261,21 +1177,31 @@ td.status_file_size {
 
 .shield_loading_placeholder .activity {
   position: absolute;
-  left: -45%;
+  left: -55%;
   height: 100%;
-  width: 45%;
-  background-image: linear-gradient(to left, rgba(251, 251, 251, .05), rgba(251, 251, 251, .3), rgba(251, 251, 251, .6), rgba(251, 251, 251, .3), rgba(251, 251, 251, .05));
-  background-image: -moz-linear-gradient(to left, rgba(251, 251, 251, .05), rgba(251, 251, 251, .3), rgba(251, 251, 251, .6), rgba(251, 251, 251, .3), rgba(251, 251, 251, .05));
-  background-image: -webkit-linear-gradient(to left, rgba(251, 251, 251, .05), rgba(251, 251, 251, .3), rgba(251, 251, 251, .6), rgba(251, 251, 251, .3), rgba(251, 251, 251, .05));
-  animation: loading 1.5s infinite;
+  width: 55%;
+  background-image: linear-gradient(90deg, rgba(251, 251, 251, 0), rgba(251, 251, 251, 0.25), rgba(251, 251, 251, 0.55), rgba(251, 251, 251, 0.25), rgba(251, 251, 251, 0));
+  animation: shield_loading_placeholder_shimmer 1.6s linear infinite;
   z-index: 45;
+  will-change: left;
 }
 
-@keyframes loading {
+@keyframes shield_loading_placeholder_shimmer {
   0% {
-    left: -45%;
+    left: -55%;
   }
   100% {
+    left: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shield_loading_placeholder .activity {
+    animation: none;
+    left: 0;
+    width: 100%;
+    background-image: none;
+    background-color: rgba(251, 251, 251, 0.18);
   }
 }
 
@@ -1321,12 +1247,6 @@ td.status_file_size {
   background: #f9f9f9;
 }
 
-.dashboard_overview_widget .card.text-bg-secondary a,
-.dashboard_overview_widget .card.text-bg-danger a,
-.dashboard_overview_widget .card.text-bg-success a {
-  color: white;
-}
-
 .live_logs .output {
   background-color: transparent;
   border: 1px solid transparent;
@@ -1345,10 +1265,6 @@ td.status_file_size {
   position: relative;
   width: 100%;
   min-height: 140px;
-}
-
-.stat.card .shield-chart {
-  min-height: 120px;
 }
 
 .inner-page-header .inner-page-config button.dropdown-toggle {

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-09 12:10+0000\n"
-"PO-Revision-Date: 2025-12-09 12:10+0000\n"
+"POT-Creation-Date: 2026-02-16 11:50+0000\n"
+"PO-Revision-Date: 2026-02-16 11:50+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = 已开启；\"N\" = 已关闭"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s（常量 <code>WP_MEMORY_LIMIT: %s</code>）"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (常量 <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s 刚刚登录到 %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s 和 %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s 使用我们的 %2$s(我们独家的、不可见的、符合 GDPR 的 Bot 检测技术)拦截所有自动 Bot 标记为垃圾。"
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "%1$s Bot 最低分数相当低(%2$s)。"
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s 无法确定 %2$s JS 是否在您的站点上正确加载。"
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s 提供集成,可保护您正在使用的第三方插件的表单:%2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s 已发现当前安装的 %2$s 插件版本存在已知安全漏洞。"
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s 已成功选择以下位置创建其临时目录:%2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s 是 %2$s 独有的服务,可保护您的 wp-config.php 文件。"
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s 是来自 %2$s 的专用邮件投递服务。"
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s 是 %2$s 的独家 Bot 检测技术,对访客不可见,无需用户与登录 CAPTCHA 交互。"
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "当设置为最低分数 %2$s 时,%1$s 已禁用。"
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s 是我们专为 %2$s 开发的 Bot 检测技术,无需可见的 CAPTCHA 和类似的访客挑战。"
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s 将此评论标记为\"%2$s\"。"
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "已使用 %1$s，共 %2$s（未使用：%3$s）"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s:%2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s:%2$s。"
+
+msgid "%d locale(s) available."
+msgstr "有 %d 个地区语言可用。"
+
+msgid "%d locale(s) in queue."
+msgstr "队列中有 %d 个地区语言。"
+
+msgid "%d translation is queued for download"
+msgstr "%d 个翻译已排队等待下载"
+
+msgid "%d translations are queued for download"
+msgstr "%d 个翻译已排队等待下载"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s（JSON 编码）"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA 提供商已启用"
 
 msgid "%s API Token Missing."
 msgstr "%s API 令牌缺失。"
+
+msgid "%s Anti-Spam"
+msgstr "%s 反垃圾信息"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot 技术"
 
 msgid "%s Auto-Unblock"
 msgstr "%s 自动解除拦截"
@@ -37,29 +115,92 @@ msgstr "%s 自动解除拦截"
 msgid "%s Bot Check Failed."
 msgstr "%s Bot 检查失败。"
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "%s Bot 检测未保护您的 WordPress 登录免受暴力破解攻击。"
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "%s Bot 检测未保护您的 WordPress 找回密码表单。"
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "%s Bot 检测未保护您的 WordPress 注册。"
+
+msgid "%s Bot Minimum Score"
+msgstr "%s Bot 最低分数"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s Bot 分数(百分比)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "%s Bot 挑战复杂度过低 - 建议提高。"
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s 检查无效（模块）"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%s 评论标记为垃圾防护"
+
+msgid "%s Complexity"
+msgstr "%s 复杂度"
+
+msgid "%s Deactivated"
+msgstr "%s 已停用"
 
 msgid "%s Debug Information"
 msgstr "%s 调试信息"
 
+msgid "%s Emails"
+msgstr "%s 邮件"
+
+msgid "%s Fail"
+msgstr "%s 失败"
+
+msgid "%s Features"
+msgstr "%s 功能"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s 防火墙已拦截对您 WordPress 站点的请求。"
+
+msgid "%s For Logins"
+msgstr "%s 登录防护"
+
+msgid "%s Free Trial"
+msgstr "%s 免费试用"
 
 msgid "%s Home"
 msgstr "%s 主页"
 
+msgid "%s Home Page"
+msgstr "%s 主页"
+
+msgid "%s IP Reputation Score"
+msgstr "%s IP 信誉评分"
+
+msgid "%s Info"
+msgstr "%s 信息"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s 智能 IP 拦截"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s 刚刚登录到 %s"
+msgid "%s Issue"
+msgstr "%s 问题"
+
+msgid "%s Issues"
+msgstr "%s 问题"
+
+msgid "%s License Cleared"
+msgstr "%s 许可证已清除"
+
+msgid "%s License Management"
+msgstr "%s 许可证管理"
 
 msgid "%s Login Verification"
 msgstr "%s 登录验证"
 
 msgid "%s Lookup"
 msgstr "%s 查询"
+
+msgid "%s Option Key"
+msgstr "%s 选项键"
 
 msgid "%s Plugin Badge"
 msgstr "%s 插件徽章"
@@ -70,6 +211,24 @@ msgstr "%s 插件配置"
 msgid "%s Plugin options updated successfully."
 msgstr "%s 插件选项更新成功。"
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s 插件 – 未满足站点最低要求"
+
+msgid "%s Premium Security"
+msgstr "%s 高级安全"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro 可从我们的在线商店获取。"
+
+msgid "%s Pro store"
+msgstr "%s Pro 商店"
+
+msgid "%s Registration"
+msgstr "%s 注册"
+
+msgid "%s Scanners."
+msgstr "%s 扫描器。"
+
 msgid "%s Security Insights"
 msgstr "%s 安全洞察"
 
@@ -79,14 +238,35 @@ msgstr "已应用 %s 安全限制"
 msgid "%s Status Report"
 msgstr "%s 状态报告"
 
+msgid "%s Success"
+msgstr "%s 成功"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s 用户双因素认证提供商已启用"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s 用户双因素认证：已启用任何"
+
 msgid "%s Website Security Report"
 msgstr "%s 网站安全报告"
 
-msgid "%s and %s"
-msgstr "%s 和 %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "%s bot 检测未运行,因为最低分数设置为 0。"
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "%s Bot 检测未运行,因为当前未对机器人进行挑战。"
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s 还可以扫描您的插件和主题以查找已知漏洞。"
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s 可以自动与第三方插件集成。"
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s 可以自动保护第三方登录和注册表单免受 Bot 攻击。"
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s 无法检测到任何 IP 地址。这代表严重的虚拟主机配置问题。"
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s 会非常快速地创建风险评估,因为它在许多独立区域跟踪恶意访客。"
@@ -100,29 +280,41 @@ msgstr "%s 天"
 msgid "%s days"
 msgstr "%s 天"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "%s 检测未应用,因为您尚未选择任何要保护的表单,例如登录或注册表单。"
+
 msgid "%s directory"
 msgstr "%s 目录"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s 功能众多,因此可能很难知道从哪里开始。"
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s 通常不会扫描已登录或已注册用户发表的评论。"
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "%s 事件定义为空或格式不正确。"
 
 msgid "%s extension is unavailable."
 msgstr "%s 扩展不可用。"
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "%s for WordPress v20 介绍"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s 已采取必要措施拦截该请求。"
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s 提供了一个可用的集成,用于保护您正在使用的第三方插件的表单:%s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s 发现当前安装的 %s 插件版本存在已知安全漏洞。"
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s 已成功选择以下位置来创建其临时目录:%s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s 是 %s 的独家服务,可保护您的 wp-config.php 文件。"
-
 msgid "%s is a child of another theme."
 msgstr "%s 是另一个主题的子主题。"
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s 是一个强大的 WordPress 安全服务,已部署在超过 40,000 个 WordPress 网站上。"
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s 已禁用,因为未提供最低 bot 评分阈值。"
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s 已启用,并设置了最低 bot 评分阈值。"
 
 msgid "%s is not currently protecting your site."
 msgstr "%s 当前未保护您的站点。"
@@ -130,14 +322,26 @@ msgstr "%s 当前未保护您的站点。"
 msgid "%s is not protecting your site"
 msgstr "%s 未保护您的站点"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s 是我们的 WordPress 恶意 Bot 检测技术。"
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s 是我们独有的 AI 驱动的恶意软件扫描和检测引擎。"
 
 msgid "%s is protected against tampering."
 msgstr "%s 已受到防篡改保护。"
 
+msgid "%s isn't activated on this site."
+msgstr "%s 未在此站点上启用。"
+
+msgid "%s isn't installed on this site."
+msgstr "%s 未在此站点上安装。"
+
 msgid "%s isn't protected against tampering."
 msgstr "%s 未受到防篡改保护。"
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s 未保护您的 WP 评论免受 bot 标记为垃圾。"
 
 msgid "%s item processed"
 msgstr "已处理 %s 个项目"
@@ -145,8 +349,11 @@ msgstr "已处理 %s 个项目"
 msgid "%s items processed"
 msgstr "已处理 %s 个项目"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s 将此评论标记为\"%s\"。"
+msgid "%s license check failed."
+msgstr "%s 许可证检查失败。"
+
+msgid "%s license check was successful."
+msgstr "%s 许可证检查成功。"
 
 msgid "%s minute"
 msgstr "%s 分钟"
@@ -172,8 +379,8 @@ msgstr "%s 次违规"
 msgid "%s offenses until block"
 msgstr "距离拦截还有 %s 次违规"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s 提供电子邮件、Yubikey、Google Authenticator 和 U2F。"
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s 提供邮件、Yubikey、Google Authenticator 和 Passkeys。"
 
 msgid "%s options and modules"
 msgstr "%s 选项和模块"
@@ -181,11 +388,56 @@ msgstr "%s 选项和模块"
 msgid "%s per day"
 msgstr "每天 %s 次"
 
+msgid "%s plugin activated"
+msgstr "%s 插件已启用"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s 插件无法启用"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s 插件无法停用"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s 插件无法安装"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s 插件无法更新"
+
+msgid "%s plugin deactivated"
+msgstr "%s 插件已停用"
+
+msgid "%s plugin installed"
+msgstr "%s 插件已安装"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s 插件已安装但未启用。"
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s 插件已安装，但未启用。"
+
+msgid "%s plugin needs to sync."
+msgstr "%s 插件需要同步。"
+
+msgid "%s plugin not detected in last sync."
+msgstr "上次同步中未检测到 %s 插件。"
+
+msgid "%s plugin updated"
+msgstr "%s 插件已更新"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s 插件版本不同步。"
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s 保护站点访客，并在监控网络流量和文件系统更改的同时拦截潜在的黑客攻击。"
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s 提供内置集成,保护第三方插件的表单免受标记为垃圾 Bot 攻击。"
+
 msgid "%s scan remaining."
 msgstr "剩余 %s 次扫描。"
+
+msgid "%s scans cannot execute."
+msgstr "%s 扫描无法执行。"
 
 msgid "%s scans remaining."
 msgstr "剩余 %s 次扫描。"
@@ -205,14 +457,14 @@ msgstr "%s 次"
 msgid "%s tools and features"
 msgstr "%s 工具和功能"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "已使用 %s / %s(未使用:%s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s 尝试自动执行此操作,虽然 99% 的情况下都能正常工作,但有时奇怪的主机配置会导致一些问题。"
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s 使用定期更新的常用标记为垃圾内容词典来拦截此类标记为垃圾内容。"
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "站点上的 %s 版本与此服务器不匹配。"
 
 msgid "%s was added to your profile."
 msgstr "%s 已添加到您的个人资料。"
@@ -223,11 +475,26 @@ msgstr "%s 已从您的个人资料中移除。"
 msgid "%s was successfully added to your account."
 msgstr "%s 已成功添加到您的账户。"
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s 将自动扫描您的第三方插件,检查是否有可用的内置集成。"
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s 将延迟升级,直到新更新已可用设定的天数。"
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s 将检测尝试登录您站点的 Bot,而不会挑战您的合法用户。"
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s 将检测尝试向您站点发布评论标记为垃圾的 Bot,而不会挑战您的合法访客。"
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s 将使用我们的 silentCAPTCHA 技术限制对 WordPress 表单的尝试次数，从而保护它们免受 Bot 攻击。"
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "此站点未启用 %s 的 MainWP 集成。"
+
+msgid "%s's Rules Engine isn't running."
+msgstr "%s 的规则引擎未运行。"
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "%s 的安全管理员系统为普通 WordPress 管理后台提供了额外的安全层。"
@@ -238,11 +505,14 @@ msgstr "%s 的自动 IP 拦截功能将在您的防御机制被触发后通过�
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s 的防护当前已禁用,因此在重新启用之前,此处所做的任何更改都不会应用。"
 
-msgid "%s: %s"
-msgstr "%s：%s"
+msgid "%s, Founder Introduction"
+msgstr "%s,创始人介绍"
 
-msgid "%s: %s."
-msgstr "%s：%s。"
+msgid "%sv1 Registration"
+msgstr "%sv1 注册"
+
+msgid "%sv2 Registration"
+msgstr "%sv2 注册"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ 开启 Pro ↑"
@@ -273,6 +543,9 @@ msgstr "(当锁定禁用时,IP 地址将自动从白名单中移除)"
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... 以及 %s 个更多"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/ 目录未被扫描。"
@@ -397,9 +670,6 @@ msgstr "以下文件类型生成的 404 错误不会触发违规"
 msgid "5-minute"
 msgstr "5 分钟"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 天"
 
@@ -411,6 +681,9 @@ msgstr "："
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>正在扫描</strong>您的 WordPress 核心文件和目录以查找更改和新文件。"
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "对访客执行了 %s Bot 检查,但设置中的 Bot 拦截选项已禁用。"
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "无法创建文件差异比较,因为没有可供我们比较的官方文件。"
@@ -445,6 +718,9 @@ msgstr "您 WordPress 托管服务器软件的高级概览。"
 msgid "A high-level overview of your WordPress updates status."
 msgstr "您 WordPress 更新状态的高级概览。"
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "许可证已启用。使用 --force 重新启用。"
+
 msgid "A light-touch security profile"
 msgstr "轻量级安全配置"
 
@@ -456,6 +732,9 @@ msgstr "永远不会触发违规的请求路径列表。"
 
 msgid "A login to your WordPress account just occurred"
 msgstr "您的 WordPress 账户刚刚登录"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "%s 投入了大量工作,我们需要您的帮助来宣传它。:)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "新的一次性密码已发送至您的电子邮件地址。"
@@ -475,8 +754,8 @@ msgstr "稳健的安全态势"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "分数为\"100\"意味着几乎可以肯定是好的，分数为\"0\"意味着很可能是恶意 bot。"
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "对访客执行了 silentCAPTCHA Bot 检查,但设置中的 Bot 拦截选项已禁用。"
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "已生成安全警报。查看下方的问题并在需要时采取动作。"
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "您的 WordPress 账户刚刚成功登录。"
@@ -498,6 +777,12 @@ msgstr "AI 恶意软件扫描器、自动文件修复、WP 配置保护等,这�
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API 密钥不能为空。"
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "启用需要 API 密钥。使用 --api-key=YOUR_KEY"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "应用密码身份验证 - 无效邮箱"
@@ -523,8 +808,8 @@ msgstr "发现已废弃的插件"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "已废弃的 WordPress.org 插件"
 
-msgid "Absolutely"
-msgstr "绝对"
+msgid "About %s for WordPress"
+msgstr "关于 %s for WordPress"
 
 msgid "Accept Changes"
 msgstr "接受更改"
@@ -571,20 +856,23 @@ msgstr "动作和信息"
 msgid "Activate"
 msgstr "启用"
 
+msgid "Activate %s"
+msgstr "启用 %s"
+
+msgid "Activate %s License"
+msgstr "启用 %s 许可证"
+
 msgid "Activate Only"
 msgstr "仅启用"
+
+msgid "Activate Pro License"
+msgstr "启用 Pro 许可证"
 
 msgid "Activate Rule"
 msgstr "启用规则"
 
-msgid "Activate Shield"
-msgstr "启用 Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "启用 ShieldPRO 许可证"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "启用您的 ShieldPRO 许可证"
+msgid "Activate Your %s License"
+msgstr "启用您的 %s 许可证"
 
 msgid "Activate Your White Label Settings"
 msgstr "启用您的白标签设置"
@@ -673,14 +961,14 @@ msgstr "已添加的表"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "升级计划后可使用其他 IP 拦截列表。"
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "调整 %s 挑战复杂度"
+
 msgid "Adjust Scan Results Display"
 msgstr "调整扫描结果显示"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "调整 HTTP 安全标头的部署"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "调整 silentCAPTCHA 挑战复杂度"
 
 msgid "Admin Access Login"
 msgstr "管理后台访问登录"
@@ -751,17 +1039,26 @@ msgstr "超前于服务器"
 msgid "Alert"
 msgstr "警报"
 
+msgid "Alert Report Generated"
+msgstr "警报报告已生成"
+
+msgid "Alert Report Generated."
+msgstr "警报报告已生成。"
+
 msgid "Alert Reports Frequency"
 msgstr "警报报告频率"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "警报插件/主题漏洞。Shield 随后可以在更新可用时自动升级。"
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "插件/主题漏洞警报。%s 可在更新可用时自动部署升级。"
 
 msgid "Algorithm not supported"
 msgstr "不支持的算法"
 
-msgid "Align Shield"
-msgstr "对齐 Shield"
+msgid "Align %s"
+msgstr "对齐 %s"
+
+msgid "All Clear"
+msgstr "全部清除"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "已从 ID 为 %s 的用户移除所有多因素认证提供商。"
@@ -784,8 +1081,8 @@ msgstr "因此对此网站的所有访问均受到限制。"
 msgid "All access to your site is blocked."
 msgstr "对您站点的所有访问均已被拦截。"
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "所有验证 Shield Pro 许可证的尝试均已失败。"
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "验证 %s Pro 许可证的所有尝试均已失败。"
 
 msgid "All available plugin updates have been applied."
 msgstr "所有可用的插件更新已应用。"
@@ -795,6 +1092,9 @@ msgstr "所有可用的主题更新已应用。"
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "所有字符将被视为不区分大小写。"
+
+msgid "All clear"
+msgstr "全部清除"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "所有自定义事件键必须是字符串、小写、长度 10-50、以\"custom_\"为前缀，并且仅包含字母和下划线。"
@@ -979,8 +1279,8 @@ msgstr "每当访客触发 %s 插件的防御时，就会对 IP 地址记录违�
 msgid "An unsupported profile was selected"
 msgstr "选择了不支持的配置文件"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Shield 插件有可用的升级。"
+msgid "An upgrade is available for the %s plugin."
+msgstr "%s 插件有可用的升级。"
 
 msgid "Analyse & Fix"
 msgstr "分析并修复"
@@ -1054,8 +1354,8 @@ msgstr "任何人都可以注册"
 msgid "Anyone can register"
 msgstr "任何人都可以注册"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "任何人都可以注册已更改:%s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "任何人都可以注册已更改:%1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "应用密码已禁用"
@@ -1093,8 +1393,8 @@ msgstr "对大量请求应用速率限制。"
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "应用 CSP 标头可能会影响您站点对访客的功能，因此我们不在本节中提供任何直接建议。"
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Shield Security 的限制是否已启用？"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "%s 的限制是否已启用？"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "WordPress 固定链接是否已启用。"
@@ -1108,11 +1408,11 @@ msgstr "您确定要删除此 IP 规则吗?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "您确定要保留文件更改吗?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "您确定要移除 ShieldPRO 许可证吗?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "您确定要移除 %s 许可证吗？"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "您确定要将 Shield 插件重置为默认设置吗?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "您确定要将 %s 插件重置为默认值吗?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "您确定要恢复原始文件内容吗？"
@@ -1132,11 +1432,11 @@ msgstr "一如既往，您使用和依赖此服务的风险由您自行承担。
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "随着每个问题的解决,总体得分将提高,最高可达 100%。"
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "根据您的要求，%s 正在通知您成功 %s 登录到您管理的 WordPress 站点。"
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "根据您的要求,%1$s 正在通知您成功 %2$s 登录到您管理的 WordPress 站点。"
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "一旦检测到兼容的插件,Shield 将自动开启内置集成。"
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "一旦检测到兼容的插件,%s 将自动启用内置集成。"
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "一旦检测到任何选定文件的更改，就可以检查和还原其内容。"
@@ -1155,9 +1455,6 @@ msgstr "您的插件或主题中至少有 1 个似乎已被修改。"
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "必须提供至少 1 个选项,默认为 WP 管理后台区域内的用户个人资料页面。"
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "已为您的站点生成至少 1 份安全报告。"
 
 msgid "At least two records are required to merge."
 msgstr "至少需要两条记录才能合并。"
@@ -1198,8 +1495,8 @@ msgstr "剩余尝试次数：%s。"
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "尝试自动修复已更改或感染恶意软件的文件。"
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "验证 Shield Pro 许可证的尝试刚刚失败。"
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "验证 %s Pro 许可证的尝试刚刚失败。"
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "可能包含电子邮件地址的审计跟踪消息"
@@ -1408,8 +1705,8 @@ msgstr "自动检测并修复存在漏洞和可疑的文件、插件和主题。
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "自动检测并启用可用的第三方集成"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "自动遵守 Shield 现有的白名单规则和例外。"
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "自动遵守 %s 现有的白名单规则和例外。"
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "自动导入选项，并在整个网络中部署配置。"
@@ -1504,6 +1801,9 @@ msgstr "对任何管理员账户的重要更改接收警报"
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "接收已知存在安全漏洞的插件和主题的警报"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "当 %s 插件被停用时接收警报"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "当 Shield 插件被停用时接收警报"
 
@@ -1528,11 +1828,11 @@ msgstr "Beta 访问"
 msgid "Block %s"
 msgstr "区块 %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "使用 silentCAPTCHA 100% 拦截 Bot 评论标记为垃圾"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "使用 %s 拦截 100%% 机器人评论标记为垃圾"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "使用 silentCAPTCHA 拦截 99.9%% 的所有 WordPress 评论标记为垃圾。"
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "使用 %s 拦截 99.9%% 的所有 WordPress 评论标记为垃圾。"
 
 msgid "Block Anon REST API"
 msgstr "拦截匿名 REST API"
@@ -1668,9 +1968,6 @@ msgstr "已拦截来自 Bot 的标记为垃圾评论。"
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "已拦截未通过 AntiBot 测试的标记为垃圾评论。"
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "已拦截未通过 reCAPTCHA 的标记为垃圾评论。"
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "拦截了未满足策略要求的密码更新尝试。"
@@ -1819,8 +2116,8 @@ msgstr "暴力破解登录防护"
 msgid "Brute Force Login Protection"
 msgstr "暴力破解登录防护"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "使用 silentCAPTCHA 的暴力破解登录防护"
+msgid "Brute Force Login Protection with %s"
+msgstr "使用 %s 的暴力破解登录防护"
 
 msgid "Brute Force Protection"
 msgstr "暴力破解防护"
@@ -1828,8 +2125,8 @@ msgstr "暴力破解防护"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "暴力破解流量速率限制"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "针对您 WordPress 登录的暴力破解 bot 攻击会被 silentCAPTCHA 检测并拦截。"
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "%s 检测并拦截针对您 WordPress 登录的暴力破解 bot 攻击。"
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "暴力破解登录攻击不会被登录冷却系统拦截。"
@@ -1846,14 +2143,14 @@ msgstr "构建自定义安全规则"
 msgid "Building scan items for scan: %s"
 msgstr "正在为扫描构建扫描项目：%s"
 
-msgid "Built-In Shield Integrations"
-msgstr "内置 Shield 集成"
+msgid "Built-In %s Integrations"
+msgstr "内置 %s 集成"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "默认情况下,Shield 会在管理区域和管理栏中显示非必要通知。"
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "默认情况下,%s 在管理区域和管理栏中显示非必要通知。"
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "默认情况下,Shield 会自动配置以保护您的站点免受众多威胁,并拦截恶意访客和 bot,而无需您执行任何操作。"
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "默认情况下,%s 会自动配置以保护您的站点免受众多威胁,并拦截恶意访客和机器人,无需您进行任何操作。"
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "通过将防火墙的信号与所有其他安全组件的信号联系起来，%s 会随着时间的推移建立访客档案，以确定谁是人类、谁是机器人，以及谁是善意或恶意的。"
@@ -1863,21 +2160,6 @@ msgstr "绕过"
 
 msgid "Bypass IP"
 msgstr "绕过 IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA 失败"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA 通过"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA 测试失败。"
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA 测试成功。"
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA 很糟糕。"
@@ -1990,6 +2272,9 @@ msgstr "挑战失败"
 msgid "Challenge has expired."
 msgstr "挑战已过期。"
 
+msgid "Change"
+msgstr "变更"
+
 msgid "Change Detected"
 msgstr "检测到变化"
 
@@ -2005,11 +2290,14 @@ msgstr "更改双因素认证邮件选项当前对您不可用。"
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "更改备用代码选项当前对您不可用。"
 
+msgid "Check %s License"
+msgstr "检查 %s 许可证"
+
+msgid "Check For %s License"
+msgstr "检查 %s 许可证"
+
 msgid "Check License"
 msgstr "检查许可证"
-
-msgid "Check ShieldPRO License"
-msgstr "检查 ShieldPRO 许可证"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "检查并验证此文件的内容,以确保它不是恶意的。"
@@ -2044,14 +2332,14 @@ msgstr "子级"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "选择将部署 silentCAPTCHA 机器人防护的表单。"
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "如果 WP 登录页面与双因素认证存在冲突或问题，请选择自定义 Shield 页面。"
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "如果 WP 登录页面与双因素身份验证存在冲突或问题,请选择自定义 %s 页面。"
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "选择将部署机器人防护措施的表单。"
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "根据您的日程安排，选择最合适的频率来接收来自 Shield 的警报。"
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "根据您的日程安排,选择最合适的频率来接收来自 %s 的警报。"
 
 msgid "Choose the page type for MFA verification"
 msgstr "选择 MFA 验证的页面类型"
@@ -2121,6 +2409,9 @@ msgstr "点击立即移除 Google Authenticator 登录身份验证。"
 
 msgid "Click to launch plugin search modal"
 msgstr "点击启动插件搜索模态框"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "点击在 WordPress.org 上留下评价 ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "点击查看将要发送的原始数据"
@@ -2200,8 +2491,8 @@ msgstr "评论标记为垃圾已拦截。"
 msgid "Comment SPAM Protection"
 msgstr "评论标记为垃圾防护"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "评论标记为垃圾防护：%s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "评论标记为垃圾防护：%1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "评论状态已更新"
@@ -2269,6 +2560,12 @@ msgstr "配置"
 msgid "Config Pages For User 2FA Setup"
 msgstr "用户 2FA 设置的配置页面"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "无需配置,因为仅检测到 1 个不同的 IP 地址。"
+
+msgid "Configure"
+msgstr "配置"
+
 msgid "Configure All '%s' Options"
 msgstr "配置所有\"%s\"选项"
 
@@ -2308,9 +2605,6 @@ msgstr "确认"
 msgid "Confirmation email will be sent to %s"
 msgstr "确认邮件将发送至 %s"
 
-msgid "Confirmation link"
-msgstr "确认链接"
-
 msgid "Connected"
 msgstr "已连接"
 
@@ -2329,8 +2623,8 @@ msgstr "联系表单标记为垃圾"
 msgid "Contact Form SPAM Checking"
 msgstr "联系表单标记为垃圾检查"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "联系表单标记为垃圾只能通过为每个表单提供商定制集成来拦截 - 如果您的表单不受支持，请联系我们的支持团队。"
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "联系表单标记为垃圾只能通过为每个表单提供商定制的集成来拦截 - 如果您的表单不受支持,请联系我们的支持团队。"
 
 msgid "Contact Forms Integration"
 msgstr "联系表单集成"
@@ -2395,8 +2689,8 @@ msgstr "坐标"
 msgid "Core Reinstalled: v%s"
 msgstr "核心已重新安装:v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "核心已升级:%s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "核心已升级:%1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "已建立的用户会话 ({{user_login}}) 的核心属性已更改。"
@@ -2443,8 +2737,8 @@ msgstr "无法创建目录：%s"
 msgid "Couldn't create the export file."
 msgstr "无法创建导出文件。"
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "无法确定 Shield 插件状态。"
+msgid "Couldn't determine %s plugin status."
+msgstr "无法确定 %s 插件状态。"
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "无法加载 slug 为\"%s\"的插件。"
@@ -2455,11 +2749,17 @@ msgstr "无法加载 slug 为\"%s\"的主题。"
 msgid "Couldn't read MU plugin template from %s"
 msgstr "无法从 %s 读取 MU 插件模板"
 
+msgid "Count"
+msgstr "次数"
+
 msgid "Country"
 msgstr "国家"
 
 msgid "Country Code"
 msgstr "国家代码"
+
+msgid "Create %s Network"
+msgstr "创建 %s 网络"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "创建备用 2FA 登录代码"
@@ -2482,9 +2782,6 @@ msgstr "创建新规则"
 msgid "Create Report"
 msgstr "创建报告"
 
-msgid "Create Shield Network"
-msgstr "创建 Shield 网络"
-
 msgid "Create and view all your custom security rules."
 msgstr "创建并查看您的所有自定义安全规则。"
 
@@ -2502,6 +2799,9 @@ msgstr "在此处创建路径将禁用您的\"wp-login.php\"。仅允许使用�
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "创建自定义规则是一项高级功能，我对因我创建的规则而产生的任何问题承担全部责任。"
+
+msgid "Critical"
+msgstr "关键"
 
 msgid "Critical File Protection"
 msgstr "关键文件保护"
@@ -2578,9 +2878,6 @@ msgstr "当前文件内容"
 msgid "Current Scan"
 msgstr "当前扫描"
 
-msgid "Current Scan Results"
-msgstr "当前扫描结果"
-
 msgid "Current Session Age (seconds)"
 msgstr "当前会话时长(秒)"
 
@@ -2589,9 +2886,6 @@ msgstr "当前会话已终止"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "当前会话令牌时长(秒)"
-
-msgid "Current Summary"
-msgstr "当前摘要"
 
 msgid "Current User Sessions"
 msgstr "当前用户会话"
@@ -2619,9 +2913,6 @@ msgstr "自定义调试"
 
 msgid "Custom Exclusions"
 msgstr "自定义排除项"
-
-msgid "Custom Report on %s"
-msgstr "%s 上的自定义报告"
 
 msgid "Custom Rules"
 msgstr "自定义规则"
@@ -2704,14 +2995,14 @@ msgstr "日期范围"
 msgid "Day"
 msgstr "天"
 
+msgid "Deactivate %s"
+msgstr "停用 %s"
+
 msgid "Deactivate Akismet"
 msgstr "停用 Akismet"
 
 msgid "Deactivate Rule"
 msgstr "停用规则"
-
-msgid "Deactivate Shield"
-msgstr "停用 Shield"
 
 msgid "Deactivated"
 msgstr "已停用"
@@ -2727,9 +3018,6 @@ msgstr "调试已开启"
 
 msgid "Debug Tests"
 msgstr "调试测试"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "调试和信息日志记录应仅在调查特定问题时启用。"
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "决定当 Bot 执行某些动作时 %s 应如何响应。"
@@ -2749,8 +3037,8 @@ msgstr "默认管理员用户"
 msgid "Default User Role"
 msgstr "默认用户角色"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "默认用户角色已更改:%s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "默认用户角色已更改:%1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "默认:每 24 小时一次。要提高安全性,请增加每天扫描的次数。"
@@ -2806,14 +3094,11 @@ msgstr "已删除的表"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "已删除用户的文章已重新指派给用户 '{{user_login}}'。"
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "演示：Shield v20 的重要 UI 更改"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "演示:%s v20 的重要 UI 更改"
 
 msgid "Demoted From Admin"
 msgstr "已从管理员降级"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "根据您的设置，这些报告可能包含警报、统计数据和其他信息的组合。"
 
 msgid "Description"
 msgstr "描述"
@@ -2880,6 +3165,9 @@ msgstr "已检测"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "检测到使用无效邮箱地址 ({{email}}) 的用户注册。"
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "检测正确的访客 IP 地址对于区分每个站点访客至关重要。"
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "尽早检测并拦截它们是您最大的保护来源。"
@@ -2953,6 +3241,9 @@ msgstr "禁用模块"
 msgid "Disable Security Admin"
 msgstr "禁用 Security Admin"
 
+msgid "Disable Security Admin via Email"
+msgstr "通过邮件禁用 Security Admin"
+
 msgid "Disable Shield"
 msgstr "禁用 Shield"
 
@@ -2989,6 +3280,9 @@ msgstr "禁用 XML-RPC 端点并拦截所有请求。"
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "禁用此选项可隐藏某些关于可用更新和更新后通知的插件管理通知。"
 
+msgid "Disabled"
+msgstr "已停用"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "禁用匿名访问可能会破坏为站点访客使用 REST API 的插件。"
 
@@ -2998,8 +3292,8 @@ msgstr "已断开"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "发现可能已被作者放弃的插件"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "升级您的 Shield Security 计划,体验最全面的 WordPress 安全防护。"
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "升级您的 %s 计划,即可体验最全面的 WordPress 安全防护。"
 
 msgid "Discovered"
 msgstr "已发现"
@@ -3009,6 +3303,9 @@ msgstr "在您的站点上发现恶意软件并不是\"保护\"——实际上�
 
 msgid "Disk Space"
 msgstr "磁盘空间"
+
+msgid "Dismiss"
+msgstr "忽略"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "显示非必要插件通知和管理栏菜单"
@@ -3064,8 +3361,8 @@ msgstr "请求 IP 的主机名是否与给定主机名匹配。"
 msgid "Does the method of the request match the given specified method to match."
 msgstr "请求的方法是否与给定的指定匹配方法相匹配。"
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "请求是否绕过所有 Shield 限制。"
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "请求是否绕过任何和所有 %s 限制。"
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "请求是否包含具有提供名称的参数。"
@@ -3097,8 +3394,8 @@ msgstr "请求脚本名称是否与给定名称匹配。"
 msgid "Does the request useragent match the given useragent."
 msgstr "请求用户代理是否与给定的用户代理匹配。"
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "给定 Shield 会话参数的值是否与给定模式匹配。"
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "给定 %s Session 参数的值是否与给定模式匹配。"
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "给定请求参数的值是否与给定模式匹配。"
@@ -3115,8 +3412,8 @@ msgstr "不扫描具有以下角色的用户发表的评论"
 msgid "Don't want these email alerts?"
 msgstr "不想收到这些电子邮件提醒？"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "已降级:%s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "已降级:%1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "下载"
@@ -3130,6 +3427,9 @@ msgstr "将 IP 规则下载为 CSV"
 msgid "Download Modified"
 msgstr "下载已修改文件"
 
+msgid "Download Now"
+msgstr "立即下载"
+
 msgid "Download Options Export File"
 msgstr "下载选项导出文件"
 
@@ -3139,11 +3439,17 @@ msgstr "下载原始文件"
 msgid "Download Request Logs"
 msgstr "下载请求日志"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "下载失败。检查 ShieldNet API 是否可用以及语言环境是否存在。"
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "已从 CrowdSec 下载范围为 {{scope}} 的信誉决策。"
 
 msgid "Downloading file, please wait..."
 msgstr "正在下载文件，请稍候..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "正在下载语言环境 %s 的翻译"
 
 msgid "Duration"
 msgstr "持续时间"
@@ -3160,8 +3466,8 @@ msgstr "此列表中的每个站点都可以在不提供密钥的情况下从此
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "最简单、无挫折感的 WP 专业版升级"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "轻松集成 Shield Security,帮助您在 MainWP 中管理站点安全。"
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "轻松集成 %s,帮助您从 MainWP 内管理站点安全。"
 
 msgid "Edit"
 msgstr "编辑"
@@ -3169,8 +3475,8 @@ msgstr "编辑"
 msgid "Edit Rule"
 msgstr "编辑规则"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "编辑规则 #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "编辑规则 #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "编辑设置"
@@ -3220,8 +3526,8 @@ msgstr "编辑应用于登录和用户表单防护的设置"
 msgid "Edit settings that control automatic IP blocking"
 msgstr "编辑控制自动 IP 拦截的设置"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "编辑控制 silentCAPTCHA 如何检测 bot 的设置"
+msgid "Edit settings that control how %s detects bots"
+msgstr "编辑控制 %s 如何检测机器人的设置"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "编辑设置以应用最低密码强度"
@@ -3250,8 +3556,8 @@ msgstr "编辑此选项当前受到限制。"
 msgid "Either the country code or phone number were missing."
 msgstr "缺少国家/地区代码或电话号码。"
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "通过升级您的 Shield Security 计划,将您的 WordPress 安全提升至一流水平。"
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "通过升级 %s 计划,将您的 WordPress 安全提升至一流水平。"
 
 msgid "Email"
 msgstr "邮箱"
@@ -3304,8 +3610,8 @@ msgstr "新评论的电子邮件通知"
 msgid "Email sending has already been verified."
 msgstr "邮件发送已验证。"
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "从 %s 插件 v%s 发送的电子邮件，发送于 %s。"
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "邮件由 %1$s 插件 v%2$s 在 %3$s 上发送。"
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "邮件已发送。请确保链接在此浏览器中打开。"
@@ -3334,8 +3640,8 @@ msgstr "采用一组激进规则来检测和拦截提交到您站点的恶意数
 msgid "Empty User Agents"
 msgstr "空 User Agent"
 
-msgid "Empty response from Shield client site"
-msgstr "来自 Shield 客户端站点的响应为空"
+msgid "Empty response from %s client site"
+msgstr "来自 %s 客户端站点的响应为空"
 
 msgid "Empty root file provided for instantiation"
 msgstr "为实例化提供的根文件为空"
@@ -3568,14 +3874,20 @@ msgstr "错误"
 msgid "Error Log Message"
 msgstr "错误日志消息"
 
+msgid "Error: {{error}}"
+msgstr "错误:{{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "即使只是一行评价说您对它感到满意,也会对我们有很大帮助。"
+
 msgid "Event"
 msgstr "事件"
 
 msgid "Event %s does not exist."
 msgstr "事件 %s 不存在。"
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "事件 (%s) 定义包含不存在的审计参数：%s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "事件 (%1$s) 定义包含不存在的审计参数:%2$s"
 
 msgid "Event Details"
 msgstr "事件详情"
@@ -3661,6 +3973,9 @@ msgstr "连接到许可证服务器失败。"
 msgid "Failed to create custom report."
 msgstr "创建自定义报告失败。"
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "无法下载语言环境 {{locale}} 的翻译文件。"
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "无法为路径\"%s\"插入文件锁定记录"
 
@@ -3679,8 +3994,8 @@ msgstr "修复扫描项目失败。"
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "发送防火墙拦截邮件警报至 {{to}} 失败"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "使用 SureSend 发送邮件(类型:{{slug}})至\"{{email}}\"失败。"
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "使用 %s 向\"{{email}}\"发送邮件(类型:{{slug}})失败。"
 
 msgid "Failed to store the rule in the database."
 msgstr "无法将规则存储到数据库中。"
@@ -3796,8 +4111,8 @@ msgstr "文件内容无法加密。消息:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "加密后的文件内容无法进行 wp_json_encode()。"
 
-msgid "File detected as %s by %s scanner."
-msgstr "文件被 %s 扫描器检测为 %s。"
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "文件被 %2$s 扫描器检测为 %1$s。"
 
 msgid "File does not exist."
 msgstr "文件不存在。"
@@ -3997,14 +4312,17 @@ msgstr "已生成"
 msgid "Generating a new code will replace your existing code."
 msgstr "生成新代码将替换您现有的代码。"
 
+msgid "Get %s!"
+msgstr "获取 %s！"
+
 msgid "Get All PRO Security Features"
 msgstr "获取所有 PRO 安全功能"
 
-msgid "Get ShieldPRO!"
-msgstr "获取 ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "3 分钟内快速开始"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "立即获取 %s 的无风险、无义务免费试用。"
 
 msgid "Global Plugin Enable"
 msgstr "全局插件启用"
@@ -4039,6 +4357,9 @@ msgstr "开启 Pro！"
 msgid "Go To %s"
 msgstr "前往 %s"
 
+msgid "Go To %s Overview"
+msgstr "前往 %s 概览"
+
 msgid "Go To Admin"
 msgstr "前往管理后台"
 
@@ -4050,9 +4371,6 @@ msgstr "前往概览"
 
 msgid "Go To Security Dashboard"
 msgstr "前往安全仪表盘"
-
-msgid "Go To Shield Overview"
-msgstr "前往 Shield 概览"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "前往此处管理设置并使用 %s 插件进行身份验证。"
@@ -4111,14 +4429,14 @@ msgstr "要发送的 HTTP 响应标头"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "主页 URL 和 WP 站点 URL 的 HTTPS 设置不一致。"
 
-msgid "Handshake ShieldNET"
-msgstr "与 ShieldNET 握手"
+msgid "Handshake %s"
+msgstr "握手 %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "硬件双因素认证"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "具有有效的 Shield 用户会话"
+msgid "Has Valid %s User Sessions"
+msgstr "具有有效的 %s 用户会话"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "完全控制站点上用户使用的密码。"
@@ -4135,11 +4453,14 @@ msgstr "帮助台文章"
 msgid "Helpdesk and Knowledge Base"
 msgstr "帮助台和知识库"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "以下是 Shield 已经保护您站点的一些方式:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "以下是 %s 已经保护您站点的一些方式:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "在此选择要扫描的恶意数据类型。"
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "这是您在报告期间的安全概览。查看下方的任何问题并在需要时采取动作。"
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "然而，在这里，我们专注于用户账户本身，以确保它们处于安全状态。"
@@ -4189,8 +4510,8 @@ msgstr "主页 URL"
 msgid "Home URL Changed"
 msgstr "主页 URL 已更改"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "主页 URL 已更改:%s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "主页 URL 已更改:%1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "主页"
@@ -4297,11 +4618,14 @@ msgstr "人工标记为垃圾过滤器"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "人工标记为垃圾过滤器检测到重复的评论标记为垃圾尝试。"
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "人工标记为垃圾过滤器在\"%s\"中发现\"%s\""
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "人工标记为垃圾过滤器在\"%2$s\"中发现\"%1$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "人工标记为垃圾过滤器在\"{{key}}\"中发现\"{{word}}\""
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "人工垃圾邮件仍然是最令人沮丧的,因为它通常会绕过垃圾邮件防御。"
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "我了解现有选项将被覆盖"
@@ -4327,17 +4651,11 @@ msgstr "我知道如果我使用缓存并且之后不清除它，会给访客带
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "我了解拦截此站点所有流量的后果。"
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "我理解创建不遵守 Shield 白名单和例外规则的风险，如果被锁定，我可能难以重新获得访问权限。"
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "我理解创建不遵守 %s 白名单和例外规则的风险,如果被锁定,我可能会难以重新获得访问权限。"
 
 msgid "I'd like to learn more, please"
 msgstr "我想了解更多信息"
-
-msgid "I'd rather not show this support"
-msgstr "我不想显示此支持"
-
-msgid "I've done this already"
-msgstr "我已完成此操作"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "重要"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s 分数已重置。"
 
 msgid "IP Address"
 msgstr "IP 地址"
@@ -4552,9 +4873,6 @@ msgstr "IP 不在自动拦截列表中。"
 msgid "IP provided was invalid."
 msgstr "提供的 IP 无效。"
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA 分数已重置。"
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "如果用户被分配了多个角色,所有角色都将与此列表进�
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "如果检测到恶意数据,请求将立即终止。"
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "如果正确的设置不是 %s，我们建议联系您的托管服务提供商，请求他们配置您的托管，以便 %s 提供实际的访客 IP 地址。"
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "如果正确的设置不是 %1$s,我们建议联系您的托管服务提供商,要求他们配置您的托管,以便 %2$s 提供实际的访客 IP 地址。"
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "如果您想要的提供商不在列表中,请联系我们的支持团队,我们将看看是否可以构建集成。"
@@ -4642,8 +4960,8 @@ msgstr "如果用户在指定的小时数内处于非活动状态,他们将在�
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "如果用户在指定的小时数内处于非活动状态,他们将在下次返回时被强制注销。将此设置为\"0\"可关闭此选项。"
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "如果访客评分未达到您的最低 silentCAPTCHA 评分，我们可能会阻止该请求（例如登录、WP 评论等）。如果评分更高，我们将允许它。"
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "如果访客评分未达到您的最低 %s 评分,我们可能会阻止该请求(例如登录、WP 评论等)。如果评分更高,我们将允许它。"
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "如果这是 MainWP 客户端站点,您应该将 MainWP 管理服务器的 IP 地址添加到您的 IP 绕过列表中。"
@@ -4656,6 +4974,9 @@ msgstr "如果刷新此页面后仍显示此消息,请重新安装插件。"
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "如果此问题持续存在,请联系支持:%s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "如果您已经为此站点分配了 %s 许可证,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "如果您出于任何原因认为您或您用户的邮箱已被入侵,应禁用此选项。"
@@ -4702,11 +5023,8 @@ msgstr "如果您希望在每次管理员用户登录此 WordPress 站点时收�
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "如果您希望在每次管理员用户登录此 WordPress 站点时收到通知,请输入通知电子邮件地址。无电子邮件地址 - 无通知。"
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "如果您没有使用专用的邮件服务提供商来发送 WordPress 邮件,您应该为这些重要邮件启用 SureSend。"
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "如果您忘记了 PIN，请使用上方菜单禁用此限制。"
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "如果您没有使用专用的邮件服务提供商来发送 WordPress 邮件,您应该为这些重要邮件启用 %s。"
 
 msgid "Ignore"
 msgstr "忽略"
@@ -4737,9 +5055,6 @@ msgstr "导入通知已发送"
 
 msgid "Import Options"
 msgstr "导入选项"
-
-msgid "Import Settings From Another Site"
-msgstr "从另一个站点导入设置"
 
 msgid "Import file was empty"
 msgstr "导入文件为空"
@@ -4870,11 +5185,14 @@ msgstr "IP 地址 %s 的信息"
 msgid "Info Reports Frequency"
 msgstr "信息报告频率"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "仅在调查特定问题时才应启用信息日志记录。"
+
 msgid "Information and reports are typically statistics."
 msgstr "信息和报告通常是统计数据。"
 
-msgid "Install Shield"
-msgstr "安装 Shield"
+msgid "Install %s"
+msgstr "安装 %s"
 
 msgid "Installation Directory"
 msgstr "安装目录"
@@ -4909,6 +5227,9 @@ msgstr "间隔以秒为单位测量。"
 msgid "Invalid"
 msgstr "无效"
 
+msgid "Invalid %s extension configuration"
+msgstr "无效的 %s 扩展配置"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "无效动作随机数异常。"
 
@@ -4933,9 +5254,6 @@ msgstr "无效脚本加载"
 msgid "Invalid Scripts"
 msgstr "无效脚本"
 
-msgid "Invalid Shield extension configuration"
-msgstr "无效的 Shield 扩展配置"
-
 msgid "Invalid Slug"
 msgstr "无效别名"
 
@@ -4948,9 +5266,6 @@ msgstr "无效用户代理"
 msgid "Invalid User Email Registration"
 msgstr "无效用户邮箱注册"
 
-msgid "Invalid User-Agent"
-msgstr "无效 User-Agent"
-
 msgid "Invalid Username Login"
 msgstr "无效用户名登录"
 
@@ -4959,6 +5274,12 @@ msgstr "无效用户名"
 
 msgid "Invalid action"
 msgstr "无效动作"
+
+msgid "Invalid batch request format."
+msgstr "无效的批处理请求格式。"
+
+msgid "Invalid batch request item."
+msgstr "无效的批处理请求项。"
 
 msgid "Invalid download item data."
 msgstr "无效的下载项目数据。"
@@ -4975,6 +5296,15 @@ msgstr "无效的文件锁定器类型下载"
 msgid "Invalid login nonce"
 msgstr "无效登录随机数"
 
+msgid "Invalid login session."
+msgstr "无效的登录会话。"
+
+msgid "Invalid or expired login session."
+msgstr "无效或已过期的登录会话。"
+
+msgid "Invalid profile request."
+msgstr "无效的配置文件请求。"
+
 msgid "Invalid request - lockdown is already active."
 msgstr "无效请求 - 锁定已激活。"
 
@@ -4984,11 +5314,8 @@ msgstr "无效请求 - 锁定未激活。"
 msgid "Invalid request with no User ID"
 msgstr "无效请求，没有用户 ID"
 
-msgid "Invalid response from Shield client site"
-msgstr "来自 Shield 客户端站点的响应无效"
-
-msgid "Invalid session selected"
-msgstr "选择的会话无效"
+msgid "Invalid response from %s client site"
+msgstr "来自 %s 客户端站点的响应无效"
 
 msgid "Invalid specification of modules"
 msgstr "模块规范无效"
@@ -4996,14 +5323,26 @@ msgstr "模块规范无效"
 msgid "Invalid type."
 msgstr "无效类型。"
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "在\"{{useragent}}\"处检测到无效用户代理。"
-
 msgid "Invalid value scope for %s"
 msgstr "%s 的值范围无效"
 
 msgid "Invalid value type for %s"
 msgstr "%s 的值类型无效"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "%s 插件功能是否已禁用。"
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "%s 流量速率限制是否已启用。"
+
+msgid "Is %s live logging enabled."
+msgstr "%s 实时日志记录是否已启用。"
+
+msgid "Is %s score"
+msgstr "是 %s 评分"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "%s 的站点锁定是否已启用。"
 
 msgid "Is It You?"
 msgstr "是您吗?"
@@ -5017,20 +5356,8 @@ msgstr "请求状态是否为 404"
 msgid "Is Request To The Login Page."
 msgstr "是否为登录页面的请求。"
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Shield 插件功能是否已禁用。"
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Shield 流量速率限制是否已启用。"
-
-msgid "Is Shield live logging enabled."
-msgstr "Shield 实时日志记录是否已启用。"
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Shield 的站点锁定是否激活。"
-
-msgid "Is The Shield Option Value..."
-msgstr "Shield 选项值是否为..."
+msgid "Is The %s Option Value..."
+msgstr "%s 选项值是否..."
 
 msgid "Is Valid Public IP Address"
 msgstr "是否为有效的公共 IP 地址"
@@ -5038,8 +5365,8 @@ msgstr "是否为有效的公共 IP 地址"
 msgid "Is Viable"
 msgstr "是否可行"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "访客 silentCAPTCHA 分数是否..."
+msgid "Is Visitor %s Score ..."
+msgstr "访客 %s 分数是否..."
 
 msgid "Is WP AJAX"
 msgstr "是 WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "当前用户是否为已登录的 WordPress 管理员。"
 msgid "Is current user password expired."
 msgstr "当前用户密码是否已过期。"
 
-msgid "Is silentCAPTCHA score"
-msgstr "silentCAPTCHA 分数"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Shield 插件是否处于\"forceoff\"状态。"
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "%s 插件是否处于\"强制关闭\"状态。"
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "当前 IP 地址是否被视为\"高信誉\"。"
@@ -5116,23 +5440,23 @@ msgstr "当前用户会话令牌时长是小于还是大于提供的值。"
 msgid "Is the request HTTPS."
 msgstr "请求是否为 HTTPS。"
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "请求 IP 是否被 Shield 自动或手动拦截。"
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "请求 IP 是否被 %s 自动或手动拦截。"
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "请求 IP 是否被 Shield 列入黑名单。"
+msgid "Is the request IP blacklisted by %s."
+msgstr "请求 IP 是否被 %s 列入黑名单。"
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "请求 IP 是否在 Shield 的 CrowdSec 拦截列表中。"
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "请求 IP 是否在 %s 的 CrowdSec 拦截列表中。"
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "请求 IP 是否在 Shield 的手动拦截列表中。"
+msgid "Is the request IP on %s's Manual block list."
+msgstr "请求 IP 是否在 %s 的手动拦截列表中。"
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "请求 IP 是否在 Shield 的自动拦截列表中。"
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "请求 IP 是否在 %s 的自动拦截列表中。"
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "请求 IP 是否在 Shield 的手动绕过列表/白名单中。"
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "请求 IP 是否在 %s 的手动绕过列表/白名单中。"
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "该请求是否为来自受信任服务提供商的机器人。"
@@ -5143,17 +5467,17 @@ msgstr "请求是否为服务器回环请求。"
 msgid "Is the request an HTTP 404."
 msgstr "请求是否为 HTTP 404。"
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "请求是否被 Shield 的站点锁定功能拦截。"
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "请求是否被 %s 的站点锁定功能拦截。"
 
 msgid "Is the request from a logged-in user."
 msgstr "是否为已登录用户的请求。"
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "请求是否来自经过 Shield Security Admin 身份验证的用户。"
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "请求是否来自经过 %s 管理员身份验证的用户。"
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "请求路径是否被 Shield 加入白名单。"
+msgid "Is the request path whitelisted by %s."
+msgstr "请求路径是否在 %s 白名单中。"
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "是否为当前已安装 WordPress 插件内路径的请求。"
@@ -5212,6 +5536,9 @@ msgstr "发现问题"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "下面列出的问题应尽快解决"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "它还有助于锁定 WordPress 关键设置。"
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "它还会查找不应出现在 WP 核心目录 (%s) 中的文件。"
 
@@ -5266,8 +5593,8 @@ msgstr "看起来您的 IP (%s) 当前已被拦截。"
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "但是，它可能会使用 cookie 来注册 %s 安全徽章的关闭，以防止重复显示。"
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "它使用我们独有的 silentCAPTCHA 引擎来可靠地识别 bot。"
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "它使用我们独家的 %s 引擎来可靠地识别机器人。"
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "它已发送至\"{{to}}\",主题为\"{{subject}}\"。"
@@ -5275,8 +5602,8 @@ msgstr "它已发送至\"{{to}}\",主题为\"{{subject}}\"。"
 msgid "It will be displayed below when it's ready."
 msgstr "准备就绪后将在下方显示。"
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "它会自动找到合适的位置,但如果失败,您可能会在站点上看到 PHP 警告,并且某些 Shield 功能将不可用。"
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "它会自动找到合适的位置,但如果失败,您可能会在站点上看到 PHP 警告,并且某些 %s 功能将不可用。"
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "这是一个复杂的领域，如果使用不当，很容易破坏您的前端用户体验。"
@@ -5298,9 +5625,6 @@ msgstr "限制会话生命周期是一个好习惯,特别是在空闲状态下�
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "将会话锁定到至少 1 个属性是一个好习惯,有助于防止会话被盗。"
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "人工标记为垃圾仍然会造成最大的困扰,因为它们通常不会触发我们的防御机制。"
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "它位于 WordPress 插件目录中,并被识别为该插件版本的有效文件。"
@@ -5338,8 +5662,8 @@ msgstr "项目已修复：\"{{path_full}}\""
 msgid "Items Found In Scan"
 msgstr "扫描中发现的项"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "加入 Shield Security 新闻通讯"
+msgid "Join The %s Newsletter"
+msgstr "订阅 %s 新闻通讯"
 
 msgid "Join Us"
 msgstr "加入我们"
@@ -5347,8 +5671,14 @@ msgstr "加入我们"
 msgid "Join Us!"
 msgstr "加入我们!"
 
+msgid "Join our %s Newsletter"
+msgstr "订阅我们的 %s 新闻通讯"
+
 msgid "Jump To Module Settings"
 msgstr "跳转到模块设置"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "加入我们的 %s Facebook 群组,您可以向我们活跃的社区提问,并及时了解我们的最新消息"
 
 msgid "Just grab a new license from the"
 msgstr "只需从以下位置获取新许可证"
@@ -5437,6 +5767,9 @@ msgstr "上次同步"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "最后,我们希望防止机器人(或人类)出于任何原因在站点上注册标记为垃圾账户的能力。"
 
+msgid "Latest Scan Results"
+msgstr "最新扫描结果"
+
 msgid "Launch Debug Info Page"
 msgstr "启动调试 Info 页面"
 
@@ -5464,6 +5797,12 @@ msgstr "许可证"
 msgid "License Activation"
 msgstr "许可证激活"
 
+msgid "License Activation Failed"
+msgstr "许可证激活失败"
+
+msgid "License Activation Success"
+msgstr "许可证激活成功"
+
 msgid "License Check Failed"
 msgstr "许可证检查失败"
 
@@ -5482,6 +5821,30 @@ msgstr "许可证失败邮件已发送"
 msgid "License Summary"
 msgstr "许可证摘要"
 
+msgid "License activated and verified successfully."
+msgstr "许可证启用并验证成功。"
+
+msgid "License activated but verification failed."
+msgstr "许可证已启用但验证失败。"
+
+msgid "License activated successfully."
+msgstr "许可证激活成功。"
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "许可证激活失败,因为此账户上没有可用的许可证。"
+
+msgid "License activation failed because the API key is invalid."
+msgstr "许可证启用失败,因为 API 密钥无效。"
+
+msgid "License activation failed."
+msgstr "许可证激活失败。"
+
+msgid "License activation request failed."
+msgstr "许可证启用请求失败。"
+
+msgid "License activation was denied for this site."
+msgstr "此站点的许可证启用被拒绝。"
+
 msgid "License check failed. Sending Warning Email."
 msgstr "许可证检查失败。正在发送警告邮件。"
 
@@ -5499,9 +5862,6 @@ msgstr "许可证每 %s 秒只能检查一次"
 
 msgid "Lifetime"
 msgstr "生命周期"
-
-msgid "Lifetime Total"
-msgstr "生命周期总计"
 
 msgid "Light"
 msgstr "轻度"
@@ -5577,6 +5937,12 @@ msgstr "本地 PHP 恶意软件扫描器已启用,但 AI 恶意软件扫描在�
 
 msgid "Locale"
 msgstr "地区语言"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "语言环境\"%1$s\"已缓存于:%2$s。使用 --force 重新下载。"
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "语言环境\"%s\"不可下载。"
 
 msgid "Location"
 msgstr "位置"
@@ -5740,11 +6106,11 @@ msgstr "找回密码已拦截"
 msgid "Lost Password Bot Protection"
 msgstr "找回密码 Bot 防护"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "silentCAPTCHA 会拦截 bot 的密码找回标记为垃圾。"
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "%s 拦截机器人的找回密码标记为垃圾。"
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "silentCAPTCHA 未拦截 Bot 的密码找回标记为垃圾。"
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "%s 未拦截机器人的找回密码标记为垃圾。"
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "喜欢吗？为此插件评分 ✩"
@@ -5923,6 +6289,9 @@ msgstr "要匹配的元数据值"
 msgid "Method"
 msgstr "方法"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "表明访客为人类所需的最低 %s 分数"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "最低评论自动批准数"
 
@@ -5941,9 +6310,6 @@ msgstr "评论之间的最短时间间隔"
 msgid "Minimum required MainWP server version"
 msgstr "所需的最低 MainWP 服务器版本"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "表明访客为人类所需的最低 silentCAPTCHA 分数"
-
 msgid "Minutes"
 msgstr "分钟"
 
@@ -5952,6 +6318,12 @@ msgstr "配置错误可能会给您的访客带来问题，因此我们始终建
 
 msgid "Missing"
 msgstr "缺失"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "批量请求中缺少动作标识或随机数。"
+
+msgid "Missing request payload for batch request item."
+msgstr "批处理请求项目缺少请求负载。"
 
 msgid "Mode"
 msgstr "模式"
@@ -5989,6 +6361,12 @@ msgstr "大多数标记为垃圾是由 bot 自动发送的,但有时人工也会
 msgid "Multi-Factor Authentication"
 msgstr "多因素身份验证"
 
+msgid "Multiple Signals"
+msgstr "多个信号"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "检测到此访客的多个机器人信号。"
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "可以提供多个邮箱地址,用逗号分隔。"
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL 数据库密码"
 msgid "N/A"
 msgstr "不适用"
 
+msgid "NEW"
+msgstr "新增"
+
 msgid "NO TITLE"
 msgstr "无标题"
 
@@ -6027,6 +6408,12 @@ msgstr "导航"
 
 msgid "Needs Update"
 msgstr "需要更新"
+
+msgid "Needs Work"
+msgstr "需要处理"
+
+msgid "Nested batch requests are not allowed."
+msgstr "不允许嵌套批处理请求。"
 
 msgid "Never"
 msgstr "从不"
@@ -6045,12 +6432,6 @@ msgstr "新增管理员"
 
 msgid "New Comment"
 msgstr "新评论"
-
-msgid "New Results"
-msgstr "新增结果"
-
-msgid "New Scan Results"
-msgstr "新扫描结果"
 
 msgid "New User Default Role"
 msgstr "新用户默认角色"
@@ -6166,6 +6547,9 @@ msgstr "未选择任何项。"
 msgid "No license to remove."
 msgstr "没有要移除的许可证。"
 
+msgid "No locales available from API."
+msgstr "API 中无可用的语言环境。"
+
 msgid "No message"
 msgstr "无消息"
 
@@ -6175,8 +6559,8 @@ msgstr "无可用元数据"
 msgid "No modules specified in the plugin config."
 msgstr "插件配置中未指定模块。"
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "无需记住/复制粘贴许可证密钥!只需在您的 ShieldPRO 控制面板中启用您的站点 URL,即可自动在您的站点上启用专业版功能。"
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "无需记住/复制粘贴许可证密钥!只需在您的 %s 控制面板中启用您的站点 URL,即可自动在您的站点上启用专业版功能。"
 
 msgid "No new session activity recorded yet."
 msgstr "尚未记录新的会话活动。"
@@ -6192,6 +6576,9 @@ msgstr "无记录"
 
 msgid "No reporter defined"
 msgstr "未定义 reporter"
+
+msgid "No reports generated yet."
+msgstr "尚未生成任何报告。"
 
 msgid "No reports have been generated yet."
 msgstr "尚未生成任何报告。"
@@ -6247,9 +6634,6 @@ msgstr "不,我不想帮忙"
 msgid "Noise"
 msgstr "噪音"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "尚不支持非文件扫描项目。"
-
 msgid "Nonce Failed."
 msgstr "随机数失败。"
 
@@ -6304,14 +6688,11 @@ msgstr "不是模块的有效选项键:%s"
 msgid "Not a valid option key."
 msgstr "不是有效的选项键。"
 
-msgid "Not a valid scan item record"
-msgstr "不是有效的扫描项记录"
-
 msgid "Not a valid value for this parameter"
 msgstr "此参数的值无效"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "不可用，因为您的站点无法与 ShieldNET API 握手。"
+msgid "Not available as your site cannot handshake with %s."
+msgstr "不可用,因为您的站点无法与 %s 握手。"
 
 msgid "Not currently logged-in as security admin."
 msgstr "当前未以 Security Admin 身份登录。"
@@ -6354,9 +6735,6 @@ msgstr "通知白名单上的站点从主站点更新选项"
 
 msgid "Notify Whitelist"
 msgstr "通知白名单"
-
-msgid "Now"
-msgstr "现在"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "24 小时内自动扫描核心文件的次数"
@@ -6418,6 +6796,9 @@ msgstr "违规限制"
 msgid "Offenses couldn't be reset at this time."
 msgstr "此时无法重置违规记录。"
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "违规次数只是访客做出不良行为次数的计数器。"
+
 msgid "Offenses reset to zero."
 msgstr "违规次数已重置为零。"
 
@@ -6439,17 +6820,17 @@ msgstr "一次性密码"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "只有 %s 安全管理员可以修改其他管理员账户的多因素认证设置。"
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Shield 免费版本仅扫描 WordPress 核心文件。"
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "%s 的免费版本仅扫描 WordPress 核心文件。"
 
 msgid "Only enable the integrations you require."
 msgstr "仅启用您需要的集成。"
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "仅监控您选择的表单类型(登录、注册、找回密码)。"
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "仅允许使用字母和数字:%s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "仅监控所选表单类型(登录、注册、找回密码)。"
 
 msgid "Only the first 30 items are shown."
 msgstr "仅显示前 30 个项目。"
@@ -6562,8 +6943,8 @@ msgstr "PHP 恶意软件扫描器"
 msgid "PHP Version"
 msgstr "PHP 版本"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP 不满足最低版本要求。您的版本:%s。所需版本:%s。"
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP 不满足最低版本要求。您的版本:%1$s。所需版本:%2$s。"
 
 msgid "PHP files aren't scanned for malware."
 msgstr "PHP 文件未扫描恶意软件。"
@@ -6718,6 +7099,9 @@ msgstr "其最强大的功能之一是如何防止其他管理员篡改其他管
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "可能是设备不受支持,或者您已经注册过该设备。"
 
+msgid "Period"
+msgstr "周期"
+
 msgid "Permalink structure"
 msgstr "固定链接结构"
 
@@ -6727,8 +7111,8 @@ msgstr "固定链接"
 msgid "Permalinks Updated"
 msgstr "固定链接已更新"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "固定链接已更改:%s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "固定链接已更改:%1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "永久重定向 (301)"
@@ -6790,6 +7174,9 @@ msgstr "请点击您收到的邮件中的链接。"
 msgid "Please click the link provided below to do so."
 msgstr "请点击下方提供的链接进行操作。"
 
+msgid "Please complete required fields: %s"
+msgstr "请完成必填字段:%s"
+
 msgid "Please complete the form."
 msgstr "请完成表单。"
 
@@ -6814,14 +7201,14 @@ msgstr "如需进一步指导,请联系站点管理员。"
 msgid "Please contact your website administrator."
 msgstr "请联系您的网站管理员。"
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "请删除\"%s\"文件以重新启用 %s 防护"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "请删除\"%1$s\"文件以重新启用 %2$s 保护"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "请确保结束日期在开始日期当天或之后。"
 
 msgid "Please login again."
 msgstr "请重新登录。"
-
-msgid "Please logout if you want to delete your own session."
-msgstr "如果您想删除自己的会话,请先退出登录。"
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "请注意,WP 页面缓存插件通常会忽略 HTTP 标头,如果您在测试中没有看到它们反映出来,您应该禁用您的缓存插件。"
@@ -6840,6 +7227,15 @@ msgstr "请提供一个标签来识别该设备。"
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "请提供一个标签来识别新的身份验证器。"
+
+msgid "Please provide a title for the report."
+msgstr "请为报告提供标题。"
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "请使用 YYYY-MM-DD 格式提供有效日期。"
+
+msgid "Please provide a valid date."
+msgstr "请提供有效的日期。"
 
 msgid "Please provide a valid regular expression."
 msgstr "请提供有效的正则表达式。"
@@ -6895,6 +7291,9 @@ msgstr "请选择 IP 规则类型之一 - 拦截或绕过"
 msgid "Please select one of the options available"
 msgstr "请选择一个可用选项"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "请指定语言环境代码(例如 --locale=de_DE)。"
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "请提供不同的密码，因为此密码已被泄露。"
 
@@ -6925,17 +7324,17 @@ msgstr "请在选项中开启此扫描。"
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "请理解，要恢复 Security Admin 功能，您需要提供新的 Security Admin PIN。"
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "请将您的 Shield 插件更新到相同版本并重新同步。"
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "请将您的 %s 插件更新到相同版本并重新同步。"
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "请升级以支持扫描所有插件文件的篡改。"
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "请升级您的 Shield Security 订阅以访问自定义安全规则构建器。"
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "请升级您的 %s 计划以使用此功能。"
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "请升级您的 ShieldPRO 计划以使用此功能。"
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "请升级您的 %s 订阅以访问自定义安全规则构建器。"
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "如果您需要通知多个电子邮件地址,请升级您的计划。"
@@ -7186,14 +7585,17 @@ msgstr "由 WordPress 提供支持"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "强大的<strong>防火墙</strong>正在拦截并阻止恶意流量。"
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "来自 Shield Security 的 WordPress 强大防护"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "来自 %s 的强大 WordPress 保护"
 
 msgid "Powerful User Password Policies"
 msgstr "强大的用户密码策略"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "强大的自学习恶意软件扫描器"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "强大、易用的排名第一的 WordPress 安全系统"
 
 msgid "Predicted"
 msgstr "预测"
@@ -7203,6 +7605,9 @@ msgstr "首选临时目录"
 
 msgid "Preferred temporary directory override."
 msgstr "首选临时目录覆盖。"
+
+msgid "Prefix"
+msgstr "前缀"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "前缀：<code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "防止用户使用公开可用的\"已泄露\"密码列表中的任何�
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "防止用户使用公开可用的已泄露密码列表中的任何密码。"
 
+msgid "Previous"
+msgstr "上一个"
+
+msgid "Previous Period"
+msgstr "上一周期"
+
 msgid "Previous Step"
 msgstr "上一步"
 
@@ -7318,8 +7729,8 @@ msgstr "已提升为管理员"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "保护 WP 登录免受 Bot 自动化登录尝试"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "保护您的 Shield 插件免受篡改"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "保护您的 %s 插件免遭篡改"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "保护通常无法保护的关键 WP 核心文件。"
@@ -7342,6 +7753,9 @@ msgstr "通过实施增强的安全响应标头来保护您站点的访客。"
 msgid "Protect your %s files"
 msgstr "保护您的 %s 文件"
 
+msgid "Protected By %s"
+msgstr "受 %s 保护"
+
 msgid "Protected Forms"
 msgstr "受保护的表单"
 
@@ -7350,6 +7764,9 @@ msgstr "正在防护头号 <strong>评论标记为垃圾</strong> 来源。"
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "保护您的<strong>重要用户表单</strong>,例如登录、注册和找回密码。"
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "WordPress 表单保护作为标准功能包含在内,根据您的 %s 计划,您将可以访问部分或全部第三方集成。"
 
 msgid "Protection for user accounts."
 msgstr "用户账户保护。"
@@ -7420,9 +7837,6 @@ msgstr "提供/更新安全管理员 PIN"
 msgid "Provided by %s"
 msgstr "由 %s 提供"
 
-msgid "Provided by Shield"
-msgstr "由 Shield 提供"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "提供对请求日志记录系统的更精细控制。"
 
@@ -7471,8 +7885,8 @@ msgstr "速率限制"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "速率限制 ({{count}}) 已超出，在 {{span}} 秒内有 {{requests}} 个请求。"
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "将 Shield Security 重新品牌化为您自己的!"
+msgid "Re-Brand %s as your own!"
+msgstr "将 %s 重新品牌化为您自己的！"
 
 msgid "Re-Install"
 msgstr "重新安装"
@@ -7480,8 +7894,8 @@ msgstr "重新安装"
 msgid "Re-Install It"
 msgstr "重新安装"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "重新品牌化 Shield Security 插件。"
+msgid "Re-brand the %s plugin."
+msgstr "重新品牌化 %s 插件。"
 
 msgid "Re-enable Protection."
 msgstr "重新启用防护。"
@@ -7512,6 +7926,9 @@ msgstr "原因"
 
 msgid "Reason: %s"
 msgstr "原因:%s"
+
+msgid "Reason: {{reason}}"
+msgstr "原因:{{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "插件停用时接收提醒"
@@ -7651,8 +8068,8 @@ msgstr "剩余允许违规次数"
 msgid "Remember me for %s"
 msgstr "记住我 %s"
 
-msgid "Remember to include %s or %s"
-msgstr "记得包含 %s 或 %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "记得包含 %1$s 或 %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "必须由安全管理员移除用户的多因素认证因子"
@@ -7708,6 +8125,9 @@ msgstr "已修复"
 msgid "Repaired item found in the scan."
 msgstr "扫描中发现的项目已修复。"
 
+msgid "Repairs"
+msgstr "修复"
+
 msgid "Repeated Human SPAM"
 msgstr "重复人工标记为垃圾"
 
@@ -7735,8 +8155,8 @@ msgstr "报告选项"
 msgid "Report Sent"
 msgstr "报告已发送"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "报告已发送(通过 {{medium}})。"
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "报告已发送（{{type}} 通过 {{medium}}）。"
 
 msgid "Report Title"
 msgstr "报告标题"
@@ -8107,17 +8527,17 @@ msgstr "标记为垃圾检查通过"
 msgid "SPAM Detection"
 msgstr "标记为垃圾检测"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "silentCAPTCHA 会拦截标记为垃圾和 Bot 批量用户注册。"
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "%s 拦截机器人的标记为垃圾和批量用户注册。"
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "silentCAPTCHA 未拦截标记为垃圾和 Bot 批量用户注册。"
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "%s 未拦截机器人的标记为垃圾和批量用户注册。"
 
 msgid "SPAM blocking"
 msgstr "标记为垃圾拦截"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "标记为垃圾主要通过两种方式实施:bot 和人工。"
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "标记为垃圾由两类访客实施:自动 Bot 和人工。"
 
 msgid "SQL Queries"
 msgstr "SQL 查询"
@@ -8167,6 +8587,9 @@ msgstr "扫描插件和主题中的漏洞"
 msgid "Scan Frequency"
 msgstr "扫描频率"
 
+msgid "Scan Issues"
+msgstr "扫描问题"
+
 msgid "Scan Item Delete Success"
 msgstr "扫描项目删除成功"
 
@@ -8200,6 +8623,9 @@ msgstr "扫描结果"
 msgid "Scan This QR Code"
 msgstr "扫描此二维码"
 
+msgid "Scan Type"
+msgstr "扫描类型"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "扫描您所有的 WordPress 资源以查找已知安全漏洞。"
 
@@ -8218,11 +8644,11 @@ msgstr "扫描您的站点以查找文件更改、恶意软件和漏洞。"
 msgid "Scanning Frequency"
 msgstr "扫描频率"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "扫描插件和主题文件仅适用于 ShieldPRO。"
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "扫描插件和主题文件仅在 %s 的 Pro 版本中可用。"
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "扫描 PHP 恶意软件仅适用于 ShieldPRO。"
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "扫描 PHP 恶意软件仅在 %s 的 Pro 版本中可用。"
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "扫描使用本地快照。升级您的计划以使用众包快照并添加对高级插件的支持。"
@@ -8305,14 +8731,17 @@ msgstr "分数是每个组件的近似权重。"
 msgid "Script Name To Match"
 msgstr "要匹配的脚本名称"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "无需任何许可证密钥即可无缝启用和管理您的 ShieldPRO 许可证。"
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "无缝启用和管理您的 %s 许可证,无需任何许可证密钥。"
 
 msgid "Search %s"
 msgstr "搜索 %s"
 
 msgid "Search Engine"
 msgstr "搜索引擎"
+
+msgid "Search Help"
+msgstr "搜索帮助"
 
 msgid "Search engine visibility"
 msgstr "搜索引擎可见性"
@@ -8374,6 +8803,9 @@ msgstr "Security Admin 超时"
 msgid "Security Admin is now active"
 msgstr "Security Admin 现已激活"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "安全管理员提供了额外的身份验证层,确保只有经过审查的管理员才能对您的站点安全进行更改。"
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Security Admin 限制已移除"
 
@@ -8385,6 +8817,9 @@ msgstr "安全管理员会话已超时。"
 
 msgid "Security Admins"
 msgstr "安全管理员"
+
+msgid "Security Alert"
+msgstr "安全警报"
 
 msgid "Security Analysis"
 msgstr "安全分析"
@@ -8503,11 +8938,11 @@ msgstr "选择应检查标记为垃圾的注册和登录的用户表单提供商
 msgid "Select The User Forms Provider That You Use"
 msgstr "选择您使用的用户表单提供商"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "选择应使用 %2$s 发送哪些 %1$s 邮件"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "选择应扫描的区域"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "选择哪些 Shield 电子邮件应使用 SureSend 发送"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "选择要排除的请求类型"
@@ -8635,6 +9070,9 @@ msgstr "会话"
 msgid "Sessions Table Filters"
 msgstr "会话表过滤器"
 
+msgid "Set Security Badge."
+msgstr "设置安全徽章。"
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "设置访问者 IP 被自动拦截前允许的违规次数限制。"
 
@@ -8674,161 +9112,23 @@ msgstr "将插件设置为作为 MU 插件运行以防止意外停用。"
 msgid "Severity"
 msgstr "严重性"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA 提供商已启用"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield 反标记为垃圾"
-
 msgid "Shield Deactivated"
 msgstr "Shield 已停用"
 
 msgid "Shield Events & Stats"
 msgstr "Shield 事件与统计"
 
-msgid "Shield Info"
-msgstr "Shield 信息"
-
-msgid "Shield Option Key"
-msgstr "Shield 选项键"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro 商店"
-
-msgid "Shield Scanners."
-msgstr "Shield 扫描器。"
-
-msgid "Shield Security Home Page"
-msgstr "Shield Security 主页"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security 插件 – 不满足最低站点要求"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro 可从我们的在线商店获取。"
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Shield Security 插件已安装但未启用。"
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Shield Security 插件需要同步。"
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "上次同步中未检测到 Shield Security 插件。"
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Shield Security 插件版本不同步。"
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield 用户 2FA 提供商已启用"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield 用户双因素认证:已启用任何"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield 白标签"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield 可以自动与第三方插件集成。"
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield 可以自动保护第三方登录和注册表单免受 Bot 攻击。"
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield 无法确定 silentCAPTCHA JS 是否在您的站点上正确加载。"
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield 通常不会扫描已登录或已注册用户发表的评论。"
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield 通常不会扫描已登录或已注册用户发表的评论。在此处指定不应被扫描的用户角色。"
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Shield 事件定义为空或格式不正确。"
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield 未在此站点上安装。"
-
-msgid "Shield plugin activated"
-msgstr "Shield 插件已启用"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Shield 插件无法启用"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Shield 插件无法停用"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Shield 插件无法安装"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Shield 插件无法更新"
-
-msgid "Shield plugin deactivated"
-msgstr "Shield 插件已停用"
-
-msgid "Shield plugin installed"
-msgstr "Shield 插件已安装"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Shield 插件已安装,但未启用。"
-
-msgid "Shield plugin updated"
-msgstr "Shield 插件已更新"
-
-msgid "Shield scans cannot execute."
-msgstr "Shield 扫描无法执行。"
-
-msgid "Shield version on site doesn't match this server."
-msgstr "站点上的 Shield 版本与此服务器不匹配。"
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield 将自动扫描您的第三方插件,以检查是否有可用的内置集成。"
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield 将延迟升级,直到新更新已可用设定的天数。"
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Shield 的 MainWP 集成未在此站点上启用。"
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Shield 的规则引擎未运行。"
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Shield 的 silentCAPTCHA 系统使用 ALTCHA，挑战 Bot 执行复杂的工作。"
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP 信誉评分"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO 功能"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO 免费试用"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO 许可证已清除"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO 许可证管理"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO 高级安全"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO 未在此站点上启用。"
-
-msgid "ShieldPRO license check failed."
-msgstr "ShieldPRO 许可证检查失败。"
-
-msgid "ShieldPRO license check was successful."
-msgstr "ShieldPRO 许可证检查成功。"
 
 msgid "Should be uninstalled"
 msgstr "应被卸载"
@@ -8923,20 +9223,23 @@ msgstr "站点 URL"
 msgid "Site URL Changed"
 msgstr "站点 URL 已更改"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "站点 URL 已更改:%s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "站点 URL 已更改:%1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "站点已添加到导出白名单：{{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "站点电子邮件已更改:%s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "站点电子邮件已更改:%1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "站点同步失败"
 
 msgid "Site has been locked down!"
 msgstr "站点已被锁定!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "站点已启用,但许可证验证失败。"
 
 msgid "Site lock down has been lifted!"
 msgstr "站点锁定已解除!"
@@ -8946,6 +9249,9 @@ msgstr "站点已从导出白名单中移除：{{site}}"
 
 msgid "Site synced successfully"
 msgstr "站点同步成功"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "站点已启用,许可证验证成功。"
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "站点已被 {{user_login}} 置于锁定状态。"
@@ -8965,8 +9271,8 @@ msgstr "大小"
 msgid "Slug"
 msgstr "别名"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "别名已更新:%s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "别名已更新:%1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "文章 ID {{post_id}} 的别名从\"{{slug_old}}\"更新为\"{{slug_new}}\"。"
@@ -9049,8 +9355,8 @@ msgstr "抱歉,此扫描不可用。"
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "抱歉,您无权运行 MAL{ai} 查询,请升级您的计划。"
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "抱歉,您需要升级您的 Shield Security 会员资格才能访问 MainWP 集成。"
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "抱歉,您需要升级 %s 会员资格才能访问 MainWP 集成。"
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "说到入侵，插件和主题中允许入侵发生的漏洞是攻击的主要目标，因此我们必须尽早识别它们。"
@@ -9100,8 +9406,11 @@ msgstr "统计"
 msgid "Status"
 msgstr "状态"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "状态已更改:%s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "状态已更改:%1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "状态检查完成。"
 
 msgid "Store directory could not be created: %s"
 msgstr "无法创建存储目录：%s"
@@ -9133,8 +9442,8 @@ msgstr "已成功连接到许可证服务器。"
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "成功发送防火墙拦截邮件警报至:{{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "成功使用 SureSend 发送邮件(类型:{{slug}})至\"{{email}}\"。"
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "使用 %s 成功向\"{{email}}\"发送邮件(类型:{{slug}})。"
 
 msgid "Summary"
 msgstr "摘要"
@@ -9165,15 +9474,6 @@ msgstr "SureSend 邮件"
 
 msgid "SureSend Emails."
 msgstr "SureSend 邮件。"
-
-msgid "SureSend Fail"
-msgstr "SureSend 失败"
-
-msgid "SureSend Success"
-msgstr "SureSend 成功"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend 是 Shield Security 提供的专用邮件投递服务。"
 
 msgid "Suspend Account"
 msgstr "暂停账户"
@@ -9229,14 +9529,14 @@ msgstr "开启 CrowdSec 功能以拦截已知的(众包)恶意 IP。"
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "启用此功能将拦截所有访问您站点的流量。绝对所有内容都将被拦截(包括 Google Bot)。"
 
+msgid "Sync %s"
+msgstr "同步 %s"
+
 msgid "Sync Required"
 msgstr "需要同步"
 
 msgid "Sync Required."
 msgstr "需要同步。"
-
-msgid "Sync Shield"
-msgstr "同步 Shield"
 
 msgid "System Info"
 msgstr "系统信息"
@@ -9253,8 +9553,8 @@ msgstr "表已删除,现在将重新创建。"
 msgid "Tagline"
 msgstr "网站标语"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "标语已更改:%s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "副标题已更改:%1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "每个条目占一行。"
@@ -9268,11 +9568,11 @@ msgstr "每个白名单路径占一行。"
 msgid "Take a new line per rule."
 msgstr "每条规则占一行。"
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "利用整个 Shield 网络收集的情报，更好地保护您的 WordPress 站点"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "利用整个 %s 网络收集的情报,更好地保护您的 WordPress 站点"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Shield 的技术支持仅面向 Pro 客户。"
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "%s 的技术支持仅面向 Pro 客户。"
 
 msgid "Temp Dir"
 msgstr "临时目录"
@@ -9295,17 +9595,17 @@ msgstr "测试 WP Cron 运行成功。"
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "测试失败，我们无法自动确定您的 SSL 证书状态。"
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "感谢您选择 Shield Security"
+msgid "Thank You For Choosing %s"
+msgstr "感谢您选择 %s"
 
 msgid "Thank You."
 msgstr "谢谢您。"
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "感谢您选择 Shield Security (免费版)。"
+msgid "Thank you for choosing %s (Free)."
+msgstr "感谢您选择 %s(免费版)。"
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "感谢您选择 Shield Security PRO。"
+msgid "Thank you for choosing %s."
+msgstr "感谢您选择 %s。"
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "感谢您花时间完成引导式设置向导。"
@@ -9325,11 +9625,23 @@ msgstr "谢谢。"
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "支持未来开发所带来的温暖而美好的感觉"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "%s 目录类似于 %s 目录,许多非 WordPress 文件都保存在那里。"
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "%1$s 目录类似于 %2$s 目录,许多非 WordPress 文件都保存在那里。"
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s 应测量 %2$s。"
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "%s 徽章向您的客户展示您重视安全。"
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "%s 目录是无序之地，许多插件和主题使用它来存储工作文件。"
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "%s 选项已禁用,移除了对登录、注册和找回密码表单的暴力破解防护。"
+
+msgid "The %s option is enabled."
+msgstr "%s 选项已启用。"
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s 插件通常不会对未注册的站点访问者使用 Cookie。"
@@ -9337,14 +9649,29 @@ msgstr "%s 插件通常不会对未注册的站点访问者使用 Cookie。"
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "%s 插件具有审计跟踪功能,将记录以下信息："
 
+msgid "The %s plugin has just been deactivated."
+msgstr "%s 插件刚刚被停用。"
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "%s 插件在任何时候都不会在任何 Cookie 中存储任何敏感的、可识别个人身份的信息。"
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "此站点上的 %s 插件需要升级。"
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "此站点上的 %s 插件需要有效的 PRO 许可证。"
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "客户端站点上的 %s 插件版本比此服务器更新。"
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "客户端站点上的 %s 插件版本早于此服务器,必须更新。"
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "%s 查询参数已被拦截,以防止用户名/作者探测。"
 
-msgid "The %s should measure %s."
-msgstr "%s 应测量 %s。"
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "%s 系统使用 ALTCHA 来挑战机器人执行复杂工作。"
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "\"wp_mail\"函数从文件\"{{bt_file}}\"的第 {{bt_line}} 行被调用。"
@@ -9388,8 +9715,8 @@ msgstr "插件的主菜单标题。如果留空,将使用\"%s\"。"
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "插件的主菜单标题。如果留空,将使用插件名称。"
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "MainWP Security 插件不满足 Shield 的最低要求。"
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "MainWP Security 插件不满足 %s 的最低要求。"
 
 msgid "The Name Of The Plugin"
 msgstr "插件名称"
@@ -9415,32 +9742,14 @@ msgstr "安全管理员系统保护 WordPress 和 %s 插件免受篡改。"
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "安全管理员系统保护 %s 插件免受其他 WordPress 管理员的篡改或意外更改。"
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "安全管理员已限制使用电子邮件覆盖功能。"
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "安全徽章将向您的访客显示"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "安全徽章不会向您的访客显示"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "此站点上的 Shield Security 插件需要升级。"
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Shield 数据库需要修复,因为如果没有有效的数据库,某些功能将不可用。"
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Shield 插件刚刚被停用。"
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "此站点上的 Shield 插件没有已启用的 ShieldPRO 许可证。"
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "客户端站点上的 Shield 插件版本比此服务器新。"
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "客户端站点上的 Shield 插件版本早于此服务器，必须更新。"
 
 msgid "The Tag Line Of The Plugin"
 msgstr "插件的标语"
@@ -9487,8 +9796,8 @@ msgstr "缺少国家/地区代码。"
 msgid "The cumulative score for your entire %s configuration"
 msgstr "您整个 %s 配置的累计分数"
 
-msgid "The current request has a valid Shield user session"
-msgstr "当前请求具有有效的 Shield 用户会话"
+msgid "The current request has a valid %s user session"
+msgstr "当前请求具有有效的 %s 用户会话"
 
 msgid "The data provided was inconsistent."
 msgstr "提供的数据不一致。"
@@ -9544,8 +9853,8 @@ msgstr "发现了以下项。"
 msgid "The following options will be restricted:"
 msgstr "以下选项将受到限制："
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "以下类型的用户表单受 silentCAPTCHA 保护:%s。"
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "以下类型的用户表单受 %1$s 保护:%2$s。"
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "主页 URL 已从\"{{from}}\"更改为\"{{to}}\"。"
@@ -9559,8 +9868,8 @@ msgstr "标签必须是字母数字,不含特殊字符"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "拦截前允许的最大违规次数是合理的：%s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "通过升级您的 ShieldPRO 计划,可以提高最大日志保留限制 (%s)。"
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "通过升级 %2$s 计划,可以提高最大日志保留限制 (%1$s)。"
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "在给定时间限制内允许的最大请求数。"
@@ -9625,8 +9934,8 @@ msgstr "首选来源是 %s,因为它无法被伪造。"
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "之前的扫描未检测到任何需要您注意的项目,或者它们已被修复。"
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
-msgstr "目的是提高 WordPress 关键邮件的可靠性。"
+msgid "The purpose is to improve WordPress email reliability for critical emails."
+msgstr "目的是提高关键邮件的 WordPress 邮件可靠性。"
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
 msgstr "防火墙的目的是锁定站点以防止恶意请求,限制对某些资源的访问,并对任何看似恶意的请求做出适当响应。"
@@ -9651,12 +9960,6 @@ msgstr "此设置可防止任何外部网站在 iFrame 中嵌入您的站点。"
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "此设置可防止任何外部网站在 iFrame 中嵌入您的站点。这对于防止所谓的点击劫持攻击很有用。"
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "silentCAPTCHA 选项已禁用,移除了对登录、注册和找回密码表单的暴力破解防护。"
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "silentCAPTCHA 选项已启用。"
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "站点 URL 已从\"{{from}}\"更改为\"{{to}}\"。"
@@ -9883,6 +10186,9 @@ msgstr "准备 Passkey 身份验证挑战时出现问题。"
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "准备 Passkey 注册挑战时出现问题。"
 
+msgid "There was a problem processing the batched request."
+msgstr "处理批量请求时出现问题。"
+
 msgid "There was a problem removing this passkey"
 msgstr "移除此 Passkey 时出现问题"
 
@@ -9937,9 +10243,6 @@ msgstr "它们攻击您的站点、探测信息并大规模利用漏洞，通常
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "它们通过破坏 Javascript 并将用户体验变成噩梦来严重破坏登录表单。"
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "将\"违规\"视为访客做出不良行为次数的计数器。"
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "可以将其视为\"限制登录尝试\",但应用于 WordPress 站点的所有功能,而不仅仅是登录页面。"
 
@@ -9951,6 +10254,9 @@ msgstr "这是您"
 
 msgid "This Page"
 msgstr "此页面"
+
+msgid "This Period"
+msgstr "本周期"
 
 msgid "This Server"
 msgstr "此服务器"
@@ -9967,8 +10273,8 @@ msgstr "此动作目前不适用于您的个人资料。"
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "此活动将被记录在您的 IP 地址下,如果重复类似活动,您可能会被完全拦截,无法进一步访问站点。"
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "如果您运行 ShieldPRO，这也可作为推荐链接，您可以为每次推荐赚取奖励。"
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "如果您正在运行 %s,这也可以作为推荐链接,您可以为每次推荐赚取奖励。"
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "这似乎是标记为垃圾,因为它未通过 %s AntiBot 保护检查。"
@@ -10011,6 +10317,9 @@ msgstr "此功能仅在流量记录器处于启用状态时可用。"
 
 msgid "This feature isn't currently enabled."
 msgstr "此功能当前未启用。"
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "此功能依赖于一个秘密 PIN 码(您将在下方创建),您将使用它来验证您在 %s 插件中的身份。"
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "此文件包含恶意代码 - 这是恶意软件!"
@@ -10171,11 +10480,20 @@ msgstr "此设置将在 %s 后自动禁用,并且在该期间记录的所有通�
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "应谨慎使用此功能，您应仅提供必须排除的参数名称"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "此站点似乎是 Shield 网络的一部分。"
+msgid "This site appears to be part of a %s Network."
+msgstr "此站点似乎是 %s 网络的一部分。"
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "此站点目前无法向自身发出 HTTP 请求。"
+
+msgid "This site is already activated for this account."
+msgstr "此站点已为此帐户启用。"
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "此站点已启用。正在重新检查并同步本地许可证状态..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "此步骤可能是最重要的,因为它有助于确保 %s 始终能找到正确的访客 IP。"
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "此主题未启用，应该卸载。"
@@ -10222,8 +10540,8 @@ msgstr "这将拦截应用程序参数中的字段截断攻击。"
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "这将拦截应用程序参数中的 SQL（例如 %s 等）。"
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "这将导致 %s 和 %s URL 在您未登录时返回 HTTP 404 错误。"
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "这将导致 %1$s 和 %2$s URL 在未登录时返回 HTTP 404 错误。"
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "这将消耗您的短信积分(如果可用),就像任何标准双因素认证短信一样。"
@@ -10242,6 +10560,9 @@ msgstr "这将限制 WordPress 管理员更改 WordPress 关键设置的能力�
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "这将限制 WordPress 管理员创建、修改或提升其他管理员的能力。"
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "此向导将引导您了解 %s 的一些关键功能,让您在 3 分钟内快速上手。"
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "这是有效的，因为合法的网络爬虫会遵守 'robots.txt' 和 'nofollow' 指令。"
@@ -10273,17 +10594,17 @@ msgstr "时间戳"
 msgid "Timezone"
 msgstr "时区"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "标题已更新:%s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "标题已更新:%1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "标题已更改:%s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "标题已更改:%1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "文章 ID {{post_id}} 的标题从\"{{title_old}}\"更新为\"{{title_new}}\"。"
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "为了解决这个问题,我们创建了自己的系统,称为 silentCAPTCHA。"
+msgid "To address this we created our own system called %s."
+msgstr "为了解决这个问题,我们创建了自己的系统,称为 %s。"
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "隐藏您的 wp-login.php 页面以防止暴力破解攻击和黑客尝试 - 如果无法找到您的登录页面,任何人都无法登录。"
@@ -10303,14 +10624,17 @@ msgstr "要注册新的 Yubikey 设备,请输入来自 Yubikey 的一次性密�
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "要移除 Yubikey 设备,请输入已注册的设备 ID 并保存。"
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "要解决此问题,您可以告知 %s 您当前的 IP 地址,这样它就能配置最佳的 IP 来源。"
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "保持健康需要主动扫描文件以发现意外更改,并检测不属于站点的文件。"
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "要使用 Passkey,您的 PHP 安装必须加载以下扩展之一:%s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "要验证电子邮件,您的站点会向 ShieldNET API 发送请求,这可能会在用户注册请求期间造成小幅延迟。"
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "要验证邮箱,您的站点会向 %s API 发送请求,这可能会在用户注册请求期间造成小幅延迟。"
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "要查看来自此 IP 地址的所有日志,请使用流量日志工具,因为此处的日志限制为 %s 条记录。"
@@ -10326,6 +10650,9 @@ msgstr "切换此设置是否包含在导入和导出操作中"
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "2FA 验证尝试次数过多 - 请重新登录。"
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "批量请求过多。最大允许数量为 %s。"
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "来自您 IP 地址的过多请求已触发站点的自动防御机制。"
@@ -10399,11 +10726,35 @@ msgstr "流量请求正在被记录，使跟踪问题变得更容易。"
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "流量请求未被记录，使跟踪问题变得更困难。"
 
+msgid "Translation Download Failed"
+msgstr "翻译下载失败"
+
+msgid "Translation Downloaded"
+msgstr "翻译已下载"
+
+msgid "Translation download queue is empty."
+msgstr "翻译下载队列为空。"
+
+msgid "Translation downloaded successfully: %s"
+msgstr "翻译下载成功:%s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "已下载语言环境 {{locale}} 的翻译文件。"
+
+msgid "Translations Queued"
+msgstr "翻译已排队"
+
+msgid "Translations have been downloaded."
+msgstr "翻译已下载。"
+
 msgid "Trash"
 msgstr "回收站"
 
 msgid "Trashed"
 msgstr "已移至回收站"
+
+msgid "Trend"
+msgstr "趋势"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "尝试加载无效的 WordPress PHP 脚本\"{{script}}\"。"
@@ -10417,11 +10768,17 @@ msgstr "受信任用户角色"
 msgid "Trusted Users"
 msgstr "受信任用户"
 
+msgid "Try Pro For Free"
+msgstr "免费试用 Pro 版"
+
 msgid "Turn Off"
 msgstr "关闭"
 
 msgid "Turn On"
 msgstr "开启"
+
+msgid "Turn On Security Admin"
+msgstr "开启安全管理员"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "开启速率限制功能"
@@ -10441,8 +10798,11 @@ msgstr "开启/关闭您的白标签设置。"
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "关闭浏览器 Mime-Sniff"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "为 MainWP 服务器和客户端安装启用 Shield 的内置扩展"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "为 MainWP 服务器和客户端安装启用 %s 的内置扩展"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "启用此选项会在您网站的页脚添加一个半透明徽章。"
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "通过 %s 进行双因素登录身份验证"
@@ -10516,14 +10876,11 @@ msgstr "未分类"
 msgid "Understand how to remove Google Authenticator"
 msgstr "了解如何移除 Google Authenticator"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "遗憾的是，U2F 在大多数现代浏览器中已被默认禁用，但为了向后兼容，这里仍然提供此功能。"
-
 msgid "Unidentified"
 msgstr "未识别"
 
-msgid "Uninstall Shield"
-msgstr "卸载 Shield"
+msgid "Uninstall %s"
+msgstr "卸载 %s"
 
 msgid "Uninstalled"
 msgstr "已卸载"
@@ -10539,6 +10896,9 @@ msgstr "未知 - 需要 WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "未知名称"
+
+msgid "Unknown activation error."
+msgstr "未知的激活错误。"
 
 msgid "Unknown item"
 msgstr "未知项目"
@@ -10582,6 +10942,9 @@ msgstr "不支持的结果类型。"
 msgid "Until"
 msgstr "直到"
 
+msgid "Update %s"
+msgstr "更新 %s"
+
 msgid "Update Available"
 msgstr "有可用更新"
 
@@ -10596,9 +10959,6 @@ msgstr "立即更新以使您的安全保持最新功能。"
 
 msgid "Update Required"
 msgstr "需要更新"
-
-msgid "Update Shield"
-msgstr "更新 Shield"
 
 msgid "Update This Rule"
 msgstr "更新此规则"
@@ -10633,14 +10993,14 @@ msgstr "需要升级"
 msgid "Upgrade To"
 msgstr "升级到"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "立即升级到 %s Pro 版"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "升级以创建自定义报告"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "立即升级到 Shield Pro"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "升级您的 ShieldPRO 会员资格"
+msgid "Upgrade Your %s Membership"
+msgstr "升级您的 %s 会员资格"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "升级您的计划以支持扫描主题文件的篡改。"
@@ -10648,8 +11008,8 @@ msgstr "升级您的计划以支持扫描主题文件的篡改。"
 msgid "Upgrade your plan to support this scanning area."
 msgstr "升级您的计划以支持此扫描区域。"
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "已升级:%s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "已升级:%1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "文件上传失败"
@@ -10657,8 +11017,11 @@ msgstr "文件上传失败"
 msgid "Uptime Monitoring"
 msgstr "正常运行时间监控"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "使用 %s 在 %s 分钟间隔内测试过多请求。"
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "使用 %1$s 在 %2$s 分钟间隔内测试过多请求。"
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "使用 %s 拦截 Bot 评论标记为垃圾"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "使用 CloudFlare 作为地理数据源？"
@@ -10681,8 +11044,8 @@ msgstr "使用更大的最大请求限制可降低拦截合法访客的风险。
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "使用较小的时间间隔以减少拦截合法访客的风险。"
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "用于限制用户表单登录尝试的 silentCAPTCHA 未开启 - 您需要在登录安全区域中启用它。"
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "使用 %s 限制用户表单登录尝试的功能未开启 - 您需要在登录安全区域中启用它。"
 
 msgid "Use of this feature is highly recommend."
 msgstr "强烈建议使用此功能。"
@@ -10690,11 +11053,11 @@ msgstr "强烈建议使用此功能。"
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "使用此功能将覆盖现有选项,并将其替换为主导入站点的选项。"
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "使用相对于您主页 URL 的相对路径,例如 %s 重定向到您的主页 (%s)。"
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "使用相对于您主页 URL 的相对路径,例如 %1$s 重定向到您的主页(%2$s)。"
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "使用 silentCAPTCHA 拦截 Bot 评论标记为垃圾"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "使用超级搜索框在 %s 插件中查找任何内容,包括选项、IP 地址、工具、帮助等。"
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "使用排除选项允许匿名访问特定 API 端点。"
@@ -10702,14 +11065,17 @@ msgstr "使用排除选项允许匿名访问特定 API 端点。"
 msgid "Use the link above to create a new one."
 msgstr "使用上面的链接创建一个新的。"
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "在搜索框中使用这些前缀来筛选结果。"
+
 msgid "Use this feature with care."
 msgstr "请谨慎使用此功能。"
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "使用此文件将选项从此站点复制到另一个站点"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "使用此选项可完全禁用所有已启用的 Shield 防护。"
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "使用此选项可完全禁用所有已启用的 %s 防护。"
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "使用此选项可切换是否应用您的自定义 CSP 规则。"
@@ -10897,11 +11263,11 @@ msgstr "用户找回密码请求已拦截。"
 msgid "User must be logged-in."
 msgstr "用户必须已登录。"
 
+msgid "User not found."
+msgstr "未找到用户。"
+
 msgid "User registration request blocked."
 msgstr "用户注册请求已拦截。"
-
-msgid "User session deleted"
-msgstr "用户会话已删除"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "用户会话已过期 ({{user_login}})。"
@@ -10957,8 +11323,8 @@ msgstr "用户将被强制在指定天数后重置其密码。"
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "使用第三方标记为垃圾词典来检测基于人工的评论标记为垃圾。"
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "使用 Shield 独有的 Snapshot 技术,直接在 WP 数据库上对管理员进行的更改也将被检测到!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "使用 %s 独家的快照技术,直接在 WP 数据库上对管理员进行的更改也将被检测到!"
 
 msgid "Valid license couldn't be found."
 msgstr "找不到有效许可证。"
@@ -11047,11 +11413,11 @@ msgstr "查看全部"
 msgid "View All Security Grades"
 msgstr "查看全部安全评级"
 
-msgid "View As ShieldFREE"
-msgstr "以 ShieldFREE 身份查看"
+msgid "View As %s"
+msgstr "查看为 %s"
 
-msgid "View As ShieldPRO"
-msgstr "以 ShieldPRO 身份查看"
+msgid "View As Free Version"
+msgstr "以免费版视图查看"
 
 msgid "View Comment"
 msgstr "查看评论"
@@ -11071,6 +11437,9 @@ msgstr "查看文件内容"
 msgid "View File Details"
 msgstr "查看文件详情"
 
+msgid "View Full Report"
+msgstr "查看完整报告"
+
 msgid "View IP Reputation Option"
 msgstr "查看 IP 信誉选项"
 
@@ -11087,6 +11456,9 @@ msgid "View Plans"
 msgstr "查看方案"
 
 msgid "View Report"
+msgstr "查看报告"
+
+msgid "View Reports"
 msgstr "查看报告"
 
 msgid "View Results"
@@ -11146,9 +11518,6 @@ msgstr "一目了然地查看您整个 WordPress 站点的安全状况,并发现
 msgid "View, edit and remove custom security rules"
 msgstr "查看、编辑和删除自定义安全规则"
 
-msgid "View/Create Reports"
-msgstr "查看/创建报告"
-
 msgid "Visitor Auto-Unblock"
 msgstr "访客自动解除拦截"
 
@@ -11182,8 +11551,8 @@ msgstr "在拦截列表中发现访客,其连接已被终止。"
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "访客在 CrowdSec 拦截列表中被发现,其请求已被终止。"
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "访客使用 silentCAPTCHA 注册。"
+msgid "Visitor registered using %s."
+msgstr "访客使用 %s 注册。"
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "访客使用\"{{method}}\"方法解除了其 IP 地址\"{{ip}}\"的拦截。"
@@ -11226,9 +11595,6 @@ msgstr "漏洞扫描必须处于已启用状态才能启用此选项。"
 
 msgid "Vulnerable"
 msgstr "存在漏洞"
-
-msgid "Vulnerable Assets"
-msgstr "存在漏洞的资源"
 
 msgid "Vulnerable Plugins"
 msgstr "存在漏洞的插件"
@@ -11277,6 +11643,9 @@ msgstr "WP 默认用户角色"
 
 msgid "WP File Editing"
 msgstr "WP 文件编辑"
+
+msgid "WP Files"
+msgstr "WP 文件"
 
 msgid "WP Generator Tag"
 msgstr "WP 生成器标签"
@@ -11367,6 +11736,9 @@ msgstr "如果您不再需要运行它,我们建议将其禁用。"
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "我们建议在此领域寻求专业知识,并确保在部署中进行全面测试。"
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "我们建议设置在 5 到 10 之间。限制越小,%s 将越严格。"
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "我们建议通过仅保留官方 WordPress 核心文件来保持 WP 根目录的整洁。"
@@ -11485,8 +11857,8 @@ msgstr "当检测到足够多的不良行为时，它将完全拦截该 IP 访�
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "开启后,任何可用的第三方集成将在检测到后立即启用。"
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "当计数器达到以下限制(默认:%s)时,%s 将完全拦截该 IP。"
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "当计数器达到以下限制(默认:%1$s)时,%2$s 将完全拦截该 IP。"
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "当将当前文件内容与官方发布版本进行比较时，检测到更改。"
@@ -11578,17 +11950,17 @@ msgstr "白名单站点可以在无需密钥的情况下从此站点导出选项
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "可能会拦截在插件/主题文件编辑器中的保存操作。"
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "借助 %s 众包情报,浪费您时间的误报会自动隐藏,让您可以专注于重要的风险。"
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "借助 %s 技术,现在阻止 bot 非常容易。"
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "通过 %s,我们可以直接与所有主要联系表单插件集成,以拦截来自自动机器人的联系表单标记为垃圾。"
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "借助 %s 内置的 silentCAPTCHA 技术,现在阻止机器人实际上非常容易。"
-
 msgid "With Issues"
 msgstr "存在问题"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "借助 ShieldNET 众包情报，Shield 自动隐藏误报，让您专注于重要的风险，并可以忽略浪费时间的干扰。"
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "通过它,您可以即时收到文件更改的警报,清晰查看具体更改内容,并轻松了解后续处理步骤。"
@@ -11596,8 +11968,8 @@ msgstr "通过它,您可以即时收到文件更改的警报,清晰查看具体�
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "通过我们的标记为垃圾词典,我们可以识别人工标记为垃圾评论,而无需将任何数据发送到站点外的第三方。"
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "借助我们强大的 silentCAPTCHA,我们可以检测到几乎 100% 的所有 bot 标记为垃圾。"
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "通过我们强大的 %s,我们可以检测到近 100%% 的所有 bot 标记为垃圾。"
 
 msgid "Wizards"
 msgstr "向导"
@@ -11737,8 +12109,8 @@ msgstr "WordPress 通常以有限的几种方式加载,当以其他方式加载�
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress 正在运行旧版本 (%s) 的 PHP。"
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress 正在运行最新版本 (%s) 的 PHP(至少 %s)。"
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress 正在运行较新版本 (%1$s) 的 PHP(至少 %2$s)。"
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "WordPress 登录表单未受到 Bot 保护,因为您已将 Bot 最低分数设置为 0,这会控制 %s 系统。"
@@ -11839,8 +12211,8 @@ msgstr "您可以选择\"仅启用\"(不推荐),或关闭此消息以取消启�
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "您可以完全禁用对 REST API 的匿名访问。"
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "您可以通过升级 ShieldPRO 计划来获得此安全功能以及更多功能。"
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "您可以通过升级 %s 计划来获得此安全功能以及更多功能。"
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "您可以使用下面的链接告诉您当前的 IP 地址,然后从列表中选择包含该地址的选项,以帮助我们检测服务器的最佳 IP 地址。"
@@ -11887,8 +12259,8 @@ msgstr "您可以通过 %s 安全管理员系统进行身份验证并返回此�
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "您可以组合多个身份验证因子以提高安全性。"
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "当 Akismet 与 Shield 的人工标记为垃圾防护同时运行时，您可能会得到不可靠的结果。"
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "当 Akismet 与 %s 的人工标记为垃圾防护同时运行时,您可能会得到不可靠的结果。"
 
 msgid "You may need to reload this page to continue."
 msgstr "您可能需要重新加载此页面才能继续。"
@@ -11962,8 +12334,8 @@ msgstr "您的 IP 地址未列入白名单,因此如果您在未将 IP 列入白
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "您的 IP 地址已列入白名单!此设置不适用于您,因此您必须始终使用正常登录页面:%s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "您的 MySQL 数据库服务器不支持 IPv6 地址。您的版本:%s;所需 MySQL 版本:%s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "您的 MySQL 数据库服务器不支持 IPv6 地址。您的版本:%1$s;所需 MySQL 版本:%2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "您的唯一 Yubikey 应用 API 密钥"
@@ -12037,11 +12409,11 @@ msgstr "您的报告邮箱地址是：%s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "您的安全管理员已对密码质量提出要求。"
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "您的安全分析不考虑仅限 ShieldPRO 的功能 - 使用齿轮菜单查看您的分析,就像您可以访问这些额外安全功能一样。"
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "您的安全分析不考虑 %s 专属功能 - 使用齿轮菜单查看您的分析,就像您可以访问这些额外安全功能一样。"
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "您的安全分析包含仅限 ShieldPRO 的功能 - 使用齿轮菜单查看您可用安全功能的分析。"
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "您的安全分析包含 %s 专属功能 - 使用齿轮菜单查看您可用安全功能的分析。"
 
 msgid "Your session has expired."
 msgstr "您的会话已过期。"
@@ -12055,11 +12427,11 @@ msgstr "您的会话已锁定到另一个 IP 地址。"
 msgid "Your session was terminated."
 msgstr "您的会话已终止。"
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "您的站点享受 ShieldPRO 提供的额外安全防护。"
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "您的站点受益于 %s 提供的额外安全保护。"
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "您的站点无法享受 ShieldPRO 提供的额外安全防护。"
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "您的站点未受益于 %s 提供的额外安全保护。"
 
 msgid "Your site is currently in lockdown."
 msgstr "您的站点当前处于锁定状态。"
@@ -12082,8 +12454,8 @@ msgstr "您的站点未受到保护,无法抵御 Bot 自动化评论标记为垃
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "您的站点尚未在 CrowdSec 注册。"
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "您的虚拟主机不满足 Shield Security 插件的最低要求。"
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "您的虚拟主机不满足 %s 插件的最低要求。"
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "区域动作"
 msgid "Zones"
 msgstr "区域"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[误报] 表示代码看起来像恶意软件,但实际上是干净的。"
@@ -12142,6 +12514,18 @@ msgstr "未提供 all_opts_keys 表单元素。"
 msgid "and"
 msgstr "和"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "并将在大约 %d 分钟后自动处理。"
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "并将在大约 %d 分钟后自动处理。"
+
+msgid "and will be processed shortly."
+msgstr "并将很快处理。"
+
+msgid "auto-fixed"
+msgstr "自动修复"
+
 msgid "case-insensitive"
 msgstr "不区分大小写"
 
@@ -12154,8 +12538,8 @@ msgstr "天"
 msgid "empty username"
 msgstr "空用户名"
 
-msgid "entries: %s (previous: %s)"
-msgstr "条目:%s(之前:%s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "条目：%1$s（之前：%2$s）"
 
 msgid "estimated"
 msgstr "预估"
@@ -12175,6 +12559,12 @@ msgstr "更多帮助"
 msgid "help"
 msgstr "帮助"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "缺失数据"
 
 msgid "more frequent checks will be ignored"
 msgstr "更频繁的检查将被忽略"
+
+msgid "more..."
+msgstr "更多..."
 
 msgid "n/a"
 msgstr "不适用"
@@ -12235,80 +12628,8 @@ msgstr "建议"
 msgid "seconds"
 msgstr "秒"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot 技术"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "silentCAPTCHA Bot 检测未保护您的 WordPress 登录免受暴力破解攻击。"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "silentCAPTCHA Bot 检测未保护您的 WordPress 找回密码表单。"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "silentCAPTCHA Bot 检测未保护您的 WordPress 注册。"
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA Bot 最低分数"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA Bot 分数(百分比)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA 检查无效(模块)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA 复杂度"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "登录的 silentCAPTCHA"
-
-msgid "silentCAPTCHA Registration"
-msgstr "SilentCAPTCHA 注册"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "silentCAPTCHA 检测未应用,因为您尚未选择要保护的任何表单,例如登录或注册。"
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA 是 %s 独有的 WordPress 恶意 Bot 检测技术。"
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA 是 %s 独有的机器人检测技术,无需可见的 CAPTCHA 和类似的访客挑战。"
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA 是 %s 独有的 bot 检测技术,对您的访客不可见,并且无需用户与登录 CAPTCHA 进行交互。"
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA 已禁用,因为未提供最低机器人分数阈值。"
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "当设置为最低分数 %s 时,silentCAPTCHA 已禁用。"
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA 已启用,并设置了最低机器人分数阈值。"
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA 未保护您的 WP 评论免受 bot 标记为垃圾的侵害。"
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "silentCAPTCHA 的 Bot 挑战复杂度过低——建议提高。"
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "silentCAPTCHA 的 bot 检测未运行,因为最低分数设置为 0。"
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "silentCAPTCHA 的 bot 检测未运行,因为当前未对 bot 进行验证。"
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "silentCAPTCHA 的 bot 最低分数相当低 (%s)。"
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "silentCAPTCHAv1 注册"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "silentCAPTCHAv2 注册"
 
 msgid "suggestion"
 msgstr "建议"

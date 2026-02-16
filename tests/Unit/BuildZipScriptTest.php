@@ -72,4 +72,16 @@ class BuildZipScriptTest extends BaseUnitTest {
 			'ZipArchive extension must be available'
 		);
 	}
+
+	public function testSkipRootComposerMapsToComposerInstallOption() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$content = $this->getPluginFileContents( 'bin/build-zip.php', 'build-zip script' );
+
+		$this->assertStringContainsString( "'skip-root-composer'", $content );
+		$this->assertStringContainsString( "'composer_install' ] = false", $content );
+		$this->assertStringNotContainsString( "'composer_root' ] = false", $content );
+	}
 }

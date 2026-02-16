@@ -1,0 +1,374 @@
+// ============================================================
+// Dashboard — reusable base classes + dashboard-specific pieces
+// ============================================================
+
+// ------------------------------------
+// Reusable: .shield-card (accent-bar card)
+// ------------------------------------
+.shield-card {
+	border: none;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	overflow: hidden;
+	background: #fff;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	&:hover {
+		transform: translateY(-3px);
+		box-shadow: $card-box-shadow-hover;
+	}
+}
+
+// ------------------------------------
+// Reusable: .shield-card-accent (4px top bar)
+// ------------------------------------
+.shield-card-accent {
+	height: $card-accent-height;
+	width: 100%;
+	&.status-good { background: $status-color-good; }
+	&.status-warning { background: $status-color-warning; }
+	&.status-critical { background: $status-color-critical; }
+	&.status-info { background: $status-color-info; }
+	&.status-neutral { background: $accent-color-salt-green; }
+}
+
+// ------------------------------------
+// Reusable: .shield-badge (status pill)
+// ------------------------------------
+.shield-badge {
+	font-size: 0.72rem;
+	font-weight: 600;
+	padding: 0.15rem 0.5rem;
+	border-radius: 50px;
+	display: inline-block;
+	white-space: nowrap;
+	&.badge-good { background: $badge-good-bg; color: $badge-good-color; }
+	&.badge-warning { background: $badge-warning-bg; color: $badge-warning-color; }
+	&.badge-critical { background: $badge-critical-bg; color: $badge-critical-color; }
+	&.badge-info { background: $badge-info-bg; color: $badge-info-color; }
+	&.badge-disabled { background: #e9ecef; color: #6c757d; }
+}
+
+// ------------------------------------
+// Reusable: .shield-list (clean widget list)
+// ------------------------------------
+.shield-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	li {
+		padding: 7px 0;
+		border-bottom: 1px solid $border-color-neutral-subtle;
+		font-size: 0.82rem;
+		color: #50575e;
+		line-height: 1.4;
+		&:first-child { padding-top: 0; }
+		&:last-child { border-bottom: none; }
+	}
+	.ip-address {
+		font-family: monospace;
+		font-size: 0.78rem;
+		color: $status-color-good;
+		font-weight: 500;
+	}
+	.timestamp {
+		font-size: 0.7rem;
+		color: #646970;
+	}
+	.mono {
+		font-family: monospace;
+		font-size: 0.78rem;
+	}
+}
+
+// ============================================================
+// Dashboard-specific: Stats Strip
+// ============================================================
+.stats-strip {
+	display: flex;
+	background: #fff;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	overflow: hidden;
+}
+
+.stat-cell {
+	flex: 1;
+	text-align: center;
+	padding: 20px 12px 16px;
+	position: relative;
+	border-right: 1px solid $border-color-neutral-subtle;
+	cursor: default;
+	overflow: hidden;
+	min-height: 130px;
+	display: flex;
+	flex-direction: column;
+	perspective: 1000px;
+	transform-style: preserve-3d;
+
+	&:last-child { border-right: none; }
+
+	// Coloured 4px accent segment at top of each cell
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: $card-accent-height;
+	}
+	&.stat-good::before { background: $status-color-good; }
+	&.stat-warning::before { background: $status-color-warning; }
+	&.stat-critical::before { background: $status-color-critical; }
+	&.stat-info::before { background: $status-color-info; }
+	&.stat-neutral::before { background: $accent-color-salt-green; }
+}
+
+.stat-value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+.stat-good .stat-value { color: $status-color-good; }
+.stat-warning .stat-value { color: $status-color-warning; }
+.stat-critical .stat-value { color: $status-color-critical; }
+.stat-info .stat-value { color: $status-color-info; }
+
+.stat-title {
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	color: #646970;
+	font-weight: 600;
+	margin-top: 4px;
+}
+
+.stat-subtitle {
+	font-size: 0.68rem;
+	color: #888;
+}
+
+// Decorative sparkline bars above stat values
+.stat-sparkline {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 2px;
+	height: 32px;
+	margin-bottom: 6px;
+}
+.stat-sparkline .bar {
+	width: 4px;
+	border-radius: 1px 1px 0 0;
+	opacity: 0.5;
+	&:nth-child(1) { height: 40%; }
+	&:nth-child(2) { height: 60%; }
+	&:nth-child(3) { height: 35%; }
+	&:nth-child(4) { height: 80%; }
+	&:nth-child(5) { height: 55%; }
+	&:nth-child(6) { height: 90%; }
+	&:nth-child(7) { height: 65%; }
+}
+.stat-good .stat-sparkline .bar { background: $status-color-good; }
+.stat-warning .stat-sparkline .bar { background: $status-color-warning; }
+.stat-critical .stat-sparkline .bar { background: $status-color-critical; }
+.stat-info .stat-sparkline .bar { background: $status-color-info; }
+
+// 3D flip on hover
+// Firefox regression note:
+// Keep `perspective`, `transform-style: preserve-3d`, and `backface-visibility`
+// declarations on the cell/flipper/faces together, or Firefox may paint both
+// faces at once during rotateY hover (front text appears mirrored under chart).
+.stat-flipper {
+	position: relative;
+	width: 100%;
+	transition: transform 0.5s ease;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+	-moz-transform-style: preserve-3d;
+	will-change: transform;
+	flex: 1;
+}
+.stat-cell:hover .stat-flipper {
+	transform: rotateY(180deg);
+}
+.stat-front,
+.stat-back {
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+	-moz-transform-style: preserve-3d;
+}
+.stat-front {
+	position: relative;
+	height: 100%;
+	transform: rotateY(0deg);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.stat-back {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	transform: rotateY(180deg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	.summary-chart {
+		width: 100%;
+		height: 100%;
+
+		.shield-chart {
+			min-height: 0;
+			height: 100%;
+		}
+
+		canvas {
+			max-height: 100% !important;
+			max-width: 100% !important;
+		}
+	}
+}
+
+// Responsive: stats strip
+@media (max-width: 1199.98px) {
+	.stats-strip {
+		flex-wrap: wrap;
+	}
+	.stat-cell {
+		flex: 0 0 33.333%;
+		border-bottom: 1px solid $border-color-neutral-subtle;
+	}
+	.stat-cell:nth-child(3) { border-right: none; }
+	.stat-cell:nth-child(n+4) { border-bottom: none; }
+	.stat-cell:last-child { border-right: none; }
+}
+@media (max-width: 767.98px) {
+	.stat-cell {
+		flex: 0 0 50%;
+	}
+	.stat-cell:nth-child(3) { border-right: 1px solid $border-color-neutral-subtle; }
+	.stat-cell:nth-child(2n) { border-right: none; }
+	.stat-cell:nth-child(n+5) { border-bottom: none; }
+}
+
+// ============================================================
+// Dashboard-specific: Scan Strip
+// ============================================================
+.scan-strip {
+	background: #fff;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.scan-strip-body {
+	display: flex;
+	flex: 1;
+	align-items: stretch;
+}
+
+.scan-section {
+	flex: 1;
+	text-align: center;
+	padding: 14px 10px;
+	border-right: 1px solid $border-color-neutral-subtle;
+	transition: background 0.2s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	&:last-child { border-right: none; }
+
+	&.section-good { background: $card-bg-good; }
+	&.section-warning { background: $card-bg-warning; }
+	&.section-critical { background: $card-bg-critical; }
+	&.section-info { background: $card-bg-info; }
+	&.section-disabled { background: #f8f8f8; }
+
+	&.section-good:hover { background: $status-bg-good-light; }
+	&.section-warning:hover { background: $status-bg-warning-light; }
+	&.section-critical:hover { background: $status-bg-critical-light; }
+	&.section-info:hover { background: $status-bg-info-light; }
+}
+
+.scan-label {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	color: #646970;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.scan-count {
+	font-size: 1.6rem;
+	font-weight: 700;
+	line-height: 1.1;
+	margin-bottom: 6px;
+
+	&.count-good { color: $status-color-good; }
+	&.count-warning { color: $status-color-warning; }
+	&.count-critical { color: $status-color-critical; }
+	&.count-info { color: $status-color-info; }
+	&.count-disabled { color: #adb5bd; }
+}
+
+// Responsive: scan strip
+@media (max-width: 1199.98px) {
+	.scan-strip-body {
+		flex-wrap: wrap;
+	}
+	.scan-section {
+		flex: 0 0 50%;
+		border-bottom: 1px solid $border-color-neutral-subtle;
+	}
+	.scan-section:nth-child(2n) { border-right: none; }
+	.scan-section:nth-child(n+3) { border-bottom: none; }
+}
+@media (max-width: 767.98px) {
+	.scan-section {
+		flex: 0 0 100%;
+		border-right: none;
+	}
+	.scan-section:last-child { border-bottom: none; }
+}
+
+// ============================================================
+// Dashboard-specific: Widget card overrides
+// ============================================================
+.widget-card {
+	&.shield-card:hover {
+		transform: translateY(-2px);
+	}
+	.widget-content-scroll {
+		max-height: 500px;
+		overflow-y: auto;
+	}
+}
+
+.widget-title {
+	font-size: 0.88rem;
+	font-weight: 600;
+	margin-bottom: 8px;
+	color: #1d2327;
+}
+
+.widget-footer a,
+.widget-footer-link {
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: $status-color-good;
+	text-decoration: none;
+	&:hover {
+		text-decoration: underline;
+	}
+}

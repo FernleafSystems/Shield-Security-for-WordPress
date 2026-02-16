@@ -1,20 +1,31 @@
 {% if flags.has_results %}
-	<div class="row mt-2">
-		<div class="col">
-			<p>Scans results summary is correct as of the time that this report was generated: {{ vars.generation_date }}</p>
-		</div>
-	</div>
-	<div class="row mt-2">
+	<p style="font-size: 0.85rem; color: #777;">{{ strings.scan_summary_note|default('Scan results summary as of the time this report was generated: '~vars.generation_date) }}</p>
+
+	<div class="row g-3 mt-1">
 		{% for slug,data in vars.scan_counts %}
-			<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ data.colour }}">
-				<div class="card">
-					<div class="card-body ps-3 pe-2 py-2">
-						<div class="overline text-muted mb-1">{{ data.name }}</div>
-						<div style="font-size: 2rem; font-weight: 700; line-height: 1.1;">{{ data.count }}</div>
+			{% if data.colour == 'success' %}
+				{% set status = 'good' %}
+				{% set count_color = 'var(--status-good)' %}
+			{% elseif data.colour == 'warning' %}
+				{% set status = 'warning' %}
+				{% set count_color = '#cc7a00' %}
+			{% elseif data.colour == 'danger' %}
+				{% set status = 'critical' %}
+				{% set count_color = 'var(--status-critical)' %}
+			{% else %}
+				{% set status = 'info' %}
+				{% set count_color = 'var(--status-info)' %}
+			{% endif %}
+			<div class="col-lg-3 col-md-4 col-6">
+				<div class="scan-card" style="background: var(--card-bg-{{ status }});">
+					<div class="scan-card-accent" style="background: var(--status-{{ status }});"></div>
+					<div class="scan-card-body">
+						<div class="scan-name">{{ data.name }}</div>
+						<div class="scan-count" style="color: {{ count_color }};">{{ data.count }}</div>
 						{% if data.count == 0 %}
-							<small style="color: #008000;">All clear</small>
+							<div class="scan-sub all-clear">&#10003; All clear</div>
 						{% elseif data.new_count is defined and data.new_count > 0 %}
-							<small style="color: #cc7a00;">{{ data.new_count }} new</small>
+							<div class="scan-sub has-new">{{ data.new_count }} new</div>
 						{% endif %}
 					</div>
 				</div>
@@ -24,40 +35,41 @@
 
 	{% for slug,data in vars.scan_counts %}
 		{% if data.count > 0 and data.items is defined and data.items|length > 0 %}
-			<div class="row mt-3">
-				<div class="col">
-					<h6 class="mb-2">
-						{{ data.name }}
-						{% if data.new_count is defined and data.new_count > 0 %}
-							<span class="badge bg-warning text-dark ms-1" style="font-size: 0.7em;">{{ data.new_count }} {{ strings.new_badge }}</span>
+			{% if data.colour == 'warning' %}
+				{% set pill_class = 'pill-warning' %}
+			{% elseif data.colour == 'danger' %}
+				{% set pill_class = 'pill-critical' %}
+			{% else %}
+				{% set pill_class = 'pill-info' %}
+			{% endif %}
+			<div class="category-header">
+				<h6>{{ data.name }}
+					{% if data.new_count is defined and data.new_count > 0 %}
+						<span class="status-pill {{ pill_class }}">{{ data.new_count }} {{ strings.new_badge }}</span>
+					{% endif %}
+				</h6>
+			</div>
+			<div class="scan-item-list">
+				{% for entry in data.items %}
+					<div class="scan-item {% if entry.is_new %}is-new{% endif %}">
+						{{ entry.label }}
+						{% if entry.is_new %}
+							<span class="new-badge">{{ strings.new_badge }}</span>
 						{% endif %}
-					</h6>
-					<ul class="list-group list-group-flush">
-						{% for entry in data.items %}
-							<li class="list-group-item py-1 px-2 {% if entry.is_new %}border-start border-3 border-warning bg-warning bg-opacity-10{% endif %}"
-								style="font-family: monospace; font-size: 0.85em;">
-								{{ entry.label }}
-								{% if entry.is_new %}
-									<span class="badge bg-warning text-dark ms-1" style="font-size: 0.75em;">{{ strings.new_badge }}</span>
-								{% endif %}
-							</li>
-						{% endfor %}
-						{% if data.items_total is defined and data.items_total > data.items|length %}
-							<li class="list-group-item py-1 px-2 text-muted fst-italic" style="font-size: 0.85em;">
-								{{ strings.and_x_more|format(data.items_total - data.items|length) }}
-							</li>
-						{% endif %}
-					</ul>
-				</div>
+					</div>
+				{% endfor %}
+				{% if data.items_total is defined and data.items_total > data.items|length %}
+					<div class="scan-item" style="color: #646970; font-style: italic;">
+						{{ strings.and_x_more|format(data.items_total - data.items|length) }}
+					</div>
+				{% endif %}
 			</div>
 		{% endif %}
 	{% endfor %}
 {% else %}
-	<p>There are no results to show at this time.</p>
+	<p class="report-empty">There are no results to show at this time.</p>
 {% endif %}
 
-<div class="row mt-2">
-	<div class="col">
-		<p><a href="{{ hrefs.view_scan_results }}" target="_blank">{{ strings.view_scan_results }}</a></p>
-	</div>
+<div style="margin-top: 12px;">
+	<a href="{{ hrefs.view_scan_results }}" target="_blank" class="report-link">{{ strings.view_scan_results }}</a>
 </div>

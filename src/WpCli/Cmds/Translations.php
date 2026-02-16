@@ -133,7 +133,7 @@ class Translations extends BaseCmd {
 		$cachedPath = $controller->getLocaleMoFilePath( $locale );
 		if ( !empty( $cachedPath ) && !$this->isForceFlag() ) {
 			\WP_CLI::warning( \sprintf(
-				__( 'Locale "%s" is already cached at: %s. Use --force to re-download.', 'wp-simple-firewall' ),
+				__( 'Locale "%1$s" is already cached at: %2$s. Use --force to re-download.', 'wp-simple-firewall' ),
 				$locale,
 				$cachedPath
 			) );
@@ -144,7 +144,7 @@ class Translations extends BaseCmd {
 		$controller->enqueueLocaleForDownload( $locale );
 
 		\WP_CLI::log( \sprintf( __( 'Downloading translation for locale: %s', 'wp-simple-firewall' ), $locale ) );
-		$controller->runHourlyCron();
+		$controller->processQueue( true );
 
 		// Check if download succeeded
 		$cachedPath = $controller->getLocaleMoFilePath( $locale );

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-04 12:37+0000\n"
-"PO-Revision-Date: 2025-12-04 12:37+0000\n"
+"POT-Creation-Date: 2026-02-16 11:53+0000\n"
+"PO-Revision-Date: 2026-02-16 11:53+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: ja_JP\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = オン; \"N\" = オフ"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s（定数 <code>WP_MEMORY_LIMIT: %s</code>）"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (定数 <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s が %2$s にログインしました"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s および %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s は、%2$s（目に見えない GDPR 準拠のボット検出技術）を使用して、すべての自動ボットスパムをブロックします。"
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "%1$s ボット最小スコアがかなり低い(%2$s)です。"
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s は %2$s JS がサイトで正しく読み込まれているかどうかを判断できませんでした。"
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s には、使用しているサードパーティプラグインのフォームを保護するための統合が利用可能です: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s は、現在インストールされている %2$s プラグインのバージョンに既知のセキュリティ脆弱性があることを発見しました。"
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s は一時ディレクトリを作成する場所として次の場所を正常に選択しました: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s は wp-config.php ファイルを保護する %2$s 限定サービスです。"
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s は %2$s の専用メール配信サービスです。"
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s は %2$s 専用のボット検出技術で、訪問者には見えず、ログイン CAPTCHA とのユーザーインタラクションの必要性を排除します。"
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s は最小スコアが %2$s に設定されている場合は無効化されます。"
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s は %2$s 専用のボット検出技術で、目に見える CAPTCHA や類似の訪問者チャレンジの必要性を排除します。"
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s がこのコメントを「%2$s」としてマークしました。"
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s / %2$s 使用中（未使用: %3$s）"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s。"
+
+msgid "%d locale(s) available."
+msgstr "%d 個のロケールが利用可能。"
+
+msgid "%d locale(s) in queue."
+msgstr "キューに %d 個のロケール。"
+
+msgid "%d translation is queued for download"
+msgstr "%d 件の翻訳がダウンロード待ちです"
+
+msgid "%d translations are queued for download"
+msgstr "%d 件の翻訳がダウンロード待ちです"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON エンコード済み)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA プロバイダーが有効化済み"
 
 msgid "%s API Token Missing."
 msgstr "%s API トークンが不足しています。"
+
+msgid "%s Anti-Spam"
+msgstr "%s スパム対策"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot テクノロジー"
 
 msgid "%s Auto-Unblock"
 msgstr "%s 自動ブロック解除"
@@ -37,29 +115,92 @@ msgstr "%s 自動ブロック解除"
 msgid "%s Bot Check Failed."
 msgstr "%s ボットチェックに失敗しました。"
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "%s ボット検出は WordPress ログインに対するブルートフォース攻撃から保護していません。"
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "%s ボット検出は WordPress パスワード紛失フォームを保護していません。"
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "%s ボット検出は WordPress 登録を保護していません。"
+
+msgid "%s Bot Minimum Score"
+msgstr "%s ボット最小スコア"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s ボットスコア (パーセンテージ)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "%s ボットチャレンジの複雑性が低すぎます - 増加を検討してください。"
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s チェック無効 (モジュール)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%sコメントスパム保護"
+
+msgid "%s Complexity"
+msgstr "%s 複雑性"
+
+msgid "%s Deactivated"
+msgstr "%s を無効化した"
 
 msgid "%s Debug Information"
 msgstr "%sデバッグ情報"
 
+msgid "%s Emails"
+msgstr "%s メール"
+
+msgid "%s Fail"
+msgstr "%s 失敗"
+
+msgid "%s Features"
+msgstr "%s 機能"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s ファイアウォールが WordPress サイトへのリクエストをブロックしました。"
+
+msgid "%s For Logins"
+msgstr "ログイン用 %s"
+
+msgid "%s Free Trial"
+msgstr "%s 無料トライアル"
 
 msgid "%s Home"
 msgstr "%s ホーム"
 
+msgid "%s Home Page"
+msgstr "%s ホームページ"
+
+msgid "%s IP Reputation Score"
+msgstr "%s IP レピュテーションスコア"
+
+msgid "%s Info"
+msgstr "%s 情報"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s インテリジェント IP ブロック"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s が %s にログインしました"
+msgid "%s Issue"
+msgstr "%s 問題"
+
+msgid "%s Issues"
+msgstr "%s 問題"
+
+msgid "%s License Cleared"
+msgstr "%s ライセンスがクリアされました"
+
+msgid "%s License Management"
+msgstr "%s ライセンス管理"
 
 msgid "%s Login Verification"
 msgstr "%s ログイン認証"
 
 msgid "%s Lookup"
 msgstr "%s 検索"
+
+msgid "%s Option Key"
+msgstr "%s オプションキー"
 
 msgid "%s Plugin Badge"
 msgstr "%s プラグインバッジ"
@@ -70,6 +211,24 @@ msgstr "%s プラグイン設定"
 msgid "%s Plugin options updated successfully."
 msgstr "%s プラグイン設定が正常に更新されました。"
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s プラグイン – サイトの最小要件が満たされていません"
+
+msgid "%s Premium Security"
+msgstr "%s プレミアムセキュリティ"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro はオンラインストアから入手できます。"
+
+msgid "%s Pro store"
+msgstr "%s Pro ストア"
+
+msgid "%s Registration"
+msgstr "%s 登録"
+
+msgid "%s Scanners."
+msgstr "%s スキャナー。"
+
 msgid "%s Security Insights"
 msgstr "%s セキュリティインサイト"
 
@@ -79,14 +238,35 @@ msgstr "%s セキュリティ制限が適用されました"
 msgid "%s Status Report"
 msgstr "%s 状態レポート"
 
+msgid "%s Success"
+msgstr "%s 成功"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s ユーザー 2FA プロバイダーを有効化しました"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s ユーザー 2FA: 有効なものがあるかどうか"
+
 msgid "%s Website Security Report"
 msgstr "%s ウェブサイトセキュリティレポート"
 
-msgid "%s and %s"
-msgstr "%sおよび%s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "最小スコアが 0 に設定されているため、%s ボット検出は実行されていません。"
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "ボットが現在チャレンジされていないため、%s ボット検出は実行されていません。"
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s は、プラグイン & テーマを既知の脆弱性についてスキャンすることもできます。"
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s はサードパーティプラグインと自動的に統合できます。"
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s はサードパーティのログインおよび登録フォームをボットから自動的に保護できます。"
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s は IP アドレスを検出できませんでした。これは重大な Web ホスティング構成の問題を表しています。"
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s は、多くの個別のエリアで悪質な訪問者を追跡するため、非常に迅速にリスク評価を作成します。"
@@ -100,29 +280,41 @@ msgstr "%s日"
 msgid "%s days"
 msgstr "%s日"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "保護するフォーム（ログインや登録など）を選択していないため、%s 検出が適用されていません。"
+
 msgid "%s directory"
 msgstr "%s ディレクトリ"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s は多くのことを行うため、どこから始めればよいかわかりにくい場合があります。"
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s は通常、ログイン済みまたは登録済みユーザーからのコメントをスキャンしません。"
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "%s イベント定義が空であるか、正しい形式ではありません。"
 
 msgid "%s extension is unavailable."
 msgstr "%s 拡張機能は利用できません。"
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "WordPress 用 %s v20 の紹介"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s はすでにリクエストをブロックするために必要なアクションを実行しました。"
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s には、使用しているサードパーティプラグインのフォームを保護するための統合が利用可能です: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s は、現在インストールされている %s プラグインのバージョンに既知のセキュリティ脆弱性があることを発見しました。"
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s は一時ディレクトリを作成するために次の場所を正常に選択しました: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s は wp-config.php ファイルを保護する %s 専用のサービスです。"
-
 msgid "%s is a child of another theme."
 msgstr "%s は別のテーマの子テーマです。"
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s は、40,000 以上の WordPress Web サイトに導入されている強力な WordPress セキュリティサービスです。"
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "最小ボットスコアしきい値が指定されていないため、%s は無効化されています。"
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s は最小ボットスコアしきい値で有効化されています。"
 
 msgid "%s is not currently protecting your site."
 msgstr "%s は現在サイトを保護していません。"
@@ -130,14 +322,26 @@ msgstr "%s は現在サイトを保護していません。"
 msgid "%s is not protecting your site"
 msgstr "%s はサイトを保護していません"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s は当社の WordPress 悪質ボット検出技術です。"
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s は当社独自の AI 搭載マルウェアスキャンおよび検出エンジンです。"
 
 msgid "%s is protected against tampering."
 msgstr "%s は改ざんから保護されています。"
 
+msgid "%s isn't activated on this site."
+msgstr "%s はこのサイトで有効化されていません。"
+
+msgid "%s isn't installed on this site."
+msgstr "%s はこのサイトにインストールされていません。"
+
 msgid "%s isn't protected against tampering."
 msgstr "%s は改ざんから保護されていません。"
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s はボットスパムから WP コメントを保護していません。"
 
 msgid "%s item processed"
 msgstr "%s 項目が処理されました"
@@ -145,8 +349,11 @@ msgstr "%s 項目が処理されました"
 msgid "%s items processed"
 msgstr "%s 項目が処理されました"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s がこのコメントを「%s」としてマークしました。"
+msgid "%s license check failed."
+msgstr "%s ライセンスチェックに失敗しました。"
+
+msgid "%s license check was successful."
+msgstr "%s ライセンスチェックに成功しました。"
 
 msgid "%s minute"
 msgstr "%s分"
@@ -172,8 +379,8 @@ msgstr "%s件の違反"
 msgid "%s offenses until block"
 msgstr "ブロックまで %s 違反"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s は、メール、Yubikey、Google Authenticator、U2F を提供します。"
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s はメール、Yubikey、Google Authenticator、Passkeys を提供します。"
 
 msgid "%s options and modules"
 msgstr "%s オプションとモジュール"
@@ -181,11 +388,56 @@ msgstr "%s オプションとモジュール"
 msgid "%s per day"
 msgstr "1 日あたり %s"
 
+msgid "%s plugin activated"
+msgstr "%s プラグインを有効化しました"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s プラグインを有効化できませんでした"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s プラグインを無効化できませんでした"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s プラグインをインストールできませんでした"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s プラグインを更新できませんでした"
+
+msgid "%s plugin deactivated"
+msgstr "%s プラグインを無効化しました"
+
+msgid "%s plugin installed"
+msgstr "%s プラグインがインストール済み"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s プラグインはインストールされていますが、有効化されていません。"
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s プラグインはインストールされていますが、有効化されていません。"
+
+msgid "%s plugin needs to sync."
+msgstr "%s プラグインを同期する必要があります。"
+
+msgid "%s plugin not detected in last sync."
+msgstr "%s プラグインが最後の同期で検出されませんでした。"
+
+msgid "%s plugin updated"
+msgstr "%s プラグインを更新しました"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s プラグインのバージョンが同期していません。"
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s はサイト訪問者を保護し、Web トラフィックとファイルシステムの変更を監視しながら、潜在的なハッキングをブロックします。"
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s はサードパーティプラグインのフォームをスパムボットから保護するための組み込み統合を提供します。"
+
 msgid "%s scan remaining."
 msgstr "残り %s スキャン。"
+
+msgid "%s scans cannot execute."
+msgstr "%s スキャンを実行できません。"
 
 msgid "%s scans remaining."
 msgstr "残り %s スキャン。"
@@ -205,14 +457,14 @@ msgstr "%s回"
 msgid "%s tools and features"
 msgstr "%s のツールと機能"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s 使用中 / %s (未使用: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s はこれを自動的に実行しようとしますが、99% の確率で機能しますが、時々奇妙な Web ホスト構成により少し混乱することがあります。"
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s は、定期的に更新される一般的に使用されるスパムコンテンツの辞書を使用して、このタイプのスパムコンテンツをブロックします。"
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "サイト上の %s バージョンがこのサーバーと一致しません。"
 
 msgid "%s was added to your profile."
 msgstr "%s がプロフィールに追加されました。"
@@ -223,11 +475,26 @@ msgstr "%s がプロフィールから削除されました。"
 msgid "%s was successfully added to your account."
 msgstr "%s がアカウントに正常に追加されました。"
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s はサードパーティプラグインを自動的にスキャンして、組み込み統合が利用可能かどうかを確認します。"
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s は、新しいアップデートが利用可能になってから設定された日数の間、アップグレードを遅延させます。"
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s は、正当なユーザーに課題を与えることなく、サイトへのログインを試みるボットを検出します。"
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s は、正当な訪問者に課題を与えることなく、サイトにコメントスパムを投稿しようとするボットを検出します。"
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s は、silentCAPTCH テクノロジーを使用してフォームへの試行を制限することで、WordPress フォームをボットから保護します。"
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "%s の MainWP 統合はこのサイトで有効化されていません。"
+
+msgid "%s's Rules Engine isn't running."
+msgstr "%s のルールエンジンが実行されていません。"
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "%s の Security Admin システムは、通常の WordPress 管理に追加のセキュリティレイヤーを提供します。"
@@ -238,11 +505,14 @@ msgstr "%s の自動 IP ブロック機能は、防御がトリガーされた�
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s の保護は現在無効化されているため、再度有効化されるまでここで行った変更は適用されません。"
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s、創設者の紹介"
 
-msgid "%s: %s."
-msgstr "%s: %s。"
+msgid "%sv1 Registration"
+msgstr "%sv1 登録"
+
+msgid "%sv2 Registration"
+msgstr "%sv2 登録"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ Pro にする ↑"
@@ -273,6 +543,9 @@ msgstr "(ロックダウンが無効化されると、IP アドレスは自動�
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... および他 %s 件"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/ ディレクトリがスキャンされていません。"
@@ -397,9 +670,6 @@ msgstr "以下のファイルタイプに対して生成された404エラーは
 msgid "5-minute"
 msgstr "5分"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7日"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>スキャン中</strong> コア WordPress ファイルとディレクトリの変更と新規ファイルを確認しています。"
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "訪問者に対して %s ボットチェックが実行されましたが、設定でボットブロックオプションが無効になっています。"
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "比較対象となる公式ファイルが利用できないため、ファイル差分を作成できません。"
@@ -445,6 +718,9 @@ msgstr "WordPress ホスティングサーバーソフトウェアの概要。"
 msgid "A high-level overview of your WordPress updates status."
 msgstr "WordPress 更新ステータスの概要。"
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "ライセンスはすでに有効です。再有効化するには --force を使用してください。"
+
 msgid "A light-touch security profile"
 msgstr "軽量なセキュリティプロフィール"
 
@@ -456,6 +732,9 @@ msgstr "違反をトリガーしないリクエストパスのリスト。"
 
 msgid "A login to your WordPress account just occurred"
 msgstr "WordPress アカウントへのログインが発生しました"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "%s には多くの作業が費やされており、それについて広めるためにあなたの助けが必要です。:)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "新しいワンタイムパスワードがメールアドレスに送信されました。"
@@ -475,8 +754,8 @@ msgstr "堅牢なセキュリティ体制"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "スコアが「100」の場合はほぼ確実に良好であることを意味し、スコアが「0」の場合は悪意のあるボットである可能性が高いことを意味します。"
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "訪問者に対して silentCAPTCHA ボットチェックが実行されましたが、設定でボットブロックオプションが無効化されています。"
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "セキュリティアラートが生成されました。以下の問題を確認し、必要に応じて対処してください。"
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "WordPress アカウントへのログインが成功しました。"
@@ -498,6 +777,12 @@ msgstr "AI マルウェアスキャナー、自動ファイル修復、WP Config
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API キーを空にすることはできません。"
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "有効化には API キーが必要です。--api-key=YOUR_KEY を使用してください"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "アプリパスワード認証 - 無効なメールアドレス"
@@ -523,8 +808,8 @@ msgstr "検出された放棄されたプラグイン"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "放棄された WordPress.org プラグイン"
 
-msgid "Absolutely"
-msgstr "絶対に"
+msgid "About %s for WordPress"
+msgstr "WordPress 用 %s について"
 
 msgid "Accept Changes"
 msgstr "変更を承認"
@@ -571,20 +856,23 @@ msgstr "アクションおよび情報"
 msgid "Activate"
 msgstr "有効化"
 
+msgid "Activate %s"
+msgstr "%s を有効化"
+
+msgid "Activate %s License"
+msgstr "%s ライセンスを有効化"
+
 msgid "Activate Only"
 msgstr "有効化のみ"
+
+msgid "Activate Pro License"
+msgstr "Pro ライセンスを有効化"
 
 msgid "Activate Rule"
 msgstr "ルールを有効化"
 
-msgid "Activate Shield"
-msgstr "Shield を有効化"
-
-msgid "Activate ShieldPRO License"
-msgstr "ShieldPRO ライセンスを有効化"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "ShieldPRO ライセンスを有効化"
+msgid "Activate Your %s License"
+msgstr "%s ライセンスを有効化"
 
 msgid "Activate Your White Label Settings"
 msgstr "ホワイトラベル設定を有効化"
@@ -673,14 +961,14 @@ msgstr "追加されたテーブル"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "追加の IP ブロックリストはアップグレードプランで利用できます。"
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "%s チャレンジ複雑性を調整"
+
 msgid "Adjust Scan Results Display"
 msgstr "スキャン結果表示を調整"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "HTTP セキュリティヘッダーの展開を調整"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "silentCAPTCHA チャレンジ複雑性を調整"
 
 msgid "Admin Access Login"
 msgstr "管理者アクセスログイン"
@@ -751,17 +1039,26 @@ msgstr "サーバーより進んでいます"
 msgid "Alert"
 msgstr "アラート"
 
+msgid "Alert Report Generated"
+msgstr "アラートレポート生成済み"
+
+msgid "Alert Report Generated."
+msgstr "アラートレポートが生成されました。"
+
 msgid "Alert Reports Frequency"
 msgstr "アラートレポート頻度"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "プラグイン/テーマの脆弱性に関するアラート。Shield は更新が利用可能になると自動的にアップグレードできます。"
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "プラグイン/テーマの脆弱性に関するアラート。%s は利用可能になると自動的にアップグレードをデプロイできます。"
 
 msgid "Algorithm not supported"
 msgstr "サポートされていないアルゴリズム"
 
-msgid "Align Shield"
-msgstr "Shield を整合"
+msgid "Align %s"
+msgstr "%s を整列"
+
+msgid "All Clear"
+msgstr "すべてクリア"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "ID %s のユーザーからすべての MFA プロバイダーを削除しました。"
@@ -784,8 +1081,8 @@ msgstr "したがって、この Web サイトへのすべてのアクセスは�
 msgid "All access to your site is blocked."
 msgstr "サイトへのすべてのアクセスがブロックされています。"
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Shield Pro ライセンスの検証試行がすべて失敗しました。"
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "%s Pro ライセンスの検証試行がすべて失敗しました。"
 
 msgid "All available plugin updates have been applied."
 msgstr "利用可能なすべてのプラグイン更新が適用されました。"
@@ -795,6 +1092,9 @@ msgstr "利用可能なすべてのテーマ更新が適用されました。"
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "すべての文字は大文字小文字を区別せずに処理されます。"
+
+msgid "All clear"
+msgstr "すべてクリア"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "すべてのカスタムイベントキーは文字列で、小文字、長さ 10-50、「custom_」で始まり、文字とアンダースコアのみを含む必要があります。"
@@ -979,8 +1279,8 @@ msgstr "訪問者が %s プラグインの防御に引っかかるたびに、IP
 msgid "An unsupported profile was selected"
 msgstr "サポートされていないプロファイルが選択されました"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Shield プラグインのアップグレードが利用可能です。"
+msgid "An upgrade is available for the %s plugin."
+msgstr "%s プラグインのアップグレードが利用可能です。"
 
 msgid "Analyse & Fix"
 msgstr "分析 & 修正"
@@ -1054,8 +1354,8 @@ msgstr "誰でも登録可能"
 msgid "Anyone can register"
 msgstr "誰でも登録できます"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "誰でも登録可能が変更されました: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "誰でも登録可能が変更されました: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "アプリパスワードが無効化されました"
@@ -1093,8 +1393,8 @@ msgstr "大量リクエストにレート制限の制限を適用します。"
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "CSP ヘッダーの適用は訪問者に対するサイトの機能に影響を与える可能性があるため、このセクションでは直接的な推奨事項は提供していません。"
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Shield Security の制限は有効化されていますか?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "%s の制限が有効化されているかどうか?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "WordPress パーマリンクが有効化されているかどうか。"
@@ -1108,11 +1408,11 @@ msgstr "この IP ルールを削除してもよろしいですか?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "ファイルの変更を保持してもよろしいですか?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "ShieldPRO ライセンスを削除してもよろしいですか?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "本当に %s ライセンスを削除してもよろしいですか?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Shield プラグインをデフォルトにリセットしてもよろしいですか?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "%s プラグインをデフォルトにリセットしてもよろしいですか?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "本当に元のファイル内容を復元してもよいですか？"
@@ -1132,11 +1432,11 @@ msgstr "常に、このサービスの使用と依存は、お客様自身の責
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "各問題が解決されると、全体的なスコアは最大 100% まで改善されます。"
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "ご要望に応じて、%s は管理されている WordPress サイトへの %s ログインが成功したことを通知します。"
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "リクエストに応じて、%1$s は、管理している WordPress サイトへの %2$s ログインが成功したことを通知しています。"
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "互換性のあるプラグインが検出されるとすぐに、Shield は組み込み統合を自動的に有効化します。"
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "互換性のあるプラグインが検出されるとすぐに、%s は組み込み統合を自動的に有効化します。"
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "選択されたファイルに変更が検出されるとすぐに、内容が検査され、元に戻される可能性があります。"
@@ -1155,9 +1455,6 @@ msgstr "少なくとも 1 つのプラグインまたはテーマが変更され
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "少なくとも 1 つのオプションを指定する必要があり、デフォルトは WordPress 管理画面内のユーザープロファイルページです。"
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "サイトに対して少なくとも 1 つのセキュリティレポートが生成されています。"
 
 msgid "At least two records are required to merge."
 msgstr "マージするには少なくとも 2 つのレコードが必要です。"
@@ -1198,8 +1495,8 @@ msgstr "残りの試行回数: %s。"
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "変更されたファイルやマルウェアに感染したファイルを自動的に修復しようとします。"
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Shield Pro ライセンスの検証試行が失敗しました。"
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "%s Pro ライセンスの検証試行が失敗しました。"
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "メールアドレスを含む可能性のある監査証跡メッセージ"
@@ -1408,8 +1705,8 @@ msgstr "脆弱で疑わしいファイル、プラグイン、テーマを自動
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "利用可能になったサードパーティ統合を自動的に検出して有効化"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Shield の既存のホワイトリストルールと例外を自動的に尊重します。"
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "%s の既存のホワイトリストルールと例外を自動的に尊重します。"
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "オプションを自動的にインポートし、ネットワーク全体に設定をデプロイします。"
@@ -1504,6 +1801,9 @@ msgstr "管理者アカウントの重要な変更についてアラートを受
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "既知のセキュリティ脆弱性を持つプラグインとテーマについてアラートを受け取ります"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "%s プラグインが無効化されたときにアラートを受け取る"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Shield プラグインが無効化されたときにアラートを受け取る"
 
@@ -1528,11 +1828,11 @@ msgstr "ベータアクセス"
 msgid "Block %s"
 msgstr "%s をブロック"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "silentCAPTCHA で 100% ボットコメントスパムをブロック"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "%s で 100%% ボットコメントスパムをブロック"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "silentCAPTCHA を使用して WordPress コメントスパムの 99.9%% をブロックします。"
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "%s を使用して WordPress コメントスパムの 99.9%% をブロックします。"
 
 msgid "Block Anon REST API"
 msgstr "匿名 REST API をブロック"
@@ -1668,9 +1968,6 @@ msgstr "ボットからのスパムコメントをブロックしました。"
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "AntiBot テストに失敗したスパムコメントをブロックしました。"
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "reCAPTCHA に失敗したスパムコメントをブロックしました。"
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "ポリシー要件を満たさなかったパスワード更新の試行をブロックしました。"
@@ -1819,8 +2116,8 @@ msgstr "ブルートフォースログインガード"
 msgid "Brute Force Login Protection"
 msgstr "ブルートフォースログイン保護"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "silentCAPTCHA によるブルートフォースログイン保護"
+msgid "Brute Force Login Protection with %s"
+msgstr "%s によるブルートフォースログイン保護"
 
 msgid "Brute Force Protection"
 msgstr "ブルートフォース保護"
@@ -1828,8 +2125,8 @@ msgstr "ブルートフォース保護"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "ブルートフォーストラフィックレート制限"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "WordPress ログインに対するブルートフォースボット攻撃は silentCAPTCHA によって検出およびブロックされます。"
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "WordPress ログインに対するブルートフォースボット攻撃は %s によって検出およびブロックされます。"
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "ブルートフォースログイン攻撃はログインクールダウンシステムによってブロックされていません。"
@@ -1846,14 +2143,14 @@ msgstr "カスタムセキュリティルールを構築"
 msgid "Building scan items for scan: %s"
 msgstr "スキャン %s のスキャン項目を構築中"
 
-msgid "Built-In Shield Integrations"
-msgstr "組み込み Shield 統合"
+msgid "Built-In %s Integrations"
+msgstr "組み込み %s 統合"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "デフォルトでは、Shield は管理エリアと管理バーに必須ではない通知を表示します。"
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "デフォルトでは、%s は管理エリアと管理バーに必須ではない通知を表示します。"
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "デフォルトでは、Shield は何もしなくても、多数の脅威からサイトを保護し、悪意のある訪問者やボットをブロックするように自動的に構成されています。"
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "デフォルトでは、%s は自動的に設定され、何もしなくても多数の脅威からサイトを保護し、悪質な訪問者やボットをブロックします。"
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "ファイアウォールからのシグナルを他のすべてのセキュリティコンポーネントからのシグナルと結び付けることで、%s は時間の経過とともに訪問者プロファイルを構築し、誰が人間で、誰がボットで、誰が善意または悪意を持っているかを判断します。"
@@ -1863,21 +2160,6 @@ msgstr "バイパス"
 
 msgid "Bypass IP"
 msgstr "バイパス IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA 失敗"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA 合格"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA テストに失敗しました。"
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA テストに成功しました。"
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA はひどいものです。"
@@ -1990,6 +2272,9 @@ msgstr "チャレンジ失敗"
 msgid "Challenge has expired."
 msgstr "チャレンジの有効期限が切れました。"
 
+msgid "Change"
+msgstr "変更"
+
 msgid "Change Detected"
 msgstr "変更検出済み"
 
@@ -2005,11 +2290,14 @@ msgstr "2FA メールオプションの変更は現在利用できません。"
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "バックアップコードオプションの変更は現在利用できません。"
 
+msgid "Check %s License"
+msgstr "%s ライセンスを確認"
+
+msgid "Check For %s License"
+msgstr "%s ライセンスを確認"
+
 msgid "Check License"
 msgstr "ライセンスを確認"
-
-msgid "Check ShieldPRO License"
-msgstr "ShieldPRO ライセンスを確認"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "このファイルの内容を確認して、悪意のあるものでないことを確認してください。"
@@ -2044,14 +2332,14 @@ msgstr "子"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "silentCAPTHA ボット保護を展開するフォームを選択してください。"
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "2FA の WP ログインページに競合や問題がある場合は、カスタム Shield ページを選択してください。"
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "2FA の WP ログインページに競合や問題がある場合は、カスタム %s ページを選択してください。"
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "ボット保護対策を展開するフォームを選択してください。"
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "スケジュールに応じて、Shield からアラートを受信する最も適切な頻度を選択してください。"
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "スケジュールに応じて %s からアラートを受信する最適な頻度を選択してください。"
 
 msgid "Choose the page type for MFA verification"
 msgstr "MFA 認証のページタイプを選択"
@@ -2121,6 +2409,9 @@ msgstr "クリックして、Google Authenticator ログイン認証を直ちに
 
 msgid "Click to launch plugin search modal"
 msgstr "クリックしてプラグイン検索モーダルを起動"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "WordPress.org でレビューを投稿する ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "クリックして送信される RAW データを表示"
@@ -2200,8 +2491,8 @@ msgstr "コメントスパムがブロックされました。"
 msgid "Comment SPAM Protection"
 msgstr "コメントスパム保護"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "コメントスパム保護: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "コメントスパム保護: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "コメント状態が更新されました"
@@ -2269,6 +2560,12 @@ msgstr "設定"
 msgid "Config Pages For User 2FA Setup"
 msgstr "ユーザー 2FA セットアップ用設定ページ"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "1 つの異なる IP アドレスのみが検出されたため、設定は不要です。"
+
+msgid "Configure"
+msgstr "設定"
+
 msgid "Configure All '%s' Options"
 msgstr "すべての「%s」設定を構成"
 
@@ -2308,9 +2605,6 @@ msgstr "確認"
 msgid "Confirmation email will be sent to %s"
 msgstr "確認メールが %s に送信されます"
 
-msgid "Confirmation link"
-msgstr "確認リンク"
-
 msgid "Connected"
 msgstr "接続済み"
 
@@ -2329,8 +2623,8 @@ msgstr "お問い合わせフォームスパム"
 msgid "Contact Form SPAM Checking"
 msgstr "お問い合わせフォームスパムチェック"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "コンタクトフォームスパムは、各フォームプロバイダー向けにカスタム構築された統合でのみブロックできます - お使いのフォームがサポートされていない場合は、サポートチームにお問い合わせください。"
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "連絡先フォームスパムは、各フォームプロバイダー向けにカスタム構築された統合でのみブロックできます - フォームがサポートされていない場合は、サポートチームにお問い合わせください。"
 
 msgid "Contact Forms Integration"
 msgstr "コンタクトフォーム統合"
@@ -2395,8 +2689,8 @@ msgstr "座標"
 msgid "Core Reinstalled: v%s"
 msgstr "コア再インストール済み: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Core アップグレード: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "コアがアップグレードされました: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "確立されたユーザーセッション({{user_login}})のコアプロパティが変更されました。"
@@ -2443,8 +2737,8 @@ msgstr "ディレクトリを作成できませんでした: %s"
 msgid "Couldn't create the export file."
 msgstr "エクスポートファイルを作成できませんでした。"
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Shield プラグインのステータスを判定できませんでした。"
+msgid "Couldn't determine %s plugin status."
+msgstr "%s プラグインのステータスを判定できませんでした。"
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "スラッグ「%s」のプラグインを読み込めませんでした。"
@@ -2455,11 +2749,17 @@ msgstr "スラッグ「%s」のテーマを読み込めませんでした。"
 msgid "Couldn't read MU plugin template from %s"
 msgstr "%s から MU プラグインテンプレートを読み取れませんでした"
 
+msgid "Count"
+msgstr "回数"
+
 msgid "Country"
 msgstr "国"
 
 msgid "Country Code"
 msgstr "国コード"
+
+msgid "Create %s Network"
+msgstr "%s ネットワークを作成"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "バックアップ 2FA ログインコードを作成"
@@ -2482,9 +2782,6 @@ msgstr "新規ルールを作成"
 msgid "Create Report"
 msgstr "レポートを作成"
 
-msgid "Create Shield Network"
-msgstr "Shield ネットワークを作成"
-
 msgid "Create and view all your custom security rules."
 msgstr "すべてのカスタムセキュリティルールを作成および表示します。"
 
@@ -2502,6 +2799,9 @@ msgstr "ここにパスを作成すると「wp-login.php」が無効化されま
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "カスタムルールの作成は高度な機能であり、作成したルールから生じるすべての問題について全責任を負います。"
+
+msgid "Critical"
+msgstr "重要"
 
 msgid "Critical File Protection"
 msgstr "重要ファイル保護"
@@ -2578,9 +2878,6 @@ msgstr "現在のファイル内容"
 msgid "Current Scan"
 msgstr "現在のスキャン"
 
-msgid "Current Scan Results"
-msgstr "現在のスキャン結果"
-
 msgid "Current Session Age (seconds)"
 msgstr "現在のセッション期間(秒)"
 
@@ -2589,9 +2886,6 @@ msgstr "現在のセッションが終了しました"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "現在のセッショントークン期間(秒)"
-
-msgid "Current Summary"
-msgstr "現在のサマリー"
 
 msgid "Current User Sessions"
 msgstr "現在のユーザーセッション"
@@ -2619,9 +2913,6 @@ msgstr "カスタムデバッグ"
 
 msgid "Custom Exclusions"
 msgstr "カスタム除外"
-
-msgid "Custom Report on %s"
-msgstr "%s のカスタムレポート"
 
 msgid "Custom Rules"
 msgstr "カスタムルール"
@@ -2704,14 +2995,14 @@ msgstr "日付範囲"
 msgid "Day"
 msgstr "日"
 
+msgid "Deactivate %s"
+msgstr "%s を無効化"
+
 msgid "Deactivate Akismet"
 msgstr "Akismet を無効化"
 
 msgid "Deactivate Rule"
 msgstr "ルールを無効化"
-
-msgid "Deactivate Shield"
-msgstr "Shield を無効化"
 
 msgid "Deactivated"
 msgstr "無効化済み"
@@ -2727,9 +3018,6 @@ msgstr "デバッグが有効"
 
 msgid "Debug Tests"
 msgstr "デバッグテスト"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "デバッグおよび情報ログは、特定の問題を調査する場合にのみ有効化する必要があります。"
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "ボットが特定のアクションを実行したときに %s がどのように応答するかを決定します。"
@@ -2749,8 +3037,8 @@ msgstr "デフォルト管理者ユーザー"
 msgid "Default User Role"
 msgstr "デフォルトユーザー権限"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "デフォルトユーザー権限が変更されました: %s→%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "初期設定ユーザー権限が変更されました: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "初期設定: 24 時間ごとに 1 回。セキュリティを向上させるには、1 日あたりのスキャン回数を増やしてください。"
@@ -2806,14 +3094,11 @@ msgstr "削除されたテーブル"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "削除されたユーザーの投稿がユーザー「{{user_login}}」に再割り当てされました。"
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "デモ: Shield v20 の重要な UI 変更"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "デモ: %s v20 の重要な UI 変更"
 
 msgid "Demoted From Admin"
 msgstr "管理者から降格"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "設定によっては、これらのレポートにはアラート、統計情報、その他の情報の組み合わせが含まれる場合があります。"
 
 msgid "Description"
 msgstr "説明"
@@ -2880,6 +3165,9 @@ msgstr "検出済み"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "無効なメールアドレス({{email}})によるユーザー登録を検出しました。"
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "サイトへの各訪問者を次の訪問者と区別するには、正しい訪問者 IP アドレスを検出することが重要です。"
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "それらを早期に検出してブロックすることが、最大の保護源となります。"
@@ -2953,6 +3241,9 @@ msgstr "モジュールを無効化"
 msgid "Disable Security Admin"
 msgstr "Security Admin を無効化"
 
+msgid "Disable Security Admin via Email"
+msgstr "メール経由で Security Admin を無効化"
+
 msgid "Disable Shield"
 msgstr "Shield を無効化"
 
@@ -2989,6 +3280,9 @@ msgstr "XML-RPC エンドポイントを無効化し、すべてのリクエス�
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "このオプションを無効化すると、利用可能な更新やアップデート後の通知に関する特定のプラグイン管理通知が非表示になります。"
 
+msgid "Disabled"
+msgstr "無効化"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "匿名アクセスを無効化すると、サイト訪問者向けに REST API を使用するプラグインが動作しなくなる可能性があります。"
 
@@ -2998,8 +3292,8 @@ msgstr "切断済み"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "作成者によって放棄された可能性のあるプラグインを発見"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Shield Security プランをアップグレードして、最も包括的な WordPress セキュリティを体験してください。"
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "%s プランをアップグレードすると、最も包括的な WordPress セキュリティを利用できます。"
 
 msgid "Discovered"
 msgstr "発見済み"
@@ -3009,6 +3303,9 @@ msgstr "サイト上でマルウェアを発見することは「保護」では
 
 msgid "Disk Space"
 msgstr "ディスク容量"
+
+msgid "Dismiss"
+msgstr "閉じる"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "必須ではないプラグイン通知と管理バーメニューを表示"
@@ -3064,8 +3361,8 @@ msgstr "リクエスト元 IP のホスト名が指定されたホスト名と�
 msgid "Does the method of the request match the given specified method to match."
 msgstr "リクエストのメソッドが指定された一致メソッドと一致するかどうか。"
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "リクエストがすべての Shield 制限をバイパスするかどうか。"
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "リクエストがすべての %s 制限をバイパスするかどうか。"
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "リクエストに指定された名前のパラメータが含まれているかどうか。"
@@ -3097,8 +3394,8 @@ msgstr "リクエストのスクリプト名が指定された名前と一致す
 msgid "Does the request useragent match the given useragent."
 msgstr "リクエストの User Agent が指定された User Agent と一致するかどうか。"
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "指定された Shield セッションパラメータの値が指定されたパターンと一致するかどうか。"
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "指定された %s セッションパラメータの値が指定されたパターンと一致するかどうか。"
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "指定されたリクエストパラメータの値が指定されたパターンと一致するかどうか。"
@@ -3115,8 +3412,8 @@ msgstr "次のロールを持つユーザーのコメントをスキャンしな
 msgid "Don't want these email alerts?"
 msgstr "これらのメールアラートは不要ですか?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "ダウングレード済み: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "ダウングレード済み: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "ダウンロード"
@@ -3130,6 +3427,9 @@ msgstr "IP ルールを CSV としてダウンロード"
 msgid "Download Modified"
 msgstr "変更済みをダウンロード"
 
+msgid "Download Now"
+msgstr "今すぐダウンロード"
+
 msgid "Download Options Export File"
 msgstr "設定エクスポートファイルをダウンロード"
 
@@ -3139,11 +3439,17 @@ msgstr "オリジナルをダウンロード"
 msgid "Download Request Logs"
 msgstr "リクエストログをダウンロード"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "ダウンロードに失敗しました。ShieldNet API が利用可能で、ロケールが存在することを確認してください。"
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "スコープ {{scope}} の CrowdSec からレピュテーション決定をダウンロードしました。"
 
 msgid "Downloading file, please wait..."
 msgstr "ファイルをダウンロード中です。お待ちください..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "ロケール %s の翻訳をダウンロード中"
 
 msgid "Duration"
 msgstr "期間"
@@ -3160,8 +3466,8 @@ msgstr "このリストの各サイトは、秘密鍵を提供せずにこのサ
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "どこでも利用可能な最も簡単でストレスフリーな WP Pro アップグレード"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Shield Security を簡単に統合して、MainWP 内からサイトセキュリティを管理できます。"
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "%s を簡単に統合して、MainWP 内からサイトセキュリティを管理できます。"
 
 msgid "Edit"
 msgstr "編集"
@@ -3169,8 +3475,8 @@ msgstr "編集"
 msgid "Edit Rule"
 msgstr "ルールを編集"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "ルール #%s (%s) を編集"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "ルール #%1$s (%2$s) を編集"
 
 msgid "Edit Settings"
 msgstr "設定を編集"
@@ -3220,8 +3526,8 @@ msgstr "ログインおよびユーザーフォームに保護を適用する設
 msgid "Edit settings that control automatic IP blocking"
 msgstr "自動 IP ブロックを制御する設定を編集"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "silentCAPTCHA がボットを検出する方法を制御する設定を編集"
+msgid "Edit settings that control how %s detects bots"
+msgstr "%s がボットを検出する方法を制御する設定を編集"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "最小パスワード強度を適用する設定を編集"
@@ -3250,8 +3556,8 @@ msgstr "このオプションの編集は現在制限されています。"
 msgid "Either the country code or phone number were missing."
 msgstr "国コードまたは電話番号のいずれかが不足していました。"
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Shield Security プランをアップグレードして、WordPress セキュリティを最高クラスに引き上げましょう。"
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "%s プランをアップグレードすることで、WordPress セキュリティを最高クラスに引き上げます。"
 
 msgid "Email"
 msgstr "メール"
@@ -3304,8 +3610,8 @@ msgstr "新しいコメントのメール通知"
 msgid "Email sending has already been verified."
 msgstr "メール送信はすでに検証されています。"
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "%s プラグイン v%s から %s で送信されたメール。"
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "%3$s の %1$s プラグイン v%2$s から送信されたメール。"
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "メールを送信しました。このブラウザでリンクが開くことを確認してください。"
@@ -3334,8 +3640,8 @@ msgstr "サイトに送信される悪意のあるデータを検出してブロ
 msgid "Empty User Agents"
 msgstr "空のユーザーエージェント"
 
-msgid "Empty response from Shield client site"
-msgstr "Shield クライアントサイトからの空の応答"
+msgid "Empty response from %s client site"
+msgstr "%s クライアントサイトからの空のレスポンス"
 
 msgid "Empty root file provided for instantiation"
 msgstr "インスタンス化のために空のルートファイルが提供されました"
@@ -3568,14 +3874,20 @@ msgstr "エラー"
 msgid "Error Log Message"
 msgstr "エラーログメッセージ"
 
+msgid "Error: {{error}}"
+msgstr "エラー: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "満足しているという一言のレビューでも、私たちにとって非常に役立ちます。"
+
 msgid "Event"
 msgstr "イベント"
 
 msgid "Event %s does not exist."
 msgstr "イベント %s は存在しません。"
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "イベント (%s) の定義に存在しない監査パラメータがあります: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "イベント (%1$s) の定義には存在しない監査パラメータが含まれています: %2$s"
 
 msgid "Event Details"
 msgstr "イベント詳細"
@@ -3661,6 +3973,9 @@ msgstr "ライセンスサーバーへの接続に失敗しました。"
 msgid "Failed to create custom report."
 msgstr "カスタムレポートの作成に失敗しました。"
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "ロケール {{locale}} の翻訳ファイルのダウンロードに失敗しました。"
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "パス「%s」のファイルロッカーレコードの挿入に失敗しました"
 
@@ -3679,8 +3994,8 @@ msgstr "スキャン項目の修復に失敗しました。"
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "ファイアウォールブロックメールアラートの送信に失敗しました: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "SureSend を使用した「{{email}}」へのメール送信(タイプ: {{slug}})に失敗しました。"
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "%s を使用して「{{email}}」へのメール送信（タイプ: {{slug}}）に失敗しました。"
 
 msgid "Failed to store the rule in the database."
 msgstr "データベースにルールを保存できませんでした。"
@@ -3796,8 +4111,8 @@ msgstr "ファイルの内容を暗号化できませんでした。メッセー
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "暗号化後のファイル内容を wp_json_encode() できませんでした。"
 
-msgid "File detected as %s by %s scanner."
-msgstr "%s スキャナーによりファイルが %s として検出されました。"
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "%2$s スキャナーによって %1$s として検出されたファイル。"
 
 msgid "File does not exist."
 msgstr "ファイルが存在しません。"
@@ -3997,14 +4312,17 @@ msgstr "生成済み"
 msgid "Generating a new code will replace your existing code."
 msgstr "新しいコードを生成すると、既存のコードが置き換えられます。"
 
+msgid "Get %s!"
+msgstr "%s を取得!"
+
 msgid "Get All PRO Security Features"
 msgstr "すべての PRO セキュリティ機能を取得"
 
-msgid "Get ShieldPRO!"
-msgstr "ShieldPROを入手！"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "3分以内に開始"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "今すぐ %s のリスクフリー、義務なしの無料トライアルを入手してください。"
 
 msgid "Global Plugin Enable"
 msgstr "プラグイングローバル有効化"
@@ -4039,6 +4357,9 @@ msgstr "Proにする!"
 msgid "Go To %s"
 msgstr "%s へ移動"
 
+msgid "Go To %s Overview"
+msgstr "%s 概要へ移動"
+
 msgid "Go To Admin"
 msgstr "管理画面へ移動"
 
@@ -4050,9 +4371,6 @@ msgstr "概要へ移動"
 
 msgid "Go To Security Dashboard"
 msgstr "セキュリティダッシュボードへ移動"
-
-msgid "Go To Shield Overview"
-msgstr "Shield 概要へ移動"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "%s プラグインで設定を管理し認証するにはこちらにアクセスしてください。"
@@ -4111,14 +4429,14 @@ msgstr "送信する HTTP レスポンスヘッダー"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "ホーム URL と WP サイト URL の HTTPS 設定が一致していません。"
 
-msgid "Handshake ShieldNET"
-msgstr "ShieldNET とハンドシェイク"
+msgid "Handshake %s"
+msgstr "ハンドシェイク %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "ハードウェア2要素認証"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "有効な Shield ユーザーセッションがあります"
+msgid "Has Valid %s User Sessions"
+msgstr "有効な %s ユーザーセッションを持っているかどうか"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "サイト上のユーザーが使用するパスワードを完全に制御できます。"
@@ -4135,11 +4453,14 @@ msgstr "ヘルプデスク記事"
 msgid "Helpdesk and Knowledge Base"
 msgstr "ヘルプデスクとナレッジベース"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Shield がすでにサイトを保護している方法の一部を以下に示します:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "%s がすでにサイトを保護している方法の一部を以下に示します:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "ここで、スキャンする悪意のあるデータの種類を選択します。"
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "レポート期間のセキュリティ概要は次のとおりです。以下の問題を確認し、必要に応じて対処してください。"
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "ただし、ここではユーザーアカウント自体に焦点を当て、安全な状態にあることを確認します。"
@@ -4189,8 +4510,8 @@ msgstr "ホーム URL"
 msgid "Home URL Changed"
 msgstr "ホーム URL が変更されました"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "ホーム URL が変更されました: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "ホーム URL が変更されました: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "ホームページ"
@@ -4297,11 +4618,14 @@ msgstr "人間によるスパムフィルター"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "人間によるスパムフィルターが繰り返されるコメントスパム試行を検出しました。"
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "人間によるスパムフィルターが '%s' を '%s' で検出しました"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "人間によるスパムフィルターが「%2$s」で「%1$s」を検出しました"
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "人間によるスパムフィルターが '{{word}}' を '{{key}}' で検出しました"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "人間によるスパムは、スパム防御を回避することが多いため、最もフラストレーションを引き起こします。"
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "既存のオプションが上書きされることを理解しています"
@@ -4327,17 +4651,11 @@ msgstr "キャッシュを使用していて、その後クリアしないと、
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "このサイトへのすべてのトラフィックをブロックすることの結果を理解しています。"
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Shield のホワイトリストと例外を尊重しないルールを作成するリスクを理解しており、ロックアウトされた場合にアクセスを回復することが困難になる可能性があることを承知しています。"
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "%s のホワイトリストと例外を尊重しないルールを作成するリスクを理解しており、ロックアウトされた場合にアクセスを回復することが難しくなる可能性があることを認識しています。"
 
 msgid "I'd like to learn more, please"
 msgstr "さらに詳しく知りたいです"
-
-msgid "I'd rather not show this support"
-msgstr "このサポートは表示しない"
-
-msgid "I've done this already"
-msgstr "すでに実施済みです"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "重要"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s スコアをリセットしました。"
 
 msgid "IP Address"
 msgstr "IP アドレス"
@@ -4552,9 +4873,6 @@ msgstr "IP は自動ブロックリストに含まれていません。"
 msgid "IP provided was invalid."
 msgstr "指定された IP が無効です。"
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA スコアがリセットされました。"
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "ユーザーに複数のロールが割り当てられている場合、
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "悪意のあるデータが検出された場合、リクエストは直ちに終了されます。"
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "正しい設定が %s でない場合は、ホスティングプロバイダーに連絡して、%s が実際の訪問者 IP アドレスを提供するようにホスティングを構成するよう依頼することをお勧めします。"
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "正しい設定が %1$s でない場合は、ホスティングプロバイダーに連絡して、%2$s が実際の訪問者 IP アドレスを提供するようにホスティングを設定するよう依頼することをお勧めします。"
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "必要なプロバイダーがリストにない場合は、サポートチームにお問い合わせください。統合の構築が可能かどうか確認いたします。"
@@ -4642,8 +4960,8 @@ msgstr "ユーザーが指定された時間数の間非アクティブな場合
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "ユーザーが指定された時間数の間非アクティブな場合、次回戻ってきたときに強制的にログアウトされます。このオプションを無効化するには、「0」に設定してください。"
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "訪問者スコアが最小 silentCAPTCHA スコアを満たさない場合、リクエスト（ログイン、WP コメントなど）をブロックすることがあります。スコアがそれより高い場合は許可します。"
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "訪問者スコアが最小 %s スコアを満たさない場合、リクエスト（ログイン、WP コメントなど）を防ぐことがあります。スコアが高い場合は許可します。"
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "これが MainWP クライアントサイトの場合、MainWP 管理サーバーの IP アドレスを IP バイパスリストに追加する必要があります。"
@@ -4656,6 +4974,9 @@ msgstr "このページを更新した後もこのメッセージが表示され
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "この問題が解決しない場合は、サポートにお問い合わせください: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "このサイトにすでに %s ライセンスが割り当てられている場合、"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "何らかの理由で、あなたまたはユーザーのメールボックスが侵害されていると思われる場合は、このオプションを無効化してください。"
@@ -4702,11 +5023,8 @@ msgstr "管理者ユーザーがこの WordPress サイトにログインする�
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "管理者ユーザーがこの WordPress サイトにログインするたびに通知を受け取りたい場合は、通知メールアドレスを入力してください。メールアドレスなし - 通知なし。"
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "専用のメールサービスプロバイダーを使用して WordPress メールを送信していない場合は、これらの重要なメールに対して SureSend を有効化する必要があります。"
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "PIN を忘れた場合は、上記のメニューを使用してこの制限を無効化してください。"
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "WordPress メールの送信に専用のメールサービスプロバイダーを使用していない場合は、これらの重要なメールに対して %s を有効化する必要があります。"
 
 msgid "Ignore"
 msgstr "無視"
@@ -4737,9 +5055,6 @@ msgstr "インポート通知を送信しました"
 
 msgid "Import Options"
 msgstr "インポート設定"
-
-msgid "Import Settings From Another Site"
-msgstr "別のサイトから設定をインポート"
 
 msgid "Import file was empty"
 msgstr "インポートファイルは空でした"
@@ -4870,11 +5185,14 @@ msgstr "IP アドレス %s の情報"
 msgid "Info Reports Frequency"
 msgstr "Info レポート頻度"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "情報ログは特定の問題を調査する場合にのみ有効化する必要があります。"
+
 msgid "Information and reports are typically statistics."
 msgstr "情報とレポートは通常統計情報です。"
 
-msgid "Install Shield"
-msgstr "Shield をインストール"
+msgid "Install %s"
+msgstr "%s をインストール"
 
 msgid "Installation Directory"
 msgstr "インストールディレクトリ"
@@ -4909,6 +5227,9 @@ msgstr "間隔は秒単位で測定されます。"
 msgid "Invalid"
 msgstr "無効"
 
+msgid "Invalid %s extension configuration"
+msgstr "無効な %s 拡張機能設定"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "無効なアクション Nonce 例外。"
 
@@ -4933,9 +5254,6 @@ msgstr "無効なスクリプト読み込み"
 msgid "Invalid Scripts"
 msgstr "無効なスクリプト"
 
-msgid "Invalid Shield extension configuration"
-msgstr "無効な Shield 拡張機能設定"
-
 msgid "Invalid Slug"
 msgstr "無効なスラッグ"
 
@@ -4948,9 +5266,6 @@ msgstr "無効な User Agent"
 msgid "Invalid User Email Registration"
 msgstr "無効なユーザーメール登録"
 
-msgid "Invalid User-Agent"
-msgstr "無効な User-Agent"
-
 msgid "Invalid Username Login"
 msgstr "無効なユーザー名ログイン"
 
@@ -4959,6 +5274,12 @@ msgstr "無効なユーザー名"
 
 msgid "Invalid action"
 msgstr "無効なアクション"
+
+msgid "Invalid batch request format."
+msgstr "無効なバッチリクエスト形式です。"
+
+msgid "Invalid batch request item."
+msgstr "無効なバッチリクエストアイテムです。"
 
 msgid "Invalid download item data."
 msgstr "無効なダウンロード項目データです。"
@@ -4975,6 +5296,15 @@ msgstr "無効なファイルロッカータイプのダウンロード"
 msgid "Invalid login nonce"
 msgstr "無効なログイン nonce"
 
+msgid "Invalid login session."
+msgstr "無効なログインセッション。"
+
+msgid "Invalid or expired login session."
+msgstr "無効または期限切れのログインセッションです。"
+
+msgid "Invalid profile request."
+msgstr "無効なプロファイルリクエストです。"
+
 msgid "Invalid request - lockdown is already active."
 msgstr "無効なリクエスト - ロックダウンはすでに有効です。"
 
@@ -4984,11 +5314,8 @@ msgstr "無効なリクエスト - ロックダウンは有効ではありませ
 msgid "Invalid request with no User ID"
 msgstr "ユーザー ID のない無効なリクエスト"
 
-msgid "Invalid response from Shield client site"
-msgstr "Shield クライアントサイトからの無効な応答"
-
-msgid "Invalid session selected"
-msgstr "無効なセッションが選択されました"
+msgid "Invalid response from %s client site"
+msgstr "%s クライアントサイトからの無効なレスポンス"
 
 msgid "Invalid specification of modules"
 msgstr "モジュールの指定が無効です"
@@ -4996,14 +5323,26 @@ msgstr "モジュールの指定が無効です"
 msgid "Invalid type."
 msgstr "無効なタイプです。"
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "「{{useragent}}」で無効な User Agent が検出されました。"
-
 msgid "Invalid value scope for %s"
 msgstr "%s の値スコープが無効です"
 
 msgid "Invalid value type for %s"
 msgstr "%s の値タイプが無効です"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "%s プラグイン機能が無効化されているかどうか。"
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "%s トラフィックレート制限が有効化されているかどうか。"
+
+msgid "Is %s live logging enabled."
+msgstr "%s ライブログが有効化されているかどうか。"
+
+msgid "Is %s score"
+msgstr "%s スコア"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "%s のサイトロックダウンが有効化されているかどうか。"
 
 msgid "Is It You?"
 msgstr "これはあなたですか?"
@@ -5017,20 +5356,8 @@ msgstr "リクエスト状態が404かどうか"
 msgid "Is Request To The Login Page."
 msgstr "ログインページへのリクエストかどうか。"
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Shield プラグイン機能が無効化されているかどうか。"
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Shield トラフィックレート制限が有効かどうか。"
-
-msgid "Is Shield live logging enabled."
-msgstr "Shield ライブログが有効化されているかどうか。"
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Shield のサイトロックダウンが有効かどうか。"
-
-msgid "Is The Shield Option Value..."
-msgstr "Shield オプション値が..."
+msgid "Is The %s Option Value..."
+msgstr "%s オプション値は..."
 
 msgid "Is Valid Public IP Address"
 msgstr "有効なパブリック IP アドレスかどうか"
@@ -5038,8 +5365,8 @@ msgstr "有効なパブリック IP アドレスかどうか"
 msgid "Is Viable"
 msgstr "実行可能かどうか"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "訪問者の silentCAPTCHA スコアは..."
+msgid "Is Visitor %s Score ..."
+msgstr "訪問者 %s スコアは..."
 
 msgid "Is WP AJAX"
 msgstr "WP AJAX かどうか"
@@ -5098,11 +5425,8 @@ msgstr "現在のユーザーがログイン済みの WordPress 管理者かど�
 msgid "Is current user password expired."
 msgstr "現在のユーザーのパスワードが期限切れかどうか。"
 
-msgid "Is silentCAPTCHA score"
-msgstr "silentCAPTCHA スコアかどうか"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Shield プラグインが「forceoff」状態かどうか。"
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "%s プラグインが「forceoff」状態かどうか。"
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "現在の IP アドレスが「高評価」と見なされているかどうか。"
@@ -5116,23 +5440,23 @@ msgstr "現在のユーザーセッショントークン期間が指定された
 msgid "Is the request HTTPS."
 msgstr "リクエストがHTTPSかどうか。"
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "リクエスト IP が Shield により自動または手動でブロックされているかどうか。"
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "リクエスト IP が %s によって自動または手動でブロックされているかどうか。"
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "リクエスト IP が Shield によってブラックリストに登録されているかどうか。"
+msgid "Is the request IP blacklisted by %s."
+msgstr "リクエスト IP が %s によってブラックリストに登録されているかどうか。"
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "リクエスト IP が Shield の CrowdSec ブロックリストに登録されているかどうか。"
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "リクエスト IP が %s の CrowdSec ブロックリストに登録されているかどうか。"
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "リクエスト IP が Shield の手動ブロックリストに登録されているかどうか。"
+msgid "Is the request IP on %s's Manual block list."
+msgstr "リクエスト IP が %s の手動ブロックリストに登録されているかどうか。"
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "リクエスト IP が Shield の自動ブロックリストに登録されているかどうか。"
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "リクエスト IP が %s の自動ブロックリストに登録されているかどうか。"
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "リクエスト IP が Shield の手動バイパスリスト/ホワイトリストに登録されているかどうか。"
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "リクエスト IP が %s の手動バイパスリスト/ホワイトリストに登録されているかどうか。"
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "リクエストが信頼できるサービスプロバイダーから発信されたボットかどうか。"
@@ -5143,17 +5467,17 @@ msgstr "リクエストがサーバーループバックリクエストかどう
 msgid "Is the request an HTTP 404."
 msgstr "リクエストがHTTP 404かどうか。"
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Shield のサイトロックダウン機能によってリクエストがブロックされているかどうか。"
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "リクエストが %s のサイトロックダウン機能によってブロックされているかどうか。"
 
 msgid "Is the request from a logged-in user."
 msgstr "ログイン済みユーザーからのリクエストかどうか。"
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "リクエストが Shield Security Admin として認証されたユーザーからのものかどうか。"
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "リクエストが %s 管理者として認証されたユーザーからのものかどうか。"
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "リクエストパスが Shield によってホワイトリストに登録されているかどうか。"
+msgid "Is the request path whitelisted by %s."
+msgstr "リクエストパスが %s によってホワイトリストに登録されているかどうか。"
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "現在インストールされている WordPress プラグイン内のパスへのリクエストかどうか。"
@@ -5212,6 +5536,9 @@ msgstr "検出された問題"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "以下にリストされている問題はできるだけ早く対処する必要があります"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "また、重要な WordPress 設定のロックダウンにも役立ちます。"
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "また、コア WP ディレクトリ (%s) に存在すべきでないファイルも検索します。"
 
@@ -5266,8 +5593,8 @@ msgstr "あなたの IP (%s) は現在ブロックされているようです。
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "ただし、繰り返し表示を防ぐために %s セキュリティバッジの閉鎖を登録するために Cookie を使用する場合があります。"
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "独自の silentCAPTCHA エンジンを使用して、ボットを確実に識別します。"
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "独自の %s エンジンを使用してボットを確実に識別します。"
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "'{{to}}' に件名 '{{subject}}' で送信されました。"
@@ -5275,8 +5602,8 @@ msgstr "'{{to}}' に件名 '{{subject}}' で送信されました。"
 msgid "It will be displayed below when it's ready."
 msgstr "準備ができたら以下に表示されます。"
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "適切な場所が自動的に検出されますが、これが失敗した場合、サイトに PHP 警告が表示され、特定の Shield 機能が利用できなくなる可能性があります。"
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "適切な場所が自動的に見つかりますが、これが失敗すると、サイトに PHP 警告が表示され、特定の %s 機能が利用できなくなる可能性があります。"
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "これは複雑なエリアであり、誤って使用するとフロントエンドのユーザーエクスペリエンスを簡単に破壊する可能性があります。"
@@ -5298,9 +5625,6 @@ msgstr "特にアイドル状態のままにする場合、セッションの有
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "セッションの盗難を防ぐために、少なくとも 1 つのプロパティでセッションをロックすることは良い習慣です。"
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "人間によるスパムは、通常、防御をトリガーしないため、最もフラストレーションを引き起こします。"
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "WordPress プラグインディレクトリに配置されており、そのプラグインバージョンの有効なファイルとして認識されています。"
@@ -5338,8 +5662,8 @@ msgstr "修復された項目: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "スキャンで見つかった項目"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Shield Security ニュースレターに参加"
+msgid "Join The %s Newsletter"
+msgstr "%s ニュースレターに参加"
 
 msgid "Join Us"
 msgstr "参加する"
@@ -5347,8 +5671,14 @@ msgstr "参加する"
 msgid "Join Us!"
 msgstr "参加する!"
 
+msgid "Join our %s Newsletter"
+msgstr "%s ニュースレターに参加"
+
 msgid "Jump To Module Settings"
 msgstr "モジュール設定にジャンプ"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "%s Facebook グループに参加して、アクティブなコミュニティに質問したり、最新ニュースを入手したりできます"
 
 msgid "Just grab a new license from the"
 msgstr "から新しいライセンスを取得してください"
@@ -5437,6 +5767,9 @@ msgstr "最終同期"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "最後に、ボット(または人間)がサイトにスパムアカウントを登録する能力を防ぎたいと考えています。"
 
+msgid "Latest Scan Results"
+msgstr "最新のスキャン結果"
+
 msgid "Launch Debug Info Page"
 msgstr "デバッグ情報ページを起動"
 
@@ -5464,6 +5797,12 @@ msgstr "ライセンス"
 msgid "License Activation"
 msgstr "ライセンス有効化"
 
+msgid "License Activation Failed"
+msgstr "ライセンス有効化に失敗しました"
+
+msgid "License Activation Success"
+msgstr "ライセンス有効化成功"
+
 msgid "License Check Failed"
 msgstr "ライセンスチェックに失敗"
 
@@ -5482,6 +5821,30 @@ msgstr "ライセンス失敗メール送信済み"
 msgid "License Summary"
 msgstr "ライセンスサマリー"
 
+msgid "License activated and verified successfully."
+msgstr "ライセンスが正常に有効化され、検証されました。"
+
+msgid "License activated but verification failed."
+msgstr "ライセンスは有効化されましたが、検証に失敗しました。"
+
+msgid "License activated successfully."
+msgstr "ライセンスが正常に有効化されました。"
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "このアカウントで利用可能なライセンスがないため、ライセンスの有効化に失敗しました。"
+
+msgid "License activation failed because the API key is invalid."
+msgstr "API キーが無効なため、ライセンスの有効化に失敗しました。"
+
+msgid "License activation failed."
+msgstr "ライセンス有効化に失敗しました。"
+
+msgid "License activation request failed."
+msgstr "ライセンス有効化リクエストが失敗しました。"
+
+msgid "License activation was denied for this site."
+msgstr "このサイトのライセンス有効化が拒否されました。"
+
 msgid "License check failed. Sending Warning Email."
 msgstr "ライセンスチェックに失敗しました。警告メールを送信しています。"
 
@@ -5499,9 +5862,6 @@ msgstr "ライセンスは %s 秒ごとに 1 回確認できます"
 
 msgid "Lifetime"
 msgstr "有効期間"
-
-msgid "Lifetime Total"
-msgstr "有効期間合計"
 
 msgid "Light"
 msgstr "ライト"
@@ -5577,6 +5937,12 @@ msgstr "ローカル PHP マルウェアスキャナーは有効化されてい�
 
 msgid "Locale"
 msgstr "ロケール"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "ロケール「%1$s」はすでにキャッシュされています: %2$s。再ダウンロードするには --force を使用してください。"
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "ロケール「%s」はダウンロードできません。"
 
 msgid "Location"
 msgstr "場所"
@@ -5740,11 +6106,11 @@ msgstr "パスワード紛失がブロックされました"
 msgid "Lost Password Bot Protection"
 msgstr "パスワード紛失ボット保護"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "ボットによるパスワード紛失スパムは silentCAPTCHA によってブロックされます。"
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "ボットによるパスワード紛失スパムは %s によってブロックされます。"
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "ボットによるパスワード紛失スパムは silentCAPTCHA によってブロックされません。"
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "ボットによるパスワード紛失スパムは %s によってブロックされていません。"
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "気に入りましたか? このプラグインを評価 &#10025;"
@@ -5923,6 +6289,9 @@ msgstr "一致するメタ値"
 msgid "Method"
 msgstr "方法"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "訪問者が人間であることを示すために必要な最小 %s スコア"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "コメント自動承認の最小値"
 
@@ -5941,9 +6310,6 @@ msgstr "コメント間の最小時間間隔"
 msgid "Minimum required MainWP server version"
 msgstr "必要な最小 MainWP サーバーバージョン"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "訪問者が人間であることを示すために必要な最小 silentCAPTCHA スコア"
-
 msgid "Minutes"
 msgstr "分"
 
@@ -5952,6 +6318,12 @@ msgstr "設定ミスは訪問者に問題を引き起こす可能性があるた
 
 msgid "Missing"
 msgstr "不足"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "バッチリクエストにアクションスラッグまたは nonce がありません。"
+
+msgid "Missing request payload for batch request item."
+msgstr "バッチリクエスト項目のリクエストペイロードがありません。"
 
 msgid "Mode"
 msgstr "モード"
@@ -5989,6 +6361,12 @@ msgstr "ほとんどのスパムはボットによる自動的なものですが
 msgid "Multi-Factor Authentication"
 msgstr "多要素認証"
 
+msgid "Multiple Signals"
+msgstr "複数のシグナル"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "この訪問者に対して複数のボットシグナルが検出されました。"
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "複数のメールアドレスをカンマで区切って指定できます。"
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL DB パスワード"
 msgid "N/A"
 msgstr "N/A"
 
+msgid "NEW"
+msgstr "新規"
+
 msgid "NO TITLE"
 msgstr "タイトルなし"
 
@@ -6027,6 +6408,12 @@ msgstr "ナビゲーション"
 
 msgid "Needs Update"
 msgstr "更新が必要"
+
+msgid "Needs Work"
+msgstr "要対応"
+
+msgid "Nested batch requests are not allowed."
+msgstr "ネストされたバッチリクエストは許可されていません。"
 
 msgid "Never"
 msgstr "なし"
@@ -6045,12 +6432,6 @@ msgstr "新規管理者"
 
 msgid "New Comment"
 msgstr "新規コメント"
-
-msgid "New Results"
-msgstr "新規結果"
-
-msgid "New Scan Results"
-msgstr "新しいスキャン結果"
 
 msgid "New User Default Role"
 msgstr "新規ユーザーのデフォルト権限"
@@ -6166,6 +6547,9 @@ msgstr "項目が選択されていません。"
 msgid "No license to remove."
 msgstr "削除するライセンスがありません。"
 
+msgid "No locales available from API."
+msgstr "API から利用可能なロケールがありません。"
+
 msgid "No message"
 msgstr "メッセージなし"
 
@@ -6175,8 +6559,8 @@ msgstr "利用可能なメタ情報がありません"
 msgid "No modules specified in the plugin config."
 msgstr "プラグイン設定にモジュールが指定されていません。"
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "ライセンスキーを覚えたりコピー&ペーストする必要はもうありません! ShieldPRO コントロールパネルでサイト URL を有効化するだけで、Pro 機能がサイトで自動的に有効化されます。"
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "ライセンスキーを覚えたりコピー＆ペーストしたりする必要はもうありません! %s コントロールパネルでサイト URL を有効化するだけで、Pro 機能がサイトで自動的に有効化されます。"
 
 msgid "No new session activity recorded yet."
 msgstr "新しいセッションアクティビティはまだ記録されていません。"
@@ -6192,6 +6576,9 @@ msgstr "レコードなし"
 
 msgid "No reporter defined"
 msgstr "レポーター未定義"
+
+msgid "No reports generated yet."
+msgstr "レポートはまだ生成されていません。"
 
 msgid "No reports have been generated yet."
 msgstr "レポートはまだ生成されていません。"
@@ -6247,9 +6634,6 @@ msgstr "いいえ、協力したくありません"
 msgid "Noise"
 msgstr "ノイズ"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "ファイルスキャン以外の項目はまだサポートされていません。"
-
 msgid "Nonce Failed."
 msgstr "Nonce が失敗しました。"
 
@@ -6304,14 +6688,11 @@ msgstr "モジュール %s の有効なオプションキーではありませ�
 msgid "Not a valid option key."
 msgstr "有効なオプションキーではありません。"
 
-msgid "Not a valid scan item record"
-msgstr "有効なスキャン項目レコードではありません"
-
 msgid "Not a valid value for this parameter"
 msgstr "このパラメータの有効な値ではありません"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "サイトが ShieldNET API とハンドシェイクできないため、利用できません。"
+msgid "Not available as your site cannot handshake with %s."
+msgstr "サイトが %s とハンドシェイクできないため利用できません。"
 
 msgid "Not currently logged-in as security admin."
 msgstr "現在セキュリティ管理者としてログインしていません。"
@@ -6354,9 +6735,6 @@ msgstr "ホワイトリスト上のサイトにマスターからオプション
 
 msgid "Notify Whitelist"
 msgstr "ホワイトリストに通知"
-
-msgid "Now"
-msgstr "今すぐ"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "24 時間にコアファイルを自動的にスキャンする回数"
@@ -6418,6 +6796,9 @@ msgstr "違反制限"
 msgid "Offenses couldn't be reset at this time."
 msgstr "現時点では違反をリセットできませんでした。"
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "違反とは、訪問者が悪意のある行為を行った回数の単純なカウンターです。"
+
 msgid "Offenses reset to zero."
 msgstr "違反がゼロにリセットされました。"
 
@@ -6439,17 +6820,17 @@ msgstr "ワンタイムパスワード"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "%s Security Admin のみが他の管理者アカウントの MFA 設定を変更できます。"
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Shield の無料版では WordPress コアファイルのみがスキャンされます。"
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "%s の無料版では、コア WordPress ファイルのみがスキャンされます。"
 
 msgid "Only enable the integrations you require."
 msgstr "必要な統合のみを有効化してください。"
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "選択したフォームタイプ (ログイン、登録、パスワード紛失) のみが監視されます。"
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "文字と数字のみが許可されます：%s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "選択したフォームタイプ(ログイン、登録、パスワード紛失)のみが監視されます。"
 
 msgid "Only the first 30 items are shown."
 msgstr "最初の 30 項目のみが表示されます。"
@@ -6562,8 +6943,8 @@ msgstr "PHP マルウェアスキャナー"
 msgid "PHP Version"
 msgstr "PHP バージョン"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP が最小バージョンを満たしていません。現在のバージョン: %s。必要なバージョン: %s。"
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP が最小バージョンを満たしていません。現在のバージョン: %1$s。必要なバージョン: %2$s。"
 
 msgid "PHP files aren't scanned for malware."
 msgstr "PHP ファイルはマルウェアスキャンされていません。"
@@ -6718,6 +7099,9 @@ msgstr "最も強力な機能の 1 つは、他の管理者が他の管理者ア
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "デバイスがサポートされていないか、すでに登録されている可能性があります。"
 
+msgid "Period"
+msgstr "期間"
+
 msgid "Permalink structure"
 msgstr "パーマリンク構造"
 
@@ -6727,8 +7111,8 @@ msgstr "パーマリンク"
 msgid "Permalinks Updated"
 msgstr "パーマリンクが更新されました"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "パーマリンクが変更されました: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "パーマリンクが変更されました: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "恒久的なリダイレクト (301)"
@@ -6790,6 +7174,9 @@ msgstr "受信したメール内のリンクをクリックしてください。
 msgid "Please click the link provided below to do so."
 msgstr "以下に記載されているリンクをクリックしてください。"
 
+msgid "Please complete required fields: %s"
+msgstr "必須フィールドに入力してください: %s"
+
 msgid "Please complete the form."
 msgstr "フォームに入力してください。"
 
@@ -6814,14 +7201,14 @@ msgstr "さらなるガイダンスが必要な場合は、サイト管理者に
 msgid "Please contact your website administrator."
 msgstr "ウェブサイト管理者にお問い合わせください。"
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "%s 保護を再有効化するには「%s」ファイルを削除してください"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "「%1$s」ファイルを削除して %2$s 保護を再有効化してください"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "終了日が開始日以降になるようにしてください。"
 
 msgid "Please login again."
 msgstr "再度ログインしてください。"
-
-msgid "Please logout if you want to delete your own session."
-msgstr "自分のセッションを削除したい場合は、ログアウトしてください。"
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "WP ページキャッシュプラグインは通常 HTTP ヘッダーを無視するため、テストに反映されていない場合は、キャッシュプラグインを無効化してください。"
@@ -6840,6 +7227,15 @@ msgstr "デバイスを識別するためのラベルを入力してください
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "新しい認証システムを識別するためのラベルを入力してください。"
+
+msgid "Please provide a title for the report."
+msgstr "レポートのタイトルを入力してください。"
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "YYYY-MM-DD 形式を使用して有効な日付を指定してください。"
+
+msgid "Please provide a valid date."
+msgstr "有効な日付を指定してください。"
 
 msgid "Please provide a valid regular expression."
 msgstr "有効な正規表現を指定してください。"
@@ -6895,6 +7291,9 @@ msgstr "IP ルールタイプ（ブロックまたはバイパス）のいずれ
 msgid "Please select one of the options available"
 msgstr "利用可能なオプションの中から 1 つを選択してください"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "ロケールコードを指定してください (例: --locale=de_DE)。"
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "このパスワードは漏洩しているため、別のパスワードを入力してください。"
 
@@ -6925,17 +7324,17 @@ msgstr "オプションでこのスキャンを有効化してください。"
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "セキュリティ管理者機能を復元するには、新しいセキュリティ管理者 PIN を提供する必要があることをご理解ください。"
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Shield プラグインを同じバージョンに更新して、再同期してください。"
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "%s プラグインを同じバージョンに更新して再同期してください。"
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "すべてのプラグインファイルの改ざんスキャンをサポートするにはアップグレードしてください。"
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "カスタムセキュリティルールビルダーにアクセスするには、Shield Security サブスクリプションをアップグレードしてください。"
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "この機能を利用するには %s プランをアップグレードしてください。"
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "この機能を使用するには、ShieldPRO プランをアップグレードしてください。"
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "カスタムセキュリティルールビルダーにアクセスするには、%s サブスクリプションをアップグレードしてください。"
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "複数のメールアドレスに通知する必要がある場合は、プランをアップグレードしてください。"
@@ -7186,14 +7585,17 @@ msgstr "WordPress によって提供"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "強力な<strong>ファイアウォール</strong>が悪意のあるトラフィックを傍受してブロックしています。"
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Shield Security による WordPress の強力な保護"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "%s による WordPress の強力な保護"
 
 msgid "Powerful User Password Policies"
 msgstr "強力なユーザーパスワードポリシー"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "強力な自動学習マルウェアスキャナー"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "強力で使いやすい、評価 No.1 の WordPress セキュリティシステム"
 
 msgid "Predicted"
 msgstr "予測"
@@ -7203,6 +7605,9 @@ msgstr "優先一時ディレクトリ"
 
 msgid "Preferred temporary directory override."
 msgstr "優先一時ディレクトリの上書き。"
+
+msgid "Prefix"
+msgstr "プレフィックス"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "プレフィックス: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "公開されている「侵害された」パスワードリストに見
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "公開されている侵害されたパスワードリストに見つかったパスワードをユーザーが使用できないようにします。"
 
+msgid "Previous"
+msgstr "前へ"
+
+msgid "Previous Period"
+msgstr "前の期間"
+
 msgid "Previous Step"
 msgstr "前のステップ"
 
@@ -7318,8 +7729,8 @@ msgstr "管理者に昇格"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "ボットによる自動ログイン試行から WP ログインを保護"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Shield プラグインを改ざんから保護"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "%s プラグインを改ざんから保護"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "通常保護できない主要な WP コアファイルを保護します。"
@@ -7342,6 +7753,9 @@ msgstr "セキュリティ応答ヘッダーを強化することで、サイト
 msgid "Protect your %s files"
 msgstr "%s ファイルを保護"
 
+msgid "Protected By %s"
+msgstr "%s によって保護"
+
 msgid "Protected Forms"
 msgstr "保護されたフォーム"
 
@@ -7350,6 +7764,9 @@ msgstr "<strong>コメントスパム</strong>の第一の原因から保護し�
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "ログイン、登録、パスワード紛失などの<strong>重要なユーザーフォーム</strong>を保護しています。"
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "WordPress フォームの保護は標準で含まれており、%s プランに応じて、一部またはすべてのサードパーティ統合にアクセスできます。"
 
 msgid "Protection for user accounts."
 msgstr "ユーザーアカウントの保護。"
@@ -7420,9 +7837,6 @@ msgstr "Security Admin PIN を入力/更新"
 msgid "Provided by %s"
 msgstr "%sによって提供"
 
-msgid "Provided by Shield"
-msgstr "Shield によって提供"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "リクエストログシステムをより細かく制御できます。"
 
@@ -7471,8 +7885,8 @@ msgstr "レート制限"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "レート制限({{count}})が {{span}} 秒以内に {{requests}} リクエストで超過しました。"
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Shield Security を独自のものとしてリブランド！"
+msgid "Re-Brand %s as your own!"
+msgstr "%s を独自のものとしてリブランド!"
 
 msgid "Re-Install"
 msgstr "再インストール"
@@ -7480,8 +7894,8 @@ msgstr "再インストール"
 msgid "Re-Install It"
 msgstr "再インストールする"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Shield Security プラグインをリブランド。"
+msgid "Re-brand the %s plugin."
+msgstr "%s プラグインをリブランド。"
 
 msgid "Re-enable Protection."
 msgstr "保護を再有効化。"
@@ -7512,6 +7926,9 @@ msgstr "理由"
 
 msgid "Reason: %s"
 msgstr "理由: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "理由: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "プラグイン無効化時にアラートを受信"
@@ -7651,8 +8068,8 @@ msgstr "残りの許可違反数"
 msgid "Remember me for %s"
 msgstr "%s の間ログイン状態を保持"
 
-msgid "Remember to include %s or %s"
-msgstr "%s または %s を含めることを忘れないでください"
+msgid "Remember to include %1$s or %2$s"
+msgstr "%1$s または %2$s を含めることを忘れないでください"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "ユーザーの MFA 要素の削除は Security Admin が行う必要があります"
@@ -7708,6 +8125,9 @@ msgstr "修復済み"
 msgid "Repaired item found in the scan."
 msgstr "スキャンで見つかった項目を修復しました。"
 
+msgid "Repairs"
+msgstr "修復"
+
 msgid "Repeated Human SPAM"
 msgstr "繰り返される人間によるスパム"
 
@@ -7735,8 +8155,8 @@ msgstr "レポート設定"
 msgid "Report Sent"
 msgstr "レポート送信済み"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "レポート送信済み ({{medium}} 経由)。"
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "レポート送信済み（{{type}} 経由 {{medium}}）。"
 
 msgid "Report Title"
 msgstr "レポートタイトル"
@@ -8107,17 +8527,17 @@ msgstr "スパムチェック合格"
 msgid "SPAM Detection"
 msgstr "スパム検出"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "ボットによるスパムおよび一括ユーザー登録は silentCAPTCHA によってブロックされます。"
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "ボットによるスパムと大量ユーザー登録は %s によってブロックされます。"
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "ボットによるスパムおよび一括ユーザー登録は silentCAPTCHA によってブロックされません。"
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "ボットによるスパムと大量ユーザー登録は %s によってブロックされていません。"
 
 msgid "SPAM blocking"
 msgstr "スパムブロック"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "スパムは主に 2 つの方法で実行されます: ボットと人間によるものです。"
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "スパムは、自動ボットと人間という 2 種類の訪問者によって実行されます。"
 
 msgid "SQL Queries"
 msgstr "SQLクエリ"
@@ -8167,6 +8587,9 @@ msgstr "プラグイン & テーマの脆弱性をスキャン"
 msgid "Scan Frequency"
 msgstr "スキャン頻度"
 
+msgid "Scan Issues"
+msgstr "スキャン問題"
+
 msgid "Scan Item Delete Success"
 msgstr "スキャン項目削除成功"
 
@@ -8200,6 +8623,9 @@ msgstr "スキャン結果"
 msgid "Scan This QR Code"
 msgstr "この QR コードをスキャン"
 
+msgid "Scan Type"
+msgstr "スキャンタイプ"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "すべての WordPress アセットを既知のセキュリティ脆弱性についてスキャンします。"
 
@@ -8218,11 +8644,11 @@ msgstr "サイトのファイル変更、マルウェア、脆弱性をスキャ
 msgid "Scanning Frequency"
 msgstr "スキャン頻度"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "プラグイン & テーマファイルのスキャンは ShieldPRO でのみ利用可能です。"
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "プラグインおよびテーマファイルのスキャンは %s の Pro バージョンでのみ利用可能です。"
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "PHP マルウェアのスキャンは ShieldPRO でのみ利用可能です。"
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "PHP マルウェアのスキャンは %s の Pro バージョンでのみ利用可能です。"
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "スキャンはローカルスナップショットを使用します。クラウドソーシングされたスナップショットを使用し、プレミアムプラグインのサポートを追加するには、プランをアップグレードしてください。"
@@ -8305,14 +8731,17 @@ msgstr "スコアは各コンポーネントのおおよその重み付けです
 msgid "Script Name To Match"
 msgstr "一致するスクリプト名"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "ライセンスキーなしで ShieldPRO ライセンスをシームレスに有効化および管理できます。"
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "ライセンスキーなしで %s ライセンスをシームレスに有効化および管理します。"
 
 msgid "Search %s"
 msgstr "%s を検索"
 
 msgid "Search Engine"
 msgstr "検索エンジン"
+
+msgid "Search Help"
+msgstr "ヘルプを検索"
 
 msgid "Search engine visibility"
 msgstr "検索エンジンの可視性"
@@ -8374,6 +8803,9 @@ msgstr "Security Admin タイムアウト"
 msgid "Security Admin is now active"
 msgstr "Security Admin が有効になりました"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Security Admin は、審査済みの管理者のみがサイトのセキュリティを変更できるようにする追加の認証レイヤーを提供します。"
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Security Admin 制限が解除されました"
 
@@ -8385,6 +8817,9 @@ msgstr "Security Admin セッションがタイムアウトしました。"
 
 msgid "Security Admins"
 msgstr "Security Admin"
+
+msgid "Security Alert"
+msgstr "セキュリティアラート"
 
 msgid "Security Analysis"
 msgstr "セキュリティ分析"
@@ -8503,11 +8938,11 @@ msgstr "スパム登録とログインをチェックするユーザーフォー
 msgid "Select The User Forms Provider That You Use"
 msgstr "使用するユーザーフォームプロバイダーを選択"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "%2$s を使用して送信する %1$s メールを選択"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "スキャンするエリアを選択"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "SureSend を使用して送信する Shield メールを選択"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "除外するリクエストタイプを選択"
@@ -8635,6 +9070,9 @@ msgstr "セッション"
 msgid "Sessions Table Filters"
 msgstr "セッションテーブルフィルター"
 
+msgid "Set Security Badge."
+msgstr "セキュリティバッジを設定。"
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "訪問者 IP が自動的にブロックされる前に許可される違反の制限を設定します。"
 
@@ -8674,161 +9112,23 @@ msgstr "誤った無効化を防ぐために、プラグインを MU-plugin と�
 msgid "Severity"
 msgstr "重要度"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA プロバイダーを有効化しました"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield アンチスパム"
-
 msgid "Shield Deactivated"
 msgstr "Shield 無効化済み"
 
 msgid "Shield Events & Stats"
 msgstr "Shield イベント & 統計"
 
-msgid "Shield Info"
-msgstr "Shield 情報"
-
-msgid "Shield Option Key"
-msgstr "Shield オプションキー"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro ストア"
-
-msgid "Shield Scanners."
-msgstr "Shield スキャナー。"
-
-msgid "Shield Security Home Page"
-msgstr "Shield Security ホームページ"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security プラグイン – サイトの最小要件が満たされていません"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro はオンラインストアから入手できます。"
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Shield Security プラグインはインストールされていますが、有効化されていません。"
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Shield Security プラグインを同期する必要があります。"
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "最後の同期で Shield Security プラグインが検出されませんでした。"
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Shield Security プラグインのバージョンが同期されていません。"
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield ユーザー 2FA プロバイダーを有効化しました"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield ユーザー 2FA: 有効なものがあるかどうか"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield ホワイトラベル"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield はサードパーティプラグインと自動的に統合できます。"
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield はサードパーティのログインおよび登録フォームをボットから自動的に保護できます。"
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield は silentCAPTCHA JS がサイトで正しく読み込まれているかどうかを判定できませんでした。"
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield は通常、ログイン済みまたは登録済みユーザーからのコメントをスキャンしません。"
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield は通常、ログイン済みまたは登録済みユーザーからのコメントをスキャンしません。スキャンすべきでないユーザーロールをここで指定してください。"
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Shield イベント定義が空であるか、正しい形式ではありません。"
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield はこのサイトにインストールされていません。"
-
-msgid "Shield plugin activated"
-msgstr "Shield プラグインが有効化されました"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Shield プラグインを有効化できませんでした"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Shield プラグインを無効化できませんでした"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Shield プラグインをインストールできませんでした"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Shield プラグインを更新できませんでした"
-
-msgid "Shield plugin deactivated"
-msgstr "Shield プラグインが無効化されました"
-
-msgid "Shield plugin installed"
-msgstr "Shield プラグインがインストールされました"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Shield プラグインはインストールされていますが、有効化されていません。"
-
-msgid "Shield plugin updated"
-msgstr "Shield プラグインが更新されました"
-
-msgid "Shield scans cannot execute."
-msgstr "Shield スキャンを実行できません。"
-
-msgid "Shield version on site doesn't match this server."
-msgstr "サイトの Shield バージョンがこのサーバーと一致しません。"
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield はサードパーティプラグインを自動的にスキャンして、組み込み統合が利用可能かどうかを確認します。"
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield は、新しい更新が設定された日数の間利用可能になるまでアップグレードを遅延させます。"
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Shield の MainWP 統合はこのサイトで有効化されていません。"
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Shield のルールエンジンが実行されていません。"
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Shield の silentCAPTCHA システムは ALTCHA を使用し、ボットに複雑な作業を実行させることで対抗します。"
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP レピュテーションスコア"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO 機能"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO 無料トライアル"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO ライセンスがクリアされました"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO ライセンス管理"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO プレミアムセキュリティ"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO はこのサイトで有効化されていません。"
-
-msgid "ShieldPRO license check failed."
-msgstr "ShieldPRO ライセンスチェックに失敗しました。"
-
-msgid "ShieldPRO license check was successful."
-msgstr "ShieldPRO ライセンスチェックが成功しました。"
 
 msgid "Should be uninstalled"
 msgstr "アンインストールする必要があります"
@@ -8923,20 +9223,23 @@ msgstr "サイトURL"
 msgid "Site URL Changed"
 msgstr "サイト URL が変更されました"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "サイト URL が変更されました: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "サイト URL が変更されました: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "エクスポートホワイトリストにサイトを追加しました: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "サイトメールが変更されました: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "サイトメールアドレスが変更されました: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "サイトの同期に失敗しました"
 
 msgid "Site has been locked down!"
 msgstr "サイトがロックダウンされました!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "サイトはすでに有効化されていますが、ライセンスの検証に失敗しました。"
 
 msgid "Site lock down has been lifted!"
 msgstr "サイトのロックダウンが解除されました!"
@@ -8946,6 +9249,9 @@ msgstr "エクスポートホワイトリストからサイトを削除しまし
 
 msgid "Site synced successfully"
 msgstr "サイトが正常に同期されました"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "サイトはすでに有効化されており、ライセンスが正常に検証されました。"
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "{{user_login}} によってサイトがロックダウンされました。"
@@ -8965,8 +9271,8 @@ msgstr "サイズ"
 msgid "Slug"
 msgstr "スラッグ"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "スラッグ更新済み: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "スラッグが更新されました: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "投稿 ID {{post_id}} のスラッグが「{{slug_old}}」から「{{slug_new}}」に更新されました。"
@@ -9049,8 +9355,8 @@ msgstr "申し訳ございませんが、このスキャンは利用できませ
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "申し訳ございませんが、MAL{ai} クエリを実行するアクセス権がありません。プランをアップグレードしてください。"
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "申し訳ございませんが、MainWP 統合にアクセスするには Shield Security メンバーシップをアップグレードする必要があります。"
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "申し訳ございませんが、MainWP 統合にアクセスするには %s メンバーシップをアップグレードする必要があります。"
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "侵害といえば、侵害を引き起こすプラグインやテーマ内の脆弱性は攻撃の主要なターゲットであるため、早期に特定する必要があります。"
@@ -9100,8 +9406,11 @@ msgstr "統計"
 msgid "Status"
 msgstr "状態"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "ステータスが変更されました: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "ステータスが変更されました: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "ステータスチェック完了。"
 
 msgid "Store directory could not be created: %s"
 msgstr "ストアディレクトリを作成できませんでした: %s"
@@ -9133,8 +9442,8 @@ msgstr "ライセンスサーバーへの接続に成功しました。"
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "ファイアウォールブロックメールアラートの送信に成功しました: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "SureSend を使用して「{{email}}」へのメール送信(タイプ: {{slug}})に成功しました。"
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "%s を使用して「{{email}}」へのメール送信（タイプ: {{slug}}）に成功しました。"
 
 msgid "Summary"
 msgstr "サマリー"
@@ -9165,15 +9474,6 @@ msgstr "SureSend メール"
 
 msgid "SureSend Emails."
 msgstr "SureSend メール。"
-
-msgid "SureSend Fail"
-msgstr "SureSend 失敗"
-
-msgid "SureSend Success"
-msgstr "SureSend 成功"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend は Shield Security の専用メール配信サービスです。"
 
 msgid "Suspend Account"
 msgstr "アカウント停止"
@@ -9229,14 +9529,14 @@ msgstr "CrowdSec 機能を有効化して、既知の（クラウドソース）
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "この機能を有効化すると、サイトへのすべてのトラフィックがブロックされます。すべてが完全にブロックされます（Google ボットを含む）。"
 
+msgid "Sync %s"
+msgstr "%s を同期"
+
 msgid "Sync Required"
 msgstr "同期が必要です"
 
 msgid "Sync Required."
 msgstr "同期が必要です。"
-
-msgid "Sync Shield"
-msgstr "Shield を同期"
 
 msgid "System Info"
 msgstr "システム情報"
@@ -9253,8 +9553,8 @@ msgstr "テーブルが削除され、現在再作成されます。"
 msgid "Tagline"
 msgstr "キャッチフレーズ"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "キャッチフレーズが変更されました: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "キャッチフレーズが変更されました: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "エントリごとに改行してください。"
@@ -9268,11 +9568,11 @@ msgstr "ホワイトリストに登録されたパスごとに改行してくだ
 msgid "Take a new line per rule."
 msgstr "ルールごとに改行してください。"
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Shield ネットワーク全体で収集されたインテリジェンスを活用して、WordPress サイトをより適切に保護します"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "%s ネットワーク全体で収集されたインテリジェンスを活用して、WordPress サイトをより適切に保護します"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Shield のテクニカルサポートは Pro 顧客専用です。"
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "%s のテクニカルサポートは Pro カスタマー専用です。"
 
 msgid "Temp Dir"
 msgstr "一時ディレクトリ"
@@ -9295,17 +9595,17 @@ msgstr "WP Cron テストが正常に実行されました。"
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "テストが失敗し、SSL 証明書の状態を自動的に判断できませんでした。"
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Shield Security をお選びいただきありがとうございます"
+msgid "Thank You For Choosing %s"
+msgstr "%s をお選びいただきありがとうございます"
 
 msgid "Thank You."
 msgstr "ありがとうございます。"
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Shield Security(無料版)をお選びいただきありがとうございます。"
+msgid "Thank you for choosing %s (Free)."
+msgstr "%s (無料版) をお選びいただきありがとうございます。"
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Shield Security PRO をお選びいただきありがとうございます。"
+msgid "Thank you for choosing %s."
+msgstr "%s をお選びいただきありがとうございます。"
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "ガイド付きセットアップウィザードをご利用いただきありがとうございます。"
@@ -9325,11 +9625,23 @@ msgstr "ありがとうございます。"
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "将来の開発をサポートすることで得られる温かく心地よい気持ち"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "%s ディレクトリは %s ディレクトリに似ており、多くの非 WordPress ファイルがそこに保存されています。"
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "%1$s ディレクトリは %2$s ディレクトリと同様で、多くの非 WordPress ファイルがそこに保存されています。"
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s は %2$s を測定する必要があります。"
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "%s バッジは、顧客に対してセキュリティを真剣に考えていることを示します。"
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "%s ディレクトリは無法地帯であり、多くのプラグインやテーマが作業ファイルを保存するために使用しています。"
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "%s オプションが無効化されているため、ログイン、登録、パスワード紛失フォームのブルートフォース保護が削除されます。"
+
+msgid "The %s option is enabled."
+msgstr "%s オプションが有効化されています。"
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s プラグインは通常、未登録のサイト訪問者に対して Cookie を使用しません。"
@@ -9337,14 +9649,29 @@ msgstr "%s プラグインは通常、未登録のサイト訪問者に対して
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "%s プラグインには、以下の情報をログに記録する監査証跡機能があります:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "%s プラグインが無効化されました。"
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "%s プラグインは、いかなる時点でも Cookie に機密性の高い個人を特定できる情報を保存することはありません。"
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "このサイトの %s プラグインをアップグレードする必要があります。"
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "このサイトの %s プラグインには有効な PRO ライセンスが必要です。"
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "クライアントサイトの %s プラグインバージョンがこのサーバーより新しいです。"
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "クライアントサイトの %s プラグインバージョンがこのサーバーより古いため、更新する必要があります。"
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "%s クエリパラメータは、ユーザー名/作成者フィッシングから保護するためにブロックされました。"
 
-msgid "The %s should measure %s."
-msgstr "%s は %s を測定する必要があります。"
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "%s システムは、ボットに複雑な作業を実行させる ALTCHA を使用しています。"
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "「wp_mail」関数がファイル「{{bt_file}}」の {{bt_line}} 行目から呼び出されました。"
@@ -9388,8 +9715,8 @@ msgstr "プラグインのメインメニュータイトル。空白のままに
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "プラグインのメインメニュータイトル。空白のままにすると、プラグイン名が使用されます。"
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "MainWP Security プラグインは Shield の最小要件を満たしていません。"
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "MainWP Security プラグインは %s の最小要件を満たしていません。"
 
 msgid "The Name Of The Plugin"
 msgstr "プラグインの名前"
@@ -9415,32 +9742,14 @@ msgstr "Security Admin システムは WordPress と %s プラグインを改ざ
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Security Admin システムは %s プラグインを他の WordPress 管理者による改ざんや誤った変更から保護します。"
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Security Administrator がメール上書き機能の使用を制限しています。"
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "セキュリティバッジが訪問者に表示されます"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "セキュリティバッジは訪問者に表示されません"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "このサイトの Shield Security プラグインをアップグレードする必要があります。"
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "有効なデータベースがないと特定の機能が利用できないため、Shield データベースを修復する必要があります。"
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Shield プラグインが無効化されました。"
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "このサイトの Shield プラグインには有効な ShieldPRO ライセンスがありません。"
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "クライアントサイトの Shield プラグインバージョンがこのサーバーよりも新しいです。"
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "クライアントサイトの Shield プラグインバージョンがこのサーバーよりも古いため、更新する必要があります。"
 
 msgid "The Tag Line Of The Plugin"
 msgstr "プラグインのタグライン"
@@ -9487,8 +9796,8 @@ msgstr "国コードが不足していました。"
 msgid "The cumulative score for your entire %s configuration"
 msgstr "%s 設定全体の累積スコア"
 
-msgid "The current request has a valid Shield user session"
-msgstr "現在のリクエストには有効な Shield ユーザーセッションがあります"
+msgid "The current request has a valid %s user session"
+msgstr "現在のリクエストには有効な %s ユーザーセッションがあります"
 
 msgid "The data provided was inconsistent."
 msgstr "指定されたデータに一貫性がありませんでした。"
@@ -9544,8 +9853,8 @@ msgstr "以下の項目が検出されました。"
 msgid "The following options will be restricted:"
 msgstr "以下のオプションが制限されます:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "次のタイプのユーザーフォームが silentCAPTCHA によって保護されています: %s。"
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "次のタイプのユーザーフォームが %1$s によって保護されています: %2$s。"
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "ホーム URL が「{{from}}」から「{{to}}」に変更されました。"
@@ -9559,8 +9868,8 @@ msgstr "ラベルは特殊文字を含まない英数字である必要があり
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "ブロック前に許可される最大違反数は妥当です: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "最大ログ保持制限(%s)は、ShieldPRO プランをアップグレードすることで増やすことができます。"
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "最大ログ保持制限 (%1$s) は %2$s プランをアップグレードすることで増やすことができます。"
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "指定された時間制限内で許可されるリクエストの最大数。"
@@ -9625,8 +9934,8 @@ msgstr "推奨されるソースは %s です。これは偽装できないた�
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "以前のスキャンでは、注意が必要な項目が検出されなかったか、すでに修復されています。"
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
-msgstr "その目的は、重要なメールに対する WordPress メールの信頼性を向上させることです。"
+msgid "The purpose is to improve WordPress email reliability for critical emails."
+msgstr "目的は、重要なメールに対する WordPress メールの信頼性を向上させることです。"
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
 msgstr "ファイアウォールの目的は、悪意のあるリクエストに対してサイトをロックダウンし、特定のリソースへのアクセスを制限し、悪意があると思われるリクエストに適切に対応することです。"
@@ -9651,12 +9960,6 @@ msgstr "この設定は、外部ウェブサイトがサイトを iFrame に埋�
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "この設定は、外部ウェブサイトがサイトを iFrame に埋め込むことを防ぎます。これは、いわゆるクリックジャック攻撃を防ぐのに役立ちます。"
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "silentCAPTCHA オプションが無効化されているため、ログイン、登録、パスワード紛失フォームのブルートフォース保護が削除されます。"
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "silentCAPTCHA オプションが有効化されています。"
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "サイト URL が「{{from}}」から「{{to}}」に変更されました。"
@@ -9883,6 +10186,9 @@ msgstr "Passkey 認証チャレンジの準備に問題がありました。"
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Passkey 登録チャレンジの準備に問題がありました。"
 
+msgid "There was a problem processing the batched request."
+msgstr "バッチリクエストの処理中に問題が発生しました。"
+
 msgid "There was a problem removing this passkey"
 msgstr "このパスキーの削除に問題がありました"
 
@@ -9937,9 +10243,6 @@ msgstr "彼らはサイトを攻撃し、情報を探り、(通常は)何の妨�
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Javascript を破壊し、ユーザーエクスペリエンスを悪夢に変えることで、ログインフォームに大混乱をもたらします。"
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "「違反」は、訪問者が悪意のある行動を行った回数のカウンターと考えてください。"
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "これは「ログイン試行の制限」のようなものですが、ログインページだけでなく WordPress サイトのすべての機能に適用されます。"
 
@@ -9951,6 +10254,9 @@ msgstr "これはあなたです"
 
 msgid "This Page"
 msgstr "このページ"
+
+msgid "This Period"
+msgstr "この期間"
 
 msgid "This Server"
 msgstr "このサーバー"
@@ -9967,8 +10273,8 @@ msgstr "このアクションは現時点ではプロファイルで利用でき
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "このアクティビティはあなたの IP アドレスに対して記録され、同様のアクティビティが繰り返された場合、サイトへのさらなるアクセスが完全にブロックされる可能性があります。"
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "ShieldPRO を実行している場合、これはアフィリエイトリンクとしても機能するため、各紹介に対して報酬を獲得できます。"
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "%s を実行している場合、これはアフィリエイトリンクとしても機能するため、紹介ごとに報酬を獲得できます。"
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "%s AntiBot 保護チェックに失敗したため、これはスパムであると思われます。"
@@ -10011,6 +10317,9 @@ msgstr "この機能は Traffic Logger がアクティブな間のみ利用可�
 
 msgid "This feature isn't currently enabled."
 msgstr "この機能は現在有効化されていません。"
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "この機能は、%s プラグインで本人確認を行うために使用する秘密の PIN（以下で作成）に依存しています。"
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "このファイルには悪意のあるコードが含まれています - マルウェアです!"
@@ -10171,11 +10480,20 @@ msgstr "この設定は %s 後に自動的に無効化され、その期間中�
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "これは慎重に使用する必要があり、除外する必要があるパラメータ名のみを指定してください"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "このサイトは Shield ネットワークの一部であるようです。"
+msgid "This site appears to be part of a %s Network."
+msgstr "このサイトは %s ネットワークの一部のようです。"
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "このサイトは現在、自身への HTTP リクエストを行うことができません。"
+
+msgid "This site is already activated for this account."
+msgstr "このサイトはこのアカウントですでに有効化されています。"
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "このサイトはすでに有効化されています。ローカルライセンス状態を再確認して同期しています..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "このステップは、%s が常に正しい訪問者 IP を見つけられるようにするため、最も重要かもしれません。"
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "このテーマは有効ではなく、アンインストールする必要があります。"
@@ -10222,8 +10540,8 @@ msgstr "これにより、アプリケーションパラメータ内のフィー
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "これにより、アプリケーションパラメータ内の SQL（例: %s など）がブロックされます。"
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "これにより、ログインしていない間、%s と %s の URL が HTTP 404 エラーを返すようになります。"
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "これにより、ログインしていない場合、%1$s および %2$s URL が HTTP 404 エラーを返すようになります。"
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "これは、標準の 2FA SMS と同様に、利用可能な場合は SMS クレジットを消費します。"
@@ -10242,6 +10560,9 @@ msgstr "これにより、WordPress 管理者が主要な WordPress 設定を変
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "これにより、WordPress 管理者が他の管理者を作成、変更、または昇格させる機能が制限されます。"
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "このウィザードでは、%s の主要機能をいくつか説明し、3 分以内に起動して実行できるようにします。"
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "これは、正規のウェブクローラーが 'robots.txt' および 'nofollow' ディレクティブを尊重するために機能します。"
@@ -10273,17 +10594,17 @@ msgstr "タイムスタンプ"
 msgid "Timezone"
 msgstr "タイムゾーン"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "タイトル更新済み: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "タイトルが更新されました: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "タイトルが変更されました: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "タイトルが変更されました: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "投稿 ID {{post_id}} のタイトルが「{{title_old}}」から「{{title_new}}」に更新されました。"
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "これに対処するため、silentCAPTCHA という独自のシステムを作成しました。"
+msgid "To address this we created our own system called %s."
+msgstr "これに対処するために、%s という独自のシステムを作成しました。"
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "ブルートフォース攻撃やハッキングの試みから wp-login.php ページを隠すため - ログインページが見つからなければ、誰もログインできません。"
@@ -10303,14 +10624,17 @@ msgstr "新しい Yubikey デバイスを登録するには、Yubikey からワ�
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Yubikey デバイスを削除するには、登録されたデバイス ID を入力して保存してください。"
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "これを解決するには、現在の IP アドレスを %s に通知することで、最適な IP ソースを設定できます。"
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "健全性を維持するには、予期しない変更のためにファイルを積極的にスキャンし、属していないファイルを検出する必要があります。"
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "パスキーを使用するには、PHP インストールに次の拡張機能のいずれか 1 つが読み込まれている必要があります: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "メールを検証するために、サイトは ShieldNET API にリクエストを送信し、ユーザー登録リクエスト中に若干の遅延が発生する可能性があります。"
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "メールを検証するために、サイトは %s API にリクエストを送信し、ユーザー登録リクエスト中にわずかな遅延が発生する可能性があります。"
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "この IP アドレスからのすべてのログを表示するにはトラフィックログツールを使用してください。ここでのログは %s エントリに制限されています。"
@@ -10326,6 +10650,9 @@ msgstr "この設定をインポートおよびエクスポート操作に含め
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "2FA 認証の試行回数が多すぎます - 再度ログインしてください。"
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "バッチリクエストが多すぎます。許可される最大数は %s です。"
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "お使いの IP アドレスからの過剰なリクエストが、サイトの自動防御をトリガーしました。"
@@ -10399,11 +10726,35 @@ msgstr "トラフィックリクエストがログに記録されており、問
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "トラフィックリクエストがログに記録されていないため、問題の追跡が困難になっています。"
 
+msgid "Translation Download Failed"
+msgstr "翻訳のダウンロードに失敗しました"
+
+msgid "Translation Downloaded"
+msgstr "翻訳がダウンロードされました"
+
+msgid "Translation download queue is empty."
+msgstr "翻訳ダウンロードキューは空です。"
+
+msgid "Translation downloaded successfully: %s"
+msgstr "翻訳が正常にダウンロードされました: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "ロケール {{locale}} の翻訳ファイルがダウンロードされました。"
+
+msgid "Translations Queued"
+msgstr "翻訳がキューに追加されました"
+
+msgid "Translations have been downloaded."
+msgstr "翻訳がダウンロードされました。"
+
 msgid "Trash"
 msgstr "ゴミ箱"
 
 msgid "Trashed"
 msgstr "ゴミ箱内の"
+
+msgid "Trend"
+msgstr "トレンド"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "無効な WordPress PHP スクリプト「{{script}}」を読み込もうとしました。"
@@ -10417,11 +10768,17 @@ msgstr "信頼されたユーザーロール"
 msgid "Trusted Users"
 msgstr "信頼されたユーザー"
 
+msgid "Try Pro For Free"
+msgstr "Pro を無料で試す"
+
 msgid "Turn Off"
 msgstr "無効化"
 
 msgid "Turn On"
 msgstr "有効化"
+
+msgid "Turn On Security Admin"
+msgstr "Security Admin を有効化"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "レート制限機能を有効化"
@@ -10441,8 +10798,11 @@ msgstr "ホワイトラベル設定をオン/オフで切り替えます。"
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "ブラウザーの MIME スニッフィングを無効化"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "MainWP サーバーとクライアントインストール用の Shield 組み込み拡張機能を有効化"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "MainWP サーバーおよびクライアントインストール用の %s 組み込み拡張機能を有効化"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "これを有効化すると、Web サイトのフッターに半透明のバッジが追加されます。"
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "%s による 2 要素ログイン認証"
@@ -10516,14 +10876,11 @@ msgstr "未分類"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Google Authenticator を削除する方法を理解する"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "残念ながら U2F はほとんどの最新ブラウザーで初期設定で無効化されていますが、下位互換性のためにここで提供されています。"
-
 msgid "Unidentified"
 msgstr "未識別"
 
-msgid "Uninstall Shield"
-msgstr "Shield をアンインストール"
+msgid "Uninstall %s"
+msgstr "%s をアンインストール"
 
 msgid "Uninstalled"
 msgstr "アンインストール済み"
@@ -10539,6 +10896,9 @@ msgstr "不明 - WP v5.4+ が必要です"
 
 msgid "Unknown Name"
 msgstr "名前不明"
+
+msgid "Unknown activation error."
+msgstr "不明な有効化エラーです。"
 
 msgid "Unknown item"
 msgstr "不明な項目"
@@ -10582,6 +10942,9 @@ msgstr "サポートされていない結果タイプです。"
 msgid "Until"
 msgstr "まで"
 
+msgid "Update %s"
+msgstr "%s を更新"
+
 msgid "Update Available"
 msgstr "更新が利用可能"
 
@@ -10596,9 +10959,6 @@ msgstr "最新機能でセキュリティを最新の状態に保つために今
 
 msgid "Update Required"
 msgstr "更新が必要です"
-
-msgid "Update Shield"
-msgstr "Shield を更新"
 
 msgid "Update This Rule"
 msgstr "このルールを更新"
@@ -10633,14 +10993,14 @@ msgstr "アップグレードが必要です"
 msgid "Upgrade To"
 msgstr "アップグレード先"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "今すぐ %s Pro にアップグレード"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "カスタムレポートを作成するためにアップグレード"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "今すぐ Shield Pro にアップグレード"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "ShieldPRO メンバーシップをアップグレード"
+msgid "Upgrade Your %s Membership"
+msgstr "%s メンバーシップをアップグレード"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "テーマファイルの改ざんスキャンをサポートするにはプランをアップグレードしてください。"
@@ -10648,8 +11008,8 @@ msgstr "テーマファイルの改ざんスキャンをサポートするには
 msgid "Upgrade your plan to support this scanning area."
 msgstr "このスキャンエリアをサポートするにはプランをアップグレードしてください。"
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "アップグレード済み: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "アップグレード済み: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "ファイルのアップロードに失敗しました"
@@ -10657,8 +11017,11 @@ msgstr "ファイルのアップロードに失敗しました"
 msgid "Uptime Monitoring"
 msgstr "稼働監視"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "%s 分間隔内の過剰なリクエストをテストするには %s を使用します。"
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "%1$s を使用して、%2$s 分間隔内の過剰なリクエストをテストします。"
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "%s を使用してボットコメントスパムをブロック"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "CloudFlare を地理データソースとして使用しますか?"
@@ -10681,8 +11044,8 @@ msgstr "正当な訪問者をブロックするリスクを減らすために、
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "正当な訪問者をブロックするリスクを減らすために、より短い間隔を使用してください。"
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "ユーザーフォームでのログイン試行を制限するための silentCAPTCHA の使用が有効化されていません - ログインセキュリティゾーン内で有効化する必要があります。"
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "ユーザーフォームでのログイン試行制限に %s を使用する機能がオンになっていません - ログインセキュリティゾーン内で有効化する必要があります。"
 
 msgid "Use of this feature is highly recommend."
 msgstr "この機能の使用を強くお勧めします。"
@@ -10690,11 +11053,11 @@ msgstr "この機能の使用を強くお勧めします。"
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "この機能を使用すると、既存のオプションが上書きされ、マスターインポートサイトからのオプションに置き換えられます。"
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "ホームページ URL からの相対パスを使用します。例: %s はホームページ(%s)にリダイレクトされます。"
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "ホームページ URL からの相対パスを使用してください。例: %1$s はホームページ(%2$s)にリダイレクトされます。"
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "silentCAPTCHA を使用してボットコメントスパムをブロック"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "スーパー検索ボックスを使用して、オプション、IP アドレス、ツール、ヘルプなど、%s プラグイン内のあらゆるものを検索できます。"
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "除外オプションを使用して、特定の API エンドポイントへの匿名アクセスを許可してください。"
@@ -10702,14 +11065,17 @@ msgstr "除外オプションを使用して、特定の API エンドポイン�
 msgid "Use the link above to create a new one."
 msgstr "上記のリンクを使用して新しいものを作成してください。"
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "検索ボックスでこれらのプレフィックスを使用して結果をフィルタリングします。"
+
 msgid "Use this feature with care."
 msgstr "この機能は慎重に使用してください。"
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "このファイルを使用して、このサイトから別のサイトにオプションをコピーします"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "このオプションを使用して、すべての有効な Shield 保護を完全に無効化します。"
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "このオプションを使用して、すべてのアクティブな %s 保護を完全に無効化します。"
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "このオプションを使用して、カスタム CSP ルールを適用するかどうかを切り替えます。"
@@ -10897,11 +11263,11 @@ msgstr "ユーザーパスワード紛失リクエストがブロックされま
 msgid "User must be logged-in."
 msgstr "ユーザーはログインしている必要があります。"
 
+msgid "User not found."
+msgstr "ユーザーが見つかりません。"
+
 msgid "User registration request blocked."
 msgstr "ユーザー登録リクエストがブロックされました。"
-
-msgid "User session deleted"
-msgstr "ユーザーセッションが削除されました"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "ユーザーセッションの有効期限が切れました ({{user_login}})。"
@@ -10957,8 +11323,8 @@ msgstr "ユーザーは指定された日数後にパスワードのリセット
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "サードパーティのスパム辞書を使用して、人間ベースのコメントスパムを検出します。"
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Shield の独自スナップショット技術を使用すると、WP データベースで直接行われた管理者への変更も検出されます！"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "%s 専用のスナップショット技術を使用することで、WP データベース上で直接行われた管理者への変更も検出されます!"
 
 msgid "Valid license couldn't be found."
 msgstr "有効なライセンスが見つかりませんでした。"
@@ -11047,11 +11413,11 @@ msgstr "すべて表示"
 msgid "View All Security Grades"
 msgstr "すべてのセキュリティグレードを表示"
 
-msgid "View As ShieldFREE"
-msgstr "ShieldFREE として表示"
+msgid "View As %s"
+msgstr "%s として表示"
 
-msgid "View As ShieldPRO"
-msgstr "ShieldPRO として表示"
+msgid "View As Free Version"
+msgstr "無料版として表示"
 
 msgid "View Comment"
 msgstr "コメントを表示"
@@ -11071,6 +11437,9 @@ msgstr "ファイル内容を表示"
 msgid "View File Details"
 msgstr "ファイル詳細を表示"
 
+msgid "View Full Report"
+msgstr "完全なレポートを表示"
+
 msgid "View IP Reputation Option"
 msgstr "IP レピュテーションオプションを表示"
 
@@ -11087,6 +11456,9 @@ msgid "View Plans"
 msgstr "プランを表示"
 
 msgid "View Report"
+msgstr "レポートを表示"
+
+msgid "View Reports"
 msgstr "レポートを表示"
 
 msgid "View Results"
@@ -11146,9 +11518,6 @@ msgstr "WordPress サイト全体のセキュリティを一目で確認し、�
 msgid "View, edit and remove custom security rules"
 msgstr "カスタムセキュリティルールを表示、編集、削除"
 
-msgid "View/Create Reports"
-msgstr "レポートを表示/作成"
-
 msgid "Visitor Auto-Unblock"
 msgstr "訪問者自動ブロック解除"
 
@@ -11182,8 +11551,8 @@ msgstr "訪問者がブロックリストに見つかり、接続が停止され
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "訪問者が CrowdSec ブロックリストに見つかり、リクエストが停止されました。"
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "訪問者が silentCAPTCHA を使用して登録しました。"
+msgid "Visitor registered using %s."
+msgstr "訪問者が %s を使用して登録しました。"
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "訪問者が「{{method}}」メソッドを使用して IP アドレス「{{ip}}」のブロックを解除しました。"
@@ -11226,9 +11595,6 @@ msgstr "このオプションを有効化するには脆弱性スキャンがア
 
 msgid "Vulnerable"
 msgstr "脆弱性あり"
-
-msgid "Vulnerable Assets"
-msgstr "脆弱性のある資産"
 
 msgid "Vulnerable Plugins"
 msgstr "脆弱性のあるプラグイン"
@@ -11277,6 +11643,9 @@ msgstr "WP デフォルトユーザー権限"
 
 msgid "WP File Editing"
 msgstr "WP ファイル編集"
+
+msgid "WP Files"
+msgstr "WP ファイル"
 
 msgid "WP Generator Tag"
 msgstr "WP Generator タグ"
@@ -11367,6 +11736,9 @@ msgstr "実行する必要がなくなった場合は無効化することをお
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "このエリアの専門知識を求め、デプロイメントに完全なテストを含めることをお勧めします。"
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "5 から 10 の間を推奨します。制限が小さいほど、%s は厳格になります。"
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "公式 WordPress コアファイルのみを保持することで、WP ルートディレクトリをクリーンに保つことをお勧めします。"
@@ -11485,8 +11857,8 @@ msgstr "十分な悪意のある動作が検出されると、その IP から�
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "有効化すると、利用可能なサードパーティ統合が検出され次第、自動的に有効化されます。"
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "カウンターが以下の制限（初期設定: %s）に達すると、%s はその IP を完全にブロックします。"
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "カウンターが以下の制限（デフォルト: %1$s）に達すると、%2$s はその IP を完全にブロックします。"
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "現在のファイル内容を公式リリースと比較したところ、変更が検出されました。"
@@ -11578,17 +11950,17 @@ msgstr "ホワイトリストサイトはキーなしでこのサイトからオ
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "プラグイン/テーマファイルエディター内での保存をブロックする可能性があります。"
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "%s のクラウドソーシングインテリジェンスにより、時間を無駄にするノイズの多い誤検知は自動的に非表示になるため、重要なリスクに集中できます。"
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "%s 技術により、ボットを阻止することは今や非常に簡単です。"
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "%s を使用すると、すべての主要なコンタクトフォームプラグインと直接統合して、自動ボットからのコンタクトフォームスパムをブロックできます。"
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "%s に組み込まれた silentCAPTCHA 技術により、ボットを阻止することは実際には非常に簡単になりました。"
-
 msgid "With Issues"
 msgstr "問題あり"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "ShieldNET クラウドソーシングインテリジェンスにより、Shield は誤検出を自動的に非表示にするため、重要なリスクに集中でき、時間を無駄にするノイズを無視できます。"
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "これにより、ファイルの変更を即座に通知され、正確な変更内容を明確に確認し、次のステップを簡単に進めることができます。"
@@ -11596,8 +11968,8 @@ msgstr "これにより、ファイルの変更を即座に通知され、正確
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "スパム辞書を使用することで、サイトから第三者にデータを送信することなく、人間によるスパムコメントを識別できます。"
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "強力な silentCAPTCHA により、ほぼ 100% のボットスパムを検出できます。"
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "強力な %s を使用することで、ボットスパムのほぼ 100%% を検出できます。"
 
 msgid "Wizards"
 msgstr "ウィザード"
@@ -11737,8 +12109,8 @@ msgstr "WordPress は通常、限られた方法で読み込まれ、他の方�
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress は古いバージョン (%s) の PHP を実行しています。"
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress は最新バージョン (%s) の PHP (少なくとも %s) を実行しています。"
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress は最新バージョン (%1$s) の PHP（少なくとも %2$s）で実行されています。"
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "ボットの最小スコアを 0 に設定しているため、WordPress ログインフォームはボットから保護されていません。これは %s システムを制御します。"
@@ -11839,8 +12211,8 @@ msgstr "「有効化のみ」を選択する(推奨されません)か、この�
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "REST API への匿名アクセスを完全に無効化できます。"
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "このセキュリティ機能やその他多くの機能は、ShieldPRO プランをアップグレードすることで利用できます。"
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "%s プランをアップグレードすることで、このセキュリティ機能やその他多くの機能を利用できます。"
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "以下のリンクを使用して現在の IP アドレスを確認し、それを含むオプションをリストから選択することで、サーバーに最適な IP アドレスを検出するのに役立ちます。"
@@ -11887,8 +12259,8 @@ msgstr "%s Security Admin システムで認証してからここに戻ること
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "セキュリティを強化するために、複数の認証要素を組み合わせることができます。"
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Akismet が Shield の人間によるスパム保護と並行して動作している間、信頼性の低い結果が得られる可能性があります。"
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Akismet が %s の人間によるスパム保護と並行して動作している間は、信頼性の低い結果が得られる可能性があります。"
 
 msgid "You may need to reload this page to continue."
 msgstr "続行するには、このページをリロードする必要がある場合があります。"
@@ -11962,8 +12334,8 @@ msgstr "あなたの IP アドレスはホワイトリストに登録されて�
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "あなたの IP アドレスはホワイトリストに登録されています! この設定はあなたには適用されないため、常に通常のログインページを使用する必要があります: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "MySQL データベースサーバーは IPv6 アドレスをサポートしていません。現在のバージョン: %s; 必要な MySQL バージョン: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "MySQL データベースサーバーが IPv6 アドレスをサポートしていません。現在のバージョン: %1$s; 必要な MySQL バージョン: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "固有の Yubikey アプリ API キー"
@@ -12037,11 +12409,11 @@ msgstr "レポート送信先メールアドレス: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "セキュリティ管理者がパスワード品質の要件を課しています。"
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "セキュリティ分析では ShieldPRO 専用機能は考慮されていません - 歯車メニューを使用して、これらの追加セキュリティ機能にアクセスできる場合の分析を表示してください。"
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "セキュリティ分析では %s 専用機能は考慮されていません - 歯車メニューを使用して、これらの追加セキュリティ機能にアクセスできる場合の分析を表示してください。"
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "セキュリティ分析には ShieldPRO 専用機能が含まれています - 歯車メニューを使用して、利用可能なセキュリティ機能の分析を表示してください。"
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "セキュリティ分析には %s 専用機能が含まれています - 歯車メニューを使用して、利用可能なセキュリティ機能の分析を表示してください。"
 
 msgid "Your session has expired."
 msgstr "セッションの有効期限が切れました。"
@@ -12055,11 +12427,11 @@ msgstr "セッションが別の IP アドレスにロックされました。"
 msgid "Your session was terminated."
 msgstr "セッションが終了しました。"
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "サイトは ShieldPRO が提供する追加のセキュリティ保護の恩恵を受けています。"
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "サイトは %s によって提供される追加のセキュリティ保護の恩恵を受けています。"
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "サイトは ShieldPRO が提供する追加のセキュリティ保護の恩恵を受けていません。"
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "サイトは %s が提供する追加のセキュリティ保護の恩恵を受けていません。"
 
 msgid "Your site is currently in lockdown."
 msgstr "サイトは現在ロックダウン中です。"
@@ -12082,8 +12454,8 @@ msgstr "サイトはボットによる自動コメントスパムから保護さ
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "サイトはまだ CrowdSec に登録されていません。"
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "お使いの Web ホスティングは Shield Security プラグインの最小要件を満たしていません。"
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Web ホスティングは %s プラグインの最小要件を満たしていません。"
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "ゾーンアクション"
 msgid "Zones"
 msgstr "ゾーン"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[誤検出] は、コードがマルウェアのように見えますが、実際にはクリーンであることを意味します。"
@@ -12142,6 +12514,18 @@ msgstr "all_opts_keys フォーム要素が提供されていません。"
 msgid "and"
 msgstr "および"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "約 %d 分後に自動的に処理されます。"
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "約 %d 分後に自動的に処理されます。"
+
+msgid "and will be processed shortly."
+msgstr "まもなく処理されます。"
+
+msgid "auto-fixed"
+msgstr "自動修正済み"
+
 msgid "case-insensitive"
 msgstr "大文字小文字を区別しない"
 
@@ -12154,8 +12538,8 @@ msgstr "日"
 msgid "empty username"
 msgstr "空のユーザー名"
 
-msgid "entries: %s (previous: %s)"
-msgstr "エントリ: %s (前回: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "エントリ: %1$s (前回: %2$s)"
 
 msgid "estimated"
 msgstr "推定"
@@ -12175,6 +12559,12 @@ msgstr "詳細なヘルプ"
 msgid "help"
 msgstr "ヘルプ"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "データ不足"
 
 msgid "more frequent checks will be ignored"
 msgstr "より頻繁なチェックは無視されます"
+
+msgid "more..."
+msgstr "詳細..."
 
 msgid "n/a"
 msgstr "n/a"
@@ -12235,80 +12628,8 @@ msgstr "推奨事項"
 msgid "seconds"
 msgstr "秒"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot テクノロジー"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "silentCAPTCHA ボット検出は WordPress ログインに対するブルートフォース攻撃から保護していません。"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "silentCAPTCHA ボット検出は WordPress パスワード紛失フォームを保護していません。"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "silentCAPTCHA ボット検出は WordPress 登録を保護していません。"
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA ボット最小スコア"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA ボットスコア(パーセンテージ)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA チェックが無効です(モジュール)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA 複雑性"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "ログイン用 silentCAPTCHA"
-
-msgid "silentCAPTCHA Registration"
-msgstr "silentCAPTCHA 登録"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "ログインや登録など、保護するフォームを選択していないため、silentCAPTCHA 検出は適用されません。"
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA は %s 独自の WordPress 悪質ボット検出技術です。"
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA は %s 独自のボット検出技術で、可視 CAPTCHA や同様の訪問者チャレンジの必要性を排除します。"
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA は %s 独自のボット検出技術で、訪問者には見えず、ログイン CAPTCHA でのユーザー操作の必要性を排除します。"
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "最小ボットスコア閾値が提供されていないため、silentCAPTCHA は無効になっています。"
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA は最小スコアが %s に設定されている場合は無効化されます。"
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA は最小ボットスコア閾値を設定して有効化されています。"
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA はボットスパムから WP コメントを保護していません。"
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "silentCAPTCHA の Bot チャレンジ複雑性が低すぎます - 増加を検討してください。"
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "最小スコアが 0 に設定されているため、silentCAPTCHA のボット検出が実行されていません。"
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "silentCAPTCHA のボット検出は、ボットが現在チャレンジされていないため実行されていません。"
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "silentCAPTCHA のボット最小スコアがかなり低くなっています(%s)。"
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "silentCAPTCHAv1 登録"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "silentCAPTCHAv2 登録"
 
 msgid "suggestion"
 msgstr "提案"

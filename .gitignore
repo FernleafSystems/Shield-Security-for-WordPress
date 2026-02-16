@@ -47,6 +47,8 @@ test-plugin-*.log
 /bin/test-simple.ps1
 /bin/cleanup-test-artifacts.ps1
 
+/prototypes/
+
 # Intermediary component test scripts and logs (should not be committed)
 component-*.ps1
 component-*.log

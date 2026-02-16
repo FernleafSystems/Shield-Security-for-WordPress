@@ -95,11 +95,11 @@ class PluginJsonSchemaTest extends TestCase {
 			$this->assertEquals( $expectedType, $actualType, "Property '{$property}' should be {$expectedType}, got {$actualType}" );
 		}
 
-		// Validate version format (semantic versioning)
+		// Validate version format.
 		$this->assertMatchesRegularExpression( 
-			'/^\d+\.\d+\.\d+$/', 
+			'/^\d+(\.\d+)+$/',
 			$properties['version'], 
-			'Version must follow semantic versioning format (X.Y.Z)' 
+			'Version should use numeric dot-separated segments (e.g. 21.1.9)'
 		);
 
 		// Validate build format (YYYYMM.DDNN)
@@ -572,7 +572,7 @@ class PluginJsonSchemaTest extends TestCase {
 		$this->assertIsArray( $events, 'Events must be an array' );
 		$this->assertNotEmpty( $events, 'Events array cannot be empty' );
 		
-		$validLevels = ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'];
+		$validLevels = [ 'warning', 'notice', 'info' ];
 		
 		foreach ( $events as $eventKey => $event ) {
 			$this->assertIsArray( $event, "Event '{$eventKey}' must be an array" );

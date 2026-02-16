@@ -418,7 +418,6 @@
         ],
         "type": "multiple_select",
         "default": [
-            "alert",
             "warning",
             "notice"
         ],
@@ -426,10 +425,6 @@
             {
                 "value_key": "disabled",
                 "text": "Logging Disabled"
-            },
-            {
-                "value_key": "alert",
-                "text": "Alert"
             },
             {
                 "value_key": "warning",
@@ -442,10 +437,6 @@
             {
                 "value_key": "info",
                 "text": "Info"
-            },
-            {
-                "value_key": "debug",
-                "text": "Debug"
             }
         ],
         "link_info": "",

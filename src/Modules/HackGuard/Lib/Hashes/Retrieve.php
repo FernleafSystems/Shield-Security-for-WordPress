@@ -16,15 +16,13 @@ class Retrieve {
 
 	use PluginControllerConsumer;
 
-	private static $hashes;
+	private static array $hashes;
 
 	public function __construct() {
-		if ( !isset( self::$hashes ) ) {
-			self::$hashes = [
-				'plugins' => [],
-				'themes'  => [],
-			];
-		}
+		self::$hashes ??= [
+			'plugins' => [],
+			'themes'  => [],
+		];
 	}
 
 	/**

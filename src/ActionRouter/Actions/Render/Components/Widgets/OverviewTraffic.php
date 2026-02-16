@@ -15,7 +15,7 @@ class OverviewTraffic extends OverviewBase {
 
 	protected function getRenderData() :array {
 		$logLoader = new LoadRequestLogs();
-		$logLoader->limit = 5;
+		$logLoader->limit = 10;
 		$logLoader->order_by = 'created_at';
 		$logLoader->order_dir = 'DESC';
 
@@ -26,12 +26,13 @@ class OverviewTraffic extends OverviewBase {
 					$path .= '?'.$record->meta[ 'query' ];
 				}
 				return [
-					'ip'   => $record->ip,
-					'path' => $this->truncate( $path ),
-					'ago'  => Services::Request()
-									  ->carbon( true )
-									  ->setTimestamp( $record->created_at )
-									  ->diffForHumans()
+					'ip'      => $record->ip,
+					'ip_href' => self::con()->plugin_urls->ipAnalysis( $record->ip ),
+					'path'    => $this->truncate( $path ),
+					'ago'     => Services::Request()
+										 ->carbon( true )
+										 ->setTimestamp( $record->created_at )
+										 ->diffForHumans()
 				];
 			},
 			$logLoader->select()
@@ -45,7 +46,7 @@ class OverviewTraffic extends OverviewBase {
 				'no_logs' => __( 'There are no logs available yet.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'logs' => $logs,
+				'logs' => \array_slice( $logs, 0, \min( 100, \max( 1, $this->action_data[ 'limit' ] ?? 5 ) ) ),
 			],
 		];
 	}

@@ -38,8 +38,10 @@ docker-compose*.yml text eol=lf
 # Web files should use LF line endings
 *.html text eol=lf
 *.css text eol=lf
+*.scss text eol=lf
 *.js text eol=lf
 *.ts text eol=lf
+*.twig text eol=lf
 
 # Markdown files should use LF line endings
 *.md text eol=lf
@@ -184,6 +186,7 @@ yarn.lock text eol=lf
 /.phpunit.cache export-ignore
 
 # Development tools
+/prototypes export-ignore
 /translations-tools export-ignore
 
 # Frontend source files (compiled bundles are in assets/dist/)

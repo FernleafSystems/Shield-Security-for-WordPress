@@ -15,14 +15,15 @@ class EventsEnum extends Actions\Render\BaseRender {
 		$srvEvents = self::con()->comps->events;
 
 		$eventsSortedByLevel = [
-			'Alert'   => [],
 			'Warning' => [],
-			'Notice'  => [],
-			'Info'    => [],
-			'Debug'   => [],
+			'Notice' => [],
+			'Info'   => [],
 		];
 		foreach ( $srvEvents->getEvents() as $event ) {
 			$level = \ucfirst( \strtolower( $event[ 'level' ] ) );
+			if ( !isset( $eventsSortedByLevel[ $level ] ) ) {
+				$level = 'Notice';
+			}
 			$eventsSortedByLevel[ $level ][ $event[ 'key' ] ] = [
 				'name' => $srvEvents->getEventName( $event[ 'key' ] ),
 				'attr' => [

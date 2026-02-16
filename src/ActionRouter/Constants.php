@@ -115,6 +115,7 @@ class Constants {
 		Actions\FullPageDisplay\DisplayReport::class,
 
 		Actions\AjaxRender::class,
+		Actions\AjaxBatchRequests::class,
 
 		Actions\DynamicLoad\ConfigForZoneComponents::class,
 		Actions\DynamicLoad\Zone::class,
@@ -139,8 +140,13 @@ class Constants {
 		Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertShieldDeactivated::class,
 		Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertVulnerabilities::class,
 		Actions\Render\Components\Email\Footer::class,
+		Actions\Render\Components\Email\GenericLines::class,
+		Actions\Render\Components\Email\AdminLoginNotification::class,
+		Actions\Render\Components\Email\BackupCodeUsed::class,
 		Actions\Render\Components\Email\UnblockMagicLink::class,
 		Actions\Render\Components\Email\MfaLoginCode::class,
+		Actions\Render\Components\Email\SecAdminRemoveConfirm::class,
+		Actions\Render\Components\Email\SecAdminRemoveNotice::class,
 		Actions\Render\Components\Email\FirewallBlockAlert::class,
 		Actions\Render\Components\Email\UserLoginNotice::class,
 		Actions\Render\Components\Reports\Contexts\EmailReport::class,

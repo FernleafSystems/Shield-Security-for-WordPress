@@ -1,26 +1,212 @@
-﻿.component-enabled-state > svg {
-  width: 48px;
-  height: 48px;
-}
 .title-image-container > svg {
   width: 100%;
   height: auto;
 }
 
-.security_zone_component .zone_component_action {
+/* Zone Component Card */
+.zone-component-card {
+  border: none;
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  padding: 0;
+  margin-bottom: 1rem;
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $card-box-shadow-hover;
+  }
+}
+
+.zone-card-accent {
+  height: $card-accent-height;
+  width: 100%;
+
+  &.status-good             { background: $status-color-good; }
+  &.status-okay             { background: $status-color-warning; }
+  &.status-bad              { background: $status-color-critical; }
+  &.status-neutral,
+  &.status-neutral_enabled  { background: $status-color-info; }
+}
+
+.card-header-row {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f1;
+  gap: 1rem;
+}
+
+.zone-component-card .component-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1d2327;
+  flex-shrink: 0;
+}
+
+.card-body-area {
+  padding: 0.875rem 1.5rem;
+}
+
+.zone-component-card .component-subtitle {
+  font-size: 0.875rem;
+  color: #646970;
+  margin: 0;
+}
+
+/* Status Badge - scoped to zone cards to avoid conflict with progress.scss */
+.zone-component-card .status-badge {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.625rem;
+  border-radius: 50px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+
+  .badge-icon {
+    display: inline-flex;
+    align-items: center;
+
+    > svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+    }
+  }
+
+  &.badge-good {
+    background: $badge-good-bg;
+    color: $badge-good-color;
+  }
+  &.badge-okay {
+    background: $badge-warning-bg;
+    color: $badge-warning-color;
+  }
+  &.badge-bad {
+    background: $badge-critical-bg;
+    color: $badge-critical-color;
+  }
+  &.badge-neutral {
+    background: $badge-info-bg;
+    color: $badge-info-color;
+  }
+}
+
+/* Configure Link - color matches card status */
+.zone-component-card .configure-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+
+  .configure-gear {
+    display: inline-flex;
+    align-items: center;
+
+    > svg {
+      width: 16px;
+      height: 16px;
+      transform: rotate(0deg);
+      transition: transform 0.3s;
+    }
+  }
+
+  &:hover .configure-gear > svg {
+    transform: rotate(45deg);
+  }
 }
-.security_zone_component:hover .zone_component_action {
-  background-color: rgba(0, 128, 0, 0.1);
+
+.zone-component-card.status-good .configure-link {
+  color: $status-color-good;
+  &:hover {
+    background: rgba($status-color-good, 0.06);
+    color: #005200;
+  }
 }
-.security_zone_component .zone_component_action > svg {
-  height: 24px;
-  width: 24px;
-  transform: rotate(0deg);
-  transition: transform 0.5s;
+.zone-component-card.status-okay .configure-link {
+  color: $badge-warning-color;
+  &:hover {
+    background: rgba($status-color-warning, 0.1);
+    color: #6d5204;
+  }
 }
-.security_zone_component:hover .zone_component_action > svg {
-  transform: rotate(45deg);
-  transition: transform 0.3s;
+.zone-component-card.status-bad .configure-link {
+  color: $status-color-critical;
+  &:hover {
+    background: rgba($status-color-critical, 0.06);
+    color: #a02530;
+  }
+}
+.zone-component-card.status-neutral .configure-link,
+.zone-component-card.status-neutral_enabled .configure-link {
+  color: $status-color-info;
+  &:hover {
+    background: rgba($status-color-info, 0.06);
+    color: #0b8da6;
+  }
+}
+
+/* Explanations Block */
+.zone-component-card .explanations-block {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid #f0f0f1;
+  font-size: 0.8125rem;
+}
+
+.zone-component-card.status-good .explanations-block {
+  background: #f1f8f3;
+  color: #146c43;
+}
+.zone-component-card.status-okay .explanations-block {
+  background: #fefaf0;
+  color: #6d5204;
+}
+.zone-component-card.status-bad .explanations-block {
+  background: #fef3f4;
+  color: $badge-critical-color;
+}
+.zone-component-card.status-neutral .explanations-block,
+.zone-component-card.status-neutral_enabled .explanations-block {
+  background: #f1f8fb;
+  color: $badge-info-color;
+}
+
+.zone-component-card .explanation-item {
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  .explanation-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-self: center;
+
+    > svg {
+      width: 14px;
+      height: 14px;
+      color: $status-color-critical;
+      display: block;
+      position: relative;
+      top: 1px;
+    }
+  }
 }

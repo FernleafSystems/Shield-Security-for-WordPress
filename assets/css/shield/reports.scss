@@ -1,0 +1,347 @@
+// Report styles — reference file only.
+// The actual CSS is inline in templates/twig/pages/report/security.twig
+// because stored reports must be self-contained HTML documents.
+// This file documents the design token usage for maintainability.
+//
+// When updating report styles, edit the <style> block in security.twig
+// and keep this file in sync as a development reference.
+//
+// Class names match prototype A (prototypes/report-prototype-A.html).
+// The inline CSS uses CSS custom properties (:root vars) rather than
+// SCSS variables, but the values mirror _status-colors.scss tokens.
+
+@import 'status-colors';
+
+/* === Page Chrome === */
+
+// body { background-color: var(--surface-neutral-base); }
+// body > main { max-width: 1040px; border-radius: var(--card-radius); box-shadow: var(--card-shadow); }
+// #PageHeaderTitle { gradient green bg, position: relative, ::after salt-green accent bar }
+// .report-date-pill { rgba white bg, border-radius: 20px, inside header }
+// .report-intro { padding: 24px 40px 0; color: #555; }
+
+/* === Report Sections (area wrappers) === */
+
+// .report-section { margin: 28px 28px 0; border-radius: var(--card-radius); box-shadow + border }
+// .report-section-header { flex layout, neutral raised bg, border-bottom }
+// .report-section-accent { 4px × 24px vertical bar, border-radius: 2px }
+// .report-section-title { 1.1rem, font-weight: 600 }
+// .report-section-body { padding: 20px }
+
+/* === Scan Result Cards === */
+
+.scan-card {
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+  border: none;
+  height: 100%;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $card-box-shadow-hover;
+  }
+}
+
+.scan-card-accent {
+  height: $card-accent-height;
+  width: 100%;
+}
+
+.scan-card-body {
+  padding: 16px;
+}
+
+.scan-card .scan-name {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.scan-card .scan-count {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.scan-card .scan-sub {
+  font-size: 0.78rem;
+  margin-top: 4px;
+
+  &.all-clear {
+    color: $status-color-good;
+    font-weight: 600;
+  }
+  &.has-new {
+    color: #cc7a00;
+    font-weight: 600;
+  }
+}
+
+/* === Scan Item Lists === */
+
+.scan-item-list {
+  margin-top: 12px;
+}
+
+.scan-item {
+  padding: 6px 12px;
+  font-family: monospace;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  color: #555;
+
+  &.is-new {
+    border-left: 3px solid $status-color-warning;
+    background: $card-bg-warning;
+  }
+
+  .new-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: $badge-warning-bg;
+    color: $badge-warning-color;
+    border-radius: 8px;
+    margin-left: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+}
+
+/* === Status Pill Badges === */
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.status-pill.pill-good { background: $badge-good-bg; color: $badge-good-color; }
+.status-pill.pill-warning { background: $badge-warning-bg; color: $badge-warning-color; }
+.status-pill.pill-critical { background: $badge-critical-bg; color: $badge-critical-color; }
+.status-pill.pill-info { background: $badge-info-bg; color: $badge-info-color; }
+
+/* === Stat Cards === */
+
+.stat-card {
+  border-radius: $card-border-radius;
+  overflow: hidden;
+  box-shadow: $card-box-shadow;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: none;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $card-box-shadow-hover;
+  }
+
+  &.bg-tint-good { background: $card-bg-good; }
+  &.bg-tint-warning { background: $card-bg-warning; }
+  &.bg-tint-critical { background: $card-bg-critical; }
+  &.bg-tint-info { background: $card-bg-info; }
+}
+
+.stat-card-accent {
+  height: $card-accent-height;
+  width: 100%;
+
+  &.status-good { background: $status-color-good; }
+  &.status-warning { background: $status-color-warning; }
+  &.status-critical { background: $status-color-critical; }
+  &.status-info { background: $status-color-info; }
+}
+
+.stat-card-body {
+  padding: 14px 16px 12px;
+}
+
+.stat-card .overline {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.stat-card .stat-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #222;
+}
+
+.stat-card .stat-prev-label {
+  font-size: 0.72rem;
+  color: #999;
+  margin-top: 2px;
+}
+
+.stat-card-footer {
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-trend {
+  font-weight: 600;
+
+  &.trend-good { color: $status-color-good; }
+  &.trend-warning { color: #cc7a00; }
+  &.trend-neutral { color: #6c757d; }
+}
+
+/* === Category Sub-headers === */
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 12px;
+
+  h6 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $border-color-neutral-subtle;
+  }
+}
+
+/* === Repair List === */
+
+.repair-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: 0.85rem;
+
+  code {
+    color: $status-color-good;
+    font-size: 0.82rem;
+  }
+}
+
+.repair-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: $status-bg-good-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: $status-color-good;
+}
+
+/* === Change Cards === */
+
+.change-card {
+  border-radius: $card-border-radius;
+  overflow: hidden;
+  box-shadow: $card-box-shadow;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $card-box-shadow-hover;
+  }
+}
+
+.change-card-header {
+  background: $surface-color-neutral-raised;
+  border-bottom: 1px solid $border-color-neutral-subtle;
+  padding: 10px 14px;
+
+  h6 {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+}
+
+.change-card .list-group-item {
+  border-left: none;
+  border-right: none;
+  font-size: 0.85rem;
+  padding: 8px 14px;
+}
+
+.change-card .card-footer {
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding: 8px 14px;
+}
+
+/* === Change Tracking Toggle === */
+
+.report-changes-toggle .btn-check:checked + .btn {
+  background-color: $status-color-good;
+  border-color: $status-color-good;
+  color: #fff;
+}
+
+/* === Accordion Overrides (scoped to .report-section) === */
+
+.report-section .accordion-item {
+  border: none;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.report-section .accordion-button {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  background: transparent;
+  padding: 12px 16px;
+
+  &:not(.collapsed) {
+    background: rgba($status-color-good, 0.03);
+    color: #222;
+    box-shadow: none;
+  }
+}
+
+.report-section .accordion-body {
+  padding: 16px;
+}
+
+/* === Footer === */
+
+// .report-footer { margin: 32px 28px 0; border-top: 1px solid var(--border-neutral-subtle); text-align: center; }
+
+/* === Shared Utilities === */
+
+.report-link {
+  color: $status-color-good;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+.report-empty {
+  color: #646970;
+  font-style: italic;
+}

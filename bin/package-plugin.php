@@ -14,6 +14,7 @@ $options = getopt( '', [
 	'strauss-fork-repo::',
 	'skip-root-composer',
 	'skip-lib-composer',
+	'skip-package-dependency-build',
 	'skip-npm-install',
 	'skip-npm-build',
 	'skip-directory-clean',
@@ -41,11 +42,16 @@ else {
 $packagerOptions = [];
 
 if ( isset( $options[ 'skip-root-composer' ] ) ) {
-	$packagerOptions[ 'composer_root' ] = false;
+	$packagerOptions[ 'composer_install' ] = false;
 }
 
 if ( isset( $options[ 'skip-lib-composer' ] ) ) {
-	$packagerOptions[ 'composer_lib' ] = false;
+	// Legacy flag retained for backwards compatibility with existing scripts.
+	// Package dependency work is now controlled by --skip-package-dependency-build.
+}
+
+if ( isset( $options[ 'skip-package-dependency-build' ] ) ) {
+	$packagerOptions[ 'package_dependency_build' ] = false;
 }
 
 if ( isset( $options[ 'skip-npm-install' ] ) ) {

@@ -158,10 +158,16 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @return self For method chaining
 	 */
 	public function setActionOverride( string $overrideKey, $value ) :self {
-		$this->action_data[ 'action_overrides' ] = \array_merge(
-			\is_array( $this->action_data[ 'action_overrides' ] ?? null ) ? $this->action_data[ 'action_overrides' ] : [],
+		$actionData = $this->getRawData()[ 'action_data' ] ?? [];
+		if ( !\is_array( $actionData ) ) {
+			$actionData = [];
+		}
+		$overrides = \array_merge(
+			\is_array( $actionData[ 'action_overrides' ] ?? null ) ? $actionData[ 'action_overrides' ] : [],
 			[ $overrideKey => $value ]
 		);
+		$actionData[ 'action_overrides' ] = $overrides;
+		$this->action_data = $actionData;
 		return $this;
 	}
 

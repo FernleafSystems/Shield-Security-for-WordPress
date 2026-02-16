@@ -1,0 +1,41 @@
+// Status accent colours (top bars, progress bars)
+$status-color-good: $primary;        // #008000
+$status-color-warning: $warning;     // #edb41d
+$status-color-critical: $danger;     // #c62f3e
+$status-color-info: $info;           // #0ea8c7
+
+// Status light backgrounds (icon badges in meter cards)
+$status-bg-good-light: #e6f5e6;
+$status-bg-warning-light: #fef6e6;
+$status-bg-critical-light: #fdeaec;
+$status-bg-info-light: #e7f1ff;
+
+// Status badge pill colours (zone component pill badges)
+$badge-good-bg: #d1e7dd;
+$badge-good-color: #0a5c36;
+$badge-warning-bg: #fff3cd;
+$badge-warning-color: #856404;
+$badge-critical-bg: #f8d7da;
+$badge-critical-color: #842029;
+$badge-info-bg: #e7f1ff;
+$badge-info-color: #0a58ca;
+
+// Card status tint backgrounds (very subtle, for card body fill)
+$card-bg-good: #f9fdf9;
+$card-bg-warning: #fdfcf8;
+$card-bg-critical: #fef9f9;
+$card-bg-info: #f7fbfd;
+
+// Shared card properties
+$card-border-radius: 10px;
+$card-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+$card-box-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+$card-accent-height: 4px;
+
+// Neutral UI surfaces + subtle brand accent (salt green)
+$surface-color-neutral-base: #f5f6f5;    // primary app/offcanvas neutral background
+$surface-color-neutral-raised: #f8f9f8;  // raised containers, headers, and rails
+$border-color-neutral-subtle: #d9dfd9;   // default neutral border
+$border-color-neutral-strong: #ccd3cc;   // stronger border for inputs/controls
+$accent-color-salt-green: #d2ddd2;       // subtle brand accent for component chrome
+$accent-color-salt-green-soft: #d4ddd4;  // softer accent for separators/top strips

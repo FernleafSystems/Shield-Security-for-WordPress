@@ -1,81 +1,289 @@
-﻿/** https://tigrr.github.io/circle-progress/examples.html **/
+/** Security Analysis Progress Meters **/
 
-.circle-progress circle-progress::part(base) {
-  width: 80px;
-  height: auto;
+/* ========== HERO GAUGE CARD ========== */
+.meter-hero-card {
+	border: none;
+	border-radius: 12px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+	overflow: hidden;
+	position: relative;
+	transition: background 0.2s ease;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 4px;
+	}
+
+	&.status-good {
+		background: $card-bg-good;
+		&::before { background: $status-color-good; }
+		.gauge-icon { color: $status-color-good; }
+		&:hover { background: $status-bg-good-light; }
+	}
+
+	&.status-warning {
+		background: $card-bg-warning;
+		&::before { background: $status-color-warning; }
+		.gauge-icon { color: $status-color-warning; }
+		&:hover { background: $status-bg-warning-light; }
+	}
+
+	&.status-critical {
+		background: $card-bg-critical;
+		&::before { background: $status-color-critical; }
+		.gauge-icon { color: $status-color-critical; }
+		&:hover { background: $status-bg-critical-light; }
+	}
 }
 
-.circle-progress circle-progress::part(value),
-.circle-progress-value {
-  stroke-width: 12px;
+.gauge-container {
+	position: relative;
+	width: 280px;
+	height: 160px;
+	margin: 0 auto;
+
+	canvas {
+		width: 100% !important;
+		height: 100% !important;
+	}
 }
 
-.circle-progress circle-progress::part(circle),
-.circle-progress-circle {
-  stroke: white;
-  stroke-width: 12px;
-  fill: #eee;
+.gauge-label {
+	position: absolute;
+	bottom: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	text-align: center;
+
+	.gauge-icon {
+		font-size: 2rem;
+		line-height: 1;
+
+		.svg-container svg {
+			width: 2rem;
+			height: 2rem;
+		}
+	}
+
+	.percentage {
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: #333;
+		margin-top: 2px;
+	}
 }
 
-.circle-progress circle-progress::part(text),
-.circle-progress-text {
-  font-size: 2rem;
-  fill: #008000;
+.gauge-scale {
+	display: flex;
+	justify-content: space-between;
+	width: 260px;
+	margin: 2px auto 0;
+	padding: 0 20px;
+
+	span {
+		font-size: 0.65rem;
+		color: #999;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
 }
 
-.circle-progress.circle-progress-status-x circle-progress::part(text),
-.circle-progress.circle-progress-status-x .circle-progress-text {
-  fill: rgb(47, 192, 10);
+.hero-title {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #1d2327;
 }
 
-.circle-progress.circle-progress-status-x circle-progress::part(value),
-.circle-progress.circle-progress-status-x .circle-progress-value svg::part(value) {
-  stroke: rgb(47, 192, 10);
+.hero-subtitle {
+	color: #646970;
+	font-size: 0.875rem;
 }
 
-.circle-progress.circle-progress-status-h circle-progress::part(text),
-.circle-progress.circle-progress-status-h .circle-progress-text {
-  fill: rgb(16, 128, 0);
+/* Dashboard overview: compact hero — graph + button only */
+.dashboard_overview_widget .meter-hero-card {
+
+	.hero-title,
+	.hero-subtitle,
+	.card-body > p {
+		display: none;
+	}
 }
 
-.circle-progress.circle-progress-status-h circle-progress::part(value),
-.circle-progress.circle-progress-status-h .circle-progress-value {
-  stroke: rgb(16, 128, 0);
+.btn-analyse {
+	font-size: 0.78rem;
+	padding: 0.35rem 0.85rem;
+	border-radius: 6px;
+	font-weight: 500;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
 }
 
-.circle-progress.circle-progress-status-m circle-progress::part(text),
-.circle-progress.circle-progress-status-m .circle-progress-text {
-  fill: rgb(200, 150, 10);
+/* ========== SUMMARY STATS BAR ========== */
+.meter-stats-bar {
+	background: white;
+	border-radius: 10px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+	padding: 0.85rem 1.5rem;
 }
 
-.circle-progress.circle-progress-status-m circle-progress::part(value),
-.circle-progress.circle-progress-status-m .circle-progress-value {
-  stroke: rgb(200, 150, 10);
+.stat-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
 }
 
-.circle-progress.circle-progress-status-l circle-progress::part(text),
-.circle-progress.circle-progress-status-l .circle-progress-text {
-  fill: rgb(200, 50, 10);
+.stat-icon {
+	font-size: 1.1rem;
+
+	svg {
+		width: 1.1rem;
+		height: 1.1rem;
+	}
+
+	&.stat-icon-good { color: $status-color-good; }
+	&.stat-icon-warning { color: $status-color-warning; }
+	&.stat-icon-critical { color: $status-color-critical; }
 }
 
-.circle-progress.circle-progress-status-l circle-progress::part(value),
-.circle-progress.circle-progress-status-l .circle-progress-value {
-  stroke: rgb(200, 50, 10);
+.stat-label {
+	font-size: 0.8rem;
+	color: #646970;
+	text-align: center;
+	margin-top: 0.15rem;
 }
 
-.progress-metercard .letter-score {
-  position: absolute;
-  font-size: 3rem;
-  margin: -10px auto 0;
-  text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
+.stat-count {
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #1d2327;
 }
 
-.progress-metercard .description {
+/* ========== SECONDARY METER CARDS ========== */
+.meter-card {
+	border: none;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	overflow: hidden;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	background: white;
+
+	&:hover {
+		transform: translateY(-3px);
+		box-shadow: $card-box-shadow-hover;
+	}
 }
 
-.progress-metercard.progress-metercard-summary .description {
-  border-bottom-color: transparent;
+.meter-card-accent {
+	height: $card-accent-height;
+	width: 100%;
+
+	&.status-good { background: $status-color-good; }
+	&.status-warning { background: $status-color-warning; }
+	&.status-critical { background: $status-color-critical; }
 }
 
-.progress-metercard-summary {
+.meter-card-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+	gap: 0.75rem;
 }
+
+.meter-card-title {
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #1d2327;
+	margin: 0;
+	line-height: 1.3;
+}
+
+.meter-card-subtitle {
+	font-size: 0.78rem;
+	color: #646970;
+	margin: 0.15rem 0 0;
+}
+
+/* Status icon badge */
+.status-badge {
+	width: 42px;
+	height: 42px;
+	min-width: 42px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	flex-shrink: 0;
+	font-size: 1.3rem;
+
+	.svg-container svg {
+		width: 1.3rem;
+		height: 1.3rem;
+	}
+
+	&.status-good {
+		background-color: $status-bg-good-light;
+		color: $status-color-good;
+	}
+
+	&.status-warning {
+		background-color: $status-bg-warning-light;
+		color: $status-color-warning;
+	}
+
+	&.status-critical {
+		background-color: $status-bg-critical-light;
+		color: $status-color-critical;
+	}
+}
+
+.meter-progress-row {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+
+	.progress {
+		flex: 1;
+		height: 6px;
+		border-radius: 3px;
+		background-color: #e9ecef;
+	}
+
+	.score-text {
+		flex-shrink: 0;
+		white-space: nowrap;
+	}
+}
+
+.meter-card .progress-bar {
+	border-radius: 3px;
+	transition: width 0.6s ease;
+}
+
+.progress-bar.status-good { background-color: $status-color-good; }
+.progress-bar.status-warning { background-color: $status-color-warning; }
+.progress-bar.status-critical { background-color: $status-color-critical; }
+
+.meter-card-desc {
+	font-size: 0.82rem;
+	color: #50575e;
+	line-height: 1.5;
+}
+
+.meter-card-good { background-color: $card-bg-good; }
+.meter-card-warning { background-color: $card-bg-warning; }
+.meter-card-critical { background-color: $card-bg-critical; }
+
+.score-text {
+	font-size: 0.78rem;
+	color: #646970;
+	font-weight: 500;
+}
+

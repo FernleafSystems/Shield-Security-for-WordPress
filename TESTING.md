@@ -67,7 +67,8 @@
 | Platform | Command | Time | Purpose |
 |----------|---------|------|------|
 | **All** 🚀 | `./bin/run-docker-tests.sh` | ~3m total | ✅ **Recommended** - CI-equivalent testing |
-| **Local** | `composer test` | ~2m | ⚡ Fast local testing (requires setup) |
+| **Local (Fast)** | `composer test:fast` | ~1-3m | ⚡ Critical rules/firewall/rate-limit subset |
+| **Local (Full)** | `composer test` | ~2m+ | ✅ Full unit + integration suite |
 
 ### Decision Tree: Which Testing Method Should I Use?
 
@@ -75,11 +76,11 @@
 Need to test?
 ├─ Before commit/PR? → ./bin/run-docker-tests.sh ✅
 ├─ Daily development?
-│  ├─ Have local setup? → composer test ⚡
+│  ├─ Have local setup? → composer test:fast ⚡
 │  └─ No setup? → ./bin/run-docker-tests.sh ✅
 ├─ Specific PHP/WP version? → Set PHP_VERSION env var before running script 🔧
 ├─ Debugging test failures? → Local testing with IDE 🔬
-└─ Release validation? → ./bin/run-docker-tests.sh ✅
+└─ Release validation? → composer test + ./bin/run-docker-tests.sh ✅
 ```
 
 ### Quick Troubleshooting Checklist
@@ -178,6 +179,7 @@ Run tests using direct Composer commands:
 ```bash
 # Direct Composer commands
 composer test                                   # All tests
+composer test:fast                              # Critical subset (rules/firewall/rate-limit)
 composer test:unit                              # Unit tests only
 composer test:integration                       # Integration tests only
 
@@ -186,6 +188,10 @@ vendor/bin/phpunit                             # All tests
 vendor/bin/phpunit --testsuite=unit            # Unit tests only
 vendor/bin/phpunit --testsuite=integration     # Integration tests only
 ```
+
+> Note: Default workflow is intentionally simple: `composer test` and `composer test:fast`.
+> More split suites are a deferred option if future CI/runtime needs justify them.
+> Progress tracking for rules/firewall test expansion lives in `tests/TESTING-RULES-ROADMAP.md`.
 
 **See also:** [Local Testing Requirements](#local-testing-requirements) for setup instructions
 

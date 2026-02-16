@@ -1,22 +1,21 @@
 {% if flags.has_repairs %}
-	<div class="row mt-2">
-		{% for slug,data in vars.scan_repairs %}
-			{% if data.count > 0 %}
+	{% for slug,data in vars.scan_repairs %}
+		{% if data.count > 0 %}
+			<div class="category-header">
 				<h6>{{ data.name }} ({{ data.count }})</h6>
-				<ul class="list-group list-group-flush">
-					{% for repair in data.repairs %}
-						<li class="list-group-item"><code style="color: #008000;">{{ repair }}</code></li>
-					{% endfor %}
-				</ul>
-			{% endif %}
-		{% endfor %}
-	</div>
+			</div>
+			{% for repair in data.repairs %}
+				<div class="repair-item">
+					<div class="repair-icon">&#10003;</div>
+					<code>{{ repair }}</code>
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
 {% else %}
-	<p>{{ strings.no_repairs }}</p>
+	<p class="report-empty">{{ strings.no_repairs }}</p>
 {% endif %}
 
-<div class="row mt-2">
-	<div class="col">
-		<p><a href="{{ hrefs.view_scan_results }}" target="_blank">{{ strings.view_scan_results }}</a></p>
-	</div>
+<div style="margin-top: 12px;">
+	<a href="{{ hrefs.view_scan_results }}" target="_blank" class="report-link">{{ strings.view_scan_results }}</a>
 </div>

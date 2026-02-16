@@ -574,16 +574,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.13.3",
+            "version": "3.14.2",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "7fe687bd21a32a54820b294d4f50cb59ef0fd8e1"
+                "reference": "04ec00ce7e2a5fdb2f277f79a8ae5ce121c6bfa1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=7fe687bd21a32a54820b294d4f50cb59ef0fd8e1",
-                "reference": "7fe687bd21a32a54820b294d4f50cb59ef0fd8e1",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=04ec00ce7e2a5fdb2f277f79a8ae5ce121c6bfa1",
+                "reference": "04ec00ce7e2a5fdb2f277f79a8ae5ce121c6bfa1",
                 "shasum": ""
             },
             "require": {
@@ -598,6 +598,9 @@
                 "ramsey/uuid": "^4.0",
                 "soundasleep/html2text": "~0.5.0",
                 "twig/twig": "^1.44 || ^3.10"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.6"
             },
             "type": "library",
             "autoload": {
@@ -618,9 +621,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.13.3"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.14.2"
             },
-            "time": "2026-02-08T14:07:37+00:00"
+            "time": "2026-02-16T10:57:57+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",

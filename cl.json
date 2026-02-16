@@ -1,166 +1,103 @@
 {
-  "21.1": {
-    "version":     "21.1",
-    "released_at": 1770130000,
+  "21.2": {
+    "version":     "21.2",
+    "released_at": 1770900000,
     "hrefs":       {
-      "release": "https://clk.shldscrty.com/shieldrelease211",
-      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide211"
+      "release": "https://clk.shldscrty.com/shieldrelease212",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide212"
     },
-    "title":       "Multilingual Shield!",
+    "title":       "Multilingual Shield, Smarter Workflows",
     "description": [
+      "This release brings broad language support together with faster, clearer admin workflows.",
+      "Everything is packaged as a single major update for a cleaner upgrade experience."
     ],
     "items":       [
       {
         "type":        "new",
-        "title":       "Translation into nearly 40 languages",
+        "title":       "Shield is now available in nearly 40 languages",
         "description": [
-          "We've completed translation for the Shield Security plugin into nearly 40 languages.",
-          "We've also hugely improved translation coverage so that practically all text in the plugin can be translated.",
-          "Our translations were built using our own in-house AI Translations system - so there may be some errors here and there."
+          "Translation coverage has been expanded so almost all Shield UI text can be used in your preferred language."
         ]
       },
       {
         "type":        "new",
-        "title":       "Remote Language Translation Downloads",
+        "title":       "On-demand language downloads",
         "description": [
-          "Shield now downloads translations on-demand rather than shipping them with the plugin, significantly reducing plugin size."
+          "Translations are fetched when needed, which keeps plugin installs leaner and reduces package size."
         ]
       },
       {
         "type":        "new",
-        "title":       "Add SilentCAPTCHA support for Paid Memberships Pro plugin checkout requests.",
+        "title":       "Powerful search for Activity and Traffic Logs",
         "description": [
-          "Bot detection is now available for Paid Memberships Pro checkout forms."
+          "Use free-text and targeted filters to quickly find events by IP, user, email, event details, and metadata."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Built-in search syntax helper",
+        "description": [
+          "An in-context guide helps you use advanced search patterns more effectively in log views."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Major plugin UI refresh",
+        "description": [
+          "We've begun rolling out a UI refresh. Not all elements have been updated; more components will be completed with subsequent releases."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Paid Memberships Pro checkout bot protection",
+        "description": [
+          "SilentCAPTCHA now protects Paid Memberships Pro checkout requests."
         ]
       },
       {
         "type":        "improved",
-        "title":       "Enhanced plugin page redirect handling",
+        "title":       "Faster and cleaner admin experience",
         "description": [
-          "Shield now attempts to locate the originating plugin page and redirect appropriately wherever possible."
+          "Dashboard visuals, page performance, and smaller-screen navigation have all been refined."
         ]
       },
       {
         "type":        "improved",
-        "title":       "Better AJAX redirect URL parameter handling",
-        "description": []
-      },
-      {
-        "type":        "fixed",
-        "title":       "Email 2FA Auto Login Redirection",
-        "description": []
-      },
-      {
-        "type":        "fixed",
-        "title":       "Security Admin session handling when disabling",
+        "title":       "Improved log and scan performance",
         "description": [
-          "Ensures the current response is correctly set as sec admin when disabling Security Admin."
+          "Log tables load faster and stale malware scan records are cleaned up automatically."
         ]
       },
       {
-        "type":        "fixed",
-        "title":       "Security Admin login works after manual session end",
-        "description": []
+        "type":        "improved",
+        "title":       "Redesigned security reports and emails",
+        "description": [
+          "Reports are clearer, include richer inline insights, and avoid redundant email noise."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Biweekly report scheduling",
+        "description": [
+          "You can now run scheduled security reports every 2 weeks, in addition to existing reporting intervals."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Clearer Activity Log severity labels",
+        "description": [
+          "Activity events now use consistent severity labels so filtering and triage are easier."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Stronger upgrade and admin workflow reliability",
+        "description": [
+          "Upgrade handling, redirects, and WordPress admin notice behavior are more reliable and consistent."
+        ]
       }
     ],
-    "patches":     [
-      {
-        "version":     "7",
-        "released_at": 1770740000,
-        "items":       [
-          {
-            "title":    "Powerful new search capabilities for Activity Log and Traffic Log tables, including free-text search, plus filters by IP address, username, email, user ID, event description, and metadata values.",
-            "category": "feature",
-            "type":     "new"
-          },
-          {
-            "title":    "Search syntax help panel to guide users through available search options (for example ip: and user_id:).",
-            "category": "feature",
-            "type":     "new"
-          },
-          {
-            "title":    "In-plugin notification for available translation downloads.",
-            "category": "feature",
-            "type":     "new"
-          },
-          {
-            "title":    "Improved admin notification behaviour so mandatory notices remain visible until action is taken.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Upgraded dashboard charts for improved performance and visuals.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Reduced CSS bundle size for faster page loads.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Responsive sidebar navigation for better usability on smaller screens.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Faster Activity Log and Traffic Log table loading through optimised database queries.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Security report emails and layouts have been redesigned for improved clarity and a more professional presentation.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Enhanced report emails now include richer inline statistics and more detailed scan data (including up to 20 relevant results in key sections).",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Improved report creation flow with better form validation and cleaner date-picker styling.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Improved report email logic to avoid sending redundant informational emails when an alert email is already being sent.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Syntax highlighting is now available when viewing file content from scan results.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Automatic cleanup of orphaned malware scan records when files no longer exist on disk.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Reduced plugin overhead during self-upgrades to prevent potential errors.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Fixed issues with automatic translation downloads.",
-            "category": "bug",
-            "type":     "fixed"
-          },
-          {
-            "title":    "WP Admin dashboard notices now use native WordPress notice styling for a clearer and more consistent dashboard experience.",
-            "category": "enhancement",
-            "type":     "improved"
-          },
-          {
-            "title":    "Improved upgrade reliability from older plugin versions to reduce update errors.",
-            "category": "bug",
-            "type":     "fixed"
-          }
-        ]
-      }
-    ]
+    "patches":     []
   },
   "21.0": {
     "version":     "21.0",

@@ -8,6 +8,23 @@ export class ShieldTableIpRules extends ShieldTableBase {
 		return '#ShieldTable-IpRules';
 	}
 
+	getButtons() {
+		return [
+			{
+				text: 'Create New IP Rule',
+				name: 'create-ip-rule',
+				className: 'action create-ip-rule btn-outline-info mb-2',
+				action: () => {
+					const triggerEl = document.querySelector( 'a.offcanvas_form_create_ip_rule' );
+					if ( triggerEl ) {
+						triggerEl.click();
+					}
+				}
+			},
+			...super.getButtons()
+		];
+	}
+
 	bindEvents() {
 		super.bindEvents();
 

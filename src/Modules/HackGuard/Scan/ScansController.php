@@ -23,9 +23,9 @@ class ScansController {
 	use StandardCron;
 	use PluginCronsConsumer;
 
-	private $scanCons = [];
+	private array $scanCons = [];
 
-	private $scanResultsStatus;
+	private Results\Counts $scanResultsStatus;
 
 	protected function canRun() :bool {
 		return self::con()->opts->optIs( 'enable_hack_protect', 'Y' )
@@ -76,9 +76,7 @@ class ScansController {
 	 */
 	public function getAllScanCons() :array {
 		foreach ( $this->getScans() as $scan ) {
-			if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
-				$this->scanCons[ $scan::SCAN_SLUG ] = new $scan();
-			}
+			$this->scanCons[ $scan::SCAN_SLUG ] ??= new $scan();
 		}
 		return $this->scanCons;
 	}
@@ -109,7 +107,7 @@ class ScansController {
 	}
 
 	public function getScanResultsCount() :Results\Counts {
-		return $this->scanResultsStatus ?? $this->scanResultsStatus = new Results\Counts();
+		return $this->scanResultsStatus ??= new Results\Counts();
 	}
 
 	private function handlePostScanCron() {

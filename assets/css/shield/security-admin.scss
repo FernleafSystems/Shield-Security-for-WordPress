@@ -1,0 +1,25 @@
+/** Security Admin PIN Modal Overlay **/
+
+#SecurityAdminOverlay {
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1055;
+}
+
+.security-admin-dialog {
+	max-width: 420px;
+}
+
+#IcwpWpsfSecurityAdmin {
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.shield-pin-icon svg {
+	width: 36px;
+	height: 36px;
+}
+
+.icon-external-link svg {
+	width: 12px;
+	height: 12px;
+	vertical-align: baseline;
+}

@@ -243,6 +243,14 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions::class,
 				'props' => [ 'ConditionsCache' ],
 			],
+			[
+				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\FirewallPatternFoundInRequest::class,
+				'props' => [ 'ParamsToAssess' ],
+			],
+			[
+				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions::class,
+				'props' => [ 'ConditionDeps', 'AllConditions' ],
+			],
 		];
 
 		foreach ( $checks as $check ) {

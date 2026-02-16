@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\AdminLoginNotification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -148,26 +149,20 @@ class UserSessionHandler {
 		if ( $isUserSignificantEnough ) {
 			$homeURL = Services::WpGeneral()->getHomeUrl();
 			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
-				$con->email_con->sendEmailWithWrap(
-					$to,
-					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf(
-						/* translators: %1$s: user role, %2$s: site URL */
-						__( '%1$s Just Logged Into %2$s', 'wp-simple-firewall' ), $roleName, $homeURL ) ),
-					[
-						sprintf(
-							/* translators: %1$s: plugin name, %2$s: user role */
-							__( 'As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage.', 'wp-simple-firewall' ), $con->labels->Name, $roleName ),
-						'',
-						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
-						'',
-						__( 'Details for this user are below:', 'wp-simple-firewall' ),
-						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
-						'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-						'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
-						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
-						'',
-						__( 'Thanks.', 'wp-simple-firewall' )
-					]
+				$con->email_con->sendVO(
+					EmailVO::Factory(
+						$to,
+						sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf(
+							/* translators: %1$s: user role, %2$s: site URL */
+							__( '%1$s Just Logged Into %2$s', 'wp-simple-firewall' ), $roleName, $homeURL ) ),
+						$con->action_router->render( AdminLoginNotification::class, [
+							'role_name'  => $roleName,
+							'home_url'   => $homeURL,
+							'username'   => $user->user_login,
+							'user_email' => $user->user_email,
+							'ip'         => $con->this_req->ip,
+						] )
+					)
 				);
 			}
 		}

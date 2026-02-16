@@ -32,7 +32,7 @@ class BuildHashesForCrowdSource {
 					$hashes[ $key ] = \hash( 'sha1', $converter->fileDosToLinux( $fullPath ) );
 				}
 			}
-			\ksort( $hashes, SORT_NATURAL );
+			\ksort( $hashes, \SORT_NATURAL );
 		}
 		catch ( \Exception $e ) {
 			$hashes = [];
