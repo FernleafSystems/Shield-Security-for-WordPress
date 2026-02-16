@@ -52,7 +52,7 @@ class StringsOptions {
 				];
 				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
 					$desc[] = sprintf(
-						__( 'The maximum log retention limit (%s) may be increased by upgrading your %s plan.', 'wp-simple-firewall' ),
+						__( 'The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan.', 'wp-simple-firewall' ),
 						$con->caps->getMaxLogRetentionDays(),
 						$pluginName
 					);
@@ -113,7 +113,7 @@ class StringsOptions {
 				$summary = sprintf( __( 'Use %s To Block Bot Comment SPAM', 'wp-simple-firewall' ), $silentCaptcha );
 				$desc = [
 					sprintf( __( 'Block 99.9%% of all WordPress comment SPAM using %s.', 'wp-simple-firewall' ), $silentCaptcha ),
-					sprintf( __( "%s is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges.", 'wp-simple-firewall' ), $silentCaptcha, $pluginName ),
+					sprintf( __( '%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges.', 'wp-simple-firewall' ), $silentCaptcha, $pluginName ),
 				];
 				break;
 			case 'enable_comments_human_spam_filter':
@@ -478,7 +478,7 @@ class StringsOptions {
 				$name = sprintf( __( '%s Complexity', 'wp-simple-firewall' ), $silentCaptcha );
 				$summary = sprintf( __( 'Adjust %s Challenge Complexity', 'wp-simple-firewall' ), $silentCaptcha );
 				$desc = [
-					sprintf( __( "%s's %s system uses ALTCHA, that challenges bots to perform complex work.", 'wp-simple-firewall' ), $pluginName, $silentCaptcha ),
+					sprintf( __( 'The %s system uses ALTCHA that challenges bots to perform complex work.', 'wp-simple-firewall' ), $silentCaptcha ),
 					__( "This complex work is compute intensive and inflicts a processing cost on bots. Bots typically won't do the work, and this helps to discriminate between bots and humans.", 'wp-simple-firewall' ),
 					__( "More complexity in the challenge is a bigger cost to bots, but may present a burden for legitimate visitors that use slower devices.", 'wp-simple-firewall' ),
 					__( "Adaptive complexity will try to present the most suitable challenge depending on the type of visitor.", 'wp-simple-firewall' ),
@@ -768,8 +768,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
 						sprintf(
-						/* translators: %1$s: wp-admin path, %2$s: wp-login.php path */
-							__( "This will cause %1\$s and %2\$s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
+							__( 'This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in.', 'wp-simple-firewall' ),
 							'<code>/wp-admin/</code>',
 							'<code>/wp-login.php</code>'
 						)
@@ -1415,7 +1414,7 @@ class StringsOptions {
 				];
 				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
 					$desc[] = sprintf(
-						__( 'The maximum log retention limit (%s) may be increased by upgrading your %s plan.', 'wp-simple-firewall' ),
+						__( 'The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan.', 'wp-simple-firewall' ),
 						$con->caps->getMaxLogRetentionDays(),
 						$pluginName
 					);

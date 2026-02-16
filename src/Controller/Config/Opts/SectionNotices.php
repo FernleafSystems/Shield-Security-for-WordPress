@@ -67,7 +67,7 @@ class SectionNotices {
 				if ( !empty( $locations ) ) {
 					$notices[] = sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( "The following types of user forms are protected by %s: %s.", 'wp-simple-firewall' ),
+						sprintf( __( 'The following types of user forms are protected by %1$s: %2$s.', 'wp-simple-firewall' ),
 							$con->labels->getBrandName( 'silentcaptcha' ),
 							'<br />'.\implode( ', ',
 								\array_intersect_key(
@@ -242,11 +242,11 @@ class SectionNotices {
 			case 'section_silentcaptcha':
 				if ( !$optsLookup->enabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "%s is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), $silentCaptcha, '0' ) );
+						sprintf( __( '%1$s is disabled when set to a minimum score of %2$s.', 'wp-simple-firewall' ), $silentCaptcha, '0' ) );
 				}
 				elseif ( !( new TestNotBotLoading() )->test() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( "%s couldn't determine whether the %s JS was loading correctly on your site.", 'wp-simple-firewall' ), $con->labels->Name, $silentCaptcha ) );
+						sprintf( __( '%1$s failed to determine whether the %2$s JS was loading correctly on your site.', 'wp-simple-firewall' ), $con->labels->Name, $silentCaptcha ) );
 				}
 				break;
 

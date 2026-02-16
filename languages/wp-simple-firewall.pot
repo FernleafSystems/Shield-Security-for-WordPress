@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the Shield Security plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Shield Security 21.1.0\n"
+"Project-Id-Version: Shield Security 21.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-simple-firewall\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-15T19:41:11+00:00\n"
+"POT-Creation-Date: 2026-02-16T09:58:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-simple-firewall\n"
@@ -455,20 +455,20 @@ msgstr ""
 #: src/Controller/Config/Modules/StringsOptions.php:232
 #: src/Controller/Config/Modules/StringsOptions.php:341
 #: src/Controller/Config/Modules/StringsOptions.php:506
-#: src/Controller/Config/Modules/StringsOptions.php:787
-#: src/Controller/Config/Modules/StringsOptions.php:812
-#: src/Controller/Config/Modules/StringsOptions.php:844
-#: src/Controller/Config/Modules/StringsOptions.php:884
-#: src/Controller/Config/Modules/StringsOptions.php:1087
-#: src/Controller/Config/Modules/StringsOptions.php:1123
-#: src/Controller/Config/Modules/StringsOptions.php:1205
-#: src/Controller/Config/Modules/StringsOptions.php:1243
-#: src/Controller/Config/Modules/StringsOptions.php:1251
-#: src/Controller/Config/Modules/StringsOptions.php:1286
-#: src/Controller/Config/Modules/StringsOptions.php:1412
-#: src/Controller/Config/Modules/StringsOptions.php:1429
-#: src/Controller/Config/Modules/StringsOptions.php:1447
-#: src/Controller/Config/Modules/StringsOptions.php:1606
+#: src/Controller/Config/Modules/StringsOptions.php:786
+#: src/Controller/Config/Modules/StringsOptions.php:811
+#: src/Controller/Config/Modules/StringsOptions.php:843
+#: src/Controller/Config/Modules/StringsOptions.php:883
+#: src/Controller/Config/Modules/StringsOptions.php:1086
+#: src/Controller/Config/Modules/StringsOptions.php:1122
+#: src/Controller/Config/Modules/StringsOptions.php:1204
+#: src/Controller/Config/Modules/StringsOptions.php:1242
+#: src/Controller/Config/Modules/StringsOptions.php:1250
+#: src/Controller/Config/Modules/StringsOptions.php:1285
+#: src/Controller/Config/Modules/StringsOptions.php:1411
+#: src/Controller/Config/Modules/StringsOptions.php:1428
+#: src/Controller/Config/Modules/StringsOptions.php:1446
+#: src/Controller/Config/Modules/StringsOptions.php:1605
 #: src/Controller/Config/Modules/StringsSections.php:222
 #: src/Controller/Config/Modules/StringsSections.php:230
 #: src/Controller/Config/Opts/SectionNotices.php:69
@@ -881,7 +881,7 @@ msgstr ""
 #: src/ActionRouter/Actions/Render/BaseRender.php:266
 #: src/ActionRouter/Actions/Render/Components/OffCanvas/SearchHelp.php:29
 #: src/ActionRouter/Actions/Render/Components/Scans/ItemAnalysis/Info.php:53
-#: src/Controller/Config/Modules/StringsOptions.php:1320
+#: src/Controller/Config/Modules/StringsOptions.php:1319
 #: src/Tables/DataTables/Build/ForScansHistory.php:94
 #: src/Tables/DataTables/Build/ForSecurityRules.php:104
 msgid "Description"
@@ -901,7 +901,7 @@ msgid "PIN Required"
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/BaseRender.php:270
-#: src/Controller/Config/Modules/StringsOptions.php:1192
+#: src/Controller/Config/Modules/StringsOptions.php:1191
 msgid "Security Admin PIN"
 msgstr ""
 
@@ -1129,12 +1129,12 @@ msgstr ""
 #: src/Controller/Config/Modules/StringsOptions.php:656
 #: src/Controller/Config/Modules/StringsOptions.php:700
 #: src/Controller/Config/Modules/StringsOptions.php:769
-#: src/Controller/Config/Modules/StringsOptions.php:791
-#: src/Controller/Config/Modules/StringsOptions.php:871
-#: src/Controller/Config/Modules/StringsOptions.php:1075
-#: src/Controller/Config/Modules/StringsOptions.php:1234
-#: src/Controller/Config/Modules/StringsOptions.php:1564
-#: src/Controller/Config/Modules/StringsOptions.php:1583
+#: src/Controller/Config/Modules/StringsOptions.php:790
+#: src/Controller/Config/Modules/StringsOptions.php:870
+#: src/Controller/Config/Modules/StringsOptions.php:1074
+#: src/Controller/Config/Modules/StringsOptions.php:1233
+#: src/Controller/Config/Modules/StringsOptions.php:1563
+#: src/Controller/Config/Modules/StringsOptions.php:1582
 #: src/Controller/Config/Modules/StringsSections.php:314
 #: src/Controller/Config/Modules/StringsSections.php:325
 #: src/Controller/Config/Opts/SectionNotices.php:193
@@ -1295,8 +1295,8 @@ msgstr ""
 #: src/ActionRouter/Actions/Render/Components/Zones/SecurityZoneComponent.php:51
 #: src/Controller/Config/Modules/StringsOptions.php:181
 #: src/Controller/Config/Modules/StringsOptions.php:754
-#: src/Controller/Config/Modules/StringsOptions.php:1058
-#: src/Controller/Config/Modules/StringsOptions.php:1107
+#: src/Controller/Config/Modules/StringsOptions.php:1057
+#: src/Controller/Config/Modules/StringsOptions.php:1106
 #: src/Controller/Config/Modules/StringsSections.php:326
 #: src/Modules/LoginGuard/Lib/Rename/RenameLogin.php:101
 #: src/Modules/LoginGuard/Lib/Rename/RenameLogin.php:116
@@ -1350,12 +1350,12 @@ msgstr ""
 msgid "Please review the"
 msgstr ""
 
-#: src/ActionRouter/Actions/Render/Components/Docs/EventsEnum.php:29
+#: src/ActionRouter/Actions/Render/Components/Docs/EventsEnum.php:30
 #, php-format
 msgid "Stat: %s"
 msgstr ""
 
-#: src/ActionRouter/Actions/Render/Components/Docs/EventsEnum.php:30
+#: src/ActionRouter/Actions/Render/Components/Docs/EventsEnum.php:31
 #, php-format
 msgid "Offense: %s"
 msgstr ""
@@ -1380,7 +1380,7 @@ msgid "Details for this user are below:"
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/Components/Email/AdminLoginNotification.php:35
-#: src/Controller/Config/Modules/StringsOptions.php:850
+#: src/Controller/Config/Modules/StringsOptions.php:849
 #: src/Controller/Config/Modules/StringsSections.php:217
 #: src/Modules/LoginGuard/Lib/TwoFactor/Provider/Email.php:185
 msgid "Email"
@@ -1625,7 +1625,7 @@ msgid "Demoted From Admin"
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/Components/Email/InstantAlerts/EmailInstantAlertBase.php:18
-#: src/Controller/Config/Modules/StringsOptions.php:1266
+#: src/Controller/Config/Modules/StringsOptions.php:1265
 msgid "Site Address (URL)"
 msgstr ""
 
@@ -1811,7 +1811,7 @@ msgstr ""
 
 #: src/ActionRouter/Actions/Render/Components/IpAnalyse/Activity.php:40
 #: src/ActionRouter/Actions/Render/Components/IpAnalyse/Sessions.php:43
-#: src/Controller/Config/Modules/StringsOptions.php:1187
+#: src/Controller/Config/Modules/StringsOptions.php:1186
 #: src/Modules/Plugin/Lib/Merlin/Steps/SecurityAdmin.php:40
 #: src/Tables/DataTables/Build/ForSessions.php:61
 #: src/translations-strings-auto.php:75
@@ -2332,8 +2332,8 @@ msgid "Prefix"
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/Components/OffCanvas/SearchHelp.php:30
-#: src/Controller/Config/Modules/StringsOptions.php:1448
-#: src/Controller/Config/Modules/StringsOptions.php:1452
+#: src/Controller/Config/Modules/StringsOptions.php:1447
+#: src/Controller/Config/Modules/StringsOptions.php:1451
 msgid "Example"
 msgstr ""
 
@@ -3320,7 +3320,7 @@ msgstr ""
 #: src/ActionRouter/Actions/Render/Components/Scans/Results/Plugins.php:55
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageScansResults.php:117
 #: src/Controller/Config/Modules/StringsOptions.php:267
-#: src/Controller/Config/Modules/StringsOptions.php:1247
+#: src/Controller/Config/Modules/StringsOptions.php:1246
 #: src/Controller/Config/Modules/StringsSections.php:79
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPlugins.php:26
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPlugins.php:40
@@ -3351,7 +3351,7 @@ msgstr ""
 #: src/ActionRouter/Actions/Render/Components/Scans/Results/Themes.php:52
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageScansResults.php:118
 #: src/Controller/Config/Modules/StringsOptions.php:283
-#: src/Controller/Config/Modules/StringsOptions.php:1281
+#: src/Controller/Config/Modules/StringsOptions.php:1280
 #: src/Controller/Config/Modules/StringsSections.php:79
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportThemes.php:11
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportThemes.php:17
@@ -3536,7 +3536,7 @@ msgstr ""
 
 #: src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php:42
 #: src/ActionRouter/Actions/Render/Components/UserMfa/ConfigForm.php:19
-#: src/Controller/Config/Modules/StringsOptions.php:803
+#: src/Controller/Config/Modules/StringsOptions.php:802
 #: src/translations-strings-auto.php:32
 msgid "Multi-Factor Authentication"
 msgstr ""
@@ -4218,7 +4218,7 @@ msgstr ""
 
 #: src/ActionRouter/Actions/Render/MainWP/SitesListTableColumn.php:57
 #, php-format
-msgid "The %s plugin on this site doesn't have an active %s license."
+msgid "The %s plugin on this site requires an active PRO license."
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/MainWP/SitesListTableColumn.php:59
@@ -4483,7 +4483,7 @@ msgstr ""
 #. translators: %1$s: top-level, %2$s: 2nd-level; %3$s: 3rd level
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:80
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageImportExport.php:85
-#: src/Controller/Config/Modules/StringsOptions.php:1118
+#: src/Controller/Config/Modules/StringsOptions.php:1117
 #: src/translations-strings-auto.php:387
 msgid "Secret Key"
 msgstr ""
@@ -4729,7 +4729,7 @@ msgid "Ensures that all users maintain strong passwords."
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageLicense.php:189
-#: src/Controller/Config/Modules/StringsOptions.php:1300
+#: src/Controller/Config/Modules/StringsOptions.php:1299
 #: src/Controller/Config/Modules/StringsSections.php:309
 #: src/Controller/Config/Modules/StringsSections.php:318
 #: src/Modules/Plugin/Lib/NavMenuBuilder.php:340
@@ -5434,7 +5434,7 @@ msgid "FileLocker Changes Detected"
 msgstr ""
 
 #: src/Components/CompCons/InstantAlerts/Handlers/AlertHandlerShieldDeactivated.php:15
-#: src/Controller/Config/Modules/StringsOptions.php:1162
+#: src/Controller/Config/Modules/StringsOptions.php:1161
 #, php-format
 msgid "%s Deactivated"
 msgstr ""
@@ -5515,8 +5515,8 @@ msgstr ""
 #: src/Controller/Config/Modules/StringsOptions.php:197
 #: src/Controller/Config/Modules/StringsOptions.php:438
 #: src/Controller/Config/Modules/StringsOptions.php:760
-#: src/Controller/Config/Modules/StringsOptions.php:1187
-#: src/Controller/Config/Modules/StringsOptions.php:1462
+#: src/Controller/Config/Modules/StringsOptions.php:1186
+#: src/Controller/Config/Modules/StringsOptions.php:1461
 #, php-format
 msgid "Enable %s Module"
 msgstr ""
@@ -5526,7 +5526,7 @@ msgstr ""
 #: src/Controller/Config/Modules/StringsOptions.php:198
 #: src/Controller/Config/Modules/StringsOptions.php:439
 #: src/Controller/Config/Modules/StringsOptions.php:761
-#: src/Controller/Config/Modules/StringsOptions.php:1463
+#: src/Controller/Config/Modules/StringsOptions.php:1462
 #, php-format
 msgid "Enable (or Disable) The %s Module"
 msgstr ""
@@ -5537,7 +5537,7 @@ msgstr ""
 #: src/Controller/Config/Modules/StringsOptions.php:199
 #: src/Controller/Config/Modules/StringsOptions.php:440
 #: src/Controller/Config/Modules/StringsOptions.php:762
-#: src/Controller/Config/Modules/StringsOptions.php:1464
+#: src/Controller/Config/Modules/StringsOptions.php:1463
 #, php-format
 msgid "Un-Checking this option will completely disable the %s module."
 msgstr ""
@@ -5557,7 +5557,7 @@ msgid "Specify the logging levels when using the local database."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:40
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
+msgid "Info logging should only be enabled when investigating specific problems."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:43
@@ -5565,7 +5565,7 @@ msgid "View all event details and their assigned levels"
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:48
-#: src/Controller/Config/Modules/StringsOptions.php:1407
+#: src/Controller/Config/Modules/StringsOptions.php:1406
 #: src/translations-strings-auto.php:431
 msgid "Log Retention"
 msgstr ""
@@ -5579,9 +5579,9 @@ msgid "Events older than the number of days specified will be automatically clea
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:55
-#: src/Controller/Config/Modules/StringsOptions.php:1418
+#: src/Controller/Config/Modules/StringsOptions.php:1417
 #, php-format
-msgid "The maximum log retention limit (%s) may be increased by upgrading your %s plan."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:63
@@ -5694,12 +5694,12 @@ msgid "Specify user roles here that shouldn't be scanned."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:106
-#: src/Controller/Config/Modules/StringsOptions.php:1583
+#: src/Controller/Config/Modules/StringsOptions.php:1582
 msgid "Take a new line for each user role."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:107
-#: src/Controller/Config/Modules/StringsOptions.php:1584
+#: src/Controller/Config/Modules/StringsOptions.php:1583
 msgid "Available Roles"
 msgstr ""
 
@@ -5720,7 +5720,7 @@ msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:116
 #, php-format
-msgid "%s is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:120
@@ -5889,10 +5889,10 @@ msgid "Number Of Times To Run All Scans Each Day"
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:205
-#: src/Controller/Config/Modules/StringsOptions.php:893
-#: src/Controller/Config/Modules/StringsOptions.php:1215
-#: src/Controller/Config/Modules/StringsOptions.php:1489
-#: src/Controller/Config/Modules/StringsOptions.php:1586
+#: src/Controller/Config/Modules/StringsOptions.php:892
+#: src/Controller/Config/Modules/StringsOptions.php:1214
+#: src/Controller/Config/Modules/StringsOptions.php:1488
+#: src/Controller/Config/Modules/StringsOptions.php:1585
 msgid "Default"
 msgstr ""
 
@@ -6341,9 +6341,9 @@ msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:413
 #: src/Controller/Config/Modules/StringsOptions.php:414
-#: src/Controller/Config/Modules/StringsOptions.php:803
-#: src/Controller/Config/Modules/StringsOptions.php:849
-#: src/Controller/Config/Modules/StringsOptions.php:854
+#: src/Controller/Config/Modules/StringsOptions.php:802
+#: src/Controller/Config/Modules/StringsOptions.php:848
+#: src/Controller/Config/Modules/StringsOptions.php:853
 #, php-format
 msgid "Enable %s"
 msgstr ""
@@ -6488,7 +6488,7 @@ msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:481
 #, php-format
-msgid "%s's %s system uses ALTCHA, that challenges bots to perform complex work."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:482
@@ -7052,124 +7052,123 @@ msgstr ""
 msgid "Hide The WordPress Login And Admin Areas"
 msgstr ""
 
-#. translators: %1$s: wp-admin path, %2$s: wp-login.php path
-#: src/Controller/Config/Modules/StringsOptions.php:772
+#: src/Controller/Config/Modules/StringsOptions.php:771
 #, php-format
-msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors while you're not logged-in."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:777
+#: src/Controller/Config/Modules/StringsOptions.php:776
 #, php-format
 msgid "Only letters and numbers are permitted: %s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:778
+#: src/Controller/Config/Modules/StringsOptions.php:777
 #, php-format
 msgid "Your current login URL is: %s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:782
+#: src/Controller/Config/Modules/StringsOptions.php:781
 #: src/translations-strings-auto.php:289
 msgid "WP Login & Admin Redirect"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:783
+#: src/Controller/Config/Modules/StringsOptions.php:782
 #: src/translations-strings-auto.php:290
 msgid "Automatic Redirect URL For Hidden Pages"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:785
+#: src/Controller/Config/Modules/StringsOptions.php:784
 msgid "Automatically redirect here for any requests made to hidden pages."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:788
+#: src/Controller/Config/Modules/StringsOptions.php:787
 #, php-format
 msgid "Leave this blank to serve a standard \"%s\" error page."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:788
+#: src/Controller/Config/Modules/StringsOptions.php:787
 msgid "HTTP 404 Not Found"
 msgstr ""
 
 #. translators: %1$s: example path, %2$s: example URL
-#: src/Controller/Config/Modules/StringsOptions.php:794
+#: src/Controller/Config/Modules/StringsOptions.php:793
 #, php-format
 msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:804
+#: src/Controller/Config/Modules/StringsOptions.php:803
 msgid "Require All Active Authentication Factors"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:805
+#: src/Controller/Config/Modules/StringsOptions.php:804
 msgid "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:808
+#: src/Controller/Config/Modules/StringsOptions.php:807
 msgid "2FA Verification Page"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:809
+#: src/Controller/Config/Modules/StringsOptions.php:808
 msgid "Type Of 2FA Verification Page"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:811
+#: src/Controller/Config/Modules/StringsOptions.php:810
 msgid "Choose the type of page provided to users for MFA verification."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:813
+#: src/Controller/Config/Modules/StringsOptions.php:812
 #, php-format
 msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:818
+#: src/Controller/Config/Modules/StringsOptions.php:817
 msgid "2FA User Config Page"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:819
+#: src/Controller/Config/Modules/StringsOptions.php:818
 msgid "Config Pages For User 2FA Setup"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:821
+#: src/Controller/Config/Modules/StringsOptions.php:820
 msgid "Specify pages available to users to configure 2FA on their account."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:822
+#: src/Controller/Config/Modules/StringsOptions.php:821
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:826
+#: src/Controller/Config/Modules/StringsOptions.php:825
 #: src/translations-strings-auto.php:298
 msgid "2FA Remember Me"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:827
+#: src/Controller/Config/Modules/StringsOptions.php:826
 msgid "A User Can Bypass 2FA For The Set Number Of Days"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:828
+#: src/Controller/Config/Modules/StringsOptions.php:827
 msgid "The number of days a user can bypass 2FA after a successful 2FA. 0 to disable."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:832
+#: src/Controller/Config/Modules/StringsOptions.php:831
 #: src/translations-strings-auto.php:300
 msgid "Allow Backup Codes"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:833
+#: src/Controller/Config/Modules/StringsOptions.php:832
 #: src/translations-strings-auto.php:301
 msgid "Allow Users To Generate A Backup Code"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:835
+#: src/Controller/Config/Modules/StringsOptions.php:834
 msgid "Allow users to generate a backup 2FA login code."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:836
+#: src/Controller/Config/Modules/StringsOptions.php:835
 msgid "These may be used by the user when they don't have access to their normal 2FA methods."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:840
+#: src/Controller/Config/Modules/StringsOptions.php:839
 #: src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:64
 #: src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:68
 #: src/Modules/LoginGuard/Lib/TwoFactor/Provider/GoogleAuth.php:70
@@ -7178,1493 +7177,1493 @@ msgstr ""
 msgid "Google Authenticator"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:841
+#: src/Controller/Config/Modules/StringsOptions.php:840
 #: src/translations-strings-auto.php:304
 msgid "Allow Users To Use Google Authenticator"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:843
+#: src/Controller/Config/Modules/StringsOptions.php:842
 msgid "When enabled, users will have the option to add Google Authenticator to their WordPress user profile"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:845
+#: src/Controller/Config/Modules/StringsOptions.php:844
 msgid "Google Authenticator, LastPass Authenticator & Microsoft Authenticator are all supported by this option, but it is referred to as Google Authenticator for simplicity."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:849
-#: src/Controller/Config/Modules/StringsOptions.php:868
-#: src/Controller/Config/Modules/StringsOptions.php:871
+#: src/Controller/Config/Modules/StringsOptions.php:848
+#: src/Controller/Config/Modules/StringsOptions.php:867
+#: src/Controller/Config/Modules/StringsOptions.php:870
 #: src/Modules/LoginGuard/Lib/TwoFactor/Provider/Email.php:162
 #: src/Modules/LoginGuard/Lib/TwoFactor/Provider/Email.php:163
 msgid "Email Authentication"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:850
+#: src/Controller/Config/Modules/StringsOptions.php:849
 #, php-format
 msgid "Two-Factor Login Authentication By %s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:851
+#: src/Controller/Config/Modules/StringsOptions.php:850
 #: src/translations-strings-auto.php:316
 msgid "All users will be required to verify their login by email-based two-factor authentication."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:854
+#: src/Controller/Config/Modules/StringsOptions.php:853
 msgid "Auto-Login Links"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:855
+#: src/Controller/Config/Modules/StringsOptions.php:854
 msgid "Provide Auto-Login Links For Simple Email 2FA"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:857
+#: src/Controller/Config/Modules/StringsOptions.php:856
 msgid "When active, 2FA emails will contain a link that will automatically login the user without the need to enter 2FA Codes."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:858
+#: src/Controller/Config/Modules/StringsOptions.php:857
 msgid "Links may only be used once."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:859
+#: src/Controller/Config/Modules/StringsOptions.php:858
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:863
+#: src/Controller/Config/Modules/StringsOptions.php:862
 #: src/translations-strings-auto.php:323
 msgid "Allow Any User"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:864
+#: src/Controller/Config/Modules/StringsOptions.php:863
 #: src/translations-strings-auto.php:325
 msgid "Allow Any User To Turn-On Two-Factor Authentication By Email."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:865
+#: src/Controller/Config/Modules/StringsOptions.php:864
 msgid "Any user can turn on two-factor authentication by email from their profile."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:868
+#: src/Controller/Config/Modules/StringsOptions.php:867
 msgid "Enforce"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:869
+#: src/Controller/Config/Modules/StringsOptions.php:868
 #: src/translations-strings-auto.php:321
 msgid "All User Roles Subject To Email Authentication"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:871
+#: src/Controller/Config/Modules/StringsOptions.php:870
 #, php-format
 msgid "This setting only applies to %s."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:872
+#: src/Controller/Config/Modules/StringsOptions.php:871
 msgid "Enforces email-based authentication on all users with the selected roles."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:873
+#: src/Controller/Config/Modules/StringsOptions.php:872
 msgid "If a user has multiple roles assigned to it, all roles will be checked against this list."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:874
+#: src/Controller/Config/Modules/StringsOptions.php:873
 msgid "All User Roles Available On This Site"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:879
+#: src/Controller/Config/Modules/StringsOptions.php:878
 #: src/translations-strings-auto.php:326
 msgid "Protected Forms"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:880
+#: src/Controller/Config/Modules/StringsOptions.php:879
 #: src/translations-strings-auto.php:327
 msgid "Which WordPress Forms Should Be Protected From Bots"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:882
+#: src/Controller/Config/Modules/StringsOptions.php:881
 #, php-format
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:883
+#: src/Controller/Config/Modules/StringsOptions.php:882
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:884
+#: src/Controller/Config/Modules/StringsOptions.php:883
 #, php-format
 msgid "Use with 3rd party systems such as %s, requires a Pro license."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:888
+#: src/Controller/Config/Modules/StringsOptions.php:887
 msgid "Cooldown Period"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:889
+#: src/Controller/Config/Modules/StringsOptions.php:888
 msgid "Limit account access requests to every X seconds"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:891
+#: src/Controller/Config/Modules/StringsOptions.php:890
 msgid "WordPress will process only ONE account access attempt per number of seconds specified."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:892
+#: src/Controller/Config/Modules/StringsOptions.php:891
 msgid "Zero (0) turns this off."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:897
+#: src/Controller/Config/Modules/StringsOptions.php:896
 #: src/translations-strings-auto.php:69
 msgid "User Registration"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:898
+#: src/Controller/Config/Modules/StringsOptions.php:897
 msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:899
+#: src/Controller/Config/Modules/StringsOptions.php:898
 msgid "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:902
+#: src/Controller/Config/Modules/StringsOptions.php:901
 msgid "Allow Passkeys"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:903
+#: src/Controller/Config/Modules/StringsOptions.php:902
 msgid "Allow Users To Register Passkeys"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:905
+#: src/Controller/Config/Modules/StringsOptions.php:904
 msgid "Allow users to register Passkeys & FIDO2-compatible devices to complete their WordPress login."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:908
+#: src/Controller/Config/Modules/StringsOptions.php:907
 msgid "Passkeys include any FIDO2-compatible devices, such as:"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:924
+#: src/Controller/Config/Modules/StringsOptions.php:923
 #: src/translations-strings-auto.php:306
 msgid "Allow Yubikey OTP"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:925
+#: src/Controller/Config/Modules/StringsOptions.php:924
 #: src/translations-strings-auto.php:307
 msgid "Allow Yubikey Registration For One Time Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:926
+#: src/Controller/Config/Modules/StringsOptions.php:925
 msgid "Combined with your Yubikey API details this will form the basis of your Yubikey Authentication"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:929
+#: src/Controller/Config/Modules/StringsOptions.php:928
 #: src/translations-strings-auto.php:308
 msgid "Yubikey App ID"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:930
+#: src/Controller/Config/Modules/StringsOptions.php:929
 #: src/translations-strings-auto.php:309
 msgid "Your Unique Yubikey App ID"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:932
+#: src/Controller/Config/Modules/StringsOptions.php:931
 msgid "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:933
+#: src/Controller/Config/Modules/StringsOptions.php:932
 msgid "Please review the info link on how to obtain your own Yubikey App ID and API Key."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:937
+#: src/Controller/Config/Modules/StringsOptions.php:936
 #: src/translations-strings-auto.php:311
 msgid "Yubikey API Key"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:938
+#: src/Controller/Config/Modules/StringsOptions.php:937
 #: src/translations-strings-auto.php:312
 msgid "Your Unique Yubikey App API Key"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:940
+#: src/Controller/Config/Modules/StringsOptions.php:939
 #: src/translations-strings-auto.php:313
 msgid "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:941
+#: src/Controller/Config/Modules/StringsOptions.php:940
 msgid "Please review the info link on how to get your own Yubikey App ID and API Key."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:945
+#: src/Controller/Config/Modules/StringsOptions.php:944
 msgid "Yubikey Unique Keys"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:946
+#: src/Controller/Config/Modules/StringsOptions.php:945
 msgid "This method for Yubikeys is no longer supported. Please see your user profile"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:948
+#: src/Controller/Config/Modules/StringsOptions.php:947
 msgid "Format"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:949
+#: src/Controller/Config/Modules/StringsOptions.php:948
 msgid "Provide Username<->Yubikey Pairs that are usable for this site."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:950
+#: src/Controller/Config/Modules/StringsOptions.php:949
 msgid "If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:951
+#: src/Controller/Config/Modules/StringsOptions.php:950
 msgid "Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:956
+#: src/Controller/Config/Modules/StringsOptions.php:955
 #, php-format
 msgid "Enable %s Protection"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:957
+#: src/Controller/Config/Modules/StringsOptions.php:956
 msgid "Switch Off To Disable All Security Protection"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:959
+#: src/Controller/Config/Modules/StringsOptions.php:958
 msgid "You can keep the security plugin activated, but temporarily disable all protection it provides."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:962
+#: src/Controller/Config/Modules/StringsOptions.php:961
 msgid "Launch Debug Info Page"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:968
+#: src/Controller/Config/Modules/StringsOptions.php:967
 msgid "Anonymous Usage Statistics"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:969
+#: src/Controller/Config/Modules/StringsOptions.php:968
 #: src/translations-strings-auto.php:360
 msgid "Permit Anonymous Telemetry Reports"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:971
+#: src/Controller/Config/Modules/StringsOptions.php:970
 msgid "Allows us to gather information on statistics and features in-use across our client installations."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:972
+#: src/Controller/Config/Modules/StringsOptions.php:971
 msgid "This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:975
+#: src/Controller/Config/Modules/StringsOptions.php:974
 msgid "Click to see the exact data that would be sent."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:981
+#: src/Controller/Config/Modules/StringsOptions.php:980
 #: src/translations-strings-auto.php:373
 msgid "Beta Access"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:982
+#: src/Controller/Config/Modules/StringsOptions.php:981
 #: src/translations-strings-auto.php:374
 msgid "Enable Access To Beta Versions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:984
+#: src/Controller/Config/Modules/StringsOptions.php:983
 msgid "Enable this option to allow shield to upgrade to beta and pre-release versions."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:985
+#: src/Controller/Config/Modules/StringsOptions.php:984
 msgid "Please only enable this on non-critical sites, and if you're comfortable with bugs arising."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:990
+#: src/Controller/Config/Modules/StringsOptions.php:989
 #: src/Modules/Plugin/Lib/AssetsCustomizer.php:231
 msgid "IP Source"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:991
+#: src/Controller/Config/Modules/StringsOptions.php:990
 msgid "Which IP Address Is Yours"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:994
+#: src/Controller/Config/Modules/StringsOptions.php:993
 msgid "It's crucial that we can detect the correct IP address for each visitor to the site."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:995
+#: src/Controller/Config/Modules/StringsOptions.php:994
 msgid "We rely on the PHP server configuration, but some hosts aren't correctly setup to let us find it easily."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:996
+#: src/Controller/Config/Modules/StringsOptions.php:995
 #, php-format
 msgid "The preferred source is %s since this can't be spoofed."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1000
+#: src/Controller/Config/Modules/StringsOptions.php:999
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1004
+#: src/Controller/Config/Modules/StringsOptions.php:1003
 msgid "What Is My IP Address?"
 msgstr ""
 
 #. translators: %1$s: server variable name, %2$s: server variable name
-#: src/Controller/Config/Modules/StringsOptions.php:1008
+#: src/Controller/Config/Modules/StringsOptions.php:1007
 #, php-format
 msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1015
+#: src/Controller/Config/Modules/StringsOptions.php:1014
 #: src/Modules/Plugin/Lib/MeterAnalysis/Component/PluginReportEmail.php:23
 #: src/translations-strings-auto.php:350
 msgid "Report Email"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1016
+#: src/Controller/Config/Modules/StringsOptions.php:1015
 #: src/translations-strings-auto.php:351
 msgid "Email For All Reports and Plugin Notifications"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1018
+#: src/Controller/Config/Modules/StringsOptions.php:1017
 msgid "This lets you customise the default email address for all emails sent by the plugin."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1019
+#: src/Controller/Config/Modules/StringsOptions.php:1018
 #, php-format
 msgid "The plugin defaults to the site administration email address, which is: %s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1022
+#: src/Controller/Config/Modules/StringsOptions.php:1021
 msgid "Review site settings"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1028
+#: src/Controller/Config/Modules/StringsOptions.php:1027
 #: src/translations-strings-auto.php:356
 msgid "In-Plugin Notices"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1029
+#: src/Controller/Config/Modules/StringsOptions.php:1028
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1031
+#: src/Controller/Config/Modules/StringsOptions.php:1030
 #, php-format
 msgid "By default %s displays non-essential notices in the admin area and admin bar."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1032
+#: src/Controller/Config/Modules/StringsOptions.php:1031
 msgid "These notices can be hidden by switching off this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1037
+#: src/Controller/Config/Modules/StringsOptions.php:1036
 #: src/translations-strings-auto.php:353
 msgid "Show Plugin Badge"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1038
+#: src/Controller/Config/Modules/StringsOptions.php:1037
 msgid "Display Plugin Security Badge To Your Visitors"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1040
+#: src/Controller/Config/Modules/StringsOptions.php:1039
 msgid "Enabling this option helps support the plugin by spreading the word about it on your website."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1041
+#: src/Controller/Config/Modules/StringsOptions.php:1040
 msgid "The plugin badge also lets visitors know your are taking your website security seriously."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1042
+#: src/Controller/Config/Modules/StringsOptions.php:1041
 #, php-format
 msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1043
+#: src/Controller/Config/Modules/StringsOptions.php:1042
 msgid "Read this carefully before enabling this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1047
+#: src/Controller/Config/Modules/StringsOptions.php:1046
 #: src/translations-strings-auto.php:367
 msgid "Delete Plugin Settings"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1048
+#: src/Controller/Config/Modules/StringsOptions.php:1047
 #: src/translations-strings-auto.php:368
 msgid "Delete All Plugin Settings Upon Plugin Deactivation"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1049
+#: src/Controller/Config/Modules/StringsOptions.php:1048
 msgid "Careful: Removes all plugin options when you deactivate the plugin"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1053
+#: src/Controller/Config/Modules/StringsOptions.php:1052
 #: src/translations-strings-auto.php:370
 msgid "Temp Dir"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1054
+#: src/Controller/Config/Modules/StringsOptions.php:1053
 #: src/translations-strings-auto.php:371
 msgid "Preferred Temporary Directory"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1059
+#: src/Controller/Config/Modules/StringsOptions.php:1058
 #, php-format
 msgid "%s currently can't locate a temporary directory, so you'll need to provide one here."
+msgstr ""
+
+#: src/Controller/Config/Modules/StringsOptions.php:1059
+#: src/Controller/Config/Modules/StringsOptions.php:1068
+#, php-format
+msgid "%s needs to store data temporarily to disk."
 msgstr ""
 
 #: src/Controller/Config/Modules/StringsOptions.php:1060
 #: src/Controller/Config/Modules/StringsOptions.php:1069
 #, php-format
-msgid "%s needs to store data temporarily to disk."
-msgstr ""
-
-#: src/Controller/Config/Modules/StringsOptions.php:1061
-#: src/Controller/Config/Modules/StringsOptions.php:1070
-#, php-format
 msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1062
+#: src/Controller/Config/Modules/StringsOptions.php:1061
 #, php-format
 msgid "If you use the %s directive, this automatic process may fail and you'll need to use this option to specify a directory that WordPress can write to."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1064
+#: src/Controller/Config/Modules/StringsOptions.php:1063
 #: src/Modules/Plugin/Lib/Debug/Collate.php:302
 msgid "ABSPATH"
 msgstr ""
 
 #. translators: %1$s: plugin name, %2$s: directory path
-#: src/Controller/Config/Modules/StringsOptions.php:1073
+#: src/Controller/Config/Modules/StringsOptions.php:1072
 #, php-format
 msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1075
+#: src/Controller/Config/Modules/StringsOptions.php:1074
 msgid "You should only provide a value for this configuration option if you experience any trouble."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1081
+#: src/Controller/Config/Modules/StringsOptions.php:1080
 msgid "Automatic Import/Export"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1082
+#: src/Controller/Config/Modules/StringsOptions.php:1081
 msgid "Allow Automated Import And Export Of Options On This Site"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1084
+#: src/Controller/Config/Modules/StringsOptions.php:1083
 msgid "Enable this option to allow automatic import and export of options between WordPress sites."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1087
+#: src/Controller/Config/Modules/StringsOptions.php:1086
 msgid "You will need to upgrade your plan to use the Automatic Import/Export feature."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1092
+#: src/Controller/Config/Modules/StringsOptions.php:1091
 #: src/translations-strings-auto.php:381
 msgid "Export Whitelist"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1093
+#: src/Controller/Config/Modules/StringsOptions.php:1092
 msgid "Whitelisted Sites To Export Options From This Site"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1095
+#: src/Controller/Config/Modules/StringsOptions.php:1094
 msgid "Whitelisted sites may export options from this site without the key."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1096
+#: src/Controller/Config/Modules/StringsOptions.php:1095
 msgid "List each site URL on a new line."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1097
+#: src/Controller/Config/Modules/StringsOptions.php:1096
 msgid "This is to be used in conjunction with the Master Import Site feature."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1102
+#: src/Controller/Config/Modules/StringsOptions.php:1101
 msgid "Master Import Site"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1103
+#: src/Controller/Config/Modules/StringsOptions.php:1102
 msgid "Automatically Import Options From This Site URL"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1105
+#: src/Controller/Config/Modules/StringsOptions.php:1104
 msgid "Supplying a site URL here will make this site an 'Options Slave'."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1106
+#: src/Controller/Config/Modules/StringsOptions.php:1105
 msgid "Options will be automatically exported from the Master site each day."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1107
+#: src/Controller/Config/Modules/StringsOptions.php:1106
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1112
+#: src/Controller/Config/Modules/StringsOptions.php:1111
 #: src/translations-strings-auto.php:384
 msgid "Notify Whitelist"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1113
+#: src/Controller/Config/Modules/StringsOptions.php:1112
 #: src/translations-strings-auto.php:385
 msgid "Notify Sites On The Whitelist To Update Options From Master"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1114
+#: src/Controller/Config/Modules/StringsOptions.php:1113
 #: src/translations-strings-auto.php:386
 msgid "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1119
+#: src/Controller/Config/Modules/StringsOptions.php:1118
 msgid "Import/Export Secret Key"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1121
+#: src/Controller/Config/Modules/StringsOptions.php:1120
 msgid "Keep this Secret Key private as it will allow export of options from your site."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1124
+#: src/Controller/Config/Modules/StringsOptions.php:1123
 msgid "This key is automatically regenerated every 24hrs."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1125
+#: src/Controller/Config/Modules/StringsOptions.php:1124
 #, php-format
 msgid "Key set to expire: %s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1135
+#: src/Controller/Config/Modules/StringsOptions.php:1134
 #: src/translations-strings-auto.php:389
 msgid "Alert Reports Frequency"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1136
+#: src/Controller/Config/Modules/StringsOptions.php:1135
 #: src/translations-strings-auto.php:390
 msgid "How Often Should You Be Sent Reports With Important Alerts"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1138
+#: src/Controller/Config/Modules/StringsOptions.php:1137
 msgid "Choose when you should be sent reports containing important critical alerts about your site security."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1139
+#: src/Controller/Config/Modules/StringsOptions.php:1138
 msgid "Critical alerts are typically results from your most recent site scans."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1144
+#: src/Controller/Config/Modules/StringsOptions.php:1143
 #: src/translations-strings-auto.php:392
 msgid "Info Reports Frequency"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1145
+#: src/Controller/Config/Modules/StringsOptions.php:1144
 msgid "How Often Informational Reports Will Be Sent To You"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1147
+#: src/Controller/Config/Modules/StringsOptions.php:1146
 msgid "Choose when you should be sent non-critical information and reports about your site security."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1148
+#: src/Controller/Config/Modules/StringsOptions.php:1147
 msgid "Information and reports are typically statistics."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1153
+#: src/Controller/Config/Modules/StringsOptions.php:1152
 #: src/translations-strings-auto.php:398
 msgid "Admin Accounts"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1154
+#: src/Controller/Config/Modules/StringsOptions.php:1153
 msgid "Be alerted to important changes on any admin account"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1156
-#: src/Controller/Config/Modules/StringsOptions.php:1165
+#: src/Controller/Config/Modules/StringsOptions.php:1155
+#: src/Controller/Config/Modules/StringsOptions.php:1164
 #: src/translations-strings-auto.php:400
 msgid "Be alerted to any important change on any admin account."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1157
+#: src/Controller/Config/Modules/StringsOptions.php:1156
 #, php-format
 msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1163
+#: src/Controller/Config/Modules/StringsOptions.php:1162
 msgid "Receive an alert upon plugin deactivation"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1166
+#: src/Controller/Config/Modules/StringsOptions.php:1165
 #, php-format
 msgid "Be alerted when the %s plugin is deactivated"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1170
+#: src/Controller/Config/Modules/StringsOptions.php:1169
 #: src/Controller/Config/Modules/StringsSections.php:78
 #: src/Modules/HackGuard/Scan/Controller/Wpv.php:31
 msgid "Vulnerabilities"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1171
+#: src/Controller/Config/Modules/StringsOptions.php:1170
 msgid "Be alerted to discovery of any vulnerable plugin/theme"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1173
+#: src/Controller/Config/Modules/StringsOptions.php:1172
 msgid "Be alerted to discovery of any vulnerable plugin/theme."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1174
+#: src/Controller/Config/Modules/StringsOptions.php:1173
 msgid "Vulnerability scanning must be active to enable this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1178
+#: src/Controller/Config/Modules/StringsOptions.php:1177
 #: src/translations-strings-auto.php:401
 msgid "FileLocker Changes"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1179
+#: src/Controller/Config/Modules/StringsOptions.php:1178
 #: src/translations-strings-auto.php:402
 msgid "Be alerted to any changes to FileLocker items"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1181
+#: src/Controller/Config/Modules/StringsOptions.php:1180
 #: src/translations-strings-auto.php:403
 msgid "Be alerted to any changes to FileLocker items."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1182
+#: src/Controller/Config/Modules/StringsOptions.php:1181
 msgid "FileLocker must be active to enable this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1188
+#: src/Controller/Config/Modules/StringsOptions.php:1187
 msgid "Enforce Security Admin Access Restriction"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1189
+#: src/Controller/Config/Modules/StringsOptions.php:1188
 msgid "Enable this with great care and consideration. Ensure that you set an Security PIN that you'll remember."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1193
+#: src/Controller/Config/Modules/StringsOptions.php:1192
 msgid "Provide/Update Security Admin PIN"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1195
-#: src/Controller/Config/Modules/StringsOptions.php:1242
-#: src/Controller/Config/Modules/StringsOptions.php:1250
-#: src/Controller/Config/Modules/StringsOptions.php:1258
-#: src/Controller/Config/Modules/StringsOptions.php:1278
-#: src/Controller/Config/Modules/StringsOptions.php:1284
+#: src/Controller/Config/Modules/StringsOptions.php:1194
+#: src/Controller/Config/Modules/StringsOptions.php:1241
+#: src/Controller/Config/Modules/StringsOptions.php:1249
+#: src/Controller/Config/Modules/StringsOptions.php:1257
+#: src/Controller/Config/Modules/StringsOptions.php:1277
+#: src/Controller/Config/Modules/StringsOptions.php:1283
 msgid "Careful"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1195
+#: src/Controller/Config/Modules/StringsOptions.php:1194
 msgid "If you forget this, you could potentially lock yourself out from using this plugin."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1196
+#: src/Controller/Config/Modules/StringsOptions.php:1195
 msgid "Security PIN NOT Currently Set"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1196
+#: src/Controller/Config/Modules/StringsOptions.php:1195
 msgid "Security PIN Currently Set"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1200
+#: src/Controller/Config/Modules/StringsOptions.php:1199
 #: src/translations-strings-auto.php:99
 msgid "Security Admins"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1201
+#: src/Controller/Config/Modules/StringsOptions.php:1200
 #: src/translations-strings-auto.php:100
 msgid "Persistent Security Admins"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1203
+#: src/Controller/Config/Modules/StringsOptions.php:1202
 msgid "Users provided will be security admins automatically, without needing the security PIN."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1204
+#: src/Controller/Config/Modules/StringsOptions.php:1203
 msgid "Enter admin username, email or ID."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1204
+#: src/Controller/Config/Modules/StringsOptions.php:1203
 msgid "1 entry per-line."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1205
+#: src/Controller/Config/Modules/StringsOptions.php:1204
 msgid "Verified users will be converted to usernames."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1209
+#: src/Controller/Config/Modules/StringsOptions.php:1208
 #: src/translations-strings-auto.php:96
 msgid "Security Admin Timeout"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1210
+#: src/Controller/Config/Modules/StringsOptions.php:1209
 #: src/translations-strings-auto.php:97
 msgid "Specify An Automatic Timeout Interval For Security Admin Access"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1212
+#: src/Controller/Config/Modules/StringsOptions.php:1211
 msgid "This will automatically expire your Security Admin Session."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1216
+#: src/Controller/Config/Modules/StringsOptions.php:1215
 #, php-format
 msgid "%s minutes"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1221
+#: src/Controller/Config/Modules/StringsOptions.php:1220
 #: src/translations-strings-auto.php:102
 msgid "Allow Email Override"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1222
+#: src/Controller/Config/Modules/StringsOptions.php:1221
 #: src/translations-strings-auto.php:103
 msgid "Allow Email Override Of Admin Access Restrictions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1224
+#: src/Controller/Config/Modules/StringsOptions.php:1223
 #: src/translations-strings-auto.php:104
 msgid "Allow the use of verification emails to override and switch off the Security Admin restrictions."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1225
+#: src/Controller/Config/Modules/StringsOptions.php:1224
 #, php-format
 msgid "The email address specified in %s's General settings will be used."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1229
+#: src/Controller/Config/Modules/StringsOptions.php:1228
 #: src/translations-strings-auto.php:362
 msgid "Run In MU Mode"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1230
+#: src/Controller/Config/Modules/StringsOptions.php:1229
 msgid "Run Plugin In Must-Use (MU) Mode"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1232
+#: src/Controller/Config/Modules/StringsOptions.php:1231
 #: src/translations-strings-auto.php:363
 msgid "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1233
+#: src/Controller/Config/Modules/StringsOptions.php:1232
 msgid "You should fully understand the implications of this, including the inability to deactivate the plugin from the WordPress dashboard while this setting is active."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1235
+#: src/Controller/Config/Modules/StringsOptions.php:1234
 #, php-format
 msgid "WordPress must be at least version %s to activate this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1239
+#: src/Controller/Config/Modules/StringsOptions.php:1238
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportPages.php:8
 msgid "Pages"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1240
+#: src/Controller/Config/Modules/StringsOptions.php:1239
 #: src/translations-strings-auto.php:114
 msgid "Restrict Access To Key WordPress Posts And Pages Actions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1242
+#: src/Controller/Config/Modules/StringsOptions.php:1241
 msgid "This will restrict access to page/post creation, editing and deletion."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1243
-#: src/Controller/Config/Modules/StringsOptions.php:1251
-#: src/Controller/Config/Modules/StringsOptions.php:1288
+#: src/Controller/Config/Modules/StringsOptions.php:1242
+#: src/Controller/Config/Modules/StringsOptions.php:1250
+#: src/Controller/Config/Modules/StringsOptions.php:1287
 #, php-format
 msgid "Selecting \"%s\" will also restrict all other options."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1243
+#: src/Controller/Config/Modules/StringsOptions.php:1242
 #: src/Modules/AuditTrail/Lib/Report/Changes/BaseZoneReportPosts.php:75
 msgid "Edit"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1248
+#: src/Controller/Config/Modules/StringsOptions.php:1247
 #: src/translations-strings-auto.php:110
 msgid "Restrict Access To Key WordPress Plugin Actions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1250
+#: src/Controller/Config/Modules/StringsOptions.php:1249
 msgid "This will restrict access to plugin installation, update, activation and deletion."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1251
-#: src/Controller/Config/Modules/StringsOptions.php:1292
+#: src/Controller/Config/Modules/StringsOptions.php:1250
+#: src/Controller/Config/Modules/StringsOptions.php:1291
 msgid "Activate"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1255
+#: src/Controller/Config/Modules/StringsOptions.php:1254
 #: src/translations-strings-auto.php:105
 msgid "WordPress Options"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1256
+#: src/Controller/Config/Modules/StringsOptions.php:1255
 #: src/translations-strings-auto.php:106
 msgid "Restrict Access To Certain WordPress Admin Options"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1258
+#: src/Controller/Config/Modules/StringsOptions.php:1257
 msgid "This will restrict the ability of WordPress administrators from changing key WordPress settings."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1259
+#: src/Controller/Config/Modules/StringsOptions.php:1258
 msgid "The following options will be restricted:"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1261
+#: src/Controller/Config/Modules/StringsOptions.php:1260
 msgid "New User Default Role"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1262
+#: src/Controller/Config/Modules/StringsOptions.php:1261
 msgid "Permalink structure"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1263
+#: src/Controller/Config/Modules/StringsOptions.php:1262
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:102
 msgid "Site Title"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1264
+#: src/Controller/Config/Modules/StringsOptions.php:1263
 msgid "Tagline"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1265
+#: src/Controller/Config/Modules/StringsOptions.php:1264
 msgid "WordPress Address (URL)"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1267
+#: src/Controller/Config/Modules/StringsOptions.php:1266
 msgid "Administration Email Address"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1268
+#: src/Controller/Config/Modules/StringsOptions.php:1267
 msgid "Membership"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1268
+#: src/Controller/Config/Modules/StringsOptions.php:1267
 msgid "Anyone can register"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1269
+#: src/Controller/Config/Modules/StringsOptions.php:1268
 msgid "Email notifications for new comments"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1270
+#: src/Controller/Config/Modules/StringsOptions.php:1269
 msgid "Comments must be manually approved"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1271
+#: src/Controller/Config/Modules/StringsOptions.php:1270
 msgid "Search engine visibility"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1276
+#: src/Controller/Config/Modules/StringsOptions.php:1275
 #: src/translations-strings-auto.php:108
 msgid "Admin Users"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1277
+#: src/Controller/Config/Modules/StringsOptions.php:1276
 msgid "Restrict Access To Create/Delete/Modify Other Admin Users"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1278
+#: src/Controller/Config/Modules/StringsOptions.php:1277
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1282
+#: src/Controller/Config/Modules/StringsOptions.php:1281
 #: src/translations-strings-auto.php:112
 msgid "Restrict Access To WordPress Theme Actions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1285
+#: src/Controller/Config/Modules/StringsOptions.php:1284
 msgid "This will restrict access to theme installation, update, activation and deletion."
 msgstr ""
 
 #. translators: %1$s: first option, %2$s: second option
-#: src/Controller/Config/Modules/StringsOptions.php:1291
+#: src/Controller/Config/Modules/StringsOptions.php:1290
 #, php-format
 msgid "%1$s and %2$s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1293
+#: src/Controller/Config/Modules/StringsOptions.php:1292
 msgid "Edit Theme Options"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1300
+#: src/Controller/Config/Modules/StringsOptions.php:1299
 msgid "Enable"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1301
+#: src/Controller/Config/Modules/StringsOptions.php:1300
 #: src/translations-strings-auto.php:116
 msgid "Activate Your White Label Settings"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1302
+#: src/Controller/Config/Modules/StringsOptions.php:1301
 msgid "Turn your White Label settings on/off."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1305
-#: src/Controller/Config/Modules/StringsOptions.php:1312
+#: src/Controller/Config/Modules/StringsOptions.php:1304
+#: src/Controller/Config/Modules/StringsOptions.php:1311
 #: src/translations-strings-auto.php:117
 msgid "Plugin Name"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1306
+#: src/Controller/Config/Modules/StringsOptions.php:1305
 #: src/translations-strings-auto.php:118
 msgid "The Name Of The Plugin"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1307
+#: src/Controller/Config/Modules/StringsOptions.php:1306
 msgid "The name of the plugin that will be displayed to your site users."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1310
+#: src/Controller/Config/Modules/StringsOptions.php:1309
 #: src/translations-strings-auto.php:120
 msgid "Menu Title"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1311
+#: src/Controller/Config/Modules/StringsOptions.php:1310
 #: src/translations-strings-auto.php:121
 msgid "The Main Menu Title Of The Plugin"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1312
+#: src/Controller/Config/Modules/StringsOptions.php:1311
 #, php-format
 msgid "The Main Menu Title Of The Plugin. If left empty, the \"%s\" will be used."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1315
+#: src/Controller/Config/Modules/StringsOptions.php:1314
 #: src/translations-strings-auto.php:123
 msgid "Company Name"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1316
+#: src/Controller/Config/Modules/StringsOptions.php:1315
 #: src/translations-strings-auto.php:124
 msgid "The Name Of Your Company"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1317
+#: src/Controller/Config/Modules/StringsOptions.php:1316
 #: src/translations-strings-auto.php:125
 msgid "Provide the name of your company."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1321
+#: src/Controller/Config/Modules/StringsOptions.php:1320
 msgid "The Description Of The Plugin"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1322
+#: src/Controller/Config/Modules/StringsOptions.php:1321
 msgid "The description of the plugin displayed on the plugins page."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1325
+#: src/Controller/Config/Modules/StringsOptions.php:1324
 #: src/Modules/AuditTrail/Lib/Report/Changes/ZoneReportWordpress.php:104
 #: src/translations-strings-auto.php:129
 msgid "Home URL"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1326
+#: src/Controller/Config/Modules/StringsOptions.php:1325
 #: src/translations-strings-auto.php:130
 msgid "Plugin Home Page URL"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1327
+#: src/Controller/Config/Modules/StringsOptions.php:1326
 #: src/translations-strings-auto.php:131
 msgid "When a user clicks the home link for this plugin, this is where they'll be directed."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1330
+#: src/Controller/Config/Modules/StringsOptions.php:1329
 #: src/translations-strings-auto.php:132
 msgid "Menu Icon"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1331
+#: src/Controller/Config/Modules/StringsOptions.php:1330
 #: src/translations-strings-auto.php:133
 msgid "Menu Icon URL"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1333
+#: src/Controller/Config/Modules/StringsOptions.php:1332
 msgid "The URL of the icon to display in the menu."
 msgstr ""
 
 #. translators: %1$s: item type (icon), %2$s: dimensions
 #. translators: %1$s: item type (logo), %2$s: dimensions
-#: src/Controller/Config/Modules/StringsOptions.php:1336
-#: src/Controller/Config/Modules/StringsOptions.php:1346
+#: src/Controller/Config/Modules/StringsOptions.php:1335
+#: src/Controller/Config/Modules/StringsOptions.php:1345
 #, php-format
 msgid "The %1$s should measure %2$s."
 msgstr ""
 
 #. translators: %1$s: item type (icon), %2$s: dimensions
-#: src/Controller/Config/Modules/StringsOptions.php:1336
+#: src/Controller/Config/Modules/StringsOptions.php:1335
 msgid "icon"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1340
+#: src/Controller/Config/Modules/StringsOptions.php:1339
 #: src/translations-strings-auto.php:135
 msgid "Plugin Badge Logo"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1341
+#: src/Controller/Config/Modules/StringsOptions.php:1340
 #: src/translations-strings-auto.php:136
 msgid "Plugin Badge Logo URL"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1343
+#: src/Controller/Config/Modules/StringsOptions.php:1342
 msgid "The URL of the logo to display in the plugin badge."
 msgstr ""
 
 #. translators: %1$s: item type (logo), %2$s: dimensions
-#: src/Controller/Config/Modules/StringsOptions.php:1346
+#: src/Controller/Config/Modules/StringsOptions.php:1345
 msgid "logo"
 msgstr ""
 
+#: src/Controller/Config/Modules/StringsOptions.php:1349
 #: src/Controller/Config/Modules/StringsOptions.php:1350
-#: src/Controller/Config/Modules/StringsOptions.php:1351
 msgid "Dashboard and 2FA Login Logo URL"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1352
+#: src/Controller/Config/Modules/StringsOptions.php:1351
 msgid "The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1355
+#: src/Controller/Config/Modules/StringsOptions.php:1354
 #: src/translations-strings-auto.php:420
 msgid "Enable Request Logging"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1356
+#: src/Controller/Config/Modules/StringsOptions.php:1355
 #: src/translations-strings-auto.php:421
 msgid "Log Requests To Your WordPress Site"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1357
+#: src/Controller/Config/Modules/StringsOptions.php:1356
 #: src/translations-strings-auto.php:422
 msgid "Monitor web requests sent to your WordPress site."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1360
+#: src/Controller/Config/Modules/StringsOptions.php:1359
 #: src/translations-strings-auto.php:426
 msgid "Request Log Exclusions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1361
+#: src/Controller/Config/Modules/StringsOptions.php:1360
 #: src/translations-strings-auto.php:427
 msgid "Select Which Types Of Requests To Exclude"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1363
+#: src/Controller/Config/Modules/StringsOptions.php:1362
 msgid "There's no need to have unnecessary traffic noise in your logs, so we automatically exclude certain types of requests."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1364
+#: src/Controller/Config/Modules/StringsOptions.php:1363
 msgid "Select request types that you don't want to appear in the traffic viewer."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1365
+#: src/Controller/Config/Modules/StringsOptions.php:1364
 msgid "If a request matches any exclusion rule, it wont show in the traffic logs."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1371
+#: src/Controller/Config/Modules/StringsOptions.php:1370
 msgid "Live Traffic"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1372
+#: src/Controller/Config/Modules/StringsOptions.php:1371
 msgid "Temporarily Log All Traffic"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1374
+#: src/Controller/Config/Modules/StringsOptions.php:1373
 msgid "Requires standard traffic logging to be switched-on and logs all requests to the site (nothing is excluded)."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1375
+#: src/Controller/Config/Modules/StringsOptions.php:1374
 msgid "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1376
+#: src/Controller/Config/Modules/StringsOptions.php:1375
 #, php-format
 msgid "This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1377
+#: src/Controller/Config/Modules/StringsOptions.php:1376
 #, php-format
 msgid "%s minute"
 msgid_plural "%s minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1380
+#: src/Controller/Config/Modules/StringsOptions.php:1379
 msgid "Live Logs Viewer"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1388
+#: src/Controller/Config/Modules/StringsOptions.php:1387
 #, php-format
 msgid "Live logging will be automatically disabled: %s"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1398
+#: src/Controller/Config/Modules/StringsOptions.php:1397
 #: src/translations-strings-auto.php:429
 msgid "Custom Exclusions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1399
+#: src/Controller/Config/Modules/StringsOptions.php:1398
 #: src/translations-strings-auto.php:430
 msgid "Provide Custom Traffic Exclusions"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1401
+#: src/Controller/Config/Modules/StringsOptions.php:1400
 msgid "For each entry, if the text is present in either the User Agent or request Path, it will be excluded."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1402
+#: src/Controller/Config/Modules/StringsOptions.php:1401
 msgid "Take a new line for each entry."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1403
+#: src/Controller/Config/Modules/StringsOptions.php:1402
 msgid "Comparisons are case-insensitive."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1408
+#: src/Controller/Config/Modules/StringsOptions.php:1407
 msgid "Traffic Log Retention Policy (Days)"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1410
+#: src/Controller/Config/Modules/StringsOptions.php:1409
 msgid "Traffic logs older than this maximum number of days will be automatically deleted."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1413
+#: src/Controller/Config/Modules/StringsOptions.php:1412
 msgid "Activity logs depend on these traffic logs so if they have a longer retention period, some traffic logs will be retained longer."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1425
+#: src/Controller/Config/Modules/StringsOptions.php:1424
 #: src/translations-strings-auto.php:433
 msgid "Enable Rate Limiting"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1426
+#: src/Controller/Config/Modules/StringsOptions.php:1425
 #: src/translations-strings-auto.php:434
 msgid "Turn On The Rate Limiting Feature"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1428
+#: src/Controller/Config/Modules/StringsOptions.php:1427
 msgid "Limit requests to your site based on the your rate-limiting settings."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1429
+#: src/Controller/Config/Modules/StringsOptions.php:1428
 msgid "Enabling this option automatically switches-on request logging."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1433
+#: src/Controller/Config/Modules/StringsOptions.php:1432
 #: src/translations-strings-auto.php:436
 msgid "Max Request Limit"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1434
+#: src/Controller/Config/Modules/StringsOptions.php:1433
 #: src/translations-strings-auto.php:437
 msgid "Maximum Number Of Requests Allowed In Time Limit"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1436
+#: src/Controller/Config/Modules/StringsOptions.php:1435
 msgid "The maximum number of requests that are allowed within the given request time limit."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1437
+#: src/Controller/Config/Modules/StringsOptions.php:1436
 msgid "Any visitor that exceeds this number of requests in the given time period will register an offense against their IP address."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1438
+#: src/Controller/Config/Modules/StringsOptions.php:1437
 msgid "Enough offenses will result in a ban of the IP address."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1439
+#: src/Controller/Config/Modules/StringsOptions.php:1438
 msgid "Use a larger maximum request limit to reduce the risk of blocking legitimate visitors."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1443
+#: src/Controller/Config/Modules/StringsOptions.php:1442
 #: src/translations-strings-auto.php:439
 msgid "Request Limit Time Interval"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1444
+#: src/Controller/Config/Modules/StringsOptions.php:1443
 #: src/translations-strings-auto.php:440
 msgid "The Time Interval To Test For Excessive Requests"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1446
+#: src/Controller/Config/Modules/StringsOptions.php:1445
 msgid "The time period within which to monitor for multiple requests that exceed the max request limit."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1447
+#: src/Controller/Config/Modules/StringsOptions.php:1446
 msgid "Interval is measured in seconds."
 msgstr ""
 
 #. translators: %1$s: request count, %2$s: minutes
-#: src/Controller/Config/Modules/StringsOptions.php:1451
-#: src/Controller/Config/Modules/StringsOptions.php:1455
+#: src/Controller/Config/Modules/StringsOptions.php:1450
+#: src/Controller/Config/Modules/StringsOptions.php:1454
 #, php-format
 msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1456
+#: src/Controller/Config/Modules/StringsOptions.php:1455
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1467
+#: src/Controller/Config/Modules/StringsOptions.php:1466
 #: src/translations-strings-auto.php:445
 msgid "Admin Login Notification Email"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1468
+#: src/Controller/Config/Modules/StringsOptions.php:1467
 #: src/translations-strings-auto.php:446
 msgid "Send An Notification Email When Administrator Logs In"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1470
+#: src/Controller/Config/Modules/StringsOptions.php:1469
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1471
+#: src/Controller/Config/Modules/StringsOptions.php:1470
 msgid "No email address - No Notification."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1474
+#: src/Controller/Config/Modules/StringsOptions.php:1473
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1475
+#: src/Controller/Config/Modules/StringsOptions.php:1474
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1478
+#: src/Controller/Config/Modules/StringsOptions.php:1477
 #: src/translations-strings-auto.php:442
 msgid "User Login Notification Email"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1479
+#: src/Controller/Config/Modules/StringsOptions.php:1478
 #: src/translations-strings-auto.php:443
 msgid "Send Email Notification To Each User Upon Successful Login"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1480
+#: src/Controller/Config/Modules/StringsOptions.php:1479
 #: src/translations-strings-auto.php:444
 msgid "A notification is sent to each user when a successful login occurs for their account."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1483
+#: src/Controller/Config/Modules/StringsOptions.php:1482
 msgid "Session Lifetime Override"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1484
+#: src/Controller/Config/Modules/StringsOptions.php:1483
 msgid "Override Maximum Session Lifetime"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1486
+#: src/Controller/Config/Modules/StringsOptions.php:1485
 msgid "WordPress default is 2 days, or 14 days when you check the \"Remember Me\" box."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1487
+#: src/Controller/Config/Modules/StringsOptions.php:1486
 msgid "Think of this as an absolute maximum possible session length."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1488
+#: src/Controller/Config/Modules/StringsOptions.php:1487
 #, php-format
 msgid "This cannot be less than %s."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1493
+#: src/Controller/Config/Modules/StringsOptions.php:1492
 #: src/translations-strings-auto.php:451
 msgid "Idle Timeout"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1494
+#: src/Controller/Config/Modules/StringsOptions.php:1493
 #: src/translations-strings-auto.php:452
 msgid "Specify How Many Hours After Inactivity To Automatically Logout User"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1496
+#: src/Controller/Config/Modules/StringsOptions.php:1495
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1497
+#: src/Controller/Config/Modules/StringsOptions.php:1496
 #, php-format
 msgid "Set to %s to turn off this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1501
+#: src/Controller/Config/Modules/StringsOptions.php:1500
 msgid "User Session Lock"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1502
+#: src/Controller/Config/Modules/StringsOptions.php:1501
 msgid "Locks A User Session To Prevent Theft"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1504
+#: src/Controller/Config/Modules/StringsOptions.php:1503
 msgid "Protects against user compromise by preventing user session theft/hijacking."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1509
+#: src/Controller/Config/Modules/StringsOptions.php:1508
 #: src/translations-strings-auto.php:456
 msgid "Validate Email Addresses"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1510
+#: src/Controller/Config/Modules/StringsOptions.php:1509
 #: src/translations-strings-auto.php:457
 msgid "Validate Email Addresses When User Attempts To Register"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1512
+#: src/Controller/Config/Modules/StringsOptions.php:1511
 #: src/translations-strings-auto.php:458
 msgid "Validate Email Addresses When User Attempts To Register."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1513
+#: src/Controller/Config/Modules/StringsOptions.php:1512
 #, php-format
 msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1517
+#: src/Controller/Config/Modules/StringsOptions.php:1516
 msgid "Email Validation Checks"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1518
+#: src/Controller/Config/Modules/StringsOptions.php:1517
 #: src/translations-strings-auto.php:460
 msgid "The Email Address Properties That Will Be Tested"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1519
+#: src/Controller/Config/Modules/StringsOptions.php:1518
 msgid "Select the properties that should be tested during email address validation."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1522
+#: src/Controller/Config/Modules/StringsOptions.php:1521
 msgid "Enforce Password Policies"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1523
+#: src/Controller/Config/Modules/StringsOptions.php:1522
 msgid "Enforce Any Configured Password Policies"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1524
+#: src/Controller/Config/Modules/StringsOptions.php:1523
 msgid "Apply any configured password policies."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1527
+#: src/Controller/Config/Modules/StringsOptions.php:1526
 #: src/translations-strings-auto.php:463
 msgid "Prevent Pwned Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1528
+#: src/Controller/Config/Modules/StringsOptions.php:1527
 msgid "Prevent Use Of \"Pwned\" Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1529
+#: src/Controller/Config/Modules/StringsOptions.php:1528
 msgid "Prevents users from using any passwords found on the public available list of \"pwned\" passwords."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1532
+#: src/Controller/Config/Modules/StringsOptions.php:1531
 #: src/translations-strings-auto.php:466
 msgid "Minimum Strength"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1533
+#: src/Controller/Config/Modules/StringsOptions.php:1532
 #: src/translations-strings-auto.php:467
 msgid "Minimum Password Strength"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1534
+#: src/Controller/Config/Modules/StringsOptions.php:1533
 #: src/translations-strings-auto.php:468
 msgid "All passwords that a user sets must meet this minimum strength."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1537
+#: src/Controller/Config/Modules/StringsOptions.php:1536
 #: src/translations-strings-auto.php:472
 msgid "Apply To Existing Users"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1538
+#: src/Controller/Config/Modules/StringsOptions.php:1537
 #: src/translations-strings-auto.php:473
 msgid "Apply Password Policies To Existing Users and Their Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1540
+#: src/Controller/Config/Modules/StringsOptions.php:1539
 msgid "Forces existing users to update their passwords if they don't meet requirements, after they next login."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1541
+#: src/Controller/Config/Modules/StringsOptions.php:1540
 msgid "Note: You may want to warn users prior to enabling this option."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1545
+#: src/Controller/Config/Modules/StringsOptions.php:1544
 #: src/translations-strings-auto.php:469
 msgid "Password Expiration"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1546
+#: src/Controller/Config/Modules/StringsOptions.php:1545
 #: src/translations-strings-auto.php:470
 msgid "Passwords Expire After This Many Days"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1548
+#: src/Controller/Config/Modules/StringsOptions.php:1547
 #: src/translations-strings-auto.php:471
 msgid "Users will be forced to reset their passwords after the number of days specified."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1549
-#: src/Controller/Config/Modules/StringsOptions.php:1575
+#: src/Controller/Config/Modules/StringsOptions.php:1548
+#: src/Controller/Config/Modules/StringsOptions.php:1574
 msgid "Set to Zero(0) to disable."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1553
+#: src/Controller/Config/Modules/StringsOptions.php:1552
 #: src/translations-strings-auto.php:475
 msgid "Allow Manual User Suspension"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1554
+#: src/Controller/Config/Modules/StringsOptions.php:1553
 #: src/translations-strings-auto.php:476
 msgid "Manually Suspend User Accounts To Prevent Login"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1555
+#: src/Controller/Config/Modules/StringsOptions.php:1554
 msgid "Users may be suspended by administrators to prevent future login."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1558
+#: src/Controller/Config/Modules/StringsOptions.php:1557
 #: src/translations-strings-auto.php:478
 msgid "Auto-Suspend Expired Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1559
+#: src/Controller/Config/Modules/StringsOptions.php:1558
 #: src/translations-strings-auto.php:479
 msgid "Automatically Suspend Users With Expired Passwords"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1561
+#: src/Controller/Config/Modules/StringsOptions.php:1560
 msgid "Automatically suspends login by users and requires password reset to unsuspend."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1565
+#: src/Controller/Config/Modules/StringsOptions.php:1564
 msgid "Requires password expiration policy to be set."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1570
+#: src/Controller/Config/Modules/StringsOptions.php:1569
 #: src/translations-strings-auto.php:481
 msgid "Auto-Suspend Idle Users"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1571
+#: src/Controller/Config/Modules/StringsOptions.php:1570
 #: src/translations-strings-auto.php:482
 msgid "Automatically Suspend Idle User Accounts"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1573
+#: src/Controller/Config/Modules/StringsOptions.php:1572
 msgid "Automatically suspends login for idle accounts and requires password reset to unsuspend."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1574
+#: src/Controller/Config/Modules/StringsOptions.php:1573
 msgid "Specify the number of days since last login to consider a user as idle."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1579
+#: src/Controller/Config/Modules/StringsOptions.php:1578
 msgid "Auto-Suspend Idle User Roles"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1580
+#: src/Controller/Config/Modules/StringsOptions.php:1579
 msgid "Apply Automatic Suspension To Accounts With These Roles"
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1582
+#: src/Controller/Config/Modules/StringsOptions.php:1581
 msgid "Automatic suspension for idle accounts applies only to the roles you specify."
 msgstr ""
 
-#: src/Controller/Config/Modules/StringsOptions.php:1607
+#: src/Controller/Config/Modules/StringsOptions.php:1606
 msgid "You'll need to upgrade your plan to trigger offenses for these events."
 msgstr ""
 
@@ -9368,21 +9367,21 @@ msgstr ""
 msgid "Password values do not match."
 msgstr ""
 
-#: src/Controller/Config/Opts/PreSetOptSanitize.php:64
+#: src/Controller/Config/Opts/PreSetOptSanitize.php:76
 #, php-format
 msgid "Invalid value scope for %s"
 msgstr ""
 
-#: src/Controller/Config/Opts/PreSetOptSanitize.php:76
+#: src/Controller/Config/Opts/PreSetOptSanitize.php:88
 msgid "Cannot set log retention days to anything longer than max."
 msgstr ""
 
-#: src/Controller/Config/Opts/PreSetOptSanitize.php:89
+#: src/Controller/Config/Opts/PreSetOptSanitize.php:101
 #, php-format
 msgid "Not a valid option key for module: %s"
 msgstr ""
 
-#: src/Controller/Config/Opts/PreSetOptSanitize.php:150
+#: src/Controller/Config/Opts/PreSetOptSanitize.php:162
 #, php-format
 msgid "Invalid value type for %s"
 msgstr ""
@@ -9414,7 +9413,7 @@ msgstr ""
 
 #: src/Controller/Config/Opts/SectionNotices.php:70
 #, php-format
-msgid "The following types of user forms are protected by %s: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
 msgstr ""
 
 #: src/Controller/Config/Opts/SectionNotices.php:77
@@ -9500,12 +9499,12 @@ msgstr ""
 
 #: src/Controller/Config/Opts/SectionNotices.php:245
 #, php-format
-msgid "%s is disabled when set to a minimum score of %s."
+msgid "%1$s is disabled when set to a minimum score of %2$s."
 msgstr ""
 
 #: src/Controller/Config/Opts/SectionNotices.php:249
 #, php-format
-msgid "%s couldn't determine whether the %s JS was loading correctly on your site."
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
 msgstr ""
 
 #: src/Controller/Config/Opts/SectionNotices.php:255
@@ -9707,44 +9706,44 @@ msgstr ""
 msgid "No such record ID"
 msgstr ""
 
-#: src/Events/EventsService.php:23
+#: src/Events/EventsService.php:24
 #, php-format
 msgid "Event %s does not exist."
 msgstr ""
 
-#: src/Events/EventsService.php:45
+#: src/Events/EventsService.php:46
 #, php-format
 msgid "WARNING: Event (%s) receives params but none are defined."
 msgstr ""
 
 #. translators: %1$s: event, %2$s: missing parameters
-#: src/Events/EventsService.php:52
+#: src/Events/EventsService.php:53
 #, php-format
 msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
 msgstr ""
 
-#: src/Events/EventsService.php:76
+#: src/Events/EventsService.php:79
 #, php-format
 msgid "%s event definitions are empty or not in the correct format."
 msgstr ""
 
-#: src/Events/EventsService.php:100
+#: src/Events/EventsService.php:103
 msgid "Custom events must be provided as an array. Please ensure the filter returns only an array."
 msgstr ""
 
-#: src/Events/EventsService.php:106
+#: src/Events/EventsService.php:109
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr ""
 
-#: src/Events/EventsService.php:109
+#: src/Events/EventsService.php:112
 msgid "All custom events must supply an array of strings with key 'strings'."
 msgstr ""
 
-#: src/Events/EventsService.php:112
+#: src/Events/EventsService.php:115
 msgid "All custom events must supply a 'name' as a string within the 'strings' array."
 msgstr ""
 
-#: src/Events/EventsService.php:115
+#: src/Events/EventsService.php:118
 msgid "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event."
 msgstr ""
 
@@ -11223,7 +11222,7 @@ msgstr ""
 msgid "Discovered"
 msgstr ""
 
-#: src/Modules/AuditTrail/Lib/AuditCon.php:180
+#: src/Modules/AuditTrail/Lib/AuditCon.php:183
 #, php-format
 msgid "Snapshot could not be loaded for %s"
 msgstr ""
@@ -11588,15 +11587,15 @@ msgstr ""
 msgid "File extensions are empty."
 msgstr ""
 
-#: src/Modules/HackGuard/Lib/Snapshots/Build/BuildHashesFromApi.php:58
+#: src/Modules/HackGuard/Lib/Snapshots/Build/BuildHashesFromApi.php:54
 msgid "Not a WordPress.org asset."
 msgstr ""
 
-#: src/Modules/HackGuard/Lib/Snapshots/Build/BuildHashesFromApi.php:78
+#: src/Modules/HackGuard/Lib/Snapshots/Build/BuildHashesFromApi.php:74
 msgid "Live hashes are not supported for child themes."
 msgstr ""
 
-#: src/Modules/HackGuard/Lib/Snapshots/Build/BuildHashesFromApi.php:85
+#: src/Modules/HackGuard/Lib/Snapshots/Build/BuildHashesFromApi.php:81
 msgid "Not a supported asset type."
 msgstr ""
 
@@ -17680,7 +17679,7 @@ msgstr ""
 
 #: src/WpCli/Cmds/Translations.php:136
 #, php-format
-msgid "Locale \"%s\" is already cached at: %s. Use --force to re-download."
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
 msgstr ""
 
 #: src/WpCli/Cmds/Translations.php:146
@@ -18218,7 +18217,7 @@ msgstr ""
 
 #: src/Zones/Component/SilentCaptcha.php:47
 #, php-format
-msgid "%s bot minimum score is quite low (%s)."
+msgid "%1$s bot minimum score is quite low (%2$s)."
 msgstr ""
 
 #: src/Zones/Component/SpamUserRegisterBlock.php:10

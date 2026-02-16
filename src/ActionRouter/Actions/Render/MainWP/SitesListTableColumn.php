@@ -54,7 +54,7 @@ class SitesListTableColumn extends BaseRender {
 			],
 			'strings' => [
 				'tooltip_inactive'         => sprintf( __( "%s plugin is installed, but not active.", 'wp-simple-firewall' ), self::con()->labels->Name ),
-				'tooltip_notpro'           => sprintf( __( "The %s plugin on this site doesn't have an active %s license.", 'wp-simple-firewall' ), self::con()->labels->Name, self::con()->labels->Name ),
+				'tooltip_notpro'           => sprintf( __( "The %s plugin on this site requires an active PRO license.", 'wp-simple-firewall' ), self::con()->labels->Name, self::con()->labels->Name ),
 				'tooltip_mwpnoton'         => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_not_installed'    => sprintf( __( "%s isn't installed on this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_sync_required'    => __( "Sync Required.", 'wp-simple-firewall' ),
