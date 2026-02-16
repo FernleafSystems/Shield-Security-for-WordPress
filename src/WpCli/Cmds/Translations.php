@@ -201,6 +201,21 @@ class Translations extends BaseCmd {
 			}
 		}
 
+		if ( !empty( $available ) ) {
+			\WP_CLI::log( '--- Cached Locale Meta Data ---' );
+			$items = [];
+			foreach ( $available as $l => $av ) {
+				$av[ 'locale' ] = $l;
+				$items[] = $av;
+			}
+			if ( !empty( $items ) ) {
+				\WP_CLI\Utils\format_items( 'table', $items, [ 'locale', 'hash', 'hash_type', 'size' ] );
+			}
+			else {
+				\WP_CLI::log( 'No cached meta data found.' );
+			}
+		}
+
 		\WP_CLI::success( __( 'Status check complete.', 'wp-simple-firewall' ) );
 	}
 
