@@ -164,7 +164,12 @@ class Translations extends BaseCmd {
 		\WP_CLI::log( '' );
 
 		\WP_CLI::log( \sprintf( 'Cache Directory: %s', $con->cache_dir_handler->buildSubDir( 'languages' ) ?: 'Not configured' ) );
-		\WP_CLI::log( \sprintf( 'Queued Locales: %d', \count( $tranCon->getQueue() ) ) );
+		if ( \count( $tranCon->getQueue() ) > 0 ) {
+			\WP_CLI::log( \sprintf( 'Queued Locales: %s', \implode( ', ', $tranCon->getQueue() ) ) );
+		}
+		else {
+			\WP_CLI::log( 'Queued Locales: none' );
+		}
 
 		// Show last attempt time
 		$lastAttempt = $tranCon->cfg()[ 'last_download_at' ] ?? 0;
