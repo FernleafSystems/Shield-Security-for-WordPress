@@ -26,12 +26,51 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		parent::set_up();
 		$this->capturedEvents = [];
 		$this->resetIpCaches();
+		$this->disablePremiumCapabilities();
 	}
 
 	public function tear_down() {
+		$this->disablePremiumCapabilities();
 		$this->truncateShieldTables();
 		$this->resetIpCaches();
 		parent::tear_down();
+	}
+
+	/**
+	 * Enable premium mode for integration tests with only the requested capabilities.
+	 */
+	protected function enablePremiumCapabilities( array $capabilities = [] ) :void {
+		$con = $this->requireController();
+		$ts = \time();
+
+		$con->comps->license->updateLicenseData( [
+			'checksum'         => 'integration-test-license',
+			'success'          => true,
+			'license'          => 'valid',
+			'expires'          => 'lifetime',
+			'last_request_at'  => $ts,
+			'last_verified_at' => $ts,
+			'capabilities'     => \array_values( \array_unique( \array_filter(
+				$capabilities,
+				fn( $cap ) => \is_string( $cap ) && $cap !== ''
+			) ) ),
+			'lic_version'      => 1,
+		] );
+
+		$con->opts
+			->optSet( 'license_activated_at', $ts )
+			->optSet( 'license_deactivated_at', 0 );
+	}
+
+	protected function disablePremiumCapabilities() :void {
+		$con = static::con();
+		if ( $con === null ) {
+			return;
+		}
+		$con->comps->license->updateLicenseData( [] );
+		$con->opts
+			->optSet( 'license_activated_at', 0 )
+			->optSet( 'license_deactivated_at', 0 );
 	}
 
 	// ── Controller helpers ─────────────────────────────────────────
