@@ -150,6 +150,7 @@
         "offense": true
     },
     "bottrack_multiple": {
+        "audit": false,
         "offense": false,
         "stat": false,
         "level": "info"
