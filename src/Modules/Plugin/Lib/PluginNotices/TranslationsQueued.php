@@ -51,7 +51,7 @@ class TranslationsQueued extends Base {
 			'text'      => [
 				sprintf(
 					'%s %s',
-					sprintf( '%s: %s', $con->labels->Name, __( 'Translations Queued', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s - ', $con->labels->Name, __( 'Translations Queued', 'wp-simple-firewall' ) ),
 					sprintf(
 						'%s <a href="%s" data-notice_action="%s" class="shield_admin_notice_action">%s</a>',
 						$message,
