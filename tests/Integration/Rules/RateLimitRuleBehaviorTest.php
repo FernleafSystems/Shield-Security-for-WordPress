@@ -48,6 +48,7 @@ class RateLimitRuleBehaviorTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		$this->enablePremiumCapabilities( [ 'traffic_rate_limiting' ] );
 		$this->requireDb( 'ips' );
 		$this->requireDb( 'req_logs' );
 

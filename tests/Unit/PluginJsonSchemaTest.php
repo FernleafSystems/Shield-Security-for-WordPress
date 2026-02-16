@@ -572,7 +572,7 @@ class PluginJsonSchemaTest extends TestCase {
 		$this->assertIsArray( $events, 'Events must be an array' );
 		$this->assertNotEmpty( $events, 'Events array cannot be empty' );
 		
-		$validLevels = ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'];
+		$validLevels = [ 'warning', 'notice', 'info' ];
 		
 		foreach ( $events as $eventKey => $event ) {
 			$this->assertIsArray( $event, "Event '{$eventKey}' must be an array" );

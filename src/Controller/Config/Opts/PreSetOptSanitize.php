@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -9,7 +10,7 @@ class PreSetOptSanitize {
 
 	use PluginControllerConsumer;
 
-	private $key;
+	private string $key;
 
 	private $value;
 
@@ -24,10 +25,21 @@ class PreSetOptSanitize {
 	 */
 	public function run() {
 		$this->exists();
+		$this->normaliseKnownValues();
 		$this->validateType();
 		$this->validateScope();
 		$this->specificOptChecks();
 		return $this->value;
+	}
+
+	private function normaliseKnownValues() :void {
+		switch ( $this->key ) {
+			case 'log_level_db':
+				$this->value = NormaliseLogLevel::forDbSelection( $this->value );
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**

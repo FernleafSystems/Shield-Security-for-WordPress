@@ -3,7 +3,7 @@
         "audit_params": [
             "user_login"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": true
     },
     "2fa_success": {
@@ -139,25 +139,25 @@
         "audit_params": [
             "user_login"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": true
     },
     "bottrack_logininvalid": {
         "audit_params": [
             "user_login"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": true
     },
     "bottrack_multiple": {
         "offense": false,
         "stat": false,
-        "level": "debug"
+        "level": "info"
     },
     "bottrack_notbot": {
         "offense": false,
         "stat": false,
-        "level": "debug"
+        "level": "info"
     },
     "bottrack_xmlrpc": {
         "audit_params": [
@@ -213,7 +213,7 @@
         "audit_countable": true
     },
     "conn_not_kill_high_rep": {
-        "level": "debug"
+        "level": "info"
     },
     "cooldown_fail": {
         "level": "warning",
@@ -285,7 +285,7 @@
         "audit_params": [
             "message"
         ],
-        "level": "debug",
+        "level": "info",
         "stat": false
     },
     "email_attempt_send": {
@@ -314,7 +314,7 @@
         "offense": true
     },
     "frontpage_load": {
-        "level": "debug",
+        "level": "info",
         "offense": false,
         "stat": false
     },
@@ -329,7 +329,7 @@
         "audit_params": [
             "to"
         ],
-        "level": "debug",
+        "level": "info",
         "stat": false
     },
     "hide_login_url": {
@@ -357,7 +357,7 @@
         "audit_params": [
             "ip"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": false,
         "stat": false
     },
@@ -365,7 +365,7 @@
         "audit_params": [
             "ip"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": false,
         "stat": false
     },
@@ -374,13 +374,13 @@
             "from",
             "to"
         ],
-        "level": "alert"
+        "level": "warning"
     },
     "ip_bypass_add": {
         "audit_params": [
             "ip"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": false,
         "stat": false
     },
@@ -388,7 +388,7 @@
         "audit_params": [
             "ip"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": false,
         "stat": false
     },
@@ -413,13 +413,13 @@
             "ip",
             "method"
         ],
-        "level": "alert"
+        "level": "warning"
     },
     "ip_unblock_flag": {
         "audit_params": [
             "ip"
         ],
-        "level": "alert"
+        "level": "warning"
     },
     "key_fail": {
         "level": "warning",
@@ -427,7 +427,7 @@
         "offense": true
     },
     "key_success": {
-        "level": "debug",
+        "level": "info",
         "recent": true
     },
     "lic_activation_fail": {
@@ -469,7 +469,7 @@
         "stat": false
     },
     "loginpage_load": {
-        "level": "debug",
+        "level": "info",
         "offense": false,
         "stat": false
     },
@@ -709,7 +709,7 @@
             "count",
             "span"
         ],
-        "level": "alert",
+        "level": "warning",
         "offense": true
     },
     "scan_item_delete_success": {
@@ -736,7 +736,7 @@
             "scan",
             "items"
         ],
-        "level": "alert",
+        "level": "warning",
         "audit_multiple": true,
         "recent": true
     },
@@ -744,7 +744,7 @@
         "audit_params": [
             "scan"
         ],
-        "level": "debug",
+        "level": "info",
         "audit_multiple": true
     },
     "session_expired": {
@@ -786,13 +786,13 @@
         "recent": true
     },
     "site_blockdown_ended": {
-        "level": "alert",
+        "level": "warning",
         "audit_params": [
             "user_login"
         ]
     },
     "site_blockdown_started": {
-        "level": "alert",
+        "level": "warning",
         "audit_params": [
             "user_login"
         ]
@@ -840,7 +840,7 @@
         "level": "info"
     },
     "test_cron_run": {
-        "level": "debug",
+        "level": "info",
         "recent": true
     },
     "theme_activated": {
@@ -925,7 +925,7 @@
         "audit_params": [
             "user_login"
         ],
-        "level": "alert"
+        "level": "warning"
     },
     "user_email_updated": {
         "audit_params": [
@@ -991,14 +991,14 @@
         "audit_params": [
             "user_login"
         ],
-        "level": "alert"
+        "level": "warning"
     },
     "user_registered": {
         "audit_params": [
             "user_login",
             "email"
         ],
-        "level": "alert"
+        "level": "warning"
     },
     "whitelist_site_added": {
         "audit_params": [

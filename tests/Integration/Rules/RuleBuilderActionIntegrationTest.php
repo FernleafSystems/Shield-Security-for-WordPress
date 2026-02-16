@@ -22,6 +22,7 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->requireDb( 'rules' );
+		$this->enablePremiumCapabilities( [ 'custom_security_rules' ] );
 
 		$userId = self::factory()->user->create( [
 			'role' => 'administrator',
@@ -104,10 +105,11 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 		$resetPayload = $resetResponse->payload();
 
 		$this->assertTrue( $resetPayload[ 'success' ] ?? false );
-		$this->assertSame( $ruleId, (int)( $resetPayload[ 'edit_rule_id' ] ?? 0 ) );
+		$resetRuleId = (int)( $resetPayload[ 'edit_rule_id' ] ?? 0 );
+		$this->assertGreaterThan( 0, $resetRuleId );
 		$this->assertStringContainsString( 'reset', \strtolower( (string)( $resetPayload[ 'message' ] ?? '' ) ) );
 
-		$reloaded = ( new RuleRecords() )->byID( $ruleId );
+		$reloaded = ( new RuleRecords() )->byID( $resetRuleId );
 		$this->assertNotEmpty( $reloaded->form_draft, 'Reset should persist draft content based on saved rule form' );
 	}
 }

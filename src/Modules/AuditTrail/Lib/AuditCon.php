@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Exceptions\InconsistentDataException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
@@ -64,14 +65,16 @@ class AuditCon {
 
 	public function getLogLevelsDB() :array {
 		$optsCon = self::con()->opts;
-		$levels = $optsCon->optGet( 'log_level_db' );
-		if ( empty( $levels ) || !\is_array( $levels ) ) {
+		$current = $optsCon->optGet( 'log_level_db' );
+		$levels = NormaliseLogLevel::forDbSelection( $current );
+		if ( empty( $levels ) ) {
 			$optsCon->optReset( 'log_level_db' );
+			$levels = NormaliseLogLevel::forDbSelection( $optsCon->optGet( 'log_level_db' ) );
 		}
-		elseif ( \count( $levels ) > 1 && \in_array( 'disabled', $levels ) ) {
-			$optsCon->optSet( 'log_level_db', [ 'disabled' ] );
+		elseif ( \serialize( $levels ) !== \serialize( $current ) ) {
+			$optsCon->optSet( 'log_level_db', $levels );
 		}
-		return $optsCon->optGet( 'log_level_db' );
+		return $levels;
 	}
 
 	public function isLogToDB() :bool {

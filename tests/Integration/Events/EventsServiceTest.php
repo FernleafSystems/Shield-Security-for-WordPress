@@ -157,4 +157,40 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 		$this->assertIsArray( $def );
 		$this->assertSame( 'ip_blocked', $def[ 'key' ] );
 	}
+
+	public function test_event_levels_added_via_filter_are_normalised() {
+		$callback = function ( array $events ) {
+			foreach ( [
+				'test_filter_level_alert'   => 'alert',
+				'test_filter_level_debug'   => 'debug',
+				'test_filter_level_unknown' => 'something_else',
+			] as $eventKey => $level ) {
+				$events[ $eventKey ] = [
+					'level'        => $level,
+					'stat'         => false,
+					'audit'        => false,
+					'offense'      => false,
+					'audit_params' => [],
+					'key'          => $eventKey,
+				];
+			}
+			return $events;
+		};
+
+		add_filter( 'shield/events/definitions', $callback );
+		try {
+			$eventsService = $this->events();
+			\Closure::bind( function () {
+				unset( $this->events );
+			}, $eventsService, \get_class( $eventsService ) )();
+
+			$events = $eventsService->getEvents();
+			$this->assertSame( 'warning', $events[ 'test_filter_level_alert' ][ 'level' ] ?? '' );
+			$this->assertSame( 'info', $events[ 'test_filter_level_debug' ][ 'level' ] ?? '' );
+			$this->assertSame( 'notice', $events[ 'test_filter_level_unknown' ][ 'level' ] ?? '' );
+		}
+		finally {
+			remove_filter( 'shield/events/definitions', $callback );
+		}
+	}
 }

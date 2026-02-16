@@ -302,9 +302,6 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	private function getColumnContent_SeverityIcon() :string {
 		$level = $this->getColumnContent_Level();
 		$levelDetails = [
-							'alert'   => [
-								'icon' => 'x-octagon',
-							],
 							'warning' => [
 								'icon' => 'exclamation-triangle',
 							],
@@ -314,12 +311,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 							'info'    => [
 								'icon' => 'info-circle',
 							],
-							'debug'   => [
-								'icon' => 'question-diamond',
-							],
-						][ $level ];
-		return sprintf( '<div class="severity-%s severity-icon">%s</div>', $level,
-			self::con()->svgs->raw( $levelDetails[ 'icon' ] )
+						];
+		$displayLevel = isset( $levelDetails[ $level ] ) ? $level : 'notice';
+		return sprintf( '<div class="severity-%s severity-icon">%s</div>', $displayLevel,
+			self::con()->svgs->raw( $levelDetails[ $displayLevel ][ 'icon' ] )
 		);
 	}
 }

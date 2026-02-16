@@ -37,7 +37,7 @@ class StringsOptions {
 				$summary = __( 'Logging Level For DB-Based Logs', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Specify the logging levels when using the local database.', 'wp-simple-firewall' ),
-					__( "Debug and Info logging should only be enabled when investigating specific problems.", 'wp-simple-firewall' ),
+					__( 'Info logging should only be enabled when investigating specific problems.', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
 						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
