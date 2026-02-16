@@ -62,6 +62,7 @@ class TranslationDownloadControllerTest extends BaseUnitTest {
 
 		$this->assertTrue( \method_exists( $controller, 'enqueueLocaleForDownload' ) );
 		$this->assertTrue( \method_exists( $controller, 'processQueue' ) );
+		$this->assertTrue( \method_exists( $controller, 'queueStaleCachedLocalesForDownload' ) );
 		$this->assertTrue( \method_exists( $controller, 'getLocaleMoFilePath' ) );
 		$this->assertTrue( \method_exists( $controller, 'isLocaleAvailable' ) );
 	}

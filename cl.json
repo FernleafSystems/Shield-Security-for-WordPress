@@ -97,7 +97,21 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1771258000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Automatic Translations Download.",
+            "description": [
+              "Fixed the automatic download of translation files."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "21.0": {
     "version":     "21.0",

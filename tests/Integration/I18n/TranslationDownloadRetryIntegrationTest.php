@@ -276,4 +276,229 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertCount( 1, $failed );
 		$this->assertSame( 'invalid_file', $failed[ 0 ][ 'meta' ][ 'audit_params' ][ 'reason' ] ?? '' );
 	}
+
+	public function testDailyRefreshQueuesStaleLocaleWithoutDownload() :void {
+		$controller = $this->controller();
+		$locale = 'de_DE';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+		Services::WpFs()->putFileContent( $path, 'daily-refresh-local-v1' );
+		$this->addCfg( $controller, 'queue', [] );
+
+		$listCalls = 0;
+		$downloadCalls = 0;
+		$remoteHash = \hash( 'sha256', 'daily-refresh-remote-v2' );
+
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls, &$downloadCalls, $locale, $remoteHash ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => [
+						$locale => [
+							'hash'      => $remoteHash,
+							'hash_type' => 'sha256',
+						],
+					],
+				] ) );
+			}
+			if ( \str_contains( $url, '/translations/download' ) ) {
+				$downloadCalls++;
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->queueStaleCachedLocalesForDownload();
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+			$this->clearLocaleMoFile( $path );
+		}
+
+		$this->assertSame( 1, $listCalls );
+		$this->assertSame( 0, $downloadCalls );
+		$this->assertContains( $locale, $controller->getQueue() );
+	}
+
+	public function testDailyRefreshSkipsMatchingHash() :void {
+		$controller = $this->controller();
+		$locale = 'fr_FR';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+		$content = 'daily-refresh-match';
+		Services::WpFs()->putFileContent( $path, $content );
+		$this->addCfg( $controller, 'queue', [] );
+
+		$httpStub = function ( $pre, $args, $url ) use ( $locale, $content ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => [
+						$locale => [
+							'hash'      => \hash( 'sha256', $content ),
+							'hash_type' => 'sha256',
+						],
+					],
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->queueStaleCachedLocalesForDownload();
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+			$this->clearLocaleMoFile( $path );
+		}
+
+		$this->assertNotContains( $locale, $controller->getQueue() );
+	}
+
+	public function testDailyRefreshSkipsMissingLocalFile() :void {
+		$controller = $this->controller();
+		$locale = 'es_ES';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+		$this->addCfg( $controller, 'queue', [] );
+
+		$httpStub = function ( $pre, $args, $url ) use ( $locale ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => [
+						$locale => [
+							'hash'      => \hash( 'sha256', 'remote-only' ),
+							'hash_type' => 'sha256',
+						],
+					],
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->queueStaleCachedLocalesForDownload();
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+		}
+
+		$this->assertNotContains( $locale, $controller->getQueue() );
+	}
+
+	public function testDailyRefreshSkipsUnsupportedHashType() :void {
+		$controller = $this->controller();
+		$locale = 'nl_NL';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+		Services::WpFs()->putFileContent( $path, 'daily-refresh-local' );
+		$this->addCfg( $controller, 'queue', [] );
+
+		$httpStub = function ( $pre, $args, $url ) use ( $locale ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => [
+						$locale => [
+							'hash'      => \hash( 'sha256', 'daily-refresh-remote' ),
+							'hash_type' => 'not-a-real-algo',
+						],
+					],
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->queueStaleCachedLocalesForDownload();
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+			$this->clearLocaleMoFile( $path );
+		}
+
+		$this->assertNotContains( $locale, $controller->getQueue() );
+	}
+
+	public function testDailyRefreshSkipsOnMetadataFailureWithoutMutatingConfig() :void {
+		$controller = $this->controller();
+		$seededLocales = [
+			'it_IT' => [ 'hash' => 'seeded-hash', 'hash_type' => 'sha256', ],
+		];
+		$seededQueue = [ 'it_IT' ];
+		$seededLastFetchAt = \time() - 120;
+
+		$this->addCfg( $controller, 'locales', $seededLocales );
+		$this->addCfg( $controller, 'queue', $seededQueue );
+		$this->addCfg( $controller, 'last_fetch_at', $seededLastFetchAt );
+
+		$httpStub = function ( $pre, $args, $url ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 1,
+					'locales'    => [],
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->queueStaleCachedLocalesForDownload();
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+		}
+
+		$this->assertSame( $seededLocales, $controller->getCachedLocales() );
+		$this->assertSame( $seededQueue, $controller->getQueue() );
+		$this->assertSame( $seededLastFetchAt, $controller->cfg()[ 'last_fetch_at' ] ?? 0 );
+	}
+
+	public function testDailyRefreshQueueDeduplicatesLocale() :void {
+		$controller = $this->controller();
+		$locale = 'pt_PT';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+		Services::WpFs()->putFileContent( $path, 'daily-refresh-local' );
+		$this->addCfg( $controller, 'queue', [ $locale ] );
+
+		$httpStub = function ( $pre, $args, $url ) use ( $locale ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => [
+						$locale => [
+							'hash'      => \hash( 'sha256', 'daily-refresh-remote' ),
+							'hash_type' => 'sha256',
+						],
+					],
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->queueStaleCachedLocalesForDownload();
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+			$this->clearLocaleMoFile( $path );
+		}
+
+		$count = \array_count_values( $controller->getQueue() )[ $locale ] ?? 0;
+		$this->assertSame( 1, $count );
+	}
 }

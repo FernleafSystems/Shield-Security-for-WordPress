@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\Exceptions\{
 	AcquireMoNoCachePathException,
 	AcquireMoWriteFailedException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Translations\{
 	DownloadTranslation,
@@ -21,6 +22,7 @@ class TranslationDownloadController {
 
 	use ExecOnce;
 	use PluginControllerConsumer;
+	use PluginCronsConsumer;
 
 	private const OPT_KEY = 'translation_config';
 	private const DOWNLOAD_COOLDOWN = 600;
@@ -33,6 +35,7 @@ class TranslationDownloadController {
 
 	protected function run() {
 		$this->scheduleCrons();
+		$this->setupCronHooks();
 	}
 
 	private function scheduleCrons() :void {
@@ -52,6 +55,23 @@ class TranslationDownloadController {
 				// schedule the next download to align with the end of the cooldown window.
 				$timeTilNextDownload = \max( 0, self::DOWNLOAD_COOLDOWN - ( $now - ( $this->cfg()[ 'last_download_at' ] ?? 0 ) ) );
 				wp_schedule_single_event( $now + $timeTilNextDownload + 10, $localesDownload );
+			}
+		}
+	}
+
+	public function runDailyCron() {
+		$this->queueStaleCachedLocalesForDownload();
+	}
+
+	public function queueStaleCachedLocalesForDownload() :void {
+		$available = $this->getAvailableLocales();
+		foreach ( \array_keys( $available ) as $locale ) {
+			$localeData = $this->getLocaleMeta( $available, $locale );
+			if ( \is_array( $localeData ) && $this->getLocaleMoFilePath( $locale ) !== null ) {
+				[ 'hash' => $remoteHash, 'hash_type' => $hashType ] = $localeData;
+				if ( !\hash_equals( $this->calculateLocalHash( $locale, $hashType ), $remoteHash ) ) {
+					$this->enqueueLocaleForDownload( $locale );
+				}
 			}
 		}
 	}
@@ -77,14 +97,7 @@ class TranslationDownloadController {
 
 				if ( \is_array( $localeData ) ) {
 					[ 'hash' => $remoteHash, 'hash_type' => $hashType ] = $localeData;
-					$localPath = $this->getLocaleMoFilePath( $locale );
-					$localHash = '';
-					if ( $localPath !== null ) {
-						$localContent = Services::WpFs()->getFileContent( $localPath );
-						if ( !empty( $localContent ) ) {
-							$localHash = \hash( $hashType, $localContent );
-						}
-					}
+					$localHash = $this->calculateLocalHash( $locale, $hashType );
 
 					if ( !\hash_equals( $localHash, $remoteHash )
 						 && !$this->acquireMoWithSingleRefreshRetry( $locale, $remoteHash, $hashType ) ) {
@@ -118,12 +131,25 @@ class TranslationDownloadController {
 		$localeData = $locales[ $locale ] ?? null;
 		return ( \is_array( $localeData )
 				 && !empty( $localeData[ 'hash' ] ) && \is_string( $localeData[ 'hash' ] )
-				 && !empty( $localeData[ 'hash_type' ] ) && \is_string( $localeData[ 'hash_type' ] ) )
+				 && !empty( $localeData[ 'hash_type' ] ) && \is_string( $localeData[ 'hash_type' ] )
+				 && \in_array( $localeData[ 'hash_type' ], \hash_algos(), true ) )
 			? [
 				'hash'      => $localeData[ 'hash' ],
 				'hash_type' => $localeData[ 'hash_type' ],
 			]
 			: null;
+	}
+
+	private function calculateLocalHash( string $locale, string $hashType ) :string {
+		$localHash = '';
+		$localPath = $this->getLocaleMoFilePath( $locale );
+		if ( $localPath !== null ) {
+			$localContent = Services::WpFs()->getFileContent( $localPath );
+			if ( !empty( $localContent ) ) {
+				$localHash = \hash( $hashType, $localContent );
+			}
+		}
+		return $localHash;
 	}
 
 	private function acquireMoWithSingleRefreshRetry( string $locale, string $remoteHash, string $hashType ) :bool {
