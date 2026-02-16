@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-05 10:40+0000\n"
-"PO-Revision-Date: 2025-12-05 10:40+0000\n"
+"POT-Creation-Date: 2026-02-16 11:48+0000\n"
+"PO-Revision-Date: 2026-02-16 11:48+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Käytössä; \"N\" = Pois käytöstä"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Vakio <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Vakio <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s kirjautui juuri sivustolle %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s ja %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s estää kaiken automaattisen botti-SPAMin käyttämällä %2$s-järjestelmäämme, eksklusiivista, näkymätöntä, GDPR-yhteensopivaa bottien tunnistusteknologiaa."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "%1$s-botin vähimmäispistemäärä on melko alhainen (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s ei onnistunut määrittämään, latautuuko %2$s JS oikein sivustollasi."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s:llä on saatavilla integraatio käyttämäsi kolmannen osapuolen lisäosan lomakkeiden suojaamiseksi: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s on havainnut, että tällä hetkellä asennetulla %2$s-lisäosan versiolla on tunnettuja tietoturva-aukkoja."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s on onnistuneesti valinnut seuraavan sijainnin väliaikaishakemistonsa luomiseen: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s on %2$s-yksinoikeuspalvelu, joka suojaa wp-config.php-tiedostoasi."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s on omistettu sähköpostin toimituspalvelu %2$s:ltä."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s on eksklusiivinen bottien tunnistusteknologia %2$s:ltä, joka on näkymätön vierailijoille ja poistaa tarpeen käyttäjävuorovaikutukselle kirjautumis-CAPTCHAjen kanssa."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s on poistettu käytöstä, kun vähimmäispistemääräksi on asetettu %2$s."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s on %2$s:n yksinomainen bottien tunnistusteknologiamme, joka poistaa tarpeen näkyville CAPTCHAille ja vastaavanlaisille vierailijoiden haasteille."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s merkitsi tämän kommentin tilaan \"%2$s\"."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s käytetty %2$s:sta (käyttämättä: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d kielialuetta saatavilla."
+
+msgid "%d locale(s) in queue."
+msgstr "%d kielialuetta jonossa."
+
+msgid "%d translation is queued for download"
+msgstr "%d käännös on jonossa latausta varten"
+
+msgid "%d translations are queued for download"
+msgstr "%d käännöstä on jonossa latausta varten"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON-koodattu)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA-palveluntarjoaja käytössä"
 
 msgid "%s API Token Missing."
 msgstr "%s API-tunnus puuttuu."
+
+msgid "%s Anti-Spam"
+msgstr "%s Anti-SPAM"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot-teknologia"
 
 msgid "%s Auto-Unblock"
 msgstr "%s Automaattinen eston poisto"
@@ -37,29 +115,92 @@ msgstr "%s Automaattinen eston poisto"
 msgid "%s Bot Check Failed."
 msgstr "%s Bot-tarkistus epäonnistui."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "%s-bottien tunnistus ei suojaa brute force -hyökkäyksiä vastaan WordPress-kirjautumisessasi."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "%s-bottien tunnistus ei suojaa WordPress-unohdetun salasanan lomakettasi."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "%s-bottien tunnistus ei suojaa WordPress-rekisteröintiäsi."
+
+msgid "%s Bot Minimum Score"
+msgstr "%s Bot-vähimmäispistemäärä"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s-bottipistemäärä (prosentti)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "%s-bottihaasteen monimutkaisuus on liian alhainen - harkitse sen nostamista."
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s-tarkistus virheellinen (moduuli)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%s kommentti-SPAM-suojaus"
+
+msgid "%s Complexity"
+msgstr "%s-monimutkaisuus"
+
+msgid "%s Deactivated"
+msgstr "%s poistettu käytöstä"
 
 msgid "%s Debug Information"
 msgstr "%s virheenkorjaustiedot"
 
+msgid "%s Emails"
+msgstr "%s-sähköpostit"
+
+msgid "%s Fail"
+msgstr "%s epäonnistui"
+
+msgid "%s Features"
+msgstr "%s-ominaisuudet"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s Firewall on estänyt pyynnön WordPress-sivustollesi."
+
+msgid "%s For Logins"
+msgstr "%s kirjautumisille"
+
+msgid "%s Free Trial"
+msgstr "%s ilmainen kokeilujakso"
 
 msgid "%s Home"
 msgstr "%s Koti"
 
+msgid "%s Home Page"
+msgstr "%s-kotisivu"
+
+msgid "%s IP Reputation Score"
+msgstr "%s IP-mainepisteet"
+
+msgid "%s Info"
+msgstr "%s Info"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s Älykäs IP-esto"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s kirjautui juuri sisään kohteeseen %s"
+msgid "%s Issue"
+msgstr "%s ongelma"
+
+msgid "%s Issues"
+msgstr "%s ongelmaa"
+
+msgid "%s License Cleared"
+msgstr "%s-lisenssi tyhjennetty"
+
+msgid "%s License Management"
+msgstr "%s-lisenssinhallinta"
 
 msgid "%s Login Verification"
 msgstr "%s kirjautumisvahvistus"
 
 msgid "%s Lookup"
 msgstr "%s-haku"
+
+msgid "%s Option Key"
+msgstr "%s-asetusavain"
 
 msgid "%s Plugin Badge"
 msgstr "%s Plugin-merkki"
@@ -70,6 +211,24 @@ msgstr "%s-pluginin määritys"
 msgid "%s Plugin options updated successfully."
 msgstr "%s-lisäosan asetukset päivitetty onnistuneesti."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s-lisäosa – sivuston vähimmäisvaatimukset eivät täyty"
+
+msgid "%s Premium Security"
+msgstr "%s Premium-turvallisuus"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro on saatavilla verkkokaupastamme."
+
+msgid "%s Pro store"
+msgstr "%s Pro -kauppa"
+
+msgid "%s Registration"
+msgstr "%s-rekisteröinti"
+
+msgid "%s Scanners."
+msgstr "%s-skannerit."
+
 msgid "%s Security Insights"
 msgstr "%s-turvallisuusanalyysit"
 
@@ -79,14 +238,35 @@ msgstr "%s-tietoturvarajoitukset otettu käyttöön"
 msgid "%s Status Report"
 msgstr "%s-tilaraportti"
 
+msgid "%s Success"
+msgstr "%s onnistui"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s-käyttäjän 2FA-palveluntarjoaja aktivoitu"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s-käyttäjän 2FA: Onko aktiivinen"
+
 msgid "%s Website Security Report"
 msgstr "%s Verkkosivuston turvallisuusraportti"
 
-msgid "%s and %s"
-msgstr "%s ja %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "%s-bottien tunnistus ei ole käynnissä, koska vähimmäispistemääräksi on asetettu 0."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "%s-bottien tunnistus ei ole käynnissä, koska botteja ei tällä hetkellä haasteta."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s voi myös skannata lisäosasi ja teemasi tunnettujen haavoittuvuuksien varalta."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s voi automaattisesti integroitua kolmannen osapuolen lisäosiin."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s voi automaattisesti suojata kolmannen osapuolen kirjautumis- ja rekisteröintilomakkeita botteja vastaan."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s ei voinut havaita yhtään IP-osoitetta. Tämä edustaa kriittistä webhotellin määritysongelmaa."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s luo riskiarvion erittäin nopeasti, kun se seuraa haitallisia vierailijoita monilla eri alueilla."
@@ -100,29 +280,41 @@ msgstr "%s päivä"
 msgid "%s days"
 msgstr "%s päivää"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "%s-tunnistusta ei sovelleta, koska et ole valinnut yhtään suojattavaa lomaketta, kuten kirjautumis- tai rekisteröintilomaketta."
+
 msgid "%s directory"
 msgstr "%s-hakemisto"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s tekee paljon, joten voi olla vaikea tietää, mistä aloittaa."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s ei normaalisti skannaa kirjautuneiden tai rekisteröityneiden käyttäjien kommentteja."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "%s-tapahtumamäärittelyt ovat tyhjiä tai eivät ole oikeassa muodossa."
 
 msgid "%s extension is unavailable."
 msgstr "%s-laajennus ei ole käytettävissä."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "%s for WordPress v20 -esittely"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s on jo tehnyt tarvittavan toimenpiteen pyynnön estämiseksi."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s:lla on saatavilla integraatio käyttämäsi kolmannen osapuolen lisäosan lomakkeiden suojaamiseksi: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s on havainnut, että tällä hetkellä asennetusta %s-lisäosan versiosta on tunnettuja tietoturvahaavoittuvuuksia."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s on onnistuneesti valinnut seuraavan sijainnin väliaikaishakemistonsa luomiseen: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s on %s:n yksinomainen palvelu, joka suojaa wp-config.php-tiedostoasi."
-
 msgid "%s is a child of another theme."
 msgstr "%s on toisen teeman aliteema."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s on tehokas WordPress-turvapalvelu, joka on käytössä yli 40 000+ WordPress-sivustolla."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s on poistettu käytöstä, koska vähimmäisbotti-pistemäärärajaa ei ole annettu."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s on käytössä vähimmäisbotti-pistemäärärajalla."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s ei tällä hetkellä suojaa sivustoasi."
@@ -130,14 +322,26 @@ msgstr "%s ei tällä hetkellä suojaa sivustoasi."
 msgid "%s is not protecting your site"
 msgstr "%s ei suojaa sivustoasi"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s on WordPress-haitallisten bottien tunnistusteknologiamme."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s on yksinomainen AI-pohjainen haittaohjelmien skannaus- ja tunnistusmoottori."
 
 msgid "%s is protected against tampering."
 msgstr "%s on suojattu muutoksia vastaan."
 
+msgid "%s isn't activated on this site."
+msgstr "%s ei ole aktivoitu tällä sivustolla."
+
+msgid "%s isn't installed on this site."
+msgstr "%s ei ole asennettu tälle sivustolle."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s ei ole suojattu muutoksia vastaan."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s ei suojaa WP-kommenttejasi botti-SPAMia vastaan."
 
 msgid "%s item processed"
 msgstr "%s kohde käsitelty"
@@ -145,8 +349,11 @@ msgstr "%s kohde käsitelty"
 msgid "%s items processed"
 msgstr "%s kohdetta käsitelty"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s merkitsi tämän kommentin tilaan \"%s\"."
+msgid "%s license check failed."
+msgstr "%s-lisenssitarkistus epäonnistui."
+
+msgid "%s license check was successful."
+msgstr "%s-lisenssitarkistus onnistui."
 
 msgid "%s minute"
 msgstr "%s minuutti"
@@ -172,8 +379,8 @@ msgstr "%s rikkomusta"
 msgid "%s offenses until block"
 msgstr "%s rikkomusta estoon asti"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s tarjoaa sähköpostin, Yubikeyn, Google Authenticatorin ja U2F:n."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s tarjoaa sähköpostin, Yubikeyn, Google Authenticatorin ja Passkeyt."
 
 msgid "%s options and modules"
 msgstr "%s-asetukset ja -moduulit"
@@ -181,11 +388,56 @@ msgstr "%s-asetukset ja -moduulit"
 msgid "%s per day"
 msgstr "%s päivässä"
 
+msgid "%s plugin activated"
+msgstr "%s-lisäosa aktivoitu"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s-lisäosaa ei voitu aktivoida"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s pluginia ei voitu poistaa käytöstä"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s-lisäosaa ei voitu asentaa"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s-lisäosaa ei voitu päivittää"
+
+msgid "%s plugin deactivated"
+msgstr "%s-lisäosa poistettu käytöstä"
+
+msgid "%s plugin installed"
+msgstr "%s-lisäosa asennettu"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s plugin on asennettu, mutta ei aktivoitu."
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s plugin on asennettu, mutta ei aktiivinen."
+
+msgid "%s plugin needs to sync."
+msgstr "%s-lisäosan on synkronoitava."
+
+msgid "%s plugin not detected in last sync."
+msgstr "%s pluginia ei havaittu viimeisimmässä synkronoinnissa."
+
+msgid "%s plugin updated"
+msgstr "%s-lisäosa päivitetty"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s plugin-versiot eivät ole synkronoituja."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s suojaa sivuston vierailijoita ja pyrkii estämään mahdolliset hakkeroinnit samalla kun se valvoo verkkoliikennettä ja tiedostojärjestelmän muutoksia."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s tarjoaa sisäänrakennettuja integraatioita kolmannen osapuolen lisäosien lomakkeiden suojaamiseksi SPAM-botteja vastaan."
+
 msgid "%s scan remaining."
 msgstr "%s skannaus jäljellä."
+
+msgid "%s scans cannot execute."
+msgstr "%s-skannauksia ei voida suorittaa."
 
 msgid "%s scans remaining."
 msgstr "%s skannausta jäljellä."
@@ -205,14 +457,14 @@ msgstr "%s kertaa"
 msgid "%s tools and features"
 msgstr "%s työkalut ja ominaisuudet"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s käytetty %s:sta (käyttämättä: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s yrittää tehdä tämän automaattisesti ja vaikka se toimii 99 % ajasta, joskus outo webhosting-kokoonpano voi sotkea sen hieman."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s käyttää säännöllisesti päivitettävää sanakirjaa yleisesti käytetystä SPAM-sisällöstä estääkseen tämäntyyppisen SPAM-sisällön."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "%s-versio sivustolla ei vastaa tämän palvelimen versiota."
 
 msgid "%s was added to your profile."
 msgstr "%s lisättiin profiiliisi."
@@ -223,11 +475,26 @@ msgstr "%s poistettiin profiilistasi."
 msgid "%s was successfully added to your account."
 msgstr "%s lisättiin onnistuneesti tilillesi."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s skannaa automaattisesti kolmannen osapuolen lisäosasi tarkistaakseen, onko sisäänrakennettu integraatio saatavilla."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s viivästyttää päivityksiä, kunnes uusi päivitys on ollut saatavilla asetetun päivien määrän ajan."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s havaitsee botit, jotka yrittävät kirjautua sivustollesi haastamatta laillisia käyttäjiäsi."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s havaitsee botit, jotka yrittävät lähettää kommentti-SPAMia sivustollesi haastamatta laillisia vierailijoitasi."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s suojaa WordPress-lomakkeet boteilta rajoittamalla niitä vastaan tehtyjä yrityksiä silentCAPTCH-teknologiamme avulla."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "%s:n MainWP-integraatio ei ole käytössä tälle sivustolle."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "%s:n sääntömoottori ei ole käynnissä."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "%s:n Security Admin -järjestelmä tarjoaa ylimääräisen turvallisuustason normaaliin WordPress-ylläpitoon."
@@ -238,11 +505,14 @@ msgstr "%s:n automaattinen IP-esto lieventää heidän hyökkäyksiään estäm�
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s:n suojaukset on tällä hetkellä poistettu käytöstä, joten täällä tehdyt muutokset eivät tule voimaan ennen kuin se otetaan uudelleen käyttöön."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s, perustajan esittely"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "%sv1-rekisteröinti"
+
+msgid "%sv2 Registration"
+msgstr "%sv2-rekisteröinti"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ Siirry Pro:hon ↑"
@@ -273,6 +543,9 @@ msgstr "(kun lukitustila on poistettu käytöstä, IP-osoite poistetaan automaat
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... ja %s lisää"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/-hakemistoa ei skannata."
@@ -397,9 +670,6 @@ msgstr "Seuraavien tiedostotyyppien 404-virheet eivät laukaise rikkomusta"
 msgid "5-minute"
 msgstr "5 minuuttia"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 päivää"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Skannataan</strong> WordPressin ydintiedostojasi ja -hakemistojasi muutosten ja uusien tiedostojen varalta."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "%s-bottitarkistus suoritettiin vierailijalle, mutta bottien esto -asetus on poistettu käytöstä asetuksissa."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "Tiedostovertailua ei voida luoda, koska meillä ei ole virallista tiedostoa, johon verrata."
@@ -445,6 +718,9 @@ msgstr "Korkean tason yleiskatsaus WordPress-palvelimesi ohjelmistosta."
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Korkean tason yleiskatsaus WordPressin päivitystilanteesta."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Lisenssi on jo aktiivinen. Käytä --force aktivoidaksesi uudelleen."
+
 msgid "A light-touch security profile"
 msgstr "Kevyt turvallisuusprofiili"
 
@@ -456,6 +732,9 @@ msgstr "Luettelo pyyntöpoluista, jotka eivät koskaan laukaise rikkomusta."
 
 msgid "A login to your WordPress account just occurred"
 msgstr "WordPress-tilillesi kirjauduttiin juuri sisään"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "%s:ään on tehty paljon työtä, ja tarvitsemme apuasi sen tunnetuksi tekemisessä. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "Uusi kertakäyttösalasana lähetettiin sähköpostiosoitteeseesi."
@@ -475,8 +754,8 @@ msgstr "Vankka turvallisuusasento"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Pistemäärä '100' tarkoittaisi, että se on lähes varmasti hyvä, pistemäärä '0' tarkoittaa, että se on erittäin todennäköisesti paha botti."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "silentCAPTCHA-bottitarkistus suoritettiin vierailijalle, mutta bottien esto -vaihtoehto on poistettu käytöstä asetuksissa."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Turvallisuushälytys on luotu. Tarkista alla olevat ongelmat ja ryhdy toimiin tarvittaessa."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "WordPress-tilillesi on juuri kirjauduttu sisään onnistuneesti."
@@ -498,6 +777,12 @@ msgstr "AI-haittaohjelmaskanneri, automaattinen tiedostojen korjaus, WP Config -
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API-avain ei voi olla tyhjä."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "API-avain vaaditaan aktivointia varten. Käytä --api-key=AVAIMESI"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "Sovellussalasanan tunnistautuminen - virheellinen sähköposti"
@@ -523,8 +808,8 @@ msgstr "Hylättyjä lisäosia löytyi"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Hylätyt WordPress.org-lisäosat"
 
-msgid "Absolutely"
-msgstr "Ehdottomasti"
+msgid "About %s for WordPress"
+msgstr "Tietoja %s for WordPress -lisäosasta"
 
 msgid "Accept Changes"
 msgstr "Hyväksy muutokset"
@@ -571,20 +856,23 @@ msgstr "Toiminnot ja Info"
 msgid "Activate"
 msgstr "Aktivoi"
 
+msgid "Activate %s"
+msgstr "Aktivoi %s"
+
+msgid "Activate %s License"
+msgstr "Aktivoi %s-lisenssi"
+
 msgid "Activate Only"
 msgstr "Vain aktivoi"
+
+msgid "Activate Pro License"
+msgstr "Aktivoi Pro-lisenssi"
 
 msgid "Activate Rule"
 msgstr "Aktivoi sääntö"
 
-msgid "Activate Shield"
-msgstr "Aktivoi Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "Aktivoi ShieldPRO-lisenssi"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "Aktivoi ShieldPRO-lisenssisi"
+msgid "Activate Your %s License"
+msgstr "Aktivoi %s-lisenssisi"
 
 msgid "Activate Your White Label Settings"
 msgstr "Aktivoi White Label -asetuksesi"
@@ -673,14 +961,14 @@ msgstr "Lisätyt taulut"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Lisää IP-estolistoja on saatavilla päivitetyllä tililla."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "Säädä %s-haasteen monimutkaisuutta"
+
 msgid "Adjust Scan Results Display"
 msgstr "Säädä skannaustulosten näyttöä"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "Säädä HTTP-turvallisuusotsakkeiden käyttöönottoa"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "Säädä silentCAPTCHA-haasteen monimutkaisuutta"
 
 msgid "Admin Access Login"
 msgstr "Ylläpidon kirjautuminen"
@@ -751,17 +1039,26 @@ msgstr "Palvelinta edellä"
 msgid "Alert"
 msgstr "Hälytys"
 
+msgid "Alert Report Generated"
+msgstr "Hälytysraportti luotu"
+
+msgid "Alert Report Generated."
+msgstr "Hälytysraportti luotu."
+
 msgid "Alert Reports Frequency"
 msgstr "Hälytysraporttien tiheys"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Hälytykset lisäosien/teemojen haavoittuvuuksista. Shield voi sitten päivittää automaattisesti, kun päivityksiä tulee saataville."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Hälytykset lisäosa-/teemahaavoittuvuuksista. %s voi automaattisesti ottaa käyttöön päivityksen niiden tullessa saataville."
 
 msgid "Algorithm not supported"
 msgstr "Algoritmia ei tueta"
 
-msgid "Align Shield"
-msgstr "Kohdista Shield"
+msgid "Align %s"
+msgstr "Tasaa %s"
+
+msgid "All Clear"
+msgstr "Kaikki kunnossa"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Kaikki MFA-palveluntarjoajat poistettu käyttäjältä, jonka ID on %s."
@@ -784,8 +1081,8 @@ msgstr "Kaikki pääsy tälle verkkosivustolle on siksi rajoitettu."
 msgid "All access to your site is blocked."
 msgstr "Kaikki pääsy sivustollesi on estetty."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Kaikki yritykset vahvistaa Shield Pro -lisenssi ovat epäonnistuneet."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "Kaikki yritykset vahvistaa %s Pro -lisenssi ovat epäonnistuneet."
 
 msgid "All available plugin updates have been applied."
 msgstr "Kaikki saatavilla olevat lisäosapäivitykset on asennettu."
@@ -795,6 +1092,9 @@ msgstr "Kaikki saatavilla olevat teemapäivitykset on asennettu."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Kaikkia merkkejä käsitellään kirjainkoosta riippumattomina."
+
+msgid "All clear"
+msgstr "Kaikki kunnossa"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Kaikkien mukautettujen tapahtuma-avainten on oltava merkkijonoja, pieniä kirjaimia, pituudeltaan 10-50, etuliitteellä 'custom_', ja sisältää vain kirjaimia ja alaviivoja."
@@ -979,8 +1279,8 @@ msgstr "Rikkomus rekisteröidään IP-osoitetta vastaan joka kerta, kun vieraili
 msgid "An unsupported profile was selected"
 msgstr "Valittiin tukematon profiili"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Shield-lisäosalle on saatavilla päivitys."
+msgid "An upgrade is available for the %s plugin."
+msgstr "%s pluginille on saatavilla päivitys."
 
 msgid "Analyse & Fix"
 msgstr "Analysoi & korjaa"
@@ -1054,8 +1354,8 @@ msgstr "Kuka tahansa voi rekisteröityä"
 msgid "Anyone can register"
 msgstr "Kuka tahansa voi rekisteröityä"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Kuka tahansa voi rekisteröityä -asetus muutettu: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Kuka tahansa voi rekisteröityä -asetus muutettu: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "Sovellussalasanat poistettu käytöstä"
@@ -1093,8 +1393,8 @@ msgstr "Käytä nopeusrajoituksia suurivolyymisiin pyyntöihin."
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "CSP-otsakkeita käytettäessä sivustosi toiminta vierailijoille saattaa muuttua, joten emme tarjoa suoria suosituksia tässä osiossa."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Onko Shield Securityn rajoitukset käytössä?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "Ovatko %s:n rajoitukset käytössä?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "Onko WordPressin pysyvät linkit käytössä."
@@ -1108,11 +1408,11 @@ msgstr "Oletko varma, että haluat poistaa tämän IP-säännön?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Oletko varma, että haluat säilyttää tiedostomuutokset?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "Oletko varma, että haluat poistaa ShieldPRO-lisenssin?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "Oletko varma, että haluat poistaa %s-lisenssin?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Oletko varma, että haluat palauttaa Shield-lisäosan oletusasetuksiin?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "Oletko varma, että haluat palauttaa %s-lisäosan oletusasetukset?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Oletko varma, että haluat palauttaa alkuperäisen tiedoston sisällön?"
@@ -1132,11 +1432,11 @@ msgstr "Kuten aina, käytät ja luotat tähän palveluun omalla vastuullasi."
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Kun jokainen ongelma ratkaistaan, kokonaispistemäärä paranee, jopa 100 %:iin."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Pyynnöstäsi %s ilmoittaa sinulle onnistuneesta %s-kirjautumisesta hallinnoimallesi WordPress-sivustolle."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Pyynnöstäsi %1$s ilmoittaa sinulle onnistuneesta %2$s-kirjautumisesta hallitsemallesi WordPress-sivustolle."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Heti kun yhteensopiva lisäosa havaitaan, Shield ottaa sisäänrakennetun integraation automaattisesti käyttöön."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Heti kun yhteensopiva lisäosa havaitaan, %s ottaa automaattisesti käyttöön sisäänrakennetun integraation."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Heti kun muutoksia havaitaan missä tahansa valituissa tiedostoissa, sisältö voidaan tutkia ja palauttaa."
@@ -1155,9 +1455,6 @@ msgstr "Vähintään 1 lisäosistasi tai teemoistasi näyttää olevan muokattu.
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Vähintään 1 vaihtoehto on annettava ja oletuksena on käyttäjäprofiilisivu WordPressin ylläpitoalueella."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Vähintään 1 turvallisuusraportti on luotu sivustollesi."
 
 msgid "At least two records are required to merge."
 msgstr "Yhdistämiseen vaaditaan vähintään kaksi tietuetta."
@@ -1198,8 +1495,8 @@ msgstr "Yrityksiä jäljellä: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Yrittää automaattisesti korjata tiedostot, jotka on muutettu tai jotka on tartunnan saanut haittaohjelmilla."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Shield Pro -lisenssin vahvistusyritys on juuri epäonnistunut."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "Yritykset vahvistaa %s Pro -lisenssi ovat juuri epäonnistuneet."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Audit Trail -viesti, joka voi sisältää sähköpostiosoitteita"
@@ -1408,8 +1705,8 @@ msgstr "Havaitse ja korjaa automaattisesti haavoittuvat ja epäilyttävät tiedo
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Tunnista ja ota automaattisesti käyttöön kolmannen osapuolen integraatiot niiden tullessa saataville"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Noudata automaattisesti Shieldin olemassa olevia valkoisen listan sääntöjä ja poikkeuksia."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Noudata automaattisesti %s:n olemassa olevia valkoisen listan sääntöjä ja poikkeuksia."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Tuo asetukset automaattisesti ja ota käyttöön konfiguraatiot koko verkostossasi."
@@ -1504,6 +1801,9 @@ msgstr "Saa hälytyksiä tärkeistä muutoksista millä tahansa ylläpitäjätil
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Saa hälytyksiä lisäosista ja teemoista, joissa on tunnettuja tietoturvahaavoittuvuuksia"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Saa hälytys, kun %s plugin poistetaan käytöstä"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Saa hälytys, kun Shield-lisäosa poistetaan käytöstä"
 
@@ -1528,11 +1828,11 @@ msgstr "Beta-pääsy"
 msgid "Block %s"
 msgstr "Estä %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "Estä 100 % botti-kommentti-SPAM silentCAPTCHA:lla"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "Estä 100%% bottien kommentti-SPAM %s:llä"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Estä 99,9 %% kaikesta WordPress-kommenttiroskapostista käyttämällä silentCAPTCHA:a."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Estä 99,9 %% kaikesta WordPress-kommentti-SPAMista käyttämällä %s:ää."
 
 msgid "Block Anon REST API"
 msgstr "Estä anonyymi REST API"
@@ -1668,9 +1968,6 @@ msgstr "Estetty SPAM-kommentti botilta."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "Estetty SPAM-kommentti, joka ei läpäissyt AntiBot-testejä."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "Estetty SPAM-kommentti, joka ei läpäissyt reCAPTCHA-testiä."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Estetty salasanan päivitysyritys, joka ei täyttänyt käytäntövaatimuksia."
@@ -1819,8 +2116,8 @@ msgstr "Brute force -kirjautumissuoja"
 msgid "Brute Force Login Protection"
 msgstr "Brute force -kirjautumissuojaus"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Brute force -kirjautumissuojaus silentCAPTCHA:lla"
+msgid "Brute Force Login Protection with %s"
+msgstr "Brute force -kirjautumissuojaus %s:llä"
 
 msgid "Brute Force Protection"
 msgstr "Brute force -suojaus"
@@ -1828,8 +2125,8 @@ msgstr "Brute force -suojaus"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Brute force -liikenteen nopeusrajoitus"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "Brute force -bottihyökkäykset WordPress-kirjautumistasi vastaan havaitaan ja estetään silentCAPTCHA:lla."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "Brute force -bottihyökkäykset WordPress-kirjautumistasi vastaan havaitaan ja estetään %s:n avulla."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Brute force -kirjautumishyökkäyksiä ei estetä kirjautumisen jäähdytysjärjestelmällä."
@@ -1846,14 +2143,14 @@ msgstr "Luo mukautettuja turvallisuussääntöjä"
 msgid "Building scan items for scan: %s"
 msgstr "Rakennetaan skannauskohteet skannaukselle: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Sisäänrakennetut Shield-integraatiot"
+msgid "Built-In %s Integrations"
+msgstr "Sisäänrakennetut %s-integraatiot"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Oletuksena Shield näyttää ei-välttämättömiä ilmoituksia ylläpitoalueella ja ylläpitotyökalupalkissa."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Oletuksena %s näyttää ei-välttämättömät ilmoitukset hallinta-alueella ja ylläpitotyökalupalkissa."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Oletusarvoisesti Shield on automaattisesti määritetty suojaamaan sivustoasi lukuisilta uhkilta ja estämään huonot vierailijat ja botit ilman, että sinun tarvitsee tehdä mitään."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Oletusarvoisesti %s on automaattisesti määritetty suojaamaan sivustoasi lukuisilta uhilta ja estämään haitalliset vierailijat ja botit ilman, että sinun tarvitsee tehdä mitään."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Yhdistämällä signaalit Firewallista kaikkien muiden turvakomponenttien signaaleihin, %s rakentaa vierailijaprofiilin ajan myötä määrittääkseen, kuka on ihminen, kuka on botti ja kuka on täällä hyvässä tai pahassa tarkoituksessa."
@@ -1863,21 +2160,6 @@ msgstr "Ohitus"
 
 msgid "Bypass IP"
 msgstr "Ohita IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA epäonnistui"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA läpäisty"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA-testi epäonnistui."
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA-testi onnistui."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHAt ovat kauheita."
@@ -1990,6 +2272,9 @@ msgstr "Haaste epäonnistui"
 msgid "Challenge has expired."
 msgstr "Haaste on vanhentunut."
 
+msgid "Change"
+msgstr "Muutos"
+
 msgid "Change Detected"
 msgstr "Muutos havaittu"
 
@@ -2005,11 +2290,14 @@ msgstr "2FA-sähköpostiasetuksien muuttaminen ei ole tällä hetkellä käytett
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Varmuuskopiokoodiasetuksien muuttaminen ei ole tällä hetkellä käytettävissäsi."
 
+msgid "Check %s License"
+msgstr "Tarkista %s-lisenssi"
+
+msgid "Check For %s License"
+msgstr "Tarkista %s-lisenssi"
+
 msgid "Check License"
 msgstr "Tarkista lisenssi"
-
-msgid "Check ShieldPRO License"
-msgstr "Tarkista ShieldPRO-lisenssi"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Tarkista ja vahvista tämän tiedoston sisältö varmistaaksesi, ettei se ole haitallinen."
@@ -2044,14 +2332,14 @@ msgstr "Lapsi"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Valitse lomakkeet, joille silentCAPTCHA-bottisuojaus otetaan käyttöön."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Valitse mukautettu Shield-sivu, jos WP-kirjautumissivulla on ristiriitoja tai ongelmia 2FA:n kanssa."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Valitse mukautettu %s-sivu, jos WP-kirjautumissivulla on ristiriitoja tai ongelmia kaksivaiheisen tunnistautumisen kanssa."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Valitse lomakkeet, joille bottisuojatoimenpiteet otetaan käyttöön."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Valitse sopivin tiheys vastaanottaaksesi hälytyksiä Shieldistä aikataulusi mukaan."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Valitse sopivin tiheys vastaanottaaksesi hälytyksiä %s:stä aikataulusi mukaan."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Valitse sivutyyppi MFA-vahvistukselle"
@@ -2121,6 +2409,9 @@ msgstr "Napsauta poistaaksesi Google Authenticator -kirjautumistunnistuksen väl
 
 msgid "Click to launch plugin search modal"
 msgstr "Napsauta avataksesi lisäosan hakuikkunan"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Napsauta jättääksesi arvion WordPress.org:iin ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Napsauta nähdäksesi RAW-datan, joka lähetettäisiin"
@@ -2200,8 +2491,8 @@ msgstr "Kommentti-SPAM estetty."
 msgid "Comment SPAM Protection"
 msgstr "Kommentti-SPAM-suojaus"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Kommentti-SPAM-suojaus: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Kommentti-SPAM-suojaus: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Kommentin tila päivitetty"
@@ -2269,6 +2560,12 @@ msgstr "Asetukset"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Käyttäjän 2FA-asetusten asetussivut"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Määritystä ei vaadita, koska vain 1 erillinen IP-osoite havaittiin."
+
+msgid "Configure"
+msgstr "Määritä"
+
 msgid "Configure All '%s' Options"
 msgstr "Määritä kaikki '%s' -asetukset"
 
@@ -2308,9 +2605,6 @@ msgstr "Vahvistus"
 msgid "Confirmation email will be sent to %s"
 msgstr "Vahvistussähköposti lähetetään osoitteeseen %s"
 
-msgid "Confirmation link"
-msgstr "Vahvistuslinkki"
-
 msgid "Connected"
 msgstr "Yhdistetty"
 
@@ -2329,7 +2623,7 @@ msgstr "Yhteydenottolomakkeen SPAM"
 msgid "Contact Form SPAM Checking"
 msgstr "Yhteydenottolomakkeiden SPAM-tarkistus"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
 msgstr "Yhteydenottolomakkeiden SPAM voidaan estää vain mukautetulla integraatiolla jokaiselle lomakepalveluntarjoajalle - jos lomakettasi ei tueta, ota yhteyttä tukitiimiimme."
 
 msgid "Contact Forms Integration"
@@ -2395,8 +2689,8 @@ msgstr "Koordinaatit"
 msgid "Core Reinstalled: v%s"
 msgstr "Ydin asennettu uudelleen: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Ydin päivitetty: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Ydin päivitetty: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Muodostetun käyttäjäistunnon ({{user_login}}) ydinominaisuudet ovat muuttuneet."
@@ -2443,8 +2737,8 @@ msgstr "Hakemistoa ei voitu luoda: %s"
 msgid "Couldn't create the export file."
 msgstr "Vientitiedostoa ei voitu luoda."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Shield-lisäosan tilaa ei voitu määrittää."
+msgid "Couldn't determine %s plugin status."
+msgstr "%s pluginin tilaa ei voitu määrittää."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "Pluginia ei voitu ladata tunnisteelle '%s'."
@@ -2455,11 +2749,17 @@ msgstr "Teemaa ei voitu ladata tunnisteelle '%s'."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "MU-lisäosan mallia ei voitu lukea kohteesta %s"
 
+msgid "Count"
+msgstr "Määrä"
+
 msgid "Country"
 msgstr "Maa"
 
 msgid "Country Code"
 msgstr "Maakoodi"
+
+msgid "Create %s Network"
+msgstr "Luo %s-verkko"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Luo varmuuskopiokoodi kaksivaiheiseen kirjautumiseen"
@@ -2482,9 +2782,6 @@ msgstr "Luo uusi sääntö"
 msgid "Create Report"
 msgstr "Luo raportti"
 
-msgid "Create Shield Network"
-msgstr "Luo Shield-verkosto"
-
 msgid "Create and view all your custom security rules."
 msgstr "Luo ja tarkastele kaikkia mukautettuja turvallisuussääntöjäsi."
 
@@ -2502,6 +2799,9 @@ msgstr "Polun luominen tähän poistaa käytöstä 'wp-login.php'-sivusi. Vain k
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Mukautettujen sääntöjen luominen on edistynyt ominaisuus ja hyväksyn täyden vastuun kaikista luomistani säännöistä aiheutuvista ongelmista."
+
+msgid "Critical"
+msgstr "Kriittinen"
 
 msgid "Critical File Protection"
 msgstr "Kriittisten tiedostojen suojaus"
@@ -2578,9 +2878,6 @@ msgstr "Nykyinen tiedoston sisältö"
 msgid "Current Scan"
 msgstr "Nykyinen skannaus"
 
-msgid "Current Scan Results"
-msgstr "Nykyisen skannauksen tulokset"
-
 msgid "Current Session Age (seconds)"
 msgstr "Nykyisen istunnon ikä (sekuntia)"
 
@@ -2589,9 +2886,6 @@ msgstr "Nykyinen istunto päätetty"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Nykyisen istunnon tunnuksen ikä (sekuntia)"
-
-msgid "Current Summary"
-msgstr "Nykyinen yhteenveto"
 
 msgid "Current User Sessions"
 msgstr "Nykyisen käyttäjän istunnot"
@@ -2619,9 +2913,6 @@ msgstr "Mukautettu virheenkorjaus"
 
 msgid "Custom Exclusions"
 msgstr "Mukautetut poikkeukset"
-
-msgid "Custom Report on %s"
-msgstr "Mukautettu raportti %s"
 
 msgid "Custom Rules"
 msgstr "Mukautetut säännöt"
@@ -2704,14 +2995,14 @@ msgstr "Päivämääräväli"
 msgid "Day"
 msgstr "Päivä"
 
+msgid "Deactivate %s"
+msgstr "Poista %s käytöstä"
+
 msgid "Deactivate Akismet"
 msgstr "Poista Akismet käytöstä"
 
 msgid "Deactivate Rule"
 msgstr "Poista sääntö käytöstä"
-
-msgid "Deactivate Shield"
-msgstr "Poista Shield käytöstä"
 
 msgid "Deactivated"
 msgstr "Poistettu käytöstä"
@@ -2727,9 +3018,6 @@ msgstr "Virheenkorjaus on päällä"
 
 msgid "Debug Tests"
 msgstr "Virheenkorjaustestit"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "Debug- ja Info-kirjaus tulisi ottaa käyttöön vain tiettyjen ongelmien tutkimisen ajaksi."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Päätä, miten %s:n tulisi reagoida, kun botti suorittaa tiettyjä toimintoja."
@@ -2749,8 +3037,8 @@ msgstr "Oletusarvoinen ylläpitäjäkäyttäjä"
 msgid "Default User Role"
 msgstr "Oletuskäyttäjärooli"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Oletuskäyttäjärooli muutettu: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Oletuskäyttäjärooli muutettu: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Oletus: Kerran 24 tunnissa. Turvallisuuden parantamiseksi lisää skannausten määrää päivässä."
@@ -2806,14 +3094,11 @@ msgstr "Poistetut taulut"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Poistetun käyttäjän julkaisut määritettiin uudelleen käyttäjälle '{{user_login}}'."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Tärkeät käyttöliittymämuutokset Shield v20:ssa"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: Tärkeät UI-muutokset %s v20:ssa"
 
 msgid "Demoted From Admin"
 msgstr "Alennettu järjestelmänvalvojasta"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "Asetuksistasi riippuen nämä raportit voivat sisältää yhdistelmän hälytyksiä, tilastoja ja muita tietoja."
 
 msgid "Description"
 msgstr "Kuvaus"
@@ -2880,6 +3165,9 @@ msgstr "Havaittu"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Havaittu käyttäjärekisteröinti virheellisellä sähköpostiosoitteella ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Oikean vierailijan IP-osoitteen havaitseminen on ratkaisevan tärkeää jokaisen sivuston vierailijan erottamiseksi toisistaan."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Niiden varhainen havaitseminen ja estäminen on suurin suojan lähteesi."
@@ -2953,6 +3241,9 @@ msgstr "Poista moduuli käytöstä"
 msgid "Disable Security Admin"
 msgstr "Poista Security Admin käytöstä"
 
+msgid "Disable Security Admin via Email"
+msgstr "Poista Security Admin käytöstä sähköpostitse"
+
 msgid "Disable Shield"
 msgstr "Poista Shield käytöstä"
 
@@ -2989,6 +3280,9 @@ msgstr "Poista XML-RPC-päätepiste käytöstä ja estä kaikki pyynnöt."
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Poista tämä asetus käytöstä piilottaaksesi tietyt lisäosan ylläpitoilmoitukset saatavilla olevista päivityksistä ja päivityksen jälkeisistä ilmoituksista."
 
+msgid "Disabled"
+msgstr "Poistettu käytöstä"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Anonyymin pääsyn poistaminen käytöstä voi rikkoa lisäosat, jotka käyttävät REST API:a sivustosi vierailijoille."
 
@@ -2998,8 +3292,8 @@ msgstr "Yhteys katkaistu"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Löydä lisäosat, jotka tekijät ovat saattaneet hylätä"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Tutustu kattavimpaan WordPress-turvallisuuteen, kun päivität Shield Security -tilisi."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Löydä kattavin WordPress-turvallisuus, kun päivität %s-tilisi."
 
 msgid "Discovered"
 msgstr "Havaittu"
@@ -3009,6 +3303,9 @@ msgstr "Haittaohjelman löytäminen sivustoltasi ei ole 'suojausta' - se on itse
 
 msgid "Disk Space"
 msgstr "Levytila"
+
+msgid "Dismiss"
+msgstr "Hylkää"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Näytä ei-välttämättömät plugin-ilmoitukset ja ylläpitotyökalupalkin valikko"
@@ -3064,8 +3361,8 @@ msgstr "Vastaako pyytävän IP:n isäntänimi annettua isäntänimeä."
 msgid "Does the method of the request match the given specified method to match."
 msgstr "Vastaako pyynnön metodi annettua määritettyä metodia."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "Ohittaako pyyntö kaikki Shieldin rajoitukset."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "Ohittaako pyyntö kaikki %s-rajoitukset."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "Sisältääkö pyyntö parametrin, jolla on annettu nimi."
@@ -3097,8 +3394,8 @@ msgstr "Vastaako pyynnön skriptin nimi annettua nimeä."
 msgid "Does the request useragent match the given useragent."
 msgstr "Vastaako pyynnön käyttäjäagentti annettua käyttäjäagenttia."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "Vastaako annetun Shield Session -parametrin arvo annettua mallia."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "Vastaako annetun %s-istuntoparametrin arvo annettua mallia."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "Vastaako annetun pyyntöparametrin arvo annettua mallia."
@@ -3115,8 +3412,8 @@ msgstr "Älä skannaa kommentteja käyttäjiltä, joilla on seuraavat roolit"
 msgid "Don't want these email alerts?"
 msgstr "Etkö halua näitä sähköposti-ilmoituksia?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Alennettu: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Alennettu: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "Lataa"
@@ -3130,6 +3427,9 @@ msgstr "Lataa IP-säännöt CSV-muodossa"
 msgid "Download Modified"
 msgstr "Lataus muokattu"
 
+msgid "Download Now"
+msgstr "Lataa nyt"
+
 msgid "Download Options Export File"
 msgstr "Lataa asetusten vientitiedosto"
 
@@ -3139,11 +3439,17 @@ msgstr "Lataa alkuperäinen"
 msgid "Download Request Logs"
 msgstr "Lataa pyyntölokit"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "Lataus epäonnistui. Tarkista, että ShieldNet API on käytettävissä ja kieliversio on olemassa."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Ladattu mainepäätökset CrowdSecistä laajuudelle: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Ladataan tiedostoa, odota..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Ladataan käännöstä kieliversiolle: %s"
 
 msgid "Duration"
 msgstr "Kesto"
@@ -3160,8 +3466,8 @@ msgstr "Jokainen tällä luettelolla oleva sivusto voi viedä asetuksia tältä 
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Helpoin, turhautumaton WP Pro-päivitys missään"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Integroi Shield Security helposti MainWP:hen hallitaksesi sivustosi turvallisuutta."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Integroi %s helposti auttaaksesi sinua hallitsemaan sivustosi turvallisuutta MainWP:n sisältä."
 
 msgid "Edit"
 msgstr "Muokkaa"
@@ -3169,8 +3475,8 @@ msgstr "Muokkaa"
 msgid "Edit Rule"
 msgstr "Muokkaa sääntöä"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "Muokkaa sääntöä #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Muokkaa sääntöä #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Muokkaa asetuksia"
@@ -3220,8 +3526,8 @@ msgstr "Muokkaa asetuksia, jotka soveltavat suojausta kirjautumis- ja käyttäj�
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Muokkaa automaattista IP-estoa ohjaavia asetuksia"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Muokkaa asetuksia, jotka ohjaavat sitä, miten silentCAPTCHA havaitsee botit"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Muokkaa asetuksia, jotka ohjaavat, miten %s tunnistaa botit"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Muokkaa asetuksia salasanan vähimmäisvahvuuden soveltamiseksi"
@@ -3250,8 +3556,8 @@ msgstr "Tämän asetuksen muokkaaminen on tällä hetkellä rajoitettu."
 msgid "Either the country code or phone number were missing."
 msgstr "Joko maakoodi tai puhelinnumero puuttui."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Nosta WordPress-turvallisuutesi parhaaseen luokkaan päivittämällä Shield Security -tilisi."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Nosta WordPress-turvallisuutesi parhaaseen luokkaan päivittämällä %s-tilauksesi."
 
 msgid "Email"
 msgstr "Sähköposti"
@@ -3304,8 +3610,8 @@ msgstr "Sähköposti-ilmoitukset uusista kommenteista"
 msgid "Email sending has already been verified."
 msgstr "Sähköpostin lähetys on jo vahvistettu."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "Sähköposti lähetetty %s-laajennuksesta v%s, sivustolla %s."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "Sähköposti lähetetty %1$s Pluginista v%2$s, %3$s."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "Sähköposti lähetetty. Varmista, että linkki avautuu TÄSSÄ selaimessa."
@@ -3334,8 +3640,8 @@ msgstr "Käyttää aggressiivisten sääntöjen joukkoa havaitsemaan ja estämä
 msgid "Empty User Agents"
 msgstr "Tyhjät User Agentit"
 
-msgid "Empty response from Shield client site"
-msgstr "Tyhjä vastaus Shield-asiakassivustolta"
+msgid "Empty response from %s client site"
+msgstr "Tyhjä vastaus %s-asiakassivustolta"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Tyhjä juuritiedosto annettu instantioinnille"
@@ -3568,14 +3874,20 @@ msgstr "Virhe"
 msgid "Error Log Message"
 msgstr "Virhelokiviesti"
 
+msgid "Error: {{error}}"
+msgstr "Virhe: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Jopa yhden rivin arvostelu, jossa kerrot olevasi tyytyväinen, auttaa meitä valtavasti."
+
 msgid "Event"
 msgstr "Tapahtuma"
 
 msgid "Event %s does not exist."
 msgstr "Tapahtumaa %s ei ole olemassa."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Tapahtuman (%s) määrittelyssä on tarkastusparametreja, jotka eivät ole läsnä: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Tapahtuman (%1$s) määrittelyssä on auditointiparametreja, joita ei ole läsnä: %2$s"
 
 msgid "Event Details"
 msgstr "Tapahtuman tiedot"
@@ -3661,6 +3973,9 @@ msgstr "Yhteyden muodostaminen lisenssipalvelimeen epäonnistui."
 msgid "Failed to create custom report."
 msgstr "Mukautetun raportin luominen epäonnistui."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Käännöstiedoston lataaminen epäonnistui kieliversiolle: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Tiedostojen lukitustietueen lisääminen epäonnistui polulle: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Skannauserän korjaus epäonnistui."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Firewall-eston sähköpostihälytyksen lähettäminen epäonnistui: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Sähköpostin (tyyppi: {{slug}}) lähettäminen osoitteeseen '{{email}}' SureSendin kautta epäonnistui."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Sähköpostin lähettäminen epäonnistui (tyyppi: {{slug}}) osoitteeseen '{{email}}' käyttäen %s:ää."
 
 msgid "Failed to store the rule in the database."
 msgstr "Säännön tallentaminen tietokantaan epäonnistui."
@@ -3796,8 +4111,8 @@ msgstr "Tiedoston sisältöä ei voitu salata. Viesti:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "Tiedoston sisältöä ei voitu wp_json_encode() salauksen jälkeen."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Tiedosto havaittu %s:ksi %s-skannerilla."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Tiedosto havaittu tilassa %1$s %2$s-skannerilla."
 
 msgid "File does not exist."
 msgstr "Tiedostoa ei ole olemassa."
@@ -3997,14 +4312,17 @@ msgstr "Luotu"
 msgid "Generating a new code will replace your existing code."
 msgstr "Uuden koodin luominen korvaa olemassa olevan koodisi."
 
+msgid "Get %s!"
+msgstr "Hanki %s!"
+
 msgid "Get All PRO Security Features"
 msgstr "Hanki kaikki PRO-turvaominaisuudet"
 
-msgid "Get ShieldPRO!"
-msgstr "Hanki ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Aloita alle 3 minuutissa"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Hanki riskitön, sitoumukseton ilmainen kokeilu %s:stä tänään."
 
 msgid "Global Plugin Enable"
 msgstr "Globaali lisäosan käyttöönotto"
@@ -4039,6 +4357,9 @@ msgstr "Siirry Pro:hon!"
 msgid "Go To %s"
 msgstr "Siirry %s"
 
+msgid "Go To %s Overview"
+msgstr "Siirry %s-yleiskatsaukseen"
+
 msgid "Go To Admin"
 msgstr "Siirry ylläpitoon"
 
@@ -4050,9 +4371,6 @@ msgstr "Siirry yleiskatsaukseen"
 
 msgid "Go To Security Dashboard"
 msgstr "Siirry turvallisuuden hallintapaneeliin"
-
-msgid "Go To Shield Overview"
-msgstr "Siirry Shield-yleiskatsaukseen"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Siirry tänne hallitaksesi asetuksia ja tunnistautuaksesi %s-lisäosalla."
@@ -4111,14 +4429,14 @@ msgstr "Lähetettävä HTTP-vastausotsake"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "HTTPS-asetus kotisivun URL:lle ja WP-sivuston URL:lle eivät ole yhdenmukaisia."
 
-msgid "Handshake ShieldNET"
-msgstr "Muodosta yhteys ShieldNET:iin"
+msgid "Handshake %s"
+msgstr "Kättely %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Laitteistopohjainen kaksivaiheinen tunnistautuminen"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Voimassa oleva Shield-käyttäjäistunto"
+msgid "Has Valid %s User Sessions"
+msgstr "Onko kelvollisia %s-käyttäjäistuntoja"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Hallitse täysin sivuston käyttäjien käyttämiä salasanoja."
@@ -4135,11 +4453,14 @@ msgstr "HelpDesk-artikkeli"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Tukipalvelu ja tietopankki"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Tässä joitakin tapoja, joilla Shield jo suojaa sivustoasi:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Tässä joitakin tapoja, joilla %s jo suojaa sivustoasi:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Tässä valitset, minkä tyyppistä haitallista dataa skannataan."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Tässä on turvallisuuskatsauksesi raportointijaksolta. Tarkista alla olevat ongelmat ja ryhdy toimiin tarvittaessa."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Tässä keskitymme kuitenkin itse käyttäjätileihin varmistaaksemme, että ne ovat turvallisessa tilassa."
@@ -4189,8 +4510,8 @@ msgstr "Kotisivun URL"
 msgid "Home URL Changed"
 msgstr "Kotisivun URL muutettu"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "Etusivu-URL muutettu: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "Etusivu-URL muutettu: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "Etusivu"
@@ -4297,11 +4618,14 @@ msgstr "Ihmisen lähettämän SPAMin suodatin"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "Ihmisen lähettämän SPAMin suodatin havaitsi toistuvia roskapostikommenttiyrityksiä."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "Ihmisen lähettämän SPAM-suodatin löysi '%s' kohdasta '%s'"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "Ihmisen lähettämän SPAM-suodatin löysi \"%1$s\" kohdasta \"%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Ihmisen lähettämän SPAM-suodatin löysi '{{word}}' kohdasta '{{key}}'"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "Ihmisten lähettämä SPAM aiheuttaa edelleen eniten turhautumista, koska se usein ohittaa SPAM-suojaukset."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Ymmärrän, että olemassa olevat asetukset korvataan"
@@ -4327,17 +4651,11 @@ msgstr "Tiedän, että jos käytän välimuistia enkä tyhjennä sitä jälkeenp
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Ymmärrän seuraukset kaiken liikenteen estämisestä tälle sivustolle."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Ymmärrän riskit säännön luomisesta, joka ei noudata Shieldin sallittujen luetteloita ja poikkeuksia, ja minun voi olla vaikea päästä takaisin sisään, jos minut lukitaan ulos."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Ymmärrän riskit säännön luomisesta, joka ei noudata %s:n valkoisia listoja ja poikkeuksia, ja minun voi olla vaikea päästä takaisin sisään, jos minut lukitaan ulos."
 
 msgid "I'd like to learn more, please"
 msgstr "Haluaisin oppia lisää, kiitos"
-
-msgid "I'd rather not show this support"
-msgstr "En mieluummin näytä tätä tukea"
-
-msgid "I've done this already"
-msgstr "Olen tehnyt tämän jo"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "TÄRKEÄ"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s pisteet nollattu."
 
 msgid "IP Address"
 msgstr "IP-osoite"
@@ -4552,9 +4873,6 @@ msgstr "IP ei ole automaattisella estolistalla."
 msgid "IP provided was invalid."
 msgstr "Annettu IP oli virheellinen."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA-pisteiden nollaus."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Jos käyttäjällä on useita rooleja, kaikki roolit tarkistetaan tätä
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Jos haitallista dataa havaitaan, pyyntö keskeytetään välittömästi."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Jos oikea asetus ei ole %s, suosittelemme ottamaan yhteyttä hosting-palveluntarjoajaasi ja pyytämään heitä määrittämään hostingisi niin, että %s tarjoaa todellisen vierailijan IP-osoitteen."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Jos oikea asetus ei ole %1$s, suosittelemme ottamaan yhteyttä hosting-palveluntarjoajaasi ja pyytämään heitä määrittämään hostingisi niin, että %2$s tarjoaa todellisen vierailijan IP-osoitteen."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Jos haluamasi palveluntarjoaja ei ole listalla, ota yhteyttä tukitiimiimme, niin katsomme, voidaanko integraatio rakentaa."
@@ -4642,8 +4960,8 @@ msgstr "Jos käyttäjä on passiivinen määritetyn tuntimäärän ajan, hänet 
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Jos käyttäjä on passiivinen määritetyn tuntimäärän ajan, hänet kirjataan väkisin ulos seuraavan kerran, kun hän palaa. Aseta tämä arvoon '0' poistaaksesi tämän asetuksen käytöstä."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Jos vierailijan pistemäärä ei saavuta vähimmäis-silentCAPTCHA-pistemäärääsi, voimme estää pyynnön (kuten kirjautumisen, WP-kommentin jne.). Jos se on korkeampi, sallimme sen."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Jos vierailijapisteet eivät täytä vähimmäis-%s-pisteitäsi, voimme estää pyynnön (kuten kirjautumisen, WP-kommentin jne.). Jos pisteet ovat korkeammat, sallimme sen."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Jos tämä on MainWP-asiakassivusto, sinun tulee lisätä MainWP Admin Server -palvelimesi IP-osoite IP-ohituslistaasi."
@@ -4656,6 +4974,9 @@ msgstr "Jos tämä viesti näkyy edelleen tämän sivun päivittämisen jälkeen
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Jos tämä ongelma jatkuu, ota yhteyttä tukeen: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Jos sinulla on jo %s-lisenssi määritettynä tälle sivustolle,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Jos uskot, mistä tahansa syystä, että sinun tai käyttäjiesi postilaatikot ovat vaarantuneet, sinun tulisi poistaa tämä asetus käytöstä."
@@ -4702,11 +5023,8 @@ msgstr "Jos haluat saada ilmoituksen joka kerta, kun järjestelmänvalvojakäytt
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Jos haluat saada ilmoituksen joka kerta, kun järjestelmänvalvojakäyttäjä kirjautuu tähän WordPress-sivustoon, syötä ilmoituksen sähköpostiosoite. Ei sähköpostiosoitetta - Ei ilmoitusta."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Jos et käytä omistettua sähköpostipalveluntarjoajaa WordPress-sähköpostien lähettämiseen, sinun tulisi ottaa SureSend käyttöön näille tärkeille sähköposteille."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Jos olet unohtanut PIN-koodisi, käytä yllä olevaa valikkoa poistaaksesi tämän rajoituksen käytöstä."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Jos et käytä omistettua sähköpostipalveluntarjoajaa WordPress-sähköpostien lähettämiseen, sinun tulisi ottaa %s käyttöön näille tärkeille sähköposteille."
 
 msgid "Ignore"
 msgstr "Ohita"
@@ -4737,9 +5055,6 @@ msgstr "Tuonti-ilmoitus lähetetty"
 
 msgid "Import Options"
 msgstr "Tuo asetukset"
-
-msgid "Import Settings From Another Site"
-msgstr "Tuo asetukset toiselta sivustolta"
 
 msgid "Import file was empty"
 msgstr "Tuontitiedosto oli tyhjä"
@@ -4870,11 +5185,14 @@ msgstr "Tiedot IP-osoitteelle %s"
 msgid "Info Reports Frequency"
 msgstr "Info-raporttien tiheys"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Info-lokitus tulisi ottaa käyttöön vain tutkittaessa tiettyjä ongelmia."
+
 msgid "Information and reports are typically statistics."
 msgstr "Tiedot ja raportit ovat tyypillisesti tilastoja."
 
-msgid "Install Shield"
-msgstr "Asenna Shield"
+msgid "Install %s"
+msgstr "Asenna %s"
 
 msgid "Installation Directory"
 msgstr "Asennushakemisto"
@@ -4909,6 +5227,9 @@ msgstr "Aikaväli mitataan sekunteina."
 msgid "Invalid"
 msgstr "Virheellinen"
 
+msgid "Invalid %s extension configuration"
+msgstr "Virheellinen %s-laajennuksen konfiguraatio"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Virheellinen toiminnon nonce-poikkeus."
 
@@ -4933,9 +5254,6 @@ msgstr "Virheellinen skriptin lataus"
 msgid "Invalid Scripts"
 msgstr "Virheelliset skriptit"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Virheellinen Shield-laajennuksen konfiguraatio"
-
 msgid "Invalid Slug"
 msgstr "Virheellinen tunniste"
 
@@ -4948,9 +5266,6 @@ msgstr "Virheellinen käyttäjäagentti"
 msgid "Invalid User Email Registration"
 msgstr "Virheellinen käyttäjän sähköpostirekisteröinti"
 
-msgid "Invalid User-Agent"
-msgstr "Virheellinen käyttäjäagentti"
-
 msgid "Invalid Username Login"
 msgstr "Virheellinen käyttäjätunnuksen kirjautuminen"
 
@@ -4959,6 +5274,12 @@ msgstr "Virheelliset käyttäjänimet"
 
 msgid "Invalid action"
 msgstr "Virheellinen toiminto"
+
+msgid "Invalid batch request format."
+msgstr "Virheellinen eräpyynnön muoto."
+
+msgid "Invalid batch request item."
+msgstr "Virheellinen eräpyynnön kohde."
 
 msgid "Invalid download item data."
 msgstr "Virheelliset latauskohteiden tiedot."
@@ -4975,6 +5296,15 @@ msgstr "Virheellinen tiedostojen lukitustyypin lataus"
 msgid "Invalid login nonce"
 msgstr "Virheellinen kirjautumisen nonce"
 
+msgid "Invalid login session."
+msgstr "Virheellinen kirjautumisistunto."
+
+msgid "Invalid or expired login session."
+msgstr "Virheellinen tai vanhentunut kirjautumisistunto."
+
+msgid "Invalid profile request."
+msgstr "Virheellinen profiilipyyntö."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Virheellinen pyyntö - lukitus on jo aktiivinen."
 
@@ -4984,11 +5314,8 @@ msgstr "Virheellinen pyyntö - lukitus ei ole aktiivinen."
 msgid "Invalid request with no User ID"
 msgstr "Virheellinen pyyntö ilman käyttäjätunnusta"
 
-msgid "Invalid response from Shield client site"
-msgstr "Virheellinen vastaus Shield-asiakassivustolta"
-
-msgid "Invalid session selected"
-msgstr "Virheellinen istunto valittu"
+msgid "Invalid response from %s client site"
+msgstr "Virheellinen vastaus %s-asiakassivustolta"
 
 msgid "Invalid specification of modules"
 msgstr "Virheellinen moduulien määrittely"
@@ -4996,14 +5323,26 @@ msgstr "Virheellinen moduulien määrittely"
 msgid "Invalid type."
 msgstr "Virheellinen tyyppi."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "Virheellinen käyttäjäagentti havaittu kohdassa '{{useragent}}'."
-
 msgid "Invalid value scope for %s"
 msgstr "Virheellinen arvon laajuus kohteelle %s"
 
 msgid "Invalid value type for %s"
 msgstr "Virheellinen arvotyyppi kohteelle %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "Onko %s-lisäosan toiminnallisuus poistettu käytöstä."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "Onko %s liikenteen nopeusrajoitus käytössä."
+
+msgid "Is %s live logging enabled."
+msgstr "Onko %s-reaaliaikainen lokitus käytössä."
+
+msgid "Is %s score"
+msgstr "On %s pistettä"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "Onko %s:n sivuston lukitus aktiivinen."
 
 msgid "Is It You?"
 msgstr "Oletko sinä?"
@@ -5017,20 +5356,8 @@ msgstr "Onko pyynnön tila 404"
 msgid "Is Request To The Login Page."
 msgstr "Onko pyyntö kirjautumissivulle."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Onko Shield-laajennuksen toiminnallisuus poistettu käytöstä."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Onko Shield-liikenteen nopeusrajoitus käytössä."
-
-msgid "Is Shield live logging enabled."
-msgstr "Onko Shieldin reaaliaikainen lokikirjaus käytössä."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Onko Shieldin sivuston lukitus aktiivinen."
-
-msgid "Is The Shield Option Value..."
-msgstr "Onko Shield-asetuksen arvo..."
+msgid "Is The %s Option Value..."
+msgstr "Onko %s-asetuksen arvo..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Onko kelvollinen julkinen IP-osoite"
@@ -5038,8 +5365,8 @@ msgstr "Onko kelvollinen julkinen IP-osoite"
 msgid "Is Viable"
 msgstr "On toimiva"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Onko vierailijan silentCAPTCHA-pisteet ..."
+msgid "Is Visitor %s Score ..."
+msgstr "Onko vierailijan %s-pisteet ..."
 
 msgid "Is WP AJAX"
 msgstr "Onko WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "Onko nykyinen käyttäjä kirjautunut WordPressin ylläpitäjä."
 msgid "Is current user password expired."
 msgstr "Onko nykyisen käyttäjän salasana vanhentunut."
 
-msgid "Is silentCAPTCHA score"
-msgstr "Onko silentCAPTCHA-pisteet"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Onko Shield-lisäosa \"forceoff\"-tilassa."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "Onko %s plugin \"forceoff\"-tilassa."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Pidetäänkö nykyistä IP-osoitetta \"korkean maineen\" osoitteena."
@@ -5116,23 +5440,23 @@ msgstr "Onko nykyisen käyttäjäistunnon tunnuksen ikä pienempi vai suurempi k
 msgid "Is the request HTTPS."
 msgstr "Onko pyyntö HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "Onko pyynnön IP Shieldin automaattisesti tai manuaalisesti estämä."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "Onko pyynnön IP automaattisesti tai manuaalisesti estetty %s:n toimesta."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "Onko pyynnön IP Shieldin mustalla listalla."
+msgid "Is the request IP blacklisted by %s."
+msgstr "Onko pyynnön IP %s:n mustalla listalla."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "Onko pyynnön IP Shieldin CrowdSec-estolistalla."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "Onko pyynnön IP %s:n CrowdSec-estolistalla."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "Onko pyynnön IP Shieldin manuaalisella estolistalla."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "Onko pyynnön IP %s:n manuaalisella estolistalla."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "Onko pyynnön IP Shieldin automaattisella estolistalla."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "Onko pyynnön IP %s:n automaattisella estolistalla."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "Onko pyynnön IP Shieldin manuaalisella ohituslistalla/sallittujen listalla."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "Onko pyynnön IP %s:n manuaalisella ohituslistalla/sallittujen listalla."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Onko pyyntö botti, joka on peräisin luotetulta palveluntarjoajalta."
@@ -5143,17 +5467,17 @@ msgstr "Onko pyyntö palvelimen takaisinkytkentäpyyntö."
 msgid "Is the request an HTTP 404."
 msgstr "Onko pyyntö HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Onko pyyntö estetty Shieldin sivuston lukitustila-ominaisuuden toimesta."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "Onko pyyntö estetty %s:n sivuston lukitustoiminnon toimesta."
 
 msgid "Is the request from a logged-in user."
 msgstr "Onko pyyntö kirjautuneelta käyttäjältä."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Onko pyyntö Shield Security Admin -tunnistautuneelta käyttäjältä."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "Onko pyyntö käyttäjältä, joka on tunnistautunut %s-ylläpitäjäksi."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "Onko pyynnön polku Shieldin sallittujen listalla."
+msgid "Is the request path whitelisted by %s."
+msgstr "Onko pyynnön polku %s:n sallittujen listalla."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "Onko pyyntö polkuun tällä hetkellä asennetun WordPress-lisäosan sisällä."
@@ -5212,6 +5536,9 @@ msgstr "Ongelmia löytyi"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Alla luetellut ongelmat tulisi käsitellä mahdollisimman nopeasti"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Se myös auttaa lukitsemaan kriittisiä WordPress-asetuksia."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "Se etsii myös tiedostoja, joiden ei pitäisi olla WP-ydinhakemistoissa (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Näyttää siltä, että IP-osoitteesi (%s) on tällä hetkellä estetty
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Se saattaa kuitenkin käyttää evästettä rekisteröidäkseen %s-turvallisuusmerkin sulkemisen estääkseen toistuvan näytön."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Se käyttää yksinomaista silentCAPTCHA-moottoriamme bottien luotettavaan tunnistamiseen."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Se käyttää yksinomaista %s-moottoriamme bottien luotettavaan tunnistamiseen."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "Se lähetettiin osoitteeseen '{{to}}' aiheella '{{subject}}'."
@@ -5275,8 +5602,8 @@ msgstr "Se lähetettiin osoitteeseen '{{to}}' aiheella '{{subject}}'."
 msgid "It will be displayed below when it's ready."
 msgstr "Se näytetään alla, kun se on valmis."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Se löytää sopivan sijainnin automaattisesti, mutta jos tämä epäonnistuu, saatat nähdä PHP-varoituksia sivustollasi eikä tietty Shield-toiminnallisuus ole käytettävissä."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Se löytää sopivan sijainnin automaattisesti, mutta jos tämä epäonnistuu, saatat nähdä PHP-varoituksia sivustollasi ja tietyt %s-toiminnot eivät ole käytettävissä."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Se on monimutkainen alue ja väärin käytettynä voi helposti rikkoa käyttäjäkokemuksen."
@@ -5298,9 +5625,6 @@ msgstr "Hyvä käytäntö on rajoittaa istunnon kestoa, erityisesti kun se on k�
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Hyvä käytäntö on lukita istunto vähintään yhteen ominaisuuteen estääksesi istunnon varkauden."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Se on ihmisen lähettämää SPAMia, joka aiheuttaa edelleen eniten turhautumista, koska ne eivät yleensä laukaise puolustuksiamme."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Se sijaitsee WordPress-lisäosahakemistossa ja on tunnistettu kyseisen lisäosaversion kelvolliseksi tiedostoksi."
@@ -5338,8 +5662,8 @@ msgstr "Kohde korjattu: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Skannauksessa löydetyt kohteet"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Liity Shield Security -uutiskirjeeseen"
+msgid "Join The %s Newsletter"
+msgstr "Liity %s-uutiskirjeeseen"
 
 msgid "Join Us"
 msgstr "Liity meihin"
@@ -5347,8 +5671,14 @@ msgstr "Liity meihin"
 msgid "Join Us!"
 msgstr "Liity meihin!"
 
+msgid "Join our %s Newsletter"
+msgstr "Liity %s-uutiskirjeemme"
+
 msgid "Jump To Module Settings"
 msgstr "Siirry moduulin asetuksiin"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Liity %s Facebook-ryhmäämme, jossa voit esittää kysymyksiä aktiiviselle yhteisöllemme ja pysyä ajan tasalla uusimmista uutisistamme"
 
 msgid "Just grab a new license from the"
 msgstr "Hanki vain uusi lisenssi"
@@ -5437,6 +5767,9 @@ msgstr "Viimeisin synkronointi"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Lopuksi haluamme estää bottien (tai ihmisten) mahdollisuuden rekisteröidä SPAM-tilejä sivustolle mistä tahansa syystä."
 
+msgid "Latest Scan Results"
+msgstr "Viimeisimmät skannauksen tulokset"
+
 msgid "Launch Debug Info Page"
 msgstr "Avaa virheenkorjaustietosivu"
 
@@ -5464,6 +5797,12 @@ msgstr "Lisenssi"
 msgid "License Activation"
 msgstr "Lisenssin aktivointi"
 
+msgid "License Activation Failed"
+msgstr "Lisenssin aktivointi epäonnistui"
+
+msgid "License Activation Success"
+msgstr "Lisenssin aktivointi onnistui"
+
 msgid "License Check Failed"
 msgstr "Lisenssitarkistus epäonnistui"
 
@@ -5482,6 +5821,30 @@ msgstr "Lisenssivirheen sähköposti lähetetty"
 msgid "License Summary"
 msgstr "Lisenssin yhteenveto"
 
+msgid "License activated and verified successfully."
+msgstr "Lisenssi aktivoitu ja vahvistettu onnistuneesti."
+
+msgid "License activated but verification failed."
+msgstr "Lisenssi aktivoitu, mutta vahvistus epäonnistui."
+
+msgid "License activated successfully."
+msgstr "Lisenssi aktivoitu onnistuneesti."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "Lisenssin aktivointi epäonnistui, koska tällä tilillä ei ole saatavilla lisenssejä."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "Lisenssin aktivointi epäonnistui, koska API-avain on virheellinen."
+
+msgid "License activation failed."
+msgstr "Lisenssin aktivointi epäonnistui."
+
+msgid "License activation request failed."
+msgstr "Lisenssin aktivointipyyntö epäonnistui."
+
+msgid "License activation was denied for this site."
+msgstr "Lisenssin aktivointi evättiin tälle sivustolle."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Lisenssitarkistus epäonnistui. Lähetetään varoitussähköposti."
 
@@ -5499,9 +5862,6 @@ msgstr "Lisenssejä voidaan tarkistaa kerran %s sekunnissa"
 
 msgid "Lifetime"
 msgstr "Elinikä"
-
-msgid "Lifetime Total"
-msgstr "Elinikä yhteensä"
 
 msgid "Light"
 msgstr "Vaalea"
@@ -5577,6 +5937,12 @@ msgstr "Paikallinen PHP-haittaohjelmaskanneri on käytössä, mutta AI-haittaohj
 
 msgid "Locale"
 msgstr "Kielialue"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "Kieliversio \"%1$s\" on jo välimuistissa: %2$s. Käytä --force ladataksesi uudelleen."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "Kieliversio \"%s\" ei ole saatavilla lataukseen."
 
 msgid "Location"
 msgstr "Sijainti"
@@ -5740,11 +6106,11 @@ msgstr "Unohtunut salasana estetty"
 msgid "Lost Password Bot Protection"
 msgstr "Unohtunut salasana -bottisuojaus"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "Bottien unohdetun salasanan SPAMointi estetään silentCAPTCHA:lla."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "Bottien unohtunut salasana -SPAMointi estetään %s:n toimesta."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "Bottien unohdetun salasanan SPAMointia ei estetä silentCAPTCHA:lla."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "Bottien unohtunut salasana -SPAMointia ei estetä %s:n toimesta."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Pidätkö siitä? Arvioi tämä lisäosa ✩"
@@ -5923,6 +6289,9 @@ msgstr "Täsmättävä meta-arvo"
 msgid "Method"
 msgstr "Menetelmä"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Vähimmäis-%s-pistemäärä, joka vaaditaan osoittamaan, että vierailija on ihminen"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Kommentin automaattisen hyväksynnän vähimmäismäärä"
 
@@ -5941,9 +6310,6 @@ msgstr "Vähimmäisaikaväli kommenttien välillä"
 msgid "Minimum required MainWP server version"
 msgstr "Vaadittu MainWP-palvelimen vähimmäisversio"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Vähimmäis-silentCAPTCHA-pistemäärä, joka vaaditaan osoittamaan, että vierailija on ihminen"
-
 msgid "Minutes"
 msgstr "Minuuttia"
 
@@ -5952,6 +6318,12 @@ msgstr "Virheellinen määritys voi aiheuttaa ongelmia vierailijoillesi, joten s
 
 msgid "Missing"
 msgstr "Puuttuu"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Toimintotunniste tai nonce puuttuu eräkäsittelypyynnöstä."
+
+msgid "Missing request payload for batch request item."
+msgstr "Eräpyynnön kohteen pyyntödata puuttuu."
 
 msgid "Mode"
 msgstr "Tila"
@@ -5989,6 +6361,12 @@ msgstr "Suurin osa SPAM:ista on automaattista, bottien tekemää, mutta joskus m
 msgid "Multi-Factor Authentication"
 msgstr "Monivaiheinen tunnistautuminen"
 
+msgid "Multiple Signals"
+msgstr "Useita signaaleja"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Useita bottisignaaleja havaittu tälle vierailijalle."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Useita sähköpostiosoitteita voidaan antaa pilkulla erotettuna."
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL-tietokannan salasana"
 msgid "N/A"
 msgstr "Ei saatavilla"
 
+msgid "NEW"
+msgstr "UUSI"
+
 msgid "NO TITLE"
 msgstr "EI OTSIKKOA"
 
@@ -6027,6 +6408,12 @@ msgstr "Navigointi"
 
 msgid "Needs Update"
 msgstr "Vaatii päivityksen"
+
+msgid "Needs Work"
+msgstr "Vaatii työtä"
+
+msgid "Nested batch requests are not allowed."
+msgstr "Sisäkkäiset eräpyynnöt eivät ole sallittuja."
 
 msgid "Never"
 msgstr "Ei koskaan"
@@ -6045,12 +6432,6 @@ msgstr "Uusi/uudet ylläpitäjä(t)"
 
 msgid "New Comment"
 msgstr "Uusi kommentti"
-
-msgid "New Results"
-msgstr "Uudet tulokset"
-
-msgid "New Scan Results"
-msgstr "Uudet skannauksen tulokset"
 
 msgid "New User Default Role"
 msgstr "Uuden käyttäjän oletusrooli"
@@ -6166,6 +6547,9 @@ msgstr "Kohteita ei valittu."
 msgid "No license to remove."
 msgstr "Ei poistettavaa lisenssiä."
 
+msgid "No locales available from API."
+msgstr "API:sta ei ole saatavilla kieliversioita."
+
 msgid "No message"
 msgstr "Ei viestiä"
 
@@ -6175,8 +6559,8 @@ msgstr "Metatietoja ei saatavilla"
 msgid "No modules specified in the plugin config."
 msgstr "Lisäosan konfiguraatiossa ei ole määritetty moduuleja."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Ei enää muistettavia/kopioitavia lisenssiavaimia! Aktivoi vain sivustosi URL ShieldPRO-hallintapaneelissasi ja saat Pro-ominaisuudet käyttöön sivustollasi automaattisesti."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Ei enää muistettavia/kopioitavia lisenssiavaimia! Aktivoi vain sivustosi URL %s-hallintapaneelissasi ja saat Pro-ominaisuudet käyttöön sivustollasi automaattisesti."
 
 msgid "No new session activity recorded yet."
 msgstr "Uutta istuntotoimintaa ei ole vielä kirjattu."
@@ -6192,6 +6576,9 @@ msgstr "Ei tietuetta"
 
 msgid "No reporter defined"
 msgstr "Raportoijaa ei määritetty"
+
+msgid "No reports generated yet."
+msgstr "Raportteja ei ole vielä luotu."
 
 msgid "No reports have been generated yet."
 msgstr "Raportteja ei ole vielä luotu."
@@ -6247,9 +6634,6 @@ msgstr "Ei, en halua auttaa"
 msgid "Noise"
 msgstr "Kohina"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Muita kuin tiedostoskannauksen kohteita ei vielä tueta."
-
 msgid "Nonce Failed."
 msgstr "Nonce epäonnistui."
 
@@ -6304,14 +6688,11 @@ msgstr "Ei kelvollinen asetusavain moduulille: %s"
 msgid "Not a valid option key."
 msgstr "Ei kelvollinen asetusavain."
 
-msgid "Not a valid scan item record"
-msgstr "Ei kelvollinen skannauserätietue"
-
 msgid "Not a valid value for this parameter"
 msgstr "Ei kelvollinen arvo tälle parametrille"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Ei saatavilla, koska sivustosi ei voi muodostaa yhteyttä ShieldNET API:in."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Ei saatavilla, koska sivustosi ei voi muodostaa yhteyttä %s:n kanssa."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Ei tällä hetkellä kirjautuneena security admininä."
@@ -6354,9 +6735,6 @@ msgstr "Ilmoita sallittujen sivustojen listalla oleville sivustoille asetusten p
 
 msgid "Notify Whitelist"
 msgstr "Ilmoita sallituille"
-
-msgid "Now"
-msgstr "Nyt"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "Ydintiedostojen automaattisten skannausten määrä 24 tunnissa"
@@ -6418,6 +6796,9 @@ msgstr "Rikkomusraja"
 msgid "Offenses couldn't be reset at this time."
 msgstr "Rikkomuksia ei voitu nollata tällä hetkellä."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "Rikkomukset ovat yksinkertaisesti laskuri sille, kuinka monta kertaa vierailija tekee jotain pahaa."
+
 msgid "Offenses reset to zero."
 msgstr "Rikkomukset nollattu."
 
@@ -6439,17 +6820,17 @@ msgstr "Kertakäyttösalasanat"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Vain %s Security Adminit voivat muokata toisen ylläpitäjätilin MFA-asetuksia."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Vain WordPressin ydintiedostot skannataan Shieldin ilmaisversiossa."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Vain WordPress-ydintiedostot skannataan %s:n ilmaisversiossa."
 
 msgid "Only enable the integrations you require."
 msgstr "Ota käyttöön vain tarvitsemasi integraatiot."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Vain valitsemiasi lomakkeita (kirjautuminen, rekisteröinti, unohdettu salasana) seurataan."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Vain kirjaimet ja numerot ovat sallittuja: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Vain valittuja lomakkeita (kirjautuminen, rekisteröinti, unohtunut salasana) seurataan."
 
 msgid "Only the first 30 items are shown."
 msgstr "Vain ensimmäiset 30 kohdetta näytetään."
@@ -6562,8 +6943,8 @@ msgstr "PHP-haittaohjelmaskanneri"
 msgid "PHP Version"
 msgstr "PHP-versio"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP ei täytä vähimmäisversiota. Sinun versiosi: %s. Vaadittu versio: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP ei täytä vähimmäisversiota. Sinun versiosi: %1$s. Vaadittu versio: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "PHP-tiedostoja ei skannata haittaohjelmien varalta."
@@ -6718,6 +7099,9 @@ msgstr "Ehkä yksi sen tehokkaimmista ominaisuuksista on se, miten se estää mu
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Ehkä laitetta ei tueta tai olet jo rekisteröinyt sen."
 
+msgid "Period"
+msgstr "Jakso"
+
 msgid "Permalink structure"
 msgstr "Pysyvien linkkien rakenne"
 
@@ -6727,8 +7111,8 @@ msgstr "Pysyvät linkit"
 msgid "Permalinks Updated"
 msgstr "Pysyvät linkit päivitetty"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Pysyvät linkit muutettu: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Pysyvät linkit muutettu: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Pysyvä uudelleenohjaus (301)"
@@ -6790,6 +7174,9 @@ msgstr "Napsauta saamassasi sähköpostissa olevaa linkkiä."
 msgid "Please click the link provided below to do so."
 msgstr "Napsauta alla olevaa linkkiä tehdäksesi niin."
 
+msgid "Please complete required fields: %s"
+msgstr "Täytä pakolliset kentät: %s"
+
 msgid "Please complete the form."
 msgstr "Täytä lomake."
 
@@ -6814,14 +7201,14 @@ msgstr "Ota yhteyttä sivuston ylläpitäjään, jos tarvitset lisäohjeita."
 msgid "Please contact your website administrator."
 msgstr "Ota yhteyttä verkkosivustosi ylläpitäjään."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Poista \"%s\"-tiedosto aktivoidaksesi %s-suojauksen uudelleen"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Poista \"%1$s\"-tiedosto aktivoidaksesi %2$s-suojauksen uudelleen"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Varmista, että päättymispäivä on aloituspäivänä tai sen jälkeen."
 
 msgid "Please login again."
 msgstr "Kirjaudu uudelleen."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Kirjaudu ulos, jos haluat poistaa oman istuntosi."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Huomaa, että WP-sivun välimuistilisäosat tyypillisesti jättävät HTTP-otsakkeet huomiotta, ja jos et näe niitä heijastuvan testeissäsi, sinun tulisi poistaa välimuistilisäosasi käytöstä."
@@ -6840,6 +7227,15 @@ msgstr "Anna tunniste laitteen tunnistamiseksi."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Anna tunniste uuden tunnistimen tunnistamiseksi."
+
+msgid "Please provide a title for the report."
+msgstr "Anna raportille otsikko."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Anna kelvollinen päivämäärä käyttäen VVVV-KK-PP-muotoa."
+
+msgid "Please provide a valid date."
+msgstr "Anna kelvollinen päivämäärä."
 
 msgid "Please provide a valid regular expression."
 msgstr "Anna kelvollinen säännöllinen lauseke."
@@ -6895,6 +7291,9 @@ msgstr "Valitse yksi IP-sääntötyypeistä - Esto tai Ohitus"
 msgid "Please select one of the options available"
 msgstr "Valitse yksi käytettävissä olevista vaihtoehdoista"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Anna kieliversiokoodi (esim. --locale=fi_FI)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Anna eri salasana, sillä tämä salasana on vuotanut."
 
@@ -6925,17 +7324,17 @@ msgstr "Ota tämä skannaus käyttöön asetuksissa."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Ymmärrä, että Security Admin -ominaisuuksien palauttamiseksi sinun on annettava uusi Security Admin PIN -koodi."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Päivitä Shield-lisäosasi samoihin versioihin ja synkronoi uudelleen."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Päivitä %s-lisäosasi samoihin versioihin ja synkronoi uudelleen."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Päivitä tukeaksesi kaikkien lisäosatiedostojen skannausta muutosten varalta."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Päivitä Shield Security -tilauksesi käyttääksesi mukautettua turvallisuussääntöjen rakentajaa."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Päivitä %s-tilisi käyttääksesi tätä ominaisuutta."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Päivitä ShieldPRO-tilisi käyttääksesi tätä ominaisuutta."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Päivitä %s-tilauksesi käyttääksesi mukautettujen turvallisuussääntöjen rakentajaa."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Päivitä tilisi, jos sinun on ilmoitettava useisiin sähköpostiosoitteisiin."
@@ -7186,14 +7585,17 @@ msgstr "Tarjoaa WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "Tehokas <strong>Firewall</strong> sieppaa ja estää haitallisen liikenteen."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Tehokas suojaus WordPressille Shield Securityltä"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Tehokas suojaus WordPressille, %s:ltä"
 
 msgid "Powerful User Password Policies"
 msgstr "Tehokkaat käyttäjäsalasanakäytännöt"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Tehokas, automaattisesti oppiva haittaohjelmaskanneri"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Tehokas, helppokäyttöinen #1-luokiteltu WordPress-turvajärjestelmä"
 
 msgid "Predicted"
 msgstr "Ennustettu"
@@ -7203,6 +7605,9 @@ msgstr "Ensisijainen väliaikaishakemisto"
 
 msgid "Preferred temporary directory override."
 msgstr "Ensisijaisen väliaikaishakemiston ohitus."
+
+msgid "Prefix"
+msgstr "Etuliite"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Etuliite: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Estää käyttäjiä käyttämästä salasanoja, jotka löytyvät julkis
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Estää käyttäjiä käyttämästä salasanoja, jotka löytyvät julkisesti saatavilla olevasta murrettujen salasanojen listasta."
 
+msgid "Previous"
+msgstr "Edellinen"
+
+msgid "Previous Period"
+msgstr "Edellinen jakso"
+
 msgid "Previous Step"
 msgstr "Edellinen vaihe"
 
@@ -7318,8 +7729,8 @@ msgstr "Ylennetty järjestelmänvalvojaksi"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "Suojaa WP-kirjautuminen bottien automaattisilta kirjautumisyrityksiltä"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Suojaa Shield-lisäosasi muutoksilta"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Suojaa %s pluginisi peukaloinnilta"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Suojaa keskeiset WP-ydintiedostot, joita ei normaalisti voi suojata."
@@ -7342,6 +7753,9 @@ msgstr "Suojaa sivustosi vierailijoita ottamalla käyttöön parannetut turvalli
 msgid "Protect your %s files"
 msgstr "Suojaa %s-tiedostosi"
 
+msgid "Protected By %s"
+msgstr "Suojattu %s:llä"
+
 msgid "Protected Forms"
 msgstr "Suojatut lomakkeet"
 
@@ -7350,6 +7764,9 @@ msgstr "Suojataan <strong>kommentti-SPAMin</strong> ykköslähteeltä."
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Suojataan <strong>tärkeitä käyttäjälomakkeitasi</strong>, kuten kirjautuminen, rekisteröinti ja unohdettu salasana."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "WordPress-lomakkeiden suojaus sisältyy vakiona, ja sinulla on pääsy joihinkin tai kaikkiin kolmannen osapuolen integraatioihin %s-tilauksesi mukaan."
 
 msgid "Protection for user accounts."
 msgstr "Käyttäjätilien suojaus."
@@ -7420,9 +7837,6 @@ msgstr "Anna/päivitä Security Admin -PIN-koodi"
 msgid "Provided by %s"
 msgstr "Tarjoaa %s"
 
-msgid "Provided by Shield"
-msgstr "Shieldin tarjoama"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Tarjoaa tarkemman hallinnan pyyntöjen lokitusjärjestelmään."
 
@@ -7471,8 +7885,8 @@ msgstr "Nopeusrajoitus"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "Nopeusraja ({{count}}) ylitettiin {{requests}} pyynnöllä {{span}} sekunnin sisällä."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Brändää Shield Security omaksesi!"
+msgid "Re-Brand %s as your own!"
+msgstr "Brändää %s omaksesi!"
 
 msgid "Re-Install"
 msgstr "Asenna uudelleen"
@@ -7480,8 +7894,8 @@ msgstr "Asenna uudelleen"
 msgid "Re-Install It"
 msgstr "Asenna se uudelleen"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Brändää Shield Security -lisäosa uudelleen."
+msgid "Re-brand the %s plugin."
+msgstr "Brändää %s-lisäosa uudelleen."
 
 msgid "Re-enable Protection."
 msgstr "Ota suojaus uudelleen käyttöön."
@@ -7512,6 +7926,9 @@ msgstr "Syy"
 
 msgid "Reason: %s"
 msgstr "Syy: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Syy: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Vastaanota hälytys lisäosan käytöstä poistamisesta"
@@ -7651,8 +8068,8 @@ msgstr "Jäljellä olevat sallitut rikkomukset"
 msgid "Remember me for %s"
 msgstr "Muista minut %s"
 
-msgid "Remember to include %s or %s"
-msgstr "Muista sisällyttää %s tai %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Muista sisällyttää %1$s tai %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "Käyttäjän MFA-tekijöiden poiston voi tehdä vain Security Admin"
@@ -7708,6 +8125,9 @@ msgstr "Korjattu"
 msgid "Repaired item found in the scan."
 msgstr "Skannauksessa löydetty kohde korjattu."
 
+msgid "Repairs"
+msgstr "Korjaukset"
+
 msgid "Repeated Human SPAM"
 msgstr "Toistuva ihmisen lähettämä SPAM"
 
@@ -7735,8 +8155,8 @@ msgstr "Raportin asetukset"
 msgid "Report Sent"
 msgstr "Raportti lähetetty"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Raportti lähetetty (välitystavalla {{medium}})."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Raportti lähetetty ({{type}} välityksellä {{medium}})."
 
 msgid "Report Title"
 msgstr "Raportin otsikko"
@@ -8107,17 +8527,17 @@ msgstr "SPAM-tarkistus läpäisty"
 msgid "SPAM Detection"
 msgstr "SPAM-tunnistus"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "SPAM ja bottien massarekisteröinti estetään silentCAPTCHA-toiminnolla."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "SPAM ja bottien massarekisteröinti estetään %s:n toimesta."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM ja bottien massarekisteröintiä ei estetä silentCAPTCHA-toiminnolla."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "SPAM ja bottien massarekisteröintiä ei estetä %s:n toimesta."
 
 msgid "SPAM blocking"
 msgstr "SPAM-esto"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "SPAM toteutetaan kahdella päätavalla: bottien ja ihmisten toimesta."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "SPAMia levittävät 2 vierailijaryhmää: automatisoidut botit ja ihmiset."
 
 msgid "SQL Queries"
 msgstr "SQL-kyselyt"
@@ -8167,6 +8587,9 @@ msgstr "Skannaa lisäosien ja teemojen haavoittuvuudet"
 msgid "Scan Frequency"
 msgstr "Skannauksen tiheys"
 
+msgid "Scan Issues"
+msgstr "Skannausongelmat"
+
 msgid "Scan Item Delete Success"
 msgstr "Skannauserän poisto onnistui"
 
@@ -8200,6 +8623,9 @@ msgstr "Skannauksen tulokset"
 msgid "Scan This QR Code"
 msgstr "Skannaa tämä QR-koodi"
 
+msgid "Scan Type"
+msgstr "Skannaustyyppi"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Skannaa kaikki WordPress-resurssisi tunnettujen tietoturvahaavoittuvuuksien varalta."
 
@@ -8218,11 +8644,11 @@ msgstr "Skannaa sivustosi tiedostomuutosten, haittaohjelmien ja haavoittuvuuksie
 msgid "Scanning Frequency"
 msgstr "Skannauksen tiheys"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "Lisäosa- ja teematiedostojen skannaus on saatavilla vain ShieldPRO:lla."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Lisäosa- ja teematiedostojen skannaus on saatavilla vain %s:n Pro-versiossa."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "PHP-haittaohjelmien skannaus on saatavilla vain ShieldPRO:lla."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "PHP-haittaohjelmien skannaus on saatavilla vain %s:n Pro-versiossa."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "Skannaus käyttää paikallisia tilannekuvia. Päivitä tilisi käyttääksesi joukkoistettuja tilannekuvia ja lisätäksesi tuen premium-lisäosille."
@@ -8305,14 +8731,17 @@ msgstr "Pisteet ovat likimääräinen painotus kullekin komponentille."
 msgid "Script Name To Match"
 msgstr "Täsmättävä skriptin nimi"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Aktivoi ja hallitse ShieldPRO-lisenssiäsi saumattomasti ilman lisenssiavaimia."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Aktivoi ja hallitse %s-lisenssiäsi saumattomasti ilman lisenssiavaimia."
 
 msgid "Search %s"
 msgstr "Hae %s"
 
 msgid "Search Engine"
 msgstr "Hakukone"
+
+msgid "Search Help"
+msgstr "Hae ohjeesta"
 
 msgid "Search engine visibility"
 msgstr "Hakukoneen näkyvyys"
@@ -8374,6 +8803,9 @@ msgstr "Security Admin -aikakatkaisu"
 msgid "Security Admin is now active"
 msgstr "Security Admin on nyt aktiivinen"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Security Admin tarjoaa ylimääräisen tunnistautumistason, joka varmistaa, että vain tarkastetut ylläpitäjät voivat tehdä muutoksia sivustosi turvallisuuteen."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Security Admin -rajoitukset on poistettu"
 
@@ -8385,6 +8817,9 @@ msgstr "Security Admin -istunto on aikakatkaistumassa."
 
 msgid "Security Admins"
 msgstr "Security Admin -ylläpitäjät"
+
+msgid "Security Alert"
+msgstr "Turvahälytys"
 
 msgid "Security Analysis"
 msgstr "Turvallisuusanalyysi"
@@ -8503,11 +8938,11 @@ msgstr "Valitse käyttäjälomakkeiden tarjoajat, jotka tulee tarkistaa SPAM-rek
 msgid "Select The User Forms Provider That You Use"
 msgstr "Valitse käyttämäsi käyttäjälomakkeiden tarjoaja"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Valitse, mitkä %1$s-sähköpostit tulisi lähettää käyttäen %2$s:ää"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Valitse skannattavat alueet"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Valitse, mitkä Shield-sähköpostit tulisi lähettää SureSendin kautta"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Valitse poissuljetavien pyyntöjen tyypit"
@@ -8635,6 +9070,9 @@ msgstr "Istunnot"
 msgid "Sessions Table Filters"
 msgstr "Istuntotaulukon suodattimet"
 
+msgid "Set Security Badge."
+msgstr "Aseta turvallisuusmerkki."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Aseta raja sallituille rikkomuksille ennen kuin vierailijan IP estetään automaattisesti."
 
@@ -8674,161 +9112,23 @@ msgstr "Aseta lisäosa toimimaan MU-lisäosana estääksesi vahingossa tapahtuva
 msgid "Severity"
 msgstr "Vakavuus"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA-palveluntarjoaja käytössä"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield Anti-Spam"
-
 msgid "Shield Deactivated"
 msgstr "Shield poistettu käytöstä"
 
 msgid "Shield Events & Stats"
 msgstr "Shield-tapahtumat & tilastot"
 
-msgid "Shield Info"
-msgstr "Shield Info"
-
-msgid "Shield Option Key"
-msgstr "Shield-asetusavain"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro -kauppa"
-
-msgid "Shield Scanners."
-msgstr "Shield-skannerit."
-
-msgid "Shield Security Home Page"
-msgstr "Shield Securityn kotisivu"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security -lisäosa – sivuston vähimmäisvaatimukset eivät täyty"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro on saatavilla verkkokaupastamme."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Shield Security -lisäosa on asennettu, mutta ei aktivoitu."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Shield Security -lisäosa on synkronoitava."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Shield Security -lisäosaa ei havaittu viimeisimmässä synkronoinnissa."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Shield Security -lisäosan versiot eivät ole synkronoituja."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield-käyttäjän 2FA-palveluntarjoaja aktivoitu"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield-käyttäjän 2FA: Aktiivinen"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield White Label"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield voi integroitua automaattisesti kolmannen osapuolen lisäosiin."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield voi automaattisesti suojata kolmannen osapuolen kirjautumis- ja rekisteröintilomakkeet botteja vastaan."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield ei voinut määrittää, latautuiko silentCAPTCHA JS oikein sivustollasi."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield ei normaalisti skannaa kirjautuneiden tai rekisteröityneiden käyttäjien kommentteja."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield ei normaalisti skannaa kirjautuneiden tai rekisteröityneiden käyttäjien kommentteja. Määritä tässä käyttäjäroolit, joita ei tule skannata."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Shield-tapahtumamääritykset ovat tyhjiä tai väärässä muodossa."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield ei ole asennettu tälle sivustolle."
-
-msgid "Shield plugin activated"
-msgstr "Shield-lisäosa aktivoitu"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Shield-lisäosaa ei voitu aktivoida"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Shield-lisäosaa ei voitu poistaa käytöstä"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Shield-lisäosaa ei voitu asentaa"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Shield-lisäosaa ei voitu päivittää"
-
-msgid "Shield plugin deactivated"
-msgstr "Shield-lisäosa poistettu käytöstä"
-
-msgid "Shield plugin installed"
-msgstr "Shield-lisäosa asennettu"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Shield-lisäosa on asennettu, mutta ei aktiivinen."
-
-msgid "Shield plugin updated"
-msgstr "Shield-lisäosa päivitetty"
-
-msgid "Shield scans cannot execute."
-msgstr "Shield-skannaukset eivät voi suorittaa."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "Sivuston Shield-versio ei vastaa tätä palvelinta."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield skannaa automaattisesti kolmannen osapuolen lisäosasi tarkistaakseen, onko sisäänrakennettu integraatio saatavilla."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield viivästyttää päivityksiä, kunnes uusi päivitys on ollut saatavilla asetetun päivien määrän ajan."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Shieldin MainWP-integraatio ei ole käytössä tälle sivustolle."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Shieldin sääntömoottori ei ole käynnissä."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Shieldin silentCAPTCHA-järjestelmä käyttää ALTCHA:a, joka haastaa botit suorittamaan monimutkaista työtä."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldVARMUUSKOPIOT"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP-mainepisteet"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO-ominaisuudet"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO ilmainen kokeilujakso"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO-lisenssi tyhjennetty"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO-lisenssinhallinta"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO Premium-turvallisuus"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO ei ole aktivoitu tällä sivustolla."
-
-msgid "ShieldPRO license check failed."
-msgstr "ShieldPRO-lisenssitarkistus epäonnistui."
-
-msgid "ShieldPRO license check was successful."
-msgstr "ShieldPRO-lisenssin tarkistus onnistui."
 
 msgid "Should be uninstalled"
 msgstr "Tulisi poistaa"
@@ -8923,20 +9223,23 @@ msgstr "Sivuston URL"
 msgid "Site URL Changed"
 msgstr "Sivuston URL muutettu"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "Sivusto-URL muutettu: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "Sivusto-URL muutettu: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Sivusto lisätty vientivalkolistalle: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Sivuston sähköposti muutettu: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Sivuston sähköposti muutettu: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Sivuston synkronointi epäonnistui"
 
 msgid "Site has been locked down!"
 msgstr "Sivusto on lukittu!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "Sivusto on jo aktivoitu, mutta lisenssin vahvistus epäonnistui."
 
 msgid "Site lock down has been lifted!"
 msgstr "Sivuston lukitus on poistettu!"
@@ -8946,6 +9249,9 @@ msgstr "Sivusto poistettu vientivalkolistalta: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Sivusto synkronoitu onnistuneesti"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "Sivusto oli jo aktivoitu ja lisenssi vahvistettiin onnistuneesti."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Sivusto asetettiin lukitustilaan käyttäjän {{user_login}} toimesta."
@@ -8965,8 +9271,8 @@ msgstr "Koko"
 msgid "Slug"
 msgstr "Tunniste"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug päivitetty: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Tunniste päivitetty: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Julkaisun ID {{post_id}} slug päivitettiin '{{slug_old}}' muotoon '{{slug_new}}'."
@@ -9049,8 +9355,8 @@ msgstr "Valitettavasti tämä skannaus ei ole saatavilla."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Valitettavasti sinulla ei ole pääsyä suorittaa MAL{ai}-kyselyitä, päivitä tilisi."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Valitettavasti sinun on päivitettävä Shield Security -jäsenyytesi käyttääksesi MainWP-integraatiota."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Valitettavasti sinun on päivitettävä %s-jäsenyytesi päästäksesi käyttämään MainWP-integraatiota."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "Tietoturvaloukkausten lisäksi lisäosien ja teemojen haavoittuvuudet, jotka mahdollistavat loukkaukset, ovat ensisijaisia hyökkäyskohteita, joten meidän on tunnistettava ne varhaisessa vaiheessa."
@@ -9100,8 +9406,11 @@ msgstr "Tilastot"
 msgid "Status"
 msgstr "Tila"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Tila muutettu: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Tila muutettu: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Tilatarkistus valmis."
 
 msgid "Store directory could not be created: %s"
 msgstr "Varastohakemistoa ei voitu luoda: %s"
@@ -9133,8 +9442,8 @@ msgstr "Yhteys lisenssipalvelimeen muodostettu onnistuneesti."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Firewall-eston sähköpostihälytys lähetetty onnistuneesti: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Sähköposti (tyyppi: {{slug}}) lähetettiin onnistuneesti osoitteeseen '{{email}}' SureSendin kautta."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Sähköposti (tyyppi: {{slug}}) lähetettiin onnistuneesti osoitteeseen '{{email}}' käyttäen %s:ää."
 
 msgid "Summary"
 msgstr "Yhteenveto"
@@ -9165,15 +9474,6 @@ msgstr "SureSend-sähköpostit"
 
 msgid "SureSend Emails."
 msgstr "SureSend-sähköpostit."
-
-msgid "SureSend Fail"
-msgstr "SureSend-virhe"
-
-msgid "SureSend Success"
-msgstr "SureSend onnistui"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend on Shield Securityn omistettu sähköpostin toimituspalvelu."
 
 msgid "Suspend Account"
 msgstr "Keskeytä tili"
@@ -9229,14 +9529,14 @@ msgstr "Ota CrowdSec-ominaisuus käyttöön tunnettujen (joukkolähteiden) haita
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Tämän ominaisuuden käyttöönotto estää kaiken liikenteen sivustollesi. Ehdottomasti kaikki estetään (mukaan lukien Google Botit)."
 
+msgid "Sync %s"
+msgstr "Synkronoi %s"
+
 msgid "Sync Required"
 msgstr "Synkronointi vaaditaan"
 
 msgid "Sync Required."
 msgstr "Synkronointi vaaditaan."
-
-msgid "Sync Shield"
-msgstr "Synkronoi Shield"
 
 msgid "System Info"
 msgstr "Järjestelmän Info"
@@ -9253,8 +9553,8 @@ msgstr "Taulut poistettu ja ne luodaan nyt uudelleen."
 msgid "Tagline"
 msgstr "Tunnuslause"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Iskulause muutettu: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Iskulause muutettu: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Käytä uutta riviä jokaiselle merkinnälle."
@@ -9268,11 +9568,11 @@ msgstr "Käytä uutta riviä jokaiselle sallitulle polulle."
 msgid "Take a new line per rule."
 msgstr "Käytä uutta riviä jokaiselle säännölle."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Hyödynnä koko Shield-verkostosta kerättyä tiedustelutietoa suojataksesi WordPress-sivustojasi paremmin"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Hyödynnä koko %s-verkon keräämää tiedustelutietoa suojataksesi WordPress-sivustojasi paremmin"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Tekninen tuki Shieldille on tarkoitettu vain Pro-asiakkaille."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "Tekninen tuki %s:lle on yksinomaan Pro-asiakkaille."
 
 msgid "Temp Dir"
 msgstr "Väliaikaishakemisto"
@@ -9295,17 +9595,17 @@ msgstr "WP Cron -testi suoritettiin onnistuneesti."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Testit epäonnistuivat, emmekä voineet automaattisesti määrittää SSL-sertifikaattisi tilaa."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Kiitos, että valitsit Shield Securityn"
+msgid "Thank You For Choosing %s"
+msgstr "Kiitos, että valitsit %s"
 
 msgid "Thank You."
 msgstr "Kiitos."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Kiitos, että valitsit Shield Security (ilmainen)."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Kiitos, että valitsit %s (ilmainen)."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Kiitos, että valitsit Shield Security PRO:n."
+msgid "Thank you for choosing %s."
+msgstr "Kiitos, että valitsit %s."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Kiitos, että käytit aikaa ohjatun asennusohjelman läpikäymiseen."
@@ -9325,11 +9625,23 @@ msgstr "Kiitos."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Se lämmin ja mukava tunne, joka tulee tulevan kehityksen tukemisesta"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "%s-hakemisto on kuin %s-hakemisto ja monet muut kuin WordPress-tiedostot säilytetään siellä."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "%1$s-hakemisto on kuin %2$s-hakemisto ja monet muut kuin WordPress-tiedostot säilytetään siellä."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s tulisi mitata %2$s."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "%s-merkki osoittaa asiakkaillesi, että otat turvallisuuden vakavasti."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "%s-hakemisto on villin lännen kaltainen ja monet lisäosat ja teemat käyttävät sitä työtiedostojen tallentamiseen."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "%s-asetus on poistettu käytöstä, mikä poistaa brute force -suojauksen kirjautumis-, rekisteröinti- ja unohdetun salasanan lomakkeilta."
+
+msgid "The %s option is enabled."
+msgstr "%s-asetus on käytössä."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s-lisäosa ei normaalisti käytä evästeitä rekisteröitymättömille sivuston vierailijoille."
@@ -9337,14 +9649,29 @@ msgstr "%s-lisäosa ei normaalisti käytä evästeitä rekisteröitymättömille
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "%s-lisäosassa on Audit Trail -ominaisuus, joka kirjaa seuraavat tiedot:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "%s plugin on juuri poistettu käytöstä."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "%s-lisäosa ei koskaan tallenna mitään arkaluonteisia, henkilökohtaisesti tunnistettavia tietoja mihinkään evästeeseen missään vaiheessa."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "Tämän sivuston %s-lisäosa on päivitettävä."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "Tämän sivuston %s-lisäosa vaatii aktiivisen PRO-lisenssin."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "%s-lisäosan versio asiakassivustolla on uudempi kuin tällä palvelimella."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "%s-lisäosan versio asiakassivustolla on vanhempi kuin tällä palvelimella ja se on päivitettävä."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "%s-kyselyparametri on estetty suojatakseen käyttäjänimen / kirjoittajan kalastelulta."
 
-msgid "The %s should measure %s."
-msgstr "%s tulisi mitata %s."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "%s-järjestelmä käyttää ALTCHA:a, joka haastaa botit suorittamaan monimutkaista työtä."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "'wp_mail'-funktiota kutsuttiin tiedostosta '{{bt_file}}' rivillä {{bt_line}}."
@@ -9388,8 +9715,8 @@ msgstr "Lisäosan päävalikon otsikko. Jos jätetään tyhjäksi, käytetään 
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "Lisäosan päävalikon otsikko. Jos jätetään tyhjäksi, käytetään lisäosan nimeä."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "MainWP Security -lisäosa ei täytä Shieldin vähimmäisvaatimuksia."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "MainWP Security -lisäosa ei täytä %s:n vähimmäisvaatimuksia."
 
 msgid "The Name Of The Plugin"
 msgstr "Lisäosan nimi"
@@ -9415,32 +9742,14 @@ msgstr "Security Admin -järjestelmä suojaa WordPressin ja %s-lisäosan muutoks
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Security Admin -järjestelmä suojaa %s-lisäosan muutoksia tai vahinkoja vastaan, joita muut WordPress-ylläpitäjät voivat tehdä."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Security Admin on rajoittanut sähköpostin ohitustoiminnon käyttöä."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "Turvallisuusmerkki näytetään vierailijoillesi"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "Turvallisuusmerkkiä ei näytetä vierailijoillesi"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "Tämän sivuston Shield Security -lisäosa on päivitettävä."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Shield-tietokanta on korjattava, sillä tietyt toiminnot eivät ole käytettävissä ilman kelvollista tietokantaa."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Shield-lisäosa on juuri poistettu käytöstä."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "Tämän sivuston Shield-lisäosalla ei ole aktiivista ShieldPRO-lisenssiä."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "Asiakassivuston Shield-lisäosan versio on uudempi kuin tämän palvelimen."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "Asiakassivuston Shield-lisäosan versio on vanhempi kuin tämän palvelimen ja se on päivitettävä."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "Lisäosan iskulause"
@@ -9487,8 +9796,8 @@ msgstr "Maakoodi puuttui."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "Koko %s-kokoonpanosi kumulatiivinen pistemäärä"
 
-msgid "The current request has a valid Shield user session"
-msgstr "Nykyisellä pyynnöllä on voimassa oleva Shield-käyttäjäistunto"
+msgid "The current request has a valid %s user session"
+msgstr "Nykyisellä pyynnöllä on voimassa oleva %s-käyttäjäistunto"
 
 msgid "The data provided was inconsistent."
 msgstr "Annettu data oli epäjohdonmukaista."
@@ -9544,8 +9853,8 @@ msgstr "Seuraavat kohteet havaittiin."
 msgid "The following options will be restricted:"
 msgstr "Seuraavat asetukset rajoitetaan:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Seuraavat käyttäjälomakkeiden tyypit on suojattu silentCAPTCHA:lla: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Seuraavat käyttäjälomakkeiden tyypit ovat %1$s:n suojaamia: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "Etusivu-URL muutettiin '{{from}}' muotoon '{{to}}'."
@@ -9559,8 +9868,8 @@ msgstr "Tunnisteen on oltava aakkosnumeerinen ilman erikoismerkkejä"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "Ennen estämistä sallittujen rikkomusten enimmäismäärä on kohtuullinen: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "Lokien säilytyksen enimmäisrajaa (%s) voidaan kasvattaa päivittämällä ShieldPRO-tilisi."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "Lokien säilytyksen enimmäisrajaa (%1$s) voidaan kasvattaa päivittämällä %2$s-tilisi."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "Pyyntöjen enimmäismäärä, joka on sallittu annetussa aikarajassa."
@@ -9625,7 +9934,7 @@ msgstr "Ensisijainen lähde on %s, koska sitä ei voida väärentää."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Edellinen skannaus ei joko havainnut kohteita, jotka vaativat huomiotasi, tai ne on jo korjattu."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
 msgstr "Tarkoituksena on parantaa WordPressin sähköpostin luotettavuutta kriittisten sähköpostien osalta."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
@@ -9651,12 +9960,6 @@ msgstr "Asetus estää ulkoisia verkkosivustoja upottamasta sivustoasi iFrameen.
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "Asetus estää ulkoisia verkkosivustoja upottamasta sivustoasi iFrameen. Tämä on hyödyllistä niin kutsuttujen ClickJack-hyökkäysten estämiseksi."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "silentCAPTCHA-vaihtoehto on poistettu käytöstä, mikä poistaa brute force -suojauksen kirjautumis-, rekisteröinti- ja unohdetun salasanan lomakkeilta."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "silentCAPTCHA-vaihtoehto on käytössä."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "Sivusto-URL muutettiin '{{from}}' muotoon '{{to}}'."
@@ -9883,6 +10186,9 @@ msgstr "Passkey-tunnistautumishaasteen valmistelussa oli ongelma."
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Passkey-rekisteröintihaasteen valmistelussa oli ongelma."
 
+msgid "There was a problem processing the batched request."
+msgstr "Eräkäsittelypyynnön käsittelyssä oli ongelma."
+
 msgid "There was a problem removing this passkey"
 msgstr "Tämän passkey-avaimen poistamisessa oli ongelma"
 
@@ -9937,9 +10243,6 @@ msgstr "Ne hyökkäävät sivustoillesi, etsivät tietoja ja hyödyntävät haav
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Ne aiheuttavat tuhoa kirjautumislomakkeissa rikkomalla Javascriptin ja muuttamalla käyttökokemuksen painajaiseksi."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Ajattele 'rikkomuksia' vain laskurina, joka laskee kuinka monta kertaa vierailija tekee jotain haitallista."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Ajattele sitä kuin 'Limit Login Attempts' -toimintoa, mutta sovellettuna kaikkiin WordPress-sivuston ominaisuuksiin, ei vain kirjautumissivulle."
 
@@ -9951,6 +10254,9 @@ msgstr "Tämä olet sinä"
 
 msgid "This Page"
 msgstr "Tämä sivu"
+
+msgid "This Period"
+msgstr "Tämä jakso"
 
 msgid "This Server"
 msgstr "Tämä palvelin"
@@ -9967,8 +10273,8 @@ msgstr "Tämä toiminto ei ole käytettävissä profiilillesi tällä hetkellä.
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Tämä toiminta on kirjattu IP-osoitettasi vastaan ja sinut voidaan estää kokonaan pääsemästä sivustolle, jos vastaavaa toimintaa toistetaan."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Tämä toimii myös kumppanilinkkinä, jos käytät ShieldPRO:ta, joten voit ansaita palkintoja jokaisesta suosittelusta."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Tämä toimii myös kumppanilinkkinä, jos käytät %s:ää, joten voit ansaita palkintoja jokaisesta suosittelusta."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Tämä näyttää olevan SPAM, koska se ei läpäissyt %s AntiBot-suojaustarkistuksia."
@@ -10011,6 +10317,9 @@ msgstr "Tämä ominaisuus on käytettävissä vain, kun Traffic Logger on aktiiv
 
 msgid "This feature isn't currently enabled."
 msgstr "Tämä ominaisuus ei ole tällä hetkellä käytössä."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Tämä ominaisuus perustuu salaiseen PIN-koodiin (jonka luot alla), jota käytät henkilöllisyytesi vahvistamiseen %s-lisäosan kanssa."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Tämä tiedosto sisältää haitallista koodia - se on haittaohjelma!"
@@ -10171,11 +10480,20 @@ msgstr "Tämä asetus poistetaan automaattisesti käytöstä %s jälkeen ja kaik
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Tätä tulee käyttää varoen ja sinun tulisi antaa vain parametrien nimiä, jotka on ehdottomasti suljettava pois"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Tämä sivusto näyttää olevan osa Shield-verkostoa."
+msgid "This site appears to be part of a %s Network."
+msgstr "Tämä sivusto näyttää olevan osa %s-verkkoa."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Tämä sivusto ei tällä hetkellä voi tehdä HTTP-pyyntöjä itselleen."
+
+msgid "This site is already activated for this account."
+msgstr "Tämä sivusto on jo aktivoitu tälle tilille."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Tämä sivusto on jo aktivoitu. Tarkistetaan uudelleen ja synkronoidaan paikallista lisenssitilaa..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Tämä vaihe saattaa olla tärkein, sillä se auttaa varmistamaan, että %s löytää aina oikean vierailijan IP:n."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Tämä teema ei ole aktiivinen ja se tulisi poistaa."
@@ -10222,8 +10540,8 @@ msgstr "Tämä estää kenttien katkaisuhyökkäykset sovelluksen parametreissa.
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Tämä estää sql:n sovelluksen parametreissa (esim. %s jne.)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Tämä aiheuttaa sen, että %s- ja %s-URL-osoitteet palauttavat HTTP 404 -virheitä, kun et ole kirjautuneena sisään."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Tämä aiheuttaa sen, että %1$s- ja %2$s-URL-osoitteet palauttavat HTTP 404 -virheitä, kun ei ole kirjautuneena."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Tämä kuluttaa SMS-hyvityksiäsi, jos niitä on saatavilla, aivan kuten mikä tahansa tavallinen 2FA-tekstiviesti."
@@ -10242,6 +10560,9 @@ msgstr "Tämä rajoittaa WordPress-ylläpitäjien mahdollisuutta muuttaa keskeis
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Tämä rajoittaa WordPress-ylläpitäjien mahdollisuutta luoda, muokata tai ylentää muita ylläpitäjiä."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Tämä ohjattu toiminto opastaa sinut %s:n keskeisten ominaisuuksien läpi, jotta pääset alkuun alle 3 minuutissa."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Tämä toimii, koska lailliset web-indeksoijat kunnioittavat 'robots.txt'- ja 'nofollow'-direktiivejä."
@@ -10273,17 +10594,17 @@ msgstr "Aikaleima"
 msgid "Timezone"
 msgstr "Aikavyöhyke"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Otsikko päivitetty: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Otsikko päivitetty: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Otsikko muutettu: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Otsikko muutettu: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Julkaisun ID {{post_id}} otsikko päivitettiin '{{title_old}}' muotoon '{{title_new}}'."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Tämän ratkaisemiseksi loimme oman järjestelmämme nimeltä silentCAPTCHA."
+msgid "To address this we created our own system called %s."
+msgstr "Tämän ratkaisemiseksi loimme oman järjestelmämme nimeltä %s."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Piilottaaksesi wp-login.php-sivusi brute force -hyökkäyksiltä ja hakkerointiyrityksiltä - jos kirjautumissivuasi ei löydy, kukaan ei voi kirjautua sisään."
@@ -10303,14 +10624,17 @@ msgstr "Rekisteröidäksesi uuden Yubikey-laitteen, syötä kertakäyttösalasan
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Poistaaksesi Yubikey-laitteen, syötä rekisteröity laitteen ID ja tallenna."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Ratkaistaksesi tämän voit ilmoittaa %s:lle, mikä IP-osoitteesi on juuri nyt, ja tämä mahdollistaa optimaalisen IP-lähteen määrittämisen."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Terveyden ylläpitäminen edellyttää aktiivista tiedostojen skannausta odottamattomien muutosten varalta ja sellaisten tiedostojen havaitsemista, jotka eivät kuulu sinne."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Passkeys-toiminnon käyttämiseksi PHP-asennuksessasi on oltava ladattuna 1 seuraavista laajennuksista: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Sähköpostin vahvistamiseksi sivustosi lähettää pyynnön ShieldNET API:lle, mikä voi aiheuttaa pienen viiveen käyttäjän rekisteröintipyynnön aikana."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Sähköpostin vahvistamiseksi sivustosi lähettää pyynnön %s API:lle, mikä voi aiheuttaa pienen viiveen käyttäjän rekisteröintipyynnön aikana."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Nähdäksesi kaikki lokit tästä IP-osoitteesta käytä Traffic Log -työkalua, sillä lokit täällä on rajoitettu %s merkintään."
@@ -10326,6 +10650,9 @@ msgstr "Vaihda, sisällytetäänkö tämä asetus tuonti- ja vientitoimintoihin"
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Liian monta 2FA-vahvistusyritystä - kirjaudu sisään uudelleen."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Liian monta eräkäsittelypyyntöä. Sallittu enimmäismäärä on %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Liian monet pyynnöt IP-osoitteestasi ovat laukaisseet sivuston automaattiset puolustusmekanismit."
@@ -10399,11 +10726,35 @@ msgstr "Liikennepyyntöjä lokitetaan, mikä helpottaa ongelmien seuraamista."
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Liikennepyyntöjä ei lokiteta, mikä vaikeuttaa ongelmien seuraamista."
 
+msgid "Translation Download Failed"
+msgstr "Käännöksen lataus epäonnistui"
+
+msgid "Translation Downloaded"
+msgstr "Käännös ladattu"
+
+msgid "Translation download queue is empty."
+msgstr "Käännösten latauskö on tyhjä."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Käännös ladattu onnistuneesti: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Käännöstiedosto ladattu kieliversiolle: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Käännökset jonossa"
+
+msgid "Translations have been downloaded."
+msgstr "Käännökset on ladattu."
+
 msgid "Trash"
 msgstr "Roskakori"
 
 msgid "Trashed"
 msgstr "Roskakorissa"
+
+msgid "Trend"
+msgstr "Trendi"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Yritettiin ladata virheellinen WordPress PHP -skripti '{{script}}'."
@@ -10417,11 +10768,17 @@ msgstr "Luotetut käyttäjäroolit"
 msgid "Trusted Users"
 msgstr "Luotetut käyttäjät"
 
+msgid "Try Pro For Free"
+msgstr "Kokeile Pro-versiota ilmaiseksi"
+
 msgid "Turn Off"
 msgstr "Poista käytöstä"
 
 msgid "Turn On"
 msgstr "Ota käyttöön"
+
+msgid "Turn On Security Admin"
+msgstr "Ota Security Admin käyttöön"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Ota nopeusrajoitusominaisuus käyttöön"
@@ -10441,8 +10798,11 @@ msgstr "Kytke White Label -asetuksesi päälle/pois."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Poista selaimen Mime-Sniff käytöstä"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Ota käyttöön Shieldin sisäänrakennettu laajennus MainWP-palvelin- ja asiakasasennuksille"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "Ota käyttöön %s:n sisäänrakennettu laajennus MainWP-palvelin- ja asiakasasennuksiin"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Tämän käyttöönotto lisää läpikuultavan merkin verkkosivustosi alatunnisteeseen."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Kaksivaiheinen kirjautumistunnistautuminen palvelulla %s"
@@ -10516,14 +10876,11 @@ msgstr "Luokittelematon"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Ymmärrä, miten Google Authenticator poistetaan"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Valitettavasti U2F on oletuksena poistettu käytöstä useimmissa nykyaikaisissa selaimissa, mutta se tarjotaan silti täällä taaksepäin yhteensopivuuden vuoksi."
-
 msgid "Unidentified"
 msgstr "Tunnistamaton"
 
-msgid "Uninstall Shield"
-msgstr "Poista Shield"
+msgid "Uninstall %s"
+msgstr "Poista %s"
 
 msgid "Uninstalled"
 msgstr "Poistettu"
@@ -10539,6 +10896,9 @@ msgstr "Tuntematon - vaatii WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Tuntematon nimi"
+
+msgid "Unknown activation error."
+msgstr "Tuntematon aktivointivirhe."
 
 msgid "Unknown item"
 msgstr "Tuntematon kohde"
@@ -10582,6 +10942,9 @@ msgstr "Tulostyyppiä ei tueta."
 msgid "Until"
 msgstr "Asti"
 
+msgid "Update %s"
+msgstr "Päivitä %s"
+
 msgid "Update Available"
 msgstr "Päivitys saatavilla"
 
@@ -10596,9 +10959,6 @@ msgstr "Päivitä nyt pitääksesi turvallisuutesi ajan tasalla uusimpien ominai
 
 msgid "Update Required"
 msgstr "Päivitys vaaditaan"
-
-msgid "Update Shield"
-msgstr "Päivitä Shield"
 
 msgid "Update This Rule"
 msgstr "Päivitä tämä sääntö"
@@ -10633,14 +10993,14 @@ msgstr "Päivitys vaaditaan"
 msgid "Upgrade To"
 msgstr "Päivitä versioon"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Päivitä %s Pro-versioon nyt"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Päivitä luodaksesi mukautettuja raportteja"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Päivitä Shield Pro -versioon nyt"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Päivitä ShieldPRO-jäsenyytesi"
+msgid "Upgrade Your %s Membership"
+msgstr "Päivitä %s-jäsenyytesi"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Päivitä tilisi tukeaksesi teematiedostojen skannausta muutosten varalta."
@@ -10648,8 +11008,8 @@ msgstr "Päivitä tilisi tukeaksesi teematiedostojen skannausta muutosten varalt
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Päivitä tilisi tukeaksesi tätä skannauskohdetta."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Päivitetty: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Päivitetty: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Tiedoston lataus epäonnistui"
@@ -10657,8 +11017,11 @@ msgstr "Tiedoston lataus epäonnistui"
 msgid "Uptime Monitoring"
 msgstr "Käyttöajan seuranta"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Käytä %s testataksesi liiallisia pyyntöjä %s minuutin aikavälillä."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "Käytä %1$s:ää liiallisten pyyntöjen testaamiseen %2$s minuutin aikavälillä."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Käytä %s:ää botti-kommentti-SPAMin estämiseen"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "Käytetäänkö CloudFlarea maantieteellisen datan lähteenä?"
@@ -10681,8 +11044,8 @@ msgstr "Käytä suurempaa pyyntöjen enimmäisrajaa vähentääksesi riskiä est
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Käytä lyhyempää aikaväliä vähentääksesi riskiä estää laillisia vierailijoita."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "silentCAPTCHA:n käyttö kirjautumisyritysten rajoittamiseen käyttäjälomakkeilla ei ole käytössä - sinun on otettava se käyttöön kirjautumisen turvallisuusvyöhykkeellä."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "%s:n käyttö kirjautumisyritysten rajoittamiseen käyttäjälomakkeissa ei ole käytössä - sinun on otettava se käyttöön Login Security Zone -osiossa."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Tämän ominaisuuden käyttöä suositellaan erittäin vahvasti."
@@ -10690,11 +11053,11 @@ msgstr "Tämän ominaisuuden käyttöä suositellaan erittäin vahvasti."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Tämän ominaisuuden käyttö korvaa olemassa olevat asetukset ja korvaa ne päätuontisivuston asetuksilla."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Käytä suhteellisia polkuja kotisivusi URL-osoitteesta esim. %s ohjaa kotisivullesi (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Käytä suhteellisia polkuja kotisivusi URL-osoitteesta esim. %1$s ohjaa kotisivullesi (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Käytä silentCAPTCHA-toimintoa botti-kommentti-SPAMin estämiseen"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Käytä Super Search -hakuruutua löytääksesi mitä tahansa %s-lisäosasta, mukaan lukien asetukset, IP-osoitteet, työkalut, ohjeet jne."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Käytä poissulkemisasetusta salliaksesi anonyymi pääsy tiettyihin API-päätteisiin."
@@ -10702,14 +11065,17 @@ msgstr "Käytä poissulkemisasetusta salliaksesi anonyymi pääsy tiettyihin API
 msgid "Use the link above to create a new one."
 msgstr "Käytä yllä olevaa linkkiä luodaksesi uuden."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Käytä näitä etuliitteitä hakukentässä suodattaaksesi tuloksia."
+
 msgid "Use this feature with care."
 msgstr "Käytä tätä ominaisuutta varoen."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Käytä tätä tiedostoa kopioidaksesi asetukset tältä sivustolta toiselle sivustolle"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Käytä tätä asetusta poistaaksesi kaikki aktiiviset Shield-suojaukset kokonaan käytöstä."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Käytä tätä vaihtoehtoa poistaaksesi kaikki aktiiviset %s-suojaukset kokonaan käytöstä."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Käytä tätä asetusta ottaaksesi mukautetut CSP-säännöt käyttöön tai pois käytöstä."
@@ -10897,11 +11263,11 @@ msgstr "Käyttäjän unohtunut salasana -pyyntö estetty."
 msgid "User must be logged-in."
 msgstr "Käyttäjän on oltava kirjautuneena."
 
+msgid "User not found."
+msgstr "Käyttäjää ei löytynyt."
+
 msgid "User registration request blocked."
 msgstr "Käyttäjärekisteröintipyyntö estetty."
-
-msgid "User session deleted"
-msgstr "Käyttäjäistunto poistettu"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "Käyttäjäistunto on vanhentunut ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Käyttäjät pakotetaan nollaamaan salasanansa määritetyn päivien mä
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Käyttää kolmannen osapuolen SPAM-sanakirjaa ihmisten lähettämän kommentti-SPAMin tunnistamiseen."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Shieldin ainutlaatuista Snapshot-teknologiaa käyttäen myös suoraan WP-tietokantaan tehdyt ylläpitäjämuutokset havaitaan!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "%s:n eksklusiivisen Snapshot-teknologian avulla myös suoraan WP-tietokantaan tehdyt ylläpitäjämuutokset havaitaan!"
 
 msgid "Valid license couldn't be found."
 msgstr "Kelvollista lisenssiä ei löytynyt."
@@ -11047,11 +11413,11 @@ msgstr "Näytä kaikki"
 msgid "View All Security Grades"
 msgstr "Näytä kaikki turvallisuusarvosanat"
 
-msgid "View As ShieldFREE"
-msgstr "Näytä ShieldFREE-näkymänä"
+msgid "View As %s"
+msgstr "Näytä muodossa %s"
 
-msgid "View As ShieldPRO"
-msgstr "Näytä ShieldPRO-näkymänä"
+msgid "View As Free Version"
+msgstr "Näytä ilmaisversiona"
 
 msgid "View Comment"
 msgstr "Näytä kommentti"
@@ -11071,6 +11437,9 @@ msgstr "Näytä tiedoston sisältö"
 msgid "View File Details"
 msgstr "Näytä tiedoston tiedot"
 
+msgid "View Full Report"
+msgstr "Näytä koko raportti"
+
 msgid "View IP Reputation Option"
 msgstr "Näytä IP-mainevaihtoehto"
 
@@ -11088,6 +11457,9 @@ msgstr "Näytä paketit"
 
 msgid "View Report"
 msgstr "Näytä raportti"
+
+msgid "View Reports"
+msgstr "Näytä raportit"
 
 msgid "View Results"
 msgstr "Näytä tulokset"
@@ -11146,9 +11518,6 @@ msgstr "Tarkastele koko WordPress-sivustosi turvallisuutta yhdellä silmäyksell
 msgid "View, edit and remove custom security rules"
 msgstr "Tarkastele, muokkaa ja poista mukautettuja turvallisuussääntöjä"
 
-msgid "View/Create Reports"
-msgstr "Tarkastele/luo raportteja"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Vierailijan automaattinen eston poisto"
 
@@ -11182,8 +11551,8 @@ msgstr "Vierailija löytyi estolistalta ja heidän yhteytensä katkesi."
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Vierailija löytyi CrowdSec-estolistalta ja heidän pyyntönsä lopetettiin."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Vierailija rekisteröityi käyttäen silentCAPTCHA:a."
+msgid "Visitor registered using %s."
+msgstr "Vierailija rekisteröityi käyttäen %s."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "Vierailija poisti IP-osoitteensa '{{ip}}' eston käyttäen '{{method}}' -menetelmää."
@@ -11226,9 +11595,6 @@ msgstr "Haavoittuvuusskannauksen on oltava aktiivinen tämän vaihtoehdon käytt
 
 msgid "Vulnerable"
 msgstr "Haavoittuvainen"
-
-msgid "Vulnerable Assets"
-msgstr "Haavoittuvat resurssit"
 
 msgid "Vulnerable Plugins"
 msgstr "Haavoittuvat lisäosat"
@@ -11277,6 +11643,9 @@ msgstr "WP:n oletuskäyttäjärooli"
 
 msgid "WP File Editing"
 msgstr "WP-tiedostojen muokkaus"
+
+msgid "WP Files"
+msgstr "WP-tiedostot"
 
 msgid "WP Generator Tag"
 msgstr "WP Generator -tunniste"
@@ -11367,6 +11736,9 @@ msgstr "Suosittelemme sen poistamista käytöstä, jos et enää tarvitse sitä 
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Suosittelemme asiantuntemuksen hakemista tällä alueella ja varmistamaan, että käyttöönotoissasi on täydellinen testaus."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "Suosittelemme jotain 5:n ja 10:n väliltä. Mitä pienempi raja, sitä tiukempi %s on."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Suosittelemme pitämään WP-juurihakemiston siistinä säilyttämällä siellä vain viralliset WordPressin ydintiedostot."
@@ -11485,8 +11857,8 @@ msgstr "Kun tarpeeksi huonoa käyttäytymistä havaitaan, se estää IP-osoittee
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Kun tämä on käytössä, kaikki saatavilla olevat kolmannen osapuolen integraatiot otetaan käyttöön heti, kun ne havaitaan."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Kun laskuri saavuttaa alla olevan rajan (oletus: %s), %s estää kyseisen IP-osoitteen kokonaan."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Kun laskuri saavuttaa alla olevan rajan (oletus: %1$s), %2$s estää kyseisen IP-osoitteen kokonaan."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Kun nykyistä tiedoston sisältöä verrattiin viralliseen julkaisuun, havaittiin muutoksia."
@@ -11578,17 +11950,17 @@ msgstr "Valkolistatut sivustot voivat viedä asetuksia tältä sivustolta ilman 
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Estää todennäköisesti tallentamisen lisäosan/teeman tiedostomuokkaimissa."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "%s-joukkoistamistiedustelun avulla meluisat väärät positiiviset tulokset, jotka tuhlaavat aikaasi, piilotetaan automaattisesti, jotta voit keskittyä merkityksellisiin riskeihin."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "%s-teknologian avulla bottien pysäyttäminen on nyt melko helppoa."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "%s:n avulla voimme integroitua suoraan kaikkiin suurimpiin yhteydenottolomake-lisäosiin estääksemme automaattisten bottien lähettämän yhteydenottolomake-SPAMin."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "%s:n sisäänrakennetun silentCAPTCHA-teknologian avulla bottien pysäyttäminen on itse asiassa melko helppoa nyt."
-
 msgid "With Issues"
 msgstr "Ongelmien kanssa"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "ShieldNET-joukkoistamistiedustelun avulla Shield piilottaa automaattisesti vääriä positiivisia tuloksia, jotta voit keskittyä merkityksellisiin riskeihin ja jättää huomiotta aikaasi tuhlaavan hälyn."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Sen avulla voit saada välittömästi hälytyksen tiedoston muutoksista selkeän näkymän kanssa tarkoista muutoksista ja helpot seuraavat vaiheet jatkotoimenpiteistä."
@@ -11596,8 +11968,8 @@ msgstr "Sen avulla voit saada välittömästi hälytyksen tiedoston muutoksista 
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "SPAM-sanakirjamme avulla voimme tunnistaa ihmisten lähettämät SPAM-kommentit lähettämättä mitään tietoja sivustoltasi kolmansille osapuolille."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Tehokkaan silentCAPTCHA-toimintomme avulla voimme havaita lähes 100 % kaikesta botti-SPAMista."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Tehokkaan %s avulla voimme havaita lähes 100 %% kaikesta botti-SPAMista."
 
 msgid "Wizards"
 msgstr "Ohjatut toiminnot"
@@ -11737,8 +12109,8 @@ msgstr "WordPress ladataan normaalisti rajoitetulla määrällä tapoja, ja kun 
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress käyttää vanhaa PHP-versiota (%s)."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress käyttää tuoretta PHP-versiota (%s) (vähintään %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress käyttää tuoretta PHP-versiota (%1$s) (vähintään %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "WordPress-kirjautumislomakkeet eivät ole suojattuja botteja vastaan, koska olet asettanut botin vähimmäispistemääräksi 0, mikä ohjaa %s-järjestelmää."
@@ -11839,8 +12211,8 @@ msgstr "Voit valita 'Aktivoi vain' (ei suositella) tai sulkea tämän viestin pe
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Voit poistaa anonyymin pääsyn REST API:iin kokonaan käytöstä."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Voit saada tämän turvallisuusominaisuuden ja monia muita päivittämällä ShieldPRO-tilisi."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Voit saada tämän turvallisuusominaisuuden ja monia muita päivittämällä %s-tilisi."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Voit auttaa meitä havaitsemaan palvelimellesi parhaan IP-osoitteen käyttämällä alla olevaa linkkiä, joka kertoo sinulle nykyisen IP-osoitteesi, ja valitsemalla sitten luettelosta vaihtoehdon, joka sisältää sen."
@@ -11887,8 +12259,8 @@ msgstr "Voit tunnistautua %s Security Admin -järjestelmään ja palata tänne."
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Voit yhdistää useita tunnistautumistekijöitä turvallisuuden parantamiseksi."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Saatat saada epäluotettavia tuloksia, kun Akismet toimii Shieldin ihmisen SPAM-suojauksen rinnalla."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Saatat saada epäluotettavia tuloksia, kun Akismet toimii %s:n ihmis-SPAM-suojauksen rinnalla."
 
 msgid "You may need to reload this page to continue."
 msgstr "Saatat joutua lataamaan tämän sivun uudelleen jatkaaksesi."
@@ -11962,8 +12334,8 @@ msgstr "IP-osoitettasi ei ole valkoisella listalla, joten sinut lukitaan ulos, j
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "IP-osoitteesi on valkoisella listalla! Tämä asetus ei koske SINUA, joten sinun on aina käytettävä tavallista kirjautumissivua: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "MySQL-tietokantapalvelimesi ei tue IPv6-osoitteita. Versiosi: %s; vaadittu MySQL-versio: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "MySQL-tietokantapalvelimesi ei tue IPv6-osoitteita. Versiosi: %1$s; vaadittu MySQL-versio: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Yksilöllinen Yubikey App API -avain"
@@ -12037,11 +12409,11 @@ msgstr "Raportointisähköpostiosoitteesi on: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Security Admin on asettanut vaatimuksia salasanan laadulle."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Turvallisuusanalyysisi ei ota huomioon vain ShieldPRO:lle saatavilla olevia ominaisuuksia - käytä Hammaspyörä-valikkoa tarkastellaksesi analyysiasi ikään kuin sinulla olisi pääsy näihin ylimääräisiin turvallisuusominaisuuksiin."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Turvallisuusanalyysisi ei ota huomioon %s-ainoita ominaisuuksia - käytä Hammaspyörä-valikkoa tarkastellaksesi analyysiäsi ikään kuin sinulla olisi pääsy näihin ylimääräisiin turvallisuusominaisuuksiin."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Turvallisuusanalyysisi sisältää vain ShieldPRO:lle saatavilla olevia ominaisuuksia - käytä Hammaspyörä-valikkoa tarkastellaksesi analyysiasi käytettävissä olevien turvallisuusominaisuuksiesi osalta."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Turvallisuusanalyysisi sisältää %s-ainoita ominaisuuksia - käytä Hammaspyörä-valikkoa tarkastellaksesi analyysiäsi käytettävissä olevien turvallisuusominaisuuksien osalta."
 
 msgid "Your session has expired."
 msgstr "Istuntosi on vanhentunut."
@@ -12055,11 +12427,11 @@ msgstr "Istuntosi oli lukittu toiseen IP-osoitteeseen."
 msgid "Your session was terminated."
 msgstr "Istuntosi päätettiin."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Sivustosi hyötyy ShieldPRO:n tarjoamasta lisäturvasuojauksesta."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Sivustosi hyötyy %s:n tarjoamasta lisäturvallisuussuojauksesta."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Sivustosi ei hyödy ShieldPRO:n tarjoamasta lisäturvasuojauksesta."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Sivustosi ei hyödy %s:n tarjoamasta lisäturvasuojauksesta."
 
 msgid "Your site is currently in lockdown."
 msgstr "Sivustosi on tällä hetkellä lukitustilassa."
@@ -12082,8 +12454,8 @@ msgstr "Sivustosi ei ole suojattu bottien automaattista kommenttiroskaa vastaan.
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Sivustoasi ei ole vielä rekisteröity CrowdSec-palveluun."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Webhotellipalvelusi ei täytä Shield Security -lisäosan vähimmäisvaatimuksia."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Webhotelliisi ei täytä %s-lisäosan vähimmäisvaatimuksia."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Vyöhyketoiminnot"
 msgid "Zones"
 msgstr "Vyöhykkeet"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Väärä positiivinen] tarkoittaa, että koodi näyttää haittaohjelmalta, mutta se on itse asiassa puhdas."
@@ -12142,6 +12514,18 @@ msgstr "all_opts_keys-lomake-elementtiä ei annettu."
 msgid "and"
 msgstr "ja"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "ja käsitellään automaattisesti noin %d minuutin kuluttua."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "ja käsitellään automaattisesti noin %d minuutin kuluttua."
+
+msgid "and will be processed shortly."
+msgstr "ja käsitellään pian."
+
+msgid "auto-fixed"
+msgstr "automaattisesti korjattu"
+
 msgid "case-insensitive"
 msgstr "kirjainkoko huomioimatta"
 
@@ -12154,8 +12538,8 @@ msgstr "päivää"
 msgid "empty username"
 msgstr "tyhjä käyttäjänimi"
 
-msgid "entries: %s (previous: %s)"
-msgstr "merkinnät: %s (aiemmin: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "merkinnät: %1$s (edellinen: %2$s)"
 
 msgid "estimated"
 msgstr "arvioitu"
@@ -12175,6 +12559,12 @@ msgstr "lisäohje"
 msgid "help"
 msgstr "ohje"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "puuttuvat tiedot"
 
 msgid "more frequent checks will be ignored"
 msgstr "useammat tarkistukset ohitetaan"
+
+msgid "more..."
+msgstr "lisää..."
 
 msgid "n/a"
 msgstr "ei saatavilla"
@@ -12235,80 +12628,8 @@ msgstr "suositus"
 msgid "seconds"
 msgstr "sekuntia"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot-teknologia"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "silentCAPTCHA-bottien havaitseminen ei suojaa brute force -hyökkäyksiltä WordPress-kirjautumistasi vastaan."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "silentCAPTCHA-bottien havaitseminen ei suojaa WordPressin unohdetun salasanan lomakettasi."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "silentCAPTCHA-bottien havaitseminen ei suojaa WordPress-rekisteröintiäsi."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA-botin vähimmäispistemäärä"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA-botin pistemäärä (prosentti)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA-tarkistus virheellinen (moduuli)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA-monimutkaisuus"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA kirjautumisille"
-
-msgid "silentCAPTCHA Registration"
-msgstr "silentCAPTCHA-rekisteröinti"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "silentCAPTCHA-tunnistusta ei sovelleta, koska et ole valinnut yhtään suojattavaa lomaketta, kuten kirjautumista tai rekisteröitymistä."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA on %s:n yksinomainen WordPressin haitallisten bottien tunnistusteknologia."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA on %s:n yksinomainen bottien tunnistusteknologia, joka poistaa tarpeen näkyville CAPTCHAille ja vastaavanlaisille vierailijoiden haasteille."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA on %s:n yksinomainen bottien tunnistusteknologia, joka on näkymätön vierailijoillesi ja poistaa tarpeen käyttäjien vuorovaikutukselle kirjautumisen CAPTCHAjen kanssa."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA on poistettu käytöstä, koska vähimmäisbotti-pistemäärän kynnysarvoa ei ole annettu."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA on poistettu käytöstä, kun vähimmäispisteeksi on asetettu %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA on käytössä vähimmäisbotti-pistemäärän kynnysarvolla."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA ei suojaa WP-kommenttejasi botti-SPAMia vastaan."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "silentCAPTCHA:n bottihaasteen monimutkaisuus on liian alhainen - harkitse sen nostamista."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "silentCAPTCHA:n bottien tunnistus ei ole käynnissä, koska vähimmäispisteeksi on asetettu 0."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "silentCAPTCHA:n bottien tunnistus ei ole käynnissä, koska botteja ei tällä hetkellä haasteta."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "silentCAPTCHA:n botin vähimmäispistemäärä on melko alhainen (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "SilentCAPTCHA v1 -rekisteröinti"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "SilentCAPTCHA v2 -rekisteröinti"
 
 msgid "suggestion"
 msgstr "ehdotus"

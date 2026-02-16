@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-08 12:13+0000\n"
-"PO-Revision-Date: 2025-12-08 12:13+0000\n"
+"POT-Creation-Date: 2026-02-16 11:49+0000\n"
+"PO-Revision-Date: 2026-02-16 11:49+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: ko_KR\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = 켜짐; \"N\" = 꺼짐"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (상수 <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (상수 <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s님이 방금 %2$s에 로그인했습니다"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s 및 %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s은(는) GDPR을 준수하는 독점적이고 보이지 않는 봇 감지 기술인 %2$s을(를) 사용하여 자동화된 봇 스팸을 모두 차단합니다."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "%1$s 봇 최소 점수가 상당히 낮습니다(%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s이(가) 사이트에서 %2$s JS가 올바르게 로드되는지 확인하지 못했습니다."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s에는 사용 중인 타사 플러그인의 양식을 보호하기 위한 통합이 제공됩니다: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s은(는) 현재 설치된 %2$s 플러그인 버전에 알려진 보안 취약점이 있음을 발견했습니다."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s이(가) 임시 디렉터리를 생성할 다음 위치를 성공적으로 선택했습니다: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s은(는) wp-config.php 파일을 보호하는 %2$s 전용 서비스입니다."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s은(는) %2$s의 전용 이메일 전송 서비스입니다."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s은(는) %2$s의 독점 봇 감지 기술로, 방문자에게 보이지 않으며 로그인 CAPTCHA와의 사용자 상호작용 필요성을 제거합니다."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s은(는) 최소 점수를 %2$s(으)로 설정하면 비활성화됩니다."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s은(는) %2$s 전용 봇 감지 기술로, 보이는 CAPTCHA 및 유사한 방문자 챌린지의 필요성을 제거합니다."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s님이 이 댓글을 \"%2$s\"(으)로 표시했습니다."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%2$s 중 %1$s 사용됨 (미사용: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d개의 로케일을 사용할 수 있습니다."
+
+msgid "%d locale(s) in queue."
+msgstr "대기열에 %d개의 로케일이 있습니다."
+
+msgid "%d translation is queued for download"
+msgstr "%d개의 번역이 다운로드 대기 중입니다"
+
+msgid "%d translations are queued for download"
+msgstr "%d개의 번역이 다운로드 대기 중입니다"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON 인코딩됨)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA 제공업체 활성화됨"
 
 msgid "%s API Token Missing."
 msgstr "%s API 토큰이 누락되었습니다."
+
+msgid "%s Anti-Spam"
+msgstr "%s 스팸 차단"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot 기술"
 
 msgid "%s Auto-Unblock"
 msgstr "%s 자동 차단 해제"
@@ -37,29 +115,92 @@ msgstr "%s 자동 차단 해제"
 msgid "%s Bot Check Failed."
 msgstr "%s 봇 확인 실패."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "%s 봇 감지가 워드프레스 로그인에 대한 무차별 대입 공격으로부터 보호하지 않습니다."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "%s 봇 감지가 워드프레스 비밀번호 찾기 양식을 보호하지 않습니다."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "%s 봇 감지가 워드프레스 회원가입을 보호하지 않습니다."
+
+msgid "%s Bot Minimum Score"
+msgstr "%s 봇 최소 점수"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s 봇 점수(백분율)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "%s 봇 챌린지 복잡도가 너무 낮습니다. 증가시키는 것을 고려하세요."
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s 확인 유효하지 않음(모듈)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%s 댓글 스팸 보호"
+
+msgid "%s Complexity"
+msgstr "%s 복잡도"
+
+msgid "%s Deactivated"
+msgstr "%s 비활성화됨"
 
 msgid "%s Debug Information"
 msgstr "%s 디버그 정보"
 
+msgid "%s Emails"
+msgstr "%s 이메일"
+
+msgid "%s Fail"
+msgstr "%s 실패"
+
+msgid "%s Features"
+msgstr "%s 기능"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s 방화벽이 워드프레스 사이트에 대한 요청을 차단했습니다."
+
+msgid "%s For Logins"
+msgstr "로그인 %s"
+
+msgid "%s Free Trial"
+msgstr "%s 무료 체험"
 
 msgid "%s Home"
 msgstr "%s 홈"
 
+msgid "%s Home Page"
+msgstr "%s 홈페이지"
+
+msgid "%s IP Reputation Score"
+msgstr "%s IP 평판 점수"
+
+msgid "%s Info"
+msgstr "%s 정보"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s 지능형 IP 블록"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s님이 방금 %s에 로그인했습니다"
+msgid "%s Issue"
+msgstr "%s 문제"
+
+msgid "%s Issues"
+msgstr "%s 문제"
+
+msgid "%s License Cleared"
+msgstr "%s 라이선스 지워짐"
+
+msgid "%s License Management"
+msgstr "%s 라이선스 관리"
 
 msgid "%s Login Verification"
 msgstr "%s 로그인 인증"
 
 msgid "%s Lookup"
 msgstr "%s 조회"
+
+msgid "%s Option Key"
+msgstr "%s 옵션 키"
 
 msgid "%s Plugin Badge"
 msgstr "%s 플러그인 배지"
@@ -70,6 +211,24 @@ msgstr "%s 플러그인 구성"
 msgid "%s Plugin options updated successfully."
 msgstr "%s 플러그인 옵션이 성공적으로 업데이트되었습니다."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s 플러그인 – 최소 사이트 요구 사항이 충족되지 않습니다"
+
+msgid "%s Premium Security"
+msgstr "%s 프리미엄 보안"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro는 온라인 스토어에서 구입할 수 있습니다."
+
+msgid "%s Pro store"
+msgstr "%s Pro 스토어"
+
+msgid "%s Registration"
+msgstr "%s 회원가입"
+
+msgid "%s Scanners."
+msgstr "%s 스캐너."
+
 msgid "%s Security Insights"
 msgstr "%s 보안 인사이트"
 
@@ -79,14 +238,35 @@ msgstr "%s 보안 제한 적용됨"
 msgid "%s Status Report"
 msgstr "%s 상태 보고서"
 
+msgid "%s Success"
+msgstr "%s 성공"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s 사용자 2FA 제공업체 활성화됨"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s 사용자 2FA: 활성 상태가 있음"
+
 msgid "%s Website Security Report"
 msgstr "%s 웹사이트 보안 보고서"
 
-msgid "%s and %s"
-msgstr "%s 및 %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "최소 점수가 0으로 설정되어 있어 %s 봇 감지가 실행되지 않습니다."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "현재 봇에 대한 챌린지가 실행되지 않으므로 %s 봇 감지가 실행되지 않습니다."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s는 알려진 취약점이 있는지 플러그인 및 테마를 스캔할 수도 있습니다."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s은(는) 타사 플러그인과 자동으로 통합할 수 있습니다."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s은(는) 타사 로그인 및 회원가입 양식을 봇으로부터 자동으로 보호할 수 있습니다."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s이(가) IP 주소를 감지할 수 없습니다. 이는 중요한 웹 호스팅 구성 문제를 나타냅니다."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s은(는) 여러 개별 영역에서 악의적인 방문자를 추적하므로 매우 빠르게 위험 평가를 생성합니다."
@@ -100,29 +280,41 @@ msgstr "%s일"
 msgid "%s days"
 msgstr "%s일"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "로그인이나 등록과 같이 보호할 양식을 선택하지 않았기 때문에 %s 감지가 적용되지 않습니다."
+
 msgid "%s directory"
 msgstr "%s 디렉터리"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s은(는) 많은 기능을 제공하므로 어디서부터 시작해야 할지 알기 어려울 수 있습니다."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s은(는) 일반적으로 로그인했거나 등록된 사용자의 댓글을 스캔하지 않습니다."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "%s 이벤트 정의가 비어 있거나 올바른 형식이 아닙니다."
 
 msgid "%s extension is unavailable."
 msgstr "%s 확장 기능을 사용할 수 없습니다."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "워드프레스용 %s v20 소개"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s가 이미 요청을 차단하는 필요한 동작을 수행했습니다."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s에는 사용 중인 타사 플러그인의 양식을 보호하기 위한 통합 기능이 있습니다: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s이(가) 현재 설치된 %s 플러그인 버전에 알려진 보안 취약점이 있음을 발견했습니다."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s은(는) 임시 디렉터리를 생성할 다음 위치를 성공적으로 선택했습니다: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s는 wp-config.php 파일을 보호하는 %s의 독점 서비스입니다."
-
 msgid "%s is a child of another theme."
 msgstr "%s은(는) 다른 테마의 하위 테마입니다."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s은(는) 40,000개 이상의 워드프레스 웹사이트에 배포된 강력한 워드프레스 보안 서비스입니다."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "최소 봇 점수 임계값이 제공되지 않아 %s이(가) 비활성화되었습니다."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s이(가) 최소 봇 점수 임계값으로 활성화되어 있습니다."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s이(가) 현재 사이트를 보호하지 않습니다."
@@ -130,14 +322,26 @@ msgstr "%s이(가) 현재 사이트를 보호하지 않습니다."
 msgid "%s is not protecting your site"
 msgstr "%s이(가) 사이트를 보호하지 않습니다"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s은(는) 워드프레스 악성 봇 감지 기술입니다."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s은(는) AI 기반의 독점 멀웨어 스캔 및 감지 엔진입니다."
 
 msgid "%s is protected against tampering."
 msgstr "%s가 변조로부터 보호됩니다."
 
+msgid "%s isn't activated on this site."
+msgstr "%s이(가) 이 사이트에서 활성화되어 있지 않습니다."
+
+msgid "%s isn't installed on this site."
+msgstr "%s이(가) 이 사이트에 설치되어 있지 않습니다."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s가 변조로부터 보호되지 않습니다."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s이(가) 봇 스팸으로부터 WP 댓글을 보호하지 않습니다."
 
 msgid "%s item processed"
 msgstr "%s개 항목이 처리되었습니다"
@@ -145,8 +349,11 @@ msgstr "%s개 항목이 처리되었습니다"
 msgid "%s items processed"
 msgstr "%s개 항목이 처리되었습니다"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s이(가) 이 댓글을 \"%s\"(으)로 표시했습니다."
+msgid "%s license check failed."
+msgstr "%s 라이선스 확인이 실패했습니다."
+
+msgid "%s license check was successful."
+msgstr "%s 라이선스 확인이 성공했습니다."
 
 msgid "%s minute"
 msgstr "%s분"
@@ -172,8 +379,8 @@ msgstr "%s 위반"
 msgid "%s offenses until block"
 msgstr "차단까지 %s 위반"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s는 이메일, Yubikey, Google Authenticator 및 U2F를 제공합니다."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s은(는) 이메일, Yubikey, Google Authenticator 및 Passkeys를 제공합니다."
 
 msgid "%s options and modules"
 msgstr "%s 옵션 및 모듈"
@@ -181,11 +388,56 @@ msgstr "%s 옵션 및 모듈"
 msgid "%s per day"
 msgstr "하루에 %s회"
 
+msgid "%s plugin activated"
+msgstr "%s 플러그인 활성화됨"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s 플러그인을 활성화할 수 없습니다"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s 플러그인을 비활성화할 수 없습니다"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s 플러그인을 설치할 수 없습니다"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s 플러그인을 업데이트할 수 없습니다"
+
+msgid "%s plugin deactivated"
+msgstr "%s 플러그인 비활성화됨"
+
+msgid "%s plugin installed"
+msgstr "%s 플러그인 설치됨"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s 플러그인이 설치되어 있지만 활성화되지 않았습니다."
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s 플러그인이 설치되어 있지만 활성화되지 않았습니다."
+
+msgid "%s plugin needs to sync."
+msgstr "%s 플러그인을 동기화해야 합니다."
+
+msgid "%s plugin not detected in last sync."
+msgstr "마지막 동기화에서 %s 플러그인이 감지되지 않았습니다."
+
+msgid "%s plugin updated"
+msgstr "%s 플러그인 업데이트됨"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s 플러그인 버전이 동기화되지 않았습니다."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s은(는) 사이트 방문자를 보호하고 웹 트래픽 및 파일 시스템 변경 사항을 모니터링하면서 잠재적인 해킹을 차단하기 위해 작동합니다."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s은(는) 타사 플러그인의 양식을 스팸 봇으로부터 보호하기 위한 내장 통합을 제공합니다."
+
 msgid "%s scan remaining."
 msgstr "%s 스캔이 남았습니다."
+
+msgid "%s scans cannot execute."
+msgstr "%s 스캔을 실행할 수 없습니다."
 
 msgid "%s scans remaining."
 msgstr "%s 스캔이 남았습니다."
@@ -205,14 +457,14 @@ msgstr "%s회"
 msgid "%s tools and features"
 msgstr "%s 도구 및 기능"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s 중 %s 사용됨 (미사용: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s은(는) 이를 자동으로 수행하려고 하며 99%의 경우 작동하지만, 때때로 이상한 웹호스트 구성으로 인해 약간 혼란이 발생할 수 있습니다."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s은(는) 정기적으로 업데이트되는 일반적으로 사용되는 스팸 콘텐츠 사전을 사용하여 이러한 유형의 스팸 콘텐츠를 차단합니다."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "사이트의 %s 버전이 이 서버와 일치하지 않습니다."
 
 msgid "%s was added to your profile."
 msgstr "%s이(가) 프로필에 추가되었습니다."
@@ -223,11 +475,26 @@ msgstr "%s이(가) 프로필에서 제거되었습니다."
 msgid "%s was successfully added to your account."
 msgstr "%s이(가) 계정에 성공적으로 추가되었습니다."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s은(는) 타사 플러그인을 자동으로 스캔하여 내장 통합을 사용할 수 있는지 확인합니다."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s는 새 업데이트가 설정된 일수 동안 제공될 때까지 업그레이드를 지연시킵니다."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s은(는) 정당한 사용자에게 문제를 일으키지 않으면서 사이트에 로그인하려는 봇을 감지합니다."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s은(는) 정당한 방문자에게 문제를 일으키지 않으면서 사이트에 댓글 스팸을 게시하려는 봇을 감지합니다."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s은(는) silentCAPTCH 기술을 사용하여 시도를 제한함으로써 봇으로부터 워드프레스 양식을 보호합니다."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "%s의 MainWP 통합이 이 사이트에 대해 활성화되어 있지 않습니다."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "%s의 규칙 엔진이 실행되고 있지 않습니다."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "%s의 Security Admin 시스템은 일반 워드프레스 관리자에 추가 보안 레이어를 제공합니다."
@@ -238,11 +505,14 @@ msgstr "%s의 자동 IP 차단은 방어가 작동한 후 IP를 차단하여 공
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s의 보호가 현재 비활성화되어 있으므로 다시 활성화할 때까지 여기에서 변경한 내용이 적용되지 않습니다."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s, 창립자 소개"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "%sv1 회원가입"
+
+msgid "%sv2 Registration"
+msgstr "%sv2 회원가입"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ Pro로 이동 ↑"
@@ -273,6 +543,9 @@ msgstr "(잠금이 비활성화되면 IP 주소가 화이트리스트에서 자�
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... 및 %s개 더"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/ 디렉터리가 스캔되지 않습니다."
@@ -397,9 +670,6 @@ msgstr "다음 파일 유형에 대해 생성된 404 오류는 위반을 트리�
 msgid "5-minute"
 msgstr "5분"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7일"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>스캔 중</strong> 코어 워드프레스 파일 및 디렉터리의 변경 사항과 새 파일을 확인하고 있습니다."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "방문자에 대해 %s 봇 확인이 수행되었지만 설정에서 봇 차단 옵션이 비활성화되어 있습니다."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "비교할 공식 파일이 없어 파일 차이 비교를 생성할 수 없습니다."
@@ -445,6 +718,9 @@ msgstr "워드프레스 호스팅 서버 소프트웨어에 대한 높은 수준
 msgid "A high-level overview of your WordPress updates status."
 msgstr "워드프레스 업데이트 상태에 대한 높은 수준의 개요입니다."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "라이선스가 이미 활성화되어 있습니다. 다시 활성화하려면 --force를 사용하세요."
+
 msgid "A light-touch security profile"
 msgstr "가벼운 보안 프로필"
 
@@ -456,6 +732,9 @@ msgstr "위반을 트리거하지 않는 요청 경로 목록입니다."
 
 msgid "A login to your WordPress account just occurred"
 msgstr "워드프레스 계정에 대한 로그인이 방금 발생했습니다"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "%s에는 많은 노력이 들어가며, 이에 대한 정보를 전파하는 데 여러분의 도움이 필요합니다. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "새로운 일회용 비밀번호가 이메일 주소로 전송되었습니다."
@@ -475,8 +754,8 @@ msgstr "강력한 보안 태세"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "'100' 점수는 거의 확실히 좋은 것을 의미하고, '0' 점수는 나쁜 봇일 가능성이 높다는 것을 의미합니다."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "방문자에게 silentCAPTCHA 봇 검사가 수행되었지만 설정에서 봇 차단 옵션이 비활성화되어 있습니다."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "보안 경고가 생성되었습니다. 아래 문제를 검토하고 필요한 경우 조치를 취하세요."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "워드프레스 계정에 대한 성공적인 로그인이 방금 발생했습니다."
@@ -498,6 +777,12 @@ msgstr "AI 멀웨어 스캐너, 자동 파일 복구, WP Config 보호 등은 �
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API 키는 비어 있을 수 없습니다."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "활성화를 위해 API 키가 필요합니다. --api-key=YOUR_KEY를 사용하세요"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "앱 비밀번호 인증 - 유효하지 않은 이메일"
@@ -523,8 +808,8 @@ msgstr "방치된 플러그인 발견됨"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "중단된 WordPress.org 플러그인"
 
-msgid "Absolutely"
-msgstr "절대적으로"
+msgid "About %s for WordPress"
+msgstr "워드프레스용 %s 정보"
 
 msgid "Accept Changes"
 msgstr "변경 사항 수락"
@@ -571,20 +856,23 @@ msgstr "동작 및 정보"
 msgid "Activate"
 msgstr "활성화"
 
+msgid "Activate %s"
+msgstr "%s 활성화"
+
+msgid "Activate %s License"
+msgstr "%s 라이선스 활성화"
+
 msgid "Activate Only"
 msgstr "활성화만"
+
+msgid "Activate Pro License"
+msgstr "Pro 라이선스 활성화"
 
 msgid "Activate Rule"
 msgstr "규칙 활성화"
 
-msgid "Activate Shield"
-msgstr "Shield 활성화"
-
-msgid "Activate ShieldPRO License"
-msgstr "ShieldPRO 라이선스 활성화"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "ShieldPRO 라이선스 활성화"
+msgid "Activate Your %s License"
+msgstr "%s 라이선스 활성화"
 
 msgid "Activate Your White Label Settings"
 msgstr "화이트 라벨 설정 활성화"
@@ -673,14 +961,14 @@ msgstr "추가된 테이블"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "업그레이드된 플랜에서 추가 IP 차단 목록을 사용할 수 있습니다."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "%s 챌린지 복잡도 조정"
+
 msgid "Adjust Scan Results Display"
 msgstr "스캔 결과 표시 조정"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "HTTP 보안 헤더 배포 조정"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "silentCAPTCHA 챌린지 복잡도 조정"
 
 msgid "Admin Access Login"
 msgstr "관리자 액세스 로그인"
@@ -751,17 +1039,26 @@ msgstr "서버보다 앞섬"
 msgid "Alert"
 msgstr "알림"
 
+msgid "Alert Report Generated"
+msgstr "알림 보고서 생성됨"
+
+msgid "Alert Report Generated."
+msgstr "알림 보고서가 생성되었습니다."
+
 msgid "Alert Reports Frequency"
 msgstr "알림 보고서 빈도"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "플러그인/테마 취약점에 대한 알림입니다. Shield는 업데이트가 제공되면 자동으로 업그레이드할 수 있습니다."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "플러그인/테마 취약점에 대한 알림. %s은(는) 업그레이드가 제공되면 자동으로 배포할 수 있습니다."
 
 msgid "Algorithm not supported"
 msgstr "지원되지 않는 알고리즘"
 
-msgid "Align Shield"
-msgstr "Shield 정렬"
+msgid "Align %s"
+msgstr "%s 정렬"
+
+msgid "All Clear"
+msgstr "모두 지우기"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "ID %s인 사용자의 모든 MFA 제공자가 제거되었습니다."
@@ -784,8 +1081,8 @@ msgstr "따라서 이 웹사이트에 대한 모든 액세스가 제한됩니다
 msgid "All access to your site is blocked."
 msgstr "사이트에 대한 모든 액세스가 차단되었습니다."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Shield Pro 라이선스 확인 시도가 모두 실패했습니다."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "%s Pro 라이선스 확인 시도가 모두 실패했습니다."
 
 msgid "All available plugin updates have been applied."
 msgstr "사용 가능한 모든 플러그인 업데이트가 적용되었습니다."
@@ -795,6 +1092,9 @@ msgstr "사용 가능한 모든 테마 업데이트가 적용되었습니다."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "모든 문자는 대소문자를 구분하지 않고 처리됩니다."
+
+msgid "All clear"
+msgstr "모두 지우기"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "모든 사용자 지정 이벤트 키는 문자열이어야 하며, 소문자로 작성되고, 길이는 10-50자이며, 'custom_'으로 시작하고, 문자와 밑줄만 포함해야 합니다."
@@ -979,8 +1279,8 @@ msgstr "방문자가 %s 플러그인의 방어 장치를 작동시킬 때마다 
 msgid "An unsupported profile was selected"
 msgstr "지원되지 않는 프로필이 선택되었습니다"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Shield 플러그인에 대한 업그레이드가 제공됩니다."
+msgid "An upgrade is available for the %s plugin."
+msgstr "%s 플러그인에 대한 업그레이드가 제공됩니다."
 
 msgid "Analyse & Fix"
 msgstr "분석 및 수정"
@@ -1054,8 +1354,8 @@ msgstr "누구나 등록 가능"
 msgid "Anyone can register"
 msgstr "누구나 등록 가능"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "누구나 등록 가능 변경됨: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "누구나 등록 가능 변경됨: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "앱 비밀번호 비활성화됨"
@@ -1093,8 +1393,8 @@ msgstr "대량 요청에 속도 제한 제한을 적용합니다."
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "CSP 헤더를 적용하면 방문자를 위한 사이트 기능에 영향을 줄 수 있으므로 이 섹션에서는 직접적인 권장 사항을 제공하지 않습니다."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Shield Security의 제한이 활성화되어 있습니까?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "%s의 제한이 활성화되어 있습니까?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "워드프레스 고유주소가 활성화되어 있는지 확인합니다."
@@ -1108,11 +1408,11 @@ msgstr "이 IP 규칙을 삭제하시겠습니까?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "파일 변경 사항을 유지하시겠습니까?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "ShieldPRO 라이선스를 제거하시겠습니까?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "%s 라이선스를 제거하시겠습니까?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Shield 플러그인을 기본값으로 초기화하시겠습니까?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "%s 플러그인을 기본값으로 재설정하시겠습니까?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "원본 파일 내용을 복원하시겠습니까?"
@@ -1132,11 +1432,11 @@ msgstr "항상 그렇듯이 이 서비스의 사용과 의존은 귀하의 책�
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "각 문제가 해결되면 전체 점수가 최대 100%까지 향상됩니다."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "요청에 따라 %s이(가) 귀하가 관리하는 워드프레스 사이트에 대한 성공적인 %s 로그인을 알려드립니다."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "요청에 따라 %1$s은(는) 귀하가 관리하는 워드프레스 사이트에 대한 성공적인 %2$s 로그인을 알려드립니다."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "호환되는 플러그인이 감지되는 즉시 Shield는 내장 통합을 자동으로 활성화합니다."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "호환되는 플러그인이 감지되는 즉시 %s이(가) 내장 통합을 자동으로 활성화합니다."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "선택한 파일에 대한 변경 사항이 감지되는 즉시 내용을 검사하고 되돌릴 수 있습니다."
@@ -1155,9 +1455,6 @@ msgstr "플러그인 또는 테마 중 최소 1개가 수정된 것으로 보입
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "최소 1개의 옵션을 제공해야 하며 기본값은 워드프레스 관리자 영역 내 사용자 프로필 페이지입니다."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "사이트에 대해 최소 1개의 보안 보고서가 생성되었습니다."
 
 msgid "At least two records are required to merge."
 msgstr "병합하려면 최소 두 개의 레코드가 필요합니다."
@@ -1198,8 +1495,8 @@ msgstr "남은 시도 횟수: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "변경되었거나 멀웨어에 감염된 파일을 자동으로 복구하려고 시도합니다."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Shield Pro 라이선스 확인 시도가 방금 실패했습니다."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "%s Pro 라이선스 확인 시도가 방금 실패했습니다."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "이메일 주소가 포함될 수 있는 감사 추적 메시지"
@@ -1408,8 +1705,8 @@ msgstr "취약하고 의심스러운 파일, 플러그인 및 테마를 자동�
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "타사 통합이 사용 가능해지면 자동으로 감지하고 활성화"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Shield의 기존 화이트리스트 규칙 및 예외를 자동으로 준수합니다."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "%s의 기존 화이트리스트 규칙과 예외를 자동으로 준수합니다."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "옵션을 자동으로 가져오고 전체 네트워크에 구성을 배포합니다."
@@ -1504,6 +1801,9 @@ msgstr "관리자 계정의 중요한 변경 사항에 대한 알림을 받습�
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "알려진 보안 취약점이 있는 플러그인 및 테마에 대한 알림 받기"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "%s 플러그인이 비활성화되면 알림을 받습니다"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Shield 플러그인이 비활성화되면 알림을 받습니다"
 
@@ -1528,11 +1828,11 @@ msgstr "베타 액세스"
 msgid "Block %s"
 msgstr "%s 차단"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "silentCAPTCHA로 100% 봇 댓글 스팸 블록"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "%s로 100%% 봇 댓글 스팸 차단"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "silentCAPTCHA를 사용하여 모든 워드프레스 댓글 스팸의 99.9%%를 차단합니다."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "%s을(를) 사용하여 모든 워드프레스 댓글 스팸의 99.9%%를 차단하세요."
 
 msgid "Block Anon REST API"
 msgstr "익명 REST API 차단"
@@ -1668,9 +1968,6 @@ msgstr "봇의 스팸 댓글이 차단되었습니다."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "AntiBot 테스트에 실패한 스팸 댓글이 차단되었습니다."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "reCAPTCHA에 실패한 스팸 댓글이 차단되었습니다."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "정책 요구 사항을 충족하지 못한 비밀번호 업데이트 시도를 차단했습니다."
@@ -1819,8 +2116,8 @@ msgstr "Brute Force 로그인 보호"
 msgid "Brute Force Login Protection"
 msgstr "Brute Force 로그인 보호"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "silentCAPTCHA를 사용한 Brute Force 로그인 보호"
+msgid "Brute Force Login Protection with %s"
+msgstr "%s를 사용한 Brute Force 로그인 보호"
 
 msgid "Brute Force Protection"
 msgstr "Brute Force 보호"
@@ -1828,8 +2125,8 @@ msgstr "Brute Force 보호"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Brute Force 트래픽 Rate Limiting"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "워드프레스 로그인에 대한 무차별 대입 봇 공격이 silentCAPTCHA에 의해 감지 및 차단됩니다."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "워드프레스 로그인에 대한 무차별 대입 봇 공격이 %s에 의해 감지되고 차단됩니다."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "로그인 쿨다운 시스템에 의해 무차별 대입 로그인 공격이 차단되지 않습니다."
@@ -1846,14 +2143,14 @@ msgstr "사용자 지정 보안 규칙 생성"
 msgid "Building scan items for scan: %s"
 msgstr "스캔 항목 생성 중: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "내장 Shield 통합"
+msgid "Built-In %s Integrations"
+msgstr "내장된 %s 통합"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "기본적으로 Shield는 관리자 영역과 관리자 바에 필수적이지 않은 알림을 표시합니다."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "기본적으로 %s은(는) 관리자 영역과 관리자 바에 필수적이지 않은 알림을 표시합니다."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "기본적으로 Shield는 사용자가 아무것도 하지 않아도 수많은 위협으로부터 사이트를 보호하고 악의적인 방문자와 봇을 차단하도록 자동으로 구성됩니다."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "기본적으로 %s은(는) 사용자가 아무것도 하지 않아도 수많은 위협으로부터 사이트를 보호하고 악의적인 방문자와 봇을 차단하도록 자동으로 구성됩니다."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "방화벽의 신호를 다른 모든 보안 구성 요소의 신호와 연결하여 %s는 시간이 지남에 따라 방문자 프로필을 구축하여 누가 사람이고, 누가 봇이며, 누가 선의 또는 악의를 가지고 있는지 판단합니다."
@@ -1863,21 +2160,6 @@ msgstr "우회"
 
 msgid "Bypass IP"
 msgstr "우회 IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA 실패"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA 통과"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA 테스트 실패."
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA 테스트 성공."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA는 끔찍합니다."
@@ -1990,6 +2272,9 @@ msgstr "챌린지 실패"
 msgid "Challenge has expired."
 msgstr "챌린지가 만료되었습니다."
 
+msgid "Change"
+msgstr "변경"
+
 msgid "Change Detected"
 msgstr "변경 감지됨"
 
@@ -2005,11 +2290,14 @@ msgstr "2FA 이메일 옵션 변경은 현재 사용할 수 없습니다."
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "백업 코드 옵션 변경은 현재 사용할 수 없습니다."
 
+msgid "Check %s License"
+msgstr "%s 라이선스 확인"
+
+msgid "Check For %s License"
+msgstr "%s 라이선스 확인"
+
 msgid "Check License"
 msgstr "라이선스 확인"
-
-msgid "Check ShieldPRO License"
-msgstr "ShieldPRO 라이선스 확인"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "이 파일의 내용을 확인하여 악의적이지 않은지 검증하세요."
@@ -2044,14 +2332,14 @@ msgstr "하위"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "silentCAPTCHA 봇 보호를 배포할 양식을 선택하세요."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "2FA를 위한 워드프레스 로그인 페이지에 충돌이나 문제가 있는 경우 사용자 지정 Shield 페이지를 선택하세요."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "2FA를 위한 워드프레스 로그인 페이지에 충돌이나 문제가 있는 경우 사용자 지정 %s 페이지를 선택하세요."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "봇 보호 조치를 배포할 양식을 선택하세요."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "일정에 따라 Shield로부터 알림을 받을 가장 적절한 빈도를 선택하세요."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "일정에 따라 %s에서 알림을 받을 가장 적절한 빈도를 선택하세요."
 
 msgid "Choose the page type for MFA verification"
 msgstr "MFA 인증 페이지 유형 선택"
@@ -2121,6 +2409,9 @@ msgstr "클릭하여 Google Authenticator 로그인 인증을 즉시 제거합�
 
 msgid "Click to launch plugin search modal"
 msgstr "클릭하여 플러그인 검색 모달 실행"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "WordPress.org에 리뷰를 남기려면 클릭하세요 ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "전송될 RAW 데이터를 보려면 클릭하세요"
@@ -2200,8 +2491,8 @@ msgstr "댓글 스팸이 차단되었습니다."
 msgid "Comment SPAM Protection"
 msgstr "댓글 스팸 보호"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "댓글 스팸 보호: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "댓글 스팸 보호: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "댓글 상태 업데이트됨"
@@ -2269,6 +2560,12 @@ msgstr "설정"
 msgid "Config Pages For User 2FA Setup"
 msgstr "사용자 2FA 설정을 위한 설정 페이지"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "감지된 IP 주소가 1개뿐이므로 구성이 필요하지 않습니다."
+
+msgid "Configure"
+msgstr "구성"
+
 msgid "Configure All '%s' Options"
 msgstr "모든 '%s' 옵션 구성"
 
@@ -2308,9 +2605,6 @@ msgstr "확인"
 msgid "Confirmation email will be sent to %s"
 msgstr "확인 이메일이 %s(으)로 전송됩니다"
 
-msgid "Confirmation link"
-msgstr "확인 링크"
-
 msgid "Connected"
 msgstr "연결됨"
 
@@ -2329,8 +2623,8 @@ msgstr "문의 양식 스팸"
 msgid "Contact Form SPAM Checking"
 msgstr "문의 양식 스팸 확인"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "Contact Form 스팸은 각 양식 제공업체에 대해 맞춤 제작된 통합을 통해서만 차단할 수 있습니다. 귀하의 양식이 지원되지 않는 경우 지원 팀에 문의하세요."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "문의 양식 스팸은 각 양식 제공업체에 대해 맞춤 제작된 통합을 통해서만 차단할 수 있습니다. 귀하의 양식이 지원되지 않는 경우 지원팀에 문의하세요."
 
 msgid "Contact Forms Integration"
 msgstr "문의 양식 통합"
@@ -2395,8 +2689,8 @@ msgstr "좌표"
 msgid "Core Reinstalled: v%s"
 msgstr "코어 재설치됨: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "코어 업그레이드됨: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "코어 업그레이드됨: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "설정된 사용자 세션({{user_login}})의 핵심 속성이 변경되었습니다."
@@ -2443,8 +2737,8 @@ msgstr "디렉터리를 생성할 수 없습니다: %s"
 msgid "Couldn't create the export file."
 msgstr "내보내기 파일을 생성할 수 없습니다."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Shield 플러그인 상태를 확인할 수 없습니다."
+msgid "Couldn't determine %s plugin status."
+msgstr "%s 플러그인 상태를 확인할 수 없습니다."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "슬러그 '%s'에 대한 플러그인을 로드할 수 없습니다."
@@ -2455,11 +2749,17 @@ msgstr "슬러그 '%s'에 대한 테마를 로드할 수 없습니다."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "%s에서 MU 플러그인 템플릿을 읽을 수 없습니다"
 
+msgid "Count"
+msgstr "횟수"
+
 msgid "Country"
 msgstr "국가"
 
 msgid "Country Code"
 msgstr "국가 코드"
+
+msgid "Create %s Network"
+msgstr "%s 네트워크 생성"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "백업 2FA 로그인 코드 생성"
@@ -2482,9 +2782,6 @@ msgstr "새 규칙 생성"
 msgid "Create Report"
 msgstr "보고서 생성"
 
-msgid "Create Shield Network"
-msgstr "Shield 네트워크 생성"
-
 msgid "Create and view all your custom security rules."
 msgstr "사용자 지정 보안 규칙을 생성하고 확인하세요."
 
@@ -2502,6 +2799,9 @@ msgstr "여기에 경로를 만들면 'wp-login.php'가 비활성화됩니다. �
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "사용자 지정 규칙 생성은 고급 기능이며 제가 만든 규칙으로 인해 발생하는 모든 문제에 대해 전적으로 책임을 집니다."
+
+msgid "Critical"
+msgstr "중요"
 
 msgid "Critical File Protection"
 msgstr "중요 파일 보호"
@@ -2578,9 +2878,6 @@ msgstr "현재 파일 콘텐츠"
 msgid "Current Scan"
 msgstr "현재 스캔"
 
-msgid "Current Scan Results"
-msgstr "현재 스캔 결과"
-
 msgid "Current Session Age (seconds)"
 msgstr "현재 세션 기간(초)"
 
@@ -2589,9 +2886,6 @@ msgstr "현재 세션 종료됨"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "현재 세션 토큰 기간(초)"
-
-msgid "Current Summary"
-msgstr "현재 요약"
 
 msgid "Current User Sessions"
 msgstr "현재 사용자 세션"
@@ -2619,9 +2913,6 @@ msgstr "사용자 지정 디버그"
 
 msgid "Custom Exclusions"
 msgstr "사용자 지정 제외 항목"
-
-msgid "Custom Report on %s"
-msgstr "%s의 사용자 지정 보고서"
 
 msgid "Custom Rules"
 msgstr "사용자 지정 규칙"
@@ -2704,14 +2995,14 @@ msgstr "날짜 범위"
 msgid "Day"
 msgstr "일"
 
+msgid "Deactivate %s"
+msgstr "%s 비활성화"
+
 msgid "Deactivate Akismet"
 msgstr "Akismet 비활성화"
 
 msgid "Deactivate Rule"
 msgstr "규칙 비활성화"
-
-msgid "Deactivate Shield"
-msgstr "Shield 비활성화"
 
 msgid "Deactivated"
 msgstr "비활성화됨"
@@ -2727,9 +3018,6 @@ msgstr "디버그 켜짐"
 
 msgid "Debug Tests"
 msgstr "디버그 테스트"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "디버그 및 정보 로깅은 특정 문제를 조사할 때만 활성화해야 합니다."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "봇이 특정 동작을 수행할 때 %s가 어떻게 응답해야 하는지 결정합니다."
@@ -2749,8 +3037,8 @@ msgstr "기본 관리자 사용자"
 msgid "Default User Role"
 msgstr "기본 사용자 역할"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "기본 사용자 역할 변경됨: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "기본 사용자 역할 변경됨: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "기본값: 24시간마다 한 번. 보안을 강화하려면 하루 스캔 횟수를 늘리세요."
@@ -2806,14 +3094,11 @@ msgstr "삭제된 테이블"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "삭제된 사용자 게시물이 사용자 '{{user_login}}'에게 재할당되었습니다."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "데모: Shield v20의 중요한 UI 변경 사항"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "데모: %s v20의 주요 UI 변경 사항"
 
 msgid "Demoted From Admin"
 msgstr "관리자에서 강등됨"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "설정에 따라 이러한 보고서에는 알림, 통계 및 기타 정보가 조합되어 포함될 수 있습니다."
 
 msgid "Description"
 msgstr "설명"
@@ -2880,6 +3165,9 @@ msgstr "감지됨"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "유효하지 않은 이메일 주소({{email}})로 사용자 회원가입이 감지되었습니다."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "올바른 방문자 IP 주소를 감지하는 것은 각 사이트 방문자를 구별하는 데 중요합니다."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "조기에 감지하고 차단하는 것이 가장 큰 보호 수단입니다."
@@ -2953,6 +3241,9 @@ msgstr "모듈 비활성화"
 msgid "Disable Security Admin"
 msgstr "Security Admin 비활성화"
 
+msgid "Disable Security Admin via Email"
+msgstr "이메일을 통해 Security Admin 비활성화"
+
 msgid "Disable Shield"
 msgstr "Shield 비활성화"
 
@@ -2989,6 +3280,9 @@ msgstr "XML-RPC 엔드포인트를 비활성화하고 모든 요청을 차단합
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "이 옵션을 비활성화하면 사용 가능한 업데이트 및 업데이트 후 알림에 대한 특정 플러그인 관리자 알림이 숨겨집니다."
 
+msgid "Disabled"
+msgstr "사용 안 함"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "익명 액세스를 비활성화하면 사이트 방문자를 위해 REST API를 사용하는 플러그인이 작동하지 않을 수 있습니다."
 
@@ -2998,8 +3292,8 @@ msgstr "연결 해제됨"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "작성자가 포기했을 수 있는 플러그인을 발견합니다"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Shield Security 플랜을 업그레이드하여 가장 포괄적인 워드프레스 보안을 경험하세요."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "%s 플랜을 업그레이드하면 가장 포괄적인 워드프레스 보안을 경험할 수 있습니다."
 
 msgid "Discovered"
 msgstr "발견됨"
@@ -3009,6 +3303,9 @@ msgstr "사이트에서 멀웨어를 발견하는 것은 '보호'가 아니라 �
 
 msgid "Disk Space"
 msgstr "디스크 공간"
+
+msgid "Dismiss"
+msgstr "닫기"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "필수적이지 않은 플러그인 알림 및 관리자 바 메뉴 표시"
@@ -3064,8 +3361,8 @@ msgstr "요청하는 IP의 호스트 이름이 주어진 호스트 이름과 일
 msgid "Does the method of the request match the given specified method to match."
 msgstr "요청의 메서드가 일치시킬 지정된 메서드와 일치하는지 확인합니다."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "요청이 모든 Shield 제한을 우회하는지 확인합니다."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "요청이 모든 %s 제한을 우회하는지 확인합니다."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "요청에 제공된 이름의 매개변수가 포함되어 있는지 확인합니다."
@@ -3097,8 +3394,8 @@ msgstr "요청 스크립트 이름이 지정된 이름과 일치하는지 확인
 msgid "Does the request useragent match the given useragent."
 msgstr "요청 사용자 에이전트가 지정된 사용자 에이전트와 일치하는지 확인합니다."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "주어진 Shield 세션 매개변수의 값이 주어진 패턴과 일치하는지 확인합니다."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "주어진 %s 세션 매개변수의 값이 주어진 패턴과 일치하는지 확인합니다."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "주어진 요청 매개변수의 값이 주어진 패턴과 일치하는지 확인합니다."
@@ -3115,8 +3412,8 @@ msgstr "다음 역할의 사용자 댓글은 스캔하지 않음"
 msgid "Don't want these email alerts?"
 msgstr "이 이메일 알림을 원하지 않으십니까?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "다운그레이드됨: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "다운그레이드됨: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "다운로드"
@@ -3130,6 +3427,9 @@ msgstr "IP 규칙을 CSV로 다운로드"
 msgid "Download Modified"
 msgstr "수정된 파일 다운로드"
 
+msgid "Download Now"
+msgstr "지금 다운로드"
+
 msgid "Download Options Export File"
 msgstr "옵션 내보내기 파일 다운로드"
 
@@ -3139,11 +3439,17 @@ msgstr "원본 다운로드"
 msgid "Download Request Logs"
 msgstr "요청 로그 다운로드"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "다운로드에 실패했습니다. ShieldNet API를 사용할 수 있고 로케일이 존재하는지 확인하세요."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "범위 {{scope}}에 대한 CrowdSec의 평판 결정을 다운로드했습니다."
 
 msgid "Downloading file, please wait..."
 msgstr "파일을 다운로드하는 중입니다. 잠시 기다려 주세요..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "로케일 %s에 대한 번역을 다운로드하는 중"
 
 msgid "Duration"
 msgstr "기간"
@@ -3160,8 +3466,8 @@ msgstr "이 목록의 각 사이트는 비밀 키를 제공하지 않고도 이 
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "어디에서나 사용 가능한 가장 쉽고 불편함 없는 WP Pro 업그레이드"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "MainWP 내에서 사이트 보안을 관리할 수 있도록 Shield Security를 쉽게 통합하세요."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "%s을(를) 쉽게 통합하여 MainWP 내에서 사이트 보안을 관리할 수 있습니다."
 
 msgid "Edit"
 msgstr "편집"
@@ -3169,8 +3475,8 @@ msgstr "편집"
 msgid "Edit Rule"
 msgstr "규칙 편집"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "규칙 #%s 편집(%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "규칙 #%1$s(%2$s) 편집"
 
 msgid "Edit Settings"
 msgstr "설정 편집"
@@ -3220,8 +3526,8 @@ msgstr "로그인 및 사용자 양식에 보호를 적용하는 설정을 편�
 msgid "Edit settings that control automatic IP blocking"
 msgstr "자동 IP 차단을 제어하는 설정 편집"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "silentCAPTCHA가 봇을 감지하는 방법을 제어하는 설정을 편집합니다."
+msgid "Edit settings that control how %s detects bots"
+msgstr "%s가 봇을 감지하는 방법을 제어하는 설정을 편집합니다"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "최소 비밀번호 강도를 적용하는 설정을 편집합니다"
@@ -3250,8 +3556,8 @@ msgstr "이 옵션 편집은 현재 제한되어 있습니다."
 msgid "Either the country code or phone number were missing."
 msgstr "국가 코드 또는 전화번호가 누락되었습니다."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Shield Security 플랜을 업그레이드하여 워드프레스 보안을 최고 수준으로 향상시키세요."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "%s 플랜을 업그레이드하여 워드프레스 보안을 최고 수준으로 향상시키세요."
 
 msgid "Email"
 msgstr "이메일"
@@ -3304,8 +3610,8 @@ msgstr "새 댓글에 대한 이메일 알림"
 msgid "Email sending has already been verified."
 msgstr "이메일 전송이 이미 확인되었습니다."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "%s 플러그인 v%s에서 %s에 전송된 이메일입니다."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "%3$s의 %1$s 플러그인 v%2$s에서 이메일을 보냈습니다."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "이메일이 전송되었습니다. 링크가 이 브라우저에서 열리는지 확인하세요."
@@ -3334,8 +3640,8 @@ msgstr "사이트에 제출된 악의적인 데이터를 감지하고 차단하�
 msgid "Empty User Agents"
 msgstr "빈 User Agent"
 
-msgid "Empty response from Shield client site"
-msgstr "Shield 클라이언트 사이트에서 빈 응답"
+msgid "Empty response from %s client site"
+msgstr "%s 클라이언트 사이트에서 빈 응답"
 
 msgid "Empty root file provided for instantiation"
 msgstr "인스턴스화를 위해 제공된 루트 파일이 비어 있습니다"
@@ -3568,14 +3874,20 @@ msgstr "오류"
 msgid "Error Log Message"
 msgstr "오류 로그 메시지"
 
+msgid "Error: {{error}}"
+msgstr "오류: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "만족한다는 한 줄 리뷰만으로도 저희에게 큰 도움이 됩니다."
+
 msgid "Event"
 msgstr "이벤트"
 
 msgid "Event %s does not exist."
 msgstr "이벤트 %s이(가) 존재하지 않습니다."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "이벤트(%s) 정의에 존재하지 않는 감사 매개변수가 있습니다: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "이벤트(%1$s) 정의에 존재하지 않는 감사 매개변수가 있습니다: %2$s"
 
 msgid "Event Details"
 msgstr "이벤트 세부 정보"
@@ -3661,6 +3973,9 @@ msgstr "라이선스 서버에 연결하지 못했습니다."
 msgid "Failed to create custom report."
 msgstr "사용자 지정 보고서를 생성하지 못했습니다."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "로케일 {{locale}}에 대한 번역 파일을 다운로드하지 못했습니다."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "경로 '%s'에 대한 파일 로커 레코드 삽입에 실패했습니다."
 
@@ -3679,8 +3994,8 @@ msgstr "스캔 항목 복구에 실패했습니다."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "방화벽 차단 이메일 알림을 {{to}}(으)로 보내지 못했습니다"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "SureSend를 사용하여 '{{email}}'(으)로 이메일(유형: {{slug}})을 보내지 못했습니다."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "%s을(를) 사용하여 '{{email}}'(으)로 이메일(유형: {{slug}})을 보내지 못했습니다."
 
 msgid "Failed to store the rule in the database."
 msgstr "데이터베이스에 규칙을 저장하지 못했습니다."
@@ -3796,8 +4111,8 @@ msgstr "파일 내용을 암호화할 수 없습니다. 메시지:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "암호화 후 파일 내용을 wp_json_encode()할 수 없습니다."
 
-msgid "File detected as %s by %s scanner."
-msgstr "%s 스캐너에 의해 %s(으)로 감지된 파일입니다."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "%2$s 스캐너에 의해 %1$s(으)로 감지된 파일입니다."
 
 msgid "File does not exist."
 msgstr "파일이 존재하지 않습니다."
@@ -3997,14 +4312,17 @@ msgstr "생성됨"
 msgid "Generating a new code will replace your existing code."
 msgstr "새 코드를 생성하면 기존 코드가 교체됩니다."
 
+msgid "Get %s!"
+msgstr "%s 받기!"
+
 msgid "Get All PRO Security Features"
 msgstr "모든 PRO 보안 기능 받기"
 
-msgid "Get ShieldPRO!"
-msgstr "ShieldPRO 구매하기!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "3분 이내에 시작하세요"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "오늘 %s의 무료 평가판을 위험 부담 없이 의무 없이 받아보세요."
 
 msgid "Global Plugin Enable"
 msgstr "전역 플러그인 활성화"
@@ -4039,6 +4357,9 @@ msgstr "Pro로 이동!"
 msgid "Go To %s"
 msgstr "%s(으)로 이동"
 
+msgid "Go To %s Overview"
+msgstr "%s 개요로 이동"
+
 msgid "Go To Admin"
 msgstr "관리자로 이동"
 
@@ -4050,9 +4371,6 @@ msgstr "개요로 이동"
 
 msgid "Go To Security Dashboard"
 msgstr "보안 대시보드로 이동"
-
-msgid "Go To Shield Overview"
-msgstr "Shield 개요로 이동"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "%s 플러그인으로 설정을 관리하고 인증하려면 여기로 이동하세요."
@@ -4111,14 +4429,14 @@ msgstr "전송할 HTTP 응답 헤더"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "홈 URL 및 WP 사이트 URL의 HTTPS 설정이 일치하지 않습니다."
 
-msgid "Handshake ShieldNET"
-msgstr "ShieldNET 핸드셰이크"
+msgid "Handshake %s"
+msgstr "핸드셰이크 %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "하드웨어 2단계 인증"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "유효한 Shield 사용자 세션 있음"
+msgid "Has Valid %s User Sessions"
+msgstr "유효한 %s 사용자 세션이 있음"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "사이트에서 사용자가 사용하는 비밀번호를 완전히 제어할 수 있습니다."
@@ -4135,11 +4453,14 @@ msgstr "도움말 데스크 글"
 msgid "Helpdesk and Knowledge Base"
 msgstr "도움말 데스크 및 지식 베이스"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Shield가 이미 사이트를 보호하고 있는 몇 가지 방법은 다음과 같습니다:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "%s이(가) 이미 사이트를 보호하고 있는 몇 가지 방법은 다음과 같습니다:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "여기에서 스캔할 악의적인 데이터 종류를 선택합니다."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "보고 기간에 대한 보안 개요입니다. 아래의 문제를 검토하고 필요한 경우 조치를 취하세요."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "그러나 여기서는 사용자 계정 자체가 안전한 상태인지 확인하는 데 중점을 둡니다."
@@ -4189,8 +4510,8 @@ msgstr "홈 URL"
 msgid "Home URL Changed"
 msgstr "홈 URL 변경됨"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "홈 URL 변경됨: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "홈 URL 변경됨: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "홈페이지"
@@ -4297,11 +4618,14 @@ msgstr "사람 스팸 필터"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "사람 스팸 필터가 반복된 댓글 스팸 시도를 감지했습니다."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "사람 스팸 필터가 '%s'에서 '%s'을(를) 발견했습니다"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "사람 스팸 필터가 \"%2$s\"에서 \"%1$s\"을(를) 발견했습니다"
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "사람 스팸 필터가 '{{key}}'에서 '{{word}}'을(를) 발견했습니다"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "사람이 작성한 스팸은 종종 스팸 방어를 우회하기 때문에 여전히 가장 큰 불편을 초래합니다."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "기존 옵션이 덮어쓰기될 것임을 이해합니다"
@@ -4327,17 +4651,11 @@ msgstr "캐싱을 사용하고 나중에 지우지 않으면 방문자에게 문
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "이 사이트에 대한 모든 트래픽을 차단하는 결과를 이해합니다."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Shield의 화이트리스트 및 예외를 준수하지 않는 규칙을 만드는 위험을 이해하며, 잠금 상태가 되면 액세스를 다시 얻기 어려울 수 있습니다."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "%s의 화이트리스트와 예외를 준수하지 않는 규칙을 생성할 경우의 위험을 이해하며, 잠금 상태가 되면 액세스를 다시 얻기 어려울 수 있음을 인지합니다."
 
 msgid "I'd like to learn more, please"
 msgstr "더 알아보고 싶습니다"
-
-msgid "I'd rather not show this support"
-msgstr "이 지원을 표시하지 않겠습니다"
-
-msgid "I've done this already"
-msgstr "이미 완료했습니다"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "중요"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s 점수가 재설정되었습니다."
 
 msgid "IP Address"
 msgstr "IP 주소"
@@ -4552,9 +4873,6 @@ msgstr "IP가 자동 차단 목록에 없습니다."
 msgid "IP provided was invalid."
 msgstr "제공된 IP가 유효하지 않습니다."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA 점수가 초기화되었습니다."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "사용자에게 여러 역할이 할당된 경우 모든 역할이 이 �
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "악의적인 데이터가 감지되면 요청이 즉시 종료됩니다."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "올바른 설정이 %s가 아닌 경우 호스팅 제공업체에 연락하여 %s가 실제 방문자 IP 주소를 제공하도록 호스팅을 구성해 달라고 요청하는 것이 좋습니다."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "올바른 설정이 %1$s이(가) 아닌 경우 호스팅 제공업체에 연락하여 %2$s이(가) 실제 방문자 IP 주소를 제공하도록 호스팅을 구성하도록 요청하는 것이 좋습니다."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "원하는 제공업체가 목록에 없으면 지원팀에 문의하시면 통합을 구축할 수 있는지 확인하겠습니다."
@@ -4642,8 +4960,8 @@ msgstr "사용자가 지정된 시간(시간) 동안 비활성 상태이면 다�
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "사용자가 지정된 시간(시간) 동안 비활성 상태이면 다음에 돌아올 때 강제로 로그아웃됩니다. 이 옵션을 끄려면 '0'으로 설정하세요."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "방문자 점수가 최소 silentCAPTCHA 점수를 충족하지 못하면 요청(로그인, 워드프레스 댓글 등)을 차단할 수 있습니다. 점수가 더 높으면 허용합니다."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "방문자 점수가 최소 %s 점수를 충족하지 못하면 요청(로그인, 워드프레스 댓글 등)을 차단할 수 있습니다. 점수가 더 높으면 허용합니다."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "이것이 MainWP 클라이언트 사이트인 경우 MainWP Admin Server의 IP 주소를 IP 우회 목록에 추가해야 합니다."
@@ -4656,6 +4974,9 @@ msgstr "이 페이지를 새로고침한 후에도 이 메시지가 계속 나�
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "이 문제가 지속되면 지원팀에 문의하세요: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "이미 이 사이트에 할당된 %s 라이선스가 있는 경우,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "어떤 이유로든 귀하 또는 귀하 사용자의 메일함이 손상되었다고 생각되면 이 옵션을 비활성화해야 합니다."
@@ -4702,11 +5023,8 @@ msgstr "관리자 사용자가 이 워드프레스 사이트에 로그인할 때
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "관리자 사용자가 이 워드프레스 사이트에 로그인할 때마다 알림을 받으려면 알림 이메일 주소를 입력하세요. 이메일 주소가 없으면 알림이 전송되지 않습니다."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "전용 이메일 서비스 제공업체를 사용하여 워드프레스 이메일을 보내지 않는 경우 이러한 중요한 이메일에 대해 SureSend를 활성화해야 합니다."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "PIN을 잊어버린 경우 위 메뉴를 사용하여 이 제한을 비활성화하세요."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "워드프레스 이메일을 보내기 위해 전용 이메일 서비스 제공업체를 사용하지 않는 경우 이러한 중요한 이메일에 대해 %s을(를) 활성화해야 합니다."
 
 msgid "Ignore"
 msgstr "무시"
@@ -4737,9 +5055,6 @@ msgstr "가져오기 알림 전송됨"
 
 msgid "Import Options"
 msgstr "옵션 가져오기"
-
-msgid "Import Settings From Another Site"
-msgstr "다른 사이트에서 설정 가져오기"
 
 msgid "Import file was empty"
 msgstr "가져오기 파일이 비어 있습니다"
@@ -4870,11 +5185,14 @@ msgstr "IP 주소 %s에 대한 정보"
 msgid "Info Reports Frequency"
 msgstr "정보 보고서 빈도"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "정보 로깅은 특정 문제를 조사할 때만 활성화해야 합니다."
+
 msgid "Information and reports are typically statistics."
 msgstr "정보 및 보고서는 일반적으로 통계입니다."
 
-msgid "Install Shield"
-msgstr "Shield 설치"
+msgid "Install %s"
+msgstr "%s 설치"
 
 msgid "Installation Directory"
 msgstr "설치 디렉터리"
@@ -4909,6 +5227,9 @@ msgstr "간격은 초 단위로 측정됩니다."
 msgid "Invalid"
 msgstr "유효하지 않은"
 
+msgid "Invalid %s extension configuration"
+msgstr "유효하지 않은 %s 확장 구성"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "유효하지 않은 동작 Nonce 예외입니다."
 
@@ -4933,9 +5254,6 @@ msgstr "유효하지 않은 스크립트 로드"
 msgid "Invalid Scripts"
 msgstr "잘못된 스크립트"
 
-msgid "Invalid Shield extension configuration"
-msgstr "유효하지 않은 Shield 확장 구성"
-
 msgid "Invalid Slug"
 msgstr "유효하지 않은 슬러그"
 
@@ -4948,9 +5266,6 @@ msgstr "유효하지 않은 사용자 에이전트"
 msgid "Invalid User Email Registration"
 msgstr "유효하지 않은 사용자 이메일 회원가입"
 
-msgid "Invalid User-Agent"
-msgstr "유효하지 않은 사용자 에이전트"
-
 msgid "Invalid Username Login"
 msgstr "유효하지 않은 사용자명 로그인"
 
@@ -4959,6 +5274,12 @@ msgstr "유효하지 않은 사용자 이름"
 
 msgid "Invalid action"
 msgstr "유효하지 않은 동작"
+
+msgid "Invalid batch request format."
+msgstr "잘못된 배치 요청 형식입니다."
+
+msgid "Invalid batch request item."
+msgstr "잘못된 배치 요청 항목입니다."
 
 msgid "Invalid download item data."
 msgstr "잘못된 다운로드 항목 데이터입니다."
@@ -4975,6 +5296,15 @@ msgstr "유효하지 않은 파일 로커 유형 다운로드"
 msgid "Invalid login nonce"
 msgstr "유효하지 않은 로그인 nonce"
 
+msgid "Invalid login session."
+msgstr "유효하지 않은 로그인 세션입니다."
+
+msgid "Invalid or expired login session."
+msgstr "유효하지 않거나 만료된 로그인 세션입니다."
+
+msgid "Invalid profile request."
+msgstr "잘못된 프로필 요청입니다."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "잘못된 요청 - 잠금이 이미 활성화되어 있습니다."
 
@@ -4984,11 +5314,8 @@ msgstr "잘못된 요청 - 잠금이 활성화되지 않았습니다."
 msgid "Invalid request with no User ID"
 msgstr "사용자 ID가 없는 잘못된 요청"
 
-msgid "Invalid response from Shield client site"
-msgstr "Shield 클라이언트 사이트에서 잘못된 응답"
-
-msgid "Invalid session selected"
-msgstr "유효하지 않은 세션이 선택되었습니다"
+msgid "Invalid response from %s client site"
+msgstr "%s 클라이언트 사이트에서 유효하지 않은 응답"
 
 msgid "Invalid specification of modules"
 msgstr "유효하지 않은 모듈 지정"
@@ -4996,14 +5323,26 @@ msgstr "유효하지 않은 모듈 지정"
 msgid "Invalid type."
 msgstr "유효하지 않은 유형입니다."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "'{{useragent}}'에서 유효하지 않은 사용자 에이전트가 감지되었습니다."
-
 msgid "Invalid value scope for %s"
 msgstr "%s에 대한 유효하지 않은 값 범위입니다"
 
 msgid "Invalid value type for %s"
 msgstr "%s에 대한 유효하지 않은 값 유형입니다"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "%s 플러그인 기능이 비활성화되어 있는지 확인합니다."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "%s 트래픽 Rate Limiting이 활성화되어 있는지 확인합니다."
+
+msgid "Is %s live logging enabled."
+msgstr "%s 실시간 로깅이 활성화되어 있습니다."
+
+msgid "Is %s score"
+msgstr "%s 점수"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "%s의 사이트 잠금이 활성화되어 있습니다."
 
 msgid "Is It You?"
 msgstr "본인이신가요?"
@@ -5017,20 +5356,8 @@ msgstr "요청 상태가 404인지 확인"
 msgid "Is Request To The Login Page."
 msgstr "로그인 페이지 요청인지 확인합니다."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Shield 플러그인 기능이 비활성화되었는지 확인합니다."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Shield 트래픽 Rate Limiting이 활성화되어 있는지 확인합니다."
-
-msgid "Is Shield live logging enabled."
-msgstr "Shield 실시간 로깅이 활성화되어 있는지 확인합니다."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Shield의 사이트 잠금이 활성화되어 있습니다."
-
-msgid "Is The Shield Option Value..."
-msgstr "Shield 옵션 값이..."
+msgid "Is The %s Option Value..."
+msgstr "%s 옵션 값이..."
 
 msgid "Is Valid Public IP Address"
 msgstr "유효한 공용 IP 주소인지 확인"
@@ -5038,8 +5365,8 @@ msgstr "유효한 공용 IP 주소인지 확인"
 msgid "Is Viable"
 msgstr "실행 가능 여부"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "방문자 silentCAPTCHA 점수가 ..."
+msgid "Is Visitor %s Score ..."
+msgstr "방문자 %s 점수는..."
 
 msgid "Is WP AJAX"
 msgstr "WP AJAX인지 확인"
@@ -5098,11 +5425,8 @@ msgstr "현재 사용자가 로그인한 워드프레스 관리자인지 확인�
 msgid "Is current user password expired."
 msgstr "현재 사용자의 비밀번호가 만료되었는지 확인합니다."
 
-msgid "Is silentCAPTCHA score"
-msgstr "silentCAPTCHA 점수인지 확인"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Shield 플러그인이 \"forceoff\" 상태인지 확인합니다."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "%s 플러그인이 \"forceoff\" 상태인지 확인합니다."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "현재 IP 주소가 \"높은 평판\"으로 간주되는지 확인합니다."
@@ -5116,23 +5440,23 @@ msgstr "현재 사용자 세션 토큰 기간이 제공된 값보다 작거나 �
 msgid "Is the request HTTPS."
 msgstr "요청이 HTTPS인지 확인합니다."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "요청 IP가 Shield에 의해 자동 또는 수동으로 차단되었는지 확인합니다."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "요청 IP가 %s에 의해 자동 또는 수동으로 차단되었는지 확인합니다."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "요청 IP가 Shield에 의해 블랙리스트에 등록되었는지 확인합니다."
+msgid "Is the request IP blacklisted by %s."
+msgstr "요청 IP가 %s에 의해 블랙리스트에 등록되었는지 확인합니다."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "요청 IP가 Shield의 CrowdSec 차단 목록에 있는지 확인합니다."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "요청 IP가 %s의 CrowdSec 차단 목록에 있는지 확인합니다."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "요청 IP가 Shield의 수동 차단 목록에 있는지 확인합니다."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "요청 IP가 %s의 수동 차단 목록에 있는지 확인합니다."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "요청 IP가 Shield의 자동 차단 목록에 있는지 확인합니다."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "요청 IP가 %s의 자동 차단 목록에 있는지 확인합니다."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "요청 IP가 Shield의 수동 우회 목록/화이트리스트에 있는지 확인합니다."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "요청 IP가 %s의 수동 우회 목록/화이트리스트에 있는지 확인합니다."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "신뢰할 수 있는 서비스 제공업체에서 발생한 봇 요청인지 확인합니다."
@@ -5143,17 +5467,17 @@ msgstr "요청이 서버 루프백 요청인지 확인합니다."
 msgid "Is the request an HTTP 404."
 msgstr "요청이 HTTP 404인지 확인합니다."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "요청이 Shield의 사이트 잠금 기능에 의해 차단되었는지 확인합니다."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "요청이 %s의 사이트 잠금 기능에 의해 차단되었는지 확인합니다."
 
 msgid "Is the request from a logged-in user."
 msgstr "로그인한 사용자의 요청인지 확인합니다."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Shield Security Admin으로 인증된 사용자의 요청인지 확인합니다."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "요청이 %s 관리자로 인증된 사용자로부터 온 것인지 확인합니다."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "요청 경로가 Shield에 의해 화이트리스트에 등록되었는지 확인합니다."
+msgid "Is the request path whitelisted by %s."
+msgstr "요청 경로가 %s에 의해 화이트리스트에 등록되어 있는지 확인합니다."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "현재 설치된 워드프레스 플러그인 내 경로에 대한 요청인지 확인합니다."
@@ -5212,6 +5536,9 @@ msgstr "발견된 문제"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "아래 나열된 문제는 가능한 한 빨리 해결해야 합니다"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "또한 중요한 워드프레스 설정을 잠그는 데 도움이 됩니다."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "또한 코어 WP 디렉터리(%s)에 있어서는 안 되는 파일을 찾습니다."
 
@@ -5266,8 +5593,8 @@ msgstr "귀하의 IP(%s)가 현재 차단된 것으로 보입니다."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "그러나 반복 표시를 방지하기 위해 %s 보안 배지의 닫기를 등록하는 쿠키를 사용할 수 있습니다."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "독점 silentCAPTCHA 엔진을 사용하여 봇을 안정적으로 식별합니다."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "독점적인 %s 엔진을 사용하여 봇을 안정적으로 식별합니다."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "'{{to}}'(으)로 제목 '{{subject}}'로 전송되었습니다."
@@ -5275,8 +5602,8 @@ msgstr "'{{to}}'(으)로 제목 '{{subject}}'로 전송되었습니다."
 msgid "It will be displayed below when it's ready."
 msgstr "준비되면 아래에 표시됩니다."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "적절한 위치를 자동으로 찾지만, 실패하면 사이트에서 PHP 경고가 표시되고 특정 Shield 기능을 사용할 수 없습니다."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "적절한 위치를 자동으로 찾지만, 실패하면 사이트에 PHP 경고가 표시될 수 있으며 특정 %s 기능을 사용할 수 없습니다."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "복잡한 영역이며 잘못 사용하면 프런트엔드 사용자 경험을 쉽게 손상시킬 수 있습니다."
@@ -5298,9 +5625,6 @@ msgstr "특히 유휴 상태로 남아 있을 때 세션 수명을 제한하는 
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "세션 도용을 방지하기 위해 최소 1개의 속성에 세션을 잠그는 것이 좋습니다."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "사람이 작성한 스팸은 일반적으로 방어 시스템을 트리거하지 않기 때문에 여전히 가장 큰 불편을 초래합니다."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "워드프레스 플러그인 디렉터리에 있으며 해당 플러그인 버전의 유효한 파일로 인식됩니다."
@@ -5338,8 +5662,8 @@ msgstr "항목 복구됨: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "스캔에서 발견된 항목"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Shield Security 뉴스레터 가입하기"
+msgid "Join The %s Newsletter"
+msgstr "%s 뉴스레터 구독"
 
 msgid "Join Us"
 msgstr "함께하기"
@@ -5347,8 +5671,14 @@ msgstr "함께하기"
 msgid "Join Us!"
 msgstr "함께하세요!"
 
+msgid "Join our %s Newsletter"
+msgstr "%s 뉴스레터 구독하기"
+
 msgid "Jump To Module Settings"
 msgstr "모듈 설정으로 이동"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "%s 페이스북 그룹에 참여하여 활발한 커뮤니티에 질문하고 최신 소식을 확인하세요"
 
 msgid "Just grab a new license from the"
 msgstr "다음에서 새 라이선스를 받으세요"
@@ -5437,6 +5767,9 @@ msgstr "마지막 동기화"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "마지막으로, 어떤 이유로든 봇(또는 사람)이 사이트에 스팸 계정을 등록하는 것을 방지하고자 합니다."
 
+msgid "Latest Scan Results"
+msgstr "최신 스캔 결과"
+
 msgid "Launch Debug Info Page"
 msgstr "디버그 정보 페이지 실행"
 
@@ -5464,6 +5797,12 @@ msgstr "라이선스"
 msgid "License Activation"
 msgstr "라이선스 활성화"
 
+msgid "License Activation Failed"
+msgstr "라이선스 활성화 실패"
+
+msgid "License Activation Success"
+msgstr "라이선스 활성화 성공"
+
 msgid "License Check Failed"
 msgstr "라이선스 확인 실패"
 
@@ -5482,6 +5821,30 @@ msgstr "라이선스 실패 이메일 전송됨"
 msgid "License Summary"
 msgstr "라이선스 요약"
 
+msgid "License activated and verified successfully."
+msgstr "라이선스가 성공적으로 활성화되고 확인되었습니다."
+
+msgid "License activated but verification failed."
+msgstr "라이선스가 활성화되었지만 확인에 실패했습니다."
+
+msgid "License activated successfully."
+msgstr "라이선스가 성공적으로 활성화되었습니다."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "이 계정에 사용 가능한 라이선스가 없어 라이선스 활성화에 실패했습니다."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "API 키가 유효하지 않아 라이선스 활성화에 실패했습니다."
+
+msgid "License activation failed."
+msgstr "라이선스 활성화가 실패했습니다."
+
+msgid "License activation request failed."
+msgstr "라이선스 활성화 요청이 실패했습니다."
+
+msgid "License activation was denied for this site."
+msgstr "이 사이트에 대한 라이선스 활성화가 거부되었습니다."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "라이선스 확인 실패. 경고 이메일을 보냅니다."
 
@@ -5499,9 +5862,6 @@ msgstr "라이선스는 %s초마다 한 번씩 확인할 수 있습니다"
 
 msgid "Lifetime"
 msgstr "수명"
-
-msgid "Lifetime Total"
-msgstr "총 수명"
 
 msgid "Light"
 msgstr "밝음"
@@ -5577,6 +5937,12 @@ msgstr "로컬 PHP 멀웨어 스캐너가 활성화되어 있지만 AI 멀웨어
 
 msgid "Locale"
 msgstr "로케일"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "로케일 \"%1$s\"은(는) 이미 %2$s에 캐시되어 있습니다. 다시 다운로드하려면 --force를 사용하세요."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "로케일 \"%s\"을(를) 다운로드할 수 없습니다."
 
 msgid "Location"
 msgstr "위치"
@@ -5740,11 +6106,11 @@ msgstr "비밀번호 찾기 차단됨"
 msgid "Lost Password Bot Protection"
 msgstr "비밀번호 찾기 봇 보호"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "봇에 의한 비밀번호 찾기 스팸이 silentCAPTCHA에 의해 차단됩니다."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "봇에 의한 비밀번호 찾기 스팸이 %s에 의해 차단됩니다."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "봇에 의한 비밀번호 찾기 스팸이 silentCAPTCHA에 의해 차단되지 않습니다."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "봇에 의한 비밀번호 찾기 스팸이 %s에 의해 차단되지 않습니다."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "마음에 드시나요? 이 플러그인 평가하기 &#10025;"
@@ -5923,6 +6289,9 @@ msgstr "일치시킬 메타 값"
 msgid "Method"
 msgstr "메서드"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "방문자가 사람임을 나타내는 데 필요한 최소 %s 점수"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "최소 댓글 자동 승인"
 
@@ -5941,9 +6310,6 @@ msgstr "댓글 간 최소 시간 간격"
 msgid "Minimum required MainWP server version"
 msgstr "최소 필수 MainWP 서버 버전"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "방문자가 사람임을 나타내는 데 필요한 최소 silentCAPTCHA 점수"
-
 msgid "Minutes"
 msgstr "분"
 
@@ -5952,6 +6318,12 @@ msgstr "잘못된 구성은 방문자에게 문제를 일으킬 수 있으므로
 
 msgid "Missing"
 msgstr "누락"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "일괄 요청에 동작 슬러그 또는 nonce가 누락되었습니다."
+
+msgid "Missing request payload for batch request item."
+msgstr "배치 요청 항목에 대한 요청 페이로드가 누락되었습니다."
 
 msgid "Mode"
 msgstr "모드"
@@ -5989,6 +6361,12 @@ msgstr "대부분의 스팸은 봇에 의한 자동화된 것이지만, 때때�
 msgid "Multi-Factor Authentication"
 msgstr "다중 인증"
 
+msgid "Multiple Signals"
+msgstr "다중 신호"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "이 방문자에 대해 여러 봇 신호가 감지되었습니다."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "여러 이메일 주소를 쉼표로 구분하여 입력할 수 있습니다."
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL DB 비밀번호"
 msgid "N/A"
 msgstr "해당 없음"
 
+msgid "NEW"
+msgstr "새로 만들기"
+
 msgid "NO TITLE"
 msgstr "제목 없음"
 
@@ -6027,6 +6408,12 @@ msgstr "내비게이션"
 
 msgid "Needs Update"
 msgstr "업데이트 필요"
+
+msgid "Needs Work"
+msgstr "작업 필요"
+
+msgid "Nested batch requests are not allowed."
+msgstr "중첩된 배치 요청은 허용되지 않습니다."
 
 msgid "Never"
 msgstr "하지 않음"
@@ -6045,12 +6432,6 @@ msgstr "새 관리자"
 
 msgid "New Comment"
 msgstr "새 댓글"
-
-msgid "New Results"
-msgstr "새로운 결과"
-
-msgid "New Scan Results"
-msgstr "새 스캔 결과"
 
 msgid "New User Default Role"
 msgstr "신규 사용자 기본 역할"
@@ -6166,6 +6547,9 @@ msgstr "선택한 항목이 없습니다."
 msgid "No license to remove."
 msgstr "제거할 라이선스가 없습니다."
 
+msgid "No locales available from API."
+msgstr "API에서 사용 가능한 로케일이 없습니다."
+
 msgid "No message"
 msgstr "메시지 없음"
 
@@ -6175,8 +6559,8 @@ msgstr "사용 가능한 메타가 없습니다"
 msgid "No modules specified in the plugin config."
 msgstr "플러그인 구성에 지정된 모듈이 없습니다."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "더 이상 라이선스 키를 기억하거나 복사/붙여넣기할 필요가 없습니다! ShieldPRO 제어판에서 사이트 URL을 활성화하기만 하면 사이트에서 Pro 기능이 자동으로 활성화됩니다."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "더 이상 라이선스 키를 기억하거나 복사/붙여넣기할 필요가 없습니다! %s 제어판에서 사이트 URL을 활성화하기만 하면 Pro 기능이 사이트에서 자동으로 활성화됩니다."
 
 msgid "No new session activity recorded yet."
 msgstr "아직 기록된 새 세션 활동이 없습니다."
@@ -6192,6 +6576,9 @@ msgstr "레코드 없음"
 
 msgid "No reporter defined"
 msgstr "정의된 리포터 없음"
+
+msgid "No reports generated yet."
+msgstr "아직 생성된 보고서가 없습니다."
 
 msgid "No reports have been generated yet."
 msgstr "아직 생성된 보고서가 없습니다."
@@ -6247,9 +6634,6 @@ msgstr "아니요, 도움을 원하지 않습니다"
 msgid "Noise"
 msgstr "노이즈"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "파일 스캔이 아닌 항목은 아직 지원되지 않습니다."
-
 msgid "Nonce Failed."
 msgstr "Nonce 실패."
 
@@ -6304,14 +6688,11 @@ msgstr "모듈에 유효한 옵션 키가 아닙니다: %s"
 msgid "Not a valid option key."
 msgstr "유효한 옵션 키가 아닙니다."
 
-msgid "Not a valid scan item record"
-msgstr "유효한 스캔 항목 레코드가 아닙니다"
-
 msgid "Not a valid value for this parameter"
 msgstr "이 매개변수에 유효한 값이 아닙니다"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "사이트가 ShieldNET API와 핸드셰이크할 수 없어 사용할 수 없습니다."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "사이트가 %s와(과) 핸드셰이크할 수 없으므로 사용할 수 없습니다."
 
 msgid "Not currently logged-in as security admin."
 msgstr "현재 Security Admin으로 로그인되어 있지 않습니다."
@@ -6354,9 +6735,6 @@ msgstr "화이트리스트의 사이트에 마스터에서 옵션 업데이트 �
 
 msgid "Notify Whitelist"
 msgstr "허용 목록 알림"
-
-msgid "Now"
-msgstr "지금"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "24시간 동안 코어 파일을 자동으로 스캔할 횟수"
@@ -6418,6 +6796,9 @@ msgstr "위반 제한"
 msgid "Offenses couldn't be reset at this time."
 msgstr "현재 위반 내역을 재설정할 수 없습니다."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "위반은 방문자가 나쁜 행동을 한 횟수에 대한 단순한 카운터입니다."
+
 msgid "Offenses reset to zero."
 msgstr "위반 횟수가 0으로 재설정되었습니다."
 
@@ -6439,17 +6820,17 @@ msgstr "일회용 비밀번호"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "%s Security Admin만 다른 관리자 계정의 MFA 설정을 수정할 수 있습니다."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Shield 무료 버전에서는 워드프레스 코어 파일만 스캔됩니다."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "%s의 무료 버전에서는 핵심 워드프레스 파일만 스캔됩니다."
 
 msgid "Only enable the integrations you require."
 msgstr "필요한 통합만 활성화하세요."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "선택한 양식 유형(로그인, 회원가입, 비밀번호 찾기)만 모니터링됩니다."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "문자와 숫자만 허용됩니다: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "선택한 양식 유형(로그인, 회원가입, 비밀번호 찾기)만 모니터링됩니다."
 
 msgid "Only the first 30 items are shown."
 msgstr "처음 30개 항목만 표시됩니다."
@@ -6562,8 +6943,8 @@ msgstr "PHP 악성코드 스캐너"
 msgid "PHP Version"
 msgstr "PHP 버전"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP가 최소 버전을 충족하지 않습니다. 현재 버전: %s. 필수 버전: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP가 최소 버전을 충족하지 않습니다. 현재 버전: %1$s. 필수 버전: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "PHP 파일이 멀웨어 스캔되지 않습니다."
@@ -6718,6 +7099,9 @@ msgstr "가장 강력한 기능 중 하나는 다른 관리자가 다른 관리�
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "기기가 지원되지 않거나 이미 등록했을 수 있습니다."
 
+msgid "Period"
+msgstr "기간"
+
 msgid "Permalink structure"
 msgstr "고유주소 구조"
 
@@ -6727,8 +7111,8 @@ msgstr "고유주소"
 msgid "Permalinks Updated"
 msgstr "고유주소 업데이트됨"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "고유주소 변경됨: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "고유주소 변경됨: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "영구 리디렉션 (301)"
@@ -6790,6 +7174,9 @@ msgstr "받은 이메일의 링크를 클릭하세요."
 msgid "Please click the link provided below to do so."
 msgstr "아래 제공된 링크를 클릭하세요."
 
+msgid "Please complete required fields: %s"
+msgstr "필수 필드를 작성하세요: %s"
+
 msgid "Please complete the form."
 msgstr "양식을 작성해 주세요."
 
@@ -6814,14 +7201,14 @@ msgstr "추가 안내가 필요하면 사이트 관리자에게 문의하세요.
 msgid "Please contact your website administrator."
 msgstr "웹사이트 관리자에게 문의하세요."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "\"%s\" 파일을 삭제하여 %s 보호를 다시 활성화하세요"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "\"%1$s\" 파일을 삭제하여 %2$s 보호를 다시 활성화하세요"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "종료 날짜가 시작 날짜와 같거나 그 이후인지 확인하세요."
 
 msgid "Please login again."
 msgstr "다시 로그인하세요."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "자신의 세션을 삭제하려면 로그아웃하세요."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "WP 페이지 캐싱 플러그인은 일반적으로 HTTP 헤더를 무시하며, 테스트에 반영되지 않는 경우 캐싱 플러그인을 비활성화해야 합니다."
@@ -6840,6 +7227,15 @@ msgstr "장치를 식별할 레이블을 입력하세요."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "새 인증기를 식별할 레이블을 입력하세요."
+
+msgid "Please provide a title for the report."
+msgstr "보고서 제목을 입력하세요."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "YYYY-MM-DD 형식을 사용하여 유효한 날짜를 입력하세요."
+
+msgid "Please provide a valid date."
+msgstr "유효한 날짜를 입력하세요."
 
 msgid "Please provide a valid regular expression."
 msgstr "유효한 정규 표현식을 입력하세요."
@@ -6895,6 +7291,9 @@ msgstr "IP 규칙 유형 중 하나를 선택하세요 - 차단 또는 우회"
 msgid "Please select one of the options available"
 msgstr "사용 가능한 옵션 중 하나를 선택하세요"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "로케일 코드를 지정하세요(예: --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "이 비밀번호는 유출되었으므로 다른 비밀번호를 입력하세요."
 
@@ -6925,17 +7324,17 @@ msgstr "옵션에서 이 스캔을 활성화하세요."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Security Admin 기능을 복원하려면 새로운 Security Admin PIN을 제공해야 한다는 점을 이해해 주세요."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Shield 플러그인을 동일한 버전으로 업데이트하고 다시 동기화하세요."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "%s 플러그인을 동일한 버전으로 업데이트하고 다시 동기화하세요."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "변조에 대한 모든 플러그인 파일 스캔을 지원하려면 업그레이드하세요."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "사용자 지정 보안 규칙 빌더에 액세스하려면 Shield Security 구독을 업그레이드하세요."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "이 기능을 사용하려면 %s 플랜을 업그레이드하세요."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "이 기능을 사용하려면 ShieldPRO 플랜을 업그레이드하세요."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Custom Security Rules Builder에 액세스하려면 %s 구독을 업그레이드하세요."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "여러 이메일 주소로 알림을 보내야 하는 경우 플랜을 업그레이드하세요."
@@ -7186,14 +7585,17 @@ msgstr "워드프레스 제공"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "강력한 <strong>방화벽</strong>이 악의적인 트래픽을 차단하고 있습니다."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Shield Security의 강력한 워드프레스 보호"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "%s의 워드프레스를 위한 강력한 보호"
 
 msgid "Powerful User Password Policies"
 msgstr "강력한 사용자 비밀번호 정책"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "강력한 자동 학습 악성코드 스캐너"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "강력하고 사용하기 쉬운 1위 워드프레스 보안 시스템"
 
 msgid "Predicted"
 msgstr "예측됨"
@@ -7203,6 +7605,9 @@ msgstr "선호하는 임시 디렉터리"
 
 msgid "Preferred temporary directory override."
 msgstr "선호하는 임시 디렉터리 재정의."
+
+msgid "Prefix"
+msgstr "접두사"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "접두사: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "공개적으로 사용 가능한 \"유출된\" 비밀번호 목록에서
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "공개적으로 사용 가능한 유출된 비밀번호 목록에서 발견된 비밀번호를 사용자가 사용하지 못하도록 방지합니다."
 
+msgid "Previous"
+msgstr "이전"
+
+msgid "Previous Period"
+msgstr "이전 기간"
+
 msgid "Previous Step"
 msgstr "이전 단계"
 
@@ -7318,8 +7729,8 @@ msgstr "관리자로 승격됨"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "봇의 자동화된 로그인 시도로부터 워드프레스 로그인 보호"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Shield 플러그인을 변조로부터 보호하세요"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "%s 플러그인을 변조로부터 보호하세요"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "일반적으로 보호할 수 없는 주요 WP 코어 파일을 보호합니다."
@@ -7342,6 +7753,9 @@ msgstr "강화된 보안 응답 헤더를 구현하여 사이트 방문자를 �
 msgid "Protect your %s files"
 msgstr "%s 파일을 보호하세요"
 
+msgid "Protected By %s"
+msgstr "%s(으)로 보호됨"
+
 msgid "Protected Forms"
 msgstr "보호된 양식"
 
@@ -7350,6 +7764,9 @@ msgstr "<strong>댓글 스팸</strong>의 1순위 출처로부터 보호합니�
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "로그인, 회원가입 및 비밀번호 찾기와 같은 <strong>중요한 사용자 양식</strong>을 보호합니다."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "워드프레스 양식 보호는 기본으로 포함되며, %s 플랜에 따라 일부 또는 모든 타사 통합에 액세스할 수 있습니다."
 
 msgid "Protection for user accounts."
 msgstr "사용자 계정 보호."
@@ -7420,9 +7837,6 @@ msgstr "Security Admin PIN 제공/업데이트"
 msgid "Provided by %s"
 msgstr "%s에서 제공"
 
-msgid "Provided by Shield"
-msgstr "Shield에서 제공"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "요청 로깅 시스템에 대한 세밀한 제어를 제공합니다."
 
@@ -7471,8 +7885,8 @@ msgstr "Rate limiting"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "속도 제한({{count}})이 {{span}}초 내에 {{requests}}개의 요청으로 초과되었습니다."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Shield Security를 자신만의 브랜드로 리브랜딩하세요!"
+msgid "Re-Brand %s as your own!"
+msgstr "%s을(를) 자신의 것으로 리브랜딩하세요!"
 
 msgid "Re-Install"
 msgstr "재설치"
@@ -7480,8 +7894,8 @@ msgstr "재설치"
 msgid "Re-Install It"
 msgstr "재설치"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Shield Security 플러그인을 리브랜딩하세요."
+msgid "Re-brand the %s plugin."
+msgstr "%s 플러그인을 리브랜딩하세요."
 
 msgid "Re-enable Protection."
 msgstr "보호 다시 활성화하세요."
@@ -7512,6 +7926,9 @@ msgstr "이유"
 
 msgid "Reason: %s"
 msgstr "이유: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "이유: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "플러그인 비활성화 시 알림 받기"
@@ -7651,8 +8068,8 @@ msgstr "허용되는 남은 위반 횟수"
 msgid "Remember me for %s"
 msgstr "%s 동안 로그인 상태 유지"
 
-msgid "Remember to include %s or %s"
-msgstr "%s 또는 %s를 포함해야 합니다"
+msgid "Remember to include %1$s or %2$s"
+msgstr "%1$s 또는 %2$s을(를) 포함해야 합니다"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "사용자의 MFA 요소 제거는 Security Admin이 수행해야 합니다"
@@ -7708,6 +8125,9 @@ msgstr "복구됨"
 msgid "Repaired item found in the scan."
 msgstr "스캔에서 발견된 항목을 복구했습니다."
 
+msgid "Repairs"
+msgstr "복구"
+
 msgid "Repeated Human SPAM"
 msgstr "반복된 사람 스팸"
 
@@ -7735,8 +8155,8 @@ msgstr "보고서 옵션"
 msgid "Report Sent"
 msgstr "보고서 전송됨"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "보고서 전송됨({{medium}}을(를) 통해)."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "보고서 전송됨 ({{type}}, {{medium}}을(를) 통해)."
 
 msgid "Report Title"
 msgstr "보고서 제목"
@@ -8107,17 +8527,17 @@ msgstr "스팸 확인 통과"
 msgid "SPAM Detection"
 msgstr "스팸 감지"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "스팸 및 봇에 의한 대량 사용자 등록이 silentCAPTCHA에 의해 차단됩니다."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "봇에 의한 스팸 및 대량 사용자 등록이 %s에 의해 차단됩니다."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "스팸 및 봇에 의한 대량 사용자 등록이 silentCAPTCHA에 의해 차단되지 않습니다."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "봇에 의한 스팸 및 대량 사용자 등록이 %s에 의해 차단되지 않습니다."
 
 msgid "SPAM blocking"
 msgstr "스팸 블록"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "스팸은 봇과 사람이라는 두 가지 주요 방식으로 발생합니다."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "스팸은 자동화된 봇과 사람이라는 두 가지 유형의 방문자에 의해 발생합니다."
 
 msgid "SQL Queries"
 msgstr "SQL 쿼리"
@@ -8167,6 +8587,9 @@ msgstr "플러그인 및 테마의 취약점 스캔"
 msgid "Scan Frequency"
 msgstr "스캔 빈도"
 
+msgid "Scan Issues"
+msgstr "스캔 문제"
+
 msgid "Scan Item Delete Success"
 msgstr "스캔 항목 삭제 성공"
 
@@ -8200,6 +8623,9 @@ msgstr "스캔 결과"
 msgid "Scan This QR Code"
 msgstr "이 QR 코드 스캔"
 
+msgid "Scan Type"
+msgstr "스캔 유형"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "알려진 보안 취약점이 있는지 모든 워드프레스 자산을 스캔합니다."
 
@@ -8218,11 +8644,11 @@ msgstr "사이트에서 파일 변경, 멀웨어 및 취약점을 스캔합니�
 msgid "Scanning Frequency"
 msgstr "스캔 빈도"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "플러그인 및 테마 파일 스캔은 ShieldPRO에서만 사용할 수 있습니다."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "플러그인 및 테마 파일 스캔은 %s의 Pro 버전에서만 사용할 수 있습니다."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "PHP 멀웨어 스캔은 ShieldPRO에서만 사용할 수 있습니다."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "PHP 멀웨어 스캔은 %s의 Pro 버전에서만 사용할 수 있습니다."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "스캔은 로컬 스냅샷을 사용합니다. 크라우드 소싱 스냅샷을 사용하고 프리미엄 플러그인 지원을 추가하려면 플랜을 업그레이드하세요."
@@ -8305,14 +8731,17 @@ msgstr "점수는 각 구성 요소에 대한 대략적인 가중치입니다."
 msgid "Script Name To Match"
 msgstr "일치시킬 스크립트 이름"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "라이선스 키 없이 ShieldPRO 라이선스를 원활하게 활성화하고 관리하세요."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "라이선스 키 없이 %s 라이선스를 원활하게 활성화하고 관리하세요."
 
 msgid "Search %s"
 msgstr "%s 검색"
 
 msgid "Search Engine"
 msgstr "검색 엔진"
+
+msgid "Search Help"
+msgstr "도움말 검색"
 
 msgid "Search engine visibility"
 msgstr "검색 엔진 가시성"
@@ -8374,6 +8803,9 @@ msgstr "Security Admin 시간 초과"
 msgid "Security Admin is now active"
 msgstr "Security Admin이 활성화되었습니다"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Security Admin은 검증된 관리자만 사이트 보안을 변경할 수 있도록 하는 추가 인증 레이어를 제공합니다."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Security Admin 제한이 제거되었습니다"
 
@@ -8385,6 +8817,9 @@ msgstr "Security Admin 세션이 시간 초과되었습니다."
 
 msgid "Security Admins"
 msgstr "보안 관리자"
+
+msgid "Security Alert"
+msgstr "보안 알림"
 
 msgid "Security Analysis"
 msgstr "보안 분석"
@@ -8503,11 +8938,11 @@ msgstr "스팸 등록 및 로그인을 확인해야 하는 사용자 양식 제�
 msgid "Select The User Forms Provider That You Use"
 msgstr "사용하는 사용자 양식 제공자를 선택하세요"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "%2$s을(를) 사용하여 전송해야 하는 %1$s 이메일 선택"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "스캔할 영역 선택"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "SureSend를 사용하여 전송해야 하는 Shield 이메일 선택"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "제외할 요청 유형 선택"
@@ -8635,6 +9070,9 @@ msgstr "세션"
 msgid "Sessions Table Filters"
 msgstr "세션 테이블 필터"
 
+msgid "Set Security Badge."
+msgstr "보안 배지를 설정하세요."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "방문자 IP가 자동으로 차단되기 전에 허용되는 위반 제한을 설정합니다."
 
@@ -8674,161 +9112,23 @@ msgstr "실수로 인한 비활성화를 방지하기 위해 플러그인을 MU 
 msgid "Severity"
 msgstr "심각도"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA 제공업체가 활성화되었습니다"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield 스팸 차단"
-
 msgid "Shield Deactivated"
 msgstr "Shield 비활성화됨"
 
 msgid "Shield Events & Stats"
 msgstr "Shield 이벤트 및 통계"
 
-msgid "Shield Info"
-msgstr "Shield 정보"
-
-msgid "Shield Option Key"
-msgstr "Shield 옵션 키"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro 스토어"
-
-msgid "Shield Scanners."
-msgstr "Shield 스캐너."
-
-msgid "Shield Security Home Page"
-msgstr "Shield Security 홈페이지"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security 플러그인 – 최소 사이트 요구 사항이 충족되지 않음"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro는 온라인 스토어에서 구매할 수 있습니다."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Shield Security 플러그인이 설치되어 있지만 활성화되지 않았습니다."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Shield Security 플러그인을 동기화해야 합니다."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "마지막 동기화에서 Shield Security 플러그인이 감지되지 않았습니다."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Shield Security 플러그인 버전이 동기화되지 않았습니다."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield 사용자 2FA 제공자가 활성화되었습니다."
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield 사용자 2FA: 활성 항목 있음"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield 화이트 라벨"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield는 타사 플러그인과 자동으로 통합할 수 있습니다."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield는 타사 로그인 및 회원가입 양식을 봇으로부터 자동으로 보호할 수 있습니다."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield는 사이트에서 silentCAPTCHA JS가 올바르게 로드되는지 확인할 수 없습니다."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield는 일반적으로 로그인했거나 등록된 사용자의 댓글을 스캔하지 않습니다."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield는 일반적으로 로그인했거나 등록된 사용자의 댓글을 스캔하지 않습니다. 스캔하지 않아야 하는 사용자 역할을 여기에 지정하세요."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Shield 이벤트 정의가 비어 있거나 올바른 형식이 아닙니다."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield가 이 사이트에 설치되어 있지 않습니다."
-
-msgid "Shield plugin activated"
-msgstr "Shield 플러그인 활성화됨"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Shield 플러그인을 활성화할 수 없습니다"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Shield 플러그인을 비활성화할 수 없습니다"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Shield 플러그인을 설치할 수 없습니다"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Shield 플러그인을 업데이트할 수 없습니다."
-
-msgid "Shield plugin deactivated"
-msgstr "Shield 플러그인 비활성화됨"
-
-msgid "Shield plugin installed"
-msgstr "Shield 플러그인 설치됨"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Shield 플러그인이 설치되어 있지만 활성화되지 않았습니다."
-
-msgid "Shield plugin updated"
-msgstr "Shield 플러그인 업데이트됨"
-
-msgid "Shield scans cannot execute."
-msgstr "Shield 스캔을 실행할 수 없습니다."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "사이트의 Shield 버전이 이 서버와 일치하지 않습니다."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield는 타사 플러그인을 자동으로 스캔하여 내장 통합 기능을 사용할 수 있는지 확인합니다."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield는 새 업데이트가 설정된 일수 동안 제공될 때까지 업그레이드를 지연시킵니다."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "이 사이트에 대해 Shield의 MainWP 통합이 활성화되어 있지 않습니다."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Shield의 Rules Engine이 실행되지 않습니다."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Shield의 silentCAPTCHA 시스템은 봇에게 복잡한 작업을 수행하도록 요구하는 ALTCHA를 사용합니다."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP 평판 점수"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO 기능"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO 무료 체험"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO 라이선스 지워짐"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO 라이선스 관리"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO 프리미엄 보안"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO가 이 사이트에서 활성화되어 있지 않습니다."
-
-msgid "ShieldPRO license check failed."
-msgstr "ShieldPRO 라이선스 확인에 실패했습니다."
-
-msgid "ShieldPRO license check was successful."
-msgstr "ShieldPRO 라이선스 확인이 성공했습니다."
 
 msgid "Should be uninstalled"
 msgstr "제거해야 합니다"
@@ -8923,20 +9223,23 @@ msgstr "사이트 URL"
 msgid "Site URL Changed"
 msgstr "사이트 URL 변경됨"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "사이트 URL 변경됨: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "사이트 URL 변경됨: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "내보내기 허용 목록에 사이트가 추가되었습니다: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "사이트 이메일 변경됨: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "사이트 이메일 변경됨: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "사이트 동기화 실패"
 
 msgid "Site has been locked down!"
 msgstr "사이트가 잠겼습니다!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "사이트는 이미 활성화되었지만 라이선스 확인에 실패했습니다."
 
 msgid "Site lock down has been lifted!"
 msgstr "사이트 잠금이 해제되었습니다!"
@@ -8946,6 +9249,9 @@ msgstr "내보내기 허용 목록에서 사이트가 제거되었습니다: {{s
 
 msgid "Site synced successfully"
 msgstr "사이트가 성공적으로 동기화되었습니다"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "사이트가 이미 활성화되었고 라이선스가 성공적으로 확인되었습니다."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "{{user_login}}에 의해 사이트가 잠금 모드로 전환되었습니다."
@@ -8965,8 +9271,8 @@ msgstr "크기"
 msgid "Slug"
 msgstr "슬러그"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "슬러그 업데이트됨: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "슬러그 업데이트됨: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "게시물 ID {{post_id}}의 슬러그가 '{{slug_old}}'에서 '{{slug_new}}'(으)로 업데이트되었습니다."
@@ -9049,8 +9355,8 @@ msgstr "죄송합니다. 이 스캔을 사용할 수 없습니다."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "죄송합니다. MAL{ai} 쿼리를 실행할 수 있는 액세스 권한이 없습니다. 플랜을 업그레이드하세요."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "죄송합니다. MainWP 통합에 액세스하려면 Shield Security 멤버십을 업그레이드해야 합니다."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "죄송합니다. MainWP 통합에 액세스하려면 %s 멤버십을 업그레이드해야 합니다."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "침해에 대해 말하자면, 침해를 허용하는 플러그인 및 테마 내의 취약점은 공격의 주요 표적이므로 조기에 식별해야 합니다."
@@ -9100,8 +9406,11 @@ msgstr "통계"
 msgid "Status"
 msgstr "상태"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "상태 변경됨: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "상태 변경됨: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "상태 확인이 완료되었습니다."
 
 msgid "Store directory could not be created: %s"
 msgstr "저장소 디렉터리를 생성할 수 없습니다: %s"
@@ -9133,8 +9442,8 @@ msgstr "라이선스 서버에 성공적으로 연결되었습니다."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "방화벽 차단 이메일 알림을 {{to}}(으)로 성공적으로 보냈습니다"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "SureSend를 사용하여 '{{email}}'(으)로 이메일(유형: {{slug}})을 성공적으로 보냈습니다."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "%s을(를) 사용하여 '{{email}}'(으)로 이메일(유형: {{slug}})을 성공적으로 보냈습니다."
 
 msgid "Summary"
 msgstr "요약"
@@ -9165,15 +9474,6 @@ msgstr "SureSend 이메일"
 
 msgid "SureSend Emails."
 msgstr "SureSend 이메일."
-
-msgid "SureSend Fail"
-msgstr "SureSend 실패"
-
-msgid "SureSend Success"
-msgstr "SureSend 성공"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend는 Shield Security의 전용 이메일 전송 서비스입니다."
 
 msgid "Suspend Account"
 msgstr "계정 정지"
@@ -9229,14 +9529,14 @@ msgstr "CrowdSec 기능을 켜서 알려진(크라우드소싱) 악성 IP를 차
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "이 기능을 켜면 사이트에 대한 모든 트래픽이 차단됩니다. 모든 것이 차단됩니다(Google 봇 포함)."
 
+msgid "Sync %s"
+msgstr "%s 동기화"
+
 msgid "Sync Required"
 msgstr "동기화 필요"
 
 msgid "Sync Required."
 msgstr "동기화 필요."
-
-msgid "Sync Shield"
-msgstr "Shield 동기화"
 
 msgid "System Info"
 msgstr "시스템 정보"
@@ -9253,8 +9553,8 @@ msgstr "테이블이 삭제되었으며 이제 다시 생성됩니다."
 msgid "Tagline"
 msgstr "태그라인"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "태그라인 변경됨: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "태그라인 변경됨: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "항목당 새 줄을 사용하세요."
@@ -9268,11 +9568,11 @@ msgstr "화이트리스트에 등록된 각 경로마다 새 줄을 사용하세
 msgid "Take a new line per rule."
 msgstr "규칙당 새 줄을 사용하세요."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "전체 Shield 네트워크에서 수집된 인텔리전스를 활용하여 워드프레스 사이트를 더 잘 보호하세요"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "전체 %s 네트워크에서 수집된 인텔리전스를 활용하여 워드프레스 사이트를 더 잘 보호하세요"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Shield에 대한 기술 지원은 Pro 고객에게만 제공됩니다."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "%s에 대한 기술 지원은 Pro 고객 전용입니다."
 
 msgid "Temp Dir"
 msgstr "임시 디렉터리"
@@ -9295,17 +9595,17 @@ msgstr "WP Cron 테스트가 성공적으로 실행되었습니다."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "테스트에 실패하여 SSL 인증서 상태를 자동으로 확인할 수 없습니다."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Shield Security를 선택해 주셔서 감사합니다"
+msgid "Thank You For Choosing %s"
+msgstr "%s을(를) 선택해 주셔서 감사합니다"
 
 msgid "Thank You."
 msgstr "감사합니다."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Shield Security(무료)를 선택해 주셔서 감사합니다."
+msgid "Thank you for choosing %s (Free)."
+msgstr "%s (무료)를 선택해 주셔서 감사합니다."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Shield Security PRO를 선택해 주셔서 감사합니다."
+msgid "Thank you for choosing %s."
+msgstr "%s을(를) 선택해 주셔서 감사합니다."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "안내 설정 마법사를 진행해 주셔서 감사합니다."
@@ -9325,11 +9625,23 @@ msgstr "감사합니다."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "향후 개발을 지원하면서 느끼는 따뜻하고 포근한 감정"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "%s 디렉터리는 %s 디렉터리와 유사하며 많은 워드프레스가 아닌 파일이 저장됩니다."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "%1$s 디렉터리는 %2$s 디렉터리와 같으며 많은 워드프레스가 아닌 파일이 저장됩니다."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s은(는) %2$s을(를) 측정해야 합니다."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "%s 배지는 고객에게 보안을 중요하게 생각한다는 것을 보여줍니다."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "%s 디렉터리는 무법지대와 같으며 많은 플러그인과 테마가 작업 파일을 저장하는 데 사용합니다."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "%s 옵션이 비활성화되어 로그인, 회원가입 및 비밀번호 찾기 양식에 대한 무차별 대입 공격 보호가 제거됩니다."
+
+msgid "The %s option is enabled."
+msgstr "%s 옵션이 활성화되어 있습니다."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s 플러그인은 일반적으로 등록되지 않은 사이트 방문자에 대해 쿠키를 사용하지 않습니다."
@@ -9337,14 +9649,29 @@ msgstr "%s 플러그인은 일반적으로 등록되지 않은 사이트 방문�
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "%s 플러그인에는 다음 정보를 기록하는 감사 추적 기능이 있습니다:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "%s 플러그인이 방금 비활성화되었습니다."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "%s 플러그인은 어떤 쿠키에도 민감하거나 개인 식별 가능한 정보를 저장하지 않습니다."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "이 사이트의 %s 플러그인을 업그레이드해야 합니다."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "이 사이트의 %s 플러그인에는 활성 PRO 라이선스가 필요합니다."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "클라이언트 사이트의 %s 플러그인 버전이 이 서버보다 최신입니다."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "클라이언트 사이트의 %s 플러그인 버전이 이 서버보다 오래되어 업데이트해야 합니다."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "사용자명/작성자 피싱으로부터 보호하기 위해 %s 쿼리 매개변수가 차단되었습니다."
 
-msgid "The %s should measure %s."
-msgstr "%s은(는) %s을(를) 측정해야 합니다."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "%s 시스템은 봇에게 복잡한 작업을 수행하도록 요구하는 ALTCHA를 사용합니다."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "'wp_mail' 함수가 '{{bt_file}}' 파일의 {{bt_line}}번째 줄에서 호출되었습니다."
@@ -9388,8 +9715,8 @@ msgstr "플러그인의 메인 메뉴 제목입니다. 비워두면 \"%s\"이(�
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "플러그인의 메인 메뉴 제목입니다. 비워두면 플러그인 이름이 사용됩니다."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "MainWP Security 플러그인이 Shield의 최소 요구 사항을 충족하지 않습니다."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "MainWP Security 플러그인이 %s의 최소 요구 사항을 충족하지 않습니다."
 
 msgid "The Name Of The Plugin"
 msgstr "플러그인 이름"
@@ -9415,32 +9742,14 @@ msgstr "Security Admin 시스템은 워드프레스와 %s 플러그인을 변조
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Security Admin 시스템은 다른 워드프레스 관리자의 변조나 실수로 인한 변경으로부터 %s 플러그인을 보호합니다."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Security Administrator가 이메일 재정의 기능 사용을 제한했습니다."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "보안 배지가 방문자에게 표시됩니다"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "보안 배지가 방문자에게 표시되지 않습니다"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "이 사이트의 Shield Security 플러그인을 업그레이드해야 합니다."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "유효한 데이터베이스가 없으면 특정 기능을 사용할 수 없으므로 Shield 데이터베이스를 복구해야 합니다."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Shield 플러그인이 방금 비활성화되었습니다."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "이 사이트의 Shield 플러그인에 활성 ShieldPRO 라이선스가 없습니다."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "클라이언트 사이트의 Shield 플러그인 버전이 이 서버보다 최신입니다."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "클라이언트 사이트의 Shield 플러그인 버전이 이 서버보다 오래되어 업데이트해야 합니다."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "플러그인의 태그 라인"
@@ -9487,8 +9796,8 @@ msgstr "국가 코드가 누락되었습니다."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "전체 %s 구성에 대한 누적 점수"
 
-msgid "The current request has a valid Shield user session"
-msgstr "현재 요청에 유효한 Shield 사용자 세션이 있습니다"
+msgid "The current request has a valid %s user session"
+msgstr "현재 요청에 유효한 %s 사용자 세션이 있습니다"
 
 msgid "The data provided was inconsistent."
 msgstr "제공된 데이터가 일관성이 없습니다."
@@ -9544,8 +9853,8 @@ msgstr "다음 항목이 발견되었습니다."
 msgid "The following options will be restricted:"
 msgstr "다음 옵션이 제한됩니다:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "다음 유형의 사용자 양식이 silentCAPTCHA로 보호됩니다: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "다음 유형의 사용자 양식이 %1$s에 의해 보호됩니다: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "홈 URL이 '{{from}}'에서 '{{to}}'(으)로 변경되었습니다."
@@ -9559,8 +9868,8 @@ msgstr "레이블은 특수 문자 없이 영숫자여야 합니다"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "차단 전 허용되는 최대 위반 횟수가 적절합니다: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "최대 로그 보존 제한(%s)은 ShieldPRO 플랜을 업그레이드하여 늘릴 수 있습니다."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "최대 로그 보존 제한(%1$s)은 %2$s 플랜을 업그레이드하여 늘릴 수 있습니다."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "지정된 시간 제한 내에서 허용되는 최대 요청 수입니다."
@@ -9625,7 +9934,7 @@ msgstr "선호하는 소스는 %s입니다. 이는 스푸핑될 수 없기 때�
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "이전 스캔에서 주의가 필요한 항목이 감지되지 않았거나 이미 복구되었습니다."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
 msgstr "목적은 중요한 이메일에 대한 워드프레스 이메일 안정성을 개선하는 것입니다."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
@@ -9651,12 +9960,6 @@ msgstr "이 설정은 외부 웹사이트가 귀하의 사이트를 iFrame에 �
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "이 설정은 외부 웹사이트가 귀하의 사이트를 iFrame에 삽입하는 것을 방지합니다. 이는 소위 클릭재킹 공격을 방지하는 데 유용합니다."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "silentCAPTCHA 옵션이 비활성화되어 로그인, 회원가입 및 비밀번호 찾기 양식에 대한 무차별 대입 공격 보호가 제거됩니다."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "silentCAPTCHA 옵션이 활성화되어 있습니다."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "사이트 URL이 '{{from}}'에서 '{{to}}'(으)로 변경되었습니다."
@@ -9883,6 +10186,9 @@ msgstr "Passkey 인증 챌린지를 준비하는 중 문제가 발생했습니�
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Passkey 등록 챌린지를 준비하는 중 문제가 발생했습니다."
 
+msgid "There was a problem processing the batched request."
+msgstr "일괄 요청을 처리하는 중 문제가 발생했습니다."
+
 msgid "There was a problem removing this passkey"
 msgstr "이 패스키를 제거하는 중 문제가 발생했습니다"
 
@@ -9937,9 +10243,6 @@ msgstr "봇은 (일반적으로) 아무런 방해 없이 대규모로 사이트�
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Javascript를 손상시키고 사용자 경험을 악몽으로 만들어 로그인 양식에 혼란을 일으킵니다."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "'위반'을 방문자가 나쁜 행동을 한 횟수에 대한 카운터로 생각하세요."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "로그인 페이지뿐만 아니라 워드프레스 사이트의 모든 기능에 적용되는 '로그인 시도 제한'으로 생각하시면 됩니다."
 
@@ -9951,6 +10254,9 @@ msgstr "본인입니다"
 
 msgid "This Page"
 msgstr "이 페이지"
+
+msgid "This Period"
+msgstr "이번 기간"
 
 msgid "This Server"
 msgstr "이 서버"
@@ -9967,8 +10273,8 @@ msgstr "이 동작은 현재 프로필에서 사용할 수 없습니다."
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "이 활동은 귀하의 IP 주소에 대해 기록되며, 유사한 활동이 반복되면 사이트 액세스가 완전히 차단될 수 있습니다."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "ShieldPRO를 실행 중인 경우 제휴 링크 역할도 하므로 각 추천에 대한 보상을 받을 수 있습니다."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "%s을(를) 실행 중인 경우 제휴 링크로도 작동하므로 각 추천에 대한 보상을 받을 수 있습니다."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "%s AntiBot 보호 검사에 실패하여 스팸으로 보입니다."
@@ -10011,6 +10317,9 @@ msgstr "이 기능은 트래픽 로거가 활성화되어 있을 때만 사용�
 
 msgid "This feature isn't currently enabled."
 msgstr "이 기능은 현재 활성화되어 있지 않습니다."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "이 기능은 %s 플러그인으로 신원을 확인하는 데 사용할 비밀 PIN(아래에서 생성)에 의존합니다."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "이 파일에는 악성 코드가 포함되어 있습니다 - 멀웨어입니다!"
@@ -10171,11 +10480,20 @@ msgstr "이 설정은 %s 후 자동으로 비활성화되며, 해당 기간 동�
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "이 기능은 신중하게 사용해야 하며 반드시 제외해야 하는 매개변수 이름만 제공해야 합니다."
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "이 사이트는 Shield 네트워크의 일부인 것으로 보입니다."
+msgid "This site appears to be part of a %s Network."
+msgstr "이 사이트는 %s 네트워크의 일부인 것으로 보입니다."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "이 사이트는 현재 자체적으로 HTTP 요청을 할 수 없습니다."
+
+msgid "This site is already activated for this account."
+msgstr "이 사이트는 이미 이 계정에 대해 활성화되어 있습니다."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "이 사이트는 이미 활성화되어 있습니다. 로컬 라이선스 상태를 다시 확인하고 동기화하는 중..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "이 단계는 %s이(가) 항상 올바른 방문자 IP를 찾을 수 있도록 하는 데 도움이 되므로 가장 중요할 수 있습니다."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "이 테마는 활성화되어 있지 않으므로 제거해야 합니다."
@@ -10222,8 +10540,8 @@ msgstr "애플리케이션 매개변수의 필드 잘림 공격을 차단합니�
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "애플리케이션 매개변수의 SQL을 차단합니다(예: %s 등)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "로그인하지 않은 상태에서 %s 및 %s URL이 HTTP 404 오류를 반환합니다."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "이렇게 하면 로그인하지 않은 경우 %1$s 및 %2$s URL이 HTTP 404 오류를 반환합니다."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "이는 표준 2FA SMS와 마찬가지로 사용 가능한 경우 SMS 크레딧을 소비합니다."
@@ -10242,6 +10560,9 @@ msgstr "워드프레스 관리자가 주요 워드프레스 설정을 변경하�
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "워드프레스 관리자가 다른 관리자를 생성, 수정 또는 승격하는 기능을 제한합니다."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "이 마법사는 3분 이내에 시작하고 실행할 수 있도록 %s의 주요 기능 중 일부를 안내합니다."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "합법적인 웹 크롤러는 'robots.txt' 및 'nofollow' 지시문을 준수하기 때문에 작동합니다."
@@ -10273,17 +10594,17 @@ msgstr "타임스탬프"
 msgid "Timezone"
 msgstr "시간대"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "제목 업데이트됨: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "제목 업데이트됨: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "제목 변경됨: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "제목 변경됨: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "게시물 ID {{post_id}}의 제목이 '{{title_old}}'에서 '{{title_new}}'(으)로 업데이트되었습니다."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "이 문제를 해결하기 위해 silentCAPTCHA라는 자체 시스템을 만들었습니다."
+msgid "To address this we created our own system called %s."
+msgstr "이 문제를 해결하기 위해 %s이라는 자체 시스템을 만들었습니다."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "무차별 대입 공격 및 해킹 시도로부터 wp-login.php 페이지를 숨기려면 - 로그인 페이지를 찾을 수 없으면 아무도 로그인할 수 없습니다."
@@ -10303,14 +10624,17 @@ msgstr "새 Yubikey 장치를 등록하려면 Yubikey에서 일회용 비밀번�
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Yubikey 장치를 제거하려면 등록된 장치 ID를 입력하고 저장하세요."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "이 문제를 해결하려면 현재 IP 주소가 무엇인지 %s에 알려주면 최적의 IP 소스를 구성할 수 있습니다."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "건강을 유지하려면 예상치 못한 변경 사항에 대해 파일을 적극적으로 스캔하고 속하지 않는 파일을 감지해야 합니다."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "패스키를 사용하려면 PHP 설치에 다음 확장 중 하나가 로드되어 있어야 합니다: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "이메일을 검증하기 위해 사이트는 ShieldNET API에 요청을 보내며 사용자 등록 요청 중에 약간의 지연이 발생할 수 있습니다."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "이메일을 검증하기 위해 사이트는 %s API에 요청을 보내며 사용자 등록 요청 중에 약간의 지연이 발생할 수 있습니다."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "이 IP 주소의 모든 로그를 보려면 Traffic Log 도구를 사용하세요. 여기의 로그는 %s개 항목으로 제한됩니다."
@@ -10326,6 +10650,9 @@ msgstr "이 설정이 가져오기 및 내보내기 작업에 포함되는지 �
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "2FA 인증 시도가 너무 많습니다. 다시 로그인하세요."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "일괄 요청이 너무 많습니다. 최대 허용 개수는 %s입니다."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "귀하의 IP 주소에서 너무 많은 요청이 발생하여 사이트의 자동 방어가 작동했습니다."
@@ -10399,11 +10726,35 @@ msgstr "트래픽 요청이 기록되어 문제를 추적하기가 더 쉽습니
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "트래픽 요청이 기록되지 않아 문제를 추적하기가 더 어렵습니다."
 
+msgid "Translation Download Failed"
+msgstr "번역 다운로드 실패"
+
+msgid "Translation Downloaded"
+msgstr "번역 다운로드됨"
+
+msgid "Translation download queue is empty."
+msgstr "번역 다운로드 대기열이 비어 있습니다."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "번역이 성공적으로 다운로드되었습니다: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "로케일 {{locale}}에 대한 번역 파일이 다운로드되었습니다."
+
+msgid "Translations Queued"
+msgstr "번역 대기 중"
+
+msgid "Translations have been downloaded."
+msgstr "번역이 다운로드되었습니다."
+
 msgid "Trash"
 msgstr "휴지통"
 
 msgid "Trashed"
 msgstr "삭제됨"
+
+msgid "Trend"
+msgstr "추세"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "잘못된 워드프레스 PHP 스크립트 '{{script}}'를 로드하려고 시도했습니다."
@@ -10417,11 +10768,17 @@ msgstr "신뢰할 수 있는 사용자 역할"
 msgid "Trusted Users"
 msgstr "신뢰할 수 있는 사용자"
 
+msgid "Try Pro For Free"
+msgstr "Pro 무료 체험"
+
 msgid "Turn Off"
 msgstr "끄기"
 
 msgid "Turn On"
 msgstr "켜기"
+
+msgid "Turn On Security Admin"
+msgstr "Security Admin 활성화"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "속도 제한 기능 켜기"
@@ -10441,8 +10798,11 @@ msgstr "화이트 라벨 설정을 켜거나 끕니다."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "브라우저 MIME 스니핑 끄기"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "MainWP 서버 및 클라이언트 설치를 위한 Shield의 내장 확장 켜기"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "MainWP 서버 및 클라이언트 설치를 위한 %s의 내장 확장 활성화"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "이 옵션을 활성화하면 웹사이트 하단에 반투명 배지가 추가됩니다."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "%s을(를) 통한 2단계 로그인 인증"
@@ -10516,14 +10876,11 @@ msgstr "미분류"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Google Authenticator를 제거하는 방법 이해하기"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "안타깝게도 U2F는 대부분의 최신 브라우저에서 기본적으로 비활성화되었지만 이전 버전과의 호환성을 위해 여전히 여기에 제공됩니다."
-
 msgid "Unidentified"
 msgstr "식별되지 않음"
 
-msgid "Uninstall Shield"
-msgstr "Shield 제거"
+msgid "Uninstall %s"
+msgstr "%s 제거"
 
 msgid "Uninstalled"
 msgstr "제거됨"
@@ -10539,6 +10896,9 @@ msgstr "알 수 없음 - WP v5.4+ 필요"
 
 msgid "Unknown Name"
 msgstr "알 수 없는 이름"
+
+msgid "Unknown activation error."
+msgstr "알 수 없는 활성화 오류입니다."
 
 msgid "Unknown item"
 msgstr "알 수 없는 항목"
@@ -10582,6 +10942,9 @@ msgstr "지원되지 않는 결과 유형입니다."
 msgid "Until"
 msgstr "까지"
 
+msgid "Update %s"
+msgstr "%s 업데이트"
+
 msgid "Update Available"
 msgstr "업데이트 가능"
 
@@ -10596,9 +10959,6 @@ msgstr "최신 기능으로 보안을 최신 상태로 유지하려면 지금 �
 
 msgid "Update Required"
 msgstr "업데이트 필요"
-
-msgid "Update Shield"
-msgstr "Shield 업데이트"
 
 msgid "Update This Rule"
 msgstr "이 규칙 업데이트"
@@ -10633,14 +10993,14 @@ msgstr "업그레이드 필요"
 msgid "Upgrade To"
 msgstr "업그레이드"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "지금 %s Pro로 업그레이드"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "사용자 지정 보고서를 생성하려면 업그레이드하세요"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "지금 Shield Pro로 업그레이드"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "ShieldPRO 멤버십 업그레이드"
+msgid "Upgrade Your %s Membership"
+msgstr "%s 멤버십 업그레이드"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "테마 파일의 변조 스캔을 지원하려면 플랜을 업그레이드하세요."
@@ -10648,8 +11008,8 @@ msgstr "테마 파일의 변조 스캔을 지원하려면 플랜을 업그레이
 msgid "Upgrade your plan to support this scanning area."
 msgstr "이 스캔 영역을 지원하려면 플랜을 업그레이드하세요."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "업그레이드됨: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "업그레이드됨: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "파일 업로드 실패"
@@ -10657,8 +11017,11 @@ msgstr "파일 업로드 실패"
 msgid "Uptime Monitoring"
 msgstr "가동 시간 모니터링"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "%s을(를) 사용하여 %s분 간격 내에서 과도한 요청을 테스트합니다."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "%1$s을(를) 사용하여 %2$s분 간격 내에서 과도한 요청을 테스트합니다."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "%s을(를) 사용하여 봇 댓글 스팸 차단"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "CloudFlare를 지역 데이터 소스로 사용하시겠습니까?"
@@ -10681,8 +11044,8 @@ msgstr "정상적인 방문자를 차단할 위험을 줄이려면 더 큰 최�
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "정상적인 방문자를 차단할 위험을 줄이려면 더 짧은 간격을 사용하세요."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "사용자 양식의 로그인 시도 제한을 위한 silentCAPTCHA 사용이 활성화되지 않았습니다. Login Security Zone 내에서 활성화해야 합니다."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "사용자 양식의 로그인 시도 제한을 위한 %s 사용이 활성화되지 않았습니다. Login Security Zone에서 활성화해야 합니다."
 
 msgid "Use of this feature is highly recommend."
 msgstr "이 기능의 사용을 적극 권장합니다."
@@ -10690,11 +11053,11 @@ msgstr "이 기능의 사용을 적극 권장합니다."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "이 기능을 사용하면 기존 옵션을 덮어쓰고 마스터 가져오기 사이트의 옵션으로 교체합니다."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "홈페이지 URL의 상대 경로를 사용하세요. 예: %s는 홈페이지(%s)(으)로 리디렉션됩니다."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "홈페이지 URL을 기준으로 상대 경로를 사용하세요. 예: %1$s은(는) 홈페이지(%2$s)로 리디렉션됩니다."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "silentCAPTCHA를 사용하여 봇 댓글 스팸 블록"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Super Search 상자를 사용하여 옵션, IP 주소, 도구, 도움말 등 %s 플러그인 내에서 모든 것을 찾을 수 있습니다."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "제외 옵션을 사용하여 특정 API 엔드포인트에 대한 익명 액세스를 허용하세요."
@@ -10702,14 +11065,17 @@ msgstr "제외 옵션을 사용하여 특정 API 엔드포인트에 대한 익�
 msgid "Use the link above to create a new one."
 msgstr "위 링크를 사용하여 새 코드를 생성하세요."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "검색 상자에서 이러한 접두사를 사용하여 결과를 필터링하세요."
+
 msgid "Use this feature with care."
 msgstr "이 기능은 신중하게 사용하세요."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "이 파일을 사용하여 이 사이트의 옵션을 다른 사이트로 복사하세요"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "이 옵션을 사용하여 모든 활성 Shield 보호를 완전히 비활성화합니다."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "이 옵션을 사용하여 모든 활성 %s 보호를 완전히 비활성화하세요."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "이 옵션을 사용하여 사용자 정의 CSP 규칙이 적용되는지 여부를 켜거나 끕니다."
@@ -10897,11 +11263,11 @@ msgstr "사용자 비밀번호 찾기 요청이 차단되었습니다."
 msgid "User must be logged-in."
 msgstr "사용자가 로그인되어 있어야 합니다."
 
+msgid "User not found."
+msgstr "사용자를 찾을 수 없습니다."
+
 msgid "User registration request blocked."
 msgstr "사용자 회원가입 요청이 차단되었습니다."
-
-msgid "User session deleted"
-msgstr "사용자 세션 삭제됨"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "사용자 세션이 만료되었습니다({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "사용자는 지정된 일수가 지나면 비밀번호를 재설정해�
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "타사 스팸 사전을 사용하여 사람이 작성한 댓글 스팸을 감지합니다."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Shield의 독점 Snapshot 기술을 사용하여 워드프레스 데이터베이스에서 직접 수행된 관리자 변경 사항도 감지됩니다!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "%s의 독점 스냅샷 기술을 사용하면 워드프레스 데이터베이스에서 직접 수행된 관리자 변경 사항도 감지됩니다!"
 
 msgid "Valid license couldn't be found."
 msgstr "유효한 라이선스를 찾을 수 없습니다."
@@ -11047,11 +11413,11 @@ msgstr "모두 보기"
 msgid "View All Security Grades"
 msgstr "모든 보안 등급 보기"
 
-msgid "View As ShieldFREE"
-msgstr "ShieldFREE로 보기"
+msgid "View As %s"
+msgstr "%s(으)로 보기"
 
-msgid "View As ShieldPRO"
-msgstr "ShieldPRO로 보기"
+msgid "View As Free Version"
+msgstr "무료 버전으로 보기"
 
 msgid "View Comment"
 msgstr "댓글 보기"
@@ -11071,6 +11437,9 @@ msgstr "파일 콘텐츠 보기"
 msgid "View File Details"
 msgstr "파일 세부 정보 보기"
 
+msgid "View Full Report"
+msgstr "전체 보고서 보기"
+
 msgid "View IP Reputation Option"
 msgstr "IP 평판 옵션 보기"
 
@@ -11087,6 +11456,9 @@ msgid "View Plans"
 msgstr "플랜 보기"
 
 msgid "View Report"
+msgstr "보고서 보기"
+
+msgid "View Reports"
 msgstr "보고서 보기"
 
 msgid "View Results"
@@ -11146,9 +11518,6 @@ msgstr "전체 워드프레스 사이트 보안을 한눈에 확인하고 개선
 msgid "View, edit and remove custom security rules"
 msgstr "사용자 지정 보안 규칙 확인, 편집 및 제거"
 
-msgid "View/Create Reports"
-msgstr "보고서 보기/생성"
-
 msgid "Visitor Auto-Unblock"
 msgstr "방문자 자동 차단 해제"
 
@@ -11182,8 +11551,8 @@ msgstr "방문자가 차단 목록에서 발견되어 연결이 종료되었습�
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "방문자가 CrowdSec 차단 목록에서 발견되어 요청이 종료되었습니다."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "방문자가 silentCAPTCHA를 사용하여 등록했습니다."
+msgid "Visitor registered using %s."
+msgstr "방문자가 %s을(를) 사용하여 등록했습니다."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "방문자가 '{{method}}' 방법을 사용하여 IP 주소 '{{ip}}'의 차단을 해제했습니다."
@@ -11226,9 +11595,6 @@ msgstr "이 옵션을 활성화하려면 취약점 스캔이 활성 상태여야
 
 msgid "Vulnerable"
 msgstr "취약함"
-
-msgid "Vulnerable Assets"
-msgstr "취약한 자산"
 
 msgid "Vulnerable Plugins"
 msgstr "취약한 플러그인"
@@ -11277,6 +11643,9 @@ msgstr "WP 기본 사용자 역할"
 
 msgid "WP File Editing"
 msgstr "워드프레스 파일 편집"
+
+msgid "WP Files"
+msgstr "WP 파일"
 
 msgid "WP Generator Tag"
 msgstr "WP Generator 태그"
@@ -11367,6 +11736,9 @@ msgstr "더 이상 실행할 필요가 없다면 비활성화하는 것을 권�
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "이 분야의 전문 지식을 찾고 배포 시 전체 테스트를 포함하는 것을 권장합니다."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "5에서 10 사이를 권장합니다. 제한이 작을수록 %s이(가) 더 엄격해집니다."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "공식 워드프레스 코어 파일만 보관하여 워드프레스 루트 디렉터리를 깨끗하게 유지하는 것이 좋습니다."
@@ -11485,8 +11857,8 @@ msgstr "충분한 악의적인 행동이 감지되면 해당 IP의 사이트 액
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "활성화하면 사용 가능한 타사 통합이 감지되는 즉시 활성화됩니다."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "카운터가 아래 제한(기본값: %s)에 도달하면 %s이(가) 해당 IP를 완전히 차단합니다."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "카운터가 아래 제한(기본값: %1$s)에 도달하면 %2$s은(는) 해당 IP를 완전히 차단합니다."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "현재 파일 내용을 공식 릴리스와 비교했을 때 변경 사항이 감지되었습니다."
@@ -11578,17 +11950,17 @@ msgstr "화이트리스트에 등록된 사이트는 키 없이 이 사이트에
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "플러그인/테마 파일 편집기 내에서 저장을 차단할 가능성이 있습니다."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "%s 크라우드소싱 인텔리전스를 통해 시간을 낭비하는 시끄러운 오탐이 자동으로 숨겨지므로 중요한 위험에 집중할 수 있습니다."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "%s 기술을 사용하면 이제 봇을 차단하는 것이 매우 쉽습니다."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "%s를 사용하면 모든 주요 문의 양식 플러그인과 직접 통합하여 자동화된 봇의 문의 양식 스팸을 차단할 수 있습니다."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "%s의 내장 silentCAPTCHA 기술을 사용하면 이제 봇을 차단하는 것이 실제로 매우 쉽습니다."
-
 msgid "With Issues"
 msgstr "문제 있음"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "ShieldNET 크라우드소싱 인텔리전스를 통해 Shield는 자동으로 오탐지를 숨기므로 중요한 위험에 집중하고 시간을 낭비하는 노이즈를 무시할 수 있습니다."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "이를 통해 파일 변경 사항에 대해 즉시 알림을 받을 수 있으며 정확한 변경 사항을 명확하게 확인하고 진행 방법에 대한 쉬운 다음 단계를 제공합니다."
@@ -11596,8 +11968,8 @@ msgstr "이를 통해 파일 변경 사항에 대해 즉시 알림을 받을 수
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "당사의 스팸 사전을 사용하면 타사에 데이터를 전송하지 않고도 사람이 작성한 스팸 댓글을 식별할 수 있습니다."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "강력한 silentCAPTCHA를 사용하여 거의 100%의 모든 봇 스팸을 감지할 수 있습니다."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "강력한 %s을(를) 사용하면 거의 100%%의 모든 봇 스팸을 감지할 수 있습니다."
 
 msgid "Wizards"
 msgstr "마법사"
@@ -11737,8 +12109,8 @@ msgstr "워드프레스는 일반적으로 제한된 수의 방법으로 로드�
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "워드프레스가 오래된 버전(%s)의 PHP에서 실행되고 있습니다."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "워드프레스가 최신 버전(%s)의 PHP(최소 %s)에서 실행되고 있습니다."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "워드프레스가 최신 버전(%1$s)의 PHP(최소 %2$s)에서 실행되고 있습니다."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "봇 최소 점수를 0으로 설정했기 때문에 워드프레스 로그인 양식이 봇으로부터 보호되지 않습니다. 이는 %s 시스템을 제어합니다."
@@ -11839,8 +12211,8 @@ msgstr "'활성화만'을 선택하거나(권장하지 않음) 이 메시지를 
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "REST API에 대한 익명 액세스를 완전히 비활성화할 수 있습니다."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "ShieldPRO 플랜을 업그레이드하면 이 보안 기능과 더 많은 기능을 사용할 수 있습니다."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "%s 플랜을 업그레이드하면 이 보안 기능과 더 많은 기능을 사용할 수 있습니다."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "아래 링크를 사용하여 현재 IP 주소를 확인한 다음 해당 IP 주소가 포함된 목록에서 옵션을 선택하면 서버에 가장 적합한 IP 주소를 감지하는 데 도움이 됩니다."
@@ -11887,8 +12259,8 @@ msgstr "%s Security Admin 시스템으로 인증하고 여기로 돌아올 수 �
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "보안을 강화하기 위해 여러 인증 요소를 결합할 수 있습니다."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Akismet이 Shield의 사람 스팸 보호와 함께 작동하는 동안 신뢰할 수 없는 결과를 얻을 수 있습니다."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Akismet이 %s의 사람 스팸 보호와 함께 작동하는 동안 신뢰할 수 없는 결과를 얻을 수 있습니다."
 
 msgid "You may need to reload this page to continue."
 msgstr "계속하려면 이 페이지를 다시 로드해야 할 수 있습니다."
@@ -11962,8 +12334,8 @@ msgstr "IP 주소가 화이트리스트에 등록되어 있지 않으므로, IP�
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "귀하의 IP 주소가 화이트리스트에 등록되어 있습니다! 이 설정은 귀하에게 적용되지 않으므로 항상 일반 로그인 페이지를 사용해야 합니다: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "MySQL 데이터베이스 서버가 IPv6 주소를 지원하지 않습니다. 현재 버전: %s; 필요한 MySQL 버전: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "MySQL 데이터베이스 서버가 IPv6 주소를 지원하지 않습니다. 현재 버전: %1$s; 필수 MySQL 버전: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "고유한 Yubikey 앱 API 키"
@@ -12037,11 +12409,11 @@ msgstr "보고서 이메일 주소는 %s입니다"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "보안 관리자가 비밀번호 품질에 대한 요구 사항을 부과했습니다."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "보안 분석에서는 ShieldPRO 전용 기능을 고려하지 않습니다. 톱니바퀴 메뉴를 사용하여 이러한 추가 보안 기능에 액세스할 수 있는 것처럼 분석을 확인하세요."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "보안 분석에서 %s 전용 기능은 고려하지 않습니다. 톱니바퀴 메뉴를 사용하여 이러한 추가 보안 기능에 액세스할 수 있는 것처럼 분석을 확인하세요."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "보안 분석에는 ShieldPRO 전용 기능이 포함되어 있습니다. 사용 가능한 보안 기능에 대한 분석을 보려면 톱니바퀴 메뉴를 사용하세요."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "보안 분석에 %s 전용 기능이 포함되어 있습니다. 톱니바퀴 메뉴를 사용하여 사용 가능한 보안 기능에 대한 분석을 확인하세요."
 
 msgid "Your session has expired."
 msgstr "세션이 만료되었습니다."
@@ -12055,11 +12427,11 @@ msgstr "세션이 다른 IP 주소에 잠겨 있습니다."
 msgid "Your session was terminated."
 msgstr "세션이 종료되었습니다."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "사이트가 ShieldPRO에서 제공하는 추가 보안 보호의 혜택을 받습니다."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "사이트가 %s에서 제공하는 추가 보안 보호의 혜택을 받습니다."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "사이트가 ShieldPRO에서 제공하는 추가 보안 보호의 혜택을 받지 못합니다."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "사이트가 %s에서 제공하는 추가 보안 보호의 혜택을 받지 못하고 있습니다."
 
 msgid "Your site is currently in lockdown."
 msgstr "사이트가 현재 잠금 상태입니다."
@@ -12082,8 +12454,8 @@ msgstr "사이트가 봇의 자동화된 댓글 스팸으로부터 보호되지 
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "사이트가 아직 CrowdSec에 등록되지 않았습니다."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "귀하의 웹 호스팅은 Shield Security 플러그인의 최소 요구 사항을 충족하지 않습니다."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "웹 호스팅이 %s 플러그인의 최소 요구 사항을 충족하지 않습니다."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "영역 동작"
 msgid "Zones"
 msgstr "영역"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[오탐지]는 코드가 멀웨어처럼 보이지만 실제로는 깨끗함을 의미합니다."
@@ -12142,6 +12514,18 @@ msgstr "all_opts_keys 양식 요소가 제공되지 않았습니다."
 msgid "and"
 msgstr "및"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "약 %d분 후에 자동으로 처리됩니다."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "약 %d분 후에 자동으로 처리됩니다."
+
+msgid "and will be processed shortly."
+msgstr "곧 처리될 예정입니다."
+
+msgid "auto-fixed"
+msgstr "자동 수정됨"
+
 msgid "case-insensitive"
 msgstr "대소문자 구분 안 함"
 
@@ -12154,8 +12538,8 @@ msgstr "일"
 msgid "empty username"
 msgstr "빈 사용자명"
 
-msgid "entries: %s (previous: %s)"
-msgstr "항목: %s (이전: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "항목: %1$s(이전: %2$s)"
 
 msgid "estimated"
 msgstr "예상"
@@ -12175,6 +12559,12 @@ msgstr "추가 도움말"
 msgid "help"
 msgstr "도움말"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "데이터 누락"
 
 msgid "more frequent checks will be ignored"
 msgstr "더 빈번한 확인은 무시됩니다"
+
+msgid "more..."
+msgstr "더 보기..."
 
 msgid "n/a"
 msgstr "해당 없음"
@@ -12235,80 +12628,8 @@ msgstr "권장 사항"
 msgid "seconds"
 msgstr "초"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot 기술"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "silentCAPTCHA 봇 감지가 워드프레스 로그인에 대한 무차별 대입 공격을 보호하지 않습니다."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "silentCAPTCHA 봇 감지가 워드프레스 비밀번호 찾기 양식을 보호하지 않습니다."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "silentCAPTCHA 봇 감지가 워드프레스 등록을 보호하지 않습니다."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA 봇 최소 점수"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA 봇 점수(백분율)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA 확인 유효하지 않음(모듈)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA 복잡도"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "로그인용 silentCAPTCHA"
-
-msgid "silentCAPTCHA Registration"
-msgstr "silentCAPTCHA 회원가입"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "로그인 또는 등록과 같이 보호할 양식을 선택하지 않았기 때문에 silentCAPTCHA 감지가 적용되지 않습니다."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA는 %s의 독점 워드프레스 악성 봇 감지 기술입니다."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA는 %s의 독점 봇 감지 기술로, 보이는 CAPTCHA 및 유사한 방문자 챌린지가 필요하지 않습니다."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA는 %s의 독점 봇 감지 기술로, 방문자에게 보이지 않으며 로그인 CAPTCHA와의 사용자 상호작용이 필요하지 않습니다."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "최소 봇 점수 임계값이 제공되지 않아 silentCAPTCHA가 비활성화되었습니다."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA는 최소 점수가 %s로 설정되면 비활성화됩니다."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA가 최소 봇 점수 임계값과 함께 활성화되었습니다."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA가 봇 스팸으로부터 워드프레스 댓글을 보호하지 않습니다."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "silentCAPTCHA의 봇 챌린지 복잡도가 너무 낮습니다. 높이는 것을 고려하세요."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "최소 점수가 0으로 설정되어 있어 silentCAPTCHA의 봇 감지가 실행되지 않습니다."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "현재 봇에 대한 검증이 수행되지 않아 silentCAPTCHA의 봇 감지가 실행되지 않습니다."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "silentCAPTCHA의 봇 최소 점수가 상당히 낮습니다(%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "silentCAPTCHAv1 회원가입"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "silentCAPTCHAv2 회원가입"
 
 msgid "suggestion"
 msgstr "제안"

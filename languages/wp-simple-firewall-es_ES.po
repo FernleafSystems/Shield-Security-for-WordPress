@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-21 16:05+0000\n"
-"PO-Revision-Date: 2025-11-21 16:05+0000\n"
+"POT-Creation-Date: 2026-02-16 11:49+0000\n"
+"PO-Revision-Date: 2026-02-16 11:49+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Activado; \"N\" = Desactivado"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Constante <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Constante <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s acaba de conectarse a %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s y %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s bloquea todo el SPAM de bots automatizado usando nuestro %2$s, nuestra tecnología exclusiva, invisible y compatible con GDPR de detección de bots."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "La puntuación mínima de bot de %1$s es bastante baja (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s no pudo determinar si el JS de %2$s se estaba cargando correctamente en tu sitio."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s tiene una integración disponible para proteger los formularios de un plugin de terceros que estás utilizando: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s ha descubierto que la versión actualmente instalada del plugin %2$s tiene vulnerabilidades de seguridad conocidas."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s ha elegido exitosamente la siguiente ubicación para crear su directorio temporal: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s es un servicio exclusivo de %2$s que protege tu archivo wp-config.php."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s es un servicio dedicado de entrega de correo electrónico de %2$s."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s es una tecnología exclusiva de detección de bots de %2$s que es invisible para los visitantes, y elimina la necesidad de interacción del usuario con CAPTCHAs de inicio de sesión."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s está deshabilitado cuando se establece en una puntuación mínima de %2$s."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s es nuestra tecnología de detección de bots exclusiva de %2$s que elimina la necesidad de CAPTCHAs visibles y desafíos similares para los visitantes."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s marcó este comentario como \"%2$s\"."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s usado de %2$s (sin usar: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d configuración(es) regional(es) disponible(s)."
+
+msgid "%d locale(s) in queue."
+msgstr "%d configuración(es) regional(es) en cola."
+
+msgid "%d translation is queued for download"
+msgstr "%d traducción está en cola para descarga"
+
+msgid "%d translations are queued for download"
+msgstr "%d traducciones están en cola para descarga"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (Codificado en JSON)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "Proveedor 2FA de %s Activado"
 
 msgid "%s API Token Missing."
 msgstr "Falta Token de API de %s."
+
+msgid "%s Anti-Spam"
+msgstr "Anti-Spam de %s"
+
+msgid "%s AntiBot Technology"
+msgstr "Tecnología AntiBot de %s"
 
 msgid "%s Auto-Unblock"
 msgstr "%s Desbloqueo Automático"
@@ -37,29 +115,92 @@ msgstr "%s Desbloqueo Automático"
 msgid "%s Bot Check Failed."
 msgstr "Verificación de bot %s fallida."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "La detección de bots de %s no está protegiendo contra ataques de fuerza bruta en tu inicio de sesión de WordPress."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "La detección de bots de %s no está protegiendo tu formulario de contraseña perdida de WordPress."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "La detección de bots de %s no está protegiendo tu registro de WordPress."
+
+msgid "%s Bot Minimum Score"
+msgstr "Puntuación Mínima de Bot de %s"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "Puntuación de Bot de %s (Porcentaje)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "La complejidad del desafío de bot de %s es demasiado baja - considera aumentarla."
+
+msgid "%s Check Invalid (Module)"
+msgstr "Verificación %s no válida (Módulo)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "Protección contra SPAM de Comentarios %s"
+
+msgid "%s Complexity"
+msgstr "Complejidad de %s"
+
+msgid "%s Deactivated"
+msgstr "%s Desactivado"
 
 msgid "%s Debug Information"
 msgstr "Información de Depuración de %s"
 
+msgid "%s Emails"
+msgstr "Emails de %s"
+
+msgid "%s Fail"
+msgstr "Fallo de %s"
+
+msgid "%s Features"
+msgstr "Funcionalidades de %s"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "El cortafuegos %s ha bloqueado una solicitud a tu sitio WordPress."
+
+msgid "%s For Logins"
+msgstr "%s Para Accesos"
+
+msgid "%s Free Trial"
+msgstr "Prueba Gratuita de %s"
 
 msgid "%s Home"
 msgstr "Inicio de %s"
 
+msgid "%s Home Page"
+msgstr "Página Principal de %s"
+
+msgid "%s IP Reputation Score"
+msgstr "Puntuación de Reputación de IP de %s"
+
+msgid "%s Info"
+msgstr "Info de %s"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s Bloqueo Inteligente de IP"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s Acaba de Iniciar Sesión en %s"
+msgid "%s Issue"
+msgstr "Problema de %s"
+
+msgid "%s Issues"
+msgstr "Problemas de %s"
+
+msgid "%s License Cleared"
+msgstr "Licencia de %s Vaciada"
+
+msgid "%s License Management"
+msgstr "Gestión de Licencia de %s"
 
 msgid "%s Login Verification"
 msgstr "Verificación de Acceso %s"
 
 msgid "%s Lookup"
 msgstr "Consulta %s"
+
+msgid "%s Option Key"
+msgstr "Clave de Opción de %s"
 
 msgid "%s Plugin Badge"
 msgstr "Insignia del Plugin %s"
@@ -70,6 +211,24 @@ msgstr "Configuración del Plugin %s"
 msgid "%s Plugin options updated successfully."
 msgstr "Opciones del plugin %s actualizadas correctamente."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "Plugin %s – no se cumplen los requisitos mínimos del sitio"
+
+msgid "%s Premium Security"
+msgstr "Seguridad Premium de %s"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro está disponible en nuestra tienda online."
+
+msgid "%s Pro store"
+msgstr "Tienda Pro de %s"
+
+msgid "%s Registration"
+msgstr "Registro de %s"
+
+msgid "%s Scanners."
+msgstr "Escáneres de %s."
+
 msgid "%s Security Insights"
 msgstr "Información de Seguridad de %s"
 
@@ -79,14 +238,35 @@ msgstr "Restricciones de Seguridad de %s Aplicadas"
 msgid "%s Status Report"
 msgstr "Informe de Estado de %s"
 
+msgid "%s Success"
+msgstr "Éxito de %s"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "Proveedor 2FA de usuario %s activado"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "Usuario %s 2FA: Tiene alguno activo"
+
 msgid "%s Website Security Report"
 msgstr "Informe de Seguridad del Sitio Web %s"
 
-msgid "%s and %s"
-msgstr "%s y %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "La detección de bots de %s no está funcionando porque la puntuación mínima está establecida en 0."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "La detección de bots de %s no está en funcionamiento, ya que los bots no están siendo desafiados actualmente."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s también puede escanear tus plugins y temas en busca de vulnerabilidades conocidas."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s puede integrarse automáticamente con plugins de terceros."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s puede proteger automáticamente formularios de inicio de sesión y registro de terceros contra bots."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s no pudo detectar ninguna dirección IP. Esto representa un problema crítico de configuración del alojamiento web."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s crea una evaluación de riesgo muy rápidamente ya que rastrea visitantes maliciosos en muchas áreas separadas."
@@ -100,29 +280,41 @@ msgstr "%s día"
 msgid "%s days"
 msgstr "%s días"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "La detección de %s no se aplica porque no has seleccionado ningún formulario para proteger, como Inicio de sesión o Registro."
+
 msgid "%s directory"
 msgstr "Directorio %s"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s hace mucho, por lo que puede ser difícil saber por dónde empezar."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s normalmente no escanea comentarios de usuarios con sesión iniciada o registrados."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "Las definiciones de eventos de %s están vacías o no tienen el formato correcto."
 
 msgid "%s extension is unavailable."
 msgstr "La extensión %s no está disponible."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "Introducción a %s para WordPress v20"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s ya ha tomado la acción necesaria de bloquear la solicitud."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s tiene una integración disponible para proteger los formularios de un plugin de terceros que estás utilizando: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s ha descubierto que la versión actualmente instalada del plugin %s tiene vulnerabilidades de seguridad conocidas."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s ha elegido con éxito la siguiente ubicación para crear su directorio temporal: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s es el servicio exclusivo de %s que protege tu archivo wp-config.php."
-
 msgid "%s is a child of another theme."
 msgstr "%s es un tema hijo de otro tema."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s es un potente servicio de seguridad de WordPress implementado en más de 40.000 sitios web de WordPress."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s está deshabilitado ya que no se proporciona ningún umbral mínimo de puntuación de bot."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s está habilitado con un umbral mínimo de puntuación de bot."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s no está protegiendo actualmente tu sitio."
@@ -130,14 +322,26 @@ msgstr "%s no está protegiendo actualmente tu sitio."
 msgid "%s is not protecting your site"
 msgstr "%s no está protegiendo tu sitio"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s es nuestra tecnología de detección de bots maliciosos de WordPress."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s es nuestro exclusivo motor de escaneo y detección de malware impulsado por IA."
 
 msgid "%s is protected against tampering."
 msgstr "%s está protegido contra manipulación."
 
+msgid "%s isn't activated on this site."
+msgstr "%s no está activado en este sitio."
+
+msgid "%s isn't installed on this site."
+msgstr "%s no está instalado en este sitio."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s no está protegido contra manipulación."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s no está protegiendo tus comentarios de WP contra SPAM de bots."
 
 msgid "%s item processed"
 msgstr "%s elemento procesado"
@@ -145,8 +349,11 @@ msgstr "%s elemento procesado"
 msgid "%s items processed"
 msgstr "%s elementos procesados"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s marcó este comentario como \"%s\"."
+msgid "%s license check failed."
+msgstr "Verificación de licencia %s fallida."
+
+msgid "%s license check was successful."
+msgstr "La verificación de licencia %s fue exitosa."
 
 msgid "%s minute"
 msgstr "%s minuto"
@@ -172,8 +379,8 @@ msgstr "%s infracciones"
 msgid "%s offenses until block"
 msgstr "%s infracciones hasta el bloqueo"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s ofrece email, Yubikey, Google Authenticator y U2F."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s ofrece correo electrónico, Yubikey, Google Authenticator y Passkeys."
 
 msgid "%s options and modules"
 msgstr "%s opciones y módulos"
@@ -181,11 +388,56 @@ msgstr "%s opciones y módulos"
 msgid "%s per day"
 msgstr "%s por día"
 
+msgid "%s plugin activated"
+msgstr "Plugin %s activado"
+
+msgid "%s plugin couldn't be activated"
+msgstr "No se pudo activar el plugin %s"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "El plugin %s no pudo ser desactivado"
+
+msgid "%s plugin couldn't be installed"
+msgstr "No se pudo instalar el plugin %s"
+
+msgid "%s plugin couldn't be updated"
+msgstr "No se pudo actualizar el plugin %s"
+
+msgid "%s plugin deactivated"
+msgstr "Plugin %s desactivado"
+
+msgid "%s plugin installed"
+msgstr "Plugin %s instalado"
+
+msgid "%s plugin is installed but not activated."
+msgstr "El plugin %s está instalado pero no activado."
+
+msgid "%s plugin is installed, but not active."
+msgstr "El plugin %s está instalado, pero no activo."
+
+msgid "%s plugin needs to sync."
+msgstr "El plugin %s necesita sincronizarse."
+
+msgid "%s plugin not detected in last sync."
+msgstr "Plugin %s no detectado en la última sincronización."
+
+msgid "%s plugin updated"
+msgstr "Plugin %s actualizado"
+
+msgid "%s plugin versions are out of sync."
+msgstr "Las versiones del plugin %s están desincronizadas."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s protege a los visitantes del sitio y trabaja para bloquear posibles hackeos mientras monitoriza el tráfico web y los cambios en el sistema de archivos."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s proporciona integraciones integradas para proteger los formularios de plugins de terceros contra bots de SPAM."
+
 msgid "%s scan remaining."
 msgstr "%s escaneo restante."
+
+msgid "%s scans cannot execute."
+msgstr "Los escaneos %s no se pueden ejecutar."
 
 msgid "%s scans remaining."
 msgstr "%s escaneos restantes."
@@ -205,14 +457,14 @@ msgstr "%s veces"
 msgid "%s tools and features"
 msgstr "%s herramientas y funcionalidades"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s usado de %s (sin usar: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s intenta hacer esto automáticamente y aunque funciona el 99% de las veces, a veces una configuración extraña del alojamiento web puede complicarlo un poco."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s utiliza un diccionario actualizado regularmente de contenido SPAM de uso común para bloquear este tipo de contenido SPAM."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "La versión de %s en el sitio no coincide con este servidor."
 
 msgid "%s was added to your profile."
 msgstr "%s se añadió a tu perfil."
@@ -223,11 +475,26 @@ msgstr "%s se eliminó de tu perfil."
 msgid "%s was successfully added to your account."
 msgstr "%s se añadió correctamente a tu cuenta."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s escaneará automáticamente tus plugins de terceros para verificar si hay una integración integrada disponible."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s retrasará las actualizaciones hasta que la nueva actualización haya estado disponible durante el número de días establecido."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s detectará bots que intenten iniciar sesión en tu sitio, sin desafiar a tus usuarios legítimos."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s detectará bots que intenten publicar SPAM de comentarios en tu sitio, sin desafiar a tus visitantes legítimos."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s protegerá los formularios de WordPress contra bots limitando los intentos contra ellos usando nuestra tecnología silentCAPTCH."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "La integración de MainWP de %s no está habilitada para este sitio."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "El motor de reglas de %s no está en ejecución."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "El sistema de Administrador de Seguridad de %s proporciona una capa de seguridad adicional al administrador normal de WordPress."
@@ -238,11 +505,14 @@ msgstr "El bloqueo automático de IP de %s's mitigará sus ataques bloqueando su
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "Las protecciones de %s están actualmente desactivadas, por lo que cualquier cambio realizado aquí no se aplicará hasta que se reactive."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "Introducción del Fundador de %s"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "Registro de %sv1"
+
+msgid "%sv2 Registration"
+msgstr "Registro de %sv2"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "&uarr; Hazte Pro &uarr;"
@@ -273,6 +543,9 @@ msgstr "(cuando el bloqueo está desactivado, la dirección IP se eliminará aut
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... y %s más"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "El directorio /wp-content/ no se escanea."
@@ -397,9 +670,6 @@ msgstr "Los errores 404 generados para los siguientes tipos de archivo no activa
 msgid "5-minute"
 msgstr "5 minutos"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 Días"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Escaneando</strong> tus archivos y directorios del core de WordPress en busca de cambios y archivos nuevos."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Se realizó una Verificación de Bot de %s en un visitante pero la opción de bloqueo de bots está deshabilitada en la configuración."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "No se puede crear una comparación de archivos ya que no hay ningún archivo oficial disponible para comparar."
@@ -445,6 +718,9 @@ msgstr "Una visión general de alto nivel del software del servidor de alojamien
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Una visión general de alto nivel del estado de actualizaciones de tu WordPress."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Ya hay una licencia activa. Usa --force para reactivar."
+
 msgid "A light-touch security profile"
 msgstr "Un perfil de seguridad ligero"
 
@@ -456,6 +732,9 @@ msgstr "Una lista de rutas de solicitud que nunca activarán una infracción."
 
 msgid "A login to your WordPress account just occurred"
 msgstr "Acaba de producirse un inicio de sesión en tu cuenta de WordPress"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "Se dedica mucho trabajo a %s, y necesitamos tu ayuda para difundirlo. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "Se envió una nueva contraseña de un solo uso a tu dirección de email."
@@ -475,8 +754,8 @@ msgstr "Una postura de seguridad robusta"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Una puntuación de '100' significaría que es casi con certeza bueno, una puntuación de '0' significa que es muy probable que sea un bot malicioso."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "Se realizó una verificación de bot silentCAPTCHA en un visitante pero la opción de bloqueo de bots está desactivada en la configuración."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Se ha generado una alerta de seguridad. Revisa los problemas a continuación y toma medidas donde sea necesario."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "Acaba de producirse un inicio de sesión exitoso en tu cuenta de WordPress."
@@ -498,6 +777,12 @@ msgstr "Escáner de Malware AI, Reparación Automática de Archivos, protección
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "La clave API no puede estar vacía."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "Se requiere una clave API para la activación. Usa --api-key=TU_CLAVE"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "Autenticación con APP Password - Email No Válido"
@@ -523,8 +808,8 @@ msgstr "Plugins Abandonados Encontrados"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Plugins Abandonados de WordPress.org"
 
-msgid "Absolutely"
-msgstr "Absolutamente"
+msgid "About %s for WordPress"
+msgstr "Acerca de %s para WordPress"
 
 msgid "Accept Changes"
 msgstr "Aceptar Cambios"
@@ -571,20 +856,23 @@ msgstr "Acciones e información"
 msgid "Activate"
 msgstr "activar"
 
+msgid "Activate %s"
+msgstr "Activar %s"
+
+msgid "Activate %s License"
+msgstr "Activar Licencia de %s"
+
 msgid "Activate Only"
 msgstr "Solo Activar"
+
+msgid "Activate Pro License"
+msgstr "Activar Licencia Pro"
 
 msgid "Activate Rule"
 msgstr "Activar Regla"
 
-msgid "Activate Shield"
-msgstr "Activar Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "Activar licencia ShieldPRO"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "Activar tu licencia ShieldPRO"
+msgid "Activate Your %s License"
+msgstr "Activar tu licencia %s"
 
 msgid "Activate Your White Label Settings"
 msgstr "Activar tu configuración de marca blanca"
@@ -673,14 +961,14 @@ msgstr "Tablas Añadidas"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Listas de bloqueo de IP adicionales están disponibles con un plan actualizado."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "Ajustar complejidad del desafío %s"
+
 msgid "Adjust Scan Results Display"
 msgstr "Ajustar Visualización de Resultados del Escaneo"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "Ajustar el despliegue de cabeceras de seguridad HTTP"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "Ajustar Complejidad del Desafío silentCAPTCHA"
 
 msgid "Admin Access Login"
 msgstr "Inicio de sesión de acceso de administrador"
@@ -751,17 +1039,26 @@ msgstr "Adelantado al Servidor"
 msgid "Alert"
 msgstr "Alerta"
 
+msgid "Alert Report Generated"
+msgstr "Informe de Alerta Generado"
+
+msgid "Alert Report Generated."
+msgstr "Informe de Alerta Generado."
+
 msgid "Alert Reports Frequency"
 msgstr "Frecuencia de Informes de Alerta"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Alertas sobre vulnerabilidades de plugins/temas. Shield puede entonces actualizar automáticamente cuando las actualizaciones estén disponibles."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Alertas sobre vulnerabilidades de plugins/temas. %s puede implementar automáticamente actualizaciones cuando estén disponibles."
 
 msgid "Algorithm not supported"
 msgstr "Algoritmo no compatible"
 
-msgid "Align Shield"
-msgstr "Alinear Shield"
+msgid "Align %s"
+msgstr "Alinear %s"
+
+msgid "All Clear"
+msgstr "Todo Limpio"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Todos los proveedores MFA eliminados del usuario con ID %s."
@@ -784,8 +1081,8 @@ msgstr "Por lo tanto, todo el acceso a este sitio web está restringido."
 msgid "All access to your site is blocked."
 msgstr "Todo el acceso a tu sitio está bloqueado."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Todos los intentos de verificar la licencia de Shield Pro han fallado."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "Todos los intentos de verificar la licencia de %s Pro han fallado."
 
 msgid "All available plugin updates have been applied."
 msgstr "Se han aplicado todas las actualizaciones de plugins disponibles."
@@ -795,6 +1092,9 @@ msgstr "Se han aplicado todas las actualizaciones de temas disponibles."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Todos los caracteres se tratarán sin distinción entre mayúsculas y minúsculas."
+
+msgid "All clear"
+msgstr "Todo limpio"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Todas las claves de eventos personalizados deben ser cadenas, en minúsculas, de longitud 10-50, con el prefijo 'custom_', y contener solo letras y guiones bajos."
@@ -979,8 +1279,8 @@ msgstr "Se registra una infracción contra una dirección IP cada vez que un vis
 msgid "An unsupported profile was selected"
 msgstr "Se seleccionó un perfil no compatible"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Hay una actualización disponible para el plugin Shield."
+msgid "An upgrade is available for the %s plugin."
+msgstr "Hay una actualización disponible para el plugin %s."
 
 msgid "Analyse & Fix"
 msgstr "Analizar y Corregir"
@@ -1054,8 +1354,8 @@ msgstr "Cualquiera Puede Registrarse"
 msgid "Anyone can register"
 msgstr "Cualquiera puede registrarse"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Cualquiera puede registrarse modificado: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Cualquiera puede registrarse cambiado: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "Contraseñas de Aplicación Deshabilitadas"
@@ -1093,8 +1393,8 @@ msgstr "Aplicar restricciones de limitación de velocidad a solicitudes de alto 
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "Aplicar cabeceras CSP puede afectar cómo funciona tu sitio para sus visitantes, por lo que no ofrecemos recomendaciones directas en esta sección."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "¿Están Activadas las Restricciones de Shield Security?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "¿Están activadas las restricciones de %s?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "Están habilitados los enlaces permanentes de WordPress."
@@ -1108,11 +1408,11 @@ msgstr "¿Estás seguro de que quieres eliminar esta regla de IP?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "¿Estás seguro de que quieres mantener los cambios del archivo?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "¿Estás seguro de que quieres eliminar la licencia ShieldPRO?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "¿Estás seguro de que quieres eliminar la licencia %s?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "¿Estás seguro de que quieres restablecer el plugin Shield a los valores predeterminados?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "¿Estás seguro de que quieres restablecer el plugin %s a los valores predeterminados?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "¿Estás seguro de que quieres restaurar el contenido original del archivo?"
@@ -1132,11 +1432,11 @@ msgstr "Como siempre, tu uso y confianza en este servicio se realiza bajo tu pro
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "A medida que se resuelva cada problema, la puntuación general mejorará, hasta el 100%."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Como se solicitó, %s te está notificando de un inicio de sesión %s exitoso en un sitio WordPress que gestionas."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Como se solicitó, %1$s te está notificando de un inicio de sesión %2$s exitoso en un sitio WordPress que gestionas."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Tan pronto como se detecte un plugin compatible, Shield activará automáticamente la integración integrada."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Tan pronto como se detecte un plugin compatible, %s activará automáticamente la integración integrada."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Tan pronto como se detecten cambios en cualquier archivo seleccionado, el contenido puede ser examinado y revertido."
@@ -1155,9 +1455,6 @@ msgstr "Al menos 1 de tus plugins o temas parece estar modificado."
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Debe proporcionarse al menos 1 opción y por defecto es la página de perfil de usuario dentro del área de administración de WP."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Se ha generado al menos 1 informe de seguridad para tu sitio."
 
 msgid "At least two records are required to merge."
 msgstr "Se requieren al menos dos registros para fusionar."
@@ -1198,8 +1495,8 @@ msgstr "Intentos restantes: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Intenta reparar automáticamente archivos que han sido modificados o infectados con malware."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "El intento de verificar la licencia de Shield Pro acaba de fallar."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "El intento de verificar la licencia de %s Pro acaba de fallar."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Mensaje del Registro de Auditoría que puede incluir direcciones de correo electrónico"
@@ -1408,8 +1705,8 @@ msgstr "Detecta y repara automáticamente archivos, plugins y temas vulnerables 
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Detectar y activar automáticamente las integraciones de terceros a medida que estén disponibles"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Respetar automáticamente las reglas de lista blanca y excepciones existentes de Shield."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Respetar automáticamente las reglas de lista blanca y excepciones existentes de %s."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Importa automáticamente opciones y despliega configuraciones en toda tu red."
@@ -1504,6 +1801,9 @@ msgstr "Recibir alertas sobre cambios importantes en cualquier cuenta de adminis
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Recibe alertas sobre plugins y temas con vulnerabilidades de seguridad conocidas"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Recibir alertas cuando el plugin %s sea desactivado"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Recibir alertas cuando el plugin Shield sea desactivado"
 
@@ -1528,11 +1828,11 @@ msgstr "Acceso Beta"
 msgid "Block %s"
 msgstr "Bloquear %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "Bloquea el 100% del SPAM de Comentarios de Bots con silentCAPTCHA"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "Bloquea el 100%% de SPAM de Comentarios de Bots con %s"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Bloquea el 99.9%% de todo el SPAM de comentarios de WordPress usando silentCAPTCHA."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Bloquea el 99.9%% de todo el SPAM de comentarios de WordPress usando %s."
 
 msgid "Block Anon REST API"
 msgstr "Bloquear REST API Anónima"
@@ -1668,9 +1968,6 @@ msgstr "SPAM de comentarios de bot bloqueado."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "SPAM de comentarios bloqueado que falló las pruebas AntiBot."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "SPAM de comentarios bloqueado que falló reCAPTCHA."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Se bloqueó el intento de actualización de contraseña que no cumplió los requisitos de la política."
@@ -1819,8 +2116,8 @@ msgstr "Protección contra inicio de sesión por fuerza bruta"
 msgid "Brute Force Login Protection"
 msgstr "Protección contra inicio de sesión por fuerza bruta"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Protección contra inicio de sesión por fuerza bruta con silentCAPTCHA"
+msgid "Brute Force Login Protection with %s"
+msgstr "Protección contra inicio de sesión por Fuerza Bruta con %s"
 
 msgid "Brute Force Protection"
 msgstr "Protección contra Fuerza Bruta"
@@ -1828,8 +2125,8 @@ msgstr "Protección contra Fuerza Bruta"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Limitación de velocidad de tráfico por fuerza bruta"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "Los ataques de bots de fuerza bruta contra tu inicio de sesión de WordPress son detectados y bloqueados por silentCAPTCHA."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "Los ataques de bots por fuerza bruta contra tu inicio de sesión de WordPress son detectados y bloqueados por %s."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Los ataques de fuerza bruta en el inicio de sesión no están bloqueados por el sistema de enfriamiento de inicio de sesión."
@@ -1846,14 +2143,14 @@ msgstr "Crear Reglas de Seguridad Personalizadas"
 msgid "Building scan items for scan: %s"
 msgstr "Creando elementos de escaneo para el escaneo: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Integraciones Integradas de Shield"
+msgid "Built-In %s Integrations"
+msgstr "Integraciones Integradas de %s"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Por defecto, Shield muestra avisos no esenciales en el área de administración y la barra de administración."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Por defecto, %s muestra avisos no esenciales en el área de administración y la barra de administración."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Por defecto, Shield está configurado automáticamente para proteger tu sitio de numerosas amenazas y bloquear visitantes y bots maliciosos sin que tengas que hacer nada."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Por defecto, %s está configurado automáticamente para proteger tu sitio de numerosas amenazas y bloquear visitantes y bots maliciosos sin que tengas que hacer nada."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Al vincular señales del cortafuegos con señales de todos los demás componentes de seguridad, %s construye un perfil de visitante a lo largo del tiempo para determinar quién es humano, quién es un bot y quién está aquí para bien o para mal."
@@ -1863,21 +2160,6 @@ msgstr "Omitir"
 
 msgid "Bypass IP"
 msgstr "Omitir IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "Fallo de CAPTCHA"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA Superado"
-
-msgid "CAPTCHA test failed."
-msgstr "Prueba de CAPTCHA fallida."
-
-msgid "CAPTCHA test successful."
-msgstr "Prueba de CAPTCHA exitosa."
 
 msgid "CAPTCHAs are horrible."
 msgstr "Los CAPTCHAs son horribles."
@@ -1990,6 +2272,9 @@ msgstr "Desafío Fallido"
 msgid "Challenge has expired."
 msgstr "El desafío ha expirado."
 
+msgid "Change"
+msgstr "Cambio"
+
 msgid "Change Detected"
 msgstr "Cambio Detectado"
 
@@ -2005,11 +2290,14 @@ msgstr "Cambiar las opciones de 2FA por correo electrónico no está disponible 
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Cambiar las opciones de código de respaldo no está disponible actualmente para ti."
 
+msgid "Check %s License"
+msgstr "Verificar Licencia de %s"
+
+msgid "Check For %s License"
+msgstr "Buscar Licencia de %s"
+
 msgid "Check License"
 msgstr "Verificar Licencia"
-
-msgid "Check ShieldPRO License"
-msgstr "Verificar Licencia ShieldPRO"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Comprueba y verifica el contenido de este archivo para asegurarte de que no es malicioso."
@@ -2044,14 +2332,14 @@ msgstr "Hijo"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Elige en qué formularios se desplegará la protección contra bots silentCAPTCHA."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Elige la página personalizada de Shield si hay conflictos o problemas con la página de inicio de sesión de WP para 2FA."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Elige la página personalizada de %s si hay conflictos o problemas con la página de inicio de sesión de WP para 2FA."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Elige los formularios para los cuales se desplegarán medidas de protección contra bots."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Elige la frecuencia más apropiada para recibir alertas de Shield según tu horario."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Elige la frecuencia más apropiada para recibir alertas de %s según tu agenda."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Elige el tipo de página para la verificación MFA"
@@ -2121,6 +2409,9 @@ msgstr "Haz clic para eliminar inmediatamente la autenticación de inicio de ses
 
 msgid "Click to launch plugin search modal"
 msgstr "Haz clic para abrir el modal de búsqueda del plugin"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Haz clic para dejar una reseña en WordPress.org ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Haz clic para ver los datos RAW que se enviarían"
@@ -2200,8 +2491,8 @@ msgstr "SPAM de comentarios bloqueado."
 msgid "Comment SPAM Protection"
 msgstr "Protección contra SPAM de Comentarios"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Protección contra SPAM de comentarios: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Protección contra SPAM de Comentarios: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Estado de comentario actualizado"
@@ -2269,6 +2560,12 @@ msgstr "Configuración"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Páginas de Configuración para la Configuración 2FA del Usuario"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "No se requiere configuración ya que solo se detectó 1 dirección IP distinta."
+
+msgid "Configure"
+msgstr "Configurar"
+
 msgid "Configure All '%s' Options"
 msgstr "Configurar Todas las Opciones de '%s'"
 
@@ -2308,9 +2605,6 @@ msgstr "Confirmación"
 msgid "Confirmation email will be sent to %s"
 msgstr "El email de confirmación se enviará a %s"
 
-msgid "Confirmation link"
-msgstr "Enlace de confirmación"
-
 msgid "Connected"
 msgstr "Conectado"
 
@@ -2329,8 +2623,8 @@ msgstr "SPAM de Formularios de Contacto"
 msgid "Contact Form SPAM Checking"
 msgstr "Verificación de SPAM en Formularios de Contacto"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "El SPAM de formularios de contacto solo puede bloquearse con una integración personalizada para cada proveedor de formularios; si tu formulario no es compatible, ponte en contacto con nuestro equipo de soporte."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "El SPAM de formularios de contacto solo puede bloquearse con una integración personalizada para cada proveedor de formularios; si tu formulario no es compatible, por favor contacta con nuestro equipo de soporte."
 
 msgid "Contact Forms Integration"
 msgstr "Integración con Formularios de Contacto"
@@ -2395,8 +2689,8 @@ msgstr "Coordenadas"
 msgid "Core Reinstalled: v%s"
 msgstr "Núcleo Reinstalado: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Núcleo Actualizado: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Núcleo Actualizado: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Las propiedades principales de una sesión de usuario establecida ({{user_login}}) han cambiado."
@@ -2443,8 +2737,8 @@ msgstr "No se pudo crear el directorio: %s"
 msgid "Couldn't create the export file."
 msgstr "No se pudo crear el archivo de exportación."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "No se pudo determinar el estado del plugin Shield."
+msgid "Couldn't determine %s plugin status."
+msgstr "No se pudo determinar el estado del plugin %s."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "No se pudo cargar el plugin para el slug '%s'."
@@ -2455,11 +2749,17 @@ msgstr "No se pudo cargar el tema para el slug '%s'."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "No se pudo leer la plantilla del plugin MU desde %s"
 
+msgid "Count"
+msgstr "Recuento"
+
 msgid "Country"
 msgstr "País"
 
 msgid "Country Code"
 msgstr "Código de país"
+
+msgid "Create %s Network"
+msgstr "Crear Red de %s"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Crear código de respaldo de acceso 2FA"
@@ -2482,9 +2782,6 @@ msgstr "Crear Nueva Regla"
 msgid "Create Report"
 msgstr "Crear Informe"
 
-msgid "Create Shield Network"
-msgstr "Crear Red Shield"
-
 msgid "Create and view all your custom security rules."
 msgstr "Crear y ver todas tus reglas de seguridad personalizadas."
 
@@ -2502,6 +2799,9 @@ msgstr "Crear una ruta aquí deshabilitará tu 'wp-login.php'. Solo se permiten 
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Crear reglas personalizadas es una función avanzada y acepto toda la responsabilidad por cualquier problema que surja de las reglas que cree."
+
+msgid "Critical"
+msgstr "Crítico"
 
 msgid "Critical File Protection"
 msgstr "Protección de archivos críticos"
@@ -2578,9 +2878,6 @@ msgstr "Contenido Actual del Archivo"
 msgid "Current Scan"
 msgstr "Escaneo Actual"
 
-msgid "Current Scan Results"
-msgstr "Resultados actuales del escaneo"
-
 msgid "Current Session Age (seconds)"
 msgstr "Antigüedad de la Sesión Actual (segundos)"
 
@@ -2589,9 +2886,6 @@ msgstr "Sesión Actual Terminada"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Antigüedad del Token de Sesión Actual (segundos)"
-
-msgid "Current Summary"
-msgstr "Resumen actual"
 
 msgid "Current User Sessions"
 msgstr "Sesiones de usuario actual"
@@ -2619,9 +2913,6 @@ msgstr "Depuración Personalizada"
 
 msgid "Custom Exclusions"
 msgstr "Exclusiones Personalizadas"
-
-msgid "Custom Report on %s"
-msgstr "Informe personalizado el %s"
 
 msgid "Custom Rules"
 msgstr "Reglas Personalizadas"
@@ -2704,14 +2995,14 @@ msgstr "Rango de Fecha"
 msgid "Day"
 msgstr "Día"
 
+msgid "Deactivate %s"
+msgstr "Desactivar %s"
+
 msgid "Deactivate Akismet"
 msgstr "Desactivar Akismet"
 
 msgid "Deactivate Rule"
 msgstr "Desactivar Regla"
-
-msgid "Deactivate Shield"
-msgstr "Desactivar Shield"
 
 msgid "Deactivated"
 msgstr "Desactivado"
@@ -2727,9 +3018,6 @@ msgstr "Debug está activo"
 
 msgid "Debug Tests"
 msgstr "Pruebas de Depuración"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "El registro de depuración e información solo debe habilitarse al investigar problemas específicos."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Decide cómo debería responder %s cuando un bot realiza ciertas acciones."
@@ -2749,8 +3037,8 @@ msgstr "Usuario administrador predeterminado"
 msgid "Default User Role"
 msgstr "Rol de Usuario Predeterminado"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Rol de usuario predeterminado modificado: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Rol de usuario predeterminado cambiado: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Predeterminado: Una vez cada 24 horas. Para mejorar la seguridad, aumenta el número de escaneos por día."
@@ -2806,14 +3094,11 @@ msgstr "Tablas Borradas"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Las publicaciones del usuario eliminado fueron reasignadas al usuario '{{user_login}}'."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Cambios importantes en la interfaz con Shield v20"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: Cambios importantes en la interfaz con %s v20"
 
 msgid "Demoted From Admin"
 msgstr "Degradado de Administrador"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "Dependiendo de tu configuración, estos informes pueden contener una combinación de alertas, estadísticas y otra información."
 
 msgid "Description"
 msgstr "Descripción"
@@ -2880,6 +3165,9 @@ msgstr "Detectado"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Se detectó registro de usuario con dirección de email no válida ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Detectar la dirección IP correcta del visitante es fundamental para distinguir cada visitante del sitio del siguiente."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Detectarlos temprano y bloquearlos es tu mayor fuente de protección."
@@ -2953,6 +3241,9 @@ msgstr "Desactivar Módulo"
 msgid "Disable Security Admin"
 msgstr "Desactivar Security Admin"
 
+msgid "Disable Security Admin via Email"
+msgstr "Desactivar Security Admin por email"
+
 msgid "Disable Shield"
 msgstr "Desactivar Shield"
 
@@ -2989,6 +3280,9 @@ msgstr "Desactivar el endpoint XML-RPC y bloquear todas las solicitudes."
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Desactiva esta opción para ocultar ciertos avisos de administración del plugin sobre actualizaciones disponibles y avisos posteriores a la actualización."
 
+msgid "Disabled"
+msgstr "desactivado"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Deshabilitar el acceso anónimo puede romper plugins que usan la REST API para los visitantes de tu sitio."
 
@@ -2998,8 +3292,8 @@ msgstr "Desconectado"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Descubrir plugins que puedan haber sido abandonados por sus autores"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Descubre la seguridad de WordPress más completa cuando actualizas tu plan Shield Security."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Descubre la seguridad de WordPress más completa cuando actualices tu plan %s."
 
 msgid "Discovered"
 msgstr "Descubierto"
@@ -3009,6 +3303,9 @@ msgstr "Descubrir malware en tu sitio no es 'protección' - en realidad es una s
 
 msgid "Disk Space"
 msgstr "Espacio en Disco"
+
+msgid "Dismiss"
+msgstr "descartar"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Mostrar Avisos No Esenciales del Plugin y Menú de la Barra de Administración"
@@ -3064,8 +3361,8 @@ msgstr "¿Coincide el nombre de host de la IP solicitante con el nombre de host 
 msgid "Does the method of the request match the given specified method to match."
 msgstr "¿Coincide el método de la solicitud con el método especificado para coincidir?"
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "¿La solicitud omite todas y cada una de las restricciones de Shield?"
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "¿Omite la solicitud todas y cada una de las restricciones de %s?"
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "¿Contiene la solicitud un parámetro con el nombre proporcionado?"
@@ -3097,8 +3394,8 @@ msgstr "¿Coincide el nombre del script de la solicitud con el nombre dado?"
 msgid "Does the request useragent match the given useragent."
 msgstr "¿Coincide el useragent de la solicitud con el useragent dado?"
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "¿Coincide el valor del parámetro de sesión de Shield dado con el patrón dado?"
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "¿Coincide el valor del parámetro de sesión %s dado con el patrón dado?"
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "¿Coincide el valor del parámetro de solicitud dado con el patrón dado?"
@@ -3115,8 +3412,8 @@ msgstr "No escanear comentarios de usuarios con los siguientes roles"
 msgid "Don't want these email alerts?"
 msgstr "¿No quieres estas alertas por email?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Revertido: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Revertido: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "Descargar"
@@ -3130,6 +3427,9 @@ msgstr "Descargar Reglas de IP como CSV"
 msgid "Download Modified"
 msgstr "Descarga Modificada"
 
+msgid "Download Now"
+msgstr "Descargar Ahora"
+
 msgid "Download Options Export File"
 msgstr "Descargar archivo de exportación de opciones"
 
@@ -3139,11 +3439,17 @@ msgstr "Descargar Original"
 msgid "Download Request Logs"
 msgstr "Descargar Registros de Solicitudes"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "La descarga falló. Verifica que la API de ShieldNet esté disponible y que la configuración regional exista."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Decisiones de reputación descargadas de CrowdSec para el ámbito: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Descargando archivo, por favor espera..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Descargando traducción para la configuración regional: %s"
 
 msgid "Duration"
 msgstr "Duración"
@@ -3160,8 +3466,8 @@ msgstr "Cada sitio en esta lista podrá exportar opciones desde este sitio sin p
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "La actualización Pro de WP más fácil y sin frustraciones en cualquier lugar"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Integra fácilmente Shield Security para ayudarte a gestionar la seguridad de tu sitio desde MainWP."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Integra fácilmente %s para ayudarte a gestionar la seguridad de tu sitio desde MainWP."
 
 msgid "Edit"
 msgstr "Editar"
@@ -3169,8 +3475,8 @@ msgstr "Editar"
 msgid "Edit Rule"
 msgstr "Editar Regla"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "Editar regla #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Editar Regla #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Editar configuración"
@@ -3220,8 +3526,8 @@ msgstr "Editar configuraciones que aplican protección a tus formularios de inic
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Editar configuración que controla el bloqueo automático de IP"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Editar configuraciones que controlan cómo silentCAPTCHA detecta bots"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Editar configuración que controla cómo %s detecta bots"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Editar configuración para aplicar fortaleza mínima de contraseña"
@@ -3250,8 +3556,8 @@ msgstr "La edición de esta opción está actualmente restringida."
 msgid "Either the country code or phone number were missing."
 msgstr "Faltaba el código de país o el número de teléfono."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Eleva tu seguridad de WordPress a la mejor de su clase, actualizando tu plan Shield Security."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Eleva tu seguridad de WordPress a la mejor de su clase, actualizando tu plan de %s."
 
 msgid "Email"
 msgstr "correo electrónico"
@@ -3304,8 +3610,8 @@ msgstr "Notificaciones por email para nuevos comentarios"
 msgid "Email sending has already been verified."
 msgstr "El envío de correo electrónico ya ha sido verificado."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "Email enviado desde el Plugin %s v%s, en %s."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "Email enviado desde el Plugin %1$s v%2$s, en %3$s."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "Email enviado. Asegúrate de que el enlace se abre en ESTE navegador."
@@ -3334,8 +3640,8 @@ msgstr "Emplea un conjunto de reglas agresivas para detectar y bloquear datos ma
 msgid "Empty User Agents"
 msgstr "User Agents Vacíos"
 
-msgid "Empty response from Shield client site"
-msgstr "Respuesta vacía del sitio cliente de Shield"
+msgid "Empty response from %s client site"
+msgstr "Respuesta vacía del sitio cliente %s"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Archivo raíz vacío proporcionado para la instanciación"
@@ -3568,14 +3874,20 @@ msgstr "Error"
 msgid "Error Log Message"
 msgstr "Mensaje de Registro de Error"
 
+msgid "Error: {{error}}"
+msgstr "Error: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Incluso una reseña de una sola línea que diga que estás contento con él, nos ayudará inmensamente."
+
 msgid "Event"
 msgstr "Evento"
 
 msgid "Event %s does not exist."
 msgstr "El evento %s no existe."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "La definición del evento (%s) tiene parámetros de auditoría que no están presentes: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "La definición del evento (%1$s) tiene parámetros de auditoría que no están presentes: %2$s"
 
 msgid "Event Details"
 msgstr "Detalles del Evento"
@@ -3661,6 +3973,9 @@ msgstr "Error al conectar con el servidor de licencias."
 msgid "Failed to create custom report."
 msgstr "Error al crear informe personalizado."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Error al descargar el archivo de traducción para la configuración regional: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Error al insertar registro del bloqueador de archivos para la ruta: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Error al reparar elemento del escaneo."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Error al enviar email de alerta de Bloqueo del Cortafuegos a: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Error al enviar email (tipo: {{slug}}) a '{{email}}' usando SureSend."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Error al enviar correo electrónico (tipo: {{slug}}) a '{{email}}' usando %s."
 
 msgid "Failed to store the rule in the database."
 msgstr "Error al almacenar la regla en la base de datos."
@@ -3796,8 +4111,8 @@ msgstr "El contenido del archivo no pudo ser cifrado. Mensaje:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "El contenido del archivo no pudo ser procesado con wp_json_encode() después del cifrado."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Archivo detectado como %s por el escáner %s."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Archivo detectado como %1$s por el escáner %2$s."
 
 msgid "File does not exist."
 msgstr "El archivo no existe."
@@ -3997,14 +4312,17 @@ msgstr "Generado"
 msgid "Generating a new code will replace your existing code."
 msgstr "Generar un nuevo código reemplazará tu código existente."
 
+msgid "Get %s!"
+msgstr "¡Consigue %s!"
+
 msgid "Get All PRO Security Features"
 msgstr "Consigue Todas las Funcionalidades de Seguridad PRO"
 
-msgid "Get ShieldPRO!"
-msgstr "¡Consigue ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Comienza en Menos de 3 Minutos"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Obtén la prueba gratuita sin riesgo y sin compromiso de %s hoy."
 
 msgid "Global Plugin Enable"
 msgstr "Activación Global del Plugin"
@@ -4039,6 +4357,9 @@ msgstr "¡Hazte Pro!"
 msgid "Go To %s"
 msgstr "Ir a %s"
 
+msgid "Go To %s Overview"
+msgstr "Ir a la Vista General de %s"
+
 msgid "Go To Admin"
 msgstr "Ir al Administrador"
 
@@ -4050,9 +4371,6 @@ msgstr "Ir a la Vista General"
 
 msgid "Go To Security Dashboard"
 msgstr "Ir al Panel de Seguridad"
-
-msgid "Go To Shield Overview"
-msgstr "Ir a Resumen de Shield"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Ve aquí para gestionar la configuración y autenticarte con el plugin %s."
@@ -4111,14 +4429,14 @@ msgstr "Cabecera de Respuesta HTTP a Enviar"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "La configuración HTTPS para Home URL y WP Site URL no es consistente."
 
-msgid "Handshake ShieldNET"
-msgstr "Establecer Comunicación con ShieldNET"
+msgid "Handshake %s"
+msgstr "Handshake %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Identificación de Dos Factores por Hardware"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Tiene Sesiones de Usuario de Shield Válidas"
+msgid "Has Valid %s User Sessions"
+msgstr "Tiene sesiones de usuario %s válidas"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Ten control total sobre las contraseñas utilizadas por los usuarios en el sitio."
@@ -4135,11 +4453,14 @@ msgstr "Artículo de HelpDesk"
 msgid "Helpdesk and Knowledge Base"
 msgstr "HelpDesk y Base de Conocimientos"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Estas son algunas de las formas en que Shield ya está protegiendo tu sitio:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Estas son algunas de las formas en que %s ya está protegiendo tu sitio:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Aquí eliges qué tipo de datos maliciosos escanear."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Aquí está tu resumen de seguridad para el período de informe. Revisa cualquier problema a continuación y toma medidas donde sea necesario."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Aquí, sin embargo, nos centramos en las cuentas de usuario en sí mismas para asegurar que estén en un estado seguro."
@@ -4189,8 +4510,8 @@ msgstr "URL de inicio"
 msgid "Home URL Changed"
 msgstr "URL de Inicio Cambiada"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "URL de inicio modificada: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "URL de inicio cambiada: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "página de inicio"
@@ -4297,11 +4618,14 @@ msgstr "Filtro de SPAM Humano"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "El filtro de SPAM humano detectó intentos repetidos de SPAM en comentarios."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "El filtro de SPAM Humano encontró '%s' en '%s'"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "El filtro de SPAM Humano encontró \"%1$s\" en \"%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "El filtro de SPAM Humano encontró '{{word}}' en '{{key}}'"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "El SPAM humano sigue causando la mayor frustración ya que a menudo evade las defensas contra SPAM."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Entiendo que las Opciones Existentes Serán Sobrescritas"
@@ -4327,17 +4651,11 @@ msgstr "Sé que si uso caché y no la limpio después, causará problemas a los 
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Entiendo las consecuencias de bloquear todo el tráfico a este sitio."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Comprendo los riesgos de crear una regla que no respete las listas blancas y excepciones de Shield, y puede resultarme difícil recuperar el acceso si quedo bloqueado."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Entiendo los riesgos de crear una regla que no respete las listas blancas y excepciones de %s, y puede que me resulte difícil recuperar el acceso si quedo bloqueado."
 
 msgid "I'd like to learn more, please"
 msgstr "Me gustaría saber más, por favor"
-
-msgid "I'd rather not show this support"
-msgstr "Prefiero no mostrar este soporte"
-
-msgid "I've done this already"
-msgstr "Ya lo he hecho"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "IMPORTANTE"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "Puntuación de la IP %s Restablecida."
 
 msgid "IP Address"
 msgstr "Dirección IP"
@@ -4552,9 +4873,6 @@ msgstr "La IP no está en la lista de bloqueo automático."
 msgid "IP provided was invalid."
 msgstr "La IP proporcionada no era válida."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "Puntuación de silentCAPTCHA de IP restablecida."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Si un usuario tiene múltiples roles asignados, todos los roles se compr
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Si se detectan datos maliciosos, la solicitud se terminará inmediatamente."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Si la configuración correcta no es %s, recomendamos contactar con tu proveedor de alojamiento para solicitar que configuren tu alojamiento de modo que %s proporcione la dirección IP real del visitante."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Si la configuración correcta no es %1$s, recomendamos contactar con tu proveedor de alojamiento para solicitar que configuren tu hosting de modo que %2$s proporcione la dirección IP real del visitante."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Si el proveedor que deseas no está en la lista, contacta con nuestro equipo de soporte y veremos si se puede construir una integración."
@@ -4642,8 +4960,8 @@ msgstr "Si el usuario está inactivo durante el número de horas especificado, s
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Si el usuario está inactivo durante el número de horas especificado, se cerrará su sesión forzosamente la próxima vez que regrese. Establece esto en '0' para desactivar esta opción."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Si la puntuación del visitante no alcanza tu puntuación mínima de silentCAPTCHA, podemos prevenir la solicitud (como inicio de sesión, comentario de WP, etc.). Si es mayor, la permitimos."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Si la puntuación del visitante no alcanza tu Puntuación Mínima de %s, podemos prevenir la solicitud (como inicio de sesión, comentario de WP, etc.). Si es mayor, la permitimos."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Si este es un sitio cliente de MainWP, deberías añadir la dirección IP de tu servidor de administración MainWP a tu lista de omisión de IP."
@@ -4656,6 +4974,9 @@ msgstr "Si este mensaje sigue apareciendo después de actualizar esta página, p
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Si este problema persiste, por favor contacta con soporte: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Si ya tienes una licencia de %s asignada a este sitio,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Si crees, por cualquier motivo, que tus buzones de correo o los de tus usuarios están comprometidos, debes desactivar esta opción."
@@ -4702,11 +5023,8 @@ msgstr "Si deseas recibir una notificación cada vez que un usuario administrado
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Si deseas recibir una notificación cada vez que un usuario administrador inicie sesión en este sitio WordPress, introduce una dirección de email de notificación. Sin dirección de email - Sin notificación."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Si no estás utilizando un proveedor de servicios de email dedicado para enviar emails de WordPress, deberías habilitar SureSend para estos emails importantes."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Si has olvidado tu PIN, usa el menú anterior para desactivar esta restricción."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Si no estás usando un proveedor de servicios de correo electrónico dedicado para enviar correos de WordPress, deberías habilitar %s para estos correos importantes."
 
 msgid "Ignore"
 msgstr "Ignorar"
@@ -4737,9 +5055,6 @@ msgstr "Notificación de Importación Enviada"
 
 msgid "Import Options"
 msgstr "Opciones de Importación"
-
-msgid "Import Settings From Another Site"
-msgstr "Importar configuración desde otro sitio"
 
 msgid "Import file was empty"
 msgstr "El archivo de importación estaba vacío"
@@ -4870,11 +5185,14 @@ msgstr "Información para la dirección IP %s"
 msgid "Info Reports Frequency"
 msgstr "Frecuencia de Informes de Info"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "El registro de información solo debe habilitarse cuando se investiguen problemas específicos."
+
 msgid "Information and reports are typically statistics."
 msgstr "La información y los informes son normalmente estadísticas."
 
-msgid "Install Shield"
-msgstr "Instalar Shield"
+msgid "Install %s"
+msgstr "Instalar %s"
 
 msgid "Installation Directory"
 msgstr "Directorio de Instalación"
@@ -4909,6 +5227,9 @@ msgstr "El intervalo se mide en segundos."
 msgid "Invalid"
 msgstr "no válido"
 
+msgid "Invalid %s extension configuration"
+msgstr "Configuración de extensión %s no válida"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Excepción de Nonce de Acción No Válido."
 
@@ -4933,9 +5254,6 @@ msgstr "Carga de Script no Válida"
 msgid "Invalid Scripts"
 msgstr "Scripts No Válidos"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Configuración de extensión de Shield no válida"
-
 msgid "Invalid Slug"
 msgstr "Slug no válido"
 
@@ -4948,9 +5266,6 @@ msgstr "User Agent no válido"
 msgid "Invalid User Email Registration"
 msgstr "Registro de email de usuario no válido"
 
-msgid "Invalid User-Agent"
-msgstr "User-Agent no válido"
-
 msgid "Invalid Username Login"
 msgstr "Inicio de sesión con nombre de usuario no válido"
 
@@ -4959,6 +5274,12 @@ msgstr "Nombres de Usuario No Válidos"
 
 msgid "Invalid action"
 msgstr "Acción no válida"
+
+msgid "Invalid batch request format."
+msgstr "Formato de solicitud por lotes no válido."
+
+msgid "Invalid batch request item."
+msgstr "Elemento de solicitud por lotes no válido."
 
 msgid "Invalid download item data."
 msgstr "Datos del elemento de descarga no válidos."
@@ -4975,6 +5296,15 @@ msgstr "Descarga de tipo de bloqueador de archivos no válido"
 msgid "Invalid login nonce"
 msgstr "Nonce de inicio de sesión no válido"
 
+msgid "Invalid login session."
+msgstr "Sesión de inicio de sesión no válida."
+
+msgid "Invalid or expired login session."
+msgstr "Sesión de inicio de sesión no válida o expirada."
+
+msgid "Invalid profile request."
+msgstr "Solicitud de perfil no válida."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Solicitud no válida: el bloqueo ya está activo."
 
@@ -4984,11 +5314,8 @@ msgstr "Solicitud no válida: el bloqueo no está activo."
 msgid "Invalid request with no User ID"
 msgstr "Solicitud no válida sin ID de Usuario"
 
-msgid "Invalid response from Shield client site"
-msgstr "Respuesta no válida del sitio cliente de Shield"
-
-msgid "Invalid session selected"
-msgstr "Sesión seleccionada no válida"
+msgid "Invalid response from %s client site"
+msgstr "Respuesta no válida del sitio cliente %s"
 
 msgid "Invalid specification of modules"
 msgstr "Especificación no válida de módulos"
@@ -4996,14 +5323,26 @@ msgstr "Especificación no válida de módulos"
 msgid "Invalid type."
 msgstr "Tipo no válido."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "User agent no válido detectado en '{{useragent}}'."
-
 msgid "Invalid value scope for %s"
 msgstr "Ámbito de valor no válido para %s"
 
 msgid "Invalid value type for %s"
 msgstr "Tipo de valor no válido para %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "Está Desactivada la Funcionalidad del Plugin %s."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "Está habilitada la Limitación de velocidad de Tráfico %s."
+
+msgid "Is %s live logging enabled."
+msgstr "Está activado el registro en vivo de %s."
+
+msgid "Is %s score"
+msgstr "Es puntuación de %s"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "Está activo el bloqueo del sitio de %s."
 
 msgid "Is It You?"
 msgstr "¿Eres Tú?"
@@ -5017,20 +5356,8 @@ msgstr "¿Es el estado de solicitud 404?"
 msgid "Is Request To The Login Page."
 msgstr "Es una solicitud a la página de inicio de sesión."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Funcionalidad del Plugin Shield Deshabilitada."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Está habilitada la limitación de velocidad de tráfico de Shield."
-
-msgid "Is Shield live logging enabled."
-msgstr "Está habilitado el registro en vivo de Shield."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "¿Está activo el bloqueo del sitio de Shield?"
-
-msgid "Is The Shield Option Value..."
-msgstr "Es el Valor de la Opción de Shield..."
+msgid "Is The %s Option Value..."
+msgstr "Es el valor de la opción %s..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Es una Dirección IP Pública Válida"
@@ -5038,8 +5365,8 @@ msgstr "Es una Dirección IP Pública Válida"
 msgid "Is Viable"
 msgstr "Es Viable"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Es puntuación de silentCAPTCHA del visitante ..."
+msgid "Is Visitor %s Score ..."
+msgstr "¿Es la Puntuación del Visitante %s ...?"
 
 msgid "Is WP AJAX"
 msgstr "Es WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "Es el usuario actual un administrador de WordPress con sesión iniciada.
 msgid "Is current user password expired."
 msgstr "La contraseña del usuario actual ha expirado."
 
-msgid "Is silentCAPTCHA score"
-msgstr "Es puntuación de silentCAPTCHA"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Está el plugin Shield en estado \"forceoff\"."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "Está el plugin %s en estado \"forceoff\"."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Se considera la dirección IP actual de \"alta reputación\"."
@@ -5116,23 +5440,23 @@ msgstr "Determina si la antigüedad del token de sesión del usuario actual es m
 msgid "Is the request HTTPS."
 msgstr "Es la solicitud HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "Está la IP de la solicitud bloqueada automática o manualmente por Shield."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "Está la dirección IP de la solicitud bloqueada automática o manualmente por %s."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "Está la IP de la solicitud en la lista negra de Shield."
+msgid "Is the request IP blacklisted by %s."
+msgstr "Está la dirección IP de la solicitud en la lista negra de %s."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "Está la IP de la solicitud en la lista de bloqueo de CrowdSec de Shield."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "Está la IP de solicitud en la lista de bloqueo CrowdSec de %s."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "Está la IP de la solicitud en la lista de bloqueo manual de Shield."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "Está la IP de solicitud en la lista de bloqueo Manual de %s."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "Está la IP de la solicitud en la lista de bloqueo automático de Shield."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "Está la IP de solicitud en la lista de bloqueo automático de %s."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "Está la IP de la solicitud en la lista manual de omisión/lista blanca de Shield."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "¿Está la dirección IP de la solicitud en la lista de omisión/lista blanca manual de %s?"
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Es la solicitud de un bot que se origina desde un proveedor de servicios de confianza."
@@ -5143,17 +5467,17 @@ msgstr "Determina si la solicitud es una solicitud de bucle de retorno del servi
 msgid "Is the request an HTTP 404."
 msgstr "Es la solicitud un HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Está la solicitud bloqueada por la función de bloqueo del sitio de Shield."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "¿Está la solicitud bloqueada por la función de Bloqueo del Sitio de %s?"
 
 msgid "Is the request from a logged-in user."
 msgstr "Es la solicitud de un usuario con sesión iniciada."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Es la solicitud de un usuario autenticado como administrador de seguridad de Shield."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "¿Es la solicitud de un usuario autenticado como administrador de %s?"
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "Está la ruta de la solicitud en la lista blanca de Shield."
+msgid "Is the request path whitelisted by %s."
+msgstr "Está la ruta de solicitud en la lista blanca por %s."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "Es la solicitud a una ruta dentro de un plugin de WordPress actualmente instalado."
@@ -5212,6 +5536,9 @@ msgstr "Problemas Encontrados"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Los problemas listados a continuación deben abordarse lo antes posible"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "También ayuda a bloquear la configuración crítica de WordPress."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "También busca archivos que no deberían estar en directorios principales de WP (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Parece que tu IP (%s) está actualmente bloqueada."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Sin embargo, puede usar una cookie para registrar el cierre de la insignia de seguridad de %s para prevenir la visualización repetida."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Utiliza nuestro exclusivo motor silentCAPTCHA para identificar bots de forma fiable."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Utiliza nuestro exclusivo motor %s para identificar bots de forma fiable."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "Se envió a '{{to}}' con el asunto '{{subject}}'."
@@ -5275,8 +5602,8 @@ msgstr "Se envió a '{{to}}' con el asunto '{{subject}}'."
 msgid "It will be displayed below when it's ready."
 msgstr "Se mostrará a continuación cuando esté listo."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Encontrará una ubicación adecuada automáticamente, pero si esto falla, puedes ver advertencias de PHP en tu sitio y ciertas funcionalidades de Shield no estarán disponibles."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Encontrará una ubicación adecuada automáticamente, pero si esto falla, puedes ver advertencias de PHP en tu sitio y ciertas funcionalidades de %s no estarán disponibles."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Es un área compleja y si se usa incorrectamente, puede romper fácilmente la experiencia de usuario de tu front-end."
@@ -5298,9 +5625,6 @@ msgstr "Es una buena práctica limitar la duración de la sesión, particularmen
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Es una buena práctica bloquear una sesión con al menos 1 propiedad para ayudar a prevenir el robo de la sesión."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Es el SPAM humano el que todavía causa más frustración, ya que normalmente no activa nuestras defensas."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Está ubicado en un directorio de plugin de WordPress y se reconoce como un archivo válido para esa versión del plugin."
@@ -5338,8 +5662,8 @@ msgstr "Elemento reparado: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Elementos Encontrados en el Escaneo"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Únete al Boletín de Shield Security"
+msgid "Join The %s Newsletter"
+msgstr "Únete al Boletín de %s"
 
 msgid "Join Us"
 msgstr "Únete a Nosotros"
@@ -5347,8 +5671,14 @@ msgstr "Únete a Nosotros"
 msgid "Join Us!"
 msgstr "¡Únete a Nosotros!"
 
+msgid "Join our %s Newsletter"
+msgstr "Únete a nuestro Boletín de %s"
+
 msgid "Jump To Module Settings"
 msgstr "Ir a Configuración del Módulo"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Únete a nuestro grupo de Facebook %s donde puedes hacer preguntas a nuestra comunidad activa y mantenerte al día con nuestras últimas noticias"
 
 msgid "Just grab a new license from the"
 msgstr "Simplemente obtén una nueva licencia desde el"
@@ -5437,6 +5767,9 @@ msgstr "Última Sincronización"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Por último, queremos prevenir la capacidad de los bots (o humanos) de registrar cuentas SPAM en el sitio, por cualquier motivo."
 
+msgid "Latest Scan Results"
+msgstr "Últimos Resultados del Escaneo"
+
 msgid "Launch Debug Info Page"
 msgstr "Abrir página de info de depuración"
 
@@ -5464,6 +5797,12 @@ msgstr "licencia"
 msgid "License Activation"
 msgstr "Activación de Licencia"
 
+msgid "License Activation Failed"
+msgstr "Activación de licencia fallida"
+
+msgid "License Activation Success"
+msgstr "Activación de licencia exitosa"
+
 msgid "License Check Failed"
 msgstr "Verificación de licencia fallida"
 
@@ -5482,6 +5821,30 @@ msgstr "Email de Fallo de Licencia Enviado"
 msgid "License Summary"
 msgstr "Resumen de licencia"
 
+msgid "License activated and verified successfully."
+msgstr "Licencia activada y verificada correctamente."
+
+msgid "License activated but verification failed."
+msgstr "Licencia activada pero la verificación falló."
+
+msgid "License activated successfully."
+msgstr "Licencia activada correctamente."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "La activación de la licencia falló porque no hay licencias disponibles en esta cuenta."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "La activación de la licencia falló porque la clave API no es válida."
+
+msgid "License activation failed."
+msgstr "Activación de licencia fallida."
+
+msgid "License activation request failed."
+msgstr "La solicitud de activación de licencia falló."
+
+msgid "License activation was denied for this site."
+msgstr "Se denegó la activación de licencia para este sitio."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "La verificación de licencia falló. Enviando correo electrónico de advertencia."
 
@@ -5499,9 +5862,6 @@ msgstr "Las licencias pueden verificarse una vez cada %s segundos"
 
 msgid "Lifetime"
 msgstr "Duración"
-
-msgid "Lifetime Total"
-msgstr "Duración Total"
 
 msgid "Light"
 msgstr "Claro"
@@ -5577,6 +5937,12 @@ msgstr "El escáner de malware PHP local está habilitado pero el escaneo de mal
 
 msgid "Locale"
 msgstr "configuración regional"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "La configuración regional \"%1$s\" ya está en caché en: %2$s. Usa --force para volver a descargar."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "La configuración regional \"%s\" no está disponible para descarga."
 
 msgid "Location"
 msgstr "Ubicación"
@@ -5740,11 +6106,11 @@ msgstr "Contraseña Perdida Bloqueada"
 msgid "Lost Password Bot Protection"
 msgstr "Protección contra Bots de Contraseña Perdida"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "El SPAMing de contraseña perdida por bots está bloqueado por silentCAPTCHA."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "El SPAMing de Contraseña Perdida por bots está bloqueado por %s."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "El SPAMing de contraseña perdida por bots no está bloqueado por silentCAPTCHA."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "El SPAMing de Contraseña Perdida por bots no está bloqueado por %s."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "¿Te encanta? Valora Este Plugin &#10025;"
@@ -5923,6 +6289,9 @@ msgstr "Valor de Meta a Coincidir"
 msgid "Method"
 msgstr "Método"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Puntuación mínima de %s requerida para indicar que el visitante es humano"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Aprobación Automática Mínima de Comentarios"
 
@@ -5941,9 +6310,6 @@ msgstr "Intervalo de Tiempo Mínimo Entre Comentarios"
 msgid "Minimum required MainWP server version"
 msgstr "Versión mínima requerida del servidor MainWP"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Puntuación mínima de silentCAPTCHA requerida para indicar que el visitante es humano"
-
 msgid "Minutes"
 msgstr "Minutos"
 
@@ -5952,6 +6318,12 @@ msgstr "Una configuración incorrecta puede causar problemas para tus visitantes
 
 msgid "Missing"
 msgstr "Falta"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Falta el slug de acción o nonce en la solicitud por lotes."
+
+msgid "Missing request payload for batch request item."
+msgstr "Falta la carga útil de solicitud para el elemento de solicitud por lotes."
 
 msgid "Mode"
 msgstr "Modo"
@@ -5989,6 +6361,12 @@ msgstr "La mayoría del SPAM es automático, por bots, pero a veces los humanos 
 msgid "Multi-Factor Authentication"
 msgstr "Autenticación Multifactor"
 
+msgid "Multiple Signals"
+msgstr "Múltiples Señales"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Múltiples señales de bot detectadas para este visitante."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Se pueden proporcionar múltiples direcciones de correo electrónico, separadas por comas."
 
@@ -6013,6 +6391,9 @@ msgstr "Contraseña de BD MySQL"
 msgid "N/A"
 msgstr "N/D"
 
+msgid "NEW"
+msgstr "NUEVO"
+
 msgid "NO TITLE"
 msgstr "SIN TÍTULO"
 
@@ -6027,6 +6408,12 @@ msgstr "Navegación"
 
 msgid "Needs Update"
 msgstr "Necesita Actualización"
+
+msgid "Needs Work"
+msgstr "Necesita Trabajo"
+
+msgid "Nested batch requests are not allowed."
+msgstr "No se permiten solicitudes por lotes anidadas."
 
 msgid "Never"
 msgstr "Nunca"
@@ -6045,12 +6432,6 @@ msgstr "Nuevo(s) Administrador(es)"
 
 msgid "New Comment"
 msgstr "Nuevo Comentario"
-
-msgid "New Results"
-msgstr "Nuevos resultados"
-
-msgid "New Scan Results"
-msgstr "Nuevos Resultados de Escaneo"
 
 msgid "New User Default Role"
 msgstr "Rol predeterminado de nuevo usuario"
@@ -6166,6 +6547,9 @@ msgstr "No se seleccionaron elementos."
 msgid "No license to remove."
 msgstr "No hay licencia que eliminar."
 
+msgid "No locales available from API."
+msgstr "No hay configuraciones regionales disponibles desde la API."
+
 msgid "No message"
 msgstr "Sin mensaje"
 
@@ -6175,8 +6559,8 @@ msgstr "No hay meta disponible"
 msgid "No modules specified in the plugin config."
 msgstr "No se especificaron módulos en la configuración del plugin."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "¡No más claves de licencia para recordar/copiar-pegar! Simplemente activa la URL de tu sitio en tu panel de control de ShieldPRO y obtén las funciones Pro habilitadas en tu sitio automáticamente."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "¡No más claves de licencia que recordar/copiar-pegar! Simplemente activa la URL de tu sitio en tu panel de control de %s y obtén las funciones Pro habilitadas en tu sitio automáticamente."
 
 msgid "No new session activity recorded yet."
 msgstr "Aún no se ha registrado nueva actividad de sesión."
@@ -6192,6 +6576,9 @@ msgstr "Sin registro"
 
 msgid "No reporter defined"
 msgstr "No hay reporter definido"
+
+msgid "No reports generated yet."
+msgstr "Aún no se han generado informes."
 
 msgid "No reports have been generated yet."
 msgstr "Aún no se han generado informes."
@@ -6247,9 +6634,6 @@ msgstr "No, no quiero ayudar"
 msgid "Noise"
 msgstr "Ruido"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Los elementos de escaneo que no son archivos aún no son compatibles."
-
 msgid "Nonce Failed."
 msgstr "Nonce Fallido."
 
@@ -6304,14 +6688,11 @@ msgstr "No es una clave de opción válida para el módulo: %s"
 msgid "Not a valid option key."
 msgstr "No es una clave de opción válida."
 
-msgid "Not a valid scan item record"
-msgstr "No es un registro de elemento de escaneo válido"
-
 msgid "Not a valid value for this parameter"
 msgstr "No es un valor válido para este parámetro"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "No disponible ya que tu sitio no puede establecer comunicación con la API de ShieldNET."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "No disponible ya que tu sitio no puede establecer conexión con %s."
 
 msgid "Not currently logged-in as security admin."
 msgstr "No has iniciado sesión actualmente como administrador de seguridad."
@@ -6354,9 +6735,6 @@ msgstr "Notificar a los sitios en la lista blanca para actualizar opciones desde
 
 msgid "Notify Whitelist"
 msgstr "Notificar Lista Blanca"
-
-msgid "Now"
-msgstr "Ahora"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "Número de veces para escanear automáticamente archivos del núcleo en 24 horas"
@@ -6418,6 +6796,9 @@ msgstr "Límite de Infracciones"
 msgid "Offenses couldn't be reset at this time."
 msgstr "No se pudieron restablecer las infracciones en este momento."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "Infracciones es simplemente un contador del número de veces que un visitante hace algo incorrecto."
+
 msgid "Offenses reset to zero."
 msgstr "Infracciones restablecidas a cero."
 
@@ -6439,17 +6820,17 @@ msgstr "Contraseñas de un solo uso"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Solo los administradores de seguridad de %s pueden modificar la configuración MFA de otra cuenta de administrador."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Solo se escanean archivos del núcleo de WordPress en la versión gratuita de Shield."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Solo los archivos principales de WordPress se escanean en la versión gratuita de %s."
 
 msgid "Only enable the integrations you require."
 msgstr "Habilita solo las integraciones que necesites."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Solo se monitorizarán los tipos de formulario (inicio de sesión, registro, contraseña perdida) que hayas seleccionado."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Solo se permiten letras y números: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Solo se monitorizarán los tipos de formulario seleccionados (inicio de sesión, registro, contraseña perdida)."
 
 msgid "Only the first 30 items are shown."
 msgstr "Solo se muestran los primeros 30 elementos."
@@ -6562,8 +6943,8 @@ msgstr "Escáner de Malware PHP"
 msgid "PHP Version"
 msgstr "Versión de PHP"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP no cumple con la versión mínima. Tu versión: %s. Versión requerida: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP no cumple con la versión mínima. Tu versión: %1$s. Versión requerida: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "Los archivos PHP no se escanean en busca de malware."
@@ -6718,6 +7099,9 @@ msgstr "Quizás una de sus características más potentes es cómo evitará que 
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Quizás el dispositivo no sea compatible, o ya lo has registrado."
 
+msgid "Period"
+msgstr "Período"
+
 msgid "Permalink structure"
 msgstr "Estructura de enlaces permanentes"
 
@@ -6727,8 +7111,8 @@ msgstr "Enlaces permanentes"
 msgid "Permalinks Updated"
 msgstr "Enlaces permanentes actualizados"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Enlaces permanentes modificados: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Enlaces permanentes cambiados: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Redirección Permanente (301)"
@@ -6790,6 +7174,9 @@ msgstr "Por favor, haz clic en el enlace del email que recibiste."
 msgid "Please click the link provided below to do so."
 msgstr "Por favor, haz clic en el enlace proporcionado a continuación para hacerlo."
 
+msgid "Please complete required fields: %s"
+msgstr "Por favor, completa los campos obligatorios: %s"
+
 msgid "Please complete the form."
 msgstr "Por favor, completa el formulario."
 
@@ -6814,14 +7201,14 @@ msgstr "Por favor, contacta con el administrador del sitio si necesitas más ori
 msgid "Please contact your website administrator."
 msgstr "Por favor, contacta con el administrador de tu sitio web."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Por favor, elimina el archivo \"%s\" para reactivar la protección de %s"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Por favor, elimina el archivo \"%1$s\" para reactivar la protección de %2$s"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Por favor, asegúrate de que la fecha de finalización sea igual o posterior a la fecha de inicio."
 
 msgid "Please login again."
 msgstr "Por favor, inicia sesión de nuevo."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Por favor, cierra sesión si quieres eliminar tu propia sesión."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Ten en cuenta que los plugins de caché de páginas de WP normalmente ignoran las cabeceras HTTP y si no las ves reflejadas en tus pruebas, deberías desactivar tu plugin de caché."
@@ -6840,6 +7227,15 @@ msgstr "Por favor, proporciona una etiqueta para identificar el dispositivo."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Por favor, proporciona una etiqueta para identificar el nuevo autenticador."
+
+msgid "Please provide a title for the report."
+msgstr "Por favor, proporciona un título para el informe."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Por favor, proporciona una fecha válida usando el formato AAAA-MM-DD."
+
+msgid "Please provide a valid date."
+msgstr "Por favor, proporciona una fecha válida."
 
 msgid "Please provide a valid regular expression."
 msgstr "Por favor, proporciona una expresión regular válida."
@@ -6895,6 +7291,9 @@ msgstr "Por favor, selecciona uno de los tipos de regla de IP - Bloquear o Bypas
 msgid "Please select one of the options available"
 msgstr "Por favor, selecciona una de las opciones disponibles"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Por favor, especifica un código de configuración regional (por ejemplo, --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Por favor, proporciona una contraseña diferente ya que esta contraseña ha sido vulnerada."
 
@@ -6925,17 +7324,17 @@ msgstr "Por favor, activa este escaneo en las opciones."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Por favor, comprende que para restablecer las funciones de administrador de seguridad, necesitarás proporcionar un nuevo PIN de administrador de seguridad."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Por favor, actualiza tus plugins Shield a las mismas versiones y vuelve a sincronizar."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Por favor, actualiza tus plugins de %s a las mismas versiones y vuelve a sincronizar."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Por favor, actualiza para admitir el escaneo de todos los archivos de plugins en busca de manipulación."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Por favor, actualiza tu suscripción de Shield Security para acceder al Constructor de Reglas de Seguridad Personalizadas."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Por favor, actualiza tu plan de %s para hacer uso de esta función."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Por favor, actualiza tu plan ShieldPRO para hacer uso de esta función."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Por favor, actualiza tu suscripción de %s para acceder al Constructor de Reglas de Seguridad Personalizadas."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Por favor, actualiza tu plan si necesitas notificar a múltiples direcciones de correo electrónico."
@@ -7186,14 +7585,17 @@ msgstr "Desarrollado por WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "Un potente <strong>cortafuegos</strong> está interceptando y bloqueando tráfico malicioso."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Protección potente para WordPress, de Shield Security"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Protección Potente para WordPress, de %s"
 
 msgid "Powerful User Password Policies"
 msgstr "Políticas de Contraseña de Usuario Potentes"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Potente Escáner de Malware con Autoaprendizaje"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Sistema de Seguridad de WordPress Potente y Fácil de Usar Clasificado como #1"
 
 msgid "Predicted"
 msgstr "Predicho"
@@ -7203,6 +7605,9 @@ msgstr "Directorio Temporal Preferido"
 
 msgid "Preferred temporary directory override."
 msgstr "Anulación de directorio temporal preferido."
+
+msgid "Prefix"
+msgstr "Prefijo"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Prefijo: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Evita que los usuarios utilicen contraseñas que se encuentren en la lis
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Evita que los usuarios utilicen contraseñas que se encuentren en la lista pública disponible de contraseñas comprometidas."
 
+msgid "Previous"
+msgstr "anterior"
+
+msgid "Previous Period"
+msgstr "Período Anterior"
+
 msgid "Previous Step"
 msgstr "Paso Anterior"
 
@@ -7318,8 +7729,8 @@ msgstr "Promovido a Administrador"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "Proteger el inicio de sesión de WP contra intentos de inicio de sesión automatizados por bots"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Protege tu plugin Shield contra manipulación"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Protege tu Plugin %s contra Manipulación"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Protege archivos clave del núcleo de WP que normalmente no pueden protegerse."
@@ -7342,6 +7753,9 @@ msgstr "Protege a los visitantes de tu sitio implementando cabeceras de respuest
 msgid "Protect your %s files"
 msgstr "Protege tus archivos de %s"
 
+msgid "Protected By %s"
+msgstr "Protegido Por %s"
+
 msgid "Protected Forms"
 msgstr "Formularios Protegidos"
 
@@ -7350,6 +7764,9 @@ msgstr "Protegiendo contra la fuente número 1 de <strong>SPAM de Comentarios</s
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Protegiendo tus <strong>formularios de usuario importantes</strong> como Inicio de Sesión, Registro y Contraseña Perdida."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "La protección para formularios de WordPress está incluida de serie, y tendrás acceso a algunas, o todas, las integraciones de terceros, dependiendo de tu plan de %s."
 
 msgid "Protection for user accounts."
 msgstr "Protección para cuentas de usuario."
@@ -7420,9 +7837,6 @@ msgstr "Proporcionar/Actualizar PIN de Security Admin"
 msgid "Provided by %s"
 msgstr "Proporcionado por %s"
 
-msgid "Provided by Shield"
-msgstr "Proporcionado por Shield"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Proporciona un control más preciso sobre el sistema de registro de solicitudes."
 
@@ -7471,8 +7885,8 @@ msgstr "Limitación de velocidad"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "El límite de velocidad ({{count}}) fue excedido con {{requests}} solicitudes en {{span}} segundos."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "¡Cambia la marca de Shield Security como propia!"
+msgid "Re-Brand %s as your own!"
+msgstr "¡Cambia la marca de %s como propia!"
 
 msgid "Re-Install"
 msgstr "Reinstalar"
@@ -7480,8 +7894,8 @@ msgstr "Reinstalar"
 msgid "Re-Install It"
 msgstr "Reinstalarlo"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Cambiar la marca del plugin Shield Security."
+msgid "Re-brand the %s plugin."
+msgstr "Cambiar la marca del plugin %s."
 
 msgid "Re-enable Protection."
 msgstr "Reactivar protección."
@@ -7512,6 +7926,9 @@ msgstr "Motivo"
 
 msgid "Reason: %s"
 msgstr "Motivo: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Motivo: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Recibir una alerta al desactivar el plugin"
@@ -7651,8 +8068,8 @@ msgstr "Infracciones Restantes Permitidas"
 msgid "Remember me for %s"
 msgstr "Recuérdame durante %s"
 
-msgid "Remember to include %s or %s"
-msgstr "Recuerda incluir %s o %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Recuerda incluir %1$s o %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "La eliminación de factores MFA para un usuario debe ser realizada por el administrador de seguridad"
@@ -7708,6 +8125,9 @@ msgstr "Reparado"
 msgid "Repaired item found in the scan."
 msgstr "Elemento encontrado en el escaneo reparado."
 
+msgid "Repairs"
+msgstr "Reparaciones"
+
 msgid "Repeated Human SPAM"
 msgstr "SPAM Humano Repetido"
 
@@ -7735,8 +8155,8 @@ msgstr "Opciones de Informe"
 msgid "Report Sent"
 msgstr "Informe Enviado"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Informe Enviado (vía {{medium}})."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Informe Enviado ({{type}} vía {{medium}})."
 
 msgid "Report Title"
 msgstr "Título del Informe"
@@ -8107,17 +8527,17 @@ msgstr "Verificación de SPAM Superada"
 msgid "SPAM Detection"
 msgstr "Detección de SPAM"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "El SPAM y el registro masivo de usuarios por bots están bloqueados por silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "El SPAM y el registro masivo de usuarios por bots están bloqueados por %s."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "El SPAM y el registro masivo de usuarios por bots no están bloqueados por silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "El SPAM y el registro masivo de usuarios por bots no están bloqueados por %s."
 
 msgid "SPAM blocking"
 msgstr "Bloqueo de SPAM"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "El SPAM se perpetra de 2 formas principales: por bots y humanos."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "El SPAM es perpetrado por 2 tipos de visitantes: bots automatizados y humanos."
 
 msgid "SQL Queries"
 msgstr "Consultas SQL"
@@ -8167,6 +8587,9 @@ msgstr "Escanear en busca de vulnerabilidades en plugins y temas"
 msgid "Scan Frequency"
 msgstr "Frecuencia de Escaneo"
 
+msgid "Scan Issues"
+msgstr "Problemas de Escaneo"
+
 msgid "Scan Item Delete Success"
 msgstr "Eliminación de Elemento de Escaneo Exitosa"
 
@@ -8200,6 +8623,9 @@ msgstr "Resultados del Escaneo"
 msgid "Scan This QR Code"
 msgstr "Escanear Este Código QR"
 
+msgid "Scan Type"
+msgstr "Tipo de Escaneo"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Escanea todos tus recursos de WordPress en busca de vulnerabilidades de seguridad conocidas."
 
@@ -8218,11 +8644,11 @@ msgstr "Escanea tu sitio en busca de cambios en archivos, malware y vulnerabilid
 msgid "Scanning Frequency"
 msgstr "Frecuencia de Escaneo"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "El escaneo de archivos de plugins y temas solo está disponible con ShieldPRO."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "El escaneo de archivos de plugins y temas está disponible solo con la versión Pro de %s."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "El escaneo de malware PHP solo está disponible con ShieldPRO."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "El escaneo de malware PHP está disponible solo con la versión Pro de %s."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "El escaneo utiliza instantáneas locales. Actualiza tu plan para usar instantáneas colaborativas y añadir soporte para plugins premium."
@@ -8305,14 +8731,17 @@ msgstr "Las puntuaciones son una ponderación aproximada para cada componente."
 msgid "Script Name To Match"
 msgstr "Nombre de Script a Coincidir"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Activa y gestiona tu licencia ShieldPRO sin problemas sin necesidad de claves de licencia."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Activa y gestiona tu licencia %s sin problemas sin necesidad de claves de licencia."
 
 msgid "Search %s"
 msgstr "Buscar %s"
 
 msgid "Search Engine"
 msgstr "Motor de Búsqueda"
+
+msgid "Search Help"
+msgstr "Buscar Ayuda"
 
 msgid "Search engine visibility"
 msgstr "Visibilidad en motores de búsqueda"
@@ -8374,6 +8803,9 @@ msgstr "Tiempo de Espera de Security Admin"
 msgid "Security Admin is now active"
 msgstr "Security Admin está ahora activo"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Administrador de Seguridad proporciona una capa de autenticación adicional que garantiza que solo los administradores verificados puedan realizar cambios en la seguridad de tu sitio."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Se han eliminado las restricciones de Security Admin"
 
@@ -8385,6 +8817,9 @@ msgstr "La sesión de administrador de seguridad ha expirado."
 
 msgid "Security Admins"
 msgstr "Administradores de Seguridad"
+
+msgid "Security Alert"
+msgstr "Alerta de Seguridad"
 
 msgid "Security Analysis"
 msgstr "Análisis de Seguridad"
@@ -8503,11 +8938,11 @@ msgstr "Selecciona los proveedores de formularios de usuario que deben verificar
 msgid "Select The User Forms Provider That You Use"
 msgstr "Selecciona el proveedor de formularios de usuario que utilizas"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Selecciona Qué Correos de %1$s Deben Enviarse Usando %2$s"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Selecciona Qué Áreas Deben Escanearse"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Selecciona Qué Emails de Shield Deben Enviarse Usando SureSend"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Seleccionar qué tipos de solicitudes excluir"
@@ -8635,6 +9070,9 @@ msgstr "Sesiones"
 msgid "Sessions Table Filters"
 msgstr "Filtros de Tabla de Sesiones"
 
+msgid "Set Security Badge."
+msgstr "Establecer Insignia de Seguridad."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Establece un límite de infracciones permitidas antes de que la IP del visitante sea bloqueada automáticamente."
 
@@ -8674,161 +9112,23 @@ msgstr "Configurar el plugin para que se ejecute como un MU-plugin para prevenir
 msgid "Severity"
 msgstr "Gravedad"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Proveedor 2FA de Shield habilitado"
-
-msgid "Shield Anti-Spam"
-msgstr "Anti-Spam de Shield"
-
 msgid "Shield Deactivated"
 msgstr "Shield desactivado"
 
 msgid "Shield Events & Stats"
 msgstr "Eventos y Estadísticas de Shield"
 
-msgid "Shield Info"
-msgstr "Info de Shield"
-
-msgid "Shield Option Key"
-msgstr "Clave de Opción de Shield"
-
-msgid "Shield Pro store"
-msgstr "Tienda de Shield Pro"
-
-msgid "Shield Scanners."
-msgstr "Escáneres de Shield."
-
-msgid "Shield Security Home Page"
-msgstr "Página principal de Shield Security"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Plugin Shield Security – no se cumplen los requisitos mínimos del sitio"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro está disponible en nuestra tienda online."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "El plugin Shield Security está instalado pero no activado."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "El plugin Shield Security necesita sincronizarse."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Plugin Shield Security no detectado en la última sincronización."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Las versiones del plugin Shield Security no están sincronizadas."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Proveedor 2FA de usuario de Shield activado"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Usuario de Shield 2FA: Tiene alguno activo"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield White Label"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield puede integrarse automáticamente con plugins de terceros."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield puede proteger automáticamente los formularios de inicio de sesión y registro de terceros contra bots."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield no pudo determinar si el JS de silentCAPTCHA se estaba cargando correctamente en tu sitio."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield normalmente no escanea comentarios de usuarios con sesión iniciada o registrados."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield normalmente no escanea comentarios de usuarios con sesión iniciada o registrados. Especifica aquí los roles de usuario que no deben escanearse."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Las definiciones de eventos de Shield están vacías o no tienen el formato correcto."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield no está instalado en este sitio."
-
-msgid "Shield plugin activated"
-msgstr "Plugin Shield activado"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "No se pudo activar el plugin Shield"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "No se pudo desactivar el plugin Shield"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "No se pudo instalar el plugin Shield"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "No se pudo actualizar el plugin Shield"
-
-msgid "Shield plugin deactivated"
-msgstr "Plugin Shield desactivado"
-
-msgid "Shield plugin installed"
-msgstr "Plugin Shield instalado"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "El plugin Shield está instalado, pero no activo."
-
-msgid "Shield plugin updated"
-msgstr "Plugin Shield actualizado"
-
-msgid "Shield scans cannot execute."
-msgstr "Los escaneos de Shield no pueden ejecutarse."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "La versión de Shield en el sitio no coincide con este servidor."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield escaneará automáticamente tus plugins de terceros para comprobar si hay una integración integrada disponible."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield retrasará las actualizaciones hasta que la nueva actualización haya estado disponible durante el número de días establecido."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "La integración de Shield con MainWP no está habilitada para este sitio."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "El Motor de Reglas de Shield no está en funcionamiento."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "El sistema silentCAPTCHA de Shield utiliza ALTCHA, que desafía a los bots a realizar trabajos complejos."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "Puntuación de Reputación de IP de ShieldNET"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "Funcionalidades ShieldPRO"
-
-msgid "ShieldPRO Free Trial"
-msgstr "Prueba Gratuita de ShieldPRO"
-
-msgid "ShieldPRO License Cleared"
-msgstr "Licencia ShieldPRO Eliminada"
-
-msgid "ShieldPRO License Management"
-msgstr "Gestión de Licencia ShieldPRO"
-
-msgid "ShieldPRO Premium Security"
-msgstr "Seguridad Premium ShieldPRO"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO no está activado en este sitio."
-
-msgid "ShieldPRO license check failed."
-msgstr "La verificación de licencia ShieldPRO falló."
-
-msgid "ShieldPRO license check was successful."
-msgstr "La verificación de licencia ShieldPRO fue exitosa."
 
 msgid "Should be uninstalled"
 msgstr "Debe ser desinstalado"
@@ -8923,20 +9223,23 @@ msgstr "URL del Sitio"
 msgid "Site URL Changed"
 msgstr "URL del Sitio Cambiada"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "URL del sitio modificada: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "URL del sitio cambiada: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Sitio agregado a la lista blanca de exportación: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Email del sitio modificado: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Email del sitio cambiado: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Error al sincronizar el sitio"
 
 msgid "Site has been locked down!"
 msgstr "¡El sitio ha sido bloqueado!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "El sitio ya está activado pero la verificación de la licencia falló."
 
 msgid "Site lock down has been lifted!"
 msgstr "¡El bloqueo del sitio ha sido levantado!"
@@ -8946,6 +9249,9 @@ msgstr "Sitio eliminado de la lista blanca de exportación: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Sitio sincronizado correctamente"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "El sitio ya estaba activado y la licencia se verificó correctamente."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "El sitio fue puesto en modo de bloqueo por {{user_login}}."
@@ -8965,8 +9271,8 @@ msgstr "Tamaño"
 msgid "Slug"
 msgstr "slug"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug Actualizado: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Slug Actualizado: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Slug para el Post ID {{post_id}} actualizado de '{{slug_old}}' a '{{slug_new}}'."
@@ -9049,8 +9355,8 @@ msgstr "Lo sentimos, este escaneo no está disponible."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Lo sentimos, no tienes acceso para ejecutar consultas MAL{ai}, por favor actualiza tu plan."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Lo sentimos, necesitarás actualizar tu membresía de Shield Security para acceder a la integración con MainWP."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Lo sentimos, necesitarás actualizar tu membresía de %s para acceder a la integración de MainWP."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "Hablando de brechas, las vulnerabilidades dentro de plugins y temas que permiten que ocurran brechas son un objetivo principal para los ataques, por lo que debemos identificarlas temprano."
@@ -9100,8 +9406,11 @@ msgstr "Estadísticas"
 msgid "Status"
 msgstr "estado"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Estado modificado: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Estado cambiado: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Verificación de estado completada."
 
 msgid "Store directory could not be created: %s"
 msgstr "No se pudo crear el directorio de almacén: %s"
@@ -9133,8 +9442,8 @@ msgstr "Conectado correctamente al servidor de licencias."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Email de alerta de Bloqueo del Cortafuegos enviado exitosamente a: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Email enviado exitosamente (tipo: {{slug}}) a '{{email}}' usando SureSend."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Correo electrónico enviado exitosamente (tipo: {{slug}}) a '{{email}}' usando %s."
 
 msgid "Summary"
 msgstr "Resumen"
@@ -9165,15 +9474,6 @@ msgstr "Emails de SureSend"
 
 msgid "SureSend Emails."
 msgstr "Emails de SureSend."
-
-msgid "SureSend Fail"
-msgstr "Fallo de SureSend"
-
-msgid "SureSend Success"
-msgstr "Éxito de SureSend"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend es un servicio dedicado de entrega de email de Shield Security."
 
 msgid "Suspend Account"
 msgstr "Suspender Cuenta"
@@ -9229,14 +9529,14 @@ msgstr "Activa la función CrowdSec para bloquear IPs maliciosas conocidas (cola
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Activar esta función bloqueará todo el tráfico a tu sitio. Absolutamente todo será bloqueado (incluidos los bots de Google)."
 
+msgid "Sync %s"
+msgstr "Sincronizar %s"
+
 msgid "Sync Required"
 msgstr "Sincronización Requerida"
 
 msgid "Sync Required."
 msgstr "Sincronización Requerida."
-
-msgid "Sync Shield"
-msgstr "Sincronizar Shield"
 
 msgid "System Info"
 msgstr "Info del Sistema"
@@ -9253,8 +9553,8 @@ msgstr "Tablas eliminadas y ahora serán recreadas."
 msgid "Tagline"
 msgstr "descripción corta"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Eslogan modificado: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Eslogan cambiado: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Usa una nueva línea para cada entrada."
@@ -9268,11 +9568,11 @@ msgstr "Usa una nueva línea para cada ruta en la lista blanca."
 msgid "Take a new line per rule."
 msgstr "Usa una nueva línea por regla."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Aprovecha la inteligencia recopilada en toda la red Shield para proteger mejor tus sitios WordPress"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Aprovecha la inteligencia recopilada en toda la red %s para proteger mejor tus sitios WordPress"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "El soporte técnico para Shield es exclusivo para clientes Pro."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "El soporte técnico para %s es exclusivo para clientes Pro."
 
 msgid "Temp Dir"
 msgstr "Dir Temp"
@@ -9295,17 +9595,17 @@ msgstr "La prueba de WP Cron se ejecutó correctamente."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Las pruebas fallaron y no pudimos determinar automáticamente el estado de tu certificado SSL."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Gracias Por Elegir Shield Security"
+msgid "Thank You For Choosing %s"
+msgstr "Gracias Por Elegir %s"
 
 msgid "Thank You."
 msgstr "Gracias."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Gracias por elegir Shield Security (Gratuito)."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Gracias por elegir %s (Gratuito)."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Gracias por elegir Shield Security PRO."
+msgid "Thank you for choosing %s."
+msgstr "Gracias por elegir %s."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Gracias por tomarte el tiempo de completar el Asistente de Configuración Guiada."
@@ -9325,11 +9625,23 @@ msgstr "Gracias."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Esa Sensación Cálida y Reconfortante que Viene de Apoyar el Desarrollo Futuro"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "El directorio %s es como el directorio %s y muchos archivos que no son de WordPress se guardan allí."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "El directorio %1$s es como el directorio %2$s y muchos archivos no relacionados con WordPress se guardan allí."
+
+msgid "The %1$s should measure %2$s."
+msgstr "El %1$s debe medir %2$s."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "La insignia de %s demuestra a tus clientes que te tomas en serio la seguridad."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "El directorio %s es el salvaje oeste y muchos plugins y temas lo usan para almacenar archivos de trabajo."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "La opción %s está deshabilitada, eliminando la protección de fuerza bruta para formularios de inicio de sesión, registro y contraseña perdida."
+
+msgid "The %s option is enabled."
+msgstr "La opción %s está activada."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "El plugin %s normalmente no usa Cookies para visitantes del sitio no registrados."
@@ -9337,14 +9649,29 @@ msgstr "El plugin %s normalmente no usa Cookies para visitantes del sitio no reg
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "El plugin %s tiene una función de Registro de Auditoría que registrará la siguiente información:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "El plugin %s acaba de ser desactivado."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "El plugin %s nunca almacena ninguna información sensible o personalmente identificable en ninguna cookie en ningún momento."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "El plugin %s en este sitio necesita ser actualizado."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "El plugin %s en este sitio requiere una licencia PRO activa."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "La versión del plugin %s en el sitio cliente es más reciente que este servidor."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "La versión del plugin %s en el sitio cliente es más antigua que este servidor y debe actualizarse."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "El parámetro de consulta %s ha sido bloqueado para proteger contra la búsqueda de nombres de usuario / autores."
 
-msgid "The %s should measure %s."
-msgstr "El %s debería medir %s."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "El sistema %s utiliza ALTCHA que desafía a los bots a realizar trabajos complejos."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "La función 'wp_mail' fue llamada desde el archivo '{{bt_file}}' en la línea {{bt_line}}."
@@ -9388,8 +9715,8 @@ msgstr "El Título Principal del Menú del Plugin. Si se deja vacío, se utiliza
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "El Título Principal del Menú del Plugin. Si se deja vacío, se utilizará el Nombre del Plugin."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "El plugin MainWP Security no cumple con los requisitos mínimos de Shield."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "El plugin MainWP Security no cumple con los requisitos mínimos de %s."
 
 msgid "The Name Of The Plugin"
 msgstr "El Nombre del Plugin"
@@ -9415,32 +9742,14 @@ msgstr "El sistema de administrador de seguridad protege WordPress y el plugin %
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "El sistema de administrador de seguridad protege el plugin %s contra manipulación o cambios accidentales por parte de otros administradores de WordPress."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "El administrador de seguridad ha restringido el uso de la función de anulación de email."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "La insignia de seguridad se mostrará a tus visitantes"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "La insignia de seguridad no se mostrará a tus visitantes"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "El plugin Shield Security en este sitio necesita ser actualizado."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "La base de datos de Shield necesita ser reparada, ya que ciertas funciones no estarán disponibles sin una base de datos válida."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "El plugin Shield acaba de ser desactivado."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "El plugin Shield en este sitio no tiene una licencia ShieldPRO activa."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "La versión del plugin Shield en el sitio cliente es más reciente que este servidor."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "La versión del plugin Shield en el sitio cliente es más antigua que este servidor y debe actualizarse."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "El Eslogan del Plugin"
@@ -9487,8 +9796,8 @@ msgstr "Faltaba el código de país."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "La puntuación acumulada de toda tu configuración de %s"
 
-msgid "The current request has a valid Shield user session"
-msgstr "La solicitud actual tiene una sesión de usuario de Shield válida"
+msgid "The current request has a valid %s user session"
+msgstr "La solicitud actual tiene una sesión de usuario %s válida"
 
 msgid "The data provided was inconsistent."
 msgstr "Los datos proporcionados eran inconsistentes."
@@ -9544,8 +9853,8 @@ msgstr "Se descubrieron los siguientes elementos."
 msgid "The following options will be restricted:"
 msgstr "Las siguientes opciones estarán restringidas:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Los siguientes tipos de formularios de usuario están protegidos por silentCAPTCHA: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Los siguientes tipos de formularios de usuario están protegidos por %1$s: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "La URL de inicio cambió de '{{from}}' a '{{to}}'."
@@ -9559,8 +9868,8 @@ msgstr "La etiqueta debe ser alfanumérica sin caracteres especiales"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "El máximo de infracciones permitidas antes del bloqueo es razonable: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "El límite máximo de retención de registros (%s) puede aumentarse actualizando tu plan ShieldPRO."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "El límite máximo de retención de registros (%1$s) puede aumentarse actualizando tu plan de %2$s."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "El número máximo de solicitudes que se permiten en el límite de tiempo dado."
@@ -9625,8 +9934,8 @@ msgstr "La fuente preferida es %s ya que esta no puede ser falsificada."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "El escaneo anterior no detectó ningún elemento que requiera tu atención o ya han sido reparados."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
-msgstr "El propósito es mejorar la fiabilidad del email de WordPress para emails críticos."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
+msgstr "El propósito es mejorar la fiabilidad del correo electrónico de WordPress para correos críticos."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
 msgstr "El propósito del cortafuegos es bloquear el sitio contra solicitudes maliciosas, restringir el acceso a ciertos recursos y responder apropiadamente a cualquier solicitud que parezca maliciosa."
@@ -9651,12 +9960,6 @@ msgstr "La configuración evita que cualquier sitio web externo incruste tu siti
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "La configuración evita que cualquier sitio web externo incruste tu sitio en un iFrame. Esto es útil para prevenir los llamados ataques ClickJack."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "La opción silentCAPTCHA está desactivada, eliminando la protección de fuerza bruta para los formularios de inicio de sesión, registro y contraseña perdida."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "La opción silentCAPTCHA está activada."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "La URL del sitio cambió de '{{from}}' a '{{to}}'."
@@ -9883,6 +10186,9 @@ msgstr "Hubo un problema al preparar el Desafío de Autenticación de Passkey."
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Hubo un problema al preparar el Desafío de Registro de Passkey."
 
+msgid "There was a problem processing the batched request."
+msgstr "Hubo un problema al procesar la solicitud por lotes."
+
 msgid "There was a problem removing this passkey"
 msgstr "Hubo un problema al eliminar esta passkey"
 
@@ -9937,9 +10243,6 @@ msgstr "Atacan tus sitios, buscan información y explotan vulnerabilidades a esc
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Causan estragos en los formularios de inicio de sesión al romper Javascript y convertir la experiencia del usuario en una pesadilla."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Piensa en las 'infracciones' simplemente como un contador del número de veces que un visitante hace algo malo."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Piensa en ello como 'Limitar Intentos de Inicio de Sesión' pero aplicado a todas las funciones de un sitio WordPress, no solo a la página de inicio de sesión."
 
@@ -9951,6 +10254,9 @@ msgstr "Este Eres Tú"
 
 msgid "This Page"
 msgstr "Esta Página"
+
+msgid "This Period"
+msgstr "Este Período"
 
 msgid "This Server"
 msgstr "Este Servidor"
@@ -9967,8 +10273,8 @@ msgstr "Esta acción no está disponible para tu perfil en este momento."
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Esta actividad habrá sido registrada contra tu dirección IP y podrías quedar completamente bloqueado del acceso al sitio si se repite actividad similar."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Esto también actúa como enlace de afiliado si estás ejecutando ShieldPRO, para que puedas obtener recompensas por cada referido."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Esto también actúa como un enlace de afiliado si estás ejecutando %s para que puedas ganar recompensas por cada referido."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Esto parece ser spam ya que falló %s comprobaciones de protección AntiBot."
@@ -10011,6 +10317,9 @@ msgstr "Esta función solo está disponible mientras el registro de tráfico est
 
 msgid "This feature isn't currently enabled."
 msgstr "Esta función no está actualmente activada."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Esta función se basa en un PIN secreto (que crearás a continuación), que usarás para verificar tu identidad con el plugin %s."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Este archivo contiene código malicioso - ¡es malware!"
@@ -10171,11 +10480,20 @@ msgstr "Esta configuración se desactivará automáticamente después de %s y to
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Esto debe usarse con precaución y solo debes proporcionar nombres de parámetros que debas tener excluidos"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Este sitio parece formar parte de una Red Shield."
+msgid "This site appears to be part of a %s Network."
+msgstr "Este sitio parece ser parte de una red %s."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Este sitio actualmente no puede realizar solicitudes HTTP a sí mismo."
+
+msgid "This site is already activated for this account."
+msgstr "Este sitio ya está activado para esta cuenta."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Este sitio ya está activado. Volviendo a verificar y sincronizando el estado de la licencia local..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Este paso podría ser el más importante ya que ayuda a garantizar que %s siempre pueda encontrar la IP correcta del visitante."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Este tema no está activo y debe ser desinstalado."
@@ -10222,8 +10540,8 @@ msgstr "Esto bloqueará ataques de truncamiento de campos en parámetros de apli
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Esto bloqueará sql en parámetros de aplicación (por ejemplo, %s, etc.)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Esto hará que las URLs %s y %s devuelvan errores HTTP 404 mientras no hayas iniciado sesión."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Esto hará que las URLs de %1$s y %2$s devuelvan errores HTTP 404 cuando no se haya iniciado sesión."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Esto consumirá tus créditos SMS, si están disponibles, igual que con cualquier SMS 2FA estándar."
@@ -10242,6 +10560,9 @@ msgstr "Esto restringirá la capacidad de los administradores de WordPress de ca
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Esto restringirá la capacidad de los administradores de WordPress de crear, modificar o promocionar a otros administradores."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Este asistente te guiará a través de algunas de las funciones clave de %s, para que estés en funcionamiento en menos de 3 minutos."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Esto funciona porque los rastreadores web legítimos respetan las directivas 'robots.txt' y 'nofollow'."
@@ -10273,17 +10594,17 @@ msgstr "Marca de tiempo"
 msgid "Timezone"
 msgstr "Zona horaria"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Título Actualizado: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Título Actualizado: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Título modificado: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Título cambiado: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Título para el Post ID {{post_id}} actualizado de '{{title_old}}' a '{{title_new}}'."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Para abordar esto creamos nuestro propio sistema llamado silentCAPTCHA."
+msgid "To address this we created our own system called %s."
+msgstr "Para abordar esto, creamos nuestro propio sistema llamado %s."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Para ocultar tu página wp-login.php de ataques de fuerza bruta e intentos de hackeo: si tu página de inicio de sesión no puede ser encontrada, nadie puede iniciar sesión."
@@ -10303,14 +10624,17 @@ msgstr "Para registrar un nuevo dispositivo Yubikey, introduce una contraseña d
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Para eliminar un dispositivo Yubikey, introduce el ID de dispositivo registrado y guarda."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Para resolver esto, puedes informar a %s cuál es tu dirección IP ahora mismo, y esto le permite configurar la fuente de IP óptima."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Mantenerse saludable implica escanear activamente los archivos en busca de cambios inesperados y detectar archivos que no pertenecen."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Para usar Passkeys, tu instalación de PHP debe tener cargada 1 de las siguientes extensiones: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Para validar un email, tu sitio envía una solicitud a la API de ShieldNET y puede causar un pequeño retraso durante la solicitud de registro de usuario."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Para validar un correo electrónico, tu sitio envía una solicitud a la API de %s y puede causar un pequeño retraso durante la solicitud de registro de usuario."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Para ver todos los registros de esta dirección IP usa la herramienta de registro de tráfico, ya que los registros aquí están limitados a %s entradas."
@@ -10326,6 +10650,9 @@ msgstr "Alternar si esta configuración se incluye en las operaciones de importa
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Demasiados intentos de verificación 2FA - por favor, inicia sesión de nuevo."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Demasiadas solicitudes por lotes. El máximo permitido es %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Demasiadas solicitudes desde tu dirección IP han activado las defensas automatizadas del sitio."
@@ -10399,11 +10726,35 @@ msgstr "Las solicitudes de tráfico se están registrando, facilitando el seguim
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Las solicitudes de tráfico no se están registrando, dificultando el seguimiento de problemas."
 
+msgid "Translation Download Failed"
+msgstr "Error al Descargar la Traducción"
+
+msgid "Translation Downloaded"
+msgstr "Traducción Descargada"
+
+msgid "Translation download queue is empty."
+msgstr "La cola de descarga de traducciones está vacía."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Traducción descargada correctamente: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Archivo de traducción descargado para la configuración regional: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Traducciones en Cola"
+
+msgid "Translations have been downloaded."
+msgstr "Las traducciones han sido descargadas."
+
 msgid "Trash"
 msgstr "papelera"
 
 msgid "Trashed"
 msgstr "Enviado a papelera"
+
+msgid "Trend"
+msgstr "Tendencia"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Intentó cargar un script PHP de WordPress no válido '{{script}}'."
@@ -10417,11 +10768,17 @@ msgstr "Roles de Usuario de Confianza"
 msgid "Trusted Users"
 msgstr "Usuarios de Confianza"
 
+msgid "Try Pro For Free"
+msgstr "Prueba Pro Gratis"
+
 msgid "Turn Off"
 msgstr "Desactivar"
 
 msgid "Turn On"
 msgstr "Activar"
+
+msgid "Turn On Security Admin"
+msgstr "Activar Administrador de Seguridad"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Activar la función de limitación de velocidad"
@@ -10441,8 +10798,11 @@ msgstr "Activar/desactivar tu configuración de White Label."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Desactivar Mime-Sniff del Navegador"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Activar la extensión integrada de Shield para instalaciones de servidor y cliente MainWP"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "Activar la Extensión Integrada de %s para Instalaciones de Servidor y Cliente MainWP"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Activar esta opción añade una insignia translúcida al pie de página de tu sitio web."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Identificación de Inicio de Sesión de Dos Factores por %s"
@@ -10516,14 +10876,11 @@ msgstr "Sin clasificar"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Comprender cómo eliminar Google Authenticator"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Desafortunadamente, U2F ha sido desactivado por defecto en la mayoría de los navegadores modernos, pero aún se proporciona aquí para compatibilidad con versiones anteriores."
-
 msgid "Unidentified"
 msgstr "No identificado"
 
-msgid "Uninstall Shield"
-msgstr "Desinstalar Shield"
+msgid "Uninstall %s"
+msgstr "Desinstalar %s"
 
 msgid "Uninstalled"
 msgstr "Desinstalado"
@@ -10539,6 +10896,9 @@ msgstr "Desconocido - requiere WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Nombre desconocido"
+
+msgid "Unknown activation error."
+msgstr "Error de activación desconocido."
 
 msgid "Unknown item"
 msgstr "Elemento desconocido"
@@ -10582,6 +10942,9 @@ msgstr "Tipo de resultado no compatible."
 msgid "Until"
 msgstr "Hasta"
 
+msgid "Update %s"
+msgstr "Actualizar %s"
+
 msgid "Update Available"
 msgstr "Actualización Disponible"
 
@@ -10596,9 +10959,6 @@ msgstr "Actualiza Ahora Para Mantener Tu Seguridad Al Día Con Las Últimas Func
 
 msgid "Update Required"
 msgstr "Actualización Requerida"
-
-msgid "Update Shield"
-msgstr "Actualizar Shield"
 
 msgid "Update This Rule"
 msgstr "Actualizar Esta Regla"
@@ -10633,14 +10993,14 @@ msgstr "Actualización Requerida"
 msgid "Upgrade To"
 msgstr "Actualizar a"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Actualizar a %s Pro Ahora"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Actualizar para crear informes personalizados"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Actualizar a Shield Pro Ahora"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Actualizar tu membresía ShieldPRO"
+msgid "Upgrade Your %s Membership"
+msgstr "Actualiza tu membresía %s"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Actualiza tu plan para admitir el escaneo de archivos de temas en busca de manipulación."
@@ -10648,8 +11008,8 @@ msgstr "Actualiza tu plan para admitir el escaneo de archivos de temas en busca 
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Actualiza tu plan para admitir esta área de escaneo."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Actualizado: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Actualizado: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Error al subir el archivo"
@@ -10657,8 +11017,11 @@ msgstr "Error al subir el archivo"
 msgid "Uptime Monitoring"
 msgstr "Monitorización de Tiempo de Actividad"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Usa %s para probar solicitudes excesivas dentro de un intervalo de %s minutos."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "Usar %1$s para probar solicitudes excesivas dentro de un intervalo de %2$s minutos."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Usar %s para bloquear SPAM de comentarios de bots"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "¿Usar CloudFlare Como Fuente de Datos Geográficos?"
@@ -10681,8 +11044,8 @@ msgstr "Usa un límite máximo de solicitudes mayor para reducir el riesgo de bl
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Usa un intervalo más pequeño para reducir el riesgo de bloquear visitantes legítimos."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "El uso de silentCAPTCHA para limitar intentos de inicio de sesión en formularios de usuario no está activado; deberás habilitarlo dentro de la zona de seguridad de inicio de sesión."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "El uso de %s para limitar intentos de inicio de sesión en formularios de usuario no está activado; necesitarás habilitarlo dentro de la Zona de Seguridad de Inicio de Sesión."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Se recomienda encarecidamente el uso de esta función."
@@ -10690,11 +11053,11 @@ msgstr "Se recomienda encarecidamente el uso de esta función."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "El uso de esta función sobrescribirá las opciones existentes y las reemplazará con las del sitio maestro de importación."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Usa rutas relativas desde la URL de tu página de inicio, por ejemplo, %s redirige a tu página de inicio (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Usa rutas relativas desde la URL de tu página de inicio, por ejemplo, %1$s redirige a tu página de inicio (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Usar silentCAPTCHA para bloquear SPAM de comentarios de bots"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Usa el cuadro de Súper Búsqueda para encontrar absolutamente cualquier cosa dentro del plugin %s, incluyendo opciones, direcciones IP, herramientas, ayuda, etc."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Usa la opción de exclusiones para permitir el acceso anónimo a endpoints específicos de la API."
@@ -10702,14 +11065,17 @@ msgstr "Usa la opción de exclusiones para permitir el acceso anónimo a endpoin
 msgid "Use the link above to create a new one."
 msgstr "Usa el enlace anterior para crear uno nuevo."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Usa estos prefijos en el cuadro de búsqueda para filtrar resultados."
+
 msgid "Use this feature with care."
 msgstr "Usa esta función con cuidado."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Usa este archivo para copiar opciones desde este sitio a otro sitio"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Usa esta opción para desactivar completamente toda la protección activa de Shield."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Usa esta opción para desactivar completamente toda la protección activa de %s."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Usa esta opción para activar/desactivar si se aplican tus reglas CSP personalizadas."
@@ -10897,11 +11263,11 @@ msgstr "Solicitud de contraseña perdida de usuario bloqueada."
 msgid "User must be logged-in."
 msgstr "El usuario debe tener sesión iniciada."
 
+msgid "User not found."
+msgstr "Usuario no encontrado."
+
 msgid "User registration request blocked."
 msgstr "Solicitud de registro de usuario bloqueada."
-
-msgid "User session deleted"
-msgstr "Sesión de usuario eliminada"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "La sesión del usuario ha expirado ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Los usuarios se verán obligados a restablecer sus contraseñas después
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Utiliza un diccionario de SPAM de terceros para detectar SPAM de comentarios basado en humanos."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Usando la tecnología exclusiva Snapshot de Shield, ¡también se detectarán los cambios en administradores que se realicen directamente en la base de datos de WP!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "Usando la tecnología exclusiva Snapshot de %s, ¡los cambios en administradores que se realicen directamente en la base de datos de WP también serán detectados!"
 
 msgid "Valid license couldn't be found."
 msgstr "No se pudo encontrar una licencia válida."
@@ -11047,11 +11413,11 @@ msgstr "Ver Todo"
 msgid "View All Security Grades"
 msgstr "Ver Todas las Calificaciones de Seguridad"
 
-msgid "View As ShieldFREE"
-msgstr "Ver Como ShieldGRATUITO"
+msgid "View As %s"
+msgstr "Ver Como %s"
 
-msgid "View As ShieldPRO"
-msgstr "Ver Como ShieldPRO"
+msgid "View As Free Version"
+msgstr "Ver Como Versión Gratuita"
 
 msgid "View Comment"
 msgstr "Ver Comentario"
@@ -11071,6 +11437,9 @@ msgstr "Ver contenido del archivo"
 msgid "View File Details"
 msgstr "Ver detalles del archivo"
 
+msgid "View Full Report"
+msgstr "Ver Informe Completo"
+
 msgid "View IP Reputation Option"
 msgstr "Ver Opción de Reputación de IP"
 
@@ -11088,6 +11457,9 @@ msgstr "Ver Planes"
 
 msgid "View Report"
 msgstr "Ver Informe"
+
+msgid "View Reports"
+msgstr "Ver Informes"
 
 msgid "View Results"
 msgstr "Ver Resultados"
@@ -11146,9 +11518,6 @@ msgstr "Visualiza toda la seguridad de tu sitio WordPress de un vistazo y descub
 msgid "View, edit and remove custom security rules"
 msgstr "Ver, editar y eliminar reglas de seguridad personalizadas"
 
-msgid "View/Create Reports"
-msgstr "Ver/Crear informes"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Desbloqueo Automático de Visitante"
 
@@ -11182,8 +11551,8 @@ msgstr "Visitante encontrado en la lista de bloqueo y su conexión fue eliminada
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Visitante encontrado en la lista de bloqueo de CrowdSec y su solicitud fue eliminada."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "El visitante se registró usando silentCAPTCHA."
+msgid "Visitor registered using %s."
+msgstr "El visitante se registró usando %s."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "El visitante desbloqueó su dirección IP '{{ip}}' usando el método '{{method}}'."
@@ -11226,9 +11595,6 @@ msgstr "El escaneo de vulnerabilidades debe estar activo para habilitar esta opc
 
 msgid "Vulnerable"
 msgstr "Vulnerable"
-
-msgid "Vulnerable Assets"
-msgstr "Recursos Vulnerables"
 
 msgid "Vulnerable Plugins"
 msgstr "Plugins vulnerables"
@@ -11277,6 +11643,9 @@ msgstr "Rol de usuario predeterminado de WP"
 
 msgid "WP File Editing"
 msgstr "Edición de Archivos de WP"
+
+msgid "WP Files"
+msgstr "Archivos de WP"
 
 msgid "WP Generator Tag"
 msgstr "Etiqueta de Generador de WP"
@@ -11367,6 +11736,9 @@ msgstr "Recomendamos desactivarlo si ya no lo necesitas en funcionamiento."
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Recomendamos buscar experiencia en esta área y asegurarte de realizar pruebas completas en tus despliegues."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "Recomendamos algo entre 5 y 10. Cuanto menor sea el límite, más estricto será %s."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Recomendamos que el directorio raíz de WP se mantenga limpio conservando solo archivos oficiales del núcleo de WordPress allí."
@@ -11485,8 +11857,8 @@ msgstr "Cuando se detectan suficientes comportamientos incorrectos, bloqueará c
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Cuando está activado, cualquier integración de terceros disponible se activa tan pronto como se detecta."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Cuando el contador alcance el límite siguiente (predeterminado: %s), %s bloqueará esa IP completamente."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Cuando el contador alcance el límite a continuación (predeterminado: %1$s), %2$s bloqueará esa IP completamente."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Cuando se comparó el contenido del archivo actual con la versión oficial, se detectaron cambios."
@@ -11578,17 +11950,17 @@ msgstr "Los sitios en la lista blanca pueden exportar opciones desde este sitio 
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Probablemente bloqueará el guardado dentro de los editores de archivos de plugins/temas."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "Con la inteligencia colaborativa de %s, los falsos positivos ruidosos que te hacen perder tiempo se ocultan automáticamente para que puedas centrarte en los riesgos que importan."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "Con la tecnología %s, detener bots es bastante fácil de hacer ahora."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "Con %s podemos integrarnos directamente con todos los principales plugins de formularios de contacto para bloquear el SPAM de formularios de contacto de bots automatizados."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "Con la tecnología silentCAPTCHA integrada de %s, detener bots es realmente bastante fácil de hacer ahora."
-
 msgid "With Issues"
 msgstr "Con Problemas"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "Con la inteligencia colaborativa de ShieldNET, Shield oculta automáticamente los falsos positivos para que puedas centrarte en los riesgos que importan y puedas ignorar el ruido que te hace perder tiempo."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Con ella puedes ser alertado instantáneamente de cambios en el archivo con una vista clara de los cambios precisos y pasos siguientes fáciles sobre cómo proceder."
@@ -11596,8 +11968,8 @@ msgstr "Con ella puedes ser alertado instantáneamente de cambios en el archivo 
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "Con nuestro diccionario de SPAM, podemos identificar comentarios SPAM humanos sin enviar ningún dato de tu sitio a terceros."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Con nuestro potente silentCAPTCHA podemos detectar casi el 100% de todo el SPAM de bots."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Con nuestro potente %s podemos detectar casi el 100%% de todo el SPAM de bots."
 
 msgid "Wizards"
 msgstr "Asistentes"
@@ -11737,8 +12109,8 @@ msgstr "WordPress normalmente se carga de un número limitado de formas y cuando
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress está ejecutando una versión antigua (%s) de PHP."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress se está ejecutando en una versión reciente (%s) de PHP (al menos %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress está ejecutando una versión reciente (%1$s) de PHP (al menos %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "Los formularios de inicio de sesión de WordPress no están protegidos contra bots porque has establecido la puntuación mínima de bot en 0, lo que controla el sistema %s."
@@ -11839,8 +12211,8 @@ msgstr "Puedes elegir 'Activar Solo' (no recomendado), o cerrar este mensaje par
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Puedes deshabilitar completamente el acceso anónimo a la REST API."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Puedes obtener esta función de seguridad, y muchas más, actualizando tu plan ShieldPRO."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Puedes obtener esta función de seguridad, y muchas más, actualizando tu plan de %s."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Puedes ayudarnos a detectar la mejor dirección IP para tu servidor usando el enlace de abajo para conocer tu dirección IP actual y luego seleccionar la opción de la lista que la contenga."
@@ -11887,8 +12259,8 @@ msgstr "Puedes autenticarte con el sistema de administrador de seguridad de %s y
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Puedes combinar múltiples factores de autenticación para aumentar la seguridad."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Puede que obtengas resultados poco fiables mientras Akismet opera junto con la protección contra SPAM humano de Shield."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Puedes obtener resultados poco fiables mientras Akismet opera junto con la protección contra SPAM Humano de %s."
 
 msgid "You may need to reload this page to continue."
 msgstr "Es posible que necesites recargar esta página para continuar."
@@ -11962,8 +12334,8 @@ msgstr "Tu dirección IP no está en la lista blanca, por lo que quedarás bloqu
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "¡Tu dirección IP está en la lista blanca! Esta configuración no se aplica a TI, por lo que siempre debes usar la página de inicio de sesión normal: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "Tu servidor de base de datos MySQL no admite direcciones IPv6. Tu versión: %s; versión requerida de MySQL: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "Tu servidor de base de datos MySQL no admite direcciones IPv6. Tu versión: %1$s; versión de MySQL requerida: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Tu Clave API de Aplicación Yubikey Única"
@@ -12037,11 +12409,11 @@ msgstr "Tu dirección de email de notificaciones es: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Tu administrador de seguridad ha impuesto requisitos para la calidad de la contraseña."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Tu análisis de seguridad no considera funciones exclusivas de ShieldPRO - usa el menú de configuración para ver tu análisis como si tuvieras acceso a estas funciones de seguridad adicionales."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Tu análisis de seguridad no considera las funciones exclusivas de %s; usa el menú de Configuración para ver tu análisis como si tuvieras acceso a estas funciones de seguridad adicionales."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Tu análisis de seguridad incluye funciones exclusivas de ShieldPRO - usa el menú de configuración para ver tu análisis de las funciones de seguridad disponibles."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Tu análisis de seguridad incluye funciones exclusivas de %s; usa el menú de Configuración para ver tu análisis de las funciones de seguridad disponibles."
 
 msgid "Your session has expired."
 msgstr "Tu sesión ha expirado."
@@ -12055,11 +12427,11 @@ msgstr "Tu sesión estaba vinculada a otra dirección IP."
 msgid "Your session was terminated."
 msgstr "Tu sesión fue terminada."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Tu sitio se beneficia de la protección de seguridad adicional proporcionada por ShieldPRO."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Tu sitio se beneficia de la protección de seguridad adicional proporcionada por %s."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Tu sitio no se beneficia de la protección de seguridad adicional proporcionada por ShieldPRO."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Tu sitio no se beneficia de la protección de seguridad adicional proporcionada por %s."
 
 msgid "Your site is currently in lockdown."
 msgstr "Tu sitio está actualmente en bloqueo."
@@ -12082,8 +12454,8 @@ msgstr "Tu sitio no está protegido contra SPAM de comentarios automatizado por 
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Tu sitio aún no está registrado con CrowdSec."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Tu alojamiento web no cumple con los requisitos mínimos para el plugin Shield Security."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Tu alojamiento web no cumple con los requisitos mínimos para el plugin %s."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Acciones de zona"
 msgid "Zones"
 msgstr "Zonas"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Falso Positivo] significa que el código parece malware, pero en realidad está limpio."
@@ -12142,6 +12514,18 @@ msgstr "Elemento de formulario all_opts_keys no proporcionado."
 msgid "and"
 msgstr "y"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "y se procesará automáticamente en aproximadamente %d minuto."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "y se procesará automáticamente en aproximadamente %d minutos."
+
+msgid "and will be processed shortly."
+msgstr "y se procesará en breve."
+
+msgid "auto-fixed"
+msgstr "corregido automáticamente"
+
 msgid "case-insensitive"
 msgstr "no distingue mayúsculas de minúsculas"
 
@@ -12154,8 +12538,8 @@ msgstr "días"
 msgid "empty username"
 msgstr "nombre de usuario vacío"
 
-msgid "entries: %s (previous: %s)"
-msgstr "entradas: %s (anterior: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "entradas: %1$s (anterior: %2$s)"
 
 msgid "estimated"
 msgstr "estimado"
@@ -12175,6 +12559,12 @@ msgstr "más ayuda"
 msgid "help"
 msgstr "ayuda"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "datos faltantes"
 
 msgid "more frequent checks will be ignored"
 msgstr "las comprobaciones más frecuentes serán ignoradas"
+
+msgid "more..."
+msgstr "más..."
 
 msgid "n/a"
 msgstr "N/D"
@@ -12235,80 +12628,8 @@ msgstr "recomendación"
 msgid "seconds"
 msgstr "segundos"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "Tecnología AntiBot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "La Detección de Bots silentCAPTCHA no está protegiendo contra ataques de fuerza bruta en tu inicio de sesión de WordPress."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "La detección de bots silentCAPTCHA no está protegiendo tu formulario de contraseña perdida de WordPress."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "La detección de bots silentCAPTCHA no está protegiendo tu registro de WordPress."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "Puntuación mínima de Bot de silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "Puntuación de Bot de silentCAPTCHA (Porcentaje)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "Verificación de silentCAPTCHA no válida (Módulo)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "Complejidad de silentCAPTCHA"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA para accesos"
-
-msgid "silentCAPTCHA Registration"
-msgstr "Registro de silentCAPTCHA"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "La detección de silentCAPTCHA no se aplica porque no has seleccionado ningún formulario para proteger, como Inicio de sesión o Registro."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA es la tecnología exclusiva de detección de bots maliciosos de WordPress de %s."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA es la tecnología exclusiva de detección de bots de %s que elimina la necesidad de CAPTCHAs visibles y desafíos similares para visitantes."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA es la tecnología exclusiva de detección de bots de %s que es invisible para tus visitantes y elimina la necesidad de interacción del usuario con CAPTCHAs de inicio de sesión."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA está desactivado ya que no se proporcionó un umbral mínimo de puntuación de bot."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA está desactivado cuando se establece una puntuación mínima de %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA está habilitado con un umbral mínimo de puntuación de bot."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA no está protegiendo tus comentarios de WP contra SPAM de bots."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "La complejidad del desafío de Bot de silentCAPTCHA es demasiado baja - considera aumentarla."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "La detección de bots de silentCAPTCHA no está funcionando porque la puntuación mínima está establecida en 0."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "La detección de bots de silentCAPTCHA no está funcionando, ya que los bots no están siendo desafiados actualmente."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "La puntuación mínima de bot de silentCAPTCHA es bastante baja (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "Registro silentCAPTCHAv1"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "Registro silentCAPTCHAv2"
 
 msgid "suggestion"
 msgstr "sugerencia"

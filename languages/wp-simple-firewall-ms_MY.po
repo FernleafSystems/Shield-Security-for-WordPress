@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-09 12:02+0000\n"
-"PO-Revision-Date: 2025-12-09 12:02+0000\n"
+"POT-Creation-Date: 2026-02-16 11:49+0000\n"
+"PO-Revision-Date: 2026-02-16 11:49+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: ms_MY\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Dihidupkan; \"N\" = Dimatikan"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Pemalar <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Pemalar <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s Baru Sahaja Log Masuk Ke %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s dan %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s menyekat semua SPAM bot automatik menggunakan %2$s kami, teknologi pengesanan bot eksklusif, tidak kelihatan, dan mematuhi GDPR."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "Skor minimum bot %1$s agak rendah (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s gagal menentukan sama ada JS %2$s dimuatkan dengan betul pada tapak anda."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s mempunyai integrasi tersedia untuk melindungi borang pemalam pihak ketiga yang anda gunakan: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s telah menemui bahawa versi pemalam %2$s yang dipasang pada masa ini mempunyai kelemahan keselamatan yang diketahui."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s telah berjaya memilih lokasi berikut untuk mencipta direktori sementaranya: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s adalah perkhidmatan eksklusif %2$s yang melindungi fail wp-config.php anda."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s ialah perkhidmatan penghantaran e-mel khusus daripada %2$s."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s ialah teknologi pengesanan bot eksklusif daripada %2$s yang tidak kelihatan kepada pelawat, dan menghapuskan keperluan untuk interaksi pengguna dengan CAPTCHA log masuk."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s dilumpuhkan apabila ditetapkan kepada skor minimum %2$s."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s ialah teknologi pengesanan bot kami yang eksklusif untuk %2$s yang menghapuskan keperluan untuk CAPTCHA yang boleh dilihat dan cabaran pelawat yang serupa."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s menandakan komen ini sebagai \"%2$s\"."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s digunakan daripada %2$s (tidak digunakan: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d penempatan tersedia."
+
+msgid "%d locale(s) in queue."
+msgstr "%d penempatan dalam baris gilir."
+
+msgid "%d translation is queued for download"
+msgstr "%d terjemahan dalam baris gilir untuk dimuat turun"
+
+msgid "%d translations are queued for download"
+msgstr "%d terjemahan dalam baris gilir untuk dimuat turun"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (Dikodkan JSON)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "Pembekal 2FA %s Didayakan"
 
 msgid "%s API Token Missing."
 msgstr "Token API %s Hilang."
+
+msgid "%s Anti-Spam"
+msgstr "Anti-Spam %s"
+
+msgid "%s AntiBot Technology"
+msgstr "Teknologi AntiBot %s"
 
 msgid "%s Auto-Unblock"
 msgstr "%s Nyahsekat-Auto"
@@ -37,29 +115,92 @@ msgstr "%s Nyahsekat-Auto"
 msgid "%s Bot Check Failed."
 msgstr "Semakan Bot %s Gagal."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "Pengesanan Bot %s tidak melindungi daripada serangan brute-force pada log masuk WordPress anda."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "Pengesanan Bot %s tidak melindungi borang kata laluan hilang WordPress anda."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "Pengesanan Bot %s tidak melindungi pendaftaran WordPress anda."
+
+msgid "%s Bot Minimum Score"
+msgstr "Skor Minimum Bot %s"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "Skor Bot %s (Peratusan)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "Kerumitan cabaran bot %s terlalu rendah - pertimbangkan untuk meningkatkannya."
+
+msgid "%s Check Invalid (Module)"
+msgstr "Semakan %s Tidak Sah (Modul)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "Perlindungan SPAM Komen %s"
+
+msgid "%s Complexity"
+msgstr "Kerumitan %s"
+
+msgid "%s Deactivated"
+msgstr "%s Dinyahaktifkan"
 
 msgid "%s Debug Information"
 msgstr "Maklumat Nyahpijat %s"
 
+msgid "%s Emails"
+msgstr "Emel %s"
+
+msgid "%s Fail"
+msgstr "%s Gagal"
+
+msgid "%s Features"
+msgstr "Ciri %s"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "Firewall %s telah menyekat permintaan ke tapak WordPress anda."
+
+msgid "%s For Logins"
+msgstr "%s Untuk Log Masuk"
+
+msgid "%s Free Trial"
+msgstr "Percubaan Percuma %s"
 
 msgid "%s Home"
 msgstr "Halaman Utama %s"
 
+msgid "%s Home Page"
+msgstr "Halaman Utama %s"
+
+msgid "%s IP Reputation Score"
+msgstr "Skor Reputasi IP %s"
+
+msgid "%s Info"
+msgstr "Info %s"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s Penyekatan IP Pintar"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s Baru Sahaja Log Masuk Ke %s"
+msgid "%s Issue"
+msgstr "%s Isu"
+
+msgid "%s Issues"
+msgstr "%s Isu"
+
+msgid "%s License Cleared"
+msgstr "Lesen %s Dikosongkan"
+
+msgid "%s License Management"
+msgstr "Pengurusan Lesen %s"
 
 msgid "%s Login Verification"
 msgstr "Pengesahan Log Masuk %s"
 
 msgid "%s Lookup"
 msgstr "Carian %s"
+
+msgid "%s Option Key"
+msgstr "Kunci Pilihan %s"
 
 msgid "%s Plugin Badge"
 msgstr "Lencana Pemalam %s"
@@ -70,6 +211,24 @@ msgstr "Konfigurasi Pemalam %s"
 msgid "%s Plugin options updated successfully."
 msgstr "Pilihan pemalam %s berjaya dikemas kini."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "Pemalam %s – keperluan minimum tapak tidak dipenuhi"
+
+msgid "%s Premium Security"
+msgstr "Keselamatan Premium %s"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro tersedia daripada kedai dalam talian kami."
+
+msgid "%s Pro store"
+msgstr "Kedai Pro %s"
+
+msgid "%s Registration"
+msgstr "Pendaftaran %s"
+
+msgid "%s Scanners."
+msgstr "Pengimbas %s."
+
 msgid "%s Security Insights"
 msgstr "Pandangan Keselamatan %s"
 
@@ -79,14 +238,35 @@ msgstr "%s Sekatan Keselamatan Digunakan"
 msgid "%s Status Report"
 msgstr "Laporan Status %s"
 
+msgid "%s Success"
+msgstr "%s Berjaya"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "Pembekal 2FA Pengguna %s Diaktifkan"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "2FA Pengguna %s: Mempunyai Mana-mana Aktif"
+
 msgid "%s Website Security Report"
 msgstr "Laporan Keselamatan Tapak Web %s"
 
-msgid "%s and %s"
-msgstr "%s dan %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "Pengesanan bot %s tidak berjalan kerana skor minimum ditetapkan kepada 0."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "Pengesanan bot %s tidak berjalan, kerana bot tidak dicabar pada masa ini."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s juga boleh mengimbas pemalam & tema anda untuk kelemahan yang diketahui."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s boleh berintegrasi secara automatik dengan pemalam pihak ketiga."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s boleh melindungi borang log masuk dan pendaftaran pihak ketiga secara automatik daripada Bot."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s tidak dapat kesan sebarang alamat IP. Ini mewakili masalah konfigurasi hos web yang kritikal."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s mencipta penilaian risiko dengan sangat pantas kerana ia menjejaki pelawat buruk dalam banyak kawasan berasingan."
@@ -100,29 +280,41 @@ msgstr "%s hari"
 msgid "%s days"
 msgstr "%s hari"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "Pengesanan %s tidak digunakan kerana anda tidak memilih sebarang borang untuk dilindungi, seperti Log Masuk atau Daftar."
+
 msgid "%s directory"
 msgstr "Direktori %s"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s melakukan banyak perkara, jadi ia boleh menjadi sukar untuk tahu di mana hendak bermula."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s biasanya tidak mengimbas komen daripada pengguna yang log masuk atau berdaftar."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "Definisi peristiwa %s kosong atau tidak dalam format yang betul."
 
 msgid "%s extension is unavailable."
 msgstr "Sambungan %s tidak tersedia."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "Pengenalan %s untuk WordPress v20"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s telah mengambil tindakan yang diperlukan untuk menyekat permintaan."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s mempunyai integrasi yang tersedia untuk melindungi borang pemalam pihak ketiga yang anda gunakan: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s telah menemui bahawa versi pemalam %s yang dipasang pada masa ini mempunyai kelemahan keselamatan yang diketahui."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s telah berjaya memilih lokasi berikut untuk cipta direktori sementaranya: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s adalah perkhidmatan eksklusif %s yang melindungi fail wp-config.php anda."
-
 msgid "%s is a child of another theme."
 msgstr "%s adalah turunan tema lain."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s adalah perkhidmatan Keselamatan WordPress yang berkuasa yang digunakan pada lebih 40,000+ tapak web WordPress."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s dilumpuhkan kerana tiada ambang skor bot minimum yang disediakan."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s didayakan dengan ambang skor bot minimum."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s tidak melindungi tapak anda pada masa ini."
@@ -130,14 +322,26 @@ msgstr "%s tidak melindungi tapak anda pada masa ini."
 msgid "%s is not protecting your site"
 msgstr "%s tidak melindungi tapak anda"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s ialah teknologi Pengesanan Bot Jahat WordPress kami."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s ialah enjin Pengimbasan dan Pengesanan Malware berkuasa AI eksklusif kami."
 
 msgid "%s is protected against tampering."
 msgstr "%s dilindungi daripada gangguan."
 
+msgid "%s isn't activated on this site."
+msgstr "%s tidak diaktifkan di tapak ini."
+
+msgid "%s isn't installed on this site."
+msgstr "%s tidak dipasang di tapak ini."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s tidak dilindungi daripada gangguan."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s tidak melindungi Komen WP anda daripada SPAM bot."
 
 msgid "%s item processed"
 msgstr "%s item diproses"
@@ -145,8 +349,11 @@ msgstr "%s item diproses"
 msgid "%s items processed"
 msgstr "%s item diproses"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s menandakan komen ini sebagai \"%s\"."
+msgid "%s license check failed."
+msgstr "Semakan lesen %s gagal."
+
+msgid "%s license check was successful."
+msgstr "Semakan lesen %s berjaya."
 
 msgid "%s minute"
 msgstr "%s minit"
@@ -172,8 +379,8 @@ msgstr "%s kesalahan"
 msgid "%s offenses until block"
 msgstr "%s kesalahan sehingga disekat"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s menawarkan e-mel, Yubikey, Google Authenticator dan U2F."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s menawarkan e-mel, Yubikey, Google Authenticator dan Passkeys."
 
 msgid "%s options and modules"
 msgstr "%s pilihan dan modul"
@@ -181,11 +388,56 @@ msgstr "%s pilihan dan modul"
 msgid "%s per day"
 msgstr "%s sehari"
 
+msgid "%s plugin activated"
+msgstr "Pemalam %s diaktifkan"
+
+msgid "%s plugin couldn't be activated"
+msgstr "Pemalam %s tidak dapat diaktifkan"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "Pemalam %s tidak dapat dinyahaktifkan"
+
+msgid "%s plugin couldn't be installed"
+msgstr "Pemalam %s tidak dapat dipasang"
+
+msgid "%s plugin couldn't be updated"
+msgstr "Pemalam %s tidak dapat dikemas kini"
+
+msgid "%s plugin deactivated"
+msgstr "Pemalam %s dinyahaktifkan"
+
+msgid "%s plugin installed"
+msgstr "Pemalam %s dipasang"
+
+msgid "%s plugin is installed but not activated."
+msgstr "Pemalam %s dipasang tetapi tidak diaktifkan."
+
+msgid "%s plugin is installed, but not active."
+msgstr "Pemalam %s dipasang, tetapi tidak aktif."
+
+msgid "%s plugin needs to sync."
+msgstr "Pemalam %s perlu disegerakkan."
+
+msgid "%s plugin not detected in last sync."
+msgstr "Pemalam %s tidak dikesan dalam penyegerakan terakhir."
+
+msgid "%s plugin updated"
+msgstr "Pemalam %s dikemas kini"
+
+msgid "%s plugin versions are out of sync."
+msgstr "Versi pemalam %s tidak selari."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s melindungi pelawat tapak dan berfungsi untuk menyekat potensi penggodaman sambil memantau trafik web dan perubahan sistem fail."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s menyediakan integrasi terbina dalam untuk melindungi borang pemalam pihak ketiga daripada Bot SPAM."
+
 msgid "%s scan remaining."
 msgstr "%s imbasan berbaki."
+
+msgid "%s scans cannot execute."
+msgstr "Imbasan %s tidak dapat dilaksanakan."
 
 msgid "%s scans remaining."
 msgstr "%s imbasan berbaki."
@@ -205,14 +457,14 @@ msgstr "%s kali"
 msgid "%s tools and features"
 msgstr "%s alatan dan ciri"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s digunakan daripada %s (tidak digunakan: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s cuba melakukan ini secara automatik dan walaupun ia berfungsi 99% daripada masa, kadang-kadang konfigurasi hos web yang pelik mencampuradukkannya sedikit."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s menggunakan kamus kandungan SPAM yang biasa digunakan dan dikemas kini secara berkala untuk menyekat jenis kandungan SPAM ini."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "Versi %s di tapak tidak sepadan dengan pelayan ini."
 
 msgid "%s was added to your profile."
 msgstr "%s telah ditambah ke profil anda."
@@ -223,11 +475,26 @@ msgstr "%s telah dikeluarkan daripada profil anda."
 msgid "%s was successfully added to your account."
 msgstr "%s berjaya ditambah ke akaun anda."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s akan mengimbas pemalam pihak ketiga anda secara automatik untuk semak sama ada integrasi terbina dalam tersedia."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s akan menangguhkan naik taraf sehingga kemas kini baru telah tersedia untuk bilangan hari yang ditetapkan."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s akan mengesan bot yang cuba log masuk ke tapak anda, tanpa mencabar pengguna sah anda."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s akan mengesan bot yang cuba menyiarkan SPAM komen ke tapak anda, tanpa mencabar pelawat sah anda."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s akan melindungi borang WordPress daripada bot dengan menghadkan percubaan terhadapnya menggunakan teknologi silentCAPTCH kami."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "Integrasi MainWP %s tidak didayakan untuk tapak ini."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "Enjin Peraturan %s tidak berjalan."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "Sistem Security Admin %s menyediakan lapisan keselamatan tambahan kepada pentadbir WordPress biasa."
@@ -238,11 +505,14 @@ msgstr "Penyekatan IP automatik %s akan mengurangkan serangan mereka dengan meny
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "Perlindungan %s pada masa ini dilumpuhkan jadi sebarang perubahan yang dibuat di sini tidak akan terpakai sehingga ia didayakan semula."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "Pengenalan Pengasas %s"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "Pendaftaran %sv1"
+
+msgid "%sv2 Registration"
+msgstr "Pendaftaran %sv2"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "↑ Pergi Pro ↑"
@@ -273,6 +543,9 @@ msgstr "(apabila lockdown dilumpuhkan, alamat IP akan dikeluarkan secara automat
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... dan %s lagi"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "Direktori /wp-content/ tidak diimbas."
@@ -397,9 +670,6 @@ msgstr "Ralat 404 yang dijana untuk jenis fail berikut tidak akan mencetuskan ke
 msgid "5-minute"
 msgstr "5-minit"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 Hari"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Mengimbas</strong> fail dan direktori teras WordPress anda untuk perubahan dan fail baharu."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Pemeriksaan Bot %s telah dilakukan pada pelawat tetapi pilihan penyekatan Bot dilumpuhkan dalam tetapan."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "File Diff tidak dapat dicipta kerana tiada fail rasmi tersedia untuk kami bandingkan."
@@ -445,6 +718,9 @@ msgstr "Gambaran keseluruhan peringkat tinggi perisian pelayan hos WordPress and
 msgid "A high-level overview of your WordPress updates status."
 msgstr "Gambaran keseluruhan peringkat tinggi status kemas kini WordPress anda."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Lesen sudah aktif. Gunakan --force untuk aktifkan semula."
+
 msgid "A light-touch security profile"
 msgstr "Profil keselamatan sentuhan ringan"
 
@@ -456,6 +732,9 @@ msgstr "Senarai laluan permintaan yang tidak akan mencetuskan kesalahan."
 
 msgid "A login to your WordPress account just occurred"
 msgstr "Log masuk ke akaun WordPress anda baru sahaja berlaku"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "Banyak kerja dilakukan untuk %s, dan kami memerlukan bantuan anda untuk menyebarkan maklumat mengenainya. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "Kata Laluan Sekali Sahaja baharu telah dihantar ke alamat e-mel anda."
@@ -475,8 +754,8 @@ msgstr "Postur keselamatan yang kukuh"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Skor '100' bermakna ia hampir pasti baik, skor '0' bermakna ia berkemungkinan besar bot jahat."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "Pemeriksaan Bot silentCAPTCHA telah dilakukan pada pelawat tetapi pilihan penyekatan Bot dilumpuhkan dalam tetapan."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Amaran keselamatan telah dijana. Semak isu di bawah dan ambil tindakan jika perlu."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "Log masuk berjaya ke akaun WordPress anda baru sahaja berlaku."
@@ -498,6 +777,12 @@ msgstr "Pengimbas Perisian Hasad AI, Pembaikan Fail Automatik, perlindungan WP C
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "Kunci API tidak boleh kosong."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "Kunci API diperlukan untuk pengaktifan. Gunakan --api-key=KUNCI_ANDA"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "Pengesahan Kata Laluan APP - E-mel Tidak Sah"
@@ -523,8 +808,8 @@ msgstr "Pemalam Ditinggalkan Ditemui"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Pemalam WordPress.org Ditinggalkan"
 
-msgid "Absolutely"
-msgstr "Mutlak"
+msgid "About %s for WordPress"
+msgstr "Perihal %s untuk WordPress"
 
 msgid "Accept Changes"
 msgstr "Terima Perubahan"
@@ -571,20 +856,23 @@ msgstr "Tindakan dan Maklumat"
 msgid "Activate"
 msgstr "aktifkan"
 
+msgid "Activate %s"
+msgstr "Aktifkan %s"
+
+msgid "Activate %s License"
+msgstr "Aktifkan Lesen %s"
+
 msgid "Activate Only"
 msgstr "Aktifkan Sahaja"
+
+msgid "Activate Pro License"
+msgstr "Aktifkan Lesen Pro"
 
 msgid "Activate Rule"
 msgstr "Aktifkan Peraturan"
 
-msgid "Activate Shield"
-msgstr "Aktifkan Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "Aktifkan Lesen ShieldPRO"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "Aktifkan Lesen ShieldPRO Anda"
+msgid "Activate Your %s License"
+msgstr "Aktifkan Lesen %s Anda"
 
 msgid "Activate Your White Label Settings"
 msgstr "Aktifkan Tetapan Label Putih Anda"
@@ -673,14 +961,14 @@ msgstr "Jadual Ditambah"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Senarai sekat IP tambahan tersedia dengan pelan yang dinaik taraf."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "Laraskan Kerumitan Cabaran %s"
+
 msgid "Adjust Scan Results Display"
 msgstr "Laraskan Paparan Keputusan Imbasan"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "Laraskan penggunaan header keselamatan HTTP"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "Laraskan Kerumitan Cabaran silentCAPTCHA"
 
 msgid "Admin Access Login"
 msgstr "Log Masuk Capaian Admin"
@@ -751,17 +1039,26 @@ msgstr "Mendahului Pelayan"
 msgid "Alert"
 msgstr "Amaran"
 
+msgid "Alert Report Generated"
+msgstr "Laporan Amaran Dijana"
+
+msgid "Alert Report Generated."
+msgstr "Laporan Amaran Dijana."
+
 msgid "Alert Reports Frequency"
 msgstr "Kekerapan Laporan Amaran"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Amaran kepada kelemahan pemalam/tema. Shield kemudiannya boleh naik taraf secara automatik apabila kemas kini tersedia."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Amaran kepada kelemahan pemalam/tema. %s boleh kenakan naik taraf secara automatik apabila ia tersedia."
 
 msgid "Algorithm not supported"
 msgstr "Algoritma tidak disokong"
 
-msgid "Align Shield"
-msgstr "Jajarkan Shield"
+msgid "Align %s"
+msgstr "Jajar %s"
+
+msgid "All Clear"
+msgstr "Semua Kosong"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Semua penyedia MFA dikeluarkan daripada pengguna dengan ID %s."
@@ -784,8 +1081,8 @@ msgstr "Oleh itu, semua capaian ke laman web ini adalah terhad."
 msgid "All access to your site is blocked."
 msgstr "Semua capaian ke tapak anda disekat."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Semua percubaan untuk mengesahkan lesen Shield Pro telah gagal."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "Semua percubaan untuk mengesahkan lesen %s Pro telah gagal."
 
 msgid "All available plugin updates have been applied."
 msgstr "Semua kemas kini pemalam yang tersedia telah digunakan."
@@ -795,6 +1092,9 @@ msgstr "Semua kemas kini tema yang tersedia telah digunakan."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Semua aksara akan dianggap sebagai tidak sensitif huruf besar-kecil."
+
+msgid "All clear"
+msgstr "Semua kosong"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Semua kunci acara tersuai mestilah rentetan, huruf kecil, panjang 10-50, diawali dengan 'custom_', dan hanya mengandungi huruf dan garis bawah."
@@ -979,8 +1279,8 @@ msgstr "Kesalahan dicatatkan terhadap alamat IP setiap kali pelawat mencetuskan 
 msgid "An unsupported profile was selected"
 msgstr "Profil yang tidak disokong telah dipilih"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Naik taraf tersedia untuk pemalam Shield."
+msgid "An upgrade is available for the %s plugin."
+msgstr "Naik taraf tersedia untuk pemalam %s."
 
 msgid "Analyse & Fix"
 msgstr "Analisis & Baiki"
@@ -1054,8 +1354,8 @@ msgstr "Sesiapa Boleh Mendaftar"
 msgid "Anyone can register"
 msgstr "Sesiapa boleh mendaftar"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Sesiapa boleh mendaftar ditukar: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Sesiapa boleh mendaftar ditukar: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "Kata Laluan Aplikasi Dilumpuhkan"
@@ -1093,8 +1393,8 @@ msgstr "Kenakan sekatan pengehadan kadar kepada permintaan bervolum tinggi."
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "Menggunakan header CSP mungkin menjejaskan cara tapak anda berfungsi untuk pelawatnya, jadi kami tidak menawarkan sebarang cadangan langsung dalam bahagian ini."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Adakah Sekatan Shield Security Didayakan?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "Adakah Sekatan %s Didayakan?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "Adakah pautan kekal WordPress didayakan."
@@ -1108,11 +1408,11 @@ msgstr "Adakah anda pasti mahu padam Peraturan IP ini?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Adakah anda pasti mahu simpan perubahan fail?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "Adakah anda pasti mahu keluarkan lesen ShieldPRO?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "Adakah anda pasti mahu keluarkan lesen %s?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Adakah anda pasti mahu tetapkan semula pemalam Shield kepada lalai?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "Adakah anda pasti mahu tetapkan semula pemalam %s kepada lalai?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Adakah anda pasti mahu pulihkan kandungan fail asal?"
@@ -1132,11 +1432,11 @@ msgstr "Seperti biasa, penggunaan dan pergantungan anda terhadap perkhidmatan in
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Apabila setiap isu diselesaikan, skor keseluruhan akan bertambah baik, sehingga 100%."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Seperti yang diminta, %s memberitahu anda tentang log masuk %s yang berjaya ke tapak WordPress yang anda urus."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Seperti yang diminta, %1$s memberitahu anda tentang log masuk %2$s yang berjaya ke tapak WordPress yang anda urus."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Sebaik sahaja pemalam yang serasi dikesan, Shield akan menghidupkan integrasi terbina dalam secara automatik."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Sebaik sahaja pemalam yang serasi dikesan, %s akan hidupkan integrasi terbina dalam secara automatik."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Sebaik sahaja perubahan dikesan pada mana-mana fail yang dipilih, kandungan boleh diperiksa dan dikembalikan."
@@ -1155,9 +1455,6 @@ msgstr "Sekurang-kurangnya 1 daripada pemalam atau tema anda kelihatan telah diu
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Sekurang-kurangnya 1 pilihan mesti disediakan dan lalai kepada halaman profil pengguna dalam kawasan pentadbir WP."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Sekurang-kurangnya 1 laporan keselamatan telah dijana untuk tapak anda."
 
 msgid "At least two records are required to merge."
 msgstr "Sekurang-kurangnya dua rekod diperlukan untuk digabungkan."
@@ -1198,8 +1495,8 @@ msgstr "Percubaan berbaki: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Cuba membaiki fail yang telah diubah suai, atau dijangkiti perisian hasad secara automatik."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Percubaan untuk mengesahkan lesen Shield Pro baru sahaja gagal."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "Percubaan untuk mengesahkan lesen %s Pro baru sahaja gagal."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Mesej Audit Trail yang mungkin termasuk alamat e-mel"
@@ -1408,8 +1705,8 @@ msgstr "Kesan & baiki fail, pemalam dan tema yang terdedah dan mencurigakan seca
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Kesan dan dayakan integrasi pihak ketiga secara automatik apabila ia tersedia"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Hormati peraturan senarai putih dan pengecualian sedia ada Shield secara automatik."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Hormati secara automatik peraturan penyenaraian putih dan pengecualian sedia ada %s."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Import pilihan secara automatik, dan laksanakan konfigurasi merentasi keseluruhan rangkaian anda."
@@ -1504,6 +1801,9 @@ msgstr "Dapatkan makluman untuk perubahan penting pada mana-mana akaun pentadbir
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Dapatkan makluman untuk pemalam dan tema dengan kelemahan keselamatan yang diketahui"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Terima amaran apabila pemalam %s dinyahaktifkan"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Terima amaran apabila pemalam Shield dinyahaktifkan"
 
@@ -1528,11 +1828,11 @@ msgstr "Capaian Beta"
 msgid "Block %s"
 msgstr "Sekat %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "Sekat 100% SPAM Komen Bot Dengan silentCAPTCHA"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "Sekat 100%% SPAM Komen Bot Dengan %s"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Sekat 99.9%% daripada semua SPAM komen WordPress menggunakan silentCAPTCHA."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Sekat 99.9%% daripada semua SPAM komen WordPress menggunakan %s."
 
 msgid "Block Anon REST API"
 msgstr "Sekat REST API Tanpa Nama"
@@ -1668,9 +1968,6 @@ msgstr "Komen SPAM daripada Bot disekat."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "Komen SPAM yang gagal ujian AntiBot disekat."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "Komen SPAM yang gagal reCAPTCHA disekat."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Disekat percubaan kemas kini kata laluan yang gagal memenuhi keperluan dasar."
@@ -1819,8 +2116,8 @@ msgstr "Pengawal Log Masuk Brute Force"
 msgid "Brute Force Login Protection"
 msgstr "Perlindungan Log Masuk Brute Force"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Perlindungan Log Masuk Brute Force dengan silentCAPTCHA"
+msgid "Brute Force Login Protection with %s"
+msgstr "Perlindungan Log Masuk Brute Force dengan %s"
 
 msgid "Brute Force Protection"
 msgstr "Perlindungan Brute Force"
@@ -1828,8 +2125,8 @@ msgstr "Perlindungan Brute Force"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Rate Limiting Trafik Brute Force"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "Serangan bot brute force terhadap log masuk WordPress anda dikesan & disekat oleh silentCAPTCHA."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "Serangan bot brute force terhadap log masuk WordPress anda dikesan & disekat oleh %s."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Serangan log masuk brute force tidak disekat oleh sistem cooldown log masuk."
@@ -1846,14 +2143,14 @@ msgstr "Bina Peraturan Keselamatan Tersuai"
 msgid "Building scan items for scan: %s"
 msgstr "Membina item imbasan untuk imbasan: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Integrasi Shield Terbina Dalam"
+msgid "Built-In %s Integrations"
+msgstr "Integrasi %s Terbina Dalam"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Secara lalai Shield memaparkan notis tidak penting dalam kawasan pentadbir dan bar pentadbir."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Secara lalai %s memaparkan notis tidak penting dalam kawasan pentadbir dan bar pentadbir."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Secara lalai, Shield dikonfigurasikan secara automatik untuk melindungi tapak anda daripada pelbagai ancaman dan menyekat pelawat dan bot yang tidak baik tanpa anda perlu melakukan apa-apa."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Secara lalai, %s dikonfigurasi secara automatik untuk melindungi tapak anda daripada pelbagai ancaman dan menyekat pelawat serta bot jahat tanpa anda perlu melakukan apa-apa."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Dengan menghubungkan isyarat daripada Firewall, dengan isyarat daripada semua komponen keselamatan lain, %s membina profil pelawat dari semasa ke semasa untuk menentukan siapa manusia, siapa bot, dan siapa yang datang untuk tujuan baik atau buruk."
@@ -1863,21 +2160,6 @@ msgstr "Lepas"
 
 msgid "Bypass IP"
 msgstr "Lepas IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA Gagal"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA Lulus"
-
-msgid "CAPTCHA test failed."
-msgstr "Ujian CAPTCHA gagal."
-
-msgid "CAPTCHA test successful."
-msgstr "Ujian CAPTCHA berjaya."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA sangat menyusahkan."
@@ -1990,6 +2272,9 @@ msgstr "Cabaran Gagal"
 msgid "Challenge has expired."
 msgstr "Cabaran telah tamat tempoh."
 
+msgid "Change"
+msgstr "Perubahan"
+
 msgid "Change Detected"
 msgstr "Perubahan Dikesan"
 
@@ -2005,11 +2290,14 @@ msgstr "Menukar pilihan 2FA E-mel tidak tersedia untuk anda pada masa ini."
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Menukar pilihan Kod Sandaran tidak tersedia untuk anda pada masa ini."
 
+msgid "Check %s License"
+msgstr "Semak Lesen %s"
+
+msgid "Check For %s License"
+msgstr "Semak Lesen %s"
+
 msgid "Check License"
 msgstr "Semak Lesen"
-
-msgid "Check ShieldPRO License"
-msgstr "Semak Lesen ShieldPRO"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Semak dan sahkan kandungan fail ini untuk pastikan ia tidak berniat jahat."
@@ -2044,14 +2332,14 @@ msgstr "turunan"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Pilih borang yang mana Perlindungan Bot silentCAPTCHA akan digunakan."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Pilih halaman Shield Tersuai jika terdapat konflik atau isu dengan halaman Log Masuk WP untuk 2FA."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Pilih halaman %s Tersuai jika terdapat konflik atau isu dengan halaman Log Masuk WP untuk 2FA."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Pilih borang yang mana langkah perlindungan bot akan digunakan."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Pilih kekerapan yang paling sesuai untuk menerima makluman daripada Shield mengikut jadual anda."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Pilih kekerapan yang paling sesuai untuk menerima makluman daripada %s mengikut jadual anda."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Pilih jenis halaman untuk pengesahan MFA"
@@ -2121,6 +2409,9 @@ msgstr "Klik untuk keluarkan pengesahan log masuk Google Authenticator dengan se
 
 msgid "Click to launch plugin search modal"
 msgstr "Klik untuk lancarkan modal carian pemalam"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Klik untuk tinggalkan ulasan di WordPress.org ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Klik untuk lihat data RAW yang akan dihantar"
@@ -2200,8 +2491,8 @@ msgstr "SPAM Komen Disekat."
 msgid "Comment SPAM Protection"
 msgstr "Perlindungan SPAM Komen"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Perlindungan SPAM Komen: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Perlindungan SPAM Komen: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Status Komen Dikemas Kini"
@@ -2269,6 +2560,12 @@ msgstr "Konfigurasi"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Halaman Konfigurasi Untuk Persediaan 2FA Pengguna"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Konfigurasi tidak diperlukan kerana hanya 1 alamat IP berbeza dikesan."
+
+msgid "Configure"
+msgstr "konfigur"
+
 msgid "Configure All '%s' Options"
 msgstr "Konfigur Semua Pilihan '%s'"
 
@@ -2308,9 +2605,6 @@ msgstr "Pengesahan"
 msgid "Confirmation email will be sent to %s"
 msgstr "E-mel pengesahan akan dihantar ke %s"
 
-msgid "Confirmation link"
-msgstr "Pautan pengesahan"
-
 msgid "Connected"
 msgstr "Disambungkan"
 
@@ -2329,8 +2623,8 @@ msgstr "SPAM Borang Hubungi"
 msgid "Contact Form SPAM Checking"
 msgstr "Pemeriksaan SPAM Borang Hubungi"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "SPAM Borang Hubungan hanya boleh disekat dengan integrasi tersuai untuk setiap pembekal borang - jika borang anda tidak disokong, sila hubungi pasukan sokongan kami."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "SPAM Borang Hubungan hanya boleh disekat dengan integrasi yang dibina khusus untuk setiap pembekal borang - jika borang anda tidak disokong, sila hubungi pasukan sokongan kami."
 
 msgid "Contact Forms Integration"
 msgstr "Integrasi Borang Hubungi"
@@ -2395,8 +2689,8 @@ msgstr "Koordinat"
 msgid "Core Reinstalled: v%s"
 msgstr "Core Dipasang Semula: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Core Dinaik Taraf: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Teras Dinaik Taraf: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Sifat teras sesi pengguna yang telah diwujudkan ({{user_login}}) telah berubah."
@@ -2443,8 +2737,8 @@ msgstr "Tidak dapat mencipta direktori: %s"
 msgid "Couldn't create the export file."
 msgstr "Tidak dapat mencipta fail eksport."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Tidak dapat menentukan status pemalam Shield."
+msgid "Couldn't determine %s plugin status."
+msgstr "Tidak dapat menentukan status pemalam %s."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "Tidak dapat memuatkan pemalam untuk slug '%s'."
@@ -2455,11 +2749,17 @@ msgstr "Tidak dapat memuatkan tema untuk slug '%s'."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "Tidak dapat baca templat pemalam MU daripada %s"
 
+msgid "Count"
+msgstr "Kiraan"
+
 msgid "Country"
 msgstr "Negara"
 
 msgid "Country Code"
 msgstr "Kod Negara"
+
+msgid "Create %s Network"
+msgstr "Cipta Rangkaian %s"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Cipta Kod Sandaran Log Masuk 2FA"
@@ -2482,9 +2782,6 @@ msgstr "Cipta Peraturan Baharu"
 msgid "Create Report"
 msgstr "Cipta Laporan"
 
-msgid "Create Shield Network"
-msgstr "Cipta Rangkaian Shield"
-
 msgid "Create and view all your custom security rules."
 msgstr "Cipta dan lihat semua peraturan keselamatan tersuai anda."
 
@@ -2502,6 +2799,9 @@ msgstr "Mencipta laluan di sini akan melumpuhkan 'wp-login.php' anda. Hanya huru
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Mencipta peraturan tersuai adalah ciri lanjutan dan saya menerima tanggungjawab penuh untuk sebarang masalah yang timbul daripada peraturan yang saya cipta."
+
+msgid "Critical"
+msgstr "Kritikal"
 
 msgid "Critical File Protection"
 msgstr "Perlindungan Fail Kritikal"
@@ -2578,9 +2878,6 @@ msgstr "Kandungan Fail Semasa"
 msgid "Current Scan"
 msgstr "Imbasan Semasa"
 
-msgid "Current Scan Results"
-msgstr "Keputusan Imbasan Semasa"
-
 msgid "Current Session Age (seconds)"
 msgstr "Umur Sesi Semasa (saat)"
 
@@ -2589,9 +2886,6 @@ msgstr "Sesi Semasa Ditamatkan"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Umur Token Sesi Semasa (saat)"
-
-msgid "Current Summary"
-msgstr "Ringkasan Semasa"
 
 msgid "Current User Sessions"
 msgstr "Sesi Pengguna Semasa"
@@ -2619,9 +2913,6 @@ msgstr "Nyahpijat Tersuai"
 
 msgid "Custom Exclusions"
 msgstr "Pengecualian Tersuai"
-
-msgid "Custom Report on %s"
-msgstr "Laporan Tersuai pada %s"
 
 msgid "Custom Rules"
 msgstr "Peraturan Tersuai"
@@ -2704,14 +2995,14 @@ msgstr "Julat Tarikh"
 msgid "Day"
 msgstr "Hari"
 
+msgid "Deactivate %s"
+msgstr "Nyahaktif %s"
+
 msgid "Deactivate Akismet"
 msgstr "Nyahaktifkan Akismet"
 
 msgid "Deactivate Rule"
 msgstr "Nyahaktifkan Peraturan"
-
-msgid "Deactivate Shield"
-msgstr "Nyahaktifkan Shield"
 
 msgid "Deactivated"
 msgstr "Dinyahaktifkan"
@@ -2727,9 +3018,6 @@ msgstr "Nyahpijat Dihidupkan"
 
 msgid "Debug Tests"
 msgstr "Ujian Nyahpijat"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "Pengelogan Debug dan Info hanya perlu didayakan apabila menyiasat masalah tertentu."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Tentukan bagaimana %s perlu bertindak balas apabila bot melakukan tindakan tertentu."
@@ -2749,8 +3037,8 @@ msgstr "Pengguna Admin Lalai"
 msgid "Default User Role"
 msgstr "Peranan Pengguna Lalai"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Peranan pengguna lalai ditukar: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Peranan pengguna lalai ditukar: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Lalai: Sekali setiap 24 jam. Untuk tingkatkan keselamatan, tambahkan bilangan imbasan setiap hari."
@@ -2806,14 +3094,11 @@ msgstr "Jadual Dihapus"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Siaran pengguna yang dihapus telah diserahkan semula kepada pengguna '{{user_login}}'."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Perubahan UI penting dengan Shield v20"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: Perubahan UI penting dengan %s v20"
 
 msgid "Demoted From Admin"
 msgstr "Diturunkan Daripada Pentadbir"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "Bergantung pada tetapan anda, laporan ini mungkin mengandungi gabungan makluman, statistik dan maklumat lain."
 
 msgid "Description"
 msgstr "keterangan"
@@ -2880,6 +3165,9 @@ msgstr "Dikesan"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Kesan pendaftaran pengguna dengan alamat e-mel tidak sah ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Mengesan alamat IP pelawat yang betul adalah kritikal untuk membezakan setiap pelawat tapak daripada yang seterusnya."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Mengesan mereka awal dan menyekat mereka, adalah sumber perlindungan terbesar anda."
@@ -2953,6 +3241,9 @@ msgstr "Nyahboleh Modul"
 msgid "Disable Security Admin"
 msgstr "Lumpuhkan Security Admin"
 
+msgid "Disable Security Admin via Email"
+msgstr "Nyahboleh Security Admin melalui E-mel"
+
 msgid "Disable Shield"
 msgstr "Nyahaktifkan Shield"
 
@@ -2989,6 +3280,9 @@ msgstr "Lumpuhkan endpoint XML-RPC dan sekat semua permintaan."
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Lumpuhkan pilihan ini untuk sembunyikan notis pentadbir pemalam tertentu tentang kemas kini tersedia dan notis selepas kemas kini."
 
+msgid "Disabled"
+msgstr "Dinyahboleh"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Melumpuhkan capaian tanpa nama mungkin merosakkan pemalam yang menggunakan REST API untuk pelawat tapak anda."
 
@@ -2998,8 +3292,8 @@ msgstr "terputus"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Temui pemalam yang mungkin telah ditinggalkan oleh pengarangnya"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Temui keselamatan WordPress yang paling komprehensif apabila anda naik taraf pelan Shield Security anda."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Temui keselamatan WordPress yang paling komprehensif apabila anda naik taraf pelan %s anda."
 
 msgid "Discovered"
 msgstr "Ditemui"
@@ -3009,6 +3303,9 @@ msgstr "Menemui malware di tapak anda bukanlah 'perlindungan' - ia sebenarnya ta
 
 msgid "Disk Space"
 msgstr "Ruang Cakera"
+
+msgid "Dismiss"
+msgstr "singkir"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Papar Notis Pemalam Tidak Penting Dan Menu Bar Pentadbir"
@@ -3064,8 +3361,8 @@ msgstr "Adakah nama hos IP yang meminta sepadan dengan nama hos yang diberikan."
 msgid "Does the method of the request match the given specified method to match."
 msgstr "Adakah kaedah permintaan sepadan dengan kaedah yang dinyatakan untuk dipadankan."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "Adakah permintaan melepasi mana-mana dan semua sekatan Shield."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "Adakah permintaan memintas sebarang dan semua sekatan %s."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "Adakah permintaan mengandungi parameter dengan nama yang diberikan."
@@ -3097,8 +3394,8 @@ msgstr "Adakah nama skrip permintaan sepadan dengan nama yang diberikan."
 msgid "Does the request useragent match the given useragent."
 msgstr "Adakah useragent permintaan sepadan dengan useragent yang diberikan."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "Adakah nilai parameter Shield Session yang diberikan sepadan dengan corak yang diberikan."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "Adakah nilai parameter Sesi %s yang diberikan sepadan dengan corak yang diberikan."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "Adakah nilai parameter permintaan yang diberikan sepadan dengan corak yang diberikan."
@@ -3115,8 +3412,8 @@ msgstr "Jangan Imbas Komen Untuk Pengguna Dengan Peranan Berikut"
 msgid "Don't want these email alerts?"
 msgstr "Tidak mahu makluman e-mel ini?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Diturunkan Taraf: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Diturunkan Taraf: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "Muat Turun"
@@ -3130,6 +3427,9 @@ msgstr "Muat Turun Peraturan IP sebagai CSV"
 msgid "Download Modified"
 msgstr "Muat Turun Diubah Suai"
 
+msgid "Download Now"
+msgstr "Muat Turun Sekarang"
+
 msgid "Download Options Export File"
 msgstr "Muat Turun Fail Eksport Pilihan"
 
@@ -3139,11 +3439,17 @@ msgstr "Muat Turun Asal"
 msgid "Download Request Logs"
 msgstr "Muat Turun Log Permintaan"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "Muat turun gagal. Semak bahawa API ShieldNet tersedia dan locale wujud."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Keputusan reputasi dimuat turun daripada CrowdSec untuk skop: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Memuat turun fail, sila tunggu..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Memuat turun terjemahan untuk locale: %s"
 
 msgid "Duration"
 msgstr "Tempoh"
@@ -3160,8 +3466,8 @@ msgstr "Setiap tapak dalam senarai ini akan dapat eksport pilihan daripada tapak
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Naik Taraf Pro WP Paling Mudah dan Tanpa Kekecewaan Di Mana-mana"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Integrasikan Shield Security dengan mudah untuk membantu anda mengurus keselamatan tapak anda dari dalam MainWP."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Integrasikan %s dengan mudah untuk membantu anda mengurus keselamatan tapak anda dari dalam MainWP."
 
 msgid "Edit"
 msgstr "sunting"
@@ -3169,8 +3475,8 @@ msgstr "sunting"
 msgid "Edit Rule"
 msgstr "Sunting Peraturan"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "Sunting Peraturan #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Sunting Peraturan #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Edit Tetapan"
@@ -3220,8 +3526,8 @@ msgstr "Edit tetapan yang mengenakan perlindungan pada log masuk & borang penggu
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Edit tetapan yang mengawal penyekatan IP automatik"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Edit tetapan yang mengawal cara silentCAPTCHA mengesan bot"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Edit tetapan yang mengawal cara %s mengesan bot"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Edit tetapan untuk mengenakan kekuatan kata laluan minimum"
@@ -3250,8 +3556,8 @@ msgstr "Mengedit pilihan ini pada masa ini dihadkan."
 msgid "Either the country code or phone number were missing."
 msgstr "Sama ada kod negara atau nombor telefon tiada."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Tingkatkan keselamatan WordPress anda kepada terbaik dalam kelasnya, dengan menaik taraf pelan Shield Security anda."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Tingkatkan keselamatan WordPress anda kepada terbaik dalam kelasnya, dengan menaik taraf pelan %s anda."
 
 msgid "Email"
 msgstr "emel"
@@ -3304,8 +3610,8 @@ msgstr "Pemberitahuan emel untuk komen baharu"
 msgid "Email sending has already been verified."
 msgstr "Penghantaran e-mel telah pun disahkan."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "E-mel dihantar daripada Pemalam %s v%s, pada %s."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "E-mel dihantar daripada Pemalam %1$s v%2$s, pada %3$s."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "E-mel dihantar. Pastikan pautan dibuka dalam pelayar INI."
@@ -3334,8 +3640,8 @@ msgstr "Menggunakan set peraturan agresif untuk mengesan dan menyekat data berni
 msgid "Empty User Agents"
 msgstr "User Agent Kosong"
 
-msgid "Empty response from Shield client site"
-msgstr "Respons kosong daripada tapak klien Shield"
+msgid "Empty response from %s client site"
+msgstr "Respons kosong daripada tapak klien %s"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Fail root kosong disediakan untuk instantiation"
@@ -3568,14 +3874,20 @@ msgstr "ralat"
 msgid "Error Log Message"
 msgstr "Mesej Log Ralat"
 
+msgid "Error: {{error}}"
+msgstr "Ralat: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Walaupun hanya ulasan 1 baris yang menyatakan anda berpuas hati dengannya, akan membantu kami dengan sangat."
+
 msgid "Event"
 msgstr "Peristiwa"
 
 msgid "Event %s does not exist."
 msgstr "Peristiwa %s tidak wujud."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Definisi peristiwa (%s) mempunyai parameter audit yang tidak hadir: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Definisi peristiwa (%1$s) mempunyai parameter audit yang tidak hadir: %2$s"
 
 msgid "Event Details"
 msgstr "Perincian Peristiwa"
@@ -3661,6 +3973,9 @@ msgstr "Gagal menyambung ke pelayan lesen."
 msgid "Failed to create custom report."
 msgstr "Gagal mencipta laporan tersuai."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Gagal memuat turun fail terjemahan untuk locale: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Gagal memasukkan rekod pengunci fail untuk laluan: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Gagal membaiki item imbasan."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Gagal menghantar amaran e-mel Sekatan Firewall kepada: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Gagal menghantar e-mel (jenis: {{slug}}) kepada '{{email}}' menggunakan SureSend."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Gagal menghantar e-mel (jenis: {{slug}}) kepada '{{email}}' menggunakan %s."
 
 msgid "Failed to store the rule in the database."
 msgstr "Gagal menyimpan peraturan dalam pangkalan data."
@@ -3796,8 +4111,8 @@ msgstr "Kandungan fail tidak dapat disulitkan. Mesej:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "Kandungan fail tidak dapat wp_json_encode() selepas penyulitan."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Fail dikesan sebagai %s oleh pengimbas %s."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Fail dikesan sebagai %1$s oleh pengimbas %2$s."
 
 msgid "File does not exist."
 msgstr "Fail tidak wujud."
@@ -3997,14 +4312,17 @@ msgstr "Dijana"
 msgid "Generating a new code will replace your existing code."
 msgstr "Menjana kod baharu akan menggantikan kod sedia ada anda."
 
+msgid "Get %s!"
+msgstr "Dapatkan %s!"
+
 msgid "Get All PRO Security Features"
 msgstr "Dapatkan Semua Ciri Keselamatan PRO"
 
-msgid "Get ShieldPRO!"
-msgstr "Dapatkan ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Mulakan Dalam Masa Kurang Daripada 3 Minit"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Dapatkan percubaan percuma tanpa risiko dan tanpa obligasi %s hari ini."
 
 msgid "Global Plugin Enable"
 msgstr "Dayakan Pemalam Secara Global"
@@ -4039,6 +4357,9 @@ msgstr "Pergi Pro!"
 msgid "Go To %s"
 msgstr "Pergi Ke %s"
 
+msgid "Go To %s Overview"
+msgstr "Pergi Ke Gambaran Keseluruhan %s"
+
 msgid "Go To Admin"
 msgstr "Pergi Ke Admin"
 
@@ -4050,9 +4371,6 @@ msgstr "Pergi Ke Gambaran Keseluruhan"
 
 msgid "Go To Security Dashboard"
 msgstr "Pergi Ke Papan Pemuka Keselamatan"
-
-msgid "Go To Shield Overview"
-msgstr "Pergi Ke Gambaran Keseluruhan Shield"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Pergi ke sini untuk urus tetapan dan sahkan dengan pemalam %s."
@@ -4111,14 +4429,14 @@ msgstr "Header Respons HTTP Untuk Dihantar"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "Tetapan HTTPS untuk URL Utama dan URL Tapak WP tidak konsisten."
 
-msgid "Handshake ShieldNET"
-msgstr "Jabat Tangan ShieldNET"
+msgid "Handshake %s"
+msgstr "Jabat Tangan %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Pengesahan 2 Faktor Perkakasan"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Mempunyai Sesi Pengguna Shield Yang Sah"
+msgid "Has Valid %s User Sessions"
+msgstr "Mempunyai Sesi Pengguna %s Yang Sah"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Mempunyai kawalan penuh ke atas kata laluan yang digunakan oleh pengguna di tapak."
@@ -4135,11 +4453,14 @@ msgstr "Artikel HelpDesk"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Helpdesk dan Pangkalan Pengetahuan"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Berikut adalah beberapa cara Shield sudah melindungi tapak anda:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Berikut adalah beberapa cara %s sudah melindungi tapak anda:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Di sini anda pilih jenis data berniat jahat untuk diimbas."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Berikut ialah gambaran keselamatan anda untuk tempoh pelaporan. Semak sebarang isu di bawah dan ambil tindakan jika perlu."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Di sini, bagaimanapun, kami memberi tumpuan kepada akaun pengguna itu sendiri untuk memastikan ia berada dalam keadaan selamat."
@@ -4189,8 +4510,8 @@ msgstr "URL Halaman Utama"
 msgid "Home URL Changed"
 msgstr "URL Halaman Utama Ditukar"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "URL halaman utama ditukar: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "URL halaman utama ditukar: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "laman hadapan"
@@ -4297,11 +4618,14 @@ msgstr "Penapis SPAM Manusia"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "Penapis SPAM manusia mengesan percubaan SPAM komen berulang."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "Penapis SPAM manusia menemui '%s' dalam '%s'"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "Penapis SPAM manusia menemui \"%1$s\" dalam \"%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Penapis SPAM manusia menemui '{{word}}' dalam '{{key}}'"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "SPAM manusia masih menyebabkan paling banyak kekecewaan kerana ia sering memintas pertahanan SPAM."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Saya Faham Pilihan Sedia Ada Akan Ditulis Ganti"
@@ -4327,17 +4651,11 @@ msgstr "Saya tahu bahawa jika saya gunakan caching dan saya tidak kosongkannya s
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Saya faham akibat menyekat semua trafik ke tapak ini."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Saya faham risiko mencipta peraturan yang tidak menghormati senarai putih dan pengecualian Shield, dan saya mungkin sukar untuk capai semula jika saya dikunci."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Saya memahami risiko mencipta peraturan yang tidak menghormati senarai putih dan pengecualian %s, dan saya mungkin mendapati sukar untuk capai semula jika saya dikunci."
 
 msgid "I'd like to learn more, please"
 msgstr "Saya ingin ketahui lebih lanjut"
-
-msgid "I'd rather not show this support"
-msgstr "Saya lebih suka tidak tunjukkan sokongan ini"
-
-msgid "I've done this already"
-msgstr "Saya sudah lakukan ini"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "PENTING"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "Skor IP %s Ditetapkan Semula."
 
 msgid "IP Address"
 msgstr "Alamat IP"
@@ -4552,9 +4873,6 @@ msgstr "IP tidak berada dalam senarai sekat automatik."
 msgid "IP provided was invalid."
 msgstr "IP yang diberikan tidak sah."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "Set Semula Skor silentCAPTCHA IP."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Jika pengguna mempunyai pelbagai peranan yang ditugaskan kepadanya, semu
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Jika data berniat jahat dikesan, permintaan akan dihentikan dengan segera."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Jika tetapan yang betul bukan %s, kami cadangkan menghubungi pembekal pengehosan anda untuk meminta mereka konfigurasikan pengehosan anda supaya %s menyediakan alamat IP pelawat sebenar."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Jika tetapan yang betul bukan %1$s, kami mengesyorkan menghubungi pembekal hosting anda untuk meminta mereka konfigurasikan hosting anda supaya %2$s menyediakan alamat IP pelawat sebenar."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Jika pembekal yang anda mahukan tidak ada dalam senarai, hubungi pasukan sokongan kami dan kami akan lihat sama ada integrasi boleh dibina."
@@ -4642,8 +4960,8 @@ msgstr "Jika pengguna tidak aktif untuk bilangan jam yang dinyatakan, mereka aka
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Jika pengguna tidak aktif untuk bilangan jam yang dinyatakan, mereka akan dilog keluar secara paksa pada kali seterusnya mereka kembali. Tetapkan ini kepada '0' untuk matikan pilihan ini."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Jika skor pelawat gagal memenuhi Skor silentCAPTCHA Minimum anda, kami mungkin menghalang permintaan tersebut (seperti log masuk, komen WP dan lain-lain). Jika lebih tinggi, kami membenarkannya."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Jika skor pelawat gagal memenuhi Skor Minimum %s anda, kami mungkin menghalang permintaan tersebut (seperti log masuk, komen WP dll.). Jika lebih tinggi, kami membenarkannya."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Jika ini adalah tapak klien MainWP, anda perlu menambah alamat IP Pelayan Pentadbir MainWP anda ke senarai pintasan IP anda."
@@ -4656,6 +4974,9 @@ msgstr "Jika mesej ini masih muncul selepas muat semula halaman ini, sila pasang
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Jika masalah ini berterusan, sila hubungi sokongan: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Jika anda sudah mempunyai lesen %s yang diberikan kepada tapak ini,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Jika anda percaya, atas apa jua sebab, peti mel anda atau pengguna anda telah terjejas, anda perlu lumpuhkan pilihan ini."
@@ -4702,11 +5023,8 @@ msgstr "Jika anda ingin dimaklumkan setiap kali pengguna pentadbir log masuk ke 
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Jika anda ingin dimaklumkan setiap kali pengguna pentadbir log masuk ke tapak WordPress ini, masukkan alamat e-mel pemberitahuan. Tiada alamat e-mel - Tiada Pemberitahuan."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Jika anda tidak menggunakan penyedia perkhidmatan e-mel khusus untuk menghantar e-mel WordPress, anda perlu aktifkan SureSend untuk e-mel penting ini."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Jika anda terlupa PIN anda, gunakan menu di atas untuk lumpuhkan sekatan ini."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Jika anda tidak menggunakan penyedia perkhidmatan e-mel khusus untuk menghantar e-mel WordPress, anda perlu dayakan %s untuk e-mel penting ini."
 
 msgid "Ignore"
 msgstr "abai"
@@ -4737,9 +5055,6 @@ msgstr "Pemberitahuan Import Dihantar"
 
 msgid "Import Options"
 msgstr "Import Pilihan"
-
-msgid "Import Settings From Another Site"
-msgstr "Import Tetapan Dari Tapak Lain"
 
 msgid "Import file was empty"
 msgstr "Fail import kosong"
@@ -4870,11 +5185,14 @@ msgstr "Maklumat Untuk Alamat IP %s"
 msgid "Info Reports Frequency"
 msgstr "Kekerapan Laporan Info"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Pengelogan maklumat hanya perlu didayakan apabila menyiasat masalah tertentu."
+
 msgid "Information and reports are typically statistics."
 msgstr "Maklumat dan laporan biasanya adalah statistik."
 
-msgid "Install Shield"
-msgstr "Pasang Shield"
+msgid "Install %s"
+msgstr "Pasang %s"
 
 msgid "Installation Directory"
 msgstr "Direktori Pemasangan"
@@ -4909,6 +5227,9 @@ msgstr "Selang diukur dalam saat."
 msgid "Invalid"
 msgstr "tidak sah"
 
+msgid "Invalid %s extension configuration"
+msgstr "Konfigurasi sambungan %s tidak sah"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Pengecualian Karut Tindakan Tidak Sah."
 
@@ -4933,9 +5254,6 @@ msgstr "Pemuatan Skrip Tidak Sah"
 msgid "Invalid Scripts"
 msgstr "Skrip Tidak Sah"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Konfigurasi sambungan Shield tidak sah"
-
 msgid "Invalid Slug"
 msgstr "Slug Tidak Sah"
 
@@ -4948,9 +5266,6 @@ msgstr "User Agent Tidak Sah"
 msgid "Invalid User Email Registration"
 msgstr "Pendaftaran E-mel Pengguna Tidak Sah"
 
-msgid "Invalid User-Agent"
-msgstr "User-Agent Tidak Sah"
-
 msgid "Invalid Username Login"
 msgstr "Log Masuk Nama Pengguna Tidak Sah"
 
@@ -4959,6 +5274,12 @@ msgstr "Nama Pengguna Tidak Sah"
 
 msgid "Invalid action"
 msgstr "Tindakan tidak sah"
+
+msgid "Invalid batch request format."
+msgstr "Format permintaan kelompok tidak sah."
+
+msgid "Invalid batch request item."
+msgstr "Item permintaan kelompok tidak sah."
 
 msgid "Invalid download item data."
 msgstr "Data item muat turun tidak sah."
@@ -4975,6 +5296,15 @@ msgstr "Muat turun jenis pengunci fail tidak sah"
 msgid "Invalid login nonce"
 msgstr "Karut log masuk tidak sah"
 
+msgid "Invalid login session."
+msgstr "Sesi log masuk tidak sah."
+
+msgid "Invalid or expired login session."
+msgstr "Sesi log masuk tidak sah atau telah tamat tempoh."
+
+msgid "Invalid profile request."
+msgstr "Permintaan profil tidak sah."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Permintaan tidak sah - lockdown sudah aktif."
 
@@ -4984,11 +5314,8 @@ msgstr "Permintaan tidak sah - kunci tidak aktif."
 msgid "Invalid request with no User ID"
 msgstr "Permintaan tidak sah tanpa ID Pengguna"
 
-msgid "Invalid response from Shield client site"
-msgstr "Respons tidak sah daripada tapak klien Shield"
-
-msgid "Invalid session selected"
-msgstr "Sesi yang dipilih tidak sah"
+msgid "Invalid response from %s client site"
+msgstr "Respons tidak sah daripada tapak klien %s"
 
 msgid "Invalid specification of modules"
 msgstr "Spesifikasi modul tidak sah"
@@ -4996,14 +5323,26 @@ msgstr "Spesifikasi modul tidak sah"
 msgid "Invalid type."
 msgstr "Jenis tidak sah."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "User agent tidak sah dikesan pada '{{useragent}}'."
-
 msgid "Invalid value scope for %s"
 msgstr "Skop nilai tidak sah untuk %s"
 
 msgid "Invalid value type for %s"
 msgstr "Jenis nilai tidak sah untuk %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "Adakah Fungsi Pemalam %s Dilumpuhkan."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "Adakah Rate Limiting Trafik %s Diaktifkan."
+
+msgid "Is %s live logging enabled."
+msgstr "Adakah pengelogan langsung %s didayakan."
+
+msgid "Is %s score"
+msgstr "Adalah skor %s"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "Adakah Site Lockdown %s aktif."
 
 msgid "Is It You?"
 msgstr "Adakah Ini Anda?"
@@ -5017,20 +5356,8 @@ msgstr "Adakah Status Permintaan 404"
 msgid "Is Request To The Login Page."
 msgstr "Adakah Permintaan Ke Halaman Log Masuk."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Adakah Fungsi Pemalam Shield Dilumpuhkan."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Adakah Rate Limiting Trafik Shield Didayakan."
-
-msgid "Is Shield live logging enabled."
-msgstr "Adakah pengelogan langsung Shield didayakan."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Adakah Site Lockdown Shield aktif."
-
-msgid "Is The Shield Option Value..."
-msgstr "Adakah Nilai Pilihan Shield..."
+msgid "Is The %s Option Value..."
+msgstr "Adakah Nilai Pilihan %s..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Adakah Alamat IP Awam Yang Sah"
@@ -5038,8 +5365,8 @@ msgstr "Adakah Alamat IP Awam Yang Sah"
 msgid "Is Viable"
 msgstr "Boleh Dilaksanakan"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Adakah Skor silentCAPTCHA Pelawat ..."
+msgid "Is Visitor %s Score ..."
+msgstr "Adakah Skor Pelawat %s ..."
 
 msgid "Is WP AJAX"
 msgstr "Adakah WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "Adakah pengguna semasa adalah pentadbir WordPress yang log masuk."
 msgid "Is current user password expired."
 msgstr "Adakah kata laluan pengguna semasa telah tamat tempoh."
 
-msgid "Is silentCAPTCHA score"
-msgstr "Adakah skor silentCAPTCHA"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Adakah pemalam Shield dalam keadaan \"forceoff\"."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "Adakah pemalam %s dalam keadaan \"forceoff\"."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Adakah alamat IP semasa dianggap \"reputasi tinggi\"."
@@ -5116,23 +5440,23 @@ msgstr "Adakah umur token sesi pengguna semasa kurang daripada atau lebih daripa
 msgid "Is the request HTTPS."
 msgstr "Adakah permintaan HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "Adakah IP permintaan disekat secara automatik atau manual oleh Shield."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "Adakah IP permintaan disekat secara automatik atau manual oleh %s."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "Adakah IP permintaan dalam senarai hitam Shield."
+msgid "Is the request IP blacklisted by %s."
+msgstr "Adakah IP permintaan disenarai hitam oleh %s."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "Adakah IP permintaan dalam senarai sekat CrowdSec Shield."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "Adakah IP permintaan berada dalam senarai sekat CrowdSec %s."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "Adakah IP permintaan dalam senarai sekat Manual Shield."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "Adakah IP permintaan berada dalam senarai sekat Manual %s."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "Adakah IP permintaan dalam senarai sekat automatik Shield."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "Adakah IP permintaan berada dalam senarai sekat automatik %s."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "Adakah IP permintaan dalam senarai pintasan/senarai putih manual Shield."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "Adakah IP permintaan berada dalam senarai pintasan/senarai putih manual %s."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Adakah permintaan adalah bot yang berasal daripada penyedia perkhidmatan yang dipercayai."
@@ -5143,17 +5467,17 @@ msgstr "Adakah permintaan merupakan permintaan loopback pelayan."
 msgid "Is the request an HTTP 404."
 msgstr "Adakah permintaan HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Adakah permintaan disekat oleh ciri Lockdown Tapak Shield."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "Adakah permintaan disekat oleh ciri Site Lockdown %s."
 
 msgid "Is the request from a logged-in user."
 msgstr "Adakah permintaan daripada pengguna yang log masuk."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Adakah permintaan daripada pengguna yang disahkan sebagai Shield Security Admin."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "Adakah permintaan daripada pengguna yang disahkan sebagai Pentadbir %s."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "Adakah laluan permintaan dalam senarai putih Shield."
+msgid "Is the request path whitelisted by %s."
+msgstr "Adakah laluan permintaan dalam senarai putih oleh %s."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "Adakah permintaan ke laluan dalam pemalam WordPress yang dipasang pada masa ini."
@@ -5212,6 +5536,9 @@ msgstr "Isu Dijumpai"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Isu yang disenaraikan di bawah perlu ditangani secepat mungkin"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Ia juga membantu mengunci tetapan kritikal WordPress."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "Ia juga mencari fail yang tidak sepatutnya berada dalam direktori teras WP (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Nampaknya IP anda (%s) kini disekat."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Ia walau bagaimanapun mungkin menggunakan kuki untuk daftar penutupan lencana keselamatan %s bagi menghalang paparan berulang."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Ia menggunakan Enjin silentCAPTCHA eksklusif kami untuk mengenal pasti bot dengan pasti."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Ia menggunakan Enjin %s eksklusif kami untuk mengenal pasti bot dengan pasti."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "Ia telah dihantar ke '{{to}}' dengan subjek '{{subject}}'."
@@ -5275,8 +5602,8 @@ msgstr "Ia telah dihantar ke '{{to}}' dengan subjek '{{subject}}'."
 msgid "It will be displayed below when it's ready."
 msgstr "Ia akan dipaparkan di bawah apabila sudah bersedia."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Ia akan mencari lokasi yang sesuai secara automatik, tetapi jika ini gagal, anda mungkin melihat amaran PHP di tapak anda dan fungsi Shield tertentu tidak akan tersedia."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Ia akan mencari lokasi yang sesuai secara automatik, tetapi jika ini gagal, anda mungkin melihat amaran PHP di tapak anda dan fungsi %s tertentu tidak akan tersedia."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Ini adalah kawasan yang kompleks dan jika digunakan secara salah, boleh dengan mudah merosakkan pengalaman pengguna bahagian hadapan anda."
@@ -5298,9 +5625,6 @@ msgstr "Adalah amalan yang baik untuk hadkan jangka hayat sesi, terutamanya apab
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Adalah amalan yang baik untuk kunci sesi pada sekurang-kurangnya 1 sifat untuk membantu mencegah kecurian sesi."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Ia adalah SPAM manusia yang masih menyebabkan kebanyakan kekecewaan, kerana mereka biasanya tidak mencetuskan pertahanan kami."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Ia terletak dalam direktori pemalam WordPress, dan diiktiraf sebagai fail yang sah untuk versi pemalam tersebut."
@@ -5338,8 +5662,8 @@ msgstr "Item dibaiki: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Item Jumpa Dalam Imbasan"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Sertai Surat Berita Shield Security"
+msgid "Join The %s Newsletter"
+msgstr "Sertai Surat Berita %s"
 
 msgid "Join Us"
 msgstr "Sertai Kami"
@@ -5347,8 +5671,14 @@ msgstr "Sertai Kami"
 msgid "Join Us!"
 msgstr "Sertai Kami!"
 
+msgid "Join our %s Newsletter"
+msgstr "Sertai Surat Berita %s Kami"
+
 msgid "Jump To Module Settings"
 msgstr "Lompat Ke Tetapan Modul"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Sertai kumpulan Facebook %s kami di mana anda boleh bertanya soalan daripada komuniti aktif kami dan kekal dikemas kini dengan berita terkini kami"
 
 msgid "Just grab a new license from the"
 msgstr "Hanya dapatkan lesen baharu daripada"
@@ -5437,6 +5767,9 @@ msgstr "Penyegerakan Terakhir"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Akhir sekali, kami mahu mencegah keupayaan bot (atau manusia) untuk mendaftar akaun SPAM di tapak, atas apa-apa sebab."
 
+msgid "Latest Scan Results"
+msgstr "Keputusan Imbasan Terkini"
+
 msgid "Launch Debug Info Page"
 msgstr "Lancarkan Halaman Info Nyahpijat"
 
@@ -5464,6 +5797,12 @@ msgstr "Lesen"
 msgid "License Activation"
 msgstr "Pengaktifan Lesen"
 
+msgid "License Activation Failed"
+msgstr "Pengaktifan Lesen Gagal"
+
+msgid "License Activation Success"
+msgstr "Pengaktifan Lesen Berjaya"
+
 msgid "License Check Failed"
 msgstr "Semakan Lesen Gagal"
 
@@ -5482,6 +5821,30 @@ msgstr "E-mel Kegagalan Lesen Dihantar"
 msgid "License Summary"
 msgstr "Ringkasan Lesen"
 
+msgid "License activated and verified successfully."
+msgstr "Lesen diaktifkan dan disahkan dengan jayanya."
+
+msgid "License activated but verification failed."
+msgstr "Lesen diaktifkan tetapi pengesahan gagal."
+
+msgid "License activated successfully."
+msgstr "Lesen berjaya diaktifkan."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "Pengaktifan lesen gagal kerana tiada lesen tersedia pada akaun ini."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "Pengaktifan lesen gagal kerana kunci API tidak sah."
+
+msgid "License activation failed."
+msgstr "Pengaktifan lesen gagal."
+
+msgid "License activation request failed."
+msgstr "Permintaan pengaktifan lesen gagal."
+
+msgid "License activation was denied for this site."
+msgstr "Pengaktifan lesen telah ditolak untuk tapak ini."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Semakan lesen gagal. Menghantar E-mel Amaran."
 
@@ -5499,9 +5862,6 @@ msgstr "Lesen boleh disemak sekali setiap %s saat"
 
 msgid "Lifetime"
 msgstr "Jangka Hayat"
-
-msgid "Lifetime Total"
-msgstr "Jumlah Jangka Hayat"
 
 msgid "Light"
 msgstr "Ringan"
@@ -5577,6 +5937,12 @@ msgstr "Pengimbas malware PHP tempatan didayakan tetapi pengimbasan Malware AI t
 
 msgid "Locale"
 msgstr "penempatan"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "Locale \"%1$s\" sudah dicache di: %2$s. Gunakan --force untuk muat turun semula."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "Locale \"%s\" tidak tersedia untuk dimuat turun."
 
 msgid "Location"
 msgstr "Lokasi"
@@ -5740,11 +6106,11 @@ msgstr "Kata Laluan Hilang Disekat"
 msgid "Lost Password Bot Protection"
 msgstr "Perlindungan Bot Kata Laluan Hilang"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "SPAM Kata Laluan Hilang oleh bot disekat oleh silentCAPTCHA."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "SPAM Kata Laluan Hilang oleh bot disekat oleh %s."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM Kata Laluan Hilang oleh bot tidak disekat oleh silentCAPTCHA."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "SPAM Kata Laluan Hilang oleh bot tidak disekat oleh %s."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Suka? Nilaikan Pemalam Ini &#10025;"
@@ -5923,6 +6289,9 @@ msgstr "Nilai Meta Untuk Dipadankan"
 msgid "Method"
 msgstr "kaedah"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Skor minimum %s diperlukan untuk menunjukkan pelawat adalah manusia"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Kelulusan Automatik Komen Minimum"
 
@@ -5941,9 +6310,6 @@ msgstr "Selang Masa Minimum Antara Komen"
 msgid "Minimum required MainWP server version"
 msgstr "Versi pelayan MainWP minimum yang diperlukan"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Skor minimum silentCAPTCHA yang diperlukan untuk menunjukkan pelawat adalah manusia"
-
 msgid "Minutes"
 msgstr "Minit"
 
@@ -5952,6 +6318,12 @@ msgstr "Salah konfigurasi boleh menyebabkan masalah untuk pelawat anda, jadi kam
 
 msgid "Missing"
 msgstr "hilang"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Slug tindakan atau karut tiada dalam permintaan berkelompok."
+
+msgid "Missing request payload for batch request item."
+msgstr "Item permintaan kelompok tiada muatan permintaan."
 
 msgid "Mode"
 msgstr "Mod"
@@ -5989,6 +6361,12 @@ msgstr "Kebanyakan SPAM adalah automatik, oleh bot, tetapi kadangkala Manusia ju
 msgid "Multi-Factor Authentication"
 msgstr "Pengesahan Berbilang Faktor"
 
+msgid "Multiple Signals"
+msgstr "Pelbagai Isyarat"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Pelbagai isyarat bot dikesan untuk pelawat ini."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Pelbagai alamat e-mel boleh dibekalkan, dipisahkan dengan koma."
 
@@ -6013,6 +6391,9 @@ msgstr "Kata Laluan DB MySQL"
 msgid "N/A"
 msgstr "T/A"
 
+msgid "NEW"
+msgstr "Baharu"
+
 msgid "NO TITLE"
 msgstr "TIADA TAJUK"
 
@@ -6027,6 +6408,12 @@ msgstr "Navigasi"
 
 msgid "Needs Update"
 msgstr "Perlu Kemas Kini"
+
+msgid "Needs Work"
+msgstr "Perlu Kerja"
+
+msgid "Nested batch requests are not allowed."
+msgstr "Permintaan kelompok bersarang tidak dibenarkan."
 
 msgid "Never"
 msgstr "tidak pernah"
@@ -6045,12 +6432,6 @@ msgstr "Admin Baharu"
 
 msgid "New Comment"
 msgstr "Komen Baharu"
-
-msgid "New Results"
-msgstr "Keputusan Baharu"
-
-msgid "New Scan Results"
-msgstr "Keputusan Imbasan Baharu"
 
 msgid "New User Default Role"
 msgstr "Peranan Lalai Pengguna Baharu"
@@ -6166,6 +6547,9 @@ msgstr "Tiada item dipilih."
 msgid "No license to remove."
 msgstr "Tiada lesen untuk dialih keluar."
 
+msgid "No locales available from API."
+msgstr "Tiada locale tersedia daripada API."
+
 msgid "No message"
 msgstr "Tiada mesej"
 
@@ -6175,8 +6559,8 @@ msgstr "Tiada meta tersedia"
 msgid "No modules specified in the plugin config."
 msgstr "Tiada modul dinyatakan dalam konfigurasi pemalam."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Tiada lagi kunci lesen untuk diingati/salin-tampal! Cuma aktifkan URL tapak anda dalam panel kawalan ShieldPRO anda dan dapatkan ciri Pro diaktifkan di tapak anda secara automatik."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Tiada lagi kunci lesen untuk diingati/salin-tampal! Cuma aktifkan URL tapak anda dalam panel kawalan %s anda dan dapatkan ciri Pro didayakan di tapak anda secara automatik."
 
 msgid "No new session activity recorded yet."
 msgstr "Tiada aktiviti sesi baharu direkodkan lagi."
@@ -6192,6 +6576,9 @@ msgstr "Tiada rekod"
 
 msgid "No reporter defined"
 msgstr "Tiada reporter ditakrifkan"
+
+msgid "No reports generated yet."
+msgstr "Tiada laporan dijana lagi."
 
 msgid "No reports have been generated yet."
 msgstr "Tiada laporan telah dijana lagi."
@@ -6247,9 +6634,6 @@ msgstr "Tidak, saya tidak mahu membantu"
 msgid "Noise"
 msgstr "Gangguan"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Item imbasan bukan fail belum disokong lagi."
-
 msgid "Nonce Failed."
 msgstr "Karut Gagal."
 
@@ -6304,14 +6688,11 @@ msgstr "Bukan kunci pilihan yang sah untuk modul: %s"
 msgid "Not a valid option key."
 msgstr "Bukan kunci pilihan yang sah."
 
-msgid "Not a valid scan item record"
-msgstr "Bukan rekod item imbasan yang sah"
-
 msgid "Not a valid value for this parameter"
 msgstr "Bukan nilai yang sah untuk parameter ini"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Tidak tersedia kerana tapak anda tidak dapat berjabat tangan dengan API ShieldNET."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Tidak tersedia kerana tapak anda tidak dapat berjabat tangan dengan %s."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Tidak log masuk sebagai pentadbir keselamatan pada masa ini."
@@ -6354,9 +6735,6 @@ msgstr "Maklumkan Tapak Dalam Senarai Putih Untuk Kemas Kini Pilihan Daripada In
 
 msgid "Notify Whitelist"
 msgstr "Maklumkan Senarai Putih"
-
-msgid "Now"
-msgstr "Sekarang"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "Bilangan Kali Untuk Mengimbas Fail Teras Secara Automatik Dalam 24 Jam"
@@ -6418,6 +6796,9 @@ msgstr "Had Kesalahan"
 msgid "Offenses couldn't be reset at this time."
 msgstr "Kesalahan tidak dapat ditetapkan semula pada masa ini."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "Kesalahan hanyalah pengira untuk bilangan kali pelawat melakukan sesuatu yang buruk."
+
 msgid "Offenses reset to zero."
 msgstr "Kesalahan ditetapkan semula kepada sifar."
 
@@ -6439,17 +6820,17 @@ msgstr "Kata Laluan Sekali Sahaja"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Hanya Security Admin %s boleh ubah suai tetapan MFA akaun pentadbir lain."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Hanya fail teras WordPress diimbas dalam versi percuma Shield."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Hanya fail teras WordPress diimbas dalam versi percuma %s."
 
 msgid "Only enable the integrations you require."
 msgstr "Hanya dayakan integrasi yang anda perlukan."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Hanya jenis borang (log masuk, pendaftaran, kata laluan hilang), yang anda pilih akan dipantau."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Hanya huruf dan nombor dibenarkan: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Hanya jenis borang yang dipilih (log masuk, pendaftaran, kata laluan hilang) akan dipantau."
 
 msgid "Only the first 30 items are shown."
 msgstr "Hanya 30 item pertama ditunjukkan."
@@ -6562,8 +6943,8 @@ msgstr "Pengimbas Malware PHP"
 msgid "PHP Version"
 msgstr "Versi PHP"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP tidak memenuhi versi minimum. Versi anda: %s. Versi diperlukan: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP tidak memenuhi versi minimum. Versi anda: %1$s. Versi diperlukan: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "Fail PHP tidak diimbas untuk malware."
@@ -6718,6 +7099,9 @@ msgstr "Mungkin salah satu ciri paling berkuasanya adalah bagaimana ia akan menc
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Mungkin peranti tidak disokong, atau anda telah mendaftarkannya."
 
+msgid "Period"
+msgstr "Tempoh"
+
 msgid "Permalink structure"
 msgstr "Struktur permalink"
 
@@ -6727,8 +7111,8 @@ msgstr "Pautan Kekal"
 msgid "Permalinks Updated"
 msgstr "Pautan Kekal Dikemas Kini"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Permalinks ditukar: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Permalinks ditukar: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Ubah Hala Kekal (301)"
@@ -6790,6 +7174,9 @@ msgstr "Sila klik pautan dalam e-mel yang anda terima."
 msgid "Please click the link provided below to do so."
 msgstr "Sila klik pautan yang disediakan di bawah untuk berbuat demikian."
 
+msgid "Please complete required fields: %s"
+msgstr "Sila lengkapkan medan yang diperlukan: %s"
+
 msgid "Please complete the form."
 msgstr "Sila lengkapkan borang."
 
@@ -6814,14 +7201,14 @@ msgstr "Sila hubungi pentadbir tapak jika anda memerlukan panduan lanjut."
 msgid "Please contact your website administrator."
 msgstr "Sila hubungi pentadbir tapak web anda."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Sila padam fail \"%s\" untuk mengaktifkan semula perlindungan %s"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Sila padam fail \"%1$s\" untuk aktifkan semula perlindungan %2$s"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Sila pastikan tarikh tamat adalah pada atau selepas tarikh mula."
 
 msgid "Please login again."
 msgstr "Sila log masuk semula."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Sila log keluar jika anda ingin padamkan sesi anda sendiri."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Sila ambil perhatian bahawa pemalam WP Page Caching biasanya mengabaikan HTTP Headers dan jika anda tidak melihatnya tercermin dalam ujian anda, anda perlu lumpuhkan pemalam caching anda."
@@ -6840,6 +7227,15 @@ msgstr "Sila berikan label untuk mengenal pasti peranti."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Sila berikan label untuk mengenal pasti pengesah baharu."
+
+msgid "Please provide a title for the report."
+msgstr "Sila berikan tajuk untuk laporan."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Sila berikan tarikh yang sah menggunakan format TTTT-BB-HH."
+
+msgid "Please provide a valid date."
+msgstr "Sila berikan tarikh yang sah."
 
 msgid "Please provide a valid regular expression."
 msgstr "Sila berikan ungkapan nalar yang sah."
@@ -6895,6 +7291,9 @@ msgstr "Sila pilih salah satu Jenis Peraturan IP - Sekat atau Bypass"
 msgid "Please select one of the options available"
 msgstr "Sila pilih salah satu pilihan yang tersedia"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Sila nyatakan kod locale (contohnya, --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Sila bekalkan kata laluan yang berbeza kerana kata laluan ini telah pwned."
 
@@ -6925,17 +7324,17 @@ msgstr "Sila hidupkan pengimbasan ini dalam pilihan."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Sila fahami bahawa untuk kembalikan ciri Security Admin, anda perlu sediakan PIN Security Admin baharu."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Sila kemas kini pemalam Shield anda kepada versi yang sama dan segerakkan semula."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Sila kemas kini pemalam %s anda kepada versi yang sama dan segerakkan semula."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Sila naik taraf untuk menyokong pengimbasan semua fail pemalam untuk gangguan."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Sila naik taraf langganan Shield Security anda untuk capai Pembina Peraturan Keselamatan Tersuai."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Sila naik taraf pelan %s anda untuk menggunakan ciri ini."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Sila naik taraf pelan ShieldPRO anda untuk menggunakan ciri ini."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Sila naik taraf langganan %s anda untuk capai Pembina Peraturan Keselamatan Tersuai."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Sila naik taraf pelan anda jika anda perlu memberitahu berbilang alamat e-mel."
@@ -7186,14 +7585,17 @@ msgstr "Dikuasakan oleh WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "<strong>Firewall</strong> yang berkuasa sedang memintas dan menyekat trafik berniat jahat."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Perlindungan Berkuasa untuk WordPress, daripada Shield Security"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Perlindungan Berkuasa untuk WordPress, daripada %s"
 
 msgid "Powerful User Password Policies"
 msgstr "Dasar Kata Laluan Pengguna yang Berkuasa"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Pengimbas Malware Berkuasa, Auto-Pembelajaran"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Sistem Keselamatan WordPress Berkuasa, Mudah Digunakan #1 Berkadar"
 
 msgid "Predicted"
 msgstr "Diramalkan"
@@ -7203,6 +7605,9 @@ msgstr "Direktori Sementara Pilihan"
 
 msgid "Preferred temporary directory override."
 msgstr "Penggantian direktori sementara pilihan."
+
+msgid "Prefix"
+msgstr "awalan"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Awalan: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Menghalang pengguna daripada menggunakan sebarang kata laluan yang dijum
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Menghalang pengguna daripada menggunakan sebarang kata laluan yang dijumpai dalam senarai awam kata laluan yang telah digodam."
 
+msgid "Previous"
+msgstr "sebelumnya"
+
+msgid "Previous Period"
+msgstr "Tempoh Sebelumnya"
+
 msgid "Previous Step"
 msgstr "Langkah Sebelumnya"
 
@@ -7318,8 +7729,8 @@ msgstr "Dinaikkan Kepada Pentadbir"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "Lindungi Log Masuk WP Daripada Percubaan Log Masuk Automatik Oleh Bot"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Lindungi Pemalam Shield Anda Daripada Gangguan"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Lindungi Pemalam %s Anda Daripada Gangguan"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Lindungi fail teras WP utama yang biasanya tidak boleh dilindungi."
@@ -7342,6 +7753,9 @@ msgstr "Lindungi pelawat ke tapak anda dengan melaksanakan header respons kesela
 msgid "Protect your %s files"
 msgstr "Lindungi fail %s anda"
 
+msgid "Protected By %s"
+msgstr "Dilindungi Oleh %s"
+
 msgid "Protected Forms"
 msgstr "Borang Dilindungi"
 
@@ -7350,6 +7764,9 @@ msgstr "Melindungi daripada sumber #1 <strong>SPAM Komen</strong>."
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Melindungi <strong>borang pengguna penting</strong> anda seperti Log Masuk, Pendaftaran dan Kata Laluan Hilang."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "Perlindungan untuk borang WordPress disertakan sebagai standard, dan anda akan mempunyai capaian kepada sebahagian, atau semua, integrasi pihak ketiga, bergantung pada pelan %s anda."
 
 msgid "Protection for user accounts."
 msgstr "Perlindungan untuk akaun pengguna."
@@ -7420,9 +7837,6 @@ msgstr "Berikan/Kemas Kini PIN Pentadbir Keselamatan"
 msgid "Provided by %s"
 msgstr "Disediakan oleh %s"
 
-msgid "Provided by Shield"
-msgstr "Disediakan oleh Shield"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Menyediakan kawalan yang lebih halus ke atas sistem Logging Permintaan."
 
@@ -7471,8 +7885,8 @@ msgstr "Rate limiting"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "Had kadar ({{count}}) telah melebihi dengan {{requests}} permintaan dalam masa {{span}} saat."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Jenamakan semula Shield Security sebagai milik anda!"
+msgid "Re-Brand %s as your own!"
+msgstr "Jenamakan Semula %s sebagai milik anda!"
 
 msgid "Re-Install"
 msgstr "Pasang Semula"
@@ -7480,8 +7894,8 @@ msgstr "Pasang Semula"
 msgid "Re-Install It"
 msgstr "Pasang Semula"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Jenamakan semula pemalam Shield Security."
+msgid "Re-brand the %s plugin."
+msgstr "Jenamakan semula pemalam %s."
 
 msgid "Re-enable Protection."
 msgstr "Aktifkan semula Perlindungan."
@@ -7512,6 +7926,9 @@ msgstr "Sebab"
 
 msgid "Reason: %s"
 msgstr "Sebab: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Sebab: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Terima makluman apabila pemalam dinyahaktifkan"
@@ -7651,8 +8068,8 @@ msgstr "Kesalahan Berbaki Dibenarkan"
 msgid "Remember me for %s"
 msgstr "Ingat saya untuk %s"
 
-msgid "Remember to include %s or %s"
-msgstr "Ingat untuk sertakan %s atau %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Ingat untuk sertakan %1$s atau %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "Penyingkiran faktor MFA untuk pengguna mesti dilakukan oleh Security Admin"
@@ -7708,6 +8125,9 @@ msgstr "Dibaiki"
 msgid "Repaired item found in the scan."
 msgstr "Item yang ditemui dalam imbasan telah dibaiki."
 
+msgid "Repairs"
+msgstr "Pembaikan"
+
 msgid "Repeated Human SPAM"
 msgstr "SPAM Manusia Berulang"
 
@@ -7735,8 +8155,8 @@ msgstr "Pilihan Laporan"
 msgid "Report Sent"
 msgstr "Laporan Dihantar"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Laporan Dihantar (melalui {{medium}})."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Laporan Dihantar ({{type}} melalui {{medium}})."
 
 msgid "Report Title"
 msgstr "Tajuk Laporan"
@@ -8107,17 +8527,17 @@ msgstr "Semakan Spam Lulus"
 msgid "SPAM Detection"
 msgstr "Pengesanan SPAM"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "SPAM dan pendaftaran pengguna pukal oleh bot disekat oleh silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "SPAM dan pendaftaran pengguna secara pukal oleh bot disekat oleh %s."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM dan pendaftaran pengguna pukal oleh bot tidak disekat oleh silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "SPAM dan pendaftaran pengguna secara pukal oleh bot tidak disekat oleh %s."
 
 msgid "SPAM blocking"
 msgstr "Penyekatan SPAM"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "SPAM dilakukan dalam 2 cara utama: oleh bot dan manusia."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "SPAM dilakukan oleh 2 jenis pelawat: bot automatik dan manusia."
 
 msgid "SQL Queries"
 msgstr "Pertanyaan SQL"
@@ -8167,6 +8587,9 @@ msgstr "Imbas Kelemahan Dalam Pemalam & Tema"
 msgid "Scan Frequency"
 msgstr "Kekerapan Imbasan"
 
+msgid "Scan Issues"
+msgstr "Isu Imbasan"
+
 msgid "Scan Item Delete Success"
 msgstr "Penghapusan Item Imbasan Berjaya"
 
@@ -8200,6 +8623,9 @@ msgstr "Keputusan Imbasan"
 msgid "Scan This QR Code"
 msgstr "Imbas Kod QR Ini"
 
+msgid "Scan Type"
+msgstr "Jenis Imbasan"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Imbas semua aset WordPress anda untuk kelemahan keselamatan yang diketahui."
 
@@ -8218,11 +8644,11 @@ msgstr "Imbas tapak anda untuk perubahan fail, perisian hasad dan kelemahan."
 msgid "Scanning Frequency"
 msgstr "Kekerapan Pengimbasan"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "Pengimbasan Fail Pemalam & Tema hanya tersedia dengan ShieldPRO."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Pengimbasan Fail Pemalam & Tema tersedia hanya dengan versi Pro %s."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "Pengimbasan untuk Malware PHP hanya tersedia dengan ShieldPRO."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "Pengimbasan Perisian Hasad PHP tersedia hanya dengan versi Pro %s."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "Pengimbasan menggunakan snapshot tempatan. Naik taraf pelan anda untuk menggunakan snapshot bersumber ramai dan tambah sokongan untuk pemalam premium."
@@ -8305,14 +8731,17 @@ msgstr "Skor adalah anggaran pemberat untuk setiap komponen."
 msgid "Script Name To Match"
 msgstr "Nama Skrip Untuk Dipadankan"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Aktifkan dan urus lesen ShieldPRO anda dengan lancar tanpa sebarang kunci lesen."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Aktifkan dan urus lesen %s anda dengan lancar tanpa sebarang kunci lesen."
 
 msgid "Search %s"
 msgstr "Cari %s"
 
 msgid "Search Engine"
 msgstr "Enjin Carian"
+
+msgid "Search Help"
+msgstr "Cari Bantuan"
 
 msgid "Search engine visibility"
 msgstr "Keterlihatan enjin carian"
@@ -8374,6 +8803,9 @@ msgstr "Tamat Masa Security Admin"
 msgid "Security Admin is now active"
 msgstr "Security Admin kini aktif"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Security Admin menyediakan lapisan pengesahan tambahan yang memastikan hanya pentadbir yang disahkan boleh membuat perubahan kepada keselamatan tapak anda."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Sekatan Security Admin telah dikeluarkan"
 
@@ -8385,6 +8817,9 @@ msgstr "Sesi Security Admin telah tamat masa."
 
 msgid "Security Admins"
 msgstr "Pentadbir Keselamatan"
+
+msgid "Security Alert"
+msgstr "Amaran Keselamatan"
 
 msgid "Security Analysis"
 msgstr "Analisis Keselamatan"
@@ -8503,11 +8938,11 @@ msgstr "Pilih Penyedia Borang Pengguna Yang Perlu Diperiksa Untuk Pendaftaran da
 msgid "Select The User Forms Provider That You Use"
 msgstr "Pilih Penyedia Borang Pengguna Yang Anda Gunakan"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Pilih E-mel %1$s Yang Perlu Dihantar Menggunakan %2$s"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Pilih Kawasan Yang Perlu Diimbas"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Pilih E-mel Shield Mana Yang Perlu Dihantar Menggunakan SureSend"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Pilih Jenis Permintaan Yang Hendak Dikecualikan"
@@ -8635,6 +9070,9 @@ msgstr "Sesi"
 msgid "Sessions Table Filters"
 msgstr "Tapis Jadual Sesi"
 
+msgid "Set Security Badge."
+msgstr "Tetapkan Lencana Keselamatan."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Tetapkan had kepada kesalahan yang dibenarkan sebelum IP pelawat disekat secara automatik."
 
@@ -8674,161 +9112,23 @@ msgstr "Sediakan pemalam untuk dijalankan sebagai MU-plugin bagi mencegah penyah
 msgid "Severity"
 msgstr "Keterukan"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Penyedia 2FA Shield Didayakan"
-
-msgid "Shield Anti-Spam"
-msgstr "Anti-Spam Shield"
-
 msgid "Shield Deactivated"
 msgstr "Shield Dinyahaktifkan"
 
 msgid "Shield Events & Stats"
 msgstr "Peristiwa & Statistik Shield"
 
-msgid "Shield Info"
-msgstr "Info Shield"
-
-msgid "Shield Option Key"
-msgstr "Kunci Pilihan Shield"
-
-msgid "Shield Pro store"
-msgstr "Kedai Shield Pro"
-
-msgid "Shield Scanners."
-msgstr "Pengimbas Shield."
-
-msgid "Shield Security Home Page"
-msgstr "Halaman Utama Shield Security"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Pemalam Shield Security – keperluan minimum tapak tidak dipenuhi"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro tersedia daripada kedai dalam talian kami."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Pemalam Shield Security dipasang tetapi tidak diaktifkan."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Pemalam Shield Security perlu diselaraskan."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Pemalam Shield Security tidak dikesan dalam penyegerakan terakhir."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Versi pemalam Shield Security tidak selari."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Penyedia 2FA Pengguna Shield Diaktifkan"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "2FA Pengguna Shield: Mempunyai Mana-mana Aktif"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Label Putih Shield"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield boleh berintegrasi secara automatik dengan pemalam pihak ketiga."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield boleh melindungi borang log masuk dan pendaftaran pihak ketiga daripada Bot secara automatik."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield tidak dapat menentukan sama ada JS silentCAPTCHA dimuatkan dengan betul pada tapak anda."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield biasanya tidak mengimbas komen daripada pengguna yang log masuk atau berdaftar."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield biasanya tidak mengimbas komen daripada pengguna yang log masuk atau berdaftar. Nyatakan peranan pengguna di sini yang tidak perlu diimbas."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Definisi peristiwa Shield kosong atau tidak dalam format yang betul."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield tidak dipasang pada tapak ini."
-
-msgid "Shield plugin activated"
-msgstr "Pemalam Shield diaktifkan"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Pemalam Shield tidak dapat diaktifkan"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Pemalam Shield tidak dapat dinyahaktifkan"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Pemalam Shield tidak dapat dipasang"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Pemalam Shield tidak dapat dikemas kini"
-
-msgid "Shield plugin deactivated"
-msgstr "Pemalam Shield dinyahaktifkan"
-
-msgid "Shield plugin installed"
-msgstr "Pemalam Shield dipasang"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Pemalam Shield dipasang, tetapi tidak aktif."
-
-msgid "Shield plugin updated"
-msgstr "Pemalam Shield dikemas kini"
-
-msgid "Shield scans cannot execute."
-msgstr "Imbasan Shield tidak dapat dilaksanakan."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "Versi Shield pada tapak tidak sepadan dengan pelayan ini."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield akan mengimbas pemalam pihak ketiga anda secara automatik untuk memeriksa sama ada integrasi terbina dalam tersedia."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield akan menangguhkan naik taraf sehingga kemas kini baru telah tersedia untuk bilangan hari yang ditetapkan."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Integrasi MainWP Shield tidak didayakan untuk tapak ini."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Enjin Peraturan Shield tidak berjalan."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Sistem silentCAPTCHA Shield menggunakan ALTCHA, yang mencabar bot untuk melakukan kerja kompleks."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "Skor Reputasi IP ShieldNET"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "Ciri ShieldPRO"
-
-msgid "ShieldPRO Free Trial"
-msgstr "Percubaan Percuma ShieldPRO"
-
-msgid "ShieldPRO License Cleared"
-msgstr "Lesen ShieldPRO Dikosongkan"
-
-msgid "ShieldPRO License Management"
-msgstr "Pengurusan Lesen ShieldPRO"
-
-msgid "ShieldPRO Premium Security"
-msgstr "Keselamatan Premium ShieldPRO"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO tidak diaktifkan pada tapak ini."
-
-msgid "ShieldPRO license check failed."
-msgstr "Semakan lesen ShieldPRO gagal."
-
-msgid "ShieldPRO license check was successful."
-msgstr "Pemeriksaan lesen ShieldPRO berjaya."
 
 msgid "Should be uninstalled"
 msgstr "Perlu dinyahpasang"
@@ -8923,20 +9223,23 @@ msgstr "URL Tapak"
 msgid "Site URL Changed"
 msgstr "URL Tapak Ditukar"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "URL tapak ditukar: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "URL tapak ditukar: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Tapak ditambah ke senarai putih eksport: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "E-mel tapak ditukar: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "E-mel tapak ditukar: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Tapak gagal disegerakkan"
 
 msgid "Site has been locked down!"
 msgstr "Tapak telah dikunci!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "Tapak sudah diaktifkan tetapi pengesahan lesen gagal."
 
 msgid "Site lock down has been lifted!"
 msgstr "Penguncian tapak telah ditarik balik!"
@@ -8946,6 +9249,9 @@ msgstr "Tapak dikeluarkan daripada senarai putih eksport: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Laman berjaya disegerakkan"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "Tapak sudah diaktifkan dan lesen disahkan dengan jayanya."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Tapak telah diletakkan dalam lockdown oleh {{user_login}}."
@@ -8965,8 +9271,8 @@ msgstr "Saiz"
 msgid "Slug"
 msgstr "Slug"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug Dikemas Kini: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Slug Dikemas Kini: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Slug untuk ID Siaran {{post_id}} dikemas kini daripada '{{slug_old}}' kepada '{{slug_new}}'."
@@ -9049,8 +9355,8 @@ msgstr "Maaf, imbasan ini tidak tersedia."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Maaf, anda tidak mempunyai capaian untuk jalankan pertanyaan MAL{ai}, sila naik taraf pelan anda."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Maaf, anda perlu naik taraf keahlian Shield Security anda untuk capai integrasi MainWP."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Maaf, anda perlu naik taraf keahlian %s anda untuk capai integrasi MainWP."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "Bercakap tentang pelanggaran, kelemahan dalam pemalam dan tema yang membenarkan pelanggaran berlaku, adalah sasaran utama untuk serangan jadi kita mesti kenal pasti mereka lebih awal."
@@ -9100,8 +9406,11 @@ msgstr "Statistik"
 msgid "Status"
 msgstr "Status"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Status ditukar: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Status ditukar: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Semakan status lengkap."
 
 msgid "Store directory could not be created: %s"
 msgstr "Direktori simpanan tidak dapat dicipta: %s"
@@ -9133,8 +9442,8 @@ msgstr "Berjaya disambungkan ke pelayan lesen."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Berjaya menghantar amaran e-mel Sekatan Firewall kepada: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Berjaya menghantar e-mel (jenis: {{slug}}) kepada '{{email}}' menggunakan SureSend."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Berjaya menghantar e-mel (jenis: {{slug}}) kepada '{{email}}' menggunakan %s."
 
 msgid "Summary"
 msgstr "ringkasan"
@@ -9165,15 +9474,6 @@ msgstr "E-mel SureSend"
 
 msgid "SureSend Emails."
 msgstr "E-mel SureSend."
-
-msgid "SureSend Fail"
-msgstr "SureSend Gagal"
-
-msgid "SureSend Success"
-msgstr "SureSend Berjaya"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend adalah perkhidmatan penghantaran e-mel khusus daripada Shield Security."
 
 msgid "Suspend Account"
 msgstr "Gantung Akaun"
@@ -9229,14 +9529,14 @@ msgstr "Hidupkan ciri CrowdSec untuk sekat IP berniat jahat yang diketahui (sumb
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Menghidupkan ciri ini akan menyekat semua trafik ke tapak anda. Segala-galanya akan disekat (termasuk Bot Google)."
 
+msgid "Sync %s"
+msgstr "Segerak %s"
+
 msgid "Sync Required"
 msgstr "Penyegerakan Diperlukan"
 
 msgid "Sync Required."
 msgstr "Penyegerakan Diperlukan."
-
-msgid "Sync Shield"
-msgstr "Segerakkan Shield"
 
 msgid "System Info"
 msgstr "Info Sistem"
@@ -9253,8 +9553,8 @@ msgstr "Jadual dipadam dan ia akan dicipta semula sekarang."
 msgid "Tagline"
 msgstr "baris slogan"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Tagline ditukar: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Tagline ditukar: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Ambil baris baharu untuk setiap entri."
@@ -9268,11 +9568,11 @@ msgstr "Ambil baris baharu untuk setiap laluan yang disenarai putih."
 msgid "Take a new line per rule."
 msgstr "Ambil baris baharu untuk setiap peraturan."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Manfaatkan kecerdasan yang dikumpulkan di seluruh rangkaian Shield untuk melindungi tapak WordPress anda dengan lebih baik"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Manfaatkan kecerdasan yang dikumpul di seluruh rangkaian %s untuk melindungi tapak WordPress anda dengan lebih baik"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Sokongan teknikal untuk Shield adalah eksklusif kepada pelanggan Pro."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "Sokongan teknikal untuk %s adalah eksklusif untuk pelanggan Pro."
 
 msgid "Temp Dir"
 msgstr "Dir Temp"
@@ -9295,17 +9595,17 @@ msgstr "Ujian WP Cron berjalan dengan jayanya."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Ujian gagal dan kami tidak dapat menentukan keadaan Sijil SSL anda secara automatik."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Terima Kasih Kerana Memilih Shield Security"
+msgid "Thank You For Choosing %s"
+msgstr "Terima Kasih Kerana Memilih %s"
 
 msgid "Thank You."
 msgstr "Terima Kasih."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Terima kasih kerana memilih Shield Security (Percuma)."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Terima kasih kerana memilih %s (Percuma)."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Terima kasih kerana memilih Shield Security PRO."
+msgid "Thank you for choosing %s."
+msgstr "Terima kasih kerana memilih %s."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Terima kasih kerana meluangkan masa untuk melalui Wizard Persediaan Berpandu."
@@ -9325,11 +9625,23 @@ msgstr "Terima kasih."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Perasaan Hangat Dan Selesa Yang Datang Daripada Menyokong Pembangunan Masa Depan"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "Direktori %s adalah seperti direktori %s dan banyak fail bukan WordPress disimpan di sana."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "Direktori %1$s adalah seperti direktori %2$s dan banyak fail bukan WordPress disimpan di sana."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s sepatutnya berukuran %2$s."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "Lencana %s menunjukkan kepada pelanggan anda bahawa anda mengambil keselamatan dengan serius."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "Direktori %s adalah wild-west dan banyak pemalam dan tema menggunakannya untuk menyimpan fail kerja."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Pilihan %s dilumpuhkan, menghapuskan perlindungan brute force untuk borang log masuk, daftar dan kata laluan hilang."
+
+msgid "The %s option is enabled."
+msgstr "Pilihan %s didayakan."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "Pemalam %s biasanya tidak menggunakan Cookies untuk pelawat tapak yang tidak berdaftar."
@@ -9337,14 +9649,29 @@ msgstr "Pemalam %s biasanya tidak menggunakan Cookies untuk pelawat tapak yang t
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "Pemalam %s mempunyai ciri Audit Trail yang akan log maklumat berikut:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "Pemalam %s baru sahaja dinyahaktifkan."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "Pemalam %s tidak pernah menyimpan sebarang maklumat sensitif yang boleh mengenal pasti secara peribadi dalam sebarang cookie pada bila-bila masa."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "Pemalam %s di tapak ini perlu dinaik taraf."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "Pemalam %s di tapak ini memerlukan lesen PRO yang aktif."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "Versi pemalam %s di tapak klien adalah lebih baharu daripada pelayan ini."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "Versi pemalam %s pada tapak klien adalah lebih lama daripada pelayan ini dan mesti dikemas kini."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "Parameter pertanyaan %s telah disekat untuk melindungi daripada memancing nama pengguna / pengarang."
 
-msgid "The %s should measure %s."
-msgstr "%s sepatutnya mengukur %s."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "Sistem %s menggunakan ALTCHA yang mencabar bot untuk melakukan kerja kompleks."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "Fungsi 'wp_mail' telah dipanggil daripada fail '{{bt_file}}' pada baris {{bt_line}}."
@@ -9388,8 +9715,8 @@ msgstr "Tajuk Menu Utama Pemalam. Jika dibiarkan kosong, \"%s\" akan digunakan."
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "Tajuk Menu Utama Pemalam. Jika dibiarkan kosong, Nama Pemalam akan digunakan."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "Pemalam MainWP Security tidak memenuhi keperluan minimum Shield."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "Pemalam MainWP Security tidak memenuhi keperluan minimum %s."
 
 msgid "The Name Of The Plugin"
 msgstr "Nama Pemalam"
@@ -9415,32 +9742,14 @@ msgstr "Sistem Security Admin melindungi WordPress dan pemalam %s daripada gangg
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Sistem Security Admin melindungi pemalam %s daripada gangguan atau perubahan tidak sengaja oleh pentadbir WordPress lain."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Security Administrator telah menyekat penggunaan ciri override e-mel."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "Lencana Keselamatan akan dipaparkan kepada pelawat anda"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "Lencana Keselamatan tidak akan dipaparkan kepada pelawat anda"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "Pemalam Shield Security di tapak ini perlu dinaik taraf."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Pangkalan data Shield perlu dibaiki kerana ciri tertentu tidak akan tersedia tanpa pangkalan data yang sah."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Pemalam Shield baru sahaja dinyahaktifkan."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "Pemalam Shield di tapak ini tidak mempunyai lesen ShieldPRO yang aktif."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "Versi pemalam Shield di tapak klien lebih baharu daripada pelayan ini."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "Versi pemalam Shield di tapak klien lebih lama daripada pelayan ini dan mesti dikemas kini."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "Baris Tag Pemalam"
@@ -9487,8 +9796,8 @@ msgstr "Kod negara tiada."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "Skor kumulatif untuk keseluruhan konfigurasi %s anda"
 
-msgid "The current request has a valid Shield user session"
-msgstr "Permintaan semasa mempunyai sesi pengguna Shield yang sah"
+msgid "The current request has a valid %s user session"
+msgstr "Permintaan semasa mempunyai sesi pengguna %s yang sah"
 
 msgid "The data provided was inconsistent."
 msgstr "Data yang diberikan tidak konsisten."
@@ -9544,8 +9853,8 @@ msgstr "Item berikut telah ditemui."
 msgid "The following options will be restricted:"
 msgstr "Pilihan berikut akan dihadkan:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Jenis borang pengguna berikut dilindungi oleh silentCAPTCHA: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Jenis borang pengguna berikut dilindungi oleh %1$s: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL halaman utama telah ditukar daripada '{{from}}' kepada '{{to}}'."
@@ -9559,8 +9868,8 @@ msgstr "Label mesti abjad angka tanpa aksara khas"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "Had maksimum kesalahan yang dibenarkan sebelum penyekatan adalah munasabah: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "Had maksimum pengekalan log (%s) boleh ditingkatkan dengan menaik taraf pelan ShieldPRO anda."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "Had maksimum pengekalan log (%1$s) boleh ditingkatkan dengan menaik taraf pelan %2$s anda."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "Bilangan maksimum permintaan yang dibenarkan dalam had masa yang diberikan."
@@ -9625,8 +9934,8 @@ msgstr "Sumber pilihan ialah %s kerana ini tidak boleh dipalsukan."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Imbasan sebelumnya sama ada tidak mengesan sebarang item yang memerlukan perhatian anda atau ia telah dibaiki."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
-msgstr "Tujuannya adalah untuk tingkatkan kebolehpercayaan e-mel WordPress untuk e-mel kritikal."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
+msgstr "Tujuannya adalah untuk meningkatkan kebolehpercayaan e-mel WordPress untuk e-mel kritikal."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
 msgstr "Tujuan Firewall adalah untuk mengunci tapak terhadap permintaan berniat jahat, hadkan capaian kepada sumber tertentu, dan bertindak balas dengan sewajarnya kepada sebarang permintaan yang kelihatan berniat jahat."
@@ -9651,12 +9960,6 @@ msgstr "Tetapan ini menghalang mana-mana tapak web luaran daripada membenamkan t
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "Tetapan ini menghalang mana-mana tapak web luaran daripada membenamkan tapak anda dalam iFrame. Ini berguna untuk mencegah apa yang dipanggil serangan ClickJack."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "Pilihan silentCAPTCHA dilumpuhkan, menghapuskan perlindungan brute force untuk borang log masuk, daftar dan kata laluan hilang."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "Pilihan silentCAPTCHA didayakan."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL tapak telah ditukar daripada '{{from}}' kepada '{{to}}'."
@@ -9883,6 +10186,9 @@ msgstr "Terdapat masalah menyediakan Cabaran Pengesahan Passkey."
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Terdapat masalah menyediakan Cabaran Pendaftaran Passkey."
 
+msgid "There was a problem processing the batched request."
+msgstr "Terdapat masalah memproses permintaan berkelompok."
+
 msgid "There was a problem removing this passkey"
 msgstr "Terdapat masalah mengeluarkan passkey ini"
 
@@ -9937,9 +10243,6 @@ msgstr "Mereka menyerang tapak anda, menyelidik maklumat, dan mengeksploitasi ke
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Mereka merosakkan borang log masuk dengan memecahkan Javascript dan mengubah pengalaman pengguna menjadi mimpi ngeri."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Fikirkan 'offenses' sebagai hanya kaunter untuk bilangan kali pelawat melakukan sesuatu yang buruk."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Fikirkannya sebagai 'Hadkan Percubaan Log Masuk' tetapi digunakan merentasi semua ciri di tapak WordPress, bukan hanya halaman log masuk."
 
@@ -9951,6 +10254,9 @@ msgstr "Ini Anda"
 
 msgid "This Page"
 msgstr "Halaman Ini"
+
+msgid "This Period"
+msgstr "Tempoh Ini"
 
 msgid "This Server"
 msgstr "Pelayan Ini"
@@ -9967,8 +10273,8 @@ msgstr "Tindakan ini tidak tersedia untuk profil anda pada masa ini."
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Aktiviti ini akan direkodkan terhadap alamat IP anda dan anda mungkin disekat sepenuhnya daripada capaian tapak selanjutnya jika aktiviti serupa diulang."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Ini juga bertindak sebagai pautan afiliasi jika anda menjalankan ShieldPRO supaya anda boleh peroleh ganjaran untuk setiap rujukan."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Ini juga bertindak sebagai pautan ahli gabungan jika anda menjalankan %s supaya anda boleh memperoleh ganjaran untuk setiap rujukan."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Ini kelihatan seperti spam kerana ia gagal %s pemeriksaan perlindungan AntiBot."
@@ -10011,6 +10317,9 @@ msgstr "Ciri ini hanya tersedia semasa Traffic Logger aktif."
 
 msgid "This feature isn't currently enabled."
 msgstr "Ciri ini tidak didayakan pada masa ini."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Ciri ini bergantung pada PIN rahsia (yang anda cipta di bawah), yang akan anda gunakan untuk mengesahkan identiti anda dengan pemalam %s."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Fail ini mengandungi kod berniat jahat - ia adalah malware!"
@@ -10171,11 +10480,20 @@ msgstr "Tetapan ini akan dilumpuhkan secara automatik selepas %s dan semua permi
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Ini perlu digunakan dengan berhati-hati dan anda hanya perlu menyediakan nama parameter yang mesti anda kecualikan"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Tapak ini nampaknya sebahagian daripada Rangkaian Shield."
+msgid "This site appears to be part of a %s Network."
+msgstr "Tapak ini nampaknya sebahagian daripada Rangkaian %s."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Tapak ini pada masa ini tidak boleh membuat permintaan HTTP kepada dirinya sendiri."
+
+msgid "This site is already activated for this account."
+msgstr "Tapak ini sudah diaktifkan untuk akaun ini."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Tapak ini sudah diaktifkan. Menyemak semula dan menyegerakkan keadaan lesen tempatan..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Langkah ini mungkin yang paling penting kerana ia membantu memastikan %s sentiasa dapat cari IP Pelawat yang betul."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Tema ini tidak aktif dan perlu dinyahpasang."
@@ -10222,8 +10540,8 @@ msgstr "Ini akan menyekat serangan pemotongan medan dalam parameter aplikasi."
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Ini akan menyekat sql dalam parameter aplikasi (contohnya %s, dan lain-lain)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Ini akan menyebabkan URL %s dan %s mengembalikan ralat HTTP 404 semasa anda tidak log masuk."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Ini akan menyebabkan URL %1$s dan %2$s mengembalikan ralat HTTP 404 apabila tidak log masuk."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Ini akan menggunakan kredit SMS anda, jika ada, sama seperti mana-mana SMS 2FA standard."
@@ -10242,6 +10560,9 @@ msgstr "Ini akan menghadkan keupayaan pentadbir WordPress daripada menukar tetap
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Ini akan menghadkan keupayaan pentadbir WordPress daripada mencipta, mengubah suai atau mempromosikan pentadbir lain."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Wizard ini akan membimbing anda melalui beberapa ciri utama %s, untuk membolehkan anda bermula dalam masa kurang daripada 3 minit."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Ini berfungsi kerana perangkak web yang sah menghormati arahan 'robots.txt' dan 'nofollow'."
@@ -10273,17 +10594,17 @@ msgstr "cap masa"
 msgid "Timezone"
 msgstr "Zon Waktu"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Tajuk Dikemas Kini: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Tajuk Dikemas Kini: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Tajuk ditukar: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Tajuk ditukar: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Tajuk untuk ID Siaran {{post_id}} dikemas kini daripada '{{title_old}}' kepada '{{title_new}}'."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Untuk tangani ini kami cipta sistem kami sendiri yang dipanggil silentCAPTCHA."
+msgid "To address this we created our own system called %s."
+msgstr "Untuk tangani ini kami mencipta sistem kami sendiri yang dipanggil %s."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Untuk menyembunyikan halaman wp-login.php anda daripada serangan brute force dan percubaan penggodaman - jika halaman log masuk anda tidak dapat dijumpai, tiada siapa boleh log masuk."
@@ -10303,14 +10624,17 @@ msgstr "Untuk mendaftarkan peranti Yubikey baharu, masukkan Kata Laluan Sekali S
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Untuk membuang peranti Yubikey, masukkan ID peranti yang didaftarkan dan simpan."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Untuk menyelesaikan ini, anda boleh maklumkan %s alamat IP anda sekarang, dan ini membolehkannya mengkonfigurasi sumber IP yang optimum."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Untuk kekal sihat melibatkan pengimbasan aktif fail untuk perubahan yang tidak dijangka dan pengesanan fail yang tidak sepatutnya ada."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Untuk menggunakan Passkeys, pemasangan PHP anda mesti memuatkan 1 daripada sambungan berikut: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Untuk mengesahkan e-mel, tapak anda menghantar permintaan ke API ShieldNET dan mungkin menyebabkan kelewatan kecil semasa permintaan pendaftaran pengguna."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Untuk mengesahkan e-mel, tapak anda menghantar permintaan ke API %s dan mungkin menyebabkan kelewatan kecil semasa permintaan pendaftaran pengguna."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Untuk lihat semua log daripada alamat IP ini gunakan alat Log Trafik, kerana log di sini terhad kepada %s entri."
@@ -10326,6 +10650,9 @@ msgstr "Togol sama ada tetapan ini disertakan dalam operasi import dan eksport"
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Terlalu banyak percubaan pengesahan 2FA - sila log masuk semula."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Terlalu banyak permintaan berkelompok. Maksimum yang dibenarkan ialah %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Terlalu banyak permintaan daripada alamat IP anda telah mencetuskan pertahanan automatik tapak."
@@ -10399,11 +10726,35 @@ msgstr "Permintaan trafik sedang dilog, menjadikannya lebih mudah untuk menjejak
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Permintaan trafik tidak dilog, menjadikannya lebih sukar untuk menjejak isu."
 
+msgid "Translation Download Failed"
+msgstr "Muat Turun Terjemahan Gagal"
+
+msgid "Translation Downloaded"
+msgstr "Terjemahan Dimuat Turun"
+
+msgid "Translation download queue is empty."
+msgstr "Baris gilir muat turun terjemahan kosong."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Terjemahan berjaya dimuat turun: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Fail terjemahan dimuat turun untuk locale: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Terjemahan Dalam Baris Gilir"
+
+msgid "Translations have been downloaded."
+msgstr "Terjemahan telah dimuat turun."
+
 msgid "Trash"
 msgstr "sampah"
 
 msgid "Trashed"
 msgstr "Dibuang"
+
+msgid "Trend"
+msgstr "Trend"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Cuba memuatkan skrip PHP WordPress yang tidak sah '{{script}}'."
@@ -10417,11 +10768,17 @@ msgstr "Peranan Pengguna Dipercayai"
 msgid "Trusted Users"
 msgstr "Pengguna Dipercayai"
 
+msgid "Try Pro For Free"
+msgstr "Cuba Pro Secara Percuma"
+
 msgid "Turn Off"
 msgstr "Matikan"
 
 msgid "Turn On"
 msgstr "hidupkan"
+
+msgid "Turn On Security Admin"
+msgstr "Hidupkan Pentadbir Keselamatan"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Hidupkan Ciri Rate Limiting"
@@ -10441,8 +10798,11 @@ msgstr "Hidupkan/matikan tetapan Label Putih anda."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Matikan Mime-Sniff Pelayar"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Hidupkan Sambungan Terbina Dalam Shield Untuk Pemasangan Pelayan Dan Klien MainWP"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "Hidupkan Sambungan Terbina Dalam %s Untuk Pemasangan Pelayan Dan Klien MainWP"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Menghidupkan ini menambah lencana lut sinar pada pengaki tapak web anda."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Pengesahan Log Masuk Dua Faktor Melalui %s"
@@ -10516,14 +10876,11 @@ msgstr "Tidak Diklasifikasikan"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Fahami cara keluarkan Google Authenticator"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Malangnya U2F telah dilumpuhkan secara lalai pada kebanyakan pelayar moden, tetapi ia masih disediakan di sini untuk keserasian ke belakang."
-
 msgid "Unidentified"
 msgstr "Tidak Dikenal Pasti"
 
-msgid "Uninstall Shield"
-msgstr "Nyahpasang Shield"
+msgid "Uninstall %s"
+msgstr "Nyahpasang %s"
 
 msgid "Uninstalled"
 msgstr "Dinyahpasang"
@@ -10539,6 +10896,9 @@ msgstr "Tidak diketahui - memerlukan WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Nama Tidak Diketahui"
+
+msgid "Unknown activation error."
+msgstr "Ralat pengaktifan tidak diketahui."
 
 msgid "Unknown item"
 msgstr "Item tidak diketahui"
@@ -10582,6 +10942,9 @@ msgstr "Jenis hasil tidak disokong."
 msgid "Until"
 msgstr "Sehingga"
 
+msgid "Update %s"
+msgstr "Kemas Kini %s"
+
 msgid "Update Available"
 msgstr "Kemas Kini Tersedia"
 
@@ -10596,9 +10959,6 @@ msgstr "Kemas Kini Sekarang Untuk Kekalkan Keselamatan Anda Terkini Dengan Ciri 
 
 msgid "Update Required"
 msgstr "Kemas Kini Diperlukan"
-
-msgid "Update Shield"
-msgstr "Kemas Kini Shield"
 
 msgid "Update This Rule"
 msgstr "Kemas Kini Peraturan Ini"
@@ -10633,14 +10993,14 @@ msgstr "Naik Taraf Diperlukan"
 msgid "Upgrade To"
 msgstr "Naik Taraf Kepada"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Naik Taraf Kepada %s Pro Sekarang"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Naik Taraf Untuk Cipta Laporan Tersuai"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Naik Taraf Ke Shield Pro Sekarang"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Naik Taraf Keahlian ShieldPRO Anda"
+msgid "Upgrade Your %s Membership"
+msgstr "Naik Taraf Keahlian %s Anda"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Naik taraf pelan anda untuk menyokong pengimbasan fail tema untuk gangguan."
@@ -10648,8 +11008,8 @@ msgstr "Naik taraf pelan anda untuk menyokong pengimbasan fail tema untuk ganggu
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Naik taraf pelan anda untuk menyokong kawasan pengimbasan ini."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Dinaik Taraf: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Dinaik Taraf: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Muat naik fail gagal"
@@ -10657,8 +11017,11 @@ msgstr "Muat naik fail gagal"
 msgid "Uptime Monitoring"
 msgstr "Pemantauan Uptime"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Gunakan %s untuk menguji permintaan berlebihan dalam selang %s minit."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "Gunakan %1$s untuk menguji permintaan berlebihan dalam selang %2$s minit."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Gunakan %s Untuk Sekat SPAM Komen Bot"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "Gunakan CloudFlare Sebagai Sumber Data Geo?"
@@ -10681,8 +11044,8 @@ msgstr "Gunakan had permintaan maksimum yang lebih besar untuk mengurangkan risi
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Gunakan selang yang lebih kecil untuk mengurangkan risiko menyekat pelawat yang sah."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "Penggunaan silentCAPTCHA untuk mengehadkan percubaan log masuk pada borang pengguna tidak dihidupkan - anda perlu dayakannya dalam Zon Keselamatan Log Masuk."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Penggunaan %s untuk mengehadkan percubaan log masuk pada borang pengguna tidak dihidupkan - anda perlu dayakannya dalam Zon Keselamatan Log Masuk."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Penggunaan ciri ini amat disyorkan."
@@ -10690,11 +11053,11 @@ msgstr "Penggunaan ciri ini amat disyorkan."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Penggunaan ciri ini akan tulis ganti pilihan sedia ada dan gantikan dengan yang daripada Tapak Import Induk."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Gunakan laluan relatif daripada URL laman utama anda contohnya %s mengubah hala ke laman utama anda (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Gunakan laluan relatif daripada URL laman utama anda contohnya %1$s mengalihkan ke laman utama anda (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Gunakan silentCAPTCHA Untuk Sekat SPAM Komen Bot"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Gunakan kotak Super Search untuk cari apa sahaja dalam pemalam %s, termasuk pilihan, alamat IP, alatan, bantuan, dll."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Gunakan pilihan pengecualian untuk benarkan capaian tanpa nama kepada endpoint API tertentu."
@@ -10702,14 +11065,17 @@ msgstr "Gunakan pilihan pengecualian untuk benarkan capaian tanpa nama kepada en
 msgid "Use the link above to create a new one."
 msgstr "Gunakan pautan di atas untuk cipta yang baharu."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Gunakan awalan ini dalam kotak carian untuk tapis keputusan."
+
 msgid "Use this feature with care."
 msgstr "Gunakan ciri ini dengan berhati-hati."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Gunakan fail ini untuk salin pilihan daripada tapak ini ke tapak lain"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Gunakan pilihan ini untuk melumpuhkan sepenuhnya semua Perlindungan Shield yang aktif."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Gunakan pilihan ini untuk lumpuhkan sepenuhnya semua Perlindungan %s yang aktif."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Gunakan pilihan ini untuk togol on/off sama ada Peraturan CSP tersuai anda dikenakan."
@@ -10897,11 +11263,11 @@ msgstr "Permintaan kata laluan hilang pengguna disekat."
 msgid "User must be logged-in."
 msgstr "Pengguna mesti log masuk."
 
+msgid "User not found."
+msgstr "Pengguna tidak dijumpai."
+
 msgid "User registration request blocked."
 msgstr "Permintaan pendaftaran pengguna disekat."
-
-msgid "User session deleted"
-msgstr "Sesi pengguna dihapus"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "Sesi pengguna telah tamat tempoh ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Pengguna akan dipaksa menetapkan semula kata laluan mereka selepas bilan
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Menggunakan kamus SPAM pihak ketiga untuk mengesan SPAM komen berasaskan manusia."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Menggunakan teknologi Snapshot eksklusif Shield, perubahan kepada pentadbir yang dibuat secara langsung pada pangkalan data WP juga akan dikesan!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "Menggunakan teknologi Snapshot eksklusif %s, perubahan kepada pentadbir yang dibuat secara langsung pada pangkalan data WP juga akan dikesan!"
 
 msgid "Valid license couldn't be found."
 msgstr "Lesen yang sah tidak dapat dijumpai."
@@ -11047,11 +11413,11 @@ msgstr "Lihat Semua"
 msgid "View All Security Grades"
 msgstr "Lihat Semua Gred Keselamatan"
 
-msgid "View As ShieldFREE"
-msgstr "Lihat Sebagai ShieldFREE"
+msgid "View As %s"
+msgstr "Lihat Sebagai %s"
 
-msgid "View As ShieldPRO"
-msgstr "Lihat Sebagai ShieldPRO"
+msgid "View As Free Version"
+msgstr "Lihat Sebagai Versi Percuma"
 
 msgid "View Comment"
 msgstr "Lihat Komen"
@@ -11071,6 +11437,9 @@ msgstr "Lihat Kandungan Fail"
 msgid "View File Details"
 msgstr "Lihat Perincian Fail"
 
+msgid "View Full Report"
+msgstr "Lihat Laporan Penuh"
+
 msgid "View IP Reputation Option"
 msgstr "Lihat Pilihan Reputasi IP"
 
@@ -11087,6 +11456,9 @@ msgid "View Plans"
 msgstr "Lihat Pelan"
 
 msgid "View Report"
+msgstr "Lihat Laporan"
+
+msgid "View Reports"
 msgstr "Lihat Laporan"
 
 msgid "View Results"
@@ -11146,9 +11518,6 @@ msgstr "Lihat keseluruhan keselamatan tapak WordPress anda sepintas lalu dan tem
 msgid "View, edit and remove custom security rules"
 msgstr "Lihat, sunting dan alih keluar peraturan keselamatan tersuai"
 
-msgid "View/Create Reports"
-msgstr "Lihat/Cipta Laporan"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Nyahsekat-Auto Pelawat"
 
@@ -11182,8 +11551,8 @@ msgstr "Pelawat dijumpai dalam Senarai Sekat dan sambungan mereka telah dihentik
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Pelawat dijumpai dalam Senarai Sekat CrowdSec dan permintaan mereka telah dihentikan."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Pelawat mendaftar menggunakan silentCAPTCHA."
+msgid "Visitor registered using %s."
+msgstr "Pelawat mendaftar menggunakan %s."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "Pelawat menyahsekat alamat IP mereka '{{ip}}' menggunakan kaedah '{{method}}'."
@@ -11226,9 +11595,6 @@ msgstr "Pengimbasan kelemahan mesti aktif untuk mendayakan pilihan ini."
 
 msgid "Vulnerable"
 msgstr "Terdedah"
-
-msgid "Vulnerable Assets"
-msgstr "Aset Terdedah"
 
 msgid "Vulnerable Plugins"
 msgstr "Pemalam Terdedah"
@@ -11277,6 +11643,9 @@ msgstr "Peranan Pengguna Lalai WP"
 
 msgid "WP File Editing"
 msgstr "Penyuntingan Fail WP"
+
+msgid "WP Files"
+msgstr "Fail WP"
 
 msgid "WP Generator Tag"
 msgstr "Tag Generator WP"
@@ -11367,6 +11736,9 @@ msgstr "Kami cadangkan melumpuhkannya jika anda tidak memerlukannya lagi."
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Kami mengesyorkan mendapatkan kepakaran dalam kawasan ini, dan pastikan anda mempunyai ujian penuh dalam pelancaran anda."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "Kami mengesyorkan antara 5 dan 10. Semakin kecil had, semakin ketat %s."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Kami syorkan direktori akar WP kekal bersih dengan menyimpan hanya fail teras WordPress rasmi di sana."
@@ -11485,8 +11857,8 @@ msgstr "Apabila cukup tingkah laku buruk dikesan, ia akan sekat IP daripada menc
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Apabila dihidupkan, mana-mana integrasi pihak ketiga yang tersedia didayakan sebaik sahaja ia dikesan."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Apabila kiraan mencapai had di bawah (lalai: %s), %s akan menyekat IP tersebut sepenuhnya."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Apabila pengira mencapai had di bawah (lalai: %1$s), %2$s akan sekat IP tersebut sepenuhnya."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Apabila kandungan fail semasa dibandingkan dengan keluaran rasmi, perubahan telah dikesan."
@@ -11578,17 +11950,17 @@ msgstr "Tapak dalam senarai putih boleh mengeksport pilihan daripada tapak ini t
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Mungkin akan menyekat penyimpanan dalam editor fail Pemalam/Tema."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "Dengan kecerdasan sumber ramai %s, positif palsu yang bising yang membazir masa anda disembunyikan secara automatik supaya anda boleh fokus pada risiko yang penting."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "Dengan teknologi %s, menghentikan bot kini agak mudah dilakukan."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "Dengan %s kami boleh berintegrasi secara langsung dengan semua pemalam Borang Hubungan utama untuk menyekat SPAM Borang Hubungan daripada Bot automatik."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "Dengan teknologi silentCAPTCHA terbina dalam %s, menghentikan bot sebenarnya agak mudah dilakukan sekarang."
-
 msgid "With Issues"
 msgstr "Dengan Isu"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "Dengan kecerdasan crowd-sourcing ShieldNET, Shield secara automatik menyembunyikan positif palsu supaya anda boleh fokus pada risiko yang penting, dan boleh mengabaikan gangguan yang membuang masa anda."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Dengannya anda boleh dimaklumkan dengan segera tentang perubahan pada fail dengan pandangan jelas mengenai perubahan yang tepat dan langkah seterusnya yang mudah tentang cara meneruskan."
@@ -11596,8 +11968,8 @@ msgstr "Dengannya anda boleh dimaklumkan dengan segera tentang perubahan pada fa
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "Dengan kamus SPAM kami, kami boleh kenal pasti komen SPAM manusia tanpa menghantar sebarang data dari tapak anda ke pihak ketiga."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Dengan silentCAPTCHA kami yang berkuasa, kami dapat kesan hampir 100% daripada semua SPAM bot."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Dengan %s kami yang berkuasa, kami boleh kesan hampir 100%% daripada semua SPAM bot."
 
 msgid "Wizards"
 msgstr "Wizard"
@@ -11737,8 +12109,8 @@ msgstr "WordPress biasanya dimuatkan dalam bilangan cara yang terhad dan apabila
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress berjalan pada versi PHP (%s) yang lama."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress berjalan pada versi PHP (%s) yang terkini (sekurang-kurangnya %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress berjalan pada versi PHP (%1$s) yang terkini (sekurang-kurangnya %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "Borang log masuk WordPress tidak dilindungi daripada bot kerana anda telah tetapkan skor minimum bot kepada 0, yang mengawal sistem %s."
@@ -11839,8 +12211,8 @@ msgstr "Anda boleh pilih untuk 'Aktifkan Sahaja' (tidak disyorkan), atau tutup m
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Anda boleh lumpuhkan sepenuhnya capaian tanpa nama kepada REST API."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Anda boleh dapatkan ciri keselamatan ini, dan banyak lagi, dengan menaik taraf pelan ShieldPRO anda."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Anda boleh dapatkan ciri keselamatan ini, dan banyak lagi, dengan menaik taraf pelan %s anda."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Anda boleh membantu kami mengesan alamat IP terbaik untuk pelayan anda dengan menggunakan pautan di bawah untuk memberitahu anda alamat IP semasa anda dan kemudian pilih pilihan daripada senarai yang mengandunginya."
@@ -11887,8 +12259,8 @@ msgstr "Anda boleh mengesahkan dengan sistem Security Admin %s dan kembali ke si
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Anda boleh gabungkan pelbagai faktor pengesahan untuk keselamatan yang lebih tinggi."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Anda mungkin mendapat keputusan yang tidak boleh dipercayai semasa Akismet beroperasi bersama perlindungan SPAM Manusia Shield."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Anda mungkin mendapat keputusan yang tidak boleh dipercayai semasa Akismet beroperasi bersama perlindungan SPAM Manusia %s."
 
 msgid "You may need to reload this page to continue."
 msgstr "Anda mungkin perlu muat semula halaman ini untuk teruskan."
@@ -11962,8 +12334,8 @@ msgstr "Alamat IP anda tidak berada dalam senarai putih, jadi anda akan dikunci 
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "Alamat IP anda berada dalam senarai putih! Tetapan ini tidak terpakai kepada ANDA, jadi anda mesti sentiasa menggunakan halaman log masuk biasa: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "Pelayan pangkalan data MySQL anda tidak menyokong alamat IPv6. Versi anda: %s; versi MySQL yang diperlukan: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "Pelayan pangkalan data MySQL anda tidak menyokong alamat IPv6. Versi anda: %1$s; versi MySQL diperlukan: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Kunci API Aplikasi Yubikey Unik Anda"
@@ -12037,11 +12409,11 @@ msgstr "Alamat e-mel pelaporan anda ialah: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Pentadbir keselamatan anda telah mengenakan keperluan untuk kualiti kata laluan."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Analisis keselamatan anda tidak mempertimbangkan ciri khusus ShieldPRO sahaja - gunakan menu Cog untuk lihat analisis anda seolah-olah anda mempunyai capaian kepada ciri keselamatan tambahan ini."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Analisis keselamatan anda tidak mengambil kira ciri %s sahaja - gunakan menu Cog untuk lihat analisis anda seolah-olah anda mempunyai capaian kepada ciri keselamatan tambahan ini."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Analisis keselamatan anda termasuk ciri khusus ShieldPRO sahaja - gunakan menu Cog untuk lihat analisis anda bagi ciri keselamatan yang tersedia."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Analisis keselamatan anda termasuk ciri %s sahaja - gunakan menu Cog untuk lihat analisis anda untuk ciri keselamatan yang tersedia."
 
 msgid "Your session has expired."
 msgstr "Sesi anda telah luput."
@@ -12055,11 +12427,11 @@ msgstr "Sesi anda telah dikunci ke Alamat IP lain."
 msgid "Your session was terminated."
 msgstr "Sesi anda telah ditamatkan."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Tapak anda mendapat manfaat daripada perlindungan keselamatan tambahan yang disediakan oleh ShieldPRO."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Tapak anda mendapat manfaat daripada perlindungan keselamatan tambahan yang disediakan oleh %s."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Tapak anda tidak mendapat manfaat daripada perlindungan keselamatan tambahan yang disediakan oleh ShieldPRO."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Tapak anda tidak mendapat manfaat daripada perlindungan keselamatan tambahan yang disediakan oleh %s."
 
 msgid "Your site is currently in lockdown."
 msgstr "Tapak anda sedang dalam lockdown."
@@ -12082,8 +12454,8 @@ msgstr "Tapak anda tidak dilindungi daripada SPAM Komen automatik oleh Bot."
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Tapak anda belum didaftarkan dengan CrowdSec lagi."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Hos web anda tidak memenuhi keperluan minimum untuk Pemalam Shield Security."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Hos web anda tidak memenuhi keperluan minimum untuk Pemalam %s."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Tindakan Zon"
 msgid "Zones"
 msgstr "Zon"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[False Positive] bermaksud kod kelihatan seperti malware, tetapi ia sebenarnya bersih."
@@ -12142,6 +12514,18 @@ msgstr "elemen borang all_opts_keys tidak disediakan."
 msgid "and"
 msgstr "dan"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "dan akan diproses secara automatik dalam kira-kira %d minit."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "dan akan diproses secara automatik dalam kira-kira %d minit."
+
+msgid "and will be processed shortly."
+msgstr "dan akan diproses tidak lama lagi."
+
+msgid "auto-fixed"
+msgstr "diperbaiki-auto"
+
 msgid "case-insensitive"
 msgstr "tidak sensitif huruf besar-kecil"
 
@@ -12154,8 +12538,8 @@ msgstr "hari"
 msgid "empty username"
 msgstr "nama pengguna kosong"
 
-msgid "entries: %s (previous: %s)"
-msgstr "entri: %s (sebelumnya: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "entri: %1$s (sebelumnya: %2$s)"
 
 msgid "estimated"
 msgstr "dianggarkan"
@@ -12175,6 +12559,12 @@ msgstr "bantuan lanjut"
 msgid "help"
 msgstr "Bantuan"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "data hilang"
 
 msgid "more frequent checks will be ignored"
 msgstr "pemeriksaan yang lebih kerap akan diabaikan"
+
+msgid "more..."
+msgstr "lagi..."
 
 msgid "n/a"
 msgstr "t/a"
@@ -12235,80 +12628,8 @@ msgstr "cadangan"
 msgid "seconds"
 msgstr "saat"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "Teknologi AntiBot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "Pengesanan Bot silentCAPTCHA tidak melindungi daripada serangan brute-force pada log masuk WordPress anda."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "Pengesanan Bot silentCAPTCHA tidak melindungi borang kata laluan hilang WordPress anda."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "Pengesanan Bot silentCAPTCHA tidak melindungi pendaftaran WordPress anda."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "Skor Minimum Bot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "Skor Bot silentCAPTCHA (Peratusan)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "Pemeriksaan silentCAPTCHA Tidak Sah (Modul)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "Kerumitan silentCAPTCHA"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA Untuk Log Masuk"
-
-msgid "silentCAPTCHA Registration"
-msgstr "Pendaftaran silentCAPTCHA"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "Pengesanan silentCAPTCHA tidak digunakan kerana anda tidak memilih sebarang borang untuk dilindungi, seperti Log Masuk atau Daftar."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA ialah teknologi Pengesanan Bot Jahat WordPress eksklusif %s."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA ialah teknologi pengesanan bot eksklusif %s yang menghapuskan keperluan untuk CAPTCHA yang boleh dilihat dan cabaran pelawat yang serupa."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA ialah teknologi pengesanan bot eksklusif %s yang tidak kelihatan kepada pelawat anda, dan menghapuskan keperluan untuk interaksi pengguna dengan CAPTCHA log masuk."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA dilumpuhkan kerana tiada ambang skor bot minimum yang disediakan."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA dilumpuhkan apabila ditetapkan kepada skor minimum %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA didayakan dengan ambang skor bot minimum."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA tidak melindungi Komen WP anda daripada SPAM bot."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "Kerumitan cabaran Bot silentCAPTCHA terlalu rendah - pertimbangkan untuk meningkatkannya."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "Pengesanan bot silentCAPTCHA tidak berjalan kerana skor minimum ditetapkan kepada 0."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "Pengesanan bot silentCAPTCHA tidak berjalan, kerana bot tidak dicabar pada masa ini."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "Skor minimum bot silentCAPTCHA agak rendah (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "Pendaftaran silentCAPTCHAv1"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "Pendaftaran silentCAPTCHAv2"
 
 msgid "suggestion"
 msgstr "cadangan"

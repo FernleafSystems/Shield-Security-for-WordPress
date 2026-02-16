@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-09 13:12+0000\n"
-"PO-Revision-Date: 2025-12-09 13:12+0000\n"
+"POT-Creation-Date: 2026-02-16 11:53+0000\n"
+"PO-Revision-Date: 2026-02-16 11:53+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: tr_TR\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "\"Y\" = Açık; \"N\" = Kapalı"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Sabit <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Sabit <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s, %2$s Sitesine Oturum Açtı"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s ve %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s, münhasır, görünmez, GDPR uyumlu bot algılama teknolojimiz %2$s kullanarak tüm otomatik bot istenmeyen içeriğini engeller."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "%1$s bot minimum puanı oldukça düşük (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s, %2$s JS'nin sitenizde doğru şekilde yüklenip yüklenmediğini belirleyemedi."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s, kullandığınız 3. taraf eklentinin formlarını korumak için kullanılabilir bir entegrasyona sahip: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s, %2$s eklentisinin şu anda yüklü sürümünde bilinen güvenlik açıkları olduğunu tespit etti."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s, geçici dizinini oluşturmak için aşağıdaki konumu başarıyla seçti: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s, wp-config.php dosyanızı koruyan %2$s özel bir hizmettir."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s, %2$s tarafından sunulan özel bir e-posta teslimat hizmetidir."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s, %2$s'den ziyaretçilere görünmeyen ve giriş CAPTCHA'larıyla kullanıcı etkileşimi ihtiyacını ortadan kaldıran münhasır bir bot algılama teknolojisidir."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s, minimum puan %2$s olarak ayarlandığında devre dışı bırakılır."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s, görünür CAPTCHA'lar ve benzeri ziyaretçi zorluklarına olan ihtiyacı ortadan kaldıran, %2$s'e özel bot algılama teknolojimizdir."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s bu yorumu \"%2$s\" olarak işaretledi."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%2$s üzerinden %1$s kullanıldı (kullanılmayan: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d yerel ayar mevcut."
+
+msgid "%d locale(s) in queue."
+msgstr "Kuyrukta %d yerel ayar var."
+
+msgid "%d translation is queued for download"
+msgstr "%d çeviri indirme için sıraya alındı"
+
+msgid "%d translations are queued for download"
+msgstr "%d çeviri indirme için sıraya alındı"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (JSON Kodlu)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "%s 2FA Sağlayıcısı Etkinleştirildi"
 
 msgid "%s API Token Missing."
 msgstr "%s API Belirteci Eksik."
+
+msgid "%s Anti-Spam"
+msgstr "%s İstenmeyen İçerik Önleme"
+
+msgid "%s AntiBot Technology"
+msgstr "%s AntiBot Teknolojisi"
 
 msgid "%s Auto-Unblock"
 msgstr "%s Otomatik Engel Kaldırma"
@@ -37,29 +115,92 @@ msgstr "%s Otomatik Engel Kaldırma"
 msgid "%s Bot Check Failed."
 msgstr "%s Bot Kontrolü Başarısız Oldu."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "%s Bot Algılama, WordPress girişinize yönelik kaba kuvvet saldırılarına karşı koruma sağlamıyor."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "%s Bot Algılama, WordPress parola kaybı formunuzu korumuyor."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "%s Bot Algılama, WordPress kaydınızı korumuyor."
+
+msgid "%s Bot Minimum Score"
+msgstr "%s Bot Minimum Puanı"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "%s Bot Puanı (Yüzde)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "%s Bot zorluğu karmaşıklığı çok düşük - artırmayı düşünün."
+
+msgid "%s Check Invalid (Module)"
+msgstr "%s Kontrolü Geçersiz (Modül)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "%s Yorum İstenmeyen Koruması"
+
+msgid "%s Complexity"
+msgstr "%s Karmaşıklığı"
+
+msgid "%s Deactivated"
+msgstr "%s Etkisizleştirildi"
 
 msgid "%s Debug Information"
 msgstr "%s Hata Ayıklama Bilgisi"
 
+msgid "%s Emails"
+msgstr "%s E-postaları"
+
+msgid "%s Fail"
+msgstr "%s Başarısız"
+
+msgid "%s Features"
+msgstr "%s Özellikleri"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "%s Güvenlik Duvarı WordPress sitenize gelen bir isteği engelledi."
+
+msgid "%s For Logins"
+msgstr "Girişler İçin %s"
+
+msgid "%s Free Trial"
+msgstr "%s Ücretsiz Deneme"
 
 msgid "%s Home"
 msgstr "%s Giriş"
 
+msgid "%s Home Page"
+msgstr "%s Ana Sayfası"
+
+msgid "%s IP Reputation Score"
+msgstr "%s IP İtibar Puanı"
+
+msgid "%s Info"
+msgstr "%s Bilgisi"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s Akıllı IP Engelleme"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s, %s Sitesine Oturum Açtı"
+msgid "%s Issue"
+msgstr "%s Sorun"
+
+msgid "%s Issues"
+msgstr "%s Sorun"
+
+msgid "%s License Cleared"
+msgstr "%s Lisansı Temizlendi"
+
+msgid "%s License Management"
+msgstr "%s Lisans Yönetimi"
 
 msgid "%s Login Verification"
 msgstr "%s Giriş Doğrulaması"
 
 msgid "%s Lookup"
 msgstr "%s Sorgusu"
+
+msgid "%s Option Key"
+msgstr "%s Seçenek Anahtarı"
 
 msgid "%s Plugin Badge"
 msgstr "%s Eklenti Rozeti"
@@ -70,6 +211,24 @@ msgstr "%s Eklenti Yapılandırması"
 msgid "%s Plugin options updated successfully."
 msgstr "%s Eklenti seçenekleri başarıyla güncellendi."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "%s Eklentisi – minimum site gereksinimleri karşılanmıyor"
+
+msgid "%s Premium Security"
+msgstr "%s Premium Güvenlik"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro, çevrimiçi mağazamızdan edinilebilir."
+
+msgid "%s Pro store"
+msgstr "%s Pro mağazası"
+
+msgid "%s Registration"
+msgstr "%s Kaydı"
+
+msgid "%s Scanners."
+msgstr "%s Tarayıcıları."
+
 msgid "%s Security Insights"
 msgstr "%s Güvenlik İçgörüleri"
 
@@ -79,14 +238,35 @@ msgstr "%s Güvenlik Kısıtlamaları Uygulandı"
 msgid "%s Status Report"
 msgstr "%s Durum Raporu"
 
+msgid "%s Success"
+msgstr "%s Başarılı"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "%s Kullanıcı 2FA Sağlayıcısı Etkinleştirildi"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "%s Kullanıcı 2FA: Herhangi Biri Etkin"
+
 msgid "%s Website Security Report"
 msgstr "%s Web Sitesi Güvenlik Raporu"
 
-msgid "%s and %s"
-msgstr "%s ve %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "Minimum puan 0 olarak ayarlandığından %s bot algılama çalışmıyor."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "%s bot algılama çalışmıyor, çünkü botlar şu anda zorlanmıyor."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s ayrıca eklentilerinizi ve temalarınızı bilinen güvenlik açıkları için tarayabilir."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s, 3. taraf eklentilerle otomatik olarak entegre olabilir."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s, 3. taraf giriş ve kayıt formlarını Botlara karşı otomatik olarak koruyabilir."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s herhangi bir IP adresi tespit edemedi. Bu, kritik bir web barındırma yapılandırma sorununu temsil ediyor."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s, kötü ziyaretçileri birçok ayrı alanda izlediği için çok hızlı bir risk değerlendirmesi oluşturur."
@@ -100,29 +280,41 @@ msgstr "%s gün"
 msgid "%s days"
 msgstr "%s gün"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "%s algılaması uygulanmıyor çünkü Giriş veya Kayıt gibi korumak için herhangi bir form seçmediniz."
+
 msgid "%s directory"
 msgstr "%s dizini"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s çok şey yapar, bu yüzden nereden başlayacağınızı bilmek zor olabilir."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s normalde oturum açmış veya kayıtlı kullanıcılardan gelen yorumları taramaz."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "%s olay tanımları boş veya doğru biçimde değil."
 
 msgid "%s extension is unavailable."
 msgstr "%s uzantısı kullanılamıyor."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "WordPress için %s v20 Tanıtımı"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s isteği engelleme konusunda gerekli eylemi zaten gerçekleştirdi."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s, kullandığınız 3. taraf eklentinin formlarını korumak için bir entegrasyona sahip: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s, %s eklentisinin şu anda yüklü sürümünün bilinen güvenlik açıklarına sahip olduğunu keşfetti."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s geçici dizinini oluşturmak için aşağıdaki konumu başarıyla seçti: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s, wp-config.php dosyanızı koruyan %s'ın özel hizmetidir."
-
 msgid "%s is a child of another theme."
 msgstr "%s başka bir temanın alt teması."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s, 40.000'den fazla WordPress web sitesinde dağıtılan güçlü bir WordPress Güvenlik hizmetidir."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "Minimum bot puanı eşiği sağlanmadığından %s devre dışı bırakıldı."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s, minimum bot puanı eşiği ile etkinleştirildi."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s şu anda sitenizi korumuyor."
@@ -130,14 +322,26 @@ msgstr "%s şu anda sitenizi korumuyor."
 msgid "%s is not protecting your site"
 msgstr "%s sitenizi korumuyor"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s, WordPress Kötü Bot Algılama teknolojimizdir."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s, özel yapay zeka destekli Kötü Amaçlı Yazılım Tarama ve Tespit motorumuzdur."
 
 msgid "%s is protected against tampering."
 msgstr "%s kurcalamaya karşı korunuyor."
 
+msgid "%s isn't activated on this site."
+msgstr "%s bu sitede etkinleştirilmedi."
+
+msgid "%s isn't installed on this site."
+msgstr "%s bu sitede kurulu değil."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s kurcalamaya karşı korunmuyor."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s, WP Yorumlarınızı bot istenmeyen içeriğine karşı korumuyor."
 
 msgid "%s item processed"
 msgstr "%s öğe işlendi"
@@ -145,8 +349,11 @@ msgstr "%s öğe işlendi"
 msgid "%s items processed"
 msgstr "%s öğe işlendi"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s bu yorumu \"%s\" olarak işaretledi."
+msgid "%s license check failed."
+msgstr "%s lisans kontrolü başarısız oldu."
+
+msgid "%s license check was successful."
+msgstr "%s lisans kontrolü başarılı oldu."
 
 msgid "%s minute"
 msgstr "%s dakika"
@@ -172,8 +379,8 @@ msgstr "%s ihlal"
 msgid "%s offenses until block"
 msgstr "Engellemeye kadar %s ihlal"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s e-posta, Yubikey, Google Authenticator ve U2F sunar."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s, e-posta, Yubikey, Google Authenticator ve Passkey seçenekleri sunar."
 
 msgid "%s options and modules"
 msgstr "%s seçenekleri ve modülleri"
@@ -181,11 +388,56 @@ msgstr "%s seçenekleri ve modülleri"
 msgid "%s per day"
 msgstr "Günde %s"
 
+msgid "%s plugin activated"
+msgstr "%s eklentisi etkinleştirildi"
+
+msgid "%s plugin couldn't be activated"
+msgstr "%s eklentisi etkinleştirilemedi"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "%s eklentisi devre dışı bırakılamadı"
+
+msgid "%s plugin couldn't be installed"
+msgstr "%s eklentisi kurulamadı"
+
+msgid "%s plugin couldn't be updated"
+msgstr "%s eklentisi güncellenemedi"
+
+msgid "%s plugin deactivated"
+msgstr "%s eklentisi etkisizleştirildi"
+
+msgid "%s plugin installed"
+msgstr "%s eklentisi yüklü"
+
+msgid "%s plugin is installed but not activated."
+msgstr "%s eklentisi yüklü ancak etkinleştirilmedi."
+
+msgid "%s plugin is installed, but not active."
+msgstr "%s eklentisi yüklü ancak etkin değil."
+
+msgid "%s plugin needs to sync."
+msgstr "%s eklentisinin senkronize edilmesi gerekiyor."
+
+msgid "%s plugin not detected in last sync."
+msgstr "%s eklentisi son senkronizasyonda algılanmadı."
+
+msgid "%s plugin updated"
+msgstr "%s eklentisi güncellendi"
+
+msgid "%s plugin versions are out of sync."
+msgstr "%s eklenti sürümleri senkronize değil."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s site ziyaretçilerini korur ve web trafiğini ve dosya sistemi değişikliklerini izlerken olası saldırıları engellemeye çalışır."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s, 3. taraf eklentilerin formlarını istenmeyen Bot'lara karşı korumak için yerleşik entegrasyonlar sağlar."
+
 msgid "%s scan remaining."
 msgstr "%s tarama kaldı."
+
+msgid "%s scans cannot execute."
+msgstr "%s taramaları çalıştırılamıyor."
 
 msgid "%s scans remaining."
 msgstr "%s tarama kaldı."
@@ -205,14 +457,14 @@ msgstr "%s kez"
 msgid "%s tools and features"
 msgstr "%s araçları ve özellikleri"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s / %s kullanıldı (kullanılmayan: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s bunu otomatik olarak yapmaya çalışır ve zamanın %99'unda işe yarasa da, bazen garip bir web sunucusu yapılandırması işleri biraz karıştırabilir."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s, bu tür istenmeyen içeriği engellemek için yaygın olarak kullanılan istenmeyen içerik sözlüğünü düzenli olarak günceller."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "Sitedeki %s sürümü bu sunucuyla eşleşmiyor."
 
 msgid "%s was added to your profile."
 msgstr "%s profilinize eklendi."
@@ -223,11 +475,26 @@ msgstr "%s profilinizden kaldırıldı."
 msgid "%s was successfully added to your account."
 msgstr "%s hesabınıza başarıyla eklendi."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s, yerleşik bir entegrasyonun kullanılabilir olup olmadığını kontrol etmek için 3. taraf eklentilerinizi otomatik olarak tarar."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s, yeni güncelleme belirtilen gün sayısı boyunca kullanılabilir olana kadar güncellemeleri geciktirecektir."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s, meşru kullanıcılarınıza meydan okumadan sitenize giriş yapmaya çalışan botları tespit edecektir."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s, meşru ziyaretçilerinize meydan okumadan sitenize yorum istenmeyen içeriği göndermeye çalışan botları tespit edecektir."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s, silentCAPTCH teknolojimizi kullanarak WordPress formlarını botlara karşı koruyacak ve bunlara karşı denemeleri sınırlayacaktır."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "%s'ın MainWP entegrasyonu bu site için etkinleştirilmemiş."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "%s Kural Motoru çalışmıyor."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "%s'in Güvenlik Yöneticisi sistemi, normal WordPress yöneticisine ek bir güvenlik katmanı sağlar."
@@ -238,11 +505,14 @@ msgstr "%s'ın otomatik IP engelleme özelliği, savunmalarınız tetiklendikten
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "%s korumaları şu anda devre dışı olduğundan, burada yapılan değişiklikler yeniden etkinleştirilene kadar uygulanmayacak."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s, Kurucu Tanıtımı"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "%sv1 Kaydı"
+
+msgid "%sv2 Registration"
+msgstr "%sv2 Kaydı"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "&uarr; Pro'ya Geç &uarr;"
@@ -273,6 +543,9 @@ msgstr "(kilitleme devre dışı bırakıldığında, IP adresi otomatik olarak 
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... ve %s daha fazla"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "/wp-content/ dizini taranmıyor."
@@ -397,9 +670,6 @@ msgstr "Aşağıdaki dosya türleri için oluşturulan 404 hataları bir ihlal t
 msgid "5-minute"
 msgstr "5 dakika"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 Gün"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Taranıyor</strong> temel WordPress dosyalarınız ve dizinleriniz değişiklikler ve yeni dosyalar için taranıyor."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "Bir ziyaretçi üzerinde %s Bot Kontrolü gerçekleştirildi ancak ayarlarda Bot engelleme seçeneği devre dışı."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "Karşılaştırma yapabileceğimiz resmi bir dosya olmadığı için Dosya Farkı oluşturulamıyor."
@@ -445,6 +718,9 @@ msgstr "WordPress barındırma sunucusu yazılımınızın üst düzey bir özet
 msgid "A high-level overview of your WordPress updates status."
 msgstr "WordPress güncelleme durumunuzun üst düzey bir özeti."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "Bir lisans zaten etkin. Yeniden etkinleştirmek için --force kullanın."
+
 msgid "A light-touch security profile"
 msgstr "Hafif dokunuşlu güvenlik profili"
 
@@ -456,6 +732,9 @@ msgstr "Asla bir ihlal tetiklemeyecek istek yollarının listesi."
 
 msgid "A login to your WordPress account just occurred"
 msgstr "WordPress hesabınıza az önce bir giriş yapıldı"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "%s için çok fazla çaba harcanıyor ve bu konuda bilgi yaymanıza yardımcı olmanıza ihtiyacımız var. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "E-posta adresinize yeni bir Tek Kullanımlık Parola gönderildi."
@@ -475,8 +754,8 @@ msgstr "Sağlam bir güvenlik duruşu"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "'100' puanı neredeyse kesinlikle iyi olduğu anlamına gelir, '0' puanı ise kötü bir bot olma olasılığının yüksek olduğu anlamına gelir."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "Bir ziyaretçi üzerinde silentCAPTCHA Bot Kontrolü gerçekleştirildi ancak ayarlarda Bot engelleme seçeneği devre dışı bırakılmış."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "Bir güvenlik uyarısı oluşturuldu. Aşağıdaki sorunları inceleyin ve gerektiğinde harekete geçin."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "WordPress hesabınıza başarılı bir giriş az önce gerçekleşti."
@@ -498,6 +777,12 @@ msgstr "Yapay Zeka Kötü Amaçlı Yazılım Tarayıcısı, Otomatik Dosya Onar�
 
 msgid "API & XML-RPC"
 msgstr "API ve XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "API anahtarı boş olamaz."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "Etkinleştirme için API anahtarı gereklidir. --api-key=ANAHTARINIZ kullanın"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "Uygulama Parolası Kimlik Doğrulaması - Geçersiz E-posta"
@@ -523,8 +808,8 @@ msgstr "Terk Edilmiş Eklentiler Bulundu"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Terk Edilmiş WordPress.org Eklentileri"
 
-msgid "Absolutely"
-msgstr "Kesinlikle"
+msgid "About %s for WordPress"
+msgstr "WordPress için %s Hakkında"
 
 msgid "Accept Changes"
 msgstr "Değişiklikleri Kabul Et"
@@ -571,20 +856,23 @@ msgstr "Eylemler ve Bilgi"
 msgid "Activate"
 msgstr "etkinleştir"
 
+msgid "Activate %s"
+msgstr "%s Etkinleştir"
+
+msgid "Activate %s License"
+msgstr "%s Lisansını Etkinleştirin"
+
 msgid "Activate Only"
 msgstr "Yalnızca Etkinleştir"
+
+msgid "Activate Pro License"
+msgstr "Pro Lisansını Etkinleştirin"
 
 msgid "Activate Rule"
 msgstr "Kuralı Etkinleştir"
 
-msgid "Activate Shield"
-msgstr "Shield'ı Etkinleştir"
-
-msgid "Activate ShieldPRO License"
-msgstr "ShieldPRO Lisansını Etkinleştir"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "ShieldPRO Lisansınızı Etkinleştirin"
+msgid "Activate Your %s License"
+msgstr "%s Lisansınızı Etkinleştirin"
 
 msgid "Activate Your White Label Settings"
 msgstr "Beyaz Etiket Ayarlarınızı Etkinleştirin"
@@ -673,14 +961,14 @@ msgstr "Eklenen Tablolar"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Yükseltilmiş bir planda ek IP engelleme listeleri kullanılabilir."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "%s Zorluk Karmaşıklığını Ayarlayın"
+
 msgid "Adjust Scan Results Display"
 msgstr "Tarama Sonuçları Görünümünü Ayarla"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "HTTP güvenlik başlıklarının dağıtımını ayarlayın"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "silentCAPTCHA Zorluğu Karmaşıklığını Ayarlayın"
 
 msgid "Admin Access Login"
 msgstr "Yönetici Erişim Girişi"
@@ -751,17 +1039,26 @@ msgstr "Sunucunun Önünde"
 msgid "Alert"
 msgstr "Uyarı"
 
+msgid "Alert Report Generated"
+msgstr "Uyarı Raporu Oluşturuldu"
+
+msgid "Alert Report Generated."
+msgstr "Uyarı Raporu Oluşturuldu."
+
 msgid "Alert Reports Frequency"
 msgstr "Uyarı Raporu Sıklığı"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Eklenti/tema güvenlik açıklarına yönelik uyarılar. Shield daha sonra güncellemeler kullanılabilir hale geldikçe otomatik olarak yükseltebilir."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Eklenti/tema güvenlik açıklarına ilişkin uyarılar. %s, kullanılabilir hale geldiklerinde yükseltmeyi otomatik olarak dağıtabilir."
 
 msgid "Algorithm not supported"
 msgstr "Algoritma desteklenmiyor"
 
-msgid "Align Shield"
-msgstr "Shield'i Hizala"
+msgid "Align %s"
+msgstr "%s Hizala"
+
+msgid "All Clear"
+msgstr "Hepsi Temiz"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "%s kimlikli kullanıcıdan tüm MFA sağlayıcıları kaldırıldı."
@@ -784,8 +1081,8 @@ msgstr "Bu nedenle bu web sitesine tüm erişim kısıtlanmıştır."
 msgid "All access to your site is blocked."
 msgstr "Sitenize tüm erişim engellendi."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Shield Pro lisansını doğrulama girişimlerinin tümü başarısız oldu."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "%s Pro lisansını doğrulama girişimlerinin tümü başarısız oldu."
 
 msgid "All available plugin updates have been applied."
 msgstr "Mevcut tüm eklenti güncellemeleri uygulandı."
@@ -795,6 +1092,9 @@ msgstr "Mevcut tüm tema güncellemeleri uygulandı."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Tüm karakterler büyük/küçük harf duyarsız olarak işlenecektir."
+
+msgid "All clear"
+msgstr "Hepsi temiz"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Tüm özel olay anahtarları dize olmalı, küçük harf içermeli, 10-50 karakter uzunluğunda olmalı, 'custom_' ön ekiyle başlamalı ve yalnızca harf ve alt çizgi içermelidir."
@@ -979,8 +1279,8 @@ msgstr "Bir ziyaretçi %s eklentisinin savunmalarını her tetiklediğinde IP ad
 msgid "An unsupported profile was selected"
 msgstr "Desteklenmeyen bir profil seçildi"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Shield eklentisi için bir güncelleme mevcut."
+msgid "An upgrade is available for the %s plugin."
+msgstr "%s eklentisi için bir güncelleme mevcut."
 
 msgid "Analyse & Fix"
 msgstr "Analiz Et & Düzelt"
@@ -1054,8 +1354,8 @@ msgstr "Herkes Kayıt Olabilir"
 msgid "Anyone can register"
 msgstr "Herkes kayıt olabilir"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Herkes kayıt olabilir değişti: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Herkes kayıt olabilir değiştirildi: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "Uygulama Parolaları Devre Dışı"
@@ -1093,8 +1393,8 @@ msgstr "Yüksek hacimli isteklere rate limiting kısıtlamaları uygulayın."
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "CSP başlıklarını uygulamak sitenizin ziyaretçiler için nasıl çalıştığını etkileyebilir, bu nedenle bu bölümde doğrudan öneri sunmuyoruz."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Shield Security Kısıtlamaları Etkin mi?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "%s Kısıtlamaları Etkin mi?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "WordPress kalıcı bağlantıları etkin mi."
@@ -1108,11 +1408,11 @@ msgstr "Bu IP Kuralını silmek istediğinizden emin misiniz?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Dosya değişikliklerini saklamak istediğinizden emin misiniz?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "ShieldPRO lisansını kaldırmak istediğinizden emin misiniz?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "%s lisansını kaldırmak istediğinizden emin misiniz?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Shield eklentisini varsayılanlara sıfırlamak istediğinizden emin misiniz?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "%s eklentisini varsayılanlara sıfırlamak istediğinizden emin misiniz?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Orijinal dosya içeriğini geri yüklemek istediğinizden emin misiniz?"
@@ -1132,11 +1432,11 @@ msgstr "Her zaman olduğu gibi, bu hizmeti kullanmanız ve ona güvenmeniz kendi
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Her sorun çözüldükçe genel puan %100'e kadar iyileşecektir."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Talep üzerine %s, yönettiğiniz bir WordPress sitesine başarılı %s oturumu açma işlemi hakkında sizi bilgilendiriyor."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Talep üzerine, %1$s sizi yönettiğiniz bir WordPress sitesine başarılı bir %2$s girişi hakkında bilgilendiriyor."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "Uyumlu bir eklenti tespit edilir edilmez, Shield yerleşik entegrasyonu otomatik olarak etkinleştirecektir."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "Uyumlu bir eklenti tespit edilir edilmez %s, yerleşik entegrasyonu otomatik olarak açar."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "Seçilen dosyalarda değişiklik tespit edilir edilmez, içerik incelenebilir ve geri alınabilir."
@@ -1155,9 +1455,6 @@ msgstr "Eklentilerinizden veya temalarınızdan en az 1 tanesi değiştirilmiş 
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "En az 1 seçenek sağlanmalıdır ve varsayılan olarak WP yönetici alanındaki kullanıcı profili sayfası kullanılır."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Siteniz için en az 1 güvenlik raporu oluşturuldu."
 
 msgid "At least two records are required to merge."
 msgstr "Birleştirmek için en az iki kayıt gereklidir."
@@ -1198,8 +1495,8 @@ msgstr "Kalan deneme: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Değiştirilmiş veya kötü amaçlı yazılım bulaşmış dosyaları otomatik olarak onarmayı dener."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Shield Pro lisansını doğrulama girişimi az önce başarısız oldu."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "%s Pro lisansını doğrulama girişimi başarısız oldu."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "E-posta adresleri içerebilen Denetim İzi mesajı"
@@ -1408,8 +1705,8 @@ msgstr "Güvenlik açığı bulunan ve şüpheli dosyaları, eklentileri ve tema
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "3. taraf entegrasyonları kullanılabilir hale geldiğinde otomatik olarak algılayın ve etkinleştirin"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Shield'ın mevcut beyaz liste kurallarını ve istisnalarını otomatik olarak uygulayın."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "%s'in mevcut beyaz liste kurallarını ve istisnalarını otomatik olarak dikkate alın."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Seçenekleri otomatik olarak içe aktarın ve yapılandırmaları tüm ağınıza dağıtın."
@@ -1504,6 +1801,9 @@ msgstr "Herhangi bir yönetici hesabındaki önemli değişiklikler hakkında uy
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Bilinen güvenlik açıklarına sahip eklentiler ve temalar hakkında uyarı alın"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "%s eklentisi devre dışı bırakıldığında uyarı alın"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Shield eklentisi devre dışı bırakıldığında uyarı alın"
 
@@ -1528,11 +1828,11 @@ msgstr "Beta Erişimi"
 msgid "Block %s"
 msgstr "%s Engelle"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "silentCAPTCHA ile %100 Bot İstenmeyen Yorumları Engelleyin"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "%s ile %100 Bot Yorum İstenmeyenini Engelleyin"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "silentCAPTCHA kullanarak tüm WordPress istenmeyen yorumların %99,9'unu engelleyin."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "%s kullanarak tüm WordPress yorum istenmeyenlerinin %%99,9'unu engelleyin."
 
 msgid "Block Anon REST API"
 msgstr "Anonim REST API'yi Engelle"
@@ -1668,9 +1968,6 @@ msgstr "Bot'tan gelen istenmeyen yorum engellendi."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "AntiBot testlerini geçemeyen istenmeyen yorum engellendi."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "reCAPTCHA testini geçemeyen istenmeyen yorum engellendi."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "Politika gereksinimlerini karşılamayan parola güncelleme denemesi engellendi."
@@ -1819,8 +2116,8 @@ msgstr "Brute Force Giriş Koruması"
 msgid "Brute Force Login Protection"
 msgstr "Brute Force Giriş Koruması"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "silentCAPTCHA ile Brute Force Giriş Koruması"
+msgid "Brute Force Login Protection with %s"
+msgstr "%s ile Brute Force Giriş Koruması"
 
 msgid "Brute Force Protection"
 msgstr "Brute Force Koruması"
@@ -1828,8 +2125,8 @@ msgstr "Brute Force Koruması"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Brute Force Trafik Rate Limiting"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "WordPress girişinize yönelik kaba kuvvet bot saldırıları silentCAPTCHA tarafından tespit edilir ve engellenir."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "WordPress girişinize yönelik kaba kuvvet bot saldırıları %s tarafından tespit edilir ve engellenir."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Kaba kuvvet giriş saldırıları, giriş bekleme sistemi tarafından engellenmiyor."
@@ -1846,14 +2143,14 @@ msgstr "Özel Güvenlik Kuralları Oluştur"
 msgid "Building scan items for scan: %s"
 msgstr "%s taraması için tarama öğeleri oluşturuluyor"
 
-msgid "Built-In Shield Integrations"
-msgstr "Yerleşik Shield Entegrasyonları"
+msgid "Built-In %s Integrations"
+msgstr "Yerleşik %s Entegrasyonları"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "Varsayılan olarak Shield, yönetim alanında ve yönetici araç çubuğunda zorunlu olmayan bildirimler görüntüler."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "Varsayılan olarak %s, yönetim alanında ve yönetici araç çubuğunda zorunlu olmayan bildirimleri görüntüler."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "Varsayılan olarak Shield, hiçbir şey yapmanıza gerek kalmadan sitenizi çok sayıda tehdide karşı korumak ve kötü ziyaretçileri ve botları engellemek için otomatik olarak yapılandırılmıştır."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "Varsayılan olarak, %s sitenizi çok sayıda tehdide karşı korumak ve kötü ziyaretçileri ve botları engellemek için otomatik olarak yapılandırılmıştır; herhangi bir şey yapmanıza gerek yoktur."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Güvenlik Duvarından gelen sinyalleri diğer tüm güvenlik bileşenlerinden gelen sinyallerle birleştirerek %s, zaman içinde kimin insan, kimin bot olduğunu ve kimin iyi ya da kötü amaçla burada olduğunu belirlemek için bir ziyaretçi profili oluşturur."
@@ -1863,21 +2160,6 @@ msgstr "Atla"
 
 msgid "Bypass IP"
 msgstr "IP Atla"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA Başarısız"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA Geçti"
-
-msgid "CAPTCHA test failed."
-msgstr "CAPTCHA testi başarısız oldu."
-
-msgid "CAPTCHA test successful."
-msgstr "CAPTCHA testi başarılı."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA'lar korkunçtur."
@@ -1990,6 +2272,9 @@ msgstr "Zorluk Başarısız"
 msgid "Challenge has expired."
 msgstr "Zorluğun süresi doldu."
 
+msgid "Change"
+msgstr "Değişiklik"
+
 msgid "Change Detected"
 msgstr "Değişiklik Algılandı"
 
@@ -2005,11 +2290,14 @@ msgstr "2FA E-posta seçeneklerini değiştirmek şu anda sizin için kullanıla
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Yedek Kod seçeneklerini değiştirmek şu anda sizin için kullanılamıyor."
 
+msgid "Check %s License"
+msgstr "%s Lisansını Kontrol Et"
+
+msgid "Check For %s License"
+msgstr "%s Lisansını Kontrol Et"
+
 msgid "Check License"
 msgstr "Lisansı Kontrol Et"
-
-msgid "Check ShieldPRO License"
-msgstr "ShieldPRO Lisansını Kontrol Et"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Bu dosyanın içeriğini kontrol edin ve kötü amaçlı olmadığından emin olun."
@@ -2044,14 +2332,14 @@ msgstr "Alt"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "silentCAPTCHA Bot Koruması'nın hangi formlarda dağıtılacağını seçin."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "2FA için WP Giriş sayfasıyla çakışmalar veya sorunlar varsa Özel Shield sayfasını seçin."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "2FA için WP Giriş sayfasıyla çakışmalar veya sorunlar varsa Özel %s sayfasını seçin."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Bot koruma önlemlerinin dağıtılacağı formları seçin."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Programınıza göre Shield'dan uyarı almak için en uygun sıklığı seçin."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Programınıza göre %s'ten uyarı almak için en uygun sıklığı seçin."
 
 msgid "Choose the page type for MFA verification"
 msgstr "MFA doğrulaması için sayfa türünü seçin"
@@ -2121,6 +2409,9 @@ msgstr "Google Authenticator giriş kimlik doğrulamasını hemen kaldırmak iç
 
 msgid "Click to launch plugin search modal"
 msgstr "Eklenti arama penceresini açmak için tıklayın"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "WordPress.org üzerinde değerlendirme bırakmak için tıklayın ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Gönderilecek HAM verileri görmek için tıklayın"
@@ -2200,8 +2491,8 @@ msgstr "Yorum İstenmeyen Engellendi."
 msgid "Comment SPAM Protection"
 msgstr "Yorum İstenmeyen Koruması"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "İstenmeyen Yorum Koruması: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Yorum İstenmeyen Koruması: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Yorum Durumu Güncellendi"
@@ -2269,6 +2560,12 @@ msgstr "Yapılandırma"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Kullanıcı 2FA Kurulumu İçin Yapılandırma Sayfaları"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Yalnızca 1 farklı IP adresi tespit edildiği için yapılandırma gerekli değildir."
+
+msgid "Configure"
+msgstr "Yapılandır"
+
 msgid "Configure All '%s' Options"
 msgstr "Tüm '%s' Seçeneklerini Yapılandırın"
 
@@ -2308,9 +2605,6 @@ msgstr "Onay"
 msgid "Confirmation email will be sent to %s"
 msgstr "Onay e-postası %s adresine gönderilecek"
 
-msgid "Confirmation link"
-msgstr "Onay bağlantısı"
-
 msgid "Connected"
 msgstr "Bağlandı"
 
@@ -2329,8 +2623,8 @@ msgstr "İletişim Formu İSTENMEYEN"
 msgid "Contact Form SPAM Checking"
 msgstr "İletişim Formu İstenmeyen Kontrolü"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "İletişim Formu istenmeyen içeriği yalnızca her form sağlayıcısı için özel olarak oluşturulmuş bir entegrasyonla engellenebilir - formunuz desteklenmiyorsa, lütfen destek ekibimizle iletişime geçin."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "İletişim Formu istenmeyen içeriği yalnızca her form sağlayıcısı için özel olarak oluşturulmuş bir entegrasyonla engellenebilir; formunuz desteklenmiyorsa, lütfen destek ekibimizle iletişime geçin."
 
 msgid "Contact Forms Integration"
 msgstr "İletişim Formları Entegrasyonu"
@@ -2395,8 +2689,8 @@ msgstr "Koordinatlar"
 msgid "Core Reinstalled: v%s"
 msgstr "Çekirdek Yeniden Yüklendi: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Çekirdek Yükseltildi: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Çekirdek Yükseltildi: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Oluşturulmuş bir kullanıcı oturumunun ({{user_login}}) temel özellikleri değişti."
@@ -2443,8 +2737,8 @@ msgstr "Dizin oluşturulamadı: %s"
 msgid "Couldn't create the export file."
 msgstr "Dışa aktarma dosyası oluşturulamadı."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Shield eklentisi durumu belirlenemedi."
+msgid "Couldn't determine %s plugin status."
+msgstr "%s eklenti durumu belirlenemedi."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "'%s' kısa adı için eklenti yüklenemedi."
@@ -2455,11 +2749,17 @@ msgstr "'%s' kısa adı için tema yüklenemedi."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "MU eklenti şablonu %s konumundan okunamadı"
 
+msgid "Count"
+msgstr "Sayı"
+
 msgid "Country"
 msgstr "Ülke"
 
 msgid "Country Code"
 msgstr "Ülke Kodu"
+
+msgid "Create %s Network"
+msgstr "%s Ağı Oluştur"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Yedek 2FA Giriş Kodu Oluştur"
@@ -2482,9 +2782,6 @@ msgstr "Yeni Kural Oluştur"
 msgid "Create Report"
 msgstr "Rapor Oluştur"
 
-msgid "Create Shield Network"
-msgstr "Shield Ağı Oluştur"
-
 msgid "Create and view all your custom security rules."
 msgstr "Tüm özel güvenlik kurallarınızı oluşturun ve görüntüleyin."
 
@@ -2502,6 +2799,9 @@ msgstr "Burada bir yol oluşturmak 'wp-login.php' dosyanızı devre dışı bır
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Özel kural oluşturma gelişmiş bir özelliktir ve oluşturduğum kurallardan kaynaklanan tüm sorunların sorumluluğunu kabul ediyorum."
+
+msgid "Critical"
+msgstr "Kritik"
 
 msgid "Critical File Protection"
 msgstr "Kritik Dosya Koruması"
@@ -2578,9 +2878,6 @@ msgstr "Geçerli Dosya İçeriği"
 msgid "Current Scan"
 msgstr "Geçerli Tarama"
 
-msgid "Current Scan Results"
-msgstr "Geçerli Tarama Sonuçları"
-
 msgid "Current Session Age (seconds)"
 msgstr "Mevcut Oturum Yaşı (saniye)"
 
@@ -2589,9 +2886,6 @@ msgstr "Mevcut Oturum Sonlandırıldı"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Mevcut Oturum Belirteci Yaşı (saniye)"
-
-msgid "Current Summary"
-msgstr "Geçerli Özet"
 
 msgid "Current User Sessions"
 msgstr "Geçerli Kullanıcı Oturumları"
@@ -2619,9 +2913,6 @@ msgstr "Özel Hata Ayıklama"
 
 msgid "Custom Exclusions"
 msgstr "Özel İstisnalar"
-
-msgid "Custom Report on %s"
-msgstr "%s Tarihinde Özel Rapor"
 
 msgid "Custom Rules"
 msgstr "Özel Kurallar"
@@ -2704,14 +2995,14 @@ msgstr "Tarih Aralığı"
 msgid "Day"
 msgstr "Gün"
 
+msgid "Deactivate %s"
+msgstr "%s Etkisizleştir"
+
 msgid "Deactivate Akismet"
 msgstr "Akismet'i Etkisizleştir"
 
 msgid "Deactivate Rule"
 msgstr "Kuralı Etkisizleştir"
-
-msgid "Deactivate Shield"
-msgstr "Shield'i Etkisizleştir"
 
 msgid "Deactivated"
 msgstr "Etkisizleştirildi"
@@ -2727,9 +3018,6 @@ msgstr "Debug Açık"
 
 msgid "Debug Tests"
 msgstr "Hata Ayıklama Testleri"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "Hata ayıklama ve bilgi günlüğü yalnızca belirli sorunları araştırırken etkinleştirilmelidir."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Bir bot belirli eylemleri gerçekleştirdiğinde %s'nin nasıl yanıt vermesi gerektiğine karar verin."
@@ -2749,8 +3037,8 @@ msgstr "Varsayılan Yönetici Kullanıcısı"
 msgid "Default User Role"
 msgstr "Varsayılan Kullanıcı Rolü"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Varsayılan kullanıcı rolü değişti: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Varsayılan kullanıcı rolü değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Varsayılan: Her 24 saatte bir. Güvenliği artırmak için günlük tarama sayısını artırın."
@@ -2806,14 +3094,11 @@ msgstr "Silinen Tablolar"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Silinen kullanıcının yazıları '{{user_login}}' kullanıcısına yeniden atandı."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Shield v20 ile önemli kullanıcı arayüzü değişiklikleri"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: %s v20 ile Önemli Arayüz Değişiklikleri"
 
 msgid "Demoted From Admin"
 msgstr "Yöneticiden Düşürüldü"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "Ayarlarınıza bağlı olarak, bu raporlar uyarılar, istatistikler ve diğer bilgilerin bir kombinasyonunu içerebilir."
 
 msgid "Description"
 msgstr "Açıklama"
@@ -2880,6 +3165,9 @@ msgstr "Algılandı"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Geçersiz e-posta adresiyle ({{email}}) kullanıcı kaydı tespit edildi."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Doğru ziyaretçi IP adresini tespit etmek, her site ziyaretçisini bir diğerinden ayırt etmek için kritik öneme sahiptir."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Onları erken tespit edip engellemek, en büyük koruma kaynağınızdır."
@@ -2953,6 +3241,9 @@ msgstr "Modülü Devre Dışı Bırak"
 msgid "Disable Security Admin"
 msgstr "Security Admin Devre Dışı Bırak"
 
+msgid "Disable Security Admin via Email"
+msgstr "Security Admin E-posta ile Devre Dışı Bırak"
+
 msgid "Disable Shield"
 msgstr "Shield Devre Dışı Bırak"
 
@@ -2989,6 +3280,9 @@ msgstr "XML-RPC uç noktasını devre dışı bırakın ve tüm istekleri engell
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Mevcut güncellemeler ve güncelleme sonrası bildirimler hakkındaki belirli eklenti yönetici bildirimlerini gizlemek için bu seçeneği devre dışı bırakın."
 
+msgid "Disabled"
+msgstr "Devre Dışı"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Anonim erişimi devre dışı bırakmak, site ziyaretçileriniz için REST API kullanan eklentileri bozabilir."
 
@@ -2998,8 +3292,8 @@ msgstr "Bağlantı Kesildi"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Yazarları tarafından terk edilmiş olabilecek eklentileri keşfedin"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Shield Security planınızı yükselttiğinizde en kapsamlı WordPress güvenliğini keşfedin."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "%s planınızı yükselttiğinizde en kapsamlı WordPress güvenliğini keşfedin."
 
 msgid "Discovered"
 msgstr "Keşfedildi"
@@ -3009,6 +3303,9 @@ msgstr "Sitenizde kötü amaçlı yazılım keşfetmek 'koruma' değildir - asl�
 
 msgid "Disk Space"
 msgstr "Disk Alanı"
+
+msgid "Dismiss"
+msgstr "Kapat"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Zorunlu Olmayan Eklenti Bildirimlerini ve Yönetici Araç Çubuğu Menüsünü Görüntüle"
@@ -3064,8 +3361,8 @@ msgstr "İstek yapan IP'nin ana bilgisayar adı verilen ana bilgisayar adıyla e
 msgid "Does the method of the request match the given specified method to match."
 msgstr "İsteğin yöntemi eşleştirilecek belirtilen yöntemle eşleşiyor mu?"
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "İstek tüm Shield kısıtlamalarını atlıyor mu."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "İstek tüm %s kısıtlamalarını atlıyor mu?"
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "İstek, sağlanan adla bir parametre içeriyor mu?"
@@ -3097,8 +3394,8 @@ msgstr "İstek betik adı verilen adla eşleşiyor mu."
 msgid "Does the request useragent match the given useragent."
 msgstr "İstek kullanıcı aracısı verilen kullanıcı aracısıyla eşleşiyor mu?"
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "Verilen Shield Oturum parametresinin değeri verilen kalıpla eşleşiyor mu."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "Verilen %s Oturum parametresinin değeri verilen kalıpla eşleşiyor mu?"
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "Verilen istek parametresinin değeri verilen kalıpla eşleşiyor mu?"
@@ -3115,8 +3412,8 @@ msgstr "Aşağıdaki Rollere Sahip Kullanıcılar İçin Yorumları Tarama"
 msgid "Don't want these email alerts?"
 msgstr "Bu e-posta uyarılarını istemiyor musunuz?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Düşürüldü: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Düşürüldü: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "indir"
@@ -3130,6 +3427,9 @@ msgstr "IP Kurallarını CSV Olarak İndir"
 msgid "Download Modified"
 msgstr "Değiştirilen İndir"
 
+msgid "Download Now"
+msgstr "Şimdi İndir"
+
 msgid "Download Options Export File"
 msgstr "Seçenekleri Dışa Aktarma Dosyasını İndir"
 
@@ -3139,11 +3439,17 @@ msgstr "Orijinali İndir"
 msgid "Download Request Logs"
 msgstr "İstek Günlüklerini İndir"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "İndirme başarısız oldu. ShieldNet API'sinin kullanılabilir olduğunu ve dil paketinin mevcut olduğunu kontrol edin."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "CrowdSec'ten {{scope}} kapsamı için itibar kararları indirildi."
 
 msgid "Downloading file, please wait..."
 msgstr "Dosya indiriliyor, lütfen bekleyin..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Dil paketi için çeviri indiriliyor: %s"
 
 msgid "Duration"
 msgstr "Süre"
@@ -3160,8 +3466,8 @@ msgstr "Bu listedeki her site, gizli anahtar sağlamadan bu siteden seçenekleri
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Her Yerde Mevcut En Kolay, Sorunsuz WP Pro Yükseltmesi"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Site güvenliğinizi MainWP içinden yönetmenize yardımcı olmak için Shield Security'yi kolayca entegre edin."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Site güvenliğinizi MainWP içinden yönetmenize yardımcı olmak için %s'i kolayca entegre edin."
 
 msgid "Edit"
 msgstr "Düzenle"
@@ -3169,8 +3475,8 @@ msgstr "Düzenle"
 msgid "Edit Rule"
 msgstr "Kuralı Düzenle"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "#%s Kuralını Düzenle (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Kural #%1$s (%2$s) Düzenle"
 
 msgid "Edit Settings"
 msgstr "Ayarları Düzenle"
@@ -3220,8 +3526,8 @@ msgstr "Giriş ve kullanıcı formlarınıza koruma uygulayan ayarları düzenle
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Otomatik IP engellemeyi kontrol eden ayarları düzenleyin"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "silentCAPTCHA'nın botları nasıl algıladığını kontrol eden ayarları düzenleyin"
+msgid "Edit settings that control how %s detects bots"
+msgstr "%s'in botları nasıl algıladığını kontrol eden ayarları düzenleyin"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Minimum parola gücü uygulamak için ayarları düzenleyin"
@@ -3250,8 +3556,8 @@ msgstr "Bu seçeneğin düzenlenmesi şu anda kısıtlanmış."
 msgid "Either the country code or phone number were missing."
 msgstr "Ülke kodu veya telefon numarası eksikti."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Shield Security planınızı yükselterek WordPress güvenliğinizi sınıfının en iyisi seviyesine çıkarın."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "%s planınızı yükselterek WordPress güvenliğinizi sınıfının en iyisi seviyesine çıkarın."
 
 msgid "Email"
 msgstr "e-posta"
@@ -3304,8 +3610,8 @@ msgstr "Yeni yorumlar için e-posta bildirimleri"
 msgid "Email sending has already been verified."
 msgstr "E-posta gönderimi zaten doğrulandı."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "%s Eklentisi v%s tarafından %s tarihinde gönderilen e-posta."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "%3$s üzerinde %1$s Eklentisi v%2$s tarafından gönderilen e-posta."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "E-posta gönderildi. Bağlantının BU tarayıcıda açıldığından emin olun."
@@ -3334,8 +3640,8 @@ msgstr "Sitenize gönderilen kötü amaçlı verileri tespit etmek ve engellemek
 msgid "Empty User Agents"
 msgstr "Boş Kullanıcı Aracıları"
 
-msgid "Empty response from Shield client site"
-msgstr "Shield istemci sitesinden boş yanıt"
+msgid "Empty response from %s client site"
+msgstr "%s istemci sitesinden boş yanıt"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Başlatma için boş kök dosya sağlandı"
@@ -3568,14 +3874,20 @@ msgstr "hata"
 msgid "Error Log Message"
 msgstr "Hata Günlüğü Mesajı"
 
+msgid "Error: {{error}}"
+msgstr "Hata: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Memnun olduğunuzu söyleyen tek satırlık bir inceleme bile bize çok yardımcı olacaktır."
+
 msgid "Event"
 msgstr "Olay"
 
 msgid "Event %s does not exist."
 msgstr "%s olayı mevcut değil."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Olay (%s) tanımı, mevcut olmayan denetim parametrelerine sahip: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Olay (%1$s) tanımında bulunmayan denetim parametreleri var: %2$s"
 
 msgid "Event Details"
 msgstr "Olay Ayrıntıları"
@@ -3661,6 +3973,9 @@ msgstr "Lisans sunucusuna bağlanılamadı."
 msgid "Failed to create custom report."
 msgstr "Özel rapor oluşturulamadı."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Dil paketi için çeviri dosyası indirilemedi: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Yol için dosya kilitleme kaydı eklenemedi: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Tarama öğesi onarılamadı."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Güvenlik Duvarı Engelleme e-posta uyarısı gönderilemedi: {{to}}"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "SureSend kullanılarak '{{email}}' adresine e-posta (tür: {{slug}}) gönderilemedi."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "%s kullanılarak '{{email}}' adresine e-posta (tür: {{slug}}) gönderilemedi."
 
 msgid "Failed to store the rule in the database."
 msgstr "Kural veritabanında depolanamadı."
@@ -3796,8 +4111,8 @@ msgstr "Dosya içeriği şifrelenemedi. Mesaj:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "Dosya içeriği şifrelemeden sonra wp_json_encode() ile kodlanamadı."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Dosya %s tarayıcısı tarafından %s olarak algılandı."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Dosya %2$s tarayıcısı tarafından %1$s olarak algılandı."
 
 msgid "File does not exist."
 msgstr "Dosya mevcut değil."
@@ -3997,14 +4312,17 @@ msgstr "Oluşturuldu"
 msgid "Generating a new code will replace your existing code."
 msgstr "Yeni bir kod oluşturmak mevcut kodunuzu değiştirecektir."
 
+msgid "Get %s!"
+msgstr "%s Edinin!"
+
 msgid "Get All PRO Security Features"
 msgstr "Tüm PRO Güvenlik Özelliklerini Edinin"
 
-msgid "Get ShieldPRO!"
-msgstr "ShieldPRO Edinin!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "3 Dakikadan Kısa Sürede Başlayın"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Bugün %s ürününün risksiz, yükümlülüksüz ücretsiz denemesini edinin."
 
 msgid "Global Plugin Enable"
 msgstr "Genel Eklenti Etkinleştirme"
@@ -4039,6 +4357,9 @@ msgstr "Pro'ya Geç!"
 msgid "Go To %s"
 msgstr "%s Sayfasına Git"
 
+msgid "Go To %s Overview"
+msgstr "%s Genel Bakışına Git"
+
 msgid "Go To Admin"
 msgstr "Yönetim Paneline Git"
 
@@ -4050,9 +4371,6 @@ msgstr "Genel Bakışa Git"
 
 msgid "Go To Security Dashboard"
 msgstr "Güvenlik Başlangıç Ekranına Git"
-
-msgid "Go To Shield Overview"
-msgstr "Shield Genel Görünüme Git"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "%s eklentisiyle ayarları yönetmek ve kimlik doğrulaması yapmak için buraya gidin."
@@ -4111,14 +4429,14 @@ msgstr "Gönderilecek HTTP Yanıt Başlığı"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "Ana Sayfa adresi ve WP Site adresi için HTTPS ayarları tutarlı değil."
 
-msgid "Handshake ShieldNET"
-msgstr "ShieldNET ile Bağlantı Kur"
+msgid "Handshake %s"
+msgstr "El Sıkışma %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Donanım İki Faktörlü Kimlik Doğrulama"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Geçerli Shield Kullanıcı Oturumlarına Sahip"
+msgid "Has Valid %s User Sessions"
+msgstr "Geçerli %s Kullanıcı Oturumlarına Sahip"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Sitede kullanıcılar tarafından kullanılan parolalar üzerinde tam kontrole sahip olun."
@@ -4135,11 +4453,14 @@ msgstr "Yardım Masası makalesi"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Yardım Masası ve Bilgi Bankası"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Shield'ın sitenizi şu anda koruduğu yollardan bazıları:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "%s'ın sitenizi zaten koruduğu yollardan bazıları şunlardır:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Burada ne tür kötü amaçlı verileri tarayacağınızı seçersiniz."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "İşte raporlama dönemi için güvenlik genel bakışınız. Aşağıdaki sorunları inceleyin ve gerektiğinde harekete geçin."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Ancak burada, güvenli bir durumda olduklarından emin olmak için kullanıcı hesaplarının kendisine odaklanıyoruz."
@@ -4189,8 +4510,8 @@ msgstr "Giriş Adresi"
 msgid "Home URL Changed"
 msgstr "Giriş Adresi Değiştirildi"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "Giriş adresi değişti: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "Giriş adresi değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "Giriş sayfası"
@@ -4297,11 +4618,14 @@ msgstr "İnsan İstenmeyen Filtresi"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "İnsan istenmeyen filtresi tekrarlanan yorum istenmeyen girişimlerini tespit etti."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "İnsan istenmeyen filtresi '%s' içinde '%s' buldu"
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "İnsan istenmeyen filtresi \"%2$s\" içinde \"%1$s\" buldu"
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "İnsan istenmeyen filtresi '{{key}}' içinde '{{word}}' buldu"
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "İnsan istenmeyen içeriği hâlâ en çok hayal kırıklığına neden oluyor çünkü genellikle istenmeyen içerik savunmalarını atlatıyor."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Mevcut Seçeneklerin Üzerine Yazılacağını Anlıyorum"
@@ -4327,17 +4651,11 @@ msgstr "Önbellekleme kullanırsam ve sonrasında temizlemezsem, ziyaretçiler i
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Bu siteye tüm trafiği engellemenin sonuçlarını anlıyorum."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Shield'ın beyaz listelerini ve istisnalarını dikkate almayan bir kural oluşturmanın risklerini anlıyorum ve kilitlendiğimde erişimi yeniden kazanmakta zorlanabilirim."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "%s'in beyaz listelerini ve istisnalarını dikkate almayan bir kural oluşturmanın risklerini anlıyorum ve kilitlenir isem erişimi yeniden kazanmakta zorlanabilirim."
 
 msgid "I'd like to learn more, please"
 msgstr "Daha fazla bilgi edinmek istiyorum, lütfen"
-
-msgid "I'd rather not show this support"
-msgstr "Bu desteği göstermemeyi tercih ederim"
-
-msgid "I've done this already"
-msgstr "Bunu zaten yaptım"
 
 msgid "ID"
 msgstr "kimlik"
@@ -4350,6 +4668,9 @@ msgstr "ÖNEMLİ"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "IP %s Puanı Sıfırlandı."
 
 msgid "IP Address"
 msgstr "IP adresi"
@@ -4552,9 +4873,6 @@ msgstr "IP otomatik engelleme listesinde değil."
 msgid "IP provided was invalid."
 msgstr "Sağlanan IP geçersizdi."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "IP silentCAPTCHA puanı sıfırlandı."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Bir kullanıcıya birden fazla rol atanmışsa, tüm roller bu listeye g
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Kötü amaçlı veri tespit edilirse, istek hemen sonlandırılacaktır."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Doğru ayar %s değilse, barındırma sağlayıcınızla iletişime geçerek barındırmanızı %s'nin gerçek ziyaretçi IP adresini sağlayacak şekilde yapılandırmalarını talep etmenizi öneririz."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Doğru ayar %1$s değilse, barındırma sağlayıcınızla iletişime geçerek barındırmanızı %2$s'in gerçek ziyaretçi IP adresini sağlayacak şekilde yapılandırmalarını talep etmenizi öneririz."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "İstediğiniz sağlayıcı listede yoksa, destek ekibimizle iletişime geçin; bir entegrasyon oluşturulup oluşturulamayacağını göreceğiz."
@@ -4642,8 +4960,8 @@ msgstr "Kullanıcı belirtilen saat sayısı boyunca etkin değilse, bir sonraki
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Kullanıcı belirtilen saat sayısı boyunca etkin değilse, bir sonraki geri döndüklerinde zorla oturumu kapatılacaktır. Bu seçeneği kapatmak için '0' olarak ayarlayın."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Ziyaretçi puanı Minimum silentCAPTCHA Puanınızı karşılayamazsa, isteği (giriş, WP yorumu vb.) engelleyebiliriz. Daha yüksekse izin veririz."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Ziyaretçi puanı Minimum %s Puanınızı karşılamıyorsa, isteği (giriş, WP yorumu vb.) engelleyebiliriz. Daha yüksekse, izin veririz."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Bu bir MainWP istemci sitesiyse, MainWP Yönetici Sunucunuzun IP adresini IP bypass listenize eklemelisiniz."
@@ -4656,6 +4974,9 @@ msgstr "Bu sayfa yenilendikten sonra bu mesaj hala görünüyorsa, lütfen eklen
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Bu sorun devam ederse lütfen destekle iletişime geçin: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Bu siteye zaten atanmış bir %s lisansınız varsa,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Herhangi bir nedenle sizin veya kullanıcılarınızın posta kutularının tehlikeye girdiğine inanıyorsanız bu seçeneği devre dışı bırakmalısınız."
@@ -4702,11 +5023,8 @@ msgstr "Bir yönetici kullanıcı bu WordPress sitesine her giriş yaptığında
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Bir yönetici kullanıcı bu WordPress sitesine her giriş yaptığında bildirim almak isterseniz, bir bildirim e-posta adresi girin. E-posta adresi yok - Bildirim yok."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "WordPress e-postalarını göndermek için özel bir e-posta hizmeti sağlayıcısı kullanmıyorsanız, bu önemli e-postalar için SureSend'i etkinleştirmelisiniz."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "PIN kodunuzu unuttuysanız, bu kısıtlamayı devre dışı bırakmak için yukarıdaki menüyü kullanın."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "WordPress e-postaları göndermek için özel bir e-posta hizmeti sağlayıcısı kullanmıyorsanız, bu önemli e-postalar için %s'i etkinleştirmelisiniz."
 
 msgid "Ignore"
 msgstr "Yoksay"
@@ -4737,9 +5055,6 @@ msgstr "İçe Aktarma Bildirimi Gönderildi"
 
 msgid "Import Options"
 msgstr "Seçenekleri İçe Aktar"
-
-msgid "Import Settings From Another Site"
-msgstr "Başka Bir Siteden Ayarları İçe Aktar"
 
 msgid "Import file was empty"
 msgstr "İçe aktarma dosyası boştu"
@@ -4870,11 +5185,14 @@ msgstr "%s IP Adresi İçin Bilgi"
 msgid "Info Reports Frequency"
 msgstr "Bilgi Raporu Sıklığı"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Bilgi günlüğü yalnızca belirli sorunları araştırırken etkinleştirilmelidir."
+
 msgid "Information and reports are typically statistics."
 msgstr "Bilgiler ve raporlar genellikle istatistiklerdir."
 
-msgid "Install Shield"
-msgstr "Shield Yükle"
+msgid "Install %s"
+msgstr "%s Yükle"
 
 msgid "Installation Directory"
 msgstr "Kurulum Dizini"
@@ -4909,6 +5227,9 @@ msgstr "Aralık saniye cinsinden ölçülür."
 msgid "Invalid"
 msgstr "geçersiz"
 
+msgid "Invalid %s extension configuration"
+msgstr "Geçersiz %s uzantı yapılandırması"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Geçersiz Eylem Geçici İstisnası."
 
@@ -4933,9 +5254,6 @@ msgstr "Geçersiz Betik Yüklemesi"
 msgid "Invalid Scripts"
 msgstr "Geçersiz Betikler"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Geçersiz Shield uzantısı yapılandırması"
-
 msgid "Invalid Slug"
 msgstr "Geçersiz Kısaltma"
 
@@ -4948,9 +5266,6 @@ msgstr "Geçersiz Kullanıcı Aracısı"
 msgid "Invalid User Email Registration"
 msgstr "Geçersiz Kullanıcı E-posta Kaydı"
 
-msgid "Invalid User-Agent"
-msgstr "Geçersiz Kullanıcı Aracısı"
-
 msgid "Invalid Username Login"
 msgstr "Geçersiz Kullanıcı Adı Girişi"
 
@@ -4959,6 +5274,12 @@ msgstr "Geçersiz Kullanıcı Adları"
 
 msgid "Invalid action"
 msgstr "Geçersiz eylem"
+
+msgid "Invalid batch request format."
+msgstr "Geçersiz toplu istek biçimi."
+
+msgid "Invalid batch request item."
+msgstr "Geçersiz toplu istek öğesi."
 
 msgid "Invalid download item data."
 msgstr "Geçersiz indirme öğesi verisi."
@@ -4975,6 +5296,15 @@ msgstr "Geçersiz dosya kilitleme türü indirmesi"
 msgid "Invalid login nonce"
 msgstr "Geçersiz giriş geçici"
 
+msgid "Invalid login session."
+msgstr "Geçersiz giriş oturumu."
+
+msgid "Invalid or expired login session."
+msgstr "Geçersiz veya süresi dolmuş oturum açma oturumu."
+
+msgid "Invalid profile request."
+msgstr "Geçersiz profil isteği."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Geçersiz istek - kilitleme zaten etkin."
 
@@ -4984,11 +5314,8 @@ msgstr "Geçersiz istek - kilitleme etkin değil."
 msgid "Invalid request with no User ID"
 msgstr "Kullanıcı Kimliği olmayan geçersiz istek"
 
-msgid "Invalid response from Shield client site"
-msgstr "Shield istemci sitesinden geçersiz yanıt"
-
-msgid "Invalid session selected"
-msgstr "Geçersiz oturum seçildi"
+msgid "Invalid response from %s client site"
+msgstr "%s istemci sitesinden geçersiz yanıt"
 
 msgid "Invalid specification of modules"
 msgstr "Geçersiz modül belirtimi"
@@ -4996,14 +5323,26 @@ msgstr "Geçersiz modül belirtimi"
 msgid "Invalid type."
 msgstr "Geçersiz tür."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "'{{useragent}}' konumunda geçersiz kullanıcı aracısı tespit edildi."
-
 msgid "Invalid value scope for %s"
 msgstr "%s için geçersiz değer kapsamı"
 
 msgid "Invalid value type for %s"
 msgstr "%s için geçersiz değer türü"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "%s Eklenti İşlevselliği Devre Dışı mı."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "%s Trafik Rate Limiting Etkin mi."
+
+msgid "Is %s live logging enabled."
+msgstr "%s canlı günlük kaydı etkin mi."
+
+msgid "Is %s score"
+msgstr "%s puanı"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "%s Site Kilidi etkin mi."
 
 msgid "Is It You?"
 msgstr "Bu Siz misiniz?"
@@ -5017,20 +5356,8 @@ msgstr "İstek Durumu 404 mü"
 msgid "Is Request To The Login Page."
 msgstr "Giriş Sayfasına Yapılan İstek."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Shield Eklentisi İşlevselliği Devre Dışı mı."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Shield Trafik Rate Limiting Etkin mi."
-
-msgid "Is Shield live logging enabled."
-msgstr "Shield canlı günlük kaydı etkin mi."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Shield'ın Site Kilitlemesi etkin mi."
-
-msgid "Is The Shield Option Value..."
-msgstr "Shield Seçenek Değeri..."
+msgid "Is The %s Option Value..."
+msgstr "%s Seçenek Değeri..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Geçerli Genel IP Adresi"
@@ -5038,8 +5365,8 @@ msgstr "Geçerli Genel IP Adresi"
 msgid "Is Viable"
 msgstr "Uygulanabilir mi"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Ziyaretçi silentCAPTCHA Puanı ..."
+msgid "Is Visitor %s Score ..."
+msgstr "Ziyaretçi %s Puanı ..."
 
 msgid "Is WP AJAX"
 msgstr "WP AJAX mi"
@@ -5098,11 +5425,8 @@ msgstr "Mevcut kullanıcı oturum açmış bir WordPress yöneticisi mi?"
 msgid "Is current user password expired."
 msgstr "Mevcut kullanıcının parolasının süresi doldu mu?"
 
-msgid "Is silentCAPTCHA score"
-msgstr "silentCAPTCHA puanı"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Shield eklentisi \"forceoff\" durumunda mı."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "%s eklentisi \"forceoff\" durumunda mı."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Geçerli IP adresi \"yüksek itibar\" olarak kabul ediliyor mu?"
@@ -5116,23 +5440,23 @@ msgstr "Mevcut kullanıcı oturumu belirteci yaşı sağlanan değerden daha az 
 msgid "Is the request HTTPS."
 msgstr "İstek HTTPS mi."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "İstek IP adresi Shield tarafından otomatik veya manuel olarak engellendi mi?"
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "İstek IP adresi %s tarafından otomatik veya manuel olarak engellenmiş mi?"
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "İstek IP adresi Shield tarafından kara listeye alınmış mı?"
+msgid "Is the request IP blacklisted by %s."
+msgstr "İstek IP adresi %s tarafından kara listeye alınmış mı?"
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "İstek IP adresi Shield'ın CrowdSec engelleme listesinde mi?"
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "İstek IP'si %s'in CrowdSec engelleme listesinde mi."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "İstek IP adresi Shield'ın Manuel engelleme listesinde mi?"
+msgid "Is the request IP on %s's Manual block list."
+msgstr "İstek IP'si %s'in manuel engelleme listesinde mi."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "İstek IP adresi Shield'ın otomatik engelleme listesinde mi."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "İstek IP'si %s'in otomatik engelleme listesinde mi."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "İstek IP adresi Shield'ın manuel bypass listesinde/beyaz listesinde mi."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "İstek IP adresi %s'ın manuel bypass listesinde/beyaz listesinde mi?"
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "İstek, güvenilir bir hizmet sağlayıcısından kaynaklanan bir bot mu?"
@@ -5143,17 +5467,17 @@ msgstr "İstek bir sunucu geri döngü isteği mi."
 msgid "Is the request an HTTP 404."
 msgstr "İstek bir HTTP 404 mü."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "İstek Shield'ın Site Kilitleme özelliği tarafından engellendi mi."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "İstek %s'ın Site Kilitleme özelliği tarafından engellenmiş mi?"
 
 msgid "Is the request from a logged-in user."
 msgstr "İstek oturum açmış bir kullanıcıdan mı?"
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "İstek Shield Security Yöneticisi olarak kimliği doğrulanmış bir kullanıcıdan mı."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "İstek %s Yöneticisi olarak kimliği doğrulanmış bir kullanıcıdan mı?"
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "İstek yolu Shield tarafından beyaz listeye alınmış mı?"
+msgid "Is the request path whitelisted by %s."
+msgstr "İstek yolu %s tarafından beyaz listede mi."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "İstek şu anda yüklü bir WordPress eklentisi içindeki bir yola mı."
@@ -5212,6 +5536,9 @@ msgstr "Bulunan Sorunlar"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Aşağıda listelenen sorunlar mümkün olan en kısa sürede ele alınmalıdır"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Ayrıca kritik WordPress ayarlarının kilitlenmesine yardımcı olur."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "Ayrıca çekirdek WP dizinlerinde (%s) olmaması gereken dosyaları arar."
 
@@ -5266,8 +5593,8 @@ msgstr "IP adresinizin (%s) şu anda engellenmiş olduğu görünüyor."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Ancak tekrarlanan görüntüyü önlemek için %s güvenlik rozetinin kapatılmasını kaydetmek üzere bir çerez kullanabilir."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Botları güvenilir bir şekilde tanımlamak için özel silentCAPTCHA Motorumuzu kullanır."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Botları güvenilir bir şekilde tanımlamak için özel %s Motorumuzu kullanır."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "'{{to}}' adresine '{{subject}}' konusuyla gönderildi."
@@ -5275,8 +5602,8 @@ msgstr "'{{to}}' adresine '{{subject}}' konusuyla gönderildi."
 msgid "It will be displayed below when it's ready."
 msgstr "Hazır olduğunda aşağıda görüntülenecektir."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Otomatik olarak uygun bir konum bulacaktır, ancak bu başarısız olursa sitenizde PHP uyarıları görebilirsiniz ve belirli Shield işlevleri kullanılamayacaktır."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Otomatik olarak uygun bir konum bulacaktır, ancak bu başarısız olursa sitenizde PHP uyarıları görebilirsiniz ve belirli %s işlevleri kullanılamayacaktır."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Karmaşık bir alandır ve yanlış kullanılırsa ön uç kullanıcı deneyiminizi kolayca bozabilir."
@@ -5298,9 +5625,6 @@ msgstr "Özellikle boşta kaldığında oturum süresini sınırlamak iyi bir uy
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Oturum hırsızlığını önlemeye yardımcı olmak için bir oturumu en az 1 özelliğe kilitlemek iyi bir uygulamadır."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "İnsan kaynaklı istenmeyen içerik en çok hayal kırıklığına neden olanıdır, çünkü genellikle savunmalarımızı tetiklemezler."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Bir WordPress eklenti dizininde bulunuyor ve o eklenti sürümü için geçerli bir dosya olarak tanınıyor."
@@ -5338,8 +5662,8 @@ msgstr "Öğe onarıldı: '{{path_full}}'"
 msgid "Items Found In Scan"
 msgstr "Taramada Bulunan Öğeler"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Shield Security Bültenine Katılın"
+msgid "Join The %s Newsletter"
+msgstr "%s Bültenine Katılın"
 
 msgid "Join Us"
 msgstr "Bize Katılın"
@@ -5347,8 +5671,14 @@ msgstr "Bize Katılın"
 msgid "Join Us!"
 msgstr "Bize Katılın!"
 
+msgid "Join our %s Newsletter"
+msgstr "%s Bültenimize Katılın"
+
 msgid "Jump To Module Settings"
 msgstr "Modül Ayarlarına Git"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "%s Facebook grubumuza katılın; aktif topluluğumuzdan sorular sorabilir ve en son haberlerimizden haberdar olabilirsiniz"
 
 msgid "Just grab a new license from the"
 msgstr "Sadece şuradan yeni bir lisans alın"
@@ -5437,6 +5767,9 @@ msgstr "Son Senkronizasyon"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "Son olarak, botların (veya insanların) herhangi bir nedenle sitede istenmeyen hesaplar kaydetme yeteneğini önlemek istiyoruz."
 
+msgid "Latest Scan Results"
+msgstr "En Son Tarama Sonuçları"
+
 msgid "Launch Debug Info Page"
 msgstr "Hata Ayıklama Bilgisi Sayfasını Başlat"
 
@@ -5464,6 +5797,12 @@ msgstr "Lisans"
 msgid "License Activation"
 msgstr "Lisans Etkinleştirme"
 
+msgid "License Activation Failed"
+msgstr "Lisans Etkinleştirme Başarısız"
+
+msgid "License Activation Success"
+msgstr "Lisans Etkinleştirme Başarılı"
+
 msgid "License Check Failed"
 msgstr "Lisans Kontrolü Başarısız"
 
@@ -5482,6 +5821,30 @@ msgstr "Lisans Hatası E-postası Gönderildi"
 msgid "License Summary"
 msgstr "Lisans Özeti"
 
+msgid "License activated and verified successfully."
+msgstr "Lisans başarıyla etkinleştirildi ve doğrulandı."
+
+msgid "License activated but verification failed."
+msgstr "Lisans etkinleştirildi ancak doğrulama başarısız oldu."
+
+msgid "License activated successfully."
+msgstr "Lisans başarıyla etkinleştirildi."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "Bu hesapta kullanılabilir lisans olmadığından lisans etkinleştirme başarısız oldu."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "API anahtarı geçersiz olduğu için lisans etkinleştirme başarısız oldu."
+
+msgid "License activation failed."
+msgstr "Lisans etkinleştirme başarısız oldu."
+
+msgid "License activation request failed."
+msgstr "Lisans etkinleştirme isteği başarısız oldu."
+
+msgid "License activation was denied for this site."
+msgstr "Bu site için lisans etkinleştirmesi reddedildi."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Lisans kontrolü başarısız oldu. Uyarı E-postası Gönderiliyor."
 
@@ -5499,9 +5862,6 @@ msgstr "Lisanslar her %s saniyede bir kez kontrol edilebilir"
 
 msgid "Lifetime"
 msgstr "Ömür"
-
-msgid "Lifetime Total"
-msgstr "Ömür Boyu Toplam"
 
 msgid "Light"
 msgstr "Açık"
@@ -5577,6 +5937,12 @@ msgstr "Yerel PHP kötü amaçlı yazılım tarayıcısı etkin ancak yapay zeka
 
 msgid "Locale"
 msgstr "Yerel Ayar"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "\"%1$s\" dil paketi zaten önbellekte: %2$s. Yeniden indirmek için --force kullanın."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "\"%s\" dil paketi indirme için kullanılamıyor."
 
 msgid "Location"
 msgstr "konum"
@@ -5740,11 +6106,11 @@ msgstr "Parola Kaybı Engellendi"
 msgid "Lost Password Bot Protection"
 msgstr "Parola Kaybı Bot Koruması"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "Botlar tarafından gerçekleştirilen Kayıp Parola istenmeyen içeriği silentCAPTCHA tarafından engellenir."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "Botlar tarafından yapılan Parola Kaybı istenmeyenleri %s tarafından engelleniyor."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "Botlar tarafından gerçekleştirilen Kayıp Parola istenmeyen içeriği silentCAPTCHA tarafından engellenmiyor."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "Botlar tarafından yapılan Parola Kaybı istenmeyenleri %s tarafından engellenmiyor."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Beğendiniz mi? Bu Eklentiyi Değerlendirin &#10025;"
@@ -5923,6 +6289,9 @@ msgstr "Eşleştirilecek Meta Değeri"
 msgid "Method"
 msgstr "Yöntem"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Ziyaretçinin insan olduğunu belirtmek için gereken minimum %s puanı"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Minimum Yorum Otomatik Onayı"
 
@@ -5941,9 +6310,6 @@ msgstr "Yorumlar Arasındaki Minimum Zaman Aralığı"
 msgid "Minimum required MainWP server version"
 msgstr "Gerekli minimum MainWP sunucu sürümü"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Ziyaretçinin insan olduğunu belirtmek için gereken minimum silentCAPTCHA puanı"
-
 msgid "Minutes"
 msgstr "Dakika"
 
@@ -5952,6 +6318,12 @@ msgstr "Yanlış yapılandırma ziyaretçileriniz için sorunlara neden olabilir
 
 msgid "Missing"
 msgstr "Eksik"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Toplu istekte eylem kısa adı veya geçici kod eksik."
+
+msgid "Missing request payload for batch request item."
+msgstr "Toplu istek ögesi için istek yükü eksik."
 
 msgid "Mode"
 msgstr "kip"
@@ -5989,6 +6361,12 @@ msgstr "Çoğu istenmeyen içerik botlar tarafından otomatiktir ancak bazen İn
 msgid "Multi-Factor Authentication"
 msgstr "Çok Faktörlü Kimlik Doğrulama"
 
+msgid "Multiple Signals"
+msgstr "Çoklu Sinyaller"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Bu ziyaretçi için birden fazla bot sinyali algılandı."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Virgülle ayrılmış birden fazla e-posta adresi girilebilir."
 
@@ -6013,6 +6391,9 @@ msgstr "MySQL Veritabanı Parolası"
 msgid "N/A"
 msgstr "Yok"
 
+msgid "NEW"
+msgstr "YENİ"
+
 msgid "NO TITLE"
 msgstr "BAŞLIK YOK"
 
@@ -6027,6 +6408,12 @@ msgstr "dolaşım"
 
 msgid "Needs Update"
 msgstr "Güncelleme Gerekli"
+
+msgid "Needs Work"
+msgstr "İyileştirme Gerekli"
+
+msgid "Nested batch requests are not allowed."
+msgstr "İç içe toplu isteklere izin verilmiyor."
 
 msgid "Never"
 msgstr "Asla"
@@ -6045,12 +6432,6 @@ msgstr "Yeni Yönetici(ler)"
 
 msgid "New Comment"
 msgstr "Yeni Yorum"
-
-msgid "New Results"
-msgstr "Yeni Sonuçlar"
-
-msgid "New Scan Results"
-msgstr "Yeni Tarama Sonuçları"
 
 msgid "New User Default Role"
 msgstr "Yeni Kullanıcı Varsayılan Rolü"
@@ -6166,6 +6547,9 @@ msgstr "Hiçbir öğe seçilmedi."
 msgid "No license to remove."
 msgstr "Kaldırılacak lisans yok."
 
+msgid "No locales available from API."
+msgstr "API'den kullanılabilir dil paketi yok."
+
 msgid "No message"
 msgstr "Mesaj yok"
 
@@ -6175,8 +6559,8 @@ msgstr "Kullanılabilir meta yok"
 msgid "No modules specified in the plugin config."
 msgstr "Eklenti yapılandırmasında belirtilen modül yok."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Artık hatırlamanız/kopyalayıp yapıştırmanız gereken lisans anahtarları yok! Site adresinizi ShieldPRO kontrol panelinizde etkinleştirin ve Pro özelliklerinin sitenizde otomatik olarak etkinleştirilmesini sağlayın."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Artık hatırlamanız/kopyalayıp yapıştırmanız gereken lisans anahtarı yok! Sadece site adresinizi %s kontrol panelinizde etkinleştirin ve Pro özelliklerini sitenizde otomatik olarak etkinleştirin."
 
 msgid "No new session activity recorded yet."
 msgstr "Henüz yeni oturum etkinliği kaydedilmedi."
@@ -6192,6 +6576,9 @@ msgstr "Kayıt yok"
 
 msgid "No reporter defined"
 msgstr "Raporlayıcı tanımlı değil"
+
+msgid "No reports generated yet."
+msgstr "Henüz rapor oluşturulmadı."
 
 msgid "No reports have been generated yet."
 msgstr "Henüz rapor oluşturulmadı."
@@ -6247,9 +6634,6 @@ msgstr "Hayır, yardım etmek istemiyorum"
 msgid "Noise"
 msgstr "Gürültü"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Dosya olmayan tarama öğeleri henüz desteklenmiyor."
-
 msgid "Nonce Failed."
 msgstr "Geçici Başarısız."
 
@@ -6304,14 +6688,11 @@ msgstr "Modül için geçerli bir seçenek anahtarı değil: %s"
 msgid "Not a valid option key."
 msgstr "Geçerli bir seçenek anahtarı değil."
 
-msgid "Not a valid scan item record"
-msgstr "Geçerli bir tarama öğesi kaydı değil"
-
 msgid "Not a valid value for this parameter"
 msgstr "Bu parametre için geçerli bir değer değil"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Siteniz ShieldNET API ile bağlantı kuramadığı için kullanılamıyor."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Siteniz %s ile el sıkışamadığı için kullanılamıyor."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Şu anda Security Admin olarak oturum açılmamış."
@@ -6354,9 +6735,6 @@ msgstr "Ana Siteden Seçenekleri Güncellemek İçin Beyaz Listedeki Siteleri Bi
 
 msgid "Notify Whitelist"
 msgstr "Beyaz Listeyi Bilgilendir"
-
-msgid "Now"
-msgstr "Şimdi"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "24 Saat İçinde Çekirdek Dosyaların Otomatik Olarak Kaç Kez Taranacağı"
@@ -6418,6 +6796,9 @@ msgstr "İhlal Sınırı"
 msgid "Offenses couldn't be reset at this time."
 msgstr "İhlaller şu anda sıfırlanamadı."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "İhlaller, bir ziyaretçinin kötü bir şey yapma sayısı için basitçe bir sayaçtır."
+
 msgid "Offenses reset to zero."
 msgstr "İhlaller sıfıra sıfırlandı."
 
@@ -6439,17 +6820,17 @@ msgstr "Tek Kullanımlık Parolalar"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Yalnızca %s Security Admin kullanıcıları başka bir yönetici hesabının MFA ayarlarını değiştirebilir."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Shield'ın ücretsiz sürümünde yalnızca çekirdek WordPress dosyaları taranır."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "%s'in ücretsiz sürümünde yalnızca temel WordPress dosyaları taranır."
 
 msgid "Only enable the integrations you require."
 msgstr "Yalnızca ihtiyacınız olan entegrasyonları etkinleştirin."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Yalnızca seçtiğiniz form türleri (giriş, kayıt, kayıp parola) izlenecektir."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Yalnızca harf ve rakamlara izin verilir: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Yalnızca seçilen form türleri (giriş, kayıt, parola kaybı) izlenecektir."
 
 msgid "Only the first 30 items are shown."
 msgstr "Yalnızca ilk 30 öğe gösterilir."
@@ -6562,8 +6943,8 @@ msgstr "PHP Zararlı Yazılım Tarayıcısı"
 msgid "PHP Version"
 msgstr "PHP Sürümü"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP minimum sürüm gereksinimini karşılamıyor. Sizin sürümünüz: %s. Gerekli sürüm: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP minimum sürüm gereksinimini karşılamıyor. Sürümünüz: %1$s. Gerekli sürüm: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "PHP dosyaları kötü amaçlı yazılım için taranmıyor."
@@ -6718,6 +7099,9 @@ msgstr "Belki de en güçlü özelliklerinden biri, diğer yöneticilerin diğer
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Belki cihaz desteklenmiyor veya zaten kaydetmiş olabilirsiniz."
 
+msgid "Period"
+msgstr "Süre"
+
 msgid "Permalink structure"
 msgstr "Kalıcı bağlantı yapısı"
 
@@ -6727,8 +7111,8 @@ msgstr "Kalıcı Bağlantılar"
 msgid "Permalinks Updated"
 msgstr "Kalıcı Bağlantılar Güncellendi"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Kalıcı bağlantılar değişti: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Kalıcı bağlantılar değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Kalıcı Yönlendirme (301)"
@@ -6790,6 +7174,9 @@ msgstr "Lütfen aldığınız e-postadaki bağlantıya tıklayın."
 msgid "Please click the link provided below to do so."
 msgstr "Lütfen bunu yapmak için aşağıda sağlanan bağlantıya tıklayın."
 
+msgid "Please complete required fields: %s"
+msgstr "Lütfen gerekli alanları doldurun: %s"
+
 msgid "Please complete the form."
 msgstr "Lütfen formu doldurun."
 
@@ -6814,14 +7201,14 @@ msgstr "Daha fazla rehberliğe ihtiyacınız varsa lütfen site yöneticisiyle i
 msgid "Please contact your website administrator."
 msgstr "Lütfen web sitesi yöneticinizle iletişime geçin."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "%s korumasını yeniden etkinleştirmek için lütfen \"%s\" dosyasını silin"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "%2$s korumasını yeniden etkinleştirmek için lütfen \"%1$s\" dosyasını silin"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Lütfen bitiş tarihinin başlangıç tarihinde veya sonrasında olduğundan emin olun."
 
 msgid "Please login again."
 msgstr "Lütfen yeniden giriş yapın."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Kendi oturumunuzu silmek istiyorsanız lütfen çıkış yapın."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "WP Sayfa Önbellekleme eklentilerinin genellikle HTTP Başlıklarını görmezden geldiğini ve testlerinizde bunların yansıdığını görmüyorsanız önbellekleme eklentinizi devre dışı bırakmanız gerektiğini lütfen unutmayın."
@@ -6840,6 +7227,15 @@ msgstr "Lütfen cihazı tanımlamak için bir etiket girin."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Lütfen yeni kimlik doğrulayıcıyı tanımlamak için bir etiket girin."
+
+msgid "Please provide a title for the report."
+msgstr "Lütfen rapor için bir başlık girin."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Lütfen YYYY-AA-GG biçimini kullanarak geçerli bir tarih girin."
+
+msgid "Please provide a valid date."
+msgstr "Lütfen geçerli bir tarih girin."
 
 msgid "Please provide a valid regular expression."
 msgstr "Lütfen geçerli bir düzenli ifade girin."
@@ -6895,6 +7291,9 @@ msgstr "Lütfen IP Kural Türlerinden birini seçin - Engelle veya Bypass"
 msgid "Please select one of the options available"
 msgstr "Lütfen mevcut seçeneklerden birini seçin"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Lütfen bir dil paketi kodu belirtin (örn. --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Lütfen farklı bir parola girin çünkü bu parola sızdırılmış."
 
@@ -6925,17 +7324,17 @@ msgstr "Lütfen bu taramayı seçeneklerde etkinleştirin."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Lütfen Güvenlik Yöneticisi özelliklerini yeniden etkinleştirmek için yeni bir Güvenlik Yöneticisi PIN'i sağlamanız gerektiğini anlayın."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Lütfen Shield eklentilerinizi aynı sürümlere güncelleyin ve yeniden senkronize edin."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Lütfen %s eklentilerinizi aynı sürümlere güncelleyin ve yeniden senkronize edin."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Tüm eklenti dosyalarının kurcalamaya karşı taranmasını desteklemek için lütfen yükseltin."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Özel Güvenlik Kuralları Oluşturucuya erişmek için lütfen Shield Security aboneliğinizi yükseltin."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Bu özellikten yararlanmak için lütfen %s planınızı yükseltin."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Bu özelliği kullanmak için lütfen ShieldPRO planınızı yükseltin."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Özel Güvenlik Kuralları Oluşturucuya erişmek için lütfen %s aboneliğinizi yükseltin."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Birden fazla e-posta adresini bilgilendirmeniz gerekiyorsa lütfen planınızı yükseltin."
@@ -7186,14 +7585,17 @@ msgstr "WordPress tarafından desteklenmektedir"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "Güçlü <strong>Güvenlik Duvarı</strong> kötü amaçlı trafiği engelliyor ve durduruyor."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Shield Security'den WordPress için Güçlü Koruma"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "%s ile WordPress için Güçlü Koruma"
 
 msgid "Powerful User Password Policies"
 msgstr "Güçlü Kullanıcı Parola Politikaları"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Güçlü, Otomatik Öğrenen Zararlı Yazılım Tarayıcı"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Güçlü, Kullanımı Kolay, 1 Numaralı WordPress Güvenlik Sistemi"
 
 msgid "Predicted"
 msgstr "Tahmin Edildi"
@@ -7203,6 +7605,9 @@ msgstr "Tercih Edilen Geçici Dizin"
 
 msgid "Preferred temporary directory override."
 msgstr "Tercih edilen geçici dizin geçersiz kılma."
+
+msgid "Prefix"
+msgstr "Ön ek"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Ön ek: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Kullanıcıların herkese açık \"pwned\" parolalar listesinde bulunan 
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Kullanıcıların herkese açık pwned parolalar listesinde bulunan parolaları kullanmasını engeller."
 
+msgid "Previous"
+msgstr "Önceki"
+
+msgid "Previous Period"
+msgstr "Önceki Dönem"
+
 msgid "Previous Step"
 msgstr "Önceki Adım"
 
@@ -7318,8 +7729,8 @@ msgstr "Yöneticiliğe Yükseltildi"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "WP Girişini Botlar Tarafından Yapılan Otomatik Giriş Denemelerine Karşı Koruyun"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Shield Eklentinizi Kurcalamaya Karşı Koruyun"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "%s Eklentinizi Kurcalamaya Karşı Koruyun"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Normal olarak korunamayan önemli WP çekirdek dosyalarını koruyun."
@@ -7342,6 +7753,9 @@ msgstr "Gelişmiş güvenlik yanıt başlıkları uygulayarak sitenizin ziyaret�
 msgid "Protect your %s files"
 msgstr "%s dosyalarınızı koruyun"
 
+msgid "Protected By %s"
+msgstr "%s Tarafından Korunuyor"
+
 msgid "Protected Forms"
 msgstr "Korunan Formlar"
 
@@ -7350,6 +7764,9 @@ msgstr "<strong>Yorum İstenmeyen</strong> içeriğinin 1 numaralı kaynağına 
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Giriş, Kayıt ve Kayıp Parola gibi <strong>önemli kullanıcı formlarınızı</strong> koruyun."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "WordPress formları için koruma standart olarak dahildir ve %s planınıza bağlı olarak bazı veya tüm 3. taraf entegrasyonlarına erişiminiz olacaktır."
 
 msgid "Protection for user accounts."
 msgstr "Kullanıcı hesapları için koruma."
@@ -7420,9 +7837,6 @@ msgstr "Security Admin PIN'ini Girin/Güncelleyin"
 msgid "Provided by %s"
 msgstr "%s tarafından sağlandı"
 
-msgid "Provided by Shield"
-msgstr "Shield tarafından sağlandı"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "İstek Günlüğü sistemi üzerinde daha hassas kontrol sağlar."
 
@@ -7471,8 +7885,8 @@ msgstr "Rate limiting"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "Hız sınırı ({{count}}) {{span}} saniye içinde {{requests}} istekle aşıldı."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Shield Security'yi kendi markanız olarak yeniden markalaştırın!"
+msgid "Re-Brand %s as your own!"
+msgstr "%s eklentisini kendi markanız olarak yeniden markalaştırın!"
 
 msgid "Re-Install"
 msgstr "Yeniden Yükle"
@@ -7480,8 +7894,8 @@ msgstr "Yeniden Yükle"
 msgid "Re-Install It"
 msgstr "Yeniden Yükle"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Shield Security eklentisini yeniden markalaştırın."
+msgid "Re-brand the %s plugin."
+msgstr "%s eklentisini yeniden markalaştırın."
 
 msgid "Re-enable Protection."
 msgstr "Korumayı yeniden etkinleştirin."
@@ -7512,6 +7926,9 @@ msgstr "Neden"
 
 msgid "Reason: %s"
 msgstr "Neden: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Neden: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Eklenti devre dışı bırakıldığında uyarı alın"
@@ -7651,8 +8068,8 @@ msgstr "Kalan İzin Verilen İhlaller"
 msgid "Remember me for %s"
 msgstr "%s süreyle beni hatırla"
 
-msgid "Remember to include %s or %s"
-msgstr "%s veya %s eklemeyi unutmayın"
+msgid "Remember to include %1$s or %2$s"
+msgstr "%1$s veya %2$s eklemeyi unutmayın"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "Bir kullanıcı için MFA faktörlerinin kaldırılması Güvenlik Yöneticisi tarafından yapılmalıdır"
@@ -7708,6 +8125,9 @@ msgstr "Onarıldı"
 msgid "Repaired item found in the scan."
 msgstr "Taramada onarılan öğe bulundu."
 
+msgid "Repairs"
+msgstr "Onarımlar"
+
 msgid "Repeated Human SPAM"
 msgstr "Tekrarlanan İnsan İstenmeyen"
 
@@ -7735,8 +8155,8 @@ msgstr "Rapor Seçenekleri"
 msgid "Report Sent"
 msgstr "Rapor Gönderildi"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Rapor Gönderildi ({{medium}} aracılığıyla)."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Rapor Gönderildi ({{type}} - {{medium}} üzerinden)."
 
 msgid "Report Title"
 msgstr "Rapor Başlığı"
@@ -8107,17 +8527,17 @@ msgstr "İstenmeyen Kontrolü Geçti"
 msgid "SPAM Detection"
 msgstr "İstenmeyen Algılama"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "Botlar tarafından gerçekleştirilen istenmeyen içerik ve toplu kullanıcı kaydı silentCAPTCHA tarafından engellenir."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "Botlar tarafından yapılan istenmeyen içerik ve toplu kullanıcı kaydı %s tarafından engelleniyor."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "Botlar tarafından gerçekleştirilen istenmeyen içerik ve toplu kullanıcı kaydı silentCAPTCHA tarafından engellenmiyor."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "Botlar tarafından yapılan istenmeyen içerik ve toplu kullanıcı kaydı %s tarafından engellenmiyor."
 
 msgid "SPAM blocking"
 msgstr "İstenmeyen engelleme"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "İstenmeyen içerik 2 ana şekilde gerçekleştirilir: botlar ve insanlar tarafından."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "İstenmeyen içerik 2 tür ziyaretçi tarafından gerçekleştirilir: otomatik botlar ve insanlar."
 
 msgid "SQL Queries"
 msgstr "SQL Sorguları"
@@ -8167,6 +8587,9 @@ msgstr "Eklentiler ve Temalardaki Güvenlik Açıklarını Tara"
 msgid "Scan Frequency"
 msgstr "Tarama Sıklığı"
 
+msgid "Scan Issues"
+msgstr "Tarama Sorunları"
+
 msgid "Scan Item Delete Success"
 msgstr "Tarama Öğesi Silme Başarılı"
 
@@ -8200,6 +8623,9 @@ msgstr "Tarama Sonuçları"
 msgid "Scan This QR Code"
 msgstr "Bu QR Kodunu Tarayın"
 
+msgid "Scan Type"
+msgstr "Tarama Türü"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Tüm WordPress varlıklarınızı bilinen güvenlik açıkları için tarayın."
 
@@ -8218,11 +8644,11 @@ msgstr "Sitenizi dosya değişiklikleri, kötü amaçlı yazılımlar ve güvenl
 msgid "Scanning Frequency"
 msgstr "Tarama Sıklığı"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "Eklenti ve Tema Dosyalarını Tarama yalnızca ShieldPRO ile kullanılabilir."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Eklenti ve Tema Dosyalarını Tarama yalnızca %s'in Pro sürümünde kullanılabilir."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "PHP Kötü Amaçlı Yazılım taraması yalnızca ShieldPRO ile kullanılabilir."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "PHP Kötü Amaçlı Yazılım taraması yalnızca %s'in Pro sürümünde kullanılabilir."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "Tarama yerel anlık görüntüleri kullanır. Kitle kaynaklı anlık görüntüleri kullanmak ve premium eklentiler için destek eklemek için planınızı yükseltin."
@@ -8305,14 +8731,17 @@ msgstr "Puanlar her bileşen için yaklaşık bir ağırlıktır."
 msgid "Script Name To Match"
 msgstr "Eşleştirilecek Betik Adı"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "ShieldPRO lisansınızı herhangi bir lisans anahtarı olmadan sorunsuz bir şekilde etkinleştirin ve yönetin."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "%s lisansınızı herhangi bir lisans anahtarı olmadan sorunsuz bir şekilde etkinleştirin ve yönetin."
 
 msgid "Search %s"
 msgstr "%s Ara"
 
 msgid "Search Engine"
 msgstr "Arama Motoru"
+
+msgid "Search Help"
+msgstr "Yardım Ara"
 
 msgid "Search engine visibility"
 msgstr "Arama motoru görünürlüğü"
@@ -8374,6 +8803,9 @@ msgstr "Security Admin Zaman Aşımı"
 msgid "Security Admin is now active"
 msgstr "Security Admin artık etkin"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Güvenlik Yöneticisi, yalnızca denetlenmiş yöneticilerin site güvenliğinizde değişiklik yapabilmesini sağlayan ek bir kimlik doğrulama katmanı sağlar."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Security Admin kısıtlamaları kaldırıldı"
 
@@ -8385,6 +8817,9 @@ msgstr "Security Admin oturumu zaman aşımına uğradı."
 
 msgid "Security Admins"
 msgstr "Güvenlik Yöneticileri"
+
+msgid "Security Alert"
+msgstr "Güvenlik Uyarısı"
 
 msgid "Security Analysis"
 msgstr "Güvenlik Analizi"
@@ -8503,11 +8938,11 @@ msgstr "İstenmeyen Kayıtlar ve Girişler Açısından Kontrol Edilmesi Gereken
 msgid "Select The User Forms Provider That You Use"
 msgstr "Kullandığınız Kullanıcı Formları Sağlayıcısını Seçin"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Hangi %1$s E-postalarının %2$s Kullanılarak Gönderilmesi Gerektiğini Seçin"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Hangi Alanların Taranması Gerektiğini Seçin"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Hangi Shield E-postalarının SureSend Kullanılarak Gönderilmesi Gerektiğini Seçin"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Hariç Tutulacak İstek Türlerini Seçin"
@@ -8635,6 +9070,9 @@ msgstr "Oturumlar"
 msgid "Sessions Table Filters"
 msgstr "Oturumlar Tablosu Filtreleri"
 
+msgid "Set Security Badge."
+msgstr "Güvenlik Rozetini Ayarlayın."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Ziyaretçi IP adresinin otomatik olarak engellenmesinden önce izin verilen ihlaller için bir sınır belirleyin."
 
@@ -8674,161 +9112,23 @@ msgstr "Kazara devre dışı bırakılmasını önlemek için eklentiyi MU-eklen
 msgid "Severity"
 msgstr "Önem Derecesi"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Shield 2FA Sağlayıcısı Etkinleştirildi"
-
-msgid "Shield Anti-Spam"
-msgstr "Shield İstenmeyen Engelleme"
-
 msgid "Shield Deactivated"
 msgstr "Shield Etkisizleştirildi"
 
 msgid "Shield Events & Stats"
 msgstr "Shield Olayları ve İstatistikleri"
 
-msgid "Shield Info"
-msgstr "Shield Bilgisi"
-
-msgid "Shield Option Key"
-msgstr "Shield Seçenek Anahtarı"
-
-msgid "Shield Pro store"
-msgstr "Shield Pro mağazası"
-
-msgid "Shield Scanners."
-msgstr "Shield Tarayıcıları."
-
-msgid "Shield Security Home Page"
-msgstr "Shield Security Ana Sayfası"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Shield Security Eklentisi – minimum site gereksinimleri karşılanmıyor"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro çevrimiçi mağazamızdan edinilebilir."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Shield Security eklentisi yüklü ancak etkinleştirilmemiş."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Shield Security eklentisinin senkronize edilmesi gerekiyor."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Son senkronizasyonda Shield Security eklentisi tespit edilmedi."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Shield Security eklenti sürümleri senkronize değil."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Shield Kullanıcı 2FA Sağlayıcısı Etkinleştirildi"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield Kullanıcı 2FA: Etkin Olanı Var"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield Beyaz Etiket"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield, 3. taraf eklentilerle otomatik olarak entegre olabilir."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield, 3. taraf giriş ve kayıt formlarını Botlara karşı otomatik olarak koruyabilir."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield, silentCAPTCHA JS'nin sitenizde doğru şekilde yüklenip yüklenmediğini belirleyemedi."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield normalde oturum açmış veya kayıtlı kullanıcılardan gelen yorumları taramaz."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield normalde oturum açmış veya kayıtlı kullanıcılardan gelen yorumları taramaz. Taranmaması gereken kullanıcı rollerini burada belirtin."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Shield olay tanımları boş veya doğru biçimde değil."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield bu sitede yüklü değil."
-
-msgid "Shield plugin activated"
-msgstr "Shield eklentisi etkinleştirildi"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Shield eklentisi etkinleştirilemedi"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Shield eklentisi devre dışı bırakılamadı"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Shield eklentisi yüklenemedi"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Shield eklentisi güncellenemedi"
-
-msgid "Shield plugin deactivated"
-msgstr "Shield eklentisi etkisizleştirildi"
-
-msgid "Shield plugin installed"
-msgstr "Shield eklentisi yüklendi"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Shield eklentisi yüklü ancak etkin değil."
-
-msgid "Shield plugin updated"
-msgstr "Shield eklentisi güncellendi"
-
-msgid "Shield scans cannot execute."
-msgstr "Shield taramaları çalıştırılamıyor."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "Sitedeki Shield sürümü bu sunucuyla eşleşmiyor."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield, yerleşik bir entegrasyonun mevcut olup olmadığını kontrol etmek için 3. taraf eklentilerinizi otomatik olarak tarayacaktır."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield, yeni güncelleme belirtilen gün sayısı boyunca kullanılabilir olana kadar güncellemeleri geciktirecektir."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Shield'ın MainWP entegrasyonu bu site için etkinleştirilmemiş."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Shield Kural Motoru çalışmıyor."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Shield'ın silentCAPTCHA sistemi, botları karmaşık işlemler yapmaya zorlayan ALTCHA kullanır."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "ShieldNET IP İtibar Puanı"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "ShieldPRO Özellikleri"
-
-msgid "ShieldPRO Free Trial"
-msgstr "ShieldPRO Ücretsiz Deneme"
-
-msgid "ShieldPRO License Cleared"
-msgstr "ShieldPRO Lisansı Temizlendi"
-
-msgid "ShieldPRO License Management"
-msgstr "ShieldPRO Lisans Yönetimi"
-
-msgid "ShieldPRO Premium Security"
-msgstr "ShieldPRO Premium Güvenlik"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO bu sitede etkinleştirilmemiş."
-
-msgid "ShieldPRO license check failed."
-msgstr "ShieldPRO lisans kontrolü başarısız oldu."
-
-msgid "ShieldPRO license check was successful."
-msgstr "ShieldPRO lisans kontrolü başarılı oldu."
 
 msgid "Should be uninstalled"
 msgstr "Kaldırılmalı"
@@ -8923,20 +9223,23 @@ msgstr "Site Adresi"
 msgid "Site URL Changed"
 msgstr "Site Adresi Değiştirildi"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "Site adresi değişti: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "Site adresi değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Site dışa aktarma beyaz listesine eklendi: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Site e-postası değişti: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Site e-postası değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Site senkronize edilemedi"
 
 msgid "Site has been locked down!"
 msgstr "Site kilitlendi!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "Site zaten etkinleştirildi ancak lisans doğrulaması başarısız oldu."
 
 msgid "Site lock down has been lifted!"
 msgstr "Site kilidi kaldırıldı!"
@@ -8946,6 +9249,9 @@ msgstr "Site dışa aktarma beyaz listesinden kaldırıldı: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Site başarıyla senkronize edildi"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "Site zaten etkinleştirildi ve lisans başarıyla doğrulandı."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Site {{user_login}} tarafından kilitleme moduna alındı."
@@ -8965,8 +9271,8 @@ msgstr "Boyut"
 msgid "Slug"
 msgstr "kısaltma"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Kısa Ad Güncellendi: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Kısa Ad Güncellendi: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "{{post_id}} kimlikli yazı için kısa ad '{{slug_old}}' değerinden '{{slug_new}}' değerine güncellendi."
@@ -9049,8 +9355,8 @@ msgstr "Üzgünüz, bu tarama kullanılamıyor."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Üzgünüz, MAL{ai} sorguları çalıştırmak için erişiminiz yok, lütfen planınızı yükseltin."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Üzgünüz, MainWP entegrasyonuna erişmek için Shield Security üyeliğinizi yükseltmeniz gerekiyor."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Üzgünüz, MainWP entegrasyonuna erişmek için %s üyeliğinizi yükseltmeniz gerekiyor."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "İhlallerden bahsetmişken, ihlallerin gerçekleşmesine izin veren eklentiler ve temalar içindeki güvenlik açıkları saldırılar için birincil hedef olduğundan bunları erken tespit etmeliyiz."
@@ -9100,8 +9406,11 @@ msgstr "İstatistikler"
 msgid "Status"
 msgstr "durum"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Durum değişti: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Durum değiştirildi: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Durum kontrolü tamamlandı."
 
 msgid "Store directory could not be created: %s"
 msgstr "Depo dizini oluşturulamadı: %s"
@@ -9133,8 +9442,8 @@ msgstr "Lisans sunucusuna başarıyla bağlanıldı."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Güvenlik Duvarı Engelleme e-posta uyarısı başarıyla gönderildi: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "SureSend kullanılarak '{{email}}' adresine e-posta (tür: {{slug}}) başarıyla gönderildi."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "%s kullanılarak '{{email}}' adresine e-posta (tür: {{slug}}) başarıyla gönderildi."
 
 msgid "Summary"
 msgstr "Özet"
@@ -9165,15 +9474,6 @@ msgstr "SureSend E-postaları"
 
 msgid "SureSend Emails."
 msgstr "SureSend E-postaları."
-
-msgid "SureSend Fail"
-msgstr "SureSend Başarısız"
-
-msgid "SureSend Success"
-msgstr "SureSend Başarılı"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend, Shield Security tarafından sunulan özel bir e-posta teslimat hizmetidir."
 
 msgid "Suspend Account"
 msgstr "Hesabı Askıya Al"
@@ -9229,14 +9529,14 @@ msgstr "Bilinen (kitle kaynaklı) kötü amaçlı IP'leri engellemek için Crowd
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Bu özelliği etkinleştirmek sitenize tüm trafiği engelleyecektir. Kesinlikle her şey engellenecektir (Google Botları dahil)."
 
+msgid "Sync %s"
+msgstr "%s Senkronize Et"
+
 msgid "Sync Required"
 msgstr "Senkronizasyon Gerekli"
 
 msgid "Sync Required."
 msgstr "Senkronizasyon Gerekli."
-
-msgid "Sync Shield"
-msgstr "Shield'i Senkronize Et"
 
 msgid "System Info"
 msgstr "Sistem Bilgisi"
@@ -9253,8 +9553,8 @@ msgstr "Tablolar silindi ve şimdi yeniden oluşturulacak."
 msgid "Tagline"
 msgstr "slogan"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Slogan değişti: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Slogan değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Her kayıt için yeni bir satır kullanın."
@@ -9268,11 +9568,11 @@ msgstr "Her beyaz listeye alınmış yol için yeni bir satır kullanın."
 msgid "Take a new line per rule."
 msgstr "Her kural için yeni bir satır kullanın."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "WordPress sitelerinizi daha iyi korumak için tüm Shield ağı boyunca toplanan istihbarattan yararlanın"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "WordPress sitelerinizi daha iyi korumak için tüm %s ağı boyunca toplanan istihbarattan yararlanın"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Shield için teknik destek yalnızca Pro müşterilerine özeldir."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "%s için teknik destek yalnızca Pro müşterilerine özeldir."
 
 msgid "Temp Dir"
 msgstr "Geçici Dizin"
@@ -9295,17 +9595,17 @@ msgstr "WP Cron testi başarıyla çalıştırıldı."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Testler başarısız oldu ve SSL Sertifikanızın durumunu otomatik olarak belirleyemedik."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Shield Security Seçtiğiniz İçin Teşekkür Ederiz"
+msgid "Thank You For Choosing %s"
+msgstr "%s Seçtiğiniz İçin Teşekkür Ederiz"
 
 msgid "Thank You."
 msgstr "Teşekkür Ederiz."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Shield Security (Ücretsiz) seçtiğiniz için teşekkür ederiz."
+msgid "Thank you for choosing %s (Free)."
+msgstr "%s (Ücretsiz) seçtiğiniz için teşekkür ederiz."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Shield Security PRO'yu seçtiğiniz için teşekkür ederiz."
+msgid "Thank you for choosing %s."
+msgstr "%s seçtiğiniz için teşekkür ederiz."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Rehberli Kurulum Sihirbazı'nı tamamlamak için zaman ayırdığınız için teşekkür ederiz."
@@ -9325,11 +9625,23 @@ msgstr "Teşekkürler."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Gelecekteki Geliştirmeyi Desteklemekten Gelen O Sıcak ve Huzurlu His"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "%s dizini %s dizini gibidir ve birçok WordPress olmayan dosya orada saklanır."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "%1$s dizini %2$s dizini gibidir ve birçok WordPress dışı dosya orada saklanır."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s ölçüsü %2$s olmalıdır."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "%s Rozeti, müşterilerinize güvenliği ciddiye aldığınızı gösterir."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "%s dizini vahşi batıdır ve birçok eklenti ve tema çalışma dosyalarını saklamak için onu kullanır."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "%s seçeneği devre dışı bırakıldı, giriş, kayıt ve parola kaybı formları için kaba kuvvet koruması kaldırıldı."
+
+msgid "The %s option is enabled."
+msgstr "%s seçeneği etkinleştirildi."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "%s eklentisi normalde kayıtlı olmayan site ziyaretçileri için Çerez kullanmaz."
@@ -9337,14 +9649,29 @@ msgstr "%s eklentisi normalde kayıtlı olmayan site ziyaretçileri için Çerez
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "%s eklentisi aşağıdaki bilgileri günlüğe kaydedecek bir Denetim İzi özelliğine sahiptir:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "%s eklentisi devre dışı bırakıldı."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "%s eklentisi hiçbir zaman herhangi bir çerezde hassas, kişisel olarak tanımlanabilir bilgileri saklamaz."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "Bu sitedeki %s eklentisinin yükseltilmesi gerekiyor."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "Bu sitedeki %s eklentisi etkin bir PRO lisansı gerektiriyor."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "İstemci sitesindeki %s eklenti sürümü bu sunucudan daha yeni."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "İstemci sitesindeki %s eklenti sürümü bu sunucudan daha eski ve güncellenmesi gerekiyor."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "%s sorgu parametresi kullanıcı adı / yazar avına karşı koruma sağlamak için engellendi."
 
-msgid "The %s should measure %s."
-msgstr "%s, %s ölçmelidir."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "%s sistemi, botları karmaşık iş yapmaya zorlayan ALTCHA kullanır."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "'wp_mail' işlevi '{{bt_file}}' dosyasından {{bt_line}} satırında çağrıldı."
@@ -9388,8 +9715,8 @@ msgstr "Eklentinin Ana Menü Başlığı. Boş bırakılırsa \"%s\" kullanılac
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "Eklentinin Ana Menü Başlığı. Boş bırakılırsa Eklenti Adı kullanılacaktır."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "MainWP Security eklentisi Shield'ın minimum gereksinimlerini karşılamıyor."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "MainWP Security eklentisi %s'in minimum gereksinimlerini karşılamıyor."
 
 msgid "The Name Of The Plugin"
 msgstr "Eklentinin Adı"
@@ -9415,32 +9742,14 @@ msgstr "Güvenlik Yöneticisi sistemi WordPress'i ve %s eklentisini kurcalamaya 
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Güvenlik Yöneticisi sistemi %s eklentisini diğer WordPress yöneticileri tarafından kurcalamaya veya kazara yapılan değişikliklere karşı korur."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Güvenlik Yöneticisi, e-posta geçersiz kılma özelliğinin kullanımını kısıtladı."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "Güvenlik Rozeti ziyaretçilerinize görüntülenecek"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "Güvenlik Rozeti ziyaretçilerinize görüntülenmeyecek"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "Bu sitedeki Shield Security eklentisinin yükseltilmesi gerekiyor."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Geçerli bir veritabanı olmadan belirli özellikler kullanılamayacağından Shield veritabanının onarılması gerekiyor."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Shield eklentisi devre dışı bırakıldı."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "Bu sitedeki Shield eklentisinin etkin bir ShieldPRO lisansı yok."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "İstemci sitedeki Shield eklentisi sürümü bu sunucudan daha yenidir."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "İstemci sitedeki Shield eklentisi sürümü bu sunucudan daha eski ve güncellenmesi gerekiyor."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "Eklentinin Sloganı"
@@ -9487,8 +9796,8 @@ msgstr "Ülke kodu eksikti."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "Tüm %s yapılandırmanız için kümülatif puan"
 
-msgid "The current request has a valid Shield user session"
-msgstr "Mevcut istek geçerli bir Shield kullanıcı oturumuna sahip"
+msgid "The current request has a valid %s user session"
+msgstr "Mevcut istek geçerli bir %s kullanıcı oturumuna sahip"
 
 msgid "The data provided was inconsistent."
 msgstr "Sağlanan veriler tutarsızdı."
@@ -9544,8 +9853,8 @@ msgstr "Aşağıdaki öğeler keşfedildi."
 msgid "The following options will be restricted:"
 msgstr "Aşağıdaki seçenekler kısıtlanacaktır:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Aşağıdaki kullanıcı formu türleri silentCAPTCHA tarafından korunuyor: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Aşağıdaki kullanıcı formu türleri %1$s tarafından korunmaktadır: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "Giriş adresi '{{from}}' değerinden '{{to}}' değerine değiştirildi."
@@ -9559,8 +9868,8 @@ msgstr "Etiket özel karakter içermeyen alfasayısal olmalıdır"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "Engelleme öncesinde izin verilen maksimum ihlal sayısı makul: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "Maksimum günlük saklama sınırı (%s), ShieldPRO planınızı yükselterek artırılabilir."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "Maksimum günlük saklama sınırı (%1$s), %2$s planınızı yükselterek artırılabilir."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "Belirtilen zaman sınırı içinde izin verilen maksimum istek sayısı."
@@ -9625,7 +9934,7 @@ msgstr "Tercih edilen kaynak %s'dir çünkü bu taklit edilemez."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Önceki tarama dikkatinizi gerektiren herhangi bir öğe tespit etmedi veya bunlar zaten onarıldı."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
 msgstr "Amaç, kritik e-postalar için WordPress e-posta güvenilirliğini artırmaktır."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
@@ -9651,12 +9960,6 @@ msgstr "Bu ayar, herhangi bir harici web sitesinin sitenizi bir iFrame içine g�
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "Bu ayar, herhangi bir harici web sitesinin sitenizi bir iFrame içine gömmesini engeller. Bu, sözde ClickJack saldırılarını önlemek için kullanışlıdır."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "silentCAPTCHA seçeneği devre dışı bırakıldı, giriş, kayıt ve kayıp parola formları için kaba kuvvet koruması kaldırıldı."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "silentCAPTCHA seçeneği etkinleştirilmiş."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "Site adresi '{{from}}' değerinden '{{to}}' değerine değiştirildi."
@@ -9883,6 +10186,9 @@ msgstr "Passkey Kimlik Doğrulama Zorluğu hazırlanırken bir sorun oluştu."
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "Passkey Kayıt Zorluğu hazırlanırken bir sorun oluştu."
 
+msgid "There was a problem processing the batched request."
+msgstr "Toplu istek işlenirken bir sorun oluştu."
+
 msgid "There was a problem removing this passkey"
 msgstr "Bu passkey kaldırılırken bir sorun oluştu"
 
@@ -9937,9 +10243,6 @@ msgstr "Sitelerinize saldırırlar, bilgi toplarlar ve güvenlik açıklarını 
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Javascript'i bozarak ve kullanıcı deneyimini kabusa çevirerek giriş formlarında kaos yaratırlar."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "'İhlalleri' bir ziyaretçinin kötü bir şey yapma sayısı için sadece bir sayaç olarak düşünün."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Bunu 'Giriş Denemelerini Sınırla' olarak düşünün, ancak yalnızca giriş sayfasına değil, WordPress sitesindeki tüm özelliklere uygulanır."
 
@@ -9951,6 +10254,9 @@ msgstr "Bu Sizsiniz"
 
 msgid "This Page"
 msgstr "Bu Sayfa"
+
+msgid "This Period"
+msgstr "Bu Dönem"
 
 msgid "This Server"
 msgstr "Bu Sunucu"
@@ -9967,8 +10273,8 @@ msgstr "Bu eylem şu anda profiliniz için kullanılamıyor."
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Bu etkinlik IP adresinize karşı kaydedilmiş olacak ve benzer etkinlik tekrarlanırsa siteye daha fazla erişiminiz tamamen engellenebilir."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "ShieldPRO çalıştırıyorsanız bu aynı zamanda bir ortaklık bağlantısı olarak da işlev görür, böylece her yönlendirme için ödüller kazanabilirsiniz."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Bu aynı zamanda %s çalıştırıyorsanız bir ortaklık bağlantısı görevi görür, böylece her yönlendirme için ödüller kazanabilirsiniz."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Bu, %s AntiBot koruma kontrolünü geçemediği için istenmeyen içerik gibi görünüyor."
@@ -10011,6 +10317,9 @@ msgstr "Bu özellik yalnızca Trafik Kaydedici etkinken kullanılabilir."
 
 msgid "This feature isn't currently enabled."
 msgstr "Bu özellik şu anda etkinleştirilmemiş."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Bu özellik, %s eklentisiyle kimliğinizi doğrulamak için kullanacağınız gizli bir PIN'e (aşağıda oluşturacağınız) dayanır."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Bu dosya kötü amaçlı kod içeriyor - kötü amaçlı yazılım!"
@@ -10171,11 +10480,20 @@ msgstr "Bu ayar %s sonrasında otomatik olarak devre dışı bırakılacak ve bu
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Bu dikkatli kullanılmalıdır ve yalnızca hariç tutmanız gereken parametre adlarını sağlamalısınız"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Bu site bir Shield Ağının parçası gibi görünüyor."
+msgid "This site appears to be part of a %s Network."
+msgstr "Bu site bir %s Ağının parçası gibi görünüyor."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Bu site şu anda kendisine HTTP istekleri gönderemiyor."
+
+msgid "This site is already activated for this account."
+msgstr "Bu site bu hesap için zaten etkinleştirildi."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Bu site zaten etkinleştirildi. Yerel lisans durumu yeniden kontrol ediliyor ve senkronize ediliyor..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Bu adım en önemlisi olabilir çünkü %s'in her zaman doğru Ziyaretçi IP'sini bulabilmesini sağlamaya yardımcı olur."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Bu tema etkin değil ve kaldırılmalıdır."
@@ -10222,8 +10540,8 @@ msgstr "Bu, uygulama parametrelerinde alan kesme saldırılarını engelleyecekt
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Bu, uygulama parametrelerinde sql'i engelleyecektir (örn. %s, vb.)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Bu, oturum açmadığınız sürece %s ve %s adreslerinin HTTP 404 hatası döndürmesine neden olur."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Bu, oturum açılmadığında %1$s ve %2$s adreslerinin HTTP 404 hatası döndürmesine neden olacaktır."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Bu işlem, varsa SMS kredilerinizi tüketecektir; tıpkı standart 2FA SMS'lerinde olduğu gibi."
@@ -10242,6 +10560,9 @@ msgstr "Bu, WordPress yöneticilerinin önemli WordPress ayarlarını değiştir
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Bu, WordPress yöneticilerinin diğer yöneticileri oluşturma, değiştirme veya yükseltme yeteneğini kısıtlayacaktır."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Bu sihirbaz, 3 dakikadan kısa sürede çalışmaya başlamanız için %s'in bazı temel özelliklerinde size yol gösterecektir."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Bu işe yarar çünkü meşru web tarayıcıları 'robots.txt' ve 'nofollow' yönergelerine saygı gösterir."
@@ -10273,17 +10594,17 @@ msgstr "zaman damgası"
 msgid "Timezone"
 msgstr "saat dilimi"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Başlık Güncellendi: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Başlık Güncellendi: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Başlık değişti: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Başlık değiştirildi: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "{{post_id}} kimlikli yazı için başlık '{{title_old}}' değerinden '{{title_new}}' değerine güncellendi."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Bu sorunu çözmek için silentCAPTCHA adında kendi sistemimizi oluşturduk."
+msgid "To address this we created our own system called %s."
+msgstr "Bu sorunu çözmek için %s adlı kendi sistemimizi oluşturduk."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "wp-login.php sayfanızı kaba kuvvet saldırılarından ve saldırı girişimlerinden gizlemek için - giriş sayfanız bulunamazsa kimse oturum açamaz."
@@ -10303,14 +10624,17 @@ msgstr "Yeni bir Yubikey cihazı kaydetmek için Yubikey'den Tek Kullanımlık P
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Bir Yubikey cihazını kaldırmak için kayıtlı cihaz kimliğini girin ve kaydedin."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Bunu çözmek için %s uygulamasına şu anda IP adresinizin ne olduğunu bildirebilirsiniz; bu da en uygun IP kaynağını yapılandırmasına olanak tanır."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Sağlıklı kalmak, dosyaları beklenmeyen değişiklikler için aktif olarak taramayı ve ait olmayan dosyaları tespit etmeyi içerir."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Passkey kullanmak için PHP kurulumunuzda şu uzantılardan 1 tanesi yüklü olmalıdır: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Bir e-postayı doğrulamak için siteniz ShieldNET API'ye bir istek gönderir ve kullanıcı kayıt isteği sırasında küçük bir gecikmeye neden olabilir."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Bir e-postayı doğrulamak için siteniz %s API'sine bir istek gönderir ve kullanıcı kayıt isteği sırasında küçük bir gecikmeye neden olabilir."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Bu IP adresinden gelen tüm günlükleri görüntülemek için Trafik Günlüğü aracını kullanın, çünkü buradaki günlükler %s girişle sınırlıdır."
@@ -10326,6 +10650,9 @@ msgstr "Bu ayarın içe ve dışa aktarma işlemlerine dahil edilip edilmeyeceğ
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Çok fazla 2FA doğrulama denemesi - lütfen tekrar giriş yapın."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Çok fazla toplu istek. İzin verilen maksimum %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "IP adresinizden gelen çok fazla istek, sitenin otomatik savunmalarını tetikledi."
@@ -10399,11 +10726,35 @@ msgstr "Trafik istekleri günlüğe kaydediliyor, bu da sorunları izlemeyi kola
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Trafik istekleri günlüğe kaydedilmiyor, bu da sorunları izlemeyi zorlaştırıyor."
 
+msgid "Translation Download Failed"
+msgstr "Çeviri İndirme Başarısız"
+
+msgid "Translation Downloaded"
+msgstr "Çeviri İndirildi"
+
+msgid "Translation download queue is empty."
+msgstr "Çeviri indirme kuyruğu boş."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Çeviri başarıyla indirildi: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Dil paketi için çeviri dosyası indirildi: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Çeviriler Sıraya Alındı"
+
+msgid "Translations have been downloaded."
+msgstr "Çeviriler indirildi."
+
 msgid "Trash"
 msgstr "Çöp Kutusu"
 
 msgid "Trashed"
 msgstr "Çöpe atıldı"
+
+msgid "Trend"
+msgstr "Eğilim"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "Geçersiz bir WordPress PHP betiği '{{script}}' yüklenmeye çalışıldı."
@@ -10417,11 +10768,17 @@ msgstr "Güvenilir Kullanıcı Rolleri"
 msgid "Trusted Users"
 msgstr "Güvenilir Kullanıcılar"
 
+msgid "Try Pro For Free"
+msgstr "Pro'yu Ücretsiz Deneyin"
+
 msgid "Turn Off"
 msgstr "Kapat"
 
 msgid "Turn On"
 msgstr "Aç"
+
+msgid "Turn On Security Admin"
+msgstr "Security Admin'i Açın"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Rate Limiting Özelliğini Etkinleştir"
@@ -10441,8 +10798,11 @@ msgstr "Beyaz Etiket ayarlarınızı açın/kapatın."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Tarayıcı Mime-Sniff'i Kapat"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "MainWP Sunucu ve İstemci Kurulumları İçin Shield'ın Yerleşik Uzantısını Açın"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "MainWP Sunucu ve İstemci Kurulumları İçin %s'in Yerleşik Uzantısını Açın"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Bunu açmak, web sitenizin alt bilgisine yarı saydam bir rozet ekler."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "%s ile İki Faktörlü Giriş Kimlik Doğrulaması"
@@ -10516,14 +10876,11 @@ msgstr "Sınıflandırılmamış"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Google Authenticator'ın nasıl kaldırılacağını anlayın"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Ne yazık ki U2F, çoğu modern tarayıcıda varsayılan olarak devre dışı bırakıldı, ancak geriye dönük uyumluluk için burada hala sağlanıyor."
-
 msgid "Unidentified"
 msgstr "Kimliği Belirsiz"
 
-msgid "Uninstall Shield"
-msgstr "Shield'i Kaldır"
+msgid "Uninstall %s"
+msgstr "%s Kaldır"
 
 msgid "Uninstalled"
 msgstr "Kaldırıldı"
@@ -10539,6 +10896,9 @@ msgstr "Bilinmiyor - WP v5.4+ gerektirir"
 
 msgid "Unknown Name"
 msgstr "Bilinmeyen Ad"
+
+msgid "Unknown activation error."
+msgstr "Bilinmeyen etkinleştirme hatası."
 
 msgid "Unknown item"
 msgstr "Bilinmeyen öğe"
@@ -10582,6 +10942,9 @@ msgstr "Desteklenmeyen sonuç türü."
 msgid "Until"
 msgstr "Kadar"
 
+msgid "Update %s"
+msgstr "%s Güncelle"
+
 msgid "Update Available"
 msgstr "Güncelleme Mevcut"
 
@@ -10596,9 +10959,6 @@ msgstr "Güvenliğinizi En Son Özelliklerle Güncel Tutmak İçin Şimdi Günce
 
 msgid "Update Required"
 msgstr "Güncelleme Gerekli"
-
-msgid "Update Shield"
-msgstr "Shield'i Güncelle"
 
 msgid "Update This Rule"
 msgstr "Bu Kuralı Güncelle"
@@ -10633,14 +10993,14 @@ msgstr "Yükseltme Gerekli"
 msgid "Upgrade To"
 msgstr "Yükseltme Yap"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Şimdi %s Pro'ya Yükseltin"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Özel Raporlar Oluşturmak İçin Yükseltin"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Şimdi Shield Pro'ya Yükseltin"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "ShieldPRO Üyeliğinizi Yükseltin"
+msgid "Upgrade Your %s Membership"
+msgstr "%s Üyeliğinizi Yükseltin"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Tema dosyalarının kurcalamaya karşı taranmasını desteklemek için planınızı yükseltin."
@@ -10648,8 +11008,8 @@ msgstr "Tema dosyalarının kurcalamaya karşı taranmasını desteklemek için 
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Bu tarama alanını desteklemek için planınızı yükseltin."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Yükseltildi: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Yükseltildi: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Dosya yükleme başarısız oldu"
@@ -10657,8 +11017,11 @@ msgstr "Dosya yükleme başarısız oldu"
 msgid "Uptime Monitoring"
 msgstr "Çalışma Süresi İzleme"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "%s dakikalık aralıkta aşırı istekleri test etmek için %s kullanın."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "%2$s dakikalık aralıkta aşırı istekleri test etmek için %1$s kullanın."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Bot İstenmeyen Yorumları Engellemek İçin %s Kullanın"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "CloudFlare Coğrafi Veri Kaynağı Olarak Kullanılsın mı?"
@@ -10681,8 +11044,8 @@ msgstr "Meşru ziyaretçileri engelleme riskini azaltmak için daha büyük bir 
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Meşru ziyaretçileri engelleme riskini azaltmak için daha küçük bir aralık kullanın."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "Kullanıcı formlarında giriş denemelerini sınırlamak için silentCAPTCHA kullanımı açık değil - bunu Giriş Güvenliği Bölgesi içinde etkinleştirmeniz gerekecek."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Kullanıcı formlarında giriş denemelerini sınırlamak için %s kullanımı açık değil; Giriş Güvenliği Bölgesinde etkinleştirmeniz gerekecek."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Bu özelliğin kullanımı kesinlikle önerilir."
@@ -10690,11 +11053,11 @@ msgstr "Bu özelliğin kullanımı kesinlikle önerilir."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Bu özelliğin kullanımı mevcut seçeneklerin üzerine yazacak ve bunları Ana İçe Aktarma Sitesinden gelenlerle değiştirecektir."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Ana sayfa adresinizden göreli yollar kullanın, örn. %s ana sayfanıza yönlendirir (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Ana sayfa adresinizden göreli yollar kullanın; örneğin %1$s, ana sayfanıza (%2$s) yönlendirir."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Bot İstenmeyen Yorumları Engellemek İçin silentCAPTCHA Kullanın"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Seçenekler, IP adresi, araçlar, yardım vb. dahil olmak üzere %s eklentisinde kesinlikle her şeyi bulmak için Süper Arama kutusunu kullanın."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Belirli API uç noktalarına anonim erişime izin vermek için istisnalar seçeneğini kullanın."
@@ -10702,14 +11065,17 @@ msgstr "Belirli API uç noktalarına anonim erişime izin vermek için istisnala
 msgid "Use the link above to create a new one."
 msgstr "Yeni bir tane oluşturmak için yukarıdaki bağlantıyı kullanın."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Sonuçları filtrelemek için arama kutusunda bu önekleri kullanın."
+
 msgid "Use this feature with care."
 msgstr "Bu özelliği dikkatle kullanın."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Bu siteden başka bir siteye seçenekleri kopyalamak için bu dosyayı kullanın"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Tüm etkin Shield Korumasını tamamen devre dışı bırakmak için bu seçeneği kullanın."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Tüm etkin %s Korumasını tamamen devre dışı bırakmak için bu seçeneği kullanın."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Özel CSP Kurallarınızın uygulanıp uygulanmayacağını açmak/kapatmak için bu seçeneği kullanın."
@@ -10897,11 +11263,11 @@ msgstr "Kullanıcı parola kaybı isteği engellendi."
 msgid "User must be logged-in."
 msgstr "Kullanıcı oturum açmış olmalıdır."
 
+msgid "User not found."
+msgstr "Kullanıcı bulunamadı."
+
 msgid "User registration request blocked."
 msgstr "Kullanıcı kayıt isteği engellendi."
-
-msgid "User session deleted"
-msgstr "Kullanıcı oturumu silindi"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "Kullanıcı oturumunun süresi doldu ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Kullanıcılar, belirtilen gün sayısından sonra parolalarını sıfı
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "İnsan kaynaklı yorum istenmeyen içeriğini tespit etmek için 3. taraf istenmeyen sözlüğü kullanır."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Shield'ın özel Snapshot teknolojisini kullanarak, WP veritabanında doğrudan yapılan yönetici değişiklikleri de tespit edilecektir!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "%s'in münhasır Anlık Görüntü teknolojisini kullanarak, WP veritabanında doğrudan yapılan yönetici değişiklikleri de tespit edilecektir!"
 
 msgid "Valid license couldn't be found."
 msgstr "Geçerli lisans bulunamadı."
@@ -11047,11 +11413,11 @@ msgstr "Tümünü Görüntüle"
 msgid "View All Security Grades"
 msgstr "Tüm Güvenlik Notlarını Görüntüle"
 
-msgid "View As ShieldFREE"
-msgstr "ShieldFREE Olarak Görüntüle"
+msgid "View As %s"
+msgstr "%s Olarak Görüntüle"
 
-msgid "View As ShieldPRO"
-msgstr "ShieldPRO Olarak Görüntüle"
+msgid "View As Free Version"
+msgstr "Ücretsiz Sürüm Olarak Görüntüle"
 
 msgid "View Comment"
 msgstr "Yorumu Görüntüle"
@@ -11071,6 +11437,9 @@ msgstr "Dosya İçeriğini Görüntüle"
 msgid "View File Details"
 msgstr "Dosya Ayrıntılarını Görüntüle"
 
+msgid "View Full Report"
+msgstr "Tam Raporu Görüntüle"
+
 msgid "View IP Reputation Option"
 msgstr "IP İtibar Seçeneğini Görüntüle"
 
@@ -11088,6 +11457,9 @@ msgstr "Planları Görüntüle"
 
 msgid "View Report"
 msgstr "Raporu Görüntüle"
+
+msgid "View Reports"
+msgstr "Raporları Görüntüle"
 
 msgid "View Results"
 msgstr "Sonuçları Görüntüle"
@@ -11146,9 +11518,6 @@ msgstr "Tüm WordPress site güvenliğinizi bir bakışta görüntüleyin ve ner
 msgid "View, edit and remove custom security rules"
 msgstr "Özel güvenlik kurallarını görüntüleyin, düzenleyin ve kaldırın"
 
-msgid "View/Create Reports"
-msgstr "Raporları Görüntüle/Oluştur"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Ziyaretçi Otomatik Engel Kaldırma"
 
@@ -11182,8 +11551,8 @@ msgstr "Ziyaretçi Engelleme Listesinde bulundu ve bağlantısı sonlandırıld�
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Ziyaretçi CrowdSec Engelleme Listesinde bulundu ve isteği sonlandırıldı."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Ziyaretçi silentCAPTCHA kullanarak kayıt oldu."
+msgid "Visitor registered using %s."
+msgstr "Ziyaretçi %s kullanarak kayıt oldu."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "Ziyaretçi '{{method}}' yöntemini kullanarak '{{ip}}' IP adresinin engelini kaldırdı."
@@ -11226,9 +11595,6 @@ msgstr "Bu seçeneği etkinleştirmek için güvenlik açığı taraması etkin 
 
 msgid "Vulnerable"
 msgstr "Güvenlik Açığı Var"
-
-msgid "Vulnerable Assets"
-msgstr "Güvenlik Açığı Olan Varlıklar"
 
 msgid "Vulnerable Plugins"
 msgstr "Güvenlik Açığı Olan Eklentiler"
@@ -11277,6 +11643,9 @@ msgstr "WP Varsayılan Kullanıcı Rolü"
 
 msgid "WP File Editing"
 msgstr "WP Dosya Düzenleme"
+
+msgid "WP Files"
+msgstr "WP Dosyaları"
 
 msgid "WP Generator Tag"
 msgstr "WP Generator Etiketi"
@@ -11367,6 +11736,9 @@ msgstr "Artık çalışmasına ihtiyacınız yoksa devre dışı bırakmanızı 
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Bu alanda uzmanlık aramanızı ve dağıtımlarınızda tam test yapmanızı öneririz."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "5 ile 10 arasında bir yeri öneriyoruz. Sınır ne kadar küçükse, %s o kadar katı olacaktır."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "WP kök dizininin yalnızca resmi WordPress çekirdek dosyalarını tutarak temiz kalmasını öneririz."
@@ -11485,8 +11857,8 @@ msgstr "Yeterli sayıda kötü davranış tespit edildiğinde, IP adresinin site
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Açıldığında, mevcut 3. taraf entegrasyonları algılanır algılanmaz etkinleştirilir."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Sayaç aşağıdaki sınıra ulaştığında (varsayılan: %s), %s o IP adresini tamamen engelleyecektir."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Sayaç aşağıdaki sınıra ulaştığında (varsayılan: %1$s), %2$s o IP'yi tamamen engelleyecektir."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Mevcut dosya içeriği resmi sürümle karşılaştırıldığında değişiklikler tespit edildi."
@@ -11578,17 +11950,17 @@ msgstr "Beyaz listeye alınmış siteler anahtar olmadan bu siteden seçenekleri
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Muhtemelen Eklenti/Tema dosya düzenleyicilerinde kaydetmeyi engelleyecektir."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "%s kitle kaynaklı istihbaratıyla, zamanınızı boşa harcayan gürültülü yanlış pozitifler otomatik olarak gizlenir, böylece önemli olan risklere odaklanabilirsiniz."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "%s teknolojisi ile botları durdurmak artık oldukça kolay."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "%s ile tüm büyük İletişim Formu eklentileriyle doğrudan entegre olabilir ve otomatik Botlardan gelen İletişim Formu istenmeyen içeriğini engelleyebiliriz."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "%s'in yerleşik silentCAPTCHA teknolojisi sayesinde botları durdurmak artık oldukça kolay."
-
 msgid "With Issues"
 msgstr "Sorunlu Olanlar"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "ShieldNET kitle kaynaklı istihbaratıyla Shield, yanlış pozitifleri otomatik olarak gizler; böylece önemli risklere odaklanabilir ve zamanınızı boşa harcayan gürültüyü görmezden gelebilirsiniz."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Bununla, dosyadaki değişikliklere anında uyarı alabilir, kesin değişiklikleri net bir şekilde görüntüleyebilir ve nasıl devam edeceğinize dair kolay sonraki adımları takip edebilirsiniz."
@@ -11596,8 +11968,8 @@ msgstr "Bununla, dosyadaki değişikliklere anında uyarı alabilir, kesin deği
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "İstenmeyen sözlüğümüzle, sitenizden 3. taraflara herhangi bir veri göndermeden insan kaynaklı istenmeyen yorumları tespit edebiliriz."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Güçlü silentCAPTCHA teknolojimizle tüm bot istenmeyen içeriğinin neredeyse %100'ünü tespit edebiliriz."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Güçlü %s ile neredeyse tüm bot istenmeyen içeriğinin %100'ünü tespit edebiliriz."
 
 msgid "Wizards"
 msgstr "Sihirbazlar"
@@ -11737,8 +12109,8 @@ msgstr "WordPress normalde sınırlı sayıda şekilde yüklenir ve başka şeki
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress eski bir PHP sürümü (%s) çalıştırıyor."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress güncel bir PHP sürümünde (%s) çalışıyor (en az %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress güncel bir PHP sürümünde (%1$s) çalışıyor (en az %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "WordPress giriş formları botlara karşı korunmuyor çünkü %s sistemini kontrol eden bot minimum puanını 0 olarak ayarladınız."
@@ -11839,8 +12211,8 @@ msgstr "'Yalnızca Etkinleştir' seçeneğini seçebilirsiniz (önerilmez) veya 
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "REST API'ye anonim erişimi tamamen devre dışı bırakabilirsiniz."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "ShieldPRO planınızı yükselterek bu güvenlik özelliğini ve daha fazlasını elde edebilirsiniz."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Bu güvenlik özelliğini ve daha fazlasını %s planınızı yükselterek elde edebilirsiniz."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Aşağıdaki bağlantıyı kullanarak mevcut IP adresinizi öğrenerek ve ardından listeden onu içeren seçeneği seçerek sunucunuz için en iyi IP adresini tespit etmemize yardımcı olabilirsiniz."
@@ -11887,8 +12259,8 @@ msgstr "%s Güvenlik Yöneticisi sistemiyle kimlik doğrulaması yapabilir ve bu
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Artan güvenlik için birden fazla kimlik doğrulama faktörünü birleştirebilirsiniz."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Akismet, Shield'ın İnsan istenmeyen korumasıyla birlikte çalışırken güvenilmez sonuçlar alabilirsiniz."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Akismet, %s'in İnsan istenmeyen korumasıyla birlikte çalışırken güvenilmez sonuçlar alabilirsiniz."
 
 msgid "You may need to reload this page to continue."
 msgstr "Devam etmek için bu sayfayı yeniden yüklemeniz gerekebilir."
@@ -11962,8 +12334,8 @@ msgstr "IP adresiniz beyaz listede değil, bu nedenle IP adresinizi beyaz listey
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "IP adresiniz beyaz listede! Bu ayar SİZE uygulanmaz, bu nedenle her zaman normal giriş sayfasını kullanmalısınız: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "MySQL veritabanı sunucunuz IPv6 adreslerini desteklemiyor. Sizin sürümünüz: %s; gerekli MySQL sürümü: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "MySQL veritabanı sunucunuz IPv6 adreslerini desteklemiyor. Sürümünüz: %1$s; gerekli MySQL sürümü: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Benzersiz Yubikey Uygulama API Anahtarınız"
@@ -12037,11 +12409,11 @@ msgstr "Raporlama e-posta adresiniz: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Güvenlik yöneticiniz parola kalitesi için gereksinimler belirlemiştir."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Güvenlik analiziniz yalnızca ShieldPRO özelliklerini dikkate almıyor - bu ekstra güvenlik özelliklerine erişiminiz varmış gibi analizinizi görüntülemek için Dişli menüsünü kullanın."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Güvenlik analiziniz %s'e özel özellikleri dikkate almıyor; bu ekstra güvenlik özelliklerine erişiminiz varmış gibi analizinizi görüntülemek için Dişli menüsünü kullanın."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Güvenlik analiziniz yalnızca ShieldPRO özelliklerini içeriyor - mevcut güvenlik özellikleriniz için analizinizi görüntülemek üzere Dişli menüsünü kullanın."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Güvenlik analiziniz %s'e özel özellikleri içeriyor; mevcut güvenlik özellikleriniz için analizinizi görüntülemek üzere Dişli menüsünü kullanın."
 
 msgid "Your session has expired."
 msgstr "Oturumunuzun süresi doldu."
@@ -12055,11 +12427,11 @@ msgstr "Oturumunuz başka bir IP Adresine kilitlendi."
 msgid "Your session was terminated."
 msgstr "Oturumunuz sonlandırıldı."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Siteniz ShieldPRO tarafından sağlanan ek güvenlik korumasından yararlanır."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Siteniz %s tarafından sağlanan ek güvenlik korumasından yararlanıyor."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Siteniz ShieldPRO tarafından sağlanan ek güvenlik korumasından yararlanmıyor."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Siteniz %s tarafından sağlanan ek güvenlik korumasından yararlanmıyor."
 
 msgid "Your site is currently in lockdown."
 msgstr "Siteniz şu anda kilitlenme modunda."
@@ -12082,8 +12454,8 @@ msgstr "Siteniz Botlar tarafından otomatik Yorum istenmeyen içeriğine karşı
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Siteniz henüz CrowdSec ile kayıtlı değil."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Web barındırma hizmetiniz Shield Security eklentisi için minimum gereksinimleri karşılamıyor."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Web barındırma hizmetiniz %s Eklentisi için minimum gereksinimleri karşılamıyor."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Bölge Eylemleri"
 msgid "Zones"
 msgstr "Bölgeler"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Yanlış Pozitif] kodun kötü amaçlı yazılıma benzediği ancak aslında temiz olduğu anlamına gelir."
@@ -12142,6 +12514,18 @@ msgstr "all_opts_keys form öğesi sağlanmadı."
 msgid "and"
 msgstr "ve"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "ve yaklaşık %d dakika içinde otomatik olarak işlenecek."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "ve yaklaşık %d dakika içinde otomatik olarak işlenecek."
+
+msgid "and will be processed shortly."
+msgstr "ve kısa süre içinde işlenecek."
+
+msgid "auto-fixed"
+msgstr "otomatik düzeltildi"
+
 msgid "case-insensitive"
 msgstr "büyük/küçük harf duyarsız"
 
@@ -12154,8 +12538,8 @@ msgstr "gün"
 msgid "empty username"
 msgstr "boş kullanıcı adı"
 
-msgid "entries: %s (previous: %s)"
-msgstr "girişler: %s (önceki: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "girişler: %1$s (önceki: %2$s)"
 
 msgid "estimated"
 msgstr "tahmini"
@@ -12175,6 +12559,12 @@ msgstr "daha fazla yardım"
 msgid "help"
 msgstr "yardım"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "eksik veri"
 
 msgid "more frequent checks will be ignored"
 msgstr "daha sık kontroller yok sayılacak"
+
+msgid "more..."
+msgstr "daha fazla..."
 
 msgid "n/a"
 msgstr "yok"
@@ -12235,80 +12628,8 @@ msgstr "öneri"
 msgid "seconds"
 msgstr "saniye"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "silentCAPTCHA AntiBot Teknolojisi"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "silentCAPTCHA Bot Algılama, WordPress girişinize yönelik kaba kuvvet saldırılarına karşı koruma sağlamıyor."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "silentCAPTCHA Bot Algılama, WordPress kayıp parola formunuzu korumuyor."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "silentCAPTCHA Bot Algılama, WordPress kaydınızı korumuyor."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "silentCAPTCHA Bot Minimum Puanı"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "silentCAPTCHA Bot Puanı (Yüzde)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "silentCAPTCHA Kontrolü Geçersiz (Modül)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "silentCAPTCHA Karmaşıklığı"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "Girişler İçin silentCAPTCHA"
-
-msgid "silentCAPTCHA Registration"
-msgstr "silentCAPTCHA Kaydı"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "silentCAPTCHA algılaması uygulanmıyor çünkü Giriş veya Kayıt gibi korumak için herhangi bir form seçmediniz."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA, %s'in özel WordPress Kötü Bot Algılama teknolojisidir."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA, %s'in görünür CAPTCHA'lar ve benzer ziyaretçi zorluklarına olan ihtiyacı ortadan kaldıran özel bot algılama teknolojisidir."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA, %s'in ziyaretçileriniz için görünmez olan ve giriş CAPTCHA'larıyla kullanıcı etkileşimi ihtiyacını ortadan kaldıran özel bot algılama teknolojisidir."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA devre dışı çünkü minimum bot puanı eşiği sağlanmadı."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA minimum puan %s olarak ayarlandığında devre dışı bırakılır."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA minimum bot puanı eşiğiyle etkinleştirildi."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA, WP Yorumlarınızı bot istenmeyen içeriğine karşı korumuyor."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "silentCAPTCHA'nın Bot zorluğu karmaşıklığı çok düşük - artırmayı düşünün."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "silentCAPTCHA'nın bot algılaması çalışmıyor çünkü minimum puan 0 olarak ayarlanmış."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "silentCAPTCHA bot algılama çalışmıyor çünkü botlar şu anda sorgulanmıyor."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "silentCAPTCHA'nın bot minimum puanı oldukça düşük (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "silentCAPTCHAv1 Kaydı"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "silentCAPTCHAv2 Kaydı"
 
 msgid "suggestion"
 msgstr "öneri"

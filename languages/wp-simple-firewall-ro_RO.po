@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shield Security for WordPress\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-09 12:10+0000\n"
-"PO-Revision-Date: 2025-12-09 12:10+0000\n"
+"POT-Creation-Date: 2026-02-16 11:52+0000\n"
+"PO-Revision-Date: 2026-02-16 11:52+0000\n"
 "Language-Team: Multi-Provider API\n"
 "Language: ro_RO\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,98 @@ msgstr ""
 msgid "\"Y\" = Turned On; \"N\" = Turned Off"
 msgstr "„Y\" = Activat; „N\" = Dezactivat"
 
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 msgid "%1$s &lsaquo; %2$s &#8212; WordPress"
 msgstr "%1$s &lsaquo; %2$s &#8212; WordPress"
 
-msgid "%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)"
-msgstr "%s (Constantă <code>WP_MEMORY_LIMIT: %s</code>)"
+msgid "%1$s (Constant <code>WP_MEMORY_LIMIT: %2$s</code>)"
+msgstr "%1$s (Constantă <code>WP_MEMORY_LIMIT: %2$s</code>)"
+
+msgid "%1$s > %2$s > %3$s"
+msgstr "%1$s > %2$s > %3$s"
+
+msgid "%1$s Just Logged Into %2$s"
+msgstr "%1$s tocmai s-a autentificat în %2$s"
+
+msgid "%1$s and %2$s"
+msgstr "%1$s și %2$s"
+
+msgid "%1$s blocks all automated bot SPAM using our %2$s, our exclusive, invisible, GDPR-compliant bot-detection technology."
+msgstr "%1$s blochează tot SPAM-ul automat de boți folosind %2$s, tehnologia noastră exclusivă, invizibilă, conformă GDPR de detectare a boților."
+
+msgid "%1$s bot minimum score is quite low (%2$s)."
+msgstr "Scorul minim bot %1$s este destul de scăzut (%2$s)."
+
+msgid "%1$s failed to determine whether the %2$s JS was loading correctly on your site."
+msgstr "%1$s nu a reușit să determine dacă JS-ul %2$s se încarcă corect pe site-ul tău."
+
+msgid "%1$s has an integration available to protect the forms of a 3rd party plugin you are using: %2$s"
+msgstr "%1$s are o integrare disponibilă pentru a proteja formularele unui modul terț pe care îl folosești: %2$s"
+
+msgid "%1$s has discovered that the currently installed version of the %2$s plugin has known security vulnerabilities."
+msgstr "%1$s a descoperit că versiunea instalată curent a modulului %2$s are vulnerabilități de securitate cunoscute."
+
+msgid "%1$s has successfully chosen the following location to create its temporary directory: %2$s"
+msgstr "%1$s a ales cu succes următoarea locație pentru a-și crea directorul temporar: %2$s"
+
+msgid "%1$s is a %2$s exclusive service that protects your wp-config.php file."
+msgstr "%1$s este un serviciu exclusiv %2$s care protejează fișierul tău wp-config.php."
+
+msgid "%1$s is a dedicated email delivery service from %2$s."
+msgstr "%1$s este un serviciu dedicat de livrare email de la %2$s."
+
+msgid "%1$s is an exclusive bot-detection technology from %2$s that is invisible to visitors, and removes the need for user interaction with login CAPTCHAs."
+msgstr "%1$s este o tehnologie exclusivă de detectare a boților de la %2$s care este invizibilă pentru vizitatori și elimină necesitatea interacțiunii utilizatorului cu CAPTCHA-uri de autentificare."
+
+msgid "%1$s is disabled when set to a minimum score of %2$s."
+msgstr "%1$s este dezactivat când este setat la un scor minim de %2$s."
+
+msgid "%1$s is our bot-detection technology exclusive to %2$s that removes the needs for visible CAPTCHAs and similar visitor challenges."
+msgstr "%1$s este tehnologia noastră de detectare boți exclusivă pentru %2$s care elimină necesitatea CAPTCHA-urilor vizibile și provocărilor similare pentru vizitatori."
+
+msgid "%1$s marked this comment as \"%2$s\"."
+msgstr "%1$s a marcat acest comentariu ca „%2$s\"."
+
+msgid "%1$s used out of %2$s (unused: %3$s)"
+msgstr "%1$s folosite din %2$s (nefolosite: %3$s)"
+
+msgid "%1$s v%2$s"
+msgstr "%1$s v%2$s"
+
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "%d locale(s) available."
+msgstr "%d locală/locale disponibile."
+
+msgid "%d locale(s) in queue."
+msgstr "%d locală/locale în coadă."
+
+msgid "%d translation is queued for download"
+msgstr "%d traducere este în coadă pentru descărcare"
+
+msgid "%d translations are queued for download"
+msgstr "%d traduceri sunt în coadă pentru descărcare"
 
 msgid "%s (JSON Encoded)"
 msgstr "%s (codificat JSON)"
 
-msgid "%s > %s > %s"
-msgstr "%s > %s > %s"
+msgid "%s 2FA Provider Enabled"
+msgstr "Furnizor 2FA %s activat"
 
 msgid "%s API Token Missing."
 msgstr "Token API %s lipsă."
+
+msgid "%s Anti-Spam"
+msgstr "Anti-Spam %s"
+
+msgid "%s AntiBot Technology"
+msgstr "Tehnologia AntiBot %s"
 
 msgid "%s Auto-Unblock"
 msgstr "%s deblocare automată"
@@ -37,29 +115,92 @@ msgstr "%s deblocare automată"
 msgid "%s Bot Check Failed."
 msgstr "%s verificare bot eșuată."
 
+msgid "%s Bot Detection isn't protecting against brute-force attacks on your WordPress login."
+msgstr "Detectarea boților %s nu protejează împotriva atacurilor prin forță brută la autentificarea ta WordPress."
+
+msgid "%s Bot Detection isn't protecting your WordPress lost password form."
+msgstr "Detectarea boților %s nu protejează formularul tău WordPress de parolă pierdută."
+
+msgid "%s Bot Detection isn't protecting your WordPress registration."
+msgstr "Detectarea boților %s nu protejează înregistrarea ta WordPress."
+
+msgid "%s Bot Minimum Score"
+msgstr "Scor minim bot %s"
+
+msgid "%s Bot Score (Percentage)"
+msgstr "Scor bot %s (procent)"
+
+msgid "%s Bot challenge complexity is too low - consider increasing it."
+msgstr "Complexitatea provocării bot %s este prea scăzută – ia în considerare creșterea ei."
+
+msgid "%s Check Invalid (Module)"
+msgstr "Verificare %s invalidă (modul)"
+
 msgid "%s Comment SPAM Protection"
 msgstr "Protecție SPAM comentarii %s"
+
+msgid "%s Complexity"
+msgstr "Complexitate %s"
+
+msgid "%s Deactivated"
+msgstr "%s dezactivat"
 
 msgid "%s Debug Information"
 msgstr "%s informații depanare"
 
+msgid "%s Emails"
+msgstr "Emailuri %s"
+
+msgid "%s Fail"
+msgstr "%s eșuat"
+
+msgid "%s Features"
+msgstr "Funcționalități %s"
+
 msgid "%s Firewall has blocked a request to your WordPress site."
 msgstr "Firewall-ul %s a blocat o cerere către site-ul tău WordPress."
+
+msgid "%s For Logins"
+msgstr "%s pentru autentificări"
+
+msgid "%s Free Trial"
+msgstr "Perioadă de probă gratuită %s"
 
 msgid "%s Home"
 msgstr "Pagina principală %s"
 
+msgid "%s Home Page"
+msgstr "Pagină principală %s"
+
+msgid "%s IP Reputation Score"
+msgstr "Scor reputație IP %s"
+
+msgid "%s Info"
+msgstr "Info %s"
+
 msgid "%s Intelligent IP Blocking"
 msgstr "%s blocare IP inteligentă"
 
-msgid "%s Just Logged Into %s"
-msgstr "%s tocmai s-a autentificat în %s"
+msgid "%s Issue"
+msgstr "%s problemă"
+
+msgid "%s Issues"
+msgstr "%s probleme"
+
+msgid "%s License Cleared"
+msgstr "Licență %s ștearsă"
+
+msgid "%s License Management"
+msgstr "Gestionare licență %s"
 
 msgid "%s Login Verification"
 msgstr "Verificare autentificare %s"
 
 msgid "%s Lookup"
 msgstr "Căutare %s"
+
+msgid "%s Option Key"
+msgstr "Cheie opțiune %s"
 
 msgid "%s Plugin Badge"
 msgstr "Insignă modul %s"
@@ -70,6 +211,24 @@ msgstr "Configurare modul %s"
 msgid "%s Plugin options updated successfully."
 msgstr "Opțiunile modulului %s au fost actualizate cu succes."
 
+msgid "%s Plugin – minimum site requirements are not met"
+msgstr "Modul %s – cerințele minime ale site-ului nu sunt îndeplinite"
+
+msgid "%s Premium Security"
+msgstr "Securitate premium %s"
+
+msgid "%s Pro is available from our online store."
+msgstr "%s Pro este disponibil în magazinul nostru online."
+
+msgid "%s Pro store"
+msgstr "Magazin %s Pro"
+
+msgid "%s Registration"
+msgstr "Înregistrare %s"
+
+msgid "%s Scanners."
+msgstr "Scanere %s."
+
 msgid "%s Security Insights"
 msgstr "Privire generală securitate %s"
 
@@ -79,14 +238,35 @@ msgstr "%s restricții de securitate aplicate"
 msgid "%s Status Report"
 msgstr "Raport stare %s"
 
+msgid "%s Success"
+msgstr "%s reușit"
+
+msgid "%s User 2FA Provider Activated"
+msgstr "Furnizor 2FA utilizator %s activat"
+
+msgid "%s User 2FA: Has Any Active"
+msgstr "Utilizator %s 2FA: are orice activ"
+
 msgid "%s Website Security Report"
 msgstr "Raport de securitate site web %s"
 
-msgid "%s and %s"
-msgstr "%s și %s"
+msgid "%s bot detection isn't running because the minimum score is set to 0."
+msgstr "Detectarea boților %s nu rulează deoarece scorul minim este setat la 0."
+
+msgid "%s bot detection isn't running, as bots aren't currently being challenged."
+msgstr "Detectarea boților %s nu rulează, deoarece boții nu sunt provocați în prezent."
 
 msgid "%s can also scan your plugins & themes for known vulnerabilities."
 msgstr "%s poate scana și modulele și temele tale pentru vulnerabilități cunoscute."
+
+msgid "%s can automatically integrate with 3rd party plugins."
+msgstr "%s se poate integra automat cu module terțe."
+
+msgid "%s can automatically protect 3rd party login and registration forms against Bots."
+msgstr "%s poate proteja automat formularele de autentificare și înregistrare terțe împotriva boților."
+
+msgid "%s couldn't detect any IP addresses. This represents a critical web hosting configuration problem."
+msgstr "%s nu a putut detecta nicio adresă IP. Aceasta reprezintă o problemă critică de configurare a găzduirii web."
 
 msgid "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas."
 msgstr "%s creează o evaluare a riscului foarte rapid deoarece urmărește vizitatorii răi în mai multe zone separate."
@@ -100,29 +280,41 @@ msgstr "%s zi"
 msgid "%s days"
 msgstr "%s zile"
 
+msgid "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
+msgstr "Detectarea %s nu este aplicată deoarece nu ai selectat niciun formular de protejat, cum ar fi autentificare sau înregistrare."
+
 msgid "%s directory"
 msgstr "Director %s"
+
+msgid "%s does a lot, so it can be hard to know where to begin."
+msgstr "%s face multe lucruri, așa că poate fi dificil să știi de unde să începi."
+
+msgid "%s doesn't normally scan comments from logged-in or registered users."
+msgstr "%s nu scanează în mod normal comentariile de la utilizatori autentificați sau înregistrați."
+
+msgid "%s event definitions are empty or not in the correct format."
+msgstr "Definițiile evenimentelor %s sunt goale sau nu sunt în formatul corect."
 
 msgid "%s extension is unavailable."
 msgstr "Extensia %s nu este disponibilă."
 
+msgid "%s for WordPress v20 Introduction"
+msgstr "Introducere %s pentru WordPress v20"
+
 msgid "%s has already taken the necessary action of blocking the request."
 msgstr "%s a luat deja acțiunea necesară de blocare a cererii."
 
-msgid "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s"
-msgstr "%s are o integrare disponibilă pentru a proteja formularele unui modul terț pe care îl folosești: %s"
-
-msgid "%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities."
-msgstr "%s a descoperit că versiunea instalată curent a modulului %s are vulnerabilități de securitate cunoscute."
-
-msgid "%s has successfully chosen the following location to create its temporary directory: %s"
-msgstr "%s a ales cu succes următoarea locație pentru a crea directorul său temporar: %s"
-
-msgid "%s is %s's exclusive service that protects your wp-config.php file."
-msgstr "%s este serviciul exclusiv al %s care îți protejează fișierul wp-config.php."
-
 msgid "%s is a child of another theme."
 msgstr "%s este o temă copil a altei teme."
+
+msgid "%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites."
+msgstr "%s este un serviciu puternic de securitate WordPress implementat pe peste 40.000+ de site-uri WordPress."
+
+msgid "%s is disabled as there is no minimum bot-score threshold provided."
+msgstr "%s este dezactivat deoarece nu este furnizat niciun prag minim de scor bot."
+
+msgid "%s is enabled with a minimum bot-score threshold."
+msgstr "%s este activat cu un prag minim de scor bot."
 
 msgid "%s is not currently protecting your site."
 msgstr "%s nu protejează momentan site-ul tău."
@@ -130,14 +322,26 @@ msgstr "%s nu protejează momentan site-ul tău."
 msgid "%s is not protecting your site"
 msgstr "%s nu protejează site-ul tău"
 
+msgid "%s is our WordPress Bad Bot Detection technology."
+msgstr "%s este tehnologia noastră de detectare boți răi WordPress."
+
 msgid "%s is our exclusive AI-powered Malware Scanning and Detection engine."
 msgstr "%s este motorul nostru exclusiv de scanare și detectare malware alimentat de AI."
 
 msgid "%s is protected against tampering."
 msgstr "%s este protejat împotriva manipulării."
 
+msgid "%s isn't activated on this site."
+msgstr "%s nu este activat pe acest site."
+
+msgid "%s isn't installed on this site."
+msgstr "%s nu este instalat pe acest site."
+
 msgid "%s isn't protected against tampering."
 msgstr "%s nu este protejat împotriva manipulării."
+
+msgid "%s isn't protecting your WP Comments against bot SPAM."
+msgstr "%s nu protejează comentariile tale WP împotriva SPAM de la boți."
 
 msgid "%s item processed"
 msgstr "%s element procesat"
@@ -145,8 +349,11 @@ msgstr "%s element procesat"
 msgid "%s items processed"
 msgstr "%s elemente procesate"
 
-msgid "%s marked this comment as \"%s\"."
-msgstr "%s a marcat acest comentariu ca „%s\"."
+msgid "%s license check failed."
+msgstr "Verificarea licenței %s a eșuat."
+
+msgid "%s license check was successful."
+msgstr "Verificarea licenței %s a reușit."
 
 msgid "%s minute"
 msgstr "%s minute"
@@ -172,8 +379,8 @@ msgstr "%s abateri"
 msgid "%s offenses until block"
 msgstr "%s infracțiuni până la blocare"
 
-msgid "%s offers email, Yubikey, Google Authenticator and U2F."
-msgstr "%s oferă email, Yubikey, Google Authenticator și U2F."
+msgid "%s offers email, Yubikey, Google Authenticator and Passkeys."
+msgstr "%s oferă email, Yubikey, Google Authenticator și Passkeys."
 
 msgid "%s options and modules"
 msgstr "Opțiuni și module %s"
@@ -181,11 +388,56 @@ msgstr "Opțiuni și module %s"
 msgid "%s per day"
 msgstr "%s pe zi"
 
+msgid "%s plugin activated"
+msgstr "Modulul %s activat"
+
+msgid "%s plugin couldn't be activated"
+msgstr "Modulul %s nu a putut fi activat"
+
+msgid "%s plugin couldn't be deactivated"
+msgstr "Modulul %s nu a putut fi dezactivat"
+
+msgid "%s plugin couldn't be installed"
+msgstr "Modulul %s nu a putut fi instalat"
+
+msgid "%s plugin couldn't be updated"
+msgstr "Modulul %s nu a putut fi actualizat"
+
+msgid "%s plugin deactivated"
+msgstr "Modulul %s dezactivat"
+
+msgid "%s plugin installed"
+msgstr "Modulul %s instalat"
+
+msgid "%s plugin is installed but not activated."
+msgstr "Modulul %s este instalat, dar nu este activat."
+
+msgid "%s plugin is installed, but not active."
+msgstr "Modulul %s este instalat, dar nu este activ."
+
+msgid "%s plugin needs to sync."
+msgstr "Modulul %s trebuie să sincronizeze."
+
+msgid "%s plugin not detected in last sync."
+msgstr "Modulul %s nu a fost detectat în ultima sincronizare."
+
+msgid "%s plugin updated"
+msgstr "Modulul %s actualizat"
+
+msgid "%s plugin versions are out of sync."
+msgstr "Versiunile modulului %s sunt desincronizate."
+
 msgid "%s protects site visitors and works to block potential hacks while monitoring web traffic and filesystem changes."
 msgstr "%s protejează vizitatorii site-ului și lucrează pentru a bloca potențiale atacuri în timp ce monitorizează traficul web și modificările sistemului de fișiere."
 
+msgid "%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots."
+msgstr "%s oferă integrări native pentru a proteja formularele modulelor terțe împotriva boților SPAM."
+
 msgid "%s scan remaining."
 msgstr "%s scanare rămasă."
+
+msgid "%s scans cannot execute."
+msgstr "Scanările %s nu pot fi executate."
 
 msgid "%s scans remaining."
 msgstr "%s scanări rămase."
@@ -205,14 +457,14 @@ msgstr "%s ori"
 msgid "%s tools and features"
 msgstr "%s instrumente și funcționalități"
 
-msgid "%s used out of %s (unused: %s)"
-msgstr "%s folosite din %s (nefolosite: %s)"
+msgid "%s tries to do this automatically and while it works 99% of the time, sometimes a strange webhost configuration mix it up a little.."
+msgstr "%s încearcă să facă acest lucru automat și deși funcționează în 99% din cazuri, uneori o configurație ciudată a gazdei web o încurcă puțin."
 
 msgid "%s uses a regularly-updated dictionary of commonly-used SPAM content to block this type of SPAM content."
 msgstr "%s folosește un dicționar actualizat regulat de conținut SPAM folosit frecvent pentru a bloca acest tip de conținut SPAM."
 
-msgid "%s v%s"
-msgstr "%s v%s"
+msgid "%s version on site doesn't match this server."
+msgstr "Versiunea %s de pe site nu corespunde cu acest server."
 
 msgid "%s was added to your profile."
 msgstr "%s a fost adăugat la profilul tău."
@@ -223,11 +475,26 @@ msgstr "%s a fost eliminat din profilul tău."
 msgid "%s was successfully added to your account."
 msgstr "%s a fost adăugat cu succes la contul tău."
 
+msgid "%s will automatically scan your 3rd party plugins to check whether a built-in integration is available."
+msgstr "%s va scana automat modulele tale terțe pentru a verifica dacă este disponibilă o integrare nativă."
+
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s va amâna actualizările până când noua actualizare va fi disponibilă pentru numărul setat de zile."
 
+msgid "%s will detect bots that attempt to login to your site, without challenging your legitimate users."
+msgstr "%s va detecta boții care încearcă să se autentifice pe site-ul tău, fără a provoca utilizatorii tăi legitimi."
+
+msgid "%s will detect bots that attempt to post comment SPAM to your site, without challenging your legitimate visitors."
+msgstr "%s va detecta boții care încearcă să posteze SPAM comentarii pe site-ul tău, fără a provoca vizitatorii tăi legitimi."
+
 msgid "%s will protect WordPress forms from bots by limiting attempts against them using our silentCAPTCH technology."
 msgstr "%s va proteja formularele WordPress împotriva boților limitând încercările împotriva lor folosind tehnologia noastră silentCAPTCH."
+
+msgid "%s's MainWP integration isn't enabled for this site."
+msgstr "Integrarea MainWP a %s nu este activată pentru acest site."
+
+msgid "%s's Rules Engine isn't running."
+msgstr "Motorul de reguli %s nu rulează."
 
 msgid "%s's Security Admin system provides an additional security layer to the normal WordPress admin."
 msgstr "Sistemul administrator securitate %s oferă un strat de securitate suplimentar față de administratorul normal WordPress."
@@ -238,11 +505,14 @@ msgstr "Blocarea automată IP a %s va atenua atacurile lor prin blocarea IP-uril
 msgid "%s's protections are currently disabled so any changes made here won't apply until it is re-enabled."
 msgstr "Protecțiile %s sunt dezactivate momentan, așa că orice modificări făcute aici nu se vor aplica până când va fi reactivat."
 
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "%s, Founder Introduction"
+msgstr "%s, Introducere fondator"
 
-msgid "%s: %s."
-msgstr "%s: %s."
+msgid "%sv1 Registration"
+msgstr "Înregistrare %sv1"
+
+msgid "%sv2 Registration"
+msgstr "Înregistrare %sv2"
 
 msgid "&uarr; Go Pro &uarr;"
 msgstr "&uarr; Treci la Pro &uarr;"
@@ -273,6 +543,9 @@ msgstr "(când blocarea este dezactivată, adresa IP va fi eliminată automat di
 
 msgid "- "
 msgstr "-"
+
+msgid "... and %s more"
+msgstr "... și încă %s"
 
 msgid "/wp-content/ directory isn't scanned."
 msgstr "Directorul /wp-content/ nu este scanat."
@@ -397,9 +670,6 @@ msgstr "Erorile 404 generate pentru următoarele tipuri de fișiere nu vor decla
 msgid "5-minute"
 msgstr "5 minute"
 
-msgid "7 %s"
-msgstr "7 %s"
-
 msgid "7 Days"
 msgstr "7 zile"
 
@@ -411,6 +681,9 @@ msgstr ":"
 
 msgid "<strong>Scanning</strong> your core WordPress files and directories for changes and new files."
 msgstr "<strong>Scanează</strong> fișierele și directoarele nucleului WordPress pentru modificări și fișiere noi."
+
+msgid "A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
+msgstr "O verificare bot %s a fost efectuată pe un vizitator, dar opțiunea de blocare boți este dezactivată în setări."
 
 msgid "A File Diff can't be created as there is no official file available for us to compare with."
 msgstr "O diferență de fișier nu poate fi creată deoarece nu există un fișier oficial disponibil cu care să comparăm."
@@ -445,6 +718,9 @@ msgstr "O prezentare generală de nivel înalt a software-ului serverului de gă
 msgid "A high-level overview of your WordPress updates status."
 msgstr "O prezentare generală de nivel înalt a stării actualizărilor tale WordPress."
 
+msgid "A license is already active. Use --force to reactivate."
+msgstr "O licență este deja activă. Folosește --force pentru a reactiva."
+
 msgid "A light-touch security profile"
 msgstr "Un profil de securitate ușor"
 
@@ -456,6 +732,9 @@ msgstr "O listă de căi de cereri care nu vor declanșa niciodată o infracțiu
 
 msgid "A login to your WordPress account just occurred"
 msgstr "O autentificare la contul tău WordPress tocmai a avut loc"
+
+msgid "A lot of work goes into %s, and we need your help to spread the word about it. :)"
+msgstr "Multă muncă intră în %s și avem nevoie de ajutorul tău pentru a promova acest lucru. :)"
 
 msgid "A new One-Time Password was sent to your email address."
 msgstr "O parolă unică nouă a fost trimisă la adresa ta de email."
@@ -475,8 +754,8 @@ msgstr "O postură de securitate robustă"
 msgid "A score of '100' would mean it's almost certainly good, a score of '0' means it's highly likely to be a bad bot."
 msgstr "Un scor de „100\" ar însemna că este aproape sigur bun, un scor de „0\" înseamnă că este foarte probabil să fie un bot rău."
 
-msgid "A silentCAPTCHA Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings."
-msgstr "O verificare Bot silentCAPTCHA a fost efectuată pe un vizitator, dar opțiunea de blocare Bot este dezactivată în setări."
+msgid "A security alert has been generated. Review issues below and take action where needed."
+msgstr "O alertă de securitate a fost generată. Revizuiește problemele de mai jos și ia măsuri unde este necesar."
 
 msgid "A successful login to your WordPress account has just occurred."
 msgstr "O autentificare reușită la contul tău WordPress tocmai a avut loc."
@@ -498,6 +777,12 @@ msgstr "Scanerul AI de malware, repararea automată a fișierelor, protecția WP
 
 msgid "API & XML-RPC"
 msgstr "API & XML-RPC"
+
+msgid "API key cannot be empty."
+msgstr "Cheia API nu poate fi goală."
+
+msgid "API key is required for activation. Use --api-key=YOUR_KEY"
+msgstr "Cheia API este necesară pentru activare. Folosește --api-key=CHEIA_TA"
 
 msgid "APP Password Auth - Invalid Email"
 msgstr "Autentificare parolă aplicație - email invalid"
@@ -523,8 +808,8 @@ msgstr "Module abandonate găsite"
 msgid "Abandoned WordPress.org Plugins"
 msgstr "Module WordPress.org abandonate"
 
-msgid "Absolutely"
-msgstr "Absolut"
+msgid "About %s for WordPress"
+msgstr "Despre %s pentru WordPress"
 
 msgid "Accept Changes"
 msgstr "Acceptă modificările"
@@ -571,20 +856,23 @@ msgstr "Acțiuni și info"
 msgid "Activate"
 msgstr "Activează"
 
+msgid "Activate %s"
+msgstr "Activează %s"
+
+msgid "Activate %s License"
+msgstr "Activează licența %s"
+
 msgid "Activate Only"
 msgstr "Doar activare"
+
+msgid "Activate Pro License"
+msgstr "Activează licența Pro"
 
 msgid "Activate Rule"
 msgstr "Activează regulă"
 
-msgid "Activate Shield"
-msgstr "Activează Shield"
-
-msgid "Activate ShieldPRO License"
-msgstr "Activează licența ShieldPRO"
-
-msgid "Activate Your ShieldPRO License"
-msgstr "Activează licența ShieldPRO"
+msgid "Activate Your %s License"
+msgstr "Activează licența ta %s"
 
 msgid "Activate Your White Label Settings"
 msgstr "Activează setările tale White Label"
@@ -673,14 +961,14 @@ msgstr "Tabele adăugate"
 msgid "Additional IP block lists are available with an upgraded plan."
 msgstr "Liste de blocare IP suplimentare sunt disponibile cu un plan actualizat."
 
+msgid "Adjust %s Challenge Complexity"
+msgstr "Ajustează complexitatea provocării %s"
+
 msgid "Adjust Scan Results Display"
 msgstr "Ajustează afișarea rezultatelor scanării"
 
 msgid "Adjust deployment of HTTP security headers"
 msgstr "Ajustează implementarea anteturilor HTTP de securitate"
-
-msgid "Adjust silentCAPTCHA Challenge Complexity"
-msgstr "Ajustează complexitatea provocării silentCAPTCHA"
 
 msgid "Admin Access Login"
 msgstr "Autentificare acces administrator"
@@ -751,17 +1039,26 @@ msgstr "Înaintea serverului"
 msgid "Alert"
 msgstr "Alertă"
 
+msgid "Alert Report Generated"
+msgstr "Raport alertă generat"
+
+msgid "Alert Report Generated."
+msgstr "Raport alertă generat."
+
 msgid "Alert Reports Frequency"
 msgstr "Frecvență rapoarte alertă"
 
-msgid "Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available."
-msgstr "Alerte pentru vulnerabilități de module/teme. Shield poate apoi actualiza automat pe măsură ce actualizările devin disponibile."
+msgid "Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available."
+msgstr "Alerte pentru vulnerabilități modul/temă. %s poate implementa automat actualizări pe măsură ce devin disponibile."
 
 msgid "Algorithm not supported"
 msgstr "Algoritm nesuportat"
 
-msgid "Align Shield"
-msgstr "Aliniază Shield"
+msgid "Align %s"
+msgstr "Aliniază %s"
+
+msgid "All Clear"
+msgstr "Totul curat"
 
 msgid "All MFA providers removed from user with ID %s."
 msgstr "Toți furnizorii MFA eliminați de la utilizatorul cu ID %s."
@@ -784,8 +1081,8 @@ msgstr "Prin urmare, tot accesul la acest site web este restricționat."
 msgid "All access to your site is blocked."
 msgstr "Tot accesul la site-ul tău este blocat."
 
-msgid "All attempts to verify Shield Pro license have failed."
-msgstr "Toate încercările de verificare a licenței Shield Pro au eșuat."
+msgid "All attempts to verify %s Pro license have failed."
+msgstr "Toate încercările de verificare a licenței %s Pro au eșuat."
 
 msgid "All available plugin updates have been applied."
 msgstr "Toate actualizările disponibile pentru module au fost aplicate."
@@ -795,6 +1092,9 @@ msgstr "Toate actualizările disponibile pentru teme au fost aplicate."
 
 msgid "All characters will be treated as case-insensitive."
 msgstr "Toate caracterele vor fi tratate fără a ține cont de majuscule."
+
+msgid "All clear"
+msgstr "Totul curat"
 
 msgid "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores."
 msgstr "Toate cheile evenimentelor personalizate trebuie să fie șiruri, cu litere mici, lungime 10-50, prefixate cu „custom_\" și să conțină doar litere și liniuțe de subliniere."
@@ -979,8 +1279,8 @@ msgstr "O abatere este înregistrată împotriva unei adrese IP de fiecare dată
 msgid "An unsupported profile was selected"
 msgstr "A fost selectat un profil neacceptat"
 
-msgid "An upgrade is available for the Shield plugin."
-msgstr "Este disponibilă o actualizare pentru modulul Shield."
+msgid "An upgrade is available for the %s plugin."
+msgstr "Este disponibilă o actualizare pentru modulul %s."
 
 msgid "Analyse & Fix"
 msgstr "Analizează & corecție"
@@ -1054,8 +1354,8 @@ msgstr "Oricine se poate înregistra"
 msgid "Anyone can register"
 msgstr "Oricine se poate înregistra"
 
-msgid "Anyone can register changed: %s&rarr;%s"
-msgstr "Oricine se poate înregistra modificat: %s&rarr;%s"
+msgid "Anyone can register changed: %1$s&rarr;%2$s"
+msgstr "Oricine se poate înregistra modificat: %1$s&rarr;%2$s"
 
 msgid "App Passwords Disabled"
 msgstr "Parole aplicație dezactivate"
@@ -1093,8 +1393,8 @@ msgstr "Aplică restricții de limitare de rată la cereri cu volum mare."
 msgid "Applying CSP headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section."
 msgstr "Aplicarea antetelor CSP poate afecta modul în care site-ul tău funcționează pentru vizitatorii săi, așa că nu oferim recomandări directe în această secțiune."
 
-msgid "Are Shield Security's Restrictions Enabled?"
-msgstr "Sunt activate restricțiile Shield Security?"
+msgid "Are %s's Restrictions Enabled?"
+msgstr "Sunt restricțiile %s activate?"
 
 msgid "Are WordPress permalinks enabled."
 msgstr "Sunt activate permalink-urile WordPress."
@@ -1108,11 +1408,11 @@ msgstr "Ești sigur că vrei să ștergi această regulă IP?"
 msgid "Are you sure you want to keep the file changes?"
 msgstr "Ești sigur că vrei să păstrezi modificările fișierului?"
 
-msgid "Are you sure you want to remove the ShieldPRO license?"
-msgstr "Ești sigur că vrei să elimini licența ShieldPRO?"
+msgid "Are you sure you want to remove the %s license?"
+msgstr "Ești sigur că vrei să înlături licența %s?"
 
-msgid "Are you sure you want to reset the Shield plugin to defaults?"
-msgstr "Ești sigur că vrei să resetezi modulul Shield la valorile implicite?"
+msgid "Are you sure you want to reset the %s plugin to defaults?"
+msgstr "Ești sigur că vrei să resetezi modulul %s la valorile implicite?"
 
 msgid "Are you sure you want to restore the original file contents?"
 msgstr "Ești sigur că vrei să restaurezi conținutul original al fișierului?"
@@ -1132,11 +1432,11 @@ msgstr "Ca întotdeauna, folosirea și încrederea ta în acest serviciu se fac 
 msgid "As each issue is resolved the overall score will improve, up to 100%."
 msgstr "Pe măsură ce fiecare problemă este rezolvată, scorul general se va îmbunătăți, până la 100%."
 
-msgid "As requested, %s is notifying you of a successful %s login to a WordPress site that you manage."
-msgstr "Conform solicitării, %s te notifică despre o autentificare %s reușită pe un site WordPress pe care îl administrezi."
+msgid "As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage."
+msgstr "Conform solicitării, %1$s te notifică despre o autentificare %2$s reușită pe un site WordPress pe care îl gestionezi."
 
-msgid "As soon as a compatible plugin is detected, Shield will automatically switch-on the built-in integration."
-msgstr "De îndată ce un modul compatibil este detectat, Shield va activa automat integrarea nativă."
+msgid "As soon as a compatible plugin is detected, %s will automatically switch-on the built-in integration."
+msgstr "De îndată ce este detectat un modul compatibil, %s va activa automat integrarea nativă."
 
 msgid "As soon as changes are detected to any selected files, the contents may be examined and reverted."
 msgstr "De îndată ce sunt detectate modificări la orice fișiere selectate, conținutul poate fi examinat și reversat."
@@ -1155,9 +1455,6 @@ msgstr "Cel puțin unul dintre modulele sau temele tale pare să fie modificat."
 
 msgid "At least 1 option must be provided and defaults to the user profile page within the WP admin area."
 msgstr "Trebuie furnizată cel puțin o opțiune și implicit este pagina de profil utilizator din zona de administrare WP."
-
-msgid "At least 1 security report has been generated for your site."
-msgstr "Cel puțin un raport de securitate a fost generat pentru site-ul tău."
 
 msgid "At least two records are required to merge."
 msgstr "Cel puțin două înregistrări sunt necesare pentru a le îmbina."
@@ -1198,8 +1495,8 @@ msgstr "Încercări rămase: %s."
 msgid "Attempts to automatically repair files that have been changed, or infected with malware."
 msgstr "Încearcă să repare automat fișierele care au fost modificate sau infectate cu malware."
 
-msgid "Attempts to verify Shield Pro license has just failed."
-msgstr "Încercarea de verificare a licenței Shield Pro tocmai a eșuat."
+msgid "Attempts to verify %s Pro license has just failed."
+msgstr "Încercările de verificare a licenței %s Pro tocmai au eșuat."
 
 msgid "Audit Trail message that may include email addresses"
 msgstr "Mesaj Audit Trail care poate include adrese de email"
@@ -1408,8 +1705,8 @@ msgstr "Detectează și repară automat fișiere, module și teme vulnerabile ș
 msgid "Automatically detect and enable 3rd party integrations as they become available"
 msgstr "Detectează și activează automat integrările terțe pe măsură ce devin disponibile"
 
-msgid "Automatically honour Shield's existing whitelisting rules and exceptions."
-msgstr "Respectă automat regulile existente de listă albă și excepțiile Shield."
+msgid "Automatically honour %s's existing whitelisting rules and exceptions."
+msgstr "Respectă automat regulile existente de listă albă și excepțiile %s."
 
 msgid "Automatically import options, and deploy configurations across your entire network."
 msgstr "Importă automat opțiunile și implementează configurații în întreaga ta rețea."
@@ -1504,6 +1801,9 @@ msgstr "Fii alertat la modificări importante pe orice cont de administrator"
 msgid "Be alerted to plugins and themes with known security vulnerabilities"
 msgstr "Fii alertat la module și teme cu vulnerabilități de securitate cunoscute"
 
+msgid "Be alerted when the %s plugin is deactivated"
+msgstr "Fii alertat când modulul %s este dezactivat"
+
 msgid "Be alerted when the Shield plugin is deactivated"
 msgstr "Fii alertat când modulul Shield este dezactivat"
 
@@ -1528,11 +1828,11 @@ msgstr "Acces beta"
 msgid "Block %s"
 msgstr "Blochează %s"
 
-msgid "Block 100% Bots Comment SPAM With silentCAPTCHA"
-msgstr "Blochează 100% SPAM comentarii de la boți cu silentCAPTCHA"
+msgid "Block 100%% Bots Comment SPAM With %s"
+msgstr "Blochează 100%% SPAM comentarii de la boți cu %s"
 
-msgid "Block 99.9%% of all WordPress comment SPAM using silentCAPTCHA."
-msgstr "Blochează 99,9%% din tot SPAM-ul comentarii WordPress folosind silentCAPTCHA."
+msgid "Block 99.9%% of all WordPress comment SPAM using %s."
+msgstr "Blochează 99,9%% din tot SPAM-ul comentarii WordPress folosind %s."
 
 msgid "Block Anon REST API"
 msgstr "Blochează API-ul REST anonim"
@@ -1668,9 +1968,6 @@ msgstr "Comentariu SPAM blocat de la bot."
 
 msgid "Blocked SPAM comment that failed AntiBot tests."
 msgstr "Comentariu SPAM blocat care a eșuat testele AntiBot."
-
-msgid "Blocked SPAM comment that failed reCAPTCHA."
-msgstr "Comentariu SPAM blocat care a eșuat reCAPTCHA."
 
 msgid "Blocked attempted password update that failed policy requirements."
 msgstr "A blocat încercarea de actualizare a parolei care nu a îndeplinit cerințele politicii."
@@ -1819,8 +2116,8 @@ msgstr "Protecție împotriva atacurilor prin forță brută"
 msgid "Brute Force Login Protection"
 msgstr "Protecție autentificare împotriva atacurilor prin forță brută"
 
-msgid "Brute Force Login Protection with silentCAPTCHA"
-msgstr "Protecție autentificare împotriva atacurilor prin forță brută cu silentCAPTCHA"
+msgid "Brute Force Login Protection with %s"
+msgstr "Protecție autentificare împotriva atacurilor prin forță brută cu %s"
 
 msgid "Brute Force Protection"
 msgstr "Protecție împotriva atacurilor prin forță brută"
@@ -1828,8 +2125,8 @@ msgstr "Protecție împotriva atacurilor prin forță brută"
 msgid "Brute Force Traffic Rate Limiting"
 msgstr "Limitare de rată trafic atac prin forță brută"
 
-msgid "Brute force bot attacks against your WordPress login are detected & blocked by silentCAPTCHA."
-msgstr "Atacurile prin forță brută ale boților împotriva autentificării WordPress sunt detectate și blocate de silentCAPTCHA."
+msgid "Brute force bot attacks against your WordPress login are detected & blocked by %s."
+msgstr "Atacurile prin forță brută de la boți împotriva autentificării tale WordPress sunt detectate & blocate de %s."
 
 msgid "Brute force login attacks aren't blocked by the login cooldown system."
 msgstr "Atacurile prin forță brută de autentificare nu sunt blocate de sistemul de pauză de autentificare."
@@ -1846,14 +2143,14 @@ msgstr "Construiește reguli de securitate personalizate"
 msgid "Building scan items for scan: %s"
 msgstr "Construiesc elemente de scanare pentru scanare: %s"
 
-msgid "Built-In Shield Integrations"
-msgstr "Integrări Shield native"
+msgid "Built-In %s Integrations"
+msgstr "Integrări native %s"
 
-msgid "By default Shield displays non-essential notices in the admin area and admin bar."
-msgstr "În mod implicit, Shield afișează notificări neesențiale în zona de administrare și bara de administrare."
+msgid "By default %s displays non-essential notices in the admin area and admin bar."
+msgstr "În mod implicit, %s afișează notificări neesențiale în zona de administrare și bara de administrare."
 
-msgid "By default, Shield is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
-msgstr "În mod implicit, Shield este configurat automat pentru a-ți proteja site-ul de numeroase amenințări și pentru a bloca vizitatorii și boții răi fără să fie nevoie să faci nimic."
+msgid "By default, %s is automatically configured to protect your site from numerous threats and block bad visitors and bots without you having to do anything."
+msgstr "În mod implicit, %s este configurat automat pentru a proteja site-ul tău de numeroase amenințări și pentru a bloca vizitatorii răi și boții fără să fie nevoie să faci nimic."
 
 msgid "By linking together signals from the Firewall, with signals from all other security components, %s builds a visitor profile over time to determine who is human, who is a bot, and who is here for good or bad."
 msgstr "Prin conectarea semnalelor de la firewall cu semnalele de la toate celelalte componente de securitate, %s construiește un profil de vizitator în timp pentru a determina cine este om, cine este bot și cine este aici pentru bine sau rău."
@@ -1863,21 +2160,6 @@ msgstr "Ocolire"
 
 msgid "Bypass IP"
 msgstr "Ocolire IP"
-
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-msgid "CAPTCHA Fail"
-msgstr "CAPTCHA eșuat"
-
-msgid "CAPTCHA Pass"
-msgstr "CAPTCHA reușit"
-
-msgid "CAPTCHA test failed."
-msgstr "Test CAPTCHA eșuat."
-
-msgid "CAPTCHA test successful."
-msgstr "Test CAPTCHA reușit."
 
 msgid "CAPTCHAs are horrible."
 msgstr "CAPTCHA-urile sunt oribile."
@@ -1990,6 +2272,9 @@ msgstr "Provocare eșuată"
 msgid "Challenge has expired."
 msgstr "Provocarea a expirat."
 
+msgid "Change"
+msgstr "modifica"
+
 msgid "Change Detected"
 msgstr "Modificare detectată"
 
@@ -2005,11 +2290,14 @@ msgstr "Modificarea opțiunilor 2FA prin email nu este disponibilă momentan pen
 msgid "Changing Backup Code options isn't currently available to you."
 msgstr "Modificarea opțiunilor de cod de rezervă nu este disponibilă momentan pentru tine."
 
+msgid "Check %s License"
+msgstr "Verifică licența %s"
+
+msgid "Check For %s License"
+msgstr "Verifică licența %s"
+
 msgid "Check License"
 msgstr "Verifică licența"
-
-msgid "Check ShieldPRO License"
-msgstr "Verifică licența ShieldPRO"
 
 msgid "Check and verify the contents of this file to ensure it's not malicious."
 msgstr "Verifică și validează conținutul acestui fișier pentru a te asigura că nu este rău intenționat."
@@ -2044,14 +2332,14 @@ msgstr "Copil"
 msgid "Choose on which forms silentCAPTHA Bot Protection will be deployed."
 msgstr "Alege pe ce formulare va fi implementată protecția silentCAPTCHA împotriva boților."
 
-msgid "Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA."
-msgstr "Alege pagina Shield personalizată dacă există conflicte sau probleme cu pagina de autentificare WP pentru 2FA."
+msgid "Choose the Custom %s page if there are conflicts or issues with the WP Login page for 2FA."
+msgstr "Alege pagina personalizată %s dacă există conflicte sau probleme cu pagina de autentificare WP pentru 2FA."
 
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr "Alege formularele pentru care vor fi implementate măsurile de protecție împotriva boților."
 
-msgid "Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-msgstr "Alege frecvența cea mai potrivită pentru a primi alerte de la Shield în funcție de programul tău."
+msgid "Choose the most appropriate frequency to receive alerts from %s according to your schedule."
+msgstr "Alege frecvența cea mai potrivită pentru a primi alerte de la %s conform programului tău."
 
 msgid "Choose the page type for MFA verification"
 msgstr "Alege tipul de pagină pentru verificarea MFA"
@@ -2121,6 +2409,9 @@ msgstr "Dă clic pentru a elimina imediat autentificarea prin Google Authenticat
 
 msgid "Click to launch plugin search modal"
 msgstr "Dă clic pentru a lansa modalul de căutare a modulului"
+
+msgid "Click to leave a review on WordPress.org ->"
+msgstr "Dă clic pentru a lăsa o recenzie pe WordPress.org ->"
 
 msgid "Click to see the RAW data that would be sent"
 msgstr "Dă clic pentru a vedea datele RAW care ar fi trimise"
@@ -2200,8 +2491,8 @@ msgstr "SPAM comentarii blocat."
 msgid "Comment SPAM Protection"
 msgstr "Protecție SPAM comentarii"
 
-msgid "Comment SPAM Protection: %s %s"
-msgstr "Protecție SPAM comentarii: %s %s"
+msgid "Comment SPAM Protection: %1$s %2$s"
+msgstr "Protecție SPAM comentarii: %1$s %2$s"
 
 msgid "Comment Status Updated"
 msgstr "Stare comentariu actualizată"
@@ -2269,6 +2560,12 @@ msgstr "Configurare"
 msgid "Config Pages For User 2FA Setup"
 msgstr "Pagini de configurare pentru configurare 2FA utilizator"
 
+msgid "Configuration isn't required as only 1 distinct IP address was detected."
+msgstr "Configurarea nu este necesară deoarece a fost detectată doar o singură adresă IP distinctă."
+
+msgid "Configure"
+msgstr "Configurează"
+
 msgid "Configure All '%s' Options"
 msgstr "Configurează toate opțiunile '%s'"
 
@@ -2308,9 +2605,6 @@ msgstr "Confirmare"
 msgid "Confirmation email will be sent to %s"
 msgstr "Email-ul de confirmare va fi trimis la %s"
 
-msgid "Confirmation link"
-msgstr "Legătură confirmare"
-
 msgid "Connected"
 msgstr "Conectat"
 
@@ -2329,8 +2623,8 @@ msgstr "SPAM formulare de contact"
 msgid "Contact Form SPAM Checking"
 msgstr "Verificare SPAM formulare de contact"
 
-msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form isn't supported, please reach out to our support team."
-msgstr "SPAM-ul din formularele de contact poate fi blocat doar cu o integrare personalizată pentru fiecare furnizor de formulare – dacă formularul tău nu este suportat, te rugăm să contactezi echipa noastră de asistență."
+msgid "Contact Form SPAM can only be blocked with a custom-built integration for each form provider - if your form is not supported, please reach out to our support team."
+msgstr "SPAM-ul formular de contact poate fi blocat doar cu o integrare construită personalizat pentru fiecare furnizor de formulare - dacă formularul tău nu este suportat, te rugăm să contactezi echipa noastră de asistență."
 
 msgid "Contact Forms Integration"
 msgstr "Integrare formulare de contact"
@@ -2395,8 +2689,8 @@ msgstr "Coordonate"
 msgid "Core Reinstalled: v%s"
 msgstr "Nucleu reinstalat: v%s"
 
-msgid "Core Upgraded: %s&rarr;%s"
-msgstr "Nucleu actualizat: %s&rarr;%s"
+msgid "Core Upgraded: %1$s&rarr;%2$s"
+msgstr "Nucleu actualizat: %1$s&rarr;%2$s"
 
 msgid "Core properties of an established user session ({{user_login}}) have changed."
 msgstr "Proprietățile nucleu ale unei sesiuni de utilizator stabilite ({{user_login}}) s-au modificat."
@@ -2443,8 +2737,8 @@ msgstr "Nu s-a putut crea directorul: %s"
 msgid "Couldn't create the export file."
 msgstr "Nu s-a putut crea fișierul de export."
 
-msgid "Couldn't determine Shield plugin status."
-msgstr "Nu s-a putut determina starea modulului Shield."
+msgid "Couldn't determine %s plugin status."
+msgstr "Nu s-a putut determina starea modulului %s."
 
 msgid "Couldn't load plugin for slug '%s'."
 msgstr "Nu s-a putut încărca modulul pentru slug-ul „%s\"."
@@ -2455,11 +2749,17 @@ msgstr "Nu s-a putut încărca tema pentru slug-ul „%s\"."
 msgid "Couldn't read MU plugin template from %s"
 msgstr "Nu s-a putut citi șablonul modulului MU din %s"
 
+msgid "Count"
+msgstr "Număr"
+
 msgid "Country"
 msgstr "Țară"
 
 msgid "Country Code"
 msgstr "Cod țară"
+
+msgid "Create %s Network"
+msgstr "Creează rețeaua %s"
 
 msgid "Create Backup 2FA Login Code"
 msgstr "Creează cod autentificare 2FA de rezervă"
@@ -2482,9 +2782,6 @@ msgstr "Creează regulă nouă"
 msgid "Create Report"
 msgstr "Creează raport"
 
-msgid "Create Shield Network"
-msgstr "Crează rețea Shield"
-
 msgid "Create and view all your custom security rules."
 msgstr "Creează și vizualizează toate regulile tale de securitate personalizate."
 
@@ -2502,6 +2799,9 @@ msgstr "Crearea unei căi aici va dezactiva „wp-login.php\". Sunt permise doar
 
 msgid "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create."
 msgstr "Crearea de reguli personalizate este o evidențiere avansată și accept întreaga responsabilitate pentru orice probleme care decurg din regulile pe care le creez."
+
+msgid "Critical"
+msgstr "Critic"
 
 msgid "Critical File Protection"
 msgstr "Protecție fișiere critice"
@@ -2578,9 +2878,6 @@ msgstr "Conținut fișier curent"
 msgid "Current Scan"
 msgstr "Scanare curentă"
 
-msgid "Current Scan Results"
-msgstr "Rezultate scanare curentă"
-
 msgid "Current Session Age (seconds)"
 msgstr "Vârstă sesiune curentă (secunde)"
 
@@ -2589,9 +2886,6 @@ msgstr "Sesiune curentă terminată"
 
 msgid "Current Session Token Age (seconds)"
 msgstr "Vârstă token sesiune curentă (secunde)"
-
-msgid "Current Summary"
-msgstr "Rezumat curent"
 
 msgid "Current User Sessions"
 msgstr "Sesiuni utilizator curent"
@@ -2619,9 +2913,6 @@ msgstr "Depanare personalizată"
 
 msgid "Custom Exclusions"
 msgstr "Excluderi personalizate"
-
-msgid "Custom Report on %s"
-msgstr "Raport personalizat pe %s"
 
 msgid "Custom Rules"
 msgstr "Reguli personalizate"
@@ -2704,14 +2995,14 @@ msgstr "Interval de date"
 msgid "Day"
 msgstr "Zi"
 
+msgid "Deactivate %s"
+msgstr "Dezactivează %s"
+
 msgid "Deactivate Akismet"
 msgstr "Dezactivează Akismet"
 
 msgid "Deactivate Rule"
 msgstr "Dezactivează regula"
-
-msgid "Deactivate Shield"
-msgstr "Dezactivează Shield"
 
 msgid "Deactivated"
 msgstr "Dezactivat"
@@ -2727,9 +3018,6 @@ msgstr "Depanarea este activată"
 
 msgid "Debug Tests"
 msgstr "Teste depanare"
-
-msgid "Debug and Info logging should only be enabled when investigating specific problems."
-msgstr "Înregistrarea de depanare și informații ar trebui activată doar când investighezi probleme specifice."
 
 msgid "Decide how %s should respond when a bot performs certain actions."
 msgstr "Decide cum ar trebui să răspundă %s când un bot efectuează anumite acțiuni."
@@ -2749,8 +3037,8 @@ msgstr "Utilizator admin implicit"
 msgid "Default User Role"
 msgstr "Rol utilizator implicit"
 
-msgid "Default user role changed: %s&rarr;%s"
-msgstr "Rol utilizator implicit modificat: %s&rarr;%s"
+msgid "Default user role changed: %1$s&rarr;%2$s"
+msgstr "Rol utilizator implicit modificat: %1$s&rarr;%2$s"
 
 msgid "Default: Once every 24hrs. To improve security, increase the number of scans per day."
 msgstr "Implicit: o dată la 24 de ore. Pentru a îmbunătăți securitatea, crește numărul de scanări pe zi."
@@ -2806,14 +3094,11 @@ msgstr "Tabele șterse"
 msgid "Deleted user posts were reassigned to user '{{user_login}}'."
 msgstr "Postările utilizatorului șters au fost reatribuite utilizatorului „{{user_login}}\"."
 
-msgid "Demo: Important UI changes with Shield v20"
-msgstr "Demo: Modificări importante UI cu Shield v20"
+msgid "Demo: Important UI changes with %s v20"
+msgstr "Demo: Modificări importante în UI cu %s v20"
 
 msgid "Demoted From Admin"
 msgstr "Retrogradat de la administrator"
-
-msgid "Depending on your settings, these reports may contain a combination of alerts, statistics and other information."
-msgstr "În funcție de setările tale, aceste rapoarte pot conține o combinație de alerte, statistici și alte informații."
 
 msgid "Description"
 msgstr "Descriere"
@@ -2880,6 +3165,9 @@ msgstr "Detectat"
 
 msgid "Detected user registration with invalid email address ({{email}})."
 msgstr "Detectată înregistrare utilizator cu adresă de email invalidă ({{email}})."
+
+msgid "Detecting the correct visitor IP address is critical for distinguishing each site visitor from the next."
+msgstr "Detectarea adresei IP corecte a vizitatorului este critică pentru a distinge fiecare vizitator al site-ului de următorul."
 
 msgid "Detecting them early and blocking them, is your greatest source of protection."
 msgstr "Detectarea lor timpurie și blocarea lor este cea mai mare sursă de protecție."
@@ -2953,6 +3241,9 @@ msgstr "Dezactivează extensia"
 msgid "Disable Security Admin"
 msgstr "Dezactivează Security Admin"
 
+msgid "Disable Security Admin via Email"
+msgstr "Dezactivează administrator securitate prin email"
+
 msgid "Disable Shield"
 msgstr "Dezactivează Shield"
 
@@ -2989,6 +3280,9 @@ msgstr "Dezactivează punctul-final XML-RPC și blochează toate cererile."
 msgid "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
 msgstr "Dezactivează această opțiune pentru a ascunde anumite notificări de administrare a modulului despre actualizările disponibile și notificările post-actualizare."
 
+msgid "Disabled"
+msgstr "Dezactivat"
+
 msgid "Disabling anonymous access may break plugins that use the REST API for your site visitors."
 msgstr "Dezactivarea accesului anonim poate strica modulele care folosesc API-ul REST pentru vizitatorii site-ului tău."
 
@@ -2998,8 +3292,8 @@ msgstr "Deconectat"
 msgid "Discover plugins that may have been abandoned by their authors"
 msgstr "Descoperă modulele care ar putea fi abandonate de autorii lor"
 
-msgid "Discover the most comprehensive WordPress security when you upgrade your Shield Security plan."
-msgstr "Descoperă cea mai cuprinzătoare securitate WordPress când actualizezi planul Shield Security."
+msgid "Discover the most comprehensive WordPress security when you upgrade your %s plan."
+msgstr "Descoperă cea mai cuprinzătoare securitate WordPress când actualizezi planul tău %s."
 
 msgid "Discovered"
 msgstr "Descoperit"
@@ -3009,6 +3303,9 @@ msgstr "Descoperirea malware-ului pe site-ul tău nu este „protecție\" - este
 
 msgid "Disk Space"
 msgstr "Spațiu pe disc"
+
+msgid "Dismiss"
+msgstr "Renunță"
 
 msgid "Display Non-Essential Plugin Notices And Admin Bar Menu"
 msgstr "Afișează notificări modul neesențiale și meniu bară administrare"
@@ -3064,8 +3361,8 @@ msgstr "Se potrivește numele de gazdă al IP-ului solicitant cu numele de gazd�
 msgid "Does the method of the request match the given specified method to match."
 msgstr "Se potrivește metoda cererii cu metoda specificată dată pentru potrivire."
 
-msgid "Does the request bypass any and all Shield restrictions."
-msgstr "Ocolește cererea orice și toate restricțiile Shield."
+msgid "Does the request bypass any and all %s restrictions."
+msgstr "Ocolește cererea orice și toate restricțiile %s."
 
 msgid "Does the request contain a parameter with the provide name."
 msgstr "Conține cererea un parametru cu numele furnizat."
@@ -3097,8 +3394,8 @@ msgstr "Se potrivește numele scriptului cererii cu numele dat."
 msgid "Does the request useragent match the given useragent."
 msgstr "Se potrivește useragent-ul cererii cu useragent-ul dat."
 
-msgid "Does the value of the given Shield Session parameter match the given pattern."
-msgstr "Se potrivește valoarea parametrului de sesiune Shield dat cu modelul dat."
+msgid "Does the value of the given %s Session parameter match the given pattern."
+msgstr "Se potrivește valoarea parametrului de sesiune %s dat cu modelul dat."
 
 msgid "Does the value of the given request parameter match the given pattern."
 msgstr "Se potrivește valoarea parametrului de cerere dat cu modelul dat."
@@ -3115,8 +3412,8 @@ msgstr "Nu scana comentariile pentru utilizatorii cu următoarele roluri"
 msgid "Don't want these email alerts?"
 msgstr "Nu vrei aceste alerte prin email?"
 
-msgid "Downgraded: %s&rarr;%s"
-msgstr "Retrogradat: %s&rarr;%s"
+msgid "Downgraded: %1$s&rarr;%2$s"
+msgstr "Retrogradat: %1$s&rarr;%2$s"
 
 msgid "Download"
 msgstr "descărca"
@@ -3130,6 +3427,9 @@ msgstr "Descarcă regulile IP ca CSV"
 msgid "Download Modified"
 msgstr "Descarcă modificat"
 
+msgid "Download Now"
+msgstr "Descarcă acum"
+
 msgid "Download Options Export File"
 msgstr "Descarcă fișier export opțiuni"
 
@@ -3139,11 +3439,17 @@ msgstr "Descarcă original"
 msgid "Download Request Logs"
 msgstr "Descarcă jurnale cereri"
 
+msgid "Download failed. Check that the ShieldNet API is available and the locale exists."
+msgstr "Descărcarea a eșuat. Verifică că API-ul ShieldNet este disponibil și că localizarea există."
+
 msgid "Downloaded reputation decisions from CrowdSec for scope: {{scope}}."
 msgstr "Descărcate decizii de reputație de la CrowdSec pentru domeniu: {{scope}}."
 
 msgid "Downloading file, please wait..."
 msgstr "Se descarcă fișierul, te rugăm să aștepți..."
+
+msgid "Downloading translation for locale: %s"
+msgstr "Descarc traducerea pentru localizarea: %s"
 
 msgid "Duration"
 msgstr "Durată"
@@ -3160,8 +3466,8 @@ msgstr "Fiecare site din această listă va putea exporta opțiuni de pe acest s
 msgid "Easiest, Frustration-Free WP Pro-Upgrade Anywhere"
 msgstr "Cea mai ușoară actualizare WP Pro fără frustrări oriunde"
 
-msgid "Easily integrate Shield Security to help you manage your site security from within MainWP."
-msgstr "Integrează ușor Shield Security pentru a te ajuta să gestionezi securitatea site-ului din MainWP."
+msgid "Easily integrate %s to help you manage your site security from within MainWP."
+msgstr "Integrează cu ușurință %s pentru a te ajuta să gestionezi securitatea site-ului din MainWP."
 
 msgid "Edit"
 msgstr "edita"
@@ -3169,8 +3475,8 @@ msgstr "edita"
 msgid "Edit Rule"
 msgstr "Editează regula"
 
-msgid "Edit Rule #%s (%s)"
-msgstr "Editează regula #%s (%s)"
+msgid "Edit Rule #%1$s (%2$s)"
+msgstr "Editează regula #%1$s (%2$s)"
 
 msgid "Edit Settings"
 msgstr "Editează setări"
@@ -3220,8 +3526,8 @@ msgstr "Editează setările care aplică protecție la formularele tale de auten
 msgid "Edit settings that control automatic IP blocking"
 msgstr "Editează setările care controlează blocarea automată IP"
 
-msgid "Edit settings that control how silentCAPTCHA detects bots"
-msgstr "Editează setările care controlează modul în care silentCAPTCHA detectează boții"
+msgid "Edit settings that control how %s detects bots"
+msgstr "Editează setările care controlează modul în care %s detectează boții"
 
 msgid "Edit settings to apply minimum password strength"
 msgstr "Editează setările pentru a aplica puterea minimă a parolei"
@@ -3250,8 +3556,8 @@ msgstr "Editarea acestei opțiuni este restricționată momentan."
 msgid "Either the country code or phone number were missing."
 msgstr "Fie codul de țară, fie numărul de telefon lipseau."
 
-msgid "Elevate your WordPress security to best-in-class, by upgrading your Shield Security plan."
-msgstr "Ridică securitatea WordPress la nivel de clasă, actualizând planul Shield Security."
+msgid "Elevate your WordPress security to best-in-class, by upgrading your %s plan."
+msgstr "Ridică securitatea WordPress la cel mai înalt nivel, actualizând planul tău %s."
 
 msgid "Email"
 msgstr "email"
@@ -3304,8 +3610,8 @@ msgstr "Notificări email pentru comentarii noi"
 msgid "Email sending has already been verified."
 msgstr "Trimiterea de email a fost deja verificată."
 
-msgid "Email sent from the %s Plugin v%s, on %s."
-msgstr "Email trimis de la modulul %s v%s, pe %s."
+msgid "Email sent from the %1$s Plugin v%2$s, on %3$s."
+msgstr "Email trimis din modulul %1$s v%2$s, pe %3$s."
 
 msgid "Email sent. Ensure the link opens in THIS browser."
 msgstr "Email trimis. Asigură-te că linkul se deschide în ACEST navigator."
@@ -3334,8 +3640,8 @@ msgstr "Folosește un set de reguli agresive pentru a detecta și bloca datele r
 msgid "Empty User Agents"
 msgstr "Agenți de utilizator goi"
 
-msgid "Empty response from Shield client site"
-msgstr "Răspuns gol de la site-ul client Shield"
+msgid "Empty response from %s client site"
+msgstr "Răspuns gol de la site-ul client %s"
 
 msgid "Empty root file provided for instantiation"
 msgstr "Fișier rădăcină gol furnizat pentru instanțiere"
@@ -3568,14 +3874,20 @@ msgstr "Eroare"
 msgid "Error Log Message"
 msgstr "Mesaj jurnal eroare"
 
+msgid "Error: {{error}}"
+msgstr "Eroare: {{error}}"
+
+msgid "Even just a 1-liner review that says you're happy with it, will help us immensely."
+msgstr "Chiar și o recenzie de un rând care spune că ești mulțumit de el ne va ajuta enorm."
+
 msgid "Event"
 msgstr "Eveniment"
 
 msgid "Event %s does not exist."
 msgstr "Evenimentul %s nu există."
 
-msgid "Event (%s) definition has audit parameters that aren't present: %s"
-msgstr "Definiția evenimentului (%s) are parametri de audit care nu sunt prezenți: %s"
+msgid "Event (%1$s) definition has audit parameters that are not present: %2$s"
+msgstr "Definiția evenimentului (%1$s) are parametri de audit care nu sunt prezenți: %2$s"
 
 msgid "Event Details"
 msgstr "Detalii eveniment"
@@ -3661,6 +3973,9 @@ msgstr "Conectarea la serverul de licențe a eșuat."
 msgid "Failed to create custom report."
 msgstr "Crearea raportului personalizat a eșuat."
 
+msgid "Failed to download translation file for locale: {{locale}}."
+msgstr "Eșec la descărcarea fișierului de traducere pentru localizarea: {{locale}}."
+
 msgid "Failed to insert file locker record for path: '%s'"
 msgstr "Eșec la inserarea înregistrării blocare fișier pentru calea: '%s'"
 
@@ -3679,8 +3994,8 @@ msgstr "Repararea elementului scanat a eșuat."
 msgid "Failed to send Firewall Block email alert to: {{to}}"
 msgstr "Trimiterea alertei email blocare firewall către {{to}} a eșuat"
 
-msgid "Failed to send email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Eșec la trimiterea emailului (tip: {{slug}}) către „{{email}}\" folosind SureSend."
+msgid "Failed to send email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Trimiterea emailului (tip: {{slug}}) către „{{email}}\" folosind %s a eșuat."
 
 msgid "Failed to store the rule in the database."
 msgstr "Nu s-a reușit stocarea regulii în baza de date."
@@ -3796,8 +4111,8 @@ msgstr "Conținutul fișierului nu a putut fi criptat. Mesaj:"
 msgid "File contents could not be wp_json_encode() after encryption."
 msgstr "Conținutul fișierului nu a putut fi wp_json_encode() după criptare."
 
-msgid "File detected as %s by %s scanner."
-msgstr "Fișier detectat ca %s de scanerul %s."
+msgid "File detected as %1$s by %2$s scanner."
+msgstr "Fișier detectat ca %1$s de scanerul %2$s."
 
 msgid "File does not exist."
 msgstr "Fișierul nu există."
@@ -3997,14 +4312,17 @@ msgstr "Generat"
 msgid "Generating a new code will replace your existing code."
 msgstr "Generarea unui cod nou va înlocui codul tău existent."
 
+msgid "Get %s!"
+msgstr "Obține %s!"
+
 msgid "Get All PRO Security Features"
 msgstr "Obține toate funcționalitățile de securitate PRO"
 
-msgid "Get ShieldPRO!"
-msgstr "Obține ShieldPRO!"
-
 msgid "Get Started In Under 3 Minutes"
 msgstr "Începe în mai puțin de 3 minute"
+
+msgid "Get the risk-free, no obligation free trial of %s today."
+msgstr "Obține perioada de probă gratuită fără risc și fără obligații a %s astăzi."
 
 msgid "Global Plugin Enable"
 msgstr "Activare globală modul"
@@ -4039,6 +4357,9 @@ msgstr "Treci la Pro!"
 msgid "Go To %s"
 msgstr "Mergi la %s"
 
+msgid "Go To %s Overview"
+msgstr "Mergi la prezentarea generală %s"
+
 msgid "Go To Admin"
 msgstr "Mergi la administrare"
 
@@ -4050,9 +4371,6 @@ msgstr "Mergi la prezentare generală"
 
 msgid "Go To Security Dashboard"
 msgstr "Mergi la panoul de securitate"
-
-msgid "Go To Shield Overview"
-msgstr "Mergi la prezentare generală Shield"
 
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr "Mergi aici pentru a gestiona setările și a te autentifica cu modulul %s."
@@ -4111,14 +4429,14 @@ msgstr "Antet de răspuns HTTP de trimis"
 msgid "HTTPS setting for Home URL and WP Site URL aren't consistent."
 msgstr "Setările HTTPS pentru URL-ul de acasă și URL-ul site-ului WP nu sunt consistente."
 
-msgid "Handshake ShieldNET"
-msgstr "Handshake ShieldNET"
+msgid "Handshake %s"
+msgstr "Handshake %s"
 
 msgid "Hardware 2-Factor Authentication"
 msgstr "Autentificare hardware cu 2 factori"
 
-msgid "Has Valid Shield User Sessions"
-msgstr "Are sesiuni de utilizator Shield valide"
+msgid "Has Valid %s User Sessions"
+msgstr "Are sesiuni utilizator %s valide"
 
 msgid "Have full control over passwords used by users on the site."
 msgstr "Ai control complet asupra parolelor folosite de utilizatorii de pe site."
@@ -4135,11 +4453,14 @@ msgstr "Articol HelpDesk"
 msgid "Helpdesk and Knowledge Base"
 msgstr "Helpdesk și bază de cunoștințe"
 
-msgid "Here are some of the ways Shield is already protecting your site:"
-msgstr "Iată câteva dintre modalitățile prin care Shield îți protejează deja site-ul:"
+msgid "Here are some of the ways %s is already protecting your site:"
+msgstr "Iată câteva dintre modalitățile prin care %s îți protejează deja site-ul:"
 
 msgid "Here you choose what kind of malicious data to scan for."
 msgstr "Aici alegi ce tip de date rău intenționate să scanezi."
+
+msgid "Here's your security overview for the reporting period. Review any issues below and take action where needed."
+msgstr "Iată prezentarea ta de securitate pentru perioada de raportare. Revizuiește orice probleme de mai jos și ia măsuri unde este necesar."
 
 msgid "Here, however, we're focusing on the user accounts themselves to ensure that they're in a secure state."
 msgstr "Aici, însă, ne concentrăm pe conturile de utilizator în sine pentru a ne asigura că sunt într-o stare sigură."
@@ -4189,8 +4510,8 @@ msgstr "URL pagină principală"
 msgid "Home URL Changed"
 msgstr "URL pagină principală modificat"
 
-msgid "Home URL changed: %s&rarr;%s"
-msgstr "URL pagină principală modificat: %s&rarr;%s"
+msgid "Home URL changed: %1$s&rarr;%2$s"
+msgstr "URL pagină principală modificat: %1$s&rarr;%2$s"
 
 msgid "Homepage"
 msgstr "prima pagină"
@@ -4297,11 +4618,14 @@ msgstr "Filtru SPAM uman"
 msgid "Human SPAM filter detected repeated comment SPAM attempts."
 msgstr "Filtrul SPAM uman a detectat încercări repetate de SPAM comentarii."
 
-msgid "Human SPAM filter found '%s' in '%s'"
-msgstr "Filtrul SPAM uman a găsit „%s\" în „%s\""
+msgid "Human SPAM filter found \"%1$s\" in \"%2$s\""
+msgstr "Filtrul SPAM uman a găsit „%1$s\" în „%2$s\""
 
 msgid "Human SPAM filter found '{{word}}' in '{{key}}'"
 msgstr "Filtrul SPAM uman a găsit „{{word}}\" în „{{key}}\""
+
+msgid "Human SPAM still causes most frustration as it often bypasses SPAM defenses."
+msgstr "SPAM-ul uman cauzează în continuare cea mai mare frustrare deoarece adesea ocolește apărările anti-SPAM."
 
 msgid "I Understand Existing Options Will Be Overwritten"
 msgstr "Înțeleg că opțiunile existente vor fi suprascrise"
@@ -4327,17 +4651,11 @@ msgstr "Știu că dacă folosesc cache și nu îl șterg după aceea, va cauza p
 msgid "I understand the consequences of blocking all traffic to this site."
 msgstr "Înțeleg consecințele blocării întregului trafic către acest site."
 
-msgid "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
-msgstr "Înțeleg riscurile creării unei reguli care nu respectă listele albe și excepțiile Shield și este posibil să îmi fie dificil să recâștig accesul dacă sunt blocat."
+msgid "I understand the risks of creating a rule that doesn't honour %s's whitelists and exceptions, and I may find it difficult to regain access if I get locked out."
+msgstr "Înțeleg riscurile creării unei reguli care nu respectă listele albe și excepțiile %s și este posibil să am dificultăți în a recâștiga accesul dacă sunt blocat."
 
 msgid "I'd like to learn more, please"
 msgstr "Aș dori să aflu mai multe, te rog"
-
-msgid "I'd rather not show this support"
-msgstr "Prefer să nu arăt acest suport"
-
-msgid "I've done this already"
-msgstr "Am făcut deja acest lucru"
 
 msgid "ID"
 msgstr "ID"
@@ -4350,6 +4668,9 @@ msgstr "IMPORTANT"
 
 msgid "IP"
 msgstr "IP"
+
+msgid "IP %s Score Reset."
+msgstr "Scorul IP %s resetat."
 
 msgid "IP Address"
 msgstr "Adresă IP"
@@ -4552,9 +4873,6 @@ msgstr "IP-ul nu este pe lista de blocare automată."
 msgid "IP provided was invalid."
 msgstr "IP-ul furnizat era invalid."
 
-msgid "IP silentCAPTCHA Score Reset."
-msgstr "Scor silentCAPTCHA IP resetat."
-
 msgid "IPs"
 msgstr "IPS"
 
@@ -4630,8 +4948,8 @@ msgstr "Dacă un utilizator are mai multe roluri atribuite, toate rolurile vor f
 msgid "If malicious data is detected, the request will be immediately terminated."
 msgstr "Dacă sunt detectate date rău intenționate, cererea va fi terminată imediat."
 
-msgid "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s provides the actual visitor IP address."
-msgstr "Dacă setarea corectă nu este %s, recomandăm să contactezi furnizorul tău de găzduire pentru a solicita să configureze găzduirea astfel încât %s să furnizeze adresa IP reală a vizitatorului."
+msgid "If the correct setting is not %1$s, we recommend contacting your hosting provider to request that they configure your hosting so that %2$s provides the actual visitor IP address."
+msgstr "Dacă setarea corectă nu este %1$s, recomandăm să contactezi furnizorul tău de găzduire pentru a solicita să configureze găzduirea astfel încât %2$s să furnizeze adresa IP reală a vizitatorului."
 
 msgid "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built."
 msgstr "Dacă furnizorul pe care îl dorești nu este pe listă, contactează echipa noastră de asistență și vom vedea dacă o integrare poate fi construită."
@@ -4642,8 +4960,8 @@ msgstr "Dacă utilizatorul este inactiv pentru numărul de ore specificat, va fi
 msgid "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
 msgstr "Dacă utilizatorul este inactiv pentru numărul de ore specificat, va fi deconectat forțat data viitoare când revine. Setează aceasta la „0\" pentru a dezactiva această opțiune."
 
-msgid "If the visitor score fails to meet your Minimum silentCAPTCHA Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
-msgstr "Dacă scorul vizitatorului nu reușește să îndeplinească scorul minim silentCAPTCHA, putem preveni cererea (cum ar fi autentificare, comentariu WP etc.). Dacă este mai mare, o permitem."
+msgid "If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it."
+msgstr "Dacă scorul vizitatorului nu reușește să îndeplinească scorul minim %s, putem preveni cererea (cum ar fi autentificare, comentariu WP etc.). Dacă este mai mare, o permitem."
 
 msgid "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list."
 msgstr "Dacă acesta este un site client MainWP, ar trebui să adaugi adresa IP a serverului tău de administrare MainWP la lista de ocolire IP."
@@ -4656,6 +4974,9 @@ msgstr "Dacă acest mesaj apare în continuare după reîmprospătarea acestei p
 
 msgid "If this problem persists, please contact support: %s"
 msgstr "Dacă această problemă persistă, te rugăm să contactezi asistența: %s"
+
+msgid "If you already have a %s license assigned to this site,"
+msgstr "Dacă ai deja o licență %s atribuită acestui site,"
 
 msgid "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option."
 msgstr "Dacă crezi, din orice motiv, că tu sau căsuțele poștale ale utilizatorilor tăi sunt compromise, ar trebui să dezactivezi această opțiune."
@@ -4702,11 +5023,8 @@ msgstr "Dacă dorești să fii notificat de fiecare dată când un utilizator ad
 msgid "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
 msgstr "Dacă dorești să fii notificat de fiecare dată când un utilizator administrator se autentifică pe acest site WordPress, introdu o adresă de email pentru notificare. Fără adresă de email - fără notificare."
 
-msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails."
-msgstr "Dacă nu folosești un furnizor dedicat de servicii email pentru a trimite emailuri WordPress, ar trebui să activezi SureSend pentru aceste emailuri importante."
-
-msgid "If you've forgotten your PIN, use the menu above to disable this restriction."
-msgstr "Dacă ai uitat PIN-ul, folosește meniul de mai sus pentru a dezactiva această restricție."
+msgid "If you're not using a dedicated email service provider to send WordPress emails, you should enable %s for these important emails."
+msgstr "Dacă nu folosești un furnizor dedicat de servicii email pentru a trimite emailuri WordPress, ar trebui să activezi %s pentru aceste emailuri importante."
 
 msgid "Ignore"
 msgstr "Ignoră"
@@ -4737,9 +5055,6 @@ msgstr "Notificare import trimisă"
 
 msgid "Import Options"
 msgstr "Importă opțiuni"
-
-msgid "Import Settings From Another Site"
-msgstr "Importă setări din alt site"
 
 msgid "Import file was empty"
 msgstr "Fișierul de import era gol"
@@ -4870,11 +5185,14 @@ msgstr "Informații pentru adresa IP %s"
 msgid "Info Reports Frequency"
 msgstr "Frecvență rapoarte informative"
 
+msgid "Info logging should only be enabled when investigating specific problems."
+msgstr "Înregistrarea informațiilor ar trebui activată doar când investighezi probleme specifice."
+
 msgid "Information and reports are typically statistics."
 msgstr "Informațiile și rapoartele sunt de obicei statistici."
 
-msgid "Install Shield"
-msgstr "Instalează Shield"
+msgid "Install %s"
+msgstr "Instalează %s"
 
 msgid "Installation Directory"
 msgstr "Director de instalare"
@@ -4909,6 +5227,9 @@ msgstr "Intervalul este măsurat în secunde."
 msgid "Invalid"
 msgstr "Invalid"
 
+msgid "Invalid %s extension configuration"
+msgstr "Configurație extensie %s invalidă"
+
 msgid "Invalid Action Nonce Exception."
 msgstr "Excepție nunic acțiune invalid."
 
@@ -4933,9 +5254,6 @@ msgstr "Încărcare script invalidă"
 msgid "Invalid Scripts"
 msgstr "Scripturi invalide"
 
-msgid "Invalid Shield extension configuration"
-msgstr "Configurație extensie Shield invalidă"
-
 msgid "Invalid Slug"
 msgstr "Descriptor invalid"
 
@@ -4948,9 +5266,6 @@ msgstr "Agent utilizator invalid"
 msgid "Invalid User Email Registration"
 msgstr "Înregistrare cu email utilizator invalid"
 
-msgid "Invalid User-Agent"
-msgstr "User-Agent invalid"
-
 msgid "Invalid Username Login"
 msgstr "Autentificare nume utilizator invalid"
 
@@ -4959,6 +5274,12 @@ msgstr "Nume utilizator invalide"
 
 msgid "Invalid action"
 msgstr "Acțiune invalidă"
+
+msgid "Invalid batch request format."
+msgstr "Format cerere batch invalid."
+
+msgid "Invalid batch request item."
+msgstr "Element cerere batch invalid."
 
 msgid "Invalid download item data."
 msgstr "Date element descărcare invalide."
@@ -4975,6 +5296,15 @@ msgstr "Descărcare tip blocare fișier invalid"
 msgid "Invalid login nonce"
 msgstr "Nunic autentificare invalid"
 
+msgid "Invalid login session."
+msgstr "Sesiune autentificare invalidă."
+
+msgid "Invalid or expired login session."
+msgstr "Sesiune de autentificare invalidă sau expirată."
+
+msgid "Invalid profile request."
+msgstr "Cerere de profil invalidă."
+
 msgid "Invalid request - lockdown is already active."
 msgstr "Cerere invalidă - lockdown-ul este deja activ."
 
@@ -4984,11 +5314,8 @@ msgstr "Cerere invalidă - lockdown-ul nu este activ."
 msgid "Invalid request with no User ID"
 msgstr "Cerere invalidă fără ID utilizator"
 
-msgid "Invalid response from Shield client site"
-msgstr "Răspuns invalid de la site-ul client Shield"
-
-msgid "Invalid session selected"
-msgstr "Sesiune invalidă selectată"
+msgid "Invalid response from %s client site"
+msgstr "Răspuns invalid de la site-ul client %s"
 
 msgid "Invalid specification of modules"
 msgstr "Specificare invalidă a extensiilor"
@@ -4996,14 +5323,26 @@ msgstr "Specificare invalidă a extensiilor"
 msgid "Invalid type."
 msgstr "Tip invalid."
 
-msgid "Invalid user agent detected at '{{useragent}}'."
-msgstr "Agent utilizator invalid detectat la „{{useragent}}\"."
-
 msgid "Invalid value scope for %s"
 msgstr "Domeniu valoare invalid pentru %s"
 
 msgid "Invalid value type for %s"
 msgstr "Tip valoare invalid pentru %s"
+
+msgid "Is %s Plugin Functionality Disabled."
+msgstr "Este funcționalitatea modulului %s dezactivată."
+
+msgid "Is %s Traffic Rate Limiting Enabled."
+msgstr "Este activată limitarea de rată trafic %s."
+
+msgid "Is %s live logging enabled."
+msgstr "Este înregistrarea live %s activată."
+
+msgid "Is %s score"
+msgstr "Este scor %s"
+
+msgid "Is %s's Site Lockdown active."
+msgstr "Este lockdown-ul site-ului %s activ."
 
 msgid "Is It You?"
 msgstr "Ești tu?"
@@ -5017,20 +5356,8 @@ msgstr "Este starea cererii 404"
 msgid "Is Request To The Login Page."
 msgstr "Este cerere către pagina de autentificare."
 
-msgid "Is Shield Plugin Functionality Disabled."
-msgstr "Funcționalitatea modulului Shield este dezactivată."
-
-msgid "Is Shield Traffic Rate Limiting Enabled."
-msgstr "Este activată limitarea de rată trafic Shield."
-
-msgid "Is Shield live logging enabled."
-msgstr "Este înregistrarea live Shield activată."
-
-msgid "Is Shield's Site Lockdown active."
-msgstr "Este activ lockdown-ul de site Shield."
-
-msgid "Is The Shield Option Value..."
-msgstr "Este valoarea opțiunii Shield..."
+msgid "Is The %s Option Value..."
+msgstr "Este valoarea opțiunii %s..."
 
 msgid "Is Valid Public IP Address"
 msgstr "Este adresă IP publică validă"
@@ -5038,8 +5365,8 @@ msgstr "Este adresă IP publică validă"
 msgid "Is Viable"
 msgstr "Este viabil"
 
-msgid "Is Visitor silentCAPTCHA Score ..."
-msgstr "Este scorul silentCAPTCHA al vizitatorului..."
+msgid "Is Visitor %s Score ..."
+msgstr "Este scorul %s al vizitatorului ..."
 
 msgid "Is WP AJAX"
 msgstr "Este WP AJAX"
@@ -5098,11 +5425,8 @@ msgstr "Este utilizatorul curent un administrator WordPress autentificat."
 msgid "Is current user password expired."
 msgstr "Parola utilizatorului curent a expirat."
 
-msgid "Is silentCAPTCHA score"
-msgstr "Este scor silentCAPTCHA"
-
-msgid "Is the Shield plugin in \"forceoff\" state."
-msgstr "Modulul Shield este în starea „forceoff\"."
+msgid "Is the %s plugin in \"forceoff\" state."
+msgstr "Este modulul %s în starea „forceoff\"."
 
 msgid "Is the current IP address considered \"high reputation\"."
 msgstr "Este adresa IP curentă considerată „reputație ridicată\"."
@@ -5116,23 +5440,23 @@ msgstr "Este vârsta token-ului sesiunii utilizatorului curent mai mică sau mai
 msgid "Is the request HTTPS."
 msgstr "Este cererea HTTPS."
 
-msgid "Is the request IP auto or manually blocked by Shield."
-msgstr "Este IP-ul cererii blocat automat sau manual de Shield."
+msgid "Is the request IP auto or manually blocked by %s."
+msgstr "Este cererea IP blocată automat sau manual de %s."
 
-msgid "Is the request IP blacklisted by Shield."
-msgstr "Este IP-ul cererii pe lista neagră Shield."
+msgid "Is the request IP blacklisted by %s."
+msgstr "Este IP-ul cererii pe lista neagră de %s."
 
-msgid "Is the request IP on Shield's CrowdSec block list."
-msgstr "Este IP-ul cererii pe lista de blocare CrowdSec a Shield."
+msgid "Is the request IP on %s's CrowdSec block list."
+msgstr "Este IP-ul cererii pe lista de blocare CrowdSec %s."
 
-msgid "Is the request IP on Shield's Manual block list."
-msgstr "Este IP-ul cererii pe lista de blocare manuală Shield."
+msgid "Is the request IP on %s's Manual block list."
+msgstr "Este IP-ul cererii pe lista de blocare manuală %s."
 
-msgid "Is the request IP on Shield's auto-block list ."
-msgstr "Este IP-ul cererii pe lista de blocare automată Shield."
+msgid "Is the request IP on %s's auto-block list ."
+msgstr "Este IP-ul cererii pe lista de blocare automată %s."
 
-msgid "Is the request IP on Shield's manual bypass-list/whitelist."
-msgstr "Este IP-ul cererii pe lista de ocolire/listă albă manuală Shield."
+msgid "Is the request IP on %s's manual bypass-list/whitelist."
+msgstr "Este cererea IP pe lista de ocolire/listă albă manuală a %s."
 
 msgid "Is the request a bot that originates from a trusted service provider."
 msgstr "Este cererea un bot care provine de la un furnizor de servicii de încredere."
@@ -5143,17 +5467,17 @@ msgstr "Este cererea o cerere de loopback server."
 msgid "Is the request an HTTP 404."
 msgstr "Este cererea un HTTP 404."
 
-msgid "Is the request blocked by Shield's Site Lockdown feature."
-msgstr "Este cererea blocată de funcția de blocare site Shield."
+msgid "Is the request blocked by %s's Site Lockdown feature."
+msgstr "Este cererea blocată de funcția de blocare site a %s."
 
 msgid "Is the request from a logged-in user."
 msgstr "Este cererea de la un utilizator autentificat."
 
-msgid "Is the request from a user authenticated as a Shield Security Admin."
-msgstr "Este cererea de la un utilizator autentificat ca administrator securitate Shield."
+msgid "Is the request from a user authenticated as a %s Admin."
+msgstr "Este cererea de la un utilizator autentificat ca administrator %s."
 
-msgid "Is the request path whitelisted by Shield."
-msgstr "Este calea cererii pe lista albă Shield."
+msgid "Is the request path whitelisted by %s."
+msgstr "Este calea cererii pe lista albă de %s."
 
 msgid "Is the request to a path within a currently installed WordPress plugin."
 msgstr "Este cererea către o cale dintr-un modul WordPress instalat curent."
@@ -5212,6 +5536,9 @@ msgstr "Probleme găsite"
 msgid "Issues listed below should be addressed as quickly as possible"
 msgstr "Problemele listate mai jos ar trebui abordate cât mai repede posibil"
 
+msgid "It also helps lockdown critical WordPress settings."
+msgstr "Ajută, de asemenea, la blocarea setărilor critice WordPress."
+
 msgid "It also looks for files that shouldn't be in core WP directories (%s)."
 msgstr "De asemenea, caută fișiere care nu ar trebui să fie în directoarele nucleului WP (%s)."
 
@@ -5266,8 +5593,8 @@ msgstr "Se pare că IP-ul tău (%s) este momentan blocat."
 msgid "It may however use a cookie to register the closure of the %s security badge to prevent repeated display."
 msgstr "Poate totuși folosi un cookie pentru a înregistra închiderea insignei de securitate %s pentru a preveni afișarea repetată."
 
-msgid "It uses our exclusive silentCAPTCHA Engine to reliably identify bots."
-msgstr "Folosește motorul nostru exclusiv silentCAPTCHA pentru a identifica în mod fiabil boții."
+msgid "It uses our exclusive %s Engine to reliably identify bots."
+msgstr "Folosește motorul nostru exclusiv %s pentru a identifica în mod fiabil boții."
 
 msgid "It was sent to '{{to}}' with the subject '{{subject}}'."
 msgstr "A fost trimisă la „{{to}}\" cu subiectul „{{subject}}\"."
@@ -5275,8 +5602,8 @@ msgstr "A fost trimisă la „{{to}}\" cu subiectul „{{subject}}\"."
 msgid "It will be displayed below when it's ready."
 msgstr "Va fi afișat mai jos când va fi gata."
 
-msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain Shield functionality won't be available."
-msgstr "Va găsi o locație potrivită automat, dar dacă acest lucru eșuează, este posibil să vezi avertismente PHP pe site-ul tău și anumite funcționalități Shield nu vor fi disponibile."
+msgid "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available."
+msgstr "Va găsi o locație potrivită automat, dar dacă aceasta eșuează, este posibil să vezi avertismente PHP pe site-ul tău și anumite funcționalități %s nu vor fi disponibile."
 
 msgid "It's a complex area and if used incorrectly, can easily break your front-end user experience."
 msgstr "Este o zonă complexă și dacă este folosită incorect, poate strica cu ușurință experiența utilizatorului front-end."
@@ -5298,9 +5625,6 @@ msgstr "Este o practică bună să limitezi durata de viață a sesiunii, în sp
 
 msgid "It's good practice to lock a session at least 1 property to help prevent theft of the session."
 msgstr "Este o practică bună să blochezi o sesiune la cel puțin o proprietate pentru a ajuta la prevenirea furtului sesiunii."
-
-msgid "It's human SPAM which still causes most frustration, as they usually don't trigger our defenses."
-msgstr "Este SPAM uman care încă cauzează cea mai mare frustrare, deoarece de obicei nu declanșează apărările noastre."
 
 msgid "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version."
 msgstr "Este localizat într-un director de modul WordPress și este recunoscut ca fișier valid pentru acea versiune de modul."
@@ -5338,8 +5662,8 @@ msgstr "Element reparat: „{{path_full}}\""
 msgid "Items Found In Scan"
 msgstr "Elemente găsite în scanare"
 
-msgid "Join The Shield Security Newsletter"
-msgstr "Alătură-te buletinului informativ Shield Security"
+msgid "Join The %s Newsletter"
+msgstr "Abonează-te la newsletter-ul %s"
 
 msgid "Join Us"
 msgstr "Alătură-te nouă"
@@ -5347,8 +5671,14 @@ msgstr "Alătură-te nouă"
 msgid "Join Us!"
 msgstr "Alătură-te nouă!"
 
+msgid "Join our %s Newsletter"
+msgstr "Abonează-te la newsletter-ul nostru %s"
+
 msgid "Jump To Module Settings"
 msgstr "Sari la setările modulului"
+
+msgid "Jump into our %s Facebook group where you can ask questions from our active community and keep up-to-date on our latest news"
+msgstr "Intră în grupul nostru %s de Facebook unde poți pune întrebări comunității noastre active și să te ții la curent cu ultimele noastre noutăți"
 
 msgid "Just grab a new license from the"
 msgstr "Doar ia o licență nouă de la"
@@ -5437,6 +5767,9 @@ msgstr "Ultima sincronizare"
 msgid "Lastly, we want to prevent the ability of bots (or humans) to register SPAM accounts on the site, for any reason."
 msgstr "În final, vrem să prevenim capacitatea boților (sau oamenilor) de a înregistra conturi SPAM pe site, din orice motiv."
 
+msgid "Latest Scan Results"
+msgstr "Rezultate scanare recente"
+
 msgid "Launch Debug Info Page"
 msgstr "Lansează pagina de informații depanare"
 
@@ -5464,6 +5797,12 @@ msgstr "Licență"
 msgid "License Activation"
 msgstr "Activare licență"
 
+msgid "License Activation Failed"
+msgstr "Activarea licenței a eșuat"
+
+msgid "License Activation Success"
+msgstr "Activare licență reușită"
+
 msgid "License Check Failed"
 msgstr "Verificare licență eșuată"
 
@@ -5482,6 +5821,30 @@ msgstr "Email eșec licență trimis"
 msgid "License Summary"
 msgstr "Rezumat licență"
 
+msgid "License activated and verified successfully."
+msgstr "Licență activată și verificată cu succes."
+
+msgid "License activated but verification failed."
+msgstr "Licență activată, dar verificarea a eșuat."
+
+msgid "License activated successfully."
+msgstr "Licență activată cu succes."
+
+msgid "License activation failed because no licenses are available on this account."
+msgstr "Activarea licenței a eșuat deoarece nu sunt disponibile licențe pe acest cont."
+
+msgid "License activation failed because the API key is invalid."
+msgstr "Activarea licenței a eșuat deoarece cheia API este invalidă."
+
+msgid "License activation failed."
+msgstr "Activarea licenței a eșuat."
+
+msgid "License activation request failed."
+msgstr "Cererea de activare a licenței a eșuat."
+
+msgid "License activation was denied for this site."
+msgstr "Activarea licenței a fost refuzată pentru acest site."
+
 msgid "License check failed. Sending Warning Email."
 msgstr "Verificarea licenței a eșuat. Se trimite email de avertizare."
 
@@ -5499,9 +5862,6 @@ msgstr "Licențele pot fi verificate o dată la fiecare %s secunde"
 
 msgid "Lifetime"
 msgstr "Durată de viață"
-
-msgid "Lifetime Total"
-msgstr "Total durată de viață"
 
 msgid "Light"
 msgstr "Ușor"
@@ -5577,6 +5937,12 @@ msgstr "Scanerul local PHP de malware este activat, dar scanarea AI de malware e
 
 msgid "Locale"
 msgstr "locală"
+
+msgid "Locale \"%1$s\" is already cached at: %2$s. Use --force to re-download."
+msgstr "Localizarea „%1$s\" este deja în cache la: %2$s. Folosește --force pentru a descărca din nou."
+
+msgid "Locale \"%s\" is not available for download."
+msgstr "Localizarea „%s\" nu este disponibilă pentru descărcare."
 
 msgid "Location"
 msgstr "Locație"
@@ -5740,11 +6106,11 @@ msgstr "Parolă pierdută blocată"
 msgid "Lost Password Bot Protection"
 msgstr "Protecție boți parolă pierdută"
 
-msgid "Lost Password SPAMing by bots is blocked by silentCAPTCHA."
-msgstr "SPAM-ul de parolă pierdută de către boți este blocat de silentCAPTCHA."
+msgid "Lost Password SPAMing by bots is blocked by %s."
+msgstr "SPAM-ul de parolă pierdută de către boți este blocat de %s."
 
-msgid "Lost Password SPAMing by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM-ul de parolă pierdută de către boți nu este blocat de silentCAPTCHA."
+msgid "Lost Password SPAMing by bots isn't blocked by %s."
+msgstr "SPAM-ul de parolă pierdută de către boți nu este blocat de %s."
 
 msgid "Love it? Rate This Plugin &#10025;"
 msgstr "Îți place? Evaluează acest modul ✩"
@@ -5923,6 +6289,9 @@ msgstr "Valoare meta de potrivit"
 msgid "Method"
 msgstr "Metodă"
 
+msgid "Minimum %s score required to indicate visitor is human"
+msgstr "Scor minim %s necesar pentru a indica că vizutatorul este om"
+
 msgid "Minimum Comment Auto-Approval"
 msgstr "Aprobare automată minimă comentarii"
 
@@ -5941,9 +6310,6 @@ msgstr "Intervalul minim de timp între comentarii"
 msgid "Minimum required MainWP server version"
 msgstr "Versiune minimă necesară server MainWP"
 
-msgid "Minimum silentCAPTCHA score required to indicate visitor is human"
-msgstr "Scor minim silentCAPTCHA necesar pentru a indica că vizitatorul este uman"
-
 msgid "Minutes"
 msgstr "Minute"
 
@@ -5952,6 +6318,12 @@ msgstr "Configurarea greșită poate cauza probleme pentru vizitatorii tăi, aș
 
 msgid "Missing"
 msgstr "Lipsă"
+
+msgid "Missing action slug or nonce in batched request."
+msgstr "Lipsește slug-ul acțiunii sau nunicul în cererea grupată."
+
+msgid "Missing request payload for batch request item."
+msgstr "Lipsește payload-ul cererii pentru elementul cerere batch."
 
 msgid "Mode"
 msgstr "Mod"
@@ -5989,6 +6361,12 @@ msgstr "Majoritatea SPAM-ului este automat, de la boți, dar uneori oamenii post
 msgid "Multi-Factor Authentication"
 msgstr "Autentificare multi-factor"
 
+msgid "Multiple Signals"
+msgstr "Semnale multiple"
+
+msgid "Multiple bot signals detected for this visitor."
+msgstr "Semnale multiple de bot detectate pentru acest vizitator."
+
 msgid "Multiple email addresses may be supplied, separated by a comma."
 msgstr "Pot fi furnizate mai multe adrese de email, separate prin virgulă."
 
@@ -6013,6 +6391,9 @@ msgstr "Parolă BD MySQL"
 msgid "N/A"
 msgstr "N/A"
 
+msgid "NEW"
+msgstr "NOU"
+
 msgid "NO TITLE"
 msgstr "FĂRĂ TITLU"
 
@@ -6027,6 +6408,12 @@ msgstr "Navigare"
 
 msgid "Needs Update"
 msgstr "Necesită actualizare"
+
+msgid "Needs Work"
+msgstr "Necesită lucru"
+
+msgid "Nested batch requests are not allowed."
+msgstr "Cererile batch imbricate nu sunt permise."
 
 msgid "Never"
 msgstr "Niciodată"
@@ -6045,12 +6432,6 @@ msgstr "Administrator(i) nou(i)"
 
 msgid "New Comment"
 msgstr "Comentariu nou"
-
-msgid "New Results"
-msgstr "Rezultate noi"
-
-msgid "New Scan Results"
-msgstr "Rezultate scanare noi"
 
 msgid "New User Default Role"
 msgstr "Rol implicit utilizator nou"
@@ -6166,6 +6547,9 @@ msgstr "Nu ai selectat elemente."
 msgid "No license to remove."
 msgstr "Nu există licență de eliminat."
 
+msgid "No locales available from API."
+msgstr "Nicio localizare disponibilă de la API."
+
 msgid "No message"
 msgstr "Fără mesaj"
 
@@ -6175,8 +6559,8 @@ msgstr "Nicio meta disponibilă"
 msgid "No modules specified in the plugin config."
 msgstr "Nu sunt specificate module în configurația modulului."
 
-msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically."
-msgstr "Nu mai trebuie să ții minte/copiezi-lipești chei de licență! Pur și simplu activează URL-ul site-ului tău în panoul tău de control ShieldPRO și obține funcțiile Pro activate pe site-ul tău automat."
+msgid "No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically."
+msgstr "Nu mai sunt chei de licență de reținut/copiat-lipit! Pur și simplu activează URL-ul site-ului tău în panoul tău de control %s și obține funcții Pro activate pe site-ul tău automat."
 
 msgid "No new session activity recorded yet."
 msgstr "Încă nu s-a înregistrat nicio activitate nouă de sesiune."
@@ -6192,6 +6576,9 @@ msgstr "Nicio înregistrare"
 
 msgid "No reporter defined"
 msgstr "Niciun raportor definit"
+
+msgid "No reports generated yet."
+msgstr "Nu au fost generate rapoarte încă."
 
 msgid "No reports have been generated yet."
 msgstr "Nu au fost generate rapoarte încă."
@@ -6247,9 +6634,6 @@ msgstr "Nu, nu vreau să ajut"
 msgid "Noise"
 msgstr "Zgomot"
 
-msgid "Non-file scan items are not supported yet."
-msgstr "Elementele de scanare non-fișier nu sunt suportate încă."
-
 msgid "Nonce Failed."
 msgstr "Nunic eșuat."
 
@@ -6304,14 +6688,11 @@ msgstr "Nu este o cheie de opțiune validă pentru modul: %s"
 msgid "Not a valid option key."
 msgstr "Nu este o cheie de opțiune validă."
 
-msgid "Not a valid scan item record"
-msgstr "Nu este o înregistrare validă de element scanat"
-
 msgid "Not a valid value for this parameter"
 msgstr "Nu este o valoare validă pentru acest parametru"
 
-msgid "Not available as your site cannot handshake with ShieldNET API."
-msgstr "Indisponibil deoarece site-ul tău nu poate comunica cu API-ul ShieldNET."
+msgid "Not available as your site cannot handshake with %s."
+msgstr "Nu este disponibil deoarece site-ul tău nu poate face handshake cu %s."
 
 msgid "Not currently logged-in as security admin."
 msgstr "Nu ești autentificat momentan ca administrator securitate."
@@ -6354,9 +6735,6 @@ msgstr "Notifică site-urile din lista albă să actualizeze opțiunile de pe si
 
 msgid "Notify Whitelist"
 msgstr "Notifică lista albă"
-
-msgid "Now"
-msgstr "Acum"
 
 msgid "Number Of Times To Automatically Scan Core Files In 24 Hours"
 msgstr "Numărul de ori pentru a scana automat fișierele nucleului în 24 de ore"
@@ -6418,6 +6796,9 @@ msgstr "Limită abateri"
 msgid "Offenses couldn't be reset at this time."
 msgstr "Ofensele nu au putut fi resetate în acest moment."
 
+msgid "Offenses is simply a counter for the number of times a visitor does something bad."
+msgstr "Infracțiunile sunt pur și simplu un contor pentru numărul de ori când un vizitator face ceva rău."
+
 msgid "Offenses reset to zero."
 msgstr "Infracțiuni resetate la zero."
 
@@ -6439,17 +6820,17 @@ msgstr "Parole unice"
 msgid "Only %s Security Admins may modify the MFA settings of another admin account."
 msgstr "Doar administratorii de securitate %s pot modifica setările MFA ale altui cont de administrator."
 
-msgid "Only core WordPress files are scans in the free version of Shield."
-msgstr "Doar fișierele nucleului WordPress sunt scanate în versiunea gratuită Shield."
+msgid "Only core WordPress files are scanned in the free version of %s."
+msgstr "Doar fișierele nucleu WordPress sunt scanate în versiunea gratuită a %s."
 
 msgid "Only enable the integrations you require."
 msgstr "Activează doar integrările de care ai nevoie."
 
-msgid "Only form types (login, registration, lost password), that you've selected will be monitored."
-msgstr "Doar tipurile de formulare (autentificare, înregistrare, parolă pierdută) pe care le-ai selectat vor fi monitorizate."
-
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Sunt permise doar litere și cifre: %s"
+
+msgid "Only selected form types (login, registration, lost password) will be monitored."
+msgstr "Doar tipurile de formulare selectate (autentificare, înregistrare, parolă pierdută) vor fi monitorizate."
 
 msgid "Only the first 30 items are shown."
 msgstr "Sunt afișate doar primele 30 de elemente."
@@ -6562,8 +6943,8 @@ msgstr "Scaner malware PHP"
 msgid "PHP Version"
 msgstr "Versiune PHP"
 
-msgid "PHP does not meet minimum version. Your version: %s. Required version: %s."
-msgstr "PHP nu îndeplinește versiunea minimă. Versiunea ta: %s. Versiune necesară: %s."
+msgid "PHP does not meet minimum version. Your version: %1$s. Required version: %2$s."
+msgstr "PHP nu îndeplinește versiunea minimă. Versiunea ta: %1$s. Versiune necesară: %2$s."
 
 msgid "PHP files aren't scanned for malware."
 msgstr "Fișierele PHP nu sunt scanate pentru malware."
@@ -6718,6 +7099,9 @@ msgstr "Poate una dintre cele mai puternice funcții ale sale este modul în car
 msgid "Perhaps the device isn't supported, or you've already registered it."
 msgstr "Poate dispozitivul nu este suportat sau l-ai înregistrat deja."
 
+msgid "Period"
+msgstr "Perioadă"
+
 msgid "Permalink structure"
 msgstr "Structură permalink"
 
@@ -6727,8 +7111,8 @@ msgstr "Permalink-uri"
 msgid "Permalinks Updated"
 msgstr "Permalink-uri actualizate"
 
-msgid "Permalinks changed: %s&rarr;%s"
-msgstr "Permalinkuri modificate: %s&rarr;%s"
+msgid "Permalinks changed: %1$s&rarr;%2$s"
+msgstr "Permalinkuri modificate: %1$s&rarr;%2$s"
 
 msgid "Permanent Redirect (301)"
 msgstr "Redirecționare permanentă (301)"
@@ -6790,6 +7174,9 @@ msgstr "Te rugăm să dai clic pe linkul din emailul pe care l-ai primit."
 msgid "Please click the link provided below to do so."
 msgstr "Te rugăm să dai clic pe linkul furnizat mai jos pentru a face acest lucru."
 
+msgid "Please complete required fields: %s"
+msgstr "Te rugăm să completezi câmpurile obligatorii: %s"
+
 msgid "Please complete the form."
 msgstr "Te rugăm să completezi formularul."
 
@@ -6814,14 +7201,14 @@ msgstr "Te rugăm să contactezi administratorul site-ului dacă ai nevoie de î
 msgid "Please contact your website administrator."
 msgstr "Te rugăm să contactezi administratorul site-ului tău."
 
-msgid "Please delete the \"%s\" file to reactivate %s protection"
-msgstr "Te rugăm să ștergi fișierul „%s\" pentru a reactiva protecția %s"
+msgid "Please delete the \"%1$s\" file to reactivate %2$s protection"
+msgstr "Te rugăm să ștergi fișierul „%1$s\" pentru a reactiva protecția %2$s"
+
+msgid "Please ensure the end date is on or after the start date."
+msgstr "Te rugăm să te asiguri că data de încheiere este la sau după data de început."
 
 msgid "Please login again."
 msgstr "Te rugăm să te autentifici din nou."
-
-msgid "Please logout if you want to delete your own session."
-msgstr "Te rugăm să te deconectezi dacă vrei să ștergi propria sesiune."
 
 msgid "Please note that WP Page Caching plugins typically ignore HTTP Headers and if you're not seeing them reflected in your tests, you should disable your caching plugin."
 msgstr "Te rugăm să reții că modulele de cache pentru pagini WP ignoră de obicei antetele HTTP și dacă nu le vezi reflectate în testele tale, ar trebui să dezactivezi modulul tău de cache."
@@ -6840,6 +7227,15 @@ msgstr "Te rugăm să furnizezi o etichetă pentru a identifica dispozitivul."
 
 msgid "Please provide a label to identify the new authenticator."
 msgstr "Te rugăm să furnizezi o etichetă pentru a identifica noul autentificator."
+
+msgid "Please provide a title for the report."
+msgstr "Te rugăm să furnizezi un titlu pentru raport."
+
+msgid "Please provide a valid date using YYYY-MM-DD format."
+msgstr "Te rugăm să furnizezi o dată validă folosind formatul AAAA-LL-ZZ."
+
+msgid "Please provide a valid date."
+msgstr "Te rugăm să furnizezi o dată validă."
 
 msgid "Please provide a valid regular expression."
 msgstr "Te rugăm să furnizezi o expresie regulată validă."
@@ -6895,6 +7291,9 @@ msgstr "Te rugăm să selectezi unul dintre tipurile de regulă IP - Blocare sau
 msgid "Please select one of the options available"
 msgstr "Te rugăm să selectezi una dintre opțiunile disponibile"
 
+msgid "Please specify a locale code (e.g., --locale=de_DE)."
+msgstr "Te rugăm să specifici un cod de localizare (de ex., --locale=de_DE)."
+
 msgid "Please supply a different password as this password has been pwned."
 msgstr "Te rugăm să furnizezi o parolă diferită, deoarece această parolă a fost compromisă."
 
@@ -6925,17 +7324,17 @@ msgstr "Te rugăm să activezi această scanare în opțiuni."
 msgid "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN."
 msgstr "Te rugăm să înțelegi că pentru a restabili funcțiile administrator de securitate, va trebui să furnizezi un nou PIN administrator de securitate."
 
-msgid "Please update your Shield plugins to the same versions and re-sync."
-msgstr "Te rugăm să actualizezi modulele Shield la aceleași versiuni și să resincronizezi."
+msgid "Please update your %s plugins to the same versions and re-sync."
+msgstr "Te rugăm să actualizezi modulele %s la aceleași versiuni și să resincronizezi."
 
 msgid "Please upgrade to support scanning of all plugin files for tampering."
 msgstr "Te rugăm să actualizezi pentru a suporta scanarea tuturor fișierelor modulului pentru manipulare."
 
-msgid "Please upgrade your Shield Security subscription to access the Custom Security Rules Builder."
-msgstr "Te rugăm să actualizezi abonamentul Shield Security pentru a accesa constructorul de reguli de securitate personalizate."
+msgid "Please upgrade your %s plan to make use of this feature."
+msgstr "Te rugăm să actualizezi planul %s pentru a folosi această evidențiere."
 
-msgid "Please upgrade your ShieldPRO plan to make use of this feature."
-msgstr "Te rugăm să actualizezi planul ShieldPRO pentru a folosi această evidențiere."
+msgid "Please upgrade your %s subscription to access the Custom Security Rules Builder."
+msgstr "Te rugăm să actualizezi abonamentul %s pentru a accesa constructorul de reguli de securitate personalizate."
 
 msgid "Please upgrade your plan if you need to notify multiple email addresses."
 msgstr "Te rugăm să actualizezi planul dacă trebuie să notifici mai multe adrese de email."
@@ -7186,14 +7585,17 @@ msgstr "Susținut de WordPress"
 msgid "Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic."
 msgstr "<strong>Firewall</strong> puternic interceptează și blochează traficul rău intenționat."
 
-msgid "Powerful Protection for WordPress, from Shield Security"
-msgstr "Protecție puternică pentru WordPress, de la Shield Security"
+msgid "Powerful Protection for WordPress, from %s"
+msgstr "Protecție puternică pentru WordPress, de la %s"
 
 msgid "Powerful User Password Policies"
 msgstr "Politici puternice de parolă utilizator"
 
 msgid "Powerful, Auto-Learning Malware Scanner"
 msgstr "Scaner malware puternic cu învățare automată"
+
+msgid "Powerful, Easy-To-Use #1 Rated WordPress Security System"
+msgstr "Sistem de securitate WordPress puternic, ușor de folosit, evaluat #1"
 
 msgid "Predicted"
 msgstr "Prezis"
@@ -7203,6 +7605,9 @@ msgstr "Director temporar preferat"
 
 msgid "Preferred temporary directory override."
 msgstr "Suprascriere director temporar preferat."
+
+msgid "Prefix"
+msgstr "Prefix"
 
 msgid "Prefix: <code>%s</code>"
 msgstr "Prefix: <code>%s</code>"
@@ -7267,6 +7672,12 @@ msgstr "Previne utilizatorii să folosească orice parolă găsită pe lista pub
 msgid "Prevents users from using any passwords found on the public available list of pwned passwords."
 msgstr "Previne utilizatorii să folosească orice parolă găsită pe lista publică disponibilă de parole compromise."
 
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Previous Period"
+msgstr "Perioada anterioară"
+
 msgid "Previous Step"
 msgstr "Pasul anterior"
 
@@ -7318,8 +7729,8 @@ msgstr "Promovat la administrator"
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr "Protejează autentificarea WP împotriva încercărilor automate de autentificare de la boți"
 
-msgid "Protect Your Shield Plugin From Tampering"
-msgstr "Protejează modulul tău Shield împotriva manipulării"
+msgid "Protect Your %s Plugin From Tampering"
+msgstr "Protejează modulul tău %s împotriva manipulării"
 
 msgid "Protect key WP core files that can't normally be protected."
 msgstr "Protejează fișierele cheie ale nucleului WP care nu pot fi protejate în mod normal."
@@ -7342,6 +7753,9 @@ msgstr "Protejează vizitatorii site-ului tău prin implementarea antetelor de r
 msgid "Protect your %s files"
 msgstr "Protejează fișierele tale %s"
 
+msgid "Protected By %s"
+msgstr "Protejat de %s"
+
 msgid "Protected Forms"
 msgstr "Formulare protejate"
 
@@ -7350,6 +7764,9 @@ msgstr "Protejează împotriva sursei #1 de <strong>SPAM comentarii</strong>."
 
 msgid "Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password."
 msgstr "Protejează <strong>formularele importante pentru utilizatori</strong> precum autentificarea, înregistrarea și recuperarea parolei."
+
+msgid "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan."
+msgstr "Protecția pentru formularele WordPress este inclusă ca standard și vei avea acces la unele sau toate integrările terțe, în funcție de planul tău %s."
 
 msgid "Protection for user accounts."
 msgstr "Protecție pentru conturile de utilizator."
@@ -7420,9 +7837,6 @@ msgstr "Furnizează/actualizează PIN-ul de administrator securitate"
 msgid "Provided by %s"
 msgstr "Furnizat de %s"
 
-msgid "Provided by Shield"
-msgstr "Furnizat de Shield"
-
 msgid "Provides finer control over the Requests Logging system."
 msgstr "Oferă control mai fin asupra sistemului de înregistrare a cererilor."
 
@@ -7471,8 +7885,8 @@ msgstr "Limitare de rată"
 msgid "Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds."
 msgstr "Limita de rată ({{count}}) a fost depășită cu {{requests}} cereri în {{span}} secunde."
 
-msgid "Re-Brand Shield Security as your own!"
-msgstr "Rebrandează Shield Security ca fiind al tău!"
+msgid "Re-Brand %s as your own!"
+msgstr "Rebrandează %s ca pe al tău!"
 
 msgid "Re-Install"
 msgstr "Reinstalează"
@@ -7480,8 +7894,8 @@ msgstr "Reinstalează"
 msgid "Re-Install It"
 msgstr "Reinstalează-l"
 
-msgid "Re-brand the Shield Security plugin."
-msgstr "Rebrandează modulul Shield Security."
+msgid "Re-brand the %s plugin."
+msgstr "Rebrandează modulul %s."
 
 msgid "Re-enable Protection."
 msgstr "Reactivează protecția."
@@ -7512,6 +7926,9 @@ msgstr "Motiv"
 
 msgid "Reason: %s"
 msgstr "Motiv: %s"
+
+msgid "Reason: {{reason}}"
+msgstr "Motiv: {{reason}}"
 
 msgid "Receive an alert upon plugin deactivation"
 msgstr "Primește o alertă la dezactivarea modulului"
@@ -7651,8 +8068,8 @@ msgstr "Infracțiuni rămase permise"
 msgid "Remember me for %s"
 msgstr "Ține-mă minte pentru %s"
 
-msgid "Remember to include %s or %s"
-msgstr "Ține minte să incluzi %s sau %s"
+msgid "Remember to include %1$s or %2$s"
+msgstr "Ține minte să incluzi %1$s sau %2$s"
 
 msgid "Removal of MFA factors for a user must be done by the Security Admin"
 msgstr "Eliminarea factorilor MFA pentru un utilizator trebuie făcută de administratorul de securitate"
@@ -7708,6 +8125,9 @@ msgstr "Reparat"
 msgid "Repaired item found in the scan."
 msgstr "Element reparat găsit în scanare."
 
+msgid "Repairs"
+msgstr "Reparări"
+
 msgid "Repeated Human SPAM"
 msgstr "SPAM uman repetat"
 
@@ -7735,8 +8155,8 @@ msgstr "Opțiuni raport"
 msgid "Report Sent"
 msgstr "Raport trimis"
 
-msgid "Report Sent (via {{medium}})."
-msgstr "Raport trimis (prin {{medium}})."
+msgid "Report Sent ({{type}} via {{medium}})."
+msgstr "Raport trimis ({{type}} prin {{medium}})."
 
 msgid "Report Title"
 msgstr "Titlu raport"
@@ -8107,17 +8527,17 @@ msgstr "Verificare SPAM reușită"
 msgid "SPAM Detection"
 msgstr "Detectare SPAM"
 
-msgid "SPAM and bulk user registration by bots are blocked by silentCAPTCHA."
-msgstr "SPAM-ul și înregistrarea în masă de utilizatori de către boți sunt blocate de silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots are blocked by %s."
+msgstr "SPAM-ul și înregistrarea în masă de utilizatori de către boți sunt blocate de %s."
 
-msgid "SPAM and bulk user registration by bots isn't blocked by silentCAPTCHA."
-msgstr "SPAM-ul și înregistrarea în masă de utilizatori de către boți nu sunt blocate de silentCAPTCHA."
+msgid "SPAM and bulk user registration by bots isn't blocked by %s."
+msgstr "SPAM-ul și înregistrarea în masă de utilizatori de către boți nu sunt blocate de %s."
 
 msgid "SPAM blocking"
 msgstr "Blocare SPAM"
 
-msgid "SPAM is perpetrated in 2 main ways: by bots and humans."
-msgstr "SPAM-ul este perpetuat în 2 moduri principale: de boți și oameni."
+msgid "SPAM is perpetrated by 2 types of visitors: automated bots and humans."
+msgstr "SPAM-ul este perpetuat de 2 tipuri de vizitatori: boți automatizați și oameni."
 
 msgid "SQL Queries"
 msgstr "Interogări SQL"
@@ -8167,6 +8587,9 @@ msgstr "Scanează pentru vulnerabilități în module & teme"
 msgid "Scan Frequency"
 msgstr "Frecvență scanare"
 
+msgid "Scan Issues"
+msgstr "Probleme scanare"
+
 msgid "Scan Item Delete Success"
 msgstr "Ștergere element scanat reușită"
 
@@ -8200,6 +8623,9 @@ msgstr "Rezultate scanare"
 msgid "Scan This QR Code"
 msgstr "Scanează acest cod QR"
 
+msgid "Scan Type"
+msgstr "Tip scanare"
+
 msgid "Scan all your WordPress assets for known security vulnerabilities."
 msgstr "Scanează toate resursele tale WordPress pentru vulnerabilități de securitate cunoscute."
 
@@ -8218,11 +8644,11 @@ msgstr "Scanează site-ul tău pentru modificări de fișiere, malware și vulne
 msgid "Scanning Frequency"
 msgstr "Frecvență scanare"
 
-msgid "Scanning Plugin & Theme Files is only available with ShieldPRO."
-msgstr "Scanarea fișierelor modulelor și temelor este disponibilă doar cu ShieldPRO."
+msgid "Scanning Plugin & Theme Files is available only with the Pro version of %s."
+msgstr "Scanarea fișierelor modul & temă este disponibilă doar cu versiunea Pro a %s."
 
-msgid "Scanning for PHP Malware is only available with ShieldPRO."
-msgstr "Scanarea pentru malware PHP este disponibilă doar cu ShieldPRO."
+msgid "Scanning for PHP Malware is available only with the Pro version of %s."
+msgstr "Scanarea pentru malware PHP este disponibilă doar cu versiunea Pro a %s."
 
 msgid "Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins."
 msgstr "Scanarea folosește instantanee locale. Actualizează planul pentru a folosi instantanee crowd-sourced și a adăuga suport pentru module premium."
@@ -8305,14 +8731,17 @@ msgstr "Scorurile sunt o ponderare aproximativă pentru fiecare componentă."
 msgid "Script Name To Match"
 msgstr "Nume script de potrivit"
 
-msgid "Seamlessly activate and manage your ShieldPRO license without any license keys."
-msgstr "Activează și gestionează fără probleme licența ShieldPRO fără chei de licență."
+msgid "Seamlessly activate and manage your %s license without any license keys."
+msgstr "Activează și gestionează fără probleme licența ta %s fără nicio cheie de licență."
 
 msgid "Search %s"
 msgstr "Caută %s"
 
 msgid "Search Engine"
 msgstr "Motor de căutare"
+
+msgid "Search Help"
+msgstr "Caută ajutor"
 
 msgid "Search engine visibility"
 msgstr "Vizibilitate motor de căutare"
@@ -8374,6 +8803,9 @@ msgstr "Expirare administrator securitate"
 msgid "Security Admin is now active"
 msgstr "Security Admin este acum activ"
 
+msgid "Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security."
+msgstr "Administrator securitate oferă un strat de autentificare suplimentar care asigură că doar administratorii verificați pot face modificări la securitatea site-ului tău."
+
 msgid "Security Admin restrictions have been removed"
 msgstr "Restricțiile administrator securitate au fost eliminate"
 
@@ -8385,6 +8817,9 @@ msgstr "Sesiunea de administrator securitate a expirat."
 
 msgid "Security Admins"
 msgstr "Administratori securitate"
+
+msgid "Security Alert"
+msgstr "Alertă de securitate"
 
 msgid "Security Analysis"
 msgstr "Analiză de securitate"
@@ -8503,11 +8938,11 @@ msgstr "Selectează furnizorii de formulare utilizatori care ar trebui verifica�
 msgid "Select The User Forms Provider That You Use"
 msgstr "Selectează furnizorul de formulare utilizatori pe care îl folosești"
 
+msgid "Select Which %1$s Emails Should Be Sent Using %2$s"
+msgstr "Selectează ce emailuri %1$s ar trebui trimise folosind %2$s"
+
 msgid "Select Which Areas Should Be Scanned"
 msgstr "Selectează ce zone ar trebui scanate"
-
-msgid "Select Which Shield Emails Should Be Sent Using SureSend"
-msgstr "Selectează ce emailuri Shield ar trebui trimise folosind SureSend"
 
 msgid "Select Which Types Of Requests To Exclude"
 msgstr "Selectează ce tipuri de cereri să excludi"
@@ -8635,6 +9070,9 @@ msgstr "Sesiuni"
 msgid "Sessions Table Filters"
 msgstr "Filtre tabel sesiuni"
 
+msgid "Set Security Badge."
+msgstr "Setează insigna de securitate."
+
 msgid "Set a limit to offenses allowed before visitor IP is automatically blocked."
 msgstr "Setează o limită pentru infracțiunile permise înainte ca IP-ul vizitatorului să fie blocat automat."
 
@@ -8674,161 +9112,23 @@ msgstr "Configurează modulul să ruleze ca MU-plugin pentru a preveni dezactiva
 msgid "Severity"
 msgstr "Severitate"
 
-msgid "Shield 2FA Provider Enabled"
-msgstr "Furnizor 2FA Shield activat"
-
-msgid "Shield Anti-Spam"
-msgstr "Anti-SPAM Shield"
-
 msgid "Shield Deactivated"
 msgstr "Shield dezactivat"
 
 msgid "Shield Events & Stats"
 msgstr "Evenimente și statistici Shield"
 
-msgid "Shield Info"
-msgstr "Info Shield"
-
-msgid "Shield Option Key"
-msgstr "Cheie opțiune Shield"
-
-msgid "Shield Pro store"
-msgstr "Magazin Shield Pro"
-
-msgid "Shield Scanners."
-msgstr "Scanere Shield."
-
-msgid "Shield Security Home Page"
-msgstr "Pagina principală Shield Security"
-
-msgid "Shield Security Plugin – minimum site requirements are not met"
-msgstr "Modul Shield Security – cerințele minime ale site-ului nu sunt îndeplinite"
-
-msgid "Shield Security Pro is available from our online store."
-msgstr "Shield Security Pro este disponibil în magazinul nostru online."
-
-msgid "Shield Security plugin is installed but not activated."
-msgstr "Modulul Shield Security este instalat dar nu activat."
-
-msgid "Shield Security plugin needs to sync."
-msgstr "Modulul Shield Security trebuie sincronizat."
-
-msgid "Shield Security plugin not detected in last sync."
-msgstr "Modulul Shield Security nu a fost detectat în ultima sincronizare."
-
-msgid "Shield Security plugin versions are out of sync."
-msgstr "Versiunile modulului Shield Security nu sunt sincronizate."
-
-msgid "Shield User 2FA Provider Activated"
-msgstr "Furnizor 2FA Shield utilizator activat"
-
-msgid "Shield User 2FA: Has Any Active"
-msgstr "Shield utilizator 2FA: are oricare activ"
+msgid "Shield Security"
+msgstr "Shield Security"
 
 msgid "Shield White Label"
 msgstr "Shield White Label"
 
-msgid "Shield can automatically integrate with 3rd party plugins."
-msgstr "Shield poate integra automat cu module terțe."
-
-msgid "Shield can automatically protect 3rd party login and registration forms against Bots."
-msgstr "Shield poate proteja automat formularele de autentificare și înregistrare terțe împotriva boților."
-
-msgid "Shield couldn't determine whether the silentCAPTCHA JS was loading correctly on your site."
-msgstr "Shield nu a putut determina dacă JS-ul silentCAPTCHA se încărca corect pe site-ul tău."
-
-msgid "Shield doesn't normally scan comments from logged-in or registered users."
-msgstr "Shield nu scanează în mod normal comentariile de la utilizatori autentificați sau înregistrați."
-
 msgid "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
 msgstr "Shield nu scanează în mod normal comentariile de la utilizatori autentificați sau înregistrați. Specifică aici rolurile utilizatorilor care nu ar trebui scanate."
 
-msgid "Shield event definitions are empty or not in the correct format."
-msgstr "Definițiile evenimentelor Shield sunt goale sau nu sunt în formatul corect."
-
-msgid "Shield isn't installed on this site."
-msgstr "Shield nu este instalat pe acest site."
-
-msgid "Shield plugin activated"
-msgstr "Modulul Shield activat"
-
-msgid "Shield plugin couldn't be activated"
-msgstr "Modulul Shield nu a putut fi activat"
-
-msgid "Shield plugin couldn't be deactivated"
-msgstr "Modulul Shield nu a putut fi dezactivat"
-
-msgid "Shield plugin couldn't be installed"
-msgstr "Modulul Shield nu a putut fi instalat"
-
-msgid "Shield plugin couldn't be updated"
-msgstr "Modulul Shield nu a putut fi actualizat"
-
-msgid "Shield plugin deactivated"
-msgstr "Modulul Shield dezactivat"
-
-msgid "Shield plugin installed"
-msgstr "Modulul Shield instalat"
-
-msgid "Shield plugin is installed, but not active."
-msgstr "Modulul Shield este instalat, dar nu activ."
-
-msgid "Shield plugin updated"
-msgstr "Modulul Shield actualizat"
-
-msgid "Shield scans cannot execute."
-msgstr "Scanările Shield nu pot fi executate."
-
-msgid "Shield version on site doesn't match this server."
-msgstr "Versiunea Shield de pe site nu se potrivește cu acest server."
-
-msgid "Shield will automatically scan your 3rd party plugins to check whether a built-in integration is available."
-msgstr "Shield va scana automat modulele terțe pentru a verifica dacă este disponibilă o integrare nativă."
-
 msgid "Shield will delay upgrades until the new update has been available for the set number of days."
 msgstr "Shield va amâna actualizările până când noua actualizare va fi disponibilă pentru numărul setat de zile."
-
-msgid "Shield's MainWP integration isn't enabled for this site."
-msgstr "Integrarea MainWP a Shield nu este activată pentru acest site."
-
-msgid "Shield's Rules Engine isn't running."
-msgstr "Motorul de reguli Shield nu rulează."
-
-msgid "Shield's silentCAPTCHA system uses ALTCHA, that challenges bots to perform complex work."
-msgstr "Sistemul silentCAPTCHA Shield folosește ALTCHA, care provoacă boții să efectueze lucrări complexe."
-
-msgid "ShieldBACKUPS"
-msgstr "ShieldBACKUPS"
-
-msgid "ShieldNET IP Reputation Score"
-msgstr "Scor reputație IP ShieldNET"
-
-msgid "ShieldPRO"
-msgstr "ShieldPRO"
-
-msgid "ShieldPRO Features"
-msgstr "Funcții ShieldPRO"
-
-msgid "ShieldPRO Free Trial"
-msgstr "Perioadă de probă gratuită ShieldPRO"
-
-msgid "ShieldPRO License Cleared"
-msgstr "Licență ShieldPRO ștearsă"
-
-msgid "ShieldPRO License Management"
-msgstr "Gestionare licență ShieldPRO"
-
-msgid "ShieldPRO Premium Security"
-msgstr "Securitate premium ShieldPRO"
-
-msgid "ShieldPRO isn't activated on this site."
-msgstr "ShieldPRO nu este activat pe acest site."
-
-msgid "ShieldPRO license check failed."
-msgstr "Verificarea licenței ShieldPRO a eșuat."
-
-msgid "ShieldPRO license check was successful."
-msgstr "Verificarea licenței ShieldPRO a fost reușită."
 
 msgid "Should be uninstalled"
 msgstr "Ar trebui dezinstalat"
@@ -8923,20 +9223,23 @@ msgstr "URL site"
 msgid "Site URL Changed"
 msgstr "URL site modificat"
 
-msgid "Site URL changed: %s&rarr;%s"
-msgstr "URL site modificat: %s&rarr;%s"
+msgid "Site URL changed: %1$s&rarr;%2$s"
+msgstr "URL site modificat: %1$s&rarr;%2$s"
 
 msgid "Site added to export white list: {{site}}"
 msgstr "Site adăugat pe lista albă de export: {{site}}"
 
-msgid "Site email changed: %s&rarr;%s"
-msgstr "Email site modificat: %s&rarr;%s"
+msgid "Site email changed: %1$s&rarr;%2$s"
+msgstr "Email site modificat: %1$s&rarr;%2$s"
 
 msgid "Site failed to sync"
 msgstr "Site-ul a eșuat la sincronizare"
 
 msgid "Site has been locked down!"
 msgstr "Site-ul a fost blocat!"
+
+msgid "Site is already activated but license verification failed."
+msgstr "Site-ul este deja activat, dar verificarea licenței a eșuat."
 
 msgid "Site lock down has been lifted!"
 msgstr "Blocarea site-ului a fost ridicată!"
@@ -8946,6 +9249,9 @@ msgstr "Site eliminat din lista albă de export: {{site}}"
 
 msgid "Site synced successfully"
 msgstr "Site sincronizat cu succes"
+
+msgid "Site was already activated and license verified successfully."
+msgstr "Site-ul a fost deja activat și licența verificată cu succes."
 
 msgid "Site was placed into lockdown by {{user_login}}."
 msgstr "Site-ul a fost plasat în lockdown de {{user_login}}."
@@ -8965,8 +9271,8 @@ msgstr "Dimensiune"
 msgid "Slug"
 msgstr "descriptor"
 
-msgid "Slug Updated: %s&rarr;%s"
-msgstr "Slug actualizat: %s&rarr;%s"
+msgid "Slug Updated: %1$s&rarr;%2$s"
+msgstr "Slug actualizat: %1$s&rarr;%2$s"
 
 msgid "Slug for Post ID {{post_id}} updated from '{{slug_old}}' to '{{slug_new}}'."
 msgstr "Slug pentru ID postare {{post_id}} actualizat de la „{{slug_old}}\" la „{{slug_new}}\"."
@@ -9049,8 +9355,8 @@ msgstr "Ne pare rău, această scanare nu este disponibilă."
 msgid "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan."
 msgstr "Ne pare rău, nu ai acces pentru a rula interogări MAL{ai}, te rugăm să actualizezi planul."
 
-msgid "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration."
-msgstr "Ne pare rău, va trebui să actualizezi abonamentul Shield Security pentru a accesa integrarea MainWP."
+msgid "Sorry, you'll need to upgrade your %s membership to access the MainWP integration."
+msgstr "Ne pare rău, va trebui să actualizezi abonamentul tău %s pentru a accesa integrarea MainWP."
 
 msgid "Speaking of breaches, vulnerabilities within plugins and themes that allow breaches to happen, are a prime target for attacks so we must identify them early."
 msgstr "Vorbind despre breșe, vulnerabilitățile din module și teme care permit apariția breșelor sunt o țintă principală pentru atacuri, așa că trebuie să le identificăm devreme."
@@ -9100,8 +9406,11 @@ msgstr "Statistici"
 msgid "Status"
 msgstr "Stare"
 
-msgid "Status changed: %s&rarr;%s"
-msgstr "Stare modificată: %s&rarr;%s"
+msgid "Status changed: %1$s&rarr;%2$s"
+msgstr "Stare modificată: %1$s&rarr;%2$s"
+
+msgid "Status check complete."
+msgstr "Verificare stare finalizată."
 
 msgid "Store directory could not be created: %s"
 msgstr "Directorul de depozitare nu a putut fi creat: %s"
@@ -9133,8 +9442,8 @@ msgstr "Conectat cu succes la serverul de licențe."
 msgid "Successfully sent Firewall Block email alert to: {{to}}"
 msgstr "Alertă email blocare firewall trimisă cu succes către: {{to}}"
 
-msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using SureSend."
-msgstr "Email trimis cu succes (tip: {{slug}}) către „{{email}}\" folosind SureSend."
+msgid "Successfully sent email (type: {{slug}}) to '{{email}}' using %s."
+msgstr "Emailul (tip: {{slug}}) către „{{email}}\" a fost trimis cu succes folosind %s."
 
 msgid "Summary"
 msgstr "Rezumat"
@@ -9165,15 +9474,6 @@ msgstr "Emailuri SureSend"
 
 msgid "SureSend Emails."
 msgstr "Emailuri SureSend."
-
-msgid "SureSend Fail"
-msgstr "SureSend eșuat"
-
-msgid "SureSend Success"
-msgstr "SureSend reușit"
-
-msgid "SureSend is a dedicated email delivery service from Shield Security."
-msgstr "SureSend este un serviciu dedicat de livrare email de la Shield Security."
 
 msgid "Suspend Account"
 msgstr "Suspendă cont"
@@ -9229,14 +9529,14 @@ msgstr "Activează evidenția CrowdSec pentru a bloca adrese IP rău intenționa
 msgid "Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots)."
 msgstr "Activarea acestei evidențieri va bloca tot traficul către site-ul tău. Absolut totul va fi blocat (inclusiv boții Google)."
 
+msgid "Sync %s"
+msgstr "Sincronizare %s"
+
 msgid "Sync Required"
 msgstr "Sincronizare necesară"
 
 msgid "Sync Required."
 msgstr "Sincronizare necesară."
-
-msgid "Sync Shield"
-msgstr "Sincronizează Shield"
 
 msgid "System Info"
 msgstr "Info sistem"
@@ -9253,8 +9553,8 @@ msgstr "Tabelele au fost șterse și vor fi acum recreate."
 msgid "Tagline"
 msgstr "Slogan"
 
-msgid "Tagline changed: %s&rarr;%s"
-msgstr "Slogan modificat: %s&rarr;%s"
+msgid "Tagline changed: %1$s&rarr;%2$s"
+msgstr "Slogan modificat: %1$s&rarr;%2$s"
 
 msgid "Take a new line for each entry."
 msgstr "Folosește o linie nouă pentru fiecare intrare."
@@ -9268,11 +9568,11 @@ msgstr "Folosește o linie nouă pentru fiecare cale din lista albă."
 msgid "Take a new line per rule."
 msgstr "Folosește o linie nouă pentru fiecare regulă."
 
-msgid "Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites"
-msgstr "Profită de inteligența adunată în întreaga rețea Shield pentru a-ți proteja mai bine site-urile WordPress"
+msgid "Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites"
+msgstr "Profită de inteligența adunată în întreaga rețea %s pentru a proteja mai bine site-urile tale WordPress"
 
-msgid "Technical support for Shield is exclusive to Pro customers."
-msgstr "Suportul tehnic pentru Shield este exclusiv pentru clienții Pro."
+msgid "Technical support for %s is exclusive to Pro customers."
+msgstr "Suportul tehnic pentru %s este exclusiv pentru clienții Pro."
 
 msgid "Temp Dir"
 msgstr "Director temporar"
@@ -9295,17 +9595,17 @@ msgstr "Testarea WP Cron a rulat cu succes."
 msgid "Tests failed and we couldn't automatically determine the state of your SSL Certificate."
 msgstr "Testele au eșuat și nu am putut determina automat starea certificatului tău SSL."
 
-msgid "Thank You For Choosing Shield Security"
-msgstr "Îți mulțumim că ai ales Shield Security"
+msgid "Thank You For Choosing %s"
+msgstr "Îți mulțumim că ai ales %s"
 
 msgid "Thank You."
 msgstr "Îți mulțumim."
 
-msgid "Thank you for choosing Shield Security (Free)."
-msgstr "Îți mulțumim că ai ales Shield Security (gratuit)."
+msgid "Thank you for choosing %s (Free)."
+msgstr "Îți mulțumim că ai ales %s (gratuit)."
 
-msgid "Thank you for choosing Shield Security PRO."
-msgstr "Îți mulțumim că ai ales Shield Security PRO."
+msgid "Thank you for choosing %s."
+msgstr "Îți mulțumim că ai ales %s."
 
 msgid "Thank you for taking the time to go through the Guided Setup Wizard."
 msgstr "Îți mulțumim că ai parcurs Asistentul de configurare ghidată."
@@ -9325,11 +9625,23 @@ msgstr "Mulțumim."
 msgid "That Warm And Fuzzy Feeling That Comes From Supporting Future Development"
 msgstr "Acea senzație plăcută și reconfortantă care vine din susținerea dezvoltării viitoare"
 
-msgid "The %s directory is like the %s directory and many non-WordPress files are kept there."
-msgstr "Dosarul %s este ca dosarul %s și multe fișiere non-WordPress sunt păstrate acolo."
+msgid "The %1$s directory is like the %2$s directory and many non-WordPress files are kept there."
+msgstr "Dosarul %1$s este ca dosarul %2$s și multe fișiere non-WordPress sunt păstrate acolo."
+
+msgid "The %1$s should measure %2$s."
+msgstr "%1$s ar trebui să măsoare %2$s."
+
+msgid "The %s Badge demonstrates to your customers that you take security seriously."
+msgstr "Insigna %s demonstrează clienților tăi că iei securitatea în serios."
 
 msgid "The %s directory is the wild-west and many plugins and themes use it to store working files."
 msgstr "Dosarul %s este vestul sălbatic și multe module și teme îl folosesc pentru a stoca fișiere de lucru."
+
+msgid "The %s option is disabled, removing brute force protection for login, register and lost password forms."
+msgstr "Opțiunea %s este dezactivată, eliminând protecția împotriva atacurilor prin forță brută pentru formularele de autentificare, înregistrare și parolă pierdută."
+
+msgid "The %s option is enabled."
+msgstr "Opțiunea %s este activată."
 
 msgid "The %s plugin does not normally use Cookies for unregistered site visitors."
 msgstr "Modulul %s nu folosește în mod normal cookie-uri pentru vizitatorii site-ului neînregistrați."
@@ -9337,14 +9649,29 @@ msgstr "Modulul %s nu folosește în mod normal cookie-uri pentru vizitatorii si
 msgid "The %s plugin has an Audit Trail feature that will log the following information:"
 msgstr "Modulul %s are o funcție Audit Trail care va înregistra următoarele informații:"
 
+msgid "The %s plugin has just been deactivated."
+msgstr "Modulul %s tocmai a fost dezactivat."
+
 msgid "The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time."
 msgstr "Modulul %s nu stochează niciodată informații sensibile, identificabile personal în niciun cookie în niciun moment."
+
+msgid "The %s plugin on this site needs to be upgraded."
+msgstr "Modulul %s de pe acest site trebuie actualizat."
+
+msgid "The %s plugin on this site requires an active PRO license."
+msgstr "Modulul %s de pe acest site necesită o licență PRO activă."
+
+msgid "The %s plugin version on the client site is newer than this server."
+msgstr "Versiunea modulului %s de pe site-ul client este mai nouă decât acest server."
+
+msgid "The %s plugin version on the client site is older than this server and must be updated."
+msgstr "Versiunea modulului %s de pe site-ul client este mai veche decât acest server și trebuie actualizată."
 
 msgid "The %s query parameter has been blocked to protect against username / author fishing."
 msgstr "Parametrul de interogare %s a fost blocat pentru a proteja împotriva pescuirii de nume de utilizator / autor."
 
-msgid "The %s should measure %s."
-msgstr "%s ar trebui să măsoare %s."
+msgid "The %s system uses ALTCHA that challenges bots to perform complex work."
+msgstr "Sistemul %s folosește ALTCHA care provoacă boții să efectueze muncă complexă."
 
 msgid "The 'wp_mail' function was called from the file '{{bt_file}}' on line {{bt_line}}."
 msgstr "Funcția „wp_mail\" a fost apelată din fișierul „{{bt_file}}\" la linia {{bt_line}}."
@@ -9388,8 +9715,8 @@ msgstr "Titlul meniului principal al modulului. Dacă este lăsat gol, va fi fol
 msgid "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
 msgstr "Titlul meniului principal al modulului. Dacă este lăsat gol, va fi folosit numele modulului."
 
-msgid "The MainWP Security plugin doesn't meet Shield's minimum requirements."
-msgstr "Modulul MainWP Security nu îndeplinește cerințele minime Shield."
+msgid "The MainWP Security plugin doesn't meet %s's minimum requirements."
+msgstr "Modulul MainWP Security nu îndeplinește cerințele minime ale %s."
 
 msgid "The Name Of The Plugin"
 msgstr "Numele modulului"
@@ -9415,32 +9742,14 @@ msgstr "Sistemul Security Admin protejează WordPress și modulul %s împotriva 
 msgid "The Security Admin system protects the %s plugin against tampering or accidental changes by other WordPress admins."
 msgstr "Sistemul Security Admin protejează modulul %s împotriva manipulării sau modificărilor accidentale de către alți administratori WordPress."
 
-msgid "The Security Administrator has restricted the use of the email override feature."
-msgstr "Administratorul de securitate a restricționat utilizarea evidențierii de suprascriere email."
-
 msgid "The Security Badge will be displayed to your visitors"
 msgstr "Insigna de securitate va fi afișată vizitatorilor tăi"
 
 msgid "The Security Badge won't be displayed to your visitors"
 msgstr "Insigna de securitate nu va fi afișată vizitatorilor tăi"
 
-msgid "The Shield Security plugin on this site needs to be upgraded."
-msgstr "Modulul Shield Security de pe acest site trebuie actualizat."
-
 msgid "The Shield database needs to be repaired as certain features won't be available without a valid database."
 msgstr "Baza de date Shield trebuie reparată, deoarece anumite funcții nu vor fi disponibile fără o bază de date validă."
-
-msgid "The Shield plugin has just been deactivated."
-msgstr "Modulul Shield tocmai a fost dezactivat."
-
-msgid "The Shield plugin on this site doesn't have an active ShieldPRO license."
-msgstr "Modulul Shield de pe acest site nu are o licență ShieldPRO activă."
-
-msgid "The Shield plugin version on the client site is newer than this server."
-msgstr "Versiunea modulului Shield de pe site-ul client este mai nouă decât acest server."
-
-msgid "The Shield plugin version on the client site is older than this server and must be updated."
-msgstr "Versiunea modulului Shield de pe site-ul client este mai veche decât acest server și trebuie actualizată."
 
 msgid "The Tag Line Of The Plugin"
 msgstr "Sloganul modulului"
@@ -9487,8 +9796,8 @@ msgstr "Codul de țară lipsea."
 msgid "The cumulative score for your entire %s configuration"
 msgstr "Scorul cumulativ pentru întreaga ta configurare %s"
 
-msgid "The current request has a valid Shield user session"
-msgstr "Cererea curentă are o sesiune de utilizator Shield validă"
+msgid "The current request has a valid %s user session"
+msgstr "Cererea curentă are o sesiune de utilizator %s validă"
 
 msgid "The data provided was inconsistent."
 msgstr "Datele furnizate erau inconsistente."
@@ -9544,8 +9853,8 @@ msgstr "Următoarele elemente au fost descoperite."
 msgid "The following options will be restricted:"
 msgstr "Următoarele opțiuni vor fi restricționate:"
 
-msgid "The following types of user forms are protected by silentCAPTCHA: %s."
-msgstr "Următoarele tipuri de formulare utilizatori sunt protejate de silentCAPTCHA: %s."
+msgid "The following types of user forms are protected by %1$s: %2$s."
+msgstr "Următoarele tipuri de formulare utilizatori sunt protejate de %1$s: %2$s."
 
 msgid "The home URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL-ul paginii principale a fost modificat de la „{{from}}\" la „{{to}}\"."
@@ -9559,8 +9868,8 @@ msgstr "Eticheta trebuie să fie alfanumerică fără caractere speciale"
 msgid "The maximum allowable offenses allowed before blocking is reasonable: %s"
 msgstr "Numărul maxim de infracțiuni permise înainte de blocare este rezonabil: %s"
 
-msgid "The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan."
-msgstr "Limita maximă de păstrare a jurnalului (%s) poate fi crescută prin actualizarea planului ShieldPRO."
+msgid "The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan."
+msgstr "Limita maximă de păstrare a jurnalelor (%1$s) poate fi crescută prin actualizarea planului tău %2$s."
 
 msgid "The maximum number of requests that are allowed in the given time limit."
 msgstr "Numărul maxim de cereri care sunt permise în limita de timp dată."
@@ -9625,8 +9934,8 @@ msgstr "Sursa preferată este %s deoarece aceasta nu poate fi falsificată."
 msgid "The previous scan either didn't detect any items that require your attention or they've already been repaired."
 msgstr "Scanarea anterioară fie nu a detectat elemente care necesită atenția ta, fie au fost deja reparate."
 
-msgid "The purpose is the improve WordPress email reliability for critical emails."
-msgstr "Scopul este îmbunătățirea fiabilității email-urilor WordPress pentru email-uri critice."
+msgid "The purpose is to improve WordPress email reliability for critical emails."
+msgstr "Scopul este să îmbunătățească fiabilitatea emailurilor WordPress pentru emailurile critice."
 
 msgid "The purpose of the Firewall is to lock down the site against malicious requests, restrict access to certain resources, and respond appropriately to any request that appears to be malicious."
 msgstr "Scopul firewall-ului este de a bloca site-ul împotriva cererilor rău intenționate, de a restricționa accesul la anumite resurse și de a răspunde corespunzător la orice cerere care pare să fie rău intenționată."
@@ -9651,12 +9960,6 @@ msgstr "Setarea previne orice site web extern să încorporeze site-ul tău înt
 
 msgid "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
 msgstr "Setarea previne orice site web extern să încorporeze site-ul tău într-un iFrame. Acest lucru este util pentru prevenirea așa-numitelor atacuri ClickJack."
-
-msgid "The silentCAPTCHA option is disabled, removing brute force protection for login, register and lost password forms."
-msgstr "Opțiunea silentCAPTCHA este dezactivată, eliminând protecția împotriva atacurilor prin forță brută pentru formularele de autentificare, înregistrare și parolă pierdută."
-
-msgid "The silentCAPTCHA option is enabled."
-msgstr "Opțiunea silentCAPTCHA este activată."
 
 msgid "The site URL was changed from '{{from}}' to '{{to}}'."
 msgstr "URL-ul site-ului a fost modificat de la „{{from}}\" la „{{to}}\"."
@@ -9883,6 +10186,9 @@ msgstr "A apărut o problemă la pregătirea provocării de autentificare Passke
 msgid "There was a problem preparing the Passkey Registration Challenge."
 msgstr "A apărut o problemă la pregătirea provocării de înregistrare Passkey."
 
+msgid "There was a problem processing the batched request."
+msgstr "A apărut o problemă la procesarea cererii grupate."
+
 msgid "There was a problem removing this passkey"
 msgstr "A apărut o problemă la eliminarea acestui passkey"
 
@@ -9937,9 +10243,6 @@ msgstr "Atacă site-urile tale, sondează pentru informații și exploatează vu
 msgid "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare."
 msgstr "Produc haos în formularele de autentificare prin întreruperea Javascript și transformarea experienței utilizatorului într-un coșmar."
 
-msgid "Think of 'offenses' as just a counter for the number of times a visitor does something bad."
-msgstr "Gândește-te la „infracțiuni\" ca la un contor pentru numărul de ori când un vizitator face ceva rău."
-
 msgid "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page."
 msgstr "Gândește-te la aceasta ca la „Limitare încercări de autentificare\", dar aplicată pe toate funcțiile unui site WordPress, nu doar pe pagina de autentificare."
 
@@ -9951,6 +10254,9 @@ msgstr "Acesta ești tu"
 
 msgid "This Page"
 msgstr "Această pagină"
+
+msgid "This Period"
+msgstr "Această perioadă"
 
 msgid "This Server"
 msgstr "Acest server"
@@ -9967,8 +10273,8 @@ msgstr "Această acțiune nu este disponibilă pentru profilul tău în acest mo
 msgid "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated."
 msgstr "Această activitate va fi înregistrată pe adresa ta IP și poți fi blocat complet de la accesul viitor la site dacă activități similare se repetă."
 
-msgid "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral."
-msgstr "Acesta acționează și ca link de afiliat dacă rulezi ShieldPRO, astfel încât poți câștiga recompense pentru fiecare recomandare."
+msgid "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral."
+msgstr "Acesta acționează și ca un link de afiliat dacă rulezi %s, astfel încât poți câștiga recompense pentru fiecare recomandare."
 
 msgid "This appears to be spam as it failed %s AntiBot protection checks."
 msgstr "Aceasta pare a fi spam deoarece a eșuat %s verificări de protecție AntiBot."
@@ -10011,6 +10317,9 @@ msgstr "Această evidențiere este disponibilă doar în timp ce înregistratoru
 
 msgid "This feature isn't currently enabled."
 msgstr "Această evidențiere nu este activată momentan."
+
+msgid "This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin."
+msgstr "Această funcție se bazează pe un PIN secret (pe care îl creezi mai jos), pe care îl vei folosi pentru a-ți verifica identitatea cu modulul %s."
 
 msgid "This file contains malicious code - it's malware!"
 msgstr "Acest fișier conține cod rău intenționat - este malware!"
@@ -10171,11 +10480,20 @@ msgstr "Această setare va fi dezactivată automat după %s și toate cererile �
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Aceasta ar trebui folosită cu precauție și ar trebui să furnizezi doar nume de parametri pe care trebuie să îi ai excluși"
 
-msgid "This site appears to be part of a Shield Network."
-msgstr "Acest site pare să facă parte dintr-o rețea Shield."
+msgid "This site appears to be part of a %s Network."
+msgstr "Acest site pare să facă parte dintr-o rețea %s."
 
 msgid "This site currently can't make HTTP requests to itself."
 msgstr "Acest site nu poate face în prezent cereri HTTP către el însuși."
+
+msgid "This site is already activated for this account."
+msgstr "Acest site este deja activat pentru acest cont."
+
+msgid "This site is already activated. Re-checking and syncing local license state..."
+msgstr "Acest site este deja activat. Reverific și sincronizez starea licenței locale..."
+
+msgid "This step might be the most important as it helps ensure %s can always find the correct Visitor IP."
+msgstr "Acest pas ar putea fi cel mai important deoarece ajută la asigurarea că %s poate găsi întotdeauna IP-ul corect al vizitatorului."
 
 msgid "This theme isn't active and should be uninstalled."
 msgstr "Această temă nu este activă și ar trebui dezinstalată."
@@ -10222,8 +10540,8 @@ msgstr "Aceasta va bloca atacurile de trunchierea câmpurilor în parametrii apl
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr "Aceasta va bloca sql în parametrii aplicației (de ex. %s, etc.)."
 
-msgid "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in."
-msgstr "Acest lucru va face ca URL-urile %s și %s să returneze erori HTTP 404 în timp ce nu ești autentificat."
+msgid "This will cause %1$s and %2$s URLs to return HTTP 404 errors when not logged-in."
+msgstr "Aceasta va face ca URL-urile %1$s și %2$s să returneze erori HTTP 404 când nu ești autentificat."
 
 msgid "This will consume your SMS credits, if available, just as with any standard 2FA SMS."
 msgstr "Aceasta va consuma creditele tale SMS, dacă sunt disponibile, la fel ca în cazul oricărui SMS 2FA standard."
@@ -10242,6 +10560,9 @@ msgstr "Acest lucru va restricționa capacitatea administratorilor WordPress de 
 
 msgid "This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
 msgstr "Acest lucru va restricționa capacitatea administratorilor WordPress de a crea, modifica sau promova alți administratori."
+
+msgid "This wizard will walk you through some of %s's key features, to get you up and running in under 3 minutes."
+msgstr "Acest asistent te va ghida prin câteva dintre funcțiile cheie ale %s, pentru a te pune în funcțiune în mai puțin de 3 minute."
 
 msgid "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives."
 msgstr "Aceasta funcționează deoarece crawlerele web legitime respectă directivele 'robots.txt' și 'nofollow'."
@@ -10273,17 +10594,17 @@ msgstr "Marcaj temporal"
 msgid "Timezone"
 msgstr "Fus orar"
 
-msgid "Title Updated: %s&rarr;%s"
-msgstr "Titlu actualizat: %s&rarr;%s"
+msgid "Title Updated: %1$s&rarr;%2$s"
+msgstr "Titlu actualizat: %1$s&rarr;%2$s"
 
-msgid "Title changed: %s&rarr;%s"
-msgstr "Titlu modificat: %s&rarr;%s"
+msgid "Title changed: %1$s&rarr;%2$s"
+msgstr "Titlu modificat: %1$s&rarr;%2$s"
 
 msgid "Title for Post ID {{post_id}} updated from '{{title_old}}' to '{{title_new}}'."
 msgstr "Titlu pentru ID postare {{post_id}} actualizat de la „{{title_old}}\" la „{{title_new}}\"."
 
-msgid "To address this we created our own system called silentCAPTCHA."
-msgstr "Pentru a rezolva aceasta am creat propriul nostru sistem numit silentCAPTCHA."
+msgid "To address this we created our own system called %s."
+msgstr "Pentru a rezolva acest lucru am creat propriul nostru sistem numit %s."
 
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Pentru a ascunde pagina ta wp-login.php de atacurile prin forță brută și tentativele de hacking - dacă pagina ta de autentificare nu poate fi găsită, nimeni nu se poate autentifica."
@@ -10303,14 +10624,17 @@ msgstr "Pentru a înregistra un dispozitiv Yubikey nou, introdu o parolă unică
 msgid "To remove a Yubikey device, enter the registered device ID and save."
 msgstr "Pentru a elimina un dispozitiv Yubikey, introdu ID-ul dispozitivului înregistrat și salvează."
 
+msgid "To resolve this, you can inform %s what your IP address is right now, and this allows it to configure the optimal IP source."
+msgstr "Pentru a rezolva acest lucru, poți informa %s care este adresa ta IP chiar acum și aceasta îi permite să configureze sursa IP optimă."
+
 msgid "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong."
 msgstr "Pentru a rămâne sănătos implică scanarea activă a fișierelor pentru modificări neașteptate și detectarea fișierelor care nu aparțin."
 
 msgid "To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s"
 msgstr "Pentru a folosi Passkeys, instalarea ta PHP trebuie să aibă încărcată una dintre următoarele extensii: %s"
 
-msgid "To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request."
-msgstr "Pentru a valida un email, site-ul tău trimite o cerere către API-ul ShieldNET și poate cauza o mică întârziere în timpul cererii de înregistrare a utilizatorului."
+msgid "To validate an email your site sends a request to the %s API and may cause a small delay during the user registration request."
+msgstr "Pentru a valida un email, site-ul tău trimite o cerere către API-ul %s și poate cauza o mică întârziere în timpul cererii de înregistrare utilizator."
 
 msgid "To view all logs from this IP address use the Traffic Log tool, as logs here are limited to %s entries."
 msgstr "Pentru a vedea toate jurnalele de la această adresă IP folosește instrumentul jurnal de trafic, deoarece jurnalele de aici sunt limitate la %s intrări."
@@ -10326,6 +10650,9 @@ msgstr "Comută dacă această setare este inclusă în operațiunile de import 
 
 msgid "Too many 2FA verification attempts - please login again."
 msgstr "Prea multe încercări de verificare 2FA – te rugăm să te autentifici din nou."
+
+msgid "Too many batched requests. Maximum allowed is %s."
+msgstr "Prea multe cereri grupate. Maximul permis este %s."
 
 msgid "Too many requests from your IP address have triggered the site's automated defenses."
 msgstr "Prea multe cereri de la adresa ta IP au declanșat apărările automate ale site-ului."
@@ -10399,11 +10726,35 @@ msgstr "Cererile de trafic sunt înregistrate, facilitând urmărirea problemelo
 msgid "Traffic requests aren't being logged, making it harder to track issues."
 msgstr "Cererile de trafic nu sunt înregistrate, făcând mai dificilă urmărirea problemelor."
 
+msgid "Translation Download Failed"
+msgstr "Descărcare traducere eșuată"
+
+msgid "Translation Downloaded"
+msgstr "Traducere descărcată"
+
+msgid "Translation download queue is empty."
+msgstr "Coada de descărcare traduceri este goală."
+
+msgid "Translation downloaded successfully: %s"
+msgstr "Traducere descărcată cu succes: %s"
+
+msgid "Translation file downloaded for locale: {{locale}}."
+msgstr "Fișier de traducere descărcat pentru localizarea: {{locale}}."
+
+msgid "Translations Queued"
+msgstr "Traduceri în coadă"
+
+msgid "Translations have been downloaded."
+msgstr "Traducerile au fost descărcate."
+
 msgid "Trash"
 msgstr "Gunoi"
 
 msgid "Trashed"
 msgstr "Aruncat la gunoi"
+
+msgid "Trend"
+msgstr "Tendință"
 
 msgid "Tried to load an invalid WordPress PHP script '{{script}}'."
 msgstr "S-a încercat încărcarea unui script PHP WordPress invalid „{{script}}\"."
@@ -10417,11 +10768,17 @@ msgstr "Roluri utilizator de încredere"
 msgid "Trusted Users"
 msgstr "Utilizatori de încredere"
 
+msgid "Try Pro For Free"
+msgstr "Încearcă Pro gratuit"
+
 msgid "Turn Off"
 msgstr "Dezactivează"
 
 msgid "Turn On"
 msgstr "Activează"
+
+msgid "Turn On Security Admin"
+msgstr "Activează administrator de securitate"
 
 msgid "Turn On The Rate Limiting Feature"
 msgstr "Activează evidenția de limitare de rată"
@@ -10441,8 +10798,11 @@ msgstr "Activează/dezactivează setările tale White Label."
 msgid "Turn-Off Browser Mime-Sniff"
 msgstr "Dezactivează Mime-Sniff navigator"
 
-msgid "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations"
-msgstr "Activează extensia nativă Shield pentru instalările server și client MainWP"
+msgid "Turn-On %s's Built-In Extension For MainWP Server And Client Installations"
+msgstr "Activează extensia nativă %s pentru instalările de server și client MainWP"
+
+msgid "Turning this on adds a translucent badge to the footer of your website."
+msgstr "Activarea acestei opțiuni adaugă o insignă translucidă în subsolul site-ului tău."
 
 msgid "Two-Factor Login Authentication By %s"
 msgstr "Autentificare cu doi factori prin %s"
@@ -10516,14 +10876,11 @@ msgstr "Neclasificat"
 msgid "Understand how to remove Google Authenticator"
 msgstr "Înțelege cum să elimini Google Authenticator"
 
-msgid "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility."
-msgstr "Din păcate, U2F a fost dezactivat implicit pe majoritatea navigatoarelor moderne, dar este încă furnizat aici pentru compatibilitate retroactivă."
-
 msgid "Unidentified"
 msgstr "Neidentificate"
 
-msgid "Uninstall Shield"
-msgstr "Dezinstalează Shield"
+msgid "Uninstall %s"
+msgstr "Dezinstalează %s"
 
 msgid "Uninstalled"
 msgstr "Dezinstalat"
@@ -10539,6 +10896,9 @@ msgstr "Necunoscut - necesită WP v5.4+"
 
 msgid "Unknown Name"
 msgstr "Nume necunoscut"
+
+msgid "Unknown activation error."
+msgstr "Eroare de activare necunoscută."
 
 msgid "Unknown item"
 msgstr "Element necunoscut"
@@ -10582,6 +10942,9 @@ msgstr "Tip rezultat nesuportat."
 msgid "Until"
 msgstr "Până la"
 
+msgid "Update %s"
+msgstr "Actualizare %s"
+
 msgid "Update Available"
 msgstr "Actualizare disponibilă"
 
@@ -10596,9 +10959,6 @@ msgstr "Actualizează acum pentru a menține securitatea ta la curent cu cele ma
 
 msgid "Update Required"
 msgstr "Actualizare necesară"
-
-msgid "Update Shield"
-msgstr "Actualizează Shield"
 
 msgid "Update This Rule"
 msgstr "Actualizează această regulă"
@@ -10633,14 +10993,14 @@ msgstr "Actualizare necesară"
 msgid "Upgrade To"
 msgstr "Treci la"
 
+msgid "Upgrade To %s Pro Now"
+msgstr "Treci la %s Pro acum"
+
 msgid "Upgrade To Create Custom Reports"
 msgstr "Actualizează pentru a crea rapoarte personalizate"
 
-msgid "Upgrade To Shield Pro Now"
-msgstr "Treci la Shield Pro acum"
-
-msgid "Upgrade Your ShieldPRO Membership"
-msgstr "Actualizează apartenența ShieldPRO"
+msgid "Upgrade Your %s Membership"
+msgstr "Actualizează apartenența ta %s"
 
 msgid "Upgrade your plan to support scanning of theme files for tampering."
 msgstr "Actualizează planul pentru a suporta scanarea fișierelor temei pentru manipulare."
@@ -10648,8 +11008,8 @@ msgstr "Actualizează planul pentru a suporta scanarea fișierelor temei pentru 
 msgid "Upgrade your plan to support this scanning area."
 msgstr "Actualizează planul pentru a suporta această zonă de scanare."
 
-msgid "Upgraded: %s&rarr;%s"
-msgstr "Actualizat: %s&rarr;%s"
+msgid "Upgraded: %1$s&rarr;%2$s"
+msgstr "Actualizat: %1$s&rarr;%2$s"
 
 msgid "Uploading of file failed"
 msgstr "Încărcarea fișierului a eșuat"
@@ -10657,8 +11017,11 @@ msgstr "Încărcarea fișierului a eșuat"
 msgid "Uptime Monitoring"
 msgstr "Monitorizare uptime"
 
-msgid "Use %s to test for excessive requests within a %s minutes interval."
-msgstr "Folosește %s pentru a testa cereri excesive într-un interval de %s minute."
+msgid "Use %1$s to test for excessive requests within a %2$s minutes interval."
+msgstr "Folosește %1$s pentru a testa cererile excesive într-un interval de %2$s minute."
+
+msgid "Use %s To Block Bot Comment SPAM"
+msgstr "Folosește %s pentru a bloca SPAM comentarii de la boți"
 
 msgid "Use CloudFlare As Geo Data Source?"
 msgstr "Folosești CloudFlare ca sursă de date geo?"
@@ -10681,8 +11044,8 @@ msgstr "Folosește o limită maximă de cereri mai mare pentru a reduce riscul d
 msgid "Use a smaller interval to reduce the risk of blocking legitimate visitors."
 msgstr "Folosește un interval mai mic pentru a reduce riscul de blocare a vizitatorilor legitimi."
 
-msgid "Use of silentCAPTCHA for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
-msgstr "Folosirea silentCAPTCHA pentru limitarea încercărilor de autentificare pe formularele utilizatorilor nu este activată - va trebui să o activezi în zona de securitate autentificare."
+msgid "Use of %s for limiting login attempts on user forms isn't switched on - you'll need to enable it within the Login Security Zone."
+msgstr "Folosirea %s pentru limitarea încercărilor de autentificare pe formulare utilizator nu este activată - va trebui să o activezi în zona de securitate autentificare."
 
 msgid "Use of this feature is highly recommend."
 msgstr "Folosirea acestei funcții este foarte recomandată."
@@ -10690,11 +11053,11 @@ msgstr "Folosirea acestei funcții este foarte recomandată."
 msgid "Use of this feature will overwrite existing options and replace them with those from the Master Import Site."
 msgstr "Folosirea acestei funcții va suprascrie opțiunile existente și le va înlocui cu cele de pe site-ul de import principal."
 
-msgid "Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s)."
-msgstr "Folosește căi relative de la URL-ul primei pagini, de exemplu %s redirecționează către prima ta pagină (%s)."
+msgid "Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s)."
+msgstr "Folosește căi relative de la URL-ul paginii de pornire, de exemplu %1$s redirecționează către pagina ta de pornire (%2$s)."
 
-msgid "Use silentCAPTCHA To Block Bot Comment SPAM"
-msgstr "Folosește silentCAPTCHA pentru a bloca SPAM comentarii de la boți"
+msgid "Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc."
+msgstr "Folosește caseta Super Search pentru a găsi absolut orice în modulul %s, inclusiv opțiuni, adresă IP, instrumente, ajutor etc."
 
 msgid "Use the exclusions option to allow anonymous access to specific API endpoints."
 msgstr "Folosește opțiunea de excluderi pentru a permite accesul anonim la anumite puncte finale API."
@@ -10702,14 +11065,17 @@ msgstr "Folosește opțiunea de excluderi pentru a permite accesul anonim la anu
 msgid "Use the link above to create a new one."
 msgstr "Folosește linkul de mai sus pentru a crea unul nou."
 
+msgid "Use these prefixes in the search box to filter results."
+msgstr "Folosește aceste prefixe în caseta de căutare pentru a filtra rezultatele."
+
 msgid "Use this feature with care."
 msgstr "Folosește această funcție cu grijă."
 
 msgid "Use this file to copy options from this site into another site"
 msgstr "Folosește acest fișier pentru a copia opțiunile de pe acest site pe un alt site"
 
-msgid "Use this option to completely disable all active Shield Protection."
-msgstr "Folosește această opțiune pentru a dezactiva complet toată protecția Shield activă."
+msgid "Use this option to completely disable all active %s Protection."
+msgstr "Folosește această opțiune pentru a dezactiva complet toată protecția %s activă."
 
 msgid "Use this option to toggle on/off whether your custom CSP Rules are applied."
 msgstr "Folosește această opțiune pentru a activa/dezactiva dacă regulile tale CSP personalizate sunt aplicate."
@@ -10897,11 +11263,11 @@ msgstr "Cerere de recuperare parolă utilizator blocată."
 msgid "User must be logged-in."
 msgstr "Utilizatorul trebuie să fie autentificat."
 
+msgid "User not found."
+msgstr "Utilizatorul nu a fost găsit."
+
 msgid "User registration request blocked."
 msgstr "Cerere de înregistrare utilizator blocată."
-
-msgid "User session deleted"
-msgstr "Sesiune utilizator ștearsă"
 
 msgid "User session has expired ({{user_login}})."
 msgstr "Sesiunea utilizatorului a expirat ({{user_login}})."
@@ -10957,8 +11323,8 @@ msgstr "Utilizatorii vor fi forțați să reseteze parolele după numărul de zi
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Folosește un dicționar SPAM terț pentru a detecta SPAM-ul de comentarii bazat pe oameni."
 
-msgid "Using Shield's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
-msgstr "Folosind tehnologia exclusivă Snapshot de la Shield, modificările la administratori care sunt făcute direct în baza de date WP vor fi, de asemenea, detectate!"
+msgid "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!"
+msgstr "Folosind tehnologia exclusivă Snapshot a %s, modificările la administratori care sunt făcute direct în baza de date WP vor fi, de asemenea, detectate!"
 
 msgid "Valid license couldn't be found."
 msgstr "Licență validă nu a putut fi găsită."
@@ -11047,11 +11413,11 @@ msgstr "Vezi toate"
 msgid "View All Security Grades"
 msgstr "Vezi toate notele de securitate"
 
-msgid "View As ShieldFREE"
-msgstr "Vezi ca ShieldFREE"
+msgid "View As %s"
+msgstr "Vezi ca %s"
 
-msgid "View As ShieldPRO"
-msgstr "Vezi ca ShieldPRO"
+msgid "View As Free Version"
+msgstr "Vezi ca versiune gratuită"
 
 msgid "View Comment"
 msgstr "Vezi comentariul"
@@ -11071,6 +11437,9 @@ msgstr "Vezi conținut fișier"
 msgid "View File Details"
 msgstr "Vezi detalii fișier"
 
+msgid "View Full Report"
+msgstr "Vezi raportul complet"
+
 msgid "View IP Reputation Option"
 msgstr "Vezi opțiune reputație IP"
 
@@ -11088,6 +11457,9 @@ msgstr "Vezi planuri"
 
 msgid "View Report"
 msgstr "Vezi raportul"
+
+msgid "View Reports"
+msgstr "Vezi rapoarte"
 
 msgid "View Results"
 msgstr "Vezi rezultate"
@@ -11146,9 +11518,6 @@ msgstr "Vezi întreaga securitate a site-ului tău WordPress dintr-o privire și
 msgid "View, edit and remove custom security rules"
 msgstr "Vizualizează, editează și elimină regulile de securitate personalizate"
 
-msgid "View/Create Reports"
-msgstr "Vizualizează/creează rapoarte"
-
 msgid "Visitor Auto-Unblock"
 msgstr "Deblocare automată vizitator"
 
@@ -11182,8 +11551,8 @@ msgstr "Vizitator găsit pe lista de blocare și conexiunea sa a fost oprită."
 msgid "Visitor found on the CrowdSec Block List and their request was killed."
 msgstr "Vizitator găsit pe lista de blocare CrowdSec și cererea sa a fost oprită."
 
-msgid "Visitor registered using silentCAPTCHA."
-msgstr "Vizitator înregistrat folosind silentCAPTCHA."
+msgid "Visitor registered using %s."
+msgstr "Vizitatorul s-a înregistrat folosind %s."
 
 msgid "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method."
 msgstr "Vizitatorul și-a deblocat adresa IP „{{ip}}\" folosind metoda „{{method}}\"."
@@ -11226,9 +11595,6 @@ msgstr "Scanarea vulnerabilităților trebuie să fie activă pentru a activa ac
 
 msgid "Vulnerable"
 msgstr "Vulnerabil"
-
-msgid "Vulnerable Assets"
-msgstr "Resurse vulnerabile"
 
 msgid "Vulnerable Plugins"
 msgstr "Module vulnerabile"
@@ -11277,6 +11643,9 @@ msgstr "Rol utilizator implicit WP"
 
 msgid "WP File Editing"
 msgstr "Editare fișiere WP"
+
+msgid "WP Files"
+msgstr "Fișiere WP"
 
 msgid "WP Generator Tag"
 msgstr "Etichetă generator WP"
@@ -11367,6 +11736,9 @@ msgstr "Recomandăm să îl dezactivezi dacă nu mai ai nevoie să ruleze."
 
 msgid "We recommend seeking out expertise in this area, and ensure you have full testing in your deployments."
 msgstr "Recomandăm să cauți expertiză în acest domeniu și să te asiguri că ai testare completă în implementările tale."
+
+msgid "We recommend somewhere between 5 and 10. The smaller the limit, the stricter %s will be."
+msgstr "Recomandăm undeva între 5 și 10. Cu cât limita este mai mică, cu atât %s va fi mai strict."
 
 msgid "We recommend the WP root directory stays clean by keeping only official WordPress core files there."
 msgstr "Recomandăm ca dosarul rădăcină WP să rămână curat păstrând doar fișierele oficiale ale nucleului WordPress acolo."
@@ -11485,8 +11857,8 @@ msgstr "Când sunt detectate suficiente comportamente rele, va bloca complet adr
 msgid "When switched-on, any available 3rd party integrations are enabled as soon as they're detected."
 msgstr "Când este activată, orice integrări terțe disponibile sunt activate imediat ce sunt detectate."
 
-msgid "When the counter reaches the limit below (default: %s), %s will block that IP completely."
-msgstr "Când contorul atinge limita de mai jos (implicit: %s), %s va bloca acea adresă IP complet."
+msgid "When the counter reaches the limit below (default: %1$s), %2$s will block that IP completely."
+msgstr "Când contorul atinge limita de mai jos (implicit: %1$s), %2$s va bloca complet acea adresă IP."
 
 msgid "When the current file contents were compared against the official release, changes were detected."
 msgstr "Când conținutul curent al fișierului a fost comparat cu versiunea oficială, au fost detectate modificări."
@@ -11578,17 +11950,17 @@ msgstr "Site-urile din lista albă pot exporta opțiuni de pe acest site fără 
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Probabil va bloca salvarea în editoarele de fișiere pentru module/teme."
 
+msgid "With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter."
+msgstr "Cu inteligența crowd-sourcing %s, falsele pozitive zgomotoase care îți pierd timpul sunt ascunse automat, astfel încât te poți concentra pe riscurile care contează."
+
+msgid "With %s technology, stopping bots is quite easy to do now."
+msgstr "Cu tehnologia %s, oprirea boților este destul de ușoară acum."
+
 msgid "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots."
 msgstr "Cu %s putem integra direct cu toate modulele majore de formulare de contact pentru a bloca SPAM-ul din formularele de contact de la boții automatizați."
 
-msgid "With %s's built-in silentCAPTCHA technology, stopping bots is actually quite easy to do now."
-msgstr "Cu tehnologia nativă silentCAPTCHA a %s, oprirea boților este de fapt destul de ușor de făcut acum."
-
 msgid "With Issues"
 msgstr "Cu probleme"
-
-msgid "With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time."
-msgstr "Cu inteligența crowd-sourcing ShieldNET, Shield ascunde automat rezultatele fals-pozitive astfel încât să te poți concentra pe riscurile care contează și să poți ignora zgomotul care îți pierde timpul."
 
 msgid "With it you can be instantly alerted to changes to the file with a clear view on the precise changes and easy next-steps on how to proceed."
 msgstr "Cu aceasta poți fi alertat instantaneu la modificările fișierului cu o vizualizare clară a modificărilor precise și pași următori ușori despre cum să procedezi."
@@ -11596,8 +11968,8 @@ msgstr "Cu aceasta poți fi alertat instantaneu la modificările fișierului cu 
 msgid "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties."
 msgstr "Cu dicționarul nostru SPAM, putem identifica comentariile SPAM umane fără a trimite date de pe site-ul tău către terți."
 
-msgid "With our powerful silentCAPTCHA we can detect nearly 100% of all bot SPAM."
-msgstr "Cu silentCAPTCHA nostru puternic putem detecta aproape 100% din tot SPAM-ul de la boți."
+msgid "With our powerful %s we can detect nearly 100%% of all bot SPAM."
+msgstr "Cu dicționarul nostru puternic %s putem detecta aproape 100%% din tot SPAM-ul de la boți."
 
 msgid "Wizards"
 msgstr "Asistenți"
@@ -11737,8 +12109,8 @@ msgstr "WordPress este încărcat în mod normal într-un număr limitat de modu
 msgid "WordPress is running an old version (%s) of PHP."
 msgstr "WordPress rulează o versiune veche (%s) de PHP."
 
-msgid "WordPress is running on a recent version (%s) of PHP (at least %s)."
-msgstr "WordPress rulează pe o versiune recentă (%s) de PHP (cel puțin %s)."
+msgid "WordPress is running on a recent version (%1$s) of PHP (at least %2$s)."
+msgstr "WordPress rulează pe o versiune recentă (%1$s) de PHP (cel puțin %2$s)."
 
 msgid "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system."
 msgstr "Formularele de autentificare WordPress nu sunt protejate împotriva boților deoarece ai setat scorul minim bot la 0, care controlează sistemul %s."
@@ -11839,8 +12211,8 @@ msgstr "Poți alege să „Activezi doar\" (nerecomandat) sau închide acest mes
 msgid "You can completely disable anonymous access to the REST API."
 msgstr "Poți dezactiva complet accesul anonim la API-ul REST."
 
-msgid "You can get this security feature, and many more, by upgrading your ShieldPRO plan."
-msgstr "Poți obține această funcție de securitate și multe altele actualizând planul ShieldPRO."
+msgid "You can get this security feature, and many more, by upgrading your %s plan."
+msgstr "Poți obține această funcție de securitate, și multe altele, actualizând planul tău %s."
 
 msgid "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it."
 msgstr "Ne poți ajuta să detectăm cea mai bună adresă IP pentru serverul tău folosind linkul de mai jos pentru a-ți spune adresa ta IP curentă și apoi selectează opțiunea din listă care o conține."
@@ -11887,8 +12259,8 @@ msgstr "Poți să te autentifici cu sistemul administrator de securitate %s și 
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Poți combina mai mulți factori de autentificare pentru securitate sporită."
 
-msgid "You may get unreliable results while Akismet is operating alongside Shield's Human SPAM protection."
-msgstr "Poți obține rezultate nesigure în timp ce Akismet funcționează alături de protecția SPAM de la oameni a Shield."
+msgid "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection."
+msgstr "Poți obține rezultate nesigure în timp ce Akismet operează alături de protecția SPAM de la oameni %s."
 
 msgid "You may need to reload this page to continue."
 msgstr "Poate fi necesar să reîncarci această pagină pentru a continua."
@@ -11962,8 +12334,8 @@ msgstr "Adresa ta IP nu este pe lista albă, așa că vei fi blocat dacă active
 msgid "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s"
 msgstr "Adresa ta IP este pe lista albă! Această setare nu se aplică pentru TINE, așa că trebuie să folosești întotdeauna pagina normală de autentificare: %s"
 
-msgid "Your MySQL database server doesn't support IPv6 addresses. Your version: %s; required MySQL version: %s;"
-msgstr "Serverul tău de baze de date MySQL nu suportă adrese IPv6. Versiunea ta: %s; versiune MySQL necesară: %s;"
+msgid "Your MySQL database server does not support IPv6 addresses. Your version: %1$s; required MySQL version: %2$s;"
+msgstr "Serverul tău de baze de date MySQL nu suportă adrese IPv6. Versiunea ta: %1$s; versiune MySQL necesară: %2$s;"
 
 msgid "Your Unique Yubikey App API Key"
 msgstr "Cheia ta unică API Yubikey App"
@@ -12037,11 +12409,11 @@ msgstr "Adresa ta de email pentru raportare este: %s"
 msgid "Your security administrator has imposed requirements for password quality."
 msgstr "Administratorul tău de securitate a impus cerințe pentru calitatea parolei."
 
-msgid "Your security analysis doesn't consider ShieldPRO-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
-msgstr "Analiza ta de securitate nu ia în considerare funcțiile disponibile doar în ShieldPRO - folosește meniul Roată pentru a vizualiza analiza ca și cum ai avea acces la aceste funcții de securitate suplimentare."
+msgid "Your security analysis doesn't consider %s-only features - use the Cog menu to view your analysis as-if you had access to these extra security features."
+msgstr "Analiza ta de securitate nu ia în considerare funcțiile exclusive %s - folosește meniul roată pentru a vedea analiza ta ca și cum ai avea acces la aceste funcții de securitate suplimentare."
 
-msgid "Your security analysis includes ShieldPRO-only features - use the Cog menu to view your analysis for your available security features."
-msgstr "Analiza ta de securitate include funcții disponibile doar în ShieldPRO - folosește meniul Roată pentru a vizualiza analiza pentru funcțiile de securitate disponibile."
+msgid "Your security analysis includes %s-only features - use the Cog menu to view your analysis for your available security features."
+msgstr "Analiza ta de securitate include funcții exclusive %s - folosește meniul roată pentru a vedea analiza ta pentru funcțiile tale de securitate disponibile."
 
 msgid "Your session has expired."
 msgstr "Sesiunea ta a expirat."
@@ -12055,11 +12427,11 @@ msgstr "Sesiunea ta a fost blocată la o altă adresă IP."
 msgid "Your session was terminated."
 msgstr "Sesiunea ta a fost terminată."
 
-msgid "Your site benefits from additional security protection provided by ShieldPRO."
-msgstr "Site-ul tău beneficiază de protecție de securitate suplimentară oferită de ShieldPRO."
+msgid "Your site benefits from additional security protection provided by %s."
+msgstr "Site-ul tău beneficiază de protecție de securitate suplimentară oferită de %s."
 
-msgid "Your site doesn't benefit from the additional security protection provided by ShieldPRO."
-msgstr "Site-ul tău nu beneficiază de protecția de securitate suplimentară oferită de ShieldPRO."
+msgid "Your site doesn't benefit from the additional security protection provided by %s."
+msgstr "Site-ul tău nu beneficiază de protecția de securitate suplimentară oferită de %s."
 
 msgid "Your site is currently in lockdown."
 msgstr "Site-ul tău este momentan în lockdown."
@@ -12082,8 +12454,8 @@ msgstr "Site-ul tău nu este protejat împotriva SPAM comentarii automat de la b
 msgid "Your site isn't registered with CrowdSec yet."
 msgstr "Site-ul tău nu este încă înregistrat cu CrowdSec."
 
-msgid "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin."
-msgstr "Găzduirea ta web nu îndeplinește cerințele minime pentru modulul Shield Security."
+msgid "Your web hosting doesn't meet the minimum requirements for the %s Plugin."
+msgstr "Găzduirea ta web nu îndeplinește cerințele minime pentru modulul %s."
 
 msgid "Yubikey"
 msgstr "Yubikey"
@@ -12121,8 +12493,8 @@ msgstr "Acțiuni zonă"
 msgid "Zones"
 msgstr "Zone"
 
-msgid "[%s] [%s]"
-msgstr "[%s] [%s]"
+msgid "[%1$s] [%2$s]"
+msgstr "[%1$s] [%2$s]"
 
 msgid "[False Positive] means the code looks like malware, but it's actually clean."
 msgstr "[Fals pozitiv] înseamnă că codul arată ca malware, dar de fapt este curat."
@@ -12142,6 +12514,18 @@ msgstr "Elementul de formular all_opts_keys nu este furnizat."
 msgid "and"
 msgstr "și"
 
+msgid "and will be processed automatically in approximately %d minute."
+msgstr "și va fi procesat automat în aproximativ %d minut."
+
+msgid "and will be processed automatically in approximately %d minutes."
+msgstr "și va fi procesat automat în aproximativ %d minute."
+
+msgid "and will be processed shortly."
+msgstr "și va fi procesat în curând."
+
+msgid "auto-fixed"
+msgstr "corectat automat"
+
 msgid "case-insensitive"
 msgstr "insensibil la majuscule"
 
@@ -12154,8 +12538,8 @@ msgstr "zile"
 msgid "empty username"
 msgstr "nume utilizator gol"
 
-msgid "entries: %s (previous: %s)"
-msgstr "intrări: %s (anterior: %s)"
+msgid "entries: %1$s (previous: %2$s)"
+msgstr "intrări: %1$s (anterior: %2$s)"
 
 msgid "estimated"
 msgstr "estimat"
@@ -12175,6 +12559,12 @@ msgstr "ajutor suplimentar"
 msgid "help"
 msgstr "ajutor"
 
+msgid "https://clk.shldscrty.com/2f"
+msgstr "https://clk.shldscrty.com/2f"
+
+msgid "https://clk.shldscrty.com/bv"
+msgstr "https://clk.shldscrty.com/bv"
+
 msgid "https://wordpress.org/"
 msgstr "https://wordpress.org/"
 
@@ -12192,6 +12582,9 @@ msgstr "date lipsă"
 
 msgid "more frequent checks will be ignored"
 msgstr "verificările mai frecvente vor fi ignorate"
+
+msgid "more..."
+msgstr "mai multe..."
 
 msgid "n/a"
 msgstr "n/a"
@@ -12235,80 +12628,8 @@ msgstr "recomandare"
 msgid "seconds"
 msgstr "secunde"
 
-msgid "silentCAPTCHA"
-msgstr "SilentCAPTCHA"
-
-msgid "silentCAPTCHA AntiBot Technology"
-msgstr "Tehnologie AntiBot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Detection isn't protecting against brute-force attacks on your WordPress login."
-msgstr "Detectarea boților silentCAPTCHA nu protejează împotriva atacurilor prin forță brută asupra autentificării WordPress."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress lost password form."
-msgstr "Detectarea boților silentCAPTCHA nu protejează formularul WordPress de recuperare parolă."
-
-msgid "silentCAPTCHA Bot Detection isn't protecting your WordPress registration."
-msgstr "Detectarea boților silentCAPTCHA nu protejează înregistrarea WordPress."
-
 msgid "silentCAPTCHA Bot Minimum Score"
 msgstr "Scor minim bot silentCAPTCHA"
-
-msgid "silentCAPTCHA Bot Score (Percentage)"
-msgstr "Scor bot silentCAPTCHA (procent)"
-
-msgid "silentCAPTCHA Check Invalid (Module)"
-msgstr "Verificare silentCAPTCHA invalidă (modul)"
-
-msgid "silentCAPTCHA Complexity"
-msgstr "Complexitate silentCAPTCHA"
-
-msgid "silentCAPTCHA For Logins"
-msgstr "silentCAPTCHA pentru autentificări"
-
-msgid "silentCAPTCHA Registration"
-msgstr "Înregistrare silentCAPTCHA"
-
-msgid "silentCAPTCHA detection isn't applied because you haven't selected any forms to protect, such as Login or Register."
-msgstr "Detectarea silentCAPTCHA nu este aplicată deoarece nu ai selectat niciun formular de protejat, cum ar fi autentificare sau înregistrare."
-
-msgid "silentCAPTCHA is %s's exclusive WordPress Bad Bot Detection technology."
-msgstr "silentCAPTCHA este tehnologia exclusivă de detectare a boților WordPress Bad Bot a %s."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that removes the needs for visible CAPTCHAs and similar visitor challenges."
-msgstr "silentCAPTCHA este tehnologia exclusivă de detectare a boților a %s care elimină necesitatea CAPTCHA-urilor vizibile și provocărilor similare pentru vizitatori."
-
-msgid "silentCAPTCHA is %s's exclusive bot-detection technology that's invisible to your visitors, and removes the need for user interaction with login CAPTCHAs."
-msgstr "silentCAPTCHA este tehnologia exclusivă de detectare a boților a %s, care este invizibilă pentru vizitatorii tăi și elimină necesitatea interacțiunii utilizatorului cu CAPTCHA-urile de autentificare."
-
-msgid "silentCAPTCHA is disabled as there is no minimum bot-score threshold provided."
-msgstr "silentCAPTCHA este dezactivat deoarece nu este furnizat un prag minim de scor bot."
-
-msgid "silentCAPTCHA is disabled when set to a minimum score of %s."
-msgstr "silentCAPTCHA este dezactivat când este setat la un scor minim de %s."
-
-msgid "silentCAPTCHA is enabled with a minimum bot-score threshold."
-msgstr "silentCAPTCHA este activat cu un prag minim de scor bot."
-
-msgid "silentCAPTCHA isn't protecting your WP Comments against bot SPAM."
-msgstr "silentCAPTCHA nu protejează comentariile WordPress împotriva SPAM de la boți."
-
-msgid "silentCAPTCHA's Bot challenge complexity is too low - consider increasing it."
-msgstr "Complexitatea provocării bot a silentCAPTCHA este prea scăzută – ia în considerare creșterea ei."
-
-msgid "silentCAPTCHA's bot detection isn't running because the minimum score is set to 0."
-msgstr "Detectarea boților silentCAPTCHA nu funcționează deoarece scorul minim este setat la 0."
-
-msgid "silentCAPTCHA's bot detection isn't running, as bots aren't currently being challenged."
-msgstr "Detectarea boților silentCAPTCHA nu funcționează, deoarece boții nu sunt provocați în prezent."
-
-msgid "silentCAPTCHA's bot minimum score is quite low (%s)."
-msgstr "Scorul minim bot al silentCAPTCHA este destul de scăzut (%s)."
-
-msgid "silentCAPTCHAv1 Registration"
-msgstr "Înregistrare silentCAPTCHAv1"
-
-msgid "silentCAPTCHAv2 Registration"
-msgstr "Înregistrare silentCAPTCHAv2"
 
 msgid "suggestion"
 msgstr "sugestie"
