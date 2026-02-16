@@ -3,6 +3,8 @@
   position: relative;
   width: 100%;
   min-height: 140px;
+  --shield-chart-line-color: #{$primary};
+  --shield-chart-point-color: #{$primary};
 }
 
 .stat.card .shield-chart {
