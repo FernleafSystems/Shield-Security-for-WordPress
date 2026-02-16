@@ -14,7 +14,8 @@ import { ObjectOps } from "../../util/ObjectOps";
 
 ChartJS.register( LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip );
 
-const CHART_COLORS = [ '#d70206', '#f4c63d', '#f05b4f', '#d17905', '#453d3f' ];
+const CHART_LINE_COLOR_FALLBACK = '#008000';
+const CHART_POINT_COLOR_FALLBACK = '#008000';
 
 export class Chart extends BaseComponent {
 	$chartContainer;
@@ -93,6 +94,7 @@ export class Chart extends BaseComponent {
 		this.$chartContainer.html( '' );
 
 		const chartData = payload?.chart?.data || {};
+		const chartColors = this.getChartColors();
 
 		const canvas = document.createElement( 'canvas' );
 		this.container.querySelector( '.icwpAjaxContainerChart' ).appendChild( canvas );
@@ -101,12 +103,15 @@ export class Chart extends BaseComponent {
 			type: 'line',
 			data: {
 				labels: chartData.labels || [],
-				datasets: ( chartData.series || [] ).map( ( series, i ) => ( {
+				datasets: ( chartData.series || [] ).map( ( series ) => ( {
 					data: series,
-					borderColor: CHART_COLORS[ i % CHART_COLORS.length ],
-					borderWidth: 2,
-					pointRadius: 4,
-					pointHoverRadius: 6,
+					borderColor: chartColors.lineColor,
+					borderWidth: 1.5,
+					pointBackgroundColor: chartColors.pointColor,
+					pointBorderColor: chartColors.pointColor,
+					pointRadius: 2,
+					pointHoverRadius: 3,
+					pointHitRadius: 6,
 					tension: 0.1,
 					fill: false
 				} ) )
@@ -144,6 +149,15 @@ export class Chart extends BaseComponent {
 				}
 			}
 		} );
+	}
+
+	getChartColors() {
+		const cssSource = this.container?.querySelector( '.shield-chart' ) || this.container || document.documentElement;
+		const css = window.getComputedStyle( cssSource );
+		return {
+			lineColor: css.getPropertyValue( '--shield-chart-line-color' ).trim() || CHART_LINE_COLOR_FALLBACK,
+			pointColor: css.getPropertyValue( '--shield-chart-point-color' ).trim() || CHART_POINT_COLOR_FALLBACK
+		};
 	}
 
 	#createChartContainer() {
