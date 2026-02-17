@@ -11,6 +11,7 @@ $options-rail-width-max: 260px;
 .options_form_for.options_form_for--modern {
   font-size: 0.875rem;
   padding-top: 0;
+  container-type: inline-size;
 }
 
 .options_form_for--modern .shield-options-layout {
@@ -318,7 +319,7 @@ $options-rail-width-max: 260px;
   color: $primary;
 }
 
-@media (max-width: 960px) {
+@container (max-width: 600px) {
   .options_form_for--modern .shield-options-layout {
     grid-template-columns: 1fr;
     gap: 0.75rem;
