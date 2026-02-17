@@ -79,20 +79,14 @@ td.severity .severity-icon {
 	align-items: center;
 	height: 100%;
 }
-td.severity .severity-icon.severity-alert {
-	color: #d40000;
-}
 td.severity .severity-icon.severity-warning {
-	color: #c18c2a;
+	color: #b60808;
 }
 td.severity .severity-icon.severity-notice {
-	color: #0303ab;
+	color: #b58514;
 }
 td.severity .severity-icon.severity-info {
 	color: #039aab;
-}
-td.severity .severity-icon.severity-debug {
-	color: grey;
 }
 td.severity .severity-icon > svg {
 	width: 32px;

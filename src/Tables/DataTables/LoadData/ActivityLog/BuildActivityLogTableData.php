@@ -303,10 +303,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$level = $this->getColumnContent_Level();
 		$levelDetails = [
 							'warning' => [
-								'icon' => 'exclamation-triangle',
+								'icon' => 'exclamation-octagon',
 							],
 							'notice'  => [
-								'icon' => 'info-square',
+								'icon' => 'exclamation-triangle',
 							],
 							'info'    => [
 								'icon' => 'info-circle',
