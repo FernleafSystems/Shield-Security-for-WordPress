@@ -124,7 +124,11 @@ class Controller extends DynPropertiesClass {
 
 			case 'labels':
 				if ( $val === null ) {
-					$this->labels = $val = $this->labels();
+					$val = $this->labels();
+					// Avoid caching labels before modules load; premium/whitelabel state may not be final yet.
+					if ( $this->modules_loaded ) {
+						$this->labels = $val;
+					}
 				}
 				break;
 
@@ -708,7 +712,7 @@ class Controller extends DynPropertiesClass {
 		$labels->url_helpdesk = 'https://clk.shldscrty.com/shieldhelpdesk';
 		$labels->is_whitelabelled = false;
 
-		$isPremium = $this->isPremiumActive();
+		$isPremium = $this->modules_loaded && $this->isPremiumActive();
 
 		// Ensure the whitelabel labels filter is registered before labels are filtered.
 		if ( $isPremium && $this->modules_loaded ) {

@@ -1152,7 +1152,7 @@ class StringsOptions {
 				$name = __( 'Admin Accounts', 'wp-simple-firewall' );
 				$summary = __( 'Be alerted to important changes on any admin account', 'wp-simple-firewall' );
 				$desc = [
-					__( "Be alerted to any important change on any admin account.", 'wp-simple-firewall' ),
+					__( 'Be alerted to any important change on any admin account.', 'wp-simple-firewall' ),
 					sprintf( __( "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
@@ -1161,7 +1161,6 @@ class StringsOptions {
 				$name = sprintf( __( '%s Deactivated', 'wp-simple-firewall' ), $pluginName );
 				$summary = __( 'Receive an alert upon plugin deactivation', 'wp-simple-firewall' );
 				$desc = [
-					__( "Be alerted to any important change on any admin account.", 'wp-simple-firewall' ),
 					sprintf( __( "Be alerted when the %s plugin is deactivated", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;

@@ -397,7 +397,6 @@ if ( false ) { // This ensures the code is never executed but is parsed for tran
 	__( 'Be alerted when the Shield plugin is deactivated.', 'wp-simple-firewall' ); // config_spec.options.141.description
 	__( 'Admin Accounts', 'wp-simple-firewall' ); // config_spec.options.142.name
 	__( 'Be alerted to any important change on any admin account', 'wp-simple-firewall' ); // config_spec.options.142.summary
-	__( 'Be alerted to any important change on any admin account.', 'wp-simple-firewall' ); // config_spec.options.142.description
 	__( 'FileLocker Changes', 'wp-simple-firewall' ); // config_spec.options.144.name
 	__( 'Be alerted to any changes to FileLocker items', 'wp-simple-firewall' ); // config_spec.options.144.summary
 	__( 'Be alerted to any changes to FileLocker items.', 'wp-simple-firewall' ); // config_spec.options.144.description
